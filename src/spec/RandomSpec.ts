@@ -1,4 +1,4 @@
-// Random Tests 
+// Random Tests
 /// <reference path="jasmine.d.ts" />
 
 /// <reference path="Mocks.ts" />
@@ -37,7 +37,7 @@ describe('A random number', () => {
       for (var i = 0; i < 999; i++) {
          random.nextInt();
       }
-      expect(random.nextInt()).toBe(1746987133);      
+      expect(random.nextInt()).toBe(1746987133);
    });
 
    it('produces the correct 22000th number for a specific seed according to original paper', () => {
@@ -46,9 +46,9 @@ describe('A random number', () => {
       for (var i = 0; i < 21999; i++) {
          random.nextInt();
       }
-      expect(random.nextInt()).toBe(3203887892);      
+      expect(random.nextInt()).toBe(3203887892);
    });
-   
+
 
    it('can be seeded to produce the different sequences', () => {
       var random1 = new ex.Random(10);
@@ -63,7 +63,7 @@ describe('A random number', () => {
    it('can be seeded to produce numbers between [0, 1)', () => {
       var random1 = new ex.Random(10);
       for (var i = 0; i < 9000; i++) {
-         var r = random1.next(); 
+         var r = random1.next();
          var inrange = 0 <= r && r < 1.0;
          expect(inrange).toBe(true, `Random ${r} not in range [0, 1). Seed [${random1.seed}] Iteration [${i}]`);
       }
@@ -72,7 +72,7 @@ describe('A random number', () => {
    it('can be seeded to produce numbers in an arbitrary floating point range', () => {
       var random1 = new ex.Random(10);
       for (var i = 0; i < 9000; i++) {
-         var r = random1.floating(-88, 1900); 
+         var r = random1.floating(-88, 1900);
          var inrange = -88 <= r && r < 1900;
          expect(inrange).toBe(true, `Random ${r} not in range [-88, 1900). Seed [${random1.seed}] Iteration [${i}]`);
       }
@@ -81,7 +81,7 @@ describe('A random number', () => {
    it('can be seeded to produce numbers in an arbitrary integer range', () => {
       var random1 = new ex.Random(10);
       for (var i = 0; i < 9000; i++) {
-         var r = random1.integer(-10, 10); 
+         var r = random1.integer(-10, 10);
          var inrange = -10 <= r && r <= 10;
          expect(inrange).toBe(true, `Random ${r} not in range [-10, 10]. Seed [${random1.seed}] Iteration [${i}]`);
       }
@@ -93,7 +93,7 @@ describe('A random number', () => {
       var falseCount = 0;
 
       for (var i = 0; i < 9000; i++) {
-         var b = random1.bool(); 
+         var b = random1.bool();
          if (b) {
             truthCount++;
          } else {
@@ -108,7 +108,7 @@ describe('A random number', () => {
       var array = ['one', 'two', 'three', 'four'];
 
       var random1 = new ex.Random(10);
-      
+
       var one = 0;
       var two = 0;
       var three = 0;
@@ -156,44 +156,54 @@ describe('A random number', () => {
 
    it('can pick a set of an array with dups', () => {
       var array = ['one', 'two', 'three', 'four'];
+      var numCounts = 1000;
 
       var random1 = new ex.Random(10);
-      
-      var one = 0;
-      var two = 0;
-      var three = 0;
-      var four = 0;
 
-      var newSet = random1.pickSet(array, 1000, true);
+      var counts = {
+         one: {
+            count: 0,
+            lastIndex: -1
+         },
+         two: {
+            count: 0,
+            lastIndex: -1
+         },
+         three: {
+            count: 0,
+            lastIndex: -1
+         },
+         four: {
+            count: 0,
+            lastIndex: -1
+         }
+      };
 
-      newSet.forEach((thing) => {
-         for (var i = 0; i < 1000; i++) {
-            switch (thing) {
-               case 'one':
-                  one++;
-                  break;
-               case 'two':
-                  two++;
-                  break;
-               case 'three':
-                  three++;
-                  break;
-               case 'four':
-                  four++;
-                  break;
-               default:
-                  throw Error('Invalid element!!!');
-            }
-         };
-      });
-      expect(one).toBeGreaterThan(0);
-      expect(two).toBeGreaterThan(0);
-      expect(three).toBeGreaterThan(0);
-      expect(four).toBeGreaterThan(0);
+      var newSet = random1.pickSet(array, numCounts, true);
 
-      var ratio = (one / two) / (three / four);
+      for (let i = 0; i < numCounts; i++) {
+         const element = counts[newSet[i]];
+
+         if (!element) {
+            throw Error('Invalid element!!!');
+         }
+
+         if (element.lastIndex < i) {
+            element.count += 1;
+            element.lastIndex = i;
+         }
+      }
+
+      expect(counts.one.count).toBeGreaterThan(0);
+      expect(counts.two.count).toBeGreaterThan(0);
+      expect(counts.three.count).toBeGreaterThan(0);
+      expect(counts.four.count).toBeGreaterThan(0);
+
+      var countsSum = counts.one.count + counts.two.count + counts.three.count + counts.four.count;
+      expect(countsSum).toEqual(numCounts);
+
+      var ratio = (counts.one.count / counts.two.count) / (counts.three.count / counts.four.count);
       expect(ratio).toBeCloseTo(1.0, .1, 'Should pick elements equally');
-
    });
 
    it('can shuffle arrays', () => {
