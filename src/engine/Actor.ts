@@ -5,8 +5,8 @@ import { Texture } from './Resources/Texture';
 import {
    InitializeEvent, KillEvent, PreUpdateEvent, PostUpdateEvent,
    PreDrawEvent, PostDrawEvent, PreDebugDrawEvent, PostDebugDrawEvent,
-   PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, 
-   CollisionEndEvent, PostKillEvent, PreKillEvent, GameEvent, 
+   PostCollisionEvent, PreCollisionEvent, CollisionStartEvent,
+   CollisionEndEvent, PostKillEvent, PreKillEvent, GameEvent,
    ExitTriggerEvent, EnterTriggerEvent
 } from './Events';
 import { PointerEvent, WheelEvent, PointerDragEvent } from './Input/Pointer';
@@ -80,16 +80,16 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    public body: Body = new Body(this);
 
    /**
-    * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and 
-    * [EdgeArea|edges]. 
+    * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
+    * [EdgeArea|edges].
     */
    public get collisionArea(): ICollisionArea {
       return this.body.collisionArea;
    }
 
    /**
-    * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and 
-    * [EdgeArea|edges]. 
+    * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
+    * [EdgeArea|edges].
     */
    public set collisionArea(area: ICollisionArea) {
       this.body.collisionArea = area;
@@ -199,7 +199,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       this.body.acc.setTo(theAcc.x, theAcc.y);
    }
 
-   /** 
+   /**
     * Gets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
     */
    public get rotation(): number {
@@ -213,7 +213,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       this.body.rotation = theAngle;
    }
 
-   /** 
+   /**
     * Gets the rotational velocity of the actor in radians/second
     */
    public get rx(): number {
@@ -284,7 +284,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    }
 
    /**
-    * Gets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this  
+    * Gets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this
     * as bounciness.
     */
    public get restitution() {
@@ -303,7 +303,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     * The anchor to apply all actor related transformations like rotation,
     * translation, and scaling. By default the anchor is in the center of
     * the actor. By default it is set to the center of the actor (.5, .5)
-    * 
+    *
     * An anchor of (.5, .5) will ensure that drawings are centered.
     *
     * Use `anchor.setTo` to set the anchor to a different point using
@@ -329,7 +329,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     * The x scalar velocity of the actor in scale/second
     */
    public sx: number = 0; //scale/sec
-   /** 
+   /**
     * The y scalar velocity of the actor in scale/second
     */
    public sy: number = 0; //scale/sec
@@ -338,18 +338,18 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     * Indicates whether the actor is physically in the viewport
     */
    public isOffScreen: boolean = false;
-   /** 
+   /**
     * The visibility of an actor
     */
    public visible: boolean = true;
    /**
-    * The opacity of an actor. Passing in a color in the [[constructor]] will use the 
+    * The opacity of an actor. Passing in a color in the [[constructor]] will use the
     * color's opacity.
     */
    public opacity: number = 1;
    public previousOpacity: number = 1;
 
-   /** 
+   /**
     * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
     */
    public actionQueue: ActionQueue;
@@ -376,7 +376,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     */
    public children: Actor[] = [];
    /**
-    * Gets or sets the current collision type of this actor. By 
+    * Gets or sets the current collision type of this actor. By
     * default it is ([[CollisionType.PreventCollision]]).
     */
    public collisionType: CollisionType = CollisionType.PreventCollision;
@@ -395,21 +395,21 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    private _effectsDirty: boolean = false;
 
    /**
-    * Access to the current drawing for the actor, this can be 
-    * an [[Animation]], [[Sprite]], or [[Polygon]]. 
+    * Access to the current drawing for the actor, this can be
+    * an [[Animation]], [[Sprite]], or [[Polygon]].
     * Set drawings with [[setDrawing]].
     */
    public currentDrawing: IDrawable = null;
 
    /**
-    * Modify the current actor update pipeline. 
+    * Modify the current actor update pipeline.
     */
    public traits: IActorTrait[] = [];
 
    /**
-    * Sets the color of the actor. A rectangle of this color will be 
+    * Sets the color of the actor. A rectangle of this color will be
     * drawn if no [[IDrawable]] is specified as the actors drawing.
-    * 
+    *
     * The default is `null` which prevents a rectangle from being drawn.
     */
    public get color(): Color {
@@ -421,7 +421,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    private _color: Color;
 
    /**
-    * Whether or not to enable the [[CapturePointer]] trait that propagates 
+    * Whether or not to enable the [[CapturePointer]] trait that propagates
     * pointer events to this actor
     */
    public enableCapturePointer: boolean = false;
@@ -486,11 +486,11 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       // Initialize default collision area to be box
       this.body.useBoxCollision();
    }
-  
+
    /**
     * `onInitialize` is called before the first update of the actor. This method is meant to be
     * overridden. This is where initialization of child actors should take place.
-    * 
+    *
     * Synonymous with the event handler `.on('initialize', (evt) => {...})`
     */
    public onInitialize(_engine: Engine): void {
@@ -498,7 +498,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    }
 
    /**
-    * Gets wether the actor is Initialized 
+    * Gets wether the actor is Initialized
     */
    public get isInitialized(): boolean {
       return this._isInitialized;
@@ -506,9 +506,9 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    /**
     * Initializes this actor and all it's child actors, meant to be called by the Scene before first update not by users of Excalibur.
-    * 
+    *
     * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
-    * 
+    *
     * @internal
     */
    public _initialize(engine: Engine) {
@@ -558,9 +558,40 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    public on(eventName: Events.exittrigger, handler: (evt: ExitTriggerEvent) => void): void;
    public on(eventName: Events.entertrigger, handler: (evt: EnterTriggerEvent) => void): void;
+   /**
+    * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
+    *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
+    *  the the pair separates and collides again.
+    * Use cases for the **collisionstart** event may be detecting when an actor has touched a surface 
+    * (like landing) or if a item has been touched and needs to be picked up.
+    */
    public on(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
+   /**
+    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact. 
+    * This event will not fire again until another collision and separation.
+    * 
+    * Use cases for the **collisionend** event might be to detect when an actor has left a surface 
+    * (like jumping) or has left an area.
+    */
    public on(eventName: Events.collisionend, handler: (event?: CollisionEndEvent) => void): void;
+   /**
+    * The **precollision** event is fired **every frame** where a collision pair is found and two 
+    * bodies are intersecting.
+    * 
+    * This event is useful for building in custom collision resolution logic in Passive-Passive or
+    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of 
+    * richochet of the ball depending on which side of the paddle you hit.
+    */
    public on(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
+   /**
+    * The **postcollision** event is fired for **every frame** where collision resolution was performed.
+    * Collision resolution is when two bodies influence each other and cause a response like bouncing 
+    * off one another. It is only possible to have *postcollision* event in Active-Active and Active-Fixed 
+    * type collision pairs.
+    * 
+    * Post collision would be useful if you need to know that collision resolution is happening or need to 
+    * tweak the default resolution.
+    */
    public on(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
    public on(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
    public on(eventName: Events.prekill, handler: (event?: PreKillEvent) => void): void;
@@ -592,9 +623,40 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    public once(eventName: Events.exittrigger, handler: (evt: ExitTriggerEvent) => void): void;
    public once(eventName: Events.entertrigger, handler: (evt: EnterTriggerEvent) => void): void;
+   /**
+    * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
+    *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
+    *  the the pair separates and collides again.
+    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface 
+    * (like landing) or if a item has been touched and needs to be picked up.
+    */
    public once(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
+   /**
+    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact. 
+    * This event will not fire again until another collision and separation.
+    * 
+    * Use cases for the **collisionend** event might be to detect when an actor has left a surface 
+    * (like jumping) or has left an area.
+    */
    public once(eventName: Events.collisionend, handler: (event?: CollisionEndEvent) => void): void;
+   /**
+    * The **precollision** event is fired **every frame** where a collision pair is found and two 
+    * bodies are intersecting.
+    * 
+    * This event is useful for building in custom collision resolution logic in Passive-Passive or
+    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of 
+    * richochet of the ball depending on which side of the paddle you hit.
+    */
    public once(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
+   /**
+    * The **postcollision** event is fired for **every frame** where collision resolution was performed.
+    * Collision resolution is when two bodies influence each other and cause a response like bouncing 
+    * off one another. It is only possible to have *postcollision* event in Active-Active and Active-Fixed 
+    * type collision pairs.
+    * 
+    * Post collision would be useful if you need to know that collision resolution is happening or need to 
+    * tweak the default resolution.
+    */
    public once(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
    public once(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
    public once(eventName: Events.postkill, handler: (event?: PostKillEvent) => void): void;
@@ -626,6 +688,41 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    public off(eventName: Events.exittrigger, handler?: (evt: ExitTriggerEvent) => void): void;
    public off(eventName: Events.entertrigger, handler?: (evt: EnterTriggerEvent) => void): void;
+   /**
+    * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
+    *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
+    *  the the pair separates and collides again.
+    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface 
+    * (like landing) or if a item has been touched and needs to be picked up.
+    */
+   public off(eventName: Events.collisionstart, handler?: (event?: CollisionStartEvent) => void): void;
+   /**
+    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact. 
+    * This event will not fire again until another collision and separation.
+    * 
+    * Use cases for the **collisionend** event might be to detect when an actor has left a surface 
+    * (like jumping) or has left an area.
+    */
+   public off(eventName: Events.collisionend, handler?: (event?: CollisionEndEvent) => void): void;
+   /**
+    * The **precollision** event is fired **every frame** where a collision pair is found and two 
+    * bodies are intersecting.
+    * 
+    * This event is useful for building in custom collision resolution logic in Passive-Passive or
+    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of 
+    * richochet of the ball depending on which side of the paddle you hit.
+    */
+   public off(eventName: Events.precollision, handler?: (event?: PreCollisionEvent) => void): void;
+   /**
+    * The **postcollision** event is fired for **every frame** where collision resolution was performed.
+    * Collision resolution is when two bodies influence each other and cause a response like bouncing 
+    * off one another. It is only possible to have *postcollision* event in Active-Active and Active-Fixed 
+    * type collision pairs.
+    * 
+    * Post collision would be useful if you need to know that collision resolution is happening or need to 
+    * tweak the default resolution.
+    */
+   public off(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
    public off(eventName: Events.pointerup, handler?: (event?: PointerEvent) => void): void;
    public off(eventName: Events.pointerdown, handler?: (event?: PointerEvent) => void): void;
    public off(eventName: Events.pointerenter, handler?: (event?: PointerEvent) => void): void;
@@ -655,7 +752,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    /**
     * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
-    * 
+    *
     * Internal _prekill handler for [[onPreKill]] lifecycle event
     * @internal
     */
@@ -666,7 +763,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    /**
     * Safe to override onPreKill lifecycle event handler. Synonymous with `.on('prekill', (evt) =>{...})`
-    * 
+    *
     * `onPreKill` is called directly before an actor is killed and removed from its current [[Scene]].
     */
    public onPreKill(_scene: Scene) {
@@ -675,7 +772,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    /**
     * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
-    * 
+    *
     * Internal _prekill handler for [[onPostKill]] lifecycle event
     * @internal
     */
@@ -687,7 +784,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    /**
     * Safe to override onPostKill lifecycle event handler. Synonymous with `.on('postkill', (evt) => {...})`
-    * 
+    *
     * `onPostKill` is called directly after an actor is killed and remove from its current [[Scene]].
     */
    public onPostKill(_scene: Scene) {
@@ -711,7 +808,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    }
 
    /**
-    * If the current actor is killed, it will now not be killed. 
+    * If the current actor is killed, it will now not be killed.
     */
    public unkill() {
       this._isKilled = false;
@@ -737,7 +834,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       }
    }
    /**
-    * Removes a child actor from this actor. 
+    * Removes a child actor from this actor.
     * @param actor The child actor to remove
     */
    public remove(actor: Actor) {
@@ -780,7 +877,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    /**
     * Adds a drawing to the list of available drawings for an actor. Set a drawing using [[setDrawing]].
     * @param key     The key to associate with a drawing for this actor
-    * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]]. 
+    * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
     */
    public addDrawing(key: any, drawing: IDrawable): void;
    public addDrawing(): void {
@@ -818,7 +915,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    }
 
    /**
-    * Sets the z-index of an actor and updates it in the drawing list for the scene. 
+    * Sets the z-index of an actor and updates it in the drawing list for the scene.
     * The z-index determines the relative order an actor is drawn in.
     * Actors with a higher z-index are drawn on top of actors with a lower z-index
     * @param newIndex new z-index to assign
@@ -829,11 +926,11 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       this.scene.updateDrawTree(this);
    }
 
-   /** 
+   /**
     * Adds an actor to a collision group. Actors with no named collision groups are
     * considered to be in every collision group.
     *
-    * Once in a collision group(s) actors will only collide with other actors in 
+    * Once in a collision group(s) actors will only collide with other actors in
     * that group.
     *
     * @param name The name of the collision group
@@ -912,7 +1009,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    /**
     * Gets this actor's rotation taking into account any parent relationships
-    * 
+    *
     * @returns Rotation angle in radians
     */
    public getWorldRotation(): number {
@@ -925,7 +1022,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    /**
     * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
-    * 
+    *
     * @returns Position in world coordinates
     */
    public getWorldPos(): Vector {
@@ -933,7 +1030,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
          return this.pos.clone();
       }
 
-      // collect parents                  
+      // collect parents
       var parents: Actor[] = [];
       var root: Actor = this;
 
@@ -945,7 +1042,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
          parents.push(root);
       }
 
-      // calculate position       
+      // calculate position
       var x = parents.reduceRight((px, p) => {
          if (p.parent) {
             return px + (p.pos.x * p.getGlobalScale().x);
@@ -1053,7 +1150,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    }
 
    /**
-    * Returns the side of the collision based on the intersection 
+    * Returns the side of the collision based on the intersection
     * @param intersect The displacement vector returned by a collision
     */
    public getSideFromIntersect(intersect: Vector) {
@@ -1228,7 +1325,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    /**
     * Safe to override onPreUpdate lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
-    * 
+    *
     * `onPreUpdate` is called directly before an actor is updated.
     */
    public onPreUpdate(_engine: Engine, _delta: number): void {
@@ -1237,31 +1334,31 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    /**
     * Safe to override onPostUpdate lifecycle event handler. Synonymous with `.on('postupdate', (evt) =>{...})`
-    * 
+    *
     * `onPostUpdate` is called directly after an actor is updated.
     */
    public onPostUpdate(_engine: Engine, _delta: number): void {
       // Override me
    }
-   
+
    /**
     * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
-    * 
+    *
     * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
     * @internal
     */
-   public _preupdate(engine: Engine, delta: number): void {      
+   public _preupdate(engine: Engine, delta: number): void {
       this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
       this.onPreUpdate(engine, delta);
    }
 
    /**
     * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
-    * 
+    *
     * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
     * @internal
     */
-   public _postupdate(engine: Engine, delta: number): void {      
+   public _postupdate(engine: Engine, delta: number): void {
       this.emit('postupdate', new PreUpdateEvent(engine, delta, this));
       this.onPostUpdate(engine, delta);
    }
@@ -1288,7 +1385,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
       if (this.currentDrawing) {
          var drawing = this.currentDrawing;
-         // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula          
+         // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
          var offsetX = (this._width - drawing.width * drawing.scale.x) * this.anchor.x;
          var offsetY = (this._height - drawing.height * drawing.scale.y) * this.anchor.y;
 
@@ -1313,14 +1410,14 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
          }
       }
 
-      
+
       this._postdraw(ctx, delta);
       ctx.restore();
    }
 
    /**
     * Safe to override onPreDraw lifecycle event handler. Synonymous with `.on('predraw', (evt) =>{...})`
-    * 
+    *
     * `onPreDraw` is called directly before an actor is drawn, but after local transforms are made.
     */
    public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
@@ -1329,7 +1426,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    /**
     * Safe to override onPostDraw lifecycle event handler. Synonymous with `.on('postdraw', (evt) =>{...})`
-    * 
+    *
     * `onPostDraw` is called directly after an actor is drawn, and before local transforms are removed.
     */
    public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
@@ -1338,18 +1435,18 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
    /**
     * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
-    * 
+    *
     * Internal _predraw handler for [[onPreDraw]] lifecycle event
     * @internal
     */
-   public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {      
+   public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {
       this.emit('predraw', new PreDrawEvent(ctx, delta, this));
       this.onPreDraw(ctx, delta);
    }
 
    /**
     * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
-    * 
+    *
     * Internal _postdraw handler for [[onPostDraw]] lifecycle event
     * @internal
     */
@@ -1423,19 +1520,34 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
    }
 
+   /**
+    * Returns the full array of ancestors
+    */
+   public getAncestors(): Actor[] {
+      const path: Actor[] = [this];
+      let currentActor: Actor = this;
+      let parent: Actor;
+
+      while (parent = currentActor.parent) {
+         currentActor = parent;
+         path.push(currentActor);
+      }
+
+      return path.reverse();
+   }
    // #endregion
 }
 
 
 /**
  * The most important primitive in Excalibur is an `Actor`. Anything that
- * can move on the screen, collide with another `Actor`, respond to events, 
+ * can move on the screen, collide with another `Actor`, respond to events,
  * or interact with the current scene, must be an actor. An `Actor` **must**
  * be part of a [[Scene]] for it to be drawn to the screen.
  *
  * [[include:Actors.md]]
- * 
- * 
+ *
+ *
  * [[include:Constructors.md]]
  *
  */
