@@ -10,12 +10,12 @@ import { TileMap } from './TileMap';
 import { Animation } from './Drawing/Animation';
 import { Loader } from './Loader';
 import { Detector } from './Util/Detector';
-import { VisibleEvent, HiddenEvent, 
-         GameStartEvent, GameStopEvent, 
-         PreUpdateEvent, PostUpdateEvent, 
-         PreFrameEvent, PostFrameEvent, 
-         GameEvent, DeactivateEvent, 
-         ActivateEvent, PreDrawEvent, 
+import { VisibleEvent, HiddenEvent,
+         GameStartEvent, GameStopEvent,
+         PreUpdateEvent, PostUpdateEvent,
+         PreFrameEvent, PostFrameEvent,
+         GameEvent, DeactivateEvent,
+         ActivateEvent, PreDrawEvent,
          PostDrawEvent, InitializeEvent } from './Events';
 import { ILoader } from './Interfaces/ILoader';
 import { Logger, LogLevel } from './Util/Log';
@@ -33,19 +33,19 @@ import { BoundingBox } from './Collision/BoundingBox';
  * Enum representing the different display modes available to Excalibur
  */
 export enum DisplayMode {
-   /** 
-    * Show the game as full screen 
+   /**
+    * Show the game as full screen
     */
    FullScreen,
-   /** 
-    * Scale the game to the parent DOM container 
+   /**
+    * Scale the game to the parent DOM container
     */
    Container,
-   /** 
-    * Show the game as a fixed size 
+   /**
+    * Show the game as a fixed size
     */
    Fixed,
-   
+
    /**
     * Allow the game to be positioned with the [[IEngineOptions.position]] option
     */
@@ -76,12 +76,12 @@ export enum ScrollPreventionMode {
  * When a number is given, the value is interpreted as pixels
  */
 export interface IAbsolutePosition {
-  
+
   top?: number | string;
   left?: number | string;
   right?: number | string;
   bottom?: number | string;
-  
+
 }
 
 /**
@@ -120,7 +120,7 @@ export interface IEngineOptions {
    suppressConsoleBootMessage?: boolean;
 
    /**
-    * Suppress minimum browser feature detection, it is not recommended users of excalibur switch this off. This feature ensures that 
+    * Suppress minimum browser feature detection, it is not recommended users of excalibur switch this off. This feature ensures that
     * the currently running browser meets the minimum requirements for running excalibur. This can be useful if running on non-standard
     * browsers or if there is a bug in excalibur preventing execution.
     */
@@ -131,14 +131,14 @@ export interface IEngineOptions {
     * and scales the drawing canvas appropriately to accommodate HiDPI screens.
     */
    suppressHiDPIScaling?: boolean;
-   
+
    /**
     * Specify how the game window is to be positioned when the [[DisplayMode.Position]] is chosen. This option MUST be specified
-    * if the DisplayMode is set as [[DisplayMode.Position]]. The position can be either a string or an [[IAbsolutePosition]]. 
+    * if the DisplayMode is set as [[DisplayMode.Position]]. The position can be either a string or an [[IAbsolutePosition]].
     * String must be in the format of css style background-position. The vertical position must precede the horizontal position in strings.
     *
     * Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
-    * Valid [[IAbsolutePosition]] examples: `{top: 5, right: 10%}`, `{bottom: 49em, left: 10px}`, `{left: 10, bottom: 40}` 
+    * Valid [[IAbsolutePosition]] examples: `{top: 5, right: 10%}`, `{bottom: 49em, left: 10px}`, `{left: 10, bottom: 40}`
     */
    position?: string | IAbsolutePosition;
 
@@ -153,16 +153,44 @@ export interface IEngineOptions {
    backgroundColor?: Color;
 }
 
+export class EnvDefaultOptions {
+   public actorAnchor = Vector.Half;
+
+   private static _INSTANCE: EnvDefaultOptions;
+
+   private constructor() { /** Forbidden */ }
+
+   public static getInstance() {
+      if (!this._INSTANCE) {
+         this._INSTANCE = new EnvDefaultOptions();
+      }
+
+      return this._INSTANCE;
+   }
+}
+
+export class EnvDefaultOptionsProxy {
+   public get actorAnchor() {
+      return this._EnvDefaultOptions.actorAnchor;
+   }
+
+   constructor(private _EnvDefaultOptions: EnvDefaultOptions) {}
+}
+
 /**
  * The Excalibur Engine
  *
- * The [[Engine]] is the main driver for a game. It is responsible for 
- * starting/stopping the game, maintaining state, transmitting events, 
+ * The [[Engine]] is the main driver for a game. It is responsible for
+ * starting/stopping the game, maintaining state, transmitting events,
  * loading resources, and managing the scene.
  *
  * [[include:Engine.md]]
  */
 export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDraw  {
+   /**
+    * Environment default options;
+    */
+   public static defaults = new EnvDefaultOptionsProxy(EnvDefaultOptions.getInstance());
 
    /**
     * Direct access to the engine's canvas element
@@ -255,7 +283,6 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
     */
    public input: Input.IEngineInput;
 
-
    private _hasStarted: boolean = false;
 
    /**
@@ -322,7 +349,7 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
       let pixelRatio = devicePixelRatio;
       return pixelRatio;
    }
-   
+
    /**
     * Indicates the current position of the engine. Valid only when DisplayMode is DisplayMode.Position
     */
@@ -368,7 +395,6 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
    private _isLoading: boolean = false;
 
    private _isInitialized: boolean = false;
-
 
    public on(eventName: Events.initialize, handler: (event?: Events.InitializeEvent) => void): void;
    public on(eventName: Events.visible, handler: (event?: VisibleEvent) => void): void;
@@ -437,11 +463,11 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
     * Creates a new game using the given [[IEngineOptions]]. By default, if no options are provided,
     * the game will be rendered full screen (taking up all available browser window space).
     * You can customize the game rendering through [[IEngineOptions]].
-    * 
+    *
     * Example:
-    * 
+    *
     * ```js
-    * var game = new ex.Engine({ 
+    * var game = new ex.Engine({
     *   width: 0, // the width of the canvas
     *   height: 0, // the height of the canvas
     *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
@@ -461,7 +487,7 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
 
       options = Util.extend({}, Engine._DefaultEngineOptions, options);
 
-      // Check compatibility 
+      // Check compatibility
       var detector = new Detector();
       if (!options.suppressMinimumBrowserFeatureDetection && !(this._compatible = detector.test())) {
          var message = document.createElement('div');
@@ -520,8 +546,8 @@ O|===|* >________________>\n\
             this.displayMode = DisplayMode.Fixed;
          }
          this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
-         
-         this.canvas.width = options.width;         
+
+         this.canvas.width = options.width;
          this.canvas.height = options.height;
 
 
@@ -594,7 +620,7 @@ O|===|* >________________>\n\
    }
 
    /**
-    * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap 
+    * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap
     * will be drawn and updated.
     */
    public addTileMap(tileMap: TileMap) {
@@ -618,7 +644,7 @@ O|===|* >________________>\n\
 
    /**
     * Removes a [[Timer]] from the [[currentScene]].
-    * @param timer  The timer to remove to the [[currentScene]].       
+    * @param timer  The timer to remove to the [[currentScene]].
     */
    public removeTimer(timer: Timer): Timer {
       return this.currentScene.removeTimer(timer);
@@ -629,7 +655,7 @@ O|===|* >________________>\n\
     * would levels or menus.
     *
     * @param key  The name of the scene, must be unique
-    * @param scene The scene to add to the engine       
+    * @param scene The scene to add to the engine
     */
    public addScene(key: string, scene: Scene) {
       if (this.scenes[key]) {
@@ -674,7 +700,7 @@ O|===|* >________________>\n\
     * Adds a [[Scene]] to the engine, think of scenes in Excalibur as you
     * would levels or menus.
     * @param sceneKey  The key of the scene, must be unique
-    * @param scene     The scene to add to the engine       
+    * @param scene     The scene to add to the engine
     */
    public add(sceneKey: string, scene: Scene): void;
    /**
@@ -683,7 +709,7 @@ O|===|* >________________>\n\
     */
    public add(timer: Timer): void;
    /**
-    * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap 
+    * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap
     * will be drawn and updated.
     */
    public add(tileMap: TileMap): void;
@@ -699,8 +725,8 @@ O|===|* >________________>\n\
    public add(actor: Actor): void;
 
    /**
-    * Adds a [[UIActor]] to the [[currentScene]] of the game, 
-    * UIActors do not participate in collisions, instead the 
+    * Adds a [[UIActor]] to the [[currentScene]] of the game,
+    * UIActors do not participate in collisions, instead the
     * remain in the same place on the screen.
     * @param uiActor  The UIActor to add to the [[currentScene]]
     */
@@ -738,7 +764,7 @@ O|===|* >________________>\n\
    public remove(sceneKey: string): void;
    /**
     * Removes a [[Timer]] from the [[currentScene]].
-    * @param timer  The timer to remove to the [[currentScene]].       
+    * @param timer  The timer to remove to the [[currentScene]].
     */
    public remove(timer: Timer): void;
    /**
@@ -750,7 +776,7 @@ O|===|* >________________>\n\
     * to calling `engine.currentScene.removeChild(actor)`.
     * Actors that are removed from a scene will no longer be drawn or updated.
     *
-    * @param actor  The actor to remove from the [[currentScene]].      
+    * @param actor  The actor to remove from the [[currentScene]].
     */
    public remove(actor: Actor): void;
    /**
@@ -790,7 +816,7 @@ O|===|* >________________>\n\
     * Actors can only be drawn if they are a member of a scene, and only
     * the [[currentScene]] may be drawn or updated.
     *
-    * @param actor  The actor to add to the [[currentScene]]       
+    * @param actor  The actor to add to the [[currentScene]]
     */
    protected _addChild(actor: Actor) {
       this.currentScene.add(actor);
@@ -801,7 +827,7 @@ O|===|* >________________>\n\
     * to calling `engine.currentScene.remove(actor)`.
     * Actors that are removed from a scene will no longer be drawn or updated.
     *
-    * @param actor  The actor to remove from the [[currentScene]].      
+    * @param actor  The actor to remove from the [[currentScene]].
     */
    protected _removeChild(actor: Actor) {
       this.currentScene.remove(actor);
@@ -810,7 +836,7 @@ O|===|* >________________>\n\
    /**
     * Changes the currently updating and drawing scene to a different,
     * named scene. Calls the [[Scene]] lifecycle events.
-    * @param key  The key of the scene to transition to.       
+    * @param key  The key of the scene to transition to.
     */
    public goToScene(key: string) {
       if (this.scenes[key]) {
@@ -917,7 +943,7 @@ O|===|* >________________>\n\
       if (options.displayMode) {
         this.displayMode = options.displayMode;
       }
-      
+
       if (this.displayMode === DisplayMode.FullScreen || this.displayMode === DisplayMode.Container) {
 
 
@@ -935,7 +961,7 @@ O|===|* >________________>\n\
       } else if (this.displayMode === DisplayMode.Position) {
           this._intializeDisplayModePosition(options);
       }
-       
+
       // initialize inputs
       this.input = {
          keyboard: new Input.Keyboard(),
@@ -952,7 +978,7 @@ O|===|* >________________>\n\
       // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
 
       var hidden: keyof HTMLDocument, visibilityChange: string;
-      if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support 
+      if (typeof document.hidden !== 'undefined') { // Opera 12.10 and Firefox 18 and later support
          hidden = 'hidden';
          visibilityChange = 'visibilitychange';
       } else if ('msHidden' in document) {
@@ -993,13 +1019,13 @@ O|===|* >________________>\n\
       if ( !options.position ) {
          throw new Error('DisplayMode of Position was selected but no position option was given');
        } else {
-           
+
            this.canvas.style.display = 'block';
            this.canvas.style.position = 'absolute';
-           
+
            if (typeof options.position === 'string') {
              var specifiedPosition = options.position.split(' ');
-             
+
              switch (specifiedPosition[0]) {
                case 'top':
                  this.canvas.style.top = '0px';
@@ -1013,11 +1039,11 @@ O|===|* >________________>\n\
                  this.canvas.style.marginTop = offsetY.toString();
                  break;
                default:
-                 throw new Error('Invalid Position Given');                  
+                 throw new Error('Invalid Position Given');
              }
-             
+
              if (specifiedPosition[1]) {
-               
+
                switch (specifiedPosition[1]) {
                  case 'left':
                    this.canvas.style.left = '0px';
@@ -1035,38 +1061,38 @@ O|===|* >________________>\n\
                }
              }
            } else {
-               
+
                if (options.position.top) {
-                 typeof options.position.top === 'number' ? 
-                 this.canvas.style.top = options.position.top.toString() + 'px' : 
+                 typeof options.position.top === 'number' ?
+                 this.canvas.style.top = options.position.top.toString() + 'px' :
                  this.canvas.style.top = options.position.top;
                }
                if (options.position.right) {
-                 typeof options.position.right === 'number' ? 
-                 this.canvas.style.right = options.position.right.toString() + 'px' : 
+                 typeof options.position.right === 'number' ?
+                 this.canvas.style.right = options.position.right.toString() + 'px' :
                  this.canvas.style.right = options.position.right;
                }
                if (options.position.bottom) {
-                 typeof options.position.bottom === 'number' ? 
-                 this.canvas.style.bottom = options.position.bottom.toString() + 'px' : 
+                 typeof options.position.bottom === 'number' ?
+                 this.canvas.style.bottom = options.position.bottom.toString() + 'px' :
                  this.canvas.style.bottom = options.position.bottom;
                }
                if (options.position.left) {
-                 typeof options.position.left === 'number' ? 
-                 this.canvas.style.left = options.position.left.toString() + 'px' : 
+                 typeof options.position.left === 'number' ?
+                 this.canvas.style.left = options.position.left.toString() + 'px' :
                  this.canvas.style.left = options.position.left;
                }
-               
-               
+
+
            }
        }
    }
 
    private _initializeHiDpi() {
-      
+
       // Scale the canvas if needed
       if (this.isHiDpi) {
-         
+
          let oldWidth = this.canvas.width;
          let oldHeight = this.canvas.height;
 
@@ -1076,10 +1102,10 @@ O|===|* >________________>\n\
          this.canvas.style.width = oldWidth + 'px';
          this.canvas.style.height = oldHeight + 'px';
 
-         this._logger.warn(`Hi DPI screen detected, resetting canvas resolution from 
-                           ${oldWidth}x${oldHeight} to ${this.canvas.width}x${this.canvas.height} 
+         this._logger.warn(`Hi DPI screen detected, resetting canvas resolution from
+                           ${oldWidth}x${oldHeight} to ${this.canvas.width}x${this.canvas.height}
                            css size will remain ${oldWidth}x${oldHeight}`);
-         
+
          this.ctx.scale(this.pixelRatio, this.pixelRatio);
          this._logger.warn(`Canvas drawing context was scaled by ${this.pixelRatio}`);
       }
@@ -1089,7 +1115,7 @@ O|===|* >________________>\n\
     * If supported by the browser, this will set the antialiasing flag on the
     * canvas. Set this to `false` if you want a 'jagged' pixel art look to your
     * image resources.
-    * @param isSmooth  Set smoothing to true or false       
+    * @param isSmooth  Set smoothing to true or false
     */
    public setAntialiasing(isSmooth: boolean) {
       this._isSmoothingEnabled = isSmooth;
@@ -1115,7 +1141,7 @@ O|===|* >________________>\n\
 
 
    /**
-    * Gets whether the actor is Initialized 
+    * Gets whether the actor is Initialized
     */
    public get isInitialized(): boolean {
       return this._isInitialized;
@@ -1262,7 +1288,7 @@ O|===|* >________________>\n\
 
    /**
     * Starts the internal game loop for Excalibur after loading
-    * any provided assets. 
+    * any provided assets.
     * @param loader  Optional [[ILoader]] to use to load resources. The default loader is [[Loader]], override to provide your own
     * custom loader.
     */
@@ -1314,8 +1340,8 @@ O|===|* >________________>\n\
             // Get the time to calculate time-elapsed
             var now = nowFn();
             var elapsed = Math.floor(now - lastTime) || 1;
-            // Resolves issue #138 if the game has been paused, or blurred for 
-            // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability 
+            // Resolves issue #138 if the game has been paused, or blurred for
+            // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability
             // and provides more expected behavior when the engine comes back
             // into focus
             if (elapsed > 200) {
@@ -1381,7 +1407,7 @@ O|===|* >________________>\n\
    }
 
    /**
-    * Another option available to you to load resources into the game. 
+    * Another option available to you to load resources into the game.
     * Immediately after calling this the game will pause and the loading screen
     * will appear.
     * @param loader  Some [[ILoadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].

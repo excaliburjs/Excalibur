@@ -37,6 +37,12 @@ describe('A game actor', () => {
       expect(ex.Actor).toBeTruthy();
    });
 
+   // it('should have default anchor set to the same as Environment default', () => {
+   //    actor = new ex.Actor();
+
+   //    expect(actor.anchor.toString).toEqual(engine.defaults.actorAnchor.toString());
+   // });
+
    it('should have a position', () => {
 
       actor.pos.setTo(10, 10);
