@@ -1,7 +1,14 @@
 import { Vector } from '../Algebra';
 import { Random } from '../Math/Random';
 import { Side } from '../Collision/Side';
+import * as Sound from 'Sound';
 
+/**
+ * Export Sound
+ */
+export {
+   Sound
+};
 /**
  * Two PI constant
  */

@@ -19,8 +19,8 @@ export class Resource<T> extends Class implements ILoadable {
     * @param responseType  The type to expect as a response: "" | "arraybuffer" | "blob" | "document" | "json" | "text";
     * @param bustCache     Whether or not to cache-bust requests
     */
-   constructor(public path: string, 
-               public responseType: '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text', 
+   constructor(public path: string,
+               public responseType: '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text',
                public bustCache: boolean = true) {
          super();
    }
@@ -33,7 +33,7 @@ export class Resource<T> extends Class implements ILoadable {
       return this.data !== null;
    }
 
-   public wireEngine(_engine: Engine) { 
+   public wireEngine(_engine: Engine) {
       // override me
    }
 
@@ -56,7 +56,7 @@ export class Resource<T> extends Class implements ILoadable {
     */
    public load(): Promise<T> {
       var complete = new Promise<T>();
-      
+
       // Exit early if we already have data
       if (this.data !== null) {
          this.logger.debug('Already have data for resource', this.path);
@@ -64,7 +64,7 @@ export class Resource<T> extends Class implements ILoadable {
          this.oncomplete();
          return complete;
       }
-      
+
       var request = new XMLHttpRequest();
       request.open('GET', this.bustCache ? this._cacheBust(this.path) : this.path, true);
       request.responseType = this.responseType;
@@ -99,12 +99,12 @@ export class Resource<T> extends Class implements ILoadable {
    public getData(): any {
       return this.data;
    }
-   
+
    /**
     * Sets the data for this resource directly
     */
    public setData(data: any) {
-      this.data = this.processData(data);         
+      this.data = this.processData(data);
    }
 
    /**
