@@ -1,5 +1,5 @@
 import { Color } from './Drawing/Color';
-import { WebAudio } from './Resources/Sound';
+import { WebAudio } from './Util/WebAudio';
 import { Logger } from './Util/Log';
 import { Promise, PromiseState } from './Promises';
 import { Engine } from './Engine';
@@ -11,8 +11,8 @@ import * as DrawUtil from './Util/DrawUtil';
 /**
  * Pre-loading assets
  *
- * The loader provides a mechanism to preload multiple resources at 
- * one time. The loader must be passed to the engine in order to 
+ * The loader provides a mechanism to preload multiple resources at
+ * one time. The loader must be passed to the engine in order to
  * trigger the loading progress bar.
  *
  * The [[Loader]] itself implements [[ILoadable]] so you can load loaders.
@@ -120,7 +120,7 @@ export class Loader extends Class implements ILoader {
 
 
    /**
-    * Begin loading all of the supplied resources, returning a promise 
+    * Begin loading all of the supplied resources, returning a promise
     * that resolves when loading of all is complete
     */
    public load(): Promise<any> {
@@ -172,7 +172,7 @@ export class Loader extends Class implements ILoader {
    }
 
    /**
-    * Loader draw function. Draws the default Excalibur loading screen. 
+    * Loader draw function. Draws the default Excalibur loading screen.
     * Override `logo`, `logoWidth`, `logoHeight` and `backgroundColor` properties
     * to customize the drawing, or just override entire method.
     */
@@ -242,7 +242,7 @@ export class Loader extends Class implements ILoader {
  * call `update` and `draw` manually on "child" objects.
  *
  * ## Implementing a Trigger
- * 
+ *
  * The `PauseAfterLoader` requires an element to act as the trigger button
  * to start the game.
  *
@@ -297,7 +297,7 @@ export class Loader extends Class implements ILoader {
  * in Safari is disabled by default until user interaction.
  *
  * Therefore, you can use this snippet to only use PauseAfterLoader when
- * iOS is detected (see [this thread](http://stackoverflow.com/questions/9038625/detect-if-device-is-ios) 
+ * iOS is detected (see [this thread](http://stackoverflow.com/questions/9038625/detect-if-device-is-ios)
  * for more techniques).
  *
  * ```ts
@@ -354,4 +354,4 @@ export class PauseAfterLoader extends Loader {
 
       return false;
    };
-}  
+}
