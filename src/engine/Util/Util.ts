@@ -4,7 +4,7 @@ import { Side } from '../Collision/Side';
 import * as Sound from 'Sound';
 
 /**
- * Export Sound
+ * Export ./Util/Sound
  */
 export {
    Sound
