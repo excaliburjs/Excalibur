@@ -6,6 +6,12 @@ export class MediaEvent extends GameEvent<Sound> {
    /**
     * Media event cannot bubble
     */
+   public set bubbles(_value: boolean) {
+      // stubbed
+   };
+   /**
+    * Media event cannot bubble
+    */
    public get bubbles(): boolean {
       return false;
    };
@@ -14,6 +20,12 @@ export class MediaEvent extends GameEvent<Sound> {
     */
    protected get _path(): Actor[] {
       return null;
+   };
+   /**
+    * Media event cannot bubble, so they have no path
+    */
+   protected set _path(_val: Actor[]) {
+      // stubbed
    };
 
 
