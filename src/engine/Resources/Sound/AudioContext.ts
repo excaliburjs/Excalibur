@@ -80,20 +80,6 @@ export class AudioContextOperator {
       return (id > -1) ? id : null;
    }
 
-   // private _getAudioCtxtByIndex(index: number): AudioContext {
-   //    return this._elements[index];
-   // }
-
-   // private _removeAudioCtxt(ctxt: AudioContext): void {
-   //    const ctxtId = this._getAudioCtxtId(ctxt);
-
-   //    if (!ctxtId) {
-   //       return;
-   //    }
-
-   //    this._elements.splice(ctxtId, 1);
-   // }
-
    private _createNewAudioContext(): AudioContext {
       return AudioContextFactory.create();
    }
