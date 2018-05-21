@@ -7,6 +7,7 @@ import { Resource } from '../Resource';
 import { AudioInstance, AudioInstanceFactory } from './AudioInstance';
 import { AudioContextOperator } from './AudioContext';
 import { NativeSoundEvent } from '../../Events/MediaEvents';
+import { obsolete } from '../../Util/Decorators';
 
 /**
  * The [[Sound]] object allows games built in Excalibur to load audio
@@ -39,6 +40,8 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
       for (const track of this._tracks) {
          track.volume = this._volume;
       }
+
+      this.emit('volumechange', new NativeSoundEvent(this));
 
       this.logger.debug('Set loop for all instances of sound', this.path, 'to', this._volume);
    }
@@ -87,6 +90,18 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
       }
    }
 
+   /** @obsolete will be removed in v0.18, use loop */
+   @obsolete({message: 'will be removed in v0.18, use loop instead'})
+   public setLoop(loop: boolean) {
+      this.loop = loop;
+   }
+
+   /** @obsolete will be removed in v0.18, use volume */
+   @obsolete({message: 'will be removed in v0.18, use volume instead'})
+   public setVolume(volume: number) {
+      this.volume = volume;
+   }
+
    public wireEngine(engine: Engine) {
       if (engine) {
          this._engine = engine;
@@ -112,20 +127,6 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
     */
    public instanceCount(): number {
       return this._tracks.length;
-   }
-
-   /**
-    * Sets the volume of the sound clip
-    * @param volume  A volume value between 0-1.0
-    */
-   public setVolume(volume: number) {
-      for (var track of this._tracks) {
-         track.volume = volume;
-      }
-
-      this.emit('volumechange', new NativeSoundEvent(this));
-
-      this.logger.debug('Set volume for all instances of sound', this.path, 'to', volume);
    }
 
    /**

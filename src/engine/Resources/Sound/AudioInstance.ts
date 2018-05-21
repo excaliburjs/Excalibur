@@ -2,6 +2,7 @@ import { IAudio } from '../../Interfaces/IAudio';
 import { Promise } from '../../Promises';
 import * as Util from '../../Util/Util';
 import { AudioContextOperator } from './AudioContext';
+import { obsolete } from '../../Index';
 
 export class AudioInstanceFactory {
    public static create(src: string | AudioBuffer): AudioInstance {
@@ -44,6 +45,18 @@ export class AudioInstance implements IAudio {
    protected _instance: HTMLAudioElement | AudioBufferSourceNode;
 
    constructor(protected _src: string | AudioBuffer) {}
+
+   /** @obsolete will be removed in v0.18, use loop */
+   @obsolete({message: 'will be removed in v0.18, use loop instead'})
+   public setLoop(loop: boolean) {
+      this.loop = loop;
+   }
+
+   /** @obsolete will be removed in v0.18, use volume */
+   @obsolete({message: 'will be removed in v0.18, use volume instead'})
+   public setVolume(volume: number) {
+      this.volume = volume;
+   }
 
    public isPlaying() {
       return this._isPlaying;
