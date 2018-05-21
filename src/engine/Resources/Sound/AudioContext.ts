@@ -1,3 +1,7 @@
+/**
+ * Internal class used to build instances of AudioContext
+ */
+/* istanbul ignore next */
 export class AudioContextFactory {
    public static create() {
       if ((<any>window).AudioContext || (<any>window).webkitAudioContext) {
@@ -6,6 +10,10 @@ export class AudioContextFactory {
    }
 }
 
+/**
+ * Internal class, which provides interface for AudioContext instances manipulation
+ */
+/* istanbul ignore next */
 export class AudioContextOperator {
    public get currentAudioCtxt(): AudioContext {
       return this._currentAudioCtxt;
