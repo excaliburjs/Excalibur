@@ -49,10 +49,6 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
       return this._volume;
    }
 
-   /**
-    * Populated once loading is complete
-    */
-   public sound: IAudioImplementation;
    public path: string;
 
    private _loop = true;
