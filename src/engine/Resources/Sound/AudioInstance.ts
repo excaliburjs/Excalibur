@@ -4,6 +4,10 @@ import * as Util from '../../Util/Util';
 import { AudioContextOperator } from './AudioContext';
 import { obsolete } from '../../Index';
 
+/**
+ * Internal class for producing of AudioInstances
+ */
+/* istanbul ignore next */
 export class AudioInstanceFactory {
    public static create(src: string | AudioBuffer): AudioInstance {
       if (typeof src === 'string') {
@@ -18,6 +22,10 @@ export class AudioInstanceFactory {
    }
 }
 
+/**
+ * Internal class representing base AudioInstance implementation
+ */
+/* istanbul ignore next */
 export class AudioInstance implements IAudio {
    public set loop(value: boolean) {
       this._loop = value;
