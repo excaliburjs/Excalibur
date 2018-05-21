@@ -3,12 +3,12 @@ import { IAudio } from './IAudio';
 
 export type ExResponseType = '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text';
 
-export interface IExResponceTypesList {
+export interface IExResponseTypesLookup {
    [name: string]: ExResponseType;
 }
 
 export class ExResponce {
-   public static type: IExResponceTypesList = {
+   public static type: IExResponseTypesLookup = {
       any: '',
       blob: 'blob',
       json: 'json',
