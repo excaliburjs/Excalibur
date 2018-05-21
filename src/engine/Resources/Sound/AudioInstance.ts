@@ -2,7 +2,7 @@ import { IAudio } from '../../Interfaces/IAudio';
 import { Promise } from '../../Promises';
 import * as Util from '../../Util/Util';
 import { AudioContextOperator } from './AudioContext';
-import { obsolete } from '../../Index';
+import { obsolete } from '../../Util/Decorators';
 
 /**
  * Internal class for producing of AudioInstances
