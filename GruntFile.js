@@ -27,19 +27,25 @@ module.exports = function(grunt) {
     // Webpack tasks
     //
     webpack: {
-      core: webpackConfig,
-      corewatch: { ...webpackConfig, watch: true },
-      coremin: {
+      bundle: webpackConfig,      
+      bundlemin: {
         ...webpackConfig,
         mode: "production",
         output: { ...webpackConfig.output, filename: "excalibur.min.js" }
-      }
+      },
+      watch: { ...webpackConfig, watch: true }
     },
 
     //
     // Typescript compilation targets
     //
     ts: {
+
+      // Core engine modules (ES2015)
+      core_es2015: {
+         tsconfig: "src/engine"
+      },
+
       // Jasmine specs
       specs: {
         tsconfig: "src/spec"
@@ -253,8 +259,9 @@ module.exports = function(grunt) {
   grunt.registerTask("core", [
     "shell:gitBuild",
     "clean",
-    "webpack:core",
-    "webpack:coremin",
+    "ts:core_es2015",
+    "webpack:bundle",
+    "webpack:bundlemin",
     "copy"
   ]);
 
@@ -262,7 +269,7 @@ module.exports = function(grunt) {
   grunt.registerTask("watch", [
     "shell:gitBuild",
     "clean",
-    "webpack:corewatch",
+    "webpack:watch",
     "copy"
   ]);
 
