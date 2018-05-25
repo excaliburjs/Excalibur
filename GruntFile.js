@@ -27,7 +27,7 @@ module.exports = function(grunt) {
     // Webpack tasks
     //
     webpack: {
-      bundle: webpackConfig,      
+      bundle: webpackConfig,
       bundlemin: {
         ...webpackConfig,
         mode: "production",
@@ -40,10 +40,12 @@ module.exports = function(grunt) {
     // Typescript compilation targets
     //
     ts: {
-
       // Core engine modules (ES2015)
       core_es2015: {
-         tsconfig: "src/engine"
+        tsconfig: "src/engine",
+        options: {
+          removeComments: false
+        }
       },
 
       // Jasmine specs
@@ -77,6 +79,25 @@ module.exports = function(grunt) {
           "src/spec/support/start-tests.js"
         ]
       }
+    },
+
+    //
+    // Version substitution
+    //
+    'string-replace': {
+       dist_es2015: {
+          files: {
+             "build/dist/index.js": "build/dist/index.js"
+          },
+          options: {
+             replacements: [
+                {
+                   pattern: /process\.env\.__EX_VERSION/g,
+                   replacement: `"${version}"`
+                }
+             ]
+          }
+       }
     },
 
     //
@@ -247,6 +268,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-karma");
   grunt.loadNpmTasks("grunt-contrib-connect");
   grunt.loadNpmTasks("grunt-webpack");
+  grunt.loadNpmTasks("grunt-string-replace");
 
   //
   // Register available Grunt tasks
@@ -260,6 +282,7 @@ module.exports = function(grunt) {
     "shell:gitBuild",
     "clean",
     "ts:core_es2015",
+    "string-replace",
     "webpack:bundle",
     "webpack:bundlemin",
     "copy"
