@@ -7,6 +7,7 @@ var game = new ex.Engine({
    pointerScope: ex.Input.PointerScope.Document
 });
 var box = new ex.Actor(200, 200, 100, 100, ex.Color.Red);
+var box2 = new ex.Actor(0, 0, 50, 50, ex.Color.White);
 var cursor = new ex.Actor(0, 0, 10, 10, ex.Color.Chartreuse);
 var boxPointerDragging = false;
 
@@ -17,12 +18,24 @@ uiElement.on('pointerdown', (p: ex.Input.PointerEvent) => {
    uiElement.color = ex.Color.Red;
 });
 
+box.add(box2);
 // Change color of box when clicked
 box.on("pointerdown", (pe: ex.Input.PointerEvent) => {
-   if (box.color == ex.Color.Red) {
+   console.log('box clicked');
+   if (box.color.toString() === ex.Color.Red.toString()) {
       box.color = ex.Color.Blue;
    } else {
       box.color = ex.Color.Red;
+   }
+});
+
+box2.on("pointerdown", (pe: ex.Input.PointerEvent) => {
+   console.log('box2 clicked');
+   pe.stopPropagation();
+   if (box2.color.toString() === ex.Color.White.toString()) {
+      box2.color = ex.Color.Yellow;
+   } else {
+      box2.color = ex.Color.White;
    }
 });
 

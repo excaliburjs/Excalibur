@@ -82,19 +82,87 @@ export type pointerdragleave = 'pointerdragleave';
 export type pointerdragmove = 'pointerdragmove';
 
 /**
- * Base event type in Excalibur that all other event types derive from. Not all event types are thrown on all Excalibur game objects, 
+ * Base event type in Excalibur that all other event types derive from. Not all event types are thrown on all Excalibur game objects,
  * some events are unique to a type, others are not.
- *  
+ *
  */
 export class GameEvent<T> {
    /**
     * Target object for this event.
     */
    public target: T;
+   /**
+    * determines, if event bubbles to the target's ancestors
+    */
+   public bubbles: boolean = true;
+   /**
+    * Holds the whole path from the Root to the event target
+    */
+   protected _path: Actor[] = [];
+   protected _name: string = '';
+
+   /**
+    * Returns Event path from root to active actor.
+    */
+   get eventPath(): Actor[] {
+      return this._path;
+   }
+   /**
+    * Returns name of the event
+    */
+   get name(): string {
+      return this._name;
+   }
+
+   /**
+    * Prevents event from bubbling
+    */
+   public stopPropagation() {
+      this.bubbles = false;
+   }
+   /**
+    * Action, that calls when event happens
+    */
+   public action(): void {
+      const actor = this.eventPath.pop();
+
+      if (actor) {
+         this._onActionStart(actor);
+         actor.eventDispatcher.emit(this._name, this);
+         this._onActionEnd(actor);
+      }
+   }
+   /**
+    * Propagate event further through event path
+    */
+   public propagate(): void {
+      if (!this.eventPath.length) {
+         return;
+      }
+
+      this.action();
+
+      if (this.bubbles) {
+         this.propagate();
+      }
+   }
+
+   public layPath(actor: Actor): void {
+      const actorPath = actor.getAncestors();
+      this._path = (actorPath.length > this._path.length) ? actorPath : this._path;
+   }
+
+   protected _onActionStart(_actor?: Actor) {
+      // to be rewritten
+   }
+
+   protected _onActionEnd(_actor?: Actor) {
+      // to be rewritten
+   }
 }
 
 /**
- * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed. 
+ * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed.
  */
 export class KillEvent extends GameEvent<Actor> {
    constructor(public target: Actor) {
@@ -121,7 +189,7 @@ export class PostKillEvent extends GameEvent<Actor> {
 }
 
 /**
- * The 'start' event is emitted on engine when has started and is ready for interaction. 
+ * The 'start' event is emitted on engine when has started and is ready for interaction.
  */
 export class GameStartEvent extends GameEvent<Engine> {
    constructor(public target: Engine) {
@@ -130,7 +198,7 @@ export class GameStartEvent extends GameEvent<Engine> {
 }
 
 /**
- * The 'stop' event is emitted on engine when has been stopped and will no longer take input, update or draw. 
+ * The 'stop' event is emitted on engine when has been stopped and will no longer take input, update or draw.
  */
 export class GameStopEvent extends GameEvent<Engine> {
    constructor(public target: Engine) {
@@ -139,9 +207,9 @@ export class GameStopEvent extends GameEvent<Engine> {
 }
 
 /**
- * The 'predraw' event is emitted on actors, scenes, and engine before drawing starts. Actors' predraw happens inside their graphics 
+ * The 'predraw' event is emitted on actors, scenes, and engine before drawing starts. Actors' predraw happens inside their graphics
  * transform so that all drawing takes place with the actor as the origin.
- *   
+ *
  */
 export class PreDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
    constructor(public ctx: CanvasRenderingContext2D, public delta: number, public target: Actor | Scene | Engine | TileMap) {
@@ -150,9 +218,9 @@ export class PreDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
 }
 
 /**
- * The 'postdraw' event is emitted on actors, scenes, and engine after drawing finishes. Actors' postdraw happens inside their graphics 
+ * The 'postdraw' event is emitted on actors, scenes, and engine after drawing finishes. Actors' postdraw happens inside their graphics
  * transform so that all drawing takes place with the actor as the origin.
- *   
+ *
  */
 export class PostDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
    constructor(public ctx: CanvasRenderingContext2D, public delta: number, public target: Actor | Scene | Engine | TileMap) {
@@ -265,7 +333,7 @@ export class GamepadAxisEvent extends GameEvent<Input.Gamepad> {
 }
 
 /**
- * Subscribe event thrown when handlers for events other than subscribe are added. Meta event that is received by 
+ * Subscribe event thrown when handlers for events other than subscribe are added. Meta event that is received by
  * [[EventDispatcher|event dispatchers]].
  */
 export class SubscribeEvent<T> extends GameEvent<T> {
@@ -275,7 +343,7 @@ export class SubscribeEvent<T> extends GameEvent<T> {
 }
 
 /**
- * Unsubscribe event thrown when handlers for events other than unsubscribe are removed. Meta event that is received by 
+ * Unsubscribe event thrown when handlers for events other than unsubscribe are removed. Meta event that is received by
  * [[EventDispatcher|event dispatchers]].
  */
 export class UnsubscribeEvent<T> extends GameEvent<T> {
