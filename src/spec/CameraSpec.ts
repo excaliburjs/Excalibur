@@ -1,8 +1,3 @@
-/// <reference path="jasmine.d.ts" />
-
-/// <reference path="Mocks.ts" />import { BaseCamera } from "../../build/dist/excalibur";
-
-
 
 describe('A camera', () => {
    

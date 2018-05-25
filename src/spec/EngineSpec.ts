@@ -1,4 +1,3 @@
-/// <reference path="jasmine.d.ts" />
 /// <reference path="Mocks.ts" />
 
 describe('The engine', () => {
@@ -10,7 +9,7 @@ describe('The engine', () => {
 
    beforeEach(() => {  
       
-      initHiDpiSpy = spyOn(ex.Engine.prototype, '_initializeHiDpi');
+      initHiDpiSpy = spyOn(<any>ex.Engine.prototype, '_initializeHiDpi');
       
       engine = TestUtils.engine();
       scene = new ex.Scene(engine);

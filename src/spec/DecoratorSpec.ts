@@ -1,4 +1,3 @@
-/// <reference path="jasmine.d.ts" />
 /// <reference path="../../build/dist/excalibur.d.ts" />
 /// <reference path="Mocks.ts" />
 

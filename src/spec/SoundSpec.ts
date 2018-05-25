@@ -1,5 +1,3 @@
-/// <reference path="jasmine.d.ts" />
-
 /// <reference path="Mocks.ts" />
 
 const mockData = 'testdata';
@@ -65,7 +63,7 @@ describe('Sound resource', () => {
    });
 
    it('should call onerror callback when loaded async on general error', (done) => {
-      spyOn(sut, '_fetchResource').and.throwError('fatal');
+      spyOn(<any>sut, '_fetchResource').and.throwError('fatal');
       
       sut.onerror = (e: Error) => {
          expect(e.message).toBe('fatal');
@@ -378,7 +376,7 @@ class MockAudioInstance implements ex.IAudio {
 }
 
 function createFetchSpy(subject: ex.Sound, successful: boolean, data) {
-   return spyOn(subject, '_fetchResource').and.callFake((onload: Function) => {
+   return spyOn(<any>subject, '_fetchResource').and.callFake((onload: Function) => {
       onload.bind(subject, { status: successful ? 200 : 500, response: data })();
    });
 }

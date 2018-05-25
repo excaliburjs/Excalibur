@@ -1,5 +1,4 @@
-﻿/// <reference path="jasmine.d.ts" />
-/// <reference path="Mocks.ts" />
+﻿/// <reference path="Mocks.ts" />
 /// <reference path="TestUtils.ts" />
 
 describe('A scene', () => {

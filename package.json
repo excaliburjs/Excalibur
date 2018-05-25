@@ -32,6 +32,7 @@
     "apidocs": "grunt apidocs"
   },
   "devDependencies": {
+    "@types/jasmine": "2.8.7",
     "@types/node": "^8.0.0",
     "cross-env": "^5.1.4",
     "grunt": "^1.0.1",

@@ -16,15 +16,15 @@ module.exports = function (config) {
       // list of files / patterns to load in the browser
       files: [
          './build/dist/excalibur.js',
-         './build/dist/excalibur.js.map',
+         { pattern: './build/dist/excalibur.js.map', included: false, served: true },
+         { pattern: './src/spec/images/**/*.png', include: false, served: true },
          './build/dist/index.d.ts',
          './src/engine/**/*.ts',
-         './src/spec/images/**/*.png',
          './src/spec/support/js-imagediff.js',
          './src/spec/support/js-imagediff.d.ts',
          './src/spec/Mocks.ts',
          './src/spec/TestUtils.ts',
-         './src/spec/*.ts',
+         './src/spec/*.ts'
       ],
 
 
@@ -59,6 +59,9 @@ module.exports = function (config) {
             'src/spec/Mocks.ts',
             'src/spec/TestUtils.ts',
             'src/spec/*.ts'
+         ],
+         types: [
+            '@types/jasmine'
          ]
       },
 
