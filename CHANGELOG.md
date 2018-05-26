@@ -7,30 +7,30 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
-- Added `Sound.volume` & `Sound.loop` props with accsessors for rreplacement of `Sound.setVolume()` and `Sound.setLoop()`
- methods. Also same changes was made in `IAudio` interface. This method are marked as @obsolete.
+- Added `Sound.volume` & `Sound.loop` props with accsessors for replacement of `Sound.setVolume()` and `Sound.setLoop()`
+ methods. Also same changes was made in `IAudio` interface. This methods are marked as @obsolete.
 
 ## Added
 
-- `AudioContext` And `AudioContextOperator` Singleton for handling multiple instances of `AudioContext`.
+- `AudioContext` and `AudioContextOperator` Singleton for handling multiple instances of `AudioContext`.
 - `AudioInstance` with `WebAudioInstance` and `AudioTagInstance` implementations.
 - `MediaEvent` which extends `GameEvent` with `NativeSoundEvent` implementation.
 - `ExResponce` class with binded typings for responce types.
 
 ## Changed
 
-- `Sound` moved to new namespace `Resources.Sound` due to growing fuctionality.
+- `Sound` moved to new namespace `Resources.Sound` due to growing functionality.
 - `Sound` now extends `Resource` with all functionality.
-- `Sound` now could be signed on
+- `Sound` now could be signed on:
   - `volumechange` - on playing sound volume change;
   - `pause` - on playback pause;
   - `stop` - on playback stop;
-  - `emptied` - on data cleanup;
+  - `emptied` - on data cleanup(f.e. when setting new data);
   - `resume` - on playback resume;
   - `playbackstart` - on playback start;
   - `playbackend` - on playback end;
 - Added `Sound.instances` getter, which returns active tracks. Playing or paused;
-- Added `Sound.getTrackId(track: [[AudioInsance]])` method. Whic returns id of track provided,
+- Added `Sound.getTrackId(track: [[AudioInstance]])` method. Which returns id of track provided,
  if it is in list of active tracks.
 - `Events` are moved to `Events` namespace and divided to `GameEvent` and `MediaEvent` separate Classes.
 - `WebAudio` is moved to `Utils` accordingly to it's purpose.
