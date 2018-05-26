@@ -7,19 +7,60 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
-  -Property scope `Pointer.actorsUnderPointer` changed to private;
+- Added `Sound.volume` & `Sound.loop` props with accsessors for rreplacement of `Sound.setVolume()` and `Sound.setLoop()`
+ methods. Also same changes was made in `IAudio` interface. This method are marked as @obsolete.
 
 ## Added
+
+- `AudioContext` And `AudioContextOperator` Singleton for handling multiple instances of `AudioContext`.
+- `AudioInstance` with `WebAudioInstance` and `AudioTagInstance` implementations.
+- `MediaEvent` which extends `GameEvent` with `NativeSoundEvent` implementation.
+- `ExResponce` class with binded typings for responce types.
+
+## Changed
+
+- `Sound` moved to new namespace `Resources.Sound` due to growing fuctionality.
+- `Sound` now extends `Resource` with all functionality.
+- `Sound` now could be signed on
+  - `volumechange` - on playing sound volume change;
+  - `pause` - on playback pause;
+  - `stop` - on playback stop;
+  - `emptied` - on data cleanup;
+  - `resume` - on playback resume;
+  - `playbackstart` - on playback start;
+  - `playbackend` - on playback end;
+- Added `Sound.instances` getter, which returns active tracks. Playing or paused;
+- Added `Sound.getTrackId(track: [[AudioInsance]])` method. Whic returns id of track provided,
+ if it is in list of active tracks.
+- `Events` are moved to `Events` namespace and divided to `GameEvent` and `MediaEvent` separate Classes.
+- `WebAudio` is moved to `Utils` accordingly to it's purpose.
+
+## Fixed
+
+- `Sound.pause()` now saves correct timings.
+
+<!----------------------------------------------------------------------------------------------->
+
+## Unreleased
+
+## Breaking Changes
+
+- Property scope `Pointer.actorsUnderPointer` changed to private;
+
+## Added
+
 - Allow timers to limit repeats to a finite number of times ([#957](https://github.com/excaliburjs/Excalibur/pull/974))
 - New `PointerEvent.stopPropagation()` method added. Works the same way as    (`https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation`)
     ([#912](https://github.com/excaliburjs/Excalibur/issues/912))
 - New `Actor.getAncestors()` method, which retreives full array of current Actor ancestors
 
 ## Changed
+
 - Refactored Easing functions to be reversable ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
 - `CapturePointer.update()` method now doesn't propagate event to actor, just verifies pointer events for actor.
 
 ## Fixed
+
 - Added missing variable assignments to TileMapImpl constructor ([#957](https://github.com/excaliburjs/Excalibur/pull/957))
 - Correct setting audio volume level from `value` to `setValueAtTime` to comply with deprecation warning in Chrome 59 ([#953](https://github.com/excaliburjs/Excalibur/pull/953))
 - Force HiDPI scaling to always be at least 1 to prevent visual artifacts in some browsers
