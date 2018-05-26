@@ -1,13 +1,13 @@
-import { IAudioImplementation, ExResponce } from '../../Interfaces/IAudioImplementation';
+import { ExResponce } from '../../Interfaces/IAudioImplementation';
 import { IAudio } from '../../Interfaces/IAudio';
 import * as Util from '../../Util/Util';
 import { Engine } from '../../Engine';
-import { Promise } from '../../Promises';
 import { Resource } from '../Resource';
 import { AudioInstance, AudioInstanceFactory } from './AudioInstance';
 import { AudioContextOperator } from './AudioContext';
-import { NativeSoundEvent } from '../../Events/MediaEvents';
+import { NativeSoundEvent } from '../../Events/Index';
 import { obsolete } from '../../Util/Decorators';
+import { Promise } from '../../Promises';
 
 /**
  * The [[Sound]] object allows games built in Excalibur to load audio
@@ -49,6 +49,13 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
       return this._volume;
    }
 
+   /**
+    * Return array of Current AudioInstances playing or being paused
+    */
+   public get instances(): AudioInstance[] {
+      return this._tracks;
+   }
+
    public path: string;
 
    private _loop = true;
@@ -57,7 +64,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
    private _tracks: AudioInstance[] = [];
    private _engine: Engine;
    private _wasPlayingOnHidden: boolean = false;
-   private _processedData: string | AudioBuffer;
+   private _processedData = new Promise<string|AudioBuffer>();
    private _audioContext = AudioContextOperator.getInstance().currentAudioCtxt;
 
    /**
@@ -156,6 +163,10 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
     * Stop the sound, and do not rewind
     */
    public pause() {
+      if (!this.isPlaying()) {
+         return;
+      }
+
       for (const track of this._tracks) {
          track.pause();
       }
@@ -171,15 +182,18 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
     * Stop the sound and rewind
     */
    public stop() {
-      const tracks = this._tracks.concat([]);
+      if (!this.isPlaying()) {
+         return;
+      }
 
-      for (const track of tracks) {
+      for (const track of this._tracks) {
          track.stop();
       }
 
       this.emit('stop', new NativeSoundEvent(this));
 
       this._isPaused = false;
+      this._tracks.length = 0;
       this.logger.debug('Stopped all instances of sound', this.path);
    }
 
@@ -187,6 +201,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
       this.emit('emptied', new NativeSoundEvent(this));
 
       this.data = data;
+      this._processedData = new Promise<string|AudioBuffer>();
    }
 
    public processData(data: Blob | ArrayBuffer): Promise<string|AudioBuffer> {
@@ -200,6 +215,13 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
       return processPromise.then(processedData => this._setProcessedData(processedData));
    }
 
+   /**
+    * Get Id of provided AudioInstance in current trackList
+    * @param track [[AudioInstance]] which Id is to be given
+    */
+   public getTrackId(track: AudioInstance): number {
+      return this._tracks.indexOf(track);
+   }
 
    private _resumePlayback(): Promise<boolean> {
       if (this._isPaused) {
@@ -222,20 +244,25 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
    }
 
    private _startPlayback(): Promise<boolean> {
-      // push a new track
       const newTrack = this._createNewTrack();
+      let playPromise = new Promise<boolean>();
 
-      this.emit('playbackstart', new NativeSoundEvent(this));
+      newTrack.then((track) => {
+         track.play().then((resolved) => {
+            // when done, remove track
+            this.emit('playbackend', new NativeSoundEvent(this, track));
+            this._tracks.splice(this.getTrackId(track), 1);
 
-      this.logger.debug('Playing new instance for sound', this.path);
+            playPromise.resolve(resolved);
 
-      return newTrack.play().then(() => {
-         // when done, remove track
-         this.emit('playbackend', new NativeSoundEvent(this));
-         this._tracks.splice(this._tracks.indexOf(newTrack), 1);
+            return resolved;
+         });
 
-         return true;
+         this.emit('playbackstart', new NativeSoundEvent(this, track));
+         this.logger.debug('Playing new instance for sound', this.path);
       });
+
+      return playPromise;
    }
 
    private _processArrayBufferData(data: ArrayBuffer): Promise<AudioBuffer> {
@@ -260,17 +287,29 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
    }
 
    private _setProcessedData(processedData: string|AudioBuffer): void {
-      this._processedData = processedData;
+      this._processedData.resolve(processedData);
    }
 
-   private _createNewTrack(): AudioInstance {
-      if (!this._processedData) {
-         this.processData(this.data).then(
-            () => this._createNewTrack()
-         );
+   private _createNewTrack(): Promise<AudioInstance> {
+      const aiPromise = new Promise<AudioInstance>();
+
+      if (this._processedData.state() !== 0) {
+         this.processData(this.data);
       }
 
-      const newTrack = AudioInstanceFactory.create(this._processedData);
+      this._processedData.then((processedData) => {
+         aiPromise.resolve(this._getTrackInstance(processedData));
+
+         return processedData;
+      }, (error) => {
+         this.logger.error(error, 'Cannot create AudioInstance due to wrong processed data.');
+      });
+
+      return aiPromise;
+   }
+
+   private _getTrackInstance(data: string|AudioBuffer): AudioInstance {
+      const newTrack = AudioInstanceFactory.create(data);
 
       newTrack.loop = this.loop;
       newTrack.volume = this.volume;
