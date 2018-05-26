@@ -47,7 +47,7 @@ export class AudioInstance implements IAudio {
 
    protected _volume = 1;
    protected _loop = true;
-   protected _playingPromise: Promise<any>;
+   protected _playingPromise: Promise<boolean>;
    protected _isPlaying = false;
    protected _isPaused = false;
    protected _instance: HTMLAudioElement | AudioBufferSourceNode;
@@ -103,7 +103,7 @@ export class AudioInstance implements IAudio {
    protected _startPlayBack() {
       this._isPlaying = true;
       this._isPaused = false;
-      this._playingPromise = new Promise();
+      this._playingPromise = new Promise<boolean>();
    }
 
    protected _resumePlayBack() {
@@ -134,9 +134,15 @@ export class AudioInstance implements IAudio {
 /* istanbul ignore next */
 export class AudioTagInstance extends AudioInstance {
    public set volume(value: number) {
+      value = Util.clamp(value, 0, 1.0);
+
       this._volume = value;
-      this._instance.volume = Util.clamp(value, 0, 1.0);
+      this._instance.volume = value;
    }
+   public get volume(): number {
+      return this._volume;
+   }
+
 
    protected _src: string;
    protected _instance: HTMLAudioElement;
@@ -207,6 +213,9 @@ export class WebAudioInstance extends AudioInstance {
          this._volumeNode.gain.value = value;
       }
    }
+   public get volume(): number {
+      return this._volume;
+   }
 
    private get _playbackRate(): number {
       return (this._instance) ? 1 / (this._instance.playbackRate.value || 1.0) : null;
@@ -265,7 +274,7 @@ export class WebAudioInstance extends AudioInstance {
       this._instance.start(0, 0);
       this._currentOffset = 0;
 
-      this._playingPromise = new Promise();
+      this._playingPromise = new Promise<boolean>();
       this._wireUpOnEnded();
    }
 
