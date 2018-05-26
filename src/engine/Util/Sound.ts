@@ -1,4 +1,4 @@
-import { Logger } from "./Log";
+import { Logger } from './Log';
 
 /**
  * Whether or not the browser can play this file as HTML5 Audio
