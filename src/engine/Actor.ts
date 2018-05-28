@@ -57,6 +57,10 @@ export interface IActorArgs extends Partial<ActorImpl> {
    collisionType?: CollisionType;
 }
 
+export interface IActorDefaults {
+   anchor: Vector;
+}
+
 /**
  * @hidden
  */
@@ -64,6 +68,12 @@ export interface IActorArgs extends Partial<ActorImpl> {
 export class ActorImpl extends Class implements IActionable, IEvented, IPointerEvents, ICanInitialize, ICanUpdate, ICanDraw, ICanBeKilled {
    // #region Properties
 
+   /**
+    * Indicates the next id to be set
+    */
+   public static defaults: IActorDefaults = {
+      anchor: Vector.Half.clone()
+   };
    /**
     * Indicates the next id to be set
     */
@@ -480,9 +490,11 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       this.actionQueue = new ActionQueue(this);
       this.actions = new ActionContext(this);
 
+      // initialize default options
+      this._initDefaults();
+
       // Initialize default collision area to be box
       this.body.useBoxCollision();
-      this._initDefaults();
    }
 
    /**
@@ -519,11 +531,9 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
          child._initialize(engine);
       }
    }
-   // Initialize default options, that depends on Environment defaults
+
    private _initDefaults() {
-      console.log(Engine);
-      // this.anchor = Engine.defaults.actorAnchor;
-      this.anchor = Vector.Half;
+      this.anchor = Actor.defaults.anchor.clone();
    }
 
    // #region Events
