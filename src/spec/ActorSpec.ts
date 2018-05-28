@@ -37,12 +37,6 @@ describe('A game actor', () => {
       expect(ex.Actor).toBeTruthy();
    });
 
-   // it('should have default anchor set to the same as Environment default', () => {
-   //    actor = new ex.Actor();
-
-   //    expect(actor.anchor.toString).toEqual(engine.defaults.actorAnchor.toString());
-   // });
-
    it('should have a position', () => {
 
       actor.pos.setTo(10, 10);
@@ -90,6 +84,25 @@ describe('A game actor', () => {
       expect(actor.collisionType).toBe(ex.CollisionType.Fixed);
       expect(actor2.x).toBe(4);
       expect(actor2.y).toBe(5);
+   });
+
+   it('should have default properties set', () => {
+      let actor = new ex.Actor();
+
+      expect(actor.anchor).toEqual(ex.Actor.defaults.anchor);
+   });
+
+   it('should create actor with valid default options', () => {
+      let actor = new ex.Actor();
+      expect(actor.anchor.toString()).toEqual('(0.5, 0.5)');
+
+      ex.Actor.defaults.anchor.setTo(0, 0);
+
+      const actor2 = new ex.Actor();
+      expect(actor2.anchor.toString()).toEqual('(0, 0)');
+
+      // revert changes back
+      ex.Actor.defaults.anchor.setTo(0.5, 0.5);
    });
 
    it('should have an old position after an update', () => {
