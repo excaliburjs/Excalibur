@@ -1,5 +1,21 @@
 # Change Log
 
+## Unreleased
+
+## Added
+
+- Static `Actor.defaults` prop, which implements `IActorDefaults`.
+
+## Changed
+
+- Now at creation every `Actor.anchor` prop is set to default `Actor.defaults.anchor`.
+
+## Fixed
+
+- `Index` export order to prevent `almond.js` from creation of corrupted modules loading order.
+
+<!----------------------------------------------------------------------------------------------->
+
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
