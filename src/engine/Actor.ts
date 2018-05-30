@@ -57,6 +57,10 @@ export interface IActorArgs extends Partial<ActorImpl> {
    collisionType?: CollisionType;
 }
 
+export interface IActorDefaults {
+   anchor: Vector;
+}
+
 /**
  * @hidden
  */
@@ -64,6 +68,12 @@ export interface IActorArgs extends Partial<ActorImpl> {
 export class ActorImpl extends Class implements IActionable, IEvented, IPointerEvents, ICanInitialize, ICanUpdate, ICanDraw, ICanBeKilled {
    // #region Properties
 
+   /**
+    * Indicates the next id to be set
+    */
+   public static defaults: IActorDefaults = {
+      anchor: Vector.Half.clone()
+   };
    /**
     * Indicates the next id to be set
     */
@@ -185,8 +195,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    public oldAcc: Vector = Vector.Zero.clone();
 
    /**
-    * Gets the acceleration vector of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be 
-    * useful to simulate a gravitational effect.  
+    * Gets the acceleration vector of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
+    * useful to simulate a gravitational effect.
     */
    public get acc(): Vector {
       return this.body.acc;
@@ -325,7 +335,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     */
    public oldScale: Vector = Vector.One.clone();
 
-   /** 
+   /**
     * The x scalar velocity of the actor in scale/second
     */
    public sx: number = 0; //scale/sec
@@ -480,8 +490,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       this.actionQueue = new ActionQueue(this);
       this.actions = new ActionContext(this);
 
-      // default anchor is in the middle
-      this.anchor = new Vector(.5, .5);
+      // initialize default options
+      this._initDefaults();
 
       // Initialize default collision area to be box
       this.body.useBoxCollision();
@@ -520,6 +530,10 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       for (var child of this.children) {
          child._initialize(engine);
       }
+   }
+
+   private _initDefaults() {
+      this.anchor = Actor.defaults.anchor.clone();
    }
 
    // #region Events
@@ -562,34 +576,34 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
     *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
     *  the the pair separates and collides again.
-    * Use cases for the **collisionstart** event may be detecting when an actor has touched a surface 
+    * Use cases for the **collisionstart** event may be detecting when an actor has touched a surface
     * (like landing) or if a item has been touched and needs to be picked up.
     */
    public on(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
    /**
-    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact. 
+    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
     * This event will not fire again until another collision and separation.
-    * 
-    * Use cases for the **collisionend** event might be to detect when an actor has left a surface 
+    *
+    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
     * (like jumping) or has left an area.
     */
    public on(eventName: Events.collisionend, handler: (event?: CollisionEndEvent) => void): void;
    /**
-    * The **precollision** event is fired **every frame** where a collision pair is found and two 
+    * The **precollision** event is fired **every frame** where a collision pair is found and two
     * bodies are intersecting.
-    * 
+    *
     * This event is useful for building in custom collision resolution logic in Passive-Passive or
-    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of 
+    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of
     * richochet of the ball depending on which side of the paddle you hit.
     */
    public on(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
    /**
     * The **postcollision** event is fired for **every frame** where collision resolution was performed.
-    * Collision resolution is when two bodies influence each other and cause a response like bouncing 
-    * off one another. It is only possible to have *postcollision* event in Active-Active and Active-Fixed 
+    * Collision resolution is when two bodies influence each other and cause a response like bouncing
+    * off one another. It is only possible to have *postcollision* event in Active-Active and Active-Fixed
     * type collision pairs.
-    * 
-    * Post collision would be useful if you need to know that collision resolution is happening or need to 
+    *
+    * Post collision would be useful if you need to know that collision resolution is happening or need to
     * tweak the default resolution.
     */
    public on(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
@@ -627,34 +641,34 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
     *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
     *  the the pair separates and collides again.
-    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface 
+    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface
     * (like landing) or if a item has been touched and needs to be picked up.
     */
    public once(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
    /**
-    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact. 
+    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
     * This event will not fire again until another collision and separation.
-    * 
-    * Use cases for the **collisionend** event might be to detect when an actor has left a surface 
+    *
+    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
     * (like jumping) or has left an area.
     */
    public once(eventName: Events.collisionend, handler: (event?: CollisionEndEvent) => void): void;
    /**
-    * The **precollision** event is fired **every frame** where a collision pair is found and two 
+    * The **precollision** event is fired **every frame** where a collision pair is found and two
     * bodies are intersecting.
-    * 
+    *
     * This event is useful for building in custom collision resolution logic in Passive-Passive or
-    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of 
+    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of
     * richochet of the ball depending on which side of the paddle you hit.
     */
    public once(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
    /**
     * The **postcollision** event is fired for **every frame** where collision resolution was performed.
-    * Collision resolution is when two bodies influence each other and cause a response like bouncing 
-    * off one another. It is only possible to have *postcollision* event in Active-Active and Active-Fixed 
+    * Collision resolution is when two bodies influence each other and cause a response like bouncing
+    * off one another. It is only possible to have *postcollision* event in Active-Active and Active-Fixed
     * type collision pairs.
-    * 
-    * Post collision would be useful if you need to know that collision resolution is happening or need to 
+    *
+    * Post collision would be useful if you need to know that collision resolution is happening or need to
     * tweak the default resolution.
     */
    public once(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
@@ -692,34 +706,34 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
     *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
     *  the the pair separates and collides again.
-    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface 
+    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface
     * (like landing) or if a item has been touched and needs to be picked up.
     */
    public off(eventName: Events.collisionstart, handler?: (event?: CollisionStartEvent) => void): void;
    /**
-    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact. 
+    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
     * This event will not fire again until another collision and separation.
-    * 
-    * Use cases for the **collisionend** event might be to detect when an actor has left a surface 
+    *
+    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
     * (like jumping) or has left an area.
     */
    public off(eventName: Events.collisionend, handler?: (event?: CollisionEndEvent) => void): void;
    /**
-    * The **precollision** event is fired **every frame** where a collision pair is found and two 
+    * The **precollision** event is fired **every frame** where a collision pair is found and two
     * bodies are intersecting.
-    * 
+    *
     * This event is useful for building in custom collision resolution logic in Passive-Passive or
-    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of 
+    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of
     * richochet of the ball depending on which side of the paddle you hit.
     */
    public off(eventName: Events.precollision, handler?: (event?: PreCollisionEvent) => void): void;
    /**
     * The **postcollision** event is fired for **every frame** where collision resolution was performed.
-    * Collision resolution is when two bodies influence each other and cause a response like bouncing 
-    * off one another. It is only possible to have *postcollision* event in Active-Active and Active-Fixed 
+    * Collision resolution is when two bodies influence each other and cause a response like bouncing
+    * off one another. It is only possible to have *postcollision* event in Active-Active and Active-Fixed
     * type collision pairs.
-    * 
-    * Post collision would be useful if you need to know that collision resolution is happening or need to 
+    *
+    * Post collision would be useful if you need to know that collision resolution is happening or need to
     * tweak the default resolution.
     */
    public off(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
@@ -1089,8 +1103,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       let bb = new BoundingBox(pos.x - anchor.x,
          pos.y - anchor.y,
          pos.x + this.getWidth() - anchor.x,
-         pos.y + this.getHeight() - anchor.y); 
-         
+         pos.y + this.getHeight() - anchor.y);
+
       return rotated ? bb.rotate(this.rotation, pos) : bb;
    }
 
@@ -1103,8 +1117,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
       let bb = new BoundingBox(-anchor.x,
          -anchor.y,
          this.getWidth() - anchor.x,
-         this.getHeight() - anchor.y); 
-      
+         this.getHeight() - anchor.y);
+
       return rotated ? bb.rotate(this.rotation) : bb;
    }
 

@@ -86,6 +86,25 @@ describe('A game actor', () => {
       expect(actor2.y).toBe(5);
    });
 
+   it('should have default properties set', () => {
+      let actor = new ex.Actor();
+
+      expect(actor.anchor).toEqual(ex.Actor.defaults.anchor);
+   });
+
+   it('should create actor with valid default options', () => {
+      let actor = new ex.Actor();
+      expect(actor.anchor.toString()).toEqual('(0.5, 0.5)');
+
+      ex.Actor.defaults.anchor.setTo(0, 0);
+
+      const actor2 = new ex.Actor();
+      expect(actor2.anchor.toString()).toEqual('(0, 0)');
+
+      // revert changes back
+      ex.Actor.defaults.anchor.setTo(0.5, 0.5);
+   });
+
    it('should have an old position after an update', () => {
 
       actor.pos.setTo(10, 10);
