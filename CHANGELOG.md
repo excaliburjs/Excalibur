@@ -41,6 +41,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Force HiDPI scaling to always be at least 1 to prevent visual artifacts in some browsers
 - Recalculate physics geometry when width/height change on Actor ([#948](https://github.com/excaliburjs/Excalibur/pull/948))
 - Fix camera move chaining ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
+- Fix `pickSet(allowDuplicates: true)` now returns the proper length array with correct elements ([#977](https://github.com/excaliburjs/Excalibur/issues/977))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
