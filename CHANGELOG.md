@@ -9,7 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Added
 - Allow timers to limit repeats to a finite number of times ([#957](https://github.com/excaliburjs/Excalibur/pull/974))
-- Convenience method on Scene to determine whether it is the current scene. ([#982](https://github.com/excaliburjs/Excalibur/issues/982))
+- Convenience method on Scene to determine whether it is the current scene. Scene.isCurrentScene() ([#982](https://github.com/excaliburjs/Excalibur/issues/982))
 
 ## Changed
 - Refactored Easing functions to be reversable ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
@@ -46,7 +46,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
    - New Class `GlobalCoordinates` that contains Vectors for the world, the page, and the screen.
    - Added property `ICapturePointerConfig.captureDragEvents` which controls whether to emit drag events to the actor
    - Added property `PointerEvent.pointer` which equals the original pointer object
- 
+
 ## Deprecated
 
 - `Sprite.sx`, `Sprite.sy`, `Sprite.swidth`, `Sprite.sheight` has be deprecated in favor of `Sprite.x`, `Sprite.y`, `Sprite.width`, `Sprite.height` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
