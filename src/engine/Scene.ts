@@ -307,9 +307,6 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
    public update(engine: Engine, delta: number) {
       this._preupdate(engine, delta);
       var i: number, len: number;
-
-
-
       // Remove timers in the cancel queue before updating them
       for (i = 0, len = this._cancelQueue.length; i < len; i++) {
          this.removeTimer(this._cancelQueue[i]);
@@ -342,6 +339,9 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
       }
 
       this._collectActorStats(engine);
+
+      // propagates all events through their paths assigned
+      engine.input.pointers.propagate();
 
       // Run the broadphase and narrowphase
       if (this._broadphase && Physics.enabled) {
@@ -565,9 +565,12 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
          this.removeUIActor(entity);
          return;
       }
+
       if (entity instanceof Actor) {
-         this._broadphase.untrack(entity.body);
          this._removeChild(entity);
+         if (!entity.isKilled()) {
+            entity.kill();
+         }
       }
       if (entity instanceof Timer) {
          this.removeTimer(entity);

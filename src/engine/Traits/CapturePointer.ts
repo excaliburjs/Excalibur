@@ -17,7 +17,7 @@ export interface ICapturePointerConfig {
 }
 
 /**
- * Propogates pointer events to the actor
+ * Revises pointer events path accordingly to the actor
  */
 export class CapturePointer implements IActorTrait {
 
@@ -25,6 +25,6 @@ export class CapturePointer implements IActorTrait {
       if (!actor.enableCapturePointer) { return; }
       if (actor.isKilled()) { return; }
 
-      engine.input.pointers.propogate(actor);
+      engine.input.pointers.revisePointerEventsPaths(actor);
    }
 }

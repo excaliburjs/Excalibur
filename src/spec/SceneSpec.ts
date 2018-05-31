@@ -286,6 +286,27 @@ describe('A scene', () => {
       expect(updated).toBe(true, 'UIActor was not updated after timer callback');
    });
 
+   it('will kill the actor if the actor is removed from the scene', () => {
+      scene.add(actor);
+
+      spyOn(actor, 'kill').and.callThrough();
+
+      scene.remove(actor);
+
+      expect(actor.isKilled()).toBe(true);
+      expect(actor.kill).toHaveBeenCalledTimes(1);
+   });
+
+   it('will not kill the actor if it is already dead', () => {
+      scene.add(actor);
+      (actor as any)._isKilled = true;
+
+      spyOn(actor, 'kill').and.callThrough();
+
+      scene.remove(actor);
+      expect(actor.kill).toHaveBeenCalledTimes(0);
+   });
+
    it('will update TileMaps that were added in a Timer callback', () => {
       var updated = false;
       var tilemap = new ex.TileMap(0, 0, 1, 1, 1, 1);
