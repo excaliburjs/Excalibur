@@ -1,4 +1,4 @@
-import { AudioContextOperator } from '../Resources/Sound/AudioContext';
+import { AudioContextFactory } from '../Resources/Sound/AudioContext';
 
 export class WebAudio {
    private static _unlocked: boolean = false;
@@ -10,11 +10,11 @@ export class WebAudio {
     */
    static unlock() {
 
-      if (WebAudio._unlocked || !AudioContextOperator.getInstance().currentAudioCtxt) {
+      if (WebAudio._unlocked || !AudioContextFactory.create()) {
          return;
       }
 
-      const audioContext = AudioContextOperator.getInstance().currentAudioCtxt;
+      const audioContext = AudioContextFactory.create();
       // create empty buffer and play it
       const buffer = audioContext.createBuffer(1, 1, 22050);
       const source = audioContext.createBufferSource();

@@ -4,8 +4,8 @@ import * as Util from '../../Util/Util';
 import { Engine } from '../../Engine';
 import { Resource } from '../Resource';
 import { AudioInstance, AudioInstanceFactory } from './AudioInstance';
-import { AudioContextOperator } from './AudioContext';
-import { NativeSoundEvent } from '../../Events/Index';
+import { AudioContextFactory } from './AudioContext';
+import { NativeSoundEvent } from '../../Events/MediaEvents';
 import { obsolete } from '../../Util/Decorators';
 import { Promise } from '../../Promises';
 
@@ -65,7 +65,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
    private _engine: Engine;
    private _wasPlayingOnHidden: boolean = false;
    private _processedData = new Promise<string|AudioBuffer>();
-   private _audioContext = AudioContextOperator.getInstance().currentAudioCtxt;
+   private _audioContext = AudioContextFactory.create();
 
    /**
     * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
@@ -269,7 +269,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
       const complete = new Promise<AudioBuffer>();
 
       this._audioContext.decodeAudioData(data,
-         (buffer) => {
+         (buffer: AudioBuffer) => {
             complete.resolve(buffer);
          },
          () => {

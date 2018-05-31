@@ -1,7 +1,7 @@
 import { IAudio } from '../../Interfaces/IAudio';
 import { Promise } from '../../Promises';
 import * as Util from '../../Util/Util';
-import { AudioContextOperator } from './AudioContext';
+import { AudioContextFactory } from './AudioContext';
 import { obsolete } from '../../Util/Decorators';
 
 /**
@@ -223,7 +223,7 @@ export class WebAudioInstance extends AudioInstance {
 
    protected _src: AudioBuffer;
    protected _instance: AudioBufferSourceNode;
-   private _audioContext: AudioContext = AudioContextOperator.getInstance().currentAudioCtxt;
+   private _audioContext: AudioContext = AudioContextFactory.create();
    private _volumeNode = this._audioContext.createGain();
    private _startTime: number;
 
