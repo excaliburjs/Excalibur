@@ -619,7 +619,7 @@ describe('A game actor', () => {
       expect(parent.contains(550, 50)).toBeTruthy();
       expect(parent.contains(650, 150)).toBeTruthy();
 
-      // in world coordinates this should be false 
+      // in world coordinates this should be false
       expect(child.contains(50, 50)).toBeFalsy();
 
       // in world coordinates this should be true
@@ -1317,7 +1317,7 @@ describe('A game actor', () => {
          let s = texture.asSprite();
          s.scale.setTo(1, 1);
          actor.addDrawing(s);
-         
+
          let a1 = new ex.Actor({scale: new ex.Vector(3, 3)});
          a1.scale.setTo(3, 3);
          a1.addDrawing(texture);
@@ -1325,22 +1325,22 @@ describe('A game actor', () => {
          let a2 = new ex.Actor({scale: new ex.Vector(3, 3)});
          a1.scale.setTo(3, 3);
          a2.addDrawing(texture);
-         
+
 
          a1.draw(engine.ctx, 100);
          a2.draw(engine.ctx, 100);
          actor.draw(engine.ctx, 100);
          engine.ctx.fillRect(0, 0, 200, 200);
-         
+
          a1.draw(engine.ctx, 100);
          a2.draw(engine.ctx, 100);
          actor.draw(engine.ctx, 100);
          engine.ctx.fillRect(0, 0, 200, 200);
-         
+
 
          a1.draw(engine.ctx, 100);
          a2.draw(engine.ctx, 100);
-         
+
          engine.ctx.clearRect(0, 0, 200, 200);
          actor.draw(engine.ctx, 100);
 
@@ -1348,12 +1348,22 @@ describe('A game actor', () => {
 
       });
    });
-   
+
+   it('when killed should not be killed again by the scene removing it', () => {
+      spyOn(actor, 'kill').and.callThrough();
+
+
+      scene.add(actor);
+      actor.kill();
+
+
+      expect(actor.kill).toHaveBeenCalledTimes(1);
+   });
 
    describe('lifecycle overrides', () => {
 
       let actor: ex.Actor = null;
-      
+
       beforeEach(() => {
          actor = new ex.Actor({
             pos: new ex.Vector(10, 10),
@@ -1365,7 +1375,7 @@ describe('A game actor', () => {
       it('can have onInitialize overriden safely', () => {
          let initCalled = false;
          actor.on('initialize', () => { initCalled = true; });
-         actor.onInitialize = (engine) => { 
+         actor.onInitialize = (engine) => {
             expect(engine).not.toBe(null);
          };
 
@@ -1378,7 +1388,7 @@ describe('A game actor', () => {
          expect(actor.onInitialize).toHaveBeenCalledTimes(1);
          expect(initCalled).toBe(true);
          expect(actor.isInitialized).toBe(true);
-         
+
       });
 
       it('can have onPostUpdate overriden safely', () => {
@@ -1395,7 +1405,7 @@ describe('A game actor', () => {
          expect(actor._postupdate).toHaveBeenCalledTimes(2);
          expect(actor.onPostUpdate).toHaveBeenCalledTimes(2);
       });
-   
+
       it('can have onPreUpdate overriden safely', () => {
          actor.onPreUpdate = (engine, delta) => {
             expect(engine).not.toBe(null);
@@ -1472,5 +1482,5 @@ describe('A game actor', () => {
       });
 
    });
- 
+
 });
