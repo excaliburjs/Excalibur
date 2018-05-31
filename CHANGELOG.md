@@ -12,7 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Added
 
-- `AudioContext` and `AudioContextOperator` Singleton for handling multiple instances of `AudioContext`.
+- `AudioContextFactory` which return Singleton of `AudioContext`.
 - `AudioInstance` with `WebAudioInstance` and `AudioTagInstance` implementations.
 - `MediaEvent` which extends `GameEvent` with `NativeSoundEvent` implementation.
 - `ExResponce` class with binded typings for responce types.
@@ -32,7 +32,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added `Sound.instances` getter, which returns active tracks. Playing or paused;
 - Added `Sound.getTrackId(track: [[AudioInstance]])` method. Which returns id of track provided,
  if it is in list of active tracks.
-- `Events` are moved to `Events` namespace and divided to `GameEvent` and `MediaEvent` separate Classes.
 - `WebAudio` is moved to `Utils` accordingly to it's purpose.
 
 ## Fixed
