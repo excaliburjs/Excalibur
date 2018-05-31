@@ -330,6 +330,25 @@ describe('A scene', () => {
       expect(updated).toBe(true, 'TileMap was not updated after timer callback');
    });
 
+   it('will return true if it is the current engine scene', () => {
+      engine.goToScene('root');
+      expect(scene.isCurrentScene()).toBe(true);
+   });
+
+   it('will not be the current scene if no engine is given', () => {
+      var otherScene = new ex.Scene();
+      expect(otherScene.isCurrentScene()).toBe(false);
+   });
+
+   it('will not be the current scene if the scene was switched', () => {
+      var otherScene = new ex.Scene();
+      engine.goToScene('root');
+      engine.addScene('secondaryScene', otherScene);
+      engine.goToScene('secondaryScene');
+
+      expect(scene.isCurrentScene()).toBe(false);
+      expect(otherScene.isCurrentScene()).toBe(true);
+   });
 
    describe('lifecycle overrides', () => {
       let scene: ex.Scene;
