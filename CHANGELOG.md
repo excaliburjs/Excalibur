@@ -12,7 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Changed
 - Refactored Easing functions to be reversable ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
-- Scene.Remove(Actor) now starts the Actor.Kill event cycle.([#981](https://github.com/excaliburjs/Excalibur/issues/981))
+- Scene.remove(Actor) now starts the Actor.Kill event cycle.([#981](https://github.com/excaliburjs/Excalibur/issues/981))
 
 ## Deprecated
 
@@ -46,7 +46,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
    - New Class `GlobalCoordinates` that contains Vectors for the world, the page, and the screen.
    - Added property `ICapturePointerConfig.captureDragEvents` which controls whether to emit drag events to the actor
    - Added property `PointerEvent.pointer` which equals the original pointer object
- 
+
 ## Deprecated
 
 - `Sprite.sx`, `Sprite.sy`, `Sprite.swidth`, `Sprite.sheight` has be deprecated in favor of `Sprite.x`, `Sprite.y`, `Sprite.width`, `Sprite.height` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
