@@ -66,7 +66,6 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
 
 
    private _isInitialized: boolean = false;
-   private _isCurrentScene: boolean = false;
 
    private _sortedDrawingTree: SortedList<Actor> = new SortedList<Actor>(Actor.prototype.getZIndex);
 
@@ -240,7 +239,6 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
    public _activate(oldScene: Scene, newScene: Scene): void {
       this._logger.debug('Scene.onActivate', this);
       this.onActivate(oldScene, newScene);
-      this._isCurrentScene = true;
    }
 
    /**
@@ -252,7 +250,6 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
    public _deactivate(oldScene: Scene, newScene: Scene): void {
       this._logger.debug('Scene.onDectivate', this);
       this.onDeactivate(oldScene, newScene);
-      this._isCurrentScene = false;
    }
 
    /**
@@ -735,7 +732,10 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
    }
 
    public isCurrentScene(): boolean {
-      return this._isCurrentScene;
+      if (this.engine) {
+         return this.engine.currentScene === this;
+      }
+      return false;
    }
 
    private _collectActorStats(engine: Engine) {
