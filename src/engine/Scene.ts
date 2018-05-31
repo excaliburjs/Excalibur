@@ -566,13 +566,9 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
          this.removeUIActor(entity);
          return;
       }
-      
+
       if (entity instanceof Actor) {
-
-         if(this._killQueue.indexOf(entity) == -1) {
-            this._removeChild(entity);
-         }
-
+         this._removeChild(entity);
          if (!entity.isKilled()) {
             entity.kill();
          }
