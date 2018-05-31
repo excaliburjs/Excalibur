@@ -1281,6 +1281,24 @@ describe('A game actor', () => {
       });
    });
 
+   it('when killed should not be killed again by the scene removing it', () => {
+      spyOn(actor, 'kill').and.callThrough();
+
+      scene.add(actor);
+      actor.kill();
+
+      expect(actor.kill).toHaveBeenCalledTimes(1);
+   });
+
+   it('when killed should be removed from the scene', () => {
+      spyOn(scene, 'remove').and.callThrough();
+
+      scene.add(actor);
+      actor.kill();
+
+      expect(scene.remove).toHaveBeenCalledWith(actor);
+   });
+
    describe('lifecycle overrides', () => {
 
       let actor: ex.Actor = null;

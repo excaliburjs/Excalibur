@@ -127,8 +127,8 @@ describe('A scene', () => {
       var sceneInitialized = false;
       var sceneActivated = false;
       var actorInitialized = false;
-      scene.on('initialize', (evt) => { 
-         sceneInitialized = true; 
+      scene.on('initialize', (evt) => {
+         sceneInitialized = true;
          expect(actorInitialized).toBe(true, 'Actor should be initialized before scene initilization');
       });
       var actor = new ex.Actor();
@@ -286,6 +286,27 @@ describe('A scene', () => {
       expect(updated).toBe(true, 'UIActor was not updated after timer callback');
    });
 
+   it('will kill the actor if the actor is removed from the scene', () => {
+      scene.add(actor);
+
+      spyOn(actor, 'kill').and.callThrough();
+
+      scene.remove(actor);
+
+      expect(actor.isKilled()).toBe(true);
+      expect(actor.kill).toHaveBeenCalledTimes(1);
+   });
+
+   it('will not kill the actor if it is already dead', () => {
+      scene.add(actor);
+      (actor as any)._isKilled = true;
+
+      spyOn(actor, 'kill').and.callThrough();
+
+      scene.remove(actor);
+      expect(actor.kill).toHaveBeenCalledTimes(0);
+   });
+
    it('will update TileMaps that were added in a Timer callback', () => {
       var updated = false;
       var tilemap = new ex.TileMap(0, 0, 1, 1, 1, 1);
@@ -336,7 +357,7 @@ describe('A scene', () => {
 
          engine.goToScene('root');
          (<any>engine)._update(100);
-            
+
          expect(initCalled).toBe(true);
          expect(scene.onInitialize).toHaveBeenCalledTimes(1);
       });
@@ -356,7 +377,7 @@ describe('A scene', () => {
          expect(scene._postupdate).toHaveBeenCalledTimes(2);
          expect(scene.onPostUpdate).toHaveBeenCalledTimes(2);
       });
-   
+
       it('can have onPreUpdate overriden safely', () => {
          scene.onPreUpdate = (engine, delta) => {
             expect(engine).not.toBe(null);
@@ -368,7 +389,7 @@ describe('A scene', () => {
 
          scene.update(engine, 100);
          scene.update(engine, 100);
-         
+
          expect(scene._preupdate).toHaveBeenCalledTimes(2);
          expect(scene.onPreUpdate).toHaveBeenCalledTimes(2);
       });
