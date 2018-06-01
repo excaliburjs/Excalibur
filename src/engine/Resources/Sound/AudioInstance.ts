@@ -46,7 +46,7 @@ export class AudioInstance implements IAudio {
    }
 
    protected _volume = 1;
-   protected _loop = true;
+   protected _loop = false;
    protected _playingPromise: Promise<boolean>;
    protected _isPlaying = false;
    protected _isPaused = false;
