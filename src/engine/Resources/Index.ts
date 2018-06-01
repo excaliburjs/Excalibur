@@ -1,3 +1,3 @@
 export * from './Resource';
-export * from './Sound';
+export * from './Sound/Index';
 export * from './Texture';

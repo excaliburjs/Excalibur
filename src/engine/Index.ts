@@ -14,6 +14,7 @@ export * from './Class';
 export * from './Configurable'
 export * from './Debug';
 export * from './EventDispatcher';
+export * from './Events/MediaEvents';
 export * from './Events';
 export * from './Group';
 export { Label, FontStyle, FontUnit, TextAlign, BaseAlign } from './Label';

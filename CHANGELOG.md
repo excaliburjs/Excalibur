@@ -7,17 +7,31 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
-  -Property scope `Pointer.actorsUnderPointer` changed to private;
+- Property scope `Pointer.actorsUnderPointer` changed to private;
+- Added `Sound.volume` & `Sound.loop` properties as a replacement for `Sound.setVolume()` and `Sound.setLoop()`. The methods `setVolume` and `setLoop` have been marked obsolete.
 
 ## Added
+
 - Allow timers to limit repeats to a finite number of times ([#957](https://github.com/excaliburjs/Excalibur/pull/974))
 - Convenience method on Scene to determine whether it is the current scene. Scene.isCurrentScene() ([#982](https://github.com/excaliburjs/Excalibur/issues/982))
 - New `PointerEvent.stopPropagation()` method added. Works the same way as    (`https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation`)
     ([#912](https://github.com/excaliburjs/Excalibur/issues/912))
 - New `Actor.getAncestors()` method, which retreives full array of current Actor ancestors
 - Static `Actor.defaults` prop, which implements `IActorDefaults`.
+- Native sound events now exposed
+  - `volumechange` - on playing sound volume change;
+  - `pause` - on playback pause;
+  - `stop` - on playback stop;
+  - `emptied` - on data cleanup(f.e. when setting new data);
+  - `resume` - on playback resume;
+  - `playbackstart` - on playback start;
+  - `playbackend` - on playback end;
+- Added `Sound.instances` getter, which returns active tracks. Playing or paused;
+- Added `Sound.getTrackId(track: [[AudioInstance]])` method. Which returns id of track provided,
+ if it is in list of active tracks.
 
 ## Changed
+
 - Refactored Easing functions to be reversable ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
 - Now at creation every `Actor.anchor` prop is set to default `Actor.defaults.anchor`.
 - Scene.remove(Actor) now starts the Actor.Kill event cycle.([#981](https://github.com/excaliburjs/Excalibur/issues/981))
@@ -26,6 +40,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `CapturePointer.update()` method now doesn't propagate event to actor, just verifies pointer events for actor.
 
 ## Fixed
+
 - Added missing variable assignments to TileMapImpl constructor ([#957](https://github.com/excaliburjs/Excalibur/pull/957))
 - Correct setting audio volume level from `value` to `setValueAtTime` to comply with deprecation warning in Chrome 59 ([#953](https://github.com/excaliburjs/Excalibur/pull/953))
 - Force HiDPI scaling to always be at least 1 to prevent visual artifacts in some browsers
@@ -33,6 +48,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix camera move chaining ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
 - Fix `pickSet(allowDuplicates: true)` now returns the proper length array with correct elements ([#977](https://github.com/excaliburjs/Excalibur/issues/977))
 - `Index` export order to prevent `almond.js` from creation of corrupted modules loading order.
+- `Sound.pause()` now saves correct timings.
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
