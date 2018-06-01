@@ -1,4 +1,4 @@
-import { ExResponce } from '../../Interfaces/IAudioImplementation';
+import { ExResponse } from '../../Interfaces/IAudioImplementation';
 import { IAudio } from '../../Interfaces/IAudio';
 import * as Util from '../../Util/Util';
 import { Engine } from '../../Engine';
