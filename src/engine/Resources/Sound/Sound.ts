@@ -73,7 +73,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
    constructor(...paths: string[]) {
       super('', '');
 
-      this._detectResponceType();
+      this._detectResponseType();
       /* Chrome : MP3, WAV, Ogg
          * Firefox : WAV, Ogg,
          * IE : MP3, WAV coming soon
@@ -319,11 +319,11 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
       return newTrack;
    }
 
-   private _detectResponceType() {
+   private _detectResponseType() {
       if ((<any>window).AudioContext) {
-         this.responseType = ExResponce.type.arraybuffer;
+         this.responseType = ExResponse.type.arraybuffer;
       } else {
-         this.responseType = ExResponce.type.blob;
+         this.responseType = ExResponse.type.blob;
       }
    }
 }
