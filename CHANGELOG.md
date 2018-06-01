@@ -7,21 +7,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
-- Added `Sound.volume` & `Sound.loop` props with accsessors for replacement of `Sound.setVolume()` and `Sound.setLoop()`
- methods. Also same changes was made in `IAudio` interface. This methods are marked as @obsolete.
+- Property scope `Pointer.actorsUnderPointer` changed to private;
+- Added `Sound.volume` & `Sound.loop` properties as a replacement for `Sound.setVolume()` and `Sound.setLoop()`. The methods `setVolume` and `setLoop` have been marked obsolete.
 
 ## Added
 
-- `AudioContextFactory` which return Singleton of `AudioContext`.
-- `AudioInstance` with `WebAudioInstance` and `AudioTagInstance` implementations.
-- `MediaEvent` which extends `GameEvent` with `NativeSoundEvent` implementation.
-- `ExResponce` class with binded typings for responce types.
-
-## Changed
-
-- `Sound` moved to new namespace `Resources.Sound` due to growing functionality.
-- `Sound` now extends `Resource` with all functionality.
-- `Sound` now could be signed on:
+- Allow timers to limit repeats to a finite number of times ([#957](https://github.com/excaliburjs/Excalibur/pull/974))
+- Convenience method on Scene to determine whether it is the current scene. Scene.isCurrentScene() ([#982](https://github.com/excaliburjs/Excalibur/issues/982))
+- New `PointerEvent.stopPropagation()` method added. Works the same way as    (`https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation`)
+    ([#912](https://github.com/excaliburjs/Excalibur/issues/912))
+- New `Actor.getAncestors()` method, which retreives full array of current Actor ancestors
+- Static `Actor.defaults` prop, which implements `IActorDefaults`.
+- Native sound events now exposed
   - `volumechange` - on playing sound volume change;
   - `pause` - on playback pause;
   - `stop` - on playback stop;
@@ -32,28 +29,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added `Sound.instances` getter, which returns active tracks. Playing or paused;
 - Added `Sound.getTrackId(track: [[AudioInstance]])` method. Which returns id of track provided,
  if it is in list of active tracks.
-- `WebAudio` is moved to `Utils` accordingly to it's purpose.
-
-## Fixed
-
-- `Sound.pause()` now saves correct timings.
-
-<!----------------------------------------------------------------------------------------------->
-
-## Unreleased
-
-## Breaking Changes
-
-- Property scope `Pointer.actorsUnderPointer` changed to private;
-
-## Added
-
-- Allow timers to limit repeats to a finite number of times ([#957](https://github.com/excaliburjs/Excalibur/pull/974))
-- Convenience method on Scene to determine whether it is the current scene. Scene.isCurrentScene() ([#982](https://github.com/excaliburjs/Excalibur/issues/982))
-- New `PointerEvent.stopPropagation()` method added. Works the same way as    (`https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation`)
-    ([#912](https://github.com/excaliburjs/Excalibur/issues/912))
-- New `Actor.getAncestors()` method, which retreives full array of current Actor ancestors
-- Static `Actor.defaults` prop, which implements `IActorDefaults`.
 
 ## Changed
 
@@ -73,6 +48,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix camera move chaining ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
 - Fix `pickSet(allowDuplicates: true)` now returns the proper length array with correct elements ([#977](https://github.com/excaliburjs/Excalibur/issues/977))
 - `Index` export order to prevent `almond.js` from creation of corrupted modules loading order.
+- `Sound.pause()` now saves correct timings.
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
