@@ -237,7 +237,6 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
     * @internal
     */
    public _activate(oldScene: Scene, newScene: Scene): void {
-
       this._logger.debug('Scene.onActivate', this);
       this.onActivate(oldScene, newScene);
    }
@@ -308,7 +307,6 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
    public update(engine: Engine, delta: number) {
       this._preupdate(engine, delta);
       var i: number, len: number;
-
       // Remove timers in the cancel queue before updating them
       for (i = 0, len = this._cancelQueue.length; i < len; i++) {
          this.removeTimer(this._cancelQueue[i]);
@@ -567,9 +565,12 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
          this.removeUIActor(entity);
          return;
       }
+
       if (entity instanceof Actor) {
-         this._broadphase.untrack(entity.body);
          this._removeChild(entity);
+         if (!entity.isKilled()) {
+            entity.kill();
+         }
       }
       if (entity instanceof Timer) {
          this.removeTimer(entity);
@@ -731,6 +732,13 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
     */
    public updateDrawTree(actor: Actor) {
       this._sortedDrawingTree.add(actor);
+   }
+
+   public isCurrentScene(): boolean {
+      if (this.engine) {
+         return this.engine.currentScene === this;
+      }
+      return false;
    }
 
    private _collectActorStats(engine: Engine) {
