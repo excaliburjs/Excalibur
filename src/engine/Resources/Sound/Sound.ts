@@ -58,7 +58,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
 
    public path: string;
 
-   private _loop = true;
+   private _loop = false;
    private _volume = 1;
    private _isPaused = false;
    private _tracks: AudioInstance[] = [];
