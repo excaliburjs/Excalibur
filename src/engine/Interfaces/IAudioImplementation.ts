@@ -7,7 +7,7 @@ export interface IExResponseTypesLookup {
    [name: string]: ExResponseType;
 }
 
-export class ExResponce {
+export class ExResponse {
    public static type: IExResponseTypesLookup = {
       any: '',
       blob: 'blob',
