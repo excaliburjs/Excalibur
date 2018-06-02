@@ -7,25 +7,41 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
-  -Property scope `Pointer.actorsUnderPointer` changed to private;
+- Property scope `Pointer.actorsUnderPointer` changed to private;
+- Added `Sound.volume` & `Sound.loop` properties as a replacement for `Sound.setVolume()` and `Sound.setLoop()`. The methods `setVolume` and `setLoop` have been marked obsolete.
 
 ## Added
+
 - Allow timers to limit repeats to a finite number of times ([#957](https://github.com/excaliburjs/Excalibur/pull/974))
 - Convenience method on Scene to determine whether it is the current scene. Scene.isCurrentScene() ([#982](https://github.com/excaliburjs/Excalibur/issues/982))
-- New `PointerEvent.stopPropagation()` method added. Works the same way as    (`https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation`)
-    ([#912](https://github.com/excaliburjs/Excalibur/issues/912))
+- New `PointerEvent.stopPropagation()` method added. Works the same way as (`https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation`)
+  ([#912](https://github.com/excaliburjs/Excalibur/issues/912))
 - New `Actor.getAncestors()` method, which retreives full array of current Actor ancestors
 - Static `Actor.defaults` prop, which implements `IActorDefaults`.
+- Native sound events now exposed
+  - `volumechange` - on playing sound volume change;
+  - `pause` - on playback pause;
+  - `stop` - on playback stop;
+  - `emptied` - on data cleanup(f.e. when setting new data);
+  - `resume` - on playback resume;
+  - `playbackstart` - on playback start;
+  - `playbackend` - on playback end;
+- Added `Sound.instances` getter, which returns active tracks. Playing or paused;
+- Added `Sound.getTrackId(track: [[AudioInstance]])` method. Which returns id of track provided,
+  if it is in list of active tracks.
 
 ## Changed
+
 - Refactored Easing functions to be reversable ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
 - Now at creation every `Actor.anchor` prop is set to default `Actor.defaults.anchor`.
 - Scene.remove(Actor) now starts the Actor.Kill event cycle.([#981](https://github.com/excaliburjs/Excalibur/issues/981))
 
 ## Deprecated
+
 - `CapturePointer.update()` method now doesn't propagate event to actor, just verifies pointer events for actor.
 
 ## Fixed
+
 - Added missing variable assignments to TileMapImpl constructor ([#957](https://github.com/excaliburjs/Excalibur/pull/957))
 - Correct setting audio volume level from `value` to `setValueAtTime` to comply with deprecation warning in Chrome 59 ([#953](https://github.com/excaliburjs/Excalibur/pull/953))
 - Force HiDPI scaling to always be at least 1 to prevent visual artifacts in some browsers
@@ -33,6 +49,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix camera move chaining ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
 - Fix `pickSet(allowDuplicates: true)` now returns the proper length array with correct elements ([#977](https://github.com/excaliburjs/Excalibur/issues/977))
 - `Index` export order to prevent `almond.js` from creation of corrupted modules loading order.
+- `Sound.pause()` now saves correct timings.
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
@@ -40,23 +57,23 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Added
 
- - New typesafe and override safe event lifecycle overriding, all `onEventName` handlers will no longer be dangerous to override ([#582](https://github.com/excaliburjs/Excalibur/issues/582))
-   * New lifecycle event `onPreKill` and `onPostKill`
- - SpriteSheets can now produce animations from bespoke sprite coordinates `SpriteSheet.getAnimationByCoords(engine, coords[], speed)` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
- - Added drag and drop support for Actors ([#134](https://github.com/excaliburjs/Excalibur/issues/134))
-   - New Event `enter`
-   - New Event `leave`
-   - New Event `pointerenter`
-   - New Event `pointerleave`
-   - New Event `pointerdragstart`
-   - New Event `pointerdragend`
-   - New Event `pointerdragmove`
-   - New Event `pointerdragenter`
-   - New Event `pointerdragleave`
-   - New Class `PointerDragEvent` which extends `PointerEvent`
-   - New Class `GlobalCoordinates` that contains Vectors for the world, the page, and the screen.
-   - Added property `ICapturePointerConfig.captureDragEvents` which controls whether to emit drag events to the actor
-   - Added property `PointerEvent.pointer` which equals the original pointer object
+- New typesafe and override safe event lifecycle overriding, all `onEventName` handlers will no longer be dangerous to override ([#582](https://github.com/excaliburjs/Excalibur/issues/582))
+  - New lifecycle event `onPreKill` and `onPostKill`
+- SpriteSheets can now produce animations from bespoke sprite coordinates `SpriteSheet.getAnimationByCoords(engine, coords[], speed)` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
+- Added drag and drop support for Actors ([#134](https://github.com/excaliburjs/Excalibur/issues/134))
+  - New Event `enter`
+  - New Event `leave`
+  - New Event `pointerenter`
+  - New Event `pointerleave`
+  - New Event `pointerdragstart`
+  - New Event `pointerdragend`
+  - New Event `pointerdragmove`
+  - New Event `pointerdragenter`
+  - New Event `pointerdragleave`
+  - New Class `PointerDragEvent` which extends `PointerEvent`
+  - New Class `GlobalCoordinates` that contains Vectors for the world, the page, and the screen.
+  - Added property `ICapturePointerConfig.captureDragEvents` which controls whether to emit drag events to the actor
+  - Added property `PointerEvent.pointer` which equals the original pointer object
 
 ## Deprecated
 
@@ -76,10 +93,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.15.0] - 2018-02-16
 
 ## Breaking Changes
+
 - `LockedCamera` replaced with `BaseCamera.strategy.lockToActor`
 - `SideCamera` replaced with `BaseCamera.strategy.lockToActorAxis`
 - `Body.wasTouching` replaced with event type `CollisionEnd`
+
 ## Added
+
 - Option bag constructors have been added for commonly-used classes (see [Constructors.md](https://github.com/excaliburjs/Excalibur/blob/master/src/engine/Docs/Constructors.md)) ([#410](https://github.com/excaliburjs/Excalibur/issues/410))
 
 <!----------------------------------------------------------------------------------------------->
@@ -87,6 +107,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.14.0] - 2017-12-02
 
 ## Breaking Changes
+
 - Triggers now have a new option bag constructor using the `ITriggerOptions` interface. ([#863](https://github.com/excaliburjs/Excalibur/issues/863)).
 - `update` event replaced with `postupdate` event
 - `CollisionEvent` replaced by `PreCollisionEvent`
@@ -94,26 +115,30 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `PointerEvent.x` and `PointerEvent.y` replaced with `PointerEvent.pos`
 
 ## Added
+
 - Automatic HiDPI screen detection and scaling in excalibur internals to correct blurry bitmap rendering on HiDPI screens. This feature can optionally be suppressed with `IEngineOptions.suppressHiDPIScaling`.
 - Added new line utility `Line.normal()` and `Line.distanceToPoint` ([#703](https://github.com/excaliburjs/Excalibur/issues/703))
 - Added new PolygonArea utility `PolygonArea.getClosestFace(point)` ([#703](https://github.com/excaliburjs/Excalibur/issues/703))
 - Triggers now fire an `EnterTriggerEvent` when an actor enters the trigger, and an `ExitTriggerEvent` when an actor exits the trigger. ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 - Actors have a new events `CollisionStart` which when 2 actors first start colliding and `CollisionEnd` when 2 actors are no longer colliding. ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 - New camera strategies implementation for following targets in a scene. Allows for custom strategies to be implemented on top of some prebuilt
-   - `LockCameraToActorStrategy` which behaves like `LockedCamera` and can be switched on with `Camera.strategy.lockToActor(actor)`.
-   - `LockCameraToActorAxisStrategy` which behaves like `SideCamera` and can be switched on with `Camera.strategy.lockToActorAxis(actor, ex.Axis.X)`
-   - `ElasticToActorStrategy` which is a new strategy that elastically moves the camera to an actor and can be switched on with `Camera.strategy.elasticToActor(actor, cameraElasticity, cameraFriction)`
-   - `CircleAroundActorStrategy` which is a new strategy that will follow an actor when a certain radius from the camera focus and can be switched on with `Camera.strategy.circleAroundActor(actor)`
+  - `LockCameraToActorStrategy` which behaves like `LockedCamera` and can be switched on with `Camera.strategy.lockToActor(actor)`.
+  - `LockCameraToActorAxisStrategy` which behaves like `SideCamera` and can be switched on with `Camera.strategy.lockToActorAxis(actor, ex.Axis.X)`
+  - `ElasticToActorStrategy` which is a new strategy that elastically moves the camera to an actor and can be switched on with `Camera.strategy.elasticToActor(actor, cameraElasticity, cameraFriction)`
+  - `CircleAroundActorStrategy` which is a new strategy that will follow an actor when a certain radius from the camera focus and can be switched on with `Camera.strategy.circleAroundActor(actor)`
 
 ## Changed
+
 - Trigger have been rebuilt to provide a better experience. The trigger `action` only fires when an actor enters the designated area instead of every frame of collision. ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 - Triggers can now draw like other Actors, but are still not visible by default ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 
 ## Deprecated
+
 - `Body.wasTouching` has been deprecated in favor of a new event type `CollisionEnd` ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 - `SideCamera` and `LockedCamera` are deprecated in favor of camera strategies
 
 ## Fixed
+
 - Fixed odd jumping behavior when polygons collided with the end of an edge ([#703](https://github.com/excaliburjs/Excalibur/issues/703))
 
 <!----------------------------------------------------------------------------------------------->
@@ -121,21 +146,24 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.13.0] - 2017-10-07
 
 ### Breaking Changes
+
 - `Scene.children` replaced with `Scene.actors`
 
 ### Added
+
 - Convenience getters implemented `halfDrawWidth`, `halfDrawHeight`, `halfCanvasWidth`, `halfCanvasHeight`, `canvasWidth`, and `canvasHeight`.
 - New pause/unpause feature for timers to help with more robust pausing ([#885](https://github.com/excaliburjs/Excalibur/issues/885))
 - New event listening feature to listen to events only `.once(...)` then unsubscribe automatically ([#745](https://github.com/excaliburjs/Excalibur/issues/745))
 - New collision event `postcollision` to indicate if collision resolution occured ([#880](https://github.com/excaliburjs/Excalibur/issues/880))
 
 ### Deprecated
+
 - `PointerEvent.x` and `PointerEvent.y`, in favor of `PointerEvent.pos` ([#612](https://github.com/excaliburjs/Excalibur/issues/612))
 - `CollisionEvent` has been deprecated in favor of the more clear `PreCollisionEvent` ([#880](https://github.com/excaliburjs/Excalibur/issues/880))
 - `getDrawWidth()` and `getDrawHeight()` have been marked obsolete and changed into the getters `drawWidth` and `drawHeight` respectively in order to progressively make getters/setters consistent ([#861](https://github.com/excaliburjs/Excalibur/issues/612))
 
-
 ### Fixed
+
 - Fixed same instance of color potentially being shared, and thus mutated, between instance actors ([#840](https://github.com/excaliburjs/Excalibur/issues/840))
 - Fixed bug where active and passive type collisions would resolve when they shouldn't when in rigid body mode ([#880](https://github.com/excaliburjs/Excalibur/issues/880))
 
@@ -144,14 +172,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.12.0] 2017-08-12
 
 ### Breaking Changes
+
 - `CollisionType.Elastic` has been removed
 - `Promises.wrap` has been replaced with `Promise.resolve`
+
 ### Added
+
 - Added new hsl and hex format options in Color.toString(format) using rgb as the default to maintain backwards compatibility ([#852](https://github.com/excaliburjs/Excalibur/issues/852))
+
 ### Changed
+
 - `Animation.loop` property now to set to `true` by default ([#583](https://github.com/excaliburjs/Excalibur/issues/583))
 - Added backgroundColor to engine options as part of Engine constructor ([#846](https://github.com/excaliburjs/Excalibur/issues/846))
+
 ### Deprecated
+
 - `ex.Scene.children` is now `ex.Scene.actors` ([#796](https://github.com/excaliburjs/Excalibur/issues/796))
 
 <!----------------------------------------------------------------------------------------------->
@@ -159,19 +194,23 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.11.0] 2017-06-10
 
 ### Breaking Changes
+
 - Renamed Utils.removeItemToArray() to Utils.removeItemFromArray() ([#798](https://github.com/excaliburjs/Excalibur/issues/798/))
 
 ### Added
+
 - Added optional volume argument to `Sound.play(volume?: number)`, which will play the Audio file at anywhere from mute (`volume` is 0.0) to full volume (`volume` is 1.0). ([#801](https://github.com/excaliburjs/Excalibur/issues/801))
 - Added another DisplayMode option: `DisplayMode.Position`. When this is selected as the displayMode type, the user must specify a new `position` option ([#781](https://github.com/excaliburjs/Excalibur/issues/781))
 - Added a static method `distance` to the `Vector` class ([#517](https://github.com/excaliburjs/Excalibur/issues/517))
 - Added `WheelEvent` event type for the `wheel` browser event, Excalibur now supports scroll wheel ([#808](https://github.com/excaliburjs/Excalibur/issues/808/))
 
 ### Changed
+
 - Camera zoom over time now returns a promise that resolves on completion ([#800](https://github.com/excaliburjs/Excalibur/issues/800))
 - Edge builds have more descriptive versions now containing build number and Git commit hash (e.g. `0.10.0-alpha.105#commit`) ([#777](https://github.com/excaliburjs/Excalibur/issues/777))
 
 ### Fixed
+
 - Fixed camera zoom over time, before it did not work at all ([#800](https://github.com/excaliburjs/Excalibur/issues/800))
 - Fixed semi-colon key not being detected on Firefox and Opera. ([#789](https://github.com/excaliburjs/Excalibur/issues/789))
 
@@ -180,12 +219,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.10.0] 2017-04-07
 
 ### Breaking Changes
+
 - Rename `Engine.width` and `Engine.height` to be `Engine.canvasWidth` and `Engine.canvasHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
 - Rename `Engine.getWidth` and `Engine.getHeight` to be `Engine.getDrawWidth` and `Engine.getDrawHeight` ([#591](https://github.com/excaliburjs/Excalibur/issues/591))
 - Changed `GameEvent` to be a generic type for TypeScript, allowing strongly typing the `target` property. ([#724](https://github.com/excaliburjs/Excalibur/issue/724))
 - Removed `Body.useEdgeCollision()` parameter `center` ([#724](https://github.com/excaliburjs/Excalibur/issue/724))
 
 ### Added
+
 - Added `Engine.isPaused` to retrieve the running status of Engine ([#750](https://github.com/excaliburjs/Excalibur/issues/750))
 - Added `Engine.getWorldBounds` to provide a quick way to get the top left corner and bottom right corner of the screen ([#729](https://github.com/excaliburjs/Excalibur/issues/729))
 - Added predraw and postdraw events to `Engine` class. These events happen when prior to and after a draw ([#744](https://github.com/excaliburjs/Excalibur/issues/744))
@@ -193,10 +234,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added font styles support for normal, italic, and oblique in addition to bold text support ([#563](https://github.com/excaliburjs/Excalibur/issues/563))
 
 ### Changed
+
 - Update project to use TypeScript 2.2.2 ([#762](https://github.com/excaliburjs/Excalibur/issues/762))
 - Changed `Util.extend` to include `Object.assign` functionality ([#763](https://github.com/excaliburjs/Excalibur/issues/763))
 
 ### Fixed
+
 - Update the order of the affine transformations to fix bug when scaling and rotating Actors ([#770](https://github.com/excaliburjs/Excalibur/issues/770))
 
 <!----------------------------------------------------------------------------------------------->
@@ -204,6 +247,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.9.0] 2017-02-09
 
 ### Added
+
 - Added `preupdate`, `postupdate`, `predraw`, `postdraw` events to TileMap
 - Added `ex.Random` with seed support via Mersenne Twister algorithm ([#538](https://github.com/excaliburjs/Excalibur/issues/538))
 - Added extended feature detection and reporting to `ex.Detector` ([#707](https://github.com/excaliburjs/Excalibur/issues/707))
@@ -222,10 +266,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added `Pointer.lastPagePos`, `Pointer.lastScreenPos` and `Pointer.lastWorldPos` that store the last pointer move coordinates ([#509](https://github.com/excaliburjs/Excalibur/issues/509))
 
 ### Changed
+
 - Changed Util.clamp to use math libraries ([#536](https://github.com/excaliburjs/Excalibur/issues/536))
 - Upgraded to TypeScript 2.1.4 ([#726](https://github.com/excaliburjs/Excalibur/issues/726))
 
 ### Fixed
+
 - Fixed Scene/Actor activation and initialization order, actors were not being initialized before scene activation causing bugs ([#661](https://github.com/excaliburjs/Excalibur/issues/661))
 - Fixed bug with Excalibur where it would not load if a loader was provided without any resources ([#565](https://github.com/excaliburjs/Excalibur/issues/565))
 - Fixed bug where an Actor/UIActor/TileMap added during a Timer callback would not initialize before running `draw` loop. ([#584](https://github.com/excaliburjs/Excalibur/issues/584))
@@ -236,6 +282,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.8.0] 2016-12-04
 
 ### Added
+
 - `ex.Vector.magnitude` alias that calls `ex.Vector.distance()` to get magnitude of Vector ([#663](https://github.com/excaliburjs/Excalibur/issues/663))
 - Added new `ex.Line` utilities ([#662](https://github.com/excaliburjs/Excalibur/issues/662)):
   - `ex.Line.slope` for the raw slope (m) value
@@ -256,12 +303,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Added fast BoundingBox raycast test
 
 ### Changed
+
 - Internal physics names refactored to be more readable and to use names more in line with game engine terminology (explicit broadphase and narrowphase called out)
 
 ### Deprecated
+
 - `ex.Promise.wrap` ([#501](https://github.com/excaliburjs/Excalibur/issues/501))
 
 ### Fixed
+
 - Fix `Actor.oldPos` and `Actor.oldVel` values on update ([#666](https://github.com/excaliburjs/Excalibur/issues/666))
 - Fix `Label.getTextWidth` returns incorrect result ([#679](https://github.com/excaliburjs/Excalibur/issues/679))
 - Fix semi-transparent PNGs appear garbled ([#687](https://github.com/excaliburjs/Excalibur/issues/687))
@@ -273,12 +323,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.7.1] - 2016-10-03
 
 ### Breaking Changes
+
 - Refactored and modified Sound API ([#644](https://github.com/excaliburjs/Excalibur/issues/644))
   - `Sound.setData` now returns a Promise which differs from previous API
   - Removed internal `FallbackAudio` and `Sound` classes and replaced with single `Sound` class
   - Added `AudioTagInstance` and `WebAudioInstance` internal classes
 
 ### Added
+
 - `ex.Promise.join(Promise[])` support (in addition to `...promises` support) ([#642](https://github.com/excaliburjs/Excalibur/issues/642))
 - Moved build artifacts to separate [excalibur-dist](https://github.com/excaliburjs/excalibur-dist) repository ([#648](https://github.com/excaliburjs/Excalibur/issues/648))
 - `ex.Events` namespace and typed event handler `.on(...)` overloads for default events on core excalibur objects ([#639](https://github.com/excaliburjs/Excalibur/issues/639))
@@ -286,6 +338,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Two new parameters to `ex.Util.DrawUtil.line` that accept a line thickness and end-cap style ([#658](https://github.com/excaliburjs/Excalibur/issues/658))
 
 ### Fixed
+
 - `Actor.actions.fade` properly supporting fading between 0 and 1 and vice versa ([#640](https://github.com/excaliburjs/Excalibur/issues/640))
 - Fix issues with audio offset tracking and muting while game is invisible ([#644](https://github.com/excaliburjs/Excalibur/issues/644))
 - `Actor.getHeight()` and `Actor.getWidth()` now take into account parent scaling ([#645](https://github.com/excaliburjs/Excalibur/issues/645))
@@ -298,7 +351,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 <!----------------------------------------------------------------------------------------------->
 
 ## [0.7.0] - 2016-08-29
+
 ### Breaking Changes
+
 - Code marked 'Obsolete' has been removed ([#625](https://github.com/excaliburjs/Excalibur/issues/625), [#603](https://github.com/excaliburjs/Excalibur/issues/603))
   - `Actor`
     - `addEventListener`
@@ -314,6 +369,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Removed ex.Template and ex.Binding ([#627](https://github.com/excaliburjs/Excalibur/issues/627))
 
 ### Added
+
 - New physics system, physical properties for Actors ([#557](https://github.com/excaliburjs/Excalibur/issues/557), [#472](https://github.com/excaliburjs/Excalibur/issues/472))
 - Read The Docs support for documentation ([#558](https://github.com/excaliburjs/Excalibur/issues/558))
 - Continuous integration builds unstable packages and publishes them ([#567](https://github.com/excaliburjs/Excalibur/issues/567))
@@ -325,6 +381,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Initial support for [Yeoman generator](https://github.com/excaliburjs/generator-excalibur) ([#578](https://github.com/excaliburjs/Excalibur/issues/578))
 
 ### Changed
+
 - Upgraded Jasmine testing framework to version 2.4 ([#126](https://github.com/excaliburjs/Excalibur/issues/126))
 - Updated TypeScript to 1.8 ([#596](https://github.com/excaliburjs/Excalibur/issues/596))
 - Improved contributing document ([#560](https://github.com/excaliburjs/Excalibur/issues/560))
@@ -333,6 +390,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Ignored additional files for Bower publishing ([#614](https://github.com/excaliburjs/Excalibur/issues/614))
 
 ### Fixed
+
 - Actions on the action context threw an error ([#564](https://github.com/excaliburjs/Excalibur/issues/564))
 - Actor `getLeft()`, `getTop()`, `getBottom()` and `getRight()` did not respect anchors ([#568](https://github.com/excaliburjs/Excalibur/issues/568))
 - Actor.actions.rotateTo and rotateBy were missing RotationType ([#575](https://github.com/excaliburjs/Excalibur/issues/575))
@@ -347,7 +405,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 <!----------------------------------------------------------------------------------------------->
 
 ## [0.6.0] - 2016-01-19
+
 ### Added
+
 - GamePads now have a connection event ([#473](https://github.com/excaliburjs/Excalibur/issues/473))
 - Unit circle drawing for debug mode ([#467](https://github.com/excaliburjs/Excalibur/issues/467))
 - Engine now fails gracefully in unsupported browsers ([#386](https://github.com/excaliburjs/Excalibur/issues/386))
@@ -358,6 +418,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Cameras now have position, velocity, and acceleration properties ([#490](https://github.com/excaliburjs/Excalibur/issues/490))
 
 ### Changed
+
 - `Actor.addChild()` changed to `Actor.add()` ([#519](https://github.com/excaliburjs/Excalibur/issues/519))
 - `Actor.removeChild()` changed to `Actor.remove()` ([#519](https://github.com/excaliburjs/Excalibur/issues/519))
 - Documentation is only deployed on changes to the master git branch ([#483](https://github.com/excaliburjs/Excalibur/issues/483))
@@ -367,6 +428,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Changed API for Key events ([#502](https://github.com/excaliburjs/Excalibur/issues/502))
 
 ### Fixed
+
 - Actors now properly collide with TileMaps ([#541](https://github.com/excaliburjs/Excalibur/issues/541))
 - Gamepad detection is fixed ([#460](https://github.com/excaliburjs/Excalibur/issues/460), [#518](https://github.com/excaliburjs/Excalibur/issues/518))
 - Actor scale now correctly occurs after translation ([#514](https://github.com/excaliburjs/Excalibur/issues/514))
@@ -387,11 +449,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 <!----------------------------------------------------------------------------------------------->
 
 ## [0.5.1] - 2015-06-26
+
 ### Added
+
 - Actors can now recursively check the containment of their children ([#453](https://github.com/excaliburjs/Excalibur/issues/453))
 - `RotateTo` and `RotateBy` now support ShortestPath, LongestPath, Clockwise, and Counterclockwise rotation ([#461](https://github.com/excaliburjs/Excalibur/issues/461))
 
 ### Fixed
+
 - `Actor.contains()` did not work for child actors ([#147](https://github.com/excaliburjs/Excalibur/issues/147))
 - Unexpected placement occasionally occurred for Actors with certain collision types ([#319](https://github.com/excaliburjs/Excalibur/issues/319))
 - Velocity wasn’t updating properly when fixed and active Actors collided ([#454](https://github.com/excaliburjs/Excalibur/issues/454))
@@ -403,7 +468,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 <!----------------------------------------------------------------------------------------------->
 
 ## [0.5.0] - 2015-06-03
+
 ### Added
+
 - resource cache busting ([#280](https://github.com/excaliburjs/Excalibur/issues/280))
 - HTML5 Gamepad API support ([#15](https://github.com/excaliburjs/Excalibur/issues/15))
 - Browserify support ([#312](https://github.com/excaliburjs/Excalibur/issues/312))
@@ -417,6 +484,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - gray `Color` constants ([#209](https://github.com/excaliburjs/Excalibur/issues/209))
 
 ### Changed
+
 - Renamed `engine.addChild()` to `engine.add()` ([#288](https://github.com/excaliburjs/Excalibur/issues/288))
 - Renamed `setSpriteTransformationPoint()` to `setAnchor()` ([#269](https://github.com/excaliburjs/Excalibur/issues/269))
 - Renamed `TopCamera` to `LockedCamera` ([#184](https://github.com/excaliburjs/Excalibur/issues/184))
@@ -435,6 +503,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - TSLint now used to enforce code quality
 
 ### Fixed
+
 - A Sprite’s dimensions weren’t validated against the size of its texture ([#318](https://github.com/excaliburjs/Excalibur/issues/318))
 - Improved sprite drawing performance issues ([#316](https://github.com/excaliburjs/Excalibur/issues/316))
 - Actors were sometimes throwing duplicate collision events ([#284](https://github.com/excaliburjs/Excalibur/issues/284))
@@ -477,13 +546,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 <!----------------------------------------------------------------------------------------------->
 
 ## [0.2.2] - 2014-04-15
+
 ### Fixed
+
 - Removed extra declarations file from package that was causing visual studio build problems
 
 <!----------------------------------------------------------------------------------------------->
 
 ## [0.2.0] - 2014-04-09
+
 ### Added
+
 - Visual Studio 2013 template support ([#139](https://github.com/excaliburjs/Excalibur/issues/139))
 - Collision Map for building large static collidable levels ([#33](https://github.com/excaliburjs/Excalibur/issues/33))
 - Redundant fallback sound sources for cross browser support ([#125](https://github.com/excaliburjs/Excalibur/issues/125))
@@ -504,6 +577,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added follow() and meet() action to actor ([#77](https://github.com/excaliburjs/Excalibur/issues/77))
 
 ### Changed
+
 - 'engine.goToScene()' replaces push and pop ([#168](https://github.com/excaliburjs/Excalibur/issues/168))
 - More intuitive starting workflow ([#149](https://github.com/excaliburjs/Excalibur/issues/149))
 - Collisions are now more concrete on actors with CollisionType ([#241](https://github.com/excaliburjs/Excalibur/issues/241))
@@ -513,6 +587,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Build system with Grunt ([#92](https://github.com/excaliburjs/Excalibur/issues/92))
 
 ### Fixed
+
 - Collision event was firing after other actor has been killed ([#228](https://github.com/excaliburjs/Excalibur/issues/228))
 - Additional actor was killed when actor.kill() is called ([#226](https://github.com/excaliburjs/Excalibur/issues/226))
 - Fixed loading bar ([#195](https://github.com/excaliburjs/Excalibur/issues/195))
@@ -524,18 +599,23 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 <!----------------------------------------------------------------------------------------------->
 
 ## [0.1.1] - 2013-12-19
+
 ### Changed
+
 - Refactored Keys to be less confusing ([#115](https://github.com/excaliburjs/Excalibur/issues/115))
 - Refactored ActorEvent to be less confusing ([#113](https://github.com/excaliburjs/Excalibur/issues/113))
 
 ### Fixed
+
 - 'update' event on the Engine now fires correctly ([#105](https://github.com/excaliburjs/Excalibur/issues/105))
 - Actor.extend works on subclasses now ([#103](https://github.com/excaliburjs/Excalibur/issues/103))
 
 <!----------------------------------------------------------------------------------------------->
 
 ## 0.1.0 - 2013-12-11
+
 ### Added
+
 - Actor based paradigm for managing game objects
 - Built-in scripting for actors, allowing objects to move, rotate, blink, scale, and repeat actions
 - Entity-entity collision detection
@@ -549,7 +629,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Resource loading with optional custom progress bars
 
 <!----------------------------------------------------------------------------------------------->
-[Unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.16.0...HEAD
+
+[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.16.0...HEAD
 [0.16.0]: https://github.com/excaliburjs/Excalibur/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/excaliburjs/Excalibur/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/excaliburjs/Excalibur/compare/v0.13.0...v0.14.0
@@ -567,5 +648,4 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 [0.2.2]: https://github.com/excaliburjs/Excalibur/compare/v0.2.0...v0.2.2
 [0.2.0]: https://github.com/excaliburjs/Excalibur/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/excaliburjs/Excalibur/compare/v0.1...v0.1.1
-
-[//]: # (https://github.com/olivierlacan/keep-a-changelog)
+[//]: # 'https://github.com/olivierlacan/keep-a-changelog'

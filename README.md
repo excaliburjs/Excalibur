@@ -9,13 +9,9 @@
 [![Bower version](https://img.shields.io/bower/v/excalibur.svg)](https://github.com/excaliburjs/Excalibur)
 [![NuGet version](https://img.shields.io/nuget/v/Excalibur.svg)](https://www.nuget.org/packages/Excalibur/)
 
-
-
-
-
 ![Sweep Stacks](http://excaliburjs.com/assets/images/homepage-xp.png)
 
-Excalibur is a simple, **free** game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal is to make it *incredibly simple* to create 2D HTML/JS games, for folks new to game development as well as experienced game developers. We take care of all of the boilerplate engine code, cross-platform targeting, and more so you don't have to. Use as much or as little as you need!
+Excalibur is a simple, **free** game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal is to make it _incredibly simple_ to create 2D HTML/JS games, for folks new to game development as well as experienced game developers. We take care of all of the boilerplate engine code, cross-platform targeting, and more so you don't have to. Use as much or as little as you need!
 
 Excalibur is an open source project licensed under the 2-clause BSD license (this means you can use it in commercial projects!). It's free and always will be. We welcome any feedback or contributions! If you make something with Excalbur, please [let us know](https://groups.google.com/forum/#!tags/excaliburjs/show-and-tell)!
 
@@ -28,7 +24,7 @@ Our user documentation is at http://docs.excaliburjs.com.
 - Learn what [Features](http://docs.excaliburjs.com/en/latest/features.html) are available for you to leverage in your games
 - View the [Release roadmap](https://github.com/excaliburjs/Excalibur/milestones) to see what's coming next
 
-:exclamation: ***Note:*** We are still in version 0.x, which means this project may be a little rough around the edges. We try to minimize API changes, but breaking changes **will occur** in new released versions. Excalibur is a labor of love and the product of many hours of spare time. Thanks for checking it out!
+:exclamation: **_Note:_** We are still in version 0.x, which means this project may be a little rough around the edges. We try to minimize API changes, but breaking changes **will occur** in new released versions. Excalibur is a labor of love and the product of many hours of spare time. Thanks for checking it out!
 
 # API Documentation
 
@@ -58,9 +54,10 @@ allow the widest contributions possible. You can always use your own preferred e
 ### Prerequisites
 
 - **Required:** [Node.js](https://nodejs.org/) & npm (8.x)
-- *Recommended:* [TSLint extension for VS Code](https://marketplace.visualstudio.com/items?itemName=eg2.tslint)
-- *Optional:* [PhantomJS Debugger for VS Code](https://github.com/iradul/vscode-phantomjs-debug)
-- *Optional:* Grunt CLI (`npm i -g grunt-cli`), same task names
+- _Recommended:_ [TSLint extension for VS Code](https://marketplace.visualstudio.com/items?itemName=eg2.tslint)
+- _Recommended:_ [Prettier plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- _Optional:_ [PhantomJS Debugger for VS Code](https://github.com/iradul/vscode-phantomjs-debug)
+- _Optional:_ Grunt CLI (`npm i -g grunt-cli`), same task names
 
 After cloning the repository, run:
 
@@ -100,28 +97,28 @@ npm run apidocs
 
 Excalibur is open source and operates under the 2-clause BSD license:
 
-	BSD 2-Clause License
+    BSD 2-Clause License
 
-	Copyright (c) 2014, Erik Onarheim
-	All rights reserved.
+    Copyright (c) 2014, Erik Onarheim
+    All rights reserved.
 
-	Redistribution and use in source and binary forms, with or without
-	modification, are permitted provided that the following conditions are met:
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
 
-	* Redistributions of source code must retain the above copyright notice, this
-	  list of conditions and the following disclaimer.
+    * Redistributions of source code must retain the above copyright notice, this
+      list of conditions and the following disclaimer.
 
-	* Redistributions in binary form must reproduce the above copyright notice,
-	  this list of conditions and the following disclaimer in the documentation
-	  and/or other materials provided with the distribution.
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
 
-	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-	AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-	IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-	DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-	FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-	DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-	SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

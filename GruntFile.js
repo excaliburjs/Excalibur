@@ -1,13 +1,13 @@
 /*********************************
 /* Excalibur.js Grunt Build File
 /*********************************/
-const path = require("path");
-const version = require("./version");
-const webpackConfig = require("./webpack.config")(version);
-const fs = require("fs");
-const child_process = require("child_process");
-const rimraf = require("rimraf");
-const TYPEDOC_CMD = path.join("node_modules", ".bin", "typedoc");
+const path = require('path');
+const version = require('./version');
+const webpackConfig = require('./webpack.config')(version);
+const fs = require('fs');
+const child_process = require('child_process');
+const rimraf = require('rimraf');
+const TYPEDOC_CMD = path.join('node_modules', '.bin', 'typedoc');
 
 /*global module:false*/
 module.exports = function(grunt) {
@@ -15,13 +15,13 @@ module.exports = function(grunt) {
   // Project configuration
   //
   grunt.initConfig({
-    pkg: grunt.file.readJSON("package.json"),
+    pkg: grunt.file.readJSON('package.json'),
     version: version,
 
     //
     // Clean dists and tests
     //
-    clean: ["build/dist", "src/spec/*.js", "src/spec/*.map"],
+    clean: ['build/dist', 'src/spec/*.js', 'src/spec/*.map'],
 
     //
     // Webpack tasks
@@ -30,8 +30,8 @@ module.exports = function(grunt) {
       bundle: webpackConfig,
       bundlemin: {
         ...webpackConfig,
-        mode: "production",
-        output: { ...webpackConfig.output, filename: "excalibur.min.js" }
+        mode: 'production',
+        output: { ...webpackConfig.output, filename: 'excalibur.min.js' }
       },
       watch: { ...webpackConfig, watch: true }
     },
@@ -42,7 +42,7 @@ module.exports = function(grunt) {
     ts: {
       // Core engine modules (ES2015)
       core_es2015: {
-        tsconfig: "src/engine",
+        tsconfig: 'src/engine',
         options: {
           removeComments: false
         }
@@ -50,15 +50,15 @@ module.exports = function(grunt) {
 
       // Jasmine specs
       specs: {
-        tsconfig: "src/spec"
+        tsconfig: 'src/spec'
       },
 
       // HTML visual tests
       visual: {
         options: {
-          target: "es5"
+          target: 'es5'
         },
-        src: ["sandbox/**/*.ts"]
+        src: ['sandbox/**/*.ts']
       },
 
       // Jasmine debug specs (for VS Code)
@@ -68,15 +68,15 @@ module.exports = function(grunt) {
           sourceMap: true,
           experimentalDecorators: true
         },
-        out: "TestsSpec.js",
+        out: 'TestsSpec.js',
         src: [
-          "src/spec/support/phantom-jasmine-invoker.js",
-          "src/spec/support/js-imagediff.js",
-          "build/dist/excalibur.js",
-          "src/spec/support/platform.js",
-          "src/spec/*.ts",
-          "node_modules/source-map-support/browser-source-map-support.js",
-          "src/spec/support/start-tests.js"
+          'src/spec/support/phantom-jasmine-invoker.js',
+          'src/spec/support/js-imagediff.js',
+          'build/dist/excalibur.js',
+          'src/spec/support/platform.js',
+          'src/spec/*.ts',
+          'node_modules/source-map-support/browser-source-map-support.js',
+          'src/spec/support/start-tests.js'
         ]
       }
     },
@@ -85,19 +85,19 @@ module.exports = function(grunt) {
     // Version substitution
     //
     'string-replace': {
-       dist_es2015: {
-          files: {
-             "build/dist/index.js": "build/dist/index.js"
-          },
-          options: {
-             replacements: [
-                {
-                   pattern: /process\.env\.__EX_VERSION/g,
-                   replacement: `"${version}"`
-                }
-             ]
-          }
-       }
+      dist_es2015: {
+        files: {
+          'build/dist/index.js': 'build/dist/index.js'
+        },
+        options: {
+          replacements: [
+            {
+              pattern: /process\.env\.__EX_VERSION/g,
+              replacement: `"${version}"`
+            }
+          ]
+        }
+      }
     },
 
     //
@@ -107,8 +107,8 @@ module.exports = function(grunt) {
       core: {
         files: [
           {
-            src: "./src/engine/<%= pkg.name %>.d.ts",
-            dest: "./build/dist/<%= pkg.name %>.d.ts"
+            src: './src/engine/<%= pkg.name %>.d.ts',
+            dest: './build/dist/<%= pkg.name %>.d.ts'
           }
         ]
       },
@@ -116,9 +116,9 @@ module.exports = function(grunt) {
         files: [
           {
             expand: true,
-            cwd: "./build/dist/",
-            src: ["**"],
-            dest: "./sandbox/lib/"
+            cwd: './build/dist/',
+            src: ['**'],
+            dest: './sandbox/lib/'
           }
         ]
       },
@@ -127,9 +127,9 @@ module.exports = function(grunt) {
           {
             expand: true,
             flatten: true,
-            src: ["coverage/**"],
-            dest: "coverage/",
-            filter: "isFile"
+            src: ['coverage/**'],
+            dest: 'coverage/',
+            filter: 'isFile'
           }
         ]
       }
@@ -143,20 +143,65 @@ module.exports = function(grunt) {
       // Package up Nuget (Windows only)
       //
       nuget: {
-        command:
-          "src\\tools\\nuget pack Excalibur.nuspec -version <%= version %> -OutputDirectory ./build/dist",
+        command: 'src\\tools\\nuget pack Excalibur.nuspec -version <%= version %> -OutputDirectory ./build/dist',
         options: {
           stdout: true,
           failOnError: true
         }
       },
+      main: {
+        files: {
+          'build/dist/<%= pkg.name %>.min.js': 'build/dist/<%= pkg.name %>.js'
+        }
+      }
+    },
 
+    //
+    // Copy dists for visual compilation/testing
+    //
+    copy: {
+      visual: {
+        files: [
+          {
+            src: './build/dist/<%= pkg.name %>.js',
+            dest: './sandbox/<%= pkg.name %>.js'
+          },
+          {
+            src: './build/dist/<%= pkg.name %>.js.map',
+            dest: './sandbox/<%= pkg.name %>.js.map'
+          },
+          {
+            src: './build/dist/<%= pkg.name %>.amd.d.ts',
+            dest: './sandbox/<%= pkg.name %>.amd.d.ts'
+          },
+          {
+            src: './build/dist/<%= pkg.name %>.d.ts',
+            dest: './sandbox/<%= pkg.name %>.d.ts'
+          }
+        ]
+      },
+      coveralls: {
+        files: [
+          {
+            expand: true,
+            flatten: true,
+            src: ['coverage/**'],
+            dest: 'coverage/',
+            filter: 'isFile'
+          }
+        ]
+      }
+    },
+
+    //
+    // Shell Commands
+    //
+    shell: {
       //
       // Clone distribution repository
       //
       gitBuild: {
-        command:
-          "git clone https://github.com/excaliburjs/excalibur-dist build",
+        command: 'git clone https://github.com/excaliburjs/excalibur-dist build',
         options: {
           stdout: true,
           failOnError: false
@@ -169,23 +214,22 @@ module.exports = function(grunt) {
     //
     buildcontrol: {
       options: {
-        dir: "build",
+        dir: 'build',
         commit: true,
         push: true,
-        message:
-          ":shipit: Built excaliburjs/Excalibur@%sourceCommit% on branch %sourceBranch%",
+        message: ':shipit: Built excaliburjs/Excalibur@%sourceCommit% on branch %sourceBranch%',
         config: {
-          "user.name": "Travis-CI",
-          "user.email": "travis@excaliburjs.com"
+          'user.name': 'Travis-CI',
+          'user.email': 'travis@excaliburjs.com'
         }
       },
 
       // continuous integration dists
       dist: {
         options: {
-          branch: "master",
-          remote: "https://github.com/excaliburjs/excalibur-dist",
-          login: "kamranayub",
+          branch: 'master',
+          remote: 'https://github.com/excaliburjs/excalibur-dist',
+          login: 'kamranayub',
           token: process.env.GH_DIST_TOKEN,
           fetchProgress: false
         }
@@ -197,23 +241,23 @@ module.exports = function(grunt) {
     //
     tslint: {
       options: {
-        configuration: "./tslint/tslint.json"
+        configuration: './tslint/tslint.json'
       },
       src: [
-        "src/engine/**/*.ts",
-        "src/sandbox/**/*.ts",
-        "src/spec/**/*.ts",
+        'src/engine/**/*.ts',
+        'src/sandbox/**/*.ts',
+        'src/spec/**/*.ts',
 
         // exclusions
-        "!src/spec/jasmine.d.ts",
-        "!src/spec/require.d.ts",
-        "!src/spec/support/js-imagediff.d.ts"
+        '!src/spec/jasmine.d.ts',
+        '!src/spec/require.d.ts',
+        '!src/spec/support/js-imagediff.d.ts'
       ]
     },
 
     karma: {
       unit: {
-        configFile: "karma.conf.js"
+        configFile: 'karma.conf.js'
       }
     },
 
@@ -222,7 +266,7 @@ module.exports = function(grunt) {
     //
     coveralls: {
       main: {
-        src: "./coverage/lcov.info",
+        src: './coverage/lcov.info',
         options: {
           force: true
         }
@@ -239,16 +283,16 @@ module.exports = function(grunt) {
           return version;
         }
       },
-      files: ["build/package.json"]
+      files: ['build/package.json']
     },
 
     connect: {
       sandbox: {
         options: {
-          port: "3001",
+          port: '3001',
           useAvailablePort: true,
           keepalive: true,
-          base: "./sandbox"
+          base: './sandbox'
         }
       }
     }
@@ -257,85 +301,75 @@ module.exports = function(grunt) {
   //
   // Load NPM Grunt tasks as dependencies
   //
-  grunt.loadNpmTasks("grunt-ts");
-  grunt.loadNpmTasks("grunt-shell");
-  grunt.loadNpmTasks("grunt-contrib-clean");
-  grunt.loadNpmTasks("grunt-contrib-copy");
-  grunt.loadNpmTasks("grunt-tslint");
-  grunt.loadNpmTasks("grunt-coveralls");
-  grunt.loadNpmTasks("grunt-build-control");
-  grunt.loadNpmTasks("grunt-bumpup");
-  grunt.loadNpmTasks("grunt-karma");
-  grunt.loadNpmTasks("grunt-contrib-connect");
-  grunt.loadNpmTasks("grunt-webpack");
-  grunt.loadNpmTasks("grunt-string-replace");
+  grunt.loadNpmTasks('grunt-ts');
+  grunt.loadNpmTasks('grunt-shell');
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-tslint');
+  grunt.loadNpmTasks('grunt-coveralls');
+  grunt.loadNpmTasks('grunt-build-control');
+  grunt.loadNpmTasks('grunt-bumpup');
+  grunt.loadNpmTasks('grunt-karma');
+  grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-webpack');
+  grunt.loadNpmTasks('grunt-string-replace');
 
   //
   // Register available Grunt tasks
   //
 
   // Default task - compile & test
-  grunt.registerTask("default", ["tslint:src", "core", "karma", "visual"]);
+  grunt.registerTask('default', ['tslint:src', 'core', 'karma', 'visual']);
 
   // Core only
-  grunt.registerTask("core", [
-    "shell:gitBuild",
-    "clean",
-    "ts:core_es2015",
-    "string-replace",
-    "webpack:bundle",
-    "webpack:bundlemin",
-    "copy"
+  grunt.registerTask('core', [
+    'shell:gitBuild',
+    'clean',
+    'ts:core_es2015',
+    'string-replace',
+    'webpack:bundle',
+    'webpack:bundlemin',
+    'copy'
   ]);
 
   // Core w/watch
-  grunt.registerTask("watch", [
-    "shell:gitBuild",
-    "clean",
-    "webpack:watch",
-    "copy"
-  ]);
+  grunt.registerTask('watch', ['shell:gitBuild', 'clean', 'webpack:watch', 'copy']);
 
   // Run tests quickly
-  grunt.registerTask("tests", ["core", "karma"]);
+  grunt.registerTask('tests', ['core', 'karma']);
 
   // Debug compile (for VS Code)
-  grunt.registerTask("debug", ["core", "ts:debug"]);
+  grunt.registerTask('debug', ['core', 'ts:debug']);
 
   // Compile visual tests
-  grunt.registerTask("visual", ["ts:visual"]);
+  grunt.registerTask('visual', ['ts:visual']);
 
   // Serve sandbox
-  grunt.registerTask("sandbox", ["connect"]);
+  grunt.registerTask('sandbox', ['connect']);
 
   // Travis CI task
-  grunt.registerTask("travis", [
-    "default",
-    "copy:coveralls",
-    "coveralls",
-    "apidocs"
-  ]);
+  grunt.registerTask('travis', ['default', 'copy:coveralls', 'coveralls', 'apidocs']);
 
   // Appveyor task
-  grunt.registerTask("appveyor", ["default", "shell:nuget"]);
+  grunt.registerTask('appveyor', ['default', 'shell:nuget']);
 
   // CI task to deploy dists
-  grunt.registerTask("dists", ["bumpup", "buildcontrol"]);
+  grunt.registerTask('dists', ['bumpup', 'buildcontrol']);
 
   // CI task to build API docs
   // Typically called by excaliburjs.github.io CI job to generate versioned docs
-  grunt.registerTask("apidocs", "Build API documentation", function(version) {
-    version = version || "Edge";
+  grunt.registerTask('apidocs', 'Build API documentation', function(version) {
+    version = version || 'Edge';
 
-    console.log("Removing existing docs...");
+    console.log('Removing existing docs...');
 
-    rimraf.sync("docs/api/");
+    rimraf.sync('docs/api/');
 
-    console.log("Compiling default template (default)...");
+    console.log('Compiling default template (default)...');
     try {
-      if (!fs.existsSync("./typedoc-default-themes/node_modules")) {
-        child_process.execSync("npm install", {
-          cwd: "./typedoc-default-themes",
+      if (!fs.existsSync('./typedoc-default-themes/node_modules')) {
+        child_process.execSync('npm install', {
+          cwd: './typedoc-default-themes',
           stdio: [0, 1, 2]
         });
       }
@@ -343,27 +377,27 @@ module.exports = function(grunt) {
       // fails to execute Linux commands, OK
     }
 
-    console.log("Executing typedoc...");
+    console.log('Executing typedoc...');
 
     child_process.execSync(
       TYPEDOC_CMD +
         ' --name "Excalibur.js ' +
         version +
         ' API Documentation"' +
-        " --target es5" +
-        " --experimentalDecorators" +
-        " --mode modules" +
-        " --readme src/engine/Docs/Index.md" +
-        " --includes src/engine/Docs" +
-        " --out docs/api" +
-        " --theme typedoc-default-themes/bin/default" +
-        " --hideGenerator" +
-        " --excludePrivate" +
-        " --listInvalidSymbolLinks" +
-        " --gaID UA-46390208-1" +
-        " --gaSite excaliburjs.com" +
-        " --tsconfig src/engine/tsconfig.json" +
-        " src/engine",
+        ' --target es5' +
+        ' --experimentalDecorators' +
+        ' --mode modules' +
+        ' --readme src/engine/Docs/Index.md' +
+        ' --includes src/engine/Docs' +
+        ' --out docs/api' +
+        ' --theme typedoc-default-themes/bin/default' +
+        ' --hideGenerator' +
+        ' --excludePrivate' +
+        ' --listInvalidSymbolLinks' +
+        ' --gaID UA-46390208-1' +
+        ' --gaSite excaliburjs.com' +
+        ' --tsconfig src/engine/tsconfig.json' +
+        ' src/engine',
       {
         stdio: [0, 1, 2]
       }

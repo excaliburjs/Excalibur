@@ -29,7 +29,13 @@
     "sandbox": "grunt sandbox",
     "start": "grunt watch",
     "test": "grunt tests",
-    "apidocs": "grunt apidocs"
+    "apidocs": "grunt apidocs",
+    "precommit": "pretty-quick --staged"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run precommit"
+    }
   },
   "devDependencies": {
     "@types/jasmine": "2.8.7",
@@ -49,6 +55,7 @@
     "grunt-ts": "^6.0.0-beta.15",
     "grunt-tslint": "^3.2.1",
     "grunt-webpack": "^3.1.1",
+    "husky": "^0.14.3",
     "istanbul": "^0.4.3",
     "jasmine": "^2.8.0",
     "jasmine-core": "^2.8.0",
@@ -57,6 +64,8 @@
     "karma-coverage": "1.1.2",
     "karma-jasmine": "1.1.0",
     "karma-typescript": "^3.0.12",
+    "prettier": "^1.12.1",
+    "pretty-quick": "^1.4.1",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.4.3",
     "sync-request": "^4.0.2",
