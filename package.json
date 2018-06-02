@@ -2,7 +2,8 @@
   "name": "excalibur",
   "private": true,
   "version": "0.0.0",
-  "description": "Excalibur.js is a simple JavaScript game engine with TypeScript bindings for making 2D games in HTML5 Canvas. Our mission is to make web game development as simple as possible.",
+  "description":
+    "Excalibur.js is a simple JavaScript game engine with TypeScript bindings for making 2D games in HTML5 Canvas. Our mission is to make web game development as simple as possible.",
   "author": "https://github.com/excaliburjs/Excalibur/graphs/contributors",
   "homepage": "https://github.com/excaliburjs/Excalibur",
   "repository": {
@@ -27,7 +28,13 @@
     "tests": "grunt tests",
     "visual": "grunt visual",
     "apidocs": "grunt apidocs",
-    "sandbox": "grunt sandbox"
+    "sandbox": "grunt sandbox",
+    "precommit": "pretty-quick --staged"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run precommit"
+    }
   },
   "devDependencies": {
     "grunt": "^1.0.1",
@@ -47,6 +54,7 @@
     "grunt-template-jasmine-istanbul": "^0.5.0",
     "grunt-ts": "^6.0.0-beta.15",
     "grunt-tslint": "^3.2.1",
+    "husky": "^0.14.3",
     "istanbul": "^0.4.3",
     "jasmine": "^2.8.0",
     "jasmine-core": "^2.8.0",
@@ -55,6 +63,8 @@
     "karma-coverage": "^1.1.1",
     "karma-jasmine": "^1.1.0",
     "karma-typescript": "^3.0.5",
+    "prettier": "^1.12.1",
+    "pretty-quick": "^1.4.1",
     "rimraf": "^2.6.1",
     "source-map-support": "^0.4.3",
     "sync-request": "^4.0.2",
@@ -62,6 +72,5 @@
     "tslint": "^3.13.0",
     "typedoc": "0.9.0",
     "typescript": "2.2.2"
-  },
-  "dependencies": {}
+  }
 }
