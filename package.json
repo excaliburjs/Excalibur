@@ -40,6 +40,7 @@
   "devDependencies": {
     "@types/jasmine": "2.8.7",
     "@types/node": "^8.0.0",
+    "copy-webpack-plugin": "4.5.1",
     "cross-env": "^5.1.4",
     "grunt": "^1.0.1",
     "grunt-build-control": "^0.7.1",

@@ -104,14 +104,6 @@ module.exports = function(grunt) {
     // Copy dists for visual compilation/testing
     //
     copy: {
-      core: {
-        files: [
-          {
-            src: './src/engine/<%= pkg.name %>.d.ts',
-            dest: './build/dist/<%= pkg.name %>.d.ts'
-          }
-        ]
-      },
       visual: {
         files: [
           {
@@ -153,43 +145,6 @@ module.exports = function(grunt) {
         files: {
           'build/dist/<%= pkg.name %>.min.js': 'build/dist/<%= pkg.name %>.js'
         }
-      }
-    },
-
-    //
-    // Copy dists for visual compilation/testing
-    //
-    copy: {
-      visual: {
-        files: [
-          {
-            src: './build/dist/<%= pkg.name %>.js',
-            dest: './sandbox/<%= pkg.name %>.js'
-          },
-          {
-            src: './build/dist/<%= pkg.name %>.js.map',
-            dest: './sandbox/<%= pkg.name %>.js.map'
-          },
-          {
-            src: './build/dist/<%= pkg.name %>.amd.d.ts',
-            dest: './sandbox/<%= pkg.name %>.amd.d.ts'
-          },
-          {
-            src: './build/dist/<%= pkg.name %>.d.ts',
-            dest: './sandbox/<%= pkg.name %>.d.ts'
-          }
-        ]
-      },
-      coveralls: {
-        files: [
-          {
-            expand: true,
-            flatten: true,
-            src: ['coverage/**'],
-            dest: 'coverage/',
-            filter: 'isFile'
-          }
-        ]
       }
     },
 
@@ -249,7 +204,6 @@ module.exports = function(grunt) {
         'src/spec/**/*.ts',
 
         // exclusions
-        '!src/spec/jasmine.d.ts',
         '!src/spec/require.d.ts',
         '!src/spec/support/js-imagediff.d.ts'
       ]
@@ -342,7 +296,7 @@ module.exports = function(grunt) {
   grunt.registerTask('debug', ['core', 'ts:debug']);
 
   // Compile visual tests
-  grunt.registerTask('visual', ['ts:visual']);
+  grunt.registerTask('visual', ['copy:visual', 'ts:visual']);
 
   // Serve sandbox
   grunt.registerTask('sandbox', ['connect']);
