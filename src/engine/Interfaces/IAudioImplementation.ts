@@ -1,8 +1,22 @@
 import { Promise } from './../Promises';
 import { IAudio } from './IAudio';
 
-
 export type ExResponseType = '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text';
+
+export interface IExResponseTypesLookup {
+   [name: string]: ExResponseType;
+}
+
+export class ExResponse {
+   public static type: IExResponseTypesLookup = {
+      any: '',
+      blob: 'blob',
+      json: 'json',
+      text: 'text',
+      document: 'document',
+      arraybuffer: 'arraybuffer'
+   };
+}
 
 /**
  * Represents an audio implementation like [[AudioTag]] or [[WebAudio]]

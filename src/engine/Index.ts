@@ -6,14 +6,15 @@ export var EX_VERSION = '__EX_VERSION';
 // This file is used as the bundle entrypoint and exports everything
 // that will be exposed as the `ex` global variable.
 
+export * from './Engine';
 export { Actor, IActorArgs, CollisionType } from './Actor';
 export * from './Algebra';
 export * from './Camera';
 export * from './Class';
 export * from './Configurable'
 export * from './Debug';
-export * from './Engine';
 export * from './EventDispatcher';
+export * from './Events/MediaEvents';
 export * from './Events';
 export * from './Group';
 export { Label, FontStyle, FontUnit, TextAlign, BaseAlign } from './Label';
