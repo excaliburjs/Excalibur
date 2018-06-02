@@ -153,6 +153,17 @@ module.exports = function(grunt) {
     //
     shell: {
       //
+      // Package up Nuget (Windows only)
+      //
+      nuget: {
+        command: 'src\\tools\\nuget pack Excalibur.nuspec -version <%= version %> -OutputDirectory ./build/dist',
+        options: {
+          stdout: true,
+          failOnError: true
+        }
+      },
+
+      //
       // Clone distribution repository
       //
       gitBuild: {
