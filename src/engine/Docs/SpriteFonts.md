@@ -29,28 +29,27 @@ Then to create the [[SpriteFont]]:
 
 ```js
 var game = new ex.Engine();
-var txFont = new ex.Texture("/assets/tx/font.png");
+var txFont = new ex.Texture('/assets/tx/font.png');
 // load assets
 var loader = new ex.Loader(txFont);
 
 // start game
-game.start(loader).then(function () {
-
+game.start(loader).then(function() {
   // create a font
-  var font = new ex.SpriteFont(txFont, "ABCDEFGHIJKLMNOPQRSTUVWXYZ ", true, 4, 7, 30, 30);
+  var font = new ex.SpriteFont(txFont, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ', true, 4, 7, 30, 30);
   // create a label using this font
-  var label = new ex.Label("Hello World", 0, 0, null, font);
+  var label = new ex.Label('Hello World', 0, 0, null, font);
   // display in-game
   game.add(label);
 });
 ```
 
 If you want to use a lowercase representation in the font, you can pass `false` for `caseInsensitive`
-and the matching will be case-sensitive. In our example, you would need another 7 rows of 
+and the matching will be case-sensitive. In our example, you would need another 7 rows of
 lowercase characters.
 
 ## Font colors
-   
+
 When using sprite fonts with a [[Label]], you can set the [[Label.color]] property
 to use different colors.
 

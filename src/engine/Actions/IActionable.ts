@@ -1,5 +1,5 @@
 ﻿import { ActionContext } from './ActionContext';
 
 export interface IActionable {
-   actions: ActionContext;
+  actions: ActionContext;
 }

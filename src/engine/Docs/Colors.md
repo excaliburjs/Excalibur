@@ -8,8 +8,8 @@ ex.Color.fromRGB(r, g, b, a);
 // HSLA
 ex.Color.fromHSL(h, s, l, a);
 // Hex, alpha optional
-ex.Color.fromHex("#000000");
-ex.Color.fromHex("#000000FF");
+ex.Color.fromHex('#000000');
+ex.Color.fromHex('#000000FF');
 
 // String representation of a color with rgb as default
 // Options include rgb,hsl,hex

@@ -14,13 +14,13 @@ player.vel.x = 5;
 
 // add player to the current scene
 game.add(player);
-
 ```
+
 `game.add` is a convenience method for adding an `Actor` to the current scene. The equivalent verbose call is `game.currentScene.add`.
 
 ## Actor Lifecycle
 
-An [[Actor|actor]] has a basic lifecycle that dictates how it is initialized, updated, and drawn. Once an actor is part of a 
+An [[Actor|actor]] has a basic lifecycle that dictates how it is initialized, updated, and drawn. Once an actor is part of a
 [[Scene|scene]], it will follow this lifecycle.
 
 ![Actor Lifecycle](/assets/images/docs/ActorLifecycle.png)
@@ -40,23 +40,22 @@ an instance of [[Engine]] to access global state or perform coordinate math.
 
 ```ts
 class Player extends ex.Actor {
+  public level = 1;
+  public endurance = 0;
+  public fortitude = 0;
 
-   public level = 1;
-   public endurance = 0;
-   public fortitude = 0;
+  constructor() {
+    super();
+  }
 
-   constructor() {
-      super();
-   }
+  public onInitialize(engine: ex.Engine) {
+    this.endurance = 20;
+    this.fortitude = 16;
+  }
 
-   public onInitialize(engine: ex.Engine) {
-      this.endurance = 20;
-      this.fortitude = 16;
-   }
-
-   public getMaxHealth() {
-      return (0.4 * this.endurance) + (0.9 * this.fortitude) + (this.level * 1.2);
-   }
+  public getMaxHealth() {
+    return 0.4 * this.endurance + 0.9 * this.fortitude + this.level * 1.2;
+  }
 }
 ```
 
@@ -67,19 +66,18 @@ methods to an `Actor`.
 
 ```js
 var Player = ex.Actor.extend({
+  level: 1,
+  endurance: 0,
+  fortitude: 0,
 
-   level: 1,
-   endurance: 0,
-   fortitude: 0,
+  onInitialize: function(engine) {
+    this.endurance = 20;
+    this.fortitude = 16;
+  },
 
-   onInitialize: function (engine) {
-      this.endurance = 20;
-      this.fortitude = 16;
-   },
-
-   getMaxHealth: function () {
-      return (0.4 * this.endurance) + (0.9 * this.fortitude) + (this.level * 1.2);
-   }
+  getMaxHealth: function() {
+    return 0.4 * this.endurance + 0.9 * this.fortitude + this.level * 1.2;
+  }
 });
 ```
 
@@ -100,16 +98,16 @@ to perform time-based movement or time-based math (such as a timer).
 
 ```ts
 class Player extends Actor {
-   public update(engine: ex.Engine, delta: number) {
-      super.update(engine, delta); // call base update logic
+  public update(engine: ex.Engine, delta: number) {
+    super.update(engine, delta); // call base update logic
 
-      // check if player died
-      if (this.health <= 0) {
-         this.emit("death");
-         this.onDeath();
-         return;
-      }
-   }
+    // check if player died
+    if (this.health <= 0) {
+      this.emit('death');
+      this.onDeath();
+      return;
+    }
+  }
 }
 ```
 
@@ -117,16 +115,16 @@ class Player extends Actor {
 
 ```js
 var Player = ex.Actor.extend({
-   update: function (engine, delta) {
-      ex.Actor.prototype.update.call(this, engine, delta); // call base update logic
+  update: function(engine, delta) {
+    ex.Actor.prototype.update.call(this, engine, delta); // call base update logic
 
-      // check if player died
-      if (this.health <= 0) {
-         this.emit("death");
-         this.onDeath();
-         return;
-      }
-   }
+    // check if player died
+    if (this.health <= 0) {
+      this.emit('death');
+      this.onDeath();
+      return;
+    }
+  }
 });
 ```
 
@@ -142,7 +140,7 @@ Think of a [[Texture|texture]] as the raw image file that will be loaded into Ex
 it must be converted to a [[Sprite]].
 
 A common usage is to load a [[Texture]] and convert it to a [[Sprite]] for an actor. If you are using the [[Loader]] to
-pre-load assets, you can simply assign an actor a [[Sprite]] to draw. You can also create a 
+pre-load assets, you can simply assign an actor a [[Sprite]] to draw. You can also create a
 [[Texture.asSprite|sprite from a Texture]] to quickly create a [[Sprite]] instance.
 
 ```ts
@@ -181,8 +179,8 @@ public onInitialize(engine: ex.Engine) {
 
 ### Custom drawing
 
-You can always override the default drawing logic for an actor in the [[draw]] method, 
-for example, to draw complex shapes or to use the raw 
+You can always override the default drawing logic for an actor in the [[draw]] method,
+for example, to draw complex shapes or to use the raw
 [[https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D|Canvas API]].
 
 Usually you should call `super.draw` to perform the base drawing logic, but other times
@@ -215,7 +213,7 @@ Learn more about the [[ActionContext|Action API]].
 
 By default Actors do not participate in collisions. If you wish to make
 an actor participate, you need to switch from the default [[CollisionType.PreventCollision|prevent collision]]
-to [[CollisionType.Active|active]], [[CollisionType.Fixed|fixed]], or [[CollisionType.Passive|passive]] collision type. 
+to [[CollisionType.Active|active]], [[CollisionType.Fixed|fixed]], or [[CollisionType.Passive|passive]] collision type.
 
 ```ts
 public Player extends ex.Actor {
@@ -226,21 +224,20 @@ public Player extends ex.Actor {
    }
 }
 
-// or set the collisionType 
+// or set the collisionType
 
 var actor = new ex.Actor();
 actor.collisionType = ex.CollisionType.Active;
-
 ```
 
 ## Traits
-   
-Traits describe actor behavior that occurs every update. If you wish to build a generic behavior 
-without needing to extend every actor you can do it with a trait, a good example of this may be 
-plugging in an external collision detection library like [[https://github.com/kripken/box2d.js/|Box2D]] or 
-[[http://wellcaffeinated.net/PhysicsJS/|PhysicsJS]] by wrapping it in a trait. Removing traits can also make your 
+
+Traits describe actor behavior that occurs every update. If you wish to build a generic behavior
+without needing to extend every actor you can do it with a trait, a good example of this may be
+plugging in an external collision detection library like [[https://github.com/kripken/box2d.js/|Box2D]] or
+[[http://wellcaffeinated.net/PhysicsJS/|PhysicsJS]] by wrapping it in a trait. Removing traits can also make your
 actors more efficient.
 
-Default traits provided by Excalibur are [["Traits/CapturePointer"|pointer capture]], 
-[["Traits/TileMapCollisionDetection"|tile map collision]], 
+Default traits provided by Excalibur are [["Traits/CapturePointer"|pointer capture]],
+[["Traits/TileMapCollisionDetection"|tile map collision]],
 and [["Traits/OffscreenCulling"|offscreen culling]].

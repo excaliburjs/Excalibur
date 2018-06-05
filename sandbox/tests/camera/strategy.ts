@@ -1,9 +1,9 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 
 var game = new ex.Engine({
-   width: 600,
-   height: 400,
-   pointerScope: ex.Input.PointerScope.Canvas
+  width: 600,
+  height: 400,
+  pointerScope: ex.Input.PointerScope.Canvas
 });
 var actor = new ex.Actor(100, 100, 50, 50, ex.Color.Red);
 
@@ -18,28 +18,25 @@ var actor3 = new ex.Actor(320, 320, 10, 10, ex.Color.Black);
 game.add(actor2);
 game.add(actor3);
 
-game.start().then(() => {
-   
-});
-
+game.start().then(() => {});
 
 document.getElementById('lockToActor').addEventListener('click', () => {
-   game.currentScene.camera.clearAllStrategies();
-   game.currentScene.camera.strategy.lockToActor(actor);
+  game.currentScene.camera.clearAllStrategies();
+  game.currentScene.camera.strategy.lockToActor(actor);
 });
 document.getElementById('lockToActorAxisX').addEventListener('click', () => {
-   game.currentScene.camera.clearAllStrategies();
-   game.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.X);
+  game.currentScene.camera.clearAllStrategies();
+  game.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.X);
 });
 document.getElementById('lockToActorAxisY').addEventListener('click', () => {
-   game.currentScene.camera.clearAllStrategies();
-   game.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.Y);
+  game.currentScene.camera.clearAllStrategies();
+  game.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.Y);
 });
 document.getElementById('elasticToActor').addEventListener('click', () => {
-   game.currentScene.camera.clearAllStrategies();
-   game.currentScene.camera.strategy.elasticToActor(actor, .05, .1);
+  game.currentScene.camera.clearAllStrategies();
+  game.currentScene.camera.strategy.elasticToActor(actor, 0.05, 0.1);
 });
 document.getElementById('radiusAroundActor').addEventListener('click', () => {
-   game.currentScene.camera.clearAllStrategies();
-   game.currentScene.camera.strategy.radiusAroundActor(actor, 30);
+  game.currentScene.camera.clearAllStrategies();
+  game.currentScene.camera.strategy.radiusAroundActor(actor, 30);
 });

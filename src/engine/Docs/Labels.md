@@ -8,15 +8,15 @@ to be drawn and updated on-screen.
 ```js
 var game = new ex.Engine();
 // constructor
-var label = new ex.Label("Hello World", 50, 50, "10px Arial");
+var label = new ex.Label('Hello World', 50, 50, '10px Arial');
 // properties
 var label = new ex.Label();
 label.x = 50;
 label.y = 50;
-label.fontFamily = "Arial";
+label.fontFamily = 'Arial';
 label.fontSize = 10;
-label.fontUnit = ex.FontUnit.Px // pixels are the default
-label.text = "Foo";
+label.fontUnit = ex.FontUnit.Px; // pixels are the default
+label.text = 'Foo';
 label.color = ex.Color.White;
 label.textAlign = ex.TextAlign.Center;
 // add to current scene
@@ -27,7 +27,7 @@ game.start();
 
 ## Adjusting Fonts
 
-You can use the [[fontFamily]], [[fontSize]], [[fontUnit]], [[textAlign]], and [[baseAlign]] 
+You can use the [[fontFamily]], [[fontSize]], [[fontUnit]], [[textAlign]], and [[baseAlign]]
 properties to customize how the label is drawn.
 
 You can also use [[getTextWidth]] to retrieve the measured width of the rendered text for
@@ -55,14 +55,16 @@ or set [[Label.fontFamily]].
 </body>
 </html>
 ```
+
 **game.js**
+
 ```js
 var game = new ex.Engine();
 var label = new ex.Label();
-label.fontFamily = "Foobar, Arial, Sans-Serif";
+label.fontFamily = 'Foobar, Arial, Sans-Serif';
 label.fontSize = 10;
 label.fontUnit = ex.FontUnit.Em;
-label.text = "Hello World";
+label.text = 'Hello World';
 game.add(label);
 game.start();
 ```

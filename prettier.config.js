@@ -6,7 +6,7 @@ module.exports = {
   arrowParens: 'always',
   overrides: [
     {
-      files: ['./src/*', './sandbox/src/*', './sandbox/tests/*']
+      files: '{src,sandbox/src,sandbox/tests}/**/*.{ts,js,json,css,md}'
     }
   ]
 };

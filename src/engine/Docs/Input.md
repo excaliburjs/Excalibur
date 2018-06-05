@@ -15,9 +15,7 @@ Access [[Engine.input]] to see if any input is being tracked during the current 
 ```ts
 class Player extends ex.Actor {
   public update(engine, delta) {
-    if (engine.input.keyboard.isKeyDown(ex.Input.Keys.W) ||
-        engine.input.gamepads.at(0).getAxes(ex.Input.Axes.LeftStickY) > 0.5) {
-      
+    if (engine.input.keyboard.isKeyDown(ex.Input.Keys.W) || engine.input.gamepads.at(0).getAxes(ex.Input.Axes.LeftStickY) > 0.5) {
       player._moveForward();
     }
   }

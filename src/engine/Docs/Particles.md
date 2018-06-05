@@ -1,4 +1,4 @@
-The easiest way to create a `ParticleEmitter` is to use the 
+The easiest way to create a `ParticleEmitter` is to use the
 [Particle Tester](http://excaliburjs.com/particle-tester/) to generate code for emitters.
 
 ## Example: Adding an emitter
@@ -6,7 +6,7 @@ The easiest way to create a `ParticleEmitter` is to use the
 ```js
 var actor = new ex.Actor(...);
 var emitter = new ex.ParticleEmitter(...);
-emitter.emitterType = ex.EmitterType.Circle; // Shape of emitter nozzle 
+emitter.emitterType = ex.EmitterType.Circle; // Shape of emitter nozzle
 emitter.radius = 5;
 emitter.minVel = 100;
 emitter.maxVel = 200;
