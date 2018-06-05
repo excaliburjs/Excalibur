@@ -68,24 +68,6 @@ describe('A sprite', () => {
       }
    });
 
-   // @obsolete v0.17 delete test 
-   it('should allow the old constructor', (done) => {
-      texture.load().then(() => {
-         let s: ex.Sprite = null;
-         expect(() => s = new ex.Sprite({
-            image: texture,
-            sx: 0,
-            sy: 0,
-            swidth: 62,
-            sheight: 64
-         })).not.toThrow();
-
-         s.draw(engine.ctx, 0, 0);
-         
-         imagediff.expectCanvasImageMatches('SpriteSpec/icon.png', engine.canvas, done);
-      });
-   });
-
    it('should scale about the anchor', (done) => {
       texture.load().then(() => {
          let sprite = new ex.Sprite({

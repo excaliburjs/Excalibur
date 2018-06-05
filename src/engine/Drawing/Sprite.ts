@@ -7,7 +7,6 @@ import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
 import { clamp } from '../Util/Util';
 import { Configurable } from '../Configurable';
-import { obsolete } from '../Util/Decorators';
 
 /**
  * @hidden
@@ -28,50 +27,6 @@ export class SpriteImpl implements IDrawable {
       return this.height * this.scale.y;
    }
 
-
-   /** @obsolete ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
-   public get sx() {
-      return this.x;
-   }
-
-   @obsolete({message: 'ex.Sprite.sx will be deprecated in 0.17.0', alternateMethod: 'x'})
-   /** @obsolete ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
-   public set sx(value: number) {
-      this.x = value;
-   }
-
-   /** @obsolete ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
-   public get sy() {
-      return this.y;
-   }
-
-   @obsolete({message: 'ex.Sprite.sy will be deprecated in 0.17.0', alternateMethod: 'y'})
-   /** @obsolete ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
-   public set sy(value: number) {
-      this.y = value;
-   }
-
-   /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.width]] */
-   public get swidth() {
-      return this.width;
-   }
-
-   @obsolete({message: 'ex.Sprite.swidth will be deprecated in 0.17.0', alternateMethod: 'width'})
-   /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.width]] */
-   public set swidth(value: number) {
-      this.width = value;
-   }
-
-   /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use [[Sprite.height]] */
-   public get sheight() {
-      return this.height;
-   }
-
-   @obsolete({message: 'ex.Sprite.sheight will be deprecated in 0.17.0', alternateMethod: 'height'})
-   /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use [[Sprite.height]] */
-   public set sheight(value: number) {
-      this.height = value;
-   }
 
    public rotation: number = 0.0;
    public anchor: Vector = new Vector(0.0, 0.0);
@@ -399,17 +354,9 @@ export class SpriteImpl implements IDrawable {
 export interface ISpriteArgs extends Partial<SpriteImpl> {
    image?: Texture;
    x?: number;
-   /** @obsolete ex.[[Sprite.sx]] will be deprecated in 0.17.0 use ex.[[Sprite.x]] */
-   sx?: number;
    y?: number;
-   /** @obsolete ex.[[Sprite.sy]] will be deprecated in 0.17.0 use ex.[[Sprite.y]] */
-   sy?: number;
    width?: number;
-   /** @obsolete ex.[[Sprite.swidth]] will be deprecated in 0.17.0 use ex.[[Sprite.width]] */
-   swidth?: number;
    height?: number;
-   /** @obsolete ex.[[Sprite.sheight]] will be deprecated in 0.17.0 use ex.[[Sprite.height]] */
-   sheight?: number;
    rotation?: number;
    anchor?: Vector;
    scale?: Vector;
