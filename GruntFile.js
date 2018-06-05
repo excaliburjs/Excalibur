@@ -28,12 +28,11 @@ module.exports = function(grunt) {
     //
     webpack: {
       bundle: webpackConfig,
-      bundlemin: {
-        ...webpackConfig,
+      bundlemin: Object.assign({}, webpackConfig, {
         mode: 'production',
-        output: { ...webpackConfig.output, filename: 'excalibur.min.js' }
-      },
-      watch: { ...webpackConfig, watch: true }
+        output: Object.assign({}, webpackConfig.output, { filename: 'excalibur.min.js' })
+      }),
+      watch: Object.assign({}, webpackConfig, { watch: true })
     },
 
     //
