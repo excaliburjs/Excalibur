@@ -6,7 +6,6 @@ import { Class } from '../Class';
 import * as Actors from '../Util/Actors';
 import * as Util from '../Util/Util';
 import * as Events from '../Events';
-import { obsolete } from '../Util/Decorators';
 
 export interface IActorsUnderPointer {
    [ActorId: number]: Actor;
@@ -71,54 +70,7 @@ const ScrollWheelNormalizationFactor = -1 / 40;
  *
  * For mouse-based events, you can inspect [[PointerEvent.button]] to see what button was pressed.
  */
-export class PointerEvent extends GameEvent<Actor> {
-   /** @obsolete Use [[PointerEvent]].worldPos.x instead. */
-   @obsolete({ message: 'PointerEvent.x will be removed in the 0.17 release', alternateMethod: 'PointerEvent.worldPos.x' })
-   public get x(): number {
-      return this.coordinates.worldPos.x;
-   }
-
-   /** @obsolete Use [[PointerEvent]].worldPos.y instead. */
-   @obsolete({ message: 'PointerEvent.y will be removed in the 0.17 release', alternateMethod: 'PointerEvent.worldPos.y' })
-   public get y(): number {
-      return this.coordinates.worldPos.y;
-   }
-
-   /** @obsolete Use [[PointerEvent]].worldPos.x instead. */
-   @obsolete({ message: 'PointerEvent.worldX will be removed in the 0.17 release', alternateMethod: 'PointerEvent.worldPos.x' })
-   public get worldX(): number {
-      return this.coordinates.worldPos.x;
-   }
-
-   /** @obsolete Use [[PointerEvent]].worldPos.y instead. */
-   @obsolete({ message: 'PointerEvent.worldY will be removed in the 0.17 release', alternateMethod: 'PointerEvent.worldPos.y' })
-   public get worldY(): number {
-      return this.coordinates.worldPos.y;
-   }
-
-   /** @obsolete Use [[PointerEvent]].pagePos.x instead. */
-   @obsolete({ message: 'PointerEvent.pageX will be removed in the 0.17 release', alternateMethod: 'PointerEvent.pagePos.x' })
-   public get pageX(): number {
-      return this.coordinates.pagePos.x;
-   }
-
-   /** @obsolete Use [[PointerEvent]].pagePos.y instead. */
-   @obsolete({ message: 'PointerEvent.pageY will be removed in the 0.17 release', alternateMethod: 'PointerEvent.pagePos.y' })
-   public get pageY(): number {
-      return this.coordinates.pagePos.y;
-   }
-
-   /** @obsolete Use [[PointerEvent]].screenPos.x instead. */
-   @obsolete({ message: 'PointerEvent.screenX will be removed in the 0.17 release', alternateMethod: 'PointerEvent.screenPos.x' })
-   public get screenX(): number {
-      return this.coordinates.screenPos.x;
-   }
-
-   /** @obsolete Use [[PointerEvent]].screenPos.y instead. */
-   @obsolete({ message: 'PointerEvent.screenY will be removed in the 0.17 release', alternateMethod: 'PointerEvent.screenPos.y' })
-   public get screenY(): number {
-      return this.coordinates.screenPos.y;
-   }
+export class PointerEvent extends GameEvent<any> {
 
    /** The world coordinates of the event. */
    public get worldPos(): Vector {
