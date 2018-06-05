@@ -7,13 +7,12 @@ want to "slice" out a portion of an image or if you want to change the dimension
 
 ```js
 var game = new ex.Engine();
-var txPlayer = new ex.Texture("/assets/tx/player.png");
+var txPlayer = new ex.Texture('/assets/tx/player.png');
 // load assets
 var loader = new ex.Loader([txPlayer]);
 
 // start game
-game.start(loader).then(function () {
-
+game.start(loader).then(function() {
   // create a sprite (quick)
   var playerSprite = txPlayer.asSprite();
   // create a sprite (custom)
@@ -39,19 +38,18 @@ side-effecting.
 ```typescript
 var playerSprite = new ex.Sprite(txPlayer, 0, 0, 80, 80);
 
-// darken a sprite by a percentage   
-playerSprite.darken(.2); // 20%
+// darken a sprite by a percentage
+playerSprite.darken(0.2); // 20%
 
 // lighten a sprite by a percentage
-playerSprite.lighten(.2); // 20%
+playerSprite.lighten(0.2); // 20%
 // saturate a sprite by a percentage
-playerSprite.saturate(.2); // 20%
+playerSprite.saturate(0.2); // 20%
 // implement a custom effect
 class CustomEffect implements ex.EffectsISpriteEffect {
   updatePixel(x: number, y: number, imageData: ImageData) {
-      // modify ImageData  
-  }  
+    // modify ImageData
+  }
 }
 playerSprite.addEffect(new CustomEffect());
-
-```   
+```

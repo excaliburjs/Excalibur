@@ -8,7 +8,7 @@ which resolves when the game has finished loading.
 ```js
 var game = new ex.Engine();
 // perform start-up logic once game is ready
-game.start().then(function () {
+game.start().then(function() {
   // start-up & initialization logic
 });
 ```
@@ -22,11 +22,9 @@ any errors that occur during Promise execution.
 var game = new ex.Engine();
 game.start().then(
   // success handler
-  function () {
-  },
+  function() {},
   // error handler
-  function (err) {
-  }
+  function(err) {}
 );
 ```
 

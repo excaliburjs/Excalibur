@@ -12,7 +12,7 @@ You can then call [[start]] which starts the game and optionally accepts
 a [[Loader]] which you can use to pre-load assets.
 
 ```js
-var game = new ex.Engine({ 
+var game = new ex.Engine({
   width: 800, // the width of the canvas
   height: 600, // the height of the canvas
   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
@@ -20,7 +20,7 @@ var game = new ex.Engine({
   pointerScope: ex.Input.PointerScope.Document // the scope of capturing pointer (mouse/touch) events
 });
 // call game.start, which is a Promise
-game.start().then(function () {
+game.start().then(function() {
   // ready, set, go!
 });
 ```
@@ -44,6 +44,7 @@ Engine
   |_ Scene 2 (deactivated)
   |_ Scene 3 (deactivated)
 ```
+
 The engine splits the game into two primary responsibilities: updating and drawing. This is
 to keep your game smart about splitting duties so that you aren't drawing when doing
 logic or performing logic as you draw.
@@ -63,9 +64,9 @@ You should **not** perform any logic in a draw call, it should only relate to dr
 ## Working with Scenes
 
 The engine automatically creates a "root" [[Scene]]. You can use this for whatever you want.
-You can manipulate scenes using [[Engine.add|add]], [[Engine.remove|remove]], 
-and [[Engine.goToScene|goToScene]]. You can overwrite or remove the `root` scene if 
-you want. There always has to be at least one scene and only **one** scene can be 
+You can manipulate scenes using [[Engine.add|add]], [[Engine.remove|remove]],
+and [[Engine.goToScene|goToScene]]. You can overwrite or remove the `root` scene if
+you want. There always has to be at least one scene and only **one** scene can be
 active at any one time.
 
 Learn more about the [[Scene|scene lifecycle]].
@@ -77,11 +78,11 @@ var game = new ex.Engine();
 // create a new level
 var level1 = new ex.Scene();
 // add level 1 to the game
-game.add("level1", level1);
+game.add('level1', level1);
 // in response to user input, go to level 1
-game.goToScene("level1");
+game.goToScene('level1');
 // go back to main menu
-game.goToScene("root");
+game.goToScene('root');
 ```
 
 ### Accessing the current scene
@@ -93,7 +94,7 @@ you can use [[Engine.currentScene]] to directly access the current scene.
 
 Excalibur supports multiple [[DisplayMode|display modes]] for a game. Pass in a `displayMode`
 option when creating a game to customize the viewport.  
-The [[canvasWidth]] and [[canvasHeight]] are still used to represent the native width and height 
+The [[canvasWidth]] and [[canvasHeight]] are still used to represent the native width and height
 of the canvas, but you can leave them at 0 or `undefined` to ignore them. If width and height
 are not specified, the game won't be scaled and native resolution will be the physical screen
 width/height.
@@ -103,7 +104,7 @@ it's parent DOM element. This allows you maximum control over the game viewport,
 you want to provide HTML UI on top or as part of your game.
 
 You can use [[DisplayMode.Position]] to specify where the game window will be displayed on screen. if
-this DisplayMode is selected, then a [[position]] option _must_ be provided to the Engine constructor. 
+this DisplayMode is selected, then a [[position]] option _must_ be provided to the Engine constructor.
 The [[position]] option can be a String or an [[IAbsolutePosition]]. The first word in a String _must_
 be the desired vertical alignment of the window. The second (optional) word is the desired horizontal
 alignment.
@@ -121,16 +122,15 @@ You can customize the options or provide more for your game by extending [[Engin
 
 ```ts
 class Game extends ex.Engine {
-
   constructor() {
     super({ width: 800, height: 600, displayMode: DisplayMode.FullScreen });
   }
 
   public start() {
     // add custom scenes
-    this.add("mainmenu", new MainMenu());
+    this.add('mainmenu', new MainMenu());
     return super.start(myLoader).then(() => {
-      this.goToScene("mainmenu");
+      this.goToScene('mainmenu');
       // custom start-up
     });
   }

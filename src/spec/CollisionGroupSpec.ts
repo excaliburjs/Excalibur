@@ -1,27 +1,26 @@
 /// <reference path="Mocks.ts" />
 
 describe('A Collision Group', () => {
+  var scene;
+  var actor1;
+  var actor2;
+  var engine: ex.Engine;
+  var mock = new Mocks.Mocker();
 
-   var scene;
-   var actor1;
-   var actor2;
-   var engine: ex.Engine;
-   var mock = new Mocks.Mocker();
+  beforeEach(() => {
+    actor1 = new ex.Actor(100, 100, 100, 100);
+    actor2 = new ex.Actor(100, 100, 100, 100);
+    // Setting actor collision types to passive otherwise they push each other around
+    actor1.collisionType = ex.CollisionType.Passive;
+    actor2.collisionType = ex.CollisionType.Passive;
 
-   beforeEach(() => {
-      actor1 = new ex.Actor(100, 100, 100, 100);
-      actor2 = new ex.Actor(100, 100, 100, 100);
-      // Setting actor collision types to passive otherwise they push each other around
-      actor1.collisionType = ex.CollisionType.Passive;
-      actor2.collisionType = ex.CollisionType.Passive;
-      
-      scene.add(actor1);
-      scene.add(actor2);
-      engine = mock.engine(0, 0);
-      scene = new ex.Scene(engine);
-      engine.currentScene = scene;
-   });
-/*
+    scene.add(actor1);
+    scene.add(actor2);
+    engine = mock.engine(0, 0);
+    scene = new ex.Scene(engine);
+    engine.currentScene = scene;
+  });
+  /*
    it("does not effect actors without collision groupings", ()=>{
       expect(actor1.collides(actor2)).not.toBe(ex.Side.None);
       expect(actor2.collides(actor1)).not.toBe(ex.Side.None);
