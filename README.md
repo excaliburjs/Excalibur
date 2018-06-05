@@ -19,10 +19,10 @@ Excalibur is an open source project licensed under the 2-clause BSD license (thi
 
 Our user documentation is at http://docs.excaliburjs.com.
 
-* Follow our [Installation](http://docs.excaliburjs.com/en/latest/installation.html) guide to learn how to install Excalibur
-* Follow our [Getting Started](http://docs.excaliburjs.com/en/latest/quickstart.html) guide if you're looking to get started.
-* Learn what [Features](http://docs.excaliburjs.com/en/latest/features.html) are available for you to leverage in your games
-* View the [Release roadmap](https://github.com/excaliburjs/Excalibur/milestones) to see what's coming next
+- Follow our [Installation](http://docs.excaliburjs.com/en/latest/installation.html) guide to learn how to install Excalibur
+- Follow our [Getting Started](http://docs.excaliburjs.com/en/latest/quickstart.html) guide if you're looking to get started.
+- Learn what [Features](http://docs.excaliburjs.com/en/latest/features.html) are available for you to leverage in your games
+- View the [Release roadmap](https://github.com/excaliburjs/Excalibur/milestones) to see what's coming next
 
 :exclamation: **_Note:_** We are still in version 0.x, which means this project may be a little rough around the edges. We try to minimize API changes, but breaking changes **will occur** in new released versions. Excalibur is a labor of love and the product of many hours of spare time. Thanks for checking it out!
 
@@ -34,9 +34,9 @@ The `master` branch documentation is always available and up-to-date on our [Edg
 
 # Questions
 
-* :question: Ask us anything in the [Excalibur.js forum](https://groups.google.com/forum/#!forum/excaliburjs)
-* :bug: If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues) (please review our [guidelines for reporting bugs](https://github.com/excaliburjs/Excalibur/blob/master/.github/CONTRIBUTING.md#reporting-bugs)).
-* :mega: You can also follow us on Twitter [@excaliburjs](http://twitter.com/excaliburjs) or [read the blog](http://blog.excaliburjs.com).
+- :question: Ask us anything in the [Excalibur.js forum](https://groups.google.com/forum/#!forum/excaliburjs)
+- :bug: If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues) (please review our [guidelines for reporting bugs](https://github.com/excaliburjs/Excalibur/blob/master/.github/CONTRIBUTING.md#reporting-bugs)).
+- :mega: You can also follow us on Twitter [@excaliburjs](http://twitter.com/excaliburjs) or [read the blog](http://blog.excaliburjs.com).
 
 # Samples
 
@@ -53,11 +53,11 @@ allow the widest contributions possible. You can always use your own preferred e
 
 ### Prerequisites
 
-* **Required:** [Node.js](https://nodejs.org/) & npm (8.x)
-* _Recommended:_ [TSLint extension for VS Code](https://marketplace.visualstudio.com/items?itemName=eg2.tslint)
-* _Recommended:_ [Prettier plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
-* _Optional:_ [PhantomJS Debugger for VS Code](https://github.com/iradul/vscode-phantomjs-debug)
-* _Optional:_ Grunt CLI (`npm i -g grunt-cli`), same task names
+- **Required:** [Node.js](https://nodejs.org/) & npm (8.x)
+- _Recommended:_ [TSLint extension for VS Code](https://marketplace.visualstudio.com/items?itemName=eg2.tslint)
+- _Recommended:_ [Prettier plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- _Optional:_ [PhantomJS Debugger for VS Code](https://github.com/iradul/vscode-phantomjs-debug)
+- _Optional:_ Grunt CLI (`npm i -g grunt-cli`), same task names
 
 After cloning the repository, run:
 
@@ -74,11 +74,12 @@ npm run all
 
 # Run engine core compilation only
 # Useful for quick checks to ensure everything compiles
-npm run compile
+npm run core
 
 # Run engine tests only (does not run compile task)
 # Useful to run tests ad-hoc
-npm run tests
+npm test
+npm run test
 
 # Compile HTML visual tests
 # Useful to ensure HTML sandbox compiles

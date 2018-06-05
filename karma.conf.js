@@ -16,14 +16,15 @@ module.exports = function (config) {
       // list of files / patterns to load in the browser
       files: [
          './build/dist/excalibur.js',
-         './build/dist/excalibur.d.ts',
+         { pattern: './build/dist/excalibur.js.map', included: false, served: true },
+         { pattern: './src/spec/images/**/*.png', include: false, served: true },
+         './build/dist/index.d.ts',
          './src/engine/**/*.ts',
-         './src/spec/images/**/*.png',
          './src/spec/support/js-imagediff.js',
          './src/spec/support/js-imagediff.d.ts',
          './src/spec/Mocks.ts',
          './src/spec/TestUtils.ts',
-         './src/spec/*.ts',
+         './src/spec/*.ts'
       ],
 
 
@@ -54,10 +55,13 @@ module.exports = function (config) {
             experimentalDecorators: true
          },
          include: [
-            './build/dist/excalibur.d.ts',
+            './build/dist/index.d.ts',
             'src/spec/Mocks.ts',
             'src/spec/TestUtils.ts',
             'src/spec/*.ts'
+         ],
+         types: [
+            '@types/jasmine'
          ]
       },
 
@@ -66,7 +70,7 @@ module.exports = function (config) {
       // test results reporter to use
       // possible values: 'dots', 'progress'
       // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-      reporters: ['progress', 'karma-typescript', 'coverage'],
+      reporters: ['progress', 'coverage'],
 
       coverageReporter: {
          reporters: [

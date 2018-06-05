@@ -16,7 +16,7 @@ if (!appveyorBuild && !travisBuild) {
       const tag = execSync(`git describe --tags ${commit} --abbrev=0`).toString().trim();
 
       if (tag) {
-         version = tag + '-' + commit.substring(0, 7);
+         version = tag.substr(1) + '-' + commit.substring(0, 7);
       }
    } catch (err) {
       console.error(err);

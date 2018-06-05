@@ -1,4 +1,4 @@
-﻿/// <reference path='../../excalibur.d.ts' />
+﻿/// <reference path='../../lib/excalibur.d.ts' />
 
 var engine = new ex.Engine({ width: 600, height: 400});
 

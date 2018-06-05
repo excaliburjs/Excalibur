@@ -1,5 +1,3 @@
-/// <reference path="jasmine.d.ts" />
-
 /// <reference path="Mocks.ts" />
 
 describe('The engine', () => {
@@ -8,15 +6,29 @@ describe('The engine', () => {
    var mock = new Mocks.Mocker();
    var loop: Mocks.IGameLoop;
    var actor: ex.Actor;
+   var stats: ex.IFrameStats;
 
    beforeEach(() => {
-      engine = mock.engine(0, 0);   
+      engine = TestUtils.engine({
+         width: 400,
+         height: 400
+      });   
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
       actor = new ex.Actor(0, 0, 10, 10, ex.Color.Red);
       loop = mock.loop(engine);
 
       scene.add(actor);
+      engine.start();
+
+      loop.advance(100);
+
+      stats = engine.stats.currFrame;
+   });
+
+   afterEach(() => {
+      engine.stop();
+      engine = null;
    });
 
    it('should have current and previous frame stats defined', () => {
@@ -26,14 +38,6 @@ describe('The engine', () => {
    });
 
    describe('after frame is ended', () => {
-
-      var stats: ex.IFrameStats;
-
-      beforeAll(() => {
-         loop.advance(100);
-
-         stats = engine.stats.currFrame;
-      });
 
       it('should collect frame delta', () => {
 

@@ -3,7 +3,7 @@ import { Engine } from './Engine';
 import { ActionQueue } from './Actions/Action';
 import { EventDispatcher } from './EventDispatcher';
 import { Actor, CollisionType } from './Actor';
-import { Vector } from 'Algebra';
+import { Vector } from './Algebra';
 import { ExitTriggerEvent, EnterTriggerEvent, CollisionEndEvent, CollisionStartEvent } from './Events';
 import * as Util from './Util/Util';
 

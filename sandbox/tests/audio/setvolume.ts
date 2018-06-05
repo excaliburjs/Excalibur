@@ -1,4 +1,4 @@
-﻿/// <reference path='../../excalibur.d.ts' />
+﻿/// <reference path='../../lib/excalibur.d.ts' />
 
 ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 //create game and load the sound file with custom loader

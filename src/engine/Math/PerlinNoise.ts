@@ -1,4 +1,4 @@
-import { Random } from 'Random';
+import { Random } from './Random';
 import { Color } from '../Drawing/Color';
 import * as Util from '../Util/Util';
 

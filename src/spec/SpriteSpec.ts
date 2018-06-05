@@ -1,5 +1,4 @@
 /// <reference path="support/js-imagediff.d.ts" />
-/// <reference path="jasmine.d.ts" />
 /// <reference path="Mocks.ts" />
 
 describe('A sprite', () => {
@@ -37,10 +36,10 @@ describe('A sprite', () => {
          });
 
          expect(texture.isLoaded()).toBe(true);
-         expect(sprite.sx).toBe(0);
-         expect(sprite.sy).toBe(0);
-         expect(sprite.swidth).toBe(62);
-         expect(sprite.sheight).toBe(64);
+         expect(sprite.x).toBe(0);
+         expect(sprite.y).toBe(0);
+         expect(sprite.width).toBe(62);
+         expect(sprite.height).toBe(64);
          expect(sprite.rotation).toBe(0);
          expect(sprite.anchor.x).toBe(0.0);
          expect(sprite.anchor.y).toBe(0.0);

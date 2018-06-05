@@ -1,7 +1,8 @@
 /**
  * The current Excalibur version string
+ * @description `process.env.__EX_VERSION` gets replaced by Webpack on build
  */
-export var EX_VERSION = '__EX_VERSION';
+export var EX_VERSION = process.env.__EX_VERSION;
 
 // This file is used as the bundle entrypoint and exports everything
 // that will be exposed as the `ex` global variable.
@@ -11,7 +12,7 @@ export { Actor, IActorArgs, CollisionType } from './Actor';
 export * from './Algebra';
 export * from './Camera';
 export * from './Class';
-export * from './Configurable'
+export * from './Configurable';
 export * from './Debug';
 export * from './EventDispatcher';
 export * from './Events/MediaEvents';
@@ -38,19 +39,19 @@ export * from './Resources/Index';
 
 // ex.Events namespace
 import * as events from './Events';
-export { events as Events }
+export { events as Events };
 
 // ex.Input namespace
 import * as input from './Input/Index';
-export { input as Input }
+export { input as Input };
 
 // ex.Traits namespace
 import * as traits from './Traits/Index';
-export { traits as Traits }
+export { traits as Traits };
 
 // ex.Util namespaces
 import * as util from './Util/Index';
-export { util as Util }
+export { util as Util };
 
 export * from './Util/Decorators';
 export * from './Util/Detector';

@@ -1,17 +1,18 @@
 {
-   "compilerOptions": {
-      "outFile": "../../build/dist/excalibur.amd.js",
-      "sourceMap": true,
-      "inlineSources": true,
-      "experimentalDecorators": true,
-      "target": "es5",
-      "module": "amd",
-      "declaration": true,
-      "noImplicitAny": true,
-      "noFallthroughCasesInSwitch": true,
-      "noImplicitReturns": true,
-      "noImplicitThis": true,
-      "noUnusedLocals": true,
-      "noUnusedParameters": true
-   }
+  "compilerOptions": {
+    "outDir": "../../build/dist",
+    "rootDir": "./",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "target": "es5",
+    "module": "es2015",
+    "declaration": true,
+    "noImplicitAny": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  }
 }

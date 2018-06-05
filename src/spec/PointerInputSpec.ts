@@ -1,5 +1,3 @@
-/// <reference path="jasmine.d.ts" />
-
 /// <reference path="TestUtils.ts" />
 
 describe('A pointer', () => {
