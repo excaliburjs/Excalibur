@@ -1,11 +1,11 @@
 Tile maps are made up of [[Cell|Cells]] which can draw [[TileSprite|TileSprites]]. Tile
 maps support multiple layers and work well for building tile-based games such as RPGs,
-adventure games, strategy games, and others. Cells can be [[Cell.solid|solid]] so 
+adventure games, strategy games, and others. Cells can be [[Cell.solid|solid]] so
 that Actors can't pass through them.
 
 We recommend using the [Tiled map editor](http://www.mapeditor.org/) to build your maps
 and export them to JSON. You can then load them using a [[Resource|Generic Resource]]
-and process them to create your levels. A [[TileMap]] can then be used as part of a 
+and process them to create your levels. A [[TileMap]] can then be used as part of a
 level or map class that adds enemies and builds game objects from the Tiled map.
 
 ## Creating a tile map
@@ -61,20 +61,20 @@ public class Map extends ex.Scene {
     // store reference to definition
     this._mapDefinition = mapDef;
     // create a tile map
-    this._tileMap = new ex.TileMap(0, 0, mapDef.tileWidth, mapDef.tileHeight, 
+    this._tileMap = new ex.TileMap(0, 0, mapDef.tileWidth, mapDef.tileHeight,
       mapDef.width / mapDef.tileWidth, mapDef.height / mapDef.tileHeight);
   }
   public onInitialize() {
     // build our map based on JSON config
     // build sprite sheets
     this._mapDefinition.tileSheets.forEach(sheet => {
-    
+
       // register sprite sheet with the tile map
       // normally, you will want to ensure you load the Texture before
       // creating the SpriteSheet
       // this can be done outside the Map class, in a Loader
-      this._tileMap.registerSpriteSheet(sheet.id.toString(), 
-        new ex.SpriteSheet(new ex.Texture(sheet.path), sheet.columns, sheet.rows, 
+      this._tileMap.registerSpriteSheet(sheet.id.toString(),
+        new ex.SpriteSheet(new ex.Texture(sheet.path), sheet.columns, sheet.rows,
           this._mapDefinition.tileWidth, this._mapDefinition.tileHeight));
     });
     // fill cells with sprites
@@ -110,6 +110,6 @@ many actors.
 
 ## Collision checks
 
-You can use [[TileMap.collides]] to check if a given [[Actor]] is colliding with a 
+You can use [[TileMap.collides]] to check if a given [[Actor]] is colliding with a
 solid [[Cell]]. This method returns an intersection [[Vector]] that represents
 the smallest overlap with colliding cells.

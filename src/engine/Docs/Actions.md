@@ -12,19 +12,20 @@ actions that get executed as part of an [[ActionQueue]].
 ```ts
 class Enemy extends ex.Actor {
   public patrol() {
-     // clear existing queue
-     this.actions.clearActions();
-     // guard a choke point
-     // move to 100, 100 and take 1.2s
-     // wait for 3s
-     // move back to 0, 100 and take 1.2s
-     // wait for 3s
-     // repeat
-     this.actions.moveTo(100, 100, 1200)
-       .delay(3000)
-       .moveTo(0, 100, 1200)
-       .delay(3000)
-       .repeatForever();
+    // clear existing queue
+    this.actions.clearActions();
+    // guard a choke point
+    // move to 100, 100 and take 1.2s
+    // wait for 3s
+    // move back to 0, 100 and take 1.2s
+    // wait for 3s
+    // repeat
+    this.actions
+      .moveTo(100, 100, 1200)
+      .delay(3000)
+      .moveTo(0, 100, 1200)
+      .delay(3000)
+      .repeatForever();
   }
 }
 ```
@@ -55,7 +56,7 @@ public Ship extends ex.Actor {
     for (var i = 1; i < path.length; i++) {
       this.actions.moveTo(path[i].x, path[i].y, 300);
     }
-    
+
     // reverse path (skip last point)
     for (var j = path.length - 2; j >= 0; j--) {
       this.actions.moveTo(path[j].x, path[j].y, 300);
@@ -69,9 +70,9 @@ public Ship extends ex.Actor {
 While this is a trivial example, the Action API allows complex
 routines to be programmed for Actors. For example, using the
 [Tiled Map Editor](http://mapeditor.org) you can create a map that
-uses polylines to create paths, load in the JSON using a 
+uses polylines to create paths, load in the JSON using a
 [[Resource|Generic Resource]], create a [[TileMap]],
-and spawn ships programmatically  while utilizing the polylines 
+and spawn ships programmatically while utilizing the polylines
 to automatically generate the actions needed to do pathing.
 
 ## Custom Actions
@@ -80,7 +81,7 @@ The API does allow you to implement new actions by implementing the [[IAction]]
 interface, but this will be improved in future versions as right now it
 is meant for the Excalibur team and can be advanced to implement.
 
-You can manually manipulate an Actor's [[ActionQueue]] using 
+You can manually manipulate an Actor's [[ActionQueue]] using
 [[Actor.actionQueue]]. For example, using [[ActionQueue.add]] for
 custom actions.
 

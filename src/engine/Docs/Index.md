@@ -75,7 +75,7 @@ These classes provide the basics for math & algebra operations.
 
 ## Utilities
 
-- [["Util/Util"|Utility Functions]] 
+- [["Util/Util"|Utility Functions]]
 - [[Promise|Promises and Async]]
 - [[Logger|Logging]]
 - [[Color|Colors]]

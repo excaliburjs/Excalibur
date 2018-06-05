@@ -9,965 +9,964 @@ import * as Util from '../Util/Util';
  * Used for implementing actions for the [[ActionContext|Action API]].
  */
 export interface IAction {
-   update(delta: number): void;
-   isComplete(actor: Actor): boolean;
-   reset(): void;
-   stop(): void;
+  update(delta: number): void;
+  isComplete(actor: Actor): boolean;
+  reset(): void;
+  stop(): void;
 }
 
 export class EaseTo implements IAction {
-   private _currentLerpTime: number = 0;
-   private _lerpDuration: number = 1 * 1000; // 1 second
-   private _lerpStart: Vector = new Vector(0, 0);
-   private _lerpEnd: Vector = new Vector(0, 0);
-   private _initialized: boolean = false;
-   private _stopped: boolean = false;
-   private _distance: number = 0;
-   constructor(public actor: Actor, 
-               x: number, 
-               y: number, 
-               duration: number, 
-               public easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number) {
-      this._lerpDuration = duration;
-      this._lerpEnd = new Vector(x, y);
-   }
-   private _initialize() {
-      this._lerpStart = new Vector(this.actor.pos.x, this.actor.pos.y);
-      this._currentLerpTime = 0;
-      this._distance = this._lerpStart.distance(this._lerpEnd);
-   }
+  private _currentLerpTime: number = 0;
+  private _lerpDuration: number = 1 * 1000; // 1 second
+  private _lerpStart: Vector = new Vector(0, 0);
+  private _lerpEnd: Vector = new Vector(0, 0);
+  private _initialized: boolean = false;
+  private _stopped: boolean = false;
+  private _distance: number = 0;
+  constructor(
+    public actor: Actor,
+    x: number,
+    y: number,
+    duration: number,
+    public easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number
+  ) {
+    this._lerpDuration = duration;
+    this._lerpEnd = new Vector(x, y);
+  }
+  private _initialize() {
+    this._lerpStart = new Vector(this.actor.pos.x, this.actor.pos.y);
+    this._currentLerpTime = 0;
+    this._distance = this._lerpStart.distance(this._lerpEnd);
+  }
 
-   public update(delta: number): void {
-      if (!this._initialized) {
-         this._initialize();
-         this._initialized = true;
-      }
+  public update(delta: number): void {
+    if (!this._initialized) {
+      this._initialize();
+      this._initialized = true;
+    }
 
-      var newX = this.actor.pos.x;
-      var newY = this.actor.pos.y;
-      if (this._currentLerpTime < this._lerpDuration) {
-
-         if (this._lerpEnd.x < this._lerpStart.x) {
-            newX = this._lerpStart.x - (this.easingFcn(this._currentLerpTime, 
-                                                         this._lerpEnd.x, 
-                                                         this._lerpStart.x, 
-                                                         this._lerpDuration) - this._lerpEnd.x);
-         } else {
-            newX = this.easingFcn(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
-         }
-
-         if (this._lerpEnd.y < this._lerpStart.y) {
-            newY = this._lerpStart.y - (this.easingFcn(this._currentLerpTime, 
-                                                         this._lerpEnd.y, 
-                                                         this._lerpStart.y, 
-                                                         this._lerpDuration) - this._lerpEnd.y);
-         } else {
-            newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
-         }
-         this.actor.pos.x = newX;
-         this.actor.pos.y = newY;
-
-         this._currentLerpTime += delta;
-
+    var newX = this.actor.pos.x;
+    var newY = this.actor.pos.y;
+    if (this._currentLerpTime < this._lerpDuration) {
+      if (this._lerpEnd.x < this._lerpStart.x) {
+        newX =
+          this._lerpStart.x -
+          (this.easingFcn(this._currentLerpTime, this._lerpEnd.x, this._lerpStart.x, this._lerpDuration) - this._lerpEnd.x);
       } else {
-         this.actor.pos.x = this._lerpEnd.x;
-         this.actor.pos.y = this._lerpEnd.y;
-         //this._lerpStart = null;
-         //this._lerpEnd = null;
-         //this._currentLerpTime = 0;
+        newX = this.easingFcn(this._currentLerpTime, this._lerpStart.x, this._lerpEnd.x, this._lerpDuration);
       }
 
-   }
-   public isComplete(actor: Actor): boolean {
-      return this._stopped || (new Vector(actor.pos.x, actor.pos.y)).distance(this._lerpStart) >= this._distance;
-   }
+      if (this._lerpEnd.y < this._lerpStart.y) {
+        newY =
+          this._lerpStart.y -
+          (this.easingFcn(this._currentLerpTime, this._lerpEnd.y, this._lerpStart.y, this._lerpDuration) - this._lerpEnd.y);
+      } else {
+        newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
+      }
+      this.actor.pos.x = newX;
+      this.actor.pos.y = newY;
 
-   public reset(): void {
-      this._initialized = false;
-   }
-   public stop(): void {
-      this._stopped = true;
-   }
+      this._currentLerpTime += delta;
+    } else {
+      this.actor.pos.x = this._lerpEnd.x;
+      this.actor.pos.y = this._lerpEnd.y;
+      //this._lerpStart = null;
+      //this._lerpEnd = null;
+      //this._currentLerpTime = 0;
+    }
+  }
+  public isComplete(actor: Actor): boolean {
+    return this._stopped || new Vector(actor.pos.x, actor.pos.y).distance(this._lerpStart) >= this._distance;
+  }
+
+  public reset(): void {
+    this._initialized = false;
+  }
+  public stop(): void {
+    this._stopped = true;
+  }
 }
 
 export class MoveTo implements IAction {
-   private _actor: Actor;
-   public x: number;
-   public y: number;
-   private _start: Vector;
-   private _end: Vector;
-   private _dir: Vector;
-   private _speed: number;
-   private _distance: number;
-   private _started = false;
-   private _stopped = false;
-   constructor(actor: Actor, destx: number, desty: number, speed: number) {
-      this._actor = actor;
-      this._end = new Vector(destx, desty);
-      this._speed = speed;
-   }
+  private _actor: Actor;
+  public x: number;
+  public y: number;
+  private _start: Vector;
+  private _end: Vector;
+  private _dir: Vector;
+  private _speed: number;
+  private _distance: number;
+  private _started = false;
+  private _stopped = false;
+  constructor(actor: Actor, destx: number, desty: number, speed: number) {
+    this._actor = actor;
+    this._end = new Vector(destx, desty);
+    this._speed = speed;
+  }
 
-   public update(_delta: number): void {
-      if (!this._started) {
-         this._started = true;
-         this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
-         this._distance = this._start.distance(this._end);
-         this._dir = this._end.sub(this._start).normalize();
-      }
-      var m = this._dir.scale(this._speed);
-      this._actor.vel.x = m.x;
-      this._actor.vel.y = m.y;
-      
-      if (this.isComplete(this._actor)) {
-         this._actor.pos.x = this._end.x;
-         this._actor.pos.y = this._end.y;
-         this._actor.vel.y = 0;
-         this._actor.vel.x = 0;
-      }
-   }
+  public update(_delta: number): void {
+    if (!this._started) {
+      this._started = true;
+      this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
+      this._distance = this._start.distance(this._end);
+      this._dir = this._end.sub(this._start).normalize();
+    }
+    var m = this._dir.scale(this._speed);
+    this._actor.vel.x = m.x;
+    this._actor.vel.y = m.y;
 
-   public isComplete(actor: Actor): boolean {
-      return this._stopped || (new Vector(actor.pos.x, actor.pos.y)).distance(this._start) >= this._distance;
-   }
-
-   public stop(): void {
+    if (this.isComplete(this._actor)) {
+      this._actor.pos.x = this._end.x;
+      this._actor.pos.y = this._end.y;
       this._actor.vel.y = 0;
       this._actor.vel.x = 0;
-      this._stopped = true;
-   }
+    }
+  }
 
-   public reset(): void {
-      this._started = false;
-   }
+  public isComplete(actor: Actor): boolean {
+    return this._stopped || new Vector(actor.pos.x, actor.pos.y).distance(this._start) >= this._distance;
+  }
+
+  public stop(): void {
+    this._actor.vel.y = 0;
+    this._actor.vel.x = 0;
+    this._stopped = true;
+  }
+
+  public reset(): void {
+    this._started = false;
+  }
 }
 
 export class MoveBy implements IAction {
-   private _actor: Actor;
-   public x: number;
-   public y: number;
-   private _distance: number;
-   private _speed: number;
-   private _time: number;
+  private _actor: Actor;
+  public x: number;
+  public y: number;
+  private _distance: number;
+  private _speed: number;
+  private _time: number;
 
-   private _start: Vector;
-   private _end: Vector;
-   private _dir: Vector;
-   private _started = false;
-   private _stopped = false;
-   constructor(actor: Actor, destx: number, desty: number, time: number) {
-      this._actor = actor;
-      this._end = new Vector(destx, desty);
-      if (time <= 0) {
-         Logger.getInstance().error('Attempted to moveBy time less than or equal to zero : ' + time);
-         throw new Error('Cannot move in time <= 0');
-      }
-      this._time = time;
+  private _start: Vector;
+  private _end: Vector;
+  private _dir: Vector;
+  private _started = false;
+  private _stopped = false;
+  constructor(actor: Actor, destx: number, desty: number, time: number) {
+    this._actor = actor;
+    this._end = new Vector(destx, desty);
+    if (time <= 0) {
+      Logger.getInstance().error('Attempted to moveBy time less than or equal to zero : ' + time);
+      throw new Error('Cannot move in time <= 0');
+    }
+    this._time = time;
+  }
 
-   }
+  public update(_delta: number) {
+    if (!this._started) {
+      this._started = true;
+      this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
+      this._distance = this._start.distance(this._end);
+      this._dir = this._end.sub(this._start).normalize();
+      this._speed = this._distance / (this._time / 1000);
+    }
 
-   public update(_delta: number) {
-      if (!this._started) {
-         this._started = true;
-         this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
-         this._distance = this._start.distance(this._end);
-         this._dir = this._end.sub(this._start).normalize();
-         this._speed = this._distance / (this._time / 1000);
-      }
+    var m = this._dir.scale(this._speed);
+    this._actor.vel.x = m.x;
+    this._actor.vel.y = m.y;
 
-      var m = this._dir.scale(this._speed);
-      this._actor.vel.x = m.x;
-      this._actor.vel.y = m.y;
-
-      
-      if (this.isComplete(this._actor)) {
-         this._actor.pos.x = this._end.x;
-         this._actor.pos.y = this._end.y;
-         this._actor.vel.y = 0;
-         this._actor.vel.x = 0;
-      }
-   }
-
-   public isComplete(actor: Actor): boolean {
-      return this._stopped || (new Vector(actor.pos.x, actor.pos.y)).distance(this._start) >= this._distance;
-   }
-
-   public stop(): void {
+    if (this.isComplete(this._actor)) {
+      this._actor.pos.x = this._end.x;
+      this._actor.pos.y = this._end.y;
       this._actor.vel.y = 0;
       this._actor.vel.x = 0;
-      this._stopped = true;
-   }
+    }
+  }
 
-   public reset(): void {
-      this._started = false;
-   }
+  public isComplete(actor: Actor): boolean {
+    return this._stopped || new Vector(actor.pos.x, actor.pos.y).distance(this._start) >= this._distance;
+  }
+
+  public stop(): void {
+    this._actor.vel.y = 0;
+    this._actor.vel.x = 0;
+    this._stopped = true;
+  }
+
+  public reset(): void {
+    this._started = false;
+  }
 }
 
 export class Follow implements IAction {
-   private _actor : Actor;
-   private _actorToFollow : Actor;
-   public x : number;
-   public y : number;
-   private _current : Vector;
-   private _end : Vector;
-   private _dir : Vector;
-   private _speed : number;
-   private _maximumDistance : number;
-   private _distanceBetween : number;
-   private _started = false;
-   private _stopped = false;
+  private _actor: Actor;
+  private _actorToFollow: Actor;
+  public x: number;
+  public y: number;
+  private _current: Vector;
+  private _end: Vector;
+  private _dir: Vector;
+  private _speed: number;
+  private _maximumDistance: number;
+  private _distanceBetween: number;
+  private _started = false;
+  private _stopped = false;
 
-   constructor(actor: Actor, actorToFollow : Actor, followDistance? : number) {
-      this._actor = actor;
-      this._actorToFollow = actorToFollow;
-      this._current = new Vector(this._actor.pos.x, this._actor.pos.y);
-      this._end = new Vector(actorToFollow.pos.x, actorToFollow.pos.y);
-      this._maximumDistance = (followDistance !== undefined) ? followDistance : this._current.distance(this._end);
-      this._speed = 0;
-   }
+  constructor(actor: Actor, actorToFollow: Actor, followDistance?: number) {
+    this._actor = actor;
+    this._actorToFollow = actorToFollow;
+    this._current = new Vector(this._actor.pos.x, this._actor.pos.y);
+    this._end = new Vector(actorToFollow.pos.x, actorToFollow.pos.y);
+    this._maximumDistance = followDistance !== undefined ? followDistance : this._current.distance(this._end);
+    this._speed = 0;
+  }
 
-   public update(_delta: number) : void {
-      if (!this._started) {
-         this._started = true;
-         this._distanceBetween = this._current.distance(this._end);
-         this._dir = this._end.sub(this._current).normalize();
-      }
-      
-      var actorToFollowSpeed = Math.sqrt(Math.pow(this._actorToFollow.vel.x, 2) + Math.pow(this._actorToFollow.vel.y, 2));
-      if (actorToFollowSpeed !== 0) {
-         this._speed = actorToFollowSpeed;
-      }
-      this._current.x = this._actor.pos.x;
-      this._current.y = this._actor.pos.y;
-
-      this._end.x = this._actorToFollow.pos.x;
-      this._end.y = this._actorToFollow.pos.y;
+  public update(_delta: number): void {
+    if (!this._started) {
+      this._started = true;
       this._distanceBetween = this._current.distance(this._end);
       this._dir = this._end.sub(this._current).normalize();
+    }
 
-      if (this._distanceBetween >= this._maximumDistance) {
-         var m = this._dir.scale(this._speed);
-         this._actor.vel.x = m.x;
-         this._actor.vel.y = m.y;
-      } else {
-         this._actor.vel.x = 0;
-         this._actor.vel.y = 0;
-      }
+    var actorToFollowSpeed = Math.sqrt(Math.pow(this._actorToFollow.vel.x, 2) + Math.pow(this._actorToFollow.vel.y, 2));
+    if (actorToFollowSpeed !== 0) {
+      this._speed = actorToFollowSpeed;
+    }
+    this._current.x = this._actor.pos.x;
+    this._current.y = this._actor.pos.y;
 
-      if (this.isComplete()) {
-         // TODO this should never occur
-         this._actor.pos.x = this._end.x;
-         this._actor.pos.y = this._end.y;
-         this._actor.vel.y = 0;
-         this._actor.vel.x = 0;
-      }
-   }
+    this._end.x = this._actorToFollow.pos.x;
+    this._end.y = this._actorToFollow.pos.y;
+    this._distanceBetween = this._current.distance(this._end);
+    this._dir = this._end.sub(this._current).normalize();
 
-   public stop(): void {
-         this._actor.vel.y = 0;
-         this._actor.vel.x = 0;
-         this._stopped = true;
-   }
-
-   public isComplete() : boolean {
-      // the actor following should never stop unless specified to do so
-      return this._stopped;
-   }
-
-   public reset() : void {
-      this._started = false;
-   }
-}
-
-export class Meet implements IAction {
-   private _actor : Actor;
-   private _actorToMeet : Actor;
-   public x : number;
-   public y : number;
-   private _current : Vector;
-   private _end : Vector;
-   private _dir : Vector;
-   private _speed : number;
-   private _distanceBetween : number;
-   private _started = false;
-   private _stopped = false;
-   private _speedWasSpecified = false;
-
-   constructor(actor: Actor, actorToMeet : Actor, speed? : number) {
-      this._actor = actor;
-      this._actorToMeet = actorToMeet;
-      this._current = new Vector(this._actor.pos.x, this._actor.pos.y);
-      this._end = new Vector(actorToMeet.pos.x, actorToMeet.pos.y);
-      this._speed = speed || 0;
-
-      if (speed !== undefined) {
-         this._speedWasSpecified = true;
-      }
-   }
-
-   public update(_delta: number) : void {
-      if (!this._started) {
-         this._started = true;
-         this._distanceBetween = this._current.distance(this._end);
-         this._dir = this._end.sub(this._current).normalize();
-      }
-
-      var actorToMeetSpeed = Math.sqrt(Math.pow(this._actorToMeet.vel.x, 2) + Math.pow(this._actorToMeet.vel.y, 2));
-      if ((actorToMeetSpeed !== 0) && (!this._speedWasSpecified)) {
-         this._speed = actorToMeetSpeed;
-      }
-      this._current.x = this._actor.pos.x;
-      this._current.y = this._actor.pos.y;
-
-      this._end.x = this._actorToMeet.pos.x;
-      this._end.y = this._actorToMeet.pos.y;
-      this._distanceBetween = this._current.distance(this._end);
-      this._dir = this._end.sub(this._current).normalize();
-
+    if (this._distanceBetween >= this._maximumDistance) {
       var m = this._dir.scale(this._speed);
       this._actor.vel.x = m.x;
       this._actor.vel.y = m.y;
+    } else {
+      this._actor.vel.x = 0;
+      this._actor.vel.y = 0;
+    }
 
-      if (this.isComplete()) {
-         
-         this._actor.pos.x = this._end.x;
-         this._actor.pos.y = this._end.y;
-         this._actor.vel.y = 0;
-         this._actor.vel.x = 0;
-      }
-   }
-
-   public isComplete() : boolean {
-      return this._stopped || (this._distanceBetween <= 1);
-   }
-
-   public stop(): void {
+    if (this.isComplete()) {
+      // TODO this should never occur
+      this._actor.pos.x = this._end.x;
+      this._actor.pos.y = this._end.y;
       this._actor.vel.y = 0;
       this._actor.vel.x = 0;
-      this._stopped = true;
-   }
+    }
+  }
 
-   public reset() : void {
-      this._started = false;
-   }
+  public stop(): void {
+    this._actor.vel.y = 0;
+    this._actor.vel.x = 0;
+    this._stopped = true;
+  }
+
+  public isComplete(): boolean {
+    // the actor following should never stop unless specified to do so
+    return this._stopped;
+  }
+
+  public reset(): void {
+    this._started = false;
+  }
+}
+
+export class Meet implements IAction {
+  private _actor: Actor;
+  private _actorToMeet: Actor;
+  public x: number;
+  public y: number;
+  private _current: Vector;
+  private _end: Vector;
+  private _dir: Vector;
+  private _speed: number;
+  private _distanceBetween: number;
+  private _started = false;
+  private _stopped = false;
+  private _speedWasSpecified = false;
+
+  constructor(actor: Actor, actorToMeet: Actor, speed?: number) {
+    this._actor = actor;
+    this._actorToMeet = actorToMeet;
+    this._current = new Vector(this._actor.pos.x, this._actor.pos.y);
+    this._end = new Vector(actorToMeet.pos.x, actorToMeet.pos.y);
+    this._speed = speed || 0;
+
+    if (speed !== undefined) {
+      this._speedWasSpecified = true;
+    }
+  }
+
+  public update(_delta: number): void {
+    if (!this._started) {
+      this._started = true;
+      this._distanceBetween = this._current.distance(this._end);
+      this._dir = this._end.sub(this._current).normalize();
+    }
+
+    var actorToMeetSpeed = Math.sqrt(Math.pow(this._actorToMeet.vel.x, 2) + Math.pow(this._actorToMeet.vel.y, 2));
+    if (actorToMeetSpeed !== 0 && !this._speedWasSpecified) {
+      this._speed = actorToMeetSpeed;
+    }
+    this._current.x = this._actor.pos.x;
+    this._current.y = this._actor.pos.y;
+
+    this._end.x = this._actorToMeet.pos.x;
+    this._end.y = this._actorToMeet.pos.y;
+    this._distanceBetween = this._current.distance(this._end);
+    this._dir = this._end.sub(this._current).normalize();
+
+    var m = this._dir.scale(this._speed);
+    this._actor.vel.x = m.x;
+    this._actor.vel.y = m.y;
+
+    if (this.isComplete()) {
+      this._actor.pos.x = this._end.x;
+      this._actor.pos.y = this._end.y;
+      this._actor.vel.y = 0;
+      this._actor.vel.x = 0;
+    }
+  }
+
+  public isComplete(): boolean {
+    return this._stopped || this._distanceBetween <= 1;
+  }
+
+  public stop(): void {
+    this._actor.vel.y = 0;
+    this._actor.vel.x = 0;
+    this._stopped = true;
+  }
+
+  public reset(): void {
+    this._started = false;
+  }
 }
 
 export class RotateTo implements IAction {
-   private _actor: Actor;
-   public x: number;
-   public y: number;
-   private _start: number;
-   private _end: number;
-   private _speed: number;
-   private _rotationType: RotationType;
-   private _direction: number;
-   private _distance: number;
-   private _shortDistance: number;
-   private _longDistance: number;
-   private _shortestPathIsPositive: boolean;
-   private _started = false;
-   private _stopped = false;
-   constructor(actor: Actor, angleRadians: number, speed: number, rotationType?: RotationType) {
-      this._actor = actor;
-      this._end = angleRadians;
-      this._speed = speed;
-      this._rotationType = rotationType || RotationType.ShortestPath;
-   }
+  private _actor: Actor;
+  public x: number;
+  public y: number;
+  private _start: number;
+  private _end: number;
+  private _speed: number;
+  private _rotationType: RotationType;
+  private _direction: number;
+  private _distance: number;
+  private _shortDistance: number;
+  private _longDistance: number;
+  private _shortestPathIsPositive: boolean;
+  private _started = false;
+  private _stopped = false;
+  constructor(actor: Actor, angleRadians: number, speed: number, rotationType?: RotationType) {
+    this._actor = actor;
+    this._end = angleRadians;
+    this._speed = speed;
+    this._rotationType = rotationType || RotationType.ShortestPath;
+  }
 
-   public update(_delta: number): void {
-      if (!this._started) {
-         this._started = true;
-         this._start = this._actor.rotation;
-         var distance1 = Math.abs(this._end - this._start);
-         var distance2 = Util.TwoPI - distance1;
-         if (distance1 > distance2) {
-            this._shortDistance = distance2;
-            this._longDistance = distance1;
-         } else {
-            this._shortDistance = distance1;
-            this._longDistance = distance2;
-         }
-
-         this._shortestPathIsPositive = (this._start - this._end + Util.TwoPI) % Util.TwoPI >= Math.PI;
-
-         switch (this._rotationType) {
-            case RotationType.ShortestPath:
-               this._distance = this._shortDistance;
-               if (this._shortestPathIsPositive) {
-                  this._direction = 1;
-               } else {
-                  this._direction = -1;
-               }
-               break;
-            case RotationType.LongestPath:
-               this._distance = this._longDistance;
-               if (this._shortestPathIsPositive) {
-                  this._direction = -1;
-               } else {
-                  this._direction = 1;
-               }
-               break;
-            case RotationType.Clockwise:
-               this._direction = 1;
-               if (this._shortestPathIsPositive) {
-                  this._distance = this._shortDistance;
-               } else {
-                  this._distance = this._longDistance;
-               }
-               break;
-            case RotationType.CounterClockwise:
-               this._direction = -1;
-               if (!this._shortestPathIsPositive) {
-                  this._distance = this._shortDistance;
-               } else {
-                  this._distance = this._longDistance;
-               }
-               break;
-         }
+  public update(_delta: number): void {
+    if (!this._started) {
+      this._started = true;
+      this._start = this._actor.rotation;
+      var distance1 = Math.abs(this._end - this._start);
+      var distance2 = Util.TwoPI - distance1;
+      if (distance1 > distance2) {
+        this._shortDistance = distance2;
+        this._longDistance = distance1;
+      } else {
+        this._shortDistance = distance1;
+        this._longDistance = distance2;
       }
 
-      this._actor.rx = this._direction * this._speed;
-      
-      if (this.isComplete()) {
-         this._actor.rotation = this._end;
-         this._actor.rx = 0;
-         this._stopped = true;
+      this._shortestPathIsPositive = (this._start - this._end + Util.TwoPI) % Util.TwoPI >= Math.PI;
+
+      switch (this._rotationType) {
+        case RotationType.ShortestPath:
+          this._distance = this._shortDistance;
+          if (this._shortestPathIsPositive) {
+            this._direction = 1;
+          } else {
+            this._direction = -1;
+          }
+          break;
+        case RotationType.LongestPath:
+          this._distance = this._longDistance;
+          if (this._shortestPathIsPositive) {
+            this._direction = -1;
+          } else {
+            this._direction = 1;
+          }
+          break;
+        case RotationType.Clockwise:
+          this._direction = 1;
+          if (this._shortestPathIsPositive) {
+            this._distance = this._shortDistance;
+          } else {
+            this._distance = this._longDistance;
+          }
+          break;
+        case RotationType.CounterClockwise:
+          this._direction = -1;
+          if (!this._shortestPathIsPositive) {
+            this._distance = this._shortDistance;
+          } else {
+            this._distance = this._longDistance;
+          }
+          break;
       }
-   }
+    }
 
-   public isComplete(): boolean {
-      var distanceTravelled = Math.abs(this._actor.rotation - this._start);
-      return this._stopped || (distanceTravelled >= Math.abs(this._distance));
-   }
+    this._actor.rx = this._direction * this._speed;
 
-   public stop(): void {
+    if (this.isComplete()) {
+      this._actor.rotation = this._end;
       this._actor.rx = 0;
       this._stopped = true;
-   }
+    }
+  }
 
-   public reset(): void {
-      this._started = false;
-   }
+  public isComplete(): boolean {
+    var distanceTravelled = Math.abs(this._actor.rotation - this._start);
+    return this._stopped || distanceTravelled >= Math.abs(this._distance);
+  }
+
+  public stop(): void {
+    this._actor.rx = 0;
+    this._stopped = true;
+  }
+
+  public reset(): void {
+    this._started = false;
+  }
 }
 
 export class RotateBy implements IAction {
-   private _actor: Actor;
-   public x: number;
-   public y: number;
-   private _start: number;
-   private _end: number;
-   private _speed: number;
-   private _time: number;
-   private _rotationType: RotationType;
-   private _direction: number;
-   private _distance: number;
-   private _shortDistance: number;
-   private _longDistance: number;
-   private _shortestPathIsPositive: boolean;
-   private _started = false;
-   private _stopped = false;
-   constructor(actor: Actor, angleRadians: number, time: number, rotationType?: RotationType) {
-      this._actor = actor;
-      this._end = angleRadians;
-      this._time = time;
-      this._rotationType = rotationType || RotationType.ShortestPath;
-   }
+  private _actor: Actor;
+  public x: number;
+  public y: number;
+  private _start: number;
+  private _end: number;
+  private _speed: number;
+  private _time: number;
+  private _rotationType: RotationType;
+  private _direction: number;
+  private _distance: number;
+  private _shortDistance: number;
+  private _longDistance: number;
+  private _shortestPathIsPositive: boolean;
+  private _started = false;
+  private _stopped = false;
+  constructor(actor: Actor, angleRadians: number, time: number, rotationType?: RotationType) {
+    this._actor = actor;
+    this._end = angleRadians;
+    this._time = time;
+    this._rotationType = rotationType || RotationType.ShortestPath;
+  }
 
-   public update(_delta: number): void {
-      if (!this._started) {
-         this._started = true;
-         this._start = this._actor.rotation;
-         var distance1 = Math.abs(this._end - this._start);
-         var distance2 = Util.TwoPI - distance1;
-         if (distance1 > distance2) {
-            this._shortDistance = distance2;
-            this._longDistance = distance1;
-         } else {
-            this._shortDistance = distance1;
-            this._longDistance = distance2;
-         }
-
-         this._shortestPathIsPositive = (this._start - this._end + Util.TwoPI) % Util.TwoPI >= Math.PI;
-
-         switch (this._rotationType) {
-            case RotationType.ShortestPath:
-               this._distance = this._shortDistance;
-               if (this._shortestPathIsPositive) {
-                  this._direction = 1;
-               } else {
-                  this._direction = -1;
-               }
-               break;
-            case RotationType.LongestPath:
-               this._distance = this._longDistance;
-               if (this._shortestPathIsPositive) {
-                  this._direction = -1;
-               } else {
-                  this._direction = 1;
-               }
-               break;
-            case RotationType.Clockwise:
-               this._direction = 1;
-               if (this._shortDistance >= 0) {
-                  this._distance = this._shortDistance;
-               } else {
-                  this._distance = this._longDistance;
-               }
-               break;
-            case RotationType.CounterClockwise:
-               this._direction = -1;
-               if (this._shortDistance <= 0) {
-                  this._distance = this._shortDistance;
-               } else {
-                  this._distance = this._longDistance;
-               }
-               break;
-         }
-         this._speed = Math.abs(this._distance / this._time * 1000);
+  public update(_delta: number): void {
+    if (!this._started) {
+      this._started = true;
+      this._start = this._actor.rotation;
+      var distance1 = Math.abs(this._end - this._start);
+      var distance2 = Util.TwoPI - distance1;
+      if (distance1 > distance2) {
+        this._shortDistance = distance2;
+        this._longDistance = distance1;
+      } else {
+        this._shortDistance = distance1;
+        this._longDistance = distance2;
       }
 
-      this._actor.rx = this._direction * this._speed;
+      this._shortestPathIsPositive = (this._start - this._end + Util.TwoPI) % Util.TwoPI >= Math.PI;
 
-      
-      if (this.isComplete()) {
-         this._actor.rotation = this._end;
-         this._actor.rx = 0;
-         this._stopped = true;
+      switch (this._rotationType) {
+        case RotationType.ShortestPath:
+          this._distance = this._shortDistance;
+          if (this._shortestPathIsPositive) {
+            this._direction = 1;
+          } else {
+            this._direction = -1;
+          }
+          break;
+        case RotationType.LongestPath:
+          this._distance = this._longDistance;
+          if (this._shortestPathIsPositive) {
+            this._direction = -1;
+          } else {
+            this._direction = 1;
+          }
+          break;
+        case RotationType.Clockwise:
+          this._direction = 1;
+          if (this._shortDistance >= 0) {
+            this._distance = this._shortDistance;
+          } else {
+            this._distance = this._longDistance;
+          }
+          break;
+        case RotationType.CounterClockwise:
+          this._direction = -1;
+          if (this._shortDistance <= 0) {
+            this._distance = this._shortDistance;
+          } else {
+            this._distance = this._longDistance;
+          }
+          break;
       }
-   }
+      this._speed = Math.abs((this._distance / this._time) * 1000);
+    }
 
-   public isComplete(): boolean {
-      var distanceTravelled = Math.abs(this._actor.rotation - this._start);
-      return this._stopped || (distanceTravelled >= Math.abs(this._distance));
-   }
+    this._actor.rx = this._direction * this._speed;
 
-   public stop(): void {
+    if (this.isComplete()) {
+      this._actor.rotation = this._end;
       this._actor.rx = 0;
       this._stopped = true;
-   }
+    }
+  }
 
-   public reset(): void {
-      this._started = false;
-   }
+  public isComplete(): boolean {
+    var distanceTravelled = Math.abs(this._actor.rotation - this._start);
+    return this._stopped || distanceTravelled >= Math.abs(this._distance);
+  }
+
+  public stop(): void {
+    this._actor.rx = 0;
+    this._stopped = true;
+  }
+
+  public reset(): void {
+    this._started = false;
+  }
 }
 
 export class ScaleTo implements IAction {
-   private _actor: Actor;
-   public x: number;
-   public y: number;
-   private _startX: number;
-   private _startY: number;
-   private _endX: number;
-   private _endY: number;
-   private _speedX: number;
-   private _speedY: number;
-   private _distanceX: number;
-   private _distanceY: number;
-   private _started = false;
-   private _stopped = false;
-   constructor(actor: Actor, scaleX: number, scaleY: number, speedX: number, speedY: number) {
-      this._actor = actor;
-      this._endX = scaleX;
-      this._endY = scaleY;
-      this._speedX = speedX;
-      this._speedY = speedY;
+  private _actor: Actor;
+  public x: number;
+  public y: number;
+  private _startX: number;
+  private _startY: number;
+  private _endX: number;
+  private _endY: number;
+  private _speedX: number;
+  private _speedY: number;
+  private _distanceX: number;
+  private _distanceY: number;
+  private _started = false;
+  private _stopped = false;
+  constructor(actor: Actor, scaleX: number, scaleY: number, speedX: number, speedY: number) {
+    this._actor = actor;
+    this._endX = scaleX;
+    this._endY = scaleY;
+    this._speedX = speedX;
+    this._speedY = speedY;
+  }
 
-   }
+  public update(_delta: number): void {
+    if (!this._started) {
+      this._started = true;
+      this._startX = this._actor.scale.x;
+      this._startY = this._actor.scale.y;
+      this._distanceX = Math.abs(this._endX - this._startX);
+      this._distanceY = Math.abs(this._endY - this._startY);
+    }
 
-   public update(_delta: number): void {
-      if (!this._started) {
-         this._started = true;
-         this._startX = this._actor.scale.x;
-         this._startY = this._actor.scale.y;
-         this._distanceX = Math.abs(this._endX - this._startX);
-         this._distanceY = Math.abs(this._endY - this._startY);
-      }
+    if (!(Math.abs(this._actor.scale.x - this._startX) >= this._distanceX)) {
+      var directionX = this._endY < this._startY ? -1 : 1;
+      this._actor.sx = this._speedX * directionX;
+    } else {
+      this._actor.sx = 0;
+    }
 
-      if (!(Math.abs(this._actor.scale.x - this._startX) >= this._distanceX)) {
-         var directionX = this._endY < this._startY ? -1 : 1;
-         this._actor.sx = this._speedX * directionX;
-      } else {
-         this._actor.sx = 0;
-      }
-      
-      if (!(Math.abs(this._actor.scale.y - this._startY) >= this._distanceY)) {
-         var directionY = this._endY < this._startY ? -1 : 1;
-         this._actor.sy = this._speedY * directionY;
-      } else {
-         this._actor.sy = 0;
-      }
+    if (!(Math.abs(this._actor.scale.y - this._startY) >= this._distanceY)) {
+      var directionY = this._endY < this._startY ? -1 : 1;
+      this._actor.sy = this._speedY * directionY;
+    } else {
+      this._actor.sy = 0;
+    }
 
-      
-      if (this.isComplete()) {
-         this._actor.scale.x = this._endX;
-         this._actor.scale.y = this._endY;
-         this._actor.sx = 0;
-         this._actor.sy = 0;
-      }
-   }
-
-   public isComplete(): boolean {
-      return this._stopped || ((Math.abs(this._actor.scale.y - this._startX) >= this._distanceX) && 
-                                 (Math.abs(this._actor.scale.y - this._startY) >= this._distanceY));
-   }
-
-   public stop(): void {
+    if (this.isComplete()) {
+      this._actor.scale.x = this._endX;
+      this._actor.scale.y = this._endY;
       this._actor.sx = 0;
       this._actor.sy = 0;
-      this._stopped = true;
-   }
+    }
+  }
 
-   public reset(): void {
-      this._started = false;
-   }
+  public isComplete(): boolean {
+    return (
+      this._stopped ||
+      (Math.abs(this._actor.scale.y - this._startX) >= this._distanceX && Math.abs(this._actor.scale.y - this._startY) >= this._distanceY)
+    );
+  }
+
+  public stop(): void {
+    this._actor.sx = 0;
+    this._actor.sy = 0;
+    this._stopped = true;
+  }
+
+  public reset(): void {
+    this._started = false;
+  }
 }
 
 export class ScaleBy implements IAction {
-   private _actor: Actor;
-   public x: number;
-   public y: number;
-   private _startX: number;
-   private _startY: number;
-   private _endX: number;
-   private _endY: number;
-   private _distanceX: number;
-   private _distanceY: number;
-   private _started = false;
-   private _stopped = false;
-   private _speedX: number;
-   private _speedY: number;
-   constructor(actor: Actor, scaleX: number, scaleY: number, time: number) {
-      this._actor = actor;
-      this._endX = scaleX;
-      this._endY = scaleY;
-      this._speedX = (this._endX - this._actor.scale.x) / time * 1000;
-      this._speedY = (this._endY - this._actor.scale.y) / time * 1000;
-   }
+  private _actor: Actor;
+  public x: number;
+  public y: number;
+  private _startX: number;
+  private _startY: number;
+  private _endX: number;
+  private _endY: number;
+  private _distanceX: number;
+  private _distanceY: number;
+  private _started = false;
+  private _stopped = false;
+  private _speedX: number;
+  private _speedY: number;
+  constructor(actor: Actor, scaleX: number, scaleY: number, time: number) {
+    this._actor = actor;
+    this._endX = scaleX;
+    this._endY = scaleY;
+    this._speedX = ((this._endX - this._actor.scale.x) / time) * 1000;
+    this._speedY = ((this._endY - this._actor.scale.y) / time) * 1000;
+  }
 
-   public update(_delta: number): void {
-      if (!this._started) {
-         this._started = true;
-         this._startX = this._actor.scale.x;
-         this._startY = this._actor.scale.y;
-         this._distanceX = Math.abs(this._endX - this._startX);
-         this._distanceY = Math.abs(this._endY - this._startY);
-      }
-      var directionX = this._endX < this._startX ? -1 : 1;
-      var directionY = this._endY < this._startY ? -1 : 1;
-      this._actor.sx = this._speedX * directionX;
-      this._actor.sy = this._speedY * directionY;
+  public update(_delta: number): void {
+    if (!this._started) {
+      this._started = true;
+      this._startX = this._actor.scale.x;
+      this._startY = this._actor.scale.y;
+      this._distanceX = Math.abs(this._endX - this._startX);
+      this._distanceY = Math.abs(this._endY - this._startY);
+    }
+    var directionX = this._endX < this._startX ? -1 : 1;
+    var directionY = this._endY < this._startY ? -1 : 1;
+    this._actor.sx = this._speedX * directionX;
+    this._actor.sy = this._speedY * directionY;
 
-      
-      if (this.isComplete()) {
-         this._actor.scale.x = this._endX;
-         this._actor.scale.y = this._endY;
-         this._actor.sx = 0;
-         this._actor.sy = 0;
-      }
-   }
-
-   public isComplete(): boolean {
-      return this._stopped || ((Math.abs(this._actor.scale.x - this._startX) >= this._distanceX) && 
-                                 (Math.abs(this._actor.scale.y - this._startY) >= this._distanceY));
-   }
-
-   public stop(): void {
+    if (this.isComplete()) {
+      this._actor.scale.x = this._endX;
+      this._actor.scale.y = this._endY;
       this._actor.sx = 0;
       this._actor.sy = 0;
-      this._stopped = true;
-   }
+    }
+  }
 
-   public reset(): void {
-      this._started = false;
-   }
+  public isComplete(): boolean {
+    return (
+      this._stopped ||
+      (Math.abs(this._actor.scale.x - this._startX) >= this._distanceX && Math.abs(this._actor.scale.y - this._startY) >= this._distanceY)
+    );
+  }
+
+  public stop(): void {
+    this._actor.sx = 0;
+    this._actor.sy = 0;
+    this._stopped = true;
+  }
+
+  public reset(): void {
+    this._started = false;
+  }
 }
 
 export class Delay implements IAction {
-   public x: number;
-   public y: number;
-   private _actor: Actor;
-   private _elapsedTime: number = 0;
-   private _delay: number;
-   private _started: boolean = false;
-   private _stopped = false;
-   constructor(actor: Actor, delay: number) {
-      this._actor = actor;
-      this._delay = delay;
-   }
+  public x: number;
+  public y: number;
+  private _actor: Actor;
+  private _elapsedTime: number = 0;
+  private _delay: number;
+  private _started: boolean = false;
+  private _stopped = false;
+  constructor(actor: Actor, delay: number) {
+    this._actor = actor;
+    this._delay = delay;
+  }
 
-   public update(delta: number): void {
-      if (!this._started) {
-         this._started = true;
-      }
+  public update(delta: number): void {
+    if (!this._started) {
+      this._started = true;
+    }
 
-      this.x = this._actor.pos.x;
-      this.y = this._actor.pos.y;
+    this.x = this._actor.pos.x;
+    this.y = this._actor.pos.y;
 
-      this._elapsedTime += delta;
-   }
+    this._elapsedTime += delta;
+  }
 
-   isComplete(): boolean {
-      return this._stopped || (this._elapsedTime >= this._delay);
-   }
+  isComplete(): boolean {
+    return this._stopped || this._elapsedTime >= this._delay;
+  }
 
-   public stop(): void {
-      this._stopped = true;
-   }
+  public stop(): void {
+    this._stopped = true;
+  }
 
-   reset(): void {
-      this._elapsedTime = 0;
-      this._started = false;
-   }
+  reset(): void {
+    this._elapsedTime = 0;
+    this._started = false;
+  }
 }
 
 export class Blink implements IAction {
-   private _timeVisible: number = 0;
-   private _timeNotVisible: number = 0;
-   private _elapsedTime: number = 0;
-   private _totalTime: number = 0;
-   private _actor: Actor;
-   private _duration: number;
-   private _stopped: boolean = false;
-   private _started: boolean = false;
-   constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks: number = 1) {
-      this._actor = actor;
-      this._timeVisible = timeVisible;
-      this._timeNotVisible = timeNotVisible;
-      this._duration = (timeVisible + timeNotVisible) * numBlinks;
-   }
+  private _timeVisible: number = 0;
+  private _timeNotVisible: number = 0;
+  private _elapsedTime: number = 0;
+  private _totalTime: number = 0;
+  private _actor: Actor;
+  private _duration: number;
+  private _stopped: boolean = false;
+  private _started: boolean = false;
+  constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks: number = 1) {
+    this._actor = actor;
+    this._timeVisible = timeVisible;
+    this._timeNotVisible = timeNotVisible;
+    this._duration = (timeVisible + timeNotVisible) * numBlinks;
+  }
 
-   public update(delta: number): void {
-      if (!this._started) {
-         this._started = true;
-      }
+  public update(delta: number): void {
+    if (!this._started) {
+      this._started = true;
+    }
 
-      this._elapsedTime += delta;
-      this._totalTime += delta;
-      if (this._actor.visible && this._elapsedTime >= this._timeVisible) {
-         this._actor.visible = false;
-         this._elapsedTime = 0;
-      }
-
-      if (!this._actor.visible && this._elapsedTime >= this._timeNotVisible) {
-         this._actor.visible = true;
-         this._elapsedTime = 0;
-      }
-
-      if (this.isComplete()) {
-         this._actor.visible = true;
-      }
-
-   }
-
-   public isComplete(): boolean {
-      return this._stopped || (this._totalTime >= this._duration);
-   }
-
-   public stop(): void {
-      this._actor.visible = true;
-      this._stopped = true;
-   }
-
-   public reset() {
-      this._started = false;
+    this._elapsedTime += delta;
+    this._totalTime += delta;
+    if (this._actor.visible && this._elapsedTime >= this._timeVisible) {
+      this._actor.visible = false;
       this._elapsedTime = 0;
-      this._totalTime = 0;
-   }
+    }
+
+    if (!this._actor.visible && this._elapsedTime >= this._timeNotVisible) {
+      this._actor.visible = true;
+      this._elapsedTime = 0;
+    }
+
+    if (this.isComplete()) {
+      this._actor.visible = true;
+    }
+  }
+
+  public isComplete(): boolean {
+    return this._stopped || this._totalTime >= this._duration;
+  }
+
+  public stop(): void {
+    this._actor.visible = true;
+    this._stopped = true;
+  }
+
+  public reset() {
+    this._started = false;
+    this._elapsedTime = 0;
+    this._totalTime = 0;
+  }
 }
 
 export class Fade implements IAction {
-   public x: number;
-   public y: number;
+  public x: number;
+  public y: number;
 
-   private _actor: Actor;
-   private _endOpacity: number;
-   private _speed: number;
-   private _multiplier: number = 1;
-   private _started = false;
-   private _stopped = false;
+  private _actor: Actor;
+  private _endOpacity: number;
+  private _speed: number;
+  private _multiplier: number = 1;
+  private _started = false;
+  private _stopped = false;
 
-   constructor(actor: Actor, endOpacity: number, speed: number) {
-      this._actor = actor;
-      this._endOpacity = endOpacity;
-      this._speed = speed;               
-   }
+  constructor(actor: Actor, endOpacity: number, speed: number) {
+    this._actor = actor;
+    this._endOpacity = endOpacity;
+    this._speed = speed;
+  }
 
-   public update(delta: number): void {         
-      if (!this._started) {
-         this._started = true;
+  public update(delta: number): void {
+    if (!this._started) {
+      this._started = true;
 
-         // determine direction when we start
-         if (this._endOpacity < this._actor.opacity) {
-            this._multiplier = -1;
-         } else {
-            this._multiplier = 1;
-         }
+      // determine direction when we start
+      if (this._endOpacity < this._actor.opacity) {
+        this._multiplier = -1;
+      } else {
+        this._multiplier = 1;
       }
-      
-      if (this._speed > 0) {
-         this._actor.opacity += this._multiplier * (Math.abs(this._actor.opacity - this._endOpacity) * delta) / this._speed;
-      }
+    }
 
-      this._speed -= delta;
+    if (this._speed > 0) {
+      this._actor.opacity += (this._multiplier * (Math.abs(this._actor.opacity - this._endOpacity) * delta)) / this._speed;
+    }
 
-      if (this.isComplete()) {
-         this._actor.opacity = this._endOpacity;
-      }
+    this._speed -= delta;
 
-      Logger.getInstance().debug('[Action fade] Actor opacity:', this._actor.opacity);
-   }
+    if (this.isComplete()) {
+      this._actor.opacity = this._endOpacity;
+    }
 
-   public isComplete(): boolean {
-      return this._stopped || (Math.abs(this._actor.opacity - this._endOpacity) < 0.05);
-   }
+    Logger.getInstance().debug('[Action fade] Actor opacity:', this._actor.opacity);
+  }
 
-   public stop(): void {
-      this._stopped = true;
-   }
+  public isComplete(): boolean {
+    return this._stopped || Math.abs(this._actor.opacity - this._endOpacity) < 0.05;
+  }
 
-   public reset(): void {
-      this._started = false;
-   }
+  public stop(): void {
+    this._stopped = true;
+  }
+
+  public reset(): void {
+    this._started = false;
+  }
 }
 
 export class Die implements IAction {
-   public x: number;
-   public y: number;
+  public x: number;
+  public y: number;
 
-   private _actor: Actor;
-   private _stopped = false;
+  private _actor: Actor;
+  private _stopped = false;
 
-   constructor(actor: Actor) {
-      this._actor = actor;
-   }
+  constructor(actor: Actor) {
+    this._actor = actor;
+  }
 
-   public update(_delta: number): void {
-      this._actor.actionQueue.clearActions();
-      this._actor.kill();
-      this._stopped = true;
-   }
+  public update(_delta: number): void {
+    this._actor.actionQueue.clearActions();
+    this._actor.kill();
+    this._stopped = true;
+  }
 
-   public isComplete(): boolean {
-      return this._stopped;
-   }
+  public isComplete(): boolean {
+    return this._stopped;
+  }
 
-   public stop(): void { return; }
+  public stop(): void {
+    return;
+  }
 
-   public reset(): void { return; }
+  public reset(): void {
+    return;
+  }
 }
 
 export class CallMethod implements IAction {
-   public x: number;
-   public y: number;
-   private _method: () => any = null;
-   private _actor: Actor = null;
-   private _hasBeenCalled: boolean = false;
-   constructor(actor: Actor, method: () => any) {
-      this._actor = actor;
-      this._method = method;
-   }
+  public x: number;
+  public y: number;
+  private _method: () => any = null;
+  private _actor: Actor = null;
+  private _hasBeenCalled: boolean = false;
+  constructor(actor: Actor, method: () => any) {
+    this._actor = actor;
+    this._method = method;
+  }
 
-   public update(_delta: number) {
-      this._method.call(this._actor);
-      this._hasBeenCalled = true;
-   }
-   public isComplete() {
-      return this._hasBeenCalled;
-   }
-   public reset() {
-      this._hasBeenCalled = false;
-   }
-   public stop() {
-      this._hasBeenCalled = true;
-   }
+  public update(_delta: number) {
+    this._method.call(this._actor);
+    this._hasBeenCalled = true;
+  }
+  public isComplete() {
+    return this._hasBeenCalled;
+  }
+  public reset() {
+    this._hasBeenCalled = false;
+  }
+  public stop() {
+    this._hasBeenCalled = true;
+  }
 }
 
 export class Repeat implements IAction {
-   public x: number;
-   public y: number;
-   private _actor: Actor;
-   private _actionQueue: ActionQueue;
-   private _repeat: number;
-   private _originalRepeat: number;
-   private _stopped: boolean = false;
-   constructor(actor: Actor, repeat: number, actions: IAction[]) {
-      this._actor = actor;
-      this._actionQueue = new ActionQueue(actor);
-      this._repeat = repeat;
-      this._originalRepeat = repeat;
+  public x: number;
+  public y: number;
+  private _actor: Actor;
+  private _actionQueue: ActionQueue;
+  private _repeat: number;
+  private _originalRepeat: number;
+  private _stopped: boolean = false;
+  constructor(actor: Actor, repeat: number, actions: IAction[]) {
+    this._actor = actor;
+    this._actionQueue = new ActionQueue(actor);
+    this._repeat = repeat;
+    this._originalRepeat = repeat;
 
-      var i = 0, len = actions.length;
-      for (i; i < len; i++) {
-         actions[i].reset();
-         this._actionQueue.add(actions[i]);
-      };
-   }
+    var i = 0,
+      len = actions.length;
+    for (i; i < len; i++) {
+      actions[i].reset();
+      this._actionQueue.add(actions[i]);
+    }
+  }
 
-   public update(delta: number): void {
-      this.x = this._actor.pos.x;
-      this.y = this._actor.pos.y;
-      if (!this._actionQueue.hasNext()) {
-         this._actionQueue.reset();
-         this._repeat--;
-      }
-      this._actionQueue.update(delta);
-   }
+  public update(delta: number): void {
+    this.x = this._actor.pos.x;
+    this.y = this._actor.pos.y;
+    if (!this._actionQueue.hasNext()) {
+      this._actionQueue.reset();
+      this._repeat--;
+    }
+    this._actionQueue.update(delta);
+  }
 
-   public isComplete(): boolean {
-      return this._stopped || (this._repeat <= 0);
-   }
+  public isComplete(): boolean {
+    return this._stopped || this._repeat <= 0;
+  }
 
-   public stop(): void {
-      this._stopped = true;
-   }
+  public stop(): void {
+    this._stopped = true;
+  }
 
-   public reset(): void {
-      this._repeat = this._originalRepeat;
-   }
+  public reset(): void {
+    this._repeat = this._originalRepeat;
+  }
 }
 
 export class RepeatForever implements IAction {
-   public x: number;
-   public y: number;
-   private _actor: Actor;
-   private _actionQueue: ActionQueue;
-   private _stopped: boolean = false;
-   constructor(actor: Actor, actions: IAction[]) {
-      this._actor = actor;
-      this._actionQueue = new ActionQueue(actor);
+  public x: number;
+  public y: number;
+  private _actor: Actor;
+  private _actionQueue: ActionQueue;
+  private _stopped: boolean = false;
+  constructor(actor: Actor, actions: IAction[]) {
+    this._actor = actor;
+    this._actionQueue = new ActionQueue(actor);
 
-      var i = 0, len = actions.length;
-      for (i; i < len; i++) {
-         actions[i].reset();
-         this._actionQueue.add(actions[i]);
-      };
-   }
+    var i = 0,
+      len = actions.length;
+    for (i; i < len; i++) {
+      actions[i].reset();
+      this._actionQueue.add(actions[i]);
+    }
+  }
 
-   public update(delta: number): void {
-      this.x = this._actor.pos.x;
-      this.y = this._actor.pos.y;
-      if (this._stopped) {
-         return;
-      }
+  public update(delta: number): void {
+    this.x = this._actor.pos.x;
+    this.y = this._actor.pos.y;
+    if (this._stopped) {
+      return;
+    }
 
+    if (!this._actionQueue.hasNext()) {
+      this._actionQueue.reset();
+    }
 
-      if (!this._actionQueue.hasNext()) {
-         this._actionQueue.reset();
-      }
+    this._actionQueue.update(delta);
+  }
 
-      this._actionQueue.update(delta);
+  public isComplete(): boolean {
+    return this._stopped;
+  }
 
-   }
+  public stop(): void {
+    this._stopped = true;
+    this._actionQueue.clearActions();
+  }
 
-   public isComplete(): boolean {
-      return this._stopped;
-   }
-
-   public stop(): void {
-      this._stopped = true;
-      this._actionQueue.clearActions();
-   }
-
-   public reset(): void { return; }
+  public reset(): void {
+    return;
+  }
 }
 
 /**
@@ -981,57 +980,58 @@ export class RepeatForever implements IAction {
  * queue.
  */
 export class ActionQueue {
-   private _actor: Actor;
-   private _actions: IAction[] = [];
-   private _currentAction: IAction;
-   private _completedActions: IAction[] = [];
-   constructor(actor: Actor) {
-      this._actor = actor;
-   }
+  private _actor: Actor;
+  private _actions: IAction[] = [];
+  private _currentAction: IAction;
+  private _completedActions: IAction[] = [];
+  constructor(actor: Actor) {
+    this._actor = actor;
+  }
 
-   public add(action: IAction) {
-      this._actions.push(action);
-   }
+  public add(action: IAction) {
+    this._actions.push(action);
+  }
 
-   public remove(action: IAction) {
-      var index = this._actions.indexOf(action);
-      this._actions.splice(index, 1);
-   }
+  public remove(action: IAction) {
+    var index = this._actions.indexOf(action);
+    this._actions.splice(index, 1);
+  }
 
-   public clearActions(): void {
-      this._actions.length = 0;
-      this._completedActions.length = 0;
-      if (this._currentAction) {
-         this._currentAction.stop();
+  public clearActions(): void {
+    this._actions.length = 0;
+    this._completedActions.length = 0;
+    if (this._currentAction) {
+      this._currentAction.stop();
+    }
+  }
+
+  public getActions(): IAction[] {
+    return this._actions.concat(this._completedActions);
+  }
+
+  public hasNext(): boolean {
+    return this._actions.length > 0;
+  }
+
+  public reset(): void {
+    this._actions = this.getActions();
+
+    var i = 0,
+      len = this._actions.length;
+    for (i; i < len; i++) {
+      this._actions[i].reset();
+    }
+    this._completedActions = [];
+  }
+
+  public update(delta: number) {
+    if (this._actions.length > 0) {
+      this._currentAction = this._actions[0];
+      this._currentAction.update(delta);
+
+      if (this._currentAction.isComplete(this._actor)) {
+        this._completedActions.push(this._actions.shift());
       }
-   }
-
-   public getActions(): IAction[] {
-      return this._actions.concat(this._completedActions);
-   }
-
-   public hasNext(): boolean {
-      return this._actions.length > 0;
-   }
-
-   public reset(): void {
-      this._actions = this.getActions();
-
-      var i = 0, len = this._actions.length;
-      for (i; i < len; i++) {
-         this._actions[i].reset();
-      }
-      this._completedActions = [];
-   }
-
-   public update(delta: number) {
-      if (this._actions.length > 0) {
-         this._currentAction = this._actions[0];
-         this._currentAction.update(delta);
-
-         if (this._currentAction.isComplete(this._actor)) {
-            this._completedActions.push(this._actions.shift());
-         }
-      }
-   }
+    }
+  }
 }

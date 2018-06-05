@@ -1,11 +1,11 @@
 /// <reference path='../../../lib/excalibur.d.ts' />
 
 var game = new ex.Engine({
-   canvasElementId: 'game',
-   displayMode: ex.DisplayMode.FullScreen
+  canvasElementId: 'game',
+  displayMode: ex.DisplayMode.FullScreen
 });
 
-var jump = new ex.Sound('../../../sounds/jump.mp3', '../../../sounds/jump.wav'); 
+var jump = new ex.Sound('../../../sounds/jump.mp3', '../../../sounds/jump.wav');
 
 // if iOS, use PauseAfterLoader
 var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(<any>window).MSStream;
@@ -16,15 +16,18 @@ loader.addResource(jump);
 var lbl = new ex.Label('Game started, you should hear a sound every 2 seconds', 20, 100, 'sans-serif');
 lbl.fontSize = 10;
 lbl.color = ex.Color.White;
-var tmr = new ex.Timer(() => {
-   jump.play();
-}, 2000, true);
+var tmr = new ex.Timer(
+  () => {
+    jump.play();
+  },
+  2000,
+  true
+);
 
 game.add(lbl);
 game.add(tmr);
-   
+
 game.start(loader).then(() => {
-      
-   // should play immediately
-   jump.play();
+  // should play immediately
+  jump.play();
 });

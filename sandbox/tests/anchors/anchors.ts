@@ -1,27 +1,25 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 
 class Cross extends ex.Actor {
-   constructor(x, y) {
-      super(x, y, 40, 40);
+  constructor(x, y) {
+    super(x, y, 40, 40);
+  }
 
-   }
+  onPreDraw(ctx: CanvasRenderingContext2D, delta: number) {
+    ctx.beginPath();
+    ctx.lineTo(this.getWidth() / 2, 0);
+    ctx.lineTo(this.getWidth() / 2, this.getHeight());
+    ctx.strokeStyle = ex.Color.Black.toString();
+    ctx.stroke();
+    ctx.closePath();
 
-   onPreDraw(ctx: CanvasRenderingContext2D, delta: number) {
-      
-      ctx.beginPath();
-      ctx.lineTo(this.getWidth() / 2, 0);
-      ctx.lineTo(this.getWidth() / 2, this.getHeight());
-      ctx.strokeStyle = ex.Color.Black.toString();
-      ctx.stroke();
-      ctx.closePath();
-
-      ctx.beginPath();
-      ctx.lineTo(0, this.getHeight() / 2);
-      ctx.lineTo(this.getWidth(), this.getHeight() / 2);
-      ctx.strokeStyle = ex.Color.Black.toString();
-      ctx.stroke();
-      ctx.closePath();
-   }
+    ctx.beginPath();
+    ctx.lineTo(0, this.getHeight() / 2);
+    ctx.lineTo(this.getWidth(), this.getHeight() / 2);
+    ctx.strokeStyle = ex.Color.Black.toString();
+    ctx.stroke();
+    ctx.closePath();
+  }
 }
 
 var game = new ex.Engine({ width: 500, height: 500 });
@@ -44,10 +42,10 @@ ca3.anchor.setTo(0.5, 0.5);
 ca4.anchor.setTo(0.5, 0.5);
 ca2.scale.setTo(2, 2);
 ca4.scale.setTo(2, 2);
-var heartSprite = heartTx.asSprite()
+var heartSprite = heartTx.asSprite();
 heartSprite.scale.setTo(3, 3);
 ca4.addDrawing(heartSprite);
-ca4.rx = .5;
+ca4.rx = 0.5;
 ca3.rotation = ex.Util.toRadians(45);
 
 game.add(ca4);
@@ -69,7 +67,7 @@ tla3.anchor.setTo(0, 0);
 tla4.anchor.setTo(0, 0);
 tla2.scale.setTo(2, 2);
 tla4.scale.setTo(2, 2);
-var heartSprite2 = heartTx.asSprite()
+var heartSprite2 = heartTx.asSprite();
 heartSprite2.scale.setTo(2, 2);
 tla4.addDrawing(heartSprite2);
 tla3.rotation = ex.Util.toRadians(45);
@@ -162,19 +160,18 @@ game.currentScene.camera.x = 0;
 game.currentScene.camera.y = 0;
 game.start(ldr);
 
+game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) => {
+  if (evt.key === ex.Input.Keys.Up) {
+    heartSprite.scale.addEqual(new ex.Vector(0.2, 0.2));
+  }
+  if (evt.key === ex.Input.Keys.Down) {
+    heartSprite.scale.addEqual(new ex.Vector(-0.2, -0.2));
+  }
+  if (evt.key === ex.Input.Keys.Left) {
+    ca4.setWidth(ca4.getWidth() - 0.2);
+  }
 
-game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) =>{
-   if(evt.key === ex.Input.Keys.Up) {
-      heartSprite.scale.addEqual(new ex.Vector(.2, .2));
-   } 
-   if(evt.key === ex.Input.Keys.Down){
-      heartSprite.scale.addEqual(new ex.Vector(-.2, -.2));
-   }
-   if(evt.key === ex.Input.Keys.Left){
-      ca4.setWidth(ca4.getWidth() - .2);
-   }
-
-   if(evt.key === ex.Input.Keys.Right){
-      ca4.setWidth(ca4.getWidth() + .2);
-   }
-})
+  if (evt.key === ex.Input.Keys.Right) {
+    ca4.setWidth(ca4.getWidth() + 0.2);
+  }
+});

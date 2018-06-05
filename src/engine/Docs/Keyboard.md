@@ -18,13 +18,10 @@ It is recommended that keyboard actions that directly effect actors be handled l
 ```ts
 class Player extends ex.Actor {
   public update(engine, delta) {
-    
-    if (engine.input.keyboard.isHeld(ex.Input.Keys.W) ||
-        engine.input.keyboard.isHeld(ex.Input.Keys.Up)) {
-      
+    if (engine.input.keyboard.isHeld(ex.Input.Keys.W) || engine.input.keyboard.isHeld(ex.Input.Keys.Up)) {
       player._moveForward();
     }
-     
+
     if (engine.input.keyboard.wasPressed(ex.Input.Keys.Right)) {
       player._fire();
     }
@@ -39,7 +36,7 @@ passed to your handler which offers information about the key that was part of t
 
 - `press` - When a key was just pressed this frame
 - `release` - When a key was just released this frame
-- `hold` - Whenever a key is in the down position 
+- `hold` - Whenever a key is in the down position
 
 ```ts
 engine.input.keyboard.on("press", (evt: KeyEvent) => {...});

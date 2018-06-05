@@ -4,14 +4,16 @@ var canvas = <HTMLCanvasElement>document.getElementById('game');
 var ctx = canvas.getContext('2d');
 //var noise = new ex.PerlinNoise(10, 15, 2, .5, .5);
 var noise = new ex.PerlinGenerator({
-   seed: 515,
-   octaves: 15,
-   frequency: 2,
-   amplitude: .5,
-   persistance: .5
+  seed: 515,
+  octaves: 15,
+  frequency: 2,
+  amplitude: 0.5,
+  persistance: 0.5
 });
 
-var drawer = new ex.PerlinDrawer2D(noise); /*, (val: number) => {
+var drawer = new ex.PerlinDrawer2D(
+  noise
+); /*, (val: number) => {
    var color = new ex.Color(0, 0, 0, 0);
    if (val < 135) {
       color.r = 0;
