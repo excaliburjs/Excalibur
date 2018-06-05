@@ -1,12 +1,9 @@
 {
-   "compilerOptions": {
-      "sourceMap": true,
-      "experimentalDecorators": true,
-      "target": "es5",
-      "module": "none",
-      "types": [
-         "@types/jasmine"
-      ]
-   },
-   
+  "compilerOptions": {
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "target": "es5",
+    "module": "none",
+    "types": ["@types/jasmine"]
+  }
 }

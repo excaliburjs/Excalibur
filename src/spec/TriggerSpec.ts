@@ -1,296 +1,278 @@
 /// <reference path="Mocks.ts" />
 
 describe('A Trigger', () => {
-   var scene: ex.Scene;
-   var engine: ex.Engine;
-   var mock = new Mocks.Mocker();
-   var loop: Mocks.IGameLoop;
+  var scene: ex.Scene;
+  var engine: ex.Engine;
+  var mock = new Mocks.Mocker();
+  var loop: Mocks.IGameLoop;
 
-   beforeEach(() => {
-      engine = TestUtils.engine({ width: 600, height: 400 });
-      
-      scene = new ex.Scene(engine);
+  beforeEach(() => {
+    engine = TestUtils.engine({ width: 600, height: 400 });
 
-      loop = mock.loop(engine);
-      engine.start();
-   });
+    scene = new ex.Scene(engine);
 
-   afterEach(() => {
-      engine.stop();
-      engine = null;
-   });
+    loop = mock.loop(engine);
+    engine.start();
+  });
 
-   it('should exist', () => {
-      expect(ex.Trigger).toBeDefined();
-   });
+  afterEach(() => {
+    engine.stop();
+    engine = null;
+  });
 
-   it('can be triggered once', () => {
-      // Arrange
-      var trigger = new ex.Trigger({
-         pos: new ex.Vector(0, 100),
-         width: 100,
-         height: 100,
-         repeat: 1
-      });
-      var actor = new ex.Actor(0, 0, 10, 10);
-      actor.collisionType = ex.CollisionType.Active;
-      actor.vel.y = 10;
-      engine.currentScene.add(trigger);
-      engine.currentScene.add(actor);
-      spyOn(trigger, 'action');
+  it('should exist', () => {
+    expect(ex.Trigger).toBeDefined();
+  });
 
-      // Act
-      actor.vel.y = 10;
-      for (let i = 0; i < 20; i++) {
-         engine.currentScene.update(engine, 1000);
-      }
+  it('can be triggered once', () => {
+    // Arrange
+    var trigger = new ex.Trigger({
+      pos: new ex.Vector(0, 100),
+      width: 100,
+      height: 100,
+      repeat: 1
+    });
+    var actor = new ex.Actor(0, 0, 10, 10);
+    actor.collisionType = ex.CollisionType.Active;
+    actor.vel.y = 10;
+    engine.currentScene.add(trigger);
+    engine.currentScene.add(actor);
+    spyOn(trigger, 'action');
 
-      actor.vel.y = -10;
-      for (let i = 0; i < 20; i++) {
-         engine.currentScene.update(engine, 1000);
-      }
+    // Act
+    actor.vel.y = 10;
+    for (let i = 0; i < 20; i++) {
+      engine.currentScene.update(engine, 1000);
+    }
 
-      actor.vel.y = 10;
-      for (let i = 0; i < 20; i++) {
-         engine.currentScene.update(engine, 1000);
-      }
+    actor.vel.y = -10;
+    for (let i = 0; i < 20; i++) {
+      engine.currentScene.update(engine, 1000);
+    }
 
-      // Assert
-      expect(trigger.action).toHaveBeenCalledTimes(1);
-      
-   });
+    actor.vel.y = 10;
+    for (let i = 0; i < 20; i++) {
+      engine.currentScene.update(engine, 1000);
+    }
 
-   it('can be triggered multiple times', () => {
-      // Arrange
-      var trigger = new ex.Trigger({
-         pos: new ex.Vector(0, 100),
-         width: 100,
-         height: 100,
-         repeat: 3
-      });
-      var actor = new ex.Actor(0, 0, 10, 10);
-      actor.collisionType = ex.CollisionType.Active;
-      actor.vel.y = 10;
-      engine.currentScene.add(trigger);
-      engine.currentScene.add(actor);
-      spyOn(trigger, 'action');
+    // Assert
+    expect(trigger.action).toHaveBeenCalledTimes(1);
+  });
 
-      // Act
-      actor.vel.y = 10;
-      for (let i = 0; i < 20; i++) {
-         engine.currentScene.update(engine, 1000);
-      }
+  it('can be triggered multiple times', () => {
+    // Arrange
+    var trigger = new ex.Trigger({
+      pos: new ex.Vector(0, 100),
+      width: 100,
+      height: 100,
+      repeat: 3
+    });
+    var actor = new ex.Actor(0, 0, 10, 10);
+    actor.collisionType = ex.CollisionType.Active;
+    actor.vel.y = 10;
+    engine.currentScene.add(trigger);
+    engine.currentScene.add(actor);
+    spyOn(trigger, 'action');
 
-      actor.vel.y = -10;
-      for (let i = 0; i < 20; i++) {
-         engine.currentScene.update(engine, 1000);
-      }
+    // Act
+    actor.vel.y = 10;
+    for (let i = 0; i < 20; i++) {
+      engine.currentScene.update(engine, 1000);
+    }
 
-      actor.vel.y = 10;
-      for (let i = 0; i < 20; i++) {
-         engine.currentScene.update(engine, 1000);
-      }
+    actor.vel.y = -10;
+    for (let i = 0; i < 20; i++) {
+      engine.currentScene.update(engine, 1000);
+    }
 
-      // Assert
-      expect(trigger.action).toHaveBeenCalledTimes(3);
+    actor.vel.y = 10;
+    for (let i = 0; i < 20; i++) {
+      engine.currentScene.update(engine, 1000);
+    }
 
-   });
+    // Assert
+    expect(trigger.action).toHaveBeenCalledTimes(3);
+  });
 
-   it('fires an event when an actor enters the trigger once', () => {
-      // Arrange 
-      var fired = 0;
+  it('fires an event when an actor enters the trigger once', () => {
+    // Arrange
+    var fired = 0;
 
-      var trigger = new ex.Trigger({
-         pos: new ex.Vector(0, 100),
-         width: 100,
-         height: 100
-      });
+    var trigger = new ex.Trigger({
+      pos: new ex.Vector(0, 100),
+      width: 100,
+      height: 100
+    });
 
-      trigger.collisionType = ex.CollisionType.Passive;
+    trigger.collisionType = ex.CollisionType.Passive;
 
-      var actor = new ex.Actor(0, 0, 10, 10);
-      actor.collisionType = ex.CollisionType.Active;
-      actor.vel.y = 10;
+    var actor = new ex.Actor(0, 0, 10, 10);
+    actor.collisionType = ex.CollisionType.Active;
+    actor.vel.y = 10;
 
+    trigger.on('collisionstart', (evt: ex.EnterTriggerEvent) => {
+      fired++;
+    });
 
-      trigger.on('collisionstart', (evt: ex.EnterTriggerEvent) => {
-         fired++;
-      });
+    engine.add(trigger);
+    engine.add(actor);
 
-      engine.add(trigger);
-      engine.add(actor);
+    // Act
+    actor.vel.y = 10;
+    for (let i = 0; i < 40; i++) {
+      loop.advance(1000);
+    }
 
-      // Act
-      actor.vel.y = 10;
-      for (let i = 0; i < 40; i++) {
-         loop.advance(1000);
-      }
+    expect(fired).toBe(1);
+  });
 
-      expect(fired).toBe(1);
+  it('fires an event when the actor exits the trigger', () => {
+    // Arrange
+    var fired = 0;
 
-   });
+    var trigger = new ex.Trigger({
+      pos: new ex.Vector(0, 100),
+      width: 100,
+      height: 100
+    });
 
-   it('fires an event when the actor exits the trigger', () => {
-      // Arrange 
-      var fired = 0;
+    var actor = new ex.Actor(0, 0, 10, 10);
+    actor.collisionType = ex.CollisionType.Active;
+    actor.vel.y = 10;
 
-      var trigger = new ex.Trigger({
-         pos: new ex.Vector(0, 100),
-         width: 100,
-         height: 100
-      });
+    engine.add(trigger);
+    engine.add(actor);
 
-      var actor = new ex.Actor(0, 0, 10, 10);
-      actor.collisionType = ex.CollisionType.Active;
-      actor.vel.y = 10;
+    trigger.on('collisionend', (evt: ex.ExitTriggerEvent) => {
+      fired++;
+    });
 
-      engine.add(trigger);
-      engine.add(actor);
+    // Act
+    actor.vel.y = 10;
+    for (let i = 0; i < 40; i++) {
+      loop.advance(1000);
+    }
 
-      trigger.on('collisionend', (evt: ex.ExitTriggerEvent) => {
-         fired++;
-      });
+    // Assert
+    expect(fired).toBe(1);
+  });
 
-      // Act
-      actor.vel.y = 10;
-      for (let i = 0; i < 40; i++) {
-         loop.advance(1000);
-      }
+  it('does not draw by default', () => {
+    // Arrange
+    var trigger = new ex.Trigger({
+      pos: new ex.Vector(0, 100),
+      width: 100,
+      height: 100
+    });
 
-      // Assert
-      expect(fired).toBe(1);
-      
-   });
+    engine.add(trigger);
 
-   it('does not draw by default', () => {
-      // Arrange
-      var trigger = new ex.Trigger({
-         pos: new ex.Vector(0, 100),
-         width: 100,
-         height: 100
-      });
+    spyOn(trigger, 'draw');
+    // Act
+    for (let i = 0; i < 2; i++) {
+      loop.advance(1000);
+    }
 
-      engine.add(trigger);
+    // Assert
+    expect(trigger.draw).not.toHaveBeenCalled();
+  });
 
-      spyOn(trigger, 'draw');
-      // Act
-      for (let i = 0; i < 2; i++) {
-         loop.advance(1000);
-      }
+  it('can draw if directed', () => {
+    // Arrange
+    var trigger = new ex.Trigger({
+      pos: new ex.Vector(0, 100),
+      visible: true,
+      width: 100,
+      height: 100
+    });
 
-      // Assert
-      expect(trigger.draw).not.toHaveBeenCalled();
-   });
+    engine.add(trigger);
 
-   it('can draw if directed', () => {
-      // Arrange
-      var trigger = new ex.Trigger({
-         pos: new ex.Vector(0, 100),
-         visible: true,
-         width: 100,
-         height: 100
-      });
+    spyOn(trigger, 'draw');
+    // Act
+    for (let i = 0; i < 2; i++) {
+      loop.advance(1000);
+    }
 
-      engine.add(trigger);
+    // Assert
+    expect(trigger.draw).toHaveBeenCalled();
+  });
 
-      spyOn(trigger, 'draw');
-      // Act
-      for (let i = 0; i < 2; i++) {
-         loop.advance(1000);
-      }
+  it('will only trigger if the filter is false', () => {
+    // Arrange
+    var trigger = new ex.Trigger({
+      pos: new ex.Vector(0, 100),
+      visible: true,
+      width: 100,
+      height: 100,
+      filter: () => false
+    });
 
-      // Assert
-      expect(trigger.draw).toHaveBeenCalled();
-   });
+    var actor = new ex.Actor(0, 100, 10, 10);
 
-   it('will only trigger if the filter is false', () => {
-      // Arrange
-      var trigger = new ex.Trigger({
-         pos: new ex.Vector(0, 100),
-         visible: true,
-         width: 100,
-         height: 100,
-         filter: () => false
-      });
+    engine.add(trigger);
+    engine.add(actor);
+    spyOn(trigger, 'action');
 
-      var actor = new ex.Actor(
-         0, 100,
-         10, 10
-      );
+    // Act
+    for (let i = 0; i < 2; i++) {
+      loop.advance(1000);
+    }
 
-      engine.add(trigger);
-      engine.add(actor);
-      spyOn(trigger, 'action');
+    // Assert
+    expect(trigger.action).not.toHaveBeenCalled();
+  });
 
-      // Act
-      for (let i = 0; i < 2; i++) {
-         loop.advance(1000);
-      }
+  it('will not only trigger if the filter is true', () => {
+    // Arrange
+    var trigger = new ex.Trigger({
+      pos: new ex.Vector(0, 100),
+      visible: true,
+      width: 100,
+      height: 100,
+      filter: () => true
+    });
 
-      // Assert
-      expect(trigger.action).not.toHaveBeenCalled();
-   });
+    var actor = new ex.Actor(0, 100, 10, 10);
+    actor.collisionType = ex.CollisionType.Active;
 
-   it('will not only trigger if the filter is true', () => {
-      // Arrange
-      var trigger = new ex.Trigger({
-         pos: new ex.Vector(0, 100),
-         visible: true,
-         width: 100,
-         height: 100,
-         filter: () => true
-      });
+    engine.add(trigger);
+    engine.add(actor);
+    spyOn(trigger, 'action');
 
-      var actor = new ex.Actor(
-         0, 100,
-         10, 10
-      );
-      actor.collisionType = ex.CollisionType.Active;
+    // Act
+    for (let i = 0; i < 2; i++) {
+      loop.advance(1000);
+    }
 
-      engine.add(trigger);
-      engine.add(actor);
-      spyOn(trigger, 'action');
+    // Assert
+    expect(trigger.action).toHaveBeenCalled();
+  });
 
-      // Act
-      for (let i = 0; i < 2; i++) {
-         loop.advance(1000);
-      }
+  it('will only trigger on a target', () => {
+    // Arrange
+    var actor = new ex.Actor(0, 100, 10, 10);
+    var actor2 = new ex.Actor(0, 100, 10, 10);
 
-      // Assert
-      expect(trigger.action).toHaveBeenCalled();
-   });
+    var trigger = new ex.Trigger({
+      pos: new ex.Vector(0, 100),
+      visible: true,
+      width: 100,
+      height: 100,
+      target: actor
+    });
 
-   it('will only trigger on a target', () => {
-      // Arrange
-      var actor = new ex.Actor(
-         0, 100,
-         10, 10
-      );
-      var actor2 = new ex.Actor(
-         0, 100,
-         10, 10
-      );
+    engine.add(trigger);
+    engine.add(actor2);
+    spyOn(trigger, 'action');
 
-      var trigger = new ex.Trigger({
-         pos: new ex.Vector(0, 100),
-         visible: true,
-         width: 100,
-         height: 100,
-         target: actor
-      });
+    // Act
+    for (let i = 0; i < 2; i++) {
+      loop.advance(1000);
+    }
 
-      engine.add(trigger);
-      engine.add(actor2);
-      spyOn(trigger, 'action');
-
-      // Act
-      for (let i = 0; i < 2; i++) {
-         loop.advance(1000);
-      }
-
-      // Assert
-      expect(trigger.action).not.toHaveBeenCalled();
-      expect(trigger.target).toBe(actor);
-   });
-
+    // Assert
+    expect(trigger.action).not.toHaveBeenCalled();
+    expect(trigger.target).toBe(actor);
+  });
 });

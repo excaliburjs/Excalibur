@@ -8,46 +8,46 @@ import { Engine } from '../Engine';
  * [[include:Loadables.md]]
  */
 export interface ILoadable {
-   /**
-    * Begins loading the resource and returns a promise to be resolved on completion
-    */
-   load(): Promise<any>;
-   
-   /**
-    * Gets the data that was loaded
-    */
-   getData(): any;
+  /**
+   * Begins loading the resource and returns a promise to be resolved on completion
+   */
+  load(): Promise<any>;
 
-   /**
-    * Sets the data (can be populated from remote request or in-memory data)
-    */
-   setData(data: any): void;
-   
-   /**
-    * Processes the downloaded data. Meant to be overridden.
-    */
-   processData(data: any): any;
+  /**
+   * Gets the data that was loaded
+   */
+  getData(): any;
 
-   /**
-    * Wires engine into loadable to receive game level events
-    */
-   wireEngine(engine: Engine): void;
-   
-   /**
-    * onprogress handler
-    */
-   onprogress: (e: any) => void;
-   /**
-    * oncomplete handler
-    */
-   oncomplete: () => void;
-   /**
-    * onerror handler
-    */
-   onerror: (e: any) => void;
+  /**
+   * Sets the data (can be populated from remote request or in-memory data)
+   */
+  setData(data: any): void;
 
-   /**
-    * Returns true if the loadable is loaded
-    */
-      isLoaded(): boolean;
+  /**
+   * Processes the downloaded data. Meant to be overridden.
+   */
+  processData(data: any): any;
+
+  /**
+   * Wires engine into loadable to receive game level events
+   */
+  wireEngine(engine: Engine): void;
+
+  /**
+   * onprogress handler
+   */
+  onprogress: (e: any) => void;
+  /**
+   * oncomplete handler
+   */
+  oncomplete: () => void;
+  /**
+   * onerror handler
+   */
+  onerror: (e: any) => void;
+
+  /**
+   * Returns true if the loadable is loaded
+   */
+  isLoaded(): boolean;
 }

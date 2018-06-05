@@ -1,20 +1,19 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 
 var game = new ex.Engine({
-    width: 800,
-    height: 600
+  width: 800,
+  height: 600
 });
-
 
 // create an asset loader
 var loader = new ex.Loader();
 var resources = {
-    txPlayer: new ex.Texture('logo.png')
+  txPlayer: new ex.Texture('logo.png')
 };
 
 // queue resources for loading
 for (var r in resources) {
-    loader.addResource(resources[r]);
+  loader.addResource(resources[r]);
 }
 
 var target = new ex.Actor(500, 500, 20, 20, ex.Color.Red);
@@ -23,17 +22,15 @@ game.add(target);
 var aim = new ex.Actor(game.halfDrawWidth, game.halfDrawHeight, 100, 100, ex.Color.Black);
 aim.addDrawing(resources.txPlayer);
 aim.setHeight(10);
-aim.scale.setTo(1, .2);
+aim.scale.setTo(1, 0.2);
 game.add(aim);
 
 // uncomment loader after adding resources
 game.start(loader).then(() => {
+  game.input.pointers.primary.on('move', (ev: ex.Input.PointerEvent) => {
+    target.pos.setTo(ev.worldPos.x, ev.worldPos.y);
 
-    game.input.pointers.primary.on('move', (ev: ex.Input.PointerEvent) => {
-        target.pos.setTo(ev.worldPos.x, ev.worldPos.y);
-
-        var aimVec = target.pos.sub(aim.pos);
-        aim.rotation =  aimVec.toAngle();
-    });
-
+    var aimVec = target.pos.sub(aim.pos);
+    aim.rotation = aimVec.toAngle();
+  });
 });

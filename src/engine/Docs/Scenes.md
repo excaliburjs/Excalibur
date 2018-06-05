@@ -18,25 +18,24 @@ game.start();
 You can also add actors to a [[Scene]] instance specifically.
 
 ```js
-var game   = new ex.Engine();
+var game = new ex.Engine();
 var level1 = new ex.Scene();
 var player = new ex.Actor();
-var enemy  = new ex.Actor();
+var enemy = new ex.Actor();
 // add actors to level1
 level1.add(player);
 level1.add(enemy);
 // add level1 to the game
-game.add("level1", level1);
+game.add('level1', level1);
 // start the game
 game.start();
 // after player clicks start game, for example
-game.goToScene("level1");
-
+game.goToScene('level1');
 ```
 
 ## Scene Lifecycle
 
-A [[Scene|scene]] has a basic lifecycle that dictates how it is initialized, updated, and drawn. Once a [[Scene|scene]] is added to 
+A [[Scene|scene]] has a basic lifecycle that dictates how it is initialized, updated, and drawn. Once a [[Scene|scene]] is added to
 the [[Engine|engine]] it will follow this lifecycle.
 
 ![Scene Lifecycle](/assets/images/docs/SceneLifecycle.png)
@@ -57,15 +56,15 @@ to perform any start-up logic, which is called once.
 ```ts
 class MainMenu extends ex.Scene {
   // start-up logic, called once
-  public onInitialize(engine: ex.Engine) { }
+  public onInitialize(engine: ex.Engine) {}
   // each time the scene is entered (Engine.goToScene)
-  public onActivate() { }
+  public onActivate() {}
   // each time the scene is exited (Engine.goToScene)
-  public onDeactivate() { }
+  public onDeactivate() {}
 }
 // add to game and activate it
-game.add("mainmenu", new MainMenu());
-game.goToScene("mainmenu");
+game.add('mainmenu', new MainMenu());
+game.goToScene('mainmenu');
 ```
 
 **Javascript**
@@ -73,14 +72,14 @@ game.goToScene("mainmenu");
 ```js
 var MainMenu = ex.Scene.extend({
   // start-up logic, called once
-  onInitialize: function (engine) { },
+  onInitialize: function(engine) {},
   // each time the scene is activated by Engine.goToScene
-  onActivate: function () { },
+  onActivate: function() {},
   // each time the scene is deactivated by Engine.goToScene
-  onDeactivate: function () { }
+  onDeactivate: function() {}
 });
-game.add("mainmenu", new MainMenu());
-game.goToScene("mainmenu");
+game.add('mainmenu', new MainMenu());
+game.goToScene('mainmenu');
 ```
 
 ## Scene camera

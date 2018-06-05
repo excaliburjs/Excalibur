@@ -6,13 +6,15 @@ var ldr = new ex.Loader([hrt]);
 ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 
 game.start(ldr).then(() => {
+  var heart = new ex.Actor(150, 50, 50, 50);
+  heart.addDrawing(hrt);
 
-   var heart = new ex.Actor(150, 50, 50, 50);
-   heart.addDrawing(hrt);
+  heart.opacity = 0;
 
-   heart.opacity = 0;
+  game.add(heart);
 
-   game.add(heart);
-
-   heart.actions.fade(1, 200).delay(2000).fade(0, 200);
+  heart.actions
+    .fade(1, 200)
+    .delay(2000)
+    .fade(0, 200);
 });
