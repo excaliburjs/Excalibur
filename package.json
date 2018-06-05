@@ -30,7 +30,8 @@
     "start": "grunt watch",
     "test": "grunt tests",
     "apidocs": "grunt apidocs",
-    "precommit": "pretty-quick --staged"
+    "precommit": "pretty-quick --staged",
+    "pretty": "prettier --write --config prettier.config.js"
   },
   "husky": {
     "hooks": {
