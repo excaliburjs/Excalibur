@@ -109,7 +109,7 @@ function handleTouch(color: ex.Color) {
   return (pe: ex.Input.PointerEvent) => {
     if (pe.pointerType !== ex.Input.PointerType.Touch) return;
 
-    paintBrush.paint(pe.x, pe.y, color);
+    paintBrush.paint(pe.worldPos.x, pe.worldPos.y, color);
   };
 }
 
