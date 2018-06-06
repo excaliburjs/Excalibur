@@ -7,8 +7,25 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
+## Added
+
+## Changed
+
+## Deprecated
+
+## Fixed
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.17.0] - 2018-06-04
+
+## Breaking Changes
+
 - Property scope `Pointer.actorsUnderPointer` changed to private;
-- Added `Sound.volume` & `Sound.loop` properties as a replacement for `Sound.setVolume()` and `Sound.setLoop()`. The methods `setVolume` and `setLoop` have been marked obsolete.
+- `Sprite.sx` replaced with `Sprite.x`
+- `Sprite.sy` replaced with `Sprite.y`
+- `Sprite.swidth` replaced with `Sprite.width`
+- `Sprite.sheight` replaced with `Sprite.height`
 
 ## Added
 
@@ -39,6 +56,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Deprecated
 
 - `CapturePointer.update()` method now doesn't propagate event to actor, just verifies pointer events for actor.
+- Added `Sound.volume` & `Sound.loop` properties as a replacement for `Sound.setVolume()` and `Sound.setLoop()`. The methods `setVolume` and `setLoop` have been marked obsolete.
 
 ## Fixed
 
@@ -51,7 +69,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `Index` export order to prevent `almond.js` from creation of corrupted modules loading order.
 - `Sound.pause()` now saves correct timings.
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!----------------------------------------------------------------------------------------------->
 
 ## [0.16.0] - 2018-03-31
 
@@ -630,7 +648,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!----------------------------------------------------------------------------------------------->
 
-[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.16.0...HEAD
+[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.17.0...HEAD
+[0.17.0]: https://github.com/excaliburjs/Excalibur/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/excaliburjs/Excalibur/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/excaliburjs/Excalibur/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/excaliburjs/Excalibur/compare/v0.13.0...v0.14.0
