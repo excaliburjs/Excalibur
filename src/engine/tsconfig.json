@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "outDir": "../../build/dist",
-    "rootDir": "./",
     "moduleResolution": "node",
     "sourceMap": true,
     "experimentalDecorators": true,
