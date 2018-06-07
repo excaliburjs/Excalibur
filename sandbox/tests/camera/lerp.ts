@@ -14,7 +14,7 @@ game.start().then(() => {});
 var easingFn = ex.EasingFunctions.EaseInOutQuad;
 
 game.input.pointers.primary.on('down', (evt: ex.Input.PointerEvent) => {
-  game.currentScene.camera.move(new ex.Vector(evt.worldPos.x, evt.worldPos.y), 500, easingFn).then(onLerpEnd);
+  game.currentScene.camera.move(new ex.Vector(evt.worldPos.x, evt.worldPos.y), 500, easingFn).then((v) => onLerpEnd(v));
   document.getElementById('lerp-false').style.display = 'none';
   document.getElementById('lerp-true').style.display = 'inline';
 });
