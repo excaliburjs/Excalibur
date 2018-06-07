@@ -14,6 +14,7 @@ export class OffscreenCulling implements IActorTrait {
     var globalScale = actor.getGlobalScale();
     var width = (globalScale.x * actor.getWidth()) / actor.scale.x;
     var height = (globalScale.y * actor.getHeight()) / actor.scale.y;
+    var cameraPos = engine.currentScene.camera.pos;
     var worldPos = actor.getWorldPos();
     var actorScreenCoords = engine.worldToScreenCoordinates(new Vector(worldPos.x - anchor.x * width, worldPos.y - anchor.y * height));
 
@@ -31,8 +32,8 @@ export class OffscreenCulling implements IActorTrait {
       if (
         (actorScreenCoords.x + width * zoom < 0 ||
           actorScreenCoords.y + height * zoom < 0 ||
-          actorScreenCoords.x > engine.drawWidth ||
-          actorScreenCoords.y > engine.drawHeight) &&
+          actorScreenCoords.x > engine.halfDrawWidth + cameraPos.x ||
+          actorScreenCoords.y > engine.halfDrawHeight + cameraPos.y) &&
         isSpriteOffScreen
       ) {
         eventDispatcher.emit('exitviewport', new ExitViewPortEvent(actor));
@@ -42,8 +43,8 @@ export class OffscreenCulling implements IActorTrait {
       if (
         (actorScreenCoords.x + width * zoom > 0 &&
           actorScreenCoords.y + height * zoom > 0 &&
-          actorScreenCoords.x < engine.drawWidth &&
-          actorScreenCoords.y < engine.drawHeight) ||
+          actorScreenCoords.x < engine.halfDrawWidth + cameraPos.x &&
+          actorScreenCoords.y < engine.halfDrawHeight + cameraPos.y) ||
         !isSpriteOffScreen
       ) {
         eventDispatcher.emit('enterviewport', new EnterViewPortEvent(actor));
