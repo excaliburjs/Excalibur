@@ -196,7 +196,7 @@ export class Vector {
 
   /**
    * Performs a 2D cross product with scalar. 2D cross products with a scalar return a vector.
-   * @param v  The vector to cross
+   * @param v  The scalar to cross
    */
   public cross(v: number): Vector;
   /**
