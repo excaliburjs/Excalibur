@@ -170,11 +170,23 @@ describe('Vectors', () => {
   });
 
   it('can be checked for validity on infinity vectors', () => {
-    var invalid = new ex.Vector(Infinity, Infinity);
-    var oneComponentInvalid = new ex.Vector(Infinity, 2);
+    var invalidTest1 = new ex.Vector(Infinity, Infinity);
+    var invalidTest2 = new ex.Vector(-Infinity, -Infinity);
+    var invalidTest3 = new ex.Vector(Infinity, -Infinity););
+    var invalidTest4 = new ex.Vector(-Infinity, Infinity);
+    var oneComponentInvalidTest1 = new ex.Vector(Infinity, -2);
+    var oneComponentInvalidTest2 = new ex.Vector(-Infinity, 2);
+    var oneComponentInvalidTest3 = new ex.Vector(1, Infinity);
+    var oneComponentInvalidTest4 = new ex.Vector(1, -Infinity);
 
-    expect(ex.Vector.isValid(invalid)).toBe(false, 'Infinity vectors should be invalid');
-    expect(ex.Vector.isValid(oneComponentInvalid)).toBe(false, 'Infinity vectors with one component should be invalid');
+    expect(ex.Vector.isValid(invalidTest1)).toBe(false, 'Infinity vectors should be invalid');
+    expect(ex.Vector.isValid(invalidTest2)).toBe(false, 'Infinity vectors should be invalid');
+    expect(ex.Vector.isValid(invalidTest3)).toBe(false, 'Infinity vectors should be invalid');
+    expect(ex.Vector.isValid(invalidTest4)).toBe(false, 'Infinity vectors should be invalid');
+    expect(ex.Vector.isValid(oneComponentInvalidTest1)).toBe(false, 'Infinity vectors with one component at +/-Infinity should be invalid');
+    expect(ex.Vector.isValid(oneComponentInvalidTest2)).toBe(false, 'Infinity vectors with one component at +/-Infinity should be invalid');
+    expect(ex.Vector.isValid(oneComponentInvalidTest3)).toBe(false, 'Infinity vectors with one component at +/-Infinity should be invalid');
+    expect(ex.Vector.isValid(oneComponentInvalidTest4)).toBe(false, 'Infinity vectors with one component at +/-Infinity should be invalid');
   });
 
   it('can be checked for validity on NaN vectors', () => {
