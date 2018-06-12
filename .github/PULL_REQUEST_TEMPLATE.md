@@ -8,7 +8,7 @@ A quick summary checklist is included below for convenience:
 -->
 ===PR Checklist===
 - [ ] issue exists in github for these changes
-- [ ] existing tests pass
+- [ ] existing tests still pass
 - [ ] new tests written and passing / old tests updated with new scenario(s)
 - [ ] changelog entry added (or not needed)
 
