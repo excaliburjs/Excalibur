@@ -68,6 +68,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fix `pickSet(allowDuplicates: true)` now returns the proper length array with correct elements ([#977](https://github.com/excaliburjs/Excalibur/issues/977))
 - `Index` export order to prevent `almond.js` from creation of corrupted modules loading order.
 - `Sound.pause()` now saves correct timings.
+- Fix `ex.Vector.isValid` edgecase at `Infinity` ([#1006](https://github.com/excaliburjs/Excalibur/issues/1006))
 
 <!----------------------------------------------------------------------------------------------->
 
