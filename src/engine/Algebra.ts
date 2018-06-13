@@ -58,7 +58,7 @@ export class Vector {
       return false;
     }
 
-    if (vec.x === Infinity || vec.y === Infinity || vec.x === -Infinity || vec.y === Infinity) {
+    if (vec.x === Infinity || vec.y === Infinity || vec.x === -Infinity || vec.y === -Infinity) {
       return false;
     }
 
