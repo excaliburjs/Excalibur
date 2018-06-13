@@ -6,11 +6,11 @@ https://github.com/excaliburjs/Excalibur/blob/master/.github/CONTRIBUTING.md#sub
 ---
 A quick summary checklist is included below for convenience:
 -->
-===PR Checklist===
-- [ ] issue exists in github for these changes
-- [ ] existing tests pass
-- [ ] new tests written and passing
-- [ ] changelog entry added (or not needed)
+===:clipboard: PR Checklist :clipboard:===
+- [ ] :pushpin: issue exists in github for these changes 
+- [ ] :microscope: existing tests still pass
+- [ ] :triangular_ruler: new tests written and passing / old tests updated with new scenario(s)
+- [ ] :page_facing_up: changelog entry added (or not needed)
 
 ==================
 
