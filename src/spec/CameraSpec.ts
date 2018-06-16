@@ -221,7 +221,7 @@ describe('A camera', () => {
     expect(distance2).toBeLessThan(distance);
   });
 
-  fit('can lerp over time', (done) => {
+  it('can lerp over time', (done) => {
     engine.currentScene.camera.move(new ex.Vector(100, 100), 1000, ex.EasingFunctions.EaseOutCubic).then(() => {
       engine.currentScene.camera.move(new ex.Vector(200, 200), 1000, ex.EasingFunctions.Linear).then(() => {
         expect(engine.currentScene.camera.pos.x).toBe(200);

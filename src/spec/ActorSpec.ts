@@ -1362,6 +1362,25 @@ describe('A game actor', () => {
     expect(scene.remove).toHaveBeenCalledWith(actor);
   });
 
+  it('can be offscreen', () => {
+    let actor = new ex.Actor({
+      x: 0,
+      y: 0,
+      width: 10,
+      height: 10
+    });
+
+    scene.add(actor);
+    scene.update(engine, 100);
+
+    expect(actor.isOffScreen).toBe(false);
+
+    actor.x = 106;
+    scene.update(engine, 100);
+
+    expect(actor.isOffScreen).toBe(true);
+  });
+
   describe('lifecycle overrides', () => {
     let actor: ex.Actor = null;
 
