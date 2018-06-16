@@ -221,6 +221,23 @@ describe('A camera', () => {
     expect(distance2).toBeLessThan(distance);
   });
 
+  it('can lerp over time', (done) => {
+    engine.currentScene.camera.move(new ex.Vector(100, 100), 1000, ex.EasingFunctions.EaseOutCubic).then(() => {
+      engine.currentScene.camera.move(new ex.Vector(200, 200), 1000, ex.EasingFunctions.Linear).then(() => {
+        expect(engine.currentScene.camera.pos.x).toBe(200);
+        expect(engine.currentScene.camera.pos.y).toBe(200);
+        done();
+      });
+    });
+
+    engine.currentScene.camera.update(engine, 999);
+    engine.currentScene.camera.update(engine, 1);
+    engine.currentScene.camera.update(engine, 1);
+    engine.currentScene.camera.update(engine, 999);
+    engine.currentScene.camera.update(engine, 1);
+    engine.currentScene.camera.update(engine, 1);
+  });
+
   xit('can zoom in over time', (done) => {
     engine.start().then(() => {
       engine.currentScene.camera.zoom(5, 1000).then(() => {
