@@ -3,23 +3,23 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [Unreleased]
 
-## Breaking Changes
+### Breaking Changes
 
-## Added
+### Added
 
-## Changed
+### Changed
 
-## Deprecated
+### Deprecated
 
-## Fixed
+### Fixed
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [0.17.0] - 2018-06-04
 
-## Breaking Changes
+### Breaking Changes
 
 - Property scope `Pointer.actorsUnderPointer` changed to private;
 - `Sprite.sx` replaced with `Sprite.x`
@@ -27,7 +27,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `Sprite.swidth` replaced with `Sprite.width`
 - `Sprite.sheight` replaced with `Sprite.height`
 
-## Added
+### Added
 
 - Allow timers to limit repeats to a finite number of times ([#957](https://github.com/excaliburjs/Excalibur/pull/974))
 - Convenience method on Scene to determine whether it is the current scene. Scene.isCurrentScene() ([#982](https://github.com/excaliburjs/Excalibur/issues/982))
@@ -47,18 +47,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added `Sound.getTrackId(track: [[AudioInstance]])` method. Which returns id of track provided,
   if it is in list of active tracks.
 
-## Changed
+### Changed
 
 - Refactored Easing functions to be reversable ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
 - Now at creation every `Actor.anchor` prop is set to default `Actor.defaults.anchor`.
 - Scene.remove(Actor) now starts the Actor.Kill event cycle.([#981](https://github.com/excaliburjs/Excalibur/issues/981))
 
-## Deprecated
+### Deprecated
 
 - `CapturePointer.update()` method now doesn't propagate event to actor, just verifies pointer events for actor.
 - Added `Sound.volume` & `Sound.loop` properties as a replacement for `Sound.setVolume()` and `Sound.setLoop()`. The methods `setVolume` and `setLoop` have been marked obsolete.
 
-## Fixed
+### Fixed
 
 - Added missing variable assignments to TileMapImpl constructor ([#957](https://github.com/excaliburjs/Excalibur/pull/957))
 - Correct setting audio volume level from `value` to `setValueAtTime` to comply with deprecation warning in Chrome 59 ([#953](https://github.com/excaliburjs/Excalibur/pull/953))
@@ -74,7 +74,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.16.0] - 2018-03-31
 
-## Added
+### Added
 
 - New typesafe and override safe event lifecycle overriding, all `onEventName` handlers will no longer be dangerous to override ([#582](https://github.com/excaliburjs/Excalibur/issues/582))
   - New lifecycle event `onPreKill` and `onPostKill`
@@ -94,11 +94,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Added property `ICapturePointerConfig.captureDragEvents` which controls whether to emit drag events to the actor
   - Added property `PointerEvent.pointer` which equals the original pointer object
 
-## Deprecated
+### Deprecated
 
 - `Sprite.sx`, `Sprite.sy`, `Sprite.swidth`, `Sprite.sheight` has be deprecated in favor of `Sprite.x`, `Sprite.y`, `Sprite.width`, `Sprite.height` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
 
-## Fixed
+### Fixed
 
 - Added missing lifecycle event handlers on Actors, Triggers, Scenes, Engine, and Camera ([#582](https://github.com/excaliburjs/Excalibur/issues/582))
 - Tile Maps now correctly render negative x-axis coordinates ([#904](https://github.com/excaliburjs/Excalibur/issues/904))
@@ -111,13 +111,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.15.0] - 2018-02-16
 
-## Breaking Changes
+### Breaking Changes
 
 - `LockedCamera` replaced with `BaseCamera.strategy.lockToActor`
 - `SideCamera` replaced with `BaseCamera.strategy.lockToActorAxis`
 - `Body.wasTouching` replaced with event type `CollisionEnd`
 
-## Added
+### Added
 
 - Option bag constructors have been added for commonly-used classes (see [Constructors.md](https://github.com/excaliburjs/Excalibur/blob/master/src/engine/Docs/Constructors.md)) ([#410](https://github.com/excaliburjs/Excalibur/issues/410))
 
@@ -125,7 +125,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.14.0] - 2017-12-02
 
-## Breaking Changes
+### Breaking Changes
 
 - Triggers now have a new option bag constructor using the `ITriggerOptions` interface. ([#863](https://github.com/excaliburjs/Excalibur/issues/863)).
 - `update` event replaced with `postupdate` event
@@ -133,7 +133,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `getDrawWidth()` and `getDrawHeight()` replaced with the getters `drawWidth` and `drawHeight`
 - `PointerEvent.x` and `PointerEvent.y` replaced with `PointerEvent.pos`
 
-## Added
+### Added
 
 - Automatic HiDPI screen detection and scaling in excalibur internals to correct blurry bitmap rendering on HiDPI screens. This feature can optionally be suppressed with `IEngineOptions.suppressHiDPIScaling`.
 - Added new line utility `Line.normal()` and `Line.distanceToPoint` ([#703](https://github.com/excaliburjs/Excalibur/issues/703))
@@ -146,17 +146,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `ElasticToActorStrategy` which is a new strategy that elastically moves the camera to an actor and can be switched on with `Camera.strategy.elasticToActor(actor, cameraElasticity, cameraFriction)`
   - `CircleAroundActorStrategy` which is a new strategy that will follow an actor when a certain radius from the camera focus and can be switched on with `Camera.strategy.circleAroundActor(actor)`
 
-## Changed
+### Changed
 
 - Trigger have been rebuilt to provide a better experience. The trigger `action` only fires when an actor enters the designated area instead of every frame of collision. ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 - Triggers can now draw like other Actors, but are still not visible by default ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 
-## Deprecated
+### Deprecated
 
 - `Body.wasTouching` has been deprecated in favor of a new event type `CollisionEnd` ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 - `SideCamera` and `LockedCamera` are deprecated in favor of camera strategies
 
-## Fixed
+### Fixed
 
 - Fixed odd jumping behavior when polygons collided with the end of an edge ([#703](https://github.com/excaliburjs/Excalibur/issues/703))
 
