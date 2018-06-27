@@ -22,12 +22,12 @@ Have questions? Ask them in our [forum]!
   
 
 ## Reporting Bugs
-Before reporting a bug, please perform the following basic troubleshooting steps:
+Before reporting a bug, please perform the following troubleshooting steps:
 
 1. Check to see if the problem has already been reported
-	- Take a look through the list of [known bugs][search-label-bug] to see if someone has already created an issue that describes the problem you’re experiencing. If an issue already exists, consider adding any additional context you have about the problem in a comment.
+	- Take a look through the list of [known bugs][search-label-bug] to see if someone has already created an issue that describes the problem you’re experiencing. If an issue already exists, consider adding any additional context you have about the problem in a comment on that issue.
 2. Try the latest stable version of Excalibur
-	- If you’re not using the latest [release][releases], your problem may already be fixed. Please upgrade to the latest stable version and see if you still experience the problem.
+	- If you’re not using the latest [release][releases], the problem may already be fixed. Please upgrade to the latest stable version and see if you still experience the problem.
 	- Alternatively, if you’re using a new unstable release, try rolling back to the latest stable release.
 3. Try using older versions of Excalibur
 	- If you’re already using the latest release, try out the previous few versions. This will help us determine where the problem first appeared.
@@ -39,7 +39,7 @@ When you submit an issue, a markdown template will automatically populate the ed
 ## Suggesting Improvements
 If you have an idea for a new feature, or an improvement to existing functionality, use the “Other Issues” Template. We’ve included helpful hints for filling out the issue in the template. 
 
-Please look through our [backlog][issues] to see if your improvement has already been suggested. If so, feel free to provide additional comments or thoughts on the existing issue.
+Please look through our [backlog][issues] to see if your improvement has already been suggested. If you find an existing issue for the improvement, feel free to provide additional thoughts as a comment on the existing issue.
 
 ## Submitting Changes
 
@@ -56,7 +56,7 @@ Below is the general workflow for submitting changes:
 If you’re not sure where to start, take a look at the "good first issue" or "help wanted" [issue labels](#issue-labels).
 
 #### Discussing a Contribution
-It's helpful to let us know that you'd like to contribute for an issue, to prevent duplicate work. Ask us any questions you have about the issue, so that we can clarify the work you'll need to do.
+It's helpful to let us know that you'd like to contribute for an issue, to prevent duplicate work. Ask us any questions you have about the issue, so that we can clarify the work you'll need to do. We're here to help!
 
 #### Creating a Pull Request
 - Please ensure that there is an issue created for what you're working on. This helps us track the work being done!
