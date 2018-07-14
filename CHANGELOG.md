@@ -15,6 +15,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fix issue where Actors would not be properly added to a scene if they were removed from that scene during the same frame ([#979](https://github.com/excaliburjs/Excalibur/issues/979))
+
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [0.17.0] - 2018-06-04
