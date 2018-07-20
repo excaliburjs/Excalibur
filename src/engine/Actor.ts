@@ -19,7 +19,9 @@ import {
   PreKillEvent,
   GameEvent,
   ExitTriggerEvent,
-  EnterTriggerEvent
+  EnterTriggerEvent,
+  EnterViewPortEvent,
+  ExitViewPortEvent
 } from './Events';
 import { PointerEvent, WheelEvent, PointerDragEvent } from './Input/Pointer';
 import { Engine } from './Engine';
@@ -662,6 +664,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
   public on(eventName: Events.pointerdragenter, handler: (event?: PointerDragEvent) => void): void;
   public on(eventName: Events.pointerdragleave, handler: (event?: PointerDragEvent) => void): void;
   public on(eventName: Events.pointerdragmove, handler: (event?: PointerDragEvent) => void): void;
+  public on(eventName: Events.enterviewport, handler: (event?: EnterViewPortEvent) => void): void;
+  public on(eventName: Events.exitviewport, handler: (event?: ExitViewPortEvent) => void): void;
   public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
   public on(eventName: string, handler: (event?: any) => void): void {
     this._checkForPointerOptIn(eventName);
@@ -727,6 +731,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
   public once(eventName: Events.pointerdragenter, handler: (event?: PointerDragEvent) => void): void;
   public once(eventName: Events.pointerdragleave, handler: (event?: PointerDragEvent) => void): void;
   public once(eventName: Events.pointerdragmove, handler: (event?: PointerDragEvent) => void): void;
+  public once(eventName: Events.enterviewport, handler: (event?: EnterViewPortEvent) => void): void;
+  public once(eventName: Events.exitviewport, handler: (event?: ExitViewPortEvent) => void): void;
   public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
   public once(eventName: string, handler: (event?: any) => void): void {
     this._checkForPointerOptIn(eventName);
@@ -789,6 +795,8 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
   public off(eventName: Events.preupdate, handler?: (event?: Events.PreUpdateEvent) => void): void;
   public off(eventName: Events.postdraw, handler?: (event?: Events.PostDrawEvent) => void): void;
   public off(eventName: Events.predraw, handler?: (event?: Events.PreDrawEvent) => void): void;
+  public off(eventName: Events.enterviewport, handler?: (event?: EnterViewPortEvent) => void): void;
+  public off(eventName: Events.exitviewport, handler?: (event?: ExitViewPortEvent) => void): void;
   public off(eventName: string, handler?: (event?: GameEvent<any>) => void): void;
   public off(eventName: string, handler?: (event?: any) => void): void {
     super.off(eventName, handler);
