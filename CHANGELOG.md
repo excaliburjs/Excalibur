@@ -15,6 +15,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed missing `exitviewport/enterviewport` events on Actors.on/once/off signatures. ([#978](https://github.com/excaliburjs/Excalibur/issues/978))
+
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [0.17.0] - 2018-06-04
