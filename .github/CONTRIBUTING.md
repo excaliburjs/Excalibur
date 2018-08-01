@@ -34,12 +34,8 @@ Before reporting a bug, please perform the following troubleshooting steps:
 4. Try different browsers
 	- The problem you’re seeing may only appear in certain browsers or mobile devices. If you can, please try several different browsers/platforms to see if the issue persists.
 
-When you submit an issue, a markdown template will automatically populate the editor window. Remove the “Other Issues Template” and fill out the “Bug Template”. We’ve included helpful hints for filling out the bug report in the template.
-
 ## Suggesting Improvements
-If you have an idea for a new feature, or an improvement to existing functionality, use the “Other Issues” Template. We’ve included helpful hints for filling out the issue in the template. 
-
-Please look through our [backlog][issues] to see if your improvement has already been suggested. If you find an existing issue for the improvement, feel free to provide additional thoughts as a comment on the existing issue.
+Please do a quick search through our [backlog][issues] to see if your improvement has already been suggested. If so, feel free to provide additional comments or thoughts on the existing issue.
 
 ## Submitting Changes
 
