@@ -48,7 +48,7 @@ var imageBlocks = new ex.Texture('../images/BlockA0.png');
 var spriteFontImage = new ex.Texture('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
 
-jump.setVolume(0.3);
+jump.volume = 0.3;
 
 var loader = new ex.Loader();
 loader.addResource(heartTex);

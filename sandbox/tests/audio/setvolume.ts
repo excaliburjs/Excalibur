@@ -22,7 +22,7 @@ button.on('pointerup', function() {
     //change volume of the sound after 2000 ms to show that
     //initial setting worked
     setTimeout(function() {
-      testSound.setVolume(1);
+      testSound.volume = 1;
     }, 2000);
   }
 });
