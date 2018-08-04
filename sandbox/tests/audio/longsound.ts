@@ -18,7 +18,7 @@ game.on('hidden', () => {
 });
 
 game.start(loader).then(() => {
-  testSound.setLoop(true);
+  testSound.loop = true;
   testSound.play();
 
   setTimeout(() => testSound.play(), 2000);

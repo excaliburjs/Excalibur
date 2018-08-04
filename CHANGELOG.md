@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `Sound.setVolume()` replaced with `Sound.volume`
+- `Sound.setLoop()` replaced with `Sound.loop`
+
 ### Added
 
 - Add `Scene.isActorInDrawTree` method to determine if an actor is in the scene's draw tree.

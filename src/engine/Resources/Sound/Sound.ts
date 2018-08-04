@@ -5,7 +5,6 @@ import { Resource } from '../Resource';
 import { AudioInstance, AudioInstanceFactory } from './AudioInstance';
 import { AudioContextFactory } from './AudioContext';
 import { NativeSoundEvent } from '../../Events/MediaEvents';
-import { obsolete } from '../../Util/Decorators';
 import { Promise } from '../../Promises';
 import { canPlayFile } from '../../Util/Sound';
 
@@ -91,18 +90,6 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
       this.logger.warn('Attempting to use', paths[0]);
       this.path = paths[0]; // select the first specified
     }
-  }
-
-  /** @obsolete will be removed in v0.18, use loop */
-  @obsolete({ message: 'will be removed in v0.18, use loop instead' })
-  public setLoop(loop: boolean) {
-    this.loop = loop;
-  }
-
-  /** @obsolete will be removed in v0.18, use volume */
-  @obsolete({ message: 'will be removed in v0.18, use volume instead' })
-  public setVolume(volume: number) {
-    this.volume = volume;
   }
 
   public wireEngine(engine: Engine) {
