@@ -740,6 +740,10 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
     this._sortedDrawingTree.add(actor);
   }
 
+  public isActorInDrawTree(actor: Actor): boolean {
+    return this._sortedDrawingTree.find(actor);
+  }
+
   public isCurrentScene(): boolean {
     if (this.engine) {
       return this.engine.currentScene === this;

@@ -225,6 +225,19 @@ describe('A scene', () => {
     expect(scene.actors.length).toBe(1);
   });
 
+  it('will still be in the draw tree if it is killed and then added in the same frame', () => {
+    var actor = new ex.Actor();
+    scene.add(actor);
+    actor.kill();
+    scene.add(actor);
+
+    scene.update(engine, 10); //call _processKillQueue
+
+    expect(scene.actors.indexOf(actor)).toBe(0);
+    expect(scene.actors.length).toBe(1);
+    expect(scene.isActorInDrawTree(actor)).toBe(true);
+  });
+
   it('will update Actors that were added in a Timer callback', () => {
     var updated = false;
     var initialized = false;
