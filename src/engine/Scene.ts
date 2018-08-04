@@ -740,6 +740,9 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
     this._sortedDrawingTree.add(actor);
   }
 
+  /**
+   * Checks if an actor is in this scene's sorted draw tree
+   */
   public isActorInDrawTree(actor: Actor): boolean {
     return this._sortedDrawingTree.find(actor);
   }

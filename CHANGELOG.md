@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Add `Scene.isActorInDrawTree` method to determine if an actor is in the scene's draw tree.
+
 ### Changed
 
 ### Deprecated
