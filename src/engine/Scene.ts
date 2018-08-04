@@ -390,10 +390,13 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
     // Remove actors from scene graph after being killed
     var actorIndex: number;
     for (let killed of killQueue) {
-      actorIndex = collection.indexOf(killed);
-      if (actorIndex > -1) {
-        this._sortedDrawingTree.removeByComparable(killed);
-        collection.splice(actorIndex, 1);
+      //don't remove actors that were readded during the same frame they were killed
+      if (killed.isKilled()) {
+        actorIndex = collection.indexOf(killed);
+        if (actorIndex > -1) {
+          this._sortedDrawingTree.removeByComparable(killed);
+          collection.splice(actorIndex, 1);
+        }
       }
     }
     killQueue.length = 0;
@@ -735,6 +738,13 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
    */
   public updateDrawTree(actor: Actor) {
     this._sortedDrawingTree.add(actor);
+  }
+
+  /**
+   * Checks if an actor is in this scene's sorted draw tree
+   */
+  public isActorInDrawTree(actor: Actor): boolean {
+    return this._sortedDrawingTree.find(actor);
   }
 
   public isCurrentScene(): boolean {
