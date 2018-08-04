@@ -102,7 +102,7 @@ make the paddle follow the mouse around in the x direction.
 
     // Add a mouse move listener
     game.input.pointers.primary.on('move', function (evt) {
-        paddle.pos.x = evt.x;
+        paddle.pos.x = evt.worldPos.x;
     });
 
 What's breakout without the ball? To make the ball bounce, Excalibur
