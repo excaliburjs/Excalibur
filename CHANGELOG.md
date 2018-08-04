@@ -7,6 +7,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.18.0] - 2018-08-04
+
+### Breaking Changes
+
 - `Sound.setVolume()` replaced with `Sound.volume`
 - `Sound.setLoop()` replaced with `Sound.loop`
 
@@ -23,7 +37,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed missing `exitviewport/enterviewport` events on Actors.on/once/off signatures ([#978](https://github.com/excaliburjs/Excalibur/issues/978))
 - Fix issue where Actors would not be properly added to a scene if they were removed from that scene during the same frame ([#979](https://github.com/excaliburjs/Excalibur/issues/979))
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!----------------------------------------------------------------------------------------------->
 
 ## [0.17.0] - 2018-06-04
 
@@ -657,7 +671,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!----------------------------------------------------------------------------------------------->
 
-[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.17.0...HEAD
+[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.18.0...HEAD
+[0.18.0]: https://github.com/excaliburjs/Excalibur/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/excaliburjs/Excalibur/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/excaliburjs/Excalibur/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/excaliburjs/Excalibur/compare/v0.14.0...v0.15.0
