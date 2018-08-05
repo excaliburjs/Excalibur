@@ -107,10 +107,22 @@ export class SpriteImpl implements IDrawable {
         this.logger.warn(`The sprite width ${this.width} exceeds the width 
                               ${naturalWidth} of the backing texture ${this._texture.path}`);
       }
+
+      if (this.width <= 0 || naturalWidth <= 0) {
+        this.logger.error(`The width of a sprite cannot be 0 or negative, sprite width: ${this.width}, original width: ${naturalWidth}`);
+      }
+
       if (this.height > naturalHeight) {
         this.logger.warn(`The sprite height ${this.height} exceeds the height 
                               ${naturalHeight} of the backing texture ${this._texture.path}`);
       }
+
+      if (this.height <= 0 || naturalHeight <= 0) {
+        this.logger.error(
+          `The height of a sprite cannot be 0 or negative, sprite height: ${this.height}, original height: ${naturalHeight}`
+        );
+      }
+
       this._spriteCtx.drawImage(
         this._texture.image,
         clamp(this.x, 0, naturalWidth),
