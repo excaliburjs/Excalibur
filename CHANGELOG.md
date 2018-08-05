@@ -28,10 +28,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Add `Scene.isActorInDrawTree` method to determine if an actor is in the scene's draw tree.
 
-### Changed
-
-### Deprecated
-
 ### Fixed
 
 - Fixed missing `exitviewport/enterviewport` events on Actors.on/once/off signatures ([#978](https://github.com/excaliburjs/Excalibur/issues/978))
