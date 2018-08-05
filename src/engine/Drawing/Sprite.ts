@@ -109,7 +109,7 @@ export class SpriteImpl implements IDrawable {
       }
 
       if (this.width <= 0 || naturalWidth <= 0) {
-        this.logger.error(`The width of a sprite cannot be 0 or negative, sprite width: ${this.width}, original width: ${naturalWidth}`);
+        throw new Error(`The width of a sprite cannot be 0 or negative, sprite width: ${this.width}, original width: ${naturalWidth}`);
       }
 
       if (this.height > naturalHeight) {
@@ -118,9 +118,7 @@ export class SpriteImpl implements IDrawable {
       }
 
       if (this.height <= 0 || naturalHeight <= 0) {
-        this.logger.error(
-          `The height of a sprite cannot be 0 or negative, sprite height: ${this.height}, original height: ${naturalHeight}`
-        );
+        throw new Error(`The height of a sprite cannot be 0 or negative, sprite height: ${this.height}, original height: ${naturalHeight}`);
       }
 
       this._spriteCtx.drawImage(

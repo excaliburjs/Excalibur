@@ -101,4 +101,34 @@ describe('A sprite', () => {
       imagediff.expectCanvasImageMatches('SpriteSpec/iconrotate.png', engine.canvas, done);
     });
   });
+
+  it('should always have non-zero dimensions', (done) => {
+    texture.load().then(() => {
+      try {
+        let sprite = new ex.Sprite({
+          image: texture,
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 1
+        });
+      } catch (e) {
+        expect(e.message).toBe(`The width of a sprite cannot be 0 or negative, sprite width: ${this.width}, original width: 62`);
+      }
+
+      try {
+        let sprite = new ex.Sprite({
+          image: texture,
+          x: 0,
+          y: 0,
+          width: 1,
+          height: 0
+        });
+      } catch (e) {
+        expect(e.message).toBe(`The height of a sprite cannot be 0 or negative, sprite height: ${this.height}, original height: 64`);
+      }
+
+      done();
+    });
+  });
 });
