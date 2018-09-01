@@ -47,23 +47,7 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
       return false; // pair exists easy exit return false
     }
 
-    // if both are fixed short circuit
-    if (actorA.collisionType === CollisionType.Fixed && actorB.collisionType === CollisionType.Fixed) {
-      return false;
-    }
-
-    // if the either is prevent collision short circuit
-    if (actorB.collisionType === CollisionType.PreventCollision || actorA.collisionType === CollisionType.PreventCollision) {
-      return false;
-    }
-
-    // if either is dead short circuit
-    if (actorA.isKilled() || actorB.isKilled()) {
-      return false;
-    }
-
-    // they can collide
-    return true;
+    return Pair.canCollide(actorA, actorB);
   }
 
   /**
