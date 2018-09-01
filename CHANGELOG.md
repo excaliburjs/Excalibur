@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed issue where sprites do not work in Firefox ([#980](https://github.com/excaliburjs/Excalibur/issues/978))
+- Fixed box collision velocity resolution so that objects resting on a surface do not accumulate velocity ([#986](https://github.com/excaliburjs/Excalibur/pull/1034))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
