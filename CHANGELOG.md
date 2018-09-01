@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed issue where sprites do not work in Firefox ([#980](https://github.com/excaliburjs/Excalibur/issues/978))
+- Fixed issue where collision pairs could sometimes be incorrect ([#975](https://github.com/excaliburjs/Excalibur/issues/975))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
