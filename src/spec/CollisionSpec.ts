@@ -50,6 +50,91 @@ describe('A Collision', () => {
     expect(actor2Collision).toBe(1);
   });
 
+  it('should order of actors collision should not matter when an Active and Active Collision', () => {
+    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+
+    actor1.collisionType = ex.CollisionType.Active;
+    actor2.collisionType = ex.CollisionType.Active;
+    collisionTree.track(actor1.body);
+    collisionTree.track(actor2.body);
+
+    let pairs = collisionTree.broadphase([actor1, actor2], 200);
+
+    expect(pairs.length).toBe(1);
+
+    pairs = collisionTree.broadphase([actor2, actor1], 200);
+
+    expect(pairs.length).toBe(1);
+  });
+
+  it('should order of actors collision should not matter when an Active and Passive Collision', () => {
+    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+
+    actor1.collisionType = ex.CollisionType.Active;
+    actor2.collisionType = ex.CollisionType.Passive;
+    collisionTree.track(actor1.body);
+    collisionTree.track(actor2.body);
+
+    let pairs = collisionTree.broadphase([actor1, actor2], 200);
+
+    expect(pairs.length).toBe(1);
+
+    pairs = collisionTree.broadphase([actor2, actor1], 200);
+
+    expect(pairs.length).toBe(1);
+  });
+
+  it('should order of actors collision should not matter when an Active and PreventCollision', () => {
+    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+
+    actor1.collisionType = ex.CollisionType.Active;
+    actor2.collisionType = ex.CollisionType.PreventCollision;
+    collisionTree.track(actor1.body);
+    collisionTree.track(actor2.body);
+
+    let pairs = collisionTree.broadphase([actor1, actor2], 200);
+
+    expect(pairs.length).toBe(0);
+
+    pairs = collisionTree.broadphase([actor2, actor1], 200);
+
+    expect(pairs.length).toBe(0);
+  });
+
+  it('should order of actors collision should not matter when an Active and Fixed', () => {
+    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+
+    actor1.collisionType = ex.CollisionType.Active;
+    actor2.collisionType = ex.CollisionType.Fixed;
+    collisionTree.track(actor1.body);
+    collisionTree.track(actor2.body);
+
+    let pairs = collisionTree.broadphase([actor1, actor2], 200);
+
+    expect(pairs.length).toBe(1);
+
+    pairs = collisionTree.broadphase([actor2, actor1], 200);
+
+    expect(pairs.length).toBe(1);
+  });
+
+  it('should order of actors collision should not matter when an Fixed and Fixed', () => {
+    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+
+    actor1.collisionType = ex.CollisionType.Fixed;
+    actor2.collisionType = ex.CollisionType.Fixed;
+    collisionTree.track(actor1.body);
+    collisionTree.track(actor2.body);
+
+    let pairs = collisionTree.broadphase([actor1, actor2], 200);
+
+    expect(pairs.length).toBe(0);
+
+    pairs = collisionTree.broadphase([actor2, actor1], 200);
+
+    expect(pairs.length).toBe(0);
+  });
+
   it('should only trigger one collision event per actor when an Active and Passive collide', () => {
     var actor1Collision = 0;
     var actor2Collision = 0;

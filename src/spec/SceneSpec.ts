@@ -329,6 +329,15 @@ describe('A scene', () => {
     expect(actor.kill).toHaveBeenCalledTimes(0);
   });
 
+  it('will remove an actor from a scene if actor is killed', () => {
+    scene.add(actor);
+    spyOn(scene, 'remove').and.callThrough();
+
+    actor.kill();
+    expect(scene.remove).toHaveBeenCalledTimes(1);
+    expect(actor.isKilled()).toBe(true);
+  });
+
   it('will update TileMaps that were added in a Timer callback', () => {
     var updated = false;
     var tilemap = new ex.TileMap(0, 0, 1, 1, 1, 1);
