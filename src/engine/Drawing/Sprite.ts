@@ -62,10 +62,10 @@ export class SpriteImpl implements IDrawable {
   constructor(imageOrConfig: Texture | ISpriteArgs, x: number, y: number, width: number, height: number) {
     var image = imageOrConfig;
     if (imageOrConfig && !(imageOrConfig instanceof Texture)) {
-      x = imageOrConfig.x || imageOrConfig.x;
-      y = imageOrConfig.y || imageOrConfig.y;
-      width = imageOrConfig.drawWidth || imageOrConfig.width;
-      height = imageOrConfig.drawHeight || imageOrConfig.height;
+      x = imageOrConfig.x | 0;
+      y = imageOrConfig.y | 0;
+      width = imageOrConfig.width | 0;
+      height = imageOrConfig.height | 0;
       image = imageOrConfig.image;
       if (!image) {
         const message = 'An image texture is required to contsruct a sprite';
@@ -83,6 +83,8 @@ export class SpriteImpl implements IDrawable {
     this._spriteCtx = <CanvasRenderingContext2D>this._spriteCanvas.getContext('2d');
     this._texture.loaded
       .then(() => {
+        this.width = this.width || this._texture.image.naturalWidth;
+        this.height = this.height || this._texture.image.naturalHeight;
         this._spriteCanvas.width = this._spriteCanvas.width || this._texture.image.naturalWidth;
         this._spriteCanvas.height = this._spriteCanvas.height || this._texture.image.naturalHeight;
         this._loadPixels();
@@ -105,10 +107,20 @@ export class SpriteImpl implements IDrawable {
         this.logger.warn(`The sprite width ${this.width} exceeds the width 
                               ${naturalWidth} of the backing texture ${this._texture.path}`);
       }
+
+      if (this.width <= 0 || naturalWidth <= 0) {
+        throw new Error(`The width of a sprite cannot be 0 or negative, sprite width: ${this.width}, original width: ${naturalWidth}`);
+      }
+
       if (this.height > naturalHeight) {
         this.logger.warn(`The sprite height ${this.height} exceeds the height 
                               ${naturalHeight} of the backing texture ${this._texture.path}`);
       }
+
+      if (this.height <= 0 || naturalHeight <= 0) {
+        throw new Error(`The height of a sprite cannot be 0 or negative, sprite height: ${this.height}, original height: ${naturalHeight}`);
+      }
+
       this._spriteCtx.drawImage(
         this._texture.image,
         clamp(this.x, 0, naturalWidth),
