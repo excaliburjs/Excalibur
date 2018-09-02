@@ -73,6 +73,105 @@ export class Loader extends Class implements ILoader {
     return this._imageElement;
   }
 
+  protected _playButtonRootElement: HTMLElement;
+  protected _playButtonElement: HTMLButtonElement;
+  protected _styleBlock: HTMLStyleElement;
+  protected _playButtonStyles = `
+
+  /* Buttons styles start */
+
+  button#excalibur-play {
+      display: inline-block;
+      position: relative;
+      border-radius: 6px;
+      border: none;
+      /*border: 3px solid;
+      border-color: white;
+      box-shadow: 0 0 10px #ccc;*/
+      padding: 1.0rem 1.5rem 1.0rem 4rem;
+      margin: 0;
+      text-decoration: none;
+      background: #00B233;
+      color: #ffffff;
+      font-family: sans-serif;
+      font-size: 2rem;
+      line-height: 1;
+      cursor: pointer;
+      text-align: center;
+      transition: background 250ms ease-in-out, transform 150ms ease;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+  }
+  
+  /*
+  button#excalibur-play {
+    display: none;
+  }*/
+  
+  button#excalibur-play:after {
+    position: absolute;
+    content: '';
+    border: 8px solid;
+    border-color: transparent transparent transparent white;
+    left: 35px;
+    top: 24px;
+    width: 0;
+    height: 0;
+  }
+  
+  button#excalibur-play:before {
+    position: absolute;
+    content: '';
+    border: 3px solid;
+    left: 19px;
+    top: 14px;
+    border-radius: 20px;
+    width: 30px;
+    height: 30px;
+    
+  }
+  
+  button#excalibur-play:hover,
+  button#excalibur-play:focus {
+      background: #00982C;
+  }
+  
+  button#excalibur-play:focus {
+      outline: 1px solid #fff;
+      outline-offset: -4px;
+  }
+  
+  button#excalibur-play:active {
+      transform: scale(0.99);
+  }
+  /* Button styles end */
+  
+  
+  
+  `;
+  protected get _playButton() {
+    if (!this._playButtonRootElement) {
+      this._playButtonRootElement = document.createElement('div');
+      this._playButtonRootElement.style.position = 'absolute';
+      document.body.appendChild(this._playButtonRootElement);
+    }
+    if (!this._styleBlock) {
+      this._styleBlock = document.createElement('style');
+      this._styleBlock.textContent = this._playButtonStyles;
+      document.head.appendChild(this._styleBlock);
+    }
+    if (!this._playButtonElement) {
+      // Todo make this a overridable factory
+      this._playButtonElement = document.createElement('button');
+      this._playButtonElement.id = 'excalibur-play';
+      this._playButtonElement.textContent = 'Play Game';
+      //   this._playButtonElement.style.cssText = this._playButtonStyles;
+      this._playButtonElement.style.display = 'none';
+      this._playButtonRootElement.appendChild(this._playButtonElement);
+    }
+    return this._playButtonElement;
+  }
+
   /**
    * @param loadables  Optionally provide the list of resources you want to load at constructor time
    */
@@ -121,6 +220,20 @@ export class Loader extends Class implements ILoader {
   }
 
   /**
+   * Shows the play button and returns a promise that resolves when clicked
+   */
+  public showPlayButton(): Promise<any> {
+    this._playButton.style.display = 'block';
+    let promise = new Promise();
+    this._playButton.onclick = () => promise.resolve();
+    return promise;
+  }
+
+  public hidePlayButton() {
+    this._playButton.style.display = 'none';
+  }
+
+  /**
    * Begin loading all of the supplied resources, returning a promise
    * that resolves when loading of all is complete
    */
@@ -128,8 +241,12 @@ export class Loader extends Class implements ILoader {
     var complete = new Promise<any>();
     var me = this;
     if (this._resourceList.length === 0) {
-      me.oncomplete.call(me);
-      return complete.resolve();
+      me.showPlayButton().then(() => {
+        me.hidePlayButton();
+        me.oncomplete.call(me);
+        complete.resolve();
+      });
+      return complete;
     }
 
     var progressArray = new Array<any>(this._resourceList.length);
@@ -156,8 +273,11 @@ export class Loader extends Class implements ILoader {
       r.oncomplete = r.onerror = function() {
         me._numLoaded++;
         if (me._numLoaded === me._resourceCount) {
-          me.oncomplete.call(me);
-          complete.resolve();
+          me.showPlayButton().then(() => {
+            me.hidePlayButton();
+            me.oncomplete.call(me);
+            complete.resolve();
+          });
         }
       };
     });
@@ -184,6 +304,15 @@ export class Loader extends Class implements ILoader {
     let canvasHeight = this._engine.canvasHeight / window.devicePixelRatio;
     let canvasWidth = this._engine.canvasWidth / window.devicePixelRatio;
 
+    if (this._playButtonRootElement) {
+      let left = ctx.canvas.offsetLeft;
+      let top = ctx.canvas.offsetTop;
+      let buttonWidth = this._playButton.clientWidth;
+      let buttonHeight = this._playButton.clientHeight;
+      this._playButtonRootElement.style.left = `${left + canvasWidth / 2 - buttonWidth / 2}px`;
+      this._playButtonRootElement.style.top = `${top + canvasHeight / 2 - buttonHeight / 2 + 100}px`;
+    }
+
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
@@ -197,9 +326,12 @@ export class Loader extends Class implements ILoader {
     ctx.drawImage(this._image, 0, 0, this.logoWidth, this.logoHeight, x, y - imageHeight - 20, width, imageHeight);
 
     // loading box
+    if (this._numLoaded / this._resourceCount === 1) {
+      return;
+    }
+
     ctx.lineWidth = 2;
     DrawUtil.roundRect(ctx, x, y, width, 20, 10);
-
     var progress = width * (this._numLoaded / this._resourceCount);
     var margin = 5;
     var progressWidth = progress - margin * 2;
