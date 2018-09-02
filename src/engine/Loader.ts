@@ -7,6 +7,7 @@ import { ILoadable } from './Interfaces/ILoadable';
 import { ILoader } from './Interfaces/ILoader';
 import { Class } from './Class';
 import * as DrawUtil from './Util/DrawUtil';
+import { AudioContextFactory } from './Resources/Sound/AudioContext';
 
 /**
  * Pre-loading assets
@@ -242,9 +243,15 @@ export class Loader extends Class implements ILoader {
     var me = this;
     if (this._resourceList.length === 0) {
       me.showPlayButton().then(() => {
-        me.hidePlayButton();
-        me.oncomplete.call(me);
-        complete.resolve();
+        // Unlock audio context in chrome after user gesture
+        // https://github.com/excaliburjs/Excalibur/issues/1031
+        AudioContextFactory.create()
+          .resume()
+          .then(() => {
+            me.hidePlayButton();
+            me.oncomplete.call(me);
+            complete.resolve();
+          });
       });
       return complete;
     }
@@ -274,9 +281,15 @@ export class Loader extends Class implements ILoader {
         me._numLoaded++;
         if (me._numLoaded === me._resourceCount) {
           me.showPlayButton().then(() => {
-            me.hidePlayButton();
-            me.oncomplete.call(me);
-            complete.resolve();
+            // Unlock audio context in chrome after user gesture
+            // https://github.com/excaliburjs/Excalibur/issues/1031
+            AudioContextFactory.create()
+              .resume()
+              .then(() => {
+                me.hidePlayButton();
+                me.oncomplete.call(me);
+                complete.resolve();
+              });
           });
         }
       };
