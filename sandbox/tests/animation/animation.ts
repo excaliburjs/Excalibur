@@ -8,7 +8,8 @@ var engine = new ex.Engine({
   width: width,
   height: height,
   canvasElementId: 'game',
-  pointerScope: ex.Input.PointerScope.Canvas
+  pointerScope: ex.Input.PointerScope.Canvas,
+  suppressPlayButton: false
 });
 engine.backgroundColor = ex.Color.Black;
 

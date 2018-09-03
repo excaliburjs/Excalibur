@@ -344,7 +344,7 @@ export class Loader extends Class implements ILoader {
     ctx.drawImage(this._image, 0, 0, this.logoWidth, this.logoHeight, x, y - imageHeight - 20, width, imageHeight);
 
     // loading box
-    if (this._numLoaded / this._resourceCount === 1) {
+    if (!this.suppressPlayButton && this._numLoaded / this._resourceCount === 1) {
       return;
     }
 
