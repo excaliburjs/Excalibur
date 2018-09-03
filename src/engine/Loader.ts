@@ -74,6 +74,7 @@ export class Loader extends Class implements ILoader {
     return this._imageElement;
   }
 
+  public suppressPlayButton: boolean = false;
   protected _playButtonRootElement: HTMLElement;
   protected _playButtonElement: HTMLButtonElement;
   protected _styleBlock: HTMLStyleElement;
@@ -227,6 +228,10 @@ export class Loader extends Class implements ILoader {
     this._playButton.style.display = 'block';
     let promise = new Promise();
     this._playButton.onclick = () => promise.resolve();
+
+    if (this.suppressPlayButton) {
+      return Promise.resolve();
+    }
     return promise;
   }
 

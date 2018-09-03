@@ -10,6 +10,7 @@ namespace TestUtils {
         suppressConsoleBootMessage: true,
         suppressMinimumBrowserFeatureDetection: true,
         suppressHiDPIScaling: true,
+        suppressPlayButton: true,
         displayMode: ex.DisplayMode.Position,
         position: 'top'
       },
