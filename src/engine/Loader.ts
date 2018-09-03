@@ -249,18 +249,17 @@ export class Loader extends Class implements ILoader {
    */
   public load(): Promise<any> {
     var complete = new Promise<any>();
+    let audioContext = AudioContextFactory.create();
     var me = this;
     if (this._resourceList.length === 0) {
       me.showPlayButton().then(() => {
         // Unlock audio context in chrome after user gesture
         // https://github.com/excaliburjs/Excalibur/issues/1031
-        AudioContextFactory.create()
-          .resume()
-          .then(() => {
-            me.hidePlayButton();
-            me.oncomplete.call(me);
-            complete.resolve();
-          });
+        audioContext.resume().then(() => {
+          me.hidePlayButton();
+          me.oncomplete.call(me);
+          complete.resolve();
+        });
       });
       return complete;
     }
@@ -292,13 +291,11 @@ export class Loader extends Class implements ILoader {
           me.showPlayButton().then(() => {
             // Unlock audio context in chrome after user gesture
             // https://github.com/excaliburjs/Excalibur/issues/1031
-            AudioContextFactory.create()
-              .resume()
-              .then(() => {
-                me.hidePlayButton();
-                me.oncomplete.call(me);
-                complete.resolve();
-              });
+            audioContext.resume().then(() => {
+              me.hidePlayButton();
+              me.oncomplete.call(me);
+              complete.resolve();
+            });
           });
         }
       };
