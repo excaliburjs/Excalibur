@@ -168,12 +168,17 @@ export class Loader extends Class implements ILoader {
   }
 
   /**
+   * Get/set play button text
+   */
+  public playButtonText: string = 'Play game';
+
+  /**
    * Return a html button element for excalibur to use as a play button
    */
   public startButtonFactory = () => {
     let buttonElement = document.createElement('button');
     buttonElement.id = 'excalibur-play';
-    buttonElement.textContent = 'Play Game';
+    buttonElement.textContent = this.playButtonText;
     buttonElement.style.display = 'none';
     return buttonElement;
   };

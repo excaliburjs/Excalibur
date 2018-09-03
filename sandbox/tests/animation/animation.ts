@@ -28,4 +28,6 @@ engine.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
   }
 });
 
-engine.start(new ex.Loader([playerTexture])).then(() => {});
+var loader = new ex.Loader([playerTexture]);
+loader.playButtonText = 'Start the best game ever';
+engine.start(loader).then(() => {});
