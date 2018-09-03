@@ -1396,10 +1396,16 @@ O|===|* >________________>\n\
     this._isLoading = true;
 
     loader.load().then(() => {
-      setTimeout(() => {
+      if (this._suppressPlayButton) {
+        setTimeout(() => {
+          this._isLoading = false;
+          complete.resolve();
+          // Delay is to give the logo a chance to show, otherwise don't delay
+        }, 500);
+      } else {
         this._isLoading = false;
         complete.resolve();
-      }, 500);
+      }
     });
 
     return complete;
