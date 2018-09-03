@@ -147,9 +147,6 @@ export class Loader extends Class implements ILoader {
       transform: scale(0.99);
   }
   /* Button styles end */
-  
-  
-  
   `;
   protected get _playButton() {
     if (!this._playButtonRootElement) {
@@ -164,15 +161,22 @@ export class Loader extends Class implements ILoader {
     }
     if (!this._playButtonElement) {
       // Todo make this a overridable factory
-      this._playButtonElement = document.createElement('button');
-      this._playButtonElement.id = 'excalibur-play';
-      this._playButtonElement.textContent = 'Play Game';
-      //   this._playButtonElement.style.cssText = this._playButtonStyles;
-      this._playButtonElement.style.display = 'none';
+      this._playButtonElement = this.startButtonFactory();
       this._playButtonRootElement.appendChild(this._playButtonElement);
     }
     return this._playButtonElement;
   }
+
+  /**
+   * Return a html button element for excalibur to use as a play button
+   */
+  public startButtonFactory = () => {
+    let buttonElement = document.createElement('button');
+    buttonElement.id = 'excalibur-play';
+    buttonElement.textContent = 'Play Game';
+    buttonElement.style.display = 'none';
+    return buttonElement;
+  };
 
   /**
    * @param loadables  Optionally provide the list of resources you want to load at constructor time
