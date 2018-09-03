@@ -50,7 +50,7 @@ describe('A Collision', () => {
     expect(actor2Collision).toBe(1);
   });
 
-  it('should order of actors collision should not matter when an Active and Active Collision', () => {
+  it('order of actors collision should not matter when an Active and Active Collision', () => {
     let collisionTree = new ex.DynamicTreeCollisionBroadphase();
 
     actor1.collisionType = ex.CollisionType.Active;
@@ -67,7 +67,7 @@ describe('A Collision', () => {
     expect(pairs.length).toBe(1);
   });
 
-  it('should order of actors collision should not matter when an Active and Passive Collision', () => {
+  it('order of actors collision should not matter when an Active and Passive Collision', () => {
     let collisionTree = new ex.DynamicTreeCollisionBroadphase();
 
     actor1.collisionType = ex.CollisionType.Active;
@@ -84,7 +84,7 @@ describe('A Collision', () => {
     expect(pairs.length).toBe(1);
   });
 
-  it('should order of actors collision should not matter when an Active and PreventCollision', () => {
+  it('order of actors collision should not matter when an Active and PreventCollision', () => {
     let collisionTree = new ex.DynamicTreeCollisionBroadphase();
 
     actor1.collisionType = ex.CollisionType.Active;
@@ -101,7 +101,7 @@ describe('A Collision', () => {
     expect(pairs.length).toBe(0);
   });
 
-  it('should order of actors collision should not matter when an Active and Fixed', () => {
+  it('order of actors collision should not matter when an Active and Fixed', () => {
     let collisionTree = new ex.DynamicTreeCollisionBroadphase();
 
     actor1.collisionType = ex.CollisionType.Active;
@@ -118,7 +118,7 @@ describe('A Collision', () => {
     expect(pairs.length).toBe(1);
   });
 
-  it('should order of actors collision should not matter when an Fixed and Fixed', () => {
+  it('order of actors collision should not matter when an Fixed and Fixed', () => {
     let collisionTree = new ex.DynamicTreeCollisionBroadphase();
 
     actor1.collisionType = ex.CollisionType.Fixed;
