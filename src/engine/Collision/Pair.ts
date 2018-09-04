@@ -2,7 +2,7 @@ import { Physics } from './../Physics';
 import { Color } from './../Drawing/Color';
 import { Body } from './Body';
 import { CollisionContact } from './CollisionContact';
-import { CollisionType } from '../Actor';
+import { CollisionType, Actor } from '../Actor';
 import { CollisionResolutionStrategy } from '../Physics';
 import * as DrawUtil from '../Util/DrawUtil';
 
@@ -17,23 +17,32 @@ export class Pair {
     this.id = Pair.calculatePairHash(bodyA, bodyB);
   }
 
+  public static canCollide(actorA: Actor, actorB: Actor) {
+    // if both are fixed short circuit
+    if (actorA.collisionType === CollisionType.Fixed && actorB.collisionType === CollisionType.Fixed) {
+      return false;
+    }
+
+    // if the either is prevent collision short circuit
+    if (actorB.collisionType === CollisionType.PreventCollision || actorA.collisionType === CollisionType.PreventCollision) {
+      return false;
+    }
+
+    // if either is dead short circuit
+    if (actorA.isKilled() || actorB.isKilled()) {
+      return false;
+    }
+
+    return true;
+  }
+
   /**
    * Returns whether or not it is possible for the pairs to collide
    */
   public get canCollide(): boolean {
     let actorA = this.bodyA.actor;
     let actorB = this.bodyB.actor;
-    // if both are fixed short circuit
-    if (actorA.collisionType === CollisionType.Fixed && actorB.collisionType === CollisionType.Fixed) {
-      return false;
-    }
-
-    // if the other is prevent collision or is dead short circuit
-    if (actorB.collisionType === CollisionType.PreventCollision || actorB.isKilled()) {
-      return false;
-    }
-
-    return true;
+    return Pair.canCollide(actorA, actorB);
   }
 
   /**

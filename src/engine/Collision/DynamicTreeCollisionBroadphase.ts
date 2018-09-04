@@ -40,25 +40,14 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
     this._dynamicCollisionTree.untrackBody(target);
   }
 
-  private _canCollide(actorA: Actor, actorB: Actor) {
+  private _shouldGenerateCollisionPair(actorA: Actor, actorB: Actor) {
     // if the collision pair has been calculated already short circuit
     var hash = Pair.calculatePairHash(actorA.body, actorB.body);
     if (this._collisionHash[hash]) {
       return false; // pair exists easy exit return false
     }
 
-    // if both are fixed short circuit
-    if (actorA.collisionType === CollisionType.Fixed && actorB.collisionType === CollisionType.Fixed) {
-      return false;
-    }
-
-    // if the other is prevent collision or is dead short circuit
-    if (actorB.collisionType === CollisionType.PreventCollision || actorB.isKilled()) {
-      return false;
-    }
-
-    // they can collide
-    return true;
+    return Pair.canCollide(actorA, actorB);
   }
 
   /**
@@ -83,7 +72,7 @@ export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
 
       // Query the collision tree for potential colliders
       this._dynamicCollisionTree.query(actor.body, (other: Body) => {
-        if (this._canCollide(actor, other.actor)) {
+        if (this._shouldGenerateCollisionPair(actor, other.actor)) {
           var pair = new Pair(actor.body, other);
           this._collisionHash[pair.id] = true;
           this._collisionPairCache.push(pair);

@@ -575,9 +575,6 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
 
     if (entity instanceof Actor) {
       this._removeChild(entity);
-      if (!entity.isKilled()) {
-        entity.kill();
-      }
     }
     if (entity instanceof Timer) {
       this.removeTimer(entity);
@@ -644,10 +641,16 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
    * Removes an actor from the scene, it will no longer be drawn or updated.
    */
   protected _removeChild(actor: Actor) {
+    if (!Util.contains(this.actors, actor)) {
+      return;
+    }
     this._broadphase.untrack(actor.body);
     if (actor instanceof Trigger) {
       this._triggerKillQueue.push(actor);
     } else {
+      if (!actor.isKilled()) {
+        actor.kill();
+      }
       this._killQueue.push(actor);
     }
 
