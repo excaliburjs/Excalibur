@@ -12,7 +12,7 @@ to build and design your games:
 - Full HTML5 Gamepad API support
 - Full keyboard, mouse, and touch support using a unified Pointers API
 - Support for basic collisions
-- Support for rigid body physics system <https://excaliburjs.com/docs/api/edge/classes/_physics_.physics.html>`_
+- Support for `rigid body physics system <https://excaliburjs.com/docs/api/edge/classes/_physics_.physics.html>`_
 - Cross-platform support using `Electron <http://electron.atom.io/>`_ or `Apache Cordova <https://cordova.apache.org/>`_
 - Simple ``update``/``draw`` pattern to keep logic and drawing separated
 - Simple ``Actor`` model with ``Scenes``, Actions API, cameras, and more
