@@ -294,7 +294,11 @@ export class Loader extends Class implements ILoader {
         me._numLoaded++;
         if (me._numLoaded === me._resourceCount) {
           me.showPlayButton().then(() => {
-            // Unlock audio context in chrome after user gesture
+            // Unlock Safari WebAudio context
+            // https://github.com/excaliburjs/Excalibur/issues/262
+            WebAudio.unlock();
+
+            // Unlock audio context in chrome 70 after user gesture
             // https://github.com/excaliburjs/Excalibur/issues/1031
             audioContext.resume().then(() => {
               me.hidePlayButton();
