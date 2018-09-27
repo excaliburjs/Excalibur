@@ -9,8 +9,6 @@
 [![Bower version](https://img.shields.io/bower/v/excalibur.svg)](https://github.com/excaliburjs/Excalibur)
 [![NuGet version](https://img.shields.io/nuget/v/Excalibur.svg)](https://www.nuget.org/packages/Excalibur/)
 
-[![Browserstack](/assets/browserstack-logo-150x34.png?raw=true)](http://browserstack.com/)
-
 ![Sweep Stacks](http://excaliburjs.com/assets/images/homepage-xp.png)
 
 Excalibur is a simple, **free** game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal is to make it _incredibly simple_ to create 2D HTML/JS games, for folks new to game development as well as experienced game developers. We take care of all of the boilerplate engine code, cross-platform targeting (using [browserstack](http://browserstack.com/) 😎), and more so you don't have to. Use as much or as little as you need!
@@ -54,6 +52,8 @@ The Excalibur.js team primarily uses [Visual Studio Code](http://code.visualstud
 allow the widest contributions possible. You can always use your own preferred editor of choice.
 
 ## Testing
+
+[![Browserstack](/assets/browserstack-logo-150x34.png?raw=true)](http://browserstack.com/)
 
 Excalibur is commited to supporting the latest 2 versions of popular desktop and mobile browsers. We levearage [browserstack](http://browserstack.com/) automated testing to ensure that Excalibur is automatically tested as thoroughly as possible on all our supported platforms.
 
