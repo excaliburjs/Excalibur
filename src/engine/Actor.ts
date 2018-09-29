@@ -527,7 +527,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
   }
 
   /**
-   * Gets wether the actor is Initialized
+   * Gets whether the actor is Initialized
    */
   public get isInitialized(): boolean {
     return this._isInitialized;
