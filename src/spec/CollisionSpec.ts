@@ -50,6 +50,91 @@ describe('A Collision', () => {
     expect(actor2Collision).toBe(1);
   });
 
+  it('order of actors collision should not matter when an Active and Active Collision', () => {
+    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+
+    actor1.collisionType = ex.CollisionType.Active;
+    actor2.collisionType = ex.CollisionType.Active;
+    collisionTree.track(actor1.body);
+    collisionTree.track(actor2.body);
+
+    let pairs = collisionTree.broadphase([actor1, actor2], 200);
+
+    expect(pairs.length).toBe(1);
+
+    pairs = collisionTree.broadphase([actor2, actor1], 200);
+
+    expect(pairs.length).toBe(1);
+  });
+
+  it('order of actors collision should not matter when an Active and Passive Collision', () => {
+    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+
+    actor1.collisionType = ex.CollisionType.Active;
+    actor2.collisionType = ex.CollisionType.Passive;
+    collisionTree.track(actor1.body);
+    collisionTree.track(actor2.body);
+
+    let pairs = collisionTree.broadphase([actor1, actor2], 200);
+
+    expect(pairs.length).toBe(1);
+
+    pairs = collisionTree.broadphase([actor2, actor1], 200);
+
+    expect(pairs.length).toBe(1);
+  });
+
+  it('order of actors collision should not matter when an Active and PreventCollision', () => {
+    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+
+    actor1.collisionType = ex.CollisionType.Active;
+    actor2.collisionType = ex.CollisionType.PreventCollision;
+    collisionTree.track(actor1.body);
+    collisionTree.track(actor2.body);
+
+    let pairs = collisionTree.broadphase([actor1, actor2], 200);
+
+    expect(pairs.length).toBe(0);
+
+    pairs = collisionTree.broadphase([actor2, actor1], 200);
+
+    expect(pairs.length).toBe(0);
+  });
+
+  it('order of actors collision should not matter when an Active and Fixed', () => {
+    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+
+    actor1.collisionType = ex.CollisionType.Active;
+    actor2.collisionType = ex.CollisionType.Fixed;
+    collisionTree.track(actor1.body);
+    collisionTree.track(actor2.body);
+
+    let pairs = collisionTree.broadphase([actor1, actor2], 200);
+
+    expect(pairs.length).toBe(1);
+
+    pairs = collisionTree.broadphase([actor2, actor1], 200);
+
+    expect(pairs.length).toBe(1);
+  });
+
+  it('order of actors collision should not matter when an Fixed and Fixed', () => {
+    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+
+    actor1.collisionType = ex.CollisionType.Fixed;
+    actor2.collisionType = ex.CollisionType.Fixed;
+    collisionTree.track(actor1.body);
+    collisionTree.track(actor2.body);
+
+    let pairs = collisionTree.broadphase([actor1, actor2], 200);
+
+    expect(pairs.length).toBe(0);
+
+    pairs = collisionTree.broadphase([actor2, actor1], 200);
+
+    expect(pairs.length).toBe(0);
+  });
+
   it('should only trigger one collision event per actor when an Active and Passive collide', () => {
     var actor1Collision = 0;
     var actor2Collision = 0;
@@ -196,6 +281,45 @@ describe('A Collision', () => {
     }
 
     expect(count).toBe(1);
+  });
+
+  it('should cancel out velocity when objects collide', () => {
+    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Box;
+
+    var activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
+    activeBlock.collisionType = ex.CollisionType.Active;
+    activeBlock.vel.x = 100;
+    engine.add(activeBlock);
+
+    var fixedBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
+    fixedBlock.collisionType = ex.CollisionType.Fixed;
+    engine.add(fixedBlock);
+
+    for (let i = 0; i < 20; i++) {
+      loop.advance(1000);
+    }
+
+    expect(activeBlock.vel.x).toBe(0);
+  });
+
+  it('should not cancel out velocity when objects move away', () => {
+    ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Box;
+
+    var activeBlock = new ex.Actor(350, 200, 50, 50, ex.Color.Red.clone());
+    activeBlock.collisionType = ex.CollisionType.Active;
+    engine.add(activeBlock);
+
+    var fixedBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
+    fixedBlock.collisionType = ex.CollisionType.Fixed;
+    engine.add(fixedBlock);
+
+    activeBlock.vel.x = -100;
+
+    for (let i = 0; i < 20; i++) {
+      loop.advance(1000);
+    }
+
+    expect(activeBlock.vel.x).toBe(-100);
   });
 
   it('should have the actor as the handler context for collisionstart', (done) => {

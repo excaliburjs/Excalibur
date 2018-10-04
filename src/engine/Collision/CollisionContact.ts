@@ -66,45 +66,14 @@ export class CollisionContact {
       bodyA.pos.y += mtv.y;
       bodyA.pos.x += mtv.x;
 
-      // non-zero intersection on the y axis
-      if (this.mtv.x !== 0) {
-        var velX = 0;
-        // both bodies are traveling in the same direction (negative or positive)
-        if (bodyA.vel.x < 0 && bodyB.vel.x < 0) {
-          velX = Math.min(bodyA.vel.x, bodyB.vel.x);
-        } else if (bodyA.vel.x > 0 && bodyB.vel.x > 0) {
-          velX = Math.max(bodyA.vel.x, bodyB.vel.x);
-        } else if (bodyB.collisionType === CollisionType.Fixed) {
-          // bodies are traveling in opposite directions
-          if (bodyA.pos.sub(bodyB.pos).dot(bodyA.vel) > 0) {
-            velX = bodyA.vel.x;
-          } else {
-            // bodyA is heading towards b
-            velX = bodyB.vel.x;
-          }
-        }
-        bodyA.vel.x = velX;
-      }
+      let mtvDir = mtv.normalize();
 
-      if (this.mtv.y !== 0) {
-        var velY = 0;
+      // only adjust if velocity is opposite
+      if (mtvDir.dot(bodyA.vel) < 0) {
+        // Cancel out velocity in direction of mtv
+        let velAdj = mtvDir.scale(mtvDir.dot(bodyA.vel.negate()));
 
-        // both bodies are traveling in the same direction (negative or positive)
-        if (bodyA.vel.y < 0 && bodyB.vel.y < 0) {
-          velY = Math.min(bodyA.vel.y, bodyB.vel.y);
-        } else if (bodyA.vel.y > 0 && bodyB.vel.y > 0) {
-          velY = Math.max(bodyA.vel.y, bodyB.vel.y);
-        } else if (bodyB.collisionType === CollisionType.Fixed) {
-          // bodies are traveling in opposite directions
-          if (bodyA.pos.sub(bodyB.pos).dot(bodyA.vel) > 0) {
-            velY = bodyA.vel.y;
-          } else {
-            // bodyA is heading towards b
-            velY = bodyB.vel.y;
-          }
-        }
-
-        bodyA.vel.y = velY;
+        bodyA.vel = bodyA.vel.add(velAdj);
       }
 
       bodyA.emit('postcollision', new PostCollisionEvent(bodyA, bodyB, Util.getSideFromVector(mtv), mtv));
