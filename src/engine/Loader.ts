@@ -7,7 +7,7 @@ import { ILoadable } from './Interfaces/ILoadable';
 import { ILoader } from './Interfaces/ILoader';
 import { Class } from './Class';
 import * as DrawUtil from './Util/DrawUtil';
-import { AudioContextFactory } from './Resources/Sound/AudioContext';
+import { obsolete } from './Util/Decorators';
 
 /**
  * Pre-loading assets
@@ -254,13 +254,13 @@ export class Loader extends Class implements ILoader {
    */
   public load(): Promise<any> {
     var complete = new Promise<any>();
-    let audioContext = AudioContextFactory.create();
     var me = this;
     if (this._resourceList.length === 0) {
       me.showPlayButton().then(() => {
         // Unlock audio context in chrome after user gesture
+        // https://github.com/excaliburjs/Excalibur/issues/262
         // https://github.com/excaliburjs/Excalibur/issues/1031
-        audioContext.resume().then(() => {
+        WebAudio.unlock().then(() => {
           me.hidePlayButton();
           me.oncomplete.call(me);
           complete.resolve();
@@ -294,13 +294,10 @@ export class Loader extends Class implements ILoader {
         me._numLoaded++;
         if (me._numLoaded === me._resourceCount) {
           me.showPlayButton().then(() => {
-            // Unlock Safari WebAudio context
+            // Unlock audio context in chrome after user gesture
             // https://github.com/excaliburjs/Excalibur/issues/262
-            WebAudio.unlock();
-
-            // Unlock audio context in chrome 70 after user gesture
             // https://github.com/excaliburjs/Excalibur/issues/1031
-            audioContext.resume().then(() => {
+            WebAudio.unlock().then(() => {
               me.hidePlayButton();
               me.oncomplete.call(me);
               complete.resolve();
@@ -404,6 +401,8 @@ export class Loader extends Class implements ILoader {
 }
 
 /**
+ * @obsolete Use [[Loader]] instead, this functionality has been made default
+ *
  * A [[Loader]] that pauses after loading to allow user
  * to proceed to play the game. Typically you will
  * want to use this loader for iOS to allow sounds
@@ -491,6 +490,7 @@ export class PauseAfterLoader extends Loader {
     this._playTrigger.addEventListener('click', this._handleOnTrigger);
   }
 
+  @obsolete({ message: 'Deprecated in v0.20.0', alternateMethod: 'Use ex.Loader instead' })
   public load(): Promise<any> {
     this._waitPromise = new Promise<any>();
 
