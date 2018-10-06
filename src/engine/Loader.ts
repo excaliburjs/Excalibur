@@ -323,6 +323,7 @@ export class Loader extends Class implements ILoader {
 
     // loading box
     if (!this.suppressPlayButton && this._playButtonShown) {
+      this._engine.setAntialiasing(oldAntialias);
       return;
     }
 
