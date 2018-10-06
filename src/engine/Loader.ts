@@ -9,8 +9,8 @@ import { Class } from './Class';
 import * as DrawUtil from './Util/DrawUtil';
 import { obsolete } from './Util/Decorators';
 
-const loaderCss = require('./Loader.css').toString();
-const logoImg = require('./Loader.logo.png');
+import * as logoImg from './Loader.logo.png';
+import * as loaderCss from './Loader.css';
 
 /**
  * Pre-loading assets
@@ -111,7 +111,7 @@ export class Loader extends Class implements ILoader {
   protected _playButtonElement: HTMLButtonElement;
   protected _styleBlock: HTMLStyleElement;
   /** Loads the css from Loader.css */
-  protected _playButtonStyles: string = loaderCss;
+  protected _playButtonStyles: string = loaderCss.toString();
   protected get _playButton() {
     if (!this._playButtonRootElement) {
       this._playButtonRootElement = document.createElement('div');
