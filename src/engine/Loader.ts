@@ -93,7 +93,6 @@ export class Loader extends Class implements ILoader {
       document.head.appendChild(this._styleBlock);
     }
     if (!this._playButtonElement) {
-      // Todo make this a overridable factory
       this._playButtonElement = this.startButtonFactory();
       this._playButtonRootElement.appendChild(this._playButtonElement);
     }
