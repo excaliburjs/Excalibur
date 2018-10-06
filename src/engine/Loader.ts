@@ -45,6 +45,37 @@ const logoImg = require('./Loader.logo.png');
  *   console.log("Game started!");
  * });
  * ```
+ *
+ * ## Customize the Loader
+ *
+ * The loader can be customized to show different, text, logo, background color, and button.
+ *
+ * ```typescript
+ * var loader = new ex.Loader([playerTexture]);
+ *
+ * // The loaders button text can simply modified using this
+ * loader.playButtonText = 'Start the best game ever';
+ *
+ * // The logo can be changed by inserting a base64 image string here
+ *
+ * loader.logo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAOCAMAAADHVLbdAAADAFBMVEUAAAB/AAD/DCT///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADeo7EWAAABAHRSTlP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AU/cHJQAAAEVJREFUCJmNjkkOACAIA1n+/+ZaKkTjySamzhwAA5zBlMGD8SlT88eXGT6svBwfjFtwPi6h/UfUVcUtCjdLCJspNg6jEQt1GUK+xXPq1gAAAABJRU5ErkJggg==';
+ * loader.logoWidth = 15;
+ * loader.logoHeight = 14;
+ *
+ * // The background color can be changed like so by supplying a valid CSS color string
+ *
+ * loader.backgroundColor = 'red'
+ * loader.backgroundColor = '#176BAA'
+ *
+ * // To build a completely new button
+ * loader.startButtonFactory = () => {
+ *     let myButton = document.createElement('button');
+ *     myButton.textContent = 'The best button';
+ *     return myButton;
+ * };
+ *
+ * engine.start(loader).then(() => {});
+ * ```
  */
 export class Loader extends Class implements ILoader {
   private _resourceList: ILoadable[] = [];
