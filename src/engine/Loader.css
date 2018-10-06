@@ -1,0 +1,66 @@
+/* Buttons styles start */
+
+button#excalibur-play {
+  display: inline-block;
+  position: relative;
+  border-radius: 6px;
+  border: none;
+  /*border: 3px solid;
+    border-color: white;
+    box-shadow: 0 0 10px #ccc;*/
+  padding: 1rem 1.5rem 1rem 4rem;
+  margin: 0;
+  text-decoration: none;
+  background: #00b233;
+  color: #ffffff;
+  font-family: sans-serif;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  text-align: center;
+  transition: background 250ms ease-in-out, transform 150ms ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/*
+button#excalibur-play {
+  display: none;
+}*/
+
+button#excalibur-play:after {
+  position: absolute;
+  content: '';
+  border: 8px solid;
+  border-color: transparent transparent transparent white;
+  left: 35px;
+  top: 24px;
+  width: 0;
+  height: 0;
+}
+
+button#excalibur-play:before {
+  position: absolute;
+  content: '';
+  border: 3px solid;
+  left: 19px;
+  top: 14px;
+  border-radius: 20px;
+  width: 30px;
+  height: 30px;
+}
+
+button#excalibur-play:hover,
+button#excalibur-play:focus {
+  background: #00982c;
+}
+
+button#excalibur-play:focus {
+  outline: 1px solid #fff;
+  outline-offset: -4px;
+}
+
+button#excalibur-play:active {
+  transform: scale(0.99);
+}
+/* Button styles end */
