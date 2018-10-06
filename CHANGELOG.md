@@ -15,10 +15,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where pointer events do not work in mobile ([#1044](https://github.com/excaliburjs/Excalibur/issues/1044))
 - Fixed issue where sprites do not work in Firefox ([#980](https://github.com/excaliburjs/Excalibur/issues/978))
 - Fixed issue where collision pairs could sometimes be incorrect ([#975](https://github.com/excaliburjs/Excalibur/issues/975))
 - Fixed box collision velocity resolution so that objects resting on a surface do not accumulate velocity ([#986](https://github.com/excaliburjs/Excalibur/pull/1034))
-
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
