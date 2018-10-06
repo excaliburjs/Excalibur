@@ -166,15 +166,19 @@ export class Loader extends Class implements ILoader {
    * Shows the play button and returns a promise that resolves when clicked
    */
   public showPlayButton(): Promise<any> {
-    this._playButtonShown = true;
-    this._playButton.style.display = 'block';
-    let promise = new Promise();
-    this._playButton.onclick = () => promise.resolve();
-
     if (this.suppressPlayButton) {
       return Promise.resolve();
+    } else {
+      this._playButtonShown = true;
+      this._playButton.style.display = 'block';
+      let promise = new Promise();
+
+      this._playButton.addEventListener('click', () => (promise.state() === PromiseState.Pending ? promise.resolve() : promise));
+      this._playButton.addEventListener('touchend', () => (promise.state() === PromiseState.Pending ? promise.resolve() : promise));
+      this._playButton.addEventListener('pointerup', () => (promise.state() === PromiseState.Pending ? promise.resolve() : promise));
+
+      return promise;
     }
-    return promise;
   }
 
   public hidePlayButton() {
