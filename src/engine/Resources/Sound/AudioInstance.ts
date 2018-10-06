@@ -194,7 +194,7 @@ export class WebAudioInstance extends AudioInstance {
     this._volume = value;
 
     if (this._volumeNode.gain.setTargetAtTime) {
-      this._volumeNode.gain.setTargetAtTime(value, this._audioContext.currentTime, 0);
+      this._volumeNode.gain.setTargetAtTime(value, this._audioContext.currentTime, 0.5);
     } else {
       this._volumeNode.gain.value = value;
     }
