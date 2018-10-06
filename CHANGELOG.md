@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where Edge web audio playback was breaking ([#1047](https://github.com/excaliburjs/Excalibur/issues/1047))
 - Fixed issue where iOS was not loading by including the right polyfills ([#1043](https://github.com/excaliburjs/Excalibur/issues/1043))
 - Fixed issue where sprites do not work in Firefox ([#980](https://github.com/excaliburjs/Excalibur/issues/978))
 - Fixed issue where collision pairs could sometimes be incorrect ([#975](https://github.com/excaliburjs/Excalibur/issues/975))
