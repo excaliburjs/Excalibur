@@ -1,6 +1,17 @@
 import { AudioContextFactory } from '../Resources/Sound/AudioContext';
 import { Promise } from '../Promises';
 
+// tslint:disable-next-line:interface-name
+export interface LegacyWebAudioSource {
+  playbackState: string;
+  PLAYING_STATE: 'playing';
+  FINISHED_STATE: 'finished';
+}
+
+function isLegacyWebAudioSource(source: any): source is LegacyWebAudioSource {
+  return !!source.playbackState;
+}
+
 export class WebAudio {
   private static _unlocked: boolean = false;
 
@@ -36,9 +47,8 @@ export class WebAudio {
 
         // by checking the play state after some time, we know if we're really unlocked
         setTimeout(() => {
-          if ((<any>source).playbackState) {
-            var legacySource = <any>source;
-            if (legacySource.playbackState === legacySource.PLAYING_STATE || legacySource.playbackState === legacySource.FINISHED_STATE) {
+          if (isLegacyWebAudioSource(source)) {
+            if (source.playbackState === source.PLAYING_STATE || source.playbackState === source.FINISHED_STATE) {
               WebAudio._unlocked = true;
             }
           } else {
