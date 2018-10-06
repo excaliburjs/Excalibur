@@ -50,6 +50,7 @@ export class Loader extends Class implements ILoader {
   private _resourceList: ILoadable[] = [];
   private _index = 0;
 
+  private _playButtonShown: boolean = false;
   private _resourceCount: number = 0;
   private _numLoaded: number = 0;
   private _progressCounts: { [key: string]: number } = {};
@@ -166,6 +167,7 @@ export class Loader extends Class implements ILoader {
    * Shows the play button and returns a promise that resolves when clicked
    */
   public showPlayButton(): Promise<any> {
+    this._playButtonShown = true;
     this._playButton.style.display = 'block';
     let promise = new Promise();
     this._playButton.onclick = () => promise.resolve();
@@ -177,6 +179,7 @@ export class Loader extends Class implements ILoader {
   }
 
   public hidePlayButton() {
+    this._playButtonShown = false;
     this._playButton.style.display = 'none';
   }
 
@@ -225,16 +228,18 @@ export class Loader extends Class implements ILoader {
       r.oncomplete = r.onerror = function() {
         me._numLoaded++;
         if (me._numLoaded === me._resourceCount) {
-          me.showPlayButton().then(() => {
-            // Unlock audio context in chrome after user gesture
-            // https://github.com/excaliburjs/Excalibur/issues/262
-            // https://github.com/excaliburjs/Excalibur/issues/1031
-            WebAudio.unlock().then(() => {
-              me.hidePlayButton();
-              me.oncomplete.call(me);
-              complete.resolve();
+          setTimeout(() => {
+            me.showPlayButton().then(() => {
+              // Unlock audio context in chrome after user gesture
+              // https://github.com/excaliburjs/Excalibur/issues/262
+              // https://github.com/excaliburjs/Excalibur/issues/1031
+              WebAudio.unlock().then(() => {
+                me.hidePlayButton();
+                me.oncomplete.call(me);
+                complete.resolve();
+              });
             });
-          });
+          }, 200); // short delay in showing the button for aesthetics
         }
       };
     });
@@ -283,7 +288,7 @@ export class Loader extends Class implements ILoader {
     ctx.drawImage(this._image, 0, 0, this.logoWidth, this.logoHeight, x, y - imageHeight - 20, width, imageHeight);
 
     // loading box
-    if (!this.suppressPlayButton && this._numLoaded / this._resourceCount === 1) {
+    if (!this.suppressPlayButton && this._playButtonShown) {
       return;
     }
 
