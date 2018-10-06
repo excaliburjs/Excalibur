@@ -1,7 +1,6 @@
 import { AudioContextFactory } from '../Resources/Sound/AudioContext';
 import { Promise } from '../Promises';
 
-// tslint:disable-next-line:interface-name
 export interface LegacyWebAudioSource {
   playbackState: string;
   PLAYING_STATE: 'playing';
