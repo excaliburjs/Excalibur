@@ -9,8 +9,8 @@ import { Class } from './Class';
 import * as DrawUtil from './Util/DrawUtil';
 import { obsolete } from './Util/Decorators';
 
-import * as logoImg from './Loader.logo.png';
-import * as loaderCss from './Loader.css';
+import logoImg from './Loader.logo.png';
+import loaderCss from './Loader.css';
 
 /**
  * Pre-loading assets

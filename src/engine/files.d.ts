@@ -1,9 +1,9 @@
 declare module '*.png' {
   const value: string;
-  export = value;
+  export default value;
 }
 
 declare module '*.css' {
   const value: { toString: () => string };
-  export = value;
+  export default value;
 }
