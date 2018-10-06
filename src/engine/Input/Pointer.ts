@@ -837,7 +837,12 @@ export class Pointer extends Class {
    * @param actor An Actor for check;
    */
   public isActorUnderPointer(actor: Actor): boolean {
-    return actor.contains(this.lastWorldPos.x, this.lastWorldPos.y, !Actors.isUIActor(actor));
+    console.log(actor);
+    console.log(this);
+    if (this.lastWorldPos) {
+      return actor.contains(this.lastWorldPos.x, this.lastWorldPos.y, !Actors.isUIActor(actor));
+    }
+    return false;
   }
 
   /**
@@ -849,12 +854,17 @@ export class Pointer extends Class {
   }
 
   private _onPointerMove(ev: PointerEvent): void {
+    console.log('Pointer move', ev);
     this.lastPagePos = new Vector(ev.pagePos.x, ev.pagePos.y);
     this.lastScreenPos = new Vector(ev.screenPos.x, ev.screenPos.y);
     this.lastWorldPos = new Vector(ev.worldPos.x, ev.worldPos.y);
   }
 
-  private _onPointerDown(): void {
+  private _onPointerDown(ev: PointerEvent): void {
+    console.log('Pointer down', ev);
+    this.lastPagePos = new Vector(ev.pagePos.x, ev.pagePos.y);
+    this.lastScreenPos = new Vector(ev.screenPos.x, ev.screenPos.y);
+    this.lastWorldPos = new Vector(ev.worldPos.x, ev.worldPos.y);
     this._isDown = true;
   }
 
