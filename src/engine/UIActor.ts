@@ -20,7 +20,7 @@ export class UIActor extends Actor {
    * @param height  The starting height of the actor
    */
   constructor(xOrConfig?: number | IActorArgs, y?: number, width?: number, height?: number) {
-    if (typeof (xOrConfig !== 'object')) {
+    if (typeof xOrConfig !== 'object') {
       super(<number>xOrConfig, y, width, height);
     } else {
       super(<IActorArgs>xOrConfig);

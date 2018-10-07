@@ -141,6 +141,12 @@ export interface IEngineOptions {
   suppressHiDPIScaling?: boolean;
 
   /**
+   * Suppress play button, it is not recommended users of excalibur switch this feature. Some browsers require a user gesture (like a click)
+   * for certain browser features to work like web audio.
+   */
+  suppressPlayButton?: boolean;
+
+  /**
    * Specify how the game window is to be positioned when the [[DisplayMode.Position]] is chosen. This option MUST be specified
    * if the DisplayMode is set as [[DisplayMode.Position]]. The position can be either a string or an [[IAbsolutePosition]].
    * String must be in the format of css style background-position. The vertical position must precede the horizontal position in strings.
@@ -309,6 +315,8 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
   public displayMode: DisplayMode = DisplayMode.FullScreen;
 
   private _suppressHiDPIScaling: boolean = false;
+
+  private _suppressPlayButton: boolean = false;
   /**
    * Returns the calculated pixel ration for use in rendering
    */
@@ -434,6 +442,7 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
     suppressConsoleBootMessage: null,
     suppressMinimumBrowserFeatureDetection: null,
     suppressHiDPIScaling: null,
+    suppressPlayButton: null,
     scrollPreventionMode: ScrollPreventionMode.Canvas,
     backgroundColor: Color.fromHex('#2185d0') // Excalibur blue
   };
@@ -502,6 +511,11 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
 O|===|* >________________>\n\
       \\|');
       console.log('Visit', 'http://excaliburjs.com', 'for more information');
+    }
+
+    // Suppress play button
+    if (options.suppressPlayButton) {
+      this._suppressPlayButton = true;
     }
 
     this._logger = Logger.getInstance();
@@ -1267,6 +1281,7 @@ O|===|* >________________>\n\
     var loadingComplete: Promise<any>;
     if (loader) {
       this._loader = loader;
+      this._loader.suppressPlayButton = this._suppressPlayButton;
       this._loader.wireEngine(this);
       loadingComplete = this.load(this._loader);
     } else {
@@ -1382,10 +1397,16 @@ O|===|* >________________>\n\
     this._isLoading = true;
 
     loader.load().then(() => {
-      setTimeout(() => {
+      if (this._suppressPlayButton) {
+        setTimeout(() => {
+          this._isLoading = false;
+          complete.resolve();
+          // Delay is to give the logo a chance to show, otherwise don't delay
+        }, 500);
+      } else {
         this._isLoading = false;
         complete.resolve();
-      }, 500);
+      }
     });
 
     return complete;

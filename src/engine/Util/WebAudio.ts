@@ -1,4 +1,15 @@
 import { AudioContextFactory } from '../Resources/Sound/AudioContext';
+import { Promise } from '../Promises';
+
+export interface LegacyWebAudioSource {
+  playbackState: string;
+  PLAYING_STATE: 'playing';
+  FINISHED_STATE: 'finished';
+}
+
+function isLegacyWebAudioSource(source: any): source is LegacyWebAudioSource {
+  return !!source.playbackState;
+}
 
 export class WebAudio {
   private static _unlocked: boolean = false;
@@ -8,41 +19,52 @@ export class WebAudio {
    * right after a user interaction event. Typically used by [[PauseAfterLoader]]
    * @source https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
    */
-  static unlock() {
+  static unlock(): Promise<boolean> {
+    let promise = new Promise<boolean>();
     if (WebAudio._unlocked || !AudioContextFactory.create()) {
-      return;
+      return promise.resolve(true);
     }
 
     const audioContext = AudioContextFactory.create();
-    // create empty buffer and play it
-    const buffer = audioContext.createBuffer(1, 1, 22050);
-    const source = audioContext.createBufferSource();
-    let ended = false;
+    audioContext.resume().then(
+      () => {
+        // create empty buffer and play it
+        const buffer = audioContext.createBuffer(1, 1, 22050);
+        const source = audioContext.createBufferSource();
+        let ended = false;
 
-    source.buffer = buffer;
-    source.connect(audioContext.destination);
-    source.onended = () => (ended = true);
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        source.onended = () => (ended = true);
 
-    if ((<any>source).noteOn) {
-      // deprecated
-      (<any>source).noteOn(0);
-    } else {
-      source.start(0);
-    }
-
-    // by checking the play state after some time, we know if we're really unlocked
-    setTimeout(function() {
-      if ((<any>source).playbackState) {
-        var legacySource = <any>source;
-        if (legacySource.playbackState === legacySource.PLAYING_STATE || legacySource.playbackState === legacySource.FINISHED_STATE) {
-          WebAudio._unlocked = true;
+        if ((<any>source).noteOn) {
+          // deprecated
+          (<any>source).noteOn(0);
+        } else {
+          source.start(0);
         }
-      } else {
-        if (audioContext.currentTime > 0 || ended) {
-          WebAudio._unlocked = true;
-        }
+
+        // by checking the play state after some time, we know if we're really unlocked
+        setTimeout(() => {
+          if (isLegacyWebAudioSource(source)) {
+            if (source.playbackState === source.PLAYING_STATE || source.playbackState === source.FINISHED_STATE) {
+              WebAudio._unlocked = true;
+            }
+          } else {
+            if (audioContext.currentTime > 0 || ended) {
+              WebAudio._unlocked = true;
+            }
+          }
+        }, 0);
+
+        promise.resolve();
+      },
+      () => {
+        promise.reject(false);
       }
-    }, 0);
+    );
+
+    return promise;
   }
 
   static isUnlocked() {
