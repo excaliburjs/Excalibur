@@ -98,7 +98,11 @@ describe('A pointer', () => {
     expect(eventMoveFired).toBeTruthy();
   });
 
-  it('should update last position', () => {
+  it('should update last position on down and move', () => {
+    executeMouseEvent('pointerdown', <any>document, null, 10, 800);
+    expect(engine.input.pointers.primary.lastPagePos.x).toBe(10);
+    expect(engine.input.pointers.primary.lastPagePos.y).toBe(800);
+
     executeMouseEvent('pointermove', <any>document, null, 100, 200);
 
     expect(engine.input.pointers.primary.lastPagePos.x).toBe(100);
@@ -108,5 +112,10 @@ describe('A pointer', () => {
 
     expect(engine.input.pointers.primary.lastPagePos.x).toBe(300);
     expect(engine.input.pointers.primary.lastPagePos.y).toBe(400);
+  });
+
+  it('should not throw when checking if actors are under pointer if no pointer events have happened yet', () => {
+    let actor = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
+    expect(() => engine.input.pointers.primary.isActorUnderPointer(actor)).not.toThrowError();
   });
 });
