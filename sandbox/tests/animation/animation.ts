@@ -8,7 +8,8 @@ var engine = new ex.Engine({
   width: width,
   height: height,
   canvasElementId: 'game',
-  pointerScope: ex.Input.PointerScope.Canvas
+  pointerScope: ex.Input.PointerScope.Canvas,
+  suppressPlayButton: false
 });
 engine.backgroundColor = ex.Color.Black;
 
@@ -27,4 +28,6 @@ engine.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
   }
 });
 
-engine.start(new ex.Loader([playerTexture])).then(() => {});
+var loader = new ex.Loader([playerTexture]);
+loader.playButtonText = 'Start the best game ever';
+engine.start(loader).then(() => {});
