@@ -17,20 +17,18 @@ Excalibur is an open source project licensed under the 2-clause BSD license (thi
 
 # Get Started
 
-Our user documentation is at http://docs.excaliburjs.com.
+Our user documentation is at https://excaliburjs.com/docs.
 
-- Follow our [Installation](http://docs.excaliburjs.com/en/latest/installation.html) guide to learn how to install Excalibur
-- Follow our [Getting Started](http://docs.excaliburjs.com/en/latest/quickstart.html) guide if you're looking to get started.
-- Learn what [Features](http://docs.excaliburjs.com/en/latest/features.html) are available for you to leverage in your games
+- Follow our [Installation](https://excaliburjs.com/docs/installation) guide to learn how to install Excalibur
+- Follow our [Getting Started](https://excaliburjs.com/docs/getting-started) guide if you're looking to get started.
+- Learn what [Features](https://excaliburjs.com/docs/features) are available for you to leverage in your games
 - View the [Release roadmap](https://github.com/excaliburjs/Excalibur/milestones) to see what's coming next
 
 :exclamation: **_Note:_** We are still in version 0.x, which means this project may be a little rough around the edges. We try to minimize API changes, but breaking changes **will occur** in new released versions. Excalibur is a labor of love and the product of many hours of spare time. Thanks for checking it out!
 
-# API Documentation
+# API Reference
 
-Visit the [API Documentation](http://docs.excaliburjs.com/en/latest/index.html#api-documentation) section for fully-annotated documentation of the API.
-
-The `master` branch documentation is always available and up-to-date on our [Edge documentation site](http://excaliburjs.com/docs/api/edge).
+Visit the [API Reference](https://excaliburjs.com/docs/api/edge) section for fully-annotated documentation of the API.
 
 # Questions
 
