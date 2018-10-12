@@ -43,10 +43,10 @@ itself and repeating that forever.
 public Ship extends ex.Actor {
   public onInitialize() {
     var path = [
-      new ex.Point(20, 20),
-      new ex.Point(50, 40),
-      new ex.Point(25, 30),
-      new ex.Point(75, 80)
+      new ex.Vector(20, 20),
+      new ex.Vector(50, 40),
+      new ex.Vector(25, 30),
+      new ex.Vector(75, 80)
     ];
     // spawn at start point
     this.x = path[0].x;
