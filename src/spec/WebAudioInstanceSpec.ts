@@ -23,9 +23,13 @@ describe('A webaudio instance', () => {
     mockBufferSource = {
       buffer: null,
       loop: null,
-      connect: () => {},
+      connect: () => {
+        /*empty*/
+      },
       playbackRate: {
-        setValueAtTime: () => {}
+        setValueAtTime: () => {
+          /*empty*/
+        }
       }
     };
 
