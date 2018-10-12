@@ -17,7 +17,7 @@ Excalibur is an open source project licensed under the 2-clause BSD license (thi
 
 # Get Started
 
-Our user documentation is at https://excaliburjs.com/docs.
+Our user documentation is at https://excaliburjs.com/docs (and you can contribute at https://github.com/excaliburjs/excaliburjs.github.io)
 
 - Follow our [Installation](https://excaliburjs.com/docs/installation) guide to learn how to install Excalibur
 - Follow our [Getting Started](https://excaliburjs.com/docs/getting-started) guide if you're looking to get started.
@@ -43,6 +43,10 @@ Compiled examples can be found [in the Excalibur Samples collection](http://exca
 # Contributing
 
 Please read the [Contributing guidelines](.github/CONTRIBUTING.md). Whether you've spotted a bug, have a question, or think of a good feature, we thank you for your help!
+
+# Writing Documentation
+
+We love when people help shore up or write new documentation. You can help contribute to docs at https://github.com/excaliburjs/excaliburjs.github.io
 
 ## Environment Setup
 
