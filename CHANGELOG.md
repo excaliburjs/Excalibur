@@ -22,7 +22,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Excalibur user documentation has now moved to [excaliburjs.com/docs](https://excaliburjs.com/docs)
-- Excalibur will now prompt for user input before starting the game to be inline with the new webaudio requirments from chrome/mobile browsers ([#1031](https://github.com/excaliburjs/Excalibur/issues/1031))
+- Excalibur will now prompt for user input before starting the game to be inline with the new webaudio requirements from chrome/mobile browsers ([#1031](https://github.com/excaliburjs/Excalibur/issues/1031))
 
 ### Deprecated
 
