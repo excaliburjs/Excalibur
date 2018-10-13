@@ -11,10 +11,22 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+### Deprecated
+
+### Fixed
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.19.0] - 2018-10-13
+
+### Changed
+
 - Excalibur user documentation has now moved to [excaliburjs.com/docs](https://excaliburjs.com/docs)
 - Excalibur will now prompt for user input before starting the game to be inline with the new webaudio requirments from chrome/mobile browsers ([#1031](https://github.com/excaliburjs/Excalibur/issues/1031))
 
 ### Deprecated
+
+- `PauseAfterLoader` for iOS in favor of new click-to-play functionality built into the default `Loader` ([#1031](https://github.com/excaliburjs/Excalibur/issues/1031))
 
 ### Fixed
 
@@ -25,7 +37,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed issue where collision pairs could sometimes be incorrect ([#975](https://github.com/excaliburjs/Excalibur/issues/975))
 - Fixed box collision velocity resolution so that objects resting on a surface do not accumulate velocity ([#986](https://github.com/excaliburjs/Excalibur/pull/1034))
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!----------------------------------------------------------------------------------------------->
 
 ## [0.18.0] - 2018-08-04
 
@@ -677,7 +689,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!----------------------------------------------------------------------------------------------->
 
-[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.18.0...HEAD
+[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.19.0...HEAD
+[0.19.0]: https://github.com/excaliburjs/Excalibur/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/excaliburjs/Excalibur/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/excaliburjs/Excalibur/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/excaliburjs/Excalibur/compare/v0.15.0...v0.16.0
