@@ -4,7 +4,7 @@ This documentation is automatically generated from the Excalibur
 source code on [GitHub](http://github.com/excaliburjs/Excalibur).
 
 If you're just starting out, we recommend reading the tutorials and guides
-on [docs.excaliburjs.com](http://docs.excaliburjs.com). If you have questions,
+on [excaliburjs.com/docs](https://excaliburjs.com/docs). If you have questions,
 feel free to get help on the [Excalibur.js mailing list](https://groups.google.com/forum/#!forum/excaliburjs).
 If you're looking for a specific method or property, you can search the documentation
 using the search icon at the top or just start typing.

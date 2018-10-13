@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Excalibur user documentation has now moved to [excaliburjs.com/docs](https://excaliburjs.com/docs)
 - Excalibur will now prompt for user input before starting the game to be inline with the new webaudio requirments from chrome/mobile browsers ([#1031](https://github.com/excaliburjs/Excalibur/issues/1031))
 
 ### Deprecated
@@ -18,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed issue where Edge web audio playback was breaking ([#1047](https://github.com/excaliburjs/Excalibur/issues/1047))
+- Fixed issue where pointer events do not work in mobile ([#1044](https://github.com/excaliburjs/Excalibur/issues/1044))
 - Fixed issue where iOS was not loading by including the right polyfills ([#1043](https://github.com/excaliburjs/Excalibur/issues/1043))
 - Fixed issue where sprites do not work in Firefox ([#980](https://github.com/excaliburjs/Excalibur/issues/978))
 - Fixed issue where collision pairs could sometimes be incorrect ([#975](https://github.com/excaliburjs/Excalibur/issues/975))
@@ -299,7 +301,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `ex.Detector.getBrowserFeatures()` to retrieve the support matrix of the current browser
   - `ex.Detector.logBrowserFeatures()` to log the support matrix to the console (runs at startup when in Debug mode)
 - Added @obsolete decorator to help give greater visibility to deprecated methods ([#684](https://github.com/excaliburjs/Excalibur/issues/684))
-- Added better support for module loaders and TypeScript importing. See [Installation](http://docs.excaliburjs.com/en/latest/installation.html) docs for more info. ([#606](https://github.com/excaliburjs/Excalibur/issues/606))
+- Added better support for module loaders and TypeScript importing. See [Installation](https://excaliburjs.com/docs/installation) docs for more info. ([#606](https://github.com/excaliburjs/Excalibur/issues/606))
 - Added new Excalibur example project templates ([#706](https://github.com/excaliburjs/Excalibur/issues/706), [#733](https://github.com/excaliburjs/Excalibur/issues/733)):
   - [Browserify](https://github.com/excaliburjs/example-ts-browserify)
   - [Webpack](https://github.com/excaliburjs/example-ts-webpack)
