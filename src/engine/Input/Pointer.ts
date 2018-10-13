@@ -837,7 +837,10 @@ export class Pointer extends Class {
    * @param actor An Actor for check;
    */
   public isActorUnderPointer(actor: Actor): boolean {
-    return actor.contains(this.lastWorldPos.x, this.lastWorldPos.y, !Actors.isUIActor(actor));
+    if (this.lastWorldPos) {
+      return actor.contains(this.lastWorldPos.x, this.lastWorldPos.y, !Actors.isUIActor(actor));
+    }
+    return false;
   }
 
   /**
@@ -854,7 +857,10 @@ export class Pointer extends Class {
     this.lastWorldPos = new Vector(ev.worldPos.x, ev.worldPos.y);
   }
 
-  private _onPointerDown(): void {
+  private _onPointerDown(ev: PointerEvent): void {
+    this.lastPagePos = new Vector(ev.pagePos.x, ev.pagePos.y);
+    this.lastScreenPos = new Vector(ev.screenPos.x, ev.screenPos.y);
+    this.lastWorldPos = new Vector(ev.worldPos.x, ev.worldPos.y);
     this._isDown = true;
   }
 
