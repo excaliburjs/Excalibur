@@ -13,7 +13,7 @@
 
 Excalibur is a simple, **free** game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal is to make it _incredibly simple_ to create 2D HTML/JS games, for folks new to game development as well as experienced game developers. We take care of all of the boilerplate engine code, cross-platform targeting (using [browserstack](http://browserstack.com/) 😎), and more so you don't have to. Use as much or as little as you need!
 
-Excalibur is an open source project licensed under the 2-clause BSD license (this means you can use it in commercial projects!). It's free and always will be. We welcome any feedback or contributions! If you make something with Excalbur, please [let us know](https://groups.google.com/forum/#!tags/excaliburjs/show-and-tell)!
+Excalibur is an open source project licensed under the 2-clause BSD license (this means you can use it in commercial projects!). It's free and always will be. We welcome any feedback or contributions! If you make something with Excalibur, please [let us know](https://groups.google.com/forum/#!tags/excaliburjs/show-and-tell)!
 
 # Get Started
 
