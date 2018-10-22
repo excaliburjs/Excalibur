@@ -13,24 +13,22 @@
 
 Excalibur is a simple, **free** game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal is to make it _incredibly simple_ to create 2D HTML/JS games, for folks new to game development as well as experienced game developers. We take care of all of the boilerplate engine code, cross-platform targeting (using [browserstack](http://browserstack.com/) 😎), and more so you don't have to. Use as much or as little as you need!
 
-Excalibur is an open source project licensed under the 2-clause BSD license (this means you can use it in commercial projects!). It's free and always will be. We welcome any feedback or contributions! If you make something with Excalbur, please [let us know](https://groups.google.com/forum/#!tags/excaliburjs/show-and-tell)!
+Excalibur is an open source project licensed under the 2-clause BSD license (this means you can use it in commercial projects!). It's free and always will be. We welcome any feedback or contributions! If you make something with Excalibur, please [let us know](https://groups.google.com/forum/#!tags/excaliburjs/show-and-tell)!
 
 # Get Started
 
-Our user documentation is at http://docs.excaliburjs.com.
+Our user documentation is at https://excaliburjs.com/docs (and you can contribute at https://github.com/excaliburjs/excaliburjs.github.io)
 
-- Follow our [Installation](http://docs.excaliburjs.com/en/latest/installation.html) guide to learn how to install Excalibur
-- Follow our [Getting Started](http://docs.excaliburjs.com/en/latest/quickstart.html) guide if you're looking to get started.
-- Learn what [Features](http://docs.excaliburjs.com/en/latest/features.html) are available for you to leverage in your games
+- Follow our [Installation](https://excaliburjs.com/docs/installation) guide to learn how to install Excalibur
+- Follow our [Getting Started](https://excaliburjs.com/docs/getting-started) guide if you're looking to get started.
+- Learn what [Features](https://excaliburjs.com/docs/features) are available for you to leverage in your games
 - View the [Release roadmap](https://github.com/excaliburjs/Excalibur/milestones) to see what's coming next
 
 :exclamation: **_Note:_** We are still in version 0.x, which means this project may be a little rough around the edges. We try to minimize API changes, but breaking changes **will occur** in new released versions. Excalibur is a labor of love and the product of many hours of spare time. Thanks for checking it out!
 
-# API Documentation
+# API Reference
 
-Visit the [API Documentation](http://docs.excaliburjs.com/en/latest/index.html#api-documentation) section for fully-annotated documentation of the API.
-
-The `master` branch documentation is always available and up-to-date on our [Edge documentation site](http://excaliburjs.com/docs/api/edge).
+Visit the [API Reference](https://excaliburjs.com/docs/api/edge) section for fully-annotated documentation of the API.
 
 # Questions
 
@@ -45,6 +43,10 @@ Compiled examples can be found [in the Excalibur Samples collection](http://exca
 # Contributing
 
 Please read the [Contributing guidelines](.github/CONTRIBUTING.md). Whether you've spotted a bug, have a question, or think of a good feature, we thank you for your help!
+
+# Writing Documentation
+
+We love when people help shore up or write new documentation. You can help contribute to docs at https://github.com/excaliburjs/excaliburjs.github.io
 
 ## Environment Setup
 
