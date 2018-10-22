@@ -5,6 +5,7 @@
 /src/engine/*.map
 /sandbox/**/*.js
 /sandbox/**/*.d.ts
+/sandbox/lib/**
 /src/spec/*.js
 _SpecRunner.html
 TestsSpec.js
