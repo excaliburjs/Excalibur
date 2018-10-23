@@ -17,6 +17,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where there were missing files in the dist (Loader.css, Loader.logo.png) ([#1057](https://github.com/excaliburjs/Excalibur/issues/1057))
+
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [0.19.0] - 2018-10-13
