@@ -11,6 +11,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Added parameter on SpriteSheet constructor so you can define how many pixel spacing is between sprites ([#1058] https://github.com/excaliburjs/Excalibur/issues/1058)
+
 ### Deprecated
 
 ### Fixed
