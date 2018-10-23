@@ -103,6 +103,16 @@ module.exports = function(grunt) {
     // Copy dists for visual compilation/testing
     //
     copy: {
+      core: {
+        files: [
+          {
+            expand: true,
+            cwd: './src/engine/',
+            src: ['**/*.png', '**/*.css'],
+            dest: './build/dist/'
+          }
+        ]
+      },
       visual: {
         files: [
           {
@@ -290,6 +300,7 @@ module.exports = function(grunt) {
     'shell:gitBuild',
     'clean',
     'ts:core_es2015',
+    'copy:core',
     'string-replace',
     'webpack:bundle',
     'webpack:bundlemin',
