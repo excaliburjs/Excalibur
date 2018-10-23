@@ -185,6 +185,7 @@ export interface ISpriteSheetArgs extends Partial<SpriteSheetImpl> {
   spHeight: number;
   rows: number;
   columns: number;
+  spacing: number;
 }
 
 /**
