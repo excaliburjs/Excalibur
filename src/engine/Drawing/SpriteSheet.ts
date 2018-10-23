@@ -75,8 +75,8 @@ export class SpriteSheetImpl {
         for (j = 0; j < this.columns; j++) {
           this.sprites[j + i * this.columns] = new Sprite(
             this.image,
-            j * this.spWidth + this.spacing * j,
-            i * this.spHeight + this.spacing * i,
+            j * this.spWidth + this.spacing * j + this.spacing,
+            i * this.spHeight + this.spacing * i + this.spacing,
             this.spWidth,
             this.spHeight
           );
@@ -185,7 +185,7 @@ export interface ISpriteSheetArgs extends Partial<SpriteSheetImpl> {
   spHeight: number;
   rows: number;
   columns: number;
-  spacing: number;
+  spacing?: number;
 }
 
 /**
@@ -204,9 +204,10 @@ export class SpriteSheet extends Configurable(SpriteSheetImpl) {
     columns?: number,
     rows?: number,
     spWidth?: number,
-    spHeight?: number
+    spHeight?: number,
+    spacing?: number
   ) {
-    super(imageOrConfigOrSprites, columns, rows, spWidth, spHeight);
+    super(imageOrConfigOrSprites, columns, rows, spWidth, spHeight, spacing);
   }
 }
 
@@ -241,7 +242,8 @@ export class SpriteFontImpl extends SpriteSheet {
     columns: number,
     rows: number,
     spWidth: number,
-    spHeight: number
+    spHeight: number,
+    spacing?: number
   ) {
     super(
       imageOrConfig instanceof Texture
@@ -250,7 +252,8 @@ export class SpriteFontImpl extends SpriteSheet {
             spWidth: spWidth,
             spHeight: spHeight,
             rows: rows,
-            columns: columns
+            columns: columns,
+            spacing: spacing || 0
           }
         : imageOrConfig
     );
@@ -444,8 +447,9 @@ export class SpriteFont extends Configurable(SpriteFontImpl) {
     columns?: number,
     rows?: number,
     spWidth?: number,
-    spHeight?: number
+    spHeight?: number,
+    spacing?: number
   ) {
-    super(imageOrConfig, alphabet, caseInsensitive, columns, rows, spWidth, spHeight);
+    super(imageOrConfig, alphabet, caseInsensitive, columns, rows, spWidth, spHeight, spacing);
   }
 }
