@@ -161,4 +161,33 @@ describe('A spritesheet', () => {
       imagediff.expectCanvasImageMatches('SpriteSheetSpec/drillandcup.png', engine.canvas, done);
     });
   });
+
+  it('should getSprite at an index with spacing', (done) => {
+    engine = TestUtils.engine({
+      width: 32,
+      height: 32
+    });
+    texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/SpriteSheetSpacing.png', true);
+    texture.load().then(() => {
+      let ss = new ex.SpriteSheet({
+        image: texture,
+        columns: 3,
+        rows: 2,
+        spWidth: 32,
+        spHeight: 32,
+        spacing: 1
+      });
+
+      expect(ss.image.isLoaded());
+      expect(ss.columns).toBe(3);
+      expect(ss.rows).toBe(2);
+      expect(ss.spWidth).toBe(32);
+      expect(ss.spHeight).toBe(32);
+
+      expect(ss.sprites.length).toBe(6);
+
+      ss.getSprite(2).draw(engine.ctx, 0, 0);
+      imagediff.expectCanvasImageMatches('SpriteSheetSpec/SpriteSheetSpacing2.png', engine.canvas, done);
+    });
+  });
 });

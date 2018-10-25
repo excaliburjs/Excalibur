@@ -19,20 +19,22 @@ export class SpriteSheetImpl {
   public rows: number = 0;
   public spWidth: number = 0;
   public spHeight: number = 0;
-
+  public spacing: number = 0;
   /**
    * @param image     The backing image texture to build the SpriteSheet
    * @param columns   The number of columns in the image texture
    * @param rows      The number of rows in the image texture
    * @param spWidth   The width of each individual sprite in pixels
    * @param spHeight  The height of each individual sprite in pixels
+   * @param spacing   The spacing between every sprite in a spritesheet
    */
   constructor(
     imageOrConfigOrSprites: Texture | ISpriteSheetArgs | Sprite[],
     columns?: number,
     rows?: number,
     spWidth?: number,
-    spHeight?: number
+    spHeight?: number,
+    spacing?: number
   ) {
     var loadFromImage: boolean = false;
     if (imageOrConfigOrSprites instanceof Array) {
@@ -44,12 +46,14 @@ export class SpriteSheetImpl {
         this.spWidth = imageOrConfigOrSprites.spWidth;
         this.spHeight = imageOrConfigOrSprites.spHeight;
         this.image = imageOrConfigOrSprites.image;
+        this.spacing = imageOrConfigOrSprites.spacing || 0;
       } else {
         this.image = <Texture>imageOrConfigOrSprites;
         this.columns = columns;
         this.rows = rows;
         this.spWidth = spWidth;
         this.spHeight = spHeight;
+        this.spacing = spacing || 0;
       }
       this.sprites = new Array(this.columns * this.rows);
       loadFromImage = true;
@@ -69,7 +73,13 @@ export class SpriteSheetImpl {
       var j = 0;
       for (i = 0; i < this.rows; i++) {
         for (j = 0; j < this.columns; j++) {
-          this.sprites[j + i * this.columns] = new Sprite(this.image, j * this.spWidth, i * this.spHeight, this.spWidth, this.spHeight);
+          this.sprites[j + i * this.columns] = new Sprite(
+            this.image,
+            j * this.spWidth + this.spacing * j + this.spacing,
+            i * this.spHeight + this.spacing * i + this.spacing,
+            this.spWidth,
+            this.spHeight
+          );
         }
       }
     }
@@ -175,6 +185,7 @@ export interface ISpriteSheetArgs extends Partial<SpriteSheetImpl> {
   spHeight: number;
   rows: number;
   columns: number;
+  spacing?: number;
 }
 
 /**
@@ -193,9 +204,10 @@ export class SpriteSheet extends Configurable(SpriteSheetImpl) {
     columns?: number,
     rows?: number,
     spWidth?: number,
-    spHeight?: number
+    spHeight?: number,
+    spacing?: number
   ) {
-    super(imageOrConfigOrSprites, columns, rows, spWidth, spHeight);
+    super(imageOrConfigOrSprites, columns, rows, spWidth, spHeight, spacing);
   }
 }
 
@@ -230,7 +242,8 @@ export class SpriteFontImpl extends SpriteSheet {
     columns: number,
     rows: number,
     spWidth: number,
-    spHeight: number
+    spHeight: number,
+    spacing?: number
   ) {
     super(
       imageOrConfig instanceof Texture
@@ -239,7 +252,8 @@ export class SpriteFontImpl extends SpriteSheet {
             spWidth: spWidth,
             spHeight: spHeight,
             rows: rows,
-            columns: columns
+            columns: columns,
+            spacing: spacing || 0
           }
         : imageOrConfig
     );
@@ -433,8 +447,9 @@ export class SpriteFont extends Configurable(SpriteFontImpl) {
     columns?: number,
     rows?: number,
     spWidth?: number,
-    spHeight?: number
+    spHeight?: number,
+    spacing?: number
   ) {
-    super(imageOrConfig, alphabet, caseInsensitive, columns, rows, spWidth, spHeight);
+    super(imageOrConfig, alphabet, caseInsensitive, columns, rows, spWidth, spHeight, spacing);
   }
 }
