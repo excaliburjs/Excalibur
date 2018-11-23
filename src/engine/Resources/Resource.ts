@@ -13,6 +13,7 @@ import { Logger } from '../Util/Log';
 export class Resource<T> extends Class implements ILoadable {
   public data: T = null;
   public logger: Logger = Logger.getInstance();
+  public arrayBuffer: ArrayBuffer = null;
 
   /**
    * @param path          Path to the remote resource
@@ -88,10 +89,36 @@ export class Resource<T> extends Class implements ILoadable {
 
       this.oncomplete();
       this.logger.debug('Completed loading resource', this.path);
-      complete.resolve(this.data);
+      complete.resolve(this.data).then((d) => {
+        console.log('gif check');
+        if (this.path.toLowerCase().indexOf('.gif') > -1) {
+          return this.blobToArrayBuffer(request.response).then(() => {
+            return d;
+          });
+        } else {
+          return d;
+        }
+      });
     };
     request.send();
+    return complete;
+  }
 
+  public blobToArrayBuffer(blob: Blob): Promise<String | ArrayBuffer> {
+    var complete = new Promise<String | ArrayBuffer>();
+
+    var fileReader: FileReader = new FileReader();
+    var arrayBuffer: ArrayBuffer = new ArrayBuffer(blob.size);
+    fileReader.onload = (e: any) => {
+      arrayBuffer = e.target.result;
+      this.arrayBuffer = arrayBuffer;
+      console.log(arrayBuffer);
+      complete.resolve(arrayBuffer);
+    };
+    fileReader.onerror = () => {
+      complete.error();
+    };
+    fileReader.readAsArrayBuffer(blob);
     return complete;
   }
 

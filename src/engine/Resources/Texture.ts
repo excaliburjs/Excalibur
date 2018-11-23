@@ -1,7 +1,6 @@
 import { Resource } from './Resource';
 import { Promise } from '../Promises';
 import { Sprite } from '../Drawing/Sprite';
-import { SuperGif } from './SuperGif';
 
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
@@ -66,13 +65,8 @@ export class Texture extends Resource<HTMLImageElement> {
           this.width = this._sprite.width = this.image.naturalWidth;
           this.height = this._sprite.height = this.image.naturalHeight;
           this.loaded.resolve(this.image);
-          this.image.onload = () => {
-            const superGif = new SuperGif(this.image, []);
-            console.log(superGif);
-          };
           complete.resolve(this.image);
         });
-
         this.image.src = super.getData();
       },
       () => {
