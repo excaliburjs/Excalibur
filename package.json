@@ -84,6 +84,7 @@
   },
   "dependencies": {
     "@types/jdataview": "0.0.30",
+    "gif-frames": "^1.0.0",
     "jdataview": "^2.5.0"
   }
 }

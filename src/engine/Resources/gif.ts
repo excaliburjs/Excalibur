@@ -1,225 +1,365 @@
-import * as jDataView from 'jdataview';
+// Generic functions
+var bitsToNum = function(ba: any) {
+  return ba.reduce(function(s: any, n: any) {
+    return s * 2 + n;
+  }, 0);
+};
 
-export class GifyParse {
-  defaultDelay = 100;
-  images: any[] = [];
-  arrayData: ArrayBuffer | string = null;
-  blob: any;
-
-  getPaletteSize(palette: any) {
-    return 3 * Math.pow(2, 1 + this.bitToInt(palette.slice(5, 8)));
+var byteToBitArr = function(bite: any) {
+  var a = [];
+  for (var i = 7; i >= 0; i--) {
+    a.push(!!(bite & (1 << i)));
   }
-  getBitArray(num: number) {
-    var bits = [];
-    for (var i = 7; i >= 0; i--) {
-      bits.push(!!(num & (1 << i)) ? 1 : 0);
+  return a;
+};
+
+export var images: any[] = []; // Make compiler happy.
+
+// Stream
+/**
+ * @constructor
+ */ export var Stream = function(data: any) {
+  data = new Int8Array(data);
+  // const len = data.length;
+  let position = 0;
+
+  this.readByte = function() {
+    if (position >= this.data.length) {
+      throw new Error('Attempted to read past end of stream.');
     }
-    return bits;
+    //return data.charCodeAt(position++) & 0xFF;
+    return this.data[position++];
+  };
+
+  this.readBytes = function(n: any) {
+    var bytes = [];
+    for (var i = 0; i < n; i++) {
+      bytes.push(this.readByte());
+    }
+    return bytes;
+  };
+
+  this.read = function(n: any) {
+    var s = '';
+    for (var i = 0; i < n; i++) {
+      s += String.fromCharCode(this.readByte());
+    }
+    return s;
+  };
+
+  this.readUnsigned = function() {
+    // Little-endian.
+    var a = this.readBytes(2);
+    return (a[1] << 8) + a[0];
+  };
+};
+
+var lzwDecode = function(minCodeSize: any, data: any) {
+  // TODO: Now that the GIF parser is a bit different, maybe this should get an array of bytes instead of a String?
+  var pos = 0; // Maybe this streaming thing should be merged with the Stream?
+
+  var readCode = function(size: any) {
+    var code = 0;
+    for (var i = 0; i < size; i++) {
+      if (data.charCodeAt(pos >> 3) & (1 << (pos & 7))) {
+        code |= 1 << i;
+      }
+      pos++;
+    }
+    return code;
+  };
+
+  var output: any[] = [];
+
+  var clearCode = 1 << minCodeSize;
+  var eoiCode = clearCode + 1;
+
+  var codeSize = minCodeSize + 1;
+
+  var dict: any[] = [];
+
+  var clear = function() {
+    dict = [];
+    codeSize = minCodeSize + 1;
+    for (var i = 0; i < clearCode; i++) {
+      dict[i] = [i];
+    }
+    dict[clearCode] = [];
+    dict[eoiCode] = null;
+  };
+
+  var code;
+  var last;
+
+  while (true) {
+    last = code;
+    code = readCode(codeSize);
+    if (code === clearCode) {
+      clear();
+      continue;
+    }
+    if (code === eoiCode) break;
+
+    if (code < dict.length) {
+      if (last !== clearCode) {
+        dict.push(dict[last].concat(dict[code][0]));
+      }
+    } else {
+      if (code !== dict.length) throw new Error('Invalid LZW code.');
+      dict.push(dict[last].concat(dict[last][0]));
+    }
+    output.push.apply(output, dict[code]);
+
+    if (dict.length === 1 << codeSize && codeSize < 12) {
+      // If we're at the last code and codeSize is 12, the next code will be a clearCode, and it'll be 12 bits long.
+      codeSize++;
+    }
   }
-  getDuration(duration: number) {
-    return (duration / 100) * 1000;
-  }
-  bitToInt(bitArray: any) {
-    return bitArray.reduce(function(s: any, n: any) {
-      return s * 2 + n;
-    }, 0);
-  }
-  readSubBlock(view: any, pos: any, read: any) {
-    var subBlock = {
-      data: '',
-      size: 0
+
+  // I don't know if this is technically an error, but some GIFs do it.
+  //if (Math.ceil(pos / 8) !== data.length) throw new Error('Extraneous LZW bytes.');
+  return output;
+};
+
+// The actual parsing; returns an object with properties.
+export var parseGIF = function(st: any, handler: any) {
+  handler || (handler = {});
+
+  // LZW (GIF-specific)
+  var parseCT = function(entries: any) {
+    // Each entry is 3 bytes, for RGB.
+    var ct = [];
+    for (var i = 0; i < entries; i++) {
+      ct.push(st.readBytes(3));
+    }
+    return ct;
+  };
+
+  var readSubBlocks = function() {
+    var size, data;
+    data = '';
+    do {
+      size = st.readByte();
+      data += st.read(size);
+    } while (size !== 0);
+    return data;
+  };
+
+  var parseHeader = function() {
+    var hdr = {
+      sig: '',
+      ver: 'null',
+      width: 0,
+      height: 0,
+      colorRes: 'null',
+      gctSize: 0,
+      gctFlag: false,
+      sorted: false,
+      gct: {},
+      bgColor: 'null',
+      pixelAspectRatio: 'null' // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
     };
-    while (true) {
-      var size = view.getUint8(pos + subBlock.size, true);
-      if (size === 0) {
-        subBlock.size++;
+
+    hdr.sig = st.read(3);
+    hdr.ver = st.read(3);
+    if (hdr.sig !== 'GIF') throw new Error('Not a GIF file.'); // XXX: This should probably be handled more nicely.
+
+    hdr.width = st.readUnsigned();
+    hdr.height = st.readUnsigned();
+
+    var bits = byteToBitArr(st.readByte());
+    hdr.gctFlag = bits.shift();
+    hdr.colorRes = bitsToNum(bits.splice(0, 3));
+    hdr.sorted = bits.shift();
+    hdr.gctSize = bitsToNum(bits.splice(0, 3));
+
+    hdr.bgColor = st.readByte();
+    hdr.pixelAspectRatio = st.readByte(); // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
+
+    if (hdr.gctFlag) {
+      hdr.gct = parseCT(1 << (hdr.gctSize + 1));
+    }
+    handler.hdr && handler.hdr(hdr);
+  };
+
+  var parseExt = function(block: any) {
+    var parseGCExt = function(block: any) {
+      //   var blockSize = st.readByte(); // Always 4
+
+      var bits = byteToBitArr(st.readByte());
+      block.reserved = bits.splice(0, 3); // Reserved; should be 000.
+      block.disposalMethod = bitsToNum(bits.splice(0, 3));
+      block.userInput = bits.shift();
+      block.transparencyGiven = bits.shift();
+
+      block.delayTime = st.readUnsigned();
+
+      block.transparencyIndex = st.readByte();
+
+      block.terminator = st.readByte();
+
+      handler.gce && handler.gce(block);
+    };
+
+    var parseComExt = function(block: any) {
+      block.comment = readSubBlocks();
+      handler.com && handler.com(block);
+    };
+
+    var parsePTExt = function(block: any) {
+      // No one *ever* uses this. If you use it, deal with parsing it yourself.
+      //   var blockSize = st.readByte(); // Always 12
+      block.ptHeader = st.readBytes(12);
+      block.ptData = readSubBlocks();
+      handler.pte && handler.pte(block);
+    };
+
+    var parseAppExt = function(block: any) {
+      var parseNetscapeExt = function(block: any) {
+        // var blockSize = st.readByte(); // Always 3
+        block.unknown = st.readByte(); // ??? Always 1? What is this?
+        block.iterations = st.readUnsigned();
+        block.terminator = st.readByte();
+        handler.app && handler.app.NETSCAPE && handler.app.NETSCAPE(block);
+      };
+
+      var parseUnknownAppExt = function(block: any) {
+        block.appData = readSubBlocks();
+        // FIXME: This won't work if a handler wants to match on any identifier.
+        handler.app && handler.app[block.identifier] && handler.app[block.identifier](block);
+      };
+
+      //   var blockSize = st.readByte(); // Always 11
+      block.identifier = st.read(8);
+      block.authCode = st.read(3);
+      switch (block.identifier) {
+        case 'NETSCAPE':
+          parseNetscapeExt(block);
+          break;
+        default:
+          parseUnknownAppExt(block);
+          break;
+      }
+    };
+
+    var parseUnknownExt = function(block: any) {
+      block.data = readSubBlocks();
+      handler.unknown && handler.unknown(block);
+    };
+
+    block.label = st.readByte();
+    switch (block.label) {
+      case 0xf9:
+        block.extType = 'gce';
+        parseGCExt(block);
         break;
-      }
-      if (read) {
-        subBlock.data += view.getString(size, pos + subBlock.size + 1);
-      }
-      subBlock.size += size + 1;
+      case 0xfe:
+        block.extType = 'com';
+        parseComExt(block);
+        break;
+      case 0x01:
+        block.extType = 'pte';
+        parsePTExt(block);
+        break;
+      case 0xff:
+        block.extType = 'app';
+        parseAppExt(block);
+        break;
+      default:
+        block.extType = 'unknown';
+        parseUnknownExt(block);
+        break;
     }
-    return subBlock;
-  }
-  getNewImage() {
-    return {
-      identifier: '0',
-      localPalette: false,
-      localPaletteSize: 0,
-      interlace: false,
-      comments: <any>[],
-      text: '',
-      left: 0,
-      top: 0,
-      width: 0,
-      height: 0,
-      delay: 0,
-      disposal: 0
-    };
-  }
-  public getInfo(sourceArrayBuffer: any, quickPass: any) {
-    var pos = 0,
-      index = 0;
-    var info = {
-      valid: false,
-      globalPalette: false,
-      globalPaletteSize: 0,
-      globalPaletteColorsRGB: <any>[],
-      loopCount: 0,
-      height: 0,
-      width: 0,
-      animated: false,
-      images: <any>[],
-      isBrowserDuration: false,
-      duration: 0,
-      durationIE: 0,
-      durationSafari: 0,
-      durationFirefox: 0,
-      durationChrome: 0,
-      durationOpera: 0
-    };
-    var view = new jDataView(sourceArrayBuffer);
-    // needs to be at least 10 bytes long
-    if (sourceArrayBuffer.byteLength < 10) {
-      return info;
-    }
-    // GIF8
-    if (view.getUint16(0) != 0x4749 || view.getUint16(2) != 0x4638) {
-      return info;
-    }
-    //get width / height
-    info.width = view.getUint16(6, true);
-    info.height = view.getUint16(8, true);
-    // not that safe to assume, but good enough by this point
-    info.valid = true;
-    // parse global palette
-    var unpackedField = this.getBitArray(view.getUint8(10));
-    if (unpackedField[0]) {
-      var globalPaletteSize = this.getPaletteSize(unpackedField);
-      info.globalPalette = true;
-      info.globalPaletteSize = globalPaletteSize / 3;
-      pos += globalPaletteSize;
-      for (var i = 0; i < info.globalPaletteSize; i++) {
-        var palettePos = 13 + i * 3;
-        var r = view.getUint8(palettePos); //red
-        var g = view.getUint8(palettePos + 1); //green
-        var b = view.getUint8(palettePos + 2); //blue
-        info.globalPaletteColorsRGB.push({ r: r, g: g, b: b });
-      }
-    }
-    pos += 13;
-    var image = this.getNewImage();
-    while (true) {
-      try {
-        var block = view.getUint8(pos);
-        switch (block) {
-          case 0x21: // EXTENSION BLOCK
-            var type = view.getUint8(pos + 1);
-            if (type === 0xf9) {
-              //GRAPHICS CONTROL EXTENSION
-              var length = view.getUint8(pos + 2);
-              if (length === 4) {
-                var delay = this.getDuration(view.getUint16(pos + 4, true));
-                if (delay < 60 && !info.isBrowserDuration) {
-                  info.isBrowserDuration = true;
-                }
-                // http://nullsleep.tumblr.com/post/16524517190/animated-gif-minimum-frame-delay-browser-compatibility (out of date)
-                image.delay = delay;
-                info.duration += delay;
-                info.durationIE += delay < 60 ? this.defaultDelay : delay;
-                info.durationSafari += delay < 20 ? this.defaultDelay : delay;
-                info.durationChrome += delay < 20 ? this.defaultDelay : delay;
-                info.durationFirefox += delay < 20 ? this.defaultDelay : delay;
-                info.durationOpera += delay < 20 ? this.defaultDelay : delay;
-                // set disposal method
-                unpackedField = this.getBitArray(view.getUint8(pos + 3));
-                var disposal = unpackedField.slice(3, 6).join('');
-                image.disposal = parseInt(disposal, 2);
-                pos += 8;
-              } else {
-                pos++;
-              }
-            } else {
-              pos += 2;
-              var subBlock = this.readSubBlock(view, pos, true);
-              switch (type) {
-                case 0xff: //APPLICATION EXTENSION
-                  /* since multiple application extension blocks can
-                                        occur, we need to make sure we're only setting
-                                        the loop count when the identifer is NETSCAPE */
-                  var identifier = view.getString(8, pos + 1);
-                  if (identifier === 'NETSCAPE') {
-                    info.loopCount = view.getUint8(pos + 14);
-                  }
-                  break;
-                case 0xce: //NAME
-                  /* the only reference to this extension I could find was in
-                                     gifsicle. I'm not sure if this is something gifsicle just
-                                     made up or if this actually exists outside of this app */
-                  image.identifier = subBlock.data;
-                  break;
-                case 0xfe: //COMMENT EXTENSION
-                  image.comments.push(subBlock.data);
-                  break;
-                case 0x01: //PLAIN TEXT EXTENSION
-                  image.text = subBlock.data;
-                  break;
-              }
-              pos += subBlock.size;
-            }
-            break;
-          case 0x2c: // IMAGE DESCRIPTOR
-            image.left = view.getUint16(pos + 1, true);
-            image.top = view.getUint16(pos + 3, true);
-            image.width = view.getUint16(pos + 5, true);
-            image.height = view.getUint16(pos + 7, true);
-            unpackedField = this.getBitArray(view.getUint8(pos + 9));
-            if (unpackedField[0]) {
-              // local palette?
-              var localPaletteSize = this.getPaletteSize(unpackedField);
-              image.localPalette = true;
-              image.localPaletteSize = localPaletteSize / 3;
-              pos += localPaletteSize;
-            }
-            if (unpackedField[1]) {
-              // interlaced?
-              image.interlace = true;
-            }
-            // add image & reset object
-            info.images.push(image);
-            this.images.push(image);
-            index++;
-            //create new image
-            image = this.getNewImage();
-            image.identifier = index.toString();
-            // set animated flag
-            if (info.images.length > 1 && !info.animated) {
-              info.animated = true;
-              // quickly bail if the gif has more than one image
-              if (quickPass) {
-                return info;
-              }
-            }
-            pos += 11;
-            subBlock = this.readSubBlock(view, pos, false);
-            pos += subBlock.size;
-            break;
-          case 0x3b: // TRAILER BLOCK (THE END)
-            return info;
-          default:
-            // UNKNOWN BLOCK (bad)
-            pos++;
-            break;
+  };
+
+  var parseImg = function(img: any) {
+    var deinterlace = function(pixels: any, width: any) {
+      // Of course this defeats the purpose of interlacing. And it's *probably*
+      // the least efficient way it's ever been implemented. But nevertheless...
+
+      var newPixels = new Array(pixels.length);
+      var rows = pixels.length / width;
+      var cpRow = function(toRow: any, fromRow: any) {
+        var fromPixels = pixels.slice(fromRow * width, (fromRow + 1) * width);
+        newPixels.splice.apply(newPixels, [toRow * width, width].concat(fromPixels));
+      };
+
+      // See appendix E.
+      var offsets = [0, 4, 2, 1];
+      var steps = [8, 8, 4, 2];
+
+      var fromRow = 0;
+      for (var pass = 0; pass < 4; pass++) {
+        for (var toRow = offsets[pass]; toRow < rows; toRow += steps[pass]) {
+          cpRow(toRow, fromRow);
+          fromRow++;
         }
-      } catch (e) {
-        info.valid = false;
-        return info;
       }
-      // this shouldn't happen, but if the trailer block is missing, we should bail at EOF
-      if (pos >= sourceArrayBuffer.byteLength) {
-        return info;
-      }
+
+      return newPixels;
+    };
+
+    img.leftPos = st.readUnsigned();
+    img.topPos = st.readUnsigned();
+    img.width = st.readUnsigned();
+    img.height = st.readUnsigned();
+
+    var bits = byteToBitArr(st.readByte());
+    img.lctFlag = bits.shift();
+    img.interlaced = bits.shift();
+    img.sorted = bits.shift();
+    img.reserved = bits.splice(0, 2);
+    img.lctSize = bitsToNum(bits.splice(0, 3));
+
+    if (img.lctFlag) {
+      img.lct = parseCT(1 << (img.lctSize + 1));
     }
-  }
-}
+
+    img.lzwMinCodeSize = st.readByte();
+
+    var lzwData = readSubBlocks();
+
+    img.pixels = lzwDecode(img.lzwMinCodeSize, lzwData);
+
+    if (img.interlaced) {
+      // Move
+      img.pixels = deinterlace(img.pixels, img.width);
+    }
+
+    images.push(img);
+    handler.img && handler.img(img);
+  };
+
+  var parseBlock = function() {
+    var block = {
+      sentinel: st.readByte(),
+      type: ''
+    };
+    var blockChar = String.fromCharCode(block.sentinel);
+    switch (blockChar) {
+      case '!':
+        block.type = 'ext';
+        parseExt(block);
+        break;
+      case ',':
+        block.type = 'img';
+        parseImg(block);
+        break;
+      case ';':
+        block.type = 'eof';
+        handler.eof && handler.eof(block);
+        break;
+      default:
+        throw new Error('Unknown block: 0x' + block.sentinel.toString(16)); // TODO: Pad this with a 0.
+    }
+
+    if (block.type !== 'eof') setTimeout(parseBlock, 0);
+  };
+
+  var parse = function() {
+    parseHeader();
+    setTimeout(parseBlock, 0);
+  };
+
+  parse();
+};

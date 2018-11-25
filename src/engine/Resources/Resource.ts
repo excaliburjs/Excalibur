@@ -129,6 +129,10 @@ export class Resource<T> extends Class implements ILoadable {
     return this.data;
   }
 
+  public getArrayData(): any {
+    return this.arrayBuffer;
+  }
+
   /**
    * Sets the data for this resource directly
    */
