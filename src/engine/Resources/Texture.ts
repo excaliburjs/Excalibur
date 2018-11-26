@@ -65,11 +65,11 @@ export class Texture extends Resource<HTMLImageElement> {
           this.width = this._sprite.width = this.image.naturalWidth;
           this.height = this._sprite.height = this.image.naturalHeight;
           this.loaded.resolve(this.image);
+          const stream = new Gif.Stream(super.getArrayData());
+          Gif.parseGIF(stream, 0);
           complete.resolve(this.image);
         });
         this.image.src = super.getData();
-        const stream = Gif.Stream(super.getArrayData());
-        Gif.parseGIF(stream, 0);
       },
       () => {
         complete.reject('Error loading texture.');

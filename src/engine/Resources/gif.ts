@@ -18,41 +18,45 @@ export var images: any[] = []; // Make compiler happy.
 // Stream
 /**
  * @constructor
- */ export var Stream = function(data: any) {
-  data = new Int8Array(data);
+ */
+export class Stream {
+  data: Int8Array = null;
+  constructor(data: any) {
+    this.data = new Int8Array(data);
+  }
   // const len = data.length;
-  let position = 0;
+  position: number = 0;
 
-  this.readByte = function() {
-    if (position >= this.data.length) {
+  public readByte() {
+    if (this.position >= this.data.length) {
       throw new Error('Attempted to read past end of stream.');
     }
     //return data.charCodeAt(position++) & 0xFF;
-    return this.data[position++];
-  };
+    return this.data[this.position++];
+  }
 
-  this.readBytes = function(n: any) {
+  public readBytes(n: number) {
     var bytes = [];
     for (var i = 0; i < n; i++) {
       bytes.push(this.readByte());
     }
     return bytes;
-  };
+  }
 
-  this.read = function(n: any) {
+  read(n: number) {
     var s = '';
     for (var i = 0; i < n; i++) {
       s += String.fromCharCode(this.readByte());
     }
     return s;
-  };
+  }
 
-  this.readUnsigned = function() {
+  readUnsigned() {
     // Little-endian.
     var a = this.readBytes(2);
     return (a[1] << 8) + a[0];
-  };
-};
+  }
+}
 
 var lzwDecode = function(minCodeSize: any, data: any) {
   // TODO: Now that the GIF parser is a bit different, maybe this should get an array of bytes instead of a String?
