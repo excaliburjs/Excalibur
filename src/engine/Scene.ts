@@ -85,9 +85,10 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
   private _cancelQueue: Timer[] = [];
   private _logger: Logger = Logger.getInstance();
 
-  constructor(engine?: Engine) {
+  constructor(engine: Engine) {
     super();
     this.camera = new BaseCamera();
+    this.engine = engine;
     if (engine) {
       this.camera.x = engine.halfDrawWidth;
       this.camera.y = engine.halfDrawHeight;
