@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added strongly typed EvenTypes enum to Events.ts to avoid magic strings [#1066](https://github.com/excaliburjs/Excalibur/issues/1058)
+
 ### Changed
 
 - Added parameter on SpriteSheet constructor so you can define how many pixel spacing is between sprites ([#1058] https://github.com/excaliburjs/Excalibur/issues/1058)
