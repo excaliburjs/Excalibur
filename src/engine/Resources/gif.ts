@@ -1,3 +1,101 @@
+import { Resource } from './Resource';
+import { Promise } from '../Promises';
+/**
+ * The [[Gif]] object allows games built in Excalibur to load gif resources.
+ * [[Gif]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
+ * to pre-load before starting a level or game.
+ *
+ * [[include:Gif.md]]
+ */
+
+export interface Frame {
+  sentinel: number;
+  type: string;
+  leftPos: number;
+  topPos: number;
+  width: number;
+  height: number;
+  lctFlag: boolean;
+  interlaced: boolean;
+  sorted: boolean;
+  reserved: boolean[];
+  lctSize: number;
+  lzwMinCodeSize: number;
+  pixels: number[];
+}
+
+export class Gif extends Resource<Animation> {
+  /**
+   * The width of the texture in pixels
+   */
+  public width: number;
+
+  /**
+   * The height of the texture in pixels
+   */
+  public height: number;
+
+  /**
+   * The array of frames in the gif
+   */
+  images: Frame[] = [];
+
+  /**
+   * an array of RGB colors in the gif
+   */
+  globalColorTable: any = [];
+
+  /**
+   * A [[Promise]] that resolves when the Texture is loaded.
+   */
+  public loaded: Promise<any> = new Promise<any>();
+
+  private _isLoaded: boolean = false;
+
+  private _gifParser: GifParser;
+
+  /**
+   * @param path       Path to the image resource
+   * @param bustCache  Optionally load texture with cache busting
+   */
+  constructor(public path: string, public bustCache = true) {
+    super(path, 'blob', bustCache);
+  }
+
+  /**
+   * Returns true if the Texture is completely loaded and is ready
+   * to be drawn.
+   */
+  public isLoaded(): boolean {
+    return this._isLoaded;
+  }
+
+  /**
+   * Begins loading the texture and returns a promise to be resolved on completion
+   */
+  public load(): Promise<Animation> {
+    var complete = new Promise<Animation>();
+
+    var loaded = super.load();
+    loaded.then(() => {
+      const stream = new Stream(super.getArrayData());
+      // this.image.addEventListener('load', () => {
+      this._isLoaded = true;
+      this._gifParser = new GifParser(stream, 0);
+      return this._gifParser.loaded.then((frames: Frame[]) => {
+        console.log(frames);
+        const animation: Animation = new Animation();
+        complete.resolve(animation);
+      });
+    });
+    return complete;
+  }
+}
+
+// public asSprite(): Sprite {
+//   return this._sprite;
+// }
+
 // Generic functions
 var bitsToNum = function(ba: any) {
   return ba.reduce(function(s: any, n: any) {
@@ -12,51 +110,6 @@ var byteToBitArr = function(bite: any) {
   }
   return a;
 };
-
-export var images: any[] = []; // Make compiler happy.
-
-// Stream
-/**
- * @constructor
- */
-export class Stream {
-  data: Int8Array = null;
-  constructor(data: any) {
-    this.data = new Int8Array(data);
-  }
-  // const len = data.length;
-  position: number = 0;
-
-  public readByte() {
-    if (this.position >= this.data.length) {
-      throw new Error('Attempted to read past end of stream.');
-    }
-    //return data.charCodeAt(position++) & 0xFF;
-    return this.data[this.position++];
-  }
-
-  public readBytes(n: number) {
-    var bytes = [];
-    for (var i = 0; i < n; i++) {
-      bytes.push(this.readByte());
-    }
-    return bytes;
-  }
-
-  read(n: number) {
-    var s = '';
-    for (var i = 0; i < n; i++) {
-      s += String.fromCharCode(this.readByte());
-    }
-    return s;
-  }
-
-  readUnsigned() {
-    // Little-endian.
-    var a = this.readBytes(2);
-    return (a[1] << 8) + a[0];
-  }
-}
 
 var lzwDecode = function(minCodeSize: any, data: any) {
   // TODO: Now that the GIF parser is a bit different, maybe this should get an array of bytes instead of a String?
@@ -102,14 +155,18 @@ var lzwDecode = function(minCodeSize: any, data: any) {
       clear();
       continue;
     }
-    if (code === eoiCode) break;
+    if (code === eoiCode) {
+      break;
+    }
 
     if (code < dict.length) {
       if (last !== clearCode) {
         dict.push(dict[last].concat(dict[code][0]));
       }
     } else {
-      if (code !== dict.length) throw new Error('Invalid LZW code.');
+      if (code !== dict.length) {
+        throw new Error('Invalid LZW code.');
+      }
       dict.push(dict[last].concat(dict[last][0]));
     }
     output.push.apply(output, dict[code]);
@@ -126,157 +183,195 @@ var lzwDecode = function(minCodeSize: any, data: any) {
 };
 
 // The actual parsing; returns an object with properties.
-export var parseGIF = function(st: any, handler: any) {
-  handler || (handler = {});
+class GifParser {
+  private _st: any;
+  private _handler: any = {};
+  public globalColorTable: any[] = [];
+  public images: Frame[] = [];
+  public loaded: Promise<any> = new Promise<any>();
+
+  constructor(st: any, handler: any) {
+    this._st = st;
+    this._handler = handler;
+    this.loaded.resolve(this.parse());
+  }
 
   // LZW (GIF-specific)
-  var parseCT = function(entries: any) {
+  private _parseColorTable(entries: any) {
     // Each entry is 3 bytes, for RGB.
     var ct = [];
     for (var i = 0; i < entries; i++) {
-      ct.push(st.readBytes(3));
+      ct.push(this._st.readBytes(3));
     }
     return ct;
-  };
+  }
 
-  var readSubBlocks = function() {
+  private _readSubBlocks() {
     var size, data;
     data = '';
     do {
-      size = st.readByte();
-      data += st.read(size);
+      size = this._st.readByte();
+      data += this._st.read(size);
     } while (size !== 0);
     return data;
-  };
+  }
 
-  var parseHeader = function() {
-    var hdr = {
-      sig: '',
-      ver: 'null',
-      width: 0,
-      height: 0,
-      colorRes: 'null',
-      gctSize: 0,
-      gctFlag: false,
-      sorted: false,
-      gct: {},
-      bgColor: 'null',
-      pixelAspectRatio: 'null' // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
+  private _parseHeader() {
+    var hdr: any = {
+      sig: null,
+      ver: null,
+      width: null,
+      height: null,
+      colorRes: null,
+      globalColorTableSize: null,
+      gctFlag: null,
+      sorted: null,
+      globalColorTable: [],
+      bgColor: null,
+      pixelAspectRatio: null // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
     };
 
-    hdr.sig = st.read(3);
-    hdr.ver = st.read(3);
-    if (hdr.sig !== 'GIF') throw new Error('Not a GIF file.'); // XXX: This should probably be handled more nicely.
+    hdr.sig = this._st.read(3);
+    hdr.ver = this._st.read(3);
+    if (hdr.sig !== 'GIF') {
+      throw new Error('Not a GIF file.'); // XXX: This should probably be handled more nicely.
+    }
 
-    hdr.width = st.readUnsigned();
-    hdr.height = st.readUnsigned();
+    hdr.width = this._st.readUnsigned();
+    hdr.height = this._st.readUnsigned();
 
-    var bits = byteToBitArr(st.readByte());
+    var bits = byteToBitArr(this._st.readByte());
     hdr.gctFlag = bits.shift();
     hdr.colorRes = bitsToNum(bits.splice(0, 3));
     hdr.sorted = bits.shift();
-    hdr.gctSize = bitsToNum(bits.splice(0, 3));
+    hdr.globalColorTableSize = bitsToNum(bits.splice(0, 3));
 
-    hdr.bgColor = st.readByte();
-    hdr.pixelAspectRatio = st.readByte(); // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
+    hdr.bgColor = this._st.readByte();
+    hdr.pixelAspectRatio = this._st.readByte(); // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
 
     if (hdr.gctFlag) {
-      hdr.gct = parseCT(1 << (hdr.gctSize + 1));
+      hdr.globalColorTable = this._parseColorTable(1 << (hdr.globalColorTableSize + 1));
+      this.globalColorTable = hdr.globalColorTable;
     }
-    handler.hdr && handler.hdr(hdr);
-  };
+    if (this._handler.hdr) {
+      this._handler.hdr(hdr);
+    }
+  }
 
-  var parseExt = function(block: any) {
-    var parseGCExt = function(block: any) {
-      //   var blockSize = st.readByte(); // Always 4
+  private _parseGCExt(block: any) {
+    // var blockSize = st.readByte(); // Always 4
 
-      var bits = byteToBitArr(st.readByte());
-      block.reserved = bits.splice(0, 3); // Reserved; should be 000.
-      block.disposalMethod = bitsToNum(bits.splice(0, 3));
-      block.userInput = bits.shift();
-      block.transparencyGiven = bits.shift();
+    var bits = byteToBitArr(this._st.readByte());
+    block.reserved = bits.splice(0, 3); // Reserved; should be 000.
+    block.disposalMethod = bitsToNum(bits.splice(0, 3));
+    block.userInput = bits.shift();
+    block.transparencyGiven = bits.shift();
 
-      block.delayTime = st.readUnsigned();
+    block.delayTime = this._st.readUnsigned();
 
-      block.transparencyIndex = st.readByte();
+    block.transparencyIndex = this._st.readByte();
 
-      block.terminator = st.readByte();
+    block.terminator = this._st.readByte();
 
-      handler.gce && handler.gce(block);
-    };
+    if (this._handler.gce) {
+      this._handler.gce(block);
+    }
+  }
 
-    var parseComExt = function(block: any) {
-      block.comment = readSubBlocks();
-      handler.com && handler.com(block);
-    };
+  private _parseComExt(block: any) {
+    block.comment = this._readSubBlocks();
+    if (this._handler.com) {
+      this._handler.com(block);
+    }
+  }
 
-    var parsePTExt = function(block: any) {
-      // No one *ever* uses this. If you use it, deal with parsing it yourself.
-      //   var blockSize = st.readByte(); // Always 12
-      block.ptHeader = st.readBytes(12);
-      block.ptData = readSubBlocks();
-      handler.pte && handler.pte(block);
-    };
+  private _parsePTExt(block: any) {
+    block.ptHeader = this._st.readBytes(12);
+    block.ptData = this._readSubBlocks();
+    if (this._handler.pte) {
+      this._handler.pte(block);
+    }
+  }
 
-    var parseAppExt = function(block: any) {
-      var parseNetscapeExt = function(block: any) {
-        // var blockSize = st.readByte(); // Always 3
-        block.unknown = st.readByte(); // ??? Always 1? What is this?
-        block.iterations = st.readUnsigned();
-        block.terminator = st.readByte();
-        handler.app && handler.app.NETSCAPE && handler.app.NETSCAPE(block);
-      };
-
-      var parseUnknownAppExt = function(block: any) {
-        block.appData = readSubBlocks();
-        // FIXME: This won't work if a handler wants to match on any identifier.
-        handler.app && handler.app[block.identifier] && handler.app[block.identifier](block);
-      };
-
-      //   var blockSize = st.readByte(); // Always 11
-      block.identifier = st.read(8);
-      block.authCode = st.read(3);
-      switch (block.identifier) {
-        case 'NETSCAPE':
-          parseNetscapeExt(block);
-          break;
-        default:
-          parseUnknownAppExt(block);
-          break;
+  private _parseNetscapeExt(block: any) {
+    block.unknown = this._st.readByte(); // ??? Always 1? What is this?
+    block.iterations = this._st.readUnsigned();
+    block.terminator = this._st.readByte();
+    if (this._handler.app) {
+      if (this._handler.app.NETSCAPE) {
+        this._handler.app.NETSCAPE(block);
       }
-    };
+    }
+  }
+  private _parseAppExt(block: any) {
+    // var blockSize = this._st.readByte(); // Always 11
+    block.identifier = this._st.read(8);
+    block.authCode = this._st.read(3);
+    switch (block.identifier) {
+      case 'NETSCAPE':
+        this._parseNetscapeExt(block);
+        break;
+      default:
+        this._parseUnknownAppExt(block);
+        break;
+    }
+  }
 
-    var parseUnknownExt = function(block: any) {
-      block.data = readSubBlocks();
-      handler.unknown && handler.unknown(block);
-    };
+  private _parseUnknownAppExt(block: any) {
+    block.appData = this._readSubBlocks();
+    // FIXME: This won't work if a handler wants to match on any identifier.
+    if (this._handler.app) {
+      if (this._handler.app[block.identifier]) {
+        this._handler.app[block.identifier](block);
+      }
+    }
+  }
+  private _parseExt(block: any) {
+    // var blockSize = st.readByte(); // Always 11
+    block.identifier = this._st.read(8);
+    block.authCode = this._st.read(3);
+    switch (block.identifier) {
+      case 'NETSCAPE':
+        this._parseNetscapeExt(block);
+        break;
+      default:
+        this._parseUnknownAppExt(block);
+        break;
+    }
 
-    block.label = st.readByte();
+    block.label = this._st.readByte();
     switch (block.label) {
       case 0xf9:
         block.extType = 'gce';
-        parseGCExt(block);
+        this._parseGCExt(block);
         break;
       case 0xfe:
         block.extType = 'com';
-        parseComExt(block);
+        this._parseComExt(block);
         break;
       case 0x01:
         block.extType = 'pte';
-        parsePTExt(block);
+        this._parsePTExt(block);
         break;
       case 0xff:
         block.extType = 'app';
-        parseAppExt(block);
+        this._parseAppExt(block);
         break;
       default:
         block.extType = 'unknown';
-        parseUnknownExt(block);
+        this._parseUnknownExt(block);
         break;
     }
-  };
+  }
 
-  var parseImg = function(img: any) {
+  private _parseUnknownExt(block: any) {
+    block.data = this._readSubBlocks();
+    if (this._handler.unknown) {
+      this._handler.unknown(block);
+    }
+  }
+
+  private _parseImg(img: any) {
     var deinterlace = function(pixels: any, width: any) {
       // Of course this defeats the purpose of interlacing. And it's *probably*
       // the least efficient way it's ever been implemented. But nevertheless...
@@ -303,12 +398,12 @@ export var parseGIF = function(st: any, handler: any) {
       return newPixels;
     };
 
-    img.leftPos = st.readUnsigned();
-    img.topPos = st.readUnsigned();
-    img.width = st.readUnsigned();
-    img.height = st.readUnsigned();
+    img.leftPos = this._st.readUnsigned();
+    img.topPos = this._st.readUnsigned();
+    img.width = this._st.readUnsigned();
+    img.height = this._st.readUnsigned();
 
-    var bits = byteToBitArr(st.readByte());
+    var bits = byteToBitArr(this._st.readByte());
     img.lctFlag = bits.shift();
     img.interlaced = bits.shift();
     img.sorted = bits.shift();
@@ -316,12 +411,12 @@ export var parseGIF = function(st: any, handler: any) {
     img.lctSize = bitsToNum(bits.splice(0, 3));
 
     if (img.lctFlag) {
-      img.lct = parseCT(1 << (img.lctSize + 1));
+      img.lct = this._parseColorTable(1 << (img.lctSize + 1));
     }
 
-    img.lzwMinCodeSize = st.readByte();
+    img.lzwMinCodeSize = this._st.readByte();
 
-    var lzwData = readSubBlocks();
+    var lzwData = this._readSubBlocks();
 
     img.pixels = lzwDecode(img.lzwMinCodeSize, lzwData);
 
@@ -330,40 +425,85 @@ export var parseGIF = function(st: any, handler: any) {
       img.pixels = deinterlace(img.pixels, img.width);
     }
 
-    images.push(img);
-    handler.img && handler.img(img);
-  };
+    this.images.push(img);
+    if (this._handler.img) {
+      this._handler.img(img);
+    }
+  }
 
-  var parseBlock = function() {
+  private _parseBlock() {
     var block = {
-      sentinel: st.readByte(),
+      sentinel: this._st.readByte(),
       type: ''
     };
     var blockChar = String.fromCharCode(block.sentinel);
     switch (blockChar) {
       case '!':
         block.type = 'ext';
-        parseExt(block);
+        this._parseExt(block);
         break;
       case ',':
         block.type = 'img';
-        parseImg(block);
+        this._parseImg(block);
         break;
       case ';':
         block.type = 'eof';
-        handler.eof && handler.eof(block);
+        if (this._handler.eof) {
+          this._handler.eof(block);
+        }
         break;
       default:
         throw new Error('Unknown block: 0x' + block.sentinel.toString(16)); // TODO: Pad this with a 0.
     }
 
-    if (block.type !== 'eof') setTimeout(parseBlock, 0);
-  };
+    if (block.type !== 'eof') {
+      this._parseBlock();
+    }
+  }
 
-  var parse = function() {
-    parseHeader();
-    setTimeout(parseBlock, 0);
-  };
+  public parse() {
+    this._parseHeader();
+    this._parseBlock();
+  }
+}
 
-  parse();
-};
+// Stream
+class Stream {
+  data: Uint8Array = null;
+  len: number = null;
+  position: number = 0;
+  constructor(data: ArrayBuffer) {
+    this.data = new Uint8Array(data);
+    this.len = this.data.length;
+  }
+
+  public readByte() {
+    if (this.position >= this.data.length) {
+      throw new Error('Attempted to read past end of stream.');
+    }
+    //return data.charCodeAt(position++) & 0xFF;
+    return this.data[this.position++];
+  }
+
+  public readBytes(n: number) {
+    var bytes = [];
+    for (var i = 0; i < n; i++) {
+      bytes.push(this.readByte());
+    }
+    return bytes;
+  }
+
+  public read(n: any) {
+    var s = '';
+    for (var i = 0; i < n; i++) {
+      s += String.fromCharCode(this.readByte());
+    }
+    return s;
+  }
+
+  readUnsigned() {
+    // Little-endian.
+    var a = this.readBytes(2);
+    return (a[1] << 8) + a[0];
+  }
+}

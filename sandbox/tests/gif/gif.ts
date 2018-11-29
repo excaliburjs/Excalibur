@@ -6,8 +6,8 @@ var game = new ex.Engine({
   height: 400
 });
 debugger;
-var tex = new ex.Texture('./sword.gif', true);
-var loader = new ex.Loader([tex]);
+var gif = new ex.Gif('https://raw.githubusercontent.com/kevin192291/Excalibur/master/sandbox/tests/animatedSpriteFromGIf/sword.gif');
+var loader = new ex.Loader([gif]);
 
 var actor = new ex.Actor(100, 100, 50, 50, ex.Color.Red);
 actor.onInitialize = () => {

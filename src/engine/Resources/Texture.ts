@@ -1,7 +1,6 @@
 import { Resource } from './Resource';
 import { Promise } from '../Promises';
 import { Sprite } from '../Drawing/Sprite';
-import * as Gif from './gif';
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
  * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
@@ -65,8 +64,6 @@ export class Texture extends Resource<HTMLImageElement> {
           this.width = this._sprite.width = this.image.naturalWidth;
           this.height = this._sprite.height = this.image.naturalHeight;
           this.loaded.resolve(this.image);
-          const stream = new Gif.Stream(super.getArrayData());
-          Gif.parseGIF(stream, 0);
           complete.resolve(this.image);
         });
         this.image.src = super.getData();
@@ -81,8 +78,4 @@ export class Texture extends Resource<HTMLImageElement> {
   public asSprite(): Sprite {
     return this._sprite;
   }
-
-  //   public asImageArray(): any[] {
-
-  //   }
 }
