@@ -23,7 +23,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
-## [0.19.0] - 2018-12-01
+## [0.19.1] - 2018-12-01
 
 ### Added
 
