@@ -1,5 +1,7 @@
 import { Resource } from './Resource';
 import { Promise } from '../Promises';
+import { Sprite } from '../Drawing/Index';
+import { Texture } from './Texture';
 /**
  * The [[Gif]] object allows games built in Excalibur to load gif resources.
  * [[Gif]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
@@ -39,6 +41,8 @@ export class Gif extends Resource<Animation> {
    * The array of frames in the gif
    */
   public images: Frame[] = [];
+  public textures: Texture[] = [];
+  public sprites: Sprite[] = [];
 
   /**
    * an array of RGB colors in the gif
@@ -81,14 +85,71 @@ export class Gif extends Resource<Animation> {
       this._isLoaded = true;
       let gif = new GifParser(stream, 0);
       return gif.complete.then((gif) => {
-        console.log(gif);
         this.images = gif.getGifFrames();
-        console.log(this.images);
-        const animation: Animation = new Animation();
-        complete.resolve(animation);
+        this._buildTextureArray().then((textures) => {
+          console.log(textures);
+          const animation: Animation = new Animation();
+          complete.resolve(animation);
+        });
       });
     });
     return complete;
+  }
+
+  private _buildTextureArray(): Promise<HTMLImageElement[]> {
+    var complete = new Promise<HTMLImageElement[]>();
+    this.images.forEach((frame) => {
+      const canvas = this.convertFrameToCanvas(frame, '#000000');
+      const imageDataUrl = canvas.toDataURL();
+      const texture = new Texture(imageDataUrl);
+      this.textures.push(texture);
+      console.log(texture);
+    });
+    return complete;
+  }
+
+  private convertFrameToCanvas(image: Frame, transparentColor: string): HTMLCanvasElement {
+    var pixSize = 1;
+    var y = 0;
+    var x = 0;
+    var gct_canvas = document.createElement('canvas');
+    gct_canvas.id = 'GlobalColorTable';
+    gct_canvas.width = window.innerWidth;
+    gct_canvas.height = 10;
+    var context = gct_canvas.getContext('2d');
+
+    for (var i = 0; i < image.pixels.length; i++) {
+      if (x % image.width === 0) {
+        y++;
+        x = 0;
+      }
+
+      if (this.globalColorTable[image.pixels[i]]) {
+        const rgb =
+          '#' +
+          this.globalColorTable[image.pixels[i]]
+            .map((x: any) => {
+              const hex = x.toString(16);
+              return hex.length === 1 ? '0' + hex : hex;
+            })
+            .join('');
+
+        //context.fillStyle = rgb;
+        if (rgb === transparentColor) {
+          context.fillStyle = `rgba(${this.globalColorTable[image.pixels[i]][0]}, ${this.globalColorTable[image.pixels[i]][1]}, ${
+            this.globalColorTable[image.pixels[i]][2]
+          }, ${0.0})`;
+        } else {
+          context.fillStyle = `rgba(${this.globalColorTable[image.pixels[i]][0]}, ${this.globalColorTable[image.pixels[i]][1]}, ${
+            this.globalColorTable[image.pixels[i]][2]
+          }, ${1})`;
+        }
+
+        context.fillRect(x, y, pixSize, pixSize);
+        x++;
+      }
+    }
+    return gct_canvas;
   }
 }
 
