@@ -38,7 +38,7 @@ export class Gif extends Resource<Animation> {
   /**
    * The array of frames in the gif
    */
-  images: Frame[] = [];
+  public images: Frame[] = [];
 
   /**
    * an array of RGB colors in the gif
@@ -52,14 +52,12 @@ export class Gif extends Resource<Animation> {
 
   private _isLoaded: boolean = false;
 
-  private _gifParser: GifParser;
-
   /**
    * @param path       Path to the image resource
    * @param bustCache  Optionally load texture with cache busting
    */
   constructor(public path: string, public bustCache = true) {
-    super(path, 'blob', bustCache);
+    super(path, 'arraybuffer', bustCache);
   }
 
   /**
@@ -78,12 +76,14 @@ export class Gif extends Resource<Animation> {
 
     var loaded = super.load();
     loaded.then(() => {
-      const stream = new Stream(super.getArrayData());
+      const stream = new Stream(super.getData());
       // this.image.addEventListener('load', () => {
       this._isLoaded = true;
-      this._gifParser = new GifParser(stream, 0);
-      return this._gifParser.loaded.then((frames: Frame[]) => {
-        console.log(frames);
+      let gif = new GifParser(stream, 0);
+      return gif.complete.then((gif) => {
+        console.log(gif);
+        this.images = gif.getGifFrames();
+        console.log(this.images);
         const animation: Animation = new Animation();
         complete.resolve(animation);
       });
@@ -97,13 +97,13 @@ export class Gif extends Resource<Animation> {
 // }
 
 // Generic functions
-var bitsToNum = function(ba: any) {
+export var bitsToNum = function(ba: any) {
   return ba.reduce(function(s: any, n: any) {
     return s * 2 + n;
   }, 0);
 };
 
-var byteToBitArr = function(bite: any) {
+export var byteToBitArr = function(bite: any) {
   var a = [];
   for (var i = 7; i >= 0; i--) {
     a.push(!!(bite & (1 << i)));
@@ -111,11 +111,11 @@ var byteToBitArr = function(bite: any) {
   return a;
 };
 
-var lzwDecode = function(minCodeSize: any, data: any) {
+export var lzwDecode = (minCodeSize: any, data: any) => {
   // TODO: Now that the GIF parser is a bit different, maybe this should get an array of bytes instead of a String?
   var pos = 0; // Maybe this streaming thing should be merged with the Stream?
 
-  var readCode = function(size: any) {
+  var readCode = (size: any) => {
     var code = 0;
     for (var i = 0; i < size; i++) {
       if (data.charCodeAt(pos >> 3) & (1 << (pos & 7))) {
@@ -135,7 +135,7 @@ var lzwDecode = function(minCodeSize: any, data: any) {
 
   var dict: any[] = [];
 
-  var clear = function() {
+  var clear = () => {
     dict = [];
     codeSize = minCodeSize + 1;
     for (var i = 0; i < clearCode; i++) {
@@ -182,22 +182,32 @@ var lzwDecode = function(minCodeSize: any, data: any) {
   return output;
 };
 
-// The actual parsing; returns an object with properties.
-class GifParser {
-  private _st: any;
-  private _handler: any = {};
-  public globalColorTable: any[] = [];
-  public images: Frame[] = [];
-  public loaded: Promise<any> = new Promise<any>();
+export class GifParser {
+  public complete = new Promise<GifParser>();
+
+  private _st: any = null;
+  private _handler: any = null;
+  private _images: Frame[] = [];
+  private _globalColorTable: any[] = [];
 
   constructor(st: any, handler: any) {
-    this._st = st;
     this._handler = handler;
-    this.loaded.resolve(this.parse());
+    this._st = st;
+
+    this.parse();
+    this.complete.resolve(this);
+  }
+
+  public getGlobalColorTable() {
+    return this._globalColorTable;
+  }
+
+  public getGifFrames() {
+    return this._images;
   }
 
   // LZW (GIF-specific)
-  private _parseColorTable(entries: any) {
+  public parseColorTable(entries: any) {
     // Each entry is 3 bytes, for RGB.
     var ct = [];
     for (var i = 0; i < entries; i++) {
@@ -206,7 +216,7 @@ class GifParser {
     return ct;
   }
 
-  private _readSubBlocks() {
+  readSubBlocks() {
     var size, data;
     data = '';
     do {
@@ -216,7 +226,7 @@ class GifParser {
     return data;
   }
 
-  private _parseHeader() {
+  public parseHeader() {
     var hdr: any = {
       sig: null,
       ver: null,
@@ -250,128 +260,116 @@ class GifParser {
     hdr.pixelAspectRatio = this._st.readByte(); // if not 0, aspectRatio = (pixelAspectRatio + 15) / 64
 
     if (hdr.gctFlag) {
-      hdr.globalColorTable = this._parseColorTable(1 << (hdr.globalColorTableSize + 1));
-      this.globalColorTable = hdr.globalColorTable;
+      hdr.globalColorTable = this.parseColorTable(1 << (hdr.globalColorTableSize + 1));
+      this._globalColorTable = hdr.globalColorTable;
     }
-    if (this._handler.hdr) {
+    if (this._handler) {
       this._handler.hdr(hdr);
     }
   }
 
-  private _parseGCExt(block: any) {
-    // var blockSize = st.readByte(); // Always 4
+  public parseExt(block: any) {
+    var parseGCExt = (block: any) => {
+      this._st.readByte(); // Always 4
 
-    var bits = byteToBitArr(this._st.readByte());
-    block.reserved = bits.splice(0, 3); // Reserved; should be 000.
-    block.disposalMethod = bitsToNum(bits.splice(0, 3));
-    block.userInput = bits.shift();
-    block.transparencyGiven = bits.shift();
+      var bits = byteToBitArr(this._st.readByte());
+      block.reserved = bits.splice(0, 3); // Reserved; should be 000.
+      block.disposalMethod = bitsToNum(bits.splice(0, 3));
+      block.userInput = bits.shift();
+      block.transparencyGiven = bits.shift();
 
-    block.delayTime = this._st.readUnsigned();
+      block.delayTime = this._st.readUnsigned();
 
-    block.transparencyIndex = this._st.readByte();
+      block.transparencyIndex = this._st.readByte();
 
-    block.terminator = this._st.readByte();
+      block.terminator = this._st.readByte();
 
-    if (this._handler.gce) {
-      this._handler.gce(block);
-    }
-  }
-
-  private _parseComExt(block: any) {
-    block.comment = this._readSubBlocks();
-    if (this._handler.com) {
-      this._handler.com(block);
-    }
-  }
-
-  private _parsePTExt(block: any) {
-    block.ptHeader = this._st.readBytes(12);
-    block.ptData = this._readSubBlocks();
-    if (this._handler.pte) {
-      this._handler.pte(block);
-    }
-  }
-
-  private _parseNetscapeExt(block: any) {
-    block.unknown = this._st.readByte(); // ??? Always 1? What is this?
-    block.iterations = this._st.readUnsigned();
-    block.terminator = this._st.readByte();
-    if (this._handler.app) {
-      if (this._handler.app.NETSCAPE) {
-        this._handler.app.NETSCAPE(block);
+      if (this._handler.gce) {
+        this._handler.gce(block);
       }
-    }
-  }
-  private _parseAppExt(block: any) {
-    // var blockSize = this._st.readByte(); // Always 11
-    block.identifier = this._st.read(8);
-    block.authCode = this._st.read(3);
-    switch (block.identifier) {
-      case 'NETSCAPE':
-        this._parseNetscapeExt(block);
-        break;
-      default:
-        this._parseUnknownAppExt(block);
-        break;
-    }
-  }
+    };
 
-  private _parseUnknownAppExt(block: any) {
-    block.appData = this._readSubBlocks();
-    // FIXME: This won't work if a handler wants to match on any identifier.
-    if (this._handler.app) {
-      if (this._handler.app[block.identifier]) {
-        this._handler.app[block.identifier](block);
+    let parseComExt = (block: any) => {
+      block.comment = this.readSubBlocks();
+      if (this._handler.com) {
+        this._handler.com(block);
       }
-    }
-  }
-  private _parseExt(block: any) {
-    // var blockSize = st.readByte(); // Always 11
-    block.identifier = this._st.read(8);
-    block.authCode = this._st.read(3);
-    switch (block.identifier) {
-      case 'NETSCAPE':
-        this._parseNetscapeExt(block);
-        break;
-      default:
-        this._parseUnknownAppExt(block);
-        break;
-    }
+    };
+
+    let parsePTExt = (block: any) => {
+      this._st.readByte(); // Always 12
+      block.ptHeader = this._st.readBytes(12);
+      block.ptData = this.readSubBlocks();
+      if (this._handler.pte) {
+        this._handler.pte(block);
+      }
+    };
+
+    let parseAppExt = (block: any) => {
+      var parseNetscapeExt = (block: any) => {
+        this._st.readByte(); // Always 3
+        block.unknown = this._st.readByte(); // ??? Always 1? What is this?
+        block.iterations = this._st.readUnsigned();
+        block.terminator = this._st.readByte();
+        if (this._handler.app && this._handler.app.NETSCAPE) {
+          this._handler.app.NETSCAPE(block);
+        }
+      };
+
+      let parseUnknownAppExt = (block: any) => {
+        block.appData = this.readSubBlocks();
+        // FIXME: This won't work if a handler wants to match on any identifier.
+        if (this._handler.app && this._handler.app[block.identifier]) {
+          this._handler.app[block.identifier](block);
+        }
+      };
+
+      this._st.readByte(); // Always 11
+      block.identifier = this._st.read(8);
+      block.authCode = this._st.read(3);
+      switch (block.identifier) {
+        case 'NETSCAPE':
+          parseNetscapeExt(block);
+          break;
+        default:
+          parseUnknownAppExt(block);
+          break;
+      }
+    };
+
+    let parseUnknownExt = (block: any) => {
+      block.data = this.readSubBlocks();
+      if (this._handler.unknown) {
+        this._handler.unknown(block);
+      }
+    };
 
     block.label = this._st.readByte();
     switch (block.label) {
       case 0xf9:
         block.extType = 'gce';
-        this._parseGCExt(block);
+        parseGCExt(block);
         break;
       case 0xfe:
         block.extType = 'com';
-        this._parseComExt(block);
+        parseComExt(block);
         break;
       case 0x01:
         block.extType = 'pte';
-        this._parsePTExt(block);
+        parsePTExt(block);
         break;
       case 0xff:
         block.extType = 'app';
-        this._parseAppExt(block);
+        parseAppExt(block);
         break;
       default:
         block.extType = 'unknown';
-        this._parseUnknownExt(block);
+        parseUnknownExt(block);
         break;
     }
   }
 
-  private _parseUnknownExt(block: any) {
-    block.data = this._readSubBlocks();
-    if (this._handler.unknown) {
-      this._handler.unknown(block);
-    }
-  }
-
-  private _parseImg(img: any) {
+  parseImg(img: any) {
     var deinterlace = function(pixels: any, width: any) {
       // Of course this defeats the purpose of interlacing. And it's *probably*
       // the least efficient way it's ever been implemented. But nevertheless...
@@ -411,12 +409,12 @@ class GifParser {
     img.lctSize = bitsToNum(bits.splice(0, 3));
 
     if (img.lctFlag) {
-      img.lct = this._parseColorTable(1 << (img.lctSize + 1));
+      img.lct = this.parseColorTable(1 << (img.lctSize + 1));
     }
 
     img.lzwMinCodeSize = this._st.readByte();
 
-    var lzwData = this._readSubBlocks();
+    var lzwData = this.readSubBlocks();
 
     img.pixels = lzwDecode(img.lzwMinCodeSize, lzwData);
 
@@ -425,13 +423,12 @@ class GifParser {
       img.pixels = deinterlace(img.pixels, img.width);
     }
 
-    this.images.push(img);
-    if (this._handler.img) {
-      this._handler.img(img);
-    }
+    const resp = this._handler.img && this._handler.img(img);
+    console.log(resp);
+    this._images.push(img);
   }
 
-  private _parseBlock() {
+  parseBlock() {
     var block = {
       sentinel: this._st.readByte(),
       type: ''
@@ -440,11 +437,11 @@ class GifParser {
     switch (blockChar) {
       case '!':
         block.type = 'ext';
-        this._parseExt(block);
+        this.parseExt(block);
         break;
       case ',':
         block.type = 'img';
-        this._parseImg(block);
+        this.parseImg(block);
         break;
       case ';':
         block.type = 'eof';
@@ -457,32 +454,31 @@ class GifParser {
     }
 
     if (block.type !== 'eof') {
-      this._parseBlock();
+      this.parseBlock();
     }
   }
 
-  public parse() {
-    this._parseHeader();
-    this._parseBlock();
+  parse() {
+    this.parseHeader();
+    this.parseBlock();
   }
 }
 
-// Stream
-class Stream {
-  data: Uint8Array = null;
-  len: number = null;
-  position: number = 0;
-  constructor(data: ArrayBuffer) {
-    this.data = new Uint8Array(data);
-    this.len = this.data.length;
+export class Stream {
+  private _data: any = null;
+  constructor(data: any) {
+    this._data = new Uint8Array(data);
   }
 
+  // private _len = this._data.length;
+  private _position = 0;
+
   public readByte() {
-    if (this.position >= this.data.length) {
+    if (this._position >= this._data.length) {
       throw new Error('Attempted to read past end of stream.');
     }
     //return data.charCodeAt(position++) & 0xFF;
-    return this.data[this.position++];
+    return this._data[this._position++];
   }
 
   public readBytes(n: number) {
@@ -493,7 +489,7 @@ class Stream {
     return bytes;
   }
 
-  public read(n: any) {
+  public read(n: number) {
     var s = '';
     for (var i = 0; i < n; i++) {
       s += String.fromCharCode(this.readByte());
@@ -501,7 +497,7 @@ class Stream {
     return s;
   }
 
-  readUnsigned() {
+  public readUnsigned() {
     // Little-endian.
     var a = this.readBytes(2);
     return (a[1] << 8) + a[0];
