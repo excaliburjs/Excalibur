@@ -23,6 +23,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
+## [0.19.0] - 2018-12-01
+
+### Added
+
+- Pass engine into new instance of Scene in tests where its needed
+
+- Assign this.engine to engine
+
+### Fixed
+
+- Remove optionality of engine in constructor of Scene ([#1067](https://github.com/excaliburjs/Excalibur/issues/1067))
+
+<!----------------------------------------------------------------------------------------------->
+
 ## [0.19.0] - 2018-10-13
 
 ### Changed
