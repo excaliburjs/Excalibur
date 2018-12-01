@@ -35,6 +35,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Remove optionality of engine in constructor of Scene ([#1067](https://github.com/excaliburjs/Excalibur/issues/1067))
 
+- Update the ex.Scene implementation to make \_engine private with an underscore prefix
+
 <!----------------------------------------------------------------------------------------------->
 
 ## [0.19.0] - 2018-10-13

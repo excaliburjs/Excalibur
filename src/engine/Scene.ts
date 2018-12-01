@@ -66,7 +66,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
   /**
    * Access to the Excalibur engine
    */
-  public engine: Engine;
+  private _engine: Engine;
 
   /**
    * The [[UIActor]]s in a scene, if any; these are drawn last
@@ -88,7 +88,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
   constructor(engine: Engine) {
     super();
     this.camera = new BaseCamera();
-    this.engine = engine;
+    this._engine = engine;
     if (engine) {
       this.camera.x = engine.halfDrawWidth;
       this.camera.y = engine.halfDrawHeight;
@@ -202,7 +202,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
    */
   private _initializeChildren(): void {
     for (var child of this.actors) {
-      child._initialize(this.engine);
+      child._initialize(this._engine);
     }
   }
 
@@ -430,7 +430,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
       }
     }
 
-    if (this.engine && this.engine.isDebug) {
+    if (this._engine && this._engine.isDebug) {
       ctx.strokeStyle = 'yellow';
       this.debugDraw(ctx);
     }
@@ -444,7 +444,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
       }
     }
 
-    if (this.engine && this.engine.isDebug) {
+    if (this._engine && this._engine.isDebug) {
       for (i = 0, len = this.uiActors.length; i < len; i++) {
         this.uiActors[i].debugDraw(ctx);
       }
@@ -752,8 +752,8 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
   }
 
   public isCurrentScene(): boolean {
-    if (this.engine) {
-      return this.engine.currentScene === this;
+    if (this._engine) {
+      return this._engine.currentScene === this;
     }
     return false;
   }
