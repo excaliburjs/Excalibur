@@ -6,7 +6,7 @@ var game = new ex.Engine({
   height: 400
 });
 
-var gif = new ex.Gif('https://raw.githubusercontent.com/kevin192291/Excalibur/master/sandbox/tests/gif/sword.gif', true);
+var gif: ex.Gif = new ex.Gif('https://raw.githubusercontent.com/kevin192291/Excalibur/master/sandbox/tests/gif/sword.gif', true);
 var loader = new ex.Loader([gif]);
 game.start(loader).then((game) => {
   debugger;

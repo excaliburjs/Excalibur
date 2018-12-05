@@ -1,14 +1,90 @@
 import { Resource } from './Resource';
 import { Promise } from '../Promises';
-import { Sprite } from '../Drawing/Index';
-import { Texture } from './Texture';
+import { Sprite } from '../Drawing/Sprite';
 /**
- * The [[Gif]] object allows games built in Excalibur to load gif resources.
- * [[Gif]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
+ * The [[Texture]] object allows games built in Excalibur to load image resources.
+ * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
  * to pre-load before starting a level or game.
  *
- * [[include:Gif.md]]
+ * [[include:Textures.md]]
  */
+export class Gif extends Resource<HTMLImageElement> {
+  /**
+   * The width of the texture in pixels
+   */
+  public width: number;
+
+  /**
+   * The height of the texture in pixels
+   */
+  public height: number;
+
+  /**
+   * A [[Promise]] that resolves when the Texture is loaded.
+   */
+  public loaded: Promise<any> = new Promise<any>();
+
+  private _isLoaded: boolean = false;
+  private _sprite: Sprite = null;
+  private _stream: Stream = null;
+  private _gif: ParseGif = null;
+
+  /**
+   * Populated once loading is complete
+   */
+  public image: HTMLImageElement;
+
+  /**
+   * @param path       Path to the image resource
+   * @param bustCache  Optionally load texture with cache busting
+   */
+  constructor(public path: string, public bustCache = true) {
+    super(path, 'arraybuffer', bustCache);
+    //this._sprite = new Sprite(this, 0, 0, 0, 0);
+  }
+
+  /**
+   * Returns true if the Texture is completely loaded and is ready
+   * to be drawn.
+   */
+  public isLoaded(): boolean {
+    return this._isLoaded;
+  }
+
+  /**
+   * Begins loading the texture and returns a promise to be resolved on completion
+   */
+  public load(): Promise<HTMLImageElement> {
+    var complete = new Promise<HTMLImageElement>();
+
+    var loaded = super.load();
+    loaded.then(
+      () => {
+        this._stream = new Stream(this.getData());
+        this._gif = new ParseGif(this._stream, {});
+
+        console.log(this._gif);
+        this.image = new Image();
+        this.image.addEventListener('load', () => {
+          this._isLoaded = true;
+          this.width = this._sprite.width = this.image.naturalWidth;
+          this.height = this._sprite.height = this.image.naturalHeight;
+          this.loaded.resolve(this.image);
+          complete.resolve(this.image);
+        });
+        this.image.src = super.getData();
+      },
+      () => {
+        complete.reject('Error loading texture.');
+      }
+    );
+    return complete;
+  }
+
+  public asSprite(): Sprite {
+    return this._sprite;
+  }
+}
 
 export interface Frame {
   sentinel: number;
@@ -26,145 +102,14 @@ export interface Frame {
   pixels: number[];
 }
 
-export class Gif extends Resource<Animation> {
-  /**
-   * The width of the texture in pixels
-   */
-  public width: number;
-
-  /**
-   * The height of the texture in pixels
-   */
-  public height: number;
-
-  /**
-   * The array of frames in the gif
-   */
-  public images: Frame[] = [];
-  public textures: Texture[] = [];
-  public sprites: Sprite[] = [];
-
-  /**
-   * an array of RGB colors in the gif
-   */
-  globalColorTable: any = [];
-
-  /**
-   * A [[Promise]] that resolves when the Texture is loaded.
-   */
-  public loaded: Promise<any> = new Promise<any>();
-
-  private _isLoaded: boolean = false;
-
-  /**
-   * @param path       Path to the image resource
-   * @param bustCache  Optionally load texture with cache busting
-   */
-  constructor(public path: string, public bustCache = true) {
-    super(path, 'arraybuffer', bustCache);
-  }
-
-  /**
-   * Returns true if the Texture is completely loaded and is ready
-   * to be drawn.
-   */
-  public isLoaded(): boolean {
-    return this._isLoaded;
-  }
-
-  /**
-   * Begins loading the texture and returns a promise to be resolved on completion
-   */
-  public load(): Promise<Animation> {
-    var complete = new Promise<Animation>();
-
-    var loaded = super.load();
-    loaded.then(() => {
-      const stream = new Stream(super.getData());
-      // this.image.addEventListener('load', () => {
-      this._isLoaded = true;
-      let gif = new GifParser(stream, 0);
-      return gif.complete.then((gif) => {
-        this.images = gif.getGifFrames();
-        this._buildTextureArray().then((textures) => {
-          console.log(textures);
-          const animation: Animation = new Animation();
-          complete.resolve(animation);
-        });
-      });
-    });
-    return complete;
-  }
-
-  private _buildTextureArray(): Promise<HTMLImageElement[]> {
-    var complete = new Promise<HTMLImageElement[]>();
-    this.images.forEach((frame) => {
-      const canvas = this.convertFrameToCanvas(frame, '#000000');
-      const imageDataUrl = canvas.toDataURL();
-      const texture = new Texture(imageDataUrl);
-      this.textures.push(texture);
-      console.log(texture);
-    });
-    return complete;
-  }
-
-  private convertFrameToCanvas(image: Frame, transparentColor: string): HTMLCanvasElement {
-    var pixSize = 1;
-    var y = 0;
-    var x = 0;
-    var gct_canvas = document.createElement('canvas');
-    gct_canvas.id = 'GlobalColorTable';
-    gct_canvas.width = window.innerWidth;
-    gct_canvas.height = 10;
-    var context = gct_canvas.getContext('2d');
-
-    for (var i = 0; i < image.pixels.length; i++) {
-      if (x % image.width === 0) {
-        y++;
-        x = 0;
-      }
-
-      if (this.globalColorTable[image.pixels[i]]) {
-        const rgb =
-          '#' +
-          this.globalColorTable[image.pixels[i]]
-            .map((x: any) => {
-              const hex = x.toString(16);
-              return hex.length === 1 ? '0' + hex : hex;
-            })
-            .join('');
-
-        //context.fillStyle = rgb;
-        if (rgb === transparentColor) {
-          context.fillStyle = `rgba(${this.globalColorTable[image.pixels[i]][0]}, ${this.globalColorTable[image.pixels[i]][1]}, ${
-            this.globalColorTable[image.pixels[i]][2]
-          }, ${0.0})`;
-        } else {
-          context.fillStyle = `rgba(${this.globalColorTable[image.pixels[i]][0]}, ${this.globalColorTable[image.pixels[i]][1]}, ${
-            this.globalColorTable[image.pixels[i]][2]
-          }, ${1})`;
-        }
-
-        context.fillRect(x, y, pixSize, pixSize);
-        x++;
-      }
-    }
-    return gct_canvas;
-  }
-}
-
-// public asSprite(): Sprite {
-//   return this._sprite;
-// }
-
 // Generic functions
-export var bitsToNum = function(ba: any) {
-  return ba.reduce(function(s: any, n: any) {
+var bitsToNum = (ba: any) => {
+  return ba.reduce(function(s: number, n: number) {
     return s * 2 + n;
   }, 0);
 };
 
-export var byteToBitArr = function(bite: any) {
+var byteToBitArr = (bite: any) => {
   var a = [];
   for (var i = 7; i >= 0; i--) {
     a.push(!!(bite & (1 << i)));
@@ -172,11 +117,55 @@ export var byteToBitArr = function(bite: any) {
   return a;
 };
 
-export var lzwDecode = (minCodeSize: any, data: any) => {
+// Stream
+export class Stream {
+  // this.data = new Int8Array(data);
+  data: any = null;
+  len: number = 0;
+  position: number = 0;
+
+  constructor(dataArray: ArrayBuffer) {
+    this.data = new Uint8Array(dataArray);
+    this.len = this.data.byteLength;
+    console.log(this.len);
+  }
+
+  public readByte = () => {
+    if (this.position >= this.data.byteLength) {
+      throw new Error('Attempted to read past end of stream.');
+    }
+    //return data.charCodeAt(position++) & 0xFF;
+    return this.data[this.position++];
+  };
+
+  public readBytes = (n: number) => {
+    var bytes = [];
+    for (var i = 0; i < n; i++) {
+      bytes.push(this.readByte());
+    }
+    return bytes;
+  };
+
+  public read = (n: number) => {
+    var s = '';
+    for (var i = 0; i < n; i++) {
+      s += String.fromCharCode(this.readByte());
+    }
+    return s;
+  };
+
+  public readUnsigned = () => {
+    // Little-endian.
+    var a = this.readBytes(2);
+    return (a[1] << 8) + a[0];
+  };
+}
+
+const lzwDecode = function(minCodeSize: number, data: any) {
   // TODO: Now that the GIF parser is a bit different, maybe this should get an array of bytes instead of a String?
   var pos = 0; // Maybe this streaming thing should be merged with the Stream?
 
-  var readCode = (size: any) => {
+  const readCode = function(size: number) {
     var code = 0;
     for (var i = 0; i < size; i++) {
       if (data.charCodeAt(pos >> 3) & (1 << (pos & 7))) {
@@ -196,7 +185,7 @@ export var lzwDecode = (minCodeSize: any, data: any) => {
 
   var dict: any[] = [];
 
-  var clear = () => {
+  var clear = function() {
     dict = [];
     codeSize = minCodeSize + 1;
     for (var i = 0; i < clearCode; i++) {
@@ -243,41 +232,34 @@ export var lzwDecode = (minCodeSize: any, data: any) => {
   return output;
 };
 
-export class GifParser {
-  public complete = new Promise<GifParser>();
+// The actual parsing; returns an object with properties.
+export class ParseGif {
+  // handler || (handler = {});
+  private _st: Stream = null;
+  private _handler: any = {};
+  private _transparentColor: string = '#FF00FF';
+  public frames: Frame[] = [];
+  public images: HTMLImageElement[] = [];
+  public globalColorTable: any[] = [];
 
-  private _st: any = null;
-  private _handler: any = null;
-  private _images: Frame[] = [];
-  private _globalColorTable: any[] = [];
-
-  constructor(st: any, handler: any) {
-    this._handler = handler;
+  constructor(st: Stream, handler: any) {
     this._st = st;
-
-    this.parse();
-    this.complete.resolve(this);
-  }
-
-  public getGlobalColorTable() {
-    return this._globalColorTable;
-  }
-
-  public getGifFrames() {
-    return this._images;
+    this._handler = handler;
+    this.parseHeader();
+    this.parseBlock();
   }
 
   // LZW (GIF-specific)
-  public parseColorTable(entries: any) {
+  parseColorTable = (entries: any) => {
     // Each entry is 3 bytes, for RGB.
     var ct = [];
     for (var i = 0; i < entries; i++) {
       ct.push(this._st.readBytes(3));
     }
     return ct;
-  }
+  };
 
-  readSubBlocks() {
+  readSubBlocks = () => {
     var size, data;
     data = '';
     do {
@@ -285,9 +267,9 @@ export class GifParser {
       data += this._st.read(size);
     } while (size !== 0);
     return data;
-  }
+  };
 
-  public parseHeader() {
+  parseHeader = () => {
     var hdr: any = {
       sig: null,
       ver: null,
@@ -322,16 +304,15 @@ export class GifParser {
 
     if (hdr.gctFlag) {
       hdr.globalColorTable = this.parseColorTable(1 << (hdr.globalColorTableSize + 1));
-      this._globalColorTable = hdr.globalColorTable;
+      this.globalColorTable = hdr.globalColorTable;
     }
-    if (this._handler) {
-      this._handler.hdr(hdr);
-    }
-  }
+    // this._handler.hdr && this._handler.hdr(hdr);
+  };
 
-  public parseExt(block: any) {
+  parseExt = (block: any) => {
     var parseGCExt = (block: any) => {
-      this._st.readByte(); // Always 4
+      var blockSize = this._st.readByte(); // Always 4
+      console.log(blockSize + ' < this should be 4');
 
       var bits = byteToBitArr(this._st.readByte());
       block.reserved = bits.splice(0, 3); // Reserved; should be 000.
@@ -345,47 +326,45 @@ export class GifParser {
 
       block.terminator = this._st.readByte();
 
-      if (this._handler.gce) {
-        this._handler.gce(block);
-      }
+      // this._handler.gce && this._handler.gce(block);
+      this._handler.gce(block);
     };
 
-    let parseComExt = (block: any) => {
+    var parseComExt = (block: any) => {
       block.comment = this.readSubBlocks();
-      if (this._handler.com) {
-        this._handler.com(block);
-      }
+      // this._handler.com && this._handler.com(block);
+      this._handler.com(block);
     };
 
-    let parsePTExt = (block: any) => {
-      this._st.readByte(); // Always 12
+    var parsePTExt = (block: any) => {
+      var blockSize = this._st.readByte(); // Always 12
+      console.log(blockSize + ' < this should be 12');
       block.ptHeader = this._st.readBytes(12);
       block.ptData = this.readSubBlocks();
-      if (this._handler.pte) {
-        this._handler.pte(block);
-      }
+      // this._handler.pte && this._handler.pte(block);
+      this._handler.pte(block);
     };
 
-    let parseAppExt = (block: any) => {
+    const parseAppExt = (block: any) => {
       var parseNetscapeExt = (block: any) => {
-        this._st.readByte(); // Always 3
+        var blockSize = this._st.readByte(); // Always 3
+        console.log(blockSize + ' < this should be 3');
         block.unknown = this._st.readByte(); // ??? Always 1? What is this?
         block.iterations = this._st.readUnsigned();
         block.terminator = this._st.readByte();
-        if (this._handler.app && this._handler.app.NETSCAPE) {
-          this._handler.app.NETSCAPE(block);
-        }
+        // this._handler.app && this._handler.app.NETSCAPE && this._handler.app.NETSCAPE(block);
+        this._handler.app.NETSCAPE(block);
       };
 
-      let parseUnknownAppExt = (block: any) => {
+      const parseUnknownAppExt = (block: any) => {
         block.appData = this.readSubBlocks();
         // FIXME: This won't work if a handler wants to match on any identifier.
-        if (this._handler.app && this._handler.app[block.identifier]) {
-          this._handler.app[block.identifier](block);
-        }
+        // this._handler.app && this._handler.app[block.identifier] && this._handler.app[block.identifier](block);
+        this._handler.app[block.identifier](block);
       };
 
-      this._st.readByte(); // Always 11
+      var blockSize = this._st.readByte(); // Always 11
+      console.log(blockSize + ' < this should be 11');
       block.identifier = this._st.read(8);
       block.authCode = this._st.read(3);
       switch (block.identifier) {
@@ -398,11 +377,10 @@ export class GifParser {
       }
     };
 
-    let parseUnknownExt = (block: any) => {
+    var parseUnknownExt = (block: any) => {
       block.data = this.readSubBlocks();
-      if (this._handler.unknown) {
-        this._handler.unknown(block);
-      }
+      // this._handler.unknown && this._handler.unknown(block);
+      this._handler.unknown(block);
     };
 
     block.label = this._st.readByte();
@@ -428,16 +406,16 @@ export class GifParser {
         parseUnknownExt(block);
         break;
     }
-  }
+  };
 
-  parseImg(img: any) {
-    var deinterlace = function(pixels: any, width: any) {
+  parseImg = (img: any) => {
+    var deinterlace = (pixels: any, width: any) => {
       // Of course this defeats the purpose of interlacing. And it's *probably*
       // the least efficient way it's ever been implemented. But nevertheless...
 
       var newPixels = new Array(pixels.length);
       var rows = pixels.length / width;
-      var cpRow = function(toRow: any, fromRow: any) {
+      var cpRow = (toRow: any, fromRow: any) => {
         var fromPixels = pixels.slice(fromRow * width, (fromRow + 1) * width);
         newPixels.splice.apply(newPixels, [toRow * width, width].concat(fromPixels));
       };
@@ -484,12 +462,13 @@ export class GifParser {
       img.pixels = deinterlace(img.pixels, img.width);
     }
 
-    const resp = this._handler.img && this._handler.img(img);
-    console.log(resp);
-    this._images.push(img);
-  }
+    this.frames.push(img);
+    this.arrayToImage(img);
+    // this._handler.img && this._handler.img(img);
+    this._handler.img(img);
+  };
 
-  parseBlock() {
+  parseBlock = () => {
     var block = {
       sentinel: this._st.readByte(),
       type: ''
@@ -506,9 +485,8 @@ export class GifParser {
         break;
       case ';':
         block.type = 'eof';
-        if (this._handler.eof) {
-          this._handler.eof(block);
-        }
+        // this._handler.eof && this._handler.eof(block);
+        this._handler.eof(block);
         break;
       default:
         throw new Error('Unknown block: 0x' + block.sentinel.toString(16)); // TODO: Pad this with a 0.
@@ -517,50 +495,60 @@ export class GifParser {
     if (block.type !== 'eof') {
       this.parseBlock();
     }
-  }
+  };
 
-  parse() {
-    this.parseHeader();
-    this.parseBlock();
-  }
-}
+  arrayToImage = (frame: Frame) => {
+    let count = 0;
+    console.log('drawing ' + count.toString());
+    var c = document.createElement('canvas');
+    c.id = count.toString();
+    c.width = frame.width;
+    c.height = frame.height;
+    count++;
+    document.body.appendChild(c);
 
-export class Stream {
-  private _data: any = null;
-  constructor(data: any) {
-    this._data = new Uint8Array(data);
-  }
+    var context = c.getContext('2d');
+    var pixSize = 1;
+    var y = 0;
+    var x = 0;
+    for (var i = 0; i < frame.pixels.length; i++) {
+      if (x % frame.width === 0) {
+        y++;
+        x = 0;
+      }
 
-  // private _len = this._data.length;
-  private _position = 0;
+      if (this.globalColorTable[frame.pixels[i]]) {
+        const rgb =
+          '#' +
+          this.globalColorTable[frame.pixels[i]]
+            .map((x: any) => {
+              const hex = x.toString(16);
+              return hex.length === 1 ? '0' + hex : hex;
+            })
+            .join('');
 
-  public readByte() {
-    if (this._position >= this._data.length) {
-      throw new Error('Attempted to read past end of stream.');
+        //context.fillStyle = rgb;
+        if (rgb === this._transparentColor) {
+          context.fillStyle = `rgba(${this.globalColorTable[frame.pixels[i]][0]}, ${this.globalColorTable[frame.pixels[i]][1]}, ${
+            this.globalColorTable[frame.pixels[i]][2]
+          }, ${0.0})`;
+        } else {
+          context.fillStyle = `rgba(${this.globalColorTable[frame.pixels[i]][0]}, ${this.globalColorTable[frame.pixels[i]][1]}, ${
+            this.globalColorTable[frame.pixels[i]][2]
+          }, ${1})`;
+        }
+
+        context.fillRect(x, y, pixSize, pixSize);
+        x++;
+      }
     }
-    //return data.charCodeAt(position++) & 0xFF;
-    return this._data[this._position++];
-  }
+    const img = new Image();
+    img.src = c.toDataURL();
+    console.log(img);
+    this.images.push(img);
+  };
 
-  public readBytes(n: number) {
-    var bytes = [];
-    for (var i = 0; i < n; i++) {
-      bytes.push(this.readByte());
-    }
-    return bytes;
-  }
-
-  public read(n: number) {
-    var s = '';
-    for (var i = 0; i < n; i++) {
-      s += String.fromCharCode(this.readByte());
-    }
-    return s;
-  }
-
-  public readUnsigned() {
-    // Little-endian.
-    var a = this.readBytes(2);
-    return (a[1] << 8) + a[0];
-  }
+  setGifTransparentColor = (color: string) => {
+    this._transparentColor = color;
+  };
 }
