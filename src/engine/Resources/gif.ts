@@ -306,7 +306,8 @@ export class ParseGif {
       hdr.globalColorTable = this.parseColorTable(1 << (hdr.globalColorTableSize + 1));
       this.globalColorTable = hdr.globalColorTable;
     }
-    // this._handler.hdr && this._handler.hdr(hdr);
+    if (this._handler.hdr && this._handler.hdr(hdr)) {
+    }
   };
 
   parseExt = (block: any) => {
@@ -326,14 +327,14 @@ export class ParseGif {
 
       block.terminator = this._st.readByte();
 
-      // this._handler.gce && this._handler.gce(block);
-      this._handler.gce(block);
+      if (this._handler.gce && this._handler.gce(block)) {
+      }
     };
 
     var parseComExt = (block: any) => {
       block.comment = this.readSubBlocks();
-      // this._handler.com && this._handler.com(block);
-      this._handler.com(block);
+      if (this._handler.com && this._handler.com(block)) {
+      }
     };
 
     var parsePTExt = (block: any) => {
@@ -341,8 +342,8 @@ export class ParseGif {
       console.log(blockSize + ' < this should be 12');
       block.ptHeader = this._st.readBytes(12);
       block.ptData = this.readSubBlocks();
-      // this._handler.pte && this._handler.pte(block);
-      this._handler.pte(block);
+      if (this._handler.pte && this._handler.pte(block)) {
+      }
     };
 
     const parseAppExt = (block: any) => {
@@ -352,15 +353,15 @@ export class ParseGif {
         block.unknown = this._st.readByte(); // ??? Always 1? What is this?
         block.iterations = this._st.readUnsigned();
         block.terminator = this._st.readByte();
-        // this._handler.app && this._handler.app.NETSCAPE && this._handler.app.NETSCAPE(block);
-        this._handler.app.NETSCAPE(block);
+        if (this._handler.app && this._handler.app.NETSCAPE && this._handler.app.NETSCAPE(block)) {
+        }
       };
 
       const parseUnknownAppExt = (block: any) => {
         block.appData = this.readSubBlocks();
         // FIXME: This won't work if a handler wants to match on any identifier.
-        // this._handler.app && this._handler.app[block.identifier] && this._handler.app[block.identifier](block);
-        this._handler.app[block.identifier](block);
+        if (this._handler.app && this._handler.app[block.identifier] && this._handler.app[block.identifier](block)) {
+        }
       };
 
       var blockSize = this._st.readByte(); // Always 11
@@ -379,8 +380,8 @@ export class ParseGif {
 
     var parseUnknownExt = (block: any) => {
       block.data = this.readSubBlocks();
-      // this._handler.unknown && this._handler.unknown(block);
-      this._handler.unknown(block);
+      if (this._handler.unknown && this._handler.unknown(block)) {
+      }
     };
 
     block.label = this._st.readByte();
@@ -464,11 +465,11 @@ export class ParseGif {
 
     this.frames.push(img);
     this.arrayToImage(img);
-    // this._handler.img && this._handler.img(img);
-    this._handler.img(img);
+    if (this._handler.img && this._handler.img(img)) {
+    }
   };
 
-  parseBlock = () => {
+  public parseBlock = () => {
     var block = {
       sentinel: this._st.readByte(),
       type: ''
@@ -485,8 +486,8 @@ export class ParseGif {
         break;
       case ';':
         block.type = 'eof';
-        // this._handler.eof && this._handler.eof(block);
-        this._handler.eof(block);
+        if (this._handler.eof && this._handler.eof(block)) {
+        }
         break;
       default:
         throw new Error('Unknown block: 0x' + block.sentinel.toString(16)); // TODO: Pad this with a 0.
