@@ -1,6 +1,7 @@
 import { Resource } from './Resource';
 import { Promise } from '../Promises';
 import { Sprite } from '../Drawing/Sprite';
+import { Texture } from './Texture';
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
  * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
@@ -8,7 +9,7 @@ import { Sprite } from '../Drawing/Sprite';
  *
  * [[include:Textures.md]]
  */
-export class Gif extends Resource<HTMLImageElement> {
+export class Gif extends Resource<Texture[]> {
   /**
    * The width of the texture in pixels
    */
@@ -25,14 +26,14 @@ export class Gif extends Resource<HTMLImageElement> {
   public loaded: Promise<any> = new Promise<any>();
 
   private _isLoaded: boolean = false;
-  private _sprite: Sprite = null;
   private _stream: Stream = null;
   private _gif: ParseGif = null;
+  private _texture: Texture[] = [];
 
   /**
    * Populated once loading is complete
    */
-  public image: HTMLImageElement;
+  public images: HTMLImageElement;
 
   /**
    * @param path       Path to the image resource
@@ -40,7 +41,6 @@ export class Gif extends Resource<HTMLImageElement> {
    */
   constructor(public path: string, public bustCache = true) {
     super(path, 'arraybuffer', bustCache);
-    //this._sprite = new Sprite(this, 0, 0, 0, 0);
   }
 
   /**
@@ -54,25 +54,21 @@ export class Gif extends Resource<HTMLImageElement> {
   /**
    * Begins loading the texture and returns a promise to be resolved on completion
    */
-  public load(): Promise<HTMLImageElement> {
-    var complete = new Promise<HTMLImageElement>();
+  public load(): Promise<Texture[]> {
+    var complete = new Promise<Texture[]>();
 
     var loaded = super.load();
     loaded.then(
       () => {
         this._stream = new Stream(this.getData());
         this._gif = new ParseGif(this._stream, {});
-
-        console.log(this._gif);
-        this.image = new Image();
-        this.image.addEventListener('load', () => {
-          this._isLoaded = true;
-          this.width = this._sprite.width = this.image.naturalWidth;
-          this.height = this._sprite.height = this.image.naturalHeight;
-          this.loaded.resolve(this.image);
-          complete.resolve(this.image);
+        this._gif.images.forEach((image) => {
+          const texture = new Texture(image.src, true);
+          texture.load().then(() => {
+            this._texture.push(texture);
+          });
         });
-        this.image.src = super.getData();
+        complete.resolve(this._texture);
       },
       () => {
         complete.reject('Error loading texture.');
@@ -81,8 +77,9 @@ export class Gif extends Resource<HTMLImageElement> {
     return complete;
   }
 
-  public asSprite(): Sprite {
-    return this._sprite;
+  public asSprite(id: number = 0): Sprite {
+    const sprite = this._texture[id].asSprite();
+    return sprite;
   }
 }
 
