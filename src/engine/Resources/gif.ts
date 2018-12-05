@@ -2,6 +2,7 @@ import { Resource } from './Resource';
 import { Promise } from '../Promises';
 import { Sprite } from '../Drawing/Sprite';
 import { Texture } from './Texture';
+import { Color } from '../Drawing/Color';
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
  * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
@@ -244,6 +245,10 @@ export class ParseGif {
     this._handler = handler;
     this.parseHeader();
     this.parseBlock();
+  }
+
+  public setGifTransparentColor(color: Color) {
+    this._transparentColor = color.toRGBA();
   }
 
   // LZW (GIF-specific)
@@ -526,7 +531,7 @@ export class ParseGif {
             .join('');
 
         //context.fillStyle = rgb;
-        if (rgb === this._transparentColor) {
+        if (rgb === this._transparentColor.toLowerCase()) {
           context.fillStyle = `rgba(${this.globalColorTable[frame.pixels[i]][0]}, ${this.globalColorTable[frame.pixels[i]][1]}, ${
             this.globalColorTable[frame.pixels[i]][2]
           }, ${0.0})`;
@@ -544,9 +549,5 @@ export class ParseGif {
     img.src = c.toDataURL();
     console.log(img);
     this.images.push(img);
-  };
-
-  setGifTransparentColor = (color: string) => {
-    this._transparentColor = color;
   };
 }

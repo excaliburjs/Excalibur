@@ -60,6 +60,7 @@ export class Texture extends Resource<HTMLImageElement> {
       this.image.addEventListener('load', () => {
         this.width = this._sprite.width = this.image.naturalWidth;
         this.height = this._sprite.height = this.image.naturalHeight;
+        this._sprite = new Sprite(this, 0, 0, this.width, this.height);
         complete.resolve(this.image);
       });
     } else {
