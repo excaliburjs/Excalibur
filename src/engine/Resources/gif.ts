@@ -3,6 +3,7 @@ import { Promise } from '../Promises';
 import { Sprite } from '../Drawing/Sprite';
 import { Texture } from './Texture';
 import { Color } from '../Drawing/Color';
+import { SpriteSheet } from '../Drawing/SpriteSheet';
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
  * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
@@ -81,6 +82,13 @@ export class Gif extends Resource<Texture[]> {
   public asSprite(id: number = 0): Sprite {
     const sprite = this._texture[id].asSprite();
     return sprite;
+  }
+
+  public asSpriteSheet(): SpriteSheet {
+    const spriteArray: Sprite[] = this._texture.map((texture) => {
+      return texture.asSprite();
+    });
+    return new SpriteSheet(spriteArray);
   }
 }
 
@@ -502,7 +510,6 @@ export class ParseGif {
 
   arrayToImage = (frame: Frame) => {
     let count = 0;
-    console.log('drawing ' + count.toString());
     var c = document.createElement('canvas');
     c.id = count.toString();
     c.width = frame.width;
@@ -547,7 +554,6 @@ export class ParseGif {
     }
     const img = new Image();
     img.src = c.toDataURL();
-    console.log(img);
     this.images.push(img);
   };
 }

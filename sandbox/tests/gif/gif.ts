@@ -9,8 +9,9 @@ var game = new ex.Engine({
 var gif: ex.Gif = new ex.Gif('https://raw.githubusercontent.com/kevin192291/Excalibur/master/sandbox/tests/gif/sword.gif', true);
 var loader = new ex.Loader([gif]);
 game.start(loader).then(() => {
-  var sprite = gif.asSprite(0);
-  var actor = new ex.Actor(0, 0, sprite.width, sprite.height);
-  actor.addDrawing(sprite);
+  var spriteSheet = gif.asSpriteSheet();
+  var playerIdleAnimation = spriteSheet.getAnimationForAll(game, 125);
+  var actor = new ex.Actor(100, 100, 500, 500);
+  actor.addDrawing('idle', playerIdleAnimation);
   game.add(actor);
 });
