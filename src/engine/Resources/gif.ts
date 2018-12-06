@@ -4,6 +4,7 @@ import { Sprite } from '../Drawing/Sprite';
 import { Texture } from './Texture';
 import { Color } from '../Drawing/Color';
 import { SpriteSheet } from '../Drawing/SpriteSheet';
+import { Engine } from '../Engine';
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
  * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
@@ -31,6 +32,8 @@ export class Gif extends Resource<Texture[]> {
   private _stream: Stream = null;
   private _gif: ParseGif = null;
   private _texture: Texture[] = [];
+  private _animation: ex.Animation = null;
+  private _transparentColor: ex.Color = null;
 
   /**
    * Populated once loading is complete
@@ -41,8 +44,9 @@ export class Gif extends Resource<Texture[]> {
    * @param path       Path to the image resource
    * @param bustCache  Optionally load texture with cache busting
    */
-  constructor(public path: string, public bustCache = true) {
+  constructor(public path: string, public color: Color = Color.Magenta, public bustCache = true) {
     super(path, 'arraybuffer', bustCache);
+    this._transparentColor = color;
   }
 
   /**
@@ -63,7 +67,7 @@ export class Gif extends Resource<Texture[]> {
     loaded.then(
       () => {
         this._stream = new Stream(this.getData());
-        this._gif = new ParseGif(this._stream, {});
+        this._gif = new ParseGif(this._stream, this._transparentColor);
         this._gif.images.forEach((image) => {
           const texture = new Texture(image.src, true);
           texture.load().then(() => {
@@ -89,6 +93,12 @@ export class Gif extends Resource<Texture[]> {
       return texture.asSprite();
     });
     return new SpriteSheet(spriteArray);
+  }
+
+  public asAnimation(engine: Engine, speed: number): ex.Animation {
+    const spriteSheet: SpriteSheet = this.asSpriteSheet();
+    this._animation = spriteSheet.getAnimationForAll(engine, speed);
+    return this._animation;
   }
 }
 
@@ -240,23 +250,19 @@ const lzwDecode = function(minCodeSize: number, data: any) {
 
 // The actual parsing; returns an object with properties.
 export class ParseGif {
-  // handler || (handler = {});
   private _st: Stream = null;
   private _handler: any = {};
-  private _transparentColor: string = '#FF00FF';
+  private _transparentColor: Color = null;
   public frames: Frame[] = [];
   public images: HTMLImageElement[] = [];
   public globalColorTable: any[] = [];
 
-  constructor(st: Stream, handler: any) {
-    this._st = st;
-    this._handler = handler;
+  constructor(stream: Stream, color: Color = Color.Magenta) {
+    this._st = stream;
+    this._handler = {};
+    this._transparentColor = color;
     this.parseHeader();
     this.parseBlock();
-  }
-
-  public setGifTransparentColor(color: Color) {
-    this._transparentColor = color.toRGBA();
   }
 
   // LZW (GIF-specific)
@@ -316,8 +322,7 @@ export class ParseGif {
       hdr.globalColorTable = this.parseColorTable(1 << (hdr.globalColorTableSize + 1));
       this.globalColorTable = hdr.globalColorTable;
     }
-    if (this._handler.hdr && this._handler.hdr(hdr)) {
-    }
+    this._handler.hdr && this._handler.hdr(hdr);
   };
 
   parseExt = (block: any) => {
@@ -515,8 +520,6 @@ export class ParseGif {
     c.width = frame.width;
     c.height = frame.height;
     count++;
-    document.body.appendChild(c);
-
     var context = c.getContext('2d');
     var pixSize = 1;
     var y = 0;
@@ -538,7 +541,7 @@ export class ParseGif {
             .join('');
 
         //context.fillStyle = rgb;
-        if (rgb === this._transparentColor.toLowerCase()) {
+        if (rgb === this._transparentColor.toHex()) {
           context.fillStyle = `rgba(${this.globalColorTable[frame.pixels[i]][0]}, ${this.globalColorTable[frame.pixels[i]][1]}, ${
             this.globalColorTable[frame.pixels[i]][2]
           }, ${0.0})`;
