@@ -322,7 +322,9 @@ export class ParseGif {
       hdr.globalColorTable = this.parseColorTable(1 << (hdr.globalColorTableSize + 1));
       this.globalColorTable = hdr.globalColorTable;
     }
-    this._handler.hdr && this._handler.hdr(hdr);
+    if (this._handler.hdr && this._handler.hdr(hdr)) {
+      console.log(this._handler.hdr);
+    }
   };
 
   parseExt = (block: any) => {
@@ -343,12 +345,14 @@ export class ParseGif {
       block.terminator = this._st.readByte();
 
       if (this._handler.gce && this._handler.gce(block)) {
+        console.log(this._handler.gce);
       }
     };
 
     var parseComExt = (block: any) => {
       block.comment = this.readSubBlocks();
       if (this._handler.com && this._handler.com(block)) {
+        console.log(this._handler.com);
       }
     };
 
@@ -358,6 +362,7 @@ export class ParseGif {
       block.ptHeader = this._st.readBytes(12);
       block.ptData = this.readSubBlocks();
       if (this._handler.pte && this._handler.pte(block)) {
+        console.log(this._handler.pte);
       }
     };
 
@@ -369,6 +374,7 @@ export class ParseGif {
         block.iterations = this._st.readUnsigned();
         block.terminator = this._st.readByte();
         if (this._handler.app && this._handler.app.NETSCAPE && this._handler.app.NETSCAPE(block)) {
+          console.log(this._handler.app);
         }
       };
 
@@ -376,6 +382,7 @@ export class ParseGif {
         block.appData = this.readSubBlocks();
         // FIXME: This won't work if a handler wants to match on any identifier.
         if (this._handler.app && this._handler.app[block.identifier] && this._handler.app[block.identifier](block)) {
+          console.log(this._handler.app[block.identifier]);
         }
       };
 
@@ -396,6 +403,7 @@ export class ParseGif {
     var parseUnknownExt = (block: any) => {
       block.data = this.readSubBlocks();
       if (this._handler.unknown && this._handler.unknown(block)) {
+        console.log(this._handler.unknown);
       }
     };
 
@@ -481,6 +489,7 @@ export class ParseGif {
     this.frames.push(img);
     this.arrayToImage(img);
     if (this._handler.img && this._handler.img(img)) {
+      console.log(this._handler);
     }
   };
 
@@ -502,6 +511,7 @@ export class ParseGif {
       case ';':
         block.type = 'eof';
         if (this._handler.eof && this._handler.eof(block)) {
+          console.log(this._handler.eof);
         }
         break;
       default:
