@@ -1,11 +1,13 @@
-/// <reference path="support/js-imagediff.d.ts" />
-/// <reference path="Mocks.ts" />
+import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import * as ex from '../../build/dist/excalibur';
+import { Mocks } from './util/Mocks';
+import { TestUtils } from './util/TestUtils';
 
 describe('A spritesheet', () => {
   let engine: ex.Engine;
   let texture: ex.Texture;
   beforeEach(() => {
-    jasmine.addMatchers(imagediff.jasmine);
+    jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({
       width: 96,
       height: 96
@@ -38,7 +40,10 @@ describe('A spritesheet', () => {
 
       ss.getSprite(0).draw(engine.ctx, 0, 0);
 
-      imagediff.expectCanvasImageMatches('SpriteSheetSpec/PlayerRun0.png', engine.canvas, done);
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSheetSpec/PlayerRun0.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 
@@ -117,7 +122,10 @@ describe('A spritesheet', () => {
 
       ss.getSprite(20).draw(engine.ctx, 0, 0);
 
-      imagediff.expectCanvasImageMatches('SpriteSheetSpec/PlayerRun20.png', engine.canvas, done);
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSheetSpec/PlayerRun20.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 
@@ -158,7 +166,10 @@ describe('A spritesheet', () => {
       anim.sprites[0].draw(engine.ctx, 0, 0);
       anim.sprites[1].draw(engine.ctx, 162, 0);
 
-      imagediff.expectCanvasImageMatches('SpriteSheetSpec/drillandcup.png', engine.canvas, done);
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSheetSpec/drillandcup.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 
@@ -187,7 +198,11 @@ describe('A spritesheet', () => {
       expect(ss.sprites.length).toBe(6);
 
       ss.getSprite(2).draw(engine.ctx, 0, 0);
-      imagediff.expectCanvasImageMatches('SpriteSheetSpec/SpriteSheetSpacing2.png', engine.canvas, done);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSheetSpec/SpriteSheetSpacing2.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 });

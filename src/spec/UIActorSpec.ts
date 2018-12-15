@@ -1,7 +1,7 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '../../build/dist/excalibur';
-import { Mocks } from './Mocks';
-import { TestUtils } from './TestUtils';
+import { Mocks } from './util/Mocks';
+import { TestUtils } from './util/TestUtils';
 
 describe('A UIActor', () => {
   var uiActor: ex.UIActor;

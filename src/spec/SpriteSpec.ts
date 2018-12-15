@@ -1,11 +1,13 @@
-/// <reference path="support/js-imagediff.d.ts" />
-/// <reference path="Mocks.ts" />
+import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import * as ex from '../../build/dist/excalibur';
+import { Mocks } from './util/Mocks';
+import { TestUtils } from './util/TestUtils';
 
 describe('A sprite', () => {
   let engine: ex.Engine;
   let texture: ex.Texture;
   beforeEach(() => {
-    jasmine.addMatchers(imagediff.jasmine);
+    jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({
       width: 62,
       height: 64
@@ -48,7 +50,10 @@ describe('A sprite', () => {
 
       sprite.draw(engine.ctx, 0, 0);
 
-      imagediff.expectCanvasImageMatches('SpriteSpec/icon.png', engine.canvas, done);
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/icon.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 
@@ -80,7 +85,10 @@ describe('A sprite', () => {
 
       sprite.draw(engine.ctx, 62 / 2, 64 / 2);
 
-      imagediff.expectCanvasImageMatches('SpriteSpec/iconscale.png', engine.canvas, done);
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/iconscale.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 
@@ -98,7 +106,10 @@ describe('A sprite', () => {
 
       sprite.draw(engine.ctx, 62 / 2, 64 / 2);
 
-      imagediff.expectCanvasImageMatches('SpriteSpec/iconrotate.png', engine.canvas, done);
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/iconrotate.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 

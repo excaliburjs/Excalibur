@@ -1,4 +1,4 @@
-﻿import * as ex from '../../build/dist/excalibur';
+﻿import * as ex from '../../../build/dist/excalibur';
 
 export namespace Mocks {
   export interface ITime {
@@ -65,7 +65,9 @@ export namespace Mocks {
     }
 
     realengine(): ex.Engine {
-      navigator = <any>this.navigator();
+      if (!navigator) {
+        navigator = <any>this.navigator();
+      }
 
       return new ex.Engine({
         width: 500,
@@ -78,7 +80,9 @@ export namespace Mocks {
     engine(width: number, height: number) {
       var mockEngine;
 
-      navigator = <any>this.navigator();
+      if (!navigator) {
+        navigator = <any>this.navigator();
+      }
 
       mockEngine = {
         collisionStrategy: 0,
