@@ -1,4 +1,4 @@
-/// <reference path="Mocks.ts" />
+import * as ex from '../../build/dist/excalibur';
 
 describe('An Easing Function', () => {
   it('can interpolate linearly', () => {

@@ -1,4 +1,4 @@
-/// <reference path="Mocks.ts" />
+import * as ex from '../../build/dist/excalibur';
 
 describe('A DynamicTree Broadphase', () => {
   var actorA: ex.Actor;

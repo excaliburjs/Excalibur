@@ -1,6 +1,13 @@
-/// <reference path="Mocks.ts" />
+import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import * as ex from '../../build/dist/excalibur';
+import { TestUtils } from './util/TestUtils';
+import { Mocks } from './util/Mocks';
 
 describe('Vectors', () => {
+  beforeEach(() => {
+    jasmine.addMatchers(ExcaliburMatchers);
+  });
+
   it('should exists', () => {
     expect(ex.Vector).toBeDefined();
   });
@@ -13,6 +20,7 @@ describe('Vectors', () => {
   it('can have values set', () => {
     var v = new ex.Vector(20, 200);
 
+    expect(v).toBeVector(new ex.Vector(20, 200));
     expect(v.x).toEqual(20);
     expect(v.y).toEqual(200);
 

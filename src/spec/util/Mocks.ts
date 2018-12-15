@@ -1,6 +1,21 @@
 ﻿import * as ex from '../../../build/dist/excalibur';
 
 export namespace Mocks {
+  export class MockedElement {
+    private _key: number = 0;
+
+    constructor(key: number) {
+      this._key = key;
+    }
+
+    public getTheKey() {
+      return this._key;
+    }
+
+    public setKey(key: number) {
+      this._key = key;
+    }
+  }
   export interface ITime {
     now(): number;
     add(value: number): void;

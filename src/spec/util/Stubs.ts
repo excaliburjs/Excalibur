@@ -1,4 +1,4 @@
-namespace Stubs {
+export namespace Stubs {
   export class AudioStub {
     public static base64StubData: string =
       '' +

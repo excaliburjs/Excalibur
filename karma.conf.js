@@ -1,33 +1,15 @@
 const process = require('process');
+const path = require('path');
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 module.exports = (config) => {
   config.set({
     singleRun: true,
     frameworks: ['jasmine'],
-    files: [
-      'src/spec/UIActorSpec.ts',
-      'src/spec/UtilSpec.ts',
-      'src/spec/WebAudioInstanceSpec.ts',
-      'src/spec/TriggerSpec.ts',
-      'src/spec/TimescalingSpec.ts',
-      'src/spec/TimerSpec.ts',
-      'src/spec/TileMapSpec.ts',
-      'src/spec/SpriteSpec.ts',
-      'src/spec/SpriteSheetSpec.ts',
-      { pattern: 'src/spec/images/**/*.png', included: false, served: true }
-    ],
+    files: ['src/spec/*Spec.ts', { pattern: 'src/spec/images/**/*.png', included: false, served: true }],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
-      'src/spec/UIActorSpec.ts': ['webpack'],
-      'src/spec/UtilSpec.ts': ['webpack'],
-      'src/spec/WebAudioInstanceSpec.ts': ['webpack'],
-      'src/spec/TriggerSpec.ts': ['webpack'],
-      'src/spec/TimescalingSpec.ts': ['webpack'],
-      'src/spec/TimerSpec.ts': ['webpack'],
-      'src/spec/TileMapSpec.ts': ['webpack'],
-      'src/spec/SpriteSpec.ts': ['webpack'],
-      'src/spec/SpriteSheetSpec.ts': ['webpack']
+      'src/spec/*Spec.ts': ['webpack']
     },
     webpack: {
       mode: 'none',
@@ -41,13 +23,32 @@ module.exports = (config) => {
             test: /\.ts$/,
             loader: 'ts-loader',
             options: {
-              transpileOnly: false // speeds up tests a TON by only using webpack resolution
+              transpileOnly: true // speeds up tests a TON by only using webpack resolution
+            }
+          },
+          {
+            test: /\excalibur.js$/,
+            use: {
+              loader: 'istanbul-instrumenter-loader',
+              options: { esModules: true }
             }
           }
         ]
       }
     },
-    reporters: ['progress'],
+    reporters: ['progress', 'coverage-istanbul'],
+
+    coverageReporter: {
+      reporters: [{ type: 'html', dir: 'coverage/' }, { type: 'lcovonly', dir: 'coverage/', file: 'lcov.info' }, { type: 'text-summary' }]
+    },
+    coverageIstanbulReporter: {
+      // reports can be any that are listed here: https://github.com/istanbuljs/istanbuljs/tree/aae256fb8b9a3d19414dcf069c592e88712c32c6/packages/istanbul-reports/lib
+      reports: ['html', 'lcovonly', 'text-summary'],
+
+      // base output directory. If you include %browser% in the path it will be replaced with the karma browser name
+      dir: path.join(__dirname, 'coverage')
+    },
+
     browsers: ['ChromeHeadless'],
     customLaunchers: {
       ChromeHeadless_with_debug: {

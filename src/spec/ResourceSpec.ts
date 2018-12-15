@@ -1,5 +1,6 @@
-/// <reference path="Mocks.ts" />
-/// <reference path="TestUtils.ts" />
+import * as ex from '../../build/dist/excalibur';
+import { TestUtils } from './util/TestUtils';
+import { Mocks } from './util/Mocks';
 
 describe('A generic Resource', () => {
   var resource: ex.Resource<any>;

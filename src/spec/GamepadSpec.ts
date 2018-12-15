@@ -1,4 +1,6 @@
-/// <reference path="Mocks.ts" />
+import * as ex from '../../build/dist/excalibur';
+import { TestUtils } from './util/TestUtils';
+import { Mocks } from './util/Mocks';
 
 describe('A gamepad', () => {
   var engine: ex.Engine;
