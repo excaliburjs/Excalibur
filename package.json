@@ -44,7 +44,7 @@
     "copy-webpack-plugin": "4.5.1",
     "cross-env": "5.1.6",
     "css-loader": "1.0.0",
-    "excalibur-jasmine": "file:../excalibur-jasmine/excalibur-jasmine-1.0.0.tgz",
+    "excalibur-jasmine": "0.0.1",
     "grunt": "1.0.3",
     "grunt-build-control": "0.7.1",
     "grunt-bumpup": "0.6.3",
