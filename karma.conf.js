@@ -1,3 +1,4 @@
+// Karma configuration
 const process = require('process');
 const path = require('path');
 process.env.CHROME_BIN = require('puppeteer').executablePath();
