@@ -69,6 +69,7 @@
     "karma-typescript": "3.0.13",
     "prettier": "1.13.4",
     "pretty-quick": "1.6.0",
+    "puppeteer": "1.11.0",
     "rimraf": "2.6.2",
     "source-map-support": "0.4.18",
     "sync-request": "4.1.0",
