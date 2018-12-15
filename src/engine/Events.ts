@@ -9,6 +9,78 @@ import { Side } from './Collision/Side';
 import * as Input from './Input/Index';
 import { Pair, BaseCamera } from './index';
 
+export enum EventTypes {
+  Kill = 'kill',
+  PreKill = 'prekill',
+  PostKill = 'postkill',
+
+  PreDraw = 'predraw',
+  PostDraw = 'postdraw',
+
+  PreDebugDraw = 'predebugdraw',
+  PostDebugDraw = 'postdebugdraw',
+
+  PreUpdate = 'preupdate',
+  PostUpdate = 'postupdate',
+
+  PreFrame = 'preframe',
+  PostFrame = 'postframe',
+
+  PreCollision = 'precollision',
+  CollisionStart = 'collisionstart',
+  CollisionEnd = 'collisionend',
+  PostCollision = 'postcollision',
+
+  Initialize = 'initialize',
+  Activate = 'activate',
+  Deactivate = 'deactivate',
+
+  ExitViewport = 'exitviewport',
+  EnterViewport = 'enterviewport',
+
+  ExitTrigger = 'exit',
+  EnterTrigger = 'enter',
+
+  Connect = 'connect',
+  Disconnect = 'disconnect',
+  Button = 'button',
+  Axis = 'axis',
+
+  Subscribe = 'subscribe',
+  Unsubscribe = 'unsubscribe',
+
+  Visible = 'visible',
+  Hidden = 'hidden',
+  Start = 'start',
+  Stop = 'stop',
+
+  PointerUp = 'pointerup',
+  PointerDown = 'pointerdown',
+  PointerMove = 'pointermove',
+  PointerEnter = 'pointerenter',
+  PointerLeave = 'pointerleave',
+  PointerCancel = 'pointercancel',
+  PointerWheel = 'pointerwheel',
+
+  Up = 'up',
+  Down = 'down',
+  Move = 'move',
+  Enter = 'enter',
+  Leave = 'leave',
+  Cancel = 'cancel',
+  Wheel = 'wheel',
+
+  Press = 'press',
+  Release = 'release',
+  Hold = 'hold',
+
+  PointerDragStart = 'pointerdragstart',
+  PointerDragEnd = 'pointerdragend',
+  PointerDragEnter = 'pointerdragenter',
+  PointerDragLeave = 'pointerdragleave',
+  PointerDragMove = 'pointerdragmove'
+}
+
 /* istanbul ignore next */
 /* compiler only: these are internal to lib */
 export type kill = 'kill';
