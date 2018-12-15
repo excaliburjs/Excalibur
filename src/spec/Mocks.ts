@@ -1,6 +1,6 @@
-﻿/// <reference path="../../build/dist/excalibur.d.ts" />
+﻿import * as ex from '../../build/dist/excalibur';
 
-namespace Mocks {
+export namespace Mocks {
   export interface ITime {
     now(): number;
     add(value: number): void;

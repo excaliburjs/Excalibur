@@ -1,7 +1,7 @@
-/// <reference path="support/js-imagediff.d.ts" />
-
-/// <reference path="TestUtils.ts" />
-/// <reference path="Mocks.ts" />
+import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import * as ex from '../../build/dist/excalibur';
+import { Mocks } from './Mocks';
+import { TestUtils } from './TestUtils';
 
 describe('A UIActor', () => {
   var uiActor: ex.UIActor;
@@ -10,7 +10,7 @@ describe('A UIActor', () => {
   var mock = new Mocks.Mocker();
 
   beforeEach(() => {
-    jasmine.addMatchers(imagediff.jasmine);
+    jasmine.addMatchers(ExcaliburMatchers);
 
     uiActor = new ex.UIActor({
       x: 50,
@@ -56,7 +56,10 @@ describe('A UIActor', () => {
     scene.add(uiActor);
     scene.draw(engine.ctx, 100);
 
-    imagediff.expectCanvasImageMatches('UIActorSpec/actordraws.png', engine.canvas, done);
+    ensureImagesLoaded(engine.canvas, 'src/spec/images/UIActorSpec/actordraws.png').then(([canvas, image]) => {
+      expect(canvas).toEqualImage(image);
+      done();
+    });
   });
 
   it('is not drawn on the screen when not visible', (done) => {
@@ -64,7 +67,10 @@ describe('A UIActor', () => {
     scene.add(uiActor);
     scene.draw(engine.ctx, 100);
 
-    imagediff.expectCanvasImageMatches('UIActorSpec/actordoesnotdraw.png', engine.canvas, done);
+    ensureImagesLoaded(engine.canvas, 'src/spec/images/UIActorSpec/actordoesnotdraw.png').then(([canvas, image]) => {
+      expect(canvas).toEqualImage(image);
+      done();
+    });
   });
 
   it('is drawn on the top left with empty constructor', (done) => {
@@ -78,7 +84,11 @@ describe('A UIActor', () => {
 
       uiActor.on('postdraw', (ev: ex.PostDrawEvent) => {
         game.stop();
-        imagediff.expectCanvasImageMatches('UIActorSpec/emptyctor.png', game.canvas, done);
+
+        ensureImagesLoaded(game.canvas, 'src/spec/images/UIActorSpec/emptyctor.png').then(([canvas, image]) => {
+          expect(canvas).toEqualImage(image);
+          done();
+        });
       });
     });
   });
