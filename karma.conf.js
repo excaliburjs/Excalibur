@@ -5,10 +5,11 @@ module.exports = (config) => {
   config.set({
     singleRun: true,
     frameworks: ['jasmine'],
-    files: ['src/spec/UIActorSpec.ts', { pattern: 'src/spec/images/**/*.png', included: false, served: true }],
+    files: ['src/spec/UIActorSpec.ts', 'src/spec/UtilSpec.ts', { pattern: 'src/spec/images/**/*.png', included: false, served: true }],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
-      'src/spec/UIActorSpec.ts': ['webpack']
+      'src/spec/UIActorSpec.ts': ['webpack'],
+      'src/spec/UtilSpec.ts': ['webpack']
     },
     webpack: {
       mode: 'none',
