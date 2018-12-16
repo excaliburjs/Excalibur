@@ -11,6 +11,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Added strongly typed EvenTypes enum to Events.ts to avoid magic strings [#1066](https://github.com/excaliburjs/Excalibur/issues/1058)
 
+- Added ability to automatically convert .gif files to SpriteSheet, Animations, and Sprites [#1075](https://github.com/excaliburjs/Excalibur/issues/153)
+
 ### Changed
 
 - Added parameter on SpriteSheet constructor so you can define how many pixel spacing is between sprites ([#1058] https://github.com/excaliburjs/Excalibur/issues/1058)
