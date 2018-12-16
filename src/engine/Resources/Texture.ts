@@ -56,13 +56,13 @@ export class Texture extends Resource<HTMLImageElement> {
     var complete = new Promise<HTMLImageElement>();
     if (this.path.indexOf('data:image/') > -1) {
       this.image = new Image();
-      this.image.src = this.path;
       this.image.addEventListener('load', () => {
         this.width = this._sprite.width = this.image.naturalWidth;
         this.height = this._sprite.height = this.image.naturalHeight;
         this._sprite = new Sprite(this, 0, 0, this.width, this.height);
         complete.resolve(this.image);
       });
+      this.image.src = this.path;
     } else {
       var loaded = super.load();
       loaded.then(
