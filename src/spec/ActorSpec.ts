@@ -1283,7 +1283,7 @@ describe('A game actor', () => {
     });
   });
 
-  xit('should not corrupt shared sprite ctxs', (done) => {
+  it('should not corrupt shared sprite ctxs', (done) => {
     engine = TestUtils.engine({
       width: 62,
       height: 64,
