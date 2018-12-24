@@ -1,5 +1,6 @@
 import { AudioContextFactory } from '../Resources/Sound/AudioContext';
-import { Promise } from '../Promises';
+import { Promise, PromiseState } from '../Promises';
+import { Logger } from './Log';
 
 export interface LegacyWebAudioSource {
   playbackState: string;
@@ -24,7 +25,10 @@ export class WebAudio {
     if (WebAudio._unlocked || !AudioContextFactory.create()) {
       return promise.resolve(true);
     }
-
+    const unlockTimeoutTimer = setTimeout(() => {
+      Logger.getInstance().warn('Excalibur was unable to unlock the audio context, audio probably will not play in this browser.');
+      promise.resolve();
+    }, 200);
     const audioContext = AudioContextFactory.create();
     audioContext.resume().then(
       () => {
@@ -57,10 +61,15 @@ export class WebAudio {
           }
         }, 0);
 
-        promise.resolve();
+        clearTimeout(unlockTimeoutTimer);
+        if (promise.state() === PromiseState.Pending) {
+          promise.resolve();
+        }
       },
       () => {
-        promise.reject(false);
+        if (promise.state() === PromiseState.Pending) {
+          promise.reject(false);
+        }
       }
     );
 
