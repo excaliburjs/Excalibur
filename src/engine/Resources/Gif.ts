@@ -119,7 +119,6 @@ export interface Frame {
   pixels: number[];
 }
 
-// Generic functions
 var bitsToNum = (ba: any) => {
   return ba.reduce(function(s: number, n: number) {
     return s * 2 + n;
@@ -134,9 +133,7 @@ var byteToBitArr = (bite: any) => {
   return a;
 };
 
-// Stream
 export class Stream {
-  // this.data = new Int8Array(data);
   data: any = null;
   len: number = 0;
   position: number = 0;
@@ -151,7 +148,6 @@ export class Stream {
     if (this.position >= this.data.byteLength) {
       throw new Error('Attempted to read past end of stream.');
     }
-    //return data.charCodeAt(position++) & 0xFF;
     return this.data[this.position++];
   };
 
@@ -445,7 +441,6 @@ export class ParseGif {
         newPixels.splice.apply(newPixels, [toRow * width, width].concat(fromPixels));
       };
 
-      // See appendix E.
       var offsets = [0, 4, 2, 1];
       var steps = [8, 8, 4, 2];
 
@@ -516,7 +511,7 @@ export class ParseGif {
         }
         break;
       default:
-        throw new Error('Unknown block: 0x' + block.sentinel.toString(16)); // TODO: Pad this with a 0.
+        throw new Error('Unknown block: 0x' + block.sentinel.toString(16));
     }
 
     if (block.type !== 'eof') {
@@ -551,7 +546,6 @@ export class ParseGif {
             })
             .join('');
 
-        //context.fillStyle = rgb;
         if (rgb === this._transparentColor.toHex()) {
           context.fillStyle = `rgba(${this.globalColorTable[frame.pixels[i]][0]}, ${this.globalColorTable[frame.pixels[i]][1]}, ${
             this.globalColorTable[frame.pixels[i]][2]
