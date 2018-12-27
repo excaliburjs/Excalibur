@@ -62,19 +62,20 @@ export class Gif extends Resource<Texture[]> {
    */
   public load(): Promise<Texture[]> {
     var complete = new Promise<Texture[]>();
-
     var loaded = super.load();
     loaded.then(
       () => {
         this._stream = new Stream(this.getData());
         this._gif = new ParseGif(this._stream, this._transparentColor);
-        this._gif.images.forEach((image) => {
-          const texture = new Texture(image.src, true);
-          texture.load().then(() => {
-            this._texture.push(texture);
-          });
+        const promises: Promise<HTMLImageElement>[] = [];
+        for (let imageIndex: number = 0; imageIndex < this._gif.images.length; imageIndex++) {
+          const texture = new Texture(this._gif.images[imageIndex].src, false);
+          this._texture.push(texture);
+          promises.push(texture.load());
+        }
+        Promise.join(promises).then(() => {
+          complete.resolve(this._texture);
         });
-        complete.resolve(this._texture);
       },
       () => {
         complete.reject('Error loading texture.');
