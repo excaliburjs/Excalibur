@@ -74,6 +74,7 @@ export class Gif extends Resource<Texture[]> {
           promises.push(texture.load());
         }
         Promise.join(promises).then(() => {
+          this._isLoaded = true;
           complete.resolve(this._texture);
         });
       },
@@ -100,6 +101,10 @@ export class Gif extends Resource<Texture[]> {
     const spriteSheet: SpriteSheet = this.asSpriteSheet();
     this._animation = spriteSheet.getAnimationForAll(engine, speed);
     return this._animation;
+  }
+
+  public get readCheckBytes(): number[] {
+    return this._gif.checkBytes;
   }
 }
 
@@ -141,7 +146,9 @@ export class Stream {
   constructor(dataArray: ArrayBuffer) {
     this.data = new Uint8Array(dataArray);
     this.len = this.data.byteLength;
-    console.log(this.len);
+    if (this.len === 0) {
+      throw new Error('No data loaded from file');
+    }
   }
 
   public readByte = () => {
@@ -253,6 +260,7 @@ export class ParseGif {
   public frames: Frame[] = [];
   public images: HTMLImageElement[] = [];
   public globalColorTable: any[] = [];
+  public checkBytes: number[] = [];
 
   constructor(stream: Stream, color: Color = Color.Magenta) {
     this._st = stream;
@@ -320,14 +328,13 @@ export class ParseGif {
       this.globalColorTable = hdr.globalColorTable;
     }
     if (this._handler.hdr && this._handler.hdr(hdr)) {
-      console.log(this._handler.hdr);
+      this.checkBytes.push(this._handler.hdr);
     }
   };
 
   parseExt = (block: any) => {
     var parseGCExt = (block: any) => {
-      var blockSize = this._st.readByte(); // Always 4
-      console.log(blockSize + ' < this should be 4');
+      this.checkBytes.push(this._st.readByte()); // Always 4
 
       var bits = byteToBitArr(this._st.readByte());
       block.reserved = bits.splice(0, 3); // Reserved; should be 000.
@@ -342,36 +349,34 @@ export class ParseGif {
       block.terminator = this._st.readByte();
 
       if (this._handler.gce && this._handler.gce(block)) {
-        console.log(this._handler.gce);
+        this.checkBytes.push(this._handler.gce);
       }
     };
 
     var parseComExt = (block: any) => {
       block.comment = this.readSubBlocks();
       if (this._handler.com && this._handler.com(block)) {
-        console.log(this._handler.com);
+        this.checkBytes.push(this._handler.com);
       }
     };
 
     var parsePTExt = (block: any) => {
-      var blockSize = this._st.readByte(); // Always 12
-      console.log(blockSize + ' < this should be 12');
+      this.checkBytes.push(this._st.readByte()); // Always 12
       block.ptHeader = this._st.readBytes(12);
       block.ptData = this.readSubBlocks();
       if (this._handler.pte && this._handler.pte(block)) {
-        console.log(this._handler.pte);
+        this.checkBytes.push(this._handler.pte);
       }
     };
 
     const parseAppExt = (block: any) => {
       var parseNetscapeExt = (block: any) => {
-        var blockSize = this._st.readByte(); // Always 3
-        console.log(blockSize + ' < this should be 3');
+        this.checkBytes.push(this._st.readByte()); // Always 3
         block.unknown = this._st.readByte(); // ??? Always 1? What is this?
         block.iterations = this._st.readUnsigned();
         block.terminator = this._st.readByte();
         if (this._handler.app && this._handler.app.NETSCAPE && this._handler.app.NETSCAPE(block)) {
-          console.log(this._handler.app);
+          this.checkBytes.push(this._handler.app);
         }
       };
 
@@ -379,12 +384,11 @@ export class ParseGif {
         block.appData = this.readSubBlocks();
         // FIXME: This won't work if a handler wants to match on any identifier.
         if (this._handler.app && this._handler.app[block.identifier] && this._handler.app[block.identifier](block)) {
-          console.log(this._handler.app[block.identifier]);
+          this.checkBytes.push(this._handler.app[block.identifier]);
         }
       };
 
-      var blockSize = this._st.readByte(); // Always 11
-      console.log(blockSize + ' < this should be 11');
+      this.checkBytes.push(this._st.readByte()); // Always 11
       block.identifier = this._st.read(8);
       block.authCode = this._st.read(3);
       switch (block.identifier) {
@@ -400,7 +404,7 @@ export class ParseGif {
     var parseUnknownExt = (block: any) => {
       block.data = this.readSubBlocks();
       if (this._handler.unknown && this._handler.unknown(block)) {
-        console.log(this._handler.unknown);
+        this.checkBytes.push(this._handler.unknown);
       }
     };
 
@@ -485,7 +489,7 @@ export class ParseGif {
     this.frames.push(img);
     this.arrayToImage(img);
     if (this._handler.img && this._handler.img(img)) {
-      console.log(this._handler);
+      this.checkBytes.push(this._handler);
     }
   };
 
@@ -507,7 +511,7 @@ export class ParseGif {
       case ';':
         block.type = 'eof';
         if (this._handler.eof && this._handler.eof(block)) {
-          console.log(this._handler.eof);
+          this.checkBytes.push(this._handler.eof);
         }
         break;
       default:

@@ -61,6 +61,7 @@ export class Texture extends Resource<HTMLImageElement> {
         this.height = this._sprite.height = this.image.naturalHeight;
         this._sprite = new Sprite(this, 0, 0, this.width, this.height);
         complete.resolve(this.image);
+        this.loaded.resolve(this.image);
       });
       this.image.src = this.path;
     } else {
