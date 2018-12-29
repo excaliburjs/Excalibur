@@ -7,6 +7,7 @@ import { removeItemFromArray } from './Util/Util';
 import { ICanUpdate, ICanInitialize } from './Interfaces/LifecycleEvents';
 import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './Events';
 import { Class } from './Class';
+import { BoundingBox } from './Collision/BoundingBox';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -377,6 +378,19 @@ export class BaseCamera extends Class implements ICanUpdate, ICanInitialize {
   }
 
   /**
+   * Gets the boundingbox of the viewport of this camera in world coordinates
+   */
+  public get viewport(): BoundingBox {
+    if (this._engine) {
+      let halfWidth = this._engine.halfDrawWidth;
+      let halfHeight = this._engine.halfDrawHeight;
+
+      return new BoundingBox(this.x - halfHeight, this.y - halfHeight, this.x + halfWidth, this.y + halfHeight);
+    }
+    return new BoundingBox(0, 0, 0, 0);
+  }
+
+  /**
    * Adds a new camera strategy to this camera
    * @param cameraStrategy Instance of an [[ICameraStrategy]]
    */
@@ -439,6 +453,7 @@ export class BaseCamera extends Class implements ICanUpdate, ICanInitialize {
     // Overridable
   }
 
+  private _engine: Engine;
   private _isInitialized = false;
   public get isInitialized() {
     return this._isInitialized;
@@ -449,6 +464,7 @@ export class BaseCamera extends Class implements ICanUpdate, ICanInitialize {
       this.onInitialize(_engine);
       super.emit('initialize', new InitializeEvent(_engine, this));
       this._isInitialized = true;
+      this._engine = _engine;
     }
   }
 
