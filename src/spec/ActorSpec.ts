@@ -855,7 +855,11 @@ describe('A game actor', () => {
   });
 
   it('fires predraw event before draw then postdraw', (done) => {
-    var actor = new ex.Actor();
+    var actor = new ex.Actor({
+      pos: new ex.Vector(50, 50),
+      width: 10,
+      height: 10
+    });
     var predrawedFired = false;
 
     actor.on('predraw', () => {
@@ -1373,12 +1377,12 @@ describe('A game actor', () => {
     scene.add(actor);
     scene.update(engine, 100);
 
-    expect(actor.isOffScreen).toBe(false);
+    expect(actor.isOffScreen).toBe(false, 'Actor should be onscreen');
 
     actor.x = 106;
     scene.update(engine, 100);
 
-    expect(actor.isOffScreen).toBe(true);
+    expect(actor.isOffScreen).toBe(true, 'Actor should be offscreen');
   });
 
   describe('lifecycle overrides', () => {

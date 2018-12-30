@@ -70,6 +70,32 @@ describe('A Bounding Box', () => {
     expect(bb.collides(b2).x).toBe(-4);
   });
 
+  it('can collide with other bounding boxes with width/height (0,0)', () => {
+    var bb = new ex.BoundingBox(18, 15, 18, 15); // point bounding box
+    var bb2 = new ex.BoundingBox(0, 0, 20, 20); // square bounding box;
+
+    expect(bb2.collides(bb)).not.toBe(null, 'Point bounding boxes should still collide');
+    expect(bb2.collides(bb).x).toBe(-2);
+    expect(bb2.collides(bb).y).toBe(0);
+  });
+
+  it('can collide with other bounding box in full containment, closest right', () => {
+    var bb = new ex.BoundingBox(0, 0, 20, 20);
+    var bb1 = new ex.BoundingBox(10, 8, 15, 12);
+    expect(bb.collides(bb1)).not.toBe(null);
+    expect(bb.collides(bb1).x).toBe(-10, 'X should be -10');
+    expect(bb.collides(bb1).y).toBe(0, 'Y should be 0');
+  });
+
+  it('can collide with other bounding boxes of the same width/height', () => {
+    var bb1 = new ex.BoundingBox(0, 0, 10, 10);
+    var bb2 = new ex.BoundingBox(0, 0, 10, 10);
+
+    expect(bb2.collides(bb1)).not.toBe(null);
+    expect(bb2.collides(bb1).x).toBe(0);
+    expect(bb2.collides(bb1).y).toBe(-10);
+  });
+
   it('can combine with other bounding boxes', () => {
     var b2 = new ex.BoundingBox(2, 0, 20, 10);
     var b3 = new ex.BoundingBox(12, 0, 28, 10);

@@ -196,10 +196,16 @@ export class BoundingBox implements ICollidable {
     return compositeBB;
   }
 
+  public get dimensions(): Vector {
+    return new Vector(this.getWidth(), this.getHeight());
+  }
+
   /**
    * Test wether this bounding box collides with another returning,
    * the intersection vector that can be used to resolve the collision. If there
    * is no collision null is returned.
+   *
+   * @returns A Vector in the direction of the current BoundingBox
    * @param collidable  Other collidable to test
    */
   public collides(collidable: ICollidable): Vector {
@@ -207,24 +213,113 @@ export class BoundingBox implements ICollidable {
       var other: BoundingBox = <BoundingBox>collidable;
       var totalBoundingBox = this.combine(other);
 
-      // If the total bounding box is less than the sum of the 2 bounds then there is collision
+      // If the total bounding box is less than or equal the sum of the 2 bounds then there is collision
       if (
         totalBoundingBox.getWidth() < other.getWidth() + this.getWidth() &&
-        totalBoundingBox.getHeight() < other.getHeight() + this.getHeight()
+        totalBoundingBox.getHeight() < other.getHeight() + this.getHeight() &&
+        !totalBoundingBox.dimensions.equals(other.dimensions) &&
+        !totalBoundingBox.dimensions.equals(this.dimensions)
       ) {
         // collision
         var overlapX = 0;
+        // right edge is between the other's left and right edge
+        /**
+         *     +-this-+
+         *     |      |
+         *     |    +-other-+
+         *     +----|-+     |
+         *          |       |
+         *          +-------+
+         *         <---
+         *          ^ overlap
+         */
         if (this.right >= other.left && this.right <= other.right) {
           overlapX = other.left - this.right;
+          // right edge is past the other's right edge
+          /**
+           *     +-other-+
+           *     |       |
+           *     |    +-this-+
+           *     +----|--+   |
+           *          |      |
+           *          +------+
+           *          --->
+           *          ^ overlap
+           */
         } else {
           overlapX = other.right - this.left;
         }
 
         var overlapY = 0;
+        // top edge is between the other's top and bottom edge
+        /**
+         *     +-other-+
+         *     |       |
+         *     |    +-this-+   | <- overlap
+         *     +----|--+   |   |
+         *          |      |  \ /
+         *          +------+   '
+         */
         if (this.top <= other.bottom && this.top >= other.top) {
           overlapY = other.bottom - this.top;
+          // top edge is above the other top edge
+          /**
+           *     +-this-+         .
+           *     |      |        / \
+           *     |    +-other-+   | <- overlap
+           *     +----|-+     |   |
+           *          |       |
+           *          +-------+
+           */
         } else {
           overlapY = other.top - this.bottom;
+        }
+
+        if (Math.abs(overlapX) < Math.abs(overlapY)) {
+          return new Vector(overlapX, 0);
+        } else {
+          return new Vector(0, overlapY);
+        }
+        // Case of total containment of one bounding box by another
+      } else if (totalBoundingBox.dimensions.equals(other.dimensions) || totalBoundingBox.dimensions.equals(this.dimensions)) {
+        let overlapX = 0;
+        // this is wider than the other
+        if (this.getWidth() - other.getWidth() >= 0) {
+          // This right edge is closest to the others right edge
+          if (this.right - other.right <= other.left - this.left) {
+            overlapX = other.left - this.right;
+            // This left edge is closest to the others left edge
+          } else {
+            overlapX = other.right - this.left;
+          }
+          // other is wider than this
+        } else {
+          // This right edge is closest to the others right edge
+          if (other.right - this.right <= this.left - other.left) {
+            overlapX = this.left - other.right;
+            // This left edge is closest to the others left edge
+          } else {
+            overlapX = this.right - other.left;
+          }
+        }
+
+        let overlapY = 0;
+        // this is taller than other
+        if (this.getHeight() - other.getHeight() >= 0) {
+          // The bottom edge is closest to the others bottom edge
+          if (this.bottom - other.bottom <= other.top - this.top) {
+            overlapY = other.top - this.bottom;
+          } else {
+            overlapY = other.bottom - this.top;
+          }
+          // other is taller than this
+        } else {
+          // The bottom edge is closest to the others bottom edge
+          if (other.bottom - this.bottom <= this.top - other.top) {
+            overlapY = this.top - other.bottom;
+          } else {
+            overlapY = this.bottom - other.top;
+          }
         }
 
         if (Math.abs(overlapX) < Math.abs(overlapY)) {

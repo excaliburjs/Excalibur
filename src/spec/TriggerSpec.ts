@@ -180,7 +180,7 @@ describe('A Trigger', () => {
   it('can draw if directed', () => {
     // Arrange
     var trigger = new ex.Trigger({
-      pos: new ex.Vector(0, 100),
+      pos: new ex.Vector(200, 200),
       visible: true,
       width: 100,
       height: 100
