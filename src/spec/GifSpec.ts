@@ -36,7 +36,6 @@ describe('A Gif', () => {
 
       var sprite: ex.Sprite = gif.asSprite();
       expect(gif.isLoaded()).toBe(true);
-      (<any>sprite)._applyEffects();
       sprite.draw(engine.ctx, 0, 0);
       imagediff.expectCanvasImageMatches('GifSpec/frame1.png', engine.canvas, done);
 
@@ -44,7 +43,6 @@ describe('A Gif', () => {
 
       sprite = gif.asSprite(1);
       expect(gif.isLoaded()).toBe(true);
-      (<any>sprite)._applyEffects();
       sprite.draw(engine.ctx, 0, 0);
       imagediff.expectCanvasImageMatches('GifSpec/frame2.png', engine.canvas, done);
     });
@@ -55,7 +53,6 @@ describe('A Gif', () => {
       expect(gif).toBeDefined();
       const spriteSheet: ex.SpriteSheet = gif.asSpriteSheet();
       const sprite = spriteSheet.getSprite(0);
-      (<any>sprite)._applyEffects();
       sprite.draw(engine.ctx, 0, 0);
       imagediff.expectCanvasImageMatches('GifSpec/frame1.png', engine.canvas, done);
     });
