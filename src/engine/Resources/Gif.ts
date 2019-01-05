@@ -275,7 +275,16 @@ export class ParseGif {
     // Each entry is 3 bytes, for RGB.
     var ct = [];
     for (var i = 0; i < entries; i++) {
-      ct.push(this._st.readBytes(3));
+      const rgb: number[] = this._st.readBytes(3);
+      const rgba =
+        '#' +
+        rgb
+          .map((x: any) => {
+            const hex = x.toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+          })
+          .join('');
+      ct.push(rgba);
     }
     return ct;
   };
@@ -539,30 +548,14 @@ export class ParseGif {
         y++;
         x = 0;
       }
-
-      if (this.globalColorTable[frame.pixels[i]]) {
-        const rgb =
-          '#' +
-          this.globalColorTable[frame.pixels[i]]
-            .map((x: any) => {
-              const hex = x.toString(16);
-              return hex.length === 1 ? '0' + hex : hex;
-            })
-            .join('');
-
-        if (rgb === this._transparentColor.toHex()) {
-          context.fillStyle = `rgba(${this.globalColorTable[frame.pixels[i]][0]}, ${this.globalColorTable[frame.pixels[i]][1]}, ${
-            this.globalColorTable[frame.pixels[i]][2]
-          }, ${0.0})`;
-        } else {
-          context.fillStyle = `rgba(${this.globalColorTable[frame.pixels[i]][0]}, ${this.globalColorTable[frame.pixels[i]][1]}, ${
-            this.globalColorTable[frame.pixels[i]][2]
-          }, ${1})`;
-        }
-
-        context.fillRect(x, y, pixSize, pixSize);
-        x++;
+      if (this.globalColorTable[frame.pixels[i]] === this._transparentColor.toHex()) {
+        context.fillStyle = `rgba(0, 0, 0, 0)`;
+      } else {
+        context.fillStyle = this.globalColorTable[frame.pixels[i]];
       }
+
+      context.fillRect(x, y, pixSize, pixSize);
+      x++;
     }
     const img = new Image();
     img.src = c.toDataURL();
