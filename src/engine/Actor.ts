@@ -1350,7 +1350,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     
     //Set visibility 
     public setVisible(v: boolean){
-      this.opacity = 0 ? v = false : v = true;
+      this.color.a = 0 ? v = false : v = true;
       this.visible = v; 
     }
     
