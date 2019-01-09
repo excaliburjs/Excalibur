@@ -58,14 +58,21 @@ describe('A Gif', () => {
     });
   });
 
-  // it('should be read as an Animation', (done) => {
-  //     gif.load().then(() => {
-  //         expect(gif).toBeDefined();
-  //         const animation: ex.Animation = gif.asAnimation(engine, 500);
-  //         const sprite = animation.
-  //         // (<any>sprite)._applyEffects();
-  //         sprite.draw(engine.ctx, 0, 0);
-  //         imagediff.expectCanvasImageMatches('GifSpec/frame1.png', engine.canvas, done);
-  //     });
-  // });
+  it('should be read as an Animation', (done) => {
+    gif.load().then(() => {
+      expect(gif).toBeDefined();
+      const animation: ex.Animation = gif.asAnimation(engine, 500);
+
+      expect(animation.sprites.length).toBe(2);
+      const frame1 = animation.sprites[0];
+      const frame2 = animation.sprites[1];
+
+      frame1.draw(engine.ctx, 0, 0);
+      imagediff.expectCanvasImageMatches('GifSpec/frame1.png', engine.canvas, done);
+
+      engine.ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
+      frame2.draw(engine.ctx, 0, 0);
+      imagediff.expectCanvasImageMatches('GifSpec/frame2.png', engine.canvas, done);
+    });
+  });
 });
