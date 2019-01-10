@@ -15,6 +15,7 @@ module.exports = function(config) {
       './build/dist/excalibur.js',
       { pattern: './build/dist/excalibur.js.map', included: false, served: true },
       { pattern: './src/spec/images/**/*.png', watched: false, include: false, served: true, type: 'html' },
+      { pattern: './src/spec/images/**/*.gif', watched: false, include: false, served: true, type: 'html' },
       { pattern: './build/dist/index.d.ts', included: false, served: true },
       { pattern: './src/engine/**/*.ts', included: false, served: true },
       { pattern: './src/spec/support/js-imagediff.js', included: true, served: true },
