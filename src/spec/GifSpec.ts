@@ -1,4 +1,5 @@
 /// <reference path="support/js-imagediff.d.ts" />
+/// <reference path="TestUtils.ts" />
 /// <reference path="Mocks.ts" />
 
 describe('A Gif', () => {
