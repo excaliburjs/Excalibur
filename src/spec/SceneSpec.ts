@@ -1,5 +1,5 @@
-﻿/// <reference path="Mocks.ts" />
-/// <reference path="TestUtils.ts" />
+﻿import * as ex from '../../build/dist/excalibur';
+import { TestUtils } from './util/TestUtils';
 
 describe('A scene', () => {
   var actor: ex.Actor;
@@ -14,7 +14,7 @@ describe('A scene', () => {
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(actor, 'draw');
-
+    engine.removeScene('root');
     engine.addScene('root', scene);
   });
 
@@ -35,10 +35,6 @@ describe('A scene', () => {
     expect(scene.actors.length).toBe(1);
     scene.add(actor);
     expect(scene.actors.length).toBe(1);
-  });
-
-  xit('cannot have the same Timer added to it more than once', () => {
-    // TODO
   });
 
   it('cannot have the same TileMap added to it more than once', () => {
@@ -392,6 +388,7 @@ describe('A scene', () => {
       engine = TestUtils.engine({ width: 100, height: 100 });
       scene = new ex.Scene(engine);
       engine.currentScene = scene;
+      engine.removeScene('root');
       engine.addScene('root', scene);
     });
 

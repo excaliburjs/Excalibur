@@ -1,4 +1,5 @@
-/// <reference path="Mocks.ts" />
+import * as ex from '../../build/dist/excalibur';
+import { TestUtils } from './util/TestUtils';
 
 describe('An animation', () => {
   var animation;

@@ -3,7 +3,8 @@
     "sourceMap": true,
     "experimentalDecorators": true,
     "target": "es5",
-    "module": "none",
-    "types": ["@types/jasmine"]
+    "module": "esnext",
+    "moduleResolution": "node",
+    "types": ["@types/jasmine", "@types/node"]
   }
 }

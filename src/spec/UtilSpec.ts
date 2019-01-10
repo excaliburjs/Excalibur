@@ -1,4 +1,5 @@
-/// <reference path="Mocks.ts" />
+import * as ex from '../../build/dist/excalibur';
+import { Mocks } from './util/Mocks';
 
 describe('Utility functions', () => {
   it('can determine the opposite side', () => {

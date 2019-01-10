@@ -1,4 +1,5 @@
-﻿/// <reference path="Mocks.ts" />
+﻿import * as ex from '../../build/dist/excalibur';
+import { Mocks } from './util/Mocks';
 
 describe('An Actor Group', () => {
   var engine: ex.Engine;

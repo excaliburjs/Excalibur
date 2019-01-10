@@ -1,11 +1,12 @@
-/// <reference path="TestUtils.ts" />
-/// <reference path="support/js-imagediff.d.ts" />
-/// <reference path="Mocks.ts" />
+import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import * as ex from '../../build/dist/excalibur';
+import { TestUtils } from './util/TestUtils';
+import { Mocks } from './util/Mocks';
 
 describe('Perlin Noise', () => {
   var generator: ex.PerlinGenerator = null;
   beforeEach(() => {
-    jasmine.addMatchers(imagediff.jasmine);
+    jasmine.addMatchers(ExcaliburMatchers);
     generator = new ex.PerlinGenerator({
       seed: 515,
       octaves: 15,
@@ -67,15 +68,19 @@ describe('Perlin Noise', () => {
     var drawer = new ex.PerlinDrawer2D(generator);
     drawer.draw(perlinCtx, 0, 0, 150, 150);
 
-    imagediff.expectCanvasImageMatches('PerlinSpec/perlin.png', perlinCanvas, done);
+    ensureImagesLoaded(perlinCanvas, 'src/spec/images/PerlinSpec/perlin.png').then(([canvas, image]) => {
+      expect(canvas).toEqualImage(image);
+      done();
+    });
   });
 
   it('can draw a 2d image', (done) => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 90000;
     var drawer = new ex.PerlinDrawer2D(generator);
     var image = drawer.image(150, 150);
-    image.addEventListener('load', () => {
-      imagediff.expectImageMatches('PerlinSpec/perlin.png', image, done);
+    ensureImagesLoaded(image, 'src/spec/images/PerlinSpec/perlin.png').then(([canvas, image]) => {
+      expect(canvas).toEqualImage(image);
+      done();
     });
   });
 });

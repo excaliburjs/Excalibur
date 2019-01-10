@@ -1,6 +1,21 @@
-﻿/// <reference path="../../build/dist/excalibur.d.ts" />
+﻿import * as ex from '../../../build/dist/excalibur';
 
-namespace Mocks {
+export namespace Mocks {
+  export class MockedElement {
+    private _key: number = 0;
+
+    constructor(key: number) {
+      this._key = key;
+    }
+
+    public getTheKey() {
+      return this._key;
+    }
+
+    public setKey(key: number) {
+      this._key = key;
+    }
+  }
   export interface ITime {
     now(): number;
     add(value: number): void;
@@ -65,7 +80,9 @@ namespace Mocks {
     }
 
     realengine(): ex.Engine {
-      navigator = <any>this.navigator();
+      if (!navigator) {
+        navigator = <any>this.navigator();
+      }
 
       return new ex.Engine({
         width: 500,
@@ -78,7 +95,9 @@ namespace Mocks {
     engine(width: number, height: number) {
       var mockEngine;
 
-      navigator = <any>this.navigator();
+      if (!navigator) {
+        navigator = <any>this.navigator();
+      }
 
       mockEngine = {
         collisionStrategy: 0,

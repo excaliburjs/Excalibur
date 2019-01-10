@@ -1,4 +1,6 @@
-/// <reference path="Mocks.ts" />
+import * as ex from '../../build/dist/excalibur';
+import { Mocks } from './util/Mocks';
+import { TestUtils } from './util/TestUtils';
 
 describe('A Trigger', () => {
   var scene: ex.Scene;

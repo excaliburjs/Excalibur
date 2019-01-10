@@ -1,12 +1,13 @@
-/// <reference path="support/js-imagediff.d.ts" />
-/// <reference path="TestUtils.ts" />
-/// <reference path="Mocks.ts" />
+import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import * as ex from '../../build/dist/excalibur';
+import { Mocks } from './util/Mocks';
+import { TestUtils } from './util/TestUtils';
 
 describe('A Gif', () => {
   let engine: ex.Engine;
   let gif: ex.Gif;
   beforeEach(() => {
-    jasmine.addMatchers(imagediff.jasmine);
+    jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({
       width: 100,
       height: 100
@@ -38,14 +39,20 @@ describe('A Gif', () => {
       var sprite: ex.Sprite = gif.asSprite();
       expect(gif.isLoaded()).toBe(true);
       sprite.draw(engine.ctx, 0, 0);
-      imagediff.expectCanvasImageMatches('GifSpec/frame1.png', engine.canvas, done);
 
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame1.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
       engine.ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
 
       sprite = gif.asSprite(1);
       expect(gif.isLoaded()).toBe(true);
       sprite.draw(engine.ctx, 0, 0);
-      imagediff.expectCanvasImageMatches('GifSpec/frame2.png', engine.canvas, done);
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame2.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 
@@ -55,7 +62,12 @@ describe('A Gif', () => {
       const spriteSheet: ex.SpriteSheet = gif.asSpriteSheet();
       const sprite = spriteSheet.getSprite(0);
       sprite.draw(engine.ctx, 0, 0);
-      imagediff.expectCanvasImageMatches('GifSpec/frame1.png', engine.canvas, done);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame1.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        engine.ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
+        done();
+      });
     });
   });
 
@@ -69,7 +81,11 @@ describe('A Gif', () => {
       const frame2 = animation.sprites[1];
 
       frame2.draw(engine.ctx, 0, 0);
-      imagediff.expectCanvasImageMatches('GifSpec/frame2.png', engine.canvas, done);
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame2.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        engine.ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
+        done();
+      });
     });
   });
 });
