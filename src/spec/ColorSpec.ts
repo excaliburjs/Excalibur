@@ -91,4 +91,19 @@ describe('A color', () => {
     color = ex.Color.fromRGB(17, 17, 17, 31 / 255);
     expect(color.a).toBe(31 / 255);
   });
+
+  it('can be darkened', () => {
+    color = ex.Color.White.clone();
+    color = color.darken();
+    expect(color.r).toBe(229.5, 'r');
+    expect(color.g).toBe(229.5, 'g');
+    expect(color.b).toBe(229.5, 'b');
+  });
+
+  it('can be averaged', () => {
+    color = ex.Color.White.average(ex.Color.Black);
+    expect(color.r).toBe(255 / 2, 'r');
+    expect(color.g).toBe(255 / 2, 'g');
+    expect(color.b).toBe(255 / 2, 'b');
+  });
 });
