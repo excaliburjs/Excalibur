@@ -1,7 +1,6 @@
 import { Resource } from './Resource';
 import { Promise } from '../Promises';
 import { Sprite } from '../Drawing/Sprite';
-
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
  * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
@@ -55,24 +54,35 @@ export class Texture extends Resource<HTMLImageElement> {
    */
   public load(): Promise<HTMLImageElement> {
     var complete = new Promise<HTMLImageElement>();
-
-    var loaded = super.load();
-    loaded.then(
-      () => {
-        this.image = new Image();
-        this.image.addEventListener('load', () => {
-          this._isLoaded = true;
-          this.width = this._sprite.width = this.image.naturalWidth;
-          this.height = this._sprite.height = this.image.naturalHeight;
-          this.loaded.resolve(this.image);
-          complete.resolve(this.image);
-        });
-        this.image.src = super.getData();
-      },
-      () => {
-        complete.reject('Error loading texture.');
-      }
-    );
+    if (this.path.indexOf('data:image/') > -1) {
+      this.image = new Image();
+      this.image.addEventListener('load', () => {
+        this.width = this._sprite.width = this.image.naturalWidth;
+        this.height = this._sprite.height = this.image.naturalHeight;
+        this._sprite = new Sprite(this, 0, 0, this.width, this.height);
+        this.loaded.resolve(this.image);
+        complete.resolve(this.image);
+      });
+      this.image.src = this.path;
+    } else {
+      var loaded = super.load();
+      loaded.then(
+        () => {
+          this.image = new Image();
+          this.image.addEventListener('load', () => {
+            this._isLoaded = true;
+            this.width = this._sprite.width = this.image.naturalWidth;
+            this.height = this._sprite.height = this.image.naturalHeight;
+            this.loaded.resolve(this.image);
+            complete.resolve(this.image);
+          });
+          this.image.src = super.getData();
+        },
+        () => {
+          complete.reject('Error loading texture.');
+        }
+      );
+    }
     return complete;
   }
 

@@ -9,19 +9,37 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added ability to automatically convert .gif files to SpriteSheet, Animations, and Sprites [#1075](https://github.com/excaliburjs/Excalibur/issues/1075)
+
+### Changed
+
+### Deprecated
+
+### Fixed
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.20.0] - 2018-12-10
+
+### Breaking Changes
+
+- `ex.PauseAfterLoader`removed, use Use `ex.Loader` instead
+
+### Added
+
 - Added strongly typed EvenTypes enum to Events.ts to avoid magic strings [#1066](https://github.com/excaliburjs/Excalibur/issues/1058)
 
 ### Changed
 
 - Added parameter on SpriteSheet constructor so you can define how many pixel spacing is between sprites ([#1058] https://github.com/excaliburjs/Excalibur/issues/1058)
 
-### Deprecated
+<!----------------------------------------------------------------------------------------------->
+
+## [0.19.1] - 2018-10-22
 
 ### Fixed
 
 - Fixed issue where there were missing files in the dist (Loader.css, Loader.logo.png) ([#1057](https://github.com/excaliburjs/Excalibur/issues/1057))
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [0.19.0] - 2018-10-13
 
@@ -695,7 +713,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!----------------------------------------------------------------------------------------------->
 
-[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.19.0...HEAD
+[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.20.0...HEAD
+[0.20.0]: https://github.com/excaliburjs/Excalibur/compare/v0.19.1...v0.20.0
+[0.19.1]: https://github.com/excaliburjs/Excalibur/compare/v0.19.0...v0.19.1
 [0.19.0]: https://github.com/excaliburjs/Excalibur/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/excaliburjs/Excalibur/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/excaliburjs/Excalibur/compare/v0.16.0...v0.17.0

@@ -7,7 +7,10 @@ module.exports = (config) => {
   config.set({
     singleRun: true,
     frameworks: ['jasmine'],
-    files: ['src/spec/*Spec.ts', { pattern: 'src/spec/images/**/*.png', included: false, served: true }],
+    files: ['src/spec/*Spec.ts', 
+             { pattern: 'src/spec/images/**/*.png', included: false, served: true },
+             { pattern: 'src/spec/images/**/*.gif', included: false, served: true }
+           ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
       'src/spec/*Spec.ts': ['webpack']
@@ -40,7 +43,10 @@ module.exports = (config) => {
     reporters: ['progress', 'coverage-istanbul'],
 
     coverageReporter: {
-      reporters: [{ type: 'html', dir: 'coverage/' }, { type: 'lcovonly', dir: 'coverage/', file: 'lcov.info' }, { type: 'text-summary' }]
+      reporters: [
+          { type: 'html', dir: 'coverage/' }, 
+          { type: 'lcovonly', dir: 'coverage/', file: 'lcov.info' }, 
+          { type: 'text-summary' }]
     },
     coverageIstanbulReporter: {
       // reports can be any that are listed here: https://github.com/istanbuljs/istanbuljs/tree/aae256fb8b9a3d19414dcf069c592e88712c32c6/packages/istanbul-reports/lib
