@@ -5,6 +5,6 @@
     "target": "es5",
     "module": "esnext",
     "moduleResolution": "node",
-    "types": ["@types/jasmine"]
+    "types": ["@types/jasmine", "@types/node"]
   }
 }

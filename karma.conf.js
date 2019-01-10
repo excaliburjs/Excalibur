@@ -7,13 +7,15 @@ module.exports = (config) => {
   config.set({
     singleRun: true,
     frameworks: ['jasmine'],
-    files: ['src/spec/*Spec.ts', 
-             { pattern: 'src/spec/images/**/*.png', included: false, served: true },
-             { pattern: 'src/spec/images/**/*.gif', included: false, served: true }
+    files: [  
+            'src/spec/_boot.ts', 
+            { pattern: 'src/spec/images/**/*.png', included: false, served: true },
+            { pattern: 'src/spec/images/**/*.gif', included: false, served: true },
+            { pattern: 'src/spec/images/**/*.txt', included: false, served: true }
            ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
-      'src/spec/*Spec.ts': ['webpack']
+      'src/spec/_boot.ts': ['webpack']
     },
     webpack: {
       mode: 'none',
@@ -39,6 +41,11 @@ module.exports = (config) => {
           }
         ]
       }
+    },
+    webpackMiddleware: {
+    // webpack-dev-middleware configuration
+    // i. e.
+        stats: 'normal'
     },
     reporters: ['progress', 'coverage-istanbul'],
 

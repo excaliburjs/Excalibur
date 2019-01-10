@@ -42,16 +42,15 @@ describe('A Gif', () => {
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame1.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
-        engine.ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
         done();
       });
+      engine.ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
 
       sprite = gif.asSprite(1);
       expect(gif.isLoaded()).toBe(true);
       sprite.draw(engine.ctx, 0, 0);
       ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame2.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
-        engine.ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
         done();
       });
     });
