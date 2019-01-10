@@ -7,7 +7,7 @@ describe('A Gif', () => {
   let engine: ex.Engine;
   let gif: ex.Gif;
   beforeEach(() => {
-    jasmine.addMatchers(imagediff.jasmine);
+    jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({
       width: 100,
       height: 100
