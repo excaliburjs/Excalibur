@@ -1,6 +1,7 @@
 import * as ex from '../../build/dist/excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
+import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('The engine', () => {
   var engine: ex.Engine;
@@ -9,7 +10,20 @@ describe('The engine', () => {
   var loop: Mocks.IGameLoop;
   var initHiDpiSpy: jasmine.Spy;
 
+  let reset = () => {
+    initHiDpiSpy.calls.reset();
+    engine.stop();
+    engine = null;
+    (<any>window).devicePixelRatio = 1;
+    let playButton = document.getElementById('excalibur-play');
+    if (playButton) {
+      let body = playButton.parentNode.parentNode;
+      body.removeChild(playButton.parentNode);
+    }
+  };
+
   beforeEach(() => {
+    jasmine.addMatchers(ExcaliburMatchers);
     initHiDpiSpy = spyOn(<any>ex.Engine.prototype, '_initializeHiDpi');
 
     engine = TestUtils.engine();
@@ -22,10 +36,55 @@ describe('The engine', () => {
   });
 
   afterEach(() => {
-    initHiDpiSpy.calls.reset();
-    engine.stop();
-    engine = null;
-    (<any>window).devicePixelRatio = 1;
+    reset();
+  });
+
+  it('should show the play button by default', (done) => {
+    reset();
+    engine = TestUtils.engine({
+      suppressPlayButton: false
+    });
+    (<any>engine)._suppressPlayButton = false;
+    engine.currentScene = scene;
+
+    loop = mock.loop(engine);
+
+    engine.start(new ex.Loader([new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true)]));
+    setTimeout(() => {
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/EngineSpec/engine-load-complete.png').then(([canvas, image]) => {
+        expect(document.getElementById('excalibur-play')).toBeDefined('Play button should exist in the document');
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    }, 600);
+  });
+
+  it('should not show the play button when suppressPlayButton is turned on', (done) => {
+    reset();
+    engine = TestUtils.engine({
+      suppressPlayButton: true
+    });
+    engine.currentScene = scene;
+    engine.currentScene.add(
+      new ex.Actor({
+        x: 250,
+        y: 250,
+        width: 20,
+        height: 20,
+        color: ex.Color.Red
+      })
+    );
+
+    loop = mock.loop(engine);
+
+    engine.start(new ex.Loader([new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true)])).then(() => {
+      setTimeout(() => {
+        ensureImagesLoaded(engine.canvas, 'src/spec/images/EngineSpec/engine-suppress-play.png').then(([canvas, image]) => {
+          expect(canvas).toEqualImage(image);
+          done();
+        });
+      }, 600);
+    });
   });
 
   it('should emit a preframe event', () => {
