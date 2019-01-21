@@ -29,7 +29,7 @@ export class PolygonArea implements ICollisionArea {
   private _sides: Line[] = [];
 
   constructor(options: IPolygonAreaOptions) {
-    this.pos = options.pos || Vector.Zero.clone();
+    this.pos = options.pos || Vector.Zero;
     var winding = !!options.clockwiseWinding;
     this.points = (winding ? options.points.reverse() : options.points) || [];
     this.body = options.body || null;
