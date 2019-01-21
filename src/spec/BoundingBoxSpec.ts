@@ -1,4 +1,4 @@
-/// <reference path="Mocks.ts" />
+import * as ex from '../../build/dist/excalibur';
 
 describe('A Bounding Box', () => {
   // left, top, right, bottom
@@ -189,5 +189,21 @@ describe('A Bounding Box', () => {
     var ray = new ex.Ray(new ex.Vector(0, 5), ex.Vector.Right);
 
     expect(bb.rayCast(ray)).toBe(true);
+  });
+
+  it('can ray cast and get the intersection time', () => {
+    var bb = new ex.BoundingBox(0, 0, 10, 10);
+
+    var ray = new ex.Ray(new ex.Vector(0, -5), ex.Vector.Down);
+
+    expect(bb.rayCastTime(ray)).toBe(5);
+  });
+
+  it('can ray cast but if past far clip returns -1', () => {
+    var bb = new ex.BoundingBox(0, 0, 10, 10);
+
+    var ray = new ex.Ray(new ex.Vector(0, -5), ex.Vector.Down);
+
+    expect(bb.rayCastTime(ray, 4)).toBe(-1);
   });
 });

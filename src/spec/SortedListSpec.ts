@@ -1,4 +1,5 @@
-﻿/// <reference path="Mocks.ts" />
+﻿import * as ex from '../../build/dist/excalibur';
+import { Mocks } from './util/Mocks';
 
 describe('A SortedList', () => {
   var sortedList;
@@ -130,21 +131,3 @@ describe('A SortedList', () => {
     expect(results[0]).toBe(element1);
   });
 });
-
-namespace Mocks {
-  export class MockedElement {
-    private _key: number = 0;
-
-    constructor(key: number) {
-      this._key = key;
-    }
-
-    public getTheKey() {
-      return this._key;
-    }
-
-    public setKey(key: number) {
-      this._key = key;
-    }
-  }
-}

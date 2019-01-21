@@ -1,5 +1,6 @@
-/// <reference path="Mocks.ts" />
-/// <reference path="Stubs.ts" />
+import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import * as ex from '../../build/dist/excalibur';
+import { Stubs } from './util/Stubs';
 
 describe('Sound resource', () => {
   var sut: ex.Sound;

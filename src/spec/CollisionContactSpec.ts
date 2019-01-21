@@ -1,4 +1,4 @@
-/// <reference path="Mocks.ts" />
+import * as ex from '../../build/dist/excalibur';
 
 describe('A CollisionContact', () => {
   var actorA: ex.Actor;

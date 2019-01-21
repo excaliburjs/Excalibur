@@ -1,97 +1,78 @@
 // Karma configuration
+const process = require('process');
+const path = require('path');
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
-module.exports = function(config) {
+module.exports = (config) => {
   config.set({
-    // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: '',
-
-    // frameworks to use
-    // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine', 'karma-typescript'],
-
-    // list of files / patterns to load in the browser
-    files: [
-      './build/dist/excalibur.js',
-      { pattern: './build/dist/excalibur.js.map', included: false, served: true },
-      { pattern: './src/spec/images/**/*.png', watched: false, include: false, served: true, type: 'html' },
-      { pattern: './build/dist/index.d.ts', included: false, served: true },
-      { pattern: './src/engine/**/*.ts', included: false, served: true },
-      { pattern: './src/spec/support/js-imagediff.js', included: true, served: true },
-      { pattern: './src/spec/support/js-imagediff.d.ts', included: false, served: true },
-      { pattern: './src/spec/Mocks.ts', included: true, served: true },
-      { pattern: './src/spec/TestUtils.ts', included: true, served: true },
-      { pattern: './src/spec/*.ts', include: true, served: true }
-    ],
-
-    // list of files to exclude
-    exclude: [
-      //  "node_modules",
-      //  "typedoc-default-themes"
-    ],
-
-    // preprocess matching files before serving them to the browser
-    // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
+    singleRun: true,
+    frameworks: ['jasmine'],
+    files: [  
+            'src/spec/_boot.ts', 
+            { pattern: 'src/spec/images/**/*.png', included: false, served: true },
+            { pattern: 'src/spec/images/**/*.gif', included: false, served: true },
+            { pattern: 'src/spec/images/**/*.txt', included: false, served: true }
+           ],
+    mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
-      'src/spec/Mocks.ts': ['karma-typescript'],
-      'src/spec/TestUtils.ts': ['karma-typescript'],
-      'src/spec/*.ts': ['karma-typescript'],
-      'build/dist/excalibur.js': ['coverage']
+      'src/spec/_boot.ts': ['webpack']
     },
-
-    karmaTypescriptConfig: {
-      compilerOptions: {
-        noImplicitAny: false,
-        target: 'ES5',
-        module: 'none',
-        sourceMap: true,
-        removeComments: false,
-        declaration: true,
-        experimentalDecorators: true
+    webpack: {
+      mode: 'none',
+      devtool: 'source-map',
+      resolve: {
+        extensions: ['.ts', '.js']
       },
-      include: ['./build/dist/index.d.ts', 'src/spec/Mocks.ts', 'src/spec/TestUtils.ts', 'src/spec/*.ts'],
-      types: ['@types/jasmine']
-    },
-
-    // test results reporter to use
-    // possible values: 'dots', 'progress'
-    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress', 'coverage'],
-
-    coverageReporter: {
-      reporters: [{ type: 'html', dir: 'coverage/' }, { type: 'lcovonly', dir: 'coverage/', file: 'lcov.info' }, { type: 'text-summary' }]
-    },
-
-    // web server port
-    port: 9876,
-
-    // enable / disable colors in the output (reporters and logs)
-    colors: true,
-
-    // level of logging
-    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    logLevel: config.LOG_INFO,
-
-    // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: false,
-
-    // start these browsers
-    // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['ChromeHeadlessDebug'],
-
-    customLaunchers: {
-      ChromeHeadlessDebug: {
-        base: 'ChromeHeadless',
-        flags: ['--remote-debugging-port=9333', '--no-sandbox']
+      module: {
+        rules: [
+          {
+            test: /\.ts$/,
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true // speeds up tests a TON by only using webpack resolution
+            }
+          },
+          {
+            test: /\excalibur.js$/,
+            use: {
+              loader: 'istanbul-instrumenter-loader',
+              options: { esModules: true }
+            }
+          }
+        ]
       }
     },
+    webpackMiddleware: {
+    // webpack-dev-middleware configuration
+    // i. e.
+        stats: 'normal'
+    },
+    reporters: ['progress', 'coverage-istanbul'],
 
-    // Continuous Integration mode
-    // if true, Karma captures browsers, runs the tests and exits
-    singleRun: true,
+    coverageReporter: {
+      reporters: [
+          { type: 'html', dir: 'coverage/' }, 
+          { type: 'lcovonly', dir: 'coverage/', file: 'lcov.info' }, 
+          { type: 'text-summary' }]
+    },
+    coverageIstanbulReporter: {
+      // reports can be any that are listed here: https://github.com/istanbuljs/istanbuljs/tree/aae256fb8b9a3d19414dcf069c592e88712c32c6/packages/istanbul-reports/lib
+      reports: ['html', 'lcovonly', 'text-summary'],
 
-    // Concurrency level
-    // how many browser should be started simultaneous
-    concurrency: Infinity
+      // base output directory. If you include %browser% in the path it will be replaced with the karma browser name
+      dir: path.join(__dirname, 'coverage')
+    },
+
+    browsers: ['ChromeHeadless'],
+    customLaunchers: {
+      ChromeHeadless_with_debug: {
+        base: 'ChromeHeadless',
+        flags: ['--remote-debugging-port=9334', '--no-sandbox', '--disable-web-security']
+      },
+      Chrome_with_debug: {
+        base: 'Chrome',
+        flags: ['--remote-debugging-port=9334', '--no-sandbox']
+      }
+    }
   });
 };

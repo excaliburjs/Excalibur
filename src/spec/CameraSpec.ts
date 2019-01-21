@@ -1,3 +1,8 @@
+import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import * as ex from '../../build/dist/excalibur';
+import { TestUtils } from './util/TestUtils';
+import { Mocks } from './util/Mocks';
+
 describe('A camera', () => {
   var baseCamera;
   var actor: ex.Actor;
@@ -6,7 +11,7 @@ describe('A camera', () => {
   var mock = new Mocks.Mocker();
 
   beforeEach(() => {
-    jasmine.addMatchers(imagediff.jasmine);
+    jasmine.addMatchers(ExcaliburMatchers);
     actor = new ex.Actor();
 
     // mock engine
@@ -241,7 +246,10 @@ describe('A camera', () => {
   xit('can zoom in over time', (done) => {
     engine.start().then(() => {
       engine.currentScene.camera.zoom(5, 1000).then(() => {
-        imagediff.expectCanvasImageMatches('CameraSpec/zoomin.png', engine.canvas, done);
+        ensureImagesLoaded(engine.canvas, 'src/spec/images/CameraSpec/zoomin.png').then(([canvas, image]) => {
+          expect(canvas).toEqualImage(image, 0.995);
+          done();
+        });
       });
     });
   });
@@ -249,7 +257,10 @@ describe('A camera', () => {
   xit('can zoom out over time', (done) => {
     engine.start().then(() => {
       engine.currentScene.camera.zoom(0.2, 1000).then(() => {
-        imagediff.expectCanvasImageMatches('CameraSpec/zoomout.png', engine.canvas, done);
+        ensureImagesLoaded(engine.canvas, 'src/spec/images/CameraSpec/zoomout.png').then(([canvas, image]) => {
+          expect(canvas).toEqualImage(image, 0.995);
+          done();
+        });
       });
     });
   });

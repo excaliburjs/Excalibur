@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added ability to automatically convert .gif files to SpriteSheet, Animations, and Sprites [#1075](https://github.com/excaliburjs/Excalibur/issues/1075)
+
 ### Changed
 
 ### Deprecated
