@@ -202,7 +202,7 @@ export class EdgeArea implements ICollisionArea {
   }
 
   /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red.clone()) {
+  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red) {
     ctx.strokeStyle = color.toString();
     ctx.beginPath();
     ctx.moveTo(this.begin.x, this.begin.y);

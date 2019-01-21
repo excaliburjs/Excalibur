@@ -321,7 +321,7 @@ export class PolygonArea implements ICollisionArea {
   }
 
   /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red.clone()) {
+  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red) {
     ctx.beginPath();
     ctx.strokeStyle = color.toString();
     // Iterate through the supplied points and construct a 'polygon'

@@ -212,14 +212,14 @@ export class SpriteSheet extends Configurable(SpriteSheetImpl) {
 }
 
 export class SpriteFontImpl extends SpriteSheet {
-  private _currentColor: Color = Color.Black.clone();
+  private _currentColor: Color = Color.Black;
   private _currentOpacity: Number = 1.0;
   private _sprites: { [key: string]: Sprite } = {};
 
   // text shadow
   private _textShadowOn: boolean = false;
   private _textShadowDirty: boolean = true;
-  private _textShadowColor: Color = Color.Black.clone();
+  private _textShadowColor: Color = Color.Black;
   private _textShadowSprites: { [key: string]: Sprite } = {};
   private _shadowOffsetX: number = 5;
   private _shadowOffsetY: number = 5;
@@ -395,7 +395,7 @@ export class SpriteFontImpl extends SpriteSheet {
     return {
       fontSize: options.fontSize || 10,
       letterSpacing: options.letterSpacing || 0,
-      color: options.color || Color.Black.clone(),
+      color: options.color || Color.Black,
       textAlign: typeof options.textAlign === undefined ? TextAlign.Left : options.textAlign,
       baseAlign: typeof options.baseAlign === undefined ? BaseAlign.Bottom : options.baseAlign,
       maxWidth: options.maxWidth || -1,

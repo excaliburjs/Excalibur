@@ -198,7 +198,7 @@ export class CircleArea implements ICollisionArea {
   }
 
   /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Green.clone()) {
+  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Green) {
     var pos = this.body ? this.body.pos.add(this.pos) : this.pos;
     var rotation = this.body ? this.body.rotation : 0;
 
