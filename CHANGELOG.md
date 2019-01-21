@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added ability to automatically convert .gif files to SpriteSheet, Animations, and Sprites [#1075](https://github.com/excaliburjs/Excalibur/issues/1075)
+- Add new `viewport` property to camera to return a world space bounding box of the current visible area [#1078](https://github.com/excaliburjs/Excalibur/issues/1078)
 
 ### Changed
 
