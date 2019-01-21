@@ -79,12 +79,38 @@ describe('A Bounding Box', () => {
     expect(bb2.collides(bb).y).toBe(0);
   });
 
-  it('can collide with other bounding box in full containment, closest right', () => {
-    var bb = new ex.BoundingBox(0, 0, 20, 20);
-    var bb1 = new ex.BoundingBox(10, 8, 15, 12);
-    expect(bb.collides(bb1)).not.toBe(null);
-    expect(bb.collides(bb1).x).toBe(-10, 'X should be -10');
-    expect(bb.collides(bb1).y).toBe(0, 'Y should be 0');
+  describe('when in full containment', () => {
+    it('closest right', () => {
+      var bb = new ex.BoundingBox(0, 0, 50, 50);
+      var bb1 = new ex.BoundingBox(40, 8, 49, 12);
+      expect(bb.collides(bb1)).not.toBe(null);
+      expect(bb.collides(bb1).x).toBe(-10, 'X should be -10');
+      expect(bb.collides(bb1).y).toBe(0, 'Y should be 0');
+    });
+
+    it('closet left', () => {
+      var bb = new ex.BoundingBox(0, 0, 50, 50);
+      var bb1 = new ex.BoundingBox(1, 15, 10, 20);
+      expect(bb.collides(bb1)).not.toBe(null);
+      expect(bb.collides(bb1).x).toBe(10, 'X should be 10');
+      expect(bb.collides(bb1).y).toBe(0, 'Y should be 0');
+    });
+
+    it('closest top', () => {
+      var bb = new ex.BoundingBox(0, 0, 50, 50);
+      var bb1 = new ex.BoundingBox(10, 1, 12, 10);
+      expect(bb.collides(bb1)).not.toBe(null);
+      expect(bb.collides(bb1).x).toBe(0, 'X should be 0');
+      expect(bb.collides(bb1).y).toBe(10, 'Y should be 0');
+    });
+
+    it('closest bottom', () => {
+      var bb = new ex.BoundingBox(0, 0, 50, 50);
+      var bb1 = new ex.BoundingBox(10, 40, 12, 49);
+      expect(bb.collides(bb1)).not.toBe(null);
+      expect(bb.collides(bb1).x).toBe(0, 'X should be 0');
+      expect(bb.collides(bb1).y).toBe(-10, 'Y should be -10');
+    });
   });
 
   it('can collide with other bounding boxes of the same width/height', () => {
