@@ -20,7 +20,7 @@ import { SortedList } from './Util/SortedList';
 import { Engine } from './Engine';
 import { Group } from './Group';
 import { TileMap } from './TileMap';
-import { BaseCamera } from './Camera';
+import { Camera } from './Camera';
 import { Actor } from './Actor';
 import { Class } from './Class';
 import { ICanInitialize, ICanActivate, ICanDeactivate, ICanUpdate, ICanDraw } from './Interfaces/LifecycleEvents';
@@ -41,7 +41,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
   /**
    * Gets or sets the current camera for the scene
    */
-  public camera: BaseCamera;
+  public camera: Camera;
 
   /**
    * The actors in the current scene
@@ -87,7 +87,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
 
   constructor(engine?: Engine) {
     super();
-    this.camera = new BaseCamera();
+    this.camera = new Camera();
     if (engine) {
       this.camera.x = engine.halfDrawWidth;
       this.camera.y = engine.halfDrawHeight;

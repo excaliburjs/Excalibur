@@ -4,7 +4,7 @@ import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
 describe('A camera', () => {
-  var baseCamera;
+  var Camera;
   var actor: ex.Actor;
   var engine: ex.Engine;
   var scene: ex.Scene;
@@ -33,7 +33,7 @@ describe('A camera', () => {
     scene.add(actor);
     engine.currentScene = scene;
 
-    baseCamera = new ex.BaseCamera();
+    Camera = new ex.Camera();
   });
 
   afterEach(() => {
@@ -42,103 +42,103 @@ describe('A camera', () => {
 
   it('can focus on a point', () => {
     // set the focus with positional attributes
-    baseCamera.x = 10;
-    baseCamera.y = 20;
+    Camera.x = 10;
+    Camera.y = 20;
 
-    expect(baseCamera.getFocus().x).toBe(10);
-    expect(baseCamera.getFocus().y).toBe(20);
+    expect(Camera.getFocus().x).toBe(10);
+    expect(Camera.getFocus().y).toBe(20);
 
-    baseCamera.x = 20;
-    baseCamera.y = 10;
+    Camera.x = 20;
+    Camera.y = 10;
 
-    expect(baseCamera.getFocus().x).toBe(20);
-    expect(baseCamera.getFocus().y).toBe(10);
+    expect(Camera.getFocus().x).toBe(20);
+    expect(Camera.getFocus().y).toBe(10);
   });
 
   it('can move to a point', () => {
-    baseCamera.x = 10;
-    baseCamera.y = 20;
+    Camera.x = 10;
+    Camera.y = 20;
 
     // verify initial position
-    expect(baseCamera.getFocus().x).toBe(10);
-    expect(baseCamera.getFocus().y).toBe(20);
+    expect(Camera.getFocus().x).toBe(10);
+    expect(Camera.getFocus().y).toBe(20);
 
     // move (1000ms)
-    baseCamera.move(new ex.Vector(20, 10), 1000);
+    Camera.move(new ex.Vector(20, 10), 1000);
 
     // shouldn't have moved already
-    expect(baseCamera.getFocus().x).toBe(10);
-    expect(baseCamera.getFocus().y).toBe(20);
+    expect(Camera.getFocus().x).toBe(10);
+    expect(Camera.getFocus().y).toBe(20);
 
     // wait 11 frames (1100ms)
     for (let i = 0; i < 11; i++) {
-      baseCamera.update(engine, 100);
+      Camera.update(engine, 100);
     }
 
     // should be at new position
-    expect(baseCamera.getFocus().x).toBe(20);
-    expect(baseCamera.getFocus().y).toBe(10);
+    expect(Camera.getFocus().x).toBe(20);
+    expect(Camera.getFocus().y).toBe(10);
   });
 
   it('can chain moves from various points', () => {
-    baseCamera.x = 10;
-    baseCamera.y = 20;
+    Camera.x = 10;
+    Camera.y = 20;
 
     // verify initial position
-    expect(baseCamera.x).toBe(10);
-    expect(baseCamera.y).toBe(20);
+    expect(Camera.x).toBe(10);
+    expect(Camera.y).toBe(20);
 
-    baseCamera.move(new ex.Vector(20, 10), 1000).then(() => {
-      baseCamera.move(new ex.Vector(0, 0), 1000).then(() => {
-        baseCamera.move(new ex.Vector(100, 100), 1000);
+    Camera.move(new ex.Vector(20, 10), 1000).then(() => {
+      Camera.move(new ex.Vector(0, 0), 1000).then(() => {
+        Camera.move(new ex.Vector(100, 100), 1000);
       });
     });
 
     // wait 11 frames (1100ms)
     for (let i = 0; i < 11; i++) {
-      baseCamera.update(engine, 100);
+      Camera.update(engine, 100);
     }
 
     // should be at new position
-    expect(baseCamera.x).toBe(20);
-    expect(baseCamera.y).toBe(10);
+    expect(Camera.x).toBe(20);
+    expect(Camera.y).toBe(10);
 
     // wait 11 frames (1100ms)
     for (let i = 0; i < 11; i++) {
-      baseCamera.update(engine, 100);
+      Camera.update(engine, 100);
     }
 
     // should be at new position
-    expect(baseCamera.x).toBe(0);
-    expect(baseCamera.y).toBe(0);
+    expect(Camera.x).toBe(0);
+    expect(Camera.y).toBe(0);
 
     // wait 11 frames (1100ms)
     for (let i = 0; i < 11; i++) {
-      baseCamera.update(engine, 100);
+      Camera.update(engine, 100);
     }
 
     // should be at new position
-    expect(baseCamera.x).toBe(100);
-    expect(baseCamera.y).toBe(100);
+    expect(Camera.x).toBe(100);
+    expect(Camera.y).toBe(100);
   });
 
   it('can shake', () => {
-    engine.currentScene.camera = baseCamera;
+    engine.currentScene.camera = Camera;
     engine.currentScene.camera.strategy.lockToActor(actor);
-    baseCamera.shake(5, 5, 5000);
+    Camera.shake(5, 5, 5000);
 
-    expect(baseCamera._isShaking).toBe(true);
+    expect(Camera._isShaking).toBe(true);
   });
 
   it('can zoom', () => {
-    engine.currentScene.camera = baseCamera;
-    baseCamera.zoom(2, 0.1);
+    engine.currentScene.camera = Camera;
+    Camera.zoom(2, 0.1);
 
-    expect(baseCamera._isZooming).toBe(true);
+    expect(Camera._isZooming).toBe(true);
   });
 
   it('can use built-in locked camera strategy', () => {
-    engine.currentScene.camera = new ex.BaseCamera();
+    engine.currentScene.camera = new ex.Camera();
     let actor = new ex.Actor(0, 0);
 
     engine.currentScene.camera.strategy.lockToActor(actor);
@@ -154,7 +154,7 @@ describe('A camera', () => {
   });
 
   it('can use built-in locked camera x axis strategy', () => {
-    engine.currentScene.camera = new ex.BaseCamera();
+    engine.currentScene.camera = new ex.Camera();
     let actor = new ex.Actor(0, 0);
 
     engine.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.X);
@@ -170,7 +170,7 @@ describe('A camera', () => {
   });
 
   it('can use built-in locked camera y axis strategy', () => {
-    engine.currentScene.camera = new ex.BaseCamera();
+    engine.currentScene.camera = new ex.Camera();
     let actor = new ex.Actor(0, 0);
 
     engine.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.Y);
@@ -186,7 +186,7 @@ describe('A camera', () => {
   });
 
   it('can use built-in radius around actor strategy', () => {
-    engine.currentScene.camera = new ex.BaseCamera();
+    engine.currentScene.camera = new ex.Camera();
     let actor = new ex.Actor(0, 0);
 
     engine.currentScene.camera.strategy.radiusAroundActor(actor, 15);
@@ -202,7 +202,7 @@ describe('A camera', () => {
   });
 
   it('can use built-in elastic around actor strategy', () => {
-    engine.currentScene.camera = new ex.BaseCamera();
+    engine.currentScene.camera = new ex.Camera();
     engine.currentScene.camera.pos.setTo(0, 0);
     let actor = new ex.Actor(0, 0);
 
@@ -266,10 +266,10 @@ describe('A camera', () => {
   });
 
   describe('lifecycle overrides', () => {
-    let camera: ex.BaseCamera;
+    let camera: ex.Camera;
 
     beforeEach(() => {
-      camera = new ex.BaseCamera();
+      camera = new ex.Camera();
     });
 
     it('can have onInitialize overriden safely', () => {
