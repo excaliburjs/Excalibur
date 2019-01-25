@@ -1,4 +1,5 @@
-/// <reference path="TestUtils.ts" />
+import * as ex from '../../build/dist/excalibur';
+import { TestUtils } from './util/TestUtils';
 
 describe('A pointer', () => {
   var engine: ex.Engine = null;

@@ -1,11 +1,12 @@
-/// <reference path="support/js-imagediff.d.ts" />
-/// <reference path="Mocks.ts" />
+import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import * as ex from '../../build/dist/excalibur';
+import { TestUtils } from './util/TestUtils';
 
 describe('A spritefont', () => {
   let engine: ex.Engine;
   let texture: ex.Texture;
   beforeEach(() => {
-    jasmine.addMatchers(imagediff.jasmine);
+    jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({
       width: 800,
       height: 200
@@ -60,7 +61,10 @@ describe('A spritefont', () => {
         maxWidth: 500
       });
 
-      imagediff.expectCanvasImageMatches('SpriteFontSpec/ExpectedFont.png', engine.canvas, done);
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteFontSpec/ExpectedFont.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 
@@ -93,7 +97,10 @@ describe('A spritefont', () => {
       sprites['?'].draw(engine.ctx, 4 * 16, 16);
       sprites['-'].draw(engine.ctx, 5 * 16, 16);
 
-      imagediff.expectCanvasImageMatches('SpriteFontSpec/IndividualSprites.png', engine.canvas, done);
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteFontSpec/IndividualSprites.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 
@@ -121,7 +128,10 @@ describe('A spritefont', () => {
         maxWidth: 500
       });
 
-      imagediff.expectCanvasImageMatches('SpriteFontSpec/TextShadow.png', engine.canvas, done);
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteFontSpec/TextShadow.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 });

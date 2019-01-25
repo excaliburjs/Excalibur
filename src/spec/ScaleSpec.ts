@@ -1,7 +1,7 @@
-/// <reference path="support/js-imagediff.d.ts" />
-
-/// <reference path="TestUtils.ts" />
-/// <reference path="Mocks.ts" />
+import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import * as ex from '../../build/dist/excalibur';
+import { TestUtils } from './util/TestUtils';
+import { Mocks } from './util/Mocks';
 
 describe('A scaled and rotated actor', () => {
   var actor: ex.Actor;
@@ -10,7 +10,7 @@ describe('A scaled and rotated actor', () => {
   var mock = new Mocks.Mocker();
 
   beforeEach(() => {
-    jasmine.addMatchers(imagediff.jasmine);
+    jasmine.addMatchers(ExcaliburMatchers);
 
     actor = new ex.UIActor(50, 50, 100, 50);
     actor.color = ex.Color.Blue;
@@ -29,7 +29,7 @@ describe('A scaled and rotated actor', () => {
     engine.stop();
   });
 
-  xit('is drawn correctly scaled at 90 degrees', (done) => {
+  it('is drawn correctly scaled at 90 degrees', (done) => {
     let bg = new ex.Texture('./base/src/spec/images/ScaleSpec/logo.png', true);
 
     engine.start(new ex.Loader([bg])).then(() => {
@@ -43,7 +43,10 @@ describe('A scaled and rotated actor', () => {
 
       actor.on('postdraw', (ev: ex.PostDrawEvent) => {
         engine.stop();
-        imagediff.expectCanvasImageMatches('ScaleSpec/scale.png', engine.canvas, done);
+        ensureImagesLoaded(engine.canvas, 'src/spec/images/ScaleSpec/scale.png').then(([canvas, image]) => {
+          expect(canvas).toEqualImage(image);
+          done();
+        });
       });
     });
   });

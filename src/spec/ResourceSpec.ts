@@ -1,5 +1,6 @@
-/// <reference path="Mocks.ts" />
-/// <reference path="TestUtils.ts" />
+import * as ex from '../../build/dist/excalibur';
+import { TestUtils } from './util/TestUtils';
+import { Mocks } from './util/Mocks';
 
 describe('A generic Resource', () => {
   var resource: ex.Resource<any>;
@@ -61,7 +62,7 @@ describe('A generic Resource', () => {
     });
 
     it('should load a text resource', (done) => {
-      var text = new ex.Resource('/base/src/spec/ResourceSpec.js', 'text', true);
+      var text = new ex.Resource('base/src/spec/images/ResourceSpec/textresource.txt', 'text', true);
       text.load().then((data) => {
         expect(data).not.toBeNull();
         done();

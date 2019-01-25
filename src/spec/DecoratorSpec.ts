@@ -1,5 +1,4 @@
-/// <reference path="../../build/dist/excalibur.d.ts" />
-/// <reference path="Mocks.ts" />
+import * as ex from '../../build/dist/excalibur';
 
 class TestObsolete {
   private _stuff = 'things';
