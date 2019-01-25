@@ -222,6 +222,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
    */
   public _initialize(engine: Engine) {
     if (!this.isInitialized) {
+      this._engine = engine;
       if (this.camera) {
         this.camera.x = engine.halfDrawWidth;
         this.camera.y = engine.halfDrawHeight;
