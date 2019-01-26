@@ -14,6 +14,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Remove optionality of engine in constructor of Scene and \_engine private with an underscore prefix ([#1067](https://github.com/excaliburjs/Excalibur/issues/1067))
+
 ### Deprecated
 
 ### Fixed
