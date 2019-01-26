@@ -654,7 +654,6 @@ O|===|* >________________>\n\
       this._logger.warn('Scene', key, 'already exists overwriting');
     }
     this.scenes[key] = scene;
-    scene.engine = this;
   }
 
   /**

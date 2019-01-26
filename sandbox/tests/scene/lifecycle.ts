@@ -4,7 +4,7 @@ ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 
 var game = new ex.Engine({ width: 300, height: 300, canvasElementId: 'game' });
 
-var scene2 = new ex.Scene();
+var scene2 = new ex.Scene(game);
 
 game.add('scene2', scene2);
 
