@@ -367,12 +367,12 @@ describe('A scene', () => {
   });
 
   it('will not be the current scene if no engine is given', () => {
-    var otherScene = new ex.Scene();
+    var otherScene = new ex.Scene(engine);
     expect(otherScene.isCurrentScene()).toBe(false);
   });
 
   it('will not be the current scene if the scene was switched', () => {
-    var otherScene = new ex.Scene();
+    var otherScene = new ex.Scene(engine);
     engine.goToScene('root');
     engine.addScene('secondaryScene', otherScene);
     engine.goToScene('secondaryScene');

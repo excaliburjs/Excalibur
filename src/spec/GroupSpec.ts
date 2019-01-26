@@ -8,9 +8,9 @@ describe('An Actor Group', () => {
   var mock = new Mocks.Mocker();
 
   beforeEach(() => {
-    scene = new ex.Scene();
-    group = new ex.Group('name', scene);
     engine = mock.engine(100, 100);
+    scene = new ex.Scene(engine);
+    group = new ex.Group('name', scene);
     engine.currentScene = scene;
   });
 

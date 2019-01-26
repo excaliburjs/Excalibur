@@ -13,6 +13,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Remove optionality of engine in constructor of Scene and \_engine private with an underscore prefix ([#1067](https://github.com/excaliburjs/Excalibur/issues/1067))
+
 ### Deprecated
 
 - Rename `ex.BaseCamera` to `Camera`, `ex.BaseCamera` will be removed in `v0.22.0` [#1085](https://github.com/excaliburjs/Excalibur/issues/1085)
