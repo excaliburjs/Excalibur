@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Updated `ex.Color` and `ex.Vector` constants to be static getters that return new instances each time, eliminating a source of bugs in excalibur [#1085](https://github.com/excaliburjs/Excalibur/issues/1085)
+- Remove optionality of engine in constructor of Scene and \_engine private with an underscore prefix ([#1067](https://github.com/excaliburjs/Excalibur/issues/1067))
 
 ### Deprecated
 
