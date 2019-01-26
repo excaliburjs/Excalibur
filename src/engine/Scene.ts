@@ -87,7 +87,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
 
   constructor(_engine: Engine) {
     super();
-    this.camera = new BaseCamera();
+    this.camera = new Camera();
     this._engine = _engine;
     if (_engine) {
       this.camera.x = _engine.halfDrawWidth;
