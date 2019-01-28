@@ -36,8 +36,8 @@ export class ParticleImpl {
   public focus: Vector = null;
   public focusAccel: number = 0;
   public opacity: number = 1;
-  public beginColor: Color = Color.White.clone();
-  public endColor: Color = Color.White.clone();
+  public beginColor: Color = Color.White;
+  public endColor: Color = Color.White;
 
   // Life is counted in ms
   public life: number = 300;
@@ -48,7 +48,7 @@ export class ParticleImpl {
   private _gRate: number = 1;
   private _bRate: number = 1;
   private _aRate: number = 0;
-  private _currentColor: Color = Color.White.clone();
+  private _currentColor: Color = Color.White;
 
   public emitter: ParticleEmitter = null;
   public particleSize: number = 5;
@@ -314,11 +314,11 @@ export class ParticleEmitterImpl extends Actor {
   /**
    * Gets or sets the beginning color of all particles
    */
-  public beginColor: Color = Color.White.clone();
+  public beginColor: Color = Color.White;
   /**
    * Gets or sets the ending color of all particles
    */
-  public endColor: Color = Color.White.clone();
+  public endColor: Color = Color.White;
 
   /**
    * Gets or sets the sprite that a particle should use

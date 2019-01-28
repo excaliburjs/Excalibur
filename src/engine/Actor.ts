@@ -92,7 +92,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    * Indicates the next id to be set
    */
   public static defaults: IActorDefaults = {
-    anchor: Vector.Half.clone()
+    anchor: Vector.Half
   };
   /**
    * Indicates the next id to be set
@@ -212,7 +212,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
   /**
    * Gets/sets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
    */
-  public oldAcc: Vector = Vector.Zero.clone();
+  public oldAcc: Vector = Vector.Zero;
 
   /**
    * Gets the acceleration vector of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
@@ -348,12 +348,12 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
   /**
    * The scale vector of the actor
    */
-  public scale: Vector = Vector.One.clone();
+  public scale: Vector = Vector.One;
 
   /**
    * The scale of the actor last frame
    */
-  public oldScale: Vector = Vector.One.clone();
+  public oldScale: Vector = Vector.One;
 
   /**
    * The x scalar velocity of the actor in scale/second

@@ -217,7 +217,7 @@ export class LabelImpl extends Actor {
     }
 
     this.text = text || '';
-    this.color = Color.Black.clone();
+    this.color = Color.Black;
     this.spriteFont = spriteFont;
     this.collisionType = CollisionType.PreventCollision;
     this.fontFamily = fontFamily || 'sans-serif'; // coalesce to default canvas font
