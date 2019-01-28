@@ -20,7 +20,7 @@ import { SortedList } from './Util/SortedList';
 import { Engine } from './Engine';
 import { Group } from './Group';
 import { TileMap } from './TileMap';
-import { BaseCamera } from './Camera';
+import { Camera } from './Camera';
 import { Actor } from './Actor';
 import { Class } from './Class';
 import { ICanInitialize, ICanActivate, ICanDeactivate, ICanUpdate, ICanDraw } from './Interfaces/LifecycleEvents';
@@ -41,7 +41,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
   /**
    * Gets or sets the current camera for the scene
    */
-  public camera: BaseCamera;
+  public camera: Camera;
 
   /**
    * The actors in the current scene
@@ -66,7 +66,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
   /**
    * Access to the Excalibur engine
    */
-  public engine: Engine;
+  private _engine: Engine;
 
   /**
    * The [[UIActor]]s in a scene, if any; these are drawn last
@@ -85,12 +85,13 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
   private _cancelQueue: Timer[] = [];
   private _logger: Logger = Logger.getInstance();
 
-  constructor(engine?: Engine) {
+  constructor(_engine: Engine) {
     super();
-    this.camera = new BaseCamera();
-    if (engine) {
-      this.camera.x = engine.halfDrawWidth;
-      this.camera.y = engine.halfDrawHeight;
+    this.camera = new Camera();
+    this._engine = _engine;
+    if (_engine) {
+      this.camera.x = _engine.halfDrawWidth;
+      this.camera.y = _engine.halfDrawHeight;
     }
   }
 
@@ -201,7 +202,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
    */
   private _initializeChildren(): void {
     for (var child of this.actors) {
-      child._initialize(this.engine);
+      child._initialize(this._engine);
     }
   }
 
@@ -221,6 +222,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
    */
   public _initialize(engine: Engine) {
     if (!this.isInitialized) {
+      this._engine = engine;
       if (this.camera) {
         this.camera.x = engine.halfDrawWidth;
         this.camera.y = engine.halfDrawHeight;
@@ -429,7 +431,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
       }
     }
 
-    if (this.engine && this.engine.isDebug) {
+    if (this._engine && this._engine.isDebug) {
       ctx.strokeStyle = 'yellow';
       this.debugDraw(ctx);
     }
@@ -443,7 +445,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
       }
     }
 
-    if (this.engine && this.engine.isDebug) {
+    if (this._engine && this._engine.isDebug) {
       for (i = 0, len = this.uiActors.length; i < len; i++) {
         this.uiActors[i].debugDraw(ctx);
       }
@@ -751,8 +753,8 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
   }
 
   public isCurrentScene(): boolean {
-    if (this.engine) {
-      return this.engine.currentScene === this;
+    if (this._engine) {
+      return this._engine.currentScene === this;
     }
     return false;
   }
