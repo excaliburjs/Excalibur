@@ -30,7 +30,7 @@ export interface ITriggerOptions {
 }
 
 let triggerDefaults: Partial<ITriggerOptions> = {
-  pos: Vector.Zero.clone(),
+  pos: Vector.Zero,
   width: 10,
   height: 10,
   visible: false,

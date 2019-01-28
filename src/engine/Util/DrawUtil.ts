@@ -22,7 +22,7 @@ export type LineCapStyle = 'butt' | 'round' | 'square';
 /* istanbul ignore next */
 export function line(
   ctx: CanvasRenderingContext2D,
-  color: Color = Color.Red.clone(),
+  color: Color = Color.Red,
   x1: number,
   y1: number,
   x2: number,
@@ -44,7 +44,7 @@ export function line(
  * Draw the vector as a point onto the canvas.
  */
 /* istanbul ignore next */
-export function point(ctx: CanvasRenderingContext2D, color: Color = Color.Red.clone(), point: Vector): void {
+export function point(ctx: CanvasRenderingContext2D, color: Color = Color.Red, point: Vector): void {
   ctx.beginPath();
   ctx.strokeStyle = color.toString();
   ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);

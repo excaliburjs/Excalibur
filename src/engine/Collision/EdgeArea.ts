@@ -23,8 +23,8 @@ export class EdgeArea implements ICollisionArea {
   end: Vector;
 
   constructor(options: IEdgeAreaOptions) {
-    this.begin = options.begin || Vector.Zero.clone();
-    this.end = options.end || Vector.Zero.clone();
+    this.begin = options.begin || Vector.Zero;
+    this.end = options.end || Vector.Zero;
     this.body = options.body || null;
 
     this.pos = this.getCenter();
@@ -39,7 +39,7 @@ export class EdgeArea implements ICollisionArea {
   }
 
   private _getBodyPos(): Vector {
-    var bodyPos = Vector.Zero.clone();
+    var bodyPos = Vector.Zero;
     if (this.body.pos) {
       bodyPos = this.body.pos;
     }
@@ -202,7 +202,7 @@ export class EdgeArea implements ICollisionArea {
   }
 
   /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red.clone()) {
+  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red) {
     ctx.strokeStyle = color.toString();
     ctx.beginPath();
     ctx.moveTo(this.begin.x, this.begin.y);

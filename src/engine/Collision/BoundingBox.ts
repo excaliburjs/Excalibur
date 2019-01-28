@@ -77,7 +77,7 @@ export class BoundingBox implements ICollidable {
    * Rotates a bounding box by and angle and around a point, if no point is specified (0, 0) is used by default. The resulting bounding
    * box is also axis-align. This is useful when a new axis-aligned bounding box is needed for rotated geometry.
    */
-  public rotate(angle: number, point: Vector = Vector.Zero.clone()): BoundingBox {
+  public rotate(angle: number, point: Vector = Vector.Zero): BoundingBox {
     var points = this.getPoints().map((p) => p.rotate(angle, point));
     return BoundingBox.fromPoints(points);
   }
@@ -107,7 +107,7 @@ export class BoundingBox implements ICollidable {
     return new PolygonArea({
       body: actor ? actor.body : null,
       points: this.getPoints(),
-      pos: Vector.Zero.clone()
+      pos: Vector.Zero
     });
   }
 

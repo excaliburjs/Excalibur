@@ -90,7 +90,7 @@ export class Body {
    */
   public rx: number = 0; //radians/sec
 
-  private _totalMtv: Vector = Vector.Zero.clone();
+  private _totalMtv: Vector = Vector.Zero;
 
   /**
    * Add minimum translation vectors accumulated during the current frame to resolve collisions.
@@ -148,7 +148,7 @@ export class Body {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public useBoxCollision(center: Vector = Vector.Zero.clone()) {
+  public useBoxCollision(center: Vector = Vector.Zero) {
     this.collisionArea = new PolygonArea({
       body: this,
       points: this.actor.getRelativeGeometry(),
@@ -166,7 +166,7 @@ export class Body {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public usePolygonCollision(points: Vector[], center: Vector = Vector.Zero.clone()) {
+  public usePolygonCollision(points: Vector[], center: Vector = Vector.Zero) {
     this.collisionArea = new PolygonArea({
       body: this,
       points: points,
@@ -182,7 +182,7 @@ export class Body {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public useCircleCollision(radius?: number, center: Vector = Vector.Zero.clone()) {
+  public useCircleCollision(radius?: number, center: Vector = Vector.Zero) {
     if (!radius) {
       radius = this.actor.getWidth() / 2;
     }

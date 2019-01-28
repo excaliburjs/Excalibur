@@ -23,7 +23,7 @@ export class CircleArea implements ICollisionArea {
   /**
    * This is the center position of the circle, relative to the body position
    */
-  public pos: Vector = Vector.Zero.clone();
+  public pos: Vector = Vector.Zero;
   /**
    * This is the radius of the circle
    */
@@ -34,7 +34,7 @@ export class CircleArea implements ICollisionArea {
   public body: Body;
 
   constructor(options: ICircleAreaOptions) {
-    this.pos = options.pos || Vector.Zero.clone();
+    this.pos = options.pos || Vector.Zero;
     this.radius = options.radius || 0;
     this.body = options.body || null;
   }
@@ -198,7 +198,7 @@ export class CircleArea implements ICollisionArea {
   }
 
   /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Green.clone()) {
+  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Green) {
     var pos = this.body ? this.body.pos.add(this.pos) : this.pos;
     var rotation = this.body ? this.body.rotation : 0;
 
