@@ -8,6 +8,7 @@ import { ICanUpdate, ICanInitialize } from './Interfaces/LifecycleEvents';
 import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './Events';
 import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
+import { obsolete } from './Util/Decorators';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -25,7 +26,7 @@ export interface ICameraStrategy<T> {
    * @param engine The current engine running the game
    * @param delta The elapsed time in milliseconds since the last frame
    */
-  action: (target: T, camera: BaseCamera, engine: Engine, delta: number) => Vector;
+  action: (target: T, camera: Camera, engine: Engine, delta: number) => Vector;
 }
 
 /**
@@ -33,7 +34,7 @@ export interface ICameraStrategy<T> {
  * @internal
  */
 export class StrategyContainer {
-  constructor(public camera: BaseCamera) {}
+  constructor(public camera: Camera) {}
 
   /**
    * Creates and adds the [[LockCameraToActorStrategy]] on the current camera.
@@ -89,7 +90,7 @@ export enum Axis {
  */
 export class LockCameraToActorStrategy implements ICameraStrategy<Actor> {
   constructor(public target: Actor) {}
-  public action = (target: Actor, _cam: BaseCamera, _eng: Engine, _delta: number) => {
+  public action = (target: Actor, _cam: Camera, _eng: Engine, _delta: number) => {
     let center = target.getCenter();
     return center;
   };
@@ -100,7 +101,7 @@ export class LockCameraToActorStrategy implements ICameraStrategy<Actor> {
  */
 export class LockCameraToActorAxisStrategy implements ICameraStrategy<Actor> {
   constructor(public target: Actor, public axis: Axis) {}
-  public action = (target: Actor, cam: BaseCamera, _eng: Engine, _delta: number) => {
+  public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
     let center = target.getCenter();
     let currentFocus = cam.getFocus();
     if (this.axis === Axis.X) {
@@ -125,7 +126,7 @@ export class ElasticToActorStrategy implements ICameraStrategy<Actor> {
    * @param cameraFriction [0 - 1.0] The higher the friction the more that the camera will resist motion towards the target
    */
   constructor(public target: Actor, public cameraElasticity: number, public cameraFriction: number) {}
-  public action = (target: Actor, cam: BaseCamera, _eng: Engine, _delta: number) => {
+  public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
     let position = target.getCenter();
     let focus = cam.getFocus();
     let cameraVel = new Vector(cam.dx, cam.dy);
@@ -156,7 +157,7 @@ export class RadiusAroundActorStrategy implements ICameraStrategy<Actor> {
    * @param radius Number of pixels away before the camera will follow
    */
   constructor(public target: Actor, public radius: number) {}
-  public action = (target: Actor, cam: BaseCamera, _eng: Engine, _delta: number) => {
+  public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
     let position = target.getCenter();
     let focus = cam.getFocus();
 
@@ -173,13 +174,13 @@ export class RadiusAroundActorStrategy implements ICameraStrategy<Actor> {
 /**
  * Cameras
  *
- * [[BaseCamera]] is the base class for all Excalibur cameras. Cameras are used
+ * [[Camera]] is the base class for all Excalibur cameras. Cameras are used
  * to move around your game and set focus. They are used to determine
  * what is "off screen" and can be used to scale the game.
  *
  * [[include:Cameras.md]]
  */
-export class BaseCamera extends Class implements ICanUpdate, ICanInitialize {
+export class Camera extends Class implements ICanUpdate, ICanInitialize {
   protected _follow: Actor;
 
   private _cameraStrategies: ICameraStrategy<any>[] = [];
@@ -612,5 +613,15 @@ export class BaseCamera extends Class implements ICanUpdate, ICanInitialize {
 
   private _isDoneShaking(): boolean {
     return !this._isShaking || this._elapsedShakeTime >= this._shakeDuration;
+  }
+}
+
+/**
+ * @obsolete `BaseCamera` renamed to `Camera`. Use [[Camera]] instead
+ */
+@obsolete({ message: '`BaseCamera` is obsolete and will be removed in v0.22.0', alternateMethod: 'use `Camera` instead.' })
+export class BaseCamera extends Camera {
+  constructor() {
+    super();
   }
 }
