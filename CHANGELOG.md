@@ -22,6 +22,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where setting `suppressPlayButton: true` blocks load in certain browsers [#1079](https://github.com/excaliburjs/Excalibur/issues/1079)
+
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [0.20.0] - 2018-12-10
