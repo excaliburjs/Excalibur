@@ -84,8 +84,8 @@ game.goToScene('mainmenu');
 
 ## Scene camera
 
-By default, a [[Scene]] is initialized with a [[BaseCamera]] which
+By default, a [[Scene]] is initialized with a [[Camera]] which
 does not move and centers the game world.
 
-Learn more about [[BaseCamera|Cameras]] and how to modify them to suit
+Learn more about [[Camera|Cameras]] and how to modify them to suit
 your game.

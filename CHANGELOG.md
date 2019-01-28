@@ -17,6 +17,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+- Rename `ex.BaseCamera` to `Camera`, `ex.BaseCamera` will be removed in `v0.22.0` [#1085](https://github.com/excaliburjs/Excalibur/issues/1085)
+
 ### Fixed
 
 - Fixed issue where setting `suppressPlayButton: true` blocks load in certain browsers [#1079](https://github.com/excaliburjs/Excalibur/issues/1079)
@@ -31,7 +33,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added strongly typed EvenTypes enum to Events.ts to avoid magic strings [#1066](https://github.com/excaliburjs/Excalibur/issues/1058)
+- Added strongly typed EvenTypes enum to Events.ts to avoid magic strings [#1066](https://github.com/excaliburjs/Excalibur/issues/1066)
 
 ### Changed
 

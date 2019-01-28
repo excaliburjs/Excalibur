@@ -29,6 +29,9 @@ class TestObsolete {
   }
 }
 
+@ex.obsolete()
+class ObsoleteClass {}
+
 describe('An @obsolete decorator', () => {
   var testObsolete: TestObsolete = null;
   var logger = null;
@@ -68,8 +71,15 @@ describe('An @obsolete decorator', () => {
   it('can specify an alternate method', () => {
     var value = testObsolete.altmethod();
     expect(logger.warn).toHaveBeenCalledWith(
-      'altmethod is marked obsolete: This method will be ' + 'removed in future versions of Excalibur. Use altMethod instead'
+      'altmethod is marked obsolete: This feature will be ' + 'removed in future versions of Excalibur. Use altMethod instead'
     );
     expect(value).toBe('stuff');
+  });
+
+  it('can be used on a class', () => {
+    var instance = new ObsoleteClass();
+    expect(logger.warn).toHaveBeenCalledWith(
+      'ObsoleteClass is marked obsolete: This feature will be ' + 'removed in future versions of Excalibur.'
+    );
   });
 });
