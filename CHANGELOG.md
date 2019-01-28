@@ -24,6 +24,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed issue of early offscreen culling related to zooming in and out [#1078](https://github.com/excaliburjs/Excalibur/issues/1078)
+- Fixed issue where setting `suppressPlayButton: true` blocks load in certain browsers [#1079](https://github.com/excaliburjs/Excalibur/issues/1079)
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
