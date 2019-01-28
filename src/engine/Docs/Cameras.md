@@ -1,6 +1,6 @@
 Cameras are attached to [[Scene|Scenes]] and can be changed by
 setting [[Scene.camera]]. By default, a [[Scene]] is initialized with a
-[[BaseCamera]] that doesn't move and is centered on the screen.
+[[Camera]] that doesn't move and is centered on the screen.
 
 ## Focus
 
@@ -14,7 +14,7 @@ offset the focal point.
 ## Camera strategies
 
 Cameras can implement a number of strategies to track, follow, or exhibit custom behavior in relation to a target. A common reason to use a
-strategy is to have the [[BaseCamera]] follow an [[Actor]].
+strategy is to have the [[Camera]] follow an [[Actor]].
 
 In order to user the different built-in strategies, you can access `Camera.strategy`
 
@@ -61,7 +61,7 @@ export interface ICameraStrategy<T> {
   /**
    * Camera strategies perform an action to calculate a new focus returned out of the strategy
    */
-  action: (target: T, camera: BaseCamera, engine: Engine, delta: number) => Vector;
+  action: (target: T, camera: Camera, engine: Engine, delta: number) => Vector;
 }
 ```
 

@@ -7,7 +7,7 @@ import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Side } from './Collision/Side';
 import * as Input from './Input/Index';
-import { Pair, BaseCamera } from './index';
+import { Pair, Camera } from './index';
 
 export enum EventTypes {
   Kill = 'kill',
@@ -321,8 +321,8 @@ export class PostDebugDrawEvent extends GameEvent<Actor | Scene | Engine> {
 /**
  * The 'preupdate' event is emitted on actors, scenes, camera, and engine before the update starts.
  */
-export class PreUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap | BaseCamera> {
-  constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap | BaseCamera) {
+export class PreUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap | Camera> {
+  constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap | Camera) {
     super();
   }
 }
@@ -330,8 +330,8 @@ export class PreUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap |
 /**
  * The 'postupdate' event is emitted on actors, scenes, camera, and engine after the update ends.
  */
-export class PostUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap | BaseCamera> {
-  constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap | BaseCamera) {
+export class PostUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap | Camera> {
+  constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap | Camera) {
     super();
   }
 }
@@ -501,11 +501,11 @@ export class CollisionEndEvent extends GameEvent<Actor> {
 /**
  * Event thrown on an [[Actor]] and a [[Scene]] only once before the first update call
  */
-export class InitializeEvent extends GameEvent<Actor | Scene | Engine | BaseCamera> {
+export class InitializeEvent extends GameEvent<Actor | Scene | Engine | Camera> {
   /**
    * @param engine  The reference to the current engine
    */
-  constructor(public engine: Engine, public target: Actor | Scene | Engine | BaseCamera) {
+  constructor(public engine: Engine, public target: Actor | Scene | Engine | Camera) {
     super();
   }
 }
