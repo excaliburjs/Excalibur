@@ -386,7 +386,7 @@ export class Camera extends Class implements ICanUpdate, ICanInitialize {
       let halfWidth = this._engine.halfDrawWidth;
       let halfHeight = this._engine.halfDrawHeight;
 
-      return new BoundingBox(this.x - halfHeight, this.y - halfHeight, this.x + halfWidth, this.y + halfHeight);
+      return new BoundingBox(this.x - halfWidth, this.y - halfHeight, this.x + halfWidth, this.y + halfHeight);
     }
     return new BoundingBox(0, 0, 0, 0);
   }
@@ -609,6 +609,13 @@ export class Camera extends Class implements ICanUpdate, ICanInitialize {
     ctx.arc(focus.x, focus.y, 5, 0, Math.PI * 2);
     ctx.closePath();
     ctx.stroke();
+
+    ctx.beginPath();
+    ctx.setLineDash([5, 15]);
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = 'white';
+    ctx.strokeRect(this.viewport.left, this.viewport.top, this.viewport.getWidth(), this.viewport.getHeight());
+    ctx.closePath();
   }
 
   private _isDoneShaking(): boolean {
