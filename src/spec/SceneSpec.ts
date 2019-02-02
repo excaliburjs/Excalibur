@@ -61,6 +61,133 @@ describe('A scene', () => {
     expect(actor.draw).toHaveBeenCalled();
   });
 
+  it('draws onscreen Actors left', () => {
+    actor.traits.length = 0;
+    actor.traits.push(new ex.Traits.OffscreenCulling());
+    actor.pos.x = -4;
+    actor.pos.y = 0;
+    actor.setWidth(10);
+    actor.setHeight(10);
+
+    scene.add(actor);
+    scene.update(engine, 100);
+    scene.draw(engine.ctx, 100);
+
+    expect(actor.isOffScreen).toBe(false, 'Actor should be onscreen');
+    expect(actor.draw).toHaveBeenCalled();
+  });
+  it('does not draw offscreen Actors left', () => {
+    actor.traits.length = 0;
+    actor.traits.push(new ex.Traits.OffscreenCulling());
+    actor.pos.x = -6;
+    actor.pos.y = 0;
+    actor.setWidth(10);
+    actor.setHeight(10);
+
+    scene.add(actor);
+    scene.update(engine, 100);
+    scene.draw(engine.ctx, 100);
+
+    expect(actor.isOffScreen).toBe(true, 'Actor should be offscreen');
+    expect(actor.draw).not.toHaveBeenCalled();
+  });
+
+  it('draws onscreen Actors top', () => {
+    actor.traits.length = 0;
+    actor.traits.push(new ex.Traits.OffscreenCulling());
+    actor.pos.x = 0;
+    actor.pos.y = -4;
+    actor.setWidth(10);
+    actor.setHeight(10);
+
+    scene.add(actor);
+    scene.update(engine, 100);
+    scene.draw(engine.ctx, 100);
+
+    expect(actor.isOffScreen).toBe(false, 'Actor should be onscreen');
+    expect(actor.draw).toHaveBeenCalled();
+  });
+
+  it('does not draw offscreen Actors top', () => {
+    actor.traits.length = 0;
+    actor.traits.push(new ex.Traits.OffscreenCulling());
+    actor.pos.x = 0;
+    actor.pos.y = -6;
+    actor.setWidth(10);
+    actor.setHeight(10);
+
+    scene.add(actor);
+    scene.update(engine, 100);
+    scene.draw(engine.ctx, 100);
+
+    expect(actor.isOffScreen).toBe(true, 'Actor should be offscreen');
+    expect(actor.draw).not.toHaveBeenCalled();
+  });
+
+  it('draws onscreen Actors right', () => {
+    actor.traits.length = 0;
+    actor.traits.push(new ex.Traits.OffscreenCulling());
+    actor.pos.x = 104;
+    actor.pos.y = 0;
+    actor.setWidth(10);
+    actor.setHeight(10);
+
+    scene.add(actor);
+    scene.update(engine, 100);
+    scene.draw(engine.ctx, 100);
+
+    expect(actor.isOffScreen).toBe(false, 'Actor should be onscreen');
+    expect(actor.draw).toHaveBeenCalled();
+  });
+
+  it('does not draw offscreen Actors right', () => {
+    actor.traits.length = 0;
+    actor.traits.push(new ex.Traits.OffscreenCulling());
+    actor.pos.x = 106;
+    actor.pos.y = 0;
+    actor.setWidth(10);
+    actor.setHeight(10);
+
+    scene.add(actor);
+    scene.update(engine, 100);
+    scene.draw(engine.ctx, 100);
+
+    expect(actor.isOffScreen).toBe(true, 'Actor should be offscreen');
+    expect(actor.draw).not.toHaveBeenCalled();
+  });
+
+  it('draws onscreen Actors bottom', () => {
+    actor.traits.length = 0;
+    actor.traits.push(new ex.Traits.OffscreenCulling());
+    actor.pos.x = 0;
+    actor.pos.y = 104;
+    actor.setWidth(10);
+    actor.setHeight(10);
+
+    scene.add(actor);
+    scene.update(engine, 100);
+    scene.draw(engine.ctx, 100);
+
+    expect(actor.isOffScreen).toBe(false, 'Actor should be onscreen');
+    expect(actor.draw).toHaveBeenCalled();
+  });
+
+  it('does not draw offscreen Actors bottom', () => {
+    actor.traits.length = 0;
+    actor.traits.push(new ex.Traits.OffscreenCulling());
+    actor.pos.x = 0;
+    actor.pos.y = 106;
+    actor.setWidth(10);
+    actor.setHeight(10);
+
+    scene.add(actor);
+    scene.update(engine, 100);
+    scene.draw(engine.ctx, 100);
+
+    expect(actor.isOffScreen).toBe(true, 'Actor should be offscreen');
+    expect(actor.draw).not.toHaveBeenCalled();
+  });
+
   it('does not draw offscreen Actors', () => {
     actor.pos.x = 1000;
     actor.pos.y = 1000;
