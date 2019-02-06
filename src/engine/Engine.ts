@@ -107,6 +107,11 @@ export interface IEngineOptions {
   height?: number;
 
   /**
+   * Optionally configure the native canvas transparent backdrop
+   */
+  enableCanvasTransparency?: boolean;
+
+  /**
    * Optionally specify the target canvas DOM element to render the game in
    */
   canvasElementId?: string;
@@ -355,6 +360,11 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
   public backgroundColor: Color;
 
   /**
+   * Sets the Transparency for the engine.
+   */
+  public enableCanvasTransparency: boolean = false;
+
+  /**
    * The action to take when a fatal exception is thrown
    */
   public onFatalException = (e: any) => {
@@ -437,6 +447,7 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
   private static _DefaultEngineOptions: IEngineOptions = {
     width: 0,
     height: 0,
+    enableCanvasTransparency: false,
     canvasElementId: '',
     pointerScope: Input.PointerScope.Document,
     suppressConsoleBootMessage: null,
@@ -458,6 +469,7 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
    * var game = new ex.Engine({
    *   width: 0, // the width of the canvas
    *   height: 0, // the height of the canvas
+   *   enableCanvasTransparency: false, // the transparencySection of the canvas
    *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
    *   displayMode: ex.DisplayMode.FullScreen, // the display mode
    *   pointerScope: ex.Input.PointerScope.Document, // the scope of capturing pointer (mouse/touch) events
@@ -552,6 +564,8 @@ O|===|* >________________>\n\
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();
     }
+
+    this.enableCanvasTransparency = options.enableCanvasTransparency;
 
     this._loader = new Loader();
 
@@ -985,7 +999,7 @@ O|===|* >________________>\n\
       }
     });
 
-    this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d');
+    this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
 
     this._suppressHiDPIScaling = !!options.suppressHiDPIScaling;
     if (!options.suppressHiDPIScaling) {
