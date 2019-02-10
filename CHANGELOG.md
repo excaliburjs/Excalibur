@@ -9,21 +9,37 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
   <!--- Breaking changes here --->
 
+- Some tests(23) failed, because canvas transparency was not disabled when they were configured.
+
 ### Added
 
   <!--- Added features here --->
+
+- Added `enableCanvasTransparency` property that will can enable/disable canvas transparency [#1096](https://github.com/excaliburjs/Excalibur/issues/1096)
 
 ### Changed
 
   <!--- Changed behavior here --->
 
+- Updated default Engine options.
+
+Before:
+`private static _DefaultEngineOptions: IEngineOptions = { width: 0, height: 0, canvasElementId: '', pointerScope: Input.PointerScope.Document, suppressConsoleBootMessage: null,`
+
+After:
+`private static _DefaultEngineOptions: IEngineOptions = { width: 0, height: 0, enableCanvasTransparency: false, canvasElementId: '', pointerScope: Input.PointerScope.Document, suppressConsoleBootMessage: null,`
+
 ### Deprecated
 
   <!--- Deprecations here --->
 
+- Nothing here
+
 ### Fixed
 
   <!--- Bug fixes here --->
+
+- Nothing here
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
