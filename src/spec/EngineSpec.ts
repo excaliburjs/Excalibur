@@ -301,25 +301,6 @@ describe('The engine', () => {
     });
   });
 
-  /*it('should accept default enableCanvasTransparency false', () => {
-    var game = new ex.Engine({
-        height: 600,
-        width: 800,
-    });
-
-    expect(game.enableCanvasTransparency).toBe(false);
-  });
-
-  it('should accept custom enableCanvasTransparency true', () => {
-    var game = new ex.Engine({
-        height: 600,
-        width: 800,
-        enableCanvasTransparency: true,
-    });
-
-    expect(game.enableCanvasTransparency).toBe(true);
-  });*/
-
   describe('lifecycle overrides', () => {
     let engine: ex.Engine;
     beforeEach(() => {
