@@ -8,7 +8,7 @@ export namespace TestUtils {
         width: 500,
         height: 500,
         suppressConsoleBootMessage: true,
-        enableCanvasTransparency: false,
+        enableCanvasTransparency: true,
         suppressMinimumBrowserFeatureDetection: true,
         suppressHiDPIScaling: true,
         suppressPlayButton: true,

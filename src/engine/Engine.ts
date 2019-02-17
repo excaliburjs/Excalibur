@@ -362,7 +362,7 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
   /**
    * Sets the Transparency for the engine.
    */
-  public enableCanvasTransparency: boolean = false;
+  public enableCanvasTransparency: boolean = true;
 
   /**
    * The action to take when a fatal exception is thrown
@@ -447,7 +447,7 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
   private static _DefaultEngineOptions: IEngineOptions = {
     width: 0,
     height: 0,
-    enableCanvasTransparency: false,
+    enableCanvasTransparency: true,
     canvasElementId: '',
     pointerScope: Input.PointerScope.Document,
     suppressConsoleBootMessage: null,
@@ -469,7 +469,7 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
    * var game = new ex.Engine({
    *   width: 0, // the width of the canvas
    *   height: 0, // the height of the canvas
-   *   enableCanvasTransparency: false, // the transparencySection of the canvas
+   *   enableCanvasTransparency: true, // the transparencySection of the canvas
    *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
    *   displayMode: ex.DisplayMode.FullScreen, // the display mode
    *   pointerScope: ex.Input.PointerScope.Document, // the scope of capturing pointer (mouse/touch) events
