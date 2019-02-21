@@ -13,9 +13,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
   <!--- Added features here --->
 
+- Added `enableCanvasTransparency` property that will can enable/disable canvas transparency [#1096](https://github.com/excaliburjs/Excalibur/issues/1096)
+
 ### Changed
 
-  <!--- Changed behavior here --->
+- Upgraded Excalibur to TypeScript 3.3.3 [#1052](https://github.com/excaliburjs/Excalibur/issues/1052)
 
 ### Deprecated
 
