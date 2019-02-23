@@ -1,9 +1,9 @@
 import { Sprite } from './Sprite';
-import { IAnimationArgs } from '../Drawing/Animation';
+import { AnimationArgs } from '../Drawing/Animation';
 import * as Effects from './SpriteEffects';
 import { Color } from './Color';
 
-import { IDrawable } from '../Interfaces/IDrawable';
+import { Drawable } from '../Interfaces/Drawable';
 import { Vector } from '../Algebra';
 import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
@@ -12,7 +12,7 @@ import { Configurable } from '../Configurable';
 /**
  * @hidden
  */
-export class AnimationImpl implements IDrawable {
+export class AnimationImpl implements Drawable {
   /**
    * The sprite frames to play, in order. See [[SpriteSheet.getAnimationForAll]] to quickly
    * generate an [[Animation]].
@@ -71,7 +71,7 @@ export class AnimationImpl implements IDrawable {
    * @param speed   The number in milliseconds to display each frame in the animation
    * @param loop    Indicates whether the animation should loop after it is completed
    */
-  constructor(engineOrConfig: Engine | IAnimationArgs, sprites: Sprite[], speed: number, loop?: boolean) {
+  constructor(engineOrConfig: Engine | AnimationArgs, sprites: Sprite[], speed: number, loop?: boolean) {
     var engine = engineOrConfig;
     if (engineOrConfig && !(engineOrConfig instanceof Engine)) {
       var config = engineOrConfig;
@@ -167,7 +167,7 @@ export class AnimationImpl implements IDrawable {
   /**
    * Add a [[ISpriteEffect]] manually
    */
-  public addEffect(effect: Effects.ISpriteEffect) {
+  public addEffect(effect: Effects.SpriteEffect) {
     for (var i in this.sprites) {
       this.sprites[i].addEffect(effect);
     }
@@ -177,7 +177,7 @@ export class AnimationImpl implements IDrawable {
    * Removes an [[ISpriteEffect]] from this animation.
    * @param effect Effect to remove from this animation
    */
-  public removeEffect(effect: Effects.ISpriteEffect): void;
+  public removeEffect(effect: Effects.SpriteEffect): void;
 
   /**
    * Removes an effect given the index from this animation.
@@ -305,7 +305,7 @@ export class AnimationImpl implements IDrawable {
 /**
  * [[include:Constructors.md]]
  */
-export interface IAnimationArgs extends Partial<AnimationImpl> {
+export interface AnimationArgs extends Partial<AnimationImpl> {
   engine: Engine;
   sprites: Sprite[];
   speed: number;
@@ -326,9 +326,9 @@ export interface IAnimationArgs extends Partial<AnimationImpl> {
  * [[include:Animations.md]]
  */
 export class Animation extends Configurable(AnimationImpl) {
-  constructor(config: IAnimationArgs);
+  constructor(config: AnimationArgs);
   constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean);
-  constructor(engineOrConfig: Engine | IAnimationArgs, images?: Sprite[], speed?: number, loop?: boolean) {
+  constructor(engineOrConfig: Engine | AnimationArgs, images?: Sprite[], speed?: number, loop?: boolean) {
     super(engineOrConfig, images, speed, loop);
   }
 }

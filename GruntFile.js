@@ -295,6 +295,9 @@ module.exports = function(grunt) {
   // Default task - compile & test
   grunt.registerTask('default', ['tslint:src', 'core', 'karma', 'visual']);
 
+  // Lint only
+  grunt.registerTask('tslint'['tslint:src']);
+
   // Core only
   grunt.registerTask('core', [
     'shell:gitBuild',

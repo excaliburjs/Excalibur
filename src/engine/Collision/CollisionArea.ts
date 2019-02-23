@@ -1,4 +1,4 @@
-import { Color } from './../Drawing/Color';
+import { Color } from '../Drawing/Color';
 import { CollisionContact } from './CollisionContact';
 import { Body } from './Body';
 import { BoundingBox } from './BoundingBox';
@@ -8,7 +8,7 @@ import { Vector, Projection, Ray } from '../Algebra';
  * A collision area is a region of space that can detect when other collision areas intersect
  * for the purposes of colliding 2 objects in excalibur.
  */
-export interface ICollisionArea {
+export interface CollisionArea {
   /**
    * Position of the collision area relative to the actor if it exists
    */
@@ -47,7 +47,7 @@ export interface ICollisionArea {
   // All new ICollisionAreas need to do the following
   // Create a new collision function in the CollisionJumpTable against all the primitives
   // Currently there are 3 primitive collision areas 3! = 6 jump functions
-  collide(area: ICollisionArea): CollisionContact;
+  collide(area: CollisionArea): CollisionContact;
 
   /**
    * Return wether the area contains a point inclusive to it's border

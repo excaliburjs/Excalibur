@@ -1,6 +1,6 @@
 import { GameEvent } from '../Events';
 
-export interface IEvented {
+export interface Eventable {
   /**
    * Emits an event for target
    * @param eventName  The name of the event to publish

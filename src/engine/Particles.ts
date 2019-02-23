@@ -60,7 +60,7 @@ export class ParticleImpl {
   public elapsedMultiplier: number = 0;
 
   constructor(
-    emitterOrConfig: ParticleEmitter | IParticleArgs,
+    emitterOrConfig: ParticleEmitter | ParticleArgs,
     life?: number,
     opacity?: number,
     beginColor?: Color,
@@ -174,7 +174,7 @@ export class ParticleImpl {
 /**
  * [[include:Constructors.md]]
  */
-export interface IParticleArgs extends Partial<ParticleImpl> {
+export interface ParticleArgs extends Partial<ParticleImpl> {
   emitter: ParticleEmitter;
   position?: Vector;
   velocity?: Vector;
@@ -189,7 +189,7 @@ export interface IParticleArgs extends Partial<ParticleImpl> {
  * Particle is used in a [[ParticleEmitter]]
  */
 export class Particle extends Configurable(ParticleImpl) {
-  constructor(config: IParticleArgs);
+  constructor(config: ParticleArgs);
   constructor(
     emitter: ParticleEmitter,
     life?: number,
@@ -203,7 +203,7 @@ export class Particle extends Configurable(ParticleImpl) {
     endSize?: number
   );
   constructor(
-    emitterOrConfig: ParticleEmitter | IParticleArgs,
+    emitterOrConfig: ParticleEmitter | ParticleArgs,
     life?: number,
     opacity?: number,
     beginColor?: Color,
@@ -352,7 +352,7 @@ export class ParticleEmitterImpl extends Actor {
    * @param width   The width of the emitter
    * @param height  The height of the emitter
    */
-  constructor(xOrConfig?: number | IParticleEmitterArgs, y?: number, width?: number, height?: number) {
+  constructor(xOrConfig?: number | ParticleEmitterArgs, y?: number, width?: number, height?: number) {
     super(typeof xOrConfig === 'number' ? { x: xOrConfig, y: y, width: width, height: height } : xOrConfig);
     this._particlesToEmit = 0;
     this.collisionType = CollisionType.PreventCollision;
@@ -474,7 +474,7 @@ export class ParticleEmitterImpl extends Actor {
 /**
  * [[include:Constructors.md]]
  */
-export interface IParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
+export interface ParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
   width?: number;
   height?: number;
   isEmitting?: boolean;
@@ -511,9 +511,9 @@ export interface IParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
  * [[include:Particles.md]]
  */
 export class ParticleEmitter extends Configurable(ParticleEmitterImpl) {
-  constructor(config?: IParticleEmitterArgs);
-  constructor(x?: number | IParticleEmitterArgs, y?: number, width?: number, height?: number);
-  constructor(xOrConfig?: number | IParticleEmitterArgs, y?: number, width?: number, height?: number) {
+  constructor(config?: ParticleEmitterArgs);
+  constructor(x?: number | ParticleEmitterArgs, y?: number, width?: number, height?: number);
+  constructor(xOrConfig?: number | ParticleEmitterArgs, y?: number, width?: number, height?: number) {
     super(xOrConfig, y, width, height);
   }
 }

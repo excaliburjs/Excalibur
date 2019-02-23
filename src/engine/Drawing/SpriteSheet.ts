@@ -1,4 +1,4 @@
-import { Sprite, ISpriteArgs } from './Sprite';
+import { Sprite, SpriteArgs } from './Sprite';
 import { Animation } from './Animation';
 import { Color } from './Color';
 import * as Effects from './SpriteEffects';
@@ -29,7 +29,7 @@ export class SpriteSheetImpl {
    * @param spacing   The spacing between every sprite in a spritesheet
    */
   constructor(
-    imageOrConfigOrSprites: Texture | ISpriteSheetArgs | Sprite[],
+    imageOrConfigOrSprites: Texture | SpriteSheetArgs | Sprite[],
     columns?: number,
     rows?: number,
     spWidth?: number,
@@ -154,7 +154,7 @@ export class SpriteSheetImpl {
    * @param spriteCoordinates
    * @param speed
    */
-  public getAnimationByCoords(engine: Engine, spriteCoordinates: ISpriteArgs[], speed: number): Animation {
+  public getAnimationByCoords(engine: Engine, spriteCoordinates: SpriteArgs[], speed: number): Animation {
     let maxWidth: number = 0;
     let maxHeight: number = 0;
     let sprites: Sprite[] = new Array(spriteCoordinates.length);
@@ -178,7 +178,7 @@ export class SpriteSheetImpl {
 /**
  * [[include:Constructors.md]]
  */
-export interface ISpriteSheetArgs extends Partial<SpriteSheetImpl> {
+export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
   image: Texture;
   sprites?: Sprite[];
   spWidth: number;
@@ -196,11 +196,11 @@ export interface ISpriteSheetArgs extends Partial<SpriteSheetImpl> {
  * [[include:SpriteSheets.md]]
  */
 export class SpriteSheet extends Configurable(SpriteSheetImpl) {
-  constructor(config: ISpriteSheetArgs);
+  constructor(config: SpriteSheetArgs);
   constructor(sprites: Sprite[]);
   constructor(image: Texture, columns: number, rows: number, spWidth: number, spHeight: number);
   constructor(
-    imageOrConfigOrSprites: Texture | ISpriteSheetArgs | Sprite[],
+    imageOrConfigOrSprites: Texture | SpriteSheetArgs | Sprite[],
     columns?: number,
     rows?: number,
     spWidth?: number,
@@ -236,7 +236,7 @@ export class SpriteFontImpl extends SpriteSheet {
    * @param spHeight        The height of each character in pixels
    */
   constructor(
-    imageOrConfig: Texture | ISpriteFontInitArgs,
+    imageOrConfig: Texture | SpriteFontArgs,
     alphabet: string,
     caseInsensitive: boolean,
     columns: number,
@@ -313,7 +313,7 @@ export class SpriteFontImpl extends SpriteSheet {
   /**
    * Draws the current sprite font
    */
-  public draw(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, options: ISpriteFontOptions) {
+  public draw(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, options: SpriteFontOptions) {
     options = this._parseOptions(options);
 
     if (this._currentColor.toString() !== options.color.toString() || this._currentOpacity !== options.opacity) {
@@ -391,7 +391,7 @@ export class SpriteFontImpl extends SpriteSheet {
     }
   }
 
-  private _parseOptions(options: ISpriteFontOptions): ISpriteFontOptions {
+  private _parseOptions(options: SpriteFontOptions): SpriteFontOptions {
     return {
       fontSize: options.fontSize || 10,
       letterSpacing: options.letterSpacing || 0,
@@ -407,7 +407,7 @@ export class SpriteFontImpl extends SpriteSheet {
 /**
  * Specify various font attributes for sprite fonts
  */
-export interface ISpriteFontOptions {
+export interface SpriteFontOptions {
   color?: Color;
   opacity?: number;
   fontSize?: number;
@@ -420,7 +420,7 @@ export interface ISpriteFontOptions {
 /**
  * [[include:Constructors.md]]
  */
-export interface ISpriteFontInitArgs extends ISpriteSheetArgs {
+export interface SpriteFontArgs extends SpriteSheetArgs {
   image: Texture;
   columns: number;
   rows: number;
@@ -438,10 +438,10 @@ export interface ISpriteFontInitArgs extends ISpriteSheetArgs {
  * [[include:SpriteFonts.md]]
  */
 export class SpriteFont extends Configurable(SpriteFontImpl) {
-  constructor(config: ISpriteFontInitArgs);
+  constructor(config: SpriteFontArgs);
   constructor(image: Texture, alphabet: string, caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number);
   constructor(
-    imageOrConfig: Texture | ISpriteFontInitArgs,
+    imageOrConfig: Texture | SpriteFontArgs,
     alphabet?: string,
     caseInsensitive?: boolean,
     columns?: number,

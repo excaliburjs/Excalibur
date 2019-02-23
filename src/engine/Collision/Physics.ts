@@ -1,7 +1,7 @@
-import { Vector } from './../Algebra';
+import { Vector } from '../Algebra';
 import { BroadphaseStrategy, CollisionResolutionStrategy } from '../Physics';
 
-export interface IEnginePhysics {
+export interface EnginePhysics {
   /**
    * Global engine acceleration, useful for defining consistent gravity on all actors
    */

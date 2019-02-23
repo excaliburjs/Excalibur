@@ -5,11 +5,11 @@ import { EdgeArea } from './EdgeArea';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { CircleArea } from './CircleArea';
 import { CollisionContact } from './CollisionContact';
-import { ICollisionArea } from './ICollisionArea';
+import { CollisionArea } from './CollisionArea';
 import { Body } from './Body';
 import { Vector, Line, Ray, Projection } from './../Algebra';
 
-export interface IPolygonAreaOptions {
+export interface PolygonAreaOptions {
   pos?: Vector;
   points?: Vector[];
   clockwiseWinding?: boolean;
@@ -19,7 +19,7 @@ export interface IPolygonAreaOptions {
 /**
  * Polygon collision area for detecting collisions for actors, or independently
  */
-export class PolygonArea implements ICollisionArea {
+export class PolygonArea implements CollisionArea {
   public pos: Vector;
   public points: Vector[];
   public body: Body;
@@ -28,7 +28,7 @@ export class PolygonArea implements ICollisionArea {
   private _axes: Vector[] = [];
   private _sides: Line[] = [];
 
-  constructor(options: IPolygonAreaOptions) {
+  constructor(options: PolygonAreaOptions) {
     this.pos = options.pos || Vector.Zero;
     var winding = !!options.clockwiseWinding;
     this.points = (winding ? options.points.reverse() : options.points) || [];
@@ -123,7 +123,7 @@ export class PolygonArea implements ICollisionArea {
    * return null.
    * @param area
    */
-  public collide(area: ICollisionArea): CollisionContact {
+  public collide(area: CollisionArea): CollisionContact {
     if (area instanceof CircleArea) {
       return CollisionJumpTable.CollideCirclePolygon(area, this);
     } else if (area instanceof PolygonArea) {

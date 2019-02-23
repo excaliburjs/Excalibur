@@ -5,8 +5,8 @@ import { Scene } from './Scene';
 import { ActionContext } from './Actions/ActionContext';
 import { Actor } from './Actor';
 import { Logger } from './Util/Log';
-import { IEvented } from './Interfaces/IEvented';
-import { IActionable } from './Actions/IActionable';
+import { Eventable } from './Interfaces/Evented';
+import { Actionable } from './Actions/Actionable';
 import { Class } from './Class';
 
 /**
@@ -15,7 +15,7 @@ import { Class } from './Class';
  *
  * [[include:Groups.md]]
  */
-export class Group extends Class implements IActionable, IEvented {
+export class Group extends Class implements Actionable, Eventable {
   private _logger: Logger = Logger.getInstance();
   private _members: Actor[] = [];
 

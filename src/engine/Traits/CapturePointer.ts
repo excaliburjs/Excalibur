@@ -1,8 +1,8 @@
-import { IActorTrait } from '../Interfaces/IActorTrait';
+import { Trait } from '../Interfaces/Trait';
 import { Actor } from '../Actor';
 import { Engine } from '../Engine';
 
-export interface ICapturePointerConfig {
+export interface CapturePointerConfig {
   /**
    * Capture PointerMove events (may be expensive!)
    */
@@ -17,7 +17,7 @@ export interface ICapturePointerConfig {
 /**
  * Revises pointer events path accordingly to the actor
  */
-export class CapturePointer implements IActorTrait {
+export class CapturePointer implements Trait {
   public update(actor: Actor, engine: Engine) {
     if (!actor.enableCapturePointer) {
       return;

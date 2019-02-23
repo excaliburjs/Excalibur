@@ -1,14 +1,14 @@
-import { Promise } from './../Promises';
-import { IAudio } from './IAudio';
+import { Promise } from '../Promises';
+import { Audio } from './Audio';
 
 export type ExResponseType = '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text';
 
-export interface IExResponseTypesLookup {
+export interface ExResponseTypesLookup {
   [name: string]: ExResponseType;
 }
 
 export class ExResponse {
-  public static type: IExResponseTypesLookup = {
+  public static type: ExResponseTypesLookup = {
     any: '',
     blob: 'blob',
     json: 'json',
@@ -21,7 +21,7 @@ export class ExResponse {
 /**
  * Represents an audio implementation like [[AudioTag]] or [[WebAudio]]
  */
-export interface IAudioImplementation {
+export interface AudioImplementation {
   /**
    * XHR response type
    */
@@ -35,5 +35,5 @@ export interface IAudioImplementation {
   /**
    * Factory method that returns an instance of a played audio track
    */
-  createInstance(data: string | AudioBuffer): IAudio;
+  createInstance(data: string | AudioBuffer): Audio;
 }

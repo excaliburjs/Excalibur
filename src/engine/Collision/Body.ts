@@ -1,7 +1,7 @@
 import { Physics, CollisionResolutionStrategy } from './../Physics';
 import { EdgeArea } from './EdgeArea';
 import { CircleArea } from './CircleArea';
-import { ICollisionArea } from './ICollisionArea';
+import { CollisionArea } from './CollisionArea';
 import { PolygonArea } from './PolygonArea';
 import { BoundingBox } from './BoundingBox';
 import { Pair } from './Pair';
@@ -20,7 +20,7 @@ export class Body {
   /**
    * [[ICollisionArea|Collision area]] of this physics body, defines the shape for rigid body collision
    */
-  public collisionArea: ICollisionArea = null;
+  public collisionArea: CollisionArea = null;
 
   /**
    * The (x, y) position of the actor this will be in the middle of the actor if the

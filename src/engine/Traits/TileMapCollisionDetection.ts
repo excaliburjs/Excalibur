@@ -1,11 +1,11 @@
-import { IActorTrait } from '../Interfaces/IActorTrait';
+import { Trait } from '../Interfaces/Trait';
 import { Actor, CollisionType } from '../Actor';
 import { Engine } from '../Engine';
 import { Vector } from '../Algebra';
 import { Side } from '../Collision/Side';
 import { PreCollisionEvent, PostCollisionEvent } from '../Events';
 
-export class TileMapCollisionDetection implements IActorTrait {
+export class TileMapCollisionDetection implements Trait {
   public update(actor: Actor, engine: Engine) {
     var eventDispatcher = actor.eventDispatcher;
     if (actor.collisionType !== CollisionType.PreventCollision && engine.currentScene && engine.currentScene.tileMaps) {

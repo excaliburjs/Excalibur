@@ -1,7 +1,7 @@
 import { EX_VERSION } from './';
 import './Polyfill';
-import { ICanUpdate, ICanDraw, ICanInitialize } from './Interfaces/LifecycleEvents';
-import { ILoadable } from './Interfaces/ILoadable';
+import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
+import { Loadable } from './Interfaces/Loadable';
 import { Promise } from './Promises';
 import { Vector } from './Algebra';
 import { UIActor } from './UIActor';
@@ -27,12 +27,12 @@ import {
   PostDrawEvent,
   InitializeEvent
 } from './Events';
-import { ILoader } from './Interfaces/ILoader';
+import { CanLoad } from './Interfaces/Loader';
 import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
 import { Scene } from './Scene';
-import { IPostProcessor } from './PostProcessing/IPostProcessor';
-import { Debug, IDebugStats } from './Debug';
+import { PostProcessor } from './PostProcessing/PostProcessor';
+import { Debug, DebugStats } from './Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
 import * as Util from './Util/Util';
@@ -85,7 +85,7 @@ export enum ScrollPreventionMode {
  * is specified and when the user wants to define exact pixel spacing of the window.
  * When a number is given, the value is interpreted as pixels
  */
-export interface IAbsolutePosition {
+export interface AbsolutePosition {
   top?: number | string;
   left?: number | string;
   right?: number | string;
@@ -95,7 +95,7 @@ export interface IAbsolutePosition {
 /**
  * Defines the available options to configure the Excalibur engine at constructor time.
  */
-export interface IEngineOptions {
+export interface EngineOptions {
   /**
    * Optionally configure the native canvas width of the game
    */
@@ -159,7 +159,7 @@ export interface IEngineOptions {
    * Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
    * Valid [[IAbsolutePosition]] examples: `{top: 5, right: 10%}`, `{bottom: 49em, left: 10px}`, `{left: 10, bottom: 40}`
    */
-  position?: string | IAbsolutePosition;
+  position?: string | AbsolutePosition;
 
   /**
    * Scroll prevention method.
@@ -181,7 +181,7 @@ export interface IEngineOptions {
  *
  * [[include:Engine.md]]
  */
-export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDraw {
+export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Direct access to the engine's canvas element
    */
@@ -271,7 +271,7 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
   /**
    * Access engine input like pointer, keyboard, or gamepad
    */
-  public input: Input.IEngineInput;
+  public input: Input.EngineInput;
 
   private _hasStarted: boolean = false;
 
@@ -283,14 +283,14 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
   /**
    * Access [[stats]] that holds frame statistics.
    */
-  public get stats(): IDebugStats {
+  public get stats(): DebugStats {
     return this.debug.stats;
   }
 
   /**
    * Gets or sets the list of post processors to apply at the end of drawing a frame (such as [[ColorBlindCorrector]])
    */
-  public postProcessors: IPostProcessor[] = [];
+  public postProcessors: PostProcessor[] = [];
 
   /**
    * The current [[Scene]] being drawn and updated on screen
@@ -343,7 +343,7 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
   /**
    * Indicates the current position of the engine. Valid only when DisplayMode is DisplayMode.Position
    */
-  public position: string | IAbsolutePosition;
+  public position: string | AbsolutePosition;
   /**
    * Indicates whether audio should be paused when the game is no longer visible.
    */
@@ -388,7 +388,7 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
   private _timescale: number = 1.0;
 
   // loading
-  private _loader: ILoader;
+  private _loader: CanLoad;
   private _isLoading: boolean = false;
 
   private _isInitialized: boolean = false;
@@ -444,7 +444,7 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
   /**
    * Default [[IEngineOptions]]
    */
-  private static _DefaultEngineOptions: IEngineOptions = {
+  private static _DefaultEngineOptions: EngineOptions = {
     width: 0,
     height: 0,
     enableCanvasTransparency: true,
@@ -482,7 +482,7 @@ export class Engine extends Class implements ICanInitialize, ICanUpdate, ICanDra
    * });
    * ```
    */
-  constructor(options?: IEngineOptions) {
+  constructor(options?: EngineOptions) {
     super();
 
     options = Util.extend({}, Engine._DefaultEngineOptions, options);
@@ -941,7 +941,7 @@ O|===|* >________________>\n\
   /**
    * Initializes the internal canvas, rendering context, displaymode, and native event listeners
    */
-  private _initialize(options?: IEngineOptions) {
+  private _initialize(options?: EngineOptions) {
     if (options.displayMode) {
       this.displayMode = options.displayMode;
     }
@@ -1015,7 +1015,7 @@ O|===|* >________________>\n\
     // Override me
   }
 
-  private _intializeDisplayModePosition(options: IEngineOptions) {
+  private _intializeDisplayModePosition(options: EngineOptions) {
     if (!options.position) {
       throw new Error('DisplayMode of Position was selected but no position option was given');
     } else {
@@ -1285,7 +1285,7 @@ O|===|* >________________>\n\
    * @param loader  Optional [[ILoader]] to use to load resources. The default loader is [[Loader]], override to provide your own
    * custom loader.
    */
-  public start(loader?: ILoader): Promise<any> {
+  public start(loader?: CanLoad): Promise<any> {
     if (!this._compatible) {
       var promise = new Promise();
       return promise.reject('Excalibur is incompatible with your browser');
@@ -1404,7 +1404,7 @@ O|===|* >________________>\n\
    * will appear.
    * @param loader  Some [[ILoadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
-  public load(loader: ILoadable): Promise<any> {
+  public load(loader: Loadable): Promise<any> {
     var complete = new Promise<any>();
 
     this._isLoading = true;

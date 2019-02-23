@@ -2,7 +2,7 @@
 import { BoundingBox } from './BoundingBox';
 import { CollisionContact } from './CollisionContact';
 import { CollisionJumpTable } from './CollisionJumpTable';
-import { ICollisionArea } from './ICollisionArea';
+import { CollisionArea } from './CollisionArea';
 import { CircleArea } from './CircleArea';
 import { PolygonArea } from './PolygonArea';
 
@@ -10,19 +10,19 @@ import { Vector, Ray, Projection } from '../Algebra';
 import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
 
-export interface IEdgeAreaOptions {
+export interface EdgeAreaOptions {
   begin?: Vector;
   end?: Vector;
   body?: Body;
 }
 
-export class EdgeArea implements ICollisionArea {
+export class EdgeArea implements CollisionArea {
   body: Body;
   pos: Vector;
   begin: Vector;
   end: Vector;
 
-  constructor(options: IEdgeAreaOptions) {
+  constructor(options: EdgeAreaOptions) {
     this.begin = options.begin || Vector.Zero;
     this.end = options.end || Vector.Zero;
     this.body = options.body || null;
@@ -115,7 +115,7 @@ export class EdgeArea implements ICollisionArea {
   /**
    * @inheritdoc
    */
-  public collide(area: ICollisionArea): CollisionContact {
+  public collide(area: CollisionArea): CollisionContact {
     if (area instanceof CircleArea) {
       return CollisionJumpTable.CollideCircleEdge(area, this);
     } else if (area instanceof PolygonArea) {

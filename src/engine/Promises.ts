@@ -9,15 +9,15 @@ export enum PromiseState {
   Pending
 }
 
-export interface IPromise<T> {
-  then(successCallback?: (value?: T) => any, rejectCallback?: (value?: T) => any): IPromise<T>;
-  error(rejectCallback?: (value?: any) => any): IPromise<T>;
+export interface PromiseLike<T> {
+  then(successCallback?: (value?: T) => any, rejectCallback?: (value?: T) => any): PromiseLike<T>;
+  error(rejectCallback?: (value?: any) => any): PromiseLike<T>;
 
   //Cannot define static methods on interfaces
   //wrap<T>(value?: T): IPromise<T>;
 
-  resolve(value?: T): IPromise<T>;
-  reject(value?: any): IPromise<T>;
+  resolve(value?: T): PromiseLike<T>;
+  reject(value?: any): PromiseLike<T>;
 
   state(): PromiseState;
 }
@@ -29,7 +29,7 @@ export interface IPromise<T> {
  *
  * [[include:Promises.md]]
  */
-export class Promise<T> implements IPromise<T> {
+export class Promise<T> implements PromiseLike<T> {
   private _state: PromiseState = PromiseState.Pending;
   private _value: T;
   private _successCallbacks: { (value?: T): any }[] = [];

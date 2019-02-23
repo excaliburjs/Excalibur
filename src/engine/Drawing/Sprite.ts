@@ -1,7 +1,7 @@
 import * as Effects from './SpriteEffects';
 import { Color } from './Color';
 
-import { IDrawable } from '../Interfaces/IDrawable';
+import { Drawable } from '../Interfaces/Drawable';
 import { Texture } from '../Resources/Texture';
 import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
@@ -11,7 +11,7 @@ import { Configurable } from '../Configurable';
 /**
  * @hidden
  */
-export class SpriteImpl implements IDrawable {
+export class SpriteImpl implements Drawable {
   private _texture: Texture;
 
   public x: number = 0;
@@ -41,7 +41,7 @@ export class SpriteImpl implements IDrawable {
    */
   public flipHorizontal: boolean = false;
 
-  public effects: Effects.ISpriteEffect[] = [];
+  public effects: Effects.SpriteEffect[] = [];
 
   public width: number = 0;
   public height: number = 0;
@@ -59,7 +59,7 @@ export class SpriteImpl implements IDrawable {
    * @param width  The width of the sprite in pixels
    * @param height The height of the sprite in pixels
    */
-  constructor(imageOrConfig: Texture | ISpriteArgs, x: number, y: number, width: number, height: number) {
+  constructor(imageOrConfig: Texture | SpriteArgs, x: number, y: number, width: number, height: number) {
     var image = imageOrConfig;
     if (imageOrConfig && !(imageOrConfig instanceof Texture)) {
       x = imageOrConfig.x | 0;
@@ -205,7 +205,7 @@ export class SpriteImpl implements IDrawable {
    * Adds a new [[ISpriteEffect]] to this drawing.
    * @param effect  Effect to add to the this drawing
    */
-  public addEffect(effect: Effects.ISpriteEffect) {
+  public addEffect(effect: Effects.SpriteEffect) {
     this.effects.push(effect);
     // We must check if the texture and the backing sprite pixels are loaded as well before
     // an effect can be applied
@@ -220,7 +220,7 @@ export class SpriteImpl implements IDrawable {
    * Removes a [[ISpriteEffect]] from this sprite.
    * @param effect  Effect to remove from this sprite
    */
-  public removeEffect(effect: Effects.ISpriteEffect): void;
+  public removeEffect(effect: Effects.SpriteEffect): void;
 
   /**
    * Removes an effect given the index from this sprite.
@@ -371,7 +371,7 @@ export class SpriteImpl implements IDrawable {
 /**
  * [[include:Constructors.md]]
  */
-export interface ISpriteArgs extends Partial<SpriteImpl> {
+export interface SpriteArgs extends Partial<SpriteImpl> {
   image?: Texture;
   x?: number;
   width?: number;
@@ -390,9 +390,9 @@ export interface ISpriteArgs extends Partial<SpriteImpl> {
  * [[include:Sprites.md]]
  */
 export class Sprite extends Configurable(SpriteImpl) {
-  constructor(config: ISpriteArgs);
+  constructor(config: SpriteArgs);
   constructor(image: Texture, x: number, y: number, width: number, height: number);
-  constructor(imageOrConfig: Texture | ISpriteArgs, x?: number, y?: number, width?: number, height?: number) {
+  constructor(imageOrConfig: Texture | SpriteArgs, x?: number, y?: number, width?: number, height?: number) {
     super(imageOrConfig, x, y, width, height);
   }
 }

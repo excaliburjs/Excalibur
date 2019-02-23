@@ -13,7 +13,7 @@ function _fade(t: number): number {
 /**
  * Options for the perlin noise generator
  */
-export interface IPerlinGeneratorOptions {
+export interface PerlinOptions {
   /**
    * Random number seed for the Perlin noise generator
    */
@@ -306,7 +306,7 @@ export class PerlinGenerator {
   private _p: Uint8Array = new Uint8Array(512);
   private _random: Random;
 
-  private _defaultPerlinOptions: IPerlinGeneratorOptions = {
+  private _defaultPerlinOptions: PerlinOptions = {
     octaves: 1,
     frequency: 1,
     amplitude: 1,
@@ -337,7 +337,7 @@ export class PerlinGenerator {
    */
   public octaves: number;
 
-  constructor(options?: IPerlinGeneratorOptions) {
+  constructor(options?: PerlinOptions) {
     options = Util.extend({}, this._defaultPerlinOptions, options);
 
     this.persistance = options.persistance;

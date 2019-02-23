@@ -1,4 +1,4 @@
-import { IAudio } from '../../Interfaces/IAudio';
+import { Audio } from '../../Interfaces/Audio';
 import { Promise } from '../../Promises';
 import * as Util from '../../Util/Util';
 import { AudioContextFactory } from './AudioContext';
@@ -25,7 +25,7 @@ export class AudioInstanceFactory {
  * Internal class representing base AudioInstance implementation
  */
 /* istanbul ignore next */
-export class AudioInstance implements IAudio {
+export class AudioInstance implements Audio {
   public set loop(value: boolean) {
     this._loop = value;
 

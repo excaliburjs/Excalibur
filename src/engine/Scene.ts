@@ -15,7 +15,7 @@ import {
 import { Logger } from './Util/Log';
 import { Timer } from './Timer';
 import { DynamicTreeCollisionBroadphase } from './Collision/DynamicTreeCollisionBroadphase';
-import { ICollisionBroadphase } from './Collision/ICollisionResolver';
+import { CollisionBroadphase } from './Collision/CollisionResolver';
 import { SortedList } from './Util/SortedList';
 import { Engine } from './Engine';
 import { Group } from './Group';
@@ -23,7 +23,7 @@ import { TileMap } from './TileMap';
 import { Camera } from './Camera';
 import { Actor } from './Actor';
 import { Class } from './Class';
-import { ICanInitialize, ICanActivate, ICanDeactivate, ICanUpdate, ICanDraw } from './Interfaces/LifecycleEvents';
+import { CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw } from './Interfaces/LifecycleEvents';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
@@ -37,7 +37,7 @@ import { Trigger } from './Trigger';
  *
  * [[include:Scenes.md]]
  */
-export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDeactivate, ICanUpdate, ICanDraw {
+export class Scene extends Class implements CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw {
   /**
    * Gets or sets the current camera for the scene
    */
@@ -77,7 +77,7 @@ export class Scene extends Class implements ICanInitialize, ICanActivate, ICanDe
 
   private _sortedDrawingTree: SortedList<Actor> = new SortedList<Actor>(Actor.prototype.getZIndex);
 
-  private _broadphase: ICollisionBroadphase = new DynamicTreeCollisionBroadphase();
+  private _broadphase: CollisionBroadphase = new DynamicTreeCollisionBroadphase();
 
   private _killQueue: Actor[] = [];
   private _triggerKillQueue: Trigger[] = [];

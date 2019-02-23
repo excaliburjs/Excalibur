@@ -2,10 +2,10 @@
 import { CollisionContact } from './CollisionContact';
 import { Pair } from './Pair';
 import { Actor, CollisionType } from './../Actor';
-import { ICollisionBroadphase } from './ICollisionResolver';
+import { CollisionBroadphase } from './CollisionResolver';
 import { CollisionStartEvent, CollisionEndEvent } from '../Events';
 
-export class NaiveCollisionBroadphase implements ICollisionBroadphase {
+export class NaiveCollisionBroadphase implements CollisionBroadphase {
   private _lastFramePairs: Pair[] = [];
   private _lastFramePairsHash: { [pairId: string]: Pair } = {};
 

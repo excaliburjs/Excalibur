@@ -4,7 +4,7 @@ import * as Util from './Util';
 /**
  * Obsolete decorator options
  */
-export interface IObsoleteOptions {
+export interface ObsoleteOptions {
   // Optionally specify a custom message
   message?: string;
   // Optionally indicate that an alternate method to the obsolete one exists
@@ -15,7 +15,7 @@ export interface IObsoleteOptions {
  * Obsolete decorator for marking Excalibur methods obsolete, you can optionally specify a custom message and/or alternate replacement
  * method do the deprecated one. Inspired by https://github.com/jayphelps/core-decorators.js
  */
-export function obsolete(options?: IObsoleteOptions): any {
+export function obsolete(options?: ObsoleteOptions): any {
   options = Util.extend({}, { message: 'This feature will be removed in future versions of Excalibur.', alternateMethod: null }, options);
 
   return function(target: any, property: string, descriptor: PropertyDescriptor): any {

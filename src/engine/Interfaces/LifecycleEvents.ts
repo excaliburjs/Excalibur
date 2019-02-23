@@ -2,7 +2,7 @@ import { Engine } from './../Engine';
 import * as Events from './../Events';
 import { Scene } from '../Scene';
 
-export interface ICanInitialize {
+export interface CanInitialize {
   /**
    * Overridable implementation
    */
@@ -16,7 +16,7 @@ export interface ICanInitialize {
   off(eventName: Events.initialize, handler?: (event?: Events.InitializeEvent) => void): void;
 }
 
-export interface ICanActivate {
+export interface CanActivate {
   /**
    * Overridable implementation
    */
@@ -30,7 +30,7 @@ export interface ICanActivate {
   off(eventName: Events.activate, handler?: (event?: Events.ActivateEvent) => void): void;
 }
 
-export interface ICanDeactivate {
+export interface CanDeactivate {
   /**
    * Overridable implementation
    */
@@ -44,7 +44,7 @@ export interface ICanDeactivate {
   off(eventName: Events.deactivate, handler?: (event?: Events.DeactivateEvent) => void): void;
 }
 
-export interface ICanUpdate {
+export interface CanUpdate {
   /**
    * Overridable implementation
    */
@@ -70,7 +70,7 @@ export interface ICanUpdate {
   off(eventName: Events.postupdate, handler?: (event?: Events.PostUpdateEvent) => void): void;
 }
 
-export interface ICanDraw {
+export interface CanDraw {
   /**
    * Overridable implementation
    */
@@ -96,7 +96,7 @@ export interface ICanDraw {
   off(eventName: Events.postdraw, handler?: (event?: Events.PostDrawEvent) => void): void;
 }
 
-export interface ICanBeKilled {
+export interface CanBeKilled {
   /**
    * Overridable implementation
    */

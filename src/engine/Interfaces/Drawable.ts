@@ -1,10 +1,10 @@
-import { Vector } from './../Algebra';
-import { ISpriteEffect } from '../Drawing/SpriteEffects';
+import { Vector } from '../Algebra';
+import { SpriteEffect } from '../Drawing/SpriteEffects';
 
 /**
  * Interface for implementing anything in Excalibur that can be drawn to the screen.
  */
-export interface IDrawable {
+export interface Drawable {
   /**
    * Indicates whether the drawing is to be flipped vertically
    */
@@ -35,13 +35,13 @@ export interface IDrawable {
    * Adds a new [[ISpriteEffect]] to this drawing.
    * @param effect  Effect to add to the this drawing
    */
-  addEffect(effect: ISpriteEffect): void;
+  addEffect(effect: SpriteEffect): void;
 
   /**
    * Removes an effect [[ISpriteEffect]] from this drawing.
    * @param effect  Effect to remove from this drawing
    */
-  removeEffect(effect: ISpriteEffect): void;
+  removeEffect(effect: SpriteEffect): void;
 
   /**
    * Removes an effect by index from this drawing.

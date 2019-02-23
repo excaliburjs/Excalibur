@@ -1,4 +1,4 @@
-import { ICollisionArea } from './ICollisionArea';
+import { CollisionArea } from './CollisionArea';
 import { Body } from './Body';
 
 import { Actor, CollisionType } from '../Actor';
@@ -19,11 +19,11 @@ export class CollisionContact {
   /**
    * The first rigid body in the collision
    */
-  bodyA: ICollisionArea;
+  bodyA: CollisionArea;
   /**
    * The second rigid body in the collision
    */
-  bodyB: ICollisionArea;
+  bodyB: CollisionArea;
   /**
    * The minimum translation vector to resolve penetration, pointing away from bodyA
    */
@@ -37,7 +37,7 @@ export class CollisionContact {
    */
   normal: Vector;
 
-  constructor(bodyA: ICollisionArea, bodyB: ICollisionArea, mtv: Vector, point: Vector, normal: Vector) {
+  constructor(bodyA: CollisionArea, bodyB: CollisionArea, mtv: Vector, point: Vector, normal: Vector) {
     this.bodyA = bodyA;
     this.bodyB = bodyB;
     this.mtv = mtv;

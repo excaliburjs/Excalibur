@@ -1,2 +1,2 @@
 export * from './ColorBlindCorrector';
-export * from './IPostProcessor';
+export * from './PostProcessor';

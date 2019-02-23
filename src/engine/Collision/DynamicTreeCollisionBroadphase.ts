@@ -1,5 +1,5 @@
 ﻿import { Physics } from './../Physics';
-import { ICollisionBroadphase } from './ICollisionResolver';
+import { CollisionBroadphase } from './CollisionResolver';
 import { DynamicTree } from './DynamicTree';
 import { Pair } from './Pair';
 import { Body } from './Body';
@@ -11,7 +11,7 @@ import { CollisionResolutionStrategy } from '../Physics';
 import { Logger } from '../Util/Log';
 import { CollisionStartEvent, CollisionEndEvent } from '../Events';
 
-export class DynamicTreeCollisionBroadphase implements ICollisionBroadphase {
+export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
   private _dynamicCollisionTree = new DynamicTree();
   private _collisionHash: { [key: string]: boolean } = {};
   private _collisionPairCache: Pair[] = [];

@@ -10,7 +10,7 @@ import * as Util from './Util/Util';
 /**
  * ITriggerOptions
  */
-export interface ITriggerOptions {
+export interface TriggerOptions {
   // position of the trigger
   pos: Vector;
   // width of the trigger
@@ -29,7 +29,7 @@ export interface ITriggerOptions {
   repeat: number;
 }
 
-let triggerDefaults: Partial<ITriggerOptions> = {
+let triggerDefaults: Partial<TriggerOptions> = {
   pos: Vector.Zero,
   width: 10,
   height: 10,
@@ -70,7 +70,7 @@ export class Trigger extends Actor {
    *
    * @param opts Trigger options
    */
-  constructor(opts: Partial<ITriggerOptions>) {
+  constructor(opts: Partial<TriggerOptions>) {
     super(opts.pos.x, opts.pos.y, opts.width, opts.height);
     opts = Util.extend({}, triggerDefaults, opts);
 

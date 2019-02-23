@@ -1,10 +1,10 @@
-import { IDebugFlags } from './DebugFlags';
+import { DebugFlags } from './DebugFlags';
 import { Pair } from './Collision/Pair';
 
 /**
  * Debug stats containing current and previous frame statistics
  */
-export interface IDebugStats {
+export interface DebugStats {
   currFrame: FrameStats;
   prevFrame: FrameStats;
 }
@@ -12,14 +12,14 @@ export interface IDebugStats {
 /**
  * Hash containing the [[Pair.id]]s of pairs that collided in a frame
  */
-export interface ICollidersHash {
+export interface CollidersHash {
   [pairId: string]: Pair;
 }
 
 /**
  * Represents a frame's individual statistics
  */
-export interface IFrameStats {
+export interface FrameStatistics {
   /**
    * The number of the frame
    */
@@ -38,23 +38,23 @@ export interface IFrameStats {
   /**
    * Duration statistics (in ms)
    */
-  duration: IFrameDurationStats;
+  duration: FrameDurationStats;
 
   /**
    * Actor statistics
    */
-  actors: IFrameActorStats;
+  actors: FrameActorStats;
 
   /**
    * Physics statistics
    */
-  physics: IPhysicsStats;
+  physics: PhysicsStatistics;
 }
 
 /**
  * Represents actor stats for a frame
  */
-export interface IFrameActorStats {
+export interface FrameActorStats {
   /**
    * Gets the frame's number of actors (alive)
    */
@@ -84,7 +84,7 @@ export interface IFrameActorStats {
 /**
  * Represents duration stats for a frame
  */
-export interface IFrameDurationStats {
+export interface FrameDurationStats {
   /**
    * Gets the frame's total time to run the update function (in ms)
    */
@@ -104,7 +104,7 @@ export interface IFrameDurationStats {
 /**
  * Represents physics stats for the current frame
  */
-export interface IPhysicsStats {
+export interface PhysicsStatistics {
   /**
    * Gets the number of broadphase collision pairs which
    */
@@ -118,7 +118,7 @@ export interface IPhysicsStats {
   /**
    * A Hash storing the [[Pair.id]]s of [[Pair]]s that collided in the frame
    */
-  collidersHash: ICollidersHash;
+  collidersHash: CollidersHash;
 
   /**
    * Gets the number of fast moving bodies using raycast continuous collisions in the scene
@@ -146,11 +146,11 @@ export interface IPhysicsStats {
  * best to do so on the `postupdate` event for [[Engine]], after all values have been
  * updated during a frame.
  */
-export class Debug implements IDebugFlags {
+export class Debug implements DebugFlags {
   /**
    * Performance statistics
    */
-  public stats: IDebugStats = {
+  public stats: DebugStats = {
     /**
      * Current frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats.
      * Best accessed on [[postframe]] event. See [[IFrameStats]]
@@ -169,25 +169,25 @@ export class Debug implements IDebugFlags {
  * Implementation of a frame's stats. Meant to have values copied via [[FrameStats.reset]], avoid
  * creating instances of this every frame.
  */
-export class FrameStats implements IFrameStats {
+export class FrameStats implements FrameStatistics {
   private _id: number = 0;
   private _delta: number = 0;
   private _fps: number = 0;
-  private _actorStats: IFrameActorStats = {
+  private _actorStats: FrameActorStats = {
     alive: 0,
     killed: 0,
     ui: 0,
-    get remaining(this: IFrameActorStats) {
+    get remaining(this: FrameActorStats) {
       return this.alive - this.killed;
     },
-    get total(this: IFrameActorStats) {
+    get total(this: FrameActorStats) {
       return this.remaining + this.ui;
     }
   };
-  private _durationStats: IFrameDurationStats = {
+  private _durationStats: FrameDurationStats = {
     update: 0,
     draw: 0,
-    get total(this: IFrameDurationStats) {
+    get total(this: FrameDurationStats) {
       return this.update + this.draw;
     }
   };
@@ -199,7 +199,7 @@ export class FrameStats implements IFrameStats {
    *
    * @param [otherStats] Optional stats to clone
    */
-  public reset(otherStats?: IFrameStats) {
+  public reset(otherStats?: FrameStatistics) {
     if (otherStats) {
       this.id = otherStats.id;
       this.delta = otherStats.delta;
@@ -295,10 +295,10 @@ export class FrameStats implements IFrameStats {
   }
 }
 
-export class PhysicsStats implements IPhysicsStats {
+export class PhysicsStats implements PhysicsStatistics {
   private _pairs: number = 0;
   private _collisions: number = 0;
-  private _collidersHash: ICollidersHash = {};
+  private _collidersHash: CollidersHash = {};
   private _fastBodies: number = 0;
   private _fastBodyCollisions: number = 0;
   private _broadphase: number = 0;
@@ -309,7 +309,7 @@ export class PhysicsStats implements IPhysicsStats {
    *
    * @param [otherStats] Optional stats to clone
    */
-  public reset(otherStats?: IPhysicsStats) {
+  public reset(otherStats?: PhysicsStatistics) {
     if (otherStats) {
       this.pairs = otherStats.pairs;
       this.collisions = otherStats.collisions;
@@ -328,7 +328,7 @@ export class PhysicsStats implements IPhysicsStats {
   /**
    * Provides a clone of this instance.
    */
-  public clone(): IPhysicsStats {
+  public clone(): PhysicsStatistics {
     var ps = new PhysicsStats();
 
     ps.reset(this);
@@ -352,11 +352,11 @@ export class PhysicsStats implements IPhysicsStats {
     this._collisions = value;
   }
 
-  public get collidersHash(): ICollidersHash {
+  public get collidersHash(): CollidersHash {
     return this._collidersHash;
   }
 
-  public set collidersHash(colliders: ICollidersHash) {
+  public set collidersHash(colliders: CollidersHash) {
     this._collidersHash = colliders;
   }
 

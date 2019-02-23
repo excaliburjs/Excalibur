@@ -8,7 +8,7 @@ describe('A Collision', () => {
   var scene: ex.Scene = null;
   var engine: ex.Engine = null;
   var mock = new Mocks.Mocker();
-  var loop: Mocks.IGameLoop;
+  var loop: Mocks.GameLoopLike;
 
   beforeEach(() => {
     engine = TestUtils.engine({ width: 600, height: 400 });

@@ -9,7 +9,7 @@ var loader = new ex.Loader();
 
 for (var key in Resources) {
   if (Resources.hasOwnProperty(key)) {
-    loader.addResource(<ex.ILoadable>Resources[key]);
+    loader.addResource(Resources[key]);
   }
 }
 
