@@ -13,11 +13,6 @@ describe('Logger', () => {
     beforeEach(() => {
       appender = new ex.ConsoleAppender();
 
-      //TODO
-      //if (Logger['_instance']) {
-      //   Logger['_instance'] = null;
-      //}
-
       logger = ex.Logger.getInstance();
       logger.addAppender(appender);
       spiedAppender = spyOn(appender, 'log');

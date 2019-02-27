@@ -44,14 +44,6 @@ describe('An Event Dispatcher', () => {
     expect(eventFired).toBeTruthy();
   });
 
-  //it('has event handlers called in the right order', () => {
-  //   //TODO
-  //});
-
-  //it('can be subscribed to', () => { }); //TODO
-
-  //it('can be unsubscribed from', () => { }); //TODO
-
   it('can wire to other event dispatchers', () => {
     var newPubSub = new ex.EventDispatcher(null);
     pubsub.wire(newPubSub);
