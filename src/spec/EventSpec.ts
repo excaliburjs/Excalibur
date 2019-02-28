@@ -44,9 +44,27 @@ describe('An Event Dispatcher', () => {
     expect(eventFired).toBeTruthy();
   });
 
-  //it('has event handlers called in the right order', () => {
-  //   //TODO
-  //});
+  it('has event handlers called in the right order', () => {
+    const subscriptions: number[] = [];
+    let eventHistory: number[];
+
+    for (let i = 0; i < 5; i++) {
+      subscriptions.push(i);
+    }
+
+    eventHistory = [];
+    subscriptions.forEach(i => pubsub.on('event', () => eventHistory.push(i)));
+    pubsub.emit('event');
+    expect(eventHistory).toEqual(subscriptions);
+
+    pubsub.off('event');
+    subscriptions.push(subscriptions.shift());
+
+    eventHistory = [];
+    subscriptions.forEach(i => pubsub.on('event', () => eventHistory.push(i)));
+    pubsub.emit('event');
+    expect(eventHistory).toEqual(subscriptions);
+  });
 
   //it('can be subscribed to', () => { }); //TODO
 
