@@ -296,8 +296,6 @@ player.on('postupdate', () => {
       return;
     }
     player.vel.x = -groundSpeed;
-
-    // TODO: When platform is moving in same direction, add its dx
   } else if (game.input.keyboard.isHeld(ex.Input.Keys.Right)) {
     direction = 1;
     if (!inAir) {
@@ -308,8 +306,6 @@ player.on('postupdate', () => {
       return;
     }
     player.vel.x = groundSpeed;
-
-    // TODO: When platform is moving in same direction, add its dx
   }
 
   if (game.input.keyboard.isHeld(ex.Input.Keys.Up)) {
