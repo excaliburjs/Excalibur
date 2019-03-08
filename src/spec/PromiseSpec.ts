@@ -160,12 +160,6 @@ describe('A promise', () => {
     expect(p.state()).toBe(ex.PromiseState.Rejected);
 
     done();
-    // TODO Test onRejected callback
-    // p.then((v) => {
-    //    value = v;
-    //    expect(value).toBe(12);
-    //    done();
-    // });
   });
 
   describe('with multiple promises', () => {
