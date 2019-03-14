@@ -1,26 +1,32 @@
-import { Physics, CollisionResolutionStrategy } from './../Physics';
-import { EdgeArea } from './EdgeArea';
-import { CircleArea } from './CircleArea';
-import { CollisionArea } from './CollisionArea';
-import { PolygonArea } from './PolygonArea';
-import { BoundingBox } from './BoundingBox';
 import { Pair } from './Pair';
-
 import { Vector } from '../Algebra';
 import { Actor } from '../Actor';
-import { Color } from '../Drawing/Color';
-import * as DrawUtil from '../Util/DrawUtil';
+import { Collider } from './Collider';
 
+/**
+ * Body describes all the physical properties pos, vel, acc, rotation, angular velocity
+ */
 export class Body {
+  private _collider: Collider;
+
   /**
    * Constructs a new physics body associated with an actor
    */
-  constructor(public actor: Actor) {}
+  constructor(private actor: Actor) {
+    this._collider = new Collider(this.actor, this);
+  }
 
-  /**
-   * [[ICollisionArea|Collision area]] of this physics body, defines the shape for rigid body collision
-   */
-  public collisionArea: CollisionArea = null;
+  public get collisionType() {
+    return this.actor.collisionType;
+  }
+
+  public set collider(collider: Collider) {
+    this._collider = collider;
+  }
+
+  public get collider() {
+    return this._collider;
+  }
 
   /**
    * The (x, y) position of the actor this will be in the middle of the actor if the
@@ -56,29 +62,9 @@ export class Body {
   public torque: number = 0;
 
   /**
-   * The current mass of the actor, mass can be thought of as the resistance to acceleration.
-   */
-  public mass: number = 1.0;
-
-  /**
-   * The current moment of inertia, moi can be thought of as the resistance to rotation.
-   */
-  public moi: number = 1000;
-
-  /**
    * The current "motion" of the actor, used to calculated sleep in the physics simulation
    */
   public motion: number = 10;
-
-  /**
-   * The coefficient of friction on this actor
-   */
-  public friction: number = 0.99;
-
-  /**
-   * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
-   */
-  public restitution: number = 0.2;
 
   /**
    * The rotation of the actor in radians
@@ -108,133 +94,12 @@ export class Body {
   }
 
   /**
-   * Returns the body's [[BoundingBox]] calculated for this instant in world space.
-   */
-  public getBounds(): BoundingBox {
-    if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
-      return this.actor.getBounds();
-    } else {
-      return this.collisionArea.getBounds();
-    }
-  }
-
-  /**
-   * Returns the actor's [[BoundingBox]] relative to the actors position.
-   */
-  public getRelativeBounds(): BoundingBox {
-    if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
-      return this.actor.getRelativeBounds();
-    } else {
-      return this.actor.getRelativeBounds();
-    }
-  }
-
-  /**
-   * Updates the collision area geometry and internal caches
-   */
-  public update() {
-    if (this.collisionArea) {
-      // Update the geometry if needed
-      if (this.actor && this.actor.isGeometryDirty && this.collisionArea instanceof PolygonArea) {
-        this.collisionArea.points = this.actor.getRelativeGeometry();
-      }
-
-      this.collisionArea.recalc();
-    }
-  }
-
-  /**
-   * Sets up a box collision area based on the current bounds of the associated actor of this physics body.
-   *
-   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
-   */
-  public useBoxCollision(center: Vector = Vector.Zero) {
-    this.collisionArea = new PolygonArea({
-      body: this,
-      points: this.actor.getRelativeGeometry(),
-      pos: center // position relative to actor
-    });
-
-    // in case of a nan moi, coalesce to a safe default
-    this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
-  }
-
-  /**
-   * Sets up a polygon collision area based on a list of of points relative to the anchor of the associated actor of this physics body.
-   *
-   * Only [convex polygon](https://en.wikipedia.org/wiki/Convex_polygon) definitions are supported.
-   *
-   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
-   */
-  public usePolygonCollision(points: Vector[], center: Vector = Vector.Zero) {
-    this.collisionArea = new PolygonArea({
-      body: this,
-      points: points,
-      pos: center // position relative to actor
-    });
-
-    // in case of a nan moi, collesce to a safe default
-    this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
-  }
-
-  /**
-   * Sets up a [[CircleArea|circle collision area]] with a specified radius in pixels.
-   *
-   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
-   */
-  public useCircleCollision(radius?: number, center: Vector = Vector.Zero) {
-    if (!radius) {
-      radius = this.actor.getWidth() / 2;
-    }
-    this.collisionArea = new CircleArea({
-      body: this,
-      radius: radius,
-      pos: center
-    });
-    this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
-  }
-
-  /**
-   * Sets up an [[EdgeArea|edge collision]] with a start point and an end point relative to the anchor of the associated actor
-   * of this physics body.
-   *
-   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
-   */
-  public useEdgeCollision(begin: Vector, end: Vector) {
-    this.collisionArea = new EdgeArea({
-      begin: begin,
-      end: end,
-      body: this
-    });
-
-    this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
-  }
-
-  /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D) {
-    // Draw motion vectors
-    if (Physics.showMotionVectors) {
-      DrawUtil.vector(ctx, Color.Yellow, this.pos, this.acc.add(Physics.acc));
-      DrawUtil.vector(ctx, Color.Red, this.pos, this.vel);
-      DrawUtil.point(ctx, Color.Red, this.pos);
-    }
-
-    if (Physics.showBounds) {
-      this.getBounds().debugDraw(ctx, Color.Yellow);
-    }
-
-    if (Physics.showArea) {
-      this.collisionArea.debugDraw(ctx, Color.Green);
-    }
-  }
-
-  /**
    * Returns a boolean indicating whether this body collided with
    * or was in stationary contact with
-   * the body of the other [[Actor]]
+   * the body of the other [[Body]]
    */
-  public touching(other: Actor): boolean {
-    var pair = new Pair(this, other.body);
+  public touching(other: Body): boolean {
+    var pair = new Pair(this, other);
     pair.collide();
 
     if (pair.collision) {

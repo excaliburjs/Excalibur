@@ -8,6 +8,7 @@ import { TileMap } from './TileMap';
 import { Side } from './Collision/Side';
 import * as Input from './Input/Index';
 import { Pair, Camera } from './index';
+import { Collider } from './Collision/Collider';
 
 export enum EventTypes {
   Kill = 'kill',
@@ -443,14 +444,14 @@ export class HiddenEvent extends GameEvent<Engine> {
 /**
  * Event thrown on an [[Actor|actor]] when a collision will occur this frame if it resolves
  */
-export class PreCollisionEvent extends GameEvent<Actor> {
+export class PreCollisionEvent extends GameEvent<Collider | Actor> {
   /**
    * @param actor         The actor the event was thrown on
    * @param other         The actor that will collided with the current actor
    * @param side          The side that will be collided with the current actor
    * @param intersection  Intersection vector
    */
-  constructor(public actor: Actor, public other: Actor, public side: Side, public intersection: Vector) {
+  constructor(public actor: Collider | Actor, public other: Collider | Actor, public side: Side, public intersection: Vector) {
     super();
     this.target = actor;
   }
@@ -459,14 +460,14 @@ export class PreCollisionEvent extends GameEvent<Actor> {
 /**
  * Event thrown on an [[Actor|actor]] when a collision has been resolved (body reacted) this frame
  */
-export class PostCollisionEvent extends GameEvent<Actor> {
+export class PostCollisionEvent extends GameEvent<Collider | Actor> {
   /**
    * @param actor         The actor the event was thrown on
    * @param other         The actor that did collide with the current actor
    * @param side          The side that did collide with the current actor
    * @param intersection  Intersection vector
    */
-  constructor(public actor: Actor, public other: Actor, public side: Side, public intersection: Vector) {
+  constructor(public actor: Collider | Actor, public other: Collider | Actor, public side: Side, public intersection: Vector) {
     super();
     this.target = actor;
   }
@@ -475,11 +476,11 @@ export class PostCollisionEvent extends GameEvent<Actor> {
 /**
  * Event thrown the first time an [[Actor|actor]] collides with another, after an actor is in contact normal collision events are fired.
  */
-export class CollisionStartEvent extends GameEvent<Actor> {
+export class CollisionStartEvent extends GameEvent<Collider | Actor> {
   /**
    *
    */
-  constructor(public actor: Actor, public other: Actor, public pair: Pair) {
+  constructor(public actor: Collider | Actor, public other: Collider | Actor, public pair: Pair) {
     super();
     this.target = actor;
   }
@@ -488,11 +489,11 @@ export class CollisionStartEvent extends GameEvent<Actor> {
 /**
  * Event thrown when the [[Actor|actor]] is no longer colliding with another
  */
-export class CollisionEndEvent extends GameEvent<Actor> {
+export class CollisionEndEvent extends GameEvent<Collider | Actor> {
   /**
    *
    */
-  constructor(public actor: Actor, public other: Actor) {
+  constructor(public actor: Collider | Actor, public other: Collider | Actor) {
     super();
     this.target = actor;
   }
