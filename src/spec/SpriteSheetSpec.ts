@@ -207,28 +207,26 @@ describe('A spritesheet', () => {
 
   it('should throw Error SpriteSheet specified is wider than image width', (done) => {
     let error: any;
-    texture.load().then(async () => {
+    texture.load().then(() => {
       try {
-        let ss = await new ex.SpriteSheet({
+        let ss = new ex.SpriteSheet({
           image: texture,
           columns: 22,
           rows: 1,
           spWidth: 96,
           spHeight: 96
         });
-        setTimeout(() => {
-          expect(ss.image.isLoaded());
-        }, 2000);
+        expect(ss.image.isLoaded());
       } catch (e) {
         error = e;
       }
-      const expectedError = new Error('SpriteSheet specified is wider, 22 cols x 96 pixels > 2016 pixels than image width');
+      const expectedError = new RangeError('SpriteSheet specified is wider, 22 cols x 96 pixels > 2016 pixels than image width');
       expect(error).toEqual(expectedError);
       done();
     });
   });
 
-  /*it('should throw Error SpriteSheet specified is higher than image height', (done) => {
+  it('should throw Error SpriteSheet specified is higher than image height', (done) => {
     let error: any;
     texture.load().then(() => {
       try {
@@ -243,9 +241,9 @@ describe('A spritesheet', () => {
       } catch (e) {
         error = e;
       }
-      const expectedError = new Error('SpriteSheet specified is higher than image height');
+      const expectedError = new RangeError('SpriteSheet specified is taller, 2 rows x 96 pixels > 96 pixels than image height');
       expect(error).toEqual(expectedError);
       done();
     });
-  });*/
+  });
 });

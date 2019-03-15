@@ -61,19 +61,26 @@ export class SpriteSheetImpl {
 
     // Inspect actual image dimensions with preloading
     if (this.image instanceof Texture) {
+      let isWidthError: boolean = false;
+      let isHeightError: boolean = false;
       this.image.loaded.then((image: HTMLImageElement) => {
-        console.log('Is it true?' + (this.spWidth * this.columns > image.naturalWidth));
-        if (this.spWidth * this.columns > image.naturalWidth) {
-          throw new Error(`SpriteSheet specified is wider, 
-                    ${this.columns} cols x ${this.spWidth} pixels > ${image.naturalWidth} 
-                    pixels than image width`);
-        }
-        if (this.spHeight * this.rows > image.naturalHeight) {
-          throw new Error(`SpriteSheet specified is taller,
-                    ${this.rows} rows x ${this.spHeight} pixels > ${image.naturalHeight} 
-                    pixels than image height`);
-        }
+        isWidthError = this.spWidth * this.columns > image.naturalWidth;
+        isHeightError = this.spHeight * this.rows > image.naturalHeight;
       });
+      if (isWidthError) {
+        throw new RangeError(
+          `SpriteSheet specified is wider, ` +
+            `${this.columns} cols x ${this.spWidth} pixels > ${this.image.image.naturalWidth} ` +
+            `pixels than image width`
+        );
+      }
+      if (isHeightError) {
+        throw new RangeError(
+          `SpriteSheet specified is taller, ` +
+            `${this.rows} rows x ${this.spHeight} pixels > ${this.image.image.naturalHeight} ` +
+            `pixels than image height`
+        );
+      }
     }
 
     if (loadFromImage) {
