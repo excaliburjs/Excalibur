@@ -388,19 +388,22 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
    */
   public actions: ActionContext;
+
   /**
    * Convenience reference to the global logger
    */
   public logger: Logger = Logger.getInstance();
+
   /**
    * The scene that the actor is in
    */
   public scene: Scene = null;
+
   /**
    * The parent of this actor
    */
   public parent: Actor = null;
-  // TODO: Replace this with the new actor collection once z-indexing is built
+
   /**
    * The children of this actor
    */
@@ -499,8 +502,6 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     }
 
     // Build default pipeline
-    //this.traits.push(new ex.Traits.EulerMovement());
-    // TODO: TileMaps should be converted to a collision area
     this.traits.push(new Traits.TileMapCollisionDetection());
     this.traits.push(new Traits.OffscreenCulling());
     this.traits.push(new Traits.CapturePointer());
