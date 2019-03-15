@@ -17,7 +17,7 @@ export class WebAudio {
 
   /**
    * Play an empty sound to unlock Safari WebAudio context. Call this function
-   * right after a user interaction event. Typically used by [[PauseAfterLoader]]
+   * right after a user interaction event.
    * @source https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
    */
   static unlock(): Promise<boolean> {
