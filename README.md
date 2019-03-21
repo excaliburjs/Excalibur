@@ -62,7 +62,7 @@ Excalibur is commited to supporting the latest 2 versions of popular desktop and
 ### Prerequisites
 
 - **Required:** [Node.js](https://nodejs.org/) & npm (8.x)
-- _Recommended:_ [TSLint extension for VS Code](https://marketplace.visualstudio.com/items?itemName=eg2.tslint)
+- _Recommended:_ [TSLint extension for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-typescript-tslint-plugin)
 - _Recommended:_ [Prettier plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 - _Optional:_ [PhantomJS Debugger for VS Code](https://github.com/iradul/vscode-phantomjs-debug)
 - _Optional:_ Grunt CLI (`npm i -g grunt-cli`), same task names
