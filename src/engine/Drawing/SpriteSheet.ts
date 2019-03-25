@@ -59,6 +59,30 @@ export class SpriteSheetImpl {
       loadFromImage = true;
     }
 
+    // Inspect actual image dimensions with preloading
+    if (this.image instanceof Texture) {
+      let isWidthError: boolean = false;
+      let isHeightError: boolean = false;
+      this.image.loaded.then((image: HTMLImageElement) => {
+        isWidthError = this.spWidth * this.columns > image.naturalWidth;
+        isHeightError = this.spHeight * this.rows > image.naturalHeight;
+      });
+      if (isWidthError) {
+        throw new RangeError(
+          `SpriteSheet specified is wider, ` +
+            `${this.columns} cols x ${this.spWidth} pixels > ${this.image.image.naturalWidth} ` +
+            `pixels than image width`
+        );
+      }
+      if (isHeightError) {
+        throw new RangeError(
+          `SpriteSheet specified is taller, ` +
+            `${this.rows} rows x ${this.spHeight} pixels > ${this.image.image.naturalHeight} ` +
+            `pixels than image height`
+        );
+      }
+    }
+
     if (loadFromImage) {
       var i = 0;
       var j = 0;
