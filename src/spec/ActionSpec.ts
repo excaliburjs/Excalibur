@@ -606,7 +606,6 @@ describe('Action', () => {
         actor.update(engine, 1000);
         expect(actor.pos.x).toBe(actorToFollow.pos.x - 10);
       }
-      //TODO test different follow distances?
     });
   });
 
@@ -630,9 +629,6 @@ describe('Action', () => {
       actorToMeet.update(engine, 1000);
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(actorToMeet.pos.x);
-
-      //TODO have actor to be followed traveling at a diagonal 'toward' the following actor
-      // testing when actorToMeet is moving in a direction towards the following actor
     });
   });
 

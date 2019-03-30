@@ -55,7 +55,6 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
    */
   public broadphase(targets: Actor[], delta: number, stats?: FrameStats): Pair[] {
     var seconds = delta / 1000;
-    // TODO optimization use only the actors that are moving to start
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
     var potentialColliders = targets.filter((other) => {
       return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision;

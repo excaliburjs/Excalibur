@@ -260,7 +260,7 @@ export class LabelImpl extends Actor {
     }
   }
 
-  private _lookupTextAlign(textAlign: TextAlign): string {
+  private _lookupTextAlign(textAlign: TextAlign): CanvasTextAlign {
     switch (textAlign) {
       case TextAlign.Left:
         return 'left';
@@ -277,14 +277,14 @@ export class LabelImpl extends Actor {
     }
   }
 
-  private _lookupBaseAlign(baseAlign: BaseAlign): string {
+  private _lookupBaseAlign(baseAlign: BaseAlign): CanvasTextBaseline {
     switch (baseAlign) {
       case BaseAlign.Alphabetic:
         return 'alphabetic';
       case BaseAlign.Bottom:
         return 'bottom';
       case BaseAlign.Hanging:
-        return 'hangin';
+        return 'hanging';
       case BaseAlign.Ideographic:
         return 'ideographic';
       case BaseAlign.Middle:
