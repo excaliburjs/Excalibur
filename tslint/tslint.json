@@ -31,7 +31,7 @@
     "jsdoc-format": true,
     "quotemark": [true, "single"],
     "radix": true,
-    "semicolon": true,
+    "semicolon": [true, "always", "ignore-bound-class-methods"],
     "triple-equals": [true, "allow-null-check"],
     "variable-name": false,
     "whitespace": [true, "check-branch", "check-decl", "check-operator", "check-separator", "check-type"]
