@@ -1,12 +1,9 @@
 {
   "compilerOptions": {
     "rootDir": "./src/engine",
-    "module": "system",
     "noImplicitAny": true,
-    "removeComments": true,
     "preserveConstEnums": true,
     "declaration": true,
-    "outFile": "../../built/local/tsc.js",
     "sourceMap": true
   },
   "include": ["src/spec/**/*"],

@@ -87,7 +87,7 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
     // Check dynamic tree for fast moving objects
     // Fast moving objects are those moving at least there smallest bound per frame
     if (Physics.checkForFastBodies) {
-      for (var actor of potentialColliders) {
+      for (let actor of potentialColliders) {
         // Skip non-active objects. Does not make sense on other collison types
         if (actor.collisionType !== CollisionType.Active) {
           continue;

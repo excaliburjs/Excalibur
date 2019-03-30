@@ -5,8 +5,7 @@
   "editor.detectIndentation": false,
   "restructuredtext.confPath": "docs/source/conf.py",
   "restructuredtext.builtDocumentationPath": "docs/build/html",
-  "tslint.enable": true,
-  "tslint.configFile": "./tslint/tslint.json",
+  "tslint.configFile": "../../tslint/tslint.json",
   "files.exclude": {
     "**/.git": true,
     ".grunt/": true,
