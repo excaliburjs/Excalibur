@@ -13,7 +13,7 @@
 #### CONSIDER
 
 - Keeping methods short < 100 lines
-- Using the SOLID principles where possible
+- Using the SOLID principles where possible ([the course by Mark Seemann is good](https://www.pluralsight.com/courses/encapsulation-solid))
   - **S**ingle Responsibility Principle
   - **O**pen-closed Principle
   - **L**iskov substitution principle
