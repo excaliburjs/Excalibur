@@ -14,7 +14,7 @@ import { Color } from './Color';
 /**
  * The interface that all sprite effects must implement
  */
-export interface ISpriteEffect {
+export interface SpriteEffect {
   /**
    * Should update individual pixels values
    * @param x          The pixel's x coordinate
@@ -27,7 +27,7 @@ export interface ISpriteEffect {
 /**
  * Applies the "Grayscale" effect to a sprite, removing color information.
  */
-export class Grayscale implements ISpriteEffect {
+export class Grayscale implements SpriteEffect {
   updatePixel(x: number, y: number, imageData: ImageData): void {
     var firstPixel = (x + y * imageData.width) * 4;
     var pixel = imageData.data;
@@ -41,7 +41,7 @@ export class Grayscale implements ISpriteEffect {
 /**
  * Applies the "Invert" effect to a sprite, inverting the pixel colors.
  */
-export class Invert implements ISpriteEffect {
+export class Invert implements SpriteEffect {
   updatePixel(x: number, y: number, imageData: ImageData): void {
     var firstPixel = (x + y * imageData.width) * 4;
     var pixel = imageData.data;
@@ -54,7 +54,7 @@ export class Invert implements ISpriteEffect {
 /**
  * Applies the "Opacity" effect to a sprite, setting the alpha of all pixels to a given value.
  */
-export class Opacity implements ISpriteEffect {
+export class Opacity implements SpriteEffect {
   /**
    * @param opacity  The new opacity of the sprite from 0-1.0
    */
@@ -72,7 +72,7 @@ export class Opacity implements ISpriteEffect {
  * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an
  * average of the original color and the provided color
  */
-export class Colorize implements ISpriteEffect {
+export class Colorize implements SpriteEffect {
   /**
    * @param color  The color to apply to the sprite
    */
@@ -91,7 +91,7 @@ export class Colorize implements ISpriteEffect {
 /**
  * Applies the "Lighten" effect to a sprite, changes the lightness of the color according to HSL
  */
-export class Lighten implements ISpriteEffect {
+export class Lighten implements SpriteEffect {
   /**
    * @param factor  The factor of the effect between 0-1
    */
@@ -112,7 +112,7 @@ export class Lighten implements ISpriteEffect {
 /**
  * Applies the "Darken" effect to a sprite, changes the darkness of the color according to HSL
  */
-export class Darken implements ISpriteEffect {
+export class Darken implements SpriteEffect {
   /**
    * @param factor  The factor of the effect between 0-1
    */
@@ -133,7 +133,7 @@ export class Darken implements ISpriteEffect {
 /**
  * Applies the "Saturate" effect to a sprite, saturates the color according to HSL
  */
-export class Saturate implements ISpriteEffect {
+export class Saturate implements SpriteEffect {
   /**
    * @param factor  The factor of the effect between 0-1
    */
@@ -154,7 +154,7 @@ export class Saturate implements ISpriteEffect {
 /**
  * Applies the "Desaturate" effect to a sprite, desaturates the color according to HSL
  */
-export class Desaturate implements ISpriteEffect {
+export class Desaturate implements SpriteEffect {
   /**
    * @param factor  The factor of the effect between 0-1
    */
@@ -176,7 +176,7 @@ export class Desaturate implements ISpriteEffect {
  * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
  * a given color
  */
-export class Fill implements ISpriteEffect {
+export class Fill implements SpriteEffect {
   /**
    * @param color  The color to apply to the sprite
    */

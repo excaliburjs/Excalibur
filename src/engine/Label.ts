@@ -107,7 +107,7 @@ export enum FontStyle {
 /**
  * [[include:Constructors.md]]
  */
-export interface ILabelArgs extends Partial<LabelImpl> {
+export interface LabelArgs extends Partial<LabelImpl> {
   text?: string;
   bold?: boolean;
   pos?: Vector;
@@ -407,9 +407,9 @@ export class LabelImpl extends Actor {
  */
 export class Label extends Configurable(LabelImpl) {
   constructor();
-  constructor(config?: ILabelArgs);
+  constructor(config?: LabelArgs);
   constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont);
-  constructor(textOrConfig?: string | ILabelArgs, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
+  constructor(textOrConfig?: string | LabelArgs, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
     super(textOrConfig, x, y, fontFamily, spriteFont);
   }
 }

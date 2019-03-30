@@ -7,7 +7,7 @@ import { Engine } from '../Engine';
  *
  * [[include:Loadables.md]]
  */
-export interface ILoadable {
+export interface Loadable {
   /**
    * Begins loading the resource and returns a promise to be resolved on completion
    */

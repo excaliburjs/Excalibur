@@ -3,8 +3,8 @@ import { WebAudio } from './Util/WebAudio';
 import { Logger } from './Util/Log';
 import { Promise, PromiseState } from './Promises';
 import { Engine } from './Engine';
-import { ILoadable } from './Interfaces/ILoadable';
-import { ILoader } from './Interfaces/ILoader';
+import { Loadable } from './Interfaces/Loadable';
+import { CanLoad } from './Interfaces/Loader';
 import { Class } from './Class';
 import * as DrawUtil from './Util/DrawUtil';
 
@@ -76,8 +76,8 @@ import loaderCss from './Loader.css';
  * engine.start(loader).then(() => {});
  * ```
  */
-export class Loader extends Class implements ILoader {
-  private _resourceList: ILoadable[] = [];
+export class Loader extends Class implements CanLoad {
+  private _resourceList: Loadable[] = [];
   private _index = 0;
 
   private _playButtonShown: boolean = false;
@@ -148,7 +148,7 @@ export class Loader extends Class implements ILoader {
   /**
    * @param loadables  Optionally provide the list of resources you want to load at constructor time
    */
-  constructor(loadables?: ILoadable[]) {
+  constructor(loadables?: Loadable[]) {
     super();
 
     if (loadables) {
@@ -164,7 +164,7 @@ export class Loader extends Class implements ILoader {
    * Add a resource to the loader to load
    * @param loadable  Resource to add
    */
-  public addResource(loadable: ILoadable) {
+  public addResource(loadable: Loadable) {
     var key = this._index++;
     this._resourceList.push(loadable);
     this._progressCounts[key] = 0;
@@ -176,7 +176,7 @@ export class Loader extends Class implements ILoader {
    * Add a list of resources to the loader to load
    * @param loadables  The list of resources to load
    */
-  public addResources(loadables: ILoadable[]) {
+  public addResources(loadables: Loadable[]) {
     var i = 0,
       len = loadables.length;
 
@@ -277,7 +277,7 @@ export class Loader extends Class implements ILoader {
       };
     });
 
-    function loadNext(list: ILoadable[], index: number) {
+    function loadNext(list: Loadable[], index: number) {
       if (!list[index]) {
         return;
       }

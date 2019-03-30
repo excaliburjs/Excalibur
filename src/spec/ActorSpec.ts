@@ -1262,7 +1262,6 @@ describe('A game actor', () => {
     it('only has pointer events happen once per frame', () => {
       const actor = new ex.Actor(0, 0, 100, 100);
       const propSpy = spyOn(engine.input.pointers, 'propagate').and.callThrough();
-      const eventName = 'pointerup';
       let numPointerUps = 0;
 
       let pointerEvent: any = mock.pointerEvent('up');
@@ -1291,17 +1290,6 @@ describe('A game actor', () => {
 
     let texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
-      let sprite = new ex.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        scale: new ex.Vector(2, 2)
-        // rotation: Math.PI / 4,
-        // anchor: ex.Vector.Half.clone()
-      });
-
       var actor = new ex.Actor({
         x: engine.halfCanvasWidth,
         y: engine.halfCanvasHeight,

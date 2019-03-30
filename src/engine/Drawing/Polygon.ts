@@ -1,7 +1,7 @@
 import { Color } from './Color';
 import * as Effects from './SpriteEffects';
 
-import { IDrawable } from '../Interfaces/IDrawable';
+import { Drawable } from '../Interfaces/Drawable';
 import { Vector } from '../Algebra';
 
 /**
@@ -9,7 +9,7 @@ import { Vector } from '../Algebra';
  *
  * @warning Use sparingly as Polygons are performance intensive
  */
-export class Polygon implements IDrawable {
+export class Polygon implements Drawable {
   public flipVertical: boolean;
   public flipHorizontal: boolean;
   public drawWidth: number;
@@ -81,7 +81,7 @@ export class Polygon implements IDrawable {
   /**
    * @notimplemented Effects are not supported on `Polygon`
    */
-  public removeEffect(effect: Effects.ISpriteEffect): void;
+  public removeEffect(effect: Effects.SpriteEffect): void;
   /**
    * @notimplemented Effects are not supported on `Polygon`
    */

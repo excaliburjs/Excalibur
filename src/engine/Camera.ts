@@ -1,10 +1,10 @@
 import { Engine } from './Engine';
 import { EasingFunction, EasingFunctions } from './Util/EasingFunctions';
-import { IPromise, Promise, PromiseState } from './Promises';
+import { PromiseLike, Promise, PromiseState } from './Promises';
 import { Vector } from './Algebra';
 import { Actor } from './Actor';
 import { removeItemFromArray } from './Util/Util';
-import { ICanUpdate, ICanInitialize } from './Interfaces/LifecycleEvents';
+import { CanUpdate, CanInitialize } from './Interfaces/LifecycleEvents';
 import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './Events';
 import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
@@ -13,7 +13,7 @@ import { obsolete } from './Util/Decorators';
 /**
  * Interface that describes a custom camera strategy for tracking targets
  */
-export interface ICameraStrategy<T> {
+export interface CameraStrategy<T> {
   /**
    * Target of the camera strategy that will be passed to the action
    */
@@ -88,7 +88,7 @@ export enum Axis {
 /**
  * Lock a camera to the exact x/y postition of an actor.
  */
-export class LockCameraToActorStrategy implements ICameraStrategy<Actor> {
+export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
   constructor(public target: Actor) {}
   public action = (target: Actor, _cam: Camera, _eng: Engine, _delta: number) => {
     let center = target.getCenter();
@@ -99,7 +99,7 @@ export class LockCameraToActorStrategy implements ICameraStrategy<Actor> {
 /**
  * Lock a camera to a specific axis around an actor.
  */
-export class LockCameraToActorAxisStrategy implements ICameraStrategy<Actor> {
+export class LockCameraToActorAxisStrategy implements CameraStrategy<Actor> {
   constructor(public target: Actor, public axis: Axis) {}
   public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
     let center = target.getCenter();
@@ -115,7 +115,7 @@ export class LockCameraToActorAxisStrategy implements ICameraStrategy<Actor> {
 /**
  * Using [Hook's law](https://en.wikipedia.org/wiki/Hooke's_law), elastically move the camera towards the target actor.
  */
-export class ElasticToActorStrategy implements ICameraStrategy<Actor> {
+export class ElasticToActorStrategy implements CameraStrategy<Actor> {
   /**
    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
    * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillationg spring that will over
@@ -150,7 +150,7 @@ export class ElasticToActorStrategy implements ICameraStrategy<Actor> {
   };
 }
 
-export class RadiusAroundActorStrategy implements ICameraStrategy<Actor> {
+export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
   /**
    *
    * @param target Target actor to follow when it is "radius" pixels away
@@ -180,10 +180,10 @@ export class RadiusAroundActorStrategy implements ICameraStrategy<Actor> {
  *
  * [[include:Cameras.md]]
  */
-export class Camera extends Class implements ICanUpdate, ICanInitialize {
+export class Camera extends Class implements CanUpdate, CanInitialize {
   protected _follow: Actor;
 
-  private _cameraStrategies: ICameraStrategy<any>[] = [];
+  private _cameraStrategies: CameraStrategy<any>[] = [];
 
   public strategy: StrategyContainer = new StrategyContainer(this);
 
@@ -208,7 +208,7 @@ export class Camera extends Class implements ICanUpdate, ICanInitialize {
   private _lerpDuration: number = 1000; // 1 second
   private _lerpStart: Vector = null;
   private _lerpEnd: Vector = null;
-  private _lerpPromise: IPromise<Vector>;
+  private _lerpPromise: PromiseLike<Vector>;
 
   //camera effects
   protected _isShaking: boolean = false;
@@ -307,7 +307,7 @@ export class Camera extends Class implements ICanUpdate, ICanInitialize {
    * @returns A [[Promise]] that resolves when movement is finished, including if it's interrupted.
    *          The [[Promise]] value is the [[Vector]] of the target position. It will be rejected if a move cannot be made.
    */
-  public move(pos: Vector, duration: number, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): IPromise<Vector> {
+  public move(pos: Vector, duration: number, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): PromiseLike<Vector> {
     if (typeof easingFn !== 'function') {
       throw 'Please specify an EasingFunction';
     }
@@ -395,7 +395,7 @@ export class Camera extends Class implements ICanUpdate, ICanInitialize {
    * Adds a new camera strategy to this camera
    * @param cameraStrategy Instance of an [[ICameraStrategy]]
    */
-  public addStrategy<T>(cameraStrategy: ICameraStrategy<T>) {
+  public addStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     this._cameraStrategies.push(cameraStrategy);
   }
 
@@ -403,7 +403,7 @@ export class Camera extends Class implements ICanUpdate, ICanInitialize {
    * Removes a camera strategy by reference
    * @param cameraStrategy Instance of an [[ICameraStrategy]]
    */
-  public removeStrategy<T>(cameraStrategy: ICameraStrategy<T>) {
+  public removeStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     removeItemFromArray(cameraStrategy, this._cameraStrategies);
   }
 

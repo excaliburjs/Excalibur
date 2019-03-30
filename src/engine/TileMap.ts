@@ -46,7 +46,7 @@ export class TileMapImpl extends Class {
    * @param rows          The number of rows in the TileMap (should not be changed once set)
    * @param cols          The number of cols in the TileMap (should not be changed once set)
    */
-  constructor(xOrConfig: number | ITileMapArgs, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number) {
+  constructor(xOrConfig: number | TileMapArgs, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number) {
     super();
     if (xOrConfig && typeof xOrConfig === 'object') {
       var config = xOrConfig;
@@ -255,7 +255,7 @@ export class TileMapImpl extends Class {
 /**
  * [[include:Constructors.md]]
  */
-export interface ITileMapArgs extends Partial<TileMapImpl> {
+export interface TileMapArgs extends Partial<TileMapImpl> {
   x: number;
   y: number;
   cellWidth: number;
@@ -271,9 +271,9 @@ export interface ITileMapArgs extends Partial<TileMapImpl> {
  * [[include:TileMaps.md]]
  */
 export class TileMap extends Configurable(TileMapImpl) {
-  constructor(config: ITileMapArgs);
+  constructor(config: TileMapArgs);
   constructor(x: number, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number);
-  constructor(xOrConfig: number | ITileMapArgs, y?: number, cellWidth?: number, cellHeight?: number, rows?: number, cols?: number) {
+  constructor(xOrConfig: number | TileMapArgs, y?: number, cellWidth?: number, cellHeight?: number, rows?: number, cols?: number) {
     super(xOrConfig, y, cellWidth, cellHeight, rows, cols);
   }
 }
@@ -312,7 +312,7 @@ export class CellImpl {
    * @param sprites The list of tile sprites to use to draw in this cell (in order)
    */
   constructor(
-    xOrConfig: number | ICellArgs,
+    xOrConfig: number | CellArgs,
     y: number,
     width: number,
     height: number,
@@ -378,7 +378,7 @@ export class CellImpl {
 /**
  * [[include:Constructors.md]]
  */
-export interface ICellArgs extends Partial<CellImpl> {
+export interface CellArgs extends Partial<CellImpl> {
   x: number;
   y: number;
   width: number;
@@ -399,10 +399,10 @@ export interface ICellArgs extends Partial<CellImpl> {
  * use transparency to create layers this way.
  */
 export class Cell extends Configurable(CellImpl) {
-  constructor(config: ICellArgs);
+  constructor(config: CellArgs);
   constructor(x: number, y: number, width: number, height: number, index: number, solid?: boolean, sprites?: TileSprite[]);
   constructor(
-    xOrConfig: number | ICellArgs,
+    xOrConfig: number | CellArgs,
     y?: number,
     width?: number,
     height?: number,

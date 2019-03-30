@@ -13,7 +13,7 @@ const REPORTED_FEATURES: { [key: string]: string } = {
 /**
  * Interface for detected browser features matrix
  */
-export interface IDetectedFeatures {
+export interface DetectedFeatures {
   readonly canvas: boolean;
   readonly arraybuffer: boolean;
   readonly dataurl: boolean;
@@ -24,7 +24,7 @@ export interface IDetectedFeatures {
   readonly gamepadapi: boolean;
 }
 
-interface ICriticalTests {
+interface CriticalTests {
   canvasSupport(): boolean;
   arrayBufferSupport(): boolean;
   dataUrlSupport(): boolean;
@@ -32,7 +32,7 @@ interface ICriticalTests {
   rgbaSupport(): boolean;
 }
 
-interface IWarningTests {
+interface WarningTests {
   webAudioSupport(): boolean;
   webglSupport(): boolean;
 }
@@ -41,7 +41,7 @@ interface IWarningTests {
  * Excalibur internal feature detection helper class
  */
 export class Detector {
-  private _features: IDetectedFeatures = null;
+  private _features: DetectedFeatures = null;
 
   public failedTests: string[] = [];
 
@@ -54,7 +54,7 @@ export class Detector {
    * treats the features as a singleton and will only calculate feature
    * support if it has not previously been done.
    */
-  public getBrowserFeatures(): IDetectedFeatures {
+  public getBrowserFeatures(): DetectedFeatures {
     if (this._features === null) {
       this._features = this._loadBrowserFeatures();
     }
@@ -92,7 +92,7 @@ export class Detector {
    * Executes several IIFE's to get a constant reference to supported
    * features within the current execution context.
    */
-  private _loadBrowserFeatures(): IDetectedFeatures {
+  private _loadBrowserFeatures(): DetectedFeatures {
     return {
       // IIFE to check canvas support
       canvas: (() => {
@@ -137,7 +137,7 @@ export class Detector {
   }
 
   // critical browser features required for ex to run
-  private _criticalTests: ICriticalTests = {
+  private _criticalTests: CriticalTests = {
     // Test canvas/2d context support
     canvasSupport: function() {
       var elem = document.createElement('canvas');
@@ -176,7 +176,7 @@ export class Detector {
   };
 
   // warnings excalibur performance will be degraded
-  private _warningTest: IWarningTests = {
+  private _warningTest: WarningTests = {
     webAudioSupport: function() {
       return !!(
         (<any>window).AudioContext ||
@@ -196,7 +196,7 @@ export class Detector {
     // Critical test will for ex not to run
     var failedCritical = false;
     for (var test in this._criticalTests) {
-      if (!this._criticalTests[<keyof ICriticalTests>test].call(this)) {
+      if (!this._criticalTests[<keyof CriticalTests>test].call(this)) {
         this.failedTests.push(test);
         Logger.getInstance().error('Critical browser feature missing, Excalibur requires:', test);
         failedCritical = true;
@@ -208,7 +208,7 @@ export class Detector {
 
     // Warning tests do not for ex to return false to compatibility
     for (var warning in this._warningTest) {
-      if (!this._warningTest[<keyof IWarningTests>warning]()) {
+      if (!this._warningTest[<keyof WarningTests>warning]()) {
         Logger.getInstance().warn('Warning browser feature missing, Excalibur will have reduced performance:', warning);
       }
     }

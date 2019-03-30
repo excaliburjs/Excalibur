@@ -1,9 +1,9 @@
-import { Promise } from './../Promises';
+import { Promise } from '../Promises';
 
 /**
  * Represents an audio control implementation
  */
-export interface IAudio {
+export interface Audio {
   /**
    * Whether the audio should loop (repeat forever)
    */

@@ -7,7 +7,7 @@ import { Color } from '../Drawing/Color';
 /**
  * Interface all collidable objects must implement
  */
-export interface ICollidable {
+export interface Collidable {
   /**
    * Test whether this bounding box collides with another one.
    *
@@ -15,7 +15,7 @@ export interface ICollidable {
    * @returns Vector The intersection vector that can be used to resolve the collision.
    * If there is no collision, `null` is returned.
    */
-  collides(collidable: ICollidable): Vector;
+  collides(collidable: Collidable): Vector;
   /**
    * Tests wether a point is contained within the collidable
    * @param point  The point to test
@@ -28,7 +28,7 @@ export interface ICollidable {
 /**
  * Axis Aligned collision primitive for Excalibur.
  */
-export class BoundingBox implements ICollidable {
+export class BoundingBox implements Collidable {
   /**
    * @param left    x coordinate of the left edge
    * @param top     y coordinate of the top edge
@@ -208,7 +208,7 @@ export class BoundingBox implements ICollidable {
    * @returns A Vector in the direction of the current BoundingBox
    * @param collidable  Other collidable to test
    */
-  public collides(collidable: ICollidable): Vector {
+  public collides(collidable: Collidable): Vector {
     if (collidable instanceof BoundingBox) {
       var other: BoundingBox = <BoundingBox>collidable;
       var totalBoundingBox = this.combine(other);

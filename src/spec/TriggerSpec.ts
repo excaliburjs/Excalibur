@@ -6,7 +6,7 @@ describe('A Trigger', () => {
   var scene: ex.Scene;
   var engine: ex.Engine;
   var mock = new Mocks.Mocker();
-  var loop: Mocks.IGameLoop;
+  var loop: Mocks.GameLoopLike;
 
   beforeEach(() => {
     engine = TestUtils.engine({ width: 600, height: 400 });

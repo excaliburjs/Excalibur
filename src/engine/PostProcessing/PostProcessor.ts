@@ -3,6 +3,6 @@
  *
  * [[include:PostProcessors.md]]
  */
-export interface IPostProcessor {
+export interface PostProcessor {
   process(image: ImageData, out: CanvasRenderingContext2D): void;
 }

@@ -7,7 +7,7 @@
     "indent": [true, "spaces"],
     "label-position": true,
     "label-undefined": true,
-    "interface-name": false,
+    "interface-name": [true, "never-prefix"],
     "max-line-length": [true, 140],
     "no-arg": true,
     "no-console": [true, "debug", "info", "time", "timeEnd", "trace"],

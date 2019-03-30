@@ -28,8 +28,8 @@ export class Gamepads extends Class {
   private _oldPads: Gamepad[] = [];
   private _pads: Gamepad[] = [];
   private _initSuccess: boolean = false;
-  private _navigator: INavigatorGamepads = <any>navigator;
-  private _minimumConfiguration: IGamepadConfiguration = null;
+  private _navigator: NavigatorGamepads = <any>navigator;
+  private _minimumConfiguration: GamepadConfiguration = null;
 
   constructor() {
     super();
@@ -57,7 +57,7 @@ export class Gamepads extends Class {
    * all other controllers with more axis or buttons are valid as well. If no minimum
    * configuration is set all pads are valid.
    */
-  public setMinimumGamepadConfiguration(config: IGamepadConfiguration): void {
+  public setMinimumGamepadConfiguration(config: GamepadConfiguration): void {
     this._enableAndUpdate(); // if config is used, implicitly enable
     this._minimumConfiguration = config;
   }
@@ -75,7 +75,7 @@ export class Gamepads extends Class {
   /**
    * Checks a navigator gamepad against the minimum configuration if present.
    */
-  private _isGamepadValid(pad: INavigatorGamepad): boolean {
+  private _isGamepadValid(pad: NavigatorGamepad): boolean {
     if (!this._minimumConfiguration) {
       return true;
     }
@@ -219,7 +219,7 @@ export class Gamepads extends Class {
     return this._pads.filter((p) => p.connected).length;
   }
 
-  private _clonePads(pads: INavigatorGamepad[]): Gamepad[] {
+  private _clonePads(pads: NavigatorGamepad[]): Gamepad[] {
     var arr = [];
     for (var i = 0, len = pads.length; i < len; i++) {
       arr.push(this._clonePad(pads[i]));
@@ -230,7 +230,7 @@ export class Gamepads extends Class {
   /**
    * Fastest way to clone a known object is to do it yourself
    */
-  private _clonePad(pad: INavigatorGamepad): Gamepad {
+  private _clonePad(pad: NavigatorGamepad): Gamepad {
     var i, len;
     var clonedPad = new Gamepad();
 
@@ -257,7 +257,7 @@ export class Gamepads extends Class {
  */
 export class Gamepad extends Class {
   public connected = false;
-  public navigatorGamepad: INavigatorGamepad;
+  public navigatorGamepad: NavigatorGamepad;
   private _buttons: number[] = new Array(16);
   private _axes: number[] = new Array(4);
 
@@ -407,16 +407,16 @@ export enum Axes {
 /**
  * @internal
  */
-interface INavigatorGamepads {
-  getGamepads(): INavigatorGamepad[];
+export interface NavigatorGamepads {
+  getGamepads(): NavigatorGamepad[];
 }
 
 /**
  * @internal
  */
-export interface INavigatorGamepad {
+export interface NavigatorGamepad {
   axes: number[];
-  buttons: INavigatorGamepadButton[];
+  buttons: NavigatorGamepadButton[];
   connected: boolean;
   id: string;
   index: number;
@@ -427,7 +427,7 @@ export interface INavigatorGamepad {
 /**
  * @internal
  */
-export interface INavigatorGamepadButton {
+export interface NavigatorGamepadButton {
   pressed: boolean;
   value: number;
 }
@@ -435,14 +435,14 @@ export interface INavigatorGamepadButton {
 /**
  * @internal
  */
-export interface INavigatorGamepadEvent {
-  gamepad: INavigatorGamepad;
+export interface NavigatorGamepadEvent {
+  gamepad: NavigatorGamepad;
 }
 
 /**
  * @internal
  */
-export interface IGamepadConfiguration {
+export interface GamepadConfiguration {
   axis: number;
   buttons: number;
 }

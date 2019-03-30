@@ -1,7 +1,7 @@
 import * as Events from '../Events';
 import { PointerEvent, WheelEvent, PointerDragEvent } from '../Input/Pointer';
 
-export interface IPointerEvents {
+export interface PointerEvents {
   on(eventName: Events.pointerup, handler: (event?: PointerEvent) => void): void;
   on(eventName: Events.pointerdown, handler: (event?: PointerEvent) => void): void;
   on(eventName: Events.pointerenter, handler: (event?: PointerEvent) => void): void;

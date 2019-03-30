@@ -1,9 +1,9 @@
 import { Physics } from './../Physics';
-import { IActorTrait } from '../Interfaces/IActorTrait';
+import { Trait } from '../Interfaces/Trait';
 import { Actor, CollisionType } from '../Actor';
 import { Engine } from '../Engine';
 
-export class EulerMovement implements IActorTrait {
+export class EulerMovement implements Trait {
   public update(actor: Actor, _engine: Engine, delta: number) {
     // Update placements based on linear algebra
     var seconds = delta / 1000;

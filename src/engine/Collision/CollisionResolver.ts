@@ -1,13 +1,13 @@
 ﻿import { Body } from './Body';
-import { FrameStats } from './../Debug';
+import { FrameStats } from '../Debug';
 import { Pair } from './Pair';
-import { Actor } from './../Actor';
+import { Actor } from '../Actor';
 import { CollisionResolutionStrategy } from '../Physics';
 
 /**
  * Definition for collision broadphase
  */
-export interface ICollisionBroadphase {
+export interface CollisionBroadphase {
   /**
    * Track a physics body
    */

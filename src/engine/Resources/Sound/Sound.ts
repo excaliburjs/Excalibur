@@ -1,5 +1,5 @@
-import { ExResponse } from '../../Interfaces/IAudioImplementation';
-import { IAudio } from '../../Interfaces/IAudio';
+import { ExResponse } from '../../Interfaces/AudioImplementation';
+import { Audio } from '../../Interfaces/Audio';
 import { Engine } from '../../Engine';
 import { Resource } from '../Resource';
 import { AudioInstance, AudioInstanceFactory } from './AudioInstance';
@@ -15,7 +15,7 @@ import { canPlayFile } from '../../Util/Sound';
  *
  * [[include:Sounds.md]]
  */
-export class Sound extends Resource<Blob | ArrayBuffer> implements IAudio {
+export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
   /**
    * Indicates whether the clip should loop when complete
    * @param value  Set the looping flag

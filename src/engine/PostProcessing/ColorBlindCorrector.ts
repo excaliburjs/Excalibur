@@ -1,5 +1,5 @@
 ﻿import { Logger } from './../Util/Log';
-import { IPostProcessor } from './IPostProcessor';
+import { PostProcessor } from './PostProcessor';
 import { Engine } from '../Engine';
 
 export enum ColorBlindness {
@@ -16,7 +16,7 @@ export enum ColorBlindness {
  *
  * [[include:ColorBlind.md]]
  */
-export class ColorBlindCorrector implements IPostProcessor {
+export class ColorBlindCorrector implements PostProcessor {
   private _vertexShader =
     'attribute vec2 a_position;' +
     'attribute vec2 a_texCoord;' +

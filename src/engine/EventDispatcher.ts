@@ -1,5 +1,5 @@
 import { GameEvent, SubscribeEvent, UnsubscribeEvent } from './Events';
-import { IEvented } from './Interfaces/IEvented';
+import { Eventable } from './Interfaces/Evented';
 
 /**
  * Excalibur's internal event dispatcher implementation.
@@ -10,7 +10,7 @@ import { IEvented } from './Interfaces/IEvented';
  *
  * [[include:Events.md]]
  */
-export class EventDispatcher implements IEvented {
+export class EventDispatcher implements Eventable {
   private _handlers: { [key: string]: { (event?: GameEvent<any>): void }[] } = {};
   private _wiredEventDispatchers: EventDispatcher[] = [];
 

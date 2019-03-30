@@ -18,7 +18,7 @@ export enum LogLevel {
  */
 export class Logger {
   private static _instance: Logger = null;
-  private _appenders: IAppender[] = [];
+  private _appenders: Appender[] = [];
 
   constructor() {
     if (Logger._instance) {
@@ -49,7 +49,7 @@ export class Logger {
   /**
    * Adds a new [[IAppender]] to the list of appenders to write to
    */
-  public addAppender(appender: IAppender): void {
+  public addAppender(appender: Appender): void {
     this._appenders.push(appender);
   }
 
@@ -124,7 +124,7 @@ export class Logger {
 /**
  * Contract for any log appender (such as console/screen)
  */
-export interface IAppender {
+export interface Appender {
   /**
    * Logs a message at the given [[LogLevel]]
    * @param level  Level to log at
@@ -136,7 +136,7 @@ export interface IAppender {
 /**
  * Console appender for browsers (i.e. `console.log`)
  */
-export class ConsoleAppender implements IAppender {
+export class ConsoleAppender implements Appender {
   /**
    * Logs a message at the given [[LogLevel]]
    * @param level  Level to log at
@@ -183,7 +183,7 @@ export class ConsoleAppender implements IAppender {
 /**
  * On-screen (canvas) appender
  */
-export class ScreenAppender implements IAppender {
+export class ScreenAppender implements Appender {
   // @todo Clean this up
 
   private _messages: string[] = [];

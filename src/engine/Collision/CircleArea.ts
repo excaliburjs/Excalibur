@@ -1,6 +1,6 @@
 ﻿import { Body } from './Body';
 import { BoundingBox } from './BoundingBox';
-import { ICollisionArea } from './ICollisionArea';
+import { CollisionArea } from './CollisionArea';
 import { PolygonArea } from './PolygonArea';
 import { EdgeArea } from './EdgeArea';
 import { CollisionJumpTable } from './CollisionJumpTable';
@@ -10,7 +10,7 @@ import { Vector, Ray, Projection } from '../Algebra';
 import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
 
-export interface ICircleAreaOptions {
+export interface CircleAreaOptions {
   pos?: Vector;
   radius?: number;
   body?: Body;
@@ -19,7 +19,7 @@ export interface ICircleAreaOptions {
 /**
  * This is a circle collision area for the excalibur rigid body physics simulation
  */
-export class CircleArea implements ICollisionArea {
+export class CircleArea implements CollisionArea {
   /**
    * This is the center position of the circle, relative to the body position
    */
@@ -33,7 +33,7 @@ export class CircleArea implements ICollisionArea {
    */
   public body: Body;
 
-  constructor(options: ICircleAreaOptions) {
+  constructor(options: CircleAreaOptions) {
     this.pos = options.pos || Vector.Zero;
     this.radius = options.radius || 0;
     this.body = options.body || null;
@@ -99,7 +99,7 @@ export class CircleArea implements ICollisionArea {
   /**
    * @inheritdoc
    */
-  public collide(area: ICollisionArea): CollisionContact {
+  public collide(area: CollisionArea): CollisionContact {
     if (area instanceof CircleArea) {
       return CollisionJumpTable.CollideCircleCircle(this, area);
     } else if (area instanceof PolygonArea) {

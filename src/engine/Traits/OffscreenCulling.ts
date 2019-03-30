@@ -1,10 +1,10 @@
 import { CullingBox } from './../Util/CullingBox';
-import { IActorTrait } from '../Interfaces/IActorTrait';
+import { Trait } from '../Interfaces/Trait';
 import { Actor } from '../Actor';
 import { Engine } from '../Engine';
 import { ExitViewPortEvent, EnterViewPortEvent } from '../Events';
 
-export class OffscreenCulling implements IActorTrait {
+export class OffscreenCulling implements Trait {
   public cullingBox: CullingBox = new CullingBox();
 
   public update(actor: Actor, engine: Engine) {

@@ -7,7 +7,7 @@ import * as Actors from '../Util/Actors';
 import * as Util from '../Util/Util';
 import * as Events from '../Events';
 
-export interface IActorsUnderPointer {
+export interface ActorsUnderPointer {
   [ActorId: number]: Actor;
   length: number;
 }
@@ -589,7 +589,7 @@ export class Pointers extends Class {
   }
 
   private _handleTouchEvent(eventName: string, eventArr: PointerEvent[]) {
-    return (e: ITouchEvent) => {
+    return (e: TouchEvent) => {
       e.preventDefault();
       for (var i = 0, len = e.changedTouches.length; i < len; i++) {
         const index = this._pointers.length > 1 ? this._getPointerIndex(e.changedTouches[i].identifier) : 0;
@@ -726,7 +726,7 @@ export class Pointers extends Class {
 export class Pointer extends Class {
   private _isDown: boolean = false;
   private _wasDown: boolean = false;
-  private _actorsUnderPointer: IActorsUnderPointer = { length: 0 };
+  private _actorsUnderPointer: ActorsUnderPointer = { length: 0 };
 
   /**
    * Whether the Pointer is currently dragging.
@@ -870,19 +870,19 @@ export class Pointer extends Class {
   }
 }
 
-interface ITouchEvent extends Event {
+interface TouchEvent extends Event {
   altKey: boolean;
-  changedTouches: ITouch[];
+  changedTouches: Touch[];
   ctrlKey: boolean;
   metaKey: boolean;
   shiftKey: boolean;
-  targetTouches: ITouch[];
-  touches: ITouch[];
+  targetTouches: Touch[];
+  touches: Touch[];
   type: string;
   target: Element;
 }
 
-interface ITouch {
+interface Touch {
   identifier: number;
   screenX: number;
   screenY: number;

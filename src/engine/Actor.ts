@@ -27,25 +27,25 @@ import { PointerEvent, WheelEvent, PointerDragEvent } from './Input/Pointer';
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { Sprite } from './Drawing/Sprite';
-import { IActorTrait } from './Interfaces/IActorTrait';
-import { IDrawable } from './Interfaces/IDrawable';
-import { ICanInitialize, ICanUpdate, ICanDraw, ICanBeKilled } from './Interfaces/LifecycleEvents';
+import { Trait } from './Interfaces/Trait';
+import { Drawable } from './Interfaces/Drawable';
+import { CanInitialize, CanUpdate, CanDraw, CanBeKilled } from './Interfaces/LifecycleEvents';
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
 import { ActionQueue } from './Actions/Action';
 import { Vector } from './Algebra';
-import { ICollisionArea } from './Collision/ICollisionArea';
+import { CollisionArea } from './Collision/CollisionArea';
 import { Body } from './Collision/Body';
 import { Side } from './Collision/Side';
-import { IEvented } from './Interfaces/IEvented';
-import { IActionable } from './Actions/IActionable';
+import { Eventable } from './Interfaces/Evented';
+import { Actionable } from './Actions/Actionable';
 import { Configurable } from './Configurable';
 import * as Traits from './Traits/Index';
 import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
-import { IPointerEvents } from './Interfaces/IPointerEvents';
+import { PointerEvents } from './Interfaces/PointerEvents';
 
 export type PointerEventName =
   | 'pointerdragstart'
@@ -62,7 +62,7 @@ export type PointerEventName =
 /**
  * [[include:Constructors.md]]
  */
-export interface IActorArgs extends Partial<ActorImpl> {
+export interface ActorArgs extends Partial<ActorImpl> {
   width?: number;
   height?: number;
   pos?: Vector;
@@ -77,7 +77,7 @@ export interface IActorArgs extends Partial<ActorImpl> {
   collisionType?: CollisionType;
 }
 
-export interface IActorDefaults {
+export interface ActorDefaults {
   anchor: Vector;
 }
 
@@ -85,13 +85,13 @@ export interface IActorDefaults {
  * @hidden
  */
 
-export class ActorImpl extends Class implements IActionable, IEvented, IPointerEvents, ICanInitialize, ICanUpdate, ICanDraw, ICanBeKilled {
+export class ActorImpl extends Class implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
   /**
    * Indicates the next id to be set
    */
-  public static defaults: IActorDefaults = {
+  public static defaults: ActorDefaults = {
     anchor: Vector.Half
   };
   /**
@@ -113,7 +113,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
    * [EdgeArea|edges].
    */
-  public get collisionArea(): ICollisionArea {
+  public get collisionArea(): CollisionArea {
     return this.body.collisionArea;
   }
 
@@ -121,7 +121,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
    * [EdgeArea|edges].
    */
-  public set collisionArea(area: ICollisionArea) {
+  public set collisionArea(area: CollisionArea) {
     this.body.collisionArea = area;
   }
 
@@ -423,7 +423,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
 
   private _collisionHandlers: { [key: string]: { (actor: Actor): void }[] } = {};
   private _isInitialized: boolean = false;
-  public frames: { [key: string]: IDrawable } = {};
+  public frames: { [key: string]: Drawable } = {};
   private _effectsDirty: boolean = false;
 
   /**
@@ -431,12 +431,12 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    * an [[Animation]], [[Sprite]], or [[Polygon]].
    * Set drawings with [[setDrawing]].
    */
-  public currentDrawing: IDrawable = null;
+  public currentDrawing: Drawable = null;
 
   /**
    * Modify the current actor update pipeline.
    */
-  public traits: IActorTrait[] = [];
+  public traits: Trait[] = [];
 
   /**
    * Sets the color of the actor. A rectangle of this color will be
@@ -461,7 +461,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
   /**
    * Configuration for [[CapturePointer]] trait
    */
-  public capturePointer: Traits.ICapturePointerConfig = {
+  public capturePointer: Traits.CapturePointerConfig = {
     captureMoveEvents: false,
     captureDragEvents: false
   };
@@ -480,7 +480,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    * @param color   The starting color of the actor. Leave null to draw a transparent actor. The opacity of the color will be used as the
    * initial [[opacity]].
    */
-  constructor(xOrConfig?: number | IActorArgs, y?: number, width?: number, height?: number, color?: Color) {
+  constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
     super();
 
     if (xOrConfig && typeof xOrConfig === 'object') {
@@ -933,7 +933,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
    * @param key     The key to associate with a drawing for this actor
    * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
    */
-  public addDrawing(key: any, drawing: IDrawable): void;
+  public addDrawing(key: any, drawing: Drawable): void;
   public addDrawing(): void {
     if (arguments.length === 2) {
       this.frames[<string>arguments[0]] = arguments[1];
@@ -1289,7 +1289,7 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
     return new Vector(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
   }
 
-  protected _reapplyEffects(drawing: IDrawable) {
+  protected _reapplyEffects(drawing: Drawable) {
     drawing.removeEffect(this._opacityFx);
     drawing.addEffect(this._opacityFx);
   }
@@ -1603,9 +1603,9 @@ export class ActorImpl extends Class implements IActionable, IEvented, IPointerE
  */
 export class Actor extends Configurable(ActorImpl) {
   constructor();
-  constructor(config?: IActorArgs);
+  constructor(config?: ActorArgs);
   constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
-  constructor(xOrConfig?: number | IActorArgs, y?: number, width?: number, height?: number, color?: Color) {
+  constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
     super(xOrConfig, y, width, height, color);
   }
 }

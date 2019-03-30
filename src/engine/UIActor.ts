@@ -1,6 +1,6 @@
 import { Vector } from './Algebra';
 import { Engine } from './Engine';
-import { Actor, IActorArgs, CollisionType } from './Actor';
+import { Actor, ActorArgs, CollisionType } from './Actor';
 import * as Traits from './Traits/Index';
 
 /**
@@ -12,18 +12,18 @@ export class UIActor extends Actor {
 
   constructor();
   constructor(xOrConfig?: number, y?: number, width?: number, height?: number);
-  constructor(config?: IActorArgs);
+  constructor(config?: ActorArgs);
   /**
    * @param x       The starting x coordinate of the actor
    * @param y       The starting y coordinate of the actor
    * @param width   The starting width of the actor
    * @param height  The starting height of the actor
    */
-  constructor(xOrConfig?: number | IActorArgs, y?: number, width?: number, height?: number) {
+  constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number) {
     if (typeof xOrConfig !== 'object') {
       super(<number>xOrConfig, y, width, height);
     } else {
-      super(<IActorArgs>xOrConfig);
+      super(<ActorArgs>xOrConfig);
     }
     this.traits = [];
     this.traits.push(new Traits.CapturePointer());

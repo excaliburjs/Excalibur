@@ -16,13 +16,13 @@ export namespace Mocks {
       this._key = key;
     }
   }
-  export interface ITime {
+  export interface TimeLike {
     now(): number;
     add(value: number): void;
     sub(value: number): void;
   }
 
-  export interface IGameLoop {
+  export interface GameLoopLike {
     advance(duration: number): void;
     advance(duration: number, fps: number): void;
   }
@@ -222,7 +222,7 @@ export namespace Mocks {
      * Get a game loop mock that allows you to control the frame advancement
      * of the main loop.
      */
-    loop(game: ex.Engine): IGameLoop {
+    loop(game: ex.Engine): GameLoopLike {
       var time = new Mocker().time();
       var loop = ex.Engine.createMainLoop(game, () => 0, time.now);
 
@@ -246,7 +246,7 @@ export namespace Mocks {
     /**
      * Get a time mock. Allows you to mock a now function and increment/decrement the value.
      */
-    time(): ITime {
+    time(): TimeLike {
       var now = 0;
 
       return {

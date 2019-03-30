@@ -6,7 +6,7 @@ describe('The engine', () => {
   var engine: ex.Engine;
   var scene: ex.Scene;
   var mock = new Mocks.Mocker();
-  var loop: Mocks.IGameLoop;
+  var loop: Mocks.GameLoopLike;
   var actor: ex.Actor;
   var stats: ex.IFrameStats;
 

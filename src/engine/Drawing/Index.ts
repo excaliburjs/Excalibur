@@ -1,8 +1,8 @@
-export { Animation, IAnimationArgs } from './Animation';
+export { Animation, AnimationArgs } from './Animation';
 export * from './Color';
 export * from './Polygon';
-export { Sprite, ISpriteArgs } from './Sprite';
-export { SpriteSheet, SpriteFont, ISpriteSheetArgs, ISpriteFontInitArgs, ISpriteFontOptions } from './SpriteSheet';
+export { Sprite, SpriteArgs } from './Sprite';
+export { SpriteSheet, SpriteFont, SpriteSheetArgs, SpriteFontArgs as SpriteFontInitArgs, SpriteFontOptions } from './SpriteSheet';
 
 import * as effects from './SpriteEffects';
 export { effects as Effects };

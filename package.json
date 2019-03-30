@@ -25,6 +25,8 @@
   "scripts": {
     "all": "grunt",
     "core": "grunt core",
+    "lint": "grunt lint",
+    "travis": "grunt travis",
     "visual": "grunt visual",
     "sandbox": "grunt sandbox",
     "start": "grunt watch",

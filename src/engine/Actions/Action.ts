@@ -8,14 +8,14 @@ import * as Util from '../Util/Util';
 /**
  * Used for implementing actions for the [[ActionContext|Action API]].
  */
-export interface IAction {
+export interface Action {
   update(delta: number): void;
   isComplete(actor: Actor): boolean;
   reset(): void;
   stop(): void;
 }
 
-export class EaseTo implements IAction {
+export class EaseTo implements Action {
   private _currentLerpTime: number = 0;
   private _lerpDuration: number = 1 * 1000; // 1 second
   private _lerpStart: Vector = new Vector(0, 0);
@@ -87,7 +87,7 @@ export class EaseTo implements IAction {
   }
 }
 
-export class MoveTo implements IAction {
+export class MoveTo implements Action {
   private _actor: Actor;
   public x: number;
   public y: number;
@@ -138,7 +138,7 @@ export class MoveTo implements IAction {
   }
 }
 
-export class MoveBy implements IAction {
+export class MoveBy implements Action {
   private _actor: Actor;
   public x: number;
   public y: number;
@@ -197,7 +197,7 @@ export class MoveBy implements IAction {
   }
 }
 
-export class Follow implements IAction {
+export class Follow implements Action {
   private _actor: Actor;
   private _actorToFollow: Actor;
   public x: number;
@@ -272,7 +272,7 @@ export class Follow implements IAction {
   }
 }
 
-export class Meet implements IAction {
+export class Meet implements Action {
   private _actor: Actor;
   private _actorToMeet: Actor;
   public x: number;
@@ -344,7 +344,7 @@ export class Meet implements IAction {
   }
 }
 
-export class RotateTo implements IAction {
+export class RotateTo implements Action {
   private _actor: Actor;
   public x: number;
   public y: number;
@@ -442,7 +442,7 @@ export class RotateTo implements IAction {
   }
 }
 
-export class RotateBy implements IAction {
+export class RotateBy implements Action {
   private _actor: Actor;
   public x: number;
   public y: number;
@@ -542,7 +542,7 @@ export class RotateBy implements IAction {
   }
 }
 
-export class ScaleTo implements IAction {
+export class ScaleTo implements Action {
   private _actor: Actor;
   public x: number;
   public y: number;
@@ -613,7 +613,7 @@ export class ScaleTo implements IAction {
   }
 }
 
-export class ScaleBy implements IAction {
+export class ScaleBy implements Action {
   private _actor: Actor;
   public x: number;
   public y: number;
@@ -674,7 +674,7 @@ export class ScaleBy implements IAction {
   }
 }
 
-export class Delay implements IAction {
+export class Delay implements Action {
   public x: number;
   public y: number;
   private _actor: Actor;
@@ -712,7 +712,7 @@ export class Delay implements IAction {
   }
 }
 
-export class Blink implements IAction {
+export class Blink implements Action {
   private _timeVisible: number = 0;
   private _timeNotVisible: number = 0;
   private _elapsedTime: number = 0;
@@ -766,7 +766,7 @@ export class Blink implements IAction {
   }
 }
 
-export class Fade implements IAction {
+export class Fade implements Action {
   public x: number;
   public y: number;
 
@@ -821,7 +821,7 @@ export class Fade implements IAction {
   }
 }
 
-export class Die implements IAction {
+export class Die implements Action {
   public x: number;
   public y: number;
 
@@ -851,7 +851,7 @@ export class Die implements IAction {
   }
 }
 
-export class CallMethod implements IAction {
+export class CallMethod implements Action {
   public x: number;
   public y: number;
   private _method: () => any = null;
@@ -877,7 +877,7 @@ export class CallMethod implements IAction {
   }
 }
 
-export class Repeat implements IAction {
+export class Repeat implements Action {
   public x: number;
   public y: number;
   private _actor: Actor;
@@ -885,7 +885,7 @@ export class Repeat implements IAction {
   private _repeat: number;
   private _originalRepeat: number;
   private _stopped: boolean = false;
-  constructor(actor: Actor, repeat: number, actions: IAction[]) {
+  constructor(actor: Actor, repeat: number, actions: Action[]) {
     this._actor = actor;
     this._actionQueue = new ActionQueue(actor);
     this._repeat = repeat;
@@ -922,13 +922,13 @@ export class Repeat implements IAction {
   }
 }
 
-export class RepeatForever implements IAction {
+export class RepeatForever implements Action {
   public x: number;
   public y: number;
   private _actor: Actor;
   private _actionQueue: ActionQueue;
   private _stopped: boolean = false;
-  constructor(actor: Actor, actions: IAction[]) {
+  constructor(actor: Actor, actions: Action[]) {
     this._actor = actor;
     this._actionQueue = new ActionQueue(actor);
 
@@ -980,18 +980,18 @@ export class RepeatForever implements IAction {
  */
 export class ActionQueue {
   private _actor: Actor;
-  private _actions: IAction[] = [];
-  private _currentAction: IAction;
-  private _completedActions: IAction[] = [];
+  private _actions: Action[] = [];
+  private _currentAction: Action;
+  private _completedActions: Action[] = [];
   constructor(actor: Actor) {
     this._actor = actor;
   }
 
-  public add(action: IAction) {
+  public add(action: Action) {
     this._actions.push(action);
   }
 
-  public remove(action: IAction) {
+  public remove(action: Action) {
     var index = this._actions.indexOf(action);
     this._actions.splice(index, 1);
   }
@@ -1004,7 +1004,7 @@ export class ActionQueue {
     }
   }
 
-  public getActions(): IAction[] {
+  public getActions(): Action[] {
     return this._actions.concat(this._completedActions);
   }
 
