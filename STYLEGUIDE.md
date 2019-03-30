@@ -6,13 +6,19 @@
 
 - Prefer readable code over shorter code
 - Prefer code locality over dynamism, code that is related should be near each other
-- Use modern ES features like `const` `let`
+- Use modern ES features like `const` or `let`
 - Write tests for all new code
 - Provide JSDoc comments on all methods
 
 #### CONSIDER
 
 - Keeping methods short < 100 lines
+- Using the SOLID principles where possible
+  - **S**ingle Responsibility Principle
+  - **O**pen-closed Principle
+  - **L**iskov substitution principle
+  - **I**nterface segregation principle
+  - **D**ependency inversion principle
 
 #### AVOID
 
@@ -87,7 +93,7 @@ class Engine {
 
 #### CONSIDER
 
-- Keep interfaces short and simple, if they get too large can they be broken into **multiple** interfaces
+- Keep interfaces short and simple, if they get too large can they be broken into **multiple** interfaces. See the **Interface Segregation Principle**
 
 ### DON’T
 
