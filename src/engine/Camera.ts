@@ -8,7 +8,6 @@ import { CanUpdate, CanInitialize } from './Interfaces/LifecycleEvents';
 import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './Events';
 import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
-import { obsolete } from './Util/Decorators';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -620,15 +619,5 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
   private _isDoneShaking(): boolean {
     return !this._isShaking || this._elapsedShakeTime >= this._shakeDuration;
-  }
-}
-
-/**
- * @obsolete `BaseCamera` renamed to `Camera`. Use [[Camera]] instead
- */
-@obsolete({ message: '`BaseCamera` is obsolete and will be removed in v0.22.0', alternateMethod: 'use `Camera` instead.' })
-export class BaseCamera extends Camera {
-  constructor() {
-    super();
   }
 }
