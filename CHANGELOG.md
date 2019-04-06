@@ -31,6 +31,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.22.0] - 2019-04-06
 
+### Breaking Changes
+
+- `ex.BaseCamera` replaced with `Camera`, [#1087](https://github.com/excaliburjs/Excalibur/issues/1087)
+
 ### Added
 
 - Added `enableCanvasTransparency` property that can enable/disable canvas transparency ([#1096](https://github.com/excaliburjs/Excalibur/issues/1096))
