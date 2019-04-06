@@ -7,53 +7,61 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
-- `ex.BaseCamera` replaced with `Camera`, [#1087](https://github.com/excaliburjs/Excalibur/issues/1087)
+<!--- Breaking changes here --->
 
 ### Added
 
-  <!--- Added features here --->
-
-- Added `enableCanvasTransparency` property that will can enable/disable canvas transparency [#1096](https://github.com/excaliburjs/Excalibur/issues/1096)
+<!--- Added features here --->
 
 ### Changed
 
-- Upgraded Excalibur to TypeScript 3.3.3333 [#1052](https://github.com/excaliburjs/Excalibur/issues/1052)
-- Added exceptions on SpriteSheetImpl constructor to check if the source texture dimensions is valid [#1108](https://github.com/excaliburjs/Excalibur/issues/1108)
+<!-- Changed features here --->
 
 ### Deprecated
 
-  <!--- Deprecations here --->
+<!--- Deprecations here --->
 
 ### Fixed
 
-  <!--- Bug fixes here --->
+<!--- Bug fixes here --->
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
-## [0.21.0] - 2019-02-02
-
-### Breaking Changes
+## [0.22.0] - 2019-04-06
 
 ### Added
 
-- Added ability to automatically convert .gif files to SpriteSheet, Animations, and Sprites [#153](https://github.com/excaliburjs/Excalibur/issues/153)
-- Add new `viewport` property to camera to return a world space bounding box of the current visible area [#1078](https://github.com/excaliburjs/Excalibur/issues/1078)
+- Added `enableCanvasTransparency` property that can enable/disable canvas transparency ([#1096](https://github.com/excaliburjs/Excalibur/issues/1096))
 
 ### Changed
 
-- Updated `ex.Color` and `ex.Vector` constants to be static getters that return new instances each time, eliminating a source of bugs in excalibur [#1085](https://github.com/excaliburjs/Excalibur/issues/1085)
+- Upgraded Excalibur to TypeScript 3.3.3333 ([#1052](https://github.com/excaliburjs/Excalibur/issues/1052))
+- Added exceptions on SpriteSheetImpl constructor to check if the source texture dimensions are valid ([#1108](https://github.com/excaliburjs/Excalibur/issues/1108))
+
+<!----------------------------------------------------------------------------------------------->
+
+## [0.21.0] - 2019-02-02
+
+### Added
+
+- Added ability to automatically convert .gif files to SpriteSheet, Animations, and Sprites ([#153](https://github.com/excaliburjs/Excalibur/issues/153))
+- Add new `viewport` property to camera to return a world space bounding box of the current visible area ([#1078](https://github.com/excaliburjs/Excalibur/issues/1078))
+
+### Changed
+
+- Updated `ex.Color` and `ex.Vector` constants to be static getters that return new instances each time, eliminating a source of bugs in excalibur ([#1085](https://github.com/excaliburjs/Excalibur/issues/1085))
 - Remove optionality of engine in constructor of Scene and \_engine private with an underscore prefix ([#1067](https://github.com/excaliburjs/Excalibur/issues/1067))
 
 ### Deprecated
 
-- Rename `ex.BaseCamera` to `Camera`, `ex.BaseCamera` will be removed in `v0.22.0` [#1087](https://github.com/excaliburjs/Excalibur/issues/1087)
+- Rename `ex.BaseCamera` to `Camera`, `ex.BaseCamera` will be removed in `v0.22.0` ([#1087](https://github.com/excaliburjs/Excalibur/issues/1087))
 
 ### Fixed
 
-- Fixed issue of early offscreen culling related to zooming in and out [#1078](https://github.com/excaliburjs/Excalibur/issues/1078)
-- Fixed issue where setting `suppressPlayButton: true` blocks load in certain browsers [#1079](https://github.com/excaliburjs/Excalibur/issues/1079)
+- Fixed issue of early offscreen culling related to zooming in and out ([#1078](https://github.com/excaliburjs/Excalibur/issues/1078))
+- Fixed issue where setting `suppressPlayButton: true` blocks load in certain browsers ([#1079](https://github.com/excaliburjs/Excalibur/issues/1079))
 
 <!----------------------------------------------------------------------------------------------->
 
@@ -61,15 +69,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
-- `ex.PauseAfterLoader`removed, use Use `ex.Loader` instead
+- `ex.PauseAfterLoader` removed, use `ex.Loader` instead ([#1031](https://github.com/excaliburjs/Excalibur/issues/1031))
 
 ### Added
 
-- Added strongly typed EvenTypes enum to Events.ts to avoid magic strings [#1066](https://github.com/excaliburjs/Excalibur/issues/1066)
+- Added strongly-typed EvenTypes enum to Events.ts to avoid magic strings ([#1066](https://github.com/excaliburjs/Excalibur/issues/1066))
 
 ### Changed
 
-- Added parameter on SpriteSheet constructor so you can define how many pixel spacing is between sprites ([#1058] https://github.com/excaliburjs/Excalibur/issues/1058)
+- Added parameter on SpriteSheet constructor so you can define how many pixels spacing is between sprites ([#1058](https://github.com/excaliburjs/Excalibur/issues/1058))
 
 <!----------------------------------------------------------------------------------------------->
 
@@ -751,7 +759,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!----------------------------------------------------------------------------------------------->
 
-[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.20.0...HEAD
+[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.22.0...HEAD
+[0.22.0]: https://github.com/excaliburjs/Excalibur/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/excaliburjs/Excalibur/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/excaliburjs/Excalibur/compare/v0.19.1...v0.20.0
 [0.19.1]: https://github.com/excaliburjs/Excalibur/compare/v0.19.0...v0.19.1
 [0.19.0]: https://github.com/excaliburjs/Excalibur/compare/v0.18.0...v0.19.0
