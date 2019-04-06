@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
-  <!--- Breaking changes here --->
+- `ex.BaseCamera` replaced with `Camera`, [#1087](https://github.com/excaliburjs/Excalibur/issues/1087)
 
 ### Added
 
