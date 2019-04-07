@@ -186,8 +186,8 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
         pair.colliderA.body.applyMtv();
         pair.colliderB.body.applyMtv();
         // todo still don't like this, this is a small integration step to resolve narrowphase collisions
-        pair.colliderA.actor.integrate(delta * Physics.collisionShift);
-        pair.colliderB.actor.integrate(delta * Physics.collisionShift);
+        pair.colliderA.body.integrate(delta * Physics.collisionShift);
+        pair.colliderB.body.integrate(delta * Physics.collisionShift);
       }
     }
 

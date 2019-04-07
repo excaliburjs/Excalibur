@@ -116,7 +116,7 @@ export class Collider implements Eventable {
   public update() {
     if (this.shape) {
       // Update the geometry if needed
-      if (this._actor && this._actor.isGeometryDirty && this.shape instanceof PolygonArea) {
+      if (this.body && this.body.isGeometryDirty && this.shape instanceof PolygonArea) {
         this.shape.points = this._actor.getRelativeGeometry();
       }
 

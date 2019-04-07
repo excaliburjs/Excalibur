@@ -1,4 +1,3 @@
-import { Physics } from './Physics';
 import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
 import { Texture } from './Resources/Texture';
@@ -215,11 +214,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * Gets/sets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
-   */
-  public oldAcc: Vector = Vector.Zero;
-
-  /**
    * Gets the acceleration vector of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
    * useful to simulate a gravitational effect.
    */
@@ -232,6 +226,20 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public set acc(theAcc: Vector) {
     this.body.acc.setTo(theAcc.x, theAcc.y);
+  }
+
+  /**
+   * Sets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
+   */
+  public set oldAcc(theAcc: Vector) {
+    this.body.oldAcc.setTo(theAcc.x, theAcc.y);
+  }
+
+  /**
+   * Gets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
+   */
+  public get oldAcc(): Vector {
+    return this.body.oldAcc;
   }
 
   /**
@@ -419,12 +427,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public collisionType: CollisionType = CollisionType.PreventCollision;
   public collisionGroups: string[] = [];
-
-  /**
-   * Flag to be set when any property change would result in a geometry recalculation
-   * @internal
-   */
-  private _geometryDirty: boolean = false;
 
   private _collisionHandlers: { [key: string]: { (actor: Actor): void }[] } = {};
   private _isInitialized: boolean = false;
@@ -1027,7 +1029,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public setWidth(width: number) {
     this._width = width / this.scale.x;
-    this._geometryDirty = true;
+    this.body.taintCollisionGeometry();
   }
   /**
    * Gets the calculated height of an actor, factoring in scale
@@ -1040,7 +1042,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public setHeight(height: number) {
     this._height = height / this.scale.y;
-    this._geometryDirty = true;
+    this.body.taintCollisionGeometry();
   }
   /**
    * Gets the left edge of the actor
@@ -1177,13 +1179,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * Indicates that the actor's collision geometry needs to be recalculated for accurate collisions
-   */
-  public get isGeometryDirty() {
-    return this._geometryDirty;
-  }
-
-  /**
    * Tests whether the x/y specified are contained in the actor
    * @param x  X coordinate to test (in world coordinates)
    * @param y  Y coordinate to test (in world coordinates)
@@ -1300,37 +1295,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   // #region Update
-  /**
-   * Perform euler integration at the specified time step
-   */
-  public integrate(delta: number) {
-    // Update placements based on linear algebra
-    var seconds = delta / 1000;
-
-    var totalAcc = this.acc.clone();
-    // Only active vanilla actors are affected by global acceleration
-    if (this.collisionType === CollisionType.Active) {
-      totalAcc.addEqual(Physics.acc);
-    }
-
-    this.vel.addEqual(totalAcc.scale(seconds));
-    this.pos.addEqual(this.vel.scale(seconds)).addEqual(totalAcc.scale(0.5 * seconds * seconds));
-
-    this.rx += this.torque * (1.0 / this.moi) * seconds;
-    this.rotation += this.rx * seconds;
-
-    this.scale.x += (this.sx * delta) / 1000;
-    this.scale.y += (this.sy * delta) / 1000;
-
-    if (!this.scale.equals(this.oldScale)) {
-      // change in scale effects the geometry
-      this._geometryDirty = true;
-    }
-
-    // Update colliders
-    this.body.collider.update();
-    this._geometryDirty = false;
-  }
 
   /**
    * Called by the Engine, updates the state of the actor
@@ -1356,14 +1320,11 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       this._effectsDirty = true;
     }
 
-    // Capture old values before integration step updates them
-    this.oldVel.setTo(this.vel.x, this.vel.y);
-    this.oldPos.setTo(this.pos.x, this.pos.y);
-    this.oldAcc.setTo(this.acc.x, this.acc.y);
-    this.oldScale.setTo(this.scale.x, this.scale.y);
+    // capture old transform
+    this.body.captureOldTransform();
 
     // Run Euler integration
-    this.integrate(delta);
+    this.body.integrate(delta);
 
     // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
     for (const trait of this.traits) {
