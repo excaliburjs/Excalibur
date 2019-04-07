@@ -5,11 +5,13 @@ import { Pair } from './Pair';
 import { Body } from './Body';
 
 import { Vector, Ray } from '../Algebra';
-import { Actor, CollisionType } from '../Actor';
+import { Actor } from '../Actor';
 import { FrameStats } from '../Debug';
 import { CollisionResolutionStrategy } from '../Physics';
 import { Logger } from '../Util/Log';
 import { CollisionStartEvent, CollisionEndEvent } from '../Events';
+import { CollisionType } from './CollisionType';
+import { Collider } from './Collider';
 
 export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
   private _dynamicCollisionTree = new DynamicTree();
@@ -40,14 +42,14 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
     this._dynamicCollisionTree.untrackBody(target);
   }
 
-  private _shouldGenerateCollisionPair(actorA: Actor, actorB: Actor) {
+  private _shouldGenerateCollisionPair(colliderA: Collider, colliderB: Collider) {
     // if the collision pair has been calculated already short circuit
-    var hash = Pair.calculatePairHash(actorA.body, actorB.body);
+    var hash = Pair.calculatePairHash(colliderA, colliderB);
     if (this._collisionHash[hash]) {
       return false; // pair exists easy exit return false
     }
 
-    return Pair.canCollide(actorA, actorB);
+    return Pair.canCollide(colliderA, colliderB);
   }
 
   /**
@@ -71,8 +73,8 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
 
       // Query the collision tree for potential colliders
       this._dynamicCollisionTree.query(actor.body, (other: Body) => {
-        if (this._shouldGenerateCollisionPair(actor, other.actor)) {
-          var pair = new Pair(actor.body, other);
+        if (this._shouldGenerateCollisionPair(actor.body.collider, other.collider)) {
+          var pair = new Pair(actor.body.collider, other.collider);
           this._collisionHash[pair.id] = true;
           this._collisionPairCache.push(pair);
         }
@@ -99,7 +101,7 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
           actor.acc.magnitude() * 0.5 * seconds * seconds; // acc term
 
         // Find the minimum dimension
-        var minDimension = Math.min(actor.body.getBounds().getHeight(), actor.body.getBounds().getWidth());
+        var minDimension = Math.min(actor.body.collider.getBounds().getHeight(), actor.body.collider.getBounds().getWidth());
         if (Physics.disableMinimumSpeedForFastBody || updateDistance > minDimension / 2) {
           if (stats) {
             stats.physics.fastBodies++;
@@ -108,8 +110,8 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
           // start with the oldPos because the integration for actors has already happened
           // objects resting on a surface may be slightly penatrating in the current position
           var updateVec = actor.pos.sub(actor.oldPos);
-          var centerPoint = actor.body.collisionArea.getCenter();
-          var furthestPoint = actor.body.collisionArea.getFurthestPoint(actor.vel);
+          var centerPoint = actor.body.collider.shape.getCenter();
+          var furthestPoint = actor.body.collider.shape.getFurthestPoint(actor.vel);
           var origin: Vector = furthestPoint.sub(updateVec);
 
           var ray: Ray = new Ray(origin, actor.vel);
@@ -119,8 +121,8 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
           var minBody: Body;
           var minTranslate: Vector = new Vector(Infinity, Infinity);
           this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + Physics.surfaceEpsilon * 2, (other: Body) => {
-            if (actor.body !== other && other.collisionArea) {
-              var hitPoint = other.collisionArea.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
+            if (actor.body !== other && other.collider.shape) {
+              var hitPoint = other.collider.shape.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
               if (hitPoint) {
                 var translate = hitPoint.sub(origin);
                 if (translate.magnitude() < minTranslate.magnitude()) {
@@ -133,7 +135,7 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
           });
 
           if (minBody && Vector.isValid(minTranslate)) {
-            var pair = new Pair(actor.body, minBody);
+            var pair = new Pair(actor.body.collider, minBody.collider);
             if (!this._collisionHash[pair.id]) {
               this._collisionHash[pair.id] = true;
               this._collisionPairCache.push(pair);
@@ -145,7 +147,7 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
               .add(shift)
               .add(minTranslate)
               .add(ray.dir.scale(2 * Physics.surfaceEpsilon));
-            actor.body.collisionArea.recalc();
+            actor.body.collider.shape.recalc();
 
             if (stats) {
               stats.physics.fastBodyCollisions++;
@@ -181,11 +183,11 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
       pair.resolve(strategy);
 
       if (pair.collision) {
-        pair.bodyA.applyMtv();
-        pair.bodyB.applyMtv();
+        pair.colliderA.body.applyMtv();
+        pair.colliderB.body.applyMtv();
         // todo still don't like this, this is a small integration step to resolve narrowphase collisions
-        pair.bodyA.actor.integrate(delta * Physics.collisionShift);
-        pair.bodyB.actor.integrate(delta * Physics.collisionShift);
+        pair.colliderA.actor.integrate(delta * Physics.collisionShift);
+        pair.colliderB.actor.integrate(delta * Physics.collisionShift);
       }
     }
 
@@ -201,8 +203,8 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
 
       // find all new collisions
       if (!this._lastFramePairsHash[p.id]) {
-        let actor1 = p.bodyA.actor;
-        let actor2 = p.bodyB.actor;
+        let actor1 = p.colliderA;
+        let actor2 = p.colliderB;
         actor1.emit('collisionstart', new CollisionStartEvent(actor1, actor2, p));
         actor2.emit('collisionstart', new CollisionStartEvent(actor2, actor1, p));
       }
@@ -211,8 +213,8 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
     // find all old collisions
     for (let p of this._lastFramePairs) {
       if (!currentFrameHash[p.id]) {
-        let actor1 = p.bodyA.actor;
-        let actor2 = p.bodyB.actor;
+        let actor1 = p.colliderA;
+        let actor2 = p.colliderB;
         actor1.emit('collisionend', new CollisionEndEvent(actor1, actor2));
         actor2.emit('collisionend', new CollisionEndEvent(actor2, actor1));
       }

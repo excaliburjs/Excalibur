@@ -9,15 +9,20 @@ import { PolygonArea } from './PolygonArea';
 import { Vector, Ray, Projection } from '../Algebra';
 import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
+import { Collider } from './Collider';
 
 export interface EdgeAreaOptions {
   begin?: Vector;
   end?: Vector;
+  collider?: Collider;
+
+  // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
   body?: Body;
 }
 
 export class EdgeArea implements CollisionArea {
   body: Body;
+  collider: Collider;
   pos: Vector;
   begin: Vector;
   end: Vector;
@@ -25,9 +30,13 @@ export class EdgeArea implements CollisionArea {
   constructor(options: EdgeAreaOptions) {
     this.begin = options.begin || Vector.Zero;
     this.end = options.end || Vector.Zero;
-    this.body = options.body || null;
-
+    this.collider = options.collider || null;
     this.pos = this.getCenter();
+
+    // @obsolete Remove next release in v0.24.0, code exists for backwards compat
+    this.collider = options.body.collider;
+    this.body = this.collider.body;
+    // ==================================
   }
 
   /**
@@ -39,20 +48,23 @@ export class EdgeArea implements CollisionArea {
   }
 
   private _getBodyPos(): Vector {
+    let body = this.collider.body;
     var bodyPos = Vector.Zero;
-    if (this.body.pos) {
-      bodyPos = this.body.pos;
+    if (body.pos) {
+      bodyPos = body.pos;
     }
     return bodyPos;
   }
 
   private _getTransformedBegin(): Vector {
-    var angle = this.body ? this.body.rotation : 0;
+    let body = this.collider.body;
+    var angle = body ? body.rotation : 0;
     return this.begin.rotate(angle).add(this._getBodyPos());
   }
 
   private _getTransformedEnd(): Vector {
-    var angle = this.body ? this.body.rotation : 0;
+    let body = this.collider.body;
+    var angle = body ? body.rotation : 0;
     return this.end.rotate(angle).add(this._getBodyPos());
   }
 
@@ -174,7 +186,7 @@ export class EdgeArea implements CollisionArea {
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
   public getMomentOfInertia(): number {
-    var mass = this.body ? this.body.mass : Physics.defaultMass;
+    var mass = this.collider ? this.collider.mass : Physics.defaultMass;
     var length = this.end.sub(this.begin).distance() / 2;
     return mass * length * length;
   }

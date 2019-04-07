@@ -1,27 +1,24 @@
 import { Color } from '../Drawing/Color';
 import * as DrawUtil from '../Util/DrawUtil';
-import { IEvented } from '../Interfaces/Index';
+import { Eventable } from '../Interfaces/Index';
 import { GameEvent, PostCollisionEvent, PreCollisionEvent } from '../Events';
 import { Actor } from '../Actor';
 import { Body } from './Body';
-import { ICollisionArea } from './ICollisionArea';
+import { CollisionArea } from './CollisionArea';
 import { Vector } from '../Algebra';
 import { Physics, CollisionResolutionStrategy } from '../Physics';
 import { BoundingBox } from './BoundingBox';
 import { PolygonArea } from './PolygonArea';
 import { CircleArea } from './CircleArea';
 import { EdgeArea } from './EdgeArea';
-
-function isActor(x: Actor | Collider): x is Actor {
-  return !!x && x instanceof Actor;
-}
+import { CollisionType } from './CollisionType';
 
 function isCollider(x: Actor | Collider): x is Collider {
   return !!x && x instanceof Collider;
 }
 
 // Describes material properties like shape, bounds, friction of the physics object
-export class Collider implements IEvented {
+export class Collider implements Eventable {
   constructor(private _actor: Actor, private _body: Body) {}
 
   emit(eventName: string, event?: GameEvent<any>): void {
@@ -47,11 +44,19 @@ export class Collider implements IEvented {
     return this._actor.id;
   }
 
-  public get shape(): ICollisionArea {
+  public get collisionType(): CollisionType {
+    return this._actor.collisionType;
+  }
+
+  public set collisionType(type: CollisionType) {
+    this._actor.collisionType = type;
+  }
+
+  public get shape(): CollisionArea {
     return this._actor.collisionArea;
   }
 
-  public set shape(shape: ICollisionArea) {
+  public set shape(shape: CollisionArea) {
     this._actor.collisionArea = shape;
   }
 

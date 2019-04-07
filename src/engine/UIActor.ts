@@ -1,7 +1,8 @@
 import { Vector } from './Algebra';
 import { Engine } from './Engine';
-import { Actor, ActorArgs, CollisionType } from './Actor';
+import { Actor, ActorArgs } from './Actor';
 import * as Traits from './Traits/Index';
+import { CollisionType } from './Collision/CollisionType';
 
 /**
  * Helper [[Actor]] primitive for drawing UI's, optimized for UI drawing. Does

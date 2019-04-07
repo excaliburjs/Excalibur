@@ -54,42 +54,40 @@ export class CollisionContact {
     }
   }
 
-  private _applyBoxImpulse(bodyA: Body, bodyB: Body, mtv: Vector) {
-    if (bodyA.collisionType === CollisionType.Active && bodyB.collisionType !== CollisionType.Passive) {
+  private _applyBoxImpulse(colliderA: Collider, colliderB: Collider, mtv: Vector) {
+    if (colliderA.collisionType === CollisionType.Active && colliderB.collisionType !== CollisionType.Passive) {
       // Resolve overlaps
-      if (bodyA.collisionType === CollisionType.Active && bodyB.collisionType === CollisionType.Active) {
+      if (colliderA.collisionType === CollisionType.Active && colliderB.collisionType === CollisionType.Active) {
         // split overlaps if both are Active
         mtv = mtv.scale(0.5);
       }
       // Apply mtv
-      bodyA.pos.y += mtv.y;
-      bodyA.pos.x += mtv.x;
+      colliderA.body.pos.y += mtv.y;
+      colliderA.body.pos.x += mtv.x;
 
       let mtvDir = mtv.normalize();
 
       // only adjust if velocity is opposite
-      if (mtvDir.dot(bodyA.vel) < 0) {
+      if (mtvDir.dot(colliderA.body.vel) < 0) {
         // Cancel out velocity in direction of mtv
-        let velAdj = mtvDir.scale(mtvDir.dot(bodyA.vel.negate()));
+        let velAdj = mtvDir.scale(mtvDir.dot(colliderA.body.vel.negate()));
 
-        bodyA.vel = bodyA.vel.add(velAdj);
+        colliderA.body.vel = colliderA.body.vel.add(velAdj);
       }
 
-      bodyA.collider.emit('postcollision', new PostCollisionEvent(bodyA.collider, bodyB.collider, Util.getSideFromVector(mtv), mtv));
+      colliderA.emit('postcollision', new PostCollisionEvent(colliderA, colliderB, Util.getSideFromVector(mtv), mtv));
     }
   }
 
   private _resolveBoxCollision() {
-    let bodyA = this.colliderA.body;
-    let bodyB = this.colliderB.body;
     let side = Util.getSideFromVector(this.mtv);
     let mtv = this.mtv.negate();
     // Publish collision events on both participants
-    this.colliderA.emit('precollision', new PreCollisionEvent(bodyA.collider, bodyB.collider, side, mtv));
-    this.colliderB.emit('precollision', new PreCollisionEvent(bodyB.collider, bodyA.collider, Util.getOppositeSide(side), mtv.negate()));
+    this.colliderA.emit('precollision', new PreCollisionEvent(this.colliderA, this.colliderB, side, mtv));
+    this.colliderB.emit('precollision', new PreCollisionEvent(this.colliderA, this.colliderB, Util.getOppositeSide(side), mtv.negate()));
 
-    this._applyBoxImpulse(bodyA, bodyB, mtv);
-    this._applyBoxImpulse(bodyB, bodyA, mtv.negate());
+    this._applyBoxImpulse(this.colliderA, this.colliderB, mtv);
+    this._applyBoxImpulse(this.colliderB, this.colliderA, mtv.negate());
   }
 
   private _resolveRigidBodyCollision() {
@@ -112,20 +110,20 @@ export class CollisionContact {
     );
 
     // If any of the participants are passive then short circuit
-    if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
+    if (this.colliderA.collisionType === CollisionType.Passive || this.colliderB.collisionType === CollisionType.Passive) {
       return;
     }
 
-    var invMassA = bodyA.collisionType === CollisionType.Fixed ? 0 : 1 / bodyA.collider.mass;
-    var invMassB = bodyB.collisionType === CollisionType.Fixed ? 0 : 1 / bodyB.collider.mass;
+    var invMassA = this.colliderA.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderA.mass;
+    var invMassB = this.colliderB.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderB.mass;
 
-    var invMoiA = bodyA.collisionType === CollisionType.Fixed ? 0 : 1 / bodyA.collider.moi;
-    var invMoiB = bodyB.collisionType === CollisionType.Fixed ? 0 : 1 / bodyB.collider.moi;
+    var invMoiA = this.colliderA.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderA.moi;
+    var invMoiB = this.colliderB.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderB.moi;
 
     // average restitution more relistic
-    var coefRestitution = Math.min(bodyA.collider.restitution, bodyB.collider.restitution);
+    var coefRestitution = Math.min(this.colliderA.restitution, this.colliderB.restitution);
 
-    var coefFriction = Math.min(bodyA.collider.friction, bodyB.collider.friction);
+    var coefFriction = Math.min(this.colliderA.friction, this.colliderB.friction);
 
     normal = normal.normalize();
     var tangent = normal.normal().normalize();
@@ -155,13 +153,13 @@ export class CollisionContact {
     var impulse =
       -((1 + coefRestitution) * rvNormal) / (invMassA + invMassB + invMoiA * raTangent * raTangent + invMoiB * rbTangent * rbTangent);
 
-    if (bodyA.collisionType === CollisionType.Fixed) {
+    if (this.colliderA.collisionType === CollisionType.Fixed) {
       bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
       if (Physics.allowRigidBodyRotation) {
         bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
       }
       bodyB.addMtv(mtv);
-    } else if (bodyB.collisionType === CollisionType.Fixed) {
+    } else if (this.colliderB.collisionType === CollisionType.Fixed) {
       bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
       if (Physics.allowRigidBodyRotation) {
         bodyA.rx += impulse * invMoiA * -ra.cross(normal);
@@ -199,13 +197,13 @@ export class CollisionContact {
         frictionImpulse = t.scale(-impulse * coefFriction);
       }
 
-      if (bodyA.collisionType === CollisionType.Fixed) {
+      if (this.colliderA.collisionType === CollisionType.Fixed) {
         // apply frictional impulse
         bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
         if (Physics.allowRigidBodyRotation) {
           bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
         }
-      } else if (bodyB.collisionType === CollisionType.Fixed) {
+      } else if (this.colliderB.collisionType === CollisionType.Fixed) {
         // apply frictional impulse
         bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
         if (Physics.allowRigidBodyRotation) {

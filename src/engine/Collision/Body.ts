@@ -16,15 +16,12 @@ export class Body {
     this._collider = new Collider(this.actor, this);
   }
 
-  public get collisionType() {
-    return this.actor.collisionType;
-  }
-
+  // TODO allow multiple colliders
   public set collider(collider: Collider) {
     this._collider = collider;
   }
 
-  public get collider() {
+  public get collider(): Collider {
     return this._collider;
   }
 
@@ -99,7 +96,7 @@ export class Body {
    * the body of the other [[Body]]
    */
   public touching(other: Body): boolean {
-    var pair = new Pair(this, other);
+    var pair = new Pair(this.collider, other.collider);
     pair.collide();
 
     if (pair.collision) {

@@ -1,5 +1,4 @@
-﻿import { Body } from './Body';
-import { BoundingBox } from './BoundingBox';
+﻿import { BoundingBox } from './BoundingBox';
 import { CollisionArea } from './CollisionArea';
 import { PolygonArea } from './PolygonArea';
 import { EdgeArea } from './EdgeArea';
@@ -9,10 +8,18 @@ import { CollisionContact } from './CollisionContact';
 import { Vector, Ray, Projection } from '../Algebra';
 import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
+import { Collider } from './Collider';
+
+// @obsolete Remove in v0.24.0
+import { Body } from './Body';
+// ===========================
 
 export interface CircleAreaOptions {
   pos?: Vector;
   radius?: number;
+  collider?: Collider;
+
+  // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
   body?: Body;
 }
 
@@ -28,23 +35,35 @@ export class CircleArea implements CollisionArea {
    * This is the radius of the circle
    */
   public radius: number;
+
   /**
-   * The actor associated with this collision area
+   * Reference to the actor associated with this collision area
+   * @obsolete Will be removed in v0.24.0 please use [[collider]] to retrieve body information
    */
   public body: Body;
+
+  /**
+   * The collider for this area
+   */
+  public collider: Collider;
 
   constructor(options: CircleAreaOptions) {
     this.pos = options.pos || Vector.Zero;
     this.radius = options.radius || 0;
-    this.body = options.body || null;
+    this.collider = options.collider || null;
+
+    // @obsolete Remove next release in v0.24.0, code exists for backwards compat
+    this.collider = options.body.collider;
+    this.body = this.collider.body;
+    // ==================================
   }
 
   /**
    * Get the center of the collision area in world coordinates
    */
   public getCenter(): Vector {
-    if (this.body) {
-      return this.pos.add(this.body.pos);
+    if (this.collider && this.collider.body) {
+      return this.pos.add(this.collider.body.pos);
     }
     return this.pos;
   }
@@ -53,7 +72,7 @@ export class CircleArea implements CollisionArea {
    * Tests if a point is contained in this collision area
    */
   public contains(point: Vector): boolean {
-    var distance = this.body.pos.distance(point);
+    var distance = this.collider.body.pos.distance(point);
     if (distance <= this.radius) {
       return true;
     }
@@ -122,11 +141,12 @@ export class CircleArea implements CollisionArea {
    * Get the axis aligned bounding box for the circle area
    */
   public getBounds(): BoundingBox {
+    let body = this.collider.body;
     return new BoundingBox(
-      this.pos.x + this.body.pos.x - this.radius,
-      this.pos.y + this.body.pos.y - this.radius,
-      this.pos.x + this.body.pos.x + this.radius,
-      this.pos.y + this.body.pos.y + this.radius
+      this.pos.x + body.pos.x - this.radius,
+      this.pos.y + body.pos.y - this.radius,
+      this.pos.x + body.pos.x + this.radius,
+      this.pos.y + body.pos.y + this.radius
     );
   }
 
@@ -142,7 +162,7 @@ export class CircleArea implements CollisionArea {
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
   public getMomentOfInertia(): number {
-    var mass = this.body ? this.body.mass : Physics.defaultMass;
+    var mass = this.collider ? this.collider.mass : Physics.defaultMass;
     return (mass * this.radius * this.radius) / 2;
   }
 
@@ -199,8 +219,9 @@ export class CircleArea implements CollisionArea {
 
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Green) {
-    var pos = this.body ? this.body.pos.add(this.pos) : this.pos;
-    var rotation = this.body ? this.body.rotation : 0;
+    let body = this.collider.body;
+    var pos = body ? body.pos.add(this.pos) : this.pos;
+    var rotation = body ? body.rotation : 0;
 
     ctx.beginPath();
     ctx.strokeStyle = color.toString();

@@ -1,9 +1,10 @@
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { SpriteFont } from './Drawing/SpriteSheet';
-import { Actor, CollisionType } from './Actor';
+import { Actor } from './Actor';
 import { Configurable } from './Configurable';
 import { Vector } from './Algebra';
+import { CollisionType } from './Collision/CollisionType';
 /**
  * Enum representing the different font size units
  * https://developer.mozilla.org/en-US/docs/Web/CSS/font-size

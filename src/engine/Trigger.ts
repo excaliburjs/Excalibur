@@ -2,10 +2,11 @@ import { Color } from './Drawing/Color';
 import { Engine } from './Engine';
 import { ActionQueue } from './Actions/Action';
 import { EventDispatcher } from './EventDispatcher';
-import { Actor, CollisionType } from './Actor';
+import { Actor, isActor } from './Actor';
 import { Vector } from './Algebra';
 import { ExitTriggerEvent, EnterTriggerEvent, CollisionEndEvent, CollisionStartEvent } from './Events';
 import * as Util from './Util/Util';
+import { CollisionType } from './Collision/CollisionType';
 
 /**
  * ITriggerOptions
@@ -87,7 +88,7 @@ export class Trigger extends Actor {
     this.actionQueue = new ActionQueue(this);
 
     this.on('collisionstart', (evt: CollisionStartEvent) => {
-      if (this.filter(evt.other)) {
+      if (isActor(evt.other) && this.filter(evt.other)) {
         this.emit('enter', new EnterTriggerEvent(this, evt.other));
         this._dispatchAction();
         // remove trigger if its done, -1 repeat forever
@@ -98,7 +99,7 @@ export class Trigger extends Actor {
     });
 
     this.on('collisionend', (evt: CollisionEndEvent) => {
-      if (this.filter(evt.other)) {
+      if (isActor(evt.other) && this.filter(evt.other)) {
         this.emit('exit', new ExitTriggerEvent(this, evt.other));
       }
     });

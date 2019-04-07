@@ -1,9 +1,10 @@
 ﻿import { Physics } from './../Physics';
 import { CollisionContact } from './CollisionContact';
 import { Pair } from './Pair';
-import { Actor, CollisionType } from './../Actor';
+import { Actor } from './../Actor';
 import { CollisionBroadphase } from './CollisionResolver';
 import { CollisionStartEvent, CollisionEndEvent } from '../Events';
+import { CollisionType } from './CollisionType';
 
 export class NaiveCollisionBroadphase implements CollisionBroadphase {
   private _lastFramePairs: Pair[] = [];
@@ -38,10 +39,10 @@ export class NaiveCollisionBroadphase implements CollisionBroadphase {
 
         var minimumTranslationVector;
         if ((minimumTranslationVector = actor1.collides(actor2))) {
-          var pair = new Pair(actor1.body, actor2.body);
+          var pair = new Pair(actor1.body.collider, actor2.body.collider);
           pair.collision = new CollisionContact(
-            actor1.collisionArea,
-            actor2.collisionArea,
+            actor1.body.collider,
+            actor2.body.collider,
             minimumTranslationVector,
             actor1.pos,
             minimumTranslationVector
@@ -75,8 +76,8 @@ export class NaiveCollisionBroadphase implements CollisionBroadphase {
 
       // find all new collisions
       if (!this._lastFramePairsHash[p.id]) {
-        let actor1 = p.bodyA.actor;
-        let actor2 = p.bodyB.actor;
+        let actor1 = p.colliderA;
+        let actor2 = p.colliderB;
         actor1.emit('collisionstart', new CollisionStartEvent(actor1, actor2, p));
         actor2.emit('collisionstart', new CollisionStartEvent(actor2, actor1, p));
       }
@@ -85,8 +86,8 @@ export class NaiveCollisionBroadphase implements CollisionBroadphase {
     // find all old collisions
     for (let p of this._lastFramePairs) {
       if (!currentFrameHash[p.id]) {
-        let actor1 = p.bodyA.actor;
-        let actor2 = p.bodyB.actor;
+        let actor1 = p.colliderA;
+        let actor2 = p.colliderB;
         actor1.emit('collisionend', new CollisionEndEvent(actor1, actor2));
         actor2.emit('collisionend', new CollisionEndEvent(actor2, actor1));
       }

@@ -46,6 +46,11 @@ import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEvents';
+import { CollisionType } from './Collision/CollisionType';
+
+export function isActor(x: any): x is Actor {
+  return !!x && x instanceof Actor;
+}
 
 export type PointerEventName =
   | 'pointerdragstart'
@@ -114,7 +119,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * [EdgeArea|edges].
    */
   public get collisionArea(): CollisionArea {
-    return this.body.collisionArea;
+    return this.body.collider.shape;
   }
 
   /**
@@ -122,7 +127,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * [EdgeArea|edges].
    */
   public set collisionArea(area: CollisionArea) {
-    this.body.collisionArea = area;
+    this.body.collider.shape = area;
   }
 
   /**
@@ -275,42 +280,42 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Get the current mass of the actor, mass can be thought of as the resistance to acceleration.
    */
   public get mass() {
-    return this.body.mass;
+    return this.body.collider.mass;
   }
 
   /**
    * Sets the mass of the actor, mass can be thought of as the resistance to acceleration.
    */
   public set mass(theMass: number) {
-    this.body.mass = theMass;
+    this.body.collider.mass = theMass;
   }
 
   /**
    * Gets the current moment of inertia, moi can be thought of as the resistance to rotation.
    */
   public get moi() {
-    return this.body.moi;
+    return this.body.collider.moi;
   }
 
   /**
    * Sets the current moment of inertia, moi can be thought of as the resistance to rotation.
    */
   public set moi(theMoi: number) {
-    this.body.moi = theMoi;
+    this.body.collider.moi = theMoi;
   }
 
   /**
    * Gets the coefficient of friction on this actor, this can be thought of as how sticky or slippery an object is.
    */
   public get friction() {
-    return this.body.friction;
+    return this.body.collider.friction;
   }
 
   /**
    * Sets the coefficient of friction of this actor, this can ve thought of as how stick or slippery an object is.
    */
   public set friction(theFriction: number) {
-    this.body.friction = theFriction;
+    this.body.collider.friction = theFriction;
   }
 
   /**
@@ -318,7 +323,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * as bounciness.
    */
   public get restitution() {
-    return this.body.restitution;
+    return this.body.collider.restitution;
   }
 
   /**
@@ -326,7 +331,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * as bounciness.
    */
   public set restitution(theRestitution: number) {
-    this.body.restitution = theRestitution;
+    this.body.collider.restitution = theRestitution;
   }
 
   /**
@@ -1322,8 +1327,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       this._geometryDirty = true;
     }
 
-    // Update physics body
-    this.body.update();
+    // Update colliders
+    this.body.collider.update();
     this._geometryDirty = false;
   }
 
@@ -1512,7 +1517,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public debugDraw(ctx: CanvasRenderingContext2D) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
 
-    this.body.debugDraw(ctx);
+    this.body.collider.debugDraw(ctx);
 
     // Draw actor bounding box
     var bb = this.getBounds();

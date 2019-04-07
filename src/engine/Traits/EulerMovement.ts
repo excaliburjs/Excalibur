@@ -1,7 +1,8 @@
 import { Physics } from './../Physics';
 import { Trait } from '../Interfaces/Trait';
-import { Actor, CollisionType } from '../Actor';
+import { Actor } from '../Actor';
 import { Engine } from '../Engine';
+import { CollisionType } from '../Collision/CollisionType';
 
 export class EulerMovement implements Trait {
   public update(actor: Actor, _engine: Engine, delta: number) {

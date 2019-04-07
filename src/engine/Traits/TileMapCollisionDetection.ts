@@ -1,9 +1,10 @@
 import { Trait } from '../Interfaces/Trait';
-import { Actor, CollisionType } from '../Actor';
+import { Actor } from '../Actor';
 import { Engine } from '../Engine';
 import { Vector } from '../Algebra';
 import { Side } from '../Collision/Side';
 import { PreCollisionEvent, PostCollisionEvent } from '../Events';
+import { CollisionType } from '../Collision/CollisionType';
 
 export class TileMapCollisionDetection implements Trait {
   public update(actor: Actor, engine: Engine) {

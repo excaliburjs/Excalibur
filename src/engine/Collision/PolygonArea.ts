@@ -8,11 +8,14 @@ import { CollisionContact } from './CollisionContact';
 import { CollisionArea } from './CollisionArea';
 import { Body } from './Body';
 import { Vector, Line, Ray, Projection } from './../Algebra';
+import { Collider } from './Collider';
 
 export interface PolygonAreaOptions {
   pos?: Vector;
   points?: Vector[];
   clockwiseWinding?: boolean;
+  collider?: Collider;
+  // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
   body?: Body;
 }
 
@@ -22,7 +25,11 @@ export interface PolygonAreaOptions {
 export class PolygonArea implements CollisionArea {
   public pos: Vector;
   public points: Vector[];
+
+  // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
   public body: Body;
+
+  public collider: Collider;
 
   private _transformedPoints: Vector[] = [];
   private _axes: Vector[] = [];
@@ -32,7 +39,12 @@ export class PolygonArea implements CollisionArea {
     this.pos = options.pos || Vector.Zero;
     var winding = !!options.clockwiseWinding;
     this.points = (winding ? options.points.reverse() : options.points) || [];
-    this.body = options.body || null;
+    this.collider = this.collider = options.collider || null;
+
+    // @obsolete Remove next release in v0.24.0, code exists for backwards compat
+    this.collider = options.body.collider;
+    this.body = this.collider.body;
+    // ==================================
 
     // calculate initial transformation
     this._calculateTransformation();
@@ -42,8 +54,9 @@ export class PolygonArea implements CollisionArea {
    * Get the center of the collision area in world coordinates
    */
   public getCenter(): Vector {
-    if (this.body) {
-      return this.body.pos.add(this.pos);
+    let body = this.collider.body;
+    if (body) {
+      return body.pos.add(this.pos);
     }
     return this.pos;
   }
@@ -52,8 +65,9 @@ export class PolygonArea implements CollisionArea {
    * Calculates the underlying transformation from the body relative space to world space
    */
   private _calculateTransformation() {
-    var pos = this.body ? this.body.pos.add(this.pos) : this.pos;
-    var angle = this.body ? this.body.rotation : 0;
+    let body = this.collider.body;
+    var pos = body ? body.pos.add(this.pos) : this.pos;
+    var angle = body ? body.rotation : 0;
 
     var len = this.points.length;
     this._transformedPoints.length = 0; // clear out old transform
@@ -209,7 +223,7 @@ export class PolygonArea implements CollisionArea {
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
   public getMomentOfInertia(): number {
-    var mass = this.body ? this.body.mass : Physics.defaultMass;
+    var mass = this.collider ? this.collider.mass : Physics.defaultMass;
     var numerator = 0;
     var denominator = 0;
     for (var i = 0; i < this.points.length; i++) {

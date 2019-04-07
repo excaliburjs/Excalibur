@@ -28,7 +28,7 @@ export enum BroadphaseStrategy {
 /**
  * Possible numerical integrators for position and velocity
  */
-export enum Integrator {
+export enum IntegratorType {
   Euler
 }
 
@@ -120,7 +120,7 @@ export class Physics {
   /**
    * Gets or sets the position and velocity positional integrator, currently only Euler is supported.
    */
-  public static integrator: Integrator = Integrator.Euler;
+  public static integrator: IntegratorType = IntegratorType.Euler;
   /**
    * Number of steps to use in integration. A higher number improves the positional accuracy over time. This can be useful to increase
    * if you have fast moving objects in your simulation or you have a large number of objects and need to increase stability.

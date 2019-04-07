@@ -201,12 +201,12 @@ export class DynamicTree {
   public trackBody(body: Body) {
     var node = new TreeNode();
     node.body = body;
-    node.bounds = body.getBounds();
+    node.bounds = body.collider.getBounds();
     node.bounds.left -= 2;
     node.bounds.top -= 2;
     node.bounds.right += 2;
     node.bounds.bottom += 2;
-    this.nodes[body.actor.id] = node;
+    this.nodes[body.collider.id] = node;
     this._insert(node);
   }
 
@@ -214,16 +214,16 @@ export class DynamicTree {
    * Updates the dynamic tree given the current bounds of each body being tracked
    */
   public updateBody(body: Body) {
-    var node = this.nodes[body.actor.id];
+    var node = this.nodes[body.collider.id];
     if (!node) {
       return false;
     }
-    var b = body.getBounds();
+    var b = body.collider.getBounds();
 
     // if the body is outside the world no longer update it
     if (!this.worldBounds.contains(b)) {
       Logger.getInstance().warn(
-        'Actor with id ' + body.actor.id + ' is outside the world bounds and will no longer be tracked for physics'
+        'Actor with id ' + body.collider.id + ' is outside the world bounds and will no longer be tracked for physics'
       );
       this.untrackBody(body);
       return false;
@@ -263,13 +263,13 @@ export class DynamicTree {
    * Untracks a body from the dynamic tree
    */
   public untrackBody(body: Body) {
-    var node = this.nodes[body.actor.id];
+    var node = this.nodes[body.collider.id];
     if (!node) {
       return;
     }
     this._remove(node);
-    this.nodes[body.actor.id] = null;
-    delete this.nodes[body.actor.id];
+    this.nodes[body.collider.id] = null;
+    delete this.nodes[body.collider.id];
   }
 
   /**
@@ -407,7 +407,7 @@ export class DynamicTree {
    * the tree until all possible colliders have been returned.
    */
   public query(body: Body, callback: (other: Body) => boolean): void {
-    var bounds = body.getBounds();
+    var bounds = body.collider.getBounds();
     var helper = (currentNode: TreeNode): boolean => {
       if (currentNode && currentNode.bounds.collides(bounds)) {
         if (currentNode.isLeaf() && currentNode.body !== body) {

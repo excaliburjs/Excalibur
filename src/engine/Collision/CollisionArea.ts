@@ -3,9 +3,10 @@ import { CollisionContact } from './CollisionContact';
 import { Body } from './Body';
 import { BoundingBox } from './BoundingBox';
 import { Vector, Projection, Ray } from '../Algebra';
+import { Collider } from './Collider';
 
 /**
- * A collision area is a region of space that can detect when other collision areas intersect
+ * A collision area specifies the geometry that can detect when other collision areas intersect
  * for the purposes of colliding 2 objects in excalibur.
  */
 export interface CollisionArea {
@@ -16,8 +17,14 @@ export interface CollisionArea {
 
   /**
    * Reference to the actor associated with this collision area
+   * @obsolete Will be removed in v0.24.0 please use [[collider]]
    */
   body: Body;
+
+  /**
+   * Reference to the collider associated with this collision area geometry
+   */
+  collider: Collider;
 
   /**
    * The center point of the collision area, for example if the area is a circle it would be the center.
