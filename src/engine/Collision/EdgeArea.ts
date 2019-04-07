@@ -34,8 +34,10 @@ export class EdgeArea implements CollisionArea {
     this.pos = this.getCenter();
 
     // @obsolete Remove next release in v0.24.0, code exists for backwards compat
-    this.collider = options.body.collider;
-    this.body = this.collider.body;
+    if (options.body) {
+      this.collider = options.body.collider;
+      this.body = this.collider.body;
+    }
     // ==================================
   }
 

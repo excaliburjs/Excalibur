@@ -4,6 +4,9 @@ import { Actor } from '../Actor';
 import { Collider } from './Collider';
 import { CollisionType } from './CollisionType';
 import { Physics } from '../Physics';
+import { PolygonArea } from './PolygonArea';
+import { CircleArea } from './CircleArea';
+import { EdgeArea } from './EdgeArea';
 
 /**
  * Body describes all the physical properties pos, vel, acc, rotation, angular velocity
@@ -14,8 +17,8 @@ export class Body {
   /**
    * Constructs a new physics body associated with an actor
    */
-  constructor(private actor: Actor) {
-    this._collider = new Collider(this.actor, this);
+  constructor(private _actor: Actor) {
+    this._collider = new Collider(this._actor, this);
   }
 
   // TODO allow multiple colliders
@@ -167,6 +170,73 @@ export class Body {
     // Update colliders
     this.collider.update();
     this._geometryDirty = false;
+  }
+
+  /**
+   * Sets up a box collision area based on the current bounds of the associated actor of this physics body.
+   *
+   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+   */
+  public useBoxCollision(center: Vector = Vector.Zero) {
+    this.collider.shape = new PolygonArea({
+      collider: this.collider,
+      points: this._actor.getRelativeGeometry(),
+      pos: center // position relative to actor
+    });
+
+    // in case of a nan moi, coalesce to a safe default
+    this.collider.moi = this.collider.shape.getMomentOfInertia() || this.collider.moi;
+  }
+
+  /**
+   * Sets up a polygon collision area based on a list of of points relative to the anchor of the associated actor of this physics body.
+   *
+   * Only [convex polygon](https://en.wikipedia.org/wiki/Convex_polygon) definitions are supported.
+   *
+   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+   */
+  public usePolygonCollision(points: Vector[], center: Vector = Vector.Zero) {
+    this.collider.shape = new PolygonArea({
+      collider: this.collider,
+      points: points,
+      pos: center // position relative to actor
+    });
+
+    // in case of a nan moi, collesce to a safe default
+    this.collider.moi = this.collider.shape.getMomentOfInertia() || this.collider.moi;
+  }
+
+  /**
+   * Sets up a [[CircleArea|circle collision area]] with a specified radius in pixels.
+   *
+   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+   */
+  public useCircleCollision(radius?: number, center: Vector = Vector.Zero) {
+    if (!radius) {
+      radius = this._actor.getWidth() / 2;
+    }
+    this.collider.shape = new CircleArea({
+      collider: this.collider,
+      radius: radius,
+      pos: center
+    });
+    this.collider.moi = this.collider.shape.getMomentOfInertia() || this.collider.moi;
+  }
+
+  /**
+   * Sets up an [[EdgeArea|edge collision]] with a start point and an end point relative to the anchor of the associated actor
+   * of this physics body.
+   *
+   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
+   */
+  public useEdgeCollision(begin: Vector, end: Vector) {
+    this.collider.shape = new EdgeArea({
+      collider: this.collider,
+      begin: begin,
+      end: end
+    });
+
+    this.collider.moi = this.collider.shape.getMomentOfInertia() || this.collider.moi;
   }
 
   /**

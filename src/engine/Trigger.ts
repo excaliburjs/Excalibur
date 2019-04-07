@@ -87,7 +87,7 @@ export class Trigger extends Actor {
     this.eventDispatcher = new EventDispatcher(this);
     this.actionQueue = new ActionQueue(this);
 
-    this.on('collisionstart', (evt: CollisionStartEvent) => {
+    this.on('collisionstart', (evt: CollisionStartEvent<Actor>) => {
       if (isActor(evt.other) && this.filter(evt.other)) {
         this.emit('enter', new EnterTriggerEvent(this, evt.other));
         this._dispatchAction();
@@ -98,7 +98,7 @@ export class Trigger extends Actor {
       }
     });
 
-    this.on('collisionend', (evt: CollisionEndEvent) => {
+    this.on('collisionend', (evt: CollisionEndEvent<Actor>) => {
       if (isActor(evt.other) && this.filter(evt.other)) {
         this.emit('exit', new ExitTriggerEvent(this, evt.other));
       }

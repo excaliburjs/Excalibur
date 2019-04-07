@@ -521,7 +521,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this._initDefaults();
 
     // Initialize default collision area to be box
-    this.body.collider.useBoxCollision();
+    this.body.useBoxCollision();
   }
 
   /**
@@ -622,7 +622,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Use cases for the **collisionstart** event may be detecting when an actor has touched a surface
    * (like landing) or if a item has been touched and needs to be picked up.
    */
-  public on(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
+  public on(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent<Actor>) => void): void;
   /**
    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
    * This event will not fire again until another collision and separation.
@@ -630,7 +630,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
    * (like jumping) or has left an area.
    */
-  public on(eventName: Events.collisionend, handler: (event?: CollisionEndEvent) => void): void;
+  public on(eventName: Events.collisionend, handler: (event?: CollisionEndEvent<Actor>) => void): void;
   /**
    * The **precollision** event is fired **every frame** where a collision pair is found and two
    * bodies are intersecting.
@@ -639,7 +639,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of
    * richochet of the ball depending on which side of the paddle you hit.
    */
-  public on(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
+  public on(eventName: Events.precollision, handler: (event?: PreCollisionEvent<Actor>) => void): void;
   /**
    * The **postcollision** event is fired for **every frame** where collision resolution was performed.
    * Collision resolution is when two bodies influence each other and cause a response like bouncing
@@ -649,7 +649,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Post collision would be useful if you need to know that collision resolution is happening or need to
    * tweak the default resolution.
    */
-  public on(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
+  public on(eventName: Events.postcollision, handler: (event?: PostCollisionEvent<Actor>) => void): void;
   public on(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
   public on(eventName: Events.prekill, handler: (event?: PreKillEvent) => void): void;
   public on(eventName: Events.postkill, handler: (event?: PostKillEvent) => void): void;
@@ -689,7 +689,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface
    * (like landing) or if a item has been touched and needs to be picked up.
    */
-  public once(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent) => void): void;
+  public once(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent<Actor>) => void): void;
   /**
    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
    * This event will not fire again until another collision and separation.
@@ -697,7 +697,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
    * (like jumping) or has left an area.
    */
-  public once(eventName: Events.collisionend, handler: (event?: CollisionEndEvent) => void): void;
+  public once(eventName: Events.collisionend, handler: (event?: CollisionEndEvent<Actor>) => void): void;
   /**
    * The **precollision** event is fired **every frame** where a collision pair is found and two
    * bodies are intersecting.
@@ -706,7 +706,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of
    * richochet of the ball depending on which side of the paddle you hit.
    */
-  public once(eventName: Events.precollision, handler: (event?: PreCollisionEvent) => void): void;
+  public once(eventName: Events.precollision, handler: (event?: PreCollisionEvent<Actor>) => void): void;
   /**
    * The **postcollision** event is fired for **every frame** where collision resolution was performed.
    * Collision resolution is when two bodies influence each other and cause a response like bouncing
@@ -716,7 +716,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Post collision would be useful if you need to know that collision resolution is happening or need to
    * tweak the default resolution.
    */
-  public once(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
+  public once(eventName: Events.postcollision, handler: (event?: PostCollisionEvent<Actor>) => void): void;
   public once(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
   public once(eventName: Events.postkill, handler: (event?: PostKillEvent) => void): void;
   public once(eventName: Events.prekill, handler: (event?: PreKillEvent) => void): void;
@@ -756,7 +756,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface
    * (like landing) or if a item has been touched and needs to be picked up.
    */
-  public off(eventName: Events.collisionstart, handler?: (event?: CollisionStartEvent) => void): void;
+  public off(eventName: Events.collisionstart, handler?: (event?: CollisionStartEvent<Actor>) => void): void;
   /**
    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
    * This event will not fire again until another collision and separation.
@@ -764,7 +764,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
    * (like jumping) or has left an area.
    */
-  public off(eventName: Events.collisionend, handler?: (event?: CollisionEndEvent) => void): void;
+  public off(eventName: Events.collisionend, handler?: (event?: CollisionEndEvent<Actor>) => void): void;
   /**
    * The **precollision** event is fired **every frame** where a collision pair is found and two
    * bodies are intersecting.
@@ -773,7 +773,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of
    * richochet of the ball depending on which side of the paddle you hit.
    */
-  public off(eventName: Events.precollision, handler?: (event?: PreCollisionEvent) => void): void;
+  public off(eventName: Events.precollision, handler?: (event?: PreCollisionEvent<Actor>) => void): void;
   /**
    * The **postcollision** event is fired for **every frame** where collision resolution was performed.
    * Collision resolution is when two bodies influence each other and cause a response like bouncing
@@ -783,7 +783,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Post collision would be useful if you need to know that collision resolution is happening or need to
    * tweak the default resolution.
    */
-  public off(eventName: Events.postcollision, handler: (event?: PostCollisionEvent) => void): void;
+  public off(eventName: Events.postcollision, handler: (event?: PostCollisionEvent<Actor>) => void): void;
   public off(eventName: Events.pointerup, handler?: (event?: PointerEvent) => void): void;
   public off(eventName: Events.pointerdown, handler?: (event?: PointerEvent) => void): void;
   public off(eventName: Events.pointerenter, handler?: (event?: PointerEvent) => void): void;

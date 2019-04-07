@@ -8,8 +8,8 @@ import { Vector } from '../Algebra';
 export var CollisionJumpTable = {
   CollideCircleCircle(circleA: CircleArea, circleB: CircleArea): CollisionContact {
     var radius = circleA.radius + circleB.radius;
-    var circleAPos = circleA.body.pos.add(circleA.pos);
-    var circleBPos = circleB.body.pos.add(circleB.pos);
+    var circleAPos = circleA.collider.body.pos.add(circleA.pos);
+    var circleBPos = circleB.collider.body.pos.add(circleB.pos);
     if (circleAPos.distance(circleBPos) > radius) {
       return null;
     }
@@ -158,6 +158,7 @@ export var CollisionJumpTable = {
 
     // build a temporary polygon from the edge to use SAT
     var linePoly = new PolygonArea({
+      collider: edge.collider,
       points: [edge.begin, edge.end, edge.end.add(dir.scale(30)), edge.begin.add(dir.scale(30))]
     });
 

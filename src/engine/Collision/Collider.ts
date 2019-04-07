@@ -9,8 +9,6 @@ import { Vector } from '../Algebra';
 import { Physics, CollisionResolutionStrategy } from '../Physics';
 import { BoundingBox } from './BoundingBox';
 import { PolygonArea } from './PolygonArea';
-import { CircleArea } from './CircleArea';
-import { EdgeArea } from './EdgeArea';
 import { CollisionType } from './CollisionType';
 
 function isCollider(x: Actor | Collider): x is Collider {
@@ -19,6 +17,8 @@ function isCollider(x: Actor | Collider): x is Collider {
 
 // Describes material properties like shape, bounds, friction of the physics object
 export class Collider implements Eventable {
+  private _collisionArea: CollisionArea;
+
   constructor(private _actor: Actor, private _body: Body) {}
 
   emit(eventName: string, event?: GameEvent<any>): void {
@@ -53,11 +53,12 @@ export class Collider implements Eventable {
   }
 
   public get shape(): CollisionArea {
-    return this._actor.collisionArea;
+    return this._collisionArea;
   }
 
   public set shape(shape: CollisionArea) {
-    this._actor.collisionArea = shape;
+    this._collisionArea = shape;
+    this._collisionArea.collider = this;
   }
 
   public get body(): Body {
@@ -122,73 +123,6 @@ export class Collider implements Eventable {
 
       this.shape.recalc();
     }
-  }
-
-  /**
-   * Sets up a box collision area based on the current bounds of the associated actor of this physics body.
-   *
-   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
-   */
-  public useBoxCollision(center: Vector = Vector.Zero) {
-    this.shape = new PolygonArea({
-      body: this._body,
-      points: this._actor.getRelativeGeometry(),
-      pos: center // position relative to actor
-    });
-
-    // in case of a nan moi, coalesce to a safe default
-    this.moi = this.shape.getMomentOfInertia() || this.moi;
-  }
-
-  /**
-   * Sets up a polygon collision area based on a list of of points relative to the anchor of the associated actor of this physics body.
-   *
-   * Only [convex polygon](https://en.wikipedia.org/wiki/Convex_polygon) definitions are supported.
-   *
-   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
-   */
-  public usePolygonCollision(points: Vector[], center: Vector = Vector.Zero) {
-    this.shape = new PolygonArea({
-      body: this._body,
-      points: points,
-      pos: center // position relative to actor
-    });
-
-    // in case of a nan moi, collesce to a safe default
-    this.moi = this.shape.getMomentOfInertia() || this.moi;
-  }
-
-  /**
-   * Sets up a [[CircleArea|circle collision area]] with a specified radius in pixels.
-   *
-   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
-   */
-  public useCircleCollision(radius?: number, center: Vector = Vector.Zero) {
-    if (!radius) {
-      radius = this._actor.getWidth() / 2;
-    }
-    this.shape = new CircleArea({
-      body: this._body,
-      radius: radius,
-      pos: center
-    });
-    this.moi = this.shape.getMomentOfInertia() || this.moi;
-  }
-
-  /**
-   * Sets up an [[EdgeArea|edge collision]] with a start point and an end point relative to the anchor of the associated actor
-   * of this physics body.
-   *
-   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
-   */
-  public useEdgeCollision(begin: Vector, end: Vector) {
-    this.shape = new EdgeArea({
-      begin: begin,
-      end: end,
-      body: this._body
-    });
-
-    this.moi = this.shape.getMomentOfInertia() || this.moi;
   }
 
   /* istanbul ignore next */
