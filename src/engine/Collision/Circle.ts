@@ -74,7 +74,11 @@ export class Circle implements CollisionGeometry {
    * Tests if a point is contained in this collision area
    */
   public contains(point: Vector): boolean {
-    var distance = this.collider.body.pos.distance(point);
+    let pos = this.pos;
+    if (this.collider && this.collider.body) {
+      pos = this.collider.body.pos;
+    }
+    var distance = pos.distance(point);
     if (distance <= this.radius) {
       return true;
     }
@@ -143,12 +147,15 @@ export class Circle implements CollisionGeometry {
    * Get the axis aligned bounding box for the circle area
    */
   public getBounds(): BoundingBox {
-    let body = this.collider.body;
+    let bodyPos = Vector.Zero;
+    if (this.collider && this.collider.body) {
+      bodyPos = this.collider.body.pos;
+    }
     return new BoundingBox(
-      this.pos.x + body.pos.x - this.radius,
-      this.pos.y + body.pos.y - this.radius,
-      this.pos.x + body.pos.x + this.radius,
-      this.pos.y + body.pos.y + this.radius
+      this.pos.x + bodyPos.x - this.radius,
+      this.pos.y + bodyPos.y - this.radius,
+      this.pos.x + bodyPos.x + this.radius,
+      this.pos.y + bodyPos.y + this.radius
     );
   }
 

@@ -1,7 +1,7 @@
 import * as ex from '../../build/dist/excalibur';
 
-describe('Collision areas', () => {
-  describe('A Circle shape', () => {
+describe('Collision Geometry', () => {
+  describe('a Circle', () => {
     var circle: ex.CircleArea;
     var actor: ex.Actor;
 
@@ -89,7 +89,7 @@ describe('Collision areas', () => {
       // following this formula
       //https://en.wikipedia.org/wiki/List_of_moments_of_inertia
       // I = m*r^2/2
-      expect(circle.getMomentOfInertia()).toBe((circle.body.mass * circle.radius * circle.radius) / 2);
+      expect(circle.getMomentOfInertia()).toBe((circle.body.collider.mass * circle.radius * circle.radius) / 2);
     });
 
     it('should collide with other circles when touching', () => {
@@ -174,7 +174,7 @@ describe('Collision areas', () => {
       var edge = new ex.EdgeArea({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
-        body: actor2.body
+        collider: actor2.body.collider
       });
 
       var directionOfBodyB = edge.getCenter().sub(circle.getCenter());
@@ -201,7 +201,7 @@ describe('Collision areas', () => {
       var edge = new ex.EdgeArea({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
-        body: actor2.body
+        collider: actor2.body.collider
       });
 
       var directionOfBodyB = edge.getCenter().sub(circle.getCenter());
@@ -228,7 +228,7 @@ describe('Collision areas', () => {
       var edge = new ex.EdgeArea({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
-        body: actor2.body
+        collider: actor2.body.collider
       });
 
       var directionOfBodyB = edge.getCenter().sub(circle.getCenter());
@@ -248,7 +248,7 @@ describe('Collision areas', () => {
     });
   });
 
-  describe('A Polygon shape', () => {
+  describe('a ConvexPolygon', () => {
     it('exists', () => {
       expect(ex.PolygonArea).toBeDefined();
     });
@@ -511,7 +511,7 @@ describe('Collision areas', () => {
     });
   });
 
-  describe('An Edge shape', () => {
+  describe('an Edge', () => {
     var actor: ex.Actor = null;
     var edge: ex.EdgeArea = null;
 
@@ -587,7 +587,7 @@ describe('Collision areas', () => {
       // rotates from the middle treating the ends as a point mass
       var moi = edge.getMomentOfInertia();
       var length = edge.end.sub(edge.begin).distance() / 2;
-      expect(moi).toBeCloseTo(edge.body.mass * length * length, 0.001);
+      expect(moi).toBeCloseTo(edge.body.collider.mass * length * length, 0.001);
     });
   });
 });

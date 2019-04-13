@@ -50,22 +50,21 @@ export class Edge implements CollisionGeometry {
   }
 
   private _getBodyPos(): Vector {
-    let body = this.collider.body;
     var bodyPos = Vector.Zero;
-    if (body.pos) {
-      bodyPos = body.pos;
+    if (this.collider && this.collider.body) {
+      bodyPos = this.collider.body.pos;
     }
     return bodyPos;
   }
 
   private _getTransformedBegin(): Vector {
-    let body = this.collider.body;
+    let body = this.collider ? this.collider.body : null;
     var angle = body ? body.rotation : 0;
     return this.begin.rotate(angle).add(this._getBodyPos());
   }
 
   private _getTransformedEnd(): Vector {
-    let body = this.collider.body;
+    let body = this.collider ? this.collider.body : null;
     var angle = body ? body.rotation : 0;
     return this.end.rotate(angle).add(this._getBodyPos());
   }

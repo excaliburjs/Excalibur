@@ -53,7 +53,7 @@ describe('An Event Dispatcher', () => {
     }
 
     eventHistory = [];
-    subscriptions.forEach(i => pubsub.on('event', () => eventHistory.push(i)));
+    subscriptions.forEach((i) => pubsub.on('event', () => eventHistory.push(i)));
     pubsub.emit('event');
     expect(eventHistory).toEqual(subscriptions);
 
@@ -61,14 +61,10 @@ describe('An Event Dispatcher', () => {
     subscriptions.push(subscriptions.shift());
 
     eventHistory = [];
-    subscriptions.forEach(i => pubsub.on('event', () => eventHistory.push(i)));
+    subscriptions.forEach((i) => pubsub.on('event', () => eventHistory.push(i)));
     pubsub.emit('event');
     expect(eventHistory).toEqual(subscriptions);
   });
-
-  //it('can be subscribed to', () => { }); //TODO
-
-  //it('can be unsubscribed from', () => { }); //TODO
 
   it('can wire to other event dispatchers', () => {
     var newPubSub = new ex.EventDispatcher(null);

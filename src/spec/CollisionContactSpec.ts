@@ -27,8 +27,8 @@ describe('A CollisionContact', () => {
 
   it('can be created', () => {
     var cc = new ex.CollisionContact(
-      actorA.collisionArea,
-      actorB.collisionArea,
+      actorA.body.collider,
+      actorB.body.collider,
       ex.Vector.Zero.clone(),
       new ex.Vector(10, 0),
       ex.Vector.Right.clone()
@@ -39,8 +39,8 @@ describe('A CollisionContact', () => {
   it('can reslove in the Box system', () => {
     actorB.x = 19;
     var cc = new ex.CollisionContact(
-      actorA.collisionArea,
-      actorB.collisionArea,
+      actorA.body.collider,
+      actorB.body.collider,
       ex.Vector.Right.clone(),
       new ex.Vector(10, 0),
       ex.Vector.Right.clone()
@@ -68,8 +68,8 @@ describe('A CollisionContact', () => {
 
     actorB.x = 19;
     var cc = new ex.CollisionContact(
-      actorA.collisionArea,
-      actorB.collisionArea,
+      actorA.body.collider,
+      actorB.body.collider,
       ex.Vector.Right.clone(),
       new ex.Vector(10, 0),
       ex.Vector.Right.clone()
@@ -93,8 +93,8 @@ describe('A CollisionContact', () => {
     actorA.collisionArea.recalc();
     actorB.collisionArea.recalc();
     var cc = new ex.CollisionContact(
-      actorA.collisionArea,
-      actorB.collisionArea,
+      actorA.body.collider,
+      actorB.body.collider,
       ex.Vector.Right.clone(),
       new ex.Vector(10, 0),
       ex.Vector.Right.clone()
@@ -130,8 +130,8 @@ describe('A CollisionContact', () => {
 
     actorB.x = 19;
     var cc = new ex.CollisionContact(
-      actorA.collisionArea,
-      actorB.collisionArea,
+      actorA.body.collider,
+      actorB.body.collider,
       ex.Vector.Right.clone(),
       new ex.Vector(10, 0),
       ex.Vector.Right.clone()

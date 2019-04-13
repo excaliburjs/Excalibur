@@ -28,11 +28,10 @@ export class Pair {
       return false;
     }
 
-    // TODO fix this
     // if either is dead short circuit
-    // if (colliderA.isKilled() || colliderB.isKilled()) {
-    //   return false;
-    // }
+    if (!colliderA.active || !colliderB.active) {
+      return false;
+    }
 
     return true;
   }

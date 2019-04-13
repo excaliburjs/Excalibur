@@ -56,7 +56,7 @@ export class ConvexPolygon implements CollisionGeometry {
    * Get the center of the collision area in world coordinates
    */
   public getCenter(): Vector {
-    let body = this.collider.body;
+    let body = this.collider ? this.collider.body : null;
     if (body) {
       return body.pos.add(this.pos);
     }
@@ -67,7 +67,7 @@ export class ConvexPolygon implements CollisionGeometry {
    * Calculates the underlying transformation from the body relative space to world space
    */
   private _calculateTransformation() {
-    let body = this.collider.body;
+    let body = this.collider ? this.collider.body : null;
     var pos = body ? body.pos.add(this.pos) : this.pos;
     var angle = body ? body.rotation : 0;
 

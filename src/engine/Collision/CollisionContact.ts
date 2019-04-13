@@ -84,7 +84,7 @@ export class CollisionContact {
     let mtv = this.mtv.negate();
     // Publish collision events on both participants
     this.colliderA.emit('precollision', new PreCollisionEvent(this.colliderA, this.colliderB, side, mtv));
-    this.colliderB.emit('precollision', new PreCollisionEvent(this.colliderA, this.colliderB, Util.getOppositeSide(side), mtv.negate()));
+    this.colliderB.emit('precollision', new PreCollisionEvent(this.colliderB, this.colliderA, Util.getOppositeSide(side), mtv.negate()));
 
     this._applyBoxImpulse(this.colliderA, this.colliderB, mtv);
     this._applyBoxImpulse(this.colliderB, this.colliderA, mtv.negate());

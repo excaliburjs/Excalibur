@@ -1,7 +1,7 @@
 import { Color } from '../Drawing/Color';
 import * as DrawUtil from '../Util/DrawUtil';
 import { Eventable } from '../Interfaces/Index';
-import { GameEvent, PostCollisionEvent, PreCollisionEvent } from '../Events';
+import { GameEvent, PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
 import { Actor } from '../Actor';
 import { Body } from './Body';
 import { CollisionGeometry } from './CollisionGeometry';
@@ -26,6 +26,10 @@ export class Collider implements Eventable {
       this._actor.emit(eventName, new PreCollisionEvent(event.actor._actor, event.other._actor, event.side, event.intersection));
     } else if (event instanceof PostCollisionEvent && isCollider(event.actor) && isCollider(event.other)) {
       this._actor.emit(eventName, new PostCollisionEvent(event.actor._actor, event.other._actor, event.side, event.intersection));
+    } else if (event instanceof CollisionStartEvent && isCollider(event.actor) && isCollider(event.other)) {
+      this._actor.emit(eventName, new CollisionStartEvent(event.actor._actor, event.other._actor, event.pair));
+    } else if (event instanceof CollisionEndEvent && isCollider(event.actor) && isCollider(event.other)) {
+      this._actor.emit(eventName, new CollisionEndEvent(event.actor._actor, event.other._actor));
     } else {
       this._actor.emit(eventName, event);
     }
@@ -67,6 +71,13 @@ export class Collider implements Eventable {
 
   public get center(): Vector {
     return this._actor.getCenter();
+  }
+
+  /**
+   * Is this collider active, if false it wont collide
+   */
+  public get active(): boolean {
+    return !this._actor.isKilled();
   }
 
   /**
