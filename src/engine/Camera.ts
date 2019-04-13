@@ -584,7 +584,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     let focus = this.getFocus();
     let canvasWidth = ctx.canvas.width;
     let canvasHeight = ctx.canvas.height;
-    let pixelRatio = window.devicePixelRatio;
+    let pixelRatio = this._engine ? this._engine.pixelRatio : window.devicePixelRatio;
     let zoom = this.getZoom();
 
     var newCanvasWidth = canvasWidth / zoom / pixelRatio;
