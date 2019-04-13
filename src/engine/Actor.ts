@@ -557,8 +557,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     // initialize default options
     this._initDefaults();
 
-    // Initialize default collision area to be box
-    this.body.useBoxCollision();
+    // Initialize default collider to be a box
+    this.body.useBoxCollider();
   }
 
   /**
