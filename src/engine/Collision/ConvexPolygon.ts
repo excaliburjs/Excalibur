@@ -147,7 +147,7 @@ export class ConvexPolygon implements CollisionGeometry {
     } else if (area instanceof Edge) {
       return CollisionJumpTable.CollidePolygonEdge(this, area);
     } else {
-      throw new Error(`Polygon could not collide with unknown ICollisionArea ${typeof area}`);
+      throw new Error(`Polygon could not collide with unknown CollisionGeometry ${typeof area}`);
     }
   }
 

@@ -7,24 +7,27 @@ describe('A DynamicTree Broadphase', () => {
 
   beforeEach(() => {
     actorA = new ex.Actor(0, 0, 20, 20);
-    actorA.collisionType = ex.CollisionType.Active;
-    actorA.collisionArea = new ex.CircleArea({
+    let colliderA = actorA.body.collider;
+    colliderA.collisionType = ex.CollisionType.Active;
+    colliderA.shape = new ex.Circle({
       radius: 10,
       body: actorA.body
     });
 
     actorB = new ex.Actor(20, 0, 20, 20);
-    actorB.collisionType = ex.CollisionType.Active;
+    let colliderB = actorB.body.collider;
+    colliderB.collisionType = ex.CollisionType.Active;
 
-    actorB.collisionArea = new ex.CircleArea({
+    colliderB.shape = new ex.Circle({
       radius: 10,
       body: actorB.body
     });
 
     actorC = new ex.Actor(1000, 0, 20, 20);
-    actorC.collisionType = ex.CollisionType.Active;
+    let colliderC = actorC.body.collider;
+    colliderC.collisionType = ex.CollisionType.Active;
 
-    actorC.collisionArea = new ex.CircleArea({
+    colliderC.shape = new ex.Circle({
       radius: 10,
       body: actorC.body
     });

@@ -132,7 +132,7 @@ export class Circle implements CollisionGeometry {
     } else if (area instanceof Edge) {
       return CollisionJumpTable.CollideCircleEdge(this, area);
     } else {
-      throw new Error(`Circle could not collide with unknown ICollisionArea ${typeof area}`);
+      throw new Error(`Circle could not collide with unknown CollisionGeometry ${typeof area}`);
     }
   }
 

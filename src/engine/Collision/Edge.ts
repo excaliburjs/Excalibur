@@ -136,7 +136,7 @@ export class Edge implements CollisionGeometry {
     } else if (area instanceof Edge) {
       return CollisionJumpTable.CollideEdgeEdge();
     } else {
-      throw new Error(`Edge could not collide with unknown ICollisionArea ${typeof area}`);
+      throw new Error(`Edge could not collide with unknown CollisionGeometry ${typeof area}`);
     }
   }
 

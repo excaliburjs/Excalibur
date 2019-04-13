@@ -48,13 +48,11 @@ export class Collider implements Eventable {
     return this._actor.id;
   }
 
-  public get collisionType(): CollisionType {
-    return this._actor.collisionType;
-  }
-
-  public set collisionType(type: CollisionType) {
-    this._actor.collisionType = type;
-  }
+  /**
+   * Gets or sets the current collision type of this collider. By
+   * default it is ([[CollisionType.PreventCollision]]).
+   */
+  public collisionType: CollisionType = CollisionType.PreventCollision;
 
   public get shape(): CollisionGeometry {
     return this._collisionArea;

@@ -46,6 +46,7 @@ import * as Util from './Util/Util';
 import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEvents';
 import { CollisionType } from './Collision/CollisionType';
+import { obsolete } from './Util/Decorators';
 
 export function isActor(x: any): x is Actor {
   return !!x && x instanceof Actor;
@@ -114,16 +115,19 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public body: Body = new Body(this);
 
   /**
-   * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
-   * [EdgeArea|edges].
+   * Gets the collision geometry shape to use for collision possible options are [Circle|circles], [ConvexPolygon|polygons], and
+   * [Edge|edges].
+   * @obsolete Use Actor.body.collider.shape, collisionArea will be removed in v0.24.0
    */
+  @obsolete({ message: 'Actor.collisionArea will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.shape' })
   public get collisionArea(): CollisionGeometry {
     return this.body.collider.shape;
   }
 
   /**
-   * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
-   * [EdgeArea|edges].
+   * Gets the collision geometry shape to use for collision possible options are [Circle|circles], [ConvexPolygon|polygons], and
+   * [Edge|edges].
+   * @obsolete use Actor.body.collider.shape, collisionArea will be removed in v0.24.0
    */
   public set collisionArea(area: CollisionGeometry) {
     this.body.collider.shape = area;
@@ -458,11 +462,23 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * The children of this actor
    */
   public children: Actor[] = [];
+
   /**
    * Gets or sets the current collision type of this actor. By
    * default it is ([[CollisionType.PreventCollision]]).
    */
-  public collisionType: CollisionType = CollisionType.PreventCollision;
+  public get collisionType(): CollisionType {
+    return this.body.collider.collisionType;
+  }
+
+  /**
+   * Gets or sets the current collision type of this actor. By
+   * default it is ([[CollisionType.PreventCollision]]).
+   */
+  public set collisionType(type: CollisionType) {
+    this.body.collider.collisionType = type;
+  }
+
   public collisionGroups: string[] = [];
 
   private _collisionHandlers: { [key: string]: { (actor: Actor): void }[] } = {};

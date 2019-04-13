@@ -1,21 +1,23 @@
 import * as ex from '../../build/dist/excalibur';
 
 describe('A CollisionContact', () => {
-  var actorA: ex.Actor;
-  var actorB: ex.Actor;
+  let actorA: ex.Actor;
+  let actorB: ex.Actor;
 
   beforeEach(() => {
     actorA = new ex.Actor(0, 0, 20, 20);
-    actorA.collisionType = ex.CollisionType.Active;
-    actorA.collisionArea = new ex.CircleArea({
+    let colliderA = actorA.body.collider;
+    colliderA.collisionType = ex.CollisionType.Active;
+    colliderA.shape = new ex.Circle({
       radius: 10,
       body: actorA.body
     });
 
     actorB = new ex.Actor(20, 0, 20, 20);
-    actorB.collisionType = ex.CollisionType.Active;
+    let colliderB = actorB.body.collider;
+    colliderB.collisionType = ex.CollisionType.Active;
 
-    actorB.collisionArea = new ex.CircleArea({
+    colliderB.shape = new ex.Circle({
       radius: 10,
       body: actorB.body
     });
@@ -90,8 +92,8 @@ describe('A CollisionContact', () => {
     actorA.vel.x = 10;
     actorB.vel.x = -10;
     actorB.x = 19;
-    actorA.collisionArea.recalc();
-    actorB.collisionArea.recalc();
+    actorA.body.collider.shape.recalc();
+    actorB.body.collider.shape.recalc();
     var cc = new ex.CollisionContact(
       actorA.body.collider,
       actorB.body.collider,
