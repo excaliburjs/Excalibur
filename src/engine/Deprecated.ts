@@ -2,7 +2,7 @@ import { Actionable } from './Actions/Actionable';
 import { Trait } from './Interfaces/Trait';
 import { Drawable } from './Interfaces/Drawable';
 import { CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw, CanBeKilled } from './Interfaces/LifecycleEvents';
-import { CollisionArea } from './Collision/CollisionArea';
+import { CollisionGeometry } from './Collision/CollisionGeometry';
 import { Eventable } from './Interfaces/Evented';
 import { PointerEvents } from './Interfaces/PointerEvents';
 import { CameraStrategy } from './Camera';
@@ -10,7 +10,7 @@ import { Loadable } from './Interfaces/Loadable';
 import { Action } from './Actions/Action';
 import { ActorArgs, ActorDefaults } from './Actor';
 import { CapturePointerConfig } from './Traits/CapturePointer';
-import { Collidable, CircleAreaOptions, CollisionBroadphase, EdgeAreaOptions, EnginePhysics, PolygonAreaOptions } from './Collision/Index';
+import { Collidable, CircleOptions, CollisionBroadphase, EdgeOptions, EnginePhysics, ConvexPolygonOptions } from './Collision/Index';
 import { Physics } from './Physics';
 import { DebugFlags } from './DebugFlags';
 import { CollidersHash, FrameStatistics, FrameDurationStats, PhysicsStatistics, FrameActorStats } from './Debug';
@@ -159,10 +159,10 @@ export type ICellArgs = CellArgs;
 export type ICollidable = Collidable;
 
 /**
- * @deprecated Use CollisionArea, ICollisionArea will be removed in v0.23.0
- * @obsolete Use CollisionArea, ICollisionArea will be removed in v0.23.0
+ * @deprecated Use CollisionGeometry, ICollisionArea will be removed in v0.23.0
+ * @obsolete Use CollisionGeometry, ICollisionArea will be removed in v0.23.0
  */
-export type ICollisionArea = CollisionArea;
+export type ICollisionArea = CollisionGeometry;
 
 /**
  * @deprecated Use DetectedFeatures, IDetectedFeatures will be removed in v0.23.0
@@ -201,22 +201,22 @@ export type ICollisionBroadphase = CollisionBroadphase;
 export type IColliderHash = CollidersHash;
 
 /**
- * @deprecated Use CircleAreaOptions, ICircleAreaOptions will be removed in v0.23.0
- * @obsolete Use CircleAreaOptions, ICircleAreaOptions will be removed in v0.23.0
+ * @deprecated Use CircleOptions, ICircleAreaOptions will be removed in v0.23.0
+ * @obsolete Use CircleOptions, ICircleAreaOptions will be removed in v0.23.0
  */
-export type ICircleAreaOptions = CircleAreaOptions;
+export type ICircleAreaOptions = CircleOptions;
 
 /**
- * @deprecated Use EdgeAreaOptions, IEdgeAreaOptions will be removed in v0.23.0
- * @obsolete Use EdgeAreaOptions, IEdgeAreaOptions will be removed in v0.23.0
+ * @deprecated Use EdgeOptions, IEdgeAreaOptions will be removed in v0.23.0
+ * @obsolete Use EdgeOptions, IEdgeAreaOptions will be removed in v0.23.0
  */
-export type IEdgeAreaOptions = EdgeAreaOptions;
+export type IEdgeAreaOptions = EdgeOptions;
 
 /**
- * @deprecated Use PolygonAreaOptions, IPolygonAreaOptions will be removed in v0.23.0
- * @obsolete Use PolygonAreaOptions, IPolygonAreaOptions will be removed in v0.23.0
+ * @deprecated Use ConvexPolygonOptions, IPolygonAreaOptions will be removed in v0.23.0
+ * @obsolete Use ConvexPolygonOptions, IPolygonAreaOptions will be removed in v0.23.0
  */
-export type IPolygonAreaOptions = PolygonAreaOptions;
+export type IPolygonAreaOptions = ConvexPolygonOptions;
 
 /**
  * @deprecated Use EngineOptions, IEngineOptions will be removed in v0.23.0

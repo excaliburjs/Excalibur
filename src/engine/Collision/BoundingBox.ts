@@ -1,4 +1,4 @@
-import { PolygonArea } from './PolygonArea';
+import { ConvexPolygon } from './ConvexPolygon';
 
 import { Actor } from '../Actor';
 import { Vector, Ray } from '../Algebra';
@@ -103,8 +103,8 @@ export class BoundingBox implements Collidable {
   /**
    * Creates a Polygon collision area from the points of the bounding box
    */
-  public toPolygon(actor?: Actor): PolygonArea {
-    return new PolygonArea({
+  public toPolygon(actor?: Actor): ConvexPolygon {
+    return new ConvexPolygon({
       body: actor ? actor.body : null,
       points: this.getPoints(),
       pos: Vector.Zero

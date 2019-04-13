@@ -1,12 +1,12 @@
-﻿import { CircleArea } from './CircleArea';
+﻿import { Circle } from './Circle';
 import { CollisionContact } from './CollisionContact';
-import { PolygonArea } from './PolygonArea';
-import { EdgeArea } from './EdgeArea';
+import { ConvexPolygon } from './ConvexPolygon';
+import { Edge } from './Edge';
 
 import { Vector } from '../Algebra';
 
 export var CollisionJumpTable = {
-  CollideCircleCircle(circleA: CircleArea, circleB: CircleArea): CollisionContact {
+  CollideCircleCircle(circleA: Circle, circleB: Circle): CollisionContact {
     var radius = circleA.radius + circleB.radius;
     var circleAPos = circleA.collider.body.pos.add(circleA.pos);
     var circleBPos = circleB.collider.body.pos.add(circleB.pos);
@@ -22,7 +22,7 @@ export var CollisionJumpTable = {
     return new CollisionContact(circleA.collider, circleB.collider, mvt, pointOfCollision, axisOfCollision);
   },
 
-  CollideCirclePolygon(circle: CircleArea, polygon: PolygonArea): CollisionContact {
+  CollideCirclePolygon(circle: Circle, polygon: ConvexPolygon): CollisionContact {
     var minAxis = circle.testSeparatingAxisTheorem(polygon);
     if (!minAxis) {
       return null;
@@ -55,7 +55,7 @@ export var CollisionJumpTable = {
     );
   },
 
-  CollideCircleEdge(circle: CircleArea, edge: EdgeArea): CollisionContact {
+  CollideCircleEdge(circle: Circle, edge: Edge): CollisionContact {
     // center of the circle
     var cc = circle.getCenter();
     // vector in the direction of the edge
@@ -129,7 +129,7 @@ export var CollisionJumpTable = {
     return null;
   },
 
-  CollidePolygonEdge(polygon: PolygonArea, edge: EdgeArea): CollisionContact {
+  CollidePolygonEdge(polygon: ConvexPolygon, edge: Edge): CollisionContact {
     // 3 cases:
     // (1) Polygon lands on the full face
     // (2) Polygon lands on the right point
@@ -157,7 +157,7 @@ export var CollisionJumpTable = {
     let dir = ec.sub(pc).normalize();
 
     // build a temporary polygon from the edge to use SAT
-    var linePoly = new PolygonArea({
+    var linePoly = new ConvexPolygon({
       collider: edge.collider,
       points: [edge.begin, edge.end, edge.end.add(dir.scale(30)), edge.begin.add(dir.scale(30))]
     });
@@ -176,7 +176,7 @@ export var CollisionJumpTable = {
     return new CollisionContact(polygon.collider, edge.collider, minAxis, polygon.getFurthestPoint(edgeNormal), edgeNormal);
   },
 
-  CollidePolygonPolygon(polyA: PolygonArea, polyB: PolygonArea): CollisionContact {
+  CollidePolygonPolygon(polyA: ConvexPolygon, polyB: ConvexPolygon): CollisionContact {
     // do a SAT test to find a min axis if it exists
     var minAxis = polyA.testSeparatingAxisTheorem(polyB);
 

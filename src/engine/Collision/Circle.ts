@@ -1,7 +1,7 @@
 ﻿import { BoundingBox } from './BoundingBox';
-import { CollisionArea } from './CollisionArea';
-import { PolygonArea } from './PolygonArea';
-import { EdgeArea } from './EdgeArea';
+import { CollisionGeometry } from './CollisionGeometry';
+import { ConvexPolygon } from './ConvexPolygon';
+import { Edge } from './Edge';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { CollisionContact } from './CollisionContact';
 
@@ -14,7 +14,7 @@ import { Collider } from './Collider';
 import { Body } from './Body';
 // ===========================
 
-export interface CircleAreaOptions {
+export interface CircleOptions {
   pos?: Vector;
   radius?: number;
   collider?: Collider;
@@ -26,7 +26,7 @@ export interface CircleAreaOptions {
 /**
  * This is a circle collision area for the excalibur rigid body physics simulation
  */
-export class CircleArea implements CollisionArea {
+export class Circle implements CollisionGeometry {
   /**
    * This is the center position of the circle, relative to the body position
    */
@@ -47,7 +47,7 @@ export class CircleArea implements CollisionArea {
    */
   public collider: Collider;
 
-  constructor(options: CircleAreaOptions) {
+  constructor(options: CircleOptions) {
     this.pos = options.pos || Vector.Zero;
     this.radius = options.radius || 0;
     this.collider = options.collider || null;
@@ -120,12 +120,12 @@ export class CircleArea implements CollisionArea {
   /**
    * @inheritdoc
    */
-  public collide(area: CollisionArea): CollisionContact {
-    if (area instanceof CircleArea) {
+  public collide(area: CollisionGeometry): CollisionContact {
+    if (area instanceof Circle) {
       return CollisionJumpTable.CollideCircleCircle(this, area);
-    } else if (area instanceof PolygonArea) {
+    } else if (area instanceof ConvexPolygon) {
       return CollisionJumpTable.CollideCirclePolygon(this, area);
-    } else if (area instanceof EdgeArea) {
+    } else if (area instanceof Edge) {
       return CollisionJumpTable.CollideCircleEdge(this, area);
     } else {
       throw new Error(`Circle could not collide with unknown ICollisionArea ${typeof area}`);
@@ -171,7 +171,7 @@ export class CircleArea implements CollisionArea {
   /**
    * Tests the separating axis theorem for circles against polygons
    */
-  public testSeparatingAxisTheorem(polygon: PolygonArea): Vector {
+  public testSeparatingAxisTheorem(polygon: ConvexPolygon): Vector {
     var axes = polygon.getAxes();
     var pc = polygon.getCenter();
     // Special SAT with circles
@@ -237,3 +237,13 @@ export class CircleArea implements CollisionArea {
     ctx.stroke();
   }
 }
+
+/**
+ * @obsolete Use [[CircleOptions]], CircleAreaOptions will be removed in v0.24.0
+ */
+export interface CircleAreaOptions extends CircleOptions {}
+
+/**
+ * @obsolete Use [[Circle]], CircleArea will be removed in v0.24.0
+ */
+export class CircleArea extends Circle {}

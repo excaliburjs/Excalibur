@@ -9,7 +9,7 @@ import { Collider } from './Collider';
  * A collision area specifies the geometry that can detect when other collision areas intersect
  * for the purposes of colliding 2 objects in excalibur.
  */
-export interface CollisionArea {
+export interface CollisionGeometry {
   /**
    * Position of the collision area relative to the actor if it exists
    */
@@ -51,10 +51,10 @@ export interface CollisionArea {
    */
   getMomentOfInertia(): number;
 
-  // All new ICollisionAreas need to do the following
+  // All new CollisionGeometry need to do the following
   // Create a new collision function in the CollisionJumpTable against all the primitives
   // Currently there are 3 primitive collision areas 3! = 6 jump functions
-  collide(area: CollisionArea): CollisionContact;
+  collide(area: CollisionGeometry): CollisionContact;
 
   /**
    * Return wether the area contains a point inclusive to it's border
@@ -81,3 +81,8 @@ export interface CollisionArea {
    */
   debugDraw(ctx: CanvasRenderingContext2D, color: Color): void;
 }
+
+/**
+ * @obsolete Use interface [[CollisionGeometry]], CollisionArea will be deprecated in v0.24.0
+ */
+export interface CollisionArea extends CollisionGeometry {}

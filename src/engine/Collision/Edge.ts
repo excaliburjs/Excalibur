@@ -2,16 +2,16 @@
 import { BoundingBox } from './BoundingBox';
 import { CollisionContact } from './CollisionContact';
 import { CollisionJumpTable } from './CollisionJumpTable';
-import { CollisionArea } from './CollisionArea';
-import { CircleArea } from './CircleArea';
-import { PolygonArea } from './PolygonArea';
+import { CollisionGeometry } from './CollisionGeometry';
+import { Circle } from './Circle';
+import { ConvexPolygon } from './ConvexPolygon';
 
 import { Vector, Ray, Projection } from '../Algebra';
 import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
 
-export interface EdgeAreaOptions {
+export interface EdgeOptions {
   begin?: Vector;
   end?: Vector;
   collider?: Collider;
@@ -20,14 +20,14 @@ export interface EdgeAreaOptions {
   body?: Body;
 }
 
-export class EdgeArea implements CollisionArea {
+export class Edge implements CollisionGeometry {
   body: Body;
   collider: Collider;
   pos: Vector;
   begin: Vector;
   end: Vector;
 
-  constructor(options: EdgeAreaOptions) {
+  constructor(options: EdgeOptions) {
     this.begin = options.begin || Vector.Zero;
     this.end = options.end || Vector.Zero;
     this.collider = options.collider || null;
@@ -129,12 +129,12 @@ export class EdgeArea implements CollisionArea {
   /**
    * @inheritdoc
    */
-  public collide(area: CollisionArea): CollisionContact {
-    if (area instanceof CircleArea) {
+  public collide(area: CollisionGeometry): CollisionContact {
+    if (area instanceof Circle) {
       return CollisionJumpTable.CollideCircleEdge(area, this);
-    } else if (area instanceof PolygonArea) {
+    } else if (area instanceof ConvexPolygon) {
       return CollisionJumpTable.CollidePolygonEdge(area, this);
-    } else if (area instanceof EdgeArea) {
+    } else if (area instanceof Edge) {
       return CollisionJumpTable.CollideEdgeEdge();
     } else {
       throw new Error(`Edge could not collide with unknown ICollisionArea ${typeof area}`);
@@ -225,3 +225,13 @@ export class EdgeArea implements CollisionArea {
     ctx.stroke();
   }
 }
+
+/**
+ * @obsolete Use [[EdgeOptions]], EdgeAreaOptions will be removed in v0.24.0
+ */
+export interface EdgeAreaOptions extends EdgeOptions {}
+
+/**
+ * @obsolete Use [[Edge]], EdgeArea will be removed in v0.24.0
+ */
+export class EdgeArea extends Edge {}

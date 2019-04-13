@@ -4,11 +4,11 @@ import { Eventable } from '../Interfaces/Index';
 import { GameEvent, PostCollisionEvent, PreCollisionEvent } from '../Events';
 import { Actor } from '../Actor';
 import { Body } from './Body';
-import { CollisionArea } from './CollisionArea';
+import { CollisionGeometry } from './CollisionGeometry';
 import { Vector } from '../Algebra';
 import { Physics, CollisionResolutionStrategy } from '../Physics';
 import { BoundingBox } from './BoundingBox';
-import { PolygonArea } from './PolygonArea';
+import { ConvexPolygon } from './ConvexPolygon';
 import { CollisionType } from './CollisionType';
 
 function isCollider(x: Actor | Collider): x is Collider {
@@ -17,7 +17,7 @@ function isCollider(x: Actor | Collider): x is Collider {
 
 // Describes material properties like shape, bounds, friction of the physics object
 export class Collider implements Eventable {
-  private _collisionArea: CollisionArea;
+  private _collisionArea: CollisionGeometry;
 
   constructor(private _actor: Actor, private _body: Body) {}
 
@@ -52,11 +52,11 @@ export class Collider implements Eventable {
     this._actor.collisionType = type;
   }
 
-  public get shape(): CollisionArea {
+  public get shape(): CollisionGeometry {
     return this._collisionArea;
   }
 
-  public set shape(shape: CollisionArea) {
+  public set shape(shape: CollisionGeometry) {
     this._collisionArea = shape;
     this._collisionArea.collider = this;
   }
@@ -117,7 +117,7 @@ export class Collider implements Eventable {
   public update() {
     if (this.shape) {
       // Update the geometry if needed
-      if (this.body && this.body.isGeometryDirty && this.shape instanceof PolygonArea) {
+      if (this.body && this.body.isGeometryDirty && this.shape instanceof ConvexPolygon) {
         this.shape.points = this._actor.getRelativeGeometry();
       }
 

@@ -1,16 +1,16 @@
-﻿import { Color } from './../Drawing/Color';
-import { Physics } from './../Physics';
+﻿import { Color } from '../Drawing/Color';
+import { Physics } from '../Physics';
 import { BoundingBox } from './BoundingBox';
-import { EdgeArea } from './EdgeArea';
+import { Edge } from './Edge';
 import { CollisionJumpTable } from './CollisionJumpTable';
-import { CircleArea } from './CircleArea';
+import { Circle } from './Circle';
 import { CollisionContact } from './CollisionContact';
-import { CollisionArea } from './CollisionArea';
+import { CollisionGeometry } from './CollisionGeometry';
 import { Body } from './Body';
-import { Vector, Line, Ray, Projection } from './../Algebra';
+import { Vector, Line, Ray, Projection } from '../Algebra';
 import { Collider } from './Collider';
 
-export interface PolygonAreaOptions {
+export interface ConvexPolygonOptions {
   pos?: Vector;
   points?: Vector[];
   clockwiseWinding?: boolean;
@@ -22,7 +22,7 @@ export interface PolygonAreaOptions {
 /**
  * Polygon collision area for detecting collisions for actors, or independently
  */
-export class PolygonArea implements CollisionArea {
+export class ConvexPolygon implements CollisionGeometry {
   public pos: Vector;
   public points: Vector[];
 
@@ -35,7 +35,7 @@ export class PolygonArea implements CollisionArea {
   private _axes: Vector[] = [];
   private _sides: Line[] = [];
 
-  constructor(options: PolygonAreaOptions) {
+  constructor(options: ConvexPolygonOptions) {
     this.pos = options.pos || Vector.Zero;
     var winding = !!options.clockwiseWinding;
     this.points = (winding ? options.points.reverse() : options.points) || [];
@@ -139,12 +139,12 @@ export class PolygonArea implements CollisionArea {
    * return null.
    * @param area
    */
-  public collide(area: CollisionArea): CollisionContact {
-    if (area instanceof CircleArea) {
+  public collide(area: CollisionGeometry): CollisionContact {
+    if (area instanceof Circle) {
       return CollisionJumpTable.CollideCirclePolygon(area, this);
-    } else if (area instanceof PolygonArea) {
+    } else if (area instanceof ConvexPolygon) {
       return CollisionJumpTable.CollidePolygonPolygon(this, area);
-    } else if (area instanceof EdgeArea) {
+    } else if (area instanceof Edge) {
       return CollisionJumpTable.CollidePolygonEdge(this, area);
     } else {
       throw new Error(`Polygon could not collide with unknown ICollisionArea ${typeof area}`);
@@ -288,7 +288,7 @@ export class PolygonArea implements CollisionArea {
    * Perform Separating Axis test against another polygon, returns null if no overlap in polys
    * Reference http://www.dyn4j.org/2010/01/sat/
    */
-  public testSeparatingAxisTheorem(other: PolygonArea): Vector {
+  public testSeparatingAxisTheorem(other: ConvexPolygon): Vector {
     var poly1 = this;
     var poly2 = other;
     var axes = poly1.getAxes().concat(poly2.getAxes());
@@ -351,3 +351,9 @@ export class PolygonArea implements CollisionArea {
     ctx.stroke();
   }
 }
+
+/**
+ * @obsolete Use [[ConvexPolygonOptions]], PolygonAreaOptions will be removed in v0.24.0
+ */
+export interface PolygonAreaOptions extends ConvexPolygonOptions {}
+export class PolygonArea extends ConvexPolygon {}

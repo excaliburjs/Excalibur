@@ -34,7 +34,7 @@ import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
 import { ActionQueue } from './Actions/Action';
 import { Vector } from './Algebra';
-import { CollisionArea } from './Collision/CollisionArea';
+import { CollisionGeometry } from './Collision/CollisionGeometry';
 import { Body } from './Collision/Body';
 import { Side } from './Collision/Side';
 import { Eventable } from './Interfaces/Evented';
@@ -117,7 +117,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
    * [EdgeArea|edges].
    */
-  public get collisionArea(): CollisionArea {
+  public get collisionArea(): CollisionGeometry {
     return this.body.collider.shape;
   }
 
@@ -125,7 +125,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
    * [EdgeArea|edges].
    */
-  public set collisionArea(area: CollisionArea) {
+  public set collisionArea(area: CollisionGeometry) {
     this.body.collider.shape = area;
   }
 
@@ -362,57 +362,56 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Gets the scale vector of the actor
    */
   public get scale(): Vector {
-      return this.body.scale;
+    return this.body.scale;
   }
 
   /**
    * Sets the scale vector of the actor
    */
   public set scale(scale: Vector) {
-      this.body.scale = scale;
+    this.body.scale = scale;
   }
 
   /**
    * Gets the old scale of the actor last frame
    */
   public get oldScale(): Vector {
-      return this.body.oldScale;
+    return this.body.oldScale;
   }
 
   /**
    * Sets the the old scale of the acotr last frame
    */
   public set oldScale(scale: Vector) {
-      this.body.oldScale = scale;
+    this.body.oldScale = scale;
   }
 
   /**
    * Gets the x scalar velocity of the actor in scale/second
    */
   public get sx(): number {
-      return this.body.sx;
+    return this.body.sx;
   }
 
   /**
    * Sets the x scalar velocity of the actor in scale/second
    */
   public set sx(scalePerSecondX: number) {
-      this.body.sx = scalePerSecondX;
+    this.body.sx = scalePerSecondX;
   }
-
 
   /**
    * Gets the y scalar velocity of the actor in scale/second
    */
   public get sy(): number {
-      return this.body.sy;
+    return this.body.sy;
   }
 
   /**
    * Sets the y scale velocity of the actor in scale/second
    */
   public set sy(scalePerSecondY: number) {
-      this.body.sy = scalePerSecondY;
+    this.body.sy = scalePerSecondY;
   }
 
   /**

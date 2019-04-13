@@ -4,9 +4,9 @@ import { Actor } from '../Actor';
 import { Collider } from './Collider';
 import { CollisionType } from './CollisionType';
 import { Physics } from '../Physics';
-import { PolygonArea } from './PolygonArea';
-import { CircleArea } from './CircleArea';
-import { EdgeArea } from './EdgeArea';
+import { ConvexPolygon } from './ConvexPolygon';
+import { Circle } from './Circle';
+import { Edge } from './Edge';
 
 /**
  * Body describes all the physical properties pos, vel, acc, rotation, angular velocity
@@ -178,7 +178,7 @@ export class Body {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public useBoxCollision(center: Vector = Vector.Zero) {
-    this.collider.shape = new PolygonArea({
+    this.collider.shape = new ConvexPolygon({
       collider: this.collider,
       points: this._actor.getRelativeGeometry(),
       pos: center // position relative to actor
@@ -196,7 +196,7 @@ export class Body {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public usePolygonCollision(points: Vector[], center: Vector = Vector.Zero) {
-    this.collider.shape = new PolygonArea({
+    this.collider.shape = new ConvexPolygon({
       collider: this.collider,
       points: points,
       pos: center // position relative to actor
@@ -215,7 +215,7 @@ export class Body {
     if (!radius) {
       radius = this._actor.getWidth() / 2;
     }
-    this.collider.shape = new CircleArea({
+    this.collider.shape = new Circle({
       collider: this.collider,
       radius: radius,
       pos: center
@@ -230,7 +230,7 @@ export class Body {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public useEdgeCollision(begin: Vector, end: Vector) {
-    this.collider.shape = new EdgeArea({
+    this.collider.shape = new Edge({
       collider: this.collider,
       begin: begin,
       end: end
