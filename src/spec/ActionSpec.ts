@@ -2,11 +2,11 @@ import * as ex from '../../build/dist/excalibur';
 import { Mocks } from './util/Mocks';
 
 describe('Action', () => {
-  var actor: ex.Actor;
+  let actor: ex.Actor;
 
-  var engine: ex.Engine;
-  var scene: ex.Scene;
-  var mock = new Mocks.Mocker();
+  let engine: ex.Engine;
+  let scene: ex.Scene;
+  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
     engine = mock.engine(100, 100);
@@ -594,7 +594,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      var actorToFollow = new ex.Actor(10, 0);
+      let actorToFollow = new ex.Actor(10, 0);
       actorToFollow.actions.moveTo(100, 0, 10);
       actor.actions.follow(actorToFollow);
       // actor.update(engine, 1000);
@@ -615,7 +615,7 @@ describe('Action', () => {
       expect(actor.pos.y).toBe(0);
 
       // testing basic meet
-      var actorToMeet = new ex.Actor(10, 0);
+      let actorToMeet = new ex.Actor(10, 0);
       actorToMeet.actions.moveTo(100, 0, 10);
       actor.actions.meet(actorToMeet);
 
