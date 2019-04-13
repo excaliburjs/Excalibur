@@ -52,7 +52,7 @@ As shown below a camera strategy calculates a new camera position (`ex.Vector`) 
 /**
  * Interface that describes a custom camera strategy for tracking targets
  */
-export interface ICameraStrategy<T> {
+export interface CameraStrategy<T> {
   /**
    * Target of the camera strategy that will be passed to the action
    */
