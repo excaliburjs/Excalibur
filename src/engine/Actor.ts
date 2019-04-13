@@ -359,23 +359,61 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   private _width: number = 0;
 
   /**
-   * The scale vector of the actor
+   * Gets the scale vector of the actor
    */
-  public scale: Vector = Vector.One;
+  public get scale(): Vector {
+      return this.body.scale;
+  }
 
   /**
-   * The scale of the actor last frame
+   * Sets the scale vector of the actor
    */
-  public oldScale: Vector = Vector.One;
+  public set scale(scale: Vector) {
+      this.body.scale = scale;
+  }
 
   /**
-   * The x scalar velocity of the actor in scale/second
+   * Gets the old scale of the actor last frame
    */
-  public sx: number = 0; //scale/sec
+  public get oldScale(): Vector {
+      return this.body.oldScale;
+  }
+
   /**
-   * The y scalar velocity of the actor in scale/second
+   * Sets the the old scale of the acotr last frame
    */
-  public sy: number = 0; //scale/sec
+  public set oldScale(scale: Vector) {
+      this.body.oldScale = scale;
+  }
+
+  /**
+   * Gets the x scalar velocity of the actor in scale/second
+   */
+  public get sx(): number {
+      return this.body.sx;
+  }
+
+  /**
+   * Sets the x scalar velocity of the actor in scale/second
+   */
+  public set sx(scalePerSecondX: number) {
+      this.body.sx = scalePerSecondX;
+  }
+
+
+  /**
+   * Gets the y scalar velocity of the actor in scale/second
+   */
+  public get sy(): number {
+      return this.body.sy;
+  }
+
+  /**
+   * Sets the y scale velocity of the actor in scale/second
+   */
+  public set sy(scalePerSecondY: number) {
+      this.body.sy = scalePerSecondY;
+  }
 
   /**
    * Indicates whether the actor is physically in the viewport
