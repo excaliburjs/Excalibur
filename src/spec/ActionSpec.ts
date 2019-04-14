@@ -35,7 +35,7 @@ describe('Action', () => {
       expect(actor.visible).toBe(true);
       actor.actions.blink(200, 200).repeatForever();
 
-      for (var i = 0; i < 2; i++) {
+      for (let i = 0; i < 2; i++) {
         actor.update(engine, 200);
         expect(actor.visible).toBe(false);
 
@@ -297,7 +297,7 @@ describe('Action', () => {
         .moveTo(0, 0, 10)
         .repeatForever();
 
-      for (var i = 0; i < 20; i++) {
+      for (let i = 0; i < 20; i++) {
         actor.update(engine, 1000);
         expect(actor.pos.x).toBe(10);
         expect(actor.pos.y).toBe(0);
@@ -334,7 +334,7 @@ describe('Action', () => {
 
       actor.actions.clearActions();
 
-      for (var i = 0; i < 20; i++) {
+      for (let i = 0; i < 20; i++) {
         actor.update(engine, 1000);
         expect(actor.pos.x).toBe(10);
         expect(actor.pos.y).toBe(0);
@@ -600,7 +600,7 @@ describe('Action', () => {
       // actor.update(engine, 1000);
       // expect(actor.pos.x).toBe(actorToFollow.x);
 
-      for (var i = 1; i < 10; i++) {
+      for (let i = 1; i < 10; i++) {
         // actor.follow(actorToFollow);
         actorToFollow.update(engine, 1000);
         actor.update(engine, 1000);
@@ -619,7 +619,7 @@ describe('Action', () => {
       actorToMeet.actions.moveTo(100, 0, 10);
       actor.actions.meet(actorToMeet);
 
-      for (var i = 0; i < 9; i++) {
+      for (let i = 0; i < 9; i++) {
         actorToMeet.update(engine, 1000);
         actor.update(engine, 1000);
         expect(actor.pos.x).toBe(actorToMeet.pos.x - 10);
@@ -637,7 +637,7 @@ describe('Action', () => {
       actor.opacity = 0;
 
       actor.actions.fade(1, 200);
-      for (var i = 0; i < 10; i++) {
+      for (let i = 0; i < 10; i++) {
         actor.update(engine, 20);
       }
 
@@ -648,7 +648,7 @@ describe('Action', () => {
       actor.opacity = 0;
 
       actor.actions.fade(1, 200).fade(0, 200);
-      for (var i = 0; i < 20; i++) {
+      for (let i = 0; i < 20; i++) {
         actor.update(engine, 20);
       }
 
@@ -662,7 +662,7 @@ describe('Action', () => {
         .fade(1, 200)
         .fade(0, 200)
         .repeat(1);
-      for (var i = 0; i < 40; i++) {
+      for (let i = 0; i < 40; i++) {
         actor.update(engine, 20);
       }
 
