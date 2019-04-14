@@ -37,10 +37,10 @@ collision events.
 To enable physics in your game it is as simple as setting [[Physics.enabled]] to true and picking your
 [[CollisionResolutionStrategy]]
 
-Excalibur supports 3 different types of collision area shapes in its physics simulation: [[PolygonArea|polygons]],
-[[CircleArea|circles]], and [[EdgeArea|edges]]. To use any one of these areas on an actor there are convenience methods off of
-the [[Actor|actor]] [[Body|physics body]]: [[Body.useBoxCollision|useBoxCollision]],
-[[Body.usePolygonCollision|usePolygonCollision]], [[Body.useCircleCollision|useCircleCollision]], and [[Body.useEdgeCollision]]
+Excalibur supports 3 different types of collision area shapes in its physics simulation: [[ConvexPolygon|polygons]],
+[[Circle|circles]], and [[Edge|edges]]. To use any one of these areas on an actor there are convenience methods off of
+the [[Actor|actor]] [[Body|physics body]]: [[Body.useBoxCollider|useBoxCollider]],
+[[Body.usePolygonCollider|usePolygonCollider]], [[Body.useCircleCollider|useCircleCollider]], and [[Body.useEdgeCollider]]
 
 ## Collision Event Lifecycle
 
@@ -70,7 +70,7 @@ actor.on('collisionend', () => {...})
 
 The **precollision** event is fired **every frame** where a collision pair is found and two bodies are intersecting.
 
-This event is useful for building in custom collision resolution logic in Passive-Passive or Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of richochet of the ball depending on which side of the paddle you hit.
+This event is useful for building in custom collision resolution logic in Passive-Passive or Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of ricochet of the ball depending on which side of the paddle you hit.
 
 ```typescript
 actor.on('precollision', () => {...})
@@ -107,7 +107,7 @@ var block = new ex.Actor({
   color: ex.Color.Blue.clone(),
   collisionType: ex.CollisionType.Active
 });
-block.body.useBoxCollision(); // useBoxCollision is the default, technically optional
+block.body.useBoxCollider(); // useBoxCollision is the default, technically optional
 game.add(block);
 
 var circle = new ex.Actor({
@@ -118,7 +118,7 @@ var circle = new ex.Actor({
   color: ex.Color.Red.clone(),
   collisionType: ex.CollisionType.Active
 });
-circle.body.useCircleCollision(10);
+circle.body.useCircleCollider(10);
 game.add(circle);
 
 var ground = new ex.Actor({
@@ -130,7 +130,7 @@ var ground = new ex.Actor({
   collisionType: ex.CollisionType.Fixed
 });
 
-ground.body.useBoxCollision(); // optional
+ground.body.useBoxCollider(); // optional
 
 game.add(ground);
 // start the game
