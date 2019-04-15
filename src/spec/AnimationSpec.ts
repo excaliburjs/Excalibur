@@ -2,8 +2,8 @@ import * as ex from '../../build/dist/excalibur';
 import { TestUtils } from './util/TestUtils';
 
 describe('An animation', () => {
-  var animation;
-  var engine: ex.Engine;
+  let animation;
+  let engine: ex.Engine;
   beforeEach(() => {
     animation = new ex.Animation(null, null, 0);
     engine = TestUtils.engine({
