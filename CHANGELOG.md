@@ -23,6 +23,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+Fixed wrong `Camera` and `Loader` scaling on HiDPI screens when option `suppressHiDPIScaling` is set.
+
 <!--- Bug fixes here --->
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
