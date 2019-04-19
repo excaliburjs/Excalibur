@@ -305,7 +305,8 @@ describe('The engine', () => {
     var game = new ex.Engine({
       height: 600,
       width: 800,
-      enableCanvasTransparency: false
+      enableCanvasTransparency: false,
+      suppressConsoleBootMessage: true
     });
     expect(game.enableCanvasTransparency).toBe(false);
   });
@@ -313,7 +314,8 @@ describe('The engine', () => {
   it('should accept default enableCanvasTransparency true', () => {
     var game = new ex.Engine({
       height: 600,
-      width: 800
+      width: 800,
+      suppressConsoleBootMessage: true
     });
     expect(game.enableCanvasTransparency).toBe(true);
   });
