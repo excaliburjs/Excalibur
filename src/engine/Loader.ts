@@ -296,8 +296,8 @@ export class Loader extends Class implements CanLoad {
    * to customize the drawing, or just override entire method.
    */
   public draw(ctx: CanvasRenderingContext2D) {
-    let canvasHeight = this._engine.canvasHeight / window.devicePixelRatio;
-    let canvasWidth = this._engine.canvasWidth / window.devicePixelRatio;
+    let canvasHeight = this._engine.canvasHeight / this._engine.pixelRatio;
+    let canvasWidth = this._engine.canvasWidth / this._engine.pixelRatio;
 
     if (this._playButtonRootElement) {
       let left = ctx.canvas.offsetLeft;
