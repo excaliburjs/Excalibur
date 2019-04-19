@@ -23,7 +23,7 @@ import {
   EnterViewPortEvent,
   ExitViewPortEvent
 } from './Events';
-import { PointerEvent, WheelEvent, PointerDragEvent } from './Input/Pointer';
+import { PointerEvent, WheelEvent, PointerDragEvent, PointerEventName } from './Input/Pointer';
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { Sprite } from './Drawing/Sprite';
@@ -46,18 +46,6 @@ import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEvents';
-
-export type PointerEventName =
-  | 'pointerdragstart'
-  | 'pointerdragend'
-  | 'pointerdragmove'
-  | 'pointerdragenter'
-  | 'pointerdragleave'
-  | 'pointermove'
-  | 'pointerenter'
-  | 'pointerleave'
-  | 'pointerup'
-  | 'pointerdown';
 
 /**
  * [[include:Constructors.md]]
