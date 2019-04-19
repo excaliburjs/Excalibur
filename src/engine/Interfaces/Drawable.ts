@@ -32,13 +32,13 @@ export interface Drawable {
   height: number;
 
   /**
-   * Adds a new [[ISpriteEffect]] to this drawing.
+   * Adds a new [[SpriteEffect]] to this drawing.
    * @param effect  Effect to add to the this drawing
    */
   addEffect(effect: SpriteEffect): void;
 
   /**
-   * Removes an effect [[ISpriteEffect]] from this drawing.
+   * Removes an effect [[SpriteEffect]] from this drawing.
    * @param effect  Effect to remove from this drawing
    */
   removeEffect(effect: SpriteEffect): void;

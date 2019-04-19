@@ -29,8 +29,8 @@ based on the exported structure of a JSON file).
 
 ```typescript
 // define TypeScript interfaces to make our life easier
-public interface IMapDefinition {
-  cells: IMapCellDefinition[];
+public interface MapDefinition {
+  cells: MapCellDefinition[];
   tileSheets: IMapTileSheet[];
   width: number;
   height: number;
@@ -38,14 +38,14 @@ public interface IMapDefinition {
   tileHeight: number;
 }
 
-public interface IMapCellDefinition {
+public interface MapCellDefinition {
   x: number;
   y: number;
   tileId: number;
   sheetId: number;
 }
 
-public interface IMapTileSheet {
+public interface MapTileSheet {
   id: number;
   path: string;
   columns: number;
