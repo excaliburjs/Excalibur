@@ -1,84 +1,80 @@
 import * as ex from '../../build/dist/excalibur';
-import { Mocks } from './util/Mocks';
 
 describe('A Collision Group', () => {
-  var scene;
-  var actor1;
-  var actor2;
-  var engine: ex.Engine;
-  var mock = new Mocks.Mocker();
-
-  beforeEach(() => {
-    actor1 = new ex.Actor(100, 100, 100, 100);
-    actor2 = new ex.Actor(100, 100, 100, 100);
-    // Setting actor collision types to passive otherwise they push each other around
-    actor1.collisionType = ex.CollisionType.Passive;
-    actor2.collisionType = ex.CollisionType.Passive;
-
-    scene.add(actor1);
-    scene.add(actor2);
-    engine = mock.engine(0, 0);
-    scene = new ex.Scene(engine);
-    engine.currentScene = scene;
+  let groupA: ex.CollisionGroup;
+  let groupB: ex.CollisionGroup;
+  let groupC: ex.CollisionGroup;
+  beforeAll(() => {
+    groupA = ex.CollisionGroupManager.create('groupA');
+    groupB = ex.CollisionGroupManager.create('groupB');
+    groupC = ex.CollisionGroupManager.create('groupC');
   });
-  /*
-   it("does not effect actors without collision groupings", ()=>{
-      expect(actor1.collides(actor2)).not.toBe(ex.Side.None);
-      expect(actor2.collides(actor1)).not.toBe(ex.Side.None);
-   });
 
-   it("handler should fire only on collision with registered group", ()=>{
-      var collided = false;
-      actor1.onCollidesWith('group', function(){
-         collided = true;
-      });
+  it('should not collide with itself', () => {
+    expect(groupA.shouldCollide(groupA)).toBe(false, 'Group groupA should not collide with itself');
+    expect(groupB.shouldCollide(groupB)).toBe(false, 'Group groupB should not collide with itself');
+    expect(groupC.shouldCollide(groupC)).toBe(false, 'Group groupC should not collide with itself');
+  });
 
-      // Ensure that the handler is not fired without collision groups
-      expect(collided).toBe(false);
-      scene.update(engine, 20);
-      expect(collided).toBe(false);
+  it('should collide with other groups', () => {
+    expect(groupA.shouldCollide(groupB)).toBe(true);
+    expect(groupA.shouldCollide(groupC)).toBe(true);
 
-      // Collision handler should fire
-      actor2.addCollisionGroup('group');
-      expect(collided).toBe(false);
-      scene.update(engine, 20);
-      expect(collided).toBe(true);
+    expect(groupB.shouldCollide(groupA)).toBe(true);
+    expect(groupB.shouldCollide(groupC)).toBe(true);
 
-   });
+    expect(groupC.shouldCollide(groupA)).toBe(true);
+    expect(groupC.shouldCollide(groupB)).toBe(true);
+  });
 
-   it("can fire with multiple handlers", ()=>{
-      var collided1 = false;
-      var collided2 = false;
-      actor1.onCollidesWith('group1', function(){
-         collided1 = true;
-      });
-      actor1.onCollidesWith('group2', function(){
-         collided2 = true;
-      });
+  it('should collide with the All collision group', () => {
+    expect(ex.CollisionGroup.All.shouldCollide(groupA)).toBe(true, 'All should collide with groupA');
+    expect(ex.CollisionGroup.All.shouldCollide(groupB)).toBe(true, 'All should collide with groupB');
+    expect(ex.CollisionGroup.All.shouldCollide(groupC)).toBe(true, 'All should collide with groupC');
+    expect(ex.CollisionGroup.All.shouldCollide(ex.CollisionGroup.All)).toBe(true, 'All collision group should collide with itself');
+  });
 
-      actor2.addCollisionGroup('group1');
-      actor2.addCollisionGroup('group2');
+  it('should be accessible by name', () => {
+    let maybeGroupA = ex.CollisionGroupManager.groupByName('groupA');
+    expect(maybeGroupA).toBe(groupA);
 
-      expect(collided1).toBe(false);
-      expect(collided2).toBe(false);
+    let maybeGroupB = ex.CollisionGroupManager.groupByName('groupB');
+    expect(maybeGroupB).toBe(groupB);
 
-      scene.update(engine, 30);
+    let maybeGroupC = ex.CollisionGroupManager.groupByName('groupC');
+    expect(maybeGroupC).toBe(groupC);
+  });
 
-      expect(collided1).toBe(true);
-      expect(collided2).toBe(true);
-   });
+  it('should allow 32 collision groups', () => {
+    expect(() => {
+      ex.CollisionGroupManager.reset();
+      for (let i = 0; i < 32; i++) {
+        ex.CollisionGroupManager.create('group' + i);
+      }
+    }).not.toThrow();
 
-   it("should pass back the collided actor in the callback", ()=>{
+    expect(() => {
+      ex.CollisionGroupManager.create('group33');
+    }).toThrow();
+  });
 
-      var actor = null;
-      actor1.onCollidesWith('group', (a)=>{
-         actor = a;
-      });
-      actor2.addCollisionGroup('group');
-      expect(actor).toBeFalsy();
+  it('should collide as expected for all 32 groups', () => {
+    ex.CollisionGroupManager.reset();
+    for (let i = 0; i < 32; i++) {
+      ex.CollisionGroupManager.create('group' + i);
+    }
 
-      scene.update(engine, 30);
-
-      expect(actor).toBe(actor2);
-   });*/
+    for (let i = 0; i < 32; i++) {
+      let groupI = ex.CollisionGroupManager.groupByName('group' + i);
+      for (let j = 0; j < 32; j++) {
+        let groupJ = ex.CollisionGroupManager.groupByName('group' + j);
+        if (i === j) {
+          expect(groupI.shouldCollide(groupJ)).toBe(false);
+        } else {
+          expect(groupI.shouldCollide(groupJ)).toBe(true);
+        }
+        expect(groupJ.shouldCollide(ex.CollisionGroup.All)).toBe(true);
+      }
+    }
+  });
 });

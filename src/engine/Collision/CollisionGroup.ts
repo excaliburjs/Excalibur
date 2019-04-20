@@ -11,7 +11,7 @@
  * with players and blocks.
  */
 export class CollisionGroup {
-  public static All = new CollisionGroup('Collide with all', -1, -1);
+  public static All = new CollisionGroup('Collide with all groups', -1, -1);
 
   private _name: string;
   private _category: number;

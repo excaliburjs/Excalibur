@@ -30,4 +30,13 @@ export class CollisionGroupManager {
   public static groupByName(name: string) {
     return this._groups[name];
   }
+
+  /**
+   * Resets the managers internal group management state
+   */
+  public static reset() {
+    this._groups = {};
+    this._currentBit = 0b1;
+    this._currentGroup = 1;
+  }
 }
