@@ -35,7 +35,7 @@ export class CollisionGroup {
     return this._mask;
   }
 
-  public shouldCollide(other: CollisionGroup): boolean {
+  public canCollide(other: CollisionGroup): boolean {
     return (this.category & other.mask) !== 0 && (other.category & this.mask) !== 0;
   }
 }

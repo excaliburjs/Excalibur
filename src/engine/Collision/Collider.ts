@@ -10,6 +10,7 @@ import { Physics, CollisionResolutionStrategy } from '../Physics';
 import { BoundingBox } from './BoundingBox';
 import { ConvexPolygon } from './ConvexPolygon';
 import { CollisionType } from './CollisionType';
+import { CollisionGroup } from './CollisionGroup';
 
 function isCollider(x: Actor | Collider): x is Collider {
   return !!x && x instanceof Collider;
@@ -53,6 +54,12 @@ export class Collider implements Eventable {
    * default it is ([[CollisionType.PreventCollision]]).
    */
   public collisionType: CollisionType = CollisionType.PreventCollision;
+
+  /**
+   * Gets or sets the current [[CollisionGroup|collision group]] for the collider, colliders with like collision groups do not collide.
+   * By default, the collider will collide with all groups.
+   */
+  public collisionGroup: CollisionGroup = CollisionGroup.All;
 
   public get shape(): CollisionGeometry {
     return this._collisionArea;
