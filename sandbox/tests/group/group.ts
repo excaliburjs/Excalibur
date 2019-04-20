@@ -8,13 +8,14 @@ var numActors = 300;
 var blockTexture = new ex.Texture('block.png');
 var engine = new ex.Engine({ width: width, height: height, canvasElementId: 'game' });
 //engine.isDebug = true;
-
-var blockGroup = engine.currentScene.createGroup('blocks');
+ex.Physics.useRigidBodyPhysics();
+var blockGroup = ex.CollisionGroupManager.create('blocks');
 var blockSprite = blockTexture.asSprite();
 blockSprite.scale.setTo(0.2, 0.2);
 
 var player = new ex.Actor(width / 2, height / 2, 30, 30, ex.Color.Cyan);
 player.collisionType = ex.CollisionType.Fixed;
+player.body.collider.collisionGroup = ex.CollisionGroupManager.create('player');
 engine.currentScene.add(player);
 
 for (var i = 0; i < numActors; i++) {
@@ -23,6 +24,7 @@ for (var i = 0; i < numActors; i++) {
   actor.addDrawing('default', blockSprite);
 
   actor.collisionType = ex.CollisionType.Active;
+  actor.body.collider.collisionGroup = blockGroup;
   actor.on('postupdate', function(e: ex.PostUpdateEvent) {
     if (this.pos.x < 0) {
       this.vel.x = Math.abs(this.vel.x);
@@ -40,24 +42,11 @@ for (var i = 0; i < numActors; i++) {
       this.vel.y = -1 * Math.abs(this.vel.y);
     }
   });
-  actor.on('precollision', function() {
-    //console.log('inner collision');
-  });
 
   actor.vel.x = ex.Util.randomInRange(minVel, maxVel);
   actor.vel.y = ex.Util.randomInRange(minVel, maxVel);
-
-  blockGroup.add(actor);
+  engine.add(actor);
 }
-
-blockGroup.on('precollision', function(e: ex.PreCollisionEvent) {
-  if (e.other === player) {
-    //console.log("collision with player!");
-    player.color.r += 1;
-    player.color.g -= 1;
-    player.color.b -= 1;
-  }
-});
 
 engine.start(new ex.Loader([blockTexture])).then(() => {
   // do stuff
