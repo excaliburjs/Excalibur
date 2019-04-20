@@ -479,6 +479,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this.body.collider.collisionType = type;
   }
 
+  /**
+   * @obsolete Legacy collision groups will be removed in v0.24.0, use [[Actor.body.collider.collisionGroup]]
+   */
   public collisionGroups: string[] = [];
 
   private _collisionHandlers: { [key: string]: { (actor: Actor): void }[] } = {};
@@ -1047,14 +1050,18 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * that group.
    *
    * @param name The name of the collision group
+   * @obsolete Use [[Actor.body.collider.collisionGroup]], legacy collisionGroups will be removed in v0.24.0
    */
+  @obsolete({ message: 'Legacy collision groups will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.collisionGroup' })
   public addCollisionGroup(name: string) {
     this.collisionGroups.push(name);
   }
   /**
    * Removes an actor from a collision group.
    * @param name The name of the collision group
+   * @obsolete Use [[Actor.body.collider.collisionGroup]], legacy collisionGroups will be removed in v0.24.0
    */
+  @obsolete({ message: 'Legacy collision groups will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.collisionGroup' })
   public removeCollisionGroup(name: string) {
     var index = this.collisionGroups.indexOf(name);
     if (index !== -1) {

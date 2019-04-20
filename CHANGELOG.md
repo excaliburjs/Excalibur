@@ -19,7 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
-<!--- Deprecations here --->
+Legacy collision groups off `Actor` will be removed in v0.24.0, use `Actor.body.collider.collisionGroup` [#1091](https://github.com/excaliburjs/Excalibur/issues/1091)
 
 ### Fixed
 
