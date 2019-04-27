@@ -12,13 +12,20 @@ import { ConvexPolygon } from './ConvexPolygon';
 import { CollisionType } from './CollisionType';
 import { CollisionGroup } from './CollisionGroup';
 
+/**
+ * Type guard function to determine whether something is a Collider
+ */
 function isCollider(x: Actor | Collider): x is Collider {
   return !!x && x instanceof Collider;
 }
 
-// Describes material properties like shape, bounds, friction of the physics object
+/**
+ * Collider describes material properties like shape,
+ * bounds, friction of the physics object
+ */
+
 export class Collider implements Eventable {
-  private _collisionArea: CollisionGeometry;
+  private _geometry: CollisionGeometry;
 
   constructor(private _actor: Actor, private _body: Body) {}
 
@@ -45,6 +52,9 @@ export class Collider implements Eventable {
     this._actor.once(eventName, handler);
   }
 
+  /**
+   * Get the unique id of the collider
+   */
   public get id(): number {
     return this._actor.id;
   }
@@ -61,19 +71,31 @@ export class Collider implements Eventable {
    */
   public collisionGroup: CollisionGroup = CollisionGroup.All;
 
+  /*
+   * Get the shape of the collider as a [[CollisionGeometry]]
+   */
   public get shape(): CollisionGeometry {
-    return this._collisionArea;
+    return this._geometry;
   }
 
+  /**
+   * Set the shape of the collider as a [[CollisionGeometry]]
+   */
   public set shape(shape: CollisionGeometry) {
-    this._collisionArea = shape;
-    this._collisionArea.collider = this;
+    this._geometry = shape;
+    this._geometry.collider = this;
   }
 
+  /**
+   * Return a reference to the body associated with this collider
+   */
   public get body(): Body {
     return this._body;
   }
 
+  /**
+   * The center of the collider
+   */
   public get center(): Vector {
     return this._actor.getCenter();
   }

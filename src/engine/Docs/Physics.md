@@ -54,6 +54,8 @@ Use cases for the **collisionstart** event may be detecting when an actor has to
 
 ```typescript
 actor.on('collisionstart', () => {...})
+// or
+actor.body.collider.on('collisionstart', () => {...})
 ```
 
 ### Collision End "collisionend"
@@ -64,6 +66,8 @@ Use cases for the **collisionend** event might be to detect when an actor has le
 
 ```typescript
 actor.on('collisionend', () => {...})
+// or
+actor.body.collider.on('collisionend', () => {...})
 ```
 
 ### Pre Collision "precollision"
@@ -74,6 +78,8 @@ This event is useful for building in custom collision resolution logic in Passiv
 
 ```typescript
 actor.on('precollision', () => {...})
+// or
+actor.body.collider.on('precollision', () => {...})
 ```
 
 ### Post Collision "postcollision"
@@ -84,6 +90,8 @@ Post collision would be useful if you need to know that collision resolution is 
 
 ```typescript
 actor.on('postcollision', () => {...})
+// or
+actor.body.collider.on('postcollision', () => {...})
 ```
 
 ## Example Active-Active/Active-Fixed scenario

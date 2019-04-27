@@ -1,5 +1,6 @@
 import { EX_VERSION } from './';
-import './Polyfill';
+import { polyfill } from './Polyfill';
+polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
 import { Loadable } from './Interfaces/Loadable';
 import { Promise } from './Promises';
