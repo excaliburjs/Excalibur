@@ -3,6 +3,8 @@
  * @description `process.env.__EX_VERSION` gets replaced by Webpack on build
  */
 export var EX_VERSION = process.env.__EX_VERSION;
+import { polyfill } from './Polyfill';
+polyfill();
 
 // This file is used as the bundle entrypoint and exports everything
 // that will be exposed as the `ex` global variable.

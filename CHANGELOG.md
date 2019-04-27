@@ -23,7 +23,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-Fixed wrong `Camera` and `Loader` scaling on HiDPI screens when option `suppressHiDPIScaling` is set.
+- Fixed wrong `Camera` and `Loader` scaling on HiDPI screens when option `suppressHiDPIScaling` is set. ([#1120](https://github.com/excaliburjs/Excalibur/issues/1120))
+- Fixed polyfill application by exporting a `polyfill()` function that can be called. ([#1132](https://github.com/excaliburjs/Excalibur/issues/1132))
 
 <!--- Bug fixes here --->
 
