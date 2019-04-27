@@ -67,7 +67,7 @@ export class Collider implements Eventable {
 
   /**
    * Gets or sets the current [[CollisionGroup|collision group]] for the collider, colliders with like collision groups do not collide.
-   * By default, the collider will collide with all groups.
+   * By default, the collider will collide with [[CollisionGroup|all groups]].
    */
   public collisionGroup: CollisionGroup = CollisionGroup.All;
 
