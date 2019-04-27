@@ -7,7 +7,7 @@ import { CollisionType } from './CollisionType';
 import { Collider } from './Collider';
 
 /**
- * Collision contacts are used internally by Excalibur to resolve collision between actors. This
+ * Collision contacts are used internally by Excalibur to resolve collision between colliders. This
  * Pair prevents collisions from being evaluated more than one time
  */
 export class CollisionContact {
@@ -16,23 +16,23 @@ export class CollisionContact {
    */
   id: string;
   /**
-   * The first rigid body in the collision
+   * The first collider in the collision
    */
   colliderA: Collider;
   /**
-   * The second rigid body in the collision
+   * The second collider in the collision
    */
   colliderB: Collider;
   /**
-   * The minimum translation vector to resolve penetration, pointing away from bodyA
+   * The minimum translation vector to resolve penetration, pointing away from colliderA
    */
   mtv: Vector;
   /**
-   * The point of collision shared between bodyA and bodyB
+   * The point of collision shared between colliderA and colliderB
    */
   point: Vector;
   /**
-   * The collision normal, pointing away from bodyA
+   * The collision normal, pointing away from colliderA
    */
   normal: Vector;
 
@@ -94,8 +94,8 @@ export class CollisionContact {
     // perform collison on bounding areas
     var bodyA: Body = this.colliderA.body;
     var bodyB: Body = this.colliderB.body;
-    var mtv = this.mtv; // normal pointing away from bodyA
-    var normal = this.normal; // normal pointing away from bodyA
+    var mtv = this.mtv; // normal pointing away from colliderA
+    var normal = this.normal; // normal pointing away from colliderA
     if (bodyA === bodyB) {
       // sanity check for existing pairs
       return;
@@ -128,8 +128,8 @@ export class CollisionContact {
     normal = normal.normalize();
     var tangent = normal.normal().normalize();
 
-    var ra = this.point.sub(this.colliderA.center); // point relative to bodyA position
-    var rb = this.point.sub(this.colliderB.center); /// point relative to bodyB
+    var ra = this.point.sub(this.colliderA.center); // point relative to colliderA position
+    var rb = this.point.sub(this.colliderB.center); /// point relative to colliderB
 
     // Relative velocity in linear terms
     // Angular to linear velocity formula -> omega = v/r
