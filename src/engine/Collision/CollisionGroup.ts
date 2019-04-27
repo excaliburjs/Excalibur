@@ -3,9 +3,17 @@
  *
  * For example:
  *
- * Players have collision group A
- * Enemies have collision group B
- * Blocks have collision group C
+ * Players have collision group "player"
+ *
+ * ![Player Collision Group](/assets/images/docs/CollisionGroupsPlayer.png)
+ *
+ * Enemies have collision group "enemy"
+ *
+ * ![Enemy Collision Group](/assets/images/docs/CollisionGroupsEnemy.png)
+ *
+ * Blocks have collision group "ground"
+ *
+ * ![Ground collision group](/assets/images/docs/CollisionGroupsGround.png)
  *
  * Players don't collide with each other, but enemies and blocks. Likewise, enemies don't collide with each other but collide
  * with players and blocks.
