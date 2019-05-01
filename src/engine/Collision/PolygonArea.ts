@@ -1,4 +1,4 @@
-﻿import { Color } from './../Drawing/Color';
+import { Color } from './../Drawing/Color';
 import { Physics } from './../Physics';
 import { BoundingBox } from './BoundingBox';
 import { EdgeArea } from './EdgeArea';
@@ -30,7 +30,7 @@ export class PolygonArea implements CollisionArea {
 
   constructor(options: PolygonAreaOptions) {
     this.pos = options.pos || Vector.Zero;
-    var winding = !!options.clockwiseWinding;
+    const winding = !!options.clockwiseWinding;
     this.points = (winding ? options.points.reverse() : options.points) || [];
     this.body = options.body || null;
 
@@ -52,12 +52,12 @@ export class PolygonArea implements CollisionArea {
    * Calculates the underlying transformation from the body relative space to world space
    */
   private _calculateTransformation() {
-    var pos = this.body ? this.body.pos.add(this.pos) : this.pos;
-    var angle = this.body ? this.body.rotation : 0;
+    const pos = this.body ? this.body.pos.add(this.pos) : this.pos;
+    const angle = this.body ? this.body.rotation : 0;
 
-    var len = this.points.length;
+    const len = this.points.length;
     this._transformedPoints.length = 0; // clear out old transform
-    for (var i = 0; i < len; i++) {
+    for (let i = 0; i < len; i++) {
       this._transformedPoints[i] = this.points[i].rotate(angle).add(pos);
     }
   }
@@ -79,10 +79,10 @@ export class PolygonArea implements CollisionArea {
     if (this._sides.length) {
       return this._sides;
     }
-    var lines = [];
-    var points = this.getTransformedPoints();
-    var len = points.length;
-    for (var i = 0; i < len; i++) {
+    const lines = [];
+    const points = this.getTransformedPoints();
+    const len = points.length;
+    for (let i = 0; i < len; i++) {
       lines.push(new Line(points[i], points[(i - 1 + len) % len]));
     }
     this._sides = lines;
@@ -104,8 +104,8 @@ export class PolygonArea implements CollisionArea {
   public contains(point: Vector): boolean {
     // Always cast to the right, as long as we cast in a consitent fixed direction we
     // will be fine
-    var testRay = new Ray(point, new Vector(1, 0));
-    var intersectCount = this.getSides().reduce(function(accum, side) {
+    const testRay = new Ray(point, new Vector(1, 0));
+    const intersectCount = this.getSides().reduce(function(accum, side) {
       if (testRay.intersect(side) >= 0) {
         return accum + 1;
       }
@@ -139,11 +139,11 @@ export class PolygonArea implements CollisionArea {
    * Find the point on the shape furthest in the direction specified
    */
   public getFurthestPoint(direction: Vector): Vector {
-    var pts = this.getTransformedPoints();
-    var furthestPoint = null;
-    var maxDistance = -Number.MAX_VALUE;
-    for (var i = 0; i < pts.length; i++) {
-      var distance = direction.dot(pts[i]);
+    const pts = this.getTransformedPoints();
+    let furthestPoint = null;
+    let maxDistance = -Number.MAX_VALUE;
+    for (let i = 0; i < pts.length; i++) {
+      const distance = direction.dot(pts[i]);
       if (distance > maxDistance) {
         maxDistance = distance;
         furthestPoint = pts[i];
@@ -157,12 +157,12 @@ export class PolygonArea implements CollisionArea {
    * @param point point to test against polygon
    */
   public getClosestFace(point: Vector): { distance: Vector; face: Line } {
-    let sides = this.getSides();
+    const sides = this.getSides();
     let min = Number.POSITIVE_INFINITY;
     let faceIndex = -1;
     let distance = -1;
     for (let i = 0; i < sides.length; i++) {
-      let dist = sides[i].distanceToPoint(point);
+      const dist = sides[i].distanceToPoint(point);
       if (dist < min) {
         min = dist;
         faceIndex = i;
@@ -185,19 +185,19 @@ export class PolygonArea implements CollisionArea {
    */
   public getBounds(): BoundingBox {
     // todo there is a faster way to do this
-    var points = this.getTransformedPoints();
+    const points = this.getTransformedPoints();
 
-    var minX = points.reduce(function(prev, curr) {
+    const minX = points.reduce(function(prev, curr) {
       return Math.min(prev, curr.x);
     }, 999999999);
-    var maxX = points.reduce(function(prev, curr) {
+    const maxX = points.reduce(function(prev, curr) {
       return Math.max(prev, curr.x);
     }, -99999999);
 
-    var minY = points.reduce(function(prev, curr) {
+    const minY = points.reduce(function(prev, curr) {
       return Math.min(prev, curr.y);
     }, 9999999999);
-    var maxY = points.reduce(function(prev, curr) {
+    const maxY = points.reduce(function(prev, curr) {
       return Math.max(prev, curr.y);
     }, -9999999999);
 
@@ -209,12 +209,12 @@ export class PolygonArea implements CollisionArea {
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
   public getMomentOfInertia(): number {
-    var mass = this.body ? this.body.mass : Physics.defaultMass;
-    var numerator = 0;
-    var denominator = 0;
-    for (var i = 0; i < this.points.length; i++) {
-      var iplusone = (i + 1) % this.points.length;
-      var crossTerm = this.points[iplusone].cross(this.points[i]);
+    const mass = this.body ? this.body.mass : Physics.defaultMass;
+    let numerator = 0;
+    let denominator = 0;
+    for (let i = 0; i < this.points.length; i++) {
+      const iplusone = (i + 1) % this.points.length;
+      const crossTerm = this.points[iplusone].cross(this.points[i]);
       numerator +=
         crossTerm *
         (this.points[i].dot(this.points[i]) + this.points[i].dot(this.points[iplusone]) + this.points[iplusone].dot(this.points[iplusone]));
@@ -229,12 +229,12 @@ export class PolygonArea implements CollisionArea {
   public rayCast(ray: Ray, max: number = Infinity) {
     // find the minimum contact time greater than 0
     // contact times less than 0 are behind the ray and we don't want those
-    var sides = this.getSides();
-    var len = sides.length;
-    var minContactTime = Number.MAX_VALUE;
-    var contactIndex = -1;
-    for (var i = 0; i < len; i++) {
-      var contactTime = ray.intersect(sides[i]);
+    const sides = this.getSides();
+    const len = sides.length;
+    let minContactTime = Number.MAX_VALUE;
+    let contactIndex = -1;
+    for (let i = 0; i < len; i++) {
+      const contactTime = ray.intersect(sides[i]);
       if (contactTime >= 0 && contactTime < minContactTime && contactTime <= max) {
         minContactTime = contactTime;
         contactIndex = i;
@@ -258,10 +258,10 @@ export class PolygonArea implements CollisionArea {
       return this._axes;
     }
 
-    var axes = [];
-    var points = this.getTransformedPoints();
-    var len = points.length;
-    for (var i = 0; i < len; i++) {
+    const axes = [];
+    const points = this.getTransformedPoints();
+    const len = points.length;
+    for (let i = 0; i < len; i++) {
       axes.push(points[i].sub(points[(i + 1) % len]).normal());
     }
     this._axes = axes;
@@ -273,17 +273,17 @@ export class PolygonArea implements CollisionArea {
    * Reference http://www.dyn4j.org/2010/01/sat/
    */
   public testSeparatingAxisTheorem(other: PolygonArea): Vector {
-    var poly1 = this;
-    var poly2 = other;
-    var axes = poly1.getAxes().concat(poly2.getAxes());
+    const poly1 = this;
+    const poly2 = other;
+    const axes = poly1.getAxes().concat(poly2.getAxes());
 
-    var minOverlap = Number.MAX_VALUE;
-    var minAxis = null;
-    var minIndex = -1;
-    for (var i = 0; i < axes.length; i++) {
-      var proj1 = poly1.project(axes[i]);
-      var proj2 = poly2.project(axes[i]);
-      var overlap = proj1.getOverlap(proj2);
+    let minOverlap = Number.MAX_VALUE;
+    let minAxis = null;
+    let minIndex = -1;
+    for (let i = 0; i < axes.length; i++) {
+      const proj1 = poly1.project(axes[i]);
+      const proj2 = poly2.project(axes[i]);
+      const overlap = proj1.getOverlap(proj2);
       if (overlap <= 0) {
         return null;
       } else {
@@ -307,12 +307,12 @@ export class PolygonArea implements CollisionArea {
    * Project the edges of the polygon along a specified axis
    */
   public project(axis: Vector): Projection {
-    var points = this.getTransformedPoints();
-    var len = points.length;
-    var min = Number.MAX_VALUE;
-    var max = -Number.MAX_VALUE;
-    for (var i = 0; i < len; i++) {
-      var scalar = points[i].dot(axis);
+    const points = this.getTransformedPoints();
+    const len = points.length;
+    let min = Number.MAX_VALUE;
+    let max = -Number.MAX_VALUE;
+    for (let i = 0; i < len; i++) {
+      const scalar = points[i].dot(axis);
       min = Math.min(min, scalar);
       max = Math.max(max, scalar);
     }
@@ -325,7 +325,7 @@ export class PolygonArea implements CollisionArea {
     ctx.beginPath();
     ctx.strokeStyle = color.toString();
     // Iterate through the supplied points and construct a 'polygon'
-    var firstPoint = this.getTransformedPoints()[0];
+    const firstPoint = this.getTransformedPoints()[0];
     ctx.moveTo(firstPoint.x, firstPoint.y);
     this.getTransformedPoints().forEach(function(point) {
       ctx.lineTo(point.x, point.y);
