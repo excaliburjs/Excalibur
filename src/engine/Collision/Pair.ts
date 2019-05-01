@@ -40,8 +40,8 @@ export class Pair {
    * Returns whether or not it is possible for the pairs to collide
    */
   public get canCollide(): boolean {
-    let actorA = this.bodyA.actor;
-    let actorB = this.bodyB.actor;
+    const actorA = this.bodyA.actor;
+    const actorB = this.bodyB.actor;
     return Pair.canCollide(actorA, actorB);
   }
 
