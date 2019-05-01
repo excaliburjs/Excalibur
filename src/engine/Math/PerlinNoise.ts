@@ -353,7 +353,7 @@ export class PerlinGenerator {
 
     this._perm = this._random.shuffle(this._perm);
 
-    for (var i = 0; i < 512; i++) {
+    for (let i = 0; i < 512; i++) {
       this._p[i] = this._perm[i % 256] & 0xff;
     }
   }
@@ -371,12 +371,12 @@ export class PerlinGenerator {
    */
   public noise(x: number, y: number, z: number): number;
   public noise(): number {
-    var amp = this.amplitude;
-    var freq = this.frequency;
+    let amp = this.amplitude;
+    let freq = this.frequency;
 
-    var total = 0;
-    var maxValue = 0;
-    for (var i = 0; i < this.octaves; i++) {
+    let total = 0;
+    let maxValue = 0;
+    for (let i = 0; i < this.octaves; i++) {
       switch (arguments.length) {
         case 1:
           total += this._noise1d(arguments[0] * freq) * amp;
@@ -406,8 +406,8 @@ export class PerlinGenerator {
     if (!step) {
       step = 1 / length;
     }
-    var array: number[] = new Array(length);
-    for (var i = 0; i < length; i++) {
+    const array: number[] = new Array(length);
+    for (let i = 0; i < length; i++) {
       array[i] = this.noise(i * step);
     }
     return array;
@@ -422,10 +422,10 @@ export class PerlinGenerator {
       step = 1 / Math.min(width, height);
     }
 
-    var array: number[] = new Array(width * height);
+    const array: number[] = new Array(width * height);
 
-    for (var y = 0; y < height; y++) {
-      for (var x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
         array[x + y * width] = this.noise(x * step, y * step);
       }
     }
@@ -434,14 +434,14 @@ export class PerlinGenerator {
   }
 
   private _gradient3d(hash: number, x: number, y: number, z: number) {
-    var h = hash & 0xf;
-    var u = h < 8 ? x : y;
-    var v = h < 4 ? y : h === 12 || h === 14 ? x : z;
+    const h = hash & 0xf;
+    const u = h < 8 ? x : y;
+    const v = h < 4 ? y : h === 12 || h === 14 ? x : z;
     return ((h & 0b1) === 0 ? u : -u) + ((h & 0b10) === 0 ? v : -v);
   }
 
   private _gradient2d(hash: number, x: number, y: number) {
-    var value = (hash & 0b1) === 0 ? x : y;
+    const value = (hash & 0b1) === 0 ? x : y;
     return (hash & 0b10) === 0 ? -value : value;
   }
 
@@ -450,23 +450,23 @@ export class PerlinGenerator {
   }
 
   private _noise1d(x: number) {
-    var intX = Math.floor(x) & 0xff; // force 0-255 integers to lookup in permutation
+    const intX = Math.floor(x) & 0xff; // force 0-255 integers to lookup in permutation
     x -= Math.floor(x);
-    var fadeX = _fade(x);
+    const fadeX = _fade(x);
     return (_lerp(fadeX, this._gradient1d(this._p[intX], x), this._gradient1d(this._p[intX + 1], x - 1)) + 1) / 2;
   }
 
   private _noise2d(x: number, y: number) {
-    var intX = Math.floor(x) & 0xff;
-    var intY = Math.floor(y) & 0xff;
+    const intX = Math.floor(x) & 0xff;
+    const intY = Math.floor(y) & 0xff;
 
     x -= Math.floor(x);
     y -= Math.floor(y);
 
-    var fadeX = _fade(x);
-    var fadeY = _fade(y);
-    var a = this._p[intX] + intY;
-    var b = this._p[intX + 1] + intY;
+    const fadeX = _fade(x);
+    const fadeY = _fade(y);
+    const a = this._p[intX] + intY;
+    const b = this._p[intX + 1] + intY;
     return (
       (_lerp(
         fadeY,
@@ -479,26 +479,26 @@ export class PerlinGenerator {
   }
 
   private _noise3d(x: number, y: number, z: number) {
-    var intX = Math.floor(x) & 0xff;
-    var intY = Math.floor(y) & 0xff;
-    var intZ = Math.floor(z) & 0xff;
+    const intX = Math.floor(x) & 0xff;
+    const intY = Math.floor(y) & 0xff;
+    const intZ = Math.floor(z) & 0xff;
 
     x -= Math.floor(x);
     y -= Math.floor(y);
     z -= Math.floor(z);
 
-    var fadeX = _fade(x);
-    var fadeY = _fade(y);
-    var fadeZ = _fade(z);
+    const fadeX = _fade(x);
+    const fadeY = _fade(y);
+    const fadeZ = _fade(z);
 
-    var a = this._p[intX] + intY;
-    var b = this._p[intX + 1] + intY;
+    const a = this._p[intX] + intY;
+    const b = this._p[intX + 1] + intY;
 
-    var aa = this._p[a] + intZ;
-    var ba = this._p[b] + intZ;
+    const aa = this._p[a] + intZ;
+    const ba = this._p[b] + intZ;
 
-    var ab = this._p[a + 1] + intZ;
-    var bb = this._p[b + 1] + intZ;
+    const ab = this._p[a + 1] + intZ;
+    const bb = this._p[b + 1] + intZ;
 
     return (
       (_lerp(
@@ -540,11 +540,11 @@ export class PerlinDrawer2D {
    * Returns an image of 2D perlin noise
    */
   public image(width: number, height: number): HTMLImageElement {
-    var image = document.createElement('img');
-    var canvas = document.createElement('canvas');
+    const image = document.createElement('img');
+    const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
-    var ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');
     this.draw(ctx, 0, 0, width, height);
     image.src = canvas.toDataURL();
     return image;
@@ -554,14 +554,14 @@ export class PerlinDrawer2D {
    * This draws a 2D perlin grid on a canvas context, not recommended to be called every frame due to performance
    */
   public draw(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
-    var grid = this.generator.grid(width, height);
-    var imageData = ctx.getImageData(x, y, width, height);
-    for (var j = 0; j < height; j++) {
-      for (var i = 0; i < width; i++) {
-        var val = grid[i + width * j];
-        var c = Math.floor(val * 255) & 0xff;
-        var pixel = (i + j * imageData.width) * 4;
-        var color = this.colorFcn(c);
+    const grid = this.generator.grid(width, height);
+    const imageData = ctx.getImageData(x, y, width, height);
+    for (let j = 0; j < height; j++) {
+      for (let i = 0; i < width; i++) {
+        const val = grid[i + width * j];
+        const c = Math.floor(val * 255) & 0xff;
+        const pixel = (i + j * imageData.width) * 4;
+        const color = this.colorFcn(c);
 
         imageData.data[pixel] = color.r;
         imageData.data[pixel + 1] = color.g;
