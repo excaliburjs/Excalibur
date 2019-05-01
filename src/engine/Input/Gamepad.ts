@@ -1,4 +1,4 @@
-﻿import { Class } from './../Class';
+import { Class } from './../Class';
 import { GameEvent, GamepadConnectEvent, GamepadDisconnectEvent, GamepadButtonEvent, GamepadAxisEvent } from '../Events';
 import * as Events from '../Events';
 
@@ -82,11 +82,11 @@ export class Gamepads extends Class {
     if (!pad) {
       return false;
     }
-    var axesLength = pad.axes.filter((value) => {
+    const axesLength = pad.axes.filter((value) => {
       return typeof value !== undefined;
     }).length;
 
-    var buttonLength = pad.buttons.filter((value) => {
+    const buttonLength = pad.buttons.filter((value) => {
       return typeof value !== undefined;
     }).length;
     return axesLength >= this._minimumConfiguration.axis && buttonLength >= this._minimumConfiguration.buttons && pad.connected;
@@ -116,11 +116,11 @@ export class Gamepads extends Class {
     }
     this.init();
 
-    var gamepads = this._navigator.getGamepads();
+    const gamepads = this._navigator.getGamepads();
 
-    for (var i = 0; i < gamepads.length; i++) {
+    for (let i = 0; i < gamepads.length; i++) {
       if (!gamepads[i]) {
-        let gamepad = this.at(i);
+        const gamepad = this.at(i);
         // If was connected, but now isn't emit the disconnect event
         if (gamepad.connected) {
           this.eventDispatcher.emit('disconnect', new GamepadDisconnectEvent(i, gamepad));
@@ -147,7 +147,7 @@ export class Gamepads extends Class {
       this.at(i).navigatorGamepad = gamepads[i];
 
       // Buttons
-      var b: string, bi: number, a: string, ai: number, value: number;
+      let b: string, bi: number, a: string, ai: number, value: number;
 
       for (b in Buttons) {
         bi = <any>Buttons[b];
@@ -189,7 +189,7 @@ export class Gamepads extends Class {
     this._enableAndUpdate(); // implicitly enable gamepads when at() is called
     if (index >= this._pads.length) {
       // Ensure there is a pad to retrieve
-      for (var i = this._pads.length - 1, max = index; i < max; i++) {
+      for (let i = this._pads.length - 1, max = index; i < max; i++) {
         this._pads.push(new Gamepad());
         this._oldPads.push(new Gamepad());
       }
@@ -203,8 +203,8 @@ export class Gamepads extends Class {
    */
   public getValidGamepads(): Gamepad[] {
     this._enableAndUpdate();
-    var result: Gamepad[] = [];
-    for (var i = 0; i < this._pads.length; i++) {
+    const result: Gamepad[] = [];
+    for (let i = 0; i < this._pads.length; i++) {
       if (this._isGamepadValid(this.at(i).navigatorGamepad) && this.at(i).connected) {
         result.push(this.at(i));
       }
@@ -220,8 +220,8 @@ export class Gamepads extends Class {
   }
 
   private _clonePads(pads: NavigatorGamepad[]): Gamepad[] {
-    var arr = [];
-    for (var i = 0, len = pads.length; i < len; i++) {
+    const arr = [];
+    for (let i = 0, len = pads.length; i < len; i++) {
       arr.push(this._clonePad(pads[i]));
     }
     return arr;
@@ -231,8 +231,8 @@ export class Gamepads extends Class {
    * Fastest way to clone a known object is to do it yourself
    */
   private _clonePad(pad: NavigatorGamepad): Gamepad {
-    var i, len;
-    var clonedPad = new Gamepad();
+    let i, len;
+    const clonedPad = new Gamepad();
 
     if (!pad) {
       return clonedPad;
@@ -264,11 +264,10 @@ export class Gamepad extends Class {
   constructor() {
     super();
 
-    var i: number;
-    for (i = 0; i < this._buttons.length; i++) {
+    for (let i = 0; i < this._buttons.length; i++) {
       this._buttons[i] = 0;
     }
-    for (i = 0; i < this._axes.length; i++) {
+    for (let i = 0; i < this._axes.length; i++) {
       this._axes[i] = 0;
     }
   }
@@ -294,7 +293,7 @@ export class Gamepad extends Class {
    * [[MinAxisMoveThreshold]] are considered 0.
    */
   public getAxes(axes: Axes) {
-    var value = this._axes[axes];
+    const value = this._axes[axes];
 
     if (Math.abs(value) < Gamepads.MinAxisMoveThreshold) {
       return 0;
