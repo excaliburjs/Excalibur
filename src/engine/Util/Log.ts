@@ -70,10 +70,9 @@ export class Logger {
       level = this.defaultLevel;
     }
 
-    var i = 0,
-      len = this._appenders.length;
+    const len = this._appenders.length;
 
-    for (i; i < len; i++) {
+    for (let i = 0; i < len; i++) {
       if (level >= this.defaultLevel) {
         this._appenders[i].log(level, args);
       }
@@ -150,7 +149,7 @@ export class ConsoleAppender implements Appender {
     }
 
     // Create a new console args array
-    var consoleArgs: any[] = [];
+    const consoleArgs: any[] = [];
     consoleArgs.unshift.apply(consoleArgs, args);
     consoleArgs.unshift('[' + LogLevel[level] + '] : ');
 
@@ -209,15 +208,15 @@ export class ScreenAppender implements Appender {
    * @param args   Arguments to log
    */
   public log(level: LogLevel, args: any[]): void {
-    var message = args.join(',');
+    const message = args.join(',');
 
     this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
     this._messages.unshift('[' + LogLevel[level] + '] : ' + message);
 
-    var pos = 10;
-    var opacity = 1.0;
-    for (var i = 0; i < this._messages.length; i++) {
+    let pos = 10;
+    let opacity = 1.0;
+    for (let i = 0; i < this._messages.length; i++) {
       this._ctx.fillStyle = 'rgba(255,255,255,' + opacity.toFixed(2) + ')';
       this._ctx.fillText(this._messages[i], 200, pos);
       pos += 10;
