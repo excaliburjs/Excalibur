@@ -41,7 +41,7 @@ export class Resource<T> extends Class implements Loadable {
   }
 
   private _cacheBust(uri: string): string {
-    var query: RegExp = /\?\w*=\w*/;
+    const query: RegExp = /\?\w*=\w*/;
     if (query.test(uri)) {
       uri += '&__=' + Date.now();
     } else {
@@ -58,7 +58,7 @@ export class Resource<T> extends Class implements Loadable {
    * Begin loading the resource and returns a promise to be resolved on completion
    */
   public load(): Promise<T> {
-    var complete = new Promise<T>();
+    const complete = new Promise<T>();
 
     // Exit early if we already have data
     if (this.data !== null) {
@@ -68,7 +68,7 @@ export class Resource<T> extends Class implements Loadable {
       return complete;
     }
 
-    var request = new XMLHttpRequest();
+    const request = new XMLHttpRequest();
     request.open('GET', this.bustCache ? this._cacheBust(this.path) : this.path, true);
     request.responseType = this.responseType;
     request.onloadstart = () => {
