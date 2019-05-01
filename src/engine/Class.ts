@@ -89,8 +89,8 @@ export class Class implements Eventable {
    * @param methods A JSON object contain any methods/properties you want to extend
    */
   public static extend(methods: any): any {
-    var parent: any = this;
-    var child: any;
+    const parent: any = this;
+    let child: any;
 
     if (methods && methods.hasOwnProperty('constructor')) {
       child = methods.constructor;
@@ -101,14 +101,14 @@ export class Class implements Eventable {
     }
 
     // Using constructor allows JS to lazily instantiate super classes
-    var Super: any = function(this: any) {
+    const Super: any = function(this: any) {
       this.constructor = child;
     };
     Super.prototype = parent.prototype;
     child.prototype = new Super();
 
     if (methods) {
-      for (var prop in methods) {
+      for (const prop in methods) {
         if (methods.hasOwnProperty(prop)) {
           child.prototype[prop] = methods[prop];
         }
