@@ -78,7 +78,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
          * IE : MP3, WAV coming soon
          * Safari MP3, WAV, Ogg
          */
-    for (var path of paths) {
+    for (const path of paths) {
       if (canPlayFile(path)) {
         this.path = path;
         break;
@@ -231,7 +231,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
 
   private _startPlayback(): Promise<boolean> {
     const newTrack = this._createNewTrack();
-    let playPromise = new Promise<boolean>();
+    const playPromise = new Promise<boolean>();
 
     newTrack.then((track) => {
       track.play().then((resolved) => {
