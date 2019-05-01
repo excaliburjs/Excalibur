@@ -60,7 +60,7 @@ export class SpriteImpl implements Drawable {
    * @param height The height of the sprite in pixels
    */
   constructor(imageOrConfig: Texture | SpriteArgs, x: number, y: number, width: number, height: number) {
-    var image = imageOrConfig;
+    let image = imageOrConfig;
     if (imageOrConfig && !(imageOrConfig instanceof Texture)) {
       x = imageOrConfig.x | 0;
       y = imageOrConfig.y | 0;
@@ -100,8 +100,8 @@ export class SpriteImpl implements Drawable {
 
   private _loadPixels() {
     if (this._texture.isLoaded() && !this._pixelsLoaded) {
-      var naturalWidth = this._texture.image.naturalWidth || 0;
-      var naturalHeight = this._texture.image.naturalHeight || 0;
+      const naturalWidth = this._texture.image.naturalWidth || 0;
+      const naturalHeight = this._texture.image.naturalHeight || 0;
 
       if (this.width > naturalWidth) {
         this.logger.warn(`The sprite width ${this.width} exceeds the width 
@@ -228,7 +228,7 @@ export class SpriteImpl implements Drawable {
    */
   public removeEffect(index: number): void;
   public removeEffect(param: any) {
-    var indexToRemove = -1;
+    let indexToRemove = -1;
     if (typeof param === 'number') {
       indexToRemove = param;
     } else {
@@ -252,8 +252,8 @@ export class SpriteImpl implements Drawable {
   }
 
   private _applyEffects() {
-    var naturalWidth = this._texture.image.naturalWidth || 0;
-    var naturalHeight = this._texture.image.naturalHeight || 0;
+    const naturalWidth = this._texture.image.naturalWidth || 0;
+    const naturalHeight = this._texture.image.naturalHeight || 0;
 
     this._spriteCtx.clearRect(0, 0, this.width, this.height);
     this._spriteCtx.drawImage(
@@ -269,15 +269,10 @@ export class SpriteImpl implements Drawable {
     );
     this._pixelData = this._spriteCtx.getImageData(0, 0, this.width, this.height);
 
-    var i = 0,
-      x = 0,
-      y = 0,
-      len = this.effects.length;
-    for (i; i < len; i++) {
-      y = 0;
-      for (y; y < this.height; y++) {
-        x = 0;
-        for (x; x < this.width; x++) {
+    const len = this.effects.length;
+    for (let i = 0; i < len; i++) {
+      for (let y = 0; y < this.height; y++) {
+        for (let x = 0; x < this.width; x++) {
           this.effects[i].updatePixel(x, y, this._pixelData);
         }
       }
@@ -307,8 +302,8 @@ export class SpriteImpl implements Drawable {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(this.rotation);
-    var xpoint = this.drawWidth * this.anchor.x;
-    var ypoint = this.drawHeight * this.anchor.y;
+    const xpoint = this.drawWidth * this.anchor.x;
+    const ypoint = this.drawHeight * this.anchor.y;
 
     ctx.strokeStyle = Color.Black.toString();
     ctx.strokeRect(-xpoint, -ypoint, this.drawWidth, this.drawHeight);
@@ -328,8 +323,8 @@ export class SpriteImpl implements Drawable {
 
     // calculating current dimensions
     ctx.save();
-    var xpoint = this.drawWidth * this.anchor.x;
-    var ypoint = this.drawHeight * this.anchor.y;
+    const xpoint = this.drawWidth * this.anchor.x;
+    const ypoint = this.drawHeight * this.anchor.y;
     ctx.translate(x, y);
     ctx.rotate(this.rotation);
 
@@ -353,15 +348,14 @@ export class SpriteImpl implements Drawable {
    * Produces a copy of the current sprite
    */
   public clone(): SpriteImpl {
-    var result = new Sprite(this._texture, this.x, this.y, this.width, this.height);
+    const result = new Sprite(this._texture, this.x, this.y, this.width, this.height);
     result.scale = this.scale.clone();
     result.rotation = this.rotation;
     result.flipHorizontal = this.flipHorizontal;
     result.flipVertical = this.flipVertical;
 
-    var i = 0,
-      len = this.effects.length;
-    for (i; i < len; i++) {
+    const len = this.effects.length;
+    for (let i = 0; i < len; i++) {
       result.addEffect(this.effects[i]);
     }
     return result;
