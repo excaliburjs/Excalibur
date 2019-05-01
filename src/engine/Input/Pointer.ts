@@ -1,4 +1,4 @@
-﻿import { Engine, ScrollPreventionMode } from './../Engine';
+import { Engine, ScrollPreventionMode } from './../Engine';
 import { GameEvent } from '../Events';
 import { Actor } from '../Actor';
 import { Vector, GlobalCoordinates } from '../Algebra';
@@ -479,7 +479,7 @@ export class Pointers extends Class {
   public at(index: number): Pointer {
     if (index >= this._pointers.length) {
       // Ensure there is a pointer to retrieve
-      for (var i = this._pointers.length - 1, max = index; i < max; i++) {
+      for (let i = this._pointers.length - 1, max = index; i < max; i++) {
         this._pointers.push(new Pointer());
         this._activePointers.push(-1);
       }
@@ -591,7 +591,7 @@ export class Pointers extends Class {
   private _handleTouchEvent(eventName: string, eventArr: PointerEvent[]) {
     return (e: TouchEvent) => {
       e.preventDefault();
-      for (var i = 0, len = e.changedTouches.length; i < len; i++) {
+      for (let i = 0, len = e.changedTouches.length; i < len; i++) {
         const index = this._pointers.length > 1 ? this._getPointerIndex(e.changedTouches[i].identifier) : 0;
         if (index === -1) {
           continue;
@@ -657,19 +657,19 @@ export class Pointers extends Class {
         e.preventDefault();
       }
 
-      var x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
-      var y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
-      var transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
+      const x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
+      const y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
+      const transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
 
       // deltaX, deltaY, and deltaZ are the standard modern properties
       // wheelDeltaX, wheelDeltaY, are legacy properties in webkit browsers and older IE
       // e.detail is only used in opera
 
-      var deltaX = e.deltaX || e.wheelDeltaX * ScrollWheelNormalizationFactor || 0;
-      var deltaY =
+      const deltaX = e.deltaX || e.wheelDeltaX * ScrollWheelNormalizationFactor || 0;
+      const deltaY =
         e.deltaY || e.wheelDeltaY * ScrollWheelNormalizationFactor || e.wheelDelta * ScrollWheelNormalizationFactor || e.detail || 0;
-      var deltaZ = e.deltaZ || 0;
-      var deltaMode = WheelDeltaMode.Pixel;
+      const deltaZ = e.deltaZ || 0;
+      let deltaMode = WheelDeltaMode.Pixel;
 
       if (e.deltaMode) {
         if (e.deltaMode === 1) {
@@ -679,7 +679,7 @@ export class Pointers extends Class {
         }
       }
 
-      var we = new WheelEvent(transformedPoint.x, transformedPoint.y, e.pageX, e.pageY, x, y, 0, deltaX, deltaY, deltaZ, deltaMode, e);
+      const we = new WheelEvent(transformedPoint.x, transformedPoint.y, e.pageX, e.pageY, x, y, 0, deltaX, deltaY, deltaZ, deltaMode, e);
 
       eventArr.push(we);
       this.at(0).eventDispatcher.emit(eventName, we);
@@ -691,12 +691,12 @@ export class Pointers extends Class {
    * This is required because IE10/11 uses incrementing pointer IDs so we need to store a mapping of ID => idx
    */
   private _getPointerIndex(pointerId: number) {
-    var idx;
+    let idx;
     if ((idx = this._activePointers.indexOf(pointerId)) > -1) {
       return idx;
     }
 
-    for (var i = 0; i < this._activePointers.length; i++) {
+    for (let i = 0; i < this._activePointers.length; i++) {
       if (this._activePointers[i] === -1) {
         return i;
       }
