@@ -484,7 +484,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     super();
 
     if (xOrConfig && typeof xOrConfig === 'object') {
-      var config = xOrConfig;
+      const config = xOrConfig;
       xOrConfig = config.pos ? config.pos.x : config.x;
       y = config.pos ? config.pos.y : config.y;
       width = config.width;
@@ -547,7 +547,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       super.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
     }
-    for (var child of this.children) {
+    for (const child of this.children) {
       child._initialize(engine);
     }
   }
@@ -996,7 +996,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param name The name of the collision group
    */
   public removeCollisionGroup(name: string) {
-    var index = this.collisionGroups.indexOf(name);
+    const index = this.collisionGroups.indexOf(name);
     if (index !== -1) {
       this.collisionGroups.splice(index, 1);
     }
@@ -1086,8 +1086,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     }
 
     // collect parents
-    var parents: Actor[] = [];
-    var root: Actor = this;
+    const parents: Actor[] = [];
+    let root: Actor = this;
 
     parents.push(this);
 
@@ -1098,14 +1098,14 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     }
 
     // calculate position
-    var x = parents.reduceRight((px, p) => {
+    const x = parents.reduceRight((px, p) => {
       if (p.parent) {
         return px + p.pos.x * p.getGlobalScale().x;
       }
       return px + p.pos.x;
     }, 0);
 
-    var y = parents.reduceRight((py, p) => {
+    const y = parents.reduceRight((py, p) => {
       if (p.parent) {
         return py + p.pos.y * p.getGlobalScale().y;
       }
@@ -1113,8 +1113,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     }, 0);
 
     // rotate around root anchor
-    var ra = root.getWorldPos(); // 10, 10
-    var r = this.getWorldRotation();
+    const ra = root.getWorldPos(); // 10, 10
+    const r = this.getWorldRotation();
 
     return new Vector(x, y).rotate(r, ra);
   }
@@ -1127,7 +1127,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       return new Vector(this.scale.x, this.scale.y);
     }
 
-    var parentScale = this.parent.getGlobalScale();
+    const parentScale = this.parent.getGlobalScale();
     return new Vector(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
   }
 
@@ -1141,7 +1141,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     const anchor = this._getCalculatedAnchor();
     const pos = this.getWorldPos();
 
-    let bb = new BoundingBox(pos.x - anchor.x, pos.y - anchor.y, pos.x + this.getWidth() - anchor.x, pos.y + this.getHeight() - anchor.y);
+    const bb = new BoundingBox(pos.x - anchor.x, pos.y - anchor.y, pos.x + this.getWidth() - anchor.x, pos.y + this.getHeight() - anchor.y);
 
     return rotated ? bb.rotate(this.rotation, pos) : bb;
   }
@@ -1152,7 +1152,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public getRelativeBounds(rotated: boolean = true): BoundingBox {
     // todo cache bounding box
     const anchor = this._getCalculatedAnchor();
-    let bb = new BoundingBox(-anchor.x, -anchor.y, this.getWidth() - anchor.x, this.getHeight() - anchor.y);
+    const bb = new BoundingBox(-anchor.x, -anchor.y, this.getWidth() - anchor.x, this.getHeight() - anchor.y);
 
     return rotated ? bb.rotate(this.rotation) : bb;
   }
@@ -1185,7 +1185,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param recurse checks whether the x/y are contained in any child actors (if they exist).
    */
   public contains(x: number, y: number, recurse: boolean = false): boolean {
-    var containment = this.getBounds().contains(new Vector(x, y));
+    const containment = this.getBounds().contains(new Vector(x, y));
 
     if (recurse) {
       return (
@@ -1224,7 +1224,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param actor The other actor to test
    */
   public collidesWithSide(actor: Actor): Side {
-    var separationVector = this.collides(actor);
+    const separationVector = this.collides(actor);
     if (!separationVector) {
       return Side.None;
     }
@@ -1248,9 +1248,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param actor The other actor to test
    */
   public collides(actor: Actor): Vector {
-    var bounds = this.getBounds();
-    var otherBounds = actor.getBounds();
-    var intersect = bounds.collides(otherBounds);
+    const bounds = this.getBounds();
+    const otherBounds = actor.getBounds();
+    const intersect = bounds.collides(otherBounds);
     return intersect;
   }
   /**
@@ -1300,9 +1300,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public integrate(delta: number) {
     // Update placements based on linear algebra
-    var seconds = delta / 1000;
+    const seconds = delta / 1000;
 
-    var totalAcc = this.acc.clone();
+    const totalAcc = this.acc.clone();
     // Only active vanilla actors are affected by global acceleration
     if (this.collisionType === CollisionType.Active) {
       totalAcc.addEqual(Physics.acc);
@@ -1434,10 +1434,10 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this._predraw(ctx, delta);
 
     if (this.currentDrawing) {
-      var drawing = this.currentDrawing;
+      const drawing = this.currentDrawing;
       // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-      var offsetX = (this._width - drawing.width * drawing.scale.x) * this.anchor.x;
-      var offsetY = (this._height - drawing.height * drawing.scale.y) * this.anchor.y;
+      const offsetX = (this._width - drawing.width * drawing.scale.x) * this.anchor.x;
+      const offsetY = (this._height - drawing.height * drawing.scale.y) * this.anchor.y;
 
       if (this._effectsDirty) {
         this._reapplyEffects(this.currentDrawing);
@@ -1454,7 +1454,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     ctx.restore();
 
     // Draw child actors
-    for (var i = 0; i < this.children.length; i++) {
+    for (let i = 0; i < this.children.length; i++) {
       if (this.children[i].visible) {
         this.children[i].draw(ctx, delta);
       }
@@ -1515,7 +1515,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this.body.debugDraw(ctx);
 
     // Draw actor bounding box
-    var bb = this.getBounds();
+    const bb = this.getBounds();
     bb.debugDraw(ctx);
 
     // Draw actor Id
@@ -1529,7 +1529,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     ctx.fill();
 
     // Culling Box debug draw
-    for (var j = 0; j < this.traits.length; j++) {
+    for (let j = 0; j < this.traits.length; j++) {
       if (this.traits[j] instanceof Traits.OffscreenCulling) {
         (<Traits.OffscreenCulling>this.traits[j]).cullingBox.debugDraw(ctx);
       }
@@ -1538,19 +1538,19 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     // Unit Circle debug draw
     ctx.strokeStyle = Color.Yellow.toString();
     ctx.beginPath();
-    var radius = Math.min(this.getWidth(), this.getHeight());
+    const radius = Math.min(this.getWidth(), this.getHeight());
     ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
     ctx.closePath();
     ctx.stroke();
-    var ticks: { [key: string]: number } = {
+    const ticks: { [key: string]: number } = {
       '0 Pi': 0,
       'Pi/2': Math.PI / 2,
       Pi: Math.PI,
       '3/2 Pi': (3 * Math.PI) / 2
     };
 
-    var oldFont = ctx.font;
-    for (var tick in ticks) {
+    const oldFont = ctx.font;
+    for (const tick in ticks) {
       ctx.fillStyle = Color.Yellow.toString();
       ctx.font = '14px';
       ctx.textAlign = 'center';
@@ -1564,7 +1564,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     ctx.font = oldFont;
 
     // Draw child actors
-    for (var i = 0; i < this.children.length; i++) {
+    for (let i = 0; i < this.children.length; i++) {
       this.children[i].debugDraw(ctx);
     }
 
