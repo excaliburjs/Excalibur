@@ -1,7 +1,7 @@
 import * as ex from '../../build/dist/excalibur';
 
 describe('A color', () => {
-  var color;
+  let color;
   beforeEach(() => {
     color = new ex.Color(0, 0, 0);
   });
@@ -23,12 +23,12 @@ describe('A color', () => {
   });
 
   it('should display an error message', () => {
-    var fn = () => color.toString('invalid' as any);
+    const fn = () => color.toString('invalid' as any);
     expect(fn).toThrowError('Invalid Color format');
   });
 
   it('should handle alpha values of 0', () => {
-    var color = new ex.Color(255, 255, 255, 0);
+    const color = new ex.Color(255, 255, 255, 0);
     expect(color.toString()).toBe('rgba(255, 255, 255, 0)');
   });
 
