@@ -1,11 +1,11 @@
-﻿import * as ex from '../../build/dist/excalibur';
+import * as ex from '../../build/dist/excalibur';
 import { Mocks } from './util/Mocks';
 
 describe('An Actor Group', () => {
-  var engine: ex.Engine;
-  var scene: ex.Scene;
-  var group: ex.Group;
-  var mock = new Mocks.Mocker();
+  let engine: ex.Engine;
+  let scene: ex.Scene;
+  let group: ex.Group;
+  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
     engine = mock.engine(100, 100);
@@ -30,7 +30,7 @@ describe('An Actor Group', () => {
 
     // we are going to add this actor muliple times to the group, the number
     // of members should only increase to 2
-    var dupActor = new ex.Actor();
+    const dupActor = new ex.Actor();
     group.add(dupActor);
     expect(group.getMembers().length).toBe(2);
 
@@ -39,7 +39,7 @@ describe('An Actor Group', () => {
   });
 
   it('members ares automatically add to the scene', () => {
-    var actor = new ex.Actor();
+    const actor = new ex.Actor();
 
     group.add(actor);
     expect(group.contains(actor)).toBeTruthy();
@@ -48,7 +48,7 @@ describe('An Actor Group', () => {
   });
 
   it('can remove members', () => {
-    var actor = new ex.Actor();
+    const actor = new ex.Actor();
     group.add(actor);
     expect(group.contains(actor)).toBeTruthy();
 
@@ -58,11 +58,11 @@ describe('An Actor Group', () => {
   });
 
   it('can aggregate events across multiple actors', () => {
-    var eventCount = 0;
+    let eventCount = 0;
     // arrange
-    var a1 = new ex.Actor();
-    var a2 = new ex.Actor();
-    var a3 = new ex.Actor();
+    const a1 = new ex.Actor();
+    const a2 = new ex.Actor();
+    const a3 = new ex.Actor();
 
     // act
     group.add([a1, a2, a3]);
@@ -80,9 +80,9 @@ describe('An Actor Group', () => {
   });
 
   it('can return the containing bounding box of all members', () => {
-    var a1 = new ex.Actor(0, 0, 100, 100);
+    const a1 = new ex.Actor(0, 0, 100, 100);
     a1.anchor.setTo(0, 0);
-    var a2 = new ex.Actor(100, 100, 200, 190);
+    const a2 = new ex.Actor(100, 100, 200, 190);
     a2.anchor.setTo(0, 0);
 
     group.add([a1, a2]);
@@ -93,20 +93,20 @@ describe('An Actor Group', () => {
 
   it('can get a random member', () => {
     // arrange
-    var a1 = new ex.Actor();
-    var a2 = new ex.Actor();
-    var a3 = new ex.Actor();
+    const a1 = new ex.Actor();
+    const a2 = new ex.Actor();
+    const a3 = new ex.Actor();
 
     // act
     group.add([a1, a2, a3]);
 
-    var ran = group.getRandomMember();
+    const ran = group.getRandomMember();
     expect(group.contains(ran)).toBeTruthy();
   });
 
   it('can move many actors at once by a delta', () => {
-    var a1 = new ex.Actor(0, 0, 100, 100);
-    var a2 = new ex.Actor(100, 100, 200, 190);
+    const a1 = new ex.Actor(0, 0, 100, 100);
+    const a2 = new ex.Actor(100, 100, 200, 190);
 
     group.add([a1, a2]);
     group.move(-10, 10);
@@ -119,9 +119,9 @@ describe('An Actor Group', () => {
   });
 
   it('can rotate many actors at once by an angle', () => {
-    var a1 = new ex.Actor(0, 0, 100, 100);
+    const a1 = new ex.Actor(0, 0, 100, 100);
     a1.rotation = Math.PI / 3;
-    var a2 = new ex.Actor(100, 100, 200, 190);
+    const a2 = new ex.Actor(100, 100, 200, 190);
     a2.rotation = Math.PI / 2;
 
     group.add([a1, a2]);
@@ -132,7 +132,7 @@ describe('An Actor Group', () => {
   });
 
   it('can call actions off of actors', () => {
-    var a1 = new ex.Actor(0, 0, 100, 100);
+    const a1 = new ex.Actor(0, 0, 100, 100);
 
     group.add(a1);
 
