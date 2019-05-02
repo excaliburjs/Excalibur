@@ -4,20 +4,20 @@ import { Mocks } from './util/Mocks';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('The engine', () => {
-  var engine: ex.Engine;
-  var scene: ex.Scene;
-  var mock = new Mocks.Mocker();
-  var loop: Mocks.GameLoopLike;
-  var initHiDpiSpy: jasmine.Spy;
+  let engine: ex.Engine;
+  let scene: ex.Scene;
+  const mock = new Mocks.Mocker();
+  let loop: Mocks.GameLoopLike;
+  let initHiDpiSpy: jasmine.Spy;
 
-  let reset = () => {
+  const reset = () => {
     initHiDpiSpy.calls.reset();
     engine.stop();
     engine = null;
     (<any>window).devicePixelRatio = 1;
-    let playButton = document.getElementById('excalibur-play');
+    const playButton = document.getElementById('excalibur-play');
     if (playButton) {
-      let body = playButton.parentNode.parentNode;
+      const body = playButton.parentNode.parentNode;
       body.removeChild(playButton.parentNode);
     }
   };
@@ -88,7 +88,7 @@ describe('The engine', () => {
   });
 
   it('should emit a preframe event', () => {
-    var fired = false;
+    let fired = false;
     engine.on('preframe', () => (fired = true));
 
     loop.advance(100);
@@ -97,7 +97,7 @@ describe('The engine', () => {
   });
 
   it('should emit a postframe event', () => {
-    var fired = false;
+    let fired = false;
     engine.on('postframe', () => (fired = true));
 
     loop.advance(100);
@@ -106,7 +106,7 @@ describe('The engine', () => {
   });
 
   it('should emit a preupdate event', () => {
-    var fired = false;
+    let fired = false;
     engine.on('preupdate', () => (fired = true));
 
     loop.advance(100);
@@ -115,7 +115,7 @@ describe('The engine', () => {
   });
 
   it('should emit a postupdate event', () => {
-    var fired = false;
+    let fired = false;
     engine.on('postupdate', () => (fired = true));
 
     loop.advance(100);
@@ -124,7 +124,7 @@ describe('The engine', () => {
   });
 
   it('should emit a predraw event', () => {
-    var fired = false;
+    let fired = false;
     engine.on('predraw', () => (fired = true));
 
     loop.advance(100);
@@ -133,7 +133,7 @@ describe('The engine', () => {
   });
 
   it('should emit a postdraw event', () => {
-    var fired = false;
+    let fired = false;
     engine.on('postdraw', () => (fired = true));
 
     loop.advance(100);
@@ -142,29 +142,29 @@ describe('The engine', () => {
   });
 
   it('should tell engine is running', () => {
-    var status = engine.isPaused();
+    const status = engine.isPaused();
     expect(status).toBe(false);
   });
 
   it('should tell engine is paused', () => {
     engine.stop();
-    var status = engine.isPaused();
+    const status = engine.isPaused();
     expect(status).toBe(true);
   });
 
   it('should again tell engine is running', () => {
     engine.start();
-    var status = engine.isPaused();
+    const status = engine.isPaused();
     expect(status).toBe(false);
   });
 
   it('should return screen dimensions', () => {
     engine.start();
-    var left = engine.screenToWorldCoordinates(ex.Vector.Zero).x;
-    var top = engine.screenToWorldCoordinates(ex.Vector.Zero).y;
-    var right = left + engine.drawWidth;
-    var bottom = top + engine.drawHeight;
-    var localBoundingBox = new ex.BoundingBox(left, top, right, bottom);
+    const left = engine.screenToWorldCoordinates(ex.Vector.Zero).x;
+    const top = engine.screenToWorldCoordinates(ex.Vector.Zero).y;
+    const right = left + engine.drawWidth;
+    const bottom = top + engine.drawHeight;
+    const localBoundingBox = new ex.BoundingBox(left, top, right, bottom);
     expect(engine.getWorldBounds()).toEqual(localBoundingBox);
   });
 
@@ -192,7 +192,7 @@ describe('The engine', () => {
   });
 
   it('should accept AbsolutePosition Interfaces to position the window', () => {
-    var game = new ex.Engine({
+    const game = new ex.Engine({
       height: 600,
       width: 800,
       suppressConsoleBootMessage: true,
@@ -205,7 +205,7 @@ describe('The engine', () => {
   });
 
   it('should accept backgroundColor', () => {
-    var game = new ex.Engine({
+    const game = new ex.Engine({
       height: 600,
       width: 800,
       suppressConsoleBootMessage: true,
@@ -217,7 +217,7 @@ describe('The engine', () => {
   });
 
   it('should accept default backgroundColor #2185d0', () => {
-    var game = new ex.Engine({
+    const game = new ex.Engine({
       height: 600,
       width: 800,
       suppressConsoleBootMessage: true,
@@ -229,12 +229,12 @@ describe('The engine', () => {
 
   it('should detect hidpi when the device pixel ratio is greater than 1', (done) => {
     // Arrange
-    var oldWidth = 100;
-    var oldHeight = 100;
+    const oldWidth = 100;
+    const oldHeight = 100;
 
     (<any>window).devicePixelRatio = 2;
-    var newWidth = oldWidth * (<any>window).devicePixelRatio;
-    var newHeight = oldHeight * (<any>window).devicePixelRatio;
+    const newWidth = oldWidth * (<any>window).devicePixelRatio;
+    const newHeight = oldHeight * (<any>window).devicePixelRatio;
 
     engine = TestUtils.engine({
       width: 100,
@@ -254,12 +254,12 @@ describe('The engine', () => {
 
   it('should not detect hidpi with a device pixel ratio equal to 1', (done) => {
     // Arrange
-    var oldWidth = 100;
-    var oldHeight = 100;
+    const oldWidth = 100;
+    const oldHeight = 100;
 
     (<any>window).devicePixelRatio = 1;
-    var newWidth = oldWidth * (<any>window).devicePixelRatio;
-    var newHeight = oldHeight * (<any>window).devicePixelRatio;
+    const newWidth = oldWidth * (<any>window).devicePixelRatio;
+    const newHeight = oldHeight * (<any>window).devicePixelRatio;
 
     // Act
     engine = TestUtils.engine({
@@ -277,12 +277,12 @@ describe('The engine', () => {
 
   it('should respect a hidpi suppression flag even if the pixel ratio is greater than 1', (done) => {
     // Arrange
-    var oldWidth = 100;
-    var oldHeight = 100;
+    const oldWidth = 100;
+    const oldHeight = 100;
 
     (<any>window).devicePixelRatio = 2;
-    var newWidth = oldWidth * (<any>window).devicePixelRatio;
-    var newHeight = oldHeight * (<any>window).devicePixelRatio;
+    const newWidth = oldWidth * (<any>window).devicePixelRatio;
+    const newHeight = oldHeight * (<any>window).devicePixelRatio;
     // Act
 
     (<any>ex.Engine.prototype)._initializeHiDpi.calls.reset();
@@ -302,7 +302,7 @@ describe('The engine', () => {
   });
 
   it('should accept custom enableCanvasTransparency false', () => {
-    var game = new ex.Engine({
+    const game = new ex.Engine({
       height: 600,
       width: 800,
       enableCanvasTransparency: false,
@@ -312,7 +312,7 @@ describe('The engine', () => {
   });
 
   it('should accept default enableCanvasTransparency true', () => {
-    var game = new ex.Engine({
+    const game = new ex.Engine({
       height: 600,
       width: 800,
       suppressConsoleBootMessage: true
