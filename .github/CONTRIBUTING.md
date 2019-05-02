@@ -50,6 +50,8 @@ Below is the general workflow for submitting changes:
 6. Once your changes are merged, celebrate!
 
 If you’re not sure where to start, take a look at the "good first issue" or "help wanted" [issue labels](#issue-labels).
+- Issues tagged with "good first issue" are designed as an introduction to contributing to open source and the Excalibur project as a whole.
+- Issues tagged with "help wanted" tend to be more involved than good first issues.
 
 #### Discussing a Contribution
 It's helpful to let us know that you'd like to contribute for an issue, to prevent duplicate work. Ask us any questions you have about the issue, so that we can clarify the work you'll need to do. We're here to help!
@@ -76,7 +78,7 @@ If you've replaced a piece of Excalibur's API, please mark it as `@obsolete` and
 If the code you are deprecating is called anywhere else in Excalibur, or in any documentation, please update those places to use the new code you've written.
 
 example: 
-```
+```ts
 /** @obsolete use [[SomeClass]].someNewFunction instead **/
 @obsolete({message: 'ex.SomeClass.someFunction is deprecated, and will be removed in 0.2.0', 
 	alternateMethod: 'SomeClass.someNewFunction'})
@@ -123,9 +125,9 @@ Follow the guidelines below to help maintain a readable and informative git hist
 - Limit lines in the message body to 72 characters or less
 - Reference issue and pull request numbers as appropriate
 - Use hyphens for bulleted lists
-- If your change is small and simple, you may only need to write a single line commit message, e.x. “Fix typo in documentation”
+- If your change is small, you may only need to write a single line commit message, e.x. “Fix typo in documentation”
 
-Here are the rules applied in a sample commit message, along with some additional helpful hints:
+Here are the guidelines applied in a sample commit message, along with some additional helpful hints:
 ```
 Summarize what the commit does in <=50 characters
 
@@ -168,25 +170,16 @@ describe('a monkey', () => {
 ```
 
 #### Documentation
-- All public and protected methods need a JSDoc comment
+- Add JSDoc comments to all public and protected methods 
 - Link to other classes using the TypeDoc double bracket notation.
 
 ## Issue Labels
-- [good first issue][search-label-good first issue]: issues that are good starting points for new contributors
+- [good first issue][search-label-good first issue]: issues that are good starting points for new contributors to open source
 - [help wanted][search-label-help wanted]: issues that are more in-depth and may require a certain platform or skillset to implement
 - [bug][search-label-bug]: a problem or an unexpected behavior
-- [api change][search-label-api change]: implementing an issue with this label will cause changes to the public API
-- [feature][search-label-feature]: a brand new thing that Excalibur doesn’t have yet
-- [enhancement][search-label-enhancement]: an improvement to an existing feature
-- [optimization][search-label-optimization]: increasing performance, decreasing memory usage, etc.
-- [extension][search-label-extension]: features that should exist outside of the core Excalibur library
-- [tools][search-label-tools]: internal development and testing tools
-- [docs][search-label-docs]: code, user, and external documentation of Excalibur
-- [organization][search-label-organization]: re-organizing the repository structure, creating related repositories, etc.
-- [on-deck][search-label-on-deck]: issues that are currently a higher priority than other backlog items
-- [duplicate][search-label-duplicate]: closed because it is a duplicate of an existing issue
-- [invalid][search-label-invalid]: an invalid issue that is not applicable to Excalibur development
-- [wontfix][search-label-wontfix]: an issue that won’t be implemented
+
+If you'd like to contribute, these labels are good places to start. Our remaining labels are documented on the [Labels page](https://github.com/excaliburjs/Excalibur/labels).
+
 
 
 
