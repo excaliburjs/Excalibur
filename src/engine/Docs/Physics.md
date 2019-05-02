@@ -32,6 +32,21 @@ Think of `Fixed` actors as "immovable/onstoppable" objects. If two [[CollisionTy
 meet they will not be pushed or moved by each other, they will not interact except to throw
 collision events.
 
+## Collision Type Behavior Matrix
+
+This matrix shows what will happen with 2 actors of any collision type.
+
+| Collision Type | Prevent |   Passive   |       Active        |        Fixed        |
+| -------------- | :-----: | :---------: | :-----------------: | :-----------------: |
+| Prevent        |  None   |    None     |        None         |        None         |
+| Passive        |  None   | Events Only |     Events Only     |     Events Only     |
+| Active         |  None   | Events Only | Resolution & Events | Resolution & Events |
+| Fixed          |  None   | Events Only | Resolution & Events |        None         |
+
+- None = No collision resolution and no collision events
+- Events Only = No resolution is performed, only collision events are fired on colliders, except for `postcollision` which only fires if resolution was performed.
+- Resolution & Events = Collider positions are resolved according to their collision type and collision events are fired on both colliders
+
 ## Enabling Excalibur physics
 
 To enable physics in your game it is as simple as setting [[Physics.enabled]] to true and picking your
