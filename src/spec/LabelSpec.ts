@@ -1,12 +1,12 @@
-﻿import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '../../build/dist/excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
 xdescribe('A label', () => {
-  var label: ex.Label;
-  var engine: ex.Engine;
-  var scene: ex.Scene;
+  let label: ex.Label;
+  let engine: ex.Engine;
+  let scene: ex.Scene;
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -28,7 +28,7 @@ xdescribe('A label', () => {
   });
 
   it('should have props set by constructor', () => {
-    let label = new ex.Label({
+    const label = new ex.Label({
       text: 'test text',
       bold: true,
       pos: new ex.Vector(1, 2),
