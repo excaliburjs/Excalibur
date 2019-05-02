@@ -4,11 +4,11 @@ import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
 describe('A camera', () => {
-  var Camera;
-  var actor: ex.Actor;
-  var engine: ex.Engine;
-  var scene: ex.Scene;
-  var mock = new Mocks.Mocker();
+  let Camera;
+  let actor: ex.Actor;
+  let engine: ex.Engine;
+  let scene: ex.Scene;
+  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -139,7 +139,7 @@ describe('A camera', () => {
 
   it('can use built-in locked camera strategy', () => {
     engine.currentScene.camera = new ex.Camera();
-    let actor = new ex.Actor(0, 0);
+    const actor = new ex.Actor(0, 0);
 
     engine.currentScene.camera.strategy.lockToActor(actor);
 
@@ -155,7 +155,7 @@ describe('A camera', () => {
 
   it('can use built-in locked camera x axis strategy', () => {
     engine.currentScene.camera = new ex.Camera();
-    let actor = new ex.Actor(0, 0);
+    const actor = new ex.Actor(0, 0);
 
     engine.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.X);
 
@@ -171,7 +171,7 @@ describe('A camera', () => {
 
   it('can use built-in locked camera y axis strategy', () => {
     engine.currentScene.camera = new ex.Camera();
-    let actor = new ex.Actor(0, 0);
+    const actor = new ex.Actor(0, 0);
 
     engine.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.Y);
 
@@ -187,7 +187,7 @@ describe('A camera', () => {
 
   it('can use built-in radius around actor strategy', () => {
     engine.currentScene.camera = new ex.Camera();
-    let actor = new ex.Actor(0, 0);
+    const actor = new ex.Actor(0, 0);
 
     engine.currentScene.camera.strategy.radiusAroundActor(actor, 15);
 
@@ -197,14 +197,14 @@ describe('A camera', () => {
 
     actor.pos.setTo(100, 100);
     engine.currentScene.camera.update(engine, 100);
-    let distance = engine.currentScene.camera.pos.distance(actor.pos);
+    const distance = engine.currentScene.camera.pos.distance(actor.pos);
     expect(distance).toBeCloseTo(15, 0.01);
   });
 
   it('can use built-in elastic around actor strategy', () => {
     engine.currentScene.camera = new ex.Camera();
     engine.currentScene.camera.pos.setTo(0, 0);
-    let actor = new ex.Actor(0, 0);
+    const actor = new ex.Actor(0, 0);
 
     engine.currentScene.camera.strategy.elasticToActor(actor, 0.05, 0.1);
 
@@ -216,13 +216,13 @@ describe('A camera', () => {
     engine.currentScene.camera.update(engine, 100);
     engine.currentScene.camera.update(engine, 100);
     engine.currentScene.camera.update(engine, 100);
-    let distance = engine.currentScene.camera.pos.distance(actor.pos);
+    const distance = engine.currentScene.camera.pos.distance(actor.pos);
     expect(distance).toBeLessThan(new ex.Vector(100, 100).distance());
 
     engine.currentScene.camera.update(engine, 100);
     engine.currentScene.camera.update(engine, 100);
     engine.currentScene.camera.update(engine, 100);
-    let distance2 = engine.currentScene.camera.pos.distance(actor.pos);
+    const distance2 = engine.currentScene.camera.pos.distance(actor.pos);
     expect(distance2).toBeLessThan(distance);
   });
 
