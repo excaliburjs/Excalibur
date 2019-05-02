@@ -2,9 +2,9 @@ import * as ex from '../../build/dist/excalibur';
 import { Mocks } from './util/Mocks';
 
 describe('A keyboard', () => {
-  var mockWindow = null;
-  var keyboard: ex.Input.Keyboard = null;
-  var mocker = new Mocks.Mocker();
+  let mockWindow = null;
+  let keyboard: ex.Input.Keyboard = null;
+  const mocker = new Mocks.Mocker();
 
   beforeEach(() => {
     mockWindow = <any>mocker.window();
@@ -18,7 +18,7 @@ describe('A keyboard', () => {
   });
 
   it('should fire keydown events', () => {
-    var eventFired = false;
+    let eventFired = false;
 
     keyboard.on('down', function(ev: ex.Input.KeyEvent) {
       if (ev.key === ex.Input.Keys.Up) {
@@ -32,7 +32,7 @@ describe('A keyboard', () => {
   });
 
   it('should fire keyup events', () => {
-    var eventFired = false;
+    let eventFired = false;
 
     keyboard.on('up', function(ev: ex.Input.KeyEvent) {
       if (ev.key === ex.Input.Keys.Up) {
