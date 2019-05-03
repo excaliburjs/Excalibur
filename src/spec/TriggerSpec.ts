@@ -3,10 +3,10 @@ import { Mocks } from './util/Mocks';
 import { TestUtils } from './util/TestUtils';
 
 describe('A Trigger', () => {
-  var scene: ex.Scene;
-  var engine: ex.Engine;
-  var mock = new Mocks.Mocker();
-  var loop: Mocks.GameLoopLike;
+  let scene: ex.Scene;
+  let engine: ex.Engine;
+  const mock = new Mocks.Mocker();
+  let loop: Mocks.GameLoopLike;
 
   beforeEach(() => {
     engine = TestUtils.engine({ width: 600, height: 400 });
@@ -28,13 +28,13 @@ describe('A Trigger', () => {
 
   it('can be triggered once', () => {
     // Arrange
-    var trigger = new ex.Trigger({
+    const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
       width: 100,
       height: 100,
       repeat: 1
     });
-    var actor = new ex.Actor(0, 0, 10, 10);
+    const actor = new ex.Actor(0, 0, 10, 10);
     actor.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
     engine.currentScene.add(trigger);
@@ -63,13 +63,13 @@ describe('A Trigger', () => {
 
   it('can be triggered multiple times', () => {
     // Arrange
-    var trigger = new ex.Trigger({
+    const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
       width: 100,
       height: 100,
       repeat: 3
     });
-    var actor = new ex.Actor(0, 0, 10, 10);
+    const actor = new ex.Actor(0, 0, 10, 10);
     actor.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
     engine.currentScene.add(trigger);
@@ -98,9 +98,9 @@ describe('A Trigger', () => {
 
   it('fires an event when an actor enters the trigger once', () => {
     // Arrange
-    var fired = 0;
+    let fired = 0;
 
-    var trigger = new ex.Trigger({
+    const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
       width: 100,
       height: 100
@@ -108,7 +108,7 @@ describe('A Trigger', () => {
 
     trigger.collisionType = ex.CollisionType.Passive;
 
-    var actor = new ex.Actor(0, 0, 10, 10);
+    const actor = new ex.Actor(0, 0, 10, 10);
     actor.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
 
@@ -130,15 +130,15 @@ describe('A Trigger', () => {
 
   it('fires an event when the actor exits the trigger', () => {
     // Arrange
-    var fired = 0;
+    let fired = 0;
 
-    var trigger = new ex.Trigger({
+    const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
       width: 100,
       height: 100
     });
 
-    var actor = new ex.Actor(0, 0, 10, 10);
+    const actor = new ex.Actor(0, 0, 10, 10);
     actor.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
 
@@ -161,7 +161,7 @@ describe('A Trigger', () => {
 
   it('does not draw by default', () => {
     // Arrange
-    var trigger = new ex.Trigger({
+    const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
       width: 100,
       height: 100
@@ -181,7 +181,7 @@ describe('A Trigger', () => {
 
   it('can draw if directed', () => {
     // Arrange
-    var trigger = new ex.Trigger({
+    const trigger = new ex.Trigger({
       pos: new ex.Vector(200, 200),
       visible: true,
       width: 100,
@@ -202,7 +202,7 @@ describe('A Trigger', () => {
 
   it('will only trigger if the filter is false', () => {
     // Arrange
-    var trigger = new ex.Trigger({
+    const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
       visible: true,
       width: 100,
@@ -210,7 +210,7 @@ describe('A Trigger', () => {
       filter: () => false
     });
 
-    var actor = new ex.Actor(0, 100, 10, 10);
+    const actor = new ex.Actor(0, 100, 10, 10);
 
     engine.add(trigger);
     engine.add(actor);
@@ -227,7 +227,7 @@ describe('A Trigger', () => {
 
   it('will not only trigger if the filter is true', () => {
     // Arrange
-    var trigger = new ex.Trigger({
+    const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
       visible: true,
       width: 100,
@@ -235,7 +235,7 @@ describe('A Trigger', () => {
       filter: () => true
     });
 
-    var actor = new ex.Actor(0, 100, 10, 10);
+    const actor = new ex.Actor(0, 100, 10, 10);
     actor.collisionType = ex.CollisionType.Active;
 
     engine.add(trigger);
@@ -253,10 +253,10 @@ describe('A Trigger', () => {
 
   it('will only trigger on a target', () => {
     // Arrange
-    var actor = new ex.Actor(0, 100, 10, 10);
-    var actor2 = new ex.Actor(0, 100, 10, 10);
+    const actor = new ex.Actor(0, 100, 10, 10);
+    const actor2 = new ex.Actor(0, 100, 10, 10);
 
-    var trigger = new ex.Trigger({
+    const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
       visible: true,
       width: 100,
