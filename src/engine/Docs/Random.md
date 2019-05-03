@@ -3,7 +3,7 @@ reuse this seed anytime to get the exact sequence of random numbers back. If no
 seed is provided, it uses `Date.now()` ticks as the seed.
 
 ```ts
-var rand = new ex.Random(1234);
+const rand = new ex.Random(1234);
 
 // random integer between [min, max]
 rand.integer(0, 10);
