@@ -50,7 +50,7 @@ import loaderCss from './Loader.css';
  * The loader can be customized to show different, text, logo, background color, and button.
  *
  * ```typescript
- * var loader = new ex.Loader([playerTexture]);
+ * const loader = new ex.Loader([playerTexture]);
  *
  * // The loaders button text can simply modified using this
  * loader.playButtonText = 'Start the best game ever';
