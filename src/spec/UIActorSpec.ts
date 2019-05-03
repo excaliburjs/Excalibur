@@ -4,10 +4,10 @@ import { Mocks } from './util/Mocks';
 import { TestUtils } from './util/TestUtils';
 
 describe('A UIActor', () => {
-  var uiActor: ex.UIActor;
-  var engine: ex.Engine;
-  var scene: ex.Scene;
-  var mock = new Mocks.Mocker();
+  let uiActor: ex.UIActor;
+  let engine: ex.Engine;
+  let scene: ex.Scene;
+  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -74,11 +74,11 @@ describe('A UIActor', () => {
   });
 
   it('is drawn on the top left with empty constructor', (done) => {
-    let game = TestUtils.engine({ width: 720, height: 480 });
-    let bg = new ex.Texture('base/src/spec/images/UIActorSpec/emptyctor.png', true);
+    const game = TestUtils.engine({ width: 720, height: 480 });
+    const bg = new ex.Texture('base/src/spec/images/UIActorSpec/emptyctor.png', true);
 
     game.start(new ex.Loader([bg])).then(() => {
-      let uiActor = new ex.UIActor();
+      const uiActor = new ex.UIActor();
       uiActor.addDrawing(bg);
       game.add(uiActor);
 
