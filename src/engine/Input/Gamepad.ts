@@ -92,17 +92,17 @@ export class Gamepads extends Class {
     return axesLength >= this._minimumConfiguration.axis && buttonLength >= this._minimumConfiguration.buttons && pad.connected;
   }
 
-  public on(eventName: Events.connect, handler: (event?: GamepadConnectEvent) => void): void;
-  public on(eventName: Events.disconnect, handler: (event?: GamepadDisconnectEvent) => void): void;
-  public on(eventName: Events.button, handler: (event?: GamepadButtonEvent) => void): void;
-  public on(eventName: Events.axis, handler: (event?: GamepadAxisEvent) => void): void;
-  public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event?: any) => void): void {
+  public on(eventName: Events.connect, handler: (event: GamepadConnectEvent) => void): void;
+  public on(eventName: Events.disconnect, handler: (event: GamepadDisconnectEvent) => void): void;
+  public on(eventName: Events.button, handler: (event: GamepadButtonEvent) => void): void;
+  public on(eventName: Events.axis, handler: (event: GamepadAxisEvent) => void): void;
+  public on(eventName: string, handler: (event: GameEvent<any>) => void): void;
+  public on(eventName: string, handler: (event: any) => void): void {
     this._enableAndUpdate(); // implicitly enable
     super.on(eventName, handler);
   }
 
-  public off(eventName: string, handler?: (event?: GameEvent<any>) => void) {
+  public off(eventName: string, handler?: (event: GameEvent<any>) => void) {
     this._enableAndUpdate(); // implicitly enable
     super.off(eventName, handler);
   }

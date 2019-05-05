@@ -395,15 +395,15 @@ export class Pointers extends Class {
     this.primary = this._pointers[0];
   }
 
-  public on(eventName: Events.up, handler: (event?: PointerEvent) => void): void;
-  public on(eventName: Events.down, handler: (event?: PointerEvent) => void): void;
-  public on(eventName: Events.move, handler: (event?: PointerEvent) => void): void;
-  public on(eventName: Events.enter, handler: (event?: PointerEvent) => void): void;
-  public on(eventName: Events.leave, handler: (event?: PointerEvent) => void): void;
-  public on(eventName: Events.cancel, handler: (event?: PointerEvent) => void): void;
-  public on(eventName: Events.wheel, handler: (event?: WheelEvent) => void): void;
-  public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event?: any) => void): void {
+  public on(eventName: Events.up, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.down, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.move, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.enter, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.leave, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.cancel, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.wheel, handler: (event: WheelEvent) => void): void;
+  public on(eventName: string, handler: (event: GameEvent<any>) => void): void;
+  public on(eventName: string, handler: (event: any) => void): void {
     super.on(eventName, handler);
   }
 

@@ -101,15 +101,15 @@ export class Group extends Class implements Actionable, Eventable {
     }
   }
 
-  public on(eventName: string, handler: (event?: GameEvent<any>) => void) {
+  public on(eventName: string, handler: (event: GameEvent<any>) => void) {
     this.eventDispatcher.on(eventName, handler);
   }
 
-  public off(eventName: string, handler?: (event?: GameEvent<any>) => void) {
+  public off(eventName: string, handler?: (event: GameEvent<any>) => void) {
     this.eventDispatcher.off(eventName, handler);
   }
 
-  public emit(topic: string, event?: GameEvent<any>) {
+  public emit(topic: string, event: GameEvent<any>) {
     this.eventDispatcher.emit(topic, event);
   }
 
