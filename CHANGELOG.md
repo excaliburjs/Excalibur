@@ -15,7 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-<!-- Changed features here --->
+- Changed event handlers in excalibur to expect non-null event objects, before `hander: (event?: GameEvent) => void` implied that event could be null. This change addresses ([#1147](https://github.com/excaliburjs/Excalibur/issues/1147)) making strict null/function checks compatible with new typescript.
 
 ### Deprecated
 
