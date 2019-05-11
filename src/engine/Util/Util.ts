@@ -403,3 +403,10 @@ export class Collection<T> {
     }
   }
 }
+
+/**
+ * Used for exhaustive checks at compile time
+ */
+export function fail(message: never): never {
+  throw new Error(message);
+}

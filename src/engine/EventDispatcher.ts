@@ -11,7 +11,7 @@ import { Eventable } from './Interfaces/Evented';
  * [[include:Events.md]]
  */
 export class EventDispatcher implements Eventable {
-  private _handlers: { [key: string]: { (event?: GameEvent<any>): void }[] } = {};
+  private _handlers: { [key: string]: { (event: GameEvent<any>): void }[] } = {};
   private _wiredEventDispatchers: EventDispatcher[] = [];
 
   private _target: any;
@@ -28,7 +28,7 @@ export class EventDispatcher implements Eventable {
    * @param eventName  The name of the event to publish
    * @param event      Optionally pass an event data object to the handler
    */
-  public emit(eventName: string, event?: GameEvent<any>) {
+  public emit(eventName: string, event: GameEvent<any>) {
     if (!eventName) {
       // key not mapped
       return;
@@ -64,7 +64,7 @@ export class EventDispatcher implements Eventable {
    * @param eventName  The name of the event to subscribe to
    * @param handler    The handler callback to fire on this event
    */
-  public on(eventName: string, handler: (event?: GameEvent<any>) => void) {
+  public on(eventName: string, handler: (event: GameEvent<any>) => void) {
     eventName = eventName.toLowerCase();
     if (!this._handlers[eventName]) {
       this._handlers[eventName] = [];
@@ -86,7 +86,7 @@ export class EventDispatcher implements Eventable {
    * @param handler    Optionally the specific handler to unsubscribe
    *
    */
-  public off(eventName: string, handler?: (event?: GameEvent<any>) => void) {
+  public off(eventName: string, handler?: (event: GameEvent<any>) => void) {
     eventName = eventName.toLowerCase();
     const eventHandlers = this._handlers[eventName];
 
@@ -111,8 +111,8 @@ export class EventDispatcher implements Eventable {
    * @param eventName The name of the event to subscribe to once
    * @param handler   The handler of the event that will be auto unsubscribed
    */
-  public once(eventName: string, handler: (event?: GameEvent<any>) => void) {
-    const metaHandler = (event?: GameEvent<any>) => {
+  public once(eventName: string, handler: (event: GameEvent<any>) => void) {
+    let metaHandler = (event: GameEvent<any>) => {
       const ev = event || new GameEvent();
       ev.target = ev.target || this._target;
 

@@ -84,11 +84,11 @@ export class Keyboard extends Class {
     super();
   }
 
-  public on(eventName: Events.press, handler: (event?: KeyEvent) => void): void;
-  public on(eventName: Events.release, handler: (event?: KeyEvent) => void): void;
-  public on(eventName: Events.hold, handler: (event?: KeyEvent) => void): void;
-  public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event?: any) => void): void {
+  public on(eventName: Events.press, handler: (event: KeyEvent) => void): void;
+  public on(eventName: Events.release, handler: (event: KeyEvent) => void): void;
+  public on(eventName: Events.hold, handler: (event: KeyEvent) => void): void;
+  public on(eventName: string, handler: (event: GameEvent<any>) => void): void;
+  public on(eventName: string, handler: (event: any) => void): void {
     super.on(eventName, handler);
   }
 

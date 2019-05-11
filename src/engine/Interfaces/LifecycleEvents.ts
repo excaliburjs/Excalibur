@@ -11,9 +11,9 @@ export interface CanInitialize {
   /**
    * Event signatures
    */
-  on(eventName: Events.initialize, handler: (event?: Events.InitializeEvent) => void): void;
-  once(eventName: Events.initialize, handler: (event?: Events.InitializeEvent) => void): void;
-  off(eventName: Events.initialize, handler?: (event?: Events.InitializeEvent) => void): void;
+  on(eventName: Events.initialize, handler: (event: Events.InitializeEvent) => void): void;
+  once(eventName: Events.initialize, handler: (event: Events.InitializeEvent) => void): void;
+  off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent) => void): void;
 }
 
 export interface CanActivate {
@@ -25,9 +25,9 @@ export interface CanActivate {
   /**
    * Event signatures
    */
-  on(eventName: Events.activate, handler: (event?: Events.ActivateEvent) => void): void;
-  once(eventName: Events.activate, handler: (event?: Events.ActivateEvent) => void): void;
-  off(eventName: Events.activate, handler?: (event?: Events.ActivateEvent) => void): void;
+  on(eventName: Events.activate, handler: (event: Events.ActivateEvent) => void): void;
+  once(eventName: Events.activate, handler: (event: Events.ActivateEvent) => void): void;
+  off(eventName: Events.activate, handler?: (event: Events.ActivateEvent) => void): void;
 }
 
 export interface CanDeactivate {
@@ -39,9 +39,9 @@ export interface CanDeactivate {
   /**
    * Event signature
    */
-  on(eventName: Events.deactivate, handler: (event?: Events.DeactivateEvent) => void): void;
-  once(eventName: Events.deactivate, handler: (event?: Events.DeactivateEvent) => void): void;
-  off(eventName: Events.deactivate, handler?: (event?: Events.DeactivateEvent) => void): void;
+  on(eventName: Events.deactivate, handler: (event: Events.DeactivateEvent) => void): void;
+  once(eventName: Events.deactivate, handler: (event: Events.DeactivateEvent) => void): void;
+  off(eventName: Events.deactivate, handler?: (event: Events.DeactivateEvent) => void): void;
 }
 
 export interface CanUpdate {
@@ -53,9 +53,9 @@ export interface CanUpdate {
   /**
    * Event signature
    */
-  on(eventName: Events.preupdate, handler: (event?: Events.PreUpdateEvent) => void): void;
-  once(eventName: Events.preupdate, handler: (event?: Events.PreUpdateEvent) => void): void;
-  off(eventName: Events.preupdate, handler?: (event?: Events.PreUpdateEvent) => void): void;
+  on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent) => void): void;
+  once(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent) => void): void;
+  off(eventName: Events.preupdate, handler?: (event: Events.PreUpdateEvent) => void): void;
 
   /**
    * Overridable implementation
@@ -65,9 +65,9 @@ export interface CanUpdate {
   /**
    * Event signatures
    */
-  on(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void): void;
-  once(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void): void;
-  off(eventName: Events.postupdate, handler?: (event?: Events.PostUpdateEvent) => void): void;
+  on(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent) => void): void;
+  once(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent) => void): void;
+  off(eventName: Events.postupdate, handler?: (event: Events.PostUpdateEvent) => void): void;
 }
 
 export interface CanDraw {
@@ -79,9 +79,9 @@ export interface CanDraw {
   /**
    * Event signatures
    */
-  on(eventName: Events.predraw, handler: (event?: Events.PreDrawEvent) => void): void;
-  once(eventName: Events.predraw, handler: (event?: Events.PreDrawEvent) => void): void;
-  off(eventName: Events.predraw, handler?: (event?: Events.PreDrawEvent) => void): void;
+  on(eventName: Events.predraw, handler: (event: Events.PreDrawEvent) => void): void;
+  once(eventName: Events.predraw, handler: (event: Events.PreDrawEvent) => void): void;
+  off(eventName: Events.predraw, handler?: (event: Events.PreDrawEvent) => void): void;
 
   /**
    * Overridable implementation
@@ -91,9 +91,9 @@ export interface CanDraw {
   /**
    * Event signatures
    */
-  on(eventName: Events.postdraw, handler: (event?: Events.PostDrawEvent) => void): void;
-  once(eventName: Events.postdraw, handler: (event?: Events.PostDrawEvent) => void): void;
-  off(eventName: Events.postdraw, handler?: (event?: Events.PostDrawEvent) => void): void;
+  on(eventName: Events.postdraw, handler: (event: Events.PostDrawEvent) => void): void;
+  once(eventName: Events.postdraw, handler: (event: Events.PostDrawEvent) => void): void;
+  off(eventName: Events.postdraw, handler?: (event: Events.PostDrawEvent) => void): void;
 }
 
 export interface CanBeKilled {
@@ -105,9 +105,9 @@ export interface CanBeKilled {
   /**
    * Event signatures
    */
-  on(eventName: Events.prekill, handler: (event?: Events.PreKillEvent) => void): void;
-  once(eventName: Events.prekill, handler: (event?: Events.PreKillEvent) => void): void;
-  off(eventName: Events.prekill, handler: (event?: Events.PreKillEvent) => void): void;
+  on(eventName: Events.prekill, handler: (event: Events.PreKillEvent) => void): void;
+  once(eventName: Events.prekill, handler: (event: Events.PreKillEvent) => void): void;
+  off(eventName: Events.prekill, handler: (event: Events.PreKillEvent) => void): void;
 
   /**
    * Overridable implementation
@@ -117,7 +117,7 @@ export interface CanBeKilled {
   /**
    * Event signatures
    */
-  on(eventName: Events.postkill, handler: (event?: Events.PostKillEvent) => void): void;
-  once(eventName: Events.postkill, handler: (event?: Events.PostKillEvent) => void): void;
-  off(eventName: Events.postkill, handler: (event?: Events.PostKillEvent) => void): void;
+  on(eventName: Events.postkill, handler: (event: Events.PostKillEvent) => void): void;
+  once(eventName: Events.postkill, handler: (event: Events.PostKillEvent) => void): void;
+  off(eventName: Events.postkill, handler: (event: Events.PostKillEvent) => void): void;
 }
