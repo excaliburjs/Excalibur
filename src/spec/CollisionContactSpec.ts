@@ -7,7 +7,7 @@ describe('A CollisionContact', () => {
   beforeEach(() => {
     actorA = new ex.Actor(0, 0, 20, 20);
     const colliderA = actorA.body.collider;
-    colliderA.collisionType = ex.CollisionType.Active;
+    colliderA.type = ex.CollisionType.Active;
     colliderA.shape = new ex.Circle({
       radius: 10,
       body: actorA.body
@@ -15,7 +15,7 @@ describe('A CollisionContact', () => {
 
     actorB = new ex.Actor(20, 0, 20, 20);
     const colliderB = actorB.body.collider;
-    colliderB.collisionType = ex.CollisionType.Active;
+    colliderB.type = ex.CollisionType.Active;
 
     colliderB.shape = new ex.Circle({
       radius: 10,

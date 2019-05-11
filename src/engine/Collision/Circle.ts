@@ -1,7 +1,7 @@
 import { BoundingBox } from './BoundingBox';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { CollisionContact } from './CollisionContact';
-import { CollisionGeometry } from './CollisionGeometry';
+import { CollisionShape } from './CollisionShape';
 import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 
@@ -26,7 +26,7 @@ export interface CircleOptions {
 /**
  * This is a circle collision area for the excalibur rigid body physics simulation
  */
-export class Circle implements CollisionGeometry {
+export class Circle implements CollisionShape {
   /**
    * This is the center position of the circle, relative to the body position
    */
@@ -124,7 +124,7 @@ export class Circle implements CollisionGeometry {
   /**
    * @inheritdoc
    */
-  public collide(area: CollisionGeometry): CollisionContact {
+  public collide(area: CollisionShape): CollisionContact {
     if (area instanceof Circle) {
       return CollisionJumpTable.CollideCircleCircle(this, area);
     } else if (area instanceof ConvexPolygon) {
@@ -132,7 +132,7 @@ export class Circle implements CollisionGeometry {
     } else if (area instanceof Edge) {
       return CollisionJumpTable.CollideCircleEdge(this, area);
     } else {
-      throw new Error(`Circle could not collide with unknown CollisionGeometry ${typeof area}`);
+      throw new Error(`Circle could not collide with unknown CollisionShape ${typeof area}`);
     }
   }
 
@@ -170,7 +170,7 @@ export class Circle implements CollisionGeometry {
    * Returns the moment of inertia of a circle given it's mass
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public getMomentOfInertia(): number {
+  public getInertia(): number {
     const mass = this.collider ? this.collider.mass : Physics.defaultMass;
     return (mass * this.radius * this.radius) / 2;
   }

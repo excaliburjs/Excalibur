@@ -2,7 +2,7 @@ import { Body } from './Body';
 import { BoundingBox } from './BoundingBox';
 import { CollisionContact } from './CollisionContact';
 import { CollisionJumpTable } from './CollisionJumpTable';
-import { CollisionGeometry } from './CollisionGeometry';
+import { CollisionShape } from './CollisionShape';
 import { Circle } from './Circle';
 import { ConvexPolygon } from './ConvexPolygon';
 
@@ -20,7 +20,7 @@ export interface EdgeOptions {
   body?: Body;
 }
 
-export class Edge implements CollisionGeometry {
+export class Edge implements CollisionShape {
   body: Body;
   collider: Collider;
   pos: Vector;
@@ -128,7 +128,7 @@ export class Edge implements CollisionGeometry {
   /**
    * @inheritdoc
    */
-  public collide(area: CollisionGeometry): CollisionContact {
+  public collide(area: CollisionShape): CollisionContact {
     if (area instanceof Circle) {
       return CollisionJumpTable.CollideCircleEdge(area, this);
     } else if (area instanceof ConvexPolygon) {
@@ -136,7 +136,7 @@ export class Edge implements CollisionGeometry {
     } else if (area instanceof Edge) {
       return CollisionJumpTable.CollideEdgeEdge();
     } else {
-      throw new Error(`Edge could not collide with unknown CollisionGeometry ${typeof area}`);
+      throw new Error(`Edge could not collide with unknown CollisionShape ${typeof area}`);
     }
   }
 
@@ -186,7 +186,7 @@ export class Edge implements CollisionGeometry {
    * Get the moment of inertia for an edge
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public getMomentOfInertia(): number {
+  public getInertia(): number {
     const mass = this.collider ? this.collider.mass : Physics.defaultMass;
     const length = this.end.sub(this.begin).distance() / 2;
     return mass * length * length;

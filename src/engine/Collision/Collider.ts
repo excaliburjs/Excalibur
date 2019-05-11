@@ -4,7 +4,7 @@ import { Eventable } from '../Interfaces/Index';
 import { GameEvent, PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
 import { Actor } from '../Actor';
 import { Body } from './Body';
-import { CollisionGeometry } from './CollisionGeometry';
+import { CollisionShape } from './CollisionShape';
 import { Vector } from '../Algebra';
 import { Physics, CollisionResolutionStrategy } from '../Physics';
 import { BoundingBox } from './BoundingBox';
@@ -24,7 +24,7 @@ function isCollider(x: Actor | Collider): x is Collider {
  */
 
 export class Collider implements Eventable {
-  private _geometry: CollisionGeometry;
+  private _shape: CollisionShape;
 
   constructor(private _actor: Actor, private _body: Body) {}
 
@@ -62,21 +62,21 @@ export class Collider implements Eventable {
    * Gets or sets the current collision type of this collider. By
    * default it is ([[CollisionType.PreventCollision]]).
    */
-  public collisionType: CollisionType = CollisionType.PreventCollision;
+  public type: CollisionType = CollisionType.PreventCollision;
 
   /**
-   * Get the shape of the collider as a [[CollisionGeometry]]
+   * Get the shape of the collider as a [[CollisionShape]]
    */
-  public get shape(): CollisionGeometry {
-    return this._geometry;
+  public get shape(): CollisionShape {
+    return this._shape;
   }
 
   /**
-   * Set the shape of the collider as a [[CollisionGeometry]]
+   * Set the shape of the collider as a [[CollisionShape]]
    */
-  public set shape(shape: CollisionGeometry) {
-    this._geometry = shape;
-    this._geometry.collider = this;
+  public set shape(shape: CollisionShape) {
+    this._shape = shape;
+    this._shape.collider = this;
   }
 
   /**
@@ -106,9 +106,9 @@ export class Collider implements Eventable {
   public mass: number = 1.0;
 
   /**
-   * The current moment of inertia, moi can be thought of as the resistance to rotation.
+   * The current moment of inertia, moment of inertia can be thought of as the resistance to rotation.
    */
-  public moi: number = 1000;
+  public inertia: number = 1000;
 
   /**
    * The coefficient of friction on this actor
@@ -121,7 +121,7 @@ export class Collider implements Eventable {
   public restitution: number = 0.2;
 
   /**
-   * Returns the body's [[BoundingBox]] calculated for this instant in world space.
+   * Returns the collider's [[BoundingBox]] calculated for this instant in world space.
    */
   public getBounds(): BoundingBox {
     if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
@@ -148,7 +148,7 @@ export class Collider implements Eventable {
   public update() {
     if (this.shape) {
       // Update the geometry if needed
-      if (this.body && this.body.isGeometryDirty && this.shape instanceof ConvexPolygon) {
+      if (this.body && this.body.isColliderShapeDirty && this.shape instanceof ConvexPolygon) {
         this.shape.points = this._actor.getRelativeGeometry();
       }
 

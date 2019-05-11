@@ -122,11 +122,14 @@ export class Body {
     this._totalMtv.setTo(0, 0);
   }
 
-  public taintCollisionGeometry() {
+  /**
+   * Flags the shape dirty and must be recalculated in world space
+   */
+  public dirtyColliderShape() {
     this._geometryDirty = true;
   }
 
-  public get isGeometryDirty(): boolean {
+  public get isColliderShapeDirty(): boolean {
     return this._geometryDirty;
   }
 
@@ -150,14 +153,14 @@ export class Body {
 
     const totalAcc = this.acc.clone();
     // Only active vanilla actors are affected by global acceleration
-    if (this.collider.collisionType === CollisionType.Active) {
+    if (this.collider.type === CollisionType.Active) {
       totalAcc.addEqual(Physics.acc);
     }
 
     this.vel.addEqual(totalAcc.scale(seconds));
     this.pos.addEqual(this.vel.scale(seconds)).addEqual(totalAcc.scale(0.5 * seconds * seconds));
 
-    this.rx += this.torque * (1.0 / this.collider.moi) * seconds;
+    this.rx += this.torque * (1.0 / this.collider.inertia) * seconds;
     this.rotation += this.rx * seconds;
 
     this.scale.x += (this.sx * delta) / 1000;
@@ -186,7 +189,7 @@ export class Body {
     });
 
     // in case of a nan moi, coalesce to a safe default
-    this.collider.moi = this.collider.shape.getMomentOfInertia() || this.collider.moi;
+    this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
     return this.collider;
   }
 
@@ -215,7 +218,7 @@ export class Body {
     });
 
     // in case of a nan moi, collesce to a safe default
-    this.collider.moi = this.collider.shape.getMomentOfInertia() || this.collider.moi;
+    this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
     return this.collider;
   }
 
@@ -241,7 +244,7 @@ export class Body {
       radius: radius,
       pos: center
     });
-    this.collider.moi = this.collider.shape.getMomentOfInertia() || this.collider.moi;
+    this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
     return this.collider;
   }
 
@@ -266,7 +269,7 @@ export class Body {
       end: end
     });
 
-    this.collider.moi = this.collider.shape.getMomentOfInertia() || this.collider.moi;
+    this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
   }
 
   /**

@@ -55,9 +55,9 @@ export class CollisionContact {
   }
 
   private _applyBoxImpulse(colliderA: Collider, colliderB: Collider, mtv: Vector) {
-    if (colliderA.collisionType === CollisionType.Active && colliderB.collisionType !== CollisionType.Passive) {
+    if (colliderA.type === CollisionType.Active && colliderB.type !== CollisionType.Passive) {
       // Resolve overlaps
-      if (colliderA.collisionType === CollisionType.Active && colliderB.collisionType === CollisionType.Active) {
+      if (colliderA.type === CollisionType.Active && colliderB.type === CollisionType.Active) {
         // split overlaps if both are Active
         mtv = mtv.scale(0.5);
       }
@@ -110,15 +110,15 @@ export class CollisionContact {
     );
 
     // If any of the participants are passive then short circuit
-    if (this.colliderA.collisionType === CollisionType.Passive || this.colliderB.collisionType === CollisionType.Passive) {
+    if (this.colliderA.type === CollisionType.Passive || this.colliderB.type === CollisionType.Passive) {
       return;
     }
 
-    const invMassA = this.colliderA.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderA.mass;
-    const invMassB = this.colliderB.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderB.mass;
+    const invMassA = this.colliderA.type === CollisionType.Fixed ? 0 : 1 / this.colliderA.mass;
+    const invMassB = this.colliderB.type === CollisionType.Fixed ? 0 : 1 / this.colliderB.mass;
 
-    const invMoiA = this.colliderA.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderA.moi;
-    const invMoiB = this.colliderB.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderB.moi;
+    const invMoiA = this.colliderA.type === CollisionType.Fixed ? 0 : 1 / this.colliderA.inertia;
+    const invMoiB = this.colliderB.type === CollisionType.Fixed ? 0 : 1 / this.colliderB.inertia;
 
     // average restitution more relistic
     const coefRestitution = Math.min(this.colliderA.restitution, this.colliderB.restitution);
@@ -153,13 +153,13 @@ export class CollisionContact {
     const impulse =
       -((1 + coefRestitution) * rvNormal) / (invMassA + invMassB + invMoiA * raTangent * raTangent + invMoiB * rbTangent * rbTangent);
 
-    if (this.colliderA.collisionType === CollisionType.Fixed) {
+    if (this.colliderA.type === CollisionType.Fixed) {
       bodyB.vel = bodyB.vel.add(normal.scale(impulse * invMassB));
       if (Physics.allowRigidBodyRotation) {
         bodyB.rx -= impulse * invMoiB * -rb.cross(normal);
       }
       bodyB.addMtv(mtv);
-    } else if (this.colliderB.collisionType === CollisionType.Fixed) {
+    } else if (this.colliderB.type === CollisionType.Fixed) {
       bodyA.vel = bodyA.vel.sub(normal.scale(impulse * invMassA));
       if (Physics.allowRigidBodyRotation) {
         bodyA.rx += impulse * invMoiA * -ra.cross(normal);
@@ -197,13 +197,13 @@ export class CollisionContact {
         frictionImpulse = t.scale(-impulse * coefFriction);
       }
 
-      if (this.colliderA.collisionType === CollisionType.Fixed) {
+      if (this.colliderA.type === CollisionType.Fixed) {
         // apply frictional impulse
         bodyB.vel = bodyB.vel.add(frictionImpulse.scale(invMassB));
         if (Physics.allowRigidBodyRotation) {
           bodyB.rx += frictionImpulse.dot(t) * invMoiB * rb.cross(t);
         }
-      } else if (this.colliderB.collisionType === CollisionType.Fixed) {
+      } else if (this.colliderB.type === CollisionType.Fixed) {
         // apply frictional impulse
         bodyA.vel = bodyA.vel.sub(frictionImpulse.scale(invMassA));
         if (Physics.allowRigidBodyRotation) {

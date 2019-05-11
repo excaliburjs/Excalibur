@@ -34,7 +34,7 @@ import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
 import { ActionQueue } from './Actions/Action';
 import { Vector } from './Algebra';
-import { CollisionGeometry } from './Collision/CollisionGeometry';
+import { CollisionShape } from './Collision/CollisionShape';
 import { Body } from './Collision/Body';
 import { Side } from './Collision/Side';
 import { Eventable } from './Interfaces/Evented';
@@ -108,7 +108,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @obsolete Use Actor.body.collider.shape, collisionArea will be removed in v0.24.0
    */
   @obsolete({ message: 'Actor.collisionArea will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.shape' })
-  public get collisionArea(): CollisionGeometry {
+  public get collisionArea(): CollisionShape {
     return this.body.collider.shape;
   }
 
@@ -117,7 +117,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * [Edge|edges].
    * @obsolete use Actor.body.collider.shape, collisionArea will be removed in v0.24.0
    */
-  public set collisionArea(area: CollisionGeometry) {
+  public set collisionArea(area: CollisionShape) {
     this.body.collider.shape = area;
   }
 
@@ -294,14 +294,14 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Gets the current moment of inertia, moi can be thought of as the resistance to rotation.
    */
   public get moi() {
-    return this.body.collider.moi;
+    return this.body.collider.inertia;
   }
 
   /**
    * Sets the current moment of inertia, moi can be thought of as the resistance to rotation.
    */
   public set moi(theMoi: number) {
-    this.body.collider.moi = theMoi;
+    this.body.collider.inertia = theMoi;
   }
 
   /**
@@ -456,7 +456,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * default it is ([[CollisionType.PreventCollision]]).
    */
   public get collisionType(): CollisionType {
-    return this.body.collider.collisionType;
+    return this.body.collider.type;
   }
 
   /**
@@ -464,7 +464,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * default it is ([[CollisionType.PreventCollision]]).
    */
   public set collisionType(type: CollisionType) {
-    this.body.collider.collisionType = type;
+    this.body.collider.type = type;
   }
 
   public collisionGroups: string[] = [];
@@ -1070,7 +1070,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public setWidth(width: number) {
     this._width = width / this.scale.x;
-    this.body.taintCollisionGeometry();
+    this.body.dirtyColliderShape();
   }
   /**
    * Gets the calculated height of an actor, factoring in scale
@@ -1083,7 +1083,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public setHeight(height: number) {
     this._height = height / this.scale.y;
-    this.body.taintCollisionGeometry();
+    this.body.dirtyColliderShape();
   }
   /**
    * Gets the left edge of the actor

@@ -89,7 +89,7 @@ describe('Collision Geometry', () => {
       // following this formula
       //https://en.wikipedia.org/wiki/List_of_moments_of_inertia
       // I = m*r^2/2
-      expect(circle.getMomentOfInertia()).toBe((circle.body.collider.mass * circle.radius * circle.radius) / 2);
+      expect(circle.getInertia()).toBe((circle.body.collider.mass * circle.radius * circle.radius) / 2);
     });
 
     it('should collide with other circles when touching', () => {
@@ -585,7 +585,7 @@ describe('Collision Geometry', () => {
     it('has a moi', () => {
       // following this formula https://en.wikipedia.org/wiki/List_of_moments_of_inertia
       // rotates from the middle treating the ends as a point mass
-      const moi = edge.getMomentOfInertia();
+      const moi = edge.getInertia();
       const length = edge.end.sub(edge.begin).distance() / 2;
       expect(moi).toBeCloseTo(edge.body.collider.mass * length * length, 0.001);
     });

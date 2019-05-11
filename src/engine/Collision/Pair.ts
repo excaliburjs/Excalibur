@@ -19,12 +19,12 @@ export class Pair {
 
   public static canCollide(colliderA: Collider, colliderB: Collider) {
     // if both are fixed short circuit
-    if (colliderA.collisionType === CollisionType.Fixed && colliderB.collisionType === CollisionType.Fixed) {
+    if (colliderA.type === CollisionType.Fixed && colliderB.type === CollisionType.Fixed) {
       return false;
     }
 
     // if the either is prevent collision short circuit
-    if (colliderB.collisionType === CollisionType.PreventCollision || colliderA.collisionType === CollisionType.PreventCollision) {
+    if (colliderB.type === CollisionType.PreventCollision || colliderA.type === CollisionType.PreventCollision) {
       return false;
     }
 

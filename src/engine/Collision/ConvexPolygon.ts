@@ -5,30 +5,51 @@ import { Edge } from './Edge';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { Circle } from './Circle';
 import { CollisionContact } from './CollisionContact';
-import { CollisionGeometry } from './CollisionGeometry';
+import { CollisionShape } from './CollisionShape';
 import { Body } from './Body';
 import { Vector, Line, Ray, Projection } from '../Algebra';
 import { Collider } from './Collider';
 
 export interface ConvexPolygonOptions {
+  /**
+   * Point relative to a collider's position
+   */
+
   pos?: Vector;
+  /**
+   * Points in the polygon in order around the perimiter
+   */
   points?: Vector[];
+  /**
+   * Whether points are specified in clockwise or counter clockwise order, default counter-clockwise
+   */
   clockwiseWinding?: boolean;
+  /**
+   * Collider to associate optionally with this shape
+   */
   collider?: Collider;
-  // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
+  /**
+   * @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
+   */
+
   body?: Body;
 }
 
 /**
  * Polygon collision area for detecting collisions for actors, or independently
  */
-export class ConvexPolygon implements CollisionGeometry {
+export class ConvexPolygon implements CollisionShape {
   public pos: Vector;
   public points: Vector[];
 
-  // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
+  /**
+   * @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
+   */
   public body: Body;
 
+  /**
+   * Collider associated with this shape
+   */
   public collider: Collider;
 
   private _transformedPoints: Vector[] = [];
@@ -139,7 +160,7 @@ export class ConvexPolygon implements CollisionGeometry {
    * return null.
    * @param area
    */
-  public collide(area: CollisionGeometry): CollisionContact {
+  public collide(area: CollisionShape): CollisionContact {
     if (area instanceof Circle) {
       return CollisionJumpTable.CollideCirclePolygon(area, this);
     } else if (area instanceof ConvexPolygon) {
@@ -147,7 +168,7 @@ export class ConvexPolygon implements CollisionGeometry {
     } else if (area instanceof Edge) {
       return CollisionJumpTable.CollidePolygonEdge(this, area);
     } else {
-      throw new Error(`Polygon could not collide with unknown CollisionGeometry ${typeof area}`);
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof area}`);
     }
   }
 
@@ -224,7 +245,7 @@ export class ConvexPolygon implements CollisionGeometry {
    * Get the moment of inertia for an arbitrary polygon
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public getMomentOfInertia(): number {
+  public getInertia(): number {
     const mass = this.collider ? this.collider.mass : Physics.defaultMass;
     let numerator = 0;
     let denominator = 0;
