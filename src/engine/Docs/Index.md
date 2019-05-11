@@ -61,7 +61,7 @@ darken, and colorize.
 
 - [["Drawing/SpriteEffects"|Sprite Effects]]
 - [[ParticleEmitter|Particle Emitters]]
-- [[IPostProcessor|Post Processors]]
+- [[PostProcessor|Post Processors]]
 
 ## Math
 

@@ -3,8 +3,8 @@ this might be creating a blur effect, adding a lighting effect, or changing how 
 
 ## Basic post processors
 
-To create and use a post processor you just need to implement a class that implements [[IPostProcessor]], which has one method
-[[IPostProcessor.process]]. Set the `out` canvas parameter to the final result, using the `image` pixel data.
+To create and use a post processor you just need to implement a class that implements [[PostProcessor]], which has one method
+[[PostProcessor.process]]. Set the `out` canvas parameter to the final result, using the `image` pixel data.
 
 Click to read more about [[https://developer.mozilla.org/en-US/docs/Web/API/ImageData|ImageData]] on MDN.
 
@@ -12,7 +12,7 @@ For example:
 
 ```typescript
 // simple way to grayscale, a faster way would be to implement using a webgl fragment shader
-class GrayscalePostProcessor implements IPostProcessor {
+class GrayscalePostProcessor implements PostProcessor {
   process(image: ImageData, out: CanvasRenderingContext2D) {
      for(var i = 0; i < (image.height * image.width), i+=4){
         // for pixel "i""

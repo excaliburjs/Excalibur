@@ -1,5 +1,6 @@
 import { EX_VERSION } from './';
-import './Polyfill';
+import { polyfill } from './Polyfill';
+polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
 import { Loadable } from './Interfaces/Loadable';
 import { Promise } from './Promises';
@@ -57,7 +58,7 @@ export enum DisplayMode {
   Fixed,
 
   /**
-   * Allow the game to be positioned with the [[IEngineOptions.position]] option
+   * Allow the game to be positioned with the [[EngineOptions.position]] option
    */
   Position
 }
@@ -442,7 +443,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   }
 
   /**
-   * Default [[IEngineOptions]]
+   * Default [[EngineOptions]]
    */
   private static _DefaultEngineOptions: EngineOptions = {
     width: 0,
@@ -459,9 +460,9 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   };
 
   /**
-   * Creates a new game using the given [[IEngineOptions]]. By default, if no options are provided,
+   * Creates a new game using the given [[EngineOptions]]. By default, if no options are provided,
    * the game will be rendered full screen (taking up all available browser window space).
-   * You can customize the game rendering through [[IEngineOptions]].
+   * You can customize the game rendering through [[EngineOptions]].
    *
    * Example:
    *

@@ -6,7 +6,7 @@ the canvas directly.
 ## Creating a Game
 
 To create a new game, create a new instance of [[Engine]] and pass in
-the configuration ([[IEngineOptions]]). Excalibur only supports a single
+the configuration ([[EngineOptions]]). Excalibur only supports a single
 instance of a game at a time, so it is safe to use globally.
 You can then call [[start]] which starts the game and optionally accepts
 a [[Loader]] which you can use to pre-load assets.

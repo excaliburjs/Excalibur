@@ -4,6 +4,7 @@ import { Sprite } from '../Drawing/Sprite';
 import { Texture } from './Texture';
 import { Color } from '../Drawing/Color';
 import { SpriteSheet } from '../Drawing/SpriteSheet';
+import { Animation } from '../Drawing/Animation';
 import { Engine } from '../Engine';
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
@@ -32,8 +33,8 @@ export class Gif extends Resource<Texture[]> {
   private _stream: Stream = null;
   private _gif: ParseGif = null;
   private _texture: Texture[] = [];
-  private _animation: ex.Animation = null;
-  private _transparentColor: ex.Color = null;
+  private _animation: Animation = null;
+  private _transparentColor: Color = null;
 
   /**
    * Populated once loading is complete
@@ -98,7 +99,7 @@ export class Gif extends Resource<Texture[]> {
     return new SpriteSheet(spriteArray);
   }
 
-  public asAnimation(engine: Engine, speed: number): ex.Animation {
+  public asAnimation(engine: Engine, speed: number): Animation {
     const spriteSheet: SpriteSheet = this.asSpriteSheet();
     this._animation = spriteSheet.getAnimationForAll(engine, speed);
     return this._animation;
