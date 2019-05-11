@@ -4,7 +4,7 @@ import { TestUtils } from './util/TestUtils';
 describe('A pointer', () => {
   var engine: ex.Engine = null;
 
-  function executeMouseEvent(type: string, target: HTMLElement, button: ex.Input.PointerButton = null, x: number = 0, y: number = 0) {
+  function executeMouseEvent(type: string, target: HTMLElement, button: ex.Input.NativePointerButton = null, x: number = 0, y: number = 0) {
     // var mouseEvent = document.createEvent('MouseEvent');
     // mouseEvent.initMouseEvent(type, true, true, document.defaultView, button, x, y, x, y,
     //     false, false, false, false, button, target);
@@ -52,13 +52,13 @@ describe('A pointer', () => {
       }
     });
 
-    executeMouseEvent('pointerdown', <any>document, ex.Input.PointerButton.Left);
-    executeMouseEvent('pointerdown', <any>document, ex.Input.PointerButton.Right);
-    executeMouseEvent('pointerdown', <any>document, ex.Input.PointerButton.Middle);
+    executeMouseEvent('pointerdown', <any>document, ex.Input.NativePointerButton.Left);
+    executeMouseEvent('pointerdown', <any>document, ex.Input.NativePointerButton.Right);
+    executeMouseEvent('pointerdown', <any>document, ex.Input.NativePointerButton.Middle);
 
-    expect(eventLeftFired).toBe(true);
-    expect(eventRightFired).toBe(true);
-    expect(eventMiddleFired).toBe(true);
+    expect(eventLeftFired).toBe(true, 'left should fire');
+    expect(eventRightFired).toBe(true, 'right should fire');
+    expect(eventMiddleFired).toBe(true, 'middle should fire');
   });
 
   it('should fire pointerup events', () => {
@@ -78,13 +78,13 @@ describe('A pointer', () => {
       }
     });
 
-    executeMouseEvent('pointerup', <any>document, ex.Input.PointerButton.Left);
-    executeMouseEvent('pointerup', <any>document, ex.Input.PointerButton.Right);
-    executeMouseEvent('pointerup', <any>document, ex.Input.PointerButton.Middle);
+    executeMouseEvent('pointerup', <any>document, ex.Input.NativePointerButton.Left);
+    executeMouseEvent('pointerup', <any>document, ex.Input.NativePointerButton.Right);
+    executeMouseEvent('pointerup', <any>document, ex.Input.NativePointerButton.Middle);
 
-    expect(eventLeftFired).toBeTruthy();
-    expect(eventRightFired).toBeTruthy();
-    expect(eventMiddleFired).toBeTruthy();
+    expect(eventLeftFired).toBeTruthy('left should fire');
+    expect(eventRightFired).toBeTruthy('right should fire');
+    expect(eventMiddleFired).toBeTruthy('middle should fire');
   });
 
   it('should fire pointermove events', () => {

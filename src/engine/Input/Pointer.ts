@@ -16,26 +16,36 @@ export interface ActorsUnderPointer {
  * The type of pointer for a [[PointerEvent]].
  */
 export enum PointerType {
-  Touch,
-  Mouse,
-  Pen,
-  Unknown
+  Touch = 'Touch',
+  Mouse = 'Mouse',
+  Pen = 'Pen',
+  Unknown = 'Unknown'
+}
+
+/**
+ * Native browser button enumeration
+ */
+export enum NativePointerButton {
+  Left = 0,
+  Middle = 1,
+  Right = 2,
+  Unknown = 3
 }
 
 /**
  * The mouse button being pressed.
  */
 export enum PointerButton {
-  Left,
-  Middle,
-  Right,
-  Unknown
+  Left = 'Left',
+  Middle = 'Middle',
+  Right = 'Right',
+  Unknown = 'Unknown'
 }
 
 export enum WheelDeltaMode {
-  Pixel,
-  Line,
-  Page
+  Pixel = 'Pixel',
+  Line = 'Line',
+  Page = 'Page'
 }
 
 /**
@@ -46,12 +56,12 @@ export enum PointerScope {
    * Handle events on the `canvas` element only. Events originating outside the
    * `canvas` will not be handled.
    */
-  Canvas,
+  Canvas = 'Canvas',
 
   /**
    * Handles events on the entire document. All events will be handled by Excalibur.
    */
-  Document
+  Document = 'Document'
 }
 
 /**
@@ -60,6 +70,21 @@ export enum PointerScope {
  * This normalization factor is pulled from https://developer.mozilla.org/en-US/docs/Web/Events/wheel#Listening_to_this_event_across_browser
  */
 const ScrollWheelNormalizationFactor = -1 / 40;
+
+/**
+ * Type that indicates Excalibur's valid synthetic pointer events
+ */
+export type PointerEventName =
+  | 'pointerdragstart'
+  | 'pointerdragend'
+  | 'pointerdragmove'
+  | 'pointerdragenter'
+  | 'pointerdragleave'
+  | 'pointermove'
+  | 'pointerenter'
+  | 'pointerleave'
+  | 'pointerup'
+  | 'pointerdown';
 
 /**
  * Pointer events
@@ -581,7 +606,15 @@ export class Pointers extends Class {
 
       const pointer = this.at(0);
       const coordinates = GlobalCoordinates.fromPagePosition(e.pageX, e.pageY, this._engine);
-      const pe = createPointerEventByName(eventName, coordinates, pointer, 0, PointerType.Mouse, e.button, e);
+      const pe = createPointerEventByName(
+        eventName,
+        coordinates,
+        pointer,
+        0,
+        PointerType.Mouse,
+        this._nativeButtonToPointerButton(e.button),
+        e
+      );
 
       eventArr.push(pe);
       pointer.eventDispatcher.emit(eventName, pe);
@@ -629,7 +662,15 @@ export class Pointers extends Class {
 
       const pointer = this.at(index);
       const coordinates = GlobalCoordinates.fromPagePosition(e.pageX, e.pageY, this._engine);
-      const pe = createPointerEventByName(eventName, coordinates, pointer, index, this._stringToPointerType(e.pointerType), e.button, e);
+      const pe = createPointerEventByName(
+        eventName,
+        coordinates,
+        pointer,
+        index,
+        this._stringToPointerType(e.pointerType),
+        this._nativeButtonToPointerButton(e.button),
+        e
+      );
 
       eventArr.push(pe);
       pointer.eventDispatcher.emit(eventName, pe);
@@ -704,6 +745,21 @@ export class Pointers extends Class {
 
     // ignore pointer because game isn't watching
     return -1;
+  }
+
+  private _nativeButtonToPointerButton(s: NativePointerButton): PointerButton {
+    switch (s) {
+      case NativePointerButton.Left:
+        return PointerButton.Left;
+      case NativePointerButton.Middle:
+        return PointerButton.Middle;
+      case NativePointerButton.Right:
+        return PointerButton.Right;
+      case NativePointerButton.Unknown:
+        return PointerButton.Unknown;
+      default:
+        return Util.fail(s);
+    }
   }
 
   private _stringToPointerType(s: string) {
