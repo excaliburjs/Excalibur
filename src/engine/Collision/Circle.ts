@@ -1,10 +1,9 @@
-import { Body } from './Body';
 import { BoundingBox } from './BoundingBox';
-import { CollisionArea } from './CollisionArea';
-import { PolygonArea } from './PolygonArea';
-import { EdgeArea } from './EdgeArea';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { CollisionContact } from './CollisionContact';
+import { CollisionGeometry } from './CollisionGeometry';
+import { ConvexPolygon } from './ConvexPolygon';
+import { Edge } from './Edge';
 
 import { Vector, Ray, Projection } from '../Algebra';
 import { Physics } from '../Physics';
