@@ -148,7 +148,7 @@ export class Body {
     // Update placements based on linear algebra
     const seconds = delta / 1000;
 
-    let totalAcc = this.acc.clone();
+    const totalAcc = this.acc.clone();
     // Only active vanilla actors are affected by global acceleration
     if (this.collider.collisionType === CollisionType.Active) {
       totalAcc.addEqual(Physics.acc);
