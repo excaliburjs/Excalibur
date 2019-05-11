@@ -112,7 +112,7 @@ export class EventDispatcher implements Eventable {
    * @param handler   The handler of the event that will be auto unsubscribed
    */
   public once(eventName: string, handler: (event: GameEvent<any>) => void) {
-    let metaHandler = (event: GameEvent<any>) => {
+    const metaHandler = (event: GameEvent<any>) => {
       const ev = event || new GameEvent();
       ev.target = ev.target || this._target;
 
