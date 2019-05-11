@@ -234,7 +234,7 @@ export class Body {
    * the body of the other [[Actor]]
    */
   public touching(other: Actor): boolean {
-    var pair = new Pair(this, other.body);
+    const pair = new Pair(this, other.body);
     pair.collide();
 
     if (pair.collision) {

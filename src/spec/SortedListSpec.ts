@@ -1,8 +1,8 @@
-﻿import * as ex from '../../build/dist/excalibur';
+import * as ex from '../../build/dist/excalibur';
 import { Mocks } from './util/Mocks';
 
 describe('A SortedList', () => {
-  var sortedList;
+  let sortedList;
 
   beforeEach(() => {
     sortedList = new ex.SortedList(Mocks.MockedElement.prototype.getTheKey);
@@ -13,30 +13,30 @@ describe('A SortedList', () => {
   });
 
   it('can have an element added to it at a non-existant node', () => {
-    var element = new Mocks.MockedElement(0);
+    const element = new Mocks.MockedElement(0);
     expect(sortedList.add(element)).toBe(true);
     expect(sortedList.find(element)).toBe(true);
   });
 
   it('can have an element added to it at an existing node', () => {
-    var element1 = new Mocks.MockedElement(4);
-    var element2 = new Mocks.MockedElement(4);
+    const element1 = new Mocks.MockedElement(4);
+    const element2 = new Mocks.MockedElement(4);
     expect(sortedList.add(element1)).toBe(true);
     expect(sortedList.add(element2)).toBe(true);
     expect(sortedList.find(element2)).toBe(true);
   });
 
   it('will indicate when an element is not present', () => {
-    var element1 = new Mocks.MockedElement(0);
+    const element1 = new Mocks.MockedElement(0);
     expect(sortedList.find(element1)).toBe(false);
 
     sortedList.add(element1);
-    var element2 = new Mocks.MockedElement(0);
+    const element2 = new Mocks.MockedElement(0);
     expect(sortedList.find(element2)).toBe(false);
   });
 
   it('can have an element removed from it', () => {
-    var element = new Mocks.MockedElement(0);
+    const element = new Mocks.MockedElement(0);
     sortedList.add(element);
     expect(sortedList.find(element)).toBe(true);
     sortedList.removeByComparable(element);
@@ -44,19 +44,19 @@ describe('A SortedList', () => {
   });
 
   it('will maintain the tree when removing an intermediate node', () => {
-    var element1 = new Mocks.MockedElement(1);
+    const element1 = new Mocks.MockedElement(1);
 
-    var element2 = new Mocks.MockedElement(2);
-    var element2a = new Mocks.MockedElement(2);
+    const element2 = new Mocks.MockedElement(2);
+    const element2a = new Mocks.MockedElement(2);
 
-    var element3 = new Mocks.MockedElement(3);
+    const element3 = new Mocks.MockedElement(3);
 
-    var element4 = new Mocks.MockedElement(4);
-    var element4a = new Mocks.MockedElement(4);
-    var element4b = new Mocks.MockedElement(4);
-    var element4c = new Mocks.MockedElement(4);
+    const element4 = new Mocks.MockedElement(4);
+    const element4a = new Mocks.MockedElement(4);
+    const element4b = new Mocks.MockedElement(4);
+    const element4c = new Mocks.MockedElement(4);
 
-    var element5 = new Mocks.MockedElement(5);
+    const element5 = new Mocks.MockedElement(5);
 
     //scenario 1
     sortedList.add(element1);
@@ -90,11 +90,11 @@ describe('A SortedList', () => {
   });
 
   it('can return an ordered list of the elements it contains', () => {
-    var element4 = new Mocks.MockedElement(4);
-    var element5 = new Mocks.MockedElement(5);
-    var element23 = new Mocks.MockedElement(23);
-    var element7 = new Mocks.MockedElement(7);
-    var element2 = new Mocks.MockedElement(-1);
+    const element4 = new Mocks.MockedElement(4);
+    const element5 = new Mocks.MockedElement(5);
+    const element23 = new Mocks.MockedElement(23);
+    const element7 = new Mocks.MockedElement(7);
+    const element2 = new Mocks.MockedElement(-1);
 
     expect(sortedList.add(element4)).toBe(true);
     expect(sortedList.add(element5)).toBe(true);
@@ -102,7 +102,7 @@ describe('A SortedList', () => {
     expect(sortedList.add(element7)).toBe(true);
     expect(sortedList.add(element2)).toBe(true);
 
-    var results = sortedList.list();
+    const results = sortedList.list();
 
     expect(results.length).toBe(5);
 
@@ -114,15 +114,15 @@ describe('A SortedList', () => {
   });
 
   it('can return all of the elements at a specified key value', () => {
-    var element1 = new Mocks.MockedElement(1);
-    var element2 = new Mocks.MockedElement(2);
-    var element3 = new Mocks.MockedElement(2);
+    const element1 = new Mocks.MockedElement(1);
+    const element2 = new Mocks.MockedElement(2);
+    const element3 = new Mocks.MockedElement(2);
 
     sortedList.add(element1);
     sortedList.add(element2);
     sortedList.add(element3);
 
-    var results = sortedList.get(2);
+    let results = sortedList.get(2);
     expect(results.length).toBe(2);
     expect(results[0]).toBe(element2);
     expect(results[1]).toBe(element3);

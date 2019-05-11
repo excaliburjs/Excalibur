@@ -201,7 +201,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Initializes actors in the scene
    */
   private _initializeChildren(): void {
-    for (var child of this.actors) {
+    for (const child of this.actors) {
       child._initialize(this._engine);
     }
   }
@@ -317,7 +317,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       this.camera.update(engine, delta);
     }
 
-    var i: number, len: number;
+    let i: number, len: number;
     // Remove timers in the cancel queue before updating them
     for (i = 0, len = this._cancelQueue.length; i < len; i++) {
       this.removeTimer(this._cancelQueue[i]);
@@ -325,7 +325,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     this._cancelQueue.length = 0;
 
     // Cycle through timers updating timers
-    for (var timer of this._timers) {
+    for (const timer of this._timers) {
       timer.update(delta);
     }
 
@@ -356,14 +356,14 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     // Run the broadphase and narrowphase
     if (this._broadphase && Physics.enabled) {
-      var beforeBroadphase = Date.now();
+      const beforeBroadphase = Date.now();
       this._broadphase.update(this.actors, delta);
-      var pairs = this._broadphase.broadphase(this.actors, delta, engine.stats.currFrame);
-      var afterBroadphase = Date.now();
+      let pairs = this._broadphase.broadphase(this.actors, delta, engine.stats.currFrame);
+      const afterBroadphase = Date.now();
 
-      var beforeNarrowphase = Date.now();
-      var iter: number = Physics.collisionPasses;
-      var collisionDelta = delta / iter;
+      const beforeNarrowphase = Date.now();
+      let iter: number = Physics.collisionPasses;
+      const collisionDelta = delta / iter;
       while (iter > 0) {
         // Run the narrowphase
         pairs = this._broadphase.narrowphase(pairs, engine.stats.currFrame);
@@ -375,7 +375,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         iter--;
       }
 
-      var afterNarrowphase = Date.now();
+      const afterNarrowphase = Date.now();
       engine.stats.currFrame.physics.broadphase = afterBroadphase - beforeBroadphase;
       engine.stats.currFrame.physics.narrowphase = afterNarrowphase - beforeNarrowphase;
     }
@@ -390,8 +390,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   private _processKillQueue(killQueue: Actor[], collection: Actor[]) {
     // Remove actors from scene graph after being killed
-    var actorIndex: number;
-    for (let killed of killQueue) {
+    let actorIndex: number;
+    for (const killed of killQueue) {
       //don't remove actors that were readded during the same frame they were killed
       if (killed.isKilled()) {
         actorIndex = collection.indexOf(killed);
@@ -417,13 +417,13 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       this.camera.draw(ctx);
     }
 
-    var i: number, len: number;
+    let i: number, len: number;
 
     for (i = 0, len = this.tileMaps.length; i < len; i++) {
       this.tileMaps[i].draw(ctx, delta);
     }
 
-    var sortedChildren = this._sortedDrawingTree.list();
+    const sortedChildren = this._sortedDrawingTree.list();
     for (i = 0, len = sortedChildren.length; i < len; i++) {
       // only draw actors that are visible and on screen
       if (sortedChildren[i].visible && !sortedChildren[i].isOffScreen) {
@@ -461,7 +461,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public debugDraw(ctx: CanvasRenderingContext2D) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
 
-    var i: number, len: number;
+    let i: number, len: number;
 
     for (i = 0, len = this.tileMaps.length; i < len; i++) {
       this.tileMaps[i].debugDraw(ctx);
@@ -601,7 +601,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Removes an actor as a piece of UI
    */
   public removeUIActor(actor: Actor) {
-    var index = this.uiActors.indexOf(actor);
+    const index = this.uiActors.indexOf(actor);
     if (index > -1) {
       this.uiActors.splice(index, 1);
     }
@@ -633,7 +633,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
    */
   public removeTileMap(tileMap: TileMap) {
-    var index = this.tileMaps.indexOf(tileMap);
+    const index = this.tileMaps.indexOf(tileMap);
     if (index > -1) {
       this.tileMaps.splice(index, 1);
     }
@@ -675,7 +675,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * @param timer  The timer to remove
    */
   public removeTimer(timer: Timer): Timer {
-    var i = this._timers.indexOf(timer);
+    const i = this._timers.indexOf(timer);
     if (i !== -1) {
       this._timers.splice(i, 1);
     }
@@ -760,13 +760,13 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   private _collectActorStats(engine: Engine) {
-    for (var _ui of this.uiActors) {
+    for (const _ui of this.uiActors) {
       engine.stats.currFrame.actors.ui++;
     }
 
-    for (var actor of this.actors) {
+    for (const actor of this.actors) {
       engine.stats.currFrame.actors.alive++;
-      for (var child of actor.children) {
+      for (const child of actor.children) {
         if (ActorUtils.isUIActor(child)) {
           engine.stats.currFrame.actors.ui++;
         } else {

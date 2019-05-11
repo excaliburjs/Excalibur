@@ -1,4 +1,4 @@
-﻿import * as Actions from './Action';
+import * as Actions from './Action';
 import { RotationType } from './RotationType';
 
 import { Actor } from '../Actor';
@@ -33,9 +33,8 @@ export class ActionContext {
    * Clears all queued actions from the Actor
    */
   public clearActions(): void {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].clearActions();
     }
   }
@@ -47,7 +46,7 @@ export class ActionContext {
   }
 
   public removeActorFromContext(actor: Actor) {
-    var index = this._actors.indexOf(actor);
+    const index = this._actors.indexOf(actor);
     if (index > -1) {
       this._actors.splice(index, 1);
       this._queues.splice(index, 1);
@@ -64,10 +63,9 @@ export class ActionContext {
    * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
    */
   public easeTo(x: number, y: number, duration: number, easingFcn: EasingFunction = EasingFunctions.Linear) {
-    var i = 0,
-      len = this._queues.length;
+    const len = this._queues.length;
 
-    for (i; i < len; i++) {
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.EaseTo(this._actors[i], x, y, duration, easingFcn));
     }
 
@@ -83,9 +81,8 @@ export class ActionContext {
    * @param speed  The speed in pixels per second to move
    */
   public moveTo(x: number, y: number, speed: number): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.MoveTo(this._actors[i], x, y, speed));
     }
 
@@ -101,9 +98,8 @@ export class ActionContext {
    * @param time  The time it should take the actor to move to the new location in milliseconds
    */
   public moveBy(x: number, y: number, time: number): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.MoveBy(this._actors[i], x, y, time));
     }
     return this;
@@ -118,9 +114,8 @@ export class ActionContext {
    * @param rotationType  The [[RotationType]] to use for this rotation
    */
   public rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.RotateTo(this._actors[i], angleRadians, speed, rotationType));
     }
     return this;
@@ -135,9 +130,8 @@ export class ActionContext {
    * @param rotationType  The [[RotationType]] to use for this rotation
    */
   public rotateBy(angleRadians: number, time: number, rotationType?: RotationType): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.RotateBy(this._actors[i], angleRadians, time, rotationType));
     }
     return this;
@@ -154,9 +148,8 @@ export class ActionContext {
    * @param speedY  The speed of scaling specified in magnitude increase per second on Y axis
    */
   public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.ScaleTo(this._actors[i], sizeX, sizeY, speedX, speedY));
     }
     return this;
@@ -171,9 +164,8 @@ export class ActionContext {
    * @param time    The time it should take to complete the scaling in milliseconds
    */
   public scaleBy(sizeX: number, sizeY: number, time: number): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.ScaleBy(this._actors[i], sizeX, sizeY, time));
     }
     return this;
@@ -189,9 +181,8 @@ export class ActionContext {
    * @param numBlinks       The number of times to blink
    */
   public blink(timeVisible: number, timeNotVisible: number, numBlinks: number = 1): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.Blink(this._actors[i], timeVisible, timeNotVisible, numBlinks));
     }
     return this;
@@ -205,9 +196,8 @@ export class ActionContext {
    * @param time     The time it should take to fade the actor (in milliseconds)
    */
   public fade(opacity: number, time: number): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.Fade(this._actors[i], opacity, time));
     }
     return this;
@@ -220,9 +210,8 @@ export class ActionContext {
    * @param time  The amount of time to delay the next action in the queue from executing in milliseconds
    */
   public delay(time: number): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.Delay(this._actors[i], time));
     }
     return this;
@@ -234,9 +223,8 @@ export class ActionContext {
    * action queue after this action will not be executed.
    */
   public die(): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.Die(this._actors[i]));
     }
     return this;
@@ -248,9 +236,8 @@ export class ActionContext {
    * action, i.e An actor arrives at a destination after traversing a path
    */
   public callMethod(method: () => any): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.CallMethod(this._actors[i], method));
     }
     return this;
@@ -269,9 +256,8 @@ export class ActionContext {
       this.repeatForever();
       return this;
     }
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.Repeat(this._actors[i], times, this._actors[i].actionQueue.getActions()));
     }
 
@@ -284,9 +270,8 @@ export class ActionContext {
    * fluent API allowing action chaining.
    */
   public repeatForever(): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       this._queues[i].add(new Actions.RepeatForever(this._actors[i], this._actors[i].actionQueue.getActions()));
     }
     return this;
@@ -298,9 +283,8 @@ export class ActionContext {
    * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
    */
   public follow(actor: Actor, followDistance?: number): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       if (followDistance === undefined) {
         this._queues[i].add(new Actions.Follow(this._actors[i], actor));
       } else {
@@ -317,9 +301,8 @@ export class ActionContext {
    * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
    */
   public meet(actor: Actor, speed?: number): ActionContext {
-    var i = 0,
-      len = this._queues.length;
-    for (i; i < len; i++) {
+    const len = this._queues.length;
+    for (let i = 0; i < len; i++) {
       if (speed === undefined) {
         this._queues[i].add(new Actions.Meet(this._actors[i], actor));
       } else {
@@ -334,8 +317,8 @@ export class ActionContext {
    * is finished.
    */
   public asPromise<T>(): Promise<T> {
-    var promises = this._queues.map((q, i) => {
-      var temp = new Promise<T>();
+    const promises = this._queues.map((q, i) => {
+      const temp = new Promise<T>();
       q.add(
         new Actions.CallMethod(this._actors[i], () => {
           temp.resolve();

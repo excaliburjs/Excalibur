@@ -2,8 +2,8 @@ import * as ex from '../../build/dist/excalibur';
 
 describe('Collision areas', () => {
   describe('A Circle shape', () => {
-    var circle: ex.CircleArea;
-    var actor: ex.Actor;
+    let circle: ex.CircleArea;
+    let actor: ex.Actor;
 
     beforeEach(() => {
       actor = new ex.Actor(0, 0, 20, 20);
@@ -19,13 +19,13 @@ describe('Collision areas', () => {
     });
 
     it('can be constructed with empty args', () => {
-      var circle = new ex.CircleArea({});
+      const circle = new ex.CircleArea({});
       expect(circle).not.toBeNull();
     });
 
     it('can be constructed with points', () => {
-      var actor = new ex.Actor(0, 0, 10, 10);
-      var circle = new ex.CircleArea({
+      const actor = new ex.Actor(0, 0, 10, 10);
+      const circle = new ex.CircleArea({
         pos: ex.Vector.Zero.clone(),
         radius: 10,
         body: actor.body
@@ -35,7 +35,7 @@ describe('Collision areas', () => {
 
     it('has a center', () => {
       actor.pos.setTo(170, 300);
-      var center = circle.getCenter();
+      const center = circle.getCenter();
       expect(center.x).toBe(170);
       expect(center.y).toBe(300);
     });
@@ -43,7 +43,7 @@ describe('Collision areas', () => {
     it('has bounds', () => {
       actor.pos.setTo(400, 400);
 
-      var bounds = circle.getBounds();
+      const bounds = circle.getBounds();
       expect(bounds.left).toBe(390);
       expect(bounds.right).toBe(410);
       expect(bounds.top).toBe(390);
@@ -51,9 +51,9 @@ describe('Collision areas', () => {
     });
 
     it('can contain points', () => {
-      var pointInside = new ex.Vector(0, 5);
-      var pointOnEdge = new ex.Vector(0, 10);
-      var pointJustOutside = new ex.Vector(0, 10.1);
+      const pointInside = new ex.Vector(0, 5);
+      const pointOnEdge = new ex.Vector(0, 10);
+      const pointJustOutside = new ex.Vector(0, 10.1);
 
       expect(circle.contains(pointInside)).toBe(true);
       expect(circle.contains(pointOnEdge)).toBe(true);
@@ -61,14 +61,14 @@ describe('Collision areas', () => {
     });
 
     it('can be raycast against', () => {
-      var ray = new ex.Ray(new ex.Vector(-100, 0), ex.Vector.Right.clone());
-      var rayTangent = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Right.clone());
-      var rayNoHit = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Left.clone());
+      const ray = new ex.Ray(new ex.Vector(-100, 0), ex.Vector.Right.clone());
+      const rayTangent = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Right.clone());
+      const rayNoHit = new ex.Ray(new ex.Vector(-100, 10), ex.Vector.Left.clone());
 
-      var point = circle.rayCast(ray);
-      var pointTangent = circle.rayCast(rayTangent);
-      var pointNoHit = circle.rayCast(rayNoHit);
-      var pointTooFar = circle.rayCast(ray, 1);
+      const point = circle.rayCast(ray);
+      const pointTangent = circle.rayCast(rayTangent);
+      const pointNoHit = circle.rayCast(rayNoHit);
+      const pointTooFar = circle.rayCast(ray, 1);
 
       expect(point.x).toBe(-10);
       expect(point.y).toBe(0);
@@ -93,14 +93,14 @@ describe('Collision areas', () => {
     });
 
     it('should collide with other circles when touching', () => {
-      var actor2 = new ex.Actor(20, 0, 10, 10);
-      var circle2 = new ex.CircleArea({
+      const actor2 = new ex.Actor(20, 0, 10, 10);
+      const circle2 = new ex.CircleArea({
         radius: 10,
         body: actor2.body
       });
 
-      var directionOfBodyB = circle2.getCenter().sub(circle.getCenter());
-      var contact = circle.collide(circle2);
+      const directionOfBodyB = circle2.getCenter().sub(circle.getCenter());
+      const contact = circle.collide(circle2);
 
       // there should be a collision contact formed
       expect(contact).not.toBe(null);
@@ -116,28 +116,28 @@ describe('Collision areas', () => {
     });
 
     it('should not collide with other circles when touching', () => {
-      var actor2 = new ex.Actor(21, 0, 10, 10);
-      var circle2 = new ex.CircleArea({
+      const actor2 = new ex.Actor(21, 0, 10, 10);
+      const circle2 = new ex.CircleArea({
         radius: 10,
         body: actor2.body
       });
 
-      var contact = circle.collide(circle2);
+      const contact = circle.collide(circle2);
 
       // there should not be a collision contact formed, null indicates that
       expect(contact).toBe(null);
     });
 
     it('should collide with other polygons when touching', () => {
-      var actor2 = new ex.Actor(14.99, 0, 10, 10); // meh close enough
-      var poly = new ex.PolygonArea({
+      const actor2 = new ex.Actor(14.99, 0, 10, 10); // meh close enough
+      const poly = new ex.PolygonArea({
         pos: ex.Vector.Zero.clone(),
         points: actor2.getRelativeBounds().getPoints(),
         body: actor2.body
       });
 
-      var directionOfBodyB = poly.getCenter().sub(circle.getCenter());
-      var contact = circle.collide(poly);
+      const directionOfBodyB = poly.getCenter().sub(circle.getCenter());
+      const contact = circle.collide(poly);
 
       // there should be a collision contact formed
       expect(contact).not.toBe(null);
@@ -153,14 +153,14 @@ describe('Collision areas', () => {
     });
 
     it('should not collide with other polygons when not touching', () => {
-      var actor2 = new ex.Actor(16, 0, 10, 10);
-      var poly = new ex.PolygonArea({
+      const actor2 = new ex.Actor(16, 0, 10, 10);
+      const poly = new ex.PolygonArea({
         pos: ex.Vector.Zero.clone(),
         points: actor2.getRelativeBounds().getPoints(),
         body: actor2.body
       });
 
-      var contact = circle.collide(poly);
+      const contact = circle.collide(poly);
 
       // there should not be a collision contact formed
       expect(contact).toBe(null);
@@ -170,15 +170,15 @@ describe('Collision areas', () => {
       // position the circle actor in the middle of the edge
       actor.pos.setTo(5, -9.99);
 
-      var actor2 = new ex.Actor(5, 0, 10, 10);
-      var edge = new ex.EdgeArea({
+      const actor2 = new ex.Actor(5, 0, 10, 10);
+      const edge = new ex.EdgeArea({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
         body: actor2.body
       });
 
-      var directionOfBodyB = edge.getCenter().sub(circle.getCenter());
-      var contact = circle.collide(edge);
+      const directionOfBodyB = edge.getCenter().sub(circle.getCenter());
+      const contact = circle.collide(edge);
 
       // there should be a collision contact formed
       expect(contact).not.toBe(null);
@@ -197,15 +197,15 @@ describe('Collision areas', () => {
       // position the circle actor in the end of the edge
       actor.pos.setTo(10, -9);
 
-      var actor2 = new ex.Actor(5, 0, 10, 10);
-      var edge = new ex.EdgeArea({
+      const actor2 = new ex.Actor(5, 0, 10, 10);
+      const edge = new ex.EdgeArea({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
         body: actor2.body
       });
 
-      var directionOfBodyB = edge.getCenter().sub(circle.getCenter());
-      var contact = circle.collide(edge);
+      const directionOfBodyB = edge.getCenter().sub(circle.getCenter());
+      const contact = circle.collide(edge);
 
       // there should be a collision contact formed
       expect(contact).not.toBe(null);
@@ -224,15 +224,15 @@ describe('Collision areas', () => {
       // position the circle actor in the end of the edge
       actor.pos.setTo(0, -9);
 
-      var actor2 = new ex.Actor(5, 0, 10, 10);
-      var edge = new ex.EdgeArea({
+      const actor2 = new ex.Actor(5, 0, 10, 10);
+      const edge = new ex.EdgeArea({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
         body: actor2.body
       });
 
-      var directionOfBodyB = edge.getCenter().sub(circle.getCenter());
-      var contact = circle.collide(edge);
+      const directionOfBodyB = edge.getCenter().sub(circle.getCenter());
+      const contact = circle.collide(edge);
 
       // there should be a collision contact formed
       expect(contact).not.toBe(null);
@@ -254,12 +254,12 @@ describe('Collision areas', () => {
     });
 
     it('can be constructed with empty args', () => {
-      var poly = new ex.PolygonArea({});
+      const poly = new ex.PolygonArea({});
       expect(poly).not.toBe(null);
     });
 
     it('can be constructed with points', () => {
-      var poly = new ex.PolygonArea({
+      const poly = new ex.PolygonArea({
         pos: ex.Vector.Zero.clone(),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
@@ -267,7 +267,7 @@ describe('Collision areas', () => {
     });
 
     it('can have be constructed with position', () => {
-      var poly = new ex.PolygonArea({
+      const poly = new ex.PolygonArea({
         pos: new ex.Vector(10, 0),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
@@ -276,7 +276,7 @@ describe('Collision areas', () => {
       expect(poly.pos.y).toBe(0);
 
       // should translate right 10 pixels
-      var transformedPoints = poly.getTransformedPoints();
+      const transformedPoints = poly.getTransformedPoints();
       expect(transformedPoints[0].x).toBe(0);
       expect(transformedPoints[1].x).toBe(20);
       expect(transformedPoints[2].x).toBe(20);
@@ -284,21 +284,21 @@ describe('Collision areas', () => {
     });
 
     it('can collide with other polygons', () => {
-      var polyA = new ex.PolygonArea({
+      const polyA = new ex.PolygonArea({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
 
-      var polyB = new ex.PolygonArea({
+      const polyB = new ex.PolygonArea({
         pos: new ex.Vector(10, 0),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
 
-      var directionOfBodyB = polyB.getCenter().sub(polyA.getCenter());
+      const directionOfBodyB = polyB.getCenter().sub(polyA.getCenter());
 
       // should overlap by 10 pixels in x
-      var contact = polyA.collide(polyB);
+      const contact = polyA.collide(polyB);
 
       // there should be a collision
       expect(contact).not.toBe(null);
@@ -314,9 +314,9 @@ describe('Collision areas', () => {
     });
 
     it('can collide with the middle of an edge', () => {
-      var actor = new ex.Actor(5, -6, 20, 20);
+      const actor = new ex.Actor(5, -6, 20, 20);
       actor.rotation = Math.PI / 4;
-      var polyA = new ex.PolygonArea({
+      const polyA = new ex.PolygonArea({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
@@ -324,16 +324,16 @@ describe('Collision areas', () => {
       });
       polyA.recalc();
 
-      var actor2 = new ex.Actor(5, 0, 10, 10);
-      var edge = new ex.EdgeArea({
+      const actor2 = new ex.Actor(5, 0, 10, 10);
+      const edge = new ex.EdgeArea({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
         body: actor2.body
       });
 
-      var directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+      const directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
 
-      var contact = polyA.collide(edge);
+      const contact = polyA.collide(edge);
 
       // there should be a collision
       expect(contact).not.toBe(null);
@@ -346,8 +346,8 @@ describe('Collision areas', () => {
     });
 
     it('can collide with the end of an edge', () => {
-      var actor = new ex.Actor(0, -4, 20, 20);
-      var polyA = new ex.PolygonArea({
+      const actor = new ex.Actor(0, -4, 20, 20);
+      const polyA = new ex.PolygonArea({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
@@ -355,16 +355,16 @@ describe('Collision areas', () => {
       });
       polyA.recalc();
 
-      var actor2 = new ex.Actor(5, 0, 10, 10);
-      var edge = new ex.EdgeArea({
+      const actor2 = new ex.Actor(5, 0, 10, 10);
+      const edge = new ex.EdgeArea({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(0, 10),
         body: actor2.body
       });
       edge.recalc();
 
-      var directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
-      var contact = polyA.collide(edge);
+      const directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+      const contact = polyA.collide(edge);
 
       expect(contact).not.toBe(null);
       // the normal should be pointing away from bodyA
@@ -374,8 +374,8 @@ describe('Collision areas', () => {
     });
 
     it('can collide with the end of an edge regardless of order', () => {
-      var actor = new ex.Actor(0, -4, 20, 20);
-      var polyA = new ex.PolygonArea({
+      const actor = new ex.Actor(0, -4, 20, 20);
+      const polyA = new ex.PolygonArea({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
@@ -383,16 +383,16 @@ describe('Collision areas', () => {
       });
       polyA.recalc();
 
-      var actor2 = new ex.Actor(5, 0, 10, 10);
-      var edge = new ex.EdgeArea({
+      const actor2 = new ex.Actor(5, 0, 10, 10);
+      const edge = new ex.EdgeArea({
         begin: new ex.Vector(0, 10),
         end: new ex.Vector(0, 0),
         body: actor2.body
       });
       edge.recalc();
 
-      var directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
-      var contact = polyA.collide(edge);
+      const directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+      const contact = polyA.collide(edge);
 
       expect(contact).not.toBe(null);
       // the normal should be pointing away from bodyA
@@ -402,9 +402,9 @@ describe('Collision areas', () => {
     });
 
     it('should not collide with the middle of an edge when not touching', () => {
-      var actor = new ex.Actor(5, 0, 20, 20);
+      const actor = new ex.Actor(5, 0, 20, 20);
       actor.rotation = Math.PI / 4;
-      var polyA = new ex.PolygonArea({
+      const polyA = new ex.PolygonArea({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
@@ -412,24 +412,24 @@ describe('Collision areas', () => {
       });
       polyA.recalc();
 
-      var actor2 = new ex.Actor(5, 100, 10, 10);
-      var edge = new ex.EdgeArea({
+      const actor2 = new ex.Actor(5, 100, 10, 10);
+      const edge = new ex.EdgeArea({
         begin: new ex.Vector(0, 100),
         end: new ex.Vector(10, 100),
         body: actor2.body
       });
 
-      var directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+      const directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
 
-      var contact = polyA.collide(edge);
+      const contact = polyA.collide(edge);
 
       // there should not be a collision
       expect(contact).toBe(null);
     });
 
     it('should detected contained points', () => {
-      var actor = new ex.Actor(0, 0, 20, 20);
-      var polyA = new ex.PolygonArea({
+      const actor = new ex.Actor(0, 0, 20, 20);
+      const polyA = new ex.PolygonArea({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
@@ -437,9 +437,9 @@ describe('Collision areas', () => {
       });
       polyA.recalc();
 
-      var point = new ex.Vector(0, 0);
-      var pointOnEdge = new ex.Vector(0, 5);
-      var pointOutside = new ex.Vector(0, 5.1);
+      const point = new ex.Vector(0, 0);
+      const pointOnEdge = new ex.Vector(0, 5);
+      const pointOutside = new ex.Vector(0, 5.1);
 
       expect(polyA.contains(point)).toBe(true);
       expect(polyA.contains(pointOnEdge)).toBe(true);
@@ -447,24 +447,24 @@ describe('Collision areas', () => {
     });
 
     it('can calculate the closest face to a point', () => {
-      var polyA = new ex.PolygonArea({
+      const polyA = new ex.PolygonArea({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)]
       });
       polyA.recalc();
 
-      let point1 = new ex.Vector(-5, 0);
-      let { face: face1 } = polyA.getClosestFace(point1);
+      const point1 = new ex.Vector(-5, 0);
+      const { face: face1 } = polyA.getClosestFace(point1);
 
-      let point2 = new ex.Vector(0, -5);
-      let { face: face2 } = polyA.getClosestFace(point2);
+      const point2 = new ex.Vector(0, -5);
+      const { face: face2 } = polyA.getClosestFace(point2);
 
-      let point3 = new ex.Vector(5, 0);
-      let { face: face3 } = polyA.getClosestFace(point3);
+      const point3 = new ex.Vector(5, 0);
+      const { face: face3 } = polyA.getClosestFace(point3);
 
-      let point4 = new ex.Vector(0, 5);
-      let { face: face4 } = polyA.getClosestFace(point4);
+      const point4 = new ex.Vector(0, 5);
+      const { face: face4 } = polyA.getClosestFace(point4);
 
       expect(face1.begin.x).toBe(-5);
       expect(face1.begin.y).toBe(-5);
@@ -488,8 +488,8 @@ describe('Collision areas', () => {
     });
 
     it('can have ray cast to detect if the ray hits the polygon', () => {
-      var actor = new ex.Actor(0, 0, 20, 20);
-      var polyA = new ex.PolygonArea({
+      const actor = new ex.Actor(0, 0, 20, 20);
+      const polyA = new ex.PolygonArea({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
@@ -497,12 +497,12 @@ describe('Collision areas', () => {
       });
       polyA.recalc();
 
-      var rayTowards = new ex.Ray(new ex.Vector(-100, 0), ex.Vector.Right.clone());
-      var rayAway = new ex.Ray(new ex.Vector(-100, 0), new ex.Vector(-1, 0));
+      const rayTowards = new ex.Ray(new ex.Vector(-100, 0), ex.Vector.Right.clone());
+      const rayAway = new ex.Ray(new ex.Vector(-100, 0), new ex.Vector(-1, 0));
 
-      var point = polyA.rayCast(rayTowards);
-      var noHit = polyA.rayCast(rayAway);
-      var tooFar = polyA.rayCast(rayTowards, 1);
+      const point = polyA.rayCast(rayTowards);
+      const noHit = polyA.rayCast(rayAway);
+      const tooFar = polyA.rayCast(rayTowards, 1);
 
       expect(point.x).toBeCloseTo(-5, 0.001);
       expect(point.y).toBeCloseTo(0, 0.001);
@@ -512,8 +512,8 @@ describe('Collision areas', () => {
   });
 
   describe('An Edge shape', () => {
-    var actor: ex.Actor = null;
-    var edge: ex.EdgeArea = null;
+    let actor: ex.Actor = null;
+    let edge: ex.EdgeArea = null;
 
     beforeEach(() => {
       actor = new ex.Actor(5, 0, 10, 10);
@@ -525,34 +525,34 @@ describe('Collision areas', () => {
     });
 
     it('has a center', () => {
-      var center = edge.getCenter();
+      const center = edge.getCenter();
 
       expect(center.x).toBe(5);
       expect(center.y).toBe(0);
     });
 
     it('has a length', () => {
-      var length = edge.getLength();
+      const length = edge.getLength();
       expect(length).toBe(10);
     });
 
     it('has a slope', () => {
-      var slope = edge.getSlope();
+      const slope = edge.getSlope();
       expect(slope.y).toBe(0);
       expect(slope.x).toBe(1);
     });
 
     it('can be ray cast against', () => {
-      var ray = new ex.Ray(new ex.Vector(5, -100), ex.Vector.Down.clone());
-      var rayLeftTangent = new ex.Ray(new ex.Vector(0, -100), ex.Vector.Down.clone());
-      var rayRightTangent = new ex.Ray(new ex.Vector(10, -100), ex.Vector.Down.clone());
-      var rayNoHit = new ex.Ray(new ex.Vector(5, -100), ex.Vector.Up.clone());
+      const ray = new ex.Ray(new ex.Vector(5, -100), ex.Vector.Down.clone());
+      const rayLeftTangent = new ex.Ray(new ex.Vector(0, -100), ex.Vector.Down.clone());
+      const rayRightTangent = new ex.Ray(new ex.Vector(10, -100), ex.Vector.Down.clone());
+      const rayNoHit = new ex.Ray(new ex.Vector(5, -100), ex.Vector.Up.clone());
 
-      var midPoint = edge.rayCast(ray);
-      var leftTan = edge.rayCast(rayLeftTangent);
-      var rightTan = edge.rayCast(rayRightTangent);
-      var noHit = edge.rayCast(rayNoHit);
-      var tooFar = edge.rayCast(ray, 1);
+      const midPoint = edge.rayCast(ray);
+      const leftTan = edge.rayCast(rayLeftTangent);
+      const rightTan = edge.rayCast(rayRightTangent);
+      const noHit = edge.rayCast(rayNoHit);
+      const tooFar = edge.rayCast(ray, 1);
 
       expect(midPoint.x).toBeCloseTo(5, 0.001);
       expect(midPoint.y).toBeCloseTo(0, 0.001);
@@ -567,16 +567,16 @@ describe('Collision areas', () => {
     });
 
     it('has 4 axes', () => {
-      var axes = edge.getAxes();
+      const axes = edge.getAxes();
       expect(axes.length).toBe(4);
     });
 
     it('has bounds', () => {
       actor.pos.setTo(400, 400);
-      var boundingBox = edge.getBounds();
+      const boundingBox = edge.getBounds();
 
-      var transformedBegin = new ex.Vector(395, 400);
-      var transformedEnd = new ex.Vector(405, 400);
+      const transformedBegin = new ex.Vector(395, 400);
+      const transformedEnd = new ex.Vector(405, 400);
 
       expect(boundingBox.contains(transformedBegin)).toBe(true);
       expect(boundingBox.contains(transformedEnd)).toBe(true);
@@ -585,8 +585,8 @@ describe('Collision areas', () => {
     it('has a moi', () => {
       // following this formula https://en.wikipedia.org/wiki/List_of_moments_of_inertia
       // rotates from the middle treating the ends as a point mass
-      var moi = edge.getMomentOfInertia();
-      var length = edge.end.sub(edge.begin).distance() / 2;
+      const moi = edge.getMomentOfInertia();
+      const length = edge.end.sub(edge.begin).distance() / 2;
       expect(moi).toBeCloseTo(edge.body.mass * length * length, 0.001);
     });
   });

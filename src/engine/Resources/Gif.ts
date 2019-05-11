@@ -63,8 +63,8 @@ export class Gif extends Resource<Texture[]> {
    * Begins loading the texture and returns a promise to be resolved on completion
    */
   public load(): Promise<Texture[]> {
-    var complete = new Promise<Texture[]>();
-    var loaded = super.load();
+    const complete = new Promise<Texture[]>();
+    const loaded = super.load();
     loaded.then(
       () => {
         this._stream = new Stream(this.getData());
@@ -126,15 +126,15 @@ export interface Frame {
   pixels: number[];
 }
 
-var bitsToNum = (ba: any) => {
+const bitsToNum = (ba: any) => {
   return ba.reduce(function(s: number, n: number) {
     return s * 2 + n;
   }, 0);
 };
 
-var byteToBitArr = (bite: any) => {
-  var a = [];
-  for (var i = 7; i >= 0; i--) {
+const byteToBitArr = (bite: any) => {
+  const a = [];
+  for (let i = 7; i >= 0; i--) {
     a.push(!!(bite & (1 << i)));
   }
   return a;
@@ -161,16 +161,16 @@ export class Stream {
   };
 
   public readBytes = (n: number) => {
-    var bytes = [];
-    for (var i = 0; i < n; i++) {
+    const bytes = [];
+    for (let i = 0; i < n; i++) {
       bytes.push(this.readByte());
     }
     return bytes;
   };
 
   public read = (n: number) => {
-    var s = '';
-    for (var i = 0; i < n; i++) {
+    let s = '';
+    for (let i = 0; i < n; i++) {
       s += String.fromCharCode(this.readByte());
     }
     return s;
@@ -178,18 +178,18 @@ export class Stream {
 
   public readUnsigned = () => {
     // Little-endian.
-    var a = this.readBytes(2);
+    const a = this.readBytes(2);
     return (a[1] << 8) + a[0];
   };
 }
 
 const lzwDecode = function(minCodeSize: number, data: any) {
   // TODO: Now that the GIF parser is a bit different, maybe this should get an array of bytes instead of a String?
-  var pos = 0; // Maybe this streaming thing should be merged with the Stream?
+  let pos = 0; // Maybe this streaming thing should be merged with the Stream?
 
   const readCode = function(size: number) {
-    var code = 0;
-    for (var i = 0; i < size; i++) {
+    let code = 0;
+    for (let i = 0; i < size; i++) {
       if (data.charCodeAt(pos >> 3) & (1 << (pos & 7))) {
         code |= 1 << i;
       }
@@ -198,27 +198,27 @@ const lzwDecode = function(minCodeSize: number, data: any) {
     return code;
   };
 
-  var output: any[] = [];
+  const output: any[] = [];
 
-  var clearCode = 1 << minCodeSize;
-  var eoiCode = clearCode + 1;
+  const clearCode = 1 << minCodeSize;
+  const eoiCode = clearCode + 1;
 
-  var codeSize = minCodeSize + 1;
+  let codeSize = minCodeSize + 1;
 
-  var dict: any[] = [];
+  let dict: any[] = [];
 
-  var clear = function() {
+  const clear = function() {
     dict = [];
     codeSize = minCodeSize + 1;
-    for (var i = 0; i < clearCode; i++) {
+    for (let i = 0; i < clearCode; i++) {
       dict[i] = [i];
     }
     dict[clearCode] = [];
     dict[eoiCode] = null;
   };
 
-  var code;
-  var last;
+  let code;
+  let last;
 
   while (true) {
     last = code;
@@ -275,8 +275,8 @@ export class ParseGif {
   // LZW (GIF-specific)
   parseColorTable = (entries: any) => {
     // Each entry is 3 bytes, for RGB.
-    var ct = [];
-    for (var i = 0; i < entries; i++) {
+    const ct = [];
+    for (let i = 0; i < entries; i++) {
       const rgb: number[] = this._st.readBytes(3);
       const rgba =
         '#' +
@@ -292,7 +292,7 @@ export class ParseGif {
   };
 
   readSubBlocks = () => {
-    var size, data;
+    let size, data;
     data = '';
     do {
       size = this._st.readByte();
@@ -302,7 +302,7 @@ export class ParseGif {
   };
 
   parseHeader = () => {
-    var hdr: any = {
+    const hdr: any = {
       sig: null,
       ver: null,
       width: null,
@@ -325,7 +325,7 @@ export class ParseGif {
     hdr.width = this._st.readUnsigned();
     hdr.height = this._st.readUnsigned();
 
-    var bits = byteToBitArr(this._st.readByte());
+    const bits = byteToBitArr(this._st.readByte());
     hdr.gctFlag = bits.shift();
     hdr.colorRes = bitsToNum(bits.splice(0, 3));
     hdr.sorted = bits.shift();
@@ -344,10 +344,10 @@ export class ParseGif {
   };
 
   parseExt = (block: any) => {
-    var parseGCExt = (block: any) => {
+    const parseGCExt = (block: any) => {
       this.checkBytes.push(this._st.readByte()); // Always 4
 
-      var bits = byteToBitArr(this._st.readByte());
+      const bits = byteToBitArr(this._st.readByte());
       block.reserved = bits.splice(0, 3); // Reserved; should be 000.
       block.disposalMethod = bitsToNum(bits.splice(0, 3));
       block.userInput = bits.shift();
@@ -364,14 +364,14 @@ export class ParseGif {
       }
     };
 
-    var parseComExt = (block: any) => {
+    const parseComExt = (block: any) => {
       block.comment = this.readSubBlocks();
       if (this._handler.com && this._handler.com(block)) {
         this.checkBytes.push(this._handler.com);
       }
     };
 
-    var parsePTExt = (block: any) => {
+    const parsePTExt = (block: any) => {
       this.checkBytes.push(this._st.readByte()); // Always 12
       block.ptHeader = this._st.readBytes(12);
       block.ptData = this.readSubBlocks();
@@ -381,7 +381,7 @@ export class ParseGif {
     };
 
     const parseAppExt = (block: any) => {
-      var parseNetscapeExt = (block: any) => {
+      const parseNetscapeExt = (block: any) => {
         this.checkBytes.push(this._st.readByte()); // Always 3
         block.unknown = this._st.readByte(); // ??? Always 1? What is this?
         block.iterations = this._st.readUnsigned();
@@ -412,7 +412,7 @@ export class ParseGif {
       }
     };
 
-    var parseUnknownExt = (block: any) => {
+    const parseUnknownExt = (block: any) => {
       block.data = this.readSubBlocks();
       if (this._handler.unknown && this._handler.unknown(block)) {
         this.checkBytes.push(this._handler.unknown);
@@ -445,23 +445,23 @@ export class ParseGif {
   };
 
   parseImg = (img: any) => {
-    var deinterlace = (pixels: any, width: any) => {
+    const deinterlace = (pixels: any, width: any) => {
       // Of course this defeats the purpose of interlacing. And it's *probably*
       // the least efficient way it's ever been implemented. But nevertheless...
 
-      var newPixels = new Array(pixels.length);
-      var rows = pixels.length / width;
-      var cpRow = (toRow: any, fromRow: any) => {
-        var fromPixels = pixels.slice(fromRow * width, (fromRow + 1) * width);
+      const newPixels = new Array(pixels.length);
+      const rows = pixels.length / width;
+      const cpRow = (toRow: any, fromRow: any) => {
+        const fromPixels = pixels.slice(fromRow * width, (fromRow + 1) * width);
         newPixels.splice.apply(newPixels, [toRow * width, width].concat(fromPixels));
       };
 
-      var offsets = [0, 4, 2, 1];
-      var steps = [8, 8, 4, 2];
+      const offsets = [0, 4, 2, 1];
+      const steps = [8, 8, 4, 2];
 
-      var fromRow = 0;
-      for (var pass = 0; pass < 4; pass++) {
-        for (var toRow = offsets[pass]; toRow < rows; toRow += steps[pass]) {
+      let fromRow = 0;
+      for (let pass = 0; pass < 4; pass++) {
+        for (let toRow = offsets[pass]; toRow < rows; toRow += steps[pass]) {
           cpRow(toRow, fromRow);
           fromRow++;
         }
@@ -475,7 +475,7 @@ export class ParseGif {
     img.width = this._st.readUnsigned();
     img.height = this._st.readUnsigned();
 
-    var bits = byteToBitArr(this._st.readByte());
+    const bits = byteToBitArr(this._st.readByte());
     img.lctFlag = bits.shift();
     img.interlaced = bits.shift();
     img.sorted = bits.shift();
@@ -488,7 +488,7 @@ export class ParseGif {
 
     img.lzwMinCodeSize = this._st.readByte();
 
-    var lzwData = this.readSubBlocks();
+    const lzwData = this.readSubBlocks();
 
     img.pixels = lzwDecode(img.lzwMinCodeSize, lzwData);
 
@@ -505,11 +505,11 @@ export class ParseGif {
   };
 
   public parseBlock = () => {
-    var block = {
+    const block = {
       sentinel: this._st.readByte(),
       type: ''
     };
-    var blockChar = String.fromCharCode(block.sentinel);
+    const blockChar = String.fromCharCode(block.sentinel);
     switch (blockChar) {
       case '!':
         block.type = 'ext';
@@ -536,16 +536,16 @@ export class ParseGif {
 
   arrayToImage = (frame: Frame) => {
     let count = 0;
-    var c = document.createElement('canvas');
+    const c = document.createElement('canvas');
     c.id = count.toString();
     c.width = frame.width;
     c.height = frame.height;
     count++;
-    var context = c.getContext('2d');
-    var pixSize = 1;
-    var y = 0;
-    var x = 0;
-    for (var i = 0; i < frame.pixels.length; i++) {
+    const context = c.getContext('2d');
+    const pixSize = 1;
+    let y = 0;
+    let x = 0;
+    for (let i = 0; i < frame.pixels.length; i++) {
       if (x % frame.width === 0) {
         y++;
         x = 0;

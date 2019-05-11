@@ -29,7 +29,7 @@ export interface TriggerOptions {
   repeat: number;
 }
 
-let triggerDefaults: Partial<TriggerOptions> = {
+const triggerDefaults: Partial<TriggerOptions> = {
   pos: Vector.Zero,
   width: 10,
   height: 10,
@@ -129,8 +129,8 @@ export class Trigger extends Actor {
     ctx.save();
     ctx.translate(this.pos.x, this.pos.y);
 
-    var bb = this.getBounds();
-    var wp = this.getWorldPos();
+    const bb = this.getBounds();
+    const wp = this.getWorldPos();
     bb.left = bb.left - wp.x;
     bb.right = bb.right - wp.x;
     bb.top = bb.top - wp.y;

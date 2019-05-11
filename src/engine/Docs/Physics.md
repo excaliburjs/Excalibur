@@ -105,7 +105,7 @@ actor.on('postcollision', () => {...})
 
 ```ts
 // setup game
-var game = new ex.Engine({
+const game = new ex.Engine({
   width: 600,
   height: 400
 });
@@ -114,7 +114,7 @@ ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBod
 // set global acceleration simulating gravity pointing down
 ex.Physics.acc.setTo(0, 700);
 
-var block = new ex.Actor({
+const block = new ex.Actor({
   x: 300,
   y: 0,
   width: 20,
@@ -125,7 +125,7 @@ var block = new ex.Actor({
 block.body.useBoxCollision(); // useBoxCollision is the default, technically optional
 game.add(block);
 
-var circle = new ex.Actor({
+const circle = new ex.Actor({
   x: 301,
   y: 100,
   width: 20,
@@ -136,7 +136,7 @@ var circle = new ex.Actor({
 circle.body.useCircleCollision(10);
 game.add(circle);
 
-var ground = new ex.Actor({
+const ground = new ex.Actor({
   x: 300,
   y: 380,
   width: 600,

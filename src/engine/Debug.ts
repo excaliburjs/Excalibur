@@ -222,7 +222,7 @@ export class FrameStats implements FrameStatistics {
    * Provides a clone of this instance.
    */
   public clone(): FrameStats {
-    var fs = new FrameStats();
+    const fs = new FrameStats();
 
     fs.reset(this);
 
@@ -329,7 +329,7 @@ export class PhysicsStats implements PhysicsStatistics {
    * Provides a clone of this instance.
    */
   public clone(): PhysicsStatistics {
-    var ps = new PhysicsStats();
+    const ps = new PhysicsStats();
 
     ps.reset(this);
 

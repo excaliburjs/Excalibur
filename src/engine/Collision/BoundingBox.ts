@@ -38,11 +38,11 @@ export class BoundingBox implements Collidable {
   constructor(public left: number = 0, public top: number = 0, public right: number = 0, public bottom: number = 0) {}
 
   public static fromPoints(points: Vector[]): BoundingBox {
-    var minX = Infinity;
-    var minY = Infinity;
-    var maxX = -Infinity;
-    var maxY = -Infinity;
-    for (var i = 0; i < points.length; i++) {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (let i = 0; i < points.length; i++) {
       if (points[i].x < minX) {
         minX = points[i].x;
       }
@@ -78,7 +78,7 @@ export class BoundingBox implements Collidable {
    * box is also axis-align. This is useful when a new axis-aligned bounding box is needed for rotated geometry.
    */
   public rotate(angle: number, point: Vector = Vector.Zero): BoundingBox {
-    var points = this.getPoints().map((p) => p.rotate(angle, point));
+    const points = this.getPoints().map((p) => p.rotate(angle, point));
     return BoundingBox.fromPoints(points);
   }
 
@@ -86,13 +86,13 @@ export class BoundingBox implements Collidable {
    * Returns the perimeter of the bounding box
    */
   public getPerimeter(): number {
-    var wx = this.getWidth();
-    var wy = this.getHeight();
+    const wx = this.getWidth();
+    const wy = this.getHeight();
     return 2 * (wx + wy);
   }
 
   public getPoints(): Vector[] {
-    var results = [];
+    const results = [];
     results.push(new Vector(this.left, this.top));
     results.push(new Vector(this.right, this.top));
     results.push(new Vector(this.right, this.bottom));
@@ -116,19 +116,19 @@ export class BoundingBox implements Collidable {
    */
   public rayCast(ray: Ray, farClipDistance = Infinity): boolean {
     // algorithm from https://tavianator.com/fast-branchless-raybounding-box-intersections/
-    var tmin = -Infinity;
-    var tmax = +Infinity;
+    let tmin = -Infinity;
+    let tmax = +Infinity;
 
-    var xinv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
-    var yinv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
+    const xinv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
+    const yinv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
 
-    var tx1 = (this.left - ray.pos.x) * xinv;
-    var tx2 = (this.right - ray.pos.x) * xinv;
+    const tx1 = (this.left - ray.pos.x) * xinv;
+    const tx2 = (this.right - ray.pos.x) * xinv;
     tmin = Math.min(tx1, tx2);
     tmax = Math.max(tx1, tx2);
 
-    var ty1 = (this.top - ray.pos.y) * yinv;
-    var ty2 = (this.bottom - ray.pos.y) * yinv;
+    const ty1 = (this.top - ray.pos.y) * yinv;
+    const ty2 = (this.bottom - ray.pos.y) * yinv;
     tmin = Math.max(tmin, Math.min(ty1, ty2));
     tmax = Math.min(tmax, Math.max(ty1, ty2));
 
@@ -137,19 +137,19 @@ export class BoundingBox implements Collidable {
 
   public rayCastTime(ray: Ray, farClipDistance = Infinity): number {
     // algorithm from https://tavianator.com/fast-branchless-raybounding-box-intersections/
-    var tmin = -Infinity;
-    var tmax = +Infinity;
+    let tmin = -Infinity;
+    let tmax = +Infinity;
 
-    var xinv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
-    var yinv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
+    const xinv = ray.dir.x === 0 ? Number.MAX_VALUE : 1 / ray.dir.x;
+    const yinv = ray.dir.y === 0 ? Number.MAX_VALUE : 1 / ray.dir.y;
 
-    var tx1 = (this.left - ray.pos.x) * xinv;
-    var tx2 = (this.right - ray.pos.x) * xinv;
+    const tx1 = (this.left - ray.pos.x) * xinv;
+    const tx2 = (this.right - ray.pos.x) * xinv;
     tmin = Math.min(tx1, tx2);
     tmax = Math.max(tx1, tx2);
 
-    var ty1 = (this.top - ray.pos.y) * yinv;
-    var ty2 = (this.bottom - ray.pos.y) * yinv;
+    const ty1 = (this.top - ray.pos.y) * yinv;
+    const ty2 = (this.bottom - ray.pos.y) * yinv;
     tmin = Math.max(tmin, Math.min(ty1, ty2));
     tmax = Math.min(tmax, Math.max(ty1, ty2));
 
@@ -187,7 +187,7 @@ export class BoundingBox implements Collidable {
    * @param other  The bounding box to combine
    */
   public combine(other: BoundingBox): BoundingBox {
-    var compositeBB = new BoundingBox(
+    const compositeBB = new BoundingBox(
       Math.min(this.left, other.left),
       Math.min(this.top, other.top),
       Math.max(this.right, other.right),
@@ -210,8 +210,8 @@ export class BoundingBox implements Collidable {
    */
   public collides(collidable: Collidable): Vector {
     if (collidable instanceof BoundingBox) {
-      var other: BoundingBox = <BoundingBox>collidable;
-      var totalBoundingBox = this.combine(other);
+      const other: BoundingBox = <BoundingBox>collidable;
+      const totalBoundingBox = this.combine(other);
 
       // If the total bounding box is less than or equal the sum of the 2 bounds then there is collision
       if (
@@ -221,7 +221,7 @@ export class BoundingBox implements Collidable {
         !totalBoundingBox.dimensions.equals(this.dimensions)
       ) {
         // collision
-        var overlapX = 0;
+        let overlapX = 0;
         // right edge is between the other's left and right edge
         /**
          *     +-this-+
@@ -250,7 +250,7 @@ export class BoundingBox implements Collidable {
           overlapX = other.right - this.left;
         }
 
-        var overlapY = 0;
+        let overlapY = 0;
         // top edge is between the other's top and bottom edge
         /**
          *     +-other-+

@@ -2,11 +2,11 @@ import * as ex from '../../build/dist/excalibur';
 import { Mocks } from './util/Mocks';
 
 describe('A Collision Group', () => {
-  var scene;
-  var actor1;
-  var actor2;
-  var engine: ex.Engine;
-  var mock = new Mocks.Mocker();
+  let scene;
+  let actor1;
+  let actor2;
+  let engine: ex.Engine;
+  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
     actor1 = new ex.Actor(100, 100, 100, 100);

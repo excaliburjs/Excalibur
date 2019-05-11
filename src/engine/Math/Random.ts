@@ -58,8 +58,8 @@ export class Random {
     // need to mask to support higher bit machines
     this._mt[0] = (seed || Date.now()) >>> 0;
 
-    for (var i = 1; i < this._n; i++) {
-      var s = this._mt[i - 1] ^ (this._mt[i - 1] >>> (this._w - 2));
+    for (let i = 1; i < this._n; i++) {
+      const s = this._mt[i - 1] ^ (this._mt[i - 1] >>> (this._w - 2));
       // numbers are bigger than the JS max safe int, add in 16-bit chunks to prevent IEEE rounding errors on high bits
       this._mt[i] = (((this._f * ((s & 0xffff0000) >>> 16)) << 16) + this._f * (s & 0xffff) + i) >>> 0;
     }
@@ -70,9 +70,10 @@ export class Random {
    * Apply the twist
    */
   private _twist(): void {
-    var mag01 = [0x0, this._a];
-    var y = 0;
-    for (var i = 0; i < this._n - this._m; i++) {
+    const mag01 = [0x0, this._a];
+    let y = 0,
+      i = 0;
+    for (; i < this._n - this._m; i++) {
       y = (this._mt[i] & this._upperMask) | (this._mt[i + 1] & this._lowerMask);
       this._mt[i] = this._mt[i + this._m] ^ (y >>> 1) ^ (mag01[y & 0x1] & BITMASK32);
     }
@@ -94,7 +95,7 @@ export class Random {
       this._twist();
     }
 
-    var y = this._mt[this._index++];
+    let y = this._mt[this._index++];
 
     y ^= y >>> this._u;
     y ^= (y << this._s) & this._b;
@@ -169,11 +170,11 @@ export class Random {
       return array;
     }
 
-    var result: Array<T> = new Array<T>(numPicks);
-    var currentPick = 0;
-    var tempArray = array.slice(0);
+    const result: Array<T> = new Array<T>(numPicks);
+    let currentPick = 0;
+    const tempArray = array.slice(0);
     while (currentPick < numPicks) {
-      var index = this.integer(0, tempArray.length - 1);
+      const index = this.integer(0, tempArray.length - 1);
       result[currentPick++] = tempArray[index];
       tempArray.splice(index, 1);
     }
@@ -190,8 +191,8 @@ export class Random {
     if (numPicks < 0) {
       throw new Error('Invalid number of elements to pick, must pick a value 0 <= n < MAX_INT');
     }
-    var result = new Array<T>(numPicks);
-    for (var i = 0; i < numPicks; i++) {
+    const result = new Array<T>(numPicks);
+    for (let i = 0; i < numPicks; i++) {
       result[i] = this.pickOne(array);
     }
     return result;
@@ -202,10 +203,10 @@ export class Random {
    * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
    */
   public shuffle<T>(array: Array<T>): Array<T> {
-    var tempArray = array.slice(0);
-    var swap: T = null;
-    for (var i = 0; i < tempArray.length - 2; i++) {
-      var randomIndex = this.integer(i, tempArray.length - 1);
+    const tempArray = array.slice(0);
+    let swap: T = null;
+    for (let i = 0; i < tempArray.length - 2; i++) {
+      const randomIndex = this.integer(i, tempArray.length - 1);
       swap = tempArray[i];
       tempArray[i] = tempArray[randomIndex];
       tempArray[randomIndex] = swap;
@@ -221,8 +222,8 @@ export class Random {
    * @param max the maximum integer number to generate inclusive
    */
   public range(length: number, min: number, max: number): Array<number> {
-    var result: Array<number> = new Array(length);
-    for (var i = 0; i < length; i++) {
+    const result: Array<number> = new Array(length);
+    for (let i = 0; i < length; i++) {
       result[i] = this.integer(min, max);
     }
     return result;

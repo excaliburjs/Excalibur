@@ -3,12 +3,12 @@ import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
 describe('The engine', () => {
-  var engine: ex.Engine;
-  var scene: ex.Scene;
-  var mock = new Mocks.Mocker();
-  var loop: Mocks.GameLoopLike;
-  var actor: ex.Actor;
-  var stats: ex.IFrameStats;
+  let engine: ex.Engine;
+  let scene: ex.Scene;
+  const mock = new Mocks.Mocker();
+  let loop: Mocks.GameLoopLike;
+  let actor: ex.Actor;
+  let stats: ex.IFrameStats;
 
   beforeEach(() => {
     engine = TestUtils.engine({
@@ -64,7 +64,7 @@ describe('The engine', () => {
 });
 
 describe('FrameStats', () => {
-  var sut: ex.FrameStats;
+  let sut: ex.FrameStats;
 
   beforeEach(() => {
     sut = new ex.FrameStats();
@@ -80,7 +80,7 @@ describe('FrameStats', () => {
     sut.duration.update = 10;
     sut.duration.draw = 10;
 
-    var clone = sut.clone();
+    const clone = sut.clone();
 
     expect(sut).toEqual(clone);
   });

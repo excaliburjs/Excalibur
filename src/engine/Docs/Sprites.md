@@ -36,7 +36,7 @@ There are a number of convenience methods available to perform sprite effects. S
 side-effecting.
 
 ```typescript
-var playerSprite = new ex.Sprite(txPlayer, 0, 0, 80, 80);
+const playerSprite = new ex.Sprite(txPlayer, 0, 0, 80, 80);
 
 // darken a sprite by a percentage
 playerSprite.darken(0.2); // 20%

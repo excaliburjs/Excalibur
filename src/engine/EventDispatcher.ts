@@ -34,13 +34,13 @@ export class EventDispatcher implements Eventable {
       return;
     }
     eventName = eventName.toLowerCase();
-    var target = this._target;
+    const target = this._target;
     if (!event) {
       event = new GameEvent();
     }
     event.target = target;
 
-    var i: number, len: number;
+    let i: number, len: number;
 
     if (this._handlers[eventName]) {
       i = 0;
@@ -88,14 +88,14 @@ export class EventDispatcher implements Eventable {
    */
   public off(eventName: string, handler?: (event: GameEvent<any>) => void) {
     eventName = eventName.toLowerCase();
-    var eventHandlers = this._handlers[eventName];
+    const eventHandlers = this._handlers[eventName];
 
     if (eventHandlers) {
       // if no explicit handler is give with the event name clear all handlers
       if (!handler) {
         this._handlers[eventName].length = 0;
       } else {
-        var index = eventHandlers.indexOf(handler);
+        const index = eventHandlers.indexOf(handler);
         this._handlers[eventName].splice(index, 1);
       }
     }
@@ -112,8 +112,8 @@ export class EventDispatcher implements Eventable {
    * @param handler   The handler of the event that will be auto unsubscribed
    */
   public once(eventName: string, handler: (event: GameEvent<any>) => void) {
-    let metaHandler = (event: GameEvent<any>) => {
-      let ev = event || new GameEvent();
+    const metaHandler = (event: GameEvent<any>) => {
+      const ev = event || new GameEvent();
       ev.target = ev.target || this._target;
 
       this.off(eventName, handler);
@@ -134,7 +134,7 @@ export class EventDispatcher implements Eventable {
    * Unwires this event dispatcher from another
    */
   public unwire(eventDispatcher: EventDispatcher): void {
-    var index = eventDispatcher._wiredEventDispatchers.indexOf(this);
+    const index = eventDispatcher._wiredEventDispatchers.indexOf(this);
     if (index > -1) {
       eventDispatcher._wiredEventDispatchers.splice(index, 1);
     }

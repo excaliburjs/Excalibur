@@ -1,8 +1,8 @@
 import * as ex from '../../build/dist/excalibur';
 
 describe('A CollisionContact', () => {
-  var actorA: ex.Actor;
-  var actorB: ex.Actor;
+  let actorA: ex.Actor;
+  let actorB: ex.Actor;
 
   beforeEach(() => {
     actorA = new ex.Actor(0, 0, 20, 20);
@@ -26,7 +26,7 @@ describe('A CollisionContact', () => {
   });
 
   it('can be created', () => {
-    var cc = new ex.CollisionContact(
+    const cc = new ex.CollisionContact(
       actorA.collisionArea,
       actorB.collisionArea,
       ex.Vector.Zero.clone(),
@@ -38,7 +38,7 @@ describe('A CollisionContact', () => {
 
   it('can reslove in the Box system', () => {
     actorB.x = 19;
-    var cc = new ex.CollisionContact(
+    const cc = new ex.CollisionContact(
       actorA.collisionArea,
       actorB.collisionArea,
       ex.Vector.Right.clone(),
@@ -55,8 +55,8 @@ describe('A CollisionContact', () => {
   });
 
   it('emits a collision event on both in the Box system', () => {
-    var emittedA = false;
-    var emittedB = false;
+    let emittedA = false;
+    let emittedB = false;
 
     actorA.on('precollision', () => {
       emittedA = true;
@@ -67,7 +67,7 @@ describe('A CollisionContact', () => {
     });
 
     actorB.x = 19;
-    var cc = new ex.CollisionContact(
+    const cc = new ex.CollisionContact(
       actorA.collisionArea,
       actorB.collisionArea,
       ex.Vector.Right.clone(),
@@ -92,7 +92,7 @@ describe('A CollisionContact', () => {
     actorB.x = 19;
     actorA.collisionArea.recalc();
     actorB.collisionArea.recalc();
-    var cc = new ex.CollisionContact(
+    const cc = new ex.CollisionContact(
       actorA.collisionArea,
       actorB.collisionArea,
       ex.Vector.Right.clone(),
@@ -117,8 +117,8 @@ describe('A CollisionContact', () => {
   });
 
   it('emits a collision event on both in the Dynamic system', () => {
-    var emittedA = false;
-    var emittedB = false;
+    let emittedA = false;
+    let emittedB = false;
 
     actorA.on('precollision', () => {
       emittedA = true;
@@ -129,7 +129,7 @@ describe('A CollisionContact', () => {
     });
 
     actorB.x = 19;
-    var cc = new ex.CollisionContact(
+    const cc = new ex.CollisionContact(
       actorA.collisionArea,
       actorB.collisionArea,
       ex.Vector.Right.clone(),

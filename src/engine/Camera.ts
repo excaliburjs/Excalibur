@@ -90,7 +90,7 @@ export enum Axis {
 export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
   constructor(public target: Actor) {}
   public action = (target: Actor, _cam: Camera, _eng: Engine, _delta: number) => {
-    let center = target.getCenter();
+    const center = target.getCenter();
     return center;
   };
 }
@@ -101,8 +101,8 @@ export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
 export class LockCameraToActorAxisStrategy implements CameraStrategy<Actor> {
   constructor(public target: Actor, public axis: Axis) {}
   public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
-    let center = target.getCenter();
-    let currentFocus = cam.getFocus();
+    const center = target.getCenter();
+    const currentFocus = cam.getFocus();
     if (this.axis === Axis.X) {
       return new Vector(center.x, currentFocus.y);
     } else {
@@ -126,7 +126,7 @@ export class ElasticToActorStrategy implements CameraStrategy<Actor> {
    */
   constructor(public target: Actor, public cameraElasticity: number, public cameraFriction: number) {}
   public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
-    let position = target.getCenter();
+    const position = target.getCenter();
     let focus = cam.getFocus();
     let cameraVel = new Vector(cam.dx, cam.dy);
 
@@ -134,12 +134,12 @@ export class ElasticToActorStrategy implements CameraStrategy<Actor> {
     // F = kX
     // https://en.wikipedia.org/wiki/Hooke's_law
     // Apply to the current camera velocity
-    var stretch = position.sub(focus).scale(this.cameraElasticity); // stretch is X
+    const stretch = position.sub(focus).scale(this.cameraElasticity); // stretch is X
     cameraVel = cameraVel.add(stretch);
 
     // Calculate the friction (-1 to apply a force in the opposition of motion)
     // Apply to the current camera velocity
-    var friction = cameraVel.scale(-1).scale(this.cameraFriction);
+    const friction = cameraVel.scale(-1).scale(this.cameraFriction);
     cameraVel = cameraVel.add(friction);
 
     // Update position by velocity deltas
@@ -157,13 +157,13 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
    */
   constructor(public target: Actor, public radius: number) {}
   public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
-    let position = target.getCenter();
-    let focus = cam.getFocus();
+    const position = target.getCenter();
+    const focus = cam.getFocus();
 
-    let direction = position.sub(focus);
-    let distance = direction.magnitude();
+    const direction = position.sub(focus);
+    const distance = direction.magnitude();
     if (distance >= this.radius) {
-      let offset = distance - this.radius;
+      const offset = distance - this.radius;
       return focus.add(direction.normalize().scale(offset));
     }
     return focus;
@@ -382,8 +382,8 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    */
   public get viewport(): BoundingBox {
     if (this._engine) {
-      let halfWidth = this._engine.halfDrawWidth;
-      let halfHeight = this._engine.halfDrawHeight;
+      const halfWidth = this._engine.halfDrawWidth;
+      const halfHeight = this._engine.halfDrawHeight;
 
       return new BoundingBox(this.x - halfWidth, this.y - halfHeight, this.x + halfWidth, this.y + halfHeight);
     }
@@ -517,8 +517,8 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
     if (this._isZooming) {
       if (this._currentZoomTime < this._zoomDuration) {
-        let zoomEasing = this._zoomEasing;
-        let newZoom = zoomEasing(this._currentZoomTime, this._zoomStart, this._zoomEnd, this._zoomDuration);
+        const zoomEasing = this._zoomEasing;
+        const newZoom = zoomEasing(this._currentZoomTime, this._zoomStart, this._zoomEnd, this._zoomDuration);
 
         this.z = newZoom;
         this._currentZoomTime += delta;
@@ -532,9 +532,9 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
     if (this._cameraMoving) {
       if (this._currentLerpTime < this._lerpDuration) {
-        let moveEasing = EasingFunctions.CreateVectorEasingFunction(this._easing);
+        const moveEasing = EasingFunctions.CreateVectorEasingFunction(this._easing);
 
-        let lerpPoint = moveEasing(this._currentLerpTime, this._lerpStart, this._lerpEnd, this._lerpDuration);
+        const lerpPoint = moveEasing(this._currentLerpTime, this._lerpStart, this._lerpEnd, this._lerpDuration);
 
         this._x = lerpPoint.x;
         this._y = lerpPoint.y;
@@ -543,7 +543,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       } else {
         this._x = this._lerpEnd.x;
         this._y = this._lerpEnd.y;
-        let end = this._lerpEnd.clone();
+        const end = this._lerpEnd.clone();
 
         this._lerpStart = null;
         this._lerpEnd = null;
@@ -568,7 +568,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       this._yShake = ((Math.random() * this._shakeMagnitudeY) | 0) + 1;
     }
 
-    for (let s of this._cameraStrategies) {
+    for (const s of this._cameraStrategies) {
       this.pos = s.action.call(s, s.target, this, _engine, delta);
     }
 
@@ -581,21 +581,21 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * @param delta  The number of milliseconds since the last update
    */
   public draw(ctx: CanvasRenderingContext2D) {
-    let focus = this.getFocus();
-    let canvasWidth = ctx.canvas.width;
-    let canvasHeight = ctx.canvas.height;
-    let pixelRatio = this._engine ? this._engine.pixelRatio : window.devicePixelRatio;
-    let zoom = this.getZoom();
+    const focus = this.getFocus();
+    const canvasWidth = ctx.canvas.width;
+    const canvasHeight = ctx.canvas.height;
+    const pixelRatio = this._engine ? this._engine.pixelRatio : window.devicePixelRatio;
+    const zoom = this.getZoom();
 
-    var newCanvasWidth = canvasWidth / zoom / pixelRatio;
-    var newCanvasHeight = canvasHeight / zoom / pixelRatio;
+    const newCanvasWidth = canvasWidth / zoom / pixelRatio;
+    const newCanvasHeight = canvasHeight / zoom / pixelRatio;
 
     ctx.scale(zoom, zoom);
     ctx.translate(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
   }
 
   public debugDraw(ctx: CanvasRenderingContext2D) {
-    var focus = this.getFocus();
+    const focus = this.getFocus();
     ctx.fillStyle = 'red';
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 3;

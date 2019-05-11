@@ -55,27 +55,27 @@ export class DynamicTree {
     }
 
     // Search the tree for a node that is not a leaf and find the best place to insert
-    var leafAABB = leaf.bounds;
-    var currentRoot = this.root;
+    const leafAABB = leaf.bounds;
+    let currentRoot = this.root;
     while (!currentRoot.isLeaf()) {
-      var left = currentRoot.left;
-      var right = currentRoot.right;
+      const left = currentRoot.left;
+      const right = currentRoot.right;
 
-      var area = currentRoot.bounds.getPerimeter();
-      var combinedAABB = currentRoot.bounds.combine(leafAABB);
-      var combinedArea = combinedAABB.getPerimeter();
+      const area = currentRoot.bounds.getPerimeter();
+      const combinedAABB = currentRoot.bounds.combine(leafAABB);
+      const combinedArea = combinedAABB.getPerimeter();
 
       // Calculate cost heuristic for creating a new parent and leaf
-      var cost = 2 * combinedArea;
+      const cost = 2 * combinedArea;
 
       // Minimum cost of pushing the leaf down the tree
-      var inheritanceCost = 2 * (combinedArea - area);
+      const inheritanceCost = 2 * (combinedArea - area);
 
       // Cost of descending
-      var leftCost = 0;
-      var leftCombined = leafAABB.combine(left.bounds);
-      var newArea;
-      var oldArea;
+      let leftCost = 0;
+      const leftCombined = leafAABB.combine(left.bounds);
+      let newArea;
+      let oldArea;
       if (left.isLeaf()) {
         leftCost = leftCombined.getPerimeter() + inheritanceCost;
       } else {
@@ -84,8 +84,8 @@ export class DynamicTree {
         leftCost = newArea - oldArea + inheritanceCost;
       }
 
-      var rightCost = 0;
-      var rightCombined = leafAABB.combine(right.bounds);
+      let rightCost = 0;
+      const rightCombined = leafAABB.combine(right.bounds);
       if (right.isLeaf()) {
         rightCost = rightCombined.getPerimeter() + inheritanceCost;
       } else {
@@ -108,8 +108,8 @@ export class DynamicTree {
     }
 
     // Create the new parent node and insert into the tree
-    var oldParent = currentRoot.parent;
-    var newParent = new TreeNode(oldParent);
+    const oldParent = currentRoot.parent;
+    const newParent = new TreeNode(oldParent);
     newParent.bounds = leafAABB.combine(currentRoot.bounds);
     newParent.height = currentRoot.height + 1;
 
@@ -137,7 +137,7 @@ export class DynamicTree {
     }
 
     // Walk up the tree fixing heights and AABBs
-    var currentNode = leaf.parent;
+    let currentNode = leaf.parent;
     while (currentNode) {
       currentNode = this._balance(currentNode);
 
@@ -164,9 +164,9 @@ export class DynamicTree {
       return;
     }
 
-    var parent = leaf.parent;
-    var grandParent = parent.parent;
-    var sibling: TreeNode;
+    const parent = leaf.parent;
+    const grandParent = parent.parent;
+    let sibling: TreeNode;
     if (parent.left === leaf) {
       sibling = parent.right;
     } else {
@@ -181,7 +181,7 @@ export class DynamicTree {
       }
       sibling.parent = grandParent;
 
-      var currentNode = grandParent;
+      let currentNode = grandParent;
       while (currentNode) {
         currentNode = this._balance(currentNode);
         currentNode.bounds = currentNode.left.bounds.combine(currentNode.right.bounds);
@@ -199,7 +199,7 @@ export class DynamicTree {
    * Tracks a body in the dynamic tree
    */
   public trackBody(body: Body) {
-    var node = new TreeNode();
+    const node = new TreeNode();
     node.body = body;
     node.bounds = body.getBounds();
     node.bounds.left -= 2;
@@ -214,11 +214,11 @@ export class DynamicTree {
    * Updates the dynamic tree given the current bounds of each body being tracked
    */
   public updateBody(body: Body) {
-    var node = this.nodes[body.actor.id];
+    const node = this.nodes[body.actor.id];
     if (!node) {
       return false;
     }
-    var b = body.getBounds();
+    const b = body.getBounds();
 
     // if the body is outside the world no longer update it
     if (!this.worldBounds.contains(b)) {
@@ -239,8 +239,8 @@ export class DynamicTree {
     b.right += Physics.boundsPadding;
     b.bottom += Physics.boundsPadding;
 
-    var multdx = body.vel.x * Physics.dynamicTreeVelocityMultiplyer;
-    var multdy = body.vel.y * Physics.dynamicTreeVelocityMultiplyer;
+    const multdx = body.vel.x * Physics.dynamicTreeVelocityMultiplyer;
+    const multdy = body.vel.y * Physics.dynamicTreeVelocityMultiplyer;
 
     if (multdx < 0) {
       b.left += multdx;
@@ -263,7 +263,7 @@ export class DynamicTree {
    * Untracks a body from the dynamic tree
    */
   public untrackBody(body: Body) {
-    var node = this.nodes[body.actor.id];
+    const node = this.nodes[body.actor.id];
     if (!node) {
       return;
     }
@@ -284,18 +284,18 @@ export class DynamicTree {
       return node;
     }
 
-    var left = node.left;
-    var right = node.right;
+    const left = node.left;
+    const right = node.right;
 
-    var a = node;
-    var b = left;
-    var c = right;
-    var d = left.left;
-    var e = left.right;
-    var f = right.left;
-    var g = right.right;
+    const a = node;
+    const b = left;
+    const c = right;
+    const d = left.left;
+    const e = left.right;
+    const f = right.left;
+    const g = right.right;
 
-    var balance = c.height - b.height;
+    const balance = c.height - b.height;
     // Rotate c node up
     if (balance > 1) {
       // Swap the right node with it's parent
@@ -407,8 +407,8 @@ export class DynamicTree {
    * the tree until all possible colliders have been returned.
    */
   public query(body: Body, callback: (other: Body) => boolean): void {
-    var bounds = body.getBounds();
-    var helper = (currentNode: TreeNode): boolean => {
+    const bounds = body.getBounds();
+    const helper = (currentNode: TreeNode): boolean => {
       if (currentNode && currentNode.bounds.collides(bounds)) {
         if (currentNode.isLeaf() && currentNode.body !== body) {
           if (callback.call(body, currentNode.body)) {
@@ -432,7 +432,7 @@ export class DynamicTree {
    * the tree until all possible bodies that would intersect with the ray have been returned.
    */
   public rayCastQuery(ray: Ray, max: number = Infinity, callback: (other: Body) => boolean): void {
-    var helper = (currentNode: TreeNode): boolean => {
+    const helper = (currentNode: TreeNode): boolean => {
       if (currentNode && currentNode.bounds.rayCast(ray, max)) {
         if (currentNode.isLeaf()) {
           if (callback.call(ray, currentNode.body)) {
@@ -450,7 +450,7 @@ export class DynamicTree {
   }
 
   public getNodes(): TreeNode[] {
-    var helper = (currentNode: TreeNode): TreeNode[] => {
+    const helper = (currentNode: TreeNode): TreeNode[] => {
       if (currentNode) {
         return [currentNode].concat(helper(currentNode.left), helper(currentNode.right));
       } else {
@@ -462,7 +462,7 @@ export class DynamicTree {
 
   public debugDraw(ctx: CanvasRenderingContext2D) {
     // draw all the nodes in the Dynamic Tree
-    var helper = (currentNode: TreeNode) => {
+    const helper = (currentNode: TreeNode) => {
       if (currentNode) {
         if (currentNode.isLeaf()) {
           ctx.lineWidth = 1;

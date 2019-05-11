@@ -33,8 +33,8 @@ class TestObsolete {
 class ObsoleteClass {}
 
 describe('An @obsolete decorator', () => {
-  var testObsolete: TestObsolete = null;
-  var logger = null;
+  let testObsolete: TestObsolete = null;
+  let logger = null;
   beforeEach(() => {
     testObsolete = new TestObsolete();
     logger = ex.Logger.getInstance();
@@ -45,13 +45,13 @@ describe('An @obsolete decorator', () => {
   });
 
   it('can be used on a function', () => {
-    var value = testObsolete.method();
+    const value = testObsolete.method();
     expect(logger.warn).toHaveBeenCalled();
     expect(value).toBe('hello world');
   });
 
   it('can be used on a getter', () => {
-    var value = testObsolete.getter;
+    const value = testObsolete.getter;
     expect(logger.warn).toHaveBeenCalled();
     expect(value).toBe('things');
   });
@@ -63,13 +63,13 @@ describe('An @obsolete decorator', () => {
   });
 
   it('can have a custom message', () => {
-    var value = testObsolete.customMessage();
+    const value = testObsolete.customMessage();
     expect(logger.warn).toHaveBeenCalledWith('customMessage is marked obsolete: mymessage');
     expect(value).toBe('stuff');
   });
 
   it('can specify an alternate method', () => {
-    var value = testObsolete.altmethod();
+    const value = testObsolete.altmethod();
     expect(logger.warn).toHaveBeenCalledWith(
       'altmethod is marked obsolete: This feature will be ' + 'removed in future versions of Excalibur. Use altMethod instead'
     );
@@ -77,7 +77,7 @@ describe('An @obsolete decorator', () => {
   });
 
   it('can be used on a class', () => {
-    var instance = new ObsoleteClass();
+    const instance = new ObsoleteClass();
     expect(logger.warn).toHaveBeenCalledWith(
       'ObsoleteClass is marked obsolete: This feature will be ' + 'removed in future versions of Excalibur.'
     );

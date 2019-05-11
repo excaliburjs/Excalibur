@@ -1,4 +1,4 @@
-﻿import { Logger } from './../Util/Log';
+import { Logger } from './../Util/Log';
 import { PostProcessor } from './PostProcessor';
 import { Engine } from '../Engine';
 
@@ -97,8 +97,8 @@ export class ColorBlindCorrector implements PostProcessor {
     this._gl = <WebGLRenderingContext>this._internalCanvas.getContext('webgl', { preserveDrawingBuffer: true });
 
     this._program = this._gl.createProgram();
-    var fragmentShader = this._getShader('Fragment', this._getFragmentShaderByMode(colorMode));
-    var vertextShader = this._getShader('Vertex', this._vertexShader);
+    const fragmentShader = this._getShader('Fragment', this._getFragmentShaderByMode(colorMode));
+    const vertextShader = this._getShader('Vertex', this._vertexShader);
 
     this._gl.attachShader(this._program, vertextShader);
     this._gl.attachShader(this._program, fragmentShader);
@@ -112,7 +112,7 @@ export class ColorBlindCorrector implements PostProcessor {
   }
 
   private _getFragmentShaderByMode(colorMode: ColorBlindness) {
-    var code = '';
+    let code = '';
     if (colorMode === ColorBlindness.Protanope) {
       code =
         'float l = 0.0 * L + 2.02344 * M + -2.52581 * S;' +
@@ -140,15 +140,15 @@ export class ColorBlindCorrector implements PostProcessor {
   }
 
   private _setRectangle(x: number, y: number, width: number, height: number) {
-    var x1 = x;
-    var x2 = x + width;
-    var y1 = y;
-    var y2 = y + height;
+    const x1 = x;
+    const x2 = x + width;
+    const y1 = y;
+    const y2 = y + height;
     this._gl.bufferData(this._gl.ARRAY_BUFFER, new Float32Array([x1, y1, x2, y1, x1, y2, x1, y2, x2, y1, x2, y2]), this._gl.STATIC_DRAW);
   }
 
   private _getShader(type: string, program: string): WebGLShader {
-    var shader: WebGLShader;
+    let shader: WebGLShader;
     if (type === 'Fragment') {
       shader = this._gl.createShader(this._gl.FRAGMENT_SHADER);
     } else if (type === 'Vertex') {
@@ -170,10 +170,10 @@ export class ColorBlindCorrector implements PostProcessor {
 
   public process(image: ImageData, out: CanvasRenderingContext2D) {
     // look up where the vertex data needs to go.
-    var positionLocation = this._gl.getAttribLocation(this._program, 'a_position');
-    var texCoordLocation = this._gl.getAttribLocation(this._program, 'a_texCoord');
+    const positionLocation = this._gl.getAttribLocation(this._program, 'a_position');
+    const texCoordLocation = this._gl.getAttribLocation(this._program, 'a_texCoord');
 
-    var texCoordBuffer = this._gl.createBuffer();
+    const texCoordBuffer = this._gl.createBuffer();
     this._gl.bindBuffer(this._gl.ARRAY_BUFFER, texCoordBuffer);
     this._gl.bufferData(
       this._gl.ARRAY_BUFFER,
@@ -184,7 +184,7 @@ export class ColorBlindCorrector implements PostProcessor {
     this._gl.vertexAttribPointer(texCoordLocation, 2, this._gl.FLOAT, false, 0, 0);
 
     // Create a texture.
-    var texture = this._gl.createTexture();
+    const texture = this._gl.createTexture();
     this._gl.bindTexture(this._gl.TEXTURE_2D, texture);
 
     // Set the parameters so we can render any size image.
@@ -198,13 +198,13 @@ export class ColorBlindCorrector implements PostProcessor {
     this._gl.texImage2D(this._gl.TEXTURE_2D, 0, this._gl.RGBA, this._gl.RGBA, this._gl.UNSIGNED_BYTE, image);
 
     // lookup uniforms
-    var resolutionLocation = this._gl.getUniformLocation(this._program, 'u_resolution');
+    const resolutionLocation = this._gl.getUniformLocation(this._program, 'u_resolution');
 
     // set the resolution
     this._gl.uniform2f(resolutionLocation, this._internalCanvas.width, this._internalCanvas.height);
 
     // Create a buffer for the position of the rectangle corners.
-    var positionBuffer = this._gl.createBuffer();
+    const positionBuffer = this._gl.createBuffer();
     this._gl.bindBuffer(this._gl.ARRAY_BUFFER, positionBuffer);
     this._gl.enableVertexAttribArray(positionLocation);
     this._gl.vertexAttribPointer(positionLocation, 2, this._gl.FLOAT, false, 0, 0);
@@ -216,7 +216,7 @@ export class ColorBlindCorrector implements PostProcessor {
     this._gl.drawArrays(this._gl.TRIANGLES, 0, 6);
 
     // Grab tranformed image from internal canvas
-    var pixelData = new Uint8Array(image.width * image.height * 4);
+    const pixelData = new Uint8Array(image.width * image.height * 4);
     this._gl.readPixels(0, 0, image.width, image.height, this._gl.RGBA, this._gl.UNSIGNED_BYTE, pixelData);
 
     (<any>image.data).set(pixelData);

@@ -22,7 +22,7 @@ describe('A sprite', () => {
 
   it('should have props set by the constructor', (done) => {
     texture.load().then(() => {
-      let sprite = new ex.Sprite({
+      const sprite = new ex.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -73,7 +73,7 @@ describe('A sprite', () => {
 
   it('should scale about the anchor', (done) => {
     texture.load().then(() => {
-      let sprite = new ex.Sprite({
+      const sprite = new ex.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -94,7 +94,7 @@ describe('A sprite', () => {
 
   it('should rotate about the anchor', (done) => {
     texture.load().then(() => {
-      let sprite = new ex.Sprite({
+      const sprite = new ex.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -115,7 +115,7 @@ describe('A sprite', () => {
 
   it('can be inverted', (done) => {
     texture.load().then(() => {
-      let sprite = new ex.Sprite({
+      const sprite = new ex.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -141,7 +141,7 @@ describe('A sprite', () => {
 
   it('can be colorized', (done) => {
     texture.load().then(() => {
-      let sprite = new ex.Sprite({
+      const sprite = new ex.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -167,7 +167,7 @@ describe('A sprite', () => {
 
   it('can be lightened', (done) => {
     texture.load().then(() => {
-      let sprite = new ex.Sprite({
+      const sprite = new ex.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -193,7 +193,7 @@ describe('A sprite', () => {
 
   it('can be darkened', (done) => {
     texture.load().then(() => {
-      let sprite = new ex.Sprite({
+      const sprite = new ex.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -219,7 +219,7 @@ describe('A sprite', () => {
 
   it('can be saturated', (done) => {
     texture.load().then(() => {
-      let sprite = new ex.Sprite({
+      const sprite = new ex.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -245,7 +245,7 @@ describe('A sprite', () => {
 
   it('can be desaturated', (done) => {
     texture.load().then(() => {
-      let sprite = new ex.Sprite({
+      const sprite = new ex.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -272,7 +272,7 @@ describe('A sprite', () => {
   it('should always have non-zero dimensions', (done) => {
     texture.load().then(() => {
       try {
-        let sprite = new ex.Sprite({
+        const sprite = new ex.Sprite({
           image: texture,
           x: 0,
           y: 0,
@@ -284,7 +284,7 @@ describe('A sprite', () => {
       }
 
       try {
-        let sprite = new ex.Sprite({
+        const sprite = new ex.Sprite({
           image: texture,
           x: 0,
           y: 0,

@@ -29,9 +29,9 @@ export interface SpriteEffect {
  */
 export class Grayscale implements SpriteEffect {
   updatePixel(x: number, y: number, imageData: ImageData): void {
-    var firstPixel = (x + y * imageData.width) * 4;
-    var pixel = imageData.data;
-    var avg = (pixel[firstPixel + 0] + pixel[firstPixel + 1] + pixel[firstPixel + 2]) / 3;
+    const firstPixel = (x + y * imageData.width) * 4;
+    const pixel = imageData.data;
+    const avg = (pixel[firstPixel + 0] + pixel[firstPixel + 1] + pixel[firstPixel + 2]) / 3;
     pixel[firstPixel + 0] = avg;
     pixel[firstPixel + 1] = avg;
     pixel[firstPixel + 2] = avg;
@@ -43,8 +43,8 @@ export class Grayscale implements SpriteEffect {
  */
 export class Invert implements SpriteEffect {
   updatePixel(x: number, y: number, imageData: ImageData): void {
-    var firstPixel = (x + y * imageData.width) * 4;
-    var pixel = imageData.data;
+    const firstPixel = (x + y * imageData.width) * 4;
+    const pixel = imageData.data;
     pixel[firstPixel + 0] = 255 - pixel[firstPixel + 0];
     pixel[firstPixel + 1] = 255 - pixel[firstPixel + 1];
     pixel[firstPixel + 2] = 255 - pixel[firstPixel + 2];
@@ -60,8 +60,8 @@ export class Opacity implements SpriteEffect {
    */
   constructor(public opacity: number) {}
   updatePixel(x: number, y: number, imageData: ImageData): void {
-    var firstPixel = (x + y * imageData.width) * 4;
-    var pixel = imageData.data;
+    const firstPixel = (x + y * imageData.width) * 4;
+    const pixel = imageData.data;
     if (pixel[firstPixel + 3] !== 0) {
       pixel[firstPixel + 3] = Math.round(this.opacity * pixel[firstPixel + 3]);
     }
@@ -78,8 +78,8 @@ export class Colorize implements SpriteEffect {
    */
   constructor(public color: Color) {}
   updatePixel(x: number, y: number, imageData: ImageData): void {
-    var firstPixel = (x + y * imageData.width) * 4;
-    var pixel = imageData.data;
+    const firstPixel = (x + y * imageData.width) * 4;
+    const pixel = imageData.data;
     if (pixel[firstPixel + 3] !== 0) {
       pixel[firstPixel + 0] = (pixel[firstPixel + 0] + this.color.r) / 2;
       pixel[firstPixel + 1] = (pixel[firstPixel + 1] + this.color.g) / 2;
@@ -97,9 +97,9 @@ export class Lighten implements SpriteEffect {
    */
   constructor(public factor: number = 0.1) {}
   updatePixel(x: number, y: number, imageData: ImageData): void {
-    var firstPixel = (x + y * imageData.width) * 4;
-    var pixel = imageData.data;
-    var color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).lighten(
+    const firstPixel = (x + y * imageData.width) * 4;
+    const pixel = imageData.data;
+    const color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).lighten(
       this.factor
     );
     pixel[firstPixel + 0] = color.r;
@@ -118,9 +118,9 @@ export class Darken implements SpriteEffect {
    */
   constructor(public factor: number = 0.1) {}
   updatePixel(x: number, y: number, imageData: ImageData): void {
-    var firstPixel = (x + y * imageData.width) * 4;
-    var pixel = imageData.data;
-    var color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).darken(
+    const firstPixel = (x + y * imageData.width) * 4;
+    const pixel = imageData.data;
+    const color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).darken(
       this.factor
     );
     pixel[firstPixel + 0] = color.r;
@@ -139,9 +139,9 @@ export class Saturate implements SpriteEffect {
    */
   constructor(public factor: number = 0.1) {}
   updatePixel(x: number, y: number, imageData: ImageData): void {
-    var firstPixel = (x + y * imageData.width) * 4;
-    var pixel = imageData.data;
-    var color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).saturate(
+    const firstPixel = (x + y * imageData.width) * 4;
+    const pixel = imageData.data;
+    const color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).saturate(
       this.factor
     );
     pixel[firstPixel + 0] = color.r;
@@ -160,9 +160,9 @@ export class Desaturate implements SpriteEffect {
    */
   constructor(public factor: number = 0.1) {}
   updatePixel(x: number, y: number, imageData: ImageData): void {
-    var firstPixel = (x + y * imageData.width) * 4;
-    var pixel = imageData.data;
-    var color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).desaturate(
+    const firstPixel = (x + y * imageData.width) * 4;
+    const pixel = imageData.data;
+    const color = Color.fromRGB(pixel[firstPixel + 0], pixel[firstPixel + 1], pixel[firstPixel + 2], pixel[firstPixel + 3]).desaturate(
       this.factor
     );
     pixel[firstPixel + 0] = color.r;
@@ -182,8 +182,8 @@ export class Fill implements SpriteEffect {
    */
   constructor(public color: Color) {}
   updatePixel(x: number, y: number, imageData: ImageData): void {
-    var firstPixel = (x + y * imageData.width) * 4;
-    var pixel = imageData.data;
+    const firstPixel = (x + y * imageData.width) * 4;
+    const pixel = imageData.data;
     if (pixel[firstPixel + 3] !== 0) {
       pixel[firstPixel + 0] = this.color.r;
       pixel[firstPixel + 1] = this.color.g;
