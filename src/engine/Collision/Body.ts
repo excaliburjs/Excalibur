@@ -146,9 +146,9 @@ export class Body {
    */
   public integrate(delta: number) {
     // Update placements based on linear algebra
-    var seconds = delta / 1000;
+    const seconds = delta / 1000;
 
-    var totalAcc = this.acc.clone();
+    let totalAcc = this.acc.clone();
     // Only active vanilla actors are affected by global acceleration
     if (this.collider.collisionType === CollisionType.Active) {
       totalAcc.addEqual(Physics.acc);
