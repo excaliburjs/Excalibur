@@ -282,8 +282,8 @@ export class Body {
    * or was in stationary contact with
    * the body of the other [[Body]]
    */
-  public touching(other: Actor): boolean {
-    const pair = new Pair(this, other.body);
+  public touching(other: Body): boolean {
+    const pair = new Pair(this.collider, other.collider);
     pair.collide();
 
     if (pair.collision) {
