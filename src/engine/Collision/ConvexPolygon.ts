@@ -158,17 +158,17 @@ export class ConvexPolygon implements CollisionShape {
   /**
    * Returns a collision contact if the 2 collision areas collide, otherwise collide will
    * return null.
-   * @param area
+   * @param shape
    */
-  public collide(area: CollisionShape): CollisionContact {
-    if (area instanceof Circle) {
-      return CollisionJumpTable.CollideCirclePolygon(area, this);
-    } else if (area instanceof ConvexPolygon) {
-      return CollisionJumpTable.CollidePolygonPolygon(this, area);
-    } else if (area instanceof Edge) {
-      return CollisionJumpTable.CollidePolygonEdge(this, area);
+  public collide(shape: CollisionShape): CollisionContact {
+    if (shape instanceof Circle) {
+      return CollisionJumpTable.CollideCirclePolygon(shape, this);
+    } else if (shape instanceof ConvexPolygon) {
+      return CollisionJumpTable.CollidePolygonPolygon(this, shape);
+    } else if (shape instanceof Edge) {
+      return CollisionJumpTable.CollidePolygonEdge(this, shape);
     } else {
-      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof area}`);
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
     }
   }
 

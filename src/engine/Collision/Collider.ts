@@ -10,6 +10,7 @@ import { Physics, CollisionResolutionStrategy } from '../Physics';
 import { BoundingBox } from './BoundingBox';
 import { ConvexPolygon } from './ConvexPolygon';
 import { CollisionType } from './CollisionType';
+import { CollisionContact } from './CollisionContact';
 
 /**
  * Type guard function to determine whether something is a Collider
@@ -98,6 +99,14 @@ export class Collider implements Eventable {
    */
   public get active(): boolean {
     return !this._actor.isKilled();
+  }
+
+  /**
+   * Collide 2 colliders and product a collision contact if there is a collision, null if none
+   * @param other
+   */
+  public collide(other: Collider): CollisionContact {
+    return this.shape.collide(other.shape);
   }
 
   /**

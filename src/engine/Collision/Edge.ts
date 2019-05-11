@@ -128,15 +128,15 @@ export class Edge implements CollisionShape {
   /**
    * @inheritdoc
    */
-  public collide(area: CollisionShape): CollisionContact {
-    if (area instanceof Circle) {
-      return CollisionJumpTable.CollideCircleEdge(area, this);
-    } else if (area instanceof ConvexPolygon) {
-      return CollisionJumpTable.CollidePolygonEdge(area, this);
-    } else if (area instanceof Edge) {
+  public collide(shape: CollisionShape): CollisionContact {
+    if (shape instanceof Circle) {
+      return CollisionJumpTable.CollideCircleEdge(shape, this);
+    } else if (shape instanceof ConvexPolygon) {
+      return CollisionJumpTable.CollidePolygonEdge(shape, this);
+    } else if (shape instanceof Edge) {
       return CollisionJumpTable.CollideEdgeEdge();
     } else {
-      throw new Error(`Edge could not collide with unknown CollisionShape ${typeof area}`);
+      throw new Error(`Edge could not collide with unknown CollisionShape ${typeof shape}`);
     }
   }
 

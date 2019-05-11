@@ -49,7 +49,7 @@ export class Pair {
    * Runs the collison intersection logic on the members of this pair
    */
   public collide() {
-    this.collision = this.colliderA.shape.collide(this.colliderB.shape);
+    this.collision = this.colliderA.collide(this.colliderB);
   }
 
   /**
