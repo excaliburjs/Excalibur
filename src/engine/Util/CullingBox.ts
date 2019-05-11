@@ -1,4 +1,4 @@
-﻿import { Vector } from '../Algebra';
+import { Vector } from '../Algebra';
 import { Actor } from '../Actor';
 import { Engine } from '../Engine';
 import { Color } from '../Drawing/Color';
@@ -22,11 +22,11 @@ export class CullingBox {
   private _yMaxWorld: number;
 
   public isSpriteOffScreen(actor: Actor, engine: Engine): boolean {
-    var drawingWidth = actor.currentDrawing.drawWidth;
-    var drawingHeight = actor.currentDrawing.drawHeight;
-    var rotation = actor.rotation;
-    var anchor = actor.getCenter();
-    var worldPos = actor.getWorldPos();
+    const drawingWidth = actor.currentDrawing.drawWidth;
+    const drawingHeight = actor.currentDrawing.drawHeight;
+    const rotation = actor.rotation;
+    const anchor = actor.getCenter();
+    const worldPos = actor.getWorldPos();
 
     this._topLeft.x = worldPos.x - drawingWidth / 2;
     this._topLeft.y = worldPos.y - drawingHeight / 2;
@@ -46,10 +46,10 @@ export class CullingBox {
 
     ///
 
-    var topLeftScreen = engine.worldToScreenCoordinates(this._topLeft);
-    var topRightScreen = engine.worldToScreenCoordinates(this._topRight);
-    var bottomLeftScreen = engine.worldToScreenCoordinates(this._bottomLeft);
-    var bottomRightScreen = engine.worldToScreenCoordinates(this._bottomRight);
+    const topLeftScreen = engine.worldToScreenCoordinates(this._topLeft);
+    const topRightScreen = engine.worldToScreenCoordinates(this._topRight);
+    const bottomLeftScreen = engine.worldToScreenCoordinates(this._bottomLeft);
+    const bottomRightScreen = engine.worldToScreenCoordinates(this._bottomRight);
     this._xCoords = [];
     this._yCoords = [];
 
@@ -61,14 +61,14 @@ export class CullingBox {
     this._xMax = Math.max.apply(null, this._xCoords);
     this._yMax = Math.max.apply(null, this._yCoords);
 
-    var minWorld = engine.screenToWorldCoordinates(new Vector(this._xMin, this._yMin));
-    var maxWorld = engine.screenToWorldCoordinates(new Vector(this._xMax, this._yMax));
+    const minWorld = engine.screenToWorldCoordinates(new Vector(this._xMin, this._yMin));
+    const maxWorld = engine.screenToWorldCoordinates(new Vector(this._xMax, this._yMax));
     this._xMinWorld = minWorld.x;
     this._yMinWorld = minWorld.y;
     this._xMaxWorld = maxWorld.x;
     this._yMaxWorld = maxWorld.y;
 
-    var boundingPoints = [
+    const boundingPoints = [
       new Vector(this._xMin, this._yMin), // topleft
       new Vector(this._xMax, this._yMin), // topright
       new Vector(this._xMin, this._yMax), // bottomleft
@@ -96,7 +96,7 @@ export class CullingBox {
     }
 
     // otherwise if any corner is visible, we're not offscreen
-    for (var i = 0; i < boundingPoints.length; i++) {
+    for (let i = 0; i < boundingPoints.length; i++) {
       if (
         boundingPoints[i].x > 0 &&
         boundingPoints[i].y > 0 &&

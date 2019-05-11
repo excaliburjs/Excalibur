@@ -1,4 +1,4 @@
-﻿import { Physics } from './../Physics';
+import { Physics } from './../Physics';
 import { CollisionContact } from './CollisionContact';
 import { Pair } from './Pair';
 import { Actor } from './../Actor';
@@ -23,23 +23,23 @@ export class NaiveCollisionBroadphase implements CollisionBroadphase {
    */
   public broadphase(targets: Actor[]): Pair[] {
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
-    var potentialColliders = targets.filter((other) => {
+    const potentialColliders = targets.filter((other) => {
       return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision;
     });
 
-    var actor1: Actor;
-    var actor2: Actor;
-    var collisionPairs: Pair[] = [];
+    let actor1: Actor;
+    let actor2: Actor;
+    const collisionPairs: Pair[] = [];
 
-    for (var j = 0, l = potentialColliders.length; j < l; j++) {
+    for (let j = 0, l = potentialColliders.length; j < l; j++) {
       actor1 = potentialColliders[j];
 
-      for (var i = j + 1; i < l; i++) {
+      for (let i = j + 1; i < l; i++) {
         actor2 = potentialColliders[i];
 
-        var minimumTranslationVector;
+        let minimumTranslationVector;
         if ((minimumTranslationVector = actor1.collides(actor2))) {
-          var pair = new Pair(actor1.body.collider, actor2.body.collider);
+          const pair = new Pair(actor1.body.collider, actor2.body.collider);
           pair.collision = new CollisionContact(
             actor1.body.collider,
             actor2.body.collider,
@@ -68,26 +68,26 @@ export class NaiveCollisionBroadphase implements CollisionBroadphase {
   }
 
   public runCollisionStartEnd(pairs: Pair[]) {
-    let currentFrameHash: { [pairId: string]: Pair } = {};
+    const currentFrameHash: { [pairId: string]: Pair } = {};
 
-    for (let p of pairs) {
+    for (const p of pairs) {
       // load currentFrameHash
       currentFrameHash[p.id] = p;
 
       // find all new collisions
       if (!this._lastFramePairsHash[p.id]) {
-        let actor1 = p.colliderA;
-        let actor2 = p.colliderB;
+        const actor1 = p.colliderA;
+        const actor2 = p.colliderB;
         actor1.emit('collisionstart', new CollisionStartEvent(actor1, actor2, p));
         actor2.emit('collisionstart', new CollisionStartEvent(actor2, actor1, p));
       }
     }
 
     // find all old collisions
-    for (let p of this._lastFramePairs) {
+    for (const p of this._lastFramePairs) {
       if (!currentFrameHash[p.id]) {
-        let actor1 = p.colliderA;
-        let actor2 = p.colliderB;
+        const actor1 = p.colliderA;
+        const actor2 = p.colliderB;
         actor1.emit('collisionend', new CollisionEndEvent(actor1, actor2));
         actor2.emit('collisionend', new CollisionEndEvent(actor2, actor1));
       }
@@ -102,7 +102,7 @@ export class NaiveCollisionBroadphase implements CollisionBroadphase {
    * Resolve the position and velocity of the physics bodies
    */
   public resolve(pairs: Pair[]): Pair[] {
-    for (var pair of pairs) {
+    for (const pair of pairs) {
       pair.resolve(Physics.collisionResolutionStrategy);
     }
 

@@ -21,7 +21,7 @@ export class WebAudio {
    * @source https://paulbakaus.com/tutorials/html5/web-audio-on-ios/
    */
   static unlock(): Promise<boolean> {
-    let promise = new Promise<boolean>();
+    const promise = new Promise<boolean>();
     if (WebAudio._unlocked || !AudioContextFactory.create()) {
       return promise.resolve(true);
     }

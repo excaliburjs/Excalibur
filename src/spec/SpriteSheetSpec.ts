@@ -21,7 +21,7 @@ describe('A spritesheet', () => {
 
   it('should have props set by the constructor', (done) => {
     texture.load().then(() => {
-      let ss = new ex.SpriteSheet({
+      const ss = new ex.SpriteSheet({
         image: texture,
         columns: 21,
         rows: 1,
@@ -48,7 +48,7 @@ describe('A spritesheet', () => {
 
   it('should getAnimationByIndices', () => {
     texture.load().then(() => {
-      let ss = new ex.SpriteSheet({
+      const ss = new ex.SpriteSheet({
         image: texture,
         columns: 21,
         rows: 1,
@@ -56,8 +56,8 @@ describe('A spritesheet', () => {
         spHeight: 96
       });
 
-      let frames = [0, 1, 2, 3, 4, 5, 5, 5, 5];
-      let anim = ss.getAnimationByIndices(engine, frames, 50);
+      const frames = [0, 1, 2, 3, 4, 5, 5, 5, 5];
+      const anim = ss.getAnimationByIndices(engine, frames, 50);
 
       expect(anim).not.toBeNull();
       expect(anim.sprites.length).toBe(frames.length);
@@ -67,7 +67,7 @@ describe('A spritesheet', () => {
 
   it('should getAnimationBetween', () => {
     texture.load().then(() => {
-      let ss = new ex.SpriteSheet({
+      const ss = new ex.SpriteSheet({
         image: texture,
         columns: 21,
         rows: 1,
@@ -75,7 +75,7 @@ describe('A spritesheet', () => {
         spHeight: 96
       });
 
-      let anim = ss.getAnimationBetween(engine, 0, 5, 50);
+      const anim = ss.getAnimationBetween(engine, 0, 5, 50);
 
       expect(anim).not.toBeNull();
       expect(anim.sprites.length).toBe(5);
@@ -85,7 +85,7 @@ describe('A spritesheet', () => {
 
   it('should getAnimationForAll', () => {
     texture.load().then(() => {
-      let ss = new ex.SpriteSheet({
+      const ss = new ex.SpriteSheet({
         image: texture,
         columns: 21,
         rows: 1,
@@ -93,7 +93,7 @@ describe('A spritesheet', () => {
         spHeight: 96
       });
 
-      let anim = ss.getAnimationForAll(engine, 50);
+      const anim = ss.getAnimationForAll(engine, 50);
 
       expect(anim).not.toBeNull();
       expect(anim.sprites.length).toBe(21);
@@ -103,7 +103,7 @@ describe('A spritesheet', () => {
 
   it('should getSprite at an index', (done) => {
     texture.load().then(() => {
-      let ss = new ex.SpriteSheet({
+      const ss = new ex.SpriteSheet({
         image: texture,
         columns: 21,
         rows: 1,
@@ -135,7 +135,7 @@ describe('A spritesheet', () => {
     });
     texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/genericItems_spritesheet_colored.png', true);
     texture.load().then(() => {
-      let ss = new ex.SpriteSheet({
+      const ss = new ex.SpriteSheet({
         image: texture,
         columns: 0,
         rows: 0,
@@ -143,7 +143,7 @@ describe('A spritesheet', () => {
         spHeight: 96
       });
 
-      let anim = ss.getAnimationByCoords(
+      const anim = ss.getAnimationByCoords(
         engine,
         [
           {
@@ -179,7 +179,7 @@ describe('A spritesheet', () => {
     });
     texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/SpriteSheetSpacing.png', true);
     texture.load().then(() => {
-      let ss = new ex.SpriteSheet({
+      const ss = new ex.SpriteSheet({
         image: texture,
         columns: 3,
         rows: 2,
@@ -209,7 +209,7 @@ describe('A spritesheet', () => {
     let error: any;
     texture.load().then(() => {
       try {
-        let ss = new ex.SpriteSheet({
+        const ss = new ex.SpriteSheet({
           image: texture,
           columns: 22,
           rows: 1,
@@ -230,7 +230,7 @@ describe('A spritesheet', () => {
     let error: any;
     texture.load().then(() => {
       try {
-        let ss = new ex.SpriteSheet({
+        const ss = new ex.SpriteSheet({
           image: texture,
           columns: 21,
           rows: 2,

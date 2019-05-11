@@ -2,11 +2,11 @@ import * as ex from '../../build/dist/excalibur';
 import { Mocks } from './util/Mocks';
 
 describe('The engine', () => {
-  var engine: ex.Engine;
-  var scene: ex.Scene;
-  var mock = new Mocks.Mocker();
-  var loop: Mocks.GameLoopLike;
-  var actor: ex.Actor;
+  let engine: ex.Engine;
+  let scene: ex.Scene;
+  const mock = new Mocks.Mocker();
+  let loop: Mocks.GameLoopLike;
+  let actor: ex.Actor;
 
   beforeEach(() => {
     engine = mock.engine(0, 0);

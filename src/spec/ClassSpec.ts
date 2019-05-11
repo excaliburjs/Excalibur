@@ -2,14 +2,14 @@ import * as ex from '../../build/dist/excalibur';
 
 describe('A Class', () => {
   it('can be extended indefinitely', () => {
-    var Person: any = ex.Class.extend({
+    const Person: any = ex.Class.extend({
       name: '',
       constructor: function(name) {
         this.name = name;
       }
     });
 
-    var BatMan: any = Person.extend({
+    const BatMan: any = Person.extend({
       parents: false,
       constructor: function() {
         //this.__super__.init('Bruce Wayne');
@@ -20,7 +20,7 @@ describe('A Class', () => {
       }
     });
 
-    var Robin: any = BatMan.extend({
+    const Robin: any = BatMan.extend({
       isNightWing: false,
       constructor: function() {
         //this.__super__.init();
@@ -39,9 +39,9 @@ describe('A Class', () => {
       }
     });
 
-    var p = new Person('test');
-    var b = new BatMan();
-    var r = new Robin();
+    const p = new Person('test');
+    const b = new BatMan();
+    const r = new Robin();
 
     expect(p.name).toBe('test');
 
@@ -55,15 +55,15 @@ describe('A Class', () => {
   });
 
   it('does not share the same instance of the super type', () => {
-    var Person: any = ex.Class.extend({
+    const Person: any = ex.Class.extend({
       name: '',
       constructor: function(name) {
         this.name = name;
       }
     });
 
-    var p1 = new Person('1');
-    var p2 = new Person('2');
+    const p1 = new Person('1');
+    const p2 = new Person('2');
 
     expect(p1.name).toBe('1');
     expect(p2.name).toBe('2');

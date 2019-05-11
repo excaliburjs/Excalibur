@@ -1,14 +1,14 @@
 import * as ex from '../../build/dist/excalibur';
 
 describe('Logger', () => {
-  var logger: ex.Logger;
+  let logger: ex.Logger;
 
   describe('ConsoleAppender', () => {
-    var appender: ex.IAppender;
-    var spiedAppender: jasmine.Spy;
-    var spiedConsoleLog: jasmine.Spy;
-    var spiedConsoleWarn: jasmine.Spy;
-    var spiedConsoleError: jasmine.Spy;
+    let appender: ex.IAppender;
+    let spiedAppender: jasmine.Spy;
+    let spiedConsoleLog: jasmine.Spy;
+    let spiedConsoleWarn: jasmine.Spy;
+    let spiedConsoleError: jasmine.Spy;
 
     beforeEach(() => {
       appender = new ex.ConsoleAppender();

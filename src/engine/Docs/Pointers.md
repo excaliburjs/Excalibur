@@ -53,7 +53,7 @@ Note that the value may be `null` if the Pointer was not active the last frame.
 ## Pointer scope (window vs. canvas)
 
 You have the option to handle _all_ pointer events in the browser by setting
-[[IEngineOptions.pointerScope]] to [[PointerScope.Document]]. If this is enabled,
+[[EngineOptions.pointerScope]] to [[PointerScope.Document]]. If this is enabled,
 
 Excalibur will handle every pointer event in the browser. This is useful for handling
 complex input and having control over every interaction.
@@ -125,7 +125,7 @@ opt-in if a pointer related event handler is set on them `actor.on("pointerdown"
 To opt-in manually, set [[Actor.enableCapturePointer]] to `true` and the [[Actor]] will
 start publishing `pointerup` and `pointerdown` events. `pointermove` events
 will not be published by default due to performance implications. If you want
-an actor to receive move events, set [[ICapturePointerConfig.captureMoveEvents]] to
+an actor to receive move events, set [[CapturePointerConfig.captureMoveEvents]] to
 `true`.
 
 Actor pointer events will be prefixed with `pointer`.

@@ -132,7 +132,7 @@ export class Vector {
    * Normalizes a vector to have a magnitude of 1.
    */
   public normalize(): Vector {
-    var d = this.distance();
+    const d = this.distance();
     if (d > 0) {
       return new Vector(this.x / d, this.y / d);
     } else {
@@ -262,10 +262,10 @@ export class Vector {
     if (!anchor) {
       anchor = new Vector(0, 0);
     }
-    var sinAngle = Math.sin(angle);
-    var cosAngle = Math.cos(angle);
-    var x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
-    var y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
+    const sinAngle = Math.sin(angle);
+    const cosAngle = Math.cos(angle);
+    const x = cosAngle * (this.x - anchor.x) - sinAngle * (this.y - anchor.y) + anchor.x;
+    const y = sinAngle * (this.x - anchor.x) + cosAngle * (this.y - anchor.y) + anchor.y;
     return new Vector(x, y);
   }
 
@@ -306,7 +306,7 @@ export class Ray {
    * @param line  The line to test
    */
   public intersect(line: Line): number {
-    var numerator = line.begin.sub(this.pos);
+    const numerator = line.begin.sub(this.pos);
 
     // Test is line and ray are parallel and non intersecting
     if (this.dir.cross(line.getSlope()) === 0 && numerator.cross(this.dir) !== 0) {
@@ -314,15 +314,15 @@ export class Ray {
     }
 
     // Lines are parallel
-    var divisor = this.dir.cross(line.getSlope());
+    const divisor = this.dir.cross(line.getSlope());
     if (divisor === 0) {
       return -1;
     }
 
-    var t = numerator.cross(line.getSlope()) / divisor;
+    const t = numerator.cross(line.getSlope()) / divisor;
 
     if (t >= 0) {
-      var u = numerator.cross(this.dir) / divisor / line.getLength();
+      const u = numerator.cross(this.dir) / divisor / line.getLength();
       if (u >= 0 && u <= 1) {
         return t;
       }
@@ -373,9 +373,9 @@ export class Line {
    * Returns the slope of the line in the form of a vector
    */
   public getSlope(): Vector {
-    var begin = this.begin;
-    var end = this.end;
-    var distance = begin.distance(end);
+    const begin = this.begin;
+    const end = this.end;
+    const distance = begin.distance(end);
     return end.sub(begin).scale(1 / distance);
   }
 
@@ -383,9 +383,9 @@ export class Line {
    * Returns the length of the line segment in pixels
    */
   public getLength(): number {
-    var begin = this.begin;
-    var end = this.end;
-    var distance = begin.distance(end);
+    const begin = this.begin;
+    const end = this.end;
+    const distance = begin.distance(end);
     return distance;
   }
 
@@ -395,14 +395,14 @@ export class Line {
    * @param point
    */
   public distanceToPoint(point: Vector) {
-    let x0 = point.x;
-    let y0 = point.y;
+    const x0 = point.x;
+    const y0 = point.y;
 
-    let l = this.getLength();
+    const l = this.getLength();
 
-    let dy = this.end.y - this.begin.y;
-    let dx = this.end.x - this.begin.x;
-    let distance = Math.abs(dy * x0 - dx * y0 + this.end.x * this.begin.y - this.end.y * this.begin.x) / l;
+    const dy = this.end.y - this.begin.y;
+    const dx = this.end.x - this.begin.x;
+    const distance = Math.abs(dy * x0 - dx * y0 + this.end.x * this.begin.y - this.end.y * this.begin.x) / l;
     return distance;
   }
 
@@ -415,8 +415,8 @@ export class Line {
    * @returns A new point with the other calculated axis value
    */
   public findPoint(x: number = null, y: number = null): Vector {
-    var m = this.slope;
-    var b = this.intercept;
+    const m = this.slope;
+    const b = this.intercept;
 
     if (x !== null) {
       return new Vector(x, m * x + b);
@@ -445,8 +445,8 @@ export class Line {
    * @see http://stackoverflow.com/a/11908158/109458
    */
   public hasPoint(): boolean {
-    var currPoint: Vector;
-    var threshold = 0;
+    let currPoint: Vector;
+    let threshold = 0;
 
     if (typeof arguments[0] === 'number' && typeof arguments[1] === 'number') {
       currPoint = new Vector(arguments[0], arguments[1]);
@@ -458,13 +458,13 @@ export class Line {
       throw 'Could not determine the arguments for Vector.hasPoint';
     }
 
-    var dxc = currPoint.x - this.begin.x;
-    var dyc = currPoint.y - this.begin.y;
+    const dxc = currPoint.x - this.begin.x;
+    const dyc = currPoint.y - this.begin.y;
 
-    var dx1 = this.end.x - this.begin.x;
-    var dy1 = this.end.y - this.begin.y;
+    const dx1 = this.end.x - this.begin.x;
+    const dy1 = this.end.y - this.begin.y;
 
-    var cross = dxc * dy1 - dyc * dx1;
+    const cross = dxc * dy1 - dyc * dx1;
 
     // check whether point lines on the line
     if (Math.abs(cross) > threshold) {
@@ -505,10 +505,10 @@ export class GlobalCoordinates {
   public static fromPagePosition(x: number, y: number, engine: Engine): GlobalCoordinates;
   public static fromPagePosition(pos: Vector, engine: Engine): GlobalCoordinates;
   public static fromPagePosition(xOrPos: number | Vector, yOrEngine: number | Engine, engineOrUndefined?: Engine): GlobalCoordinates {
-    var pageX: number;
-    var pageY: number;
-    var pagePos: Vector;
-    var engine: Engine;
+    let pageX: number;
+    let pageY: number;
+    let pagePos: Vector;
+    let engine: Engine;
 
     if (arguments.length === 3) {
       pageX = <number>xOrPos;
@@ -522,10 +522,10 @@ export class GlobalCoordinates {
       engine = <Engine>yOrEngine;
     }
 
-    var screenX: number = pageX - Util.getPosition(engine.canvas).x;
-    var screenY: number = pageY - Util.getPosition(engine.canvas).y;
-    var screenPos = new Vector(screenX, screenY);
-    var worldPos = engine.screenToWorldCoordinates(screenPos);
+    const screenX: number = pageX - Util.getPosition(engine.canvas).x;
+    const screenY: number = pageY - Util.getPosition(engine.canvas).y;
+    const screenPos = new Vector(screenX, screenY);
+    const worldPos = engine.screenToWorldCoordinates(screenPos);
 
     return new GlobalCoordinates(worldPos, pagePos, screenPos);
   }

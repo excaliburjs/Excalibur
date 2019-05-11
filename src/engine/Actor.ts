@@ -22,7 +22,7 @@ import {
   EnterViewPortEvent,
   ExitViewPortEvent
 } from './Events';
-import { PointerEvent, WheelEvent, PointerDragEvent } from './Input/Pointer';
+import { PointerEvent, WheelEvent, PointerDragEvent, PointerEventName } from './Input/Pointer';
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { Sprite } from './Drawing/Sprite';
@@ -51,18 +51,6 @@ import { obsolete } from './Util/Decorators';
 export function isActor(x: any): x is Actor {
   return !!x && x instanceof Actor;
 }
-
-export type PointerEventName =
-  | 'pointerdragstart'
-  | 'pointerdragend'
-  | 'pointerdragmove'
-  | 'pointerdragenter'
-  | 'pointerdragleave'
-  | 'pointermove'
-  | 'pointerenter'
-  | 'pointerleave'
-  | 'pointerup'
-  | 'pointerdown';
 
 /**
  * [[include:Constructors.md]]
@@ -544,7 +532,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     super();
 
     if (xOrConfig && typeof xOrConfig === 'object') {
-      var config = xOrConfig;
+      const config = xOrConfig;
       xOrConfig = config.pos ? config.pos.x : config.x;
       y = config.pos ? config.pos.y : config.y;
       width = config.width;
@@ -607,7 +595,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       super.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
     }
-    for (var child of this.children) {
+    for (const child of this.children) {
       child._initialize(engine);
     }
   }
@@ -666,8 +654,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     }
   }
 
-  public on(eventName: Events.exittrigger, handler: (evt: ExitTriggerEvent) => void): void;
-  public on(eventName: Events.entertrigger, handler: (evt: EnterTriggerEvent) => void): void;
+  public on(eventName: Events.exittrigger, handler: (event: ExitTriggerEvent) => void): void;
+  public on(eventName: Events.entertrigger, handler: (event: EnterTriggerEvent) => void): void;
   /**
    * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
    *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
@@ -675,7 +663,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Use cases for the **collisionstart** event may be detecting when an actor has touched a surface
    * (like landing) or if a item has been touched and needs to be picked up.
    */
-  public on(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent<Actor>) => void): void;
+  public on(eventName: Events.collisionstart, handler: (event: CollisionStartEvent) => void): void;
   /**
    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
    * This event will not fire again until another collision and separation.
@@ -683,7 +671,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
    * (like jumping) or has left an area.
    */
-  public on(eventName: Events.collisionend, handler: (event?: CollisionEndEvent<Actor>) => void): void;
+  public on(eventName: Events.collisionend, handler: (event: CollisionEndEvent) => void): void;
   /**
    * The **precollision** event is fired **every frame** where a collision pair is found and two
    * bodies are intersecting.
@@ -692,7 +680,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of
    * richochet of the ball depending on which side of the paddle you hit.
    */
-  public on(eventName: Events.precollision, handler: (event?: PreCollisionEvent<Actor>) => void): void;
+  public on(eventName: Events.precollision, handler: (event: PreCollisionEvent) => void): void;
   /**
    * The **postcollision** event is fired for **every frame** where collision resolution was performed.
    * Collision resolution is when two bodies influence each other and cause a response like bouncing
@@ -702,39 +690,39 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Post collision would be useful if you need to know that collision resolution is happening or need to
    * tweak the default resolution.
    */
-  public on(eventName: Events.postcollision, handler: (event?: PostCollisionEvent<Actor>) => void): void;
-  public on(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
-  public on(eventName: Events.prekill, handler: (event?: PreKillEvent) => void): void;
-  public on(eventName: Events.postkill, handler: (event?: PostKillEvent) => void): void;
-  public on(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
-  public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
-  public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
-  public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
-  public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
-  public on(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): void;
-  public on(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): void;
-  public on(eventName: Events.pointerup, handler: (event?: PointerEvent) => void): void;
-  public on(eventName: Events.pointerdown, handler: (event?: PointerEvent) => void): void;
-  public on(eventName: Events.pointerenter, handler: (event?: PointerEvent) => void): void;
-  public on(eventName: Events.pointerleave, handler: (event?: PointerEvent) => void): void;
-  public on(eventName: Events.pointermove, handler: (event?: PointerEvent) => void): void;
-  public on(eventName: Events.pointercancel, handler: (event?: PointerEvent) => void): void;
-  public on(eventName: Events.pointerwheel, handler: (event?: WheelEvent) => void): void;
-  public on(eventName: Events.pointerdragstart, handler: (event?: PointerDragEvent) => void): void;
-  public on(eventName: Events.pointerdragend, handler: (event?: PointerDragEvent) => void): void;
-  public on(eventName: Events.pointerdragenter, handler: (event?: PointerDragEvent) => void): void;
-  public on(eventName: Events.pointerdragleave, handler: (event?: PointerDragEvent) => void): void;
-  public on(eventName: Events.pointerdragmove, handler: (event?: PointerDragEvent) => void): void;
-  public on(eventName: Events.enterviewport, handler: (event?: EnterViewPortEvent) => void): void;
-  public on(eventName: Events.exitviewport, handler: (event?: ExitViewPortEvent) => void): void;
-  public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event?: any) => void): void {
+  public on(eventName: Events.postcollision, handler: (event: PostCollisionEvent) => void): void;
+  public on(eventName: Events.kill, handler: (event: KillEvent) => void): void;
+  public on(eventName: Events.prekill, handler: (event: PreKillEvent) => void): void;
+  public on(eventName: Events.postkill, handler: (event: PostKillEvent) => void): void;
+  public on(eventName: Events.initialize, handler: (event: InitializeEvent) => void): void;
+  public on(eventName: Events.preupdate, handler: (event: PreUpdateEvent) => void): void;
+  public on(eventName: Events.postupdate, handler: (event: PostUpdateEvent) => void): void;
+  public on(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
+  public on(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
+  public on(eventName: Events.predebugdraw, handler: (event: PreDebugDrawEvent) => void): void;
+  public on(eventName: Events.postdebugdraw, handler: (event: PostDebugDrawEvent) => void): void;
+  public on(eventName: Events.pointerup, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointerdown, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointerenter, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointerleave, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointermove, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointercancel, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointerwheel, handler: (event: WheelEvent) => void): void;
+  public on(eventName: Events.pointerdragstart, handler: (event: PointerDragEvent) => void): void;
+  public on(eventName: Events.pointerdragend, handler: (event: PointerDragEvent) => void): void;
+  public on(eventName: Events.pointerdragenter, handler: (event: PointerDragEvent) => void): void;
+  public on(eventName: Events.pointerdragleave, handler: (event: PointerDragEvent) => void): void;
+  public on(eventName: Events.pointerdragmove, handler: (event: PointerDragEvent) => void): void;
+  public on(eventName: Events.enterviewport, handler: (event: EnterViewPortEvent) => void): void;
+  public on(eventName: Events.exitviewport, handler: (event: ExitViewPortEvent) => void): void;
+  public on(eventName: string, handler: (event: GameEvent<Actor>) => void): void;
+  public on(eventName: string, handler: (event: any) => void): void {
     this._checkForPointerOptIn(eventName);
     super.on(eventName, handler);
   }
 
-  public once(eventName: Events.exittrigger, handler: (evt: ExitTriggerEvent) => void): void;
-  public once(eventName: Events.entertrigger, handler: (evt: EnterTriggerEvent) => void): void;
+  public once(eventName: Events.exittrigger, handler: (event: ExitTriggerEvent) => void): void;
+  public once(eventName: Events.entertrigger, handler: (event: EnterTriggerEvent) => void): void;
   /**
    * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
    *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
@@ -742,7 +730,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface
    * (like landing) or if a item has been touched and needs to be picked up.
    */
-  public once(eventName: Events.collisionstart, handler: (event?: CollisionStartEvent<Actor>) => void): void;
+  public once(eventName: Events.collisionstart, handler: (event: CollisionStartEvent) => void): void;
   /**
    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
    * This event will not fire again until another collision and separation.
@@ -750,7 +738,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
    * (like jumping) or has left an area.
    */
-  public once(eventName: Events.collisionend, handler: (event?: CollisionEndEvent<Actor>) => void): void;
+  public once(eventName: Events.collisionend, handler: (event: CollisionEndEvent) => void): void;
   /**
    * The **precollision** event is fired **every frame** where a collision pair is found and two
    * bodies are intersecting.
@@ -759,7 +747,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of
    * richochet of the ball depending on which side of the paddle you hit.
    */
-  public once(eventName: Events.precollision, handler: (event?: PreCollisionEvent<Actor>) => void): void;
+  public once(eventName: Events.precollision, handler: (event: PreCollisionEvent) => void): void;
   /**
    * The **postcollision** event is fired for **every frame** where collision resolution was performed.
    * Collision resolution is when two bodies influence each other and cause a response like bouncing
@@ -769,39 +757,39 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Post collision would be useful if you need to know that collision resolution is happening or need to
    * tweak the default resolution.
    */
-  public once(eventName: Events.postcollision, handler: (event?: PostCollisionEvent<Actor>) => void): void;
-  public once(eventName: Events.kill, handler: (event?: KillEvent) => void): void;
-  public once(eventName: Events.postkill, handler: (event?: PostKillEvent) => void): void;
-  public once(eventName: Events.prekill, handler: (event?: PreKillEvent) => void): void;
-  public once(eventName: Events.initialize, handler: (event?: InitializeEvent) => void): void;
-  public once(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
-  public once(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
-  public once(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
-  public once(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
-  public once(eventName: Events.predebugdraw, handler: (event?: PreDebugDrawEvent) => void): void;
-  public once(eventName: Events.postdebugdraw, handler: (event?: PostDebugDrawEvent) => void): void;
-  public once(eventName: Events.pointerup, handler: (event?: PointerEvent) => void): void;
-  public once(eventName: Events.pointerdown, handler: (event?: PointerEvent) => void): void;
-  public once(eventName: Events.pointerenter, handler: (event?: PointerEvent) => void): void;
-  public once(eventName: Events.pointerleave, handler: (event?: PointerEvent) => void): void;
-  public once(eventName: Events.pointermove, handler: (event?: PointerEvent) => void): void;
-  public once(eventName: Events.pointercancel, handler: (event?: PointerEvent) => void): void;
-  public once(eventName: Events.pointerwheel, handler: (event?: WheelEvent) => void): void;
-  public once(eventName: Events.pointerdragstart, handler: (event?: PointerDragEvent) => void): void;
-  public once(eventName: Events.pointerdragend, handler: (event?: PointerDragEvent) => void): void;
-  public once(eventName: Events.pointerdragenter, handler: (event?: PointerDragEvent) => void): void;
-  public once(eventName: Events.pointerdragleave, handler: (event?: PointerDragEvent) => void): void;
-  public once(eventName: Events.pointerdragmove, handler: (event?: PointerDragEvent) => void): void;
-  public once(eventName: Events.enterviewport, handler: (event?: EnterViewPortEvent) => void): void;
-  public once(eventName: Events.exitviewport, handler: (event?: ExitViewPortEvent) => void): void;
-  public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-  public once(eventName: string, handler: (event?: any) => void): void {
+  public once(eventName: Events.postcollision, handler: (event: PostCollisionEvent) => void): void;
+  public once(eventName: Events.kill, handler: (event: KillEvent) => void): void;
+  public once(eventName: Events.postkill, handler: (event: PostKillEvent) => void): void;
+  public once(eventName: Events.prekill, handler: (event: PreKillEvent) => void): void;
+  public once(eventName: Events.initialize, handler: (event: InitializeEvent) => void): void;
+  public once(eventName: Events.preupdate, handler: (event: PreUpdateEvent) => void): void;
+  public once(eventName: Events.postupdate, handler: (event: PostUpdateEvent) => void): void;
+  public once(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
+  public once(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
+  public once(eventName: Events.predebugdraw, handler: (event: PreDebugDrawEvent) => void): void;
+  public once(eventName: Events.postdebugdraw, handler: (event: PostDebugDrawEvent) => void): void;
+  public once(eventName: Events.pointerup, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointerdown, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointerenter, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointerleave, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointermove, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointercancel, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointerwheel, handler: (event: WheelEvent) => void): void;
+  public once(eventName: Events.pointerdragstart, handler: (event: PointerDragEvent) => void): void;
+  public once(eventName: Events.pointerdragend, handler: (event: PointerDragEvent) => void): void;
+  public once(eventName: Events.pointerdragenter, handler: (event: PointerDragEvent) => void): void;
+  public once(eventName: Events.pointerdragleave, handler: (event: PointerDragEvent) => void): void;
+  public once(eventName: Events.pointerdragmove, handler: (event: PointerDragEvent) => void): void;
+  public once(eventName: Events.enterviewport, handler: (event: EnterViewPortEvent) => void): void;
+  public once(eventName: Events.exitviewport, handler: (event: ExitViewPortEvent) => void): void;
+  public once(eventName: string, handler: (event: GameEvent<Actor>) => void): void;
+  public once(eventName: string, handler: (event: any) => void): void {
     this._checkForPointerOptIn(eventName);
     super.once(eventName, handler);
   }
 
-  public off(eventName: Events.exittrigger, handler?: (evt: ExitTriggerEvent) => void): void;
-  public off(eventName: Events.entertrigger, handler?: (evt: EnterTriggerEvent) => void): void;
+  public off(eventName: Events.exittrigger, handler?: (event: ExitTriggerEvent) => void): void;
+  public off(eventName: Events.entertrigger, handler?: (event: EnterTriggerEvent) => void): void;
   /**
    * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
    *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
@@ -809,7 +797,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface
    * (like landing) or if a item has been touched and needs to be picked up.
    */
-  public off(eventName: Events.collisionstart, handler?: (event?: CollisionStartEvent<Actor>) => void): void;
+  public off(eventName: Events.collisionstart, handler?: (event: CollisionStartEvent) => void): void;
   /**
    * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
    * This event will not fire again until another collision and separation.
@@ -817,7 +805,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
    * (like jumping) or has left an area.
    */
-  public off(eventName: Events.collisionend, handler?: (event?: CollisionEndEvent<Actor>) => void): void;
+  public off(eventName: Events.collisionend, handler?: (event: CollisionEndEvent) => void): void;
   /**
    * The **precollision** event is fired **every frame** where a collision pair is found and two
    * bodies are intersecting.
@@ -826,7 +814,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of
    * richochet of the ball depending on which side of the paddle you hit.
    */
-  public off(eventName: Events.precollision, handler?: (event?: PreCollisionEvent<Actor>) => void): void;
+  public off(eventName: Events.precollision, handler?: (event: PreCollisionEvent) => void): void;
   /**
    * The **postcollision** event is fired for **every frame** where collision resolution was performed.
    * Collision resolution is when two bodies influence each other and cause a response like bouncing
@@ -836,30 +824,30 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Post collision would be useful if you need to know that collision resolution is happening or need to
    * tweak the default resolution.
    */
-  public off(eventName: Events.postcollision, handler: (event?: PostCollisionEvent<Actor>) => void): void;
-  public off(eventName: Events.pointerup, handler?: (event?: PointerEvent) => void): void;
-  public off(eventName: Events.pointerdown, handler?: (event?: PointerEvent) => void): void;
-  public off(eventName: Events.pointerenter, handler?: (event?: PointerEvent) => void): void;
-  public off(eventName: Events.pointerleave, handler?: (event?: PointerEvent) => void): void;
-  public off(eventName: Events.pointermove, handler?: (event?: PointerEvent) => void): void;
-  public off(eventName: Events.pointercancel, handler?: (event?: PointerEvent) => void): void;
-  public off(eventName: Events.pointerwheel, handler?: (event?: WheelEvent) => void): void;
-  public off(eventName: Events.pointerdragstart, handler?: (event?: PointerDragEvent) => void): void;
-  public off(eventName: Events.pointerdragend, handler?: (event?: PointerDragEvent) => void): void;
-  public off(eventName: Events.pointerdragenter, handler?: (event?: PointerDragEvent) => void): void;
-  public off(eventName: Events.pointerdragleave, handler?: (event?: PointerDragEvent) => void): void;
-  public off(eventName: Events.pointerdragmove, handler?: (event?: PointerDragEvent) => void): void;
-  public off(eventName: Events.prekill, handler?: (event?: PreKillEvent) => void): void;
-  public off(eventName: Events.postkill, handler?: (event?: PostKillEvent) => void): void;
-  public off(eventName: Events.initialize, handler?: (event?: Events.InitializeEvent) => void): void;
-  public off(eventName: Events.postupdate, handler?: (event?: Events.PostUpdateEvent) => void): void;
-  public off(eventName: Events.preupdate, handler?: (event?: Events.PreUpdateEvent) => void): void;
-  public off(eventName: Events.postdraw, handler?: (event?: Events.PostDrawEvent) => void): void;
-  public off(eventName: Events.predraw, handler?: (event?: Events.PreDrawEvent) => void): void;
-  public off(eventName: Events.enterviewport, handler?: (event?: EnterViewPortEvent) => void): void;
-  public off(eventName: Events.exitviewport, handler?: (event?: ExitViewPortEvent) => void): void;
-  public off(eventName: string, handler?: (event?: GameEvent<any>) => void): void;
-  public off(eventName: string, handler?: (event?: any) => void): void {
+  public off(eventName: Events.postcollision, handler: (event: PostCollisionEvent) => void): void;
+  public off(eventName: Events.pointerup, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointerdown, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointerenter, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointerleave, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointermove, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointercancel, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointerwheel, handler?: (event: WheelEvent) => void): void;
+  public off(eventName: Events.pointerdragstart, handler?: (event: PointerDragEvent) => void): void;
+  public off(eventName: Events.pointerdragend, handler?: (event: PointerDragEvent) => void): void;
+  public off(eventName: Events.pointerdragenter, handler?: (event: PointerDragEvent) => void): void;
+  public off(eventName: Events.pointerdragleave, handler?: (event: PointerDragEvent) => void): void;
+  public off(eventName: Events.pointerdragmove, handler?: (event: PointerDragEvent) => void): void;
+  public off(eventName: Events.prekill, handler?: (event: PreKillEvent) => void): void;
+  public off(eventName: Events.postkill, handler?: (event: PostKillEvent) => void): void;
+  public off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent) => void): void;
+  public off(eventName: Events.postupdate, handler?: (event: Events.PostUpdateEvent) => void): void;
+  public off(eventName: Events.preupdate, handler?: (event: Events.PreUpdateEvent) => void): void;
+  public off(eventName: Events.postdraw, handler?: (event: Events.PostDrawEvent) => void): void;
+  public off(eventName: Events.predraw, handler?: (event: Events.PreDrawEvent) => void): void;
+  public off(eventName: Events.enterviewport, handler?: (event: EnterViewPortEvent) => void): void;
+  public off(eventName: Events.exitviewport, handler?: (event: ExitViewPortEvent) => void): void;
+  public off(eventName: string, handler?: (event: GameEvent<Actor>) => void): void;
+  public off(eventName: string, handler?: (event: any) => void): void {
     super.off(eventName, handler);
   }
 
@@ -1056,7 +1044,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param name The name of the collision group
    */
   public removeCollisionGroup(name: string) {
-    var index = this.collisionGroups.indexOf(name);
+    const index = this.collisionGroups.indexOf(name);
     if (index !== -1) {
       this.collisionGroups.splice(index, 1);
     }
@@ -1146,8 +1134,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     }
 
     // collect parents
-    var parents: Actor[] = [];
-    var root: Actor = this;
+    const parents: Actor[] = [];
+    let root: Actor = this;
 
     parents.push(this);
 
@@ -1158,14 +1146,14 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     }
 
     // calculate position
-    var x = parents.reduceRight((px, p) => {
+    const x = parents.reduceRight((px, p) => {
       if (p.parent) {
         return px + p.pos.x * p.getGlobalScale().x;
       }
       return px + p.pos.x;
     }, 0);
 
-    var y = parents.reduceRight((py, p) => {
+    const y = parents.reduceRight((py, p) => {
       if (p.parent) {
         return py + p.pos.y * p.getGlobalScale().y;
       }
@@ -1173,8 +1161,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     }, 0);
 
     // rotate around root anchor
-    var ra = root.getWorldPos(); // 10, 10
-    var r = this.getWorldRotation();
+    const ra = root.getWorldPos(); // 10, 10
+    const r = this.getWorldRotation();
 
     return new Vector(x, y).rotate(r, ra);
   }
@@ -1187,7 +1175,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       return new Vector(this.scale.x, this.scale.y);
     }
 
-    var parentScale = this.parent.getGlobalScale();
+    const parentScale = this.parent.getGlobalScale();
     return new Vector(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
   }
 
@@ -1201,7 +1189,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     const anchor = this._getCalculatedAnchor();
     const pos = this.getWorldPos();
 
-    let bb = new BoundingBox(pos.x - anchor.x, pos.y - anchor.y, pos.x + this.getWidth() - anchor.x, pos.y + this.getHeight() - anchor.y);
+    const bb = new BoundingBox(pos.x - anchor.x, pos.y - anchor.y, pos.x + this.getWidth() - anchor.x, pos.y + this.getHeight() - anchor.y);
 
     return rotated ? bb.rotate(this.rotation, pos) : bb;
   }
@@ -1212,7 +1200,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public getRelativeBounds(rotated: boolean = true): BoundingBox {
     // todo cache bounding box
     const anchor = this._getCalculatedAnchor();
-    let bb = new BoundingBox(-anchor.x, -anchor.y, this.getWidth() - anchor.x, this.getHeight() - anchor.y);
+    const bb = new BoundingBox(-anchor.x, -anchor.y, this.getWidth() - anchor.x, this.getHeight() - anchor.y);
 
     return rotated ? bb.rotate(this.rotation) : bb;
   }
@@ -1238,7 +1226,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param recurse checks whether the x/y are contained in any child actors (if they exist).
    */
   public contains(x: number, y: number, recurse: boolean = false): boolean {
-    var containment = this.getBounds().contains(new Vector(x, y));
+    const containment = this.getBounds().contains(new Vector(x, y));
 
     if (recurse) {
       return (
@@ -1277,7 +1265,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param actor The other actor to test
    */
   public collidesWithSide(actor: Actor): Side {
-    var separationVector = this.collides(actor);
+    const separationVector = this.collides(actor);
     if (!separationVector) {
       return Side.None;
     }
@@ -1301,9 +1289,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param actor The other actor to test
    */
   public collides(actor: Actor): Vector {
-    var bounds = this.getBounds();
-    var otherBounds = actor.getBounds();
-    var intersect = bounds.collides(otherBounds);
+    const bounds = this.getBounds();
+    const otherBounds = actor.getBounds();
+    const intersect = bounds.collides(otherBounds);
     return intersect;
   }
   /**
@@ -1453,10 +1441,10 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this._predraw(ctx, delta);
 
     if (this.currentDrawing) {
-      var drawing = this.currentDrawing;
+      const drawing = this.currentDrawing;
       // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-      var offsetX = (this._width - drawing.width * drawing.scale.x) * this.anchor.x;
-      var offsetY = (this._height - drawing.height * drawing.scale.y) * this.anchor.y;
+      const offsetX = (this._width - drawing.width * drawing.scale.x) * this.anchor.x;
+      const offsetY = (this._height - drawing.height * drawing.scale.y) * this.anchor.y;
 
       if (this._effectsDirty) {
         this._reapplyEffects(this.currentDrawing);
@@ -1473,7 +1461,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     ctx.restore();
 
     // Draw child actors
-    for (var i = 0; i < this.children.length; i++) {
+    for (let i = 0; i < this.children.length; i++) {
       if (this.children[i].visible) {
         this.children[i].draw(ctx, delta);
       }
@@ -1534,7 +1522,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this.body.collider.debugDraw(ctx);
 
     // Draw actor bounding box
-    var bb = this.getBounds();
+    const bb = this.getBounds();
     bb.debugDraw(ctx);
 
     // Draw actor Id
@@ -1548,7 +1536,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     ctx.fill();
 
     // Culling Box debug draw
-    for (var j = 0; j < this.traits.length; j++) {
+    for (let j = 0; j < this.traits.length; j++) {
       if (this.traits[j] instanceof Traits.OffscreenCulling) {
         (<Traits.OffscreenCulling>this.traits[j]).cullingBox.debugDraw(ctx);
       }
@@ -1557,19 +1545,19 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     // Unit Circle debug draw
     ctx.strokeStyle = Color.Yellow.toString();
     ctx.beginPath();
-    var radius = Math.min(this.getWidth(), this.getHeight());
+    const radius = Math.min(this.getWidth(), this.getHeight());
     ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
     ctx.closePath();
     ctx.stroke();
-    var ticks: { [key: string]: number } = {
+    const ticks: { [key: string]: number } = {
       '0 Pi': 0,
       'Pi/2': Math.PI / 2,
       Pi: Math.PI,
       '3/2 Pi': (3 * Math.PI) / 2
     };
 
-    var oldFont = ctx.font;
-    for (var tick in ticks) {
+    const oldFont = ctx.font;
+    for (const tick in ticks) {
       ctx.fillStyle = Color.Yellow.toString();
       ctx.font = '14px';
       ctx.textAlign = 'center';
@@ -1583,7 +1571,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     ctx.font = oldFont;
 
     // Draw child actors
-    for (var i = 0; i < this.children.length; i++) {
+    for (let i = 0; i < this.children.length; i++) {
       this.children[i].debugDraw(ctx);
     }
 

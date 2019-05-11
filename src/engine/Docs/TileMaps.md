@@ -81,7 +81,7 @@ public class Map extends ex.Scene {
     this._mapDefinition.cells.forEach(cell => {
       // create a TileSprite
       // assume tileId is the index of the frame in the sprite sheet
-      var ts = new ex.TileSprite(cell.sheetId.toString(), cell.spriteId);
+      const ts = new ex.TileSprite(cell.sheetId.toString(), cell.spriteId);
       // add to cell
       this._tileMap.getCell(cell.x, cell.y).pushSprite(ts);
     }
@@ -89,10 +89,10 @@ public class Map extends ex.Scene {
 }
 
 // create a game
-var game = new ex.Engine();
+const game = new ex.Engine();
 
 // add our level (JSON from external source)
-var map1 = new Map({ ... });
+const map1 = new Map({ ... });
 game.add("map1", map1);
 game.start();
 ```

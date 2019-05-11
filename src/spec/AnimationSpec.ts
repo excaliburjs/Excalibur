@@ -21,7 +21,7 @@ describe('An animation', () => {
   });
 
   it('should have props set by constructor', () => {
-    let animation = new ex.Animation({
+    const animation = new ex.Animation({
       engine: engine,
       sprites: [],
       speed: 20,

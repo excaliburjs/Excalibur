@@ -7,9 +7,9 @@ import { CollisionType } from '../Collision/CollisionType';
 export class EulerMovement implements Trait {
   public update(actor: Actor, _engine: Engine, delta: number) {
     // Update placements based on linear algebra
-    var seconds = delta / 1000;
+    const seconds = delta / 1000;
 
-    var totalAcc = actor.acc.clone();
+    const totalAcc = actor.acc.clone();
     // Only active vanilla actors are affected by global acceleration
     if (actor.collisionType === CollisionType.Active) {
       totalAcc.addEqual(Physics.acc);

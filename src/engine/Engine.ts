@@ -58,7 +58,7 @@ export enum DisplayMode {
   Fixed,
 
   /**
-   * Allow the game to be positioned with the [[IEngineOptions.position]] option
+   * Allow the game to be positioned with the [[EngineOptions.position]] option
    */
   Position
 }
@@ -335,9 +335,9 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
       return 1;
     }
 
-    let devicePixelRatio = window.devicePixelRatio || 1;
+    const devicePixelRatio = window.devicePixelRatio || 1;
 
-    let pixelRatio = devicePixelRatio;
+    const pixelRatio = devicePixelRatio;
     return pixelRatio;
   }
 
@@ -394,56 +394,56 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   private _isInitialized: boolean = false;
 
-  public on(eventName: Events.initialize, handler: (event?: Events.InitializeEvent) => void): void;
-  public on(eventName: Events.visible, handler: (event?: VisibleEvent) => void): void;
-  public on(eventName: Events.hidden, handler: (event?: HiddenEvent) => void): void;
-  public on(eventName: Events.start, handler: (event?: GameStartEvent) => void): void;
-  public on(eventName: Events.stop, handler: (event?: GameStopEvent) => void): void;
-  public on(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
-  public on(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
-  public on(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void): void;
-  public on(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void): void;
-  public on(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
-  public on(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
-  public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event?: any) => void): void {
+  public on(eventName: Events.initialize, handler: (event: Events.InitializeEvent) => void): void;
+  public on(eventName: Events.visible, handler: (event: VisibleEvent) => void): void;
+  public on(eventName: Events.hidden, handler: (event: HiddenEvent) => void): void;
+  public on(eventName: Events.start, handler: (event: GameStartEvent) => void): void;
+  public on(eventName: Events.stop, handler: (event: GameStopEvent) => void): void;
+  public on(eventName: Events.preupdate, handler: (event: PreUpdateEvent) => void): void;
+  public on(eventName: Events.postupdate, handler: (event: PostUpdateEvent) => void): void;
+  public on(eventName: Events.preframe, handler: (event: PreFrameEvent) => void): void;
+  public on(eventName: Events.postframe, handler: (event: PostFrameEvent) => void): void;
+  public on(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
+  public on(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
+  public on(eventName: string, handler: (event: GameEvent<any>) => void): void;
+  public on(eventName: string, handler: (event: any) => void): void {
     super.on(eventName, handler);
   }
 
-  public once(eventName: Events.initialize, handler: (event?: Events.InitializeEvent) => void): void;
-  public once(eventName: Events.visible, handler: (event?: VisibleEvent) => void): void;
-  public once(eventName: Events.hidden, handler: (event?: HiddenEvent) => void): void;
-  public once(eventName: Events.start, handler: (event?: GameStartEvent) => void): void;
-  public once(eventName: Events.stop, handler: (event?: GameStopEvent) => void): void;
-  public once(eventName: Events.preupdate, handler: (event?: PreUpdateEvent) => void): void;
-  public once(eventName: Events.postupdate, handler: (event?: PostUpdateEvent) => void): void;
-  public once(eventName: Events.preframe, handler: (event?: PreFrameEvent) => void): void;
-  public once(eventName: Events.postframe, handler: (event?: PostFrameEvent) => void): void;
-  public once(eventName: Events.predraw, handler: (event?: PreDrawEvent) => void): void;
-  public once(eventName: Events.postdraw, handler: (event?: PostDrawEvent) => void): void;
-  public once(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-  public once(eventName: string, handler: (event?: any) => void): void {
+  public once(eventName: Events.initialize, handler: (event: Events.InitializeEvent) => void): void;
+  public once(eventName: Events.visible, handler: (event: VisibleEvent) => void): void;
+  public once(eventName: Events.hidden, handler: (event: HiddenEvent) => void): void;
+  public once(eventName: Events.start, handler: (event: GameStartEvent) => void): void;
+  public once(eventName: Events.stop, handler: (event: GameStopEvent) => void): void;
+  public once(eventName: Events.preupdate, handler: (event: PreUpdateEvent) => void): void;
+  public once(eventName: Events.postupdate, handler: (event: PostUpdateEvent) => void): void;
+  public once(eventName: Events.preframe, handler: (event: PreFrameEvent) => void): void;
+  public once(eventName: Events.postframe, handler: (event: PostFrameEvent) => void): void;
+  public once(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
+  public once(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
+  public once(eventName: string, handler: (event: GameEvent<any>) => void): void;
+  public once(eventName: string, handler: (event: any) => void): void {
     super.once(eventName, handler);
   }
 
-  public off(eventName: Events.initialize, handler?: (event?: Events.InitializeEvent) => void): void;
-  public off(eventName: Events.visible, handler?: (event?: VisibleEvent) => void): void;
-  public off(eventName: Events.hidden, handler?: (event?: HiddenEvent) => void): void;
-  public off(eventName: Events.start, handler?: (event?: GameStartEvent) => void): void;
-  public off(eventName: Events.stop, handler?: (event?: GameStopEvent) => void): void;
-  public off(eventName: Events.preupdate, handler?: (event?: PreUpdateEvent) => void): void;
-  public off(eventName: Events.postupdate, handler?: (event?: PostUpdateEvent) => void): void;
-  public off(eventName: Events.preframe, handler?: (event?: PreFrameEvent) => void): void;
-  public off(eventName: Events.postframe, handler?: (event?: PostFrameEvent) => void): void;
-  public off(eventName: Events.predraw, handler?: (event?: PreDrawEvent) => void): void;
-  public off(eventName: Events.postdraw, handler?: (event?: PostDrawEvent) => void): void;
-  public off(eventName: string, handler?: (event?: GameEvent<any>) => void): void;
-  public off(eventName: string, handler?: (event?: any) => void): void {
+  public off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent) => void): void;
+  public off(eventName: Events.visible, handler?: (event: VisibleEvent) => void): void;
+  public off(eventName: Events.hidden, handler?: (event: HiddenEvent) => void): void;
+  public off(eventName: Events.start, handler?: (event: GameStartEvent) => void): void;
+  public off(eventName: Events.stop, handler?: (event: GameStopEvent) => void): void;
+  public off(eventName: Events.preupdate, handler?: (event: PreUpdateEvent) => void): void;
+  public off(eventName: Events.postupdate, handler?: (event: PostUpdateEvent) => void): void;
+  public off(eventName: Events.preframe, handler?: (event: PreFrameEvent) => void): void;
+  public off(eventName: Events.postframe, handler?: (event: PostFrameEvent) => void): void;
+  public off(eventName: Events.predraw, handler?: (event: PreDrawEvent) => void): void;
+  public off(eventName: Events.postdraw, handler?: (event: PostDrawEvent) => void): void;
+  public off(eventName: string, handler?: (event: GameEvent<any>) => void): void;
+  public off(eventName: string, handler?: (event: any) => void): void {
     super.off(eventName, handler);
   }
 
   /**
-   * Default [[IEngineOptions]]
+   * Default [[EngineOptions]]
    */
   private static _DefaultEngineOptions: EngineOptions = {
     width: 0,
@@ -460,9 +460,9 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   };
 
   /**
-   * Creates a new game using the given [[IEngineOptions]]. By default, if no options are provided,
+   * Creates a new game using the given [[EngineOptions]]. By default, if no options are provided,
    * the game will be rendered full screen (taking up all available browser window space).
-   * You can customize the game rendering through [[IEngineOptions]].
+   * You can customize the game rendering through [[EngineOptions]].
    *
    * Example:
    *
@@ -489,20 +489,20 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     options = Util.extend({}, Engine._DefaultEngineOptions, options);
 
     // Check compatibility
-    var detector = new Detector();
+    const detector = new Detector();
     if (!options.suppressMinimumBrowserFeatureDetection && !(this._compatible = detector.test())) {
-      var message = document.createElement('div');
+      const message = document.createElement('div');
       message.innerText = 'Sorry, your browser does not support all the features needed for Excalibur';
       document.body.appendChild(message);
 
       detector.failedTests.forEach(function(test) {
-        var testMessage = document.createElement('div');
+        const testMessage = document.createElement('div');
         testMessage.innerText = 'Browser feature missing ' + test;
         document.body.appendChild(testMessage);
       });
 
       if (options.canvasElementId) {
-        var canvas = document.getElementById(options.canvasElementId);
+        const canvas = document.getElementById(options.canvasElementId);
         if (canvas) {
           canvas.parentElement.removeChild(canvas);
         }
@@ -583,10 +583,10 @@ O|===|* >________________>\n\
    * and the bottom right corner of the screen.
    */
   public getWorldBounds() {
-    var left = this.screenToWorldCoordinates(Vector.Zero).x;
-    var top = this.screenToWorldCoordinates(Vector.Zero).y;
-    var right = left + this.drawWidth;
-    var bottom = top + this.drawHeight;
+    const left = this.screenToWorldCoordinates(Vector.Zero).x;
+    const top = this.screenToWorldCoordinates(Vector.Zero).y;
+    const right = left + this.drawWidth;
+    const bottom = top + this.drawHeight;
 
     return new BoundingBox(left, top, right, bottom);
   }
@@ -687,7 +687,7 @@ O|===|* >________________>\n\
   public removeScene(entity: any): void {
     if (entity instanceof Scene) {
       // remove scene
-      for (var key in this.scenes) {
+      for (const key in this.scenes) {
         if (this.scenes.hasOwnProperty(key)) {
           if (this.scenes[key] === entity) {
             delete this.scenes[key];
@@ -846,8 +846,8 @@ O|===|* >________________>\n\
    */
   public goToScene(key: string) {
     if (this.scenes[key]) {
-      var oldScene = this.currentScene;
-      var newScene = this.scenes[key];
+      const oldScene = this.currentScene;
+      const newScene = this.scenes[key];
 
       this._logger.debug('Going to scene:', key);
 
@@ -875,8 +875,8 @@ O|===|* >________________>\n\
    * @param point  Screen coordinate to convert
    */
   public screenToWorldCoordinates(point: Vector): Vector {
-    var newX = point.x;
-    var newY = point.y;
+    let newX = point.x;
+    let newY = point.y;
 
     // transform back to world space
     newX = (newX / this.canvas.clientWidth) * this.drawWidth;
@@ -888,7 +888,7 @@ O|===|* >________________>\n\
 
     // shift by focus
     if (this.currentScene && this.currentScene.camera) {
-      var focus = this.currentScene.camera.getFocus();
+      const focus = this.currentScene.camera.getFocus();
       newX += focus.x;
       newY += focus.y;
     }
@@ -901,12 +901,12 @@ O|===|* >________________>\n\
    * @param point  World coordinate to convert
    */
   public worldToScreenCoordinates(point: Vector): Vector {
-    var screenX = point.x;
-    var screenY = point.y;
+    let screenX = point.x;
+    let screenY = point.y;
 
     // shift by focus
     if (this.currentScene && this.currentScene.camera) {
-      var focus = this.currentScene.camera.getFocus();
+      const focus = this.currentScene.camera.getFocus();
       screenX -= focus.x;
       screenY -= focus.y;
     }
@@ -948,7 +948,7 @@ O|===|* >________________>\n\
     }
 
     if (this.displayMode === DisplayMode.FullScreen || this.displayMode === DisplayMode.Container) {
-      var parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
+      const parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
 
       this._setHeightByDisplayMode(parent);
 
@@ -977,7 +977,7 @@ O|===|* >________________>\n\
     // Issue #385 make use of the visibility api
     // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
 
-    var hidden: keyof HTMLDocument, visibilityChange: string;
+    let hidden: keyof HTMLDocument, visibilityChange: string;
     if (typeof document.hidden !== 'undefined') {
       // Opera 12.10 and Firefox 18 and later support
       hidden = 'hidden';
@@ -1024,7 +1024,7 @@ O|===|* >________________>\n\
       this.canvas.style.position = 'absolute';
 
       if (typeof options.position === 'string') {
-        var specifiedPosition = options.position.split(' ');
+        const specifiedPosition = options.position.split(' ');
 
         switch (specifiedPosition[0]) {
           case 'top':
@@ -1035,7 +1035,7 @@ O|===|* >________________>\n\
             break;
           case 'middle':
             this.canvas.style.top = '50%';
-            var offsetY = -this.halfDrawHeight;
+            const offsetY = -this.halfDrawHeight;
             this.canvas.style.marginTop = offsetY.toString();
             break;
           default:
@@ -1052,7 +1052,7 @@ O|===|* >________________>\n\
               break;
             case 'center':
               this.canvas.style.left = '50%';
-              var offsetX = -this.halfDrawWidth;
+              const offsetX = -this.halfDrawWidth;
               this.canvas.style.marginLeft = offsetX.toString();
               break;
             default:
@@ -1087,8 +1087,8 @@ O|===|* >________________>\n\
   private _initializeHiDpi() {
     // Scale the canvas if needed
     if (this.isHiDpi) {
-      let oldWidth = this.canvas.width;
-      let oldHeight = this.canvas.height;
+      const oldWidth = this.canvas.width;
+      const oldHeight = this.canvas.height;
 
       this.canvas.width = oldWidth * this.pixelRatio;
       this.canvas.height = oldHeight * this.pixelRatio;
@@ -1114,9 +1114,9 @@ O|===|* >________________>\n\
   public setAntialiasing(isSmooth: boolean) {
     this._isSmoothingEnabled = isSmooth;
 
-    var ctx: any = this.ctx;
+    const ctx: any = this.ctx;
     ctx.imageSmoothingEnabled = isSmooth;
-    for (var smoothing of ['webkitImageSmoothingEnabled', 'mozImageSmoothingEnabled', 'msImageSmoothingEnabled']) {
+    for (const smoothing of ['webkitImageSmoothingEnabled', 'mozImageSmoothingEnabled', 'msImageSmoothingEnabled']) {
       if (smoothing in ctx) {
         ctx[smoothing] = isSmooth;
       }
@@ -1214,7 +1214,7 @@ O|===|* >________________>\n\
    * @param delta  Number of milliseconds elapsed since the last draw.
    */
   private _draw(delta: number) {
-    var ctx = this.ctx;
+    const ctx = this.ctx;
     this._predraw(ctx, delta);
 
     if (this._isLoading) {
@@ -1230,8 +1230,8 @@ O|===|* >________________>\n\
     this.currentScene.draw(this.ctx, delta);
 
     // todo needs to be a better way of doing this
-    var a = 0,
-      len = this._animations.length;
+    let a = 0;
+    const len = this._animations.length;
     for (a; a < len; a++) {
       this._animations[a].animation.draw(ctx, this._animations[a].x, this._animations[a].y);
     }
@@ -1240,8 +1240,8 @@ O|===|* >________________>\n\
     if (this.isDebug) {
       this.ctx.font = 'Consolas';
       this.ctx.fillStyle = this.debugColor.toString();
-      var keys = this.input.keyboard.getKeys();
-      for (var j = 0; j < keys.length; j++) {
+      const keys = this.input.keyboard.getKeys();
+      for (let j = 0; j < keys.length; j++) {
         this.ctx.fillText(keys[j].toString() + ' : ' + (Input.Keys[keys[j]] ? Input.Keys[keys[j]] : 'Not Mapped'), 100, 10 * j + 10);
       }
 
@@ -1249,7 +1249,7 @@ O|===|* >________________>\n\
     }
 
     // Post processing
-    for (var i = 0; i < this.postProcessors.length; i++) {
+    for (let i = 0; i < this.postProcessors.length; i++) {
       this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight), this.ctx);
     }
 
@@ -1288,11 +1288,11 @@ O|===|* >________________>\n\
    */
   public start(loader?: CanLoad): Promise<any> {
     if (!this._compatible) {
-      var promise = new Promise();
+      const promise = new Promise();
       return promise.reject('Excalibur is incompatible with your browser');
     }
 
-    var loadingComplete: Promise<any>;
+    let loadingComplete: Promise<any>;
     if (loader) {
       this._loader = loader;
       this._loader.suppressPlayButton = this._suppressPlayButton || this._loader.suppressPlayButton;
@@ -1320,7 +1320,7 @@ O|===|* >________________>\n\
   }
 
   public static createMainLoop(game: Engine, raf: (func: Function) => number, nowFn: () => number) {
-    var lastTime = nowFn();
+    let lastTime = nowFn();
 
     return function mainloop() {
       if (!game._hasStarted) {
@@ -1331,8 +1331,8 @@ O|===|* >________________>\n\
         game.emit('preframe', new PreFrameEvent(game, game.stats.prevFrame));
 
         // Get the time to calculate time-elapsed
-        var now = nowFn();
-        var elapsed = Math.floor(now - lastTime) || 1;
+        const now = nowFn();
+        let elapsed = Math.floor(now - lastTime) || 1;
         // Resolves issue #138 if the game has been paused, or blurred for
         // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability
         // and provides more expected behavior when the engine comes back
@@ -1340,21 +1340,21 @@ O|===|* >________________>\n\
         if (elapsed > 200) {
           elapsed = 1;
         }
-        var delta = elapsed * game.timescale;
+        const delta = elapsed * game.timescale;
 
         // reset frame stats (reuse existing instances)
-        var frameId = game.stats.prevFrame.id + 1;
+        const frameId = game.stats.prevFrame.id + 1;
         game.stats.prevFrame.reset(game.stats.currFrame);
         game.stats.currFrame.reset();
         game.stats.currFrame.id = frameId;
         game.stats.currFrame.delta = delta;
         game.stats.currFrame.fps = 1.0 / (delta / 1000);
 
-        var beforeUpdate = nowFn();
+        const beforeUpdate = nowFn();
         game._update(delta);
-        var afterUpdate = nowFn();
+        const afterUpdate = nowFn();
         game._draw(delta);
-        var afterDraw = nowFn();
+        const afterDraw = nowFn();
 
         game.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
         game.stats.currFrame.duration.draw = afterDraw - afterUpdate;
@@ -1393,8 +1393,8 @@ O|===|* >________________>\n\
    * HTML Image Element.
    */
   public screenshot(): HTMLImageElement {
-    var result = new Image();
-    var raw = this.canvas.toDataURL('image/png');
+    const result = new Image();
+    const raw = this.canvas.toDataURL('image/png');
     result.src = raw;
     return result;
   }
@@ -1406,7 +1406,7 @@ O|===|* >________________>\n\
    * @param loader  Some [[ILoadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
   public load(loader: Loadable): Promise<any> {
-    var complete = new Promise<any>();
+    const complete = new Promise<any>();
 
     this._isLoading = true;
 

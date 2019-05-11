@@ -27,15 +27,15 @@ export function obsolete(options?: ObsoleteOptions): any {
     }
     const methodSignature = `${target.name || ''}${target.name && property ? '.' : ''}${property ? property : ''}`;
 
-    var message =
+    const message =
       `${methodSignature} is marked obsolete: ${options.message}` +
       (options.alternateMethod ? ` Use ${options.alternateMethod} instead` : '');
 
     // If descriptor is null it is a class
-    let method = descriptor ? { ...descriptor } : target;
+    const method = descriptor ? { ...descriptor } : target;
     if (!descriptor) {
-      let constructor = function() {
-        let args = Array.prototype.slice.call(arguments);
+      const constructor = function() {
+        const args = Array.prototype.slice.call(arguments);
         Logger.getInstance().warn(message);
         return new method(...args);
       };

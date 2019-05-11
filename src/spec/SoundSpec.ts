@@ -3,7 +3,7 @@ import * as ex from '../../build/dist/excalibur';
 import { Stubs } from './util/Stubs';
 
 describe('Sound resource', () => {
-  var sut: ex.Sound;
+  let sut: ex.Sound;
 
   beforeAll(() => {
     ex.Logger.getInstance().clearAppenders();

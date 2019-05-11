@@ -42,7 +42,7 @@ itself and repeating that forever.
 ```ts
 public Ship extends ex.Actor {
   public onInitialize() {
-    var path = [
+    const path = [
       new ex.Vector(20, 20),
       new ex.Vector(50, 40),
       new ex.Vector(25, 30),
@@ -53,13 +53,13 @@ public Ship extends ex.Actor {
     this.y = path[0].y;
     // create action queue
     // forward path (skip first spawn point)
-    for (var i = 1; i < path.length; i++) {
+    for (let i = 1; i < path.length; i++) {
       this.actions.moveTo(path[i].x, path[i].y, 300);
     }
 
     // reverse path (skip last point)
-    for (var j = path.length - 2; j >= 0; j--) {
-      this.actions.moveTo(path[j].x, path[j].y, 300);
+    for (let i = path.length - 2; i >= 0; i--) {
+      this.actions.moveTo(path[i].x, path[i].y, 300);
     }
     // repeat
     this.actions.repeatForever();

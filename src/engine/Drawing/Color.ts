@@ -69,13 +69,13 @@ export class Color {
    * @param hex  CSS color string of the form #ffffff, the alpha component is optional
    */
   public static fromHex(hex: string): Color {
-    var hexRegEx: RegExp = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i;
-    var match = null;
+    const hexRegEx: RegExp = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})?$/i;
+    let match = null;
     if ((match = hex.match(hexRegEx))) {
-      var r = parseInt(match[1], 16);
-      var g = parseInt(match[2], 16);
-      var b = parseInt(match[3], 16);
-      var a = 1;
+      const r = parseInt(match[1], 16);
+      const g = parseInt(match[2], 16);
+      const b = parseInt(match[3], 16);
+      let a = 1;
       if (match[4]) {
         a = parseInt(match[4], 16) / 255;
       }
@@ -94,7 +94,7 @@ export class Color {
    * @param a  Alpha is represented [0-1]
    */
   public static fromHSL(h: number, s: number, l: number, a: number = 1.0): Color {
-    var temp = new HSLColor(h, s, l, a);
+    const temp = new HSLColor(h, s, l, a);
     return temp.toRGBA();
   }
 
@@ -104,7 +104,7 @@ export class Color {
    * @param factor  The amount to lighten by [0-1]
    */
   public lighten(factor: number = 0.1): Color {
-    var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+    const temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
     temp.l += temp.l * factor;
     return temp.toRGBA();
   }
@@ -115,7 +115,7 @@ export class Color {
    * @param factor  The amount to darken by [0-1]
    */
   public darken(factor: number = 0.1): Color {
-    var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+    const temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
     temp.l -= temp.l * factor;
     return temp.toRGBA();
   }
@@ -126,7 +126,7 @@ export class Color {
    * @param factor  The amount to saturate by [0-1]
    */
   public saturate(factor: number = 0.1): Color {
-    var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+    const temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
     temp.s += temp.s * factor;
     return temp.toRGBA();
   }
@@ -137,7 +137,7 @@ export class Color {
    * @param factor  The amount to desaturate by [0-1]
    */
   public desaturate(factor: number = 0.1): Color {
-    var temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
+    const temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
     temp.s -= temp.s * factor;
     return temp.toRGBA();
   }
@@ -148,10 +148,10 @@ export class Color {
    * @param color  The other color
    */
   public mulitiply(color: Color): Color {
-    var newR = (((color.r / 255) * this.r) / 255) * 255;
-    var newG = (((color.g / 255) * this.g) / 255) * 255;
-    var newB = (((color.b / 255) * this.b) / 255) * 255;
-    var newA = color.a * this.a;
+    const newR = (((color.r / 255) * this.r) / 255) * 255;
+    const newG = (((color.g / 255) * this.g) / 255) * 255;
+    const newB = (((color.b / 255) * this.b) / 255) * 255;
+    const newA = color.a * this.a;
     return new Color(newR, newG, newB, newA);
   }
 
@@ -161,8 +161,8 @@ export class Color {
    * @param color  The other color
    */
   public screen(color: Color): Color {
-    var color1 = color.invert();
-    var color2 = color.invert();
+    const color1 = color.invert();
+    const color2 = color.invert();
     return color1.mulitiply(color2).invert();
   }
 
@@ -179,10 +179,10 @@ export class Color {
    * @param color  The other color
    */
   public average(color: Color): Color {
-    var newR = (color.r + this.r) / 2;
-    var newG = (color.g + this.g) / 2;
-    var newB = (color.b + this.b) / 2;
-    var newA = (color.a + this.a) / 2;
+    const newR = (color.r + this.r) / 2;
+    const newG = (color.g + this.g) / 2;
+    const newB = (color.b + this.b) / 2;
+    const newA = (color.a + this.a) / 2;
     return new Color(newR, newG, newB, newA);
   }
 
@@ -210,7 +210,7 @@ export class Color {
    * @see https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
    */
   private _componentToHex(c: number) {
-    var hex = c.toString(16);
+    const hex = c.toString(16);
     return hex.length === 1 ? '0' + hex : hex;
   }
 
@@ -225,7 +225,7 @@ export class Color {
    * Return RGBA representation of a color.
    */
   public toRGBA() {
-    var result = String(this.r.toFixed(0)) + ', ' + String(this.g.toFixed(0)) + ', ' + String(this.b.toFixed(0));
+    const result = String(this.r.toFixed(0)) + ', ' + String(this.g.toFixed(0)) + ', ' + String(this.b.toFixed(0));
     if (this.a !== undefined || this.a !== null) {
       return 'rgba(' + result + ', ' + String(this.a) + ')';
     }
@@ -419,16 +419,15 @@ class HSLColor {
     r /= 255;
     g /= 255;
     b /= 255;
-    var max = Math.max(r, g, b),
+    const max = Math.max(r, g, b),
       min = Math.min(r, g, b);
-    var h,
-      s,
-      l = (max + min) / 2;
+    let h, s;
+    const l = (max + min) / 2;
 
     if (max === min) {
       h = s = 0; // achromatic
     } else {
-      var d = max - min;
+      const d = max - min;
       s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
       switch (max) {
         case r:
@@ -448,13 +447,13 @@ class HSLColor {
   }
 
   public toRGBA(): Color {
-    var r: number, g: number, b: number;
+    let r: number, g: number, b: number;
 
     if (this.s === 0) {
       r = g = b = this.l; // achromatic
     } else {
-      var q = this.l < 0.5 ? this.l * (1 + this.s) : this.l + this.s - this.l * this.s;
-      var p = 2 * this.l - q;
+      const q = this.l < 0.5 ? this.l * (1 + this.s) : this.l + this.s - this.l * this.s;
+      const p = 2 * this.l - q;
       r = HSLColor.hue2rgb(p, q, this.h + 1 / 3);
       g = HSLColor.hue2rgb(p, q, this.h);
       b = HSLColor.hue2rgb(p, q, this.h - 1 / 3);
@@ -464,7 +463,7 @@ class HSLColor {
   }
 
   public toString(): string {
-    let h = this.h.toFixed(0),
+    const h = this.h.toFixed(0),
       s = this.s.toFixed(0),
       l = this.l.toFixed(0),
       a = this.a.toFixed(0);

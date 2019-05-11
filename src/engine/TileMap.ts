@@ -29,12 +29,12 @@ export class TileMapImpl extends Class {
   public rows: number;
   public cols: number;
 
-  public on(eventName: Events.preupdate, handler: (event?: Events.PreUpdateEvent) => void): void;
-  public on(eventName: Events.postupdate, handler: (event?: Events.PostUpdateEvent) => void): void;
-  public on(eventName: Events.predraw, handler: (event?: Events.PreDrawEvent) => void): void;
-  public on(eventName: Events.postdraw, handler: (event?: Events.PostDrawEvent) => void): void;
-  public on(eventName: string, handler: (event?: Events.GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event?: any) => void): void {
+  public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent) => void): void;
+  public on(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent) => void): void;
+  public on(eventName: Events.predraw, handler: (event: Events.PreDrawEvent) => void): void;
+  public on(eventName: Events.postdraw, handler: (event: Events.PostDrawEvent) => void): void;
+  public on(eventName: string, handler: (event: Events.GameEvent<any>) => void): void;
+  public on(eventName: string, handler: (event: any) => void): void {
     super.on(eventName, handler);
   }
 
@@ -49,7 +49,7 @@ export class TileMapImpl extends Class {
   constructor(xOrConfig: number | TileMapArgs, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number) {
     super();
     if (xOrConfig && typeof xOrConfig === 'object') {
-      var config = xOrConfig;
+      const config = xOrConfig;
       xOrConfig = config.x;
       y = config.y;
       cellWidth = config.cellWidth;
@@ -64,10 +64,10 @@ export class TileMapImpl extends Class {
     this.rows = rows;
     this.cols = cols;
     this.data = new Array<Cell>(rows * cols);
-    for (var i = 0; i < cols; i++) {
-      for (var j = 0; j < rows; j++) {
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
         (() => {
-          var cd = new Cell(i * cellWidth + <number>xOrConfig, j * cellHeight + y, cellWidth, cellHeight, i + j * cols);
+          const cd = new Cell(i * cellWidth + <number>xOrConfig, j * cellHeight + y, cellWidth, cellHeight, i + j * cols);
           this.data[i + j * cols] = cd;
         })();
       }
@@ -82,17 +82,17 @@ export class TileMapImpl extends Class {
    * is no collision null is returned.
    */
   public collides(actor: Actor): Vector {
-    var width = actor.pos.x + actor.getWidth();
-    var height = actor.pos.y + actor.getHeight();
-    var actorBounds = actor.getBounds();
-    var overlaps: Vector[] = [];
+    const width = actor.pos.x + actor.getWidth();
+    const height = actor.pos.y + actor.getHeight();
+    const actorBounds = actor.getBounds();
+    const overlaps: Vector[] = [];
     // trace points for overlap
-    for (var x = actorBounds.left; x <= width; x += Math.min(actor.getWidth() / 2, this.cellWidth / 2)) {
-      for (var y = actorBounds.top; y <= height; y += Math.min(actor.getHeight() / 2, this.cellHeight / 2)) {
-        var cell = this.getCellByPoint(x, y);
+    for (let x = actorBounds.left; x <= width; x += Math.min(actor.getWidth() / 2, this.cellWidth / 2)) {
+      for (let y = actorBounds.top; y <= height; y += Math.min(actor.getHeight() / 2, this.cellHeight / 2)) {
+        const cell = this.getCellByPoint(x, y);
         if (cell && cell.solid) {
-          var overlap = actorBounds.collides(cell.getBounds());
-          var dir = actor.getCenter().sub(cell.getCenter());
+          const overlap = actorBounds.collides(cell.getBounds());
+          const dir = actor.getCenter().sub(cell.getCenter());
           if (overlap && overlap.dot(dir) > 0) {
             overlaps.push(overlap);
           }
@@ -103,9 +103,9 @@ export class TileMapImpl extends Class {
       return null;
     }
     // Return the smallest change other than zero
-    var result = overlaps.reduce((accum, next) => {
-      var x = accum.x;
-      var y = accum.y;
+    const result = overlaps.reduce((accum, next) => {
+      let x = accum.x;
+      let y = accum.y;
       if (Math.abs(accum.x) < Math.abs(next.x)) {
         x = next.x;
       }
@@ -139,7 +139,7 @@ export class TileMapImpl extends Class {
   public getCellByPoint(x: number, y: number): Cell {
     x = Math.floor((x - this.x) / this.cellWidth);
     y = Math.floor((y - this.y) / this.cellHeight);
-    var cell = this.getCell(x, y);
+    const cell = this.getCell(x, y);
     if (x >= 0 && y >= 0 && x < this.cols && y < this.rows && cell) {
       return cell;
     }
@@ -149,8 +149,8 @@ export class TileMapImpl extends Class {
   public update(engine: Engine, delta: number) {
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
 
-    var worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
-    var worldCoordsLowerRight = engine.screenToWorldCoordinates(new Vector(engine.canvas.clientWidth, engine.canvas.clientHeight));
+    const worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
+    const worldCoordsLowerRight = engine.screenToWorldCoordinates(new Vector(engine.canvas.clientWidth, engine.canvas.clientHeight));
 
     this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - this.x) / this.cellWidth) - 2, 0);
     this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
@@ -172,11 +172,11 @@ export class TileMapImpl extends Class {
     ctx.translate(this.x, this.y);
 
     let x = this._onScreenXStart;
-    let xEnd = Math.min(this._onScreenXEnd, this.cols);
+    const xEnd = Math.min(this._onScreenXEnd, this.cols);
     let y = this._onScreenYStart;
-    let yEnd = Math.min(this._onScreenYEnd, this.rows);
+    const yEnd = Math.min(this._onScreenYEnd, this.rows);
 
-    var cs: TileSprite[], csi: number, cslen: number;
+    let cs: TileSprite[], csi: number, cslen: number;
 
     for (x; x < xEnd; x++) {
       for (y; y < yEnd; y++) {
@@ -186,11 +186,11 @@ export class TileMapImpl extends Class {
         });
 
         for (csi = 0, cslen = cs.length; csi < cslen; csi++) {
-          var ss = this._spriteSheets[cs[csi].spriteSheetKey];
+          const ss = this._spriteSheets[cs[csi].spriteSheetKey];
 
           // draw sprite, warning if sprite doesn't exist
           if (ss) {
-            var sprite = ss.getSprite(cs[csi].spriteId);
+            const sprite = ss.getSprite(cs[csi].spriteId);
             if (sprite) {
               sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);
             } else {
@@ -213,23 +213,23 @@ export class TileMapImpl extends Class {
    * @param ctx  The current rendering context
    */
   public debugDraw(ctx: CanvasRenderingContext2D) {
-    var width = this.cols * this.cellWidth;
-    var height = this.rows * this.cellHeight;
+    const width = this.cols * this.cellWidth;
+    const height = this.rows * this.cellHeight;
     ctx.save();
     ctx.strokeStyle = Color.Red.toString();
-    for (var x = 0; x < this.cols + 1; x++) {
+    for (let x = 0; x < this.cols + 1; x++) {
       ctx.beginPath();
       ctx.moveTo(this.x + x * this.cellWidth, this.y);
       ctx.lineTo(this.x + x * this.cellWidth, this.y + height);
       ctx.stroke();
     }
-    for (var y = 0; y < this.rows + 1; y++) {
+    for (let y = 0; y < this.rows + 1; y++) {
       ctx.beginPath();
       ctx.moveTo(this.x, this.y + y * this.cellHeight);
       ctx.lineTo(this.x + width, this.y + y * this.cellHeight);
       ctx.stroke();
     }
-    var solid = Color.Red;
+    const solid = Color.Red;
     solid.a = 0.3;
     this.data
       .filter(function(cell) {
@@ -321,7 +321,7 @@ export class CellImpl {
     sprites: TileSprite[] = []
   ) {
     if (xOrConfig && typeof xOrConfig === 'object') {
-      var config = xOrConfig;
+      const config = xOrConfig;
       xOrConfig = config.x;
       y = config.y;
       width = config.width;
@@ -362,7 +362,7 @@ export class CellImpl {
    * Remove an instance of [[TileSprite]] from this cell
    */
   public removeSprite(tileSprite: TileSprite) {
-    var index = -1;
+    let index = -1;
     if ((index = this.sprites.indexOf(tileSprite)) > -1) {
       this.sprites.splice(index, 1);
     }

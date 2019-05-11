@@ -36,7 +36,7 @@ export class SpriteSheetImpl {
     spHeight?: number,
     spacing?: number
   ) {
-    var loadFromImage: boolean = false;
+    let loadFromImage: boolean = false;
     if (imageOrConfigOrSprites instanceof Array) {
       this.sprites = imageOrConfigOrSprites;
     } else {
@@ -84,10 +84,8 @@ export class SpriteSheetImpl {
     }
 
     if (loadFromImage) {
-      var i = 0;
-      var j = 0;
-      for (i = 0; i < this.rows; i++) {
-        for (j = 0; j < this.columns; j++) {
+      for (let i = 0; i < this.rows; i++) {
+        for (let j = 0; j < this.columns; j++) {
           this.sprites[j + i * this.columns] = new Sprite(
             this.image,
             j * this.spWidth + this.spacing * j + this.spacing,
@@ -108,7 +106,7 @@ export class SpriteSheetImpl {
    * @param speed    The number in milliseconds to display each frame in the animation
    */
   public getAnimationByIndices(engine: Engine, indices: number[], speed: number) {
-    var images: Sprite[] = indices.map((index) => {
+    let images: Sprite[] = indices.map((index) => {
       return this.sprites[index];
     });
 
@@ -128,7 +126,7 @@ export class SpriteSheetImpl {
    * @param speed       The number in milliseconds to display each frame in the animation
    */
   public getAnimationBetween(engine: Engine, beginIndex: number, endIndex: number, speed: number) {
-    var images = this.sprites.slice(beginIndex, endIndex);
+    let images = this.sprites.slice(beginIndex, endIndex);
     images = images.map(function(i) {
       return i.clone();
     });
@@ -142,7 +140,7 @@ export class SpriteSheetImpl {
    * @param speed   The number in milliseconds to display each frame the animation
    */
   public getAnimationForAll(engine: Engine, speed: number) {
-    var sprites = this.sprites.map(function(i) {
+    const sprites = this.sprites.map(function(i) {
       return i.clone();
     });
     return new Animation(engine, sprites, speed);
@@ -172,9 +170,9 @@ export class SpriteSheetImpl {
   public getAnimationByCoords(engine: Engine, spriteCoordinates: SpriteArgs[], speed: number): Animation {
     let maxWidth: number = 0;
     let maxHeight: number = 0;
-    let sprites: Sprite[] = new Array(spriteCoordinates.length);
+    const sprites: Sprite[] = new Array(spriteCoordinates.length);
     for (let i = 0; i < spriteCoordinates.length; i++) {
-      let coord = spriteCoordinates[i];
+      const coord = spriteCoordinates[i];
       // no need to pass image again if using a spritesheet
       coord.image = coord.image || this.image;
       maxWidth = Math.max(maxWidth, coord.drawWidth);
@@ -182,7 +180,7 @@ export class SpriteSheetImpl {
       sprites[i] = new Sprite(coord);
     }
 
-    let anim = new Animation(engine, sprites, speed);
+    const anim = new Animation(engine, sprites, speed);
 
     anim.drawWidth = maxWidth;
     anim.drawHeight = maxHeight;
@@ -287,9 +285,9 @@ export class SpriteFontImpl extends SpriteSheet {
    * Returns a dictionary that maps each character in the alphabet to the appropriate [[Sprite]].
    */
   public getTextSprites(): { [key: string]: Sprite } {
-    var lookup: { [key: string]: Sprite } = {};
-    for (var i = 0; i < this._alphabet.length; i++) {
-      var char = this._alphabet[i];
+    const lookup: { [key: string]: Sprite } = {};
+    for (let i = 0; i < this._alphabet.length; i++) {
+      let char = this._alphabet[i];
       if (this._caseInsensitive) {
         char = char.toLowerCase();
       }
@@ -310,7 +308,7 @@ export class SpriteFontImpl extends SpriteSheet {
     this._shadowOffsetY = offsetY;
     this._textShadowColor = shadowColor.clone();
     this._textShadowDirty = true;
-    for (var character in this._sprites) {
+    for (const character in this._sprites) {
       this._textShadowSprites[character] = this._sprites[character].clone();
     }
   }
@@ -334,7 +332,7 @@ export class SpriteFontImpl extends SpriteSheet {
     if (this._currentColor.toString() !== options.color.toString() || this._currentOpacity !== options.opacity) {
       this._currentOpacity = options.opacity;
       this._currentColor = options.color;
-      for (var char in this._sprites) {
+      for (const char in this._sprites) {
         this._sprites[char].clearEffects();
         this._sprites[char].fill(options.color);
         this._sprites[char].opacity(options.opacity);
@@ -342,7 +340,7 @@ export class SpriteFontImpl extends SpriteSheet {
     }
 
     if (this._textShadowOn && this._textShadowDirty && this._textShadowColor) {
-      for (var characterShadow in this._textShadowSprites) {
+      for (const characterShadow in this._textShadowSprites) {
         this._textShadowSprites[characterShadow].clearEffects();
         this._textShadowSprites[characterShadow].addEffect(new Effects.Fill(this._textShadowColor.clone()));
       }
@@ -350,17 +348,17 @@ export class SpriteFontImpl extends SpriteSheet {
     }
 
     // find the current length of text in pixels
-    var sprite = this.sprites[0];
+    const sprite = this.sprites[0];
 
     // find the current height fo the text in pixels
-    var height = sprite.drawHeight;
+    const height = sprite.drawHeight;
 
     // calculate appropriate scale for font size
-    var scale = options.fontSize / height;
+    const scale = options.fontSize / height;
 
-    var length = text.length * sprite.drawWidth * scale + text.length * options.letterSpacing;
+    const length = text.length * sprite.drawWidth * scale + text.length * options.letterSpacing;
 
-    var currX = x;
+    let currX = x;
     if (options.textAlign === TextAlign.Left || options.textAlign === TextAlign.Start) {
       currX = x;
     } else if (options.textAlign === TextAlign.Right || options.textAlign === TextAlign.End) {
@@ -369,7 +367,7 @@ export class SpriteFontImpl extends SpriteSheet {
       currX = x - length / 2;
     }
 
-    var currY = y - height * scale;
+    let currY = y - height * scale;
     if (options.baseAlign === BaseAlign.Top || options.baseAlign === BaseAlign.Hanging) {
       currY = y;
     } else if (
@@ -382,8 +380,8 @@ export class SpriteFontImpl extends SpriteSheet {
       currY = y - (height * scale) / 2;
     }
 
-    for (var i = 0; i < text.length; i++) {
-      var character = text[i];
+    for (let i = 0; i < text.length; i++) {
+      let character = text[i];
       if (this._caseInsensitive) {
         character = character.toLowerCase();
       }
@@ -395,7 +393,7 @@ export class SpriteFontImpl extends SpriteSheet {
           this._textShadowSprites[character].draw(ctx, currX + this._shadowOffsetX, currY + this._shadowOffsetY);
         }
 
-        var charSprite = this._sprites[character];
+        const charSprite = this._sprites[character];
         charSprite.scale.x = scale;
         charSprite.scale.y = scale;
         charSprite.draw(ctx, currX, currY);

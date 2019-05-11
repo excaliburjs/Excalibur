@@ -52,10 +52,10 @@ export function extend(target: any, ...objects: any[]): any;
  * @credit https://gomakethings.com/vanilla-javascript-version-of-jquery-extend/
  */
 export function extend() {
-  var extended: { [key: string]: any } = {};
-  var deep = false;
-  var i = 0;
-  var length = arguments.length;
+  const extended: { [key: string]: any } = {};
+  let deep = false;
+  let i = 0;
+  const length = arguments.length;
 
   // Check if a deep merge
   if (Object.prototype.toString.call(arguments[0]) === '[object Boolean]') {
@@ -64,11 +64,11 @@ export function extend() {
   }
 
   // Merge the object into the extended object
-  var assignExists = typeof (<any>Object).assign === 'function';
-  var merge = null;
+  const assignExists = typeof (<any>Object).assign === 'function';
+  let merge = null;
   if (!assignExists) {
     merge = function(obj: any) {
-      for (var prop in obj) {
+      for (const prop in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, prop)) {
           // If deep merge and property is an object, merge properties
           if (deep && Object.prototype.toString.call(obj[prop]) === '[object Object]') {
@@ -85,7 +85,7 @@ export function extend() {
 
   // Loop through each object and conduct a merge
   for (; i < length; i++) {
-    var obj = arguments[i];
+    const obj = arguments[i];
     if (!assignExists) {
       merge(obj);
     } else {
@@ -97,21 +97,21 @@ export function extend() {
 }
 
 export function base64Encode(inputStr: string) {
-  var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-  var outputStr = '';
-  var i = 0;
+  const b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+  let outputStr = '';
+  let i = 0;
 
   while (i < inputStr.length) {
     //all three "& 0xff" added below are there to fix a known bug
     //with bytes returned by xhr.responseText
-    var byte1 = inputStr.charCodeAt(i++) & 0xff;
-    var byte2 = inputStr.charCodeAt(i++) & 0xff;
-    var byte3 = inputStr.charCodeAt(i++) & 0xff;
+    const byte1 = inputStr.charCodeAt(i++) & 0xff;
+    const byte2 = inputStr.charCodeAt(i++) & 0xff;
+    const byte3 = inputStr.charCodeAt(i++) & 0xff;
 
-    var enc1 = byte1 >> 2;
-    var enc2 = ((byte1 & 3) << 4) | (byte2 >> 4);
+    const enc1 = byte1 >> 2;
+    const enc2 = ((byte1 & 3) << 4) | (byte2 >> 4);
 
-    var enc3, enc4;
+    let enc3, enc4;
     if (isNaN(byte2)) {
       enc3 = enc4 = 64;
     } else {
@@ -145,7 +145,7 @@ export function randomIntInRange(min: number, max: number, random: Random = new 
 }
 
 export function canonicalizeAngle(angle: number): number {
-  var tmpAngle = angle;
+  let tmpAngle = angle;
   if (angle > TwoPI) {
     while (tmpAngle > TwoPI) {
       tmpAngle -= TwoPI;
@@ -169,17 +169,17 @@ export function toRadians(degrees: number): number {
 }
 
 export function getPosition(el: HTMLElement): Vector {
-  var oLeft: number = 0,
+  let oLeft: number = 0,
     oTop: number = 0;
 
-  var calcOffsetLeft = (parent: HTMLElement) => {
+  const calcOffsetLeft = (parent: HTMLElement) => {
     oLeft += parent.offsetLeft;
 
     if (parent.offsetParent) {
       calcOffsetLeft(<HTMLElement>parent.offsetParent);
     }
   };
-  var calcOffsetTop = (parent: HTMLElement) => {
+  const calcOffsetTop = (parent: HTMLElement) => {
     oTop += parent.offsetTop;
     if (parent.offsetParent) {
       calcOffsetTop(<HTMLElement>parent.offsetParent);
@@ -201,7 +201,7 @@ export function addItemToArray<T>(item: T, array: T[]): boolean {
 }
 
 export function removeItemFromArray<T>(item: T, array: T[]): boolean {
-  var index = -1;
+  let index = -1;
   if ((index = array.indexOf(item)) > -1) {
     array.splice(index, 1);
     return true;
@@ -211,7 +211,7 @@ export function removeItemFromArray<T>(item: T, array: T[]): boolean {
 }
 
 export function contains(array: Array<any>, obj: any): boolean {
-  for (var i = 0; i < array.length; i++) {
+  for (let i = 0; i < array.length; i++) {
     if (array[i] === obj) {
       return true;
     }
@@ -237,12 +237,12 @@ export function getOppositeSide(side: Side) {
 }
 
 export function getSideFromVector(direction: Vector) {
-  var directions = [Vector.Left, Vector.Right, Vector.Up, Vector.Down];
-  var directionEnum = [Side.Left, Side.Right, Side.Top, Side.Bottom];
+  const directions = [Vector.Left, Vector.Right, Vector.Up, Vector.Down];
+  const directionEnum = [Side.Left, Side.Right, Side.Top, Side.Bottom];
 
-  var max = -Number.MAX_VALUE;
-  var maxIndex = -1;
-  for (var i = 0; i < directions.length; i++) {
+  let max = -Number.MAX_VALUE;
+  let maxIndex = -1;
+  for (let i = 0; i < directions.length; i++) {
     if (directions[i].dot(direction) > max) {
       max = directions[i].dot(direction);
       maxIndex = i;
@@ -270,10 +270,10 @@ export class Collection<T> {
   }
 
   private _resize() {
-    var newSize = this._internalArray.length * 2;
-    var newArray = new Array<T>(newSize);
-    var count = this.count();
-    for (var i = 0; i < count; i++) {
+    const newSize = this._internalArray.length * 2;
+    const newArray = new Array<T>(newSize);
+    const count = this.count();
+    for (let i = 0; i < count; i++) {
       newArray[i] = this._internalArray[i];
     }
 
@@ -349,14 +349,14 @@ export class Collection<T> {
    * @param index  Index of element to remove
    */
   public remove(index: number): T {
-    var count = this.count();
+    const count = this.count();
     if (count === 0) {
       //Logger.getInstance().error('Invalid parameter: ' + index);
       throw new Error('Invalid parameter ' + index);
     }
     // O(n) Shift
-    var removed = this._internalArray[index];
-    for (var i = index; i < count; i++) {
+    const removed = this._internalArray[index];
+    for (let i = index; i < count; i++) {
       this._internalArray[i] = this._internalArray[i + 1];
     }
     this._endPointer--;
@@ -368,7 +368,7 @@ export class Collection<T> {
    * @param element  Element to retrieve
    */
   public removeElement(element: T) {
-    var index = this._internalArray.indexOf(element);
+    const index = this._internalArray.indexOf(element);
     this.remove(index);
   }
 
@@ -384,8 +384,8 @@ export class Collection<T> {
    * @param func  Callback to call for each element passing a reference to the element and its index, returned values are ignored
    */
   public forEach(func: (element: T, index: number) => any) {
-    var i = 0,
-      count = this.count();
+    let i = 0;
+    const count = this.count();
     for (i; i < count; i++) {
       func.call(this, this._internalArray[i], i);
     }
@@ -397,9 +397,16 @@ export class Collection<T> {
    * the collection
    */
   public map(func: (element: T, index: number) => any) {
-    var count = this.count();
-    for (var i = 0; i < count; i++) {
+    const count = this.count();
+    for (let i = 0; i < count; i++) {
       this._internalArray[i] = func.call(this, this._internalArray[i], i);
     }
   }
+}
+
+/**
+ * Used for exhaustive checks at compile time
+ */
+export function fail(message: never): never {
+  throw new Error(message);
 }

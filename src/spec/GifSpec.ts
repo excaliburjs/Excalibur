@@ -31,12 +31,12 @@ describe('A Gif', () => {
     gif.load().then(() => {
       expect(gif).toBeDefined();
 
-      let spriteFrame: ex.Sprite = gif.asSprite();
+      const spriteFrame: ex.Sprite = gif.asSprite();
       expect(spriteFrame).toBeDefined();
       expect(spriteFrame.drawHeight).toBe(100);
       expect(spriteFrame.drawWidth).toBe(100);
 
-      var sprite: ex.Sprite = gif.asSprite();
+      let sprite: ex.Sprite = gif.asSprite();
       expect(gif.isLoaded()).toBe(true);
       sprite.draw(engine.ctx, 0, 0);
 

@@ -1,7 +1,8 @@
-﻿import { BoundingBox } from './BoundingBox';
-import { CollisionGeometry } from './CollisionGeometry';
-import { ConvexPolygon } from './ConvexPolygon';
-import { Edge } from './Edge';
+import { Body } from './Body';
+import { BoundingBox } from './BoundingBox';
+import { CollisionArea } from './CollisionArea';
+import { PolygonArea } from './PolygonArea';
+import { EdgeArea } from './EdgeArea';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { CollisionContact } from './CollisionContact';
 
@@ -78,7 +79,7 @@ export class Circle implements CollisionGeometry {
     if (this.collider && this.collider.body) {
       pos = this.collider.body.pos;
     }
-    var distance = pos.distance(point);
+    const distance = pos.distance(point);
     if (distance <= this.radius) {
       return true;
     }
@@ -91,17 +92,17 @@ export class Circle implements CollisionGeometry {
    */
   public rayCast(ray: Ray, max: number = Infinity): Vector {
     //https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
-    var c = this.getCenter();
-    var dir = ray.dir;
-    var orig = ray.pos;
+    const c = this.getCenter();
+    const dir = ray.dir;
+    const orig = ray.pos;
 
-    var discriminant = Math.sqrt(Math.pow(dir.dot(orig.sub(c)), 2) - Math.pow(orig.sub(c).distance(), 2) + Math.pow(this.radius, 2));
+    const discriminant = Math.sqrt(Math.pow(dir.dot(orig.sub(c)), 2) - Math.pow(orig.sub(c).distance(), 2) + Math.pow(this.radius, 2));
 
     if (discriminant < 0) {
       // no intersection
       return null;
     } else {
-      var toi = 0;
+      let toi = 0;
       if (discriminant === 0) {
         toi = -dir.dot(orig.sub(c));
         if (toi > 0 && toi < max) {
@@ -109,10 +110,10 @@ export class Circle implements CollisionGeometry {
         }
         return null;
       } else {
-        var toi1 = -dir.dot(orig.sub(c)) + discriminant;
-        var toi2 = -dir.dot(orig.sub(c)) - discriminant;
+        const toi1 = -dir.dot(orig.sub(c)) + discriminant;
+        const toi2 = -dir.dot(orig.sub(c)) - discriminant;
 
-        var mintoi = Math.min(toi1, toi2);
+        const mintoi = Math.min(toi1, toi2);
         if (mintoi <= max) {
           return ray.getPoint(mintoi);
         }
@@ -171,7 +172,7 @@ export class Circle implements CollisionGeometry {
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
   public getMomentOfInertia(): number {
-    var mass = this.collider ? this.collider.mass : Physics.defaultMass;
+    const mass = this.collider ? this.collider.mass : Physics.defaultMass;
     return (mass * this.radius * this.radius) / 2;
   }
 
@@ -179,19 +180,19 @@ export class Circle implements CollisionGeometry {
    * Tests the separating axis theorem for circles against polygons
    */
   public testSeparatingAxisTheorem(polygon: ConvexPolygon): Vector {
-    var axes = polygon.getAxes();
-    var pc = polygon.getCenter();
+    const axes = polygon.getAxes();
+    const pc = polygon.getCenter();
     // Special SAT with circles
-    var closestPointOnPoly = polygon.getFurthestPoint(this.pos.sub(pc));
+    const closestPointOnPoly = polygon.getFurthestPoint(this.pos.sub(pc));
     axes.push(this.pos.sub(closestPointOnPoly).normalize());
 
-    var minOverlap = Number.MAX_VALUE;
-    var minAxis = null;
-    var minIndex = -1;
-    for (var i = 0; i < axes.length; i++) {
-      var proj1 = polygon.project(axes[i]);
-      var proj2 = this.project(axes[i]);
-      var overlap = proj1.getOverlap(proj2);
+    let minOverlap = Number.MAX_VALUE;
+    let minAxis = null;
+    let minIndex = -1;
+    for (let i = 0; i < axes.length; i++) {
+      const proj1 = polygon.project(axes[i]);
+      const proj2 = this.project(axes[i]);
+      const overlap = proj1.getOverlap(proj2);
       if (overlap <= 0) {
         return null;
       } else {
@@ -217,9 +218,9 @@ export class Circle implements CollisionGeometry {
    * Project the circle along a specified axis
    */
   public project(axis: Vector): Projection {
-    var scalars = [];
-    var point = this.getCenter();
-    var dotProduct = point.dot(axis);
+    const scalars = [];
+    const point = this.getCenter();
+    const dotProduct = point.dot(axis);
     scalars.push(dotProduct);
     scalars.push(dotProduct + this.radius);
     scalars.push(dotProduct - this.radius);
@@ -228,9 +229,9 @@ export class Circle implements CollisionGeometry {
 
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Green) {
-    let body = this.collider.body;
-    var pos = body ? body.pos.add(this.pos) : this.pos;
-    var rotation = body ? body.rotation : 0;
+    const body = this.collider.body;
+    const pos = body ? body.pos.add(this.pos) : this.pos;
+    const rotation = body ? body.rotation : 0;
 
     ctx.beginPath();
     ctx.strokeStyle = color.toString();

@@ -17,7 +17,7 @@ export namespace TestUtils {
       },
       options
     );
-    var game = new ex.Engine(options);
+    const game = new ex.Engine(options);
 
     return game;
   }

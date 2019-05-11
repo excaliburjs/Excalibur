@@ -3,12 +3,12 @@ import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
 describe('A Collision', () => {
-  var actor1: ex.Actor = null;
-  var actor2: ex.Actor = null;
-  var scene: ex.Scene = null;
-  var engine: ex.Engine = null;
-  var mock = new Mocks.Mocker();
-  var loop: Mocks.GameLoopLike;
+  let actor1: ex.Actor = null;
+  let actor2: ex.Actor = null;
+  const scene: ex.Scene = null;
+  let engine: ex.Engine = null;
+  const mock = new Mocks.Mocker();
+  let loop: Mocks.GameLoopLike;
 
   beforeEach(() => {
     engine = TestUtils.engine({ width: 600, height: 400 });
@@ -33,8 +33,8 @@ describe('A Collision', () => {
   });
 
   it('should throw one event for each actor participating', () => {
-    var actor1Collision = 0;
-    var actor2Collision = 0;
+    let actor1Collision = 0;
+    let actor2Collision = 0;
     actor1.on('precollision', (e: ex.PreCollisionEvent) => {
       e.other.kill();
       actor1Collision++;
@@ -53,7 +53,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Active and Active Collision', () => {
-    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+    const collisionTree = new ex.DynamicTreeCollisionBroadphase();
 
     actor1.collisionType = ex.CollisionType.Active;
     actor2.collisionType = ex.CollisionType.Active;
@@ -70,7 +70,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Active and Passive Collision', () => {
-    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+    const collisionTree = new ex.DynamicTreeCollisionBroadphase();
 
     actor1.collisionType = ex.CollisionType.Active;
     actor2.collisionType = ex.CollisionType.Passive;
@@ -87,7 +87,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Active and PreventCollision', () => {
-    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+    const collisionTree = new ex.DynamicTreeCollisionBroadphase();
 
     actor1.collisionType = ex.CollisionType.Active;
     actor2.collisionType = ex.CollisionType.PreventCollision;
@@ -104,7 +104,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Active and Fixed', () => {
-    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+    const collisionTree = new ex.DynamicTreeCollisionBroadphase();
 
     actor1.collisionType = ex.CollisionType.Active;
     actor2.collisionType = ex.CollisionType.Fixed;
@@ -121,7 +121,7 @@ describe('A Collision', () => {
   });
 
   it('order of actors collision should not matter when an Fixed and Fixed', () => {
-    let collisionTree = new ex.DynamicTreeCollisionBroadphase();
+    const collisionTree = new ex.DynamicTreeCollisionBroadphase();
 
     actor1.collisionType = ex.CollisionType.Fixed;
     actor2.collisionType = ex.CollisionType.Fixed;
@@ -138,8 +138,8 @@ describe('A Collision', () => {
   });
 
   it('should only trigger one collision event per actor when an Active and Passive collide', () => {
-    var actor1Collision = 0;
-    var actor2Collision = 0;
+    let actor1Collision = 0;
+    let actor2Collision = 0;
     actor1.on('precollision', (e: ex.PreCollisionEvent) => {
       e.other.kill();
       actor1Collision++;
@@ -160,8 +160,8 @@ describe('A Collision', () => {
   });
 
   it('should not trigger when an actor is killed', () => {
-    var actor1Collision = 0;
-    var actor2Collision = 0;
+    let actor1Collision = 0;
+    let actor2Collision = 0;
     actor1.on('precollision', (e: ex.PreCollisionEvent) => {
       actor1Collision++;
     });
@@ -181,7 +181,7 @@ describe('A Collision', () => {
   });
 
   it('should recognize when actor bodies are touching', () => {
-    var touching = false;
+    let touching = false;
     actor1.on('postupdate', function() {
       if (actor1.body.touching(actor2.body)) {
         touching = true;
@@ -198,17 +198,17 @@ describe('A Collision', () => {
   it('should not collide when active and passive', (done) => {
     ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 
-    var activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
+    const activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
     activeBlock.collisionType = ex.CollisionType.Active;
     activeBlock.vel.x = 100;
     engine.add(activeBlock);
 
-    var passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
+    const passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
     passiveBlock.collisionType = ex.CollisionType.Passive;
     passiveBlock.vel.x = -100;
     engine.add(passiveBlock);
 
-    let collisionHandler = (ev: ex.PreCollisionEvent) => {
+    const collisionHandler = (ev: ex.PreCollisionEvent) => {
       engine.add(
         new ex.Timer(
           () => {
@@ -232,19 +232,19 @@ describe('A Collision', () => {
   it('should emit a start collision once when objects start colliding', () => {
     ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 
-    var activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
+    const activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
     activeBlock.collisionType = ex.CollisionType.Active;
     activeBlock.vel.x = 100;
     engine.add(activeBlock);
 
-    var passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
+    const passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
     passiveBlock.collisionType = ex.CollisionType.Passive;
     passiveBlock.vel.x = -100;
     engine.add(passiveBlock);
 
     let count = 0;
 
-    let collisionStart = () => {
+    const collisionStart = () => {
       count++;
     };
 
@@ -260,19 +260,19 @@ describe('A Collision', () => {
   it('should emit a end collision once when objects stop colliding', () => {
     ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 
-    var activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
+    const activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
     activeBlock.collisionType = ex.CollisionType.Active;
     activeBlock.vel.x = 100;
     engine.add(activeBlock);
 
-    var passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
+    const passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
     passiveBlock.collisionType = ex.CollisionType.Passive;
     passiveBlock.vel.x = -100;
     engine.add(passiveBlock);
 
     let count = 0;
 
-    let collisionEnd = () => {
+    const collisionEnd = () => {
       count++;
     };
 
@@ -288,12 +288,12 @@ describe('A Collision', () => {
   it('should cancel out velocity when objects collide', () => {
     ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Box;
 
-    var activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
+    const activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
     activeBlock.collisionType = ex.CollisionType.Active;
     activeBlock.vel.x = 100;
     engine.add(activeBlock);
 
-    var fixedBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
+    const fixedBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
     fixedBlock.collisionType = ex.CollisionType.Fixed;
     engine.add(fixedBlock);
 
@@ -307,11 +307,11 @@ describe('A Collision', () => {
   it('should not cancel out velocity when objects move away', () => {
     ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Box;
 
-    var activeBlock = new ex.Actor(350, 200, 50, 50, ex.Color.Red.clone());
+    const activeBlock = new ex.Actor(350, 200, 50, 50, ex.Color.Red.clone());
     activeBlock.collisionType = ex.CollisionType.Active;
     engine.add(activeBlock);
 
-    var fixedBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
+    const fixedBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
     fixedBlock.collisionType = ex.CollisionType.Fixed;
     engine.add(fixedBlock);
 
@@ -327,17 +327,17 @@ describe('A Collision', () => {
   it('should have the actor as the handler context for collisionstart', (done) => {
     ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 
-    var activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
+    const activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
     activeBlock.collisionType = ex.CollisionType.Active;
     activeBlock.vel.x = 100;
     engine.add(activeBlock);
 
-    var passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
+    const passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
     passiveBlock.collisionType = ex.CollisionType.Passive;
     passiveBlock.vel.x = -100;
     engine.add(passiveBlock);
 
-    let collisionEnd = function() {
+    const collisionEnd = function() {
       expect(this).toBe(activeBlock);
       done();
     };
@@ -352,17 +352,17 @@ describe('A Collision', () => {
   it('should have the actor as the handler context for collisionend', (done) => {
     ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 
-    var activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
+    const activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
     activeBlock.collisionType = ex.CollisionType.Active;
     activeBlock.vel.x = 100;
     engine.add(activeBlock);
 
-    var passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
+    const passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
     passiveBlock.collisionType = ex.CollisionType.Passive;
     passiveBlock.vel.x = -100;
     engine.add(passiveBlock);
 
-    let collisionEnd = function() {
+    const collisionEnd = function() {
       expect(this).toBe(activeBlock);
       done();
     };

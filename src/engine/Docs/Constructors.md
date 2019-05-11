@@ -5,14 +5,14 @@ In Excalibur there are option bag constructors available on most types. These su
 For example instead of doing this:
 
 ```typescript
-var actor = new ex.Actor(1, 2, 100, 100, ex.Color.Red);
+const actor = new ex.Actor(1, 2, 100, 100, ex.Color.Red);
 actor.collisionType = ex.CollisionType.Active;
 ```
 
 This is possible:
 
 ```typescript
-var options: IActorArgs = {
+const options: IActorArgs = {
    pos: new ex.Vector(1,2);
    width: 100,
    height: 100,
@@ -20,16 +20,16 @@ var options: IActorArgs = {
    collisionType: ex.CollisionType.Active
 }
 
-var actor = new ex.Actor(options);
+const actor = new ex.Actor(options);
 ```
 
 In fact you can create a duplicate this way
 
 ```typescript
-var actor = new ex.Actor({
+const actor = new ex.Actor({
   pos: new ex.Vector(1, 2)
 });
-var actorClone = new ex.Actor(actor);
+const actorClone = new ex.Actor(actor);
 
 expect(actor.pos).toBe(actorClone.pos); // true;
 ```
@@ -37,7 +37,7 @@ expect(actor.pos).toBe(actorClone.pos); // true;
 Types that support option bags can have their properties mass assigned using the assign method.
 
 ```typescript
-var actor = new ex.Actor(options);
+const actor = new ex.Actor(options);
 
 actor.assign({
   pos: new ex.Vector(100, 100),

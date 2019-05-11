@@ -45,18 +45,18 @@ export function polyfill() {
   /* istanbul ignore next */
   if (!Array.prototype.forEach) {
     Array.prototype.forEach = function(this: Array<any>, callback, thisArg) {
-      var T, k;
+      let T, k;
 
       if (this == null) {
         throw new TypeError('this is null or not defined');
       }
 
       // 1. Let O be the result of calling ToObject passing the |this| value as the argument.
-      var O = Object(this);
+      const O = Object(this);
 
       // 2. Let lenValue be the result of calling the Get internal method of O with the argument "length".
       // 3. Let len be ToUint32(lenValue).
-      var len = O.length >>> 0;
+      const len = O.length >>> 0;
 
       // 4. If IsCallable(callback) is false, throw a TypeError exception.
       // See: http://es5.github.com/#x9.11
@@ -74,7 +74,7 @@ export function polyfill() {
 
       // 7. Repeat, while k < len
       while (k < len) {
-        var kValue;
+        let kValue;
 
         // a. Let Pk be ToString(k).
         //   This is implicit for LHS operands of the in operator
@@ -106,14 +106,14 @@ export function polyfill() {
         throw new TypeError();
       }
 
-      var t = Object(this);
-      var len = t.length >>> 0;
+      const t = Object(this);
+      const len = t.length >>> 0;
       if (typeof fun !== 'function') {
         throw new TypeError();
       }
 
-      var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
-      for (var i = 0; i < len; i++) {
+      const thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+      for (let i = 0; i < len; i++) {
         if (i in t && fun.call(thisArg, t[i], i, t)) {
           return true;
         }
@@ -133,7 +133,7 @@ export function polyfill() {
         throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
       }
 
-      var aArgs = Array.prototype.slice.call(arguments, 1),
+      const aArgs = Array.prototype.slice.call(arguments, 1),
         fToBind = this,
         fNOP: any = function() {
           return;

@@ -1,4 +1,4 @@
-﻿import * as ex from '../../../build/dist/excalibur';
+import * as ex from '../../../build/dist/excalibur';
 
 export namespace Mocks {
   export class MockedElement {
@@ -29,14 +29,14 @@ export namespace Mocks {
 
   export class Mocker {
     navigator(): any {
-      var _internalGamePads = {
+      const _internalGamePads = {
         0: undefined,
         1: undefined,
         2: undefined,
         3: undefined,
         length: 4
       };
-      var mockNavigator = {
+      const mockNavigator = {
         setGamepads: function(index: number, numAxis: number, numButtons: number) {
           _internalGamePads[index] = {
             axes: Array.apply(
@@ -93,7 +93,7 @@ export namespace Mocks {
     }
 
     engine(width: number, height: number) {
-      var mockEngine;
+      let mockEngine;
 
       if (!navigator) {
         navigator = <any>this.navigator();
@@ -223,8 +223,8 @@ export namespace Mocks {
      * of the main loop.
      */
     loop(game: ex.Engine): GameLoopLike {
-      var time = new Mocker().time();
-      var loop = ex.Engine.createMainLoop(game, () => 0, time.now);
+      const time = new Mocker().time();
+      const loop = ex.Engine.createMainLoop(game, () => 0, time.now);
 
       return {
         /**
@@ -232,10 +232,10 @@ export namespace Mocks {
          * By default, the FPS is set to 60 which means ~16ms per frame for 1 second duration.
          */
         advance: function(duration: number, fps: number = 60) {
-          var times = Math.floor((duration / 1000) * fps);
-          var delta = duration / times;
+          const times = Math.floor((duration / 1000) * fps);
+          const delta = duration / times;
 
-          for (var i = 0; i < times; i++) {
+          for (let i = 0; i < times; i++) {
             time.add(delta);
             loop();
           }
@@ -247,7 +247,7 @@ export namespace Mocks {
      * Get a time mock. Allows you to mock a now function and increment/decrement the value.
      */
     time(): TimeLike {
-      var now = 0;
+      let now = 0;
 
       return {
         add: function(value) {
@@ -263,9 +263,9 @@ export namespace Mocks {
     }
 
     window() {
-      var _handlers = {};
+      const _handlers = {};
 
-      var mockWindow = {
+      const mockWindow = {
         addEventListener: function(name, handler) {
           _handlers[name] = handler;
         },

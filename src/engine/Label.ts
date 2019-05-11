@@ -236,9 +236,9 @@ export class LabelImpl extends Actor {
    * @param ctx  Rendering context to measure the string with
    */
   public getTextWidth(ctx: CanvasRenderingContext2D): number {
-    var oldFont = ctx.font;
+    const oldFont = ctx.font;
     ctx.font = this._fontString;
-    var width = ctx.measureText(this.text).width;
+    const width = ctx.measureText(this.text).width;
     ctx.font = oldFont;
     return width;
   }
@@ -298,7 +298,7 @@ export class LabelImpl extends Actor {
   }
 
   private _lookupFontStyle(fontStyle: FontStyle): string {
-    var boldstring = this.bold ? ' bold' : '';
+    const boldstring = this.bold ? ' bold' : '';
     switch (fontStyle) {
       case FontStyle.Italic:
         return 'italic' + boldstring;
@@ -370,8 +370,8 @@ export class LabelImpl extends Actor {
         opacity: this.opacity
       });
     } else {
-      var oldAlign = ctx.textAlign;
-      var oldTextBaseline = ctx.textBaseline;
+      const oldAlign = ctx.textAlign;
+      const oldTextBaseline = ctx.textBaseline;
 
       ctx.textAlign = this._lookupTextAlign(this.textAlign);
       ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);

@@ -3,8 +3,8 @@ import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
 describe('A generic Resource', () => {
-  var resource: ex.Resource<any>;
-  var mocker = new Mocks.Mocker();
+  let resource: ex.Resource<any>;
+  const mocker = new Mocks.Mocker();
 
   beforeEach(() => {
     resource = new ex.Resource<any>('a/path/to/a/resource.png', 'blob');
@@ -18,8 +18,8 @@ describe('A generic Resource', () => {
 
   describe('without data', () => {
     it('should not fail on load', (done) => {
-      var emptyLoader = new ex.Loader();
-      var game = TestUtils.engine();
+      const emptyLoader = new ex.Loader();
+      const game = TestUtils.engine();
       game.start(emptyLoader).then(() => {
         expect(emptyLoader.isLoaded()).toBe(true);
         game.stop();
@@ -53,7 +53,7 @@ describe('A generic Resource', () => {
     });
 
     it('should call processData handler', () => {
-      var spy = jasmine.createSpy('handler');
+      const spy = jasmine.createSpy('handler');
 
       resource.processData = spy;
       resource.setData('data');
@@ -62,7 +62,7 @@ describe('A generic Resource', () => {
     });
 
     it('should load a text resource', (done) => {
-      var text = new ex.Resource('base/src/spec/images/ResourceSpec/textresource.txt', 'text', true);
+      const text = new ex.Resource('base/src/spec/images/ResourceSpec/textresource.txt', 'text', true);
       text.load().then((data) => {
         expect(data).not.toBeNull();
         done();

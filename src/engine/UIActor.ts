@@ -43,7 +43,7 @@ export class UIActor extends Actor {
       return super.contains(x, y);
     }
 
-    var coords = this._engine.worldToScreenCoordinates(new Vector(x, y));
+    const coords = this._engine.worldToScreenCoordinates(new Vector(x, y));
     return super.contains(coords.x, coords.y);
   }
 }

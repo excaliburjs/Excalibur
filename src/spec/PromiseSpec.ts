@@ -1,7 +1,7 @@
 import * as ex from '../../build/dist/excalibur';
 
 describe('A promise', () => {
-  var promise: ex.Promise<any>;
+  let promise: ex.Promise<any>;
 
   beforeEach(() => {
     promise = new ex.Promise();
@@ -28,7 +28,7 @@ describe('A promise', () => {
   });
 
   it('can be resolved with a callback async', (done) => {
-    var value = false;
+    let value = false;
 
     promise.then((v) => {
       value = v;
@@ -42,7 +42,7 @@ describe('A promise', () => {
   });
 
   it('can be rejected with a callback async', (done) => {
-    var value = false;
+    let value = false;
 
     promise.then(
       () => {
@@ -61,10 +61,10 @@ describe('A promise', () => {
   });
 
   it('can be resolved with multiple callbacks in order', (done) => {
-    var val1 = 0;
-    var val2 = 0;
-    var val3 = 0;
-    var isResolved = false;
+    let val1 = 0;
+    let val2 = 0;
+    let val3 = 0;
+    const isResolved = false;
 
     // Test that they are added in the right order
     promise
@@ -88,7 +88,7 @@ describe('A promise', () => {
   });
 
   it('can catch errors in callbacks', (done) => {
-    var caughtError = false;
+    let caughtError = false;
 
     promise
       .then((v) => {
@@ -137,25 +137,18 @@ describe('A promise', () => {
   });
 
   it('should be able to resolve a value in a promise', (done) => {
-    var p;
-    var value: number;
-
-    p = ex.Promise.resolve<number>(12);
+    const p = ex.Promise.resolve<number>(12);
 
     expect(p.state()).toBe(ex.PromiseState.Resolved);
 
-    p.then((v) => {
-      value = v;
+    p.then((value) => {
       expect(value).toBe(12);
       done();
     });
   });
 
   it('should be able to reject a value in a promise', (done) => {
-    var p;
-    var value: number;
-
-    p = ex.Promise.reject<number>(12);
+    const p = ex.Promise.reject<number>(12);
 
     expect(p.state()).toBe(ex.PromiseState.Rejected);
 
@@ -163,9 +156,9 @@ describe('A promise', () => {
   });
 
   describe('with multiple promises', () => {
-    var p1: ex.Promise<any>;
-    var p2: ex.Promise<any>;
-    var p3: ex.Promise<any>;
+    let p1: ex.Promise<any>;
+    let p2: ex.Promise<any>;
+    let p3: ex.Promise<any>;
 
     beforeEach(() => {
       p1 = new ex.Promise();
@@ -174,7 +167,7 @@ describe('A promise', () => {
     });
 
     it('can join promise array and resolve', () => {
-      var composite = ex.Promise.join([p1, p2, p3]);
+      const composite = ex.Promise.join([p1, p2, p3]);
 
       expect(composite.state()).toBe(ex.PromiseState.Pending);
 
@@ -192,7 +185,7 @@ describe('A promise', () => {
     });
 
     it('can join promises and resolve when all resolve', () => {
-      var composite = ex.Promise.join(p1, p2, p3);
+      const composite = ex.Promise.join(p1, p2, p3);
 
       expect(composite.state()).toBe(ex.PromiseState.Pending);
 
@@ -210,7 +203,7 @@ describe('A promise', () => {
     });
 
     it('can join promises and resolve when some reject', () => {
-      var composite = ex.Promise.join(p1, p2, p3);
+      const composite = ex.Promise.join(p1, p2, p3);
 
       expect(composite.state()).toBe(ex.PromiseState.Pending);
 
@@ -228,17 +221,17 @@ describe('A promise', () => {
     });
 
     it('can join an empty array and the result will resolve', () => {
-      var result = ex.Promise.join([]);
+      const result = ex.Promise.join([]);
 
       expect(result.state()).toBe(ex.PromiseState.Resolved);
 
-      var result2 = ex.Promise.join();
+      const result2 = ex.Promise.join();
       expect(result2.state()).toBe(ex.PromiseState.Resolved);
     });
   });
 
   it('does not swallow errors if no error callback is supplied', () => {
-    var promise = new ex.Promise();
+    const promise = new ex.Promise();
     promise.then(() => {
       throw new Error('ERROR!!!!!');
     });

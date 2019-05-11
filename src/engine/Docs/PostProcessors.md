@@ -3,8 +3,8 @@ this might be creating a blur effect, adding a lighting effect, or changing how 
 
 ## Basic post processors
 
-To create and use a post processor you just need to implement a class that implements [[IPostProcessor]], which has one method
-[[IPostProcessor.process]]. Set the `out` canvas parameter to the final result, using the `image` pixel data.
+To create and use a post processor you just need to implement a class that implements [[PostProcessor]], which has one method
+[[PostProcessor.process]]. Set the `out` canvas parameter to the final result, using the `image` pixel data.
 
 Click to read more about [[https://developer.mozilla.org/en-US/docs/Web/API/ImageData|ImageData]] on MDN.
 
@@ -12,15 +12,15 @@ For example:
 
 ```typescript
 // simple way to grayscale, a faster way would be to implement using a webgl fragment shader
-class GrayscalePostProcessor implements IPostProcessor {
+class GrayscalePostProcessor implements PostProcessor {
   process(image: ImageData, out: CanvasRenderingContext2D) {
-     for(var i = 0; i < (image.height * image.width), i+=4){
+     for(let i = 0; i < (image.height * image.width), i+=4){
         // for pixel "i""
-        var r = image.data[i+0]; //0-255
-        var g = image.data[i+1]; //g
-        var b = image.data[i+2]; //b
+        const r = image.data[i+0]; //0-255
+        const g = image.data[i+1]; //g
+        const b = image.data[i+2]; //b
         image.data[i+3]; //a
-        var result = Math.floor((r + g + b) / 3.0) | 0; // only valid on 0-255 integers `| 0` forces int
+        const result = Math.floor((r + g + b) / 3.0) | 0; // only valid on 0-255 integers `| 0` forces int
         image.data[i+0] = result;
         image.data[i+1] = result;
         image.data[i+2] = result;
@@ -54,9 +54,9 @@ Remember, the best practice is to design with color blindness in mind.
 Example:
 
 ```typescript
-var game = new ex.Engine();
+const game = new ex.Engine();
 
-var colorBlindPostProcessor = new ex.ColorBlindCorrector(game, false, ColorBlindness.Protanope);
+const colorBlindPostProcessor = new ex.ColorBlindCorrector(game, false, ColorBlindness.Protanope);
 
 // post processors evaluate left to right
 game.postProcessors.push(colorBlindPostProcessor);

@@ -28,7 +28,7 @@ describe('A CollisionContact', () => {
   });
 
   it('can be created', () => {
-    var cc = new ex.CollisionContact(
+    const cc = new ex.CollisionContact(
       actorA.body.collider,
       actorB.body.collider,
       ex.Vector.Zero.clone(),
@@ -40,7 +40,7 @@ describe('A CollisionContact', () => {
 
   it('can reslove in the Box system', () => {
     actorB.x = 19;
-    var cc = new ex.CollisionContact(
+    const cc = new ex.CollisionContact(
       actorA.body.collider,
       actorB.body.collider,
       ex.Vector.Right.clone(),
@@ -57,8 +57,8 @@ describe('A CollisionContact', () => {
   });
 
   it('emits a collision event on both in the Box system', () => {
-    var emittedA = false;
-    var emittedB = false;
+    let emittedA = false;
+    let emittedB = false;
 
     actorA.on('precollision', () => {
       emittedA = true;
@@ -69,7 +69,7 @@ describe('A CollisionContact', () => {
     });
 
     actorB.x = 19;
-    var cc = new ex.CollisionContact(
+    const cc = new ex.CollisionContact(
       actorA.body.collider,
       actorB.body.collider,
       ex.Vector.Right.clone(),
@@ -94,7 +94,7 @@ describe('A CollisionContact', () => {
     actorB.x = 19;
     actorA.body.collider.shape.recalc();
     actorB.body.collider.shape.recalc();
-    var cc = new ex.CollisionContact(
+    const cc = new ex.CollisionContact(
       actorA.body.collider,
       actorB.body.collider,
       ex.Vector.Right.clone(),
@@ -119,8 +119,8 @@ describe('A CollisionContact', () => {
   });
 
   it('emits a collision event on both in the Dynamic system', () => {
-    var emittedA = false;
-    var emittedB = false;
+    let emittedA = false;
+    let emittedB = false;
 
     actorA.on('precollision', () => {
       emittedA = true;
@@ -131,7 +131,7 @@ describe('A CollisionContact', () => {
     });
 
     actorB.x = 19;
-    var cc = new ex.CollisionContact(
+    const cc = new ex.CollisionContact(
       actorA.body.collider,
       actorB.body.collider,
       ex.Vector.Right.clone(),

@@ -65,12 +65,12 @@ export class CollisionContact {
       colliderA.body.pos.y += mtv.y;
       colliderA.body.pos.x += mtv.x;
 
-      let mtvDir = mtv.normalize();
+      const mtvDir = mtv.normalize();
 
       // only adjust if velocity is opposite
       if (mtvDir.dot(colliderA.body.vel) < 0) {
         // Cancel out velocity in direction of mtv
-        let velAdj = mtvDir.scale(mtvDir.dot(colliderA.body.vel.negate()));
+        const velAdj = mtvDir.scale(mtvDir.dot(colliderA.body.vel.negate()));
 
         colliderA.body.vel = colliderA.body.vel.add(velAdj);
       }
@@ -80,8 +80,8 @@ export class CollisionContact {
   }
 
   private _resolveBoxCollision() {
-    let side = Util.getSideFromVector(this.mtv);
-    let mtv = this.mtv.negate();
+    const side = Util.getSideFromVector(this.mtv);
+    const mtv = this.mtv.negate();
     // Publish collision events on both participants
     this.colliderA.emit('precollision', new PreCollisionEvent(this.colliderA, this.colliderB, side, mtv));
     this.colliderB.emit('precollision', new PreCollisionEvent(this.colliderB, this.colliderA, Util.getOppositeSide(side), mtv.negate()));
@@ -92,17 +92,17 @@ export class CollisionContact {
 
   private _resolveRigidBodyCollision() {
     // perform collison on bounding areas
-    var bodyA: Body = this.colliderA.body;
-    var bodyB: Body = this.colliderB.body;
-    var mtv = this.mtv; // normal pointing away from colliderA
-    var normal = this.normal; // normal pointing away from colliderA
+    const bodyA: Body = this.colliderA.body;
+    const bodyB: Body = this.colliderB.body;
+    const mtv = this.mtv; // normal pointing away from colliderA
+    let normal = this.normal; // normal pointing away from colliderA
     if (bodyA === bodyB) {
       // sanity check for existing pairs
       return;
     }
 
     // Publish collision events on both participants
-    var side = Util.getSideFromVector(this.mtv);
+    const side = Util.getSideFromVector(this.mtv);
     this.colliderA.emit('precollision', new PreCollisionEvent(this.colliderA, this.colliderB, side, this.mtv));
     this.colliderB.emit(
       'precollision',
@@ -114,34 +114,34 @@ export class CollisionContact {
       return;
     }
 
-    var invMassA = this.colliderA.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderA.mass;
-    var invMassB = this.colliderB.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderB.mass;
+    const invMassA = this.colliderA.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderA.mass;
+    const invMassB = this.colliderB.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderB.mass;
 
-    var invMoiA = this.colliderA.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderA.moi;
-    var invMoiB = this.colliderB.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderB.moi;
+    const invMoiA = this.colliderA.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderA.moi;
+    const invMoiB = this.colliderB.collisionType === CollisionType.Fixed ? 0 : 1 / this.colliderB.moi;
 
     // average restitution more relistic
-    var coefRestitution = Math.min(this.colliderA.restitution, this.colliderB.restitution);
+    const coefRestitution = Math.min(this.colliderA.restitution, this.colliderB.restitution);
 
-    var coefFriction = Math.min(this.colliderA.friction, this.colliderB.friction);
+    const coefFriction = Math.min(this.colliderA.friction, this.colliderB.friction);
 
     normal = normal.normalize();
-    var tangent = normal.normal().normalize();
+    const tangent = normal.normal().normalize();
 
-    var ra = this.point.sub(this.colliderA.center); // point relative to colliderA position
-    var rb = this.point.sub(this.colliderB.center); /// point relative to colliderB
+    const ra = this.point.sub(this.colliderA.center); // point relative to colliderA position
+    const rb = this.point.sub(this.colliderB.center); /// point relative to colliderB
 
     // Relative velocity in linear terms
     // Angular to linear velocity formula -> omega = v/r
-    var rv = bodyB.vel.add(rb.cross(-bodyB.rx)).sub(bodyA.vel.sub(ra.cross(bodyA.rx)));
-    var rvNormal = rv.dot(normal);
-    var rvTangent = rv.dot(tangent);
+    const rv = bodyB.vel.add(rb.cross(-bodyB.rx)).sub(bodyA.vel.sub(ra.cross(bodyA.rx)));
+    const rvNormal = rv.dot(normal);
+    const rvTangent = rv.dot(tangent);
 
-    var raTangent = ra.dot(tangent);
-    var raNormal = ra.dot(normal);
+    const raTangent = ra.dot(tangent);
+    const raNormal = ra.dot(normal);
 
-    var rbTangent = rb.dot(tangent);
-    var rbNormal = rb.dot(normal);
+    const rbTangent = rb.dot(tangent);
+    const rbNormal = rb.dot(normal);
 
     // If objects are moving away ignore
     if (rvNormal > 0) {
@@ -150,7 +150,7 @@ export class CollisionContact {
 
     // Collision impulse formula from Chris Hecker
     // https://en.wikipedia.org/wiki/Collision_response
-    var impulse =
+    const impulse =
       -((1 + coefRestitution) * rvNormal) / (invMassA + invMassB + invMoiA * raTangent * raTangent + invMoiB * rbTangent * rbTangent);
 
     if (this.colliderA.collisionType === CollisionType.Fixed) {
@@ -185,12 +185,12 @@ export class CollisionContact {
       // https://en.wikipedia.org/wiki/Collision_response
 
       // tangent force exerted by body on another in contact
-      var t = rv.sub(normal.scale(rv.dot(normal))).normalize();
+      const t = rv.sub(normal.scale(rv.dot(normal))).normalize();
 
       // impulse in the direction of tangent force
-      var jt = rv.dot(t) / (invMassA + invMassB + raNormal * raNormal * invMoiA + rbNormal * rbNormal * invMoiB);
+      const jt = rv.dot(t) / (invMassA + invMassB + raNormal * raNormal * invMoiA + rbNormal * rbNormal * invMoiB);
 
-      var frictionImpulse = new Vector(0, 0);
+      let frictionImpulse = new Vector(0, 0);
       if (Math.abs(jt) <= impulse * coefFriction) {
         frictionImpulse = t.scale(jt).negate();
       } else {

@@ -8,13 +8,13 @@ import { CollisionType } from '../Collision/CollisionType';
 
 export class TileMapCollisionDetection implements Trait {
   public update(actor: Actor, engine: Engine) {
-    var eventDispatcher = actor.eventDispatcher;
+    const eventDispatcher = actor.eventDispatcher;
     if (actor.collisionType !== CollisionType.PreventCollision && engine.currentScene && engine.currentScene.tileMaps) {
-      for (var j = 0; j < engine.currentScene.tileMaps.length; j++) {
-        var map = engine.currentScene.tileMaps[j];
-        var intersectMap: Vector;
-        var side = Side.None;
-        var max = 2;
+      for (let j = 0; j < engine.currentScene.tileMaps.length; j++) {
+        const map = engine.currentScene.tileMaps[j];
+        let intersectMap: Vector;
+        let side = Side.None;
+        let max = 2;
         while ((intersectMap = map.collides(actor))) {
           if (max-- < 0) {
             break;

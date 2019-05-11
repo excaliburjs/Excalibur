@@ -21,7 +21,7 @@ describe('A spritefont', () => {
 
   it('should have props set by the constructor', () => {
     texture.load().then(() => {
-      let sf = new ex.SpriteFont({
+      const sf = new ex.SpriteFont({
         image: texture,
         alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
         caseInsensitive: true,
@@ -41,7 +41,7 @@ describe('A spritefont', () => {
 
   it('should draw a string', (done) => {
     texture.load().then(() => {
-      let sf = new ex.SpriteFont({
+      const sf = new ex.SpriteFont({
         image: texture,
         alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
         caseInsensitive: true,
@@ -70,7 +70,7 @@ describe('A spritefont', () => {
 
   it('should get text sprites', (done) => {
     texture.load().then(() => {
-      let sf = new ex.SpriteFont({
+      const sf = new ex.SpriteFont({
         image: texture,
         alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
         caseInsensitive: true,
@@ -80,7 +80,7 @@ describe('A spritefont', () => {
         spHeight: 16
       });
 
-      let sprites = sf.getTextSprites();
+      const sprites = sf.getTextSprites();
 
       sprites['0'].draw(engine.ctx, 0, 0);
       sprites['4'].draw(engine.ctx, 16, 0);
@@ -106,7 +106,7 @@ describe('A spritefont', () => {
 
   it('should have text shadow', (done) => {
     texture.load().then(() => {
-      let sf = new ex.SpriteFont({
+      const sf = new ex.SpriteFont({
         image: texture,
         alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
         caseInsensitive: true,

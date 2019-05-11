@@ -57,8 +57,8 @@ export function point(ctx: CanvasRenderingContext2D, color: Color = Color.Red, p
  */
 /* istanbul ignore next */
 export function vector(ctx: CanvasRenderingContext2D, color: Color, origin: Vector, vector: Vector, scale: number = 1.0): void {
-  var c = color ? color.toString() : 'blue';
-  var v = vector.scale(scale);
+  const c = color ? color.toString() : 'blue';
+  const v = vector.scale(scale);
   ctx.beginPath();
   ctx.strokeStyle = c;
   ctx.moveTo(origin.x, origin.y);
@@ -111,16 +111,16 @@ export function roundRect(
   stroke: Color = Color.White,
   fill: Color = null
 ) {
-  var br: BorderRadius;
+  let br: BorderRadius;
 
   if (typeof radius === 'number') {
     br = { tl: radius, tr: radius, br: radius, bl: radius };
   } else {
-    var defaultRadius: BorderRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
+    const defaultRadius: BorderRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
 
-    for (var prop in defaultRadius) {
+    for (const prop in defaultRadius) {
       if (defaultRadius.hasOwnProperty(prop)) {
-        let side = <keyof BorderRadius>prop;
+        const side = <keyof BorderRadius>prop;
         br[side] = radius[side] || defaultRadius[side];
       }
     }

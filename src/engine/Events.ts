@@ -408,7 +408,7 @@ export class GamepadAxisEvent extends GameEvent<Input.Gamepad> {
  * [[EventDispatcher|event dispatchers]].
  */
 export class SubscribeEvent<T> extends GameEvent<T> {
-  constructor(public topic: string, public handler: (event?: GameEvent<T>) => void) {
+  constructor(public topic: string, public handler: (event: GameEvent<T>) => void) {
     super();
   }
 }
@@ -418,7 +418,7 @@ export class SubscribeEvent<T> extends GameEvent<T> {
  * [[EventDispatcher|event dispatchers]].
  */
 export class UnsubscribeEvent<T> extends GameEvent<T> {
-  constructor(public topic: string, public handler: (event?: GameEvent<T>) => void) {
+  constructor(public topic: string, public handler: (event: GameEvent<T>) => void) {
     super();
   }
 }

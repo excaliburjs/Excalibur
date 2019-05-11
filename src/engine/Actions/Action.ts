@@ -45,8 +45,8 @@ export class EaseTo implements Action {
       this._initialized = true;
     }
 
-    var newX = this.actor.pos.x;
-    var newY = this.actor.pos.y;
+    let newX = this.actor.pos.x;
+    let newY = this.actor.pos.y;
     if (this._currentLerpTime < this._lerpDuration) {
       if (this._lerpEnd.x < this._lerpStart.x) {
         newX =
@@ -111,7 +111,7 @@ export class MoveTo implements Action {
       this._distance = this._start.distance(this._end);
       this._dir = this._end.sub(this._start).normalize();
     }
-    var m = this._dir.scale(this._speed);
+    const m = this._dir.scale(this._speed);
     this._actor.vel.x = m.x;
     this._actor.vel.y = m.y;
 
@@ -170,7 +170,7 @@ export class MoveBy implements Action {
       this._speed = this._distance / (this._time / 1000);
     }
 
-    var m = this._dir.scale(this._speed);
+    const m = this._dir.scale(this._speed);
     this._actor.vel.x = m.x;
     this._actor.vel.y = m.y;
 
@@ -227,7 +227,7 @@ export class Follow implements Action {
       this._dir = this._end.sub(this._current).normalize();
     }
 
-    var actorToFollowSpeed = Math.sqrt(Math.pow(this._actorToFollow.vel.x, 2) + Math.pow(this._actorToFollow.vel.y, 2));
+    const actorToFollowSpeed = Math.sqrt(Math.pow(this._actorToFollow.vel.x, 2) + Math.pow(this._actorToFollow.vel.y, 2));
     if (actorToFollowSpeed !== 0) {
       this._speed = actorToFollowSpeed;
     }
@@ -240,7 +240,7 @@ export class Follow implements Action {
     this._dir = this._end.sub(this._current).normalize();
 
     if (this._distanceBetween >= this._maximumDistance) {
-      var m = this._dir.scale(this._speed);
+      const m = this._dir.scale(this._speed);
       this._actor.vel.x = m.x;
       this._actor.vel.y = m.y;
     } else {
@@ -305,7 +305,7 @@ export class Meet implements Action {
       this._dir = this._end.sub(this._current).normalize();
     }
 
-    var actorToMeetSpeed = Math.sqrt(Math.pow(this._actorToMeet.vel.x, 2) + Math.pow(this._actorToMeet.vel.y, 2));
+    const actorToMeetSpeed = Math.sqrt(Math.pow(this._actorToMeet.vel.x, 2) + Math.pow(this._actorToMeet.vel.y, 2));
     if (actorToMeetSpeed !== 0 && !this._speedWasSpecified) {
       this._speed = actorToMeetSpeed;
     }
@@ -317,7 +317,7 @@ export class Meet implements Action {
     this._distanceBetween = this._current.distance(this._end);
     this._dir = this._end.sub(this._current).normalize();
 
-    var m = this._dir.scale(this._speed);
+    const m = this._dir.scale(this._speed);
     this._actor.vel.x = m.x;
     this._actor.vel.y = m.y;
 
@@ -370,8 +370,8 @@ export class RotateTo implements Action {
     if (!this._started) {
       this._started = true;
       this._start = this._actor.rotation;
-      var distance1 = Math.abs(this._end - this._start);
-      var distance2 = Util.TwoPI - distance1;
+      const distance1 = Math.abs(this._end - this._start);
+      const distance2 = Util.TwoPI - distance1;
       if (distance1 > distance2) {
         this._shortDistance = distance2;
         this._longDistance = distance1;
@@ -428,7 +428,7 @@ export class RotateTo implements Action {
   }
 
   public isComplete(): boolean {
-    var distanceTravelled = Math.abs(this._actor.rotation - this._start);
+    const distanceTravelled = Math.abs(this._actor.rotation - this._start);
     return this._stopped || distanceTravelled >= Math.abs(this._distance);
   }
 
@@ -469,8 +469,8 @@ export class RotateBy implements Action {
     if (!this._started) {
       this._started = true;
       this._start = this._actor.rotation;
-      var distance1 = Math.abs(this._end - this._start);
-      var distance2 = Util.TwoPI - distance1;
+      const distance1 = Math.abs(this._end - this._start);
+      const distance2 = Util.TwoPI - distance1;
       if (distance1 > distance2) {
         this._shortDistance = distance2;
         this._longDistance = distance1;
@@ -528,7 +528,7 @@ export class RotateBy implements Action {
   }
 
   public isComplete(): boolean {
-    var distanceTravelled = Math.abs(this._actor.rotation - this._start);
+    const distanceTravelled = Math.abs(this._actor.rotation - this._start);
     return this._stopped || distanceTravelled >= Math.abs(this._distance);
   }
 
@@ -574,14 +574,14 @@ export class ScaleTo implements Action {
     }
 
     if (!(Math.abs(this._actor.scale.x - this._startX) >= this._distanceX)) {
-      var directionX = this._endY < this._startY ? -1 : 1;
+      const directionX = this._endY < this._startY ? -1 : 1;
       this._actor.sx = this._speedX * directionX;
     } else {
       this._actor.sx = 0;
     }
 
     if (!(Math.abs(this._actor.scale.y - this._startY) >= this._distanceY)) {
-      var directionY = this._endY < this._startY ? -1 : 1;
+      const directionY = this._endY < this._startY ? -1 : 1;
       this._actor.sy = this._speedY * directionY;
     } else {
       this._actor.sy = 0;
@@ -643,8 +643,8 @@ export class ScaleBy implements Action {
       this._distanceX = Math.abs(this._endX - this._startX);
       this._distanceY = Math.abs(this._endY - this._startY);
     }
-    var directionX = this._endX < this._startX ? -1 : 1;
-    var directionY = this._endY < this._startY ? -1 : 1;
+    const directionX = this._endX < this._startX ? -1 : 1;
+    const directionY = this._endY < this._startY ? -1 : 1;
     this._actor.sx = this._speedX * directionX;
     this._actor.sy = this._speedY * directionY;
 
@@ -891,9 +891,8 @@ export class Repeat implements Action {
     this._repeat = repeat;
     this._originalRepeat = repeat;
 
-    var i = 0,
-      len = actions.length;
-    for (i; i < len; i++) {
+    const len = actions.length;
+    for (let i = 0; i < len; i++) {
       actions[i].reset();
       this._actionQueue.add(actions[i]);
     }
@@ -932,9 +931,8 @@ export class RepeatForever implements Action {
     this._actor = actor;
     this._actionQueue = new ActionQueue(actor);
 
-    var i = 0,
-      len = actions.length;
-    for (i; i < len; i++) {
+    const len = actions.length;
+    for (let i = 0; i < len; i++) {
       actions[i].reset();
       this._actionQueue.add(actions[i]);
     }
@@ -992,7 +990,7 @@ export class ActionQueue {
   }
 
   public remove(action: Action) {
-    var index = this._actions.indexOf(action);
+    const index = this._actions.indexOf(action);
     this._actions.splice(index, 1);
   }
 
@@ -1015,9 +1013,8 @@ export class ActionQueue {
   public reset(): void {
     this._actions = this.getActions();
 
-    var i = 0,
-      len = this._actions.length;
-    for (i; i < len; i++) {
+    const len = this._actions.length;
+    for (let i = 0; i < len; i++) {
       this._actions[i].reset();
     }
     this._completedActions = [];

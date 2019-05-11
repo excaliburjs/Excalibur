@@ -1,4 +1,4 @@
-﻿import { Body } from './Body';
+import { Body } from './Body';
 import { BoundingBox } from './BoundingBox';
 import { CollisionContact } from './CollisionContact';
 import { CollisionJumpTable } from './CollisionJumpTable';
@@ -45,12 +45,12 @@ export class Edge implements CollisionGeometry {
    * Get the center of the collision area in world coordinates
    */
   public getCenter(): Vector {
-    var pos = this.begin.average(this.end).add(this._getBodyPos());
+    const pos = this.begin.average(this.end).add(this._getBodyPos());
     return pos;
   }
 
   private _getBodyPos(): Vector {
-    var bodyPos = Vector.Zero;
+    let bodyPos = Vector.Zero;
     if (this.collider && this.collider.body) {
       bodyPos = this.collider.body.pos;
     }
@@ -58,14 +58,14 @@ export class Edge implements CollisionGeometry {
   }
 
   private _getTransformedBegin(): Vector {
-    let body = this.collider ? this.collider.body : null;
-    var angle = body ? body.rotation : 0;
+    const body = this.collider ? this.collider.body : null;
+    const angle = body ? body.rotation : 0;
     return this.begin.rotate(angle).add(this._getBodyPos());
   }
 
   private _getTransformedEnd(): Vector {
-    let body = this.collider ? this.collider.body : null;
-    var angle = body ? body.rotation : 0;
+    const body = this.collider ? this.collider.body : null;
+    const angle = body ? body.rotation : 0;
     return this.end.rotate(angle).add(this._getBodyPos());
   }
 
@@ -73,9 +73,9 @@ export class Edge implements CollisionGeometry {
    * Returns the slope of the line in the form of a vector
    */
   public getSlope(): Vector {
-    var begin = this._getTransformedBegin();
-    var end = this._getTransformedEnd();
-    var distance = begin.distance(end);
+    const begin = this._getTransformedBegin();
+    const end = this._getTransformedEnd();
+    const distance = begin.distance(end);
     return end.sub(begin).scale(1 / distance);
   }
 
@@ -83,9 +83,9 @@ export class Edge implements CollisionGeometry {
    * Returns the length of the line segment in pixels
    */
   public getLength(): number {
-    var begin = this._getTransformedBegin();
-    var end = this._getTransformedEnd();
-    var distance = begin.distance(end);
+    const begin = this._getTransformedBegin();
+    const end = this._getTransformedEnd();
+    const distance = begin.distance(end);
     return distance;
   }
 
@@ -100,7 +100,7 @@ export class Edge implements CollisionGeometry {
    * @inheritdoc
    */
   public rayCast(ray: Ray, max: number = Infinity): Vector {
-    var numerator = this._getTransformedBegin().sub(ray.pos);
+    const numerator = this._getTransformedBegin().sub(ray.pos);
 
     // Test is line and ray are parallel and non intersecting
     if (ray.dir.cross(this.getSlope()) === 0 && numerator.cross(ray.dir) !== 0) {
@@ -108,15 +108,15 @@ export class Edge implements CollisionGeometry {
     }
 
     // Lines are parallel
-    var divisor = ray.dir.cross(this.getSlope());
+    const divisor = ray.dir.cross(this.getSlope());
     if (divisor === 0) {
       return null;
     }
 
-    var t = numerator.cross(this.getSlope()) / divisor;
+    const t = numerator.cross(this.getSlope()) / divisor;
 
     if (t >= 0 && t <= max) {
-      var u = numerator.cross(ray.dir) / divisor / this.getLength();
+      const u = numerator.cross(ray.dir) / divisor / this.getLength();
       if (u >= 0 && u <= 1) {
         return ray.getPoint(t);
       }
@@ -144,8 +144,8 @@ export class Edge implements CollisionGeometry {
    * Find the point on the shape furthest in the direction specified
    */
   public getFurthestPoint(direction: Vector): Vector {
-    var transformedBegin = this._getTransformedBegin();
-    var transformedEnd = this._getTransformedEnd();
+    const transformedBegin = this._getTransformedBegin();
+    const transformedEnd = this._getTransformedEnd();
     if (direction.dot(transformedBegin) > 0) {
       return transformedBegin;
     } else {
@@ -157,8 +157,8 @@ export class Edge implements CollisionGeometry {
    * Get the axis aligned bounding box for the circle area
    */
   public getBounds(): BoundingBox {
-    var transformedBegin = this._getTransformedBegin();
-    var transformedEnd = this._getTransformedEnd();
+    const transformedBegin = this._getTransformedBegin();
+    const transformedEnd = this._getTransformedEnd();
     return new BoundingBox(
       Math.min(transformedBegin.x, transformedEnd.x),
       Math.min(transformedBegin.y, transformedEnd.y),
@@ -171,10 +171,10 @@ export class Edge implements CollisionGeometry {
    * Get the axis associated with the edge
    */
   public getAxes(): Vector[] {
-    var e = this._getTransformedEnd().sub(this._getTransformedBegin());
-    var edgeNormal = e.normal();
+    const e = this._getTransformedEnd().sub(this._getTransformedBegin());
+    const edgeNormal = e.normal();
 
-    var axes = [];
+    const axes = [];
     axes.push(edgeNormal);
     axes.push(edgeNormal.negate());
     axes.push(edgeNormal.normal());
@@ -187,8 +187,8 @@ export class Edge implements CollisionGeometry {
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
   public getMomentOfInertia(): number {
-    var mass = this.collider ? this.collider.mass : Physics.defaultMass;
-    var length = this.end.sub(this.begin).distance() / 2;
+    const mass = this.collider ? this.collider.mass : Physics.defaultMass;
+    const length = this.end.sub(this.begin).distance() / 2;
     return mass * length * length;
   }
 
@@ -203,11 +203,11 @@ export class Edge implements CollisionGeometry {
    * Project the edge along a specified axis
    */
   public project(axis: Vector): Projection {
-    var scalars = [];
+    const scalars = [];
 
-    var points = [this._getTransformedBegin(), this._getTransformedEnd()];
-    var len = points.length;
-    for (var i = 0; i < len; i++) {
+    const points = [this._getTransformedBegin(), this._getTransformedEnd()];
+    const len = points.length;
+    for (let i = 0; i < len; i++) {
       scalars.push(points[i].dot(axis));
     }
 
