@@ -8,8 +8,8 @@ import { Vector } from '../Algebra';
 export let CollisionJumpTable = {
   CollideCircleCircle(circleA: Circle, circleB: Circle): CollisionContact {
     const radius = circleA.radius + circleB.radius;
-    const circleAPos = circleA.collider.body.pos.add(circleA.pos);
-    const circleBPos = circleB.collider.body.pos.add(circleB.pos);
+    const circleAPos = circleA.worldPos;
+    const circleBPos = circleB.worldPos;
     if (circleAPos.distance(circleBPos) > radius) {
       return null;
     }

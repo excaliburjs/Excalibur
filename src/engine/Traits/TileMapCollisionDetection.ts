@@ -5,6 +5,7 @@ import { Vector } from '../Algebra';
 import { Side } from '../Collision/Side';
 import { PreCollisionEvent, PostCollisionEvent } from '../Events';
 import { CollisionType } from '../Collision/CollisionType';
+import { BoundingBox } from '../Collision/Index';
 
 export class TileMapCollisionDetection implements Trait {
   public update(actor: Actor, engine: Engine) {
@@ -19,7 +20,7 @@ export class TileMapCollisionDetection implements Trait {
           if (max-- < 0) {
             break;
           }
-          side = actor.getSideFromIntersect(intersectMap);
+          side = BoundingBox.sideFromIntersection(intersectMap);
           eventDispatcher.emit('precollision', new PreCollisionEvent(actor, null, side, intersectMap));
           if (actor.collisionType === CollisionType.Active) {
             actor.pos.y += intersectMap.y;

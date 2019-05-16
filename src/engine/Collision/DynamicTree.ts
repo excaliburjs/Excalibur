@@ -409,7 +409,7 @@ export class DynamicTree {
   public query(body: Body, callback: (other: Body) => boolean): void {
     const bounds = body.collider.getBounds();
     const helper = (currentNode: TreeNode): boolean => {
-      if (currentNode && currentNode.bounds.collides(bounds)) {
+      if (currentNode && currentNode.bounds.intersect(bounds)) {
         if (currentNode.isLeaf() && currentNode.body !== body) {
           if (callback.call(body, currentNode.body)) {
             return true;

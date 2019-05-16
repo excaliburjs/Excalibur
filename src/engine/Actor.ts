@@ -47,6 +47,7 @@ import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEvents';
 import { CollisionType } from './Collision/CollisionType';
 import { obsolete } from './Util/Decorators';
+import { Collider } from './Collision/Collider';
 
 export function isActor(x: any): x is Actor {
   return !!x && x instanceof Actor;
@@ -101,6 +102,13 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * acceleration, mass, inertia, etc.
    */
   public body: Body = new Body(this);
+
+  /**
+   * Collider associated with this actor's body
+   */
+  public get collider(): Collider {
+    return this.body.collider;
+  }
 
   /**
    * Gets the collision geometry shape to use for collision possible options are [Circle|circles], [ConvexPolygon|polygons], and
@@ -1184,6 +1192,20 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
    */
+  public get bounds() {
+    return this.getBounds();
+  }
+
+  /**
+   * Returns the actor's [[BoundingBox]] relative to the actor's position.
+   */
+  public get relativeBounds() {
+    return this.getRelativeBounds();
+  }
+
+  /**
+   * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
+   */
   public getBounds(rotated: boolean = true): BoundingBox {
     // todo cache bounding box
     const anchor = this._getCalculatedAnchor();
@@ -1243,7 +1265,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Returns the side of the collision based on the intersection
    * @param intersect The displacement vector returned by a collision
+   * @obsolete Actor.getSideFromIntersect will be removed in v0.24.0, use [[BoundingBox.sideFromIntersection]]
    */
+  @obsolete({ message: 'Actor.getSideFromIntersect will be removed in v0.24.0', alternateMethod: 'BoundingBox.sideFromIntersection' })
   public getSideFromIntersect(intersect: Vector) {
     if (intersect) {
       if (Math.abs(intersect.x) > Math.abs(intersect.y)) {
@@ -1263,7 +1287,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Test whether the actor has collided with another actor, returns the side of the current actor that collided.
    * @param actor The other actor to test
+   * @obsolete Actor.collidesWithSide will be removed in v0.24.0, use [[Actor.bounds.intersectWithSide]]
    */
+  @obsolete({ message: 'Actor.collidesWithSide will be removed in v0.24.0', alternateMethod: 'Actor.bounds.intersectWithSide' })
   public collidesWithSide(actor: Actor): Side {
     const separationVector = this.collides(actor);
     if (!separationVector) {
@@ -1287,13 +1313,17 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Test whether the actor has collided with another actor, returns the intersection vector on collision. Returns
    * `null` when there is no collision;
    * @param actor The other actor to test
+   * @obsolete Actor.collides will be removed in v0.24.0, use [[Actor.bounds.interesect]] to get boudings intersection,
+   * or [[Actor.body.collider.collide]] to collide with another collider
    */
+  @obsolete({ message: 'Actor.collides will be removed  in v0.24.0', alternateMethod: 'Actor.bounds.intersect or Actor.' })
   public collides(actor: Actor): Vector {
     const bounds = this.getBounds();
     const otherBounds = actor.getBounds();
-    const intersect = bounds.collides(otherBounds);
+    const intersect = bounds.intersect(otherBounds);
     return intersect;
   }
+
   /**
    * Register a handler to fire when this actor collides with another in a specified group
    * @param group The group name to listen for

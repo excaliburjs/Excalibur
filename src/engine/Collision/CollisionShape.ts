@@ -6,17 +6,22 @@ import { Vector, Projection, Ray } from '../Algebra';
 import { Collider } from './Collider';
 
 /**
- * A collision area specifies the geometry that can detect when other collision areas intersect
+ * A collision shape specifies the geometry that can detect when other collision shapes intersect
  * for the purposes of colliding 2 objects in excalibur.
  */
 export interface CollisionShape {
   /**
-   * Position of the collision area relative to the actor's anchor if it exists
+   * Position of the collision shape relative to the collider position if it exists
    */
   pos: Vector;
 
   /**
-   * Reference to the actor associated with this collision area
+   * Postion of the collision shape in world coordinates
+   */
+  worldPos: Vector;
+
+  /**
+   * Reference to the actor associated with this collision shape
    * @obsolete Will be removed in v0.24.0 please use [[collider]]
    */
   body: Body;
@@ -24,7 +29,7 @@ export interface CollisionShape {
   /**
    * Reference to the collider associated with this collision area geometry
    */
-  collider: Collider;
+  collider?: Collider;
 
   /**
    * The center point of the collision area, for example if the area is a circle it would be the center.

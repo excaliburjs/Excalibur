@@ -91,7 +91,7 @@ export class TileMapImpl extends Class {
       for (let y = actorBounds.top; y <= height; y += Math.min(actor.getHeight() / 2, this.cellHeight / 2)) {
         const cell = this.getCellByPoint(x, y);
         if (cell && cell.solid) {
-          const overlap = actorBounds.collides(cell.getBounds());
+          const overlap = actorBounds.intersect(cell.getBounds());
           const dir = actor.getCenter().sub(cell.getCenter());
           if (overlap && overlap.dot(dir) > 0) {
             overlaps.push(overlap);

@@ -10,7 +10,7 @@ import { Loadable } from './Interfaces/Loadable';
 import { Action } from './Actions/Action';
 import { ActorArgs, ActorDefaults } from './Actor';
 import { CapturePointerConfig } from './Traits/CapturePointer';
-import { Collidable, CircleOptions, CollisionBroadphase, EdgeOptions, EnginePhysics, ConvexPolygonOptions } from './Collision/Index';
+import { CircleOptions, CollisionBroadphase, EdgeOptions, EnginePhysics, ConvexPolygonOptions } from './Collision/Index';
 import { Physics } from './Physics';
 import { DebugFlags } from './DebugFlags';
 import { CollidersHash, FrameStatistics, FrameDurationStats, PhysicsStatistics, FrameActorStats } from './Debug';
@@ -131,11 +131,6 @@ export type ICameraStrategy<T> = CameraStrategy<T>;
  * @obsolete Use CellArgs, ICellArgs will be removed in v0.23.0
  */
 export type ICellArgs = CellArgs;
-
-/**
- * @obsolete Use Collidable, ICollidable will be removed in v0.23.0
- */
-export type ICollidable = Collidable;
 
 /**
  * @obsolete Use CollisionShape, ICollisionArea will be removed in v0.23.0

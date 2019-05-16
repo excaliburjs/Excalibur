@@ -50,7 +50,7 @@ export class ConvexPolygon implements CollisionShape {
   /**
    * Collider associated with this shape
    */
-  public collider: Collider;
+  public collider?: Collider;
 
   private _transformedPoints: Vector[] = [];
   private _axes: Vector[] = [];
@@ -71,6 +71,13 @@ export class ConvexPolygon implements CollisionShape {
 
     // calculate initial transformation
     this._calculateTransformation();
+  }
+
+  public get worldPos(): Vector {
+    if (this.collider && this.collider.body) {
+      return this.collider.body.pos.add(this.pos);
+    }
+    return this.pos;
   }
 
   /**

@@ -31,6 +31,14 @@ export class Circle implements CollisionShape {
    * This is the center position of the circle, relative to the body position
    */
   public pos: Vector = Vector.Zero;
+
+  public get worldPos(): Vector {
+    if (this.collider && this.collider.body) {
+      return this.collider.body.pos.add(this.pos);
+    }
+    return this.pos;
+  }
+
   /**
    * This is the radius of the circle
    */
@@ -45,7 +53,7 @@ export class Circle implements CollisionShape {
   /**
    * The collider for this area
    */
-  public collider: Collider;
+  public collider?: Collider;
 
   constructor(options: CircleOptions) {
     this.pos = options.pos || Vector.Zero;

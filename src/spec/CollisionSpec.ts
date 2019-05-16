@@ -183,7 +183,7 @@ describe('A Collision', () => {
   it('should recognize when actor bodies are touching', () => {
     let touching = false;
     actor1.on('postupdate', function() {
-      if (actor1.body.touching(actor2.body)) {
+      if (actor1.body.collider.touching(actor2.body.collider)) {
         touching = true;
       }
     });

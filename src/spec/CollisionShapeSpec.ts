@@ -1,6 +1,11 @@
 import * as ex from '../../build/dist/excalibur';
+import { ExcaliburMatchers } from 'excalibur-jasmine';
 
-describe('Collision Geometry', () => {
+describe('Collision Shape', () => {
+  beforeAll(() => {
+    jasmine.addMatchers(ExcaliburMatchers);
+  });
+
   describe('a Circle', () => {
     let circle: ex.CircleArea;
     let actor: ex.Actor;
@@ -90,6 +95,21 @@ describe('Collision Geometry', () => {
       //https://en.wikipedia.org/wiki/List_of_moments_of_inertia
       // I = m*r^2/2
       expect(circle.getInertia()).toBe((circle.body.collider.mass * circle.radius * circle.radius) / 2);
+    });
+
+    it('should collide without a collider or body', () => {
+      const circle1 = new ex.CircleArea({
+        pos: new ex.Vector(0, 0),
+        radius: 5
+      });
+
+      const circle2 = new ex.CircleArea({
+        pos: new ex.Vector(9, 0),
+        radius: 5
+      });
+
+      const cc = circle1.collide(circle2);
+      expect(cc.mtv).toBeVector(new ex.Vector(1, 0));
     });
 
     it('should collide with other circles when touching', () => {

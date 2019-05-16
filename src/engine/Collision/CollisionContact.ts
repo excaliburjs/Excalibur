@@ -75,12 +75,12 @@ export class CollisionContact {
         colliderA.body.vel = colliderA.body.vel.add(velAdj);
       }
 
-      colliderA.emit('postcollision', new PostCollisionEvent(colliderA, colliderB, Util.getSideFromVector(mtv), mtv));
+      colliderA.emit('postcollision', new PostCollisionEvent(colliderA, colliderB, Util.getSideFromDirection(mtv), mtv));
     }
   }
 
   private _resolveBoxCollision() {
-    const side = Util.getSideFromVector(this.mtv);
+    const side = Util.getSideFromDirection(this.mtv);
     const mtv = this.mtv.negate();
     // Publish collision events on both participants
     this.colliderA.emit('precollision', new PreCollisionEvent(this.colliderA, this.colliderB, side, mtv));
@@ -102,7 +102,7 @@ export class CollisionContact {
     }
 
     // Publish collision events on both participants
-    const side = Util.getSideFromVector(this.mtv);
+    const side = Util.getSideFromDirection(this.mtv);
     this.colliderA.emit('precollision', new PreCollisionEvent(this.colliderA, this.colliderB, side, this.mtv));
     this.colliderB.emit(
       'precollision',

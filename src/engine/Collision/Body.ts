@@ -1,4 +1,3 @@
-import { Pair } from './Pair';
 import { Vector } from '../Algebra';
 import { Actor } from '../Actor';
 import { Collider } from './Collider';
@@ -8,6 +7,7 @@ import { ConvexPolygon } from './ConvexPolygon';
 import { Circle } from './Circle';
 import { Edge } from './Edge';
 import { obsolete } from '../Util/Decorators';
+import { PreCollisionEvent, PostCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
 
 /**
  * Body describes all the physical properties pos, vel, acc, rotation, angular velocity
@@ -19,12 +19,13 @@ export class Body {
    * Constructs a new physics body associated with an actor
    */
   constructor(private _actor: Actor) {
-    this._collider = new Collider(this._actor, this);
+    this.collider = new Collider(this._actor, this);
   }
 
   // TODO allow multiple colliders
   public set collider(collider: Collider) {
     this._collider = collider;
+    this._wireColliderEventsToActor();
   }
 
   public get collider(): Collider {
@@ -272,27 +273,35 @@ export class Body {
     this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
   }
 
+  private _wireColliderEventsToActor() {
+    this.collider.clear();
+    this.collider.on('precollision', (evt: PreCollisionEvent<Collider>) => {
+      if (this._actor) {
+        this._actor.emit('precollision', new PreCollisionEvent(evt.target.entity, evt.other.entity, evt.side, evt.intersection));
+      }
+    });
+    this.collider.on('postcollision', (evt: PostCollisionEvent<Collider>) => {
+      if (this._actor) {
+        this._actor.emit('postcollision', new PostCollisionEvent(evt.target.entity, evt.other.entity, evt.side, evt.intersection));
+      }
+    });
+    this.collider.on('collisionstart', (evt: CollisionStartEvent<Collider>) => {
+      if (this._actor) {
+        this._actor.emit('collisionstart', new CollisionStartEvent(evt.target.entity, evt.other.entity, evt.pair));
+      }
+    });
+    this.collider.on('collisionend', (evt: CollisionEndEvent<Collider>) => {
+      if (this._actor) {
+        this._actor.emit('collisionend', new CollisionEndEvent(evt.target.entity, evt.other.entity));
+      }
+    });
+  }
+
   /**
    * @obsolete Body.useEdgeCollision will be removed in v0.24.0, use [[Body.useEdgeCollider]]
    */
   @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useEdgeCollider' })
   public useEdgeCollision(begin: Vector, end: Vector) {
     this.useEdgeCollider(begin, end);
-  }
-
-  /**
-   * Returns a boolean indicating whether this body collided with
-   * or was in stationary contact with
-   * the body of the other [[Body]]
-   */
-  public touching(other: Body): boolean {
-    const pair = new Pair(this.collider, other.collider);
-    pair.collide();
-
-    if (pair.collision) {
-      return true;
-    }
-
-    return false;
   }
 }

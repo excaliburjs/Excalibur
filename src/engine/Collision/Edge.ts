@@ -22,7 +22,7 @@ export interface EdgeOptions {
 
 export class Edge implements CollisionShape {
   body: Body;
-  collider: Collider;
+  collider?: Collider;
   pos: Vector;
   begin: Vector;
   end: Vector;
@@ -39,6 +39,13 @@ export class Edge implements CollisionShape {
       this.body = this.collider.body;
     }
     // ==================================
+  }
+
+  public get worldPos(): Vector {
+    if (this.collider && this.collider.body) {
+      return this.collider.body.pos.add(this.pos);
+    }
+    return this.pos;
   }
 
   /**

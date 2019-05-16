@@ -370,32 +370,32 @@ describe('A game actor', () => {
     const other = new ex.Actor(10, 10, 10, 10);
 
     // Actors are adjacent and not overlapping should not collide
-    expect(actor.collidesWithSide(other)).toBeFalsy();
-    expect(other.collidesWithSide(actor)).toBeFalsy();
+    expect(actor.bounds.intersectWithSide(other.bounds)).toBe(ex.Side.None);
+    expect(other.bounds.intersectWithSide(actor.bounds)).toBe(ex.Side.None);
 
     // move other actor into collision range from the right side
     other.pos.x = 9;
     other.pos.y = 0;
-    expect(actor.collidesWithSide(other)).toBe(ex.Side.Right);
-    expect(other.collidesWithSide(actor)).toBe(ex.Side.Left);
+    expect(actor.bounds.intersectWithSide(other.bounds)).toBe(ex.Side.Right);
+    expect(other.bounds.intersectWithSide(actor.bounds)).toBe(ex.Side.Left);
 
     // move other actor into collision range from the left side
     other.pos.x = -9;
     other.pos.y = 0;
-    expect(actor.collidesWithSide(other)).toBe(ex.Side.Left);
-    expect(other.collidesWithSide(actor)).toBe(ex.Side.Right);
+    expect(actor.bounds.intersectWithSide(other.bounds)).toBe(ex.Side.Left);
+    expect(other.bounds.intersectWithSide(actor.bounds)).toBe(ex.Side.Right);
 
     // move other actor into collision range from the top
     other.pos.x = 0;
     other.pos.y = -9;
-    expect(actor.collidesWithSide(other)).toBe(ex.Side.Top);
-    expect(other.collidesWithSide(actor)).toBe(ex.Side.Bottom);
+    expect(actor.bounds.intersectWithSide(other.bounds)).toBe(ex.Side.Top);
+    expect(other.bounds.intersectWithSide(actor.bounds)).toBe(ex.Side.Bottom);
 
     // move other actor into collision range from the bottom
     other.pos.x = 0;
     other.pos.y = 9;
-    expect(actor.collidesWithSide(other)).toBe(ex.Side.Bottom);
-    expect(other.collidesWithSide(actor)).toBe(ex.Side.Top);
+    expect(actor.bounds.intersectWithSide(other.bounds)).toBe(ex.Side.Bottom);
+    expect(other.bounds.intersectWithSide(actor.bounds)).toBe(ex.Side.Top);
   });
 
   it('participates with another in a collision', () => {

@@ -1,7 +1,7 @@
 import { Color } from '../Drawing/Color';
 import * as DrawUtil from '../Util/DrawUtil';
 import { Eventable } from '../Interfaces/Index';
-import { GameEvent, PostCollisionEvent, PreCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
+import { GameEvent } from '../Events';
 import { Actor } from '../Actor';
 import { Body } from './Body';
 import { CollisionShape } from './CollisionShape';
@@ -11,11 +11,13 @@ import { BoundingBox } from './BoundingBox';
 import { ConvexPolygon } from './ConvexPolygon';
 import { CollisionType } from './CollisionType';
 import { CollisionContact } from './CollisionContact';
+import { EventDispatcher } from '../EventDispatcher';
+import { Pair } from './Pair';
 
 /**
  * Type guard function to determine whether something is a Collider
  */
-function isCollider(x: Actor | Collider): x is Collider {
+export function isCollider(x: Actor | Collider): x is Collider {
   return !!x && x instanceof Collider;
 }
 
@@ -26,37 +28,15 @@ function isCollider(x: Actor | Collider): x is Collider {
 
 export class Collider implements Eventable {
   private _shape: CollisionShape;
+  private _events: EventDispatcher<Collider> = new EventDispatcher<Collider>(this);
 
-  constructor(private _actor: Actor, private _body: Body) {}
-
-  emit(eventName: string, event?: GameEvent<any>): void {
-    if (event instanceof PreCollisionEvent && isCollider(event.actor) && isCollider(event.other)) {
-      this._actor.emit(eventName, new PreCollisionEvent(event.actor._actor, event.other._actor, event.side, event.intersection));
-    } else if (event instanceof PostCollisionEvent && isCollider(event.actor) && isCollider(event.other)) {
-      this._actor.emit(eventName, new PostCollisionEvent(event.actor._actor, event.other._actor, event.side, event.intersection));
-    } else if (event instanceof CollisionStartEvent && isCollider(event.actor) && isCollider(event.other)) {
-      this._actor.emit(eventName, new CollisionStartEvent(event.actor._actor, event.other._actor, event.pair));
-    } else if (event instanceof CollisionEndEvent && isCollider(event.actor) && isCollider(event.other)) {
-      this._actor.emit(eventName, new CollisionEndEvent(event.actor._actor, event.other._actor));
-    } else {
-      this._actor.emit(eventName, event);
-    }
-  }
-  on(eventName: string, handler: (event?: GameEvent<any>) => void): void {
-    this._actor.on(eventName, handler);
-  }
-  off(eventName: string, handler?: (event?: GameEvent<any>) => void): void {
-    this._actor.off(eventName, handler);
-  }
-  once(eventName: string, handler: (event?: GameEvent<any>) => void): void {
-    this._actor.once(eventName, handler);
-  }
+  constructor(public entity: Actor, private _body: Body) {}
 
   /**
    * Get the unique id of the collider
    */
   public get id(): number {
-    return this._actor.id;
+    return this.entity.id;
   }
 
   /**
@@ -91,18 +71,20 @@ export class Collider implements Eventable {
    * The center of the collider
    */
   public get center(): Vector {
-    return this._actor.getCenter();
+    return this.entity.getCenter();
   }
 
   /**
    * Is this collider active, if false it wont collide
    */
   public get active(): boolean {
-    return !this._actor.isKilled();
+    return !this.entity.isKilled();
   }
 
   /**
    * Collide 2 colliders and product a collision contact if there is a collision, null if none
+   *
+   * Collision vector is in the direction of the other collider. Away from this collider, this -> other.
    * @param other
    */
   public collide(other: Collider): CollisionContact {
@@ -130,11 +112,27 @@ export class Collider implements Eventable {
   public restitution: number = 0.2;
 
   /**
+   * Returns a boolean indicating whether this body collided with
+   * or was in stationary contact with
+   * the body of the other [[Collider]]
+   */
+  public touching(other: Collider): boolean {
+    const pair = new Pair(this, other);
+    pair.collide();
+
+    if (pair.collision) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * Returns the collider's [[BoundingBox]] calculated for this instant in world space.
    */
   public getBounds(): BoundingBox {
     if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
-      return this._actor.getBounds();
+      return this.entity.getBounds();
     } else {
       return this.shape.getBounds();
     }
@@ -145,9 +143,9 @@ export class Collider implements Eventable {
    */
   public getRelativeBounds(): BoundingBox {
     if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
-      return this._actor.getRelativeBounds();
+      return this.entity.getRelativeBounds();
     } else {
-      return this._actor.getRelativeBounds();
+      return this.entity.getRelativeBounds();
     }
   }
 
@@ -158,11 +156,28 @@ export class Collider implements Eventable {
     if (this.shape) {
       // Update the geometry if needed
       if (this.body && this.body.isColliderShapeDirty && this.shape instanceof ConvexPolygon) {
-        this.shape.points = this._actor.getRelativeGeometry();
+        this.shape.points = this.entity.getRelativeGeometry();
       }
 
       this.shape.recalc();
     }
+  }
+
+  emit(eventName: string, event: GameEvent<Collider>): void {
+    this._events.emit(eventName, event);
+  }
+  on(eventName: string, handler: (event: GameEvent<Collider>) => void): void {
+    this._events.on(eventName, handler);
+  }
+  off(eventName: string, handler?: (event: GameEvent<Collider>) => void): void {
+    this._events.off(eventName, handler);
+  }
+  once(eventName: string, handler: (event: GameEvent<Collider>) => void): void {
+    this._events.once(eventName, handler);
+  }
+
+  clear() {
+    this._events.clear();
   }
 
   /* istanbul ignore next */
