@@ -125,6 +125,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets the x position of the actor relative to it's parent (if any)
    */
+  @obsolete()
   public get x(): number {
     return this.body.pos.x;
   }
@@ -139,6 +140,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets the y position of the actor relative to it's parent (if any)
    */
+  @obsolete()
   public get y(): number {
     return this.body.pos.y;
   }
@@ -266,6 +268,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets the current torque applied to the actor. Torque can be thought of as rotational force
    */
+  @obsolete()
   public get torque() {
     return this.body.torque;
   }
@@ -280,6 +283,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Get the current mass of the actor, mass can be thought of as the resistance to acceleration.
    */
+  @obsolete()
   public get mass() {
     return this.body.collider.mass;
   }
@@ -294,6 +298,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets the current moment of inertia, moi can be thought of as the resistance to rotation.
    */
+  @obsolete()
   public get moi() {
     return this.body.collider.inertia;
   }
@@ -308,6 +313,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets the coefficient of friction on this actor, this can be thought of as how sticky or slippery an object is.
    */
+  @obsolete()
   public get friction() {
     return this.body.collider.friction;
   }
@@ -323,6 +329,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Gets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this
    * as bounciness.
    */
+  @obsolete()
   public get restitution() {
     return this.body.collider.restitution;
   }
@@ -456,6 +463,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Gets or sets the current collision type of this actor. By
    * default it is ([[CollisionType.PreventCollision]]).
    */
+  @obsolete()
   public get collisionType(): CollisionType {
     return this.body.collider.type;
   }
