@@ -104,13 +104,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public body: Body = new Body(this);
 
   /**
-   * Collider associated with this actor's body
-   */
-  public get collider(): Collider {
-    return this.body.collider;
-  }
-
-  /**
    * Gets the collision geometry shape to use for collision possible options are [Circle|circles], [ConvexPolygon|polygons], and
    * [Edge|edges].
    * @obsolete Use Actor.body.collider.shape, collisionArea will be removed in v0.24.0
