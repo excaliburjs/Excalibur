@@ -50,7 +50,7 @@ import { obsolete } from './Util/Decorators';
 import { Collider } from './Collision/Collider';
 
 export function isActor(x: any): x is Actor {
-  return !!x && x instanceof Actor;
+  return x instanceof Actor;
 }
 
 /**

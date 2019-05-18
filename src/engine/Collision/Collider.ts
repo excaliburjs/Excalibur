@@ -18,7 +18,7 @@ import { Pair } from './Pair';
  * Type guard function to determine whether something is a Collider
  */
 export function isCollider(x: Actor | Collider): x is Collider {
-  return !!x && x instanceof Collider;
+  return x instanceof Collider;
 }
 
 /**
