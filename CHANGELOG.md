@@ -17,6 +17,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Changed event handlers in excalibur to expect non-null event objects, before `hander: (event?: GameEvent) => void` implied that event could be null. This change addresses ([#1147](https://github.com/excaliburjs/Excalibur/issues/1147)) making strict null/function checks compatible with new typescript.
 - Changed collision system to remove actor coupling, in addition `ex.Collider` is a new type that encapsulates all collision behavior. Use `ex.Actor.body.collider` to interact with collisions in Excalibur ([#1119](https://github.com/excaliburjs/Excalibur/issues/1119))
+  - Add new `Collider` type that is the housing for all collision related code
+    - The source of truth for `CollisionType` is now on collider, with a convenience getter on actor
+    - The collision system now operates on `Collider`'s not `Actor`'s
+  - `CollisionType` has been moved to a separate file outside of `Actor`
+    - CollisionType is switched to a string enum, style guide also updated
+  - `Body` has been modified to house all the physical position/transform information
+    - Integration has been moved from actor to `Body` as a physical concern
+    - `useBoxCollision` has been renamed to `useBoxCollider`
+    - `useCircleCollision` has been renamed to `useCircleCollider`
+    - `usePolygonCollision` has been renamed to `usePolygonCollider`
+    - `useEdgeCollision` has been renamed to `useEdgeCollider`
+  - Renamed `CollisionArea` to `CollisionGeometry`
+    - `CircleArea` has been renamed to `Circle`
+    - `PolygonArea` has been renamed to `ConvexPolygon`
+    - `EdgeArea` has been renamed to `Edge`
 
 ### Deprecated
 
