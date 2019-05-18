@@ -11,7 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-<!--- Added features here --->
+- Add new collision group implementation [#1091](https://github.com/excaliburjs/Excalibur/issues/1091) [#862](https://github.com/excaliburjs/Excalibur/issues/862)
 
 ### Changed
 
@@ -19,7 +19,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
-Legacy collision groups off `Actor` will be removed in v0.24.0, use `Actor.body.collider.collisionGroup` [#1091](https://github.com/excaliburjs/Excalibur/issues/1091)
+- Legacy groups `ex.Group` will be removed in v0.24.0, use collision groups as a replacement [#1091](https://github.com/excaliburjs/Excalibur/issues/1091)
+- Legacy collision groups off `Actor` will be removed in v0.24.0, use `Actor.body.collider.collisionGroup` [#1091](https://github.com/excaliburjs/Excalibur/issues/1091)
 
 ### Fixed
 
