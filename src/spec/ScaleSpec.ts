@@ -4,10 +4,10 @@ import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
 describe('A scaled and rotated actor', () => {
-  var actor: ex.Actor;
-  var engine: ex.Engine;
-  var scene: ex.Scene;
-  var mock = new Mocks.Mocker();
+  let actor: ex.Actor;
+  let engine: ex.Engine;
+  let scene: ex.Scene;
+  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -30,10 +30,10 @@ describe('A scaled and rotated actor', () => {
   });
 
   it('is drawn correctly scaled at 90 degrees', (done) => {
-    let bg = new ex.Texture('./base/src/spec/images/ScaleSpec/logo.png', true);
+    const bg = new ex.Texture('./base/src/spec/images/ScaleSpec/logo.png', true);
 
     engine.start(new ex.Loader([bg])).then(() => {
-      let actor = new ex.Actor(engine.halfDrawWidth, engine.halfDrawHeight, 100, 100, ex.Color.Black);
+      const actor = new ex.Actor(engine.halfDrawWidth, engine.halfDrawHeight, 100, 100, ex.Color.Black);
       actor.addDrawing(bg);
       actor.setHeight(10);
       actor.scale.setTo(1, 0.2);

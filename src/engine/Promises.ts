@@ -43,7 +43,7 @@ export class Promise<T> implements PromiseLike<T> {
    * @param value  An optional value to wrap in a resolved promise
    */
   public static resolve<T>(value?: T): Promise<T> {
-    var promise = new Promise<T>().resolve(value);
+    const promise = new Promise<T>().resolve(value);
 
     return promise;
   }
@@ -53,7 +53,7 @@ export class Promise<T> implements PromiseLike<T> {
    * @param value  An optional value to wrap in a rejected promise
    */
   public static reject<T>(value?: T): Promise<T> {
-    var promise = new Promise<T>().reject(value);
+    const promise = new Promise<T>().reject(value);
 
     return promise;
   }
@@ -71,25 +71,25 @@ export class Promise<T> implements PromiseLike<T> {
   public static join<T>(...promises: Promise<T>[]): Promise<T>;
 
   public static join<T>() {
-    var promises: Promise<T>[] = [];
+    let promises: Promise<T>[] = [];
 
     if (arguments.length > 0 && !Array.isArray(arguments[0])) {
-      for (var _i = 0; _i < arguments.length; _i++) {
+      for (let _i = 0; _i < arguments.length; _i++) {
         promises[_i - 0] = arguments[_i];
       }
     } else if (arguments.length === 1 && Array.isArray(arguments[0])) {
       promises = arguments[0];
     }
 
-    var joinedPromise = new Promise<T>();
+    const joinedPromise = new Promise<T>();
     if (!promises || !promises.length) {
       return joinedPromise.resolve();
     }
 
-    var total = promises.length;
-    var successes = 0;
-    var rejects = 0;
-    var errors: any = [];
+    const total = promises.length;
+    let successes = 0;
+    let rejects = 0;
+    const errors: any = [];
 
     promises.forEach((p) => {
       p.then(

@@ -4,7 +4,7 @@ import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
 describe('Perlin Noise', () => {
-  var generator: ex.PerlinGenerator = null;
+  let generator: ex.PerlinGenerator = null;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     generator = new ex.PerlinGenerator({
@@ -22,7 +22,7 @@ describe('Perlin Noise', () => {
   });
 
   it('can be constructed with defaults', () => {
-    var generator = new ex.PerlinGenerator();
+    const generator = new ex.PerlinGenerator();
     expect(generator.persistance).toBe(0.5);
     expect(generator.amplitude).toBe(1);
     expect(generator.frequency).toBe(1);
@@ -30,7 +30,7 @@ describe('Perlin Noise', () => {
   });
 
   it('can be constructed with non-defaults', () => {
-    var generator = new ex.PerlinGenerator({
+    const generator = new ex.PerlinGenerator({
       seed: 10,
       persistance: 11,
       amplitude: 12,
@@ -45,7 +45,7 @@ describe('Perlin Noise', () => {
   });
 
   it('points are the same at whole numbers ', () => {
-    for (var i = 0; i < 100; i++) {
+    for (let i = 0; i < 100; i++) {
       expect(generator.noise(i)).toBe(generator.noise(i + 1));
       expect(generator.noise(i, i)).toBe(generator.noise(i + 1, i + 1));
       expect(generator.noise(i, i, i)).toBe(generator.noise(i + 1, i + 1, i + 1));
@@ -53,19 +53,19 @@ describe('Perlin Noise', () => {
   });
 
   it('can generate a sequence of numbers', () => {
-    var seq = generator.sequence(10);
+    const seq = generator.sequence(10);
     expect(seq.length).toBe(10);
   });
 
   it('can draw a 2d canvas', (done) => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 90000;
-    var perlinCanvas = document.createElement('canvas');
+    const perlinCanvas = document.createElement('canvas');
     perlinCanvas.width = 150;
     perlinCanvas.height = 150;
-    var perlinCtx = perlinCanvas.getContext('2d');
+    const perlinCtx = perlinCanvas.getContext('2d');
 
     // perlin generation is super intense and seems to wedge phantom if we go any larger that 150x150
-    var drawer = new ex.PerlinDrawer2D(generator);
+    const drawer = new ex.PerlinDrawer2D(generator);
     drawer.draw(perlinCtx, 0, 0, 150, 150);
 
     ensureImagesLoaded(perlinCanvas, 'src/spec/images/PerlinSpec/perlin.png').then(([canvas, image]) => {
@@ -76,8 +76,8 @@ describe('Perlin Noise', () => {
 
   it('can draw a 2d image', (done) => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 90000;
-    var drawer = new ex.PerlinDrawer2D(generator);
-    var image = drawer.image(150, 150);
+    const drawer = new ex.PerlinDrawer2D(generator);
+    const image = drawer.image(150, 150);
     ensureImagesLoaded(image, 'src/spec/images/PerlinSpec/perlin.png').then(([canvas, image]) => {
       expect(canvas).toEqualImage(image);
       done();

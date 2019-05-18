@@ -53,7 +53,7 @@ export class Texture extends Resource<HTMLImageElement> {
    * Begins loading the texture and returns a promise to be resolved on completion
    */
   public load(): Promise<HTMLImageElement> {
-    var complete = new Promise<HTMLImageElement>();
+    const complete = new Promise<HTMLImageElement>();
     if (this.path.indexOf('data:image/') > -1) {
       this.image = new Image();
       this.image.addEventListener('load', () => {
@@ -65,7 +65,7 @@ export class Texture extends Resource<HTMLImageElement> {
       });
       this.image.src = this.path;
     } else {
-      var loaded = super.load();
+      const loaded = super.load();
       loaded.then(
         () => {
           this.image = new Image();

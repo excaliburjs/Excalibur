@@ -6,8 +6,8 @@ describe('A webaudio instance', () => {
   let mockAudioContext: any;
   let mockGainNode: any;
   let mockBufferSource: any;
-  let RealAudioContextCreate = ex.AudioContextFactory.create;
-  let RealAudioContext = ex.AudioContextFactory.create();
+  const RealAudioContextCreate = ex.AudioContextFactory.create;
+  const RealAudioContext = ex.AudioContextFactory.create();
 
   afterEach(() => {
     ex.AudioContextFactory.create = RealAudioContextCreate;

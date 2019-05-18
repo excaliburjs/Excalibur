@@ -10,17 +10,22 @@ import { Eventable } from './Interfaces/Evented';
  *
  * [[include:Events.md]]
  */
-export class EventDispatcher implements Eventable {
-  private _handlers: { [key: string]: { (event?: GameEvent<any>): void }[] } = {};
-  private _wiredEventDispatchers: EventDispatcher[] = [];
+export class EventDispatcher<T = any> implements Eventable {
+  private _handlers: { [key: string]: { (event: GameEvent<any>): void }[] } = {};
+  private _wiredEventDispatchers: Eventable[] = [];
 
-  private _target: any;
+  private _target: T;
 
   /**
    * @param target  The object that will be the recipient of events from this event dispatcher
    */
-  constructor(target: any) {
+  constructor(target: T) {
     this._target = target;
+  }
+
+  public clear() {
+    this._handlers = {};
+    this._wiredEventDispatchers = [];
   }
 
   /**
@@ -28,19 +33,19 @@ export class EventDispatcher implements Eventable {
    * @param eventName  The name of the event to publish
    * @param event      Optionally pass an event data object to the handler
    */
-  public emit(eventName: string, event?: GameEvent<any>) {
+  public emit(eventName: string, event: GameEvent<T>) {
     if (!eventName) {
       // key not mapped
       return;
     }
     eventName = eventName.toLowerCase();
-    var target = this._target;
+    const target = this._target;
     if (!event) {
       event = new GameEvent();
     }
     event.target = target;
 
-    var i: number, len: number;
+    let i: number, len: number;
 
     if (this._handlers[eventName]) {
       i = 0;
@@ -64,7 +69,7 @@ export class EventDispatcher implements Eventable {
    * @param eventName  The name of the event to subscribe to
    * @param handler    The handler callback to fire on this event
    */
-  public on(eventName: string, handler: (event?: GameEvent<any>) => void) {
+  public on(eventName: string, handler: (event: GameEvent<T>) => void) {
     eventName = eventName.toLowerCase();
     if (!this._handlers[eventName]) {
       this._handlers[eventName] = [];
@@ -86,16 +91,16 @@ export class EventDispatcher implements Eventable {
    * @param handler    Optionally the specific handler to unsubscribe
    *
    */
-  public off(eventName: string, handler?: (event?: GameEvent<any>) => void) {
+  public off(eventName: string, handler?: (event: GameEvent<T>) => void) {
     eventName = eventName.toLowerCase();
-    var eventHandlers = this._handlers[eventName];
+    const eventHandlers = this._handlers[eventName];
 
     if (eventHandlers) {
       // if no explicit handler is give with the event name clear all handlers
       if (!handler) {
         this._handlers[eventName].length = 0;
       } else {
-        var index = eventHandlers.indexOf(handler);
+        const index = eventHandlers.indexOf(handler);
         this._handlers[eventName].splice(index, 1);
       }
     }
@@ -111,9 +116,9 @@ export class EventDispatcher implements Eventable {
    * @param eventName The name of the event to subscribe to once
    * @param handler   The handler of the event that will be auto unsubscribed
    */
-  public once(eventName: string, handler: (event?: GameEvent<any>) => void) {
-    let metaHandler = (event?: GameEvent<any>) => {
-      let ev = event || new GameEvent();
+  public once(eventName: string, handler: (event: GameEvent<T>) => void) {
+    const metaHandler = (event: GameEvent<T>) => {
+      const ev = event || new GameEvent();
       ev.target = ev.target || this._target;
 
       this.off(eventName, handler);
@@ -134,7 +139,7 @@ export class EventDispatcher implements Eventable {
    * Unwires this event dispatcher from another
    */
   public unwire(eventDispatcher: EventDispatcher): void {
-    var index = eventDispatcher._wiredEventDispatchers.indexOf(this);
+    const index = eventDispatcher._wiredEventDispatchers.indexOf(this);
     if (index > -1) {
       eventDispatcher._wiredEventDispatchers.splice(index, 1);
     }

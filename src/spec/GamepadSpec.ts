@@ -3,10 +3,10 @@ import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
 describe('A gamepad', () => {
-  var engine: ex.Engine;
-  var mock = new Mocks.Mocker();
+  let engine: ex.Engine;
+  const mock = new Mocks.Mocker();
 
-  var nav: any;
+  let nav: any;
 
   beforeEach(() => {
     engine = TestUtils.engine({ width: 600, height: 400 });
@@ -19,7 +19,7 @@ describe('A gamepad', () => {
   });
 
   it('should fire an event on connect', () => {
-    var fired = false;
+    let fired = false;
 
     engine.input.gamepads.enabled = true;
     engine.input.gamepads.on('connect', (padEvent: ex.GamepadConnectEvent) => {
@@ -43,7 +43,7 @@ describe('A gamepad', () => {
   });
 
   it('should fire an event on disconnect', () => {
-    var fired = false;
+    let fired = false;
     engine.input.gamepads.enabled = true;
     engine.input.gamepads.on('disconnect', (padEvent: ex.GamepadConnectEvent) => {
       fired = true;
@@ -100,17 +100,17 @@ describe('A gamepad', () => {
     nav.setGamepads(3, 2, 4); // valid 2=2 axis and 4=4 axis
     engine.input.gamepads.setMinimumGamepadConfiguration({ axis: 2, buttons: 4 });
 
-    var validGamepads = engine.input.gamepads.getValidGamepads();
+    const validGamepads = engine.input.gamepads.getValidGamepads();
     expect(validGamepads.length).toBe(2);
   });
 
   it('should fire events on all predefined buttons', () => {
     nav.setGamepads(0, 4, 16); // valid 4 axis > 2 and 16 buttons > 4
 
-    var gamepad = engine.input.gamepads.at(0);
+    const gamepad = engine.input.gamepads.at(0);
 
-    var currentButton = null;
-    var currentValue = null;
+    let currentButton = null;
+    let currentValue = null;
 
     gamepad.on('button', (buttonEvent: ex.GamepadButtonEvent) => {
       currentButton = buttonEvent.button;
@@ -120,7 +120,7 @@ describe('A gamepad', () => {
     expect(currentButton).toBeNull();
     expect(currentValue).toBeNull();
 
-    for (var button in ex.Input.Buttons) {
+    for (const button in ex.Input.Buttons) {
       if (typeof button === 'number') {
         engine.input.gamepads.update();
         nav.setGamepadButton(0, button, 1.0);
@@ -134,10 +134,10 @@ describe('A gamepad', () => {
   it('should fire events on all predefined axis', () => {
     nav.setGamepads(0, 4, 16); // valid 4 axis > 2 and 16 buttons > 4
 
-    var gamepad = engine.input.gamepads.at(0);
+    const gamepad = engine.input.gamepads.at(0);
 
-    var currentAxis = null;
-    var currentValue = null;
+    let currentAxis = null;
+    let currentValue = null;
     gamepad.on('axis', (axisEvent: ex.GamepadAxisEvent) => {
       currentAxis = axisEvent.axis;
       currentValue = axisEvent.value;

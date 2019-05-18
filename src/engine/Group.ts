@@ -1,4 +1,4 @@
-﻿import { BoundingBox } from './Collision/BoundingBox';
+import { BoundingBox } from './Collision/BoundingBox';
 import { GameEvent } from './Events';
 import { Vector } from './Algebra';
 import { Scene } from './Scene';
@@ -29,7 +29,7 @@ export class Group extends Class implements Actionable, Eventable {
     if (scene == null) {
       this._logger.error('Invalid constructor arguments passed to Group: ', name, ', scene must not be null!');
     } else {
-      var existingGroup = scene.groups[name];
+      const existingGroup = scene.groups[name];
       if (existingGroup) {
         this._logger.warn('Group with name', name, 'already exists. This new group will replace it.');
       }
@@ -44,11 +44,10 @@ export class Group extends Class implements Actionable, Eventable {
       actorOrActors = [].concat(actorOrActors);
     }
 
-    var i = 0,
-      len = actorOrActors.length,
-      groupIdx: number;
+    let groupIdx: number;
+    const len = actorOrActors.length;
 
-    for (i; i < len; i++) {
+    for (let i = 0; i < len; i++) {
       groupIdx = this.getMembers().indexOf(actorOrActors[i]);
       if (groupIdx === -1) {
         this._members.push(actorOrActors[i]);
@@ -60,7 +59,7 @@ export class Group extends Class implements Actionable, Eventable {
   }
 
   public remove(actor: Actor): void {
-    var index = this._members.indexOf(actor);
+    const index = this._members.indexOf(actor);
     if (index > -1) {
       this._members.splice(index, 1);
       this.actions.removeActorFromContext(actor);
@@ -71,20 +70,19 @@ export class Group extends Class implements Actionable, Eventable {
   public move(vector: Vector): void;
   public move(dx: number, dy: number): void;
   public move(args: Vector | number): void {
-    var i = 0,
-      members = this.getMembers(),
-      len = members.length;
+    const members = this.getMembers();
+    const len = members.length;
 
     if (arguments.length === 1 && args instanceof Vector) {
-      for (i; i < len; i++) {
+      for (let i = 0; i < len; i++) {
         members[i].pos.x += args.x;
         members[i].pos.y += args.y;
       }
     } else if (typeof arguments[0] === 'number' && typeof arguments[1] === 'number') {
-      var x = arguments[0];
-      var y = arguments[1];
+      const x = arguments[0];
+      const y = arguments[1];
 
-      for (i; i < len; i++) {
+      for (let i = 0; i < len; i++) {
         members[i].pos.x += x;
         members[i].pos.y += y;
       }
@@ -99,20 +97,20 @@ export class Group extends Class implements Actionable, Eventable {
       return;
     }
 
-    for (let member of this.getMembers()) {
+    for (const member of this.getMembers()) {
       member.rotation += angle;
     }
   }
 
-  public on(eventName: string, handler: (event?: GameEvent<any>) => void) {
+  public on(eventName: string, handler: (event: GameEvent<any>) => void) {
     this.eventDispatcher.on(eventName, handler);
   }
 
-  public off(eventName: string, handler?: (event?: GameEvent<any>) => void) {
+  public off(eventName: string, handler?: (event: GameEvent<any>) => void) {
     this.eventDispatcher.off(eventName, handler);
   }
 
-  public emit(topic: string, event?: GameEvent<any>) {
+  public emit(topic: string, event: GameEvent<any>) {
     this.eventDispatcher.emit(topic, event);
   }
 

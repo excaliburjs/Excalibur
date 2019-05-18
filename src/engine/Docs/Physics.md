@@ -32,6 +32,21 @@ Think of `Fixed` actors as "immovable/onstoppable" objects. If two [[CollisionTy
 meet they will not be pushed or moved by each other, they will not interact except to throw
 collision events.
 
+## Collision Type Behavior Matrix
+
+This matrix shows what will happen with 2 actors of any collision type.
+
+| Collision Type | Prevent |   Passive   |       Active        |        Fixed        |
+| -------------- | :-----: | :---------: | :-----------------: | :-----------------: |
+| Prevent        |  None   |    None     |        None         |        None         |
+| Passive        |  None   | Events Only |     Events Only     |     Events Only     |
+| Active         |  None   | Events Only | Resolution & Events | Resolution & Events |
+| Fixed          |  None   | Events Only | Resolution & Events |        None         |
+
+- None = No collision resolution and no collision events
+- Events Only = No resolution is performed, only collision events are fired on colliders, except for `postcollision` which only fires if resolution was performed.
+- Resolution & Events = Collider positions are resolved according to their collision type and collision events are fired on both colliders
+
 ## Enabling Excalibur physics
 
 To enable physics in your game it is as simple as setting [[Physics.enabled]] to true and picking your
@@ -98,7 +113,7 @@ actor.body.collider.on('postcollision', () => {...})
 
 ```ts
 // setup game
-var game = new ex.Engine({
+const game = new ex.Engine({
   width: 600,
   height: 400
 });
@@ -107,7 +122,7 @@ ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBod
 // set global acceleration simulating gravity pointing down
 ex.Physics.acc.setTo(0, 700);
 
-var block = new ex.Actor({
+const block = new ex.Actor({
   x: 300,
   y: 0,
   width: 20,
@@ -118,7 +133,7 @@ var block = new ex.Actor({
 block.body.useBoxCollider(); // useBoxCollision is the default, technically optional
 game.add(block);
 
-var circle = new ex.Actor({
+const circle = new ex.Actor({
   x: 301,
   y: 100,
   width: 20,
@@ -129,7 +144,7 @@ var circle = new ex.Actor({
 circle.body.useCircleCollider(10);
 game.add(circle);
 
-var ground = new ex.Actor({
+const ground = new ex.Actor({
   x: 300,
   y: 380,
   width: 600,

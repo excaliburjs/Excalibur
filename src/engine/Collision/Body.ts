@@ -1,4 +1,3 @@
-import { Pair } from './Pair';
 import { Vector } from '../Algebra';
 import { Actor } from '../Actor';
 import { Collider } from './Collider';
@@ -8,6 +7,7 @@ import { ConvexPolygon } from './ConvexPolygon';
 import { Circle } from './Circle';
 import { Edge } from './Edge';
 import { obsolete } from '../Util/Decorators';
+import { PreCollisionEvent, PostCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
 
 /**
  * Body describes all the physical properties pos, vel, acc, rotation, angular velocity
@@ -19,12 +19,13 @@ export class Body {
    * Constructs a new physics body associated with an actor
    */
   constructor(private _actor: Actor) {
-    this._collider = new Collider(this._actor, this);
+    this.collider = new Collider(this._actor, this);
   }
 
   // TODO allow multiple colliders
   public set collider(collider: Collider) {
     this._collider = collider;
+    this._wireColliderEventsToActor();
   }
 
   public get collider(): Collider {
@@ -122,11 +123,14 @@ export class Body {
     this._totalMtv.setTo(0, 0);
   }
 
-  public taintCollisionGeometry() {
+  /**
+   * Flags the shape dirty and must be recalculated in world space
+   */
+  public markCollisionShapeDirty() {
     this._geometryDirty = true;
   }
 
-  public get isGeometryDirty(): boolean {
+  public get isColliderShapeDirty(): boolean {
     return this._geometryDirty;
   }
 
@@ -146,18 +150,18 @@ export class Body {
    */
   public integrate(delta: number) {
     // Update placements based on linear algebra
-    var seconds = delta / 1000;
+    const seconds = delta / 1000;
 
-    var totalAcc = this.acc.clone();
+    const totalAcc = this.acc.clone();
     // Only active vanilla actors are affected by global acceleration
-    if (this.collider.collisionType === CollisionType.Active) {
+    if (this.collider.type === CollisionType.Active) {
       totalAcc.addEqual(Physics.acc);
     }
 
     this.vel.addEqual(totalAcc.scale(seconds));
     this.pos.addEqual(this.vel.scale(seconds)).addEqual(totalAcc.scale(0.5 * seconds * seconds));
 
-    this.rx += this.torque * (1.0 / this.collider.moi) * seconds;
+    this.rx += this.torque * (1.0 / this.collider.inertia) * seconds;
     this.rotation += this.rx * seconds;
 
     this.scale.x += (this.sx * delta) / 1000;
@@ -186,7 +190,7 @@ export class Body {
     });
 
     // in case of a nan moi, coalesce to a safe default
-    this.collider.moi = this.collider.shape.getMomentOfInertia() || this.collider.moi;
+    this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
     return this.collider;
   }
 
@@ -215,7 +219,7 @@ export class Body {
     });
 
     // in case of a nan moi, collesce to a safe default
-    this.collider.moi = this.collider.shape.getMomentOfInertia() || this.collider.moi;
+    this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
     return this.collider;
   }
 
@@ -241,7 +245,7 @@ export class Body {
       radius: radius,
       pos: center
     });
-    this.collider.moi = this.collider.shape.getMomentOfInertia() || this.collider.moi;
+    this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
     return this.collider;
   }
 
@@ -266,7 +270,31 @@ export class Body {
       end: end
     });
 
-    this.collider.moi = this.collider.shape.getMomentOfInertia() || this.collider.moi;
+    this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
+  }
+
+  private _wireColliderEventsToActor() {
+    this.collider.clear();
+    this.collider.on('precollision', (evt: PreCollisionEvent<Collider>) => {
+      if (this._actor) {
+        this._actor.emit('precollision', new PreCollisionEvent(evt.target.entity, evt.other.entity, evt.side, evt.intersection));
+      }
+    });
+    this.collider.on('postcollision', (evt: PostCollisionEvent<Collider>) => {
+      if (this._actor) {
+        this._actor.emit('postcollision', new PostCollisionEvent(evt.target.entity, evt.other.entity, evt.side, evt.intersection));
+      }
+    });
+    this.collider.on('collisionstart', (evt: CollisionStartEvent<Collider>) => {
+      if (this._actor) {
+        this._actor.emit('collisionstart', new CollisionStartEvent(evt.target.entity, evt.other.entity, evt.pair));
+      }
+    });
+    this.collider.on('collisionend', (evt: CollisionEndEvent<Collider>) => {
+      if (this._actor) {
+        this._actor.emit('collisionend', new CollisionEndEvent(evt.target.entity, evt.other.entity));
+      }
+    });
   }
 
   /**
@@ -275,21 +303,5 @@ export class Body {
   @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useEdgeCollider' })
   public useEdgeCollision(begin: Vector, end: Vector) {
     this.useEdgeCollider(begin, end);
-  }
-
-  /**
-   * Returns a boolean indicating whether this body collided with
-   * or was in stationary contact with
-   * the body of the other [[Body]]
-   */
-  public touching(other: Body): boolean {
-    var pair = new Pair(this.collider, other.collider);
-    pair.collide();
-
-    if (pair.collision) {
-      return true;
-    }
-
-    return false;
   }
 }

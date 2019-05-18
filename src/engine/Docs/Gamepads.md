@@ -38,7 +38,7 @@ Once you have a reference to a gamepad you may listen to changes on that gamepad
 
 ```ts
 engine.input.gamepads.on('connect', (ce: ex.Input.GamepadConnectEvent) => {
-  var newPlayer = CreateNewPlayer(); // pseudo-code for new player logic on gamepad connection
+  const newPlayer = CreateNewPlayer(); // pseudo-code for new player logic on gamepad connection
   console.log('Gamepad connected', ce);
   ce.gamepad.on('button', (be: ex.GamepadButtonEvent) => {
     if (be.button === ex.Input.Buttons.Face1) {

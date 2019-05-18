@@ -33,13 +33,13 @@ describe('Utility functions', () => {
     });
 
     it('should return true when successfully removing an item', () => {
-      var arrayToRemove = ['Stark', 'Lannister', 'Targaryen'];
+      const arrayToRemove = ['Stark', 'Lannister', 'Targaryen'];
       expect(ex.Util.removeItemFromArray('Lannister', arrayToRemove)).toBe(true);
       expect(arrayToRemove.length).toBe(2);
     });
 
     it('should return false when item to delete is not present', () => {
-      var arrayToRemove = ['Godfrey', 'Crizzo', 'Fullstack'];
+      const arrayToRemove = ['Godfrey', 'Crizzo', 'Fullstack'];
       expect(ex.Util.removeItemFromArray('Lannister', arrayToRemove)).toBe(false);
     });
   });

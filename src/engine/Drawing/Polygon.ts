@@ -46,19 +46,19 @@ export class Polygon implements Drawable {
   constructor(points: Vector[]) {
     this._points = points;
 
-    var minX = this._points.reduce((prev: number, curr: Vector) => {
+    const minX = this._points.reduce((prev: number, curr: Vector) => {
       return Math.min(prev, curr.x);
     }, 0);
-    var maxX = this._points.reduce((prev: number, curr: Vector) => {
+    const maxX = this._points.reduce((prev: number, curr: Vector) => {
       return Math.max(prev, curr.x);
     }, 0);
 
     this.drawWidth = maxX - minX;
 
-    var minY = this._points.reduce((prev: number, curr: Vector) => {
+    const minY = this._points.reduce((prev: number, curr: Vector) => {
       return Math.min(prev, curr.y);
     }, 0);
-    var maxY = this._points.reduce((prev: number, curr: Vector) => {
+    const maxY = this._points.reduce((prev: number, curr: Vector) => {
       return Math.max(prev, curr.y);
     }, 0);
 
@@ -109,11 +109,11 @@ export class Polygon implements Drawable {
     ctx.lineWidth = this.lineWidth;
 
     // Iterate through the supplied points and construct a 'polygon'
-    var firstPoint = this._points[0];
+    const firstPoint = this._points[0];
     ctx.moveTo(firstPoint.x, firstPoint.y);
 
-    var i = 0,
-      len = this._points.length;
+    let i = 0;
+    const len = this._points.length;
 
     for (i; i < len; i++) {
       ctx.lineTo(this._points[i].x, this._points[i].y);

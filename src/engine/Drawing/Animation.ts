@@ -72,9 +72,9 @@ export class AnimationImpl implements Drawable {
    * @param loop    Indicates whether the animation should loop after it is completed
    */
   constructor(engineOrConfig: Engine | AnimationArgs, sprites: Sprite[], speed: number, loop?: boolean) {
-    var engine = engineOrConfig;
+    let engine = engineOrConfig;
     if (engineOrConfig && !(engineOrConfig instanceof Engine)) {
-      var config = engineOrConfig;
+      const config = engineOrConfig;
       engine = config.engine;
       sprites = config.sprites;
       speed = config.speed;
@@ -168,7 +168,7 @@ export class AnimationImpl implements Drawable {
    * Add a [[ISpriteEffect]] manually
    */
   public addEffect(effect: Effects.SpriteEffect) {
-    for (var i in this.sprites) {
+    for (const i in this.sprites) {
       this.sprites[i].addEffect(effect);
     }
   }
@@ -185,7 +185,7 @@ export class AnimationImpl implements Drawable {
    */
   public removeEffect(index: number): void;
   public removeEffect(param: any) {
-    for (var i in this.sprites) {
+    for (const i in this.sprites) {
       this.sprites[i].removeEffect(param);
     }
   }
@@ -194,14 +194,14 @@ export class AnimationImpl implements Drawable {
    * Clear all sprite effects
    */
   public clearEffects() {
-    for (var i in this.sprites) {
+    for (const i in this.sprites) {
       this.sprites[i].clearEffects();
     }
   }
 
   private _setAnchor(point: Vector) {
     //if (!this.anchor.equals(point)) {
-    for (var i in this.sprites) {
+    for (const i in this.sprites) {
       this.sprites[i].anchor.setTo(point.x, point.y);
     }
     //}
@@ -209,7 +209,7 @@ export class AnimationImpl implements Drawable {
 
   private _setRotation(radians: number) {
     //if (this.rotation !== radians) {
-    for (var i in this.sprites) {
+    for (const i in this.sprites) {
       this.sprites[i].rotation = radians;
     }
     //}
@@ -217,7 +217,7 @@ export class AnimationImpl implements Drawable {
 
   private _setScale(scale: Vector) {
     //if (!this.scale.equals(scale)) {
-    for (var i in this.sprites) {
+    for (const i in this.sprites) {
       this.sprites[i].scale = scale;
     }
     //}
@@ -243,7 +243,7 @@ export class AnimationImpl implements Drawable {
    * @internal
    */
   public tick() {
-    var time = Date.now();
+    const time = Date.now();
     if (time - this._oldTime > this.speed) {
       this.currentFrame = this.loop ? (this.currentFrame + 1) % this.sprites.length : this.currentFrame + 1;
       this._oldTime = time;
@@ -267,7 +267,7 @@ export class AnimationImpl implements Drawable {
   public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
     this.tick();
     this._updateValues();
-    var currSprite: Sprite;
+    let currSprite: Sprite;
     if (this.currentFrame < this.sprites.length) {
       currSprite = this.sprites[this.currentFrame];
       if (this.flipVertical) {

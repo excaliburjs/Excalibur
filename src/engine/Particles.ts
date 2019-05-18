@@ -72,9 +72,9 @@ export class ParticleImpl {
     startSize?: number,
     endSize?: number
   ) {
-    var emitter = emitterOrConfig;
+    let emitter = emitterOrConfig;
     if (emitter && !(emitterOrConfig instanceof ParticleEmitter)) {
-      var config = emitterOrConfig;
+      const config = emitterOrConfig;
       emitter = config.emitter;
       life = config.life;
       opacity = config.opacity;
@@ -139,7 +139,7 @@ export class ParticleImpl {
     this._currentColor.a = Util.clamp(this.opacity, 0.0001, 1);
 
     if (this.focus) {
-      var accel = this.focus
+      const accel = this.focus
         .sub(this.position)
         .normalize()
         .scale(this.focusAccel)
@@ -378,7 +378,7 @@ export class ParticleEmitterImpl extends Actor {
    * @param particleCount  Number of particles to emit right now
    */
   public emitParticles(particleCount: number) {
-    for (var i = 0; i < particleCount; i++) {
+    for (let i = 0; i < particleCount; i++) {
       this.particles.push(this._createParticle());
     }
   }
@@ -390,25 +390,25 @@ export class ParticleEmitterImpl extends Actor {
   // Creates a new particle given the constraints of the emitter
   private _createParticle(): Particle {
     // todo implement emitter constraints;
-    var ranX = 0;
-    var ranY = 0;
+    let ranX = 0;
+    let ranY = 0;
 
-    var angle = Util.randomInRange(this.minAngle, this.maxAngle, this.random);
-    var vel = Util.randomInRange(this.minVel, this.maxVel, this.random);
-    var size = this.startSize || Util.randomInRange(this.minSize, this.maxSize, this.random);
-    var dx = vel * Math.cos(angle);
-    var dy = vel * Math.sin(angle);
+    const angle = Util.randomInRange(this.minAngle, this.maxAngle, this.random);
+    const vel = Util.randomInRange(this.minVel, this.maxVel, this.random);
+    const size = this.startSize || Util.randomInRange(this.minSize, this.maxSize, this.random);
+    const dx = vel * Math.cos(angle);
+    const dy = vel * Math.sin(angle);
 
     if (this.emitterType === EmitterType.Rectangle) {
       ranX = Util.randomInRange(this.pos.x, this.pos.x + this.getWidth(), this.random);
       ranY = Util.randomInRange(this.pos.y, this.pos.y + this.getHeight(), this.random);
     } else if (this.emitterType === EmitterType.Circle) {
-      var radius = Util.randomInRange(0, this.radius, this.random);
+      const radius = Util.randomInRange(0, this.radius, this.random);
       ranX = radius * Math.cos(angle) + this.pos.x;
       ranY = radius * Math.sin(angle) + this.pos.y;
     }
 
-    var p = new Particle(
+    const p = new Particle(
       this,
       this.particleLife,
       this.opacity,

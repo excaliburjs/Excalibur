@@ -1,4 +1,4 @@
-﻿import { Class } from './../Class';
+import { Class } from './../Class';
 import { GameEvent } from '../Events';
 import * as Events from '../Events';
 
@@ -84,11 +84,11 @@ export class Keyboard extends Class {
     super();
   }
 
-  public on(eventName: Events.press, handler: (event?: KeyEvent) => void): void;
-  public on(eventName: Events.release, handler: (event?: KeyEvent) => void): void;
-  public on(eventName: Events.hold, handler: (event?: KeyEvent) => void): void;
-  public on(eventName: string, handler: (event?: GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event?: any) => void): void {
+  public on(eventName: Events.press, handler: (event: KeyEvent) => void): void;
+  public on(eventName: Events.release, handler: (event: KeyEvent) => void): void;
+  public on(eventName: Events.hold, handler: (event: KeyEvent) => void): void;
+  public on(eventName: string, handler: (event: GameEvent<any>) => void): void;
+  public on(eventName: string, handler: (event: any) => void): void {
     super.on(eventName, handler);
   }
 
@@ -103,11 +103,11 @@ export class Keyboard extends Class {
 
     // key up is on window because canvas cannot have focus
     global.addEventListener('keyup', (ev: KeyboardEvent) => {
-      var code = this._normalizeKeyCode(ev.keyCode);
-      var key = this._keys.indexOf(code);
+      const code = this._normalizeKeyCode(ev.keyCode);
+      const key = this._keys.indexOf(code);
       this._keys.splice(key, 1);
       this._keysUp.push(code);
-      var keyEvent = new KeyEvent(code);
+      const keyEvent = new KeyEvent(code);
 
       // alias the old api, we may want to deprecate this in the future
       this.eventDispatcher.emit('up', keyEvent);
@@ -116,11 +116,11 @@ export class Keyboard extends Class {
 
     // key down is on window because canvas cannot have focus
     global.addEventListener('keydown', (ev: KeyboardEvent) => {
-      var code = this._normalizeKeyCode(ev.keyCode);
+      const code = this._normalizeKeyCode(ev.keyCode);
       if (this._keys.indexOf(code) === -1) {
         this._keys.push(code);
         this._keysDown.push(code);
-        var keyEvent = new KeyEvent(code);
+        const keyEvent = new KeyEvent(code);
         this.eventDispatcher.emit('down', keyEvent);
         this.eventDispatcher.emit('press', keyEvent);
       }
@@ -133,7 +133,7 @@ export class Keyboard extends Class {
     this._keysUp.length = 0;
 
     // Emit synthetic "hold" event
-    for (var i = 0; i < this._keys.length; i++) {
+    for (let i = 0; i < this._keys.length; i++) {
       this.eventDispatcher.emit('hold', new KeyEvent(this._keys[i]));
     }
   }

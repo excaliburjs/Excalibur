@@ -1,7 +1,7 @@
-﻿import * as ex from '../../build/dist/excalibur';
+import * as ex from '../../build/dist/excalibur';
 
 describe('An Event Dispatcher', () => {
-  var pubsub: ex.EventDispatcher;
+  let pubsub: ex.EventDispatcher;
   beforeEach(() => {
     pubsub = new ex.EventDispatcher(null);
   });
@@ -15,7 +15,7 @@ describe('An Event Dispatcher', () => {
   });
 
   it('can publish events', () => {
-    var eventFired = false;
+    let eventFired = false;
     pubsub.on('event', function() {
       eventFired = true;
     });
@@ -24,8 +24,8 @@ describe('An Event Dispatcher', () => {
   });
 
   it('can published against a target', () => {
-    var targetContext = null;
-    var target = new ex.Actor();
+    let targetContext = null;
+    const target = new ex.Actor();
 
     pubsub = new ex.EventDispatcher(target);
     pubsub.on('event', function() {
@@ -36,7 +36,7 @@ describe('An Event Dispatcher', () => {
   });
 
   it('has an emit alias for publish', () => {
-    var eventFired = false;
+    let eventFired = false;
     pubsub.on('event', function() {
       eventFired = true;
     });
@@ -67,10 +67,10 @@ describe('An Event Dispatcher', () => {
   });
 
   it('can wire to other event dispatchers', () => {
-    var newPubSub = new ex.EventDispatcher(null);
+    const newPubSub = new ex.EventDispatcher(null);
     pubsub.wire(newPubSub);
 
-    var eventFired = false;
+    let eventFired = false;
     pubsub.on('someevent', () => {
       eventFired = true;
     });
@@ -80,10 +80,10 @@ describe('An Event Dispatcher', () => {
   });
 
   it('can unwire from other event dispatchers', () => {
-    var newPubSub = new ex.EventDispatcher(null);
+    const newPubSub = new ex.EventDispatcher(null);
     pubsub.wire(newPubSub);
 
-    var eventFired = false;
+    let eventFired = false;
     pubsub.on('someevent', () => {
       eventFired = true;
     });
@@ -92,7 +92,7 @@ describe('An Event Dispatcher', () => {
 
     expect(eventFired).toBeTruthy();
 
-    var otherEvent = false;
+    let otherEvent = false;
     pubsub.on('otherevent', () => {
       otherEvent = true;
     });
@@ -103,7 +103,7 @@ describe('An Event Dispatcher', () => {
   });
 
   it('can listen to a handler only once', () => {
-    let pubsub = new ex.EventDispatcher(null);
+    const pubsub = new ex.EventDispatcher(null);
 
     let callCount = 0;
     pubsub.once('onlyonce', () => {

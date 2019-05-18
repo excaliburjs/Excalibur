@@ -1,4 +1,4 @@
-﻿/**
+/**
  * A sorted list implementation. NOTE: this implementation is not self-balancing
  */
 export class SortedList<T> {
@@ -91,7 +91,7 @@ export class SortedList<T> {
     if (node == null) {
       return null;
     } else if (this._getComparable.call(element) === node.getKey()) {
-      var elementIndex = node.getData().indexOf(element);
+      const elementIndex = node.getData().indexOf(element);
       // if the node contains the element, remove the element
       if (elementIndex > -1) {
         node.getData().splice(elementIndex, 1);
@@ -106,7 +106,7 @@ export class SortedList<T> {
             return node.getLeft();
           }
           // if node has 2 children
-          var temp = this._findMinNode(node.getRight());
+          const temp = this._findMinNode(node.getRight());
           node.setKey(temp.getKey());
           node.setData(temp.getData());
           node.setRight(this._cleanup(node.getRight(), temp)); //"cleanup nodes" (move them up recursively)
@@ -128,7 +128,7 @@ export class SortedList<T> {
 
   // called once we have successfully removed the element we wanted, recursively corrects the part of the tree below the removed node
   private _cleanup(node: BinaryTreeNode, element: BinaryTreeNode): BinaryTreeNode {
-    var comparable = element.getKey();
+    const comparable = element.getKey();
     if (node == null) {
       return null;
     } else if (comparable === node.getKey()) {
@@ -141,7 +141,7 @@ export class SortedList<T> {
         return node.getLeft();
       }
       // if node has 2 children
-      var temp = this._findMinNode(node.getRight());
+      const temp = this._findMinNode(node.getRight());
       node.setKey(temp.getKey());
       node.setData(temp.getData());
 
@@ -157,7 +157,7 @@ export class SortedList<T> {
   }
 
   private _findMinNode(node: BinaryTreeNode): BinaryTreeNode {
-    var current = node;
+    let current = node;
     while (current.getLeft() != null) {
       current = current.getLeft();
     }
@@ -165,7 +165,7 @@ export class SortedList<T> {
   }
 
   public list(): Array<T> {
-    var results = new Array<any>();
+    const results = new Array<any>();
     this._list(this._root, results);
     return results;
   }

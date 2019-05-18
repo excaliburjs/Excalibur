@@ -1,7 +1,7 @@
 import * as ex from '../../build/dist/excalibur';
 
 describe('A collection', () => {
-  var collection;
+  let collection;
   beforeEach(() => {
     collection = new ex.Util.Collection<number>(4);
   });
@@ -21,11 +21,11 @@ describe('A collection', () => {
 
   it('can resize when more items are a added than the internal array', () => {
     expect(collection.internalSize()).toBe(4);
-    for (var i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i++) {
       collection.push(1);
     }
     expect(collection.internalSize()).toBe(8);
-    for (var j = 0; j < 8; j++) {
+    for (let j = 0; j < 8; j++) {
       collection.push(1);
     }
     expect(collection.internalSize()).toBe(16);
@@ -51,16 +51,16 @@ describe('A collection', () => {
     collection.push(42);
     collection.push(100);
     expect(collection.count()).toBe(2);
-    var fortyTwo = collection.remove(0);
+    const fortyTwo = collection.remove(0);
     expect(fortyTwo).toBe(42);
     expect(collection.count()).toBe(1);
-    var oneHundred = collection.remove(0);
+    const oneHundred = collection.remove(0);
     expect(oneHundred).toBe(100);
     expect(collection.count()).toBe(0);
   });
 
   it('can have elements accessed at an index', () => {
-    for (var i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i++) {
       collection.push(i);
       //console.log(collection.elementAt(i));
       expect(collection.count()).toBe(i + 1);
@@ -72,7 +72,7 @@ describe('A collection', () => {
   });
 
   it('can have elements removed at an index', () => {
-    for (var i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i++) {
       collection.push(i);
     }
     expect(collection.elementAt(7)).toBe(7);
@@ -82,8 +82,8 @@ describe('A collection', () => {
   });
 
   it('can have the first instance of a value removed', () => {
-    var collection = new ex.Util.Collection<string>();
-    for (var i = 0; i < 20; i++) {
+    const collection = new ex.Util.Collection<string>();
+    for (let i = 0; i < 20; i++) {
       collection.push(i.toString());
     }
     expect(collection.elementAt(7)).toBe('7');
@@ -93,7 +93,7 @@ describe('A collection', () => {
   });
 
   it('can have elements interted into it', () => {
-    for (var i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i++) {
       collection.push(i);
     }
     expect(collection.elementAt(7)).toBe(7);
@@ -104,7 +104,7 @@ describe('A collection', () => {
   });
 
   it('can be cleared of all elements', () => {
-    for (var i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i++) {
       collection.push(i);
     }
     expect(collection.count()).toBe(20);
@@ -113,17 +113,17 @@ describe('A collection', () => {
   });
 
   it('can be converted into an array', () => {
-    for (var i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i++) {
       collection.push(i);
     }
     expect(collection.toArray().length).toBe(20);
   });
 
   it('has a forEach functionality', () => {
-    for (var i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
       collection.push(i);
     }
-    var sum = 0;
+    let sum = 0;
     collection.forEach(function(element: number, index: number) {
       sum += element;
     });
@@ -132,7 +132,7 @@ describe('A collection', () => {
   });
 
   it('has a map functionality', () => {
-    for (var i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
       collection.push(i);
     }
     collection.map(function(element: number, index: number) {

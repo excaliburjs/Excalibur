@@ -159,11 +159,17 @@ export type pointerdragmove = 'pointerdragmove';
  * some events are unique to a type, others are not.
  *
  */
-export class GameEvent<T> {
+export class GameEvent<T, U = T> {
   /**
    * Target object for this event.
    */
   public target: T;
+
+  /**
+   * Other target object for this event
+   */
+  public other: U;
+
   /**
    * determines, if event bubbles to the target's ancestors
    */
@@ -408,7 +414,7 @@ export class GamepadAxisEvent extends GameEvent<Input.Gamepad> {
  * [[EventDispatcher|event dispatchers]].
  */
 export class SubscribeEvent<T> extends GameEvent<T> {
-  constructor(public topic: string, public handler: (event?: GameEvent<T>) => void) {
+  constructor(public topic: string, public handler: (event: GameEvent<T>) => void) {
     super();
   }
 }
@@ -418,7 +424,7 @@ export class SubscribeEvent<T> extends GameEvent<T> {
  * [[EventDispatcher|event dispatchers]].
  */
 export class UnsubscribeEvent<T> extends GameEvent<T> {
-  constructor(public topic: string, public handler: (event?: GameEvent<T>) => void) {
+  constructor(public topic: string, public handler: (event: GameEvent<T>) => void) {
     super();
   }
 }
@@ -451,8 +457,16 @@ export class PreCollisionEvent<T extends Collider | Actor = Actor> extends GameE
    * @param side          The side that will be collided with the current actor
    * @param intersection  Intersection vector
    */
-  constructor(public actor: T, public other: T, public side: Side, public intersection: Vector) {
+  constructor(actor: T, public other: T, public side: Side, public intersection: Vector) {
     super();
+    this.target = actor;
+  }
+
+  public get actor() {
+    return this.target;
+  }
+
+  public set actor(actor: T) {
     this.target = actor;
   }
 }
@@ -467,8 +481,16 @@ export class PostCollisionEvent<T extends Collider | Actor = Actor> extends Game
    * @param side          The side that did collide with the current actor
    * @param intersection  Intersection vector
    */
-  constructor(public actor: T, public other: T, public side: Side, public intersection: Vector) {
+  constructor(actor: T, public other: T, public side: Side, public intersection: Vector) {
     super();
+    this.target = actor;
+  }
+
+  public get actor() {
+    return this.target;
+  }
+
+  public set actor(actor: T) {
     this.target = actor;
   }
 }
@@ -483,8 +505,16 @@ export class CollisionStartEvent<T extends Collider | Actor = Actor> extends Gam
    * @param other
    * @param pair
    */
-  constructor(public actor: T, public other: T, public pair: Pair) {
+  constructor(actor: T, public other: T, public pair: Pair) {
     super();
+    this.target = actor;
+  }
+
+  public get actor() {
+    return this.target;
+  }
+
+  public set actor(actor: T) {
     this.target = actor;
   }
 }
@@ -496,8 +526,16 @@ export class CollisionEndEvent<T extends Collider | Actor = Actor> extends GameE
   /**
    *
    */
-  constructor(public actor: T, public other: T) {
+  constructor(actor: T, public other: T) {
     super();
+    this.target = actor;
+  }
+
+  public get actor() {
+    return this.target;
+  }
+
+  public set actor(actor: T) {
     this.target = actor;
   }
 }

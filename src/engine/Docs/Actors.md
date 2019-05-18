@@ -7,7 +7,7 @@ Actors (and other entities) must be added to a [[Scene]] to be drawn
 and updated on-screen.
 
 ```ts
-var player = new ex.Actor();
+const player = new ex.Actor();
 
 // move the player
 player.vel.x = 5;
@@ -167,10 +167,10 @@ Use [[SpriteSheet.getAnimationForAll]] to easily generate an [[Animation]].
 public onInitialize(engine: ex.Engine) {
 
    // create a SpriteSheet for the animation
-   var playerIdleSheet = new ex.SpriteSheet(Resources.TxPlayerIdle, 5, 1, 80, 80);
+   const playerIdleSheet = new ex.SpriteSheet(Resources.TxPlayerIdle, 5, 1, 80, 80);
 
    // create an animation
-   var playerIdleAnimation = playerIdleSheet.getAnimationForAll(engine, 120);
+   const playerIdleAnimation = playerIdleSheet.getAnimationForAll(engine, 120);
 
    // the first drawing is always the current
    this.addDrawing("idle", playerIdleAnimation);
@@ -228,7 +228,7 @@ public Player extends ex.Actor {
 
 // or set the collisionType
 
-var actor = new ex.Actor();
+const actor = new ex.Actor();
 actor.collisionType = ex.CollisionType.Active;
 ```
 

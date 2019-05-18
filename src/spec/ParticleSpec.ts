@@ -20,7 +20,7 @@ describe('A particle', () => {
   });
 
   it('should have props set by the constructor', () => {
-    let emitter = new ex.ParticleEmitter({
+    const emitter = new ex.ParticleEmitter({
       x: 400,
       y: 100,
       width: 20,
@@ -82,7 +82,7 @@ describe('A particle', () => {
   });
 
   it('should emit particles', (done) => {
-    let emitter = new ex.ParticleEmitter({
+    const emitter = new ex.ParticleEmitter({
       x: 400,
       y: 100,
       width: 20,

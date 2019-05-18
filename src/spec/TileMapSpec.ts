@@ -25,7 +25,7 @@ describe('A TileMap', () => {
   });
 
   it('should have props set by the constructor', () => {
-    let tm = new ex.TileMap({
+    const tm = new ex.TileMap({
       x: 0,
       y: 0,
       cellWidth: 64,
@@ -44,7 +44,7 @@ describe('A TileMap', () => {
 
   it('should draw the correct proportions', (done) => {
     texture.load().then(() => {
-      let tm = new ex.TileMap({
+      const tm = new ex.TileMap({
         x: 30,
         y: 30,
         cellWidth: 64,
@@ -52,7 +52,7 @@ describe('A TileMap', () => {
         rows: 3,
         cols: 7
       });
-      let spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
+      const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
       tm.registerSpriteSheet('default', spriteTiles);
       tm.data.forEach(function(cell: ex.Cell) {
         cell.solid = true;
@@ -70,7 +70,7 @@ describe('A TileMap', () => {
 
   it('should handle offscreen culling correctly with negative coords', (done) => {
     texture.load().then(() => {
-      let tm = new ex.TileMap({
+      const tm = new ex.TileMap({
         x: -100,
         y: -100,
         cellWidth: 64,
@@ -78,7 +78,7 @@ describe('A TileMap', () => {
         rows: 20,
         cols: 20
       });
-      let spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
+      const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
       tm.registerSpriteSheet('default', spriteTiles);
       tm.data.forEach(function(cell: ex.Cell) {
         cell.solid = true;

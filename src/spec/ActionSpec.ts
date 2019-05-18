@@ -594,7 +594,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      let actorToFollow = new ex.Actor(10, 0);
+      const actorToFollow = new ex.Actor(10, 0);
       actorToFollow.actions.moveTo(100, 0, 10);
       actor.actions.follow(actorToFollow);
       // actor.update(engine, 1000);
@@ -615,7 +615,7 @@ describe('Action', () => {
       expect(actor.pos.y).toBe(0);
 
       // testing basic meet
-      let actorToMeet = new ex.Actor(10, 0);
+      const actorToMeet = new ex.Actor(10, 0);
       actorToMeet.actions.moveTo(100, 0, 10);
       actor.actions.meet(actorToMeet);
 

@@ -67,10 +67,10 @@ export class Detector {
    */
   public logBrowserFeatures(): void {
     let msg = '%cSUPPORTED BROWSER FEATURES\n==========================%c\n';
-    let args = ['font-weight: bold; color: navy', 'font-weight: normal; color: inherit'];
+    const args = ['font-weight: bold; color: navy', 'font-weight: normal; color: inherit'];
 
-    let supported: any = this.getBrowserFeatures();
-    for (let feature of Object.keys(REPORTED_FEATURES)) {
+    const supported: any = this.getBrowserFeatures();
+    for (const feature of Object.keys(REPORTED_FEATURES)) {
       if (supported[feature]) {
         msg += '(%c\u2713%c)'; // (✓)
         args.push('font-weight: bold; color: green');
@@ -140,13 +140,13 @@ export class Detector {
   private _criticalTests: CriticalTests = {
     // Test canvas/2d context support
     canvasSupport: function() {
-      var elem = document.createElement('canvas');
+      const elem = document.createElement('canvas');
       return !!(elem.getContext && elem.getContext('2d'));
     },
 
     // Test array buffer support ex uses for downloading binary data
     arrayBufferSupport: function() {
-      var xhr = new XMLHttpRequest();
+      const xhr = new XMLHttpRequest();
       xhr.open('GET', '/');
       try {
         xhr.responseType = 'arraybuffer';
@@ -158,7 +158,7 @@ export class Detector {
 
     // Test data urls ex uses for sprites
     dataUrlSupport: function() {
-      var canvas = document.createElement('canvas');
+      const canvas = document.createElement('canvas');
       return canvas.toDataURL('image/png').indexOf('data:image/png') === 0;
     },
 
@@ -169,7 +169,7 @@ export class Detector {
 
     // RGBA support for colors
     rgbaSupport: function() {
-      var style = document.createElement('a').style;
+      const style = document.createElement('a').style;
       style.cssText = 'background-color:rgba(150,255,150,.5)';
       return ('' + style.backgroundColor).indexOf('rgba') > -1;
     }
@@ -187,15 +187,15 @@ export class Detector {
       );
     },
     webglSupport: function() {
-      var elem = document.createElement('canvas');
+      const elem = document.createElement('canvas');
       return !!(elem.getContext && elem.getContext('webgl'));
     }
   };
 
   public test(): boolean {
     // Critical test will for ex not to run
-    var failedCritical = false;
-    for (var test in this._criticalTests) {
+    let failedCritical = false;
+    for (const test in this._criticalTests) {
       if (!this._criticalTests[<keyof CriticalTests>test].call(this)) {
         this.failedTests.push(test);
         Logger.getInstance().error('Critical browser feature missing, Excalibur requires:', test);
@@ -207,7 +207,7 @@ export class Detector {
     }
 
     // Warning tests do not for ex to return false to compatibility
-    for (var warning in this._warningTest) {
+    for (const warning in this._warningTest) {
       if (!this._warningTest[<keyof WarningTests>warning]()) {
         Logger.getInstance().warn('Warning browser feature missing, Excalibur will have reduced performance:', warning);
       }

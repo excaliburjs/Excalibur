@@ -24,12 +24,12 @@ export class Pair {
     }
 
     // if both are fixed short circuit
-    if (colliderA.collisionType === CollisionType.Fixed && colliderB.collisionType === CollisionType.Fixed) {
+    if (colliderA.type === CollisionType.Fixed && colliderB.type === CollisionType.Fixed) {
       return false;
     }
 
     // if the either is prevent collision short circuit
-    if (colliderB.collisionType === CollisionType.PreventCollision || colliderA.collisionType === CollisionType.PreventCollision) {
+    if (colliderB.type === CollisionType.PreventCollision || colliderA.type === CollisionType.PreventCollision) {
       return false;
     }
 
@@ -45,8 +45,8 @@ export class Pair {
    * Returns whether or not it is possible for the pairs to collide
    */
   public get canCollide(): boolean {
-    let actorA = this.colliderA;
-    let actorB = this.colliderB;
+    const actorA = this.colliderA;
+    const actorB = this.colliderB;
     return Pair.canCollide(actorA, actorB);
   }
 
@@ -54,7 +54,7 @@ export class Pair {
    * Runs the collison intersection logic on the members of this pair
    */
   public collide() {
-    this.collision = this.colliderA.shape.collide(this.colliderB.shape);
+    this.collision = this.colliderA.collide(this.colliderB);
   }
 
   /**

@@ -1,10 +1,10 @@
-﻿import * as ex from '../../build/dist/excalibur';
+import * as ex from '../../build/dist/excalibur';
 import { TestUtils } from './util/TestUtils';
 
 describe('A scene', () => {
-  var actor: ex.Actor;
-  var engine: ex.Engine;
-  var scene: ex.Scene;
+  let actor: ex.Actor;
+  let engine: ex.Engine;
+  let scene: ex.Scene;
 
   beforeEach(() => {
     actor = new ex.Actor();
@@ -23,7 +23,7 @@ describe('A scene', () => {
   });
 
   it('cannot have the same UIActor added to it more than once', () => {
-    var uiActor = new ex.UIActor();
+    const uiActor = new ex.UIActor();
     scene.add(uiActor);
     expect(scene.uiActors.length).toBe(1);
     scene.add(uiActor);
@@ -38,7 +38,7 @@ describe('A scene', () => {
   });
 
   it('cannot have the same TileMap added to it more than once', () => {
-    var tileMap = new ex.TileMap(1, 1, 1, 1, 1, 1);
+    const tileMap = new ex.TileMap(1, 1, 1, 1, 1, 1);
     scene.add(tileMap);
     expect(scene.tileMaps.length).toBe(1);
     scene.add(tileMap);
@@ -233,7 +233,7 @@ describe('A scene', () => {
   });
 
   it('fires initialize before activate', (done) => {
-    var initialized = false;
+    let initialized = false;
     scene.on('initialize', (evt: ex.InitializeEvent) => {
       initialized = true;
     });
@@ -246,14 +246,14 @@ describe('A scene', () => {
   });
 
   it('fires initialize before actor initialize before activate', (done) => {
-    var sceneInitialized = false;
-    var sceneActivated = false;
-    var actorInitialized = false;
+    let sceneInitialized = false;
+    const sceneActivated = false;
+    let actorInitialized = false;
     scene.on('initialize', (evt) => {
       sceneInitialized = true;
       expect(actorInitialized).toBe(true, 'Actor should be initialized before scene initilization');
     });
-    var actor = new ex.Actor();
+    const actor = new ex.Actor();
     actor.on('initialize', (evt) => {
       actorInitialized = true;
     });
@@ -270,7 +270,7 @@ describe('A scene', () => {
   });
 
   it('can only be initialized once', () => {
-    var initializeCount = 0;
+    let initializeCount = 0;
     scene.on('initialize', (evt) => {
       initializeCount++;
     });
@@ -286,7 +286,7 @@ describe('A scene', () => {
   });
 
   it('should allow adding and removing an Actor in same frame', () => {
-    var removed = false;
+    let removed = false;
     scene.add(actor);
     actor.on('postupdate', () => {
       scene.remove(actor);
@@ -299,7 +299,7 @@ describe('A scene', () => {
   });
 
   it('should allow adding and killing an Actor in same frame', () => {
-    var removed = false;
+    let removed = false;
     scene.add(actor);
     actor.on('postupdate', () => {
       actor.kill();
@@ -312,8 +312,8 @@ describe('A scene', () => {
   });
 
   it('should allow another Actor to add and remove a different Actor in same frame', () => {
-    var removed = false;
-    var otherActor = new ex.Actor();
+    let removed = false;
+    const otherActor = new ex.Actor();
     scene.add(otherActor);
 
     otherActor.on('initialize', () => {
@@ -331,8 +331,8 @@ describe('A scene', () => {
   });
 
   it('should allow another Actor to add and kill a different Actor in same frame', () => {
-    var removed = false;
-    var otherActor = new ex.Actor();
+    let removed = false;
+    const otherActor = new ex.Actor();
     scene.add(otherActor);
     otherActor.on('initialize', () => {
       scene.add(actor);
@@ -349,7 +349,7 @@ describe('A scene', () => {
   });
 
   it('will still be in the draw tree if it is killed and then added in the same frame', () => {
-    var actor = new ex.Actor();
+    const actor = new ex.Actor();
     scene.add(actor);
     actor.kill();
     scene.add(actor);
@@ -362,9 +362,9 @@ describe('A scene', () => {
   });
 
   it('will update Actors that were added in a Timer callback', () => {
-    var updated = false;
-    var initialized = false;
-    var actor = new ex.Actor();
+    let updated = false;
+    let initialized = false;
+    const actor = new ex.Actor();
     actor.on('initialize', () => {
       initialized = true;
     });
@@ -379,7 +379,7 @@ describe('A scene', () => {
     });
 
     // create Timer
-    var timer = new ex.Timer(
+    const timer = new ex.Timer(
       () => {
         scene.add(actor);
       },
@@ -397,9 +397,9 @@ describe('A scene', () => {
   });
 
   it('will update UIActors that were added in a Timer callback', () => {
-    var updated = false;
-    var initialized = false;
-    var actor = new ex.UIActor();
+    let updated = false;
+    let initialized = false;
+    const actor = new ex.UIActor();
     actor.on('initialize', () => {
       initialized = true;
     });
@@ -414,7 +414,7 @@ describe('A scene', () => {
     });
 
     // create Timer
-    var timer = new ex.Timer(
+    const timer = new ex.Timer(
       () => {
         scene.add(actor);
       },
@@ -462,8 +462,8 @@ describe('A scene', () => {
   });
 
   it('will update TileMaps that were added in a Timer callback', () => {
-    var updated = false;
-    var tilemap = new ex.TileMap(0, 0, 1, 1, 1, 1);
+    let updated = false;
+    const tilemap = new ex.TileMap(0, 0, 1, 1, 1, 1);
     tilemap.on('postupdate', () => {
       updated = true;
     });
@@ -472,7 +472,7 @@ describe('A scene', () => {
     });
 
     // create Timer
-    var timer = new ex.Timer(
+    const timer = new ex.Timer(
       () => {
         scene.add(tilemap);
       },
@@ -494,12 +494,12 @@ describe('A scene', () => {
   });
 
   it('will not be the current scene if no engine is given', () => {
-    var otherScene = new ex.Scene(engine);
+    const otherScene = new ex.Scene(engine);
     expect(otherScene.isCurrentScene()).toBe(false);
   });
 
   it('will not be the current scene if the scene was switched', () => {
-    var otherScene = new ex.Scene(engine);
+    const otherScene = new ex.Scene(engine);
     engine.goToScene('root');
     engine.addScene('secondaryScene', otherScene);
     engine.goToScene('secondaryScene');
