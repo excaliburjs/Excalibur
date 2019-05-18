@@ -35,13 +35,13 @@ describe('A Collision Group', () => {
   });
 
   it('should be accessible by name', () => {
-    let maybeGroupA = ex.CollisionGroupManager.groupByName('groupA');
+    const maybeGroupA = ex.CollisionGroupManager.groupByName('groupA');
     expect(maybeGroupA).toBe(groupA);
 
-    let maybeGroupB = ex.CollisionGroupManager.groupByName('groupB');
+    const maybeGroupB = ex.CollisionGroupManager.groupByName('groupB');
     expect(maybeGroupB).toBe(groupB);
 
-    let maybeGroupC = ex.CollisionGroupManager.groupByName('groupC');
+    const maybeGroupC = ex.CollisionGroupManager.groupByName('groupC');
     expect(maybeGroupC).toBe(groupC);
   });
 
@@ -65,9 +65,9 @@ describe('A Collision Group', () => {
     }
 
     for (let i = 0; i < 32; i++) {
-      let groupI = ex.CollisionGroupManager.groupByName('group' + i);
+      const groupI = ex.CollisionGroupManager.groupByName('group' + i);
       for (let j = 0; j < 32; j++) {
-        let groupJ = ex.CollisionGroupManager.groupByName('group' + j);
+        const groupJ = ex.CollisionGroupManager.groupByName('group' + j);
         if (i === j) {
           expect(groupI.canCollide(groupJ)).toBe(false);
         } else {
