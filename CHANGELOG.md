@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Changed event handlers in excalibur to expect non-null event objects, before `hander: (event?: GameEvent) => void` implied that event could be null. This change addresses ([#1147](https://github.com/excaliburjs/Excalibur/issues/1147)) making strict null/function checks compatible with new typescript.
+- Changed collision system to remove actor coupling, in addition `ex.Collider` is a new type that encapsulates all collision behavior. Use `ex.Actor.body.collider` to interact with collisions in Excalibur ([#1119](https://github.com/excaliburjs/Excalibur/issues/1119))
 
 ### Deprecated
 
