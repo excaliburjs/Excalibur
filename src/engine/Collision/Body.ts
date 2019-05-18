@@ -126,7 +126,7 @@ export class Body {
   /**
    * Flags the shape dirty and must be recalculated in world space
    */
-  public dirtyColliderShape() {
+  public markCollisionShapeDirty() {
     this._geometryDirty = true;
   }
 

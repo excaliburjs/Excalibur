@@ -1078,7 +1078,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public setWidth(width: number) {
     this._width = width / this.scale.x;
-    this.body.dirtyColliderShape();
+    this.body.markCollisionShapeDirty();
   }
   /**
    * Gets the calculated height of an actor, factoring in scale
@@ -1091,7 +1091,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public setHeight(height: number) {
     this._height = height / this.scale.y;
-    this.body.dirtyColliderShape();
+    this.body.markCollisionShapeDirty();
   }
   /**
    * Gets the left edge of the actor
