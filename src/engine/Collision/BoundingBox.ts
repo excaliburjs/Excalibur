@@ -18,7 +18,11 @@ export class BoundingBox {
    */
   constructor(public left: number = 0, public top: number = 0, public right: number = 0, public bottom: number = 0) {}
 
-  public static sideFromIntersection(intersection: Vector): Side {
+  /**
+   * Given bounding box A & B, returns the side relative to A when intersection is performed.
+   * @param intersection Intersection vector between 2 bounding boxes
+   */
+  public static getSideFromIntersection(intersection: Vector): Side {
     if (!intersection) {
       return Side.None;
     }
@@ -204,10 +208,10 @@ export class BoundingBox {
   /**
    * Test wether this bounding box intersects with another returning
    * the intersection vector that can be used to resolve the collision. If there
-   * is no interesection null is returned.
+   * is no intersection null is returned.
    *
-   * @returns A Vector in the direction of the current BoundingBox, this <- other
    * @param other  Other [[BoundingBox]] to test intersection with
+   * @returns A Vector in the direction of the current BoundingBox, this <- other
    */
   public intersect(other: BoundingBox): Vector {
     const totalBoundingBox = this.combine(other);
@@ -337,7 +341,7 @@ export class BoundingBox {
    */
   public intersectWithSide(bb: BoundingBox): Side {
     const intersect = this.intersect(bb);
-    return BoundingBox.sideFromIntersection(intersect);
+    return BoundingBox.getSideFromIntersection(intersect);
   }
 
   /**

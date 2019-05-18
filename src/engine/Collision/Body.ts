@@ -190,7 +190,7 @@ export class Body {
     });
 
     // in case of a nan moi, coalesce to a safe default
-    this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
+    this.collider.inertia = isNaN(this.collider.shape.getInertia()) ? this.collider.inertia : this.collider.shape.getInertia();
     return this.collider;
   }
 
@@ -273,6 +273,7 @@ export class Body {
     this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
   }
 
+  // TODO remove this, eventually events will stay local to the thing they are around
   private _wireColliderEventsToActor() {
     this.collider.clear();
     this.collider.on('precollision', (evt: PreCollisionEvent<Collider>) => {

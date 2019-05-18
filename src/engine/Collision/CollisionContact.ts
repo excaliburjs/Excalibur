@@ -121,7 +121,7 @@ export class CollisionContact {
     const invMoiB = this.colliderB.type === CollisionType.Fixed ? 0 : 1 / this.colliderB.inertia;
 
     // average restitution more relistic
-    const coefRestitution = Math.min(this.colliderA.restitution, this.colliderB.restitution);
+    const coefRestitution = Math.min(this.colliderA.bounciness, this.colliderB.bounciness);
 
     const coefFriction = Math.min(this.colliderA.friction, this.colliderB.friction);
 

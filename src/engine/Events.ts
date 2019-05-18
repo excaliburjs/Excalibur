@@ -168,7 +168,7 @@ export class GameEvent<T, U = T> {
   /**
    * Other target object for this event
    */
-  public other: U;
+  public other: U | null;
 
   /**
    * determines, if event bubbles to the target's ancestors

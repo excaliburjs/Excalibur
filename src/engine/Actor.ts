@@ -47,7 +47,6 @@ import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEvents';
 import { CollisionType } from './Collision/CollisionType';
 import { obsolete } from './Util/Decorators';
-import { Collider } from './Collision/Collider';
 
 export function isActor(x: any): x is Actor {
   return x instanceof Actor;
@@ -124,14 +123,16 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Gets the x position of the actor relative to it's parent (if any)
+   * @obsolete ex.Actor.x will be removed in v0.24.0, use ex.Actor.pos.x
    */
-  @obsolete()
+  @obsolete({ message: 'ex.Actor.x will be removed in v0.24.0', alternateMethod: 'ex.Actor.pos.x' })
   public get x(): number {
     return this.body.pos.x;
   }
 
   /**
    * Sets the x position of the actor relative to it's parent (if any)
+   * @obsolete ex.Actor.x will be removed in v0.24.0, use ex.Actor.pos.x
    */
   public set x(theX: number) {
     this.body.pos.x = theX;
@@ -139,14 +140,16 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Gets the y position of the actor relative to it's parent (if any)
+   * @obsolete ex.Actor.y will be removed in v0.24.0, use ex.Actor.pos.y
    */
-  @obsolete()
+  @obsolete({ message: 'ex.Actor.y will be removed in v0.24.0', alternateMethod: 'ex.Actor.pos.y' })
   public get y(): number {
     return this.body.pos.y;
   }
 
   /**
    * Sets the y position of the actor relative to it's parent (if any)
+   * @obsolete ex.Actor.y will be removed in v0.24.0, use ex.Actor.pos.y
    */
   public set y(theY: number) {
     this.body.pos.y = theY;
@@ -267,14 +270,16 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Gets the current torque applied to the actor. Torque can be thought of as rotational force
+   * @obsolete ex.Actor.torque will be removed in v0.24.0, use ex.Actor.body.torque
    */
-  @obsolete()
+  @obsolete({ message: 'ex.Actor.torque will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.torque' })
   public get torque() {
     return this.body.torque;
   }
 
   /**
    * Sets the current torque applied to the actor. Torque can be thought of as rotational force
+   * @obsolete ex.Actor.torque will be removed in v0.24.0, use ex.Actor.body.torque
    */
   public set torque(theTorque: number) {
     this.body.torque = theTorque;
@@ -282,14 +287,16 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Get the current mass of the actor, mass can be thought of as the resistance to acceleration.
+   * @obsolete ex.Actor.mass will be removed in v0.24.0, use ex.Actor.body.collider.mass
    */
-  @obsolete()
+  @obsolete({ message: 'ex.Actor.mass will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.mass' })
   public get mass() {
     return this.body.collider.mass;
   }
 
   /**
    * Sets the mass of the actor, mass can be thought of as the resistance to acceleration.
+   * @obsolete ex.Actor.mass will be removed in v0.24.0, use ex.Actor.body.collider.mass
    */
   public set mass(theMass: number) {
     this.body.collider.mass = theMass;
@@ -297,14 +304,16 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Gets the current moment of inertia, moi can be thought of as the resistance to rotation.
+   * @obsolete ex.Actor.moi will be removed in v0.24.0, use ex.Actor.body.collider.inertia
    */
-  @obsolete()
+  @obsolete({ message: 'ex.Actor.moi will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.inertia' })
   public get moi() {
     return this.body.collider.inertia;
   }
 
   /**
    * Sets the current moment of inertia, moi can be thought of as the resistance to rotation.
+   * @obsolete ex.Actor.moi will be removed in v0.24.0, use ex.Actor.body.collider.inertia
    */
   public set moi(theMoi: number) {
     this.body.collider.inertia = theMoi;
@@ -312,8 +321,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Gets the coefficient of friction on this actor, this can be thought of as how sticky or slippery an object is.
+   * @obsolete ex.Actor.friction will be removed in v0.24.0, use ex.Actor.body.collider.friction
    */
-  @obsolete()
+  @obsolete({ message: 'ex.Actor.friction will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.friction' })
   public get friction() {
     return this.body.collider.friction;
   }
@@ -328,18 +338,20 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this
    * as bounciness.
+   * @obsolete ex.Actor.restitution will be removed in v0.24.0, use ex.Actor.body.collider.restitution
    */
-  @obsolete()
+  @obsolete({ message: 'ex.Actor.restitution will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.restitution' })
   public get restitution() {
-    return this.body.collider.restitution;
+    return this.body.collider.bounciness;
   }
 
   /**
    * Sets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this
    * as bounciness.
+   * @obsolete ex.Actor.restitution will be removed in v0.24.0, use ex.Actor.body.collider.restitution
    */
   public set restitution(theRestitution: number) {
-    this.body.collider.restitution = theRestitution;
+    this.body.collider.bounciness = theRestitution;
   }
 
   /**
@@ -462,8 +474,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets or sets the current collision type of this actor. By
    * default it is ([[CollisionType.PreventCollision]]).
+   * @obsolete ex.Actor.collisionType will be removed in v0.24.0, use ex.Actor.body.collider.type
    */
-  @obsolete()
+  @obsolete({ message: 'ex.Actor.collisionType will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.type' })
   public get collisionType(): CollisionType {
     return this.body.collider.type;
   }
@@ -471,6 +484,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets or sets the current collision type of this actor. By
    * default it is ([[CollisionType.PreventCollision]]).
+   *  @obsolete ex.Actor.collisionType will be removed in v0.24.0, use ex.Actor.body.collider.type
    */
   public set collisionType(type: CollisionType) {
     this.body.collider.type = type;

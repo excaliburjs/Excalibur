@@ -87,7 +87,7 @@ export class Collider implements Eventable {
    * Collision vector is in the direction of the other collider. Away from this collider, this -> other.
    * @param other
    */
-  public collide(other: Collider): CollisionContact {
+  public collide(other: Collider): CollisionContact | null {
     return this.shape.collide(other.shape);
   }
 
@@ -107,9 +107,10 @@ export class Collider implements Eventable {
   public friction: number = 0.99;
 
   /**
-   * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
+   * The also known as coefficient of restitution of this actor, represents the amount of energy preserved after collision or the
+   * bounciness. If 1, it is 100% bouncy, 0 it completely absorbs.
    */
-  public restitution: number = 0.2;
+  public bounciness: number = 0.2;
 
   /**
    * Returns a boolean indicating whether this body collided with

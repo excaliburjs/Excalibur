@@ -58,8 +58,8 @@ export interface CollisionShape {
 
   // All new CollisionShape need to do the following
   // Create a new collision function in the CollisionJumpTable against all the primitives
-  // Currently there are 3 primitive collision areas 3! = 6 jump functions
-  collide(area: CollisionShape): CollisionContact;
+  // Currently there are 3 primitive collision shape 3! = 6 jump functions
+  collide(shape: CollisionShape): CollisionContact;
 
   /**
    * Return wether the area contains a point inclusive to it's border

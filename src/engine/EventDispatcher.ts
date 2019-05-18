@@ -11,7 +11,7 @@ import { Eventable } from './Interfaces/Evented';
  * [[include:Events.md]]
  */
 export class EventDispatcher<T = any> implements Eventable {
-  private _handlers: { [key: string]: { (event: GameEvent<any>): void }[] } = {};
+  private _handlers: { [key: string]: { (event: GameEvent<T>): void }[] } = {};
   private _wiredEventDispatchers: Eventable[] = [];
 
   private _target: T;
@@ -23,6 +23,9 @@ export class EventDispatcher<T = any> implements Eventable {
     this._target = target;
   }
 
+  /**
+   * Clears any existing handlers or wired event dispatchers on this event dispatcher
+   */
   public clear() {
     this._handlers = {};
     this._wiredEventDispatchers = [];
