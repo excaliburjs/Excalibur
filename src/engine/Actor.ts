@@ -125,7 +125,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Gets the x position of the actor relative to it's parent (if any)
    * @obsolete ex.Actor.x will be removed in v0.24.0, use ex.Actor.pos.x
    */
-  @obsolete({ message: 'ex.Actor.x will be removed in v0.24.0', alternateMethod: 'ex.Actor.pos.x' })
+  @obsolete({ message: 'ex.Actor.x will be removed in v0.24.0', alternateMethod: 'ex.Actor.pos.x, or ex.Actor.body.pos.x' })
   public get x(): number {
     return this.body.pos.x;
   }
@@ -142,7 +142,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Gets the y position of the actor relative to it's parent (if any)
    * @obsolete ex.Actor.y will be removed in v0.24.0, use ex.Actor.pos.y
    */
-  @obsolete({ message: 'ex.Actor.y will be removed in v0.24.0', alternateMethod: 'ex.Actor.pos.y' })
+  @obsolete({ message: 'ex.Actor.y will be removed in v0.24.0', alternateMethod: 'ex.Actor.pos.y, or ex.Actor.body.pos.y' })
   public get y(): number {
     return this.body.pos.y;
   }
@@ -340,7 +340,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * as bounciness.
    * @obsolete ex.Actor.restitution will be removed in v0.24.0, use ex.Actor.body.collider.restitution
    */
-  @obsolete({ message: 'ex.Actor.restitution will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.restitution' })
+  @obsolete({ message: 'ex.Actor.resitution will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.bounciness' })
   public get restitution() {
     return this.body.collider.bounciness;
   }
