@@ -100,6 +100,21 @@ describe('A color', () => {
     expect(color.b).toBe(229.5, 'b');
   });
 
+  it('can be lightened', () => {
+    color = ex.Color.Black.clone();
+    color = color.lighten();
+    expect(color.r).toBe(25.5, 'r');
+    expect(color.g).toBe(25.5, 'g');
+    expect(color.b).toBe(25.5, 'b');
+
+    color = ex.Color.White.clone();
+    color = color.lighten();
+    expect(color.r).toBe(255, 'r');
+    expect(color.g).toBe(255, 'g');
+    expect(color.b).toBe(255, 'b');
+
+  });
+
   it('can be averaged', () => {
     color = ex.Color.White.average(ex.Color.Black);
     expect(color.r).toBe(255 / 2, 'r');
