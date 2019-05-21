@@ -39,6 +39,7 @@ export function obsolete(options?: ObsoleteOptions): any {
         Logger.getInstance().warn(message);
         // tslint:disable-next-line: no-console
         if (console.trace) {
+          // tslint:disable-next-line: no-console
           console.trace();
         }
         return new method(...args);
@@ -52,6 +53,7 @@ export function obsolete(options?: ObsoleteOptions): any {
         Logger.getInstance().warn(message);
         // tslint:disable-next-line: no-console
         if (console.trace) {
+          // tslint:disable-next-line: no-console
           console.trace();
         }
         return descriptor.value.apply(this, arguments);
@@ -64,6 +66,7 @@ export function obsolete(options?: ObsoleteOptions): any {
         Logger.getInstance().warn(message);
         // tslint:disable-next-line: no-console
         if (console.trace) {
+          // tslint:disable-next-line: no-console
           console.trace();
         }
         return descriptor.get.apply(this, arguments);
