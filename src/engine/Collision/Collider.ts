@@ -21,6 +21,13 @@ export function isCollider(x: Actor | Collider): x is Collider {
   return x instanceof Collider;
 }
 
+export interface ColliderOptions {
+  shape?: CollisionShape;
+  body?: Body;
+  type?: CollisionType;
+  useShapeInertia?: boolean;
+}
+
 /**
  * Collider describes material properties like shape,
  * bounds, friction of the physics object
@@ -28,15 +35,27 @@ export function isCollider(x: Actor | Collider): x is Collider {
 
 export class Collider implements Eventable {
   private _shape: CollisionShape;
+  private _useShapeInertia: boolean;
   private _events: EventDispatcher<Collider> = new EventDispatcher<Collider>(this);
 
-  constructor(public entity: Actor, private _body: Body) {}
+  constructor({ body, type, shape, useShapeInertia = true }: ColliderOptions) {
+    // TODO this is complicated
+    if (body && !shape) {
+      this._shape = body.collider.shape;
+    } else {
+      this._shape = shape;
+      this.body = body;
+    }
+    this._useShapeInertia = useShapeInertia;
+    this._shape.collider = this;
+    this.type = type;
+  }
 
   /**
    * Get the unique id of the collider
    */
   public get id(): number {
-    return this.entity.id;
+    return this.body ? this.body.id : -1;
   }
 
   /**
@@ -58,27 +77,28 @@ export class Collider implements Eventable {
   public set shape(shape: CollisionShape) {
     this._shape = shape;
     this._shape.collider = this;
+    if (this._useShapeInertia) {
+      this.inertia = isNaN(this._shape.getInertia()) ? this.inertia : this._shape.getInertia();
+    }
   }
 
   /**
    * Return a reference to the body associated with this collider
    */
-  public get body(): Body {
-    return this._body;
-  }
+  public body: Body;
 
   /**
    * The center of the collider
    */
   public get center(): Vector {
-    return this.entity.getCenter();
+    return this.body.center;
   }
 
   /**
    * Is this collider active, if false it wont collide
    */
   public get active(): boolean {
-    return !this.entity.isKilled();
+    return this.body.active;
   }
 
   /**
@@ -133,21 +153,17 @@ export class Collider implements Eventable {
    */
   public getBounds(): BoundingBox {
     if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
-      return this.entity.getBounds();
+      return this.body ? this.body.bounds : this.shape.getBounds();
     } else {
       return this.shape.getBounds();
     }
   }
 
   /**
-   * Returns the actor's [[BoundingBox]] relative to the actors position.
+   * Returns the collider's [[BoundingBox]] relative to the body's position.
    */
   public getRelativeBounds(): BoundingBox {
-    if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
-      return this.entity.getRelativeBounds();
-    } else {
-      return this.entity.getRelativeBounds();
-    }
+    return this.body ? this.body.relativeBounds : this.getBounds();
   }
 
   /**
@@ -157,7 +173,7 @@ export class Collider implements Eventable {
     if (this.shape) {
       // Update the geometry if needed
       if (this.body && this.body.isColliderShapeDirty && this.shape instanceof ConvexPolygon) {
-        this.shape.points = this.entity.getRelativeGeometry();
+        this.shape.points = this.body.relativeGeometry;
       }
 
       this.shape.recalc();
@@ -185,9 +201,9 @@ export class Collider implements Eventable {
   public debugDraw(ctx: CanvasRenderingContext2D) {
     // Draw motion vectors
     if (Physics.showMotionVectors) {
-      DrawUtil.vector(ctx, Color.Yellow, this._body.pos, this._body.acc.add(Physics.acc));
-      DrawUtil.vector(ctx, Color.Red, this._body.pos, this._body.vel);
-      DrawUtil.point(ctx, Color.Red, this._body.pos);
+      DrawUtil.vector(ctx, Color.Yellow, this.body.pos, this.body.acc.add(Physics.acc));
+      DrawUtil.vector(ctx, Color.Red, this.body.pos, this.body.vel);
+      DrawUtil.point(ctx, Color.Red, this.body.pos);
     }
 
     if (Physics.showBounds) {

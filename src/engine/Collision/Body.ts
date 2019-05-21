@@ -8,23 +8,60 @@ import { Circle } from './Circle';
 import { Edge } from './Edge';
 import { obsolete } from '../Util/Decorators';
 import { PreCollisionEvent, PostCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
+import { BoundingBox } from './BoundingBox';
+
+export interface BodyOptions {
+  actor?: Actor;
+  collider?: Collider;
+}
 
 /**
  * Body describes all the physical properties pos, vel, acc, rotation, angular velocity
  */
 export class Body {
   private _collider: Collider;
-
+  public actor: Actor;
   /**
    * Constructs a new physics body associated with an actor
    */
-  constructor(private _actor: Actor) {
-    this.collider = new Collider(this._actor, this);
+  constructor({ actor, collider }: BodyOptions) {
+    this.actor = actor;
+    if (!collider) {
+      this.collider = this.useBoxCollider();
+    } else {
+      this.collider = collider;
+    }
+    this.collider.body = this;
+  }
+
+  public get id() {
+    return this.actor ? this.actor.id : -1;
+  }
+
+  public get bounds() {
+    return this.actor ? this.actor.bounds : new BoundingBox();
+  }
+
+  public get active() {
+    return this.actor ? !this.actor.isKilled() : false;
+  }
+
+  public get center() {
+    return this.actor ? this.actor.getCenter() : this.pos;
+  }
+
+  public get relativeBounds() {
+    return this.actor ? this.actor.relativeBounds : new BoundingBox();
+  }
+
+  public get relativeGeometry() {
+    return this.actor ? this.actor.getRelativeGeometry() : new BoundingBox().getPoints();
   }
 
   // TODO allow multiple colliders
   public set collider(collider: Collider) {
     this._collider = collider;
+    this._collider.body = this;
     this._wireColliderEventsToActor();
   }
 
@@ -185,7 +222,7 @@ export class Body {
   public useBoxCollider(center: Vector = Vector.Zero): Collider {
     this.collider.shape = new ConvexPolygon({
       collider: this.collider,
-      points: this._actor.getRelativeGeometry(),
+      points: this.actor.getRelativeGeometry(),
       pos: center // position relative to actor
     });
 
@@ -238,7 +275,7 @@ export class Body {
    */
   public useCircleCollider(radius?: number, center: Vector = Vector.Zero): Collider {
     if (!radius) {
-      radius = this._actor.getWidth() / 2;
+      radius = this.actor.getWidth() / 2;
     }
     this.collider.shape = new Circle({
       collider: this.collider,
@@ -277,23 +314,23 @@ export class Body {
   private _wireColliderEventsToActor() {
     this.collider.clear();
     this.collider.on('precollision', (evt: PreCollisionEvent<Collider>) => {
-      if (this._actor) {
-        this._actor.emit('precollision', new PreCollisionEvent(evt.target.entity, evt.other.entity, evt.side, evt.intersection));
+      if (this.actor) {
+        this.actor.emit('precollision', new PreCollisionEvent(evt.target.body.actor, evt.other.body.actor, evt.side, evt.intersection));
       }
     });
     this.collider.on('postcollision', (evt: PostCollisionEvent<Collider>) => {
-      if (this._actor) {
-        this._actor.emit('postcollision', new PostCollisionEvent(evt.target.entity, evt.other.entity, evt.side, evt.intersection));
+      if (this.actor) {
+        this.actor.emit('postcollision', new PostCollisionEvent(evt.target.body.actor, evt.other.body.actor, evt.side, evt.intersection));
       }
     });
     this.collider.on('collisionstart', (evt: CollisionStartEvent<Collider>) => {
-      if (this._actor) {
-        this._actor.emit('collisionstart', new CollisionStartEvent(evt.target.entity, evt.other.entity, evt.pair));
+      if (this.actor) {
+        this.actor.emit('collisionstart', new CollisionStartEvent(evt.target.body.actor, evt.other.body.actor, evt.pair));
       }
     });
     this.collider.on('collisionend', (evt: CollisionEndEvent<Collider>) => {
-      if (this._actor) {
-        this._actor.emit('collisionend', new CollisionEndEvent(evt.target.entity, evt.other.entity));
+      if (this.actor) {
+        this.actor.emit('collisionend', new CollisionEndEvent(evt.target.body.actor, evt.other.body.actor));
       }
     });
   }

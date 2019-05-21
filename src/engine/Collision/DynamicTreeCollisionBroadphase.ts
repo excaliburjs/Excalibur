@@ -5,7 +5,6 @@ import { Pair } from './Pair';
 import { Body } from './Body';
 
 import { Vector, Ray } from '../Algebra';
-import { Actor } from '../Actor';
 import { FrameStats } from '../Debug';
 import { CollisionResolutionStrategy } from '../Physics';
 import { Logger } from '../Util/Log';
@@ -55,11 +54,12 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
   /**
    * Detects potential collision pairs in a broadphase approach with the dynamic aabb tree strategy
    */
-  public broadphase(targets: Actor[], delta: number, stats?: FrameStats): Pair[] {
+  public broadphase(targets: Body[], delta: number, stats?: FrameStats): Pair[] {
     const seconds = delta / 1000;
+
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
-    const potentialColliders = targets.filter((other) => {
-      return !other.isKilled() && other.collisionType !== CollisionType.PreventCollision;
+    const potentialColliders = targets.map((t) => t.collider).filter((other) => {
+      return other.active && other.type !== CollisionType.PreventCollision;
     });
 
     // clear old list of collision pairs
@@ -67,14 +67,14 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
     this._collisionHash = {};
 
     // check for normal collision pairs
-    let actor: Actor;
+    let collider: Collider;
     for (let j = 0, l = potentialColliders.length; j < l; j++) {
-      actor = potentialColliders[j];
+      collider = potentialColliders[j];
 
       // Query the collision tree for potential colliders
-      this._dynamicCollisionTree.query(actor.body, (other: Body) => {
-        if (this._shouldGenerateCollisionPair(actor.body.collider, other.collider)) {
-          const pair = new Pair(actor.body.collider, other.collider);
+      this._dynamicCollisionTree.query(collider.body, (other: Body) => {
+        if (this._shouldGenerateCollisionPair(collider, other.collider)) {
+          const pair = new Pair(collider, other.collider);
           this._collisionHash[pair.id] = true;
           this._collisionPairCache.push(pair);
         }
@@ -89,19 +89,19 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
     // Check dynamic tree for fast moving objects
     // Fast moving objects are those moving at least there smallest bound per frame
     if (Physics.checkForFastBodies) {
-      for (const actor of potentialColliders) {
+      for (const collider of potentialColliders) {
         // Skip non-active objects. Does not make sense on other collison types
-        if (actor.collisionType !== CollisionType.Active) {
+        if (collider.type !== CollisionType.Active) {
           continue;
         }
 
         // Maximum travel distance next frame
         const updateDistance =
-          actor.vel.magnitude() * seconds + // velocity term
-          actor.acc.magnitude() * 0.5 * seconds * seconds; // acc term
+          collider.body.vel.magnitude() * seconds + // velocity term
+          collider.body.acc.magnitude() * 0.5 * seconds * seconds; // acc term
 
         // Find the minimum dimension
-        const minDimension = Math.min(actor.body.collider.getBounds().getHeight(), actor.body.collider.getBounds().getWidth());
+        const minDimension = Math.min(collider.getBounds().getHeight(), collider.getBounds().getWidth());
         if (Physics.disableMinimumSpeedForFastBody || updateDistance > minDimension / 2) {
           if (stats) {
             stats.physics.fastBodies++;
@@ -109,19 +109,19 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
 
           // start with the oldPos because the integration for actors has already happened
           // objects resting on a surface may be slightly penatrating in the current position
-          const updateVec = actor.pos.sub(actor.oldPos);
-          const centerPoint = actor.body.collider.shape.getCenter();
-          const furthestPoint = actor.body.collider.shape.getFurthestPoint(actor.vel);
+          const updateVec = collider.body.pos.sub(collider.body.oldPos);
+          const centerPoint = collider.shape.getCenter();
+          const furthestPoint = collider.shape.getFurthestPoint(collider.body.vel);
           const origin: Vector = furthestPoint.sub(updateVec);
 
-          const ray: Ray = new Ray(origin, actor.vel);
+          const ray: Ray = new Ray(origin, collider.body.vel);
 
           // back the ray up by -2x surfaceEpsilon to account for fast moving objects starting on the surface
           ray.pos = ray.pos.add(ray.dir.scale(-2 * Physics.surfaceEpsilon));
           let minBody: Body;
           let minTranslate: Vector = new Vector(Infinity, Infinity);
           this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + Physics.surfaceEpsilon * 2, (other: Body) => {
-            if (actor.body !== other && other.collider.shape) {
+            if (collider.body !== other && other.collider.shape) {
               const hitPoint = other.collider.shape.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
               if (hitPoint) {
                 const translate = hitPoint.sub(origin);
@@ -135,7 +135,7 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
           });
 
           if (minBody && Vector.isValid(minTranslate)) {
-            const pair = new Pair(actor.body.collider, minBody.collider);
+            const pair = new Pair(collider, minBody.collider);
             if (!this._collisionHash[pair.id]) {
               this._collisionHash[pair.id] = true;
               this._collisionPairCache.push(pair);
@@ -143,11 +143,11 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
             // move the fast moving object to the other body
             // need to push into the surface by ex.Physics.surfaceEpsilon
             const shift = centerPoint.sub(furthestPoint);
-            actor.pos = origin
+            collider.body.pos = origin
               .add(shift)
               .add(minTranslate)
               .add(ray.dir.scale(2 * Physics.surfaceEpsilon));
-            actor.body.collider.shape.recalc();
+            collider.shape.recalc();
 
             if (stats) {
               stats.physics.fastBodyCollisions++;
@@ -228,12 +228,12 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
   /**
    * Update the dynamic tree positions
    */
-  public update(targets: Actor[]): number {
+  public update(targets: Body[]): number {
     let updated = 0;
     const len = targets.length;
 
     for (let i = 0; i < len; i++) {
-      if (this._dynamicCollisionTree.updateBody(targets[i].body)) {
+      if (this._dynamicCollisionTree.updateBody(targets[i])) {
         updated++;
       }
     }

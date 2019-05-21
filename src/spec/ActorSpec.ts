@@ -14,7 +14,7 @@ describe('A game actor', () => {
     jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({ width: 100, height: 100 });
     actor = new ex.Actor();
-    actor.collisionType = ex.CollisionType.Active;
+    actor.body.collider.type = ex.CollisionType.Active;
     scene = new ex.Scene(engine);
     engine.currentScene = scene;
 
@@ -55,19 +55,16 @@ describe('A game actor', () => {
       rotation: 2,
       rx: 0.1,
       z: 10,
-      restitution: 2,
       color: ex.Color.Red,
-      visible: false,
-      collisionType: ex.CollisionType.Fixed
+      visible: false
     });
 
     const actor2 = new ex.Actor({
-      x: 4,
-      y: 5
+      pos: new ex.Vector(4, 5)
     });
 
-    expect(actor.x).toBe(2);
-    expect(actor.y).toBe(3);
+    expect(actor.pos.x).toBe(2);
+    expect(actor.pos.y).toBe(3);
     expect(actor.getWidth()).toBe(100);
     expect(actor.getHeight()).toBe(200);
     expect(actor.vel.x).toBe(30);
@@ -79,10 +76,8 @@ describe('A game actor', () => {
     expect(actor.z).toBe(10);
     expect(actor.color.toString()).toBe(ex.Color.Red.toString());
     expect(actor.visible).toBe(false);
-    expect(actor.restitution).toBe(2);
-    expect(actor.collisionType).toBe(ex.CollisionType.Fixed);
-    expect(actor2.x).toBe(4);
-    expect(actor2.y).toBe(5);
+    expect(actor2.pos.x).toBe(4);
+    expect(actor2.pos.y).toBe(5);
   });
 
   it('should have default properties set', () => {
@@ -400,9 +395,9 @@ describe('A game actor', () => {
 
   it('participates with another in a collision', () => {
     const actor = new ex.Actor(0, 0, 10, 10);
-    actor.collisionType = ex.CollisionType.Active;
+    actor.body.collider.type = ex.CollisionType.Active;
     const other = new ex.Actor(8, 0, 10, 10);
-    other.collisionType = ex.CollisionType.Active;
+    other.body.collider.type = ex.CollisionType.Active;
     let actorCalled = 'false';
     let otherCalled = 'false';
 
@@ -661,12 +656,12 @@ describe('A game actor', () => {
     const scene = new ex.Scene(engine);
 
     const active = new ex.Actor(0, -50, 100, 100);
-    active.collisionType = ex.CollisionType.Active;
+    active.body.collider.type = ex.CollisionType.Active;
     active.vel.y = 10;
     active.acc.y = 1000;
 
     const fixed = new ex.Actor(-100, 50, 1000, 100);
-    fixed.collisionType = ex.CollisionType.Fixed;
+    fixed.body.collider.type = ex.CollisionType.Fixed;
 
     scene.add(active);
     scene.add(fixed);
@@ -692,12 +687,12 @@ describe('A game actor', () => {
   it('with an active collision type can jump on a fixed type', () => {
     const scene = new ex.Scene(engine);
     const active = new ex.Actor(0, -50, 100, 100);
-    active.collisionType = ex.CollisionType.Active;
+    active.body.collider.type = ex.CollisionType.Active;
     active.vel.y = -100;
     ex.Physics.acc.setTo(0, 0);
 
     const fixed = new ex.Actor(-100, 50, 1000, 100);
-    fixed.collisionType = ex.CollisionType.Fixed;
+    fixed.body.collider.type = ex.CollisionType.Fixed;
 
     scene.add(active);
     scene.add(fixed);
@@ -1291,8 +1286,7 @@ describe('A game actor', () => {
     const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
       const actor = new ex.Actor({
-        x: engine.halfCanvasWidth,
-        y: engine.halfCanvasHeight,
+        pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),
         width: 10,
         height: 10,
         rotation: Math.PI / 4
@@ -1354,8 +1348,7 @@ describe('A game actor', () => {
 
   it('can be offscreen', () => {
     const actor = new ex.Actor({
-      x: 0,
-      y: 0,
+      pos: ex.Vector.Zero,
       width: 10,
       height: 10
     });
@@ -1365,7 +1358,7 @@ describe('A game actor', () => {
 
     expect(actor.isOffScreen).toBe(false, 'Actor should be onscreen');
 
-    actor.x = 106;
+    actor.pos.x = 106;
     scene.update(engine, 100);
 
     expect(actor.isOffScreen).toBe(true, 'Actor should be offscreen');

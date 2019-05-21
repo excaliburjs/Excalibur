@@ -356,7 +356,7 @@ export class ParticleEmitterImpl extends Actor {
   constructor(xOrConfig?: number | ParticleEmitterArgs, y?: number, width?: number, height?: number) {
     super(typeof xOrConfig === 'number' ? { x: xOrConfig, y: y, width: width, height: height } : xOrConfig);
     this._particlesToEmit = 0;
-    this.collisionType = CollisionType.PreventCollision;
+    this.body.collider.type = CollisionType.PreventCollision;
     this.particles = new Util.Collection<Particle>();
     this.deadParticles = new Util.Collection<Particle>();
     this.random = new Random();

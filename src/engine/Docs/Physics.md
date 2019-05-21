@@ -127,10 +127,10 @@ const block = new ex.Actor({
   y: 0,
   width: 20,
   height: 20,
-  color: ex.Color.Blue.clone(),
-  collisionType: ex.CollisionType.Active
+  color: ex.Color.Blue.clone()
 });
 block.body.useBoxCollider(); // useBoxCollision is the default, technically optional
+block.body.collider.type = ex.CollisionType.Active;
 game.add(block);
 
 const circle = new ex.Actor({
@@ -138,10 +138,10 @@ const circle = new ex.Actor({
   y: 100,
   width: 20,
   height: 20,
-  color: ex.Color.Red.clone(),
-  collisionType: ex.CollisionType.Active
+  color: ex.Color.Red.clone()
 });
 circle.body.useCircleCollider(10);
+circle.body.collider.type = ex.CollisionType.Active;
 game.add(circle);
 
 const ground = new ex.Actor({
@@ -149,11 +149,11 @@ const ground = new ex.Actor({
   y: 380,
   width: 600,
   height: 10,
-  color: ex.Color.Black.clone(),
-  collisionType: ex.CollisionType.Fixed
+  color: ex.Color.Black.clone()
 });
 
 ground.body.useBoxCollider(); // optional
+groundbody.collider.type = ex.CollisionType.Fixed;
 
 game.add(ground);
 // start the game

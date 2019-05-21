@@ -47,6 +47,8 @@ import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEvents';
 import { CollisionType } from './Collision/CollisionType';
 import { obsolete } from './Util/Decorators';
+import { Collider } from './Collision/Collider';
+import { Shape } from './Collision/Shape';
 
 export function isActor(x: any): x is Actor {
   return x instanceof Actor;
@@ -67,7 +69,6 @@ export interface ActorArgs extends Partial<ActorImpl> {
   color?: Color;
   visible?: boolean;
   body?: Body;
-  collisionType?: CollisionType;
 }
 
 export interface ActorDefaults {
@@ -100,7 +101,16 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
    * acceleration, mass, inertia, etc.
    */
-  public body: Body = new Body(this);
+  public get body(): Body {
+    return this._body;
+  }
+
+  public set body(body: Body) {
+    this._body = body;
+    this._body.actor = this;
+  }
+
+  private _body: Body;
 
   /**
    * Gets the collision geometry shape to use for collision possible options are [Circle|circles], [ConvexPolygon|polygons], and
@@ -340,7 +350,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * as bounciness.
    * @obsolete ex.Actor.restitution will be removed in v0.24.0, use ex.Actor.body.collider.restitution
    */
-  @obsolete({ message: 'ex.Actor.resitution will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.bounciness' })
+  @obsolete({ message: 'ex.Actor.restitution will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.bounciness' })
   public get restitution() {
     return this.body.collider.bounciness;
   }
@@ -554,18 +564,43 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
     super();
 
+    let shouldInitializeBody = true;
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
       xOrConfig = config.pos ? config.pos.x : config.x;
       y = config.pos ? config.pos.y : config.y;
       width = config.width;
       height = config.height;
+
+      if (config.body) {
+        shouldInitializeBody = false;
+        this.body = config.body;
+      }
     }
 
-    this.pos.x = <number>xOrConfig || 0;
-    this.pos.y = y || 0;
+    // initialize default options
+    this._initDefaults();
+
+    // Body and collider bounds are still determined by actor width/height
     this._width = width || 0;
     this._height = height || 0;
+
+    // Initialize default collider to be a box
+    if (shouldInitializeBody) {
+      // this.body = new Body({actor: this});
+      this.body = new Body({
+        collider: new Collider({
+          type: CollisionType.Passive,
+          // TODO doesnt account for anchor
+          shape: Shape.Box(this._width, this._height)
+        })
+      });
+    }
+
+    // Position uses body to store values must be initialized after body
+    this.pos.x = <number>xOrConfig || 0;
+    this.pos.y = y || 0;
+
     if (color) {
       this.color = color;
       // set default opacity of an actor to the color
@@ -580,12 +615,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     // Build the action queue
     this.actionQueue = new ActionQueue(this);
     this.actions = new ActionContext(this);
-
-    // initialize default options
-    this._initDefaults();
-
-    // Initialize default collider to be a box
-    this.body.useBoxCollider();
   }
 
   /**
@@ -953,7 +982,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param actor The child actor to add
    */
   public add(actor: Actor) {
-    actor.collisionType = CollisionType.PreventCollision;
+    actor.body.collider.type = CollisionType.PreventCollision;
     if (Util.addItemToArray(actor, this.children)) {
       actor.parent = this;
     }

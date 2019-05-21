@@ -83,7 +83,7 @@ export class Trigger extends Actor {
     }
 
     this.visible = opts.visible;
-    this.collisionType = CollisionType.Passive;
+    this.body.collider.type = CollisionType.Passive;
     this.eventDispatcher = new EventDispatcher(this);
     this.actionQueue = new ActionQueue(this);
 

@@ -37,6 +37,10 @@ export function obsolete(options?: ObsoleteOptions): any {
       const constructor = function() {
         const args = Array.prototype.slice.call(arguments);
         Logger.getInstance().warn(message);
+        // tslint:disable-next-line: no-console
+        if (console.trace) {
+          console.trace();
+        }
         return new method(...args);
       };
       constructor.prototype = method.prototype;
@@ -46,6 +50,10 @@ export function obsolete(options?: ObsoleteOptions): any {
     if (descriptor && descriptor.value) {
       method.value = function(this: any) {
         Logger.getInstance().warn(message);
+        // tslint:disable-next-line: no-console
+        if (console.trace) {
+          console.trace();
+        }
         return descriptor.value.apply(this, arguments);
       };
       return method;
@@ -54,6 +62,10 @@ export function obsolete(options?: ObsoleteOptions): any {
     if (descriptor && descriptor.get) {
       method.get = function(this: any) {
         Logger.getInstance().warn(message);
+        // tslint:disable-next-line: no-console
+        if (console.trace) {
+          console.trace();
+        }
         return descriptor.get.apply(this, arguments);
       };
     }

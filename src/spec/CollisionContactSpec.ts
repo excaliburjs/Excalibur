@@ -39,7 +39,7 @@ describe('A CollisionContact', () => {
   });
 
   it('can reslove in the Box system', () => {
-    actorB.x = 19;
+    actorB.pos.x = 19;
     const cc = new ex.CollisionContact(
       actorA.body.collider,
       actorB.body.collider,
@@ -49,11 +49,11 @@ describe('A CollisionContact', () => {
     );
     cc.resolve(ex.CollisionResolutionStrategy.Box);
 
-    expect(actorA.x).toBe(-0.5);
-    expect(actorA.y).toBe(0);
+    expect(actorA.pos.x).toBe(-0.5);
+    expect(actorA.pos.y).toBe(0);
 
-    expect(actorB.x).toBe(19.5);
-    expect(actorB.y).toBe(0);
+    expect(actorB.pos.x).toBe(19.5);
+    expect(actorB.pos.y).toBe(0);
   });
 
   it('emits a collision event on both in the Box system', () => {
@@ -68,7 +68,7 @@ describe('A CollisionContact', () => {
       emittedB = true;
     });
 
-    actorB.x = 19;
+    actorB.pos.x = 19;
     const cc = new ex.CollisionContact(
       actorA.body.collider,
       actorB.body.collider,
@@ -83,15 +83,15 @@ describe('A CollisionContact', () => {
   });
 
   it('can reslove in the Dynamic system', () => {
-    expect(actorA.x).toBe(0, 'Actor A should be y=10');
-    expect(actorA.y).toBe(0, 'Actor A should be y=0');
-    expect(actorB.x).toBe(20, 'Actor B should be x=20');
-    expect(actorB.y).toBe(0, 'Actor B should be y=0');
+    expect(actorA.pos.x).toBe(0, 'Actor A should be y=10');
+    expect(actorA.pos.y).toBe(0, 'Actor A should be y=0');
+    expect(actorB.pos.x).toBe(20, 'Actor B should be x=20');
+    expect(actorB.pos.y).toBe(0, 'Actor B should be y=0');
     expect(actorA.vel.x).toBe(0, 'Actor A should not be moving in x');
     expect(actorB.vel.x).toBe(0, 'Actor B should not be moving in x');
     actorA.vel.x = 10;
     actorB.vel.x = -10;
-    actorB.x = 19;
+    actorB.pos.x = 19;
     actorA.body.collider.shape.recalc();
     actorB.body.collider.shape.recalc();
     const cc = new ex.CollisionContact(
@@ -107,13 +107,13 @@ describe('A CollisionContact', () => {
     actorA.body.applyMtv();
     actorB.body.applyMtv();
 
-    expect(actorA.x).toBe(-0.5);
-    expect(actorA.y).toBe(0);
+    expect(actorA.pos.x).toBe(-0.5);
+    expect(actorA.pos.y).toBe(0);
     expect(actorA.vel.x).toBeLessThan(0);
     expect(actorA.vel.y).toBe(0);
 
-    expect(actorB.x).toBe(19.5);
-    expect(actorB.y).toBe(0);
+    expect(actorB.pos.x).toBe(19.5);
+    expect(actorB.pos.y).toBe(0);
     expect(actorB.vel.x).toBeGreaterThan(0);
     expect(actorB.vel.y).toBe(0);
   });
@@ -130,7 +130,7 @@ describe('A CollisionContact', () => {
       emittedB = true;
     });
 
-    actorB.x = 19;
+    actorB.pos.x = 19;
     const cc = new ex.CollisionContact(
       actorA.body.collider,
       actorB.body.collider,

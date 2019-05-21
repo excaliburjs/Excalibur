@@ -12,8 +12,8 @@ describe('A Collision Group', () => {
     actor1 = new ex.Actor(100, 100, 100, 100);
     actor2 = new ex.Actor(100, 100, 100, 100);
     // Setting actor collision types to passive otherwise they push each other around
-    actor1.collisionType = ex.CollisionType.Passive;
-    actor2.collisionType = ex.CollisionType.Passive;
+    actor1.body.collider.type = ex.CollisionType.Passive;
+    actor2.body.collider.type = ex.CollisionType.Passive;
 
     scene.add(actor1);
     scene.add(actor2);

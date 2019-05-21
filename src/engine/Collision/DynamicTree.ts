@@ -206,7 +206,7 @@ export class DynamicTree {
     node.bounds.top -= 2;
     node.bounds.right += 2;
     node.bounds.bottom += 2;
-    this.nodes[body.collider.id] = node;
+    this.nodes[body.id] = node;
     this._insert(node);
   }
 
@@ -214,7 +214,7 @@ export class DynamicTree {
    * Updates the dynamic tree given the current bounds of each body being tracked
    */
   public updateBody(body: Body) {
-    const node = this.nodes[body.collider.id];
+    const node = this.nodes[body.id];
     if (!node) {
       return false;
     }
@@ -222,9 +222,7 @@ export class DynamicTree {
 
     // if the body is outside the world no longer update it
     if (!this.worldBounds.contains(b)) {
-      Logger.getInstance().warn(
-        'Actor with id ' + body.collider.id + ' is outside the world bounds and will no longer be tracked for physics'
-      );
+      Logger.getInstance().warn('Collider with id ' + body.id + ' is outside the world bounds and will no longer be tracked for physics');
       this.untrackBody(body);
       return false;
     }
