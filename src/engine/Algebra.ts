@@ -1,10 +1,11 @@
 import { Engine } from './Engine';
 import * as Util from './Util/Util';
+import { Clonable } from './Interfaces/Clonable';
 
 /**
  * A 2D vector on a plane.
  */
-export class Vector {
+export class Vector implements Clonable<Vector> {
   /**
    * A (0, 0) vector
    */

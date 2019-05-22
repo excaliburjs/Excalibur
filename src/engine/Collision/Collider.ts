@@ -6,13 +6,14 @@ import { Actor } from '../Actor';
 import { Body } from './Body';
 import { CollisionShape } from './CollisionShape';
 import { Vector } from '../Algebra';
-import { Physics, CollisionResolutionStrategy } from '../Physics';
+import { Physics } from '../Physics';
 import { BoundingBox } from './BoundingBox';
 import { ConvexPolygon } from './ConvexPolygon';
 import { CollisionType } from './CollisionType';
 import { CollisionContact } from './CollisionContact';
 import { EventDispatcher } from '../EventDispatcher';
 import { Pair } from './Pair';
+import { Clonable } from '../Interfaces/Clonable';
 
 /**
  * Type guard function to determine whether something is a Collider
@@ -22,33 +23,63 @@ export function isCollider(x: Actor | Collider): x is Collider {
 }
 
 export interface ColliderOptions {
+  /**
+   * Optional [[shape|Shape]] to use with this collider, the shape defines the collidable region along with the [[bounding box|BoundingBox]]
+   */
   shape?: CollisionShape;
+  /**
+   * Optional body to associate with this collider
+   */
   body?: Body;
+  /**
+   * Optional [[collision type|CollisionType]], if not specified the default is [[CollisionType.PreventCollision]]
+   */
   type?: CollisionType;
+  /**
+   * Optional local bounds if other bounds are required instead of the bounding box from the shape. This overrides shape bounds.
+   */
+  localBounds?: BoundingBox;
+  /**
+   * Optional flag to indicate moment of inertia from the shape should be used, by default it is true.
+   */
   useShapeInertia?: boolean;
 }
 
 /**
  * Collider describes material properties like shape,
- * bounds, friction of the physics object
+ * bounds, friction of the physics object. Only **one** collider can be associated with a body at a time
  */
 
-export class Collider implements Eventable {
+export class Collider implements Eventable, Clonable<Collider> {
   private _shape: CollisionShape;
-  private _useShapeInertia: boolean;
+  public useShapeInertia: boolean;
+  public localBounds: BoundingBox;
   private _events: EventDispatcher<Collider> = new EventDispatcher<Collider>(this);
 
-  constructor({ body, type, shape, useShapeInertia = true }: ColliderOptions) {
-    // TODO this is complicated
-    if (body && !shape) {
+  constructor({ body, type, shape, localBounds, useShapeInertia = true }: ColliderOptions) {
+    // If shape is not supplied see if the body has an existing collider with a shape
+    if (body && body.collider && !shape) {
       this._shape = body.collider.shape;
     } else {
       this._shape = shape;
       this.body = body;
     }
-    this._useShapeInertia = useShapeInertia;
+
+    this.localBounds = localBounds;
+    this.useShapeInertia = useShapeInertia;
     this._shape.collider = this;
     this.type = type;
+  }
+
+  /**
+   * Returns a clone of the current collider, not associated with any body
+   */
+  public clone() {
+    return new Collider({
+      body: null,
+      type: this.type,
+      shape: this._shape.clone()
+    });
   }
 
   /**
@@ -72,12 +103,12 @@ export class Collider implements Eventable {
   }
 
   /**
-   * Set the shape of the collider as a [[CollisionShape]]
+   * Set the shape of the collider as a [[CollisionShape]], if useShapeInertia is set the collider will use inertia from the shape.
    */
   public set shape(shape: CollisionShape) {
     this._shape = shape;
     this._shape.collider = this;
-    if (this._useShapeInertia) {
+    if (this.useShapeInertia) {
       this.inertia = isNaN(this._shape.getInertia()) ? this.inertia : this._shape.getInertia();
     }
   }
@@ -152,18 +183,14 @@ export class Collider implements Eventable {
    * Returns the collider's [[BoundingBox]] calculated for this instant in world space.
    */
   public getBounds(): BoundingBox {
-    if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
-      return this.body ? this.body.bounds : this.shape.getBounds();
-    } else {
-      return this.shape.getBounds();
-    }
+    return this.localBounds && this.body ? this.localBounds.translate(this.body.pos) : this.shape.getBounds();
   }
 
   /**
    * Returns the collider's [[BoundingBox]] relative to the body's position.
    */
-  public getRelativeBounds(): BoundingBox {
-    return this.body ? this.body.relativeBounds : this.getBounds();
+  public getLocalBounds(): BoundingBox {
+    return this.localBounds ? this.localBounds : this.shape.getLocalBounds();
   }
 
   /**

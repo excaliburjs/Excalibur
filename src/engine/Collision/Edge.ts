@@ -12,8 +12,8 @@ import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
 
 export interface EdgeOptions {
-  begin?: Vector;
-  end?: Vector;
+  begin: Vector;
+  end: Vector;
   collider?: Collider;
 
   // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
@@ -39,6 +39,18 @@ export class Edge implements CollisionShape {
       this.body = this.collider.body;
     }
     // ==================================
+  }
+
+  /**
+   * Returns a clone of this Edge, not associated with any collider
+   */
+  public clone(): Edge {
+    return new Edge({
+      begin: this.begin.clone(),
+      end: this.end.clone(),
+      collider: null,
+      body: null
+    });
   }
 
   public get worldPos(): Vector {
@@ -160,18 +172,21 @@ export class Edge implements CollisionShape {
     }
   }
 
+  private _boundsFromBeginEnd(begin: Vector, end: Vector) {
+    return new BoundingBox(Math.min(begin.x, end.x), Math.min(begin.y, end.y), Math.max(begin.x, end.x), Math.max(begin.y, end.y));
+  }
+
   /**
-   * Get the axis aligned bounding box for the circle area
+   * Get the axis aligned bounding box for the edge shape in world space
    */
   public getBounds(): BoundingBox {
     const transformedBegin = this._getTransformedBegin();
     const transformedEnd = this._getTransformedEnd();
-    return new BoundingBox(
-      Math.min(transformedBegin.x, transformedEnd.x),
-      Math.min(transformedBegin.y, transformedEnd.y),
-      Math.max(transformedBegin.x, transformedEnd.x),
-      Math.max(transformedBegin.y, transformedEnd.y)
-    );
+    return this._boundsFromBeginEnd(transformedBegin, transformedEnd);
+  }
+
+  public getLocalBounds(): BoundingBox {
+    return this._boundsFromBeginEnd(this.begin, this.end);
   }
 
   /**

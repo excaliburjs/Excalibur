@@ -3,35 +3,53 @@ import { Actor } from '../Actor';
 import { Collider } from './Collider';
 import { CollisionType } from './CollisionType';
 import { Physics } from '../Physics';
-import { ConvexPolygon } from './ConvexPolygon';
-import { Circle } from './Circle';
-import { Edge } from './Edge';
 import { obsolete } from '../Util/Decorators';
 import { PreCollisionEvent, PostCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
 import { BoundingBox } from './BoundingBox';
+import { Clonable } from '../Interfaces/Clonable';
+import { Shape } from './Shape';
 
 export interface BodyOptions {
+  /**
+   * Optionally the actory associated with this body
+   */
   actor?: Actor;
+  /**
+   * An optional collider to use in this body, if none is specified a default Box collider will be created.
+   */
   collider?: Collider;
 }
 
 /**
  * Body describes all the physical properties pos, vel, acc, rotation, angular velocity
  */
-export class Body {
+export class Body implements Clonable<Body> {
   private _collider: Collider;
   public actor: Actor;
   /**
    * Constructs a new physics body associated with an actor
    */
   constructor({ actor, collider }: BodyOptions) {
+    if (!actor && !collider) {
+      throw new Error('An actor or collider are required to create a body');
+    }
+
     this.actor = actor;
-    if (!collider) {
-      this.collider = this.useBoxCollider();
+    if (!collider && actor) {
+      this.collider = this.useBoxCollider(actor.getWidth(), actor.getHeight(), actor.anchor);
     } else {
       this.collider = collider;
     }
-    this.collider.body = this;
+  }
+
+  /**
+   * Returns a clone of this body, not associated with any actor
+   */
+  public clone() {
+    return new Body({
+      actor: null,
+      collider: this.collider.clone()
+    });
   }
 
   public get id() {
@@ -58,11 +76,13 @@ export class Body {
     return this.actor ? this.actor.getRelativeGeometry() : new BoundingBox().getPoints();
   }
 
-  // TODO allow multiple colliders
+  // TODO allow multiple colliders for a single body
   public set collider(collider: Collider) {
-    this._collider = collider;
-    this._collider.body = this;
-    this._wireColliderEventsToActor();
+    if (collider) {
+      this._collider = collider;
+      this._collider.body = this;
+      this._wireColliderEventsToActor();
+    }
   }
 
   public get collider(): Collider {
@@ -219,15 +239,8 @@ export class Body {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public useBoxCollider(center: Vector = Vector.Zero): Collider {
-    this.collider.shape = new ConvexPolygon({
-      collider: this.collider,
-      points: this.actor.getRelativeGeometry(),
-      pos: center // position relative to actor
-    });
-
-    // in case of a nan moi, coalesce to a safe default
-    this.collider.inertia = isNaN(this.collider.shape.getInertia()) ? this.collider.inertia : this.collider.shape.getInertia();
+  public useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
+    this.collider.shape = Shape.Box(width, height, anchor, center);
     return this.collider;
   }
 
@@ -236,7 +249,7 @@ export class Body {
    */
   @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useBoxCollider' })
   public useBoxCollision(center: Vector = Vector.Zero) {
-    this.useBoxCollider(center);
+    this.useBoxCollider(this.actor.getWidth(), this.actor.getHeight(), this.actor.anchor, center);
   }
 
   /**
@@ -249,14 +262,7 @@ export class Body {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): Collider {
-    this.collider.shape = new ConvexPolygon({
-      collider: this.collider,
-      points: points,
-      pos: center // position relative to actor
-    });
-
-    // in case of a nan moi, collesce to a safe default
-    this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
+    this.collider.shape = Shape.Polygon(points, center);
     return this.collider;
   }
 
@@ -273,16 +279,8 @@ export class Body {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public useCircleCollider(radius?: number, center: Vector = Vector.Zero): Collider {
-    if (!radius) {
-      radius = this.actor.getWidth() / 2;
-    }
-    this.collider.shape = new Circle({
-      collider: this.collider,
-      radius: radius,
-      pos: center
-    });
-    this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
+  public useCircleCollider(radius: number, center: Vector = Vector.Zero): Collider {
+    this.collider.shape = Shape.Circle(radius, center);
     return this.collider;
   }
 
@@ -300,14 +298,17 @@ export class Body {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public useEdgeCollider(begin: Vector, end: Vector) {
-    this.collider.shape = new Edge({
-      collider: this.collider,
-      begin: begin,
-      end: end
-    });
+  public useEdgeCollider(begin: Vector, end: Vector): Collider {
+    this.collider.shape = Shape.Edge(begin, end);
+    return this.collider;
+  }
 
-    this.collider.inertia = this.collider.shape.getInertia() || this.collider.inertia;
+  /**
+   * @obsolete Body.useEdgeCollision will be removed in v0.24.0, use [[Body.useEdgeCollider]]
+   */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useEdgeCollider' })
+  public useEdgeCollision(begin: Vector, end: Vector) {
+    this.useEdgeCollider(begin, end);
   }
 
   // TODO remove this, eventually events will stay local to the thing they are around
@@ -333,13 +334,5 @@ export class Body {
         this.actor.emit('collisionend', new CollisionEndEvent(evt.target.body.actor, evt.other.body.actor));
       }
     });
-  }
-
-  /**
-   * @obsolete Body.useEdgeCollision will be removed in v0.24.0, use [[Body.useEdgeCollider]]
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useEdgeCollider' })
-  public useEdgeCollision(begin: Vector, end: Vector) {
-    this.useEdgeCollider(begin, end);
   }
 }

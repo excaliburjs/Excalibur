@@ -587,12 +587,10 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
     // Initialize default collider to be a box
     if (shouldInitializeBody) {
-      // this.body = new Body({actor: this});
       this.body = new Body({
         collider: new Collider({
           type: CollisionType.Passive,
-          // TODO doesnt account for anchor
-          shape: Shape.Box(this._width, this._height)
+          shape: Shape.Box(this._width, this._height, this.anchor)
         })
       });
     }

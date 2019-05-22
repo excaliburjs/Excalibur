@@ -17,9 +17,9 @@ export interface ConvexPolygonOptions {
 
   pos?: Vector;
   /**
-   * Points in the polygon in order around the perimiter
+   * Points in the polygon in order around the perimeter in local coordinates
    */
-  points?: Vector[];
+  points: Vector[];
   /**
    * Whether points are specified in clockwise or counter clockwise order, default counter-clockwise
    */
@@ -36,7 +36,7 @@ export interface ConvexPolygonOptions {
 }
 
 /**
- * Polygon collision area for detecting collisions for actors, or independently
+ * Polygon collision shape for detecting collisions
  */
 export class ConvexPolygon implements CollisionShape {
   public pos: Vector;
@@ -73,6 +73,18 @@ export class ConvexPolygon implements CollisionShape {
     this._calculateTransformation();
   }
 
+  /**
+   * Returns a clone of this ConvexPolygon, not associated with any collider
+   */
+  public clone(): ConvexPolygon {
+    return new ConvexPolygon({
+      pos: this.pos.clone(),
+      points: this.points.map((p) => p.clone()),
+      collider: null,
+      body: null
+    });
+  }
+
   public get worldPos(): Vector {
     if (this.collider && this.collider.body) {
       return this.collider.body.pos.add(this.pos);
@@ -81,7 +93,7 @@ export class ConvexPolygon implements CollisionShape {
   }
 
   /**
-   * Get the center of the collision area in world coordinates
+   * Get the center of the collision shape in world coordinates
    */
   public getCenter(): Vector {
     const body = this.collider ? this.collider.body : null;
@@ -143,7 +155,7 @@ export class ConvexPolygon implements CollisionShape {
   }
 
   /**
-   * Tests if a point is contained in this collision area in world space
+   * Tests if a point is contained in this collision shape in world space
    */
   public contains(point: Vector): boolean {
     // Always cast to the right, as long as we cast in a consitent fixed direction we
@@ -163,7 +175,7 @@ export class ConvexPolygon implements CollisionShape {
   }
 
   /**
-   * Returns a collision contact if the 2 collision areas collide, otherwise collide will
+   * Returns a collision contact if the 2 collision shapes collide, otherwise collide will
    * return null.
    * @param shape
    */
@@ -225,27 +237,19 @@ export class ConvexPolygon implements CollisionShape {
   }
 
   /**
-   * Get the axis aligned bounding box for the polygon area
+   * Get the axis aligned bounding box for the polygon shape in world coordinates
    */
   public getBounds(): BoundingBox {
-    // todo there is a faster way to do this
     const points = this.getTransformedPoints();
 
-    const minX = points.reduce(function(prev, curr) {
-      return Math.min(prev, curr.x);
-    }, 999999999);
-    const maxX = points.reduce(function(prev, curr) {
-      return Math.max(prev, curr.x);
-    }, -99999999);
+    return BoundingBox.fromPoints(points);
+  }
 
-    const minY = points.reduce(function(prev, curr) {
-      return Math.min(prev, curr.y);
-    }, 9999999999);
-    const maxY = points.reduce(function(prev, curr) {
-      return Math.max(prev, curr.y);
-    }, -9999999999);
-
-    return new BoundingBox(minX, minY, maxX, maxY);
+  /**
+   * Get the axis aligned bounding box for the polygon shape in local coordinates
+   */
+  public getLocalBounds(): BoundingBox {
+    return BoundingBox.fromPoints(this.points);
   }
 
   /**

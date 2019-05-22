@@ -64,6 +64,15 @@ export class BoundingBox {
     return new BoundingBox(minX, minY, maxX, maxY);
   }
 
+  public static fromDimension(width: number, height: number, anchor: Vector = Vector.Half, pos: Vector = Vector.Zero) {
+    return new BoundingBox(
+      -width * anchor.x + pos.x,
+      -height * anchor.y + pos.y,
+      width - width * anchor.x + pos.x,
+      height - height * anchor.y + pos.y
+    );
+  }
+
   /**
    * Returns the calculated width of the bounding box
    */
@@ -78,6 +87,10 @@ export class BoundingBox {
     return this.bottom - this.top;
   }
 
+  public translate(pos: Vector): BoundingBox {
+    return new BoundingBox(this.left + pos.x, this.top + pos.y, this.right + pos.x, this.bottom + pos.y);
+  }
+
   /**
    * Rotates a bounding box by and angle and around a point, if no point is specified (0, 0) is used by default. The resulting bounding
    * box is also axis-align. This is useful when a new axis-aligned bounding box is needed for rotated geometry.
@@ -85,6 +98,11 @@ export class BoundingBox {
   public rotate(angle: number, point: Vector = Vector.Zero): BoundingBox {
     const points = this.getPoints().map((p) => p.rotate(angle, point));
     return BoundingBox.fromPoints(points);
+  }
+
+  public scale(scale: Vector, point: Vector = Vector.Zero): BoundingBox {
+    const shifted = this.translate(point);
+    return new BoundingBox(shifted.left * scale.x, shifted.top * scale.y, shifted.right * scale.x, shifted.bottom * scale.y);
   }
 
   /**

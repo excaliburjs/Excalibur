@@ -5,9 +5,9 @@ import { BoundingBox } from './BoundingBox';
 import { Vector } from '../Algebra';
 
 export class Shape {
-  static Box(width: number, height: number, center: Vector = Vector.Zero): ConvexPolygon {
+  static Box(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): ConvexPolygon {
     return new ConvexPolygon({
-      points: new BoundingBox(-width / 2, -height / 2, width / 2, height / 2).getPoints(),
+      points: new BoundingBox(-width * anchor.x, -height * anchor.y, width - width * anchor.x, height - height * anchor.y).getPoints(),
       pos: center
     });
   }

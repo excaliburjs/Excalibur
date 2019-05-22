@@ -16,7 +16,7 @@ import { Body } from './Body';
 
 export interface CircleOptions {
   pos?: Vector;
-  radius?: number;
+  radius: number;
   collider?: Collider;
 
   // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
@@ -24,11 +24,11 @@ export interface CircleOptions {
 }
 
 /**
- * This is a circle collision area for the excalibur rigid body physics simulation
+ * This is a circle collision shape for the excalibur rigid body physics simulation
  */
 export class Circle implements CollisionShape {
   /**
-   * This is the center position of the circle, relative to the body position
+   * Position of the circle relative to the collider, by default (0, 0) meaning the shape is positioned on top of the collider.
    */
   public pos: Vector = Vector.Zero;
 
@@ -45,13 +45,13 @@ export class Circle implements CollisionShape {
   public radius: number;
 
   /**
-   * Reference to the actor associated with this collision area
+   * Reference to the actor associated with this collision shape
    * @obsolete Will be removed in v0.24.0 please use [[collider]] to retrieve body information
    */
   public body: Body;
 
   /**
-   * The collider for this area
+   * The collider associated for this shape, if any.
    */
   public collider?: Collider;
 
@@ -69,7 +69,19 @@ export class Circle implements CollisionShape {
   }
 
   /**
-   * Get the center of the collision area in world coordinates
+   * Returns a clone of this shape, not associated with any collider
+   */
+  public clone(): Circle {
+    return new Circle({
+      pos: this.pos.clone(),
+      radius: this.radius,
+      collider: null,
+      body: null
+    });
+  }
+
+  /**
+   * Get the center of the collision shape in world coordinates
    */
   public getCenter(): Vector {
     if (this.collider && this.collider.body) {
@@ -79,7 +91,7 @@ export class Circle implements CollisionShape {
   }
 
   /**
-   * Tests if a point is contained in this collision area
+   * Tests if a point is contained in this collision shape
    */
   public contains(point: Vector): boolean {
     let pos = this.pos;
@@ -94,7 +106,7 @@ export class Circle implements CollisionShape {
   }
 
   /**
-   * Casts a ray at the CircleArea and returns the nearest point of collision
+   * Casts a ray at the Circl shape and returns the nearest point of collision
    * @param ray
    */
   public rayCast(ray: Ray, max: number = Infinity): Vector {
@@ -152,7 +164,7 @@ export class Circle implements CollisionShape {
   }
 
   /**
-   * Get the axis aligned bounding box for the circle area
+   * Get the axis aligned bounding box for the circle shape in world coordinates
    */
   public getBounds(): BoundingBox {
     let bodyPos = Vector.Zero;
@@ -165,6 +177,13 @@ export class Circle implements CollisionShape {
       this.pos.x + bodyPos.x + this.radius,
       this.pos.y + bodyPos.y + this.radius
     );
+  }
+
+  /**
+   * Get the axis aligned bounding box for the circle shape in local coordinates
+   */
+  public getLocalBounds(): BoundingBox {
+    return new BoundingBox(this.pos.x - this.radius, this.pos.y - this.radius, this.pos.x + this.radius, this.pos.y + this.radius);
   }
 
   /**
