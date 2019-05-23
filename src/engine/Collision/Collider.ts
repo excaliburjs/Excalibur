@@ -8,7 +8,6 @@ import { CollisionShape } from './CollisionShape';
 import { Vector } from '../Algebra';
 import { Physics } from '../Physics';
 import { BoundingBox } from './BoundingBox';
-import { ConvexPolygon } from './ConvexPolygon';
 import { CollisionType } from './CollisionType';
 import { CollisionContact } from './CollisionContact';
 import { EventDispatcher } from '../EventDispatcher';
@@ -53,10 +52,9 @@ export interface ColliderOptions {
 export class Collider implements Eventable, Clonable<Collider> {
   private _shape: CollisionShape;
   public useShapeInertia: boolean;
-  public localBounds: BoundingBox;
   private _events: EventDispatcher<Collider> = new EventDispatcher<Collider>(this);
 
-  constructor({ body, type, shape, localBounds, useShapeInertia = true }: ColliderOptions) {
+  constructor({ body, type, shape, useShapeInertia = true }: ColliderOptions) {
     // If shape is not supplied see if the body has an existing collider with a shape
     if (body && body.collider && !shape) {
       this._shape = body.collider.shape;
@@ -64,8 +62,6 @@ export class Collider implements Eventable, Clonable<Collider> {
       this._shape = shape;
       this.body = body;
     }
-
-    this.localBounds = localBounds;
     this.useShapeInertia = useShapeInertia;
     this._shape.collider = this;
     this.type = type;
@@ -119,10 +115,10 @@ export class Collider implements Eventable, Clonable<Collider> {
   public body: Body;
 
   /**
-   * The center of the collider
+   * The center of the collider in world space
    */
   public get center(): Vector {
-    return this.body.center;
+    return this.bounds.getCenter();
   }
 
   /**
@@ -181,28 +177,35 @@ export class Collider implements Eventable, Clonable<Collider> {
 
   /**
    * Returns the collider's [[BoundingBox]] calculated for this instant in world space.
+   * If there is no shape, a point bounding box is returned
    */
-  public getBounds(): BoundingBox {
-    return this.localBounds && this.body ? this.localBounds.translate(this.body.pos) : this.shape.getBounds();
+  public get bounds(): BoundingBox {
+    if (this.shape) {
+      return this.shape.getBounds();
+    }
+
+    if (this.body) {
+      return new BoundingBox().translate(this.body.pos);
+    }
+    return new BoundingBox();
   }
 
   /**
    * Returns the collider's [[BoundingBox]] relative to the body's position.
+   * If there is no shape, a point boudning box is returned
    */
-  public getLocalBounds(): BoundingBox {
-    return this.localBounds ? this.localBounds : this.shape.getLocalBounds();
+  public get localBounds(): BoundingBox {
+    if (this.shape) {
+      return this.shape.getLocalBounds();
+    }
+    return new BoundingBox();
   }
 
   /**
-   * Updates the collision area geometry and internal caches
+   * Updates the collision shapes geometry and internal caches if needed
    */
   public update() {
     if (this.shape) {
-      // Update the geometry if needed
-      if (this.body && this.body.isColliderShapeDirty && this.shape instanceof ConvexPolygon) {
-        this.shape.points = this.body.relativeGeometry;
-      }
-
       this.shape.recalc();
     }
   }
@@ -234,7 +237,7 @@ export class Collider implements Eventable, Clonable<Collider> {
     }
 
     if (Physics.showBounds) {
-      this.getBounds().debugDraw(ctx, Color.Yellow);
+      this.bounds.debugDraw(ctx, Color.Yellow);
     }
 
     if (Physics.showArea) {

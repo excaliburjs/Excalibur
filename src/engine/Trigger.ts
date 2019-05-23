@@ -130,7 +130,7 @@ export class Trigger extends Actor {
     ctx.save();
     ctx.translate(this.pos.x, this.pos.y);
 
-    const bb = this.getBounds();
+    const bb = this.body.collider.bounds;
     const wp = this.getWorldPos();
     bb.left = bb.left - wp.x;
     bb.right = bb.right - wp.x;

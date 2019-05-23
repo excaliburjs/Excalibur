@@ -122,7 +122,14 @@ export class ConvexPolygon implements CollisionShape {
    * Gets the points that make up the polygon in world space, from actor relative space (if specified)
    */
   public getTransformedPoints(): Vector[] {
-    if (!this._transformedPoints.length) {
+    // only recalculate geometry if, hasn't been calculated
+    if (
+      !this._transformedPoints.length ||
+      // or the position or rotation has changed in world space
+      (this.collider &&
+        this.collider.body &&
+        (!this.collider.body.oldPos.equals(this.collider.body.pos) || this.collider.body.oldRotation !== this.collider.body.rotation))
+    ) {
       this._calculateTransformation();
     }
     return this._transformedPoints;

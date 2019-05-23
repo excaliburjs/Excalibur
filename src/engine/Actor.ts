@@ -1118,8 +1118,10 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Sets the width of an actor, factoring in the current scale
    */
+  @obsolete()
   public setWidth(width: number) {
     this._width = width / this.scale.x;
+    this.body.collider.shape = Shape.Box(this._width, this._height, this.anchor);
     this.body.markCollisionShapeDirty();
   }
   /**
@@ -1131,31 +1133,41 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Sets the height of an actor, factoring in the current scale
    */
+  @obsolete()
   public setHeight(height: number) {
     this._height = height / this.scale.y;
+    this.body.collider.shape = Shape.Box(this._width, this._height, this.anchor);
     this.body.markCollisionShapeDirty();
   }
+
   /**
    * Gets the left edge of the actor
    */
+  @obsolete()
   public getLeft() {
     return this.getBounds().left;
   }
+
   /**
    * Gets the right edge of the actor
    */
+  @obsolete()
   public getRight() {
     return this.getBounds().right;
   }
+
   /**
    * Gets the top edge of the actor
    */
+  @obsolete()
   public getTop() {
     return this.getBounds().top;
   }
+
   /**
    * Gets the bottom edge of the actor
    */
+  @obsolete()
   public getBottom() {
     return this.getBounds().bottom;
   }
@@ -1234,20 +1246,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
    */
-  public get bounds() {
-    return this.getBounds();
-  }
-
-  /**
-   * Returns the actor's [[BoundingBox]] relative to the actor's position.
-   */
-  public get relativeBounds() {
-    return this.getRelativeBounds();
-  }
-
-  /**
-   * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
-   */
+  @obsolete()
   public getBounds(rotated: boolean = true): BoundingBox {
     // todo cache bounding box
     const anchor = this._getCalculatedAnchor();
@@ -1261,6 +1260,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Returns the actor's [[BoundingBox]] relative to the actor's position.
    */
+  @obsolete()
   public getRelativeBounds(rotated: boolean = true): BoundingBox {
     // todo cache bounding box
     const anchor = this._getCalculatedAnchor();
@@ -1272,6 +1272,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Returns the actors unrotated geometry in world coordinates
    */
+  @obsolete()
   public getGeometry(): Vector[] {
     return this.getBounds(false).getPoints();
   }
@@ -1279,6 +1280,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Return the actor's unrotated geometry relative to the actor's position
    */
+  @obsolete()
   public getRelativeGeometry(): Vector[] {
     return this.getRelativeBounds(false).getPoints();
   }
@@ -1289,6 +1291,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param y  Y coordinate to test (in world coordinates)
    * @param recurse checks whether the x/y are contained in any child actors (if they exist).
    */
+  @obsolete()
   public contains(x: number, y: number, recurse: boolean = false): boolean {
     const containment = this.getBounds().contains(new Vector(x, y));
 
@@ -1360,8 +1363,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   @obsolete({ message: 'Actor.collides will be removed  in v0.24.0', alternateMethod: 'Actor.bounds.intersect or Actor.' })
   public collides(actor: Actor): Vector {
-    const bounds = this.getBounds();
-    const otherBounds = actor.getBounds();
+    const bounds = this.body.collider.bounds;
+    const otherBounds = actor.body.collider.bounds;
     const intersect = bounds.intersect(otherBounds);
     return intersect;
   }
@@ -1594,7 +1597,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this.body.collider.debugDraw(ctx);
 
     // Draw actor bounding box
-    const bb = this.getBounds();
+    const bb = this.body.collider.bounds;
     bb.debugDraw(ctx);
 
     // Draw actor Id

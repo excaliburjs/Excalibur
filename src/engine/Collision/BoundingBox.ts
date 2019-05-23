@@ -87,6 +87,13 @@ export class BoundingBox {
     return this.bottom - this.top;
   }
 
+  /**
+   * Returns the center of the bounding box
+   */
+  public getCenter(): Vector {
+    return new Vector((this.left + this.right) / 2, (this.top + this.bottom) / 2);
+  }
+
   public translate(pos: Vector): BoundingBox {
     return new BoundingBox(this.left + pos.x, this.top + pos.y, this.right + pos.x, this.bottom + pos.y);
   }

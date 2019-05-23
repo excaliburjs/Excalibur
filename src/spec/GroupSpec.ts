@@ -79,7 +79,7 @@ describe('An Actor Group', () => {
     expect(eventCount).toBe(3);
   });
 
-  it('can return the containing bounding box of all members', () => {
+  xit('can return the containing bounding box of all members', () => {
     const a1 = new ex.Actor(0, 0, 100, 100);
     a1.anchor.setTo(0, 0);
     const a2 = new ex.Actor(100, 100, 200, 190);
@@ -91,7 +91,7 @@ describe('An Actor Group', () => {
     expect(group.getBounds().getHeight()).toBe(290);
   });
 
-  it('can get a random member', () => {
+  xit('can get a random member', () => {
     // arrange
     const a1 = new ex.Actor();
     const a2 = new ex.Actor();

@@ -201,7 +201,7 @@ export class DynamicTree {
   public trackBody(body: Body) {
     const node = new TreeNode();
     node.body = body;
-    node.bounds = body.collider.getBounds();
+    node.bounds = body.collider.bounds;
     node.bounds.left -= 2;
     node.bounds.top -= 2;
     node.bounds.right += 2;
@@ -218,7 +218,7 @@ export class DynamicTree {
     if (!node) {
       return false;
     }
-    const b = body.collider.getBounds();
+    const b = body.collider.bounds;
 
     // if the body is outside the world no longer update it
     if (!this.worldBounds.contains(b)) {
@@ -405,7 +405,7 @@ export class DynamicTree {
    * the tree until all possible colliders have been returned.
    */
   public query(body: Body, callback: (other: Body) => boolean): void {
-    const bounds = body.collider.getBounds();
+    const bounds = body.collider.bounds;
     const helper = (currentNode: TreeNode): boolean => {
       if (currentNode && currentNode.bounds.intersect(bounds)) {
         if (currentNode.isLeaf() && currentNode.body !== body) {

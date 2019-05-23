@@ -5,7 +5,6 @@ import { CollisionType } from './CollisionType';
 import { Physics } from '../Physics';
 import { obsolete } from '../Util/Decorators';
 import { PreCollisionEvent, PostCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
-import { BoundingBox } from './BoundingBox';
 import { Clonable } from '../Interfaces/Clonable';
 import { Shape } from './Shape';
 
@@ -42,6 +41,10 @@ export class Body implements Clonable<Body> {
     }
   }
 
+  public get id() {
+    return this.actor ? this.actor.id : -1;
+  }
+
   /**
    * Returns a clone of this body, not associated with any actor
    */
@@ -52,28 +55,12 @@ export class Body implements Clonable<Body> {
     });
   }
 
-  public get id() {
-    return this.actor ? this.actor.id : -1;
-  }
-
-  public get bounds() {
-    return this.actor ? this.actor.bounds : new BoundingBox();
-  }
-
   public get active() {
     return this.actor ? !this.actor.isKilled() : false;
   }
 
   public get center() {
-    return this.actor ? this.actor.getCenter() : this.pos;
-  }
-
-  public get relativeBounds() {
-    return this.actor ? this.actor.relativeBounds : new BoundingBox();
-  }
-
-  public get relativeGeometry() {
-    return this.actor ? this.actor.getRelativeGeometry() : new BoundingBox().getPoints();
+    return this.pos;
   }
 
   // TODO allow multiple colliders for a single body
@@ -131,6 +118,11 @@ export class Body implements Clonable<Body> {
    * The current "motion" of the actor, used to calculated sleep in the physics simulation
    */
   public motion: number = 10;
+
+  /**
+   * Gets/sets the rotation of the body from the last frame.
+   */
+  public oldRotation: number = 0; // radians
 
   /**
    * The rotation of the actor in radians
@@ -200,6 +192,7 @@ export class Body implements Clonable<Body> {
     this.oldPos.setTo(this.pos.x, this.pos.y);
     this.oldAcc.setTo(this.acc.x, this.acc.y);
     this.oldScale.setTo(this.scale.x, this.scale.y);
+    this.oldRotation = this.rotation;
   }
 
   /**

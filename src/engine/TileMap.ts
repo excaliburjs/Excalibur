@@ -84,7 +84,7 @@ export class TileMapImpl extends Class {
   public collides(actor: Actor): Vector {
     const width = actor.pos.x + actor.getWidth();
     const height = actor.pos.y + actor.getHeight();
-    const actorBounds = actor.getBounds();
+    const actorBounds = actor.body.collider.bounds;
     const overlaps: Vector[] = [];
     // trace points for overlap
     for (let x = actorBounds.left; x <= width; x += Math.min(actor.getWidth() / 2, this.cellWidth / 2)) {
