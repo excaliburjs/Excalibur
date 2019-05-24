@@ -76,7 +76,7 @@ export class BoundingBox {
   /**
    * Returns the calculated width of the bounding box
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.width' })
   public getWidth() {
     return this.width;
   }
@@ -91,7 +91,7 @@ export class BoundingBox {
   /**
    * Returns the calculated height of the bounding box
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.height' })
   public getHeight() {
     return this.height;
   }
@@ -106,7 +106,7 @@ export class BoundingBox {
   /**
    * Returns the center of the bounding box
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.center' })
   public getCenter(): Vector {
     return new Vector((this.left + this.right) / 2, (this.top + this.bottom) / 2);
   }

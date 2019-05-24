@@ -1104,7 +1104,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Get the center point of an actor
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.center' })
   public getCenter(): Vector {
     return new Vector(this.pos.x + this.width / 2 - this.anchor.x * this.width, this.pos.y + this.height / 2 - this.anchor.y * this.height);
   }
@@ -1129,14 +1129,14 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets the calculated width of an actor, factoring in scale
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.width' })
   public getWidth() {
     return this.width;
   }
   /**
    * Sets the width of an actor, factoring in the current scale
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.width' })
   public setWidth(width: number) {
     this.width = width;
   }
@@ -1154,14 +1154,14 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets the calculated height of an actor, factoring in scale
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.height' })
   public getHeight() {
     return this.height;
   }
   /**
    * Sets the height of an actor, factoring in the current scale
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.height' })
   public setHeight(height: number) {
     this.height = height;
   }
@@ -1169,7 +1169,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets the left edge of the actor
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds.left' })
   public getLeft() {
     return this.getBounds().left;
   }
@@ -1177,7 +1177,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets the right edge of the actor
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds.right' })
   public getRight() {
     return this.getBounds().right;
   }
@@ -1185,7 +1185,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets the top edge of the actor
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds.top' })
   public getTop() {
     return this.getBounds().top;
   }
@@ -1193,7 +1193,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Gets the bottom edge of the actor
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds.bottom' })
   public getBottom() {
     return this.getBounds().bottom;
   }
@@ -1272,7 +1272,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds' })
   public getBounds(rotated: boolean = true): BoundingBox {
     // todo cache bounding box
     const anchor = this._getCalculatedAnchor();
@@ -1286,7 +1286,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Returns the actor's [[BoundingBox]] relative to the actor's position.
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.localBounds' })
   public getRelativeBounds(rotated: boolean = true): BoundingBox {
     // todo cache bounding box
     const anchor = this._getCalculatedAnchor();
@@ -1298,7 +1298,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Returns the actors unrotated geometry in world coordinates
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds.getPoints()' })
   public getGeometry(): Vector[] {
     return this.getBounds(false).getPoints();
   }
@@ -1306,7 +1306,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Return the actor's unrotated geometry relative to the actor's position
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.localBounds.getPoints()' })
   public getRelativeGeometry(): Vector[] {
     return this.getRelativeBounds(false).getPoints();
   }

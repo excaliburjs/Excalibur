@@ -344,7 +344,7 @@ export class CellImpl {
   /**
    * Returns the bounding box for this cell
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.bounds' })
   public getBounds() {
     return this._bounds;
   }
@@ -356,7 +356,7 @@ export class CellImpl {
   /**
    * Gets the center coordinate of this cell
    */
-  @obsolete()
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.center' })
   public getCenter(): Vector {
     return new Vector(this.x + this.width / 2, this.y + this.height / 2);
   }
