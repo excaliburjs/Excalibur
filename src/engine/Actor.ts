@@ -392,6 +392,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public set scale(scale: Vector) {
     this.body.scale = scale;
+    this.width = this.width;
   }
 
   /**
@@ -1104,40 +1105,57 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Get the center point of an actor
    */
   public getCenter(): Vector {
-    return new Vector(
-      this.pos.x + this.getWidth() / 2 - this.anchor.x * this.getWidth(),
-      this.pos.y + this.getHeight() / 2 - this.anchor.y * this.getHeight()
-    );
+    return new Vector(this.pos.x + this.width / 2 - this.anchor.x * this.width, this.pos.y + this.height / 2 - this.anchor.y * this.height);
   }
+
+  public get width() {
+    return this._width * this.getGlobalScale().x;
+  }
+
+  public set width(width: number) {
+    this._width = width / this.scale.x;
+    this.body.collider.shape = Shape.Box(this._width, this._height, this.anchor);
+    this.body.markCollisionShapeDirty();
+  }
+
   /**
    * Gets the calculated width of an actor, factoring in scale
    */
+  @obsolete()
   public getWidth() {
-    return this._width * this.getGlobalScale().x;
+    return this.width;
   }
   /**
    * Sets the width of an actor, factoring in the current scale
    */
   @obsolete()
   public setWidth(width: number) {
-    this._width = width / this.scale.x;
+    this.width = width;
+  }
+
+  public get height() {
+    return this._height * this.getGlobalScale().y;
+  }
+
+  public set height(height: number) {
+    this._height = height / this.scale.y;
     this.body.collider.shape = Shape.Box(this._width, this._height, this.anchor);
     this.body.markCollisionShapeDirty();
   }
+
   /**
    * Gets the calculated height of an actor, factoring in scale
    */
+  @obsolete()
   public getHeight() {
-    return this._height * this.getGlobalScale().y;
+    return this.height;
   }
   /**
    * Sets the height of an actor, factoring in the current scale
    */
   @obsolete()
   public setHeight(height: number) {
-    this._height = height / this.scale.y;
-    this.body.collider.shape = Shape.Box(this._width, this._height, this.anchor);
-    this.body.markCollisionShapeDirty();
+    this.height = height;
   }
 
   /**
@@ -1252,7 +1270,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     const anchor = this._getCalculatedAnchor();
     const pos = this.getWorldPos();
 
-    const bb = new BoundingBox(pos.x - anchor.x, pos.y - anchor.y, pos.x + this.getWidth() - anchor.x, pos.y + this.getHeight() - anchor.y);
+    const bb = new BoundingBox(pos.x - anchor.x, pos.y - anchor.y, pos.x + this.width - anchor.x, pos.y + this.height - anchor.y);
 
     return rotated ? bb.rotate(this.rotation, pos) : bb;
   }
@@ -1264,7 +1282,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public getRelativeBounds(rotated: boolean = true): BoundingBox {
     // todo cache bounding box
     const anchor = this._getCalculatedAnchor();
-    const bb = new BoundingBox(-anchor.x, -anchor.y, this.getWidth() - anchor.x, this.getHeight() - anchor.y);
+    const bb = new BoundingBox(-anchor.x, -anchor.y, this.width - anchor.x, this.height - anchor.y);
 
     return rotated ? bb.rotate(this.rotation) : bb;
   }
@@ -1291,9 +1309,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param y  Y coordinate to test (in world coordinates)
    * @param recurse checks whether the x/y are contained in any child actors (if they exist).
    */
-  @obsolete()
   public contains(x: number, y: number, recurse: boolean = false): boolean {
-    const containment = this.getBounds().contains(new Vector(x, y));
+    const containment = this.body.collider.bounds.contains(new Vector(x, y));
 
     if (recurse) {
       return (
@@ -1402,7 +1419,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   // #endregion
 
   private _getCalculatedAnchor(): Vector {
-    return new Vector(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
+    return new Vector(this.width * this.anchor.x, this.height * this.anchor.y);
   }
 
   protected _reapplyEffects(drawing: Drawable) {
@@ -1620,7 +1637,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     // Unit Circle debug draw
     ctx.strokeStyle = Color.Yellow.toString();
     ctx.beginPath();
-    const radius = Math.min(this.getWidth(), this.getHeight());
+    const radius = Math.min(this.width, this.height);
     ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
     ctx.closePath();
     ctx.stroke();

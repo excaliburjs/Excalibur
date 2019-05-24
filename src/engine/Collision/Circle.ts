@@ -166,7 +166,7 @@ export class Circle implements CollisionShape {
   /**
    * Get the axis aligned bounding box for the circle shape in world coordinates
    */
-  public getBounds(): BoundingBox {
+  public get bounds(): BoundingBox {
     let bodyPos = Vector.Zero;
     if (this.collider && this.collider.body) {
       bodyPos = this.collider.body.pos;
@@ -182,14 +182,14 @@ export class Circle implements CollisionShape {
   /**
    * Get the axis aligned bounding box for the circle shape in local coordinates
    */
-  public getLocalBounds(): BoundingBox {
+  public get localBounds(): BoundingBox {
     return new BoundingBox(this.pos.x - this.radius, this.pos.y - this.radius, this.pos.x + this.radius, this.pos.y + this.radius);
   }
 
   /**
    * Get axis not implemented on circles, since there are infinite axis in a circle
    */
-  public getAxes(): Vector[] {
+  public get axes(): Vector[] {
     return null;
   }
 
@@ -197,7 +197,7 @@ export class Circle implements CollisionShape {
    * Returns the moment of inertia of a circle given it's mass
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public getInertia(): number {
+  public get inertia(): number {
     const mass = this.collider ? this.collider.mass : Physics.defaultMass;
     return (mass * this.radius * this.radius) / 2;
   }
@@ -206,7 +206,7 @@ export class Circle implements CollisionShape {
    * Tests the separating axis theorem for circles against polygons
    */
   public testSeparatingAxisTheorem(polygon: ConvexPolygon): Vector {
-    const axes = polygon.getAxes();
+    const axes = polygon.axes;
     const pc = polygon.getCenter();
     // Special SAT with circles
     const closestPointOnPoly = polygon.getFurthestPoint(this.pos.sub(pc));

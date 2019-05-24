@@ -400,8 +400,8 @@ export class ParticleEmitterImpl extends Actor {
     const dy = vel * Math.sin(angle);
 
     if (this.emitterType === EmitterType.Rectangle) {
-      ranX = Util.randomInRange(this.pos.x, this.pos.x + this.getWidth(), this.random);
-      ranY = Util.randomInRange(this.pos.y, this.pos.y + this.getHeight(), this.random);
+      ranX = Util.randomInRange(this.pos.x, this.pos.x + this.width, this.random);
+      ranY = Util.randomInRange(this.pos.y, this.pos.y + this.height, this.random);
     } else if (this.emitterType === EmitterType.Circle) {
       const radius = Util.randomInRange(0, this.radius, this.random);
       ranX = radius * Math.cos(angle) + this.pos.x;

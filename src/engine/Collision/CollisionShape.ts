@@ -45,22 +45,22 @@ export interface CollisionShape extends Clonable<CollisionShape> {
   /**
    * Return the axis-aligned bounding box of the collision shape in world coordinates
    */
-  getBounds(): BoundingBox;
+  bounds: BoundingBox;
 
   /**
    * Return the axis-aligned boudning box of the collision shape in local coordinates
    */
-  getLocalBounds(): BoundingBox;
+  localBounds: BoundingBox;
 
   /**
    * Return the axes of this particular shape
    */
-  getAxes(): Vector[];
+  axes: Vector[];
 
   /**
    * Return the calculated moment of intertia for this shape
    */
-  getInertia(): number;
+  inertia: number;
 
   // All new CollisionShape need to do the following
   // Create a new collision function in the CollisionJumpTable against all the primitives

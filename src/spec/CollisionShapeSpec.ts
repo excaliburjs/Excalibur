@@ -63,7 +63,7 @@ describe('Collision Shape', () => {
     it('has bounds', () => {
       actor.pos.setTo(400, 400);
 
-      const bounds = circle.getBounds();
+      const bounds = circle.bounds;
       expect(bounds.left).toBe(390);
       expect(bounds.right).toBe(410);
       expect(bounds.top).toBe(390);
@@ -102,14 +102,14 @@ describe('Collision Shape', () => {
 
     it('doesnt have axes', () => {
       // technically circles have infinite axes
-      expect(circle.getAxes()).toBe(null);
+      expect(circle.axes).toBe(null);
     });
 
     it('has a moment of inertia', () => {
       // following this formula
       //https://en.wikipedia.org/wiki/List_of_moments_of_inertia
       // I = m*r^2/2
-      expect(circle.getInertia()).toBe((circle.body.collider.mass * circle.radius * circle.radius) / 2);
+      expect(circle.inertia).toBe((circle.body.collider.mass * circle.radius * circle.radius) / 2);
     });
 
     it('should collide without a collider or body', () => {
@@ -167,7 +167,7 @@ describe('Collision Shape', () => {
       const actor2 = new ex.Actor(14.99, 0, 10, 10); // meh close enough
       const poly = new ex.ConvexPolygon({
         pos: ex.Vector.Zero.clone(),
-        points: actor2.getRelativeBounds().getPoints(),
+        points: actor2.body.collider.localBounds.getPoints(),
         body: actor2.body
       });
 
@@ -191,7 +191,7 @@ describe('Collision Shape', () => {
       const actor2 = new ex.Actor(16, 0, 10, 10);
       const poly = new ex.ConvexPolygon({
         pos: ex.Vector.Zero.clone(),
-        points: actor2.getRelativeBounds().getPoints(),
+        points: actor2.body.collider.localBounds.getPoints(),
         body: actor2.body
       });
 
@@ -637,13 +637,13 @@ describe('Collision Shape', () => {
     });
 
     it('has 4 axes', () => {
-      const axes = edge.getAxes();
+      const axes = edge.axes;
       expect(axes.length).toBe(4);
     });
 
     it('has bounds', () => {
       actor.pos.setTo(400, 400);
-      const boundingBox = edge.getBounds();
+      const boundingBox = edge.bounds;
 
       const transformedBegin = new ex.Vector(395, 400);
       const transformedEnd = new ex.Vector(405, 400);
@@ -655,7 +655,7 @@ describe('Collision Shape', () => {
     it('has a moi', () => {
       // following this formula https://en.wikipedia.org/wiki/List_of_moments_of_inertia
       // rotates from the middle treating the ends as a point mass
-      const moi = edge.getInertia();
+      const moi = edge.inertia;
       const length = edge.end.sub(edge.begin).distance() / 2;
       expect(moi).toBeCloseTo(edge.body.collider.mass * length * length, 0.001);
     });

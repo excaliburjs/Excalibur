@@ -101,7 +101,7 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
           collider.body.acc.magnitude() * 0.5 * seconds * seconds; // acc term
 
         // Find the minimum dimension
-        const minDimension = Math.min(collider.bounds.getHeight(), collider.bounds.getWidth());
+        const minDimension = Math.min(collider.bounds.height, collider.bounds.width);
         if (Physics.disableMinimumSpeedForFastBody || updateDistance > minDimension / 2) {
           if (stats) {
             stats.physics.fastBodies++;

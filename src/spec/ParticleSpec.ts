@@ -52,8 +52,8 @@ describe('A particle', () => {
 
     expect(emitter.pos.x).toBe(400);
     expect(emitter.pos.y).toBe(100);
-    expect(emitter.getWidth()).toBe(20);
-    expect(emitter.getHeight()).toBe(30);
+    expect(emitter.width).toBe(20);
+    expect(emitter.height).toBe(30);
     expect(emitter.isEmitting).toBe(true);
     expect(emitter.minVel).toBe(40);
     expect(emitter.maxVel).toBe(50);

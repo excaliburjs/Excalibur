@@ -105,7 +105,7 @@ export class Collider implements Eventable, Clonable<Collider> {
     this._shape = shape;
     this._shape.collider = this;
     if (this.useShapeInertia) {
-      this.inertia = isNaN(this._shape.getInertia()) ? this.inertia : this._shape.getInertia();
+      this.inertia = isNaN(this._shape.inertia) ? this.inertia : this._shape.inertia;
     }
   }
 
@@ -181,7 +181,7 @@ export class Collider implements Eventable, Clonable<Collider> {
    */
   public get bounds(): BoundingBox {
     if (this.shape) {
-      return this.shape.getBounds();
+      return this.shape.bounds;
     }
 
     if (this.body) {
@@ -196,7 +196,7 @@ export class Collider implements Eventable, Clonable<Collider> {
    */
   public get localBounds(): BoundingBox {
     if (this.shape) {
-      return this.shape.getLocalBounds();
+      return this.shape.localBounds;
     }
     return new BoundingBox();
   }

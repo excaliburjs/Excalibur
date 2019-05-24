@@ -157,7 +157,6 @@ export class ConvexPolygon implements CollisionShape {
     this._axes.length = 0;
     this._transformedPoints.length = 0;
     this.getTransformedPoints();
-    this.getAxes();
     this.getSides();
   }
 
@@ -246,7 +245,7 @@ export class ConvexPolygon implements CollisionShape {
   /**
    * Get the axis aligned bounding box for the polygon shape in world coordinates
    */
-  public getBounds(): BoundingBox {
+  public get bounds(): BoundingBox {
     const points = this.getTransformedPoints();
 
     return BoundingBox.fromPoints(points);
@@ -255,7 +254,7 @@ export class ConvexPolygon implements CollisionShape {
   /**
    * Get the axis aligned bounding box for the polygon shape in local coordinates
    */
-  public getLocalBounds(): BoundingBox {
+  public get localBounds(): BoundingBox {
     return BoundingBox.fromPoints(this.points);
   }
 
@@ -263,7 +262,7 @@ export class ConvexPolygon implements CollisionShape {
    * Get the moment of inertia for an arbitrary polygon
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public getInertia(): number {
+  public get inertia(): number {
     const mass = this.collider ? this.collider.mass : Physics.defaultMass;
     let numerator = 0;
     let denominator = 0;
@@ -306,9 +305,9 @@ export class ConvexPolygon implements CollisionShape {
   }
 
   /**
-   * Get the axis associated with the edge
+   * Get the axis associated with the convex polygon
    */
-  public getAxes(): Vector[] {
+  public get axes(): Vector[] {
     if (this._axes.length) {
       return this._axes;
     }
@@ -330,7 +329,7 @@ export class ConvexPolygon implements CollisionShape {
   public testSeparatingAxisTheorem(other: ConvexPolygon): Vector {
     const poly1 = this;
     const poly2 = other;
-    const axes = poly1.getAxes().concat(poly2.getAxes());
+    const axes = poly1.axes.concat(poly2.axes);
 
     let minOverlap = Number.MAX_VALUE;
     let minAxis = null;

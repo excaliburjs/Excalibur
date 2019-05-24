@@ -76,14 +76,30 @@ export class BoundingBox {
   /**
    * Returns the calculated width of the bounding box
    */
+  @obsolete()
   public getWidth() {
+    return this.width;
+  }
+
+  /**
+   * Returns the calculated width of the bounding box
+   */
+  public get width() {
     return this.right - this.left;
   }
 
   /**
    * Returns the calculated height of the bounding box
    */
+  @obsolete()
   public getHeight() {
+    return this.height;
+  }
+
+  /**
+   * Returns the calculated height of the bounding box
+   */
+  public get height() {
     return this.bottom - this.top;
   }
 
@@ -116,8 +132,8 @@ export class BoundingBox {
    * Returns the perimeter of the bounding box
    */
   public getPerimeter(): number {
-    const wx = this.getWidth();
-    const wy = this.getHeight();
+    const wx = this.width;
+    const wy = this.height;
     return 2 * (wx + wy);
   }
 
@@ -227,7 +243,7 @@ export class BoundingBox {
   }
 
   public get dimensions(): Vector {
-    return new Vector(this.getWidth(), this.getHeight());
+    return new Vector(this.width, this.height);
   }
 
   /**
@@ -243,8 +259,8 @@ export class BoundingBox {
 
     // If the total bounding box is less than or equal the sum of the 2 bounds then there is collision
     if (
-      totalBoundingBox.getWidth() < other.getWidth() + this.getWidth() &&
-      totalBoundingBox.getHeight() < other.getHeight() + this.getHeight() &&
+      totalBoundingBox.width < other.width + this.width &&
+      totalBoundingBox.height < other.height + this.height &&
       !totalBoundingBox.dimensions.equals(other.dimensions) &&
       !totalBoundingBox.dimensions.equals(this.dimensions)
     ) {
@@ -312,7 +328,7 @@ export class BoundingBox {
     } else if (totalBoundingBox.dimensions.equals(other.dimensions) || totalBoundingBox.dimensions.equals(this.dimensions)) {
       let overlapX = 0;
       // this is wider than the other
-      if (this.getWidth() - other.getWidth() >= 0) {
+      if (this.width - other.width >= 0) {
         // This right edge is closest to the others right edge
         if (this.right - other.right <= other.left - this.left) {
           overlapX = other.left - this.right;
@@ -333,7 +349,7 @@ export class BoundingBox {
 
       let overlapY = 0;
       // this is taller than other
-      if (this.getHeight() - other.getHeight() >= 0) {
+      if (this.height - other.height >= 0) {
         // The bottom edge is closest to the others bottom edge
         if (this.bottom - other.bottom <= other.top - this.top) {
           overlapY = other.top - this.bottom;
@@ -386,6 +402,6 @@ export class BoundingBox {
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Yellow) {
     ctx.strokeStyle = color.toString();
-    ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());
+    ctx.strokeRect(this.left, this.top, this.width, this.height);
   }
 }

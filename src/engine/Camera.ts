@@ -613,7 +613,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     ctx.setLineDash([5, 15]);
     ctx.lineWidth = 5;
     ctx.strokeStyle = 'white';
-    ctx.strokeRect(this.viewport.left, this.viewport.top, this.viewport.getWidth(), this.viewport.getHeight());
+    ctx.strokeRect(this.viewport.left, this.viewport.top, this.viewport.width, this.viewport.height);
     ctx.closePath();
   }
 

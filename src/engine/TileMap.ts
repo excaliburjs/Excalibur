@@ -82,13 +82,13 @@ export class TileMapImpl extends Class {
    * is no collision null is returned.
    */
   public collides(actor: Actor): Vector {
-    const width = actor.pos.x + actor.getWidth();
-    const height = actor.pos.y + actor.getHeight();
+    const width = actor.pos.x + actor.width;
+    const height = actor.pos.y + actor.height;
     const actorBounds = actor.body.collider.bounds;
     const overlaps: Vector[] = [];
     // trace points for overlap
-    for (let x = actorBounds.left; x <= width; x += Math.min(actor.getWidth() / 2, this.cellWidth / 2)) {
-      for (let y = actorBounds.top; y <= height; y += Math.min(actor.getHeight() / 2, this.cellHeight / 2)) {
+    for (let x = actorBounds.left; x <= width; x += Math.min(actor.width / 2, this.cellWidth / 2)) {
+      for (let y = actorBounds.top; y <= height; y += Math.min(actor.height / 2, this.cellHeight / 2)) {
         const cell = this.getCellByPoint(x, y);
         if (cell && cell.solid) {
           const overlap = actorBounds.intersect(cell.getBounds());

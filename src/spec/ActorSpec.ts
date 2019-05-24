@@ -65,8 +65,8 @@ describe('A game actor', () => {
 
     expect(actor.pos.x).toBe(2);
     expect(actor.pos.y).toBe(3);
-    expect(actor.getWidth()).toBe(100);
-    expect(actor.getHeight()).toBe(200);
+    expect(actor.width).toBe(100);
+    expect(actor.height).toBe(200);
     expect(actor.vel.x).toBe(30);
     expect(actor.vel.y).toBe(40);
     expect(actor.acc.x).toBe(50);
@@ -155,26 +155,26 @@ describe('A game actor', () => {
   });
 
   it('can have its height and width scaled', () => {
-    expect(actor.getWidth()).toBe(0);
-    expect(actor.getHeight()).toBe(0);
+    expect(actor.width).toBe(0);
+    expect(actor.height).toBe(0);
 
-    actor.setWidth(20);
-    actor.setHeight(20);
+    actor.width = 20;
+    actor.height = 20;
 
-    expect(actor.getWidth()).toBe(20);
-    expect(actor.getHeight()).toBe(20);
+    expect(actor.width).toBe(20);
+    expect(actor.height).toBe(20);
 
     actor.scale.x = 2;
     actor.scale.y = 3;
 
-    expect(actor.getWidth()).toBe(40);
-    expect(actor.getHeight()).toBe(60);
+    expect(actor.width).toBe(40);
+    expect(actor.height).toBe(60);
 
     actor.scale.x = 0.5;
     actor.scale.y = 0.1;
 
-    expect(actor.getWidth()).toBe(10);
-    expect(actor.getHeight()).toBe(2);
+    expect(actor.width).toBe(10);
+    expect(actor.height).toBe(2);
   });
 
   it('can have its height and width scaled by parent', () => {
@@ -184,18 +184,18 @@ describe('A game actor', () => {
 
     actor.add(child);
 
-    expect(child.getWidth()).toBe(100);
-    expect(child.getHeight()).toBe(100);
+    expect(child.width).toBe(100);
+    expect(child.height).toBe(100);
 
     actor.scale.setTo(0.5, 0.5);
 
-    expect(child.getWidth()).toBe(25);
-    expect(child.getHeight()).toBe(25);
+    expect(child.width).toBe(25);
+    expect(child.height).toBe(25);
   });
 
   it('can have a center point', () => {
-    actor.setHeight(100);
-    actor.setWidth(50);
+    actor.height = 100;
+    actor.width = 50;
 
     let center = actor.getCenter();
     expect(center.x).toBe(0);
@@ -229,44 +229,44 @@ describe('A game actor', () => {
     actor.pos.x = 0;
     actor.pos.y = 0;
     actor.anchor = new ex.Vector(0.5, 0.5);
-    actor.setWidth(100);
-    actor.setHeight(100);
+    actor.width = 100;
+    actor.height = 100;
 
-    expect(actor.getLeft()).toBe(-50);
-    expect(actor.getRight()).toBe(50);
-    expect(actor.getTop()).toBe(-50);
-    expect(actor.getBottom()).toBe(50);
+    expect(actor.body.collider.bounds.left).toBe(-50);
+    expect(actor.body.collider.bounds.right).toBe(50);
+    expect(actor.body.collider.bounds.top).toBe(-50);
+    expect(actor.body.collider.bounds.bottom).toBe(50);
   });
 
   it('should have correct bounds when scaled', () => {
     actor.pos.x = 0;
     actor.pos.y = 0;
-    actor.setWidth(100);
-    actor.setHeight(100);
+    actor.width = 100;
+    actor.height = 100;
     actor.scale.setTo(2, 2);
     actor.anchor = new ex.Vector(0.5, 0.5);
 
-    expect(actor.getLeft()).toBe(-100);
-    expect(actor.getRight()).toBe(100);
-    expect(actor.getTop()).toBe(-100);
-    expect(actor.getBottom()).toBe(100);
+    expect(actor.body.collider.bounds.left).toBe(-100);
+    expect(actor.body.collider.bounds.right).toBe(100);
+    expect(actor.body.collider.bounds.top).toBe(-100);
+    expect(actor.body.collider.bounds.bottom).toBe(100);
   });
 
   it('should have correct bounds when parent is scaled', () => {
     actor.pos.x = 0;
     actor.pos.y = 0;
-    actor.setWidth(100);
-    actor.setHeight(100);
+    actor.width = 100;
+    actor.height = 100;
     actor.scale.setTo(2, 2);
     actor.anchor = new ex.Vector(0.5, 0.5);
 
     const child = new ex.Actor(0, 0, 50, 50);
     actor.add(child);
 
-    expect(child.getLeft()).toBe(-50);
-    expect(child.getRight()).toBe(50);
-    expect(child.getTop()).toBe(-50);
-    expect(child.getBottom()).toBe(50);
+    expect(child.body.collider.bounds.left).toBe(-50);
+    expect(child.body.collider.bounds.right).toBe(50);
+    expect(child.body.collider.bounds.top).toBe(-50);
+    expect(child.body.collider.bounds.bottom).toBe(50);
   });
 
   xit('should have the correct bounds when scaled and rotated', () => {
@@ -276,8 +276,8 @@ describe('A game actor', () => {
     // rotating the actor 90 degrees should make the actor 20 wide
     actor.rotation = Math.PI / 2;
     const bounds = actor.body.collider.bounds;
-    expect(bounds.getWidth()).toBeCloseTo(20, 0.001);
-    expect(bounds.getHeight()).toBeCloseTo(10, 0.001);
+    expect(bounds.width).toBeCloseTo(20, 0.001);
+    expect(bounds.height).toBeCloseTo(10, 0.001);
 
     expect(bounds.left).toBeCloseTo(40, 0.001);
     expect(bounds.right).toBeCloseTo(60, 0.001);
@@ -292,8 +292,8 @@ describe('A game actor', () => {
     // rotating the actor 90 degrees should make the actor 20 wide
     actor.rotation = Math.PI / 2;
     const bounds = actor.body.collider.localBounds;
-    expect(bounds.getWidth()).toBeCloseTo(20, 0.001);
-    expect(bounds.getHeight()).toBeCloseTo(10, 0.001);
+    expect(bounds.width).toBeCloseTo(20, 0.001);
+    expect(bounds.height).toBeCloseTo(10, 0.001);
 
     expect(bounds.left).toBeCloseTo(-10, 0.001);
     expect(bounds.right).toBeCloseTo(10, 0.001);
@@ -305,13 +305,13 @@ describe('A game actor', () => {
     actor.pos.x = 100;
     actor.pos.y = 100;
     actor.anchor = new ex.Vector(0.0, 0.0);
-    actor.setWidth(100);
-    actor.setHeight(100);
+    actor.width = 100;
+    actor.height = 100;
 
-    expect(actor.getLeft()).toBe(100);
-    expect(actor.getRight()).toBe(200);
-    expect(actor.getTop()).toBe(100);
-    expect(actor.getBottom()).toBe(200);
+    expect(actor.body.collider.bounds.left).toBe(100);
+    expect(actor.body.collider.bounds.right).toBe(200);
+    expect(actor.body.collider.bounds.top).toBe(100);
+    expect(actor.body.collider.bounds.bottom).toBe(200);
   });
 
   xit('should have the correct world geometry if rotated and scaled', () => {
@@ -343,8 +343,8 @@ describe('A game actor', () => {
   xit('can contain points', () => {
     expect(actor.pos.x).toBe(0);
     expect(actor.pos.y).toBe(0);
-    actor.setWidth(20);
-    actor.setHeight(20);
+    actor.width = 20;
+    actor.height = 20;
 
     expect(actor.anchor.x).toBe(0.5);
     expect(actor.anchor.y).toBe(0.5);

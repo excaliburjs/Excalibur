@@ -179,20 +179,20 @@ export class Edge implements CollisionShape {
   /**
    * Get the axis aligned bounding box for the edge shape in world space
    */
-  public getBounds(): BoundingBox {
+  public get bounds(): BoundingBox {
     const transformedBegin = this._getTransformedBegin();
     const transformedEnd = this._getTransformedEnd();
     return this._boundsFromBeginEnd(transformedBegin, transformedEnd);
   }
 
-  public getLocalBounds(): BoundingBox {
+  public get localBounds(): BoundingBox {
     return this._boundsFromBeginEnd(this.begin, this.end);
   }
 
   /**
    * Get the axis associated with the edge
    */
-  public getAxes(): Vector[] {
+  public get axes(): Vector[] {
     const e = this._getTransformedEnd().sub(this._getTransformedBegin());
     const edgeNormal = e.normal();
 
@@ -208,7 +208,7 @@ export class Edge implements CollisionShape {
    * Get the moment of inertia for an edge
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public getInertia(): number {
+  public get inertia(): number {
     const mass = this.collider ? this.collider.mass : Physics.defaultMass;
     const length = this.end.sub(this.begin).distance() / 2;
     return mass * length * length;

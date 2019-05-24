@@ -35,7 +35,7 @@ export class Body implements Clonable<Body> {
 
     this.actor = actor;
     if (!collider && actor) {
-      this.collider = this.useBoxCollider(actor.getWidth(), actor.getHeight(), actor.anchor);
+      this.collider = this.useBoxCollider(actor.width, actor.height, actor.anchor);
     } else {
       this.collider = collider;
     }
@@ -242,7 +242,7 @@ export class Body implements Clonable<Body> {
    */
   @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useBoxCollider' })
   public useBoxCollision(center: Vector = Vector.Zero) {
-    this.useBoxCollider(this.actor.getWidth(), this.actor.getHeight(), this.actor.anchor, center);
+    this.useBoxCollider(this.actor.width, this.actor.height, this.actor.anchor, center);
   }
 
   /**
