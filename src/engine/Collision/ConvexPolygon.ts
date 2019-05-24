@@ -95,7 +95,7 @@ export class ConvexPolygon implements CollisionShape {
   /**
    * Get the center of the collision shape in world coordinates
    */
-  public getCenter(): Vector {
+  public get center(): Vector {
     const body = this.collider ? this.collider.body : null;
     if (body) {
       return body.pos.add(this.pos);

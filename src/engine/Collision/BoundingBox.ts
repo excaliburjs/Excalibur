@@ -106,7 +106,15 @@ export class BoundingBox {
   /**
    * Returns the center of the bounding box
    */
+  @obsolete()
   public getCenter(): Vector {
+    return new Vector((this.left + this.right) / 2, (this.top + this.bottom) / 2);
+  }
+
+  /**
+   * Returns the center of the bounding box
+   */
+  public get center(): Vector {
     return new Vector((this.left + this.right) / 2, (this.top + this.bottom) / 2);
   }
 

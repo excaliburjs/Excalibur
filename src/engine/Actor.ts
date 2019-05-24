@@ -1104,7 +1104,15 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Get the center point of an actor
    */
+  @obsolete()
   public getCenter(): Vector {
+    return new Vector(this.pos.x + this.width / 2 - this.anchor.x * this.width, this.pos.y + this.height / 2 - this.anchor.y * this.height);
+  }
+
+  /**
+   * Get the center point of an actor
+   */
+  public get center(): Vector {
     return new Vector(this.pos.x + this.width / 2 - this.anchor.x * this.width, this.pos.y + this.height / 2 - this.anchor.y * this.height);
   }
 

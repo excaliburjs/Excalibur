@@ -197,14 +197,14 @@ describe('A game actor', () => {
     actor.height = 100;
     actor.width = 50;
 
-    let center = actor.getCenter();
+    let center = actor.center;
     expect(center.x).toBe(0);
     expect(center.y).toBe(0);
 
     actor.pos.x = 100;
     actor.pos.y = 100;
 
-    center = actor.getCenter();
+    center = actor.center;
     expect(center.x).toBe(100);
     expect(center.y).toBe(100);
 
@@ -213,14 +213,14 @@ describe('A game actor', () => {
     actor.pos.x = 0;
     actor.pos.y = 0;
 
-    center = actor.getCenter();
+    center = actor.center;
     expect(center.x).toBe(25);
     expect(center.y).toBe(50);
 
     actor.pos.x = 100;
     actor.pos.y = 100;
 
-    center = actor.getCenter();
+    center = actor.center;
     expect(center.x).toBe(125);
     expect(center.y).toBe(150);
   });

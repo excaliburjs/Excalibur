@@ -35,7 +35,7 @@ export interface CollisionShape extends Clonable<CollisionShape> {
   /**
    * The center point of the collision shape, for example if the shape is a circle it would be the center.
    */
-  getCenter(): Vector;
+  center: Vector;
 
   /**
    * Find the furthest point on the convex hull of this particular shape in a certain direction.

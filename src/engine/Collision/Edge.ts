@@ -31,7 +31,7 @@ export class Edge implements CollisionShape {
     this.begin = options.begin || Vector.Zero;
     this.end = options.end || Vector.Zero;
     this.collider = options.collider || null;
-    this.pos = this.getCenter();
+    this.pos = this.center;
 
     // @obsolete Remove next release in v0.24.0, code exists for backwards compat
     if (options.body) {
@@ -63,7 +63,7 @@ export class Edge implements CollisionShape {
   /**
    * Get the center of the collision area in world coordinates
    */
-  public getCenter(): Vector {
+  public get center(): Vector {
     const pos = this.begin.average(this.end).add(this._getBodyPos());
     return pos;
   }

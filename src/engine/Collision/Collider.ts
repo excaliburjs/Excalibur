@@ -118,7 +118,7 @@ export class Collider implements Eventable, Clonable<Collider> {
    * The center of the collider in world space
    */
   public get center(): Vector {
-    return this.bounds.getCenter();
+    return this.bounds.center;
   }
 
   /**

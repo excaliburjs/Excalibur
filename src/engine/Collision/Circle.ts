@@ -83,7 +83,7 @@ export class Circle implements CollisionShape {
   /**
    * Get the center of the collision shape in world coordinates
    */
-  public getCenter(): Vector {
+  public get center(): Vector {
     if (this.collider && this.collider.body) {
       return this.pos.add(this.collider.body.pos);
     }
@@ -111,7 +111,7 @@ export class Circle implements CollisionShape {
    */
   public rayCast(ray: Ray, max: number = Infinity): Vector {
     //https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
-    const c = this.getCenter();
+    const c = this.center;
     const dir = ray.dir;
     const orig = ray.pos;
 
@@ -160,7 +160,7 @@ export class Circle implements CollisionShape {
    * Find the point on the shape furthest in the direction specified
    */
   public getFurthestPoint(direction: Vector): Vector {
-    return this.getCenter().add(direction.normalize().scale(this.radius));
+    return this.center.add(direction.normalize().scale(this.radius));
   }
 
   /**
@@ -207,7 +207,7 @@ export class Circle implements CollisionShape {
    */
   public testSeparatingAxisTheorem(polygon: ConvexPolygon): Vector {
     const axes = polygon.axes;
-    const pc = polygon.getCenter();
+    const pc = polygon.center;
     // Special SAT with circles
     const closestPointOnPoly = polygon.getFurthestPoint(this.pos.sub(pc));
     axes.push(this.pos.sub(closestPointOnPoly).normalize());
@@ -245,7 +245,7 @@ export class Circle implements CollisionShape {
    */
   public project(axis: Vector): Projection {
     const scalars = [];
-    const point = this.getCenter();
+    const point = this.center;
     const dotProduct = point.dot(axis);
     scalars.push(dotProduct);
     scalars.push(dotProduct + this.radius);

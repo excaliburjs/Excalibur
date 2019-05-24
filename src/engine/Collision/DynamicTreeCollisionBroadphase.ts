@@ -110,7 +110,7 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
           // start with the oldPos because the integration for actors has already happened
           // objects resting on a surface may be slightly penatrating in the current position
           const updateVec = collider.body.pos.sub(collider.body.oldPos);
-          const centerPoint = collider.shape.getCenter();
+          const centerPoint = collider.shape.center;
           const furthestPoint = collider.shape.getFurthestPoint(collider.body.vel);
           const origin: Vector = furthestPoint.sub(updateVec);
 

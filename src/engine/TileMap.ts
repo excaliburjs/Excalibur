@@ -8,6 +8,7 @@ import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
 import { Configurable } from './Configurable';
+import { obsolete } from './Util/Decorators';
 
 /**
  * @hidden
@@ -91,8 +92,8 @@ export class TileMapImpl extends Class {
       for (let y = actorBounds.top; y <= height; y += Math.min(actor.height / 2, this.cellHeight / 2)) {
         const cell = this.getCellByPoint(x, y);
         if (cell && cell.solid) {
-          const overlap = actorBounds.intersect(cell.getBounds());
-          const dir = actor.getCenter().sub(cell.getCenter());
+          const overlap = actorBounds.intersect(cell.bounds);
+          const dir = actor.center.sub(cell.center);
           if (overlap && overlap.dot(dir) > 0) {
             overlaps.push(overlap);
           }
@@ -343,15 +344,27 @@ export class CellImpl {
   /**
    * Returns the bounding box for this cell
    */
+  @obsolete()
   public getBounds() {
     return this._bounds;
   }
+
+  public get bounds() {
+    return this._bounds;
+  }
+
   /**
    * Gets the center coordinate of this cell
    */
+  @obsolete()
   public getCenter(): Vector {
     return new Vector(this.x + this.width / 2, this.y + this.height / 2);
   }
+
+  public get center(): Vector {
+    return new Vector(this.x + this.width / 2, this.y + this.height / 2);
+  }
+
   /**
    * Add another [[TileSprite]] to this cell
    */

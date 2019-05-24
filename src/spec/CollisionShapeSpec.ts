@@ -55,7 +55,7 @@ describe('Collision Shape', () => {
 
     it('has a center', () => {
       actor.pos.setTo(170, 300);
-      const center = circle.getCenter();
+      const center = circle.center;
       expect(center.x).toBe(170);
       expect(center.y).toBe(300);
     });
@@ -134,7 +134,7 @@ describe('Collision Shape', () => {
         body: actor2.body
       });
 
-      const directionOfBodyB = circle2.getCenter().sub(circle.getCenter());
+      const directionOfBodyB = circle2.center.sub(circle.center);
       const contact = circle.collide(circle2);
 
       // there should be a collision contact formed
@@ -171,7 +171,7 @@ describe('Collision Shape', () => {
         body: actor2.body
       });
 
-      const directionOfBodyB = poly.getCenter().sub(circle.getCenter());
+      const directionOfBodyB = poly.center.sub(circle.center);
       const contact = circle.collide(poly);
 
       // there should be a collision contact formed
@@ -212,7 +212,7 @@ describe('Collision Shape', () => {
         collider: actor2.body.collider
       });
 
-      const directionOfBodyB = edge.getCenter().sub(circle.getCenter());
+      const directionOfBodyB = edge.center.sub(circle.center);
       const contact = circle.collide(edge);
 
       // there should be a collision contact formed
@@ -239,7 +239,7 @@ describe('Collision Shape', () => {
         collider: actor2.body.collider
       });
 
-      const directionOfBodyB = edge.getCenter().sub(circle.getCenter());
+      const directionOfBodyB = edge.center.sub(circle.center);
       const contact = circle.collide(edge);
 
       // there should be a collision contact formed
@@ -266,7 +266,7 @@ describe('Collision Shape', () => {
         collider: actor2.body.collider
       });
 
-      const directionOfBodyB = edge.getCenter().sub(circle.getCenter());
+      const directionOfBodyB = edge.center.sub(circle.center);
       const contact = circle.collide(edge);
 
       // there should be a collision contact formed
@@ -347,7 +347,7 @@ describe('Collision Shape', () => {
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
 
-      const directionOfBodyB = polyB.getCenter().sub(polyA.getCenter());
+      const directionOfBodyB = polyB.center.sub(polyA.center);
 
       // should overlap by 10 pixels in x
       const contact = polyA.collide(polyB);
@@ -383,7 +383,7 @@ describe('Collision Shape', () => {
         body: actor2.body
       });
 
-      const directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+      const directionOfBodyB = edge.center.sub(polyA.center);
 
       const contact = polyA.collide(edge);
 
@@ -415,7 +415,7 @@ describe('Collision Shape', () => {
       });
       edge.recalc();
 
-      const directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+      const directionOfBodyB = edge.center.sub(polyA.center);
       const contact = polyA.collide(edge);
 
       expect(contact).not.toBe(null);
@@ -443,7 +443,7 @@ describe('Collision Shape', () => {
       });
       edge.recalc();
 
-      const directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+      const directionOfBodyB = edge.center.sub(polyA.center);
       const contact = polyA.collide(edge);
 
       expect(contact).not.toBe(null);
@@ -471,7 +471,7 @@ describe('Collision Shape', () => {
         body: actor2.body
       });
 
-      const directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+      const directionOfBodyB = edge.center.sub(polyA.center);
 
       const contact = polyA.collide(edge);
 
@@ -577,7 +577,7 @@ describe('Collision Shape', () => {
     });
 
     it('has a center', () => {
-      const center = edge.getCenter();
+      const center = edge.center;
 
       expect(center.x).toBe(5);
       expect(center.y).toBe(0);

@@ -466,7 +466,7 @@ export class ParticleEmitterImpl extends Actor {
 
     if (this.focus) {
       ctx.fillRect(this.focus.x + this.pos.x, this.focus.y + this.pos.y, 3, 3);
-      DrawUtil.line(ctx, Color.Yellow, this.focus.x + this.pos.x, this.focus.y + this.pos.y, super.getCenter().x, super.getCenter().y);
+      DrawUtil.line(ctx, Color.Yellow, this.focus.x + this.pos.x, this.focus.y + this.pos.y, this.center.x, this.center.y);
       ctx.fillText('Focus', this.focus.x + this.pos.x, this.focus.y + this.pos.y);
     }
   }
