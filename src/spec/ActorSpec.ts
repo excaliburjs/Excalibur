@@ -246,13 +246,16 @@ describe('A game actor', () => {
     actor.scale.setTo(2, 2);
     actor.anchor = new ex.Vector(0.5, 0.5);
 
+    actor.body.collider.shape.recalc();
+
     expect(actor.body.collider.bounds.left).toBe(-100);
     expect(actor.body.collider.bounds.right).toBe(100);
     expect(actor.body.collider.bounds.top).toBe(-100);
     expect(actor.body.collider.bounds.bottom).toBe(100);
   });
 
-  it('should have correct bounds when parent is scaled', () => {
+  // @obsolete? colliders don't know anything about child actors
+  xit('should have correct bounds when parent is scaled', () => {
     actor.pos.x = 0;
     actor.pos.y = 0;
     actor.width = 100;

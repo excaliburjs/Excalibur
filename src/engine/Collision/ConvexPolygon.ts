@@ -110,11 +110,15 @@ export class ConvexPolygon implements CollisionShape {
     const body = this.collider ? this.collider.body : null;
     const pos = body ? body.pos.add(this.pos) : this.pos;
     const angle = body ? body.rotation : 0;
+    const scale = body ? body.scale : Vector.One;
 
     const len = this.points.length;
     this._transformedPoints.length = 0; // clear out old transform
     for (let i = 0; i < len; i++) {
-      this._transformedPoints[i] = this.points[i].rotate(angle).add(pos);
+      this._transformedPoints[i] = this.points[i]
+        .scale(scale)
+        .rotate(angle)
+        .add(pos);
     }
   }
 
@@ -128,7 +132,9 @@ export class ConvexPolygon implements CollisionShape {
       // or the position or rotation has changed in world space
       (this.collider &&
         this.collider.body &&
-        (!this.collider.body.oldPos.equals(this.collider.body.pos) || this.collider.body.oldRotation !== this.collider.body.rotation))
+        (!this.collider.body.oldPos.equals(this.collider.body.pos) ||
+          this.collider.body.oldRotation !== this.collider.body.rotation ||
+          this.collider.body.oldScale !== this.collider.body.scale))
     ) {
       this._calculateTransformation();
     }
