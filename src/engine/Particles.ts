@@ -356,7 +356,7 @@ export class ParticleEmitterImpl extends Actor {
   constructor(xOrConfig?: number | ParticleEmitterArgs, y?: number, width?: number, height?: number) {
     super(typeof xOrConfig === 'number' ? { x: xOrConfig, y: y, width: width, height: height } : xOrConfig);
     this._particlesToEmit = 0;
-    this.collisionType = CollisionType.PreventCollision;
+    this.body.collider.type = CollisionType.PreventCollision;
     this.particles = new Util.Collection<Particle>();
     this.deadParticles = new Util.Collection<Particle>();
     this.random = new Random();
@@ -400,8 +400,8 @@ export class ParticleEmitterImpl extends Actor {
     const dy = vel * Math.sin(angle);
 
     if (this.emitterType === EmitterType.Rectangle) {
-      ranX = Util.randomInRange(this.pos.x, this.pos.x + this.getWidth(), this.random);
-      ranY = Util.randomInRange(this.pos.y, this.pos.y + this.getHeight(), this.random);
+      ranX = Util.randomInRange(this.pos.x, this.pos.x + this.width, this.random);
+      ranY = Util.randomInRange(this.pos.y, this.pos.y + this.height, this.random);
     } else if (this.emitterType === EmitterType.Circle) {
       const radius = Util.randomInRange(0, this.radius, this.random);
       ranX = radius * Math.cos(angle) + this.pos.x;
@@ -466,7 +466,7 @@ export class ParticleEmitterImpl extends Actor {
 
     if (this.focus) {
       ctx.fillRect(this.focus.x + this.pos.x, this.focus.y + this.pos.y, 3, 3);
-      DrawUtil.line(ctx, Color.Yellow, this.focus.x + this.pos.x, this.focus.y + this.pos.y, super.getCenter().x, super.getCenter().y);
+      DrawUtil.line(ctx, Color.Yellow, this.focus.x + this.pos.x, this.focus.y + this.pos.y, this.center.x, this.center.y);
       ctx.fillText('Focus', this.focus.x + this.pos.x, this.focus.y + this.pos.y);
     }
   }

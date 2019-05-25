@@ -6,14 +6,14 @@ import { Actor } from '../Actor';
 import { Body } from './Body';
 import { CollisionShape } from './CollisionShape';
 import { Vector } from '../Algebra';
-import { Physics, CollisionResolutionStrategy } from '../Physics';
+import { Physics } from '../Physics';
 import { BoundingBox } from './BoundingBox';
-import { ConvexPolygon } from './ConvexPolygon';
 import { CollisionType } from './CollisionType';
 import { CollisionGroup } from './CollisionGroup';
 import { CollisionContact } from './CollisionContact';
 import { EventDispatcher } from '../EventDispatcher';
 import { Pair } from './Pair';
+import { Clonable } from '../Interfaces/Clonable';
 
 /**
  * Type guard function to determine whether something is a Collider
@@ -22,22 +22,68 @@ export function isCollider(x: Actor | Collider): x is Collider {
   return x instanceof Collider;
 }
 
+export interface ColliderOptions {
+  /**
+   * Optional [[shape|Shape]] to use with this collider, the shape defines the collidable region along with the [[bounding box|BoundingBox]]
+   */
+  shape?: CollisionShape;
+  /**
+   * Optional body to associate with this collider
+   */
+  body?: Body;
+  /**
+   * Optional [[collision type|CollisionType]], if not specified the default is [[CollisionType.PreventCollision]]
+   */
+  type?: CollisionType;
+  /**
+   * Optional local bounds if other bounds are required instead of the bounding box from the shape. This overrides shape bounds.
+   */
+  localBounds?: BoundingBox;
+  /**
+   * Optional flag to indicate moment of inertia from the shape should be used, by default it is true.
+   */
+  useShapeInertia?: boolean;
+}
+
 /**
  * Collider describes material properties like shape,
- * bounds, friction of the physics object
+ * bounds, friction of the physics object. Only **one** collider can be associated with a body at a time
  */
 
-export class Collider implements Eventable {
+export class Collider implements Eventable, Clonable<Collider> {
   private _shape: CollisionShape;
+  public useShapeInertia: boolean;
   private _events: EventDispatcher<Collider> = new EventDispatcher<Collider>(this);
 
-  constructor(public entity: Actor, private _body: Body) {}
+  constructor({ body, type, shape, useShapeInertia = true }: ColliderOptions) {
+    // If shape is not supplied see if the body has an existing collider with a shape
+    if (body && body.collider && !shape) {
+      this._shape = body.collider.shape;
+    } else {
+      this._shape = shape;
+      this.body = body;
+    }
+    this.useShapeInertia = useShapeInertia;
+    this._shape.collider = this;
+    this.type = type;
+  }
+
+  /**
+   * Returns a clone of the current collider, not associated with any body
+   */
+  public clone() {
+    return new Collider({
+      body: null,
+      type: this.type,
+      shape: this._shape.clone()
+    });
+  }
 
   /**
    * Get the unique id of the collider
    */
   public get id(): number {
-    return this.entity.id;
+    return this.body ? this.body.id : -1;
   }
 
   /**
@@ -60,32 +106,33 @@ export class Collider implements Eventable {
   }
 
   /**
-   * Set the shape of the collider as a [[CollisionShape]]
+   * Set the shape of the collider as a [[CollisionShape]], if useShapeInertia is set the collider will use inertia from the shape.
    */
   public set shape(shape: CollisionShape) {
     this._shape = shape;
     this._shape.collider = this;
+    if (this.useShapeInertia) {
+      this.inertia = isNaN(this._shape.inertia) ? this.inertia : this._shape.inertia;
+    }
   }
 
   /**
    * Return a reference to the body associated with this collider
    */
-  public get body(): Body {
-    return this._body;
-  }
+  public body: Body;
 
   /**
-   * The center of the collider
+   * The center of the collider in world space
    */
   public get center(): Vector {
-    return this.entity.getCenter();
+    return this.bounds.center;
   }
 
   /**
    * Is this collider active, if false it wont collide
    */
   public get active(): boolean {
-    return !this.entity.isKilled();
+    return this.body.active;
   }
 
   /**
@@ -94,7 +141,7 @@ export class Collider implements Eventable {
    * Collision vector is in the direction of the other collider. Away from this collider, this -> other.
    * @param other
    */
-  public collide(other: Collider): CollisionContact {
+  public collide(other: Collider): CollisionContact | null {
     return this.shape.collide(other.shape);
   }
 
@@ -114,9 +161,10 @@ export class Collider implements Eventable {
   public friction: number = 0.99;
 
   /**
-   * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
+   * The also known as coefficient of restitution of this actor, represents the amount of energy preserved after collision or the
+   * bounciness. If 1, it is 100% bouncy, 0 it completely absorbs.
    */
-  public restitution: number = 0.2;
+  public bounciness: number = 0.2;
 
   /**
    * Returns a boolean indicating whether this body collided with
@@ -136,36 +184,35 @@ export class Collider implements Eventable {
 
   /**
    * Returns the collider's [[BoundingBox]] calculated for this instant in world space.
+   * If there is no shape, a point bounding box is returned
    */
-  public getBounds(): BoundingBox {
-    if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
-      return this.entity.getBounds();
-    } else {
-      return this.shape.getBounds();
+  public get bounds(): BoundingBox {
+    if (this.shape) {
+      return this.shape.bounds;
     }
+
+    if (this.body) {
+      return new BoundingBox().translate(this.body.pos);
+    }
+    return new BoundingBox();
   }
 
   /**
-   * Returns the actor's [[BoundingBox]] relative to the actors position.
+   * Returns the collider's [[BoundingBox]] relative to the body's position.
+   * If there is no shape, a point boudning box is returned
    */
-  public getRelativeBounds(): BoundingBox {
-    if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
-      return this.entity.getRelativeBounds();
-    } else {
-      return this.entity.getRelativeBounds();
+  public get localBounds(): BoundingBox {
+    if (this.shape) {
+      return this.shape.localBounds;
     }
+    return new BoundingBox();
   }
 
   /**
-   * Updates the collision area geometry and internal caches
+   * Updates the collision shapes geometry and internal caches if needed
    */
   public update() {
     if (this.shape) {
-      // Update the geometry if needed
-      if (this.body && this.body.isColliderShapeDirty && this.shape instanceof ConvexPolygon) {
-        this.shape.points = this.entity.getRelativeGeometry();
-      }
-
       this.shape.recalc();
     }
   }
@@ -191,13 +238,13 @@ export class Collider implements Eventable {
   public debugDraw(ctx: CanvasRenderingContext2D) {
     // Draw motion vectors
     if (Physics.showMotionVectors) {
-      DrawUtil.vector(ctx, Color.Yellow, this._body.pos, this._body.acc.add(Physics.acc));
-      DrawUtil.vector(ctx, Color.Red, this._body.pos, this._body.vel);
-      DrawUtil.point(ctx, Color.Red, this._body.pos);
+      DrawUtil.vector(ctx, Color.Yellow, this.body.pos, this.body.acc.add(Physics.acc));
+      DrawUtil.vector(ctx, Color.Red, this.body.pos, this.body.vel);
+      DrawUtil.point(ctx, Color.Red, this.body.pos);
     }
 
     if (Physics.showBounds) {
-      this.getBounds().debugDraw(ctx, Color.Yellow);
+      this.bounds.debugDraw(ctx, Color.Yellow);
     }
 
     if (Physics.showArea) {

@@ -222,14 +222,14 @@ public Player extends ex.Actor {
    constructor() {
       super();
       // set preferred CollisionType
-      this.collisionType = ex.CollisionType.Active;
+      this.body.collider.type = ex.CollisionType.Active;
    }
 }
 
 // or set the collisionType
 
 const actor = new ex.Actor();
-actor.collisionType = ex.CollisionType.Active;
+actor.body.collider.type = ex.CollisionType.Active;
 ```
 
 ## Traits

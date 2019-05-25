@@ -12,8 +12,8 @@ import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
 
 export interface EdgeOptions {
-  begin?: Vector;
-  end?: Vector;
+  begin: Vector;
+  end: Vector;
   collider?: Collider;
 
   // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
@@ -31,7 +31,7 @@ export class Edge implements CollisionShape {
     this.begin = options.begin || Vector.Zero;
     this.end = options.end || Vector.Zero;
     this.collider = options.collider || null;
-    this.pos = this.getCenter();
+    this.pos = this.center;
 
     // @obsolete Remove next release in v0.24.0, code exists for backwards compat
     if (options.body) {
@@ -39,6 +39,18 @@ export class Edge implements CollisionShape {
       this.body = this.collider.body;
     }
     // ==================================
+  }
+
+  /**
+   * Returns a clone of this Edge, not associated with any collider
+   */
+  public clone(): Edge {
+    return new Edge({
+      begin: this.begin.clone(),
+      end: this.end.clone(),
+      collider: null,
+      body: null
+    });
   }
 
   public get worldPos(): Vector {
@@ -51,7 +63,7 @@ export class Edge implements CollisionShape {
   /**
    * Get the center of the collision area in world coordinates
    */
-  public getCenter(): Vector {
+  public get center(): Vector {
     const pos = this.begin.average(this.end).add(this._getBodyPos());
     return pos;
   }
@@ -160,24 +172,27 @@ export class Edge implements CollisionShape {
     }
   }
 
+  private _boundsFromBeginEnd(begin: Vector, end: Vector) {
+    return new BoundingBox(Math.min(begin.x, end.x), Math.min(begin.y, end.y), Math.max(begin.x, end.x), Math.max(begin.y, end.y));
+  }
+
   /**
-   * Get the axis aligned bounding box for the circle area
+   * Get the axis aligned bounding box for the edge shape in world space
    */
-  public getBounds(): BoundingBox {
+  public get bounds(): BoundingBox {
     const transformedBegin = this._getTransformedBegin();
     const transformedEnd = this._getTransformedEnd();
-    return new BoundingBox(
-      Math.min(transformedBegin.x, transformedEnd.x),
-      Math.min(transformedBegin.y, transformedEnd.y),
-      Math.max(transformedBegin.x, transformedEnd.x),
-      Math.max(transformedBegin.y, transformedEnd.y)
-    );
+    return this._boundsFromBeginEnd(transformedBegin, transformedEnd);
+  }
+
+  public get localBounds(): BoundingBox {
+    return this._boundsFromBeginEnd(this.begin, this.end);
   }
 
   /**
    * Get the axis associated with the edge
    */
-  public getAxes(): Vector[] {
+  public get axes(): Vector[] {
     const e = this._getTransformedEnd().sub(this._getTransformedBegin());
     const edgeNormal = e.normal();
 
@@ -193,7 +208,7 @@ export class Edge implements CollisionShape {
    * Get the moment of inertia for an edge
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public getInertia(): number {
+  public get inertia(): number {
     const mass = this.collider ? this.collider.mass : Physics.defaultMass;
     const length = this.end.sub(this.begin).distance() / 2;
     return mass * length * length;

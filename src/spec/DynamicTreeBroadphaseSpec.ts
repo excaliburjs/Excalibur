@@ -10,8 +10,7 @@ describe('A DynamicTree Broadphase', () => {
     const colliderA = actorA.body.collider;
     colliderA.type = ex.CollisionType.Active;
     colliderA.shape = new ex.Circle({
-      radius: 10,
-      body: actorA.body
+      radius: 10
     });
 
     actorB = new ex.Actor(20, 0, 20, 20);
@@ -19,8 +18,7 @@ describe('A DynamicTree Broadphase', () => {
     colliderB.type = ex.CollisionType.Active;
 
     colliderB.shape = new ex.Circle({
-      radius: 10,
-      body: actorB.body
+      radius: 10
     });
 
     actorC = new ex.Actor(1000, 0, 20, 20);
@@ -28,8 +26,7 @@ describe('A DynamicTree Broadphase', () => {
     colliderC.type = ex.CollisionType.Active;
 
     colliderC.shape = new ex.Circle({
-      radius: 10,
-      body: actorC.body
+      radius: 10
     });
   });
 
@@ -50,7 +47,7 @@ describe('A DynamicTree Broadphase', () => {
     dt.track(actorC.body);
 
     // only should be 1 pair since C is very far away
-    const pairs = dt.broadphase([actorA, actorB, actorC], 100);
+    const pairs = dt.broadphase([actorA.body, actorB.body, actorC.body], 100);
 
     expect(pairs.length).toBe(1);
   });

@@ -8,23 +8,23 @@ describe('A Bounding Box', () => {
   });
 
   it('has a width', () => {
-    expect(bb.getWidth()).toBe(10);
+    expect(bb.width).toBe(10);
     bb.right = 20;
-    expect(bb.getWidth()).toBe(20);
+    expect(bb.width).toBe(20);
     bb.left = -20;
-    expect(bb.getWidth()).toBe(40);
+    expect(bb.width).toBe(40);
     bb.top = -20;
-    expect(bb.getWidth()).toBe(40);
+    expect(bb.width).toBe(40);
   });
 
   it('has a height', () => {
-    expect(bb.getHeight()).toBe(10);
+    expect(bb.height).toBe(10);
     bb.right = 20;
-    expect(bb.getHeight()).toBe(10);
+    expect(bb.height).toBe(10);
     bb.bottom = 20;
-    expect(bb.getHeight()).toBe(20);
+    expect(bb.height).toBe(20);
     bb.top = -20;
-    expect(bb.getHeight()).toBe(40);
+    expect(bb.height).toBe(40);
   });
 
   it('can contain points', () => {
@@ -127,8 +127,8 @@ describe('A Bounding Box', () => {
     const b3 = new ex.BoundingBox(12, 0, 28, 10);
     const newBB = b2.combine(b3);
 
-    expect(newBB.getWidth()).toBe(26);
-    expect(newBB.getHeight()).toBe(10);
+    expect(newBB.width).toBe(26);
+    expect(newBB.height).toBe(10);
 
     expect(newBB.left).toBe(2);
     expect(newBB.right).toBe(28);

@@ -67,8 +67,7 @@ describe('The engine', () => {
     engine.currentScene = scene;
     engine.currentScene.add(
       new ex.Actor({
-        x: 250,
-        y: 250,
+        pos: new ex.Vector(250, 250),
         width: 20,
         height: 20,
         color: ex.Color.Red

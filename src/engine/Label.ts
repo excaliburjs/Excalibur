@@ -220,7 +220,7 @@ export class LabelImpl extends Actor {
     this.text = text || '';
     this.color = Color.Black;
     this.spriteFont = spriteFont;
-    this.collisionType = CollisionType.PreventCollision;
+    this.body.collider.type = CollisionType.PreventCollision;
     this.fontFamily = fontFamily || 'sans-serif'; // coalesce to default canvas font
 
     this._textShadowOn = false;

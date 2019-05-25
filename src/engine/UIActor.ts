@@ -29,7 +29,7 @@ export class UIActor extends Actor {
     this.traits = [];
     this.traits.push(new Traits.CapturePointer());
     this.anchor.setTo(0, 0);
-    this.collisionType = CollisionType.PreventCollision;
+    this.body.collider.type = CollisionType.PreventCollision;
     this.enableCapturePointer = true;
   }
 

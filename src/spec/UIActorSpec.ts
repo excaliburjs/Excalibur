@@ -13,13 +13,12 @@ describe('A UIActor', () => {
     jasmine.addMatchers(ExcaliburMatchers);
 
     uiActor = new ex.UIActor({
-      x: 50,
-      y: 50,
+      pos: new ex.Vector(50, 50),
       width: 100,
       height: 50,
-      color: ex.Color.Blue,
-      collisionType: ex.CollisionType.Active
+      color: ex.Color.Blue
     });
+    uiActor.body.collider.type = ex.CollisionType.Active;
     engine = TestUtils.engine();
 
     scene = new ex.Scene(engine);

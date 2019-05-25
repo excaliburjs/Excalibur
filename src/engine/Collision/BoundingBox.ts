@@ -18,7 +18,11 @@ export class BoundingBox {
    */
   constructor(public left: number = 0, public top: number = 0, public right: number = 0, public bottom: number = 0) {}
 
-  public static sideFromIntersection(intersection: Vector): Side {
+  /**
+   * Given bounding box A & B, returns the side relative to A when intersection is performed.
+   * @param intersection Intersection vector between 2 bounding boxes
+   */
+  public static getSideFromIntersection(intersection: Vector): Side {
     if (!intersection) {
       return Side.None;
     }
@@ -60,18 +64,62 @@ export class BoundingBox {
     return new BoundingBox(minX, minY, maxX, maxY);
   }
 
+  public static fromDimension(width: number, height: number, anchor: Vector = Vector.Half, pos: Vector = Vector.Zero) {
+    return new BoundingBox(
+      -width * anchor.x + pos.x,
+      -height * anchor.y + pos.y,
+      width - width * anchor.x + pos.x,
+      height - height * anchor.y + pos.y
+    );
+  }
+
   /**
    * Returns the calculated width of the bounding box
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.width' })
   public getWidth() {
+    return this.width;
+  }
+
+  /**
+   * Returns the calculated width of the bounding box
+   */
+  public get width() {
     return this.right - this.left;
   }
 
   /**
    * Returns the calculated height of the bounding box
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.height' })
   public getHeight() {
+    return this.height;
+  }
+
+  /**
+   * Returns the calculated height of the bounding box
+   */
+  public get height() {
     return this.bottom - this.top;
+  }
+
+  /**
+   * Returns the center of the bounding box
+   */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.center' })
+  public getCenter(): Vector {
+    return new Vector((this.left + this.right) / 2, (this.top + this.bottom) / 2);
+  }
+
+  /**
+   * Returns the center of the bounding box
+   */
+  public get center(): Vector {
+    return new Vector((this.left + this.right) / 2, (this.top + this.bottom) / 2);
+  }
+
+  public translate(pos: Vector): BoundingBox {
+    return new BoundingBox(this.left + pos.x, this.top + pos.y, this.right + pos.x, this.bottom + pos.y);
   }
 
   /**
@@ -83,12 +131,17 @@ export class BoundingBox {
     return BoundingBox.fromPoints(points);
   }
 
+  public scale(scale: Vector, point: Vector = Vector.Zero): BoundingBox {
+    const shifted = this.translate(point);
+    return new BoundingBox(shifted.left * scale.x, shifted.top * scale.y, shifted.right * scale.x, shifted.bottom * scale.y);
+  }
+
   /**
    * Returns the perimeter of the bounding box
    */
   public getPerimeter(): number {
-    const wx = this.getWidth();
-    const wy = this.getHeight();
+    const wx = this.width;
+    const wy = this.height;
     return 2 * (wx + wy);
   }
 
@@ -198,24 +251,24 @@ export class BoundingBox {
   }
 
   public get dimensions(): Vector {
-    return new Vector(this.getWidth(), this.getHeight());
+    return new Vector(this.width, this.height);
   }
 
   /**
    * Test wether this bounding box intersects with another returning
    * the intersection vector that can be used to resolve the collision. If there
-   * is no interesection null is returned.
+   * is no intersection null is returned.
    *
-   * @returns A Vector in the direction of the current BoundingBox, this <- other
    * @param other  Other [[BoundingBox]] to test intersection with
+   * @returns A Vector in the direction of the current BoundingBox, this <- other
    */
   public intersect(other: BoundingBox): Vector {
     const totalBoundingBox = this.combine(other);
 
     // If the total bounding box is less than or equal the sum of the 2 bounds then there is collision
     if (
-      totalBoundingBox.getWidth() < other.getWidth() + this.getWidth() &&
-      totalBoundingBox.getHeight() < other.getHeight() + this.getHeight() &&
+      totalBoundingBox.width < other.width + this.width &&
+      totalBoundingBox.height < other.height + this.height &&
       !totalBoundingBox.dimensions.equals(other.dimensions) &&
       !totalBoundingBox.dimensions.equals(this.dimensions)
     ) {
@@ -283,7 +336,7 @@ export class BoundingBox {
     } else if (totalBoundingBox.dimensions.equals(other.dimensions) || totalBoundingBox.dimensions.equals(this.dimensions)) {
       let overlapX = 0;
       // this is wider than the other
-      if (this.getWidth() - other.getWidth() >= 0) {
+      if (this.width - other.width >= 0) {
         // This right edge is closest to the others right edge
         if (this.right - other.right <= other.left - this.left) {
           overlapX = other.left - this.right;
@@ -304,7 +357,7 @@ export class BoundingBox {
 
       let overlapY = 0;
       // this is taller than other
-      if (this.getHeight() - other.getHeight() >= 0) {
+      if (this.height - other.height >= 0) {
         // The bottom edge is closest to the others bottom edge
         if (this.bottom - other.bottom <= other.top - this.top) {
           overlapY = other.top - this.bottom;
@@ -337,7 +390,7 @@ export class BoundingBox {
    */
   public intersectWithSide(bb: BoundingBox): Side {
     const intersect = this.intersect(bb);
-    return BoundingBox.sideFromIntersection(intersect);
+    return BoundingBox.getSideFromIntersection(intersect);
   }
 
   /**
@@ -357,6 +410,6 @@ export class BoundingBox {
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Yellow) {
     ctx.strokeStyle = color.toString();
-    ctx.strokeRect(this.left, this.top, this.getWidth(), this.getHeight());
+    ctx.strokeRect(this.left, this.top, this.width, this.height);
   }
 }

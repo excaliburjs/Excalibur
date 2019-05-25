@@ -33,7 +33,7 @@ describe('The engine', () => {
     // actor moves twice as fast
     loop.advance(1100);
 
-    expect(actor.x).toBe(10, 'actor did not move twice as fast');
+    expect(actor.pos.x).toBe(10, 'actor did not move twice as fast');
   });
 
   it('should run at 1/2 speed when timescale is 0.5', () => {
@@ -47,6 +47,6 @@ describe('The engine', () => {
     // actor moves twice as slow
     loop.advance(2000);
 
-    expect(actor.x).toBeCloseTo(5, 0.2, 'actor did not move twice as slow');
+    expect(actor.pos.x).toBeCloseTo(5, 0.2, 'actor did not move twice as slow');
   });
 });

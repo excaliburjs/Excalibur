@@ -83,7 +83,7 @@ export class Trigger extends Actor {
     }
 
     this.visible = opts.visible;
-    this.collisionType = CollisionType.Passive;
+    this.body.collider.type = CollisionType.Passive;
     this.eventDispatcher = new EventDispatcher(this);
     this.actionQueue = new ActionQueue(this);
 
@@ -130,7 +130,7 @@ export class Trigger extends Actor {
     ctx.save();
     ctx.translate(this.pos.x, this.pos.y);
 
-    const bb = this.getBounds();
+    const bb = this.body.collider.bounds;
     const wp = this.getWorldPos();
     bb.left = bb.left - wp.x;
     bb.right = bb.right - wp.x;

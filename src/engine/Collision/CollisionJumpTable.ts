@@ -29,7 +29,7 @@ export let CollisionJumpTable = {
     }
 
     // make sure that the minAxis is pointing away from circle
-    const samedir = minAxis.dot(polygon.getCenter().sub(circle.getCenter()));
+    const samedir = minAxis.dot(polygon.center.sub(circle.center));
     minAxis = samedir < 0 ? minAxis.negate() : minAxis;
 
     const verts: Vector[] = [];
@@ -57,7 +57,7 @@ export let CollisionJumpTable = {
 
   CollideCircleEdge(circle: Circle, edge: Edge): CollisionContact {
     // center of the circle
-    const cc = circle.getCenter();
+    const cc = circle.center;
     // vector in the direction of the edge
     const e = edge.end.sub(edge.begin);
 
@@ -152,8 +152,8 @@ export let CollisionJumpTable = {
       }
     }
 
-    const pc = polygon.getCenter();
-    const ec = edge.getCenter();
+    const pc = polygon.center;
+    const ec = edge.center;
     const dir = ec.sub(pc).normalize();
 
     // build a temporary polygon from the edge to use SAT
@@ -186,7 +186,7 @@ export let CollisionJumpTable = {
     }
 
     // make sure that minAxis is pointing from A -> B
-    const sameDir = minAxis.dot(polyB.getCenter().sub(polyA.getCenter()));
+    const sameDir = minAxis.dot(polyB.center.sub(polyA.center));
     minAxis = sameDir < 0 ? minAxis.negate() : minAxis;
 
     // find rough point of collision

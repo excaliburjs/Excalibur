@@ -16,7 +16,7 @@ import { Body } from './Body';
 
 export interface CircleOptions {
   pos?: Vector;
-  radius?: number;
+  radius: number;
   collider?: Collider;
 
   // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
@@ -24,11 +24,11 @@ export interface CircleOptions {
 }
 
 /**
- * This is a circle collision area for the excalibur rigid body physics simulation
+ * This is a circle collision shape for the excalibur rigid body physics simulation
  */
 export class Circle implements CollisionShape {
   /**
-   * This is the center position of the circle, relative to the body position
+   * Position of the circle relative to the collider, by default (0, 0) meaning the shape is positioned on top of the collider.
    */
   public pos: Vector = Vector.Zero;
 
@@ -45,13 +45,13 @@ export class Circle implements CollisionShape {
   public radius: number;
 
   /**
-   * Reference to the actor associated with this collision area
+   * Reference to the actor associated with this collision shape
    * @obsolete Will be removed in v0.24.0 please use [[collider]] to retrieve body information
    */
   public body: Body;
 
   /**
-   * The collider for this area
+   * The collider associated for this shape, if any.
    */
   public collider?: Collider;
 
@@ -69,9 +69,21 @@ export class Circle implements CollisionShape {
   }
 
   /**
-   * Get the center of the collision area in world coordinates
+   * Returns a clone of this shape, not associated with any collider
    */
-  public getCenter(): Vector {
+  public clone(): Circle {
+    return new Circle({
+      pos: this.pos.clone(),
+      radius: this.radius,
+      collider: null,
+      body: null
+    });
+  }
+
+  /**
+   * Get the center of the collision shape in world coordinates
+   */
+  public get center(): Vector {
     if (this.collider && this.collider.body) {
       return this.pos.add(this.collider.body.pos);
     }
@@ -79,7 +91,7 @@ export class Circle implements CollisionShape {
   }
 
   /**
-   * Tests if a point is contained in this collision area
+   * Tests if a point is contained in this collision shape
    */
   public contains(point: Vector): boolean {
     let pos = this.pos;
@@ -94,12 +106,12 @@ export class Circle implements CollisionShape {
   }
 
   /**
-   * Casts a ray at the CircleArea and returns the nearest point of collision
+   * Casts a ray at the Circl shape and returns the nearest point of collision
    * @param ray
    */
   public rayCast(ray: Ray, max: number = Infinity): Vector {
     //https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
-    const c = this.getCenter();
+    const c = this.center;
     const dir = ray.dir;
     const orig = ray.pos;
 
@@ -148,13 +160,13 @@ export class Circle implements CollisionShape {
    * Find the point on the shape furthest in the direction specified
    */
   public getFurthestPoint(direction: Vector): Vector {
-    return this.getCenter().add(direction.normalize().scale(this.radius));
+    return this.center.add(direction.normalize().scale(this.radius));
   }
 
   /**
-   * Get the axis aligned bounding box for the circle area
+   * Get the axis aligned bounding box for the circle shape in world coordinates
    */
-  public getBounds(): BoundingBox {
+  public get bounds(): BoundingBox {
     let bodyPos = Vector.Zero;
     if (this.collider && this.collider.body) {
       bodyPos = this.collider.body.pos;
@@ -168,9 +180,16 @@ export class Circle implements CollisionShape {
   }
 
   /**
+   * Get the axis aligned bounding box for the circle shape in local coordinates
+   */
+  public get localBounds(): BoundingBox {
+    return new BoundingBox(this.pos.x - this.radius, this.pos.y - this.radius, this.pos.x + this.radius, this.pos.y + this.radius);
+  }
+
+  /**
    * Get axis not implemented on circles, since there are infinite axis in a circle
    */
-  public getAxes(): Vector[] {
+  public get axes(): Vector[] {
     return null;
   }
 
@@ -178,7 +197,7 @@ export class Circle implements CollisionShape {
    * Returns the moment of inertia of a circle given it's mass
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public getInertia(): number {
+  public get inertia(): number {
     const mass = this.collider ? this.collider.mass : Physics.defaultMass;
     return (mass * this.radius * this.radius) / 2;
   }
@@ -187,8 +206,8 @@ export class Circle implements CollisionShape {
    * Tests the separating axis theorem for circles against polygons
    */
   public testSeparatingAxisTheorem(polygon: ConvexPolygon): Vector {
-    const axes = polygon.getAxes();
-    const pc = polygon.getCenter();
+    const axes = polygon.axes;
+    const pc = polygon.center;
     // Special SAT with circles
     const closestPointOnPoly = polygon.getFurthestPoint(this.pos.sub(pc));
     axes.push(this.pos.sub(closestPointOnPoly).normalize());
@@ -226,7 +245,7 @@ export class Circle implements CollisionShape {
    */
   public project(axis: Vector): Projection {
     const scalars = [];
-    const point = this.getCenter();
+    const point = this.center;
     const dotProduct = point.dot(axis);
     scalars.push(dotProduct);
     scalars.push(dotProduct + this.radius);
