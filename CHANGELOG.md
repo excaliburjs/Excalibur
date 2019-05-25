@@ -30,7 +30,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - The collision system now operates on `ex.Collider`'s not `ex.Actor`'s
   - `ex.CollisionType` has been moved to a separate file outside of `Actor`
     - CollisionType is switched to a string enum, style guide also updated
-  - `ex.CollisionPaif` now operates on a pair of `ex.Colliders`'s instead of `ex.Actors`'s
+  - `ex.CollisionPair` now operates on a pair of `ex.Colliders`'s instead of `ex.Actors`'s
   - `ex.CollisionContact` now operates on a pair of `ex.Collider`'s instead of `ex.Actors`'s
   - `ex.Body` has been modified to house all the physical position/transform information
     - Integration has been moved from actor to `Body` as a physical concern
