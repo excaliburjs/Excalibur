@@ -27,9 +27,12 @@ module.exports = function(grunt) {
     // Webpack tasks
     //
     webpack: {
-      bundle: webpackConfig,
+      bundle: Object.assign({}, webpackConfig, {
+        devtool: 'none'
+      }),
       bundlemin: Object.assign({}, webpackConfig, {
         mode: 'production',
+        devtool: 'none',
         output: Object.assign({}, webpackConfig.output, { filename: 'excalibur.min.js' })
       }),
       watch: Object.assign({}, webpackConfig, { watch: true })
@@ -43,7 +46,8 @@ module.exports = function(grunt) {
       core_es2015: {
         tsconfig: 'src/engine',
         options: {
-          removeComments: false
+          removeComments: false,
+          sourceMap: false
         }
       },
 
