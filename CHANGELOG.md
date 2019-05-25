@@ -85,6 +85,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed polyfill application by exporting a `polyfill()` function that can be called. ([#1132](https://github.com/excaliburjs/Excalibur/issues/1132))
 
 <!--- Bug fixes here --->
+- Fixed Color.lighten() ([#1084])
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

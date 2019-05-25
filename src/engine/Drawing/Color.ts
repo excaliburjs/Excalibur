@@ -105,7 +105,7 @@ export class Color {
    */
   public lighten(factor: number = 0.1): Color {
     const temp = HSLColor.fromRGBA(this.r, this.g, this.b, this.a);
-    temp.l += temp.l * factor;
+    temp.l += (1 - temp.l) * factor;
     return temp.toRGBA();
   }
 
