@@ -26,6 +26,7 @@ export enum PointerType {
  * Native browser button enumeration
  */
 export enum NativePointerButton {
+  NoButton = -1,
   Left = 0,
   Middle = 1,
   Right = 2,
@@ -39,7 +40,8 @@ export enum PointerButton {
   Left = 'Left',
   Middle = 'Middle',
   Right = 'Right',
-  Unknown = 'Unknown'
+  Unknown = 'Unknown',
+  NoButton = 'NoButton'
 }
 
 export enum WheelDeltaMode {
@@ -749,6 +751,8 @@ export class Pointers extends Class {
 
   private _nativeButtonToPointerButton(s: NativePointerButton): PointerButton {
     switch (s) {
+      case NativePointerButton.NoButton:
+        return PointerButton.NoButton;
       case NativePointerButton.Left:
         return PointerButton.Left;
       case NativePointerButton.Middle:

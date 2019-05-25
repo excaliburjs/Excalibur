@@ -27,6 +27,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed polyfill application by exporting a `polyfill()` function that can be called. ([#1132](https://github.com/excaliburjs/Excalibur/issues/1132))
 
 <!--- Bug fixes here --->
+
 - Fixed Color.lighten() ([#1084])
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
@@ -70,6 +71,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Fixed issue of early offscreen culling related to zooming in and out ([#1078](https://github.com/excaliburjs/Excalibur/issues/1078))
 - Fixed issue where setting `suppressPlayButton: true` blocks load in certain browsers ([#1079](https://github.com/excaliburjs/Excalibur/issues/1079))
+- Fixed issue where the absence of a pointer button caused an error in the console([#1153](https://github.com/excaliburjs/Excalibur/issues/1153))
 
 <!----------------------------------------------------------------------------------------------->
 
