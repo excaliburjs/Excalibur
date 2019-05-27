@@ -1,4 +1,5 @@
 export * from './Body';
+export * from './Collider';
 export * from './BoundingBox';
 export * from './Circle';
 export * from './CollisionContact';
