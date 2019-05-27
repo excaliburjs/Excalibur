@@ -13,3 +13,4 @@ export * from './Physics';
 export * from './Pair';
 export * from './ConvexPolygon';
 export * from './Side';
+export * from './Shape';
