@@ -1556,9 +1556,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
       this.currentDrawing.draw(ctx, offsetX, offsetY);
     } else {
-      if (this.color) {
-        ctx.fillStyle = this.color.toString();
-        ctx.fillRect(0, 0, this._width, this._height);
+      if (this.color && this.body && this.body.collider && this.body.collider.shape) {
+        this.body.collider.shape.draw(ctx, this.color, new Vector(this.width * this.anchor.x, this.height * this.anchor.y));
       }
     }
     ctx.restore();

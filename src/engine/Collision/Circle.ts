@@ -265,6 +265,15 @@ export class Circle implements CollisionShape {
     return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
   }
 
+  public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
+    const newPos = pos.add(this.pos);
+    ctx.beginPath();
+    ctx.fillStyle = color.toString();
+    ctx.arc(newPos.x, newPos.y, this.radius, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.fill();
+  }
+
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Green) {
     const body = this.collider.body;

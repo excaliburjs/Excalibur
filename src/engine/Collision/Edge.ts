@@ -251,6 +251,17 @@ export class Edge implements CollisionShape {
     return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
   }
 
+  public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
+    const begin = this.begin.add(pos);
+    const end = this.end.add(pos);
+    ctx.strokeStyle = color.toString();
+    ctx.beginPath();
+    ctx.moveTo(begin.x, begin.y);
+    ctx.lineTo(end.x, end.y);
+    ctx.closePath();
+    ctx.stroke();
+  }
+
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red) {
     ctx.strokeStyle = color.toString();

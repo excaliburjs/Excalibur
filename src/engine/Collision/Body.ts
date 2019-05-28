@@ -255,7 +255,7 @@ export class Body implements Clonable<Body> {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): Collider {
-    this.collider.shape = Shape.Polygon(points, center);
+    this.collider.shape = Shape.Polygon(points, false, center);
     return this.collider;
   }
 

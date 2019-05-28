@@ -17,7 +17,7 @@ const block = new ex.Actor({
 });
 ```
 
-Creating a custom [[convex polygon|ConvexPolygon]] shape is just as simple. Excalibur only supports arbitrary convex shapes as a ConvexPolygon, this means no "cavities" in the shape, for example "pacman" is not a convex shape.
+Creating a custom [[convex polygon|ConvexPolygon]] shape is just as simple. Excalibur only supports arbitrary convex shapes as a ConvexPolygon, this means no "cavities" in the shape, for example "pac-man" is not a convex shape.
 
 The `points` in a [[convex polygon|ConvexPolygon]] have counter-clockwise winding by default, this means the points must be listed in counter-clockwise order around the shape to work. This can be switched by supplying `true` or `false` to the winding argument `ex.Shape.Polygon([...], true)` for clockwise winding.
 
@@ -29,7 +29,7 @@ const triangle = new ex.Actor({
   color: ex.Color.Red,
   body: new ex.Body({
     collider: new ex.Collider({
-      shape: ex.Shape.Polygon([new ex.Vector(0, -1), new ex.Vector(-1, .5), new ex.Vector(1, .5)])
+      shape: ex.Shape.Polygon([new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)])
       type: ex.CollisionType.Active;
     })
   })
