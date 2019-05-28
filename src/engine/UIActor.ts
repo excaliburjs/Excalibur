@@ -3,6 +3,7 @@ import { Engine } from './Engine';
 import { Actor, ActorArgs } from './Actor';
 import * as Traits from './Traits/Index';
 import { CollisionType } from './Collision/CollisionType';
+import { Shape } from './Collision/Shape';
 
 /**
  * Helper [[Actor]] primitive for drawing UI's, optimized for UI drawing. Does
@@ -30,6 +31,7 @@ export class UIActor extends Actor {
     this.traits.push(new Traits.CapturePointer());
     this.anchor.setTo(0, 0);
     this.body.collider.type = CollisionType.PreventCollision;
+    this.body.collider.shape = Shape.Box(this.width, this.height, this.anchor);
     this.enableCapturePointer = true;
   }
 

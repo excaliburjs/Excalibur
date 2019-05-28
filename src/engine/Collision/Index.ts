@@ -1,4 +1,5 @@
 export * from './Body';
+export * from './Collider';
 export * from './BoundingBox';
 export * from './Circle';
 export * from './CollisionContact';
@@ -14,3 +15,4 @@ export * from './Physics';
 export * from './Pair';
 export * from './ConvexPolygon';
 export * from './Side';
+export * from './Shape';

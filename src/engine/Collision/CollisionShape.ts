@@ -88,6 +88,13 @@ export interface CollisionShape extends Clonable<CollisionShape> {
   recalc(): void;
 
   /**
+   * Draw the shape
+   * @param ctx
+   * @param color
+   */
+  draw(ctx: CanvasRenderingContext2D, color?: Color, pos?: Vector): void;
+
+  /**
    * Draw any debug information
    */
   debugDraw(ctx: CanvasRenderingContext2D, color: Color): void;
