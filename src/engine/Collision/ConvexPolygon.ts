@@ -38,6 +38,9 @@ export interface ConvexPolygonOptions {
 
 /**
  * Polygon collision shape for detecting collisions
+ *
+ * Example:
+ * [[include:BoxAndPolygonShape.md]]
  */
 export class ConvexPolygon implements CollisionShape {
   public pos: Vector;
@@ -391,6 +394,21 @@ export class ConvexPolygon implements CollisionShape {
     }
 
     return new Projection(min, max);
+  }
+
+  public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
+    ctx.beginPath();
+    ctx.fillStyle = color.toString();
+    const newPos = pos.add(this.pos);
+    // Iterate through the supplied points and construct a 'polygon'
+    const firstPoint = this.points[0].add(newPos);
+    ctx.moveTo(firstPoint.x, firstPoint.y);
+    this.points.map((p) => p.add(newPos)).forEach(function(point) {
+      ctx.lineTo(point.x, point.y);
+    });
+    ctx.lineTo(firstPoint.x, firstPoint.y);
+    ctx.closePath();
+    ctx.fill();
   }
 
   /* istanbul ignore next */

@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `ex.BoundingBox.translate(pos: Vector)` will create a new bounding box shifted by `pos`
 - `ex.BoundingBox.scale(scale: Vector)` will create a new bounding box scaled by `scale`
 - Added `isActor()` and `isCollider()` type guards
+- Added `ex.CollisionShape.draw` collision shapes can now be drawn, actor's will use these shapes if no other drawing is specified
 
 ### Changed
 
@@ -85,6 +86,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed polyfill application by exporting a `polyfill()` function that can be called. ([#1132](https://github.com/excaliburjs/Excalibur/issues/1132))
 
 <!--- Bug fixes here --->
+
 - Fixed Color.lighten() ([#1084])
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

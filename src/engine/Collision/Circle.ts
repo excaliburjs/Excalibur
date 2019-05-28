@@ -16,8 +16,17 @@ import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 // ===========================
 
 export interface CircleOptions {
+  /**
+   * Optional position to shift the circle relative to the collider, by default (0, 0).
+   */
   pos?: Vector;
+  /**
+   * Required radius of the circle
+   */
   radius: number;
+  /**
+   * Optional collider to associate with this shape
+   */
   collider?: Collider;
 
   // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
@@ -26,6 +35,9 @@ export interface CircleOptions {
 
 /**
  * This is a circle collision shape for the excalibur rigid body physics simulation
+ *
+ * Example:
+ * [[include:CircleShape.md]]
  */
 export class Circle implements CollisionShape {
   /**
@@ -264,6 +276,15 @@ export class Circle implements CollisionShape {
     scalars.push(dotProduct + this.radius);
     scalars.push(dotProduct - this.radius);
     return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
+  }
+
+  public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
+    const newPos = pos.add(this.pos);
+    ctx.beginPath();
+    ctx.fillStyle = color.toString();
+    ctx.arc(newPos.x, newPos.y, this.radius, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.fill();
   }
 
   /* istanbul ignore next */

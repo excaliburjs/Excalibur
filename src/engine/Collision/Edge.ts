@@ -13,14 +13,29 @@ import { Collider } from './Collider';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 
 export interface EdgeOptions {
+  /**
+   * The beginning of the edge defined in local coordinates to the collider
+   */
   begin: Vector;
+  /**
+   * The ending of the edge defined in local coordinates to the collider
+   */
   end: Vector;
+  /**
+   * Optionally the collider associated with this edge
+   */
   collider?: Collider;
 
   // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
   body?: Body;
 }
 
+/**
+ * Edge is a single line collision shape to create collisions with a single line.
+ *
+ * Example:
+ * [[include:EdgeShape.md]]
+ */
 export class Edge implements CollisionShape {
   body: Body;
   collider?: Collider;
@@ -265,6 +280,17 @@ export class Edge implements CollisionShape {
     }
 
     return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
+  }
+
+  public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
+    const begin = this.begin.add(pos);
+    const end = this.end.add(pos);
+    ctx.strokeStyle = color.toString();
+    ctx.beginPath();
+    ctx.moveTo(begin.x, begin.y);
+    ctx.lineTo(end.x, end.y);
+    ctx.closePath();
+    ctx.stroke();
   }
 
   /* istanbul ignore next */

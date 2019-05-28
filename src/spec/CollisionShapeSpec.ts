@@ -1,5 +1,6 @@
 import * as ex from '../../build/dist/excalibur';
-import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import { TestUtils } from './util/TestUtils';
 
 describe('Collision Shape', () => {
   beforeAll(() => {
@@ -7,10 +8,17 @@ describe('Collision Shape', () => {
   });
 
   describe('a Circle', () => {
+    let engine: ex.Engine;
+    let scene: ex.Scene;
+
     let circle: ex.CircleArea;
     let actor: ex.Actor;
 
     beforeEach(() => {
+      engine = TestUtils.engine();
+      scene = new ex.Scene(engine);
+      engine.currentScene = scene;
+
       actor = new ex.Actor(0, 0, 20, 20);
       circle = new ex.CircleArea({
         pos: ex.Vector.Zero.clone(),
@@ -19,12 +27,19 @@ describe('Collision Shape', () => {
       });
     });
 
+    afterEach(() => {
+      engine.stop();
+      engine = null;
+    });
+
     it('exists', () => {
       expect(ex.CircleArea).toBeDefined();
     });
 
     it('can be constructed with empty args', () => {
-      const circle = new ex.CircleArea({});
+      const circle = new ex.CircleArea({
+        radius: 1
+      });
       expect(circle).not.toBeNull();
     });
 
@@ -32,6 +47,7 @@ describe('Collision Shape', () => {
       const actor1 = new ex.Actor(0, 0, 20, 20);
       const circle = new ex.CircleArea({
         collider: actor1.body.collider,
+        radius: 10,
         pos: new ex.Vector(20, 25)
       });
 
@@ -281,15 +297,64 @@ describe('Collision Shape', () => {
       expect(contact.point.x).toBe(0);
       expect(contact.point.y).toBe(0);
     });
+
+    it('can be drawn', (done) => {
+      const circle = new ex.Circle({
+        pos: new ex.Vector(100, 100),
+        radius: 30
+      });
+
+      circle.draw(engine.ctx, ex.Color.Blue, new ex.Vector(50, 0));
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/circle.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+
+    it('can be drawn with actor', (done) => {
+      const circleActor = new ex.Actor({
+        pos: new ex.Vector(150, 100),
+        color: ex.Color.Blue,
+        body: new ex.Body({
+          collider: new ex.Collider({
+            shape: ex.Shape.Circle(30)
+          })
+        })
+      });
+
+      scene.add(circleActor);
+      scene.draw(engine.ctx, 100);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/circle.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
   });
 
   describe('a ConvexPolygon', () => {
+    let engine: ex.Engine;
+    let scene: ex.Scene;
+    beforeEach(() => {
+      engine = TestUtils.engine();
+      scene = new ex.Scene(engine);
+      engine.currentScene = scene;
+    });
+
+    afterEach(() => {
+      engine.stop();
+      engine = null;
+    });
+
     it('exists', () => {
       expect(ex.ConvexPolygon).toBeDefined();
     });
 
     it('can be constructed with empty args', () => {
-      const poly = new ex.ConvexPolygon({});
+      const poly = new ex.ConvexPolygon({
+        points: [ex.Vector.One]
+      });
       expect(poly).not.toBe(null);
     });
 
@@ -561,13 +626,59 @@ describe('Collision Shape', () => {
       expect(noHit).toBe(null);
       expect(tooFar).toBe(null, 'The polygon should be too far away for a hit');
     });
+
+    it('can be drawn', (done) => {
+      const polygon = new ex.ConvexPolygon({
+        pos: new ex.Vector(100, 100),
+        points: [new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)]
+      });
+
+      polygon.draw(engine.ctx, ex.Color.Blue, new ex.Vector(50, 0));
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/triangle.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+
+    it('can be drawn with actor', (done) => {
+      const polygonActor = new ex.Actor({
+        pos: new ex.Vector(150, 100),
+        color: ex.Color.Blue,
+        body: new ex.Body({
+          collider: new ex.Collider({
+            shape: ex.Shape.Polygon([new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)])
+          })
+        })
+      });
+
+      scene.add(polygonActor);
+      scene.draw(engine.ctx, 100);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/triangle.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
   });
 
   describe('an Edge', () => {
     let actor: ex.Actor = null;
     let edge: ex.EdgeArea = null;
 
+    let engine: ex.Engine;
+    let scene: ex.Scene;
+
+    afterEach(() => {
+      engine.stop();
+      engine = null;
+    });
+
     beforeEach(() => {
+      engine = TestUtils.engine();
+      scene = new ex.Scene(engine);
+      engine.currentScene = scene;
+
       actor = new ex.Actor(5, 0, 10, 10);
       edge = new ex.EdgeArea({
         begin: new ex.Vector(-5, 0),
@@ -658,6 +769,40 @@ describe('Collision Shape', () => {
       const moi = edge.inertia;
       const length = edge.end.sub(edge.begin).distance() / 2;
       expect(moi).toBeCloseTo(edge.body.collider.mass * length * length, 0.001);
+    });
+
+    it('can be drawn', (done) => {
+      const edge = new ex.Edge({
+        begin: new ex.Vector(100, 100),
+        end: new ex.Vector(400, 400)
+      });
+
+      edge.draw(engine.ctx, ex.Color.Blue, new ex.Vector(50, 0));
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/edge.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+
+    it('can be drawn with actor', (done) => {
+      const edgeActor = new ex.Actor({
+        pos: new ex.Vector(150, 100),
+        color: ex.Color.Blue,
+        body: new ex.Body({
+          collider: new ex.Collider({
+            shape: ex.Shape.Edge(ex.Vector.Zero, new ex.Vector(300, 300))
+          })
+        })
+      });
+
+      scene.add(edgeActor);
+      scene.draw(engine.ctx, 100);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/edge.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 });
