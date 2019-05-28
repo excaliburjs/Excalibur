@@ -21,8 +21,7 @@ describe('A particle', () => {
 
   it('should have props set by the constructor', () => {
     const emitter = new ex.ParticleEmitter({
-      x: 400,
-      y: 100,
+      pos: new ex.Vector(400, 100),
       width: 20,
       height: 30,
       isEmitting: true,
@@ -51,10 +50,10 @@ describe('A particle', () => {
       random: new ex.Random(1337)
     });
 
-    expect(emitter.x).toBe(400);
-    expect(emitter.y).toBe(100);
-    expect(emitter.getWidth()).toBe(20);
-    expect(emitter.getHeight()).toBe(30);
+    expect(emitter.pos.x).toBe(400);
+    expect(emitter.pos.y).toBe(100);
+    expect(emitter.width).toBe(20);
+    expect(emitter.height).toBe(30);
     expect(emitter.isEmitting).toBe(true);
     expect(emitter.minVel).toBe(40);
     expect(emitter.maxVel).toBe(50);
@@ -83,8 +82,7 @@ describe('A particle', () => {
 
   it('should emit particles', (done) => {
     const emitter = new ex.ParticleEmitter({
-      x: 400,
-      y: 100,
+      pos: new ex.Vector(400, 100),
       width: 20,
       height: 30,
       isEmitting: true,

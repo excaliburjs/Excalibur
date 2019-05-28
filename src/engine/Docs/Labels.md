@@ -11,8 +11,8 @@ var game = new ex.Engine();
 var label = new ex.Label('Hello World', 50, 50, '10px Arial');
 // properties
 var label = new ex.Label();
-label.x = 50;
-label.y = 50;
+label.pos.x = 50;
+label.pos.y = 50;
 label.fontFamily = 'Arial';
 label.fontSize = 10;
 label.fontUnit = ex.FontUnit.Px; // pixels are the default

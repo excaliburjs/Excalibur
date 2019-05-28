@@ -1,10 +1,10 @@
 import { Physics } from './../Physics';
 import { Color } from './../Drawing/Color';
-import { Body } from './Body';
 import { CollisionContact } from './CollisionContact';
-import { CollisionType, Actor } from '../Actor';
 import { CollisionResolutionStrategy } from '../Physics';
 import * as DrawUtil from '../Util/DrawUtil';
+import { CollisionType } from './CollisionType';
+import { Collider } from './Collider';
 
 /**
  * Models a potential collision between 2 bodies
@@ -13,23 +13,23 @@ export class Pair {
   public id: string = null;
   public collision: CollisionContact = null;
 
-  constructor(public bodyA: Body, public bodyB: Body) {
-    this.id = Pair.calculatePairHash(bodyA, bodyB);
+  constructor(public colliderA: Collider, public colliderB: Collider) {
+    this.id = Pair.calculatePairHash(colliderA, colliderB);
   }
 
-  public static canCollide(actorA: Actor, actorB: Actor) {
+  public static canCollide(colliderA: Collider, colliderB: Collider) {
     // if both are fixed short circuit
-    if (actorA.collisionType === CollisionType.Fixed && actorB.collisionType === CollisionType.Fixed) {
+    if (colliderA.type === CollisionType.Fixed && colliderB.type === CollisionType.Fixed) {
       return false;
     }
 
     // if the either is prevent collision short circuit
-    if (actorB.collisionType === CollisionType.PreventCollision || actorA.collisionType === CollisionType.PreventCollision) {
+    if (colliderB.type === CollisionType.PreventCollision || colliderA.type === CollisionType.PreventCollision) {
       return false;
     }
 
     // if either is dead short circuit
-    if (actorA.isKilled() || actorB.isKilled()) {
+    if (!colliderA.active || !colliderB.active) {
       return false;
     }
 
@@ -40,8 +40,8 @@ export class Pair {
    * Returns whether or not it is possible for the pairs to collide
    */
   public get canCollide(): boolean {
-    const actorA = this.bodyA.actor;
-    const actorB = this.bodyB.actor;
+    const actorA = this.colliderA;
+    const actorB = this.colliderB;
     return Pair.canCollide(actorA, actorB);
   }
 
@@ -49,7 +49,7 @@ export class Pair {
    * Runs the collison intersection logic on the members of this pair
    */
   public collide() {
-    this.collision = this.bodyA.collisionArea.collide(this.bodyB.collisionArea);
+    this.collision = this.colliderA.collide(this.colliderB);
   }
 
   /**
@@ -64,11 +64,11 @@ export class Pair {
   /**
    * Calculates the unique pair hash id for this collision pair
    */
-  public static calculatePairHash(bodyA: Body, bodyB: Body): string {
-    if (bodyA.actor.id < bodyB.actor.id) {
-      return `#${bodyA.actor.id}+${bodyB.actor.id}`;
+  public static calculatePairHash(colliderA: Collider, colliderB: Collider): string {
+    if (colliderA.id < colliderB.id) {
+      return `#${colliderA.id}+${colliderB.id}`;
     } else {
-      return `#${bodyB.actor.id}+${bodyA.actor.id}`;
+      return `#${colliderB.id}+${colliderA.id}`;
     }
   }
 

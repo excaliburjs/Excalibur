@@ -236,7 +236,18 @@ export function getOppositeSide(side: Side) {
   return Side.None;
 }
 
+/**
+ * @obsolete use Util.getSideFromDirection
+ */
 export function getSideFromVector(direction: Vector) {
+  return getSideFromDirection(direction);
+}
+
+/**
+ * Returns the side in the direction of the vector supplied
+ * @param direction Vector to check
+ */
+export function getSideFromDirection(direction: Vector) {
   const directions = [Vector.Left, Vector.Right, Vector.Up, Vector.Down];
   const directionEnum = [Side.Left, Side.Right, Side.Top, Side.Bottom];
 
