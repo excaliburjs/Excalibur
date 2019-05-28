@@ -6,10 +6,11 @@ import { CollisionShape } from './CollisionShape';
 import { Circle } from './Circle';
 import { ConvexPolygon } from './ConvexPolygon';
 
-import { Vector, Ray, Projection } from '../Algebra';
+import { Vector, Ray, Projection, Line } from '../Algebra';
 import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
+import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 
 export interface EdgeOptions {
   begin: Vector;
@@ -145,6 +146,22 @@ export class Edge implements CollisionShape {
   }
 
   /**
+   * Returns the closes line between this and another shape, from this -> shape
+   * @param shape
+   */
+  public getClosestLineBetween(shape: CollisionShape): Line {
+    if (shape instanceof Circle) {
+      return ClosestLineJumpTable.CircleEdgeClosestLine(shape, this);
+    } else if (shape instanceof ConvexPolygon) {
+      return ClosestLineJumpTable.PolygonEdgeClosestLine(shape, this);
+    } else if (shape instanceof Edge) {
+      return ClosestLineJumpTable.EdgeEdgeClosestLine(this, shape);
+    } else {
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
+    }
+  }
+
+  /**
    * @inheritdoc
    */
   public collide(shape: CollisionShape): CollisionContact {
@@ -187,6 +204,10 @@ export class Edge implements CollisionShape {
 
   public get localBounds(): BoundingBox {
     return this._boundsFromBeginEnd(this.begin, this.end);
+  }
+
+  public asLine(): Line {
+    return new Line(this.begin, this.end);
   }
 
   /**

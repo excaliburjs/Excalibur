@@ -1419,12 +1419,12 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this._collisionHandlers[group] = [];
   }
   /**
-   * Returns true if the two actors are less than or equal to the distance specified from each other
+   * Returns true if the two actor.body.collider.shape's surfaces are less than or equal to the distance specified from each other
    * @param actor     Actor to test
    * @param distance  Distance in pixels to test
    */
   public within(actor: Actor, distance: number): boolean {
-    return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
+    return this.body.collider.shape.getClosestLineBetween(actor.body.collider.shape).getLength() <= distance;
   }
 
   // #endregion
@@ -1626,7 +1626,11 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
     // Draw actor bounding box
     const bb = this.body.collider.bounds;
-    bb.debugDraw(ctx);
+    // bb.debugDraw(ctx);
+
+    // Draw collider shape
+    const shape = this.body.collider.shape;
+    shape.debugDraw(ctx, this.color);
 
     // Draw actor Id
     ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
@@ -1646,32 +1650,32 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     }
 
     // Unit Circle debug draw
-    ctx.strokeStyle = Color.Yellow.toString();
-    ctx.beginPath();
-    const radius = Math.min(this.width, this.height);
-    ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.stroke();
-    const ticks: { [key: string]: number } = {
-      '0 Pi': 0,
-      'Pi/2': Math.PI / 2,
-      Pi: Math.PI,
-      '3/2 Pi': (3 * Math.PI) / 2
-    };
+    // ctx.strokeStyle = Color.Yellow.toString();
+    // ctx.beginPath();
+    // const radius = Math.min(this.width, this.height);
+    // ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
+    // ctx.closePath();
+    // ctx.stroke();
+    // const ticks: { [key: string]: number } = {
+    //   '0 Pi': 0,
+    //   'Pi/2': Math.PI / 2,
+    //   Pi: Math.PI,
+    //   '3/2 Pi': (3 * Math.PI) / 2
+    // };
 
-    const oldFont = ctx.font;
-    for (const tick in ticks) {
-      ctx.fillStyle = Color.Yellow.toString();
-      ctx.font = '14px';
-      ctx.textAlign = 'center';
-      ctx.fillText(
-        tick,
-        this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10),
-        this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10)
-      );
-    }
+    // const oldFont = ctx.font;
+    // for (const tick in ticks) {
+    //   ctx.fillStyle = Color.Yellow.toString();
+    //   ctx.font = '14px';
+    //   ctx.textAlign = 'center';
+    //   ctx.fillText(
+    //     tick,
+    //     this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10),
+    //     this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10)
+    //   );
+    // }
 
-    ctx.font = oldFont;
+    // ctx.font = oldFont;
 
     // Draw child actors
     for (let i = 0; i < this.children.length; i++) {

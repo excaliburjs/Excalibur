@@ -5,13 +5,14 @@ import { CollisionShape } from './CollisionShape';
 import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 
-import { Vector, Ray, Projection } from '../Algebra';
+import { Vector, Ray, Projection, Line } from '../Algebra';
 import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
 
 // @obsolete Remove in v0.24.0
 import { Body } from './Body';
+import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 // ===========================
 
 export interface CircleOptions {
@@ -138,6 +139,18 @@ export class Circle implements CollisionShape {
         }
         return null;
       }
+    }
+  }
+
+  public getClosestLineBetween(shape: CollisionShape): Line {
+    if (shape instanceof Circle) {
+      return ClosestLineJumpTable.CircleCircleClosestLine(this, shape);
+    } else if (shape instanceof ConvexPolygon) {
+      return ClosestLineJumpTable.PolygonCircleClosestLine(shape, this);
+    } else if (shape instanceof Edge) {
+      return ClosestLineJumpTable.CircleEdgeClosestLine(this, shape);
+    } else {
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
     }
   }
 

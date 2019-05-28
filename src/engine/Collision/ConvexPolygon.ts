@@ -9,6 +9,7 @@ import { CollisionShape } from './CollisionShape';
 import { Body } from './Body';
 import { Vector, Line, Ray, Projection } from '../Algebra';
 import { Collider } from './Collider';
+import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 
 export interface ConvexPolygonOptions {
   /**
@@ -184,6 +185,18 @@ export class ConvexPolygon implements CollisionShape {
       return false;
     }
     return true;
+  }
+
+  public getClosestLineBetween(shape: CollisionShape): Line {
+    if (shape instanceof Circle) {
+      return ClosestLineJumpTable.PolygonCircleClosestLine(this, shape);
+    } else if (shape instanceof ConvexPolygon) {
+      return ClosestLineJumpTable.PolygonPolygonClosestLine(this, shape);
+    } else if (shape instanceof Edge) {
+      return ClosestLineJumpTable.PolygonEdgeClosestLine(this, shape);
+    } else {
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
+    }
   }
 
   /**
