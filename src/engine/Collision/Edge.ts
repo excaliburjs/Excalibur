@@ -12,14 +12,29 @@ import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
 
 export interface EdgeOptions {
+  /**
+   * The beginning of the edge defined in local coordinates to the collider
+   */
   begin: Vector;
+  /**
+   * The ending of the edge defined in local coordinates to the collider
+   */
   end: Vector;
+  /**
+   * Optionally the collider associated with this edge
+   */
   collider?: Collider;
 
   // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
   body?: Body;
 }
 
+/**
+ * Edge is a single line collision shape to create collisions with a single line.
+ *
+ * Example:
+ * [[include:EdgeShape.md]]
+ */
 export class Edge implements CollisionShape {
   body: Body;
   collider?: Collider;
