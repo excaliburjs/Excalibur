@@ -141,8 +141,11 @@ export let ClosestLineJumpTable = {
     const u = thisFace.face.getEdge();
 
     // L2 = Q(t) = q0 + t * v, where t is time and q0 is the start of the line
-    const q0 = edge.begin;
-    const v = edge.end.sub(edge.begin);
+    const edgeLine = edge.asLine();
+    const edgeStart = edgeLine.begin;
+    const edgeVector = edgeLine.getEdge();
+    const q0 = edgeStart;
+    const v = edgeVector;
 
     return ClosestLine(p0, u, q0, v);
   },
@@ -203,8 +206,11 @@ export let ClosestLineJumpTable = {
     const circleWorlPos = circle.worldPos;
 
     // L1 = P(s) = p0 + s * u, where s is time and p0 is the start of the line
-    const p0 = edge.begin;
-    const u = edge.end.sub(edge.begin);
+    const edgeLine = edge.asLine();
+    const edgeStart = edgeLine.begin;
+    const edgeVector = edgeLine.getEdge();
+    const p0 = edgeStart;
+    const u = edgeVector;
 
     // Time of minimum distance
     let t = (u.x * (circleWorlPos.x - p0.x) + u.y * (circleWorlPos.y - p0.y)) / (u.x * u.x + u.y * u.y);
@@ -226,12 +232,18 @@ export let ClosestLineJumpTable = {
 
   EdgeEdgeClosestLine(edgeA: Edge, edgeB: Edge) {
     // L1 = P(s) = p0 + s * u, where s is time and p0 is the start of the line
-    const p0 = edgeA.begin;
-    const u = edgeB.end.sub(edgeA.begin);
+    const edgeLineA = edgeA.asLine();
+    const edgeStartA = edgeLineA.begin;
+    const edgeVectorA = edgeLineA.getEdge();
+    const p0 = edgeStartA;
+    const u = edgeVectorA;
 
     // L2 = Q(t) = q0 + t * v, where t is time and q0 is the start of the line
-    const q0 = edgeB.begin;
-    const v = edgeB.end.sub(edgeB.begin);
+    const edgeLineB = edgeB.asLine();
+    const edgeStartB = edgeLineB.begin;
+    const edgeVectorB = edgeLineB.getEdge();
+    const q0 = edgeStartB;
+    const v = edgeVectorB;
 
     return ClosestLine(p0, u, q0, v);
   }

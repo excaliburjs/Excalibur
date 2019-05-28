@@ -107,7 +107,7 @@ var edge = new ex.Actor({
   color: ex.Color.Blue,
   body: new ex.Body({
     collider: new ex.Collider({
-      shape: ex.Shape.Edge(new ex.Vector(100, 300), new ex.Vector(130, 400))
+      shape: ex.Shape.Edge(new ex.Vector(0, 0), new ex.Vector(30, 100))
     })
   })
 });
