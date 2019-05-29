@@ -1,4 +1,3 @@
-import { Physics } from './Physics';
 import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
 import { Texture } from './Resources/Texture';
@@ -35,7 +34,7 @@ import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
 import { ActionQueue } from './Actions/Action';
 import { Vector } from './Algebra';
-import { CollisionArea } from './Collision/CollisionArea';
+import { CollisionShape } from './Collision/CollisionShape';
 import { Body } from './Collision/Body';
 import { Side } from './Collision/Side';
 import { Eventable } from './Interfaces/Evented';
@@ -46,6 +45,14 @@ import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEvents';
+import { CollisionType } from './Collision/CollisionType';
+import { obsolete } from './Util/Decorators';
+import { Collider } from './Collision/Collider';
+import { Shape } from './Collision/Shape';
+
+export function isActor(x: any): x is Actor {
+  return x instanceof Actor;
+}
 
 /**
  * [[include:Constructors.md]]
@@ -62,7 +69,6 @@ export interface ActorArgs extends Partial<ActorImpl> {
   color?: Color;
   visible?: boolean;
   body?: Body;
-  collisionType?: CollisionType;
 }
 
 export interface ActorDefaults {
@@ -95,33 +101,48 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
    * acceleration, mass, inertia, etc.
    */
-  public body: Body = new Body(this);
+  public get body(): Body {
+    return this._body;
+  }
+
+  public set body(body: Body) {
+    this._body = body;
+    this._body.actor = this;
+  }
+
+  private _body: Body;
 
   /**
-   * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
-   * [EdgeArea|edges].
+   * Gets the collision geometry shape to use for collision possible options are [Circle|circles], [ConvexPolygon|polygons], and
+   * [Edge|edges].
+   * @obsolete Use Actor.body.collider.shape, collisionArea will be removed in v0.24.0
    */
-  public get collisionArea(): CollisionArea {
-    return this.body.collisionArea;
+  @obsolete({ message: 'Actor.collisionArea will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.shape' })
+  public get collisionArea(): CollisionShape {
+    return this.body.collider.shape;
   }
 
   /**
-   * Gets the collision area shape to use for collision possible options are [CircleArea|circles], [PolygonArea|polygons], and
-   * [EdgeArea|edges].
+   * Gets the collision geometry shape to use for collision possible options are [Circle|circles], [ConvexPolygon|polygons], and
+   * [Edge|edges].
+   * @obsolete use Actor.body.collider.shape, collisionArea will be removed in v0.24.0
    */
-  public set collisionArea(area: CollisionArea) {
-    this.body.collisionArea = area;
+  public set collisionArea(area: CollisionShape) {
+    this.body.collider.shape = area;
   }
 
   /**
    * Gets the x position of the actor relative to it's parent (if any)
+   * @obsolete ex.Actor.x will be removed in v0.24.0, use ex.Actor.pos.x
    */
+  @obsolete({ message: 'ex.Actor.x will be removed in v0.24.0', alternateMethod: 'ex.Actor.pos.x, or ex.Actor.body.pos.x' })
   public get x(): number {
     return this.body.pos.x;
   }
 
   /**
    * Sets the x position of the actor relative to it's parent (if any)
+   * @obsolete ex.Actor.x will be removed in v0.24.0, use ex.Actor.pos.x
    */
   public set x(theX: number) {
     this.body.pos.x = theX;
@@ -129,13 +150,16 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Gets the y position of the actor relative to it's parent (if any)
+   * @obsolete ex.Actor.y will be removed in v0.24.0, use ex.Actor.pos.y
    */
+  @obsolete({ message: 'ex.Actor.y will be removed in v0.24.0', alternateMethod: 'ex.Actor.pos.y, or ex.Actor.body.pos.y' })
   public get y(): number {
     return this.body.pos.y;
   }
 
   /**
    * Sets the y position of the actor relative to it's parent (if any)
+   * @obsolete ex.Actor.y will be removed in v0.24.0, use ex.Actor.pos.y
    */
   public set y(theY: number) {
     this.body.pos.y = theY;
@@ -198,11 +222,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * Gets/sets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
-   */
-  public oldAcc: Vector = Vector.Zero;
-
-  /**
    * Gets the acceleration vector of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may be
    * useful to simulate a gravitational effect.
    */
@@ -215,6 +234,20 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public set acc(theAcc: Vector) {
     this.body.acc.setTo(theAcc.x, theAcc.y);
+  }
+
+  /**
+   * Sets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
+   */
+  public set oldAcc(theAcc: Vector) {
+    this.body.oldAcc.setTo(theAcc.x, theAcc.y);
+  }
+
+  /**
+   * Gets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
+   */
+  public get oldAcc(): Vector {
+    return this.body.oldAcc;
   }
 
   /**
@@ -247,13 +280,16 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Gets the current torque applied to the actor. Torque can be thought of as rotational force
+   * @obsolete ex.Actor.torque will be removed in v0.24.0, use ex.Actor.body.torque
    */
+  @obsolete({ message: 'ex.Actor.torque will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.torque' })
   public get torque() {
     return this.body.torque;
   }
 
   /**
    * Sets the current torque applied to the actor. Torque can be thought of as rotational force
+   * @obsolete ex.Actor.torque will be removed in v0.24.0, use ex.Actor.body.torque
    */
   public set torque(theTorque: number) {
     this.body.torque = theTorque;
@@ -261,60 +297,71 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Get the current mass of the actor, mass can be thought of as the resistance to acceleration.
+   * @obsolete ex.Actor.mass will be removed in v0.24.0, use ex.Actor.body.collider.mass
    */
+  @obsolete({ message: 'ex.Actor.mass will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.mass' })
   public get mass() {
-    return this.body.mass;
+    return this.body.collider.mass;
   }
 
   /**
    * Sets the mass of the actor, mass can be thought of as the resistance to acceleration.
+   * @obsolete ex.Actor.mass will be removed in v0.24.0, use ex.Actor.body.collider.mass
    */
   public set mass(theMass: number) {
-    this.body.mass = theMass;
+    this.body.collider.mass = theMass;
   }
 
   /**
    * Gets the current moment of inertia, moi can be thought of as the resistance to rotation.
+   * @obsolete ex.Actor.moi will be removed in v0.24.0, use ex.Actor.body.collider.inertia
    */
+  @obsolete({ message: 'ex.Actor.moi will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.inertia' })
   public get moi() {
-    return this.body.moi;
+    return this.body.collider.inertia;
   }
 
   /**
    * Sets the current moment of inertia, moi can be thought of as the resistance to rotation.
+   * @obsolete ex.Actor.moi will be removed in v0.24.0, use ex.Actor.body.collider.inertia
    */
   public set moi(theMoi: number) {
-    this.body.moi = theMoi;
+    this.body.collider.inertia = theMoi;
   }
 
   /**
    * Gets the coefficient of friction on this actor, this can be thought of as how sticky or slippery an object is.
+   * @obsolete ex.Actor.friction will be removed in v0.24.0, use ex.Actor.body.collider.friction
    */
+  @obsolete({ message: 'ex.Actor.friction will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.friction' })
   public get friction() {
-    return this.body.friction;
+    return this.body.collider.friction;
   }
 
   /**
    * Sets the coefficient of friction of this actor, this can ve thought of as how stick or slippery an object is.
    */
   public set friction(theFriction: number) {
-    this.body.friction = theFriction;
+    this.body.collider.friction = theFriction;
   }
 
   /**
    * Gets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this
    * as bounciness.
+   * @obsolete ex.Actor.restitution will be removed in v0.24.0, use ex.Actor.body.collider.restitution
    */
+  @obsolete({ message: 'ex.Actor.restitution will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.bounciness' })
   public get restitution() {
-    return this.body.restitution;
+    return this.body.collider.bounciness;
   }
 
   /**
    * Sets the coefficient of restitution of this actor, represents the amount of energy preserved after collision. Think of this
    * as bounciness.
+   * @obsolete ex.Actor.restitution will be removed in v0.24.0, use ex.Actor.body.collider.restitution
    */
   public set restitution(theRestitution: number) {
-    this.body.restitution = theRestitution;
+    this.body.collider.bounciness = theRestitution;
   }
 
   /**
@@ -334,23 +381,61 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   private _width: number = 0;
 
   /**
-   * The scale vector of the actor
+   * Gets the scale vector of the actor
    */
-  public scale: Vector = Vector.One;
+  public get scale(): Vector {
+    return this.body.scale;
+  }
 
   /**
-   * The scale of the actor last frame
+   * Sets the scale vector of the actor
    */
-  public oldScale: Vector = Vector.One;
+  public set scale(scale: Vector) {
+    this.body.scale = scale;
+    this.width = this.width;
+  }
 
   /**
-   * The x scalar velocity of the actor in scale/second
+   * Gets the old scale of the actor last frame
    */
-  public sx: number = 0; //scale/sec
+  public get oldScale(): Vector {
+    return this.body.oldScale;
+  }
+
   /**
-   * The y scalar velocity of the actor in scale/second
+   * Sets the the old scale of the acotr last frame
    */
-  public sy: number = 0; //scale/sec
+  public set oldScale(scale: Vector) {
+    this.body.oldScale = scale;
+  }
+
+  /**
+   * Gets the x scalar velocity of the actor in scale/second
+   */
+  public get sx(): number {
+    return this.body.sx;
+  }
+
+  /**
+   * Sets the x scalar velocity of the actor in scale/second
+   */
+  public set sx(scalePerSecondX: number) {
+    this.body.sx = scalePerSecondX;
+  }
+
+  /**
+   * Gets the y scalar velocity of the actor in scale/second
+   */
+  public get sy(): number {
+    return this.body.sy;
+  }
+
+  /**
+   * Sets the y scale velocity of the actor in scale/second
+   */
+  public set sy(scalePerSecondY: number) {
+    this.body.sy = scalePerSecondY;
+  }
 
   /**
    * Indicates whether the actor is physically in the viewport
@@ -396,18 +481,27 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * The children of this actor
    */
   public children: Actor[] = [];
+
   /**
    * Gets or sets the current collision type of this actor. By
    * default it is ([[CollisionType.PreventCollision]]).
+   * @obsolete ex.Actor.collisionType will be removed in v0.24.0, use ex.Actor.body.collider.type
    */
-  public collisionType: CollisionType = CollisionType.PreventCollision;
-  public collisionGroups: string[] = [];
+  @obsolete({ message: 'ex.Actor.collisionType will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.type' })
+  public get collisionType(): CollisionType {
+    return this.body.collider.type;
+  }
 
   /**
-   * Flag to be set when any property change would result in a geometry recalculation
-   * @internal
+   * Gets or sets the current collision type of this actor. By
+   * default it is ([[CollisionType.PreventCollision]]).
+   *  @obsolete ex.Actor.collisionType will be removed in v0.24.0, use ex.Actor.body.collider.type
    */
-  private _geometryDirty: boolean = false;
+  public set collisionType(type: CollisionType) {
+    this.body.collider.type = type;
+  }
+
+  public collisionGroups: string[] = [];
 
   private _collisionHandlers: { [key: string]: { (actor: Actor): void }[] } = {};
   private _isInitialized: boolean = false;
@@ -471,18 +565,41 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
     super();
 
+    let shouldInitializeBody = true;
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
       xOrConfig = config.pos ? config.pos.x : config.x;
       y = config.pos ? config.pos.y : config.y;
       width = config.width;
       height = config.height;
+
+      if (config.body) {
+        shouldInitializeBody = false;
+        this.body = config.body;
+      }
     }
 
-    this.pos.x = <number>xOrConfig || 0;
-    this.pos.y = y || 0;
+    // initialize default options
+    this._initDefaults();
+
+    // Body and collider bounds are still determined by actor width/height
     this._width = width || 0;
     this._height = height || 0;
+
+    // Initialize default collider to be a box
+    if (shouldInitializeBody) {
+      this.body = new Body({
+        collider: new Collider({
+          type: CollisionType.Passive,
+          shape: Shape.Box(this._width, this._height, this.anchor)
+        })
+      });
+    }
+
+    // Position uses body to store values must be initialized after body
+    this.pos.x = <number>xOrConfig || 0;
+    this.pos.y = y || 0;
+
     if (color) {
       this.color = color;
       // set default opacity of an actor to the color
@@ -497,12 +614,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     // Build the action queue
     this.actionQueue = new ActionQueue(this);
     this.actions = new ActionContext(this);
-
-    // initialize default options
-    this._initDefaults();
-
-    // Initialize default collision area to be box
-    this.body.useBoxCollision();
   }
 
   /**
@@ -870,7 +981,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param actor The child actor to add
    */
   public add(actor: Actor) {
-    actor.collisionType = CollisionType.PreventCollision;
+    actor.body.collider.type = CollisionType.PreventCollision;
     if (Util.addItemToArray(actor, this.children)) {
       actor.parent = this;
     }
@@ -993,59 +1104,96 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Get the center point of an actor
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.center' })
   public getCenter(): Vector {
-    return new Vector(
-      this.pos.x + this.getWidth() / 2 - this.anchor.x * this.getWidth(),
-      this.pos.y + this.getHeight() / 2 - this.anchor.y * this.getHeight()
-    );
+    return new Vector(this.pos.x + this.width / 2 - this.anchor.x * this.width, this.pos.y + this.height / 2 - this.anchor.y * this.height);
   }
+
+  /**
+   * Get the center point of an actor
+   */
+  public get center(): Vector {
+    return new Vector(this.pos.x + this.width / 2 - this.anchor.x * this.width, this.pos.y + this.height / 2 - this.anchor.y * this.height);
+  }
+
+  public get width() {
+    return this._width * this.getGlobalScale().x;
+  }
+
+  public set width(width: number) {
+    this._width = width / this.scale.x;
+    this.body.collider.shape = Shape.Box(this._width, this._height, this.anchor);
+    this.body.markCollisionShapeDirty();
+  }
+
   /**
    * Gets the calculated width of an actor, factoring in scale
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.width' })
   public getWidth() {
-    return this._width * this.getGlobalScale().x;
+    return this.width;
   }
   /**
    * Sets the width of an actor, factoring in the current scale
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.width' })
   public setWidth(width: number) {
-    this._width = width / this.scale.x;
-    this._geometryDirty = true;
+    this.width = width;
   }
+
+  public get height() {
+    return this._height * this.getGlobalScale().y;
+  }
+
+  public set height(height: number) {
+    this._height = height / this.scale.y;
+    this.body.collider.shape = Shape.Box(this._width, this._height, this.anchor);
+    this.body.markCollisionShapeDirty();
+  }
+
   /**
    * Gets the calculated height of an actor, factoring in scale
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.height' })
   public getHeight() {
-    return this._height * this.getGlobalScale().y;
+    return this.height;
   }
   /**
    * Sets the height of an actor, factoring in the current scale
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.height' })
   public setHeight(height: number) {
-    this._height = height / this.scale.y;
-    this._geometryDirty = true;
+    this.height = height;
   }
+
   /**
    * Gets the left edge of the actor
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds.left' })
   public getLeft() {
     return this.getBounds().left;
   }
+
   /**
    * Gets the right edge of the actor
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds.right' })
   public getRight() {
     return this.getBounds().right;
   }
+
   /**
    * Gets the top edge of the actor
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds.top' })
   public getTop() {
     return this.getBounds().top;
   }
+
   /**
    * Gets the bottom edge of the actor
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds.bottom' })
   public getBottom() {
     return this.getBounds().bottom;
   }
@@ -1124,12 +1272,13 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Returns the actor's [[BoundingBox]] calculated for this instant in world space.
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds' })
   public getBounds(rotated: boolean = true): BoundingBox {
     // todo cache bounding box
     const anchor = this._getCalculatedAnchor();
     const pos = this.getWorldPos();
 
-    const bb = new BoundingBox(pos.x - anchor.x, pos.y - anchor.y, pos.x + this.getWidth() - anchor.x, pos.y + this.getHeight() - anchor.y);
+    const bb = new BoundingBox(pos.x - anchor.x, pos.y - anchor.y, pos.x + this.width - anchor.x, pos.y + this.height - anchor.y);
 
     return rotated ? bb.rotate(this.rotation, pos) : bb;
   }
@@ -1137,10 +1286,11 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Returns the actor's [[BoundingBox]] relative to the actor's position.
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.localBounds' })
   public getRelativeBounds(rotated: boolean = true): BoundingBox {
     // todo cache bounding box
     const anchor = this._getCalculatedAnchor();
-    const bb = new BoundingBox(-anchor.x, -anchor.y, this.getWidth() - anchor.x, this.getHeight() - anchor.y);
+    const bb = new BoundingBox(-anchor.x, -anchor.y, this.width - anchor.x, this.height - anchor.y);
 
     return rotated ? bb.rotate(this.rotation) : bb;
   }
@@ -1148,6 +1298,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Returns the actors unrotated geometry in world coordinates
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds.getPoints()' })
   public getGeometry(): Vector[] {
     return this.getBounds(false).getPoints();
   }
@@ -1155,15 +1306,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Return the actor's unrotated geometry relative to the actor's position
    */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.localBounds.getPoints()' })
   public getRelativeGeometry(): Vector[] {
     return this.getRelativeBounds(false).getPoints();
-  }
-
-  /**
-   * Indicates that the actor's collision geometry needs to be recalculated for accurate collisions
-   */
-  public get isGeometryDirty() {
-    return this._geometryDirty;
   }
 
   /**
@@ -1173,7 +1318,10 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param recurse checks whether the x/y are contained in any child actors (if they exist).
    */
   public contains(x: number, y: number, recurse: boolean = false): boolean {
-    const containment = this.getBounds().contains(new Vector(x, y));
+    // These shenanigans are to handle child actor containment,
+    // the only time getWorldPos and pos are different is a child actor
+    const childShift = this.getWorldPos().sub(this.pos);
+    const containment = this.body.collider.bounds.translate(childShift).contains(new Vector(x, y));
 
     if (recurse) {
       return (
@@ -1190,7 +1338,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Returns the side of the collision based on the intersection
    * @param intersect The displacement vector returned by a collision
+   * @obsolete Actor.getSideFromIntersect will be removed in v0.24.0, use [[BoundingBox.sideFromIntersection]]
    */
+  @obsolete({ message: 'Actor.getSideFromIntersect will be removed in v0.24.0', alternateMethod: 'BoundingBox.sideFromIntersection' })
   public getSideFromIntersect(intersect: Vector) {
     if (intersect) {
       if (Math.abs(intersect.x) > Math.abs(intersect.y)) {
@@ -1210,7 +1360,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Test whether the actor has collided with another actor, returns the side of the current actor that collided.
    * @param actor The other actor to test
+   * @obsolete Actor.collidesWithSide will be removed in v0.24.0, use [[Actor.bounds.intersectWithSide]]
    */
+  @obsolete({ message: 'Actor.collidesWithSide will be removed in v0.24.0', alternateMethod: 'Actor.bounds.intersectWithSide' })
   public collidesWithSide(actor: Actor): Side {
     const separationVector = this.collides(actor);
     if (!separationVector) {
@@ -1234,13 +1386,17 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Test whether the actor has collided with another actor, returns the intersection vector on collision. Returns
    * `null` when there is no collision;
    * @param actor The other actor to test
+   * @obsolete Actor.collides will be removed in v0.24.0, use [[Actor.bounds.interesect]] to get boudings intersection,
+   * or [[Actor.body.collider.collide]] to collide with another collider
    */
+  @obsolete({ message: 'Actor.collides will be removed  in v0.24.0', alternateMethod: 'Actor.bounds.intersect or Actor.' })
   public collides(actor: Actor): Vector {
-    const bounds = this.getBounds();
-    const otherBounds = actor.getBounds();
-    const intersect = bounds.collides(otherBounds);
+    const bounds = this.body.collider.bounds;
+    const otherBounds = actor.body.collider.bounds;
+    const intersect = bounds.intersect(otherBounds);
     return intersect;
   }
+
   /**
    * Register a handler to fire when this actor collides with another in a specified group
    * @param group The group name to listen for
@@ -1274,7 +1430,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   // #endregion
 
   private _getCalculatedAnchor(): Vector {
-    return new Vector(this.getWidth() * this.anchor.x, this.getHeight() * this.anchor.y);
+    return new Vector(this.width * this.anchor.x, this.height * this.anchor.y);
   }
 
   protected _reapplyEffects(drawing: Drawable) {
@@ -1283,37 +1439,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   // #region Update
-  /**
-   * Perform euler integration at the specified time step
-   */
-  public integrate(delta: number) {
-    // Update placements based on linear algebra
-    const seconds = delta / 1000;
-
-    const totalAcc = this.acc.clone();
-    // Only active vanilla actors are affected by global acceleration
-    if (this.collisionType === CollisionType.Active) {
-      totalAcc.addEqual(Physics.acc);
-    }
-
-    this.vel.addEqual(totalAcc.scale(seconds));
-    this.pos.addEqual(this.vel.scale(seconds)).addEqual(totalAcc.scale(0.5 * seconds * seconds));
-
-    this.rx += this.torque * (1.0 / this.moi) * seconds;
-    this.rotation += this.rx * seconds;
-
-    this.scale.x += (this.sx * delta) / 1000;
-    this.scale.y += (this.sy * delta) / 1000;
-
-    if (!this.scale.equals(this.oldScale)) {
-      // change in scale effects the geometry
-      this._geometryDirty = true;
-    }
-
-    // Update physics body
-    this.body.update();
-    this._geometryDirty = false;
-  }
 
   /**
    * Called by the Engine, updates the state of the actor
@@ -1339,14 +1464,11 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       this._effectsDirty = true;
     }
 
-    // Capture old values before integration step updates them
-    this.oldVel.setTo(this.vel.x, this.vel.y);
-    this.oldPos.setTo(this.pos.x, this.pos.y);
-    this.oldAcc.setTo(this.acc.x, this.acc.y);
-    this.oldScale.setTo(this.scale.x, this.scale.y);
+    // capture old transform
+    this.body.captureOldTransform();
 
     // Run Euler integration
-    this.integrate(delta);
+    this.body.integrate(delta);
 
     // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
     for (const trait of this.traits) {
@@ -1434,9 +1556,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
       this.currentDrawing.draw(ctx, offsetX, offsetY);
     } else {
-      if (this.color) {
-        ctx.fillStyle = this.color.toString();
-        ctx.fillRect(0, 0, this._width, this._height);
+      if (this.color && this.body && this.body.collider && this.body.collider.shape) {
+        this.body.collider.shape.draw(ctx, this.color, new Vector(this.width * this.anchor.x, this.height * this.anchor.y));
       }
     }
     ctx.restore();
@@ -1500,10 +1621,10 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public debugDraw(ctx: CanvasRenderingContext2D) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
 
-    this.body.debugDraw(ctx);
+    this.body.collider.debugDraw(ctx);
 
     // Draw actor bounding box
-    const bb = this.getBounds();
+    const bb = this.body.collider.bounds;
     bb.debugDraw(ctx);
 
     // Draw actor Id
@@ -1526,7 +1647,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     // Unit Circle debug draw
     ctx.strokeStyle = Color.Yellow.toString();
     ctx.beginPath();
-    const radius = Math.min(this.getWidth(), this.getHeight());
+    const radius = Math.min(this.width, this.height);
     ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
     ctx.closePath();
     ctx.stroke();
@@ -1596,35 +1717,4 @@ export class Actor extends Configurable(ActorImpl) {
   constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
     super(xOrConfig, y, width, height, color);
   }
-}
-
-/**
- * An enum that describes the types of collisions actors can participate in
- */
-export enum CollisionType {
-  /**
-   * Actors with the `PreventCollision` setting do not participate in any
-   * collisions and do not raise collision events.
-   */
-  PreventCollision,
-  /**
-   * Actors with the `Passive` setting only raise collision events, but are not
-   * influenced or moved by other actors and do not influence or move other actors.
-   */
-  Passive,
-  /**
-   * Actors with the `Active` setting raise collision events and participate
-   * in collisions with other actors and will be push or moved by actors sharing
-   * the `Active` or `Fixed` setting.
-   */
-  Active,
-  /**
-   * Actors with the `Fixed` setting raise collision events and participate in
-   * collisions with other actors. Actors with the `Fixed` setting will not be
-   * pushed or moved by other actors sharing the `Fixed`. Think of Fixed
-   * actors as "immovable/onstoppable" objects. If two `Fixed` actors meet they will
-   * not be pushed or moved by each other, they will not interact except to throw
-   * collision events.
-   */
-  Fixed
 }

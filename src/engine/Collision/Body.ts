@@ -1,26 +1,80 @@
-import { Physics, CollisionResolutionStrategy } from './../Physics';
-import { EdgeArea } from './EdgeArea';
-import { CircleArea } from './CircleArea';
-import { CollisionArea } from './CollisionArea';
-import { PolygonArea } from './PolygonArea';
-import { BoundingBox } from './BoundingBox';
-import { Pair } from './Pair';
-
 import { Vector } from '../Algebra';
 import { Actor } from '../Actor';
-import { Color } from '../Drawing/Color';
-import * as DrawUtil from '../Util/DrawUtil';
+import { Collider } from './Collider';
+import { CollisionType } from './CollisionType';
+import { Physics } from '../Physics';
+import { obsolete } from '../Util/Decorators';
+import { PreCollisionEvent, PostCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
+import { Clonable } from '../Interfaces/Clonable';
+import { Shape } from './Shape';
 
-export class Body {
+export interface BodyOptions {
+  /**
+   * Optionally the actory associated with this body
+   */
+  actor?: Actor;
+  /**
+   * An optional collider to use in this body, if none is specified a default Box collider will be created.
+   */
+  collider?: Collider;
+}
+
+/**
+ * Body describes all the physical properties pos, vel, acc, rotation, angular velocity
+ */
+export class Body implements Clonable<Body> {
+  private _collider: Collider;
+  public actor: Actor;
   /**
    * Constructs a new physics body associated with an actor
    */
-  constructor(public actor: Actor) {}
+  constructor({ actor, collider }: BodyOptions) {
+    if (!actor && !collider) {
+      throw new Error('An actor or collider are required to create a body');
+    }
+
+    this.actor = actor;
+    if (!collider && actor) {
+      this.collider = this.useBoxCollider(actor.width, actor.height, actor.anchor);
+    } else {
+      this.collider = collider;
+    }
+  }
+
+  public get id() {
+    return this.actor ? this.actor.id : -1;
+  }
 
   /**
-   * [[ICollisionArea|Collision area]] of this physics body, defines the shape for rigid body collision
+   * Returns a clone of this body, not associated with any actor
    */
-  public collisionArea: CollisionArea = null;
+  public clone() {
+    return new Body({
+      actor: null,
+      collider: this.collider.clone()
+    });
+  }
+
+  public get active() {
+    return this.actor ? !this.actor.isKilled() : false;
+  }
+
+  public get center() {
+    return this.pos;
+  }
+
+  // TODO allow multiple colliders for a single body
+  public set collider(collider: Collider) {
+    if (collider) {
+      this._collider = collider;
+      this._collider.body = this;
+      this._wireColliderEventsToActor();
+    }
+  }
+
+  public get collider(): Collider {
+    return this._collider;
+  }
 
   /**
    * The (x, y) position of the actor this will be in the middle of the actor if the
@@ -51,19 +105,14 @@ export class Body {
   public acc: Vector = new Vector(0, 0);
 
   /**
+   * Gets/sets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
+   */
+  public oldAcc: Vector = Vector.Zero;
+
+  /**
    * The current torque applied to the actor
    */
   public torque: number = 0;
-
-  /**
-   * The current mass of the actor, mass can be thought of as the resistance to acceleration.
-   */
-  public mass: number = 1.0;
-
-  /**
-   * The current moment of inertia, moi can be thought of as the resistance to rotation.
-   */
-  public moi: number = 1000;
 
   /**
    * The current "motion" of the actor, used to calculated sleep in the physics simulation
@@ -71,14 +120,9 @@ export class Body {
   public motion: number = 10;
 
   /**
-   * The coefficient of friction on this actor
+   * Gets/sets the rotation of the body from the last frame.
    */
-  public friction: number = 0.99;
-
-  /**
-   * The coefficient of restitution of this actor, represents the amount of energy preserved after collision
-   */
-  public restitution: number = 0.2;
+  public oldRotation: number = 0; // radians
 
   /**
    * The rotation of the actor in radians
@@ -86,9 +130,30 @@ export class Body {
   public rotation: number = 0; // radians
 
   /**
+   * The scale vector of the actor
+   */
+  public scale: Vector = Vector.One;
+
+  /**
+   * The scale of the actor last frame
+   */
+  public oldScale: Vector = Vector.One;
+
+  /**
+   * The x scalar velocity of the actor in scale/second
+   */
+  public sx: number = 0; //scale/sec
+  /**
+   * The y scalar velocity of the actor in scale/second
+   */
+  public sy: number = 0; //scale/sec
+
+  /**
    * The rotational velocity of the actor in radians/second
    */
   public rx: number = 0; //radians/sec
+
+  private _geometryDirty = false;
 
   private _totalMtv: Vector = Vector.Zero;
 
@@ -108,139 +173,159 @@ export class Body {
   }
 
   /**
-   * Returns the body's [[BoundingBox]] calculated for this instant in world space.
+   * Flags the shape dirty and must be recalculated in world space
    */
-  public getBounds(): BoundingBox {
-    if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
-      return this.actor.getBounds();
-    } else {
-      return this.collisionArea.getBounds();
-    }
+  public markCollisionShapeDirty() {
+    this._geometryDirty = true;
+  }
+
+  public get isColliderShapeDirty(): boolean {
+    return this._geometryDirty;
   }
 
   /**
-   * Returns the actor's [[BoundingBox]] relative to the actors position.
+   * Sets the old versions of pos, vel, acc, and scale.
    */
-  public getRelativeBounds(): BoundingBox {
-    if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Box) {
-      return this.actor.getRelativeBounds();
-    } else {
-      return this.actor.getRelativeBounds();
-    }
+  public captureOldTransform() {
+    // Capture old values before integration step updates them
+    this.oldVel.setTo(this.vel.x, this.vel.y);
+    this.oldPos.setTo(this.pos.x, this.pos.y);
+    this.oldAcc.setTo(this.acc.x, this.acc.y);
+    this.oldScale.setTo(this.scale.x, this.scale.y);
+    this.oldRotation = this.rotation;
   }
 
   /**
-   * Updates the collision area geometry and internal caches
+   * Perform euler integration at the specified time step
    */
-  public update() {
-    if (this.collisionArea) {
-      // Update the geometry if needed
-      if (this.actor && this.actor.isGeometryDirty && this.collisionArea instanceof PolygonArea) {
-        this.collisionArea.points = this.actor.getRelativeGeometry();
-      }
+  public integrate(delta: number) {
+    // Update placements based on linear algebra
+    const seconds = delta / 1000;
 
-      this.collisionArea.recalc();
+    const totalAcc = this.acc.clone();
+    // Only active vanilla actors are affected by global acceleration
+    if (this.collider.type === CollisionType.Active) {
+      totalAcc.addEqual(Physics.acc);
     }
+
+    this.vel.addEqual(totalAcc.scale(seconds));
+    this.pos.addEqual(this.vel.scale(seconds)).addEqual(totalAcc.scale(0.5 * seconds * seconds));
+
+    this.rx += this.torque * (1.0 / this.collider.inertia) * seconds;
+    this.rotation += this.rx * seconds;
+
+    this.scale.x += (this.sx * delta) / 1000;
+    this.scale.y += (this.sy * delta) / 1000;
+
+    if (!this.scale.equals(this.oldScale)) {
+      // change in scale effects the geometry
+      this._geometryDirty = true;
+    }
+
+    // Update colliders
+    this.collider.update();
+    this._geometryDirty = false;
   }
 
   /**
-   * Sets up a box collision area based on the current bounds of the associated actor of this physics body.
+   * Sets up a box geometry based on the current bounds of the associated actor of this physics body.
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public useBoxCollision(center: Vector = Vector.Zero) {
-    this.collisionArea = new PolygonArea({
-      body: this,
-      points: this.actor.getRelativeGeometry(),
-      pos: center // position relative to actor
-    });
-
-    // in case of a nan moi, coalesce to a safe default
-    this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
+  public useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
+    this.collider.shape = Shape.Box(width, height, anchor, center);
+    return this.collider;
   }
 
   /**
-   * Sets up a polygon collision area based on a list of of points relative to the anchor of the associated actor of this physics body.
+   * @obsolete Body.useBoxCollision will be removed in v0.24.0 use [[Body.useBoxCollider]]
+   */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useBoxCollider' })
+  public useBoxCollision(center: Vector = Vector.Zero) {
+    this.useBoxCollider(this.actor.width, this.actor.height, this.actor.anchor, center);
+  }
+
+  /**
+   * Sets up a [[ConvexPolygon|convex polygon]] collision geometry based on a list of of points relative
+   *  to the anchor of the associated actor
+   * of this physics body.
    *
    * Only [convex polygon](https://en.wikipedia.org/wiki/Convex_polygon) definitions are supported.
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public usePolygonCollision(points: Vector[], center: Vector = Vector.Zero) {
-    this.collisionArea = new PolygonArea({
-      body: this,
-      points: points,
-      pos: center // position relative to actor
-    });
-
-    // in case of a nan moi, collesce to a safe default
-    this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
+  public usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): Collider {
+    this.collider.shape = Shape.Polygon(points, false, center);
+    return this.collider;
   }
 
   /**
-   * Sets up a [[CircleArea|circle collision area]] with a specified radius in pixels.
+   * @obsolete Body.usePolygonCollision will be removed in v0.24.0 use [[Body.usePolygonCollider]]
+   */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.usePolygonCollider' })
+  public usePolygonCollision(points: Vector[], center: Vector = Vector.Zero) {
+    this.usePolygonCollider(points, center);
+  }
+
+  /**
+   * Sets up a [[Circle|circle collision geometry]] with a specified radius in pixels.
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public useCircleCollision(radius?: number, center: Vector = Vector.Zero) {
-    if (!radius) {
-      radius = this.actor.getWidth() / 2;
-    }
-    this.collisionArea = new CircleArea({
-      body: this,
-      radius: radius,
-      pos: center
-    });
-    this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
+  public useCircleCollider(radius: number, center: Vector = Vector.Zero): Collider {
+    this.collider.shape = Shape.Circle(radius, center);
+    return this.collider;
   }
 
   /**
-   * Sets up an [[EdgeArea|edge collision]] with a start point and an end point relative to the anchor of the associated actor
+   * @obsolete Body.useCircleCollision will be removed in v0.24.0, use [[Body.useCircleCollider]]
+   */
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useCircleCollider' })
+  public useCircleCollision(radius?: number, center: Vector = Vector.Zero) {
+    this.useCircleCollider(radius, center);
+  }
+
+  /**
+   * Sets up an [[Edge|edge collision geometry]] with a start point and an end point relative to the anchor of the associated actor
    * of this physics body.
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public useEdgeCollision(begin: Vector, end: Vector) {
-    this.collisionArea = new EdgeArea({
-      begin: begin,
-      end: end,
-      body: this
-    });
-
-    this.moi = this.collisionArea.getMomentOfInertia() || this.moi;
-  }
-
-  /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D) {
-    // Draw motion vectors
-    if (Physics.showMotionVectors) {
-      DrawUtil.vector(ctx, Color.Yellow, this.pos, this.acc.add(Physics.acc));
-      DrawUtil.vector(ctx, Color.Red, this.pos, this.vel);
-      DrawUtil.point(ctx, Color.Red, this.pos);
-    }
-
-    if (Physics.showBounds) {
-      this.getBounds().debugDraw(ctx, Color.Yellow);
-    }
-
-    if (Physics.showArea) {
-      this.collisionArea.debugDraw(ctx, Color.Green);
-    }
+  public useEdgeCollider(begin: Vector, end: Vector): Collider {
+    this.collider.shape = Shape.Edge(begin, end);
+    return this.collider;
   }
 
   /**
-   * Returns a boolean indicating whether this body collided with
-   * or was in stationary contact with
-   * the body of the other [[Actor]]
+   * @obsolete Body.useEdgeCollision will be removed in v0.24.0, use [[Body.useEdgeCollider]]
    */
-  public touching(other: Actor): boolean {
-    const pair = new Pair(this, other.body);
-    pair.collide();
+  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useEdgeCollider' })
+  public useEdgeCollision(begin: Vector, end: Vector) {
+    this.useEdgeCollider(begin, end);
+  }
 
-    if (pair.collision) {
-      return true;
-    }
-
-    return false;
+  // TODO remove this, eventually events will stay local to the thing they are around
+  private _wireColliderEventsToActor() {
+    this.collider.clear();
+    this.collider.on('precollision', (evt: PreCollisionEvent<Collider>) => {
+      if (this.actor) {
+        this.actor.emit('precollision', new PreCollisionEvent(evt.target.body.actor, evt.other.body.actor, evt.side, evt.intersection));
+      }
+    });
+    this.collider.on('postcollision', (evt: PostCollisionEvent<Collider>) => {
+      if (this.actor) {
+        this.actor.emit('postcollision', new PostCollisionEvent(evt.target.body.actor, evt.other.body.actor, evt.side, evt.intersection));
+      }
+    });
+    this.collider.on('collisionstart', (evt: CollisionStartEvent<Collider>) => {
+      if (this.actor) {
+        this.actor.emit('collisionstart', new CollisionStartEvent(evt.target.body.actor, evt.other.body.actor, evt.pair));
+      }
+    });
+    this.collider.on('collisionend', (evt: CollisionEndEvent<Collider>) => {
+      if (this.actor) {
+        this.actor.emit('collisionend', new CollisionEndEvent(evt.target.body.actor, evt.other.body.actor));
+      }
+    });
   }
 }

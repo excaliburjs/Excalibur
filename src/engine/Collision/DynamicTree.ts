@@ -201,12 +201,12 @@ export class DynamicTree {
   public trackBody(body: Body) {
     const node = new TreeNode();
     node.body = body;
-    node.bounds = body.getBounds();
+    node.bounds = body.collider.bounds;
     node.bounds.left -= 2;
     node.bounds.top -= 2;
     node.bounds.right += 2;
     node.bounds.bottom += 2;
-    this.nodes[body.actor.id] = node;
+    this.nodes[body.id] = node;
     this._insert(node);
   }
 
@@ -214,17 +214,15 @@ export class DynamicTree {
    * Updates the dynamic tree given the current bounds of each body being tracked
    */
   public updateBody(body: Body) {
-    const node = this.nodes[body.actor.id];
+    const node = this.nodes[body.id];
     if (!node) {
       return false;
     }
-    const b = body.getBounds();
+    const b = body.collider.bounds;
 
     // if the body is outside the world no longer update it
     if (!this.worldBounds.contains(b)) {
-      Logger.getInstance().warn(
-        'Actor with id ' + body.actor.id + ' is outside the world bounds and will no longer be tracked for physics'
-      );
+      Logger.getInstance().warn('Collider with id ' + body.id + ' is outside the world bounds and will no longer be tracked for physics');
       this.untrackBody(body);
       return false;
     }
@@ -263,13 +261,13 @@ export class DynamicTree {
    * Untracks a body from the dynamic tree
    */
   public untrackBody(body: Body) {
-    const node = this.nodes[body.actor.id];
+    const node = this.nodes[body.collider.id];
     if (!node) {
       return;
     }
     this._remove(node);
-    this.nodes[body.actor.id] = null;
-    delete this.nodes[body.actor.id];
+    this.nodes[body.collider.id] = null;
+    delete this.nodes[body.collider.id];
   }
 
   /**
@@ -407,9 +405,9 @@ export class DynamicTree {
    * the tree until all possible colliders have been returned.
    */
   public query(body: Body, callback: (other: Body) => boolean): void {
-    const bounds = body.getBounds();
+    const bounds = body.collider.bounds;
     const helper = (currentNode: TreeNode): boolean => {
-      if (currentNode && currentNode.bounds.collides(bounds)) {
+      if (currentNode && currentNode.bounds.intersect(bounds)) {
         if (currentNode.isLeaf() && currentNode.body !== body) {
           if (callback.call(body, currentNode.body)) {
             return true;

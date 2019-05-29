@@ -2,57 +2,104 @@ import { Body } from './Body';
 import { BoundingBox } from './BoundingBox';
 import { CollisionContact } from './CollisionContact';
 import { CollisionJumpTable } from './CollisionJumpTable';
-import { CollisionArea } from './CollisionArea';
-import { CircleArea } from './CircleArea';
-import { PolygonArea } from './PolygonArea';
+import { CollisionShape } from './CollisionShape';
+import { Circle } from './Circle';
+import { ConvexPolygon } from './ConvexPolygon';
 
 import { Vector, Ray, Projection } from '../Algebra';
 import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
+import { Collider } from './Collider';
 
-export interface EdgeAreaOptions {
-  begin?: Vector;
-  end?: Vector;
+export interface EdgeOptions {
+  /**
+   * The beginning of the edge defined in local coordinates to the collider
+   */
+  begin: Vector;
+  /**
+   * The ending of the edge defined in local coordinates to the collider
+   */
+  end: Vector;
+  /**
+   * Optionally the collider associated with this edge
+   */
+  collider?: Collider;
+
+  // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
   body?: Body;
 }
 
-export class EdgeArea implements CollisionArea {
+/**
+ * Edge is a single line collision shape to create collisions with a single line.
+ *
+ * Example:
+ * [[include:EdgeShape.md]]
+ */
+export class Edge implements CollisionShape {
   body: Body;
+  collider?: Collider;
   pos: Vector;
   begin: Vector;
   end: Vector;
 
-  constructor(options: EdgeAreaOptions) {
+  constructor(options: EdgeOptions) {
     this.begin = options.begin || Vector.Zero;
     this.end = options.end || Vector.Zero;
-    this.body = options.body || null;
+    this.collider = options.collider || null;
+    this.pos = this.center;
 
-    this.pos = this.getCenter();
+    // @obsolete Remove next release in v0.24.0, code exists for backwards compat
+    if (options.body) {
+      this.collider = options.body.collider;
+      this.body = this.collider.body;
+    }
+    // ==================================
+  }
+
+  /**
+   * Returns a clone of this Edge, not associated with any collider
+   */
+  public clone(): Edge {
+    return new Edge({
+      begin: this.begin.clone(),
+      end: this.end.clone(),
+      collider: null,
+      body: null
+    });
+  }
+
+  public get worldPos(): Vector {
+    if (this.collider && this.collider.body) {
+      return this.collider.body.pos.add(this.pos);
+    }
+    return this.pos;
   }
 
   /**
    * Get the center of the collision area in world coordinates
    */
-  public getCenter(): Vector {
+  public get center(): Vector {
     const pos = this.begin.average(this.end).add(this._getBodyPos());
     return pos;
   }
 
   private _getBodyPos(): Vector {
     let bodyPos = Vector.Zero;
-    if (this.body.pos) {
-      bodyPos = this.body.pos;
+    if (this.collider && this.collider.body) {
+      bodyPos = this.collider.body.pos;
     }
     return bodyPos;
   }
 
   private _getTransformedBegin(): Vector {
-    const angle = this.body ? this.body.rotation : 0;
+    const body = this.collider ? this.collider.body : null;
+    const angle = body ? body.rotation : 0;
     return this.begin.rotate(angle).add(this._getBodyPos());
   }
 
   private _getTransformedEnd(): Vector {
-    const angle = this.body ? this.body.rotation : 0;
+    const body = this.collider ? this.collider.body : null;
+    const angle = body ? body.rotation : 0;
     return this.end.rotate(angle).add(this._getBodyPos());
   }
 
@@ -115,15 +162,15 @@ export class EdgeArea implements CollisionArea {
   /**
    * @inheritdoc
    */
-  public collide(area: CollisionArea): CollisionContact {
-    if (area instanceof CircleArea) {
-      return CollisionJumpTable.CollideCircleEdge(area, this);
-    } else if (area instanceof PolygonArea) {
-      return CollisionJumpTable.CollidePolygonEdge(area, this);
-    } else if (area instanceof EdgeArea) {
+  public collide(shape: CollisionShape): CollisionContact {
+    if (shape instanceof Circle) {
+      return CollisionJumpTable.CollideCircleEdge(shape, this);
+    } else if (shape instanceof ConvexPolygon) {
+      return CollisionJumpTable.CollidePolygonEdge(shape, this);
+    } else if (shape instanceof Edge) {
       return CollisionJumpTable.CollideEdgeEdge();
     } else {
-      throw new Error(`Edge could not collide with unknown ICollisionArea ${typeof area}`);
+      throw new Error(`Edge could not collide with unknown CollisionShape ${typeof shape}`);
     }
   }
 
@@ -140,24 +187,27 @@ export class EdgeArea implements CollisionArea {
     }
   }
 
+  private _boundsFromBeginEnd(begin: Vector, end: Vector) {
+    return new BoundingBox(Math.min(begin.x, end.x), Math.min(begin.y, end.y), Math.max(begin.x, end.x), Math.max(begin.y, end.y));
+  }
+
   /**
-   * Get the axis aligned bounding box for the circle area
+   * Get the axis aligned bounding box for the edge shape in world space
    */
-  public getBounds(): BoundingBox {
+  public get bounds(): BoundingBox {
     const transformedBegin = this._getTransformedBegin();
     const transformedEnd = this._getTransformedEnd();
-    return new BoundingBox(
-      Math.min(transformedBegin.x, transformedEnd.x),
-      Math.min(transformedBegin.y, transformedEnd.y),
-      Math.max(transformedBegin.x, transformedEnd.x),
-      Math.max(transformedBegin.y, transformedEnd.y)
-    );
+    return this._boundsFromBeginEnd(transformedBegin, transformedEnd);
+  }
+
+  public get localBounds(): BoundingBox {
+    return this._boundsFromBeginEnd(this.begin, this.end);
   }
 
   /**
    * Get the axis associated with the edge
    */
-  public getAxes(): Vector[] {
+  public get axes(): Vector[] {
     const e = this._getTransformedEnd().sub(this._getTransformedBegin());
     const edgeNormal = e.normal();
 
@@ -173,8 +223,8 @@ export class EdgeArea implements CollisionArea {
    * Get the moment of inertia for an edge
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public getMomentOfInertia(): number {
-    const mass = this.body ? this.body.mass : Physics.defaultMass;
+  public get inertia(): number {
+    const mass = this.collider ? this.collider.mass : Physics.defaultMass;
     const length = this.end.sub(this.begin).distance() / 2;
     return mass * length * length;
   }
@@ -201,6 +251,17 @@ export class EdgeArea implements CollisionArea {
     return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
   }
 
+  public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
+    const begin = this.begin.add(pos);
+    const end = this.end.add(pos);
+    ctx.strokeStyle = color.toString();
+    ctx.beginPath();
+    ctx.moveTo(begin.x, begin.y);
+    ctx.lineTo(end.x, end.y);
+    ctx.closePath();
+    ctx.stroke();
+  }
+
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red) {
     ctx.strokeStyle = color.toString();
@@ -211,3 +272,13 @@ export class EdgeArea implements CollisionArea {
     ctx.stroke();
   }
 }
+
+/**
+ * @obsolete Use [[EdgeOptions]], EdgeAreaOptions will be removed in v0.24.0
+ */
+export interface EdgeAreaOptions extends EdgeOptions {}
+
+/**
+ * @obsolete Use [[Edge]], EdgeArea will be removed in v0.24.0
+ */
+export class EdgeArea extends Edge {}

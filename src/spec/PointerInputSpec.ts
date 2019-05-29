@@ -116,13 +116,13 @@ describe('A pointer', () => {
   });
 
   it('should not throw when checking if actors are under pointer if no pointer events have happened yet', () => {
-    const actor = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
+    const actor = new ex.Actor({ pos: new ex.Vector(50, 50), width: 100, height: 100 });
     expect(() => engine.input.pointers.primary.isActorUnderPointer(actor)).not.toThrowError();
     expect(engine.input.pointers.primary.isActorUnderPointer(actor)).toBe(false);
   });
 
   it('should return true when an actor is under the pointer', () => {
-    const actor = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
+    const actor = new ex.Actor({ pos: new ex.Vector(50, 50), width: 100, height: 100 });
     executeMouseEvent('pointerdown', <any>document, null, 50, 50);
 
     expect(engine.input.pointers.primary.isActorUnderPointer(actor)).toBe(true);

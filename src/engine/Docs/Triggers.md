@@ -27,7 +27,7 @@ var trigger = new ex.Trigger({
 var actor = new ex.Actor(100, 0, 40, 40, ex.Color.Red);
 
 // Enable collision on actor (else trigger won't fire)
-actor.collisionType = ex.CollisionType.Active;
+actor.body.collider.type = ex.CollisionType.Active;
 
 // tell the actor to move across the trigger with a velocity of 100
 actor.actions.moveTo(100, 200, 100);

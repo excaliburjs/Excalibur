@@ -1,11 +1,24 @@
 import * as ex from '../../build/dist/excalibur';
+import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import { TestUtils } from './util/TestUtils';
 
-describe('Collision areas', () => {
-  describe('A Circle shape', () => {
+describe('Collision Shape', () => {
+  beforeAll(() => {
+    jasmine.addMatchers(ExcaliburMatchers);
+  });
+
+  describe('a Circle', () => {
+    let engine: ex.Engine;
+    let scene: ex.Scene;
+
     let circle: ex.CircleArea;
     let actor: ex.Actor;
 
     beforeEach(() => {
+      engine = TestUtils.engine();
+      scene = new ex.Scene(engine);
+      engine.currentScene = scene;
+
       actor = new ex.Actor(0, 0, 20, 20);
       circle = new ex.CircleArea({
         pos: ex.Vector.Zero.clone(),
@@ -14,13 +27,36 @@ describe('Collision areas', () => {
       });
     });
 
+    afterEach(() => {
+      engine.stop();
+      engine = null;
+    });
+
     it('exists', () => {
       expect(ex.CircleArea).toBeDefined();
     });
 
     it('can be constructed with empty args', () => {
-      const circle = new ex.CircleArea({});
+      const circle = new ex.CircleArea({
+        radius: 1
+      });
       expect(circle).not.toBeNull();
+    });
+
+    it('can be cloned', () => {
+      const actor1 = new ex.Actor(0, 0, 20, 20);
+      const circle = new ex.CircleArea({
+        collider: actor1.body.collider,
+        radius: 10,
+        pos: new ex.Vector(20, 25)
+      });
+
+      const sut = circle.clone();
+
+      expect(sut).not.toBe(circle);
+      expect(sut.pos).toBeVector(circle.pos);
+      expect(sut.pos).not.toBe(circle.pos);
+      expect(sut.collider).toBe(null);
     });
 
     it('can be constructed with points', () => {
@@ -35,7 +71,7 @@ describe('Collision areas', () => {
 
     it('has a center', () => {
       actor.pos.setTo(170, 300);
-      const center = circle.getCenter();
+      const center = circle.center;
       expect(center.x).toBe(170);
       expect(center.y).toBe(300);
     });
@@ -43,7 +79,7 @@ describe('Collision areas', () => {
     it('has bounds', () => {
       actor.pos.setTo(400, 400);
 
-      const bounds = circle.getBounds();
+      const bounds = circle.bounds;
       expect(bounds.left).toBe(390);
       expect(bounds.right).toBe(410);
       expect(bounds.top).toBe(390);
@@ -82,14 +118,29 @@ describe('Collision areas', () => {
 
     it('doesnt have axes', () => {
       // technically circles have infinite axes
-      expect(circle.getAxes()).toBe(null);
+      expect(circle.axes).toBe(null);
     });
 
     it('has a moment of inertia', () => {
       // following this formula
       //https://en.wikipedia.org/wiki/List_of_moments_of_inertia
       // I = m*r^2/2
-      expect(circle.getMomentOfInertia()).toBe((circle.body.mass * circle.radius * circle.radius) / 2);
+      expect(circle.inertia).toBe((circle.body.collider.mass * circle.radius * circle.radius) / 2);
+    });
+
+    it('should collide without a collider or body', () => {
+      const circle1 = new ex.CircleArea({
+        pos: new ex.Vector(0, 0),
+        radius: 5
+      });
+
+      const circle2 = new ex.CircleArea({
+        pos: new ex.Vector(9, 0),
+        radius: 5
+      });
+
+      const cc = circle1.collide(circle2);
+      expect(cc.mtv).toBeVector(new ex.Vector(1, 0));
     });
 
     it('should collide with other circles when touching', () => {
@@ -99,7 +150,7 @@ describe('Collision areas', () => {
         body: actor2.body
       });
 
-      const directionOfBodyB = circle2.getCenter().sub(circle.getCenter());
+      const directionOfBodyB = circle2.center.sub(circle.center);
       const contact = circle.collide(circle2);
 
       // there should be a collision contact formed
@@ -130,13 +181,13 @@ describe('Collision areas', () => {
 
     it('should collide with other polygons when touching', () => {
       const actor2 = new ex.Actor(14.99, 0, 10, 10); // meh close enough
-      const poly = new ex.PolygonArea({
+      const poly = new ex.ConvexPolygon({
         pos: ex.Vector.Zero.clone(),
-        points: actor2.getRelativeBounds().getPoints(),
+        points: actor2.body.collider.localBounds.getPoints(),
         body: actor2.body
       });
 
-      const directionOfBodyB = poly.getCenter().sub(circle.getCenter());
+      const directionOfBodyB = poly.center.sub(circle.center);
       const contact = circle.collide(poly);
 
       // there should be a collision contact formed
@@ -154,9 +205,9 @@ describe('Collision areas', () => {
 
     it('should not collide with other polygons when not touching', () => {
       const actor2 = new ex.Actor(16, 0, 10, 10);
-      const poly = new ex.PolygonArea({
+      const poly = new ex.ConvexPolygon({
         pos: ex.Vector.Zero.clone(),
-        points: actor2.getRelativeBounds().getPoints(),
+        points: actor2.body.collider.localBounds.getPoints(),
         body: actor2.body
       });
 
@@ -174,10 +225,10 @@ describe('Collision areas', () => {
       const edge = new ex.EdgeArea({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
-        body: actor2.body
+        collider: actor2.body.collider
       });
 
-      const directionOfBodyB = edge.getCenter().sub(circle.getCenter());
+      const directionOfBodyB = edge.center.sub(circle.center);
       const contact = circle.collide(edge);
 
       // there should be a collision contact formed
@@ -201,10 +252,10 @@ describe('Collision areas', () => {
       const edge = new ex.EdgeArea({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
-        body: actor2.body
+        collider: actor2.body.collider
       });
 
-      const directionOfBodyB = edge.getCenter().sub(circle.getCenter());
+      const directionOfBodyB = edge.center.sub(circle.center);
       const contact = circle.collide(edge);
 
       // there should be a collision contact formed
@@ -228,10 +279,10 @@ describe('Collision areas', () => {
       const edge = new ex.EdgeArea({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
-        body: actor2.body
+        collider: actor2.body.collider
       });
 
-      const directionOfBodyB = edge.getCenter().sub(circle.getCenter());
+      const directionOfBodyB = edge.center.sub(circle.center);
       const contact = circle.collide(edge);
 
       // there should be a collision contact formed
@@ -246,20 +297,86 @@ describe('Collision areas', () => {
       expect(contact.point.x).toBe(0);
       expect(contact.point.y).toBe(0);
     });
+
+    it('can be drawn', (done) => {
+      const circle = new ex.Circle({
+        pos: new ex.Vector(100, 100),
+        radius: 30
+      });
+
+      circle.draw(engine.ctx, ex.Color.Blue, new ex.Vector(50, 0));
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/circle.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+
+    it('can be drawn with actor', (done) => {
+      const circleActor = new ex.Actor({
+        pos: new ex.Vector(150, 100),
+        color: ex.Color.Blue,
+        body: new ex.Body({
+          collider: new ex.Collider({
+            shape: ex.Shape.Circle(30)
+          })
+        })
+      });
+
+      scene.add(circleActor);
+      scene.draw(engine.ctx, 100);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/circle.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
   });
 
-  describe('A Polygon shape', () => {
+  describe('a ConvexPolygon', () => {
+    let engine: ex.Engine;
+    let scene: ex.Scene;
+    beforeEach(() => {
+      engine = TestUtils.engine();
+      scene = new ex.Scene(engine);
+      engine.currentScene = scene;
+    });
+
+    afterEach(() => {
+      engine.stop();
+      engine = null;
+    });
+
     it('exists', () => {
-      expect(ex.PolygonArea).toBeDefined();
+      expect(ex.ConvexPolygon).toBeDefined();
     });
 
     it('can be constructed with empty args', () => {
-      const poly = new ex.PolygonArea({});
+      const poly = new ex.ConvexPolygon({
+        points: [ex.Vector.One]
+      });
       expect(poly).not.toBe(null);
     });
 
+    it('can be cloned', () => {
+      const actor1 = new ex.Actor(0, 0, 20, 20);
+      const poly = new ex.ConvexPolygon({
+        collider: actor1.body.collider,
+        points: [ex.Vector.One, ex.Vector.Half],
+        pos: new ex.Vector(20, 25)
+      });
+
+      const sut = poly.clone();
+
+      expect(sut).not.toBe(poly);
+      expect(sut.pos).toBeVector(poly.pos);
+      expect(sut.pos).not.toBe(poly.pos);
+      expect(sut.points.length).toBe(2);
+      expect(sut.collider).toBe(null);
+    });
+
     it('can be constructed with points', () => {
-      const poly = new ex.PolygonArea({
+      const poly = new ex.ConvexPolygon({
         pos: ex.Vector.Zero.clone(),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
@@ -267,7 +384,7 @@ describe('Collision areas', () => {
     });
 
     it('can have be constructed with position', () => {
-      const poly = new ex.PolygonArea({
+      const poly = new ex.ConvexPolygon({
         pos: new ex.Vector(10, 0),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
@@ -284,18 +401,18 @@ describe('Collision areas', () => {
     });
 
     it('can collide with other polygons', () => {
-      const polyA = new ex.PolygonArea({
+      const polyA = new ex.ConvexPolygon({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
 
-      const polyB = new ex.PolygonArea({
+      const polyB = new ex.ConvexPolygon({
         pos: new ex.Vector(10, 0),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
 
-      const directionOfBodyB = polyB.getCenter().sub(polyA.getCenter());
+      const directionOfBodyB = polyB.center.sub(polyA.center);
 
       // should overlap by 10 pixels in x
       const contact = polyA.collide(polyB);
@@ -316,7 +433,7 @@ describe('Collision areas', () => {
     it('can collide with the middle of an edge', () => {
       const actor = new ex.Actor(5, -6, 20, 20);
       actor.rotation = Math.PI / 4;
-      const polyA = new ex.PolygonArea({
+      const polyA = new ex.ConvexPolygon({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
@@ -331,7 +448,7 @@ describe('Collision areas', () => {
         body: actor2.body
       });
 
-      const directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+      const directionOfBodyB = edge.center.sub(polyA.center);
 
       const contact = polyA.collide(edge);
 
@@ -347,7 +464,7 @@ describe('Collision areas', () => {
 
     it('can collide with the end of an edge', () => {
       const actor = new ex.Actor(0, -4, 20, 20);
-      const polyA = new ex.PolygonArea({
+      const polyA = new ex.ConvexPolygon({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
@@ -363,7 +480,7 @@ describe('Collision areas', () => {
       });
       edge.recalc();
 
-      const directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+      const directionOfBodyB = edge.center.sub(polyA.center);
       const contact = polyA.collide(edge);
 
       expect(contact).not.toBe(null);
@@ -375,7 +492,7 @@ describe('Collision areas', () => {
 
     it('can collide with the end of an edge regardless of order', () => {
       const actor = new ex.Actor(0, -4, 20, 20);
-      const polyA = new ex.PolygonArea({
+      const polyA = new ex.ConvexPolygon({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
@@ -391,7 +508,7 @@ describe('Collision areas', () => {
       });
       edge.recalc();
 
-      const directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+      const directionOfBodyB = edge.center.sub(polyA.center);
       const contact = polyA.collide(edge);
 
       expect(contact).not.toBe(null);
@@ -404,7 +521,7 @@ describe('Collision areas', () => {
     it('should not collide with the middle of an edge when not touching', () => {
       const actor = new ex.Actor(5, 0, 20, 20);
       actor.rotation = Math.PI / 4;
-      const polyA = new ex.PolygonArea({
+      const polyA = new ex.ConvexPolygon({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
@@ -419,7 +536,7 @@ describe('Collision areas', () => {
         body: actor2.body
       });
 
-      const directionOfBodyB = edge.getCenter().sub(polyA.getCenter());
+      const directionOfBodyB = edge.center.sub(polyA.center);
 
       const contact = polyA.collide(edge);
 
@@ -429,7 +546,7 @@ describe('Collision areas', () => {
 
     it('should detected contained points', () => {
       const actor = new ex.Actor(0, 0, 20, 20);
-      const polyA = new ex.PolygonArea({
+      const polyA = new ex.ConvexPolygon({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
@@ -447,7 +564,7 @@ describe('Collision areas', () => {
     });
 
     it('can calculate the closest face to a point', () => {
-      const polyA = new ex.PolygonArea({
+      const polyA = new ex.ConvexPolygon({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)]
@@ -489,7 +606,7 @@ describe('Collision areas', () => {
 
     it('can have ray cast to detect if the ray hits the polygon', () => {
       const actor = new ex.Actor(0, 0, 20, 20);
-      const polyA = new ex.PolygonArea({
+      const polyA = new ex.ConvexPolygon({
         pos: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
@@ -509,13 +626,59 @@ describe('Collision areas', () => {
       expect(noHit).toBe(null);
       expect(tooFar).toBe(null, 'The polygon should be too far away for a hit');
     });
+
+    it('can be drawn', (done) => {
+      const polygon = new ex.ConvexPolygon({
+        pos: new ex.Vector(100, 100),
+        points: [new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)]
+      });
+
+      polygon.draw(engine.ctx, ex.Color.Blue, new ex.Vector(50, 0));
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/triangle.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+
+    it('can be drawn with actor', (done) => {
+      const polygonActor = new ex.Actor({
+        pos: new ex.Vector(150, 100),
+        color: ex.Color.Blue,
+        body: new ex.Body({
+          collider: new ex.Collider({
+            shape: ex.Shape.Polygon([new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)])
+          })
+        })
+      });
+
+      scene.add(polygonActor);
+      scene.draw(engine.ctx, 100);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/triangle.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
   });
 
-  describe('An Edge shape', () => {
+  describe('an Edge', () => {
     let actor: ex.Actor = null;
     let edge: ex.EdgeArea = null;
 
+    let engine: ex.Engine;
+    let scene: ex.Scene;
+
+    afterEach(() => {
+      engine.stop();
+      engine = null;
+    });
+
     beforeEach(() => {
+      engine = TestUtils.engine();
+      scene = new ex.Scene(engine);
+      engine.currentScene = scene;
+
       actor = new ex.Actor(5, 0, 10, 10);
       edge = new ex.EdgeArea({
         begin: new ex.Vector(-5, 0),
@@ -525,10 +688,28 @@ describe('Collision areas', () => {
     });
 
     it('has a center', () => {
-      const center = edge.getCenter();
+      const center = edge.center;
 
       expect(center.x).toBe(5);
       expect(center.y).toBe(0);
+    });
+
+    it('can be cloned', () => {
+      const actor1 = new ex.Actor(0, 0, 20, 20);
+      const edge = new ex.Edge({
+        collider: actor1.body.collider,
+        begin: ex.Vector.One,
+        end: ex.Vector.Half
+      });
+
+      const sut = edge.clone();
+
+      expect(sut).not.toBe(edge);
+      expect(sut.pos).toBeVector(edge.pos);
+      expect(sut.begin).toBeVector(edge.begin);
+      expect(sut.end).toBeVector(edge.end);
+      expect(sut.pos).not.toBe(edge.pos);
+      expect(sut.collider).toBe(null);
     });
 
     it('has a length', () => {
@@ -567,13 +748,13 @@ describe('Collision areas', () => {
     });
 
     it('has 4 axes', () => {
-      const axes = edge.getAxes();
+      const axes = edge.axes;
       expect(axes.length).toBe(4);
     });
 
     it('has bounds', () => {
       actor.pos.setTo(400, 400);
-      const boundingBox = edge.getBounds();
+      const boundingBox = edge.bounds;
 
       const transformedBegin = new ex.Vector(395, 400);
       const transformedEnd = new ex.Vector(405, 400);
@@ -585,9 +766,43 @@ describe('Collision areas', () => {
     it('has a moi', () => {
       // following this formula https://en.wikipedia.org/wiki/List_of_moments_of_inertia
       // rotates from the middle treating the ends as a point mass
-      const moi = edge.getMomentOfInertia();
+      const moi = edge.inertia;
       const length = edge.end.sub(edge.begin).distance() / 2;
-      expect(moi).toBeCloseTo(edge.body.mass * length * length, 0.001);
+      expect(moi).toBeCloseTo(edge.body.collider.mass * length * length, 0.001);
+    });
+
+    it('can be drawn', (done) => {
+      const edge = new ex.Edge({
+        begin: new ex.Vector(100, 100),
+        end: new ex.Vector(400, 400)
+      });
+
+      edge.draw(engine.ctx, ex.Color.Blue, new ex.Vector(50, 0));
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/edge.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+
+    it('can be drawn with actor', (done) => {
+      const edgeActor = new ex.Actor({
+        pos: new ex.Vector(150, 100),
+        color: ex.Color.Blue,
+        body: new ex.Body({
+          collider: new ex.Collider({
+            shape: ex.Shape.Edge(ex.Vector.Zero, new ex.Vector(300, 300))
+          })
+        })
+      });
+
+      scene.add(edgeActor);
+      scene.draw(engine.ctx, 100);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/edge.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 });
