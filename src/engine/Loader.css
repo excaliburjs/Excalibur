@@ -3,6 +3,7 @@
 button#excalibur-play {
   display: inline-block;
   position: relative;
+  z-index: 999;
   border-radius: 6px;
   border: none;
   /*border: 3px solid;
