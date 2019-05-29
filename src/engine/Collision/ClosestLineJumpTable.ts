@@ -45,7 +45,7 @@ export function ClosestLine(p0: Vector, u: Vector, q0: Vector, v: Vector) {
   const e = v.dot(w0);
 
   // denominator ac - b^2
-  let denom = a * c - b * b;
+  const denom = a * c - b * b;
   let sDenom = denom;
   let tDenom = denom;
   // if denom is 0 they are parallel, use any point from either as the start in this case p0
