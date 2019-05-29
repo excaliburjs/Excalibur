@@ -50,8 +50,8 @@ describe('A scene', () => {
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
     actor.pos.y = 0;
-    actor.setWidth(10);
-    actor.setHeight(10);
+    actor.width = 10;
+    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -66,8 +66,8 @@ describe('A scene', () => {
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = -4;
     actor.pos.y = 0;
-    actor.setWidth(10);
-    actor.setHeight(10);
+    actor.width = 10;
+    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -81,8 +81,8 @@ describe('A scene', () => {
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = -6;
     actor.pos.y = 0;
-    actor.setWidth(10);
-    actor.setHeight(10);
+    actor.width = 10;
+    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -97,8 +97,8 @@ describe('A scene', () => {
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
     actor.pos.y = -4;
-    actor.setWidth(10);
-    actor.setHeight(10);
+    actor.width = 10;
+    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -113,8 +113,8 @@ describe('A scene', () => {
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
     actor.pos.y = -6;
-    actor.setWidth(10);
-    actor.setHeight(10);
+    actor.width = 10;
+    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -129,8 +129,8 @@ describe('A scene', () => {
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 104;
     actor.pos.y = 0;
-    actor.setWidth(10);
-    actor.setHeight(10);
+    actor.width = 10;
+    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -145,8 +145,8 @@ describe('A scene', () => {
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 106;
     actor.pos.y = 0;
-    actor.setWidth(10);
-    actor.setHeight(10);
+    actor.width = 10;
+    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -161,8 +161,8 @@ describe('A scene', () => {
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
     actor.pos.y = 104;
-    actor.setWidth(10);
-    actor.setHeight(10);
+    actor.width = 10;
+    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -177,8 +177,8 @@ describe('A scene', () => {
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
     actor.pos.y = 106;
-    actor.setWidth(10);
-    actor.setHeight(10);
+    actor.width = 10;
+    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -196,8 +196,8 @@ describe('A scene', () => {
 
     actor.pos.x = 1010;
     actor.pos.y = 1010;
-    actor.setWidth(5);
-    actor.setHeight(5);
+    actor.width = 5;
+    actor.height = 5;
 
     scene.add(actor);
     scene.update(engine, 100);

@@ -90,7 +90,7 @@ export enum Axis {
 export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
   constructor(public target: Actor) {}
   public action = (target: Actor, _cam: Camera, _eng: Engine, _delta: number) => {
-    const center = target.getCenter();
+    const center = target.center;
     return center;
   };
 }
@@ -101,7 +101,7 @@ export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
 export class LockCameraToActorAxisStrategy implements CameraStrategy<Actor> {
   constructor(public target: Actor, public axis: Axis) {}
   public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
-    const center = target.getCenter();
+    const center = target.center;
     const currentFocus = cam.getFocus();
     if (this.axis === Axis.X) {
       return new Vector(center.x, currentFocus.y);
@@ -126,7 +126,7 @@ export class ElasticToActorStrategy implements CameraStrategy<Actor> {
    */
   constructor(public target: Actor, public cameraElasticity: number, public cameraFriction: number) {}
   public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
-    const position = target.getCenter();
+    const position = target.center;
     let focus = cam.getFocus();
     let cameraVel = new Vector(cam.dx, cam.dy);
 
@@ -157,7 +157,7 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
    */
   constructor(public target: Actor, public radius: number) {}
   public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
-    const position = target.getCenter();
+    const position = target.center;
     const focus = cam.getFocus();
 
     const direction = position.sub(focus);
@@ -613,7 +613,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     ctx.setLineDash([5, 15]);
     ctx.lineWidth = 5;
     ctx.strokeStyle = 'white';
-    ctx.strokeRect(this.viewport.left, this.viewport.top, this.viewport.getWidth(), this.viewport.getHeight());
+    ctx.strokeRect(this.viewport.left, this.viewport.top, this.viewport.width, this.viewport.height);
     ctx.closePath();
   }
 

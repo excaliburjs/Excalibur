@@ -66,10 +66,6 @@ describe('An Event Dispatcher', () => {
     expect(eventHistory).toEqual(subscriptions);
   });
 
-  //it('can be subscribed to', () => { }); //TODO
-
-  //it('can be unsubscribed from', () => { }); //TODO
-
   it('can wire to other event dispatchers', () => {
     const newPubSub = new ex.EventDispatcher(null);
     pubsub.wire(newPubSub);

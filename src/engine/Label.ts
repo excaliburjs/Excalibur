@@ -1,9 +1,10 @@
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { SpriteFont } from './Drawing/SpriteSheet';
-import { Actor, CollisionType } from './Actor';
+import { Actor } from './Actor';
 import { Configurable } from './Configurable';
 import { Vector } from './Algebra';
+import { CollisionType } from './Collision/CollisionType';
 /**
  * Enum representing the different font size units
  * https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
@@ -219,7 +220,7 @@ export class LabelImpl extends Actor {
     this.text = text || '';
     this.color = Color.Black;
     this.spriteFont = spriteFont;
-    this.collisionType = CollisionType.PreventCollision;
+    this.body.collider.type = CollisionType.PreventCollision;
     this.fontFamily = fontFamily || 'sans-serif'; // coalesce to default canvas font
 
     this._textShadowOn = false;

@@ -25,9 +25,9 @@ describe('A camera', () => {
     engine.backgroundColor = ex.Color.Blue;
 
     actor.pos.x = 250;
-    actor.setWidth(10);
+    actor.width = 10;
     actor.pos.y = 250;
-    actor.setHeight(10);
+    actor.height = 10;
     actor.color = ex.Color.Red;
     scene = new ex.Scene(engine);
     scene.add(actor);

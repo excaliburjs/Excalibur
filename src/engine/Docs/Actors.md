@@ -215,19 +215,21 @@ By default Actors do not participate in collisions. If you wish to make
 an actor participate, you need to switch from the default [[CollisionType.PreventCollision|prevent collision]]
 to [[CollisionType.Active|active]], [[CollisionType.Fixed|fixed]], or [[CollisionType.Passive|passive]] collision type.
 
+For more information on collisions, please read about [[Physics|rigid body physics]].
+
 ```ts
 public Player extends ex.Actor {
    constructor() {
       super();
       // set preferred CollisionType
-      this.collisionType = ex.CollisionType.Active;
+      this.body.collider.type = ex.CollisionType.Active;
    }
 }
 
 // or set the collisionType
 
 const actor = new ex.Actor();
-actor.collisionType = ex.CollisionType.Active;
+actor.body.collider.type = ex.CollisionType.Active;
 ```
 
 ## Traits

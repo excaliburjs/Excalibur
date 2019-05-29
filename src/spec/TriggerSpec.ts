@@ -35,7 +35,7 @@ describe('A Trigger', () => {
       repeat: 1
     });
     const actor = new ex.Actor(0, 0, 10, 10);
-    actor.collisionType = ex.CollisionType.Active;
+    actor.body.collider.type = ex.CollisionType.Active;
     actor.vel.y = 10;
     engine.currentScene.add(trigger);
     engine.currentScene.add(actor);
@@ -70,7 +70,7 @@ describe('A Trigger', () => {
       repeat: 3
     });
     const actor = new ex.Actor(0, 0, 10, 10);
-    actor.collisionType = ex.CollisionType.Active;
+    actor.body.collider.type = ex.CollisionType.Active;
     actor.vel.y = 10;
     engine.currentScene.add(trigger);
     engine.currentScene.add(actor);
@@ -106,10 +106,10 @@ describe('A Trigger', () => {
       height: 100
     });
 
-    trigger.collisionType = ex.CollisionType.Passive;
+    trigger.body.collider.type = ex.CollisionType.Passive;
 
     const actor = new ex.Actor(0, 0, 10, 10);
-    actor.collisionType = ex.CollisionType.Active;
+    actor.body.collider.type = ex.CollisionType.Active;
     actor.vel.y = 10;
 
     trigger.on('collisionstart', (evt: ex.EnterTriggerEvent) => {
@@ -139,7 +139,7 @@ describe('A Trigger', () => {
     });
 
     const actor = new ex.Actor(0, 0, 10, 10);
-    actor.collisionType = ex.CollisionType.Active;
+    actor.body.collider.type = ex.CollisionType.Active;
     actor.vel.y = 10;
 
     engine.add(trigger);
@@ -236,7 +236,7 @@ describe('A Trigger', () => {
     });
 
     const actor = new ex.Actor(0, 100, 10, 10);
-    actor.collisionType = ex.CollisionType.Active;
+    actor.body.collider.type = ex.CollisionType.Active;
 
     engine.add(trigger);
     engine.add(actor);

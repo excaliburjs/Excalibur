@@ -28,6 +28,7 @@ import * as Util from './Util/Util';
 import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
+import { Body } from './Collision/Body';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -47,6 +48,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * The actors in the current scene
    */
   public actors: Actor[] = [];
+
+  /**
+   * Physics bodies in the current scene
+   */
+  private _bodies: Body[] = [];
 
   /**
    * The triggers in the current scene
@@ -342,6 +348,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     // Cycle through actors updating actors
     for (i = 0, len = this.actors.length; i < len; i++) {
       this.actors[i].update(engine, delta);
+      this._bodies[i] = this.actors[i].body;
     }
 
     // Cycle through triggers updating
@@ -357,8 +364,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     // Run the broadphase and narrowphase
     if (this._broadphase && Physics.enabled) {
       const beforeBroadphase = Date.now();
-      this._broadphase.update(this.actors, delta);
-      let pairs = this._broadphase.broadphase(this.actors, delta, engine.stats.currFrame);
+      this._broadphase.update(this._bodies, delta);
+      let pairs = this._broadphase.broadphase(this._bodies, delta, engine.stats.currFrame);
       const afterBroadphase = Date.now();
 
       const beforeNarrowphase = Date.now();
