@@ -6,7 +6,7 @@ For example instead of doing this:
 
 ```typescript
 const actor = new ex.Actor(1, 2, 100, 100, ex.Color.Red);
-actor.collisionType = ex.CollisionType.Active;
+actor.body.collider.type = ex.CollisionType.Active;
 ```
 
 This is possible:
@@ -17,10 +17,10 @@ const options: IActorArgs = {
    width: 100,
    height: 100,
    color: ex.Color.Red,
-   collisionType: ex.CollisionType.Active
 }
 
 const actor = new ex.Actor(options);
+actor.body.collider.type = ex.CollisionType.Active;
 ```
 
 In fact you can create a duplicate this way

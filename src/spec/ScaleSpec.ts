@@ -14,7 +14,7 @@ describe('A scaled and rotated actor', () => {
 
     actor = new ex.UIActor(50, 50, 100, 50);
     actor.color = ex.Color.Blue;
-    actor.collisionType = ex.CollisionType.Active;
+    actor.body.collider.type = ex.CollisionType.Active;
     engine = TestUtils.engine({ width: 800, height: 600 });
     engine.setAntialiasing(false);
 

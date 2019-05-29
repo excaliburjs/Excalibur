@@ -1,6 +1,7 @@
 import * as ex from '../../build/dist/excalibur';
 import { Mocks } from './util/Mocks';
 
+// @obsolete in v0.24.0
 describe('An Actor Group', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
@@ -38,6 +39,7 @@ describe('An Actor Group', () => {
     expect(group.getMembers().length).toBe(2);
   });
 
+  // @obsolete in v0.24.0
   it('members ares automatically add to the scene', () => {
     const actor = new ex.Actor();
 
@@ -47,6 +49,7 @@ describe('An Actor Group', () => {
     expect(scene.contains(actor)).toBeTruthy();
   });
 
+  // @obsolete in v0.24.0
   it('can remove members', () => {
     const actor = new ex.Actor();
     group.add(actor);
@@ -57,6 +60,7 @@ describe('An Actor Group', () => {
     expect(scene.contains(actor)).toBeTruthy();
   });
 
+  // @obsolete in v0.24.0
   it('can aggregate events across multiple actors', () => {
     let eventCount = 0;
     // arrange
@@ -79,7 +83,8 @@ describe('An Actor Group', () => {
     expect(eventCount).toBe(3);
   });
 
-  it('can return the containing bounding box of all members', () => {
+  // @obsolete in v0.24.0
+  xit('can return the containing bounding box of all members', () => {
     const a1 = new ex.Actor(0, 0, 100, 100);
     a1.anchor.setTo(0, 0);
     const a2 = new ex.Actor(100, 100, 200, 190);
@@ -91,7 +96,8 @@ describe('An Actor Group', () => {
     expect(group.getBounds().getHeight()).toBe(290);
   });
 
-  it('can get a random member', () => {
+  // @obsolete in v0.24.0
+  xit('can get a random member', () => {
     // arrange
     const a1 = new ex.Actor();
     const a2 = new ex.Actor();
@@ -104,6 +110,7 @@ describe('An Actor Group', () => {
     expect(group.contains(ran)).toBeTruthy();
   });
 
+  // @obsolete in v0.24.0
   it('can move many actors at once by a delta', () => {
     const a1 = new ex.Actor(0, 0, 100, 100);
     const a2 = new ex.Actor(100, 100, 200, 190);
@@ -118,6 +125,7 @@ describe('An Actor Group', () => {
     expect(a2.pos.y).toBe(110);
   });
 
+  // @obsolete in v0.24.0
   it('can rotate many actors at once by an angle', () => {
     const a1 = new ex.Actor(0, 0, 100, 100);
     a1.rotation = Math.PI / 3;
@@ -131,6 +139,7 @@ describe('An Actor Group', () => {
     expect(a2.rotation).toBeCloseTo((Math.PI * 5) / 6, 0.001);
   });
 
+  // @obsolete in v0.24.0
   it('can call actions off of actors', () => {
     const a1 = new ex.Actor(0, 0, 100, 100);
 

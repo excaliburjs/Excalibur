@@ -11,15 +11,74 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-<!--- Added features here --->
+- New `ex.Collider` type which is the container for all collision related behavior and state. Actor is now extracted from collision.
+- Added interface `Clonable<T>` to indicate if an object contains a clone method
+- Added interface `Eventable<T>` to indicated if an object can emit and receive events
+- `ex.Vector.scale` now also works with vector input
+- `ex.BoundingBox.fromDimension(width: number, height: number)` can generate a bounding box from a width and height
+- `ex.BoundingBox.translate(pos: Vector)` will create a new bounding box shifted by `pos`
+- `ex.BoundingBox.scale(scale: Vector)` will create a new bounding box scaled by `scale`
+- Added `isActor()` and `isCollider()` type guards
+- Added `ex.CollisionShape.draw` collision shapes can now be drawn, actor's will use these shapes if no other drawing is specified
 
 ### Changed
 
 - Changed event handlers in excalibur to expect non-null event objects, before `hander: (event?: GameEvent) => void` implied that event could be null. This change addresses ([#1147](https://github.com/excaliburjs/Excalibur/issues/1147)) making strict null/function checks compatible with new typescript.
+- Changed collision system to remove actor coupling, in addition `ex.Collider` is a new type that encapsulates all collision behavior. Use `ex.Actor.body.collider` to interact with collisions in Excalibur ([#1119](https://github.com/excaliburjs/Excalibur/issues/1119))
+
+  - Add new `ex.Collider` type that is the housing for all collision related code
+    - The source of truth for `ex.CollisionType` is now on collider, with a convenience getter on actor
+    - The collision system now operates on `ex.Collider`'s not `ex.Actor`'s
+  - `ex.CollisionType` has been moved to a separate file outside of `Actor`
+    - CollisionType is switched to a string enum, style guide also updated
+  - `ex.CollisionPair` now operates on a pair of `ex.Colliders`'s instead of `ex.Actors`'s
+  - `ex.CollisionContact` now operates on a pair of `ex.Collider`'s instead of `ex.Actors`'s
+  - `ex.Body` has been modified to house all the physical position/transform information
+    - Integration has been moved from actor to `Body` as a physical concern
+    - `useBoxCollision` has been renamed to `useBoxCollider`
+    - `useCircleCollision` has been renamed to `useCircleCollider`
+    - `usePolygonCollision` has been renamed to `usePolygonCollider`
+    - `useEdgeCollision` has been renamed to `useEdgeCollider`
+  - Renamed `ex.CollisionArea` to `ex.CollisionShape`
+    - `ex.CircleArea` has been renamed to `ex.Circle`
+    - `ex.PolygonArea` has been renamed to `ex.ConvexPolygon`
+    - `ex.EdgeArea` has been renamed to `ex.Edge`
+  - Renamed `getWidth()` & `setWidth()` to property `width`
+    - Actor and BoundingBox are affected
+  - Renamed `getHeight()` & `setHeight()` to property `height`
+    - Actor and BoundingBox are affected
+  - Renamed `getCenter()` to the property `center`
+    - Actor, BoundingBox, and Cell are affected
+  - Renamed `getBounds()` to the property `bounds`
+    - Actor, Collider, and Shapes are affected
+  - Renamed `getRelativeBounds()` to the property `localBounds`
+    - Actor, Collider, and Shapes are affected
+  - Renamed `moi()` to the property `inertia` standing for moment of inertia
+  - Renamed `restition` to the property `bounciness`
+  - Moved `collisionType` to `Actor.body.collider.type`
+  - Moved `Actor.integrate` to `Actor.body.integrate`
 
 ### Deprecated
 
-<!--- Deprecations here --->
+- Removed `NaiveCollisionBroadphase` as it was no longer used
+- Renamed methods and properties will be available until `v0.24.0`
+- Deprecated collision attributes on actor, use `Actor.body.collider`
+
+  - `Actor.x` & `Actor.y` will be removed in `v0.24.0` use `Actor.pos.x` & `Actor.pos.y`
+  - `Actor.collisionArea` will be removed in `v0.24.0` use `Actor.body.collider.shape`
+  - `Actor.getLeft()`, `Actor.getRight()`, `Actor.getTop()`, and `Actor.getBottom` are deprecated
+    - Use `Actor.body.collider.bounds.(left|right|top|bottom)`
+  - `Actor.getGeometry()` and `Actor.getRelativeGeometry()` are removed, use `Collider`
+  - Collision related properties on Actor moved to `Collider`, use`Actor.body.collider`
+    - `Actor.torque`
+    - `Actor.mass`
+    - `Actor.moi`
+    - `Actor.friction`
+    - `Actor.restition`
+  - Collision related methods on Actor moved to `Collider`, use`Actor.body.collider` or `Actor.body.collider.bounds`
+    - `Actor.getSideFromIntersect(intersect)` -> `BoundingBox.sideFromIntersection`
+    - `Actor.collidesWithSide(actor)` -> `Actor.body.collider.bounds.intersectWithSide`
+    - `Actor.collides(actor)` -> `Actor.body.collider.bounds.intersect`
 
 ### Fixed
 
@@ -27,6 +86,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed polyfill application by exporting a `polyfill()` function that can be called. ([#1132](https://github.com/excaliburjs/Excalibur/issues/1132))
 
 <!--- Bug fixes here --->
+
 - Fixed Color.lighten() ([#1084])
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

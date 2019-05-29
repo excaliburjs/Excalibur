@@ -1,49 +1,107 @@
-import { Color } from './../Drawing/Color';
-import { Physics } from './../Physics';
+﻿import { Color } from '../Drawing/Color';
+import { Physics } from '../Physics';
 import { BoundingBox } from './BoundingBox';
-import { EdgeArea } from './EdgeArea';
+import { Edge } from './Edge';
 import { CollisionJumpTable } from './CollisionJumpTable';
-import { CircleArea } from './CircleArea';
+import { Circle } from './Circle';
 import { CollisionContact } from './CollisionContact';
-import { CollisionArea } from './CollisionArea';
+import { CollisionShape } from './CollisionShape';
 import { Body } from './Body';
-import { Vector, Line, Ray, Projection } from './../Algebra';
+import { Vector, Line, Ray, Projection } from '../Algebra';
+import { Collider } from './Collider';
 
-export interface PolygonAreaOptions {
+export interface ConvexPolygonOptions {
+  /**
+   * Point relative to a collider's position
+   */
+
   pos?: Vector;
-  points?: Vector[];
+  /**
+   * Points in the polygon in order around the perimeter in local coordinates
+   */
+  points: Vector[];
+  /**
+   * Whether points are specified in clockwise or counter clockwise order, default counter-clockwise
+   */
   clockwiseWinding?: boolean;
+  /**
+   * Collider to associate optionally with this shape
+   */
+  collider?: Collider;
+  /**
+   * @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
+   */
+
   body?: Body;
 }
 
 /**
- * Polygon collision area for detecting collisions for actors, or independently
+ * Polygon collision shape for detecting collisions
+ *
+ * Example:
+ * [[include:BoxAndPolygonShape.md]]
  */
-export class PolygonArea implements CollisionArea {
+export class ConvexPolygon implements CollisionShape {
   public pos: Vector;
   public points: Vector[];
+
+  /**
+   * @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
+   */
   public body: Body;
+
+  /**
+   * Collider associated with this shape
+   */
+  public collider?: Collider;
 
   private _transformedPoints: Vector[] = [];
   private _axes: Vector[] = [];
   private _sides: Line[] = [];
 
-  constructor(options: PolygonAreaOptions) {
+  constructor(options: ConvexPolygonOptions) {
     this.pos = options.pos || Vector.Zero;
     const winding = !!options.clockwiseWinding;
     this.points = (winding ? options.points.reverse() : options.points) || [];
-    this.body = options.body || null;
+    this.collider = this.collider = options.collider || null;
+
+    // @obsolete Remove next release in v0.24.0, code exists for backwards compat
+    if (options.body) {
+      this.collider = options.body.collider;
+      this.body = this.collider.body;
+    }
+    // ==================================
 
     // calculate initial transformation
     this._calculateTransformation();
   }
 
   /**
-   * Get the center of the collision area in world coordinates
+   * Returns a clone of this ConvexPolygon, not associated with any collider
    */
-  public getCenter(): Vector {
-    if (this.body) {
-      return this.body.pos.add(this.pos);
+  public clone(): ConvexPolygon {
+    return new ConvexPolygon({
+      pos: this.pos.clone(),
+      points: this.points.map((p) => p.clone()),
+      collider: null,
+      body: null
+    });
+  }
+
+  public get worldPos(): Vector {
+    if (this.collider && this.collider.body) {
+      return this.collider.body.pos.add(this.pos);
+    }
+    return this.pos;
+  }
+
+  /**
+   * Get the center of the collision shape in world coordinates
+   */
+  public get center(): Vector {
+    const body = this.collider ? this.collider.body : null;
+    if (body) {
+      return body.pos.add(this.pos);
     }
     return this.pos;
   }
@@ -52,13 +110,18 @@ export class PolygonArea implements CollisionArea {
    * Calculates the underlying transformation from the body relative space to world space
    */
   private _calculateTransformation() {
-    const pos = this.body ? this.body.pos.add(this.pos) : this.pos;
-    const angle = this.body ? this.body.rotation : 0;
+    const body = this.collider ? this.collider.body : null;
+    const pos = body ? body.pos.add(this.pos) : this.pos;
+    const angle = body ? body.rotation : 0;
+    const scale = body ? body.scale : Vector.One;
 
     const len = this.points.length;
     this._transformedPoints.length = 0; // clear out old transform
     for (let i = 0; i < len; i++) {
-      this._transformedPoints[i] = this.points[i].rotate(angle).add(pos);
+      this._transformedPoints[i] = this.points[i]
+        .scale(scale)
+        .rotate(angle)
+        .add(pos);
     }
   }
 
@@ -66,7 +129,16 @@ export class PolygonArea implements CollisionArea {
    * Gets the points that make up the polygon in world space, from actor relative space (if specified)
    */
   public getTransformedPoints(): Vector[] {
-    if (!this._transformedPoints.length) {
+    // only recalculate geometry if, hasn't been calculated
+    if (
+      !this._transformedPoints.length ||
+      // or the position or rotation has changed in world space
+      (this.collider &&
+        this.collider.body &&
+        (!this.collider.body.oldPos.equals(this.collider.body.pos) ||
+          this.collider.body.oldRotation !== this.collider.body.rotation ||
+          this.collider.body.oldScale !== this.collider.body.scale))
+    ) {
       this._calculateTransformation();
     }
     return this._transformedPoints;
@@ -94,12 +166,11 @@ export class PolygonArea implements CollisionArea {
     this._axes.length = 0;
     this._transformedPoints.length = 0;
     this.getTransformedPoints();
-    this.getAxes();
     this.getSides();
   }
 
   /**
-   * Tests if a point is contained in this collision area in world space
+   * Tests if a point is contained in this collision shape in world space
    */
   public contains(point: Vector): boolean {
     // Always cast to the right, as long as we cast in a consitent fixed direction we
@@ -119,19 +190,19 @@ export class PolygonArea implements CollisionArea {
   }
 
   /**
-   * Returns a collision contact if the 2 collision areas collide, otherwise collide will
+   * Returns a collision contact if the 2 collision shapes collide, otherwise collide will
    * return null.
-   * @param area
+   * @param shape
    */
-  public collide(area: CollisionArea): CollisionContact {
-    if (area instanceof CircleArea) {
-      return CollisionJumpTable.CollideCirclePolygon(area, this);
-    } else if (area instanceof PolygonArea) {
-      return CollisionJumpTable.CollidePolygonPolygon(this, area);
-    } else if (area instanceof EdgeArea) {
-      return CollisionJumpTable.CollidePolygonEdge(this, area);
+  public collide(shape: CollisionShape): CollisionContact {
+    if (shape instanceof Circle) {
+      return CollisionJumpTable.CollideCirclePolygon(shape, this);
+    } else if (shape instanceof ConvexPolygon) {
+      return CollisionJumpTable.CollidePolygonPolygon(this, shape);
+    } else if (shape instanceof Edge) {
+      return CollisionJumpTable.CollidePolygonEdge(this, shape);
     } else {
-      throw new Error(`Polygon could not collide with unknown ICollisionArea ${typeof area}`);
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
     }
   }
 
@@ -181,35 +252,27 @@ export class PolygonArea implements CollisionArea {
   }
 
   /**
-   * Get the axis aligned bounding box for the polygon area
+   * Get the axis aligned bounding box for the polygon shape in world coordinates
    */
-  public getBounds(): BoundingBox {
-    // todo there is a faster way to do this
+  public get bounds(): BoundingBox {
     const points = this.getTransformedPoints();
 
-    const minX = points.reduce(function(prev, curr) {
-      return Math.min(prev, curr.x);
-    }, 999999999);
-    const maxX = points.reduce(function(prev, curr) {
-      return Math.max(prev, curr.x);
-    }, -99999999);
+    return BoundingBox.fromPoints(points);
+  }
 
-    const minY = points.reduce(function(prev, curr) {
-      return Math.min(prev, curr.y);
-    }, 9999999999);
-    const maxY = points.reduce(function(prev, curr) {
-      return Math.max(prev, curr.y);
-    }, -9999999999);
-
-    return new BoundingBox(minX, minY, maxX, maxY);
+  /**
+   * Get the axis aligned bounding box for the polygon shape in local coordinates
+   */
+  public get localBounds(): BoundingBox {
+    return BoundingBox.fromPoints(this.points);
   }
 
   /**
    * Get the moment of inertia for an arbitrary polygon
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public getMomentOfInertia(): number {
-    const mass = this.body ? this.body.mass : Physics.defaultMass;
+  public get inertia(): number {
+    const mass = this.collider ? this.collider.mass : Physics.defaultMass;
     let numerator = 0;
     let denominator = 0;
     for (let i = 0; i < this.points.length; i++) {
@@ -251,9 +314,9 @@ export class PolygonArea implements CollisionArea {
   }
 
   /**
-   * Get the axis associated with the edge
+   * Get the axis associated with the convex polygon
    */
-  public getAxes(): Vector[] {
+  public get axes(): Vector[] {
     if (this._axes.length) {
       return this._axes;
     }
@@ -272,10 +335,10 @@ export class PolygonArea implements CollisionArea {
    * Perform Separating Axis test against another polygon, returns null if no overlap in polys
    * Reference http://www.dyn4j.org/2010/01/sat/
    */
-  public testSeparatingAxisTheorem(other: PolygonArea): Vector {
+  public testSeparatingAxisTheorem(other: ConvexPolygon): Vector {
     const poly1 = this;
     const poly2 = other;
-    const axes = poly1.getAxes().concat(poly2.getAxes());
+    const axes = poly1.axes.concat(poly2.axes);
 
     let minOverlap = Number.MAX_VALUE;
     let minAxis = null;
@@ -320,6 +383,21 @@ export class PolygonArea implements CollisionArea {
     return new Projection(min, max);
   }
 
+  public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
+    ctx.beginPath();
+    ctx.fillStyle = color.toString();
+    const newPos = pos.add(this.pos);
+    // Iterate through the supplied points and construct a 'polygon'
+    const firstPoint = this.points[0].add(newPos);
+    ctx.moveTo(firstPoint.x, firstPoint.y);
+    this.points.map((p) => p.add(newPos)).forEach(function(point) {
+      ctx.lineTo(point.x, point.y);
+    });
+    ctx.lineTo(firstPoint.x, firstPoint.y);
+    ctx.closePath();
+    ctx.fill();
+  }
+
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red) {
     ctx.beginPath();
@@ -335,3 +413,9 @@ export class PolygonArea implements CollisionArea {
     ctx.stroke();
   }
 }
+
+/**
+ * @obsolete Use [[ConvexPolygonOptions]], PolygonAreaOptions will be removed in v0.24.0
+ */
+export interface PolygonAreaOptions extends ConvexPolygonOptions {}
+export class PolygonArea extends ConvexPolygon {}
