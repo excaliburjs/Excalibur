@@ -21,7 +21,7 @@ engine.currentScene.add(player);
 for (var i = 0; i < numActors; i++) {
   var actor = new ex.Actor(Math.random() * width, Math.random() * height, 0.2 * 64, 0.2 * 48);
 
-  actor.addDrawing('default', blockSprite);
+  actor.addDrawing('default', blockSprite.clone());
 
   actor.collisionType = ex.CollisionType.Active;
   actor.body.collider.collisionGroup = blockGroup;
@@ -40,6 +40,16 @@ for (var i = 0; i < numActors; i++) {
 
     if (this.pos.y > height) {
       this.vel.y = -1 * Math.abs(this.vel.y);
+    }
+  });
+
+  actor.on('postcollision', function(e: ex.PostCollisionEvent) {
+    if (e.actor.currentDrawing instanceof ex.Sprite && e.other === player) {
+      e.actor.currentDrawing.colorize(ex.Color.Cyan);
+    } else {
+      debugger;
+      console.log('Other', e.other);
+      console.trace();
     }
   });
 
