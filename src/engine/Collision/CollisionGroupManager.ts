@@ -17,7 +17,7 @@ export class CollisionGroupManager {
    */
   public static create(name: string, mask?: number) {
     if (this._currentGroup > this._MAX_GROUPS) {
-      throw new Error('Cannot have more than 32 collision groups');
+      throw new Error(`Cannot have more than ${this._MAX_GROUPS} collision groups`);
     }
     const group = new CollisionGroup(name, this._currentBit, mask !== undefined ? mask : ~this._currentBit);
     this._currentBit = (this._currentBit << 1) | 0;
