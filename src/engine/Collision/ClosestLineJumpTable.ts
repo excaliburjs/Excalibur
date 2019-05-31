@@ -195,8 +195,8 @@ export let ClosestLineJumpTable = {
     const rayTowardsOther = new Ray(circleA.worldPos, otherDirection);
     const rayTowardsThis = new Ray(circleB.worldPos, thisDirection);
 
-    const thisPoint = circleA.rayCast(rayTowardsOther).add(rayTowardsOther.dir.scale(0.1));
-    const otherPoint = circleB.rayCast(rayTowardsThis).add(rayTowardsThis.dir.scale(0.1));
+    const thisPoint = circleA.rayCast(rayTowardsOther);
+    const otherPoint = circleB.rayCast(rayTowardsThis);
 
     return new Line(thisPoint, otherPoint);
   },

@@ -168,7 +168,7 @@ export class Edge implements CollisionShape {
     if (shape instanceof Circle) {
       return ClosestLineJumpTable.CircleEdgeClosestLine(shape, this);
     } else if (shape instanceof ConvexPolygon) {
-      return ClosestLineJumpTable.PolygonEdgeClosestLine(shape, this);
+      return ClosestLineJumpTable.PolygonEdgeClosestLine(shape, this).flip();
     } else if (shape instanceof Edge) {
       return ClosestLineJumpTable.EdgeEdgeClosestLine(this, shape);
     } else {

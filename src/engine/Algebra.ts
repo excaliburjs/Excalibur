@@ -413,6 +413,13 @@ export class Line {
   }
 
   /**
+   * Flips the direction of the line segment
+   */
+  public flip(): Line {
+    return new Line(this.end, this.begin);
+  }
+
+  /**
    * Find the perpendicular distance from the line to a point
    * https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
    * @param point
