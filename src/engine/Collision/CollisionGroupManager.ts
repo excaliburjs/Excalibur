@@ -5,9 +5,10 @@ import { CollisionGroup } from './CollisionGroup';
  */
 export class CollisionGroupManager {
   // using bitmasking the maximum number of groups is 32, because that is the heighest 32bit integer that JS can present.
+  private static _STARTING_BIT = 0b1 | 0;
   private static _MAX_GROUPS = 32;
   private static _currentGroup = 1;
-  private static _currentBit = 0b1 | 0;
+  private static _currentBit = CollisionGroupManager._STARTING_BIT;
   private static _groups: { [name: string]: CollisionGroup } = {};
 
   /**
@@ -46,7 +47,7 @@ export class CollisionGroupManager {
    */
   public static reset() {
     this._groups = {};
-    this._currentBit = 0b1;
+    this._currentBit = this._STARTING_BIT;
     this._currentGroup = 1;
   }
 }
