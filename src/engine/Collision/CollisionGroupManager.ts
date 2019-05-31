@@ -9,7 +9,7 @@ export class CollisionGroupManager {
   private static _MAX_GROUPS = 32;
   private static _currentGroup = 1;
   private static _currentBit = CollisionGroupManager._STARTING_BIT;
-  private static _groups: { [name: string]: CollisionGroup } = {};
+  private static _groups: Map<string, CollisionGroup> = new Map<string, CollisionGroup>();
 
   /**
    * Create a new named collision group up to a max of 32.
@@ -23,7 +23,7 @@ export class CollisionGroupManager {
     const group = new CollisionGroup(name, this._currentBit, mask !== undefined ? mask : ~this._currentBit);
     this._currentBit = (this._currentBit << 1) | 0;
     this._currentGroup++;
-    this._groups[name] = group;
+    this._groups.set(name, group);
     return group;
   }
 
@@ -31,7 +31,7 @@ export class CollisionGroupManager {
    * Get all collision groups currently tracked by excalibur
    */
   public static get groups(): CollisionGroup[] {
-    return Object.keys(this._groups).map((g) => this._groups[g]);
+    return Array.from(this._groups.values());
   }
 
   /**
@@ -39,14 +39,14 @@ export class CollisionGroupManager {
    * @param name
    */
   public static groupByName(name: string) {
-    return this._groups[name];
+    return this._groups.get(name);
   }
 
   /**
    * Resets the managers internal group management state
    */
   public static reset() {
-    this._groups = {};
+    this._groups = new Map<string, CollisionGroup>();
     this._currentBit = this._STARTING_BIT;
     this._currentGroup = 1;
   }
