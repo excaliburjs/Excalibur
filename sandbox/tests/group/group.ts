@@ -46,10 +46,6 @@ for (var i = 0; i < numActors; i++) {
   actor.on('postcollision', function(e: ex.PostCollisionEvent) {
     if (e.actor.currentDrawing instanceof ex.Sprite && e.other === player) {
       e.actor.currentDrawing.colorize(ex.Color.Cyan);
-    } else {
-      debugger;
-      console.log('Other', e.other);
-      console.trace();
     }
   });
 
