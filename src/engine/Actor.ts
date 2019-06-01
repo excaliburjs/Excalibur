@@ -388,11 +388,10 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * Sets the scale vector of the actor
+   * Sets the scale vector of the actor for
    */
   public set scale(scale: Vector) {
     this.body.scale = scale;
-    this.width = this.width;
   }
 
   /**
