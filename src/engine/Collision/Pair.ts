@@ -19,7 +19,7 @@ export class Pair {
 
   public static canCollide(colliderA: Collider, colliderB: Collider) {
     // If both are in the same collision group short circuit
-    if (!colliderA.collisionGroup.canCollide(colliderB.collisionGroup)) {
+    if (!colliderA.group.canCollide(colliderB.group)) {
       return false;
     }
 

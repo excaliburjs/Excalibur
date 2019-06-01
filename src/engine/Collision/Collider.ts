@@ -32,6 +32,10 @@ export interface ColliderOptions {
    */
   body?: Body;
   /**
+   * Optional collision group on this collider
+   */
+  group?: CollisionGroup;
+  /**
    * Optional [[collision type|CollisionType]], if not specified the default is [[CollisionType.PreventCollision]]
    */
   type?: CollisionType;
@@ -55,7 +59,7 @@ export class Collider implements Eventable, Clonable<Collider> {
   public useShapeInertia: boolean;
   private _events: EventDispatcher<Collider> = new EventDispatcher<Collider>(this);
 
-  constructor({ body, type, shape, useShapeInertia = true }: ColliderOptions) {
+  constructor({ body, type, group, shape, useShapeInertia = true }: ColliderOptions) {
     // If shape is not supplied see if the body has an existing collider with a shape
     if (body && body.collider && !shape) {
       this._shape = body.collider.shape;
@@ -65,7 +69,8 @@ export class Collider implements Eventable, Clonable<Collider> {
     }
     this.useShapeInertia = useShapeInertia;
     this._shape.collider = this;
-    this.type = type;
+    this.type = type || this.type;
+    this.group = group || this.group;
   }
 
   /**
@@ -96,7 +101,7 @@ export class Collider implements Eventable, Clonable<Collider> {
    * Gets or sets the current [[CollisionGroup|collision group]] for the collider, colliders with like collision groups do not collide.
    * By default, the collider will collide with [[CollisionGroup|all groups]].
    */
-  public collisionGroup: CollisionGroup = CollisionGroup.All;
+  public group: CollisionGroup = CollisionGroup.All;
 
   /*
    * Get the shape of the collider as a [[CollisionShape]]
