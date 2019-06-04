@@ -161,7 +161,7 @@ export class BoundingBox {
     return new ConvexPolygon({
       body: actor ? actor.body : null,
       points: this.getPoints(),
-      pos: Vector.Zero
+      offset: Vector.Zero
     });
   }
 

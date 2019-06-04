@@ -32,6 +32,10 @@ export interface ColliderOptions {
    */
   body?: Body;
   /**
+   * Optional pixel offset from the position of the body
+   */
+  offset?: Vector;
+  /**
    * Optional collision group on this collider
    */
   group?: CollisionGroup;
