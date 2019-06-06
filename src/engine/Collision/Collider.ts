@@ -63,7 +63,7 @@ export class Collider implements Eventable, Clonable<Collider> {
   public useShapeInertia: boolean;
   private _events: EventDispatcher<Collider> = new EventDispatcher<Collider>(this);
 
-  constructor({ body, type, group, shape, useShapeInertia = true }: ColliderOptions) {
+  constructor({ body, type, group, shape, offset, useShapeInertia = true }: ColliderOptions) {
     // If shape is not supplied see if the body has an existing collider with a shape
     if (body && body.collider && !shape) {
       this._shape = body.collider.shape;
@@ -75,6 +75,7 @@ export class Collider implements Eventable, Clonable<Collider> {
     this._shape.collider = this;
     this.type = type || this.type;
     this.group = group || this.group;
+    this.offset = offset || Vector.Zero;
   }
 
   /**
@@ -84,7 +85,9 @@ export class Collider implements Eventable, Clonable<Collider> {
     return new Collider({
       body: null,
       type: this.type,
-      shape: this._shape.clone()
+      shape: this._shape.clone(),
+      group: this.group,
+      offset: this.offset
     });
   }
 
@@ -152,6 +155,20 @@ export class Collider implements Eventable, Clonable<Collider> {
    */
   public collide(other: Collider): CollisionContact | null {
     return this.shape.collide(other.shape);
+  }
+
+  /**
+   * Gets the current pixel offset of the collider
+   */
+  public get offset() {
+    return this.shape.offset.clone();
+  }
+
+  /**
+   * Sets the pixel offset of the collider
+   */
+  public set offset(offset: Vector) {
+    this.shape.offset = offset.clone();
   }
 
   /**
