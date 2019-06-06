@@ -532,8 +532,9 @@ describe('A game actor', () => {
 
     actor.add(childActor);
 
-    actor.actions.moveBy(10, 15, 1000);
+    actor.actions.moveTo(10, 15, 1000);
     actor.update(engine, 1000);
+    actor.update(engine, 1);
 
     expect(childActor.getWorldPos().x).toBe(60);
     expect(childActor.getWorldPos().y).toBe(65);
@@ -551,6 +552,7 @@ describe('A game actor', () => {
 
     actor.actions.moveBy(10, 15, 1000);
     actor.update(engine, 1000);
+    actor.update(engine, 1);
 
     expect(grandChildActor.getWorldPos().x).toBe(70);
     expect(grandChildActor.getWorldPos().y).toBe(75);
@@ -562,6 +564,7 @@ describe('A game actor', () => {
 
     actor.actions.moveBy(10, 15, 1000);
     actor.update(engine, 1000);
+    actor.update(engine, 1);
 
     expect(actor.getWorldPos().x).toBe(10);
     expect(actor.getWorldPos().y).toBe(15);
