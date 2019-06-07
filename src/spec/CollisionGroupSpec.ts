@@ -45,6 +45,14 @@ describe('A Collision Group', () => {
     expect(maybeGroupC).toBe(groupC);
   });
 
+  it('should throw if 2 groups of the same name are created', () => {
+    ex.CollisionGroupManager.reset();
+    const maybeA = ex.CollisionGroupManager.create('A');
+    expect(() => {
+      const maybeAAlso = ex.CollisionGroupManager.create('A');
+    }).toThrowError('Collision group A already exists');
+  });
+
   it('should allow 32 collision groups', () => {
     expect(() => {
       ex.CollisionGroupManager.reset();
