@@ -116,7 +116,7 @@ describe('Collision Shape', () => {
       expect(pointTooFar).toBe(null, 'The circle should be too far away for a hit');
     });
 
-    it('can be raycast against only positive toi', () => {
+    it('can be raycast against only positive time of impact (toi)', () => {
       const ray = new ex.Ray(new ex.Vector(0, 0), ex.Vector.Right.clone());
 
       const point = circle.rayCast(ray);

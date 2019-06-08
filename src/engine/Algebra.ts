@@ -438,14 +438,14 @@ export class Line {
 
   /**
    * Find the perpendicular line from the line to a point
+   * https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+   * (a - p) - ((a - p) * n)n
+   * a is a point on the line
+   * p is the arbitrary point above the line
+   * n is a unit vector in direction of the line
    * @param point
    */
   public findVectorToPoint(point: Vector): Vector {
-    // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
-    // (a - p) - ((a - p) * n)n
-    // a is a point on the line
-    // p is the arbitrary point above the line
-    // n is a unit vector in direction of the line
     const aMinusP = this.begin.sub(point);
     const n = this.getSlope();
 
