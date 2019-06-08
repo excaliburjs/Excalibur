@@ -8,13 +8,16 @@ import { Logger } from './Util/Log';
 import { Eventable } from './Interfaces/Evented';
 import { Actionable } from './Actions/Actionable';
 import { Class } from './Class';
+import { obsolete } from './Util/Decorators';
 
 /**
  * Groups are used for logically grouping Actors so they can be acted upon
  * in bulk.
  *
+ * @obsolete Use [[CollisionGroupManager]] for collision based behavior
  * [[include:Groups.md]]
  */
+@obsolete({ message: 'ex.Group will be deprecated in v0.24.0', alternateMethod: 'Use ex.CollisionGroupManager' })
 export class Group extends Class implements Actionable, Eventable {
   private _logger: Logger = Logger.getInstance();
   private _members: Actor[] = [];
