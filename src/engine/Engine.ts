@@ -39,6 +39,7 @@ import * as Input from './Input/Index';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
+import { BrowserEvents } from './Util/Browser';
 
 /**
  * Enum representing the different display modes available to Excalibur
@@ -183,6 +184,11 @@ export interface EngineOptions {
  * [[include:Engine.md]]
  */
 export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
+  /**
+   *
+   */
+  public browser: BrowserEvents;
+
   /**
    * Direct access to the engine's canvas element
    */
@@ -487,6 +493,9 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     super();
 
     options = Util.extend({}, Engine._DefaultEngineOptions, options);
+
+    // Initialize browser events facade
+    this.browser = new BrowserEvents(window, document);
 
     // Check compatibility
     const detector = new Detector();
@@ -952,7 +961,7 @@ O|===|* >________________>\n\
 
       this._setHeightByDisplayMode(parent);
 
-      window.addEventListener('resize', () => {
+      this.browser.window.on('resize', () => {
         this._logger.debug('View port resized');
         this._setHeightByDisplayMode(parent);
         this._logger.info('parent.clientHeight ' + parent.clientHeight);
@@ -990,7 +999,7 @@ O|===|* >________________>\n\
       visibilityChange = 'webkitvisibilitychange';
     }
 
-    document.addEventListener(visibilityChange, () => {
+    this.browser.document.on(visibilityChange, () => {
       if (document[hidden]) {
         this.eventDispatcher.emit('hidden', new HiddenEvent(this));
         this._logger.debug('Window hidden');
@@ -1309,7 +1318,7 @@ O|===|* >________________>\n\
     if (!this._hasStarted) {
       this._hasStarted = true;
       this._logger.debug('Starting game...');
-
+      this.browser.resume();
       Engine.createMainLoop(this, window.requestAnimationFrame, Date.now)();
 
       this._logger.debug('Game started');
@@ -1376,6 +1385,7 @@ O|===|* >________________>\n\
   public stop() {
     if (this._hasStarted) {
       this.emit('stop', new GameStopEvent(this));
+      this.browser.pause();
       this._hasStarted = false;
       this._logger.debug('Game stopped');
     }

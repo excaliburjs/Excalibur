@@ -56,6 +56,7 @@ export { traits as Traits };
 import * as util from './Util/Index';
 export { util as Util };
 
+export * from './Util/Browser';
 export * from './Util/Decorators';
 export * from './Util/Detector';
 export * from './Util/CullingBox';
