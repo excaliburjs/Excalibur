@@ -88,11 +88,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where leaking window/document handlers was possible when calling `ex.Engine.stop()` and `ex.Engine.start()`. ([#1063](https://github.com/excaliburjs/Excalibur/issues/1120))
 - Fixed wrong `Camera` and `Loader` scaling on HiDPI screens when option `suppressHiDPIScaling` is set. ([#1120](https://github.com/excaliburjs/Excalibur/issues/1120))
 - Fixed polyfill application by exporting a `polyfill()` function that can be called. ([#1132](https://github.com/excaliburjs/Excalibur/issues/1132))
-
-<!--- Bug fixes here --->
-
 - Fixed Color.lighten() ([#1084])
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
