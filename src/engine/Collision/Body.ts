@@ -131,20 +131,24 @@ export class Body implements Clonable<Body> {
 
   /**
    * The scale vector of the actor
+   * @obsolete ex.Body.scale will be removed in v0.24.0
    */
   public scale: Vector = Vector.One;
 
   /**
    * The scale of the actor last frame
+   * @obsolete ex.Body.scale will be removed in v0.24.0
    */
   public oldScale: Vector = Vector.One;
 
   /**
    * The x scalar velocity of the actor in scale/second
+   * @obsolete ex.Body.scale will be removed in v0.24.0
    */
   public sx: number = 0; //scale/sec
   /**
    * The y scalar velocity of the actor in scale/second
+   * @obsolete ex.Body.scale will be removed in v0.24.0
    */
   public sy: number = 0; //scale/sec
 

@@ -382,6 +382,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Gets the scale vector of the actor
+   * @obsolete ex.Actor.scale will be removed in v0.24.0, set width and height directly in constructor
    */
   public get scale(): Vector {
     return this.body.scale;
@@ -389,6 +390,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Sets the scale vector of the actor for
+   * @obsolete ex.Actor.scale will be removed in v0.24.0, set width and height directly in constructor
    */
   public set scale(scale: Vector) {
     this.body.scale = scale;
@@ -396,6 +398,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Gets the old scale of the actor last frame
+   * @obsolete ex.Actor.scale will be removed in v0.24.0, set width and height directly in constructor
    */
   public get oldScale(): Vector {
     return this.body.oldScale;
@@ -403,6 +406,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Sets the the old scale of the acotr last frame
+   * @obsolete ex.Actor.scale will be removed in v0.24.0, set width and height directly in constructor
    */
   public set oldScale(scale: Vector) {
     this.body.oldScale = scale;
@@ -410,6 +414,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Gets the x scalar velocity of the actor in scale/second
+   * @obsolete ex.Actor.sx will be removed in v0.24.0, set width and height directly in constructor
    */
   public get sx(): number {
     return this.body.sx;
@@ -417,13 +422,16 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Sets the x scalar velocity of the actor in scale/second
+   * @obsolete ex.Actor.sx will be removed in v0.24.0, set width and height directly in constructor
    */
+  @obsolete({ message: 'ex.Actor.sx will be removed in v0.24.0', alternateMethod: 'Set width and height directly in constructor' })
   public set sx(scalePerSecondX: number) {
     this.body.sx = scalePerSecondX;
   }
 
   /**
    * Gets the y scalar velocity of the actor in scale/second
+   * @obsolete ex.Actor.sy will be removed in v0.24.0, set width and height directly in constructor
    */
   public get sy(): number {
     return this.body.sy;
@@ -431,7 +439,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Sets the y scale velocity of the actor in scale/second
+   * @obsolete ex.Actor.sy will be removed in v0.24.0, set width and height directly in constructor
    */
+  @obsolete({ message: 'ex.Actor.sy will be removed in v0.24.0', alternateMethod: 'Set width and height directly in constructor' })
   public set sy(scalePerSecondY: number) {
     this.body.sy = scalePerSecondY;
   }
@@ -567,6 +577,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
     super();
 
+    // initialize default options
+    this._initDefaults();
+
     let shouldInitializeBody = true;
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
@@ -579,10 +592,11 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
         shouldInitializeBody = false;
         this.body = config.body;
       }
-    }
 
-    // initialize default options
-    this._initDefaults();
+      if (config.anchor) {
+        this.anchor = config.anchor;
+      }
+    }
 
     // Body and collider bounds are still determined by actor width/height
     this._width = width || 0;
@@ -1633,7 +1647,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this.body.collider.debugDraw(ctx);
 
     // Draw actor bounding box
-    const bb = this.body.collider.bounds;
+    const bb = this.body.collider.localBounds.translate(this.getWorldPos());
     bb.debugDraw(ctx);
 
     // Draw actor Id
