@@ -67,9 +67,10 @@ ex.Physics.acc = new ex.Vector(0, 800); // global accel
 
 // Add some UI
 //var heart = new ex.UIActor(0, 0, 20, 20);
-var heart = new ex.UIActor({ x: 0, y: 0, width: 20, height: 20 });
-heart.scale.setTo(2, 2);
-heart.addDrawing(heartTex.asSprite());
+var heart = new ex.UIActor({ x: 0, y: 0, width: 20 * 2, height: 20 * 2 });
+var heartSprite = heartTex.asSprite();
+heartSprite.scale.setTo(2, 2);
+heart.addDrawing(heartSprite);
 game.add(heart);
 
 // Turn on debug diagnostics
@@ -131,10 +132,6 @@ var label = new ex.Label({
   y: 100,
   spriteFont: spriteFont
 });
-label.actions
-  .scaleTo(2, 2, 0.5, 0.5)
-  .scaleTo(1, 1, 0.5, 0.5)
-  .repeatForever();
 game.add(label);
 
 // Retrieve animations for blocks from sprite sheet
@@ -201,9 +198,8 @@ platform3.actions
   .repeatForever();
 game.add(platform3);
 
-var platform4 = new ex.Actor(200, 200, 100, 50, ex.Color.Azure);
+var platform4 = new ex.Actor(75, 300, 100, 50, ex.Color.Azure);
 platform4.collisionType = ex.CollisionType.Fixed;
-platform4.actions.moveBy(75, 300, 0.2);
 game.add(platform4);
 
 // Test follow api
@@ -232,7 +228,6 @@ follower.actions
 
 // follow player
 
-player.scale.setTo(1, 1);
 player.rotation = 0;
 
 // Health bar example

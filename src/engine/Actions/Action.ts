@@ -4,6 +4,7 @@ import { Actor } from '../Actor';
 import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
 import * as Util from '../Util/Util';
+import { obsolete } from '../Util/Decorators';
 
 /**
  * Used for implementing actions for the [[ActionContext|Action API]].
@@ -543,6 +544,7 @@ export class RotateBy implements Action {
   }
 }
 
+@obsolete({ message: 'ex.Action.ScaleTo will be removed in v0.24.0', alternateMethod: 'Set width and hight directly' })
 export class ScaleTo implements Action {
   private _actor: Actor;
   public x: number;
@@ -614,6 +616,7 @@ export class ScaleTo implements Action {
   }
 }
 
+@obsolete({ message: 'ex.Action.ScaleBy will be removed in v0.24.0', alternateMethod: 'Set width and hight directly' })
 export class ScaleBy implements Action {
   private _actor: Actor;
   public x: number;

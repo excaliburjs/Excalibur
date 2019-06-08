@@ -506,7 +506,7 @@ describe('Action', () => {
     });
   });
 
-  describe('scaleTo', () => {
+  xdescribe('scaleTo', () => {
     it('can be scaled at a speed', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
@@ -543,7 +543,7 @@ describe('Action', () => {
     });
   });
 
-  describe('scaleBy', () => {
+  xdescribe('scaleBy', () => {
     it('can be scaled by a certain time', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
