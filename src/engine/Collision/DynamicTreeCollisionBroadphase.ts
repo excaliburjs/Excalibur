@@ -121,7 +121,7 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
           let minBody: Body;
           let minTranslate: Vector = new Vector(Infinity, Infinity);
           this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + Physics.surfaceEpsilon * 2, (other: Body) => {
-            if (collider.body !== other && other.collider.shape) {
+            if (collider.body !== other && other.collider.shape && Pair.canCollide(collider, other.collider)) {
               const hitPoint = other.collider.shape.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
               if (hitPoint) {
                 const translate = hitPoint.sub(origin);

@@ -112,7 +112,6 @@ describe('A color', () => {
     expect(color.r).toBe(255, 'r');
     expect(color.g).toBe(255, 'g');
     expect(color.b).toBe(255, 'b');
-
   });
 
   it('can be averaged', () => {

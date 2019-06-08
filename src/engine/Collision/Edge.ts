@@ -39,7 +39,7 @@ export interface EdgeOptions {
 export class Edge implements CollisionShape {
   body: Body;
   collider?: Collider;
-  pos: Vector;
+  offset: Vector;
   begin: Vector;
   end: Vector;
 
@@ -47,7 +47,7 @@ export class Edge implements CollisionShape {
     this.begin = options.begin || Vector.Zero;
     this.end = options.end || Vector.Zero;
     this.collider = options.collider || null;
-    this.pos = this.center;
+    this.offset = this.center;
 
     // @obsolete Remove next release in v0.24.0, code exists for backwards compat
     if (options.body) {
@@ -71,9 +71,9 @@ export class Edge implements CollisionShape {
 
   public get worldPos(): Vector {
     if (this.collider && this.collider.body) {
-      return this.collider.body.pos.add(this.pos);
+      return this.collider.body.pos.add(this.offset);
     }
-    return this.pos;
+    return this.offset;
   }
 
   /**

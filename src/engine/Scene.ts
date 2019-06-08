@@ -28,6 +28,7 @@ import * as Util from './Util/Util';
 import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
+import { obsolete } from './Util/Decorators';
 import { Body } from './Collision/Body';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
@@ -67,7 +68,14 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * The [[Group]]s in the scene, if any
    */
-  public groups: { [key: string]: Group } = {};
+  @obsolete({ message: 'ex.Group will be deprecated in v0.24.0' })
+  public get groups() {
+    return this._groups;
+  }
+  public set groups(groups: { [key: string]: Group }) {
+    this._groups = groups;
+  }
+  private _groups: { [key: string]: Group } = {};
 
   /**
    * Access to the Excalibur engine
@@ -708,6 +716,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * Creates and adds a [[Group]] to the scene with a name
    */
+  @obsolete({ message: 'ex.Group will be deprecated in v0.24.0' })
   public createGroup(name: string): Group {
     return new Group(name, this);
   }
@@ -715,6 +724,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * Returns a [[Group]] by name
    */
+  @obsolete({ message: 'ex.Group will be deprecated in v0.24.0' })
   public getGroup(name: string): Group {
     return this.groups[name];
   }
@@ -728,6 +738,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Removes a [[Group]] by reference
    */
   public removeGroup(group: Group): void;
+  @obsolete({ message: 'ex.Group will be deprecated in v0.24.0' })
   public removeGroup(group: any): void {
     if (typeof group === 'string') {
       delete this.groups[group];

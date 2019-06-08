@@ -18,6 +18,11 @@ export class Pair {
   }
 
   public static canCollide(colliderA: Collider, colliderB: Collider) {
+    // If both are in the same collision group short circuit
+    if (!colliderA.group.canCollide(colliderB.group)) {
+      return false;
+    }
+
     // if both are fixed short circuit
     if (colliderA.type === CollisionType.Fixed && colliderB.type === CollisionType.Fixed) {
       return false;

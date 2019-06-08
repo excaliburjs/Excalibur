@@ -90,17 +90,16 @@ export class ActionContext {
   }
 
   /**
-   * This method will move an actor to the specified x and y position by a
-   * certain time (in milliseconds). This method is part of the actor
-   * 'Action' fluent API allowing action chaining.
-   * @param x     The x location to move the actor to
-   * @param y     The y location to move the actor to
-   * @param time  The time it should take the actor to move to the new location in milliseconds
+   * This method will move an actor by the specified x offset and y offset from its current position, at a certain speed.
+   * This method is part of the actor 'Action' fluent API allowing action chaining.
+   * @param xOffset     The x offset to apply to this actor
+   * @param yOffset     The y location to move the actor to
+   * @param speed  The speed in pixels per second the actor should move
    */
-  public moveBy(x: number, y: number, time: number): ActionContext {
+  public moveBy(xOffset: number, yOffset: number, speed: number): ActionContext {
     const len = this._queues.length;
     for (let i = 0; i < len; i++) {
-      this._queues[i].add(new Actions.MoveBy(this._actors[i], x, y, time));
+      this._queues[i].add(new Actions.MoveBy(this._actors[i], xOffset, yOffset, speed));
     }
     return this;
   }
@@ -122,17 +121,17 @@ export class ActionContext {
   }
 
   /**
-   * This method will rotate an actor to the specified angle by a certain
-   * time (in milliseconds) and return back the actor. This method is part
+   * This method will rotate an actor by the specified angle offset, from it's current rotation given a certain speed
+   * in radians/sec and return back the actor. This method is part
    * of the actor 'Action' fluent API allowing action chaining.
-   * @param angleRadians  The angle to rotate to in radians
-   * @param time          The time it should take the actor to complete the rotation in milliseconds
-   * @param rotationType  The [[RotationType]] to use for this rotation
+   * @param angleRadiansOffset  The angle to rotate to in radians relative to the current rotation
+   * @param speed          The speed in radians/sec the actor should rotate at
+   * @param rotationType  The [[RotationType]] to use for this rotation, default is shortest path
    */
-  public rotateBy(angleRadians: number, time: number, rotationType?: RotationType): ActionContext {
+  public rotateBy(angleRadiansOffset: number, speed: number, rotationType?: RotationType): ActionContext {
     const len = this._queues.length;
     for (let i = 0; i < len; i++) {
-      this._queues[i].add(new Actions.RotateBy(this._actors[i], angleRadians, time, rotationType));
+      this._queues[i].add(new Actions.RotateBy(this._actors[i], angleRadiansOffset, speed, rotationType));
     }
     return this;
   }
@@ -156,17 +155,17 @@ export class ActionContext {
   }
 
   /**
-   * This method will scale an actor to the specified size by a certain time
-   * (in milliseconds) and return back the actor. This method is part of the
+   * This method will scale an actor by an amount relative to the current scale at a certin speed in scale units/sec
+   * and return back the actor. This method is part of the
    * actor 'Action' fluent API allowing action chaining.
-   * @param sizeX   The scaling factor to apply on X axis
-   * @param sizeY   The scaling factor to apply on Y axis
-   * @param time    The time it should take to complete the scaling in milliseconds
+   * @param sizeOffsetX   The scaling factor to apply on X axis
+   * @param sizeOffsetY   The scaling factor to apply on Y axis
+   * @param speed    The speed to scale at in scale units/sec
    */
-  public scaleBy(sizeX: number, sizeY: number, time: number): ActionContext {
+  public scaleBy(sizeOffsetX: number, sizeOffsetY: number, speed: number): ActionContext {
     const len = this._queues.length;
     for (let i = 0; i < len; i++) {
-      this._queues[i].add(new Actions.ScaleBy(this._actors[i], sizeX, sizeY, time));
+      this._queues[i].add(new Actions.ScaleBy(this._actors[i], sizeOffsetX, sizeOffsetY, speed));
     }
     return this;
   }

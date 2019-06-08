@@ -21,7 +21,7 @@ describe('Collision Shape', () => {
 
       actor = new ex.Actor(0, 0, 20, 20);
       circle = new ex.CircleArea({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         radius: 10,
         body: actor.body
       });
@@ -48,21 +48,21 @@ describe('Collision Shape', () => {
       const circle = new ex.CircleArea({
         collider: actor1.body.collider,
         radius: 10,
-        pos: new ex.Vector(20, 25)
+        offset: new ex.Vector(20, 25)
       });
 
       const sut = circle.clone();
 
       expect(sut).not.toBe(circle);
-      expect(sut.pos).toBeVector(circle.pos);
-      expect(sut.pos).not.toBe(circle.pos);
+      expect(sut.offset).toBeVector(circle.offset);
+      expect(sut.offset).not.toBe(circle.offset);
       expect(sut.collider).toBe(null);
     });
 
     it('can be constructed with points', () => {
       const actor = new ex.Actor(0, 0, 10, 10);
       const circle = new ex.CircleArea({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         radius: 10,
         body: actor.body
       });
@@ -139,12 +139,12 @@ describe('Collision Shape', () => {
 
     it('should collide without a collider or body', () => {
       const circle1 = new ex.CircleArea({
-        pos: new ex.Vector(0, 0),
+        offset: new ex.Vector(0, 0),
         radius: 5
       });
 
       const circle2 = new ex.CircleArea({
-        pos: new ex.Vector(9, 0),
+        offset: new ex.Vector(9, 0),
         radius: 5
       });
 
@@ -191,7 +191,7 @@ describe('Collision Shape', () => {
     it('should collide with other polygons when touching', () => {
       const actor2 = new ex.Actor(14.99, 0, 10, 10); // meh close enough
       const poly = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         points: actor2.body.collider.localBounds.getPoints(),
         body: actor2.body
       });
@@ -215,7 +215,7 @@ describe('Collision Shape', () => {
     it('should not collide with other polygons when not touching', () => {
       const actor2 = new ex.Actor(16, 0, 10, 10);
       const poly = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         points: actor2.body.collider.localBounds.getPoints(),
         body: actor2.body
       });
@@ -309,7 +309,7 @@ describe('Collision Shape', () => {
 
     it('can be drawn', (done) => {
       const circle = new ex.Circle({
-        pos: new ex.Vector(100, 100),
+        offset: new ex.Vector(100, 100),
         radius: 30
       });
 
@@ -417,21 +417,21 @@ describe('Collision Shape', () => {
       const poly = new ex.ConvexPolygon({
         collider: actor1.body.collider,
         points: [ex.Vector.One, ex.Vector.Half],
-        pos: new ex.Vector(20, 25)
+        offset: new ex.Vector(20, 25)
       });
 
       const sut = poly.clone();
 
       expect(sut).not.toBe(poly);
-      expect(sut.pos).toBeVector(poly.pos);
-      expect(sut.pos).not.toBe(poly.pos);
+      expect(sut.offset).toBeVector(poly.offset);
+      expect(sut.offset).not.toBe(poly.offset);
       expect(sut.points.length).toBe(2);
       expect(sut.collider).toBe(null);
     });
 
     it('can be constructed with points', () => {
       const poly = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
       expect(poly).not.toBe(null);
@@ -439,12 +439,12 @@ describe('Collision Shape', () => {
 
     it('can have be constructed with position', () => {
       const poly = new ex.ConvexPolygon({
-        pos: new ex.Vector(10, 0),
+        offset: new ex.Vector(10, 0),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
 
-      expect(poly.pos.x).toBe(10);
-      expect(poly.pos.y).toBe(0);
+      expect(poly.offset.x).toBe(10);
+      expect(poly.offset.y).toBe(0);
 
       // should translate right 10 pixels
       const transformedPoints = poly.getTransformedPoints();
@@ -456,13 +456,13 @@ describe('Collision Shape', () => {
 
     it('can collide with other polygons', () => {
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
 
       const polyB = new ex.ConvexPolygon({
-        pos: new ex.Vector(10, 0),
+        offset: new ex.Vector(10, 0),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
 
@@ -488,7 +488,7 @@ describe('Collision Shape', () => {
       const actor = new ex.Actor(5, -6, 20, 20);
       actor.rotation = Math.PI / 4;
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
         body: actor.body
@@ -519,7 +519,7 @@ describe('Collision Shape', () => {
     it('can collide with the end of an edge', () => {
       const actor = new ex.Actor(0, -4, 20, 20);
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
         body: actor.body
@@ -547,7 +547,7 @@ describe('Collision Shape', () => {
     it('can collide with the end of an edge regardless of order', () => {
       const actor = new ex.Actor(0, -4, 20, 20);
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
         body: actor.body
@@ -576,7 +576,7 @@ describe('Collision Shape', () => {
       const actor = new ex.Actor(5, 0, 20, 20);
       actor.rotation = Math.PI / 4;
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
         body: actor.body
@@ -601,7 +601,7 @@ describe('Collision Shape', () => {
     it('should detected contained points', () => {
       const actor = new ex.Actor(0, 0, 20, 20);
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
         body: actor.body
@@ -619,7 +619,7 @@ describe('Collision Shape', () => {
 
     it('can calculate the closest face to a point', () => {
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)]
       });
@@ -661,7 +661,7 @@ describe('Collision Shape', () => {
     it('can have ray cast to detect if the ray hits the polygon', () => {
       const actor = new ex.Actor(0, 0, 20, 20);
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
         body: actor.body
@@ -683,7 +683,7 @@ describe('Collision Shape', () => {
 
     it('can be drawn', (done) => {
       const polygon = new ex.ConvexPolygon({
-        pos: new ex.Vector(100, 100),
+        offset: new ex.Vector(100, 100),
         points: [new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)]
       });
 
@@ -795,10 +795,10 @@ describe('Collision Shape', () => {
       const sut = edge.clone();
 
       expect(sut).not.toBe(edge);
-      expect(sut.pos).toBeVector(edge.pos);
+      expect(sut.offset).toBeVector(edge.offset);
       expect(sut.begin).toBeVector(edge.begin);
       expect(sut.end).toBeVector(edge.end);
-      expect(sut.pos).not.toBe(edge.pos);
+      expect(sut.offset).not.toBe(edge.offset);
       expect(sut.collider).toBe(null);
     });
 

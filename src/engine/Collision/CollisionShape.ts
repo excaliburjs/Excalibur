@@ -12,9 +12,9 @@ import { Clonable } from '../Interfaces/Clonable';
  */
 export interface CollisionShape extends Clonable<CollisionShape> {
   /**
-   * Position of the collision shape relative to the collider, by default (0, 0) meaning the shape is positioned on top of the collider.
+   * Pixel offset of the collision shape relative to the collider, by default (0, 0) meaning the shape is positioned on top of the collider.
    */
-  pos: Vector;
+  offset: Vector;
 
   /**
    * Postion of the collision shape in world coordinates

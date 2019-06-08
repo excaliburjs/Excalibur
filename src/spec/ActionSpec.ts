@@ -145,7 +145,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions.moveBy(100, 0, 2000);
+      actor.actions.moveBy(100, 0, 50);
 
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(50);
@@ -156,7 +156,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions.moveBy(20, 0, 1000);
+      actor.actions.moveBy(20, 0, 20);
       actor.update(engine, 500);
 
       actor.actions.clearActions();
@@ -430,22 +430,10 @@ describe('Action', () => {
   });
 
   describe('rotateBy', () => {
-    // it('can be rotated to an angle by a certain time', () => {
-    // 	expect(actor.rotation).toBe(0);
-
-    // 	actor.rotateBy(Math.PI/2, 2000);
-    // 	actor.update(engine, 1000);
-
-    // 	expect(actor.rotation).toBe(Math.PI/4);
-    // 	actor.update(engine, 1000);
-
-    // 	expect(actor.rotation).toBe(Math.PI/2);
-    //});
-
     it('can be rotated to an angle by a certain time via ShortestPath (default)', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateBy(Math.PI / 2, 2000);
+      actor.actions.rotateBy(Math.PI / 2, Math.PI / 4);
 
       actor.update(engine, 1000);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -460,7 +448,7 @@ describe('Action', () => {
     it('can be rotated to an angle by a certain time via LongestPath', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateBy(Math.PI / 2, 3000, ex.RotationType.LongestPath);
+      actor.actions.rotateBy(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
 
       actor.update(engine, 1000);
       expect(actor.rotation).toBe((-1 * Math.PI) / 2);
@@ -476,7 +464,7 @@ describe('Action', () => {
     it('can be rotated to an angle by a certain time via Clockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateBy(Math.PI / 2, 1000, ex.RotationType.Clockwise);
+      actor.actions.rotateBy(Math.PI / 2, Math.PI / 2, ex.RotationType.Clockwise);
 
       actor.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
@@ -492,7 +480,7 @@ describe('Action', () => {
     it('can be rotated to an angle by a certain time via CounterClockwise', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateBy(Math.PI / 2, 3000, ex.RotationType.LongestPath);
+      actor.actions.rotateBy(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
 
       actor.update(engine, 1000);
       expect(actor.rotation).toBe((-1 * Math.PI) / 2);
@@ -507,7 +495,7 @@ describe('Action', () => {
     it('can be stopped', () => {
       expect(actor.rotation).toBe(0);
 
-      actor.actions.rotateBy(Math.PI / 2, 2000);
+      actor.actions.rotateBy(Math.PI / 2, Math.PI / 4);
 
       actor.update(engine, 1000);
       actor.actions.clearActions();
@@ -560,14 +548,15 @@ describe('Action', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
-      actor.actions.scaleBy(4, 5, 1000);
+      actor.actions.scaleBy(4, 4, 4);
 
       actor.update(engine, 500);
-      expect(actor.scale.x).toBe(2.5);
+      expect(actor.scale.x).toBe(3);
       expect(actor.scale.y).toBe(3);
 
       actor.update(engine, 500);
-      expect(actor.scale.x).toBe(4);
+      actor.update(engine, 1);
+      expect(actor.scale.x).toBe(5);
       expect(actor.scale.y).toBe(5);
     });
 
@@ -575,7 +564,7 @@ describe('Action', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
-      actor.actions.scaleBy(4, 4, 1000);
+      actor.actions.scaleBy(4, 4, 3);
 
       actor.update(engine, 500);
 

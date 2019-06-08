@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Add new collision group implementation [#1091](https://github.com/excaliburjs/Excalibur/issues/1091) [#862](https://github.com/excaliburjs/Excalibur/issues/862)
 - New `ex.Collider` type which is the container for all collision related behavior and state. Actor is now extracted from collision.
 - Added interface `Clonable<T>` to indicate if an object contains a clone method
 - Added interface `Eventable<T>` to indicated if an object can emit and receive events
@@ -25,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Change `ex.Actor.within` to use surface of object geometry instead of the center to make judgements ([#1071](https://github.com/excaliburjs/Excalibur/issues/1071))
+- Changed `moveBy`, `rotateBy`, and `scaleBy` to operate relative to the current actor position at a speed, instead of moving to an absolute by a certain time.
 - Changed event handlers in excalibur to expect non-null event objects, before `hander: (event?: GameEvent) => void` implied that event could be null. This change addresses ([#1147](https://github.com/excaliburjs/Excalibur/issues/1147)) making strict null/function checks compatible with new typescript.
 - Changed collision system to remove actor coupling, in addition `ex.Collider` is a new type that encapsulates all collision behavior. Use `ex.Actor.body.collider` to interact with collisions in Excalibur ([#1119](https://github.com/excaliburjs/Excalibur/issues/1119))
 
@@ -62,6 +64,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+- Legacy groups `ex.Group` will be removed in v0.24.0, use collision groups as a replacement [#1091](https://github.com/excaliburjs/Excalibur/issues/1091)
+- Legacy collision groups off `Actor` will be removed in v0.24.0, use `Actor.body.collider.collisionGroup` [#1091](https://github.com/excaliburjs/Excalibur/issues/1091)
 - Removed `NaiveCollisionBroadphase` as it was no longer used
 - Renamed methods and properties will be available until `v0.24.0`
 - Deprecated collision attributes on actor, use `Actor.body.collider`

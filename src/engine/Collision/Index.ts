@@ -5,6 +5,8 @@ export * from './Circle';
 export * from './CollisionContact';
 export * from './CollisionJumpTable';
 export * from './ClosestLineJumpTable';
+export * from './CollisionGroup';
+export * from './CollisionGroupManager';
 export * from './DynamicTree';
 export * from './DynamicTreeCollisionBroadphase';
 export * from './Edge';
