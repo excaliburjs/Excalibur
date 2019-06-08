@@ -9,6 +9,8 @@ export interface ObsoleteOptions {
   message?: string;
   // Optionally indicate that an alternate method to the obsolete one exists
   alternateMethod?: string;
+  // Optional show stack trace, by default off
+  showStackTrace?: boolean;
 }
 
 /**
@@ -16,7 +18,15 @@ export interface ObsoleteOptions {
  * method do the deprecated one. Inspired by https://github.com/jayphelps/core-decorators.js
  */
 export function obsolete(options?: ObsoleteOptions): any {
-  options = Util.extend({}, { message: 'This feature will be removed in future versions of Excalibur.', alternateMethod: null }, options);
+  options = Util.extend(
+    {},
+    {
+      message: 'This feature will be removed in future versions of Excalibur.',
+      alternateMethod: null,
+      showStackTrack: false
+    },
+    options
+  );
 
   return function(target: any, property: string, descriptor: PropertyDescriptor): any {
     if (
@@ -38,7 +48,7 @@ export function obsolete(options?: ObsoleteOptions): any {
         const args = Array.prototype.slice.call(arguments);
         Logger.getInstance().warn(message);
         // tslint:disable-next-line: no-console
-        if (console.trace) {
+        if (console.trace && options.showStackTrace) {
           // tslint:disable-next-line: no-console
           console.trace();
         }
@@ -52,7 +62,7 @@ export function obsolete(options?: ObsoleteOptions): any {
       method.value = function(this: any) {
         Logger.getInstance().warn(message);
         // tslint:disable-next-line: no-console
-        if (console.trace) {
+        if (console.trace && options.showStackTrace) {
           // tslint:disable-next-line: no-console
           console.trace();
         }
@@ -65,7 +75,7 @@ export function obsolete(options?: ObsoleteOptions): any {
       method.get = function(this: any) {
         Logger.getInstance().warn(message);
         // tslint:disable-next-line: no-console
-        if (console.trace) {
+        if (console.trace && options.showStackTrace) {
           // tslint:disable-next-line: no-console
           console.trace();
         }

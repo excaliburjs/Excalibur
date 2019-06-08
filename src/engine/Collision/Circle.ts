@@ -5,13 +5,14 @@ import { CollisionShape } from './CollisionShape';
 import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 
-import { Vector, Ray, Projection } from '../Algebra';
+import { Vector, Ray, Projection, Line } from '../Algebra';
 import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
 
 // @obsolete Remove in v0.24.0
 import { Body } from './Body';
+import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 // ===========================
 
 export interface CircleOptions {
@@ -144,12 +145,33 @@ export class Circle implements CollisionShape {
         const toi1 = -dir.dot(orig.sub(c)) + discriminant;
         const toi2 = -dir.dot(orig.sub(c)) - discriminant;
 
-        const mintoi = Math.min(toi1, toi2);
+        const positiveToi: number[] = [];
+        if (toi1 >= 0) {
+          positiveToi.push(toi1);
+        }
+
+        if (toi2 >= 0) {
+          positiveToi.push(toi2);
+        }
+
+        const mintoi = Math.min(...positiveToi);
         if (mintoi <= max) {
           return ray.getPoint(mintoi);
         }
         return null;
       }
+    }
+  }
+
+  public getClosestLineBetween(shape: CollisionShape): Line {
+    if (shape instanceof Circle) {
+      return ClosestLineJumpTable.CircleCircleClosestLine(this, shape);
+    } else if (shape instanceof ConvexPolygon) {
+      return ClosestLineJumpTable.PolygonCircleClosestLine(shape, this).flip();
+    } else if (shape instanceof Edge) {
+      return ClosestLineJumpTable.CircleEdgeClosestLine(this, shape).flip();
+    } else {
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
     }
   }
 

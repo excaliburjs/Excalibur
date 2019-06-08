@@ -116,6 +116,15 @@ describe('Collision Shape', () => {
       expect(pointTooFar).toBe(null, 'The circle should be too far away for a hit');
     });
 
+    it('can be raycast against only positive time of impact (toi)', () => {
+      const ray = new ex.Ray(new ex.Vector(0, 0), ex.Vector.Right.clone());
+
+      const point = circle.rayCast(ray);
+
+      expect(point.x).toBe(10);
+      expect(point.y).toBe(0);
+    });
+
     it('doesnt have axes', () => {
       // technically circles have infinite axes
       expect(circle.axes).toBe(null);
@@ -330,6 +339,51 @@ describe('Collision Shape', () => {
         expect(canvas).toEqualImage(image);
         done();
       });
+    });
+
+    it('can calculate the distance to another circle', () => {
+      const circle = new ex.Circle({
+        offset: new ex.Vector(100, 100),
+        radius: 30
+      });
+
+      const circle2 = new ex.Circle({
+        offset: new ex.Vector(200, 100),
+        radius: 30
+      });
+
+      const line = circle.getClosestLineBetween(circle2);
+
+      expect(line.getLength()).toBe(40);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to other circle should be away from this');
+    });
+
+    it('can calculate the distance to another polygon', () => {
+      const circle = new ex.Circle({
+        offset: new ex.Vector(100, 100),
+        radius: 30
+      });
+
+      const box = ex.Shape.Box(40, 40, ex.Vector.Zero, new ex.Vector(200, 100));
+
+      const line = circle.getClosestLineBetween(box);
+
+      expect(line.getLength()).toBe(70);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to polygon should be away from polygon');
+    });
+
+    it('can calculate the distance to another edge', () => {
+      const circle = new ex.Circle({
+        offset: new ex.Vector(100, 100),
+        radius: 30
+      });
+
+      const edge = ex.Shape.Edge(new ex.Vector(200, 50), new ex.Vector(200, 150));
+
+      const line = circle.getClosestLineBetween(edge);
+
+      expect(line.getLength()).toBe(70);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to edge should be away from circle');
     });
   });
 
@@ -660,6 +714,42 @@ describe('Collision Shape', () => {
         done();
       });
     });
+
+    it('can calculate the distance to another circle', () => {
+      const poly = ex.Shape.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
+
+      const circle = new ex.Circle({
+        offset: new ex.Vector(200, 100),
+        radius: 30
+      });
+
+      const line = poly.getClosestLineBetween(circle);
+
+      expect(line.getLength()).toBe(50);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to other circle should be away from this');
+    });
+
+    it('can calculate the distance to another polygon', () => {
+      const poly = ex.Shape.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
+
+      const box = ex.Shape.Box(40, 40, ex.Vector.Zero, new ex.Vector(200, 100));
+
+      const line = poly.getClosestLineBetween(box);
+
+      expect(line.getLength()).toBe(80);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to polygon should be away from polygon');
+    });
+
+    it('can calculate the distance to another edge', () => {
+      const poly = ex.Shape.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
+
+      const edge = ex.Shape.Edge(new ex.Vector(200, 50), new ex.Vector(200, 150));
+
+      const line = poly.getClosestLineBetween(edge);
+
+      expect(line.getLength()).toBe(80);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to edge should be away from circle');
+    });
   });
 
   describe('an Edge', () => {
@@ -803,6 +893,42 @@ describe('Collision Shape', () => {
         expect(canvas).toEqualImage(image);
         done();
       });
+    });
+
+    it('can calculate the distance to another circle', () => {
+      const edge = ex.Shape.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
+
+      const circle = new ex.Circle({
+        offset: new ex.Vector(200, 100),
+        radius: 30
+      });
+
+      const line = edge.getClosestLineBetween(circle);
+
+      expect(line.getLength()).toBe(70);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to other circle should be away from this');
+    });
+
+    it('can calculate the distance to another polygon', () => {
+      const edge = ex.Shape.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
+
+      const box = ex.Shape.Box(40, 40, ex.Vector.Zero, new ex.Vector(200, 100));
+
+      const line = edge.getClosestLineBetween(box);
+
+      expect(line.getLength()).toBe(100);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to polygon should be away from polygon');
+    });
+
+    it('can calculate the distance to another edge', () => {
+      const edge = ex.Shape.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
+
+      const edge2 = ex.Shape.Edge(new ex.Vector(200, 50), new ex.Vector(200, 150));
+
+      const line = edge.getClosestLineBetween(edge2);
+
+      expect(line.getLength()).toBe(100);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to edge should be away from circle');
     });
   });
 });

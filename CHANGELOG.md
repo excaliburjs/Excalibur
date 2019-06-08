@@ -21,9 +21,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `ex.BoundingBox.scale(scale: Vector)` will create a new bounding box scaled by `scale`
 - Added `isActor()` and `isCollider()` type guards
 - Added `ex.CollisionShape.draw` collision shapes can now be drawn, actor's will use these shapes if no other drawing is specified
+- Added a `getClosestLineBetween` method to `CollisionShape`'s for returning the closest line between 2 shapes ([#1071](https://github.com/excaliburjs/Excalibur/issues/1071))
 
 ### Changed
 
+- Change `ex.Actor.within` to use surface of object geometry instead of the center to make judgements ([#1071](https://github.com/excaliburjs/Excalibur/issues/1071))
 - Changed `moveBy`, `rotateBy`, and `scaleBy` to operate relative to the current actor position at a speed, instead of moving to an absolute by a certain time.
 - Changed event handlers in excalibur to expect non-null event objects, before `hander: (event?: GameEvent) => void` implied that event could be null. This change addresses ([#1147](https://github.com/excaliburjs/Excalibur/issues/1147)) making strict null/function checks compatible with new typescript.
 - Changed collision system to remove actor coupling, in addition `ex.Collider` is a new type that encapsulates all collision behavior. Use `ex.Actor.body.collider` to interact with collisions in Excalibur ([#1119](https://github.com/excaliburjs/Excalibur/issues/1119))

@@ -377,13 +377,22 @@ export class Line {
   }
 
   /**
-   * Returns the slope of the line in the form of a vector
+   * Returns the slope of the line in the form of a vector of length 1
    */
   public getSlope(): Vector {
     const begin = this.begin;
     const end = this.end;
     const distance = begin.distance(end);
     return end.sub(begin).scale(1 / distance);
+  }
+
+  /**
+   * Returns the edge of the line as vector, the length of the vector is the length of the edge
+   */
+  public getEdge(): Vector {
+    const begin = this.begin;
+    const end = this.end;
+    return end.sub(begin);
   }
 
   /**
@@ -394,6 +403,20 @@ export class Line {
     const end = this.end;
     const distance = begin.distance(end);
     return distance;
+  }
+
+  /**
+   * Returns the midpoint of the edge
+   */
+  public get midpoint(): Vector {
+    return this.begin.add(this.end).scale(0.5);
+  }
+
+  /**
+   * Flips the direction of the line segment
+   */
+  public flip(): Line {
+    return new Line(this.end, this.begin);
   }
 
   /**
@@ -411,6 +434,22 @@ export class Line {
     const dx = this.end.x - this.begin.x;
     const distance = Math.abs(dy * x0 - dx * y0 + this.end.x * this.begin.y - this.end.y * this.begin.x) / l;
     return distance;
+  }
+
+  /**
+   * Find the perpendicular line from the line to a point
+   * https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+   * (a - p) - ((a - p) * n)n
+   * a is a point on the line
+   * p is the arbitrary point above the line
+   * n is a unit vector in direction of the line
+   * @param point
+   */
+  public findVectorToPoint(point: Vector): Vector {
+    const aMinusP = this.begin.sub(point);
+    const n = this.getSlope();
+
+    return aMinusP.sub(n.scale(aMinusP.dot(n)));
   }
 
   /**

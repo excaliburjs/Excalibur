@@ -1428,12 +1428,12 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this._collisionHandlers[group] = [];
   }
   /**
-   * Returns true if the two actors are less than or equal to the distance specified from each other
+   * Returns true if the two actor.body.collider.shape's surfaces are less than or equal to the distance specified from each other
    * @param actor     Actor to test
    * @param distance  Distance in pixels to test
    */
   public within(actor: Actor, distance: number): boolean {
-    return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
+    return this.body.collider.shape.getClosestLineBetween(actor.body.collider.shape).getLength() <= distance;
   }
 
   // #endregion

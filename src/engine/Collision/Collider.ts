@@ -5,7 +5,7 @@ import { GameEvent } from '../Events';
 import { Actor } from '../Actor';
 import { Body } from './Body';
 import { CollisionShape } from './CollisionShape';
-import { Vector } from '../Algebra';
+import { Vector, Line } from '../Algebra';
 import { Physics } from '../Physics';
 import { BoundingBox } from './BoundingBox';
 import { CollisionType } from './CollisionType';
@@ -157,6 +157,16 @@ export class Collider implements Eventable, Clonable<Collider> {
     return this.shape.collide(other.shape);
   }
 
+  /**
+   * Find the closest line between 2 colliders
+   *
+   * Line is in the direction of the other collider. Away from this collider, this -> other.
+   * @param other Other collider
+   */
+  public getClosestLineBetween(other: Collider): Line {
+    return this.shape.getClosestLineBetween(other.shape);
+  }
+  
   /**
    * Gets the current pixel offset of the collider
    */
