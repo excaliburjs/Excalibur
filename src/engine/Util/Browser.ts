@@ -48,13 +48,19 @@ export class BrowserComponent<T extends NativeEventable> {
 }
 
 export class BrowserEvents {
-  constructor(private _windowGlobal: Window, private _documentGlobal: Document) {}
+  private _windowComponent: BrowserComponent<Window>;
+  private _documentComponent: BrowserComponent<Document>;
+  constructor(private _windowGlobal: Window, private _documentGlobal: Document) {
+    this._windowComponent = new BrowserComponent(this._windowGlobal);
+    this._documentComponent = new BrowserComponent(this._documentGlobal);
+  }
+
   public get window(): BrowserComponent<Window> {
-    return new BrowserComponent(this._windowGlobal);
+    return this._windowComponent;
   }
 
   public get document(): BrowserComponent<Document> {
-    return new BrowserComponent(this._documentGlobal);
+    return this._documentComponent;
   }
 
   public pause() {
