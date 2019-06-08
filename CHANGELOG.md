@@ -5,9 +5,25 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.23.0] - 2019-06-08
+
 ### Breaking Changes
 
-- `ex.Actor.scale`, `ex.Actor.sx/sy`, `ex.Actor.actions.scaleTo/scaleBy` will not work as expected with new collider implementation, set width and height directly
+- `ex.Actor.scale`, `ex.Actor.sx/sy`, `ex.Actor.actions.scaleTo/scaleBy` will not work as expected with new collider implementation, set width and height directly. These features will be completely removed in v0.24.0. 
 
 ### Added
 
@@ -93,9 +109,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed polyfill application by exporting a `polyfill()` function that can be called. ([#1132](https://github.com/excaliburjs/Excalibur/issues/1132))
 - Fixed Color.lighten() ([#1084])
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!----------------------------------------------------------------------------------------------->
 
 ## [0.22.0] - 2019-04-06
 
@@ -832,7 +846,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!----------------------------------------------------------------------------------------------->
 
-[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.22.0...HEAD
+[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.23.0...HEAD
+[0.23.0]: https://github.com/excaliburjs/Excalibur/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/excaliburjs/Excalibur/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/excaliburjs/Excalibur/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/excaliburjs/Excalibur/compare/v0.19.1...v0.20.0
