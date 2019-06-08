@@ -5,10 +5,11 @@ import { GameEvent } from '../Events';
 import { Actor } from '../Actor';
 import { Body } from './Body';
 import { CollisionShape } from './CollisionShape';
-import { Vector } from '../Algebra';
+import { Vector, Line } from '../Algebra';
 import { Physics } from '../Physics';
 import { BoundingBox } from './BoundingBox';
 import { CollisionType } from './CollisionType';
+import { CollisionGroup } from './CollisionGroup';
 import { CollisionContact } from './CollisionContact';
 import { EventDispatcher } from '../EventDispatcher';
 import { Pair } from './Pair';
@@ -30,6 +31,14 @@ export interface ColliderOptions {
    * Optional body to associate with this collider
    */
   body?: Body;
+  /**
+   * Optional pixel offset from the position of the body
+   */
+  offset?: Vector;
+  /**
+   * Optional collision group on this collider
+   */
+  group?: CollisionGroup;
   /**
    * Optional [[collision type|CollisionType]], if not specified the default is [[CollisionType.PreventCollision]]
    */
@@ -54,7 +63,7 @@ export class Collider implements Eventable, Clonable<Collider> {
   public useShapeInertia: boolean;
   private _events: EventDispatcher<Collider> = new EventDispatcher<Collider>(this);
 
-  constructor({ body, type, shape, useShapeInertia = true }: ColliderOptions) {
+  constructor({ body, type, group, shape, offset, useShapeInertia = true }: ColliderOptions) {
     // If shape is not supplied see if the body has an existing collider with a shape
     if (body && body.collider && !shape) {
       this._shape = body.collider.shape;
@@ -64,7 +73,9 @@ export class Collider implements Eventable, Clonable<Collider> {
     }
     this.useShapeInertia = useShapeInertia;
     this._shape.collider = this;
-    this.type = type;
+    this.type = type || this.type;
+    this.group = group || this.group;
+    this.offset = offset || Vector.Zero;
   }
 
   /**
@@ -74,7 +85,9 @@ export class Collider implements Eventable, Clonable<Collider> {
     return new Collider({
       body: null,
       type: this.type,
-      shape: this._shape.clone()
+      shape: this._shape.clone(),
+      group: this.group,
+      offset: this.offset
     });
   }
 
@@ -92,6 +105,12 @@ export class Collider implements Eventable, Clonable<Collider> {
   public type: CollisionType = CollisionType.PreventCollision;
 
   /**
+   * Gets or sets the current [[CollisionGroup|collision group]] for the collider, colliders with like collision groups do not collide.
+   * By default, the collider will collide with [[CollisionGroup|all groups]].
+   */
+  public group: CollisionGroup = CollisionGroup.All;
+
+  /*
    * Get the shape of the collider as a [[CollisionShape]]
    */
   public get shape(): CollisionShape {
@@ -136,6 +155,30 @@ export class Collider implements Eventable, Clonable<Collider> {
    */
   public collide(other: Collider): CollisionContact | null {
     return this.shape.collide(other.shape);
+  }
+
+  /**
+   * Find the closest line between 2 colliders
+   *
+   * Line is in the direction of the other collider. Away from this collider, this -> other.
+   * @param other Other collider
+   */
+  public getClosestLineBetween(other: Collider): Line {
+    return this.shape.getClosestLineBetween(other.shape);
+  }
+  
+  /**
+   * Gets the current pixel offset of the collider
+   */
+  public get offset() {
+    return this.shape.offset.clone();
+  }
+
+  /**
+   * Sets the pixel offset of the collider
+   */
+  public set offset(offset: Vector) {
+    this.shape.offset = offset.clone();
   }
 
   /**

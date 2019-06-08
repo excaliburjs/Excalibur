@@ -144,35 +144,34 @@ export class MoveBy implements Action {
   public y: number;
   private _distance: number;
   private _speed: number;
-  private _time: number;
 
   private _start: Vector;
+  private _offset: Vector;
   private _end: Vector;
   private _dir: Vector;
   private _started = false;
   private _stopped = false;
-  constructor(actor: Actor, destx: number, desty: number, time: number) {
+
+  constructor(actor: Actor, offsetX: number, offsetY: number, speed: number) {
     this._actor = actor;
-    this._end = new Vector(destx, desty);
-    if (time <= 0) {
-      Logger.getInstance().error('Attempted to moveBy time less than or equal to zero : ' + time);
-      throw new Error('Cannot move in time <= 0');
+    this._speed = speed;
+    this._offset = new Vector(offsetX, offsetY);
+    if (speed <= 0) {
+      Logger.getInstance().error('Attempted to moveBy with speed less than or equal to zero : ' + speed);
+      throw new Error('Speed must be greater than 0 pixels per second');
     }
-    this._time = time;
   }
 
   public update(_delta: number) {
     if (!this._started) {
       this._started = true;
       this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
-      this._distance = this._start.distance(this._end);
+      this._end = this._start.add(this._offset);
+      this._distance = this._offset.magnitude();
       this._dir = this._end.sub(this._start).normalize();
-      this._speed = this._distance / (this._time / 1000);
     }
 
-    const m = this._dir.scale(this._speed);
-    this._actor.vel.x = m.x;
-    this._actor.vel.y = m.y;
+    this._actor.vel = this._dir.scale(this._speed);
 
     if (this.isComplete(this._actor)) {
       this._actor.pos.x = this._end.x;
@@ -183,7 +182,7 @@ export class MoveBy implements Action {
   }
 
   public isComplete(actor: Actor): boolean {
-    return this._stopped || new Vector(actor.pos.x, actor.pos.y).distance(this._start) >= this._distance;
+    return this._stopped || actor.pos.distance(this._start) >= this._distance;
   }
 
   public stop(): void {
@@ -449,7 +448,8 @@ export class RotateBy implements Action {
   private _start: number;
   private _end: number;
   private _speed: number;
-  private _time: number;
+  private _offset: number;
+
   private _rotationType: RotationType;
   private _direction: number;
   private _distance: number;
@@ -458,10 +458,10 @@ export class RotateBy implements Action {
   private _shortestPathIsPositive: boolean;
   private _started = false;
   private _stopped = false;
-  constructor(actor: Actor, angleRadians: number, time: number, rotationType?: RotationType) {
+  constructor(actor: Actor, angleRadiansOffset: number, speed: number, rotationType?: RotationType) {
     this._actor = actor;
-    this._end = angleRadians;
-    this._time = time;
+    this._speed = speed;
+    this._offset = angleRadiansOffset;
     this._rotationType = rotationType || RotationType.ShortestPath;
   }
 
@@ -469,6 +469,8 @@ export class RotateBy implements Action {
     if (!this._started) {
       this._started = true;
       this._start = this._actor.rotation;
+      this._end = this._start + this._offset;
+
       const distance1 = Math.abs(this._end - this._start);
       const distance2 = Util.TwoPI - distance1;
       if (distance1 > distance2) {
@@ -515,7 +517,6 @@ export class RotateBy implements Action {
           }
           break;
       }
-      this._speed = Math.abs((this._distance / this._time) * 1000);
     }
 
     this._actor.rx = this._direction * this._speed;
@@ -617,40 +618,39 @@ export class ScaleBy implements Action {
   private _actor: Actor;
   public x: number;
   public y: number;
-  private _startX: number;
-  private _startY: number;
-  private _endX: number;
-  private _endY: number;
+  private _startScale: Vector;
+  private _endScale: Vector;
+  private _offset: Vector;
   private _distanceX: number;
   private _distanceY: number;
+  private _directionX: number;
+  private _directionY: number;
   private _started = false;
   private _stopped = false;
   private _speedX: number;
   private _speedY: number;
-  constructor(actor: Actor, scaleX: number, scaleY: number, time: number) {
+  constructor(actor: Actor, scaleOffsetX: number, scaleOffsetY: number, speed: number) {
     this._actor = actor;
-    this._endX = scaleX;
-    this._endY = scaleY;
-    this._speedX = ((this._endX - this._actor.scale.x) / time) * 1000;
-    this._speedY = ((this._endY - this._actor.scale.y) / time) * 1000;
+    this._offset = new Vector(scaleOffsetX, scaleOffsetY);
+    this._speedX = this._speedY = speed;
   }
 
   public update(_delta: number): void {
     if (!this._started) {
       this._started = true;
-      this._startX = this._actor.scale.x;
-      this._startY = this._actor.scale.y;
-      this._distanceX = Math.abs(this._endX - this._startX);
-      this._distanceY = Math.abs(this._endY - this._startY);
+      this._startScale = this._actor.scale.clone();
+      this._endScale = this._startScale.add(this._offset);
+      this._distanceX = Math.abs(this._endScale.x - this._startScale.x);
+      this._distanceY = Math.abs(this._endScale.y - this._startScale.y);
+      this._directionX = this._endScale.x < this._startScale.x ? -1 : 1;
+      this._directionY = this._endScale.y < this._startScale.y ? -1 : 1;
     }
-    const directionX = this._endX < this._startX ? -1 : 1;
-    const directionY = this._endY < this._startY ? -1 : 1;
-    this._actor.sx = this._speedX * directionX;
-    this._actor.sy = this._speedY * directionY;
+
+    this._actor.sx = this._speedX * this._directionX;
+    this._actor.sy = this._speedY * this._directionY;
 
     if (this.isComplete()) {
-      this._actor.scale.x = this._endX;
-      this._actor.scale.y = this._endY;
+      this._actor.scale = this._endScale;
       this._actor.sx = 0;
       this._actor.sy = 0;
     }
@@ -659,7 +659,8 @@ export class ScaleBy implements Action {
   public isComplete(): boolean {
     return (
       this._stopped ||
-      (Math.abs(this._actor.scale.x - this._startX) >= this._distanceX && Math.abs(this._actor.scale.y - this._startY) >= this._distanceY)
+      (Math.abs(this._actor.scale.x - this._startScale.x) >= this._distanceX &&
+        Math.abs(this._actor.scale.y - this._startScale.y) >= this._distanceY)
     );
   }
 

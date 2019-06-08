@@ -388,11 +388,10 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * Sets the scale vector of the actor
+   * Sets the scale vector of the actor for
    */
   public set scale(scale: Vector) {
     this.body.scale = scale;
-    this.width = this.width;
   }
 
   /**
@@ -501,6 +500,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this.body.collider.type = type;
   }
 
+  /**
+   * @obsolete Legacy collision groups will be removed in v0.24.0, use [[Actor.body.collider.collisionGroup]]
+   */
   public collisionGroups: string[] = [];
 
   private _collisionHandlers: { [key: string]: { (actor: Actor): void }[] } = {};
@@ -1086,14 +1088,18 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * that group.
    *
    * @param name The name of the collision group
+   * @obsolete Use [[Actor.body.collider.collisionGroup]], legacy collisionGroups will be removed in v0.24.0
    */
+  @obsolete({ message: 'Legacy collision groups will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.collisionGroup' })
   public addCollisionGroup(name: string) {
     this.collisionGroups.push(name);
   }
   /**
    * Removes an actor from a collision group.
    * @param name The name of the collision group
+   * @obsolete Use [[Actor.body.collider.collisionGroup]], legacy collisionGroups will be removed in v0.24.0
    */
+  @obsolete({ message: 'Legacy collision groups will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.collisionGroup' })
   public removeCollisionGroup(name: string) {
     const index = this.collisionGroups.indexOf(name);
     if (index !== -1) {
@@ -1402,12 +1408,14 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @param group The group name to listen for
    * @param func The callback to fire on collision with another actor from the group. The callback is passed the other actor.
    */
+  @obsolete({ message: 'Actor.onCollidesWIth will be removed  in v0.24.0', alternateMethod: 'Actor.collider.canCollide' })
   public onCollidesWith(group: string, func: (actor: Actor) => void) {
     if (!this._collisionHandlers[group]) {
       this._collisionHandlers[group] = [];
     }
     this._collisionHandlers[group].push(func);
   }
+  @obsolete({ message: 'Actor.getCollisionHandlers will be removed  in v0.24.0' })
   public getCollisionHandlers(): { [key: string]: { (actor: Actor): void }[] } {
     return this._collisionHandlers;
   }
@@ -1415,16 +1423,17 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Removes all collision handlers for this group on this actor
    * @param group Group to remove all handlers for on this actor.
    */
+  @obsolete({ message: 'Actor.getCollisionHandlers will be removed  in v0.24.0' })
   public removeCollidesWith(group: string) {
     this._collisionHandlers[group] = [];
   }
   /**
-   * Returns true if the two actors are less than or equal to the distance specified from each other
+   * Returns true if the two actor.body.collider.shape's surfaces are less than or equal to the distance specified from each other
    * @param actor     Actor to test
    * @param distance  Distance in pixels to test
    */
   public within(actor: Actor, distance: number): boolean {
-    return Math.sqrt(Math.pow(this.pos.x - actor.pos.x, 2) + Math.pow(this.pos.y - actor.pos.y, 2)) <= distance;
+    return this.body.collider.shape.getClosestLineBetween(actor.body.collider.shape).getLength() <= distance;
   }
 
   // #endregion

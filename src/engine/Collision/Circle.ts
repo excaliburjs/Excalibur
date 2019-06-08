@@ -5,20 +5,21 @@ import { CollisionShape } from './CollisionShape';
 import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 
-import { Vector, Ray, Projection } from '../Algebra';
+import { Vector, Ray, Projection, Line } from '../Algebra';
 import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
 
 // @obsolete Remove in v0.24.0
 import { Body } from './Body';
+import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 // ===========================
 
 export interface CircleOptions {
   /**
-   * Optional position to shift the circle relative to the collider, by default (0, 0).
+   * Optional pixel offset to shift the circle relative to the collider, by default (0, 0).
    */
-  pos?: Vector;
+  offset?: Vector;
   /**
    * Required radius of the circle
    */
@@ -42,13 +43,13 @@ export class Circle implements CollisionShape {
   /**
    * Position of the circle relative to the collider, by default (0, 0) meaning the shape is positioned on top of the collider.
    */
-  public pos: Vector = Vector.Zero;
+  public offset: Vector = Vector.Zero;
 
   public get worldPos(): Vector {
     if (this.collider && this.collider.body) {
-      return this.collider.body.pos.add(this.pos);
+      return this.collider.body.pos.add(this.offset);
     }
-    return this.pos;
+    return this.offset;
   }
 
   /**
@@ -68,7 +69,7 @@ export class Circle implements CollisionShape {
   public collider?: Collider;
 
   constructor(options: CircleOptions) {
-    this.pos = options.pos || Vector.Zero;
+    this.offset = options.offset || Vector.Zero;
     this.radius = options.radius || 0;
     this.collider = options.collider || null;
 
@@ -85,7 +86,7 @@ export class Circle implements CollisionShape {
    */
   public clone(): Circle {
     return new Circle({
-      pos: this.pos.clone(),
+      offset: this.offset.clone(),
       radius: this.radius,
       collider: null,
       body: null
@@ -97,16 +98,16 @@ export class Circle implements CollisionShape {
    */
   public get center(): Vector {
     if (this.collider && this.collider.body) {
-      return this.pos.add(this.collider.body.pos);
+      return this.offset.add(this.collider.body.pos);
     }
-    return this.pos;
+    return this.offset;
   }
 
   /**
    * Tests if a point is contained in this collision shape
    */
   public contains(point: Vector): boolean {
-    let pos = this.pos;
+    let pos = this.offset;
     if (this.collider && this.collider.body) {
       pos = this.collider.body.pos;
     }
@@ -144,12 +145,33 @@ export class Circle implements CollisionShape {
         const toi1 = -dir.dot(orig.sub(c)) + discriminant;
         const toi2 = -dir.dot(orig.sub(c)) - discriminant;
 
-        const mintoi = Math.min(toi1, toi2);
+        const positiveToi: number[] = [];
+        if (toi1 >= 0) {
+          positiveToi.push(toi1);
+        }
+
+        if (toi2 >= 0) {
+          positiveToi.push(toi2);
+        }
+
+        const mintoi = Math.min(...positiveToi);
         if (mintoi <= max) {
           return ray.getPoint(mintoi);
         }
         return null;
       }
+    }
+  }
+
+  public getClosestLineBetween(shape: CollisionShape): Line {
+    if (shape instanceof Circle) {
+      return ClosestLineJumpTable.CircleCircleClosestLine(this, shape);
+    } else if (shape instanceof ConvexPolygon) {
+      return ClosestLineJumpTable.PolygonCircleClosestLine(shape, this).flip();
+    } else if (shape instanceof Edge) {
+      return ClosestLineJumpTable.CircleEdgeClosestLine(this, shape).flip();
+    } else {
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
     }
   }
 
@@ -184,10 +206,10 @@ export class Circle implements CollisionShape {
       bodyPos = this.collider.body.pos;
     }
     return new BoundingBox(
-      this.pos.x + bodyPos.x - this.radius,
-      this.pos.y + bodyPos.y - this.radius,
-      this.pos.x + bodyPos.x + this.radius,
-      this.pos.y + bodyPos.y + this.radius
+      this.offset.x + bodyPos.x - this.radius,
+      this.offset.y + bodyPos.y - this.radius,
+      this.offset.x + bodyPos.x + this.radius,
+      this.offset.y + bodyPos.y + this.radius
     );
   }
 
@@ -195,7 +217,12 @@ export class Circle implements CollisionShape {
    * Get the axis aligned bounding box for the circle shape in local coordinates
    */
   public get localBounds(): BoundingBox {
-    return new BoundingBox(this.pos.x - this.radius, this.pos.y - this.radius, this.pos.x + this.radius, this.pos.y + this.radius);
+    return new BoundingBox(
+      this.offset.x - this.radius,
+      this.offset.y - this.radius,
+      this.offset.x + this.radius,
+      this.offset.y + this.radius
+    );
   }
 
   /**
@@ -221,8 +248,8 @@ export class Circle implements CollisionShape {
     const axes = polygon.axes;
     const pc = polygon.center;
     // Special SAT with circles
-    const closestPointOnPoly = polygon.getFurthestPoint(this.pos.sub(pc));
-    axes.push(this.pos.sub(closestPointOnPoly).normalize());
+    const closestPointOnPoly = polygon.getFurthestPoint(this.offset.sub(pc));
+    axes.push(this.offset.sub(closestPointOnPoly).normalize());
 
     let minOverlap = Number.MAX_VALUE;
     let minAxis = null;
@@ -266,7 +293,7 @@ export class Circle implements CollisionShape {
   }
 
   public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
-    const newPos = pos.add(this.pos);
+    const newPos = pos.add(this.offset);
     ctx.beginPath();
     ctx.fillStyle = color.toString();
     ctx.arc(newPos.x, newPos.y, this.radius, 0, Math.PI * 2);
@@ -277,7 +304,7 @@ export class Circle implements CollisionShape {
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Green) {
     const body = this.collider.body;
-    const pos = body ? body.pos.add(this.pos) : this.pos;
+    const pos = body ? body.pos.add(this.offset) : this.offset;
     const rotation = body ? body.rotation : 0;
 
     ctx.beginPath();

@@ -2,7 +2,7 @@ import { Color } from '../Drawing/Color';
 import { CollisionContact } from './CollisionContact';
 import { Body } from './Body';
 import { BoundingBox } from './BoundingBox';
-import { Vector, Projection, Ray } from '../Algebra';
+import { Vector, Projection, Ray, Line } from '../Algebra';
 import { Collider } from './Collider';
 import { Clonable } from '../Interfaces/Clonable';
 
@@ -12,9 +12,9 @@ import { Clonable } from '../Interfaces/Clonable';
  */
 export interface CollisionShape extends Clonable<CollisionShape> {
   /**
-   * Position of the collision shape relative to the collider, by default (0, 0) meaning the shape is positioned on top of the collider.
+   * Pixel offset of the collision shape relative to the collider, by default (0, 0) meaning the shape is positioned on top of the collider.
    */
-  pos: Vector;
+  offset: Vector;
 
   /**
    * Postion of the collision shape in world coordinates
@@ -76,6 +76,12 @@ export interface CollisionShape extends Clonable<CollisionShape> {
    * Return the point on the border of the collision shape that intersects with a ray (if any).
    */
   rayCast(ray: Ray, max?: number): Vector;
+
+  /**
+   * Returns the closest line between the surfaces this shape and another
+   * @param shape
+   */
+  getClosestLineBetween(shape: CollisionShape): Line;
 
   /**
    * Create a projection of this shape along an axis. Think of this as casting a "shadow" along an axis

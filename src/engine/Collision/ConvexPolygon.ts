@@ -9,13 +9,14 @@ import { CollisionShape } from './CollisionShape';
 import { Body } from './Body';
 import { Vector, Line, Ray, Projection } from '../Algebra';
 import { Collider } from './Collider';
+import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 
 export interface ConvexPolygonOptions {
   /**
-   * Point relative to a collider's position
+   * Pixel offset relative to a collider's position
    */
 
-  pos?: Vector;
+  offset?: Vector;
   /**
    * Points in the polygon in order around the perimeter in local coordinates
    */
@@ -42,7 +43,7 @@ export interface ConvexPolygonOptions {
  * [[include:BoxAndPolygonShape.md]]
  */
 export class ConvexPolygon implements CollisionShape {
-  public pos: Vector;
+  public offset: Vector;
   public points: Vector[];
 
   /**
@@ -60,7 +61,7 @@ export class ConvexPolygon implements CollisionShape {
   private _sides: Line[] = [];
 
   constructor(options: ConvexPolygonOptions) {
-    this.pos = options.pos || Vector.Zero;
+    this.offset = options.offset || Vector.Zero;
     const winding = !!options.clockwiseWinding;
     this.points = (winding ? options.points.reverse() : options.points) || [];
     this.collider = this.collider = options.collider || null;
@@ -81,7 +82,7 @@ export class ConvexPolygon implements CollisionShape {
    */
   public clone(): ConvexPolygon {
     return new ConvexPolygon({
-      pos: this.pos.clone(),
+      offset: this.offset.clone(),
       points: this.points.map((p) => p.clone()),
       collider: null,
       body: null
@@ -90,9 +91,9 @@ export class ConvexPolygon implements CollisionShape {
 
   public get worldPos(): Vector {
     if (this.collider && this.collider.body) {
-      return this.collider.body.pos.add(this.pos);
+      return this.collider.body.pos.add(this.offset);
     }
-    return this.pos;
+    return this.offset;
   }
 
   /**
@@ -101,9 +102,9 @@ export class ConvexPolygon implements CollisionShape {
   public get center(): Vector {
     const body = this.collider ? this.collider.body : null;
     if (body) {
-      return body.pos.add(this.pos);
+      return body.pos.add(this.offset);
     }
-    return this.pos;
+    return this.offset;
   }
 
   /**
@@ -111,7 +112,7 @@ export class ConvexPolygon implements CollisionShape {
    */
   private _calculateTransformation() {
     const body = this.collider ? this.collider.body : null;
-    const pos = body ? body.pos.add(this.pos) : this.pos;
+    const pos = body ? body.pos.add(this.offset) : this.offset;
     const angle = body ? body.rotation : 0;
     const scale = body ? body.scale : Vector.One;
 
@@ -187,6 +188,18 @@ export class ConvexPolygon implements CollisionShape {
       return false;
     }
     return true;
+  }
+
+  public getClosestLineBetween(shape: CollisionShape): Line {
+    if (shape instanceof Circle) {
+      return ClosestLineJumpTable.PolygonCircleClosestLine(this, shape);
+    } else if (shape instanceof ConvexPolygon) {
+      return ClosestLineJumpTable.PolygonPolygonClosestLine(this, shape);
+    } else if (shape instanceof Edge) {
+      return ClosestLineJumpTable.PolygonEdgeClosestLine(this, shape);
+    } else {
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
+    }
   }
 
   /**
@@ -386,7 +399,7 @@ export class ConvexPolygon implements CollisionShape {
   public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
     ctx.beginPath();
     ctx.fillStyle = color.toString();
-    const newPos = pos.add(this.pos);
+    const newPos = pos.add(this.offset);
     // Iterate through the supplied points and construct a 'polygon'
     const firstPoint = this.points[0].add(newPos);
     ctx.moveTo(firstPoint.x, firstPoint.y);

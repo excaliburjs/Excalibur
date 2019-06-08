@@ -6,10 +6,11 @@ import { CollisionShape } from './CollisionShape';
 import { Circle } from './Circle';
 import { ConvexPolygon } from './ConvexPolygon';
 
-import { Vector, Ray, Projection } from '../Algebra';
+import { Vector, Ray, Projection, Line } from '../Algebra';
 import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
+import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 
 export interface EdgeOptions {
   /**
@@ -38,7 +39,7 @@ export interface EdgeOptions {
 export class Edge implements CollisionShape {
   body: Body;
   collider?: Collider;
-  pos: Vector;
+  offset: Vector;
   begin: Vector;
   end: Vector;
 
@@ -46,7 +47,7 @@ export class Edge implements CollisionShape {
     this.begin = options.begin || Vector.Zero;
     this.end = options.end || Vector.Zero;
     this.collider = options.collider || null;
-    this.pos = this.center;
+    this.offset = this.center;
 
     // @obsolete Remove next release in v0.24.0, code exists for backwards compat
     if (options.body) {
@@ -70,9 +71,9 @@ export class Edge implements CollisionShape {
 
   public get worldPos(): Vector {
     if (this.collider && this.collider.body) {
-      return this.collider.body.pos.add(this.pos);
+      return this.collider.body.pos.add(this.offset);
     }
-    return this.pos;
+    return this.offset;
   }
 
   /**
@@ -160,6 +161,22 @@ export class Edge implements CollisionShape {
   }
 
   /**
+   * Returns the closes line between this and another shape, from this -> shape
+   * @param shape
+   */
+  public getClosestLineBetween(shape: CollisionShape): Line {
+    if (shape instanceof Circle) {
+      return ClosestLineJumpTable.CircleEdgeClosestLine(shape, this);
+    } else if (shape instanceof ConvexPolygon) {
+      return ClosestLineJumpTable.PolygonEdgeClosestLine(shape, this).flip();
+    } else if (shape instanceof Edge) {
+      return ClosestLineJumpTable.EdgeEdgeClosestLine(this, shape);
+    } else {
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
+    }
+  }
+
+  /**
    * @inheritdoc
    */
   public collide(shape: CollisionShape): CollisionContact {
@@ -200,8 +217,22 @@ export class Edge implements CollisionShape {
     return this._boundsFromBeginEnd(transformedBegin, transformedEnd);
   }
 
+  /**
+   * Get the axis aligned bounding box for the edge shape in local space
+   */
   public get localBounds(): BoundingBox {
     return this._boundsFromBeginEnd(this.begin, this.end);
+  }
+
+  /**
+   * Returns this edge represented as a line in world coordinates
+   */
+  public asLine(): Line {
+    return new Line(this._getTransformedBegin(), this._getTransformedEnd());
+  }
+
+  public asLocalLine(): Line {
+    return new Line(this.begin, this.end);
   }
 
   /**
@@ -264,10 +295,12 @@ export class Edge implements CollisionShape {
 
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red) {
+    const begin = this._getTransformedBegin();
+    const end = this._getTransformedEnd();
     ctx.strokeStyle = color.toString();
     ctx.beginPath();
-    ctx.moveTo(this.begin.x, this.begin.y);
-    ctx.lineTo(this.end.x, this.end.y);
+    ctx.moveTo(begin.x, begin.y);
+    ctx.lineTo(end.x, end.y);
     ctx.closePath();
     ctx.stroke();
   }

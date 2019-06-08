@@ -21,7 +21,7 @@ describe('Collision Shape', () => {
 
       actor = new ex.Actor(0, 0, 20, 20);
       circle = new ex.CircleArea({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         radius: 10,
         body: actor.body
       });
@@ -48,21 +48,21 @@ describe('Collision Shape', () => {
       const circle = new ex.CircleArea({
         collider: actor1.body.collider,
         radius: 10,
-        pos: new ex.Vector(20, 25)
+        offset: new ex.Vector(20, 25)
       });
 
       const sut = circle.clone();
 
       expect(sut).not.toBe(circle);
-      expect(sut.pos).toBeVector(circle.pos);
-      expect(sut.pos).not.toBe(circle.pos);
+      expect(sut.offset).toBeVector(circle.offset);
+      expect(sut.offset).not.toBe(circle.offset);
       expect(sut.collider).toBe(null);
     });
 
     it('can be constructed with points', () => {
       const actor = new ex.Actor(0, 0, 10, 10);
       const circle = new ex.CircleArea({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         radius: 10,
         body: actor.body
       });
@@ -116,6 +116,15 @@ describe('Collision Shape', () => {
       expect(pointTooFar).toBe(null, 'The circle should be too far away for a hit');
     });
 
+    it('can be raycast against only positive time of impact (toi)', () => {
+      const ray = new ex.Ray(new ex.Vector(0, 0), ex.Vector.Right.clone());
+
+      const point = circle.rayCast(ray);
+
+      expect(point.x).toBe(10);
+      expect(point.y).toBe(0);
+    });
+
     it('doesnt have axes', () => {
       // technically circles have infinite axes
       expect(circle.axes).toBe(null);
@@ -130,12 +139,12 @@ describe('Collision Shape', () => {
 
     it('should collide without a collider or body', () => {
       const circle1 = new ex.CircleArea({
-        pos: new ex.Vector(0, 0),
+        offset: new ex.Vector(0, 0),
         radius: 5
       });
 
       const circle2 = new ex.CircleArea({
-        pos: new ex.Vector(9, 0),
+        offset: new ex.Vector(9, 0),
         radius: 5
       });
 
@@ -182,7 +191,7 @@ describe('Collision Shape', () => {
     it('should collide with other polygons when touching', () => {
       const actor2 = new ex.Actor(14.99, 0, 10, 10); // meh close enough
       const poly = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         points: actor2.body.collider.localBounds.getPoints(),
         body: actor2.body
       });
@@ -206,7 +215,7 @@ describe('Collision Shape', () => {
     it('should not collide with other polygons when not touching', () => {
       const actor2 = new ex.Actor(16, 0, 10, 10);
       const poly = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         points: actor2.body.collider.localBounds.getPoints(),
         body: actor2.body
       });
@@ -300,7 +309,7 @@ describe('Collision Shape', () => {
 
     it('can be drawn', (done) => {
       const circle = new ex.Circle({
-        pos: new ex.Vector(100, 100),
+        offset: new ex.Vector(100, 100),
         radius: 30
       });
 
@@ -330,6 +339,51 @@ describe('Collision Shape', () => {
         expect(canvas).toEqualImage(image);
         done();
       });
+    });
+
+    it('can calculate the distance to another circle', () => {
+      const circle = new ex.Circle({
+        offset: new ex.Vector(100, 100),
+        radius: 30
+      });
+
+      const circle2 = new ex.Circle({
+        offset: new ex.Vector(200, 100),
+        radius: 30
+      });
+
+      const line = circle.getClosestLineBetween(circle2);
+
+      expect(line.getLength()).toBe(40);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to other circle should be away from this');
+    });
+
+    it('can calculate the distance to another polygon', () => {
+      const circle = new ex.Circle({
+        offset: new ex.Vector(100, 100),
+        radius: 30
+      });
+
+      const box = ex.Shape.Box(40, 40, ex.Vector.Zero, new ex.Vector(200, 100));
+
+      const line = circle.getClosestLineBetween(box);
+
+      expect(line.getLength()).toBe(70);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to polygon should be away from polygon');
+    });
+
+    it('can calculate the distance to another edge', () => {
+      const circle = new ex.Circle({
+        offset: new ex.Vector(100, 100),
+        radius: 30
+      });
+
+      const edge = ex.Shape.Edge(new ex.Vector(200, 50), new ex.Vector(200, 150));
+
+      const line = circle.getClosestLineBetween(edge);
+
+      expect(line.getLength()).toBe(70);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to edge should be away from circle');
     });
   });
 
@@ -363,21 +417,21 @@ describe('Collision Shape', () => {
       const poly = new ex.ConvexPolygon({
         collider: actor1.body.collider,
         points: [ex.Vector.One, ex.Vector.Half],
-        pos: new ex.Vector(20, 25)
+        offset: new ex.Vector(20, 25)
       });
 
       const sut = poly.clone();
 
       expect(sut).not.toBe(poly);
-      expect(sut.pos).toBeVector(poly.pos);
-      expect(sut.pos).not.toBe(poly.pos);
+      expect(sut.offset).toBeVector(poly.offset);
+      expect(sut.offset).not.toBe(poly.offset);
       expect(sut.points.length).toBe(2);
       expect(sut.collider).toBe(null);
     });
 
     it('can be constructed with points', () => {
       const poly = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
       expect(poly).not.toBe(null);
@@ -385,12 +439,12 @@ describe('Collision Shape', () => {
 
     it('can have be constructed with position', () => {
       const poly = new ex.ConvexPolygon({
-        pos: new ex.Vector(10, 0),
+        offset: new ex.Vector(10, 0),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
 
-      expect(poly.pos.x).toBe(10);
-      expect(poly.pos.y).toBe(0);
+      expect(poly.offset.x).toBe(10);
+      expect(poly.offset.y).toBe(0);
 
       // should translate right 10 pixels
       const transformedPoints = poly.getTransformedPoints();
@@ -402,13 +456,13 @@ describe('Collision Shape', () => {
 
     it('can collide with other polygons', () => {
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
 
       const polyB = new ex.ConvexPolygon({
-        pos: new ex.Vector(10, 0),
+        offset: new ex.Vector(10, 0),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
 
@@ -434,7 +488,7 @@ describe('Collision Shape', () => {
       const actor = new ex.Actor(5, -6, 20, 20);
       actor.rotation = Math.PI / 4;
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
         body: actor.body
@@ -465,7 +519,7 @@ describe('Collision Shape', () => {
     it('can collide with the end of an edge', () => {
       const actor = new ex.Actor(0, -4, 20, 20);
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
         body: actor.body
@@ -493,7 +547,7 @@ describe('Collision Shape', () => {
     it('can collide with the end of an edge regardless of order', () => {
       const actor = new ex.Actor(0, -4, 20, 20);
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
         body: actor.body
@@ -522,7 +576,7 @@ describe('Collision Shape', () => {
       const actor = new ex.Actor(5, 0, 20, 20);
       actor.rotation = Math.PI / 4;
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
         body: actor.body
@@ -547,7 +601,7 @@ describe('Collision Shape', () => {
     it('should detected contained points', () => {
       const actor = new ex.Actor(0, 0, 20, 20);
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
         body: actor.body
@@ -565,7 +619,7 @@ describe('Collision Shape', () => {
 
     it('can calculate the closest face to a point', () => {
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)]
       });
@@ -607,7 +661,7 @@ describe('Collision Shape', () => {
     it('can have ray cast to detect if the ray hits the polygon', () => {
       const actor = new ex.Actor(0, 0, 20, 20);
       const polyA = new ex.ConvexPolygon({
-        pos: ex.Vector.Zero.clone(),
+        offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
         body: actor.body
@@ -629,7 +683,7 @@ describe('Collision Shape', () => {
 
     it('can be drawn', (done) => {
       const polygon = new ex.ConvexPolygon({
-        pos: new ex.Vector(100, 100),
+        offset: new ex.Vector(100, 100),
         points: [new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)]
       });
 
@@ -659,6 +713,42 @@ describe('Collision Shape', () => {
         expect(canvas).toEqualImage(image);
         done();
       });
+    });
+
+    it('can calculate the distance to another circle', () => {
+      const poly = ex.Shape.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
+
+      const circle = new ex.Circle({
+        offset: new ex.Vector(200, 100),
+        radius: 30
+      });
+
+      const line = poly.getClosestLineBetween(circle);
+
+      expect(line.getLength()).toBe(50);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to other circle should be away from this');
+    });
+
+    it('can calculate the distance to another polygon', () => {
+      const poly = ex.Shape.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
+
+      const box = ex.Shape.Box(40, 40, ex.Vector.Zero, new ex.Vector(200, 100));
+
+      const line = poly.getClosestLineBetween(box);
+
+      expect(line.getLength()).toBe(80);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to polygon should be away from polygon');
+    });
+
+    it('can calculate the distance to another edge', () => {
+      const poly = ex.Shape.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
+
+      const edge = ex.Shape.Edge(new ex.Vector(200, 50), new ex.Vector(200, 150));
+
+      const line = poly.getClosestLineBetween(edge);
+
+      expect(line.getLength()).toBe(80);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to edge should be away from circle');
     });
   });
 
@@ -705,10 +795,10 @@ describe('Collision Shape', () => {
       const sut = edge.clone();
 
       expect(sut).not.toBe(edge);
-      expect(sut.pos).toBeVector(edge.pos);
+      expect(sut.offset).toBeVector(edge.offset);
       expect(sut.begin).toBeVector(edge.begin);
       expect(sut.end).toBeVector(edge.end);
-      expect(sut.pos).not.toBe(edge.pos);
+      expect(sut.offset).not.toBe(edge.offset);
       expect(sut.collider).toBe(null);
     });
 
@@ -803,6 +893,42 @@ describe('Collision Shape', () => {
         expect(canvas).toEqualImage(image);
         done();
       });
+    });
+
+    it('can calculate the distance to another circle', () => {
+      const edge = ex.Shape.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
+
+      const circle = new ex.Circle({
+        offset: new ex.Vector(200, 100),
+        radius: 30
+      });
+
+      const line = edge.getClosestLineBetween(circle);
+
+      expect(line.getLength()).toBe(70);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to other circle should be away from this');
+    });
+
+    it('can calculate the distance to another polygon', () => {
+      const edge = ex.Shape.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
+
+      const box = ex.Shape.Box(40, 40, ex.Vector.Zero, new ex.Vector(200, 100));
+
+      const line = edge.getClosestLineBetween(box);
+
+      expect(line.getLength()).toBe(100);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from polygon to polygon should be away from polygon');
+    });
+
+    it('can calculate the distance to another edge', () => {
+      const edge = ex.Shape.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
+
+      const edge2 = ex.Shape.Edge(new ex.Vector(200, 50), new ex.Vector(200, 150));
+
+      const line = edge.getClosestLineBetween(edge2);
+
+      expect(line.getLength()).toBe(100);
+      expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to edge should be away from circle');
     });
   });
 });
