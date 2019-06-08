@@ -343,12 +343,12 @@ describe('Collision Shape', () => {
 
     it('can calculate the distance to another circle', () => {
       const circle = new ex.Circle({
-        pos: new ex.Vector(100, 100),
+        offset: new ex.Vector(100, 100),
         radius: 30
       });
 
       const circle2 = new ex.Circle({
-        pos: new ex.Vector(200, 100),
+        offset: new ex.Vector(200, 100),
         radius: 30
       });
 
@@ -360,7 +360,7 @@ describe('Collision Shape', () => {
 
     it('can calculate the distance to another polygon', () => {
       const circle = new ex.Circle({
-        pos: new ex.Vector(100, 100),
+        offset: new ex.Vector(100, 100),
         radius: 30
       });
 
@@ -374,7 +374,7 @@ describe('Collision Shape', () => {
 
     it('can calculate the distance to another edge', () => {
       const circle = new ex.Circle({
-        pos: new ex.Vector(100, 100),
+        offset: new ex.Vector(100, 100),
         radius: 30
       });
 
@@ -719,7 +719,7 @@ describe('Collision Shape', () => {
       const poly = ex.Shape.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
 
       const circle = new ex.Circle({
-        pos: new ex.Vector(200, 100),
+        offset: new ex.Vector(200, 100),
         radius: 30
       });
 
@@ -899,7 +899,7 @@ describe('Collision Shape', () => {
       const edge = ex.Shape.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
 
       const circle = new ex.Circle({
-        pos: new ex.Vector(200, 100),
+        offset: new ex.Vector(200, 100),
         radius: 30
       });
 
