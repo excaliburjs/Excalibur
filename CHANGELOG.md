@@ -21,6 +21,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.23.0] - 2019-06-08
 
+### Breaking Changes
+
+- `ex.Actor.scale`, `ex.Actor.sx/sy`, `ex.Actor.actions.scaleTo/scaleBy` will not work as expected with new collider implementation, set width and height directly. These features will be completely removed in v0.24.0. 
+
 ### Added
 
 - Add new collision group implementation [#1091](https://github.com/excaliburjs/Excalibur/issues/1091) [#862](https://github.com/excaliburjs/Excalibur/issues/862)
