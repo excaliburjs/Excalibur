@@ -6,17 +6,44 @@ import { Color } from '../Drawing/Color';
 import { obsolete } from '../Util/Decorators';
 import { Side } from './Side';
 
+export interface BoundingBoxOptions {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
 /**
  * Axis Aligned collision primitive for Excalibur.
  */
 export class BoundingBox {
+  public top: number;
+  public right: number;
+  public bottom: number;
+  public left: number;
+
   /**
-   * @param left    x coordinate of the left edge
+   * Constructor allows passing of either an object with all coordinate components,
+   * or the coordinate components passed separately.
+   * @param leftOrOptions    Either x coordinate of the left edge or an options object
+   * containing the four coordinate components.
    * @param top     y coordinate of the top edge
    * @param right   x coordinate of the right edge
    * @param bottom  y coordinate of the bottom edge
    */
-  constructor(public left: number = 0, public top: number = 0, public right: number = 0, public bottom: number = 0) {}
+  constructor(leftOrOptions: number | BoundingBoxOptions = 0, top: number = 0, right: number = 0, bottom: number = 0) {
+    if (typeof leftOrOptions === 'object') {
+      this.left = leftOrOptions.left;
+      this.top = leftOrOptions.top;
+      this.right = leftOrOptions.right;
+      this.bottom = leftOrOptions.bottom;
+    } else if (typeof leftOrOptions === 'number') {
+      this.left = leftOrOptions;
+      this.top = top;
+      this.right = right;
+      this.bottom = bottom;
+    }
+  }
 
   /**
    * Given bounding box A & B, returns the side relative to A when intersection is performed.

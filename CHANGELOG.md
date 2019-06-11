@@ -7,6 +7,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Add new option for constructing bounding boxes. You can now construct with an options
+  object rather than only individual coordinate parameters. [#1151] https://github.com/excaliburjs/Excalibur/issues/1151
+- Add new interface for specifying the type of the options object passed to the
+  bounding box constructor.
+
 ### Changed
 
 ### Deprecated
@@ -23,7 +28,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
-- `ex.Actor.scale`, `ex.Actor.sx/sy`, `ex.Actor.actions.scaleTo/scaleBy` will not work as expected with new collider implementation, set width and height directly. These features will be completely removed in v0.24.0. 
+- `ex.Actor.scale`, `ex.Actor.sx/sy`, `ex.Actor.actions.scaleTo/scaleBy` will not work as expected with new collider implementation, set width and height directly. These features will be completely removed in v0.24.0.
 
 ### Added
 
