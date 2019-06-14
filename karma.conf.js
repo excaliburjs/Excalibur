@@ -63,8 +63,12 @@ module.exports = (config) => {
       dir: path.join(__dirname, 'coverage')
     },
 
-    browsers: ['ChromeHeadless'],
+    browsers: ['ChromeHeadless_with_audio'],
     customLaunchers: {
+      ChromeHeadless_with_audio: {
+          base: 'ChromeHeadless',
+          flags: ['--autoplay-policy=no-user-gesture-required']
+      },
       ChromeHeadless_with_debug: {
         base: 'ChromeHeadless',
         flags: ['--remote-debugging-port=9334', '--no-sandbox', '--disable-web-security']
