@@ -35,6 +35,11 @@ describe('A Collision Group', () => {
   });
 
   it('should be accessible by name', () => {
+    ex.CollisionGroupManager.reset();
+    groupA = ex.CollisionGroupManager.create('groupA');
+    groupB = ex.CollisionGroupManager.create('groupB');
+    groupC = ex.CollisionGroupManager.create('groupC');
+
     const maybeGroupA = ex.CollisionGroupManager.groupByName('groupA');
     expect(maybeGroupA).toBe(groupA);
 
