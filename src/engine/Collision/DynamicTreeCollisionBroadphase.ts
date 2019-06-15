@@ -5,7 +5,7 @@ import { Pair } from './Pair';
 import { Body } from './Body';
 
 import { Vector, Ray } from '../Algebra';
-import { FrameStats } from '../Debug';
+import { FrameStats } from '../Debug/DebugStatistics';
 import { CollisionResolutionStrategy } from '../Physics';
 import { Logger } from '../Util/Log';
 import { CollisionStartEvent, CollisionEndEvent } from '../Events';
@@ -58,9 +58,11 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
     const seconds = delta / 1000;
 
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
-    const potentialColliders = targets.map((t) => t.collider).filter((other) => {
-      return other.active && other.type !== CollisionType.PreventCollision;
-    });
+    const potentialColliders = targets
+      .map((t) => t.collider)
+      .filter((other) => {
+        return other.active && other.type !== CollisionType.PreventCollision;
+      });
 
     // clear old list of collision pairs
     this._collisionPairCache = [];

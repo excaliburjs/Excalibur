@@ -38,7 +38,7 @@ function spawnCircle(x: number, y: number) {
   circle.body.useCircleCollision(width / 2);
   circle.collisionType = ex.CollisionType.Active;
   circle.draw = (ctx: CanvasRenderingContext2D) => {
-    ex.Util.DrawUtil.circle(ctx, circle.x, circle.y, width / 2, color, color);
+    ex.Util.DrawUtil.circle(ctx, circle.pos.x, circle.pos.y, width / 2, color, color);
   };
   game.add(circle);
 }

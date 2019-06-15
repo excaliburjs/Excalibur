@@ -12,8 +12,7 @@ import { ActorArgs, ActorDefaults } from './Actor';
 import { CapturePointerConfig } from './Traits/CapturePointer';
 import { CircleOptions, CollisionBroadphase, EdgeOptions, EnginePhysics, ConvexPolygonOptions } from './Collision/Index';
 import { Physics } from './Physics';
-import { DebugFlags } from './DebugFlags';
-import { CollidersHash, FrameStatistics, FrameDurationStats, PhysicsStatistics, FrameActorStats } from './Debug';
+import { CollidersHash, FrameStatistics, FrameDurationStats, PhysicsStatistics, FrameActorStats } from './Debug/DebugStatistics';
 import { AnimationArgs } from './Drawing/Animation';
 import { SpriteEffect } from './Drawing/SpriteEffects';
 import { SpriteArgs } from './Drawing/Sprite';
@@ -151,11 +150,6 @@ export type IExResponseTypesLookup = ExResponseTypesLookup;
  * @obsolete Use Physics, IPhysics will be removed in v0.24.0
  */
 export type IPhysics = Physics;
-
-/**
- * @obsolete Use DebugFlags, IDebugFlags will be removed in v0.24.0
- */
-export type IDebugFlags = DebugFlags;
 
 /**
  * @obsolete Use CollisionBroadphase, ICollisionBroadphase will be removed in v0.24.0

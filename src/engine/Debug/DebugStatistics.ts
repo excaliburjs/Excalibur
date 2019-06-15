@@ -1,5 +1,4 @@
-import { DebugFlags } from './DebugFlags';
-import { Pair } from './Collision/Pair';
+import { Pair } from '../Collision/Pair';
 
 /**
  * Debug stats containing current and previous frame statistics
@@ -139,30 +138,6 @@ export interface PhysicsStatistics {
    * Gets the time it took to calculate the narrowphase
    */
   narrowphase: number;
-}
-
-/**
- * Debug statistics and flags for Excalibur. If polling these values, it would be
- * best to do so on the `postupdate` event for [[Engine]], after all values have been
- * updated during a frame.
- */
-export class Debug implements DebugFlags {
-  /**
-   * Performance statistics
-   */
-  public stats: DebugStats = {
-    /**
-     * Current frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats.
-     * Best accessed on [[postframe]] event. See [[IFrameStats]]
-     */
-    currFrame: new FrameStats(),
-
-    /**
-     * Previous frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats.
-     * Best accessed on [[preframe]] event. Best inspected on engine event `preframe`. See [[IFrameStats]]
-     */
-    prevFrame: new FrameStats()
-  };
 }
 
 /**

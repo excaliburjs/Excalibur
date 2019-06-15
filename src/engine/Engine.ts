@@ -33,7 +33,8 @@ import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
 import { Scene } from './Scene';
 import { PostProcessor } from './PostProcessing/PostProcessor';
-import { Debug, DebugStats } from './Debug';
+import { DebugStats } from './Debug/DebugStatistics';
+import { EngineDebugComponent } from './Debug/EngineDebugComponent';
 import { Class } from './Class';
 import * as Input from './Input/Index';
 import * as Util from './Util/Util';
@@ -185,7 +186,7 @@ export interface EngineOptions {
  */
 export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
-   *
+   * Facade over native browser events
    */
   public browser: BrowserEvents;
 
@@ -285,7 +286,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Access Excalibur debugging functionality.
    */
-  public debug = new Debug();
+  public debug = new EngineDebugComponent(this);
 
   /**
    * Access [[stats]] that holds frame statistics.
@@ -1319,7 +1320,7 @@ O|===|* >________________>\n\
       this._hasStarted = true;
       this._logger.debug('Starting game...');
       this.browser.resume();
-      Engine.createMainLoop(this, window.requestAnimationFrame, Date.now)();
+      Engine.createMainLoop(this, this.debug.frameStepFactory(), this.debug.nowFactory())();
 
       this._logger.debug('Game started');
     } else {
@@ -1352,7 +1353,7 @@ O|===|* >________________>\n\
         const delta = elapsed * game.timescale;
 
         // reset frame stats (reuse existing instances)
-        const frameId = game.stats.prevFrame.id + 1;
+        const frameId = game.stats.currFrame.id + 1;
         game.stats.prevFrame.reset(game.stats.currFrame);
         game.stats.currFrame.reset();
         game.stats.currFrame.id = frameId;

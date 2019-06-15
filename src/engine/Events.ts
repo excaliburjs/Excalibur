@@ -2,7 +2,7 @@ import { Scene } from './Scene';
 import { Vector } from './Algebra';
 import { Actor } from './Actor';
 import { Trigger } from './Trigger';
-import { FrameStats } from './Debug';
+import { FrameStats } from './Debug/DebugStatistics';
 import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Side } from './Collision/Side';

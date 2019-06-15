@@ -1,5 +1,5 @@
 ﻿import { Body } from './Body';
-import { FrameStats } from '../Debug';
+import { FrameStats } from '../Debug/DebugStatistics';
 import { Pair } from './Pair';
 import { CollisionResolutionStrategy } from '../Physics';
 
