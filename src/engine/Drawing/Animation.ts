@@ -270,12 +270,8 @@ export class AnimationImpl implements Drawable {
     let currSprite: Sprite;
     if (this.currentFrame < this.sprites.length) {
       currSprite = this.sprites[this.currentFrame];
-      if (this.flipVertical) {
-        currSprite.flipVertical = this.flipVertical;
-      }
-      if (this.flipHorizontal) {
-        currSprite.flipHorizontal = this.flipHorizontal;
-      }
+      currSprite.flipVertical = this.flipVertical;
+      currSprite.flipHorizontal = this.flipHorizontal;
       currSprite.draw(ctx, x, y);
     }
 
