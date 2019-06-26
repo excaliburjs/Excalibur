@@ -72,7 +72,7 @@
     "karma-webpack": "4.0.2",
     "prettier": "1.18.2",
     "pretty-quick": "1.11.1",
-    "puppeteer": "1.17.0",
+    "puppeteer": "1.18.1",
     "rimraf": "2.6.3",
     "source-map-support": "0.5.12",
     "sync-request": "6.1.0",
