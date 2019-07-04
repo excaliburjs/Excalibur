@@ -174,70 +174,16 @@ export class GameEvent<T, U = T> {
    * determines, if event bubbles to the target's ancestors
    */
   public bubbles: boolean = true;
-  /**
-   * Holds the whole path from the Root to the event target
-   */
-  protected _path: Actor[] = [];
-  protected _name: string = '';
-
-  /**
-   * Returns Event path from root to active actor.
-   */
-  get eventPath(): Actor[] {
-    return this._path;
-  }
-  /**
-   * Returns name of the event
-   */
-  get name(): string {
-    return this._name;
-  }
-
+    
   /**
    * Prevents event from bubbling
    */
   public stopPropagation() {
     this.bubbles = false;
   }
-  /**
-   * Action, that calls when event happens
-   */
-  public action(): void {
-    const actor = this.eventPath.pop();
+  
 
-    if (actor) {
-      this._onActionStart(actor);
-      actor.eventDispatcher.emit(this._name, this);
-      this._onActionEnd(actor);
-    }
-  }
-  /**
-   * Propagate event further through event path
-   */
-  public propagate(): void {
-    if (!this.eventPath.length) {
-      return;
-    }
-
-    this.action();
-
-    if (this.bubbles) {
-      this.propagate();
-    }
-  }
-
-  public layPath(actor: Actor): void {
-    const actorPath = actor.getAncestors();
-    this._path = actorPath.length > this._path.length ? actorPath : this._path;
-  }
-
-  protected _onActionStart(_actor?: Actor) {
-    // to be rewritten
-  }
-
-  protected _onActionEnd(_actor?: Actor) {
-    // to be rewritten
-  }
+ 
 }
 
 /**
@@ -302,7 +248,7 @@ export class PreDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
  *
  */
 export class PostDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
-  constructor(public ctx: CanvasRenderingContext2D, public delta: number, public target: Actor | Scene | Engine | TileMap) {
+    constructor(public ctx: CanvasRenderingContext2D, public delta: number, public target: Actor | Scene | Engine | TileMap) {
     super();
   }
 }
