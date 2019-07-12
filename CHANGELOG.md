@@ -7,9 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Add new option for constructing bounding boxes. You can now construct with an options
-  object rather than only individual coordinate parameters. [#1151] https://github.com/excaliburjs/Excalibur/issues/1151
-- Add new interface for specifying the type of the options object passed to the
+- Added new option for constructing bounding boxes. You can now construct with an options
+  object rather than only individual coordinate parameters. ([#1151](https://github.com/excaliburjs/Excalibur/issues/1151))
+- Added new interface for specifying the type of the options object passed to the
   bounding box constructor.
 
 ### Changed
@@ -19,6 +19,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 
 ### Fixed
+
+- Fixed animation flipping behavior ([#1172](https://github.com/excaliburjs/Excalibur/issues/1172))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
@@ -32,10 +34,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Add new collision group implementation [#1091](https://github.com/excaliburjs/Excalibur/issues/1091) [#862](https://github.com/excaliburjs/Excalibur/issues/862)
+- New collision group implementation ([#1091](https://github.com/excaliburjs/Excalibur/issues/1091), [#862](https://github.com/excaliburjs/Excalibur/issues/862))
 - New `ex.Collider` type which is the container for all collision related behavior and state. Actor is now extracted from collision.
-- Added interface `Clonable<T>` to indicate if an object contains a clone method
-- Added interface `Eventable<T>` to indicated if an object can emit and receive events
+- New interface `Clonable<T>` to indicate if an object contains a clone method
+- New interface `Eventable<T>` to indicated if an object can emit and receive events
 - `ex.Vector.scale` now also works with vector input
 - `ex.BoundingBox.fromDimension(width: number, height: number)` can generate a bounding box from a width and height
 - `ex.BoundingBox.translate(pos: Vector)` will create a new bounding box shifted by `pos`
@@ -48,7 +50,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Change `ex.Actor.within` to use surface of object geometry instead of the center to make judgements ([#1071](https://github.com/excaliburjs/Excalibur/issues/1071))
 - Changed `moveBy`, `rotateBy`, and `scaleBy` to operate relative to the current actor position at a speed, instead of moving to an absolute by a certain time.
-- Changed event handlers in excalibur to expect non-null event objects, before `hander: (event?: GameEvent) => void` implied that event could be null. This change addresses ([#1147](https://github.com/excaliburjs/Excalibur/issues/1147)) making strict null/function checks compatible with new typescript.
+- Changed event handlers in excalibur to expect non-null event objects, before `hander: (event?: GameEvent) => void` implied that event could be null. This change addresses ([#1147](https://github.com/excaliburjs/Excalibur/issues/1147)) making strict null/function checks compatible with new TypeScript.
 - Changed collision system to remove actor coupling, in addition `ex.Collider` is a new type that encapsulates all collision behavior. Use `ex.Actor.body.collider` to interact with collisions in Excalibur ([#1119](https://github.com/excaliburjs/Excalibur/issues/1119))
 
   - Add new `ex.Collider` type that is the housing for all collision related code
@@ -78,8 +80,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
     - Actor, Collider, and Shapes are affected
   - Renamed `getRelativeBounds()` to the property `localBounds`
     - Actor, Collider, and Shapes are affected
-  - Renamed `moi()` to the property `inertia` standing for moment of inertia
-  - Renamed `restition` to the property `bounciness`
+  - Renamed `moi()` to the property `inertia` (moment of inertia)
+  - Renamed `restitution` to the property `bounciness`
   - Moved `collisionType` to `Actor.body.collider.type`
   - Moved `Actor.integrate` to `Actor.body.integrate`
 
@@ -96,23 +98,23 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `Actor.getLeft()`, `Actor.getRight()`, `Actor.getTop()`, and `Actor.getBottom` are deprecated
     - Use `Actor.body.collider.bounds.(left|right|top|bottom)`
   - `Actor.getGeometry()` and `Actor.getRelativeGeometry()` are removed, use `Collider`
-  - Collision related properties on Actor moved to `Collider`, use`Actor.body.collider`
+  - Collision related properties on Actor moved to `Collider`, use `Actor.body.collider`
     - `Actor.torque`
     - `Actor.mass`
     - `Actor.moi`
     - `Actor.friction`
-    - `Actor.restition`
-  - Collision related methods on Actor moved to `Collider`, use`Actor.body.collider` or `Actor.body.collider.bounds`
+    - `Actor.restitution`
+  - Collision related methods on Actor moved to `Collider`, use `Actor.body.collider` or `Actor.body.collider.bounds`
     - `Actor.getSideFromIntersect(intersect)` -> `BoundingBox.sideFromIntersection`
     - `Actor.collidesWithSide(actor)` -> `Actor.body.collider.bounds.intersectWithSide`
     - `Actor.collides(actor)` -> `Actor.body.collider.bounds.intersect`
 
 ### Fixed
 
-- Fixed issue where leaking window/document handlers was possible when calling `ex.Engine.stop()` and `ex.Engine.start()`. ([#1063](https://github.com/excaliburjs/Excalibur/issues/1120))
+- Fixed issue where leaking window/document handlers was possible when calling `ex.Engine.stop()` and `ex.Engine.start()` ([#1063](https://github.com/excaliburjs/Excalibur/issues/1120))
 - Fixed wrong `Camera` and `Loader` scaling on HiDPI screens when option `suppressHiDPIScaling` is set. ([#1120](https://github.com/excaliburjs/Excalibur/issues/1120))
 - Fixed polyfill application by exporting a `polyfill()` function that can be called. ([#1132](https://github.com/excaliburjs/Excalibur/issues/1132))
-- Fixed Color.lighten() ([#1084])
+- Fixed `Color.lighten()` ([#1084](https://github.com/excaliburjs/Excalibur/issues/1084))
 
 <!----------------------------------------------------------------------------------------------->
 
@@ -120,7 +122,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
-- `ex.BaseCamera` replaced with `Camera`, [#1087](https://github.com/excaliburjs/Excalibur/issues/1087)
+- `ex.BaseCamera` replaced with `Camera` ([#1087](https://github.com/excaliburjs/Excalibur/issues/1087))
 
 ### Added
 
@@ -129,7 +131,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Upgraded Excalibur to TypeScript 3.3.3333 ([#1052](https://github.com/excaliburjs/Excalibur/issues/1052))
-- Added exceptions on SpriteSheetImpl constructor to check if the source texture dimensions are valid ([#1108](https://github.com/excaliburjs/Excalibur/issues/1108))
+- Added exceptions on `SpriteSheetImpl` constructor to check if the source texture dimensions are valid ([#1108](https://github.com/excaliburjs/Excalibur/issues/1108))
 
 <!----------------------------------------------------------------------------------------------->
 
@@ -138,11 +140,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added ability to automatically convert .gif files to SpriteSheet, Animations, and Sprites ([#153](https://github.com/excaliburjs/Excalibur/issues/153))
-- Add new `viewport` property to camera to return a world space bounding box of the current visible area ([#1078](https://github.com/excaliburjs/Excalibur/issues/1078))
+- New `viewport` property on camera to return a world space bounding box of the current visible area ([#1078](https://github.com/excaliburjs/Excalibur/issues/1078))
 
 ### Changed
 
-- Updated `ex.Color` and `ex.Vector` constants to be static getters that return new instances each time, eliminating a source of bugs in excalibur ([#1085](https://github.com/excaliburjs/Excalibur/issues/1085))
+- Updated `ex.Color` and `ex.Vector` constants to be static getters that return new instances each time, eliminating a common source of bugs ([#1085](https://github.com/excaliburjs/Excalibur/issues/1085))
 - Remove optionality of engine in constructor of Scene and \_engine private with an underscore prefix ([#1067](https://github.com/excaliburjs/Excalibur/issues/1067))
 
 ### Deprecated
@@ -165,11 +167,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added strongly-typed EvenTypes enum to Events.ts to avoid magic strings ([#1066](https://github.com/excaliburjs/Excalibur/issues/1066))
+- Added strongly-typed `EventTypes` enum to Events.ts to avoid magic strings ([#1066](https://github.com/excaliburjs/Excalibur/issues/1066))
 
 ### Changed
 
-- Added parameter on SpriteSheet constructor so you can define how many pixels spacing is between sprites ([#1058](https://github.com/excaliburjs/Excalibur/issues/1058))
+- Added parameter on SpriteSheet constructor so you can define how many pixels of space are between sprites ([#1058](https://github.com/excaliburjs/Excalibur/issues/1058))
 
 <!----------------------------------------------------------------------------------------------->
 
@@ -223,7 +225,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
-- Property scope `Pointer.actorsUnderPointer` changed to private;
+- Property scope `Pointer.actorsUnderPointer` changed to private
 - `Sprite.sx` replaced with `Sprite.x`
 - `Sprite.sy` replaced with `Sprite.y`
 - `Sprite.swidth` replaced with `Sprite.width`
@@ -235,7 +237,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Convenience method on Scene to determine whether it is the current scene. Scene.isCurrentScene() ([#982](https://github.com/excaliburjs/Excalibur/issues/982))
 - New `PointerEvent.stopPropagation()` method added. Works the same way as (`https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation`)
   ([#912](https://github.com/excaliburjs/Excalibur/issues/912))
-- New `Actor.getAncestors()` method, which retreives full array of current Actor ancestors
+- New `Actor.getAncestors()` method, which retrieves full array of current Actor ancestors
 - Static `Actor.defaults` prop, which implements `IActorDefaults`.
 - Native sound events now exposed
   - `volumechange` - on playing sound volume change;
@@ -245,7 +247,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `resume` - on playback resume;
   - `playbackstart` - on playback start;
   - `playbackend` - on playback end;
-- Added `Sound.instances` getter, which returns active tracks. Playing or paused;
+- Added `Sound.instances` getter, which returns active tracks. Playing or paused
 - Added `Sound.getTrackId(track: [[AudioInstance]])` method. Which returns id of track provided,
   if it is in list of active tracks.
 
@@ -253,7 +255,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Refactored Easing functions to be reversable ([#944](https://github.com/excaliburjs/Excalibur/pull/944))
 - Now at creation every `Actor.anchor` prop is set to default `Actor.defaults.anchor`.
-- Scene.remove(Actor) now starts the Actor.Kill event cycle.([#981](https://github.com/excaliburjs/Excalibur/issues/981))
+- Scene.remove(Actor) now starts the Actor.Kill event cycle ([#981](https://github.com/excaliburjs/Excalibur/issues/981))
 
 ### Deprecated
 
@@ -280,7 +282,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - New typesafe and override safe event lifecycle overriding, all `onEventName` handlers will no longer be dangerous to override ([#582](https://github.com/excaliburjs/Excalibur/issues/582))
   - New lifecycle event `onPreKill` and `onPostKill`
-- SpriteSheets can now produce animations from bespoke sprite coordinates `SpriteSheet.getAnimationByCoords(engine, coords[], speed)` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
+- SpriteSheets can now produce animations from custom sprite coordinates `SpriteSheet.getAnimationByCoords(engine, coords[], speed)` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
 - Added drag and drop support for Actors ([#134](https://github.com/excaliburjs/Excalibur/issues/134))
   - New Event `enter`
   - New Event `leave`
@@ -298,7 +300,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
-- `Sprite.sx`, `Sprite.sy`, `Sprite.swidth`, `Sprite.sheight` has be deprecated in favor of `Sprite.x`, `Sprite.y`, `Sprite.width`, `Sprite.height` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
+- `Sprite.sx`, `Sprite.sy`, `Sprite.swidth`, `Sprite.sheight` have been deprecated in favor of `Sprite.x`, `Sprite.y`, `Sprite.width`, `Sprite.height` ([#918](https://github.com/excaliburjs/Excalibur/issues/918))
 
 ### Fixed
 
@@ -350,8 +352,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- Trigger have been rebuilt to provide a better experience. The trigger `action` only fires when an actor enters the designated area instead of every frame of collision. ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
-- Triggers can now draw like other Actors, but are still not visible by default ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
+- `Trigger` has been rebuilt to provide a better experience
+  - The trigger `action` only fires when an actor enters the designated area instead of every frame of collision. ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
+  - Triggers can now draw like other Actors, but are still not visible by default ([#863](https://github.com/excaliburjs/Excalibur/issues/863))
 
 ### Deprecated
 
@@ -386,7 +389,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed same instance of color potentially being shared, and thus mutated, between instance actors ([#840](https://github.com/excaliburjs/Excalibur/issues/840))
-- Fixed bug where active and passive type collisions would resolve when they shouldn't when in rigid body mode ([#880](https://github.com/excaliburjs/Excalibur/issues/880))
+- Fixed bug where active and passive type collisions would resolve when they shouldn't in rigid body physics mode ([#880](https://github.com/excaliburjs/Excalibur/issues/880))
 
 <!----------------------------------------------------------------------------------------------->
 
@@ -399,7 +402,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added new hsl and hex format options in Color.toString(format) using rgb as the default to maintain backwards compatibility ([#852](https://github.com/excaliburjs/Excalibur/issues/852))
+- Added new hsl and hex format options in Color.toString(format). rgb is the default to maintain backwards compatibility ([#852](https://github.com/excaliburjs/Excalibur/issues/852))
 
 ### Changed
 
@@ -416,7 +419,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
-- Renamed Utils.removeItemToArray() to Utils.removeItemFromArray() ([#798](https://github.com/excaliburjs/Excalibur/issues/798/))
+- Renamed `Utils.removeItemToArray()` to `Utils.removeItemFromArray()` ([#798](https://github.com/excaliburjs/Excalibur/issues/798/))
 
 ### Added
 
@@ -474,7 +477,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added extended feature detection and reporting to `ex.Detector` ([#707](https://github.com/excaliburjs/Excalibur/issues/707))
   - `ex.Detector.getBrowserFeatures()` to retrieve the support matrix of the current browser
   - `ex.Detector.logBrowserFeatures()` to log the support matrix to the console (runs at startup when in Debug mode)
-- Added @obsolete decorator to help give greater visibility to deprecated methods ([#684](https://github.com/excaliburjs/Excalibur/issues/684))
+- Added `@obsolete` decorator to help give greater visibility to deprecated methods ([#684](https://github.com/excaliburjs/Excalibur/issues/684))
 - Added better support for module loaders and TypeScript importing. See [Installation](https://excaliburjs.com/docs/installation) docs for more info. ([#606](https://github.com/excaliburjs/Excalibur/issues/606))
 - Added new Excalibur example project templates ([#706](https://github.com/excaliburjs/Excalibur/issues/706), [#733](https://github.com/excaliburjs/Excalibur/issues/733)):
   - [Browserify](https://github.com/excaliburjs/example-ts-browserify)
@@ -488,13 +491,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
-- Changed Util.clamp to use math libraries ([#536](https://github.com/excaliburjs/Excalibur/issues/536))
+- Changed `Util.clamp` to use math libraries ([#536](https://github.com/excaliburjs/Excalibur/issues/536))
 - Upgraded to TypeScript 2.1.4 ([#726](https://github.com/excaliburjs/Excalibur/issues/726))
 
 ### Fixed
 
 - Fixed Scene/Actor activation and initialization order, actors were not being initialized before scene activation causing bugs ([#661](https://github.com/excaliburjs/Excalibur/issues/661))
-- Fixed bug with Excalibur where it would not load if a loader was provided without any resources ([#565](https://github.com/excaliburjs/Excalibur/issues/565))
+- Fixed bug where the engine would not load if a loader was provided without any resources ([#565](https://github.com/excaliburjs/Excalibur/issues/565))
 - Fixed bug where an Actor/UIActor/TileMap added during a Timer callback would not initialize before running `draw` loop. ([#584](https://github.com/excaliburjs/Excalibur/issues/584))
 - Fixed bug where on slower systems a Sprite may not be drawn on the first `draw` frame ([#748](https://github.com/excaliburjs/Excalibur/issues/748))
 
