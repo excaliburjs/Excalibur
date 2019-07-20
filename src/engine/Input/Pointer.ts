@@ -6,6 +6,7 @@ import { Class } from '../Class';
 import * as Actors from '../Util/Actors';
 import * as Util from '../Util/Util';
 import * as Events from '../Events';
+import { CapturePointer } from '../Traits/Index';
 
 export interface ActorsUnderPointer {
   [ActorId: number]: Actor;
@@ -98,7 +99,6 @@ export type PointerEventName =
  */
 export class PointerEvent extends GameEvent<Actor> {
   protected _name: string;
-
 
   /** The world coordinates of the event. */
   public get worldPos(): Vector {
@@ -224,29 +224,28 @@ export class PointerMoveEvent extends PointerEvent {
   protected _name = 'pointermove';
 
   public propagate(actor: Actor): void {
-    if (this.pointer.hasActorsUnderPointer) {
-      const actors = this.pointer.getActorsUnderPointer();
-      actors.forEach((actor) => {
-        if (!this.pointer.isActorUnderPointer(actor)) {
-          this._onActorLeave(actor);
-        }
-      });
+    // If the actor was under the pointer last frame, but not this one it left
+    if (this.pointer.wasActorUnderPointerLastFrame(actor) && !this.pointer.hasActorUnderPointerInList(actor)) {
+      this._onActorLeave(actor);
+      return;
     }
 
-    this.doAction(actor);
+    if (this.pointer.hasActorUnderPointerInList(actor)) {
+      this.doAction(actor);
 
-    if (this.bubbles && actor.parent) {
-      this.propagate(actor.parent);
+      if (this.bubbles && actor.parent) {
+        this.propagate(actor.parent);
+      }
     }
   }
 
-  
   protected _onActionStart(actor: Actor) {
     if (!actor.capturePointer.captureMoveEvents) {
       return;
     }
 
-    if (this.pointer.isActorUnderPointer(actor) && !this.pointer.hasActorUnderPointerInList(actor)) {
+    // In the case this is new
+    if (this.pointer.isActorUnderPointer(actor) && !this.pointer.wasActorUnderPointerLastFrame(actor)) {
       this._onActorEnter(actor);
     }
 
@@ -465,8 +464,10 @@ export class Pointers extends Class {
 
     // MDN MouseWheelEvent
     const wheelOptions = {
-        passive: !(this._engine.pageScrollPreventionMode === ScrollPreventionMode.All ||
-                this._engine.pageScrollPreventionMode === ScrollPreventionMode.Canvas)
+      passive: !(
+        this._engine.pageScrollPreventionMode === ScrollPreventionMode.All ||
+        this._engine.pageScrollPreventionMode === ScrollPreventionMode.Canvas
+      )
     };
     if ('onwheel' in document.createElement('div')) {
       // Modern Browsers
@@ -478,6 +479,63 @@ export class Pointers extends Class {
       // Remaining browser and older Firefox
       target.addEventListener('MozMousePixelScroll', this._handleWheelEvent('wheel', this._wheel), wheelOptions);
     }
+  }
+
+  /**
+   * Synthesize a pointer event that looks like a real browser event to excalibur
+   * @param eventName
+   * @param pos
+   */
+  public triggerEvent(
+    eventName: 'up' | 'down' | 'move' | 'cancel' | 'wheel',
+    pos: Vector | GlobalCoordinates,
+    button: NativePointerButton = NativePointerButton.Left,
+    pointerType: 'mouse' | 'touch' | 'pen' = 'mouse',
+    pointerId: number = 0
+  ): void {
+    let x = 0;
+    let y = 0;
+    let coords: GlobalCoordinates;
+    if (pos instanceof GlobalCoordinates) {
+      x = pos.pagePos.x;
+      y = pos.pagePos.y;
+      coords = pos;
+    } else {
+      x = pos.x;
+      y = pos.y;
+      coords = new GlobalCoordinates(pos.clone(), pos.clone(), pos.clone());
+    }
+
+    let eventish = {
+      pageX: x,
+      pageY: y,
+      pointerId: pointerId,
+      pointerType: pointerType,
+      button: button,
+      preventDefault: () => {}
+    };
+
+    switch (eventName) {
+      case 'move':
+        this._handlePointerEvent(eventName, this._pointerMove, coords)(eventish as MSPointerEvent);
+        break;
+      case 'down':
+        this._handlePointerEvent(eventName, this._pointerDown, coords)(eventish as MSPointerEvent);
+        break;
+      case 'up':
+        this._handlePointerEvent(eventName, this._pointerUp, coords)(eventish as MSPointerEvent);
+        break;
+      case 'cancel':
+        this._handlePointerEvent(eventName, this._pointerCancel, coords)(eventish as MSPointerEvent);
+        break;
+    }
+    for (const actor of this._engine.currentScene.actors) {
+      const capturePointer = actor.traits.filter((t) => t instanceof CapturePointer)[0];
+      if (capturePointer) {
+        capturePointer.update(actor, this._engine, 1);
+      }
+    }
+    this.update();
   }
 
   public update(): void {
@@ -518,43 +576,44 @@ export class Pointers extends Class {
   /**
    * Propogates events through ancestors chain if necessary
    */
-  public propagate() {
-    // this._propagatePointerEvent(this._pointerDown);
-    // this._propagatePointerEvent(this._pointerUp);
-    // this._propagatePointerEvent(this._pointerMove);
-    // this._propagatePointerEvent(this._pointerCancel);
-    // this._propagateWheelEvent('pointerwheel', this._wheel);
-  }
+  public propagate() {}
 
   public updateActorsUnderPointer(actor: Actor) {
+    for (const pointer of this._pointers) {
+      pointer.captureOldActorUnderPointer();
+      if (pointer.isActorUnderPointer(actor)) {
+        pointer.addActorUnderPointer(actor);
+      } else {
+        pointer.removeActorUnderPointer(actor);
+      }
+    }
+
     for (const evt of this._pointerDown) {
-        if (evt.pointer.isActorUnderPointer(actor)) {
-            evt.propagate(actor);
-        }
+      if (evt.pointer.hasActorUnderPointerInList(actor)) {
+        evt.propagate(actor);
+      }
     }
 
     for (const evt of this._pointerUp) {
-        if (evt.pointer.isActorUnderPointer(actor)) {
-            evt.propagate(actor);
-        }
+      if (evt.pointer.hasActorUnderPointerInList(actor)) {
+        evt.propagate(actor);
+      }
     }
 
     for (const evt of this._pointerMove) {
-        if (evt.pointer.isActorUnderPointer(actor)) {
-           evt.propagate(actor);
-        }
+      evt.propagate(actor);
     }
 
     for (const evt of this._pointerCancel) {
-        if (evt.pointer.isActorUnderPointer(actor)) {
-            evt.propagate(actor);
-        }
+      if (evt.pointer.hasActorUnderPointerInList(actor)) {
+        evt.propagate(actor);
+      }
     }
 
     for (const evt of this._wheel) {
-       if (this._pointers[evt.index].isActorUnderPointer(actor)) {
+      if (this._pointers[evt.index].hasActorUnderPointerInList(actor)) {
         this._propagateWheelEvent(actor, evt);
-       }
+      }
     }
   }
 
@@ -570,14 +629,14 @@ export class Pointers extends Class {
     // this._validateWheelEventPath(this._wheel, actor);
   }
 
-//   private _propagatePointerEvent(events: PointerEvent[]) {
+  //   private _propagatePointerEvent(events: PointerEvent[]) {
 
-//     for (const event of events) {
-//       for (const actor of event.pointer.getActorsUnderPointer()) {
-//         event.propagate(actor);
-//       }
-//     }
-//   }
+  //     for (const event of events) {
+  //       for (const actor of event.pointer.getActorsUnderPointer()) {
+  //         event.propagate(actor);
+  //       }
+  //     }
+  //   }
 
   // private _revisePointerEventPath(actor: Actor, pointers: PointerEvent[]) {
   //   const len = pointers.length;
@@ -663,7 +722,7 @@ export class Pointers extends Class {
     };
   }
 
-  private _handlePointerEvent(eventName: string, eventArr: PointerEvent[]) {
+  private _handlePointerEvent(eventName: string, eventArr: PointerEvent[], coords?: GlobalCoordinates) {
     return (e: MSPointerEvent) => {
       e.preventDefault();
 
@@ -674,7 +733,7 @@ export class Pointers extends Class {
       }
 
       const pointer = this.at(index);
-      const coordinates = GlobalCoordinates.fromPagePosition(e.pageX, e.pageY, this._engine);
+      const coordinates = coords || GlobalCoordinates.fromPagePosition(e.pageX, e.pageY, this._engine);
       const pe = createPointerEventByName(
         eventName,
         coordinates,
@@ -798,6 +857,7 @@ export class Pointer extends Class {
   private _isDown: boolean = false;
   private _wasDown: boolean = false;
   private _actorsUnderPointer: ActorsUnderPointer = { length: 0 };
+  private _actorsUnderPointerLastFrame: ActorsUnderPointer = { length: 0 };
 
   /**
    * Whether the Pointer is currently dragging.
@@ -861,6 +921,7 @@ export class Pointer extends Class {
     } else if (!this._wasDown && this._isDown) {
       this._wasDown = true;
     }
+    this._actorsUnderPointerLastFrame = { ...this._actorsUnderPointer };
   }
 
   /**
@@ -914,12 +975,20 @@ export class Pointer extends Class {
     return false;
   }
 
+  public wasActorUnderPointerLastFrame(actor: Actor): boolean {
+    return this._actorsUnderPointerLastFrame.hasOwnProperty(actor.id.toString());
+  }
+
   /**
    * Checks if Pointer has a specific Actor in ActrorsUnderPointer list.
    * @param actor An Actor for check;
    */
   public hasActorUnderPointerInList(actor: Actor): boolean {
     return this._actorsUnderPointer.hasOwnProperty(actor.id.toString());
+  }
+
+  public captureOldActorUnderPointer() {
+    this._actorsUnderPointerLastFrame = { ...this._actorsUnderPointer };
   }
 
   private _onPointerMove(ev: PointerEvent): void {

@@ -30,6 +30,9 @@ class TestBlock extends ex.Actor {
     this.on(ex.EventTypes.PointerDragMove, (event) => {
       this.color = ex.Color.Yellow;
     });
+    this.on(ex.EventTypes.PointerLeave, (event) => {
+      this.color = ex.Color.Red;
+    });
   }
 }
 

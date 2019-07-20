@@ -277,9 +277,8 @@ export namespace Mocks {
       return mockWindow;
     }
 
-    pointerEvent(eventName): ex.Input.PointerEvent {
+    pointerEvent(eventName, pointer: ex.Input.Pointer = new ex.Input.Pointer()): ex.Input.PointerEvent {
       const coordinates = new ex.GlobalCoordinates(new ex.Vector(0, 0), new ex.Vector(0, 0), new ex.Vector(0, 0));
-      const pointer = new ex.Input.Pointer();
       const pointerType = ex.Input.PointerType.Mouse;
       const pointerButton = ex.Input.PointerButton.Unknown;
 
