@@ -36,12 +36,12 @@ class TestBlock extends ex.Actor {
   }
 }
 
-var game = new Game();
+var game2 = new Game();
 
 var testBlockOne = new TestBlock(150, 100);
 var testBlockTwo = new TestBlock(450, 100);
 
-game.add(testBlockOne);
-game.add(testBlockTwo);
+game2.add(testBlockOne);
+game2.add(testBlockTwo);
 
-game.start();
+game2.start();

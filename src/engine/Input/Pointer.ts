@@ -506,13 +506,15 @@ export class Pointers extends Class {
       coords = new GlobalCoordinates(pos.clone(), pos.clone(), pos.clone());
     }
 
-    let eventish = {
+    const eventish = {
       pageX: x,
       pageY: y,
       pointerId: pointerId,
       pointerType: pointerType,
       button: button,
-      preventDefault: () => {}
+      preventDefault: () => {
+        /* do nothing */
+      }
     };
 
     switch (eventName) {
@@ -572,11 +574,6 @@ export class Pointers extends Class {
   public count(): number {
     return this._pointers.length;
   }
-
-  /**
-   * Propogates events through ancestors chain if necessary
-   */
-  public propagate() {}
 
   public updateActorsUnderPointer(actor: Actor) {
     for (const pointer of this._pointers) {

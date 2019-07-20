@@ -1205,7 +1205,6 @@ describe('A game actor', () => {
 
     it('only has pointer events happen once per frame', () => {
       const actor = new ex.Actor(0, 0, 100, 100);
-      const propSpy = spyOn(engine.input.pointers, 'propagate').and.callThrough();
       let numPointerUps = 0;
 
       scene.add(actor);
@@ -1219,7 +1218,6 @@ describe('A game actor', () => {
       scene.update(engine, 100);
 
       expect(numPointerUps).toBe(1, 'Pointer up should be triggered once');
-      expect(propSpy).toHaveBeenCalledTimes(1);
     });
   });
 
