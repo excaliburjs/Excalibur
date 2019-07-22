@@ -5,7 +5,11 @@
   "editor.detectIndentation": false,
   "restructuredtext.confPath": "docs/source/conf.py",
   "restructuredtext.builtDocumentationPath": "docs/build/html",
-  "tslint.configFile": "../../tslint/tslint.json",
+  "eslint.enable": true,
+  "eslint.options": { "configFile": "./.eslintrc.js"},
+  "eslint.alwaysShowStatus": true,
+  "eslint.autoFixOnSave": true,
+  "eslint.validate": [ "typescript" ],
   "files.exclude": {
     "**/.git": true,
     ".grunt/": true,
