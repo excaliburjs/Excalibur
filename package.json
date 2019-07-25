@@ -43,7 +43,7 @@
   "devDependencies": {
     "@types/jasmine": "3.3.15",
     "copy-webpack-plugin": "5.0.3",
-    "css-loader": "3.0.0",
+    "css-loader": "3.1.0",
     "excalibur-jasmine": "0.0.1",
     "grunt": "1.0.4",
     "grunt-build-control": "0.7.1",
