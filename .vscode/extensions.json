@@ -4,6 +4,7 @@
   "recommendations": [
     // Extension identifier format: ${publisher}.${name}. Example: vscode.csharp
     "eamodio.gitlens",
-    "esbenp.prettier-vscode"
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint"
   ]
 }

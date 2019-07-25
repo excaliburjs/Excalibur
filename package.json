@@ -26,7 +26,7 @@
     "all": "grunt",
     "core": "grunt core",
     "lint": "grunt lint",
-    "eslint": "eslint src/engine/Actor.ts",
+    "eslint": "eslint src/engine/**/*.ts",
     "travis": "grunt travis",
     "visual": "grunt visual",
     "sandbox": "grunt sandbox",

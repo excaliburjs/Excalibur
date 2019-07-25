@@ -523,15 +523,19 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     }
 
     // Use native console API for color fun
+    // eslint-disable-next-line no-console
     if (console.log && !options.suppressConsoleBootMessage) {
+      // eslint-disable-next-line no-console
       console.log(
         `%cPowered by Excalibur.js (v${EX_VERSION})`,
         'background: #176BAA; color: white; border-radius: 5px; padding: 15px; font-size: 1.5em; line-height: 80px;'
       );
+      // eslint-disable-next-line no-console
       console.log('\n\
       /| ________________\n\
 O|===|* >________________>\n\
       \\|');
+      // eslint-disable-next-line no-console
       console.log('Visit', 'http://excaliburjs.com', 'for more information');
     }
 

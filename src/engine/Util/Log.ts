@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Logging level that Excalibur will tag
  */

@@ -5,7 +5,7 @@ import { Edge } from './Edge';
 
 import { Vector } from '../Algebra';
 
-export let CollisionJumpTable = {
+export const CollisionJumpTable = {
   CollideCircleCircle(circleA: Circle, circleB: Circle): CollisionContact {
     const radius = circleA.radius + circleB.radius;
     const circleAPos = circleA.worldPos;

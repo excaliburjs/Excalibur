@@ -5,7 +5,7 @@ module.exports = {
     },
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "project": "tsconfig.json",
+        "project": "./src/engine/tsconfig.json",
         "sourceType": "module"
     },
     "plugins": [
@@ -32,6 +32,7 @@ module.exports = {
                 ]
             }
         ],
+        "quotes": ["error", "single", { "allowTemplateLiterals": true }],
         "no-debugger": "error",
         "no-empty": "error",
         "no-eval": "error",
@@ -61,10 +62,6 @@ module.exports = {
                         "check-catch",
                         "check-else",
                         "check-whitespace"
-                    ],
-                    "quotemark": [
-                        true,
-                        "single"
                     ],
                     "semicolon": [
                         true,

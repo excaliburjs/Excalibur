@@ -23,7 +23,7 @@ import {
   ExitViewPortEvent
 } from './Events';
 import { PointerEvent, WheelEvent, PointerDragEvent, PointerEventName } from './Input/Pointer';
-import { Engine } from "./Engine";
+import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { Sprite } from './Drawing/Sprite';
 import { Trait } from './Interfaces/Trait';

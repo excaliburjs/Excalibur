@@ -98,7 +98,7 @@ export function ClosestLine(p0: Vector, u: Vector, q0: Vector, v: Vector) {
   return new Line(p0.add(u.scale(sClosest)), q0.add(v.scale(tClosest)));
 }
 
-export let ClosestLineJumpTable = {
+export const ClosestLineJumpTable = {
   PolygonPolygonClosestLine(polygonA: ConvexPolygon, polygonB: ConvexPolygon) {
     // Find the 2 closest faces on each polygon
     const otherWorldPos = polygonB.worldPos;
