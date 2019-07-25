@@ -27,6 +27,7 @@
     "core": "grunt core",
     "lint": "grunt lint",
     "eslint": "eslint src/engine/**/*.ts",
+    "eslint:spec": "eslint src/spec/**/*.ts",
     "travis": "grunt travis",
     "visual": "grunt visual",
     "sandbox": "grunt sandbox",

@@ -1,7 +1,6 @@
 export namespace Stubs {
   export class AudioStub {
-    public static base64StubData: string =
-      '' +
+    public static base64StubData: string = '' +
       'SUQzBAAAAAIYDFRJVDIAAAAcAAAAMjUwIE1pbGxpc2Vjb25kcyBvZiBTaWxlbmNlVFBFMQAAABIAAABBbmFyIFNvZnR3YXJlIExMQ1RBTEIAAAAMAAAAQmxh' +
       'bmsgQXVkaW9BUElDAAIPAgAAAGltYWdlL2pwZWcAAwCJUE5HDQoaCgAAAA1JSERSAAAEOAAABDgIBgAAAOwQbI8AAAAGYktHRAD/AP8A/6C9p5MAAAAJcEhZ' +
       'cwAACD0AAAg9AQWVVbYAAAAHdElNRQffCgsFHDEDbwR2AAAgAElEQVR42uzde5RVZd0H8N8wDDcBAS8o6oCJVyxTsDSxojJvgVYq3jVNUQgzaZWmpqh56+It' +

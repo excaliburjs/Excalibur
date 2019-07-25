@@ -93,13 +93,11 @@ export namespace Mocks {
     }
 
     engine(width: number, height: number) {
-      let mockEngine;
-
       if (!navigator) {
         navigator = <any>this.navigator();
       }
 
-      mockEngine = {
+      const mockEngine = {
         collisionStrategy: 0,
         timescale: 1,
         currentScene: null,
