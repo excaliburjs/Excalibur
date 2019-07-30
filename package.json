@@ -41,7 +41,7 @@
     }
   },
   "devDependencies": {
-    "@types/jasmine": "3.3.15",
+    "@types/jasmine": "3.3.16",
     "copy-webpack-plugin": "5.0.4",
     "css-loader": "3.1.0",
     "excalibur-jasmine": "0.0.1",
