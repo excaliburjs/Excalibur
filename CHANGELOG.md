@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   object rather than only individual coordinate parameters. ([#1151](https://github.com/excaliburjs/Excalibur/issues/1151))
 - Added new interface for specifying the type of the options object passed to the
   bounding box constructor.
+- Added new RandomTimer with a variable duration, and Sandbox Tests for Timer and RandomTimer ([#396](https://github.com/excaliburjs/Excalibur/issues/396))
 
 ### Changed
 
@@ -20,8 +21,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- Fixed animation flipping behavior ([#1172](https://github.com/excaliburjs/Excalibur/issues/1172))
-
+- Fixed animation flipping behavior. ([#1172](https://github.com/excaliburjs/Excalibur/issues/1172))
+- Fixed issue where Actors with opacity = 0 still get drawn. ([#875](https://github.com/excaliburjs/Excalibur/issues/875))
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
