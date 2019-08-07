@@ -458,7 +458,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * The opacity of an actor. Passing in a color in the [[constructor]] will use the
    * color's opacity.
    */
-  public opacity: number = 1;
+  public _opacity: number = 1;
   public previousOpacity: number = 1;
 
   /**
@@ -543,6 +543,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
   public set color(v: Color) {
     this._color = v.clone();
+    if ( this._color.a === 0 ) {
+        this.visible = false;
+    }
   }
   private _color: Color;
 
@@ -1169,6 +1172,16 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this._height = height / this.scale.y;
     this.body.collider.shape = Shape.Box(this._width, this._height, this.anchor);
     this.body.markCollisionShapeDirty();
+  }
+
+  public set opacity(opacity: number) {
+      this._opacity = opacity;
+      if ( opacity === 0 ) {
+        this.visible = false;
+      }
+  }
+  public get opacity() {
+      return this._opacity;
   }
 
   /**
