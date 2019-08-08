@@ -8,8 +8,8 @@ var game = new ex.Engine({
 
 var rcount: number = 0;
 var rcallback = () => {
-  count++;
-  console.log(count);
+  rcount++;
+  console.log(rcount);
 };
 var rtimer: ex.Timer = ex.Timer.RandomTimer(rcallback, 1, 5000, true, 20);
 game.add(rtimer);
