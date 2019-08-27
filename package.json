@@ -84,7 +84,7 @@
     "typescript": "3.5.3",
     "typescript-tslint-plugin": "0.5.4",
     "url-loader": "2.1.0",
-    "webpack": "4.39.2",
+    "webpack": "4.39.3",
     "webpack-cli": "3.3.6"
   }
 }
