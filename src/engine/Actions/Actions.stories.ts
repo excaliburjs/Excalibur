@@ -37,5 +37,8 @@ export const fade: Story = withEngine(async (game) => {
 });
 
 fade.story = {
-  parameters: { notes: 'Should show a heart and fade out after 2 seconds' }
+  parameters: {
+    componentSubtitle: 'Fade action',
+    notes: 'Use `Actor.fade()` to fade in or out the Actor over time'
+  }
 };
