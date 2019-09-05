@@ -10,11 +10,11 @@ storiesOf('Actions', module)
   .add(
     'fade',
     withEngine((game) => {
-      var hrt = new Texture(heartTexture);
-      var ldr = new Loader([hrt]);
+      const hrt = new Texture(heartTexture);
+      const ldr = new Loader([hrt]);
 
       game.start(ldr).then(() => {
-        var heart = new Actor(game.halfCanvasWidth, game.halfCanvasHeight, 50, 50);
+        const heart = new Actor(game.halfCanvasWidth, game.halfCanvasHeight, 50, 50);
         heart.addDrawing(hrt);
 
         heart.opacity = 0;

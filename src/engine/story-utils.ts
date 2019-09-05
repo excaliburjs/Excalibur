@@ -6,8 +6,8 @@ import { Engine, DisplayMode } from '.';
  */
 export const withEngine = (storyFn: (game: Engine) => void) => {
   return () => {
-    var canvas = document.createElement('canvas');
-    var game = new Engine({ canvasElement: canvas, displayMode: DisplayMode.FullScreen, suppressPlayButton: true });
+    const canvas = document.createElement('canvas');
+    const game = new Engine({ canvasElement: canvas, displayMode: DisplayMode.FullScreen, suppressPlayButton: true });
 
     storyFn(game);
 
