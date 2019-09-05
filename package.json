@@ -27,7 +27,7 @@
     "core": "grunt core",
     "lint": "grunt lint",
     "travis": "grunt travis",
-    "visual": "grunt visual",
+    "visual": "start-storybook",
     "sandbox": "grunt sandbox",
     "start": "grunt watch",
     "test": "karma start",
@@ -41,7 +41,14 @@
     }
   },
   "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@storybook/addon-knobs": "^5.1.11",
+    "@storybook/addon-notes": "^5.1.11",
+    "@storybook/html": "^5.1.11",
     "@types/jasmine": "3.4.0",
+    "@types/storybook__addon-knobs": "^5.0.3",
+    "@types/storybook__html": "^5.0.2",
+    "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "5.0.4",
     "css-loader": "3.2.0",
     "excalibur-jasmine": "0.0.1",
