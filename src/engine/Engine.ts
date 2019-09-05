@@ -119,6 +119,11 @@ export interface EngineOptions {
   canvasElementId?: string;
 
   /**
+   * Optionally specify the target canvas DOM element directly
+   */
+  canvasElement?: HTMLCanvasElement;
+
+  /**
    * The [[DisplayMode]] of the game. Depending on this value, [[width]] and [[height]] may be ignored.
    */
   displayMode?: DisplayMode;
@@ -456,6 +461,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     height: 0,
     enableCanvasTransparency: true,
     canvasElementId: '',
+    canvasElement: undefined,
     pointerScope: Input.PointerScope.Document,
     suppressConsoleBootMessage: null,
     suppressMinimumBrowserFeatureDetection: null,
@@ -554,6 +560,9 @@ O|===|* >________________>\n\
     if (options.canvasElementId) {
       this._logger.debug('Using Canvas element specified: ' + options.canvasElementId);
       this.canvas = <HTMLCanvasElement>document.getElementById(options.canvasElementId);
+    } else if (options.canvasElement) {
+      this._logger.debug('Using Canvas element specified:', options.canvasElement);
+      this.canvas = options.canvasElement;
     } else {
       this._logger.debug('Using generated canvas element');
       this.canvas = <HTMLCanvasElement>document.createElement('canvas');
@@ -1016,7 +1025,7 @@ O|===|* >________________>\n\
       this._initializeHiDpi();
     }
 
-    if (!this.canvasElementId) {
+    if (!this.canvasElementId && !options.canvasElement) {
       document.body.appendChild(this.canvas);
     }
   }
