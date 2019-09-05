@@ -59,7 +59,7 @@ module.exports = function(grunt) {
       // HTML visual tests
       visual: {
         options: {
-          target: 'es5'
+          target: 'es2015'
         },
         src: ['sandbox/**/*.ts']
       },
