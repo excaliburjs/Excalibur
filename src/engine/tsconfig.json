@@ -4,7 +4,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "experimentalDecorators": true,
-    "target": "es5",
+    "target": "es2015",
     "module": "es2015",
     "declaration": true,
     "noImplicitAny": true,
@@ -14,7 +14,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "allowUnreachableCode": false,
-    "lib": ["dom", "es5", "es2015.collection", "es2015.iterable"],
+    "lib": ["dom", "es5", "es2015.promise", "es2015.collection", "es2015.iterable"],
     "plugins": [
       {
         "name": "typescript-tslint-plugin"
