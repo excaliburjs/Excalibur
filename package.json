@@ -79,7 +79,7 @@
     "to-string-loader": "1.1.5",
     "travis-ci": "2.2.0",
     "ts-loader": "6.0.4",
-    "tslint": "5.18.0",
+    "tslint": "5.19.0",
     "typedoc": "0.15.0",
     "typescript": "3.5.3",
     "typescript-tslint-plugin": "0.5.4",
