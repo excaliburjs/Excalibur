@@ -47,6 +47,7 @@
     "@storybook/addon-notes": "5.2.0-rc.6",
     "@storybook/html": "5.2.0-rc.6",
     "@types/jasmine": "3.4.0",
+    "@types/react-color": "^3.0.1",
     "@types/storybook__addon-knobs": "^5.0.3",
     "@types/storybook__html": "^5.0.2",
     "babel-loader": "^8.0.6",
