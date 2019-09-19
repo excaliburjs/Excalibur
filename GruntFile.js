@@ -59,7 +59,8 @@ module.exports = function(grunt) {
       // HTML visual tests
       visual: {
         options: {
-          target: 'es2015'
+          target: 'es2015',
+          skipLibCheck: true
         },
         src: ['sandbox/**/*.ts']
       },
