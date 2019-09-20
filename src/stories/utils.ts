@@ -1,4 +1,4 @@
-import { Engine, DisplayMode } from '.';
+import { Engine, DisplayMode } from '../engine';
 
 /**
  * Helper to generate Storybook game engine instance

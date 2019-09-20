@@ -27,7 +27,7 @@ module.exports = ({ config }) => {
       {
         loader: require.resolve('ts-loader'),
         options: {
-          configFile: path.join(__dirname, '../src/engine/tsconfig.json')
+          configFile: path.join(__dirname, '../src/stories/tsconfig.json')
         }
       }
     ]

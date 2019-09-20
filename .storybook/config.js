@@ -8,4 +8,4 @@ addParameters({
   }
 });
 
-configure(require.context('../src/engine', true, /\.stories\.ts$/), module);
+configure(require.context('../src/stories', true, /\.stories\.ts$/), module);

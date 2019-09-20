@@ -1,0 +1,11 @@
+{
+  "extends": "../engine/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDirs": [".", "../engine"],
+    "declaration": false,
+    "outDir": "."
+  },
+  "include": ["**/*", "../engine/*.d.ts"],
+  "exclude": []
+}

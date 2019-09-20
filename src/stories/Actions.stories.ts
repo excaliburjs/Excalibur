@@ -1,8 +1,8 @@
 import { withKnobs, number } from '@storybook/addon-knobs';
-import { Actor, Texture, Loader } from '../';
-import { withEngine } from '../story-utils';
+import { Actor, Texture, Loader } from '../engine';
+import { withEngine } from './utils'
 
-import heartTexture from '../__assets__/heart.png';
+import heartTexture from './assets/heart.png';
 
 export default {
   title: 'Actions',
