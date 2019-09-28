@@ -41,7 +41,7 @@
     }
   },
   "devDependencies": {
-    "@types/jasmine": "3.4.0",
+    "@types/jasmine": "3.4.1",
     "copy-webpack-plugin": "5.0.4",
     "css-loader": "3.2.0",
     "excalibur-jasmine": "0.0.1",
@@ -84,7 +84,7 @@
     "typescript": "3.5.3",
     "typescript-tslint-plugin": "0.5.4",
     "url-loader": "2.1.0",
-    "webpack": "4.40.2",
+    "webpack": "4.41.0",
     "webpack-cli": "3.3.9"
   }
 }
