@@ -1,7 +1,7 @@
 import { Color } from './Color';
 import * as Effects from './SpriteEffects';
 
-import { Drawable } from '../Interfaces/Drawable';
+import { Drawable, DrawOptions } from '../Interfaces/Drawable';
 import { Vector } from '../Algebra';
 
 /**
@@ -141,5 +141,11 @@ export class Polygon implements Drawable {
 
     ctx.stroke();
     ctx.restore();
+  }
+
+  public drawWithOptions(options: DrawOptions) {
+    // todo implement
+    const { ctx, x, y } = options;
+    this.draw(ctx, x, y);
   }
 }
