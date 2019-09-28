@@ -31,9 +31,9 @@ export class AnimationImpl implements Drawable {
 
   private _oldTime: number = Date.now();
 
-  public anchor: Vector = new Vector(0.0, 0.0);
+  public anchor: Vector = Vector.Zero;
   public rotation: number = 0.0;
-  public scale: Vector = new Vector(1, 1);
+  public scale: Vector = Vector.One;
 
   /**
    * Indicates whether the animation should loop after it is completed
