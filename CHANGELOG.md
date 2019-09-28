@@ -14,6 +14,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Animation no longer mutate underlying sprites, instead they draw the sprite using the animations parameters. This allows more robust flipping at runtime. ([#1258](https://github.com/excaliburjs/Excalibur/issues/1258))
+
 ### Deprecated
 
 ### Removed
