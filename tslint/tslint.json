@@ -36,6 +36,18 @@
     "variable-name": false,
     "whitespace": [true, "check-branch", "check-decl", "check-operator", "check-separator", "check-type"],
     "no-var-keyword": true,
-    "prefer-const": true
+    "prefer-const": true,
+    "completed-docs": {
+      "severity": "warn",
+      "options": {
+        "classes": { "visibilities": ["exported"] },
+        "enums": { "visibilities": ["exported"] },
+        "enum-members": { "visibilities": ["exported"] },
+        "interfaces": { "visibilities": ["exported"] },
+        "functions": { "visibilities": ["exported"] },
+        "methods": { "privacies": ["public", "protected"] },
+        "properties": { "privacies": ["public", "protected"] }
+      }
+    }
   }
 }
