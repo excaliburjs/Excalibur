@@ -30,7 +30,7 @@ export * from './Scene';
 export { TileMap, Cell, TileMapArgs, CellArgs, TileSprite } from './TileMap';
 export * from './Timer';
 export * from './Trigger';
-export * from './UIActor';
+export * from './ScreenElement';
 
 export * from './Actions/Index';
 export * from './Collision/Index';
