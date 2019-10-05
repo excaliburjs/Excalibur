@@ -17,7 +17,8 @@ export enum ColorBlindness {
  * [[include:ColorBlind.md]]
  */
 export class ColorBlindCorrector implements PostProcessor {
-  private _vertexShader = '' +
+  private _vertexShader =
+    '' +
     'attribute vec2 a_position;' +
     'attribute vec2 a_texCoord;' +
     'uniform vec2 u_resolution;' +
@@ -36,13 +37,13 @@ export class ColorBlindCorrector implements PostProcessor {
     '}';
 
   private _fragmentShader =
-  'precision mediump float;' +
+    'precision mediump float;' +
     // our texture
     'uniform sampler2D u_image;' +
     // the texCoords passed in from the vertex shader.
     'varying vec2 v_texCoord;' +
-  // Color blind conversions
-  /*'mat3 m[9] =' +
+    // Color blind conversions
+    /*'mat3 m[9] =' +
    '{' +
       'mat3(1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0  ),' + // normal
       'mat3(0.567, 0.433, 0.0,  0.558, 0.442, 0.0,  0.0, 0.242, 0.758),' + // protanopia
@@ -61,10 +62,10 @@ export class ColorBlindCorrector implements PostProcessor {
     'float L = (17.8824 * o.r) + (43.5161 * o.g) + (4.11935 * o.b);' +
     'float M = (3.45565 * o.r) + (27.1554 * o.g) + (3.86714 * o.b);' +
     'float S = (0.0299566 * o.r) + (0.184309 * o.g) + (1.46709 * o.b);' +
-  // Simulate color blindness
+    // Simulate color blindness
 
     '//MODE CODE//' +
-  /* Deuteranope for testing 
+    /* Deuteranope for testing
       'float l = 1.0 * L + 0.0 * M + 0.0 * S;' +
             'float m = 0.494207 * L + 0.0 * M + 1.24827 * S;' +
             'float s = 0.0 * L + 0.0 * M + 1.0 * S;' +*/
