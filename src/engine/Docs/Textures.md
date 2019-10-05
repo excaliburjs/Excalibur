@@ -9,7 +9,7 @@ is loaded, you can generate a [[Sprite]] with it.
 
 ```js
 var txPlayer = new ex.Texture('/assets/tx/player.png');
-var loader = new ex.Loader(txPlayer);
+var loader = new ex.Loader([txPlayer]);
 game.start(loader).then(function() {
   var player = new ex.Actor();
   player.addDrawing(txPlayer);

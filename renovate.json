@@ -2,5 +2,9 @@
   "extends": [
     "config:base"
   ],
-  "commitMessagePrefix": "[chore]"
+  "commitMessagePrefix": "[chore]",
+  "automerge": true,
+  "major": {
+    "automerge": false
+  }
 }
