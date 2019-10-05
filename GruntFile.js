@@ -173,7 +173,7 @@ module.exports = function(grunt) {
         command: 'npm run eslint && npm run eslint:spec',
         options: {
           stdout: true,
-          failOnError: false
+          failOnError: true
         }
       }
     },
