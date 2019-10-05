@@ -81,6 +81,7 @@ export namespace Mocks {
 
     realengine(): ex.Engine {
       if (!navigator) {
+        // eslint-disable-next-line
         navigator = <any>this.navigator();
       }
 
@@ -94,6 +95,7 @@ export namespace Mocks {
 
     engine(width: number, height: number) {
       if (!navigator) {
+        // eslint-disable-next-line
         navigator = <any>this.navigator();
       }
 
@@ -139,6 +141,7 @@ export namespace Mocks {
               /* do nothing */
             }
           },
+          // eslint-disable-next-line
           pointers: new ex.Input.Pointers(<any>this),
           gamepads: {
             update: function() {
