@@ -199,6 +199,7 @@ export class ScreenAppender implements Appender {
     this._canvas.width = width || window.innerWidth;
     this._canvas.height = height || window.innerHeight;
     this._canvas.style.position = 'absolute';
+    // eslint-disable-next-line
     this._ctx = <CanvasRenderingContext2D>this._canvas.getContext('2d'); // eslint-disable-line
     document.body.appendChild(this._canvas);
   }

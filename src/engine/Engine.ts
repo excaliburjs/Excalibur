@@ -1013,6 +1013,7 @@ O|===|* >________________>\n\
       }
     });
 
+    // eslint-disable-next-line
     this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
 
     this._suppressHiDPIScaling = !!options.suppressHiDPIScaling;
@@ -1140,12 +1141,14 @@ O|===|* >________________>\n\
    * Return the current smoothing status of the canvas
    */
   public getAntialiasing(): boolean {
+    /*eslint-disable */
     return (
       (<any>this.ctx).imageSmoothingEnabled ||
       (<any>this.ctx).webkitImageSmoothingEnabled ||
       (<any>this.ctx).mozImageSmoothingEnabled ||
       (<any>this.ctx).msImageSmoothingEnabled
     );
+    /*eslint-enable */
   }
 
   /**
