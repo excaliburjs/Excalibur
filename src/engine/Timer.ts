@@ -1,5 +1,11 @@
 import { Scene } from './Scene';
 
+export interface TimerOptions {
+  repeats?: boolean;
+  numberOfRepeats?: number;
+  fcn?: () => void;
+}
+
 /**
  * The Excalibur timer hooks into the internal timer and fires callbacks,
  * after a certain interval, optionally repeating.
@@ -17,16 +23,20 @@ export class Timer {
   private _totalTimeAlive: number = 0;
   private _paused: boolean = false;
   private _numberOfTicks: number = 0;
+  private _callbacks: { [key: string]: () => void | undefined };
   public complete: boolean = false;
   public scene: Scene = null;
 
   /**
-   * @param fcn        The callback to be fired after the interval is complete.
    * @param interval   Interval length
+   * @param options    Options - repeats, numberOfRepeats, fcn
    * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.
    * @param numberOfRepeats Specifies a maximum number of times that this timer will execute.
+   * @param fcn        The callback to be fired after the interval is complete.
    */
-  constructor(fcn: () => void, interval: number, repeats?: boolean, numberOfRepeats?: number) {
+  constructor(interval: number, options: TimerOptions = {}) {
+    const { fcn, numberOfRepeats, repeats } = options;
+
     if (!!numberOfRepeats && numberOfRepeats >= 0) {
       this.maxNumberOfRepeats = numberOfRepeats;
       if (!repeats) {
@@ -37,6 +47,32 @@ export class Timer {
     this.interval = interval || this.interval;
     this.fcn = fcn || this.fcn;
     this.repeats = repeats || this.repeats;
+
+    this._callbacks = {};
+
+    if (fcn) {
+      this.on(fcn);
+    }
+  }
+
+  /**
+   * Adds a new callback to be fired after the interval is complete
+   * @param fcn The callback to be added to the callback list, to be fired after the interval is complete.
+   */
+  public on(fcn: () => void) {
+    const key = fcn.toString();
+    this._callbacks[key] = fcn;
+  }
+
+  /**
+   * Removes a callback from the callback list to be fired after the interval is complete.
+   * @param fcn The callback to be removed from the callback list, to be fired after the interval is complete.
+   */
+  public off(fcn: () => void) {
+    const key = fcn.toString();
+    if (key in this._callbacks) {
+      this._callbacks[key] = undefined;
+    }
   }
 
   /**
@@ -53,7 +89,13 @@ export class Timer {
       }
 
       if (!this.complete && this._elapsedTime >= this.interval) {
-        this.fcn.call(this);
+        for (const key in this._callbacks) {
+          const fcn = this._callbacks[key];
+          if (fcn) {
+            fcn.call(this);
+          }
+        }
+
         this._numberOfTicks++;
         if (this.repeats) {
           this._elapsedTime = 0;

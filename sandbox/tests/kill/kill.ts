@@ -13,8 +13,8 @@ var topActor = new ex.Actor({
 
 game.add(topActor);
 
-var spawnTimer = new ex.Timer(
-  () => {
+var spawnTimer = new ex.Timer(200, {
+  fcn: () => {
     let a = new ex.Actor({
       x: game.halfDrawWidth,
       y: game.halfDrawHeight,
@@ -31,10 +31,9 @@ var spawnTimer = new ex.Timer(
     });
     game.add(a);
   },
-  200,
-  true,
-  -1
-);
+  numberOfRepeats: -1,
+  repeats: true
+});
 
 game.add(spawnTimer);
 game.start();
