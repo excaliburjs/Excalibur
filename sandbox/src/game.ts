@@ -515,7 +515,8 @@ var trigger = new ex.Trigger({
       emitter.isEmitting = true;
       camera.shake(10, 10, 2000);
       game.addTimer(
-        new ex.Timer(2000, {
+        new ex.Timer({
+          interval: 2000,
           fcn: () => {
             emitter.isEmitting = false;
             exploding = false;

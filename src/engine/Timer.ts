@@ -4,6 +4,7 @@ export interface TimerOptions {
   repeats?: boolean;
   numberOfRepeats?: number;
   fcn?: () => void;
+  interval: number;
 }
 
 /**
@@ -14,28 +15,31 @@ export class Timer {
   public static id: number = 0;
   public id: number = 0;
   public interval: number = 10;
-  public fcn: () => void = () => {
-    return;
-  };
   public repeats: boolean = false;
   public maxNumberOfRepeats: number = -1;
   private _elapsedTime: number = 0;
   private _totalTimeAlive: number = 0;
   private _paused: boolean = false;
   private _numberOfTicks: number = 0;
-  private _callbacks: { [key: string]: () => void | undefined };
+  private _callbacks: Array<() => void>;
   public complete: boolean = false;
   public scene: Scene = null;
 
   /**
-   * @param interval   Interval length
-   * @param options    Options - repeats, numberOfRepeats, fcn
+   * @param options    Options - repeats, numberOfRepeats, fcn, interval
    * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.
    * @param numberOfRepeats Specifies a maximum number of times that this timer will execute.
    * @param fcn        The callback to be fired after the interval is complete.
    */
-  constructor(interval: number, options: TimerOptions = {}) {
-    const { fcn, numberOfRepeats, repeats } = options;
+  constructor(options: TimerOptions);
+  constructor(fcn: TimerOptions | (() => void), interval?: number, repeats?: boolean, numberOfRepeats?: number) {
+    if (typeof fcn !== 'function') {
+      const options = fcn;
+      fcn = options.fcn;
+      interval = options.interval;
+      repeats = options.repeats;
+      numberOfRepeats = options.numberOfRepeats;
+    }
 
     if (!!numberOfRepeats && numberOfRepeats >= 0) {
       this.maxNumberOfRepeats = numberOfRepeats;
@@ -43,12 +47,12 @@ export class Timer {
         throw new Error('repeats must be set to true if numberOfRepeats is set');
       }
     }
+
     this.id = Timer.id++;
     this.interval = interval || this.interval;
-    this.fcn = fcn || this.fcn;
     this.repeats = repeats || this.repeats;
 
-    this._callbacks = {};
+    this._callbacks = [];
 
     if (fcn) {
       this.on(fcn);
@@ -60,8 +64,7 @@ export class Timer {
    * @param fcn The callback to be added to the callback list, to be fired after the interval is complete.
    */
   public on(fcn: () => void) {
-    const key = fcn.toString();
-    this._callbacks[key] = fcn;
+    this._callbacks.push(fcn);
   }
 
   /**
@@ -69,10 +72,8 @@ export class Timer {
    * @param fcn The callback to be removed from the callback list, to be fired after the interval is complete.
    */
   public off(fcn: () => void) {
-    const key = fcn.toString();
-    if (key in this._callbacks) {
-      this._callbacks[key] = undefined;
-    }
+    const index = this._callbacks.indexOf(fcn);
+    this._callbacks.splice(index, 1);
   }
 
   /**
@@ -89,12 +90,9 @@ export class Timer {
       }
 
       if (!this.complete && this._elapsedTime >= this.interval) {
-        for (const key in this._callbacks) {
-          const fcn = this._callbacks[key];
-          if (fcn) {
-            fcn.call(this);
-          }
-        }
+        this._callbacks.forEach((c) => {
+          c.call(this);
+        });
 
         this._numberOfTicks++;
         if (this.repeats) {

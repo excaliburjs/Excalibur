@@ -13,7 +13,8 @@ var topActor = new ex.Actor({
 
 game.add(topActor);
 
-var spawnTimer = new ex.Timer(200, {
+var spawnTimer = new ex.Timer({
+  interval: 200,
   fcn: () => {
     let a = new ex.Actor({
       x: game.halfDrawWidth,

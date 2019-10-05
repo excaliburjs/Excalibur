@@ -11,7 +11,8 @@ describe('A Timer', () => {
       width: 600,
       height: 400
     });
-    timer = new ex.Timer(500, {
+    timer = new ex.Timer({
+      interval: 500,
       fcn: function() {
         /*do nothing*/
       }
@@ -21,7 +22,8 @@ describe('A Timer', () => {
   });
 
   it('has a unique id', () => {
-    const newtimer = new ex.Timer(500, {
+    const newtimer = new ex.Timer({
+      interval: 500,
       fcn: function() {
         /*do nothing*/
       }
@@ -29,7 +31,8 @@ describe('A Timer', () => {
     expect(timer.id).not.toBe(newtimer.id);
     expect(timer.id).toBe(newtimer.id - 1);
 
-    const newtimer2 = new ex.Timer(500, {
+    const newtimer2 = new ex.Timer({
+      interval: 500,
       fcn: function() {
         /*do nothing*/
       }
@@ -49,7 +52,8 @@ describe('A Timer', () => {
   it('can repeat itself indefinitely at a specified interval', () => {
     // count the number of fires
     let count = 0;
-    timer = new ex.Timer(500, {
+    timer = new ex.Timer({
+      interval: 500,
       fcn: function() {
         count++;
       },
@@ -65,7 +69,8 @@ describe('A Timer', () => {
 
   it('can repeat itself a finite number of times', () => {
     // count the number of fires
-    timer = new ex.Timer(500, {
+    timer = new ex.Timer({
+      interval: 500,
       fcn: function() {
         const dummy = 0;
       },
@@ -88,7 +93,8 @@ describe('A Timer', () => {
 
   it('can be canceled', () => {
     let count = 0;
-    timer = new ex.Timer(500, {
+    timer = new ex.Timer({
+      interval: 500,
       fcn: function() {
         count++;
       },
@@ -124,7 +130,8 @@ describe('A Timer', () => {
   it('has no completed state when running forever', () => {
     // count the number of fires
     let count = 0;
-    timer = new ex.Timer(500, {
+    timer = new ex.Timer({
+      interval: 500,
       fcn: function() {
         count++;
       },
@@ -151,7 +158,8 @@ describe('A Timer', () => {
   it('can be reset at the same interval', () => {
     let count = 0;
     // non-repeating timer
-    timer = new ex.Timer(500, {
+    timer = new ex.Timer({
+      interval: 500,
       fcn: function() {
         count++;
       },
@@ -178,7 +186,8 @@ describe('A Timer', () => {
   it('can be reset at a different interval', () => {
     let count = 0;
     // non-repeating timer
-    timer = new ex.Timer(500, {
+    timer = new ex.Timer({
+      interval: 500,
       fcn: function() {
         count++;
       },
@@ -205,7 +214,8 @@ describe('A Timer', () => {
   it('can be reset on a repeating timer', () => {
     let count = 0;
     // non-repeating timer
-    timer = new ex.Timer(500, {
+    timer = new ex.Timer({
+      interval: 500,
       fcn: function() {
         count++;
       },
@@ -228,7 +238,8 @@ describe('A Timer', () => {
 
   it('can be reset with a different number of maximum iterations', () => {
     // non-repeating timer
-    timer = new ex.Timer(500, {
+    timer = new ex.Timer({
+      interval: 500,
       fcn: function() {
         const dummy = 0;
       },
@@ -261,7 +272,8 @@ describe('A Timer', () => {
   it('can be paused', () => {
     let count = 0;
     // arrange
-    const timer = new ex.Timer(100, {
+    const timer = new ex.Timer({
+      interval: 100,
       fcn: () => {
         count++;
       },
@@ -281,7 +293,8 @@ describe('A Timer', () => {
   it('can be unpaused', () => {
     let count = 0;
     // arrange
-    const timer = new ex.Timer(100, {
+    const timer = new ex.Timer({
+      interval: 100,
       fcn: () => {
         count++;
       },

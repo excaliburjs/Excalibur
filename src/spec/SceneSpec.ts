@@ -379,7 +379,8 @@ describe('A scene', () => {
     });
 
     // create Timer
-    const timer = new ex.Timer(10, {
+    const timer = new ex.Timer({
+      interval: 10,
       fcn: () => {
         scene.add(actor);
       },
@@ -413,7 +414,8 @@ describe('A scene', () => {
     });
 
     // create Timer
-    const timer = new ex.Timer(10, {
+    const timer = new ex.Timer({
+      interval: 10,
       fcn: () => {
         scene.add(actor);
       },
@@ -470,7 +472,8 @@ describe('A scene', () => {
     });
 
     // create Timer
-    const timer = new ex.Timer(10, {
+    const timer = new ex.Timer({
+      interval: 10,
       fcn: () => {
         scene.add(tilemap);
       },
