@@ -163,7 +163,7 @@ describe('A Timer', () => {
       fcn: function() {
         count++;
       },
-      repeats: true
+      repeats: false
     });
     scene.add(timer);
 
