@@ -18,7 +18,7 @@ export enum ColorBlindness {
  */
 export class ColorBlindCorrector implements PostProcessor {
   private _vertexShader =
-    '' +
+    '' + // eslint-disable-line
     'attribute vec2 a_position;' +
     'attribute vec2 a_texCoord;' +
     'uniform vec2 u_resolution;' +
