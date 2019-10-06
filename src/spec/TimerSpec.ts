@@ -313,4 +313,82 @@ describe('A Timer', () => {
     expect(count).toBe(2);
     expect(timer.complete).toBe(false);
   });
+
+  it('it can be initialized with without a callback function and add one later', () => {
+    let count = 0;
+    // arrange
+    const timer = new ex.Timer({
+      interval: 100,
+      repeats: true
+    });
+    scene.add(timer);
+    scene.update(engine, 100);
+
+    // assert
+    expect(count).toBe(0);
+
+    timer.on(() => {
+      count++;
+    });
+    scene.update(engine, 100);
+
+    // assert
+    expect(count).toBe(1);
+  });
+
+  it('it supports multiple callback functions', () => {
+    let count = 0;
+    // arrange
+    const timer = new ex.Timer({
+      interval: 100,
+      repeats: true
+    });
+
+    scene.add(timer);
+    timer.on(() => {
+      count++;
+    });
+    scene.update(engine, 100);
+
+    // assert
+    expect(count).toBe(1);
+
+    timer.on(() => {
+      count++;
+    });
+    timer.on(() => {
+      count++;
+    });
+    scene.update(engine, 100);
+
+    // assert
+    expect(count).toBe(4);
+  });
+
+  it('it supports removing a callback function', () => {
+    let count = 0;
+    // arrange
+    const timer = new ex.Timer({
+      interval: 100,
+      repeats: true
+    });
+
+    scene.add(timer);
+
+    const fnc = () => {
+      count++;
+    };
+
+    timer.on(fnc);
+    scene.update(engine, 100);
+
+    // assert
+    expect(count).toBe(1);
+
+    timer.off(fnc);
+    scene.update(engine, 100);
+
+    // assert
+    expect(count).toBe(1);
+  });
 });
