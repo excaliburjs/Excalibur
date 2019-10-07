@@ -523,15 +523,19 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     }
 
     // Use native console API for color fun
+    // eslint-disable-next-line no-console
     if (console.log && !options.suppressConsoleBootMessage) {
+      // eslint-disable-next-line no-console
       console.log(
         `%cPowered by Excalibur.js (v${EX_VERSION})`,
         'background: #176BAA; color: white; border-radius: 5px; padding: 15px; font-size: 1.5em; line-height: 80px;'
       );
+      // eslint-disable-next-line no-console
       console.log('\n\
       /| ________________\n\
 O|===|* >________________>\n\
       \\|');
+      // eslint-disable-next-line no-console
       console.log('Visit', 'http://excaliburjs.com', 'for more information');
     }
 
@@ -1009,6 +1013,7 @@ O|===|* >________________>\n\
       }
     });
 
+    // eslint-disable-next-line
     this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
 
     this._suppressHiDPIScaling = !!options.suppressHiDPIScaling;
@@ -1136,12 +1141,14 @@ O|===|* >________________>\n\
    * Return the current smoothing status of the canvas
    */
   public getAntialiasing(): boolean {
+    /*eslint-disable */
     return (
       (<any>this.ctx).imageSmoothingEnabled ||
       (<any>this.ctx).webkitImageSmoothingEnabled ||
       (<any>this.ctx).mozImageSmoothingEnabled ||
       (<any>this.ctx).msImageSmoothingEnabled
     );
+    /*eslint-enable */
   }
 
   /**

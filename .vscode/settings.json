@@ -1,11 +1,13 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-  "editor.tabSize": 4,
+  "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
-  "restructuredtext.confPath": "docs/source/conf.py",
-  "restructuredtext.builtDocumentationPath": "docs/build/html",
-  "tslint.configFile": "../../tslint/tslint.json",
+  "eslint.enable": true,
+  "eslint.options": { "configFile": "./.eslintrc.js"},
+  "eslint.alwaysShowStatus": true,
+  "eslint.autoFixOnSave": true,
+  "eslint.validate": [ { "language": "typescript", "autoFix": true } ],
   "files.exclude": {
     "**/.git": true,
     ".grunt/": true,

@@ -1663,7 +1663,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     // Culling Box debug draw
     for (let j = 0; j < this.traits.length; j++) {
       if (this.traits[j] instanceof Traits.OffscreenCulling) {
-        (<Traits.OffscreenCulling>this.traits[j]).cullingBox.debugDraw(ctx);
+        (<Traits.OffscreenCulling>this.traits[j]).cullingBox.debugDraw(ctx); // eslint-disable-line
       }
     }
 
