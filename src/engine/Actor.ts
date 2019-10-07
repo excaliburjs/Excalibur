@@ -75,6 +75,9 @@ export interface ActorDefaults {
   anchor: Vector;
 }
 
+export type updateCallbackType = (engine: Engine, delta: number) => void;
+export type drawCallbackType = (ctx: CanvasRenderingContext2D, delta: number) => void;
+
 /**
  * @hidden
  */
@@ -1524,6 +1527,11 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     // Override me
   }
 
+  public _update(eventType: string, engine: Engine, delta: number, updateCallback: updateCallbackType) {
+    this.emit(eventType, new PreUpdateEvent(engine, delta, this));
+    updateCallback(engine, delta);
+  }
+
   /**
    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
    *
@@ -1531,8 +1539,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @internal
    */
   public _preupdate(engine: Engine, delta: number): void {
-    this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
-    this.onPreUpdate(engine, delta);
+    this._update('preupdate', engine, delta, this.onPreUpdate);
   }
 
   /**
@@ -1542,8 +1549,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @internal
    */
   public _postupdate(engine: Engine, delta: number): void {
-    this.emit('postupdate', new PreUpdateEvent(engine, delta, this));
-    this.onPostUpdate(engine, delta);
+    this._update('postupdate', engine, delta, this.onPostUpdate);
   }
 
   // endregion
@@ -1614,6 +1620,11 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     // Override me
   }
 
+  public _draw(drawType: string, ctx: CanvasRenderingContext2D, delta: number, drawCallback: drawCallbackType): void {
+    this.emit(drawType, new PreDrawEvent(ctx, delta, this));
+    drawCallback(ctx, delta);
+  }
+
   /**
    * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
    *
@@ -1621,8 +1632,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @internal
    */
   public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {
-    this.emit('predraw', new PreDrawEvent(ctx, delta, this));
-    this.onPreDraw(ctx, delta);
+    this._draw('predraw', ctx, delta, this.onPreDraw);
   }
 
   /**
@@ -1632,8 +1642,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @internal
    */
   public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
-    this.emit('postdraw', new PreDrawEvent(ctx, delta, this));
-    this.onPostDraw(ctx, delta);
+    this._draw('postdraw', ctx, delta, this.onPostDraw);
   }
 
   /**
