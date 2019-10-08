@@ -81,7 +81,7 @@ export class SpriteImpl implements Drawable {
     this._spriteCanvas = document.createElement('canvas');
     this._spriteCanvas.width = width;
     this._spriteCanvas.height = height;
-    this._spriteCtx = <CanvasRenderingContext2D>this._spriteCanvas.getContext('2d');
+    this._spriteCtx = <CanvasRenderingContext2D>this._spriteCanvas.getContext('2d'); // eslint-disable-line
     this._texture.loaded
       .then(() => {
         this.width = this.width || this._texture.image.naturalWidth;

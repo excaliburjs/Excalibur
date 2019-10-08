@@ -17,7 +17,9 @@ export enum ColorBlindness {
  * [[include:ColorBlind.md]]
  */
 export class ColorBlindCorrector implements PostProcessor {
+  /*eslint-disable */
   private _vertexShader =
+    '' +
     'attribute vec2 a_position;' +
     'attribute vec2 a_texCoord;' +
     'uniform vec2 u_resolution;' +
@@ -64,7 +66,7 @@ export class ColorBlindCorrector implements PostProcessor {
     // Simulate color blindness
 
     '//MODE CODE//' +
-    /* Deuteranope for testing 
+    /* Deuteranope for testing
       'float l = 1.0 * L + 0.0 * M + 0.0 * S;' +
             'float m = 0.494207 * L + 0.0 * M + 1.24827 * S;' +
             'float s = 0.0 * L + 0.0 * M + 1.0 * S;' +*/
@@ -85,6 +87,7 @@ export class ColorBlindCorrector implements PostProcessor {
     '//SIMULATE//' +
     '}';
 
+  /*eslint-enable */
   private _internalCanvas: HTMLCanvasElement;
   private _gl: WebGLRenderingContext;
   private _program: WebGLProgram;
@@ -94,6 +97,7 @@ export class ColorBlindCorrector implements PostProcessor {
     this._internalCanvas.width = engine.drawWidth;
     this._internalCanvas.height = engine.drawHeight;
 
+    // eslint-disable-next-line
     this._gl = <WebGLRenderingContext>this._internalCanvas.getContext('webgl', { preserveDrawingBuffer: true });
 
     this._program = this._gl.createProgram();
