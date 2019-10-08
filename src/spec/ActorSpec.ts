@@ -618,6 +618,15 @@ describe('A game actor', () => {
     expect(actor.color.b).toBe(0);
   });
 
+  it('becomes invisible on opacity 0', () => {
+    actor.opacity = 0;
+    expect(actor.opacity).toBe(0);
+    expect(actor.visible).toBe(true);
+    actor.update(engine, 100);
+    expect(actor.opacity).toBe(0);
+    expect(actor.visible).toBe(false);
+  });
+
   it('can detect containment off of child actors', () => {
     const parent = new ex.Actor(600, 100, 100, 100);
     const child = new ex.Actor(0, 0, 100, 100);
