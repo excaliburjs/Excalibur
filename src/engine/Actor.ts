@@ -1480,6 +1480,10 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       this.color.a = this.opacity;
     }
 
+    if (this.opacity === 0) {
+      this.visible = false;
+    }
+
     // calculate changing opacity
     if (this.previousOpacity !== this.opacity) {
       this.previousOpacity = this.opacity;
