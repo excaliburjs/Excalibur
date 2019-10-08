@@ -618,13 +618,17 @@ describe('A game actor', () => {
     expect(actor.color.b).toBe(0);
   });
 
-  it('becomes invisible on opacity 0', () => {
-    actor.opacity = 0;
-    expect(actor.opacity).toBe(0);
-    expect(actor.visible).toBe(true);
-    actor.update(engine, 100);
-    expect(actor.opacity).toBe(0);
-    expect(actor.visible).toBe(false);
+  it('not drawn on opacity 0', () => {
+    let invisibleActor = new ex.Actor();
+    spyOn(invisibleActor, 'draw');
+    scene.add(invisibleActor);
+    invisibleActor.opacity = 0;
+    invisibleActor.update(engine, 100);
+
+    scene.update(engine, 100);
+    scene.draw(engine.ctx, 100);
+
+    expect(invisibleActor.draw).not.toHaveBeenCalled();
   });
 
   it('can detect containment off of child actors', () => {
