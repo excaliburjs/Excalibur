@@ -7,7 +7,9 @@ export function Configurable<T extends Constructor<{}>>(base: T): T {
       //set the value of every property that was passed in,
       //if the constructor previously set this value, it will be overridden here
       for (const k in props) {
+        // eslint-disable-next-line
         if (typeof (<any>this)[k] !== 'function') {
+          // eslint-disable-next-line
           (<any>this)[k] = (<any>props)[k];
         }
       }

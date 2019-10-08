@@ -62,7 +62,7 @@ game.on('postframe', (ev: ex.PostFrameEvent) => {
   updateStat('debug-frame-narrowphase', ev.stats.physics.narrowphase);
 });
 
-game.add(new ex.UIActor(0, 0, 50, 50));
+game.add(new ex.ScreenElement(0, 0, 50, 50));
 
 function spawnBox() {
   var box = new ex.Actor(250, 50, 50, 50, ex.Color.Red);

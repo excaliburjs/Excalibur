@@ -154,27 +154,6 @@ module.exports = function(grunt) {
           failOnError: true
         }
       },
-      main: {
-        files: {
-          'build/dist/<%= pkg.name %>.min.js': 'build/dist/<%= pkg.name %>.js'
-        }
-      }
-    },
-
-    //
-    // Shell Commands
-    //
-    shell: {
-      //
-      // Package up Nuget (Windows only)
-      //
-      nuget: {
-        command: 'src\\tools\\nuget pack Excalibur.nuspec -version <%= version %> -OutputDirectory ./build/dist',
-        options: {
-          stdout: true,
-          failOnError: true
-        }
-      },
 
       //
       // Clone distribution repository
@@ -184,6 +163,17 @@ module.exports = function(grunt) {
         options: {
           stdout: true,
           failOnError: false
+        }
+      },
+
+      //
+      // Run eslint
+      //
+      eslint: {
+        command: 'npm run eslint && npm run eslint:spec',
+        options: {
+          stdout: true,
+          failOnError: true
         }
       }
     },
@@ -213,24 +203,6 @@ module.exports = function(grunt) {
           fetchProgress: false
         }
       }
-    },
-
-    //
-    // TS Lint configuration
-    //
-    tslint: {
-      options: {
-        configuration: './tslint/tslint.json'
-      },
-      src: [
-        'src/engine/**/*.ts',
-        'src/sandbox/**/*.ts',
-        'src/spec/**/*.ts',
-
-        // exclusions
-        '!src/spec/require.d.ts',
-        '!src/spec/support/js-imagediff.d.ts'
-      ]
     },
 
     karma: {
@@ -283,7 +255,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-tslint');
   grunt.loadNpmTasks('grunt-coveralls');
   grunt.loadNpmTasks('grunt-build-control');
   grunt.loadNpmTasks('grunt-bumpup');
@@ -297,10 +268,10 @@ module.exports = function(grunt) {
   //
 
   // Default task - compile & test
-  grunt.registerTask('default', ['tslint:src', 'core', 'karma', 'visual']);
+  grunt.registerTask('default', ['lint', 'core', 'karma', 'visual']);
 
   // Lint only
-  grunt.registerTask('lint', ['tslint:src']);
+  grunt.registerTask('lint', ['shell:eslint']);
 
   // Core only
   grunt.registerTask('core', [

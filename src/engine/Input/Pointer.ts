@@ -644,7 +644,6 @@ export class Pointers extends Class {
   //     pointerEvent.getPath(actor);
   //   }
   // }
-
   // private _validateWheelEventPath(pointers: WheelEvent[], actor: Actor): void {
   //   for (let i = 0; i < pointers.length; i++) {
   //     const wheelEvent = pointers[i];
@@ -967,7 +966,7 @@ export class Pointer extends Class {
    */
   public isActorUnderPointer(actor: Actor): boolean {
     if (this.lastWorldPos) {
-      return actor.contains(this.lastWorldPos.x, this.lastWorldPos.y, !Actors.isUIActor(actor));
+      return actor.contains(this.lastWorldPos.x, this.lastWorldPos.y, !Actors.isScreenElement(actor));
     }
     return false;
   }

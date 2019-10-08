@@ -1,9 +1,7 @@
 import * as ex from '../../build/dist/excalibur';
 
-describe('A Bounding Box constructed with no parameters', function() {
-  let bb: ex.BoundingBox;
-
-  bb = new ex.BoundingBox();
+describe('A Bounding Box constructed with no parameters', () => {
+  const bb = new ex.BoundingBox();
 
   it('has a left', () => {
     expect(bb.left).toBe(0);

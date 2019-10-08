@@ -1,4 +1,4 @@
-import { UIActor } from './UIActor';
+import { ScreenElement } from './ScreenElement';
 import { Physics } from './Physics';
 import {
   InitializeEvent,
@@ -83,9 +83,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   private _engine: Engine;
 
   /**
-   * The [[UIActor]]s in a scene, if any; these are drawn last
+   * The [[ScreenElement]]s in a scene, if any; these are drawn last
    */
-  public uiActors: Actor[] = [];
+  public screenElements: Actor[] = [];
 
   private _isInitialized: boolean = false;
 
@@ -344,8 +344,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     }
 
     // Cycle through actors updating UI actors
-    for (i = 0, len = this.uiActors.length; i < len; i++) {
-      this.uiActors[i].update(engine, delta);
+    for (i = 0, len = this.screenElements.length; i < len; i++) {
+      this.screenElements[i].update(engine, delta);
     }
 
     // Cycle through actors updating tile maps
@@ -450,16 +450,16 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     ctx.restore();
 
-    for (i = 0, len = this.uiActors.length; i < len; i++) {
+    for (i = 0, len = this.screenElements.length; i < len; i++) {
       // only draw ui actors that are visible and on screen
-      if (this.uiActors[i].visible) {
-        this.uiActors[i].draw(ctx, delta);
+      if (this.screenElements[i].visible) {
+        this.screenElements[i].draw(ctx, delta);
       }
     }
 
     if (this._engine && this._engine.isDebug) {
-      for (i = 0, len = this.uiActors.length; i < len; i++) {
-        this.uiActors[i].debugDraw(ctx);
+      for (i = 0, len = this.screenElements.length; i < len; i++) {
+        this.screenElements[i].debugDraw(ctx);
       }
     }
     this._postdraw(ctx, delta);
@@ -524,17 +524,17 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public add(actor: Actor): void;
 
   /**
-   * Adds a [[UIActor]] to the scene.
-   * @param uiActor  The UIActor to add to the current scene
+   * Adds a [[ScreenElement]] to the scene.
+   * @param screenElement  The ScreenElement to add to the current scene
    */
-  public add(uiActor: UIActor): void;
+  public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
     if (entity instanceof Actor) {
       (<Actor>entity).unkill();
     }
-    if (entity instanceof UIActor) {
-      if (!Util.contains(this.uiActors, entity)) {
-        this.addUIActor(entity);
+    if (entity instanceof ScreenElement) {
+      if (!Util.contains(this.screenElements, entity)) {
+        this.addScreenElement(entity);
       }
       return;
     }
@@ -577,13 +577,13 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public remove(actor: Actor): void;
 
   /**
-   * Removes a [[UIActor]] to the scene, it will no longer be drawn or updated
-   * @param uiActor  The UIActor to remove from the current scene
+   * Removes a [[ScreenElement]] to the scene, it will no longer be drawn or updated
+   * @param screenElement  The ScreenElement to remove from the current scene
    */
-  public remove(uiActor: UIActor): void;
+  public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
-    if (entity instanceof UIActor) {
-      this.removeUIActor(entity);
+    if (entity instanceof ScreenElement) {
+      this.removeScreenElement(entity);
       return;
     }
 
@@ -602,20 +602,20 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * Adds (any) actor to act as a piece of UI, meaning it is always positioned
    * in screen coordinates. UI actors do not participate in collisions.
-   * @todo Should this be `UIActor` only?
+   * @todo Should this be `ScreenElement` only?
    */
-  public addUIActor(actor: Actor) {
-    this.uiActors.push(actor);
+  public addScreenElement(actor: Actor) {
+    this.screenElements.push(actor);
     actor.scene = this;
   }
 
   /**
    * Removes an actor as a piece of UI
    */
-  public removeUIActor(actor: Actor) {
-    const index = this.uiActors.indexOf(actor);
+  public removeScreenElement(actor: Actor) {
+    const index = this.screenElements.indexOf(actor);
     if (index > -1) {
-      this.uiActors.splice(index, 1);
+      this.screenElements.splice(index, 1);
     }
   }
 
@@ -775,14 +775,14 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   private _collectActorStats(engine: Engine) {
-    for (const _ui of this.uiActors) {
+    for (const _ui of this.screenElements) {
       engine.stats.currFrame.actors.ui++;
     }
 
     for (const actor of this.actors) {
       engine.stats.currFrame.actors.alive++;
       for (const child of actor.children) {
-        if (ActorUtils.isUIActor(child)) {
+        if (ActorUtils.isScreenElement(child)) {
           engine.stats.currFrame.actors.ui++;
         } else {
           engine.stats.currFrame.actors.alive++;

@@ -85,11 +85,11 @@ describe('A spritefont', () => {
       sprites['0'].draw(engine.ctx, 0, 0);
       sprites['4'].draw(engine.ctx, 16, 0);
       sprites['9'].draw(engine.ctx, 2 * 16, 0);
-      // tslint:disable-next-line:no-string-literal
+      // eslint-disable-next-line dot-notation
       sprites['a'].draw(engine.ctx, 3 * 16, 0);
-      // tslint:disable-next-line:no-string-literal
+      // eslint-disable-next-line dot-notation
       sprites['q'].draw(engine.ctx, 4 * 16, 0);
-      // tslint:disable-next-line:no-string-literal
+      // eslint-disable-next-line dot-notation
       sprites['z'].draw(engine.ctx, 5 * 16, 0);
       sprites['&'].draw(engine.ctx, 1 * 16, 16);
       sprites['.'].draw(engine.ctx, 2 * 16, 16);
