@@ -9,7 +9,7 @@ import { Shape } from './Collision/Shape';
  * Helper [[Actor]] primitive for drawing UI's, optimized for UI drawing. Does
  * not participate in collisions. Drawn on top of all other actors.
  */
-export class UIActor extends Actor {
+export class ScreenElement extends Actor {
   protected _engine: Engine;
 
   constructor();

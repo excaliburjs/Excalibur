@@ -15,7 +15,7 @@ for (var key in Resources) {
 
 game.start(loader).then(() => {
   // draw background
-  var bg = new ex.UIActor();
+  var bg = new ex.ScreenElement();
   bg.addDrawing(Resources.Background);
   game.add(bg);
 });
