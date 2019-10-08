@@ -1543,6 +1543,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public _postupdate(engine: Engine, delta: number): void {
     this.emit('postupdate', new PreUpdateEvent(engine, delta, this));
+    if (this.opacity === 0 && this.visible) {
+      this.visible = false;
+    }
     this.onPostUpdate(engine, delta);
   }
 
