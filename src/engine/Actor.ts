@@ -1480,6 +1480,10 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       this.color.a = this.opacity;
     }
 
+    if (this.opacity === 0) {
+      this.visible = false;
+    }
+
     // calculate changing opacity
     if (this.previousOpacity !== this.opacity) {
       this.previousOpacity = this.opacity;
@@ -1543,9 +1547,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public _postupdate(engine: Engine, delta: number): void {
     this.emit('postupdate', new PreUpdateEvent(engine, delta, this));
-    if (this.opacity === 0 && this.visible) {
-      this.visible = false;
-    }
     this.onPostUpdate(engine, delta);
   }
 
