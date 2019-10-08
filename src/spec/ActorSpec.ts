@@ -619,7 +619,7 @@ describe('A game actor', () => {
   });
 
   it('not drawn on opacity 0', () => {
-    let invisibleActor = new ex.Actor();
+    const invisibleActor = new ex.Actor();
     spyOn(invisibleActor, 'draw');
     scene.add(invisibleActor);
     invisibleActor.opacity = 0;
