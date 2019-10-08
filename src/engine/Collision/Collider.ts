@@ -166,7 +166,7 @@ export class Collider implements Eventable, Clonable<Collider> {
   public getClosestLineBetween(other: Collider): Line {
     return this.shape.getClosestLineBetween(other.shape);
   }
-  
+
   /**
    * Gets the current pixel offset of the collider
    */

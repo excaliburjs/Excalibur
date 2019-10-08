@@ -259,15 +259,15 @@ export class SpriteFontImpl extends SpriteSheet {
     spacing?: number
   ) {
     super(
-      imageOrConfig instanceof Texture
-        ? {
-            image: imageOrConfig,
-            spWidth: spWidth,
-            spHeight: spHeight,
-            rows: rows,
-            columns: columns,
-            spacing: spacing || 0
-          }
+      imageOrConfig instanceof Texture ?
+        {
+          image: imageOrConfig,
+          spWidth: spWidth,
+          spHeight: spHeight,
+          rows: rows,
+          columns: columns,
+          spacing: spacing || 0
+        }
         : imageOrConfig
     );
 
