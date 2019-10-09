@@ -14,7 +14,7 @@ export interface ObsoleteOptions {
 }
 
 export const maxMessages = 5;
-let obsoleteMessage: { [messageCount: string]: number } = {};
+const obsoleteMessage: { [messageCount: string]: number } = {};
 export const resetObsoleteCounter = () => {
   for (const message in obsoleteMessage) {
     obsoleteMessage[message] = 0;
