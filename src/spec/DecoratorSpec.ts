@@ -104,14 +104,14 @@ describe('An @obsolete decorator', () => {
 
   it('is rate limited on getter', () => {
     for (let i = 0; i < 10; i++) {
-      let value = testObsolete.getter;
+      const value = testObsolete.getter;
     }
     expect(logger.warn).toHaveBeenCalledTimes(5);
   });
 
   it('is rate limited on classes', () => {
     for (let i = 0; i < 10; i++) {
-      let value = new ObsoleteClass();
+      const value = new ObsoleteClass();
     }
     expect(logger.warn).toHaveBeenCalledTimes(5);
   });
