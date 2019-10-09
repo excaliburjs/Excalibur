@@ -40,6 +40,11 @@ describe('An @obsolete decorator', () => {
     logger = ex.Logger.getInstance();
     spyOn(logger, 'warn');
   });
+
+  afterEach(() => {
+    ex.resetObsoleteCounter();
+  });
+
   it('exists', () => {
     expect(ex.obsolete).toBeDefined();
   });
@@ -81,5 +86,33 @@ describe('An @obsolete decorator', () => {
     expect(logger.warn).toHaveBeenCalledWith(
       'ObsoleteClass is marked obsolete: This feature will be ' + 'removed in future versions of Excalibur.'
     );
+  });
+
+  it('is rate limited on method', () => {
+    for (let i = 0; i < 10; i++) {
+      testObsolete.method();
+    }
+    expect(logger.warn).toHaveBeenCalledTimes(5);
+  });
+
+  it('is rate limited on setter', () => {
+    for (let i = 0; i < 10; i++) {
+      testObsolete.setter = 'stuff';
+    }
+    expect(logger.warn).toHaveBeenCalledTimes(5);
+  });
+
+  it('is rate limited on getter', () => {
+    for (let i = 0; i < 10; i++) {
+      let value = testObsolete.getter;
+    }
+    expect(logger.warn).toHaveBeenCalledTimes(5);
+  });
+
+  it('is rate limited on classes', () => {
+    for (let i = 0; i < 10; i++) {
+      let value = new ObsoleteClass();
+    }
+    expect(logger.warn).toHaveBeenCalledTimes(5);
   });
 });
