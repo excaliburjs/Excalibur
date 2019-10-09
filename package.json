@@ -45,9 +45,9 @@
   },
   "devDependencies": {
     "@types/jasmine": "3.4.2",
-    "@typescript-eslint/eslint-plugin": "2.3.2",
-    "@typescript-eslint/eslint-plugin-tslint": "2.3.2",
-    "@typescript-eslint/parser": "2.3.2",
+    "@typescript-eslint/eslint-plugin": "2.3.3",
+    "@typescript-eslint/eslint-plugin-tslint": "2.3.3",
+    "@typescript-eslint/parser": "2.3.3",
     "copy-webpack-plugin": "5.0.4",
     "css-loader": "3.2.0",
     "eslint": "6.5.1",

@@ -5,7 +5,7 @@ import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents'
 import { Loadable } from './Interfaces/Loadable';
 import { Promise } from './Promises';
 import { Vector } from './Algebra';
-import { UIActor } from './UIActor';
+import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
 import { TileMap } from './TileMap';
@@ -744,15 +744,15 @@ O|===|* >________________>\n\
   public add(actor: Actor): void;
 
   /**
-   * Adds a [[UIActor]] to the [[currentScene]] of the game,
-   * UIActors do not participate in collisions, instead the
+   * Adds a [[ScreenElement]] to the [[currentScene]] of the game,
+   * ScreenElements do not participate in collisions, instead the
    * remain in the same place on the screen.
-   * @param uiActor  The UIActor to add to the [[currentScene]]
+   * @param screenElement  The ScreenElement to add to the [[currentScene]]
    */
-  public add(uiActor: UIActor): void;
+  public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
-    if (entity instanceof UIActor) {
-      this.currentScene.addUIActor(entity);
+    if (entity instanceof ScreenElement) {
+      this.currentScene.addScreenElement(entity);
       return;
     }
     if (entity instanceof Actor) {
@@ -799,13 +799,13 @@ O|===|* >________________>\n\
    */
   public remove(actor: Actor): void;
   /**
-   * Removes a [[UIActor]] to the scene, it will no longer be drawn or updated
-   * @param uiActor  The UIActor to remove from the [[currentScene]]
+   * Removes a [[ScreenElement]] to the scene, it will no longer be drawn or updated
+   * @param screenElement  The ScreenElement to remove from the [[currentScene]]
    */
-  public remove(uiActor: UIActor): void;
+  public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
-    if (entity instanceof UIActor) {
-      this.currentScene.removeUIActor(entity);
+    if (entity instanceof ScreenElement) {
+      this.currentScene.removeScreenElement(entity);
       return;
     }
     if (entity instanceof Actor) {
