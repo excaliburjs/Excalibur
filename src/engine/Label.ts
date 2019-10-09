@@ -201,10 +201,7 @@ export class LabelImpl extends Actor {
   constructor(textOrConfig?: string | Partial<LabelImpl>, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
     super(
       textOrConfig && typeof textOrConfig === 'object'
-        ? {
-            x: textOrConfig.x,
-            y: textOrConfig.y
-          }
+        ? { x: textOrConfig.x, y: textOrConfig.y }
         : { x: x, y: y }
     );
 

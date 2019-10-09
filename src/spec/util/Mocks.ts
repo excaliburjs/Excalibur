@@ -81,6 +81,7 @@ export namespace Mocks {
 
     realengine(): ex.Engine {
       if (!navigator) {
+        // eslint-disable-next-line
         navigator = <any>this.navigator();
       }
 
@@ -93,13 +94,12 @@ export namespace Mocks {
     }
 
     engine(width: number, height: number) {
-      let mockEngine;
-
       if (!navigator) {
+        // eslint-disable-next-line
         navigator = <any>this.navigator();
       }
 
-      mockEngine = {
+      const mockEngine = {
         collisionStrategy: 0,
         timescale: 1,
         currentScene: null,
@@ -141,6 +141,7 @@ export namespace Mocks {
               /* do nothing */
             }
           },
+          // eslint-disable-next-line
           pointers: new ex.Input.Pointers(<any>this),
           gamepads: {
             update: function() {

@@ -66,8 +66,8 @@ ex.Physics.checkForFastBodies = true;
 ex.Physics.acc = new ex.Vector(0, 800); // global accel
 
 // Add some UI
-//var heart = new ex.UIActor(0, 0, 20, 20);
-var heart = new ex.UIActor({ x: 0, y: 0, width: 20 * 2, height: 20 * 2 });
+//var heart = new ex.ScreenElement(0, 0, 20, 20);
+var heart = new ex.ScreenElement({ x: 0, y: 0, width: 20 * 2, height: 20 * 2 });
 var heartSprite = heartTex.asSprite();
 heartSprite.scale.setTo(2, 2);
 heart.addDrawing(heartSprite);
