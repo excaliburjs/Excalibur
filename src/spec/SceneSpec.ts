@@ -22,12 +22,12 @@ describe('A scene', () => {
     expect(ex.Scene).toBeTruthy();
   });
 
-  it('cannot have the same UIActor added to it more than once', () => {
-    const uiActor = new ex.UIActor();
-    scene.add(uiActor);
-    expect(scene.uiActors.length).toBe(1);
-    scene.add(uiActor);
-    expect(scene.uiActors.length).toBe(1);
+  it('cannot have the same ScreenElement added to it more than once', () => {
+    const screenElement = new ex.ScreenElement();
+    scene.add(screenElement);
+    expect(scene.screenElements.length).toBe(1);
+    scene.add(screenElement);
+    expect(scene.screenElements.length).toBe(1);
   });
 
   it('cannot have the same Actor added to it more than once', () => {
@@ -396,21 +396,21 @@ describe('A scene', () => {
     expect(updated).toBe(true, 'Actor was not updated after timer callback');
   });
 
-  it('will update UIActors that were added in a Timer callback', () => {
+  it('will update ScreenElement that were added in a Timer callback', () => {
     let updated = false;
     let initialized = false;
-    const actor = new ex.UIActor();
+    const actor = new ex.ScreenElement();
     actor.on('initialize', () => {
       initialized = true;
     });
     actor.on('postupdate', () => {
       updated = true;
 
-      expect(initialized).toBe(true, 'UIActor was not initialized before calling update');
+      expect(initialized).toBe(true, 'ScreenElement was not initialized before calling update');
     });
     actor.on('postdraw', () => {
-      expect(updated).toBe(true, 'UIActor was not updated before calling draw');
-      expect(initialized).toBe(true, 'UIActor was not initialized before calling draw');
+      expect(updated).toBe(true, 'ScreenElement was not updated before calling draw');
+      expect(initialized).toBe(true, 'ScreenElement was not initialized before calling draw');
     });
 
     // create Timer
@@ -426,9 +426,9 @@ describe('A scene', () => {
     scene.update(engine, 11);
     scene.draw(engine.ctx, 11);
 
-    expect(scene.uiActors.indexOf(actor)).toBeGreaterThan(-1, 'UIActor was not added to scene');
-    expect(initialized).toBe(true, 'UIActor was not initialized after timer callback');
-    expect(updated).toBe(true, 'UIActor was not updated after timer callback');
+    expect(scene.screenElements.indexOf(actor)).toBeGreaterThan(-1, 'ScreenElement was not added to scene');
+    expect(initialized).toBe(true, 'ScreenElement was not initialized after timer callback');
+    expect(updated).toBe(true, 'ScreenElement was not updated after timer callback');
   });
 
   it('will kill the actor if the actor is removed from the scene', () => {

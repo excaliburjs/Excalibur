@@ -11,7 +11,7 @@ var box2 = new ex.Actor(0, 0, 50, 50, ex.Color.White);
 var cursor = new ex.Actor(0, 0, 10, 10, ex.Color.Chartreuse);
 var boxPointerDragging = false;
 
-var uiElement = new ex.UIActor(200, 0, 200, 200);
+var uiElement = new ex.ScreenElement(200, 0, 200, 200);
 uiElement.color = ex.Color.Azure;
 uiElement.on('pointerdown', (p: ex.Input.PointerEvent) => {
   console.log(p);

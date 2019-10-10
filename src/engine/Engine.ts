@@ -5,7 +5,7 @@ import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents'
 import { Loadable } from './Interfaces/Loadable';
 import { Promise } from './Promises';
 import { Vector } from './Algebra';
-import { UIActor } from './UIActor';
+import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
 import { TileMap } from './TileMap';
@@ -529,15 +529,19 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     }
 
     // Use native console API for color fun
+    // eslint-disable-next-line no-console
     if (console.log && !options.suppressConsoleBootMessage) {
+      // eslint-disable-next-line no-console
       console.log(
         `%cPowered by Excalibur.js (v${EX_VERSION})`,
         'background: #176BAA; color: white; border-radius: 5px; padding: 15px; font-size: 1.5em; line-height: 80px;'
       );
+      // eslint-disable-next-line no-console
       console.log('\n\
       /| ________________\n\
 O|===|* >________________>\n\
       \\|');
+      // eslint-disable-next-line no-console
       console.log('Visit', 'http://excaliburjs.com', 'for more information');
     }
 
@@ -749,15 +753,15 @@ O|===|* >________________>\n\
   public add(actor: Actor): void;
 
   /**
-   * Adds a [[UIActor]] to the [[currentScene]] of the game,
-   * UIActors do not participate in collisions, instead the
+   * Adds a [[ScreenElement]] to the [[currentScene]] of the game,
+   * ScreenElements do not participate in collisions, instead the
    * remain in the same place on the screen.
-   * @param uiActor  The UIActor to add to the [[currentScene]]
+   * @param screenElement  The ScreenElement to add to the [[currentScene]]
    */
-  public add(uiActor: UIActor): void;
+  public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
-    if (entity instanceof UIActor) {
-      this.currentScene.addUIActor(entity);
+    if (entity instanceof ScreenElement) {
+      this.currentScene.addScreenElement(entity);
       return;
     }
     if (entity instanceof Actor) {
@@ -804,13 +808,13 @@ O|===|* >________________>\n\
    */
   public remove(actor: Actor): void;
   /**
-   * Removes a [[UIActor]] to the scene, it will no longer be drawn or updated
-   * @param uiActor  The UIActor to remove from the [[currentScene]]
+   * Removes a [[ScreenElement]] to the scene, it will no longer be drawn or updated
+   * @param screenElement  The ScreenElement to remove from the [[currentScene]]
    */
-  public remove(uiActor: UIActor): void;
+  public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
-    if (entity instanceof UIActor) {
-      this.currentScene.removeUIActor(entity);
+    if (entity instanceof ScreenElement) {
+      this.currentScene.removeScreenElement(entity);
       return;
     }
     if (entity instanceof Actor) {
@@ -1018,6 +1022,7 @@ O|===|* >________________>\n\
       }
     });
 
+    // eslint-disable-next-line
     this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
 
     this._suppressHiDPIScaling = !!options.suppressHiDPIScaling;
@@ -1145,12 +1150,14 @@ O|===|* >________________>\n\
    * Return the current smoothing status of the canvas
    */
   public getAntialiasing(): boolean {
+    /*eslint-disable */
     return (
       (<any>this.ctx).imageSmoothingEnabled ||
       (<any>this.ctx).webkitImageSmoothingEnabled ||
       (<any>this.ctx).mozImageSmoothingEnabled ||
       (<any>this.ctx).msImageSmoothingEnabled
     );
+    /*eslint-enable */
   }
 
   /**

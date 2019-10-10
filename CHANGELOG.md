@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Breaking Changes
+
+- Remove obsolete `.extend()` semantics in Class.ts as as well as related test cases.
+
 ### Added
 
 - Added new option for constructing bounding boxes. You can now construct with an options
@@ -21,6 +25,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed animation flipping behavior ([#1172](https://github.com/excaliburjs/Excalibur/issues/1172))
+- Fixed actors being drawn when their opacity is 0 ([#875](https://github.com/excaliburjs/Excalibur/issues/875))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
