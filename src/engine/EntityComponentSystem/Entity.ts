@@ -86,8 +86,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
       return false;
     }
   };
-  // TODO maybe this should be read only to avoid using proxy...
-  public components: ComponentMap = new Proxy({}, this._handleChanges);
+  public components: ComponentMap = new Proxy<ComponentMap>({}, this._handleChanges);
   public changes: Observable<AddedComponent | RemovedComponent> = new Observable<AddedComponent | RemovedComponent>();
 
   /**

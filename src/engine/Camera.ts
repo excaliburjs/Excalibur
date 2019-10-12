@@ -524,24 +524,24 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     // Overridable
   }
 
-  public on(eventName: 'initialize', handler: (event: InitializeEvent) => void): void;
-  public on(eventName: 'preupdate', handler: (event: PreUpdateEvent) => void): void;
-  public on(eventName: 'postupdate', handler: (event: PostUpdateEvent) => void): void;
+  public on(eventName: 'initialize', handler: (event: InitializeEvent<Camera>) => void): void;
+  public on(eventName: 'preupdate', handler: (event: PreUpdateEvent<Camera>) => void): void;
+  public on(eventName: 'postupdate', handler: (event: PostUpdateEvent<Camera>) => void): void;
   public on(eventName: any, handler: any) {
     super.on(eventName, handler);
   }
 
-  public off(eventName: 'initialize', handler?: (event: InitializeEvent) => void): void;
-  public off(eventName: 'preupdate', handler?: (event: PreUpdateEvent) => void): void;
-  public off(eventName: 'postupdate', handler?: (event: PostUpdateEvent) => void): void;
+  public off(eventName: 'initialize', handler?: (event: InitializeEvent<Camera>) => void): void;
+  public off(eventName: 'preupdate', handler?: (event: PreUpdateEvent<Camera>) => void): void;
+  public off(eventName: 'postupdate', handler?: (event: PostUpdateEvent<Camera>) => void): void;
   public off(eventName: string, handler: (event: GameEvent<Camera>) => void): void;
   public off(eventName: string, handler: (event: any) => void): void {
     super.off(eventName, handler);
   }
 
-  public once(eventName: 'initialize', handler: (event: InitializeEvent) => void): void;
-  public once(eventName: 'preupdate', handler: (event: PreUpdateEvent) => void): void;
-  public once(eventName: 'postupdate', handler: (event: PostUpdateEvent) => void): void;
+  public once(eventName: 'initialize', handler: (event: InitializeEvent<Camera>) => void): void;
+  public once(eventName: 'preupdate', handler: (event: PreUpdateEvent<Camera>) => void): void;
+  public once(eventName: 'postupdate', handler: (event: PostUpdateEvent<Camera>) => void): void;
   public once(eventName: string, handler: (event: GameEvent<Camera>) => void): void;
   public once(eventName: string, handler: (event: any) => void): void {
     super.once(eventName, handler);

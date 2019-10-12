@@ -1,7 +1,6 @@
 import { ComponentType } from './ComponentTypes';
-import { Entity, AddedComponent, RemovedComponent } from './Entity';
-import { EntityManager } from './EntityManager';
-import { buildEntityComponentKey } from './Util';
+import { Entity } from './Entity';
+import { buildEntityTypeKey } from './Util';
 import { Observable } from '../Util/Observable';
 import { Util } from '..';
 import { AddedEntity, RemovedEntity } from './System';
@@ -12,7 +11,7 @@ import { AddedEntity, RemovedEntity } from './System';
 export class Query extends Observable<AddedEntity | RemovedEntity> {
   public entities: Entity[] = [];
   public get key(): string {
-    return buildEntityComponentKey(this.types);
+    return buildEntityTypeKey(this.types);
   }
 
   public constructor(public types: ComponentType[]) {
@@ -36,8 +35,14 @@ export class Query extends Observable<AddedEntity | RemovedEntity> {
     }
   }
 
-  public clear() {
+  /**
+   * Removes all entities and observers from the query
+   */
+  public clear(): void {
     this.entities.length = 0;
+    for (const observer of this.observers) {
+      this.unregister(observer);
+    }
   }
 
   /**

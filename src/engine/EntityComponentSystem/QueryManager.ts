@@ -1,33 +1,36 @@
 import { Entity } from './Entity';
-import { buildEntityComponentKey } from './Util';
+import { buildEntityTypeKey } from './Util';
 import { Query } from './Query';
-import { EntityManager } from './EntityManager';
 import { Component } from './Component';
+import { Scene } from '../Scene';
+import { System } from './System';
 
 export class QueryManager {
   private _queries: { [entityComponentKey: string]: Query } = {};
 
-  constructor(private _entityManager: EntityManager) {}
+  constructor(public scene: Scene) {}
 
   public addQuery(query: Query) {
-    if (this._queries[buildEntityComponentKey(query.types)]) {
-      query = this._queries[buildEntityComponentKey(query.types)];
+    if (this._queries[buildEntityTypeKey(query.types)]) {
+      query = this._queries[buildEntityTypeKey(query.types)];
     } else {
-      this._queries[buildEntityComponentKey(query.types)] = query;
+      this._queries[buildEntityTypeKey(query.types)] = query;
     }
 
-    for (const entity of this._entityManager.entities) {
-      this.addEntity(entity);
+    for (const entity of this.scene.entityManager.entities) {
+      if (query.matches(entity.types)) {
+        query.addEntity(entity);
+      }
     }
   }
 
   public removeQuery(query: Query) {
     query.clear();
-    delete this._queries[buildEntityComponentKey(query.types)];
+    delete this._queries[buildEntityTypeKey(query.types)];
   }
 
-  // todo this is weird
-  public addComponent(entity: Entity, component: Component) {
+  // todo this is weird, and not needed?
+  public addComponent(entity: Entity, _component: Component) {
     this.addEntity(entity);
   }
 
@@ -64,6 +67,27 @@ export class QueryManager {
     for (const queryType in this._queries) {
       if (this._queries[queryType].entities.indexOf(entity) > -1) {
         this._queries[queryType].removeEntity(entity);
+      }
+    }
+  }
+
+  public createQuery(types: string[]): Query {
+    const query = new Query(types);
+    this.addQuery(query);
+
+    return query;
+  }
+
+  /**
+   * Potentially removes the query if observers of the query fall to zero
+   * @param types
+   */
+  public maybeRemoveQueryBySystem(system: System): void {
+    if (this._queries[buildEntityTypeKey(system.types)]) {
+      const query = this._queries[buildEntityTypeKey(system.types)];
+      query.unregister(system);
+      if (query.observers.length === 0) {
+        delete this._queries[buildEntityTypeKey(system.types)];
       }
     }
   }

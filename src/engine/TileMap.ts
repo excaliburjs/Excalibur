@@ -30,8 +30,8 @@ export class TileMapImpl extends Class {
   public rows: number;
   public cols: number;
 
-  public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent) => void): void;
-  public on(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent) => void): void;
+  public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent<TileMap>) => void): void;
+  public on(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent<TileMap>) => void): void;
   public on(eventName: Events.predraw, handler: (event: Events.PreDrawEvent) => void): void;
   public on(eventName: Events.postdraw, handler: (event: Events.PostDrawEvent) => void): void;
   public on(eventName: string, handler: (event: Events.GameEvent<any>) => void): void;
@@ -147,7 +147,16 @@ export class TileMapImpl extends Class {
     return null;
   }
 
+  public onPreUpdate(_engine: Engine, _delta: number) {
+    // Override me
+  }
+
+  public onPostUpdate(_engine: Engine, _delta: number) {
+    // Override me
+  }
+
   public update(engine: Engine, delta: number) {
+    this.onPreUpdate(engine, delta);
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
 
     const worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
@@ -158,6 +167,7 @@ export class TileMapImpl extends Class {
     this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0);
     this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
 
+    this.onPostUpdate(engine, delta);
     this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
   }
 

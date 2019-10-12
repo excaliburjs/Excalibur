@@ -14,6 +14,13 @@ export abstract class System implements Observer<AddedEntity | RemovedEntity> {
   readonly types: ComponentType[];
 
   /**
+   * System can execute in priority order, by default all systems are priority 0. Lower values indicated higher priority.
+   * For a system to execute before all other a lower priority value (-1 for example) must be set.
+   * For a system to exectue after all other a higher priority value (10 for example) must be set.
+   */
+  public priority: number = 0;
+
+  /**
    * Update all entities that match this system's types
    * @param entities Entities to update that match this system's typse
    * @param delta Time in milliseconds
@@ -39,8 +46,12 @@ export abstract class System implements Observer<AddedEntity | RemovedEntity> {
    */
   debugDraw?: (ctx: CanvasRenderingContext2D, delta: number) => void;
 
-  public notify(addedOrRemoved: AddedEntity | RemovedEntity) {
-    // pass
+  /**
+   * Systems observe when entities match their types or no longer match their types, override
+   * @param _entityAddedOrRemoved
+   */
+  public notify(_entityAddedOrRemoved: AddedEntity | RemovedEntity) {
+    // Override me
   }
 }
 
