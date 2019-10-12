@@ -87,10 +87,12 @@ export class Entity<T extends Component = Component> extends Class implements On
       return false;
     }
   };
-  public components: {
-    [t in T['type']]: ComponentMapProp<t, T>;
-  } &
-    ComponentMap = new Proxy<{ [t in T['type']]: ComponentMapProp<t, T> }>(<any>{}, this._handleChanges);
+
+  public components: { [t in T['type']]: ComponentMapProp<t, T> } & ComponentMap = new Proxy<{ [t in T['type']]: ComponentMapProp<t, T> }>(
+    <any>{},
+    this._handleChanges
+  );
+
   public changes: Observable<AddedComponent | RemovedComponent> = new Observable<AddedComponent | RemovedComponent>();
 
   /**
