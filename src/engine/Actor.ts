@@ -1,4 +1,3 @@
-import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
 import { Texture } from './Resources/Texture';
 import {
@@ -50,6 +49,8 @@ import { obsolete } from './Util/Decorators';
 import { Collider } from './Collision/Collider';
 import { Shape } from './Collision/Shape';
 
+import { Entity } from './EntityComponentSystem/Entity';
+
 export function isActor(x: any): x is Actor {
   return x instanceof Actor;
 }
@@ -79,7 +80,7 @@ export interface ActorDefaults {
  * @hidden
  */
 
-export class ActorImpl extends Class implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
+export class ActorImpl extends Entity implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
   /**
