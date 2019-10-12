@@ -10,7 +10,7 @@ export class QueryManager {
 
   constructor(public scene: Scene) {}
 
-  public addQuery(query: Query) {
+  public addQuery(query: Query<any>) {
     if (this._queries[buildEntityTypeKey(query.types)]) {
       query = this._queries[buildEntityTypeKey(query.types)];
     } else {
@@ -71,8 +71,8 @@ export class QueryManager {
     }
   }
 
-  public createQuery(types: string[]): Query {
-    const query = new Query(types);
+  public createQuery<T extends Component = Component>(types: string[]): Query<T> {
+    const query = new Query<T>(types);
     this.addQuery(query);
 
     return query;

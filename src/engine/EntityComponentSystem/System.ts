@@ -2,12 +2,13 @@ import { ComponentType } from './ComponentTypes';
 import { Entity } from './Entity';
 import { Engine } from '../Engine';
 import { Message, Observer } from '../Util/Observable';
+import { Component } from './Component';
 
 /**
  * An Excalibur [[System]] that updates entities of certain types.
  * Systems are scene specific
  */
-export abstract class System implements Observer<AddedEntity | RemovedEntity> {
+export abstract class System<T extends Component = Component> implements Observer<AddedEntity | RemovedEntity> {
   /**
    * The types of entities that this system operates on
    */
@@ -25,7 +26,7 @@ export abstract class System implements Observer<AddedEntity | RemovedEntity> {
    * @param entities Entities to update that match this system's typse
    * @param delta Time in milliseconds
    */
-  abstract update(entities: Entity[], delta: number): void;
+  abstract update(entities: Entity<T>[], delta: number): void;
 
   /**
    * Optionally run a preupdate before the system processes matching entities

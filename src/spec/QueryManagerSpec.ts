@@ -1,7 +1,7 @@
 import * as ex from '../../build/dist/excalibur';
 
-class FakeComponent implements ex.Component {
-  constructor(public type: string) {}
+class FakeComponent<T extends ex.ComponentType> implements ex.Component<T> {
+  constructor(public type: T) {}
   clone() {
     return new FakeComponent(this.type);
   }
@@ -30,9 +30,9 @@ describe('A QueryManager', () => {
     scene.entityManager.addEntity(entity2);
 
     // Query for all entities that have type A components
-    const queryA = scene.queryManager.createQuery(['A']);
+    const queryA = scene.queryManager.createQuery<FakeComponent<'A'>>(['A']);
     // Query for all entities that have type A & B components
-    const queryAB = scene.queryManager.createQuery(['A', 'B']);
+    const queryAB = scene.queryManager.createQuery<FakeComponent<'A'> | FakeComponent<'B'>>(['A', 'B']);
 
     expect(queryA.entities).toEqual([entity1, entity2]);
     expect(queryAB.entities).toEqual([entity1]);

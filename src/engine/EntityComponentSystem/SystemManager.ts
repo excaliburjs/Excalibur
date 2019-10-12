@@ -2,7 +2,7 @@ import { System } from './System';
 import { Query } from './Query';
 import { buildEntityTypeKey } from './Util';
 import { Engine } from '../Engine';
-import { Util } from '..';
+import { Util, Component } from '..';
 import { Scene } from '../Scene';
 
 export class SystemManager {
@@ -10,13 +10,13 @@ export class SystemManager {
   // register systems
   // order systems
 
-  public systems: System[] = [];
+  public systems: System<any>[] = [];
   public _keyToQuery: { [key: string]: Query };
   public _keyToSystem: { [key: string]: System };
   constructor(private _scene: Scene) {}
 
-  public addSystem(system: System): void {
-    const query = this._scene.queryManager.createQuery(system.types);
+  public addSystem<T extends Component = Component>(system: System<T>): void {
+    const query = this._scene.queryManager.createQuery<T>(system.types);
     this.systems.push(system);
     query.register(system);
   }

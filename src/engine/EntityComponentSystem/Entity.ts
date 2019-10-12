@@ -30,8 +30,9 @@ export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedCom
 }
 
 export type ComponentMap = { [type: string]: Component };
+export type ComponentMapProp<T extends Component['type'], U extends { type: Component['type'] }> = U extends { type: T } ? U : never;
 
-export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUpdate {
+export class Entity<T extends Component = Component> extends Class implements OnInitialize, OnPreUpdate, OnPostUpdate {
   private static _ID = 0;
 
   /**
@@ -86,7 +87,10 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
       return false;
     }
   };
-  public components: ComponentMap = new Proxy<ComponentMap>({}, this._handleChanges);
+  public components: {
+    [t in T['type']]: ComponentMapProp<t, T>;
+  } &
+    ComponentMap = new Proxy<{ [t in T['type']]: ComponentMapProp<t, T> }>(<any>{}, this._handleChanges);
   public changes: Observable<AddedComponent | RemovedComponent> = new Observable<AddedComponent | RemovedComponent>();
 
   /**
@@ -127,7 +131,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
       }
 
       component.owner = this;
-      this.components[component.type] = component;
+      (this.components as ComponentMap)[component.type] = component;
       if (component.onAdd) {
         this._dirty = true;
         component.onAdd(this);

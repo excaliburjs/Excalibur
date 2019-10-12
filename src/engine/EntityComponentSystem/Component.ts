@@ -8,7 +8,7 @@ export interface ComponentCtor {
 /**
  * Components are containers for state in Excalibur, the are meant to convey capabilities that an Entity posesses
  */
-export interface Component {
+export interface Component<T extends ComponentType = ComponentType> {
   /**
    * Optionally list any component types this component depends on
    * If the owner entity does not have these components, new components will be added to the entity
@@ -21,7 +21,7 @@ export interface Component {
    * Type of this component, must be a unique type among component types in you game.
    * See [[BuiltinComponentTypes]] for a list of built in excalibur types
    */
-  readonly type: ComponentType;
+  readonly type: T;
 
   /**
    * Current owning [[Entity]], if any, of this component. Null if not added to any [[Entity]]

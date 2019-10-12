@@ -2,14 +2,14 @@ import { ComponentType } from './ComponentTypes';
 import { Entity } from './Entity';
 import { buildEntityTypeKey } from './Util';
 import { Observable } from '../Util/Observable';
-import { Util } from '..';
+import { Util, Component } from '..';
 import { AddedEntity, RemovedEntity } from './System';
 
 /**
  * Represents a type query that is cached and observable
  */
-export class Query extends Observable<AddedEntity | RemovedEntity> {
-  public entities: Entity[] = [];
+export class Query<T extends Component = Component> extends Observable<AddedEntity | RemovedEntity> {
+  public entities: Entity<T>[] = [];
   public get key(): string {
     return buildEntityTypeKey(this.types);
   }
@@ -22,7 +22,7 @@ export class Query extends Observable<AddedEntity | RemovedEntity> {
    * Entity belongs in query
    * @param entity
    */
-  public addEntity(entity: Entity): void {
+  public addEntity(entity: Entity<T>): void {
     if (!Util.contains(this.entities, entity)) {
       this.entities.push(entity);
       this.notifyAll(new AddedEntity(entity));
