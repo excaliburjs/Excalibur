@@ -1,17 +1,22 @@
 import { ComponentType } from './ComponentTypes';
 import { Entity } from './Entity';
-import { buildEntityTypeKey } from './Util';
+import { buildTypeKey } from './Util';
 import { Observable } from '../Util/Observable';
 import { Util, Component } from '..';
 import { AddedEntity, RemovedEntity } from './System';
 
 /**
- * Represents a type query that is cached and observable
+ * Represents query for entities that match a list of types that is cached and observable
+ *
+ * Queries can be strongly typed by supplying a type union in the optional type parameter
+ * ```typescript
+ * const queryAB = new ex.Query<ComponentTypeA, ComponentTypeB>(['A', 'B']);
+ * ```
  */
 export class Query<T extends Component = Component> extends Observable<AddedEntity | RemovedEntity> {
   public entities: Entity<T>[] = [];
   public get key(): string {
-    return buildEntityTypeKey(this.types);
+    return buildTypeKey(this.types);
   }
 
   public constructor(public types: ComponentType[]) {
@@ -19,17 +24,21 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
   }
 
   /**
-   * Entity belongs in query
+   * Add an entity to the query, will only be added if the entity matches the query types
    * @param entity
    */
   public addEntity(entity: Entity<T>): void {
-    if (!Util.contains(this.entities, entity)) {
+    if (!Util.contains(this.entities, entity) && this.matches(entity)) {
       this.entities.push(entity);
       this.notifyAll(new AddedEntity(entity));
     }
   }
 
-  public removeEntity(entity: Entity): void {
+  /**
+   * If the entity is part of the query it will be removed regardless of types
+   * @param entity
+   */
+  public removeEntity(entity: Entity<T>): void {
     if (Util.removeItemFromArray(entity, this.entities)) {
       this.notifyAll(new RemovedEntity(entity));
     }
@@ -46,10 +55,14 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
   }
 
   /**
-   * Entities types match query
+   * Returns whether the entity's types match query
    * @param entity
    */
   public matches(entity: Entity): boolean;
+  /**
+   * Returns whether the list of ComponentTypes match the query
+   * @param types
+   */
   public matches(types: ComponentType[]): boolean;
   public matches(typesOrEntity: ComponentType[] | Entity): boolean {
     let types: ComponentType[] = [];

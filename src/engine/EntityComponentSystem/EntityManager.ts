@@ -17,7 +17,8 @@ export class EntityManager implements Observer<RemovedComponent | AddedComponent
    */
   public notify(message: RemovedComponent | AddedComponent): void {
     if (isAddedComponent(message)) {
-      this._scene.queryManager.addComponent(message.data.entity, message.data.component);
+      // we don't need the component, it's already on the entity
+      this._scene.queryManager.addEntity(message.data.entity);
     }
 
     if (isRemovedComponent(message)) {

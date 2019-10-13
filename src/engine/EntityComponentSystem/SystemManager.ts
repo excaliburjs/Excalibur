@@ -1,31 +1,52 @@
 import { System } from './System';
-import { Query } from './Query';
-import { buildEntityTypeKey } from './Util';
 import { Engine } from '../Engine';
 import { Util, Component } from '..';
 import { Scene } from '../Scene';
 
+/**
+ * The SystemManager is responsible for keeping track of all systems in a scene.
+ * Systems are scene specific
+ */
 export class SystemManager {
-  // system key -> query key -> query
-  // register systems
-  // order systems
-
   public systems: System<any>[] = [];
-  public _keyToQuery: { [key: string]: Query };
   public _keyToSystem: { [key: string]: System };
   constructor(private _scene: Scene) {}
 
+  /**
+   * Adds a system to the manager, it will now be updated every frame
+   * @param system
+   */
   public addSystem<T extends Component = Component>(system: System<T>): void {
+    // validate system has types
+    if (!system.types || system.types.length === 0) {
+      throw new Error(`Attempted to add a System without any types`);
+    }
+
     const query = this._scene.queryManager.createQuery<T>(system.types);
     this.systems.push(system);
+    // TODO polyfil stable .sort(), this mechanism relies on a stable sort
+    this.systems.sort((a, b) => a.priority - b.priority);
     query.register(system);
   }
 
+  /**
+   * Removes a system from the manager, it will no longer be updated
+   * @param system
+   */
   public removeSystem(system: System) {
     Util.removeItemFromArray(system, this.systems);
-    this._scene.queryManager.maybeRemoveQueryBySystem(system);
+    const query = this._scene.queryManager.getQuery(system.types);
+    if (query) {
+      query.unregister(system);
+      this._scene.queryManager.maybeRemoveQuery(query);
+    }
   }
 
+  /**
+   * Updates all systems
+   * @param engine
+   * @param delta
+   */
   public updateSystems(engine: Engine, delta: number) {
     for (const s of this.systems) {
       if (s.preupdate) {
@@ -34,7 +55,7 @@ export class SystemManager {
     }
 
     for (const s of this.systems) {
-      const entities = this._keyToQuery[buildEntityTypeKey(s.types)].entities;
+      const entities = this._scene.queryManager.getQuery(s.types).entities;
       s.update(entities, delta);
     }
 

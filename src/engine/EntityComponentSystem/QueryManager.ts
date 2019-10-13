@@ -1,46 +1,47 @@
 import { Entity } from './Entity';
-import { buildEntityTypeKey } from './Util';
+import { buildTypeKey } from './Util';
 import { Query } from './Query';
 import { Component } from './Component';
 import { Scene } from '../Scene';
-import { System } from './System';
+import { ComponentType } from './ComponentTypes';
 
+/**
+ * The query manager is responsible for updating all queries when entities/components change
+ */
 export class QueryManager {
-  private _queries: { [entityComponentKey: string]: Query } = {};
+  private _queries: { [entityComponentKey: string]: Query<any> } = {};
 
   constructor(public scene: Scene) {}
 
-  public addQuery(query: Query<any>) {
-    if (this._queries[buildEntityTypeKey(query.types)]) {
-      query = this._queries[buildEntityTypeKey(query.types)];
-    } else {
-      this._queries[buildEntityTypeKey(query.types)] = query;
-    }
-
+  /**
+   * Adds a query to the manager and populates with any entities that match
+   * @param query
+   */
+  private _addQuery(query: Query<any>) {
+    this._queries[buildTypeKey(query.types)] = query;
     for (const entity of this.scene.entityManager.entities) {
-      if (query.matches(entity.types)) {
-        query.addEntity(entity);
-      }
+      query.addEntity(entity);
     }
-  }
-
-  public removeQuery(query: Query) {
-    query.clear();
-    delete this._queries[buildEntityTypeKey(query.types)];
-  }
-
-  // todo this is weird, and not needed?
-  public addComponent(entity: Entity, _component: Component) {
-    this.addEntity(entity);
   }
 
   /**
-   * Adds the entity to any matching query
+   * Removes the query if there are no observers left
+   * @param query
+   */
+  public maybeRemoveQuery(query: Query): void {
+    if (query.observers.length === 0) {
+      query.clear();
+      delete this._queries[buildTypeKey(query.types)];
+    }
+  }
+
+  /**
+   * Adds the entity to any matching query in the query manage
    * @param entity
    */
   public addEntity(entity: Entity) {
     for (const queryType in this._queries) {
-      if (this._queries[queryType].matches(entity.types)) {
+      if (this._queries[queryType]) {
         this._queries[queryType].addEntity(entity);
       }
     }
@@ -71,24 +72,29 @@ export class QueryManager {
     }
   }
 
-  public createQuery<T extends Component = Component>(types: string[]): Query<T> {
+  /**
+   * Creates a populated query and returns, if the query already exists that will be returned instead of a new instance
+   * @param types
+   */
+  public createQuery<T extends Component = Component>(types: ComponentType[]): Query<T> {
+    const maybeExistingQuery = this.getQuery<T>(types);
+    if (maybeExistingQuery) {
+      return maybeExistingQuery;
+    }
     const query = new Query<T>(types);
-    this.addQuery(query);
-
+    this._addQuery(query);
     return query;
   }
 
   /**
-   * Potentially removes the query if observers of the query fall to zero
+   * Retrieves an existing query by types if it exists otherwise returns null
    * @param types
    */
-  public maybeRemoveQueryBySystem(system: System): void {
-    if (this._queries[buildEntityTypeKey(system.types)]) {
-      const query = this._queries[buildEntityTypeKey(system.types)];
-      query.unregister(system);
-      if (query.observers.length === 0) {
-        delete this._queries[buildEntityTypeKey(system.types)];
-      }
+  public getQuery<T extends Component = Component>(types: ComponentType[]): Query<T> {
+    const key = buildTypeKey(types);
+    if (this._queries[key]) {
+      return this._queries[key] as Query<T>;
     }
+    return null;
   }
 }
