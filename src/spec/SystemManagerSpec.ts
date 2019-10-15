@@ -103,4 +103,11 @@ describe('A SystemManager', () => {
 
     expect(system.update).toHaveBeenCalledWith([e1, e3], 10);
   });
+
+  it('should throw on invalid system', () => {
+    const sm = new ex.Scene(null).systemManager;
+    expect(() => {
+      sm.addSystem(new FakeSystem(0, 'ErrorSystem', []));
+    }).toThrow(new Error('Attempted to add a System without any types'));
+  });
 });
