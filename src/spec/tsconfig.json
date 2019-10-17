@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["@types/jasmine", "@types/node"],
+    "types": ["@types/jasmine", "@types/webpack-env"],
     "moduleResolution": "node",
     "sourceMap": true,
     "experimentalDecorators": true,

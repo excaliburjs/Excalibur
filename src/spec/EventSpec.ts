@@ -19,7 +19,7 @@ describe('An Event Dispatcher', () => {
     pubsub.on('event', function() {
       eventFired = true;
     });
-    pubsub.emit('event');
+    pubsub.emit('event', null);
     expect(eventFired).toBeTruthy();
   });
 
@@ -31,7 +31,7 @@ describe('An Event Dispatcher', () => {
     pubsub.on('event', function() {
       targetContext = this;
     });
-    pubsub.emit('event');
+    pubsub.emit('event', null);
     expect(target).toBe(targetContext);
   });
 
@@ -40,7 +40,7 @@ describe('An Event Dispatcher', () => {
     pubsub.on('event', function() {
       eventFired = true;
     });
-    pubsub.emit('event');
+    pubsub.emit('event', null);
     expect(eventFired).toBeTruthy();
   });
 
@@ -54,7 +54,7 @@ describe('An Event Dispatcher', () => {
 
     eventHistory = [];
     subscriptions.forEach((i) => pubsub.on('event', () => eventHistory.push(i)));
-    pubsub.emit('event');
+    pubsub.emit('event', null);
     expect(eventHistory).toEqual(subscriptions);
 
     pubsub.off('event');
@@ -62,7 +62,7 @@ describe('An Event Dispatcher', () => {
 
     eventHistory = [];
     subscriptions.forEach((i) => pubsub.on('event', () => eventHistory.push(i)));
-    pubsub.emit('event');
+    pubsub.emit('event', null);
     expect(eventHistory).toEqual(subscriptions);
   });
 
@@ -110,9 +110,9 @@ describe('An Event Dispatcher', () => {
       callCount++;
     });
 
-    pubsub.emit('onlyonce');
-    pubsub.emit('onlyonce');
-    pubsub.emit('onlyonce');
+    pubsub.emit('onlyonce', null);
+    pubsub.emit('onlyonce', null);
+    pubsub.emit('onlyonce', null);
 
     expect(callCount).toBe(1, 'There should only be one call to the handler with once.');
   });
