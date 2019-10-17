@@ -54,6 +54,7 @@ module.exports = (config) => {
           {
             test: /\.ts$/,
             enforce: 'post',
+            include: path.resolve('src/engine/'),
             use: {
               loader: 'istanbul-instrumenter-loader',
               options: { esModules: true }
