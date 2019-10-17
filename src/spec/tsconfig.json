@@ -1,5 +1,4 @@
 {
-  // "extends": "../tsconfig.json",
   "compilerOptions": {
     "types": ["@types/jasmine", "@types/node"],
     "moduleResolution": "node",

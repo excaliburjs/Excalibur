@@ -33,7 +33,7 @@ module.exports = (config) => {
             loader: 'ts-loader',
             options: {
               projectReferences: true,
-              configFile: '_tsconfig.json'
+              configFile: 'tsconfig.json'
             }
           },
           {
