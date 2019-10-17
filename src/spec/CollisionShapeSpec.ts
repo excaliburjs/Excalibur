@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
