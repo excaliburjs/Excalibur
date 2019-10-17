@@ -1,10 +1,10 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { Mocks } from './util/Mocks';
 
 describe('Action', () => {
   let actor: ex.Actor;
 
-  let engine: ex.Engine;
+  let engine: ex.Engine & any;
   let scene: ex.Scene;
   const mock = new Mocks.Mocker();
 

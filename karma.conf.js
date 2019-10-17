@@ -15,13 +15,16 @@ module.exports = (config) => {
            ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
-      'src/spec/_boot.ts': ['webpack']
+      './src/spec/_boot.ts': ['webpack']
     },
     webpack: {
       mode: 'none',
       devtool: 'source-map',
       resolve: {
-        extensions: ['.ts', '.js']
+        extensions: ['.ts', '.js'],
+        alias: {
+          "@excalibur": path.resolve(__dirname, './src/engine/')
+        }
       },
       module: {
         rules: [
@@ -29,11 +32,29 @@ module.exports = (config) => {
             test: /\.ts$/,
             loader: 'ts-loader',
             options: {
-              transpileOnly: true // speeds up tests a TON by only using webpack resolution
+              projectReferences: true,
+              configFile: 'tsconfig.json'
             }
           },
           {
-            test: /\excalibur.js$/,
+            test: /\.css$/,
+            use: ['to-string-loader', 'css-loader']
+          },
+          {
+            test: /\.(png|jpg|gif)$/i,
+            use: [
+              {
+                loader: 'url-loader',
+                options: {
+                  limit: 8192
+                }
+              }
+            ]
+          },
+          {
+            test: /\.ts$/,
+            enforce: 'post',
+            include: path.resolve('src/engine/'),
             use: {
               loader: 'istanbul-instrumenter-loader',
               options: { esModules: true }
