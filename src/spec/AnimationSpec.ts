@@ -51,7 +51,7 @@ describe('An animation', () => {
     expect(animation.sprites.length).toBe(0);
   });
 
-it('should always pass "flipped" state to the current Sprite', () => {
+  it('should always pass "flipped" state to the current Sprite', () => {
     const mockSprite:any  = jasmine.createSpyObj('sprite', ['draw', 'drawWithOptions']);
     mockSprite.anchor = ex.Vector.Half;
     mockSprite.scale = ex.Vector.One;
