@@ -38,6 +38,7 @@ export function polyfill() {
       (<any>window).oAudioContext;
   }
 
+  /* istanbul ignore next */
   if (typeof window !== 'undefined' && !(<any>window).devicePixelRatio) {
     (<any>window).devicePixelRatio = window.devicePixelRatio || 1;
   }
