@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 
 describe('An Easing Function', () => {
   it('can interpolate linearly', () => {

@@ -44,7 +44,7 @@ module.exports = function(grunt) {
     ts: {
       // Core engine modules (ES2015)
       core_es2015: {
-        tsconfig: 'src/engine',
+        tsconfig: 'src/',
         options: {
           removeComments: false,
           sourceMap: false

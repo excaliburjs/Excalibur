@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { Mocks } from './util/Mocks';
 
 // @obsolete in v0.24.0

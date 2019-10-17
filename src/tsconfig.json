@@ -14,6 +14,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "allowUnreachableCode": false,
-    "lib": ["dom", "es5", "es2015.collection", "es2015.iterable"]
-  }
+    "lib": ["dom", "es5", "es2015.collection", "es2015.iterable"],
+    "rootDir": "./",
+    "baseUrl": ".",
+    "paths": {
+      "@excalibur": ["./engine"]
+    }
+  },
+  "files": ["./engine/index.ts", "./engine/files.d.ts", "./engine/globals.d.ts"]
 }
