@@ -1,5 +1,5 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
@@ -619,7 +619,7 @@ describe('A game actor', () => {
   });
 
   it('not drawn on opacity 0', () => {
-    let invisibleActor = new ex.Actor();
+    const invisibleActor = new ex.Actor();
     spyOn(invisibleActor, 'draw');
     scene.add(invisibleActor);
     invisibleActor.opacity = 0;
@@ -1362,7 +1362,7 @@ describe('A game actor', () => {
     scene.add(actor);
     actor.kill();
 
-    expect(scene.remove).toHaveBeenCalledWith(actor);
+    expect(scene.remove).toHaveBeenCalledWith(<any>actor);
   });
 
   it('can be offscreen', () => {

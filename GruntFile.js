@@ -62,25 +62,6 @@ module.exports = function(grunt) {
           target: 'es5'
         },
         src: ['sandbox/**/*.ts']
-      },
-
-      // Jasmine debug specs (for VS Code)
-      debug: {
-        options: {
-          allowJs: true,
-          sourceMap: true,
-          experimentalDecorators: true
-        },
-        out: 'TestsSpec.js',
-        src: [
-          'src/spec/support/phantom-jasmine-invoker.js',
-          'src/spec/support/js-imagediff.js',
-          'build/dist/excalibur.js',
-          'src/spec/support/platform.js',
-          'src/spec/*.ts',
-          'node_modules/source-map-support/browser-source-map-support.js',
-          'src/spec/support/start-tests.js'
-        ]
       }
     },
 
@@ -290,9 +271,6 @@ module.exports = function(grunt) {
 
   // Run tests quickly
   grunt.registerTask('tests', ['core', 'karma']);
-
-  // Debug compile (for VS Code)
-  grunt.registerTask('debug', ['core', 'ts:debug']);
 
   // Compile visual tests
   grunt.registerTask('visual', ['copy:visual', 'ts:visual']);
