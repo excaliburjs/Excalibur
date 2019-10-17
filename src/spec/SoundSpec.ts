@@ -1,5 +1,5 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { Stubs } from './util/Stubs';
 
 describe('Sound resource', () => {
