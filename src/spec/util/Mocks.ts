@@ -1,4 +1,4 @@
-import * as ex from '../../../build/dist/excalibur';
+import * as ex from '@excalibur';
 
 export namespace Mocks {
   export class MockedElement {

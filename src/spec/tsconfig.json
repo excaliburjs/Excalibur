@@ -1,10 +1,20 @@
 {
   "compilerOptions": {
+    "types": ["@types/jasmine", "@types/webpack-env"],
+    "moduleResolution": "node",
     "sourceMap": true,
     "experimentalDecorators": true,
     "target": "es5",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "types": ["@types/jasmine", "@types/node"]
-  }
+    "module": "es2015",
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "lib": ["dom", "es5", "es2015.collection", "es2015.iterable"],
+    "baseUrl": ".",
+    "rootDir": "../",
+    "paths": {
+      "@excalibur": ["../engine/"]
+    }
+  },
+  "include": ["./**/*Spec.ts"],
+  "files": ["_boot.ts", "../engine/files.d.ts", "../engine/globals.d.ts"]
 }

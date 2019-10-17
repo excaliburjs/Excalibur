@@ -1,5 +1,5 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
@@ -1301,7 +1301,7 @@ describe('A game actor', () => {
     scene.add(actor);
     actor.kill();
 
-    expect(scene.remove).toHaveBeenCalledWith(actor);
+    expect(scene.remove).toHaveBeenCalledWith(<any>actor);
   });
 
   it('can be offscreen', () => {

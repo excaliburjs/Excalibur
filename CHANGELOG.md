@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Breaking Changes
+
+- Remove obsolete `.extend()` semantics in Class.ts as as well as related test cases.
+
 ### Added
 
 - Added new option for constructing bounding boxes. You can now construct with an options
@@ -13,6 +17,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   bounding box constructor.
 
 ### Changed
+
+- Switched to core-js based polyfills instead of custom written ones ([#1214](https://github.com/excaliburjs/Excalibur/issues/1214))
 
 ### Deprecated
 

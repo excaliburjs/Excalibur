@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { Mocks } from './util/Mocks';
 
 // @obsolete in v0.24.0
@@ -9,7 +9,7 @@ describe('An Actor Group', () => {
   const mock = new Mocks.Mocker();
 
   beforeEach(() => {
-    engine = mock.engine(100, 100);
+    engine = <any>mock.engine(100, 100);
     scene = new ex.Scene(engine);
     group = new ex.Group('name', scene);
     engine.currentScene = scene;
