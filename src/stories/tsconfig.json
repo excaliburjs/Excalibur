@@ -1,10 +1,12 @@
 {
   "extends": "../engine/tsconfig.json",
   "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "rootDirs": [".", "../engine"],
     "declaration": false,
-    "outDir": "."
+    "outDir": ".",
+    "target": "es2015"
   },
   "include": ["**/*", "../engine/*.d.ts"],
   "exclude": []
