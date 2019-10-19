@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
 describe('An animation', () => {
@@ -58,7 +58,7 @@ describe('An animation', () => {
       flipHorizontal: false,
       flipVertical: false
     };
-    animation.sprites = [mockSprite];
+    animation.sprites = [<any>mockSprite];
 
     // set flipped to true and ensure the Sprite has the same state after drawing
     animation.flipHorizontal = true;
