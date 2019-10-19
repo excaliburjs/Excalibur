@@ -96,6 +96,8 @@ export class Keyboard extends Class {
    * Initialize Keyboard event listeners
    */
   init(global?: GlobalEventHandlers): void {
+    // See https://github.com/excaliburjs/Excalibur/issues/1294
+    // window.top is for the iframe case
     global = global || window.top || window;
     global.addEventListener('blur', () => {
       this._keys.length = 0; // empties array efficiently
