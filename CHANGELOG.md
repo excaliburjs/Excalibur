@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Switched to core-js based polyfills instead of custom written ones ([#1214](https://github.com/excaliburjs/Excalibur/issues/1214))
+- Updated to TypeScript@3.6.4 and node 10 LTS build
 
 ### Deprecated
 
