@@ -1,6 +1,6 @@
 import { withKnobs, number } from '@storybook/addon-knobs';
 import { Actor, Texture, Loader } from '../engine';
-import { withEngine } from './utils'
+import { withEngine } from './utils';
 
 import heartTexture from './assets/heart.png';
 
@@ -8,14 +8,6 @@ export default {
   title: 'Actions',
   decorators: [withKnobs]
 };
-
-interface Story {
-  (): Element;
-  story?: {
-    decorators?: any;
-    parameters?: any;
-  };
-}
 
 export const fade: Story = withEngine(async (game) => {
   const hrt = new Texture(heartTexture);

@@ -45,6 +45,8 @@
   },
   "devDependencies": {
     "@babel/core": "7.6.4",
+    "@storybook/addon-actions": "^5.2.4",
+    "@storybook/addon-console": "^1.2.1",
     "@storybook/addon-docs": "5.2.3",
     "@storybook/addon-knobs": "5.2.3",
     "@storybook/addon-notes": "5.2.3",
