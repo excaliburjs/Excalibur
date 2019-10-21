@@ -136,7 +136,9 @@ export class Vector implements Clonable<Vector> {
   public get size(): number {
     return this.distance();
   }
-
+  /**
+   * Set/change the size(magnitude) of the Vector
+   */
   public set size(newLength: number){
     this.normalize().scale(newLength);
   }
