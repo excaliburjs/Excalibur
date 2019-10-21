@@ -20,6 +20,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+- `ex.Vector.magnitude()` will be removed in `v0.25.0`, use `ex.Vector.size()`. ([#1277](https://github.com/excaliburjs/Excalibur/issues/1277))
+
 ### Removed
 
 ### Fixed
