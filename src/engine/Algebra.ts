@@ -124,14 +124,14 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * The magnitude (size) of the Vector
-   * @obsolete
+   * @obsolete magnitude will be removed in favour of '.size' in version 0.25.0
    */
   public magnitude(): number {
     return this.distance();
   }
 
   /**
-   * The size(magnitude) of the vector
+   * The size(magnitude) of the Vector
    */
   public get size(): number {
     return this.distance();
