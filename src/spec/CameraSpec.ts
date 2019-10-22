@@ -80,6 +80,19 @@ describe('A camera', () => {
     expect(Camera.getFocus().y).toBe(10);
   });
 
+  it('can have its position set 2 ways', () => {
+    Camera.x = 100;
+    Camera.y = 1000;
+    expect(Camera.pos).toBeVector(new ex.Vector(100, 1000));
+    expect(Camera.x).toBe(100);
+    expect(Camera.y).toBe(1000);
+
+    Camera.pos.setTo(55, 555);
+    expect(Camera.pos).toBeVector(new ex.Vector(55, 555));
+    expect(Camera.x).toBe(55);
+    expect(Camera.y).toBe(555);
+  });
+
   it('can chain moves from various points', () => {
     Camera.x = 10;
     Camera.y = 20;

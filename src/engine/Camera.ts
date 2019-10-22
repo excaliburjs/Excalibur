@@ -128,7 +128,7 @@ export class ElasticToActorStrategy implements CameraStrategy<Actor> {
   public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
     const position = target.center;
     let focus = cam.getFocus();
-    let cameraVel = new Vector(cam.dx, cam.dy);
+    let cameraVel = cam.vel.clone();
 
     // Calculate the strech vector, using the spring equation
     // F = kX
@@ -186,22 +186,55 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
   public strategy: StrategyContainer = new StrategyContainer(this);
 
-  // camera physical quantities
+  /**
+   * Get or set current zoom of the camera, defaults to 1
+   */
   public z: number = 1;
-
-  public dx: number = 0;
-  public dy: number = 0;
+  /**
+   * Get or set rate of change in zoom, defaults to 0
+   */
   public dz: number = 0;
-
-  public ax: number = 0;
-  public ay: number = 0;
+  /**
+   * Get or set zoom acceleration
+   */
   public az: number = 0;
 
+  /**
+   * Current rotation of the camera
+   */
   public rotation: number = 0;
+
+  /**
+   * Current angular velc
+   */
   public rx: number = 0;
 
-  private _x: number = 0;
-  private _y: number = 0;
+  /**
+   * Get or set the camera's angular velocity
+   */
+  public get angularVelocity(): number {
+    return this.rx;
+  }
+
+  public set angularVelocity(value: number) {
+    this.rx = value;
+  }
+
+  /**
+   * Get or set the camera's position
+   */
+  public pos: Vector = Vector.Zero;
+
+  /**
+   * Get or set the camera's velocity
+   */
+  public vel: Vector = Vector.Zero;
+
+  /**
+   * GEt or set the camera's acceleration
+   */
+  public acc: Vector = Vector.Zero;
+
   private _cameraMoving: boolean = false;
   private _currentLerpTime: number = 0;
   private _lerpDuration: number = 1000; // 1 second
@@ -232,7 +265,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * Get the camera's x position
    */
   public get x() {
-    return this._x;
+    return this.pos.x;
   }
 
   /**
@@ -240,7 +273,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    */
   public set x(value: number) {
     if (!this._follow && !this._cameraMoving) {
-      this._x = value;
+      this.pos.x = value;
     }
   }
 
@@ -248,7 +281,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * Get the camera's y position
    */
   public get y() {
-    return this._y;
+    return this.pos.y;
   }
 
   /**
@@ -256,45 +289,15 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    */
   public set y(value: number) {
     if (!this._follow && !this._cameraMoving) {
-      this._y = value;
+      this.pos.y = value;
     }
-  }
-
-  /**
-   * Get the camera's position as a vector
-   */
-  public get pos(): Vector {
-    return new Vector(this.x, this.y);
-  }
-
-  /**
-   * Set the cameras position
-   */
-  public set pos(value: Vector) {
-    this.x = value.x;
-    this.y = value.y;
-  }
-
-  /**
-   * Get the camera's velocity as a vector
-   */
-  public get vel() {
-    return new Vector(this.dx, this.dy);
-  }
-
-  /**
-   * Set the camera's velocity
-   */
-  public set vel(value: Vector) {
-    this.dx = value.x;
-    this.dy = value.y;
   }
 
   /**
    * Returns the focal point of the camera, a new point giving the x and y position of the camera
    */
   public getFocus() {
-    return new Vector(this.x, this.y);
+    return this.pos;
   }
 
   /**
@@ -505,15 +508,13 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     this._preupdate(_engine, delta);
 
     // Update placements based on linear algebra
-    this._x += (this.dx * delta) / 1000;
-    this._y += (this.dy * delta) / 1000;
+    this.pos = this.pos.add(this.vel.scale(delta / 1000));
     this.z += (this.dz * delta) / 1000;
 
-    this.dx += (this.ax * delta) / 1000;
-    this.dy += (this.ay * delta) / 1000;
+    this.vel = this.vel.add(this.acc.scale(delta / 1000));
     this.dz += (this.az * delta) / 1000;
 
-    this.rotation += (this.rx * delta) / 1000;
+    this.rotation += (this.angularVelocity * delta) / 1000;
 
     if (this._isZooming) {
       if (this._currentZoomTime < this._zoomDuration) {
@@ -536,13 +537,11 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
         const lerpPoint = moveEasing(this._currentLerpTime, this._lerpStart, this._lerpEnd, this._lerpDuration);
 
-        this._x = lerpPoint.x;
-        this._y = lerpPoint.y;
+        this.pos = lerpPoint;
 
         this._currentLerpTime += delta;
       } else {
-        this._x = this._lerpEnd.x;
-        this._y = this._lerpEnd.y;
+        this.pos = this._lerpEnd;
         const end = this._lerpEnd.clone();
 
         this._lerpStart = null;
