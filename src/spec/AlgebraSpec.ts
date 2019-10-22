@@ -85,7 +85,6 @@ describe('Vectors', () => {
   });
 
   it('can have size set', () => {
-    // eslint-disable-next-line no-var
     const v = new ex.Vector(20, 0);
     const v2 = new ex.Vector(3, 4);
 
