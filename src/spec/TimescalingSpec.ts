@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { Mocks } from './util/Mocks';
 
 describe('The engine', () => {
@@ -9,7 +9,7 @@ describe('The engine', () => {
   let actor: ex.Actor;
 
   beforeEach(() => {
-    engine = mock.engine(0, 0);
+    engine = <any>mock.engine(0, 0);
     scene = new ex.Scene(engine);
     engine.currentScene = scene;
     actor = new ex.Actor(0, 0, 10, 10, ex.Color.Red);
