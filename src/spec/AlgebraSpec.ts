@@ -76,6 +76,25 @@ describe('Vectors', () => {
     expect(v2.magnitude()).toBe(20);
   });
 
+  it('can have a size', () => {
+    const v = new ex.Vector(20, 0);
+    const v2 = new ex.Vector(0, -20);
+
+    expect(v.size).toBe(20);
+    expect(v2.size).toBe(20);
+  });
+
+  it('can have size set', () => {
+    const v = new ex.Vector(20, 0);
+    const v2 = new ex.Vector(3, 4);
+
+    v.size = 10;
+    v2.size = 13;
+
+    expect(v.equals(new ex.Vector(10, 0))).toBeTruthy();
+    expect(v2.equals(new ex.Vector(7.8, 10.4))).toBeTruthy();
+  });
+
   it('can calculate the distance to another vector', () => {
     const v = new ex.Vector(-10, 0);
     const v2 = new ex.Vector(10, 0);
