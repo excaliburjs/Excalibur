@@ -23,12 +23,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+- `ex.Vector.magnitude()` will be removed in `v0.25.0`, use `ex.Vector.size()`. ([#1277](https://github.com/excaliburjs/Excalibur/issues/1277))
+
 ### Removed
 
 ### Fixed
 
 - Fixed animation flipping behavior ([#1172](https://github.com/excaliburjs/Excalibur/issues/1172))
 - Fixed actors being drawn when their opacity is 0 ([#875](https://github.com/excaliburjs/Excalibur/issues/875))
+- Fixed iframe event handling, excalibur will respond to keyboard events from the top window ([#1294](https://github.com/excaliburjs/Excalibur/issues/1294))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
