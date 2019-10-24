@@ -294,6 +294,50 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   /**
+   * Get or set the camera's x velocity
+   */
+  public get dx() {
+    return this.vel.x;
+  }
+
+  public set dx(value: number) {
+    this.vel.x = value;
+  }
+
+  /**
+   * Get or set the camera's y velocity
+   */
+  public get dy() {
+    return this.vel.y;
+  }
+
+  public set dy(value: number) {
+    this.vel.y = value;
+  }
+
+  /**
+   * Get or set the camera's x acceleration
+   */
+  public get ax() {
+    return this.acc.x;
+  }
+
+  public set ax(value: number) {
+    this.acc.x = value;
+  }
+
+  /**
+   * Get or set the camera's y acceleration
+   */
+  public get ay() {
+    return this.acc.y;
+  }
+
+  public set ay(value: number) {
+    this.acc.y = value;
+  }
+
+  /**
    * Returns the focal point of the camera, a new point giving the x and y position of the camera
    */
   public getFocus() {
