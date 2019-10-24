@@ -29,6 +29,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed animation flipping behavior ([#1172](https://github.com/excaliburjs/Excalibur/issues/1172))
 - Fixed actors being drawn when their opacity is 0 ([#875](https://github.com/excaliburjs/Excalibur/issues/875))
 - Fixed iframe event handling, excalibur will respond to keyboard events from the top window ([#1294](https://github.com/excaliburjs/Excalibur/issues/1294))
+- Fixed camera to be vector backed so `ex.Camera.x = ?` and `ex.Camera.pos.setTo(...)` both work as expected([#1299](https://github.com/excaliburjs/Excalibur/issues/1299))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
