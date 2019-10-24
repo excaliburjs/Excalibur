@@ -93,6 +93,32 @@ describe('A camera', () => {
     expect(Camera.y).toBe(555);
   });
 
+  it('can have its velocity set 2 ways', () => {
+    Camera.dx = 100;
+    Camera.dy = 1000;
+    expect(Camera.vel).toBeVector(new ex.Vector(100, 1000));
+    expect(Camera.dx).toBe(100);
+    expect(Camera.dy).toBe(1000);
+
+    Camera.vel.setTo(55, 555);
+    expect(Camera.vel).toBeVector(new ex.Vector(55, 555));
+    expect(Camera.dx).toBe(55);
+    expect(Camera.dy).toBe(555);
+  });
+
+  it('can have its acceleration set 2 ways', () => {
+    Camera.ax = 100;
+    Camera.ay = 1000;
+    expect(Camera.acc).toBeVector(new ex.Vector(100, 1000));
+    expect(Camera.ax).toBe(100);
+    expect(Camera.ay).toBe(1000);
+
+    Camera.acc.setTo(55, 555);
+    expect(Camera.acc).toBeVector(new ex.Vector(55, 555));
+    expect(Camera.ax).toBe(55);
+    expect(Camera.ay).toBe(555);
+  });
+
   it('can chain moves from various points', () => {
     Camera.x = 10;
     Camera.y = 20;
