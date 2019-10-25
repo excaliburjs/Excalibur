@@ -614,47 +614,6 @@ export class Pointers extends Class {
     }
   }
 
-  /**
-   * Revises pointer events paths accordingly to actor provided
-   * @param actor  Actor to be revised
-   */
-  public revisePointerEventsPaths(_actor: Actor) {
-    // this._revisePointerEventPath(actor, this._pointerDown);
-    // this._revisePointerEventPath(actor, this._pointerUp);
-    // this._revisePointerEventPath(actor, this._pointerMove);
-    // this._revisePointerEventPath(actor, this._pointerCancel);
-    // this._validateWheelEventPath(this._wheel, actor);
-  }
-
-  //   private _propagatePointerEvent(events: PointerEvent[]) {
-
-  //     for (const event of events) {
-  //       for (const actor of event.pointer.getActorsUnderPointer()) {
-  //         event.propagate(actor);
-  //       }
-  //     }
-  //   }
-
-  // private _revisePointerEventPath(actor: Actor, pointers: PointerEvent[]) {
-  //   const len = pointers.length;
-
-  //   for (let i = 0; i < len; i++) {
-  //     const pointerEvent = pointers[i];
-
-  //     pointerEvent.getPath(actor);
-  //   }
-  // }
-  // private _validateWheelEventPath(pointers: WheelEvent[], actor: Actor): void {
-  //   for (let i = 0; i < pointers.length; i++) {
-  //     const wheelEvent = pointers[i];
-  //     const isNotUIActor = !Actors.isUIActor(actor);
-
-  //     if (actor.contains(wheelEvent.x, wheelEvent.y, isNotUIActor)) {
-  //       wheelEvent.layPath(actor);
-  //     }
-  //   }
-  // }
-
   private _propagateWheelEvent(actor: Actor, event: WheelEvent) {
     this._propagateWheelPointerEvent(actor, event);
   }

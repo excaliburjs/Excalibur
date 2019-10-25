@@ -174,16 +174,13 @@ export class GameEvent<T, U = T> {
    * determines, if event bubbles to the target's ancestors
    */
   public bubbles: boolean = true;
-    
+
   /**
    * Prevents event from bubbling
    */
   public stopPropagation() {
     this.bubbles = false;
   }
-  
-
- 
 }
 
 /**
@@ -248,7 +245,7 @@ export class PreDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
  *
  */
 export class PostDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
-    constructor(public ctx: CanvasRenderingContext2D, public delta: number, public target: Actor | Scene | Engine | TileMap) {
+  constructor(public ctx: CanvasRenderingContext2D, public delta: number, public target: Actor | Scene | Engine | TileMap) {
     super();
   }
 }
