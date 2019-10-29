@@ -55,7 +55,7 @@ export class StrategyContainer {
   /**
    * Creates and adds the [[ElasticToActorStrategy]] on the current camera
    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
-   * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillationg spring that will over
+   * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillating spring that will over
    * correct and bounce around the target
    *
    * @param target Target actor to elastically follow
@@ -85,7 +85,7 @@ export enum Axis {
 }
 
 /**
- * Lock a camera to the exact x/y postition of an actor.
+ * Lock a camera to the exact x/y position of an actor.
  */
 export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
   constructor(public target: Actor) {}
@@ -117,7 +117,7 @@ export class LockCameraToActorAxisStrategy implements CameraStrategy<Actor> {
 export class ElasticToActorStrategy implements CameraStrategy<Actor> {
   /**
    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
-   * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillationg spring that will over
+   * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillating spring that will over
    * correct and bounce around the target
    *
    * @param target Target actor to elastically follow
@@ -130,7 +130,7 @@ export class ElasticToActorStrategy implements CameraStrategy<Actor> {
     let focus = cam.getFocus();
     let cameraVel = cam.vel.clone();
 
-    // Calculate the strech vector, using the spring equation
+    // Calculate the stretch vector, using the spring equation
     // F = kX
     // https://en.wikipedia.org/wiki/Hooke's_law
     // Apply to the current camera velocity
@@ -205,7 +205,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   public rotation: number = 0;
 
   /**
-   * Current angular velc
+   * Current angular velocity
    */
   public rx: number = 0;
 
@@ -425,7 +425,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   /**
-   * Gets the boundingbox of the viewport of this camera in world coordinates
+   * Gets the bounding box of the viewport of this camera in world coordinates
    */
   public get viewport(): BoundingBox {
     if (this._engine) {
@@ -461,7 +461,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
    * @internal
@@ -481,7 +481,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   /**
-   *  It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   *  It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
    * @internal
