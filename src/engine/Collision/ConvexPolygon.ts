@@ -174,7 +174,7 @@ export class ConvexPolygon implements CollisionShape {
    * Tests if a point is contained in this collision shape in world space
    */
   public contains(point: Vector): boolean {
-    // Always cast to the right, as long as we cast in a consitent fixed direction we
+    // Always cast to the right, as long as we cast in a consistent fixed direction we
     // will be fine
     const testRay = new Ray(point, new Vector(1, 0));
     const intersectCount = this.getSides().reduce(function(accum, side) {
@@ -403,9 +403,11 @@ export class ConvexPolygon implements CollisionShape {
     // Iterate through the supplied points and construct a 'polygon'
     const firstPoint = this.points[0].add(newPos);
     ctx.moveTo(firstPoint.x, firstPoint.y);
-    this.points.map((p) => p.add(newPos)).forEach(function(point) {
-      ctx.lineTo(point.x, point.y);
-    });
+    this.points
+      .map((p) => p.add(newPos))
+      .forEach(function(point) {
+        ctx.lineTo(point.x, point.y);
+      });
     ctx.lineTo(firstPoint.x, firstPoint.y);
     ctx.closePath();
     ctx.fill();
