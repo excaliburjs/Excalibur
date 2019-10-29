@@ -185,7 +185,7 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * Subtracts a vector from another, if you subract vector `B.sub(A)` the resulting vector points from A -> B
+   * Subtracts a vector from another, if you subtract vector `B.sub(A)` the resulting vector points from A -> B
    * @param v The vector to subtract
    */
   public sub(v: Vector): Vector {
@@ -298,7 +298,7 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * Returns a string repesentation of the vector.
+   * Returns a string representation of the vector.
    */
   public toString(): string {
     return `(${this.x}, ${this.y})`;
