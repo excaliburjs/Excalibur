@@ -355,7 +355,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
         a.vel.y = 0;
       }
     });
-    a.on('postupdate', (data?: ex.PostUpdateEvent) => {
+    a.on('postupdate', (data: ex.PostUpdateEvent) => {
       if (inAir) {
         a.acc.y = 400;
       } else {
@@ -372,7 +372,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
 });
 
 var isColliding = false;
-player.on('precollision', (data?: ex.PreCollisionEvent) => {
+player.on('precollision', (data: ex.PreCollisionEvent) => {
   if (data.side === ex.Side.Bottom) {
     isColliding = true;
 
@@ -408,7 +408,7 @@ player.on('precollision', (data?: ex.PreCollisionEvent) => {
   }
 });
 
-player.on('postupdate', (data?: ex.PostUpdateEvent) => {
+player.on('postupdate', (data: ex.PostUpdateEvent) => {
   // apply gravity if player is in the air
   // only apply gravity when not colliding
   if (!isColliding && data.target instanceof ex.Actor) {
@@ -421,7 +421,7 @@ player.on('postupdate', (data?: ex.PostUpdateEvent) => {
   isColliding = false;
 });
 
-player.on('initialize', (evt?: ex.InitializeEvent) => {
+player.on('initialize', (evt: ex.InitializeEvent) => {
   console.log('Player initialized', evt.engine);
 });
 

@@ -330,7 +330,7 @@ export class PostDebugDrawEvent extends GameEvent<Entity | Actor | Scene | Engin
 /**
  * The 'preupdate' event is emitted on actors, scenes, camera, and engine before the update starts.
  */
-export class PreUpdateEvent<T extends OnPreUpdate> extends GameEvent<T> {
+export class PreUpdateEvent<T extends OnPreUpdate = Entity> extends GameEvent<T> {
   constructor(public engine: Engine, public delta: number, public target: T) {
     super();
   }
@@ -339,7 +339,7 @@ export class PreUpdateEvent<T extends OnPreUpdate> extends GameEvent<T> {
 /**
  * The 'postupdate' event is emitted on actors, scenes, camera, and engine after the update ends.
  */
-export class PostUpdateEvent<T extends OnPostUpdate> extends GameEvent<T> {
+export class PostUpdateEvent<T extends OnPostUpdate = Entity> extends GameEvent<T> {
   constructor(public engine: Engine, public delta: number, public target: T) {
     super();
   }
@@ -452,7 +452,7 @@ export class HiddenEvent extends GameEvent<Engine> {
 /**
  * Event thrown on an [[Actor|actor]] when a collision will occur this frame if it resolves
  */
-export class PreCollisionEvent<T extends Collider | Entity = Entity> extends GameEvent<T> {
+export class PreCollisionEvent<T extends Collider | Entity = Actor> extends GameEvent<T> {
   /**
    * @param actor         The actor the event was thrown on
    * @param other         The actor that will collided with the current actor
@@ -476,7 +476,7 @@ export class PreCollisionEvent<T extends Collider | Entity = Entity> extends Gam
 /**
  * Event thrown on an [[Actor|actor]] when a collision has been resolved (body reacted) this frame
  */
-export class PostCollisionEvent<T extends Collider | Entity = Entity> extends GameEvent<T> {
+export class PostCollisionEvent<T extends Collider | Entity = Actor> extends GameEvent<T> {
   /**
    * @param actor         The actor the event was thrown on
    * @param other         The actor that did collide with the current actor
@@ -500,7 +500,7 @@ export class PostCollisionEvent<T extends Collider | Entity = Entity> extends Ga
 /**
  * Event thrown the first time an [[Actor|actor]] collides with another, after an actor is in contact normal collision events are fired.
  */
-export class CollisionStartEvent<T extends Collider | Entity = Entity> extends GameEvent<T> {
+export class CollisionStartEvent<T extends Collider | Entity = Actor> extends GameEvent<T> {
   /**
    *
    * @param actor
@@ -524,7 +524,7 @@ export class CollisionStartEvent<T extends Collider | Entity = Entity> extends G
 /**
  * Event thrown when the [[Actor|actor]] is no longer colliding with another
  */
-export class CollisionEndEvent<T extends Collider | Entity = Entity> extends GameEvent<T> {
+export class CollisionEndEvent<T extends Collider | Entity = Actor> extends GameEvent<T> {
   /**
    *
    */
