@@ -137,7 +137,7 @@ export class PointerEvent extends GameEvent<Actor> {
   }
   /**
    * Sets event path to actor, depending on actor provided.
-   * If actor is lower in hierarchy tree, previous path'll be kept.
+   * If actor is lower in hierarchy tree, previous path will be kept.
    * @param actor Actor, to lay path form.
    */
   public layPath(actor: Actor): void {
@@ -232,8 +232,8 @@ export class PointerMoveEvent extends PointerEvent {
    */
   public layPath(actor: Actor): void {
     /**
-     *  double-check is preformed, because user could move pointer too fast and
-     *  in that case, pointer can appear out of boundings of the dragging element
+     *  double-check is performed, because user could move pointer too fast and
+     *  in that case, pointer can appear out of bounds of the dragging element
      */
     if (this.pointer.isDragging) {
       actor = this.pointer.dragTarget || actor;
@@ -523,7 +523,7 @@ export class Pointers extends Class {
   }
 
   /**
-   * Propogates events through ancestors chain if necessary
+   * Propagates events through ancestors chain if necessary
    */
   public propagate() {
     this._propagatePointerEvent(this._pointerDown);
@@ -904,7 +904,7 @@ export class Pointer extends Class {
   }
 
   /**
-   * Checks if Pointer has a specific Actor in ActrorsUnderPointer list.
+   * Checks if Pointer has a specific Actor in ActorsUnderPointer list.
    * @param actor An Actor for check;
    */
   public hasActorUnderPointerInList(actor: Actor): boolean {
