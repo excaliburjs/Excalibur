@@ -1,5 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
-import { SystemManager } from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 
 class FakeComponent<T extends ex.ComponentType> implements ex.Component<T> {
   constructor(public type: T) {}
@@ -12,7 +11,9 @@ class FakeSystem extends ex.System {
   constructor(public priority: number, public name: string, public types: string[]) {
     super();
   }
-  update(entities: ex.Entity[], delta: number): void {}
+  update(entities: ex.Entity[], delta: number): void {
+    // fake
+  }
 }
 
 describe('A SystemManager', () => {

@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 
 class FakeComponent implements ex.Component {
   constructor(public type: string) {}
