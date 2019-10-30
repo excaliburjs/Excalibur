@@ -219,7 +219,7 @@ export class ColorBlindCorrector implements PostProcessor {
     // Draw the rectangle.
     this._gl.drawArrays(this._gl.TRIANGLES, 0, 6);
 
-    // Grab tranformed image from internal canvas
+    // Grab transformed image from internal canvas
     const pixelData = new Uint8Array(image.width * image.height * 4);
     this._gl.readPixels(0, 0, image.width, image.height, this._gl.RGBA, this._gl.UNSIGNED_BYTE, pixelData);
 
