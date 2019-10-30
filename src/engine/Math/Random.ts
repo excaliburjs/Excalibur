@@ -29,10 +29,10 @@ export class Random {
   // Word size, 64 bits
   private _w: number = 32;
 
-  // Degree of recurrance
+  // Degree of recurrence
   private _n: number = 624;
 
-  // Middle word, an offset used in the recurrance defining the series x, 1<=m<n
+  // Middle word, an offset used in the recurrence defining the series x, 1<=m<n
   private _m: number = 397;
   // coefficients of teh rational normal form twist matrix
   private _a: number = 0x9908b0df;
