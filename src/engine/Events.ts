@@ -545,7 +545,7 @@ export class CollisionEndEvent<T extends Collider | Entity = Actor> extends Game
 /**
  * Event thrown on an [[Actor]] and a [[Scene]] only once before the first update call
  */
-export class InitializeEvent<T extends OnInitialize> extends GameEvent<T> {
+export class InitializeEvent<T extends OnInitialize = Entity> extends GameEvent<T> {
   /**
    * @param engine  The reference to the current engine
    */
