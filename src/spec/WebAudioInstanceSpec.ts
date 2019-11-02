@@ -51,8 +51,8 @@ describe('A webaudio instance', () => {
     expect(webaudio).toBeDefined();
   });
 
-  it('should use specific settings for volume', () => {
-    webaudio.volume = 1;
-    expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(webaudio.volume, 0, 0.1);
+  it('should set volume immediately', () => {
+    webaudio.volume = 0.5;
+    expect(mockGainNode.gain.value).toEqual(0.5);
   });
 });
