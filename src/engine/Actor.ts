@@ -528,6 +528,48 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public currentDrawing: Drawable = null;
 
   /**
+   * Draggable helper
+   */
+  private _draggable: boolean = false;
+  private _dragging: boolean = false;
+
+  public get draggable(): boolean {
+    return this._draggable;
+  }
+
+  public set draggable(isDraggable: boolean) {
+    if (isDraggable) {
+      this._draggable = true;
+
+      if (isDraggable) {
+        this.collisionType = CollisionType.PreventCollision;
+
+        this.on('pointerdragstart', () => {
+          this._dragging = true;
+        });
+
+        this.on('pointerdragstart', () => {
+          this._dragging = false;
+        });
+
+        this.on('pointerdragmove', (pe: PointerEvent) => {
+          if (this._dragging) {
+            this.pos = pe.pointer.lastWorldPos;
+          }
+        });
+
+        this.on('pointerdragleave', (pe: PointerEvent) => {
+          if (this._dragging) {
+            this.pos = pe.pointer.lastWorldPos;
+          }
+        });
+      } else {
+        this._draggable = false;
+      }
+    }
+  }
+
+  /**
    * Modify the current actor update pipeline.
    */
   public traits: Trait[] = [];
