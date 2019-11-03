@@ -69,11 +69,11 @@ export class CullingBox {
     this._yMaxWorld = maxWorld.y;
 
     const boundingPoints = [
-      new Vector(this._xMin, this._yMin), // topleft
-      new Vector(this._xMax, this._yMin), // topright
-      new Vector(this._xMin, this._yMax), // bottomleft
-      new Vector(this._xMax, this._yMax)
-    ]; // bottomright
+      new Vector(this._xMin, this._yMin), // top left
+      new Vector(this._xMax, this._yMin), // top right
+      new Vector(this._xMin, this._yMax), // bottom left
+      new Vector(this._xMax, this._yMax) // bottom right
+    ];
 
     // sprite can be wider than canvas screen (and still visible within canvas)
     // top or bottom of sprite must be within canvas
