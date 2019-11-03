@@ -1,4 +1,5 @@
 import { Vector } from './Algebra';
+import { obsolete } from './Util/Decorators';
 
 /**
  * Possible collision resolution strategies
@@ -152,9 +153,21 @@ export class Physics {
   public static collisionShift = 0.001;
 
   /**
-   * Factor to add to the RigidBody BoundingBox, bounding box (dimensions += vel * dynamicTreeVelocityMultiplyer);
+   * Factor to add to the RigidBody BoundingBox, bounding box (dimensions += vel * dynamicTreeVelocityMultiplier);
    */
-  public static dynamicTreeVelocityMultiplyer = 2;
+  public static dynamicTreeVelocityMultiplier = 2;
+
+  @obsolete({
+    message: 'Alias for incorrect spelling used in older versions',
+    alternateMethod: 'dynamicTreeVelocityMultiplier'
+  })
+  public static get dynamicTreeVelocityMultiplyer() {
+    return Physics.dynamicTreeVelocityMultiplier;
+  }
+
+  public static set dynamicTreeVelocityMultiplyer(value: number) {
+    Physics.dynamicTreeVelocityMultiplier = value;
+  }
 
   /**
    * Pad RigidBody BoundingBox by a constant amount

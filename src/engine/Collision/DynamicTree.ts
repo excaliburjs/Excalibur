@@ -237,8 +237,8 @@ export class DynamicTree {
     b.right += Physics.boundsPadding;
     b.bottom += Physics.boundsPadding;
 
-    const multdx = body.vel.x * Physics.dynamicTreeVelocityMultiplyer;
-    const multdy = body.vel.y * Physics.dynamicTreeVelocityMultiplyer;
+    const multdx = body.vel.x * Physics.dynamicTreeVelocityMultiplier;
+    const multdy = body.vel.y * Physics.dynamicTreeVelocityMultiplier;
 
     if (multdx < 0) {
       b.left += multdx;
