@@ -60,6 +60,7 @@ describe('A webaudio instance', () => {
   it('should set volume immediately', () => {
     webaudio.volume = 0.5;
     expect(mockGainNode.gain.value).toEqual(0.5);
+    expect(mockGainNode.gain.setTargetAtTime).not.toHaveBeenCalled();
   });
 
   it('should ramp volume when set during playback', () => {
