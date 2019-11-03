@@ -111,7 +111,7 @@ export interface PhysicsStatistics {
   pairs: number;
 
   /**
-   * Gets the number of actual collisons
+   * Gets the number of actual collisions
    */
   collisions: number;
 
