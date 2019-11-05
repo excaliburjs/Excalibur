@@ -539,11 +539,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   public set draggable(isDraggable: boolean) {
     if (isDraggable) {
-      this._draggable = true;
-
-      if (isDraggable) {
-        this.collisionType = CollisionType.PreventCollision;
-
+      if (isDraggable && !this._draggable) {
         this.on('pointerdragstart', () => {
           this._dragging = true;
         });
@@ -563,9 +559,29 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
             this.pos = pe.pointer.lastWorldPos;
           }
         });
-      } else {
-        this._draggable = false;
+      } else if (!isDraggable && this._draggable) {
+        this.off('pointerdragstart', () => {
+          this._dragging = true;
+        });
+
+        this.off('pointerdragstart', () => {
+          this._dragging = false;
+        });
+
+        this.off('pointerdragmove', (pe: PointerEvent) => {
+          if (this._dragging) {
+            this.pos = pe.pointer.lastWorldPos;
+          }
+        });
+
+        this.off('pointerdragleave', (pe: PointerEvent) => {
+          if (this._dragging) {
+            this.pos = pe.pointer.lastWorldPos;
+          }
+        });
       }
+
+      this._draggable = isDraggable;
     }
   }
 
