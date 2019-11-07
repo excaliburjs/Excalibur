@@ -530,8 +530,29 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Draggable helper
    */
+
   private _draggable: boolean = false;
   private _dragging: boolean = false;
+
+  private _pointerDragStartHandler = () => {
+    this._dragging = true;
+  };
+
+  private _pointerDragEndHandler = () => {
+    this._dragging = false;
+  };
+
+  private _pointerDragMoveHandler = (pe: PointerEvent) => {
+    if (this._dragging) {
+      this.pos = pe.pointer.lastWorldPos;
+    }
+  };
+
+  private _pointerDragLeaveHandler = (pe: PointerEvent) => {
+    if (this._dragging) {
+      this.pos = pe.pointer.lastWorldPos;
+    }
+  };
 
   public get draggable(): boolean {
     return this._draggable;
@@ -540,45 +561,15 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public set draggable(isDraggable: boolean) {
     if (isDraggable) {
       if (isDraggable && !this._draggable) {
-        this.on('pointerdragstart', () => {
-          this._dragging = true;
-        });
-
-        this.on('pointerdragstart', () => {
-          this._dragging = false;
-        });
-
-        this.on('pointerdragmove', (pe: PointerEvent) => {
-          if (this._dragging) {
-            this.pos = pe.pointer.lastWorldPos;
-          }
-        });
-
-        this.on('pointerdragleave', (pe: PointerEvent) => {
-          if (this._dragging) {
-            this.pos = pe.pointer.lastWorldPos;
-          }
-        });
+        this.on('pointerdragstart', this._pointerDragStartHandler);
+        this.on('pointerdragend', this._pointerDragEndHandler);
+        this.on('pointerdragmove', this._pointerDragMoveHandler);
+        this.on('pointerdragleave', this._pointerDragLeaveHandler);
       } else if (!isDraggable && this._draggable) {
-        this.off('pointerdragstart', () => {
-          this._dragging = true;
-        });
-
-        this.off('pointerdragstart', () => {
-          this._dragging = false;
-        });
-
-        this.off('pointerdragmove', (pe: PointerEvent) => {
-          if (this._dragging) {
-            this.pos = pe.pointer.lastWorldPos;
-          }
-        });
-
-        this.off('pointerdragleave', (pe: PointerEvent) => {
-          if (this._dragging) {
-            this.pos = pe.pointer.lastWorldPos;
-          }
-        });
+        this.off('pointerdragstart', this._pointerDragStartHandler);
+        this.off('pointerdragend', this._pointerDragEndHandler);
+        this.off('pointerdragmove', this._pointerDragMoveHandler);
+        this.off('pointerdragleave', this._pointerDragLeaveHandler);
       }
 
       this._draggable = isDraggable;
