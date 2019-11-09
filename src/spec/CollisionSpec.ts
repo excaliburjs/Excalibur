@@ -210,15 +210,15 @@ describe('A Collision', () => {
 
     const collisionHandler = (ev: ex.PreCollisionEvent) => {
       engine.add(
-        new ex.Timer(
-          () => {
+        new ex.Timer({
+          interval: 30,
+          fcn: () => {
             expect(activeBlock.vel.x).toBeGreaterThan(0);
             expect(passiveBlock.vel.x).toBeLessThan(0);
             done();
           },
-          30,
-          false
-        )
+          repeats: false
+        })
       );
     };
 
