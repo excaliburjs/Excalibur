@@ -869,13 +869,13 @@ describe('A game actor', () => {
       width: 10,
       height: 10
     });
-    let predrawedFired = false;
+    let predrawFired = false;
 
     actor.on('predraw', () => {
-      predrawedFired = true;
+      predrawFired = true;
     });
     actor.on('postdraw', () => {
-      expect(predrawedFired).toBe(true);
+      expect(predrawFired).toBe(true);
       done();
     });
 
