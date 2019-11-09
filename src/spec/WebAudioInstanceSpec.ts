@@ -31,6 +31,12 @@ describe('A webaudio instance', () => {
         setValueAtTime: () => {
           /*empty*/
         }
+      },
+      start: () => {
+        /*empty*/
+      },
+      stop: () => {
+        /*empty*/
       }
     };
 
@@ -51,8 +57,15 @@ describe('A webaudio instance', () => {
     expect(webaudio).toBeDefined();
   });
 
-  it('should use specific settings for volume', () => {
-    webaudio.volume = 1;
+  it('should set volume immediately', () => {
+    webaudio.volume = 0.5;
+    expect(mockGainNode.gain.value).toEqual(0.5);
+    expect(mockGainNode.gain.setTargetAtTime).not.toHaveBeenCalled();
+  });
+
+  it('should ramp volume when set during playback', () => {
+    webaudio.play();
+    webaudio.volume = 0.25;
     expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(webaudio.volume, 0, 0.1);
   });
 });
