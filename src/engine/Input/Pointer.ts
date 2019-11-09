@@ -621,7 +621,7 @@ export class Pointers extends Class {
   private _propagateWheelPointerEvent(actor: Actor, wheelEvent: WheelEvent) {
     actor.emit('pointerwheel', wheelEvent);
 
-    // Recurse and propogate
+    // Recurse and propagate
     if (wheelEvent.bubbles && actor.parent) {
       this._propagateWheelPointerEvent(actor.parent, wheelEvent);
     }
