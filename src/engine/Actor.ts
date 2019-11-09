@@ -1365,7 +1365,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * Returns the actors unrotated geometry in world coordinates
+   * Returns the actor's unrotated geometry in world coordinates
    */
   @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds.getPoints()' })
   public getGeometry(): Vector[] {
