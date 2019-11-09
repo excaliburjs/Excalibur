@@ -984,6 +984,8 @@ O|===|* >________________>\n\
       this._intializeDisplayModePosition(options);
     }
 
+    this.pageScrollPreventionMode = options.scrollPreventionMode;
+
     // initialize inputs
     this.input = {
       keyboard: new Input.Keyboard(),
@@ -993,8 +995,6 @@ O|===|* >________________>\n\
     this.input.keyboard.init();
     this.input.pointers.init(options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas);
     this.input.gamepads.init();
-
-    this.pageScrollPreventionMode = options.scrollPreventionMode;
 
     // Issue #385 make use of the visibility api
     // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
