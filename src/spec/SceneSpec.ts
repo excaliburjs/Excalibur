@@ -379,13 +379,13 @@ describe('A scene', () => {
     });
 
     // create Timer
-    const timer = new ex.Timer(
-      () => {
+    const timer = new ex.Timer({
+      interval: 10,
+      fcn: () => {
         scene.add(actor);
       },
-      10,
-      false
-    );
+      repeats: false
+    });
 
     scene.add(timer);
     scene.update(engine, 11);
@@ -414,13 +414,13 @@ describe('A scene', () => {
     });
 
     // create Timer
-    const timer = new ex.Timer(
-      () => {
+    const timer = new ex.Timer({
+      interval: 10,
+      fcn: () => {
         scene.add(actor);
       },
-      10,
-      false
-    );
+      repeats: false
+    });
 
     scene.add(timer);
     scene.update(engine, 11);
@@ -472,13 +472,13 @@ describe('A scene', () => {
     });
 
     // create Timer
-    const timer = new ex.Timer(
-      () => {
+    const timer = new ex.Timer({
+      interval: 10,
+      fcn: () => {
         scene.add(tilemap);
       },
-      10,
-      false
-    );
+      repeats: false
+    });
 
     scene.add(timer);
     scene.update(engine, 11);

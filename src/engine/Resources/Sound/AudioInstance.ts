@@ -193,7 +193,7 @@ export class WebAudioInstance extends AudioInstance {
 
     this._volume = value;
 
-    if (this._volumeNode.gain.setTargetAtTime) {
+    if (this._isPlaying && this._volumeNode.gain.setTargetAtTime) {
       // https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setTargetAtTime
       // After each .1 seconds timestep, the target value will ~63.2% closer to the target value.
       // This exponential ramp provides a more pleasant transition in gain

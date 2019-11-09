@@ -366,9 +366,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     this._collectActorStats(engine);
 
-    // propagates all events through their paths assigned
-    engine.input.pointers.propagate();
-
     // Run the broadphase and narrowphase
     if (this._broadphase && Physics.enabled) {
       const beforeBroadphase = Date.now();
