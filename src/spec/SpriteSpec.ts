@@ -67,7 +67,7 @@ describe('A sprite', () => {
         height: 1
       });
     } catch (e) {
-      expect(e.message).toBe('An image texture is required to contsruct a sprite');
+      expect(e.message).toBe('An image texture is required to construct a sprite');
     }
   });
 
