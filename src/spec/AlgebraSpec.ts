@@ -128,7 +128,7 @@ describe('Vectors', () => {
     expect(v.add(v2).equals(new ex.Vector(10, 10))).toBeTruthy();
   });
 
-  it('can be subracted from another', () => {
+  it('can be subtracted from another', () => {
     const v = new ex.Vector(10, 0);
     const v2 = new ex.Vector(0, 10);
 
@@ -145,7 +145,7 @@ describe('Vectors', () => {
     expect(v.y).toBe(10);
   });
 
-  it('can be subracted and set at the same time', () => {
+  it('can be subtracted and set at the same time', () => {
     const v = new ex.Vector(10, 0);
     const v2 = new ex.Vector(0, 10);
 
@@ -178,9 +178,9 @@ describe('Vectors', () => {
     expect(v.dot(v2.negate())).toBeGreaterThan(0);
     // vectors that are perpendicular are zero
     expect(v.dot(v.perpendicular())).toBe(0);
-    // dot product indicates the directionness of vectors
-    // if 2 vectors in the same dir 1 at 45 degress should
-    // be cos(45) in the same direction
+    // dot product measures how close two vectors are to being parallel
+    // the dot product of two vectors, where the second vector is at a
+    // 45 degree angle to the first, should be cos(45) in the same direction.
     expect(v.dot(ex.Vector.fromAngle(Math.PI / 4))).toBe(Math.cos(Math.PI / 4));
   });
 

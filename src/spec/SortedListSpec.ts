@@ -12,7 +12,7 @@ describe('A SortedList', () => {
     expect(ex.SortedList).toBeTruthy();
   });
 
-  it('can have an element added to it at a non-existant node', () => {
+  it('can have an element added to it at a non-existent node', () => {
     const element = new Mocks.MockedElement(0);
     expect(sortedList.add(element)).toBe(true);
     expect(sortedList.find(element)).toBe(true);

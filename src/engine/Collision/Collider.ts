@@ -235,7 +235,7 @@ export class Collider implements Eventable, Clonable<Collider> {
 
   /**
    * Returns the collider's [[BoundingBox]] relative to the body's position.
-   * If there is no shape, a point boudning box is returned
+   * If there is no shape, a point bounding box is returned
    */
   public get localBounds(): BoundingBox {
     if (this.shape) {

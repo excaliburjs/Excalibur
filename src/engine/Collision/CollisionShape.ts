@@ -17,7 +17,7 @@ export interface CollisionShape extends Clonable<CollisionShape> {
   offset: Vector;
 
   /**
-   * Postion of the collision shape in world coordinates
+   * Position of the collision shape in world coordinates
    */
   worldPos: Vector;
 
@@ -48,7 +48,7 @@ export interface CollisionShape extends Clonable<CollisionShape> {
   bounds: BoundingBox;
 
   /**
-   * Return the axis-aligned boudning box of the collision shape in local coordinates
+   * Return the axis-aligned bounding box of the collision shape in local coordinates
    */
   localBounds: BoundingBox;
 
@@ -58,7 +58,7 @@ export interface CollisionShape extends Clonable<CollisionShape> {
   axes: Vector[];
 
   /**
-   * Return the calculated moment of intertia for this shape
+   * Return the calculated moment of inertia for this shape
    */
   inertia: number;
 

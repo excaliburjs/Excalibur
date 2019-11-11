@@ -962,7 +962,7 @@ O|===|* >________________>\n\
   }
 
   /**
-   * Initializes the internal canvas, rendering context, displaymode, and native event listeners
+   * Initializes the internal canvas, rendering context, display mode, and native event listeners
    */
   private _initialize(options?: EngineOptions) {
     if (options.displayMode) {
@@ -1181,7 +1181,7 @@ O|===|* >________________>\n\
    */
   private _update(delta: number) {
     if (this._isLoading) {
-      // suspend updates untill loading is finished
+      // suspend updates until loading is finished
       this._loader.update(this, delta);
       // Update input listeners
       this.input.keyboard.update();

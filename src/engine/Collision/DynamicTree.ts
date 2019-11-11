@@ -29,7 +29,7 @@ export class TreeNode {
 }
 
 /**
- * The DynamicTrees provides a spatial partiioning data structure for quickly querying for overlapping bounding boxes for
+ * The DynamicTrees provides a spatial partitioning data structure for quickly querying for overlapping bounding boxes for
  * all tracked bodies. The worst case performance of this is O(n*log(n)) where n is the number of bodies in the tree.
  *
  * Internally the bounding boxes are organized as a balanced binary tree of bounding boxes, where the leaf nodes are tracked bodies.
@@ -425,7 +425,7 @@ export class DynamicTree {
    * Queries the Dynamic Axis Aligned Tree for bodies that could be intersecting. By default the raycast query uses an infinitely
    * long ray to test the tree specified by `max`.
    *
-   * In the query callback, it will be passed a potential body that intersects with the racast. Returning true from this
+   * In the query callback, it will be passed a potential body that intersects with the raycast. Returning true from this
    * callback indicates that your are complete with your query and do not want to continue. Return false will continue searching
    * the tree until all possible bodies that would intersect with the ray have been returned.
    */
