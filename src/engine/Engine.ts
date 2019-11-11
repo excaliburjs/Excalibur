@@ -981,7 +981,7 @@ O|===|* >________________>\n\
         this.setAntialiasing(this._isSmoothingEnabled);
       });
     } else if (this.displayMode === DisplayMode.Position) {
-      this._intializeDisplayModePosition(options);
+      this._initializeDisplayModePosition(options);
     }
 
     this.pageScrollPreventionMode = options.scrollPreventionMode;
@@ -1039,7 +1039,7 @@ O|===|* >________________>\n\
     // Override me
   }
 
-  private _intializeDisplayModePosition(options: EngineOptions) {
+  private _initializeDisplayModePosition(options: EngineOptions) {
     if (!options.position) {
       throw new Error('DisplayMode of Position was selected but no position option was given');
     } else {

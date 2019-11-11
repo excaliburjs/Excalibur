@@ -12,13 +12,13 @@ export class BrowserComponent<T extends NativeEventable> {
       this.off(eventName, this._nativeHandlers[eventName]);
     }
     this._nativeHandlers[eventName] = this._decorate(handler);
-    this.nativeComponet.addEventListener(eventName, this._nativeHandlers[eventName]);
+    this.nativeComponent.addEventListener(eventName, this._nativeHandlers[eventName]);
   }
   off(eventName: string, handler?: (event: any) => void): void {
     if (!handler) {
       handler = this._nativeHandlers[eventName];
     }
-    this.nativeComponet.removeEventListener(eventName, handler);
+    this.nativeComponent.removeEventListener(eventName, handler);
     this._nativeHandlers[eventName] = null;
   }
 
@@ -44,7 +44,7 @@ export class BrowserComponent<T extends NativeEventable> {
     }
   }
 
-  constructor(public nativeComponet: T) {}
+  constructor(public nativeComponent: T) {}
 }
 
 export class BrowserEvents {
