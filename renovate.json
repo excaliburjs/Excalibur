@@ -1,7 +1,6 @@
 {
-  "extends": [
-    "config:base"
-  ],
+  "extends": ["config:base"],
+  "schedule": "on friday and saturday",
   "commitMessagePrefix": "[chore]",
   "automerge": true,
   "major": {
