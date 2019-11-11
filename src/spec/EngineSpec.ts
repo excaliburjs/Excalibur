@@ -167,7 +167,7 @@ describe('The engine', () => {
     expect(engine.getWorldBounds()).toEqual(localBoundingBox);
   });
 
-  it('should return correct scren dimensions if zoomed in', () => {
+  it('should return correct screen dimensions if zoomed in', () => {
     engine.start();
     engine.currentScene.camera.z = 2;
 
@@ -330,7 +330,7 @@ describe('The engine', () => {
       engine = null;
     });
 
-    it('can have onInitialize overriden safely', () => {
+    it('can have onInitialize overridden safely', () => {
       let initCalled = false;
       engine.onInitialize = (engine) => {
         expect(engine).not.toBe(null);
@@ -348,7 +348,7 @@ describe('The engine', () => {
       expect(engine.onInitialize).toHaveBeenCalledTimes(1);
     });
 
-    it('can have onPostUpdate overriden safely', () => {
+    it('can have onPostUpdate overridden safely', () => {
       engine.onPostUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -364,7 +364,7 @@ describe('The engine', () => {
       expect(engine.onPostUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreUpdate overriden safely', () => {
+    it('can have onPreUpdate overridden safely', () => {
       engine.onPreUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -380,7 +380,7 @@ describe('The engine', () => {
       expect(engine.onPreUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreDraw overriden safely', () => {
+    it('can have onPreDraw overridden safely', () => {
       engine.onPreDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
@@ -396,7 +396,7 @@ describe('The engine', () => {
       expect(engine.onPreDraw).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPostDraw overriden safely', () => {
+    it('can have onPostDraw overridden safely', () => {
       engine.onPostDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);

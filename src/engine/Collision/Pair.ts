@@ -51,14 +51,14 @@ export class Pair {
   }
 
   /**
-   * Runs the collison intersection logic on the members of this pair
+   * Runs the collision intersection logic on the members of this pair
    */
   public collide() {
     this.collision = this.colliderA.collide(this.colliderB);
   }
 
   /**
-   * Resovles the collision body position and velocity if a collision occured
+   * Resolves the collision body position and velocity if a collision occurred
    */
   public resolve(strategy: CollisionResolutionStrategy) {
     if (this.collision) {

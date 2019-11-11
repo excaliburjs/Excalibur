@@ -155,7 +155,7 @@ export class ActionContext {
   }
 
   /**
-   * This method will scale an actor by an amount relative to the current scale at a certin speed in scale units/sec
+   * This method will scale an actor by an amount relative to the current scale at a certain speed in scale units/sec
    * and return back the actor. This method is part of the
    * actor 'Action' fluent API allowing action chaining.
    * @param sizeOffsetX   The scaling factor to apply on X axis

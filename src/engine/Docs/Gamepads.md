@@ -88,7 +88,7 @@ engine.input.gamepads.at(0).on('button', function(ev) {
 ## Responding to axis input
 
 [[Axes|Gamepad axes]] typically have values between -1 and 1, but even idle
-sticks can still propogate very small values depending on the quality and age
+sticks can still propagate very small values depending on the quality and age
 of a controller. For this reason, you can set [[Gamepads.MinAxisMoveThreshold]]
 to set the (absolute) threshold after which Excalibur will start publishing `axis` events.
 By default it is set to a value that normally will not throw events if a stick is idle.

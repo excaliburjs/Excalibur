@@ -29,7 +29,7 @@ describe('An Actor Group', () => {
     group.add(new ex.Actor());
     expect(group.getMembers().length).toBe(1);
 
-    // we are going to add this actor muliple times to the group, the number
+    // we are going to add this actor multiple times to the group, the number
     // of members should only increase to 2
     const dupActor = new ex.Actor();
     group.add(dupActor);

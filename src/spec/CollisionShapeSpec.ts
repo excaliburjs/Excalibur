@@ -168,7 +168,7 @@ describe('Collision Shape', () => {
       // the normal should always point away from bodyA
       expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
 
-      // the nomral should always be length 1
+      // the normal should always be length 1
       expect(contact.normal.distance()).toBeCloseTo(1, 0.001);
 
       expect(contact.point.x).toBe(10);
@@ -205,7 +205,7 @@ describe('Collision Shape', () => {
       // the normal should always point away from bodyA
       expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
 
-      // the nomral should always be length 1
+      // the normal should always be length 1
       expect(contact.normal.distance()).toBeCloseTo(1, 0.001);
 
       expect(contact.point.x).toBe(10);
@@ -246,7 +246,7 @@ describe('Collision Shape', () => {
       // the normal should always point away from bodyA
       expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
 
-      // the nomral should always be length 1
+      // the normal should always be length 1
       expect(contact.normal.distance()).toBeCloseTo(1, 0.001);
 
       expect(contact.point.x).toBe(5);
@@ -273,7 +273,7 @@ describe('Collision Shape', () => {
       // the normal should always point away from bodyA
       expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
 
-      // the nomral should always be length 1
+      // the normal should always be length 1
       expect(contact.normal.distance()).toBeCloseTo(1, 0.001);
 
       expect(contact.point.x).toBe(10);
@@ -300,7 +300,7 @@ describe('Collision Shape', () => {
       // the normal should always point away from bodyA
       expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
 
-      // the nomral should always be length 1
+      // the normal should always be length 1
       expect(contact.normal.distance()).toBeCloseTo(1, 0.001);
 
       expect(contact.point.x).toBe(0);

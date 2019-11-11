@@ -238,7 +238,7 @@ describe('A scene', () => {
       initialized = true;
     });
     scene.on('activate', (evt: ex.ActivateEvent) => {
-      expect(initialized).toBe(true, 'Initilization should happen before activation');
+      expect(initialized).toBe(true, 'Initialization should happen before activation');
       done();
     });
 
@@ -251,7 +251,7 @@ describe('A scene', () => {
     let actorInitialized = false;
     scene.on('initialize', (evt) => {
       sceneInitialized = true;
-      expect(actorInitialized).toBe(true, 'Actor should be initialized before scene initilization');
+      expect(actorInitialized).toBe(true, 'Actor should be initialized before scene initialization');
     });
     const actor = new ex.Actor();
     actor.on('initialize', (evt) => {
@@ -525,7 +525,7 @@ describe('A scene', () => {
       scene = null;
     });
 
-    it('can have onInitialize overriden safely', () => {
+    it('can have onInitialize overridden safely', () => {
       let initCalled = false;
       scene.onInitialize = (engine) => {
         expect(engine).not.toBe(null);
@@ -544,7 +544,7 @@ describe('A scene', () => {
       expect(scene.onInitialize).toHaveBeenCalledTimes(1);
     });
 
-    it('can have onPostUpdate overriden safely', () => {
+    it('can have onPostUpdate overridden safely', () => {
       scene.onPostUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -560,7 +560,7 @@ describe('A scene', () => {
       expect(scene.onPostUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreUpdate overriden safely', () => {
+    it('can have onPreUpdate overridden safely', () => {
       scene.onPreUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -576,7 +576,7 @@ describe('A scene', () => {
       expect(scene.onPreUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreDraw overriden safely', () => {
+    it('can have onPreDraw overridden safely', () => {
       scene.onPreDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
@@ -592,7 +592,7 @@ describe('A scene', () => {
       expect(scene.onPreDraw).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPostDraw overriden safely', () => {
+    it('can have onPostDraw overridden safely', () => {
       scene.onPostDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);

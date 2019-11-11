@@ -64,7 +64,7 @@ export class Color {
   }
 
   /**
-   * Creates a new inscance of Color from a hex string
+   * Creates a new instance of Color from a hex string
    *
    * @param hex  CSS color string of the form #ffffff, the alpha component is optional
    */
@@ -86,7 +86,7 @@ export class Color {
   }
 
   /**
-   * Creats a new instance of Color from hsla values
+   * Creates a new instance of Color from hsla values
    *
    * @param h  Hue is represented [0-1]
    * @param s  Saturation is represented [0-1]
@@ -310,7 +310,7 @@ export class Color {
   }
 
   /**
-   * Vermillion (#FF5B31)
+   * Vermilion (#FF5B31)
    */
   public static get Vermillion(): Color {
     return Color.fromHex('#FF5B31');

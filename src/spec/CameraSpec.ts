@@ -311,7 +311,7 @@ describe('A camera', () => {
       camera = new ex.Camera();
     });
 
-    it('can have onInitialize overriden safely', () => {
+    it('can have onInitialize overridden safely', () => {
       let initCalled = false;
       camera.onInitialize = (engine) => {
         expect(engine).not.toBe(null);
@@ -329,7 +329,7 @@ describe('A camera', () => {
       expect(camera.onInitialize).toHaveBeenCalledTimes(1);
     });
 
-    it('can have onPostUpdate overriden safely', () => {
+    it('can have onPostUpdate overridden safely', () => {
       camera.onPostUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -345,7 +345,7 @@ describe('A camera', () => {
       expect(camera.onPostUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreUpdate overriden safely', () => {
+    it('can have onPreUpdate overridden safely', () => {
       camera.onPreUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);

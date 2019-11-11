@@ -91,7 +91,7 @@ the first one remains and the second one disappears.
 You can handle multi-touch by subscribing to however many pointers
 you would like to support. If a pointer doesn't yet exist, it will
 be created. You do not need to check if a pointer exists. If it does
-exist, it will propogate events, otherwise it will remain idle.
+exist, it will propagate events, otherwise it will remain idle.
 
 Excalibur does not impose a limit to the amount of pointers you can
 subscribe to, so by all means, support all 10 fingers.
