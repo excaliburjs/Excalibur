@@ -62,7 +62,7 @@
     "copy-webpack-plugin": "5.0.4",
     "css-loader": "3.2.0",
     "eslint": "6.6.0",
-    "eslint-plugin-jsdoc": "15.12.1",
+    "eslint-plugin-jsdoc": "17.1.2",
     "excalibur-jasmine": "0.0.1",
     "grunt": "1.0.4",
     "grunt-build-control": "0.7.1",
