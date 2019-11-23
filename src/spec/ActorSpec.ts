@@ -586,7 +586,7 @@ describe('A game actor', () => {
     expect(actor.draw).not.toHaveBeenCalled();
   });
 
-  it('does not incure pointer overhead until an event is registered', () => {
+  it('does not incur pointer overhead until an event is registered', () => {
     expect(actor.enableCapturePointer).toBeFalsy();
     expect(actor.capturePointer.captureMoveEvents).toBeFalsy();
     actor.on('pointerdown', () => {
@@ -798,7 +798,7 @@ describe('A game actor', () => {
     expect(actor.isKilled()).toBeFalsy();
   });
 
-  it('fires intialize event when before the first update', (done) => {
+  it('fires initialize event when before the first update', (done) => {
     const actor = new ex.Actor();
     actor.on('initialize', () => {
       expect(true).toBe(true);
@@ -869,13 +869,13 @@ describe('A game actor', () => {
       width: 10,
       height: 10
     });
-    let predrawedFired = false;
+    let predrawFired = false;
 
     actor.on('predraw', () => {
-      predrawedFired = true;
+      predrawFired = true;
     });
     actor.on('postdraw', () => {
-      expect(predrawedFired).toBe(true);
+      expect(predrawFired).toBe(true);
       done();
     });
 
@@ -1234,7 +1234,7 @@ describe('A game actor', () => {
     });
   });
 
-  it('should not corrupt shared sprite ctxs', (done) => {
+  it('should not corrupt shared sprite contexts', (done) => {
     engine = TestUtils.engine({
       width: 62,
       height: 64,
@@ -1333,7 +1333,7 @@ describe('A game actor', () => {
       });
     });
 
-    it('can have onInitialize overriden safely', () => {
+    it('can have onInitialize overridden safely', () => {
       let initCalled = false;
       actor.on('initialize', () => {
         initCalled = true;
@@ -1353,7 +1353,7 @@ describe('A game actor', () => {
       expect(actor.isInitialized).toBe(true);
     });
 
-    it('can have onPostUpdate overriden safely', () => {
+    it('can have onPostUpdate overridden safely', () => {
       actor.onPostUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -1368,7 +1368,7 @@ describe('A game actor', () => {
       expect(actor.onPostUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreUpdate overriden safely', () => {
+    it('can have onPreUpdate overridden safely', () => {
       actor.onPreUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -1383,7 +1383,7 @@ describe('A game actor', () => {
       expect(actor.onPreUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreDraw overriden safely', () => {
+    it('can have onPreDraw overridden safely', () => {
       actor.onPreDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
@@ -1398,7 +1398,7 @@ describe('A game actor', () => {
       expect(actor.onPreDraw).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPostDraw overriden safely', () => {
+    it('can have onPostDraw overridden safely', () => {
       actor.onPostDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
@@ -1413,7 +1413,7 @@ describe('A game actor', () => {
       expect(actor.onPostDraw).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreKill overriden safely', () => {
+    it('can have onPreKill overridden safely', () => {
       engine.add(actor);
       actor.onPreKill = (scene) => {
         expect(scene).not.toBe(null);
@@ -1427,7 +1427,7 @@ describe('A game actor', () => {
       expect(actor.onPreKill).toHaveBeenCalledTimes(1);
     });
 
-    it('can have onPostKill overriden safely', () => {
+    it('can have onPostKill overridden safely', () => {
       engine.add(actor);
       actor.onPreKill = (scene) => {
         expect(scene).not.toBe(null);

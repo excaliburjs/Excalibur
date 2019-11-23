@@ -10,7 +10,7 @@ import { Shape } from './Shape';
 
 export interface BodyOptions {
   /**
-   * Optionally the actory associated with this body
+   * Optionally the actor associated with this body
    */
   actor?: Actor;
   /**
@@ -99,7 +99,7 @@ export class Body implements Clonable<Body> {
   public oldVel: Vector = new Vector(0, 0);
 
   /**
-   * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may
+   * The current acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may
    * be useful to simulate a gravitational effect.
    */
   public acc: Vector = new Vector(0, 0);

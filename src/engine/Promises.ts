@@ -127,7 +127,7 @@ export class Promise<T> implements PromiseLike<T> {
     if (successCallback) {
       this._successCallbacks.push(successCallback);
 
-      // If the promise is already resovled call immediately
+      // If the promise is already resolved call immediately
       if (this.state() === PromiseState.Resolved) {
         try {
           successCallback.call(this, this._value);

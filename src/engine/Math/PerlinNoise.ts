@@ -25,7 +25,7 @@ export interface PerlinOptions {
    */
   octaves?: number;
   /**
-   * Frequency to use when generating the noise, the higher the number the more quickly the pattern will oscilate. Another way
+   * Frequency to use when generating the noise, the higher the number the more quickly the pattern will oscillate. Another way
    * to think about this is that it is like "zooming" out from an infinite pattern determined by the seed.
    */
   frequency?: number;
@@ -35,7 +35,7 @@ export interface PerlinOptions {
   amplitude?: number;
   /**
    * The persistance determines how quickly the amplitude will drop off, a high degree of persistance results in smoother patterns,
-   * a low degree of persistance generates spikey patterns.
+   * a low degree of persistance generates spiky patterns.
    */
   persistance?: number;
 }
@@ -315,7 +315,7 @@ export class PerlinGenerator {
 
   /**
    * The persistance determines how quickly the amplitude will drop off, a high degree of persistance results in smoother patterns,
-   * a low degree of persistance generates spikey patterns.
+   * a low degree of persistance generates spiky patterns.
    */
   public persistance: number;
 
@@ -325,7 +325,7 @@ export class PerlinGenerator {
   public amplitude: number;
 
   /**
-   * Frequency to use when generating the noise, the higher the number the more quickly the pattern will oscilate. Another way
+   * Frequency to use when generating the noise, the higher the number the more quickly the pattern will oscillate. Another way
    * to think about this is that it is like "zooming" out from an infinite pattern determined by the seed.
    */
   public frequency: number;
@@ -399,7 +399,7 @@ export class PerlinGenerator {
   }
 
   /**
-   * Generates a list starting at 0 and ending at 1 of contious perlin noise, by default the step is 1/length;
+   * Generates a list starting at 0 and ending at 1 of continuous perlin noise, by default the step is 1/length;
    *
    */
   public sequence(length: number, step?: number): number[] {

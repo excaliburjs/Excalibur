@@ -38,7 +38,7 @@ describe('A CollisionContact', () => {
     expect(cc).not.toBe(null);
   });
 
-  it('can reslove in the Box system', () => {
+  it('can resolve in the Box system', () => {
     actorB.pos.x = 19;
     const cc = new ex.CollisionContact(
       actorA.body.collider,
@@ -82,7 +82,7 @@ describe('A CollisionContact', () => {
     expect(emittedB).toBe(true);
   });
 
-  it('can reslove in the Dynamic system', () => {
+  it('can resolve in the Dynamic system', () => {
     expect(actorA.pos.x).toBe(0, 'Actor A should be y=10');
     expect(actorA.pos.y).toBe(0, 'Actor A should be y=0');
     expect(actorB.pos.x).toBe(20, 'Actor B should be x=20');

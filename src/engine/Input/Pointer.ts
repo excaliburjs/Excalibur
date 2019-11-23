@@ -621,7 +621,7 @@ export class Pointers extends Class {
   private _propagateWheelPointerEvent(actor: Actor, wheelEvent: WheelEvent) {
     actor.emit('pointerwheel', wheelEvent);
 
-    // Recurse and propogate
+    // Recurse and propagate
     if (wheelEvent.bubbles && actor.parent) {
       this._propagateWheelPointerEvent(actor.parent, wheelEvent);
     }
@@ -935,7 +935,7 @@ export class Pointer extends Class {
   }
 
   /**
-   * Checks if Pointer has a specific Actor in ActrorsUnderPointer list.
+   * Checks if Pointer has a specific Actor in ActorsUnderPointer list.
    * @param actor An Actor for check;
    */
   public hasActorUnderPointerInList(actor: Actor): boolean {

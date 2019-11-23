@@ -92,7 +92,7 @@ describe('A collection', () => {
     expect(collection.count()).toBe(19);
   });
 
-  it('can have elements interted into it', () => {
+  it('can have elements inserted into it', () => {
     for (let i = 0; i < 20; i++) {
       collection.push(i);
     }

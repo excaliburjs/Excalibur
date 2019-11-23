@@ -405,7 +405,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * Sets the the old scale of the acotr last frame
+   * Sets the the old scale of the actor last frame
    * @obsolete ex.Actor.scale will be removed in v0.24.0, set width and height directly in constructor
    */
   public set oldScale(scale: Vector) {
@@ -701,7 +701,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   /**
    * Initializes this actor and all it's child actors, meant to be called by the Scene before first update not by users of Excalibur.
    *
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * @internal
    */
@@ -794,7 +794,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    *
    * This event is useful for building in custom collision resolution logic in Passive-Passive or
    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of
-   * richochet of the ball depending on which side of the paddle you hit.
+   * ricochet of the ball depending on which side of the paddle you hit.
    */
   public on(eventName: Events.precollision, handler: (event: PreCollisionEvent) => void): void;
   /**
@@ -861,7 +861,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    *
    * This event is useful for building in custom collision resolution logic in Passive-Passive or
    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of
-   * richochet of the ball depending on which side of the paddle you hit.
+   * ricochet of the ball depending on which side of the paddle you hit.
    */
   public once(eventName: Events.precollision, handler: (event: PreCollisionEvent) => void): void;
   /**
@@ -928,7 +928,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    *
    * This event is useful for building in custom collision resolution logic in Passive-Passive or
    * Active-Passive scenarios. For example in a breakout game you may want to tweak the angle of
-   * richochet of the ball depending on which side of the paddle you hit.
+   * ricochet of the ball depending on which side of the paddle you hit.
    */
   public off(eventName: Events.precollision, handler?: (event: PreCollisionEvent) => void): void;
   /**
@@ -970,7 +970,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   // #endregion
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _prekill handler for [[onPreKill]] lifecycle event
    * @internal
@@ -990,7 +990,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _prekill handler for [[onPostKill]] lifecycle event
    * @internal
@@ -1365,7 +1365,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * Returns the actors unrotated geometry in world coordinates
+   * Returns the actor's unrotated geometry in world coordinates
    */
   @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Actor.body.collider.bounds.getPoints()' })
   public getGeometry(): Vector[] {
@@ -1455,7 +1455,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * Test whether the actor has collided with another actor, returns the intersection vector on collision. Returns
    * `null` when there is no collision;
    * @param actor The other actor to test
-   * @obsolete Actor.collides will be removed in v0.24.0, use [[Actor.bounds.interesect]] to get boudings intersection,
+   * @obsolete Actor.collides will be removed in v0.24.0, use [[Actor.bounds.intersect]] to get bounds intersection,
    * or [[Actor.body.collider.collide]] to collide with another collider
    */
   @obsolete({ message: 'Actor.collides will be removed  in v0.24.0', alternateMethod: 'Actor.bounds.intersect or Actor.' })
@@ -1578,7 +1578,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
    * @internal
@@ -1589,7 +1589,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
    * @internal
@@ -1668,7 +1668,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _predraw handler for [[onPreDraw]] lifecycle event
    * @internal
@@ -1679,7 +1679,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
    * @internal

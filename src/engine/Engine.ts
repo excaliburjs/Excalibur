@@ -962,7 +962,7 @@ O|===|* >________________>\n\
   }
 
   /**
-   * Initializes the internal canvas, rendering context, displaymode, and native event listeners
+   * Initializes the internal canvas, rendering context, display mode, and native event listeners
    */
   private _initialize(options?: EngineOptions) {
     if (options.displayMode) {
@@ -981,7 +981,7 @@ O|===|* >________________>\n\
         this.setAntialiasing(this._isSmoothingEnabled);
       });
     } else if (this.displayMode === DisplayMode.Position) {
-      this._intializeDisplayModePosition(options);
+      this._initializeDisplayModePosition(options);
     }
 
     this.pageScrollPreventionMode = options.scrollPreventionMode;
@@ -1039,7 +1039,7 @@ O|===|* >________________>\n\
     // Override me
   }
 
-  private _intializeDisplayModePosition(options: EngineOptions) {
+  private _initializeDisplayModePosition(options: EngineOptions) {
     if (!options.position) {
       throw new Error('DisplayMode of Position was selected but no position option was given');
     } else {
@@ -1181,7 +1181,7 @@ O|===|* >________________>\n\
    */
   private _update(delta: number) {
     if (this._isLoading) {
-      // suspend updates untill loading is finished
+      // suspend updates until loading is finished
       this._loader.update(this, delta);
       // Update input listeners
       this.input.keyboard.update();

@@ -119,7 +119,7 @@ export class Circle implements CollisionShape {
   }
 
   /**
-   * Casts a ray at the Circl shape and returns the nearest point of collision
+   * Casts a ray at the Circle shape and returns the nearest point of collision
    * @param ray
    */
   public rayCast(ray: Ray, max: number = Infinity): Vector {
