@@ -215,9 +215,9 @@ var player = new ex.Actor({
   pos: new ex.Vector(100, -200),
   width: 32,
   height: 96,
-  enableCapturePointer: true
+  enableCapturePointer: true,
+  collisionType: ex.CollisionType.Active
 });
-follower.body.collider.type = ex.CollisionType.Active;
 follower.actions
   .meet(player, 60)
   .asPromise()
