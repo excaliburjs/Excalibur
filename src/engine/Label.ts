@@ -199,7 +199,7 @@ export class LabelImpl extends Actor {
    * over a css font.
    */
   constructor(textOrConfig?: string | Partial<LabelImpl>, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
-    super(textOrConfig && typeof textOrConfig === 'object' ? { x: textOrConfig.x, y: textOrConfig.y } : { x: x, y: y });
+    super(textOrConfig && typeof textOrConfig === 'object' ? { pos: textOrConfig.pos } : { pos: new Vector(x, y) });
 
     let text = '';
     if (textOrConfig && typeof textOrConfig === 'object') {

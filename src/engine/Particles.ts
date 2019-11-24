@@ -295,12 +295,12 @@ export class ParticleEmitterImpl extends Actor {
    */
   public focusAccel: number = 1;
   /*
-    * Gets or sets the optional starting size for the particles
-    */
+   * Gets or sets the optional starting size for the particles
+   */
   public startSize: number = null;
   /*
-    * Gets or sets the optional ending size for the particles
-    */
+   * Gets or sets the optional ending size for the particles
+   */
   public endSize: number = null;
 
   /**
@@ -354,7 +354,7 @@ export class ParticleEmitterImpl extends Actor {
    * @param height  The height of the emitter
    */
   constructor(xOrConfig?: number | ParticleEmitterArgs, y?: number, width?: number, height?: number) {
-    super(typeof xOrConfig === 'number' ? { x: xOrConfig, y: y, width: width, height: height } : xOrConfig);
+    super(typeof xOrConfig === 'number' ? { pos: new Vector(xOrConfig, y), width: width, height: height } : xOrConfig);
     this._particlesToEmit = 0;
     this.body.collider.type = CollisionType.PreventCollision;
     this.particles = new Util.Collection<Particle>();

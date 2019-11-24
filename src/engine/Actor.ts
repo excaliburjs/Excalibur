@@ -349,7 +349,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public children: Actor[] = [];
 
-  private _collisionHandlers: { [key: string]: { (actor: Actor): void }[] } = {};
   private _isInitialized: boolean = false;
   public frames: { [key: string]: Drawable } = {};
   private _effectsDirty: boolean = false;

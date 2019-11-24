@@ -3,7 +3,6 @@ import { Actor } from '../Actor';
 import { Collider } from './Collider';
 import { CollisionType } from './CollisionType';
 import { Physics } from '../Physics';
-import { obsolete } from '../Util/Decorators';
 import { PreCollisionEvent, PostCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
 import { Clonable } from '../Interfaces/Clonable';
 import { Shape } from './Shape';

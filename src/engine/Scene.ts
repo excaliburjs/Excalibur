@@ -18,7 +18,6 @@ import { DynamicTreeCollisionBroadphase } from './Collision/DynamicTreeCollision
 import { CollisionBroadphase } from './Collision/CollisionResolver';
 import { SortedList } from './Util/SortedList';
 import { Engine } from './Engine';
-import { Group } from './Group';
 import { TileMap } from './TileMap';
 import { Camera } from './Camera';
 import { Actor } from './Actor';
@@ -28,7 +27,6 @@ import * as Util from './Util/Util';
 import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
-import { obsolete } from './Util/Decorators';
 import { Body } from './Collision/Body';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in

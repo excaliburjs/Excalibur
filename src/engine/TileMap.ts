@@ -8,7 +8,6 @@ import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
 import { Configurable } from './Configurable';
-import { obsolete } from './Util/Decorators';
 
 /**
  * @hidden

@@ -168,7 +168,7 @@ export class MoveBy implements Action {
       this._started = true;
       this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
       this._end = this._start.add(this._offset);
-      this._distance = this._offset.magnitude();
+      this._distance = this._offset.size;
       this._dir = this._end.sub(this._start).normalize();
     }
 

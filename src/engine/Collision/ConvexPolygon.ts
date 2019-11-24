@@ -6,7 +6,6 @@ import { CollisionJumpTable } from './CollisionJumpTable';
 import { Circle } from './Circle';
 import { CollisionContact } from './CollisionContact';
 import { CollisionShape } from './CollisionShape';
-import { Body } from './Body';
 import { Vector, Line, Ray, Projection } from '../Algebra';
 import { Collider } from './Collider';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';

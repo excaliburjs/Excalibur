@@ -215,7 +215,7 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
 
       const ray = new ex.Ray(new ex.Vector(-10, 5), ex.Vector.Right);
 
-      expect(bb.rayCast(ray, ray.dir.magnitude())).toBe(false);
+      expect(bb.rayCast(ray, ray.dir.size)).toBe(false);
     });
 
     it('ray cast when the origin is on the boundary', () => {
