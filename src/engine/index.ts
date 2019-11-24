@@ -10,7 +10,7 @@ polyfill();
 // that will be exposed as the `ex` global variable.
 
 export * from './Engine';
-export { Actor, ActorArgs as IActorArgs } from './Actor';
+export { Actor, ActorArgs } from './Actor';
 export { CollisionType } from './Collision/CollisionType';
 export * from './Algebra';
 export * from './Camera';
@@ -20,7 +20,6 @@ export * from './Debug';
 export * from './EventDispatcher';
 export * from './Events/MediaEvents';
 export * from './Events';
-export * from './Group';
 export { Label, FontStyle, FontUnit, TextAlign, BaseAlign } from './Label';
 export * from './Loader';
 export { Particle, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterType } from './Particles';
@@ -65,6 +64,6 @@ export * from './Util/Log';
 export * from './Util/SortedList';
 
 // ex.Deprecated
-import * as deprecated from './Deprecated';
-export { deprecated as Deprecated };
-export * from './Deprecated';
+// import * as deprecated from './Deprecated';
+// export { deprecated as Deprecated };
+// export * from './Deprecated';

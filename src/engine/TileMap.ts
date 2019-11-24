@@ -8,7 +8,6 @@ import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
 import { Configurable } from './Configurable';
-import { obsolete } from './Util/Decorators';
 
 /**
  * @hidden
@@ -341,24 +340,8 @@ export class CellImpl {
     this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
   }
 
-  /**
-   * Returns the bounding box for this cell
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.bounds' })
-  public getBounds() {
-    return this._bounds;
-  }
-
   public get bounds() {
     return this._bounds;
-  }
-
-  /**
-   * Gets the center coordinate of this cell
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.center' })
-  public getCenter(): Vector {
-    return new Vector(this.x + this.width / 2, this.y + this.height / 2);
   }
 
   public get center(): Vector {

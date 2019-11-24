@@ -6,7 +6,6 @@ import { CollisionJumpTable } from './CollisionJumpTable';
 import { Circle } from './Circle';
 import { CollisionContact } from './CollisionContact';
 import { CollisionShape } from './CollisionShape';
-import { Body } from './Body';
 import { Vector, Line, Ray, Projection } from '../Algebra';
 import { Collider } from './Collider';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
@@ -29,11 +28,6 @@ export interface ConvexPolygonOptions {
    * Collider to associate optionally with this shape
    */
   collider?: Collider;
-  /**
-   * @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
-   */
-
-  body?: Body;
 }
 
 /**
@@ -45,11 +39,6 @@ export interface ConvexPolygonOptions {
 export class ConvexPolygon implements CollisionShape {
   public offset: Vector;
   public points: Vector[];
-
-  /**
-   * @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
-   */
-  public body: Body;
 
   /**
    * Collider associated with this shape
@@ -66,13 +55,6 @@ export class ConvexPolygon implements CollisionShape {
     this.points = (winding ? options.points.reverse() : options.points) || [];
     this.collider = this.collider = options.collider || null;
 
-    // @obsolete Remove next release in v0.24.0, code exists for backwards compat
-    if (options.body) {
-      this.collider = options.body.collider;
-      this.body = this.collider.body;
-    }
-    // ==================================
-
     // calculate initial transformation
     this._calculateTransformation();
   }
@@ -84,8 +66,7 @@ export class ConvexPolygon implements CollisionShape {
     return new ConvexPolygon({
       offset: this.offset.clone(),
       points: this.points.map((p) => p.clone()),
-      collider: null,
-      body: null
+      collider: null
     });
   }
 
@@ -428,9 +409,3 @@ export class ConvexPolygon implements CollisionShape {
     ctx.stroke();
   }
 }
-
-/**
- * @obsolete Use [[ConvexPolygonOptions]], PolygonAreaOptions will be removed in v0.24.0
- */
-export interface PolygonAreaOptions extends ConvexPolygonOptions {}
-export class PolygonArea extends ConvexPolygon {}

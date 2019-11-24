@@ -10,7 +10,7 @@ describe('A CollisionContact', () => {
     colliderA.type = ex.CollisionType.Active;
     colliderA.shape = new ex.Circle({
       radius: 10,
-      body: actorA.body
+      collider: actorA.body.collider
     });
 
     actorB = new ex.Actor(20, 0, 20, 20);
@@ -19,7 +19,7 @@ describe('A CollisionContact', () => {
 
     colliderB.shape = new ex.Circle({
       radius: 10,
-      body: actorB.body
+      collider: actorB.body.collider
     });
   });
 

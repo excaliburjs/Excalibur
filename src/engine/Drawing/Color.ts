@@ -160,8 +160,9 @@ export class Color {
   /**
    * Multiplies a color by another, results in a darker color
    * @param color
+   * @obsolete Alias for incorrect spelling used in older versions, use multiply instead, will be removed in v0.25.0
    */
-  @obsolete({ message: 'Alias for incorrect spelling used in older versions, use multiply instead' })
+  @obsolete({ message: 'Alias for incorrect spelling used in older versions, use multiply instead, will be removed in v0.25.0' })
   public mulitiply(color: Color): Color {
     return this.multiply(color);
   }
@@ -329,6 +330,7 @@ export class Color {
 
   /**
    * Vermilion (#FF5B31)
+   * @obsolete Alias for incorrect spelling used in older versions, use multiply instead, will be removed in v0.25.0
    */
   @obsolete({
     message: 'Alias for incorrect spelling used in older versions',

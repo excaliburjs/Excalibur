@@ -99,8 +99,8 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
 
         // Maximum travel distance next frame
         const updateDistance =
-          collider.body.vel.magnitude() * seconds + // velocity term
-          collider.body.acc.magnitude() * 0.5 * seconds * seconds; // acc term
+          collider.body.vel.size * seconds + // velocity term
+          collider.body.acc.size * 0.5 * seconds * seconds; // acc term
 
         // Find the minimum dimension
         const minDimension = Math.min(collider.bounds.height, collider.bounds.width);
@@ -127,7 +127,7 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
               const hitPoint = other.collider.shape.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
               if (hitPoint) {
                 const translate = hitPoint.sub(origin);
-                if (translate.magnitude() < minTranslate.magnitude()) {
+                if (translate.size < minTranslate.size) {
                   minTranslate = translate;
                   minBody = other;
                 }
