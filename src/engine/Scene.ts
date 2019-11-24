@@ -66,18 +66,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public tileMaps: TileMap[] = [];
 
   /**
-   * The [[Group]]s in the scene, if any
-   */
-  @obsolete({ message: 'ex.Group will be deprecated in v0.24.0' })
-  public get groups() {
-    return this._groups;
-  }
-  public set groups(groups: { [key: string]: Group }) {
-    this._groups = groups;
-  }
-  private _groups: { [key: string]: Group } = {};
-
-  /**
    * Access to the Excalibur engine
    */
   private _engine: Engine;
@@ -708,42 +696,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public isTimerActive(timer: Timer): boolean {
     return this._timers.indexOf(timer) > -1 && !timer.complete;
-  }
-
-  /**
-   * Creates and adds a [[Group]] to the scene with a name
-   */
-  @obsolete({ message: 'ex.Group will be deprecated in v0.24.0' })
-  public createGroup(name: string): Group {
-    return new Group(name, this);
-  }
-
-  /**
-   * Returns a [[Group]] by name
-   */
-  @obsolete({ message: 'ex.Group will be deprecated in v0.24.0' })
-  public getGroup(name: string): Group {
-    return this.groups[name];
-  }
-
-  /**
-   * Removes a [[Group]] by name
-   */
-  public removeGroup(name: string): void;
-
-  /**
-   * Removes a [[Group]] by reference
-   */
-  public removeGroup(group: Group): void;
-  @obsolete({ message: 'ex.Group will be deprecated in v0.24.0' })
-  public removeGroup(group: any): void {
-    if (typeof group === 'string') {
-      delete this.groups[group];
-    } else if (group instanceof Group) {
-      delete this.groups[group.name];
-    } else {
-      this._logger.error('Invalid arguments to removeGroup', group);
-    }
   }
 
   /**

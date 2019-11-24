@@ -131,24 +131,24 @@ export class Body implements Clonable<Body> {
 
   /**
    * The scale vector of the actor
-   * @obsolete ex.Body.scale will be removed in v0.24.0
+   * @obsolete ex.Body.scale will be removed in v0.25.0
    */
   public scale: Vector = Vector.One;
 
   /**
    * The scale of the actor last frame
-   * @obsolete ex.Body.scale will be removed in v0.24.0
+   * @obsolete ex.Body.scale will be removed in v0.25.0
    */
   public oldScale: Vector = Vector.One;
 
   /**
    * The x scalar velocity of the actor in scale/second
-   * @obsolete ex.Body.scale will be removed in v0.24.0
+   * @obsolete ex.Body.scale will be removed in v0.25.0
    */
   public sx: number = 0; //scale/sec
   /**
    * The y scalar velocity of the actor in scale/second
-   * @obsolete ex.Body.scale will be removed in v0.24.0
+   * @obsolete ex.Body.scale will be removed in v0.25.0
    */
   public sy: number = 0; //scale/sec
 
@@ -242,14 +242,6 @@ export class Body implements Clonable<Body> {
   }
 
   /**
-   * @obsolete Body.useBoxCollision will be removed in v0.24.0 use [[Body.useBoxCollider]]
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useBoxCollider' })
-  public useBoxCollision(center: Vector = Vector.Zero) {
-    this.useBoxCollider(this.actor.width, this.actor.height, this.actor.anchor, center);
-  }
-
-  /**
    * Sets up a [[ConvexPolygon|convex polygon]] collision geometry based on a list of of points relative
    *  to the anchor of the associated actor
    * of this physics body.
@@ -264,14 +256,6 @@ export class Body implements Clonable<Body> {
   }
 
   /**
-   * @obsolete Body.usePolygonCollision will be removed in v0.24.0 use [[Body.usePolygonCollider]]
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.usePolygonCollider' })
-  public usePolygonCollision(points: Vector[], center: Vector = Vector.Zero) {
-    this.usePolygonCollider(points, center);
-  }
-
-  /**
    * Sets up a [[Circle|circle collision geometry]] with a specified radius in pixels.
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
@@ -279,14 +263,6 @@ export class Body implements Clonable<Body> {
   public useCircleCollider(radius: number, center: Vector = Vector.Zero): Collider {
     this.collider.shape = Shape.Circle(radius, center);
     return this.collider;
-  }
-
-  /**
-   * @obsolete Body.useCircleCollision will be removed in v0.24.0, use [[Body.useCircleCollider]]
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useCircleCollider' })
-  public useCircleCollision(radius?: number, center: Vector = Vector.Zero) {
-    this.useCircleCollider(radius, center);
   }
 
   /**
@@ -298,14 +274,6 @@ export class Body implements Clonable<Body> {
   public useEdgeCollider(begin: Vector, end: Vector): Collider {
     this.collider.shape = Shape.Edge(begin, end);
     return this.collider;
-  }
-
-  /**
-   * @obsolete Body.useEdgeCollision will be removed in v0.24.0, use [[Body.useEdgeCollider]]
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useEdgeCollider' })
-  public useEdgeCollision(begin: Vector, end: Vector) {
-    this.useEdgeCollider(begin, end);
   }
 
   // TODO remove this, eventually events will stay local to the thing they are around

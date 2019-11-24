@@ -103,14 +103,6 @@ export class BoundingBox {
   /**
    * Returns the calculated width of the bounding box
    */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.width' })
-  public getWidth() {
-    return this.width;
-  }
-
-  /**
-   * Returns the calculated width of the bounding box
-   */
   public get width() {
     return this.right - this.left;
   }
@@ -118,24 +110,8 @@ export class BoundingBox {
   /**
    * Returns the calculated height of the bounding box
    */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.height' })
-  public getHeight() {
-    return this.height;
-  }
-
-  /**
-   * Returns the calculated height of the bounding box
-   */
   public get height() {
     return this.bottom - this.top;
-  }
-
-  /**
-   * Returns the center of the bounding box
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.center' })
-  public getCenter(): Vector {
-    return new Vector((this.left + this.right) / 2, (this.top + this.bottom) / 2);
   }
 
   /**
@@ -418,20 +394,6 @@ export class BoundingBox {
   public intersectWithSide(bb: BoundingBox): Side {
     const intersect = this.intersect(bb);
     return BoundingBox.getSideFromIntersection(intersect);
-  }
-
-  /**
-   * Test wether this bounding box collides with another returning,
-   * the intersection vector that can be used to resolve the collision. If there
-   * is no collision null is returned.
-   *
-   * @returns A Vector in the direction of the current BoundingBox
-   * @param boundingBox  Other collidable to test
-   * @obsolete BoundingBox.collides will be removed in v0.24.0, use BoundingBox.intersect
-   */
-  @obsolete({ message: 'BoundingBox.collides will be removed in v0.24.0', alternateMethod: 'BoundingBox.intersect' })
-  public collides(boundingBox: BoundingBox): Vector {
-    return this.intersect(boundingBox);
   }
 
   /* istanbul ignore next */

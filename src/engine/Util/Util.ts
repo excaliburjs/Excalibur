@@ -237,13 +237,6 @@ export function getOppositeSide(side: Side) {
 }
 
 /**
- * @obsolete use Util.getSideFromDirection
- */
-export function getSideFromVector(direction: Vector) {
-  return getSideFromDirection(direction);
-}
-
-/**
  * Returns the side in the direction of the vector supplied
  * @param direction Vector to check
  */

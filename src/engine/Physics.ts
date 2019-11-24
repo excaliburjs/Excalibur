@@ -158,7 +158,7 @@ export class Physics {
   public static dynamicTreeVelocityMultiplier = 2;
 
   @obsolete({
-    message: 'Alias for incorrect spelling used in older versions',
+    message: 'Alias for incorrect spelling used in older versions, will be removed in v0.25.0',
     alternateMethod: 'dynamicTreeVelocityMultiplier'
   })
   public static get dynamicTreeVelocityMultiplyer() {
