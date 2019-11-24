@@ -14,7 +14,7 @@ var blockSprite = blockTexture.asSprite();
 blockSprite.scale.setTo(0.2, 0.2);
 
 var player = new ex.Actor(width / 2, height / 2, 30, 30, ex.Color.Cyan);
-player.collisionType = ex.CollisionType.Fixed;
+player.body.collider.type = ex.CollisionType.Fixed;
 player.body.collider.group = ex.CollisionGroupManager.create('player');
 engine.currentScene.add(player);
 
@@ -23,7 +23,7 @@ for (var i = 0; i < numActors; i++) {
 
   actor.addDrawing('default', blockSprite.clone());
 
-  actor.collisionType = ex.CollisionType.Active;
+  actor.body.collider.type = ex.CollisionType.Active;
   actor.body.collider.group = blockGroup;
   actor.on('postupdate', function(e: ex.PostUpdateEvent) {
     if (this.pos.x < 0) {
