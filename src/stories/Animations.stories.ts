@@ -10,7 +10,7 @@ export default {
 export const multipleFrames: Story = withEngine(async (game) => {
   const playerTexture = new Texture(animationSprite);
 
-  const player = new Actor(game.halfCanvasWidth, game.halfCanvasHeight, 100, 30, Color.Red);
+  const player = new Actor(game.currentScene.camera.x, game.currentScene.camera.y, 100, 30, Color.Red);
   player.anchor.setTo(0.5, 0.5);
   const spritesheet = new SpriteSheet(playerTexture, 3, 1, 100, 100);
   const animation = spritesheet.getAnimationForAll(game, 1500);

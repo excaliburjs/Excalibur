@@ -32,6 +32,7 @@
     "travis": "grunt travis",
     "visual": "start-storybook",
     "sandbox": "grunt sandbox",
+    "legacy-visual": "grunt visual",
     "start": "grunt watch",
     "test": "karma start",
     "apidocs": "grunt apidocs",
