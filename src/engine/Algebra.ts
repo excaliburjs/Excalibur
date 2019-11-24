@@ -1,6 +1,7 @@
 import { Engine } from './Engine';
 import * as Util from './Util/Util';
 import { Clonable } from './Interfaces/Clonable';
+import { obsolete } from './Util/Decorators';
 
 /**
  * A 2D vector on a plane.
@@ -126,6 +127,7 @@ export class Vector implements Clonable<Vector> {
    * The magnitude (size) of the Vector
    * @obsolete magnitude will be removed in favour of '.size' in version 0.25.0
    */
+  @obsolete({ message: 'will be removed in favour of `.size` in version 0.25.0' })
   public magnitude(): number {
     return this.distance();
   }
