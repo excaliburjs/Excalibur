@@ -1110,10 +1110,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   // #endregion
 
-  private _getCalculatedAnchor(): Vector {
-    return new Vector(this.width * this.anchor.x, this.height * this.anchor.y);
-  }
-
   protected _reapplyEffects(drawing: Drawable) {
     drawing.removeEffect(this._opacityFx);
     drawing.addEffect(this._opacityFx);
