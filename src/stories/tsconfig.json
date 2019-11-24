@@ -6,7 +6,7 @@
     "rootDirs": [".", "../engine"],
     "declaration": false,
     "outDir": ".",
-    "target": "es2015"
+    "target": "es5"
   },
   "include": ["**/*", "../engine/*.d.ts"],
   "exclude": []

@@ -15,7 +15,9 @@ export const fade: Story = withEngine(async (game) => {
 
   await game.start(ldr);
 
-  const heart = new Actor(game.halfCanvasWidth, game.halfCanvasHeight, 50, 50);
+  game.setAntialiasing(false);
+  game.currentScene.camera.z = 4;
+  const heart = new Actor(game.currentScene.camera.x, game.currentScene.camera.y, 50, 50);
   heart.addDrawing(hrt);
 
   heart.opacity = 0;
