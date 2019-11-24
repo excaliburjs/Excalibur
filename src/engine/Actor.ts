@@ -466,6 +466,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this._initDefaults();
 
     let shouldInitializeBody = true;
+    let collisionType = CollisionType.Passive;
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
       if (config.pos) {
@@ -486,6 +487,10 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       if (config.anchor) {
         this.anchor = config.anchor;
       }
+
+      if (config.collisionType) {
+        collisionType = config.collisionType;
+      }
     }
 
     // Body and collider bounds are still determined by actor width/height
@@ -502,10 +507,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       });
     }
 
-    if (xOrConfig && typeof xOrConfig === 'object' && xOrConfig.collisionType) {
-      if (this.body && this.body.collider) {
-        this.body.collider.type = xOrConfig.collisionType;
-      }
+    if (this.body && this.body.collider) {
+      this.body.collider.type = collisionType;
     }
 
     // Position uses body to store values must be initialized after body
