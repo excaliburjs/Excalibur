@@ -297,7 +297,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Sets the y scale velocity of the actor in scale/second
-   * @obsolete ex.Actor.sy will be removed in v0.24.0, set width and height directly in constructor
+   * @obsolete ex.Actor.sy will be removed in v0.25.0, set width and height directly in constructor
    */
   @obsolete({ message: 'ex.Actor.sy will be removed in v0.25.0', alternateMethod: 'Set width and height directly in constructor' })
   public set sy(scalePerSecondY: number) {

@@ -544,7 +544,7 @@ export class RotateBy implements Action {
   }
 }
 
-@obsolete({ message: 'ex.Action.ScaleTo will be removed in v0.24.0', alternateMethod: 'Set width and hight directly' })
+@obsolete({ message: 'ex.Action.ScaleTo will be removed in v0.25.0', alternateMethod: 'Set width and hight directly' })
 export class ScaleTo implements Action {
   private _actor: Actor;
   public x: number;
@@ -616,7 +616,7 @@ export class ScaleTo implements Action {
   }
 }
 
-@obsolete({ message: 'ex.Action.ScaleBy will be removed in v0.24.0', alternateMethod: 'Set width and hight directly' })
+@obsolete({ message: 'ex.Action.ScaleBy will be removed in v0.25.0', alternateMethod: 'Set width and hight directly' })
 export class ScaleBy implements Action {
   private _actor: Actor;
   public x: number;
