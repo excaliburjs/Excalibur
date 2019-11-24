@@ -466,8 +466,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     let shouldInitializeBody = true;
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
-      xOrConfig = config.pos ? config.pos.x : config.x;
-      y = config.pos ? config.pos.y : config.y;
+      xOrConfig = config.pos ? config.pos.x : 0;
+      y = config.pos ? config.pos.y : 0;
       width = config.width;
       height = config.height;
 
