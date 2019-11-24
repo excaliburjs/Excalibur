@@ -109,6 +109,8 @@ export enum FontStyle {
  * [[include:Constructors.md]]
  */
 export interface LabelArgs extends Partial<LabelImpl> {
+  x?: number;
+  y?: number;
   text?: string;
   bold?: boolean;
   pos?: Vector;
@@ -199,7 +201,7 @@ export class LabelImpl extends Actor {
    * over a css font.
    */
   constructor(textOrConfig?: string | Partial<LabelImpl>, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
-    super(textOrConfig && typeof textOrConfig === 'object' ? { pos: textOrConfig.pos } : { pos: new Vector(x, y) });
+    super(textOrConfig && typeof textOrConfig === 'object' ? textOrConfig : { pos: new Vector(x, y) });
 
     let text = '';
     if (textOrConfig && typeof textOrConfig === 'object') {

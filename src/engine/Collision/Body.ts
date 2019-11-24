@@ -233,9 +233,18 @@ export class Body implements Clonable<Body> {
   /**
    * Sets up a box geometry based on the current bounds of the associated actor of this physics body.
    *
+   * If no width/height are specified the body will attempt to use the associated actor's width/height.
+   *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
+  public useBoxCollider(width?: number, height?: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
+    if (width === null || width === undefined) {
+      width = this.actor ? this.actor.width : 0;
+    }
+    if (height === null || height === undefined) {
+      height = this.actor ? this.actor.height : 0;
+    }
+
     this.collider.shape = Shape.Box(width, height, anchor, center);
     return this.collider;
   }

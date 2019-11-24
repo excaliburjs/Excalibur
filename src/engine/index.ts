@@ -10,7 +10,7 @@ polyfill();
 // that will be exposed as the `ex` global variable.
 
 export * from './Engine';
-export { Actor, ActorArgs as IActorArgs } from './Actor';
+export { Actor, ActorArgs } from './Actor';
 export { CollisionType } from './Collision/CollisionType';
 export * from './Algebra';
 export * from './Camera';

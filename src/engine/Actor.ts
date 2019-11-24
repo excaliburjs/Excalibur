@@ -55,6 +55,8 @@ export function isActor(x: any): x is Actor {
  * [[include:Constructors.md]]
  */
 export interface ActorArgs extends Partial<ActorImpl> {
+  x?: number;
+  y?: number;
   width?: number;
   height?: number;
   pos?: Vector;
@@ -66,6 +68,7 @@ export interface ActorArgs extends Partial<ActorImpl> {
   color?: Color;
   visible?: boolean;
   body?: Body;
+  collisionType?: CollisionType;
 }
 
 export interface ActorDefaults {
@@ -465,8 +468,13 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     let shouldInitializeBody = true;
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
-      xOrConfig = config.pos ? config.pos.x : 0;
-      y = config.pos ? config.pos.y : 0;
+      if (config.pos) {
+        xOrConfig = config.pos ? config.pos.x : 0;
+        y = config.pos ? config.pos.y : 0;
+      } else {
+        xOrConfig = config.x || 0;
+        y = config.y || 0;
+      }
       width = config.width;
       height = config.height;
 
@@ -492,6 +500,12 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
           shape: Shape.Box(this._width, this._height, this.anchor)
         })
       });
+    }
+
+    if (xOrConfig && typeof xOrConfig === 'object' && xOrConfig.collisionType) {
+      if (this.body && this.body.collider) {
+        this.body.collider.type = xOrConfig.collisionType;
+      }
     }
 
     // Position uses body to store values must be initialized after body
