@@ -21,7 +21,7 @@ import {
   EnterViewPortEvent,
   ExitViewPortEvent
 } from './Events';
-import { PointerEvent, WheelEvent, PointerDragEvent, PointerEventName } from './Input/Pointer';
+import { PointerEvent, WheelEvent, PointerDragEvent, PointerEventName } from './Input/PointerEvents';
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { Sprite } from './Drawing/Sprite';
@@ -41,7 +41,7 @@ import * as Traits from './Traits/Index';
 import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
-import { PointerEvents } from './Interfaces/PointerEvents';
+import { PointerEvents } from './Interfaces/PointerEventHandlers';
 import { CollisionType } from './Collision/CollisionType';
 import { obsolete } from './Util/Decorators';
 import { Collider } from './Collision/Collider';

@@ -1,5 +1,5 @@
 import * as Events from '../Events';
-import { PointerEvent, WheelEvent, PointerDragEvent } from '../Input/Pointer';
+import { PointerEvent, WheelEvent, PointerDragEvent } from '../Input/PointerEvents';
 
 export interface PointerEvents {
   on(eventName: Events.pointerup, handler: (event: PointerEvent) => void): void;

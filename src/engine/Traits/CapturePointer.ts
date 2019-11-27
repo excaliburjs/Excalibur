@@ -26,6 +26,6 @@ export class CapturePointer implements Trait {
       return;
     }
 
-    engine.input.pointers.updateActorsUnderPointer(actor);
+    engine.input.pointers.checkAndUpdateActorUnderPointer(actor);
   }
 }
