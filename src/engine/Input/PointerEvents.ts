@@ -57,6 +57,10 @@ export type PointerEventName =
 export class PointerEvent extends GameEvent<Actor> {
   protected _name: string;
 
+  public get name() {
+    return this._name;
+  }
+
   /** The world coordinates of the event. */
   public get worldPos(): Vector {
     return this.coordinates.worldPos.clone();
@@ -180,12 +184,12 @@ export class PointerMoveEvent extends PointerEvent {
 
   public propagate(actor: Actor): void {
     // If the actor was under the pointer last frame, but not this one it left
-    if (this.pointer.wasActorUnderPointerLastFrame(actor) && !this.pointer.hasActorUnderPointerInList(actor)) {
-      this._onActorLeave(actor);
-      return;
-    }
+    // if (this.pointer.wasActorUnderPointer(actor) && !this.pointer.isActorUnderPointer(actor)) {
+    //   this._onActorLeave(actor);
+    //   return;
+    // }
 
-    if (this.pointer.hasActorUnderPointerInList(actor)) {
+    if (this.pointer.isActorUnderPointer(actor)) {
       this.doAction(actor);
 
       if (this.bubbles && actor.parent) {
@@ -200,30 +204,30 @@ export class PointerMoveEvent extends PointerEvent {
     }
 
     // In the case this is new
-    if (this.pointer.isActorUnderPointer(actor) && !this.pointer.wasActorUnderPointerLastFrame(actor)) {
-      this._onActorEnter(actor);
-    }
+    // if (this.pointer.checkActorUnderPointer(actor) && !this.pointer.wasActorUnderPointer(actor)) {
+    //   this._onActorEnter(actor);
+    // }
 
     if (this.pointer.isDragging && actor.capturePointer.captureDragEvents) {
       actor.eventDispatcher.emit('pointerdragmove', this);
     }
   }
 
-  private _onActorEnter(actor: Actor) {
-    const pe = createPointerEventByName('enter', this.coordinates, this.pointer, this.index, this.pointerType, this.button, this.ev);
-    pe.propagate(actor);
-    this.pointer.addActorUnderPointer(actor);
+  // private _onActorEnter(actor: Actor) {
+  //   const pe = createPointerEventByName('enter', this.coordinates, this.pointer, this.index, this.pointerType, this.button, this.ev);
+  //   pe.propagate(actor);
+  //   this.pointer.addActorUnderPointer(actor);
 
-    if (this.pointer.isDragging) {
-      this.pointer.dragTarget = actor;
-    }
-  }
+  //   if (this.pointer.isDragging) {
+  //     this.pointer.dragTarget = actor;
+  //   }
+  // }
 
-  private _onActorLeave(actor: Actor) {
-    const pe = createPointerEventByName('leave', this.coordinates, this.pointer, this.index, this.pointerType, this.button, this.ev);
-    pe.propagate(actor);
-    this.pointer.removeActorUnderPointer(actor);
-  }
+  // private _onActorLeave(actor: Actor) {
+  //   const pe = createPointerEventByName('leave', this.coordinates, this.pointer, this.index, this.pointerType, this.button, this.ev);
+  //   pe.propagate(actor);
+  //   this.pointer.removeActorUnderPointer(actor);
+  // }
 }
 
 export class PointerEnterEvent extends PointerEvent {

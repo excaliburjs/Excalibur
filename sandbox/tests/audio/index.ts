@@ -48,19 +48,17 @@ pauseBtn.on('pointerup', (evt) => {
   console.log('pause called');
   evt.stopPropagation();
 });
+
+pauseBtn.on('pointerenter', () => {
+  console.log('pointer enter - pause btn');
+});
+
+pauseBtn.on('pointerleave', () => {
+  console.log('pointer leave - pause btn');
+});
 game.add(pauseBtn);
 game.add(stopBtn);
 game.add(startBtn);
 game.add(indicator);
-
-/*game.input.keyboard.on("down", () => {
-   if (testSound.isPlaying()) {
-      testSound.pause();
-      button.color = ex.Color.Red;
-   } else {
-      testSound.play();
-      button.color = ex.Color.Green;
-   }
-});*/
 
 game.start(loader);

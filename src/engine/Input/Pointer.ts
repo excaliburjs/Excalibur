@@ -40,13 +40,16 @@ export enum PointerScope {
  * Captures and dispatches PointerEvents
  */
 export class Pointer extends Class {
+  private static _MAX_ID = 0;
+  public readonly id = Pointer._MAX_ID++;
   private _isDown: boolean = false;
   private _wasDown: boolean = false;
 
   private _actorsUnderPointer: ActorsUnderPointer = { length: 0 };
-  private _actorsUnderPointerLastFrame: ActorsUnderPointer = { length: 0 };
 
   private _actors: Actor[] = [];
+  private _actorsLastFrame: Actor[] = [];
+  private _actorsNoLongerUnderPointer: Actor[] = [];
 
   /**
    * Whether the Pointer is currently dragging.
@@ -105,7 +108,7 @@ export class Pointer extends Class {
   }
 
   /**
-   * Update the state of current pointer
+   * Update the state of current pointer, meant to be called a the end of frame
    */
   public update(): void {
     if (this._wasDown && !this._isDown) {
@@ -113,7 +116,20 @@ export class Pointer extends Class {
     } else if (!this._wasDown && this._isDown) {
       this._wasDown = true;
     }
-    this._actorsUnderPointerLastFrame = { ...this._actorsUnderPointer };
+    this._actorsLastFrame = [...this._actors];
+    this._actorsNoLongerUnderPointer = [];
+  }
+
+  /**
+   * Adds an Actor to actorsUnderPointer object.
+   * @param actor An Actor to be added;
+   */
+  public addActorUnderPointer(actor: Actor): void {
+    if (!this.isActorUnderPointer(actor)) {
+      this._actorsUnderPointer[actor.id] = actor;
+      this._actorsUnderPointer.length += 1;
+      this._actors.push(actor);
+    }
 
     // Actors under the pointer are sorted by z, ties are broken by id
     this._actors.sort((a, b) => {
@@ -125,62 +141,66 @@ export class Pointer extends Class {
   }
 
   /**
-   * Adds an Actor to actorsUnderPointer object.
-   * @param actor An Actor to be added;
-   */
-  public addActorUnderPointer(actor: Actor): void {
-    if (!this.hasActorUnderPointerInList(actor)) {
-      this._actorsUnderPointer[actor.id] = actor;
-      this._actorsUnderPointer.length += 1;
-      this._actors.push(actor);
-    }
-  }
-
-  /**
    * Removes an Actor from actorsUnderPointer object.
    * @param actor An Actor to be removed;
    */
   public removeActorUnderPointer(actor: Actor): void {
-    if (this.hasActorUnderPointerInList(actor)) {
+    if (this.isActorUnderPointer(actor)) {
       delete this._actorsUnderPointer[actor.id];
       this._actorsUnderPointer.length -= 1;
       removeItemFromArray(actor, this._actors);
+      this._actorsNoLongerUnderPointer.push(actor);
     }
   }
 
   /**
-   * Returns an Actor from actorsUnderPointer object.
-   * @param actor An Actor to be ;
+   * Returns all actors under this pointer this frame
    */
   public getActorsUnderPointer(): Actor[] {
     return this._actors;
   }
 
   /**
+   * Returns all actors that are no longer under the pointer this frame
+   */
+  public getActorsUnderPointerLastFrame(): Actor[] {
+    return this._actorsLastFrame;
+  }
+
+  /**
+   * Returns all actors relevant for events to pointer this frame
+   */
+  public getActorsForEvents(): Actor[] {
+    return this._actors.concat(this._actorsLastFrame).filter((actor, i, self) => {
+      return self.indexOf(actor) === i;
+    });
+  }
+
+  /**
    * Checks if Pointer has a specific Actor under.
    * @param actor An Actor for check;
    */
-  public isActorUnderPointer(actor: Actor): boolean {
+  public checkActorUnderPointer(actor: Actor): boolean {
     if (this.lastWorldPos) {
       return actor.contains(this.lastWorldPos.x, this.lastWorldPos.y, !Actors.isScreenElement(actor));
     }
     return false;
   }
 
-  public wasActorUnderPointerLastFrame(actor: Actor): boolean {
-    return this._actorsUnderPointerLastFrame.hasOwnProperty(actor.id.toString());
+  /**
+   * Checks if an actor was under the pointer last frame
+   * @param actor
+   */
+  public wasActorUnderPointer(actor: Actor): boolean {
+    return this._actorsLastFrame.indexOf(actor) > -1; // || !!this._actorsUnderPointerLastFrame.hasOwnProperty(actor.id.toString());
   }
 
   /**
    * Checks if Pointer has a specific Actor in ActorsUnderPointer list.
    * @param actor An Actor for check;
    */
-  public hasActorUnderPointerInList(actor: Actor): boolean {
+  public isActorUnderPointer(actor: Actor): boolean {
     return this._actorsUnderPointer.hasOwnProperty(actor.id.toString());
-  }
-
-  public captureOldActorUnderPointer() {
-    this._actorsUnderPointerLastFrame = { ...this._actorsUnderPointer };
   }
 
   private _onPointerMove(ev: PointerEvent): void {

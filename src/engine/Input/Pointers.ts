@@ -1,7 +1,16 @@
 import { Class } from '../Class';
 import { Engine, ScrollPreventionMode } from '../Engine';
 import { Pointer, PointerType } from './Pointer';
-import { PointerEvent, WheelEvent, NativePointerButton, PointerButton, WheelDeltaMode, createPointerEventByName } from './PointerEvents';
+import {
+  PointerEvent,
+  WheelEvent,
+  NativePointerButton,
+  PointerButton,
+  WheelDeltaMode,
+  createPointerEventByName,
+  PointerLeaveEvent,
+  PointerEnterEvent
+} from './PointerEvents';
 import { GameEvent } from '../Events';
 
 import * as Events from '../Events';
@@ -197,11 +206,12 @@ export class Pointers extends Class {
         capturePointer.update(actor, this._engine, 1);
       }
     }
+    this.dispatchPointerEvents();
     this.update();
   }
 
   /**
-   * Update all pointer events and pointers
+   * Update all pointer events and pointers, meant to be called at the end of frame
    */
   public update(): void {
     this._pointerUp.length = 0;
@@ -240,8 +250,7 @@ export class Pointers extends Class {
 
   public checkAndUpdateActorUnderPointer(actor: Actor) {
     for (const pointer of this._pointers) {
-      pointer.captureOldActorUnderPointer();
-      if (pointer.isActorUnderPointer(actor)) {
+      if (pointer.checkActorUnderPointer(actor)) {
         pointer.addActorUnderPointer(actor);
       } else {
         pointer.removeActorUnderPointer(actor);
@@ -251,7 +260,7 @@ export class Pointers extends Class {
 
   private _dispatchWithBubble(events: PointerEvent[]) {
     for (const evt of events) {
-      for (const actor of evt.pointer.getActorsUnderPointer()) {
+      for (const actor of evt.pointer.getActorsForEvents()) {
         evt.propagate(actor);
         if (!evt.bubbles) {
           // if the event stops bubbling part way stop processing
@@ -261,10 +270,77 @@ export class Pointers extends Class {
     }
   }
 
+  private _dispatchPointerLeaveEvents() {
+    const lastMoveEventPerPointerPerActor: { [pointerId: string]: PointerEvent } = {};
+    const pointerLeave: PointerLeaveEvent[] = [];
+
+    for (const evt of this._pointerMove) {
+      for (const actor of evt.pointer.getActorsForEvents()) {
+        // If the actor was under the pointer last frame, but not this this frame, pointer left
+        if (
+          !lastMoveEventPerPointerPerActor[evt.pointer.id + '+' + actor.id] &&
+          evt.pointer.wasActorUnderPointer(actor) &&
+          !evt.pointer.isActorUnderPointer(actor)
+        ) {
+          lastMoveEventPerPointerPerActor[evt.pointer.id + '+' + actor.id] = evt;
+          const pe = createPointerEventByName(
+            'leave',
+            new GlobalCoordinates(evt.worldPos, evt.pagePos, evt.screenPos),
+            evt.pointer,
+            evt.index,
+            evt.pointerType,
+            evt.button,
+            evt.ev
+          );
+
+          pe.propagate(actor);
+          pointerLeave.push(<PointerLeaveEvent>pe);
+        }
+      }
+    }
+    return pointerLeave;
+  }
+
+  private _dispatchPointerEnterEvents() {
+    const lastMoveEventPerPointer: { [pointerId: number]: PointerEvent } = {};
+    const pointerEnter: PointerEnterEvent[] = [];
+
+    for (const evt of this._pointerMove) {
+      for (const actor of evt.pointer.getActorsForEvents()) {
+        // If the actor was not under the pointer last frame, but it is this frame, pointer entered
+        if (
+          !lastMoveEventPerPointer[evt.pointer.id] &&
+          !evt.pointer.wasActorUnderPointer(actor) &&
+          evt.pointer.isActorUnderPointer(actor)
+        ) {
+          lastMoveEventPerPointer[evt.pointer.id] = evt;
+          const pe = createPointerEventByName(
+            'enter',
+            new GlobalCoordinates(evt.worldPos, evt.pagePos, evt.screenPos),
+            evt.pointer,
+            evt.index,
+            evt.pointerType,
+            evt.button,
+            evt.ev
+          );
+          pe.propagate(actor);
+          pointerEnter.push(<PointerEnterEvent>pe);
+          // if pointer is dragging set the drag target
+          if (evt.pointer.isDragging) {
+            evt.pointer.dragTarget = actor;
+          }
+        }
+      }
+    }
+    return pointerEnter;
+  }
+
   public dispatchPointerEvents() {
     this._dispatchWithBubble(this._pointerDown);
     this._dispatchWithBubble(this._pointerUp);
     this._dispatchWithBubble(this._pointerMove);
+    this._dispatchPointerLeaveEvents();
+    this._dispatchPointerEnterEvents();
     this._dispatchWithBubble(this._pointerCancel);
 
     // TODO some duplication here

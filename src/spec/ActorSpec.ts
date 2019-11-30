@@ -1004,6 +1004,7 @@ describe('A game actor', () => {
       actor.on('pointerdragstart', callables.dragStart);
       scene.add(actor);
 
+      actor.update(engine, 100);
       engine.input.pointers.triggerEvent('down', new ex.Vector(0, 0));
 
       expect(dragStartSpy).toHaveBeenCalledTimes(1);
