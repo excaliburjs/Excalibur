@@ -9,7 +9,7 @@ import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
  * The fluent Action API allows you to perform "actions" on
  * [[Actor|Actors]] such as following, moving, rotating, and
  * more. You can implement your own actions by implementing
- * the [[IAction]] interface.
+ * the [[Action]] interface.
  *
  * [[include:Actions.md]]
  */

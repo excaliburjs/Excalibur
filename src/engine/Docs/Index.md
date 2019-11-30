@@ -23,7 +23,7 @@ familiar with.
   - [[Trigger|Triggers]]
   - [[UIActor|UI Actors (HUD)]]
   - [[ActionContext|Action API]]
-  - [[Group|Groups]]
+  - [[CollisionGroup|Collision Groups]]
 - [[Physics|Working with Physics]]
 
 ## Working with Resources

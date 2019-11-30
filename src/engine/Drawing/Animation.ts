@@ -165,7 +165,7 @@ export class AnimationImpl implements Drawable {
   }
 
   /**
-   * Add a [[ISpriteEffect]] manually
+   * Add a [[SpriteEffect]] manually
    */
   public addEffect(effect: Effects.SpriteEffect) {
     for (const i in this.sprites) {
@@ -174,7 +174,7 @@ export class AnimationImpl implements Drawable {
   }
 
   /**
-   * Removes an [[ISpriteEffect]] from this animation.
+   * Removes an [[SpriteEffect]] from this animation.
    * @param effect Effect to remove from this animation
    */
   public removeEffect(effect: Effects.SpriteEffect): void;

@@ -439,7 +439,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
   /**
    * Adds a new camera strategy to this camera
-   * @param cameraStrategy Instance of an [[ICameraStrategy]]
+   * @param cameraStrategy Instance of an [[CameraStrategy]]
    */
   public addStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     this._cameraStrategies.push(cameraStrategy);
@@ -447,7 +447,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
   /**
    * Removes a camera strategy by reference
-   * @param cameraStrategy Instance of an [[ICameraStrategy]]
+   * @param cameraStrategy Instance of an [[CameraStrategy]]
    */
   public removeStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     removeItemFromArray(cameraStrategy, this._cameraStrategies);

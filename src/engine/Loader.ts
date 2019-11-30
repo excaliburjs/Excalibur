@@ -18,7 +18,7 @@ import loaderCss from './Loader.css';
  * one time. The loader must be passed to the engine in order to
  * trigger the loading progress bar.
  *
- * The [[Loader]] itself implements [[ILoadable]] so you can load loaders.
+ * The [[Loader]] itself implements [[Loadable]] so you can load loaders.
  *
  * ## Example: Pre-loading resources for a game
  *

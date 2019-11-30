@@ -153,13 +153,13 @@ export class Debug implements DebugFlags {
   public stats: DebugStats = {
     /**
      * Current frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats.
-     * Best accessed on [[postframe]] event. See [[IFrameStats]]
+     * Best accessed on [[postframe]] event. See [[FrameStats]]
      */
     currFrame: new FrameStats(),
 
     /**
      * Previous frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats.
-     * Best accessed on [[preframe]] event. Best inspected on engine event `preframe`. See [[IFrameStats]]
+     * Best accessed on [[preframe]] event. Best inspected on engine event `preframe`. See [[FrameStats]]
      */
     prevFrame: new FrameStats()
   };
