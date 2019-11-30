@@ -14,7 +14,7 @@ import {
 import { GameEvent } from '../Events';
 
 import * as Events from '../Events';
-import * as Util from '../Util';
+import * as Util from '../Util/Util';
 import { GlobalCoordinates, Vector } from '../Algebra';
 import { CapturePointer } from '../Traits/CapturePointer';
 import { Actor } from '../Actor';
