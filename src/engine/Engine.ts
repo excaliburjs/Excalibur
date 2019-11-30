@@ -160,11 +160,11 @@ export interface EngineOptions {
 
   /**
    * Specify how the game window is to be positioned when the [[DisplayMode.Position]] is chosen. This option MUST be specified
-   * if the DisplayMode is set as [[DisplayMode.Position]]. The position can be either a string or an [[IAbsolutePosition]].
+   * if the DisplayMode is set as [[DisplayMode.Position]]. The position can be either a string or an [[AbsolutePosition]].
    * String must be in the format of css style background-position. The vertical position must precede the horizontal position in strings.
    *
    * Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
-   * Valid [[IAbsolutePosition]] examples: `{top: 5, right: 10%}`, `{bottom: 49em, left: 10px}`, `{left: 10, bottom: 40}`
+   * Valid [[AbsolutePosition]] examples: `{top: 5, right: 10%}`, `{bottom: 49em, left: 10px}`, `{left: 10, bottom: 40}`
    */
   position?: string | AbsolutePosition;
 
@@ -1308,7 +1308,7 @@ O|===|* >________________>\n\
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
-   * @param loader  Optional [[ILoader]] to use to load resources. The default loader is [[Loader]], override to provide your own
+   * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]], override to provide your own
    * custom loader.
    */
   public start(loader?: CanLoad): Promise<any> {
@@ -1429,7 +1429,7 @@ O|===|* >________________>\n\
    * Another option available to you to load resources into the game.
    * Immediately after calling this the game will pause and the loading screen
    * will appear.
-   * @param loader  Some [[ILoadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
+   * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
   public load(loader: Loadable): Promise<any> {
     const complete = new Promise<any>();

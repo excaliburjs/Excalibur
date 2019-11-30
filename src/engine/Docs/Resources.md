@@ -1,4 +1,4 @@
-[[Resource]] is an [[ILoadable]] so it can be passed to a [[Loader]] to pre-load before
+[[Resource]] is an [[Loadable]] so it can be passed to a [[Loader]] to pre-load before
 a level or game.
 
 Example usages: JSON, compressed files, blobs.

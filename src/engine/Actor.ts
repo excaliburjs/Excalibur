@@ -419,7 +419,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   /**
    * Sets the color of the actor. A rectangle of this color will be
-   * drawn if no [[IDrawable]] is specified as the actors drawing.
+   * drawn if no [[Drawable]] is specified as the actors drawing.
    *
    * The default is `null` which prevents a rectangle from being drawn.
    */

@@ -105,12 +105,12 @@ you want to provide HTML UI on top or as part of your game.
 
 You can use [[DisplayMode.Position]] to specify where the game window will be displayed on screen. if
 this DisplayMode is selected, then a [[position]] option _must_ be provided to the Engine constructor.
-The [[position]] option can be a String or an [[IAbsolutePosition]]. The first word in a String _must_
+The [[position]] option can be a String or an [[AbsolutePosition]]. The first word in a String _must_
 be the desired vertical alignment of the window. The second (optional) word is the desired horizontal
 alignment.
 
 Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
-Valid IAbsolutePosition examples: {top: 5, right: 10%}, {bottom: 49em, left: 10px}, {left: 10, bottom: 40}
+Valid AbsolutePosition examples: {top: 5, right: 10%}, {bottom: 49em, left: 10px}, {left: 10, bottom: 40}
 
 ## Extending the Engine
 

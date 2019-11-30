@@ -77,7 +77,7 @@ to automatically generate the actions needed to do pathing.
 
 ## Custom Actions
 
-The API does allow you to implement new actions by implementing the [[IAction]]
+The API does allow you to implement new actions by implementing the [[Action]]
 interface, but this will be improved in future versions as right now it
 is meant for the Excalibur team and can be advanced to implement.
 

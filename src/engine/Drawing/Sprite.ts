@@ -202,7 +202,7 @@ export class SpriteImpl implements Drawable {
   }
 
   /**
-   * Adds a new [[ISpriteEffect]] to this drawing.
+   * Adds a new [[SpriteEffect]] to this drawing.
    * @param effect  Effect to add to the this drawing
    */
   public addEffect(effect: Effects.SpriteEffect) {
@@ -217,7 +217,7 @@ export class SpriteImpl implements Drawable {
   }
 
   /**
-   * Removes a [[ISpriteEffect]] from this sprite.
+   * Removes a [[SpriteEffect]] from this sprite.
    * @param effect  Effect to remove from this sprite
    */
   public removeEffect(effect: Effects.SpriteEffect): void;

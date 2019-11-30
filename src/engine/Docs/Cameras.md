@@ -44,7 +44,7 @@ game.currentScene.camera.strategy.radiusAroundActor(actor, radius);
 
 ## Custom strategies
 
-Custom strategies can be implemented by extending the ICameraStrategy interface and added to cameras to build novel behavior with `ex.Camera.addStrategy<T>(new MyCameraStrategy<T>())`.
+Custom strategies can be implemented by extending the [[CameraStrategy]] interface and added to cameras to build novel behavior with `ex.Camera.addStrategy<T>(new MyCameraStrategy<T>())`.
 
 As shown below a camera strategy calculates a new camera position (`ex.Vector`) every frame given a target type, camera, engine, and elapsed delta in milliseconds.
 
