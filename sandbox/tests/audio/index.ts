@@ -10,14 +10,14 @@ var loader = new ex.Loader();
 var testSound = new ex.Sound('loop.mp3');
 loader.addResource(testSound);
 
-const startBtn = new ex.Actor(50, 50, 100, 100, ex.Color.White);
-const stopBtn = new ex.Actor(50, 50, 175, 100, ex.Color.White);
-const pauseBtn = new ex.Actor(50, 50, 250, 100, ex.Color.White);
-const indicator = new ex.Actor(20, 20, 150, 50, ex.Color.Red);
+const startBtn = new ex.Actor(game.currentScene.camera.x + 50, 50, 100, 100, ex.Color.White);
+const stopBtn = new ex.Actor(game.currentScene.camera.x + 50, 70, 175, 100, ex.Color.Blue);
+const pauseBtn = new ex.Actor(game.currentScene.camera.x + 50, 90, 250, 100, ex.Color.Green);
+const indicator = new ex.Actor(game.currentScene.camera.x, game.currentScene.camera.y, 150, 50, ex.Color.Red);
 
 startBtn.enableCapturePointer = true;
-startBtn.add(new ex.Label('start'));
-startBtn.on('pointerup', () => {
+startBtn.add(new ex.Label('start - indicator green', -50, 40));
+startBtn.on('pointerup', (evt) => {
   if (!testSound.isPlaying()) {
     indicator.color = ex.Color.Green;
 
@@ -25,36 +25,40 @@ startBtn.on('pointerup', () => {
       indicator.color = ex.Color.Red;
     });
   }
+  console.log('start called');
+  evt.stopPropagation();
 });
 stopBtn.enableCapturePointer = true;
-stopBtn.add(new ex.Label('stop'));
-stopBtn.on('pointerup', () => {
+stopBtn.add(new ex.Label('stop - indicator red', -50, 40));
+stopBtn.on('pointerup', (evt) => {
   if (testSound.isPlaying()) {
     testSound.stop();
     startBtn.color = ex.Color.Red;
   }
+  console.log('stop called');
+  evt.stopPropagation();
 });
 pauseBtn.enableCapturePointer = true;
-pauseBtn.add(new ex.Label('pause'));
-pauseBtn.on('pointerup', () => {
+pauseBtn.add(new ex.Label('pause - indicator yellow', -50, 40));
+pauseBtn.on('pointerup', (evt) => {
   if (testSound.isPlaying()) {
     testSound.pause();
-    startBtn.color = ex.Color.Yellow;
+    indicator.color = ex.Color.Yellow;
   }
+  console.log('pause called');
+  evt.stopPropagation();
 });
-game.add(startBtn);
-game.add(stopBtn);
-game.add(pauseBtn);
-game.add(indicator);
 
-/*game.input.keyboard.on("down", () => {
-   if (testSound.isPlaying()) {
-      testSound.pause();
-      button.color = ex.Color.Red;
-   } else {
-      testSound.play();
-      button.color = ex.Color.Green;
-   }
-});*/
+pauseBtn.on('pointerenter', () => {
+  console.log('pointer enter - pause btn');
+});
+
+pauseBtn.on('pointerleave', () => {
+  console.log('pointer leave - pause btn');
+});
+game.add(pauseBtn);
+game.add(stopBtn);
+game.add(startBtn);
+game.add(indicator);
 
 game.start(loader);
