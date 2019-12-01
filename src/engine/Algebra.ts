@@ -594,3 +594,7 @@ export class GlobalCoordinates {
 
   constructor(public worldPos: Vector, public pagePos: Vector, public screenPos: Vector) {}
 }
+
+export function vec(x: number, y: number): Vector {
+  return new Vector(x, y);
+}
