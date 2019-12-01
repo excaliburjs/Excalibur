@@ -15,6 +15,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   object rather than only individual coordinate parameters. ([#1151](https://github.com/excaliburjs/Excalibur/issues/1151))
 - Added new interface for specifying the type of the options object passed to the
   bounding box constructor.
+- Added the `ex.vec(x, y)` shorthand for creating vectors.
+  ([#1340](https://github.com/excaliburjs/Excalibur/issues/1340))
 
 ### Changed
 

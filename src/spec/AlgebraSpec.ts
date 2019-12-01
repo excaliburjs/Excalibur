@@ -448,3 +448,24 @@ describe('Projections', () => {
     expect(proj.getOverlap(proj2)).toBe(0);
   });
 });
+
+describe('helpers', () => {
+  describe('vec', () => {
+    it('returns a new Vector instance on each call', () => {
+      const vector1 = ex.vec(1, 0);
+      const vector2 = ex.vec(1, 0);
+      const vector3 = ex.vec(NaN, Number.NEGATIVE_INFINITY);
+      expect(vector1 instanceof ex.Vector).toBe(true);
+      expect(vector2 instanceof ex.Vector).toBe(true);
+      expect(vector3 instanceof ex.Vector).toBe(true);
+      expect(vector1).not.toBe(vector2);
+    });
+
+    it('returns a Vector instance with the specified properties', () => {
+      const [x, y] = [Date.now(), Math.random()];
+      const vector = ex.vec(x, y);
+      expect(vector.x).toBe(x);
+      expect(vector.y).toBe(y);
+    });
+  });
+});
