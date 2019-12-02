@@ -264,22 +264,38 @@ export class AnimationImpl implements Drawable {
     this.currentFrame = (this.currentFrame + frames) % this.sprites.length;
   }
 
-  public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
-    this.drawWithOptions({ ctx, x, y, flipHorizontal: this.flipHorizontal, flipVertical: this.flipVertical });
+  /**
+   * Draws the animation appropriately to the 2D rendering context, at an x and y coordinate.
+   * @param ctx  The 2D rendering context
+   * @param x    The x coordinate of where to draw
+   * @param y    The y coordinate of where to draw
+   */
+  public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
+  /**
+   * Draws the animation with custom options to override internals without mutating them.
+   * @param options
+   */
+  public draw(options: DrawOptions): void;
+  public draw(ctxOrOptions: CanvasRenderingContext2D | DrawOptions, x?: number, y?: number) {
+    if (ctxOrOptions instanceof CanvasRenderingContext2D) {
+      this._drawWithOptions({ ctx: ctxOrOptions, x, y, flipHorizontal: this.flipHorizontal, flipVertical: this.flipVertical });
+    } else {
+      this._drawWithOptions(ctxOrOptions);
+    }
   }
 
-  public drawWithOptions(options: DrawOptions) {
+  private _drawWithOptions(options: DrawOptions) {
     this.tick();
     this._updateValues();
     let currSprite: Sprite;
     if (this.currentFrame < this.sprites.length) {
       currSprite = this.sprites[this.currentFrame];
-      currSprite.drawWithOptions(options);
+      currSprite.draw(options);
     }
 
     if (this.freezeFrame !== -1 && this.currentFrame >= this.sprites.length) {
       currSprite = this.sprites[Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
-      currSprite.drawWithOptions(options);
+      currSprite.draw(options);
     }
 
     // add the calculated width

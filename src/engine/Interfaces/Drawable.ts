@@ -5,6 +5,9 @@ export interface DrawOptions {
   ctx: CanvasRenderingContext2D;
   x: number;
   y: number;
+  drawWidth?: number;
+  drawHeight?: number;
+  rotation?: number;
   flipHorizontal?: boolean;
   flipVertical?: boolean;
   anchor?: Vector;
@@ -96,8 +99,8 @@ export interface Drawable {
   draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
 
   /**
-   * Draws the sprite with custom options to override internals
+   * Draws the sprite with custom options to override internals without mutating them.
    * @param options
    */
-  drawWithOptions(options: DrawOptions): void;
+  draw(options: DrawOptions): void;
 }

@@ -5,7 +5,7 @@ import { Drawable, DrawOptions } from '../Interfaces/Drawable';
 import { Texture } from '../Resources/Texture';
 import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
-import { clamp } from '../Util/Util';
+import { clamp, nullish } from '../Util/Util';
 import { Configurable } from '../Configurable';
 
 /**
@@ -319,19 +319,31 @@ export class SpriteImpl implements Drawable {
    * @param x    The x coordinate of where to draw
    * @param y    The y coordinate of where to draw
    */
-  public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
-    this.drawWithOptions({ ctx, x, y });
+  public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
+  /**
+   * Draws the sprite with custom options to override internals without mutating them.
+   * @param options
+   */
+  public draw(options: DrawOptions): void;
+  public draw(ctxOrOptions: CanvasRenderingContext2D | DrawOptions, x?: number, y?: number): void {
+    if (ctxOrOptions instanceof CanvasRenderingContext2D) {
+      this._drawWithOptions({ ctx: ctxOrOptions, x, y });
+    } else {
+      this._drawWithOptions(ctxOrOptions);
+    }
   }
 
-  public drawWithOptions(options: DrawOptions) {
-    const { ctx, x, y, anchor, offset, opacity, flipHorizontal, flipVertical } = {
+  private _drawWithOptions(options: DrawOptions) {
+    const { ctx, x, y, rotation, drawWidth, drawHeight, anchor, offset, opacity, flipHorizontal, flipVertical } = {
       ...options,
-      flipHorizontal:
-        options.flipHorizontal !== null || options.flipHorizontal !== undefined ? options.flipHorizontal : this.flipHorizontal,
-      flipVertical: options.flipVertical !== null || options.flipVertical !== undefined ? options.flipVertical : this.flipVertical,
-      anchor: options.anchor || this.anchor,
-      offset: options.offset || this.offset,
-      opacity: options.opacity !== null || options.opacity !== undefined ? options.opacity : this._opacity
+      rotation: nullish(options.rotation, this.rotation),
+      drawWidth: nullish(options.drawWidth, this.drawWidth),
+      drawHeight: nullish(options.drawHeight, this.drawHeight),
+      flipHorizontal: nullish(options.flipHorizontal, this.flipHorizontal),
+      flipVertical: nullish(options.flipVertical, this.flipVertical),
+      anchor: nullish(options.anchor, this.anchor),
+      offset: nullish(options.offset, this.offset),
+      opacity: nullish(options.opacity, this._opacity)
     };
 
     if (this._dirtyEffect) {
@@ -340,25 +352,29 @@ export class SpriteImpl implements Drawable {
 
     // calculating current dimensions
     ctx.save();
-    const xpoint = this.drawWidth * anchor.x + offset.x;
-    const ypoint = this.drawHeight * anchor.y + offset.y;
+    const xpoint = drawWidth * anchor.x + offset.x;
+    const ypoint = drawHeight * anchor.y + offset.y;
     ctx.translate(x, y);
-    ctx.rotate(this.rotation);
+    ctx.rotate(rotation);
 
     // todo cache flipped sprites
     if (flipHorizontal) {
-      ctx.translate(this.drawWidth, 0);
+      ctx.translate(drawWidth, 0);
       ctx.scale(-1, 1);
     }
 
     if (flipVertical) {
-      ctx.translate(0, this.drawHeight);
+      ctx.translate(0, drawHeight);
       ctx.scale(1, -1);
     }
 
+    if (this._dirtyEffect) {
+      this._applyEffects();
+    }
+
     const oldAlpha = ctx.globalAlpha;
-    ctx.globalAlpha = opacity === null ? 1 : opacity;
-    ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, -xpoint, -ypoint, this.drawWidth, this.drawHeight);
+    ctx.globalAlpha = nullish(opacity, 1);
+    ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, -xpoint, -ypoint, drawWidth, drawHeight);
     ctx.globalAlpha = oldAlpha;
 
     ctx.restore();
