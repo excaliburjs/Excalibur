@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { Mocks } from './util/Mocks';
 
-describe('Utility functions', () => {
+fdescribe('Utility functions', () => {
   it('can determine the opposite side', () => {
     expect(ex.Util.getOppositeSide(ex.Side.Left)).toBe(ex.Side.Right);
     expect(ex.Util.getOppositeSide(ex.Side.Right)).toBe(ex.Side.Left);
@@ -41,6 +41,20 @@ describe('Utility functions', () => {
     it('should return false when item to delete is not present', () => {
       const arrayToRemove = ['Godfrey', 'Crizzo', 'Fullstack'];
       expect(ex.Util.removeItemFromArray('Lannister', arrayToRemove)).toBe(false);
+    });
+  });
+
+  describe('nullish', () => {
+    it('should return the default if null or undefined', () => {
+      const defaultNull = ex.Util.nullish(null, 1);
+      const defaultUndefined = ex.Util.nullish(undefined, 2);
+      expect(defaultNull).toBe(1);
+      expect(defaultUndefined).toBe(2);
+    });
+
+    it('should return a value if not null or undefined', () => {
+      const value = ex.Util.nullish('value', 'otherValue');
+      expect(value).toBe('value');
     });
   });
 });
