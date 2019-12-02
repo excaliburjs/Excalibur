@@ -3,7 +3,7 @@ import { Vector } from '../Algebra';
 import { Class } from '../Class';
 import * as Actors from '../Util/Actors';
 import { removeItemFromArray } from '../Util/Util';
-import { PointerMoveEvent, PointerDownEvent, PointerUpEvent } from './PointerEvents';
+import { PointerMoveEvent, PointerDownEvent, PointerUpEvent, WheelEvent } from './PointerEvents';
 
 export interface ActorsUnderPointer {
   [ActorId: number]: Actor;
@@ -110,6 +110,7 @@ export class Pointer extends Class {
   on(event: 'move', handler: (event: PointerMoveEvent) => void): void;
   on(event: 'down', handler: (event: PointerDownEvent) => void): void;
   on(event: 'up', handler: (event: PointerUpEvent) => void): void;
+  on(event: 'wheel', handler: (event: WheelEvent) => void): void;
   on(event: string, handler: (event: any) => void): void {
     super.on(event, handler);
   }
@@ -117,6 +118,7 @@ export class Pointer extends Class {
   once(event: 'move', handler: (event: PointerMoveEvent) => void): void;
   once(event: 'down', handler: (event: PointerDownEvent) => void): void;
   once(event: 'up', handler: (event: PointerUpEvent) => void): void;
+  once(event: 'wheel', handler: (event: WheelEvent) => void): void;
   once(event: string, handler: (event: any) => void): void {
     super.once(event, handler);
   }
@@ -124,6 +126,7 @@ export class Pointer extends Class {
   off(event: 'move', handler?: (event: PointerMoveEvent) => void): void;
   off(event: 'down', handler?: (event: PointerDownEvent) => void): void;
   off(event: 'up', handler?: (event: PointerUpEvent) => void): void;
+  off(event: 'wheel', handler?: (event: WheelEvent) => void): void;
   off(event: string, handler?: (event: any) => void): void {
     super.off(event, handler);
   }
