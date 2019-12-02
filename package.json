@@ -96,7 +96,7 @@
     "rimraf": "3.0.0",
     "source-map-support": "0.5.16",
     "sync-request": "6.1.0",
-    "to-string-loader": "1.1.5",
+    "to-string-loader": "1.1.6",
     "travis-ci": "2.2.0",
     "ts-loader": "6.2.1",
     "tslint": "5.20.0",
