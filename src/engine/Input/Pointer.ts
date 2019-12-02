@@ -3,7 +3,7 @@ import { Vector } from '../Algebra';
 import { Class } from '../Class';
 import * as Actors from '../Util/Actors';
 import { removeItemFromArray } from '../Util/Util';
-import { PointerEvent, PointerMoveEvent, PointerDownEvent, PointerUpEvent } from './PointerEvents';
+import { PointerMoveEvent, PointerDownEvent, PointerUpEvent } from './PointerEvents';
 
 export interface ActorsUnderPointer {
   [ActorId: number]: Actor;
