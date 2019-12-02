@@ -107,6 +107,6 @@
     "webpack-cli": "3.3.9"
   },
   "dependencies": {
-    "core-js": "3.3.4"
+    "core-js": "3.4.7"
   }
 }
