@@ -43,4 +43,18 @@ describe('Utility functions', () => {
       expect(ex.Util.removeItemFromArray('Lannister', arrayToRemove)).toBe(false);
     });
   });
+
+  describe('nullish', () => {
+    it('should return the default if null or undefined', () => {
+      const defaultNull = ex.Util.nullish(null, 1);
+      const defaultUndefined = ex.Util.nullish(undefined, 2);
+      expect(defaultNull).toBe(1);
+      expect(defaultUndefined).toBe(2);
+    });
+
+    it('should return a value if not null or undefined', () => {
+      const value = ex.Util.nullish('value', 'otherValue');
+      expect(value).toBe('value');
+    });
+  });
 });

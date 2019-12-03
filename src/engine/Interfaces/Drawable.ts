@@ -1,6 +1,20 @@
 import { Vector } from '../Algebra';
 import { SpriteEffect } from '../Drawing/SpriteEffects';
 
+export interface DrawOptions {
+  ctx: CanvasRenderingContext2D;
+  x: number;
+  y: number;
+  drawWidth?: number;
+  drawHeight?: number;
+  rotation?: number;
+  flipHorizontal?: boolean;
+  flipVertical?: boolean;
+  anchor?: Vector;
+  offset?: Vector;
+  opacity?: number;
+}
+
 /**
  * Interface for implementing anything in Excalibur that can be drawn to the screen.
  */
@@ -83,4 +97,10 @@ export interface Drawable {
    * @param y    The y coordinate of where to draw
    */
   draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
+
+  /**
+   * Draws the sprite with custom options to override internals without mutating them.
+   * @param options
+   */
+  draw(options: DrawOptions): void;
 }

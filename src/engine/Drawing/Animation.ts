@@ -3,7 +3,7 @@ import { AnimationArgs } from '../Drawing/Animation';
 import * as Effects from './SpriteEffects';
 import { Color } from './Color';
 
-import { Drawable } from '../Interfaces/Drawable';
+import { Drawable, DrawOptions } from '../Interfaces/Drawable';
 import { Vector } from '../Algebra';
 import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
@@ -31,9 +31,9 @@ export class AnimationImpl implements Drawable {
 
   private _oldTime: number = Date.now();
 
-  public anchor: Vector = new Vector(0.0, 0.0);
+  public anchor: Vector = Vector.Zero;
   public rotation: number = 0.0;
-  public scale: Vector = new Vector(1, 1);
+  public scale: Vector = Vector.One;
 
   /**
    * Indicates whether the animation should loop after it is completed
@@ -264,20 +264,38 @@ export class AnimationImpl implements Drawable {
     this.currentFrame = (this.currentFrame + frames) % this.sprites.length;
   }
 
-  public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  /**
+   * Draws the animation appropriately to the 2D rendering context, at an x and y coordinate.
+   * @param ctx  The 2D rendering context
+   * @param x    The x coordinate of where to draw
+   * @param y    The y coordinate of where to draw
+   */
+  public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
+  /**
+   * Draws the animation with custom options to override internals without mutating them.
+   * @param options
+   */
+  public draw(options: DrawOptions): void;
+  public draw(ctxOrOptions: CanvasRenderingContext2D | DrawOptions, x?: number, y?: number) {
+    if (ctxOrOptions instanceof CanvasRenderingContext2D) {
+      this._drawWithOptions({ ctx: ctxOrOptions, x, y, flipHorizontal: this.flipHorizontal, flipVertical: this.flipVertical });
+    } else {
+      this._drawWithOptions(ctxOrOptions);
+    }
+  }
+
+  private _drawWithOptions(options: DrawOptions) {
     this.tick();
     this._updateValues();
     let currSprite: Sprite;
     if (this.currentFrame < this.sprites.length) {
       currSprite = this.sprites[this.currentFrame];
-      currSprite.flipVertical = this.flipVertical;
-      currSprite.flipHorizontal = this.flipHorizontal;
-      currSprite.draw(ctx, x, y);
+      currSprite.draw(options);
     }
 
     if (this.freezeFrame !== -1 && this.currentFrame >= this.sprites.length) {
       currSprite = this.sprites[Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
-      currSprite.draw(ctx, x, y);
+      currSprite.draw(options);
     }
 
     // add the calculated width
