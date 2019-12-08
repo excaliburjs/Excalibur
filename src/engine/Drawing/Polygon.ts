@@ -1,8 +1,9 @@
 import { Color } from './Color';
 import * as Effects from './SpriteEffects';
 
-import { Drawable } from '../Interfaces/Drawable';
+import { Drawable, DrawOptions } from '../Interfaces/Drawable';
 import { Vector } from '../Algebra';
+import { nullish } from '../Util/Util';
 
 /**
  * Creates a closed polygon drawing given a list of [[Vector]]s.
@@ -36,9 +37,11 @@ export class Polygon implements Drawable {
   public filled: boolean = false;
 
   private _points: Vector[] = [];
-  public anchor = new Vector(0, 0);
+  public anchor = Vector.Zero;
+  public offset = Vector.Zero;
   public rotation: number = 0;
-  public scale = new Vector(1, 1);
+  public scale = Vector.One;
+  public opacity: number = 1;
 
   /**
    * @param points  The vectors to use to build the polygon in order
@@ -100,11 +103,46 @@ export class Polygon implements Drawable {
     //pass
   }
 
-  public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  /**
+   * Draws the sprite appropriately to the 2D rendering context, at an x and y coordinate.
+   * @param ctx  The 2D rendering context
+   * @param x    The x coordinate of where to draw
+   * @param y    The y coordinate of where to draw
+   */
+  public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
+  /**
+   * Draws the sprite with custom options to override internals without mutating them.
+   * @param options
+   */
+  public draw(options: DrawOptions): void;
+  public draw(ctxOrOptions: CanvasRenderingContext2D | DrawOptions, x?: number, y?: number): void {
+    if (ctxOrOptions instanceof CanvasRenderingContext2D) {
+      this._drawWithOptions({ ctx: ctxOrOptions, x, y });
+    } else {
+      this._drawWithOptions(ctxOrOptions);
+    }
+  }
+
+  private _drawWithOptions(options: DrawOptions) {
+    const { ctx, x, y, rotation, drawWidth, drawHeight, anchor, offset, opacity, flipHorizontal, flipVertical } = {
+      ...options,
+      rotation: nullish(options.rotation, this.rotation),
+      drawWidth: nullish(options.drawWidth, this.drawWidth),
+      drawHeight: nullish(options.drawHeight, this.drawHeight),
+      flipHorizontal: nullish(options.flipHorizontal, this.flipHorizontal),
+      flipVertical: nullish(options.flipVertical, this.flipVertical),
+      anchor: nullish(options.anchor, this.anchor),
+      offset: nullish(options.offset, this.offset),
+      opacity: nullish(options.opacity, this.opacity)
+    };
+
+    const xpoint = drawWidth * anchor.x + offset.x + x;
+    const ypoint = drawHeight * anchor.y + offset.y + y;
+
     ctx.save();
-    ctx.translate(x + this.anchor.x, y + this.anchor.y);
+    ctx.translate(xpoint, ypoint);
     ctx.scale(this.scale.x, this.scale.y);
-    ctx.rotate(this.rotation);
+    ctx.rotate(rotation);
     ctx.beginPath();
     ctx.lineWidth = this.lineWidth;
 
@@ -129,17 +167,21 @@ export class Polygon implements Drawable {
 
     ctx.strokeStyle = this.lineColor.toString();
 
-    if (this.flipHorizontal) {
-      ctx.translate(this.drawWidth, 0);
+    if (flipHorizontal) {
+      ctx.translate(drawWidth, 0);
       ctx.scale(-1, 1);
     }
 
-    if (this.flipVertical) {
-      ctx.translate(0, this.drawHeight);
+    if (flipVertical) {
+      ctx.translate(0, drawHeight);
       ctx.scale(1, -1);
     }
 
+    const oldAlpha = ctx.globalAlpha;
+    ctx.globalAlpha = nullish(opacity, 1);
     ctx.stroke();
+    ctx.globalAlpha = oldAlpha;
+
     ctx.restore();
   }
 }

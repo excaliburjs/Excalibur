@@ -15,9 +15,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   object rather than only individual coordinate parameters. ([#1151](https://github.com/excaliburjs/Excalibur/issues/1151))
 - Added new interface for specifying the type of the options object passed to the
   bounding box constructor.
+- Added the `ex.vec(x, y)` shorthand for creating vectors.
+  ([#1340](https://github.com/excaliburjs/Excalibur/issues/1340))
 
 ### Changed
 
+- Animation no longer mutate underlying sprites, instead they draw the sprite using the animations parameters. This allows more robust flipping at runtime. ([#1258](https://github.com/excaliburjs/Excalibur/issues/1258))
 - Changed obsolete decorator to only log the same message 5 times. ([#1281](https://github.com/excaliburjs/Excalibur/issues/1281))
 - Switched to core-js based polyfills instead of custom written ones ([#1214](https://github.com/excaliburjs/Excalibur/issues/1214))
 - Updated to TypeScript@3.6.4 and node 10 LTS build
@@ -34,6 +37,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed actors being drawn when their opacity is 0 ([#875](https://github.com/excaliburjs/Excalibur/issues/875))
 - Fixed iframe event handling, excalibur will respond to keyboard events from the top window ([#1294](https://github.com/excaliburjs/Excalibur/issues/1294))
 - Fixed camera to be vector backed so `ex.Camera.x = ?` and `ex.Camera.pos.setTo(...)` both work as expected([#1299](https://github.com/excaliburjs/Excalibur/issues/1299))
+- Fixed missing on/once/off signatures on `ex.Pointer` ([#1345](https://github.com/excaliburjs/Excalibur/issues/1345))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

@@ -52,26 +52,25 @@ describe('An animation', () => {
   });
 
   it('should always pass "flipped" state to the current Sprite', () => {
-    const mockSprite = {
-      anchor: new ex.Vector(1, 1),
-      draw: () => void 0,
-      flipHorizontal: false,
-      flipVertical: false
-    };
-    animation.sprites = [<any>mockSprite];
+    const mockSprite:any  = jasmine.createSpyObj('sprite', ['draw', 'drawWithOptions']);
+    mockSprite.anchor = ex.Vector.Half;
+    mockSprite.scale = ex.Vector.One;
+    mockSprite.flipHorizontal = false;
+    mockSprite.flipVertical = false;
+    animation.sprites = [mockSprite];
 
     // set flipped to true and ensure the Sprite has the same state after drawing
     animation.flipHorizontal = true;
     animation.flipVertical = true;
     animation.draw(engine.ctx, 0, 0);
-    expect(animation.sprites[0].flipHorizontal).toBe(true);
-    expect(animation.sprites[0].flipVertical).toBe(true);
+    expect(mockSprite.flipHorizontal).toBe(false);
+    expect(mockSprite.flipVertical).toBe(false);
 
     // set flipped back to false and ensure the Sprite has the same state after drawing
     animation.flipHorizontal = false;
     animation.flipVertical = false;
     animation.draw(engine.ctx, 0, 0);
-    expect(animation.sprites[0].flipHorizontal).toBe(false);
-    expect(animation.sprites[0].flipVertical).toBe(false);
+    expect(mockSprite.flipHorizontal).toBe(false);
+    expect(mockSprite.flipVertical).toBe(false);
   });
 });

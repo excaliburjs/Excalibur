@@ -1,11 +1,11 @@
 import * as Effects from './SpriteEffects';
 import { Color } from './Color';
 
-import { Drawable } from '../Interfaces/Drawable';
+import { Drawable, DrawOptions } from '../Interfaces/Drawable';
 import { Texture } from '../Resources/Texture';
 import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
-import { clamp } from '../Util/Util';
+import { clamp, nullish } from '../Util/Util';
 import { Configurable } from '../Configurable';
 
 /**
@@ -27,7 +27,8 @@ export class SpriteImpl implements Drawable {
 
   public rotation: number = 0.0;
   public anchor: Vector = new Vector(0.0, 0.0);
-  public scale: Vector = new Vector(1, 1);
+  public offset: Vector = Vector.Zero;
+  public scale: Vector = Vector.One;
 
   public logger: Logger = Logger.getInstance();
 
@@ -137,11 +138,13 @@ export class SpriteImpl implements Drawable {
     }
   }
 
+  private _opacity: number = 1;
   /**
    * Applies the [[Opacity]] effect to a sprite, setting the alpha of all pixels to a given value
    */
   public opacity(value: number) {
-    this.addEffect(new Effects.Opacity(value));
+    this._opacity = value;
+    // this.addEffect(new Effects.Opacity(value));
   }
 
   /**
@@ -316,30 +319,63 @@ export class SpriteImpl implements Drawable {
    * @param x    The x coordinate of where to draw
    * @param y    The y coordinate of where to draw
    */
-  public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
+  /**
+   * Draws the sprite with custom options to override internals without mutating them.
+   * @param options
+   */
+  public draw(options: DrawOptions): void;
+  public draw(ctxOrOptions: CanvasRenderingContext2D | DrawOptions, x?: number, y?: number): void {
+    if (ctxOrOptions instanceof CanvasRenderingContext2D) {
+      this._drawWithOptions({ ctx: ctxOrOptions, x, y });
+    } else {
+      this._drawWithOptions(ctxOrOptions);
+    }
+  }
+
+  private _drawWithOptions(options: DrawOptions) {
+    const { ctx, x, y, rotation, drawWidth, drawHeight, anchor, offset, opacity, flipHorizontal, flipVertical } = {
+      ...options,
+      rotation: nullish(options.rotation, this.rotation),
+      drawWidth: nullish(options.drawWidth, this.drawWidth),
+      drawHeight: nullish(options.drawHeight, this.drawHeight),
+      flipHorizontal: nullish(options.flipHorizontal, this.flipHorizontal),
+      flipVertical: nullish(options.flipVertical, this.flipVertical),
+      anchor: nullish(options.anchor, this.anchor),
+      offset: nullish(options.offset, this.offset),
+      opacity: nullish(options.opacity, this._opacity)
+    };
+
     if (this._dirtyEffect) {
       this._applyEffects();
     }
 
     // calculating current dimensions
     ctx.save();
-    const xpoint = this.drawWidth * this.anchor.x;
-    const ypoint = this.drawHeight * this.anchor.y;
+    const xpoint = drawWidth * anchor.x + offset.x;
+    const ypoint = drawHeight * anchor.y + offset.y;
     ctx.translate(x, y);
-    ctx.rotate(this.rotation);
+    ctx.rotate(rotation);
 
     // todo cache flipped sprites
-    if (this.flipHorizontal) {
-      ctx.translate(this.drawWidth, 0);
+    if (flipHorizontal) {
+      ctx.translate(drawWidth, 0);
       ctx.scale(-1, 1);
     }
 
-    if (this.flipVertical) {
-      ctx.translate(0, this.drawHeight);
+    if (flipVertical) {
+      ctx.translate(0, drawHeight);
       ctx.scale(1, -1);
     }
 
-    ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, -xpoint, -ypoint, this.drawWidth, this.drawHeight);
+    if (this._dirtyEffect) {
+      this._applyEffects();
+    }
+
+    const oldAlpha = ctx.globalAlpha;
+    ctx.globalAlpha = nullish(opacity, 1);
+    ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, -xpoint, -ypoint, drawWidth, drawHeight);
+    ctx.globalAlpha = oldAlpha;
 
     ctx.restore();
   }
