@@ -5,6 +5,7 @@ import { Trigger } from './Trigger';
 import { FrameStats } from './Debug';
 import { Engine } from './Engine';
 import { TileMap } from './TileMap';
+import { ChunkSystemTileMap } from './ChunkSystemTileMap';
 import { Side } from './Collision/Side';
 import * as Input from './Input/Index';
 import { Pair, Camera } from './index';
@@ -234,8 +235,12 @@ export class GameStopEvent extends GameEvent<Engine> {
  * transform so that all drawing takes place with the actor as the origin.
  *
  */
-export class PreDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
-  constructor(public ctx: CanvasRenderingContext2D, public delta: number, public target: Actor | Scene | Engine | TileMap) {
+export class PreDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap | ChunkSystemTileMap> {
+  constructor(
+    public ctx: CanvasRenderingContext2D,
+    public delta: number,
+    public target: Actor | Scene | Engine | TileMap | ChunkSystemTileMap
+  ) {
     super();
   }
 }
@@ -245,8 +250,12 @@ export class PreDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
  * transform so that all drawing takes place with the actor as the origin.
  *
  */
-export class PostDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap> {
-  constructor(public ctx: CanvasRenderingContext2D, public delta: number, public target: Actor | Scene | Engine | TileMap) {
+export class PostDrawEvent extends GameEvent<Actor | Scene | Engine | TileMap | ChunkSystemTileMap> {
+  constructor(
+    public ctx: CanvasRenderingContext2D,
+    public delta: number,
+    public target: Actor | Scene | Engine | TileMap | ChunkSystemTileMap
+  ) {
     super();
   }
 }
@@ -272,8 +281,8 @@ export class PostDebugDrawEvent extends GameEvent<Actor | Scene | Engine> {
 /**
  * The 'preupdate' event is emitted on actors, scenes, camera, and engine before the update starts.
  */
-export class PreUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap | Camera> {
-  constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap | Camera) {
+export class PreUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap | Camera | ChunkSystemTileMap> {
+  constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap | Camera | ChunkSystemTileMap) {
     super();
   }
 }
@@ -281,8 +290,8 @@ export class PreUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap |
 /**
  * The 'postupdate' event is emitted on actors, scenes, camera, and engine after the update ends.
  */
-export class PostUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap | Camera> {
-  constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap | Camera) {
+export class PostUpdateEvent extends GameEvent<Actor | Scene | Engine | TileMap | Camera | ChunkSystemTileMap> {
+  constructor(public engine: Engine, public delta: number, public target: Actor | Scene | Engine | TileMap | Camera | ChunkSystemTileMap) {
     super();
   }
 }
