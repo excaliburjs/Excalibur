@@ -181,6 +181,11 @@ export class ChunkSystemTileMapImpl extends Class {
     const chunkOnScreenXEnd = Math.floor(cellOnScreenXEnd / this.chunkSize);
     const chunkOnScreenYEnd = Math.floor(cellOnScreenYEnd / this.chunkSize);
 
+    if (!this._chunks.length) {
+      this._chunksXOffset = chunkOnScreenXStart;
+      this._chunksYOffset = chunkOnScreenYStart;
+    }
+
     for (let chunkY = chunkOnScreenYStart; chunkY <= chunkOnScreenYEnd; chunkY++) {
       for (let chunkX = chunkOnScreenXStart; chunkX <= chunkOnScreenXEnd; chunkX++) {
         this._chunksToRender.push(this._updateChunk(chunkX, chunkY, engine, delta));
