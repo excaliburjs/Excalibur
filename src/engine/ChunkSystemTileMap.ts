@@ -27,6 +27,9 @@ interface ChunkSystemTileMapArgs {
   chunkGarbageCollectorPredicate: ChunkSystemGarbageCollectorPredicate;
 }
 
+/**
+ * @hidden
+ */
 export class ChunkSystemTileMapImpl extends Class {
   public readonly x: number;
   public readonly y: number;
@@ -321,4 +324,10 @@ export class ChunkSystemTileMapImpl extends Class {
   }
 }
 
+/**
+ * The [[ChunkSystemTileMap]] class provides a way to do extremally large scenes with collision
+ * without the overhead of actors. As the name implies, the ChunkSystemTileMap is used as a regular
+ * [[TileMap]], however its cells are organized into tiled square chunks. This allows loading of the
+ * currently needed chunks on demand and unloading the currently unneeded chunks from the memory.
+ */
 export class ChunkSystemTileMap extends Configurable(ChunkSystemTileMapImpl) {}
