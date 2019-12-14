@@ -35,6 +35,8 @@ export class ChunkSystemTileMapImpl extends Class {
   public readonly chunkSize: number;
   public readonly cols: number;
   public readonly rows: number;
+  public readonly chunkCols: number;
+  public readonly chunkRows: number;
   public readonly chunkGenerator: ChunkGenerator;
   public readonly chunkGarbageCollectorPredicate: ChunkSystemGarbageCollectorPredicate;
   private readonly _chunks: Array<Array<TileMap | undefined> | undefined>;
@@ -53,6 +55,18 @@ export class ChunkSystemTileMapImpl extends Class {
     if (!Number.isSafeInteger(config.cols) || config.cols <= 0) {
       throw new TypeError(`The maxCols option must be a positive safe integer, ${config.cols} was provided`);
     }
+    if (config.cols % config.chunkSize) {
+      throw new Error(
+        `The cols option must be a multiple of the chunkSize option, ${config.cols} was provided for the cols option, ${config.chunkSize}` +
+          ' was provided for the chunkSize option.'
+      );
+    }
+    if (config.rows % config.chunkSize) {
+      throw new Error(
+        `The rows option must be a multiple of the chunkSize option, ${config.rows} was provided for the rows option, ${config.chunkSize}` +
+          ' was provided for the chunkSize option.'
+      );
+    }
 
     super();
 
@@ -63,6 +77,8 @@ export class ChunkSystemTileMapImpl extends Class {
     this.chunkSize = config.chunkSize;
     this.cols = config.cols;
     this.rows = config.rows;
+    this.chunkCols = this.cols / this.chunkSize;
+    this.chunkRows = this.rows / this.chunkSize;
     this.chunkGenerator = config.chunkGenerator;
     this.chunkGarbageCollectorPredicate = config.chunkGarbageCollectorPredicate;
     this._chunks = [];
