@@ -18,6 +18,8 @@ type ChunkGenerator = (
 type ChunkSystemGarbageCollectorPredicate = (chunk: TileMap, engine: Engine) => boolean;
 
 interface ChunkSystemTileMapArgs {
+  x: number;
+  y: number;
   chunkSize: number;
   cellWidth: number;
   cellHeight: number;
@@ -49,6 +51,12 @@ export class ChunkSystemTileMapImpl extends Class {
   private readonly _spriteSheets: { [key: string]: SpriteSheet };
 
   constructor(config: ChunkSystemTileMapArgs) {
+    if (!Number.isSafeInteger(config.x)) {
+      throw new TypeError(`The x option must be a safe integer, ${config.x} was provided`);
+    }
+    if (!Number.isSafeInteger(config.y)) {
+      throw new TypeError(`The y option must be a safe integer, ${config.y} was provided`);
+    }
     if (!Number.isSafeInteger(config.chunkSize) || config.chunkSize <= 0) {
       throw new TypeError(`The chunkSize option must be a positive safe integer, ${config.chunkSize} was provided`);
     }
@@ -73,8 +81,8 @@ export class ChunkSystemTileMapImpl extends Class {
 
     super();
 
-    this.x = -Math.ceil(config.cols / 2);
-    this.y = -Math.ceil(config.rows / 2);
+    this.x = config.x;
+    this.y = config.y;
     this.cellWidth = config.cellWidth;
     this.cellHeight = config.cellHeight;
     this.chunkSize = config.chunkSize;
