@@ -91,7 +91,7 @@ export class SpriteImpl implements Drawable {
         this._loadPixels();
         this._dirtyEffect = true;
       })
-      .error((e) => {
+      .catch((e) => {
         this.logger.error('Error loading texture ', this._texture.path, e);
       });
 

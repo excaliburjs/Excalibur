@@ -1,7 +1,6 @@
 import { Loadable } from '../Interfaces/Loadable';
 import { Class } from '../Class';
 import { Engine } from '../Engine';
-import { Promise } from '../Promises';
 import { Logger } from '../Util/Log';
 
 /**
@@ -10,7 +9,7 @@ import { Logger } from '../Util/Log';
  *
  * [[include:Resources.md]]
  */
-export class Resource<T> extends Class implements Loadable {
+export class Resource<T> extends Class implements Loadable<T> {
   public data: T = null;
   public logger: Logger = Logger.getInstance();
   public arrayBuffer: ArrayBuffer = null;
@@ -58,41 +57,40 @@ export class Resource<T> extends Class implements Loadable {
    * Begin loading the resource and returns a promise to be resolved on completion
    */
   public load(): Promise<T> {
-    const complete = new Promise<T>();
-
-    // Exit early if we already have data
-    if (this.data !== null) {
-      this.logger.debug('Already have data for resource', this.path);
-      complete.resolve(this.data);
-      this.oncomplete();
-      return complete;
-    }
-
-    const request = new XMLHttpRequest();
-    request.open('GET', this.bustCache ? this._cacheBust(this.path) : this.path, true);
-    request.responseType = this.responseType;
-    request.onloadstart = () => {
-      this._start();
-    };
-    request.onprogress = this.onprogress;
-    request.onerror = this.onerror;
-    request.onload = () => {
-      // XHR on file:// success status is 0, such as with PhantomJS
-      if (request.status !== 0 && request.status !== 200) {
-        this.logger.error('Failed to load resource ', this.path, ' server responded with error code', request.status);
-        this.onerror(request.response);
-        complete.resolve(request.response);
+    return new Promise((resolve, reject) => {
+      // Exit early if we already have data
+      if (this.data !== null) {
+        this.logger.debug('Already have data for resource', this.path);
+        resolve(this.data);
+        this.oncomplete();
         return;
       }
 
-      this.data = this.processData(request.response);
+      const request = new XMLHttpRequest();
+      request.open('GET', this.bustCache ? this._cacheBust(this.path) : this.path, true);
+      request.responseType = this.responseType;
+      request.onloadstart = () => {
+        this._start();
+      };
+      request.onprogress = this.onprogress;
+      request.onerror = this.onerror;
+      request.onload = () => {
+        // XHR on file:// success status is 0, such as with PhantomJS
+        if (request.status !== 0 && request.status !== 200) {
+          this.logger.error('Failed to load resource ', this.path, ' server responded with error code', request.status);
+          this.onerror(request.response);
+          reject(request.response);
+          return;
+        }
 
-      this.oncomplete();
-      this.logger.debug('Completed loading resource', this.path);
-      complete.resolve(this.data);
-    };
-    request.send();
-    return complete;
+        this.data = this.processData(request.response);
+
+        this.oncomplete();
+        this.logger.debug('Completed loading resource', this.path);
+        resolve(this.data);
+      };
+      request.send();
+    });
   }
 
   /**
@@ -114,7 +112,7 @@ export class Resource<T> extends Class implements Loadable {
   }
 
   /**
-   * This method is meant to be overridden to handle any additional
+   * This method is meant to be overriden to handle any additional
    * processing. Such as decoding downloaded audio bits.
    */
   public processData(data: T): any {

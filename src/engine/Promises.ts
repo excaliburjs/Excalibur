@@ -1,3 +1,5 @@
+import { obsolete } from './Util/Decorators';
+
 // Promises/A+ Spec http://promises-aplus.github.io/promises-spec/
 
 /**
@@ -29,6 +31,7 @@ export interface PromiseLike<T> {
  *
  * [[include:Promises.md]]
  */
+@obsolete({})
 export class Promise<T> implements PromiseLike<T> {
   private _state: PromiseState = PromiseState.Pending;
   private _value: T;
@@ -127,7 +130,7 @@ export class Promise<T> implements PromiseLike<T> {
     if (successCallback) {
       this._successCallbacks.push(successCallback);
 
-      // If the promise is already resolved call immediately
+      // If the promise is already resovled call immediately
       if (this.state() === PromiseState.Resolved) {
         try {
           successCallback.call(this, this._value);
