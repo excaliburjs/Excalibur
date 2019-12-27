@@ -1,10 +1,8 @@
 import { Vector } from '../Algebra';
-// import { Entity } from '../Entity';
-import { EventDispatcher } from '../EventDispatcher';
-// import { hasPreDraw, hasPostDraw, OnPreDraw, OnPostDraw } from '../Interfaces/LifecycleEvents';
-import { GameEvent, PreDrawEvent, PostDrawEvent } from '../Events';
-import * as Events from '../Events';
-import { Graphic } from './Graphic';
+import { Graphic, DrawOptions } from './Graphic';
+import { Animation } from './Animation';
+import { delay } from '../Util/Delay';
+import { GraphicsGroup } from './GraphicsGroup';
 
 export interface GraphicsComponentOptions {
   /**
@@ -13,11 +11,14 @@ export interface GraphicsComponentOptions {
   current?: string;
 
   /**
-   * Optional visible flag, if the drawing component is not visible it will not be displayed
+   * Optional visible flag, if the graphics component is not visible it will not be displayed
    */
   visible?: boolean;
 
-  // TODO handle opacity
+  /**
+   * Optional opacity
+   */
+  opacity?: number;
 
   /**
    * List of graphics
@@ -33,57 +34,19 @@ export interface GraphicsComponentOptions {
    * Optional rotation to apply to each graphic in this component
    */
   rotation?: number;
-
-  /**
-   * Use default collider draw if no current drawable is specified, will draw the collider shape
-   */
-  useDefaultDraw?: boolean;
 }
 
 /**
  * Component to manage drawings, using with the position component
  */
 export class GraphicsComponent {
-  private _currentDrawing: Graphic;
+  private _currentGfx: Graphic;
   private _graphics: { [graphicName: string]: Graphic } = {};
-  constructor(options?: GraphicsComponentOptions) {
-    // Defaults
-    options = {
-      visible: this.visible,
-      ...options
-    };
-
-    const { current, visible, graphics, offset, rotation, useDefaultDraw } = options;
-
-    this._graphics = graphics || {};
-    this.offset = offset || this.offset;
-    this.visible = !!visible;
-    this.rotation = rotation || 0;
-    this.useDefaultDraw = typeof useDefaultDraw === 'boolean' ? useDefaultDraw : this.useDefaultDraw;
-
-    if (current && this._graphics[current]) {
-      this._currentDrawing = this._graphics[current];
-    }
-  }
-  // onAdd(entity: Entity) {
-  //   this.setTarget(entity);
-  //   this.wire(entity.eventDispatcher);
-  // }
-
-  // onRemove(entity: Entity) {
-  //   this.setTarget(null);
-  //   this.unwire(entity.eventDispatcher);
-  // }
 
   /**
    * Sets or gets wether any drawing should be visible in this component
    */
   public visible: boolean = true;
-
-  /**
-   * Use default collider draw if no current drawable is specified, will draw the collider shape
-   */
-  public useDefaultDraw: boolean = true;
 
   /**
    * Sets or gets wither all drawings should have an opacity, if not set drawings individual opacity is respected
@@ -102,11 +65,31 @@ export class GraphicsComponent {
 
   public rotation?: number | null = null;
 
+  constructor(options?: GraphicsComponentOptions) {
+    // Defaults
+    options = {
+      visible: this.visible,
+      ...options
+    };
+
+    const { current, opacity, visible, graphics, offset, rotation } = options;
+
+    this._graphics = graphics || {};
+    this.offset = offset ?? this.offset;
+    this.opacity = opacity;
+    this.visible = !!visible;
+    this.rotation = rotation ?? 0;
+
+    if (current && this._graphics[current]) {
+      this._currentGfx = this._graphics[current];
+    }
+  }
+
   /**
    * Returns the currently displayed graphic, null if hidden
    */
   public get current(): Graphic {
-    return this._currentDrawing;
+    return this._currentGfx;
   }
 
   /**
@@ -143,19 +126,29 @@ export class GraphicsComponent {
   /**
    * Show a graphic by name, returns a promise that resolves when graphic has finished displaying
    */
-  public show(graphicName: string | number): Promise<Graphic> {
-    this._currentDrawing = this.graphics[graphicName.toString()];
-
-    // Todo does this make sense for looping animations
-    // how do we know this??
-    return Promise.resolve(this._currentDrawing);
+  public show(graphicName: string | number, duration?: number): Promise<Graphic> {
+    const gfx: Graphic = this._graphics[graphicName.toString()];
+    this._currentGfx = gfx;
+    return new Promise((resolve, reject) => {
+      if (!gfx.canFinish && !duration) {
+        reject();
+      } else if (duration) {
+        delay(duration).then(() => {
+          resolve(gfx);
+        });
+      } else {
+        gfx.finished.then(() => {
+          resolve(gfx);
+        });
+      }
+    });
   }
 
   /**
    * Immediately show nothing
    */
   public hide(): Promise<void> {
-    this._currentDrawing = null;
+    this._currentGfx = null;
     return Promise.resolve();
   }
 
@@ -164,10 +157,7 @@ export class GraphicsComponent {
    * If there isn't a current drawing returns [[DrawingComponent.noDrawingWidth]].
    */
   public get width(): number {
-    if (this._currentDrawing) {
-      return this._currentDrawing.width;
-    }
-    return 0;
+    return this._currentGfx?.width ?? 0;
   }
 
   /**
@@ -175,73 +165,29 @@ export class GraphicsComponent {
    * If there isn't a current drawing returns [[DrawingComponent.noDrawingHeight]].
    */
   public get height(): number {
-    if (this._currentDrawing) {
-      return this._currentDrawing.height;
+    return this._currentGfx?.height ?? 0;
+  }
+
+  private _isAnimationOrGroup(graphic: Graphic): graphic is Animation | GraphicsGroup {
+    return graphic instanceof Animation || graphic instanceof GraphicsGroup;
+  }
+
+  public update(elapsed: number) {
+    if (this._isAnimationOrGroup(this.current)) {
+      this.current?.tick(elapsed);
     }
-    return 0;
   }
 
-  // TODO call owner predraw postdraw!!!
-  /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
-   *
-   * Internal _predraw handler for [[onPreDraw]] lifecycle event
-   * @internal
-   */
-  // public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {
-  //   if (hasPreDraw(this.owner)) {
-  //     this.emit('predraw', new PreDrawEvent(ctx, delta, this.owner));
-  //     this.owner.onPreDraw(ctx, delta);
-  //   }
-  //   this.onPreDraw(ctx, delta);
-  // }
-
-  /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
-   *
-   * Internal _postdraw handler for [[onPostDraw]] lifecycle event
-   * @internal
-   */
-  // public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
-  //   if (hasPostDraw(this.owner)) {
-  //     this.emit('postdraw', new PostDrawEvent(ctx, delta, this.owner));
-  //     this.owner.onPostDraw(ctx, delta);
-  //   }
-  //   this.onPostDraw(ctx, delta);
-  // }
-
-  public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number) {
-    // override me
-  }
-
-  public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number) {
-    // override me
-  }
-
-  on(eventName: Events.predraw, handler: (event: Events.PreDrawEvent) => void): void;
-  on(eventName: Events.postdraw, handler: (event: Events.PostDrawEvent) => void): void;
-  on(eventName: string, handler: (event: GameEvent<Entity>) => void): void;
-  on(eventName: string, handler: (event: any) => void): void {
-    this.on(eventName, handler);
-  }
-  once(eventName: Events.predraw, handler: (event: Events.PreDrawEvent) => void): void;
-  once(eventName: Events.postdraw, handler: (event: Events.PostDrawEvent) => void): void;
-  once(eventName: string, handler: (event: GameEvent<Entity>) => void): void;
-  once(eventName: string, handler: (event: any) => void): void {
-    this.once(eventName, handler);
-  }
-  off(eventName: Events.predraw, handler?: (event: Events.PreDrawEvent) => void): void;
-  off(eventName: Events.postdraw, handler?: (event: Events.PostDrawEvent) => void): void;
-  off(eventName: string, handler?: (event: GameEvent<Entity>) => void): void;
-  off(eventName: string, handler?: (event: any) => void): void {
-    this.off(eventName, handler);
+  public draw(ctx: CanvasRenderingContext2D, options?: DrawOptions) {
+    this.current?.draw(ctx, options);
   }
 
   /**
    * Returns a shallow copy of this component
    */
   clone(): GraphicsComponent {
-    // todo implement
-    return this;
+    return new GraphicsComponent({
+      opacity: this.opacity
+    });
   }
 }

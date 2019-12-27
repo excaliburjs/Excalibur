@@ -46,6 +46,7 @@ import { CollisionType } from './Collision/CollisionType';
 import { obsolete } from './Util/Decorators';
 import { Collider } from './Collision/Collider';
 import { Shape } from './Collision/Shape';
+import { GraphicsComponent } from './Graphics/GraphicsComponent';
 
 export function isActor(x: any): x is Actor {
   return x instanceof Actor;
@@ -96,6 +97,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * The unique identifier for the actor
    */
   public id: number = ActorImpl.maxId++;
+
+  public graphics: GraphicsComponent;
 
   /**
    * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
@@ -520,6 +523,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       // set default opacity of an actor to the color
       this.opacity = color.a;
     }
+
+    this.graphics = new GraphicsComponent();
 
     // Build default pipeline
     this.traits.push(new Traits.TileMapCollisionDetection());
@@ -1239,6 +1244,14 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
 
     this._predraw(ctx, delta);
+
+    if (this.graphics.current) {
+      const graphic = this.graphics.current;
+      // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
+      const offsetX = (this._width - graphic.width * graphic.scale.x) * this.anchor.x;
+      const offsetY = (this._height - graphic.height * graphic.scale.y) * this.anchor.y;
+      this.graphics.current.draw(ctx, { x: offsetX, y: offsetY });
+    }
 
     if (this.currentDrawing) {
       const drawing = this.currentDrawing;

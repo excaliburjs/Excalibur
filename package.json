@@ -36,7 +36,7 @@
     "start": "grunt watch",
     "test": "karma start",
     "apidocs": "grunt apidocs",
-    "precommit": "pretty-quick --staged && npm run eslint && npm run eslint:spec",
+    "precommit": "pretty-quick --staged",
     "pretty": "prettier --write \"{src,sandbox/src,sandbox/tests}/**/*.{ts,js,json,css,md}\" --config prettier.config.js"
   },
   "husky": {

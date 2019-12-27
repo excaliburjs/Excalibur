@@ -1,4 +1,3 @@
-import { Promise } from '../Promises';
 import { Engine } from '../Engine';
 
 /**
@@ -7,11 +6,11 @@ import { Engine } from '../Engine';
  *
  * [[include:Loadables.md]]
  */
-export interface Loadable {
+export interface Loadable<T = any> {
   /**
    * Begins loading the resource and returns a promise to be resolved on completion
    */
-  load(): Promise<any>;
+  load(): Promise<T>;
 
   /**
    * Gets the data that was loaded

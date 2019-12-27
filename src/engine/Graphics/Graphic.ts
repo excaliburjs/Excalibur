@@ -34,7 +34,7 @@ export interface GraphicOptions {
 export abstract class Graphic {
   public canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
-  private _dirty: boolean = true;
+  // private _dirty: boolean = true;
 
   // Options
   public flipHorizontal: boolean = false;
@@ -43,6 +43,7 @@ export abstract class Graphic {
   public opacity: number = 1.0;
   public scale = Vector.One;
   public origin = Vector.Zero;
+  public thing: Vector;
   public fillStyle: string = 'black';
   public strokeStyle: string = '';
 
@@ -90,7 +91,7 @@ export abstract class Graphic {
   }
 
   public flagDirty(): void {
-    this._dirty = true;
+    // this._dirty = true;
   }
 
   // Is there a better name for this
@@ -98,29 +99,34 @@ export abstract class Graphic {
     return true;
   }
 
+  public get finished(): Promise<any> {
+    return Promise.resolve();
+  }
+
   /**
    * Rasterize the graphic making it usuable as in excalibur
    */
   public paint(): void {
-    if (this._dirty) {
-      this._ctx.clearRect(0, 0, this.width, this.height);
-      this.draw(this._ctx);
-      this._dirty = false;
-    }
+    // if (this._dirty) {
+    this._ctx.clearRect(0, 0, this.width, this.height);
+    this.draw(this._ctx);
+    //   this._dirty = false;
+    // }
   }
 
   protected _pushTransforms(options?: DrawOptions): void {
-    const { x, y, rotation, width, height, scale, opacity, flipHorizontal, flipVertical } = {
+    options = options ?? {};
+    const { x, y, rotation, width, height, opacity, flipHorizontal, flipVertical } = {
       ...options,
-      x: nullish(options.x, 0),
-      y: nullish(options.y, 0),
-      rotation: nullish(options.rotation, this.rotation),
-      width: nullish(options.width, this.width),
-      height: nullish(options.height, this.height),
-      scale: nullish(options.scale, this.scale),
-      flipHorizontal: nullish(options.flipHorizontal, this.flipHorizontal),
-      flipVertical: nullish(options.flipVertical, this.flipVertical),
-      opacity: nullish(options.opacity, this.opacity)
+      x: options?.x ?? 0,
+      y: options?.y ?? 0,
+      rotation: options?.rotation ?? this.rotation,
+      width: options?.width ?? this.width,
+      height: options?.height ?? this.height,
+      // scale: nullish(options.scale, this.scale),
+      flipHorizontal: options?.flipHorizontal ?? this.flipHorizontal,
+      flipVertical: options?.flipVertical ?? this.flipVertical,
+      opacity: options?.opacity ?? this.opacity
     };
 
     this._ctx.save();
@@ -130,7 +136,7 @@ export abstract class Graphic {
 
     this._ctx.translate(x, y);
     this._ctx.rotate(rotation);
-    this._ctx.scale(scale.x, scale.y);
+    // this._ctx.scale(scale.x, scale.y);
 
     if (flipHorizontal) {
       this._ctx.translate(width, 0);

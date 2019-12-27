@@ -42,8 +42,10 @@ game.setAntialiasing(false);
 game.isDebug = true;
 
 var heartTex = new ex.Texture('../images/heart.png');
+var heartRawImage = new ex.Graphics.RawImage('../images/heart.png');
 var imageRun = new ex.Texture('../images/PlayerRun.png');
 var imageJump = new ex.Texture('../images/PlayerJump.png');
+var imageRun2 = new ex.Graphics.RawImage('../images/PlayerRun.png');
 var imageBlocks = new ex.Texture('../images/BlockA0.png');
 var spriteFontImage = new ex.Texture('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
@@ -51,6 +53,7 @@ var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
 jump.volume = 0.3;
 
 var loader = new ex.Loader();
+loader.addResource(heartRawImage);
 loader.addResource(heartTex);
 loader.addResource(imageRun);
 loader.addResource(imageJump);
@@ -70,7 +73,13 @@ ex.Physics.acc = new ex.Vector(0, 800); // global accel
 var heart = new ex.ScreenElement({ x: 0, y: 0, width: 20 * 2, height: 20 * 2 });
 var heartSprite = heartTex.asSprite();
 heartSprite.scale.setTo(2, 2);
-heart.addDrawing(heartSprite);
+// heart.addDrawing(heartSprite);
+var newSprite = new ex.Graphics.Sprite({ image: heartRawImage });
+newSprite.scale.setTo(2, 2);
+newSprite.flipVertical = true;
+newSprite.flipHorizontal = true;
+newSprite.paint();
+heart.graphics.add(newSprite);
 game.add(heart);
 
 // Turn on debug diagnostics

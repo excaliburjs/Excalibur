@@ -1,7 +1,9 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../tscconfig.json",
   "compilerOptions": {
+    "noEmit": true,
     "strict": true,
     "lib": ["ES2015.Promise"]
-  }
+  },
+  "include": ["./Graphic.ts"]
 }

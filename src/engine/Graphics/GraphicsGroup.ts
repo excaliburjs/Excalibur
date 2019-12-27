@@ -27,6 +27,15 @@ export class GraphicsGroup extends Graphic {
     }
   }
 
+  public reset() {
+    for (const member of this.group) {
+      const maybeAnimation = member.graphic;
+      if (this._isAnimationOrGroup(maybeAnimation)) {
+        maybeAnimation.reset();
+      }
+    }
+  }
+
   public get canFinish(): boolean {
     return this.group.every((g) => g.graphic.canFinish);
   }
@@ -35,7 +44,7 @@ export class GraphicsGroup extends Graphic {
     for (const member of this.group) {
       ctx.save();
       ctx.translate(member.pos.x, member.pos.y);
-      member.graphic.draw(ctx);
+      member.graphic.draw(ctx, options);
       ctx.restore();
     }
   }

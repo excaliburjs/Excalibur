@@ -25,9 +25,15 @@ export class Sprite extends Graphic {
   public source: SourceView;
   public size: Size;
 
+  public static from(image: RawImage): Sprite {
+    return new Sprite({
+      image: image
+    });
+  }
+
   constructor(options: GraphicOptions & SpriteOptions) {
     super(options);
-    // this.image = options.image;
+    this.image = options.image;
     // image might not be loaded... 0 might be a bad sentinel
     this.source = nullish(options.source, { x: 0, y: 0, width: 0, height: 0 });
     this.size = nullish(options.size, { width: 0, height: 0 });
@@ -39,26 +45,30 @@ export class Sprite extends Graphic {
     this.source.height = this.source.height || nativeHeight;
     this.size.width = this.size.width || nativeWidth;
     this.size.height = this.size.height || nativeHeight;
-    this.width = this.size.width;
-    this.height = this.size.height;
+    this.width = this.size.width * this.scale.x;
+    this.height = this.size.height * this.scale.y;
+  }
+
+  private _drawSprite(ctx: CanvasRenderingContext2D, options?: DrawOptions): void {
+    this._updateSpriteDimensions();
+    super._pushTransforms(options);
+    ctx.drawImage(
+      this.image.image,
+      this.source.x,
+      this.source.y,
+      this.source.width,
+      this.source.height,
+      0,
+      0,
+      this.size.width * this.scale.x,
+      this.size.height * this.scale.y
+    );
+    super._popTransforms();
   }
 
   public draw(ctx: CanvasRenderingContext2D, options?: DrawOptions): void {
-    this.image.load().then(() => {
-      this._updateSpriteDimensions();
-      super._pushTransforms(options);
-      ctx.drawImage(
-        this.image.image,
-        this.source.x,
-        this.source.y,
-        this.source.width,
-        this.source.height,
-        0,
-        0,
-        this.size.width,
-        this.size.height
-      );
-      super._popTransforms();
-    });
+    if (this.image.isLoaded()) {
+      this._drawSprite(ctx, options);
+    }
   }
 }

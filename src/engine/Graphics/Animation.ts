@@ -1,6 +1,6 @@
 import { Graphic, GraphicOptions, DrawOptions } from './Graphic';
 import { Vector } from '../Algebra';
-import { nullish, clamp } from '../Util/Util';
+import { clamp } from '../Util/Util';
 
 export enum AnimationStrategy {
   /**
@@ -44,11 +44,13 @@ export class Animation extends Graphic {
   private _direction = 1;
   private _done = false;
 
+  private _finishedResolve: (value?: any) => void;
+
   constructor(options: GraphicOptions & AnimationOptions) {
     super(options);
     this.frames = options.frames;
-    this.strategy = nullish(options.strategy, this.strategy);
-    this.frameDuration = nullish(options.frameDuration, this.frameDuration);
+    this.strategy = options.strategy ?? this.strategy;
+    this.frameDuration = options.frameDuration ?? this.frameDuration;
 
     this.goToFrame(0);
   }
@@ -64,6 +66,11 @@ export class Animation extends Graphic {
     return null;
   }
 
+  public reset(): void {
+    this._done = false;
+    this._currentFrame = 0;
+  }
+
   public get canFinish(): boolean {
     switch (this.strategy) {
       case AnimationStrategy.End:
@@ -76,6 +83,18 @@ export class Animation extends Graphic {
     }
   }
 
+  public get finished(): Promise<any> {
+    if (this._done) {
+      return Promise.resolve();
+    } else {
+      return new Promise((resolve) => {
+        if (!this._finishedResolve) {
+          this._finishedResolve = resolve;
+        }
+      });
+    }
+  }
+
   public get done(): boolean {
     return this._done;
   }
@@ -85,7 +104,7 @@ export class Animation extends Graphic {
     this._timeLeftInFrame = this.frameDuration;
     const maybeFrame = this.frames[this._currentFrame];
     if (maybeFrame) {
-      this._timeLeftInFrame = maybeFrame.duration || this.frameDuration;
+      this._timeLeftInFrame = maybeFrame?.duration || this.frameDuration;
     }
   }
 
@@ -102,6 +121,7 @@ export class Animation extends Graphic {
         next = currentFrame + 1;
         if (next >= this.frames.length) {
           this._done = true;
+          this._finishedResolve();
         }
         break;
       }
@@ -109,6 +129,7 @@ export class Animation extends Graphic {
         next = clamp(currentFrame + 1, 0, this.frames.length - 1);
         if (next >= this.frames.length - 1) {
           this._done = true;
+          this._finishedResolve();
         }
         break;
       }
@@ -137,7 +158,7 @@ export class Animation extends Graphic {
 
   public draw(ctx: CanvasRenderingContext2D, options?: DrawOptions): void {
     if (this.currentFrame) {
-      this.currentFrame.graphic.draw(ctx);
+      this.currentFrame.graphic.draw(ctx, options);
     }
   }
 }

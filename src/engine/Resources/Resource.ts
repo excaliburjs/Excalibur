@@ -29,7 +29,7 @@ export class Resource<T> extends Class implements Loadable<T> {
 
   /**
    * Returns true if the Resource is completely loaded and is ready
-   * to be drawn.
+   * to be used.
    */
   public isLoaded(): boolean {
     return this.data !== null;

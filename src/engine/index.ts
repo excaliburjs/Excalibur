@@ -55,6 +55,10 @@ export { traits as Traits };
 import * as util from './Util/Index';
 export { util as Util };
 
+// ex.Graphics namespace
+import * as graphics from './Graphics/index';
+export { graphics as Graphics };
+
 export * from './Util/Browser';
 export * from './Util/Decorators';
 export * from './Util/Detector';
