@@ -1,5 +1,5 @@
 import { Vector } from '../Algebra';
-import { Graphic, DrawOptions } from './Graphic';
+import { Graphic } from './Graphic';
 import { Animation } from './Animation';
 import { delay } from '../Util/Delay';
 import { GraphicsGroup } from './GraphicsGroup';
@@ -29,6 +29,11 @@ export interface GraphicsComponentOptions {
    * Optional offset in absolute pixels to shift all graphics in this component from each graphic's anchor (default is top left corner)
    */
   offset?: ex.Vector;
+
+  /**
+   * Optional origin
+   */
+  origin?: ex.Vector;
 
   /**
    * Optional rotation to apply to each graphic in this component
@@ -172,14 +177,33 @@ export class GraphicsComponent {
     return graphic instanceof Animation || graphic instanceof GraphicsGroup;
   }
 
+  /**
+   * Update underlying graphics if necesary, called internally
+   * @param elapsed
+   * @internal
+   */
   public update(elapsed: number) {
     if (this._isAnimationOrGroup(this.current)) {
       this.current?.tick(elapsed);
     }
   }
 
-  public draw(ctx: CanvasRenderingContext2D, options?: DrawOptions) {
-    this.current?.draw(ctx, options);
+  /**
+   * Draws the graphics component to the scree, called internally
+   * @param ctx
+   * @param options
+   * @internal
+   */
+  public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    if (this.current) {
+      // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
+      const anchor = this.anchor ?? Vector.Zero;
+      const offsetX = -this.current.width * this.current.scale.x * anchor.x + x;
+      const offsetY = -this.current.height * this.current.scale.y * anchor.y + y;
+
+      // This implementation will
+      ctx.drawImage(this.current.image, offsetX, offsetY);
+    }
   }
 
   /**

@@ -1,5 +1,7 @@
 import { Vector } from '../Algebra';
 import { nullish } from '../Util/Util';
+import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
+import { BoundingBox } from '../Collision/BoundingBox';
 
 export interface DrawOptions {
   x?: number;
@@ -18,6 +20,7 @@ export interface DrawOptions {
 }
 
 export interface GraphicOptions {
+  smoothing?: boolean;
   flipHorizontal?: boolean;
   flipVertical?: boolean;
   rotation?: number;
@@ -32,23 +35,24 @@ export interface GraphicOptions {
 }
 
 export abstract class Graphic {
-  public canvas: HTMLCanvasElement;
+  public image: HTMLCanvasElement;
+  // TODO webgl texture here
   private _ctx: CanvasRenderingContext2D;
-  // private _dirty: boolean = true;
 
   // Options
+  public smoothing: boolean = false;
   public flipHorizontal: boolean = false;
   public flipVertical: boolean = false;
   public rotation: number = 0;
   public opacity: number = 1.0;
   public scale = Vector.One;
   public origin = Vector.Zero;
-  public thing: Vector;
   public fillStyle: string = 'black';
   public strokeStyle: string = '';
 
   constructor(options?: GraphicOptions) {
     if (options) {
+      this.smoothing = nullish(options.smoothing, this.smoothing);
       this.flipHorizontal = nullish(options.flipHorizontal, this.flipHorizontal);
       this.flipVertical = nullish(options.flipVertical, this.flipVertical);
       this.rotation = nullish(options.rotation, this.rotation);
@@ -59,8 +63,8 @@ export abstract class Graphic {
       this.strokeStyle = nullish(options.strokeStyle, this.strokeStyle);
     }
 
-    this.canvas = document.createElement('canvas');
-    const maybeCtx = this.canvas.getContext('2d');
+    this.image = document.createElement('canvas');
+    const maybeCtx = this.image.getContext('2d');
     if (!maybeCtx) {
       throw new Error('Browser does not support 2d canvas drawing');
     } else {
@@ -72,34 +76,47 @@ export abstract class Graphic {
    * Gets or sets the width of the graphic bitmap,
    */
   public get width() {
-    return this.canvas.width;
+    return this.image.width;
   }
 
   /**
    * Gets or sets the height of the graphic bitmap
    */
   public get height() {
-    return this.canvas.height;
+    return this.image.height;
   }
 
   public set width(value: number) {
-    this.canvas.width = value;
+    this.image.width = value;
   }
 
   public set height(value: number) {
-    this.canvas.height = value;
+    this.image.height = value;
   }
 
-  public flagDirty(): void {
-    // this._dirty = true;
+  public get bounds() {
+    return BoundingBox.fromDimension(this.width, this.height);
   }
 
   // Is there a better name for this
+  /**
+   * Whether the graphic has a possible end state
+   */
   public get canFinish(): boolean {
     return true;
   }
 
+  /**
+   * A promise that resolves after the graphic is at the end state
+   */
   public get finished(): Promise<any> {
+    return Promise.resolve();
+  }
+
+  /**
+   * A promise that resolve when the graphic is ready to be painted
+   */
+  public get readyToPaint(): Promise<any> {
     return Promise.resolve();
   }
 
@@ -107,11 +124,10 @@ export abstract class Graphic {
    * Rasterize the graphic making it usuable as in excalibur
    */
   public paint(): void {
-    // if (this._dirty) {
     this._ctx.clearRect(0, 0, this.width, this.height);
+    this._pushTransforms();
     this.draw(this._ctx);
-    //   this._dirty = false;
-    // }
+    this._popTransforms();
   }
 
   protected _pushTransforms(options?: DrawOptions): void {
@@ -130,9 +146,14 @@ export abstract class Graphic {
     };
 
     this._ctx.save();
+
+    this._ctx.imageSmoothingEnabled = this.smoothing;
     this._ctx.strokeStyle = this.strokeStyle;
     this._ctx.fillStyle = this.fillStyle;
     this._ctx.globalAlpha = opacity;
+
+    // adjust center to be origin
+    this._ctx.translate(width / 2, height / 2);
 
     this._ctx.translate(x, y);
     this._ctx.rotate(rotation);
@@ -147,10 +168,15 @@ export abstract class Graphic {
       this._ctx.translate(0, height);
       this._ctx.scale(1, -1);
     }
+    this._ctx.translate(-width / 2, -height / 2);
   }
 
   protected _popTransforms(): void {
     this._ctx.restore();
+  }
+
+  public blit(ex: ExcaliburGraphicsContext, x: number, y: number) {
+    ex.drawImage(this, x, y);
   }
 
   abstract draw(ctx: CanvasRenderingContext2D, options?: DrawOptions): void;

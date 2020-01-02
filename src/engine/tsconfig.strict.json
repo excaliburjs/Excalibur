@@ -1,0 +1,7 @@
+{
+  "extends": "./tscconfig.json",
+  "compilerOptions": {
+    "strict": true
+  },
+  "include": ["./Graphics/Graphic.ts", "./Graphics/RawImage.ts"]
+}

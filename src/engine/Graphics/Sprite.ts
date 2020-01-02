@@ -1,6 +1,7 @@
 import { Graphic, GraphicOptions, DrawOptions } from './Graphic';
 import { RawImage } from './RawImage';
 import { nullish } from '../Util/Util';
+import { vec } from '../Algebra';
 
 export type SourceView = { x: number; y: number; width: number; height: number };
 export type Size = { width: number; height: number };
@@ -21,9 +22,14 @@ export interface SpriteOptions {
 }
 
 export class Sprite extends Graphic {
-  public image: RawImage;
+  public rawImage: RawImage;
   public source: SourceView;
   public size: Size;
+
+  private _readyToPaintResolve: () => void;
+  private _readyToPaint: Promise<any> = new Promise((resolve) => {
+    this._readyToPaintResolve = resolve;
+  });
 
   public static from(image: RawImage): Sprite {
     return new Sprite({
@@ -33,10 +39,19 @@ export class Sprite extends Graphic {
 
   constructor(options: GraphicOptions & SpriteOptions) {
     super(options);
-    this.image = options.image;
-    // image might not be loaded... 0 might be a bad sentinel
+    this.rawImage = options.image;
     this.source = nullish(options.source, { x: 0, y: 0, width: 0, height: 0 });
     this.size = nullish(options.size, { width: 0, height: 0 });
+    this.rawImage.whenLoaded.then(() => {
+      this.origin = vec(this.image.width, this.image.height);
+      this._updateSpriteDimensions();
+      this._readyToPaintResolve();
+      this.paint();
+    });
+  }
+
+  public get readyToPaint(): Promise<any> {
+    return this._readyToPaint;
   }
 
   private _updateSpriteDimensions() {
@@ -45,30 +60,48 @@ export class Sprite extends Graphic {
     this.source.height = this.source.height || nativeHeight;
     this.size.width = this.size.width || nativeWidth;
     this.size.height = this.size.height || nativeHeight;
-    this.width = this.size.width * this.scale.x;
-    this.height = this.size.height * this.scale.y;
-  }
 
-  private _drawSprite(ctx: CanvasRenderingContext2D, options?: DrawOptions): void {
-    this._updateSpriteDimensions();
-    super._pushTransforms(options);
-    ctx.drawImage(
-      this.image.image,
-      this.source.x,
-      this.source.y,
-      this.source.width,
-      this.source.height,
-      0,
-      0,
-      this.size.width * this.scale.x,
-      this.size.height * this.scale.y
-    );
-    super._popTransforms();
-  }
+    let canvasWidth = this.size.width * this.scale.x;
+    let canvasHeight = this.size.height * this.scale.y;
+    this.origin = vec(canvasWidth / 2, canvasHeight / 2);
 
-  public draw(ctx: CanvasRenderingContext2D, options?: DrawOptions): void {
-    if (this.image.isLoaded()) {
-      this._drawSprite(ctx, options);
+    // TODO can rotation be moved to graphic?
+    if (this.rotation) {
+      let rotatedWidth = canvasWidth * Math.abs(Math.cos(this.rotation)) + canvasHeight * Math.abs(Math.sin(this.rotation));
+      let rotatedHeight = canvasWidth * Math.abs(Math.sin(this.rotation)) + canvasHeight * Math.abs(Math.cos(this.rotation));
+      canvasWidth = rotatedWidth;
+      canvasHeight = rotatedHeight;
+      this.origin = this.origin.rotate(this.rotation, vec(rotatedWidth / 2, rotatedHeight / 2));
     }
+
+    this.width = Math.ceil(canvasWidth);
+    this.height = Math.ceil(canvasHeight);
+  }
+
+  public draw(ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
+    if (this.rawImage.isLoaded()) {
+      let paddingLeftRight = (this.width - this.size.width * this.scale.x) / 2;
+      let paddingTopBottom = (this.height - this.size.height * this.scale.y) / 2;
+      ctx.drawImage(
+        this.rawImage.image,
+        this.source.x,
+        this.source.y,
+        this.source.width,
+        this.source.height,
+        // Close but this still isn't perfect
+        0 + paddingLeftRight,
+        0 + paddingTopBottom,
+        this.size.width * this.scale.x,
+        this.size.height * this.scale.y
+      );
+    }
+  }
+
+  public clone(): Sprite {
+    return new Sprite({
+      image: this.rawImage,
+      source: { ...this.source },
+      size: { ...this.size }
+    });
   }
 }

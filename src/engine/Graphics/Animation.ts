@@ -30,7 +30,7 @@ export interface Frame {
 
 export interface AnimationOptions {
   frames: Frame[];
-  frameDuration: number;
+  frameDuration?: number;
   strategy?: AnimationStrategy;
 }
 
@@ -53,6 +53,9 @@ export class Animation extends Graphic {
     this.frameDuration = options.frameDuration ?? this.frameDuration;
 
     this.goToFrame(0);
+    Promise.all(this.frames.map((f) => f.graphic.readyToPaint)).then(() => {
+      this.paint();
+    });
   }
 
   public get tags() {
@@ -60,7 +63,7 @@ export class Animation extends Graphic {
   }
 
   public get currentFrame(): Frame | null {
-    if (this._currentFrame >= 0 && this.currentFrame < this.frames.length) {
+    if (this._currentFrame >= 0 && this._currentFrame < this.frames.length) {
       return this.frames[this._currentFrame];
     }
     return null;
@@ -105,7 +108,10 @@ export class Animation extends Graphic {
     const maybeFrame = this.frames[this._currentFrame];
     if (maybeFrame) {
       this._timeLeftInFrame = maybeFrame?.duration || this.frameDuration;
+      this.width = maybeFrame.graphic?.width;
+      this.height = maybeFrame.graphic?.height;
     }
+    this.paint();
   }
 
   private _nextFrame(): number {
@@ -156,9 +162,9 @@ export class Animation extends Graphic {
     }
   }
 
-  public draw(ctx: CanvasRenderingContext2D, options?: DrawOptions): void {
+  public draw(ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
     if (this.currentFrame) {
-      this.currentFrame.graphic.draw(ctx, options);
+      ctx.drawImage(this.currentFrame.graphic.image, 0, 0);
     }
   }
 }

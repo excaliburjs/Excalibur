@@ -23,5 +23,6 @@
     "src/spec/*.js": true,
     "src/spec/*.map": true
   },
-  "typescript.tsdk": "./node_modules/typescript/lib"
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "typescript.implementationsCodeLens.enabled": true
 }

@@ -20,12 +20,18 @@ export class RawImage extends Resource<HTMLImageElement> {
 
   public image: HTMLImageElement = new Image();
 
+  public whenLoaded: Promise<HTMLImageElement>;
+  private _whenLoadedResolve: (value?: HTMLImageElement | PromiseLike<HTMLImageElement>) => void;
+
   /**
    * The path to the image, can also be a data url like 'data:image/'
    * @param path
    */
   constructor(public readonly path: string, bustCache: boolean = false) {
     super(path, 'blob', bustCache);
+    this.whenLoaded = new Promise<HTMLImageElement>((resolve) => {
+      this._whenLoadedResolve = resolve;
+    });
   }
 
   /**
@@ -39,6 +45,7 @@ export class RawImage extends Resource<HTMLImageElement> {
   private _resolveWhenLoaded(resolve: (value: HTMLImageElement) => void) {
     this.image.addEventListener('load', () => {
       resolve(this.image);
+      this._whenLoadedResolve(this.image);
     });
   }
 

@@ -1147,6 +1147,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     this._initialize(engine);
     this._preupdate(engine, delta);
 
+    // Update underlying graphics
+    this.graphics.update(delta);
+
     // Update action queue
     this.actionQueue.update(delta);
 
@@ -1239,19 +1242,14 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     ctx.rotate(this.rotation);
     ctx.scale(this.scale.x, this.scale.y);
 
+    // Doesnt use the actors anchor...
+    this.graphics.draw(ctx, 0, 0);
+
     // translate canvas by anchor offset
     ctx.save();
     ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
 
     this._predraw(ctx, delta);
-
-    if (this.graphics.current) {
-      const graphic = this.graphics.current;
-      // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-      const offsetX = (this._width - graphic.width * graphic.scale.x) * this.anchor.x;
-      const offsetY = (this._height - graphic.height * graphic.scale.y) * this.anchor.y;
-      this.graphics.current.draw(ctx, { x: offsetX, y: offsetY });
-    }
 
     if (this.currentDrawing) {
       const drawing = this.currentDrawing;

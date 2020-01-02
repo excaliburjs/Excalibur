@@ -76,10 +76,76 @@ heartSprite.scale.setTo(2, 2);
 // heart.addDrawing(heartSprite);
 var newSprite = new ex.Graphics.Sprite({ image: heartRawImage });
 newSprite.scale.setTo(2, 2);
-newSprite.flipVertical = true;
-newSprite.flipHorizontal = true;
+// newSprite.flipVertical = true;
+// newSprite.flipHorizontal = true;
 newSprite.paint();
-heart.graphics.add(newSprite);
+
+var circle = new ex.Graphics.Circle({
+  radius: 30,
+  fillStyle: 'red'
+});
+
+var rect = new ex.Graphics.Rect({
+  width: 100,
+  height: 100,
+  fillStyle: 'green'
+});
+
+var triangle = new ex.Graphics.Polygon({
+  points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
+  fillStyle: 'yellow'
+});
+
+var group = new ex.Graphics.GraphicsGroup([
+  {
+    graphic: newSprite,
+    pos: ex.vec(0, 0)
+  },
+  {
+    graphic: newSprite,
+    pos: ex.vec(50, 0)
+  },
+  {
+    graphic: newSprite,
+    pos: ex.vec(0, 50)
+  },
+  {
+    graphic: circle,
+    pos: ex.vec(50, 50)
+  },
+  {
+    graphic: rect,
+    pos: ex.vec(200, 200)
+  },
+  {
+    graphic: triangle,
+    pos: ex.vec(200, 0)
+  }
+]);
+
+var anim = new ex.Graphics.Animation({
+  frames: [
+    {
+      graphic: newSprite,
+      duration: 500
+    },
+    {
+      graphic: circle,
+      duration: 1000
+    },
+    {
+      graphic: rect,
+      duration: 1500
+    },
+    {
+      graphic: triangle,
+      duration: 2000
+    }
+  ]
+});
+
+// heart.graphics.add(newSprite);
+heart.graphics.add(anim);
 game.add(heart);
 
 // Turn on debug diagnostics
