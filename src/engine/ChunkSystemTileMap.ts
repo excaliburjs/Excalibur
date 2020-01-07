@@ -51,20 +51,14 @@ export class ChunkSystemTileMapImpl extends Class {
   private readonly _spriteSheets: { [key: string]: SpriteSheet };
 
   constructor(config: ChunkSystemTileMapArgs) {
-    if (!Number.isSafeInteger(config.x)) {
-      throw new TypeError(`The x option must be a safe integer, ${config.x} was provided`);
+    if (config.chunkSize <= 0 || !isSafeInteger(config.chunkSize)) {
+      throw new TypeError(`The chunkSize option must be a positive integer, ${config.chunkSize} was provided`);
     }
-    if (!Number.isSafeInteger(config.y)) {
-      throw new TypeError(`The y option must be a safe integer, ${config.y} was provided`);
+    if (config.rows <= 0 || !isSafeInteger(config.rows)) {
+      throw new TypeError(`The maxRows option must be a positive integer, ${config.rows} was provided`);
     }
-    if (!Number.isSafeInteger(config.chunkSize) || config.chunkSize <= 0) {
-      throw new TypeError(`The chunkSize option must be a positive safe integer, ${config.chunkSize} was provided`);
-    }
-    if (!Number.isSafeInteger(config.rows) || config.rows <= 0) {
-      throw new TypeError(`The maxRows option must be a positive safe integer, ${config.rows} was provided`);
-    }
-    if (!Number.isSafeInteger(config.cols) || config.cols <= 0) {
-      throw new TypeError(`The maxCols option must be a positive safe integer, ${config.cols} was provided`);
+    if (config.cols <= 0 || !isSafeInteger(config.cols)) {
+      throw new TypeError(`The maxCols option must be a positive integer, ${config.cols} was provided`);
     }
     if (config.cols % config.chunkSize) {
       throw new Error(
@@ -216,7 +210,7 @@ export class ChunkSystemTileMapImpl extends Class {
   }
 
   private _updateChunk(chunkX: number, chunkY: number, engine: Engine, delta: number): TileMap {
-    const spritesToRegister = Object.entries(this._spriteSheets);
+    const spritesToRegister = objectEntries(this._spriteSheets);
 
     // Update the chunks matrix by adding rows/columns to accomodate the chunk at the specified coordinates
     if (chunkX < this._chunksXOffset) {
@@ -344,3 +338,25 @@ export class ChunkSystemTileMapImpl extends Class {
  * currently needed chunks on demand and unloading the currently unneeded chunks from the memory.
  */
 export class ChunkSystemTileMap extends Configurable(ChunkSystemTileMapImpl) {}
+
+function isSafeInteger(number: number): boolean {
+  type AugmentedNumber = typeof Number & { isSafeInteger(number: number): boolean };
+  if (typeof (Number as AugmentedNumber).isSafeInteger === 'function') {
+    return (Number as AugmentedNumber).isSafeInteger(number);
+  }
+
+  return Math.floor(number) === number && Math.abs(number) <= 9007199254740991;
+}
+
+function objectEntries<T>(object: { [s: string]: T } | ArrayLike<T>): [string, T][] {
+  type AugmentedObject = typeof Object & { entries<T>(object: { [s: string]: T } | ArrayLike<T>): [string, T][] };
+  if (typeof (Object as AugmentedObject).entries === 'function') {
+    return (Object as AugmentedObject).entries(object);
+  }
+
+  const entries: [string, T][] = [];
+  for (const key in object) {
+    entries.push([key, object[key as keyof object]]);
+  }
+  return entries;
+}
