@@ -20,6 +20,7 @@ export * from './Debug';
 export * from './EventDispatcher';
 export * from './Events/MediaEvents';
 export * from './Events';
+export * from './ChunkSystemTileMap';
 export { Label, FontStyle, FontUnit, TextAlign, BaseAlign } from './Label';
 export * from './Loader';
 export { Particle, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterType } from './Particles';
