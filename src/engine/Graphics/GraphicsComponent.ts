@@ -3,6 +3,7 @@ import { Graphic } from './Graphic';
 import { Animation } from './Animation';
 import { delay } from '../Util/Delay';
 import { GraphicsGroup } from './GraphicsGroup';
+import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
 
 export interface GraphicsComponentOptions {
   /**
@@ -134,9 +135,9 @@ export class GraphicsComponent {
   public show(graphicName: string | number, duration?: number): Promise<Graphic> {
     const gfx: Graphic = this._graphics[graphicName.toString()];
     this._currentGfx = gfx;
-    return new Promise((resolve, reject) => {
-      if (!gfx.canFinish && !duration) {
-        reject();
+    return new Promise((resolve) => {
+      if (!duration) {
+        resolve(gfx);
       } else if (duration) {
         delay(duration).then(() => {
           resolve(gfx);
@@ -189,12 +190,12 @@ export class GraphicsComponent {
   }
 
   /**
-   * Draws the graphics component to the scree, called internally
+   * Draws the graphics component to the screen, called internally
    * @param ctx
    * @param options
    * @internal
    */
-  public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  public draw(ctx: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.current) {
       // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
       const anchor = this.anchor ?? Vector.Zero;
@@ -202,7 +203,8 @@ export class GraphicsComponent {
       const offsetY = -this.current.height * this.current.scale.y * anchor.y + y;
 
       // This implementation will
-      ctx.drawImage(this.current.image, offsetX, offsetY);
+      this.current.draw(ctx, offsetX, offsetY);
+      // ctx.drawImage(this.current, offsetX, offsetY);
     }
   }
 

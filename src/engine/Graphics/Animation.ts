@@ -1,6 +1,7 @@
 import { Graphic, GraphicOptions, DrawOptions } from './Graphic';
 import { Vector } from '../Algebra';
 import { clamp } from '../Util/Util';
+import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
 
 export enum AnimationStrategy {
   /**
@@ -53,8 +54,8 @@ export class Animation extends Graphic {
     this.frameDuration = options.frameDuration ?? this.frameDuration;
 
     this.goToFrame(0);
-    Promise.all(this.frames.map((f) => f.graphic.readyToPaint)).then(() => {
-      this.paint();
+    Promise.all(this.frames.map((f) => f.graphic.readyToRasterize)).then(() => {
+      this.rasterize();
     });
   }
 
@@ -111,7 +112,7 @@ export class Animation extends Graphic {
       this.width = maybeFrame.graphic?.width;
       this.height = maybeFrame.graphic?.height;
     }
-    this.paint();
+    this.rasterize();
   }
 
   private _nextFrame(): number {
@@ -162,9 +163,16 @@ export class Animation extends Graphic {
     }
   }
 
-  public draw(ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
+  public draw(ctx: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.currentFrame) {
-      ctx.drawImage(this.currentFrame.graphic.image, 0, 0);
+      // ctx.drawImage(this.currentFrame.graphic, x, y);
+      this.currentFrame.graphic.draw(ctx, x, y);
     }
+  }
+
+  public execute(_ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
+    // if (this.currentFrame) {
+    //   ctx.drawImage(this.currentFrame.graphic._bitmap, 0, 0);
+    // }
   }
 }

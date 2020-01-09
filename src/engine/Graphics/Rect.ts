@@ -13,10 +13,10 @@ export class Rect extends Graphic {
     super(options);
     this.width = options.width;
     this.height = options.height;
-    this.paint();
+    this.rasterize();
   }
 
-  draw(ctx: CanvasRenderingContext2D): void {
+  execute(ctx: CanvasRenderingContext2D): void {
     ctx.fillRect(0, 0, this.width, this.height);
   }
 }

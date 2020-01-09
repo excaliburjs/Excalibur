@@ -39,6 +39,7 @@ import * as Util from './Util/Util';
 import * as Events from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
 import { BrowserEvents } from './Util/Browser';
+import { ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContext } from './Graphics/ExcaliburGraphicsContext';
 
 /**
  * Enum representing the different display modes available to Excalibur
@@ -202,6 +203,11 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * Direct access to the engine's 2D rendering context
    */
   public ctx: CanvasRenderingContext2D;
+
+  /**
+   * Direct access to the excalibur graphics context
+   */
+  public graphicsContext: ExcaliburGraphicsContext;
 
   /**
    * Direct access to the canvas element ID, if an ID exists
@@ -1023,6 +1029,7 @@ O|===|* >________________>\n\
 
     // eslint-disable-next-line
     this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
+    this.graphicsContext = new ExcaliburGraphicsContext2DCanvas(this.ctx);
 
     this._suppressHiDPIScaling = !!options.suppressHiDPIScaling;
     if (!options.suppressHiDPIScaling) {

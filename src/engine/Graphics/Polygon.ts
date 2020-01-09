@@ -12,10 +12,10 @@ export class Polygon extends Graphic {
     this.points = options.points;
     this.width = this.points.reduce((max, p) => Math.max(p.x, max), 0);
     this.height = this.points.reduce((max, p) => Math.max(p.y, max), 0);
-    this.paint();
+    this.rasterize();
   }
 
-  draw(ctx: CanvasRenderingContext2D): void {
+  execute(ctx: CanvasRenderingContext2D): void {
     ctx.beginPath();
     // Iterate through the supplied points and construct a 'polygon'
     const firstPoint = this.points[0];

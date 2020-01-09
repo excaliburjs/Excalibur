@@ -47,6 +47,7 @@ import { obsolete } from './Util/Decorators';
 import { Collider } from './Collision/Collider';
 import { Shape } from './Collision/Shape';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
+import { ExcaliburGraphicsContext } from './Graphics/ExcaliburGraphicsContext';
 
 export function isActor(x: any): x is Actor {
   return x instanceof Actor;
@@ -99,6 +100,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public id: number = ActorImpl.maxId++;
 
   public graphics: GraphicsComponent;
+  private _graphicsContext: ExcaliburGraphicsContext;
 
   /**
    * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
@@ -565,6 +567,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       this.onInitialize(engine);
       super.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
+      this._graphicsContext = engine.graphicsContext;
     }
     for (const child of this.children) {
       child._initialize(engine);
@@ -1231,19 +1234,28 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   // endregion
 
   // #region Drawing
+  private _newdraw(ctx: ExcaliburGraphicsContext, _delta: number) {
+    // Doesnt use the actors anchor...
+    ctx.save();
+    ctx.translate(this.pos.x, this.pos.y);
+    ctx.rotate(this.rotation);
+    ctx.scale(this.scale.x, this.scale.y);
+    this.graphics.draw(ctx, 0, 0); // collider shapes?
+    ctx.restore();
+  }
+
   /**
    * Called by the Engine, draws the actor to the screen
    * @param ctx   The rendering context
    * @param delta The time since the last draw in milliseconds
    */
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
+    this._newdraw(this._graphicsContext, delta);
+
     ctx.save();
     ctx.translate(this.pos.x, this.pos.y);
     ctx.rotate(this.rotation);
     ctx.scale(this.scale.x, this.scale.y);
-
-    // Doesnt use the actors anchor...
-    this.graphics.draw(ctx, 0, 0);
 
     // translate canvas by anchor offset
     ctx.save();

@@ -2,6 +2,7 @@ import { Graphic, GraphicOptions, DrawOptions } from './Graphic';
 import { RawImage } from './RawImage';
 import { nullish } from '../Util/Util';
 import { vec } from '../Algebra';
+import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
 
 export type SourceView = { x: number; y: number; width: number; height: number };
 export type Size = { width: number; height: number };
@@ -43,19 +44,19 @@ export class Sprite extends Graphic {
     this.source = nullish(options.source, { x: 0, y: 0, width: 0, height: 0 });
     this.size = nullish(options.size, { width: 0, height: 0 });
     this.rawImage.whenLoaded.then(() => {
-      this.origin = vec(this.image.width, this.image.height);
+      this.origin = vec(this._bitmap.width, this._bitmap.height);
       this._updateSpriteDimensions();
       this._readyToPaintResolve();
-      this.paint();
+      this.rasterize();
     });
   }
 
-  public get readyToPaint(): Promise<any> {
+  public get readyToRasterize(): Promise<any> {
     return this._readyToPaint;
   }
 
   private _updateSpriteDimensions() {
-    const { width: nativeWidth, height: nativeHeight } = this.image;
+    const { width: nativeWidth, height: nativeHeight } = this.rawImage;
     this.source.width = this.source.width || nativeWidth;
     this.source.height = this.source.height || nativeHeight;
     this.size.width = this.size.width || nativeWidth;
@@ -78,23 +79,58 @@ export class Sprite extends Graphic {
     this.height = Math.ceil(canvasHeight);
   }
 
-  public draw(ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
+  public draw(ex: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.rawImage.isLoaded()) {
-      let paddingLeftRight = (this.width - this.size.width * this.scale.x) / 2;
-      let paddingTopBottom = (this.height - this.size.height * this.scale.y) / 2;
-      ctx.drawImage(
-        this.rawImage.image,
-        this.source.x,
-        this.source.y,
-        this.source.width,
-        this.source.height,
-        // Close but this still isn't perfect
-        0 + paddingLeftRight,
-        0 + paddingTopBottom,
-        this.size.width * this.scale.x,
-        this.size.height * this.scale.y
-      );
+      let width = this.size.width * this.scale.x;
+      let height = this.size.height * this.scale.y;
+      ex.save();
+      // ex.translate(-width / 2, -height / 2);
+
+      ex.translate(x, y);
+      ex.rotate(this.rotation);
+      if (this.flipHorizontal) {
+        ex.translate(width, 0);
+        ex.scale(-1, 1);
+      }
+
+      if (this.flipVertical) {
+        ex.translate(0, height);
+        ex.scale(1, -1);
+      }
+
+      ex.drawImage(this.rawImage, this.source.x, this.source.y, this.source.width, this.source.height, 0, 0, width, height);
+
+      // ex.translate(width / 2, height / 2);
+
+      ex.restore();
     }
+  }
+
+  public rasterize() {
+    // this._updateSpriteDimensions();
+    // super.rasterize();
+  }
+
+  public execute(_ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
+    // if (this.rawImage.isLoaded()) {
+    //   // Should execute do nothing and pass through to the excalibur context...
+    //   let paddingLeftRight = 0;//(this.width - this.size.width * this.scale.x) / 2;
+    //   let paddingTopBottom = 0;//(this.height - this.size.height * this.scale.y) / 2;
+    //   ctx.drawImage(
+    //     this.rawImage.image,
+    //     this.source.x,
+    //     this.source.y,
+    //     this.source.width,
+    //     this.source.height,
+    //     // Close but this still isn't perfect
+    //     0 + paddingLeftRight,
+    //     0 + paddingTopBottom,
+    //     this.size.width * this.scale.x,
+    //     this.size.height * this.scale.y
+    //   );
+    // } else {
+    //   this.flagDirty();
+    // }
   }
 
   public clone(): Sprite {
