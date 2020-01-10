@@ -8,6 +8,7 @@ import { Vector } from './Algebra';
 import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
+import { ChunkSystemTileMap } from './ChunkSystemTileMap';
 import { TileMap } from './TileMap';
 import { Animation } from './Drawing/Animation';
 import { Loader } from './Loader';
@@ -664,6 +665,20 @@ O|===|* >________________>\n\
   }
 
   /**
+   * Adds a [[ChunkSystemTileMap]] to the [[currentScene]], once this is done the ChunkSystemTileMap will be drawn and updated.
+   */
+  public addChunkSystem(chunkSystem: ChunkSystemTileMap): void {
+    this.currentScene.addChunkSystem(chunkSystem);
+  }
+
+  /**
+   * Removes a [[ChunkSystemTileMap]] from the [[currentScene]], it will no longer be drawn or updated.
+   */
+  public removeChunkSystem(chunkSystem: ChunkSystemTileMap): void {
+    this.currentScene.removeChunkSystem(chunkSystem);
+  }
+
+  /**
    * Adds a [[Timer]] to the [[currentScene]].
    * @param timer  The timer to add to the [[currentScene]].
    */
@@ -742,6 +757,10 @@ O|===|* >________________>\n\
    */
   public add(tileMap: TileMap): void;
   /**
+   * Adds a [[ChunkSystemTileMap]] to the [[currentScene]], once this is done the ChunkSystemTileMap will be drawn and updated.
+   */
+  public add(chunkSystem: ChunkSystemTileMap): void;
+  /**
    * Adds an actor to the [[currentScene]] of the game. This is synonymous
    * to calling `engine.currentScene.add(actor)`.
    *
@@ -774,6 +793,9 @@ O|===|* >________________>\n\
     if (entity instanceof TileMap) {
       this.addTileMap(entity);
     }
+    if (entity instanceof ChunkSystemTileMap) {
+      this.addChunkSystem(entity);
+    }
 
     if (arguments.length === 2) {
       this.addScene(<string>arguments[0], <Scene>arguments[1]);
@@ -799,6 +821,10 @@ O|===|* >________________>\n\
    * Removes a [[TileMap]] from the [[currentScene]], it will no longer be drawn or updated.
    */
   public remove(tileMap: TileMap): void;
+  /**
+   * Removes a [[ChunkSystemTileMap]] from the [[currentScene]], it will no longer be drawn or updated.
+   */
+  public remove(chunkSystem: ChunkSystemTileMap): void;
   /**
    * Removes an actor from the [[currentScene]] of the game. This is synonymous
    * to calling `engine.currentScene.removeChild(actor)`.
@@ -826,6 +852,9 @@ O|===|* >________________>\n\
 
     if (entity instanceof TileMap) {
       this.removeTileMap(entity);
+    }
+    if (entity instanceof ChunkSystemTileMap) {
+      this.removeChunkSystem(entity);
     }
 
     if (entity instanceof Scene) {

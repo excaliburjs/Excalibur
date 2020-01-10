@@ -18,6 +18,7 @@ import { DynamicTreeCollisionBroadphase } from './Collision/DynamicTreeCollision
 import { CollisionBroadphase } from './Collision/CollisionResolver';
 import { SortedList } from './Util/SortedList';
 import { Engine } from './Engine';
+import { ChunkSystemTileMap } from './ChunkSystemTileMap';
 import { TileMap } from './TileMap';
 import { Camera } from './Camera';
 import { Actor } from './Actor';
@@ -62,6 +63,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * The [[TileMap]]s in the scene, if any
    */
   public tileMaps: TileMap[] = [];
+
+  /**
+   * The [[ChunkSystemTileMap]]s in the scene, if any
+   */
+  public chunkSystems: ChunkSystemTileMap[] = [];
 
   /**
    * Access to the Excalibur engine
@@ -334,6 +340,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       this.screenElements[i].update(engine, delta);
     }
 
+    // Cycle through actors updating chunk systems
+    for (i = 0, len = this.chunkSystems.length; i < len; i++) {
+      this.chunkSystems[i].update(engine, delta);
+    }
+
     // Cycle through actors updating tile maps
     for (i = 0, len = this.tileMaps.length; i < len; i++) {
       this.tileMaps[i].update(engine, delta);
@@ -419,6 +430,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     let i: number, len: number;
 
+    for (i = 0, len = this.chunkSystems.length; i < len; i++) {
+      this.chunkSystems[i].draw(ctx, delta);
+    }
+
     for (i = 0, len = this.tileMaps.length; i < len; i++) {
       this.tileMaps[i].draw(ctx, delta);
     }
@@ -463,6 +478,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     let i: number, len: number;
 
+    for (i = 0, len = this.chunkSystems.length; i < len; i++) {
+      this.chunkSystems[i].debugDraw(ctx);
+    }
+
     for (i = 0, len = this.tileMaps.length; i < len; i++) {
       this.tileMaps[i].debugDraw(ctx);
     }
@@ -498,6 +517,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Adds a [[TileMap]] to the [[Scene]], once this is done the [[TileMap]] will be drawn and updated.
    */
   public add(tileMap: TileMap): void;
+
+  /**
+   * Adds a [[ChunkSystemTileMap]] to the [[Scene]], once this is done the [[ChunkSystemTileMap]] will be drawn and updated.
+   */
+  public add(chunkSystem: ChunkSystemTileMap): void;
 
   /**
    * Adds a [[Trigger]] to the [[Scene]], once this is done the [[Trigger]] will listen for interactions with other actors.
@@ -543,6 +567,12 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       if (!Util.contains(this.tileMaps, entity)) {
         this.addTileMap(entity);
       }
+      return;
+    }
+    if (entity instanceof ChunkSystemTileMap) {
+      if (!Util.contains(this.chunkSystems, entity)) {
+        this.addChunkSystem(entity);
+      }
     }
   }
 
@@ -557,6 +587,12 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * @param tileMap {TileMap}
    */
   public remove(tileMap: TileMap): void;
+
+  /**
+   * Removes a [[ChunkSystemTileMap]] from the scene, it will no longer be drawn or updated.
+   * @param chunkSystem {ChunkSystemTileMap} The chunk system to remove from the current scene.
+   */
+  public remove(chunkSystem: ChunkSystemTileMap): void;
 
   /**
    * Removes an actor from the scene, it will no longer be drawn or updated.
@@ -584,6 +620,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     if (entity instanceof TileMap) {
       this.removeTileMap(entity);
+    }
+    if (entity instanceof ChunkSystemTileMap) {
+      this.removeChunkSystem(entity);
     }
   }
 
@@ -636,6 +675,23 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     const index = this.tileMaps.indexOf(tileMap);
     if (index > -1) {
       this.tileMaps.splice(index, 1);
+    }
+  }
+
+  /**
+   * Adds a [[ChunkSystemTileMap]] to the scene, once this is done the ChunkSystemTileMap will be drawn and updated.
+   */
+  public addChunkSystem(chunkSystem: ChunkSystemTileMap): void {
+    this.chunkSystems.push(chunkSystem);
+  }
+
+  /**
+   * Removes a [[ChunkSystemTileMap]] from the scene, it will no longer be draawn or updated.
+   */
+  public removeChunkSystem(chunkSystem: ChunkSystemTileMap): void {
+    const index = this.chunkSystems.indexOf(chunkSystem);
+    if (index > -1) {
+      this.chunkSystems.splice(index, 1);
     }
   }
 
