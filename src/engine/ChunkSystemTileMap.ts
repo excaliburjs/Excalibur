@@ -89,6 +89,7 @@ export class ChunkSystemTileMapImpl extends Class {
     this._chunks = [];
     this._chunksXOffset = 0;
     this._chunksYOffset = 0;
+    this._chunksToRender = [];
     this._spriteSheets = {};
   }
 
