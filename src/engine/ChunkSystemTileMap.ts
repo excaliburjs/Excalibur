@@ -166,10 +166,10 @@ export class ChunkSystemTileMapImpl extends Class {
     const worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
     const worldCoordsLowerRight = engine.screenToWorldCoordinates(new Vector(engine.canvas.clientWidth, engine.canvas.clientHeight));
 
-    const cellOnScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - this.x) / this.cellWidth) - 2, 0);
-    const cellOnScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
-    const cellOnScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0);
-    const cellOnScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
+    const cellOnScreenXStart = Math.min(Math.max(Math.floor((worldCoordsUpperLeft.x - this.x) / this.cellWidth) - 2, 0), this.cols - 1);
+    const cellOnScreenYStart = Math.min(Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0), this.rows - 1);
+    const cellOnScreenXEnd = Math.min(Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0), this.cols - 1);
+    const cellOnScreenYEnd = Math.min(Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0), this.rows - 1);
 
     const chunkOnScreenXStart = Math.floor(cellOnScreenXStart / this.chunkSize);
     const chunkOnScreenYStart = Math.floor(cellOnScreenYStart / this.chunkSize);
