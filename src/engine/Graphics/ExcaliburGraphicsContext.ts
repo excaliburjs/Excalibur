@@ -15,6 +15,8 @@ export interface ExcaliburGraphicsContext {
 
   // diag: ExcaliburContextDiagnostics;
 
+  drawDebugRect(x: number, y: number, width: number, height: number): void;
+
   /**
    *
    * @param image
@@ -80,6 +82,13 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   public snapToPixel: boolean = false;
 
   constructor(private _ctx: CanvasRenderingContext2D) {}
+
+  drawDebugRect(x: number, y: number, width: number, height: number): void {
+    this._ctx.save();
+    this._ctx.strokeStyle = 'red';
+    this._ctx.strokeRect(x, y, width, height);
+    this._ctx.restore();
+  }
 
   /**
    *

@@ -15,8 +15,9 @@ export class GraphicsGroup extends Graphic {
     super();
     this.members = members;
     Promise.all(this.members.map((g) => g.graphic.readyToRasterize)).then(() => {
-      let groupBB: BoundingBox = this.members.reduce((bb, grouping) => {
-        return bb.combine(grouping.graphic.bounds.translate(grouping.pos));
+      let groupBB: BoundingBox = this.members.reduce((bb, member) => {
+        member.graphic.rasterize();
+        return bb.combine(member.graphic.bounds.translate(member.pos));
       }, new BoundingBox());
       this.width = groupBB.width;
       this.height = groupBB.height;
@@ -60,21 +61,15 @@ export class GraphicsGroup extends Graphic {
     for (const member of this.members) {
       ex.save();
       ex.translate(x, y);
-      // ex.imageSmoothingEnabled = false; // todo this is odd can this be on graphic?
-      ex.translate(member.pos.x, member.pos.y);
-      member.graphic.draw(ex, 0, 0);
-      // ex.drawImage(member.graphic._bitmap, 0, 0);
+      if (this.showDebug) {
+        ex.drawDebugRect(0, 0, this.width, this.height);
+      }
+      member.graphic.draw(ex, member.pos.x, member.pos.y);
       ex.restore();
     }
   }
 
   public execute(_ctx: CanvasRenderingContext2D, _options?: DrawOptions) {
-    // for (const member of this.members) {
-    //   ctx.save();
-    //   ctx.imageSmoothingEnabled = false; // todo this is odd can this be on graphic?
-    //   ctx.translate(member.pos.x, member.pos.y);
-    //   ctx.drawImage(member.graphic._bitmap, 0, 0);
-    //   ctx.restore();
-    // }
+    // Nothing to raster
   }
 }

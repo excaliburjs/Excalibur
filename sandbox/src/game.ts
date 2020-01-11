@@ -81,7 +81,7 @@ newSprite.scale = ex.vec(2, 2);
 // newSprite.paint();
 
 var circle = new ex.Graphics.Circle({
-  radius: 30,
+  radius: 10,
   fillStyle: 'red'
 });
 
@@ -140,12 +140,11 @@ var group = new ex.Graphics.GraphicsGroup([
   },
   {
     graphic: triangle,
-    pos: ex.vec(200, 0)
+    pos: ex.vec(0, 200)
   }
 ]);
 
-// heart.graphics.add(newSprite);
-heart.graphics.add(newSprite);
+heart.graphics.add(group);
 game.add(heart);
 
 // Turn on debug diagnostics

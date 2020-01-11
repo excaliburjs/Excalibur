@@ -48,6 +48,8 @@ export abstract class Graphic {
   private _dirty: boolean = true;
   private _bounds: BoundingBox;
 
+  public showDebug: boolean = false;
+
   /**
    * Gets whether teh graphic is dirty
    */
@@ -244,9 +246,15 @@ export abstract class Graphic {
   public rasterize(): void {
     this._dirty = false;
     this._ctx.clearRect(0, 0, this.width, this.height);
-    this._pushContextTransforms();
+    // this._pushContextTransforms();
+    this._ctx.save();
+    this._ctx.imageSmoothingEnabled = this.smoothing;
+    this._ctx.strokeStyle = this.strokeStyle;
+    this._ctx.fillStyle = this.fillStyle;
+    this._ctx.globalAlpha = this.opacity;
     this.execute(this._ctx);
-    this._popContextTransforms();
+    this._ctx.restore();
+    // this._popContextTransforms();
   }
 
   protected _pushContextTransforms(options?: DrawOptions): void {
@@ -279,10 +287,12 @@ export abstract class Graphic {
     // this._ctx.scale(scale.x, scale.y);
 
     if (flipHorizontal) {
+      this._ctx.translate(width, 0);
       this._ctx.scale(-1, 1);
     }
 
     if (flipVertical) {
+      this._ctx.translate(0, height);
       this._ctx.scale(1, -1);
     }
     this._ctx.translate(width / 2, height / 2);
@@ -305,6 +315,32 @@ export abstract class Graphic {
       this.rasterize();
     }
 
+    ex.save();
+    ex.translate(x, y);
+    ex.translate(this.width / 2, this.height / 2);
+    ex.rotate(this.rotation);
+    ex.translate(-this.width / 2, -this.height / 2);
+    // this._ctx.scale(scale.x, scale.y);
+
+    if (this.flipHorizontal) {
+      ex.translate(this.width, 0);
+      ex.scale(-1, 1);
+    }
+
+    if (this.flipVertical) {
+      ex.translate(0, this.height);
+      ex.scale(1, -1);
+    }
+
+    this.drawImage(ex, 0, 0);
+
+    if (this.showDebug) {
+      ex.drawDebugRect(0, 0, this.width, this.height);
+    }
+    ex.restore();
+  }
+
+  public drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
     ex.drawImage(this, x, y);
   }
 

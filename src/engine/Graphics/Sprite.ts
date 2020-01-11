@@ -66,14 +66,14 @@ export class Sprite extends Graphic {
     let canvasHeight = this.size.height * this.scale.y;
     this.origin = vec(canvasWidth / 2, canvasHeight / 2);
 
-    // TODO can rotation be moved to graphic?
-    if (this.rotation) {
-      let rotatedWidth = canvasWidth * Math.abs(Math.cos(this.rotation)) + canvasHeight * Math.abs(Math.sin(this.rotation));
-      let rotatedHeight = canvasWidth * Math.abs(Math.sin(this.rotation)) + canvasHeight * Math.abs(Math.cos(this.rotation));
-      canvasWidth = rotatedWidth;
-      canvasHeight = rotatedHeight;
-      this.origin = this.origin.rotate(this.rotation, vec(rotatedWidth / 2, rotatedHeight / 2));
-    }
+    // // TODO can rotation be moved to graphic?
+    // if (this.rotation) {
+    //   let rotatedWidth = canvasWidth * Math.abs(Math.cos(this.rotation)) + canvasHeight * Math.abs(Math.sin(this.rotation));
+    //   let rotatedHeight = canvasWidth * Math.abs(Math.sin(this.rotation)) + canvasHeight * Math.abs(Math.cos(this.rotation));
+    //   canvasWidth = rotatedWidth;
+    //   canvasHeight = rotatedHeight;
+    //   this.origin = this.origin.rotate(this.rotation, vec(rotatedWidth / 2, rotatedHeight / 2));
+    // }
 
     this.width = Math.ceil(canvasWidth);
     this.height = Math.ceil(canvasHeight);
@@ -81,56 +81,18 @@ export class Sprite extends Graphic {
 
   public draw(ex: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.rawImage.isLoaded()) {
-      let width = this.size.width * this.scale.x;
-      let height = this.size.height * this.scale.y;
-      ex.save();
-      // ex.translate(-width / 2, -height / 2);
-
-      ex.translate(x, y);
-      ex.rotate(this.rotation);
-      if (this.flipHorizontal) {
-        ex.translate(width, 0);
-        ex.scale(-1, 1);
-      }
-
-      if (this.flipVertical) {
-        ex.translate(0, height);
-        ex.scale(1, -1);
-      }
-
-      ex.drawImage(this.rawImage, this.source.x, this.source.y, this.source.width, this.source.height, 0, 0, width, height);
-
-      // ex.translate(width / 2, height / 2);
-
-      ex.restore();
+      super.draw(ex, x, y);
     }
   }
 
-  public rasterize() {
-    // this._updateSpriteDimensions();
-    // super.rasterize();
+  public drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
+    let width = this.size.width * this.scale.x;
+    let height = this.size.height * this.scale.y;
+    ex.drawImage(this.rawImage, this.source.x, this.source.y, this.source.width, this.source.height, x, y, width, height);
   }
 
   public execute(_ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
-    // if (this.rawImage.isLoaded()) {
-    //   // Should execute do nothing and pass through to the excalibur context...
-    //   let paddingLeftRight = 0;//(this.width - this.size.width * this.scale.x) / 2;
-    //   let paddingTopBottom = 0;//(this.height - this.size.height * this.scale.y) / 2;
-    //   ctx.drawImage(
-    //     this.rawImage.image,
-    //     this.source.x,
-    //     this.source.y,
-    //     this.source.width,
-    //     this.source.height,
-    //     // Close but this still isn't perfect
-    //     0 + paddingLeftRight,
-    //     0 + paddingTopBottom,
-    //     this.size.width * this.scale.x,
-    //     this.size.height * this.scale.y
-    //   );
-    // } else {
-    //   this.flagDirty();
-    // }
+    // Nothing to raster
   }
 
   public clone(): Sprite {

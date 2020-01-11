@@ -171,8 +171,6 @@ export class Animation extends Graphic {
   }
 
   public execute(_ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
-    // if (this.currentFrame) {
-    //   ctx.drawImage(this.currentFrame.graphic._bitmap, 0, 0);
-    // }
+    // Nothing to raster
   }
 }
