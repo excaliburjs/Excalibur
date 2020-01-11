@@ -8,6 +8,7 @@ import { SpriteSheet } from './Drawing/SpriteSheet';
 import { Cell, TileMap } from './TileMap';
 
 type ChunkGenerator = (chunkColumn: number, chunkRow: number, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => TileMap;
+type SimpleChunkGenerator = (chunk: TileMap, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => TileMap;
 
 type ChunkSystemGarbageCollectorPredicate = (chunk: TileMap, engine: Engine) => boolean;
 
@@ -332,6 +333,20 @@ export class ChunkSystemTileMapImpl extends Class {
  * currently needed chunks on demand and unloading the currently unneeded chunks from the memory.
  */
 export class ChunkSystemTileMap extends Configurable(ChunkSystemTileMapImpl) {}
+
+export function wrapSimpleChunkGenerator(simpleGenerator: SimpleChunkGenerator): ChunkGenerator {
+  return (chunkColumn: number, chunkRow: number, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => {
+    const chunk = new TileMap({
+      x: chunkSystemTileMap.x + chunkColumn * chunkSystemTileMap.cellWidth * chunkSystemTileMap.chunkSize,
+      y: chunkSystemTileMap.y + chunkRow * chunkSystemTileMap.cellHeight * chunkSystemTileMap.chunkSize,
+      cellWidth: chunkSystemTileMap.cellWidth,
+      cellHeight: chunkSystemTileMap.cellHeight,
+      rows: chunkSystemTileMap.chunkSize,
+      cols: chunkSystemTileMap.chunkSize
+    });
+    return simpleGenerator(chunk, chunkSystemTileMap, engine);
+  };
+}
 
 function isSafeInteger(number: number): boolean {
   type AugmentedNumber = typeof Number & { isSafeInteger(number: number): boolean };
