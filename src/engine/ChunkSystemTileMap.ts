@@ -7,10 +7,10 @@ import * as Events from './Events';
 import { SpriteSheet } from './Drawing/SpriteSheet';
 import { Cell, TileMap } from './TileMap';
 
-type ChunkGenerator = (chunkColumn: number, chunkRow: number, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => TileMap;
-type SimpleChunkGenerator = (chunk: TileMap, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => TileMap;
+export type ChunkGenerator = (chunkColumn: number, chunkRow: number, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => TileMap;
+export type SimpleChunkGenerator = (chunk: TileMap, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => TileMap;
 
-type ChunkSystemGarbageCollectorPredicate = (chunk: TileMap, engine: Engine) => boolean;
+export type ChunkSystemGarbageCollectorPredicate = (chunk: TileMap, engine: Engine) => boolean;
 
 interface ChunkSystemTileMapArgs {
   x: number;
