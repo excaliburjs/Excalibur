@@ -7,13 +7,7 @@ import * as Events from './Events';
 import { SpriteSheet } from './Drawing/SpriteSheet';
 import { Cell, TileMap } from './TileMap';
 
-type ChunkGenerator = (
-  chunkX: number,
-  chunkY: number,
-  chunkSize: number,
-  chunkSystemTileMap: ChunkSystemTileMap,
-  engine: Engine
-) => TileMap;
+type ChunkGenerator = (chunkColumn: number, chunkRow: number, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => TileMap;
 
 type ChunkSystemGarbageCollectorPredicate = (chunk: TileMap, engine: Engine) => boolean;
 
@@ -236,7 +230,7 @@ export class ChunkSystemTileMapImpl extends Class {
     // Create the chunk if it does not exist already and update it
     const chunkRow = this._chunks[chunkY - this._chunksYOffset];
     if (!chunkRow[chunkX - this._chunksXOffset]) {
-      const chunk = this.chunkGenerator(chunkX, chunkY, this.chunkSize, this, engine);
+      const chunk = this.chunkGenerator(chunkX, chunkY, this, engine);
       for (let spriteIndex = 0; spriteIndex < spritesToRegister.length; spriteIndex++) {
         const [key, spriteSheet] = spritesToRegister[spriteIndex];
         chunk.registerSpriteSheet(key, spriteSheet);
