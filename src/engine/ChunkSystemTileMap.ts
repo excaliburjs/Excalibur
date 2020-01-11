@@ -183,6 +183,7 @@ export class ChunkSystemTileMapImpl extends Class {
       this._chunksYOffset = chunkOnScreenYStart;
     }
 
+    this._chunksToRender.splice(0);
     for (let chunkY = chunkOnScreenYStart; chunkY <= chunkOnScreenYEnd; chunkY++) {
       for (let chunkX = chunkOnScreenXStart; chunkX <= chunkOnScreenXEnd; chunkX++) {
         this._chunksToRender.push(this._updateChunk(chunkX, chunkY, engine, delta));
@@ -195,18 +196,16 @@ export class ChunkSystemTileMapImpl extends Class {
   public draw(ctx: CanvasRenderingContext2D, delta: number): void {
     this.emit('predraw', new Events.PreDrawEvent(ctx, delta, this));
 
-    while (this._chunksToRender.length) {
-      const chunk = this._chunksToRender.shift();
-      chunk.draw(ctx, delta);
+    for (let i = 0, len = this._chunksToRender.length; i < len; i++) {
+      this._chunksToRender[i].draw(ctx, delta);
     }
 
     this.emit('postdraw', new Events.PostDrawEvent(ctx, delta, this));
   }
 
   public debugDraw(ctx: CanvasRenderingContext2D): void {
-    while (this._chunksToRender.length) {
-      const chunk = this._chunksToRender.shift();
-      chunk.debugDraw(ctx);
+    for (let i = 0, len = this._chunksToRender.length; i < len; i++) {
+      this._chunksToRender[i].debugDraw(ctx);
     }
   }
 
