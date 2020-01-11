@@ -246,59 +246,12 @@ export abstract class Graphic {
   public rasterize(): void {
     this._dirty = false;
     this._ctx.clearRect(0, 0, this.width, this.height);
-    // this._pushContextTransforms();
     this._ctx.save();
     this._ctx.imageSmoothingEnabled = this.smoothing;
     this._ctx.strokeStyle = this.strokeStyle;
     this._ctx.fillStyle = this.fillStyle;
     this._ctx.globalAlpha = this.opacity;
     this.execute(this._ctx);
-    this._ctx.restore();
-    // this._popContextTransforms();
-  }
-
-  protected _pushContextTransforms(options?: DrawOptions): void {
-    options = options ?? {};
-    const { x, y, rotation, width, height, opacity, flipHorizontal, flipVertical } = {
-      ...options,
-      x: options?.x ?? 0,
-      y: options?.y ?? 0,
-      rotation: options?.rotation ?? this.rotation,
-      width: options?.width ?? this.width,
-      height: options?.height ?? this.height,
-      // scale: nullish(options.scale, this.scale),
-      flipHorizontal: options?.flipHorizontal ?? this.flipHorizontal,
-      flipVertical: options?.flipVertical ?? this.flipVertical,
-      opacity: options?.opacity ?? this.opacity
-    };
-
-    this._ctx.save();
-
-    this._ctx.imageSmoothingEnabled = this.smoothing;
-    this._ctx.strokeStyle = this.strokeStyle;
-    this._ctx.fillStyle = this.fillStyle;
-    this._ctx.globalAlpha = opacity;
-
-    // adjust center to be origin
-    this._ctx.translate(-width / 2, -height / 2);
-
-    this._ctx.translate(x, y);
-    this._ctx.rotate(rotation);
-    // this._ctx.scale(scale.x, scale.y);
-
-    if (flipHorizontal) {
-      this._ctx.translate(width, 0);
-      this._ctx.scale(-1, 1);
-    }
-
-    if (flipVertical) {
-      this._ctx.translate(0, height);
-      this._ctx.scale(1, -1);
-    }
-    this._ctx.translate(width / 2, height / 2);
-  }
-
-  protected _popContextTransforms(): void {
     this._ctx.restore();
   }
 
@@ -317,6 +270,7 @@ export abstract class Graphic {
 
     ex.save();
     ex.translate(x, y);
+    // TODO handle with origin/anchor
     ex.translate(this.width / 2, this.height / 2);
     ex.rotate(this.rotation);
     ex.translate(-this.width / 2, -this.height / 2);
