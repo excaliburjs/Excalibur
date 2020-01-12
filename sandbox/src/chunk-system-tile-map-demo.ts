@@ -44,10 +44,32 @@
     chunkSystem.registerSpriteSheet('surface', spriteSheet);
     game.add(chunkSystem);
 
-    function chunkGenerator(chunk: ex.TileMap, chunkSystemTileMap: ex.ChunkSystemTileMap, engine: ex.Engine): ex.TileMap {
+    const perlinNoiseGenerator = new ex.PerlinGenerator({
+      amplitude: 1,
+      frequency: 1,
+      octaves: 1,
+      persistance: 0.5
+    });
+    function chunkGenerator(
+      chunk: ex.TileMap,
+      chunkCellColumn: number,
+      chunkCellRow: number,
+      chunkSystemTileMap: ex.ChunkSystemTileMap,
+      engine: ex.Engine
+    ): ex.TileMap {
       for (let y = 0, cols = chunk.cols, rows = chunk.rows; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
-          chunk.getCell(x, y).pushSprite(Math.random() < 0.5 ? dirtSprite : waterSprite);
+          const tileValue = perlinNoiseGenerator.noise(
+            (chunkCellColumn + x) / chunkSystemTileMap.chunkSize,
+            (chunkCellRow + y) / chunkSystemTileMap.chunkSize
+          );
+          const cell = chunk.getCell(x, y);
+          if (tileValue >= 0.5) {
+            cell.pushSprite(dirtSprite);
+          } else {
+            cell.pushSprite(waterSprite);
+            cell.solid = true;
+          }
         }
       }
       return chunk;
@@ -55,6 +77,12 @@
   });
 
   class Player extends ex.Actor {
+    constructor() {
+      super();
+
+      this.body.collider.type = ex.CollisionType.Active;
+    }
+
     public update(engine: ex.Engine, delta: number): void {
       super.update(engine, delta);
 
