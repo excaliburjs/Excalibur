@@ -12,6 +12,10 @@ export type SimpleChunkGenerator = (chunk: TileMap, chunkSystemTileMap: ChunkSys
 
 export type ChunkSystemGarbageCollectorPredicate = (chunk: TileMap, engine: Engine) => boolean;
 
+export type ChunkRenderingCachePredicate = (chunk: TileMap) => boolean;
+
+type CachedTileMap = TileMap & { renderingCache: null | HTMLCanvasElement };
+
 interface ChunkSystemTileMapArgs {
   x: number;
   y: number;
@@ -22,6 +26,7 @@ interface ChunkSystemTileMapArgs {
   cols: number;
   chunkGenerator: ChunkGenerator;
   chunkGarbageCollectorPredicate: ChunkSystemGarbageCollectorPredicate;
+  chunkRenderingCachePredicate?: null | ChunkRenderingCachePredicate;
 }
 
 /**
@@ -39,11 +44,12 @@ export class ChunkSystemTileMapImpl extends Class {
   public readonly chunkRows: number;
   public readonly chunkGenerator: ChunkGenerator;
   public readonly chunkGarbageCollectorPredicate: ChunkSystemGarbageCollectorPredicate;
-  private readonly _chunks: Array<Array<TileMap | undefined> | undefined>;
+  private readonly _chunks: Array<Array<CachedTileMap | undefined> | undefined>;
   private _chunksXOffset: number;
   private _chunksYOffset: number;
-  private readonly _chunksToRender: TileMap[];
+  private readonly _chunksToRender: CachedTileMap[];
   private readonly _spriteSheets: { [key: string]: SpriteSheet };
+  private readonly _chunkRenderingCachePredicate: null | ChunkRenderingCachePredicate;
 
   constructor(config: ChunkSystemTileMapArgs) {
     if (config.chunkSize <= 0 || !isSafeInteger(config.chunkSize)) {
@@ -86,6 +92,7 @@ export class ChunkSystemTileMapImpl extends Class {
     this._chunksYOffset = 0;
     this._chunksToRender = [];
     this._spriteSheets = {};
+    this._chunkRenderingCachePredicate = config.chunkRenderingCachePredicate || null;
   }
 
   public registerSpriteSheet(key: string, spriteSheet: SpriteSheet): void {
@@ -192,7 +199,12 @@ export class ChunkSystemTileMapImpl extends Class {
     this.emit('predraw', new Events.PreDrawEvent(ctx, delta, this));
 
     for (let i = 0, len = this._chunksToRender.length; i < len; i++) {
-      this._chunksToRender[i].draw(ctx, delta);
+      const chunk = this._chunksToRender[i];
+      if (chunk.renderingCache) {
+        ctx.drawImage(chunk.renderingCache, chunk.x, chunk.y);
+      } else {
+        chunk.draw(ctx, delta);
+      }
     }
 
     this.emit('postdraw', new Events.PostDrawEvent(ctx, delta, this));
@@ -204,7 +216,7 @@ export class ChunkSystemTileMapImpl extends Class {
     }
   }
 
-  private _updateChunk(chunkX: number, chunkY: number, engine: Engine, delta: number): TileMap {
+  private _updateChunk(chunkX: number, chunkY: number, engine: Engine, delta: number): CachedTileMap {
     const spritesToRegister = objectEntries(this._spriteSheets);
 
     // Update the chunks matrix by adding rows/columns to accomodate the chunk at the specified coordinates
@@ -236,10 +248,32 @@ export class ChunkSystemTileMapImpl extends Class {
         const [key, spriteSheet] = spritesToRegister[spriteIndex];
         chunk.registerSpriteSheet(key, spriteSheet);
       }
-      chunkRow[chunkX - this._chunksXOffset] = chunk;
+      chunkRow[chunkX - this._chunksXOffset] = assign(chunk, { renderingCache: null });
     }
     const chunk = chunkRow[chunkX - this._chunksXOffset];
-    chunk.update(engine, delta);
+
+    if (this._chunkRenderingCachePredicate && !chunk.renderingCache && this._chunkRenderingCachePredicate(chunk)) {
+      // We trick the TileMap chunk into assuming it is entirely visible on the screen, forcing it to render all its cells so that we may
+      // cache the rendering result.
+      const virtualEngine = Object.create(engine);
+      virtualEngine.screenToWorldCoordinates = (point: Vector): Vector => {
+        if (!point.x && !point.y) {
+          return new Vector(chunk.x, chunk.y);
+        }
+        return new Vector(chunk.x + chunk.cols * chunk.cellWidth, chunk.y + chunk.rows * chunk.cellHeight);
+      };
+      chunk.update(virtualEngine, delta);
+
+      chunk.renderingCache = document.createElement('canvas');
+      chunk.renderingCache.width = chunk.cols * chunk.cellWidth;
+      chunk.renderingCache.height = chunk.rows * chunk.cellHeight;
+      const cacheRenderingContext = chunk.renderingCache.getContext('2d');
+      cacheRenderingContext.translate(-chunk.x, -chunk.y);
+      chunk.draw(cacheRenderingContext, delta);
+    } else {
+      chunk.update(engine, delta);
+    }
+
     return chunk;
   }
 
@@ -355,6 +389,20 @@ function isSafeInteger(number: number): boolean {
   }
 
   return Math.floor(number) === number && Math.abs(number) <= 9007199254740991;
+}
+
+function assign<T extends object, E extends object>(target: T, extension: E): T & E {
+  type AugmentedObject = typeof Object & { assign<T extends object, E extends object>(target: T, extension: E): T & E };
+  if (typeof (Object as AugmentedObject).assign === 'function') {
+    return (Object as AugmentedObject).assign(target, extension);
+  }
+
+  const extendedTarget = target as T & E;
+  for (const [key, value] of objectEntries(extension as { [key: string]: any })) {
+    extendedTarget[key as keyof E] = value;
+  }
+
+  return extendedTarget;
 }
 
 function objectEntries<T>(object: { [s: string]: T } | ArrayLike<T>): [string, T][] {

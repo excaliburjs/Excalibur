@@ -38,7 +38,8 @@
       y: -(CHUNK_ROWS * CHUNK_SIZE * CHUNK_CELL_HEIGHT) / 2,
       cols: CHUNK_COLS * CHUNK_SIZE,
       rows: CHUNK_ROWS * CHUNK_SIZE,
-      chunkGenerator: ex.wrapSimpleChunkGenerator(chunkGenerator)
+      chunkGenerator: ex.wrapSimpleChunkGenerator(chunkGenerator),
+      chunkRenderingCachePredicate: (chunk: ex.TileMap): boolean => true
     });
     chunkSystem.registerSpriteSheet('surface', spriteSheet);
     game.add(chunkSystem);
