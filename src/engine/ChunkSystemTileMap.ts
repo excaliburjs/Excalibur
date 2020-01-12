@@ -8,7 +8,13 @@ import { SpriteSheet } from './Drawing/SpriteSheet';
 import { Cell, TileMap } from './TileMap';
 
 export type ChunkGenerator = (chunkColumn: number, chunkRow: number, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => TileMap;
-export type SimpleChunkGenerator = (chunk: TileMap, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => TileMap;
+export type SimpleChunkGenerator = (
+  chunk: TileMap,
+  chunkCellColumn: number,
+  chunkCellRow: number,
+  chunkSystemTileMap: ChunkSystemTileMap,
+  engine: Engine
+) => TileMap;
 
 export type ChunkSystemGarbageCollectorPredicate = (chunk: TileMap, engine: Engine) => boolean;
 
@@ -370,15 +376,17 @@ export class ChunkSystemTileMap extends Configurable(ChunkSystemTileMapImpl) {}
 
 export function wrapSimpleChunkGenerator(simpleGenerator: SimpleChunkGenerator): ChunkGenerator {
   return (chunkColumn: number, chunkRow: number, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => {
+    const chunkCellColumn = chunkColumn * chunkSystemTileMap.chunkSize;
+    const chunkCellRow = chunkRow * chunkSystemTileMap.chunkSize;
     const chunk = new TileMap({
-      x: chunkSystemTileMap.x + chunkColumn * chunkSystemTileMap.cellWidth * chunkSystemTileMap.chunkSize,
-      y: chunkSystemTileMap.y + chunkRow * chunkSystemTileMap.cellHeight * chunkSystemTileMap.chunkSize,
+      x: chunkSystemTileMap.x + chunkCellColumn * chunkSystemTileMap.cellWidth,
+      y: chunkSystemTileMap.y + chunkCellRow * chunkSystemTileMap.cellHeight,
       cellWidth: chunkSystemTileMap.cellWidth,
       cellHeight: chunkSystemTileMap.cellHeight,
       rows: chunkSystemTileMap.chunkSize,
       cols: chunkSystemTileMap.chunkSize
     });
-    return simpleGenerator(chunk, chunkSystemTileMap, engine);
+    return simpleGenerator(chunk, chunkCellColumn, chunkCellRow, chunkSystemTileMap, engine);
   };
 }
 
