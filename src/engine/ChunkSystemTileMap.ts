@@ -115,13 +115,19 @@ export class ChunkSystemTileMapImpl extends Class {
   }
 
   public collides(actor: Actor): Vector | null {
+    const horizontalStep = Math.min(actor.width / 2, this.cellWidth / 2);
+    const verticalStep = Math.min(actor.height / 2, this.cellHeight / 2);
+    if (!horizontalStep || !verticalStep) {
+      return null;
+    }
+
     const rightBound = actor.pos.x + actor.width;
     const bottomBound = actor.pos.y + actor.height;
     const actorBounds = actor.body.collider.bounds;
     const overlaps: Vector[] = [];
     // trace points for overlap
-    for (let x = actorBounds.left; x <= rightBound; x += Math.min(actor.width / 2, this.cellWidth / 2)) {
-      for (let y = actorBounds.top; y <= bottomBound; y += Math.min(actor.height / 2, this.cellHeight / 2)) {
+    for (let x = actorBounds.left; x <= rightBound; x += horizontalStep) {
+      for (let y = actorBounds.top; y <= bottomBound; y += verticalStep) {
         const cell = this.getCellByPoint(x, y);
         if (cell && cell.solid) {
           const overlap = actorBounds.intersect(cell.bounds);
