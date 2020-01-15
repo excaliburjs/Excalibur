@@ -1,15 +1,12 @@
-import { Graphic, GraphicOptions } from './Graphic';
+import { Raster, RasterOptions } from './Raster';
 
 export interface RectOptions {
   width: number;
   height: number;
 }
 
-export class Rect extends Graphic {
-  public width: number;
-  public height: number;
-
-  constructor(options: GraphicOptions & RectOptions) {
+export class Rect extends Raster {
+  constructor(options: RasterOptions & RectOptions) {
     super(options);
     this.width = options.width;
     this.height = options.height;

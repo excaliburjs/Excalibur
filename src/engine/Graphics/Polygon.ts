@@ -1,13 +1,21 @@
-import { Graphic, GraphicOptions } from './Graphic';
 import { Vector } from '../Algebra';
+import { Raster, RasterOptions } from './Raster';
 
 export interface PolygonOptions {
   points: Vector[];
 }
 
-export class Polygon extends Graphic {
-  public points: Vector[];
-  constructor(options: GraphicOptions & PolygonOptions) {
+export class Polygon extends Raster {
+  private _points: Vector[];
+  public get points(): Vector[] {
+    return this._points;
+  }
+  public set points(points: Vector[]) {
+    this._points = points;
+    this.flagDirty();
+  }
+
+  constructor(options: RasterOptions & PolygonOptions) {
     super(options);
     this.points = options.points;
     this.width = this.points.reduce((max, p) => Math.max(p.x, max), 0);

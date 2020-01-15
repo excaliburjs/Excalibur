@@ -1,8 +1,8 @@
-import { Graphic, GraphicOptions, DrawOptions } from './Graphic';
+import { Graphic, GraphicOptions } from './Graphic';
 import { RawImage } from './RawImage';
 import { nullish } from '../Util/Util';
 import { vec } from '../Algebra';
-import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
 export type SourceView = { x: number; y: number; width: number; height: number };
 export type Size = { width: number; height: number };
@@ -13,17 +13,20 @@ export interface SpriteOptions {
    */
   image: RawImage;
   /**
-   * By default the source is the entire RawImage
+   * By default the source is the entire dimension of the [[RawImage]]
    */
   source?: { x: number; y: number; width: number; height: number };
   /**
-   * By default the size of the sprite is the size of the RawImage
+   * By default the size of the sprite is the size of the [[RawImage]]
    */
   size?: { width: number; height: number };
 }
 
 export class Sprite extends Graphic {
   public rawImage: RawImage;
+  public get image(): HTMLImageElement {
+    return this.rawImage.image;
+  }
   public source: SourceView;
   public size: Size;
 
@@ -44,10 +47,9 @@ export class Sprite extends Graphic {
     this.source = nullish(options.source, { x: 0, y: 0, width: 0, height: 0 });
     this.size = nullish(options.size, { width: 0, height: 0 });
     this.rawImage.whenLoaded.then(() => {
-      this.origin = vec(this._bitmap.width, this._bitmap.height);
+      this.origin = vec(this.rawImage.width / 2, this.rawImage.height / 2);
       this._updateSpriteDimensions();
       this._readyToPaintResolve();
-      this.rasterize();
     });
   }
 
@@ -66,33 +68,18 @@ export class Sprite extends Graphic {
     let canvasHeight = this.size.height * this.scale.y;
     this.origin = vec(canvasWidth / 2, canvasHeight / 2);
 
-    // // TODO can rotation be moved to graphic?
-    // if (this.rotation) {
-    //   let rotatedWidth = canvasWidth * Math.abs(Math.cos(this.rotation)) + canvasHeight * Math.abs(Math.sin(this.rotation));
-    //   let rotatedHeight = canvasWidth * Math.abs(Math.sin(this.rotation)) + canvasHeight * Math.abs(Math.cos(this.rotation));
-    //   canvasWidth = rotatedWidth;
-    //   canvasHeight = rotatedHeight;
-    //   this.origin = this.origin.rotate(this.rotation, vec(rotatedWidth / 2, rotatedHeight / 2));
-    // }
-
     this.width = Math.ceil(canvasWidth);
     this.height = Math.ceil(canvasHeight);
   }
 
   public draw(ex: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.rawImage.isLoaded()) {
-      super.draw(ex, x, y);
+      // this is weird, but drawImage sampling is better than applying the native scale
+      ex.scale(1 / this.scale.x, 1 / this.scale.y);
+      let width = this.size.width * this.scale.x;
+      let height = this.size.height * this.scale.y;
+      ex.drawImage(this.rawImage, this.source.x, this.source.y, this.source.width, this.source.height, x, y, width, height);
     }
-  }
-
-  public drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
-    let width = this.size.width * this.scale.x;
-    let height = this.size.height * this.scale.y;
-    ex.drawImage(this.rawImage, this.source.x, this.source.y, this.source.width, this.source.height, x, y, width, height);
-  }
-
-  public execute(_ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
-    // Nothing to raster
   }
 
   public clone(): Sprite {

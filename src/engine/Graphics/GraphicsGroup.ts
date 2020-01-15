@@ -1,8 +1,8 @@
 import { Vector } from '../Algebra';
-import { Graphic, DrawOptions } from './Graphic';
+import { Graphic } from './Graphic';
 import { Animation } from './Animation';
 import { BoundingBox } from '../Collision/Index';
-import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
 export interface GraphicsGrouping {
   pos: Vector;
@@ -11,17 +11,19 @@ export interface GraphicsGrouping {
 
 export class GraphicsGroup extends Graphic {
   public members: GraphicsGrouping[] = [];
+  public get image(): HTMLImageElement | HTMLCanvasElement {
+    return null;
+  }
   constructor(members: GraphicsGrouping[]) {
     super();
     this.members = members;
     Promise.all(this.members.map((g) => g.graphic.readyToRasterize)).then(() => {
       let groupBB: BoundingBox = this.members.reduce((bb, member) => {
-        member.graphic.rasterize();
+        // member.graphic.rasterize();
         return bb.combine(member.graphic.bounds.translate(member.pos));
       }, new BoundingBox());
       this.width = groupBB.width;
       this.height = groupBB.height;
-      this.rasterize();
     });
   }
 
@@ -34,17 +36,8 @@ export class GraphicsGroup extends Graphic {
       const maybeAnimation = member.graphic;
       if (this._isAnimationOrGroup(maybeAnimation)) {
         maybeAnimation.tick(elapsedMilliseconds);
-        this.rasterize();
       }
     }
-  }
-
-  public rasterize() {
-    // TODO not sure doing this for each member is necessary
-    this.members.forEach((m) => {
-      m.graphic.rasterize();
-    });
-    super.rasterize();
   }
 
   public reset() {
@@ -52,7 +45,6 @@ export class GraphicsGroup extends Graphic {
       const maybeAnimation = member.graphic;
       if (this._isAnimationOrGroup(maybeAnimation)) {
         maybeAnimation.reset();
-        this.rasterize();
       }
     }
   }
@@ -64,12 +56,8 @@ export class GraphicsGroup extends Graphic {
       if (this.showDebug) {
         ex.drawDebugRect(0, 0, this.width, this.height);
       }
-      member.graphic.draw(ex, member.pos.x, member.pos.y);
+      member.graphic.drawWithTransform(ex, member.pos.x, member.pos.y);
       ex.restore();
     }
-  }
-
-  public execute(_ctx: CanvasRenderingContext2D, _options?: DrawOptions) {
-    // Nothing to raster
   }
 }

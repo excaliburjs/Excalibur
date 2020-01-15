@@ -1,7 +1,7 @@
-import { Graphic, GraphicOptions, DrawOptions } from './Graphic';
+import { Graphic, GraphicOptions } from './Graphic';
 import { Vector } from '../Algebra';
 import { clamp } from '../Util/Util';
-import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
 export enum AnimationStrategy {
   /**
@@ -39,6 +39,9 @@ export class Animation extends Graphic {
   public frames: Frame[] = [];
   public strategy: AnimationStrategy = AnimationStrategy.Loop;
   public frameDuration: number = 100;
+  public get image(): HTMLImageElement | HTMLCanvasElement {
+    return this.currentFrame.graphic.image;
+  }
 
   private _currentFrame = 0;
   private _timeLeftInFrame = 0;
@@ -54,9 +57,6 @@ export class Animation extends Graphic {
     this.frameDuration = options.frameDuration ?? this.frameDuration;
 
     this.goToFrame(0);
-    Promise.all(this.frames.map((f) => f.graphic.readyToRasterize)).then(() => {
-      this.rasterize();
-    });
   }
 
   public get tags() {
@@ -112,7 +112,6 @@ export class Animation extends Graphic {
       this.width = maybeFrame.graphic?.width;
       this.height = maybeFrame.graphic?.height;
     }
-    this.rasterize();
   }
 
   private _nextFrame(): number {
@@ -166,11 +165,7 @@ export class Animation extends Graphic {
   public draw(ctx: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.currentFrame) {
       // ctx.drawImage(this.currentFrame.graphic, x, y);
-      this.currentFrame.graphic.draw(ctx, x, y);
+      this.currentFrame.graphic.drawWithTransform(ctx, x, y);
     }
-  }
-
-  public execute(_ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
-    // Nothing to raster
   }
 }

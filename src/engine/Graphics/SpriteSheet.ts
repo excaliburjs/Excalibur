@@ -35,7 +35,7 @@ export class SpriteSheet {
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {
         sprites[x + y * cols] = new Sprite({
-          image,
+          image: image,
           source: { x: x + (padding ?? 0), y: y + (padding ?? 0), width: spriteWidth, height: spriteHeight },
           size: { height: spriteHeight, width: spriteWidth }
         });

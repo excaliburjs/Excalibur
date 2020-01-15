@@ -3,7 +3,7 @@ import { Graphic } from './Graphic';
 import { Animation } from './Animation';
 import { delay } from '../Util/Delay';
 import { GraphicsGroup } from './GraphicsGroup';
-import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
 export interface GraphicsComponentOptions {
   /**
@@ -202,9 +202,7 @@ export class GraphicsComponent {
       const offsetX = -this.current.width * this.current.scale.x * anchor.x + x;
       const offsetY = -this.current.height * this.current.scale.y * anchor.y + y;
 
-      // This implementation will
-      this.current.draw(ctx, offsetX, offsetY);
-      // ctx.drawImage(this.current, offsetX, offsetY);
+      this.current.drawWithTransform(ctx, offsetX, offsetY);
     }
   }
 
