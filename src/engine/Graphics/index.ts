@@ -9,3 +9,5 @@ export * from './Animation';
 export * from './Circle';
 export * from './Rect';
 export * from './Polygon';
+
+export * from './Context/ExcaliburGraphicsContext';

@@ -39,7 +39,8 @@ import * as Util from './Util/Util';
 import * as Events from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
 import { BrowserEvents } from './Util/Browser';
-import { ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContext } from './Graphics/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext2DCanvas } from './Graphics/Context/ExcaliburGraphicsContext2DCanvas';
 
 /**
  * Enum representing the different display modes available to Excalibur
