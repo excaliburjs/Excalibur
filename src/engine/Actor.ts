@@ -47,7 +47,7 @@ import { obsolete } from './Util/Decorators';
 import { Collider } from './Collision/Collider';
 import { Shape } from './Collision/Shape';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
-import { ExcaliburGraphicsContext } from './Graphics/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 
 export function isActor(x: any): x is Actor {
   return x instanceof Actor;
