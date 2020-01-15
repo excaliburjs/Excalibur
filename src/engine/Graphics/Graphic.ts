@@ -17,25 +17,52 @@ export interface DrawOptions {
 }
 
 export interface GraphicOptions {
-  width?: number;
-  height?: number;
-  // smoothing?: boolean;
-  flipHorizontal?: boolean;
-  flipVertical?: boolean;
-  rotation?: number;
-  scale?: Vector;
-  // fillStyle?: string;
-  // strokeStyle?: string;
-  opacity?: number; // Is opacity a raster option? what about sprites!!!
   /**
-   * The origin of the drawing to use when drawing, by default (0, 0)
+   * The width of the graphic
    */
-  origin?: Vector; // this may need to go onto base graphic?
+  width?: number;
+  /**
+   * The height of the graphic
+   */
+  height?: number;
+  /**
+   * SHould the graphic be flipped horizontally
+   */
+  flipHorizontal?: boolean;
+  /**
+   * Should the graphic be flipped vertically
+   */
+  flipVertical?: boolean;
+  /**
+   * The rotation of the graphic
+   */
+  rotation?: number;
+  /**
+   * The scale of the graphic
+   */
+  scale?: Vector;
+  /**
+   * The opacity of the graphic
+   */
+  opacity?: number;
+  /**
+   * The origin of the drawing in pixels to use when applying transforms, by default it will be the center of the image
+   */
+  origin?: Vector;
 }
 
+/**
+ * A Graphic is the base Excalibur primitive for something that can be drawn to the [[ExcaliburGraphicsContext]].
+ * [[Sprite]], [[Animation]], [[GraphicsGroup]], [[Canvas]], [[Rect]], [[Circle]], and [[Polygon]] all derive from the
+ * [[Graphic]] abstract class.
+ *
+ * Implementors of a Graphic must override the abstract [[Graphic._drawImage]] method to render an image to the graphics context. Graphic
+ * handles all the position, rotation, and scale transformations in [[Graphic._preDraw]] and [[Graphic._postDraw]]
+ */
 export abstract class Graphic {
-  private _bounds: BoundingBox;
-
+  /**
+   * Gets or sets wether to show debug information about the graphic
+   */
   public showDebug: boolean = false;
 
   /**
@@ -53,6 +80,9 @@ export abstract class Graphic {
    */
   public rotation: number = 0;
 
+  /**
+   * Gets or sets the opacity of the graphic, 0 is transparent, 1 is solid (opaque).
+   */
   public opacity: number = 1;
 
   /**
@@ -60,16 +90,14 @@ export abstract class Graphic {
    */
   public scale = Vector.One;
 
-  // TODO origin needs implementing
   /**
-   * Gets or sets the origin of the graphic
+   * Gets or sets the origin of the graphic, if not set the center of the drawing
    */
-  public origin = Vector.Zero;
+  public origin: Vector | null = null;
 
   constructor(options?: GraphicOptions) {
     if (options) {
       this.origin = options.origin ?? this.origin;
-      this._bounds = new BoundingBox(0, 0, options.width, options.height);
       this.flipHorizontal = options.flipHorizontal ?? this.flipHorizontal;
       this.flipVertical = options.flipVertical ?? this.flipVertical;
       this.rotation = options.rotation ?? this.rotation;
@@ -105,16 +133,8 @@ export abstract class Graphic {
   /**
    * Gets or sets the bounds of the graphic
    */
-  public get bounds() {
-    return this._bounds;
-  }
-
-  public set bounds(value) {
-    this._bounds = value;
-  }
-
-  public get rotatedBounds() {
-    return this._bounds.rotate(this.rotation, vec(this.width / 2, this.height / 2));
+  public get localBounds(): BoundingBox {
+    return new BoundingBox();
   }
 
   /**
@@ -153,7 +173,7 @@ export abstract class Graphic {
   protected abstract _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void;
 
   /**
-   * Apply transformations to the graphics context to manipulate the graphic
+   * Apply affine transformations to the graphics context to manipulate the graphic before [[Graphic._drawImage]]
    * @param ex
    * @param x
    * @param y
@@ -161,10 +181,10 @@ export abstract class Graphic {
   protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     ex.save();
     ex.translate(x, y);
-    // TODO handle with origin/anchor
-    ex.translate(this.width / 2, this.height / 2);
+    const origin = this.origin ?? vec(this.width / 2, this.height / 2);
+    ex.translate(origin.x, origin.y);
     ex.rotate(this.rotation);
-    ex.translate(-this.width / 2, -this.height / 2);
+    ex.translate(-origin.x, -origin.y);
     ex.scale(this.scale.x, this.scale.y);
 
     if (this.flipHorizontal) {

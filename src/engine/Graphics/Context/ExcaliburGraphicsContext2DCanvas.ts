@@ -86,7 +86,9 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     dheight?: number
   ): void {
     this._ctx.globalAlpha = this.opacity;
-    const args = [graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight].filter((a) => a !== undefined);
+    const args = [graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight]
+      .filter((a) => a !== undefined)
+      .map((a) => (typeof a === 'number' && this.snapToPixel ? ~~a : a));
     if (graphic instanceof HTMLCanvasElement || graphic instanceof HTMLImageElement) {
       this._ctx.drawImage.apply(this._ctx, args);
     }
@@ -101,7 +103,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   }
 
   translate(x: number, y: number): void {
-    this._ctx.translate(x, y);
+    this._ctx.translate(this.snapToPixel ? ~~x : x, this.snapToPixel ? ~~y : y);
   }
 
   rotate(angle: number): void {

@@ -5,6 +5,9 @@ export interface PolygonOptions {
   points: Vector[];
 }
 
+/**
+ * A polygon [[Graphic]] for drawing arbitrary polygons to the [[ExcaliburGraphicsContext]]
+ */
 export class Polygon extends Raster {
   private _points: Vector[];
   public get points(): Vector[] {

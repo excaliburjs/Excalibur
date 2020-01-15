@@ -19,8 +19,7 @@ export class GraphicsGroup extends Graphic {
     this.members = members;
     Promise.all(this.members.map((g) => g.graphic.readyToRasterize)).then(() => {
       let groupBB: BoundingBox = this.members.reduce((bb, member) => {
-        // member.graphic.rasterize();
-        return bb.combine(member.graphic.bounds.translate(member.pos));
+        return bb.combine(member.graphic.localBounds.translate(member.pos));
       }, new BoundingBox());
       this.width = groupBB.width;
       this.height = groupBB.height;
@@ -53,10 +52,10 @@ export class GraphicsGroup extends Graphic {
     for (const member of this.members) {
       ex.save();
       ex.translate(x, y);
+      member.graphic.draw(ex, member.pos.x, member.pos.y);
       if (this.showDebug) {
         ex.drawDebugRect(0, 0, this.width, this.height);
       }
-      member.graphic.draw(ex, member.pos.x, member.pos.y);
       ex.restore();
     }
   }

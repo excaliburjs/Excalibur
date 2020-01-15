@@ -5,6 +5,9 @@ export interface RectOptions {
   height: number;
 }
 
+/**
+ * A Rectangle [[Graphic]] for drawing rectangles to the [[ExcaliburGraphicsContext]]
+ */
 export class Rect extends Raster {
   constructor(options: RasterOptions & RectOptions) {
     super(options);

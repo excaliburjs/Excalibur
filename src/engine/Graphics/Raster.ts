@@ -7,6 +7,12 @@ export interface RasterOptions {
   strokeStyle?: string;
 }
 
+/**
+ * A Raster is a Graphic that needs to be first painted to a HTMLCanvasElement before it can be drawn to the
+ * [[ExcaliburGraphicsContext]]. This is useful for generating custom images using the 2D canvas api.
+ *
+ * Implementors must implemenet the [[Raster.execute]] method to rasterize their drawing.
+ */
 export abstract class Raster extends Graphic {
   public _bitmap: HTMLCanvasElement;
   public _webglTexture: WebGLTexture;

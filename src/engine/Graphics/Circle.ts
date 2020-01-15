@@ -4,6 +4,9 @@ export interface CircleOptions {
   radius: number;
 }
 
+/**
+ * A circle [[Graphic]] for drawing circles to the [[ExcaliburGraphicsContext]]
+ */
 export class Circle extends Raster {
   private _radius: number = 0;
   public get radius() {
