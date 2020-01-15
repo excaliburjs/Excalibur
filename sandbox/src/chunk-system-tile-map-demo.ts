@@ -59,24 +59,33 @@
     ): ex.TileMap {
       for (let y = 0, cols = chunk.cols, rows = chunk.rows; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
-          const tileValue = perlinNoiseGenerator.noise(
-            (chunkCellColumn + x) / chunkSystemTileMap.chunkSize,
-            (chunkCellRow + y) / chunkSystemTileMap.chunkSize
-          );
           const cell = chunk.getCell(x, y);
-          if (tileValue >= 0.5) {
-            cell.pushSprite(dirtSprite);
-          } else {
-            cell.pushSprite(waterSprite);
-            cell.solid = true;
-          }
+          cellGenerator(cell, chunkCellColumn + x, chunkCellRow + y, chunkSystemTileMap, engine);
         }
       }
       return chunk;
     }
+    function cellGenerator(
+      cell: ex.Cell,
+      cellColumn: number,
+      cellRow: number,
+      chunkSystemTileMap: ex.ChunkSystemTileMap,
+      engine: ex.Engine
+    ): void {
+      const tileValue = perlinNoiseGenerator.noise(cellColumn / chunkSystemTileMap.chunkSize, cellRow / chunkSystemTileMap.chunkSize);
+      if (tileValue >= 0.5) {
+        cell.pushSprite(dirtSprite);
+      } else {
+        cell.pushSprite(waterSprite);
+        cell.solid = true;
+      }
+    }
   });
 
   class Player extends ex.Actor {
+    width = CHUNK_CELL_WIDTH / 2;
+    height = CHUNK_CELL_HEIGHT / 2;
+
     constructor() {
       super();
 
@@ -109,6 +118,12 @@
   }
 
   class CameraZoomController extends ex.Actor {
+    constructor() {
+      super();
+
+      this.body.collider.type = ex.CollisionType.PreventCollision;
+    }
+
     public update(engine: ex.Engine, delta: number): void {
       super.update(engine, delta);
       const { camera } = engine.currentScene;
