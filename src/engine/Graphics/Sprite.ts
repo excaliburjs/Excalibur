@@ -72,7 +72,7 @@ export class Sprite extends Graphic {
     this.height = Math.ceil(canvasHeight);
   }
 
-  public draw(ex: ExcaliburGraphicsContext, x: number, y: number) {
+  public _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.rawImage.isLoaded()) {
       // this is weird, but drawImage sampling is better than applying the native scale
       ex.scale(1 / this.scale.x, 1 / this.scale.y);

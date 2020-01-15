@@ -202,7 +202,7 @@ export class GraphicsComponent {
       const offsetX = -this.current.width * this.current.scale.x * anchor.x + x;
       const offsetY = -this.current.height * this.current.scale.y * anchor.y + y;
 
-      this.current.drawWithTransform(ctx, offsetX, offsetY);
+      this.current.draw(ctx, offsetX, offsetY);
     }
   }
 

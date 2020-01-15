@@ -49,14 +49,14 @@ export class GraphicsGroup extends Graphic {
     }
   }
 
-  public draw(ex: ExcaliburGraphicsContext, x: number, y: number) {
+  public _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
     for (const member of this.members) {
       ex.save();
       ex.translate(x, y);
       if (this.showDebug) {
         ex.drawDebugRect(0, 0, this.width, this.height);
       }
-      member.graphic.drawWithTransform(ex, member.pos.x, member.pos.y);
+      member.graphic.draw(ex, member.pos.x, member.pos.y);
       ex.restore();
     }
   }

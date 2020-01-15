@@ -162,10 +162,9 @@ export class Animation extends Graphic {
     }
   }
 
-  public draw(ctx: ExcaliburGraphicsContext, x: number, y: number) {
+  public _drawImage(ctx: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.currentFrame) {
-      // ctx.drawImage(this.currentFrame.graphic, x, y);
-      this.currentFrame.graphic.drawWithTransform(ctx, x, y);
+      this.currentFrame.graphic.draw(ctx, x, y);
     }
   }
 }

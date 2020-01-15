@@ -110,12 +110,12 @@ export abstract class Raster extends Graphic {
     this._ctx.restore();
   }
 
-  public draw(ex: ExcaliburGraphicsContext, x: number, y: number) {
+  protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
     if (this._dirty) {
       this.rasterize();
     }
 
-    super.draw(ex, x, y);
+    super._drawImage(ex, x, y);
   }
 
   /**

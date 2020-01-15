@@ -132,24 +132,24 @@ export abstract class Graphic {
   }
 
   /**
-   * Draw the graphic on the excalibur graphics context
-   * @param ex The excalibur graphics context
-   * @param x
-   * @param y
-   */
-  public drawWithTransform(ex: ExcaliburGraphicsContext, x: number, y: number) {
-    this._preDraw(ex, x, y);
-    this.draw(ex, 0, 0);
-    this._postDraw(ex);
-  }
-
-  /**
-   * Draw the graphic on the excalibur graphics context
+   * Draw the whole graphic to the context including transform
    * @param ex The excalibur graphics context
    * @param x
    * @param y
    */
   public draw(ex: ExcaliburGraphicsContext, x: number, y: number) {
+    this._preDraw(ex, x, y);
+    this._drawImage(ex, 0, 0);
+    this._postDraw(ex);
+  }
+
+  /**
+   * Draw the underlying image to the graphics context without transform
+   * @param ex The excalibur graphics context
+   * @param x
+   * @param y
+   */
+  protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
     ex.drawImage(this, x, y);
   }
 
