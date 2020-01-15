@@ -1,7 +1,4 @@
-import { Graphic } from '../Graphic';
-import { RawImage } from '../RawImage';
-
-export type ImageSource = Graphic | RawImage;
+export type ImageSource = HTMLImageElement | HTMLCanvasElement | WebGLTexture;
 
 export interface HasExcaliburDraw {
   draw(ex: ExcaliburGraphicsContext, x: number, y: number): void;

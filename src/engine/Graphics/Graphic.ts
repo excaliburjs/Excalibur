@@ -144,14 +144,12 @@ export abstract class Graphic {
   }
 
   /**
-   * Draw the underlying image to the graphics context without transform
+   * Draw the underlying image (HTMLCanvasElement or HTMLImageElement) to the graphics context without transform
    * @param ex The excalibur graphics context
    * @param x
    * @param y
    */
-  protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
-    ex.drawImage(this, x, y);
-  }
+  protected abstract _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void;
 
   protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     ex.save();
@@ -180,5 +178,4 @@ export abstract class Graphic {
     }
     ex.restore();
   }
-  public abstract get image(): HTMLCanvasElement | HTMLImageElement;
 }

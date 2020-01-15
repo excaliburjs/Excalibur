@@ -39,9 +39,6 @@ export class Animation extends Graphic {
   public frames: Frame[] = [];
   public strategy: AnimationStrategy = AnimationStrategy.Loop;
   public frameDuration: number = 100;
-  public get image(): HTMLImageElement | HTMLCanvasElement {
-    return this.currentFrame.graphic.image;
-  }
 
   private _currentFrame = 0;
   private _timeLeftInFrame = 0;

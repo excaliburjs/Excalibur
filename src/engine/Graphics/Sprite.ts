@@ -78,7 +78,7 @@ export class Sprite extends Graphic {
       ex.scale(1 / this.scale.x, 1 / this.scale.y);
       let width = this.size.width * this.scale.x;
       let height = this.size.height * this.scale.y;
-      ex.drawImage(this.rawImage, this.source.x, this.source.y, this.source.width, this.source.height, x, y, width, height);
+      ex.drawImage(this.rawImage.image, this.source.x, this.source.y, this.source.width, this.source.height, x, y, width, height);
     }
   }
 

@@ -1,6 +1,4 @@
 import { ExcaliburGraphicsContext, ExcaliburGraphicsContextState, ImageSource } from './ExcaliburGraphicsContext';
-import { Graphic } from '../Graphic';
-import { RawImage } from '../RawImage';
 
 export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContext {
   public get width() {
@@ -65,7 +63,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
    * @param dheight
    */
   drawImage(
-    graphic: Graphic,
+    graphic: ImageSource,
     sx: number,
     sy: number,
     swidth?: number,
@@ -88,12 +86,9 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     dheight?: number
   ): void {
     this._ctx.globalAlpha = this.opacity;
-    if (graphic instanceof Graphic && graphic.image instanceof HTMLCanvasElement) {
-      this._ctx.drawImage(graphic.image, sx, sy); //, swidth, sheight, dx, dy, dwidth, dheight);
-    }
-
-    if (graphic instanceof RawImage) {
-      this._ctx.drawImage(graphic.image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+    const args = [graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight].filter((a) => a !== undefined);
+    if (graphic instanceof HTMLCanvasElement || graphic instanceof HTMLImageElement) {
+      this._ctx.drawImage.apply(this._ctx, args);
     }
   }
 

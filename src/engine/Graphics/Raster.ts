@@ -115,7 +115,7 @@ export abstract class Raster extends Graphic {
       this.rasterize();
     }
 
-    super._drawImage(ex, x, y);
+    ex.drawImage(this._bitmap, x, y);
   }
 
   /**
