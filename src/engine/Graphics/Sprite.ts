@@ -24,9 +24,6 @@ export interface SpriteOptions {
 
 export class Sprite extends Graphic {
   public rawImage: RawImage;
-  public get image(): HTMLImageElement {
-    return this.rawImage.image;
-  }
   public source: SourceView;
   public size: Size;
 

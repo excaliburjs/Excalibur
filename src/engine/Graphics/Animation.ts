@@ -159,7 +159,7 @@ export class Animation extends Graphic {
     }
   }
 
-  public _drawImage(ctx: ExcaliburGraphicsContext, x: number, y: number) {
+  protected _drawImage(ctx: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.currentFrame) {
       this.currentFrame.graphic.draw(ctx, x, y);
     }

@@ -2,7 +2,6 @@ import { Graphic, GraphicOptions, DrawOptions } from './Graphic';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
 export interface RasterOptions {
-  // opacity?: number;
   smoothing?: boolean;
   fillStyle?: string;
   strokeStyle?: string;
@@ -10,10 +9,7 @@ export interface RasterOptions {
 
 export abstract class Raster extends Graphic {
   public _bitmap: HTMLCanvasElement;
-  public get image(): HTMLCanvasElement {
-    return this._bitmap;
-  }
-
+  public _webglTexture: WebGLTexture;
   private _ctx: CanvasRenderingContext2D;
   private _dirty: boolean = true;
 
@@ -22,8 +18,8 @@ export abstract class Raster extends Graphic {
     this.fillStyle = options.fillStyle ?? this.fillStyle;
     this.strokeStyle = options.strokeStyle ?? this.strokeStyle;
     this.smoothing = options.smoothing ?? this.smoothing;
-    // this.opacity = options.opacity ?? this.opacity;
 
+    // TODO also initialize webgl texture
     this._bitmap = document.createElement('canvas');
     const maybeCtx = this._bitmap.getContext('2d');
     if (!maybeCtx) {
@@ -34,7 +30,7 @@ export abstract class Raster extends Graphic {
   }
 
   /**
-   * Gets whether teh graphic is dirty
+   * Gets whether the graphic is dirty
    */
   public get dirty() {
     return this._dirty;
@@ -48,6 +44,10 @@ export abstract class Raster extends Graphic {
     this._dirty = true;
   }
 
+  /**
+   * Gets or sets the current width of the Raster graphic. Setting the width will cause the raster
+   * to be flagged dirty causing a re-raster on the next draw.
+   */
   public get width() {
     return this._bitmap.width;
   }
@@ -56,6 +56,10 @@ export abstract class Raster extends Graphic {
     this.flagDirty();
   }
 
+  /**
+   * Gets or sets the current height of the Raster graphic. Setting the height will cause the raster
+   * to be flagged dirty causing a re-raster on the next draw.
+   */
   public get height() {
     return this._bitmap.height;
   }
@@ -66,7 +70,8 @@ export abstract class Raster extends Graphic {
 
   private _smoothing: boolean = false;
   /**
-   * Gets or sets the smoothing (anti-aliasing of the graphic)
+   * Gets or sets the smoothing (anti-aliasing of the graphic). Setting the height will cause the raster
+   * to be flagged dirty causing a re-raster on the next draw.
    */
   public get smoothing() {
     return this._smoothing;
@@ -77,6 +82,10 @@ export abstract class Raster extends Graphic {
   }
 
   private _fillStyle: string = 'black';
+  /**
+   * Gets or sets the fillStyle of the Raster graphic. Setting the fillStyle will cause the raster to be
+   * flagged dirty causing a re-raster on the next draw.
+   */
   public get fillStyle() {
     return this._fillStyle;
   }
@@ -86,6 +95,10 @@ export abstract class Raster extends Graphic {
   }
 
   private _strokeStyle: string = '';
+  /**
+   * Gets or sets the strokeStyle of the Raster graphic. Setting the strokeStyle will cause the raster to be
+   * flagged dirty causing a re-raster on the next draw.
+   */
   public get strokeStyle() {
     return this._strokeStyle;
   }
@@ -108,6 +121,7 @@ export abstract class Raster extends Graphic {
     this._ctx.globalAlpha = this.opacity;
     this.execute(this._ctx);
     this._ctx.restore();
+    // TODO re-bind and update webgl texture here
   }
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {

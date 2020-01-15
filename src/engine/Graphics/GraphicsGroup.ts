@@ -49,7 +49,7 @@ export class GraphicsGroup extends Graphic {
     }
   }
 
-  public _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
+  protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
     for (const member of this.members) {
       ex.save();
       ex.translate(x, y);

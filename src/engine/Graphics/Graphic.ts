@@ -80,7 +80,7 @@ export abstract class Graphic {
 
   private _width: number = 0;
   /**
-   * Gets or sets the width of the graphic bitmap, note setting a new value this flags the graphic [[Graphic.dirty]]
+   * Gets or sets the width of the graphic
    */
   public get width() {
     return this._width;
@@ -88,7 +88,7 @@ export abstract class Graphic {
 
   private _height: number = 0;
   /**
-   * Gets or sets the height of the graphic bitmap, note setting a new value flags the graphic [[Graphic.dirty]]
+   * Gets or sets the height of the graphic
    */
   public get height() {
     return this._height;
@@ -144,13 +144,20 @@ export abstract class Graphic {
   }
 
   /**
-   * Draw the underlying image (HTMLCanvasElement or HTMLImageElement) to the graphics context without transform
+   * Meant to be overriden by the graphic implementation to draw the underlying image (HTMLCanvasElement or HTMLImageElement)
+   * to the graphics context without transform. Transformations like position, rotation, and scale are handled by [[Graphic._preDraw]] and [[Graphic._postDraw]]
    * @param ex The excalibur graphics context
    * @param x
    * @param y
    */
   protected abstract _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void;
 
+  /**
+   * Apply transformations to the graphics context to manipulate the graphic
+   * @param ex
+   * @param x
+   * @param y
+   */
   protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     ex.save();
     ex.translate(x, y);
@@ -172,6 +179,10 @@ export abstract class Graphic {
     ex.opacity = this.opacity;
   }
 
+  /**
+   * Apply any addtional work after [[Graphic._drawImage]] and restore the context state.
+   * @param ex
+   */
   protected _postDraw(ex: ExcaliburGraphicsContext): void {
     if (this.showDebug) {
       ex.drawDebugRect(0, 0, this.width, this.height);
