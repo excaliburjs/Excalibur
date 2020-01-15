@@ -165,7 +165,11 @@ export class ChunkSystemTileMapImpl extends Class {
 
   public getCell(cellX: number, cellY: number): Cell | null {
     const chunk = this.getChunk(cellX, cellY);
-    return chunk ? chunk.getCell(cellX, cellY) : null;
+    if (!chunk) {
+      return null;
+    }
+
+    return chunk.getCell(cellX % this.chunkSize, cellY % this.chunkSize);
   }
 
   public getCellByPoint(x: number, y: number): Cell | null {
