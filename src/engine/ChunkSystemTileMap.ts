@@ -115,12 +115,8 @@ export class ChunkSystemTileMapImpl extends Class {
   }
 
   public collides(actor: Actor): Vector | null {
-    const horizontalStep = Math.min(actor.width / 2, this.cellWidth / 2);
-    const verticalStep = Math.min(actor.height / 2, this.cellHeight / 2);
-    if (!horizontalStep || !verticalStep) {
-      return null;
-    }
-
+    const horizontalStep = Math.max(Math.min(actor.width / 2, this.cellWidth / 2), 1);
+    const verticalStep = Math.max(Math.min(actor.height / 2, this.cellHeight / 2), 1);
     const rightBound = actor.pos.x + actor.width;
     const bottomBound = actor.pos.y + actor.height;
     const actorBounds = actor.body.collider.bounds;
