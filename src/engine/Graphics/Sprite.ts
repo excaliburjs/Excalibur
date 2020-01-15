@@ -1,7 +1,5 @@
 import { Graphic, GraphicOptions } from './Graphic';
 import { RawImage } from './RawImage';
-import { nullish } from '../Util/Util';
-import { vec } from '../Algebra';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
 export type SourceView = { x: number; y: number; width: number; height: number };
@@ -41,10 +39,9 @@ export class Sprite extends Graphic {
   constructor(options: GraphicOptions & SpriteOptions) {
     super(options);
     this.rawImage = options.image;
-    this.source = nullish(options.source, { x: 0, y: 0, width: 0, height: 0 });
-    this.size = nullish(options.size, { width: 0, height: 0 });
+    this.source = options.source ?? { x: 0, y: 0, width: 0, height: 0 };
+    this.size = options.size ?? { width: 0, height: 0 };
     this.rawImage.whenLoaded.then(() => {
-      this.origin = vec(this.rawImage.width / 2, this.rawImage.height / 2);
       this._updateSpriteDimensions();
       this._readyToPaintResolve();
     });
@@ -63,7 +60,6 @@ export class Sprite extends Graphic {
 
     let canvasWidth = this.size.width * this.scale.x;
     let canvasHeight = this.size.height * this.scale.y;
-    this.origin = vec(canvasWidth / 2, canvasHeight / 2);
 
     this.width = Math.ceil(canvasWidth);
     this.height = Math.ceil(canvasHeight);
