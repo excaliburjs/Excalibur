@@ -1,3 +1,4 @@
+// Graphics
 export * from './Graphic';
 export * from './Sprite';
 export * from './SpriteSheet';
@@ -6,9 +7,11 @@ export * from './GraphicsGroup';
 export * from './RawImage';
 export * from './Animation';
 
+// Raster graphics
 export * from './Raster';
 export * from './Circle';
 export * from './Rect';
 export * from './Polygon';
+export * from './Text';
 
 export * from './Context/ExcaliburGraphicsContext';

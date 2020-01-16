@@ -121,13 +121,17 @@ export abstract class Raster extends Graphic {
     this._dirty = false;
     this._ctx.clearRect(0, 0, this.width, this.height);
     this._ctx.save();
-    this._ctx.imageSmoothingEnabled = this.smoothing;
-    this._ctx.strokeStyle = this.strokeStyle;
-    this._ctx.fillStyle = this.fillStyle;
-    this._ctx.globalAlpha = this.opacity;
+    this._applyRasterProperites(this._ctx);
     this.execute(this._ctx);
     this._ctx.restore();
     // TODO re-bind and update webgl texture here
+  }
+
+  protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
+    ctx.imageSmoothingEnabled = this.smoothing;
+    ctx.strokeStyle = this.strokeStyle;
+    ctx.fillStyle = this.fillStyle;
+    ctx.globalAlpha = this.opacity;
   }
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
