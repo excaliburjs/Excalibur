@@ -52,7 +52,7 @@
     "@storybook/addon-knobs": "5.3.6",
     "@storybook/addon-notes": "5.3.6",
     "@storybook/html": "5.3.6",
-    "@types/jasmine": "3.5.0",
+    "@types/jasmine": "3.5.1",
     "@types/node": "10.17.13",
     "@types/react-color": "3.0.1",
     "@types/webpack-env": "1.15.0",
