@@ -1,12 +1,20 @@
 import { Raster } from './Raster';
-import { DrawOptions } from './Graphic';
+import { DrawOptions, GraphicOptions } from './Graphic';
+import { Font } from './Font';
 
 export interface TextOptions {
   text: string;
-  font?: string;
+  font?: Font;
 }
 
 export class Text extends Raster {
+  constructor(options: TextOptions & GraphicOptions) {
+    super(options);
+    this.text = options.text;
+    this.font = options.font ?? this.font;
+    this.flagDirty();
+  }
+
   private _text: string;
   public get text() {
     return this._text;
@@ -17,13 +25,25 @@ export class Text extends Raster {
     this.flagDirty();
   }
 
-  private _font: string;
+  private _font: Font;
   public get font() {
     return this._font;
   }
 
-  public set font(value: string) {
-    this._font = value;
+  private _createFontProxy(font: Font) {
+    return new Proxy(font, {
+      set: (obj, prop, value) => {
+        // The default behavior to store the value
+        (obj as any)[prop] = value;
+        this.flagDirty();
+        // Indicate success
+        return true;
+      }
+    });
+  }
+
+  public set font(value: Font) {
+    this._font = this._createFontProxy(value);
     this.flagDirty();
   }
 
@@ -39,14 +59,14 @@ export class Text extends Raster {
 
   execute(ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
     if (this.text) {
-      ctx.font = this.font;
+      this.font.apply(ctx);
       const metrics = ctx.measureText(this.text);
       // Changing the width and height clears the context properties
       this._bitmap.width = metrics.width + this.padding * 2;
       this._bitmap.height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + this.padding * 2 || 16;
 
       this._applyRasterProperites(ctx);
-      ctx.font = this.font;
+      this.font.apply(ctx);
       if (this.fillStyle) {
         ctx.fillText(this.text, this.padding, metrics.actualBoundingBoxAscent + this.padding);
       }

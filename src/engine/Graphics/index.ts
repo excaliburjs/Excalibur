@@ -13,5 +13,6 @@ export * from './Circle';
 export * from './Rect';
 export * from './Polygon';
 export * from './Text';
+export * from './Font';
 
 export * from './Context/ExcaliburGraphicsContext';
