@@ -11,6 +11,9 @@ import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
 
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
+import { Graphics } from '..';
+
+// import * as Graphics from '../Graphics/';
 
 export interface CircleOptions {
   /**
@@ -34,6 +37,8 @@ export interface CircleOptions {
  * [[include:CircleShape.md]]
  */
 export class Circle implements CollisionShape {
+  private _circle: Graphics.Circle;
+
   /**
    * Position of the circle relative to the collider, by default (0, 0) meaning the shape is positioned on top of the collider.
    */
@@ -49,7 +54,12 @@ export class Circle implements CollisionShape {
   /**
    * This is the radius of the circle
    */
-  public radius: number;
+  public get radius() {
+    return this._circle.radius;
+  }
+  public set radius(value: number) {
+    this._circle.radius = value;
+  }
 
   /**
    * The collider associated for this shape, if any.
@@ -60,6 +70,7 @@ export class Circle implements CollisionShape {
     this.offset = options.offset || Vector.Zero;
     this.radius = options.radius || 0;
     this.collider = options.collider || null;
+    this._circle = new Graphics.Circle({ radius: this.radius });
   }
 
   /**
@@ -274,28 +285,42 @@ export class Circle implements CollisionShape {
 
   public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
     const newPos = pos.add(this.offset);
-    ctx.beginPath();
-    ctx.fillStyle = color.toString();
-    ctx.arc(newPos.x, newPos.y, this.radius, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.fill();
+    if (this._circle.fillStyle !== color.toString()) {
+      this._circle.fillStyle = color.toString();
+    }
+
+    if (this._circle.dirty) {
+      this._circle.rasterize();
+    }
+    if (this._circle._bitmap.width && this._circle._bitmap.height) {
+      ctx.drawImage(this._circle._bitmap, newPos.x - this._circle._bitmap.width / 2, newPos.y - this._circle.height / 2);
+    }
   }
 
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Green) {
     const body = this.collider.body;
     const pos = body ? body.pos.add(this.offset) : this.offset;
-    const rotation = body ? body.rotation : 0;
+    // const rotation = body ? body.rotation : 0;
 
-    ctx.beginPath();
-    ctx.strokeStyle = color.toString();
-    ctx.arc(pos.x, pos.y, this.radius, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
-    ctx.lineTo(Math.cos(rotation) * this.radius + pos.x, Math.sin(rotation) * this.radius + pos.y);
-    ctx.closePath();
-    ctx.stroke();
+    if (this._circle.fillStyle !== color.toString()) {
+      this._circle.fillStyle = color.toString();
+    }
+
+    if (this._circle.dirty) {
+      this._circle.rasterize();
+    }
+    ctx.drawImage(this._circle._bitmap, pos.x, pos.y);
+
+    // ctx.beginPath();
+    // ctx.strokeStyle = color.toString();
+    // ctx.arc(pos.x, pos.y, this.radius, 0, Math.PI * 2);
+    // ctx.closePath();
+    // ctx.stroke();
+    // ctx.beginPath();
+    // ctx.moveTo(pos.x, pos.y);
+    // ctx.lineTo(Math.cos(rotation) * this.radius + pos.x, Math.sin(rotation) * this.radius + pos.y);
+    // ctx.closePath();
+    // ctx.stroke();
   }
 }

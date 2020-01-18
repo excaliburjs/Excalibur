@@ -143,8 +143,12 @@ var group = new ex.Graphics.GraphicsGroup([
     pos: ex.vec(0, 200)
   }
 ]);
-
-heart.graphics.add(group);
+var text = new ex.Graphics.Text({
+  text: 'hello world',
+  font: new ex.Graphics.Font({ size: 30 })
+});
+heart.graphics.add(text);
+heart.pos = ex.vec(10, 10);
 game.add(heart);
 
 // Turn on debug diagnostics

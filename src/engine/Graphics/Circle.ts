@@ -25,15 +25,17 @@ export class Circle extends Raster {
   }
 
   execute(ctx: CanvasRenderingContext2D): void {
-    ctx.beginPath();
-    ctx.arc(this.radius, this.radius, this.radius, 0, Math.PI * 2);
+    if (this.radius > 0) {
+      ctx.beginPath();
+      ctx.arc(this.radius, this.radius, this.radius, 0, Math.PI * 2);
 
-    if (this.fillStyle) {
-      ctx.fill();
-    }
+      if (this.fillStyle) {
+        ctx.fill();
+      }
 
-    if (this.strokeStyle) {
-      ctx.stroke();
+      if (this.strokeStyle) {
+        ctx.stroke();
+      }
     }
   }
 }
