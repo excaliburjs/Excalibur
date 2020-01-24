@@ -134,21 +134,7 @@ export abstract class Graphic {
    * Gets or sets the bounds of the graphic
    */
   public get localBounds(): BoundingBox {
-    return new BoundingBox();
-  }
-
-  /**
-   * A promise that resolves after the graphic is at the end state
-   */
-  public get finished(): Promise<any> {
-    return Promise.resolve();
-  }
-
-  /**
-   * A promise that resolve when the graphic is ready to be rasterized
-   */
-  public get readyToRasterize(): Promise<any> {
-    return Promise.resolve();
+    return BoundingBox.fromDimension(this._width, this._height, Vector.Zero);
   }
 
   /**

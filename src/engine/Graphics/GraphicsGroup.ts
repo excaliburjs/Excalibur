@@ -17,13 +17,11 @@ export class GraphicsGroup extends Graphic {
   constructor(members: GraphicsGrouping[]) {
     super();
     this.members = members;
-    Promise.all(this.members.map((g) => g.graphic.readyToRasterize)).then(() => {
-      let groupBB: BoundingBox = this.members.reduce((bb, member) => {
-        return bb.combine(member.graphic.localBounds.translate(member.pos));
-      }, new BoundingBox());
-      this.width = groupBB.width;
-      this.height = groupBB.height;
-    });
+    let groupBB: BoundingBox = this.members.reduce((bb, member) => {
+      return bb.combine(member.graphic.localBounds.translate(member.pos));
+    }, new BoundingBox());
+    this.width = groupBB.width;
+    this.height = groupBB.height;
   }
 
   private _isAnimationOrGroup(graphic: Graphic): graphic is Animation | GraphicsGroup {

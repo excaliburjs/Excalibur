@@ -11,7 +11,7 @@ export class Text extends Raster {
   constructor(options: TextOptions & GraphicOptions) {
     super(options);
     this.text = options.text;
-    this.font = options.font ?? this.font;
+    this.font = options.font ?? new Font();
     this.flagDirty();
   }
 
@@ -67,10 +67,10 @@ export class Text extends Raster {
 
       this._applyRasterProperites(ctx);
       this.font.apply(ctx);
-      if (this.fillStyle) {
+      if (this.color) {
         ctx.fillText(this.text, this.padding, metrics.actualBoundingBoxAscent + this.padding);
       }
-      if (this.strokeStyle) {
+      if (this.strokeColor) {
         ctx.strokeText(this.text, this.padding, metrics.actualBoundingBoxAscent + this.padding);
       }
     }

@@ -1,10 +1,11 @@
 import { Graphic, GraphicOptions, DrawOptions } from './Graphic';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { Color } from '../Drawing/Color';
 
 export interface RasterOptions {
   smoothing?: boolean;
-  fillStyle?: string;
-  strokeStyle?: string;
+  color?: Color;
+  strokeColor?: Color;
 }
 
 /**
@@ -21,8 +22,8 @@ export abstract class Raster extends Graphic {
 
   constructor(options: GraphicOptions & RasterOptions) {
     super(options);
-    this.fillStyle = options.fillStyle ?? this.fillStyle;
-    this.strokeStyle = options.strokeStyle ?? this.strokeStyle;
+    this.color = options.color ?? Color.Black;
+    this.strokeColor = options.strokeColor;
     this.smoothing = options.smoothing ?? this.smoothing;
 
     // TODO also initialize webgl texture
@@ -87,29 +88,41 @@ export abstract class Raster extends Graphic {
     this.flagDirty();
   }
 
-  private _fillStyle: string = 'black';
+  private _createColorProxy(color: Color) {
+    return new Proxy(color, {
+      set: (obj, prop, value) => {
+        // The default behavior to store the value
+        (obj as any)[prop] = value;
+        this.flagDirty();
+        // Indicate success
+        return true;
+      }
+    });
+  }
+
+  private _color: Color;
   /**
    * Gets or sets the fillStyle of the Raster graphic. Setting the fillStyle will cause the raster to be
    * flagged dirty causing a re-raster on the next draw.
    */
-  public get fillStyle() {
-    return this._fillStyle;
+  public get color() {
+    return this._color;
   }
-  public set fillStyle(value) {
-    this._fillStyle = value;
+  public set color(value) {
+    this._color = this._createColorProxy(value);
     this.flagDirty();
   }
 
-  private _strokeStyle: string = '';
+  private _strokeColor: Color;
   /**
    * Gets or sets the strokeStyle of the Raster graphic. Setting the strokeStyle will cause the raster to be
    * flagged dirty causing a re-raster on the next draw.
    */
-  public get strokeStyle() {
-    return this._strokeStyle;
+  public get strokeColor() {
+    return this._strokeColor;
   }
-  public set strokeStyle(value) {
-    this._strokeStyle = value;
+  public set strokeColor(value) {
+    this._strokeColor = this._createColorProxy(value);
     this.flagDirty();
   }
 
@@ -129,8 +142,8 @@ export abstract class Raster extends Graphic {
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
     ctx.imageSmoothingEnabled = this.smoothing;
-    ctx.strokeStyle = this.strokeStyle;
-    ctx.fillStyle = this.fillStyle;
+    ctx.strokeStyle = this.strokeColor.toString();
+    ctx.fillStyle = this.color.toString();
     ctx.globalAlpha = this.opacity;
   }
 

@@ -29,11 +29,11 @@ export class Circle extends Raster {
       ctx.beginPath();
       ctx.arc(this.radius, this.radius, this.radius, 0, Math.PI * 2);
 
-      if (this.fillStyle) {
+      if (this.color) {
         ctx.fill();
       }
 
-      if (this.strokeStyle) {
+      if (this.strokeColor) {
         ctx.stroke();
       }
     }

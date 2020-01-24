@@ -45,10 +45,10 @@ export class Polygon extends Raster {
       });
       ctx.lineTo(firstPoint.x, firstPoint.y);
       ctx.closePath();
-      if (this.fillStyle) {
+      if (this.color) {
         ctx.fill();
       }
-      if (this.strokeStyle) {
+      if (this.strokeColor) {
         ctx.stroke();
       }
     }

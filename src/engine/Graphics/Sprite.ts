@@ -25,11 +25,6 @@ export class Sprite extends Graphic {
   public source: SourceView;
   public size: Size;
 
-  private _readyToPaintResolve: () => void;
-  private _readyToPaint: Promise<any> = new Promise((resolve) => {
-    this._readyToPaintResolve = resolve;
-  });
-
   public static from(image: RawImage): Sprite {
     return new Sprite({
       image: image
@@ -43,12 +38,7 @@ export class Sprite extends Graphic {
     this.size = options.size ?? { width: 0, height: 0 };
     this.rawImage.whenLoaded.then(() => {
       this._updateSpriteDimensions();
-      this._readyToPaintResolve();
     });
-  }
-
-  public get readyToRasterize(): Promise<any> {
-    return this._readyToPaint;
   }
 
   private _updateSpriteDimensions() {

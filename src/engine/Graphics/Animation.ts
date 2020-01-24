@@ -2,6 +2,7 @@ import { Graphic, GraphicOptions } from './Graphic';
 import { Vector } from '../Algebra';
 import { clamp } from '../Util/Util';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { Eventable } from '../Interfaces/Evented';
 
 export enum AnimationStrategy {
   /**
@@ -35,7 +36,7 @@ export interface AnimationOptions {
   strategy?: AnimationStrategy;
 }
 
-export class Animation extends Graphic {
+export class Animation extends Graphic implements Eventable<Frame | Animation> {
   public frames: Frame[] = [];
   public strategy: AnimationStrategy = AnimationStrategy.Loop;
   public frameDuration: number = 100;
@@ -81,18 +82,6 @@ export class Animation extends Graphic {
       default: {
         return false;
       }
-    }
-  }
-
-  public get finished(): Promise<any> {
-    if (this._done) {
-      return Promise.resolve();
-    } else {
-      return new Promise((resolve) => {
-        if (!this._finishedResolve) {
-          this._finishedResolve = resolve;
-        }
-      });
     }
   }
 
@@ -164,4 +153,26 @@ export class Animation extends Graphic {
       this.currentFrame.graphic.draw(ctx, x, y);
     }
   }
+
+  /**
+   * Emits an event for target
+   * @param eventName  The name of the event to publish
+   * @param event      Optionally pass an event data object to the handler
+   */
+  emit(eventName: string, event: Frame | Animation): void {}
+
+  on(event: 'loop', handler: (anim: Animation) => void): void;
+  on(event: 'ended', handler: (anim: Animation) => void): void;
+  on(event: 'frame', handler: (frame: Frame) => void): void;
+  on(event: string, handler: (event: any) => void): void {}
+
+  off(event: 'loop', handler?: (anim: Animation) => void): void;
+  off(event: 'ended', handler?: (anim: Animation) => void): void;
+  off(event: 'frame', handler?: (frame: Frame) => void): void;
+  off(event: string, handler?: (event: any) => void): void {}
+
+  once(event: 'loop', handler: (anim: Animation) => void): void;
+  once(event: 'ended', handler: (anim: Animation) => void): void;
+  once(event: 'frame', handler: (frame: Frame) => void): void;
+  once(event: string, handler: (event: any) => void): void {}
 }

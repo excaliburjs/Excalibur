@@ -143,9 +143,10 @@ export class GraphicsComponent {
           resolve(gfx);
         });
       } else {
-        gfx.finished.then(() => {
-          resolve(gfx);
-        });
+        // TODO show
+        // gfx.finished.then(() => {
+        //   resolve(gfx);
+        // });
       }
     });
   }

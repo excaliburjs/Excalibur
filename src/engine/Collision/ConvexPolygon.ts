@@ -391,8 +391,8 @@ export class ConvexPolygon implements CollisionShape {
   public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
     const newPos = pos.add(this.offset);
 
-    if (this._polygon.fillStyle !== color.toString()) {
-      this._polygon.fillStyle = color.toString();
+    if (this._polygon.color.toString() !== color.toString()) {
+      this._polygon.color = color;
     }
 
     if (this._polygon.dirty) {

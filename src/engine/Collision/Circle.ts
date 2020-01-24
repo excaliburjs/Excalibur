@@ -285,8 +285,8 @@ export class Circle implements CollisionShape {
 
   public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
     const newPos = pos.add(this.offset);
-    if (this._circle.fillStyle !== color.toString()) {
-      this._circle.fillStyle = color.toString();
+    if (this._circle.color.toString() !== color.toString()) {
+      this._circle.color = color;
     }
 
     if (this._circle.dirty) {
@@ -303,8 +303,8 @@ export class Circle implements CollisionShape {
     const pos = body ? body.pos.add(this.offset) : this.offset;
     // const rotation = body ? body.rotation : 0;
 
-    if (this._circle.fillStyle !== color.toString()) {
-      this._circle.fillStyle = color.toString();
+    if (this._circle.color.toString() !== color.toString()) {
+      this._circle.color = color;
     }
 
     if (this._circle.dirty) {
