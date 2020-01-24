@@ -101,7 +101,7 @@
     "ts-loader": "6.2.1",
     "tslint": "5.20.1",
     "typedoc": "0.16.8",
-    "typescript": "3.7.4",
+    "typescript": "3.7.5",
     "url-loader": "2.3.0",
     "webpack": "4.41.5",
     "webpack-cli": "3.3.10"
