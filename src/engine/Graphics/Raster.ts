@@ -109,7 +109,7 @@ export abstract class Raster extends Graphic {
     return this._color;
   }
   public set color(value) {
-    this._color = this._createColorProxy(value);
+    this._color = value ? this._createColorProxy(value) : value;
     this.flagDirty();
   }
 
@@ -122,7 +122,7 @@ export abstract class Raster extends Graphic {
     return this._strokeColor;
   }
   public set strokeColor(value) {
-    this._strokeColor = this._createColorProxy(value);
+    this._strokeColor = value ? this._createColorProxy(value) : value;
     this.flagDirty();
   }
 
@@ -142,8 +142,8 @@ export abstract class Raster extends Graphic {
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
     ctx.imageSmoothingEnabled = this.smoothing;
-    ctx.strokeStyle = this.strokeColor.toString();
-    ctx.fillStyle = this.color.toString();
+    ctx.strokeStyle = this.strokeColor?.toString();
+    ctx.fillStyle = this.color?.toString();
     ctx.globalAlpha = this.opacity;
   }
 

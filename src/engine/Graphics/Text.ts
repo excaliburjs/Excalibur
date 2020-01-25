@@ -43,7 +43,7 @@ export class Text extends Raster {
   }
 
   public set font(value: Font) {
-    this._font = this._createFontProxy(value);
+    this._font = value ? this._createFontProxy(value) : value;
     this.flagDirty();
   }
 
@@ -59,14 +59,14 @@ export class Text extends Raster {
 
   execute(ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
     if (this.text) {
-      this.font.apply(ctx);
+      this.font?.apply(ctx);
       const metrics = ctx.measureText(this.text);
       // Changing the width and height clears the context properties
       this._bitmap.width = metrics.width + this.padding * 2;
       this._bitmap.height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + this.padding * 2 || 16;
 
       this._applyRasterProperites(ctx);
-      this.font.apply(ctx);
+      this.font?.apply(ctx);
       if (this.color) {
         ctx.fillText(this.text, this.padding, metrics.actualBoundingBoxAscent + this.padding);
       }
