@@ -82,18 +82,18 @@ newSprite.scale = ex.vec(2, 2);
 
 var circle = new ex.Graphics.Circle({
   radius: 10,
-  fillStyle: 'red'
+  color: ex.Color.Red
 });
 
 var rect = new ex.Graphics.Rect({
   width: 100,
   height: 100,
-  fillStyle: 'green'
+  color: ex.Color.Green
 });
 
 var triangle = new ex.Graphics.Polygon({
   points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
-  fillStyle: 'yellow'
+  color: ex.Color.Yellow
 });
 
 var anim = new ex.Graphics.Animation({
@@ -116,6 +116,20 @@ var anim = new ex.Graphics.Animation({
     }
   ]
 });
+anim.on('loop', (a) => {
+  console.log('loop');
+});
+anim.on('frame', (f) => {
+  console.log('frame');
+});
+anim.on('ended', (a) => {
+  console.log('ended');
+});
+
+var text = new ex.Graphics.Text({
+  text: 'hello world',
+  font: new ex.Graphics.Font({ size: 30 })
+});
 
 var group = new ex.Graphics.GraphicsGroup([
   {
@@ -131,6 +145,10 @@ var group = new ex.Graphics.GraphicsGroup([
     pos: ex.vec(0, 50)
   },
   {
+    graphic: text,
+    pos: ex.vec(100, 0)
+  },
+  {
     graphic: circle,
     pos: ex.vec(50, 50)
   },
@@ -143,11 +161,8 @@ var group = new ex.Graphics.GraphicsGroup([
     pos: ex.vec(0, 200)
   }
 ]);
-var text = new ex.Graphics.Text({
-  text: 'hello world',
-  font: new ex.Graphics.Font({ size: 30 })
-});
-heart.graphics.add(text);
+
+heart.graphics.add(group);
 heart.pos = ex.vec(10, 10);
 game.add(heart);
 

@@ -3,6 +3,7 @@ import { Vector } from '../Algebra';
 import { clamp } from '../Util/Util';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Eventable } from '../Interfaces/Evented';
+import { EventDispatcher } from '../EventDispatcher';
 
 export enum AnimationStrategy {
   /**
@@ -46,7 +47,7 @@ export class Animation extends Graphic implements Eventable<Frame | Animation> {
   private _direction = 1;
   private _done = false;
 
-  private _finishedResolve: (value?: any) => void;
+  private _emitter: EventDispatcher<Frame | Animation> = new EventDispatcher<Frame | Animation>(this);
 
   constructor(options: GraphicOptions & AnimationOptions) {
     super(options);
@@ -90,30 +91,36 @@ export class Animation extends Graphic implements Eventable<Frame | Animation> {
   }
 
   public goToFrame(frameNumber: number) {
-    this._currentFrame = frameNumber % this.frames.length;
+    this._currentFrame = frameNumber; // % this.frames.length;
     this._timeLeftInFrame = this.frameDuration;
     const maybeFrame = this.frames[this._currentFrame];
-    if (maybeFrame) {
+    if (maybeFrame && !this._done) {
       this._timeLeftInFrame = maybeFrame?.duration || this.frameDuration;
       this.width = maybeFrame.graphic?.width;
       this.height = maybeFrame.graphic?.height;
+      this.emit('frame', maybeFrame);
     }
   }
 
   private _nextFrame(): number {
     const currentFrame = this._currentFrame;
+    if (this._done) return currentFrame;
     let next = -1;
 
     switch (this.strategy) {
       case AnimationStrategy.Loop: {
         next = (currentFrame + 1) % this.frames.length;
+        if (next === 0) {
+          this.emit('loop', this);
+        }
         break;
       }
       case AnimationStrategy.End: {
         next = currentFrame + 1;
         if (next >= this.frames.length) {
           this._done = true;
-          this._finishedResolve();
+          this._currentFrame = this.frames.length;
+          this.emit('ended', this);
         }
         break;
       }
@@ -121,17 +128,19 @@ export class Animation extends Graphic implements Eventable<Frame | Animation> {
         next = clamp(currentFrame + 1, 0, this.frames.length - 1);
         if (next >= this.frames.length - 1) {
           this._done = true;
-          this._finishedResolve();
+          this.emit('ended', this);
         }
         break;
       }
       case AnimationStrategy.PingPong: {
         if (currentFrame + this._direction >= this.frames.length) {
           this._direction = -1;
+          this.emit('loop', this);
         }
 
         if (currentFrame + this._direction < 0) {
           this._direction = 1;
+          this.emit('loop', this);
         }
 
         next = currentFrame + (this._direction % this.frames.length);
@@ -154,25 +163,28 @@ export class Animation extends Graphic implements Eventable<Frame | Animation> {
     }
   }
 
-  /**
-   * Emits an event for target
-   * @param eventName  The name of the event to publish
-   * @param event      Optionally pass an event data object to the handler
-   */
-  emit(eventName: string, event: Frame | Animation): void {}
+  emit(eventName: string, event: Frame | Animation): void {
+    this._emitter.emit(eventName, event as any); // TODO emitter :(
+  }
 
   on(event: 'loop', handler: (anim: Animation) => void): void;
   on(event: 'ended', handler: (anim: Animation) => void): void;
-  on(event: 'frame', handler: (frame: Frame) => void): void;
-  on(event: string, handler: (event: any) => void): void {}
+  on(event: 'frame', handler: (frame: Frame, index: number) => void): void;
+  on(event: string, handler: (event: any, index?: number) => void): void {
+    this._emitter.on(event, handler);
+  }
 
   off(event: 'loop', handler?: (anim: Animation) => void): void;
   off(event: 'ended', handler?: (anim: Animation) => void): void;
-  off(event: 'frame', handler?: (frame: Frame) => void): void;
-  off(event: string, handler?: (event: any) => void): void {}
+  off(event: 'frame', handler?: (frame: Frame, index: number) => void): void;
+  off(event: string, handler?: (event: any, index?: number) => void): void {
+    this._emitter.off(event, handler);
+  }
 
   once(event: 'loop', handler: (anim: Animation) => void): void;
   once(event: 'ended', handler: (anim: Animation) => void): void;
-  once(event: 'frame', handler: (frame: Frame) => void): void;
-  once(event: string, handler: (event: any) => void): void {}
+  once(event: 'frame', handler: (frame: Frame, index: number) => void): void;
+  once(event: string, handler: (event: any, index?: number) => void): void {
+    this._emitter.once(event, handler);
+  }
 }
