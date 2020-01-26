@@ -1,4 +1,4 @@
-import { Graphic, GraphicOptions, DrawOptions } from './Graphic';
+import { Graphic, GraphicOptions } from './Graphic';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Drawing/Color';
 
@@ -20,11 +20,13 @@ export abstract class Raster extends Graphic {
   private _ctx: CanvasRenderingContext2D;
   private _dirty: boolean = true;
 
-  constructor(options: GraphicOptions & RasterOptions) {
+  constructor(options?: GraphicOptions & RasterOptions) {
     super(options);
-    this.color = options.color ?? Color.Black;
-    this.strokeColor = options.strokeColor;
-    this.smoothing = options.smoothing ?? this.smoothing;
+    if (options) {
+      this.color = options.color ?? Color.Black;
+      this.strokeColor = options?.strokeColor;
+      this.smoothing = options.smoothing ?? this.smoothing;
+    }
 
     // TODO also initialize webgl texture
     this._bitmap = document.createElement('canvas');
@@ -161,5 +163,5 @@ export abstract class Raster extends Graphic {
    * @param ctx Canvas to draw the graphic to
    * @param options
    */
-  abstract execute(ctx: CanvasRenderingContext2D, options?: DrawOptions): void;
+  abstract execute(ctx: CanvasRenderingContext2D): void;
 }

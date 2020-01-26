@@ -29,12 +29,12 @@ export interface GraphicsComponentOptions {
   /**
    * Optional offset in absolute pixels to shift all graphics in this component from each graphic's anchor (default is top left corner)
    */
-  offset?: ex.Vector;
+  offset?: Vector;
 
   /**
    * Optional origin
    */
-  origin?: ex.Vector;
+  origin?: Vector;
 
   /**
    * Optional rotation to apply to each graphic in this component

@@ -1,4 +1,4 @@
-import { DrawOptions, GraphicOptions } from './Graphic';
+import { GraphicOptions } from './Graphic';
 import { Raster } from './Raster';
 
 export interface CanvasOptions {
@@ -18,7 +18,7 @@ export class Canvas extends Raster {
     super(options);
   }
 
-  execute(ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
+  execute(ctx: CanvasRenderingContext2D): void {
     this.options.drawHandler(ctx, 0);
     this.flagDirty();
   }

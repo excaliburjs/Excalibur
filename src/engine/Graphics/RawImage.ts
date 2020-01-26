@@ -1,4 +1,4 @@
-import { Resource } from '../Resources/Index';
+import { Resource } from '../Resources/Resource';
 
 export class RawImage extends Resource<HTMLImageElement> {
   private static _ID = 0;

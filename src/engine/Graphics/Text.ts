@@ -1,5 +1,5 @@
 import { Raster } from './Raster';
-import { DrawOptions, GraphicOptions } from './Graphic';
+import { GraphicOptions } from './Graphic';
 import { Font } from './Font';
 
 export interface TextOptions {
@@ -57,7 +57,7 @@ export class Text extends Raster {
     this.flagDirty();
   }
 
-  execute(ctx: CanvasRenderingContext2D, _options?: DrawOptions): void {
+  execute(ctx: CanvasRenderingContext2D): void {
     if (this.text) {
       this.font?.apply(ctx);
       const metrics = ctx.measureText(this.text);

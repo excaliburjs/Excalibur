@@ -8,7 +8,7 @@
     "module": "es2015",
     "noImplicitAny": false,
     "noUnusedLocals": false,
-    "lib": ["dom", "es5", "es2015.collection", "es2015.iterable"],
+    "lib": ["dom", "es5", "es2015.collection", "es2015.iterable", "ES2015.Promise", "ES2015.Proxy"],
     "baseUrl": ".",
     "rootDir": "../",
     "paths": {
