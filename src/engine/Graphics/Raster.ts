@@ -146,7 +146,6 @@ export abstract class Raster extends Graphic {
     ctx.imageSmoothingEnabled = this.smoothing;
     ctx.strokeStyle = this.strokeColor?.toString();
     ctx.fillStyle = this.color?.toString();
-    ctx.globalAlpha = this.opacity;
   }
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
@@ -161,7 +160,6 @@ export abstract class Raster extends Graphic {
    * Executes drawing implemenation of the graphic, this is where the specific drawing code for the graphic
    * should be implemented. Once `rasterize()` the graphic can be drawn to the [[ExcaliburGraphicsContext]] via `draw(...)`
    * @param ctx Canvas to draw the graphic to
-   * @param options
    */
   abstract execute(ctx: CanvasRenderingContext2D): void;
 }

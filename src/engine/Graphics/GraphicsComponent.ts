@@ -193,7 +193,8 @@ export class GraphicsComponent {
   /**
    * Draws the graphics component to the screen, called internally
    * @param ctx
-   * @param options
+   * @param x
+   * @param y
    * @internal
    */
   public draw(ctx: ExcaliburGraphicsContext, x: number, y: number) {
