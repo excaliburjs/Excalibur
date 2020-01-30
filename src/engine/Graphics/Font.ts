@@ -101,6 +101,11 @@ export enum FontStyle {
   Oblique = 'oblique'
 }
 
+export enum Direction {
+  LeftToRight = 'ltr',
+  RightToLeft = 'rtl'
+}
+
 export interface FontOptions {
   size?: number;
   unit?: FontUnit;
@@ -110,6 +115,7 @@ export interface FontOptions {
   bold?: boolean;
   textAlign?: TextAlign;
   baseAlign?: BaseAlign;
+  direction?: Direction;
   shadow?: {
     blur?: number;
     offset?: Vector;
@@ -118,19 +124,18 @@ export interface FontOptions {
 }
 
 export class Font {
-  public color: Color = Color.Black;
   public family: string = 'sans-serif';
   public style: FontStyle = FontStyle.Normal;
   public bold: boolean = false;
   public unit: FontUnit = FontUnit.Px;
   public textAlign: TextAlign = TextAlign.Left;
   public baseAlign: BaseAlign = BaseAlign.Bottom;
+  public direction: Direction = Direction.LeftToRight;
   public size: number = 10;
   public shadow: { blur: number; offset: Vector; color: Color } = null;
 
   constructor(options?: FontOptions) {
     if (options) {
-      this.color = options.color ?? this.color;
       this.family = options.family ?? this.family;
       this.style = options.style ?? this.style;
       this.bold = options.bold ?? this.bold;
@@ -138,6 +143,7 @@ export class Font {
       this.unit = options.unit ?? this.unit;
       this.textAlign = options.textAlign ?? this.textAlign;
       this.baseAlign = options.baseAlign ?? this.baseAlign;
+      this.direction = options.direction ?? this.direction;
       if (options.shadow) {
         this.shadow.blur = options.shadow.blur ?? this.shadow.blur;
         this.shadow.offset = options.shadow.offset ?? this.shadow.offset;
@@ -153,8 +159,8 @@ export class Font {
   public apply(ctx: CanvasRenderingContext2D) {
     ctx.textAlign = this.textAlign;
     ctx.textBaseline = this.baseAlign;
-    ctx.fillStyle = this.color.toString();
     ctx.font = this.fontString;
+    ctx.direction = this.direction;
 
     if (this.shadow) {
       ctx.shadowColor = this.shadow.color.toString();

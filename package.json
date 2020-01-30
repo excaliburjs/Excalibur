@@ -34,7 +34,7 @@
     "sandbox": "grunt sandbox",
     "legacy-visual": "grunt visual",
     "start": "grunt watch",
-    "test": "karma start",
+    "test": "karma start --singleRun=false",
     "apidocs": "grunt apidocs",
     "precommit": "pretty-quick --staged",
     "pretty": "prettier --write \"{src,sandbox/src,sandbox/tests}/**/*.{ts,js,json,css,md}\" --config prettier.config.js"

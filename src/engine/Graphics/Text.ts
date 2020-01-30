@@ -1,6 +1,7 @@
 import { Raster } from './Raster';
 import { GraphicOptions } from './Graphic';
 import { Font } from './Font';
+import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
 export interface TextOptions {
   text: string;
@@ -57,21 +58,38 @@ export class Text extends Raster {
     this.flagDirty();
   }
 
+  private get _halfWidth() {
+    return Math.floor(this.width / 2);
+  }
+
+  private get _halfHeight() {
+    return Math.floor(this.height / 2);
+  }
+
+  protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
+    if (this.dirty) {
+      this.rasterize();
+    }
+
+    ex.drawImage(this._bitmap, x - this._halfWidth, y - this._halfHeight);
+  }
+
   execute(ctx: CanvasRenderingContext2D): void {
     if (this.text) {
       this.font?.apply(ctx);
       const metrics = ctx.measureText(this.text);
       // Changing the width and height clears the context properties
-      this._bitmap.width = metrics.width + this.padding * 2;
-      this._bitmap.height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + this.padding * 2 || 16;
+      // We double the bitmap width to account for alignment
+      this._bitmap.width = (metrics.width + this.padding * 2) * 2;
+      this._bitmap.height = (metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + this.padding * 2 || 16) * 2;
 
       this._applyRasterProperites(ctx);
       this.font?.apply(ctx);
       if (this.color) {
-        ctx.fillText(this.text, this.padding, metrics.actualBoundingBoxAscent + this.padding);
+        ctx.fillText(this.text, this.padding + this._halfWidth, metrics.actualBoundingBoxAscent + this.padding + this._halfHeight);
       }
       if (this.strokeColor) {
-        ctx.strokeText(this.text, this.padding, metrics.actualBoundingBoxAscent + this.padding);
+        ctx.strokeText(this.text, this.padding + this._halfWidth, metrics.actualBoundingBoxAscent + this.padding + this._halfHeight);
       }
     }
   }

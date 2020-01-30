@@ -15,6 +15,10 @@ class TestRaster extends ex.Graphics.Raster {
     if (this.color) {
       ctx.fill();
     }
+
+    if (this.strokeColor) {
+      ctx.stroke();
+    }
   }
 }
 
@@ -77,6 +81,16 @@ describe('A Raster', () => {
     });
   });
 
+  it('can have its stroke color changed', (done) => {
+    const raster = new TestRaster();
+    raster.strokeColor = ex.Color.Azure;
+    raster.draw(exctx, 0, 0);
+    ensureImagesLoaded(canvas, 'src/spec/images/RasterSpec/stroke.png').then(([canvas, image]) => {
+      expect(canvas).toEqualImage(image);
+      done();
+    });
+  });
+
   it('can detect when properties change its dirty status', () => {
     const raster = new TestRaster();
     raster.draw(exctx, 0, 0);
@@ -105,5 +119,15 @@ describe('A Raster', () => {
     raster.strokeColor = ex.Color.Azure;
     expect(raster.dirty).toBeTrue();
     raster.draw(exctx, 0, 0);
+  });
+
+  it('can set smoothing', (done) => {
+    const raster = new TestRaster();
+    raster.smoothing = true;
+    raster.draw(exctx, 0, 0);
+    ensureImagesLoaded(canvas, 'src/spec/images/RasterSpec/smooth.png').then(([canvas, image]) => {
+      expect(canvas).toEqualImage(image);
+      done();
+    });
   });
 });
