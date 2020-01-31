@@ -92,7 +92,7 @@
     "lint-staged": "9.5.0",
     "prettier": "1.19.1",
     "pretty-quick": "2.0.1",
-    "puppeteer": "2.0.0",
+    "puppeteer": "2.1.0",
     "rimraf": "3.0.0",
     "source-map-support": "0.5.16",
     "sync-request": "6.1.0",
