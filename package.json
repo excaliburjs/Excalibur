@@ -93,7 +93,7 @@
     "prettier": "1.19.1",
     "pretty-quick": "2.0.1",
     "puppeteer": "2.1.0",
-    "rimraf": "3.0.0",
+    "rimraf": "3.0.1",
     "source-map-support": "0.5.16",
     "sync-request": "6.1.0",
     "to-string-loader": "1.1.6",
