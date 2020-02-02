@@ -1,3 +1,4 @@
+import { withKnobs, boolean, number } from '@storybook/addon-knobs';
 import {
   Actor,
   Cell,
@@ -20,21 +21,29 @@ import { withEngine } from './utils';
 import tilesTexturePath from './assets/tiles.png';
 
 export default {
-  title: 'Chunk system tile map'
+  title: 'Chunk system tile map',
+  decorators: [withKnobs]
 };
 
 export const demo: Story = withEngine(async (game: Engine) => {
-  const PLAYER_SPEED = 400; // pixels/s
+  const PLAYER_SPEED = number('Player speed', 400, { min: 1, max: 60000, step: 1 }); // pixels/s
   const CHUNK_CELL_WIDTH = 32;
   const CHUNK_CELL_HEIGHT = 32;
   const CHUNK_SIZE = 8;
   const CHUNK_COLS = 128;
   const CHUNK_ROWS = 128;
+  const MIN_ZOOM_LEVEL = 0.2;
+  const MAX_ZOOM_LEVEL = 2;
+  const ZOOM_STEP = 0.1;
+  const PERLIN_NOISE_GENERATOR_AMPLITUDE = number('Perlin noise generator aplitude', 2, { min: 1, max: 64, step: 1 });
+  const PERLIN_NOISE_GENERATOR_FREQUENCY = number('Perlin noise generator frequency', 0.4, { min: 0.01, max: 100, step: 1 });
+  const PERLIN_NOISE_GENERATOR_OCTAVES = number('Perlin noise generator octaves', 3, { min: 1, max: 8, step: 1 });
+  const PERLIN_NOISE_GENERATOR_PERSISTANCE = number('Perlin noise generator persistance', 0.6, { min: 0, max: 1, step: 0.1 });
 
   const tilesTexture = new Texture(tilesTexturePath);
   const loader = new Loader([tilesTexture]);
 
-  game.isDebug = true;
+  game.isDebug = boolean('Debug mode', false);
   await game.start(loader);
 
   const player = new Player(CHUNK_CELL_WIDTH, CHUNK_CELL_HEIGHT, PLAYER_SPEED);
@@ -42,7 +51,7 @@ export const demo: Story = withEngine(async (game: Engine) => {
   game.currentScene.camera.strategy.elasticToActor(player, 0.5, 0.7);
   game.currentScene.camera.pos = player.pos;
 
-  game.add(new CameraZoomController());
+  game.add(new CameraZoomController(MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL, ZOOM_STEP));
 
   const spriteSheet = new SpriteSheet(tilesTexture, 2, 1, CHUNK_CELL_WIDTH, CHUNK_CELL_HEIGHT);
   const dirtSprite = new TileSprite('surface', 0);
@@ -63,10 +72,10 @@ export const demo: Story = withEngine(async (game: Engine) => {
   game.add(chunkSystem);
 
   const perlinNoiseGenerator = new PerlinGenerator({
-    amplitude: 1,
-    frequency: 1,
-    octaves: 1,
-    persistance: 0.5
+    amplitude: PERLIN_NOISE_GENERATOR_AMPLITUDE,
+    frequency: PERLIN_NOISE_GENERATOR_FREQUENCY,
+    octaves: PERLIN_NOISE_GENERATOR_OCTAVES,
+    persistance: PERLIN_NOISE_GENERATOR_PERSISTANCE
   });
   function chunkGenerator(
     chunk: TileMap,
@@ -127,7 +136,7 @@ class Player extends Actor {
 }
 
 class CameraZoomController extends Actor {
-  constructor() {
+  constructor(private readonly minZoomLevel: number, private readonly maxZoomLevel: number, private readonly zoomStep: number) {
     super();
 
     this.body.collider.type = CollisionType.PreventCollision;
@@ -138,11 +147,11 @@ class CameraZoomController extends Actor {
     const { camera } = engine.currentScene;
     if (engine.input.keyboard.isHeld(107)) {
       // Plus
-      camera.z = Math.min(camera.z + 0.1, 2);
+      camera.z = Math.min(camera.z + this.zoomStep, this.maxZoomLevel);
     }
     if (engine.input.keyboard.isHeld(109)) {
       // Minus
-      camera.z = Math.max(camera.z - 0.1, 0.1);
+      camera.z = Math.max(camera.z - this.zoomStep, this.minZoomLevel);
     }
   }
 
