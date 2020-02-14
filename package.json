@@ -104,7 +104,7 @@
     "typescript": "3.7.5",
     "url-loader": "2.3.0",
     "webpack": "4.41.6",
-    "webpack-cli": "3.3.10"
+    "webpack-cli": "3.3.11"
   },
   "dependencies": {
     "core-js": "3.6.4"
