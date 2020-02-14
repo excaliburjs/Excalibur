@@ -103,7 +103,7 @@
     "typedoc": "0.16.9",
     "typescript": "3.7.5",
     "url-loader": "2.3.0",
-    "webpack": "4.41.5",
+    "webpack": "4.41.6",
     "webpack-cli": "3.3.10"
   },
   "dependencies": {
