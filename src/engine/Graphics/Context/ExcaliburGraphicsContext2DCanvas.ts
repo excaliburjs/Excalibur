@@ -1,4 +1,5 @@
 import { ExcaliburGraphicsContext, ExcaliburGraphicsContextState, ImageSource } from './ExcaliburGraphicsContext';
+import { Vector } from '../../Algebra';
 
 export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContext {
   public get width() {
@@ -38,6 +39,18 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this._ctx.save();
     this._ctx.strokeStyle = 'red';
     this._ctx.strokeRect(x, y, width, height);
+    this._ctx.restore();
+  }
+
+  drawDebugLine(start: Vector, end: Vector): void {
+    this._ctx.save();
+    this._ctx.beginPath();
+    this._ctx.strokeStyle = 'red';
+    this._ctx.moveTo(start.x, start.y);
+    this._ctx.lineTo(end.x, end.y);
+    this._ctx.lineWidth = 2;
+    this._ctx.stroke();
+    this._ctx.closePath();
     this._ctx.restore();
   }
 

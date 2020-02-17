@@ -129,7 +129,7 @@ export class Font {
   public bold: boolean = false;
   public unit: FontUnit = FontUnit.Px;
   public textAlign: TextAlign = TextAlign.Left;
-  public baseAlign: BaseAlign = BaseAlign.Bottom;
+  public baseAlign: BaseAlign = BaseAlign.Alphabetic;
   public direction: Direction = Direction.LeftToRight;
   public size: number = 10;
   public shadow: { blur: number; offset: Vector; color: Color } = null;

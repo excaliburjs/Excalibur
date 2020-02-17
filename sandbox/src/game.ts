@@ -146,7 +146,7 @@ var group = new ex.Graphics.GraphicsGroup([
   },
   {
     graphic: text,
-    pos: ex.vec(100, 0)
+    pos: ex.vec(100, 20)
   },
   {
     graphic: circle,

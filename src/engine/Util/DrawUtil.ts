@@ -30,6 +30,7 @@ export function line(
   thickness: number = 1,
   cap: LineCapStyle = 'butt'
 ) {
+  ctx.save();
   ctx.beginPath();
   ctx.lineWidth = thickness;
   ctx.lineCap = cap;
@@ -38,6 +39,7 @@ export function line(
   ctx.lineTo(x2, y2);
   ctx.closePath();
   ctx.stroke();
+  ctx.restore();
 }
 
 /**

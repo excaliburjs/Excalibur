@@ -2,6 +2,8 @@ import { Raster } from './Raster';
 import { GraphicOptions } from './Graphic';
 import { Font } from './Font';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { line } from '../Util/DrawUtil';
+import { Color } from '../Drawing/Color';
 
 export interface TextOptions {
   text: string;
@@ -16,6 +18,7 @@ export class Text extends Raster {
     this.flagDirty();
   }
 
+  // private _metrics: TextMetrics;
   private _text: string;
   public get text() {
     return this._text;
@@ -74,22 +77,36 @@ export class Text extends Raster {
     ex.drawImage(this._bitmap, x - this._halfWidth, y - this._halfHeight);
   }
 
+  _postDraw(ex: ExcaliburGraphicsContext): void {
+    if (this.showDebug) {
+      ex.drawDebugRect(-this._halfWidth, -this._halfHeight, this.width, this.height);
+    }
+    ex.restore();
+  }
+
   execute(ctx: CanvasRenderingContext2D): void {
     if (this.text) {
       this.font?.apply(ctx);
       const metrics = ctx.measureText(this.text);
+
       // Changing the width and height clears the context properties
       // We double the bitmap width to account for alignment
       this._bitmap.width = (metrics.width + this.padding * 2) * 2;
-      this._bitmap.height = (metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + this.padding * 2 || 16) * 2;
+      this._bitmap.height = ((metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + this.padding) * 2 || 16) * 2;
 
       this._applyRasterProperites(ctx);
       this.font?.apply(ctx);
       if (this.color) {
-        ctx.fillText(this.text, this.padding + this._halfWidth, metrics.actualBoundingBoxAscent + this.padding + this._halfHeight);
+        ctx.fillText(this.text, this.padding + this._halfWidth, this.padding + this._halfHeight);
       }
+
       if (this.strokeColor) {
-        ctx.strokeText(this.text, this.padding + this._halfWidth, metrics.actualBoundingBoxAscent + this.padding + this._halfHeight);
+        ctx.strokeText(this.text, this.padding + this._halfWidth, this.padding + this._halfHeight);
+      }
+
+      if (this.showDebug) {
+        line(ctx, Color.Red, 0, this._halfHeight, this.width, this._halfHeight, 2);
+        line(ctx, Color.Red, this._halfWidth, 0, this._halfWidth, this.height, 2);
       }
     }
   }
