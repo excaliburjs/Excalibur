@@ -5,7 +5,6 @@ import { Resource } from '../Resource';
 import { AudioInstance, AudioInstanceFactory } from './AudioInstance';
 import { AudioContextFactory } from './AudioContext';
 import { NativeSoundEvent } from '../../Events/MediaEvents';
-import { Promise } from '../../Promises';
 import { canPlayFile } from '../../Util/Sound';
 
 /**
@@ -63,7 +62,10 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
   private _tracks: AudioInstance[] = [];
   private _engine: Engine;
   private _wasPlayingOnHidden: boolean = false;
-  private _processedData = new Promise<string | AudioBuffer>();
+  private _processedDataResolve: any;
+  private _processedData: Promise<string | AudioBuffer> = new Promise((resolve) => {
+    this._processedDataResolve = resolve;
+  });
   private _audioContext = AudioContextFactory.create();
 
   /**
@@ -188,7 +190,6 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
     this.emit('emptied', new NativeSoundEvent(this));
 
     this.data = data;
-    this._processedData = new Promise<string | AudioBuffer>();
   }
 
   public processData(data: Blob | ArrayBuffer): Promise<string | AudioBuffer> {
@@ -198,7 +199,10 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
     const processPromise: Promise<string | AudioBuffer> =
       data instanceof ArrayBuffer ? this._processArrayBufferData(data) : this._processBlobData(data);
 
-    return processPromise.then((processedData) => this._setProcessedData(processedData));
+    return processPromise.then((p) => {
+      this._setProcessedData(p);
+      return p;
+    });
   }
 
   /**
@@ -211,7 +215,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
 
   private _resumePlayback(): Promise<boolean> {
     if (this._isPaused) {
-      const resumed = [];
+      const resumed: Promise<boolean>[] = [];
       // ensure we resume *current* tracks (if paused)
       for (const track of this._tracks) {
         resumed.push(track.play());
@@ -223,7 +227,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
 
       this.logger.debug('Resuming paused instances for sound', this.path, this._tracks);
       // resolve when resumed tracks are done
-      return Promise.join(resumed);
+      return Promise.all(resumed).then(() => true);
     } else {
       return Promise.resolve(true);
     }
@@ -231,7 +235,10 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
 
   private _startPlayback(): Promise<boolean> {
     const newTrack = this._createNewTrack();
-    const playPromise = new Promise<boolean>();
+    let playResolve: any;
+    const playPromise = new Promise<boolean>((resolve) => {
+      playResolve = resolve;
+    });
 
     newTrack.then((track) => {
       track.play().then((resolved) => {
@@ -239,7 +246,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
         this.emit('playbackend', new NativeSoundEvent(this, track));
         this._tracks.splice(this.getTrackId(track), 1);
 
-        playPromise.resolve(resolved);
+        playResolve(resolved);
 
         return resolved;
       });
@@ -252,53 +259,47 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
   }
 
   private _processArrayBufferData(data: ArrayBuffer): Promise<AudioBuffer> {
-    const complete = new Promise<AudioBuffer>();
-
-    this._audioContext.decodeAudioData(
-      data,
-      (buffer: AudioBuffer) => {
-        complete.resolve(buffer);
-      },
-      () => {
-        this.logger.error(
-          'Unable to decode ' +
-            ' this browser may not fully support this format, or the file may be corrupt, ' +
-            'if this is an mp3 try removing id3 tags and album art from the file.'
-        );
-        complete.resolve(undefined);
-      }
-    );
-
-    return complete;
+    return new Promise((resolve) => {
+      this._audioContext.decodeAudioData(
+        data,
+        (buffer: AudioBuffer) => {
+          resolve(buffer);
+        },
+        () => {
+          this.logger.error(
+            'Unable to decode ' +
+              ' this browser may not fully support this format, or the file may be corrupt, ' +
+              'if this is an mp3 try removing id3 tags and album art from the file.'
+          );
+          resolve(undefined);
+        }
+      );
+    });
   }
 
   private _processBlobData(data: Blob): Promise<string> {
-    return new Promise<string>().resolve(super.processData(data));
+    return Promise.resolve(super.processData(data));
   }
 
   private _setProcessedData(processedData: string | AudioBuffer): void {
-    this._processedData.resolve(processedData);
+    this._processedDataResolve(processedData);
   }
 
   private _createNewTrack(): Promise<AudioInstance> {
-    const aiPromise = new Promise<AudioInstance>();
+    this.processData(this.data);
 
-    if (this._processedData.state() !== 0) {
-      this.processData(this.data);
-    }
+    return new Promise((resolve) => {
+      this._processedData.then(
+        (processedData) => {
+          resolve(this._getTrackInstance(processedData));
 
-    this._processedData.then(
-      (processedData) => {
-        aiPromise.resolve(this._getTrackInstance(processedData));
-
-        return processedData;
-      },
-      (error) => {
-        this.logger.error(error, 'Cannot create AudioInstance due to wrong processed data.');
-      }
-    );
-
-    return aiPromise;
+          return processedData;
+        },
+        (error) => {
+          this.logger.error(error, 'Cannot create AudioInstance due to wrong processed data.');
+        }
+      );
+    });
   }
 
   private _getTrackInstance(data: string | AudioBuffer): AudioInstance {

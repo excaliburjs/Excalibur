@@ -1,5 +1,4 @@
 import { Audio } from '../../Interfaces/Audio';
-import { Promise } from '../../Promises';
 import * as Util from '../../Util/Util';
 import { AudioContextFactory } from './AudioContext';
 
@@ -50,6 +49,7 @@ export class AudioInstance implements Audio {
   protected _isPlaying = false;
   protected _isPaused = false;
   protected _instance: HTMLAudioElement | AudioBufferSourceNode;
+  protected _playingResolve: any;
 
   constructor(protected _src: string | AudioBuffer) {}
 
@@ -90,7 +90,12 @@ export class AudioInstance implements Audio {
   protected _startPlayBack() {
     this._isPlaying = true;
     this._isPaused = false;
-    this._playingPromise = new Promise<boolean>();
+    this._playingPromise = new Promise<boolean>((resolve) => {
+      if (this._playingResolve) {
+        // this._playingResolve(true);
+      }
+      this._playingResolve = resolve;
+    });
   }
 
   protected _resumePlayBack() {
@@ -109,9 +114,7 @@ export class AudioInstance implements Audio {
   }
 
   protected _handleOnEnded() {
-    /**
-     * Override me
-     */
+    this._playingResolve(true);
   }
 }
 
@@ -178,7 +181,7 @@ export class AudioTagInstance extends AudioInstance {
   protected _handleOnEnded() {
     this._isPlaying = false;
     this._isPaused = false;
-    this._playingPromise.resolve(true);
+    super._handleOnEnded();
   }
 }
 
@@ -263,7 +266,7 @@ export class WebAudioInstance extends AudioInstance {
     this._instance.start(0, 0);
     this._currentOffset = 0;
 
-    this._playingPromise = new Promise<boolean>();
+    // this._playingPromise = new Promise<boolean>();
     this._wireUpOnEnded();
   }
 
@@ -289,7 +292,7 @@ export class WebAudioInstance extends AudioInstance {
     // so we don't "resolve" yet (when we resume we'll try again)
     if (!this._isPaused) {
       this._isPlaying = false;
-      this._playingPromise.resolve(true);
+      super._handleOnEnded();
     }
   }
 

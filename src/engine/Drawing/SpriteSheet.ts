@@ -63,10 +63,10 @@ export class SpriteSheetImpl {
     if (this.image instanceof Texture) {
       let isWidthError: boolean = false;
       let isHeightError: boolean = false;
-      this.image.loaded.then((image: HTMLImageElement) => {
-        isWidthError = this.spWidth * this.columns > image.naturalWidth;
-        isHeightError = this.spHeight * this.rows > image.naturalHeight;
-      });
+      if (this.image.isLoaded) {
+        isWidthError = this.spWidth * this.columns > this.image.image.naturalWidth;
+        isHeightError = this.spHeight * this.rows > this.image.image.naturalHeight;
+      }
       if (isWidthError) {
         throw new RangeError(
           `SpriteSheet specified is wider, ` +
@@ -259,15 +259,15 @@ export class SpriteFontImpl extends SpriteSheet {
     spacing?: number
   ) {
     super(
-      imageOrConfig instanceof Texture ?
-        {
-          image: imageOrConfig,
-          spWidth: spWidth,
-          spHeight: spHeight,
-          rows: rows,
-          columns: columns,
-          spacing: spacing || 0
-        }
+      imageOrConfig instanceof Texture
+        ? {
+            image: imageOrConfig,
+            spWidth: spWidth,
+            spHeight: spHeight,
+            rows: rows,
+            columns: columns,
+            spacing: spacing || 0
+          }
         : imageOrConfig
     );
 

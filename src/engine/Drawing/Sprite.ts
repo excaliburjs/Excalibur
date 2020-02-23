@@ -12,6 +12,8 @@ import { Configurable } from '../Configurable';
  * @hidden
  */
 export class SpriteImpl implements Drawable {
+  private static __ID = 0;
+  public id: number = SpriteImpl.__ID++;
   private _texture: Texture;
 
   public x: number = 0;
@@ -51,7 +53,16 @@ export class SpriteImpl implements Drawable {
   private _spriteCtx: CanvasRenderingContext2D = null;
   private _pixelData: ImageData = null;
   private _pixelsLoaded: boolean = false;
-  private _dirtyEffect: boolean = false;
+  private _dirtyEffect: boolean = true;
+
+  // private __dirtyEffect: boolean = true;
+  // private get _dirtyEffect() {
+  //   return this.__dirtyEffect;
+  // }
+
+  // private set _dirtyEffect(value) {
+  //   this.__dirtyEffect = value;
+  // }
 
   /**
    * @param image   The backing image texture to build the Sprite
@@ -79,9 +90,19 @@ export class SpriteImpl implements Drawable {
 
     this._texture = <Texture>image;
     this._spriteCanvas = document.createElement('canvas');
+    this._spriteCtx = <CanvasRenderingContext2D>this._spriteCanvas.getContext('2d'); // eslint-disable-line
     this._spriteCanvas.width = width;
     this._spriteCanvas.height = height;
-    this._spriteCtx = <CanvasRenderingContext2D>this._spriteCanvas.getContext('2d'); // eslint-disable-line
+    // let me = this;
+    // this._texture.onLoaded = () => {
+    //   me.width = this.width || this._texture.image.naturalWidth;
+    //   me.height = this.height || this._texture.image.naturalHeight;
+    //   me._spriteCanvas.width = this._spriteCanvas.width || this._texture.image.naturalWidth;
+    //   me._spriteCanvas.height = this._spriteCanvas.height || this._texture.image.naturalHeight;
+    //   me._loadPixels();
+    //   // this._applyEffects();
+    //   me._dirtyEffect = true;
+    // };
     this._texture.loaded
       .then(() => {
         this.width = this.width || this._texture.image.naturalWidth;
@@ -366,10 +387,6 @@ export class SpriteImpl implements Drawable {
     if (flipVertical) {
       ctx.translate(0, drawHeight);
       ctx.scale(1, -1);
-    }
-
-    if (this._dirtyEffect) {
-      this._applyEffects();
     }
 
     const oldAlpha = ctx.globalAlpha;

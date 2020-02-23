@@ -34,7 +34,8 @@
     "sandbox": "grunt sandbox",
     "legacy-visual": "grunt visual",
     "start": "grunt watch",
-    "test": "karma start --singleRun=false",
+    "test": "karma start --singleRun=true",
+    "test-watch": "karma start --singleRun=false",
     "apidocs": "grunt apidocs",
     "precommit": "pretty-quick --staged",
     "pretty": "prettier --write \"{src,sandbox/src,sandbox/tests}/**/*.{ts,js,json,css,md}\" --config prettier.config.js"
@@ -88,6 +89,7 @@
     "karma-coverage": "2.0.1",
     "karma-coverage-istanbul-reporter": "2.1.1",
     "karma-jasmine": "2.0.1",
+    "karma-spec-reporter": "0.0.32",
     "karma-webpack": "4.0.2",
     "lint-staged": "9.5.0",
     "prettier": "1.19.1",

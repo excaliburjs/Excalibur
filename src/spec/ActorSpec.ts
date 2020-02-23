@@ -17,6 +17,7 @@ describe('A game actor', () => {
     actor.body.collider.type = ex.CollisionType.Active;
     scene = new ex.Scene(engine);
     engine.currentScene = scene;
+    actor._initialize(engine);
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(scene, 'debugDraw').and.callThrough();

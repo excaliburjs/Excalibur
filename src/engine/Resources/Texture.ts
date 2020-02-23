@@ -25,6 +25,8 @@ export class Texture extends Resource<HTMLImageElement> {
     this._loadedResolve = resolve;
   });
 
+  // public onLoaded: (image: HTMLImageElement) => void = () => {};
+
   private _isLoaded: boolean = false;
   private _sprite: Sprite = null;
 
@@ -76,6 +78,7 @@ export class Texture extends Resource<HTMLImageElement> {
               this._isLoaded = true;
               this.width = this._sprite.width = this.image.naturalWidth;
               this.height = this._sprite.height = this.image.naturalHeight;
+              // this.onLoaded(this.image);
               this._loadedResolve(this.image);
               resolve(this.image);
             });

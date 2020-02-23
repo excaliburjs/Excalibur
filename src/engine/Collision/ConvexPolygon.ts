@@ -9,8 +9,6 @@ import { CollisionShape } from './CollisionShape';
 import { Vector, Line, Ray, Projection } from '../Algebra';
 import { Collider } from './Collider';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
-import { Graphics } from '..';
-// import * as Graphics from '../Graphics';
 
 export interface ConvexPolygonOptions {
   /**
@@ -40,15 +38,7 @@ export interface ConvexPolygonOptions {
  */
 export class ConvexPolygon implements CollisionShape {
   public offset: Vector;
-
-  public get points() {
-    return this._polygon.points;
-  }
-  public set points(value: Vector[]) {
-    this._polygon.points = value;
-  }
-
-  private _polygon: Graphics.Polygon = new Graphics.Polygon({ points: [] });
+  public points: Vector[];
 
   /**
    * Collider associated with this shape
@@ -64,7 +54,6 @@ export class ConvexPolygon implements CollisionShape {
     const winding = !!options.clockwiseWinding;
     this.points = (winding ? options.points.reverse() : options.points) || [];
     this.collider = this.collider = options.collider || null;
-    this._polygon.points = this.points ?? [];
 
     // calculate initial transformation
     this._calculateTransformation();
@@ -389,18 +378,20 @@ export class ConvexPolygon implements CollisionShape {
   }
 
   public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
+    ctx.beginPath();
+    ctx.fillStyle = color.toString();
     const newPos = pos.add(this.offset);
-
-    if (this._polygon.color.toString() !== color.toString()) {
-      this._polygon.color = color;
-    }
-
-    if (this._polygon.dirty) {
-      this._polygon.rasterize();
-    }
-    if (this._polygon.width && this._polygon.height) {
-      ctx.drawImage(this._polygon._bitmap, newPos.x + this._polygon.minPoint.x, newPos.y + this._polygon.minPoint.y);
-    }
+    // Iterate through the supplied points and construct a 'polygon'
+    const firstPoint = this.points[0].add(newPos);
+    ctx.moveTo(firstPoint.x, firstPoint.y);
+    this.points
+      .map((p) => p.add(newPos))
+      .forEach(function(point) {
+        ctx.lineTo(point.x, point.y);
+      });
+    ctx.lineTo(firstPoint.x, firstPoint.y);
+    ctx.closePath();
+    ctx.fill();
   }
 
   /* istanbul ignore next */

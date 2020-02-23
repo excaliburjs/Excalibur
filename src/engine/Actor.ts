@@ -1236,12 +1236,14 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   // #region Drawing
   private _newdraw(ctx: ExcaliburGraphicsContext, _delta: number) {
     // Doesnt use the actors anchor...
-    ctx.save();
-    ctx.translate(this.pos.x, this.pos.y);
-    ctx.rotate(this.rotation);
-    ctx.scale(this.scale.x, this.scale.y);
-    this.graphics.draw(ctx, 0, 0); // collider shapes?
-    ctx.restore();
+    if (ctx) {
+      ctx.save();
+      ctx.translate(this.pos.x, this.pos.y);
+      ctx.rotate(this.rotation);
+      ctx.scale(this.scale.x, this.scale.y);
+      this.graphics.draw(ctx, 0, 0);
+      ctx.restore();
+    }
   }
 
   /**

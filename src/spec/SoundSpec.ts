@@ -25,6 +25,10 @@ describe('Sound resource', () => {
         sut.setData(_base64ToArrayBuffer());
       });
 
+      afterEach(() => {
+        sut.stop();
+      });
+
       it('should return the processed data', () => {
         expect(sut.processData(sut.getData())).toBeDefined();
       });
@@ -301,16 +305,13 @@ describe('Sound resource', () => {
         // start playing first track
 
         sut.on('playbackstart', (ev: ex.NativeSoundEvent) => {
-          if (sut.getTrackId(ev.track) === 0) {
-            sut.play();
-          }
           sut.stop();
-
           expect(sut.instanceCount()).toBe(0, 'should be no tracks');
-
           done();
         });
 
+        sut.play();
+        sut.play();
         sut.play();
       });
     });

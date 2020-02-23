@@ -707,6 +707,7 @@ describe('Collision Shape', () => {
       });
 
       scene.add(polygonActor);
+      scene.update(engine, 100);
       scene.draw(engine.ctx, 100);
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/triangle.png').then(([canvas, image]) => {

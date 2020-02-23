@@ -54,7 +54,7 @@ describe('A TileMap', () => {
       });
       const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
       tm.registerSpriteSheet('default', spriteTiles);
-      tm.data.forEach(function(cell: ex.Cell) {
+      tm.data.forEach((cell: ex.Cell) => {
         cell.solid = true;
         cell.pushSprite(new ex.TileSprite('default', 0));
       });

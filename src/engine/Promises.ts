@@ -1,5 +1,3 @@
-import { obsolete } from './Util/Decorators';
-
 // Promises/A+ Spec http://promises-aplus.github.io/promises-spec/
 
 /**
@@ -30,8 +28,8 @@ export interface PromiseLike<T> {
  * sounds, animation, actions, and more.
  *
  * [[include:Promises.md]]
+ * @obsolete Use native promises in favor of Excalibur's promise implementation
  */
-@obsolete({})
 export class Promise<T> implements PromiseLike<T> {
   private _state: PromiseState = PromiseState.Pending;
   private _value: T;
