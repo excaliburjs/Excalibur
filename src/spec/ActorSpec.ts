@@ -1333,4 +1333,10 @@ describe('A game actor', () => {
       expect(actor.onPostKill).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('default traits', () => {
+    it('should include collision detection for chunk system tile maps', () => {
+      expect(actor.traits.some((trait) => trait instanceof ex.Traits.ChunkSystemTileMapCollisionDetection)).toBeTrue();
+    });
+  });
 });

@@ -45,6 +45,30 @@ describe('A scene', () => {
     expect(scene.tileMaps.length).toBe(1);
   });
 
+  it('must not contain any ChunkSystemTileMap instances upon creation', () => {
+    expect(scene.chunkSystems.length).toBe(0);
+  });
+
+  it('cannot have the same ChunkSystemTileMap added to it more than once', () => {
+    const chunkSystem = new ex.ChunkSystemTileMap({
+      cellHeight: 1,
+      cellWidth: 1,
+      chunkGarbageCollectorPredicate: () => true,
+      chunkGenerator: () => {
+        throw new Error('Not implemented');
+      },
+      chunkSize: 1,
+      cols: 1,
+      rows: 1,
+      x: 0,
+      y: 0
+    });
+    scene.add(chunkSystem);
+    expect(scene.chunkSystems.length).toBe(1);
+    scene.add(chunkSystem);
+    expect(scene.chunkSystems.length).toBe(1);
+  });
+
   it('draws onscreen Actors', () => {
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
