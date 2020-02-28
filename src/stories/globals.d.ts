@@ -1,3 +1,5 @@
+declare module '*.md';
+
 interface Story {
   (): Element;
   story?: {

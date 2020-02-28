@@ -1,5 +1,4 @@
 import { action } from '@storybook/addon-actions';
-import { boolean } from '@storybook/addon-knobs';
 import * as ex from '../engine';
 import { withEngine } from './utils';
 
@@ -7,7 +6,7 @@ export default {
   title: 'Pointer Events'
 };
 
-export const pointerEvents: Story = withEngine(async (game) => {
+export const subscribingToEvents: Story = withEngine(async (game) => {
   class TestBlock extends ex.Actor {
     constructor(x: number, y: number) {
       super({
@@ -46,6 +45,8 @@ export const pointerEvents: Story = withEngine(async (game) => {
 
   game.add(block);
 
+  await game.start(new ex.Loader());
+
   game.input.pointers.primary.on('up', (e) => {
     action('engine.pointerup')(e);
   });
@@ -53,11 +54,9 @@ export const pointerEvents: Story = withEngine(async (game) => {
   game.input.pointers.primary.on('down', (e) => {
     action('engine.pointerdown')(e);
   });
-
-  await game.start(new ex.Loader());
 });
 
-pointerEvents.story = {
+subscribingToEvents.story = {
   parameters: {
     componentSubtitle: 'The Pointer Events API provides consistent support for mouse and touch events'
   }
