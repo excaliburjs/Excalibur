@@ -58,7 +58,7 @@ describe('Utility functions', () => {
   });
 
   describe('extend', () => {
-    it('should merge simple objects', () => {
+    it('should assign simple objects', () => {
       const obj1 = { foo: true };
       const obj2 = { bar: true };
       expect(ex.Util.extend({}, obj1, obj2)).toEqual({
@@ -67,15 +67,22 @@ describe('Utility functions', () => {
       });
     });
 
-    it('should merge deep complex objects', () => {
+    it('should assign complex objects', () => {
       const obj1 = { foo: true, deep: { switch: false, donotswitch: true } };
       const obj2 = { bar: true, deep: { switch: true } };
-      expect(ex.Util.extend({}, obj1, obj2)).toEqual({
-        foo: true,
-        bar: true,
+      expect(ex.Util.extend<any, any, any>({}, obj1, obj2)).toEqual({
+        ...obj1,
+        ...obj2
+      });
+    });
+
+    xit('todo: should deeply extend complex objects', () => {
+      const obj1 = { deep: { overwrite: false, preserve: true } };
+      const obj2 = { deep: { overwrite: true } };
+      expect(ex.Util.extend(true, {}, obj1, obj2)).toEqual({
         deep: {
-          switch: true,
-          donotswitch: true
+          overwrite: true,
+          preserve: true
         }
       });
     });
