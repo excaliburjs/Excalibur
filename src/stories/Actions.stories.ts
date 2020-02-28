@@ -33,6 +33,6 @@ export const fade: Story = withEngine(async (game) => {
 fade.story = {
   parameters: {
     componentSubtitle: 'Fade action',
-    notes: 'Use `Actor.fade()` to fade in or out the Actor over time'
+    docs: { storyDescription: 'Use `Actor.fade()` to fade in or out the Actor over time' }
   }
 };
