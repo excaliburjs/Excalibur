@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-fdescribe('Utility functions', () => {
+describe('Utility functions', () => {
   it('can determine the opposite side', () => {
     expect(ex.Util.getOppositeSide(ex.Side.Left)).toBe(ex.Side.Right);
     expect(ex.Util.getOppositeSide(ex.Side.Right)).toBe(ex.Side.Left);
