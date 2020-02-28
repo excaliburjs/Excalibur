@@ -5,9 +5,6 @@ module.exports = ({ config }) => {
     test: /\.(ts|tsx)$/,
     use: [
       {
-        loader: require.resolve('@storybook/source-loader')
-      },
-      {
         loader: require.resolve('ts-loader'),
         options: {
           configFile: path.join(__dirname, '../src/stories/tsconfig.json')
