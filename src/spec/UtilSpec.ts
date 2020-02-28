@@ -1,7 +1,6 @@
 import * as ex from '@excalibur';
-import { Mocks } from './util/Mocks';
 
-describe('Utility functions', () => {
+fdescribe('Utility functions', () => {
   it('can determine the opposite side', () => {
     expect(ex.Util.getOppositeSide(ex.Side.Left)).toBe(ex.Side.Right);
     expect(ex.Util.getOppositeSide(ex.Side.Right)).toBe(ex.Side.Left);
@@ -55,6 +54,30 @@ describe('Utility functions', () => {
     it('should return a value if not null or undefined', () => {
       const value = ex.Util.nullish('value', 'otherValue');
       expect(value).toBe('value');
+    });
+  });
+
+  describe('extend', () => {
+    it('should merge simple objects', () => {
+      const obj1 = { foo: true };
+      const obj2 = { bar: true };
+      expect(ex.Util.extend({}, obj1, obj2)).toEqual({
+        ...obj1,
+        ...obj2
+      });
+    });
+
+    it('should merge deep complex objects', () => {
+      const obj1 = { foo: true, deep: { switch: false, donotswitch: true } };
+      const obj2 = { bar: true, deep: { switch: true } };
+      expect(ex.Util.extend({}, obj1, obj2)).toEqual({
+        foo: true,
+        bar: true,
+        deep: {
+          switch: true,
+          donotswitch: true
+        }
+      });
     });
   });
 });
