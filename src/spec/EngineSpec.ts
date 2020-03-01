@@ -319,6 +319,54 @@ describe('The engine', () => {
     expect(game.enableCanvasTransparency).toBe(true);
   });
 
+  it('should add a ChunkSytemTileMap to the current scene as many times as requested', () => {
+    // Note to self: am I the only one who finds this behavior strange? This behavior applies to TileMaps as well.
+    const chunkSystemOptions = {
+      cellHeight: 1,
+      cellWidth: 1,
+      chunkGarbageCollectorPredicate: () => true,
+      chunkGenerator: () => {
+        throw new Error('Not implemented');
+      },
+      chunkSize: 1,
+      cols: 1,
+      rows: 1,
+      x: 0,
+      y: 0
+    };
+    const chunkSystem1 = new ex.ChunkSystemTileMap(chunkSystemOptions);
+    const chunkSystem2 = new ex.ChunkSystemTileMap(chunkSystemOptions);
+
+    engine.add(chunkSystem1);
+    engine.add(chunkSystem2);
+    engine.add(chunkSystem1);
+    expect(engine.currentScene.chunkSystems).toEqual([chunkSystem1, chunkSystem2, chunkSystem1]);
+  });
+
+  it('should remove the correct ChunkSystemTileMap', () => {
+    const chunkSystemOptions = {
+      cellHeight: 1,
+      cellWidth: 1,
+      chunkGarbageCollectorPredicate: () => true,
+      chunkGenerator: () => {
+        throw new Error('Not implemented');
+      },
+      chunkSize: 1,
+      cols: 1,
+      rows: 1,
+      x: 0,
+      y: 0
+    };
+    const chunkSystem1 = new ex.ChunkSystemTileMap(chunkSystemOptions);
+    const chunkSystem2 = new ex.ChunkSystemTileMap(chunkSystemOptions);
+
+    engine.add(chunkSystem1);
+    engine.add(chunkSystem2);
+    expect(engine.currentScene.chunkSystems.length).toBe(2);
+    engine.remove(chunkSystem1);
+    expect(engine.currentScene.chunkSystems).toEqual([chunkSystem2]);
+  });
+
   describe('lifecycle overrides', () => {
     let engine: ex.Engine;
     beforeEach(() => {
