@@ -69,6 +69,62 @@ describe('A scene', () => {
     expect(scene.chunkSystems.length).toBe(1);
   });
 
+  it('removes the correct ChunkSystemTileMap', () => {
+    const chunkSystemOptions = {
+      cellHeight: 1,
+      cellWidth: 1,
+      chunkGarbageCollectorPredicate: () => true,
+      chunkGenerator: () => {
+        throw new Error('Not implemented');
+      },
+      chunkSize: 1,
+      cols: 1,
+      rows: 1,
+      x: 0,
+      y: 0
+    };
+    const chunkSystem1 = new ex.ChunkSystemTileMap(chunkSystemOptions);
+    const chunkSystem2 = new ex.ChunkSystemTileMap(chunkSystemOptions);
+    scene.add(chunkSystem1);
+    scene.add(chunkSystem2);
+    expect(scene.chunkSystems.length).toBe(2);
+    scene.remove(chunkSystem1);
+    expect(scene.chunkSystems.length).toBe(1);
+    expect(scene.chunkSystems[0]).toBe(chunkSystem2);
+    scene.remove(chunkSystem2);
+    expect(scene.chunkSystems.length).toBe(0);
+    scene.remove(chunkSystem2);
+  });
+
+  it('updates all ChunkSystemTileMap instances', () => {
+    const chunkSystemOptions = {
+      cellHeight: 1,
+      cellWidth: 1,
+      chunkGarbageCollectorPredicate: () => true,
+      chunkGenerator: () => {
+        throw new Error('Not implemented');
+      },
+      chunkSize: 1,
+      cols: 1,
+      rows: 1,
+      x: 0,
+      y: 0
+    };
+    const chunkSystem1 = new ex.ChunkSystemTileMap(chunkSystemOptions);
+    const chunkSystem2 = new ex.ChunkSystemTileMap(chunkSystemOptions);
+    spyOn(chunkSystem1, 'update');
+    spyOn(chunkSystem2, 'update');
+
+    engine.add(chunkSystem1);
+    engine.add(chunkSystem2);
+
+    scene.update(engine, 111);
+    expect(chunkSystem1.update).toHaveBeenCalledTimes(1);
+    expect(chunkSystem1.update).toHaveBeenCalledWith(engine, 111);
+    expect(chunkSystem2.update).toHaveBeenCalledTimes(1);
+    expect(chunkSystem2.update).toHaveBeenCalledWith(engine, 111);
+  });
+
   it('draws onscreen Actors', () => {
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
@@ -254,6 +310,62 @@ describe('A scene', () => {
     scene.draw(engine.ctx, 100);
 
     expect(actor.draw).not.toHaveBeenCalled();
+  });
+
+  it('draws all ChunkSystemTileMaps', () => {
+    const chunkSystemOptions = {
+      cellHeight: 1,
+      cellWidth: 1,
+      chunkGarbageCollectorPredicate: () => true,
+      chunkGenerator: () => {
+        throw new Error('Not implemented');
+      },
+      chunkSize: 1,
+      cols: 1,
+      rows: 1,
+      x: 0,
+      y: 0
+    };
+    const chunkSystem1 = new ex.ChunkSystemTileMap(chunkSystemOptions);
+    const chunkSystem2 = new ex.ChunkSystemTileMap(chunkSystemOptions);
+    spyOn(chunkSystem1, 'draw');
+    spyOn(chunkSystem2, 'draw');
+
+    engine.add(chunkSystem1);
+    engine.add(chunkSystem2);
+    scene.draw(engine.ctx, 42);
+    expect(chunkSystem1.draw).toHaveBeenCalledTimes(1);
+    expect(chunkSystem1.draw).toHaveBeenCalledWith(engine.ctx, 42);
+    expect(chunkSystem2.draw).toHaveBeenCalledTimes(1);
+    expect(chunkSystem2.draw).toHaveBeenCalledWith(engine.ctx, 42);
+  });
+
+  it('draws debug information from all ChunkSystemTileMaps', () => {
+    const chunkSystemOptions = {
+      cellHeight: 1,
+      cellWidth: 1,
+      chunkGarbageCollectorPredicate: () => true,
+      chunkGenerator: () => {
+        throw new Error('Not implemented');
+      },
+      chunkSize: 1,
+      cols: 1,
+      rows: 1,
+      x: 0,
+      y: 0
+    };
+    const chunkSystem1 = new ex.ChunkSystemTileMap(chunkSystemOptions);
+    const chunkSystem2 = new ex.ChunkSystemTileMap(chunkSystemOptions);
+    spyOn(chunkSystem1, 'debugDraw');
+    spyOn(chunkSystem2, 'debugDraw');
+
+    engine.add(chunkSystem1);
+    engine.add(chunkSystem2);
+    scene.debugDraw(engine.ctx);
+    expect(chunkSystem1.debugDraw).toHaveBeenCalledTimes(1);
+    expect(chunkSystem1.debugDraw).toHaveBeenCalledWith(engine.ctx);
+    expect(chunkSystem2.debugDraw).toHaveBeenCalledTimes(1);
+    expect(chunkSystem2.debugDraw).toHaveBeenCalledWith(engine.ctx);
   });
 
   it('fires initialize before activate', (done) => {
