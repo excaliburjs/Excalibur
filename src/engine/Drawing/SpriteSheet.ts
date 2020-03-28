@@ -63,7 +63,7 @@ export class SpriteSheetImpl {
     if (this.image instanceof Texture) {
       let isWidthError: boolean = false;
       let isHeightError: boolean = false;
-      if (this.image.isLoaded) {
+      if (this.image.isLoaded()) {
         isWidthError = this.spWidth * this.columns > this.image.image.naturalWidth;
         isHeightError = this.spHeight * this.rows > this.image.image.naturalHeight;
       }
