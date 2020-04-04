@@ -1,13 +1,25 @@
 import { Vector } from '../../Algebra';
+import { Graphic } from '../Graphic';
 
-export type ImageSource = HTMLImageElement | HTMLCanvasElement | WebGLTexture;
-
-export interface HasExcaliburDraw {
-  draw(ex: ExcaliburGraphicsContext, x: number, y: number): void;
-}
+// TODO should this use Graphic instead?
+export type ImageSource = HTMLImageElement | HTMLCanvasElement;
 
 export interface ExcaliburGraphicsContextState {
   opacity: number;
+}
+
+export interface ExcaliburContextOptions {
+  elementId?: string;
+  width: number;
+  height: number;
+  snapToPixel?: boolean;
+  maxDrawingsPerBatch?: number;
+}
+
+export interface ExcaliburContextDiagnostics {
+  batches: number;
+  uniqueTextures: number;
+  maxTexturePerDraw: number;
 }
 
 export interface ExcaliburGraphicsContext {
@@ -26,19 +38,19 @@ export interface ExcaliburGraphicsContext {
   /**
    * Draw an image to the Excalibur Graphics context at an x and y coordinate using the images width and height
    */
-  drawImage(graphic: ImageSource, x: number, y: number): void;
+  drawImage(graphic: Graphic, x: number, y: number): void;
   /**
    *
    * Draw an image to the Excalibur Graphics context at an x and y coordinate with a specific width and height
    */
-  drawImage(graphic: ImageSource, x: number, y: number, width: number, height: number): void;
+  drawImage(graphic: Graphic, x: number, y: number, width: number, height: number): void;
   /**
    *
    * Draw an image to the Excalibur Graphics context specifying the source image coordinates (sx, sy, swidth, sheight)
    * and to a specific destination on the context (dx, dy, dwidth, dheight)
    */
   drawImage(
-    graphic: ImageSource,
+    graphic: Graphic,
     sx: number,
     sy: number,
     swidth?: number,

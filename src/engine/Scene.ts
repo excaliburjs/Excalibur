@@ -28,6 +28,7 @@ import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
 import { Body } from './Collision/Body';
+import { ExcaliburGraphicsContext } from './Graphics';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -67,6 +68,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Access to the Excalibur engine
    */
   private _engine: Engine;
+
+  private _graphicsContext: ExcaliburGraphicsContext;
 
   /**
    * The [[ScreenElement]]s in a scene, if any; these are drawn last
@@ -223,6 +226,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public _initialize(engine: Engine) {
     if (!this.isInitialized) {
       this._engine = engine;
+      this._graphicsContext = engine.graphicsContext;
       if (this.camera) {
         this.camera.x = engine.halfDrawWidth;
         this.camera.y = engine.halfDrawHeight;
@@ -450,6 +454,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         this.screenElements[i].debugDraw(ctx);
       }
     }
+    this._graphicsContext.flush();
     this._postdraw(ctx, delta);
   }
 

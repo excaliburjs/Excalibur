@@ -1,7 +1,7 @@
 import { Graphic, GraphicOptions } from './Graphic';
 import { Vector } from '../Algebra';
 import { clamp } from '../Util/Util';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
 import { Eventable } from '../Interfaces/Evented';
 import { EventDispatcher } from '../EventDispatcher';
 
@@ -67,6 +67,10 @@ export class Animation extends Graphic implements Eventable<Frame | Animation> {
       return this.frames[this._currentFrame];
     }
     return null;
+  }
+
+  public getSource(): ImageSource {
+    return this.frames[this._currentFrame].graphic.getSource();
   }
 
   public reset(): void {

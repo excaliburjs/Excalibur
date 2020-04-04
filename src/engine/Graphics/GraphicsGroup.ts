@@ -2,7 +2,7 @@ import { Vector } from '../Algebra';
 import { Graphic } from './Graphic';
 import { Animation } from './Animation';
 import { BoundingBox } from '../Collision/Index';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
 
 export interface GraphicsGrouping {
   pos: Vector;
@@ -11,6 +11,11 @@ export interface GraphicsGrouping {
 
 export class GraphicsGroup extends Graphic {
   public members: GraphicsGrouping[] = [];
+
+  public getSource(): ImageSource {
+    return null;
+  }
+
   public get image(): HTMLImageElement | HTMLCanvasElement {
     return null;
   }

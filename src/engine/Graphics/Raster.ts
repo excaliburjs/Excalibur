@@ -1,5 +1,5 @@
 import { Graphic, GraphicOptions } from './Graphic';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Drawing/Color';
 
 export interface RasterOptions {
@@ -16,7 +16,6 @@ export interface RasterOptions {
  */
 export abstract class Raster extends Graphic {
   public _bitmap: HTMLCanvasElement;
-  public _webglTexture: WebGLTexture;
   private _ctx: CanvasRenderingContext2D;
   private _dirty: boolean = true;
 
@@ -153,7 +152,7 @@ export abstract class Raster extends Graphic {
       this.rasterize();
     }
 
-    ex.drawImage(this._bitmap, x, y);
+    ex.drawImage(this, x, y);
   }
 
   /**
@@ -162,4 +161,8 @@ export abstract class Raster extends Graphic {
    * @param ctx Canvas to draw the graphic to
    */
   abstract execute(ctx: CanvasRenderingContext2D): void;
+
+  public getSource(): ImageSource {
+    return this._bitmap;
+  }
 }

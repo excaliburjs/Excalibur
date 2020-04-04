@@ -1,6 +1,6 @@
 import { Graphic, GraphicOptions } from './Graphic';
 import { RawImage } from './RawImage';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
 
 export type SourceView = { x: number; y: number; width: number; height: number };
 export type Size = { width: number; height: number };
@@ -61,8 +61,12 @@ export class Sprite extends Graphic {
       ex.scale(1 / this.scale.x, 1 / this.scale.y);
       let width = this.size.width * this.scale.x;
       let height = this.size.height * this.scale.y;
-      ex.drawImage(this.rawImage.image, this.source.x, this.source.y, this.source.width, this.source.height, x, y, width, height);
+      ex.drawImage(this, this.source.x, this.source.y, this.source.width, this.source.height, x, y, width, height);
     }
+  }
+
+  public getSource(): ImageSource {
+    return this.rawImage.image;
   }
 
   public clone(): Sprite {

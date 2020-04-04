@@ -1,5 +1,5 @@
 import { Vector, vec } from '../Algebra';
-import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/BoundingBox';
 
 export interface DrawOptions {
@@ -60,6 +60,9 @@ export interface GraphicOptions {
  * handles all the position, rotation, and scale transformations in [[Graphic._preDraw]] and [[Graphic._postDraw]]
  */
 export abstract class Graphic {
+  private static _ID: number = 0;
+  readonly id = Graphic._ID++;
+
   /**
    * Gets or sets wether to show debug information about the graphic
    */
@@ -195,4 +198,9 @@ export abstract class Graphic {
     }
     ex.restore();
   }
+
+  /**
+   * Return the source native source image for the graphic
+   */
+  abstract getSource(): ImageSource;
 }

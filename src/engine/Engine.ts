@@ -40,7 +40,8 @@ import * as Events from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
 import { BrowserEvents } from './Util/Browser';
 import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
-import { ExcaliburGraphicsContext2DCanvas } from './Graphics/Context/ExcaliburGraphicsContext2DCanvas';
+// import { ExcaliburGraphicsContext2DCanvas } from './Graphics/Context/ExcaliburGraphicsContext2DCanvas';
+import { ExcaliburGraphicsContextWebGL } from './Graphics/Context/ExcaliburGraphicsContextWebGL';
 
 /**
  * Enum representing the different display modes available to Excalibur
@@ -1029,8 +1030,17 @@ O|===|* >________________>\n\
     });
 
     // eslint-disable-next-line
-    this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
-    this.graphicsContext = new ExcaliburGraphicsContext2DCanvas(this.ctx);
+    const canvas = document.createElement('canvas');
+    this.ctx = canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
+    // this.graphicsContext = new ExcaliburGraphicsContext2DCanvas(this.ctx);
+    const gl = this.canvas.getContext('webgl', {
+      antialias: false,
+      premultipliedAlpha: false,
+      alpha: false,
+      depth: false,
+      powerPreference: 'high-performance'
+    });
+    this.graphicsContext = new ExcaliburGraphicsContextWebGL(gl);
 
     this._suppressHiDPIScaling = !!options.suppressHiDPIScaling;
     if (!options.suppressHiDPIScaling) {

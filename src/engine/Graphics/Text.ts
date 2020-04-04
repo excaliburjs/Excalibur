@@ -74,7 +74,7 @@ export class Text extends Raster {
       this.rasterize();
     }
 
-    ex.drawImage(this._bitmap, x - this._halfWidth, y - this._halfHeight);
+    ex.drawImage(this, x - this._halfWidth, y - this._halfHeight);
   }
 
   _postDraw(ex: ExcaliburGraphicsContext): void {
