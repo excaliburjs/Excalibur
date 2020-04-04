@@ -171,13 +171,9 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
   }
 
   /**
-   * Stop the sound and rewind
+   * Stop the sound if it is currently playing and rewind the track. If the sound is not playing, rewinds the track.
    */
   public stop() {
-    if (!this.isPlaying()) {
-      return;
-    }
-
     for (const track of this._tracks) {
       track.stop();
     }

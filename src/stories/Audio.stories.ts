@@ -54,12 +54,7 @@ export const webAudio: Story = withEngine(async (game) => {
   });
   stopBtn.addDrawing(stopSprite);
   stopBtn.enableCapturePointer = true;
-  stopBtn.on('pointerup', (evt) => {
-    if (testSound.isPlaying()) {
-      testSound.stop();
-    }
-    evt.stopPropagation();
-  });
+ 
 
   const playheadStartPos = playTimeline.body.collider.bounds.left;
   const playheadEndPos = playTimeline.body.collider.bounds.right;
@@ -76,30 +71,37 @@ export const webAudio: Story = withEngine(async (game) => {
       playHead.actions.easeTo(playheadEndPos, playHead.pos.y, testSound.duration * 1000, EasingFunctions.Linear);
     }
     startOrPauseBtn.setDrawing('pause');
-    action('playbackstart')(e)
+    action('playbackstart')(e);
   });
 
   testSound.on('pause', (e) => {
-    elapsedTime = (Date.now() - startTime) + elapsedTime
+    elapsedTime = Date.now() - startTime + elapsedTime;
     playHead.actions.clearActions();
     startOrPauseBtn.setDrawing('play');
-    action('pause')(e, elapsedTime)
+    action('pause')(e, elapsedTime);
   });
 
   testSound.on('resume', (e: NativeSoundEvent) => {
-    startTime = Date.now()
+    startTime = Date.now();
     if (testSound.duration > 0) {
       playHead.actions.easeTo(playheadEndPos, playHead.pos.y, testSound.duration * 1000 - elapsedTime, EasingFunctions.Linear);
     }
     startOrPauseBtn.setDrawing('pause');
-    action('resume')(e)
+    action('resume')(e);
   });
 
   testSound.on('playbackend', (e) => {
-    playHead.actions.clearActions()
+    playHead.actions.clearActions();
     playHead.pos.setTo(playheadStartPos, playHead.pos.y);
     startOrPauseBtn.setDrawing('play');
-    action('playbackend')(e)
+    action('playbackend')(e);
+  });
+
+  stopBtn.on('pointerup', (evt) => {
+    testSound.stop();
+    playHead.pos.setTo(playheadStartPos, playHead.pos.y);
+
+    evt.stopPropagation();
   });
 
   game.add(stopBtn);

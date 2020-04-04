@@ -72,13 +72,11 @@ export class NativeSoundEvent extends MediaEvent {
 }
 
 export class NativeSoundProcessedEvent extends MediaEvent {
-  public duration: number | undefined;
+  public data: string | AudioBuffer;
 
   constructor(target: Sound, private processedData: string | AudioBuffer) {
     super(target, 'NativeSoundProcessedEvent');
 
-    if (this.processedData && typeof this.processedData === 'object') {
-      this.duration = this.processedData.duration;
-    }
+    this.data = this.processedData;
   }
 }
