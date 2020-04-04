@@ -72,6 +72,7 @@ export const webAudio: Story = withEngine(async (game) => {
     playHead.pos.setTo(playheadStartPos, playHead.pos.y);
     if (testSound.duration > 0) {
       startTime = Date.now();
+      elapsedTime = 0;
       playHead.actions.easeTo(playheadEndPos, playHead.pos.y, testSound.duration * 1000, EasingFunctions.Linear);
     }
     startOrPauseBtn.setDrawing('pause');
