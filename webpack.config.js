@@ -41,6 +41,10 @@ module.exports = (version) => ({
             }
           }
         ]
+      },
+      {
+        test: /\.glsl$/,
+        use: ['raw-loader']
       }
     ]
   },
