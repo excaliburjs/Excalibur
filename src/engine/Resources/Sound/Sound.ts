@@ -4,7 +4,7 @@ import { Engine } from '../../Engine';
 import { Resource } from '../Resource';
 import { AudioInstance, AudioInstanceFactory } from './AudioInstance';
 import { AudioContextFactory } from './AudioContext';
-import { NativeSoundEvent } from '../../Events/MediaEvents';
+import { NativeSoundEvent, NativeSoundProcessedEvent } from '../../Events/MediaEvents';
 import { Promise } from '../../Promises';
 import { canPlayFile } from '../../Util/Sound';
 
@@ -48,6 +48,10 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
     return this._volume;
   }
 
+  public get duration(): number | undefined {
+    return this._duration;
+  }
+
   /**
    * Return array of Current AudioInstances playing or being paused
    */
@@ -59,6 +63,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
 
   private _loop = false;
   private _volume = 1;
+  private _duration: number | undefined = undefined;
   private _isPaused = false;
   private _tracks: AudioInstance[] = [];
   private _engine: Engine;
@@ -278,6 +283,8 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
 
   private _setProcessedData(processedData: string | AudioBuffer): void {
     this._processedData.resolve(processedData);
+    this._duration = typeof processedData === 'object' ? processedData.duration : undefined;
+    this.emit('processed', new NativeSoundProcessedEvent(this, processedData));
   }
 
   private _createNewTrack(): Promise<AudioInstance> {
@@ -306,6 +313,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
 
     newTrack.loop = this.loop;
     newTrack.volume = this.volume;
+    newTrack.duration = this.duration;
 
     this._tracks.push(newTrack);
 
