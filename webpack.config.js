@@ -32,7 +32,7 @@ module.exports = (version) => ({
         use: ['to-string-loader', 'css-loader']
       },
       {
-        test: /\.(png|jpg|gif)$/i,
+        test: /\.(png|jpg|gif|mp3)$/i,
         use: [
           {
             loader: 'url-loader',
