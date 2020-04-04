@@ -1,5 +1,8 @@
-import { action } from '@storybook/addon-actions'
-import { Actor, Sound, Loader, Label, Color } from '../engine';
+import { action } from '@storybook/addon-actions';
+import playIcon from '@fortawesome/fontawesome-free/svgs/solid/play.svg';
+import pauseIcon from '@fortawesome/fontawesome-free/svgs/solid/pause.svg';
+import stopIcon from '@fortawesome/fontawesome-free/svgs/solid/stop.svg';
+import { Actor, Sound, Loader, Color, Texture, Sprite, NativeSoundEvent, EasingFunctions, NativeSoundProcessedEvent } from '../engine';
 import { withEngine } from './utils';
 
 import audioLoop from './assets/loop.mp3';
@@ -9,54 +12,97 @@ export default {
 };
 
 export const webAudio: Story = withEngine(async (game) => {
-  var loader = new Loader();
-  var testSound = new Sound(audioLoop);
-  loader.addResource(testSound);
+  const loader = new Loader();
+  const testSound = new Sound(audioLoop);
+  const playIconTx = new Texture(playIcon);
+  const pauseIconTx = new Texture(pauseIcon);
+  const stopIconTx = new Texture(stopIcon);
 
-  const startBtn = new Actor(game.currentScene.camera.x + 50, 50, 100, 100, Color.White);
-  const stopBtn = new Actor(game.currentScene.camera.x + 50, 70, 175, 100, Color.Blue);
-  const pauseBtn = new Actor(game.currentScene.camera.x + 50, 90, 250, 100, Color.Green);
-  const indicator = new Actor(game.currentScene.camera.x, game.currentScene.camera.y, 150, 50, Color.Red);
+  loader.addResources([testSound, playIconTx, pauseIconTx, stopIconTx]);
 
-  startBtn.enableCapturePointer = true;
-  startBtn.add(new Label('start - indicator green', -50, 40));
-  startBtn.on('pointerup', (evt) => {
+  testSound.on('processed', (e: NativeSoundProcessedEvent) => {
+    action('testSound processed')(e);
+  });
+
+  await game.start(loader);
+
+  const startOrPauseBtn = new Actor(game.currentScene.camera.x - 42, 50, 32, 32, Color.White);
+  const stopBtn = new Actor(game.currentScene.camera.x, 50, 32, 32, Color.Blue);
+  const playHead = new Actor(game.currentScene.camera.x, 100, 2, 25, Color.White);
+  const playTimeline = new Actor(game.currentScene.camera.x, 100, 250, 3, Color.White);
+
+  const playSprite = new Sprite({ image: playIconTx, x: 0, y: 0, width: 32, height: 32 });
+  playSprite.fill(Color.White);
+  const pauseSprite = new Sprite({ image: pauseIconTx, x: 0, y: 0, width: 32, height: 32 });
+  pauseSprite.fill(Color.White);
+  const stopSprite = new Sprite({ image: stopIconTx, x: 0, y: 0, width: 32, height: 32 });
+  stopSprite.fill(Color.White);
+
+  startOrPauseBtn.addDrawing('play', playSprite);
+  startOrPauseBtn.addDrawing('pause', pauseSprite);
+  startOrPauseBtn.setDrawing('play');
+
+  startOrPauseBtn.enableCapturePointer = true;
+  startOrPauseBtn.on('pointerup', (evt) => {
     if (!testSound.isPlaying()) {
-      indicator.color = Color.Green;
-
-      testSound.play().then(() => {
-        indicator.color = Color.Red;
-        action('start')(evt);
-      });
+      testSound.play();
+    } else {
+      testSound.pause();
     }
-    
+
     evt.stopPropagation();
   });
+  stopBtn.addDrawing(stopSprite);
   stopBtn.enableCapturePointer = true;
-  stopBtn.add(new Label('stop - indicator red', -50, 40));
   stopBtn.on('pointerup', (evt) => {
     if (testSound.isPlaying()) {
       testSound.stop();
-      startBtn.color = Color.Red;
-      action('stop')(evt);
-    }
-    evt.stopPropagation();
-  });
-  pauseBtn.enableCapturePointer = true;
-  pauseBtn.add(new Label('pause - indicator yellow', -50, 40));
-  pauseBtn.on('pointerup', (evt) => {
-    if (testSound.isPlaying()) {
-      testSound.pause();
-      indicator.color = Color.Yellow;
-      action('pause')(evt);
     }
     evt.stopPropagation();
   });
 
-  game.add(pauseBtn);
+  const playheadStartPos = playTimeline.body.collider.bounds.left;
+  const playheadEndPos = playTimeline.body.collider.bounds.right;
+  let startTime = 0;
+  let elapsedTime = 0;
+
+  playHead.pos.setTo(playheadStartPos, playHead.pos.y);
+
+  testSound.on('playbackstart', (e: NativeSoundEvent) => {
+    playHead.pos.setTo(playheadStartPos, playHead.pos.y);
+    if (testSound.duration > 0) {
+      startTime = Date.now();
+      playHead.actions.easeTo(playheadEndPos, playHead.pos.y, testSound.duration * 1000, EasingFunctions.Linear);
+    }
+    startOrPauseBtn.setDrawing('pause');
+    action('playbackstart')(e)
+  });
+
+  testSound.on('pause', (e) => {
+    elapsedTime = (Date.now() - startTime) + elapsedTime
+    playHead.actions.clearActions();
+    startOrPauseBtn.setDrawing('play');
+    action('pause')(e, elapsedTime)
+  });
+
+  testSound.on('resume', (e: NativeSoundEvent) => {
+    startTime = Date.now()
+    if (testSound.duration > 0) {
+      playHead.actions.easeTo(playheadEndPos, playHead.pos.y, testSound.duration * 1000 - elapsedTime, EasingFunctions.Linear);
+    }
+    startOrPauseBtn.setDrawing('pause');
+    action('resume')(e)
+  });
+
+  testSound.on('playbackend', (e) => {
+    playHead.actions.clearActions()
+    playHead.pos.setTo(playheadStartPos, playHead.pos.y);
+    startOrPauseBtn.setDrawing('play');
+    action('playbackend')(e)
+  });
+
   game.add(stopBtn);
-  game.add(startBtn);
-  game.add(indicator);
-
-  await game.start(loader);
+  game.add(startOrPauseBtn);
+  game.add(playTimeline);
+  game.add(playHead);
 });
