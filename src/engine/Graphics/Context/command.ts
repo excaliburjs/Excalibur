@@ -48,13 +48,13 @@ export class DrawImageCommand implements DrawCommand {
     dheight?: number
   ) {
     this.image = image;
-    this.width = swidth || image.width;
-    this.height = sheight || image.height;
-    this.view = [0, 0, swidth || image.width, sheight || image.height];
+    this.width = image.width || swidth;
+    this.height = image.height || sheight;
+    this.view = [0, 0, swidth ?? image.width, sheight ?? image.height];
     this.dest = [sx, sy];
     // If destination is specified, update view and dest
     if (dx !== undefined && dy !== undefined && dwidth !== undefined && dheight !== undefined) {
-      this.view = [sx, sy, swidth || image.width, sheight || image.height];
+      this.view = [sx, sy, swidth ?? image.width, sheight ?? image.height];
       this.dest = [dx, dy];
       this.width = dwidth;
       this.height = dheight;

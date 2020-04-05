@@ -7,6 +7,7 @@ import { DrawImageCommand } from './command';
 import { TextureManager } from './texture-manager';
 import { Graphic } from '../Graphic';
 import { Vector } from '../../Algebra';
+import { Color } from '../../Drawing/Color';
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   /**
@@ -35,6 +36,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   // TODO
   public snapToPixel: boolean = true;
   public opacity: number = 1;
+
+  public backgroundColor: Color = Color.ExcaliburBlue;
 
   public get width() {
     return this._ctx.canvas.width;
@@ -67,9 +70,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-    gl.clear(gl.COLOR_BUFFER_BIT);
     // TODO make a parameter
     gl.clearColor(0, 0, 0.5, 0.3);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Tell WebGL to use our shader program pair
     gl.useProgram(program);
@@ -105,6 +108,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       texturesData[i] = i;
     }
     gl.uniform1iv(shader.texturesUniform, texturesData);
+
+    // TODO implement camera
+    this._stack.scale(1.5, 1.5);
   }
 
   drawImage(graphic: Graphic, x: number, y: number): void;
@@ -185,10 +191,16 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       }
       let index = i;
       // potential optimization when divding by 2 (bitshift)
-      let uvx0 = sx / (width || image.width);
-      let uvx1 = (sx + sw) / (width || image.width);
-      let uvy0 = sy / (height || image.height);
-      let uvy1 = (sy + sh) / (height || image.height);
+      // TODO need to project the source view onto the current dest/dimension
+      let sourceX0 = sx / sw;
+      let sourceY0 = sy / sh;
+      let sourceX1 = sw / (image.width / image.scale.x);
+      let sourceY1 = sh / (image.height / image.scale.y);
+
+      let uvx0 = sourceX0 * (width || image.width);
+      let uvx1 = sourceX1; // * (width || image.width);
+      let uvy0 = sourceY0 * (height || image.height);
+      let uvy1 = sourceY1; // * (height || image.height);
       // Quad update
       // (0, 0)
       this._verts[index++] = geometry[0][0]; // x + 0 * width;
@@ -244,7 +256,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // texture id
       this._verts[index++] = textureId;
     }
-    // return this._verts;
   }
 
   public get diag(): ExcaliburContextDiagnostics {
@@ -289,6 +300,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   flush() {
     const gl = this.__gl;
+
+    gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
+    // Clear the context with the newly set color. This is
+    // the function call that actually does the drawing.
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
     // Orthographic projection for the viewport
     const mat = this._ortho.multm(this._stack.transform);
     gl.uniformMatrix4fv(this._shader.matrixUniform, false, mat.data);

@@ -9,15 +9,15 @@ import { obsolete } from '../Util/Decorators';
  */
 export class Color {
   /**
-   * Red channel
+   * Red channel (between 0 and 255)
    */
   public r: number;
   /**
-   * Green channel
+   * Green channel (between 0 and 255)
    */
   public g: number;
   /**
-   * Blue channel
+   * Blue channel (between 0 and 255)
    */
   public b: number;
   /**
@@ -408,6 +408,13 @@ export class Color {
    */
   public static get Transparent(): Color {
     return Color.fromHex('#FFFFFF00');
+  }
+
+  /**
+   * ExcaliburBlue (#176BAA)
+   */
+  public static get ExcaliburBlue(): Color {
+    return Color.fromHex('#176BAA');
   }
 }
 
