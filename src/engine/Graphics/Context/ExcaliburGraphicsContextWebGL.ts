@@ -40,15 +40,15 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   public backgroundColor: Color = Color.ExcaliburBlue;
 
   public get width() {
-    return this._ctx.canvas.width;
+    return this.__gl.canvas.width;
   }
 
   public get height() {
-    return this._ctx.canvas.height;
+    return this.__gl.canvas.height;
   }
 
   // TODO should this be a canvas element? or a better abstraction
-  constructor(private _ctx: WebGLRenderingContext) {
+  constructor(_ctx: WebGLRenderingContext) {
     this.__gl = _ctx;
     // Each verted is []
     this._verts = new Float32Array(30 * this._maxDrawingsPerBatch);
@@ -68,7 +68,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.viewport(0, 0, gl.canvas.width * 2, gl.canvas.height * 2);
 
     // TODO make a parameter
     gl.clearColor(0, 0, 0.5, 0.3);
@@ -77,7 +77,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // Tell WebGL to use our shader program pair
     gl.useProgram(program);
 
-    this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, -1, 1);
+    this._ortho = Matrix.ortho(0, gl.canvas.width * 2, gl.canvas.height * 2, 0, -1, 1);
 
     // https://groups.google.com/forum/#!topic/webgl-dev-list/vMNXSNRAg8M
     this._vertBuffer = gl.createBuffer();
@@ -110,7 +110,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.uniform1iv(shader.texturesUniform, texturesData);
 
     // TODO implement camera
-    this._stack.scale(1.5, 1.5);
+    // this._stack.scale(1.5, 1.5);
   }
 
   drawImage(graphic: Graphic, x: number, y: number): void;

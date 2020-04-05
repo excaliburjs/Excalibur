@@ -8,6 +8,7 @@ import { CanUpdate, CanInitialize } from './Interfaces/LifecycleEvents';
 import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './Events';
 import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
+import { ExcaliburGraphicsContext } from './Graphics';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -627,6 +628,20 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     const focus = this.getFocus();
     const canvasWidth = ctx.canvas.width;
     const canvasHeight = ctx.canvas.height;
+    const pixelRatio = this._engine ? this._engine.pixelRatio : window.devicePixelRatio;
+    const zoom = this.getZoom();
+
+    const newCanvasWidth = canvasWidth / zoom / pixelRatio;
+    const newCanvasHeight = canvasHeight / zoom / pixelRatio;
+
+    ctx.scale(zoom, zoom);
+    ctx.translate(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
+  }
+
+  public newdraw(ctx: ExcaliburGraphicsContext) {
+    const focus = this.getFocus();
+    const canvasWidth = ctx.width;
+    const canvasHeight = ctx.height;
     const pixelRatio = this._engine ? this._engine.pixelRatio : window.devicePixelRatio;
     const zoom = this.getZoom();
 

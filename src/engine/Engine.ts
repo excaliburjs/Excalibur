@@ -1141,6 +1141,7 @@ O|===|* >________________>\n\
                            css size will remain ${oldWidth}x${oldHeight}`);
 
       this.ctx.scale(this.pixelRatio, this.pixelRatio);
+      this.graphicsContext.scale(this.pixelRatio, this.pixelRatio);
       this._logger.warn(`Canvas drawing context was scaled by ${this.pixelRatio}`);
     }
   }

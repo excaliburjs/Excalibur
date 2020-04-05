@@ -416,9 +416,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     this._predraw(ctx, delta);
     ctx.save();
+    this._graphicsContext.save();
 
     if (this.camera) {
       this.camera.draw(ctx);
+      this.camera.newdraw(this._graphicsContext);
     }
 
     let i: number, len: number;
@@ -440,6 +442,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       this.debugDraw(ctx);
     }
 
+    this._graphicsContext.restore();
     ctx.restore();
 
     for (i = 0, len = this.screenElements.length; i < len; i++) {
@@ -454,8 +457,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         this.screenElements[i].debugDraw(ctx);
       }
     }
-    this._graphicsContext.flush();
     this._postdraw(ctx, delta);
+    this._graphicsContext.flush();
   }
 
   /**

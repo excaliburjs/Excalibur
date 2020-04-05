@@ -24,6 +24,7 @@ export class TextureManager {
       graphic.rasterize();
     }
 
+    // TODO Do we have to do this ever time? probably not
     const source = this._ensurePowerOfTwoImage(graphic.getSource());
     let glTex: WebGLTexture;
 
@@ -42,11 +43,7 @@ export class TextureManager {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-    if (this.hasWebGLTexture(graphic)) {
-      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, source);
-    } else {
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
-    }
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 
     this._graphicTexture[graphic.id] = glTex;
     return glTex;
@@ -60,10 +57,10 @@ export class TextureManager {
   private _ensurePowerOfTwoImage(image: ImageSource): ImageSource {
     if (!this._isPowerOfTwo(image.width) || !this._isPowerOfTwo(image.height)) {
       // Scale up the texture to the next highest power of two dimensions.
-      var canvas = document.createElement('canvas');
+      const canvas = document.createElement('canvas');
       canvas.width = this._nextHighestPowerOfTwo(image.width);
       canvas.height = this._nextHighestPowerOfTwo(image.height);
-      var ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext('2d');
       ctx.drawImage(image, 0, 0, image.width, image.height);
       image = canvas;
     }
