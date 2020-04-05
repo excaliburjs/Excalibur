@@ -3,6 +3,9 @@ import { Graphic } from '../Graphic';
 import { Raster } from '../Raster';
 import { ImageSource } from './ExcaliburGraphicsContext';
 
+/**
+ * Manages loading and unloading webgl textures from [[Graphic|graphics]]
+ */
 export class TextureManager {
   private _exgl: ExcaliburGraphicsContextWebGL;
   private _graphicTexture: { [graphicId: number]: WebGLTexture } = {};
@@ -18,21 +21,26 @@ export class TextureManager {
     return this._graphicTexture[graphic.id];
   }
 
-  updateFromGraphic(graphic: Graphic): WebGLTexture {
+  updateFromGraphic(graphic: Graphic): void {
     const gl = this._exgl.__gl as WebGLRenderingContext;
-    if (graphic instanceof Raster && graphic.dirty) {
-      graphic.rasterize();
+
+    // TODO this is gross
+    if (graphic instanceof Raster && graphic._flagTextureDelete) {
+      let texToDelete = this._graphicTexture[graphic.id];
+      delete this._graphicTexture[graphic.id];
+      gl.deleteTexture(texToDelete); // gl.texSubImage2D might be more efficient instead of deleting the texture
+      graphic._flagTextureDelete = false;
     }
 
-    // TODO Do we have to do this ever time? probably not
-    const source = this._ensurePowerOfTwoImage(graphic.getSource());
     let glTex: WebGLTexture;
-
     if (this.hasWebGLTexture(graphic)) {
-      glTex = this._graphicTexture[graphic.id];
+      // If the webgltexture exists exit early to avoid re-shipping bytes to the gpu
+      return;
     } else {
       glTex = gl.createTexture();
     }
+
+    const source = this._ensurePowerOfTwoImage(graphic.getSource());
 
     gl.bindTexture(gl.TEXTURE_2D, glTex);
 
@@ -46,7 +54,6 @@ export class TextureManager {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 
     this._graphicTexture[graphic.id] = glTex;
-    return glTex;
   }
 
   /**

@@ -165,6 +165,25 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     }
   }
 
+  _isPowerOfTwo(x: number) {
+    return (x & (x - 1)) == 0;
+  }
+
+  _nextHighestPowerOfTwo(x: number) {
+    --x;
+    for (var i = 1; i < 32; i <<= 1) {
+      x = x | (x >> i);
+    }
+    return x + 1;
+  }
+
+  _ensurePoT(x: number) {
+    if (!this._isPowerOfTwo(x)) {
+      return this._nextHighestPowerOfTwo(x);
+    }
+    return x;
+  }
+
   _updateVertexBufferData(batch: Batch): void {
     // TODO apply current transform matrix to coordinates
     const drawings = batch.commands;
@@ -192,11 +211,14 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       let index = i;
       // potential optimization when divding by 2 (bitshift)
       // TODO need to project the source view onto the current dest/dimension
-      let sourceX0 = sx / sw;
+      let potWidth = this._ensurePoT(image.width / image.scale.x);
+      let potHeight = this._ensurePoT(image.height / image.scale.y);
+      let sourceX0 = sx / sw; // TODO not sure this is right
       let sourceY0 = sy / sh;
-      let sourceX1 = sw / (image.width / image.scale.x);
-      let sourceY1 = sh / (image.height / image.scale.y);
+      let sourceX1 = sw / potWidth;
+      let sourceY1 = sh / potHeight;
 
+      // poweroftwo images warp the UV coordinates
       let uvx0 = sourceX0 * (width || image.width);
       let uvx1 = sourceX1; // * (width || image.width);
       let uvy0 = sourceY0 * (height || image.height);

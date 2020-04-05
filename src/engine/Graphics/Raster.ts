@@ -16,6 +16,7 @@ export interface RasterOptions {
  */
 export abstract class Raster extends Graphic {
   public _bitmap: HTMLCanvasElement;
+  public _flagTextureDelete: boolean;
   private _ctx: CanvasRenderingContext2D;
   private _dirty: boolean = true;
 
@@ -139,6 +140,8 @@ export abstract class Raster extends Graphic {
     this.execute(this._ctx);
     this._ctx.restore();
     // TODO re-bind and update webgl texture here
+    // TODO this feels kinda bad, should at least be a method or Rasters should be able to manage this
+    this._flagTextureDelete = true;
   }
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
