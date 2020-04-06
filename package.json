@@ -23,9 +23,9 @@
     "simple"
   ],
   "scripts": {
-    "all": "npm run lint && npm run core && npm run test && npm run legacy-visual",
+    "all": "npm run lint && npm run core && npm run core:bundle-prod && npm run test && npm run legacy-visual",
     "clean": "rimraf ./build/dist ./src/spec/*.js ./src/spec/*.map",
-    "travis": "npm run clean && git clone https://github.com/excaliburjs/excalibur-dist build && npm run all && npm run core:bundle-prod && npm run coveralls && npm run apidocs",
+    "travis": "npm run clean && git clone https://github.com/excaliburjs/excalibur-dist build && npm run all && npm run coveralls && npm run apidocs",
     "appveyor": "npm run all && npm run nuget 0.0.1",
     "start": "npm run core:watch",
     "core": "npm run core:tsc && npm run core:copy && npm run core:bundle",
