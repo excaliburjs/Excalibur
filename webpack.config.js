@@ -1,11 +1,12 @@
 const path = require('path');
 const webpack = require('webpack');
+const version = require('./version');
 const pkg = require('./package.json');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const now = new Date();
 const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
 
-module.exports = (version) => ({
+module.exports = {
   mode: 'development',
   devtool: 'source-map',
   entry: './index.ts',
@@ -57,4 +58,4 @@ Licensed ${pkg.license}
 @preserve`
     )
   ]
-});
+};
