@@ -40,7 +40,7 @@
     "eslint:sandbox": "eslint \"sandbox/**/*.ts\"",
     "eslint:spec": "eslint \"src/spec/**/*.ts\"",
     "visual": "start-storybook",
-    "sandbox:copy": "copyfiles -V -u 2 ./build/dist/**/*.* ./build/dist/*.* ./sandbox/lib/",
+    "sandbox:copy": "copyfiles -V -u 2 \"./build/dist/**/*.*\" \"./build/dist/*.*\" ./sandbox/lib/",
     "sandbox:build": "tsc --project ./sandbox",
     "sandbox": "serve ./sandbox -l 3001 -n",
     "legacy-visual": "npm run sandbox:copy && npm run sandbox:build",
