@@ -1,12 +1,13 @@
 import * as ex from '@excalibur';
 import { TestUtils } from '../util/TestUtils';
+import { Mocks } from 'util/Mocks';
 
 describe('ChunkSystemTileMapCollisionDetection', () => {
   type SimpleCellGenerator = (cell: ex.Cell, chunk: ex.TileMap, chunkSystem: ex.ChunkSystemTileMap, engine: ex.Engine) => ex.Cell;
 
   const trait = new ex.Traits.ChunkSystemTileMapCollisionDetection();
   const actor = new ex.Actor({
-    with: 32,
+    width: 32,
     height: 32
   } as ex.ActorArgs);
   const engine = TestUtils.engine();
@@ -57,6 +58,107 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
       expect(chunkSystem.collides).not.toHaveBeenCalled();
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
+    });
+
+    it('fires a precollision event for an actor with the Passive collider', () => {
+      currentCellGenerator = (cell) => {
+        cell.solid = !cell.x && !cell.y;
+        return cell;
+      };
+      actor.body.collider.type = ex.CollisionType.Passive;
+      const eventHandler = jasmine.createSpy();
+      const postCollisionHandler = jasmine.createSpy();
+      actor.eventDispatcher.on('precollision', eventHandler);
+      actor.eventDispatcher.on('postcollision', postCollisionHandler);
+      chunkSystem.update(engine, 16);
+      spyOn(chunkSystem, 'collides').and.callThrough();
+      trait.update(actor, engine);
+      expect(chunkSystem.collides).toHaveBeenCalledTimes(4);
+      expect(actor.pos.x).toBe(0);
+      expect(actor.pos.y).toBe(0);
+      expect(eventHandler).toHaveBeenCalledTimes(3);
+      for (let callIndex = 0; callIndex < 3; callIndex++) {
+        const callArgs = eventHandler.calls.argsFor(callIndex);
+        expect(callArgs.length).toBe(1);
+        expect(callArgs[0] instanceof ex.PreCollisionEvent).toBe(true);
+        const event = callArgs[0] as ex.PreCollisionEvent;
+        expect(event.actor).toBe(actor);
+        expect(event.other).toBeNull();
+        expect(event.target).toBe(actor);
+        expect(event.side).toBe(ex.Side.Bottom);
+        expect(event.intersection).toEqual(ex.vec(0, -16));
+      }
+      expect(postCollisionHandler).not.toHaveBeenCalled();
+    });
+
+    it('fires a precollision event for an actor with the Fixed collider', () => {
+      currentCellGenerator = (cell) => {
+        cell.solid = !cell.x && !cell.y;
+        return cell;
+      };
+      actor.body.collider.type = ex.CollisionType.Fixed;
+      const eventHandler = jasmine.createSpy();
+      const postCollisionHandler = jasmine.createSpy();
+      actor.eventDispatcher.on('precollision', eventHandler);
+      actor.eventDispatcher.on('postcollision', postCollisionHandler);
+      chunkSystem.update(engine, 16);
+      spyOn(chunkSystem, 'collides').and.callThrough();
+      trait.update(actor, engine);
+      expect(chunkSystem.collides).toHaveBeenCalledTimes(4);
+      expect(actor.pos.x).toBe(0);
+      expect(actor.pos.y).toBe(0);
+      expect(eventHandler).toHaveBeenCalledTimes(3);
+      for (let callIndex = 0; callIndex < 3; callIndex++) {
+        const callArgs = eventHandler.calls.argsFor(callIndex);
+        expect(callArgs.length).toBe(1);
+        expect(callArgs[0] instanceof ex.PreCollisionEvent).toBe(true);
+        const event = callArgs[0] as ex.PreCollisionEvent;
+        expect(event.actor).toBe(actor);
+        expect(event.other).toBeNull();
+        expect(event.target).toBe(actor);
+        expect(event.side).toBe(ex.Side.Bottom);
+        expect(event.intersection).toEqual(ex.vec(0, -16));
+      }
+      expect(postCollisionHandler).not.toHaveBeenCalled();
+    });
+
+    it('fires a precollision and postcollision event for an actor with the Active collider', () => {
+      currentCellGenerator = (cell) => {
+        cell.solid = !cell.x && !cell.y;
+        return cell;
+      };
+      actor.body.collider.type = ex.CollisionType.Active;
+      const preCollisionHandler = jasmine.createSpy('preCollisionHandler', () => {
+        expect(actor.pos.x).toBe(0);
+        expect(actor.pos.y).toBe(0);
+      });
+      const postCollisionHandler = jasmine.createSpy('postCollisionHandler', () => {
+        expect(actor.pos.x).toBe(0);
+        expect(actor.pos.y).toBe(-16);
+      });
+      actor.eventDispatcher.on('precollision', preCollisionHandler);
+      actor.eventDispatcher.on('postcollision', postCollisionHandler);
+      chunkSystem.update(engine, 16);
+      spyOn(chunkSystem, 'collides').and.callThrough();
+      trait.update(actor, engine);
+      expect(chunkSystem.collides).toHaveBeenCalledTimes(2);
+      expect(actor.pos.x).toBe(0);
+      expect(actor.pos.y).toBe(-16);
+      expect(preCollisionHandler).toHaveBeenCalledTimes(1);
+      expect(postCollisionHandler).toHaveBeenCalledTimes(1);
+      expect(preCollisionHandler.calls.argsFor(0).length).toBe(1);
+      expect(postCollisionHandler.calls.argsFor(0).length).toBe(1);
+      const preCollisionEvent = preCollisionHandler.calls.argsFor(0)[0] as ex.PreCollisionEvent;
+      const postCollisionEvent = postCollisionHandler.calls.argsFor(0)[0] as ex.PostCollisionEvent;
+      expect(preCollisionEvent instanceof ex.PreCollisionEvent).toBe(true);
+      expect(postCollisionEvent instanceof ex.PostCollisionEvent).toBe(true);
+      for (const event of [preCollisionEvent, postCollisionEvent]) {
+        expect(event.actor).toBe(actor);
+        expect(event.other).toBeNull();
+        expect(event.target).toBe(actor);
+        expect(event.side).toBe(ex.Side.Bottom);
+        expect(event.intersection).toEqual(ex.vec(0, -16));
+      }
     });
   });
 
