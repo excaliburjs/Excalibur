@@ -62,6 +62,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
   public path: string;
 
   private _loop = false;
+  private _stopped = false;
   private _volume = 1;
   private _duration: number | undefined = undefined;
   private _isPaused = false;
@@ -114,6 +115,15 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
           this._wasPlayingOnHidden = false;
         }
       });
+
+      this._engine.on('start', () => {
+        this._stopped = false;
+      });
+
+      this._engine.on('stop', () => {
+        this.stop();
+        this._stopped = true;
+      });
     }
   }
 
@@ -140,6 +150,11 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
       this.logger.warn('Cannot start playing. Resource', this.path, 'is not loaded yet');
 
       return Promise.resolve(true);
+    }
+
+    if (this._stopped) {
+      this.logger.warn('Cannot start playing. Engine is in a stopped state.');
+      return Promise.resolve(false);
     }
 
     this.volume = volume || this.volume;
