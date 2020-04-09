@@ -27,7 +27,6 @@ import {
   PostDrawEvent,
   InitializeEvent
 } from './Events';
-import { CanLoad } from './Interfaces/Loader';
 import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
 import { Scene } from './Scene';
@@ -410,7 +409,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   private _timescale: number = 1.0;
 
   // loading
-  private _loader: CanLoad;
+  private _loader: Loader;
   private _isLoading: boolean = false;
 
   private _isInitialized: boolean = false;
@@ -1054,10 +1053,10 @@ O|===|* >________________>\n\
         powerPreference: 'high-performance'
       });
       this.graphicsContext = new ExcaliburGraphicsContextWebGL(gl);
+    }
 
-      if (this.isHiDpi) {
-        this.graphicsContext.scale(this.pixelRatio, this.pixelRatio);
-      }
+    if (this.isHiDpi) {
+      this.graphicsContext.scale(this.pixelRatio, this.pixelRatio);
     }
 
     if (!this.canvasElementId && !options.canvasElement) {
@@ -1273,7 +1272,8 @@ O|===|* >________________>\n\
     this._predraw(ctx, delta);
 
     if (this._isLoading) {
-      this._loader.draw(ctx, delta);
+      this._loader.canvas.draw(this.graphicsContext, 0, 0);
+      this.graphicsContext.flush();
       // Drawing nothing else while loading
       return;
     }
@@ -1308,7 +1308,6 @@ O|===|* >________________>\n\
     for (let i = 0; i < this.postProcessors.length; i++) {
       this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight), this.ctx);
     }
-
     this._postdraw(ctx, delta);
   }
 
@@ -1342,7 +1341,7 @@ O|===|* >________________>\n\
    * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]], override to provide your own
    * custom loader.
    */
-  public start(loader?: CanLoad): Promise<any> {
+  public start(loader?: Loader): Promise<any> {
     if (!this._compatible) {
       return Promise.reject('Excalibur is incompatible with your browser');
     }

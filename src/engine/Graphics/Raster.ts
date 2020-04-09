@@ -16,7 +16,8 @@ export interface RasterOptions {
  */
 export abstract class Raster extends Graphic {
   public _bitmap: HTMLCanvasElement;
-  public _flagTextureDelete: boolean;
+  public __glTexture: WebGLTexture;
+  public _flagTextureDirty: boolean;
   private _ctx: CanvasRenderingContext2D;
   private _dirty: boolean = true;
 
@@ -30,12 +31,33 @@ export abstract class Raster extends Graphic {
 
     // TODO also initialize webgl texture
     this._bitmap = document.createElement('canvas');
+    let bitmapWidth = options.width ?? this._bitmap.width;
+    let bitmapHeight = options.height ?? this._bitmap.height;
+    // Rasters use power of two images as an optimization for webgl
+    if (!this._isPowerOfTwo(bitmapWidth)) {
+      this._bitmap.width = this._nextHighestPowerOfTwo(bitmapWidth);
+    }
+    if (!this._isPowerOfTwo(bitmapHeight)) {
+      this._bitmap.height = this._nextHighestPowerOfTwo(bitmapHeight);
+    }
     const maybeCtx = this._bitmap.getContext('2d');
     if (!maybeCtx) {
       throw new Error('Browser does not support 2d canvas drawing');
     } else {
       this._ctx = maybeCtx;
     }
+  }
+
+  private _isPowerOfTwo(x: number) {
+    return (x & (x - 1)) == 0;
+  }
+
+  private _nextHighestPowerOfTwo(x: number) {
+    --x;
+    for (var i = 1; i < 32; i <<= 1) {
+      x = x | (x >> i);
+    }
+    return x + 1;
   }
 
   /**
@@ -141,7 +163,7 @@ export abstract class Raster extends Graphic {
     this._ctx.restore();
     // TODO re-bind and update webgl texture here
     // TODO this feels kinda bad, should at least be a method or Rasters should be able to manage this
-    this._flagTextureDelete = true;
+    this._flagTextureDirty = true;
   }
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {

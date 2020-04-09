@@ -9,6 +9,7 @@ import * as DrawUtil from './Util/DrawUtil';
 
 import logoImg from './Loader.logo.png';
 import loaderCss from './Loader.css';
+import { Canvas } from './Graphics/Canvas';
 
 /**
  * Pre-loading assets
@@ -76,6 +77,12 @@ import loaderCss from './Loader.css';
  * ```
  */
 export class Loader extends Class implements CanLoad {
+  // TODO hardcoded canvas width/height
+  public canvas: Canvas = new Canvas({
+    width: 800,
+    height: 600,
+    drawHandler: this.draw.bind(this)
+  });
   private _resourceList: Loadable<any>[] = [];
   private _index = 0;
 
@@ -243,13 +250,13 @@ export class Loader extends Class implements CanLoad {
         if (this._engine) {
           r.wireEngine(this._engine);
         }
-        r.onprogress = function(e) {
+        r.onprogress = function (e) {
           const total = <number>e.total;
           const loaded = <number>e.loaded;
           progressArray[i] = { loaded: (loaded / total) * (100 / progressChunks), total: 100 };
 
           const progressResult: any = progressArray.reduce(
-            function(accum, next) {
+            function (accum, next) {
               return { loaded: accum.loaded + next.loaded, total: 100 };
             },
             { loaded: 0, total: 100 }
@@ -257,7 +264,7 @@ export class Loader extends Class implements CanLoad {
 
           me.onprogress.call(me, progressResult);
         };
-        r.oncomplete = r.onerror = function() {
+        r.oncomplete = r.onerror = function () {
           me._numLoaded++;
           if (me._numLoaded === me._resourceCount) {
             setTimeout(() => {
@@ -280,7 +287,7 @@ export class Loader extends Class implements CanLoad {
         if (!list[index]) {
           return;
         }
-        list[index].load().then(function() {
+        list[index].load().then(function () {
           loadNext(list, index + 1);
         });
       }
@@ -331,7 +338,7 @@ export class Loader extends Class implements CanLoad {
     const margin = 5;
     const progressWidth = progress - margin * 2;
     const height = 20 - margin * 2;
-    DrawUtil.roundRect(ctx, x + margin, y + margin, progressWidth > 0 ? progressWidth : 0, height, 5, null, Color.White);
+    DrawUtil.roundRect(ctx, x + margin, y + margin, progressWidth > 10 ? progressWidth : 10, height, 5, null, Color.White);
     this._engine.setAntialiasing(oldAntialias);
   }
 

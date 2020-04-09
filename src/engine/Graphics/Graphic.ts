@@ -62,6 +62,7 @@ export interface GraphicOptions {
 export abstract class Graphic {
   private static _ID: number = 0;
   readonly id = Graphic._ID++;
+  public __glTexture: WebGLTexture;
 
   /**
    * Gets or sets wether to show debug information about the graphic

@@ -24,20 +24,20 @@ export class TextureManager {
   updateFromGraphic(graphic: Graphic): void {
     const gl = this._exgl.__gl as WebGLRenderingContext;
 
-    // TODO this is gross
-    if (graphic instanceof Raster && graphic._flagTextureDelete) {
-      let texToDelete = this._graphicTexture[graphic.id];
-      delete this._graphicTexture[graphic.id];
-      gl.deleteTexture(texToDelete); // gl.texSubImage2D might be more efficient instead of deleting the texture
-      graphic._flagTextureDelete = false;
-    }
-
     let glTex: WebGLTexture;
     if (this.hasWebGLTexture(graphic)) {
+      // TODO this is gross
+      if (graphic instanceof Raster && graphic._flagTextureDirty) {
+        graphic._flagTextureDirty = false;
+        gl.bindTexture(gl.TEXTURE_2D, graphic.__glTexture);
+        const source = this._ensurePowerOfTwoImage(graphic.getSource());
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+      }
+
       // If the webgltexture exists exit early to avoid re-shipping bytes to the gpu
       return;
     } else {
-      glTex = gl.createTexture();
+      glTex = graphic.__glTexture = gl.createTexture();
     }
 
     const source = this._ensurePowerOfTwoImage(graphic.getSource());
