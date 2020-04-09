@@ -54,7 +54,6 @@ export const webAudio: Story = withEngine(async (game) => {
   });
   stopBtn.addDrawing(stopSprite);
   stopBtn.enableCapturePointer = true;
- 
 
   const playheadStartPos = playTimeline.body.collider.bounds.left;
   const playheadEndPos = playTimeline.body.collider.bounds.right;
@@ -108,4 +107,40 @@ export const webAudio: Story = withEngine(async (game) => {
   game.add(startOrPauseBtn);
   game.add(playTimeline);
   game.add(playHead);
+});
+
+export const longSoundsAndLooping = withEngine(async (game) => {
+  const loader = new Loader();
+  const testSound = new Sound(audioLoop);
+  const playIconTx = new Texture(playIcon);
+  loader.addResources([testSound, playIconTx]);
+
+  game.on('visible', () => {
+    action('visible')('Game was visible, sound should continue playing');
+  });
+
+  game.on('hidden', () => {
+    action('hidden')('Game was hidden, sound should NOT play again');
+  });
+
+  await game.start(loader);
+
+  const startBtn = new Actor(game.currentScene.camera.x - 42, 50, 32, 32, Color.White);
+  const playSprite = new Sprite({ image: playIconTx, x: 0, y: 0, width: 32, height: 32 });
+  playSprite.fill(Color.White);
+
+  startBtn.addDrawing(playSprite);
+  startBtn.enableCapturePointer = true;
+  startBtn.on('pointerup', (evt) => {
+    action('play')('Sound should begin playing twice')
+    testSound.loop = true;
+    testSound.play();
+  
+    setTimeout(() => testSound.play(), 2000);
+
+    evt.stopPropagation();
+  });
+
+  game.add(startBtn)
+  
 });
