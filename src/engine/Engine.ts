@@ -1032,6 +1032,11 @@ O|===|* >________________>\n\
       }
     });
 
+    this._suppressHiDPIScaling = !!options.suppressHiDPIScaling;
+    if (!options.suppressHiDPIScaling) {
+      this._initializeHiDpi();
+    }
+
     if (!Engine._useWebGL) {
       this.ctx = this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
       this.graphicsContext = new ExcaliburGraphicsContext2DCanvas(this.ctx);
@@ -1039,6 +1044,7 @@ O|===|* >________________>\n\
       // TODO remove hacked canvas to keep things working
       const canvas = document.createElement('canvas');
       this.ctx = canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
+      // TODO end hack
 
       const gl = this.canvas.getContext('webgl', {
         antialias: false,
@@ -1048,11 +1054,10 @@ O|===|* >________________>\n\
         powerPreference: 'high-performance'
       });
       this.graphicsContext = new ExcaliburGraphicsContextWebGL(gl);
-    }
 
-    this._suppressHiDPIScaling = !!options.suppressHiDPIScaling;
-    if (!options.suppressHiDPIScaling) {
-      this._initializeHiDpi();
+      if (this.isHiDpi) {
+        this.graphicsContext.scale(this.pixelRatio, this.pixelRatio);
+      }
     }
 
     if (!this.canvasElementId && !options.canvasElement) {
@@ -1148,7 +1153,7 @@ O|===|* >________________>\n\
                            ${oldWidth}x${oldHeight} to ${this.canvas.width}x${this.canvas.height} 
                            css size will remain ${oldWidth}x${oldHeight}`);
 
-      this.graphicsContext.scale(this.pixelRatio, this.pixelRatio);
+      // this.graphicsContext.scale(this.pixelRatio, this.pixelRatio);
       this._logger.warn(`Canvas drawing context was scaled by ${this.pixelRatio}`);
     }
   }
@@ -1273,6 +1278,7 @@ O|===|* >________________>\n\
       return;
     }
 
+    this.graphicsContext.backgroundColor = this.backgroundColor;
     ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     ctx.fillStyle = this.backgroundColor.toString();
     ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);

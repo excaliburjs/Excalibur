@@ -1,6 +1,7 @@
 import { ExcaliburGraphicsContext, ExcaliburGraphicsContextState } from './ExcaliburGraphicsContext';
 import { Vector } from '../../Algebra';
 import { Graphic } from '../Graphic';
+import { Color } from '../../Drawing/Color';
 
 export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContext {
   public get width() {
@@ -10,6 +11,8 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   public get height() {
     return this._ctx.canvas.height;
   }
+
+  public backgroundColor: Color = Color.ExcaliburBlue;
 
   private _state: ExcaliburGraphicsContextState[] = [
     {

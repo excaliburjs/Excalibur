@@ -68,6 +68,8 @@ export class TextureManager {
       canvas.width = this._nextHighestPowerOfTwo(image.width);
       canvas.height = this._nextHighestPowerOfTwo(image.height);
       const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      // ctx.imageSmoothingQuality = "high";
       ctx.drawImage(image, 0, 0, image.width, image.height);
       image = canvas;
     }

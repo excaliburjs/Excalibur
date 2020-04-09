@@ -14,7 +14,6 @@ export class DrawImageCommand implements DrawCommand {
   public height: number = 0;
   public dest: [number, number] = [0, 0]; // x, y
   public view: [number, number, number, number] = [0, 0, 0, 0]; // sx, sy, sw, sh
-  public transform: Matrix | null = null;
   private _geom: [number, number][] = [
     [0, 0],
     [0, 0],
@@ -69,10 +68,10 @@ export class DrawImageCommand implements DrawCommand {
     this._geom[index++] = [this.dest[0] + this.width, this.dest[1] + this.height];
   }
 
-  calculateGeometry(): void {
-    if (this.transform) {
+  applyTransform(transform: Matrix): void {
+    if (transform) {
       for (let i = 0; i < this._geom.length; i++) {
-        this._geom[i] = this.transform.multv(this._geom[i]);
+        this._geom[i] = transform.multv(this._geom[i]);
       }
     }
   }

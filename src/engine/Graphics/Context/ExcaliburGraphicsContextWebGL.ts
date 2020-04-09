@@ -68,16 +68,18 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    gl.viewport(0, 0, gl.canvas.width * 2, gl.canvas.height * 2);
+    // TODO is viewport automagic?
+    // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
     // TODO make a parameter
-    gl.clearColor(0, 0, 0.5, 0.3);
+    // TODO make a function
+    gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Tell WebGL to use our shader program pair
     gl.useProgram(program);
 
-    this._ortho = Matrix.ortho(0, gl.canvas.width * 2, gl.canvas.height * 2, 0, -1, 1);
+    this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, -1, 1);
 
     // https://groups.google.com/forum/#!topic/webgl-dev-list/vMNXSNRAg8M
     this._vertBuffer = gl.createBuffer();
@@ -137,12 +139,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     dwidth?: number,
     dheight?: number
   ): void {
-    // TODO this doesnt handle all cases
-    // let coord = this._currentTransform.multv([sx, sy]);
     this._textureManager.updateFromGraphic(graphic);
     const command = new DrawImageCommand(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
-    command.transform = this._stack.transform;
-    command.calculateGeometry();
+    command.applyTransform(this._stack.transform);
 
     if (this._batches.length === 0) {
       this._batches.push(new Batch(this._textureManager, this._maxDrawingsPerBatch, this._shaderTextureMax));
@@ -329,7 +328,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Orthographic projection for the viewport
-    const mat = this._ortho.multm(this._stack.transform);
+    const mat = this._ortho;
     gl.uniformMatrix4fv(this._shader.matrixUniform, false, mat.data);
 
     for (let batch of this._batches) {

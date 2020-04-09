@@ -6,6 +6,7 @@ export class MatrixStack {
 
   public save(): void {
     this._transforms.push(this._currentTransform);
+    this._currentTransform = this._currentTransform.clone();
   }
 
   public restore(): void {

@@ -1,5 +1,6 @@
 import { Vector } from '../../Algebra';
 import { Graphic } from '../Graphic';
+import { Color } from '../../Drawing/Color';
 
 // TODO should this use Graphic instead?
 export type ImageSource = HTMLImageElement | HTMLCanvasElement;
@@ -28,6 +29,7 @@ export interface ExcaliburGraphicsContext {
 
   snapToPixel: boolean;
 
+  backgroundColor: Color;
   opacity: number;
 
   // diag: ExcaliburContextDiagnostics;
