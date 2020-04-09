@@ -1,13 +1,13 @@
 const path = require('path');
-let version = require('./version');
 const fs = require('fs');
 const child_process = require('child_process');
 const rimraf = require('rimraf');
 const TYPEDOC_CMD = path.join('node_modules', '.bin', 'typedoc');
 
-console.log('Build API documentation');
-version = version.includes('-') ? 'Edge' : version;
+// allow specifying ts doc page title (typically version)
+const title = process.argv[2] || 'Edge';
 
+console.log('Build API documentation: ', title);
 console.log('Removing existing docs...');
 
 rimraf.sync('docs/api/');
@@ -29,7 +29,7 @@ console.log('Executing typedoc...');
 child_process.execSync(
   TYPEDOC_CMD +
     ' --name "Excalibur.js ' +
-    version +
+    title +
     ' API Documentation"' +
     ' --target es5' +
     ' --experimentalDecorators' +
