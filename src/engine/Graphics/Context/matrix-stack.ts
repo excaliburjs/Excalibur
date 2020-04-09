@@ -9,7 +9,7 @@ export class MatrixStack {
   }
 
   public restore(): void {
-    this._currentTransform = this._transforms.pop() || Matrix.identity();
+    this._currentTransform = this._transforms.pop();
   }
 
   public translate(x: number, y: number): Matrix {

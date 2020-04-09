@@ -76,6 +76,8 @@ export class Matrix {
     const mat = Matrix.identity();
     mat.data[0] = sx;
     mat.data[5] = sy;
+    mat.data[10] = 1;
+    mat.data[15] = 1;
     return mat;
   }
 

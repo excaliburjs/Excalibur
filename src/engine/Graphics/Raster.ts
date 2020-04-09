@@ -61,7 +61,7 @@ export abstract class Raster extends Graphic {
     return this._bitmap.width;
   }
   public set width(value: number) {
-    this._bitmap.width = value;
+    this._bitmap.width = value * window.devicePixelRatio;
     this.flagDirty();
   }
 
@@ -73,7 +73,7 @@ export abstract class Raster extends Graphic {
     return this._bitmap.height;
   }
   public set height(value: number) {
-    this._bitmap.height = value;
+    this._bitmap.height = value * window.devicePixelRatio; //TODO this is unexpected
     this.flagDirty();
   }
 
@@ -134,7 +134,7 @@ export abstract class Raster extends Graphic {
    */
   public rasterize(): void {
     this._dirty = false;
-    this._ctx.clearRect(0, 0, this.width, this.height);
+    this._ctx.clearRect(0, 0, this.width * window.devicePixelRatio, this.height * window.devicePixelRatio);
     this._ctx.save();
     this._applyRasterProperites(this._ctx);
     this.execute(this._ctx);
@@ -145,6 +145,7 @@ export abstract class Raster extends Graphic {
   }
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
+    // ctx.scale(1/window.devicePixelRatio, 1/window.devicePixelRatio);
     ctx.imageSmoothingEnabled = this.smoothing;
     ctx.strokeStyle = this.strokeColor?.toString();
     ctx.fillStyle = this.color?.toString();

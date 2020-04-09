@@ -419,8 +419,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     this._graphicsContext.save();
 
     if (this.camera) {
-      this.camera.draw(ctx);
-      this.camera.newdraw(this._graphicsContext);
+      this.camera.draw(this._graphicsContext);
     }
 
     let i: number, len: number;

@@ -40,8 +40,8 @@ import * as Events from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
 import { BrowserEvents } from './Util/Browser';
 import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
-// import { ExcaliburGraphicsContext2DCanvas } from './Graphics/Context/ExcaliburGraphicsContext2DCanvas';
 import { ExcaliburGraphicsContextWebGL } from './Graphics/Context/ExcaliburGraphicsContextWebGL';
+import { ExcaliburGraphicsContext2DCanvas } from './Graphics/Context/ExcaliburGraphicsContext2DCanvas';
 
 /**
  * Enum representing the different display modes available to Excalibur
@@ -206,6 +206,8 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    */
   public ctx: CanvasRenderingContext2D;
 
+  public static _useWebGL: boolean = false;
+
   /**
    * Direct access to the excalibur graphics context
    */
@@ -341,6 +343,8 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   private _suppressHiDPIScaling: boolean = false;
 
   private _suppressPlayButton: boolean = false;
+
+  // TODO Move this to canvas utilities
   /**
    * Returns the calculated pixel ration for use in rendering
    */
@@ -1029,18 +1033,23 @@ O|===|* >________________>\n\
       }
     });
 
-    // eslint-disable-next-line
-    const canvas = document.createElement('canvas');
-    this.ctx = canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
-    // this.graphicsContext = new ExcaliburGraphicsContext2DCanvas(this.ctx);
-    const gl = this.canvas.getContext('webgl', {
-      antialias: false,
-      premultipliedAlpha: false,
-      alpha: false,
-      depth: false,
-      powerPreference: 'high-performance'
-    });
-    this.graphicsContext = new ExcaliburGraphicsContextWebGL(gl);
+    if (!Engine._useWebGL) {
+      this.ctx = this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
+      this.graphicsContext = new ExcaliburGraphicsContext2DCanvas(this.ctx);
+    } else {
+      // TODO remove hacked canvas to keep things working
+      const canvas = document.createElement('canvas');
+      this.ctx = canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
+
+      const gl = this.canvas.getContext('webgl', {
+        antialias: false,
+        premultipliedAlpha: false,
+        alpha: this.enableCanvasTransparency,
+        depth: false,
+        powerPreference: 'high-performance'
+      });
+      this.graphicsContext = new ExcaliburGraphicsContextWebGL(gl);
+    }
 
     this._suppressHiDPIScaling = !!options.suppressHiDPIScaling;
     if (!options.suppressHiDPIScaling) {
@@ -1140,7 +1149,6 @@ O|===|* >________________>\n\
                            ${oldWidth}x${oldHeight} to ${this.canvas.width}x${this.canvas.height} 
                            css size will remain ${oldWidth}x${oldHeight}`);
 
-      this.ctx.scale(this.pixelRatio, this.pixelRatio);
       this.graphicsContext.scale(this.pixelRatio, this.pixelRatio);
       this._logger.warn(`Canvas drawing context was scaled by ${this.pixelRatio}`);
     }
