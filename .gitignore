@@ -45,6 +45,7 @@ build/
 bld/
 bin/
 obj/
+.tsbuildinfo
 *.user
 *.suo
 *.map
