@@ -5,23 +5,25 @@ import stopIcon from '@fortawesome/fontawesome-free/svgs/solid/stop.svg';
 import { Actor, Sound, Loader, Color, Texture, Sprite, NativeSoundEvent, EasingFunctions, NativeSoundProcessedEvent } from '../engine';
 import { withEngine } from './utils';
 
-import audioLoop from './assets/loop.mp3';
+import guitarLoop from './assets/loop-guitar.mp3';
+import campfireLoop from './assets/loop-campfire.mp3';
+import forestLoop from './assets/loop-forest.mp3';
 
 export default {
   title: 'Audio'
 };
 
-export const webAudio: Story = withEngine(async (game) => {
+export const playingASound: Story = withEngine(async (game) => {
   const loader = new Loader();
-  const testSound = new Sound(audioLoop);
+  const guitarLoopSound = new Sound(guitarLoop);
   const playIconTx = new Texture(playIcon);
   const pauseIconTx = new Texture(pauseIcon);
   const stopIconTx = new Texture(stopIcon);
 
-  loader.addResources([testSound, playIconTx, pauseIconTx, stopIconTx]);
+  loader.addResources([guitarLoopSound, playIconTx, pauseIconTx, stopIconTx]);
 
-  testSound.on('processed', (e: NativeSoundProcessedEvent) => {
-    action('testSound processed')(e);
+  guitarLoopSound.on('processed', (e: NativeSoundProcessedEvent) => {
+    action('Guitar loop sound processed')(e);
   });
 
   await game.start(loader);
@@ -44,10 +46,10 @@ export const webAudio: Story = withEngine(async (game) => {
 
   startOrPauseBtn.enableCapturePointer = true;
   startOrPauseBtn.on('pointerup', (evt) => {
-    if (!testSound.isPlaying()) {
-      testSound.play();
+    if (!guitarLoopSound.isPlaying()) {
+      guitarLoopSound.play();
     } else {
-      testSound.pause();
+      guitarLoopSound.pause();
     }
 
     evt.stopPropagation();
@@ -62,34 +64,34 @@ export const webAudio: Story = withEngine(async (game) => {
 
   playHead.pos.setTo(playheadStartPos, playHead.pos.y);
 
-  testSound.on('playbackstart', (e: NativeSoundEvent) => {
+  guitarLoopSound.on('playbackstart', (e: NativeSoundEvent) => {
     playHead.pos.setTo(playheadStartPos, playHead.pos.y);
-    if (testSound.duration > 0) {
+    if (guitarLoopSound.duration > 0) {
       startTime = Date.now();
       elapsedTime = 0;
-      playHead.actions.easeTo(playheadEndPos, playHead.pos.y, testSound.duration * 1000, EasingFunctions.Linear);
+      playHead.actions.easeTo(playheadEndPos, playHead.pos.y, guitarLoopSound.duration * 1000, EasingFunctions.Linear);
     }
     startOrPauseBtn.setDrawing('pause');
     action('playbackstart')(e);
   });
 
-  testSound.on('pause', (e) => {
+  guitarLoopSound.on('pause', (e) => {
     elapsedTime = Date.now() - startTime + elapsedTime;
     playHead.actions.clearActions();
     startOrPauseBtn.setDrawing('play');
     action('pause')(e, elapsedTime);
   });
 
-  testSound.on('resume', (e: NativeSoundEvent) => {
+  guitarLoopSound.on('resume', (e: NativeSoundEvent) => {
     startTime = Date.now();
-    if (testSound.duration > 0) {
-      playHead.actions.easeTo(playheadEndPos, playHead.pos.y, testSound.duration * 1000 - elapsedTime, EasingFunctions.Linear);
+    if (guitarLoopSound.duration > 0) {
+      playHead.actions.easeTo(playheadEndPos, playHead.pos.y, guitarLoopSound.duration * 1000 - elapsedTime, EasingFunctions.Linear);
     }
     startOrPauseBtn.setDrawing('pause');
     action('resume')(e);
   });
 
-  testSound.on('playbackend', (e) => {
+  guitarLoopSound.on('playbackend', (e) => {
     playHead.actions.clearActions();
     playHead.pos.setTo(playheadStartPos, playHead.pos.y);
     startOrPauseBtn.setDrawing('play');
@@ -97,7 +99,7 @@ export const webAudio: Story = withEngine(async (game) => {
   });
 
   stopBtn.on('pointerup', (evt) => {
-    testSound.stop();
+    guitarLoopSound.stop();
     playHead.pos.setTo(playheadStartPos, playHead.pos.y);
 
     evt.stopPropagation();
@@ -109,22 +111,25 @@ export const webAudio: Story = withEngine(async (game) => {
   game.add(playHead);
 });
 
-export const longSoundsAndLooping = withEngine(async (game) => {
+export const multipleTracksAndLooping = withEngine(async (game) => {
   const loader = new Loader();
-  const testSound = new Sound(audioLoop);
+  const guitarLoopSound = new Sound(guitarLoop);
+  const campfireLoopSound = new Sound(campfireLoop);
+  const forestLoopSound = new Sound(forestLoop);
   const playIconTx = new Texture(playIcon);
-  loader.addResources([testSound, playIconTx]);
+  loader.addResources([guitarLoopSound, campfireLoopSound, forestLoopSound, playIconTx]);
 
   game.on('visible', () => {
     action('visible')('Game was visible, sound should continue playing');
   });
 
   game.on('hidden', () => {
-    action('hidden')('Game was hidden, sound should NOT play again');
+    action('hidden')('Game was hidden, sound should pause playing');
   });
 
   await game.start(loader);
 
+  const playAction = action('play');
   const startBtn = new Actor(game.currentScene.camera.x - 42, 50, 32, 32, Color.White);
   const playSprite = new Sprite({ image: playIconTx, x: 0, y: 0, width: 32, height: 32 });
   playSprite.fill(Color.White);
@@ -132,15 +137,20 @@ export const longSoundsAndLooping = withEngine(async (game) => {
   startBtn.addDrawing(playSprite);
   startBtn.enableCapturePointer = true;
   startBtn.on('pointerup', (evt) => {
-    action('play')('Sound should begin playing twice')
-    testSound.loop = true;
-    testSound.play();
-  
-    setTimeout(() => testSound.play(), 2000);
+    playAction('Playing campfire and forest sounds ');
+    guitarLoopSound.loop = true;
+    campfireLoopSound.loop = true;
+    forestLoopSound.loop = true;
+    campfireLoopSound.play();
+    forestLoopSound.play();
+
+    setTimeout(() => {
+      playAction('Playing guitar loop');
+      guitarLoopSound.play();
+    }, 2000);
 
     evt.stopPropagation();
   });
 
-  game.add(startBtn)
-  
+  game.add(startBtn);
 });
