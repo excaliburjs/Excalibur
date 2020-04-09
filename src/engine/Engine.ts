@@ -35,7 +35,6 @@ import { PostProcessor } from './PostProcessing/PostProcessor';
 import { Debug, DebugStats } from './Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
-import * as Util from './Util/Util';
 import * as Events from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
 import { BrowserEvents } from './Util/Browser';
@@ -509,7 +508,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   constructor(options?: EngineOptions) {
     super();
 
-    options = Util.extend({}, Engine._DefaultEngineOptions, options);
+    options = { ...Engine._DefaultEngineOptions, ...options };
 
     // Initialize browser events facade
     this.browser = new BrowserEvents(window, document);
@@ -521,7 +520,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
       message.innerText = 'Sorry, your browser does not support all the features needed for Excalibur';
       document.body.appendChild(message);
 
-      detector.failedTests.forEach(function(test) {
+      detector.failedTests.forEach(function (test) {
         const testMessage = document.createElement('div');
         testMessage.innerText = 'Browser feature missing ' + test;
         document.body.appendChild(testMessage);
@@ -1223,7 +1222,7 @@ O|===|* >________________>\n\
     this.currentScene.update(this, delta);
 
     // update animations
-    this._animations = this._animations.filter(function(a) {
+    this._animations = this._animations.filter(function (a) {
       return !a.animation.isDone();
     });
 

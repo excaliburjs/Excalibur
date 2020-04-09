@@ -1,5 +1,4 @@
 import * as ex from '@excalibur';
-import { Mocks } from './util/Mocks';
 
 describe('Utility functions', () => {
   it('can determine the opposite side', () => {
@@ -55,6 +54,37 @@ describe('Utility functions', () => {
     it('should return a value if not null or undefined', () => {
       const value = ex.Util.nullish('value', 'otherValue');
       expect(value).toBe('value');
+    });
+  });
+
+  describe('extend', () => {
+    it('should assign simple objects', () => {
+      const obj1 = { foo: true };
+      const obj2 = { bar: true };
+      expect(ex.Util.extend({}, obj1, obj2)).toEqual({
+        ...obj1,
+        ...obj2
+      });
+    });
+
+    it('should assign complex objects', () => {
+      const obj1 = { foo: true, deep: { switch: false, donotswitch: true } };
+      const obj2 = { bar: true, deep: { switch: true } };
+      expect(ex.Util.extend<any, any, any>({}, obj1, obj2)).toEqual({
+        ...obj1,
+        ...obj2
+      });
+    });
+
+    xit('todo: should deeply extend complex objects', () => {
+      const obj1 = { deep: { overwrite: false, preserve: true } };
+      const obj2 = { deep: { overwrite: true } };
+      expect(ex.Util.extend(true, {}, obj1, obj2)).toEqual({
+        deep: {
+          overwrite: true,
+          preserve: true
+        }
+      });
     });
   });
 });

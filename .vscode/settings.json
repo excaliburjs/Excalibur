@@ -24,5 +24,8 @@
     "src/spec/*.map": true
   },
   "typescript.tsdk": "./node_modules/typescript/lib",
-  "typescript.implementationsCodeLens.enabled": true
+  "typescript.implementationsCodeLens.enabled": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }

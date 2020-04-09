@@ -97,6 +97,9 @@ npm run sandbox
 
 # Compile API docs
 npm run apidocs
+
+# Build a nuget package and specify a version
+npm run nuget -- 1.1.1
 ```
 
 # License
