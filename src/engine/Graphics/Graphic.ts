@@ -111,19 +111,21 @@ export abstract class Graphic {
   }
 
   private _width: number = 0;
+
   /**
    * Gets or sets the width of the graphic
    */
   public get width() {
-    return this._width;
+    return this._width * this.scale.x;
   }
 
   private _height: number = 0;
+
   /**
    * Gets or sets the height of the graphic
    */
   public get height() {
-    return this._height;
+    return this._height * this.scale.y;
   }
 
   public set width(value: number) {

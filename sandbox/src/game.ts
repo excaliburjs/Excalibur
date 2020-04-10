@@ -37,7 +37,7 @@ var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
 // Create an the game container
-ex.Engine._useWebGL = false;
+ex.Engine._useWebGL = true;
 var game = new ex.Engine({ width: 800, height: 600, canvasElementId: 'game', suppressHiDPIScaling: false, suppressPlayButton: true });
 game.setAntialiasing(false);
 game.isDebug = true;

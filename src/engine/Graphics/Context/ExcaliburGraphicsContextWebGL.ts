@@ -176,6 +176,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     return x + 1;
   }
 
+  // TODO move this to a utility
   _ensurePoT(x: number) {
     if (!this._isPowerOfTwo(x)) {
       return this._nextHighestPowerOfTwo(x);
@@ -197,6 +198,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         height,
         geometry
       } = drawings[i / vertexSize];
+
+      let potWidth = this._ensurePoT(width || image.width); // TODO this POT is duplicated everywhere
+      let potHeight = this._ensurePoT(height || image.height);
       let textureId = 0;
       // TODO should this be handled by the batch
       if (this._textureManager.hasWebGLTexture(image)) {
@@ -209,19 +213,14 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       }
       let index = i;
       // potential optimization when divding by 2 (bitshift)
-      // TODO need to project the source view onto the current dest/dimension
-      let potWidth = this._ensurePoT(image.width / image.scale.x);
-      let potHeight = this._ensurePoT(image.height / image.scale.y);
-      let sourceX0 = sx / sw; // TODO not sure this is right
-      let sourceY0 = sy / sh;
-      let sourceX1 = sw / potWidth;
-      let sourceY1 = sh / potHeight;
+      // TODO we need to validate drawImage before we get here with an error :O
 
-      // poweroftwo images warp the UV coordinates
-      let uvx0 = sourceX0 * (width || image.width);
-      let uvx1 = sourceX1; // * (width || image.width);
-      let uvy0 = sourceY0 * (height || image.height);
-      let uvy1 = sourceY1; // * (height || image.height);
+      // Modifying the images to poweroftwo images warp the UV coordinates
+      let uvx0 = ((sx / sw) * potWidth) / potWidth;
+      let uvy0 = ((sy / sh) * potHeight) / potHeight;
+      let uvx1 = sw / potWidth;
+      let uvy1 = sh / potHeight;
+
       // Quad update
       // (0, 0)
       this._verts[index++] = geometry[0][0]; // x + 0 * width;

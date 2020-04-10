@@ -23,6 +23,7 @@ export interface SpriteOptions {
 export class Sprite extends Graphic {
   public rawImage: RawImage;
   public source: SourceView;
+  // TODO this is slightly confusing with the base width/height
   public size: Size;
 
   public static from(image: RawImage): Sprite {
@@ -48,20 +49,14 @@ export class Sprite extends Graphic {
     this.size.width = this.size.width || nativeWidth;
     this.size.height = this.size.height || nativeHeight;
 
-    let canvasWidth = this.size.width * this.scale.x;
-    let canvasHeight = this.size.height * this.scale.y;
-
-    this.width = Math.ceil(canvasWidth);
-    this.height = Math.ceil(canvasHeight);
+    this.width = Math.ceil(this.size.width);
+    this.height = Math.ceil(this.size.height);
   }
 
   public _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.rawImage.isLoaded()) {
-      // this is weird, but drawImage sampling is better than applying the native scale
-      ex.scale(1 / this.scale.x, 1 / this.scale.y);
-      let width = this.size.width * this.scale.x;
-      let height = this.size.height * this.scale.y;
-      ex.drawImage(this, this.source.x, this.source.y, this.source.width, this.source.height, x, y, width, height);
+      this._updateSpriteDimensions();
+      ex.drawImage(this, this.source.x, this.source.y, this.source.width, this.source.height, x, y, this.size.width, this.size.height);
     }
   }
 
