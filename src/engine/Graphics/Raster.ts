@@ -151,7 +151,6 @@ export abstract class Raster extends Graphic {
     this._applyRasterProperites(this._ctx);
     this.execute(this._ctx);
     this._ctx.restore();
-    // TODO re-bind and update webgl texture here
     // TODO this feels kinda bad, should at least be a method or Rasters should be able to manage this
     this._flagTextureDirty = true;
   }
