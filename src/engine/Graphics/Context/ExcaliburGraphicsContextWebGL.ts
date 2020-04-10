@@ -8,6 +8,7 @@ import { TextureManager } from './texture-manager';
 import { Graphic } from '../Graphic';
 import { Vector } from '../../Algebra';
 import { Color } from '../../Drawing/Color';
+import { ensurePowerOfTwo } from './webgl-util';
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   /**
@@ -50,7 +51,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   // TODO should this be a canvas element? or a better abstraction
   constructor(_ctx: WebGLRenderingContext) {
     this.__gl = _ctx;
-    // Each verted is []
+    // TODO Not sure where the magic 30 came from...
     this._verts = new Float32Array(30 * this._maxDrawingsPerBatch);
     this._init();
   }
@@ -89,9 +90,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     const vertexSize = 2 * 4; // [x, y]
     const uvSize = 2 * 4; // [u, v]
     const textureIndexSize = 1 * 4; // [textureId]
+    const opacitySize = 1 * 4; // [opacity]
     // 20 bytes per coordinate
 
-    const totalCoordSize = vertexSize + textureIndexSize + uvSize;
+    const totalCoordSize = vertexSize + textureIndexSize + uvSize + opacitySize;
 
     gl.vertexAttribPointer(shader.positionLocation, 2, gl.FLOAT, false, totalCoordSize, 0);
     gl.enableVertexAttribArray(shader.positionLocation);
@@ -102,6 +104,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.vertexAttribPointer(shader.textureIndexLocation, 1, gl.FLOAT, false, totalCoordSize, vertexSize + uvSize);
     gl.enableVertexAttribArray(shader.textureIndexLocation);
 
+    gl.vertexAttribPointer(shader.opacityLocation, 1, gl.FLOAT, false, totalCoordSize, vertexSize + uvSize + textureIndexSize);
+    gl.enableVertexAttribArray(shader.opacityLocation);
+
     // Orthographic projection for the viewport
     gl.uniformMatrix4fv(shader.matrixUniform, false, this._ortho.data);
 
@@ -110,9 +115,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       texturesData[i] = i;
     }
     gl.uniform1iv(shader.texturesUniform, texturesData);
-
-    // TODO implement camera
-    // this._stack.scale(1.5, 1.5);
   }
 
   drawImage(graphic: Graphic, x: number, y: number): void;
@@ -164,31 +166,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     }
   }
 
-  _isPowerOfTwo(x: number) {
-    return (x & (x - 1)) == 0;
-  }
-
-  _nextHighestPowerOfTwo(x: number) {
-    --x;
-    for (var i = 1; i < 32; i <<= 1) {
-      x = x | (x >> i);
-    }
-    return x + 1;
-  }
-
-  // TODO move this to a utility
-  _ensurePoT(x: number) {
-    if (!this._isPowerOfTwo(x)) {
-      return this._nextHighestPowerOfTwo(x);
-    }
-    return x;
-  }
-
   _updateVertexBufferData(batch: Batch): void {
     // TODO apply current transform matrix to coordinates
     const drawings = batch.commands;
 
-    const vertexSize = 6 * 5; // 6 vertices * (x, y, u, v, textureId)
+    const vertexSize = 6 * 6; // 6 vertices * (x, y, u, v, textureId, opacity)
     for (let i = 0; i < drawings.length * vertexSize; i += vertexSize) {
       let {
         image,
@@ -199,8 +181,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         geometry
       } = drawings[i / vertexSize];
 
-      let potWidth = this._ensurePoT(width || image.width); // TODO this POT is duplicated everywhere
-      let potHeight = this._ensurePoT(height || image.height);
+      let potWidth = ensurePowerOfTwo(width || image.width);
+      let potHeight = ensurePowerOfTwo(height || image.height);
       let textureId = 0;
       // TODO should this be handled by the batch
       if (this._textureManager.hasWebGLTexture(image)) {
@@ -227,18 +209,22 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._verts[index++] = geometry[0][1]; //y + 0 * height;
       // UV coords
       this._verts[index++] = uvx0; // 0;
-      this._verts[index++] = uvy0; //0;
+      this._verts[index++] = uvy0; // 0;
       // texture id
       this._verts[index++] = textureId;
+      // opacity
+      this._verts[index++] = image.opacity;
 
       // (0, 1)
       this._verts[index++] = geometry[1][0]; // x + 0 * width;
       this._verts[index++] = geometry[1][1]; // y + 1 * height;
       // UV coords
-      this._verts[index++] = uvx0; //0;
+      this._verts[index++] = uvx0; // 0;
       this._verts[index++] = uvy1; // 1;
       // texture id
       this._verts[index++] = textureId;
+      // opacity
+      this._verts[index++] = image.opacity;
 
       // (1, 0)
       this._verts[index++] = geometry[2][0]; // x + 1 * width;
@@ -248,6 +234,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._verts[index++] = uvy0; //0;
       // texture id
       this._verts[index++] = textureId;
+      // opacity
+      this._verts[index++] = image.opacity;
 
       // (1, 0)
       this._verts[index++] = geometry[3][0]; // x + 1 * width;
@@ -257,6 +245,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._verts[index++] = uvy0; //0;
       // texture id
       this._verts[index++] = textureId;
+      // opacity
+      this._verts[index++] = image.opacity;
 
       // (0, 1)
       this._verts[index++] = geometry[4][0]; // x + 0 * width;
@@ -266,6 +256,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._verts[index++] = uvy1; // 1;
       // texture id
       this._verts[index++] = textureId;
+      // opacity
+      this._verts[index++] = image.opacity;
 
       // (1, 1)
       this._verts[index++] = geometry[5][0]; // x + 1 * width;
@@ -275,6 +267,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._verts[index++] = uvy1; // 1;
       // texture id
       this._verts[index++] = textureId;
+      // opacity
+      this._verts[index++] = image.opacity;
     }
   }
 

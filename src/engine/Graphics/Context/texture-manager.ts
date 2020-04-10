@@ -2,6 +2,7 @@ import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
 import { Graphic } from '../Graphic';
 import { Raster } from '../Raster';
 import { ImageSource } from './ExcaliburGraphicsContext';
+import { ensurePowerOfTwo, isPowerOfTwo } from './webgl-util';
 
 /**
  * Manages loading and unloading webgl textures from [[Graphic|graphics]]
@@ -62,29 +63,16 @@ export class TextureManager {
    * @param image
    */
   private _ensurePowerOfTwoImage(image: ImageSource): ImageSource {
-    if (!this._isPowerOfTwo(image.width) || !this._isPowerOfTwo(image.height)) {
+    if (!isPowerOfTwo(image.width) || !isPowerOfTwo(image.height)) {
       // Scale up the texture to the next highest power of two dimensions.
       const canvas = document.createElement('canvas');
-      canvas.width = this._nextHighestPowerOfTwo(image.width);
-      canvas.height = this._nextHighestPowerOfTwo(image.height);
+      canvas.width = ensurePowerOfTwo(image.width);
+      canvas.height = ensurePowerOfTwo(image.height);
       const ctx = canvas.getContext('2d');
       ctx.imageSmoothingEnabled = false;
-      // ctx.imageSmoothingQuality = "high";
       ctx.drawImage(image, 0, 0, image.width, image.height);
       image = canvas;
     }
     return image;
-  }
-
-  private _isPowerOfTwo(x: number) {
-    return (x & (x - 1)) == 0;
-  }
-
-  private _nextHighestPowerOfTwo(x: number) {
-    --x;
-    for (var i = 1; i < 32; i <<= 1) {
-      x = x | (x >> i);
-    }
-    return x + 1;
   }
 }

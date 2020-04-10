@@ -6,6 +6,7 @@ export class Shader {
   private _positionLocation: number = -1;
   private _textureIndexLocation: number = -1;
   private _texcoordLocation: number = -1;
+  private _opacityLocation: number = -1;
   private _matrixUniform: WebGLUniformLocation | null = null;
   private _texturesUniform: WebGLUniformLocation | null = null;
   constructor(private maxTextures: number) {}
@@ -56,7 +57,8 @@ export class Shader {
     let texturePickerBuilder = '';
     for (let i = 0; i < this.maxTextures; i++) {
       texturePickerBuilder += `   } else if (v_textureIndex <= ${i}.5) {\n
-                gl_FragColor = texture2D(textures[${i}], v_texcoord);\n`;
+                gl_FragColor = texture2D(textures[${i}], v_texcoord);\n
+                gl_FragColor.w = gl_FragColor.w * v_opacity;\n`;
     }
     newSource = newSource.replace('%%texture_picker%%', texturePickerBuilder);
     return newSource;
@@ -71,6 +73,7 @@ export class Shader {
     this._positionLocation = gl.getAttribLocation(program, 'a_position');
     this._textureIndexLocation = gl.getAttribLocation(program, 'a_textureIndex');
     this._texcoordLocation = gl.getAttribLocation(program, 'a_texcoord');
+    this._opacityLocation = gl.getAttribLocation(program, 'a_opacity');
 
     // lookup uniforms
     this._matrixUniform = gl.getUniformLocation(program, 'u_matrix');
@@ -93,6 +96,10 @@ export class Shader {
 
   public get texcoordLocation() {
     return this._texcoordLocation;
+  }
+
+  public get opacityLocation() {
+    return this._opacityLocation;
   }
 
   public get matrixUniform() {

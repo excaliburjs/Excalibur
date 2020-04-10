@@ -6,8 +6,8 @@ varying vec2 v_texcoord;
 // Texture index
 varying lowp float v_textureIndex;
 
-// TODO Opacity
-// varying float v_opacity;
+// Opacity
+varying float v_opacity;
 
 uniform sampler2D textures[%%count%%];
 
@@ -22,10 +22,9 @@ void main() {
    // Always at least 1 texture at 0
    if (v_textureIndex <= .5) {
       gl_FragColor = texture2D(textures[0], v_texcoord);
+      gl_FragColor.w = gl_FragColor.w * v_opacity;
       %%texture_picker%%
    } else {
       gl_FragColor = color;
    }
-
-   // gl_FragColor.w = gl_FragColor.w * v_opacity;
 }

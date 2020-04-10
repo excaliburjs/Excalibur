@@ -1,6 +1,7 @@
 import { Graphic, GraphicOptions } from './Graphic';
 import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Drawing/Color';
+import { ensurePowerOfTwo } from './Context/webgl-util';
 
 export interface RasterOptions {
   smoothing?: boolean;
@@ -29,35 +30,18 @@ export abstract class Raster extends Graphic {
       this.smoothing = options.smoothing ?? this.smoothing;
     }
 
-    // TODO also initialize webgl texture
     this._bitmap = document.createElement('canvas');
     let bitmapWidth = options.width ?? this._bitmap.width;
     let bitmapHeight = options.height ?? this._bitmap.height;
     // Rasters use power of two images as an optimization for webgl
-    if (!this._isPowerOfTwo(bitmapWidth)) {
-      this._bitmap.width = this._nextHighestPowerOfTwo(bitmapWidth);
-    }
-    if (!this._isPowerOfTwo(bitmapHeight)) {
-      this._bitmap.height = this._nextHighestPowerOfTwo(bitmapHeight);
-    }
+    this._bitmap.width = ensurePowerOfTwo(bitmapWidth);
+    this._bitmap.height = ensurePowerOfTwo(bitmapHeight);
     const maybeCtx = this._bitmap.getContext('2d');
     if (!maybeCtx) {
       throw new Error('Browser does not support 2d canvas drawing');
     } else {
       this._ctx = maybeCtx;
     }
-  }
-
-  private _isPowerOfTwo(x: number) {
-    return (x & (x - 1)) == 0;
-  }
-
-  private _nextHighestPowerOfTwo(x: number) {
-    --x;
-    for (var i = 1; i < 32; i <<= 1) {
-      x = x | (x >> i);
-    }
-    return x + 1;
   }
 
   /**
