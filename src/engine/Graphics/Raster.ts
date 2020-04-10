@@ -38,7 +38,7 @@ export abstract class Raster extends Graphic {
     this._bitmap.height = ensurePowerOfTwo(bitmapHeight);
     const maybeCtx = this._bitmap.getContext('2d');
     if (!maybeCtx) {
-      throw new Error('Browser does not support 2d canvas drawing');
+      throw new Error('Browser does not support 2d canvas drawing, cannot create Raster graphic');
     } else {
       this._ctx = maybeCtx;
     }
