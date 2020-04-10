@@ -37,7 +37,7 @@ var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
 // Create an the game container
-ex.Engine._useWebGL = true;
+ex.Engine._useWebGL = false;
 var game = new ex.Engine({ width: 800, height: 600, canvasElementId: 'game', suppressHiDPIScaling: false, suppressPlayButton: true });
 game.setAntialiasing(false);
 game.isDebug = true;
@@ -203,7 +203,7 @@ var tileBlockWidth = 64,
 //var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
 var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
 tileMap.registerSpriteSheet('default', spriteTiles);
-tileMap.data.forEach(function(cell: ex.Cell) {
+tileMap.data.forEach(function (cell: ex.Cell) {
   cell.solid = true;
   cell.pushSprite(new ex.TileSprite('default', 0));
 });
@@ -265,32 +265,17 @@ for (var i = 0; i < 36; i++) {
 
 var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
 platform.body.collider.type = ex.CollisionType.Fixed;
-platform.actions
-  .moveTo(200, 300, 100)
-  .moveTo(600, 300, 100)
-  .moveTo(400, 300, 100)
-  .repeatForever();
+platform.actions.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
 game.add(platform);
 
 var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
 platform2.body.collider.type = ex.CollisionType.Fixed;
-platform2.actions
-  .moveTo(2000, 300, 100)
-  .moveTo(2000, 100, 100)
-  .moveTo(800, 100, 100)
-  .moveTo(800, 300, 100)
-  .repeatForever();
+platform2.actions.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100).repeatForever();
 game.add(platform2);
 
 var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
 platform3.body.collider.type = ex.CollisionType.Fixed;
-platform3.actions
-  .moveTo(-200, 800, 300)
-  .moveTo(-200, 400, 50)
-  .delay(3000)
-  .moveTo(-200, 300, 800)
-  .moveTo(-200, 400, 800)
-  .repeatForever();
+platform3.actions.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
 game.add(platform3);
 
 var platform4 = new ex.Actor(75, 300, 100, 50, ex.Color.Azure);

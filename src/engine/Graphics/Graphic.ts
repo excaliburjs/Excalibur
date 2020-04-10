@@ -178,12 +178,12 @@ export abstract class Graphic {
     ex.scale(this.scale.x, this.scale.y);
 
     if (this.flipHorizontal) {
-      ex.translate(this.width, 0);
+      ex.translate(this.width / this.scale.x, 0);
       ex.scale(-1, 1);
     }
 
     if (this.flipVertical) {
-      ex.translate(0, this.height);
+      ex.translate(0, this.height / this.scale.y);
       ex.scale(1, -1);
     }
     ex.opacity = this.opacity;
