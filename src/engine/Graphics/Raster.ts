@@ -2,6 +2,8 @@ import { Graphic, GraphicOptions } from './Graphic';
 import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Drawing/Color';
 import { ensurePowerOfTwo } from './Context/webgl-util';
+import { Vector } from '../Algebra';
+import { BoundingBox } from '../Collision/BoundingBox';
 
 export interface RasterOptions {
   smoothing?: boolean;
@@ -81,6 +83,10 @@ export abstract class Raster extends Graphic {
   public set height(value: number) {
     this._bitmap.height = value;
     this.flagDirty();
+  }
+
+  public get localBounds() {
+    return BoundingBox.fromDimension(this.width * this.scale.x, this.height * this.scale.y, Vector.Zero);
   }
 
   private _smoothing: boolean = false;
