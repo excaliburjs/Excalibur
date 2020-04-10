@@ -4,6 +4,7 @@ import { Font } from './Font';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { line } from '../Util/DrawUtil';
 import { Color } from '../Drawing/Color';
+import { vec } from '../Algebra';
 
 export interface TextOptions {
   text: string;
@@ -75,6 +76,24 @@ export class Text extends Raster {
     }
 
     ex.drawImage(this, x - this._halfWidth, y - this._halfHeight);
+  }
+  _rotate(ex: ExcaliburGraphicsContext) {
+    const origin = this.origin ?? vec(this.width / 4, -this.height / 16);
+    ex.translate(origin.x, origin.y);
+    ex.rotate(this.rotation);
+    ex.translate(-origin.x, -origin.y);
+  }
+
+  _flip(ex: ExcaliburGraphicsContext) {
+    if (this.flipHorizontal) {
+      ex.translate(this.width / 2 / this.scale.x, 0);
+      ex.scale(-1, 1);
+    }
+
+    if (this.flipVertical) {
+      ex.translate(0, -this.height / 8 / this.scale.y);
+      ex.scale(1, -1);
+    }
   }
 
   _postDraw(ex: ExcaliburGraphicsContext): void {

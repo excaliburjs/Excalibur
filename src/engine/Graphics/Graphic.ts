@@ -173,12 +173,20 @@ export abstract class Graphic {
   protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     ex.save();
     ex.translate(x, y);
+    this._rotate(ex);
+    ex.scale(this.scale.x, this.scale.y);
+    this._flip(ex);
+    ex.opacity = this.opacity;
+  }
+
+  protected _rotate(ex: ExcaliburGraphicsContext) {
     const origin = this.origin ?? vec(this.width / 2, this.height / 2);
     ex.translate(origin.x, origin.y);
     ex.rotate(this.rotation);
     ex.translate(-origin.x, -origin.y);
-    ex.scale(this.scale.x, this.scale.y);
+  }
 
+  protected _flip(ex: ExcaliburGraphicsContext) {
     if (this.flipHorizontal) {
       ex.translate(this.width / this.scale.x, 0);
       ex.scale(-1, 1);
@@ -188,7 +196,6 @@ export abstract class Graphic {
       ex.translate(0, this.height / this.scale.y);
       ex.scale(1, -1);
     }
-    ex.opacity = this.opacity;
   }
 
   /**
