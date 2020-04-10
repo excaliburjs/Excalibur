@@ -90,12 +90,12 @@ export abstract class Graphic {
   public opacity: number = 1;
 
   /**
-   * Gets or sets the scale of the graphic
+   * Gets or sets the scale of the graphic, this affects the width and
    */
   public scale = Vector.One;
 
   /**
-   * Gets or sets the origin of the graphic, if not set the center of the drawing
+   * Gets or sets the origin of the graphic, if not set the center of the graphic is the origin
    */
   public origin: Vector | null = null;
 
@@ -135,10 +135,10 @@ export abstract class Graphic {
   }
 
   /**
-   * Gets or sets the bounds of the graphic
+   * Gets a copy of the bounds in pixels occupied by the graphic on the the screen. This includes scale.
    */
   public get localBounds(): BoundingBox {
-    return BoundingBox.fromDimension(this._width, this._height, Vector.Zero);
+    return BoundingBox.fromDimension(this._width * this.scale.x, this._height * this.scale.y, Vector.Zero);
   }
 
   /**
