@@ -3,7 +3,8 @@ declare module '*.png' {
   export default value;
 }
 
-declare module 'guitarLoop';
+declare module '*.mp3';
+declare module '*.svg';
 
 declare module '*.css' {
   const value: { toString: () => string };
