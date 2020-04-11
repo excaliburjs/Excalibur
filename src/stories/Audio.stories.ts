@@ -1,4 +1,5 @@
 import { action } from '@storybook/addon-actions';
+import { number, withKnobs } from '@storybook/addon-knobs';
 import playIcon from '@fortawesome/fontawesome-free/svgs/solid/play.svg';
 import pauseIcon from '@fortawesome/fontawesome-free/svgs/solid/pause.svg';
 import stopIcon from '@fortawesome/fontawesome-free/svgs/solid/stop.svg';
@@ -10,7 +11,8 @@ import campfireLoop from './assets/loop-campfire.mp3';
 import forestLoop from './assets/loop-forest.mp3';
 
 export default {
-  title: 'Audio'
+  title: 'Audio',
+  decorators: [withKnobs]
 };
 
 export const playingASound: Story = withEngine(async (game) => {
@@ -130,6 +132,8 @@ export const multipleTracksAndLooping = withEngine(async (game) => {
   await game.start(loader);
 
   const playAction = action('play');
+  const startGuitarAt = number('Begin playing guitar after (in milliseconds)', 2000);
+
   const startBtn = new Actor(game.currentScene.camera.x - 42, 50, 32, 32, Color.White);
   const playSprite = new Sprite({ image: playIconTx, x: 0, y: 0, width: 32, height: 32 });
   playSprite.fill(Color.White);
@@ -138,6 +142,8 @@ export const multipleTracksAndLooping = withEngine(async (game) => {
   startBtn.enableCapturePointer = true;
   startBtn.on('pointerup', (evt) => {
     playAction('Playing campfire and forest sounds ');
+    playSprite.fill(Color.Green);
+
     guitarLoopSound.loop = true;
     campfireLoopSound.loop = true;
     forestLoopSound.loop = true;
@@ -147,10 +153,58 @@ export const multipleTracksAndLooping = withEngine(async (game) => {
     setTimeout(() => {
       playAction('Playing guitar loop');
       guitarLoopSound.play();
-    }, 2000);
+    }, startGuitarAt);
 
     evt.stopPropagation();
   });
 
   game.add(startBtn);
+});
+
+
+export const volumeLevels = withEngine(async (game) => {
+  const loader = new Loader();
+  const testSound = new Sound(guitarLoop);
+  const playIconTx = new Texture(playIcon);
+
+  loader.addResources([testSound, playIconTx]);
+
+  //click a button to play the sound
+  const playAction = action('play');
+  const startBtn = new Actor(game.currentScene.camera.x - 42, 50, 32, 32, Color.White);
+  const playSprite = new Sprite({ image: playIconTx, x: 0, y: 0, width: 32, height: 32 });
+  playSprite.fill(Color.White);
+  startBtn.addDrawing(playSprite);
+  startBtn.enableCapturePointer = true;
+
+  const volumeOptions = {
+    range: true,
+    min: 0,
+    max: 1,
+    step: 0.1
+  };
+  const initialVolume = number('Initial volume', 0.2, volumeOptions);
+  const delayVolume = number('Adjusted volume', 1, volumeOptions);
+
+  startBtn.on('pointerup', function () {
+    playAction('Playing guitar sound, volume will adjust in 2 seconds');
+
+    playSprite.fill(Color.Green);
+
+    //button will turn red again when song is done
+    if (!testSound.isPlaying()) {
+      testSound.play(initialVolume).then(function () {
+        playSprite.fill(Color.White);
+      });
+
+      //change volume of the sound after 2000 ms to show that
+      //initial setting worked
+      setTimeout(function () {
+        testSound.volume = delayVolume;
+      }, 2000);
+    }
+  });
+  game.add(startBtn);
+
+  await game.start(loader);
 });
