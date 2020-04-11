@@ -1,6 +1,7 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { Stubs } from './util/Stubs';
+import { NativeSoundProcessedEvent } from '@excalibur';
 
 describe('Sound resource', () => {
   let sut: ex.Sound;
@@ -27,6 +28,22 @@ describe('Sound resource', () => {
 
       it('should return the processed data', () => {
         expect(sut.processData(sut.getData())).toBeDefined();
+      });
+
+      it('should fire processed event', (done) => {
+        sut.on('processed', (e: NativeSoundProcessedEvent) => {
+          expect(e.data).toBeDefined();
+          done();
+        });
+        sut.processData(sut.getData());
+      });
+
+      it('should have duration', (done) => {
+        sut.processData(sut.getData()).then(() => {
+          expect(sut.duration).toBeDefined();
+          expect(sut.duration).toBeGreaterThan(0);
+          done();
+        });
       });
 
       it('should fire playbackstart event', (done) => {
