@@ -24,6 +24,8 @@ deploy:
   provider: pages
   skip_cleanup: true
   github_token: $GH_TOKEN
+  repo: excaliburjs/examples
+  target_branch: master
   on:
     branch: master
 notifications:
