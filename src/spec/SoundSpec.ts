@@ -259,10 +259,24 @@ describe('Sound resource', () => {
         });
       });
 
-      it('should do nothing if already stopped', () => {
-        expect(sut.isPlaying()).toBe(false, 'nothing should be playing');
+      fit('should stop all tracks even when paused', (done) => {
+        sut.play();
 
-        sut.stop();
+        sut.on('stop', () => {
+          done();
+        });
+
+        setTimeout(() => {
+          expect(sut.isPlaying()).toBe(true, 'should be playing');
+
+          // pause
+          sut.pause();
+
+          expect(sut.isPlaying()).toBe(false, 'should not be playing');
+
+          // stop and rewind
+          sut.stop();
+        }, 500);
       });
 
       it('should not have any tracks when stopped', (done) => {
