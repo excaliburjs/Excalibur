@@ -5,7 +5,7 @@ export interface SpriteSheetGridOptions {
   image: RawImage;
   grid: {
     rows: number;
-    cols: number;
+    columns: number;
     spriteWidth: number;
     spriteHeight: number;
     padding?: number;
@@ -30,7 +30,7 @@ export class SpriteSheet {
     const sprites: Sprite[] = [];
     const {
       image,
-      grid: { rows, cols, spriteWidth, spriteHeight, padding }
+      grid: { rows, columns: cols, spriteWidth, spriteHeight, padding }
     } = options;
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {

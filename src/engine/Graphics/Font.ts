@@ -109,7 +109,6 @@ export enum Direction {
 export interface FontOptions {
   size?: number;
   unit?: FontUnit;
-  color?: Color;
   family?: string;
   style?: FontStyle;
   bold?: boolean;
@@ -168,5 +167,24 @@ export class Font {
       ctx.shadowOffsetX = this.shadow.offset.x;
       ctx.shadowOffsetY = this.shadow.offset.y;
     }
+  }
+  public clone(): Font {
+    return new Font({
+      size: this.size,
+      unit: this.unit,
+      family: this.family,
+      style: this.style,
+      bold: this.bold,
+      textAlign: this.textAlign,
+      baseAlign: this.baseAlign,
+      direction: this.direction,
+      shadow: this.shadow
+        ? {
+            blur: this.shadow.blur,
+            offset: this.shadow.offset,
+            color: this.shadow.color
+          }
+        : null
+    });
   }
 }

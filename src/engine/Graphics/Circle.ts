@@ -24,6 +24,14 @@ export class Circle extends Raster {
     this.rasterize();
   }
 
+  public clone(): Circle {
+    return new Circle({
+      radius: this.radius,
+      ...this.cloneGraphicOptions(),
+      ...this.cloneRasterOptions()
+    });
+  }
+
   execute(ctx: CanvasRenderingContext2D): void {
     if (this.radius > 0) {
       ctx.beginPath();

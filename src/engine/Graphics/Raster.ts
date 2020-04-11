@@ -46,6 +46,14 @@ export abstract class Raster extends Graphic {
     }
   }
 
+  public cloneRasterOptions(): RasterOptions {
+    return {
+      color: this.color ? this.color.clone() : null,
+      strokeColor: this.strokeColor ? this.strokeColor.clone() : null,
+      smoothing: this.smoothing
+    };
+  }
+
   /**
    * Gets whether the graphic is dirty
    */
@@ -156,7 +164,6 @@ export abstract class Raster extends Graphic {
   }
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
-    // ctx.scale(1/window.devicePixelRatio, 1/window.devicePixelRatio);
     ctx.imageSmoothingEnabled = this.smoothing;
     ctx.strokeStyle = this.strokeColor?.toString();
     ctx.fillStyle = this.color?.toString();

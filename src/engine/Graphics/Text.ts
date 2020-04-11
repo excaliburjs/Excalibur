@@ -19,6 +19,15 @@ export class Text extends Raster {
     this.flagDirty();
   }
 
+  public clone(): Text {
+    return new Text({
+      text: this.text.slice(),
+      font: this.font.clone(),
+      ...this.cloneGraphicOptions(),
+      ...this.cloneRasterOptions()
+    });
+  }
+
   // private _metrics: TextMetrics;
   private _text: string;
   public get text() {

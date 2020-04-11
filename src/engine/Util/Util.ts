@@ -67,7 +67,7 @@ export function extend() {
   const assignExists = typeof (<any>Object).assign === 'function';
   let merge = null;
   if (!assignExists) {
-    merge = function(obj: any) {
+    merge = function (obj: any) {
       for (const prop in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, prop)) {
           // If deep merge and property is an object, merge properties
@@ -423,3 +423,5 @@ export class Collection<T> {
 export function fail(message: never): never {
   throw new Error(message);
 }
+
+export const range = (from: number, to: number) => [...Array(to + 1).keys()].slice(from);

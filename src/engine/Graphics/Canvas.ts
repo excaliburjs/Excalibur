@@ -14,12 +14,20 @@ export interface CanvasOptions {
  * **Low performance API**
  */
 export class Canvas extends Raster {
-  constructor(public options: GraphicOptions & CanvasOptions) {
-    super(options);
+  constructor(private _options: GraphicOptions & CanvasOptions) {
+    super(_options);
+  }
+
+  public clone(): Canvas {
+    return new Canvas({
+      ...this._options,
+      ...this.cloneGraphicOptions(),
+      ...this.cloneRasterOptions()
+    });
   }
 
   execute(ctx: CanvasRenderingContext2D): void {
-    this.options.drawHandler(ctx, 0);
+    this._options.drawHandler(ctx, 0);
     this.flagDirty();
   }
 }

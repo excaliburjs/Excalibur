@@ -4,6 +4,7 @@ import { clamp } from '../Util/Util';
 import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
 import { Eventable } from '../Interfaces/Evented';
 import { EventDispatcher } from '../EventDispatcher';
+import { SpriteSheet } from './SpriteSheet';
 
 export enum AnimationStrategy {
   /**
@@ -56,6 +57,32 @@ export class Animation extends Graphic implements Eventable<Frame | Animation> {
     this.frameDuration = options.frameDuration ?? this.frameDuration;
 
     this.goToFrame(0);
+  }
+
+  public clone(): Animation {
+    return new Animation({
+      frames: this.frames.map((f) => ({ ...f })),
+      frameDuration: this.frameDuration,
+      strategy: this.strategy,
+      ...this.cloneGraphicOptions()
+    });
+  }
+
+  public static fromSpriteSheet(
+    spriteSheet: SpriteSheet,
+    frameIndices: number[],
+    duration: number,
+    strategy: AnimationStrategy = AnimationStrategy.Loop
+  ): Animation {
+    return new Animation({
+      frames: spriteSheet.sprites
+        .filter((_, index) => frameIndices.indexOf(index) > -1)
+        .map((f) => ({
+          graphic: f,
+          duration: duration
+        })),
+      strategy: strategy
+    });
   }
 
   public get tags() {

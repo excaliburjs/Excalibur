@@ -16,6 +16,15 @@ export class Rect extends Raster {
     this.rasterize();
   }
 
+  public clone(): Rect {
+    return new Rect({
+      width: this.width,
+      height: this.height,
+      ...this.cloneGraphicOptions(),
+      ...this.cloneRasterOptions()
+    });
+  }
+
   execute(ctx: CanvasRenderingContext2D): void {
     ctx.fillRect(0, 0, this.width, this.height);
   }

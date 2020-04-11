@@ -110,6 +110,17 @@ export abstract class Graphic {
     }
   }
 
+  public cloneGraphicOptions(): GraphicOptions {
+    return {
+      origin: this.origin ? this.origin.clone() : null,
+      flipHorizontal: this.flipHorizontal,
+      flipVertical: this.flipVertical,
+      rotation: this.rotation,
+      opacity: this.opacity,
+      scale: this.scale ? this.scale.clone() : null
+    };
+  }
+
   private _width: number = 0;
 
   /**
@@ -213,4 +224,9 @@ export abstract class Graphic {
    * Return the source native source image for the graphic
    */
   abstract getSource(): ImageSource;
+
+  /**
+   * Returns a new instance of the graphic that has the same properties
+   */
+  abstract clone(): Graphic;
 }

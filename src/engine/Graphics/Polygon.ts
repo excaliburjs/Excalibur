@@ -33,6 +33,14 @@ export class Polygon extends Raster {
     this.rasterize();
   }
 
+  public clone(): Polygon {
+    return new Polygon({
+      points: this.points.map((p) => p.clone()),
+      ...this.cloneGraphicOptions(),
+      ...this.cloneRasterOptions()
+    });
+  }
+
   execute(ctx: CanvasRenderingContext2D): void {
     if (this.points && this.points.length) {
       ctx.beginPath();

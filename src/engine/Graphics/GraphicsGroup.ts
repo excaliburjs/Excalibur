@@ -1,8 +1,12 @@
 import { Vector } from '../Algebra';
-import { Graphic } from './Graphic';
+import { Graphic, GraphicOptions } from './Graphic';
 import { Animation } from './Animation';
 import { BoundingBox } from '../Collision/Index';
 import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
+
+export interface GraphicsGroupingOptions {
+  members: GraphicsGrouping[];
+}
 
 export interface GraphicsGrouping {
   pos: Vector;
@@ -19,14 +23,21 @@ export class GraphicsGroup extends Graphic {
   public get image(): HTMLImageElement | HTMLCanvasElement {
     return null;
   }
-  constructor(members: GraphicsGrouping[]) {
-    super();
-    this.members = members;
+  constructor(options: GraphicsGroupingOptions & GraphicOptions) {
+    super(options);
+    this.members = options.members;
     let groupBB: BoundingBox = this.members.reduce((bb, member) => {
       return bb.combine(member.graphic.localBounds.translate(member.pos));
     }, new BoundingBox());
     this.width = groupBB.width;
     this.height = groupBB.height;
+  }
+
+  public clone(): GraphicsGroup {
+    return new GraphicsGroup({
+      members: [...this.members],
+      ...this.cloneGraphicOptions()
+    });
   }
 
   private _isAnimationOrGroup(graphic: Graphic): graphic is Animation | GraphicsGroup {

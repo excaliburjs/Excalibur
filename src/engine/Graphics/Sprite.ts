@@ -77,7 +77,8 @@ export class Sprite extends Graphic {
     return new Sprite({
       image: this.rawImage,
       sourceView: { ...this.sourceView },
-      destSize: { ...this.destSize }
+      destSize: { ...this.destSize },
+      ...this.cloneGraphicOptions()
     });
   }
 }
