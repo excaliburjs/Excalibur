@@ -18,7 +18,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added the `ex.vec(x, y)` shorthand for creating vectors.
   ([#1340](https://github.com/excaliburjs/Excalibur/issues/1340))
 - Added new event `processed` to `Sound` that passes processed `string | AudioBuffer` data. ([#1474](https://github.com/excaliburjs/Excalibur/pull/1474))
-- Added new property `duration` to `Sound` and `AudioInstance` that exposes the track's duration in seconds. ([#1474](https://github.com/excaliburjs/Excalibur/pull/1474))
+- Added new property `duration` to `Sound` and `AudioInstance` that exposes the track's duration in seconds when Web Audio API is used. ([#1474](https://github.com/excaliburjs/Excalibur/pull/1474))
 
 ### Changed
 
