@@ -420,50 +420,42 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * @param delta  The number of milliseconds since the last draw
    */
   public draw(_ctx: CanvasRenderingContext2D, _delta: number) {
-    /* this._predraw(ctx, delta);
-    ctx.save();
-    this._graphicsContext.save();
-
-    if (this.camera) {
-      this.camera.draw(this._graphicsContext);
-    }
-
-    let i: number, len: number;
-
-    for (i = 0, len = this.tileMaps.length; i < len; i++) {
-      this.tileMaps[i].draw(ctx, delta);
-    }
-
-    const sortedChildren = this._sortedDrawingTree.list();
-    for (i = 0, len = sortedChildren.length; i < len; i++) {
-      // only draw actors that are visible and on screen
-      if (sortedChildren[i].visible && !sortedChildren[i].isOffScreen) {
-        sortedChildren[i].draw(ctx, delta);
-      }
-    }
-
-    if (this._engine && this._engine.isDebug) {
-      ctx.strokeStyle = 'yellow';
-      this.debugDraw(ctx);
-    }
-
-    this._graphicsContext.restore();
-    ctx.restore();
-
-    for (i = 0, len = this.screenElements.length; i < len; i++) {
-      // only draw ui actors that are visible and on screen
-      if (this.screenElements[i].visible) {
-        this.screenElements[i].draw(ctx, delta);
-      }
-    }
-
-    if (this._engine && this._engine.isDebug) {
-      for (i = 0, len = this.screenElements.length; i < len; i++) {
-        this.screenElements[i].debugDraw(ctx);
-      }
-    }
-    this._postdraw(ctx, delta);
-    this._graphicsContext.flush();*/
+    // this._predraw(ctx, delta);
+    // ctx.save();
+    // this._graphicsContext.save();
+    // if (this.camera) {
+    //   this.camera.draw(this._graphicsContext);
+    // }
+    // let i: number, len: number;
+    // for (i = 0, len = this.tileMaps.length; i < len; i++) {
+    //   this.tileMaps[i].draw(ctx, delta);
+    // }
+    // const sortedChildren = this._sortedDrawingTree.list();
+    // for (i = 0, len = sortedChildren.length; i < len; i++) {
+    //   // only draw actors that are visible and on screen
+    //   if (sortedChildren[i].visible && !sortedChildren[i].isOffScreen) {
+    //     sortedChildren[i].draw(ctx, delta);
+    //   }
+    // }
+    // if (this._engine && this._engine.isDebug) {
+    //   ctx.strokeStyle = 'yellow';
+    //   this.debugDraw(ctx);
+    // }
+    // this._graphicsContext.restore();
+    // ctx.restore();
+    // for (i = 0, len = this.screenElements.length; i < len; i++) {
+    //   // only draw ui actors that are visible and on screen
+    //   if (this.screenElements[i].visible) {
+    //     this.screenElements[i].draw(ctx, delta);
+    //   }
+    // }
+    // if (this._engine && this._engine.isDebug) {
+    //   for (i = 0, len = this.screenElements.length; i < len; i++) {
+    //     this.screenElements[i].debugDraw(ctx);
+    //   }
+    // }
+    // this._postdraw(ctx, delta);
+    // this._graphicsContext.flush();
   }
 
   /**

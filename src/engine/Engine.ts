@@ -1279,9 +1279,9 @@ O|===|* >________________>\n\
     }
 
     this.graphicsContext.backgroundColor = this.backgroundColor;
-    ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-    ctx.fillStyle = this.backgroundColor.toString();
-    ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+    // ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+    // ctx.fillStyle = this.backgroundColor.toString();
+    // ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
 
     this.currentScene.draw(this.ctx, delta);
 
