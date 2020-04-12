@@ -15,8 +15,9 @@ export class GraphicsSystem {
 
       this.ctx.save();
       this._applyEntityTransform(actor);
+      const [x, y] = this._applyActorAnchor(actor);
       actor.graphics.update(delta);
-      actor.graphics.draw(this.ctx, 0, 0);
+      actor.graphics.draw(this.ctx, x, y);
       this.ctx.restore();
 
       this._popCameraTransform(actor);
@@ -32,6 +33,19 @@ export class GraphicsSystem {
     this.ctx.translate(actor.pos.x, actor.pos.y);
     this.ctx.rotate(actor.rotation);
     this.ctx.scale(actor.scale.x, actor.scale.y);
+  }
+
+  private _applyActorAnchor(actor: Actor): [number, number] {
+    this.ctx.translate(-(actor.width * actor.anchor.x), -(actor.height * actor.anchor.y));
+
+    const gfx = actor.graphics.current;
+    if (gfx) {
+      // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
+      const offsetX = (actor.width - gfx.width * gfx.scale.x) * actor.anchor.x;
+      const offsetY = (actor.height - gfx.height * gfx.scale.y) * actor.anchor.y;
+      return [offsetX, offsetY];
+    }
+    return [0, 0];
   }
 
   private _pushCameraTransform(actor: Actor) {
