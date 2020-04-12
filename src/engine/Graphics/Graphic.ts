@@ -187,7 +187,8 @@ export abstract class Graphic {
     this._rotate(ex);
     ex.scale(this.scale.x, this.scale.y);
     this._flip(ex);
-    ex.opacity = this.opacity;
+    // it is important to multiply alphas so graphics respect the current context
+    ex.opacity = ex.opacity * this.opacity;
   }
 
   protected _rotate(ex: ExcaliburGraphicsContext) {

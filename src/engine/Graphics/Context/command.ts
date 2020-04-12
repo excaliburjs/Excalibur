@@ -10,6 +10,7 @@ export interface DrawCommand {
 
 export class DrawImageCommand implements DrawCommand {
   public image: Graphic;
+  public opacity: number = 1;
   public width: number = 0;
   public height: number = 0;
   public dest: [number, number] = [0, 0]; // x, y
@@ -68,12 +69,13 @@ export class DrawImageCommand implements DrawCommand {
     this._geom[index++] = [this.dest[0] + this.width, this.dest[1] + this.height];
   }
 
-  applyTransform(transform: Matrix): void {
+  applyTransform(transform: Matrix, opacity: number): void {
     if (transform) {
       for (let i = 0; i < this._geom.length; i++) {
         this._geom[i] = transform.multv(this._geom[i]);
       }
     }
+    this.opacity = opacity;
   }
 
   public get geometry() {

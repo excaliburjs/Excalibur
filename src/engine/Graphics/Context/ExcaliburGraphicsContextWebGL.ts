@@ -9,6 +9,7 @@ import { Graphic } from '../Graphic';
 import { Vector } from '../../Algebra';
 import { Color } from '../../Drawing/Color';
 import { ensurePowerOfTwo } from './webgl-util';
+import { StateStack } from './state-stack';
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   /**
@@ -18,6 +19,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   public __gl: WebGLRenderingContext;
   private _textureManager = new TextureManager(this);
   private _stack = new MatrixStack();
+  private _state = new StateStack();
   private _ortho!: Matrix;
 
   private _vertBuffer: WebGLBuffer | null = null;
@@ -36,9 +38,16 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   // TODO
   public snapToPixel: boolean = true;
-  public opacity: number = 1;
 
   public backgroundColor: Color = Color.ExcaliburBlue;
+
+  public get opacity(): number {
+    return this._state.current.opacity;
+  }
+
+  public set opacity(value: number) {
+    this._state.current.opacity = value;
+  }
 
   public get width() {
     return this.__gl.canvas.width;
@@ -148,7 +157,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   ): void {
     this._textureManager.updateFromGraphic(graphic);
     const command = new DrawImageCommand(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
-    command.applyTransform(this._stack.transform);
+    command.applyTransform(this._stack.transform, this._state.current.opacity);
 
     if (this._batches.length === 0) {
       this._batches.push(new Batch(this._textureManager, this._maxDrawingsPerBatch, this._shaderTextureMax));
@@ -179,6 +188,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     for (let i = 0; i < drawings.length * vertexSize; i += vertexSize) {
       let {
         image,
+        opacity,
         dest: [x, y],
         view: [sx, sy, sw, sh],
         width,
@@ -218,7 +228,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // texture id
       this._verts[index++] = textureId;
       // opacity
-      this._verts[index++] = image.opacity;
+      this._verts[index++] = opacity;
 
       // (0, 1)
       this._verts[index++] = geometry[1][0]; // x + 0 * width;
@@ -229,7 +239,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // texture id
       this._verts[index++] = textureId;
       // opacity
-      this._verts[index++] = image.opacity;
+      this._verts[index++] = opacity;
 
       // (1, 0)
       this._verts[index++] = geometry[2][0]; // x + 1 * width;
@@ -240,7 +250,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // texture id
       this._verts[index++] = textureId;
       // opacity
-      this._verts[index++] = image.opacity;
+      this._verts[index++] = opacity;
 
       // (1, 0)
       this._verts[index++] = geometry[3][0]; // x + 1 * width;
@@ -251,7 +261,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // texture id
       this._verts[index++] = textureId;
       // opacity
-      this._verts[index++] = image.opacity;
+      this._verts[index++] = opacity;
 
       // (0, 1)
       this._verts[index++] = geometry[4][0]; // x + 0 * width;
@@ -262,7 +272,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // texture id
       this._verts[index++] = textureId;
       // opacity
-      this._verts[index++] = image.opacity;
+      this._verts[index++] = opacity;
 
       // (1, 1)
       this._verts[index++] = geometry[5][0]; // x + 1 * width;
@@ -273,7 +283,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // texture id
       this._verts[index++] = textureId;
       // opacity
-      this._verts[index++] = image.opacity;
+      this._verts[index++] = opacity;
     }
   }
 
@@ -295,10 +305,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public save(): void {
     this._stack.save();
+    this._state.save();
   }
 
   public restore(): void {
     this._stack.restore();
+    this._state.restore();
   }
 
   public translate(x: number, y: number): void {
@@ -327,6 +339,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   flush() {
     const gl = this.__gl;
+
+    this.clear();
 
     for (let batch of this._batches) {
       // Build all geometry and ship to GPU
