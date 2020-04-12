@@ -4,6 +4,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "experimentalDecorators": true,
+    "downlevelIteration": true,
     "target": "es5",
     "module": "es2015",
     "declaration": true,

@@ -90,6 +90,11 @@ export interface ExcaliburGraphicsContext {
   scale(x: number, y: number): void;
 
   /**
+   * Clears the screen with the current background color
+   */
+  clear(): void;
+
+  /**
    * Flushes the batched draw calls to the screen
    */
   flush(): void;

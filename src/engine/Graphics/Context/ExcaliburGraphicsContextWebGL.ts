@@ -52,7 +52,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   constructor(_ctx: WebGLRenderingContext) {
     this.__gl = _ctx;
     // TODO Not sure where the magic 30 came from...
-    this._verts = new Float32Array(30 * this._maxDrawingsPerBatch);
+    // TODO I think this is still wrong
+    this._verts = new Float32Array(20 * this._maxDrawingsPerBatch);
     this._init();
   }
 
@@ -70,7 +71,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     // TODO is viewport automagic?
-    // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
     // TODO make a parameter
     // TODO make a function
@@ -91,7 +92,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     const uvSize = 2 * 4; // [u, v]
     const textureIndexSize = 1 * 4; // [textureId]
     const opacitySize = 1 * 4; // [opacity]
-    // 20 bytes per coordinate
+    // 24 bytes per coordinate
 
     const totalCoordSize = vertexSize + textureIndexSize + uvSize + opacitySize;
 
@@ -115,6 +116,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       texturesData[i] = i;
     }
     gl.uniform1iv(shader.texturesUniform, texturesData);
+
+    // Orthographic projection for the viewport
+    const mat = this._ortho;
+    gl.uniformMatrix4fv(this._shader.matrixUniform, false, mat.data);
   }
 
   drawImage(graphic: Graphic, x: number, y: number): void;
@@ -181,8 +186,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         geometry
       } = drawings[i / vertexSize];
 
-      let potWidth = ensurePowerOfTwo(width || image.width);
-      let potHeight = ensurePowerOfTwo(height || image.height);
+      let potWidth = ensurePowerOfTwo(image.getSource().width || width);
+      let potHeight = ensurePowerOfTwo(image.getSource().height || height); // raw image is what is sent to gpu
       let textureId = 0;
       // TODO should this be handled by the batch
       if (this._textureManager.hasWebGLTexture(image)) {
@@ -198,10 +203,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // TODO we need to validate drawImage before we get here with an error :O
 
       // Modifying the images to poweroftwo images warp the UV coordinates
-      let uvx0 = ((sx / sw) * potWidth) / potWidth;
-      let uvy0 = ((sy / sh) * potHeight) / potHeight;
-      let uvx1 = sw / potWidth;
-      let uvy1 = sh / potHeight;
+      let uvx0 = sx / potWidth;
+      let uvy0 = sy / potHeight;
+      let uvx1 = (sx + sw) / potWidth;
+      let uvy1 = (sy + sh) / potHeight;
 
       // Quad update
       // (0, 0)
@@ -312,17 +317,16 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._stack.transform = matrix;
   }
 
-  flush() {
+  clear() {
     const gl = this.__gl;
-
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.
     gl.clear(gl.COLOR_BUFFER_BIT);
+  }
 
-    // Orthographic projection for the viewport
-    const mat = this._ortho;
-    gl.uniformMatrix4fv(this._shader.matrixUniform, false, mat.data);
+  flush() {
+    const gl = this.__gl;
 
     for (let batch of this._batches) {
       // Build all geometry and ship to GPU

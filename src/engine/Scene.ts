@@ -29,6 +29,7 @@ import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
 import { Body } from './Collision/Body';
 import { ExcaliburGraphicsContext } from './Graphics';
+import { GraphicsSystem } from './Graphics/GraphicsSystem';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -69,6 +70,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   private _engine: Engine;
 
+  private _graphicsSystem: GraphicsSystem;
   private _graphicsContext: ExcaliburGraphicsContext;
 
   /**
@@ -227,6 +229,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     if (!this.isInitialized) {
       this._engine = engine;
       this._graphicsContext = engine.graphicsContext;
+      this._graphicsSystem = new GraphicsSystem(this._graphicsContext, this);
       if (this.camera) {
         this.camera.x = engine.halfDrawWidth;
         this.camera.y = engine.halfDrawHeight;
@@ -354,6 +357,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       this.triggers[i].update(engine, delta);
     }
 
+    // TODO with ECS this will be more formalized
+    this._graphicsSystem.update(this.actors.concat(this.screenElements), delta);
+
     this._collectActorStats(engine);
 
     engine.input.pointers.dispatchPointerEvents();
@@ -413,8 +419,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * @param ctx    The current rendering context
    * @param delta  The number of milliseconds since the last draw
    */
-  public draw(ctx: CanvasRenderingContext2D, delta: number) {
-    this._predraw(ctx, delta);
+  public draw(_ctx: CanvasRenderingContext2D, _delta: number) {
+    /* this._predraw(ctx, delta);
     ctx.save();
     this._graphicsContext.save();
 
@@ -457,7 +463,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       }
     }
     this._postdraw(ctx, delta);
-    this._graphicsContext.flush();
+    this._graphicsContext.flush();*/
   }
 
   /**

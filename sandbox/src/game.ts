@@ -42,13 +42,13 @@ var game = new ex.Engine({ width: 800, height: 600, canvasElementId: 'game', sup
 game.setAntialiasing(false);
 game.isDebug = true;
 
-var heartTex = new ex.Texture('../images/heart.png');
+var heartTex = new ex.Graphics.RawImage('../images/heart.png');
 var heartRawImage = new ex.Graphics.RawImage('../images/heart.png');
-var imageRun = new ex.Texture('../images/PlayerRun.png');
-var imageJump = new ex.Texture('../images/PlayerJump.png');
+var imageRun = new ex.Graphics.RawImage('../images/PlayerRun.png');
+var imageJump = new ex.Graphics.RawImage('../images/PlayerJump.png');
 var imageRun2 = new ex.Graphics.RawImage('../images/PlayerRun.png');
-var imageBlocks = new ex.Texture('../images/BlockA0.png');
-var spriteFontImage = new ex.Texture('../images/SpriteFont.png');
+var imageBlocks = new ex.Graphics.RawImage('../images/BlockA0.png');
+var spriteFontImage = new ex.Graphics.RawImage('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
 
 jump.volume = 0.3;
@@ -72,14 +72,11 @@ ex.Physics.acc = new ex.Vector(0, 800); // global accel
 // Add some UI
 //var heart = new ex.ScreenElement(0, 0, 20, 20);
 var heart = new ex.ScreenElement({ x: 0, y: 0, width: 20 * 2, height: 20 * 2 });
-var heartSprite = heartTex.asSprite();
+var heartSprite = ex.Graphics.Sprite.from(heartTex);
 heartSprite.scale.setTo(2, 2);
 // heart.addDrawing(heartSprite);
 var newSprite = new ex.Graphics.Sprite({ image: heartRawImage });
 newSprite.scale = ex.vec(2, 2);
-// newSprite.flipVertical = true;
-// newSprite.flipHorizontal = true;
-// newSprite.paint();
 
 var circle = new ex.Graphics.Circle({
   radius: 10,
@@ -133,36 +130,38 @@ var text = new ex.Graphics.Text({
 });
 text.showDebug = false;
 
-var group = new ex.Graphics.GraphicsGroup([
-  {
-    graphic: newSprite,
-    pos: ex.vec(0, 0)
-  },
-  {
-    graphic: newSprite,
-    pos: ex.vec(50, 0)
-  },
-  {
-    graphic: newSprite,
-    pos: ex.vec(0, 50)
-  },
-  {
-    graphic: text,
-    pos: ex.vec(100, 20)
-  },
-  {
-    graphic: circle,
-    pos: ex.vec(50, 50)
-  },
-  {
-    graphic: anim,
-    pos: ex.vec(200, 200)
-  },
-  {
-    graphic: triangle,
-    pos: ex.vec(0, 200)
-  }
-]);
+var group = new ex.Graphics.GraphicsGroup({
+  members: [
+    {
+      graphic: newSprite,
+      pos: ex.vec(0, 0)
+    },
+    {
+      graphic: newSprite,
+      pos: ex.vec(50, 0)
+    },
+    {
+      graphic: newSprite,
+      pos: ex.vec(0, 50)
+    },
+    {
+      graphic: text,
+      pos: ex.vec(100, 20)
+    },
+    {
+      graphic: circle,
+      pos: ex.vec(50, 50)
+    },
+    {
+      graphic: anim,
+      pos: ex.vec(200, 200)
+    },
+    {
+      graphic: triangle,
+      pos: ex.vec(0, 200)
+    }
+  ]
+});
 
 heart.graphics.add(group);
 heart.pos = ex.vec(10, 10);
@@ -171,75 +170,79 @@ game.add(heart);
 // Turn on debug diagnostics
 game.isDebug = false;
 //var blockSprite = new ex.Sprite(imageBlocks, 0, 0, 65, 49);
-var blockSprite = new ex.Sprite({
+var blockSprite = new ex.Graphics.Sprite({
   image: imageBlocks,
-  x: 0,
-  y: 0,
-  width: 65,
-  height: 49
+  destSize: {
+    width: 65,
+    height: 49
+  }
 });
 // Create spritesheet
 //var spriteSheetRun = new ex.SpriteSheet(imageRun, 21, 1, 96, 96);
-var spriteSheetRun = new ex.SpriteSheet({
+var spriteSheetRun = ex.Graphics.SpriteSheet.fromGrid({
   image: imageRun,
-  columns: 21,
-  rows: 1,
-  spWidth: 96,
-  spHeight: 96
+  grid: {
+    rows: 1,
+    columns: 21,
+    spriteHeight: 96,
+    spriteWidth: 96
+  }
 });
 //var spriteSheetJump = new ex.SpriteSheet(imageJump, 21, 1, 96, 96);
-var spriteSheetJump = new ex.SpriteSheet({
+var spriteSheetJump = ex.Graphics.SpriteSheet.fromGrid({
   image: imageJump,
-  columns: 21,
-  rows: 1,
-  spWidth: 96,
-  spHeight: 96
+  grid: {
+    columns: 21,
+    rows: 1,
+    spriteWidth: 96,
+    spriteHeight: 96
+  }
 });
 var tileBlockWidth = 64,
   tileBlockHeight = 48,
-  spriteTiles = new ex.SpriteSheet(imageBlocks, 1, 1, tileBlockWidth, tileBlockHeight);
+  spriteTiles = new ex.Graphics.SpriteSheet({ image: imageBlocks, sprites: [ex.Graphics.Sprite.from(imageBlocks)] });
 
 // create a collision map
 //var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
-var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
-tileMap.registerSpriteSheet('default', spriteTiles);
-tileMap.data.forEach(function (cell: ex.Cell) {
-  cell.solid = true;
-  cell.pushSprite(new ex.TileSprite('default', 0));
-});
-game.add(tileMap);
+// var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
+// tileMap.registerSpriteSheet('default', spriteTiles);
+// tileMap.data.forEach(function (cell: ex.Cell) {
+//   cell.solid = true;
+//   cell.pushSprite(new ex.TileSprite('default', 0));
+// });
+// game.add(tileMap);
 
 // Create spriteFont
 //var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
-var spriteFont = new ex.SpriteFont({
-  image: spriteFontImage,
-  alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
-  caseInsensitive: true,
-  columns: 16,
-  rows: 3,
-  spWidth: 16,
-  spHeight: 16
-});
-//var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
-var label = new ex.Label({
-  text: 'Hello World',
-  x: 100,
-  y: 100,
-  spriteFont: spriteFont
-});
-game.add(label);
+// var spriteFont = new ex.SpriteFont({
+//   image: spriteFontImage,
+//   alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+//   caseInsensitive: true,
+//   columns: 16,
+//   rows: 3,
+//   spWidth: 16,
+//   spHeight: 16
+// });
+// //var label = new ex.Label('Hello World', 100, 100, null, spriteFont);
+// var label = new ex.Label({
+//   text: 'Hello World',
+//   x: 100,
+//   y: 100,
+//   spriteFont: spriteFont
+// });
+// game.add(label);
 
 // Retrieve animations for blocks from sprite sheet
-var blockAnimation = spriteTiles.getSprite(0).clone();
-blockAnimation.addEffect(new ex.Effects.Grayscale());
+var blockAnimation = spriteTiles.sprites[0].clone();
+// blockAnimation.addEffect(new ex.Effects.Grayscale());
 // Animation 'enum' to prevent 'stringly' typed misspelling errors
 enum Animations {
-  Block,
-  Idle,
-  Left,
-  Right,
-  JumpRight,
-  JumpLeft
+  Block = 'Block',
+  Idle = 'Idle',
+  Left = 'Left',
+  Right = 'Right',
+  JumpRight = 'JumpRight',
+  JumpLeft = 'JumpLeft'
 }
 
 var currentX = 0;
@@ -258,32 +261,37 @@ for (var i = 0; i < 36; i++) {
   //var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
   //block.collisionType = ex.CollisionType.Fixed;
   block.body.collider.group = blockGroup;
-  block.addDrawing(Animations.Block, blockAnimation);
+  block.graphics.add(blockAnimation);
 
   game.add(block);
 }
 
 var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
+platform.graphics.add(new ex.Graphics.Rect({ color: new ex.Color(0, 200, 0), width: 200, height: 50 }));
 platform.body.collider.type = ex.CollisionType.Fixed;
 platform.actions.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
 game.add(platform);
 
 var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
+platform2.graphics.add(new ex.Graphics.Rect({ color: new ex.Color(0, 0, 140), width: 200, height: 20 }));
 platform2.body.collider.type = ex.CollisionType.Fixed;
 platform2.actions.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100).repeatForever();
 game.add(platform2);
 
 var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
+platform3.graphics.add(new ex.Graphics.Rect({ color: new ex.Color(50, 0, 100), width: 200, height: 20 }));
 platform3.body.collider.type = ex.CollisionType.Fixed;
 platform3.actions.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
 game.add(platform3);
 
 var platform4 = new ex.Actor(75, 300, 100, 50, ex.Color.Azure);
+platform4.graphics.add(new ex.Graphics.Rect({ color: ex.Color.Azure, width: 100, height: 50 }));
 platform4.body.collider.type = ex.CollisionType.Fixed;
 game.add(platform4);
 
 // Test follow api
 var follower = new ex.Actor(50, 100, 20, 20, ex.Color.Black);
+follower.graphics.add(new ex.Graphics.Rect({ color: ex.Color.Black, width: 20, height: 20 }));
 follower.body.collider.type = ex.CollisionType.PreventCollision;
 game.add(follower);
 
@@ -321,38 +329,41 @@ var playerLabel = new ex.Label({
   // spriteFont: spriteFont
 });
 
+// TODO need a good way of just adding a graphic to every drawing in graphics
+var playerText = new ex.Graphics.Text({
+  text: 'My Player',
+  font: new ex.Graphics.Font({
+    family: 'Times New Roman'
+  })
+});
+
 player.add(playerLabel);
 
 // Retrieve animations for player from sprite sheet
-var left_sprites = spriteSheetRun.getAnimationBetween(game, 1, 11, 50).sprites;
-var left = new ex.Animation({
-  engine: game,
-  speed: 50,
-  sprites: left_sprites
-});
+var left = ex.Graphics.Animation.fromSpriteSheet(spriteSheetRun, ex.Util.range(1, 10), 50);
 // var left = new ex.Animation(game, left_sprites, 50);
-var right = spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
+var right = left.clone(); // spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
 right.flipHorizontal = true;
-var idle = spriteSheetRun.getAnimationByIndices(game, [0], 200);
+var idle = ex.Graphics.Animation.fromSpriteSheet(spriteSheetRun, [0], 200); // spriteSheetRun.getAnimationByIndices(game, [0], 200);
 //idle.anchor.setTo(.5, .5);
-var jumpLeft = spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
-var jumpRight = spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
-left.loop = true;
-right.loop = true;
-idle.loop = true;
+var jumpLeft = ex.Graphics.Animation.fromSpriteSheet(spriteSheetJump, ex.Util.range(0, 10), 100, ex.Graphics.AnimationStrategy.Freeze); // spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
+var jumpRight = ex.Graphics.Animation.fromSpriteSheet(spriteSheetJump, ex.Util.range(11, 21), 100, ex.Graphics.AnimationStrategy.Freeze); // spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
+// left.loop = true;
+// right.loop = true;
+// idle.loop = true;
 
-jumpRight.freezeFrame = 0;
-jumpLeft.freezeFrame = 11;
+// jumpRight.freezeFrame = 0;
+// jumpLeft.freezeFrame = 11;
 
 // Add animations to player
-player.addDrawing(Animations.Left, left);
-player.addDrawing(Animations.Right, right);
-player.addDrawing(Animations.Idle, idle);
-player.addDrawing(Animations.JumpRight, jumpRight);
-player.addDrawing(Animations.JumpLeft, jumpLeft);
+player.graphics.add(Animations.Left, left);
+player.graphics.add(Animations.Right, right);
+player.graphics.add(Animations.Idle, idle);
+player.graphics.add(Animations.JumpRight, jumpRight);
+player.graphics.add(Animations.JumpLeft, jumpLeft);
 
 // Set default animation
-player.setDrawing(Animations.Idle);
+player.graphics.show(Animations.Idle);
 
 var inAir = true;
 var groundSpeed = 150;
@@ -363,7 +374,7 @@ player.on('postupdate', () => {
   if (game.input.keyboard.isHeld(ex.Input.Keys.Left)) {
     direction = -1;
     if (!inAir) {
-      player.setDrawing(Animations.Left);
+      player.graphics.show(Animations.Left);
     }
     if (inAir) {
       player.vel.x = -airSpeed;
@@ -373,7 +384,7 @@ player.on('postupdate', () => {
   } else if (game.input.keyboard.isHeld(ex.Input.Keys.Right)) {
     direction = 1;
     if (!inAir) {
-      player.setDrawing(Animations.Right);
+      player.graphics.show(Animations.Right);
     }
     if (inAir) {
       player.vel.x = airSpeed;
@@ -387,9 +398,9 @@ player.on('postupdate', () => {
       player.vel.y = -jumpSpeed;
       inAir = true;
       if (direction === 1) {
-        player.setDrawing(Animations.JumpRight);
+        player.graphics.show(Animations.JumpRight);
       } else {
-        player.setDrawing(Animations.JumpLeft);
+        player.graphics.show(Animations.JumpLeft);
       }
       jump.play();
     }
@@ -400,7 +411,7 @@ game.input.keyboard.on('up', (e?: ex.Input.KeyEvent) => {
   if (inAir) return;
 
   if (e.key === ex.Input.Keys.Left || e.key === ex.Input.Keys.Right) {
-    player.setDrawing(Animations.Idle);
+    player.graphics.show(Animations.Idle);
   }
 });
 
@@ -456,7 +467,7 @@ player.on('precollision', (data?: ex.PreCollisionEvent) => {
     isColliding = true;
 
     if (inAir) {
-      player.setDrawing(Animations.Idle);
+      player.graphics.show(Animations.Idle);
     }
     inAir = false;
     if (
@@ -508,7 +519,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
   if (keyDown.key === ex.Input.Keys.B) {
     var block = new ex.Actor(currentX, 350, 44, 50, color);
     currentX += 46;
-    block.addDrawing(Animations.Block, blockAnimation);
+    block.graphics.add(blockAnimation);
     game.add(block);
   }
   if (keyDown.key === ex.Input.Keys.D) {
@@ -534,29 +545,29 @@ game.add(player);
 
 // Add particle emitter
 var sprite = blockSprite.clone();
-sprite.anchor = new ex.Vector(0.5, 0.5);
-var emitter = new ex.ParticleEmitter({
-  pos: new ex.Vector(100, 300),
-  width: 2,
-  height: 2,
-  minVel: 417,
-  maxVel: 589,
-  minAngle: Math.PI,
-  maxAngle: Math.PI * 2,
-  isEmitting: false,
-  emitRate: 494,
-  opacity: 0.84,
-  fadeFlag: true,
-  particleLife: 2465,
-  maxSize: 1.5,
-  minSize: 0.1,
-  acceleration: new ex.Vector(0, 460),
-  beginColor: ex.Color.Red,
-  endColor: ex.Color.Yellow,
-  particleSprite: sprite,
-  particleRotationalVelocity: Math.PI / 10,
-  randomRotation: true
-});
+// sprite.anchor = new ex.Vector(0.5, 0.5);
+// var emitter = new ex.ParticleEmitter({
+//   pos: new ex.Vector(100, 300),
+//   width: 2,
+//   height: 2,
+//   minVel: 417,
+//   maxVel: 589,
+//   minAngle: Math.PI,
+//   maxAngle: Math.PI * 2,
+//   isEmitting: false,
+//   emitRate: 494,
+//   opacity: 0.84,
+//   fadeFlag: true,
+//   particleLife: 2465,
+//   maxSize: 1.5,
+//   minSize: 0.1,
+//   acceleration: new ex.Vector(0, 460),
+//   beginColor: ex.Color.Red,
+//   endColor: ex.Color.Yellow,
+//   sprite: sprite,
+//   particleRotationalVelocity: Math.PI / 10,
+//   randomRotation: true
+// });
 // var emitter = new ex.ParticleEmitter(100, 300, 2, 2);
 // emitter.minVel = 417;
 // emitter.maxVel = 589;
@@ -576,49 +587,49 @@ var emitter = new ex.ParticleEmitter({
 // emitter.particleSprite.anchor = new ex.Vector(.5, .5);
 // emitter.particleRotationalVelocity = Math.PI / 10;
 // emitter.randomRotation = true;
-emitter.particleSprite.addEffect(new ex.Effects.Grayscale());
+// emitter.particleSprite.addEffect(new ex.Effects.Grayscale());
 
-game.add(emitter);
+// game.add(emitter);
 
-var exploding = false;
-var trigger = new ex.Trigger({
-  width: 100,
-  height: 100,
-  pos: new ex.Vector(400, 200),
-  repeat: -1,
-  target: player,
-  action: () => {
-    if (!exploding) {
-      exploding = true;
-      emitter.isEmitting = true;
-      camera.shake(10, 10, 2000);
-      game.addTimer(
-        new ex.Timer({
-          interval: 2000,
-          fcn: () => {
-            emitter.isEmitting = false;
-            exploding = false;
-          }
-        })
-      );
-    }
-  }
-});
+// var exploding = false;
+// var trigger = new ex.Trigger({
+//   width: 100,
+//   height: 100,
+//   pos: new ex.Vector(400, 200),
+//   repeat: -1,
+//   target: player,
+//   action: () => {
+//     if (!exploding) {
+//       exploding = true;
+//       emitter.isEmitting = true;
+//       camera.shake(10, 10, 2000);
+//       game.addTimer(
+//         new ex.Timer({
+//           interval: 2000,
+//           fcn: () => {
+//             emitter.isEmitting = false;
+//             exploding = false;
+//           }
+//         })
+//       );
+//     }
+//   }
+// });
 
-game.add(trigger);
+// game.add(trigger);
 
-game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
-  var c = tileMap.getCellByPoint(evt.worldPos.x, evt.worldPos.y);
-  if (c) {
-    if (c.solid) {
-      c.solid = false;
-      c.sprites.pop();
-    } else {
-      c.solid = true;
-      c.pushSprite(new ex.TileSprite('default', 0));
-    }
-  }
-});
+// game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
+//   var c = tileMap.getCellByPoint(evt.worldPos.x, evt.worldPos.y);
+//   if (c) {
+//     if (c.solid) {
+//       c.solid = false;
+//       c.sprites.pop();
+//     } else {
+//       c.solid = true;
+//       c.pushSprite(new ex.TileSprite('default', 0));
+//     }
+//   }
+// });
 
 game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
   if (evt.key == ex.Input.Keys.F) {

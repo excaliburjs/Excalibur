@@ -9,6 +9,7 @@ import * as Traits from './Traits/Index';
 import { Configurable } from './Configurable';
 import { Random } from './Math/Random';
 import { CollisionType } from './Collision/CollisionType';
+import * as Graphics from './Graphics';
 
 /**
  * An enum that represents the types of emitter nozzles
@@ -326,6 +327,7 @@ export class ParticleEmitterImpl extends Actor {
    * @warning Performance intensive
    */
   public particleSprite: Sprite = null;
+  public sprite: Graphics.Sprite = null;
 
   /**
    * Gets or sets the emitter type for the particle emitter

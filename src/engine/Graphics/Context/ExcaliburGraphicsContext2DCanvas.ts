@@ -141,6 +141,13 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this._ctx.scale(x, y);
   }
 
+  clear(): void {
+    // Clear frame
+    this._ctx.clearRect(0, 0, this.width, this.height);
+    this._ctx.fillStyle = this.backgroundColor.toString();
+    this._ctx.fillRect(0, 0, this.width, this.height);
+  }
+
   /**
    * Flushes the batched draw calls to the screen
    */
