@@ -86,6 +86,9 @@ export class TileMapImpl extends Class {
     const height = actor.pos.y + actor.height;
     const actorBounds = actor.body.collider.bounds;
     const overlaps: Vector[] = [];
+    if (actor.width <= 0 || actor.height <= 0) {
+      return null;
+    }
     // trace points for overlap
     for (let x = actorBounds.left; x <= width; x += Math.min(actor.width / 2, this.cellWidth / 2)) {
       for (let y = actorBounds.top; y <= height; y += Math.min(actor.height / 2, this.cellHeight / 2)) {
@@ -232,10 +235,10 @@ export class TileMapImpl extends Class {
     const solid = Color.Red;
     solid.a = 0.3;
     this.data
-      .filter(function(cell) {
+      .filter(function (cell) {
         return cell.solid;
       })
-      .forEach(function(cell) {
+      .forEach(function (cell) {
         ctx.fillStyle = solid.toString();
         ctx.fillRect(cell.x, cell.y, cell.width, cell.height);
       });
