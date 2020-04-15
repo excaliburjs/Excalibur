@@ -62,10 +62,10 @@ export class ChunkSystemTileMapImpl extends Class {
       throw new TypeError(`The chunkSize option must be a positive integer, ${config.chunkSize} was provided`);
     }
     if (config.rows <= 0 || !isSafeInteger(config.rows)) {
-      throw new TypeError(`The maxRows option must be a positive integer, ${config.rows} was provided`);
+      throw new TypeError(`The rows option must be a positive integer, ${config.rows} was provided`);
     }
     if (config.cols <= 0 || !isSafeInteger(config.cols)) {
-      throw new TypeError(`The maxCols option must be a positive integer, ${config.cols} was provided`);
+      throw new TypeError(`The cols option must be a positive integer, ${config.cols} was provided`);
     }
     if (config.cols % config.chunkSize) {
       throw new Error(
