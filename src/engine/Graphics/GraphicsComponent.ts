@@ -114,6 +114,10 @@ export class GraphicsComponent {
   private _layerMap: { [layerName: string]: GraphicsLayer } = {};
   public default: GraphicsLayer = new GraphicsLayer({ name: 'default', order: 0 }, this);
 
+  public get layers(): readonly GraphicsLayer[] {
+    return this._layers;
+  }
+
   /**
    * Creates a new graphics layer
    */
@@ -236,22 +240,6 @@ export class GraphicsComponent {
     return this.default.hide();
   }
 
-  // /**
-  //  * Returns the current drawings width in pixels, as it would appear on screen factoring width.
-  //  * If there isn't a current drawing returns [[DrawingComponent.noDrawingWidth]].
-  //  */
-  // public get width(): number {
-  //   return this._currentGfx?.width ?? 0;
-  // }
-
-  // /**
-  //  * Returns the current drawings height in pixels, as it would appear on screen factoring height.
-  //  * If there isn't a current drawing returns [[DrawingComponent.noDrawingHeight]].
-  //  */
-  // public get height(): number {
-  //   return this._currentGfx?.height ?? 0;
-  // }
-
   private _isAnimationOrGroup(graphic: Graphic): graphic is Animation | GraphicsGroup {
     return graphic instanceof Animation || graphic instanceof GraphicsGroup;
   }
@@ -275,15 +263,16 @@ export class GraphicsComponent {
    * @internal
    */
   public draw(ctx: ExcaliburGraphicsContext, x: number, y: number) {
-    if (this.current) {
+    if (this.visible) {
       // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
       const anchor = this.anchor ?? Vector.Zero;
 
+      // this should be moved to the graphics system
       this._layers.sort((a, b) => a.order - b.order);
       for (const layer of this._layers) {
         const offsetX = -layer.graphic.width * layer.graphic.scale.x * anchor.x + x;
         const offsetY = -layer.graphic.height * layer.graphic.scale.y * anchor.y + y;
-        layer.graphic.draw(ctx, offsetX + layer.offset.x, offsetY + layer.offset.y);
+        layer.graphic?.draw(ctx, offsetX + layer.offset.x, offsetY + layer.offset.y);
       }
     }
   }
