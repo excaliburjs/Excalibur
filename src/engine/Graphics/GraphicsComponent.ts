@@ -42,12 +42,104 @@ export interface GraphicsComponentOptions {
   rotation?: number;
 }
 
+export interface GraphicsLayerOptions {
+  name: string;
+  order: number;
+  offset?: Vector;
+}
+export class GraphicsLayer {
+  constructor(private _options: GraphicsLayerOptions, private _graphics: GraphicsComponent) {}
+  public get name(): string {
+    return this._options.name;
+  }
+
+  /**
+   * Immediately show nothing
+   */
+  public hide(): Promise<void> {
+    this._currentGfx = null;
+    return Promise.resolve();
+  }
+
+  public show(nameOrGraphic: string | Graphic, duration?: number): Promise<Graphic> {
+    let gfx: Graphic = null;
+    if (nameOrGraphic instanceof Graphic) {
+      gfx = nameOrGraphic;
+    } else {
+      gfx = this._graphics.getGraphic(nameOrGraphic);
+    }
+    this._currentGfx = gfx;
+    return new Promise((resolve) => {
+      if (!duration) {
+        resolve(gfx);
+      } else if (duration) {
+        delay(duration).then(() => {
+          resolve(gfx);
+        });
+      } else {
+        resolve(gfx);
+      }
+    });
+  }
+
+  public get order(): number {
+    return this._options.order;
+  }
+
+  public set order(order: number) {
+    this._options.order = order;
+  }
+
+  public get offset(): Vector {
+    return this._options.offset ?? Vector.Zero;
+  }
+
+  public set offset(value: Vector) {
+    this._options.offset = value;
+  }
+
+  private _currentGfx: Graphic;
+
+  public get graphic(): Graphic {
+    return this._currentGfx;
+  }
+}
+
 /**
  * Component to manage drawings, using with the position component
  */
 export class GraphicsComponent {
-  private _currentGfx: Graphic;
   private _graphics: { [graphicName: string]: Graphic } = {};
+  private _layers: GraphicsLayer[] = [];
+  private _layerMap: { [layerName: string]: GraphicsLayer } = {};
+  public default: GraphicsLayer = new GraphicsLayer({ name: 'default', order: 0 }, this);
+
+  /**
+   * Creates a new graphics layer
+   */
+  public createLayer(options: GraphicsLayerOptions): GraphicsLayer {
+    const layer = new GraphicsLayer(options, this);
+    return this._maybeAddLayer(layer);
+  }
+
+  private _maybeAddLayer(layer: GraphicsLayer) {
+    if (this._layerMap[layer.name]) {
+      // todo log warning
+      return this._layerMap[layer.name];
+    }
+    this._layerMap[layer.name] = layer;
+    this._layers.push(layer);
+    this._layers.sort((a, b) => a.order - b.order);
+    return layer;
+  }
+
+  public getLayer(name: string): GraphicsLayer | undefined {
+    return this._layerMap[name];
+  }
+
+  public getGraphic(name: string): Graphic | undefined {
+    return this._graphics[name];
+  }
 
   /**
    * Sets or gets wether any drawing should be visible in this component
@@ -87,15 +179,16 @@ export class GraphicsComponent {
     this.rotation = rotation ?? 0;
 
     if (current && this._graphics[current]) {
-      this._currentGfx = this._graphics[current];
+      this.show(this._graphics[current]);
     }
+    this._layers.push(this.default);
   }
 
   /**
    * Returns the currently displayed graphic, null if hidden
    */
   public get current(): Graphic {
-    return this._currentGfx;
+    return this.default.graphic;
   }
 
   /**
@@ -106,20 +199,20 @@ export class GraphicsComponent {
   }
 
   /**
-   * Adds a graphic to this component, if the name is "default" or not specified, it will be shown by default without needing to call
+   * Adds a named graphic to this component, if the name is "default" or not specified, it will be shown by default without needing to call
    * `show("default")`
    * @param graphic
    */
   public add(graphic: Graphic): Graphic;
   public add(name: string, graphic: Graphic): Graphic;
-  public add(nameOrDrawable: string | Graphic, graphic?: Graphic): Graphic {
+  public add(nameOrGraphic: string | Graphic, graphic?: Graphic): Graphic {
     let name = 'default';
     let graphicToSet: Graphic = null;
-    if (typeof nameOrDrawable === 'string') {
-      name = nameOrDrawable;
+    if (typeof nameOrGraphic === 'string') {
+      name = nameOrGraphic;
       graphicToSet = graphic;
     } else {
-      graphicToSet = nameOrDrawable;
+      graphicToSet = nameOrGraphic;
     }
 
     this._graphics[name] = graphicToSet;
@@ -132,48 +225,32 @@ export class GraphicsComponent {
   /**
    * Show a graphic by name, returns a promise that resolves when graphic has finished displaying
    */
-  public show(graphicName: string | number, duration?: number): Promise<Graphic> {
-    const gfx: Graphic = this._graphics[graphicName.toString()];
-    this._currentGfx = gfx;
-    return new Promise((resolve) => {
-      if (!duration) {
-        resolve(gfx);
-      } else if (duration) {
-        delay(duration).then(() => {
-          resolve(gfx);
-        });
-      } else {
-        // TODO show
-        // gfx.finished.then(() => {
-        //   resolve(gfx);
-        // });
-      }
-    });
+  public show(nameOrGraphic: string | Graphic, duration?: number): Promise<Graphic> {
+    return this.default.show(nameOrGraphic, duration);
   }
 
   /**
    * Immediately show nothing
    */
   public hide(): Promise<void> {
-    this._currentGfx = null;
-    return Promise.resolve();
+    return this.default.hide();
   }
 
-  /**
-   * Returns the current drawings width in pixels, as it would appear on screen factoring width.
-   * If there isn't a current drawing returns [[DrawingComponent.noDrawingWidth]].
-   */
-  public get width(): number {
-    return this._currentGfx?.width ?? 0;
-  }
+  // /**
+  //  * Returns the current drawings width in pixels, as it would appear on screen factoring width.
+  //  * If there isn't a current drawing returns [[DrawingComponent.noDrawingWidth]].
+  //  */
+  // public get width(): number {
+  //   return this._currentGfx?.width ?? 0;
+  // }
 
-  /**
-   * Returns the current drawings height in pixels, as it would appear on screen factoring height.
-   * If there isn't a current drawing returns [[DrawingComponent.noDrawingHeight]].
-   */
-  public get height(): number {
-    return this._currentGfx?.height ?? 0;
-  }
+  // /**
+  //  * Returns the current drawings height in pixels, as it would appear on screen factoring height.
+  //  * If there isn't a current drawing returns [[DrawingComponent.noDrawingHeight]].
+  //  */
+  // public get height(): number {
+  //   return this._currentGfx?.height ?? 0;
+  // }
 
   private _isAnimationOrGroup(graphic: Graphic): graphic is Animation | GraphicsGroup {
     return graphic instanceof Animation || graphic instanceof GraphicsGroup;
@@ -201,10 +278,13 @@ export class GraphicsComponent {
     if (this.current) {
       // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
       const anchor = this.anchor ?? Vector.Zero;
-      const offsetX = -this.current.width * this.current.scale.x * anchor.x + x;
-      const offsetY = -this.current.height * this.current.scale.y * anchor.y + y;
 
-      this.current.draw(ctx, offsetX, offsetY);
+      this._layers.sort((a, b) => a.order - b.order);
+      for (const layer of this._layers) {
+        const offsetX = -layer.graphic.width * layer.graphic.scale.x * anchor.x + x;
+        const offsetY = -layer.graphic.height * layer.graphic.scale.y * anchor.y + y;
+        layer.graphic.draw(ctx, offsetX + layer.offset.x, offsetY + layer.offset.y);
+      }
     }
   }
 

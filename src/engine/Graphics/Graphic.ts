@@ -2,20 +2,6 @@ import { Vector, vec } from '../Algebra';
 import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/BoundingBox';
 
-export interface DrawOptions {
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  rotation?: number;
-  flipHorizontal?: boolean;
-  flipVertical?: boolean;
-  anchor?: Vector;
-  scale?: Vector;
-  offset?: Vector;
-  opacity?: number;
-}
-
 export interface GraphicOptions {
   /**
    * The width of the graphic
