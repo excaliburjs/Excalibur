@@ -54,7 +54,7 @@ describe('A TileMap', () => {
       });
       const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
       tm.registerSpriteSheet('default', spriteTiles);
-      tm.data.forEach(function(cell: ex.Cell) {
+      tm.data.forEach(function (cell: ex.Cell) {
         cell.solid = true;
         cell.pushSprite(new ex.TileSprite('default', 0));
       });
@@ -80,7 +80,7 @@ describe('A TileMap', () => {
       });
       const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
       tm.registerSpriteSheet('default', spriteTiles);
-      tm.data.forEach(function(cell: ex.Cell) {
+      tm.data.forEach(function (cell: ex.Cell) {
         cell.solid = true;
         cell.pushSprite(new ex.TileSprite('default', 0));
       });
@@ -92,6 +92,40 @@ describe('A TileMap', () => {
         expect(canvas).toEqualImage(image);
         done();
       });
+    });
+  });
+
+  describe('with an actor', () => {
+    let tm: ex.TileMap;
+    beforeEach(() => {
+      tm = new ex.TileMap({
+        x: 0,
+        y: 0,
+        cellWidth: 64,
+        cellHeight: 48,
+        rows: 10,
+        cols: 10
+      });
+      tm.data.forEach(function (cell: ex.Cell) {
+        cell.solid = true;
+      });
+    });
+
+    it('should collide when the actor is on a solid cell', () => {
+      const actor = new ex.Actor(0, 0, 20, 20);
+
+      const collision = tm.collides(actor);
+
+      expect(collision).not.toBeNull();
+      expect(collision).toBeTruthy();
+    });
+
+    it('should not collide when the actor has zero size dimensions', () => {
+      const actor = new ex.Actor(0, 0, 0, 0);
+
+      const collision = tm.collides(actor);
+
+      expect(collision).toBeNull();
     });
   });
 });
