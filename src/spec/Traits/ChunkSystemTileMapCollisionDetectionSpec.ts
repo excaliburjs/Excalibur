@@ -128,11 +128,11 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
         return cell;
       };
       actor.body.collider.type = ex.CollisionType.Active;
-      const preCollisionHandler = jasmine.createSpy('preCollisionHandler', () => {
+      const preCollisionHandler = jasmine.createSpy('preCollisionHandler', (event) => {
         expect(actor.pos.x).toBe(0);
         expect(actor.pos.y).toBe(0);
       });
-      const postCollisionHandler = jasmine.createSpy('postCollisionHandler', () => {
+      const postCollisionHandler = jasmine.createSpy('postCollisionHandler', (event) => {
         expect(actor.pos.x).toBe(0);
         expect(actor.pos.y).toBe(-16);
       });
