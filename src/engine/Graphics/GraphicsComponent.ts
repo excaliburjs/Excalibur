@@ -273,6 +273,7 @@ export class GraphicsComponent implements Component<'graphics'> {
       // this should be moved to the graphics system
       this._layers.sort((a, b) => a.order - b.order);
       for (const layer of this._layers) {
+        if (!layer.graphic) continue;
         const offsetX = -layer.graphic.width * layer.graphic.scale.x * anchor.x + x;
         const offsetY = -layer.graphic.height * layer.graphic.scale.y * anchor.y + y;
         layer.graphic?.draw(ctx, offsetX + layer.offset.x, offsetY + layer.offset.y);

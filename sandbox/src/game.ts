@@ -203,13 +203,14 @@ var tileBlockWidth = 64,
   spriteTiles = new ex.Graphics.SpriteSheet({ image: imageBlocks, sprites: [ex.Graphics.Sprite.from(imageBlocks)] });
 
 // create a collision map
-var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
+// var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
 var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
 // tileMap.registerSpriteSheet('default', spriteTiles);
 var blocks = ex.Graphics.Sprite.from(imageBlocks);
 tileMap.data.forEach(function (cell: ex.Cell) {
   cell.solid = true;
   cell.graphics.show(blocks);
+  cell.transform.z = -1;
   // cell.pushSprite(new ex.TileSprite('default', 0));
 });
 game.add(tileMap);
@@ -548,28 +549,28 @@ game.add(player);
 // Add particle emitter
 var sprite = blockSprite.clone();
 // sprite.anchor = new ex.Vector(0.5, 0.5);
-// var emitter = new ex.ParticleEmitter({
-//   pos: new ex.Vector(100, 300),
-//   width: 2,
-//   height: 2,
-//   minVel: 417,
-//   maxVel: 589,
-//   minAngle: Math.PI,
-//   maxAngle: Math.PI * 2,
-//   isEmitting: false,
-//   emitRate: 494,
-//   opacity: 0.84,
-//   fadeFlag: true,
-//   particleLife: 2465,
-//   maxSize: 1.5,
-//   minSize: 0.1,
-//   acceleration: new ex.Vector(0, 460),
-//   beginColor: ex.Color.Red,
-//   endColor: ex.Color.Yellow,
-//   sprite: sprite,
-//   particleRotationalVelocity: Math.PI / 10,
-//   randomRotation: true
-// });
+var emitter = new ex.ParticleEmitter({
+  pos: new ex.Vector(100, 300),
+  width: 2,
+  height: 2,
+  minVel: 417,
+  maxVel: 589,
+  minAngle: Math.PI,
+  maxAngle: Math.PI * 2,
+  isEmitting: false,
+  emitRate: 494,
+  opacity: 0.84,
+  fadeFlag: true,
+  particleLife: 2465,
+  maxSize: 1.5,
+  minSize: 0.1,
+  acceleration: new ex.Vector(0, 460),
+  beginColor: ex.Color.Red,
+  endColor: ex.Color.Yellow,
+  sprite: sprite,
+  particleRotationalVelocity: Math.PI / 10,
+  randomRotation: true
+});
 // var emitter = new ex.ParticleEmitter(100, 300, 2, 2);
 // emitter.minVel = 417;
 // emitter.maxVel = 589;
@@ -591,34 +592,34 @@ var sprite = blockSprite.clone();
 // emitter.randomRotation = true;
 // emitter.particleSprite.addEffect(new ex.Effects.Grayscale());
 
-// game.add(emitter);
+game.add(emitter);
 
-// var exploding = false;
-// var trigger = new ex.Trigger({
-//   width: 100,
-//   height: 100,
-//   pos: new ex.Vector(400, 200),
-//   repeat: -1,
-//   target: player,
-//   action: () => {
-//     if (!exploding) {
-//       exploding = true;
-//       emitter.isEmitting = true;
-//       camera.shake(10, 10, 2000);
-//       game.addTimer(
-//         new ex.Timer({
-//           interval: 2000,
-//           fcn: () => {
-//             emitter.isEmitting = false;
-//             exploding = false;
-//           }
-//         })
-//       );
-//     }
-//   }
-// });
+var exploding = false;
+var trigger = new ex.Trigger({
+  width: 100,
+  height: 100,
+  pos: new ex.Vector(400, 200),
+  repeat: -1,
+  target: player,
+  action: () => {
+    if (!exploding) {
+      exploding = true;
+      emitter.isEmitting = true;
+      camera.shake(10, 10, 2000);
+      game.addTimer(
+        new ex.Timer({
+          interval: 2000,
+          fcn: () => {
+            emitter.isEmitting = false;
+            exploding = false;
+          }
+        })
+      );
+    }
+  }
+});
 
-// game.add(trigger);
+game.add(trigger);
 
 game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
   var c = tileMap.getCellByPoint(evt.worldPos.x, evt.worldPos.y);

@@ -32,6 +32,7 @@ import { ExcaliburGraphicsContext, GraphicsComponent } from './Graphics';
 import { GraphicsSystem } from './Graphics/GraphicsSystem';
 import { Entity } from './Entity';
 import { TransformComponent } from './Transform';
+import { ParticleEmitter } from './Particles';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -426,12 +427,17 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     let i: number, len: number;
     for (i = 0, len = this.tileMaps.length; i < len; i++) {
       cells = cells.concat(this.tileMaps[i].getCellsOnScreen());
-      // _newdraw(this._graphicsContext, delta);
+    }
+    let emitters: ParticleEmitter[] = this.actors.filter((a) => a instanceof ParticleEmitter) as ParticleEmitter[];
+    let particles: Entity<TransformComponent | GraphicsComponent>[] = [];
+    for (let e of emitters) {
+      particles = particles.concat(e.particles.toArray());
     }
 
     let entities: Entity<TransformComponent | GraphicsComponent>[] = (this.actors as Entity<TransformComponent | GraphicsComponent>[])
       .concat(this.screenElements)
-      .concat(cells);
+      .concat(cells)
+      .concat(particles);
     this._graphicsSystem.update(entities, delta);
 
     // let i: number, len: number;
@@ -457,11 +463,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     //     this.screenElements[i].draw(ctx, delta);
     //   }
     // }
-    if (this._engine && this._engine.isDebug) {
-      for (i = 0, len = this.screenElements.length; i < len; i++) {
-        this.screenElements[i].debugDraw(ctx);
-      }
-    }
+    // if (this._engine && this._engine.isDebug) {
+    //   for (i = 0, len = this.screenElements.length; i < len; i++) {
+    //     this.screenElements[i].debugDraw(ctx);
+    //   }
+    // }
     this._postdraw(ctx, delta);
   }
 

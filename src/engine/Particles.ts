@@ -2,7 +2,7 @@ import { Engine } from './Engine';
 import { Actor } from './Actor';
 import { Sprite } from './Drawing/Sprite';
 import { Color } from './Drawing/Color';
-import { Vector } from './Algebra';
+import { Vector, vec } from './Algebra';
 import * as Util from './Util/Util';
 import * as DrawUtil from './Util/DrawUtil';
 import * as Traits from './Traits/Index';
@@ -11,6 +11,8 @@ import { Random } from './Math/Random';
 import { CollisionType } from './Collision/CollisionType';
 import * as Graphics from './Graphics';
 import { GraphicsComponent } from './Graphics';
+import { Entity } from './Entity';
+import { TransformComponent } from './Transform';
 
 /**
  * An enum that represents the types of emitter nozzles
@@ -29,7 +31,7 @@ export enum EmitterType {
 /**
  * @hidden
  */
-export class ParticleImpl {
+export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent> {
   public position: Vector = new Vector(0, 0);
   public velocity: Vector = new Vector(0, 0);
   public acceleration: Vector = new Vector(0, 0);
@@ -56,6 +58,7 @@ export class ParticleImpl {
   public emitter: ParticleEmitter = null;
   public particleSize: number = 5;
   public particleSprite: Sprite = null;
+  public transform: TransformComponent;
   public graphics: GraphicsComponent = new GraphicsComponent();
 
   public startSize: number;
@@ -75,6 +78,7 @@ export class ParticleImpl {
     startSize?: number,
     endSize?: number
   ) {
+    super();
     let emitter = emitterOrConfig;
     if (emitter && !(emitterOrConfig instanceof ParticleEmitter)) {
       const config = emitterOrConfig;
@@ -110,6 +114,15 @@ export class ParticleImpl {
       this.sizeRate = (this.endSize - this.startSize) / this.life;
       this.particleSize = this.startSize;
     }
+
+    this.transform = new TransformComponent();
+    this.addComponent(this.transform);
+    this.addComponent(this.graphics);
+
+    this.transform.pos = this.position;
+    this.transform.rotation = this.currentRotation;
+    this.transform.scale = vec(this.particleSize, this.particleSize);
+    this.graphics.opacity = this.opacity;
   }
 
   public kill() {
@@ -156,6 +169,11 @@ export class ParticleImpl {
     if (this.particleRotationalVelocity) {
       this.currentRotation = (this.currentRotation + (this.particleRotationalVelocity * delta) / 1000) % (2 * Math.PI);
     }
+
+    this.transform.pos = this.position;
+    this.transform.rotation = this.currentRotation;
+    this.transform.scale = vec(this.particleSize, this.particleSize);
+    this.graphics.opacity = this.opacity;
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
@@ -437,6 +455,7 @@ export class ParticleEmitterImpl extends Actor {
       p.focus = this.focus.add(new Vector(this.pos.x, this.pos.y));
       p.focusAccel = this.focusAccel;
     }
+    p.graphics.show(this.sprite);
     return p;
   }
 
