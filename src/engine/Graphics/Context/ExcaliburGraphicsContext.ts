@@ -7,6 +7,7 @@ export type ImageSource = HTMLImageElement | HTMLCanvasElement;
 
 export interface ExcaliburGraphicsContextState {
   opacity: number;
+  z: number;
 }
 
 export interface ExcaliburContextOptions {
@@ -31,6 +32,7 @@ export interface ExcaliburGraphicsContext {
 
   backgroundColor: Color;
   opacity: number;
+  z: number;
 
   // diag: ExcaliburContextDiagnostics;
 

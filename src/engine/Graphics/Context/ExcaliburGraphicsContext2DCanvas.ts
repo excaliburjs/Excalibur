@@ -1,7 +1,8 @@
-import { ExcaliburGraphicsContext, ExcaliburGraphicsContextState } from './ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
 import { Vector } from '../../Algebra';
 import { Graphic } from '../Graphic';
 import { Color } from '../../Drawing/Color';
+import { StateStack } from './state-stack';
 
 export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContext {
   public get width() {
@@ -14,18 +15,22 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
 
   public backgroundColor: Color = Color.ExcaliburBlue;
 
-  private _state: ExcaliburGraphicsContextState[] = [
-    {
-      opacity: 1
-    }
-  ];
+  private _state = new StateStack();
 
   public get opacity(): number {
-    return this._state[0].opacity;
+    return this._state.current.opacity;
   }
 
   public set opacity(value: number) {
-    this._state[0].opacity = value;
+    this._state.current.opacity = value;
+  }
+
+  public get z(): number {
+    return this._state.current.z;
+  }
+
+  public set z(value: number) {
+    this._state.current.z = value;
   }
 
   public snapToPixel: boolean = false;

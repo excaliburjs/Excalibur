@@ -49,6 +49,14 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._state.current.opacity = value;
   }
 
+  public get z(): number {
+    return this._state.current.z;
+  }
+
+  public set z(value: number) {
+    this._state.current.z = value;
+  }
+
   public get width() {
     return this.__gl.canvas.width;
   }
@@ -62,7 +70,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.__gl = _ctx;
     // TODO Not sure where the magic 30 came from...
     // TODO I think this is still wrong
-    this._verts = new Float32Array(20 * this._maxDrawingsPerBatch);
+    this._verts = new Float32Array(28 * this._maxDrawingsPerBatch);
     this._init();
   }
 
@@ -74,11 +82,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     const shader = (this._shader = new Shader(this._shaderTextureMax));
     const program = shader.compile(gl);
 
-    gl.disable(gl.DEPTH_TEST);
-    gl.depthMask(false);
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
     // TODO is viewport automagic?
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
@@ -87,25 +90,32 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
+    // gl.enable(gl.CULL_FACE);
+
+    // gl.disable(gl.DEPTH_TEST);
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
     // Tell WebGL to use our shader program pair
     gl.useProgram(program);
 
-    this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, -1, 1);
+    this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, 400, -400);
 
     // https://groups.google.com/forum/#!topic/webgl-dev-list/vMNXSNRAg8M
     this._vertBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this._verts, gl.DYNAMIC_DRAW);
 
-    const vertexSize = 2 * 4; // [x, y]
+    const vertexSize = 3 * 4; // [x, y, z]
     const uvSize = 2 * 4; // [u, v]
     const textureIndexSize = 1 * 4; // [textureId]
     const opacitySize = 1 * 4; // [opacity]
-    // 24 bytes per coordinate
+    // 28 bytes per coordinate
 
     const totalCoordSize = vertexSize + textureIndexSize + uvSize + opacitySize;
 
-    gl.vertexAttribPointer(shader.positionLocation, 2, gl.FLOAT, false, totalCoordSize, 0);
+    gl.vertexAttribPointer(shader.positionLocation, 3, gl.FLOAT, false, totalCoordSize, 0);
     gl.enableVertexAttribArray(shader.positionLocation);
 
     gl.vertexAttribPointer(shader.texcoordLocation, 2, gl.FLOAT, false, totalCoordSize, vertexSize);
@@ -157,7 +167,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   ): void {
     this._textureManager.updateFromGraphic(graphic);
     const command = new DrawImageCommand(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
-    command.applyTransform(this._stack.transform, this._state.current.opacity);
+    command.applyTransform(this._stack.transform, this._state.current.opacity, this._state.current.z);
 
     if (this._batches.length === 0) {
       this._batches.push(new Batch(this._textureManager, this._maxDrawingsPerBatch, this._shaderTextureMax));
@@ -184,11 +194,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // TODO apply current transform matrix to coordinates
     const drawings = batch.commands;
 
-    const vertexSize = 6 * 6; // 6 vertices * (x, y, u, v, textureId, opacity)
+    const vertexSize = 6 * 7; // 6 vertices * (x, y, z, u, v, textureId, opacity)
     for (let i = 0; i < drawings.length * vertexSize; i += vertexSize) {
       let {
         image,
         opacity,
+        z,
         dest: [x, y],
         view: [sx, sy, sw, sh],
         width,
@@ -219,9 +230,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       let uvy1 = (sy + sh) / potHeight;
 
       // Quad update
-      // (0, 0)
+      // (0, 0, z)
       this._verts[index++] = geometry[0][0]; // x + 0 * width;
       this._verts[index++] = geometry[0][1]; //y + 0 * height;
+      this._verts[index++] = z;
+
       // UV coords
       this._verts[index++] = uvx0; // 0;
       this._verts[index++] = uvy0; // 0;
@@ -233,6 +246,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // (0, 1)
       this._verts[index++] = geometry[1][0]; // x + 0 * width;
       this._verts[index++] = geometry[1][1]; // y + 1 * height;
+      this._verts[index++] = z;
+
       // UV coords
       this._verts[index++] = uvx0; // 0;
       this._verts[index++] = uvy1; // 1;
@@ -244,6 +259,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // (1, 0)
       this._verts[index++] = geometry[2][0]; // x + 1 * width;
       this._verts[index++] = geometry[2][1]; // y + 0 * height;
+      this._verts[index++] = z;
+
       // UV coords
       this._verts[index++] = uvx1; //1;
       this._verts[index++] = uvy0; //0;
@@ -255,6 +272,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // (1, 0)
       this._verts[index++] = geometry[3][0]; // x + 1 * width;
       this._verts[index++] = geometry[3][1]; // y + 0 * height;
+      this._verts[index++] = z;
+
       // UV coords
       this._verts[index++] = uvx1; //1;
       this._verts[index++] = uvy0; //0;
@@ -266,6 +285,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // (0, 1)
       this._verts[index++] = geometry[4][0]; // x + 0 * width;
       this._verts[index++] = geometry[4][1]; // y + 1 * height
+      this._verts[index++] = z;
+
       // UV coords
       this._verts[index++] = uvx0; // 0;
       this._verts[index++] = uvy1; // 1;
@@ -277,6 +298,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // (1, 1)
       this._verts[index++] = geometry[5][0]; // x + 1 * width;
       this._verts[index++] = geometry[5][1]; // y + 1 * height;
+      this._verts[index++] = z;
+
       // UV coords
       this._verts[index++] = uvx1; // 1;
       this._verts[index++] = uvy1; // 1;

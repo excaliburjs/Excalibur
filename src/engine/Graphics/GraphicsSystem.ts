@@ -8,7 +8,8 @@ export class GraphicsSystem {
 
   public update(actors: Actor[], delta: number): void {
     this._clearScreen();
-    // assuming actors are in z order
+    // sort actors in z order
+    actors.sort((a, b) => a.z - b.z);
     for (let actor of actors) {
       if (actor.isOffScreen) continue;
       this._pushCameraTransform(actor);
@@ -16,6 +17,8 @@ export class GraphicsSystem {
       this.ctx.save();
       this._applyEntityTransform(actor);
       const [x, y] = this._applyActorAnchor(actor);
+      this.ctx.z = actor.z;
+      this.ctx.opacity = actor.graphics.opacity * actor.opacity;
       actor.graphics.update(delta);
       actor.graphics.draw(this.ctx, x, y);
       this.ctx.restore();

@@ -151,9 +151,9 @@ export class GraphicsComponent {
   public visible: boolean = true;
 
   /**
-   * Sets or gets wither all drawings should have an opacity, if not set drawings individual opacity is respected
+   * Sets or gets wither all drawings should have an opacity applied
    */
-  public opacity?: number | null = null;
+  public opacity: number = 1;
 
   /**
    * Offset to apply to all drawings in this component if set, if null the drawing's offset is respected
@@ -178,7 +178,7 @@ export class GraphicsComponent {
 
     this._graphics = graphics || {};
     this.offset = offset ?? this.offset;
-    this.opacity = opacity;
+    this.opacity = opacity ?? this.opacity;
     this.visible = !!visible;
     this.rotation = rotation ?? 0;
 

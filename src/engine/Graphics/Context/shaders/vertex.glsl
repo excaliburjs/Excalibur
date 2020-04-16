@@ -21,7 +21,6 @@ void main() {
 
    // Pass through the Opacity to the fragment shader
    v_opacity = a_opacity;
-
    // Pass through the UV coord to the fragment shader
    v_texcoord = a_texcoord;
    // Pass through the texture number to the fragment shader
