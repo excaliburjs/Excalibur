@@ -203,14 +203,16 @@ var tileBlockWidth = 64,
   spriteTiles = new ex.Graphics.SpriteSheet({ image: imageBlocks, sprites: [ex.Graphics.Sprite.from(imageBlocks)] });
 
 // create a collision map
-//var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
-// var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
+var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
+var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
 // tileMap.registerSpriteSheet('default', spriteTiles);
-// tileMap.data.forEach(function (cell: ex.Cell) {
-//   cell.solid = true;
-//   cell.pushSprite(new ex.TileSprite('default', 0));
-// });
-// game.add(tileMap);
+var blocks = ex.Graphics.Sprite.from(imageBlocks);
+tileMap.data.forEach(function (cell: ex.Cell) {
+  cell.solid = true;
+  cell.graphics.show(blocks);
+  // cell.pushSprite(new ex.TileSprite('default', 0));
+});
+game.add(tileMap);
 
 // Create spriteFont
 //var spriteFont = new ex.SpriteFont(spriteFontImage, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
@@ -618,18 +620,18 @@ var sprite = blockSprite.clone();
 
 // game.add(trigger);
 
-// game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
-//   var c = tileMap.getCellByPoint(evt.worldPos.x, evt.worldPos.y);
-//   if (c) {
-//     if (c.solid) {
-//       c.solid = false;
-//       c.sprites.pop();
-//     } else {
-//       c.solid = true;
-//       c.pushSprite(new ex.TileSprite('default', 0));
-//     }
-//   }
-// });
+game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
+  var c = tileMap.getCellByPoint(evt.worldPos.x, evt.worldPos.y);
+  if (c) {
+    if (c.solid) {
+      c.solid = false;
+      c.graphics.visible = false;
+    } else {
+      c.solid = true;
+      c.graphics.visible = true;
+    }
+  }
+});
 
 game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
   if (evt.key == ex.Input.Keys.F) {

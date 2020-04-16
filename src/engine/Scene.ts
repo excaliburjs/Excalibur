@@ -28,8 +28,10 @@ import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
 import { Body } from './Collision/Body';
-import { ExcaliburGraphicsContext } from './Graphics';
+import { ExcaliburGraphicsContext, GraphicsComponent } from './Graphics';
 import { GraphicsSystem } from './Graphics/GraphicsSystem';
+import { Entity } from './Entity';
+import { TransformComponent } from './Transform';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -357,9 +359,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       this.triggers[i].update(engine, delta);
     }
 
-    // TODO with ECS this will be more formalized
-    this._graphicsSystem.update(this.actors.concat(this.screenElements), delta);
-
     this._collectActorStats(engine);
 
     engine.input.pointers.dispatchPointerEvents();
@@ -419,16 +418,25 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * @param ctx    The current rendering context
    * @param delta  The number of milliseconds since the last draw
    */
-  public draw(_ctx: CanvasRenderingContext2D, _delta: number) {
-    // this._predraw(ctx, delta);
-    // ctx.save();
-    // this._graphicsContext.save();
-    // if (this.camera) {
-    //   this.camera.draw(this._graphicsContext);
-    // }
+  public draw(ctx: CanvasRenderingContext2D, delta: number) {
+    this._predraw(ctx, delta);
+    ctx.save();
+    // TODO with ECS this will be more formalized
+    let cells: Entity<TransformComponent | GraphicsComponent>[] = [];
+    let i: number, len: number;
+    for (i = 0, len = this.tileMaps.length; i < len; i++) {
+      cells = cells.concat(this.tileMaps[i].getCellsOnScreen());
+      // _newdraw(this._graphicsContext, delta);
+    }
+
+    let entities: Entity<TransformComponent | GraphicsComponent>[] = (this.actors as Entity<TransformComponent | GraphicsComponent>[])
+      .concat(this.screenElements)
+      .concat(cells);
+    this._graphicsSystem.update(entities, delta);
+
     // let i: number, len: number;
     // for (i = 0, len = this.tileMaps.length; i < len; i++) {
-    //   this.tileMaps[i].draw(ctx, delta);
+    //   this.tileMaps[i]._newdraw(this._graphicsContext, delta);
     // }
     // const sortedChildren = this._sortedDrawingTree.list();
     // for (i = 0, len = sortedChildren.length; i < len; i++) {
@@ -437,25 +445,24 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     //     sortedChildren[i].draw(ctx, delta);
     //   }
     // }
-    // if (this._engine && this._engine.isDebug) {
-    //   ctx.strokeStyle = 'yellow';
-    //   this.debugDraw(ctx);
-    // }
-    // this._graphicsContext.restore();
-    // ctx.restore();
+
+    if (this._engine && this._engine.isDebug) {
+      ctx.strokeStyle = 'yellow';
+      this.debugDraw(ctx);
+    }
+    ctx.restore();
     // for (i = 0, len = this.screenElements.length; i < len; i++) {
     //   // only draw ui actors that are visible and on screen
     //   if (this.screenElements[i].visible) {
     //     this.screenElements[i].draw(ctx, delta);
     //   }
     // }
-    // if (this._engine && this._engine.isDebug) {
-    //   for (i = 0, len = this.screenElements.length; i < len; i++) {
-    //     this.screenElements[i].debugDraw(ctx);
-    //   }
-    // }
-    // this._postdraw(ctx, delta);
-    // this._graphicsContext.flush();
+    if (this._engine && this._engine.isDebug) {
+      for (i = 0, len = this.screenElements.length; i < len; i++) {
+        this.screenElements[i].debugDraw(ctx);
+      }
+    }
+    this._postdraw(ctx, delta);
   }
 
   /**

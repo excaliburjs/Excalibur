@@ -10,6 +10,7 @@ import { Configurable } from './Configurable';
 import { Random } from './Math/Random';
 import { CollisionType } from './Collision/CollisionType';
 import * as Graphics from './Graphics';
+import { GraphicsComponent } from './Graphics';
 
 /**
  * An enum that represents the types of emitter nozzles
@@ -55,6 +56,7 @@ export class ParticleImpl {
   public emitter: ParticleEmitter = null;
   public particleSize: number = 5;
   public particleSprite: Sprite = null;
+  public graphics: GraphicsComponent = new GraphicsComponent();
 
   public startSize: number;
   public endSize: number;

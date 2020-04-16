@@ -2,12 +2,15 @@ import { BoundingBox } from './Collision/BoundingBox';
 import { Color } from './Drawing/Color';
 import { Class } from './Class';
 import { Engine } from './Engine';
-import { Vector } from './Algebra';
+import { Vector, vec } from './Algebra';
 import { Actor } from './Actor';
 import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
 import { Configurable } from './Configurable';
+import { GraphicsComponent, ExcaliburGraphicsContext } from './Graphics';
+import { Entity } from './Entity';
+import { TransformComponent } from './Transform';
 
 /**
  * @hidden
@@ -67,7 +70,7 @@ export class TileMapImpl extends Class {
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
         (() => {
-          const cd = new Cell(i * cellWidth + <number>xOrConfig, j * cellHeight + y, cellWidth, cellHeight, i + j * cols);
+          const cd = new Cell(i * cellWidth + <number>xOrConfig, j * cellHeight + y, cellWidth, cellHeight, i + j * cols, false, [], this);
           this.data[i + j * cols] = cd;
         })();
       }
@@ -132,6 +135,26 @@ export class TileMapImpl extends Class {
     }
     return this.data[x + y * this.cols];
   }
+
+  public getCellsOnScreen(): Cell[] {
+    let x = this._onScreenXStart;
+    const xEnd = Math.min(this._onScreenXEnd, this.cols);
+    let y = this._onScreenYStart;
+    const yEnd = Math.min(this._onScreenYEnd, this.rows);
+
+    let cells: Cell[] = [];
+    for (x; x < xEnd; x++) {
+      for (y; y < yEnd; y++) {
+        let cell = this.getCell(x, y);
+        if (cell) {
+          cells.push(cell);
+        }
+      }
+      y = this._onScreenYStart;
+    }
+    return cells;
+  }
+
   /**
    * Returns the [[Cell]] by testing a point in global coordinates,
    * returns `null` if no cell was found.
@@ -158,6 +181,24 @@ export class TileMapImpl extends Class {
     this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
 
     this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
+  }
+
+  public _newdraw(ctx: ExcaliburGraphicsContext, _delta: number) {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+
+    let x = this._onScreenXStart;
+    const xEnd = Math.min(this._onScreenXEnd, this.cols);
+    let y = this._onScreenYStart;
+    const yEnd = Math.min(this._onScreenYEnd, this.rows);
+
+    for (x; x < xEnd; x++) {
+      for (y; y < yEnd; y++) {
+        this.getCell(x, y)?.graphics.draw(ctx, x * this.cellWidth, y * this.cellHeight);
+      }
+      y = this._onScreenYStart;
+    }
+    ctx.restore();
   }
 
   /**
@@ -232,10 +273,10 @@ export class TileMapImpl extends Class {
     const solid = Color.Red;
     solid.a = 0.3;
     this.data
-      .filter(function(cell) {
+      .filter(function (cell) {
         return cell.solid;
       })
-      .forEach(function(cell) {
+      .forEach(function (cell) {
         ctx.fillStyle = solid.toString();
         ctx.fillRect(cell.x, cell.y, cell.width, cell.height);
       });
@@ -292,7 +333,7 @@ export class TileSprite {
 /**
  * @hidden
  */
-export class CellImpl {
+export class CellImpl extends Entity<TransformComponent | GraphicsComponent> {
   private _bounds: BoundingBox;
   public x: number;
   public y: number;
@@ -301,6 +342,8 @@ export class CellImpl {
   public index: number;
   public solid: boolean = false;
   public sprites: TileSprite[] = [];
+  public graphics: GraphicsComponent = new GraphicsComponent();
+  public transform: TransformComponent;
 
   /**
    * @param x       Gets or sets x coordinate of the cell in world coordinates
@@ -318,8 +361,10 @@ export class CellImpl {
     height: number,
     index: number,
     solid: boolean = false,
-    sprites: TileSprite[] = []
+    sprites: TileSprite[] = [],
+    _tilemap: TileMap
   ) {
+    super();
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
       xOrConfig = config.x;
@@ -329,6 +374,7 @@ export class CellImpl {
       index = config.index;
       solid = config.solid;
       sprites = config.sprites;
+      _tilemap = config.tileMap;
     }
     this.x = <number>xOrConfig;
     this.y = y;
@@ -337,6 +383,10 @@ export class CellImpl {
     this.index = index;
     this.solid = solid;
     this.sprites = sprites;
+    this.addComponent(this.graphics);
+    this.transform = new TransformComponent();
+    this.transform.pos = vec(this.x, this.y);
+    this.addComponent(this.transform);
     this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
   }
 
@@ -375,6 +425,7 @@ export class CellImpl {
  * [[include:Constructors.md]]
  */
 export interface CellArgs extends Partial<CellImpl> {
+  tileMap: TileMap;
   x: number;
   y: number;
   width: number;
@@ -396,7 +447,16 @@ export interface CellArgs extends Partial<CellImpl> {
  */
 export class Cell extends Configurable(CellImpl) {
   constructor(config: CellArgs);
-  constructor(x: number, y: number, width: number, height: number, index: number, solid?: boolean, sprites?: TileSprite[]);
+  constructor(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    index: number,
+    solid?: boolean,
+    sprites?: TileSprite[],
+    tileMap?: TileMap
+  );
   constructor(
     xOrConfig: number | CellArgs,
     y?: number,
@@ -404,8 +464,9 @@ export class Cell extends Configurable(CellImpl) {
     height?: number,
     index?: number,
     solid?: boolean,
-    sprites?: TileSprite[]
+    sprites?: TileSprite[],
+    tileMap?: TileMap
   ) {
-    super(xOrConfig, y, width, height, index, solid, sprites);
+    super(xOrConfig, y, width, height, index, solid, sprites, tileMap);
   }
 }

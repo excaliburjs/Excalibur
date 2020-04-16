@@ -4,6 +4,7 @@ import { Animation } from './Animation';
 import { delay } from '../Util/Delay';
 import { GraphicsGroup } from './GraphicsGroup';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { Component } from '../Component';
 
 export interface GraphicsComponentOptions {
   /**
@@ -108,7 +109,9 @@ export class GraphicsLayer {
 /**
  * Component to manage drawings, using with the position component
  */
-export class GraphicsComponent {
+export class GraphicsComponent implements Component<'graphics'> {
+  static type: 'graphics';
+  readonly type = 'graphics';
   private _graphics: { [graphicName: string]: Graphic } = {};
   private _layers: GraphicsLayer[] = [];
   private _layerMap: { [layerName: string]: GraphicsLayer } = {};

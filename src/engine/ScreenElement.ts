@@ -5,6 +5,7 @@ import * as Traits from './Traits/Index';
 import { CollisionType } from './Collision/CollisionType';
 import { Shape } from './Collision/Shape';
 import { obsolete } from './Util/Decorators';
+import { CoordPlane } from './Transform';
 
 /**
  * Helper [[Actor]] primitive for drawing UI's, optimized for UI drawing. Does
@@ -34,6 +35,7 @@ export class ScreenElement extends Actor {
     this.body.collider.type = CollisionType.PreventCollision;
     this.body.collider.shape = Shape.Box(this.width, this.height, this.anchor);
     this.enableCapturePointer = true;
+    this.transform.coordPlane = CoordPlane.Screen;
   }
 
   public _initialize(engine: Engine) {
