@@ -306,8 +306,8 @@ export class Loader extends Class implements CanLoad {
     const canvasWidth = this._engine.canvasWidth / this._engine.pixelRatio;
 
     if (this._playButtonRootElement) {
-      const left = ctx.canvas.offsetLeft;
-      const top = ctx.canvas.offsetTop;
+      const left = this._engine.canvas.offsetLeft;
+      const top = this._engine.canvas.offsetTop;
       const buttonWidth = this._playButton.clientWidth;
       const buttonHeight = this._playButton.clientHeight;
       this._playButtonRootElement.style.left = `${left + canvasWidth / 2 - buttonWidth / 2}px`;
