@@ -77,10 +77,7 @@ import { Canvas } from './Graphics/Canvas';
  * ```
  */
 export class Loader extends Class implements CanLoad {
-  // TODO hardcoded canvas width/height
   public canvas: Canvas = new Canvas({
-    width: 800,
-    height: 600,
     drawHandler: this.draw.bind(this)
   });
   private _resourceList: Loadable<any>[] = [];
@@ -164,6 +161,8 @@ export class Loader extends Class implements CanLoad {
 
   public wireEngine(engine: Engine) {
     this._engine = engine;
+    this.canvas.width = this._engine.canvas.width;
+    this.canvas.height = this._engine.canvas.height;
   }
 
   /**
