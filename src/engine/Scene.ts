@@ -54,6 +54,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public actors: Actor[] = [];
 
   /**
+   * The entities in the current scene
+   */
+  public entities: Entity[] = [];
+
+  /**
    * Physics bodies in the current scene
    */
   private _bodies: Body[] = [];
@@ -422,52 +427,76 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     this._predraw(ctx, delta);
     ctx.save();
-    // TODO with ECS this will be more formalized
-    let cells: Entity<TransformComponent | GraphicsComponent>[] = [];
+
+    if (Engine._useLegacyDrawing) {
+      this.__legacyDraw(ctx, delta);
+    } else {
+      // TODO with ECS this will be more formalized using the entity manager
+      let cells: Entity<TransformComponent | GraphicsComponent>[] = [];
+      let i: number, len: number;
+      for (i = 0, len = this.tileMaps.length; i < len; i++) {
+        cells = cells.concat(this.tileMaps[i].getCellsOnScreen());
+      }
+      let emitters: ParticleEmitter[] = this.actors.filter((a) => a instanceof ParticleEmitter) as ParticleEmitter[];
+      let particles: Entity<TransformComponent | GraphicsComponent>[] = [];
+      for (let e of emitters) {
+        particles = particles.concat(e.particles.toArray());
+      }
+
+      let entities: Entity<TransformComponent | GraphicsComponent>[] = (this.actors as Entity<TransformComponent | GraphicsComponent>[])
+        .concat(this.screenElements)
+        .concat(cells)
+        .concat(particles);
+      this._graphicsSystem.update(entities, delta);
+    }
+
+    ctx.restore();
+    this._postdraw(ctx, delta);
+  }
+
+  public __legacyDraw(ctx: CanvasRenderingContext2D, delta: number) {
+    this._graphicsContext.clear();
+
+    this._predraw(ctx, delta);
+    ctx.save();
+
+    if (this.camera) {
+      this.camera.draw(this._graphicsContext);
+    }
+
     let i: number, len: number;
+
     for (i = 0, len = this.tileMaps.length; i < len; i++) {
-      cells = cells.concat(this.tileMaps[i].getCellsOnScreen());
-    }
-    let emitters: ParticleEmitter[] = this.actors.filter((a) => a instanceof ParticleEmitter) as ParticleEmitter[];
-    let particles: Entity<TransformComponent | GraphicsComponent>[] = [];
-    for (let e of emitters) {
-      particles = particles.concat(e.particles.toArray());
+      this.tileMaps[i].draw(ctx, delta);
     }
 
-    let entities: Entity<TransformComponent | GraphicsComponent>[] = (this.actors as Entity<TransformComponent | GraphicsComponent>[])
-      .concat(this.screenElements)
-      .concat(cells)
-      .concat(particles);
-    this._graphicsSystem.update(entities, delta);
-
-    // let i: number, len: number;
-    // for (i = 0, len = this.tileMaps.length; i < len; i++) {
-    //   this.tileMaps[i]._newdraw(this._graphicsContext, delta);
-    // }
-    // const sortedChildren = this._sortedDrawingTree.list();
-    // for (i = 0, len = sortedChildren.length; i < len; i++) {
-    //   // only draw actors that are visible and on screen
-    //   if (sortedChildren[i].visible && !sortedChildren[i].isOffScreen) {
-    //     sortedChildren[i].draw(ctx, delta);
-    //   }
-    // }
+    const sortedChildren = this._sortedDrawingTree.list();
+    for (i = 0, len = sortedChildren.length; i < len; i++) {
+      // only draw actors that are visible and on screen
+      if (sortedChildren[i].visible && !sortedChildren[i].isOffScreen) {
+        sortedChildren[i].draw(ctx, delta);
+      }
+    }
 
     if (this._engine && this._engine.isDebug) {
       ctx.strokeStyle = 'yellow';
       this.debugDraw(ctx);
     }
+
     ctx.restore();
-    // for (i = 0, len = this.screenElements.length; i < len; i++) {
-    //   // only draw ui actors that are visible and on screen
-    //   if (this.screenElements[i].visible) {
-    //     this.screenElements[i].draw(ctx, delta);
-    //   }
-    // }
-    // if (this._engine && this._engine.isDebug) {
-    //   for (i = 0, len = this.screenElements.length; i < len; i++) {
-    //     this.screenElements[i].debugDraw(ctx);
-    //   }
-    // }
+
+    for (i = 0, len = this.screenElements.length; i < len; i++) {
+      // only draw ui actors that are visible and on screen
+      if (this.screenElements[i].visible) {
+        this.screenElements[i].draw(ctx, delta);
+      }
+    }
+
+    if (this._engine && this._engine.isDebug) {
+      for (i = 0, len = this.screenElements.length; i < len; i++) {
+        this.screenElements[i].debugDraw(ctx);
+      }
+    }
     this._postdraw(ctx, delta);
   }
 
@@ -534,6 +563,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * @param screenElement  The ScreenElement to add to the current scene
    */
   public add(screenElement: ScreenElement): void;
+  /**
+   * Adds an [[Entity]] to the scene.
+   * @param entity
+   */
+  public add(entity: Entity): void;
   public add(entity: any): void {
     if (entity instanceof Actor) {
       (<Actor>entity).unkill();
@@ -541,6 +575,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     if (entity instanceof ScreenElement) {
       if (!Util.contains(this.screenElements, entity)) {
         this.addScreenElement(entity);
+        this.addEntity(entity);
       }
       return;
     }
@@ -548,9 +583,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     if (entity instanceof Actor) {
       if (!Util.contains(this.actors, entity)) {
         this._addChild(entity);
+        this.addEntity(entity);
       }
       return;
     }
+
     if (entity instanceof Timer) {
       if (!Util.contains(this._timers, entity)) {
         this.addTimer(entity);
@@ -587,21 +624,44 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * @param screenElement  The ScreenElement to remove from the current scene
    */
   public remove(screenElement: ScreenElement): void;
+  /**
+   * Removes an [[Entity]] from the the scene
+   * @param entity
+   */
+  public remove(entity: Entity): void;
   public remove(entity: any): void {
     if (entity instanceof ScreenElement) {
       this.removeScreenElement(entity);
+      this.removeEntity(entity);
       return;
     }
 
     if (entity instanceof Actor) {
       this._removeChild(entity);
+      this.removeEntity(entity);
     }
+
+    if (entity instanceof Entity) {
+      this.removeEntity(entity);
+    }
+
     if (entity instanceof Timer) {
       this.removeTimer(entity);
     }
 
     if (entity instanceof TileMap) {
       this.removeTileMap(entity);
+    }
+  }
+
+  public addEntity(entity: Entity) {
+    this.entities.push(entity);
+  }
+
+  public removeEntity(entity: Entity) {
+    const index = this.entities.indexOf(entity);
+    if (index > -1) {
+      this.entities.splice(index, 1);
     }
   }
 

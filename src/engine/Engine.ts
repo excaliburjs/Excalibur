@@ -205,6 +205,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   public ctx: CanvasRenderingContext2D;
 
   public static _useWebGL: boolean = false;
+  public static _useLegacyDrawing: boolean = false;
 
   /**
    * Direct access to the excalibur graphics context
