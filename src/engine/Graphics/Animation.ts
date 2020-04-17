@@ -29,7 +29,7 @@ export enum AnimationStrategy {
 export interface Frame {
   graphic?: Graphic;
   duration?: number; // number of ms the frame should be visible, overrides the animation duration
-  tags?: { [name: string]: Vector };
+  tags?: { [name: string]: Vector | undefined };
 }
 
 export interface AnimationOptions {

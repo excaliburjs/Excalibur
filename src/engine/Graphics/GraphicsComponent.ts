@@ -36,11 +36,6 @@ export interface GraphicsComponentOptions {
    * Optional origin
    */
   origin?: Vector;
-
-  /**
-   * Optional rotation to apply to each graphic in this component
-   */
-  rotation?: number;
 }
 
 export interface GraphicsLayerOptions {
@@ -168,8 +163,6 @@ export class GraphicsComponent implements Component<'graphics'> {
    */
   public anchor?: Vector | null = null;
 
-  public rotation?: number | null = null;
-
   constructor(options?: GraphicsComponentOptions) {
     // Defaults
     options = {
@@ -177,13 +170,12 @@ export class GraphicsComponent implements Component<'graphics'> {
       ...options
     };
 
-    const { current, opacity, visible, graphics, offset, rotation } = options;
+    const { current, opacity, visible, graphics, offset } = options;
 
     this._graphics = graphics || {};
     this.offset = offset ?? this.offset;
     this.opacity = opacity ?? this.opacity;
     this.visible = !!visible;
-    this.rotation = rotation ?? 0;
 
     if (current && this._graphics[current]) {
       this.show(this._graphics[current]);
