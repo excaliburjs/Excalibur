@@ -456,6 +456,7 @@ export class ParticleEmitterImpl extends Actor {
       p.focusAccel = this.focusAccel;
     }
     p.graphics.show(this.sprite);
+    p.graphics.anchor = Vector.Half;
     return p;
   }
 
