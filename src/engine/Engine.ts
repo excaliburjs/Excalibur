@@ -40,6 +40,7 @@ import { BrowserEvents } from './Util/Browser';
 import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from './Graphics/Context/ExcaliburGraphicsContextWebGL';
 import { ExcaliburGraphicsContext2DCanvas } from './Graphics/Context/ExcaliburGraphicsContext2DCanvas';
+import { Entity } from './Entity';
 
 /**
  * Enum representing the different display modes available to Excalibur
@@ -769,13 +770,19 @@ O|===|* >________________>\n\
    * @param screenElement  The ScreenElement to add to the [[currentScene]]
    */
   public add(screenElement: ScreenElement): void;
+  /**
+   * Adds an [[Entity]] to the [[currentScene]] of the game
+   */
+  public add(entity: Entity): void;
   public add(entity: any): void {
     if (entity instanceof ScreenElement) {
       this.currentScene.addScreenElement(entity);
+      this.currentScene.addEntity(entity);
       return;
     }
     if (entity instanceof Actor) {
       this._addChild(entity);
+      this.currentScene.addEntity(entity);
     }
     if (entity instanceof Timer) {
       this.addTimer(entity);
@@ -822,13 +829,19 @@ O|===|* >________________>\n\
    * @param screenElement  The ScreenElement to remove from the [[currentScene]]
    */
   public remove(screenElement: ScreenElement): void;
+  /**
+   * Removes an [[Entity]] from the [[currentScene]] of the game.
+   */
+  public remove(entity: Entity): void;
   public remove(entity: any): void {
     if (entity instanceof ScreenElement) {
       this.currentScene.removeScreenElement(entity);
+      this.currentScene.removeEntity(entity);
       return;
     }
     if (entity instanceof Actor) {
       this._removeChild(entity);
+      this.currentScene.removeEntity(entity);
     }
     if (entity instanceof Timer) {
       this.removeTimer(entity);

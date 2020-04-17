@@ -419,6 +419,24 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     killQueue.length = 0;
   }
 
+  private _getTileMapCells() {
+    let cells: Entity<TransformComponent | GraphicsComponent>[] = [];
+    let i: number, len: number;
+    for (i = 0, len = this.tileMaps.length; i < len; i++) {
+      cells = cells.concat(this.tileMaps[i].getCellsOnScreen());
+    }
+    return cells;
+  }
+
+  private _getParticles() {
+    let emitters: ParticleEmitter[] = this.actors.filter((a) => a instanceof ParticleEmitter) as ParticleEmitter[];
+    let particles: Entity<TransformComponent | GraphicsComponent>[] = [];
+    for (let e of emitters) {
+      particles = particles.concat(e.particles.toArray());
+    }
+    return particles;
+  }
+
   /**
    * Draws all the actors in the Scene. Called by the [[Engine]].
    * @param ctx    The current rendering context
@@ -432,21 +450,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       this.__legacyDraw(ctx, delta);
     } else {
       // TODO with ECS this will be more formalized using the entity manager
-      let cells: Entity<TransformComponent | GraphicsComponent>[] = [];
-      let i: number, len: number;
-      for (i = 0, len = this.tileMaps.length; i < len; i++) {
-        cells = cells.concat(this.tileMaps[i].getCellsOnScreen());
-      }
-      let emitters: ParticleEmitter[] = this.actors.filter((a) => a instanceof ParticleEmitter) as ParticleEmitter[];
-      let particles: Entity<TransformComponent | GraphicsComponent>[] = [];
-      for (let e of emitters) {
-        particles = particles.concat(e.particles.toArray());
-      }
 
-      let entities: Entity<TransformComponent | GraphicsComponent>[] = (this.actors as Entity<TransformComponent | GraphicsComponent>[])
-        .concat(this.screenElements)
-        .concat(cells)
-        .concat(particles);
+      let entities = (this.entities as Entity<TransformComponent | GraphicsComponent>[])
+        .concat(this._getParticles())
+        .concat(this._getTileMapCells());
       this._graphicsSystem.update(entities, delta);
     }
 
