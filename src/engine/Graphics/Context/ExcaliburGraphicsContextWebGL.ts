@@ -68,9 +68,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   // TODO should this be a canvas element? or a better abstraction
   constructor(_ctx: WebGLRenderingContext) {
     this.__gl = _ctx;
-    // TODO Not sure where the magic 30 came from...
-    // TODO I think this is still wrong
-    this._verts = new Float32Array(28 * this._maxDrawingsPerBatch);
+    const vertexSize = 6 * 7; // 6 verts per quad, 7 pieces of float data
+    this._verts = new Float32Array(vertexSize * this._maxDrawingsPerBatch);
     this._init();
   }
 
