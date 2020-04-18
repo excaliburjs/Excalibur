@@ -25,6 +25,11 @@ export class TextureManager {
   updateFromGraphic(graphic: Graphic): void {
     const gl = this._exgl.__gl as WebGLRenderingContext;
 
+    if (graphic.width <= 0 || graphic.height <= 0) {
+      // exit early on invalid graphic
+      return;
+    }
+
     let glTex: WebGLTexture;
     if (this.hasWebGLTexture(graphic)) {
       // TODO this is gross
