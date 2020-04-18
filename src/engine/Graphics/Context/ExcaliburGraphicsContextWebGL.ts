@@ -310,20 +310,15 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     }
   }
 
+  private _diag: ExcaliburContextDiagnostics = {
+    images: 0,
+    batches: 0,
+    uniqueTextures: 0,
+    maxTexturePerDraw: this._shaderTextureMax
+  };
+
   public get diag(): ExcaliburContextDiagnostics {
-    let uniqueTex = [];
-    for (let b of this._batches) {
-      for (let t of b.textures) {
-        if (uniqueTex.indexOf(t) === -1) {
-          uniqueTex.push(t);
-        }
-      }
-    }
-    return {
-      batches: this._batches.length,
-      uniqueTextures: uniqueTex.length,
-      maxTexturePerDraw: this._shaderTextureMax
-    };
+    return this._diag;
   }
 
   public save(): void {
@@ -362,6 +357,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   flush() {
     const gl = this.__gl;
+    this._diag.images = 0;
+    this._diag.uniqueTextures = 0;
+    this._diag.batches = 0;
 
     this.clear();
 
@@ -370,6 +368,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._updateVertexBufferData(batch);
       // 6 vertices per quad
       const vertexCount = 6 * batch.commands.length;
+
       // interleave VBOs https://goharsha.com/lwjgl-tutorial-series/interleaving-buffer-objects/
       gl.bindBuffer(gl.ARRAY_BUFFER, this._vertBuffer);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._verts);
@@ -380,8 +379,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       // draw the quads
       gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
 
+      this._diag.images += batch.commands.length;
+      this._diag.uniqueTextures += batch.textures.length;
       batch.clear();
     }
+    this._diag.batches = this._batches.length;
     this._batches.length = 0;
   }
 

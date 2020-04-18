@@ -19,6 +19,7 @@ export interface ExcaliburContextOptions {
 }
 
 export interface ExcaliburContextDiagnostics {
+  images: number;
   batches: number;
   uniqueTextures: number;
   maxTexturePerDraw: number;
