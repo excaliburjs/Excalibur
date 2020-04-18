@@ -1,4 +1,5 @@
 import { Resource } from '../Resources/Resource';
+import { Texture } from '../Resources/Texture';
 
 export class RawImage extends Resource<HTMLImageElement> {
   private static _ID = 0;
@@ -65,6 +66,24 @@ export class RawImage extends Resource<HTMLImageElement> {
         });
       }
     });
+  }
+
+  /**
+   * Create a RawImage from legacy texture
+   * @param tex
+   */
+  public static fromLegacyTexture(tex: Texture): RawImage {
+    const image = new RawImage(tex.path);
+    if (tex.isLoaded()) {
+      image.image = tex.image;
+      image.data = tex.data;
+    } else {
+      tex.loaded.then(() => {
+        image.image = tex.image;
+        image.data = tex.data;
+      });
+    }
+    return image;
   }
 
   /**
