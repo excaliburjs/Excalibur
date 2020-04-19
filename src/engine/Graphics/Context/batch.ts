@@ -1,13 +1,17 @@
 import { DrawImageCommand } from './command';
 import { Graphic } from '../Graphic';
 import { TextureManager } from './texture-manager';
+import { Poolable } from './pool';
 
 export interface BatchOptions {
   maxDrawsPerBatch: number;
   maxTexturesPerBatch: number;
 }
 
-export class Batch {
+export class Batch implements Poolable {
+  _poolId: number;
+  _free: boolean;
+
   public textures: WebGLTexture[] = [];
   public commands: DrawImageCommand[] = [];
   private _graphicMap: { [id: string]: Graphic } = {};
@@ -74,6 +78,10 @@ export class Batch {
       gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, this.textures[i] || this.textures[0]);
     }
+  }
+
+  _dispose() {
+    this.clear();
   }
 
   clear() {

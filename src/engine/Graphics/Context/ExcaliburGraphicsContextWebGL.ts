@@ -10,6 +10,7 @@ import { Vector } from '../../Algebra';
 import { Color } from '../../Drawing/Color';
 import { ensurePowerOfTwo } from './webgl-util';
 import { StateStack } from './state-stack';
+import { Pool } from './pool';
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   /**
@@ -35,6 +36,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   // 8 is the minimum defined in the spec
   private _shaderTextureMax: number = 8;
   private _batches: Batch[] = [];
+
+  private _commandPool: Pool<DrawImageCommand>;
+  private _batchPool: Pool<Batch>;
 
   // TODO
   public snapToPixel: boolean = true;
@@ -75,8 +79,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   private _init() {
     const gl = this.__gl;
+
     this._shaderTextureMax = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
     console.log(`Max textures[${this._shaderTextureMax}]`);
+
+    this._commandPool = new Pool<DrawImageCommand>(() => new DrawImageCommand(), this._maxDrawingsPerBatch);
+    this._batchPool = new Pool<Batch>(() => new Batch(this._textureManager, this._maxDrawingsPerBatch, this._shaderTextureMax));
 
     const shader = (this._shader = new Shader(this._shaderTextureMax));
     const program = shader.compile(gl);
@@ -165,11 +173,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     dheight?: number
   ): void {
     this._textureManager.updateFromGraphic(graphic);
-    const command = new DrawImageCommand(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+    const command = this._commandPool.get().init(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
     command.applyTransform(this._stack.transform, this._state.current.opacity, this._state.current.z);
 
     if (this._batches.length === 0) {
-      this._batches.push(new Batch(this._textureManager, this._maxDrawingsPerBatch, this._shaderTextureMax));
+      this._batches.push(this._batchPool.get());
     }
 
     // TODO Refactor this logic
@@ -181,7 +189,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       let batch = this._batches[i];
       let added = batch.maybeAdd(command);
       if (!added && i === lastBatch) {
-        const newBatch = new Batch(this._textureManager, this._maxDrawingsPerBatch, this._shaderTextureMax);
+        const newBatch = this._batchPool.get();
         newBatch.add(command);
         this._batches.push(newBatch);
         break;
@@ -190,35 +198,37 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   _updateVertexBufferData(batch: Batch): void {
-    // TODO apply current transform matrix to coordinates
-    const drawings = batch.commands;
+    let vertIndex = 0;
+    // const vertexSize = 6 * 7; // 6 vertices * (x, y, z, u, v, textureId, opacity)
+    let x: number = 0;
+    let y: number = 0;
+    let sx: number = 0;
+    let sy: number = 0;
+    let sw: number = 0;
+    let sh: number = 0;
+    let potWidth: number = 0;
+    let potHeight: number = 0;
+    let textureId = 0;
+    for (let command of batch.commands) {
+      x = command.dest[0];
+      y = command.dest[1];
+      sx = command.view[0];
+      sy = command.view[1];
+      sw = command.view[2];
+      sh = command.view[3];
 
-    const vertexSize = 6 * 7; // 6 vertices * (x, y, z, u, v, textureId, opacity)
-    for (let i = 0; i < drawings.length * vertexSize; i += vertexSize) {
-      let {
-        image,
-        opacity,
-        z,
-        dest: [x, y],
-        view: [sx, sy, sw, sh],
-        width,
-        height,
-        geometry
-      } = drawings[i / vertexSize];
+      potWidth = ensurePowerOfTwo(command.image.getSource().width || command.width);
+      potHeight = ensurePowerOfTwo(command.image.getSource().height || command.height);
 
-      let potWidth = ensurePowerOfTwo(image.getSource().width || width);
-      let potHeight = ensurePowerOfTwo(image.getSource().height || height); // raw image is what is sent to gpu
-      let textureId = 0;
       // TODO should this be handled by the batch
-      if (this._textureManager.hasWebGLTexture(image)) {
-        textureId = batch.textures.indexOf(this._textureManager.getWebGLTexture(image));
+      if (this._textureManager.hasWebGLTexture(command.image)) {
+        textureId = batch.textures.indexOf(this._textureManager.getWebGLTexture(command.image));
       }
       if (this.snapToPixel) {
         // quick bitwise truncate
         x = ~~x;
         y = ~~y;
       }
-      let index = i;
       // potential optimization when divding by 2 (bitshift)
       // TODO we need to validate drawImage before we get here with an error :O
 
@@ -230,82 +240,82 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
       // Quad update
       // (0, 0, z)
-      this._verts[index++] = geometry[0][0]; // x + 0 * width;
-      this._verts[index++] = geometry[0][1]; //y + 0 * height;
-      this._verts[index++] = z;
+      this._verts[vertIndex++] = command.geometry[0][0]; // x + 0 * width;
+      this._verts[vertIndex++] = command.geometry[0][1]; //y + 0 * height;
+      this._verts[vertIndex++] = command.z;
 
       // UV coords
-      this._verts[index++] = uvx0; // 0;
-      this._verts[index++] = uvy0; // 0;
+      this._verts[vertIndex++] = uvx0; // 0;
+      this._verts[vertIndex++] = uvy0; // 0;
       // texture id
-      this._verts[index++] = textureId;
+      this._verts[vertIndex++] = textureId;
       // opacity
-      this._verts[index++] = opacity;
+      this._verts[vertIndex++] = command.opacity;
 
       // (0, 1)
-      this._verts[index++] = geometry[1][0]; // x + 0 * width;
-      this._verts[index++] = geometry[1][1]; // y + 1 * height;
-      this._verts[index++] = z;
+      this._verts[vertIndex++] = command.geometry[1][0]; // x + 0 * width;
+      this._verts[vertIndex++] = command.geometry[1][1]; // y + 1 * height;
+      this._verts[vertIndex++] = command.z;
 
       // UV coords
-      this._verts[index++] = uvx0; // 0;
-      this._verts[index++] = uvy1; // 1;
+      this._verts[vertIndex++] = uvx0; // 0;
+      this._verts[vertIndex++] = uvy1; // 1;
       // texture id
-      this._verts[index++] = textureId;
+      this._verts[vertIndex++] = textureId;
       // opacity
-      this._verts[index++] = opacity;
+      this._verts[vertIndex++] = command.opacity;
 
       // (1, 0)
-      this._verts[index++] = geometry[2][0]; // x + 1 * width;
-      this._verts[index++] = geometry[2][1]; // y + 0 * height;
-      this._verts[index++] = z;
+      this._verts[vertIndex++] = command.geometry[2][0]; // x + 1 * width;
+      this._verts[vertIndex++] = command.geometry[2][1]; // y + 0 * height;
+      this._verts[vertIndex++] = command.z;
 
       // UV coords
-      this._verts[index++] = uvx1; //1;
-      this._verts[index++] = uvy0; //0;
+      this._verts[vertIndex++] = uvx1; //1;
+      this._verts[vertIndex++] = uvy0; //0;
       // texture id
-      this._verts[index++] = textureId;
+      this._verts[vertIndex++] = textureId;
       // opacity
-      this._verts[index++] = opacity;
+      this._verts[vertIndex++] = command.opacity;
 
       // (1, 0)
-      this._verts[index++] = geometry[3][0]; // x + 1 * width;
-      this._verts[index++] = geometry[3][1]; // y + 0 * height;
-      this._verts[index++] = z;
+      this._verts[vertIndex++] = command.geometry[3][0]; // x + 1 * width;
+      this._verts[vertIndex++] = command.geometry[3][1]; // y + 0 * height;
+      this._verts[vertIndex++] = command.z;
 
       // UV coords
-      this._verts[index++] = uvx1; //1;
-      this._verts[index++] = uvy0; //0;
+      this._verts[vertIndex++] = uvx1; //1;
+      this._verts[vertIndex++] = uvy0; //0;
       // texture id
-      this._verts[index++] = textureId;
+      this._verts[vertIndex++] = textureId;
       // opacity
-      this._verts[index++] = opacity;
+      this._verts[vertIndex++] = command.opacity;
 
       // (0, 1)
-      this._verts[index++] = geometry[4][0]; // x + 0 * width;
-      this._verts[index++] = geometry[4][1]; // y + 1 * height
-      this._verts[index++] = z;
+      this._verts[vertIndex++] = command.geometry[4][0]; // x + 0 * width;
+      this._verts[vertIndex++] = command.geometry[4][1]; // y + 1 * height
+      this._verts[vertIndex++] = command.z;
 
       // UV coords
-      this._verts[index++] = uvx0; // 0;
-      this._verts[index++] = uvy1; // 1;
+      this._verts[vertIndex++] = uvx0; // 0;
+      this._verts[vertIndex++] = uvy1; // 1;
       // texture id
-      this._verts[index++] = textureId;
+      this._verts[vertIndex++] = textureId;
       // opacity
-      this._verts[index++] = opacity;
+      this._verts[vertIndex++] = command.opacity;
 
       // (1, 1)
-      this._verts[index++] = geometry[5][0]; // x + 1 * width;
-      this._verts[index++] = geometry[5][1]; // y + 1 * height;
-      this._verts[index++] = z;
+      this._verts[vertIndex++] = command.geometry[5][0]; // x + 1 * width;
+      this._verts[vertIndex++] = command.geometry[5][1]; // y + 1 * height;
+      this._verts[vertIndex++] = command.z;
 
       // UV coords
-      this._verts[index++] = uvx1; // 1;
-      this._verts[index++] = uvy1; // 1;
+      this._verts[vertIndex++] = uvx1; // 1;
+      this._verts[vertIndex++] = uvy1; // 1;
       // texture id
-      this._verts[index++] = textureId;
+      this._verts[vertIndex++] = textureId;
       // opacity
-      this._verts[index++] = opacity;
+      this._verts[vertIndex++] = command.opacity;
     }
   }
 
@@ -359,6 +369,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._diag.images = 0;
     this._diag.uniqueTextures = 0;
     this._diag.batches = 0;
+    this._diag.maxTexturePerDraw = this._shaderTextureMax;
 
     this.clear();
 
@@ -380,8 +391,13 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
       this._diag.images += batch.commands.length;
       this._diag.uniqueTextures += batch.textures.length;
-      batch.clear();
+      // batch.clear();
+      for (let i = 0; i < batch.commands.length; i++) {
+        this._commandPool.free(batch.commands[i]);
+      }
+      this._batchPool.free(batch);
     }
+
     this._diag.batches = this._batches.length;
     this._batches.length = 0;
   }

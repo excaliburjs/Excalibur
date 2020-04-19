@@ -1,5 +1,6 @@
 import { Matrix } from '../../Math/matrix';
 import { Graphic } from '../Graphic';
+import { Poolable } from './pool';
 
 export interface DrawCommand {
   image: Graphic;
@@ -8,7 +9,10 @@ export interface DrawCommand {
   dest: [number, number]; // x, y
 }
 
-export class DrawImageCommand implements DrawCommand {
+export class DrawImageCommand implements DrawCommand, Poolable {
+  _poolId: number;
+  _free: boolean;
+
   public image: Graphic;
   public opacity: number = 1;
   public z: number = 0;
@@ -24,6 +28,7 @@ export class DrawImageCommand implements DrawCommand {
     [0, 0],
     [0, 0]
   ];
+  constructor();
   constructor(image: Graphic, x: number, y: number);
   constructor(image: Graphic, x: number, y: number, width?: number, height?: number);
   constructor(
@@ -38,9 +43,23 @@ export class DrawImageCommand implements DrawCommand {
     dheight?: number
   );
   constructor(
-    image: Graphic,
-    sx: number,
-    sy: number,
+    image?: Graphic,
+    sx?: number,
+    sy?: number,
+    swidth?: number,
+    sheight?: number,
+    dx?: number,
+    dy?: number,
+    dwidth?: number,
+    dheight?: number
+  ) {
+    this.init(image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+  }
+
+  public init(
+    image?: Graphic,
+    sx?: number,
+    sy?: number,
     swidth?: number,
     sheight?: number,
     dx?: number,
@@ -49,17 +68,34 @@ export class DrawImageCommand implements DrawCommand {
     dheight?: number
   ) {
     this.image = image;
-    this.width = image.width || swidth;
-    this.height = image.height || sheight;
-    this.view = [0, 0, swidth ?? image.width, sheight ?? image.height];
+    this.width = image?.width || swidth || 0;
+    this.height = image?.height || sheight || 0;
+    this.view = [0, 0, swidth ?? image?.width, sheight ?? image?.height];
     this.dest = [sx, sy];
     // If destination is specified, update view and dest
     if (dx !== undefined && dy !== undefined && dwidth !== undefined && dheight !== undefined) {
-      this.view = [sx, sy, swidth ?? image.width, sheight ?? image.height];
+      this.view = [sx, sy, swidth ?? image?.width, sheight ?? image?.height];
       this.dest = [dx, dy];
       this.width = dwidth;
       this.height = dheight;
     }
+
+    let index = 0;
+    this._geom[index++] = [this.dest[0], this.dest[1]];
+    this._geom[index++] = [this.dest[0], this.dest[1] + this.height];
+    this._geom[index++] = [this.dest[0] + this.width, this.dest[1]];
+    this._geom[index++] = [this.dest[0] + this.width, this.dest[1]];
+    this._geom[index++] = [this.dest[0], this.dest[1] + this.height];
+    this._geom[index++] = [this.dest[0] + this.width, this.dest[1] + this.height];
+    return this;
+  }
+
+  public _dispose() {
+    this.image = null;
+    this.width = 0;
+    this.height = 0;
+    this.view = [0, 0, 0, 0];
+    this.dest = [0, 0];
 
     let index = 0;
     this._geom[index++] = [this.dest[0], this.dest[1]];
