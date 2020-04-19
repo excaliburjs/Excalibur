@@ -11,6 +11,7 @@ import { Color } from '../../Drawing/Color';
 import { ensurePowerOfTwo } from './webgl-util';
 import { StateStack } from './state-stack';
 import { Pool } from './pool';
+import { Logger } from '../../Util/Log';
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   /**
@@ -172,6 +173,15 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     dwidth?: number,
     dheight?: number
   ): void {
+    if (!graphic) {
+      Logger.getInstance().warn('Cannot draw a null or undefined image');
+      // tslint:disable-next-line: no-console
+      if (console.trace) {
+        // tslint:disable-next-line: no-console
+        console.trace();
+      }
+      return;
+    }
     this._textureManager.updateFromGraphic(graphic);
     const command = this._commandPool.get().init(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
     command.applyTransform(this._stack.transform, this._state.current.opacity, this._state.current.z);
