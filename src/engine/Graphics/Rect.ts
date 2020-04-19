@@ -26,6 +26,11 @@ export class Rect extends Raster {
   }
 
   execute(ctx: CanvasRenderingContext2D): void {
-    ctx.fillRect(0, 0, this.width, this.height);
+    if (this.color) {
+      ctx.fillRect(0, 0, this.width, this.height);
+    }
+    if (this.strokeColor) {
+      ctx.strokeRect(0, 0, this.width, this.height);
+    }
   }
 }

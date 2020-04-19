@@ -4,6 +4,8 @@ import { Scene } from '../Scene';
 import { Entity } from '../Entity';
 import { GraphicsComponent } from './GraphicsComponent';
 import { TransformComponent, CoordPlane } from '../Transform';
+import { Rect } from './Rect';
+import { Color } from '../Drawing/Color';
 
 export class GraphicsSystem {
   public readonly types = [GraphicsComponent.type, TransformComponent.type];
@@ -29,6 +31,28 @@ export class GraphicsSystem {
       this.ctx.z = transform.z;
       this.ctx.opacity = graphics.opacity * ((entity as any).opacity ?? 1);
       graphics.draw(this.ctx, x, y);
+      if ((this.scene as any)._engine.isDebug) {
+        this.ctx.z = 99;
+        if (isActor(entity)) {
+          const rect = new Rect({
+            color: Color.Transparent,
+            lineWidth: 4,
+            strokeColor: Color.Red,
+            width: entity.width,
+            height: entity.height
+          });
+          rect.draw(this.ctx, 0, 0);
+          const drawingRect = new Rect({
+            color: Color.Transparent,
+            lineWidth: 4,
+            strokeColor: Color.Blue,
+            width: graphics.current?.width ?? 0,
+            height: graphics.current?.height ?? 0
+          });
+          drawingRect.draw(this.ctx, x, y);
+        }
+      }
+
       this.ctx.restore();
 
       this._popCameraTransform(transform);

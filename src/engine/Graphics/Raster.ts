@@ -9,6 +9,7 @@ export interface RasterOptions {
   smoothing?: boolean;
   color?: Color;
   strokeColor?: Color;
+  lineWidth?: number;
 }
 
 /**
@@ -30,6 +31,7 @@ export abstract class Raster extends Graphic {
       this.color = options.color ?? Color.Black;
       this.strokeColor = options?.strokeColor;
       this.smoothing = options.smoothing ?? this.smoothing;
+      this.lineWidth = options.lineWidth ?? this.lineWidth;
     }
 
     this._bitmap = document.createElement('canvas');
@@ -148,6 +150,19 @@ export abstract class Raster extends Graphic {
     this.flagDirty();
   }
 
+  private _lineWidth: number = 1;
+  /**
+   * Gets or sets the line width of the Raster graphic. Setting the lineWidth will cause the raster to be
+   * flagged dirty causing a re-raster on the next draw.
+   */
+  public get lineWidth() {
+    return this._lineWidth;
+  }
+  public set lineWidth(value) {
+    this._lineWidth = value;
+    this.flagDirty();
+  }
+
   /**
    * Rasterize the graphic to a bitmap making it usuable as in excalibur. Rasterize is called automatically if
    * the graphic is [[Graphic.dirty]] on the next [[Graphic.draw]] call
@@ -165,6 +180,7 @@ export abstract class Raster extends Graphic {
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
     ctx.imageSmoothingEnabled = this.smoothing;
+    ctx.lineWidth = this.lineWidth;
     ctx.strokeStyle = this.strokeColor?.toString();
     ctx.fillStyle = this.color?.toString();
   }
