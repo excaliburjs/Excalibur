@@ -1234,7 +1234,7 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
    * @internal
    */
   public _postupdate(engine: Engine, delta: number): void {
-    this.emit('postupdate', new PreUpdateEvent(engine, delta, this));
+    this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
     this.onPostUpdate(engine, delta);
   }
 
