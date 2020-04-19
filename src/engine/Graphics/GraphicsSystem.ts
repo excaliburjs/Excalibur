@@ -23,11 +23,11 @@ export class GraphicsSystem {
       this._pushCameraTransform(transform);
 
       this.ctx.save();
+      graphics.update(delta);
       this._applyEntityTransform(transform);
       const [x, y] = this._applyActorAnchor(entity);
       this.ctx.z = transform.z;
       this.ctx.opacity = graphics.opacity * ((entity as any).opacity ?? 1);
-      graphics.update(delta);
       graphics.draw(this.ctx, x, y);
       this.ctx.restore();
 

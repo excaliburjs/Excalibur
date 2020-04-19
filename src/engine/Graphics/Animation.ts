@@ -190,6 +190,14 @@ export class Animation extends Graphic implements Eventable<Frame | Animation>, 
     if (this._timeLeftInFrame <= 0) {
       this.goToFrame(this._nextFrame());
     }
+    this._updateDimensions();
+  }
+
+  private _updateDimensions() {
+    if (this.currentFrame) {
+      this.width = this.currentFrame.graphic?.width;
+      this.height = this.currentFrame.graphic?.height;
+    }
   }
 
   protected _drawImage(ctx: ExcaliburGraphicsContext, x: number, y: number) {
