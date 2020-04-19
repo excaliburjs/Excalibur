@@ -189,4 +189,85 @@ export class Matrix {
 
     return dest;
   }
+
+  translate(x: number, y: number) {
+    const a11 = this.data[0];
+    const a21 = this.data[1];
+    const a31 = this.data[2];
+    const a41 = this.data[3];
+
+    const a12 = this.data[4];
+    const a22 = this.data[5];
+    const a32 = this.data[6];
+    const a42 = this.data[7];
+
+    const a13 = this.data[8];
+    const a23 = this.data[9];
+    const a33 = this.data[10];
+    const a43 = this.data[11];
+
+    const a14 = this.data[12];
+    const a24 = this.data[13];
+    const a34 = this.data[14];
+    const a44 = this.data[15];
+
+    // Doesn't change z
+    this.data[12] = a11 * x + a12 * y + a13 + a14;
+    this.data[13] = a21 * x + a22 * y + a23 + a24;
+    this.data[14] = a31 * x + a32 * y + a33 + a34;
+    this.data[15] = a41 * x + a42 * y + a43 + a44;
+
+    return this;
+  }
+
+  rotate(angle: number) {
+    const a11 = this.data[0];
+    const a21 = this.data[1];
+    const a31 = this.data[2];
+    const a41 = this.data[3];
+
+    const a12 = this.data[4];
+    const a22 = this.data[5];
+    const a32 = this.data[6];
+    const a42 = this.data[7];
+
+    const sine = Math.sin(angle);
+    const cosine = Math.cos(angle);
+
+    this.data[0] = cosine * a11 + sine * a12;
+    this.data[1] = cosine * a21 + sine * a22;
+    this.data[2] = cosine * a31 + sine * a32;
+    this.data[3] = cosine * a41 + sine * a42;
+
+    this.data[4] = cosine * a12 - sine * a11;
+    this.data[5] = cosine * a22 - sine * a21;
+    this.data[6] = cosine * a32 - sine * a31;
+    this.data[7] = cosine * a42 - sine * a41;
+
+    return this;
+  }
+
+  scale(x: number, y: number) {
+    const a11 = this.data[0];
+    const a21 = this.data[1];
+    const a31 = this.data[2];
+    const a41 = this.data[3];
+
+    const a12 = this.data[4];
+    const a22 = this.data[5];
+    const a32 = this.data[6];
+    const a42 = this.data[7];
+
+    this.data[0] = a11 * x;
+    this.data[1] = a21 * x;
+    this.data[2] = a31 * x;
+    this.data[3] = a41 * x;
+
+    this.data[4] = a12 * y;
+    this.data[5] = a22 * y;
+    this.data[6] = a32 * y;
+    this.data[7] = a42 * y;
+
+    return this;
+  }
 }
