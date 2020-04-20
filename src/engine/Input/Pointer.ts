@@ -224,7 +224,7 @@ export class Pointer extends Class {
    * @param actor An Actor for check;
    */
   public isActorUnderPointer(actor: Actor): boolean {
-    return this._actorsUnderPointer.hasOwnProperty(actor.id.toString());
+    return (!actor.isKilled() || !!actor.scene) && this._actorsUnderPointer.hasOwnProperty(actor.id.toString());
   }
 
   private _onPointerMove(ev: PointerMoveEvent): void {
