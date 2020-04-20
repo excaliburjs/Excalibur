@@ -1,5 +1,4 @@
 import { Raster, RasterOptions } from './Raster';
-import { GraphicOptions } from './Graphic';
 import { Font } from './Font';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { line } from '../Util/DrawUtil';

@@ -51,6 +51,7 @@ export class Animation extends Graphic implements Eventable<Frame | Animation>, 
   private _timeLeftInFrame = 0;
   private _direction = 1;
   private _done = false;
+  private _playing = true;
 
   private _emitter: EventDispatcher<Frame | Animation> = new EventDispatcher<Frame | Animation>(this);
 
@@ -102,6 +103,14 @@ export class Animation extends Graphic implements Eventable<Frame | Animation>, 
 
   public getSource(): ImageSource {
     return this.frames[this._currentFrame].graphic.getSource();
+  }
+
+  public play(): void {
+    this._playing = true;
+  }
+
+  public pause(): void {
+    this._playing = false;
   }
 
   public reset(): void {
@@ -186,6 +195,7 @@ export class Animation extends Graphic implements Eventable<Frame | Animation>, 
   }
 
   public tick(elapsedMilliseconds: number) {
+    if (!this._playing) return;
     this._timeLeftInFrame -= elapsedMilliseconds;
     if (this._timeLeftInFrame <= 0) {
       this.goToFrame(this._nextFrame());
