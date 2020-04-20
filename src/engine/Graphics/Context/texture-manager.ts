@@ -10,8 +10,12 @@ import { ensurePowerOfTwo, isPowerOfTwo } from './webgl-util';
 export class TextureManager {
   private _exgl: ExcaliburGraphicsContextWebGL;
   private _graphicTexture: { [graphicId: number]: WebGLTexture } = {};
+  private _potCanvas: HTMLCanvasElement;
+  private _potCtx: CanvasRenderingContext2D;
   constructor(context: ExcaliburGraphicsContextWebGL) {
     this._exgl = context;
+    this._potCanvas = document.createElement('canvas');
+    this._potCtx = this._potCanvas.getContext('2d');
   }
 
   hasWebGLTexture(graphic: Graphic) {
@@ -70,13 +74,13 @@ export class TextureManager {
   private _ensurePowerOfTwoImage(image: ImageSource): ImageSource {
     if (!isPowerOfTwo(image.width) || !isPowerOfTwo(image.height)) {
       // Scale up the texture to the next highest power of two dimensions.
-      const canvas = document.createElement('canvas');
-      canvas.width = ensurePowerOfTwo(image.width);
-      canvas.height = ensurePowerOfTwo(image.height);
-      const ctx = canvas.getContext('2d');
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(image, 0, 0, image.width, image.height);
-      image = canvas;
+
+      this._potCanvas.width = ensurePowerOfTwo(image.width);
+      this._potCanvas.height = ensurePowerOfTwo(image.height);
+      this._potCtx.clearRect(0, 0, this._potCanvas.width, this._potCanvas.height);
+      this._potCtx.imageSmoothingEnabled = false;
+      this._potCtx.drawImage(image, 0, 0, image.width, image.height);
+      image = this._potCanvas;
     }
     return image;
   }
