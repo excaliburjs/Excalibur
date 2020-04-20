@@ -1,4 +1,4 @@
-import { Raster } from './Raster';
+import { Raster, RasterOptions } from './Raster';
 import { GraphicOptions } from './Graphic';
 import { Font } from './Font';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
@@ -12,7 +12,7 @@ export interface TextOptions {
 }
 
 export class Text extends Raster {
-  constructor(options: TextOptions & GraphicOptions) {
+  constructor(options: TextOptions & RasterOptions) {
     super(options);
     this.text = options.text;
     this.font = options.font ?? new Font();
