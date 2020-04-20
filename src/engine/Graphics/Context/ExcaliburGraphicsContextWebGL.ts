@@ -190,20 +190,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._batches.push(this._batchPool.get());
     }
 
-    // TODO Refactor this logic
-    // If we are packing into existing batches we start looking at zero
-    // Otherwise we only add on to the latest batch
-    let startingBatch = 0;
-    let lastBatch = this._batches.length - 1;
-    for (let i = startingBatch; i < this._batches.length; i++) {
-      let batch = this._batches[i];
-      let added = batch.maybeAdd(command);
-      if (!added && i === lastBatch) {
-        const newBatch = this._batchPool.get();
-        newBatch.add(command);
-        this._batches.push(newBatch);
-        break;
-      }
+    let lastBatch = this._batches[this._batches.length - 1];
+    let added = lastBatch.maybeAdd(command);
+    if (!added) {
+      const newBatch = this._batchPool.get();
+      newBatch.add(command);
+      this._batches.push(newBatch);
     }
   }
 
@@ -384,10 +376,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.clear();
 
     for (let batch of this._batches) {
-      // Build all geometry and ship to GPU
-      this._updateVertexBufferData(batch);
       // 6 vertices per quad
       const vertexCount = 6 * batch.commands.length;
+      // Build all geometry and ship to GPU
+      this._updateVertexBufferData(batch);
 
       // interleave VBOs https://goharsha.com/lwjgl-tutorial-series/interleaving-buffer-objects/
       gl.bindBuffer(gl.ARRAY_BUFFER, this._vertBuffer);
@@ -401,9 +393,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
       this._diag.images += batch.commands.length;
       this._diag.uniqueTextures += batch.textures.length;
-      // batch.clear();
-      for (let i = 0; i < batch.commands.length; i++) {
-        this._commandPool.free(batch.commands[i]);
+
+      for (let c of batch.commands) {
+        this._commandPool.free(c);
       }
       this._batchPool.free(batch);
     }

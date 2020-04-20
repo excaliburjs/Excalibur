@@ -25,10 +25,14 @@ export class Pool<T extends Poolable> {
 
   public get(): T {
     if (this._freeIds.length === 0) {
-      debugger;
+      console.log('Pool empty: allocating more doubling');
+      this.allocate(this._pool.length);
     }
     const id = this._freeIds.pop();
     const thing = this._pool[id];
+    if (thing._poolId !== id) {
+      throw new Error('pool corrupt');
+    }
     thing._free = false;
     return thing;
   }
