@@ -10,6 +10,8 @@ export interface RasterOptions {
   color?: Color;
   strokeColor?: Color;
   lineWidth?: number;
+  lineDash?: number[];
+  padding?: number;
 }
 
 /**
@@ -32,6 +34,8 @@ export abstract class Raster extends Graphic {
       this.strokeColor = options?.strokeColor;
       this.smoothing = options.smoothing ?? this.smoothing;
       this.lineWidth = options.lineWidth ?? this.lineWidth;
+      this.lineDash = options.lineDash ?? this.lineDash;
+      this.padding = options.padding ?? this.padding;
     }
 
     this._bitmap = document.createElement('canvas');
@@ -52,7 +56,10 @@ export abstract class Raster extends Graphic {
     return {
       color: this.color ? this.color.clone() : null,
       strokeColor: this.strokeColor ? this.strokeColor.clone() : null,
-      smoothing: this.smoothing
+      smoothing: this.smoothing,
+      lineWidth: this.lineWidth,
+      lineDash: this.lineDash,
+      padding: this.padding
     };
   }
 
@@ -163,6 +170,26 @@ export abstract class Raster extends Graphic {
     this.flagDirty();
   }
 
+  private _lineDash: number[] = [];
+  public get lineDash() {
+    return this._lineDash;
+  }
+
+  public set lineDash(value) {
+    this._lineDash = value;
+    this.flagDirty();
+  }
+
+  private _padding: number = 0;
+  public get padding() {
+    return this._padding;
+  }
+
+  public set padding(value: number) {
+    this._padding = value;
+    this.flagDirty();
+  }
+
   /**
    * Rasterize the graphic to a bitmap making it usuable as in excalibur. Rasterize is called automatically if
    * the graphic is [[Graphic.dirty]] on the next [[Graphic.draw]] call
@@ -179,8 +206,12 @@ export abstract class Raster extends Graphic {
   }
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
+    this._bitmap.width = this.width + this.padding * 2;
+    this._bitmap.height = this.height + this.padding * 2;
+    ctx.translate(this.padding, this.padding);
     ctx.imageSmoothingEnabled = this.smoothing;
     ctx.lineWidth = this.lineWidth;
+    ctx.setLineDash(this.lineDash ?? ctx.getLineDash());
     ctx.strokeStyle = this.strokeColor?.toString();
     ctx.fillStyle = this.color?.toString();
   }

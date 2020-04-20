@@ -60,16 +60,6 @@ export class Text extends Raster {
     this.flagDirty();
   }
 
-  private _padding: number = 0;
-  public get padding() {
-    return this._padding;
-  }
-
-  public set padding(value: number) {
-    this._padding = value;
-    this.flagDirty();
-  }
-
   private get _halfWidth() {
     return Math.floor(this.width / 2);
   }
