@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { ChunkSystemTileMap, wrapSimpleChunkGenerator } from '@excalibur';
+import { ChunkSystemTileMap, wrapSimpleChunkGenerator, wrapSimpleCellGenerator } from '@excalibur';
 
 const DEFAULT_OPTIONS = {
   x: -32,
@@ -135,10 +135,7 @@ describe('ChunkSystemTileMap', () => {
   it('does not collide an non-colliding actor', () => {
     const chunkSystem = new ChunkSystemTileMap({
       ...DEFAULT_OPTIONS,
-      chunkGenerator: wrapSimpleChunkGenerator((chunk) => {
-        chunk.getCell(0, 0).solid = !chunk.x && !chunk.y;
-        return chunk;
-      })
+      chunkGenerator: wrapSimpleCellGenerator((cell) => (cell.solid = !cell.x && !cell.y))
     });
     const actor = new ex.Actor({
       x: -34,
@@ -154,10 +151,7 @@ describe('ChunkSystemTileMap', () => {
   it('collides a colliding actor', () => {
     const chunkSystem = new ChunkSystemTileMap({
       ...DEFAULT_OPTIONS,
-      chunkGenerator: wrapSimpleChunkGenerator((chunk) => {
-        chunk.getCell(0, 0).solid = !chunk.x && !chunk.y;
-        return chunk;
-      })
+      chunkGenerator: wrapSimpleCellGenerator((cell) => (cell.solid = !cell.x && !cell.y))
     });
     const actor = new ex.Actor({
       x: 0,

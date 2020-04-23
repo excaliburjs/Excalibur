@@ -1,6 +1,5 @@
 import * as ex from '@excalibur';
 import { TestUtils } from '../util/TestUtils';
-import { Mocks } from 'util/Mocks';
 
 describe('ChunkSystemTileMapCollisionDetection', () => {
   type SimpleCellGenerator = (cell: ex.Cell, chunk: ex.TileMap, chunkSystem: ex.ChunkSystemTileMap, engine: ex.Engine) => ex.Cell;
@@ -12,7 +11,7 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
   } as ex.ActorArgs);
   const engine = TestUtils.engine();
   let chunkSystem: ex.ChunkSystemTileMap;
-  let currentCellGenerator: SimpleCellGenerator;
+  let currentCellGenerator: (cell: ex.Cell) => void;
 
   beforeAll(() => {
     engine.add(actor);
@@ -33,13 +32,7 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
       rows: 16,
       chunkGarbageCollectorPredicate: () => false,
       chunkRenderingCachePredicate: () => false,
-      chunkGenerator: ex.wrapSimpleChunkGenerator(
-        wrapSimpleCellGenerator(
-          (cell: ex.Cell, chunk: ex.TileMap, chunkSystem: ex.ChunkSystemTileMap, engine: ex.Engine): ex.Cell => {
-            return currentCellGenerator(cell, chunk, chunkSystem, engine);
-          }
-        )
-      )
+      chunkGenerator: ex.wrapSimpleCellGenerator((cell) => currentCellGenerator(cell))
     });
     actor.pos = ex.vec(0, 0);
     actor.body.collider.type = ex.CollisionType.PreventCollision;
@@ -48,10 +41,7 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
 
   describe('update', () => {
     it('has no effect if the colliding actor has the PreventCollision collider', () => {
-      currentCellGenerator = (cell) => {
-        cell.solid = true;
-        return cell;
-      };
+      currentCellGenerator = (cell) => (cell.solid = true);
       chunkSystem.update(engine, 16);
       spyOn(chunkSystem, 'collides').and.callThrough();
       trait.update(actor, engine);
@@ -61,10 +51,7 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
     });
 
     it('fires a precollision event for an actor with the Passive collider', () => {
-      currentCellGenerator = (cell) => {
-        cell.solid = !cell.x && !cell.y;
-        return cell;
-      };
+      currentCellGenerator = (cell) => (cell.solid = !cell.x && !cell.y);
       actor.body.collider.type = ex.CollisionType.Passive;
       const eventHandler = jasmine.createSpy();
       const postCollisionHandler = jasmine.createSpy();
@@ -92,10 +79,7 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
     });
 
     it('fires a precollision event for an actor with the Fixed collider', () => {
-      currentCellGenerator = (cell) => {
-        cell.solid = !cell.x && !cell.y;
-        return cell;
-      };
+      currentCellGenerator = (cell) => (cell.solid = !cell.x && !cell.y);
       actor.body.collider.type = ex.CollisionType.Fixed;
       const eventHandler = jasmine.createSpy();
       const postCollisionHandler = jasmine.createSpy();
@@ -123,10 +107,7 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
     });
 
     it('fires a precollision and postcollision event for an actor with the Active collider', () => {
-      currentCellGenerator = (cell) => {
-        cell.solid = !cell.x && !cell.y;
-        return cell;
-      };
+      currentCellGenerator = (cell) => (cell.solid = !cell.x && !cell.y);
       actor.body.collider.type = ex.CollisionType.Active;
       const preCollisionHandler = jasmine.createSpy('preCollisionHandler', (event) => {
         expect(actor.pos.x).toBe(0);
@@ -161,24 +142,4 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
       }
     });
   });
-
-  function wrapSimpleCellGenerator(
-    cellGenerator: (cell: ex.Cell, chunk: ex.TileMap, chunkSystem: ex.ChunkSystemTileMap, engine: ex.Engine) => ex.Cell
-  ): ex.SimpleChunkGenerator {
-    return (
-      chunk: ex.TileMap,
-      chunkCellColumn: number,
-      chunkCellRow: number,
-      chunkSystemTileMap: ex.ChunkSystemTileMap,
-      engine: ex.Engine
-    ) => {
-      for (let y = 0, cols = chunk.cols, rows = chunk.rows; y < rows; y++) {
-        for (let x = 0; x < cols; x++) {
-          const cell = chunk.getCell(x, y);
-          cellGenerator(cell, chunk, chunkSystemTileMap, engine);
-        }
-      }
-      return chunk;
-    };
-  }
 });

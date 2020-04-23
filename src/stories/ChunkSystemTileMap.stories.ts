@@ -14,7 +14,7 @@ import {
   TileSprite,
   vec,
   Vector,
-  wrapSimpleChunkGenerator
+  wrapSimpleCellGenerator
 } from '../engine';
 import { withEngine } from './utils';
 
@@ -65,7 +65,7 @@ export const demo: Story = withEngine(async (game: Engine) => {
     y: -(CHUNK_ROWS * CHUNK_SIZE * CHUNK_CELL_HEIGHT) / 2,
     cols: CHUNK_COLS * CHUNK_SIZE,
     rows: CHUNK_ROWS * CHUNK_SIZE,
-    chunkGenerator: wrapSimpleChunkGenerator(chunkGenerator),
+    chunkGenerator: wrapSimpleCellGenerator(cellGenerator),
     chunkRenderingCachePredicate: (_chunk: TileMap): boolean => true
   });
   chunkSystem.registerSpriteSheet('surface', spriteSheet);
@@ -77,23 +77,8 @@ export const demo: Story = withEngine(async (game: Engine) => {
     octaves: PERLIN_NOISE_GENERATOR_OCTAVES,
     persistance: PERLIN_NOISE_GENERATOR_PERSISTANCE
   });
-  function chunkGenerator(
-    chunk: TileMap,
-    chunkCellColumn: number,
-    chunkCellRow: number,
-    chunkSystemTileMap: ChunkSystemTileMap,
-    engine: Engine
-  ): ex.TileMap {
-    for (let y = 0, cols = chunk.cols, rows = chunk.rows; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        const cell = chunk.getCell(x, y);
-        cellGenerator(cell, chunkCellColumn + x, chunkCellRow + y, chunkSystemTileMap, engine);
-      }
-    }
-    return chunk;
-  }
-  function cellGenerator(cell: Cell, cellColumn: number, cellRow: number, chunkSystemTileMap: ChunkSystemTileMap, _engine: Engine): void {
-    const tileValue = perlinNoiseGenerator.noise(cellColumn / chunkSystemTileMap.chunkSize, cellRow / chunkSystemTileMap.chunkSize);
+  function cellGenerator(cell: Cell, cellColumn: number, cellRow: number, chunk: TileMap): void {
+    const tileValue = perlinNoiseGenerator.noise(cellColumn / chunk.cols, cellRow / chunk.rows);
     if (tileValue >= 0.5) {
       cell.pushSprite(dirtSprite);
     } else {

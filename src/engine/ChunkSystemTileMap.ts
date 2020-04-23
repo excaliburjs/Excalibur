@@ -15,6 +15,14 @@ export type SimpleChunkGenerator = (
   chunkSystemTileMap: ChunkSystemTileMap,
   engine: Engine
 ) => TileMap;
+export type SimpleCellGenerator = (
+  cell: Cell,
+  cellColumn: number,
+  cellRow: number,
+  chunk: TileMap,
+  chunkSystemTileMape: ChunkSystemTileMap,
+  engine: Engine
+) => void;
 
 export type ChunkSystemGarbageCollectorPredicate = (chunk: TileMap, engine: Engine) => boolean;
 
@@ -394,6 +402,18 @@ export function wrapSimpleChunkGenerator(simpleGenerator: SimpleChunkGenerator):
     });
     return simpleGenerator(chunk, chunkCellColumn, chunkCellRow, chunkSystemTileMap, engine);
   };
+}
+
+export function wrapSimpleCellGenerator(simpleGenerator: SimpleCellGenerator): ChunkGenerator {
+  return wrapSimpleChunkGenerator((chunk, chunkCellColumn, chunkCellRow, chunkSystemTileMap, engine) => {
+    const { cols, rows } = chunk;
+    for (let row = 0; row < rows; row++) {
+      for (let column = 0; column < cols; column++) {
+        simpleGenerator(chunk.getCell(column, row), chunkCellColumn + column, chunkCellRow + row, chunk, chunkSystemTileMap, engine);
+      }
+    }
+    return chunk;
+  });
 }
 
 function isSafeInteger(number: number): boolean {
