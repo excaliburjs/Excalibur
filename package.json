@@ -109,7 +109,7 @@
     "tslint": "6.1.0",
     "typedoc": "0.17.3",
     "typescript": "3.8.3",
-    "url-loader": "4.0.0",
+    "url-loader": "4.1.0",
     "webpack": "4.42.1",
     "webpack-cli": "3.3.11",
     "webpack-merge": "4.2.2"
