@@ -101,7 +101,7 @@
     "puppeteer": "2.1.1",
     "rimraf": "3.0.2",
     "serve": "11.3.0",
-    "source-map-support": "0.5.16",
+    "source-map-support": "0.5.19",
     "sync-request": "6.1.0",
     "to-string-loader": "1.1.6",
     "travis-ci": "2.2.0",
