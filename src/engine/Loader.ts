@@ -248,53 +248,38 @@ export class Loader extends Class implements CanLoad {
    */
   public load(): Promise<any> {
     const complete = new Promise<any>();
-    const me = this;
     if (this._resourceList.length === 0) {
-      me.showPlayButton().then(() => {
+      this.showPlayButton().then(() => {
         // Unlock audio context in chrome after user gesture
         // https://github.com/excaliburjs/Excalibur/issues/262
         // https://github.com/excaliburjs/Excalibur/issues/1031
         WebAudio.unlock().then(() => {
-          me.hidePlayButton();
-          me.oncomplete.call(me);
+          this.hidePlayButton();
+          this.oncomplete.call(this);
           complete.resolve();
         });
       });
       return complete;
     }
 
-    const progressArray = new Array<any>(this._resourceList.length);
-    const progressChunks = this._resourceList.length;
-
-    this._resourceList.forEach((r, i) => {
+    this._resourceList.forEach((resource) => {
       if (this._engine) {
-        r.wireEngine(this._engine);
+        resource.wireEngine(this._engine);
       }
-      r.onprogress = function (e) {
-        const total = <number>e.total;
-        const loaded = <number>e.loaded;
-        progressArray[i] = { loaded: (loaded / total) * (100 / progressChunks), total: 100 };
-
-        const progressResult: any = progressArray.reduce(
-          function (accum, next) {
-            return { loaded: accum.loaded + next.loaded, total: 100 };
-          },
-          { loaded: 0, total: 100 }
-        );
-
-        me.onprogress.call(me, progressResult);
+      resource.onprogress = (e: ProgressEvent) => {
+        this.updateResourceProgress(e.loaded, e.total);
       };
-      r.oncomplete = r.onerror = function () {
-        me._numLoaded++;
-        if (me._numLoaded === me._resourceCount) {
+      resource.oncomplete = resource.onerror = () => {
+        this.markResourceComplete();
+        if (this.isLoaded()) {
           setTimeout(() => {
-            me.showPlayButton().then(() => {
+            this.showPlayButton().then(() => {
               // Unlock audio context in chrome after user gesture
               // https://github.com/excaliburjs/Excalibur/issues/262
               // https://github.com/excaliburjs/Excalibur/issues/1031
               WebAudio.unlock().then(() => {
-                me.hidePlayButton();
-                me.oncomplete.call(me);
+                this.hidePlayButton();
+                this.oncomplete.call(this);
                 complete.resolve();
               });
             });
@@ -314,6 +299,25 @@ export class Loader extends Class implements CanLoad {
     loadNext(this._resourceList, 0);
 
     return complete;
+  }
+
+  public updateResourceProgress(loadedBytes: number, totalBytes: number) {
+    const chunkSize = 100 / this._resourceCount;
+    const resourceProgress = loadedBytes / totalBytes;
+    // This only works if we load 1 resource at a time
+    const totalProgress = resourceProgress * chunkSize + this.progress * 100;
+    this.onprogress({ loaded: totalProgress, total: 100 });
+  }
+
+  public markResourceComplete() {
+    this._numLoaded++;
+  }
+
+  /**
+   * Returns the progess of the loader as a number between [0, 1] inclusive.
+   */
+  public get progress(): number {
+    return this._resourceCount > 0 ? this._numLoaded / this._resourceCount : 1;
   }
 
   /**
@@ -375,7 +379,7 @@ export class Loader extends Class implements CanLoad {
 
     ctx.lineWidth = 2;
     DrawUtil.roundRect(ctx, loadingX, loadingY, width, 20, 10, this.loadingBarColor);
-    const progress = width * (this._numLoaded / this._resourceCount);
+    const progress = width * this.progress;
     const margin = 5;
     const progressWidth = progress - margin * 2;
     const height = 20 - margin * 2;
