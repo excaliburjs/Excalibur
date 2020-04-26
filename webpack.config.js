@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const version = require('./version');
+const version = require('./version').getCiVersion();
 const pkg = require('./package.json');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const now = new Date();

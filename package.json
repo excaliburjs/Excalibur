@@ -2,7 +2,7 @@
   "name": "excalibur",
   "private": true,
   "sideEffects": false,
-  "version": "0.0.1",
+  "version": "0.24.1",
   "description": "Excalibur.js is a simple JavaScript game engine with TypeScript bindings for making 2D games in HTML5 Canvas. Our mission is to make web game development as simple as possible.",
   "author": "https://github.com/excaliburjs/Excalibur/graphs/contributors",
   "homepage": "https://github.com/excaliburjs/Excalibur",
@@ -49,7 +49,8 @@
     "coveralls": "coveralls < coverage/lcov.info",
     "apidocs": "git submodule update && node apidocs.js",
     "precommit": "pretty-quick --staged && npm run eslint && npm run eslint:spec",
-    "pretty": "prettier --write \"{src,sandbox/src,sandbox/tests}/**/*.{ts,js,json,css,md}\" --config prettier.config.js"
+    "pretty": "prettier --write \"{src,sandbox/src,sandbox/tests}/**/*.{ts,js,json,css,md}\" --config prettier.config.js",
+    "release": "node release.js"
   },
   "husky": {
     "hooks": {
@@ -100,6 +101,7 @@
     "pretty-quick": "2.0.1",
     "puppeteer": "3.0.1",
     "rimraf": "3.0.2",
+    "semver": "7.3.2",
     "serve": "11.3.0",
     "source-map-support": "0.5.19",
     "sync-request": "6.1.0",
