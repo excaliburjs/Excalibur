@@ -216,4 +216,56 @@ describe('ChunkSystemTileMap', () => {
     expect(cell.x).toBe(0);
     expect(cell.y).toBe(16);
   });
+
+  it('runs garbage collector before generating new chunks', () => {
+    //
+  });
+
+  it('run the gargage collector only for off-screen chunks', () => {
+    //
+  });
+
+  it('executes the garbage collector with the chunk, chunk system and engine as arguments', () => {
+    //
+  });
+
+  it('can handle teleporting the camera over a vast distance', () => {
+    //
+  });
+
+  it('generates only the chunks that will be drawn', () => {
+    //
+  });
+
+  it('passed the chunk column and row, chunk system and engine to the chunk generator', () => {
+    //
+  });
+
+  it('passes the column and row of the chunk to generate within chunks matrix as arguments to the generator', () => {
+    // These are not cell columns/rows but chunk columns/rows - one step "higher"
+  });
+
+  it('passes the chunk, chunk system and engine to the rendering cache predicate', () => {
+    //
+  });
+
+  it('does not execute the rendering cache predicate for the same chunk until it is garbage collected', () => {
+    //
+  });
+
+  it('does not update chunks that are cached in render cache', () => {
+    //
+  });
+
+  it('passes a new chunk, absolute cell-level column and row, chunk system and engine to simple chunk generator', () => {
+    //
+  });
+
+  it('uses the chunk that is returned by the simple chunk generator instead of the provided one', () => {
+    //
+  });
+
+  it('passes a new cell, absolute cell-level column and row, chunk, chunk system and engine to simple cell generator', () => {
+    //
+  });
 });
