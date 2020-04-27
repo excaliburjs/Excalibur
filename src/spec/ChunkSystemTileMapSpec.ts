@@ -15,7 +15,11 @@ const DEFAULT_OPTIONS = {
 };
 
 describe('ChunkSystemTileMap', () => {
-  const engine = TestUtils.engine();
+  let engine: ex.Engine;
+
+  beforeEach(() => {
+    engine = TestUtils.engine();
+  });
 
   it('rejects zero, negative number or non-integer as chunk size', () => {
     const forbiddenValues = [0, -1, 1.25];
@@ -218,7 +222,31 @@ describe('ChunkSystemTileMap', () => {
   });
 
   it('runs garbage collector before generating new chunks', () => {
-    //
+    const chunkGarbageCollectorPredicate = jasmine.createSpy('garbageCollectorPredicate', (chunk) => {
+      expect(cellGenerator).toHaveBeenCalledTimes(5184);
+      return true;
+    });
+    const cellGenerator = jasmine.createSpy('cellGenerator', (cell) => {
+      expect([0, 288].indexOf(chunkGarbageCollectorPredicate.calls.count())).toBeGreaterThan(-1);
+      return cell;
+    });
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      x: -4096,
+      y: -4096,
+      cols: 1024,
+      rows: 1024,
+      chunkGarbageCollectorPredicate,
+      chunkGenerator: wrapSimpleCellGenerator(cellGenerator)
+    });
+    chunkSystem.update(engine, 16);
+    expect(chunkGarbageCollectorPredicate).not.toHaveBeenCalled();
+    expect(cellGenerator).toHaveBeenCalledTimes(5184);
+
+    engine.currentScene.camera.x += engine.canvas.width;
+    chunkSystem.update(engine, 16);
+    expect(chunkGarbageCollectorPredicate).toHaveBeenCalledTimes(288);
+    expect(cellGenerator).toHaveBeenCalledTimes(9504);
   });
 
   it('run the gargage collector only for off-screen chunks', () => {
