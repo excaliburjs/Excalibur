@@ -109,14 +109,18 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
     it('fires a precollision and postcollision event for an actor with the Active collider', () => {
       currentCellGenerator = (cell) => (cell.solid = !cell.x && !cell.y);
       actor.body.collider.type = ex.CollisionType.Active;
-      const preCollisionHandler = jasmine.createSpy('preCollisionHandler', (event) => {
-        expect(actor.pos.x).toBe(0);
-        expect(actor.pos.y).toBe(0);
-      });
-      const postCollisionHandler = jasmine.createSpy('postCollisionHandler', (event) => {
-        expect(actor.pos.x).toBe(0);
-        expect(actor.pos.y).toBe(-16);
-      });
+      const preCollisionHandler = jasmine
+        .createSpy('preCollisionHandler', (event) => {
+          expect(actor.pos.x).toBe(0);
+          expect(actor.pos.y).toBe(0);
+        })
+        .and.callThrough();
+      const postCollisionHandler = jasmine
+        .createSpy('postCollisionHandler', (event) => {
+          expect(actor.pos.x).toBe(0);
+          expect(actor.pos.y).toBe(-16);
+        })
+        .and.callThrough();
       actor.eventDispatcher.on('precollision', preCollisionHandler);
       actor.eventDispatcher.on('postcollision', postCollisionHandler);
       chunkSystem.update(engine, 16);

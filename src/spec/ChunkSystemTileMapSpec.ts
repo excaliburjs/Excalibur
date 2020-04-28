@@ -183,7 +183,7 @@ describe('ChunkSystemTileMap', () => {
     const chunkSystem = new ChunkSystemTileMap(DEFAULT_OPTIONS);
     chunkSystem.update(engine, 16);
     const chunk = chunkSystem.getChunk(3, 5);
-    expect(chunk instanceof ex.TileMap).toBeTrue();
+    expect(chunk).toBeInstanceOf(ex.TileMap);
     expect(chunk.x).toBe(-32);
     expect(chunk.y).toBe(0);
     expect(chunk.cols).toBe(chunkSystem.chunkSize);
@@ -205,7 +205,7 @@ describe('ChunkSystemTileMap', () => {
     const chunkSystem = new ChunkSystemTileMap(DEFAULT_OPTIONS);
     chunkSystem.update(engine, 16);
     const cell = chunkSystem.getCell(5, 1);
-    expect(cell instanceof ex.Cell).toBeTrue();
+    expect(cell).toBeInstanceOf(ex.Cell);
     expect(cell.x).toBe(8);
     expect(cell.y).toBe(-24);
     expect(cell.width).toBe(chunkSystem.cellWidth);
@@ -216,20 +216,23 @@ describe('ChunkSystemTileMap', () => {
     const chunkSystem = new ChunkSystemTileMap(DEFAULT_OPTIONS);
     chunkSystem.update(engine, 16);
     const cell = chunkSystem.getCellByPoint(6, 22);
-    expect(cell instanceof ex.Cell).toBeTrue();
+    expect(cell).toBeInstanceOf(ex.Cell);
     expect(cell.x).toBe(0);
     expect(cell.y).toBe(16);
   });
 
   it('runs garbage collector before generating new chunks', () => {
-    const chunkGarbageCollectorPredicate = jasmine.createSpy('garbageCollectorPredicate', (chunk) => {
+    const chunkGarbageCollectorPredicate = jasmine
+      .createSpy('garbageCollectorPredicate', (chunk) => {
       expect(cellGenerator).toHaveBeenCalledTimes(5184);
       return true;
-    });
-    const cellGenerator = jasmine.createSpy('cellGenerator', (cell) => {
+      })
+      .and.callThrough();
+    const cellGenerator = jasmine
+      .createSpy('cellGenerator', () => {
       expect([0, 288].indexOf(chunkGarbageCollectorPredicate.calls.count())).toBeGreaterThan(-1);
-      return cell;
-    });
+      })
+      .and.callThrough();
     const chunkSystem = new ChunkSystemTileMap({
       ...DEFAULT_OPTIONS,
       x: -4096,
@@ -250,31 +253,178 @@ describe('ChunkSystemTileMap', () => {
   });
 
   it('run the gargage collector only for off-screen chunks', () => {
-    //
+    const chunkGarbageCollectorPredicate = (chunk: ex.TileMap) => {
+      const screenBounds = engine.getWorldBounds();
+      const chunkBounds = new ex.BoundingBox(
+        chunk.x,
+        chunk.y,
+        chunk.x + chunk.cellWidth * chunk.cols,
+        chunk.y + chunk.cellHeight * chunk.rows
+      );
+      expect(chunkBounds.intersect(screenBounds)).toBeNull();
+      return true;
+    };
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      x: -4096,
+      y: -4096,
+      cols: 1024,
+      rows: 1024,
+      chunkGarbageCollectorPredicate
+  });
+    chunkSystem.update(engine, 16);
+    engine.currentScene.camera.x += engine.canvas.width;
+    chunkSystem.update(engine, 16);
   });
 
   it('executes the garbage collector with the chunk, chunk system and engine as arguments', () => {
-    //
+    const chunkGarbageCollectorPredicate = (...args: unknown[]) => {
+      expect(args[0]).toBeInstanceOf(ex.TileMap);
+      expect(args.slice(1)).toEqual([chunkSystem, engine]);
+      return true;
+    };
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      x: -4096,
+      y: -4096,
+      cols: 1024,
+      rows: 1024,
+      chunkGarbageCollectorPredicate
+  });
+    chunkSystem.update(engine, 16);
+    engine.currentScene.camera.x += engine.canvas.width;
+    chunkSystem.update(engine, 16);
   });
 
   it('can handle teleporting the camera over a vast distance', () => {
-    //
+    // Chromium 81 can handle only (sparse) arrays of up to 4_294_967_295 items before throwing an "Invalid array length" RangeError. This
+    // test attempts to create a chunk matrix of 1_000_000_000_000×1_000_000_000_000 chunks and teleports the camera from one side of the
+    // chunk system to the other. Iff the garbage collection is implemented correctly, the chunk system will not crash, otherwise this will
+    // result in an array length error due to the chunk system attempting to allocate too large an array.
+    // Note: if the garbage collector predicate prevents the chunk system from destroying the chunks, the array length
+    // error is unavoidable on such large systems (this should be documented).
+
+    const expectedMaximumSupportedArrayLength = 4_294_967_295;
+    expect(() => new Array(expectedMaximumSupportedArrayLength + 1)).toThrowMatching((thrown) => thrown instanceof RangeError);
+
+    const size = 1_000_000_000_000;
+    expect(size).toBeGreaterThan(expectedMaximumSupportedArrayLength); // future-proof test's internal consistency check
+    const chunkSystem = new ChunkSystemTileMap({
+      x: -size / 2,
+      y: -size / 2,
+      cellWidth: 1,
+      cellHeight: 1,
+      chunkSize: 1,
+      cols: size,
+      rows: size,
+      chunkGenerator: wrapSimpleCellGenerator(() => undefined),
+      chunkGarbageCollectorPredicate: () => true
+  });
+    engine.currentScene.camera.x = chunkSystem.x;
+    chunkSystem.update(engine, 16);
+    engine.currentScene.camera.x = chunkSystem.x + chunkSystem.cols * chunkSystem.cellWidth;
+    chunkSystem.update(engine, 16);
   });
 
   it('generates only the chunks that will be drawn', () => {
-    //
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      x: -4096,
+      y: -4096,
+      cols: 1024,
+      rows: 1024,
+      chunkGenerator: wrapSimpleChunkGenerator((chunk) => {
+        const screenBounds = engine.getWorldBounds();
+        const chunkBounds = new ex.BoundingBox(
+          chunk.x,
+          chunk.y,
+          chunk.x + chunk.cellWidth * chunk.cols,
+          chunk.y + chunk.cellHeight * chunk.rows
+        );
+        if (!chunkBounds.intersect(screenBounds)) {
+          // There is a small intended overdraw to match the behavior of TileMap.
+          const chunkDistance = chunkBounds.center.sub(screenBounds.center).size;
+          const maxPermittedDistance = ex.vec(
+            screenBounds.width + chunkSystem.chunkSize * chunkSystem.cellWidth,
+            screenBounds.height + chunkSystem.chunkSize * chunkSystem.cellHeight
+          ).size;
+          expect(chunkDistance).toBeLessThanOrEqual(maxPermittedDistance);
+        }
+        return chunk;
+      })
+    });
+    chunkSystem.update(engine, 16);
   });
 
-  it('passed the chunk column and row, chunk system and engine to the chunk generator', () => {
-    //
+  it('passes the chunk column and row, chunk system and engine to the chunk generator', () => {
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      chunkGenerator: (...args: unknown[]) => {
+        expect(args.slice(0, 2).map((arg) => typeof arg)).toEqual(['number', 'number']);
+        expect(args.slice(2)).toEqual([chunkSystem, engine]);
+        return new ex.TileMap({
+          x: 0,
+          y: 0,
+          cellWidth: 8,
+          cellHeight: 8,
+          cols: 4,
+          rows: 4
+        });
+      }
+    });
+    chunkSystem.update(engine, 16);
   });
 
-  it('passes the column and row of the chunk to generate within chunks matrix as arguments to the generator', () => {
+  it('passes the column and row of the chunk to generate within chunks matrix as arguments to the chunk generator', () => {
     // These are not cell columns/rows but chunk columns/rows - one step "higher"
+    const expectedCoords = [] as [number, number][];
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      chunkGenerator: (col, row) => {
+        expect(col).toBeGreaterThanOrEqual(0);
+        expect(col).toBeLessThan(chunkSystem.cols / chunkSystem.chunkSize);
+        expect(row).toBeGreaterThanOrEqual(0);
+        expect(row).toBeLessThan(chunkSystem.rows / chunkSystem.chunkSize);
+        const coordIndex = expectedCoords.reduce(
+          // This is more-or-less the Array.prototype.find() method, just unoptimized
+          (matchingIndex, coord, index) => (ex.vec(coord[0], coord[1]).equals(ex.vec(col, row)) ? index : matchingIndex),
+          -1
+        );
+        expect(coordIndex).toBeGreaterThan(-1);
+        expectedCoords.splice(coordIndex, 1);
+        return new ex.TileMap({
+          x: 0,
+          y: 0,
+          cellWidth: 8,
+          cellHeight: 8,
+          cols: 4,
+          rows: 4
+        });
+      }
+    });
+    for (let col = 0; col < chunkSystem.cols / chunkSystem.chunkSize; col++) {
+      for (let row = 0; row < chunkSystem.rows / chunkSystem.chunkSize; row++) {
+        expectedCoords.push([col, row]);
+      }
+    }
+    chunkSystem.update(engine, 16);
+    expect(expectedCoords.length).toBe(0);
   });
 
   it('passes the chunk, chunk system and engine to the rendering cache predicate', () => {
-    //
+    const chunkRenderingCachePredicate = jasmine
+      .createSpy('renderingCachePredicate', (...args: unknown[]) => {
+      expect(args[0]).toBeInstanceOf(ex.TileMap);
+      expect(args.slice(1)).toEqual([chunkSystem, engine]);
+      return false;
+      })
+      .and.callThrough();
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      chunkRenderingCachePredicate
+    });
+    chunkSystem.update(engine, 16);
+    expect(chunkRenderingCachePredicate).toHaveBeenCalledTimes(4);
   });
 
   it('does not execute the rendering cache predicate for the same chunk until it is garbage collected', () => {

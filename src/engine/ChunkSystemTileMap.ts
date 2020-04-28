@@ -24,9 +24,9 @@ export type SimpleCellGenerator = (
   engine: Engine
 ) => void;
 
-export type ChunkSystemGarbageCollectorPredicate = (chunk: TileMap, engine: Engine) => boolean;
+export type ChunkSystemGarbageCollectorPredicate = (chunk: TileMap, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => boolean;
 
-export type ChunkRenderingCachePredicate = (chunk: TileMap) => boolean;
+export type ChunkRenderingCachePredicate = (chunk: TileMap, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => boolean;
 
 type CachedTileMap = TileMap & { renderingCache: null | HTMLCanvasElement };
 
@@ -272,7 +272,7 @@ export class ChunkSystemTileMapImpl extends Class {
     }
     const chunk = chunkRow[chunkX - this._chunksXOffset];
 
-    if (this._chunkRenderingCachePredicate && !chunk.renderingCache && this._chunkRenderingCachePredicate(chunk)) {
+    if (this._chunkRenderingCachePredicate && !chunk.renderingCache && this._chunkRenderingCachePredicate(chunk, this, engine)) {
       // We trick the TileMap chunk into assuming it is entirely visible on the screen, forcing it to render all its cells so that we may
       // cache the rendering result.
       const virtualEngine = Object.create(engine);
@@ -333,7 +333,7 @@ export class ChunkSystemTileMapImpl extends Class {
 
         const chunk = chunkRow[chunkColumnIndex];
         if (chunk) {
-          if (this.chunkGarbageCollectorPredicate(chunk, engine)) {
+          if (this.chunkGarbageCollectorPredicate(chunk, this, engine)) {
             chunkRow[chunkColumnIndex] = undefined;
           } else {
             rowCleared = false;
