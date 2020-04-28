@@ -1,4 +1,4 @@
-import { DisplayMode, Engine, Input } from '../engine';
+import { DisplayMode, Engine, Input, Logger } from '../engine';
 
 interface HTMLCanvasElement {
   gameRef?: Engine;
@@ -13,7 +13,7 @@ let observer: MutationObserver;
 /**
  * When Storybook unmounts story, make sure we cleanup the running game
  * to avoid weird state issues, or at least not to balloon memory.
- * 
+ *
  * @param records Change records
  */
 const onDomMutated: MutationCallback = (records) => {
@@ -41,6 +41,8 @@ export const withEngine = (storyFn: (game: Engine) => void) => {
   return () => {
     const canvas = document.createElement('canvas');
     const game = new Engine({ canvasElement: canvas, displayMode: DisplayMode.FullScreen, suppressPlayButton: true });
+
+    Logger.getInstance().info("Press 'd' for debug mode");
 
     game.input.keyboard.on('down', (keyDown?: Input.KeyEvent) => {
       if (keyDown.key === Input.Keys.D) {
