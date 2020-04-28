@@ -1,4 +1,3 @@
-import { action } from '@storybook/addon-actions';
 import * as ex from '../engine';
 import { withEngine } from './utils';
 
@@ -20,23 +19,18 @@ export const subscribingToEvents: Story = withEngine(async (game) => {
     onInitialize() {
       this.on(ex.EventTypes.PointerUp, (e) => {
         this.color = ex.Color.Black;
-        action('pointerup')(e);
       });
       this.on(ex.EventTypes.PointerDown, (e) => {
         this.color = ex.Color.Green;
-        action('pointerdown')(e);
       });
       this.on(ex.EventTypes.PointerEnter, (e) => {
         this.color = ex.Color.Yellow;
-        action('pointerenter')(e);
       });
       this.on(ex.EventTypes.PointerLeave, (e) => {
         this.color = ex.Color.Red;
-        action('pointerleave')(e);
       });
       this.on(ex.EventTypes.PointerMove, (e) => {
         this.color = ex.Color.Blue;
-        action('pointermove')(e);
       });
     }
   }
@@ -47,13 +41,13 @@ export const subscribingToEvents: Story = withEngine(async (game) => {
 
   await game.start(new ex.Loader());
 
-  game.input.pointers.primary.on('up', (e) => {
-    action('engine.pointerup')(e);
-  });
+  // game.input.pointers.primary.on('up', (e) => {
+  //   action('engine.pointerup')(e);
+  // });
 
-  game.input.pointers.primary.on('down', (e) => {
-    action('engine.pointerdown')(e);
-  });
+  // game.input.pointers.primary.on('down', (e) => {
+  //   action('engine.pointerdown')(e);
+  // });
 });
 
 subscribingToEvents.story = {
@@ -76,20 +70,16 @@ export const dragEvents: Story = withEngine(async (game) => {
     onInitialize() {
       this.on(ex.EventTypes.PointerDragStart, (e) => {
         this.color = ex.Color.Black;
-        action('pointerdragstart')(e);
       });
       this.on(ex.EventTypes.PointerDragEnd, (e) => {
         this.color = ex.Color.Green;
-        action('pointerdragend')(e);
       });
       this.on(ex.EventTypes.PointerDragMove, (e) => {
         this.color = ex.Color.Yellow;
         this.pos.setTo(e.pos.x, e.pos.y);
-        action('pointerdragmove')(e);
       });
       this.on(ex.EventTypes.PointerLeave, (e) => {
         this.color = ex.Color.Red;
-        action('pointerleave')(e);
       });
     }
   }

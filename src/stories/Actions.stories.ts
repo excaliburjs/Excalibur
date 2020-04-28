@@ -5,7 +5,7 @@ import { withEngine } from './utils';
 import heartTexture from './assets/heart.png';
 
 export default {
-  title: 'Actions',
+  title: 'Actors/Actions',
   decorators: [withKnobs]
 };
 
