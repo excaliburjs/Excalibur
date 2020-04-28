@@ -11,6 +11,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Remove usage of `mock.engine` from the tests. Use real engine instead.
+
 ### Deprecated
 
 ### Removed
