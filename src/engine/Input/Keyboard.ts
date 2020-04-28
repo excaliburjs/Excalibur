@@ -118,8 +118,8 @@ export class Keyboard extends Class {
         global = window;
 
         Logger.getInstance().warn(
-          'Failed to bind to keyboard events from top-most window. ' +
-            'If you are trying to embed Excalibur in a cross-origin iframe, some features may not work until the game receives focus.'
+          'Failed to bind to keyboard events to top frame. ' +
+            'If you are trying to embed Excalibur in a cross-origin iframe, keyboard events will not fire.'
         );
       }
     }

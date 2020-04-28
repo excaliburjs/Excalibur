@@ -40,7 +40,12 @@ export const withEngine = (storyFn: (game: Engine) => void) => {
 
   return () => {
     const canvas = document.createElement('canvas');
-    const game = new Engine({ canvasElement: canvas, displayMode: DisplayMode.FullScreen, suppressPlayButton: true });
+    const game = new Engine({
+      canvasElement: canvas,
+      displayMode: DisplayMode.FullScreen,
+      suppressPlayButton: true,
+      pointerScope: Input.PointerScope.Canvas
+    });
 
     Logger.getInstance().info("Press 'd' for debug mode");
 
