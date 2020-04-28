@@ -97,20 +97,31 @@ export class Keyboard extends Class {
    * Initialize Keyboard event listeners
    */
   init(global?: GlobalEventHandlers): void {
+    if (!global) {
+      try {
+        // Try and listen to events on top window frame if within an iframe.
+        //
+        // See https://github.com/excaliburjs/Excalibur/issues/1294
+        //
+        // Attempt to add an event listener, which triggers a DOMException on
+        // cross-origin iframes
+        const noop = () => {
+          return;
+        };
+        window.top.addEventListener('blur', noop);
+        window.top.removeEventListener('blur', noop);
 
-    // use passed in target or current window
-    global = global || window;
+        // this will be the same as window if not embedded within an iframe
+        global = window.top;
+      } catch {
+        // fallback to current frame
+        global = window;
 
-    try {
-      // Try and listen to events on top window frame if within an iframe.
-      //
-      // See https://github.com/excaliburjs/Excalibur/issues/1294
-      global = window.top;
-    } catch {
-      Logger.getInstance().warn(
-        'Failed to bind to keyboard events from top-most window. ' +
-          'If you are trying to embed Excalibur in a cross-origin iframe, some features may not work until the game receives focus.'
-      );
+        Logger.getInstance().warn(
+          'Failed to bind to keyboard events from top-most window. ' +
+            'If you are trying to embed Excalibur in a cross-origin iframe, some features may not work until the game receives focus.'
+        );
+      }
     }
 
     global.addEventListener('blur', () => {
