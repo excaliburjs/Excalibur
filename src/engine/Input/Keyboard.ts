@@ -1,6 +1,7 @@
 import { Class } from './../Class';
 import { GameEvent } from '../Events';
 import * as Events from '../Events';
+import { Logger } from '../Util/Log';
 
 /**
  * Enum representing input key codes
@@ -96,9 +97,22 @@ export class Keyboard extends Class {
    * Initialize Keyboard event listeners
    */
   init(global?: GlobalEventHandlers): void {
-    // See https://github.com/excaliburjs/Excalibur/issues/1294
-    // window.top is for the iframe case
-    global = global || window.top || window;
+
+    // use passed in target or current window
+    global = global || window;
+
+    try {
+      // Try and listen to events on top window frame if within an iframe.
+      //
+      // See https://github.com/excaliburjs/Excalibur/issues/1294
+      global = window.top;
+    } catch {
+      Logger.getInstance().warn(
+        'Failed to bind to keyboard events from top-most window. ' +
+          'If you are trying to embed Excalibur in a cross-origin iframe, some features may not work until the game receives focus.'
+      );
+    }
+
     global.addEventListener('blur', () => {
       this._keys.length = 0; // empties array efficiently
     });
