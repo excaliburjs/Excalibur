@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added ChunkSystemTileMap - support for seemingly infinite procedurally generated tile map split into chunks ([#1348]https://github.com/excaliburjs/Excalibur/issues/1348)
+
 ### Changed
 
 ### Deprecated
