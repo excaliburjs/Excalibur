@@ -289,7 +289,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Access Excalibur debugging functionality.
    */
-  public debug = new Debug(this);
+  public debug: Debug;
 
   /**
    * Access [[stats]] that holds frame statistics.
@@ -590,6 +590,7 @@ O|===|* >________________>\n\
     this.enableCanvasTransparency = options.enableCanvasTransparency;
 
     this._loader = new Loader();
+    this.debug = new Debug(this);
 
     this._initialize(options);
 

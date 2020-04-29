@@ -152,6 +152,8 @@ export class Debug implements DebugFlags {
 
   constructor(engine: Engine) {
     this._engine = engine;
+
+    this.colorBlindMode = new ColorBlindFlags(this._engine);
   }
 
   /**
@@ -175,7 +177,7 @@ export class Debug implements DebugFlags {
    * Correct or simulate color blindness using [[ColorBlindness]] post processor.
    * @warning Will reduce FPS.
    */
-  public colorBlindMode: ColorBlindFlags = new ColorBlindFlags(this._engine);
+  public colorBlindMode: ColorBlindFlags;
 }
 
 /**
