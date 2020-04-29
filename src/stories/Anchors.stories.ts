@@ -4,7 +4,7 @@ import { withEngine } from './utils';
 import heartBitmap from './assets/heart.png';
 
 export default {
-  title: 'Transforms/Anchors'
+  title: 'Actors/Anchors'
 };
 
 class Cross extends Actor {

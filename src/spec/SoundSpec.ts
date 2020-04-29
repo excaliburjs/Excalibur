@@ -1,6 +1,8 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { Stubs } from './util/Stubs';
+import { Mocks } from './util/Mocks';
+import { TestUtils } from './util/TestUtils';
 
 describe('Sound resource', () => {
   let sut: ex.Sound;
@@ -27,6 +29,22 @@ describe('Sound resource', () => {
 
       it('should return the processed data', () => {
         expect(sut.processData(sut.getData())).toBeDefined();
+      });
+
+      it('should fire processed event', (done) => {
+        sut.on('processed', (e: ex.NativeSoundProcessedEvent) => {
+          expect(e.data).toBeDefined();
+          done();
+        });
+        sut.processData(sut.getData());
+      });
+
+      it('should have duration', (done) => {
+        sut.processData(sut.getData()).then(() => {
+          expect(sut.duration).toBeDefined();
+          expect(sut.duration).toBeGreaterThan(0);
+          done();
+        });
       });
 
       it('should fire playbackstart event', (done) => {
@@ -242,10 +260,24 @@ describe('Sound resource', () => {
         });
       });
 
-      it('should do nothing if already stopped', () => {
-        expect(sut.isPlaying()).toBe(false, 'nothing should be playing');
+      it('should stop all tracks even when paused', (done) => {
+        sut.play();
 
-        sut.stop();
+        sut.on('stop', () => {
+          done();
+        });
+
+        setTimeout(() => {
+          expect(sut.isPlaying()).toBe(true, 'should be playing');
+
+          // pause
+          sut.pause();
+
+          expect(sut.isPlaying()).toBe(false, 'should not be playing');
+
+          // stop and rewind
+          sut.stop();
+        }, 500);
       });
 
       it('should not have any tracks when stopped', (done) => {
@@ -312,6 +344,97 @@ describe('Sound resource', () => {
         });
 
         sut.play();
+      });
+
+      describe('wire engine', () => {
+        let engine: ex.Engine;
+
+        beforeEach(() => {
+          engine = TestUtils.engine();
+          engine.start();
+        });
+
+        afterEach(() => {
+          engine.stop();
+          engine = null;
+        });
+
+        it('should stop all tracks when engine is stopped', (done) => {
+          sut.wireEngine(engine);
+          sut.play();
+
+          sut.on('playbackstart', () => {
+            expect(sut.instanceCount()).toBe(1, 'should be one track');
+
+            engine.stop();
+
+            expect(sut.instanceCount()).toBe(0, 'should be no tracks');
+            expect(sut.isPlaying()).toBe(false, 'should not be playing');
+
+            done();
+          });
+        });
+
+        it('should not allow playing tracks when engine is stopped', (done) => {
+          sut.wireEngine(engine);
+          sut.play();
+
+          sut.on('playbackstart', () => {
+            expect(sut.isPlaying()).toBe(true, 'should be playing');
+
+            engine.stop();
+
+            sut.play();
+
+            expect(sut.isPlaying()).toBe(false, 'should not allow playing');
+
+            done();
+          });
+        });
+
+        it('should pause tracks when game is hidden and pauseAudioWhenHidden is true', (done) => {
+          engine.pauseAudioWhenHidden = true;
+          sut.wireEngine(engine);
+          sut.play();
+
+          sut.on('playbackstart', () => {
+            expect(sut.isPlaying()).toBe(true, 'should be playing');
+
+            setTimeout(() => {
+              engine.emit('hidden', new ex.HiddenEvent(engine));
+            }, 100);
+          });
+
+          engine.on('hidden', () => {
+            expect(sut.isPlaying()).toBe(false, 'should pause when hidden');
+            done();
+          });
+        });
+
+        it('should resume tracks when game is visible from hidden and pauseAudioWhenHidden is true', (done) => {
+          engine.pauseAudioWhenHidden = true;
+          sut.wireEngine(engine);
+          sut.play();
+
+          sut.on('playbackstart', () => {
+            expect(sut.isPlaying()).toBe(true, 'should be playing');
+
+            setTimeout(() => {
+              engine.emit('hidden', new ex.HiddenEvent(engine));
+            }, 100);
+          });
+
+          engine.on('hidden', () => {
+            setTimeout(() => {
+              engine.emit('visible', new ex.VisibleEvent(engine));
+            }, 100);
+          });
+
+          engine.on('visible', () => {
+            expect(sut.isPlaying()).toBe(true, 'should resume when visible');
+            done();
+          });
+        });
       });
     });
   });
