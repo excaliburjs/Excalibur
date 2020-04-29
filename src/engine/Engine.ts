@@ -37,7 +37,6 @@ import { PostProcessor } from './PostProcessing/PostProcessor';
 import { Debug, DebugStats } from './Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
-import * as Util from './Util/Util';
 import * as Events from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
 import { BrowserEvents } from './Util/Browser';
@@ -499,7 +498,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   constructor(options?: EngineOptions) {
     super();
 
-    options = Util.extend({}, Engine._DefaultEngineOptions, options);
+    options = { ...Engine._DefaultEngineOptions, ...options };
 
     // Initialize browser events facade
     this.browser = new BrowserEvents(window, document);

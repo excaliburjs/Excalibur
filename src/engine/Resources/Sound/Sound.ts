@@ -4,7 +4,7 @@ import { Engine } from '../../Engine';
 import { Resource } from '../Resource';
 import { AudioInstance, AudioInstanceFactory } from './AudioInstance';
 import { AudioContextFactory } from './AudioContext';
-import { NativeSoundEvent } from '../../Events/MediaEvents';
+import { NativeSoundEvent, NativeSoundProcessedEvent } from '../../Events/MediaEvents';
 import { Promise } from '../../Promises';
 import { canPlayFile } from '../../Util/Sound';
 
@@ -48,6 +48,10 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
     return this._volume;
   }
 
+  public get duration(): number | undefined {
+    return this._duration;
+  }
+
   /**
    * Return array of Current AudioInstances playing or being paused
    */
@@ -59,6 +63,8 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
 
   private _loop = false;
   private _volume = 1;
+  private _duration: number | undefined = undefined;
+  private _isStopped = false;
   private _isPaused = false;
   private _tracks: AudioInstance[] = [];
   private _engine: Engine;
@@ -109,6 +115,15 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
           this._wasPlayingOnHidden = false;
         }
       });
+
+      this._engine.on('start', () => {
+        this._isStopped = false;
+      });
+
+      this._engine.on('stop', () => {
+        this.stop();
+        this._isStopped = true;
+      });
     }
   }
 
@@ -135,6 +150,11 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
       this.logger.warn('Cannot start playing. Resource', this.path, 'is not loaded yet');
 
       return Promise.resolve(true);
+    }
+
+    if (this._isStopped) {
+      this.logger.warn('Cannot start playing. Engine is in a stopped state.');
+      return Promise.resolve(false);
     }
 
     this.volume = volume || this.volume;
@@ -166,13 +186,9 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
   }
 
   /**
-   * Stop the sound and rewind
+   * Stop the sound if it is currently playing and rewind the track. If the sound is not playing, rewinds the track.
    */
   public stop() {
-    if (!this.isPlaying()) {
-      return;
-    }
-
     for (const track of this._tracks) {
       track.stop();
     }
@@ -278,6 +294,8 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
 
   private _setProcessedData(processedData: string | AudioBuffer): void {
     this._processedData.resolve(processedData);
+    this._duration = typeof processedData === 'object' ? processedData.duration : undefined;
+    this.emit('processed', new NativeSoundProcessedEvent(this, processedData));
   }
 
   private _createNewTrack(): Promise<AudioInstance> {
@@ -306,6 +324,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
 
     newTrack.loop = this.loop;
     newTrack.volume = this.volume;
+    newTrack.duration = this.duration;
 
     this._tracks.push(newTrack);
 

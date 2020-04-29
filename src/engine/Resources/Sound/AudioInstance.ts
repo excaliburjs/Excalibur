@@ -43,8 +43,19 @@ export class AudioInstance implements Audio {
   public get volume(): number {
     return this._volume;
   }
+  public set duration(value: number | undefined) {
+    this._duration = value;
+  }
+
+  /**
+   * Duration of the sound, in seconds.
+   */
+  public get duration() {
+    return this._duration;
+  }
 
   protected _volume = 1;
+  protected _duration: number | undefined = undefined;
   protected _loop = false;
   protected _playingPromise: Promise<boolean>;
   protected _isPlaying = false;

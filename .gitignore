@@ -42,9 +42,11 @@ Thumbs.db
 # Build
 .vs/
 build/
+build-storybook/
 bld/
 bin/
 obj/
+.tsbuildinfo
 *.user
 *.suo
 *.map

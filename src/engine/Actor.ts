@@ -501,14 +501,10 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     if (shouldInitializeBody) {
       this.body = new Body({
         collider: new Collider({
-          type: CollisionType.Passive,
+          type: collisionType,
           shape: Shape.Box(this._width, this._height, this.anchor)
         })
       });
-    }
-
-    if (this.body && this.body.collider) {
-      this.body.collider.type = collisionType;
     }
 
     // Position uses body to store values must be initialized after body

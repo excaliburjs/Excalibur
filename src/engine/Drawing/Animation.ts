@@ -1,5 +1,4 @@
 import { Sprite } from './Sprite';
-import { AnimationArgs } from '../Drawing/Animation';
 import * as Effects from './SpriteEffects';
 import { Color } from './Color';
 

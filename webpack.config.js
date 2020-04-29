@@ -1,11 +1,12 @@
 const path = require('path');
 const webpack = require('webpack');
+const version = require('./version').getCiVersion();
 const pkg = require('./package.json');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const now = new Date();
 const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
 
-module.exports = (version) => ({
+module.exports = {
   mode: 'development',
   devtool: 'source-map',
   entry: './index.ts',
@@ -32,7 +33,7 @@ module.exports = (version) => ({
         use: ['to-string-loader', 'css-loader']
       },
       {
-        test: /\.(png|jpg|gif)$/i,
+        test: /\.(png|jpg|gif|mp3)$/i,
         use: [
           {
             loader: 'url-loader',
@@ -57,4 +58,4 @@ Licensed ${pkg.license}
 @preserve`
     )
   ]
-});
+};

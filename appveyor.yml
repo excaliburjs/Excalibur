@@ -14,7 +14,7 @@ install:
   - ps: Install-Product node $env:nodejs_version
   - npm install
 build_script:
-  - node_modules/.bin/grunt appveyor
+  - npm run appveyor
 artifacts:
   - path: build\dist\**\*.nupkg
     name: Nuget Package
