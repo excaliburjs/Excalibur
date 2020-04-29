@@ -1,6 +1,7 @@
 import { Actor } from './Actor';
 import { Vector } from './Algebra';
 import { Class } from './Class';
+import { BoundingBox } from './Collision/BoundingBox';
 import { Configurable } from './Configurable';
 import { Engine } from './Engine';
 import * as Events from './Events';
@@ -188,10 +189,10 @@ export class ChunkSystemTileMapImpl extends Class {
     const worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
     const worldCoordsLowerRight = engine.screenToWorldCoordinates(new Vector(engine.canvas.clientWidth, engine.canvas.clientHeight));
 
-    const cellOnScreenXStart = Math.min(Math.max(Math.floor((worldCoordsUpperLeft.x - this.x) / this.cellWidth) - 2, 0), this.cols - 1);
-    const cellOnScreenYStart = Math.min(Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0), this.rows - 1);
-    const cellOnScreenXEnd = Math.min(Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0), this.cols - 1);
-    const cellOnScreenYEnd = Math.min(Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0), this.rows - 1);
+    const cellOnScreenXStart = Math.floor((worldCoordsUpperLeft.x - this.x) / this.cellWidth) - 2;
+    const cellOnScreenYStart = Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2;
+    const cellOnScreenXEnd = Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2;
+    const cellOnScreenYEnd = Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2;
 
     const chunkOnScreenXStart = Math.floor(cellOnScreenXStart / this.chunkSize);
     const chunkOnScreenYStart = Math.floor(cellOnScreenYStart / this.chunkSize);
@@ -200,15 +201,25 @@ export class ChunkSystemTileMapImpl extends Class {
 
     this._garbageCollectChunks(chunkOnScreenXStart, chunkOnScreenYStart, chunkOnScreenXEnd, chunkOnScreenYEnd, engine);
 
+    const renderChunkXStart = Math.min(Math.max(chunkOnScreenXStart, 0), this.cols / this.chunkSize - 1);
+    const renderChunkYStart = Math.min(Math.max(chunkOnScreenYStart, 0), this.rows / this.chunkSize - 1);
+    const renderChunkXEnd = Math.min(Math.max(chunkOnScreenXEnd, 0), this.cols / this.chunkSize - 1);
+    const renderChunkYEnd = Math.min(Math.max(chunkOnScreenYEnd, 0), this.rows / this.chunkSize - 1);
     if (!this._chunks.length) {
-      this._chunksXOffset = chunkOnScreenXStart;
-      this._chunksYOffset = chunkOnScreenYStart;
+      this._chunksXOffset = renderChunkXStart;
+      this._chunksYOffset = renderChunkYStart;
     }
 
     this._chunksToRender.splice(0);
-    for (let chunkY = chunkOnScreenYStart; chunkY <= chunkOnScreenYEnd; chunkY++) {
-      for (let chunkX = chunkOnScreenXStart; chunkX <= chunkOnScreenXEnd; chunkX++) {
-        this._chunksToRender.push(this._updateChunk(chunkX, chunkY, engine, delta));
+    if (
+      new BoundingBox(renderChunkXStart, renderChunkYStart, renderChunkXEnd, renderChunkYEnd).intersect(
+        new BoundingBox(chunkOnScreenXStart, chunkOnScreenYStart, chunkOnScreenXEnd, chunkOnScreenYEnd)
+      )
+    ) {
+      for (let chunkY = renderChunkYStart; chunkY <= renderChunkYEnd; chunkY++) {
+        for (let chunkX = renderChunkXStart; chunkX <= renderChunkXEnd; chunkX++) {
+          this._chunksToRender.push(this._updateChunk(chunkX, chunkY, engine, delta));
+        }
       }
     }
 
@@ -272,26 +283,28 @@ export class ChunkSystemTileMapImpl extends Class {
     }
     const chunk = chunkRow[chunkX - this._chunksXOffset];
 
-    if (this._chunkRenderingCachePredicate && !chunk.renderingCache && this._chunkRenderingCachePredicate(chunk, this, engine)) {
-      // We trick the TileMap chunk into assuming it is entirely visible on the screen, forcing it to render all its cells so that we may
-      // cache the rendering result.
-      const virtualEngine = Object.create(engine);
-      virtualEngine.screenToWorldCoordinates = (point: Vector): Vector => {
-        if (!point.x && !point.y) {
-          return new Vector(chunk.x, chunk.y);
-        }
-        return new Vector(chunk.x + chunk.cols * chunk.cellWidth, chunk.y + chunk.rows * chunk.cellHeight);
-      };
-      chunk.update(virtualEngine, delta);
+    if (!chunk.renderingCache) {
+      if (this._chunkRenderingCachePredicate && this._chunkRenderingCachePredicate(chunk, this, engine)) {
+        // We trick the TileMap chunk into assuming it is entirely visible on the screen, forcing it to render all its cells so that we may
+        // cache the rendering result.
+        const virtualEngine = Object.create(engine);
+        virtualEngine.screenToWorldCoordinates = (point: Vector): Vector => {
+          if (!point.x && !point.y) {
+            return new Vector(chunk.x, chunk.y);
+          }
+          return new Vector(chunk.x + chunk.cols * chunk.cellWidth, chunk.y + chunk.rows * chunk.cellHeight);
+        };
+        chunk.update(virtualEngine, delta);
 
-      chunk.renderingCache = document.createElement('canvas');
-      chunk.renderingCache.width = chunk.cols * chunk.cellWidth;
-      chunk.renderingCache.height = chunk.rows * chunk.cellHeight;
-      const cacheRenderingContext = chunk.renderingCache.getContext('2d');
-      cacheRenderingContext.translate(-chunk.x, -chunk.y);
-      chunk.draw(cacheRenderingContext, delta);
-    } else {
-      chunk.update(engine, delta);
+        chunk.renderingCache = document.createElement('canvas');
+        chunk.renderingCache.width = chunk.cols * chunk.cellWidth;
+        chunk.renderingCache.height = chunk.rows * chunk.cellHeight;
+        const cacheRenderingContext = chunk.renderingCache.getContext('2d');
+        cacheRenderingContext.translate(-chunk.x, -chunk.y);
+        chunk.draw(cacheRenderingContext, delta);
+      } else {
+        chunk.update(engine, delta);
+      }
     }
 
     return chunk;

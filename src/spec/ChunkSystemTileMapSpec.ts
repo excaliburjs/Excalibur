@@ -224,13 +224,13 @@ describe('ChunkSystemTileMap', () => {
   it('runs garbage collector before generating new chunks', () => {
     const chunkGarbageCollectorPredicate = jasmine
       .createSpy('garbageCollectorPredicate', (chunk) => {
-      expect(cellGenerator).toHaveBeenCalledTimes(5184);
-      return true;
+        expect(cellGenerator).toHaveBeenCalledTimes(5184);
+        return true;
       })
       .and.callThrough();
     const cellGenerator = jasmine
       .createSpy('cellGenerator', () => {
-      expect([0, 288].indexOf(chunkGarbageCollectorPredicate.calls.count())).toBeGreaterThan(-1);
+        expect([0, 288].indexOf(chunkGarbageCollectorPredicate.calls.count())).toBeGreaterThan(-1);
       })
       .and.callThrough();
     const chunkSystem = new ChunkSystemTileMap({
@@ -271,7 +271,7 @@ describe('ChunkSystemTileMap', () => {
       cols: 1024,
       rows: 1024,
       chunkGarbageCollectorPredicate
-  });
+    });
     chunkSystem.update(engine, 16);
     engine.currentScene.camera.x += engine.canvas.width;
     chunkSystem.update(engine, 16);
@@ -290,7 +290,7 @@ describe('ChunkSystemTileMap', () => {
       cols: 1024,
       rows: 1024,
       chunkGarbageCollectorPredicate
-  });
+    });
     chunkSystem.update(engine, 16);
     engine.currentScene.camera.x += engine.canvas.width;
     chunkSystem.update(engine, 16);
@@ -319,7 +319,7 @@ describe('ChunkSystemTileMap', () => {
       rows: size,
       chunkGenerator: wrapSimpleCellGenerator(() => undefined),
       chunkGarbageCollectorPredicate: () => true
-  });
+    });
     engine.currentScene.camera.x = chunkSystem.x;
     chunkSystem.update(engine, 16);
     engine.currentScene.camera.x = chunkSystem.x + chunkSystem.cols * chunkSystem.cellWidth;
@@ -414,9 +414,9 @@ describe('ChunkSystemTileMap', () => {
   it('passes the chunk, chunk system and engine to the rendering cache predicate', () => {
     const chunkRenderingCachePredicate = jasmine
       .createSpy('renderingCachePredicate', (...args: unknown[]) => {
-      expect(args[0]).toBeInstanceOf(ex.TileMap);
-      expect(args.slice(1)).toEqual([chunkSystem, engine]);
-      return false;
+        expect(args[0]).toBeInstanceOf(ex.TileMap);
+        expect(args.slice(1)).toEqual([chunkSystem, engine]);
+        return false;
       })
       .and.callThrough();
     const chunkSystem = new ChunkSystemTileMap({
@@ -427,23 +427,137 @@ describe('ChunkSystemTileMap', () => {
     expect(chunkRenderingCachePredicate).toHaveBeenCalledTimes(4);
   });
 
-  it('does not execute the rendering cache predicate for the same chunk until it is garbage collected', () => {
-    //
+  it('does not execute the rendering cache predicate for the same cached chunk until it is garbage collected', () => {
+    const chunkCachingDecisionCounter = new Map<ex.TileMap, number>();
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      chunkGenerator: wrapSimpleChunkGenerator((chunk) => {
+        chunkCachingDecisionCounter.set(chunk, 0);
+        return chunk;
+      }),
+      chunkGarbageCollectorPredicate: () => true,
+      chunkRenderingCachePredicate: (chunk) => {
+        chunkCachingDecisionCounter.set(chunk, chunkCachingDecisionCounter.get(chunk) + 1);
+        return true;
+      }
+    });
+    chunkSystem.update(engine, 16);
+    expect(Array.from(chunkCachingDecisionCounter.values()).every((callCount) => callCount === 1)).toBeTrue();
+    chunkSystem.update(engine, 16);
+    expect(Array.from(chunkCachingDecisionCounter.values()).every((callCount) => callCount === 1)).toBeTrue();
+    engine.currentScene.camera.x += chunkSystem.cellWidth * (chunkSystem.cols + 2) + engine.canvasWidth;
+    chunkSystem.update(engine, 16);
+    expect(Array.from(chunkCachingDecisionCounter.values()).every((callCount) => callCount === 1)).toBeTrue();
+    expect(chunkCachingDecisionCounter.size).toBe(4);
+    expect((chunkSystem as any)._chunks.length).toBe(0);
+    engine.currentScene.camera.x -= chunkSystem.cellWidth * (chunkSystem.cols + 2) + engine.canvasWidth;
+    chunkSystem.update(engine, 16);
+    expect(Array.from(chunkCachingDecisionCounter.values()).every((callCount) => callCount === 1)).toBeTrue();
+    expect(chunkCachingDecisionCounter.size).toBe(8);
   });
 
   it('does not update chunks that are cached in render cache', () => {
-    //
+    const updateSpies = new Set<jasmine.Spy>();
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      chunkRenderingCachePredicate: (chunk) => {
+        updateSpies.add(spyOn(chunk, 'update'));
+        return true;
+      }
+    });
+    chunkSystem.update(engine, 16);
+    expect(updateSpies.size).toBe(4);
+    expect(Array.from(updateSpies).every((updateSpy) => updateSpy.calls.count() === 1)).toBeTrue();
+    chunkSystem.update(engine, 16);
+    expect(updateSpies.size).toBe(4);
+    expect(Array.from(updateSpies).every((updateSpy) => updateSpy.calls.count() === 1)).toBeTrue();
   });
 
   it('passes a new chunk, absolute cell-level column and row, chunk system and engine to simple chunk generator', () => {
-    //
+    const pendingCoordinates = [] as [number, number][];
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      chunkGenerator: wrapSimpleChunkGenerator((chunk, col, row, chunkSystemTileMap, engine2) => {
+        expect(chunk).toBeInstanceOf(ex.TileMap);
+        expect([0, 4].indexOf(col)).toBeGreaterThan(-1);
+        expect([0, 4].indexOf(row)).toBeGreaterThan(-1);
+        expect(chunkSystemTileMap).toBe(chunkSystem);
+        expect(engine2).toBe(engine);
+        const coordinatesIndex = pendingCoordinates.reduce(
+          // This is more-or-less the Array.prototype.find() method, just unoptimized
+          (matchingIndex, coord, index) => (ex.vec(coord[0], coord[1]).equals(ex.vec(col, row)) ? index : matchingIndex),
+          -1
+        );
+        expect(coordinatesIndex).toBeGreaterThan(-1);
+        pendingCoordinates.splice(coordinatesIndex, 1);
+        return chunk;
+      })
+    });
+    for (const row of [0, 4]) {
+      for (const col of [0, 4]) {
+        pendingCoordinates.push([col, row]);
+      }
+    }
+    chunkSystem.update(engine, 16);
+    expect(pendingCoordinates.length).toBe(0);
   });
 
   it('uses the chunk that is returned by the simple chunk generator instead of the provided one', () => {
-    //
+    const preGeneratedChunks = new Set<ex.TileMap>();
+    const generatedChunks = new Set<ex.TileMap>();
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      chunkGenerator: wrapSimpleChunkGenerator((chunk) => {
+        spyOn(chunk, 'update');
+        preGeneratedChunks.add(chunk);
+        const chunkToUse = new ex.TileMap({
+          x: chunk.x,
+          y: chunk.y,
+          cellWidth: DEFAULT_OPTIONS.cellWidth,
+          cellHeight: DEFAULT_OPTIONS.cellHeight,
+          cols: DEFAULT_OPTIONS.chunkSize,
+          rows: DEFAULT_OPTIONS.chunkSize
+        });
+        spyOn(chunkToUse, 'update');
+        generatedChunks.add(chunkToUse);
+        return chunkToUse;
+      })
+    });
+    chunkSystem.update(engine, 16);
+    for (const chunk of Array.from(preGeneratedChunks)) {
+      expect(chunk.update).not.toHaveBeenCalled();
+    }
+    for (const chunk of Array.from(generatedChunks)) {
+      expect(chunk.update).toHaveBeenCalledTimes(1);
+    }
   });
 
   it('passes a new cell, absolute cell-level column and row, chunk, chunk system and engine to simple cell generator', () => {
-    //
+    const pendingCoordinates = [] as [number, number][];
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      chunkGenerator: wrapSimpleCellGenerator((cell, col, row, chunk, chunkSystemTileMap, engine2) => {
+        expect(cell).toBeInstanceOf(ex.Cell);
+        expect([0, 1, 2, 3, 4, 5, 6, 7].indexOf(col)).toBeGreaterThan(-1);
+        expect([0, 1, 2, 3, 4, 5, 6, 7].indexOf(row)).toBeGreaterThan(-1);
+        expect(chunk).toBeInstanceOf(ex.TileMap);
+        expect(chunkSystemTileMap).toBe(chunkSystem);
+        expect(engine2).toBe(engine);
+        const coordinatesIndex = pendingCoordinates.reduce(
+          // This is more-or-less the Array.prototype.find() method, just unoptimized
+          (matchingIndex, coord, index) => (ex.vec(coord[0], coord[1]).equals(ex.vec(col, row)) ? index : matchingIndex),
+          -1
+        );
+        expect(coordinatesIndex).toBeGreaterThan(-1);
+        pendingCoordinates.splice(coordinatesIndex, 1);
+      })
+    });
+    for (const row of [0, 1, 2, 3, 4, 5, 6, 7]) {
+      for (const col of [0, 1, 2, 3, 4, 5, 6, 7]) {
+        pendingCoordinates.push([col, row]);
+      }
+    }
+    chunkSystem.update(engine, 16);
+    expect(pendingCoordinates.length).toBe(0);
   });
 });
