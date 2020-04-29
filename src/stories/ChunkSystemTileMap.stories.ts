@@ -59,7 +59,7 @@ export const demo: Story = withEngine(async (game: Engine) => {
   const chunkSystem = new ChunkSystemTileMap({
     cellWidth: CHUNK_CELL_WIDTH,
     cellHeight: CHUNK_CELL_HEIGHT,
-    chunkGarbageCollectorPredicate: (_chunk: TileMap, _engine: Engine) => true,
+    chunkGarbageCollectorPredicate: (_chunk: TileMap, _chunkSystem: ChunkSystemTileMap, _engine: Engine) => true,
     chunkSize: CHUNK_SIZE,
     x: -(CHUNK_COLS * CHUNK_SIZE * CHUNK_CELL_WIDTH) / 2,
     y: -(CHUNK_ROWS * CHUNK_SIZE * CHUNK_CELL_HEIGHT) / 2,
