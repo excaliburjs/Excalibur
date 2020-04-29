@@ -289,7 +289,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Access Excalibur debugging functionality.
    */
-  public debug = new Debug();
+  public debug = new Debug(this);
 
   /**
    * Access [[stats]] that holds frame statistics.
@@ -509,7 +509,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
       message.innerText = 'Sorry, your browser does not support all the features needed for Excalibur';
       document.body.appendChild(message);
 
-      detector.failedTests.forEach(function(test) {
+      detector.failedTests.forEach(function (test) {
         const testMessage = document.createElement('div');
         testMessage.innerText = 'Browser feature missing ' + test;
         document.body.appendChild(testMessage);
@@ -1196,7 +1196,7 @@ O|===|* >________________>\n\
     this.currentScene.update(this, delta);
 
     // update animations
-    this._animations = this._animations.filter(function(a) {
+    this._animations = this._animations.filter(function (a) {
       return !a.animation.isDone();
     });
 

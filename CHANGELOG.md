@@ -9,6 +9,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Add color blind mode simulation and correction in debug object.
+  ([#390](https://github.com/excaliburjs/Excalibur/issues/390))
+
 ### Changed
 
 ### Deprecated
