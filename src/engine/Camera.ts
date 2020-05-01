@@ -76,7 +76,7 @@ export class StrategyContainer {
   }
 
   /**
-   * Creates and adds the [[LimitCameraBoundariesStrategy]] on the current camera
+   * Creates and adds the [[LimitCameraBoundsStrategy]] on the current camera
    * @param box The bounding box to limit the camera to.
    */
   public limitCameraBounds(box: BoundingBox) {
