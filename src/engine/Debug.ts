@@ -1,5 +1,6 @@
-import { DebugFlags } from './DebugFlags';
+import { DebugFlags, ColorBlindFlags } from './DebugFlags';
 import { Pair } from './Collision/Pair';
+import { Engine } from './Engine';
 
 /**
  * Debug stats containing current and previous frame statistics
@@ -147,6 +148,14 @@ export interface PhysicsStatistics {
  * updated during a frame.
  */
 export class Debug implements DebugFlags {
+  private _engine: Engine;
+
+  constructor(engine: Engine) {
+    this._engine = engine;
+
+    this.colorBlindMode = new ColorBlindFlags(this._engine);
+  }
+
   /**
    * Performance statistics
    */
@@ -163,6 +172,12 @@ export class Debug implements DebugFlags {
      */
     prevFrame: new FrameStats()
   };
+
+  /**
+   * Correct or simulate color blindness using [[ColorBlindness]] post processor.
+   * @warning Will reduce FPS.
+   */
+  public colorBlindMode: ColorBlindFlags;
 }
 
 /**

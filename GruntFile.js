@@ -1,7 +1,7 @@
 /*********************************
 /* Excalibur.js Grunt Build File
 /*********************************/
-const version = require('./version');
+const version = require('./version').getCiVersion();
 
 /*global module:false*/
 module.exports = function (grunt) {

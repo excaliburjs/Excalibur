@@ -7,6 +7,29 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+### Added
+
+- Add color blind mode simulation and correction in debug object.
+  ([#390](https://github.com/excaliburjs/Excalibur/issues/390))
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+- Fixed Excalibur crashing when embedded within a cross-origin IFrame ([#1151](https://github.com/excaliburjs/Excalibur/issues/1151))
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.24.0] - 2020-04-23
+
+### Breaking Changes
+
 - Remove obsolete `.extend()` semantics in Class.ts as as well as related test cases.
 
 ### Added
@@ -32,8 +55,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - `ex.Vector.magnitude()` will be removed in `v0.25.0`, use `ex.Vector.size()`. ([#1277](https://github.com/excaliburjs/Excalibur/issues/1277))
 
-### Removed
-
 ### Fixed
 
 - Fixed Excalibur crashing when displaying both a tilemap and a zero-size actor ([#1418](https://github.com/excaliburjs/Excalibur/issues/1418))
@@ -44,9 +65,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed missing on/once/off signatures on `ex.Pointer` ([#1345](https://github.com/excaliburjs/Excalibur/issues/1345))
 - Fixed sounds not being stopped when `Engine.stop()` is called. ([#1476](https://github.com/excaliburjs/Excalibur/pull/1476))
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!----------------------------------------------------------------------------------------------->
 
 ## [0.23.0] - 2019-06-08
 
@@ -876,7 +895,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!----------------------------------------------------------------------------------------------->
 
-[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.23.0...HEAD
+[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.24.0...HEAD
+[0.24.0]: https://github.com/excaliburjs/Excalibur/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/excaliburjs/Excalibur/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/excaliburjs/Excalibur/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/excaliburjs/Excalibur/compare/v0.20.0...v0.21.0
