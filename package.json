@@ -99,7 +99,7 @@
     "lint-staged": "10.2.1",
     "prettier": "2.0.5",
     "pretty-quick": "2.0.1",
-    "puppeteer": "3.0.1",
+    "puppeteer": "3.0.2",
     "rimraf": "3.0.2",
     "semver": "7.3.2",
     "serve": "11.3.0",
