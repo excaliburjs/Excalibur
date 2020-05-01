@@ -171,6 +171,36 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
 }
 
 /**
+ *  Prevent a camera from going beyond the given camera dimensions.
+*/
+export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
+  /**
+   * @param target The bounding box to limit the camera to
+   */
+
+  constructor(public target: BoundingBox) {
+  }
+
+  public action = (target: BoundingBox, cam: Camera, _eng: Engine, _delta: number) => {
+    const focus = cam.getFocus();
+    
+    if (focus.x < target.left + _eng.halfDrawWidth) {
+      focus.x = _eng.halfDrawWidth;
+    } else if (focus.x > (target.right - _eng.halfDrawWidth)) {
+      focus.x = target.right  - _eng.halfDrawWidth;
+    }
+
+    if (focus.y < target.top + _eng.halfDrawHeight) {
+      focus.y = _eng.halfDrawHeight;
+    } else if (focus.y > (target.bottom - _eng.halfDrawHeight)) {
+      focus.y = target.bottom - _eng.halfDrawHeight;
+    }
+
+    return focus;
+  }
+}
+
+/**
  * Cameras
  *
  * [[Camera]] is the base class for all Excalibur cameras. Cameras are used
