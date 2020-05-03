@@ -2,7 +2,6 @@ import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
-import { BoundingBox } from '@excalibur';
 
 describe('A camera', () => {
   let Camera;
@@ -268,7 +267,7 @@ describe('A camera', () => {
 
   it('can use built-in limit to bounds strategy', () => {
     engine.currentScene.camera = new ex.Camera();
-    const boundingBox = new BoundingBox(0, 0, 1000, 1000);
+    const boundingBox = new ex.BoundingBox(0, 0, 1000, 1000);
     engine.currentScene.camera.strategy.limitCameraBounds(boundingBox);
 
     // Test upper-left bounds
