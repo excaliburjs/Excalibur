@@ -2,6 +2,7 @@ import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
+import { BoundingBox } from '@excalibur';
 
 describe('A camera', () => {
   let Camera;
@@ -263,6 +264,30 @@ describe('A camera', () => {
     engine.currentScene.camera.update(engine, 100);
     const distance2 = engine.currentScene.camera.pos.distance(actor.pos);
     expect(distance2).toBeLessThan(distance);
+  });
+
+  it('can use built-in limit to bounds strategy', () => {
+    engine.currentScene.camera = new ex.Camera();
+    const boundingBox = new BoundingBox(0, 0, 1000, 1000);
+    engine.currentScene.camera.strategy.limitCameraBounds(boundingBox);
+
+    // Test upper-left bounds
+    engine.currentScene.camera.pos.setTo(11, 22);
+
+    engine.currentScene.camera.update(engine, 1);
+    expect(engine.currentScene.camera.pos.x).not.toBe(11);
+    expect(engine.currentScene.camera.pos.y).not.toBe(22);
+    expect(engine.currentScene.camera.pos.x).toBe(250);
+    expect(engine.currentScene.camera.pos.y).toBe(250);
+
+    // Test bottom-right bounds
+    engine.currentScene.camera.pos.setTo(888, 999);
+
+    engine.currentScene.camera.update(engine, 1);
+    expect(engine.currentScene.camera.pos.x).not.toBe(888);
+    expect(engine.currentScene.camera.pos.y).not.toBe(999);
+    expect(engine.currentScene.camera.pos.x).toBe(750);
+    expect(engine.currentScene.camera.pos.y).toBe(750);
   });
 
   it('can lerp over time', (done) => {
