@@ -134,6 +134,12 @@ export interface EngineOptions {
   pointerScope?: Input.PointerScope;
 
   /**
+   * Configures the pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document'
+   * (default) scoped will fire anywhere on the page.
+   */
+  keyboardScope?: Input.KeyboardScope;
+
+  /**
    * Suppress boot up console message, which contains the "powered by Excalibur message"
    */
   suppressConsoleBootMessage?: boolean;
@@ -509,7 +515,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
       message.innerText = 'Sorry, your browser does not support all the features needed for Excalibur';
       document.body.appendChild(message);
 
-      detector.failedTests.forEach(function(test) {
+      detector.failedTests.forEach(function (test) {
         const testMessage = document.createElement('div');
         testMessage.innerText = 'Browser feature missing ' + test;
         document.body.appendChild(testMessage);
@@ -991,7 +997,7 @@ O|===|* >________________>\n\
       pointers: new Input.Pointers(this),
       gamepads: new Input.Gamepads()
     };
-    this.input.keyboard.init();
+    this.input.keyboard.init(options && options.keyboardScope === Input.KeyboardScope.Document ? document : this.canvas);
     this.input.pointers.init(options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas);
     this.input.gamepads.init();
 
@@ -1196,7 +1202,7 @@ O|===|* >________________>\n\
     this.currentScene.update(this, delta);
 
     // update animations
-    this._animations = this._animations.filter(function(a) {
+    this._animations = this._animations.filter(function (a) {
       return !a.animation.isDone();
     });
 
