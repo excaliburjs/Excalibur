@@ -179,10 +179,16 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
 }
 
 /**
- *  Prevent a camera from going beyond the given camera dimensions.
+ * Prevent a camera from going beyond the given camera dimensions.
  */
 export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
   /**
+   * Useful for limiting the camera to a [[TileMap]]'s dimensions, or a specific area inside the map.
+   *
+   * Note that this strategy does not perform any movement by itself.
+   * It only sets the camera position to within the given bounds when the camera has gone beyond them.
+   * Thus, it is a good idea to combine it with other camera strategies and set this strategy as the last one.
+   *
    * @param target The bounding box to limit the camera to
    */
 
