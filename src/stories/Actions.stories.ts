@@ -1,13 +1,47 @@
-import { withKnobs, number } from '@storybook/addon-knobs';
-import { Actor, Texture, Loader, EasingFunctions } from '../engine';
+import { withKnobs, number, select } from '@storybook/addon-knobs';
+import { Actor, Texture, Loader, EasingFunctions, RotationType } from '../engine';
 import { withEngine } from './utils';
 
 import heartTexture from './assets/heart.png';
 
 export default {
   title: 'Actors/Actions',
-  decorators: [withKnobs]
+  decorators: [withKnobs],
+  parameters: {
+    componentSubtitle:
+      'The Actions API is available for Actors using the `.actions` property and can be chained together to create sequences of movement'
+  }
 };
+
+export const usingActions: Story = withEngine(async (game) => {
+  const heartTx = new Texture(heartTexture);
+  const loader = new Loader([heartTx]);
+
+  await game.start(loader);
+
+  game.setAntialiasing(false);
+
+  // Zoom in a bit
+  game.currentScene.camera.z = 4;
+
+  // Center the actor on the camera coordinates
+  const heart = new Actor({
+    x: game.currentScene.camera.x,
+    y: game.currentScene.camera.y,
+    width: 50,
+    height: 50
+  });
+
+  // Assign texture to heart actor
+  heart.addDrawing(heartTx);
+  game.add(heart);
+
+  // Actions execute sequentially
+  heart.actions
+    .scaleBy(2, 2, 2)
+    .rotateBy(Math.PI * 2, 1, RotationType.LongestPath)
+    .scaleBy(-2, -2, 2);
+});
 
 export const fade: Story = withEngine(async (game) => {
   const heartTx = new Texture(heartTexture);
@@ -42,12 +76,11 @@ export const fade: Story = withEngine(async (game) => {
 
 fade.story = {
   parameters: {
-    componentSubtitle: 'Fade action',
     docs: { storyDescription: 'Use `Actor.actions.fade()` to fade in or out the Actor over time' }
   }
 };
 
-export const rotate: Story = withEngine(async (game) => {
+export const rotateTo: Story = withEngine(async (game) => {
   const heartTx = new Texture(heartTexture);
   const loader = new Loader([heartTx]);
 
@@ -70,22 +103,90 @@ export const rotate: Story = withEngine(async (game) => {
   heart.addDrawing(heartTx);
   game.add(heart);
 
+  const rotateTo = number('Rotate to (in radians)', Math.PI);
+  const rotationType = select(
+    'Rotation Type',
+    {
+      ShortestPath: RotationType.ShortestPath,
+      LongestPath: RotationType.LongestPath,
+      Clockwise: RotationType.Clockwise,
+      CounterClockwise: RotationType.CounterClockwise
+    },
+    RotationType.ShortestPath
+  );
+
+  const duration = number('Duration (radians/s)', 1);
+
   // Rotate back and forth and loop
   const originalRotation = heart.rotation;
   heart.actions
 
     // Rotate by an amount in radians
-    .rotateBy(number('Rotation in radians', Math.PI), number('Duration (rad/s)', 1))
+    .rotateTo(originalRotation + rotateTo, duration, rotationType)
     .delay(number('Pause', 2000))
 
     // Rotate to a specific rotation
-    .rotateTo(originalRotation, number('Duration (rad/s)', 1));
+    .rotateTo(originalRotation, duration, rotationType);
 });
 
-rotate.story = {
+rotateTo.story = {
   parameters: {
-    componentSubtitle: 'Rotate action',
-    docs: { storyDescription: 'Use `Actor.actions.rotateBy()` or `Actor.actions.rotateTo()` to rotate the Actor by an amount in radians' }
+    docs: { storyDescription: 'Use `Actor.actions.rotateTo()` to rotate the Actor by an absolute amount of radians' }
+  }
+};
+
+export const rotateBy: Story = withEngine(async (game) => {
+  const heartTx = new Texture(heartTexture);
+  const loader = new Loader([heartTx]);
+
+  await game.start(loader);
+
+  game.setAntialiasing(false);
+
+  // Zoom in a bit
+  game.currentScene.camera.z = 4;
+
+  // Center the actor on the camera coordinates
+  const heart = new Actor({
+    x: game.currentScene.camera.x,
+    y: game.currentScene.camera.y,
+    width: 50,
+    height: 50
+  });
+
+  // Assign texture to heart actor
+  heart.addDrawing(heartTx);
+  game.add(heart);
+
+  const rotateBy = number('Rotate by (in radians)', Math.PI);
+
+  const rotationType = select(
+    'Rotation Type',
+    {
+      ShortestPath: RotationType.ShortestPath,
+      LongestPath: RotationType.LongestPath,
+      Clockwise: RotationType.Clockwise,
+      CounterClockwise: RotationType.CounterClockwise
+    },
+    RotationType.ShortestPath
+  );
+
+  const duration = number('Duration (radians/s)', 1);
+
+  // Rotate back and forth and loop
+  heart.actions
+
+    // Rotate by an amount in radians
+    .rotateBy(rotateBy, duration, rotationType)
+    .delay(number('Pause', 2000))
+
+    // Rotate back
+    .rotateBy(-rotateBy, duration, rotationType);
+});
+
+rotateBy.story = {
+  parameters: {
+    docs: { storyDescription: 'Use `Actor.actions.rotateBy()` to rotate the Actor by a relative amount of radians' }
   }
 };
 
@@ -125,7 +226,6 @@ export const move: Story = withEngine(async (game) => {
 
 move.story = {
   parameters: {
-    componentSubtitle: 'Move actions',
     docs: { storyDescription: 'Use `Actor.actions.moveBy()` or `Actor.actions.moveTo()` to move the Actor by an amount in pixels' }
   }
 };
@@ -168,7 +268,6 @@ export const ease: Story = withEngine(async (game) => {
 
 ease.story = {
   parameters: {
-    componentSubtitle: 'Ease actions',
     docs: { storyDescription: 'Use `Actor.actions.easeTo()` to ease the Actor by an amount in pixels with an easing function' }
   }
 };
@@ -206,7 +305,6 @@ export const scale: Story = withEngine(async (game) => {
 
 scale.story = {
   parameters: {
-    componentSubtitle: 'Scale actions',
     docs: {
       storyDescription:
         'Use `Actor.actions.scaleBy()` and `Actor.actions.scaleTo()` to scale the Actor by a scale factor at a specific speed'
