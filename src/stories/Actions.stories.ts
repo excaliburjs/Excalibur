@@ -199,8 +199,8 @@ export const scale: Story = withEngine(async (game) => {
   // Scale back and forth and loop
   const originalScale = heart.scale.clone();
   heart.actions
-    .scaleBy(number('Scale by x factor', 2), number('Scale by y factor', 2), number('Speed (px/s)', 5))
-    .scaleTo(originalScale.x, originalScale.y, number('Speed (px/s)', 5), number('Speed (px/s)', 5))
+    .scaleBy(number('Scale by x factor', 2), number('Scale by y factor', 2), number('Speed (factor/s)', 2))
+    .scaleTo(originalScale.x, originalScale.y, number('Speed (factor/s)', 2), number('Speed (factor/s)', 2))
     .repeatForever();
 });
 
