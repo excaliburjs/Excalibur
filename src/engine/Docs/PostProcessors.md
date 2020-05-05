@@ -56,9 +56,7 @@ Example:
 ```typescript
 const game = new ex.Engine();
 
-const colorBlindPostProcessor = new ex.ColorBlindCorrector(game, false, ColorBlindness.Protanope);
+game.debug.colorBlindMode.correct(ColorBlindness.Protanope);
 
-// post processors evaluate left to right
-game.postProcessors.push(colorBlindPostProcessor);
 game.start();
 ```
