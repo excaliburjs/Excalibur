@@ -267,7 +267,7 @@ describe('A camera', () => {
 
   it('can use built-in limit to bounds strategy', () => {
     engine.currentScene.camera = new ex.Camera();
-    const boundingBox = new ex.BoundingBox(0, 0, 1000, 1000);
+    const boundingBox = new ex.BoundingBox(10, 10, 1000, 1000);
     engine.currentScene.camera.strategy.limitCameraBounds(boundingBox);
 
     // Test upper-left bounds
@@ -276,8 +276,8 @@ describe('A camera', () => {
     engine.currentScene.camera.update(engine, 1);
     expect(engine.currentScene.camera.pos.x).not.toBe(11);
     expect(engine.currentScene.camera.pos.y).not.toBe(22);
-    expect(engine.currentScene.camera.pos.x).toBe(250);
-    expect(engine.currentScene.camera.pos.y).toBe(250);
+    expect(engine.currentScene.camera.pos.x).toBe(260); // screen half size + top-left bounds
+    expect(engine.currentScene.camera.pos.y).toBe(260);
 
     // Test bottom-right bounds
     engine.currentScene.camera.pos.setTo(888, 999);
