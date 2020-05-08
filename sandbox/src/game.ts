@@ -325,23 +325,27 @@ player.rotation = 0;
 var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
 player.add(healthbar);
 
-// Add Title above player
-var playerLabel = new ex.Label({
-  text: 'My Player',
-  pos: new ex.Vector(-70, -69),
-  fontFamily: 'Times New Roman'
-  // spriteFont: spriteFont
+var healthbar2 = new ex.Graphics.Rect({
+  width: 140,
+  height: 5,
+  color: new ex.Color(0, 255, 0)
 });
 
-// TODO need a good way of just adding a graphic to every drawing in graphics
+var backroundLayer = player.graphics.layers.create({
+  name: 'background',
+  order: -1,
+  allowMultipleGraphics: true
+});
+
+backroundLayer.show(healthbar2, ex.vec(0, -70));
 var playerText = new ex.Graphics.Text({
   text: 'My Player',
   font: new ex.Graphics.Font({
+    size: 20,
     family: 'Times New Roman'
   })
 });
-
-player.add(playerLabel);
+backroundLayer.show(playerText, ex.vec(0, -70));
 
 // Retrieve animations for player from sprite sheet
 var left = ex.Graphics.Animation.fromSpriteSheet(spriteSheetRun, ex.Util.range(1, 10), 50);
@@ -402,8 +406,10 @@ player.on('postupdate', () => {
       player.vel.y = -jumpSpeed;
       inAir = true;
       if (direction === 1) {
+        jumpRight.reset();
         player.graphics.show(Animations.JumpRight);
       } else {
+        jumpLeft.reset();
         player.graphics.show(Animations.JumpLeft);
       }
       jump.play();

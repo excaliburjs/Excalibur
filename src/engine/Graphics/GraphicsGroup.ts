@@ -1,6 +1,6 @@
 import { Vector } from '../Algebra';
 import { Graphic, GraphicOptions } from './Graphic';
-import { Animation } from './Animation';
+import { Animation, HasTick } from './Animation';
 import { BoundingBox } from '../Collision/Index';
 import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
 
@@ -13,7 +13,7 @@ export interface GraphicsGrouping {
   graphic: Graphic;
 }
 
-export class GraphicsGroup extends Graphic {
+export class GraphicsGroup extends Graphic implements HasTick {
   public members: GraphicsGrouping[] = [];
 
   public getSource(): ImageSource {

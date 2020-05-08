@@ -57,7 +57,8 @@ export class GraphicsSystem {
     if (isActor(entity)) {
       this.ctx.translate(-(entity.width * entity.anchor.x), -(entity.height * entity.anchor.y));
 
-      const gfx = entity.graphics.current;
+      // TODO this is odd
+      const gfx = entity.graphics.current[0]?.graphic;
       if (gfx) {
         // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
         const offsetX = (entity.width - gfx.width * gfx.scale.x) * entity.anchor.x;

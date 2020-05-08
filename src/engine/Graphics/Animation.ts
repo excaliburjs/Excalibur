@@ -6,6 +6,10 @@ import { Eventable } from '../Interfaces/Evented';
 import { EventDispatcher } from '../EventDispatcher';
 import { SpriteSheet } from './SpriteSheet';
 
+export interface HasTick {
+  tick(elapsedMilliseconds: number): void;
+}
+
 export enum AnimationStrategy {
   /**
    * Animation ends without displaying anything
@@ -38,7 +42,7 @@ export interface AnimationOptions {
   strategy?: AnimationStrategy;
 }
 
-export class Animation extends Graphic implements Eventable<Frame | Animation> {
+export class Animation extends Graphic implements Eventable<Frame | Animation>, HasTick {
   public frames: Frame[] = [];
   public strategy: AnimationStrategy = AnimationStrategy.Loop;
   public frameDuration: number = 100;

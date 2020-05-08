@@ -1,7 +1,6 @@
 import { Vector } from '../Algebra';
 import { Graphic } from './Graphic';
 import { Animation } from './Animation';
-import { delay } from '../Util/Delay';
 import { GraphicsGroup } from './GraphicsGroup';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Component } from '../Component';
@@ -42,50 +41,89 @@ export interface GraphicsLayerOptions {
   name: string;
   order: number;
   offset?: Vector;
+  allowMultipleGraphics?: boolean;
 }
 export class GraphicsLayer {
+  public graphics: { graphic: Graphic; offset: Vector }[] = [];
   constructor(private _options: GraphicsLayerOptions, private _graphics: GraphicsComponent) {}
   public get name(): string {
     return this._options.name;
   }
 
   /**
-   * Immediately show nothing
+   * Remove any instance(s) of a graphic currently being shown in this layer
    */
-  public hide(): Promise<void> {
-    this._currentGfx = null;
-    return Promise.resolve();
+  public hide(nameOrGraphic: string | Graphic): void;
+  /**
+   * Remove all currently shown graphics in this layer
+   */
+  public hide(): void;
+  public hide(nameOrGraphic?: string | Graphic): void {
+    if (!nameOrGraphic) {
+      this.graphics.length = 0;
+    } else {
+      let gfx: Graphic = null;
+      if (nameOrGraphic instanceof Graphic) {
+        gfx = nameOrGraphic;
+      } else {
+        gfx = this._graphics.getGraphic(nameOrGraphic);
+      }
+      this.graphics = this.graphics.filter((g) => g.graphic !== gfx);
+    }
   }
 
-  public show(nameOrGraphic: string | Graphic, duration?: number): Promise<Graphic> {
+  /**
+   * Show a graphic by name or instance at an offset, graphics are shown in the order in which `show()` is called.
+   *
+   * If `show()` is called multiple times for the same graphic it will be shown multiple times.
+   * @param nameOrGraphic
+   * @param offset
+   */
+  public show(nameOrGraphic: string | Graphic, offset: Vector = Vector.Zero): Graphic {
     let gfx: Graphic = null;
     if (nameOrGraphic instanceof Graphic) {
       gfx = nameOrGraphic;
     } else {
       gfx = this._graphics.getGraphic(nameOrGraphic);
     }
-    this._currentGfx = gfx;
-    return new Promise((resolve) => {
-      if (!duration) {
-        resolve(gfx);
-      } else if (duration) {
-        delay(duration).then(() => {
-          resolve(gfx);
-        });
-      } else {
-        resolve(gfx);
-      }
-    });
+    if (gfx) {
+      if (!this.allowMultipleGraphics) this.hide();
+      this.graphics.push({ graphic: gfx, offset });
+      return gfx;
+    } else {
+      return null;
+    }
   }
 
+  public get allowMultipleGraphics() {
+    return !!this._options.allowMultipleGraphics;
+  }
+
+  public set allowMultipleGraphics(value: boolean) {
+    this._options.allowMultipleGraphics = value;
+  }
+
+  /**
+   * Current order of the layer, higher numbers are on top, lower numbers are on the bottom.
+   *
+   * For example a layer with `order = -1` would be under a layer of `order = 1`
+   */
   public get order(): number {
     return this._options.order;
   }
 
+  /**
+   * Set the order of the layer, higher numbers are on top, lower numbers are on the bottom.
+   *
+   * For example a layer with `order = -1` would be under a layer of `order = 1`
+   */
   public set order(order: number) {
     this._options.order = order;
   }
 
+  /**
+   * Get or set the pixel offset from the layer origin for all graphics in the layer
+   */
   public get offset(): Vector {
     return this._options.offset ?? Vector.Zero;
   }
@@ -93,35 +131,39 @@ export class GraphicsLayer {
   public set offset(value: Vector) {
     this._options.offset = value;
   }
-
-  private _currentGfx: Graphic;
-
-  public get graphic(): Graphic {
-    return this._currentGfx;
-  }
 }
 
-/**
- * Component to manage drawings, using with the position component
- */
-export class GraphicsComponent implements Component<'graphics'> {
-  static type: 'graphics';
-  readonly type = 'graphics';
-  private _graphics: { [graphicName: string]: Graphic } = {};
+export class GraphicsLayers {
   private _layers: GraphicsLayer[] = [];
   private _layerMap: { [layerName: string]: GraphicsLayer } = {};
-  public default: GraphicsLayer = new GraphicsLayer({ name: 'default', order: 0 }, this);
-
-  public get layers(): readonly GraphicsLayer[] {
-    return this._layers;
+  public default: GraphicsLayer;
+  constructor(private _component: GraphicsComponent) {
+    this.default = new GraphicsLayer({ name: 'default', order: 0 }, _component);
+    this._maybeAddLayer(this.default);
+  }
+  public create(options: GraphicsLayerOptions): GraphicsLayer {
+    const layer = new GraphicsLayer(options, this._component);
+    return this._maybeAddLayer(layer);
   }
 
   /**
-   * Creates a new graphics layer
+   * Retrieve a single layer by name
+   * @param name
    */
-  public createLayer(options: GraphicsLayerOptions): GraphicsLayer {
-    const layer = new GraphicsLayer(options, this);
-    return this._maybeAddLayer(layer);
+  public get(name: string): GraphicsLayer;
+  /**
+   * Retrieve all layers
+   */
+  public get(): readonly GraphicsLayer[];
+  public get(name?: string): GraphicsLayer | readonly GraphicsLayer[] {
+    if (name) {
+      return this._getLayer(name);
+    }
+    return this._layers;
+  }
+
+  public has(name: string): boolean {
+    return name in this._layerMap;
   }
 
   private _maybeAddLayer(layer: GraphicsLayer) {
@@ -135,9 +177,20 @@ export class GraphicsComponent implements Component<'graphics'> {
     return layer;
   }
 
-  public getLayer(name: string): GraphicsLayer | undefined {
+  private _getLayer(name: string): GraphicsLayer | undefined {
     return this._layerMap[name];
   }
+}
+
+/**
+ * Component to manage drawings, using with the position component
+ */
+export class GraphicsComponent implements Component<'graphics'> {
+  static type: 'graphics';
+  readonly type = 'graphics';
+  private _graphics: { [graphicName: string]: Graphic } = {};
+
+  public layers: GraphicsLayers;
 
   public getGraphic(name: string): Graphic | undefined {
     return this._graphics[name];
@@ -177,17 +230,17 @@ export class GraphicsComponent implements Component<'graphics'> {
     this.opacity = opacity ?? this.opacity;
     this.visible = !!visible;
 
+    this.layers = new GraphicsLayers(this);
     if (current && this._graphics[current]) {
       this.show(this._graphics[current]);
     }
-    this._layers.push(this.default);
   }
 
   /**
-   * Returns the currently displayed graphic, null if hidden
+   * Returns the currently displayed graphics and their offsets, empty array if hidden
    */
-  public get current(): Graphic {
-    return this.default.graphic;
+  public get current(): { graphic: Graphic; offset: Vector }[] {
+    return this.layers.default.graphics;
   }
 
   /**
@@ -222,17 +275,22 @@ export class GraphicsComponent implements Component<'graphics'> {
   }
 
   /**
-   * Show a graphic by name, returns a promise that resolves when graphic has finished displaying
+   * Show a graphic by name on the **default** layer, returns a promise that resolves when graphic has finished displaying
    */
-  public show(nameOrGraphic: string | Graphic, duration?: number): Promise<Graphic> {
-    return this.default.show(nameOrGraphic, duration);
+  public show(nameOrGraphic: string | Graphic, offset: Vector = Vector.Zero): Graphic {
+    return this.layers.default.show(nameOrGraphic, offset);
   }
 
   /**
-   * Immediately show nothing
+   * Remove any instance(s) of a graphic currently being shown in the **default** layer
    */
-  public hide(): Promise<void> {
-    return this.default.hide();
+  public hide(nameOrGraphic: string | Graphic): void;
+  /**
+   * Remove all currently shown graphics in the **default** layer
+   */
+  public hide(): void;
+  public hide(nameOrGraphic?: string | Graphic): void {
+    this.layers.default.hide(nameOrGraphic);
   }
 
   private _isAnimationOrGroup(graphic: Graphic): graphic is Animation | GraphicsGroup {
@@ -245,8 +303,12 @@ export class GraphicsComponent implements Component<'graphics'> {
    * @internal
    */
   public update(elapsed: number) {
-    if (this._isAnimationOrGroup(this.current)) {
-      this.current?.tick(elapsed);
+    for (const layer of this.layers.get()) {
+      for (const { graphic } of layer.graphics) {
+        if (this._isAnimationOrGroup(graphic)) {
+          graphic?.tick(elapsed);
+        }
+      }
     }
   }
 
@@ -263,12 +325,12 @@ export class GraphicsComponent implements Component<'graphics'> {
       const anchor = this.anchor ?? Vector.Zero;
 
       // this should be moved to the graphics system
-      this._layers.sort((a, b) => a.order - b.order);
-      for (const layer of this._layers) {
-        if (!layer.graphic) continue;
-        const offsetX = -layer.graphic.width * layer.graphic.scale.x * anchor.x + x;
-        const offsetY = -layer.graphic.height * layer.graphic.scale.y * anchor.y + y;
-        layer.graphic?.draw(ctx, offsetX + layer.offset.x, offsetY + layer.offset.y);
+      for (const layer of this.layers.get()) {
+        for (const { graphic, offset } of layer.graphics) {
+          const offsetX = -graphic.width * graphic.scale.x * anchor.x + x + offset.x;
+          const offsetY = -graphic.height * graphic.scale.y * anchor.y + y + offset.y;
+          graphic?.draw(ctx, offsetX + layer.offset.x, offsetY + layer.offset.y);
+        }
       }
     }
   }
