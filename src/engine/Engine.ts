@@ -782,7 +782,6 @@ O|===|* >________________>\n\
     }
     if (entity instanceof Actor) {
       this._addChild(entity);
-      this.currentScene.addEntity(entity);
     }
     if (entity instanceof Timer) {
       this.addTimer(entity);
