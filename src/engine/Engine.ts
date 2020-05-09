@@ -1411,7 +1411,6 @@ O|===|* >________________>\n\
 
         // reset frame stats (reuse existing instances)
         const frameId = game.stats.prevFrame.id + 1;
-        game.stats.prevFrame.reset(game.stats.currFrame);
         game.stats.currFrame.reset();
         game.stats.currFrame.id = frameId;
         game.stats.currFrame.delta = delta;
@@ -1429,6 +1428,7 @@ O|===|* >________________>\n\
         lastTime = now;
 
         game.emit('postframe', new PostFrameEvent(game, game.stats.currFrame));
+        game.stats.prevFrame.reset(game.stats.currFrame);
       } catch (e) {
         window.cancelAnimationFrame(game._requestId);
         game.stop();
