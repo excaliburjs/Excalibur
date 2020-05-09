@@ -4,12 +4,20 @@ import { Animation } from './Animation';
 import { GraphicsGroup } from './GraphicsGroup';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Component } from '../Component';
+import { Logger } from '../Util/Log';
+import { BoundingBox } from '../Collision/Index';
 
 export interface GraphicsComponentOptions {
   /**
    * Name of current graphic to use
    */
   current?: string;
+
+  /**
+   * Optionally share instances of graphics, you may set this to true to avoid copying graphics when added to the
+   * component for performance reasons. By default graphics are not shared and are copied when added to the component.
+   */
+  shareGraphics?: boolean;
 
   /**
    * Optional visible flag, if the graphics component is not visible it will not be displayed
@@ -79,20 +87,35 @@ export class GraphicsLayer {
    * @param nameOrGraphic
    * @param offset
    */
-  public show(nameOrGraphic: string | Graphic, offset: Vector = Vector.Zero): Graphic {
-    let gfx: Graphic = null;
+  public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, offset: Vector = Vector.Zero): T {
+    let gfx: Graphic;
     if (nameOrGraphic instanceof Graphic) {
-      gfx = nameOrGraphic;
+      gfx = this._graphics.shareGraphics ? nameOrGraphic : nameOrGraphic.clone();
     } else {
       gfx = this._graphics.getGraphic(nameOrGraphic);
+      if (!gfx) {
+        Logger.getInstance().error(
+          `No such graphic added to component named ${nameOrGraphic}. These named graphics are available: `,
+          this._graphics.getGraphicNames()
+        );
+      }
     }
     if (gfx) {
-      if (!this.allowMultipleGraphics) this.hide();
       this.graphics.push({ graphic: gfx, offset });
-      return gfx;
+      return gfx as T;
     } else {
       return null;
     }
+  }
+
+  /**
+   * Swap out any current graphics being shown for another
+   * @param nameOrGraphic
+   * @param offset
+   */
+  public swap<T extends Graphic = Graphic>(nameOrGraphic: string | T, offset: Vector = Vector.Zero): T {
+    this.hide();
+    return this.show<T>(nameOrGraphic, offset);
   }
 
   public get allowMultipleGraphics() {
@@ -200,6 +223,10 @@ export class GraphicsComponent implements Component<'graphics'> {
     return this._graphics[name];
   }
 
+  public getGraphicNames(): string[] {
+    return Object.keys(this._graphics);
+  }
+
   /**
    * Sets or gets wether any drawing should be visible in this component
    */
@@ -220,6 +247,8 @@ export class GraphicsComponent implements Component<'graphics'> {
    */
   public anchor?: Vector | null = null;
 
+  public shareGraphics: boolean = false;
+
   constructor(options?: GraphicsComponentOptions) {
     // Defaults
     options = {
@@ -227,11 +256,12 @@ export class GraphicsComponent implements Component<'graphics'> {
       ...options
     };
 
-    const { current, opacity, visible, graphics, offset } = options;
+    const { current, opacity, visible, graphics, offset, shareGraphics } = options;
 
     this._graphics = graphics || {};
     this.offset = offset ?? this.offset;
     this.opacity = opacity ?? this.opacity;
+    this.shareGraphics = shareGraphics ?? this.shareGraphics;
     this.visible = !!visible;
 
     this.layers = new GraphicsLayers(this);
@@ -243,6 +273,7 @@ export class GraphicsComponent implements Component<'graphics'> {
   /**
    * Returns the currently displayed graphics and their offsets, empty array if hidden
    */
+  // TODO does this make sense anymore?
   public get current(): { graphic: Graphic; offset: Vector }[] {
     return this.layers.default.graphics;
   }
@@ -271,7 +302,7 @@ export class GraphicsComponent implements Component<'graphics'> {
       graphicToSet = nameOrGraphic;
     }
 
-    this._graphics[name] = graphicToSet;
+    this._graphics[name] = this.shareGraphics ? graphicToSet : graphicToSet.clone();
     if (name === 'default') {
       this.show('default');
     }
@@ -279,10 +310,19 @@ export class GraphicsComponent implements Component<'graphics'> {
   }
 
   /**
-   * Show a graphic by name on the **default** layer, returns a promise that resolves when graphic has finished displaying
+   * Show a graphic by name on the **default** layer, returns the new [[Graphic]]
    */
-  public show(nameOrGraphic: string | Graphic, offset: Vector = Vector.Zero): Graphic {
-    return this.layers.default.show(nameOrGraphic, offset);
+  public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, offset: Vector = Vector.Zero): T {
+    return this.layers.default.show<T>(nameOrGraphic, offset);
+  }
+
+  /**
+   * Swap out any graphics on the **default** layer, returns the new [[Graphic]]
+   * @param nameOrGraphic
+   * @param offset
+   */
+  public swap<T extends Graphic = Graphic>(nameOrGraphic: string | T, offset: Vector = Vector.Zero): T {
+    return this.layers.default.swap<T>(nameOrGraphic, offset);
   }
 
   /**

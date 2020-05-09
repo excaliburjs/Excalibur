@@ -99,7 +99,7 @@ var anim = new ex.Graphics.Animation({
   frames: [
     {
       graphic: newSprite,
-      duration: 500
+      duration: 1000
     },
     {
       graphic: circle,
@@ -107,23 +107,23 @@ var anim = new ex.Graphics.Animation({
     },
     {
       graphic: rect,
-      duration: 1500
+      duration: 1000
     },
     {
       graphic: triangle,
-      duration: 2000
+      duration: 1000
     }
   ]
 });
-anim.on('loop', (a) => {
-  console.log('loop');
-});
-anim.on('frame', (f) => {
-  console.log('frame');
-});
-anim.on('ended', (a) => {
-  console.log('ended');
-});
+// anim.on('loop', (a) => {
+//   console.log('loop');
+// });
+// anim.on('frame', (f) => {
+//   console.log('frame');
+// });
+// anim.on('ended', (a) => {
+//   console.log('ended');
+// });
 
 var text = new ex.Graphics.Text({
   text: 'This is raster text ❤️',
@@ -354,7 +354,12 @@ var right = left.clone(); // spriteSheetRun.getAnimationBetween(game, 1, 11, 50)
 right.flipHorizontal = true;
 var idle = ex.Graphics.Animation.fromSpriteSheet(spriteSheetRun, [0], 200); // spriteSheetRun.getAnimationByIndices(game, [0], 200);
 //idle.anchor.setTo(.5, .5);
-var jumpLeft = ex.Graphics.Animation.fromSpriteSheet(spriteSheetJump, ex.Util.range(0, 10), 100, ex.Graphics.AnimationStrategy.Freeze); // spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
+var jumpLeft = ex.Graphics.Animation.fromSpriteSheet(
+  spriteSheetJump,
+  ex.Util.range(0, 10).reverse(),
+  100,
+  ex.Graphics.AnimationStrategy.Freeze
+); // spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
 var jumpRight = ex.Graphics.Animation.fromSpriteSheet(spriteSheetJump, ex.Util.range(11, 21), 100, ex.Graphics.AnimationStrategy.Freeze); // spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
 // left.loop = true;
 // right.loop = true;
@@ -371,7 +376,7 @@ player.graphics.add(Animations.JumpRight, jumpRight);
 player.graphics.add(Animations.JumpLeft, jumpLeft);
 
 // Set default animation
-player.graphics.show(Animations.Idle);
+player.graphics.swap(Animations.Idle);
 
 var inAir = true;
 var groundSpeed = 150;
@@ -382,7 +387,7 @@ player.on('postupdate', () => {
   if (game.input.keyboard.isHeld(ex.Input.Keys.Left)) {
     direction = -1;
     if (!inAir) {
-      player.graphics.show(Animations.Left);
+      player.graphics.swap(Animations.Left);
     }
     if (inAir) {
       player.vel.x = -airSpeed;
@@ -392,7 +397,7 @@ player.on('postupdate', () => {
   } else if (game.input.keyboard.isHeld(ex.Input.Keys.Right)) {
     direction = 1;
     if (!inAir) {
-      player.graphics.show(Animations.Right);
+      player.graphics.swap(Animations.Right);
     }
     if (inAir) {
       player.vel.x = airSpeed;
@@ -406,11 +411,9 @@ player.on('postupdate', () => {
       player.vel.y = -jumpSpeed;
       inAir = true;
       if (direction === 1) {
-        jumpRight.reset();
-        player.graphics.show(Animations.JumpRight);
+        player.graphics.swap<ex.Graphics.Animation>(Animations.JumpRight).reset();
       } else {
-        jumpLeft.reset();
-        player.graphics.show(Animations.JumpLeft);
+        player.graphics.swap<ex.Graphics.Animation>(Animations.JumpLeft).reset();
       }
       jump.play();
     }
@@ -421,7 +424,7 @@ game.input.keyboard.on('up', (e?: ex.Input.KeyEvent) => {
   if (inAir) return;
 
   if (e.key === ex.Input.Keys.Left || e.key === ex.Input.Keys.Right) {
-    player.graphics.show(Animations.Idle);
+    player.graphics.swap(Animations.Idle);
   }
 });
 
@@ -477,7 +480,7 @@ player.on('precollision', (data?: ex.PreCollisionEvent) => {
     isColliding = true;
 
     if (inAir) {
-      player.graphics.show(Animations.Idle);
+      player.graphics.swap(Animations.Idle);
     }
     inAir = false;
     if (
