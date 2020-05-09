@@ -4,8 +4,8 @@ import { Scene } from '../Scene';
 import { Entity } from '../Entity';
 import { GraphicsComponent } from './GraphicsComponent';
 import { TransformComponent, CoordPlane } from '../Transform';
-import { Rect } from './Rect';
-import { Color } from '../Drawing/Color';
+// import { Rect } from './Rect';
+// import { Color } from '../Drawing/Color';
 
 export class GraphicsSystem {
   public readonly types = [GraphicsComponent.type, TransformComponent.type];
@@ -31,38 +31,38 @@ export class GraphicsSystem {
       this.ctx.z = transform.z;
       this.ctx.opacity = graphics.opacity * ((entity as any).opacity ?? 1);
       graphics.draw(this.ctx, x, y);
-      if ((this.scene as any)._engine.isDebug) {
-        this.ctx.z = 99;
-        if (isActor(entity)) {
-          if (!graphics.__debug.colliderBounds) {
-            graphics.__debug.colliderBounds = new Rect({
-              color: Color.Transparent,
-              lineWidth: 4,
-              strokeColor: Color.Red,
-              width: entity.width,
-              height: entity.height
-            });
-          } else {
-            graphics.__debug.colliderBounds.width = entity.body.collider.bounds.width;
-            graphics.__debug.colliderBounds.height = entity.body.collider.bounds.height;
-          }
-          graphics.__debug.colliderBounds.draw(this.ctx, 0, 0);
+      // if ((this.scene as any)._engine.isDebug) {
+      //   this.ctx.z = 99;
+      //   if (isActor(entity)) {
+      //     if (!graphics.__debug.colliderBounds) {
+      //       graphics.__debug.colliderBounds = new Rect({
+      //         color: Color.Transparent,
+      //         lineWidth: 4,
+      //         strokeColor: Color.Red,
+      //         width: entity.width,
+      //         height: entity.height
+      //       });
+      //     } else {
+      //       graphics.__debug.colliderBounds.width = entity.body.collider.bounds.width;
+      //       graphics.__debug.colliderBounds.height = entity.body.collider.bounds.height;
+      //     }
+      //     graphics.__debug.colliderBounds.draw(this.ctx, 0, 0);
 
-          if (!graphics.__debug.graphicBounds) {
-            graphics.__debug.graphicBounds = new Rect({
-              color: Color.Transparent,
-              lineWidth: 4,
-              strokeColor: Color.Blue,
-              width: graphics.current?.width ?? 0,
-              height: graphics.current?.height ?? 0
-            });
-          } else {
-            graphics.__debug.graphicBounds.width = graphics.current?.width ?? 0;
-            graphics.__debug.graphicBounds.height = graphics.current?.height ?? 0;
-          }
-          graphics.__debug.graphicBounds.draw(this.ctx, x, y);
-        }
-      }
+      //     if (!graphics.__debug.graphicBounds) {
+      //       graphics.__debug.graphicBounds = new Rect({
+      //         color: Color.Transparent,
+      //         lineWidth: 4,
+      //         strokeColor: Color.Blue,
+      //         width: graphics.current?.width ?? 0,
+      //         height: graphics.current?.height ?? 0
+      //       });
+      //     } else {
+      //       graphics.__debug.graphicBounds.width = graphics.current?.width ?? 0;
+      //       graphics.__debug.graphicBounds.height = graphics.current?.height ?? 0;
+      //     }
+      //     graphics.__debug.graphicBounds.draw(this.ctx, x, y);
+      //   }
+      // }
 
       this.ctx.restore();
 
