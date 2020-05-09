@@ -4,6 +4,8 @@ import { Scene } from '../Scene';
 import { Entity } from '../Entity';
 import { GraphicsComponent } from './GraphicsComponent';
 import { TransformComponent, CoordPlane } from '../Transform';
+import { Circle } from './Circle';
+import { Color } from '../Drawing/Color';
 // import { Rect } from './Rect';
 // import { Color } from '../Drawing/Color';
 
@@ -11,6 +13,10 @@ export class GraphicsSystem {
   public readonly types = [GraphicsComponent.type, TransformComponent.type];
   constructor(public ctx: ExcaliburGraphicsContext, public scene: Scene) {}
   private _token = 0;
+  private _debugCircle = new Circle({
+    radius: 5,
+    color: Color.Red
+  });
 
   public update(entities: Entity<GraphicsComponent | TransformComponent>[], delta: number): void {
     this._clearScreen();
@@ -33,40 +39,18 @@ export class GraphicsSystem {
       this.ctx.z = transform.z;
       this.ctx.opacity = graphics.opacity * ((entity as any).opacity ?? 1);
       graphics.draw(this.ctx, x, y);
-      // if ((this.scene as any)._engine.isDebug) {
-      //   this.ctx.z = 99;
-      //   if (isActor(entity)) {
-      //     if (!graphics.__debug.colliderBounds) {
-      //       graphics.__debug.colliderBounds = new Rect({
-      //         color: Color.Transparent,
-      //         lineWidth: 4,
-      //         strokeColor: Color.Red,
-      //         width: entity.width,
-      //         height: entity.height
-      //       });
-      //     } else {
-      //       graphics.__debug.colliderBounds.width = entity.body.collider.bounds.width;
-      //       graphics.__debug.colliderBounds.height = entity.body.collider.bounds.height;
-      //     }
-      //     graphics.__debug.colliderBounds.draw(this.ctx, 0, 0);
-
-      //     if (!graphics.__debug.graphicBounds) {
-      //       graphics.__debug.graphicBounds = new Rect({
-      //         color: Color.Transparent,
-      //         lineWidth: 4,
-      //         strokeColor: Color.Blue,
-      //         width: graphics.current?.width ?? 0,
-      //         height: graphics.current?.height ?? 0
-      //       });
-      //     } else {
-      //       graphics.__debug.graphicBounds.width = graphics.current?.width ?? 0;
-      //       graphics.__debug.graphicBounds.height = graphics.current?.height ?? 0;
-      //     }
-      //     graphics.__debug.graphicBounds.draw(this.ctx, x, y);
-      //   }
-      // }
-
       this.ctx.restore();
+
+      // TODO better debug draw system
+      if ((this.scene as any)._engine.isDebug) {
+        if (isActor(entity)) {
+          this._debugCircle.draw(
+            this.ctx,
+            entity.getWorldPos().x - this._debugCircle.radius,
+            entity.getWorldPos().y - this._debugCircle.radius
+          );
+        }
+      }
 
       this._popCameraTransform(transform);
     }
@@ -95,11 +79,11 @@ export class GraphicsSystem {
       this.ctx.translate(-(entity.width * entity.anchor.x), -(entity.height * entity.anchor.y));
 
       // TODO this is odd
-      const gfx = entity.graphics.current[0]?.graphic;
+      const gfx = entity.graphics.localBounds;
       if (gfx) {
         // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-        const offsetX = (entity.width - gfx.width * gfx.scale.x) * entity.anchor.x;
-        const offsetY = (entity.height - gfx.height * gfx.scale.y) * entity.anchor.y;
+        const offsetX = (entity.width - gfx.width) * entity.anchor.x;
+        const offsetY = (entity.height - gfx.height) * entity.anchor.y;
         return [offsetX, offsetY];
       }
     }

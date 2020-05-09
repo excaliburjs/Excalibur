@@ -341,6 +341,16 @@ export class GraphicsComponent implements Component<'graphics'> {
     return graphic instanceof Animation || graphic instanceof GraphicsGroup;
   }
 
+  public get localBounds(): BoundingBox {
+    let bb = new BoundingBox();
+    for (const layer of this.layers.get()) {
+      for (const { graphic, offset } of layer.graphics) {
+        bb = graphic.localBounds.translate(offset).combine(bb);
+      }
+    }
+    return bb;
+  }
+
   /**
    * Update underlying graphics if necesary, called internally
    * @param elapsed

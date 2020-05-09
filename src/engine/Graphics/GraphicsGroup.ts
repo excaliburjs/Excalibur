@@ -2,6 +2,7 @@ import { Vector } from '../Algebra';
 import { Graphic, GraphicOptions } from './Graphic';
 import { Animation, HasTick } from './Animation';
 import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
+import { BoundingBox } from '../Collision/Index';
 
 export interface GraphicsGroupingOptions {
   members: GraphicsGrouping[];
@@ -34,6 +35,14 @@ export class GraphicsGroup extends Graphic implements HasTick {
       members: [...this.members],
       ...this.cloneGraphicOptions()
     });
+  }
+
+  public get localBounds(): BoundingBox {
+    let bb = new BoundingBox();
+    for (const { graphic, pos } of this.members) {
+      bb = graphic.localBounds.translate(pos).combine(bb);
+    }
+    return bb;
   }
 
   private _isAnimationOrGroup(graphic: Graphic): graphic is Animation | GraphicsGroup {
