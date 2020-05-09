@@ -306,11 +306,11 @@ export class GraphicsComponent implements Component<'graphics'> {
    * @param elapsed
    * @internal
    */
-  public update(elapsed: number) {
+  public update(elapsed: number, idempotencyToken: number = 0) {
     for (const layer of this.layers.get()) {
       for (const { graphic } of layer.graphics) {
         if (this._isAnimationOrGroup(graphic)) {
-          graphic?.tick(elapsed);
+          graphic?.tick(elapsed, idempotencyToken);
         }
       }
     }

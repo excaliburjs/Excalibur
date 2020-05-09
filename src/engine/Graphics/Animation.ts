@@ -7,7 +7,12 @@ import { EventDispatcher } from '../EventDispatcher';
 import { SpriteSheet } from './SpriteSheet';
 
 export interface HasTick {
-  tick(elapsedMilliseconds: number): void;
+  /**
+   *
+   * @param elapsedMilliseconds The amount of real world time in milliseconds that has elapsed that must be updated in the animation
+   * @param idempotencyToken Optional idempotencyToken prevents a ticking animation from updating twice per frame
+   */
+  tick(elapsedMilliseconds: number, idempotencyToken?: number): void;
 }
 
 export enum AnimationStrategy {
@@ -46,6 +51,8 @@ export class Animation extends Graphic implements Eventable<Frame | Animation>, 
   public frames: Frame[] = [];
   public strategy: AnimationStrategy = AnimationStrategy.Loop;
   public frameDuration: number = 100;
+
+  private _idempotencyToken = -1;
 
   private _currentFrame = 0;
   private _timeLeftInFrame = 0;
@@ -194,7 +201,9 @@ export class Animation extends Graphic implements Eventable<Frame | Animation>, 
     return next;
   }
 
-  public tick(elapsedMilliseconds: number) {
+  public tick(elapsedMilliseconds: number, idempotencyToken: number = 0) {
+    if (this._idempotencyToken === idempotencyToken) return;
+    this._idempotencyToken = idempotencyToken;
     if (!this._playing) return;
     this._timeLeftInFrame -= elapsedMilliseconds;
     if (this._timeLeftInFrame <= 0) {

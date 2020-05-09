@@ -40,11 +40,11 @@ export class GraphicsGroup extends Graphic implements HasTick {
     return graphic instanceof Animation || graphic instanceof GraphicsGroup;
   }
 
-  public tick(elapsedMilliseconds: number) {
+  public tick(elapsedMilliseconds: number, idempotencyToken?: number) {
     for (const member of this.members) {
       const maybeAnimation = member.graphic;
       if (this._isAnimationOrGroup(maybeAnimation)) {
-        maybeAnimation.tick(elapsedMilliseconds);
+        maybeAnimation.tick(elapsedMilliseconds, idempotencyToken);
       }
     }
   }

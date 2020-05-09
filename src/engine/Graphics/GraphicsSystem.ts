@@ -10,9 +10,11 @@ import { TransformComponent, CoordPlane } from '../Transform';
 export class GraphicsSystem {
   public readonly types = [GraphicsComponent.type, TransformComponent.type];
   constructor(public ctx: ExcaliburGraphicsContext, public scene: Scene) {}
+  private _token = 0;
 
   public update(entities: Entity<GraphicsComponent | TransformComponent>[], delta: number): void {
     this._clearScreen();
+    this._token++;
     // sort actors in z order
     entities.sort((a, b) => a.components.transform.z - b.components.transform.z);
     let transform: TransformComponent;
@@ -25,7 +27,7 @@ export class GraphicsSystem {
       this._pushCameraTransform(transform);
 
       this.ctx.save();
-      graphics.update(delta);
+      graphics.update(delta, this._token);
       this._applyEntityTransform(transform);
       const [x, y] = this._applyActorAnchor(entity);
       this.ctx.z = transform.z;
