@@ -181,7 +181,7 @@ The possible (optional) scopes for a commit are:
 - `events`
 - `input`
 - `sound`
-- `<name-plugin>` (e.x. `tiled-plugin` or `pack-plugin`)
+- `<plugin-name>` (e.x. `plugin-tiled` or `plugin-pack`)
 
 Examples:
 
