@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "all": "npm run lint && npm run core && npm run core:bundle-prod && npm run test && npm run legacy-visual",
-    "clean": "rimraf ./build/dist ./src/spec/*.js ./src/spec/*.map",
+    "clean": "rimraf .tsbuildinfo ./build/dist ./build ./src/spec/*.js ./src/spec/*.map",
     "travis": "npm run clean && git clone https://github.com/excaliburjs/excalibur-dist build && npm run all && npm run coveralls && npm run apidocs",
     "appveyor": "npm run all && npm run nuget 0.0.1",
     "nuget": ".\\src\\tools\\NuGet.exe pack Excalibur.nuspec -OutputDirectory .\\build\\dist -version",
