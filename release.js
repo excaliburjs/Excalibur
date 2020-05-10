@@ -100,7 +100,11 @@ async function main() {
 
   answer = await question('Publish the nuget package? (y/n)');
   if (answer) {
-    console.log(execSync(`nuget push ./dist/Excalibur.${version}.nupkg -Source https://api.nuget.org/v3/index.json`).toString());
+    console.log(
+      execSync(
+        `.\\src\\tools\\NuGet.exe push ./build/dist/Excalibur.${version}.nupkg -Source https://api.nuget.org/v3/index.json`
+      ).toString()
+    );
   } else {
     console.log('Abort!');
     rl.close();
