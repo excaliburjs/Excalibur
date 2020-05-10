@@ -129,8 +129,87 @@ A number of our code formatting rules are enforced via linting. When you build E
 
 #### Commit Messages
 
-Follow the guidelines below to help maintain a readable and informative git history:
+If you are a community contributor, the following are recommendations for maintaining a readable and informative Git history. We don't require any of your commits to be formatted like this, but we do recommend you provide meaningful context in each of them to keep track of your changes. We squash and merge all pull requests, so each one will only have a single commit in it when merged. That commit is edited by the core contributing team and based on the commits in the PR. 
 
+All merged commits will follow a modified version of the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard:
+
+```
+<type>(optional scope): [#issue_number] <description> (#pr_number - if is a PR merge commit)
+
+<optional body>
+
+Closes #issue_number (if resolves an existing issue)
+```
+The possible types for a commit are:
+- `fix`: patching a bug in the codebase
+- `feat`: adding a new feature to the codebase
+- `test`: adding missing tests or fix existing tests
+- `perf`: increasing the performance of the codebase
+- `refactor`: changing the codebase without fixing a bug or adding a feature
+- `docs`: adding or updating documentation
+- `chore`: changing the build system or CI configuration, modifying external dependencies, etc.
+
+If any commit introduces a breaking change, the commit message must be formatted as follows:
+(note that there is a `!` just before the colon in the commit subject)
+```
+<type>(optional scope)!: [#issue_number] <description> (#pr_number - if is a PR merge commit)
+
+<optional body>
+
+BREAKING CHANGE: <description of the breaking change>
+
+Closes #issue_number
+```
+
+If a commit deprecates part of the API, the commit message must be formatted as follows:
+
+
+```
+<type>(optional scope): [#issue_number] <description> (#pr_number - if is a PR merge commit)
+
+<optional body>
+
+DEPRECATION: <description of the deprecation (including when it will be removed), what method(s) to use instead>
+
+Closes #issue_number
+```
+
+The possible (optional) scopes for a commit are:
+- `actions`
+- `collision`
+- `drawing`
+- `events`
+- `input`
+- `sound`
+- `<name-plugin>` (e.x. `tiled-plugin` or `pack-plugin`)
+
+Examples:
+
+adding a new feature
+```
+feat: [#1340] Add `vec(x, y)` shorthand for creating vectors (#1346)
+
+Closes #1340
+```
+
+fixing a bug
+```
+fix: [#875] Prevent actors from drawing when their opacity is 0 (#1279)
+
+Closes #875
+```
+
+renaming part of the API
+```
+refactor!: [#1087] Rename 'BaseCamera to 'Camera (#1089)
+
+The BaseCamera name was confusing, as it implies that the Camera must be
+extended in order to be used (which is not true).
+
+BREAKING CHANGE: `ex.BaseCamera` is now `ex.Camera`. `ex.BaseCamera` will be removed in v0.22.0
+```
+
+Additional formatting:
 - Use present tense verbs (“Fix bug where…” instead of “Fixed bug where…”)
 - Use imperative mood (“Add new feature” instead of “Adds new feature”)
 - Capitalize the first letter of the first line
@@ -139,7 +218,7 @@ Follow the guidelines below to help maintain a readable and informative git hist
 - Limit lines in the message body to 72 characters or less
 - Reference issue and pull request numbers as appropriate
 - Use hyphens for bulleted lists
-- If your change is small, you may only need to write a single line commit message, e.x. “Fix typo in documentation”
+- If your change is small, you may only need to write a single line commit message, e.x. “docs: Fix typo in Actor documentation”
 
 Here are the guidelines applied in a sample commit message, along with some additional helpful hints:
 
@@ -164,7 +243,7 @@ Referencing relevant issue and pull request numbers is very important
 to help everyone understand what you're working on. Add them at the
 bottom of your commit message.
 
-Resolves: #100
+Closes: #100
 See also: #200, #300
 ```
 
