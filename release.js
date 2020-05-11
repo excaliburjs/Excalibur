@@ -48,7 +48,7 @@ async function main() {
     console.log(execSync(`npm --no-git-tag-version version ${version}`).toString());
     console.log('Committing updates ✅');
     console.log(execSync(`git add package.json`).toString());
-    console.log(execSync(`git commit -nm "[chore] Release excalibur@v${version}"`).toString());
+    console.log(execSync(`git commit -nm "chore: Release excalibur@v${version}"`).toString());
 
     console.log('Creating releases 🤞');
     const releaseUrl = execSync(
