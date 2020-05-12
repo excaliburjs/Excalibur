@@ -32,7 +32,7 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
       rows: 16,
       chunkGarbageCollectorPredicate: () => false,
       chunkRenderingCachePredicate: () => false,
-      chunkGenerator: ex.wrapSimpleCellGenerator((cell) => currentCellGenerator(cell))
+      chunkGenerator: ex.wrapCellGenerator((cell) => currentCellGenerator(cell))
     });
     actor.pos = ex.vec(0, 0);
     actor.body.collider.type = ex.CollisionType.PreventCollision;

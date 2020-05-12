@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { ChunkSystemTileMap, wrapSimpleChunkGenerator, wrapSimpleCellGenerator } from '@excalibur';
+import { ChunkSystemTileMap, wrapChunkGenerator, wrapCellGenerator } from '@excalibur';
 
 const DEFAULT_OPTIONS = {
   x: -32,
@@ -11,7 +11,7 @@ const DEFAULT_OPTIONS = {
   cols: 8,
   rows: 8,
   chunkGarbageCollectorPredicate: () => false,
-  chunkGenerator: wrapSimpleChunkGenerator((chunk) => chunk)
+  chunkGenerator: wrapChunkGenerator((chunk) => chunk)
 };
 
 describe('ChunkSystemTileMap', () => {
@@ -29,7 +29,7 @@ describe('ChunkSystemTileMap', () => {
           cellWidth: 8,
           cellHeight: 8,
           chunkGarbageCollectorPredicate: () => true,
-          chunkGenerator: wrapSimpleChunkGenerator((chunk) => chunk),
+          chunkGenerator: wrapChunkGenerator((chunk) => chunk),
           chunkSize: value,
           cols: 5,
           rows: 5,
@@ -48,7 +48,7 @@ describe('ChunkSystemTileMap', () => {
           cellWidth: 8,
           cellHeight: 8,
           chunkGarbageCollectorPredicate: () => true,
-          chunkGenerator: wrapSimpleChunkGenerator((chunk) => chunk),
+          chunkGenerator: wrapChunkGenerator((chunk) => chunk),
           chunkSize: 1,
           cols: 5,
           rows: value,
@@ -67,7 +67,7 @@ describe('ChunkSystemTileMap', () => {
           cellWidth: 8,
           cellHeight: 8,
           chunkGarbageCollectorPredicate: () => true,
-          chunkGenerator: wrapSimpleChunkGenerator((chunk) => chunk),
+          chunkGenerator: wrapChunkGenerator((chunk) => chunk),
           chunkSize: 1,
           cols: value,
           rows: 1,
@@ -84,7 +84,7 @@ describe('ChunkSystemTileMap', () => {
         cellWidth: 8,
         cellHeight: 8,
         chunkGarbageCollectorPredicate: () => true,
-        chunkGenerator: wrapSimpleChunkGenerator((chunk) => chunk),
+        chunkGenerator: wrapChunkGenerator((chunk) => chunk),
         chunkSize: 7,
         cols: 20,
         rows: 21,
@@ -100,7 +100,7 @@ describe('ChunkSystemTileMap', () => {
         cellWidth: 8,
         cellHeight: 8,
         chunkGarbageCollectorPredicate: () => true,
-        chunkGenerator: wrapSimpleChunkGenerator((chunk) => chunk),
+        chunkGenerator: wrapChunkGenerator((chunk) => chunk),
         chunkSize: 11,
         cols: 22,
         rows: 27,
@@ -139,7 +139,7 @@ describe('ChunkSystemTileMap', () => {
   it('does not collide an non-colliding actor', () => {
     const chunkSystem = new ChunkSystemTileMap({
       ...DEFAULT_OPTIONS,
-      chunkGenerator: wrapSimpleCellGenerator((cell) => (cell.solid = !cell.x && !cell.y))
+      chunkGenerator: wrapCellGenerator((cell) => (cell.solid = !cell.x && !cell.y))
     });
     const actor = new ex.Actor({
       x: -34,
@@ -155,7 +155,7 @@ describe('ChunkSystemTileMap', () => {
   it('collides a colliding actor', () => {
     const chunkSystem = new ChunkSystemTileMap({
       ...DEFAULT_OPTIONS,
-      chunkGenerator: wrapSimpleCellGenerator((cell) => (cell.solid = !cell.x && !cell.y))
+      chunkGenerator: wrapCellGenerator((cell) => (cell.solid = !cell.x && !cell.y))
     });
     const actor = new ex.Actor({
       x: 0,
@@ -240,7 +240,7 @@ describe('ChunkSystemTileMap', () => {
       cols: 1024,
       rows: 1024,
       chunkGarbageCollectorPredicate,
-      chunkGenerator: wrapSimpleCellGenerator(cellGenerator)
+      chunkGenerator: wrapCellGenerator(cellGenerator)
     });
     chunkSystem.update(engine, 16);
     expect(chunkGarbageCollectorPredicate).not.toHaveBeenCalled();
@@ -317,7 +317,7 @@ describe('ChunkSystemTileMap', () => {
       chunkSize: 1,
       cols: size,
       rows: size,
-      chunkGenerator: wrapSimpleCellGenerator(() => undefined),
+      chunkGenerator: wrapCellGenerator(() => undefined),
       chunkGarbageCollectorPredicate: () => true
     });
     engine.currentScene.camera.x = chunkSystem.x;
@@ -333,7 +333,7 @@ describe('ChunkSystemTileMap', () => {
       y: -4096,
       cols: 1024,
       rows: 1024,
-      chunkGenerator: wrapSimpleChunkGenerator((chunk) => {
+      chunkGenerator: wrapChunkGenerator((chunk) => {
         const screenBounds = engine.getWorldBounds();
         const chunkBounds = new ex.BoundingBox(
           chunk.x,
@@ -431,7 +431,7 @@ describe('ChunkSystemTileMap', () => {
     const chunkCachingDecisionCounter = new Map<ex.TileMap, number>();
     const chunkSystem = new ChunkSystemTileMap({
       ...DEFAULT_OPTIONS,
-      chunkGenerator: wrapSimpleChunkGenerator((chunk) => {
+      chunkGenerator: wrapChunkGenerator((chunk) => {
         chunkCachingDecisionCounter.set(chunk, 0);
         return chunk;
       }),
@@ -477,7 +477,7 @@ describe('ChunkSystemTileMap', () => {
     const pendingCoordinates = [] as [number, number][];
     const chunkSystem = new ChunkSystemTileMap({
       ...DEFAULT_OPTIONS,
-      chunkGenerator: wrapSimpleChunkGenerator((chunk, col, row, chunkSystemTileMap, engine2) => {
+      chunkGenerator: wrapChunkGenerator((chunk, col, row, chunkSystemTileMap, engine2) => {
         expect(chunk).toBeInstanceOf(ex.TileMap);
         expect([0, 4].indexOf(col)).toBeGreaterThan(-1);
         expect([0, 4].indexOf(row)).toBeGreaterThan(-1);
@@ -507,7 +507,7 @@ describe('ChunkSystemTileMap', () => {
     const generatedChunks = new Set<ex.TileMap>();
     const chunkSystem = new ChunkSystemTileMap({
       ...DEFAULT_OPTIONS,
-      chunkGenerator: wrapSimpleChunkGenerator((chunk) => {
+      chunkGenerator: wrapChunkGenerator((chunk) => {
         spyOn(chunk, 'update');
         preGeneratedChunks.add(chunk);
         const chunkToUse = new ex.TileMap({
@@ -536,7 +536,7 @@ describe('ChunkSystemTileMap', () => {
     const pendingCoordinates = [] as [number, number][];
     const chunkSystem = new ChunkSystemTileMap({
       ...DEFAULT_OPTIONS,
-      chunkGenerator: wrapSimpleCellGenerator((cell, col, row, chunk, chunkSystemTileMap, engine2) => {
+      chunkGenerator: wrapCellGenerator((cell, col, row, chunk, chunkSystemTileMap, engine2) => {
         expect(cell).toBeInstanceOf(ex.Cell);
         expect([0, 1, 2, 3, 4, 5, 6, 7].indexOf(col)).toBeGreaterThan(-1);
         expect([0, 1, 2, 3, 4, 5, 6, 7].indexOf(row)).toBeGreaterThan(-1);

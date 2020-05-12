@@ -9,14 +9,14 @@ import { SpriteSheet } from './Drawing/SpriteSheet';
 import { Cell, TileMap } from './TileMap';
 
 export type ChunkGenerator = (chunkColumn: number, chunkRow: number, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => TileMap;
-export type SimpleChunkGenerator = (
+export type BaseChunkGenerator = (
   chunk: TileMap,
   chunkCellColumn: number,
   chunkCellRow: number,
   chunkSystemTileMap: ChunkSystemTileMap,
   engine: Engine
 ) => TileMap;
-export type SimpleCellGenerator = (
+export type BaseCellGenerator = (
   cell: Cell,
   cellColumn: number,
   cellRow: number,
@@ -401,7 +401,7 @@ export class ChunkSystemTileMapImpl extends Class {
  */
 export class ChunkSystemTileMap extends Configurable(ChunkSystemTileMapImpl) {}
 
-export function wrapSimpleChunkGenerator(simpleGenerator: SimpleChunkGenerator): ChunkGenerator {
+export function wrapChunkGenerator(chunkGenerator: BaseChunkGenerator): ChunkGenerator {
   return (chunkColumn: number, chunkRow: number, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => {
     const chunkCellColumn = chunkColumn * chunkSystemTileMap.chunkSize;
     const chunkCellRow = chunkRow * chunkSystemTileMap.chunkSize;
@@ -413,16 +413,16 @@ export function wrapSimpleChunkGenerator(simpleGenerator: SimpleChunkGenerator):
       rows: chunkSystemTileMap.chunkSize,
       cols: chunkSystemTileMap.chunkSize
     });
-    return simpleGenerator(chunk, chunkCellColumn, chunkCellRow, chunkSystemTileMap, engine);
+    return chunkGenerator(chunk, chunkCellColumn, chunkCellRow, chunkSystemTileMap, engine);
   };
 }
 
-export function wrapSimpleCellGenerator(simpleGenerator: SimpleCellGenerator): ChunkGenerator {
-  return wrapSimpleChunkGenerator((chunk, chunkCellColumn, chunkCellRow, chunkSystemTileMap, engine) => {
+export function wrapCellGenerator(cellGenerator: BaseCellGenerator): ChunkGenerator {
+  return wrapChunkGenerator((chunk, chunkCellColumn, chunkCellRow, chunkSystemTileMap, engine) => {
     const { cols, rows } = chunk;
     for (let row = 0; row < rows; row++) {
       for (let column = 0; column < cols; column++) {
-        simpleGenerator(chunk.getCell(column, row), chunkCellColumn + column, chunkCellRow + row, chunk, chunkSystemTileMap, engine);
+        cellGenerator(chunk.getCell(column, row), chunkCellColumn + column, chunkCellRow + row, chunk, chunkSystemTileMap, engine);
       }
     }
     return chunk;
