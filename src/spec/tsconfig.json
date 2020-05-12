@@ -8,7 +8,7 @@
     "module": "es2015",
     "noImplicitAny": false,
     "noUnusedLocals": false,
-    "lib": ["dom", "es5", "es2015.collection", "es2015.iterable"],
+    "lib": ["dom", "es5", "es2015.core", "es2015.collection", "es2015.iterable", "es2016.array.include", "es2017.object", "es2019.array"],
     "baseUrl": ".",
     "rootDir": "../",
     "paths": {

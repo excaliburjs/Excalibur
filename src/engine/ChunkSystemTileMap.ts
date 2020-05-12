@@ -67,13 +67,13 @@ export class ChunkSystemTileMapImpl extends Class {
   private readonly _chunkRenderingCachePredicate: null | ChunkRenderingCachePredicate;
 
   constructor(config: ChunkSystemTileMapArgs) {
-    if (config.chunkSize <= 0 || !isSafeInteger(config.chunkSize)) {
+    if (config.chunkSize <= 0 || !Number.isSafeInteger(config.chunkSize)) {
       throw new TypeError(`The chunkSize option must be a positive integer, ${config.chunkSize} was provided`);
     }
-    if (config.rows <= 0 || !isSafeInteger(config.rows)) {
+    if (config.rows <= 0 || !Number.isSafeInteger(config.rows)) {
       throw new TypeError(`The rows option must be a positive integer, ${config.rows} was provided`);
     }
-    if (config.cols <= 0 || !isSafeInteger(config.cols)) {
+    if (config.cols <= 0 || !Number.isSafeInteger(config.cols)) {
       throw new TypeError(`The cols option must be a positive integer, ${config.cols} was provided`);
     }
     if (config.cols % config.chunkSize) {
@@ -248,7 +248,7 @@ export class ChunkSystemTileMapImpl extends Class {
   }
 
   private _updateChunk(chunkX: number, chunkY: number, engine: Engine, delta: number): CachedTileMap {
-    const spritesToRegister = objectEntries(this._spriteSheets);
+    const spritesToRegister = Object.entries(this._spriteSheets);
 
     // Update the chunks matrix by adding rows/columns to accomodate the chunk at the specified coordinates
     if (chunkX < this._chunksXOffset) {
@@ -279,7 +279,7 @@ export class ChunkSystemTileMapImpl extends Class {
         const [key, spriteSheet] = spritesToRegister[spriteIndex];
         chunk.registerSpriteSheet(key, spriteSheet);
       }
-      chunkRow[chunkX - this._chunksXOffset] = assign(chunk, { renderingCache: null });
+      chunkRow[chunkX - this._chunksXOffset] = Object.assign(chunk, { renderingCache: null });
     }
     const chunk = chunkRow[chunkX - this._chunksXOffset];
 
@@ -430,40 +430,4 @@ export function wrapCellGenerator(cellGenerator: BaseCellGenerator): ChunkGenera
     }
     return chunk;
   });
-}
-
-function isSafeInteger(number: number): boolean {
-  type AugmentedNumber = typeof Number & { isSafeInteger(number: number): boolean };
-  if (typeof (Number as AugmentedNumber).isSafeInteger === 'function') {
-    return (Number as AugmentedNumber).isSafeInteger(number);
-  }
-
-  return Math.floor(number) === number && Math.abs(number) <= 9007199254740991;
-}
-
-function assign<T extends object, E extends object>(target: T, extension: E): T & E {
-  type AugmentedObject = typeof Object & { assign<T extends object, E extends object>(target: T, extension: E): T & E };
-  if (typeof (Object as AugmentedObject).assign === 'function') {
-    return (Object as AugmentedObject).assign(target, extension);
-  }
-
-  const extendedTarget = target as T & E;
-  for (const [key, value] of objectEntries(extension as { [key: string]: any })) {
-    extendedTarget[key as keyof E] = value;
-  }
-
-  return extendedTarget;
-}
-
-function objectEntries<T>(object: { [s: string]: T } | ArrayLike<T>): [string, T][] {
-  type AugmentedObject = typeof Object & { entries<T>(object: { [s: string]: T } | ArrayLike<T>): [string, T][] };
-  if (typeof (Object as AugmentedObject).entries === 'function') {
-    return (Object as AugmentedObject).entries(object);
-  }
-
-  const entries: [string, T][] = [];
-  for (const key in object) {
-    entries.push([key, object[key as keyof object]]);
-  }
-  return entries;
 }

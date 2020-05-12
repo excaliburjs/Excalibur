@@ -486,15 +486,11 @@ describe('ChunkSystemTileMap', () => {
       ...DEFAULT_OPTIONS,
       chunkGenerator: wrapChunkGenerator((chunk, col, row, chunkSystemTileMap, engine2) => {
         expect(chunk).toBeInstanceOf(ex.TileMap);
-        expect([0, 4].indexOf(col)).toBeGreaterThan(-1);
-        expect([0, 4].indexOf(row)).toBeGreaterThan(-1);
+        expect([0, 4].includes(col)).toBeTrue();
+        expect([0, 4].includes(row)).toBeTrue();
         expect(chunkSystemTileMap).toBe(chunkSystem);
         expect(engine2).toBe(engine);
-        const coordinatesIndex = pendingCoordinates.reduce(
-          // This is more-or-less the Array.prototype.find() method, just unoptimized
-          (matchingIndex, coord, index) => (ex.vec(coord[0], coord[1]).equals(ex.vec(col, row)) ? index : matchingIndex),
-          -1
-        );
+        const coordinatesIndex = pendingCoordinates.findIndex((coord) => ex.vec(coord[0], coord[1]).equals(ex.vec(col, row)));
         expect(coordinatesIndex).toBeGreaterThan(-1);
         pendingCoordinates.splice(coordinatesIndex, 1);
         return chunk;
@@ -545,16 +541,12 @@ describe('ChunkSystemTileMap', () => {
       ...DEFAULT_OPTIONS,
       chunkGenerator: wrapCellGenerator((cell, col, row, chunk, chunkSystemTileMap, engine2) => {
         expect(cell).toBeInstanceOf(ex.Cell);
-        expect([0, 1, 2, 3, 4, 5, 6, 7].indexOf(col)).toBeGreaterThan(-1);
-        expect([0, 1, 2, 3, 4, 5, 6, 7].indexOf(row)).toBeGreaterThan(-1);
+        expect([0, 1, 2, 3, 4, 5, 6, 7].includes(col)).toBeTrue();
+        expect([0, 1, 2, 3, 4, 5, 6, 7].includes(row)).toBeTrue();
         expect(chunk).toBeInstanceOf(ex.TileMap);
         expect(chunkSystemTileMap).toBe(chunkSystem);
         expect(engine2).toBe(engine);
-        const coordinatesIndex = pendingCoordinates.reduce(
-          // This is more-or-less the Array.prototype.find() method, just unoptimized
-          (matchingIndex, coord, index) => (ex.vec(coord[0], coord[1]).equals(ex.vec(col, row)) ? index : matchingIndex),
-          -1
-        );
+        const coordinatesIndex = pendingCoordinates.findIndex((coord) => ex.vec(coord[0], coord[1]).equals(ex.vec(col, row)));
         expect(coordinatesIndex).toBeGreaterThan(-1);
         pendingCoordinates.splice(coordinatesIndex, 1);
         return cell;
@@ -586,7 +578,12 @@ describe('ChunkSystemTileMap', () => {
       })
     });
     chunkSystem.update(engine, 16);
-    const allChunks = [].concat(...(chunkSystem as any)._chunks);
-    expect([].concat(...allChunks.map((chunk) => chunk.data)).every((cell) => cell.secret === secretValue)).toBeTrue();
+    expect(
+      (chunkSystem as any)._chunks
+        .flat()
+        .map((chunk) => chunk.data)
+        .flat()
+        .every((cell) => cell.secret === secretValue)
+    ).toBeTrue();
   });
 });
