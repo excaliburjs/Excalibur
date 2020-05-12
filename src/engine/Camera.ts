@@ -8,6 +8,7 @@ import { CanUpdate, CanInitialize } from './Interfaces/LifecycleEvents';
 import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './Events';
 import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
+import { Logger } from './Util/Log';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -189,13 +190,24 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
    * It only sets the camera position to within the given bounds when the camera has gone beyond them.
    * Thus, it is a good idea to combine it with other camera strategies and set this strategy as the last one.
    *
+   * Make sure that the camera bounds are at least as large as the viewport size.
+   *
    * @param target The bounding box to limit the camera to
    */
+
+  boundSizeChecked: boolean = false; // Check and warn only once
 
   constructor(public target: BoundingBox) {}
 
   public action = (target: BoundingBox, cam: Camera, _eng: Engine, _delta: number) => {
     const focus = cam.getFocus();
+
+    if (!this.boundSizeChecked) {
+      if (target.bottom - target.top < _eng.drawHeight || target.right - target.left < _eng.drawWidth) {
+        Logger.getInstance().warn('Camera bounds should not be smaller than the engine viewport');
+      }
+      this.boundSizeChecked = true;
+    }
 
     if (focus.x < target.left + _eng.halfDrawWidth) {
       focus.x = target.left + _eng.halfDrawWidth;

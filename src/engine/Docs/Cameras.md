@@ -42,7 +42,8 @@ Keep the actor within a circle around the focus
 game.currentScene.camera.strategy.radiusAroundActor(actor, radius);
 ```
 
-Keep the camera limited within camera constraints.
+Keep the camera limited within camera constraints.  
+Make sure that the camera bounds are at least as large as the viewport size.
 
 ```typescript
 let boundingBox = new BoundingBox(leftBorder, topBorder, rightBorder, bottomBorder);
