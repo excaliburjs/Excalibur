@@ -23,7 +23,7 @@ export type BaseCellGenerator = (
   chunk: TileMap,
   chunkSystemTileMape: ChunkSystemTileMap,
   engine: Engine
-) => void;
+) => Cell;
 
 export type ChunkSystemGarbageCollectorPredicate = (chunk: TileMap, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => boolean;
 
@@ -422,7 +422,10 @@ export function wrapCellGenerator(cellGenerator: BaseCellGenerator): ChunkGenera
     const { cols, rows } = chunk;
     for (let row = 0; row < rows; row++) {
       for (let column = 0; column < cols; column++) {
-        cellGenerator(chunk.getCell(column, row), chunkCellColumn + column, chunkCellRow + row, chunk, chunkSystemTileMap, engine);
+        const cellIndex = column + row * cols;
+        const pregeneratedCell = chunk.getCellByIndex(cellIndex);
+        const cell = cellGenerator(pregeneratedCell, chunkCellColumn + column, chunkCellRow + row, chunk, chunkSystemTileMap, engine);
+        chunk.data[cellIndex] = cell;
       }
     }
     return chunk;

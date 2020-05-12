@@ -14,7 +14,7 @@ import {
   TileSprite,
   vec,
   Vector,
-  wrapSimpleCellGenerator
+  wrapCellGenerator
 } from '../engine';
 import { withEngine } from './utils';
 
@@ -65,7 +65,7 @@ export const demo: Story = withEngine(async (game: Engine) => {
     y: -(CHUNK_ROWS * CHUNK_SIZE * CHUNK_CELL_HEIGHT) / 2,
     cols: CHUNK_COLS * CHUNK_SIZE,
     rows: CHUNK_ROWS * CHUNK_SIZE,
-    chunkGenerator: wrapSimpleCellGenerator(cellGenerator),
+    chunkGenerator: wrapCellGenerator(cellGenerator),
     chunkRenderingCachePredicate: (_chunk: TileMap): boolean => true
   });
   chunkSystem.registerSpriteSheet('surface', spriteSheet);
@@ -77,7 +77,7 @@ export const demo: Story = withEngine(async (game: Engine) => {
     octaves: PERLIN_NOISE_GENERATOR_OCTAVES,
     persistance: PERLIN_NOISE_GENERATOR_PERSISTANCE
   });
-  function cellGenerator(cell: Cell, cellColumn: number, cellRow: number, chunk: TileMap): void {
+  function cellGenerator(cell: Cell, cellColumn: number, cellRow: number, chunk: TileMap): Cell {
     const tileValue = perlinNoiseGenerator.noise(cellColumn / chunk.cols, cellRow / chunk.rows);
     if (tileValue >= 0.5) {
       cell.pushSprite(dirtSprite);
@@ -85,6 +85,7 @@ export const demo: Story = withEngine(async (game: Engine) => {
       cell.pushSprite(waterSprite);
       cell.solid = true;
     }
+    return cell;
   }
 });
 

@@ -9,7 +9,7 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
   } as ex.ActorArgs);
   const engine = TestUtils.engine();
   let chunkSystem: ex.ChunkSystemTileMap;
-  let currentCellGenerator: (cell: ex.Cell) => void;
+  let currentCellGenerator: (cell: ex.Cell) => ex.Cell;
 
   beforeAll(() => {
     engine.add(actor);
@@ -39,7 +39,10 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
 
   describe('update', () => {
     it('has no effect if the colliding actor has the PreventCollision collider', () => {
-      currentCellGenerator = (cell) => (cell.solid = true);
+      currentCellGenerator = (cell) => {
+        cell.solid = true;
+        return cell;
+      };
       chunkSystem.update(engine, 16);
       spyOn(chunkSystem, 'collides').and.callThrough();
       trait.update(actor, engine);
@@ -49,7 +52,10 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
     });
 
     it('fires a precollision event for an actor with the Passive collider', () => {
-      currentCellGenerator = (cell) => (cell.solid = !cell.x && !cell.y);
+      currentCellGenerator = (cell) => {
+        cell.solid = !cell.x && !cell.y;
+        return cell;
+      };
       actor.body.collider.type = ex.CollisionType.Passive;
       const eventHandler = jasmine.createSpy();
       const postCollisionHandler = jasmine.createSpy();
@@ -77,7 +83,10 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
     });
 
     it('fires a precollision event for an actor with the Fixed collider', () => {
-      currentCellGenerator = (cell) => (cell.solid = !cell.x && !cell.y);
+      currentCellGenerator = (cell) => {
+        cell.solid = !cell.x && !cell.y;
+        return cell;
+      };
       actor.body.collider.type = ex.CollisionType.Fixed;
       const eventHandler = jasmine.createSpy();
       const postCollisionHandler = jasmine.createSpy();
@@ -105,7 +114,10 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
     });
 
     it('fires a precollision and postcollision event for an actor with the Active collider', () => {
-      currentCellGenerator = (cell) => (cell.solid = !cell.x && !cell.y);
+      currentCellGenerator = (cell) => {
+        cell.solid = !cell.x && !cell.y;
+        return cell;
+      };
       actor.body.collider.type = ex.CollisionType.Active;
       const preCollisionHandler = jasmine
         .createSpy('preCollisionHandler', (event) => {

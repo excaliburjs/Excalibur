@@ -139,7 +139,10 @@ describe('ChunkSystemTileMap', () => {
   it('does not collide an non-colliding actor', () => {
     const chunkSystem = new ChunkSystemTileMap({
       ...DEFAULT_OPTIONS,
-      chunkGenerator: wrapCellGenerator((cell) => (cell.solid = !cell.x && !cell.y))
+      chunkGenerator: wrapCellGenerator((cell) => {
+        cell.solid = !cell.x && !cell.y;
+        return cell;
+      })
     });
     const actor = new ex.Actor({
       x: -34,
@@ -155,7 +158,10 @@ describe('ChunkSystemTileMap', () => {
   it('collides a colliding actor', () => {
     const chunkSystem = new ChunkSystemTileMap({
       ...DEFAULT_OPTIONS,
-      chunkGenerator: wrapCellGenerator((cell) => (cell.solid = !cell.x && !cell.y))
+      chunkGenerator: wrapCellGenerator((cell) => {
+        cell.solid = !cell.x && !cell.y;
+        return cell;
+      })
     });
     const actor = new ex.Actor({
       x: 0,
@@ -229,8 +235,9 @@ describe('ChunkSystemTileMap', () => {
       })
       .and.callThrough();
     const cellGenerator = jasmine
-      .createSpy('cellGenerator', () => {
+      .createSpy('cellGenerator', (cell) => {
         expect([0, 288].indexOf(chunkGarbageCollectorPredicate.calls.count())).toBeGreaterThan(-1);
+        return cell;
       })
       .and.callThrough();
     const chunkSystem = new ChunkSystemTileMap({
@@ -550,6 +557,7 @@ describe('ChunkSystemTileMap', () => {
         );
         expect(coordinatesIndex).toBeGreaterThan(-1);
         pendingCoordinates.splice(coordinatesIndex, 1);
+        return cell;
       })
     });
     for (const row of [0, 1, 2, 3, 4, 5, 6, 7]) {
@@ -559,5 +567,26 @@ describe('ChunkSystemTileMap', () => {
     }
     chunkSystem.update(engine, 16);
     expect(pendingCoordinates.length).toBe(0);
+  });
+
+  it('uses the cell that is returned by the base cell generator instead of the provided one', () => {
+    const secretValue = {};
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      chunkGenerator: wrapCellGenerator((pregeneratedCell) => {
+        const cell = new ex.Cell({
+          x: pregeneratedCell.x,
+          y: pregeneratedCell.y,
+          width: pregeneratedCell.width,
+          height: pregeneratedCell.height,
+          index: pregeneratedCell.index
+        });
+        (cell as any).secret = secretValue;
+        return cell;
+      })
+    });
+    chunkSystem.update(engine, 16);
+    const allChunks = [].concat(...(chunkSystem as any)._chunks);
+    expect([].concat(...allChunks.map((chunk) => chunk.data)).every((cell) => cell.secret === secretValue)).toBeTrue();
   });
 });
