@@ -2,8 +2,6 @@ import * as ex from '@excalibur';
 import { TestUtils } from '../util/TestUtils';
 
 describe('ChunkSystemTileMapCollisionDetection', () => {
-  type SimpleCellGenerator = (cell: ex.Cell, chunk: ex.TileMap, chunkSystem: ex.ChunkSystemTileMap, engine: ex.Engine) => ex.Cell;
-
   const trait = new ex.Traits.ChunkSystemTileMapCollisionDetection();
   const actor = new ex.Actor({
     width: 32,
