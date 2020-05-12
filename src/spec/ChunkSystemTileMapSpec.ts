@@ -473,7 +473,7 @@ describe('ChunkSystemTileMap', () => {
     expect(Array.from(updateSpies).every((updateSpy) => updateSpy.calls.count() === 1)).toBeTrue();
   });
 
-  it('passes a new chunk, absolute cell-level column and row, chunk system and engine to simple chunk generator', () => {
+  it('passes a new chunk, absolute cell-level column and row, chunk system and engine to base chunk generator', () => {
     const pendingCoordinates = [] as [number, number][];
     const chunkSystem = new ChunkSystemTileMap({
       ...DEFAULT_OPTIONS,
@@ -502,7 +502,7 @@ describe('ChunkSystemTileMap', () => {
     expect(pendingCoordinates.length).toBe(0);
   });
 
-  it('uses the chunk that is returned by the simple chunk generator instead of the provided one', () => {
+  it('uses the chunk that is returned by the base chunk generator instead of the provided one', () => {
     const preGeneratedChunks = new Set<ex.TileMap>();
     const generatedChunks = new Set<ex.TileMap>();
     const chunkSystem = new ChunkSystemTileMap({
@@ -532,7 +532,7 @@ describe('ChunkSystemTileMap', () => {
     }
   });
 
-  it('passes a new cell, absolute cell-level column and row, chunk, chunk system and engine to simple cell generator', () => {
+  it('passes a new cell, absolute cell-level column and row, chunk, chunk system and engine to base cell generator', () => {
     const pendingCoordinates = [] as [number, number][];
     const chunkSystem = new ChunkSystemTileMap({
       ...DEFAULT_OPTIONS,
