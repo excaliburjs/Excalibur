@@ -95,6 +95,36 @@ describe('A TileMap', () => {
     });
   });
 
+  it('should not do offscreen culling if the offScreenCulling flag is false', () => {
+    const tm = new ex.TileMap({
+      x: -100,
+      y: -100,
+      cellWidth: 64,
+      cellHeight: 48,
+      rows: 20,
+      cols: 20
+    });
+    tm.offScreenCulling = false;
+    const pendingDrawCoordinates = new Set<[number, number]>();
+    for (let row = 0; row < tm.rows; row++) {
+      for (let col = 0; col < tm.cols; col++) {
+        pendingDrawCoordinates.add([col, row]);
+      }
+    }
+    spyOn(tm, 'getCell').and.callFake((col, row) => {
+      for (const coords of Array.from(pendingDrawCoordinates)) {
+        if (coords[0] === col && coords[1] === row) {
+          pendingDrawCoordinates.delete(coords);
+          break;
+        }
+      }
+      return ex.TileMap.prototype.getCell.call(tm, col, row);
+    });
+    tm.update(engine, 100);
+    tm.draw(engine.ctx, 100);
+    expect(pendingDrawCoordinates.size).toBe(0);
+  });
+
   describe('with an actor', () => {
     let tm: ex.TileMap;
     beforeEach(() => {

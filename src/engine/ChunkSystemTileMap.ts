@@ -285,16 +285,9 @@ export class ChunkSystemTileMapImpl extends Class {
 
     if (!chunk.renderingCache) {
       if (this._chunkRenderingCachePredicate && this._chunkRenderingCachePredicate(chunk, this, engine)) {
-        // We trick the TileMap chunk into assuming it is entirely visible on the screen, forcing it to render all its cells so that we may
-        // cache the rendering result.
-        const virtualEngine = Object.create(engine);
-        virtualEngine.screenToWorldCoordinates = (point: Vector): Vector => {
-          if (!point.x && !point.y) {
-            return new Vector(chunk.x, chunk.y);
-          }
-          return new Vector(chunk.x + chunk.cols * chunk.cellWidth, chunk.y + chunk.rows * chunk.cellHeight);
-        };
-        chunk.update(virtualEngine, delta);
+        const chunkOffScreenCulling = chunk.offScreenCulling;
+        chunk.offScreenCulling = false;
+        chunk.update(engine, delta);
 
         chunk.renderingCache = document.createElement('canvas');
         chunk.renderingCache.width = chunk.cols * chunk.cellWidth;
@@ -302,6 +295,8 @@ export class ChunkSystemTileMapImpl extends Class {
         const cacheRenderingContext = chunk.renderingCache.getContext('2d');
         cacheRenderingContext.translate(-chunk.x, -chunk.y);
         chunk.draw(cacheRenderingContext, delta);
+
+        chunk.offScreenCulling = chunkOffScreenCulling;
       } else {
         chunk.update(engine, delta);
       }

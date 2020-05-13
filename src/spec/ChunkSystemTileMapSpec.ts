@@ -480,6 +480,33 @@ describe('ChunkSystemTileMap', () => {
     expect(Array.from(updateSpies).every((updateSpy) => updateSpy.calls.count() === 1)).toBeTrue();
   });
 
+  it('preservers the chunkOffScreenCulling flag state on cached chunks', () => {
+    const setFlagValues = new Map<ex.TileMap, boolean[]>();
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      chunkRenderingCachePredicate: () => true,
+      chunkGenerator: wrapChunkGenerator((chunk) => {
+        let flagValue = !!chunk.x;
+        Object.defineProperty(chunk, 'offScreenCulling', {
+          enumerable: true,
+          get() {
+            return flagValue;
+          },
+          set(newValue) {
+            flagValue = newValue;
+            setFlagValues.get(chunk).push(newValue);
+          }
+        });
+        setFlagValues.set(chunk, []);
+        return chunk;
+      })
+    });
+    chunkSystem.update(engine, 16);
+    for (const [chunk, values] of Array.from(setFlagValues.entries())) {
+      expect(values).toEqual([false, !!chunk.x]);
+    }
+  });
+
   it('passes a new chunk, absolute cell-level column and row, chunk system and engine to base chunk generator', () => {
     const pendingCoordinates = [] as [number, number][];
     const chunkSystem = new ChunkSystemTileMap({

@@ -28,6 +28,11 @@ export class TileMapImpl extends Class {
   public cellHeight: number;
   public rows: number;
   public cols: number;
+  /**
+   * Whether or not the tile map should omit drawing the off-screen tiles. Disabling this results in all cells of this
+   * tile map being drawn, which can result in poor performance.
+   */
+  public offScreenCulling: boolean = true;
 
   public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent) => void): void;
   public on(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent) => void): void;
@@ -152,13 +157,20 @@ export class TileMapImpl extends Class {
   public update(engine: Engine, delta: number) {
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
 
-    const worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
-    const worldCoordsLowerRight = engine.screenToWorldCoordinates(new Vector(engine.canvas.clientWidth, engine.canvas.clientHeight));
+    if (this.offScreenCulling) {
+      const worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
+      const worldCoordsLowerRight = engine.screenToWorldCoordinates(new Vector(engine.canvas.clientWidth, engine.canvas.clientHeight));
 
-    this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - this.x) / this.cellWidth) - 2, 0);
-    this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
-    this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0);
-    this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
+      this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - this.x) / this.cellWidth) - 2, 0);
+      this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
+      this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0);
+      this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
+    } else {
+      this._onScreenXStart = 0;
+      this._onScreenYStart = 0;
+      this._onScreenXEnd = this.cols;
+      this._onScreenYEnd = this.rows;
+    }
 
     this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
   }
