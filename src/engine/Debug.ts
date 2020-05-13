@@ -192,17 +192,17 @@ export class FrameStats implements FrameStatistics {
     alive: 0,
     killed: 0,
     ui: 0,
-    get remaining(this: FrameActorStats) {
+    get remaining() {
       return this.alive - this.killed;
     },
-    get total(this: FrameActorStats) {
+    get total() {
       return this.remaining + this.ui;
     }
   };
   private _durationStats: FrameDurationStats = {
     update: 0,
     draw: 0,
-    get total(this: FrameDurationStats) {
+    get total() {
       return this.update + this.draw;
     }
   };
