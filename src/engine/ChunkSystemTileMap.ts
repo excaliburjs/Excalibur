@@ -248,7 +248,33 @@ export class ChunkSystemTileMapImpl extends Class {
   }
 
   private _updateChunk(chunkX: number, chunkY: number, engine: Engine, delta: number): CachedTileMap {
-    // Update the chunks matrix by adding rows/columns to accomodate the chunk at the specified coordinates
+    this._growChunkMatrixForChunkAt(chunkX, chunkY);
+
+    // Create the chunk if it does not exist already and update it
+    const chunkRow = this._chunks[chunkY - this._chunksYOffset];
+    if (!chunkRow[chunkX - this._chunksXOffset]) {
+      const chunk = this.chunkGenerator(chunkX, chunkY, this, engine);
+      const spritesToRegister = Object.entries(this._spriteSheets);
+      for (let spriteIndex = 0; spriteIndex < spritesToRegister.length; spriteIndex++) {
+        const [key, spriteSheet] = spritesToRegister[spriteIndex];
+        chunk.registerSpriteSheet(key, spriteSheet);
+      }
+      chunkRow[chunkX - this._chunksXOffset] = Object.assign(chunk, { renderingCache: null });
+    }
+    const chunk = chunkRow[chunkX - this._chunksXOffset];
+
+    if (!chunk.renderingCache) {
+      if (this._chunkRenderingCachePredicate && this._chunkRenderingCachePredicate(chunk, this, engine)) {
+        this._preRenderChunk(chunk, engine, delta);
+      } else {
+        chunk.update(engine, delta);
+      }
+    }
+
+    return chunk;
+  }
+
+  private _growChunkMatrixForChunkAt(chunkX: number, chunkY: number): void {
     if (chunkX < this._chunksXOffset) {
       for (const row of this._chunks) {
         row.unshift(...new Array(this._chunksXOffset - chunkX));
@@ -268,40 +294,21 @@ export class ChunkSystemTileMapImpl extends Class {
     while (chunkY >= this._chunksYOffset + this._chunks.length) {
       this._chunks.push([...new Array(expectedChunkRowLength)]);
     }
+  }
 
-    // Create the chunk if it does not exist already and update it
-    const chunkRow = this._chunks[chunkY - this._chunksYOffset];
-    if (!chunkRow[chunkX - this._chunksXOffset]) {
-      const chunk = this.chunkGenerator(chunkX, chunkY, this, engine);
-      const spritesToRegister = Object.entries(this._spriteSheets);
-      for (let spriteIndex = 0; spriteIndex < spritesToRegister.length; spriteIndex++) {
-        const [key, spriteSheet] = spritesToRegister[spriteIndex];
-        chunk.registerSpriteSheet(key, spriteSheet);
-      }
-      chunkRow[chunkX - this._chunksXOffset] = Object.assign(chunk, { renderingCache: null });
-    }
-    const chunk = chunkRow[chunkX - this._chunksXOffset];
+  private _preRenderChunk(chunk: CachedTileMap, engine: Engine, delta: number): void {
+    const chunkOffScreenCulling = chunk.offScreenCulling;
+    chunk.offScreenCulling = false;
+    chunk.update(engine, delta);
 
-    if (!chunk.renderingCache) {
-      if (this._chunkRenderingCachePredicate && this._chunkRenderingCachePredicate(chunk, this, engine)) {
-        const chunkOffScreenCulling = chunk.offScreenCulling;
-        chunk.offScreenCulling = false;
-        chunk.update(engine, delta);
+    chunk.renderingCache = document.createElement('canvas');
+    chunk.renderingCache.width = chunk.cols * chunk.cellWidth;
+    chunk.renderingCache.height = chunk.rows * chunk.cellHeight;
+    const cacheRenderingContext = chunk.renderingCache.getContext('2d');
+    cacheRenderingContext.translate(-chunk.x, -chunk.y);
+    chunk.draw(cacheRenderingContext, delta);
 
-        chunk.renderingCache = document.createElement('canvas');
-        chunk.renderingCache.width = chunk.cols * chunk.cellWidth;
-        chunk.renderingCache.height = chunk.rows * chunk.cellHeight;
-        const cacheRenderingContext = chunk.renderingCache.getContext('2d');
-        cacheRenderingContext.translate(-chunk.x, -chunk.y);
-        chunk.draw(cacheRenderingContext, delta);
-
-        chunk.offScreenCulling = chunkOffScreenCulling;
-      } else {
-        chunk.update(engine, delta);
-      }
-    }
-
-    return chunk;
+    chunk.offScreenCulling = chunkOffScreenCulling;
   }
 
   private _garbageCollectChunks(
