@@ -47,7 +47,9 @@ var imageJump = new ex.Texture('../images/PlayerJump.png');
 var imageBlocks = new ex.Texture('../images/BlockA0.png');
 var spriteFontImage = new ex.Texture('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
-
+var base64 = new ex.Texture(
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD4AAABACAYAAABC6cT1AAAACXBIWXMAAAsSAAALEgHS3X78AAABJElEQVRo3u2aoQrCQByHdyIYBjZNpmXBahHbsNiGxQew7gGMWn2AdYusWeyCGIZpjyAY7NaZ78JtzHDn3fdrx47Bx+8+/jeYqKoq8DGdwNMADjjgbqfrAkSSJI1GU57ngsZdaDiOY+3+oihwHHAcd8jpKIpwnKMOuMWO/+p0WZbSOssyQeOA47g7TqdpKmgccMDNOW7CaRoHHMfddprGAcfx5tmtB5Kz2+Nb2O40jQPuaUSTf2BUpxfTkfT8cn9K6+F8b53TNA44c7x9VOcfFjpN44Azx9vf1VXH1ahzXr3b0zjggJt1/DDpazd9xj1pvVrOtO87na/GneeoA+6z43VOh2EorTe3l9DNeTXMccABt8vxOqdpHHDA3foep3HAAf+bfAH2OXZapkJB/wAAAABJRU5ErkJggg=='
+);
 jump.volume = 0.3;
 
 var loader = new ex.Loader();
@@ -57,6 +59,7 @@ loader.addResource(imageJump);
 loader.addResource(imageBlocks);
 loader.addResource(spriteFontImage);
 loader.addResource(jump);
+loader.addResource(base64);
 
 // Set background color
 game.backgroundColor = new ex.Color(114, 213, 224);
@@ -108,7 +111,7 @@ var tileBlockWidth = 64,
 //var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
 var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
 tileMap.registerSpriteSheet('default', spriteTiles);
-tileMap.data.forEach(function(cell: ex.Cell) {
+tileMap.data.forEach(function (cell: ex.Cell) {
   cell.solid = true;
   cell.pushSprite(new ex.TileSprite('default', 0));
 });
@@ -170,32 +173,17 @@ for (var i = 0; i < 36; i++) {
 
 var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
 platform.body.collider.type = ex.CollisionType.Fixed;
-platform.actions
-  .moveTo(200, 300, 100)
-  .moveTo(600, 300, 100)
-  .moveTo(400, 300, 100)
-  .repeatForever();
+platform.actions.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
 game.add(platform);
 
 var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
 platform2.body.collider.type = ex.CollisionType.Fixed;
-platform2.actions
-  .moveTo(2000, 300, 100)
-  .moveTo(2000, 100, 100)
-  .moveTo(800, 100, 100)
-  .moveTo(800, 300, 100)
-  .repeatForever();
+platform2.actions.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100).repeatForever();
 game.add(platform2);
 
 var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
 platform3.body.collider.type = ex.CollisionType.Fixed;
-platform3.actions
-  .moveTo(-200, 800, 300)
-  .moveTo(-200, 400, 50)
-  .delay(3000)
-  .moveTo(-200, 300, 800)
-  .moveTo(-200, 400, 800)
-  .repeatForever();
+platform3.actions.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
 game.add(platform3);
 
 var platform4 = new ex.Actor(75, 300, 100, 50, ex.Color.Azure);
