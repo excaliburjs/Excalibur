@@ -1,5 +1,5 @@
-import { Class } from './../Class';
-import { GameEvent } from '../Events';
+import { Logger } from '../Util/Log';
+import { Class } from '../Class';
 import * as Events from '../Events';
 
 /**
@@ -61,7 +61,7 @@ export enum Keys {
 /**
  * Event thrown on a game object for a key event
  */
-export class KeyEvent extends GameEvent<any> {
+export class KeyEvent extends Events.GameEvent<any> {
   /**
    * @param key  The key responsible for throwing the event
    */
@@ -87,7 +87,7 @@ export class Keyboard extends Class {
   public on(eventName: Events.press, handler: (event: KeyEvent) => void): void;
   public on(eventName: Events.release, handler: (event: KeyEvent) => void): void;
   public on(eventName: Events.hold, handler: (event: KeyEvent) => void): void;
-  public on(eventName: string, handler: (event: GameEvent<any>) => void): void;
+  public on(eventName: string, handler: (event: Events.GameEvent<any>) => void): void;
   public on(eventName: string, handler: (event: any) => void): void {
     super.on(eventName, handler);
   }
@@ -96,9 +96,33 @@ export class Keyboard extends Class {
    * Initialize Keyboard event listeners
    */
   init(global?: GlobalEventHandlers): void {
-    // See https://github.com/excaliburjs/Excalibur/issues/1294
-    // window.top is for the iframe case
-    global = global || window.top || window;
+    if (!global) {
+      try {
+        // Try and listen to events on top window frame if within an iframe.
+        //
+        // See https://github.com/excaliburjs/Excalibur/issues/1294
+        //
+        // Attempt to add an event listener, which triggers a DOMException on
+        // cross-origin iframes
+        const noop = () => {
+          return;
+        };
+        window.top.addEventListener('blur', noop);
+        window.top.removeEventListener('blur', noop);
+
+        // this will be the same as window if not embedded within an iframe
+        global = window.top;
+      } catch {
+        // fallback to current frame
+        global = window;
+
+        Logger.getInstance().warn(
+          'Failed to bind to keyboard events to top frame. ' +
+            'If you are trying to embed Excalibur in a cross-origin iframe, keyboard events will not fire.'
+        );
+      }
+    }
+
     global.addEventListener('blur', () => {
       this._keys.length = 0; // empties array efficiently
     });
