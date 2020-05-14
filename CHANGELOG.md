@@ -15,6 +15,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Upgrade Excalibur to TypeScript 3.9.2
+
 ### Deprecated
 
 ### Removed
