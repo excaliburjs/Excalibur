@@ -248,8 +248,6 @@ export class ChunkSystemTileMapImpl extends Class {
   }
 
   private _updateChunk(chunkX: number, chunkY: number, engine: Engine, delta: number): CachedTileMap {
-    const spritesToRegister = Object.entries(this._spriteSheets);
-
     // Update the chunks matrix by adding rows/columns to accomodate the chunk at the specified coordinates
     if (chunkX < this._chunksXOffset) {
       for (const row of this._chunks) {
@@ -275,6 +273,7 @@ export class ChunkSystemTileMapImpl extends Class {
     const chunkRow = this._chunks[chunkY - this._chunksYOffset];
     if (!chunkRow[chunkX - this._chunksXOffset]) {
       const chunk = this.chunkGenerator(chunkX, chunkY, this, engine);
+      const spritesToRegister = Object.entries(this._spriteSheets);
       for (let spriteIndex = 0; spriteIndex < spritesToRegister.length; spriteIndex++) {
         const [key, spriteSheet] = spritesToRegister[spriteIndex];
         chunk.registerSpriteSheet(key, spriteSheet);
