@@ -114,4 +114,36 @@ describe('A loader', () => {
     expect(playbutton.style.left).toBe('42px');
     expect(playbutton.style.top).toBe('77px');
   });
+
+  it('can have the logo position customized', (done) => {
+    const loader = new ex.Loader([, , , ,]);
+    (loader as any)._image.onload = () => {
+      loader.wireEngine(engine);
+      loader.logoPosition = ex.vec(0, 0);
+      loader.showPlayButton();
+      loader.draw(engine.ctx);
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/LoaderSpec/logo-position.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    };
+  });
+
+  it('can have the loader customized', (done) => {
+    const loader = new ex.Loader([, , , ,]);
+    loader.loadingBarPosition = ex.vec(0, 0);
+    loader.loadingBarColor = ex.Color.Red;
+    (loader as any)._image.onload = () => {
+      loader.markResourceComplete();
+      loader.markResourceComplete();
+      loader.markResourceComplete();
+      loader.markResourceComplete();
+      loader.wireEngine(engine);
+      loader.draw(engine.ctx);
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/LoaderSpec/loader-position-color.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    };
+  });
 });
