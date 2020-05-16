@@ -7,6 +7,7 @@ import { Vector } from '../Algebra';
 import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
 import { Configurable } from '../Configurable';
+import { nullish } from '../Util/Util';
 
 /**
  * @hidden
@@ -62,6 +63,8 @@ export class AnimationImpl implements Drawable {
   public width: number = 0;
   public height: number = 0;
 
+  private _opacity = 1;
+
   /**
    * Typically you will use a [[SpriteSheet]] to generate an [[Animation]].
    *
@@ -103,7 +106,7 @@ export class AnimationImpl implements Drawable {
    * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
    */
   public opacity(value: number) {
-    this.addEffect(new Effects.Opacity(value));
+    this._opacity = value;
   }
 
   /**
@@ -277,24 +280,35 @@ export class AnimationImpl implements Drawable {
   public draw(options: DrawOptions): void;
   public draw(ctxOrOptions: CanvasRenderingContext2D | DrawOptions, x?: number, y?: number) {
     if (ctxOrOptions instanceof CanvasRenderingContext2D) {
-      this._drawWithOptions({ ctx: ctxOrOptions, x, y, flipHorizontal: this.flipHorizontal, flipVertical: this.flipVertical });
+      this._drawWithOptions({ ctx: ctxOrOptions, x, y });
     } else {
       this._drawWithOptions(ctxOrOptions);
     }
   }
 
   private _drawWithOptions(options: DrawOptions) {
+    const animOptions = {
+      ...options,
+      rotation: nullish(options.rotation, this.rotation),
+      drawWidth: nullish(options.drawWidth, this.drawWidth),
+      drawHeight: nullish(options.drawHeight, this.drawHeight),
+      flipHorizontal: nullish(options.flipHorizontal, this.flipHorizontal),
+      flipVertical: nullish(options.flipVertical, this.flipVertical),
+      anchor: nullish(options.anchor, this.anchor),
+      opacity: nullish(options.opacity, this._opacity)
+    };
+
     this.tick();
     this._updateValues();
     let currSprite: Sprite;
     if (this.currentFrame < this.sprites.length) {
       currSprite = this.sprites[this.currentFrame];
-      currSprite.draw(options);
+      currSprite.draw(animOptions);
     }
 
     if (this.freezeFrame !== -1 && this.currentFrame >= this.sprites.length) {
       currSprite = this.sprites[Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
-      currSprite.draw(options);
+      currSprite.draw(animOptions);
     }
 
     // add the calculated width

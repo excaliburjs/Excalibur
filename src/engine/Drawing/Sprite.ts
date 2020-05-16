@@ -144,7 +144,6 @@ export class SpriteImpl implements Drawable {
    */
   public opacity(value: number) {
     this._opacity = value;
-    // this.addEffect(new Effects.Opacity(value));
   }
 
   /**
@@ -270,18 +269,21 @@ export class SpriteImpl implements Drawable {
       this.width,
       this.height
     );
-    this._pixelData = this._spriteCtx.getImageData(0, 0, this.width, this.height);
 
-    const len = this.effects.length;
-    for (let i = 0; i < len; i++) {
-      for (let y = 0; y < this.height; y++) {
-        for (let x = 0; x < this.width; x++) {
-          this.effects[i].updatePixel(x, y, this._pixelData);
+    if (this.effects.length > 0) {
+      this._pixelData = this._spriteCtx.getImageData(0, 0, this.width, this.height);
+
+      const len = this.effects.length;
+      for (let i = 0; i < len; i++) {
+        for (let y = 0; y < this.height; y++) {
+          for (let x = 0; x < this.width; x++) {
+            this.effects[i].updatePixel(x, y, this._pixelData);
+          }
         }
       }
+      this._spriteCtx.clearRect(0, 0, this.width, this.height);
+      this._spriteCtx.putImageData(this._pixelData, 0, 0);
     }
-    this._spriteCtx.clearRect(0, 0, this.width, this.height);
-    this._spriteCtx.putImageData(this._pixelData, 0, 0);
 
     this._dirtyEffect = false;
   }

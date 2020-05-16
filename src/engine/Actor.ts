@@ -38,7 +38,6 @@ import { Eventable } from './Interfaces/Evented';
 import { Actionable } from './Actions/Actionable';
 import { Configurable } from './Configurable';
 import * as Traits from './Traits/Index';
-import * as Effects from './Drawing/SpriteEffects';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEventHandlers';
@@ -354,7 +353,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   private _isInitialized: boolean = false;
   public frames: { [key: string]: Drawable } = {};
-  private _effectsDirty: boolean = false;
 
   /**
    * Access to the current drawing for the actor, this can be
@@ -447,7 +445,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   private _zIndex: number = 0;
   private _isKilled: boolean = false;
-  private _opacityFx = new Effects.Opacity(this.opacity);
 
   // #endregion
 
@@ -950,7 +947,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       if (!this.currentDrawing) {
         this.currentDrawing = arguments[1];
       }
-      this._effectsDirty = true;
     } else {
       if (arguments[0] instanceof Sprite) {
         this.addDrawing('default', arguments[0]);
@@ -1122,11 +1118,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
   // #endregion
 
-  protected _reapplyEffects(drawing: Drawable) {
-    drawing.removeEffect(this._opacityFx);
-    drawing.addEffect(this._opacityFx);
-  }
-
   // #region Update
 
   /**
@@ -1148,13 +1139,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
 
     if (this.opacity === 0) {
       this.visible = false;
-    }
-
-    // calculate changing opacity
-    if (this.previousOpacity !== this.opacity) {
-      this.previousOpacity = this.opacity;
-      this._opacityFx.opacity = this.opacity;
-      this._effectsDirty = true;
     }
 
     // capture old transform
@@ -1242,12 +1226,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
       const offsetX = (this._width - drawing.width * drawing.scale.x) * this.anchor.x;
       const offsetY = (this._height - drawing.height * drawing.scale.y) * this.anchor.y;
 
-      if (this._effectsDirty) {
-        this._reapplyEffects(this.currentDrawing);
-        this._effectsDirty = false;
-      }
-
-      this.currentDrawing.draw(ctx, offsetX, offsetY);
+      this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
     } else {
       if (this.color && this.body && this.body.collider && this.body.collider.shape) {
         this.body.collider.shape.draw(ctx, this.color, new Vector(this.width * this.anchor.x, this.height * this.anchor.y));
