@@ -9,7 +9,6 @@ describe('A game actor', () => {
   let scene: ex.Scene;
 
   beforeEach(() => {
-    let empty;
     jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({ width: 100, height: 100 });
     actor = new ex.Actor();
