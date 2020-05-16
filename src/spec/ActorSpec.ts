@@ -1,16 +1,15 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { Mocks } from './util/Mocks';
 
 describe('A game actor', () => {
   let actor: ex.Actor;
 
   let engine: ex.Engine;
   let scene: ex.Scene;
-  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
+    let empty;
     jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({ width: 100, height: 100 });
     actor = new ex.Actor();
