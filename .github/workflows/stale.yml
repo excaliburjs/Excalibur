@@ -14,7 +14,7 @@ jobs:
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         days-before-close: 99999
-        exempt-issue-label: 'good first issue'
+        exempt-issue-labels: good first issue,help wanted,on-deck
         stale-issue-message: "This issue hasn't had any recent activity lately and is being marked as stale automatically."
         stale-pr-message: "This PR hasn't had any recent activity lately and is being marked as stale automatically."
         stale-issue-label: 'stale'
