@@ -7,6 +7,12 @@ import { AudioContextFactory } from './AudioContext';
  * Internal class for producing of AudioInstances
  */
 /* istanbul ignore next */
+
+/**
+ * Since AudioInstance imlpementation should use WebAudio only,
+ * should the AudioInstanceFactory only return WebAudioInstance?
+ */
+
 export class AudioInstanceFactory {
   public static create(src: string | AudioBuffer): AudioInstance {
     if (typeof src === 'string') {
@@ -130,6 +136,12 @@ export class AudioInstance implements Audio {
  * Internal class representing a HTML5 audio instance
  */
 /* istanbul ignore next */
+
+/**
+ * As AudioTagInstance needs to be removed,
+ * should the class be marked as @obsolete?
+ * or should it be deleted?
+ */
 export class AudioTagInstance extends AudioInstance {
   public set volume(value: number) {
     value = Util.clamp(value, 0, 1.0);
