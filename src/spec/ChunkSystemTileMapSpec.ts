@@ -303,6 +303,36 @@ describe('ChunkSystemTileMap', () => {
     chunkSystem.update(engine, 16);
   });
 
+  it('does not perform chunk garbage collection if no predicate was provided', () => {
+    const renderedChunks = new Set<ex.TileMap>();
+    let trackRenderedChunks = true;
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      x: -4096,
+      y: -4096,
+      cols: 1024,
+      rows: 1024,
+      chunkGarbageCollectorPredicate: null,
+      chunkRenderingCachePredicate: (chunk) => {
+        if (trackRenderedChunks) {
+          renderedChunks.add(chunk);
+        }
+        return false;
+      }
+    });
+    chunkSystem.update(engine, 16);
+    const firstRenderChunks = new Set(renderedChunks);
+    renderedChunks.clear();
+    trackRenderedChunks = false;
+    engine.currentScene.camera.x += engine.canvas.width;
+    chunkSystem.update(engine, 16);
+    trackRenderedChunks = true;
+    engine.currentScene.camera.x -= engine.canvas.width;
+    chunkSystem.update(engine, 16);
+    expect(renderedChunks.size).toBe(firstRenderChunks.size);
+    expect(Array.from(renderedChunks).every((chunk) => firstRenderChunks.has(chunk)));
+  });
+
   it('can handle teleporting the camera over a vast distance', () => {
     // Chromium 81 can handle only (sparse) arrays of up to 4_294_967_295 items before throwing an "Invalid array length" RangeError. This
     // test attempts to create a chunk matrix of 1_000_000_000_000×1_000_000_000_000 chunks and teleports the camera from one side of the

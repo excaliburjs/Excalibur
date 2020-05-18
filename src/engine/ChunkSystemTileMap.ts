@@ -40,7 +40,7 @@ interface ChunkSystemTileMapArgs {
   rows: number;
   cols: number;
   chunkGenerator: ChunkGenerator;
-  chunkGarbageCollectorPredicate: ChunkSystemGarbageCollectorPredicate;
+  chunkGarbageCollectorPredicate?: null | ChunkSystemGarbageCollectorPredicate;
   chunkRenderingCachePredicate?: null | ChunkRenderingCachePredicate;
 }
 
@@ -58,7 +58,7 @@ export class ChunkSystemTileMapImpl extends Class {
   public readonly chunkCols: number;
   public readonly chunkRows: number;
   public readonly chunkGenerator: ChunkGenerator;
-  public readonly chunkGarbageCollectorPredicate: ChunkSystemGarbageCollectorPredicate;
+  public readonly chunkGarbageCollectorPredicate: null | ChunkSystemGarbageCollectorPredicate;
   private readonly _chunks: Array<Array<CachedTileMap | undefined> | undefined>;
   private _chunksXOffset: number;
   private _chunksYOffset: number;
@@ -101,7 +101,7 @@ export class ChunkSystemTileMapImpl extends Class {
     this.chunkCols = this.cols / this.chunkSize;
     this.chunkRows = this.rows / this.chunkSize;
     this.chunkGenerator = config.chunkGenerator;
-    this.chunkGarbageCollectorPredicate = config.chunkGarbageCollectorPredicate;
+    this.chunkGarbageCollectorPredicate = config.chunkGarbageCollectorPredicate || null;
     this._chunks = [];
     this._chunksXOffset = 0;
     this._chunksYOffset = 0;
@@ -199,7 +199,9 @@ export class ChunkSystemTileMapImpl extends Class {
     const chunkOnScreenXEnd = Math.floor(cellOnScreenXEnd / this.chunkSize);
     const chunkOnScreenYEnd = Math.floor(cellOnScreenYEnd / this.chunkSize);
 
-    this._garbageCollectChunks(chunkOnScreenXStart, chunkOnScreenYStart, chunkOnScreenXEnd, chunkOnScreenYEnd, engine);
+    if (this.chunkGarbageCollectorPredicate) {
+      this._garbageCollectChunks(chunkOnScreenXStart, chunkOnScreenYStart, chunkOnScreenXEnd, chunkOnScreenYEnd, engine);
+    }
 
     const renderChunkXStart = Math.min(Math.max(chunkOnScreenXStart, 0), this.cols / this.chunkSize - 1);
     const renderChunkYStart = Math.min(Math.max(chunkOnScreenYStart, 0), this.rows / this.chunkSize - 1);
