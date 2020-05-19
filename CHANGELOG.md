@@ -11,7 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Add color blind mode simulation and correction in debug object.
   ([#390](https://github.com/excaliburjs/Excalibur/issues/390))
-- Added ChunkSystemTileMap - support for seemingly infinite procedurally generated tile map split into chunks ([#1348]https://github.com/excaliburjs/Excalibur/issues/1348)
+- Added ChunkSystemTileMap - support for seemingly infinite procedurally generated tile map split into chunks ([#1348](https://github.com/excaliburjs/Excalibur/issues/1348))
 
 ### Changed
 
