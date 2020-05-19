@@ -1,4 +1,3 @@
-import { Actor } from './Actor';
 import { Vector } from './Algebra';
 import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
