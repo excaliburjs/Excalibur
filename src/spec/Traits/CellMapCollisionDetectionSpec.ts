@@ -1,21 +1,20 @@
 import * as ex from '@excalibur';
 import { TestUtils } from '../util/TestUtils';
 
-describe('ChunkSystemTileMapCollisionDetection', () => {
-  const trait = new ex.Traits.ChunkSystemTileMapCollisionDetection();
-  const actor = new ex.Actor({
-    width: 32,
-    height: 32
-  } as ex.ActorArgs);
+describe('CellMapCollisionDetection', () => {
+  const trait = new ex.Traits.CellMapCollisionDetection((engine) => engine.currentScene && engine.currentScene.chunkSystems);
+  let actor: ex.Actor;
   const engine = TestUtils.engine();
   let chunkSystem: ex.ChunkSystemTileMap;
   let currentCellGenerator: (cell: ex.Cell) => ex.Cell;
 
-  beforeAll(() => {
-    engine.add(actor);
-  });
-
   beforeEach(() => {
+    actor = new ex.Actor({
+      width: 32,
+      height: 32
+    } as ex.ActorArgs);
+    engine.add(actor);
+
     for (const previousChunkSytem of engine.currentScene.chunkSystems) {
       engine.currentScene.remove(previousChunkSytem);
     }
@@ -44,9 +43,12 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
         return cell;
       };
       chunkSystem.update(engine, 16);
-      spyOn(chunkSystem, 'collides').and.callThrough();
+      const collisionTrait = actor.traits.find<ex.Traits.CellMapCollisionDetection>(
+        (trait): trait is ex.Traits.CellMapCollisionDetection => trait instanceof ex.Traits.CellMapCollisionDetection
+      );
+      spyOn(collisionTrait, 'collides').and.callThrough();
       trait.update(actor, engine);
-      expect(chunkSystem.collides).not.toHaveBeenCalled();
+      expect(collisionTrait.collides).not.toHaveBeenCalled();
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
     });
@@ -62,9 +64,9 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
       actor.eventDispatcher.on('precollision', eventHandler);
       actor.eventDispatcher.on('postcollision', postCollisionHandler);
       chunkSystem.update(engine, 16);
-      spyOn(chunkSystem, 'collides').and.callThrough();
+      spyOn(trait, 'collides').and.callThrough();
       trait.update(actor, engine);
-      expect(chunkSystem.collides).toHaveBeenCalledTimes(4);
+      expect(trait.collides).toHaveBeenCalledTimes(4);
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
       expect(eventHandler).toHaveBeenCalledTimes(3);
@@ -93,9 +95,9 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
       actor.eventDispatcher.on('precollision', eventHandler);
       actor.eventDispatcher.on('postcollision', postCollisionHandler);
       chunkSystem.update(engine, 16);
-      spyOn(chunkSystem, 'collides').and.callThrough();
+      spyOn(trait, 'collides').and.callThrough();
       trait.update(actor, engine);
-      expect(chunkSystem.collides).toHaveBeenCalledTimes(4);
+      expect(trait.collides).toHaveBeenCalledTimes(4);
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
       expect(eventHandler).toHaveBeenCalledTimes(3);
@@ -134,9 +136,9 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
       actor.eventDispatcher.on('precollision', preCollisionHandler);
       actor.eventDispatcher.on('postcollision', postCollisionHandler);
       chunkSystem.update(engine, 16);
-      spyOn(chunkSystem, 'collides').and.callThrough();
+      spyOn(trait, 'collides').and.callThrough();
       trait.update(actor, engine);
-      expect(chunkSystem.collides).toHaveBeenCalledTimes(2);
+      expect(trait.collides).toHaveBeenCalledTimes(2);
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(-16);
       expect(preCollisionHandler).toHaveBeenCalledTimes(1);
@@ -155,5 +157,9 @@ describe('ChunkSystemTileMapCollisionDetection', () => {
         expect(event.intersection).toEqual(ex.vec(0, -16));
       }
     });
+  });
+
+  afterEach(() => {
+    engine.remove(actor);
   });
 });

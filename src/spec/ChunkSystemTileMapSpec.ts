@@ -136,44 +136,6 @@ describe('ChunkSystemTileMap', () => {
     }
   });
 
-  it('does not collide an non-colliding actor', () => {
-    const chunkSystem = new ChunkSystemTileMap({
-      ...DEFAULT_OPTIONS,
-      chunkGenerator: wrapCellGenerator((cell) => {
-        cell.solid = !cell.x && !cell.y;
-        return cell;
-      })
-    });
-    const actor = new ex.Actor({
-      x: -34,
-      y: -34,
-      width: 16,
-      height: 16,
-      collisionType: ex.CollisionType.Active
-    });
-    chunkSystem.update(engine, 16);
-    expect(chunkSystem.collides(actor)).toBeNull();
-  });
-
-  it('collides a colliding actor', () => {
-    const chunkSystem = new ChunkSystemTileMap({
-      ...DEFAULT_OPTIONS,
-      chunkGenerator: wrapCellGenerator((cell) => {
-        cell.solid = !cell.x && !cell.y;
-        return cell;
-      })
-    });
-    const actor = new ex.Actor({
-      x: 0,
-      y: 0,
-      width: 16,
-      height: 16,
-      collisionType: ex.CollisionType.Active
-    });
-    chunkSystem.update(engine, 16);
-    expect(chunkSystem.collides(actor)).toEqual(ex.vec(0, -8));
-  });
-
   it('returns null for an out-of-bounds chunk', () => {
     const chunkSystem = new ChunkSystemTileMap(DEFAULT_OPTIONS);
     chunkSystem.update(engine, 16);

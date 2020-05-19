@@ -17,6 +17,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+- `ex.Traits.TileMapCollisionDetection` will be removed in `v0.26.0`, use `ex.Traits.CellMapCollisionDetection`. ([#1348](https://github.com/excaliburjs/Excalibur/issues/1348))
+- `ex.TileMap.collides()` will be removed in `v0.26.0`, use `ex.Traits.CellMapCollisionDetection.collides()`. ([#1348](https://github.com/excaliburjs/Excalibur/issues/1348))
+
 ### Removed
 
 ### Fixed

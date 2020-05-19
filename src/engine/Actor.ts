@@ -518,8 +518,8 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
     }
 
     // Build default pipeline
-    this.traits.push(new Traits.ChunkSystemTileMapCollisionDetection());
-    this.traits.push(new Traits.TileMapCollisionDetection());
+    this.traits.push(new Traits.CellMapCollisionDetection((engine) => engine.currentScene && engine.currentScene.chunkSystems));
+    this.traits.push(new Traits.CellMapCollisionDetection((engine) => engine.currentScene && engine.currentScene.tileMaps));
     this.traits.push(new Traits.OffscreenCulling());
     this.traits.push(new Traits.CapturePointer());
 

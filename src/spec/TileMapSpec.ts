@@ -140,22 +140,5 @@ describe('A TileMap', () => {
         cell.solid = true;
       });
     });
-
-    it('should collide when the actor is on a solid cell', () => {
-      const actor = new ex.Actor(0, 0, 20, 20);
-
-      const collision = tm.collides(actor);
-
-      expect(collision).not.toBeNull();
-      expect(collision).toBeTruthy();
-    });
-
-    it('should not collide when the actor has zero size dimensions', () => {
-      const actor = new ex.Actor(0, 0, 0, 0);
-
-      const collision = tm.collides(actor);
-
-      expect(collision).toBeNull();
-    });
   });
 });

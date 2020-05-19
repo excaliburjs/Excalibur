@@ -295,11 +295,11 @@ describe('A game actor', () => {
     let actorCalled = 'false';
     let otherCalled = 'false';
 
-    actor.on('precollision', function() {
+    actor.on('precollision', function () {
       actorCalled = 'actor';
     });
 
-    other.on('precollision', function() {
+    other.on('precollision', function () {
       otherCalled = 'other';
     });
 
@@ -1336,7 +1336,7 @@ describe('A game actor', () => {
 
   describe('default traits', () => {
     it('should include collision detection for chunk system tile maps', () => {
-      expect(actor.traits.some((trait) => trait instanceof ex.Traits.ChunkSystemTileMapCollisionDetection)).toBeTrue();
+      expect(actor.traits.some((trait) => trait instanceof ex.Traits.CellMapCollisionDetection)).toBeTrue();
     });
   });
 });

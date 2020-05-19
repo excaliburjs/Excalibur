@@ -8,6 +8,7 @@ import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
 import { Configurable } from './Configurable';
+import { obsolete } from './Util/Decorators';
 
 /**
  * @hidden
@@ -85,7 +86,9 @@ export class TileMapImpl extends Class {
   /**
    * Returns the intersection vector that can be used to resolve collisions with actors. If there
    * is no collision null is returned.
+   * @obsolete collides will be removed in favor of 'Traits.CellMapCollisionDetection.collides' in version 0.26.0
    */
+  @obsolete({ message: 'will be removed in favour of `Traits.CellMapCollisionDetection.collides` in version 0.26.0' })
   public collides(actor: Actor): Vector {
     const width = actor.pos.x + actor.width;
     const height = actor.pos.y + actor.height;

@@ -123,43 +123,6 @@ export class ChunkSystemTileMapImpl extends Class {
     }
   }
 
-  public collides(actor: Actor): Vector | null {
-    const horizontalStep = Math.max(Math.min(actor.width / 2, this.cellWidth / 2), 1);
-    const verticalStep = Math.max(Math.min(actor.height / 2, this.cellHeight / 2), 1);
-    const rightBound = actor.pos.x + actor.width;
-    const bottomBound = actor.pos.y + actor.height;
-    const actorBounds = actor.body.collider.bounds;
-    const overlaps: Vector[] = [];
-    // trace points for overlap
-    for (let x = actorBounds.left; x <= rightBound; x += horizontalStep) {
-      for (let y = actorBounds.top; y <= bottomBound; y += verticalStep) {
-        const cell = this.getCellByPoint(x, y);
-        if (cell && cell.solid) {
-          const overlap = actorBounds.intersect(cell.bounds);
-          const dir = actor.center.sub(cell.center);
-          if (overlap && overlap.dot(dir) > 0) {
-            overlaps.push(overlap);
-          }
-        }
-      }
-    }
-    if (!overlaps.length) {
-      return null;
-    }
-    // Return the smallest change other than zero
-    return overlaps.reduce((accum, next) => {
-      let x = accum.x;
-      let y = accum.y;
-      if (Math.abs(accum.x) < Math.abs(next.x)) {
-        x = next.x;
-      }
-      if (Math.abs(accum.y) < Math.abs(next.y)) {
-        y = next.y;
-      }
-      return new Vector(x, y);
-    });
-  }
-
   public getChunk(cellX: number, cellY: number): TileMap | null {
     const chunkX = Math.floor(cellX / this.chunkSize);
     const chunkY = Math.floor(cellY / this.chunkSize);

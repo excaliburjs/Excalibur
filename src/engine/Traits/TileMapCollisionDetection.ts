@@ -1,34 +1,13 @@
+import { CellMapCollisionDetection } from './CellMapCollisionDetection';
 import { Trait } from '../Interfaces/Trait';
-import { Actor } from '../Actor';
-import { Engine } from '../Engine';
-import { Vector } from '../Algebra';
-import { Side } from '../Collision/Side';
-import { PreCollisionEvent, PostCollisionEvent } from '../Events';
-import { CollisionType } from '../Collision/CollisionType';
-import { BoundingBox } from '../Collision/Index';
+import { obsolete } from '../Util/Decorators';
 
-export class TileMapCollisionDetection implements Trait {
-  public update(actor: Actor, engine: Engine) {
-    const eventDispatcher = actor.eventDispatcher;
-    if (actor.body.collider.type !== CollisionType.PreventCollision && engine.currentScene && engine.currentScene.tileMaps) {
-      for (let j = 0; j < engine.currentScene.tileMaps.length; j++) {
-        const map = engine.currentScene.tileMaps[j];
-        let intersectMap: Vector;
-        let side = Side.None;
-        let max = 2;
-        while ((intersectMap = map.collides(actor))) {
-          if (max-- < 0) {
-            break;
-          }
-          side = BoundingBox.getSideFromIntersection(intersectMap);
-          eventDispatcher.emit('precollision', new PreCollisionEvent(actor, null, side, intersectMap));
-          if (actor.body.collider.type === CollisionType.Active) {
-            actor.pos.y += intersectMap.y;
-            actor.pos.x += intersectMap.x;
-            eventDispatcher.emit('postcollision', new PostCollisionEvent(actor, null, side, intersectMap));
-          }
-        }
-      }
-    }
+/**
+ * @obsolete TileMapCollisionDetection will be removed in favor of 'Traits.CellMapCollisionDetection' in version 0.26.0
+ */
+@obsolete({ message: 'will be removed in favour of `Traits.CellMapCollisionDetection` in version 0.26.0' })
+export class TileMapCollisionDetection extends CellMapCollisionDetection implements Trait {
+  constructor() {
+    super((engine) => engine.currentScene && engine.currentScene.tileMaps);
   }
 }
