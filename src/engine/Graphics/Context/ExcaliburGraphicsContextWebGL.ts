@@ -1,4 +1,7 @@
 import { ExcaliburGraphicsContext, ExcaliburContextDiagnostics } from './ExcaliburGraphicsContext';
+import vertexSource from './shaders/vertex.glsl';
+import fragmentSource from './shaders/fragment.glsl';
+
 import { Matrix } from '../../Math/matrix';
 import { Shader } from './shader';
 import { MatrixStack } from './matrix-stack';
@@ -30,12 +33,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    */
   private _verts: Float32Array;
 
-  private _shader!: Shader;
-
   private _maxDrawingsPerBatch: number = 2000;
 
   // 8 is the minimum defined in the spec
-  private _shaderTextureMax: number = 8;
+  private _maxGPUTextures: number = 8;
   private _batches: Batch[] = [];
 
   private _commandPool: Pool<DrawImageCommand>;
@@ -78,75 +79,60 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._init();
   }
 
+  private _transformFragmentSource(source: string, maxTextures: number): string {
+    let newSource = source.replace('%%count%%', maxTextures.toString());
+    let texturePickerBuilder = '';
+    for (let i = 0; i < maxTextures; i++) {
+      texturePickerBuilder += `   } else if (v_textureIndex <= ${i}.5) {\n
+                gl_FragColor = texture2D(u_textures[${i}], v_texcoord);\n
+                gl_FragColor.w = gl_FragColor.w * v_opacity;\n`;
+    }
+    newSource = newSource.replace('%%texture_picker%%', texturePickerBuilder);
+    return newSource;
+  }
+
   private _init() {
     const gl = this.__gl;
-
-    this._shaderTextureMax = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-    console.log(`Max textures[${this._shaderTextureMax}]`);
-
-    this._commandPool = new Pool<DrawImageCommand>(() => new DrawImageCommand(), this._maxDrawingsPerBatch);
-    this._batchPool = new Pool<Batch>(() => new Batch(this._textureManager, this._maxDrawingsPerBatch, this._shaderTextureMax));
-
-    const shader = (this._shader = new Shader(this._shaderTextureMax));
-    const program = shader.compile(gl);
-
-    // TODO is viewport automagic?
+    // Setup viewport and view matrix
+    this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, 400, -400);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-    // TODO make a parameter
-    // TODO make a function
+    // Clear background
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     // gl.enable(gl.CULL_FACE);
-
     // gl.disable(gl.DEPTH_TEST);
 
+    // TODO make alpha blending optional?
+    // Enable alpha blending
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    // Tell WebGL to use our shader program pair
-    gl.useProgram(program);
-
-    this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, 400, -400);
-
+    // Initialize VBO
     // https://groups.google.com/forum/#!topic/webgl-dev-list/vMNXSNRAg8M
     this._vertBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this._verts, gl.DYNAMIC_DRAW);
 
-    const vertexSize = 3 * 4; // [x, y, z]
-    const uvSize = 2 * 4; // [u, v]
-    const textureIndexSize = 1 * 4; // [textureId]
-    const opacitySize = 1 * 4; // [opacity]
-    // 28 bytes per coordinate
+    // Initialilze default batch rendering shader
+    this._maxGPUTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+    const shader = new Shader(gl, vertexSource, this._transformFragmentSource(fragmentSource, this._maxGPUTextures));
+    shader.addAttribute('a_position', 3, gl.FLOAT);
+    shader.addAttribute('a_texcoord', 2, gl.FLOAT);
+    shader.addAttribute('a_textureIndex', 1, gl.FLOAT);
+    shader.addAttribute('a_opacity', 1, gl.FLOAT);
+    shader.addUniformMatrix('u_matrix', this._ortho.data);
+    // Initialize texture slots to [0, 1, 2, 3, 4, .... maxGPUTextures]
+    shader.addUniformIntegerArray(
+      'u_textures',
+      [...Array(this._maxGPUTextures)].map((_, i) => i)
+    );
+    // Bind the shader program and connect attributes to VBO
+    shader.bind(this._vertBuffer);
 
-    const totalCoordSize = vertexSize + textureIndexSize + uvSize + opacitySize;
-
-    gl.vertexAttribPointer(shader.positionLocation, 3, gl.FLOAT, false, totalCoordSize, 0);
-    gl.enableVertexAttribArray(shader.positionLocation);
-
-    gl.vertexAttribPointer(shader.texcoordLocation, 2, gl.FLOAT, false, totalCoordSize, vertexSize);
-    gl.enableVertexAttribArray(shader.texcoordLocation);
-
-    gl.vertexAttribPointer(shader.textureIndexLocation, 1, gl.FLOAT, false, totalCoordSize, vertexSize + uvSize);
-    gl.enableVertexAttribArray(shader.textureIndexLocation);
-
-    gl.vertexAttribPointer(shader.opacityLocation, 1, gl.FLOAT, false, totalCoordSize, vertexSize + uvSize + textureIndexSize);
-    gl.enableVertexAttribArray(shader.opacityLocation);
-
-    // Orthographic projection for the viewport
-    gl.uniformMatrix4fv(shader.matrixUniform, false, this._ortho.data);
-
-    const texturesData = [];
-    for (let i = 0; i < this._shaderTextureMax; i++) {
-      texturesData[i] = i;
-    }
-    gl.uniform1iv(shader.texturesUniform, texturesData);
-
-    // Orthographic projection for the viewport
-    const mat = this._ortho;
-    gl.uniformMatrix4fv(this._shader.matrixUniform, false, mat.data);
+    this._commandPool = new Pool<DrawImageCommand>(() => new DrawImageCommand(), this._maxDrawingsPerBatch);
+    this._batchPool = new Pool<Batch>(() => new Batch(this._textureManager, this._maxDrawingsPerBatch, this._maxGPUTextures));
   }
 
   drawImage(graphic: Graphic, x: number, y: number): void;
@@ -182,7 +168,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       }
       return;
     }
-    this._textureManager.updateFromGraphic(graphic);
+    // this._textureManager.updateFromGraphic(graphic);
     const command = this._commandPool.get().init(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
     command.applyTransform(this._stack.transform, this._state.current.opacity, this._state.current.z);
 
@@ -322,10 +308,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   private _diag: ExcaliburContextDiagnostics = {
-    images: 0,
+    quads: 0,
     batches: 0,
     uniqueTextures: 0,
-    maxTexturePerDraw: this._shaderTextureMax
+    maxTexturePerDraw: this._maxGPUTextures
   };
 
   public get diag(): ExcaliburContextDiagnostics {
@@ -368,11 +354,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   flush() {
     const gl = this.__gl;
-    this._diag.images = 0;
+    this._diag.quads = 0;
     this._diag.uniqueTextures = 0;
     this._diag.batches = 0;
-    this._diag.maxTexturePerDraw = this._shaderTextureMax;
-
+    this._diag.maxTexturePerDraw = this._maxGPUTextures;
+    let textures: WebGLTexture[] = [];
     this.clear();
 
     for (let batch of this._batches) {
@@ -387,12 +373,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
       // Bind textures in the correct order
       batch.bindTextures(gl);
+      textures = textures.concat(batch.textures);
 
       // draw the quads
       gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
 
-      this._diag.images += batch.commands.length;
-      this._diag.uniqueTextures += batch.textures.length;
+      this._diag.quads += batch.commands.length;
 
       for (let c of batch.commands) {
         this._commandPool.free(c);
@@ -400,6 +386,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._batchPool.free(batch);
     }
 
+    this._diag.uniqueTextures = textures.filter((v, i, arr) => arr.indexOf(v === i)).length;
     this._diag.batches = this._batches.length;
     this._batches.length = 0;
   }
@@ -415,7 +402,13 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // TODO
   }
 
-  drawDebugLine(_start: Vector, _end: Vector): void {
+  drawLine(_start: Vector, _end: Vector): void {
     // TODO
+    // const lines =
+  }
+
+  debugFlush() {
+    // const gl = this.__gl;
+    // gl.drawArrays(gl.LINES, 0, vertexCount);
   }
 }

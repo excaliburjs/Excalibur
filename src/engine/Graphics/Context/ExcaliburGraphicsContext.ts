@@ -19,7 +19,7 @@ export interface ExcaliburContextOptions {
 }
 
 export interface ExcaliburContextDiagnostics {
-  images: number;
+  quads: number;
   batches: number;
   uniqueTextures: number;
   maxTexturePerDraw: number;
@@ -38,7 +38,7 @@ export interface ExcaliburGraphicsContext {
   // diag: ExcaliburContextDiagnostics;
 
   drawDebugRect(x: number, y: number, width: number, height: number): void;
-  drawDebugLine(start: Vector, end: Vector): void;
+  drawLine(start: Vector, end: Vector): void;
 
   /**
    * Draw an image to the Excalibur Graphics context at an x and y coordinate using the images width and height

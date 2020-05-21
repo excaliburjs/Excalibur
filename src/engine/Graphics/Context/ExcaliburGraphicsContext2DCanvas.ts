@@ -51,7 +51,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this._ctx.restore();
   }
 
-  drawDebugLine(start: Vector, end: Vector): void {
+  drawLine(start: Vector, end: Vector): void {
     this._ctx.save();
     this._ctx.beginPath();
     this._ctx.strokeStyle = 'red';

@@ -18,12 +18,57 @@ export class TextureManager {
     this._potCtx = this._potCanvas.getContext('2d');
   }
 
+  public get uniqueTextures() {
+    const result: WebGLTexture[] = [];
+    for (const graphicId in this._graphicTexture) {
+      if (result.indexOf(this._graphicTexture[graphicId]) === -1) {
+        result.push(this._graphicTexture[graphicId]);
+      }
+    }
+    return result.length;
+  }
+
   hasWebGLTexture(graphic: Graphic) {
-    return !!this._graphicTexture[graphic.id];
+    return !!this._graphicTexture[graphic.getSourceId()];
   }
 
   getWebGLTexture(graphic: Graphic): WebGLTexture | null {
-    return this._graphicTexture[graphic.id];
+    return this._graphicTexture[graphic.getSourceId()];
+  }
+
+  loadWebGLTexture(graphic: Graphic): WebGLTexture {
+    // need to keep track of graphics that have same sources
+    const gl = this._exgl.__gl as WebGLRenderingContext;
+    if (this.hasWebGLTexture(graphic)) {
+      graphic.__glTexture = this.getWebGLTexture(graphic);
+    }
+
+    if (graphic.__glTexture) {
+      if (graphic instanceof Raster && graphic._flagTextureDirty) {
+        graphic._flagTextureDirty = false;
+        gl.bindTexture(gl.TEXTURE_2D, graphic.__glTexture);
+        const source = this._ensurePowerOfTwoImage(graphic.getSource());
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+      }
+      return graphic.__glTexture;
+    }
+
+    const tex = gl.createTexture();
+    const source = this._ensurePowerOfTwoImage(graphic.getSource());
+
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    // NEAREST for pixels
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+
+    this._graphicTexture[graphic.getSourceId()] = tex;
+    return (graphic.__glTexture = tex);
   }
 
   updateFromGraphic(graphic: Graphic): void {

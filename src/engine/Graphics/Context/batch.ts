@@ -1,7 +1,7 @@
 import { DrawImageCommand } from './command';
 import { Graphic } from '../Graphic';
 import { TextureManager } from './texture-manager';
-import { Poolable } from './pool';
+import { Poolable, initializePoolData } from './pool';
 
 export interface BatchOptions {
   maxDrawsPerBatch: number;
@@ -9,8 +9,7 @@ export interface BatchOptions {
 }
 
 export class Batch implements Poolable {
-  _poolId: number;
-  _free: boolean;
+  _poolData = initializePoolData();
 
   public textures: WebGLTexture[] = [];
   public commands: DrawImageCommand[] = [];
@@ -54,7 +53,7 @@ export class Batch implements Poolable {
   }
 
   maybeAdd(command: DrawImageCommand): boolean {
-    if (this._isCommandFull() || (this._isTextureFull() && this._wouldAddTexture(command))) {
+    if ((this._isCommandFull() || this._isTextureFull()) && this._wouldAddTexture(command)) {
       return false;
     }
 
@@ -63,12 +62,20 @@ export class Batch implements Poolable {
   }
 
   add(command: DrawImageCommand) {
-    if (!this._graphicMap[command.image.id]) {
-      this._graphicMap[command.image.id] = command.image;
-      if (this.textureManager.hasWebGLTexture(command.image)) {
-        this.textures.push(this.textureManager.getWebGLTexture(command.image));
-      }
+    // if (!this._graphicMap[command.image.id]) {
+    //   this._graphicMap[command.image.id] = command.image;
+    //   if (this.textureManager.hasWebGLTexture(command.image)) {
+    //     let texture = this.textureManager.getWebGLTexture(command.image);
+    //     if (this.textures.indexOf(texture) === -1) {
+    //       this.textures.push(texture);
+    //     }
+    //   }
+    // }
+    const texture = this.textureManager.loadWebGLTexture(command.image);
+    if (this.textures.indexOf(texture) === -1) {
+      this.textures.push(texture);
     }
+
     this.commands.push(command);
   }
 
@@ -80,7 +87,7 @@ export class Batch implements Poolable {
     }
   }
 
-  _dispose() {
+  dispose() {
     this.clear();
   }
 

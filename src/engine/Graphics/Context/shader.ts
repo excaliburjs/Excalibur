@@ -1,15 +1,28 @@
-import vertexSource from './shaders/vertex.glsl';
-import fragementSource from './shaders/fragment.glsl';
+export interface VertexAttributeDefinition {
+  name: string;
+  size: number;
+  glType: number;
+  normalized: boolean;
+  location: number;
+}
+
+export interface UniformDefinition {
+  name: string;
+  location: WebGLUniformLocation;
+  type: string;
+  data: any;
+}
 
 export class Shader {
-  private _program: WebGLProgram | null = null;
-  private _positionLocation: number = -1;
-  private _textureIndexLocation: number = -1;
-  private _texcoordLocation: number = -1;
-  private _opacityLocation: number = -1;
-  private _matrixUniform: WebGLUniformLocation | null = null;
-  private _texturesUniform: WebGLUniformLocation | null = null;
-  constructor(private maxTextures: number) {}
+  public program: WebGLProgram | null = null;
+
+  public uniforms: { [variableName: string]: UniformDefinition } = {};
+  public attributes: { [variableName: string]: VertexAttributeDefinition } = {};
+  public layout: VertexAttributeDefinition[] = [];
+
+  constructor(private gl: WebGLRenderingContext, private vertexSource: string, private fragmentSource: string) {
+    this.compile(gl);
+  }
 
   private _createProgram(gl: WebGLRenderingContext, vertexShader: WebGLShader, fragmentShader: WebGLShader): WebGLProgram {
     const program = gl.createProgram();
@@ -38,10 +51,6 @@ export class Shader {
       throw Error(`Could not build shader: [${source}]`);
     }
 
-    // TODO abstract this a bit better
-    if (type === gl.FRAGMENT_SHADER) {
-      source = this._transformFragmentSource(source);
-    }
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
 
@@ -52,61 +61,107 @@ export class Shader {
     return shader;
   }
 
-  private _transformFragmentSource(source: string): string {
-    let newSource = source.replace('%%count%%', this.maxTextures.toString());
-    let texturePickerBuilder = '';
-    for (let i = 0; i < this.maxTextures; i++) {
-      texturePickerBuilder += `   } else if (v_textureIndex <= ${i}.5) {\n
-                gl_FragColor = texture2D(textures[${i}], v_texcoord);\n
-                gl_FragColor.w = gl_FragColor.w * v_opacity;\n`;
-    }
-    newSource = newSource.replace('%%texture_picker%%', texturePickerBuilder);
-    return newSource;
-  }
-
   compile(gl: WebGLRenderingContext): WebGLProgram {
-    const vertexShader = this._compileShader(gl, vertexSource, gl.VERTEX_SHADER);
-    const fragmentShader = this._compileShader(gl, fragementSource, gl.FRAGMENT_SHADER);
+    const vertexShader = this._compileShader(gl, this.vertexSource, gl.VERTEX_SHADER);
+    const fragmentShader = this._compileShader(gl, this.fragmentSource, gl.FRAGMENT_SHADER);
     const program = this._createProgram(gl, vertexShader, fragmentShader);
-
-    // look up where the vertex data needs to go.
-    this._positionLocation = gl.getAttribLocation(program, 'a_position');
-    this._textureIndexLocation = gl.getAttribLocation(program, 'a_textureIndex');
-    this._texcoordLocation = gl.getAttribLocation(program, 'a_texcoord');
-    this._opacityLocation = gl.getAttribLocation(program, 'a_opacity');
-
-    // lookup uniforms
-    this._matrixUniform = gl.getUniformLocation(program, 'u_matrix');
-    this._texturesUniform = gl.getUniformLocation(program, 'textures');
-
-    return (this._program = program);
+    return (this.program = program);
   }
 
-  public get program() {
-    return this._program;
+  public addUniformMatrix(name: string, data: Float32Array) {
+    const gl = this.gl;
+    this.uniforms[name] = {
+      name,
+      type: 'matrix',
+      location: gl.getUniformLocation(this.program, name),
+      data: data
+    };
   }
 
-  public get positionLocation() {
-    return this._positionLocation;
+  public addUniformIntegerArray(name: string, data: number[]) {
+    const gl = this.gl;
+    this.uniforms[name] = {
+      name,
+      type: 'numbers',
+      location: gl.getUniformLocation(this.program, name),
+      data: data
+    };
   }
 
-  public get textureIndexLocation() {
-    return this._textureIndexLocation;
+  /**
+   * Add attributes in the order they appear in the VBO
+   * @param name
+   */
+  public addAttribute(name: string, size: number, glType: number, normalized = false) {
+    const gl = this.gl;
+    // TODO needs to be compiled first
+    const location = gl.getAttribLocation(this.program, name);
+    this.attributes[name] = {
+      name,
+      size,
+      glType,
+      normalized,
+      location
+    };
+    this.layout.push(this.attributes[name]);
   }
 
-  public get texcoordLocation() {
-    return this._texcoordLocation;
+  public get totalVertexSize() {
+    let vertexSize = 0;
+    for (const vert of this.layout) {
+      let typeSize = 1;
+      switch (vert.glType) {
+        case this.gl.FLOAT: {
+          typeSize = 4;
+          break;
+        }
+        default: {
+          typeSize = 1;
+        }
+      }
+      vertexSize += typeSize * vert.size;
+    }
+
+    return vertexSize;
   }
 
-  public get opacityLocation() {
-    return this._opacityLocation;
+  public getAttributeSize(name: string) {
+    let typeSize = 1;
+    switch (this.attributes[name].glType) {
+      case this.gl.FLOAT: {
+        typeSize = 4;
+        break;
+      }
+      default: {
+        typeSize = 1;
+      }
+    }
+    return typeSize * this.attributes[name].size;
   }
 
-  public get matrixUniform() {
-    return this._matrixUniform;
-  }
+  public bind(buffer: WebGLBuffer) {
+    const gl = this.gl;
+    gl.useProgram(this.program);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    let offset = 0;
+    for (const vert of this.layout) {
+      gl.vertexAttribPointer(vert.location, vert.size, vert.glType, vert.normalized, this.totalVertexSize, offset);
+      gl.enableVertexAttribArray(vert.location);
+      offset += this.getAttributeSize(vert.name);
+    }
 
-  public get texturesUniform() {
-    return this._texturesUniform;
+    for (const key in this.uniforms) {
+      const uniform = this.uniforms[key];
+      switch (uniform.type) {
+        case 'matrix': {
+          gl.uniformMatrix4fv(uniform.location, false, uniform.data);
+          break;
+        }
+        case 'numbers': {
+          gl.uniform1iv(uniform.location, uniform.data);
+          break;
+        }
+      }
+    }
   }
 }
