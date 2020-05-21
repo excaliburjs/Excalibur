@@ -47,6 +47,7 @@
     "sandbox": "serve ./sandbox -l 3001 -n",
     "legacy-visual": "npm run sandbox:copy && npm run sandbox:build",
     "test": "karma start",
+    "test:watch": "karma start --single-run=false",
     "coveralls": "coveralls < coverage/lcov.info",
     "apidocs": "git submodule update && node apidocs.js",
     "precommit": "pretty-quick --staged && npm run eslint && npm run eslint:spec",

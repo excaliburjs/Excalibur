@@ -113,6 +113,56 @@ describe('A sprite', () => {
     });
   });
 
+  it('can be drawn with opacity', (done) => {
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        rotation: 0,
+        anchor: new ex.Vector(0.0, 0.0),
+        scale: new ex.Vector(1, 1),
+        flipVertical: false,
+        flipHorizontal: false
+      });
+
+      sprite.opacity(0.1);
+
+      sprite.draw(engine.ctx, 0, 0);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/opacity.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+  });
+
+  it('can be drawn with opacity as an option', (done) => {
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        rotation: 0,
+        anchor: new ex.Vector(0.0, 0.0),
+        scale: new ex.Vector(1, 1),
+        flipVertical: false,
+        flipHorizontal: false
+      });
+
+      sprite.draw({ ctx: engine.ctx, x: 0, y: 0, opacity: 0.1 });
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/opacity.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+  });
+
   it('can be inverted', (done) => {
     texture.load().then(() => {
       const sprite = new ex.Sprite({
