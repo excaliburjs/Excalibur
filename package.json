@@ -50,14 +50,17 @@
     "test:watch": "karma start --single-run=false",
     "coveralls": "coveralls < coverage/lcov.info",
     "apidocs": "git submodule update && node apidocs.js",
-    "precommit": "pretty-quick --staged && npm run eslint && npm run eslint:spec",
     "pretty": "prettier --write \"{src,sandbox/src,sandbox/tests}/**/*.{ts,js,json,css,md}\" --config prettier.config.js",
     "release": "node release.js"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run precommit"
+      "pre-commit": "lint-staged"
     }
+  },
+  "lint-staged": {
+    "*.{ts,js,json,md,css}": "prettier --write",
+    "*.ts": "eslint --fix"
   },
   "devDependencies": {
     "@babel/core": "7.9.6",
@@ -98,9 +101,8 @@
     "karma-coverage-istanbul-reporter": "2.1.1",
     "karma-jasmine": "3.1.1",
     "karma-webpack": "4.0.2",
-    "lint-staged": "10.2.2",
+    "lint-staged": "^10.2.2",
     "prettier": "2.0.5",
-    "pretty-quick": "2.0.1",
     "puppeteer": "3.0.2",
     "rimraf": "3.0.2",
     "semver": "7.3.2",
