@@ -131,6 +131,12 @@ export class Loader extends Class implements CanLoad {
   }
 
   public suppressPlayButton: boolean = false;
+  public get playButtonRootElement(): HTMLElement | null {
+    return this._playButtonRootElement;
+  }
+  public get playButtonElement(): HTMLButtonElement | null {
+    return this._playButtonElement;
+  }
   protected _playButtonRootElement: HTMLElement;
   protected _playButtonElement: HTMLButtonElement;
   protected _styleBlock: HTMLStyleElement;

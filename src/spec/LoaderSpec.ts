@@ -156,8 +156,8 @@ describe('A loader', () => {
     loader.markResourceComplete();
     loader.markResourceComplete();
     loader.showPlayButton();
-    const playbutton = document.getElementById('excalibur-play');
-    expect(playbutton).toBeTruthy();
+
+    expect(loader.playButtonRootElement).toBeTruthy();
   });
 
   it('play button is cleaned up on dispose', () => {
@@ -170,7 +170,6 @@ describe('A loader', () => {
     loader.markResourceComplete();
     loader.showPlayButton();
     loader.dispose();
-    const playbutton = document.getElementById('excalibur-play');
-    expect(playbutton).toBeFalsy();
+    expect(loader.playButtonRootElement).toBeFalsy();
   });
 });
