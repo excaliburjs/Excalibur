@@ -1,7 +1,18 @@
-export interface Poolable {
+export interface PoolData {
   _poolId: number;
   _free: boolean;
-  _dispose(): void;
+}
+
+export interface Poolable {
+  _poolData: PoolData;
+  dispose(): void;
+}
+
+export function initializePoolData(): PoolData {
+  return {
+    _poolId: 0,
+    _free: true
+  };
 }
 
 export type FactoryFunc<T> = () => T;
@@ -17,8 +28,8 @@ export class Pool<T extends Poolable> {
   public allocate(number: number) {
     for (let i = this._pool.length; i < number; i++) {
       this._pool.push(this.objectFactory());
-      this._pool[i]._poolId = i;
-      this._pool[i]._free = true;
+      this._pool[i]._poolData._poolId = i;
+      this._pool[i]._poolData._free = true;
       this._freeIds.push(i);
     }
   }
@@ -30,15 +41,15 @@ export class Pool<T extends Poolable> {
     }
     const id = this._freeIds.pop();
     const thing = this._pool[id];
-    if (thing._poolId !== id) {
+    if (thing._poolData._poolId !== id) {
       throw new Error('pool corrupt');
     }
-    thing._free = false;
+    thing._poolData._free = false;
     return thing;
   }
   public free(thing: T) {
-    thing._dispose();
-    thing._free = true;
-    this._freeIds.push(thing._poolId);
+    thing.dispose();
+    thing._poolData._free = true;
+    this._freeIds.push(thing._poolData._poolId);
   }
 }

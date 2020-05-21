@@ -1,6 +1,8 @@
 import { Matrix } from '../../Math/matrix';
 import { Graphic } from '../Graphic';
-import { Poolable } from './pool';
+import { Poolable, initializePoolData } from './pool';
+import { BoundingBox } from '../../Collision/Index';
+import { Color } from '../../Drawing/Color';
 
 export interface DrawCommand {
   image: Graphic;
@@ -10,8 +12,7 @@ export interface DrawCommand {
 }
 
 export class DrawImageCommand implements DrawCommand, Poolable {
-  _poolId: number;
-  _free: boolean;
+  _poolData = initializePoolData();
 
   public image: Graphic;
   public opacity: number = 1;
@@ -90,7 +91,7 @@ export class DrawImageCommand implements DrawCommand, Poolable {
     return this;
   }
 
-  public _dispose() {
+  public dispose() {
     this.image = null;
     this.width = 0;
     this.height = 0;
@@ -131,4 +132,8 @@ export class DrawRectCommand {
     this.width = width;
     this.height = height;
   }
+}
+
+export class DrawDebugRectCommand {
+  constructor(public bounds: BoundingBox, public color: Color) {}
 }
