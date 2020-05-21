@@ -149,7 +149,7 @@ export class Pointer extends Class {
    * @param actor An Actor to be added;
    */
   public addActorUnderPointer(actor: Actor): void {
-    if (!this.isActorUnderPointer(actor)) {
+    if (!this.isActorAliveUnderPointer(actor)) {
       this._actorsUnderPointer[actor.id] = actor;
       this._actorsUnderPointer.length += 1;
       this._actors.push(actor);
@@ -169,7 +169,7 @@ export class Pointer extends Class {
    * @param actor An Actor to be removed;
    */
   public removeActorUnderPointer(actor: Actor): void {
-    if (this.isActorUnderPointer(actor)) {
+    if (this.isActorAliveUnderPointer(actor)) {
       delete this._actorsUnderPointer[actor.id];
       this._actorsUnderPointer.length -= 1;
       removeItemFromArray(actor, this._actors);
@@ -201,7 +201,7 @@ export class Pointer extends Class {
   }
 
   /**
-   * Checks if Pointer has a specific Actor under.
+   * Checks if Pointer location has a specific Actor bounds contained underneath.
    * @param actor An Actor for check;
    */
   public checkActorUnderPointer(actor: Actor): boolean {
@@ -223,8 +223,8 @@ export class Pointer extends Class {
    * Checks if Pointer has a specific Actor in ActorsUnderPointer list.
    * @param actor An Actor for check;
    */
-  public isActorUnderPointer(actor: Actor): boolean {
-    return (!actor.isKilled() || !!actor.scene) && this._actorsUnderPointer.hasOwnProperty(actor.id.toString());
+  public isActorAliveUnderPointer(actor: Actor): boolean {
+    return !!(!actor.isKilled() && actor.scene && this._actorsUnderPointer.hasOwnProperty(actor.id.toString()));
   }
 
   private _onPointerMove(ev: PointerMoveEvent): void {
