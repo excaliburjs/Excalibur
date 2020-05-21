@@ -26,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Fixed Excalibur crashing when embedded within a cross-origin IFrame ([#1151](https://github.com/excaliburjs/Excalibur/issues/1151))
 - Fixed issue when loading images from a base64 strings that would crash the loader ([#1543](https://github.com/excaliburjs/Excalibur/issues/1543))
+- Fixed issue where actors that were not in scene still received pointer events ([#1555](https://github.com/excaliburjs/Excalibur/issues/1555))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
