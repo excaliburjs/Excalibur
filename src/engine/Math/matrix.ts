@@ -1,3 +1,5 @@
+import { Vector } from '../Algebra';
+
 export class Matrix {
   // 4x4 matrix in column major order
   // | data[0], data[4], data[8],  data[12] |
@@ -114,15 +116,24 @@ export class Matrix {
     return mat;
   }
 
-  multv(other: [number, number]): [number, number] {
-    let dest: [number, number];
+  multv(other: [number, number]): [number, number];
+  multv(other: Vector): Vector;
+  multv(other: [number, number] | Vector): [number, number] | Vector {
     let z = 0;
-    dest = [
-      other[0] * this.data[0] + other[1] * this.data[4] + z * this.data[6] + 1 * this.data[12],
+    if (other instanceof Vector) {
+      return new Vector(
+        other.x * this.data[0] + other.y * this.data[4] + z * this.data[6] + 1 * this.data[12],
+        other.x * this.data[1] + other.y * this.data[5] + z * this.data[9] + 1 * this.data[13]
+      );
+    } else {
+      let dest: [number, number];
+      dest = [
+        other[0] * this.data[0] + other[1] * this.data[4] + z * this.data[6] + 1 * this.data[12],
 
-      other[0] * this.data[1] + other[1] * this.data[5] + z * this.data[9] + 1 * this.data[13]
-    ];
-    return dest;
+        other[0] * this.data[1] + other[1] * this.data[5] + z * this.data[9] + 1 * this.data[13]
+      ];
+      return dest;
+    }
   }
 
   multm(other: Matrix): Matrix {
