@@ -243,6 +243,20 @@ export class Loader extends Class implements CanLoad {
   }
 
   /**
+   * Clean up generated elements for the loader
+   */
+  public dispose() {
+    if (this._playButtonRootElement.parentElement) {
+      this._playButtonRootElement.removeChild(this._playButtonElement);
+      document.body.removeChild(this._playButtonRootElement);
+      document.head.removeChild(this._styleBlock);
+      this._playButtonRootElement = null;
+      this._playButtonElement = null;
+      this._styleBlock = null;
+    }
+  }
+
+  /**
    * Begin loading all of the supplied resources, returning a promise
    * that resolves when loading of all is complete
    */
@@ -257,6 +271,7 @@ export class Loader extends Class implements CanLoad {
           this.hidePlayButton();
           this.oncomplete.call(this);
           complete.resolve();
+          this.dispose();
         });
       });
       return complete;
@@ -281,6 +296,7 @@ export class Loader extends Class implements CanLoad {
                 this.hidePlayButton();
                 this.oncomplete.call(this);
                 complete.resolve();
+                this.dispose();
               });
             });
           }, 200); // short delay in showing the button for aesthetics

@@ -146,4 +146,31 @@ describe('A loader', () => {
       });
     };
   });
+
+  it('play button shows up after done loading', () => {
+    const loader = new ex.Loader([, , , ,]);
+    loader.loadingBarPosition = ex.vec(0, 0);
+    loader.loadingBarColor = ex.Color.Red;
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.showPlayButton();
+    const playbutton = document.getElementById('excalibur-play');
+    expect(playbutton).toBeTruthy();
+  });
+
+  it('play button is cleaned up on dispose', () => {
+    const loader = new ex.Loader([, , , ,]);
+    loader.loadingBarPosition = ex.vec(0, 0);
+    loader.loadingBarColor = ex.Color.Red;
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.showPlayButton();
+    loader.dispose();
+    const playbutton = document.getElementById('excalibur-play');
+    expect(playbutton).toBeFalsy();
+  });
 });
