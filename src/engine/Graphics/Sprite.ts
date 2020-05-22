@@ -69,6 +69,10 @@ export class Sprite extends Graphic {
     }
   }
 
+  public getSourceId(): number {
+    return this.rawImage.id;
+  }
+
   public getSource(): ImageSource {
     return this.rawImage.image;
   }

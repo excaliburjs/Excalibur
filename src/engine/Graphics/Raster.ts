@@ -22,7 +22,6 @@ export interface RasterOptions {
  */
 export abstract class Raster extends Graphic {
   public _bitmap: HTMLCanvasElement;
-  public __glTexture: WebGLTexture;
   public _flagTextureDirty: boolean;
   private _ctx: CanvasRenderingContext2D;
   private _dirty: boolean = true;

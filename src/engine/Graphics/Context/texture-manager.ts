@@ -4,12 +4,17 @@ import { Raster } from '../Raster';
 import { ImageSource } from './ExcaliburGraphicsContext';
 import { ensurePowerOfTwo, isPowerOfTwo } from './webgl-util';
 
+export interface TextureInfo {
+  id: number;
+  texture: WebGLTexture;
+}
+
 /**
  * Manages loading and unloading webgl textures from [[Graphic|graphics]]
  */
 export class TextureManager {
   private _exgl: ExcaliburGraphicsContextWebGL;
-  private _graphicTexture: { [graphicId: number]: WebGLTexture } = {};
+  private _graphicTextureInfo: { [graphicId: number]: TextureInfo } = {};
   private _potCanvas: HTMLCanvasElement;
   private _potCtx: CanvasRenderingContext2D;
   constructor(context: ExcaliburGraphicsContextWebGL) {
@@ -20,37 +25,42 @@ export class TextureManager {
 
   public get uniqueTextures() {
     const result: WebGLTexture[] = [];
-    for (const graphicId in this._graphicTexture) {
-      if (result.indexOf(this._graphicTexture[graphicId]) === -1) {
-        result.push(this._graphicTexture[graphicId]);
+    for (const graphicId in this._graphicTextureInfo) {
+      if (result.indexOf(this._graphicTextureInfo[graphicId]) === -1) {
+        result.push(this._graphicTextureInfo[graphicId]);
       }
     }
     return result.length;
   }
 
+  private static _SOURCE_ID = 0;
+  public static generateTextureSourceId() {
+    return TextureManager._SOURCE_ID++;
+  }
+
   hasWebGLTexture(graphic: Graphic) {
-    return !!this._graphicTexture[graphic.getSourceId()];
+    return graphic.getSourceId() !== -1 && !!this._graphicTextureInfo[graphic.getSourceId()];
   }
 
-  getWebGLTexture(graphic: Graphic): WebGLTexture | null {
-    return this._graphicTexture[graphic.getSourceId()];
+  getWebGLTextureInfo(graphic: Graphic): TextureInfo | null {
+    return this._graphicTextureInfo[graphic.getSourceId()];
   }
 
-  loadWebGLTexture(graphic: Graphic): WebGLTexture {
+  loadWebGLTexture(graphic: Graphic): TextureInfo {
     // need to keep track of graphics that have same sources
     const gl = this._exgl.__gl as WebGLRenderingContext;
     if (this.hasWebGLTexture(graphic)) {
-      graphic.__glTexture = this.getWebGLTexture(graphic);
+      graphic.__textureInfo = this.getWebGLTextureInfo(graphic);
     }
 
-    if (graphic.__glTexture) {
+    if (graphic.__textureInfo) {
       if (graphic instanceof Raster && graphic._flagTextureDirty) {
         graphic._flagTextureDirty = false;
-        gl.bindTexture(gl.TEXTURE_2D, graphic.__glTexture);
+        gl.bindTexture(gl.TEXTURE_2D, graphic.__textureInfo.texture);
         const source = this._ensurePowerOfTwoImage(graphic.getSource());
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
       }
-      return graphic.__glTexture;
+      return graphic.__textureInfo;
     }
 
     const tex = gl.createTexture();
@@ -67,48 +77,10 @@ export class TextureManager {
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 
-    this._graphicTexture[graphic.getSourceId()] = tex;
-    return (graphic.__glTexture = tex);
-  }
-
-  updateFromGraphic(graphic: Graphic): void {
-    const gl = this._exgl.__gl as WebGLRenderingContext;
-
-    if (graphic.width <= 0 || graphic.height <= 0) {
-      // exit early on invalid graphic
-      return;
-    }
-
-    let glTex: WebGLTexture;
-    if (this.hasWebGLTexture(graphic)) {
-      // TODO this is gross
-      if (graphic instanceof Raster && graphic._flagTextureDirty) {
-        graphic._flagTextureDirty = false;
-        gl.bindTexture(gl.TEXTURE_2D, graphic.__glTexture);
-        const source = this._ensurePowerOfTwoImage(graphic.getSource());
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
-      }
-
-      // If the webgltexture exists exit early to avoid re-shipping bytes to the gpu
-      return;
-    } else {
-      glTex = graphic.__glTexture = gl.createTexture();
-    }
-
-    const source = this._ensurePowerOfTwoImage(graphic.getSource());
-
-    gl.bindTexture(gl.TEXTURE_2D, glTex);
-
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    // NEAREST for pixels
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
-
-    this._graphicTexture[graphic.id] = glTex;
+    const textureInfo = { id: TextureManager.generateTextureSourceId(), texture: tex };
+    graphic.__textureInfo = textureInfo;
+    this._graphicTextureInfo[graphic.getSourceId()] = textureInfo;
+    return (graphic.__textureInfo = textureInfo);
   }
 
   /**

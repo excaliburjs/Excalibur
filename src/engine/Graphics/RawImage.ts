@@ -1,9 +1,9 @@
 import { Resource } from '../Resources/Resource';
 import { Texture } from '../Resources/Texture';
+import { TextureManager } from './Context/texture-manager';
 
 export class RawImage extends Resource<HTMLImageElement> {
-  private static _ID = 0;
-  public readonly id = RawImage._ID++;
+  public readonly id = TextureManager.generateTextureSourceId();
 
   /**
    * The original size of the image before any sizing

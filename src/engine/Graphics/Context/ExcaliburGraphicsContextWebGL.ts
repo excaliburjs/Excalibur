@@ -208,10 +208,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       potWidth = ensurePowerOfTwo(command.image.getSource().width || command.width);
       potHeight = ensurePowerOfTwo(command.image.getSource().height || command.height);
 
-      // TODO should this be handled by the batch
-      if (this._textureManager.hasWebGLTexture(command.image)) {
-        textureId = batch.textures.indexOf(this._textureManager.getWebGLTexture(command.image));
-      }
+      textureId = batch.getBatchTextureId(command);
       if (this.snapToPixel) {
         // quick bitwise truncate
         x = ~~x;

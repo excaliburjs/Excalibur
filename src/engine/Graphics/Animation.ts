@@ -108,6 +108,10 @@ export class Animation extends Graphic implements Eventable<Frame | Animation>, 
     return null;
   }
 
+  public getSourceId(): number {
+    return this.frames[this._currentFrame].graphic.getSourceId();
+  }
+
   public getSource(): ImageSource {
     return this.frames[this._currentFrame].graphic.getSource();
   }

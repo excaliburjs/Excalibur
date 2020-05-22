@@ -62,18 +62,9 @@ export class Batch implements Poolable {
   }
 
   add(command: DrawImageCommand) {
-    // if (!this._graphicMap[command.image.id]) {
-    //   this._graphicMap[command.image.id] = command.image;
-    //   if (this.textureManager.hasWebGLTexture(command.image)) {
-    //     let texture = this.textureManager.getWebGLTexture(command.image);
-    //     if (this.textures.indexOf(texture) === -1) {
-    //       this.textures.push(texture);
-    //     }
-    //   }
-    // }
-    const texture = this.textureManager.loadWebGLTexture(command.image);
-    if (this.textures.indexOf(texture) === -1) {
-      this.textures.push(texture);
+    const textureInfo = this.textureManager.loadWebGLTexture(command.image);
+    if (this.textures.indexOf(textureInfo.texture) === -1) {
+      this.textures.push(textureInfo.texture);
     }
 
     this.commands.push(command);
@@ -85,6 +76,13 @@ export class Batch implements Poolable {
       gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, this.textures[i] || this.textures[0]);
     }
+  }
+
+  getBatchTextureId(command: DrawImageCommand) {
+    if (command.image.__textureInfo) {
+      return this.textures.indexOf(command.image.__textureInfo.texture);
+    }
+    return -1;
   }
 
   dispose() {

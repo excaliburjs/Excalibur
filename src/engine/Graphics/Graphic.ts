@@ -1,6 +1,7 @@
 import { Vector, vec } from '../Algebra';
 import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/BoundingBox';
+import { TextureInfo } from './Context/texture-manager';
 
 export interface GraphicOptions {
   /**
@@ -48,7 +49,14 @@ export interface GraphicOptions {
 export abstract class Graphic {
   private static _ID: number = 0;
   readonly id = Graphic._ID++;
-  public __glTexture: WebGLTexture;
+
+  /**
+   * **USING THIS VOIDS YOUR WARRANTY**
+   * Used internally to represent webgl textures if the webgl rendering context is being used.
+   *
+   * @internal
+   */
+  public __textureInfo: TextureInfo | null = null;
 
   /**
    * Gets or sets wether to show debug information about the graphic
@@ -205,6 +213,13 @@ export abstract class Graphic {
       ex.drawDebugRect(0, 0, this.width, this.height);
     }
     ex.restore();
+  }
+
+  /**
+   * Return a unique identifier to keep track of the source for a graphic
+   */
+  public getSourceId(): number {
+    return this.__textureInfo?.id ?? -1;
   }
 
   /**

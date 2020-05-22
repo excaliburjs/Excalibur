@@ -16,6 +16,10 @@ export interface GraphicsGrouping {
 export class GraphicsGroup extends Graphic implements HasTick {
   public members: GraphicsGrouping[] = [];
 
+  public getSourceId(): number {
+    return -1;
+  }
+
   public getSource(): ImageSource {
     return null;
   }
