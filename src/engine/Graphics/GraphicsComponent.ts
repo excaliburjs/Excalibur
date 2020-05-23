@@ -227,6 +227,9 @@ export class GraphicsComponent implements Component<'graphics'> {
     return Object.keys(this._graphics);
   }
 
+  public onPreDraw: (ctx: ExcaliburGraphicsContext) => void;
+  public onPostDraw: (ctx: ExcaliburGraphicsContext) => void;
+
   /**
    * Sets or gets wether any drawing should be visible in this component
    */

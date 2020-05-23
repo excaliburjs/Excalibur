@@ -4,19 +4,11 @@ import { Scene } from '../Scene';
 import { Entity } from '../Entity';
 import { GraphicsComponent } from './GraphicsComponent';
 import { TransformComponent, CoordPlane } from '../Transform';
-import { Circle } from './Circle';
-import { Color } from '../Drawing/Color';
-// import { Rect } from './Rect';
-// import { Color } from '../Drawing/Color';
 
 export class GraphicsSystem {
   public readonly types = [GraphicsComponent.type, TransformComponent.type];
   constructor(public ctx: ExcaliburGraphicsContext, public scene: Scene) {}
   private _token = 0;
-  private _debugCircle = new Circle({
-    radius: 5,
-    color: Color.Red
-  });
 
   public update(entities: Entity<GraphicsComponent | TransformComponent>[], delta: number): void {
     this._clearScreen();
@@ -33,22 +25,25 @@ export class GraphicsSystem {
       this._pushCameraTransform(transform);
 
       this.ctx.save();
+      if (graphics.onPreDraw) {
+        graphics.onPreDraw(this.ctx);
+      }
       graphics.update(delta, this._token);
       this._applyEntityTransform(transform);
       const [x, y] = this._applyActorAnchor(entity);
       this.ctx.z = transform.z;
       this.ctx.opacity = graphics.opacity * ((entity as any).opacity ?? 1);
       graphics.draw(this.ctx, x, y);
+      if (graphics.onPostDraw) {
+        graphics.onPostDraw(this.ctx);
+      }
       this.ctx.restore();
 
       // TODO better debug draw system
       if ((this.scene as any)._engine.isDebug) {
         if (isActor(entity)) {
-          this._debugCircle.draw(
-            this.ctx,
-            entity.getWorldPos().x - this._debugCircle.radius,
-            entity.getWorldPos().y - this._debugCircle.radius
-          );
+          const bb = entity.body.collider.localBounds.translate(entity.getWorldPos());
+          bb._debugDraw(this.ctx);
         }
       }
 
