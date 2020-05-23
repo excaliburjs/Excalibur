@@ -12,6 +12,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Add color blind mode simulation and correction in debug object.
   ([#390](https://github.com/excaliburjs/Excalibur/issues/390))
 - Add `LimitCameraBoundsStrategy`, which always keeps the camera locked to within the given bounds. ([#1498](https://github.com/excaliburjs/Excalibur/issues/1498))
+- Add mechanisms to manipulate the `Loader` screen. ([#1417](https://github.com/excaliburjs/Excalibur/issues/1417))
+  - Logo position `Loader.logoPosition`
+  - Play button position `Loader.playButtonPosition`
+  - Loading bar position `Loader.loadingBarPosition`
+  - Loading bar color `Loader.loadingBarColor` by default is white, but can be any excalibur `ex.Color`
 
 ### Changed
 
@@ -24,9 +29,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed Loader play button markup and styles are now cleaned up after clicked ([#1431](https://github.com/excaliburjs/Excalibur/issues/1431))
 - Fixed Excalibur crashing when embedded within a cross-origin IFrame ([#1151](https://github.com/excaliburjs/Excalibur/issues/1151))
 - Fixed issue when loading images from a base64 strings that would crash the loader ([#1543](https://github.com/excaliburjs/Excalibur/issues/1543))
 - Fixed issue where actors that were not in scene still received pointer events ([#1555](https://github.com/excaliburjs/Excalibur/issues/1555))
+- Fixed Scene initialization order when using the lifecycle overrides ([#1553](https://github.com/excaliburjs/Excalibur/issues/1553))
+
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
