@@ -1,4 +1,4 @@
-import { ExcaliburGraphicsContext } from './ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, LineGraphicsOptions } from './ExcaliburGraphicsContext';
 import { Vector } from '../../Algebra';
 import { Graphic } from '../Graphic';
 import { Color } from '../../Drawing/Color';
@@ -44,17 +44,17 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
    * @param width
    * @param height
    */
-  drawDebugRect(x: number, y: number, width: number, height: number): void {
+  drawRect(x: number, y: number, width: number, height: number): void {
     this._ctx.save();
     this._ctx.strokeStyle = 'red';
     this._ctx.strokeRect(x, y, width, height);
     this._ctx.restore();
   }
 
-  drawLine(start: Vector, end: Vector): void {
+  drawLine(start: Vector, end: Vector, lineOptions: LineGraphicsOptions = { color: Color.Black }): void {
     this._ctx.save();
     this._ctx.beginPath();
-    this._ctx.strokeStyle = 'red';
+    this._ctx.strokeStyle = lineOptions.color.toString();
     this._ctx.moveTo(start.x, start.y);
     this._ctx.lineTo(end.x, end.y);
     this._ctx.lineWidth = 2;

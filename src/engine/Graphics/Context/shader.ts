@@ -139,10 +139,9 @@ export class Shader {
     return typeSize * this.attributes[name].size;
   }
 
-  public bind(buffer: WebGLBuffer) {
+  public use() {
     const gl = this.gl;
     gl.useProgram(this.program);
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     let offset = 0;
     for (const vert of this.layout) {
       gl.vertexAttribPointer(vert.location, vert.size, vert.glType, vert.normalized, this.totalVertexSize, offset);

@@ -210,7 +210,7 @@ export abstract class Graphic {
    */
   protected _postDraw(ex: ExcaliburGraphicsContext): void {
     if (this.showDebug) {
-      ex.drawDebugRect(0, 0, this.width, this.height);
+      ex.drawRect(0, 0, this.width, this.height);
     }
     ex.restore();
   }

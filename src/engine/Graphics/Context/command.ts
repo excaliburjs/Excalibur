@@ -3,15 +3,24 @@ import { Graphic } from '../Graphic';
 import { Poolable, initializePoolData } from './pool';
 import { BoundingBox } from '../../Collision/Index';
 import { Color } from '../../Drawing/Color';
+import { Vector } from '../../Algebra';
 
-export interface DrawCommand {
-  image: Graphic;
-  width: number;
-  height: number;
-  dest: [number, number]; // x, y
+export class DrawLineCommand implements Poolable {
+  _poolData = initializePoolData();
+  public color: Color;
+  public start: Vector;
+  public end: Vector;
+  public dispose() {
+    this.color.r = 0;
+    this.color.g = 0;
+    this.color.b = 0;
+    this.color.a = 1;
+    this.start.setTo(0, 0);
+    this.end.setTo(0, 0);
+  }
 }
 
-export class DrawImageCommand implements DrawCommand, Poolable {
+export class DrawImageCommand implements Poolable {
   _poolData = initializePoolData();
 
   public image: Graphic;

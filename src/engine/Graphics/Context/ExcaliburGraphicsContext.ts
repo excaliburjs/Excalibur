@@ -25,6 +25,14 @@ export interface ExcaliburContextDiagnostics {
   maxTexturePerDraw: number;
 }
 
+export interface LineGraphicsOptions {
+  color: Color;
+}
+
+export interface RectGraphicsOptions {
+  color: Color;
+}
+
 export interface ExcaliburGraphicsContext {
   width: number;
   height: number;
@@ -37,8 +45,8 @@ export interface ExcaliburGraphicsContext {
 
   // diag: ExcaliburContextDiagnostics;
 
-  drawDebugRect(x: number, y: number, width: number, height: number): void;
-  drawLine(start: Vector, end: Vector): void;
+  drawRect(x: number, y: number, width: number, height: number, rectOptions?: RectGraphicsOptions): void;
+  drawLine(start: Vector, end: Vector, lineOptions?: LineGraphicsOptions): void;
 
   /**
    * Draw an image to the Excalibur Graphics context at an x and y coordinate using the images width and height

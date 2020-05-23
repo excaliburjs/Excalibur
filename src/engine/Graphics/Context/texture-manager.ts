@@ -1,4 +1,3 @@
-import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
 import { Graphic } from '../Graphic';
 import { Raster } from '../Raster';
 import { ImageSource } from './ExcaliburGraphicsContext';
@@ -13,12 +12,12 @@ export interface TextureInfo {
  * Manages loading and unloading webgl textures from [[Graphic|graphics]]
  */
 export class TextureManager {
-  private _exgl: ExcaliburGraphicsContextWebGL;
+  private _gl: WebGLRenderingContext;
   private _graphicTextureInfo: { [graphicId: number]: TextureInfo } = {};
   private _potCanvas: HTMLCanvasElement;
   private _potCtx: CanvasRenderingContext2D;
-  constructor(context: ExcaliburGraphicsContextWebGL) {
-    this._exgl = context;
+  constructor(context: WebGLRenderingContext) {
+    this._gl = context;
     this._potCanvas = document.createElement('canvas');
     this._potCtx = this._potCanvas.getContext('2d');
   }
@@ -48,7 +47,7 @@ export class TextureManager {
 
   loadWebGLTexture(graphic: Graphic): TextureInfo {
     // need to keep track of graphics that have same sources
-    const gl = this._exgl.__gl as WebGLRenderingContext;
+    const gl = this._gl;
     if (this.hasWebGLTexture(graphic)) {
       graphic.__textureInfo = this.getWebGLTextureInfo(graphic);
     }

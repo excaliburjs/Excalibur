@@ -96,7 +96,7 @@ export class Text extends Raster {
 
   _postDraw(ex: ExcaliburGraphicsContext): void {
     if (this.showDebug) {
-      ex.drawDebugRect(-this._halfWidth, -this._halfHeight, this.width, this.height);
+      ex.drawRect(-this._halfWidth, -this._halfHeight, this.width, this.height);
     }
     ex.restore();
   }
