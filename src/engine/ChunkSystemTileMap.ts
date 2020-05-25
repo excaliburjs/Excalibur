@@ -30,16 +30,68 @@ export type ChunkRenderingCachePredicate = (chunk: TileMap, chunkSystemTileMap: 
 
 type CachedTileMap = TileMap & { renderingCache: null | HTMLCanvasElement };
 
-interface ChunkSystemTileMapArgs {
+/**
+ * [[include:Constructors.md]]
+ */
+export interface ChunkSystemTileMapArgs {
+  /**
+   * The position of this chunk system's top left corner in the scene on the horizontal axis, in pixels.
+   */
   x: number;
+  /**
+   * The position of this chunk system's top left corner in the scene on the verical axis, in pixels.
+   */
   y: number;
+  /**
+   * The number of columns and rows of [[Cell|Cells]] in a single [[TileMap]] chunk used by the chunk system. The chunk size must be a
+   * positive safe integer.
+   */
   chunkSize: number;
+  /**
+   * Width of a single [[Cell]] in pixels.
+   */
   cellWidth: number;
+  /**
+   * Height of a single [[Cell]] in pixels.
+   */
   cellHeight: number;
+  /**
+   * The total number of rows of [[Cell|Cells]] in the chunk system. This must be a positive safe integer that is a multiple of
+   * [[`chunkSize`]].
+   */
   rows: number;
+  /**
+   * The total number of columns of [[Cell|Cells]] in the chunk system. This must be a positive safe integer that is a multiple of
+   * [[`chunkSize`]].
+   */
   cols: number;
+  /**
+   * The callback the chunk system invokes whenever it is about to render a [[TileMap]] chunk that has not been generated yet (or has been
+   * garbage collected previously). The chunk system only calls the chunk generator for chunks that will be rendered.
+   *
+   * Note that the returned chunk will receive all sprite sheets that are registered with the chunk system; there is no need to register
+   * sprite sheets with chunks manually.
+   *
+   * See also: [[`wrapChunkGenerator`]], [[`wrapCellGenerator`]].
+   */
   chunkGenerator: ChunkGenerator;
+  /**
+   * Optional predicate callback that enables chunk garbage collection. When configured to a function, the chunk system will call the
+   * provided callback for every off-screen chunk every update. Chunks for which the callback returns `true` are discarded by the chunk
+   * system.
+   *
+   * The use of a chunk garbage collector allows for chunk systems that are larger than can be allocated or fit into memory by the browser.
+   */
   chunkGarbageCollectorPredicate?: null | ChunkSystemGarbageCollectorPredicate;
+  /**
+   * Optional predicate callback that enables pre-rendering of individual chunks, removing the need of rendering every [[Cell]] in a chunk,
+   * thus improving rendering performance at the cost of greater memory usage. When configured to a function, the chunk system will call the
+   * provided callback for every chunk the system is about to render that has not been pre-rendered yet.
+   *
+   * Returning `true` for a given chunk will result in the chunk being rendered in full and cached by the chunk system. It is adviced not to
+   * cache chunks containing animated [[Cell|Cells]], since that would prevent the animation being played. Please note that the rendered
+   * chunk will remain in memory until discarded by the [[chunkGarbageCollectorPredicate]] returning `true` when called with it.
+   */
   chunkRenderingCachePredicate?: null | ChunkRenderingCachePredicate;
 }
 
@@ -47,24 +99,71 @@ interface ChunkSystemTileMapArgs {
  * @hidden
  */
 export class ChunkSystemTileMapImpl extends Class {
+  /**
+   * The position of this chunk system's top left corner in the scene on the horizontal axis, in pixels.
+   */
   public readonly x: number;
+  /**
+   * The position of this chunk system's top left corner in the scene on the verical axis, in pixels.
+   */
   public readonly y: number;
+  /**
+   * Width of a single [[Cell]] in pixels.
+   */
   public readonly cellWidth: number;
+  /**
+   * Height of a single [[Cell]] in pixels.
+   */
   public readonly cellHeight: number;
+  /**
+   * The number of columns and rows of [[Cell|Cells]] in a single [[TileMap]] chunk used by the chunk system.
+   */
   public readonly chunkSize: number;
+  /**
+   * The total number of columns of [[Cell|Cells]] in the chunk system.
+   */
   public readonly cols: number;
+  /**
+   * The total number of rows of [[Cell|Cells]] in the chunk system.
+   */
   public readonly rows: number;
+  /**
+   * The total number of columns of [[TileMap]] chunks in the chunk system.
+   */
   public readonly chunkCols: number;
+  /**
+   * The total number of rows of [[TileMap]] chunks in the chunk system.
+   */
   public readonly chunkRows: number;
+  /**
+   * The callback the chunk system invokes whenever it is about to render a [[TileMap]] chunk that has not been generated yet (or has been
+   * garbage collected previously). The chunk system only calls the chunk generator for chunks that will be rendered.
+   *
+   * See also: [[`wrapChunkGenerator`]], [[`wrapCellGenerator`]].
+   */
   public readonly chunkGenerator: ChunkGenerator;
-  public readonly chunkGarbageCollectorPredicate: null | ChunkSystemGarbageCollectorPredicate;
+  /**
+   * Predicate callback that enables chunk garbage collection. The chunk system will call the callback for every off-screen chunk every
+   * update. Chunks for which the callback returns `true` are discarded by the chunk system.
+   *
+   * The use of a chunk garbage collector allows for chunk systems that are larger than can be allocated or fit into memory by the browser.
+   */
+  public readonly chunkGarbageCollectorPredicate: ChunkSystemGarbageCollectorPredicate | null;
+  /**
+   * Predicate callback that enables pre-rendering of individual chunks, removing the need of rendering every [[Cell]] in a chunk, thus
+   * improving rendering performance at the cost of greater memory usage. The chunk system will call the provided callback for every chunk
+   * the system is about to render that has not been pre-rendered yet.
+   */
+  public readonly chunkRenderingCachePredicate: ChunkRenderingCachePredicate | null;
   private readonly _chunks: Array<Array<CachedTileMap | undefined> | undefined>;
   private _chunksXOffset: number;
   private _chunksYOffset: number;
   private readonly _chunksToRender: CachedTileMap[];
   private readonly _spriteSheets: { [key: string]: SpriteSheet };
-  private readonly _chunkRenderingCachePredicate: null | ChunkRenderingCachePredicate;
 
+  /**
+   * @param config [[ChunkSystemTileMap]]'s configuration.
+   */
   constructor(config: ChunkSystemTileMapArgs) {
     if (config.chunkSize <= 0 || !Number.isSafeInteger(config.chunkSize)) {
       throw new TypeError(`The chunkSize option must be a positive integer, ${config.chunkSize} was provided`);
@@ -101,14 +200,22 @@ export class ChunkSystemTileMapImpl extends Class {
     this.chunkRows = this.rows / this.chunkSize;
     this.chunkGenerator = config.chunkGenerator;
     this.chunkGarbageCollectorPredicate = config.chunkGarbageCollectorPredicate || null;
+    this.chunkRenderingCachePredicate = config.chunkRenderingCachePredicate || null;
     this._chunks = [];
     this._chunksXOffset = 0;
     this._chunksYOffset = 0;
     this._chunksToRender = [];
     this._spriteSheets = {};
-    this._chunkRenderingCachePredicate = config.chunkRenderingCachePredicate || null;
   }
 
+  /**
+   * Register sprite sheet with the chunk system and all its [[TileMap]] chunks (both present and generated in the future), allowing sprites
+   * from the sprite sheet to be used by the chunk system's [[Cell|Cells]].
+   *
+   * @param key The key identifying the sprite sheet among all sprite sheets used by this chunk system and its [[TileMap]] chunks. This can
+   * be any string.
+   * @param spriteSheet The sprite sheet to associate with this chunk system.
+   */
   public registerSpriteSheet(key: string, spriteSheet: SpriteSheet): void {
     this._spriteSheets[key] = spriteSheet;
     for (let rowIndex = 0; rowIndex < this._chunks.length; rowIndex++) {
@@ -122,6 +229,15 @@ export class ChunkSystemTileMapImpl extends Class {
     }
   }
 
+  /**
+   * Returns the [[TileMap]] chunk that owns the cell at the specified column and row of all chunk system's cells. The method returns `null`
+   * if the cell's coordinates are out of bounds of the chunk system, the chunk itself has not been generated yet or the chunk has been
+   * garbage collected.
+   *
+   * @param cellX The column of the cell for which the chunk should be retrieved.
+   * @param cellY The row of the cell for which the chunk should be retrieved.
+   * @return The [[TileMap]] chunk containing the cell at the specified coordinates.
+   */
   public getChunk(cellX: number, cellY: number): TileMap | null {
     const chunkX = Math.floor(cellX / this.chunkSize);
     const chunkY = Math.floor(cellY / this.chunkSize);
@@ -130,6 +246,14 @@ export class ChunkSystemTileMapImpl extends Class {
     return chunk || null;
   }
 
+  /**
+   * Returns the [[Cell]] at the specified column and row of all chunk system's cells. The method returns `null` if the cell's coordinates
+   * are out of bounds of the chunk system, the chunk containing the cell has not been generated yet or has been garbage collected.
+   *
+   * @param cellX The column of the cell.
+   * @param cellY The row of the cel.
+   * @return The [[Cell]] at the specified coordinates.
+   */
   public getCell(cellX: number, cellY: number): Cell | null {
     const chunk = this.getChunk(cellX, cellY);
     if (!chunk) {
@@ -139,12 +263,30 @@ export class ChunkSystemTileMapImpl extends Class {
     return chunk.getCell(cellX % this.chunkSize, cellY % this.chunkSize);
   }
 
+  /**
+   * Returns the [[Cell]] at the specified pixel-based coordinates. The method returns `null` if the cell's coordinates are out of bounds of
+   * the chunk system, the chunk containing the cell has not been generated yet or the chunk has been garbage collected.
+   *
+   * @param x The position of any point within the cell's area on the horizontal axis.
+   * @param y The position of any point within the cell's area on the vertical axis.
+   * @return The [[Cell]] at the specified coordinates.
+   */
   public getCellByPoint(x: number, y: number): Cell | null {
     const cellX = Math.floor((x - this.x) / this.cellWidth);
     const cellY = Math.floor((y - this.y) / this.cellHeight);
     return this.getCell(cellX, cellY);
   }
 
+  /**
+   * Updates the chunk system for rendering. This method is invoked by the engine itself, direct use of it is discouradged in general.
+   *
+   * The method determines which chunks will be rendered in the current frame, runs garbage collection on the off-screen chunks if
+   * configured to do so, generates the missing chunks and updates the chunks to render. Chunks that are to be cached pre-rendered are
+   * pre-rendered by this method.
+   *
+   * @param engine The game engine that uses this chunk system.
+   * @param delta The time since the last frame was rendered, in milliseconds.
+   */
   public update(engine: Engine, delta: number): void {
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
 
@@ -190,6 +332,13 @@ export class ChunkSystemTileMapImpl extends Class {
     this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
   }
 
+  /**
+   * Renders the chunk system's [[Cell|Cells]] that are on-screen. This method is invoked by the engine itself, direct use of it is
+   * discouradged in general.
+   *
+   * @param ctx The engine's rendering context.
+   * @param delta The time since the last frame was rendered, in milliseconds.
+   */
   public draw(ctx: CanvasRenderingContext2D, delta: number): void {
     this.emit('predraw', new Events.PreDrawEvent(ctx, delta, this));
 
@@ -205,6 +354,12 @@ export class ChunkSystemTileMapImpl extends Class {
     this.emit('postdraw', new Events.PostDrawEvent(ctx, delta, this));
   }
 
+  /**
+   * Renders debugging information (cell borders) for the [[Cell|Cells]] that are on-screen. This method is invoked by the engine itself,
+   * direct use of it is discouradged in general.
+   *
+   * @param ctx The engine's rendering context.
+   */
   public debugDraw(ctx: CanvasRenderingContext2D): void {
     for (let i = 0, len = this._chunksToRender.length; i < len; i++) {
       this._chunksToRender[i].debugDraw(ctx);
@@ -228,7 +383,7 @@ export class ChunkSystemTileMapImpl extends Class {
     const chunk = chunkRow[chunkX - this._chunksXOffset];
 
     if (!chunk.renderingCache) {
-      if (this._chunkRenderingCachePredicate && this._chunkRenderingCachePredicate(chunk, this, engine)) {
+      if (this.chunkRenderingCachePredicate && this.chunkRenderingCachePredicate(chunk, this, engine)) {
         this._preRenderChunk(chunk, engine, delta);
       } else {
         chunk.update(engine, delta);
@@ -359,13 +514,26 @@ export class ChunkSystemTileMapImpl extends Class {
 }
 
 /**
- * The [[ChunkSystemTileMap]] class provides a way to do extremally large scenes with collision
- * without the overhead of actors. As the name implies, the ChunkSystemTileMap is used as a regular
- * [[TileMap]], however its cells are organized into tiled square chunks. This allows loading of the
- * currently needed chunks on demand and unloading the currently unneeded chunks from the memory.
+ * The [[ChunkSystemTileMap]] class provides a way to do extremely large tile maps (up to 9_007_199_254_740_991×9_007_199_254_740_991
+ * [[Cell|Cells]] with some tricks). As the name implies, the [[ChunkSystemTileMap]] is used in a way similar to a [[TileMap]], however its
+ * cells are organized into tiled square [[TileMap]] chunks. This allows loading or procedural generation of the currently needed chunks
+ * on-demand and unloading the currently unneeded chunks from the memory.
  */
 export class ChunkSystemTileMap extends Configurable(ChunkSystemTileMapImpl) {}
 
+/**
+ * Returns a new [[ChunkGenerator]] that is based on the provided [[BaseChunkGenerator]]. This helper provides basic common business logic
+ * used in [[ChunkGenerator|ChunkGenerators]] for [[ChunkSystemTileMap|ChunkSystemTileMaps]], namely creating a new [[TileMap]] instance at
+ * the correct location, with the correct number of columns, rows and [[Cell]] dimensions, as well as doing some of the required
+ * calculations for the [[BaseChunkGenerator]].
+ *
+ * This allows for streamlining the chunk generation logic somewhat in most cases.
+ *
+ * The returned chunk generator will return the [[TileMap|TileMaps]] returned by the provided base chunk generator.
+ *
+ * @param chunkGenerator The base chunk generator to wrap into a regular chunk generator.
+ * @return A [[ChunkGenerator]] that is based on the provided base chunk generator.
+ */
 export function wrapChunkGenerator(chunkGenerator: BaseChunkGenerator): ChunkGenerator {
   return (chunkColumn: number, chunkRow: number, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => {
     const chunkCellColumn = chunkColumn * chunkSystemTileMap.chunkSize;
@@ -382,6 +550,19 @@ export function wrapChunkGenerator(chunkGenerator: BaseChunkGenerator): ChunkGen
   };
 }
 
+/**
+ * Returns a new [[ChunkGenerator]] that is based on the provided [[BaseCellGenerator]]. This helper provides basic common business logic
+ * used in [[ChunkGenerator|ChunkGenerators]] for [[ChunkSystemTileMap|ChunkSystemTileMaps]], namely creating a new [[TileMap]] instance at
+ * the correct location, with the correct number of columns, rows as [[Cell]] dimensions, as well as doing some of the calculations for the
+ * [[BaseCellGenerator]].
+ *
+ * This allows for streamlining the chunk generation logic somewhat in most cases.
+ *
+ * The returned chunk generator will use the [[Cell|Cells]] returned by the provided base cell generator.
+ *
+ * @param cellGenerator The base cell generator tor wrap into a regular chunk generator.
+ * @return A [[ChunkGenerator]] that is based on the provided base cell generator.
+ */
 export function wrapCellGenerator(cellGenerator: BaseCellGenerator): ChunkGenerator {
   return wrapChunkGenerator((chunk, chunkCellColumn, chunkCellRow, chunkSystemTileMap, engine) => {
     const { cols, rows } = chunk;
