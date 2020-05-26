@@ -11,10 +11,21 @@ import { TileMap } from '../TileMap';
 
 type SceneCellMapsGetter = (engine: Engine) => null | ChunkSystemTileMap[] | TileMap[];
 
+/**
+ * The [[CellMapCollisionDetection]] trait is used for handling actor collisions with [[TileMap|TileMaps]] and
+ * [[ChunkSystemTileMap|ChunkSystemTileMaps]].
+ */
 export class CellMapCollisionDetection implements Trait {
   constructor(private readonly mapsGetter: SceneCellMapsGetter) {}
 
-  public update(actor: Actor, engine: Engine) {
+  /**
+   * Updates the providing actor based on its current collisions with the [[TileMap|TileMaps]] or [[ChunkSystemTileMap|ChunkSystemTileMaps]]
+   * in the engine's current scene (depending on the current configuration of this trait instance).
+   *
+   * @param actor The actor that is being updated by the engine right now.
+   * @param engine The engine instance that contains the actor in its current scene.
+   */
+  public update(actor: Actor, engine: Engine): void {
     const eventDispatcher = actor.eventDispatcher;
     const cellMaps = this.mapsGetter(engine);
     if (actor.body.collider.type !== CollisionType.PreventCollision && cellMaps) {
@@ -39,6 +50,15 @@ export class CellMapCollisionDetection implements Trait {
     }
   }
 
+  /**
+   * Checks whether the provided actor collided with the provided [[TileMap]] or [[ChunkSystemTileMap]]. The method checks whether the
+   * actor's bounding box intersects any of the cell map's [[Cell.solid|solid]] [[Cell|Cells]]. The method calculates the smalles overlap if
+   * multiple collisions are found. The method returns `null` if no collision is found.
+   *
+   * @param actor The actor to check for collisions with a cell map.
+   * @param cellMap The cell map the actor may or may not collide with.
+   * @return A vector that represents the smallest position change the actor has to make to resolve the found collision.
+   */
   public collides(actor: Actor, cellMap: ChunkSystemTileMap | TileMap): Vector | null {
     const horizontalStep = Math.max(Math.min(actor.width / 2, cellMap.cellWidth / 2), 1);
     const verticalStep = Math.max(Math.min(actor.height / 2, cellMap.cellHeight / 2), 1);
