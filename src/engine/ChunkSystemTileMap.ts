@@ -518,6 +518,8 @@ export class ChunkSystemTileMapImpl extends Class {
  * [[Cell|Cells]] with some tricks). As the name implies, the [[ChunkSystemTileMap]] is used in a way similar to a [[TileMap]], however its
  * cells are organized into tiled square [[TileMap]] chunks. This allows loading or procedural generation of the currently needed chunks
  * on-demand and unloading the currently unneeded chunks from the memory.
+ *
+ * [[include:TileMaps.md]]
  */
 export class ChunkSystemTileMap extends Configurable(ChunkSystemTileMapImpl) {}
 

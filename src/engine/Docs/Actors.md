@@ -70,12 +70,12 @@ var Player = ex.Actor.extend({
   endurance: 0,
   fortitude: 0,
 
-  onInitialize: function(engine) {
+  onInitialize: function (engine) {
     this.endurance = 20;
     this.fortitude = 16;
   },
 
-  getMaxHealth: function() {
+  getMaxHealth: function () {
     return 0.4 * this.endurance + 0.9 * this.fortitude + this.level * 1.2;
   }
 });
@@ -115,7 +115,7 @@ class Player extends Actor {
 
 ```js
 var Player = ex.Actor.extend({
-  update: function(engine, delta) {
+  update: function (engine, delta) {
     ex.Actor.prototype.update.call(this, engine, delta); // call base update logic
 
     // check if player died
@@ -241,5 +241,5 @@ plugging in an external collision detection library like [[https://github.com/kr
 actors more efficient.
 
 Default traits provided by Excalibur are [["Traits/CapturePointer"|pointer capture]],
-[["Traits/TileMapCollisionDetection"|tile map collision]],
+[["Traits/CellMapCollisionDetection"|tile map / chunk system collision]],
 and [["Traits/OffscreenCulling"|offscreen culling]].
