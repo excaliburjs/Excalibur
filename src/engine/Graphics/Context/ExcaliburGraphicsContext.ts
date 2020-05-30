@@ -33,6 +33,11 @@ export interface RectGraphicsOptions {
   color: Color;
 }
 
+export interface PointGraphicsOptions {
+  color: Color;
+  size: number;
+}
+
 export interface ExcaliburGraphicsContext {
   width: number;
   height: number;
@@ -47,6 +52,7 @@ export interface ExcaliburGraphicsContext {
 
   drawRect(x: number, y: number, width: number, height: number, rectOptions?: RectGraphicsOptions): void;
   drawLine(start: Vector, end: Vector, lineOptions?: LineGraphicsOptions): void;
+  drawPoint(point: Vector, pointOptions?: PointGraphicsOptions): void;
 
   /**
    * Draw an image to the Excalibur Graphics context at an x and y coordinate using the images width and height

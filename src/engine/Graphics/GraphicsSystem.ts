@@ -4,6 +4,8 @@ import { Scene } from '../Scene';
 import { Entity } from '../Entity';
 import { GraphicsComponent } from './GraphicsComponent';
 import { TransformComponent, CoordPlane } from '../Transform';
+import { Vector } from '../Algebra';
+import { Color } from '../Drawing/Color';
 
 export class GraphicsSystem {
   public readonly types = [GraphicsComponent.type, TransformComponent.type];
@@ -30,6 +32,9 @@ export class GraphicsSystem {
       }
       graphics.update(delta, this._token);
       this._applyEntityTransform(transform);
+      if ((this.scene as any)._engine.isDebug) {
+        this.ctx.drawPoint(Vector.Zero, { color: Color.Yellow, size: 5 });
+      }
       const [x, y] = this._applyActorAnchor(entity);
       this.ctx.z = transform.z;
       this.ctx.opacity = graphics.opacity * ((entity as any).opacity ?? 1);
@@ -74,7 +79,7 @@ export class GraphicsSystem {
       this.ctx.translate(-(entity.width * entity.anchor.x), -(entity.height * entity.anchor.y));
 
       // TODO this is odd
-      const gfx = entity.graphics.localBounds;
+      const gfx = entity.graphics.localBounds; // entity.graphics.current[0]?.graphic// .localBounds;
       if (gfx) {
         // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
         const offsetX = (entity.width - gfx.width) * entity.anchor.x;

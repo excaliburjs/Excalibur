@@ -112,7 +112,7 @@ export class LineRenderer {
     for (let batch of this._batches) {
       const vertexCount = this._updateVertex(batch);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._lineVerts);
-      gl.drawArrays(gl.LINES, 0, vertexCount);
+      gl.drawArrays(gl.LINES, 0, vertexCount / 6);
       for (let c of batch.commands) {
         this._commandPool.free(c);
       }

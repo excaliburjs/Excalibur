@@ -2,7 +2,8 @@ import {
   ExcaliburGraphicsContext,
   ExcaliburContextDiagnostics,
   LineGraphicsOptions,
-  RectGraphicsOptions
+  RectGraphicsOptions,
+  PointGraphicsOptions
 } from './ExcaliburGraphicsContext';
 
 import { Matrix } from '../../Math/matrix';
@@ -14,6 +15,7 @@ import { StateStack } from './state-stack';
 import { Logger } from '../../Util/Log';
 import { LineRenderer } from './line-renderer';
 import { ImageRenderer } from './image-renderer';
+import { PointRenderer } from './point-renderer';
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   /**
@@ -24,6 +26,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _stack = new MatrixStack();
   private _state = new StateStack();
   private _ortho!: Matrix;
+
+  private _pointRenderer: PointRenderer;
 
   private _lineRenderer: LineRenderer;
 
@@ -82,6 +86,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
+    this._pointRenderer = new PointRenderer(gl, this._ortho.data, this._stack, this._state);
     this._lineRenderer = new LineRenderer(gl, this._ortho.data, this._stack, this._state);
     this._imageRenderer = new ImageRenderer(gl, this._ortho.data, this._stack, this._state);
   }
@@ -176,6 +181,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.clear();
     this._imageRenderer.render();
     this._lineRenderer.render();
+    this._pointRenderer.render();
   }
 
   /**
@@ -194,6 +200,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   drawLine(start: Vector, end: Vector, lineOptions: LineGraphicsOptions = { color: Color.Black }): void {
     this._lineRenderer.addLine(start, end, lineOptions.color);
+  }
+
+  drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
+    this._pointRenderer.addPoint(point, pointOptions.color, pointOptions.size);
   }
 
   debugFlush() {

@@ -310,6 +310,7 @@ var player = new ex.Actor({
   enableCapturePointer: true,
   collisionType: ex.CollisionType.Active
 });
+player.graphics.shareGraphics = true;
 follower.actions
   .meet(player, 60)
   .asPromise()
@@ -324,12 +325,16 @@ player.rotation = 0;
 // Health bar example
 var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
 player.add(healthbar);
+player.graphics.onPostDraw = (ctx: ex.Graphics.ExcaliburGraphicsContext) => {
+  ctx.drawLine(ex.vec(0, 0), ex.vec(200, 0));
+};
 
 var healthbar2 = new ex.Graphics.Rect({
   width: 140,
   height: 5,
   color: new ex.Color(0, 255, 0)
 });
+healthbar2.showDebug = true;
 
 var backroundLayer = player.graphics.layers.create({
   name: 'background',
@@ -339,12 +344,13 @@ var backroundLayer = player.graphics.layers.create({
 
 backroundLayer.show(healthbar2, ex.vec(0, -70));
 var playerText = new ex.Graphics.Text({
-  text: 'My Player',
+  text: 'A long piece of text is long',
   font: new ex.Graphics.Font({
     size: 20,
     family: 'Times New Roman'
   })
 });
+playerText.showDebug = true;
 backroundLayer.show(playerText, ex.vec(0, -70));
 
 // Retrieve animations for player from sprite sheet

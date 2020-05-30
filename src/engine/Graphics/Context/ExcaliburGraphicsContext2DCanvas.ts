@@ -1,4 +1,4 @@
-import { ExcaliburGraphicsContext, LineGraphicsOptions } from './ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, LineGraphicsOptions, PointGraphicsOptions } from './ExcaliburGraphicsContext';
 import { Vector } from '../../Algebra';
 import { Graphic } from '../Graphic';
 import { Color } from '../../Drawing/Color';
@@ -59,6 +59,16 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this._ctx.lineTo(end.x, end.y);
     this._ctx.lineWidth = 2;
     this._ctx.stroke();
+    this._ctx.closePath();
+    this._ctx.restore();
+  }
+
+  drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
+    this._ctx.save();
+    this._ctx.beginPath();
+    this._ctx.fillStyle = pointOptions.color.toString();
+    this._ctx.arc(point.x, point.y, pointOptions.size, 0, Math.PI * 2);
+    this._ctx.fill();
     this._ctx.closePath();
     this._ctx.restore();
   }
