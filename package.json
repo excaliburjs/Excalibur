@@ -63,7 +63,7 @@
     "*.ts": "eslint --fix"
   },
   "devDependencies": {
-    "@babel/core": "7.9.6",
+    "@babel/core": "7.10.2",
     "@fortawesome/fontawesome-free": "5.13.0",
     "@storybook/addon-actions": "5.3.18",
     "@storybook/addon-console": "1.2.1",
