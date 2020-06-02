@@ -61,6 +61,9 @@ export class Text extends Raster {
     this.flagDirty();
   }
 
+  private _textWidth: number = 0;
+  private _textHeight: number = 0;
+
   private get _halfWidth() {
     return Math.floor(this.width / 2);
   }
@@ -70,7 +73,7 @@ export class Text extends Raster {
   }
 
   public get localBounds(): BoundingBox {
-    return BoundingBox.fromDimension(this._halfWidth, this._halfHeight, Vector.Zero, Vector.Zero);
+    return BoundingBox.fromDimension(this._textWidth, this._textHeight, Vector.Zero, Vector.Zero);
   }
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
@@ -111,6 +114,8 @@ export class Text extends Raster {
       this.font?.apply(ctx);
       const metrics = ctx.measureText(this.text);
 
+      this._textWidth = metrics.width;
+      this._textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
       // Changing the width and height clears the context properties
       // We double the bitmap width to account for alignment
       this._bitmap.width = (metrics.width + this.padding * 2) * 2;

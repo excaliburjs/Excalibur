@@ -243,7 +243,13 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
    * values between 0 and 1. For example, anchoring to the top-left would be
    * `Actor.anchor.setTo(0, 0)` and top-right would be `Actor.anchor.setTo(0, 1)`.
    */
-  public anchor: Vector;
+  // public anchor: Vector;
+  public get anchor(): Vector {
+    return this.graphics.anchor;
+  }
+  public set anchor(value: Vector) {
+    this.graphics.anchor = value;
+  }
 
   private _height: number = 0;
   private _width: number = 0;
@@ -469,6 +475,11 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
   constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
     super();
 
+    this.graphics = new GraphicsComponent();
+    this.addComponent(this.graphics);
+    this.transform = new TransformComponent();
+    this.addComponent(this.transform);
+
     // initialize default options
     this._initDefaults();
 
@@ -527,11 +538,6 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
       // set default opacity of an actor to the color
       this.opacity = color.a;
     }
-
-    this.graphics = new GraphicsComponent();
-    this.addComponent(this.graphics);
-    this.transform = new TransformComponent();
-    this.addComponent(this.transform);
 
     // Build default pipeline
     this.traits.push(new Traits.TileMapCollisionDetection());

@@ -7,6 +7,11 @@ import { Component } from '../Component';
 import { Logger } from '../Util/Log';
 import { BoundingBox } from '../Collision/Index';
 
+export interface GraphicsShowOptions {
+  offset?: Vector;
+  anchor?: Vector;
+}
+
 export interface GraphicsComponentOptions {
   /**
    * Name of current graphic to use
@@ -52,7 +57,7 @@ export interface GraphicsLayerOptions {
   allowMultipleGraphics?: boolean;
 }
 export class GraphicsLayer {
-  public graphics: { graphic: Graphic; offset: Vector }[] = [];
+  public graphics: { graphic: Graphic; options: GraphicsShowOptions }[] = [];
   constructor(private _options: GraphicsLayerOptions, private _graphics: GraphicsComponent) {}
   public get name(): string {
     return this._options.name;
@@ -87,7 +92,8 @@ export class GraphicsLayer {
    * @param nameOrGraphic
    * @param offset
    */
-  public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, offset: Vector = Vector.Zero): T {
+  public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
+    options = { offset: this._graphics.offset.clone(), anchor: this._graphics.anchor.clone(), ...options };
     let gfx: Graphic;
     if (nameOrGraphic instanceof Graphic) {
       gfx = this._graphics.shareGraphics ? nameOrGraphic : nameOrGraphic.clone();
@@ -101,7 +107,7 @@ export class GraphicsLayer {
       }
     }
     if (gfx) {
-      this.graphics.push({ graphic: gfx, offset });
+      this.graphics.push({ graphic: gfx, options });
       return gfx as T;
     } else {
       return null;
@@ -113,9 +119,10 @@ export class GraphicsLayer {
    * @param nameOrGraphic
    * @param offset
    */
-  public swap<T extends Graphic = Graphic>(nameOrGraphic: string | T, offset: Vector = Vector.Zero): T {
+  public swap<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
+    options = { offset: this._graphics.offset.clone(), anchor: this._graphics.anchor.clone(), ...options };
     this.hide();
-    return this.show<T>(nameOrGraphic, offset);
+    return this.show<T>(nameOrGraphic, options);
   }
 
   public get allowMultipleGraphics() {
@@ -211,10 +218,7 @@ export class GraphicsLayers {
 export class GraphicsComponent implements Component<'graphics'> {
   static type: 'graphics';
   readonly type = 'graphics';
-  public __debug: { graphicBounds: Graphic; colliderBounds: Graphic } = {
-    graphicBounds: null,
-    colliderBounds: null
-  };
+
   private _graphics: { [graphicName: string]: Graphic } = {};
 
   public layers: GraphicsLayers;
@@ -241,14 +245,14 @@ export class GraphicsComponent implements Component<'graphics'> {
   public opacity: number = 1;
 
   /**
-   * Offset to apply to all drawings in this component if set, if null the drawing's offset is respected
+   * Offset to apply to graphics by default
    */
-  public offset?: Vector | null = null;
+  public offset: Vector = Vector.Zero;
 
   /**
-   * Anchor to apply to all drawings in this component if set, if null the drawing's anchor is respected
+   * Anchor to apply to graphics by default
    */
-  public anchor?: Vector | null = null;
+  public anchor: Vector = Vector.Half;
 
   public shareGraphics: boolean = false;
 
@@ -277,7 +281,7 @@ export class GraphicsComponent implements Component<'graphics'> {
    * Returns the currently displayed graphics and their offsets, empty array if hidden
    */
   // TODO does this make sense anymore?
-  public get current(): { graphic: Graphic; offset: Vector }[] {
+  public get current(): { graphic: Graphic; options: GraphicsShowOptions }[] {
     return this.layers.default.graphics;
   }
 
@@ -315,8 +319,8 @@ export class GraphicsComponent implements Component<'graphics'> {
   /**
    * Show a graphic by name on the **default** layer, returns the new [[Graphic]]
    */
-  public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, offset: Vector = Vector.Zero): T {
-    return this.layers.default.show<T>(nameOrGraphic, offset);
+  public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
+    return this.layers.default.show<T>(nameOrGraphic, options);
   }
 
   /**
@@ -324,8 +328,8 @@ export class GraphicsComponent implements Component<'graphics'> {
    * @param nameOrGraphic
    * @param offset
    */
-  public swap<T extends Graphic = Graphic>(nameOrGraphic: string | T, offset: Vector = Vector.Zero): T {
-    return this.layers.default.swap<T>(nameOrGraphic, offset);
+  public swap<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
+    return this.layers.default.swap<T>(nameOrGraphic, options);
   }
 
   /**
@@ -347,8 +351,12 @@ export class GraphicsComponent implements Component<'graphics'> {
   public get localBounds(): BoundingBox {
     let bb = new BoundingBox();
     for (const layer of this.layers.get()) {
-      for (const { graphic, offset } of layer.graphics) {
-        bb = graphic.localBounds.translate(offset).combine(bb);
+      for (const {
+        graphic,
+        options: { offset }
+      } of layer.graphics) {
+        // anchor
+        bb = graphic.localBounds.translate(offset ?? Vector.Zero).combine(bb);
       }
     }
     return bb;
@@ -378,14 +386,16 @@ export class GraphicsComponent implements Component<'graphics'> {
    */
   public draw(ctx: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.visible) {
-      // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-      const anchor = this.anchor ?? Vector.Zero;
-
       // this should be moved to the graphics system
       for (const layer of this.layers.get()) {
-        for (const { graphic, offset } of layer.graphics) {
-          const offsetX = -graphic.width * graphic.scale.x * anchor.x + x + offset.x;
-          const offsetY = -graphic.height * graphic.scale.y * anchor.y + y + offset.y;
+        for (const {
+          graphic,
+          options: { offset, anchor }
+        } of layer.graphics) {
+          // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
+          const bounds = graphic.localBounds;
+          const offsetX = -bounds.width * graphic.scale.x * anchor.x + offset.x + x;
+          const offsetY = -bounds.height * graphic.scale.y * anchor.y + offset.y + y;
           graphic?.draw(ctx, offsetX + layer.offset.x, offsetY + layer.offset.y);
         }
       }

@@ -74,19 +74,19 @@ export class GraphicsSystem {
     this.ctx.scale(transform.scale.x, transform.scale.y);
   }
 
-  private _applyActorAnchor(entity: Entity): [number, number] {
-    if (isActor(entity)) {
-      this.ctx.translate(-(entity.width * entity.anchor.x), -(entity.height * entity.anchor.y));
+  private _applyActorAnchor(_entity: Entity): [number, number] {
+    // if (isActor(entity)) {
+    //   this.ctx.translate(-(entity.width * entity.anchor.x), -(entity.height * entity.anchor.y));
 
-      // TODO this is odd
-      const gfx = entity.graphics.localBounds; // entity.graphics.current[0]?.graphic// .localBounds;
-      if (gfx) {
-        // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-        const offsetX = (entity.width - gfx.width) * entity.anchor.x;
-        const offsetY = (entity.height - gfx.height) * entity.anchor.y;
-        return [offsetX, offsetY];
-      }
-    }
+    //   // TODO this is odd
+    //   const gfx = entity.graphics.localBounds; // entity.graphics.current[0]?.graphic// .localBounds;
+    //   if (gfx) {
+    //     // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
+    //     const offsetX = (entity.width - gfx.width) * entity.anchor.x;
+    //     const offsetY = (entity.height - gfx.height) * entity.anchor.y;
+    //     return [offsetX, offsetY];
+    //   }
+    // }
     return [0, 0];
   }
 
