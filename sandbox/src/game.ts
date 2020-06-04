@@ -210,6 +210,7 @@ var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHe
 var blocks = ex.Graphics.Sprite.from(imageBlocks);
 tileMap.data.forEach(function (cell: ex.Cell) {
   cell.solid = true;
+  cell.graphics.anchor = ex.Vector.Zero;
   cell.graphics.show(blocks);
   cell.transform.z = -1;
   // cell.pushSprite(new ex.TileSprite('default', 0));
@@ -342,7 +343,7 @@ var backroundLayer = player.graphics.layers.create({
   allowMultipleGraphics: true
 });
 
-backroundLayer.show(healthbar2, ex.vec(0, -70));
+backroundLayer.show(healthbar2, { offset: ex.vec(0, -70) });
 var playerText = new ex.Graphics.Text({
   text: 'A long piece of text is long',
   font: new ex.Graphics.Font({
@@ -351,7 +352,7 @@ var playerText = new ex.Graphics.Text({
   })
 });
 playerText.showDebug = true;
-backroundLayer.show(playerText, ex.vec(0, -70));
+backroundLayer.show(playerText, { offset: ex.vec(0, -70) });
 
 // Retrieve animations for player from sprite sheet
 var left = ex.Graphics.Animation.fromSpriteSheet(spriteSheetRun, ex.Util.range(1, 10), 50);

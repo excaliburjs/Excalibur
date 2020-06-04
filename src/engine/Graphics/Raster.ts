@@ -205,8 +205,8 @@ export abstract class Raster extends Graphic {
   }
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
-    this._bitmap.width = this.width + this.padding * 2;
-    this._bitmap.height = this.height + this.padding * 2;
+    this._bitmap.width = this._bitmap.width + this.padding * 2;
+    this._bitmap.height = this._bitmap.height + this.padding * 2;
     ctx.translate(this.padding, this.padding);
     ctx.imageSmoothingEnabled = this.smoothing;
     ctx.lineWidth = this.lineWidth;
