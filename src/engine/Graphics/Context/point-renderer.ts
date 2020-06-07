@@ -5,9 +5,11 @@ import pointVertexSource from './shaders/point-vertex.glsl';
 import pointFragmentSource from './shaders/point-fragment.glsl';
 import { Vector } from '../../Algebra';
 import { Color } from '../../Drawing/Color';
-import { Poolable, initializePoolData, Pool } from './pool';
+import { Poolable, initializePoolData } from './pool';
+import { BatchRenderer } from './renderer';
+import { CommandBatch } from './batch';
 
-export class DrawPointCommand implements Poolable {
+export class DrawPoint implements Poolable {
   _poolData = initializePoolData();
   public point: Vector;
   public color: Color;
@@ -22,107 +24,48 @@ export class DrawPointCommand implements Poolable {
   }
 }
 
-class PointBatch implements Poolable {
-  _poolData = initializePoolData();
-  public commands: DrawPointCommand[] = [];
-  constructor(public max: number) {}
-
-  isFull() {
-    if (this.commands.length >= this.max) {
-      return true;
-    }
-    return false;
+export class PointRenderer extends BatchRenderer<DrawPoint> {
+  constructor(gl: WebGLRenderingContext, private _matrix: Float32Array, private _stack: MatrixStack, private _state: StateStack) {
+    super(gl, DrawPoint);
+    this.init();
   }
 
-  canAdd() {
-    return !this.isFull();
-  }
-
-  add(cmd: DrawPointCommand) {
-    this.commands.push(cmd);
-  }
-
-  public dispose() {
-    this.commands.length = 0;
-  }
-}
-
-export class PointRenderer {
-  private _points: Float32Array;
-  private _maxPointsPerBatch: number = 2000;
-  private _buffer: WebGLBuffer | null = null;
-
-  private _commandPool: Pool<DrawPointCommand>;
-  private _batchPool: Pool<PointBatch>;
-  private _batches: PointBatch[] = [];
-
-  private _shader: Shader;
-  constructor(private gl: WebGLRenderingContext, matrix: Float32Array, private _stack: MatrixStack, private _state: StateStack) {
-    this._points = new Float32Array(7 * 2000);
-    this._buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._points, gl.DYNAMIC_DRAW);
+  buildShader(gl: WebGLRenderingContext): Shader {
     gl.getExtension('OES_standard_derivatives');
-    this._shader = new Shader(gl, pointVertexSource, pointFragmentSource);
-    this._shader.addAttribute('a_position', 2, gl.FLOAT);
-    this._shader.addAttribute('a_color', 4, gl.FLOAT);
-    this._shader.addAttribute('a_size', 1, gl.FLOAT);
-    this._shader.addUniformMatrix('u_matrix', matrix);
-
-    this._commandPool = new Pool<DrawPointCommand>(() => new DrawPointCommand(), this._maxPointsPerBatch);
-    this._batchPool = new Pool<PointBatch>(() => new PointBatch(this._maxPointsPerBatch));
+    const shader = new Shader(gl, pointVertexSource, pointFragmentSource);
+    shader.addAttribute('a_position', 2, gl.FLOAT);
+    shader.addAttribute('a_color', 4, gl.FLOAT);
+    shader.addAttribute('a_size', 1, gl.FLOAT);
+    shader.addUniformMatrix('u_matrix', this._matrix);
+    return shader;
   }
 
   addPoint(point: Vector, color: Color, size: number) {
-    let cmd = this._commandPool.get();
+    let cmd = this.commands.get();
     cmd.point = this._stack.transform.multv(point);
     cmd.color = color;
     cmd.color.a = color.a * this._state.current.opacity;
     cmd.size = size;
-
-    if (this._batches.length === 0) {
-      this._batches.push(this._batchPool.get());
-    }
-
-    let lastBatch = this._batches[this._batches.length - 1];
-    if (lastBatch.canAdd()) {
-      lastBatch.add(cmd);
-    } else {
-      const newBatch = this._batchPool.get();
-      newBatch.add(cmd);
-      this._batches.push(newBatch);
-    }
+    this.addCommand(cmd);
   }
 
-  private _updateVertex(batch: PointBatch) {
+  buildBatchVertices(vertexBuffer: Float32Array, batch: CommandBatch<DrawPoint>): number {
     let index = 0;
     for (let command of batch.commands) {
-      this._points[index++] = command.point.x;
-      this._points[index++] = command.point.y;
+      vertexBuffer[index++] = command.point.x;
+      vertexBuffer[index++] = command.point.y;
 
-      this._points[index++] = command.color.r;
-      this._points[index++] = command.color.g;
-      this._points[index++] = command.color.b;
-      this._points[index++] = command.color.a;
+      vertexBuffer[index++] = command.color.r;
+      vertexBuffer[index++] = command.color.g;
+      vertexBuffer[index++] = command.color.b;
+      vertexBuffer[index++] = command.color.a;
 
-      this._points[index++] = command.size;
+      vertexBuffer[index++] = command.size;
     }
-    return index;
+    return index / this.vertexSize;
   }
 
-  render() {
-    const gl = this.gl;
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._buffer);
-    this._shader.use();
-    for (let batch of this._batches) {
-      const vertexCount = this._updateVertex(batch);
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._points);
-      gl.drawArrays(gl.POINTS, 0, vertexCount / 7);
-      for (let c of batch.commands) {
-        this._commandPool.free(c);
-      }
-      this._batchPool.free(batch);
-    }
-    this._batches.length = 0;
+  renderBatch(gl: WebGLRenderingContext, vertexCount: number) {
+    gl.drawArrays(gl.POINTS, 0, vertexCount);
   }
 }

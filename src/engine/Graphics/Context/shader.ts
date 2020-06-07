@@ -69,6 +69,9 @@ export class Shader {
   }
 
   public addUniformMatrix(name: string, data: Float32Array) {
+    if (!data) {
+      throw Error(`Shader Uniform Matrix '${name}' was set to null or undefined`);
+    }
     const gl = this.gl;
     this.uniforms[name] = {
       name,
@@ -79,6 +82,9 @@ export class Shader {
   }
 
   public addUniformIntegerArray(name: string, data: number[]) {
+    if (!data) {
+      throw Error(`Shader Uniform Integery Array '${name}' was set to null or undefined`);
+    }
     const gl = this.gl;
     this.uniforms[name] = {
       name,
@@ -106,7 +112,21 @@ export class Shader {
     this.layout.push(this.attributes[name]);
   }
 
-  public get totalVertexSize() {
+  /**
+   * Number of javascript floats a vertex will take up
+   */
+  public get vertexAttributeSize(): number {
+    let vertexSize = 0;
+    for (const vert of this.layout) {
+      vertexSize += vert.size;
+    }
+    return vertexSize;
+  }
+
+  /**
+   * Total number of bytes that the vertex will take up
+   */
+  public get totalVertexSizeBytes(): number {
     let vertexSize = 0;
     for (const vert of this.layout) {
       let typeSize = 1;
@@ -144,7 +164,7 @@ export class Shader {
     gl.useProgram(this.program);
     let offset = 0;
     for (const vert of this.layout) {
-      gl.vertexAttribPointer(vert.location, vert.size, vert.glType, vert.normalized, this.totalVertexSize, offset);
+      gl.vertexAttribPointer(vert.location, vert.size, vert.glType, vert.normalized, this.totalVertexSizeBytes, offset);
       gl.enableVertexAttribArray(vert.location);
       offset += this.getAttributeSize(vert.name);
     }
