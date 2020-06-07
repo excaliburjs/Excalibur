@@ -205,8 +205,4 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
     this._pointRenderer.addPoint(point, pointOptions.color, pointOptions.size);
   }
-
-  debugFlush() {
-    this._lineRenderer.render();
-  }
 }

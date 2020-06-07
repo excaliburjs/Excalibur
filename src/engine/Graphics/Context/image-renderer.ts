@@ -1,57 +1,132 @@
 import { Shader } from './shader';
-import vertexSource from './shaders/image-vertex.glsl';
-import fragmentSource from './shaders/image-fragment.glsl';
-import { Pool } from './pool';
-import { Batch } from './batch';
-import { DrawImageCommand } from './command';
+import imageVertexSource from './shaders/image-vertex.glsl';
+import imageFragmentSource from './shaders/image-fragment.glsl';
+import { Poolable, initializePoolData } from './pool';
+import { BatchCommand } from './batch';
+import { DrawImageCommand } from './draw-image-command';
 import { TextureManager } from './texture-manager';
 import { Graphic } from '../Graphic';
 import { MatrixStack } from './matrix-stack';
 import { StateStack } from './state-stack';
 import { ensurePowerOfTwo } from './webgl-util';
+import { BatchRenderer } from './renderer';
 
-export class ImageRenderer {
-  private _textureManager: TextureManager;
-  private _vertBuffer: WebGLBuffer;
-  // TODO dynamic?
-  private _maxDrawingsPerBatch: number = 2000;
-  // TODO dynamic?
-  private _vertexSize = 6 * 7; // 6 verts per quad, 7 pieces of float data
-  private _verts = new Float32Array(this._vertexSize * this._maxDrawingsPerBatch);
-  private _shader: Shader;
+export class BatchImage extends BatchCommand<DrawImageCommand> implements Poolable {
+  _poolData = initializePoolData();
 
-  private _commandPool: Pool<DrawImageCommand>;
-  private _batchPool: Pool<Batch>;
-  private _batches: Batch[] = [];
+  public textures: WebGLTexture[] = [];
+  public commands: DrawImageCommand[] = [];
+  private _graphicMap: { [id: string]: Graphic } = {};
+
+  constructor(public textureManager: TextureManager, public maxDraws: number, public maxTextures: number) {
+    super(maxDraws);
+  }
+
+  isFull() {
+    if (this.commands.length >= this.maxDraws) {
+      return true;
+    }
+    if (this.textures.length >= this.maxTextures) {
+      return true;
+    }
+    return false;
+  }
+
+  canAdd() {
+    if (this.commands.length >= this.maxDraws) {
+      return false;
+    }
+
+    // If num textures < maxTextures
+    if (this.textures.length < this.maxTextures) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private _isCommandFull() {
+    return this.commands.length >= this.maxDraws;
+  }
+
+  private _isTextureFull() {
+    return this.textures.length >= this.maxTextures;
+  }
+
+  private _wouldAddTexture(command: DrawImageCommand) {
+    return !this._graphicMap[command.image.id];
+  }
+
+  maybeAdd(command: DrawImageCommand): boolean {
+    if ((this._isCommandFull() || this._isTextureFull()) && this._wouldAddTexture(command)) {
+      return false;
+    }
+
+    this.add(command);
+    return true;
+  }
+
+  add(command: DrawImageCommand) {
+    const textureInfo = this.textureManager.loadWebGLTexture(command.image);
+    if (this.textures.indexOf(textureInfo.texture) === -1) {
+      this.textures.push(textureInfo.texture);
+    }
+
+    this.commands.push(command);
+  }
+
+  bindTextures(gl: WebGLRenderingContext) {
+    // Bind textures in the correct order
+    for (let i = 0; i < this.maxTextures; i++) {
+      gl.activeTexture(gl.TEXTURE0 + i);
+      gl.bindTexture(gl.TEXTURE_2D, this.textures[i] || this.textures[0]);
+    }
+  }
+
+  getBatchTextureId(command: DrawImageCommand) {
+    if (command.image.__textureInfo) {
+      return this.textures.indexOf(command.image.__textureInfo.texture);
+    }
+    return -1;
+  }
+
+  dispose() {
+    this.clear();
+  }
+
+  clear() {
+    this.commands.length = 0;
+    this.textures.length = 0;
+    this._graphicMap = {};
+  }
+}
+
+export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
   public snapToPixel = false;
 
-  public readonly maxGPUTextures: number;
+  // todo need to find a way to feed max textures per image batch...
+  // todo create ContextInfo to pass along gl/matrix/stack/state?
 
-  constructor(private gl: WebGLRenderingContext, matrix: Float32Array, private _stack: MatrixStack, private _state: StateStack) {
-    this._textureManager = new TextureManager(gl);
-    // Initialize VBO
-    // https://groups.google.com/forum/#!topic/webgl-dev-list/vMNXSNRAg8M
-    this._vertBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._verts, gl.DYNAMIC_DRAW);
+  constructor(gl: WebGLRenderingContext, private _matrix: Float32Array, private _stack: MatrixStack, private _state: StateStack) {
+    super(gl, DrawImageCommand, 6, () => new BatchImage(new TextureManager(gl), 2000, gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS))); // 6 verts per quad
+    this.init();
+  }
 
+  buildShader(gl: WebGLRenderingContext): Shader {
     // Initialilze default batch rendering shader
-    this.maxGPUTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-    const shader = new Shader(gl, vertexSource, this._transformFragmentSource(fragmentSource, this.maxGPUTextures));
+    const maxGPUTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+    const shader = new Shader(gl, imageVertexSource, this._transformFragmentSource(imageFragmentSource, maxGPUTextures));
     shader.addAttribute('a_position', 3, gl.FLOAT);
     shader.addAttribute('a_texcoord', 2, gl.FLOAT);
     shader.addAttribute('a_textureIndex', 1, gl.FLOAT);
     shader.addAttribute('a_opacity', 1, gl.FLOAT);
-    shader.addUniformMatrix('u_matrix', matrix);
+    shader.addUniformMatrix('u_matrix', this._matrix);
     // Initialize texture slots to [0, 1, 2, 3, 4, .... maxGPUTextures]
     shader.addUniformIntegerArray(
       'u_textures',
-      [...Array(this.maxGPUTextures)].map((_, i) => i)
+      [...Array(maxGPUTextures)].map((_, i) => i)
     );
-    this._shader = shader;
-
-    this._commandPool = new Pool<DrawImageCommand>(() => new DrawImageCommand(), this._maxDrawingsPerBatch);
-    this._batchPool = new Pool<Batch>(() => new Batch(this._textureManager, this._maxDrawingsPerBatch, this.maxGPUTextures));
+    return shader;
   }
 
   private _transformFragmentSource(source: string, maxTextures: number): string {
@@ -77,58 +152,19 @@ export class ImageRenderer {
     dwidth?: number,
     dheight?: number
   ) {
-    const command = this._commandPool.get().init(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+    const command = this.commands.get().init(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
     command.applyTransform(this._stack.transform, this._state.current.opacity, this._state.current.z);
-
-    if (this._batches.length === 0) {
-      this._batches.push(this._batchPool.get());
-    }
-
-    let lastBatch = this._batches[this._batches.length - 1];
-    let added = lastBatch.maybeAdd(command);
-    if (!added) {
-      const newBatch = this._batchPool.get();
-      newBatch.add(command);
-      this._batches.push(newBatch);
-    }
+    this.addCommand(command);
   }
 
-  public render() {
-    const gl = this.gl;
-    let textures: WebGLTexture[] = [];
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertBuffer);
-    this._shader.use();
-
-    for (let batch of this._batches) {
-      // 6 vertices per quad
-      const vertexCount = 6 * batch.commands.length;
-      // Build all geometry and ship to GPU
-      this._updateVertexBufferData(batch);
-
-      // interleave VBOs https://goharsha.com/lwjgl-tutorial-series/interleaving-buffer-objects/
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._verts);
-
-      // Bind textures in the correct order
-      batch.bindTextures(gl);
-      textures = textures.concat(batch.textures);
-
-      // draw the quads
-      gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
-
-      // this._diag.quads += batch.commands.length;
-
-      for (let c of batch.commands) {
-        this._commandPool.free(c);
-      }
-      this._batchPool.free(batch);
-    }
-
-    // this._diag.uniqueTextures = textures.filter((v, i, arr) => arr.indexOf(v === i)).length;
-    // this._diag.batches = this._batches.length;
-    this._batches.length = 0;
+  public renderBatch(gl: WebGLRenderingContext, batch: BatchImage, vertexCount: number) {
+    // Bind textures in the correct order
+    batch.bindTextures(gl);
+    // draw the quads
+    gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
   }
 
-  _updateVertexBufferData(batch: Batch): void {
+  buildBatchVertices(vertexBuffer: Float32Array, batch: BatchImage): number {
     let vertIndex = 0;
     // const vertexSize = 6 * 7; // 6 vertices * (x, y, z, u, v, textureId, opacity)
     let x: number = 0;
@@ -168,82 +204,84 @@ export class ImageRenderer {
 
       // Quad update
       // (0, 0, z)
-      this._verts[vertIndex++] = command.geometry[0][0]; // x + 0 * width;
-      this._verts[vertIndex++] = command.geometry[0][1]; //y + 0 * height;
-      this._verts[vertIndex++] = command.z;
+      vertexBuffer[vertIndex++] = command.geometry[0][0]; // x + 0 * width;
+      vertexBuffer[vertIndex++] = command.geometry[0][1]; //y + 0 * height;
+      vertexBuffer[vertIndex++] = command.z;
 
       // UV coords
-      this._verts[vertIndex++] = uvx0; // 0;
-      this._verts[vertIndex++] = uvy0; // 0;
+      vertexBuffer[vertIndex++] = uvx0; // 0;
+      vertexBuffer[vertIndex++] = uvy0; // 0;
       // texture id
-      this._verts[vertIndex++] = textureId;
+      vertexBuffer[vertIndex++] = textureId;
       // opacity
-      this._verts[vertIndex++] = command.opacity;
+      vertexBuffer[vertIndex++] = command.opacity;
 
       // (0, 1)
-      this._verts[vertIndex++] = command.geometry[1][0]; // x + 0 * width;
-      this._verts[vertIndex++] = command.geometry[1][1]; // y + 1 * height;
-      this._verts[vertIndex++] = command.z;
+      vertexBuffer[vertIndex++] = command.geometry[1][0]; // x + 0 * width;
+      vertexBuffer[vertIndex++] = command.geometry[1][1]; // y + 1 * height;
+      vertexBuffer[vertIndex++] = command.z;
 
       // UV coords
-      this._verts[vertIndex++] = uvx0; // 0;
-      this._verts[vertIndex++] = uvy1; // 1;
+      vertexBuffer[vertIndex++] = uvx0; // 0;
+      vertexBuffer[vertIndex++] = uvy1; // 1;
       // texture id
-      this._verts[vertIndex++] = textureId;
+      vertexBuffer[vertIndex++] = textureId;
       // opacity
-      this._verts[vertIndex++] = command.opacity;
+      vertexBuffer[vertIndex++] = command.opacity;
 
       // (1, 0)
-      this._verts[vertIndex++] = command.geometry[2][0]; // x + 1 * width;
-      this._verts[vertIndex++] = command.geometry[2][1]; // y + 0 * height;
-      this._verts[vertIndex++] = command.z;
+      vertexBuffer[vertIndex++] = command.geometry[2][0]; // x + 1 * width;
+      vertexBuffer[vertIndex++] = command.geometry[2][1]; // y + 0 * height;
+      vertexBuffer[vertIndex++] = command.z;
 
       // UV coords
-      this._verts[vertIndex++] = uvx1; //1;
-      this._verts[vertIndex++] = uvy0; //0;
+      vertexBuffer[vertIndex++] = uvx1; //1;
+      vertexBuffer[vertIndex++] = uvy0; //0;
       // texture id
-      this._verts[vertIndex++] = textureId;
+      vertexBuffer[vertIndex++] = textureId;
       // opacity
-      this._verts[vertIndex++] = command.opacity;
+      vertexBuffer[vertIndex++] = command.opacity;
 
       // (1, 0)
-      this._verts[vertIndex++] = command.geometry[3][0]; // x + 1 * width;
-      this._verts[vertIndex++] = command.geometry[3][1]; // y + 0 * height;
-      this._verts[vertIndex++] = command.z;
+      vertexBuffer[vertIndex++] = command.geometry[3][0]; // x + 1 * width;
+      vertexBuffer[vertIndex++] = command.geometry[3][1]; // y + 0 * height;
+      vertexBuffer[vertIndex++] = command.z;
 
       // UV coords
-      this._verts[vertIndex++] = uvx1; //1;
-      this._verts[vertIndex++] = uvy0; //0;
+      vertexBuffer[vertIndex++] = uvx1; //1;
+      vertexBuffer[vertIndex++] = uvy0; //0;
       // texture id
-      this._verts[vertIndex++] = textureId;
+      vertexBuffer[vertIndex++] = textureId;
       // opacity
-      this._verts[vertIndex++] = command.opacity;
+      vertexBuffer[vertIndex++] = command.opacity;
 
       // (0, 1)
-      this._verts[vertIndex++] = command.geometry[4][0]; // x + 0 * width;
-      this._verts[vertIndex++] = command.geometry[4][1]; // y + 1 * height
-      this._verts[vertIndex++] = command.z;
+      vertexBuffer[vertIndex++] = command.geometry[4][0]; // x + 0 * width;
+      vertexBuffer[vertIndex++] = command.geometry[4][1]; // y + 1 * height
+      vertexBuffer[vertIndex++] = command.z;
 
       // UV coords
-      this._verts[vertIndex++] = uvx0; // 0;
-      this._verts[vertIndex++] = uvy1; // 1;
+      vertexBuffer[vertIndex++] = uvx0; // 0;
+      vertexBuffer[vertIndex++] = uvy1; // 1;
       // texture id
-      this._verts[vertIndex++] = textureId;
+      vertexBuffer[vertIndex++] = textureId;
       // opacity
-      this._verts[vertIndex++] = command.opacity;
+      vertexBuffer[vertIndex++] = command.opacity;
 
       // (1, 1)
-      this._verts[vertIndex++] = command.geometry[5][0]; // x + 1 * width;
-      this._verts[vertIndex++] = command.geometry[5][1]; // y + 1 * height;
-      this._verts[vertIndex++] = command.z;
+      vertexBuffer[vertIndex++] = command.geometry[5][0]; // x + 1 * width;
+      vertexBuffer[vertIndex++] = command.geometry[5][1]; // y + 1 * height;
+      vertexBuffer[vertIndex++] = command.z;
 
       // UV coords
-      this._verts[vertIndex++] = uvx1; // 1;
-      this._verts[vertIndex++] = uvy1; // 1;
+      vertexBuffer[vertIndex++] = uvx1; // 1;
+      vertexBuffer[vertIndex++] = uvy1; // 1;
       // texture id
-      this._verts[vertIndex++] = textureId;
+      vertexBuffer[vertIndex++] = textureId;
       // opacity
-      this._verts[vertIndex++] = command.opacity;
+      vertexBuffer[vertIndex++] = command.opacity;
     }
+
+    return vertIndex / this.vertexSize;
   }
 }

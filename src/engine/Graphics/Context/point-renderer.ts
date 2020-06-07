@@ -7,7 +7,7 @@ import { Vector } from '../../Algebra';
 import { Color } from '../../Drawing/Color';
 import { Poolable, initializePoolData } from './pool';
 import { BatchRenderer } from './renderer';
-import { CommandBatch } from './batch';
+import { BatchCommand } from './batch';
 
 export class DrawPoint implements Poolable {
   _poolData = initializePoolData();
@@ -26,7 +26,7 @@ export class DrawPoint implements Poolable {
 
 export class PointRenderer extends BatchRenderer<DrawPoint> {
   constructor(gl: WebGLRenderingContext, private _matrix: Float32Array, private _stack: MatrixStack, private _state: StateStack) {
-    super(gl, DrawPoint);
+    super(gl, DrawPoint, 1);
     this.init();
   }
 
@@ -49,7 +49,7 @@ export class PointRenderer extends BatchRenderer<DrawPoint> {
     this.addCommand(cmd);
   }
 
-  buildBatchVertices(vertexBuffer: Float32Array, batch: CommandBatch<DrawPoint>): number {
+  buildBatchVertices(vertexBuffer: Float32Array, batch: BatchCommand<DrawPoint>): number {
     let index = 0;
     for (let command of batch.commands) {
       vertexBuffer[index++] = command.point.x;
@@ -65,7 +65,7 @@ export class PointRenderer extends BatchRenderer<DrawPoint> {
     return index / this.vertexSize;
   }
 
-  renderBatch(gl: WebGLRenderingContext, vertexCount: number) {
+  renderBatch(gl: WebGLRenderingContext, _batch: BatchCommand<DrawPoint>, vertexCount: number): void {
     gl.drawArrays(gl.POINTS, 0, vertexCount);
   }
 }
