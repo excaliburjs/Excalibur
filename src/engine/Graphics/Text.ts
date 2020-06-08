@@ -3,8 +3,7 @@ import { Font } from './Font';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { line } from '../Util/DrawUtil';
 import { Color } from '../Drawing/Color';
-import { Vector } from '../Algebra';
-import { BoundingBox } from '../Collision/Index';
+import { BoundingBox } from '../Collision/BoundingBox';
 
 export interface TextOptions {
   text: string;
@@ -98,7 +97,7 @@ export class Text extends Raster {
   }
 
   public get localBounds(): BoundingBox {
-    return BoundingBox.fromDimension(this._textWidth, this._textHeight, Vector.Zero, Vector.Zero);
+    return this._textBounds;
   }
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
