@@ -35,10 +35,9 @@ export class GraphicsSystem {
       if ((this.scene as any)._engine.isDebug) {
         this.ctx.drawPoint(Vector.Zero, { color: Color.Yellow, size: 5 });
       }
-      const [x, y] = this._applyActorAnchor(entity);
       this.ctx.z = transform.z;
       this.ctx.opacity = graphics.opacity * ((entity as any).opacity ?? 1);
-      graphics.draw(this.ctx, x, y);
+      graphics.draw(this.ctx, 0, 0);
       if (graphics.onPostDraw) {
         graphics.onPostDraw(this.ctx);
       }
@@ -50,6 +49,11 @@ export class GraphicsSystem {
           const bb = entity.body.collider.localBounds.translate(entity.getWorldPos());
           bb._debugDraw(this.ctx);
         }
+
+        this.ctx.save();
+        this._applyEntityTransform(transform);
+        graphics.debugDraw(this.ctx, 0, 0);
+        this.ctx.restore();
       }
 
       this._popCameraTransform(transform);
@@ -72,22 +76,6 @@ export class GraphicsSystem {
     this.ctx.translate(transform.pos.x, transform.pos.y);
     this.ctx.rotate(transform.rotation);
     this.ctx.scale(transform.scale.x, transform.scale.y);
-  }
-
-  private _applyActorAnchor(_entity: Entity): [number, number] {
-    // if (isActor(entity)) {
-    //   this.ctx.translate(-(entity.width * entity.anchor.x), -(entity.height * entity.anchor.y));
-
-    //   // TODO this is odd
-    //   const gfx = entity.graphics.localBounds; // entity.graphics.current[0]?.graphic// .localBounds;
-    //   if (gfx) {
-    //     // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-    //     const offsetX = (entity.width - gfx.width) * entity.anchor.x;
-    //     const offsetY = (entity.height - gfx.height) * entity.anchor.y;
-    //     return [offsetX, offsetY];
-    //   }
-    // }
-    return [0, 0];
   }
 
   private _pushCameraTransform(transform: TransformComponent) {

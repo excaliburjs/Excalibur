@@ -342,7 +342,7 @@ var healthbar2 = new ex.Graphics.Rect({
   height: 5,
   color: new ex.Color(0, 255, 0)
 });
-healthbar2.showDebug = true;
+// healthbar2.showDebug = true;
 
 var backroundLayer = player.graphics.layers.create({
   name: 'background',
@@ -358,7 +358,7 @@ var playerText = new ex.Graphics.Text({
     family: 'Times New Roman'
   })
 });
-playerText.showDebug = true;
+// playerText.showDebug = true;
 backroundLayer.show(playerText, { offset: ex.vec(0, -70) });
 
 // Retrieve animations for player from sprite sheet
