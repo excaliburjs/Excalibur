@@ -354,10 +354,12 @@ export class GraphicsComponent implements Component<'graphics'> {
     for (const layer of this.layers.get()) {
       for (const {
         graphic,
-        options: { offset }
+        options: { offset, anchor }
       } of layer.graphics) {
-        // anchor
-        bb = graphic.localBounds.translate(offset ?? Vector.Zero).combine(bb);
+        const bounds = graphic.localBounds;
+        const offsetX = -bounds.width * graphic.scale.x * anchor.x + offset.x;
+        const offsetY = -bounds.height * graphic.scale.y * anchor.y + offset.y;
+        bb = graphic?.localBounds.translate(vec(offsetX + layer.offset.x, offsetY + layer.offset.y)).combine(bb);
       }
     }
     return bb;
