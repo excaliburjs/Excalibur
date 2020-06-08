@@ -159,7 +159,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   public translate(x: number, y: number): void {
-    this._transform.translate(x, y);
+    this._transform.translate(this.snapToPixel ? ~~x : x, this.snapToPixel ? ~~y : y);
   }
 
   public rotate(angle: number): void {
