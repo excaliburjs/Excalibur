@@ -92,10 +92,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    // gl.enable(gl.CULL_FACE);
-    // gl.disable(gl.DEPTH_TEST);
-
-    // TODO make alpha blending optional?
     // Enable alpha blending
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
