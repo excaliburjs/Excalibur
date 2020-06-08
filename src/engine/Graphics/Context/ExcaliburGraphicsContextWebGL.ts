@@ -7,7 +7,7 @@ import {
 } from './ExcaliburGraphicsContext';
 
 import { Matrix } from '../../Math/matrix';
-import { MatrixStack } from './matrix-stack';
+import { TransformStack } from './transform-stack';
 import { Graphic } from '../Graphic';
 import { Vector, vec } from '../../Algebra';
 import { Color } from '../../Drawing/Color';
@@ -17,13 +17,19 @@ import { LineRenderer } from './line-renderer';
 import { ImageRenderer } from './image-renderer';
 import { PointRenderer } from './point-renderer';
 
+export interface WebGLGraphicsContextInfo {
+  transform: TransformStack;
+  state: StateStack;
+  matrix: Matrix;
+}
+
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   /**
    * Meant for internal use only. Access the internal context at your own risk
    * @internal
    */
   public __gl: WebGLRenderingContext;
-  private _stack = new MatrixStack();
+  private _transform = new TransformStack();
   private _state = new StateStack();
   private _ortho!: Matrix;
 
@@ -86,9 +92,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    this._pointRenderer = new PointRenderer(gl, this._ortho.data, this._stack, this._state);
-    this._lineRenderer = new LineRenderer(gl, this._ortho.data, this._stack, this._state);
-    this._imageRenderer = new ImageRenderer(gl, this._ortho.data, this._stack, this._state);
+    // TODO pass context info
+    this._pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
+    this._lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
+    this._imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
   }
 
   drawImage(graphic: Graphic, x: number, y: number): void;
@@ -139,29 +146,29 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   public save(): void {
-    this._stack.save();
+    this._transform.save();
     this._state.save();
   }
 
   public restore(): void {
-    this._stack.restore();
+    this._transform.restore();
     this._state.restore();
   }
 
   public translate(x: number, y: number): void {
-    this._stack.translate(x, y);
+    this._transform.translate(x, y);
   }
 
   public rotate(angle: number): void {
-    this._stack.rotate(angle);
+    this._transform.rotate(angle);
   }
 
   public scale(x: number, y: number): void {
-    this._stack.scale(x, y);
+    this._transform.scale(x, y);
   }
 
   public transform(matrix: Matrix) {
-    this._stack.transform = matrix;
+    this._transform.current = matrix;
   }
 
   clear() {
@@ -179,6 +186,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // this._diag.maxTexturePerDraw = this._maxGPUTextures;
 
     this.clear();
+    // TODO add a list of renderers
     this._imageRenderer.render();
     this._lineRenderer.render();
     this._pointRenderer.render();

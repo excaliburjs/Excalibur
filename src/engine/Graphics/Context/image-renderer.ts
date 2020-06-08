@@ -6,10 +6,9 @@ import { BatchCommand } from './batch';
 import { DrawImageCommand } from './draw-image-command';
 import { TextureManager } from './texture-manager';
 import { Graphic } from '../Graphic';
-import { MatrixStack } from './matrix-stack';
-import { StateStack } from './state-stack';
 import { ensurePowerOfTwo } from './webgl-util';
 import { BatchRenderer } from './renderer';
+import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
 
 export class BatchImage extends BatchCommand<DrawImageCommand> implements Poolable {
   _poolData = initializePoolData();
@@ -104,11 +103,16 @@ export class BatchImage extends BatchCommand<DrawImageCommand> implements Poolab
 export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
   public snapToPixel = false;
 
-  // todo need to find a way to feed max textures per image batch...
   // todo create ContextInfo to pass along gl/matrix/stack/state?
-
-  constructor(gl: WebGLRenderingContext, private _matrix: Float32Array, private _stack: MatrixStack, private _state: StateStack) {
-    super(gl, DrawImageCommand, 6, () => new BatchImage(new TextureManager(gl), 2000, gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS))); // 6 verts per quad
+  constructor(gl: WebGLRenderingContext, private _contextInfo: WebGLGraphicsContextInfo) {
+    super({
+      gl,
+      command: DrawImageCommand,
+      // 6 verts per quad
+      verticesPerCommand: 6,
+      maxCommandsPerBatch: 2000,
+      batchFactory: () => new BatchImage(new TextureManager(gl), 2000, gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS))
+    });
     this.init();
   }
 
@@ -120,7 +124,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
     shader.addAttribute('a_texcoord', 2, gl.FLOAT);
     shader.addAttribute('a_textureIndex', 1, gl.FLOAT);
     shader.addAttribute('a_opacity', 1, gl.FLOAT);
-    shader.addUniformMatrix('u_matrix', this._matrix);
+    shader.addUniformMatrix('u_matrix', this._contextInfo.matrix.data);
     // Initialize texture slots to [0, 1, 2, 3, 4, .... maxGPUTextures]
     shader.addUniformIntegerArray(
       'u_textures',
@@ -153,7 +157,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
     dheight?: number
   ) {
     const command = this.commands.get().init(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
-    command.applyTransform(this._stack.transform, this._state.current.opacity, this._state.current.z);
+    command.applyTransform(this._contextInfo.transform.current, this._contextInfo.state.current.opacity, this._contextInfo.state.current.z);
     this.addCommand(command);
   }
 

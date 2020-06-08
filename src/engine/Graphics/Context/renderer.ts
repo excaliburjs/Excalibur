@@ -10,26 +10,47 @@ export interface DrawCommandCtor<T> {
   new (): T;
 }
 
+export interface BatchRendererOptions<T extends Poolable> {
+  gl: WebGLRenderingContext;
+  /**
+   * Draw command constructor
+   */
+  command: DrawCommandCtor<T>;
+  /**
+   * Number of vertices that are generated per draw command
+   */
+  verticesPerCommand?: number;
+  /**
+   * Maximum commands to batch before drawing
+   */
+  maxCommandsPerBatch?: number;
+  /**
+   * Override the built in command batching mechanism
+   */
+  batchFactory?: () => BatchCommand<T>;
+}
+
 export abstract class BatchRenderer<T extends Poolable> implements Renderer {
+  private gl: WebGLRenderingContext;
   private _vertices: Float32Array;
+  private _verticesPerCommand: number;
   private _buffer: WebGLBuffer | null = null;
-  // TODO configurable
-  private _maxVerticesPerBatch: number = 2000;
+  private _maxCommandsPerBatch: number = 2000;
 
   public _shader: Shader;
 
   public commands: Pool<T>;
   private _batchPool: Pool<BatchCommand<T>>;
   private _batches: BatchCommand<T>[] = [];
-  // TODO need options bag!!
-  constructor(
-    private gl: WebGLRenderingContext,
-    command: DrawCommandCtor<T>,
-    private verticesPerCommand: number = 1,
-    batchFactory: () => BatchCommand<T> = null
-  ) {
-    this.commands = new Pool<T>(() => new command(), this._maxVerticesPerBatch);
-    this._batchPool = new Pool<BatchCommand<T>>(batchFactory ?? (() => new BatchCommand<T>(this._maxVerticesPerBatch)));
+  constructor(options: BatchRendererOptions<T>) {
+    this.gl = options.gl;
+    const command = options.command;
+    this._verticesPerCommand = options?.verticesPerCommand ?? 1;
+    this._maxCommandsPerBatch = options?.maxCommandsPerBatch ?? this._maxCommandsPerBatch;
+    const batchFactory = options?.batchFactory ?? (() => new BatchCommand<T>(this._maxCommandsPerBatch));
+
+    this.commands = new Pool<T>(() => new command(), this._maxCommandsPerBatch);
+    this._batchPool = new Pool<BatchCommand<T>>(batchFactory);
   }
 
   public init() {
@@ -37,7 +58,7 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
     this._shader = this.buildShader(gl);
     // Initialize VBO
     // https://groups.google.com/forum/#!topic/webgl-dev-list/vMNXSNRAg8M
-    this._vertices = new Float32Array(this._shader.vertexAttributeSize * this.verticesPerCommand * this._maxVerticesPerBatch);
+    this._vertices = new Float32Array(this._shader.vertexAttributeSize * this._verticesPerCommand * this._maxCommandsPerBatch);
     this._buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this._buffer);
     gl.bufferData(gl.ARRAY_BUFFER, this._vertices, gl.DYNAMIC_DRAW);

@@ -1,5 +1,3 @@
-import { MatrixStack } from './matrix-stack';
-import { StateStack } from './state-stack';
 import { Shader } from './shader';
 import pointVertexSource from './shaders/point-vertex.glsl';
 import pointFragmentSource from './shaders/point-fragment.glsl';
@@ -8,6 +6,7 @@ import { Color } from '../../Drawing/Color';
 import { Poolable, initializePoolData } from './pool';
 import { BatchRenderer } from './renderer';
 import { BatchCommand } from './batch';
+import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
 
 export class DrawPoint implements Poolable {
   _poolData = initializePoolData();
@@ -25,8 +24,8 @@ export class DrawPoint implements Poolable {
 }
 
 export class PointRenderer extends BatchRenderer<DrawPoint> {
-  constructor(gl: WebGLRenderingContext, private _matrix: Float32Array, private _stack: MatrixStack, private _state: StateStack) {
-    super(gl, DrawPoint, 1);
+  constructor(gl: WebGLRenderingContext, private _contextInfo: WebGLGraphicsContextInfo) {
+    super({ gl, command: DrawPoint, verticesPerCommand: 1 });
     this.init();
   }
 
@@ -36,15 +35,15 @@ export class PointRenderer extends BatchRenderer<DrawPoint> {
     shader.addAttribute('a_position', 2, gl.FLOAT);
     shader.addAttribute('a_color', 4, gl.FLOAT);
     shader.addAttribute('a_size', 1, gl.FLOAT);
-    shader.addUniformMatrix('u_matrix', this._matrix);
+    shader.addUniformMatrix('u_matrix', this._contextInfo.matrix.data);
     return shader;
   }
 
   addPoint(point: Vector, color: Color, size: number) {
     let cmd = this.commands.get();
-    cmd.point = this._stack.transform.multv(point);
+    cmd.point = this._contextInfo.transform.current.multv(point);
     cmd.color = color;
-    cmd.color.a = color.a * this._state.current.opacity;
+    cmd.color.a = color.a * this._contextInfo.state.current.opacity;
     cmd.size = size;
     this.addCommand(cmd);
   }

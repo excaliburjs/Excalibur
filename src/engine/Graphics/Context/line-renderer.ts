@@ -4,10 +4,9 @@ import { Shader } from './shader';
 import lineVertexSource from './shaders/line-vertex.glsl';
 import lineFragmentSource from './shaders/line-fragment.glsl';
 import { Poolable, initializePoolData } from './pool';
-import { MatrixStack } from './matrix-stack';
-import { StateStack } from './state-stack';
 import { BatchRenderer } from './renderer';
 import { BatchCommand } from './batch';
+import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
 
 export class DrawLine implements Poolable {
   _poolData = initializePoolData();
@@ -25,8 +24,8 @@ export class DrawLine implements Poolable {
 }
 
 export class LineRenderer extends BatchRenderer<DrawLine> {
-  constructor(gl: WebGLRenderingContext, private _matrix: Float32Array, private _stack: MatrixStack, private _state: StateStack) {
-    super(gl, DrawLine, 2);
+  constructor(gl: WebGLRenderingContext, private _contextInfo: WebGLGraphicsContextInfo) {
+    super({ gl, command: DrawLine, verticesPerCommand: 2 });
     this.init();
   }
 
@@ -35,16 +34,16 @@ export class LineRenderer extends BatchRenderer<DrawLine> {
 
     shader.addAttribute('a_position', 2, gl.FLOAT);
     shader.addAttribute('a_color', 4, gl.FLOAT);
-    shader.addUniformMatrix('u_matrix', this._matrix);
+    shader.addUniformMatrix('u_matrix', this._contextInfo.matrix.data);
     return shader;
   }
 
   addLine(start: Vector, end: Vector, color: Color) {
     let cmd = this.commands.get();
-    cmd.start = this._stack.transform.multv(start);
-    cmd.end = this._stack.transform.multv(end);
+    cmd.start = this._contextInfo.transform.current.multv(start);
+    cmd.end = this._contextInfo.transform.current.multv(end);
     cmd.color = color;
-    cmd.color.a = cmd.color.a * this._state.current.opacity;
+    cmd.color.a = cmd.color.a * this._contextInfo.state.current.opacity;
     this.addCommand(cmd);
   }
 

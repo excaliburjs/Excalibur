@@ -1,6 +1,6 @@
 import { Matrix } from '../../Math/matrix';
 
-export class MatrixStack {
+export class TransformStack {
   private _transforms: Matrix[] = [];
   private _currentTransform: Matrix = Matrix.identity();
 
@@ -28,11 +28,11 @@ export class MatrixStack {
     // return (this._currentTransform = this._currentTransform.multm(Matrix.scale(x, y)));
   }
 
-  public set transform(matrix: Matrix) {
+  public set current(matrix: Matrix) {
     this._currentTransform = matrix;
   }
 
-  public get transform(): Matrix {
+  public get current(): Matrix {
     return this._currentTransform;
   }
 }
