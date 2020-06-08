@@ -23,7 +23,7 @@ export class GraphicsSystem {
       transform = entity.components.transform;
       graphics = entity.components.graphics;
 
-      if (this._isOffscreen(entity)) continue;
+      if (this._isOffscreen(transform, graphics)) continue;
       this._pushCameraTransform(transform);
 
       this.ctx.save();
@@ -53,6 +53,7 @@ export class GraphicsSystem {
         this.ctx.save();
         this._applyEntityTransform(transform);
         graphics.debugDraw(this.ctx, 0, 0);
+        graphics.localBounds._debugDraw(this.ctx, Color.Black);
         this.ctx.restore();
       }
 
@@ -65,11 +66,9 @@ export class GraphicsSystem {
     this.ctx.clear();
   }
 
-  private _isOffscreen(entity: Entity) {
-    if (isActor(entity)) {
-      return entity.isOffScreen;
-    }
-    return false;
+  private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent) {
+    const graphicsOffscreen = !this.scene.camera.viewport.intersect(graphics.localBounds.translate(transform.pos));
+    return graphicsOffscreen;
   }
 
   private _applyEntityTransform(transform: TransformComponent): void {
