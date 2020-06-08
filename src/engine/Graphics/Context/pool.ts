@@ -26,7 +26,8 @@ export class Pool<T extends Poolable> {
   }
 
   public allocate(number: number) {
-    for (let i = this._pool.length; i < number; i++) {
+    const newSize = number + this._pool.length;
+    for (let i = this._pool.length; i < newSize; i++) {
       this._pool.push(this.objectFactory());
       this._pool[i]._poolData._poolId = i;
       this._pool[i]._poolData._free = true;
@@ -41,7 +42,7 @@ export class Pool<T extends Poolable> {
     }
     const id = this._freeIds.pop();
     const thing = this._pool[id];
-    if (thing._poolData._poolId !== id) {
+    if (!thing || !thing._poolData || thing._poolData._poolId !== id) {
       throw new Error('pool corrupt');
     }
     thing._poolData._free = false;
