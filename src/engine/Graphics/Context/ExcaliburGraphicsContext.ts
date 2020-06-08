@@ -2,22 +2,20 @@ import { Vector } from '../../Algebra';
 import { Graphic } from '../Graphic';
 import { Color } from '../../Drawing/Color';
 
-// TODO should this use Graphic instead?
 export type ImageSource = HTMLImageElement | HTMLCanvasElement;
+
+export interface ExcaliburGraphicsContextOptions {
+  canvasElement: HTMLCanvasElement;
+  antiAlias?: boolean;
+  enableTransparency?: boolean;
+  snapToPixel?: boolean;
+  backgroundColor?: Color;
+}
 
 export interface ExcaliburGraphicsContextState {
   opacity: number;
   z: number;
 }
-
-export interface ExcaliburContextOptions {
-  elementId?: string;
-  width: number;
-  height: number;
-  snapToPixel?: boolean;
-  maxDrawingsPerBatch?: number;
-}
-
 export interface ExcaliburContextDiagnostics {
   quads: number;
   batches: number;

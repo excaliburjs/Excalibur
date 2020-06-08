@@ -125,6 +125,11 @@ export interface EngineOptions {
   canvasElement?: HTMLCanvasElement;
 
   /**
+   * Optionally snap all drawing in Excalibur to whole pixel values. By default false
+   */
+  snapToPixel?: boolean;
+
+  /**
    * The [[DisplayMode]] of the game. Depending on this value, [[width]] and [[height]] may be ignored.
    */
   displayMode?: DisplayMode;
@@ -471,6 +476,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     width: 0,
     height: 0,
     enableCanvasTransparency: true,
+    snapToPixel: false,
     canvasElementId: '',
     canvasElement: undefined,
     pointerScope: Input.PointerScope.Document,
@@ -1050,22 +1056,27 @@ O|===|* >________________>\n\
     }
 
     if (!Engine._useWebGL) {
-      this.ctx = this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
-      this.graphicsContext = new ExcaliburGraphicsContext2DCanvas(this.ctx);
+      const ex2d = new ExcaliburGraphicsContext2DCanvas({
+        canvasElement: this.canvas,
+        enableTransparency: this.enableCanvasTransparency,
+        snapToPixel: options.snapToPixel,
+        backgroundColor: this.backgroundColor
+      });
+      this.graphicsContext = ex2d;
+      this.ctx = ex2d.__ctx;
     } else {
       // TODO remove hacked canvas to keep things working
       const canvas = document.createElement('canvas');
       this.ctx = canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
       // TODO end hack
 
-      const gl = this.canvas.getContext('webgl', {
-        antialias: false,
-        premultipliedAlpha: false,
-        alpha: this.enableCanvasTransparency,
-        depth: false,
-        powerPreference: 'high-performance'
+      this.graphicsContext = new ExcaliburGraphicsContextWebGL({
+        canvasElement: this.canvas,
+        enableTransparency: this.enableCanvasTransparency,
+        snapToPixel: options.snapToPixel,
+        antiAlias: false,
+        backgroundColor: this.backgroundColor
       });
-      this.graphicsContext = new ExcaliburGraphicsContextWebGL(gl);
     }
 
     if (this.isHiDpi) {

@@ -7,6 +7,7 @@ import { Color } from '../../Drawing/Color';
 export class DrawImageCommand implements Poolable {
   _poolData = initializePoolData();
 
+  public snapToPixel: boolean = true;
   public image: Graphic;
   public opacity: number = 1;
   public z: number = 0;
@@ -81,6 +82,12 @@ export class DrawImageCommand implements Poolable {
     this._geom[index++] = [this.dest[0] + this.width, this.dest[1]];
     this._geom[index++] = [this.dest[0], this.dest[1] + this.height];
     this._geom[index++] = [this.dest[0] + this.width, this.dest[1] + this.height];
+    if (this.snapToPixel) {
+      this._geom.forEach((point) => {
+        point[0] = ~~point[0];
+        point[1] = ~~point[1];
+      });
+    }
     return this;
   }
 
@@ -105,6 +112,9 @@ export class DrawImageCommand implements Poolable {
     if (transform) {
       for (let i = 0; i < this._geom.length; i++) {
         this._geom[i] = transform.multv(this._geom[i]);
+        if (this.snapToPixel) {
+          this._geom[i] = [~~this._geom[i][0], ~~this._geom[i][1]];
+        }
       }
     }
     this.opacity = opacity;

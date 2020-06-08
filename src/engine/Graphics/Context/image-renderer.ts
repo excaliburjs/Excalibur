@@ -101,9 +101,6 @@ export class BatchImage extends BatchCommand<DrawImageCommand> implements Poolab
 }
 
 export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
-  public snapToPixel = false;
-
-  // todo create ContextInfo to pass along gl/matrix/stack/state?
   constructor(gl: WebGLRenderingContext, private _contextInfo: WebGLGraphicsContextInfo) {
     super({
       gl,
@@ -170,9 +167,6 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
 
   buildBatchVertices(vertexBuffer: Float32Array, batch: BatchImage): number {
     let vertIndex = 0;
-    // const vertexSize = 6 * 7; // 6 vertices * (x, y, z, u, v, textureId, opacity)
-    let x: number = 0;
-    let y: number = 0;
     let sx: number = 0;
     let sy: number = 0;
     let sw: number = 0;
@@ -181,8 +175,6 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
     let potHeight: number = 0;
     let textureId = 0;
     for (let command of batch.commands) {
-      x = command.dest[0];
-      y = command.dest[1];
       sx = command.view[0];
       sy = command.view[1];
       sw = command.view[2];
@@ -192,11 +184,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       potHeight = ensurePowerOfTwo(command.image.getSource().height || command.height);
 
       textureId = batch.getBatchTextureId(command);
-      if (this.snapToPixel) {
-        // quick bitwise truncate
-        x = ~~x;
-        y = ~~y;
-      }
+
       // potential optimization when divding by 2 (bitshift)
       // TODO we need to validate drawImage before we get here with an error :O
 

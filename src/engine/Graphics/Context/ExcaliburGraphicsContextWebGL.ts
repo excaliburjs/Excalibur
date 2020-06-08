@@ -3,7 +3,8 @@ import {
   ExcaliburContextDiagnostics,
   LineGraphicsOptions,
   RectGraphicsOptions,
-  PointGraphicsOptions
+  PointGraphicsOptions,
+  ExcaliburGraphicsContextOptions
 } from './ExcaliburGraphicsContext';
 
 import { Matrix } from '../../Math/matrix';
@@ -25,7 +26,7 @@ export interface WebGLGraphicsContextInfo {
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   /**
-   * Meant for internal use only. Access the internal context at your own risk
+   * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
    * @internal
    */
   public __gl: WebGLRenderingContext;
@@ -39,7 +40,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   private _imageRenderer: ImageRenderer;
 
-  // TODO
   public snapToPixel: boolean = true;
 
   public backgroundColor: Color = Color.ExcaliburBlue;
@@ -68,9 +68,17 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     return this.__gl.canvas.height;
   }
 
-  // TODO should this be a canvas element? or a better abstraction
-  constructor(_ctx: WebGLRenderingContext) {
-    this.__gl = _ctx;
+  constructor(options: ExcaliburGraphicsContextOptions) {
+    const { canvasElement, enableTransparency, antiAlias, snapToPixel, backgroundColor } = options;
+    this.__gl = canvasElement.getContext('webgl', {
+      antialias: antiAlias ?? false,
+      premultipliedAlpha: false,
+      alpha: enableTransparency ?? true,
+      depth: true,
+      powerPreference: 'high-performance'
+    });
+    this.snapToPixel = snapToPixel ?? this.snapToPixel;
+    this.backgroundColor = backgroundColor ?? this.backgroundColor;
     this._init();
   }
 
@@ -92,7 +100,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    // TODO pass context info
     this._pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
     this._lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
     this._imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
@@ -179,6 +186,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.clear(gl.COLOR_BUFFER_BIT);
   }
 
+  /**
+   * Flushes all batched rendering to the screen
+   */
   flush() {
     this._diag.quads = 0;
     this._diag.uniqueTextures = 0;
