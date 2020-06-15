@@ -333,6 +333,10 @@ player.rotation = 0;
 // Health bar example
 var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
 player.add(healthbar);
+player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
+  ctx.fillStyle = 'red';
+  ctx.fillRect(0, 0, 100, 100);
+};
 player.graphics.onPostDraw = (ctx: ex.Graphics.ExcaliburGraphicsContext) => {
   ctx.drawLine(ex.vec(0, 0), ex.vec(200, 0));
 };
