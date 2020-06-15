@@ -7,7 +7,6 @@ import { Vector } from '../Algebra';
 import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
 import { Configurable } from '../Configurable';
-import { nullish } from '../Util/Util';
 
 /**
  * @hidden
@@ -289,13 +288,13 @@ export class AnimationImpl implements Drawable {
   private _drawWithOptions(options: DrawOptions) {
     const animOptions = {
       ...options,
-      rotation: nullish(options.rotation, this.rotation),
-      drawWidth: nullish(options.drawWidth, this.drawWidth),
-      drawHeight: nullish(options.drawHeight, this.drawHeight),
-      flipHorizontal: nullish(options.flipHorizontal, this.flipHorizontal),
-      flipVertical: nullish(options.flipVertical, this.flipVertical),
-      anchor: nullish(options.anchor, this.anchor),
-      opacity: nullish(options.opacity, this._opacity)
+      rotation: options.rotation ?? this.rotation,
+      drawWidth: options.drawWidth ?? this.drawWidth,
+      drawHeight: options.drawHeight ?? this.drawHeight,
+      flipHorizontal: options.flipHorizontal ?? this.flipHorizontal,
+      flipVertical: options.flipVertical ?? this.flipVertical,
+      anchor: options.anchor ?? this.anchor,
+      opacity: options.opacity ?? this._opacity
     };
 
     this.tick();

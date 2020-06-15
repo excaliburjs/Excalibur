@@ -5,7 +5,7 @@ import { Drawable, DrawOptions } from '../Interfaces/Drawable';
 import { Texture } from '../Resources/Texture';
 import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
-import { clamp, nullish } from '../Util/Util';
+import { clamp } from '../Util/Util';
 import { Configurable } from '../Configurable';
 
 /**
@@ -338,14 +338,14 @@ export class SpriteImpl implements Drawable {
   private _drawWithOptions(options: DrawOptions) {
     const { ctx, x, y, rotation, drawWidth, drawHeight, anchor, offset, opacity, flipHorizontal, flipVertical } = {
       ...options,
-      rotation: nullish(options.rotation, this.rotation),
-      drawWidth: nullish(options.drawWidth, this.drawWidth),
-      drawHeight: nullish(options.drawHeight, this.drawHeight),
-      flipHorizontal: nullish(options.flipHorizontal, this.flipHorizontal),
-      flipVertical: nullish(options.flipVertical, this.flipVertical),
-      anchor: nullish(options.anchor, this.anchor),
-      offset: nullish(options.offset, this.offset),
-      opacity: nullish(options.opacity, this._opacity)
+      rotation: options.rotation ?? this.rotation,
+      drawWidth: options.drawWidth ?? this.drawWidth,
+      drawHeight: options.drawHeight ?? this.drawHeight,
+      flipHorizontal: options.flipHorizontal ?? this.flipHorizontal,
+      flipVertical: options.flipVertical ?? this.flipVertical,
+      anchor: options.anchor ?? this.anchor,
+      offset: options.offset ?? this.offset,
+      opacity: options.opacity ?? this._opacity
     };
 
     if (this._dirtyEffect) {
@@ -375,7 +375,7 @@ export class SpriteImpl implements Drawable {
     }
 
     const oldAlpha = ctx.globalAlpha;
-    ctx.globalAlpha = nullish(opacity, 1);
+    ctx.globalAlpha = opacity ?? 1;
     ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, -xpoint, -ypoint, drawWidth, drawHeight);
     ctx.globalAlpha = oldAlpha;
 
