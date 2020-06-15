@@ -624,10 +624,19 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * @param ctx    Canvas context to apply transformations
    * @param delta  The number of milliseconds since the last update
    */
-  public draw(ctx: ExcaliburGraphicsContext) {
+  public draw(ctx: CanvasRenderingContext2D): void;
+  public draw(ctx: ExcaliburGraphicsContext): void;
+  public draw(ctx: CanvasRenderingContext2D | ExcaliburGraphicsContext): void {
+    let canvasWidth = 0;
+    let canvasHeight = 0;
+    if (ctx instanceof CanvasRenderingContext2D) {
+      canvasWidth = ctx.canvas.width;
+      canvasHeight = ctx.canvas.height;
+    } else {
+      canvasWidth = ctx.width;
+      canvasHeight = ctx.height;
+    }
     const focus = this.getFocus();
-    const canvasWidth = ctx.width;
-    const canvasHeight = ctx.height;
     const pixelRatio = this._engine ? this._engine.pixelRatio : window.devicePixelRatio;
     const zoom = this.getZoom();
 
