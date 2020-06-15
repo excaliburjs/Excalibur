@@ -91,14 +91,6 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
   public static defaults: ActorDefaults = {
     anchor: Vector.Half
   };
-  /**
-   * Indicates the next id to be set
-   */
-  // public static maxId = 0;
-  /**
-   * The unique identifier for the actor
-   */
-  // public id: number = ActorImpl.maxId++;
 
   public graphics: GraphicsComponent;
 
@@ -913,6 +905,9 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
    * move with it.
    * @param actor The child actor to add
    */
+  @obsolete({
+    message: '`add(actor)` will be removed v0.26.0'
+  })
   public add(actor: Actor) {
     actor.body.collider.type = CollisionType.PreventCollision;
     if (Util.addItemToArray(actor, this.children)) {
@@ -940,6 +935,7 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
    * @param key The `enum` key of the drawing
    */
   public setDrawing(key: number): void;
+  @obsolete({})
   public setDrawing(key: any): void {
     key = key.toString();
     if (this.currentDrawing !== this.frames[<string>key]) {
@@ -966,6 +962,7 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
    * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
    */
   public addDrawing(key: any, drawing: Drawable): void;
+  @obsolete({})
   public addDrawing(): void {
     if (arguments.length === 2) {
       this.frames[<string>arguments[0]] = arguments[1];
@@ -1248,6 +1245,22 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
 
   // #region Drawing
 
+  public _legacyDrawLifecycle(ctx: CanvasRenderingContext2D, delta: number) {
+    ctx.save();
+    ctx.translate(this.pos.x, this.pos.y);
+    ctx.rotate(this.rotation);
+    ctx.scale(this.scale.x, this.scale.y);
+
+    // translate canvas by anchor offset
+    ctx.save();
+    ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
+    this._predraw(ctx, delta);
+    ctx.restore();
+
+    this._postdraw(ctx, delta);
+    ctx.restore();
+  }
+
   /**
    * Called by the Engine, draws the actor to the screen
    * @param ctx   The rendering context
@@ -1300,18 +1313,14 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
    *
    * `onPreDraw` is called directly before an actor is drawn, but after local transforms are made.
    */
-  public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
-    // Override me
-  }
+  public onPreDraw: (_ctx: CanvasRenderingContext2D, _delta: number) => void;
 
   /**
    * Safe to override onPostDraw lifecycle event handler. Synonymous with `.on('postdraw', (evt) =>{...})`
    *
    * `onPostDraw` is called directly after an actor is drawn, and before local transforms are removed.
    */
-  public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
-    // Override me
-  }
+  public onPostDraw: (_ctx: CanvasRenderingContext2D, _delta: number) => void;
 
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
@@ -1321,7 +1330,7 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
    */
   public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {
     this.emit('predraw', new PreDrawEvent(ctx, delta, this));
-    this.onPreDraw(ctx, delta);
+    this?.onPreDraw(ctx, delta);
   }
 
   /**
@@ -1332,13 +1341,16 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
    */
   public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
     this.emit('postdraw', new PreDrawEvent(ctx, delta, this));
-    this.onPostDraw(ctx, delta);
+    this?.onPostDraw(ctx, delta);
   }
 
   /**
    * Called by the Engine, draws the actors debugging to the screen
    * @param ctx The rendering context
    */
+  @obsolete({
+    message: 'debugDraw() will be removed v0.27.0'
+  })
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
@@ -1405,6 +1417,9 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
   /**
    * Returns the full array of ancestors
    */
+  @obsolete({
+    message: 'getAncestors() will be removed in 0.27.0'
+  })
   public getAncestors(): Actor[] {
     const path: Actor[] = [this];
     let currentActor: Actor = this;

@@ -33,6 +33,7 @@ import { GraphicsSystem } from './Graphics/GraphicsSystem';
 import { Entity } from './Entity';
 import { TransformComponent } from './Transform';
 import { ParticleEmitter } from './Particles';
+import { Canvas } from './Graphics/Canvas';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -97,6 +98,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   private _timers: Timer[] = [];
   private _cancelQueue: Timer[] = [];
   private _logger: Logger = Logger.getInstance();
+  private __canvas: Canvas = new Canvas({
+    drawHandler: this.__legacyDrawLifecycle.bind(this)
+  });
 
   constructor(_engine: Engine) {
     super();
@@ -105,6 +109,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     if (_engine) {
       this.camera.x = _engine.halfDrawWidth;
       this.camera.y = _engine.halfDrawHeight;
+      this.__canvas.width = _engine.canvasWidth;
+      this.__canvas.height = _engine.canvasHeight;
     }
   }
 
@@ -461,6 +467,41 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     this._postdraw(ctx, delta);
   }
 
+  public legacyLifecycleDraw(ex: ExcaliburGraphicsContext) {
+    this.__canvas.draw(ex, 0, 0);
+  }
+
+  public __legacyDrawLifecycle(ctx: CanvasRenderingContext2D, delta: number) {
+    this._graphicsContext.clear();
+
+    this._predraw(ctx, delta);
+    ctx.save();
+
+    if (this.camera) {
+      this.camera.draw(ctx);
+    }
+
+    let i: number, len: number;
+    const sortedChildren = this._sortedDrawingTree.list();
+    for (i = 0, len = sortedChildren.length; i < len; i++) {
+      // only draw actors that are visible and on screen
+      if (sortedChildren[i].visible && !sortedChildren[i].isOffScreen) {
+        sortedChildren[i]._legacyDrawLifecycle(ctx, delta);
+      }
+    }
+
+    ctx.restore();
+
+    for (i = 0, len = this.screenElements.length; i < len; i++) {
+      // only draw ui actors that are visible and on screen
+      if (this.screenElements[i].visible) {
+        this.screenElements[i]._legacyDrawLifecycle(ctx, delta);
+      }
+    }
+
+    this._postdraw(ctx, delta);
+  }
+
   public __legacyDraw(ctx: CanvasRenderingContext2D, delta: number) {
     this._graphicsContext.clear();
 
@@ -468,7 +509,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     ctx.save();
 
     if (this.camera) {
-      this.camera.draw(this._graphicsContext);
+      this.camera.draw(ctx);
     }
 
     let i: number, len: number;
