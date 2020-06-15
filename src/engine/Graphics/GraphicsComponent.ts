@@ -420,6 +420,7 @@ export class GraphicsComponent implements Component<'graphics'> {
           graphic?.localBounds.translate(vec(offsetX + layer.offset.x, offsetY + layer.offset.y))._debugDraw(ctx, Color.Red);
         }
       }
+      this.localBounds._debugDraw(ctx, Color.Red);
     }
   }
 
