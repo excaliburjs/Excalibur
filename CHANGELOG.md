@@ -32,7 +32,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed Loader play button markup and styles are now cleaned up after clicked ([#1431](https://github.com/excaliburjs/Excalibur/issues/1431))
 - Fixed Excalibur crashing when embedded within a cross-origin IFrame ([#1151](https://github.com/excaliburjs/Excalibur/issues/1151))
 - Fixed issue when loading images from a base64 strings that would crash the loader ([#1543](https://github.com/excaliburjs/Excalibur/issues/1543))
+- Fixed issue where actors that were not in scene still received pointer events ([#1555](https://github.com/excaliburjs/Excalibur/issues/1555))
 - Fixed Scene initialization order when using the lifecycle overrides ([#1553](https://github.com/excaliburjs/Excalibur/issues/1553))
+
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
