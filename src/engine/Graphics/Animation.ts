@@ -1,5 +1,4 @@
 import { Graphic, GraphicOptions } from './Graphic';
-import { Vector } from '../Algebra';
 import { clamp } from '../Util/Util';
 import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
 import { Eventable } from '../Interfaces/Evented';
@@ -38,7 +37,6 @@ export enum AnimationStrategy {
 export interface Frame {
   graphic?: Graphic;
   duration?: number; // number of ms the frame should be visible, overrides the animation duration
-  tags?: { [name: string]: Vector | undefined };
 }
 
 export interface AnimationOptions {
@@ -95,10 +93,6 @@ export class Animation extends Graphic implements Eventable<Frame | Animation>, 
         })),
       strategy: strategy
     });
-  }
-
-  public get tags() {
-    return this.currentFrame.tags;
   }
 
   public get currentFrame(): Frame | null {
