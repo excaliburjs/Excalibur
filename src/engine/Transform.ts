@@ -17,7 +17,7 @@ export enum CoordPlane {
 }
 
 export class TransformComponent implements Component<'transform'> {
-  static type = 'transform';
+  static type: 'transform';
   readonly type = 'transform';
   public owner: Entity = null;
 
