@@ -605,4 +605,58 @@ describe('ChunkSystemTileMap', () => {
         .every((cell) => cell.secret === secretValue)
     ).toBeTrue();
   });
+
+  it('passes the chunk, chunk system and engine to the rendering cache garbage collector predicate', () => {
+    const chunkRenderingCacheGarbageCollectorPredicate = jasmine
+      .createSpy('chunkRenderingCacheGarbageCollectorPredicate', (...args: unknown[]) => {
+        expect(args[0]).toBeInstanceOf(ex.TileMap);
+        expect(args.slice(1)).toEqual([chunkSystem, engine]);
+        return false;
+      })
+      .and.callThrough();
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      chunkRenderingCacheGarbageCollectorPredicate,
+      chunkRenderingCachePredicate: () => true
+    });
+    chunkSystem.update(engine, 16);
+    expect(chunkRenderingCacheGarbageCollectorPredicate).toHaveBeenCalledTimes(0);
+    engine.currentScene.camera.x += chunkSystem.cellWidth * (chunkSystem.cols + 2) + engine.canvasWidth;
+    chunkSystem.update(engine, 16);
+    expect(chunkRenderingCacheGarbageCollectorPredicate).toHaveBeenCalledTimes(4);
+  });
+
+  it('does not call the rendering cache garbage collector if the entire chunk is garbage collected', () => {
+    const chunkRenderingCacheGarbageCollectorPredicate = jasmine
+      .createSpy('chunkRenderingCacheGarbageCollectorPredicate', () => false)
+      .and.callThrough();
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      chunkGarbageCollectorPredicate: () => true,
+      chunkRenderingCacheGarbageCollectorPredicate,
+      chunkRenderingCachePredicate: () => true
+    });
+    chunkSystem.update(engine, 16);
+    expect(chunkRenderingCacheGarbageCollectorPredicate).toHaveBeenCalledTimes(0);
+    engine.currentScene.camera.x += chunkSystem.cellWidth * (chunkSystem.cols + 2) + engine.canvasWidth;
+    chunkSystem.update(engine, 16);
+    expect(chunkRenderingCacheGarbageCollectorPredicate).toHaveBeenCalledTimes(0);
+  });
+
+  it('drops the rendering cache if the rendering cache garbage collector predicate returns true', () => {
+    const chunkRenderingCachePredicate = jasmine.createSpy('chunkRenderingCachePredicate', () => true).and.callThrough();
+    const chunkSystem = new ChunkSystemTileMap({
+      ...DEFAULT_OPTIONS,
+      chunkRenderingCacheGarbageCollectorPredicate: () => true,
+      chunkRenderingCachePredicate
+    });
+    chunkSystem.update(engine, 16);
+    expect(chunkRenderingCachePredicate).toHaveBeenCalledTimes(4);
+    engine.currentScene.camera.x += chunkSystem.cellWidth * (chunkSystem.cols + 2) + engine.canvasWidth;
+    chunkSystem.update(engine, 16);
+    expect(chunkRenderingCachePredicate).toHaveBeenCalledTimes(4);
+    engine.currentScene.camera.x -= chunkSystem.cellWidth * (chunkSystem.cols + 2) + engine.canvasWidth;
+    chunkSystem.update(engine, 16);
+    expect(chunkRenderingCachePredicate).toHaveBeenCalledTimes(8);
+  });
 });

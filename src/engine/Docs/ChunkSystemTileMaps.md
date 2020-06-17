@@ -76,9 +76,9 @@ Please note that actors do not collide with chunks that have not been generated 
 
 ## Chunk garbage collection
 
-A chunk system can be configured with a [[ChunkSystemGarbageCollectorPredicate|chunkGarbageCollectorPredicate]]. The chunk system calls the
-predicate for every currently generated chunk that is completely off-screen. The chunk system then discards any chunk for which the
-predicate returns `true`, allowing the chunk to be garbage-collected.
+A chunk system can be configured with a [[ChunkPredicate|chunkGarbageCollectorPredicate]]. The chunk system calls the predicate for every
+currently generated chunk that is completely off-screen. The chunk system then discards any chunk for which the predicate returns `true`,
+allowing the chunk to be garbage-collected.
 
 The chunk system would re-generate a discarded chunk using its [[ChunkGenerator|chunk generator]] should a chunk at the given location would
 be needed for renderng again.
@@ -97,4 +97,5 @@ pre-rendered already. The chunk system pre-renders the whole chunk and caches th
 chunk.
 
 Please note that caching pre-rendered chunks is lot more memory intensive. Profiling and benchmarking of your game is strongly recommended,
-as is configuring the [[ChunkSystemGarbageCollectorPredicate|chunkGarbageCollectorPredicate]].
+as is configuring the [[ChunkPredicate|chunkGarbageCollectorPredicate]]. It is also the garbage-collect the pre-rendered chunk snaphosts
+without garbage-collecting entire chunks by configuring the [[ChunkPredicate|chunkRenderingCacheGarbageCollectorPredicate]].

@@ -24,9 +24,7 @@ export type BaseCellGenerator = (
   engine: Engine
 ) => Cell;
 
-export type ChunkSystemGarbageCollectorPredicate = (chunk: TileMap, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => boolean;
-
-export type ChunkRenderingCachePredicate = (chunk: TileMap, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => boolean;
+type ChunkPredicate = (chunk: TileMap, chunkSystemTileMap: ChunkSystemTileMap, engine: Engine) => boolean;
 
 type CachedTileMap = TileMap & { renderingCache: null | HTMLCanvasElement };
 
@@ -82,7 +80,7 @@ export interface ChunkSystemTileMapArgs {
    *
    * The use of a chunk garbage collector allows for chunk systems that are larger than can be allocated or fit into memory by the browser.
    */
-  chunkGarbageCollectorPredicate?: null | ChunkSystemGarbageCollectorPredicate;
+  chunkGarbageCollectorPredicate?: ChunkPredicate | null;
   /**
    * Optional predicate callback that enables pre-rendering of individual chunks, removing the need of rendering every [[Cell]] in a chunk,
    * thus improving rendering performance at the cost of greater memory usage. When configured to a function, the chunk system will call the
@@ -92,7 +90,18 @@ export interface ChunkSystemTileMapArgs {
    * cache chunks containing animated [[Cell|Cells]], since that would prevent the animation being played. Please note that the rendered
    * chunk will remain in memory until discarded by the [[chunkGarbageCollectorPredicate]] returning `true` when called with it.
    */
-  chunkRenderingCachePredicate?: null | ChunkRenderingCachePredicate;
+  chunkRenderingCachePredicate?: ChunkPredicate | null;
+  /**
+   * Optional predicate callback that enables garbage collection of pre-rendered snapshots of chunks. This option in conjunction with the
+   * [[chunkRenderingCachePredicate]] enables improving rendering performance, but without having to increase memory usage too much while
+   * not having to garbage-collect whole chunks.
+   *
+   * Another use of this is enabling of changes in chunk [[Cell|Cells]] and re-rendering the chunk only when a change occurs.
+   *
+   * When configured to a function, the chunk system will call the provided callback for every off-screen chunk that has not been
+   * garbage-collected and has been pre-rendered.
+   */
+  chunkRenderingCacheGarbageCollectorPredicate?: ChunkPredicate | null;
 }
 
 /**
@@ -148,13 +157,19 @@ export class ChunkSystemTileMapImpl extends Class {
    *
    * The use of a chunk garbage collector allows for chunk systems that are larger than can be allocated or fit into memory by the browser.
    */
-  public readonly chunkGarbageCollectorPredicate: ChunkSystemGarbageCollectorPredicate | null;
+  public readonly chunkGarbageCollectorPredicate: ChunkPredicate | null;
   /**
    * Predicate callback that enables pre-rendering of individual chunks, removing the need of rendering every [[Cell]] in a chunk, thus
    * improving rendering performance at the cost of greater memory usage. The chunk system will call the provided callback for every chunk
    * the system is about to render that has not been pre-rendered yet.
    */
-  public readonly chunkRenderingCachePredicate: ChunkRenderingCachePredicate | null;
+  public readonly chunkRenderingCachePredicate: ChunkPredicate | null;
+  /**
+   * Predicate callback that enables garbage collection of pre-rendered chunk snapshots, reducing the memory usage without having to
+   * garbage-collect whole chunks or disabling chunk pre-rendering. The chunk system will call the provided callback for every off-screen
+   * chunk that has not been garbage-collected and has been pre-rendered.
+   */
+  public readonly chunkRenderingCacheGarbageCollectorPredicate: ChunkPredicate | null;
   private readonly _chunks: Array<Array<CachedTileMap | undefined> | undefined>;
   private _chunksXOffset: number;
   private _chunksYOffset: number;
@@ -201,6 +216,7 @@ export class ChunkSystemTileMapImpl extends Class {
     this.chunkGenerator = config.chunkGenerator;
     this.chunkGarbageCollectorPredicate = config.chunkGarbageCollectorPredicate || null;
     this.chunkRenderingCachePredicate = config.chunkRenderingCachePredicate || null;
+    this.chunkRenderingCacheGarbageCollectorPredicate = config.chunkRenderingCacheGarbageCollectorPredicate || null;
     this._chunks = [];
     this._chunksXOffset = 0;
     this._chunksYOffset = 0;
@@ -303,7 +319,7 @@ export class ChunkSystemTileMapImpl extends Class {
     const chunkOnScreenXEnd = Math.floor(cellOnScreenXEnd / this.chunkSize);
     const chunkOnScreenYEnd = Math.floor(cellOnScreenYEnd / this.chunkSize);
 
-    if (this.chunkGarbageCollectorPredicate) {
+    if (this.chunkGarbageCollectorPredicate || this.chunkRenderingCacheGarbageCollectorPredicate) {
       this._garbageCollectChunks(chunkOnScreenXStart, chunkOnScreenYStart, chunkOnScreenXEnd, chunkOnScreenYEnd, engine);
     }
 
@@ -466,9 +482,16 @@ export class ChunkSystemTileMapImpl extends Class {
 
         const chunk = chunkRow[chunkColumnIndex];
         if (chunk) {
-          if (this.chunkGarbageCollectorPredicate(chunk, this, engine)) {
+          if (this.chunkGarbageCollectorPredicate && this.chunkGarbageCollectorPredicate(chunk, this, engine)) {
             chunkRow[chunkColumnIndex] = undefined;
           } else {
+            if (
+              chunk.renderingCache &&
+              this.chunkRenderingCacheGarbageCollectorPredicate &&
+              this.chunkRenderingCacheGarbageCollectorPredicate(chunk, this, engine)
+            ) {
+              chunk.renderingCache = null;
+            }
             rowCleared = false;
           }
         }
