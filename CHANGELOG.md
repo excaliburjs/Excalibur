@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Remove usage of `mock.engine` from the tests. Use real engine instead.
 - Upgrade Excalibur to TypeScript 3.9.2
 - Upgrade Excalibur to Node 12 LTS
 
