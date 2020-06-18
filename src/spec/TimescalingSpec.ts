@@ -9,14 +9,22 @@ describe('The engine', () => {
   let loop: Mocks.GameLoopLike;
   let actor: ex.Actor;
 
-  beforeEach(() => {
+  beforeEach((done) => {
     engine = TestUtils.engine({ width: 0, height: 0 });
     scene = new ex.Scene(engine);
-    engine.currentScene = scene;
+    engine.add('test', scene);
+    engine.goToScene('test');
     actor = new ex.Actor(0, 0, 10, 10, ex.Color.Red);
-    loop = mock.loop(engine);
-
     scene.add(actor);
+    loop = mock.loop(engine);
+    engine.start().then(() => {
+      done();
+    });
+  });
+
+  afterEach(() => {
+    engine.stop();
+    engine = null;
   });
 
   it('should default to a timescale of 1.0', () => {
