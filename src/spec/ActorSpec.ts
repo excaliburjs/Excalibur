@@ -1,14 +1,12 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { Mocks } from './util/Mocks';
 
 describe('A game actor', () => {
   let actor: ex.Actor;
 
   let engine: ex.Engine;
   let scene: ex.Scene;
-  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -295,11 +293,11 @@ describe('A game actor', () => {
     let actorCalled = 'false';
     let otherCalled = 'false';
 
-    actor.on('precollision', function() {
+    actor.on('precollision', function () {
       actorCalled = 'actor';
     });
 
-    other.on('precollision', function() {
+    other.on('precollision', function () {
       otherCalled = 'other';
     });
 

@@ -68,7 +68,7 @@ describe('A pointer', () => {
     let eventRightFired = false;
     let eventMiddleFired = false;
 
-    engine.input.pointers.primary.on('up', function(ev: ex.Input.PointerEvent) {
+    engine.input.pointers.primary.on('up', function (ev: ex.Input.PointerEvent) {
       if (ev.button === ex.Input.PointerButton.Left) {
         eventLeftFired = true;
       }
@@ -92,7 +92,7 @@ describe('A pointer', () => {
   it('should fire pointermove events', () => {
     let eventMoveFired = false;
 
-    engine.input.pointers.primary.on('move', function(ev: ex.Input.PointerEvent) {
+    engine.input.pointers.primary.on('move', function (ev: ex.Input.PointerEvent) {
       eventMoveFired = true;
     });
 
@@ -128,5 +128,10 @@ describe('A pointer', () => {
     executeMouseEvent('pointerdown', <any>document, null, 50, 50);
 
     expect(engine.input.pointers.primary.checkActorUnderPointer(actor)).toBe(true);
+  });
+  it('should only add actors under pointer that are in scene', () => {
+    const actor = new ex.Actor({ pos: new ex.Vector(50, 50), width: 100, height: 100 });
+    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
+    expect(engine.input.pointers.primary.isActorAliveUnderPointer(actor)).toBe(false);
   });
 });

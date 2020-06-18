@@ -119,7 +119,7 @@ export class Pointers extends Class {
       target.addEventListener('pointercancel', this._handlePointerEvent('cancel', this._pointerCancel));
     } else if ((<any>window).MSPointerEvent) {
       // IE10
-      this._engine.canvas.style.msTouchAction = 'none';
+      (this._engine.canvas.style as any).msTouchAction = 'none';
       target.addEventListener('MSPointerDown', this._handlePointerEvent('down', this._pointerDown));
       target.addEventListener('MSPointerUp', this._handlePointerEvent('up', this._pointerUp));
       target.addEventListener('MSPointerMove', this._handlePointerEvent('move', this._pointerMove));
@@ -280,7 +280,7 @@ export class Pointers extends Class {
         if (
           !lastMoveEventPerPointerPerActor[evt.pointer.id + '+' + actor.id] &&
           evt.pointer.wasActorUnderPointer(actor) &&
-          !evt.pointer.isActorUnderPointer(actor)
+          !evt.pointer.isActorAliveUnderPointer(actor)
         ) {
           lastMoveEventPerPointerPerActor[evt.pointer.id + '+' + actor.id] = evt;
           const pe = createPointerEventByName(
@@ -311,7 +311,7 @@ export class Pointers extends Class {
         if (
           !lastMoveEventPerPointer[evt.pointer.id] &&
           !evt.pointer.wasActorUnderPointer(actor) &&
-          evt.pointer.isActorUnderPointer(actor)
+          evt.pointer.isActorAliveUnderPointer(actor)
         ) {
           lastMoveEventPerPointer[evt.pointer.id] = evt;
           const pe = createPointerEventByName(
