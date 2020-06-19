@@ -46,7 +46,7 @@ module.exports = {
     ]
   },
   plugins: [
-    new CopyWebpackPlugin(['excalibur.d.ts']),
+    new CopyWebpackPlugin({ patterns: ['excalibur.d.ts'] }),
     new webpack.DefinePlugin({
       'process.env.__EX_VERSION': JSON.stringify(version)
     }),
