@@ -1330,7 +1330,7 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
    */
   public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {
     this.emit('predraw', new PreDrawEvent(ctx, delta, this));
-    this?.onPreDraw(ctx, delta);
+    this.onPreDraw?.(ctx, delta);
   }
 
   /**
@@ -1341,7 +1341,7 @@ export class ActorImpl extends Entity<TransformComponent | GraphicsComponent>
    */
   public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
     this.emit('postdraw', new PreDrawEvent(ctx, delta, this));
-    this?.onPostDraw(ctx, delta);
+    this.onPostDraw?.(ctx, delta);
   }
 
   /**
