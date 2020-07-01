@@ -40,8 +40,9 @@ logger.defaultLevel = ex.LogLevel.Debug;
 ex.Engine._useWebGL = true;
 ex.Engine._useLegacyDrawing = false;
 var game = new ex.Engine({
-  width: 800,
-  height: 600,
+  width: 800 / 2,
+  height: 600 / 2,
+  viewport: { width: 800, height: 600 },
   canvasElementId: 'game',
   suppressHiDPIScaling: false,
   suppressPlayButton: true,
@@ -333,10 +334,10 @@ player.rotation = 0;
 // Health bar example
 var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
 player.add(healthbar);
-player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
-  ctx.fillStyle = 'red';
-  ctx.fillRect(0, 0, 100, 100);
-};
+// player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
+//   ctx.fillStyle = 'red';
+//   ctx.fillRect(0, 0, 100, 100);
+// };
 player.graphics.onPostDraw = (ctx: ex.Graphics.ExcaliburGraphicsContext) => {
   ctx.drawLine(ex.vec(0, 0), ex.vec(200, 0));
 };
@@ -673,6 +674,7 @@ game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
 
 // Add camera to game
 game.currentScene.camera.strategy.lockToActorAxis(player, ex.Axis.X);
+game.currentScene.camera.y = 200;
 
 // Run the mainloop
 game.start(loader).then(() => {
