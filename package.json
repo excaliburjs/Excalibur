@@ -80,7 +80,7 @@
     "@typescript-eslint/parser": "2.34.0",
     "babel-loader": "8.1.0",
     "copy-webpack-plugin": "6.0.3",
-    "copyfiles": "2.2.0",
+    "copyfiles": "2.3.0",
     "coveralls": "3.1.0",
     "css-loader": "3.5.3",
     "eslint": "7.2.0",
