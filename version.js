@@ -19,8 +19,8 @@ function getCurrentCommit() {
 }
 
 function getLatestTag(commit) {
-  execSync('git fetch');
-  const tag = execSync(`git describe --tags HEAD --abbrev=0`).toString().trim();
+  execSync('git fetch --all --tags');
+  const tag = execSync(`git describe --tags ${commit} --abbrev=0`).toString().trim();
   return tag;
 }
 
