@@ -11,22 +11,22 @@ export enum DisplayMode {
   /**
    * Use the entire screen's css width/height for the game resolution. This is not the same as [[Screen.goFullScreen]]
    */
-  FullScreen,
+  FullScreen = 'FullScreen',
 
   /**
    * Use the parent DOM container's css width/height for the game resolution
    */
-  Container,
+  Container = 'Container',
 
   /**
    * Default, use a specified resolution for the game
    */
-  Fixed,
+  Fixed = 'Fixed',
 
   /**
    * Allow the game to be positioned with the [[EngineOptions.position]] option
    */
-  Position
+  Position = 'Position'
 }
 
 /**

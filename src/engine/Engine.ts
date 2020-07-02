@@ -299,9 +299,9 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Indicates the current [[DisplayMode]] of the engine.
    */
-  public displayMode: DisplayMode = DisplayMode.FullScreen;
-
-  private _suppressHiDPIScaling: boolean = false;
+  public get displayMode(): DisplayMode {
+    return this.screen.displayMode;
+  }
 
   private _suppressPlayButton: boolean = false;
   /**
@@ -530,14 +530,15 @@ O|===|* >________________>\n\
       this.canvas = <HTMLCanvasElement>document.createElement('canvas');
     }
 
+    let displayMode = options.displayMode ?? DisplayMode.Fixed;
     if (options.width && options.height) {
       if (options.displayMode === undefined) {
-        this.displayMode = DisplayMode.Fixed;
+        displayMode = DisplayMode.Fixed;
       }
       this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
     } else if (!options.displayMode) {
       this._logger.debug('Engine viewport is fullscreen');
-      this.displayMode = DisplayMode.FullScreen;
+      displayMode = DisplayMode.FullScreen;
     }
 
     this.screen = new Screen({
@@ -545,9 +546,9 @@ O|===|* >________________>\n\
       browser: this.browser,
       resolution: { width: options.width, height: options.height },
       viewport: options.viewport,
-      displayMode: this.displayMode,
-      position: this.position,
-      pixelRatio: this._suppressHiDPIScaling ? 1 : null
+      displayMode,
+      position: options.position,
+      pixelRatio: options.suppressHiDPIScaling ? 1 : null
     });
 
     this.screen.applyResolutionAndViewport();
