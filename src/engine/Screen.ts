@@ -79,7 +79,8 @@ export interface ScreenOptions {
    */
   pixelRatio?: number;
   /**
-   * Actual pixel resolution in width/height pixels (also known as logical resolution). Resolution will be overridden by DisplayMode.Container and DisplayMode.FullScreen.
+   * Actual pixel resolution in width/height pixels (also known as logical resolution). Resolution will be overridden
+   * by DisplayMode.Container and DisplayMode.FullScreen.
    */
   resolution: ScreenDimension;
   /**
@@ -124,7 +125,7 @@ export class Screen {
     this._pixelRatio = options.pixelRatio;
     this._applyDisplayMode();
     this._onPixelRatioChange('pixelRatioChange', () => {
-      console.log('Pixel Ratio Change', window.devicePixelRatio);
+      this._logger.debug('Pixel Ratio Change', window.devicePixelRatio);
       this.applyResolutionAndViewport();
     });
   }
@@ -187,7 +188,7 @@ export class Screen {
   }
 
   private _onPixelRatioChange(_event: 'pixelRatioChange', handler: () => any) {
-    let mqString = `(resolution: ${window.devicePixelRatio}dppx)`;
+    const mqString = `(resolution: ${window.devicePixelRatio}dppx)`;
     matchMedia(mqString).addEventListener('change', handler);
   }
 
