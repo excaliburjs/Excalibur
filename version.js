@@ -20,7 +20,7 @@ function getCurrentCommit() {
 
 function getLatestTag(commit) {
   execSync('git fetch');
-  const tag = execSync(`git describe --tags ${commit} --abbrev=0`).toString().trim();
+  const tag = execSync(`git describe --tags HEAD --abbrev=0`).toString().trim();
   return tag;
 }
 
