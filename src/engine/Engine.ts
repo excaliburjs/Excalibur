@@ -1115,6 +1115,8 @@ O|===|* >________________>\n\
       const promise = new Promise();
       return promise.reject('Excalibur is incompatible with your browser');
     }
+    // Changing resolution invalidates context state, so we need to capture it before applying
+    const oldAntialias = this.getAntialiasing();
     this.screen.pushResolutionAndViewport();
     this.screen.resolution = this.screen.viewport;
     this.screen.applyResolutionAndViewport();
@@ -1131,6 +1133,7 @@ O|===|* >________________>\n\
     loadingComplete.then(() => {
       this.screen.popResolutionAndViewport();
       this.screen.applyResolutionAndViewport();
+      this.setAntialiasing(oldAntialias);
       this.emit('start', new GameStartEvent(this));
     });
 
