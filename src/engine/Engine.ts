@@ -293,7 +293,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * Indicates whether the engine is set to fullscreen or not
    */
   public get isFullscreen(): boolean {
-    return this.screen.isFullscreen;
+    return this.screen.isFullScreen;
   }
 
   /**
@@ -608,7 +608,6 @@ O|===|* >________________>\n\
    * @param x          x game coordinate to play the animation
    * @param y          y game coordinate to play the animation
    */
-  @obsolete()
   public playAnimation(animation: Animation, x: number, y: number) {
     this._animations.push(new AnimationNode(animation, x, y));
   }
@@ -1118,7 +1117,6 @@ O|===|* >________________>\n\
     this.screen.pushResolutionAndViewport();
     this.screen.resolution = this.screen.viewport;
     this.screen.applyResolutionAndViewport();
-    this.graphicsContext.updateViewport();
     let loadingComplete: Promise<any>;
     if (loader) {
       this._loader = loader;
@@ -1132,7 +1130,6 @@ O|===|* >________________>\n\
     loadingComplete.then(() => {
       this.screen.popResolutionAndViewport();
       this.screen.applyResolutionAndViewport();
-      this.graphicsContext.updateViewport();
       this.emit('start', new GameStartEvent(this));
     });
 
@@ -1261,7 +1258,6 @@ O|===|* >________________>\n\
 /**
  * @internal
  */
-@obsolete()
 class AnimationNode {
   constructor(public animation: Animation, public x: number, public y: number) {}
 }

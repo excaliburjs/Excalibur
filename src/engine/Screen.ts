@@ -1,4 +1,4 @@
-import { Vector, vec } from './Algebra';
+import { Vector } from './Algebra';
 import { Logger } from './Util/Log';
 import { Camera } from './Camera';
 import { BrowserEvents } from './Util/Browser';
@@ -9,7 +9,7 @@ import { BoundingBox } from './Collision/Index';
  */
 export enum DisplayMode {
   /**
-   * Use the entire screen's css width/height for the game resolution
+   * Use the entire screen's css width/height for the game resolution. This is not the same as [[Screen.goFullScreen]]
    */
   FullScreen,
 
@@ -29,16 +29,41 @@ export enum DisplayMode {
   Position
 }
 
+/**
+ * Convenience class for quick resolutions
+ * Mostly sourced from https://emulation.gametechwiki.com/index.php/Resolution
+ */
 export class Resolution {
-  public static get Standard(): Vector {
-    return vec(800, 600);
-  }
-  public static get GameBoy(): Vector {
-    return vec(160, 144);
+  public static get SVGA(): ScreenDimension {
+    return { width: 800, height: 600 };
   }
 
-  public static get NES(): Vector {
-    return vec(256, 240);
+  public static get Standard(): ScreenDimension {
+    return { width: 1920, height: 1080 };
+  }
+
+  public static get Atari2600(): ScreenDimension {
+    return { width: 160, height: 192 };
+  }
+
+  public static get GameBoy(): ScreenDimension {
+    return { width: 160, height: 144 };
+  }
+
+  public static get GameBoyAdvance(): ScreenDimension {
+    return { width: 240, height: 160 };
+  }
+
+  public static get NintendoDS(): ScreenDimension {
+    return { width: 256, height: 192 };
+  }
+
+  public static get NES(): ScreenDimension {
+    return { width: 256, height: 224 };
+  }
+
+  public static get SNES(): ScreenDimension {
+    return { width: 256, height: 244 };
   }
 }
 
@@ -113,9 +138,9 @@ export class Screen {
   private _pixelRatio: number | null = null;
   private _position: CanvasPosition;
   private _displayMode: DisplayMode;
-  private _isFullscreen = false;
+  private _isFullScreen = false;
   private _logger = Logger.getInstance();
-  constructor(private options: ScreenOptions) {
+  constructor(options: ScreenOptions) {
     this.resolution = options.resolution;
     this.viewport = options.viewport ?? this.resolution;
     this._displayMode = options.displayMode ?? DisplayMode.Fixed;
@@ -217,25 +242,25 @@ export class Screen {
   /**
    * Returns true if excalibur is fullscreened using the browser fullscreen api
    */
-  public get isFullscreen() {
-    return this._isFullscreen;
+  public get isFullScreen() {
+    return this._isFullScreen;
   }
 
   /**
    * Requests to go fullscreen using the browser fullscreen api
    */
-  public goFullscreen(): Promise<void> {
-    return this.options.canvas.requestFullscreen().then(() => {
-      this._isFullscreen = true;
+  public goFullScreen(): Promise<void> {
+    return this._canvas.requestFullscreen().then(() => {
+      this._isFullScreen = true;
     });
   }
 
   /**
    * Requests to exit fullscreen using the browser fullscreen api
    */
-  public exitFullscreen(): Promise<void> {
+  public exitFullScreen(): Promise<void> {
     return document.exitFullscreen().then(() => {
-      this._isFullscreen = false;
+      this._isFullScreen = false;
     });
   }
 
@@ -248,8 +273,8 @@ export class Screen {
     let newY = point.y;
 
     // transform back to world space
-    newX = (newX / this.canvas.clientWidth) * this.drawWidth;
-    newY = (newY / this.canvas.clientHeight) * this.drawHeight;
+    newX = (newX / this.viewport.width) * this.drawWidth;
+    newY = (newY / this.viewport.height) * this.drawHeight;
 
     // transform based on zoom
     newX = newX - this.halfDrawWidth;
@@ -279,8 +304,8 @@ export class Screen {
     screenY = screenY + this.halfDrawHeight;
 
     // transform back to screen space
-    screenX = (screenX * this.canvas.clientWidth) / this.drawWidth;
-    screenY = (screenY * this.canvas.clientHeight) / this.drawHeight;
+    screenX = (screenX * this.viewport.width) / this.drawWidth;
+    screenY = (screenY * this.viewport.height) / this.drawHeight;
 
     return new Vector(Math.floor(screenX), Math.floor(screenY));
   }
@@ -335,7 +360,7 @@ export class Screen {
     if (this._camera) {
       return this.scaledWidth / this._camera.z / this.pixelRatio;
     }
-    return this.scaledHeight / this.pixelRatio;
+    return this.scaledWidth / this.pixelRatio;
   }
 
   /**
