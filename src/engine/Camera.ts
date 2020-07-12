@@ -8,6 +8,7 @@ import { CanUpdate, CanInitialize } from './Interfaces/LifecycleEvents';
 import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './Events';
 import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
+import { Logger } from './Util/Log';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -73,6 +74,14 @@ export class StrategyContainer {
    */
   public radiusAroundActor(actor: Actor, radius: number) {
     this.camera.addStrategy(new RadiusAroundActorStrategy(actor, radius));
+  }
+
+  /**
+   * Creates and adds the [[LimitCameraBoundsStrategy]] on the current camera
+   * @param box The bounding box to limit the camera to.
+   */
+  public limitCameraBounds(box: BoundingBox) {
+    this.camera.addStrategy(new LimitCameraBoundsStrategy(box));
   }
 }
 
@@ -166,6 +175,52 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
       const offset = distance - this.radius;
       return focus.add(direction.normalize().scale(offset));
     }
+    return focus;
+  };
+}
+
+/**
+ * Prevent a camera from going beyond the given camera dimensions.
+ */
+export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
+  /**
+   * Useful for limiting the camera to a [[TileMap]]'s dimensions, or a specific area inside the map.
+   *
+   * Note that this strategy does not perform any movement by itself.
+   * It only sets the camera position to within the given bounds when the camera has gone beyond them.
+   * Thus, it is a good idea to combine it with other camera strategies and set this strategy as the last one.
+   *
+   * Make sure that the camera bounds are at least as large as the viewport size.
+   *
+   * @param target The bounding box to limit the camera to
+   */
+
+  boundSizeChecked: boolean = false; // Check and warn only once
+
+  constructor(public target: BoundingBox) {}
+
+  public action = (target: BoundingBox, cam: Camera, _eng: Engine, _delta: number) => {
+    const focus = cam.getFocus();
+
+    if (!this.boundSizeChecked) {
+      if (target.bottom - target.top < _eng.drawHeight || target.right - target.left < _eng.drawWidth) {
+        Logger.getInstance().warn('Camera bounds should not be smaller than the engine viewport');
+      }
+      this.boundSizeChecked = true;
+    }
+
+    if (focus.x < target.left + _eng.halfDrawWidth) {
+      focus.x = target.left + _eng.halfDrawWidth;
+    } else if (focus.x > target.right - _eng.halfDrawWidth) {
+      focus.x = target.right - _eng.halfDrawWidth;
+    }
+
+    if (focus.y < target.top + _eng.halfDrawHeight) {
+      focus.y = target.top + _eng.halfDrawHeight;
+    } else if (focus.y > target.bottom - _eng.halfDrawHeight) {
+      focus.y = target.bottom - _eng.halfDrawHeight;
+    }
+
     return focus;
   };
 }

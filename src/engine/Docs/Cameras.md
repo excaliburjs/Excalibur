@@ -42,6 +42,14 @@ Keep the actor within a circle around the focus
 game.currentScene.camera.strategy.radiusAroundActor(actor, radius);
 ```
 
+Keep the camera limited within camera constraints.  
+Make sure that the camera bounds are at least as large as the viewport size.
+
+```typescript
+let boundingBox = new BoundingBox(leftBorder, topBorder, rightBorder, bottomBorder);
+game.currentScene.camera.strategy.limitCameraBounds(boundingBox);
+```
+
 ## Custom strategies
 
 Custom strategies can be implemented by extending the [[CameraStrategy]] interface and added to cameras to build novel behavior with `ex.Camera.addStrategy<T>(new MyCameraStrategy<T>())`.

@@ -1,7 +1,7 @@
 {
   "extends": ["config:base"],
   "schedule": "on the first day of the month",
-  "commitMessagePrefix": "[chore]",
+  "commitMessagePrefix": "chore:",
   "automerge": true,
   "major": {
     "automerge": false

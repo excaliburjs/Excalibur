@@ -421,6 +421,21 @@ describe('A scene', () => {
     expect(initializeCount).toBe(1, 'Scenes can only be initialized once');
   });
 
+  it('should initialize before actors in the scene', () => {
+    const actor = new ex.Actor();
+    scene.add(actor);
+    let sceneInit = false;
+    scene.onInitialize = () => {
+      sceneInit = true;
+    };
+    actor.onInitialize = () => {
+      expect(sceneInit).toBe(true, 'Scene should be initialized first before any actors');
+    };
+
+    engine.goToScene('root');
+    scene.update(engine, 100);
+  });
+
   it('should allow adding and removing an Actor in same frame', () => {
     let removed = false;
     scene.add(actor);
