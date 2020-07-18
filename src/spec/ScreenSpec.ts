@@ -3,10 +3,12 @@ import { ExcaliburMatchers } from 'excalibur-jasmine';
 import { Camera } from '@excalibur';
 describe('A Screen', () => {
   let canvas: HTMLCanvasElement;
+  let context: CanvasRenderingContext2D;
   let browser: ex.BrowserEvents;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     canvas = document.createElement('canvas');
+    context = canvas.getContext('2d');
     document.body.appendChild(canvas);
     browser = new ex.BrowserEvents(window, document);
   });
@@ -22,8 +24,9 @@ describe('A Screen', () => {
   it('can be constructed', () => {
     const sut = new ex.Screen({
       canvas,
+      context,
       browser,
-      resolution: { width: 400, height: 400 }
+      viewport: { width: 400, height: 400 }
     });
     expect(sut).toBeDefined();
   });
@@ -31,8 +34,9 @@ describe('A Screen', () => {
   it('will use the current pixel ratio', () => {
     const sut = new ex.Screen({
       canvas,
+      context,
       browser,
-      resolution: { width: 400, height: 400 }
+      viewport: { width: 400, height: 400 }
     });
 
     expect(sut.pixelRatio).toEqual(window.devicePixelRatio);
@@ -41,8 +45,9 @@ describe('A Screen', () => {
   it('can override pixel ratio', () => {
     const sut = new ex.Screen({
       canvas,
+      context,
       browser,
-      resolution: { width: 400, height: 400 },
+      viewport: { width: 400, height: 400 },
       pixelRatio: 10
     });
 
@@ -52,8 +57,9 @@ describe('A Screen', () => {
   it('can specify a non-scaled resolution', () => {
     const sut = new ex.Screen({
       canvas,
+      context,
       browser,
-      resolution: { width: 800, height: 600 },
+      viewport: { width: 800, height: 600 },
       pixelRatio: 1
     });
     sut.applyResolutionAndViewport();
@@ -70,8 +76,9 @@ describe('A Screen', () => {
   it('can specify a scaled resolution', () => {
     const sut = new ex.Screen({
       canvas,
+      context,
       browser,
-      resolution: { width: 800, height: 600 },
+      viewport: { width: 800, height: 600 },
       pixelRatio: 2
     });
     sut.applyResolutionAndViewport();
@@ -91,8 +98,9 @@ describe('A Screen', () => {
   it('can push and pop screen resolution', () => {
     const sut = new ex.Screen({
       canvas,
+      context,
       browser,
-      resolution: { width: 800, height: 600 },
+      viewport: { width: 800, height: 600 },
       pixelRatio: 2
     });
     sut.pushResolutionAndViewport();
@@ -116,8 +124,9 @@ describe('A Screen', () => {
   it('can calculate world coordinates from screen coordinates without a camera', () => {
     const sut = new ex.Screen({
       canvas,
+      context,
       browser,
-      resolution: { width: 800, height: 600 },
+      viewport: { width: 800, height: 600 },
       pixelRatio: 2
     });
     sut.applyResolutionAndViewport();
@@ -134,8 +143,9 @@ describe('A Screen', () => {
   it('can calculate screen coordinates from world coordinates without a camera', () => {
     const sut = new ex.Screen({
       canvas,
+      context,
       browser,
-      resolution: { width: 800, height: 600 },
+      viewport: { width: 800, height: 600 },
       pixelRatio: 2
     });
     sut.applyResolutionAndViewport();
@@ -152,8 +162,9 @@ describe('A Screen', () => {
   it('can calculate world coordinates from screen coordinates with a camera', () => {
     const sut = new ex.Screen({
       canvas,
+      context,
       browser,
-      resolution: { width: 800, height: 600 },
+      viewport: { width: 800, height: 600 },
       pixelRatio: 2
     });
     const camera = new Camera();
@@ -177,8 +188,9 @@ describe('A Screen', () => {
   it('can calculate screen coordinates from world coordinates with a camera', () => {
     const sut = new ex.Screen({
       canvas,
+      context,
       browser,
-      resolution: { width: 800, height: 600 },
+      viewport: { width: 800, height: 600 },
       pixelRatio: 2
     });
     const camera = new Camera();
@@ -202,8 +214,9 @@ describe('A Screen', () => {
   it('can return world bounds', () => {
     const sut = new ex.Screen({
       canvas,
+      context,
       browser,
-      resolution: { width: 800, height: 600 },
+      viewport: { width: 800, height: 600 },
       pixelRatio: 2
     });
     const camera = new Camera();

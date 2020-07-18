@@ -286,7 +286,7 @@ export class Screen {
 
   public set antialiasing(isSmooth: boolean) {
     this._antialiasing = isSmooth;
-    this.applyResolutionAndViewport();
+    this._ctx.imageSmoothingEnabled = this._antialiasing;
   }
 
   /**
