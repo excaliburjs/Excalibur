@@ -63,19 +63,24 @@ export enum ScrollPreventionMode {
  */
 export interface EngineOptions {
   /**
-   * Optionally configure the native logical pixel width of the game (resolution)
+   * Optionally configure the width of the viewport in css pixels
    */
   width?: number;
 
   /**
-   * Optionally configure the native logical pixel height of the game (resolution)
+   * Optionally configure the height of the viewport in css pixels
    */
   height?: number;
 
   /**
-   * Optionally specify the size the viewport should take up onscreen
+   * Optionally specify the size the logical pixel resolution, if not specified it will be width x height
    */
-  viewport?: { width: number; height: number };
+  resolution?: { width: number; height: number };
+
+  /**
+   * Optionally specify antialiasing (smoothing), by default true (smooth pixels)
+   */
+  antialiasing?: boolean;
 
   /**
    * Optionally configure the native canvas transparent backdrop
@@ -541,11 +546,16 @@ O|===|* >________________>\n\
       displayMode = DisplayMode.FullScreen;
     }
 
+    // eslint-disable-next-line
+    this.ctx = this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
+
     this.screen = new Screen({
-      canvas: this.canvas, // todo canvas factory?
+      canvas: this.canvas,
+      context: this.ctx,
+      antialiasing: options.antialiasing ?? true,
       browser: this.browser,
-      resolution: { width: options.width, height: options.height },
-      viewport: options.viewport,
+      viewport: { width: options.width, height: options.height },
+      resolution: options.resolution,
       displayMode,
       position: options.position,
       pixelRatio: options.suppressHiDPIScaling ? 1 : null
@@ -916,9 +926,6 @@ O|===|* >________________>\n\
       }
     });
 
-    // eslint-disable-next-line
-    this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
-
     if (!this.canvasElementId && !options.canvasElement) {
       document.body.appendChild(this.canvas);
     }
@@ -935,27 +942,14 @@ O|===|* >________________>\n\
    * @param isSmooth  Set smoothing to true or false
    */
   public setAntialiasing(isSmooth: boolean) {
-    const ctx: any = this.ctx;
-    ctx.imageSmoothingEnabled = isSmooth;
-    for (const smoothing of ['webkitImageSmoothingEnabled', 'mozImageSmoothingEnabled', 'msImageSmoothingEnabled']) {
-      if (smoothing in ctx) {
-        ctx[smoothing] = isSmooth;
-      }
-    }
+    this.screen.antialiasing = isSmooth;
   }
 
   /**
    * Return the current smoothing status of the canvas
    */
   public getAntialiasing(): boolean {
-    /*eslint-disable */
-    return (
-      (<any>this.ctx).imageSmoothingEnabled ||
-      (<any>this.ctx).webkitImageSmoothingEnabled ||
-      (<any>this.ctx).mozImageSmoothingEnabled ||
-      (<any>this.ctx).msImageSmoothingEnabled
-    );
-    /*eslint-enable */
+    return this.screen.antialiasing;
   }
 
   /**
@@ -1116,10 +1110,10 @@ O|===|* >________________>\n\
       return promise.reject('Excalibur is incompatible with your browser');
     }
     // Changing resolution invalidates context state, so we need to capture it before applying
-    const oldAntialias = this.getAntialiasing();
     this.screen.pushResolutionAndViewport();
     this.screen.resolution = this.screen.viewport;
     this.screen.applyResolutionAndViewport();
+    
     let loadingComplete: Promise<any>;
     if (loader) {
       this._loader = loader;
@@ -1133,7 +1127,6 @@ O|===|* >________________>\n\
     loadingComplete.then(() => {
       this.screen.popResolutionAndViewport();
       this.screen.applyResolutionAndViewport();
-      this.setAntialiasing(oldAntialias);
       this.emit('start', new GameStartEvent(this));
     });
 

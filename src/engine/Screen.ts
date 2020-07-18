@@ -86,11 +86,24 @@ export interface ScreenDimension {
   height: number;
 }
 
+export interface ExcaliburGraphicsContext {
+  save(): void;
+  resetTransform(): void;
+  scale(x: number, y: number): void;
+  imageSmoothingEnabled: boolean;
+  restore(): void;
+}
+
 export interface ScreenOptions {
   /**
    * Canvas element to build a screen on
    */
   canvas: HTMLCanvasElement;
+  /**
+   * Graphics context for the screen
+   */
+  context: ExcaliburGraphicsContext;
+
   /**
    * Browser abstraction
    */
@@ -104,14 +117,14 @@ export interface ScreenOptions {
    */
   pixelRatio?: number;
   /**
-   * Actual pixel resolution in width/height pixels (also known as logical resolution). Resolution will be overridden
-   * by DisplayMode.Container and DisplayMode.FullScreen.
+   * Optionally specify the actual pixel resolution in width/height pixels (also known as logical resolution), by default the 
+   * resolution will be the same as the viewport. Resolution will be overridden by DisplayMode.Container and DisplayMode.FullScreen.
    */
-  resolution: ScreenDimension;
+  resolution?: ScreenDimension;
   /**
-   * Visual viewport size by default the same as the pixel resolution
+   * Visual viewport size in css pixel, if resolution is not specified it will be the same as the viewport
    */
-  viewport?: ScreenDimension;
+  viewport: ScreenDimension;
   /**
    * Set the display mode of the screen, by default DisplayMode.Fixed.
    */
@@ -129,6 +142,8 @@ export interface ScreenOptions {
 
 export class Screen {
   private _canvas: HTMLCanvasElement;
+  private _ctx: ExcaliburGraphicsContext;
+  private _antialiasing: boolean = true;
   private _browser: BrowserEvents;
   private _camera: Camera;
   private _resolution: ScreenDimension;
@@ -139,20 +154,46 @@ export class Screen {
   private _position: CanvasPosition;
   private _displayMode: DisplayMode;
   private _isFullScreen = false;
+  private _mediaQueryList: MediaQueryList;
+  private _isDisposed = false;
   private _logger = Logger.getInstance();
+
   constructor(options: ScreenOptions) {
-    this.resolution = options.resolution;
-    this.viewport = options.viewport ?? this.resolution;
+    this.viewport = options.viewport;
+    this.resolution = options.resolution ?? { ...this.viewport };
     this._displayMode = options.displayMode ?? DisplayMode.Fixed;
     this._canvas = options.canvas;
+    this._ctx = options.context;
+    this._antialiasing = options.antialiasing ?? this._antialiasing;
     this._browser = options.browser;
     this._position = options.position;
     this._pixelRatio = options.pixelRatio;
     this._applyDisplayMode();
-    this._onPixelRatioChange('pixelRatioChange', () => {
-      this._logger.debug('Pixel Ratio Change', window.devicePixelRatio);
-      this.applyResolutionAndViewport();
-    });
+
+    this._mediaQueryList = this._browser.window.nativeComponent.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+    this._mediaQueryList.addEventListener('change', this._pixelRatioChangeHandler);
+  }
+
+  public dispose(): void {
+    if (!this._isDisposed) {
+      // Clean up handlers
+      this._isDisposed = true;
+      this._browser.window.off('resize', this._windowResizeHandler);
+      this._mediaQueryList.removeEventListener('change', this._pixelRatioChangeHandler);
+    }
+  }
+
+  private _pixelRatioChangeHandler = () => {
+    this._logger.debug('Pixel Ratio Change', window.devicePixelRatio);
+    this.applyResolutionAndViewport();
+  }
+
+  private _windowResizeHandler = () => {
+    const parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
+    this._logger.debug('View port resized');
+    this._setHeightByDisplayMode(parent);
+    this._logger.info('parent.clientHeight ' + parent.clientHeight);
+    this.applyResolutionAndViewport();
   }
 
   public get pixelRatio(): number {
@@ -212,11 +253,6 @@ export class Screen {
     this._camera = camera;
   }
 
-  private _onPixelRatioChange(_event: 'pixelRatioChange', handler: () => any) {
-    const mqString = `(resolution: ${window.devicePixelRatio}dppx)`;
-    matchMedia(mqString).addEventListener('change', handler);
-  }
-
   public pushResolutionAndViewport() {
     this._resolutionStack.push(this.resolution);
     this._viewportStack.push(this.viewport);
@@ -234,9 +270,23 @@ export class Screen {
     this._canvas.width = this.scaledWidth;
     this._canvas.height = this.scaledHeight;
 
-    this._canvas.style.imageRendering = 'pixelated'; // TODO make configurable
+    this._canvas.style.imageRendering = this._antialiasing ? 'auto' : 'pixelated';
     this._canvas.style.width = this.viewport.width + 'px';
     this._canvas.style.height = this.viewport.height + 'px';
+
+    // After messing with the canvas width/height the graphics context is invalidated and needs to have some properties reset
+    this._ctx.resetTransform();
+    this._ctx.scale(this.pixelRatio, this.pixelRatio);
+    this._ctx.imageSmoothingEnabled = this._antialiasing;
+  }
+
+  public get antialiasing() {
+    return this._antialiasing;
+  }
+
+  public set antialiasing(isSmooth: boolean) {
+    this._antialiasing = isSmooth;
+    this.applyResolutionAndViewport();
   }
 
   /**
@@ -393,13 +443,7 @@ export class Screen {
 
       this._setHeightByDisplayMode(parent);
 
-      this._browser.window.on('resize', () => {
-        this._logger.debug('View port resized');
-        this._setHeightByDisplayMode(parent);
-        this._logger.info('parent.clientHeight ' + parent.clientHeight);
-        // TODO Figure this out
-        // this.setAntialiasing(this._isSmoothingEnabled);
-      });
+      this._browser.window.on('resize', this._windowResizeHandler);
     } else if (this.displayMode === DisplayMode.Position) {
       this._initializeDisplayModePosition(this._position);
     }

@@ -38,14 +38,13 @@ logger.defaultLevel = ex.LogLevel.Debug;
 
 // Create an the game container
 var game = new ex.Engine({
-  width: 800 / 2,
-  height: 600 / 2,
-  viewport: { width: 800, height: 600 },
+  width: 800,
+  height: 600,
+  antialiasing: false,
   canvasElementId: 'game',
   suppressHiDPIScaling: false,
   suppressPlayButton: true
 });
-game.setAntialiasing(false);
 game.isDebug = true;
 
 var heartTex = new ex.Texture('../images/heart.png');
