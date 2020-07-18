@@ -5,7 +5,7 @@ import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents'
 import { Loadable } from './Interfaces/Loadable';
 import { Promise } from './Promises';
 import { Vector } from './Algebra';
-import { Screen, DisplayMode, AbsolutePosition } from './Screen';
+import { Screen, DisplayMode, AbsolutePosition, ScreenDimension } from './Screen';
 import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
@@ -73,9 +73,9 @@ export interface EngineOptions {
   height?: number;
 
   /**
-   * Optionally specify the size the logical pixel resolution, if not specified it will be width x height
+   * Optionally specify the size the logical pixel resolution, if not specified it will be width x height. See [[Resolution]] for common presets.
    */
-  resolution?: { width: number; height: number };
+  resolution?: ScreenDimension;
 
   /**
    * Optionally specify antialiasing (smoothing), by default true (smooth pixels)
