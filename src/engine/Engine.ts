@@ -73,7 +73,8 @@ export interface EngineOptions {
   height?: number;
 
   /**
-   * Optionally specify the size the logical pixel resolution, if not specified it will be width x height. See [[Resolution]] for common presets.
+   * Optionally specify the size the logical pixel resolution, if not specified it will be width x height.
+   * See [[Resolution]] for common presets.
    */
   resolution?: ScreenDimension;
 
@@ -1113,7 +1114,7 @@ O|===|* >________________>\n\
     this.screen.pushResolutionAndViewport();
     this.screen.resolution = this.screen.viewport;
     this.screen.applyResolutionAndViewport();
-    
+
     let loadingComplete: Promise<any>;
     if (loader) {
       this._loader = loader;
