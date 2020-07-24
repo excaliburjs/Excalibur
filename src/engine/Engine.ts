@@ -73,7 +73,7 @@ export interface EngineOptions {
   height?: number;
 
   /**
-   * Optionally configure the width & height of the viewport in css pixels. 
+   * Optionally configure the width & height of the viewport in css pixels.
    * Use `viewport` instead of [[EngineOptions.width]] and [[EngineOptions.height]], or vice versa.
    */
   viewport?: ScreenDimension;
