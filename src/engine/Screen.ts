@@ -140,6 +140,11 @@ export interface ScreenOptions {
   position?: CanvasPosition;
 }
 
+/**
+ * The Screen handles all aspects of interacting with the screen for Excalibur.
+ *
+ * [[include:Screen.md]]
+ */
 export class Screen {
   private _canvas: HTMLCanvasElement;
   private _ctx: ExcaliburGraphicsContext;

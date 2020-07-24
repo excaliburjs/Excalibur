@@ -73,6 +73,11 @@ export interface EngineOptions {
   height?: number;
 
   /**
+   * Optionally configure the width & height of the viewport in css pixels. Use `viewport` instead of [[EngineOptions.width]] and [[EngineOptions.height]], or vice versa.
+   */
+  viewport?: ScreenDimension;
+
+  /**
    * Optionally specify the size the logical pixel resolution, if not specified it will be width x height.
    * See [[Resolution]] for common presets.
    */
@@ -537,7 +542,7 @@ O|===|* >________________>\n\
     }
 
     let displayMode = options.displayMode ?? DisplayMode.Fixed;
-    if (options.width && options.height) {
+    if ((options.width && options.height) || options.viewport) {
       if (options.displayMode === undefined) {
         displayMode = DisplayMode.Fixed;
       }
@@ -555,7 +560,7 @@ O|===|* >________________>\n\
       context: this.ctx,
       antialiasing: options.antialiasing ?? true,
       browser: this.browser,
-      viewport: { width: options.width, height: options.height },
+      viewport: options.viewport ?? { width: options.width, height: options.height },
       resolution: options.resolution,
       displayMode,
       position: options.position,
