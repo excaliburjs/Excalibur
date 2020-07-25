@@ -11,6 +11,8 @@ instance of a game at a time, so it is safe to use globally.
 You can then call [[start]] which starts the game and optionally accepts
 a [[Loader]] which you can use to pre-load assets.
 
+Look at the [[Screen]] abstraction to specify custom resolutions and viewport for your game.
+
 ```js
 var game = new ex.Engine({
   width: 800, // the width of the canvas
