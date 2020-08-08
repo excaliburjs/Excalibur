@@ -280,7 +280,7 @@ export class Pointers extends Class {
         if (
           !lastMoveEventPerPointerPerActor[evt.pointer.id + '+' + actor.id] &&
           evt.pointer.wasActorUnderPointer(actor) &&
-          !evt.pointer.isActorUnderPointer(actor)
+          !evt.pointer.isActorAliveUnderPointer(actor)
         ) {
           lastMoveEventPerPointerPerActor[evt.pointer.id + '+' + actor.id] = evt;
           const pe = createPointerEventByName(
@@ -311,7 +311,7 @@ export class Pointers extends Class {
         if (
           !lastMoveEventPerPointer[evt.pointer.id] &&
           !evt.pointer.wasActorUnderPointer(actor) &&
-          evt.pointer.isActorUnderPointer(actor)
+          evt.pointer.isActorAliveUnderPointer(actor)
         ) {
           lastMoveEventPerPointer[evt.pointer.id] = evt;
           const pe = createPointerEventByName(

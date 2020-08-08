@@ -37,8 +37,14 @@ var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
 // Create an the game container
-var game = new ex.Engine({ width: 800, height: 600, canvasElementId: 'game', suppressHiDPIScaling: false, suppressPlayButton: true });
-game.setAntialiasing(false);
+var game = new ex.Engine({
+  width: 800,
+  height: 600,
+  antialiasing: false,
+  canvasElementId: 'game',
+  suppressHiDPIScaling: false,
+  suppressPlayButton: true
+});
 game.isDebug = true;
 
 var heartTex = new ex.Texture('../images/heart.png');
@@ -551,6 +557,7 @@ game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
 
 // Add camera to game
 game.currentScene.camera.strategy.lockToActorAxis(player, ex.Axis.X);
+game.currentScene.camera.y = 200;
 
 // Run the mainloop
 game.start(loader).then(() => {

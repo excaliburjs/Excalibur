@@ -189,7 +189,7 @@ export class PointerMoveEvent extends PointerEvent {
     //   return;
     // }
 
-    if (this.pointer.isActorUnderPointer(actor)) {
+    if (this.pointer.isActorAliveUnderPointer(actor)) {
       this.doAction(actor);
 
       if (this.bubbles && actor.parent) {
