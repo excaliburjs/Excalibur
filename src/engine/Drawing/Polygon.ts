@@ -3,7 +3,6 @@ import * as Effects from './SpriteEffects';
 
 import { Drawable, DrawOptions } from '../Interfaces/Drawable';
 import { Vector } from '../Algebra';
-import { nullish } from '../Util/Util';
 
 /**
  * Creates a closed polygon drawing given a list of [[Vector]]s.
@@ -126,14 +125,14 @@ export class Polygon implements Drawable {
   private _drawWithOptions(options: DrawOptions) {
     const { ctx, x, y, rotation, drawWidth, drawHeight, anchor, offset, opacity, flipHorizontal, flipVertical } = {
       ...options,
-      rotation: nullish(options.rotation, this.rotation),
-      drawWidth: nullish(options.drawWidth, this.drawWidth),
-      drawHeight: nullish(options.drawHeight, this.drawHeight),
-      flipHorizontal: nullish(options.flipHorizontal, this.flipHorizontal),
-      flipVertical: nullish(options.flipVertical, this.flipVertical),
-      anchor: nullish(options.anchor, this.anchor),
-      offset: nullish(options.offset, this.offset),
-      opacity: nullish(options.opacity, this.opacity)
+      rotation: options.rotation ?? this.rotation,
+      drawWidth: options.drawWidth ?? this.drawWidth,
+      drawHeight: options.drawHeight ?? this.drawHeight,
+      flipHorizontal: options.flipHorizontal ?? this.flipHorizontal,
+      flipVertical: options.flipVertical ?? this.flipVertical,
+      anchor: options.anchor ?? this.anchor,
+      offset: options.offset ?? this.offset,
+      opacity: options.opacity ?? this.opacity
     };
 
     const xpoint = drawWidth * anchor.x + offset.x + x;
@@ -178,7 +177,7 @@ export class Polygon implements Drawable {
     }
 
     const oldAlpha = ctx.globalAlpha;
-    ctx.globalAlpha = nullish(opacity, 1);
+    ctx.globalAlpha = opacity ?? 1;
     ctx.stroke();
     ctx.globalAlpha = oldAlpha;
 

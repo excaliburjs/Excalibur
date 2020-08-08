@@ -520,6 +520,46 @@ describe('A game actor', () => {
     expect(invisibleActor.draw).not.toHaveBeenCalled();
   });
 
+  it('can have a graphic drawn at an opacity', (done) => {
+    engine = TestUtils.engine({
+      width: 62,
+      height: 64,
+      suppressHiDPIScaling: true
+    });
+    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        rotation: 0,
+        anchor: new ex.Vector(0.0, 0.0),
+        scale: new ex.Vector(1, 1),
+        flipVertical: false,
+        flipHorizontal: false
+      });
+
+      const actor = new ex.Actor({
+        pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),
+        width: 10,
+        height: 10
+      });
+
+      actor.addDrawing(sprite);
+
+      actor.opacity = 0.1;
+
+      actor.draw(engine.ctx, 0);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/opacity.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+  });
+
   it('can detect containment off of child actors', () => {
     const parent = new ex.Actor(600, 100, 100, 100);
     const child = new ex.Actor(0, 0, 100, 100);
