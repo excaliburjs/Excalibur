@@ -63,7 +63,7 @@ describe('A QueryManager', () => {
     const queryA = scene.queryManager.createQuery(['A', 'B']);
 
     queryA.register({
-      notify: () => {}
+      notify: () => {} // eslint-disable-line @typescript-eslint/no-empty-function
     });
 
     expect(scene.queryManager.getQuery(['A', 'B'])).toBe(queryA);

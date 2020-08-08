@@ -126,7 +126,7 @@ describe('A query', () => {
 
     queryAB.addEntity(entity1);
     queryAB.register({
-      notify: () => {}
+      notify: () => {} // eslint-disable-line @typescript-eslint/no-empty-function
     });
     expect(queryAB.entities).toEqual([entity1]);
     expect(queryAB.observers.length).toBe(1);

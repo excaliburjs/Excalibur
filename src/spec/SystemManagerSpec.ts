@@ -61,8 +61,8 @@ describe('A SystemManager', () => {
   it('can update systems', () => {
     const sm = new ex.Scene(null).systemManager;
     const system = new FakeSystem(2, 'System3', ['C']);
-    system.preupdate = () => {};
-    system.postupdate = () => {};
+    system.preupdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
+    system.postupdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
     spyOn(system, 'preupdate');
     spyOn(system, 'postupdate');
     spyOn(system, 'update');
