@@ -9,7 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Add new `ex.Screen` abstraction to manage viewport size and resolution independently and all other screen related logic
+- Add new `ex.Screen` abstraction to manage viewport size and resolution independently and all other screen related logic. ([#1617](https://github.com/excaliburjs/Excalibur/issues/1617))
   - New support for the browser fullscreen API
 - Add color blind mode simulation and correction in debug object.
   ([#390](https://github.com/excaliburjs/Excalibur/issues/390))
