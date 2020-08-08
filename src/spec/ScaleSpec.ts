@@ -35,7 +35,7 @@ describe('A scaled and rotated actor', () => {
     engine.start(new ex.Loader([bg])).then(() => {
       const actor = new ex.Actor(engine.halfDrawWidth, engine.halfDrawHeight, 100, 100, ex.Color.Black);
       actor.addDrawing(bg);
-      actor.setHeight(10);
+      actor.height = 10;
       actor.scale.setTo(1, 0.2);
       engine.add(actor);
 

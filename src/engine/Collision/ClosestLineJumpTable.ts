@@ -10,7 +10,7 @@ import { Circle } from './Circle';
  * @param p0 Point where L1 begins
  * @param u Direction and length of L1
  * @param q0 Point were L2 begins
- * @param v Direction and lenght of L2
+ * @param v Direction and length of L2
  */
 export function ClosestLine(p0: Vector, u: Vector, q0: Vector, v: Vector) {
   // Distance between 2 lines http://geomalgorithms.com/a07-_distance.html

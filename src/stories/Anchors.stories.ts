@@ -4,7 +4,7 @@ import { withEngine } from './utils';
 import heartBitmap from './assets/heart.png';
 
 export default {
-  title: 'Transforms/Anchors'
+  title: 'Actors/Anchors'
 };
 
 class Cross extends Actor {
@@ -14,15 +14,15 @@ class Cross extends Actor {
 
   onPreDraw(ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
-    ctx.lineTo(this.getWidth() / 2, 0);
-    ctx.lineTo(this.getWidth() / 2, this.getHeight());
+    ctx.lineTo(this.width / 2, 0);
+    ctx.lineTo(this.width / 2, this.height);
     ctx.strokeStyle = Color.Black.toString();
     ctx.stroke();
     ctx.closePath();
 
     ctx.beginPath();
-    ctx.lineTo(0, this.getHeight() / 2);
-    ctx.lineTo(this.getWidth(), this.getHeight() / 2);
+    ctx.lineTo(0, this.height / 2);
+    ctx.lineTo(this.width, this.height / 2);
     ctx.strokeStyle = Color.Black.toString();
     ctx.stroke();
     ctx.closePath();

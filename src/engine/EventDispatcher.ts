@@ -132,7 +132,7 @@ export class EventDispatcher<T = any> implements Eventable {
   }
 
   /**
-   * Wires this event dispatcher to also recieve events from another
+   * Wires this event dispatcher to also receive events from another
    */
   public wire(eventDispatcher: EventDispatcher): void {
     eventDispatcher._wiredEventDispatchers.push(this);

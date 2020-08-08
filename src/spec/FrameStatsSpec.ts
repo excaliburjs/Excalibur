@@ -8,7 +8,7 @@ describe('The engine', () => {
   const mock = new Mocks.Mocker();
   let loop: Mocks.GameLoopLike;
   let actor: ex.Actor;
-  let stats: ex.IFrameStats;
+  let stats: ex.FrameStats;
 
   beforeEach(() => {
     engine = TestUtils.engine({

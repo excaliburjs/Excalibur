@@ -17,7 +17,7 @@ var block1 = new ex.Actor({
 
 var block2 = new ex.Actor({
   pos: ex.Vector.Zero.clone(),
-  anchor: ex.Vector.Zero.clone(),
+  anchor: ex.Vector.Half.clone(),
   width: 50,
   height: 50,
   color: ex.Color.Red.clone(),
@@ -54,7 +54,7 @@ game.add(block2);
 
 var collisionVector: ex.Vector = null;
 game.onPostUpdate = (engine) => {
-  collisionVector = block1.getBounds().collides(block2.getBounds());
+  collisionVector = block1.body.collider.bounds.intersect(block2.body.collider.bounds);
   console.log('Collision Vector:', collisionVector);
 };
 

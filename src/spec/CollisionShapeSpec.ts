@@ -11,7 +11,7 @@ describe('Collision Shape', () => {
     let engine: ex.Engine;
     let scene: ex.Scene;
 
-    let circle: ex.CircleArea;
+    let circle: ex.Circle;
     let actor: ex.Actor;
 
     beforeEach(() => {
@@ -20,10 +20,10 @@ describe('Collision Shape', () => {
       engine.currentScene = scene;
 
       actor = new ex.Actor(0, 0, 20, 20);
-      circle = new ex.CircleArea({
+      circle = new ex.Circle({
         offset: ex.Vector.Zero.clone(),
         radius: 10,
-        body: actor.body
+        collider: actor.body.collider
       });
     });
 
@@ -33,11 +33,11 @@ describe('Collision Shape', () => {
     });
 
     it('exists', () => {
-      expect(ex.CircleArea).toBeDefined();
+      expect(ex.Circle).toBeDefined();
     });
 
     it('can be constructed with empty args', () => {
-      const circle = new ex.CircleArea({
+      const circle = new ex.Circle({
         radius: 1
       });
       expect(circle).not.toBeNull();
@@ -45,7 +45,7 @@ describe('Collision Shape', () => {
 
     it('can be cloned', () => {
       const actor1 = new ex.Actor(0, 0, 20, 20);
-      const circle = new ex.CircleArea({
+      const circle = new ex.Circle({
         collider: actor1.body.collider,
         radius: 10,
         offset: new ex.Vector(20, 25)
@@ -61,10 +61,10 @@ describe('Collision Shape', () => {
 
     it('can be constructed with points', () => {
       const actor = new ex.Actor(0, 0, 10, 10);
-      const circle = new ex.CircleArea({
+      const circle = new ex.Circle({
         offset: ex.Vector.Zero.clone(),
         radius: 10,
-        body: actor.body
+        collider: actor.body.collider
       });
       expect(circle).not.toBeNull();
     });
@@ -134,16 +134,16 @@ describe('Collision Shape', () => {
       // following this formula
       //https://en.wikipedia.org/wiki/List_of_moments_of_inertia
       // I = m*r^2/2
-      expect(circle.inertia).toBe((circle.body.collider.mass * circle.radius * circle.radius) / 2);
+      expect(circle.inertia).toBe((circle.collider.mass * circle.radius * circle.radius) / 2);
     });
 
     it('should collide without a collider or body', () => {
-      const circle1 = new ex.CircleArea({
+      const circle1 = new ex.Circle({
         offset: new ex.Vector(0, 0),
         radius: 5
       });
 
-      const circle2 = new ex.CircleArea({
+      const circle2 = new ex.Circle({
         offset: new ex.Vector(9, 0),
         radius: 5
       });
@@ -154,9 +154,9 @@ describe('Collision Shape', () => {
 
     it('should collide with other circles when touching', () => {
       const actor2 = new ex.Actor(20, 0, 10, 10);
-      const circle2 = new ex.CircleArea({
+      const circle2 = new ex.Circle({
         radius: 10,
-        body: actor2.body
+        collider: actor2.body.collider
       });
 
       const directionOfBodyB = circle2.center.sub(circle.center);
@@ -168,7 +168,7 @@ describe('Collision Shape', () => {
       // the normal should always point away from bodyA
       expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
 
-      // the nomral should always be length 1
+      // the normal should always be length 1
       expect(contact.normal.distance()).toBeCloseTo(1, 0.001);
 
       expect(contact.point.x).toBe(10);
@@ -177,9 +177,9 @@ describe('Collision Shape', () => {
 
     it('should not collide with other circles when touching', () => {
       const actor2 = new ex.Actor(21, 0, 10, 10);
-      const circle2 = new ex.CircleArea({
+      const circle2 = new ex.Circle({
         radius: 10,
-        body: actor2.body
+        collider: actor2.body.collider
       });
 
       const contact = circle.collide(circle2);
@@ -193,7 +193,7 @@ describe('Collision Shape', () => {
       const poly = new ex.ConvexPolygon({
         offset: ex.Vector.Zero.clone(),
         points: actor2.body.collider.localBounds.getPoints(),
-        body: actor2.body
+        collider: actor2.body.collider
       });
 
       const directionOfBodyB = poly.center.sub(circle.center);
@@ -205,7 +205,7 @@ describe('Collision Shape', () => {
       // the normal should always point away from bodyA
       expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
 
-      // the nomral should always be length 1
+      // the normal should always be length 1
       expect(contact.normal.distance()).toBeCloseTo(1, 0.001);
 
       expect(contact.point.x).toBe(10);
@@ -217,7 +217,7 @@ describe('Collision Shape', () => {
       const poly = new ex.ConvexPolygon({
         offset: ex.Vector.Zero.clone(),
         points: actor2.body.collider.localBounds.getPoints(),
-        body: actor2.body
+        collider: actor2.body.collider
       });
 
       const contact = circle.collide(poly);
@@ -231,7 +231,7 @@ describe('Collision Shape', () => {
       actor.pos.setTo(5, -9.99);
 
       const actor2 = new ex.Actor(5, 0, 10, 10);
-      const edge = new ex.EdgeArea({
+      const edge = new ex.Edge({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
         collider: actor2.body.collider
@@ -246,7 +246,7 @@ describe('Collision Shape', () => {
       // the normal should always point away from bodyA
       expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
 
-      // the nomral should always be length 1
+      // the normal should always be length 1
       expect(contact.normal.distance()).toBeCloseTo(1, 0.001);
 
       expect(contact.point.x).toBe(5);
@@ -258,7 +258,7 @@ describe('Collision Shape', () => {
       actor.pos.setTo(10, -9);
 
       const actor2 = new ex.Actor(5, 0, 10, 10);
-      const edge = new ex.EdgeArea({
+      const edge = new ex.Edge({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
         collider: actor2.body.collider
@@ -273,7 +273,7 @@ describe('Collision Shape', () => {
       // the normal should always point away from bodyA
       expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
 
-      // the nomral should always be length 1
+      // the normal should always be length 1
       expect(contact.normal.distance()).toBeCloseTo(1, 0.001);
 
       expect(contact.point.x).toBe(10);
@@ -285,7 +285,7 @@ describe('Collision Shape', () => {
       actor.pos.setTo(0, -9);
 
       const actor2 = new ex.Actor(5, 0, 10, 10);
-      const edge = new ex.EdgeArea({
+      const edge = new ex.Edge({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
         collider: actor2.body.collider
@@ -300,7 +300,7 @@ describe('Collision Shape', () => {
       // the normal should always point away from bodyA
       expect(directionOfBodyB.dot(contact.normal)).toBeGreaterThan(0);
 
-      // the nomral should always be length 1
+      // the normal should always be length 1
       expect(contact.normal.distance()).toBeCloseTo(1, 0.001);
 
       expect(contact.point.x).toBe(0);
@@ -491,15 +491,15 @@ describe('Collision Shape', () => {
         offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
-        body: actor.body
+        collider: actor.body.collider
       });
       polyA.recalc();
 
       const actor2 = new ex.Actor(5, 0, 10, 10);
-      const edge = new ex.EdgeArea({
+      const edge = new ex.Edge({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(10, 0),
-        body: actor2.body
+        collider: actor2.body.collider
       });
 
       const directionOfBodyB = edge.center.sub(polyA.center);
@@ -522,15 +522,15 @@ describe('Collision Shape', () => {
         offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
-        body: actor.body
+        collider: actor.body.collider
       });
       polyA.recalc();
 
       const actor2 = new ex.Actor(5, 0, 10, 10);
-      const edge = new ex.EdgeArea({
+      const edge = new ex.Edge({
         begin: new ex.Vector(0, 0),
         end: new ex.Vector(0, 10),
-        body: actor2.body
+        collider: actor2.body.collider
       });
       edge.recalc();
 
@@ -550,15 +550,15 @@ describe('Collision Shape', () => {
         offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
-        body: actor.body
+        collider: actor.body.collider
       });
       polyA.recalc();
 
       const actor2 = new ex.Actor(5, 0, 10, 10);
-      const edge = new ex.EdgeArea({
+      const edge = new ex.Edge({
         begin: new ex.Vector(0, 10),
         end: new ex.Vector(0, 0),
-        body: actor2.body
+        collider: actor2.body.collider
       });
       edge.recalc();
 
@@ -579,15 +579,15 @@ describe('Collision Shape', () => {
         offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
-        body: actor.body
+        collider: actor.body.collider
       });
       polyA.recalc();
 
       const actor2 = new ex.Actor(5, 100, 10, 10);
-      const edge = new ex.EdgeArea({
+      const edge = new ex.Edge({
         begin: new ex.Vector(0, 100),
         end: new ex.Vector(10, 100),
-        body: actor2.body
+        collider: actor2.body.collider
       });
 
       const directionOfBodyB = edge.center.sub(polyA.center);
@@ -604,7 +604,7 @@ describe('Collision Shape', () => {
         offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
-        body: actor.body
+        collider: actor.body.collider
       });
       polyA.recalc();
 
@@ -664,7 +664,7 @@ describe('Collision Shape', () => {
         offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)],
-        body: actor.body
+        collider: actor.body.collider
       });
       polyA.recalc();
 
@@ -754,7 +754,7 @@ describe('Collision Shape', () => {
 
   describe('an Edge', () => {
     let actor: ex.Actor = null;
-    let edge: ex.EdgeArea = null;
+    let edge: ex.Edge = null;
 
     let engine: ex.Engine;
     let scene: ex.Scene;
@@ -770,10 +770,10 @@ describe('Collision Shape', () => {
       engine.currentScene = scene;
 
       actor = new ex.Actor(5, 0, 10, 10);
-      edge = new ex.EdgeArea({
+      edge = new ex.Edge({
         begin: new ex.Vector(-5, 0),
         end: new ex.Vector(5, 0),
-        body: actor.body
+        collider: actor.body.collider
       });
     });
 
@@ -858,7 +858,7 @@ describe('Collision Shape', () => {
       // rotates from the middle treating the ends as a point mass
       const moi = edge.inertia;
       const length = edge.end.sub(edge.begin).distance() / 2;
-      expect(moi).toBeCloseTo(edge.body.collider.mass * length * length, 0.001);
+      expect(moi).toBeCloseTo(edge.collider.mass * length * length, 0.001);
     });
 
     it('can be drawn', (done) => {

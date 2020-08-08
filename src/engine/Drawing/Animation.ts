@@ -1,9 +1,8 @@
 import { Sprite } from './Sprite';
-import { AnimationArgs } from '../Drawing/Animation';
 import * as Effects from './SpriteEffects';
 import { Color } from './Color';
 
-import { Drawable } from '../Interfaces/Drawable';
+import { Drawable, DrawOptions } from '../Interfaces/Drawable';
 import { Vector } from '../Algebra';
 import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
@@ -31,9 +30,9 @@ export class AnimationImpl implements Drawable {
 
   private _oldTime: number = Date.now();
 
-  public anchor: Vector = new Vector(0.0, 0.0);
+  public anchor: Vector = Vector.Zero;
   public rotation: number = 0.0;
-  public scale: Vector = new Vector(1, 1);
+  public scale: Vector = Vector.One;
 
   /**
    * Indicates whether the animation should loop after it is completed
@@ -62,6 +61,8 @@ export class AnimationImpl implements Drawable {
   public drawHeight: number = 0;
   public width: number = 0;
   public height: number = 0;
+
+  private _opacity = 1;
 
   /**
    * Typically you will use a [[SpriteSheet]] to generate an [[Animation]].
@@ -104,7 +105,7 @@ export class AnimationImpl implements Drawable {
    * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
    */
   public opacity(value: number) {
-    this.addEffect(new Effects.Opacity(value));
+    this._opacity = value;
   }
 
   /**
@@ -165,7 +166,7 @@ export class AnimationImpl implements Drawable {
   }
 
   /**
-   * Add a [[ISpriteEffect]] manually
+   * Add a [[SpriteEffect]] manually
    */
   public addEffect(effect: Effects.SpriteEffect) {
     for (const i in this.sprites) {
@@ -174,7 +175,7 @@ export class AnimationImpl implements Drawable {
   }
 
   /**
-   * Removes an [[ISpriteEffect]] from this animation.
+   * Removes an [[SpriteEffect]] from this animation.
    * @param effect Effect to remove from this animation
    */
   public removeEffect(effect: Effects.SpriteEffect): void;
@@ -264,20 +265,49 @@ export class AnimationImpl implements Drawable {
     this.currentFrame = (this.currentFrame + frames) % this.sprites.length;
   }
 
-  public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  /**
+   * Draws the animation appropriately to the 2D rendering context, at an x and y coordinate.
+   * @param ctx  The 2D rendering context
+   * @param x    The x coordinate of where to draw
+   * @param y    The y coordinate of where to draw
+   */
+  public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
+  /**
+   * Draws the animation with custom options to override internals without mutating them.
+   * @param options
+   */
+  public draw(options: DrawOptions): void;
+  public draw(ctxOrOptions: CanvasRenderingContext2D | DrawOptions, x?: number, y?: number) {
+    if (ctxOrOptions instanceof CanvasRenderingContext2D) {
+      this._drawWithOptions({ ctx: ctxOrOptions, x, y });
+    } else {
+      this._drawWithOptions(ctxOrOptions);
+    }
+  }
+
+  private _drawWithOptions(options: DrawOptions) {
+    const animOptions = {
+      ...options,
+      rotation: options.rotation ?? this.rotation,
+      drawWidth: options.drawWidth ?? this.drawWidth,
+      drawHeight: options.drawHeight ?? this.drawHeight,
+      flipHorizontal: options.flipHorizontal ?? this.flipHorizontal,
+      flipVertical: options.flipVertical ?? this.flipVertical,
+      anchor: options.anchor ?? this.anchor,
+      opacity: options.opacity ?? this._opacity
+    };
+
     this.tick();
     this._updateValues();
     let currSprite: Sprite;
     if (this.currentFrame < this.sprites.length) {
       currSprite = this.sprites[this.currentFrame];
-      currSprite.flipVertical = this.flipVertical;
-      currSprite.flipHorizontal = this.flipHorizontal;
-      currSprite.draw(ctx, x, y);
+      currSprite.draw(animOptions);
     }
 
     if (this.freezeFrame !== -1 && this.currentFrame >= this.sprites.length) {
       currSprite = this.sprites[Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
-      currSprite.draw(ctx, x, y);
+      currSprite.draw(animOptions);
     }
 
     // add the calculated width

@@ -7,6 +7,46 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+### Added
+
+- Add new `ex.Screen` abstraction to manage viewport size and resolution independently and all other screen related logic. ([#1617](https://github.com/excaliburjs/Excalibur/issues/1617))
+  - New support for the browser fullscreen API
+- Add color blind mode simulation and correction in debug object.
+  ([#390](https://github.com/excaliburjs/Excalibur/issues/390))
+- Add `LimitCameraBoundsStrategy`, which always keeps the camera locked to within the given bounds. ([#1498](https://github.com/excaliburjs/Excalibur/issues/1498))
+- Add mechanisms to manipulate the `Loader` screen. ([#1417](https://github.com/excaliburjs/Excalibur/issues/1417))
+  - Logo position `Loader.logoPosition`
+  - Play button position `Loader.playButtonPosition`
+  - Loading bar position `Loader.loadingBarPosition`
+  - Loading bar color `Loader.loadingBarColor` by default is white, but can be any excalibur `ex.Color`
+
+### Changed
+
+- Remove usage of `mock.engine` from the tests. Use real engine instead.
+- Upgrade Excalibur to TypeScript 3.9.2
+- Upgrade Excalibur to Node 12 LTS
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+- Fixed Loader play button markup and styles are now cleaned up after clicked ([#1431](https://github.com/excaliburjs/Excalibur/issues/1431))
+- Fixed Excalibur crashing when embedded within a cross-origin IFrame ([#1151](https://github.com/excaliburjs/Excalibur/issues/1151))
+- Fixed performance issue where uneccessary effect processing was occurring for opacity changes ([#1549](https://github.com/excaliburjs/Excalibur/issues/1549))
+- Fixed issue when loading images from a base64 strings that would crash the loader ([#1543](https://github.com/excaliburjs/Excalibur/issues/1543))
+- Fixed issue where actors that were not in scene still received pointer events ([#1555](https://github.com/excaliburjs/Excalibur/issues/1555))
+- Fixed Scene initialization order when using the lifecycle overrides ([#1553](https://github.com/excaliburjs/Excalibur/issues/1553))
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.24.0] - 2020-04-23
+
+### Breaking Changes
+
 - Remove obsolete `.extend()` semantics in Class.ts as as well as related test cases.
 
 ### Added
@@ -15,28 +55,34 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   object rather than only individual coordinate parameters. ([#1151](https://github.com/excaliburjs/Excalibur/issues/1151))
 - Added new interface for specifying the type of the options object passed to the
   bounding box constructor.
+- Added the `ex.vec(x, y)` shorthand for creating vectors.
+  ([#1340](https://github.com/excaliburjs/Excalibur/issues/1340))
+- Added new event `processed` to `Sound` that passes processed `string | AudioBuffer` data. ([#1474](https://github.com/excaliburjs/Excalibur/pull/1474))
+- Added new property `duration` to `Sound` and `AudioInstance` that exposes the track's duration in seconds when Web Audio API is used. ([#1474](https://github.com/excaliburjs/Excalibur/pull/1474))
 
 ### Changed
 
+- Animation no longer mutate underlying sprites, instead they draw the sprite using the animations parameters. This allows more robust flipping at runtime. ([#1258](https://github.com/excaliburjs/Excalibur/issues/1258))
 - Changed obsolete decorator to only log the same message 5 times. ([#1281](https://github.com/excaliburjs/Excalibur/issues/1281))
 - Switched to core-js based polyfills instead of custom written ones ([#1214](https://github.com/excaliburjs/Excalibur/issues/1214))
+- Updated to TypeScript@3.6.4 and node 10 LTS build
+- `Sound.stop()` now always rewinds the track, even when the sound is paused. ([#1474](https://github.com/excaliburjs/Excalibur/pull/1474))
 
 ### Deprecated
 
 - `ex.Vector.magnitude()` will be removed in `v0.25.0`, use `ex.Vector.size()`. ([#1277](https://github.com/excaliburjs/Excalibur/issues/1277))
 
-### Removed
-
 ### Fixed
 
+- Fixed Excalibur crashing when displaying both a tilemap and a zero-size actor ([#1418](https://github.com/excaliburjs/Excalibur/issues/1418))
 - Fixed animation flipping behavior ([#1172](https://github.com/excaliburjs/Excalibur/issues/1172))
 - Fixed actors being drawn when their opacity is 0 ([#875](https://github.com/excaliburjs/Excalibur/issues/875))
 - Fixed iframe event handling, excalibur will respond to keyboard events from the top window ([#1294](https://github.com/excaliburjs/Excalibur/issues/1294))
 - Fixed camera to be vector backed so `ex.Camera.x = ?` and `ex.Camera.pos.setTo(...)` both work as expected([#1299](https://github.com/excaliburjs/Excalibur/issues/1299))
+- Fixed missing on/once/off signatures on `ex.Pointer` ([#1345](https://github.com/excaliburjs/Excalibur/issues/1345))
+- Fixed sounds not being stopped when `Engine.stop()` is called. ([#1476](https://github.com/excaliburjs/Excalibur/pull/1476))
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!----------------------------------------------------------------------------------------------->
 
 ## [0.23.0] - 2019-06-08
 
@@ -866,7 +912,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!----------------------------------------------------------------------------------------------->
 
-[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.23.0...HEAD
+[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.24.0...HEAD
+[0.24.0]: https://github.com/excaliburjs/Excalibur/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/excaliburjs/Excalibur/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/excaliburjs/Excalibur/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/excaliburjs/Excalibur/compare/v0.20.0...v0.21.0

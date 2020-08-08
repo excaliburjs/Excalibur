@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 
 export namespace TestUtils {
-  export function engine(options: ex.IEngineOptions = {}): ex.Engine {
+  export function engine(options: ex.EngineOptions = {}): ex.Engine {
     options = ex.Util.extend(
       false,
       {

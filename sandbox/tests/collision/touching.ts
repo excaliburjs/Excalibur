@@ -6,7 +6,7 @@ var game = new ex.Engine({
 });
 var paddle = new ex.Actor(150, game.drawHeight - 40, 200, 20);
 paddle.color = ex.Color.Chartreuse;
-paddle.collisionType = ex.CollisionType.Fixed;
+paddle.body.collider.type = ex.CollisionType.Fixed;
 game.add(paddle);
 
 var speed = 300;
@@ -14,7 +14,7 @@ var speed = 300;
 var ball = new ex.Actor(150, 50, 20, 20);
 ball.color = ex.Color.Red;
 ball.vel.setTo(0, speed);
-ball.collisionType = ex.CollisionType.Active;
+ball.body.collider.type = ex.CollisionType.Active;
 ball.on('collisionstart', (evt: ex.CollisionStartEvent) => {
   console.log('Ball just started touching on frame:', game.stats.currFrame.id);
 });

@@ -25,9 +25,6 @@ export interface EdgeOptions {
    * Optionally the collider associated with this edge
    */
   collider?: Collider;
-
-  // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
-  body?: Body;
 }
 
 /**
@@ -48,13 +45,6 @@ export class Edge implements CollisionShape {
     this.end = options.end || Vector.Zero;
     this.collider = options.collider || null;
     this.offset = this.center;
-
-    // @obsolete Remove next release in v0.24.0, code exists for backwards compat
-    if (options.body) {
-      this.collider = options.body.collider;
-      this.body = this.collider.body;
-    }
-    // ==================================
   }
 
   /**
@@ -64,8 +54,7 @@ export class Edge implements CollisionShape {
     return new Edge({
       begin: this.begin.clone(),
       end: this.end.clone(),
-      collider: null,
-      body: null
+      collider: null
     });
   }
 
@@ -305,13 +294,3 @@ export class Edge implements CollisionShape {
     ctx.stroke();
   }
 }
-
-/**
- * @obsolete Use [[EdgeOptions]], EdgeAreaOptions will be removed in v0.24.0
- */
-export interface EdgeAreaOptions extends EdgeOptions {}
-
-/**
- * @obsolete Use [[Edge]], EdgeArea will be removed in v0.24.0
- */
-export class EdgeArea extends Edge {}

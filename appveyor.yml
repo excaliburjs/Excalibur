@@ -6,7 +6,7 @@ init:
 # What combinations to test
 environment:
   matrix:
-    - nodejs_version: "8"
+    - nodejs_version: '10'
 platform:
   - x86
   - x64
@@ -14,7 +14,7 @@ install:
   - ps: Install-Product node $env:nodejs_version
   - npm install
 build_script:
-  - node_modules/.bin/grunt appveyor
+  - npm run appveyor
 artifacts:
   - path: build\dist\**\*.nupkg
     name: Nuget Package
@@ -23,8 +23,8 @@ after_build:
 matrix:
   fast_finish: true
 cache:
-  - C:\Users\appveyor\AppData\Roaming\npm\node_modules -> package.json  # global npm modules
-  - C:\Users\appveyor\AppData\Roaming\npm-cache -> package.json         # npm cache
-  - node_modules -> package.json                                        # local npm modules
-  - node_cache -> package.json                                          # local npm cache
-  - node_shrinkwrap -> package.json                                     # local shrinkwrap cache
+  - C:\Users\appveyor\AppData\Roaming\npm\node_modules -> package.json # global npm modules
+  - C:\Users\appveyor\AppData\Roaming\npm-cache -> package.json # npm cache
+  - node_modules -> package.json # local npm modules
+  - node_cache -> package.json # local npm cache
+  - node_shrinkwrap -> package.json # local shrinkwrap cache

@@ -8,7 +8,7 @@ Excalibur physics are organized into a hierarchy, each has a specific single rol
 
 ```
 Actor (game entity)
-  -> Body (transform infomation)
+  -> Body (transform information)
      -> Collider (collision related information)
         -> Shape (geometry for collision)
 ```
@@ -90,7 +90,7 @@ Actors with the [[CollisionType.Fixed]] setting raise collision events and parti
 collisions with other actors. Actors with the [[CollisionType.Fixed]] setting will not be
 pushed or moved by other actors sharing the [[CollisionType.Fixed]].
 
-Think of `Fixed` actors as "immovable/onstoppable" objects. If two [[CollisionType.Fixed]] actors
+Think of `Fixed` actors as "immovable/unstoppable" objects. If two [[CollisionType.Fixed]] actors
 meet they will not be pushed or moved by each other, they will not interact except to throw
 collision events.
 
@@ -240,7 +240,7 @@ const ground = new ex.Actor({
 });
 
 ground.body.useBoxCollider(); // optional
-groundbody.collider.type = ex.CollisionType.Fixed;
+ground.body.collider.type = ex.CollisionType.Fixed;
 
 game.add(ground);
 // start the game

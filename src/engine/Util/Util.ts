@@ -130,6 +130,15 @@ export function base64Encode(inputStr: string) {
 }
 
 /**
+ * Sugar that will use `nullishVal` if it's not null or undefined. Simulates the `??` operator
+ * @param nullishVal
+ * @param defaultVal
+ */
+export function nullish<T>(nullishVal: T | undefined | null, defaultVal: T): T {
+  return nullishVal !== null && nullishVal !== undefined ? nullishVal : defaultVal;
+}
+
+/**
  * Clamps a value between a min and max inclusive
  */
 export function clamp(val: number, min: number, max: number) {
@@ -234,13 +243,6 @@ export function getOppositeSide(side: Side) {
   }
 
   return Side.None;
-}
-
-/**
- * @obsolete use Util.getSideFromDirection
- */
-export function getSideFromVector(direction: Vector) {
-  return getSideFromDirection(direction);
 }
 
 /**

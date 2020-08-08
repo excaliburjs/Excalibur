@@ -15,7 +15,7 @@ export enum FontUnit {
    */
   Em,
   /**
-   * Rem is similar to the Em, it is a scalable unit. 1 rem is eqaul to the font size of the root element
+   * Rem is similar to the Em, it is a scalable unit. 1 rem is equal to the font size of the root element
    */
   Rem,
   /**
@@ -109,6 +109,8 @@ export enum FontStyle {
  * [[include:Constructors.md]]
  */
 export interface LabelArgs extends Partial<LabelImpl> {
+  x?: number;
+  y?: number;
   text?: string;
   bold?: boolean;
   pos?: Vector;
@@ -199,11 +201,7 @@ export class LabelImpl extends Actor {
    * over a css font.
    */
   constructor(textOrConfig?: string | Partial<LabelImpl>, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
-    super(
-      textOrConfig && typeof textOrConfig === 'object'
-        ? { x: textOrConfig.x, y: textOrConfig.y }
-        : { x: x, y: y }
-    );
+    super(textOrConfig && typeof textOrConfig === 'object' ? textOrConfig : { pos: new Vector(x, y) });
 
     let text = '';
     if (textOrConfig && typeof textOrConfig === 'object') {

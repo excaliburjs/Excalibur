@@ -8,6 +8,7 @@ import { CanUpdate, CanInitialize } from './Interfaces/LifecycleEvents';
 import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './Events';
 import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
+import { Logger } from './Util/Log';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -55,7 +56,7 @@ export class StrategyContainer {
   /**
    * Creates and adds the [[ElasticToActorStrategy]] on the current camera
    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
-   * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillationg spring that will over
+   * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillating spring that will over
    * correct and bounce around the target
    *
    * @param target Target actor to elastically follow
@@ -74,6 +75,14 @@ export class StrategyContainer {
   public radiusAroundActor(actor: Actor, radius: number) {
     this.camera.addStrategy(new RadiusAroundActorStrategy(actor, radius));
   }
+
+  /**
+   * Creates and adds the [[LimitCameraBoundsStrategy]] on the current camera
+   * @param box The bounding box to limit the camera to.
+   */
+  public limitCameraBounds(box: BoundingBox) {
+    this.camera.addStrategy(new LimitCameraBoundsStrategy(box));
+  }
 }
 
 /**
@@ -85,7 +94,7 @@ export enum Axis {
 }
 
 /**
- * Lock a camera to the exact x/y postition of an actor.
+ * Lock a camera to the exact x/y position of an actor.
  */
 export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
   constructor(public target: Actor) {}
@@ -117,7 +126,7 @@ export class LockCameraToActorAxisStrategy implements CameraStrategy<Actor> {
 export class ElasticToActorStrategy implements CameraStrategy<Actor> {
   /**
    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
-   * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillationg spring that will over
+   * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillating spring that will over
    * correct and bounce around the target
    *
    * @param target Target actor to elastically follow
@@ -130,7 +139,7 @@ export class ElasticToActorStrategy implements CameraStrategy<Actor> {
     let focus = cam.getFocus();
     let cameraVel = cam.vel.clone();
 
-    // Calculate the strech vector, using the spring equation
+    // Calculate the stretch vector, using the spring equation
     // F = kX
     // https://en.wikipedia.org/wiki/Hooke's_law
     // Apply to the current camera velocity
@@ -161,11 +170,57 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
     const focus = cam.getFocus();
 
     const direction = position.sub(focus);
-    const distance = direction.magnitude();
+    const distance = direction.size;
     if (distance >= this.radius) {
       const offset = distance - this.radius;
       return focus.add(direction.normalize().scale(offset));
     }
+    return focus;
+  };
+}
+
+/**
+ * Prevent a camera from going beyond the given camera dimensions.
+ */
+export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
+  /**
+   * Useful for limiting the camera to a [[TileMap]]'s dimensions, or a specific area inside the map.
+   *
+   * Note that this strategy does not perform any movement by itself.
+   * It only sets the camera position to within the given bounds when the camera has gone beyond them.
+   * Thus, it is a good idea to combine it with other camera strategies and set this strategy as the last one.
+   *
+   * Make sure that the camera bounds are at least as large as the viewport size.
+   *
+   * @param target The bounding box to limit the camera to
+   */
+
+  boundSizeChecked: boolean = false; // Check and warn only once
+
+  constructor(public target: BoundingBox) {}
+
+  public action = (target: BoundingBox, cam: Camera, _eng: Engine, _delta: number) => {
+    const focus = cam.getFocus();
+
+    if (!this.boundSizeChecked) {
+      if (target.bottom - target.top < _eng.drawHeight || target.right - target.left < _eng.drawWidth) {
+        Logger.getInstance().warn('Camera bounds should not be smaller than the engine viewport');
+      }
+      this.boundSizeChecked = true;
+    }
+
+    if (focus.x < target.left + _eng.halfDrawWidth) {
+      focus.x = target.left + _eng.halfDrawWidth;
+    } else if (focus.x > target.right - _eng.halfDrawWidth) {
+      focus.x = target.right - _eng.halfDrawWidth;
+    }
+
+    if (focus.y < target.top + _eng.halfDrawHeight) {
+      focus.y = target.top + _eng.halfDrawHeight;
+    } else if (focus.y > target.bottom - _eng.halfDrawHeight) {
+      focus.y = target.bottom - _eng.halfDrawHeight;
+    }
+
     return focus;
   };
 }
@@ -205,7 +260,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   public rotation: number = 0;
 
   /**
-   * Current angular velc
+   * Current angular velocity
    */
   public rx: number = 0;
 
@@ -425,7 +480,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   /**
-   * Gets the boundingbox of the viewport of this camera in world coordinates
+   * Gets the bounding box of the viewport of this camera in world coordinates
    */
   public get viewport(): BoundingBox {
     if (this._engine) {
@@ -439,7 +494,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
   /**
    * Adds a new camera strategy to this camera
-   * @param cameraStrategy Instance of an [[ICameraStrategy]]
+   * @param cameraStrategy Instance of an [[CameraStrategy]]
    */
   public addStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     this._cameraStrategies.push(cameraStrategy);
@@ -447,7 +502,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
   /**
    * Removes a camera strategy by reference
-   * @param cameraStrategy Instance of an [[ICameraStrategy]]
+   * @param cameraStrategy Instance of an [[CameraStrategy]]
    */
   public removeStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     removeItemFromArray(cameraStrategy, this._cameraStrategies);
@@ -461,7 +516,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
    * @internal
@@ -481,7 +536,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   /**
-   *  It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   *  It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
    * @internal

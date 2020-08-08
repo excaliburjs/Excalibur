@@ -1,6 +1,7 @@
 import { Engine } from './Engine';
 import * as Util from './Util/Util';
 import { Clonable } from './Interfaces/Clonable';
+import { obsolete } from './Util/Decorators';
 
 /**
  * A 2D vector on a plane.
@@ -126,6 +127,7 @@ export class Vector implements Clonable<Vector> {
    * The magnitude (size) of the Vector
    * @obsolete magnitude will be removed in favour of '.size' in version 0.25.0
    */
+  @obsolete({ message: 'will be removed in favour of `.size` in version 0.25.0' })
   public magnitude(): number {
     return this.distance();
   }
@@ -185,7 +187,7 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * Subtracts a vector from another, if you subract vector `B.sub(A)` the resulting vector points from A -> B
+   * Subtracts a vector from another, if you subtract vector `B.sub(A)` the resulting vector points from A -> B
    * @param v The vector to subtract
    */
   public sub(v: Vector): Vector {
@@ -298,7 +300,7 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * Returns a string repesentation of the vector.
+   * Returns a string representation of the vector.
    */
   public toString(): string {
     return `(${this.x}, ${this.y})`;
@@ -591,4 +593,15 @@ export class GlobalCoordinates {
   }
 
   constructor(public worldPos: Vector, public pagePos: Vector, public screenPos: Vector) {}
+}
+
+/**
+ * Shorthand for creating new Vectors - returns a new Vector instance with the
+ * provided X and Y components.
+ *
+ * @param x  X component of the Vector
+ * @param y  Y component of the Vector
+ */
+export function vec(x: number, y: number): Vector {
+  return new Vector(x, y);
 }

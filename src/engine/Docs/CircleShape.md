@@ -1,8 +1,8 @@
 ## Circle Collision Shape
 
-Excalibur has a [[shape|Shape]] static helper to create [[circles|Circle]] for collisions in your game.
+Excalibur has a [[CollisionShape|Shape]] static helper to create [[Circle|circles]] for collisions in your game.
 
-The default shape for a collider is a box, however a custom [[circle|Circle]] shape and [[collider|Collider]] can be created for an [[actor|Actor]] [[body|Body]].
+The default shape for a collider is a box, however a custom [[Circle|circle]] shape and [[Collider|collider]] can be created for an [[Actor|actor]] [[Body|body]].
 
 This example creates a circle of `radius = 50`.
 

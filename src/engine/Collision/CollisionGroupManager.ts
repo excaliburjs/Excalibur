@@ -4,7 +4,7 @@ import { CollisionGroup } from './CollisionGroup';
  * Static class for managing collision groups in excalibur, there is a maximum of 32 collision groups possible in excalibur
  */
 export class CollisionGroupManager {
-  // using bitmasking the maximum number of groups is 32, because that is the heighest 32bit integer that JS can present.
+  // using bitmasking the maximum number of groups is 32, because that is the highest 32bit integer that JS can present.
   private static _STARTING_BIT = 0b1 | 0;
   private static _MAX_GROUPS = 32;
   private static _currentGroup = 1;

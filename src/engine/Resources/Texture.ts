@@ -3,7 +3,7 @@ import { Promise } from '../Promises';
 import { Sprite } from '../Drawing/Sprite';
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
- * [[Texture]] is an [[ILoadable]] which means it can be passed to a [[Loader]]
+ * [[Texture]] is an [[Loadable]] which means it can be passed to a [[Loader]]
  * to pre-load before starting a level or game.
  *
  * [[include:Textures.md]]
@@ -33,7 +33,7 @@ export class Texture extends Resource<HTMLImageElement> {
   public image: HTMLImageElement;
 
   /**
-   * @param path       Path to the image resource
+   * @param path       Path to the image resource or a base64 string representing an image "data:image/png;base64,iVB..."
    * @param bustCache  Optionally load texture with cache busting
    */
   constructor(public path: string, public bustCache = true) {
@@ -57,6 +57,8 @@ export class Texture extends Resource<HTMLImageElement> {
     if (this.path.indexOf('data:image/') > -1) {
       this.image = new Image();
       this.image.addEventListener('load', () => {
+        this.oncomplete();
+        this._isLoaded = true;
         this.width = this._sprite.width = this.image.naturalWidth;
         this.height = this._sprite.height = this.image.naturalHeight;
         this._sprite = new Sprite(this, 0, 0, this.width, this.height);

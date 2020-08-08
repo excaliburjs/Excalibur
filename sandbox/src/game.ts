@@ -37,8 +37,14 @@ var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
 // Create an the game container
-var game = new ex.Engine({ width: 800, height: 600, canvasElementId: 'game', suppressHiDPIScaling: false, suppressPlayButton: true });
-game.setAntialiasing(false);
+var game = new ex.Engine({
+  width: 800,
+  height: 600,
+  antialiasing: false,
+  canvasElementId: 'game',
+  suppressHiDPIScaling: false,
+  suppressPlayButton: true
+});
 game.isDebug = true;
 
 var heartTex = new ex.Texture('../images/heart.png');
@@ -148,28 +154,28 @@ enum Animations {
 }
 
 var currentX = 0;
+var blockGroup = ex.CollisionGroupManager.create('ground');
 // Create the level
 for (var i = 0; i < 36; i++) {
   currentX = tileBlockWidth * i + 10;
   var color = new ex.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
   var block = new ex.Actor({
-    x: currentX,
-    y: 350 + Math.random() * 100,
+    pos: new ex.Vector(currentX, 350 + Math.random() * 100),
     width: tileBlockWidth,
     height: tileBlockHeight,
-    color: color,
-    collisionType: ex.CollisionType.Fixed
+    color: color
   });
+  block.body.collider.type = ex.CollisionType.Fixed;
   //var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
   //block.collisionType = ex.CollisionType.Fixed;
-  block.addCollisionGroup('ground');
+  block.body.collider.group = blockGroup;
   block.addDrawing(Animations.Block, blockAnimation);
 
   game.add(block);
 }
 
 var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
-platform.collisionType = ex.CollisionType.Fixed;
+platform.body.collider.type = ex.CollisionType.Fixed;
 platform.actions
   .moveTo(200, 300, 100)
   .moveTo(600, 300, 100)
@@ -178,7 +184,7 @@ platform.actions
 game.add(platform);
 
 var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
-platform2.collisionType = ex.CollisionType.Fixed;
+platform2.body.collider.type = ex.CollisionType.Fixed;
 platform2.actions
   .moveTo(2000, 300, 100)
   .moveTo(2000, 100, 100)
@@ -188,7 +194,7 @@ platform2.actions
 game.add(platform2);
 
 var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
-platform3.collisionType = ex.CollisionType.Fixed;
+platform3.body.collider.type = ex.CollisionType.Fixed;
 platform3.actions
   .moveTo(-200, 800, 300)
   .moveTo(-200, 400, 50)
@@ -199,12 +205,12 @@ platform3.actions
 game.add(platform3);
 
 var platform4 = new ex.Actor(75, 300, 100, 50, ex.Color.Azure);
-platform4.collisionType = ex.CollisionType.Fixed;
+platform4.body.collider.type = ex.CollisionType.Fixed;
 game.add(platform4);
 
 // Test follow api
 var follower = new ex.Actor(50, 100, 20, 20, ex.Color.Black);
-follower.collisionType = ex.CollisionType.PreventCollision;
+follower.body.collider.type = ex.CollisionType.PreventCollision;
 game.add(follower);
 
 // Create the player
@@ -212,8 +218,7 @@ game.add(follower);
 // player.enableCapturePointer = true;
 // player.collisionType = ex.CollisionType.Active;
 var player = new ex.Actor({
-  x: 100,
-  y: -200,
+  pos: new ex.Vector(100, -200),
   width: 32,
   height: 96,
   enableCapturePointer: true,
@@ -347,7 +352,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
     var a = new ex.Actor(player.pos.x + 10, player.pos.y - 50, 10, 10, new ex.Color(222, 222, 222));
     a.vel.x = 200 * direction;
     a.vel.y = 0;
-    a.collisionType = ex.CollisionType.Active;
+    a.body.collider.type = ex.CollisionType.Active;
     var inAir = true;
     a.on('precollision', (data?: ex.PreCollisionEvent) => {
       inAir = false;
@@ -457,8 +462,7 @@ game.add(player);
 var sprite = blockSprite.clone();
 sprite.anchor = new ex.Vector(0.5, 0.5);
 var emitter = new ex.ParticleEmitter({
-  x: 100,
-  y: 300,
+  pos: new ex.Vector(100, 300),
   width: 2,
   height: 2,
   minVel: 417,
@@ -515,10 +519,13 @@ var trigger = new ex.Trigger({
       emitter.isEmitting = true;
       camera.shake(10, 10, 2000);
       game.addTimer(
-        new ex.Timer(() => {
-          emitter.isEmitting = false;
-          exploding = false;
-        }, 2000)
+        new ex.Timer({
+          interval: 2000,
+          fcn: () => {
+            emitter.isEmitting = false;
+            exploding = false;
+          }
+        })
       );
     }
   }
@@ -550,6 +557,7 @@ game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
 
 // Add camera to game
 game.currentScene.camera.strategy.lockToActorAxis(player, ex.Axis.X);
+game.currentScene.camera.y = 200;
 
 // Run the mainloop
 game.start(loader).then(() => {

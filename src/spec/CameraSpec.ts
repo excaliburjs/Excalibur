@@ -265,6 +265,30 @@ describe('A camera', () => {
     expect(distance2).toBeLessThan(distance);
   });
 
+  it('can use built-in limit to bounds strategy', () => {
+    engine.currentScene.camera = new ex.Camera();
+    const boundingBox = new ex.BoundingBox(10, 10, 1000, 1000);
+    engine.currentScene.camera.strategy.limitCameraBounds(boundingBox);
+
+    // Test upper-left bounds
+    engine.currentScene.camera.pos.setTo(11, 22);
+
+    engine.currentScene.camera.update(engine, 1);
+    expect(engine.currentScene.camera.pos.x).not.toBe(11);
+    expect(engine.currentScene.camera.pos.y).not.toBe(22);
+    expect(engine.currentScene.camera.pos.x).toBe(260); // screen half size + top-left bounds
+    expect(engine.currentScene.camera.pos.y).toBe(260);
+
+    // Test bottom-right bounds
+    engine.currentScene.camera.pos.setTo(888, 999);
+
+    engine.currentScene.camera.update(engine, 1);
+    expect(engine.currentScene.camera.pos.x).not.toBe(888);
+    expect(engine.currentScene.camera.pos.y).not.toBe(999);
+    expect(engine.currentScene.camera.pos.x).toBe(750);
+    expect(engine.currentScene.camera.pos.y).toBe(750);
+  });
+
   it('can lerp over time', (done) => {
     engine.currentScene.camera.move(new ex.Vector(100, 100), 1000, ex.EasingFunctions.EaseOutCubic).then(() => {
       engine.currentScene.camera.move(new ex.Vector(200, 200), 1000, ex.EasingFunctions.Linear).then(() => {
@@ -311,7 +335,7 @@ describe('A camera', () => {
       camera = new ex.Camera();
     });
 
-    it('can have onInitialize overriden safely', () => {
+    it('can have onInitialize overridden safely', () => {
       let initCalled = false;
       camera.onInitialize = (engine) => {
         expect(engine).not.toBe(null);
@@ -329,7 +353,7 @@ describe('A camera', () => {
       expect(camera.onInitialize).toHaveBeenCalledTimes(1);
     });
 
-    it('can have onPostUpdate overriden safely', () => {
+    it('can have onPostUpdate overridden safely', () => {
       camera.onPostUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -345,7 +369,7 @@ describe('A camera', () => {
       expect(camera.onPostUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreUpdate overriden safely', () => {
+    it('can have onPreUpdate overridden safely', () => {
       camera.onPreUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);

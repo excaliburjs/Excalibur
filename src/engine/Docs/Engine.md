@@ -11,6 +11,8 @@ instance of a game at a time, so it is safe to use globally.
 You can then call [[start]] which starts the game and optionally accepts
 a [[Loader]] which you can use to pre-load assets.
 
+Look at the [[Screen]] abstraction to specify custom resolutions and viewport for your game.
+
 ```js
 var game = new ex.Engine({
   width: 800, // the width of the canvas
@@ -105,12 +107,12 @@ you want to provide HTML UI on top or as part of your game.
 
 You can use [[DisplayMode.Position]] to specify where the game window will be displayed on screen. if
 this DisplayMode is selected, then a [[position]] option _must_ be provided to the Engine constructor.
-The [[position]] option can be a String or an [[IAbsolutePosition]]. The first word in a String _must_
+The [[position]] option can be a String or an [[AbsolutePosition]]. The first word in a String _must_
 be the desired vertical alignment of the window. The second (optional) word is the desired horizontal
 alignment.
 
 Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
-Valid IAbsolutePosition examples: {top: 5, right: 10%}, {bottom: 49em, left: 10px}, {left: 10, bottom: 40}
+Valid AbsolutePosition examples: {top: 5, right: 10%}, {bottom: 49em, left: 10px}, {left: 10, bottom: 40}
 
 ## Extending the Engine
 

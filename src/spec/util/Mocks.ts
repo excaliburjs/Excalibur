@@ -37,17 +37,17 @@ export namespace Mocks {
         length: 4
       };
       const mockNavigator = {
-        setGamepads: function(index: number, numAxis: number, numButtons: number) {
+        setGamepads: function (index: number, numAxis: number, numButtons: number) {
           _internalGamePads[index] = {
             axes: Array.apply(
               null,
-              Array(numAxis).map(function() {
+              Array(numAxis).map(function () {
                 return undefined;
               })
             ),
             buttons: Array.apply(
               null,
-              Array(numButtons).map(function() {
+              Array(numButtons).map(function () {
                 return { pressed: false, value: 0 };
               })
             ),
@@ -59,19 +59,19 @@ export namespace Mocks {
           };
         },
 
-        deleteGamepad: function(index: number) {
+        deleteGamepad: function (index: number) {
           _internalGamePads[index] = undefined;
         },
 
-        setGamepadAxis: function(gamepadIndex: number, axisIndex: number, value: number) {
+        setGamepadAxis: function (gamepadIndex: number, axisIndex: number, value: number) {
           _internalGamePads[gamepadIndex].axes[axisIndex] = value;
         },
 
-        setGamepadButton: function(gamepadIndex: number, buttonIndex: number, value: number) {
+        setGamepadButton: function (gamepadIndex: number, buttonIndex: number, value: number) {
           _internalGamePads[gamepadIndex].buttons[buttonIndex] = { pressed: value > 0 ? true : false, value: value };
         },
 
-        getGamepads: function() {
+        getGamepads: function () {
           return _internalGamePads;
         }
       };
@@ -117,16 +117,16 @@ export namespace Mocks {
         scenes: {},
         _animations: [],
         _logger: {
-          debug: function() {
+          debug: function () {
             /* do nothing */
           },
-          info: function() {
+          info: function () {
             /* do nothing */
           },
-          warn: function() {
+          warn: function () {
             /* do nothing */
           },
-          error: function() {
+          error: function () {
             /* do nothing */
           }
         },
@@ -137,14 +137,14 @@ export namespace Mocks {
         },
         input: {
           keyboard: {
-            update: function() {
+            update: function () {
               /* do nothing */
             }
           },
           // eslint-disable-next-line
           pointers: new ex.Input.Pointers(<any>this),
           gamepads: {
-            update: function() {
+            update: function () {
               /* do nothing */
             }
           }
@@ -160,43 +160,43 @@ export namespace Mocks {
             width: width,
             height: height
           },
-          save: function() {
+          save: function () {
             /* do nothing */
           },
-          restore: function() {
+          restore: function () {
             /* do nothing */
           },
-          translate: function() {
+          translate: function () {
             /* do nothing */
           },
-          rotate: function() {
+          rotate: function () {
             /* do nothing */
           },
-          scale: function() {
+          scale: function () {
             /* do nothing */
           }
         },
-        getDrawWidth: function() {
+        getDrawWidth: function () {
           return width;
         },
-        getDrawHeight: function() {
+        getDrawHeight: function () {
           return height;
         },
         worldToScreenCoordinates: ex.Engine.prototype.worldToScreenCoordinates,
         screenToWorldCoordinates: ex.Engine.prototype.screenToWorldCoordinates,
         addScene: ex.Engine.prototype.addScene,
         goToScene: ex.Engine.prototype.goToScene,
-        stop: function() {
+        stop: function () {
           /* do nothing */
         },
-        onFatalException: function() {
+        onFatalException: function () {
           /* do nothing */
         },
-        emit: function() {
+        emit: function () {
           /* do nothing */
         },
         eventDispatcher: {
-          emit: function() {
+          emit: function () {
             /* do nothing */
           }
         },
@@ -206,7 +206,7 @@ export namespace Mocks {
         onPreUpdate: ex.Engine.prototype.onPreUpdate,
         _postupdate: ex.Engine.prototype._postupdate,
         onPostUpdate: ex.Engine.prototype.onPostUpdate,
-        _draw: function() {
+        _draw: function () {
           /* do nothing */
         },
         _predraw: ex.Engine.prototype._predraw,
@@ -229,10 +229,12 @@ export namespace Mocks {
 
       return {
         /**
+         * **Warning:** the engine must be started for advance to work properly
+         *
          * Advance the engine update loop by the given duration (in milliseconds).
          * By default, the FPS is set to 60 which means ~16ms per frame for 1 second duration.
          */
-        advance: function(duration: number, fps: number = 60) {
+        advance: function (duration: number, fps: number = 60) {
           const times = Math.floor((duration / 1000) * fps);
           const delta = duration / times;
 
@@ -251,13 +253,13 @@ export namespace Mocks {
       let now = 0;
 
       return {
-        add: function(value) {
+        add: function (value) {
           now += value;
         },
-        sub: function(value) {
+        sub: function (value) {
           now -= value;
         },
-        now: function() {
+        now: function () {
           return now;
         }
       };
@@ -267,10 +269,10 @@ export namespace Mocks {
       const _handlers = {};
 
       const mockWindow = {
-        addEventListener: function(name, handler) {
+        addEventListener: function (name, handler) {
           _handlers[name] = handler;
         },
-        emit: function(name, eventObject) {
+        emit: function (name, eventObject) {
           _handlers[name](eventObject);
         }
       };
@@ -278,9 +280,8 @@ export namespace Mocks {
       return mockWindow;
     }
 
-    pointerEvent(eventName): ex.Input.PointerEvent {
+    pointerEvent(eventName, pointer: ex.Input.Pointer = new ex.Input.Pointer()): ex.Input.PointerEvent {
       const coordinates = new ex.GlobalCoordinates(new ex.Vector(0, 0), new ex.Vector(0, 0), new ex.Vector(0, 0));
-      const pointer = new ex.Input.Pointer();
       const pointerType = ex.Input.PointerType.Mouse;
       const pointerButton = ex.Input.PointerButton.Unknown;
 

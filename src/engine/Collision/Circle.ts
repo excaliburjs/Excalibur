@@ -10,10 +10,7 @@ import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
 
-// @obsolete Remove in v0.24.0
-import { Body } from './Body';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
-// ===========================
 
 export interface CircleOptions {
   /**
@@ -28,9 +25,6 @@ export interface CircleOptions {
    * Optional collider to associate with this shape
    */
   collider?: Collider;
-
-  // @obsolete Will be removed in v0.24.0 please use [[collider]] to set and retrieve body information
-  body?: Body;
 }
 
 /**
@@ -58,12 +52,6 @@ export class Circle implements CollisionShape {
   public radius: number;
 
   /**
-   * Reference to the actor associated with this collision shape
-   * @obsolete Will be removed in v0.24.0 please use [[collider]] to retrieve body information
-   */
-  public body: Body;
-
-  /**
    * The collider associated for this shape, if any.
    */
   public collider?: Collider;
@@ -72,13 +60,6 @@ export class Circle implements CollisionShape {
     this.offset = options.offset || Vector.Zero;
     this.radius = options.radius || 0;
     this.collider = options.collider || null;
-
-    // @obsolete Remove next release in v0.24.0, code exists for backwards compat
-    if (options.body) {
-      this.collider = options.body.collider;
-      this.body = this.collider.body;
-    }
-    // ==================================
   }
 
   /**
@@ -88,8 +69,7 @@ export class Circle implements CollisionShape {
     return new Circle({
       offset: this.offset.clone(),
       radius: this.radius,
-      collider: null,
-      body: null
+      collider: null
     });
   }
 
@@ -119,7 +99,7 @@ export class Circle implements CollisionShape {
   }
 
   /**
-   * Casts a ray at the Circl shape and returns the nearest point of collision
+   * Casts a ray at the Circle shape and returns the nearest point of collision
    * @param ray
    */
   public rayCast(ray: Ray, max: number = Infinity): Vector {
@@ -319,13 +299,3 @@ export class Circle implements CollisionShape {
     ctx.stroke();
   }
 }
-
-/**
- * @obsolete Use [[CircleOptions]], CircleAreaOptions will be removed in v0.24.0
- */
-export interface CircleAreaOptions extends CircleOptions {}
-
-/**
- * @obsolete Use [[Circle]], CircleArea will be removed in v0.24.0
- */
-export class CircleArea extends Circle {}

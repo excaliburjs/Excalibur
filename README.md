@@ -9,20 +9,20 @@
 
 ![Sweep Stacks](http://excaliburjs.com/assets/images/homepage-xp.png)
 
-Excalibur is a simple, **free** game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal is to make it _incredibly simple_ to create 2D HTML/JS games, for folks new to game development as well as experienced game developers. We take care of all of the boilerplate engine code, cross-platform targeting (using [browserstack](http://browserstack.com/) 😎), and more so you don't have to. Use as much or as little as you need!
+Excalibur is a free game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal is to make it easier for you to create 2D HTML/JS games, whether you're new to game development or you're an experienced game developer. We take care of all of the boilerplate engine code, cross-platform targeting (using [browserstack](http://browserstack.com/) 😎), and more! Use as much or as little as you need!
 
 Excalibur is an open source project licensed under the 2-clause BSD license (this means you can use it in commercial projects!). It's free and always will be. We welcome any feedback or contributions! If you make something with Excalibur, please [let us know](https://groups.google.com/forum/#!tags/excaliburjs/show-and-tell)!
 
 # Get Started
 
-Our user documentation is at https://excaliburjs.com/docs (and you can contribute at https://github.com/excaliburjs/excaliburjs.github.io)
+Our user documentation is at https://excaliburjs.com/docs (and you can contribute to the docs at https://github.com/excaliburjs/excaliburjs.github.io)
 
 - Follow our [Installation](https://excaliburjs.com/docs/installation) guide to learn how to install Excalibur
 - Follow our [Getting Started](https://excaliburjs.com/docs/getting-started) guide if you're looking to get started.
 - Learn what [Features](https://excaliburjs.com/docs/features) are available for you to leverage in your games
 - View the [Release roadmap](https://github.com/excaliburjs/Excalibur/milestones) to see what's coming next
 
-:exclamation: **_Note:_** We are still in version 0.x, which means this project may be a little rough around the edges. We try to minimize API changes, but breaking changes **will occur** in new released versions. Excalibur is a labor of love and the product of many hours of spare time. Thanks for checking it out!
+:exclamation: **_Note:_** Excalibur is still in version 0.x, which means this project and its associated plugins may be a little rough around the edges. We try to minimize API changes, but breaking changes **will occur** in new released versions. Excalibur is a labor of love and the product of many hours of spare time. Thanks for checking it out!
 
 # API Reference
 
@@ -40,16 +40,16 @@ Compiled examples can be found [in the Excalibur Samples collection](http://exca
 
 # Contributing
 
-Please read the [Contributing guidelines](.github/CONTRIBUTING.md). Whether you've spotted a bug, have a question, or think of a good feature, we thank you for your help!
+Please read our [Contributing Guidelines](.github/CONTRIBUTING.md) and our [Code of Conduct](.github/CODE_OF_CONDUCT.md). Whether you've spotted a bug, have a question, or think of a good feature, we thank you for your help!
 
 # Writing Documentation
 
-We love when people help shore up or write new documentation. You can help contribute to docs at https://github.com/excaliburjs/excaliburjs.github.io
+We love when people help improve our documentation. You can contribute to the docs at https://github.com/excaliburjs/excaliburjs.github.io
 
 ## Environment Setup
 
 The Excalibur.js team primarily uses [Visual Studio Code](http://code.visualstudio.com) as a platform agnostic editor to
-allow the widest contributions possible. You can always use your own preferred editor of choice.
+allow the widest contributions possible. However, you can always use your own preferred editor.
 
 ## Testing
 
@@ -97,6 +97,9 @@ npm run sandbox
 
 # Compile API docs
 npm run apidocs
+
+# Build a nuget package and specify a version
+npm run nuget -- 1.1.1
 ```
 
 # License

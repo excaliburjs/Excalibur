@@ -1,11 +1,13 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('An animation', () => {
   let animation: ex.Animation;
   let engine: ex.Engine;
 
   beforeEach(() => {
+    jasmine.addMatchers(ExcaliburMatchers);
     animation = new ex.Animation(null, null, 0);
     engine = TestUtils.engine({
       width: 500,
@@ -52,26 +54,55 @@ describe('An animation', () => {
   });
 
   it('should always pass "flipped" state to the current Sprite', () => {
-    const mockSprite = {
-      anchor: new ex.Vector(1, 1),
-      draw: () => void 0,
-      flipHorizontal: false,
-      flipVertical: false
-    };
-    animation.sprites = [<any>mockSprite];
+    const mockSprite: any = jasmine.createSpyObj('sprite', ['draw', 'drawWithOptions']);
+    mockSprite.anchor = ex.Vector.Half;
+    mockSprite.scale = ex.Vector.One;
+    mockSprite.flipHorizontal = false;
+    mockSprite.flipVertical = false;
+    animation.sprites = [mockSprite];
 
     // set flipped to true and ensure the Sprite has the same state after drawing
     animation.flipHorizontal = true;
     animation.flipVertical = true;
     animation.draw(engine.ctx, 0, 0);
-    expect(animation.sprites[0].flipHorizontal).toBe(true);
-    expect(animation.sprites[0].flipVertical).toBe(true);
+    expect(mockSprite.flipHorizontal).toBe(false);
+    expect(mockSprite.flipVertical).toBe(false);
 
     // set flipped back to false and ensure the Sprite has the same state after drawing
     animation.flipHorizontal = false;
     animation.flipVertical = false;
     animation.draw(engine.ctx, 0, 0);
-    expect(animation.sprites[0].flipHorizontal).toBe(false);
-    expect(animation.sprites[0].flipVertical).toBe(false);
+    expect(mockSprite.flipHorizontal).toBe(false);
+    expect(mockSprite.flipVertical).toBe(false);
+  });
+
+  it('can be drawn with opacity option', (done) => {
+    engine = TestUtils.engine({
+      width: 62,
+      height: 64
+    });
+    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        rotation: 0,
+        anchor: new ex.Vector(0.0, 0.0),
+        scale: new ex.Vector(1, 1),
+        flipVertical: false,
+        flipHorizontal: false
+      });
+
+      const animation = new ex.Animation(engine, [sprite], 10, true);
+
+      animation.draw({ ctx: engine.ctx, x: 0, y: 0, opacity: 0.1 });
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/opacity.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
   });
 });

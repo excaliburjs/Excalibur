@@ -1,14 +1,12 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { Mocks } from './util/Mocks';
 
 describe('A game actor', () => {
   let actor: ex.Actor;
 
   let engine: ex.Engine;
   let scene: ex.Scene;
-  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -254,115 +252,6 @@ describe('A game actor', () => {
     expect(actor.body.collider.bounds.bottom).toBe(100);
   });
 
-  // @obsolete? colliders don't know anything about child actors
-  xit('should have correct bounds when parent is scaled', () => {
-    actor.pos.x = 0;
-    actor.pos.y = 0;
-    actor.width = 100;
-    actor.height = 100;
-    actor.scale.setTo(2, 2);
-    actor.anchor = new ex.Vector(0.5, 0.5);
-
-    const child = new ex.Actor(0, 0, 50, 50);
-    actor.add(child);
-
-    expect(child.body.collider.bounds.left).toBe(-50);
-    expect(child.body.collider.bounds.right).toBe(50);
-    expect(child.body.collider.bounds.top).toBe(-50);
-    expect(child.body.collider.bounds.bottom).toBe(50);
-  });
-
-  xit('should have the correct bounds when scaled and rotated', () => {
-    const actor = new ex.Actor(50, 50, 10, 10);
-    // actor is now 20 high
-    actor.scale.setTo(1, 2);
-    // rotating the actor 90 degrees should make the actor 20 wide
-    actor.rotation = Math.PI / 2;
-    const bounds = actor.body.collider.bounds;
-    expect(bounds.width).toBeCloseTo(20, 0.001);
-    expect(bounds.height).toBeCloseTo(10, 0.001);
-
-    expect(bounds.left).toBeCloseTo(40, 0.001);
-    expect(bounds.right).toBeCloseTo(60, 0.001);
-    expect(bounds.top).toBeCloseTo(45, 0.001);
-    expect(bounds.bottom).toBeCloseTo(55, 0.001);
-  });
-
-  xit('should have the correct relative bounds when scaled and rotated', () => {
-    const actor = new ex.Actor(50, 50, 10, 10);
-    // actor is now 20 high
-    actor.scale.setTo(1, 2);
-    // rotating the actor 90 degrees should make the actor 20 wide
-    actor.rotation = Math.PI / 2;
-    const bounds = actor.body.collider.localBounds;
-    expect(bounds.width).toBeCloseTo(20, 0.001);
-    expect(bounds.height).toBeCloseTo(10, 0.001);
-
-    expect(bounds.left).toBeCloseTo(-10, 0.001);
-    expect(bounds.right).toBeCloseTo(10, 0.001);
-    expect(bounds.top).toBeCloseTo(-5, 0.001);
-    expect(bounds.bottom).toBeCloseTo(5, 0.001);
-  });
-
-  xit('has a left, right, top, and bottom when the anchor is (0, 0)', () => {
-    actor.pos.x = 100;
-    actor.pos.y = 100;
-    actor.anchor = new ex.Vector(0.0, 0.0);
-    actor.width = 100;
-    actor.height = 100;
-
-    expect(actor.body.collider.bounds.left).toBe(100);
-    expect(actor.body.collider.bounds.right).toBe(200);
-    expect(actor.body.collider.bounds.top).toBe(100);
-    expect(actor.body.collider.bounds.bottom).toBe(200);
-  });
-
-  xit('should have the correct world geometry if rotated and scaled', () => {
-    const actor = new ex.Actor({ pos: new ex.Vector(50, 50), width: 10, height: 10 });
-    actor.scale.setTo(2, 2);
-    actor.rotation = Math.PI / 2;
-
-    const geom = actor.getGeometry();
-    expect(geom.length).toBe(4);
-    expect(geom[0].equals(new ex.Vector(40, 40))).toBe(true);
-    expect(geom[1].equals(new ex.Vector(60, 40))).toBe(true);
-    expect(geom[2].equals(new ex.Vector(60, 60))).toBe(true);
-    expect(geom[3].equals(new ex.Vector(40, 60))).toBe(true);
-  });
-
-  xit('should have the correct relative geometry if rotated and scaled', () => {
-    const actor = new ex.Actor({ pos: new ex.Vector(50, 50), width: 10, height: 10 });
-    actor.scale.setTo(2, 2);
-    actor.rotation = Math.PI / 2;
-
-    const geom = actor.getRelativeGeometry();
-    expect(geom.length).toBe(4);
-    expect(geom[0].equals(new ex.Vector(-10, -10))).toBe(true);
-    expect(geom[1].equals(new ex.Vector(10, -10))).toBe(true);
-    expect(geom[2].equals(new ex.Vector(10, 10))).toBe(true);
-    expect(geom[3].equals(new ex.Vector(-10, 10))).toBe(true);
-  });
-
-  xit('can contain points', () => {
-    expect(actor.pos.x).toBe(0);
-    expect(actor.pos.y).toBe(0);
-    actor.width = 20;
-    actor.height = 20;
-
-    expect(actor.anchor.x).toBe(0.5);
-    expect(actor.anchor.y).toBe(0.5);
-
-    actor.anchor = new ex.Vector(0, 0);
-
-    expect(actor.contains(10, 10)).toBe(true);
-
-    expect(actor.contains(21, 20)).toBe(false);
-    expect(actor.contains(20, 21)).toBe(false);
-
-    expect(actor.contains(0, -1)).toBe(false);
-    expect(actor.contains(-1, 0)).toBe(false);
-  });
-
   it('can collide with other actors', () => {
     const actor = new ex.Actor(0, 0, 10, 10);
     const other = new ex.Actor(10, 10, 10, 10);
@@ -404,11 +293,11 @@ describe('A game actor', () => {
     let actorCalled = 'false';
     let otherCalled = 'false';
 
-    actor.on('precollision', function() {
+    actor.on('precollision', function () {
       actorCalled = 'actor';
     });
 
-    other.on('precollision', function() {
+    other.on('precollision', function () {
       otherCalled = 'other';
     });
 
@@ -586,7 +475,7 @@ describe('A game actor', () => {
     expect(actor.draw).not.toHaveBeenCalled();
   });
 
-  it('does not incure pointer overhead until an event is registered', () => {
+  it('does not incur pointer overhead until an event is registered', () => {
     expect(actor.enableCapturePointer).toBeFalsy();
     expect(actor.capturePointer.captureMoveEvents).toBeFalsy();
     actor.on('pointerdown', () => {
@@ -629,6 +518,46 @@ describe('A game actor', () => {
     scene.draw(engine.ctx, 100);
 
     expect(invisibleActor.draw).not.toHaveBeenCalled();
+  });
+
+  it('can have a graphic drawn at an opacity', (done) => {
+    engine = TestUtils.engine({
+      width: 62,
+      height: 64,
+      suppressHiDPIScaling: true
+    });
+    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        rotation: 0,
+        anchor: new ex.Vector(0.0, 0.0),
+        scale: new ex.Vector(1, 1),
+        flipVertical: false,
+        flipHorizontal: false
+      });
+
+      const actor = new ex.Actor({
+        pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),
+        width: 10,
+        height: 10
+      });
+
+      actor.addDrawing(sprite);
+
+      actor.opacity = 0.1;
+
+      actor.draw(engine.ctx, 0);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/opacity.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
   });
 
   it('can detect containment off of child actors', () => {
@@ -798,7 +727,7 @@ describe('A game actor', () => {
     expect(actor.isKilled()).toBeFalsy();
   });
 
-  it('fires intialize event when before the first update', (done) => {
+  it('fires initialize event when before the first update', (done) => {
     const actor = new ex.Actor();
     actor.on('initialize', () => {
       expect(true).toBe(true);
@@ -869,13 +798,13 @@ describe('A game actor', () => {
       width: 10,
       height: 10
     });
-    let predrawedFired = false;
+    let predrawFired = false;
 
     actor.on('predraw', () => {
-      predrawedFired = true;
+      predrawFired = true;
     });
     actor.on('postdraw', () => {
-      expect(predrawedFired).toBe(true);
+      expect(predrawFired).toBe(true);
       done();
     });
 
@@ -1057,15 +986,10 @@ describe('A game actor', () => {
       actor.on('pointermove', callables.move);
       scene.add(actor);
 
-      const pointerEvent: any = mock.pointerEvent('move');
-      pointerEvent._path = [actor];
-      (<any>engine.input.pointers)._pointerMove.push(pointerEvent);
-
-      scene.update(engine, 100);
+      engine.input.pointers.triggerEvent('move', new ex.Vector(0, 0));
 
       expect(moveSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
+      expect(engine.input.pointers.at(0).lastWorldPos).toBeVector(new ex.Vector(0, 0), 0.001);
     });
 
     it('should capture pointer enter event', () => {
@@ -1080,16 +1004,11 @@ describe('A game actor', () => {
       actor.on('pointerenter', callables.enter);
       scene.add(actor);
 
-      const pointerEvent: any = mock.pointerEvent('move');
-      pointerEvent._path = [actor];
-      pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
-      (<any>engine.input.pointers)._pointerMove.push(pointerEvent);
-
-      scene.update(engine, 100);
+      engine.input.pointers.triggerEvent('move', new ex.Vector(30, 30));
+      engine.input.pointers.triggerEvent('move', new ex.Vector(0, 0));
 
       expect(enterSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
+      expect(engine.input.pointers.at(0).lastWorldPos).toBeVector(new ex.Vector(0, 0), 0.001);
     });
 
     it('should capture pointer leave event', () => {
@@ -1104,17 +1023,11 @@ describe('A game actor', () => {
       actor.on('pointerleave', callables.leave);
       scene.add(actor);
 
-      const pointerEvent: any = mock.pointerEvent('move');
-      pointerEvent._path = [];
-      pointerEvent.pointer.lastWorldPos = new ex.Vector(30, 30);
-      pointerEvent.pointer.addActorUnderPointer(actor);
-      (<any>engine.input.pointers)._pointerMove.push(pointerEvent);
-
-      scene.update(engine, 100);
+      engine.input.pointers.triggerEvent('move', new ex.Vector(0, 0));
+      engine.input.pointers.triggerEvent('move', new ex.Vector(30, 30));
 
       expect(leaveSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(30, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(30, 'pointer event should contain correct world position y');
+      expect(engine.input.pointers.at(0).lastWorldPos).toBeVector(new ex.Vector(30, 30), 0.001);
     });
 
     it('should capture pointer drag start event', () => {
@@ -1129,18 +1042,11 @@ describe('A game actor', () => {
       actor.on('pointerdragstart', callables.dragStart);
       scene.add(actor);
 
-      const pointerEvent: any = mock.pointerEvent('down');
-      pointerEvent._path = [actor];
-      pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
-      spyOnProperty(pointerEvent.pointer, 'isDragStart', 'get').and.returnValue(true);
-
-      (<any>engine.input.pointers)._pointerDown.push(pointerEvent);
-
-      scene.update(engine, 100);
+      actor.update(engine, 100);
+      engine.input.pointers.triggerEvent('down', new ex.Vector(0, 0));
 
       expect(dragStartSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
+      expect(engine.input.pointers.at(0).lastWorldPos).toBeVector(new ex.Vector(0, 0));
     });
 
     it('should capture pointer drag end event', () => {
@@ -1155,18 +1061,11 @@ describe('A game actor', () => {
       actor.on('pointerdragend', callables.dragEnd);
       scene.add(actor);
 
-      const pointerEvent: any = mock.pointerEvent('up');
-      pointerEvent._path = [actor];
-      pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
-      pointerEvent.pointer.addActorUnderPointer(actor);
-      spyOnProperty(pointerEvent.pointer, 'isDragEnd', 'get').and.returnValue(true);
-      (<any>engine.input.pointers)._pointerUp.push(pointerEvent);
-
-      scene.update(engine, 100);
+      engine.input.pointers.triggerEvent('down', new ex.Vector(0, 0));
+      engine.input.pointers.triggerEvent('up', new ex.Vector(0, 0));
 
       expect(dragEndSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
+      expect(engine.input.pointers.at(0).lastWorldPos).toBeVector(new ex.Vector(0, 0));
     });
 
     it('should capture pointer drag move event', () => {
@@ -1181,18 +1080,12 @@ describe('A game actor', () => {
       actor.on('pointerdragmove', callables.dragMove);
       scene.add(actor);
 
-      const pointerEvent: any = mock.pointerEvent('move');
-      pointerEvent._path = [actor];
-      pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
-      pointerEvent.pointer.addActorUnderPointer(actor);
-      spyOnProperty(pointerEvent.pointer, 'isDragging', 'get').and.returnValue(true);
-      (<any>engine.input.pointers)._pointerMove.push(pointerEvent);
-
-      scene.update(engine, 100);
+      engine.input.pointers.triggerEvent('down', new ex.Vector(0, 0));
+      engine.input.pointers.triggerEvent('move', new ex.Vector(0, 0));
+      engine.input.pointers.triggerEvent('up', new ex.Vector(0, 0));
 
       expect(dragMoveSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
+      expect(engine.input.pointers.at(0).lastWorldPos).toBeVector(new ex.Vector(0, 0));
     });
 
     it('should capture pointer drag enter event', () => {
@@ -1207,17 +1100,11 @@ describe('A game actor', () => {
       actor.on('pointerdragenter', callables.dragEnter);
       scene.add(actor);
 
-      const pointerEvent: any = mock.pointerEvent('move');
-      pointerEvent._path = [actor];
-      pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
-      spyOnProperty(pointerEvent.pointer, 'isDragging', 'get').and.returnValue(true);
-      (<any>engine.input.pointers)._pointerMove.push(pointerEvent);
-
-      scene.update(engine, 100);
+      engine.input.pointers.triggerEvent('down', new ex.Vector(-20, -20));
+      engine.input.pointers.triggerEvent('move', new ex.Vector(0, 0));
 
       expect(dragEnterSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
+      expect(engine.input.pointers.at(0).lastWorldPos).toBeVector(new ex.Vector(0, 0));
     });
 
     it('should capture pointer drag leave event', () => {
@@ -1232,18 +1119,11 @@ describe('A game actor', () => {
       actor.on('pointerdragleave', callables.dragLeave);
       scene.add(actor);
 
-      const pointerEvent: any = mock.pointerEvent('move');
-      pointerEvent._path = [];
-      pointerEvent.pointer.lastWorldPos = new ex.Vector(30, 30);
-      pointerEvent.pointer.addActorUnderPointer(actor);
-      spyOnProperty(pointerEvent.pointer, 'isDragging', 'get').and.returnValue(true);
-      (<any>engine.input.pointers)._pointerMove.push(pointerEvent);
-
-      scene.update(engine, 100);
+      engine.input.pointers.triggerEvent('down', new ex.Vector(0, 0));
+      engine.input.pointers.triggerEvent('move', new ex.Vector(30, 30));
 
       expect(dragLeaveSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(30, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(30, 'pointer event should contain correct world position y');
+      expect(engine.input.pointers.at(0).lastWorldPos).toBeVector(new ex.Vector(30, 30));
     });
 
     it('can prevent pointer events from bubbling', () => {
@@ -1260,42 +1140,31 @@ describe('A game actor', () => {
       child.on('pointerdown', callables.pointerDown);
       scene.add(actor);
 
-      const pointerEvent: any = mock.pointerEvent('down');
-      pointerEvent.bubbles = false;
-      pointerEvent._path = [actor, child];
-      pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
-      (<any>engine.input.pointers)._pointerDown.push(pointerEvent);
-
-      scene.update(engine, 100);
+      engine.input.pointers.triggerEvent('down', new ex.Vector(0, 0));
 
       expect(bubblingSpy).toHaveBeenCalledTimes(1);
-      expect(pointerEvent.pointer.lastWorldPos.x).toEqual(0, 'pointer event should contain correct world position x');
-      expect(pointerEvent.pointer.lastWorldPos.y).toEqual(0, 'pointer event should contain correct world position y');
+      expect(engine.input.pointers.at(0).lastWorldPos).toBeVector(new ex.Vector(0, 0));
     });
 
     it('only has pointer events happen once per frame', () => {
       const actor = new ex.Actor(0, 0, 100, 100);
-      const propSpy = spyOn(engine.input.pointers, 'propagate').and.callThrough();
       let numPointerUps = 0;
 
-      const pointerEvent: any = mock.pointerEvent('up');
-      pointerEvent._path = [actor];
-      pointerEvent.pointer.lastWorldPos = new ex.Vector(0, 0);
-      (<any>engine.input.pointers)._pointerUp.push(pointerEvent);
-
+      scene.add(actor);
       actor.on('pointerup', () => {
         numPointerUps++;
       });
 
-      scene.add(actor);
+      engine.input.pointers.triggerEvent('down', new ex.Vector(0, 0));
+      engine.input.pointers.triggerEvent('up', new ex.Vector(0, 0));
+
       scene.update(engine, 100);
 
       expect(numPointerUps).toBe(1, 'Pointer up should be triggered once');
-      expect(propSpy).toHaveBeenCalledTimes(1);
     });
   });
 
-  it('should not corrupt shared sprite ctxs', (done) => {
+  it('should not corrupt shared sprite contexts', (done) => {
     engine = TestUtils.engine({
       width: 62,
       height: 64,
@@ -1394,7 +1263,7 @@ describe('A game actor', () => {
       });
     });
 
-    it('can have onInitialize overriden safely', () => {
+    it('can have onInitialize overridden safely', () => {
       let initCalled = false;
       actor.on('initialize', () => {
         initCalled = true;
@@ -1414,7 +1283,7 @@ describe('A game actor', () => {
       expect(actor.isInitialized).toBe(true);
     });
 
-    it('can have onPostUpdate overriden safely', () => {
+    it('can have onPostUpdate overridden safely', () => {
       actor.onPostUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -1429,7 +1298,7 @@ describe('A game actor', () => {
       expect(actor.onPostUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreUpdate overriden safely', () => {
+    it('can have onPreUpdate overridden safely', () => {
       actor.onPreUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -1444,7 +1313,7 @@ describe('A game actor', () => {
       expect(actor.onPreUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreDraw overriden safely', () => {
+    it('can have onPreDraw overridden safely', () => {
       actor.onPreDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
@@ -1459,7 +1328,7 @@ describe('A game actor', () => {
       expect(actor.onPreDraw).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPostDraw overriden safely', () => {
+    it('can have onPostDraw overridden safely', () => {
       actor.onPostDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
@@ -1474,7 +1343,7 @@ describe('A game actor', () => {
       expect(actor.onPostDraw).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreKill overriden safely', () => {
+    it('can have onPreKill overridden safely', () => {
       engine.add(actor);
       actor.onPreKill = (scene) => {
         expect(scene).not.toBe(null);
@@ -1488,7 +1357,7 @@ describe('A game actor', () => {
       expect(actor.onPreKill).toHaveBeenCalledTimes(1);
     });
 
-    it('can have onPostKill overriden safely', () => {
+    it('can have onPostKill overridden safely', () => {
       engine.add(actor);
       actor.onPreKill = (scene) => {
         expect(scene).not.toBe(null);

@@ -8,10 +8,8 @@ describe('The engine', () => {
   let scene: ex.Scene;
   const mock = new Mocks.Mocker();
   let loop: Mocks.GameLoopLike;
-  let initHiDpiSpy: jasmine.Spy;
 
   const reset = () => {
-    initHiDpiSpy.calls.reset();
     engine.stop();
     engine = null;
     (<any>window).devicePixelRatio = 1;
@@ -24,11 +22,11 @@ describe('The engine', () => {
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
-    initHiDpiSpy = spyOn(<any>ex.Engine.prototype, '_initializeHiDpi');
 
     engine = TestUtils.engine();
     scene = new ex.Scene(engine);
-    engine.currentScene = scene;
+    engine.add('default', scene);
+    engine.goToScene('default');
 
     loop = mock.loop(engine);
 
@@ -167,7 +165,7 @@ describe('The engine', () => {
     expect(engine.getWorldBounds()).toEqual(localBoundingBox);
   });
 
-  it('should return correct scren dimensions if zoomed in', () => {
+  it('should return correct screen dimensions if zoomed in', () => {
     engine.start();
     engine.currentScene.camera.z = 2;
 
@@ -183,10 +181,18 @@ describe('The engine', () => {
   });
 
   it('should accept a displayMode of Position', () => {
+    engine = TestUtils.engine({
+      displayMode: ex.DisplayMode.Position,
+      position: 'top'
+    });
     expect(engine.displayMode).toEqual(ex.DisplayMode.Position);
   });
 
   it('should accept strings to position the window', () => {
+    engine = TestUtils.engine({
+      displayMode: ex.DisplayMode.Position,
+      position: 'top'
+    });
     expect(engine.canvas.style.top).toEqual('0px');
   });
 
@@ -244,7 +250,6 @@ describe('The engine', () => {
     engine.start().then(() => {
       // Assert
       expect(engine.isHiDpi).toBe(true);
-      expect((<any>engine)._initializeHiDpi).toHaveBeenCalled();
       (<any>window).devicePixelRatio = 1;
 
       done();
@@ -276,15 +281,9 @@ describe('The engine', () => {
 
   it('should respect a hidpi suppression flag even if the pixel ratio is greater than 1', (done) => {
     // Arrange
-    const oldWidth = 100;
-    const oldHeight = 100;
-
     (<any>window).devicePixelRatio = 2;
-    const newWidth = oldWidth * (<any>window).devicePixelRatio;
-    const newHeight = oldHeight * (<any>window).devicePixelRatio;
-    // Act
 
-    (<any>ex.Engine.prototype)._initializeHiDpi.calls.reset();
+    // Act
     engine = TestUtils.engine({
       width: 100,
       height: 100,
@@ -294,7 +293,8 @@ describe('The engine', () => {
     engine.start().then(() => {
       // Assert
       expect(engine.isHiDpi).toBe(false);
-      expect((<any>engine)._initializeHiDpi).not.toHaveBeenCalled();
+      expect(engine.drawWidth).toBe(100);
+      expect(engine.drawHeight).toBe(100);
       (<any>window).devicePixelRatio = 1;
       done();
     });
@@ -330,7 +330,7 @@ describe('The engine', () => {
       engine = null;
     });
 
-    it('can have onInitialize overriden safely', () => {
+    it('can have onInitialize overridden safely', () => {
       let initCalled = false;
       engine.onInitialize = (engine) => {
         expect(engine).not.toBe(null);
@@ -348,7 +348,7 @@ describe('The engine', () => {
       expect(engine.onInitialize).toHaveBeenCalledTimes(1);
     });
 
-    it('can have onPostUpdate overriden safely', () => {
+    it('can have onPostUpdate overridden safely', () => {
       engine.onPostUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -364,7 +364,7 @@ describe('The engine', () => {
       expect(engine.onPostUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreUpdate overriden safely', () => {
+    it('can have onPreUpdate overridden safely', () => {
       engine.onPreUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -380,7 +380,7 @@ describe('The engine', () => {
       expect(engine.onPreUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreDraw overriden safely', () => {
+    it('can have onPreDraw overridden safely', () => {
       engine.onPreDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
@@ -396,7 +396,7 @@ describe('The engine', () => {
       expect(engine.onPreDraw).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPostDraw overriden safely', () => {
+    it('can have onPostDraw overridden safely', () => {
       engine.onPostDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);

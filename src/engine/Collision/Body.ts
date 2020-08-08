@@ -3,14 +3,13 @@ import { Actor } from '../Actor';
 import { Collider } from './Collider';
 import { CollisionType } from './CollisionType';
 import { Physics } from '../Physics';
-import { obsolete } from '../Util/Decorators';
 import { PreCollisionEvent, PostCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
 import { Clonable } from '../Interfaces/Clonable';
 import { Shape } from './Shape';
 
 export interface BodyOptions {
   /**
-   * Optionally the actory associated with this body
+   * Optionally the actor associated with this body
    */
   actor?: Actor;
   /**
@@ -99,7 +98,7 @@ export class Body implements Clonable<Body> {
   public oldVel: Vector = new Vector(0, 0);
 
   /**
-   * The curret acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may
+   * The current acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may
    * be useful to simulate a gravitational effect.
    */
   public acc: Vector = new Vector(0, 0);
@@ -131,24 +130,24 @@ export class Body implements Clonable<Body> {
 
   /**
    * The scale vector of the actor
-   * @obsolete ex.Body.scale will be removed in v0.24.0
+   * @obsolete ex.Body.scale will be removed in v0.25.0
    */
   public scale: Vector = Vector.One;
 
   /**
    * The scale of the actor last frame
-   * @obsolete ex.Body.scale will be removed in v0.24.0
+   * @obsolete ex.Body.scale will be removed in v0.25.0
    */
   public oldScale: Vector = Vector.One;
 
   /**
    * The x scalar velocity of the actor in scale/second
-   * @obsolete ex.Body.scale will be removed in v0.24.0
+   * @obsolete ex.Body.scale will be removed in v0.25.0
    */
   public sx: number = 0; //scale/sec
   /**
    * The y scalar velocity of the actor in scale/second
-   * @obsolete ex.Body.scale will be removed in v0.24.0
+   * @obsolete ex.Body.scale will be removed in v0.25.0
    */
   public sy: number = 0; //scale/sec
 
@@ -234,19 +233,20 @@ export class Body implements Clonable<Body> {
   /**
    * Sets up a box geometry based on the current bounds of the associated actor of this physics body.
    *
+   * If no width/height are specified the body will attempt to use the associated actor's width/height.
+   *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
+  public useBoxCollider(width?: number, height?: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
+    if (width === null || width === undefined) {
+      width = this.actor ? this.actor.width : 0;
+    }
+    if (height === null || height === undefined) {
+      height = this.actor ? this.actor.height : 0;
+    }
+
     this.collider.shape = Shape.Box(width, height, anchor, center);
     return this.collider;
-  }
-
-  /**
-   * @obsolete Body.useBoxCollision will be removed in v0.24.0 use [[Body.useBoxCollider]]
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useBoxCollider' })
-  public useBoxCollision(center: Vector = Vector.Zero) {
-    this.useBoxCollider(this.actor.width, this.actor.height, this.actor.anchor, center);
   }
 
   /**
@@ -264,14 +264,6 @@ export class Body implements Clonable<Body> {
   }
 
   /**
-   * @obsolete Body.usePolygonCollision will be removed in v0.24.0 use [[Body.usePolygonCollider]]
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.usePolygonCollider' })
-  public usePolygonCollision(points: Vector[], center: Vector = Vector.Zero) {
-    this.usePolygonCollider(points, center);
-  }
-
-  /**
    * Sets up a [[Circle|circle collision geometry]] with a specified radius in pixels.
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
@@ -279,14 +271,6 @@ export class Body implements Clonable<Body> {
   public useCircleCollider(radius: number, center: Vector = Vector.Zero): Collider {
     this.collider.shape = Shape.Circle(radius, center);
     return this.collider;
-  }
-
-  /**
-   * @obsolete Body.useCircleCollision will be removed in v0.24.0, use [[Body.useCircleCollider]]
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useCircleCollider' })
-  public useCircleCollision(radius?: number, center: Vector = Vector.Zero) {
-    this.useCircleCollider(radius, center);
   }
 
   /**
@@ -298,14 +282,6 @@ export class Body implements Clonable<Body> {
   public useEdgeCollider(begin: Vector, end: Vector): Collider {
     this.collider.shape = Shape.Edge(begin, end);
     return this.collider;
-  }
-
-  /**
-   * @obsolete Body.useEdgeCollision will be removed in v0.24.0, use [[Body.useEdgeCollider]]
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'Body.useEdgeCollider' })
-  public useEdgeCollision(begin: Vector, end: Vector) {
-    this.useEdgeCollider(begin, end);
   }
 
   // TODO remove this, eventually events will stay local to the thing they are around

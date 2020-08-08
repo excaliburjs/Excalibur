@@ -18,7 +18,6 @@ import { DynamicTreeCollisionBroadphase } from './Collision/DynamicTreeCollision
 import { CollisionBroadphase } from './Collision/CollisionResolver';
 import { SortedList } from './Util/SortedList';
 import { Engine } from './Engine';
-import { Group } from './Group';
 import { TileMap } from './TileMap';
 import { Camera } from './Camera';
 import { Actor } from './Actor';
@@ -28,7 +27,6 @@ import * as Util from './Util/Util';
 import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
-import { obsolete } from './Util/Decorators';
 import { Body } from './Collision/Body';
 import { QueryManager } from './EntityComponentSystem/QueryManager';
 import { EntityManager } from './EntityComponentSystem/EntityManager';
@@ -71,18 +69,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * The [[TileMap]]s in the scene, if any
    */
   public tileMaps: TileMap[] = [];
-
-  /**
-   * The [[Group]]s in the scene, if any
-   */
-  @obsolete({ message: 'ex.Group will be deprecated in v0.24.0' })
-  public get groups() {
-    return this._groups;
-  }
-  public set groups(groups: { [key: string]: Group }) {
-    this._groups = groups;
-  }
-  private _groups: { [key: string]: Group } = {};
 
   /**
    * Access to the Excalibur engine
@@ -167,7 +153,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   /**
-   * This is called when the scene is made active and started. It is meant to be overriden,
+   * This is called when the scene is made active and started. It is meant to be overridden,
    * this is where you should setup any DOM UI or event handlers needed for the scene.
    */
   public onActivate(_oldScene: Scene, _newScene: Scene): void {
@@ -175,7 +161,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   /**
-   * This is called when the scene is made transitioned away from and stopped. It is meant to be overriden,
+   * This is called when the scene is made transitioned away from and stopped. It is meant to be overridden,
    * this is where you should cleanup any DOM UI or event handlers needed for the scene.
    */
   public onDeactivate(_oldScene: Scene, _newScene: Scene): void {
@@ -235,7 +221,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Initializes the scene before the first update, meant to be called by engine not by users of
    * Excalibur
@@ -249,18 +235,19 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         this.camera.y = engine.halfDrawHeight;
       }
 
+      // This order is important! we want to be sure any custom init that add actors
+      // fire before the actor init
+      this.onInitialize.call(this, engine);
       this._initializeChildren();
 
       this._logger.debug('Scene.onInitialize', this, engine);
-
       this.eventDispatcher.emit('initialize', new InitializeEvent(engine, this));
-      this.onInitialize.call(this, engine);
       this._isInitialized = true;
     }
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Activates the scene with the base behavior, then calls the overridable `onActivate` implementation.
    * @internal
@@ -271,18 +258,18 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Deactivates the scene with the base behavior, then calls the overridable `onDeactivate` implementation.
    * @internal
    */
   public _deactivate(oldScene: Scene, newScene: Scene): void {
-    this._logger.debug('Scene.onDectivate', this);
+    this._logger.debug('Scene.onDeactivate', this);
     this.onDeactivate(oldScene, newScene);
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
    * @internal
@@ -293,7 +280,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   /**
-   *  It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   *  It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
    * @internal
@@ -304,7 +291,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _predraw handler for [[onPreDraw]] lifecycle event
    *
@@ -316,7 +303,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
    *
@@ -373,8 +360,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     this._collectActorStats(engine);
 
-    // propagates all events through their paths assigned
-    engine.input.pointers.propagate();
+    engine.input.pointers.dispatchPointerEvents();
 
     // Run the broadphase and narrowphase
     if (this._broadphase && Physics.enabled) {
@@ -718,42 +704,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public isTimerActive(timer: Timer): boolean {
     return this._timers.indexOf(timer) > -1 && !timer.complete;
-  }
-
-  /**
-   * Creates and adds a [[Group]] to the scene with a name
-   */
-  @obsolete({ message: 'ex.Group will be deprecated in v0.24.0' })
-  public createGroup(name: string): Group {
-    return new Group(name, this);
-  }
-
-  /**
-   * Returns a [[Group]] by name
-   */
-  @obsolete({ message: 'ex.Group will be deprecated in v0.24.0' })
-  public getGroup(name: string): Group {
-    return this.groups[name];
-  }
-
-  /**
-   * Removes a [[Group]] by name
-   */
-  public removeGroup(name: string): void;
-
-  /**
-   * Removes a [[Group]] by reference
-   */
-  public removeGroup(group: Group): void;
-  @obsolete({ message: 'ex.Group will be deprecated in v0.24.0' })
-  public removeGroup(group: any): void {
-    if (typeof group === 'string') {
-      delete this.groups[group];
-    } else if (group instanceof Group) {
-      delete this.groups[group.name];
-    } else {
-      this._logger.error('Invalid arguments to removeGroup', group);
-    }
   }
 
   /**
