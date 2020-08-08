@@ -54,6 +54,10 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
   }
 
+  public updateViewport() {
+    // pass
+  }
+
   /**
    * Draw a debug rectangle to the context
    * @param x

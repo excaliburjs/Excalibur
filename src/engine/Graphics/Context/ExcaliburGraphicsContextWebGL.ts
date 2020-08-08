@@ -101,6 +101,14 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
   }
 
+  public updateViewport(): void {
+    const gl = this.__gl;
+    this._ortho = this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, 400, -400);
+    this._pointRenderer._shader.addUniformMatrix('u_matrix', this._ortho.data);
+    this._lineRenderer._shader.addUniformMatrix('u_matrix', this._ortho.data);
+    this._imageRenderer._shader.addUniformMatrix('u_matrix', this._ortho.data);
+  }
+
   drawImage(graphic: Graphic, x: number, y: number): void;
   drawImage(graphic: Graphic, x: number, y: number, width: number, height: number): void;
   drawImage(
@@ -186,6 +194,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * Flushes all batched rendering to the screen
    */
   flush() {
+    const gl = this.__gl;
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     this._diag.quads = 0;
     this._diag.uniqueTextures = 0;
     this._diag.batches = 0;

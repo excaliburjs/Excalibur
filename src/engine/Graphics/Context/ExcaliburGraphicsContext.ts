@@ -46,6 +46,8 @@ export interface ExcaliburGraphicsContext {
   opacity: number;
   z: number;
 
+  updateViewport(): void;
+
   // diag: ExcaliburContextDiagnostics;
 
   drawRect(x: number, y: number, width: number, height: number, rectOptions?: RectGraphicsOptions): void;
