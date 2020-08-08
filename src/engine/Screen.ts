@@ -5,16 +5,16 @@ import { BrowserEvents } from './Util/Browser';
 import { BoundingBox } from './Collision/Index';
 
 /**
- * Enum representing the different display modes available to Excalibur
+ * Enum representing the different display modes available to Excalibur.
  */
 export enum DisplayMode {
   /**
-   * Use the entire screen's css width/height for the game resolution. This is not the same as [[Screen.goFullScreen]]
+   * Use the entire screen's css width/height for the game resolution dynamically. This is not the same as [[Screen.goFullScreen]]
    */
   FullScreen = 'FullScreen',
 
   /**
-   * Use the parent DOM container's css width/height for the game resolution
+   * Use the parent DOM container's css width/height for the game resolution dynamically
    */
   Container = 'Container',
 
@@ -191,7 +191,7 @@ export class Screen {
   private _pixelRatioChangeHandler = () => {
     this._logger.debug('Pixel Ratio Change', window.devicePixelRatio);
     this.applyResolutionAndViewport();
-  }
+  };
 
   private _windowResizeHandler = () => {
     const parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
@@ -199,7 +199,7 @@ export class Screen {
     this._setHeightByDisplayMode(parent);
     this._logger.info('parent.clientHeight ' + parent.clientHeight);
     this.applyResolutionAndViewport();
-  }
+  };
 
   public get pixelRatio(): number {
     if (this._pixelRatio) {
