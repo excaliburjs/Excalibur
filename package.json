@@ -116,7 +116,7 @@
     "typedoc": "0.17.8",
     "typescript": "3.9.3",
     "url-loader": "4.1.0",
-    "webpack": "4.43.0",
+    "webpack": "4.44.1",
     "webpack-cli": "3.3.12",
     "webpack-merge": "4.2.2"
   },
