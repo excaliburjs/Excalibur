@@ -263,11 +263,11 @@ describe('Sound resource', () => {
       it('should stop all tracks even when paused', (done) => {
         sut.play();
 
-        sut.once('stop', () => {
-          done();
-        });
-
         setTimeout(() => {
+          sut.once('stop', () => {
+            done();
+          });
+
           expect(sut.isPlaying()).toBe(true, 'should be playing');
 
           // pause

@@ -321,8 +321,9 @@ describe('A sprite', () => {
 
   it('should always have non-zero dimensions', (done) => {
     texture.load().then(() => {
+      let sprite: ex.Sprite;
       try {
-        const sprite = new ex.Sprite({
+        sprite = new ex.Sprite({
           image: texture,
           x: 0,
           y: 0,
@@ -330,11 +331,11 @@ describe('A sprite', () => {
           height: 1
         });
       } catch (e) {
-        expect(e.message).toBe(`The width of a sprite cannot be 0 or negative, sprite width: ${this.width}, original width: 62`);
+        expect(e.message).toBe(`The width of a sprite cannot be 0 or negative, sprite width: ${sprite.width}, original width: 62`);
       }
 
       try {
-        const sprite = new ex.Sprite({
+        sprite = new ex.Sprite({
           image: texture,
           x: 0,
           y: 0,
@@ -342,7 +343,7 @@ describe('A sprite', () => {
           height: 0
         });
       } catch (e) {
-        expect(e.message).toBe(`The height of a sprite cannot be 0 or negative, sprite height: ${this.height}, original height: 64`);
+        expect(e.message).toBe(`The height of a sprite cannot be 0 or negative, sprite height: ${sprite.height}, original height: 64`);
       }
 
       done();
