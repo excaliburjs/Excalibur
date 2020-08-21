@@ -23,7 +23,7 @@
     "simple"
   ],
   "scripts": {
-    "preinstall": "nvm use 12.16.3 || echo [WARNING] nvm not installed or node version not installed please check your version",
+    "preinstall": "nvm use 12.18.2 || echo [WARNING] nvm not installed or node version not installed please check your version",
     "all": "npm run lint && npm run core && npm run core:bundle-prod && npm run test && npm run legacy-visual",
     "clean": "rimraf .tsbuildinfo ./build/dist ./build ./src/spec/*.js ./src/spec/*.map",
     "travis": "npm run clean && git clone https://github.com/excaliburjs/excalibur-dist build && npm run all && npm run coveralls && npm run apidocs",
@@ -109,12 +109,11 @@
     "serve": "11.3.2",
     "source-map-support": "0.5.19",
     "sync-request": "6.1.0",
-    "to-string-loader": "1.1.6",
     "travis-ci": "2.2.0",
     "ts-loader": "8.0.2",
     "tslint": "6.1.2",
     "typedoc": "0.17.8",
-    "typescript": "3.9.3",
+    "typescript": "4.0.2",
     "url-loader": "4.1.0",
     "webpack": "4.44.1",
     "webpack-cli": "3.3.12",

@@ -30,7 +30,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ['to-string-loader', 'css-loader']
+        use: ['css-loader']
       },
       {
         test: /\.(png|jpg|gif|mp3)$/i,
