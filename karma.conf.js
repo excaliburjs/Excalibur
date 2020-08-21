@@ -38,7 +38,7 @@ module.exports = (config) => {
           },
           {
             test: /\.css$/,
-            use: ['to-string-loader', 'css-loader']
+            use: ['css-loader']
           },
           {
             test: /\.(png|jpg|gif)$/i,
