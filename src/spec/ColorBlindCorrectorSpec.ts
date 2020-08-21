@@ -25,7 +25,7 @@ describe('A ColorBlindCorrector', () => {
     const actor = new ex.Actor();
     actor.addDrawing(bg);
     engine.add(actor);
-    engine.on('postdraw', (ev: ex.PostDrawEvent) => {
+    engine.once('postdraw', (ev: ex.PostDrawEvent) => {
       ensureImagesLoaded(engine.canvas, 'src/spec/images/ColorBlindCorrectorSpec/normal.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
@@ -38,7 +38,7 @@ describe('A ColorBlindCorrector', () => {
     actor.addDrawing(bg);
     engine.add(actor);
     engine.debug.colorBlindMode.correct(ColorBlindness.Deuteranope);
-    engine.on('postdraw', (ev: ex.PostDrawEvent) => {
+    engine.once('postdraw', (ev: ex.PostDrawEvent) => {
       ensureImagesLoaded(engine.canvas, 'src/spec/images/ColorBlindCorrectorSpec/deuteranope_correct.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
@@ -51,7 +51,7 @@ describe('A ColorBlindCorrector', () => {
     actor.addDrawing(bg);
     engine.add(actor);
     engine.debug.colorBlindMode.simulate(ColorBlindness.Deuteranope);
-    engine.on('postdraw', (ev: ex.PostDrawEvent) => {
+    engine.once('postdraw', (ev: ex.PostDrawEvent) => {
       ensureImagesLoaded(engine.canvas, 'src/spec/images/ColorBlindCorrectorSpec/deuteranope_simulate.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
@@ -64,7 +64,7 @@ describe('A ColorBlindCorrector', () => {
     actor.addDrawing(bg);
     engine.add(actor);
     engine.debug.colorBlindMode.correct(ColorBlindness.Protanope);
-    engine.on('postdraw', (ev: ex.PostDrawEvent) => {
+    engine.once('postdraw', (ev: ex.PostDrawEvent) => {
       ensureImagesLoaded(engine.canvas, 'src/spec/images/ColorBlindCorrectorSpec/protanope_correct.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
@@ -77,7 +77,7 @@ describe('A ColorBlindCorrector', () => {
     actor.addDrawing(bg);
     engine.add(actor);
     engine.debug.colorBlindMode.simulate(ColorBlindness.Protanope);
-    engine.on('postdraw', (ev: ex.PostDrawEvent) => {
+    engine.once('postdraw', (ev: ex.PostDrawEvent) => {
       ensureImagesLoaded(engine.canvas, 'src/spec/images/ColorBlindCorrectorSpec/protanope_simulate.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
@@ -90,7 +90,7 @@ describe('A ColorBlindCorrector', () => {
     actor.addDrawing(bg);
     engine.add(actor);
     engine.debug.colorBlindMode.correct(ColorBlindness.Tritanope);
-    engine.on('postdraw', (ev: ex.PostDrawEvent) => {
+    engine.once('postdraw', (ev: ex.PostDrawEvent) => {
       ensureImagesLoaded(engine.canvas, 'src/spec/images/ColorBlindCorrectorSpec/tritanope_correct.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
@@ -103,7 +103,7 @@ describe('A ColorBlindCorrector', () => {
     actor.addDrawing(bg);
     engine.add(actor);
     engine.debug.colorBlindMode.simulate(ColorBlindness.Tritanope);
-    engine.on('postdraw', (ev: ex.PostDrawEvent) => {
+    engine.once('postdraw', (ev: ex.PostDrawEvent) => {
       ensureImagesLoaded(engine.canvas, 'src/spec/images/ColorBlindCorrectorSpec/tritanope_simulate.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
