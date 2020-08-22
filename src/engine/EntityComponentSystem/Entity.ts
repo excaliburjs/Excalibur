@@ -2,7 +2,6 @@ import { Component } from './Component';
 
 import { Observable, Message } from '../Util/Observable';
 import { Class } from '../Class';
-import { ComponentType } from './ComponentTypes';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
@@ -30,9 +29,23 @@ export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedCom
 }
 
 export type ComponentMap = { [type: string]: Component };
-export type ComponentMapProp<T extends Component['type'], U extends { type: Component['type'] }> = U extends { type: T } ? U : never;
 
-export class Entity<T extends Component = Component> extends Class implements OnInitialize, OnPreUpdate, OnPostUpdate {
+// Given a TypeName string (Component.type), find the ComponentType that goes with that type name
+export type MapTypeNameToComponent<TypeName extends string, ComponentType extends Component> =
+  // If the ComponentType is a Component with type = TypeName then that's the type we are looking for
+  ComponentType extends Component<TypeName> ? ComponentType : never;
+
+// Given a type union of PossibleComponentTypes, create a dictionary that maps that type name string to those individual types
+export type ComponentMapper<PossibleComponentTypes extends Component> = {
+  [TypeName in PossibleComponentTypes['type']]: MapTypeNameToComponent<TypeName, PossibleComponentTypes>;
+} &
+ComponentMap;
+
+export type ExcludeType<TypeUnion, TypeNameOrType> = TypeNameOrType extends string
+  ? Exclude<TypeUnion, Component<TypeNameOrType>>
+  : Exclude<TypeUnion, TypeNameOrType>;
+
+export class Entity<KnownComponents extends Component = never> extends Class implements OnInitialize, OnPreUpdate, OnPostUpdate {
   private static _ID = 0;
 
   /**
@@ -56,10 +69,10 @@ export class Entity<T extends Component = Component> extends Class implements On
   /**
    * The types of the components on the Entity
    */
-  public get types(): ComponentType[] {
+  public get types(): string[] {
     return this._dirty ? (this._typesMemo = Object.keys(this.components)) : this._typesMemo;
   }
-  private _typesMemo: ComponentType[] = [];
+  private _typesMemo: string[] = [];
   private _dirty = true;
 
   private _handleChanges = {
@@ -88,12 +101,9 @@ export class Entity<T extends Component = Component> extends Class implements On
     }
   };
 
-  public components: { [t in T['type']]: ComponentMapProp<t, T> } & ComponentMap = new Proxy<{ [t in T['type']]: ComponentMapProp<t, T> }>(
-    <any>{},
-    this._handleChanges
-  );
+  public components = new Proxy<ComponentMapper<KnownComponents>>({} as any, this._handleChanges);
 
-  public changes: Observable<AddedComponent | RemovedComponent> = new Observable<AddedComponent | RemovedComponent>();
+  public changes = new Observable<AddedComponent | RemovedComponent>();
 
   /**
    * Creates a deep copy of the entity and a copy of all its components
@@ -106,42 +116,45 @@ export class Entity<T extends Component = Component> extends Class implements On
     return newEntity;
   }
 
-  public addComponent(component: Component | Entity, force: boolean = false) {
+  public addComponent<T extends Component>(componentOrEntity: T | Entity<T>, force: boolean = false): Entity<KnownComponents | T> {
     // If you use an entity as a "prefab" or template
-    if (component instanceof Entity) {
-      for (const c in component.components) {
-        this.addComponent(component.components[c].clone());
+    if (componentOrEntity instanceof Entity) {
+      for (const c in componentOrEntity.components) {
+        this.addComponent(componentOrEntity.components[c].clone());
       }
       // Normal component case
     } else {
       // if component already exists, skip if not forced
-      if (this.components[component.type] && !force) {
-        return;
+      if (this.components[componentOrEntity.type] && !force) {
+        return this as Entity<KnownComponents | T>;
       }
 
       // Remove existing component type if exists when forced
-      if (this.components[component.type] && force) {
-        this.removeComponent(component);
+      if (this.components[componentOrEntity.type] && force) {
+        this.removeComponent(componentOrEntity);
       }
 
       // todo circular dependencies will be a problem
-      if (component.dependencies && component.dependencies.length) {
-        for (const ctor of component.dependencies) {
+      if (componentOrEntity.dependencies && componentOrEntity.dependencies.length) {
+        for (const ctor of componentOrEntity.dependencies) {
           this.addComponent(new ctor());
           this._dirty = true;
         }
       }
 
-      component.owner = this;
-      (this.components as ComponentMap)[component.type] = component;
-      if (component.onAdd) {
+      componentOrEntity.owner = this;
+      (this.components as ComponentMap)[componentOrEntity.type] = componentOrEntity;
+      if (componentOrEntity.onAdd) {
         this._dirty = true;
-        component.onAdd(this);
+        componentOrEntity.onAdd(this);
       }
     }
+    return this as Entity<KnownComponents | T>;
   }
 
-  public removeComponent(componentOrType: string | Component) {
+  public removeComponent<ComponentOrType extends string | Component>(
+    componentOrType: ComponentOrType
+  ): Entity<ExcludeType<KnownComponents, ComponentOrType>> {
     if (typeof componentOrType === 'string') {
       if (this.components[componentOrType]) {
         this.components[componentOrType].owner = null;
@@ -151,7 +164,7 @@ export class Entity<T extends Component = Component> extends Class implements On
         delete this.components[componentOrType];
         this._dirty = true;
       }
-    } else {
+    } else if (componentOrType instanceof Component) {
       if (this.components[componentOrType.type]) {
         this.components[componentOrType.type].owner = null;
         if (this.components[componentOrType.type].onRemove) {
@@ -161,9 +174,10 @@ export class Entity<T extends Component = Component> extends Class implements On
         this._dirty = true;
       }
     }
+    return this as any;
   }
 
-  public has(type: ComponentType): boolean {
+  public has(type: string): boolean {
     return !!this.components[type];
   }
 
