@@ -1,5 +1,4 @@
 export * from './Component';
-export * from './ComponentTypes';
 export * from './Entity';
 export * from './EntityManager';
 export * from './Query';
