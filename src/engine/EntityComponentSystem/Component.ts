@@ -5,7 +5,7 @@ export interface ComponentCtor {
 }
 
 function hasClone(x: any): x is { clone(): any } {
-  return !!x.clone;
+  return !!x?.clone;
 }
 
 /**
@@ -35,11 +35,13 @@ export abstract class Component<TypeName extends string = string> {
   clone(): this {
     const newComponent = new (this.constructor as any)();
     for (const prop in this) {
-      const val = this[prop];
-      if (hasClone(val)) {
-        newComponent[prop] = val.clone();
-      } else {
-        newComponent[prop] = val;
+      if (this.hasOwnProperty(prop)) {
+        const val = this[prop];
+        if (hasClone(val) && prop !== 'owner' && prop !== 'clone') {
+          newComponent[prop] = val.clone();
+        } else {
+          newComponent[prop] = val;
+        }
       }
     }
     return newComponent;

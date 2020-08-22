@@ -1,9 +1,8 @@
 import * as ex from '@excalibur';
 
-class FakeComponent<T extends ex.ComponentType> implements ex.Component<T> {
-  constructor(public type: T) {}
-  clone() {
-    return new FakeComponent(this.type);
+class FakeComponent<T extends string> extends ex.Component<T> {
+  constructor(public type: T) {
+    super();
   }
 }
 
