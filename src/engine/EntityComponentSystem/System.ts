@@ -1,4 +1,3 @@
-import { ComponentType } from './ComponentTypes';
 import { Entity } from './Entity';
 import { Engine } from '../Engine';
 import { Message, Observer } from '../Util/Observable';
@@ -12,7 +11,7 @@ export abstract class System<T extends Component = Component> implements Observe
   /**
    * The types of entities that this system operates on
    */
-  readonly types: ComponentType[];
+  abstract readonly types: string[];
 
   /**
    * System can execute in priority order, by default all systems are priority 0. Lower values indicated higher priority.

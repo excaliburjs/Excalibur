@@ -26,7 +26,7 @@ export abstract class Component<TypeName extends string = string> {
    * Type of this component, must be a unique type among component types in you game.
    * See [[BuiltinComponentTypes]] for a list of built in excalibur types
    */
-  readonly type: TypeName;
+  abstract readonly type: TypeName;
 
   /**
    * Current owning [[Entity]], if any, of this component. Null if not added to any [[Entity]]

@@ -1,4 +1,3 @@
-import { ComponentType } from './ComponentTypes';
 import { Entity } from './Entity';
 import { buildTypeKey } from './Util';
 import { Observable } from '../Util/Observable';
@@ -19,7 +18,7 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
     return buildTypeKey(this.types);
   }
 
-  public constructor(public types: ComponentType[]) {
+  public constructor(public types: string[]) {
     super();
   }
 
@@ -63,9 +62,9 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    * Returns whether the list of ComponentTypes match the query
    * @param types
    */
-  public matches(types: ComponentType[]): boolean;
-  public matches(typesOrEntity: ComponentType[] | Entity): boolean {
-    let types: ComponentType[] = [];
+  public matches(types: string[]): boolean;
+  public matches(typesOrEntity: string[] | Entity): boolean {
+    let types: string[] = [];
     if (typesOrEntity instanceof Entity) {
       types = typesOrEntity.types;
     } else {

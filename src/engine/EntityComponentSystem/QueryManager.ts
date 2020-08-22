@@ -3,7 +3,6 @@ import { buildTypeKey } from './Util';
 import { Query } from './Query';
 import { Component } from './Component';
 import { Scene } from '../Scene';
-import { ComponentType } from './ComponentTypes';
 
 /**
  * The query manager is responsible for updating all queries when entities/components change
@@ -76,7 +75,7 @@ export class QueryManager {
    * Creates a populated query and returns, if the query already exists that will be returned instead of a new instance
    * @param types
    */
-  public createQuery<T extends Component = Component>(types: ComponentType[]): Query<T> {
+  public createQuery<T extends Component = Component>(types: string[]): Query<T> {
     const maybeExistingQuery = this.getQuery<T>(types);
     if (maybeExistingQuery) {
       return maybeExistingQuery;
@@ -90,7 +89,7 @@ export class QueryManager {
    * Retrieves an existing query by types if it exists otherwise returns null
    * @param types
    */
-  public getQuery<T extends Component = Component>(types: ComponentType[]): Query<T> {
+  public getQuery<T extends Component = Component>(types: string[]): Query<T> {
     const key = buildTypeKey(types);
     if (this._queries[key]) {
       return this._queries[key] as Query<T>;
