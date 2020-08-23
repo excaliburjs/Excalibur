@@ -66,6 +66,8 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
     return !this.active;
   }
 
+  private _componentsToRemove: (Component | string)[] = [];
+
   /**
    * The types of the components on the Entity
    */
@@ -152,29 +154,51 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
     return this as Entity<KnownComponents | T>;
   }
 
+  /**
+   * Removes a component from the entity, by default removals are deferred to the end of entity processing to avoid consistency issues
+   *
+   * Components can be force removed with the `force` flag, the removal is not deferred and happens immediately
+   * @param componentOrType
+   * @param force
+   */
   public removeComponent<ComponentOrType extends string | Component>(
-    componentOrType: ComponentOrType
+    componentOrType: ComponentOrType,
+    force = false
   ): Entity<ExcludeType<KnownComponents, ComponentOrType>> {
-    if (typeof componentOrType === 'string') {
-      if (this.components[componentOrType]) {
-        this.components[componentOrType].owner = null;
-        if (this.components[componentOrType].onRemove) {
-          this.components[componentOrType].onRemove(this);
-        }
-        delete this.components[componentOrType];
-        this._dirty = true;
+    if (force) {
+      if (typeof componentOrType === 'string') {
+        this._removeComponentByType(componentOrType);
+      } else if (componentOrType instanceof Component) {
+        this._removeComponentByType(componentOrType.type);
       }
-    } else if (componentOrType instanceof Component) {
-      if (this.components[componentOrType.type]) {
-        this.components[componentOrType.type].owner = null;
-        if (this.components[componentOrType.type].onRemove) {
-          this.components[componentOrType.type].onRemove(this);
-        }
-        delete this.components[componentOrType.type];
-        this._dirty = true;
-      }
+    } else {
+      this._componentsToRemove.push(componentOrType);
     }
+
     return this as any;
+  }
+
+  private _removeComponentByType(type: string) {
+    if (this.components[type]) {
+      this.components[type].owner = null;
+      if (this.components[type].onRemove) {
+        this.components[type].onRemove(this);
+      }
+      delete this.components[type];
+      this._dirty = true;
+    }
+  }
+
+  /**
+   * @hidden
+   * @internal
+   */
+  public processRemoval() {
+    for (const componentOrType of this._componentsToRemove) {
+      const type = typeof componentOrType === 'string' ? componentOrType : componentOrType.type;
+      this._removeComponentByType(type);
+    }
+    this._componentsToRemove.length = 0;
   }
 
   public has(type: string): boolean {

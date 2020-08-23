@@ -41,8 +41,14 @@ describe('A QueryManager', () => {
     expect(queryAB.entities).toEqual([entity1, entity2 as ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>]);
 
     // Queries update if components change
-    entity2.removeComponent('B');
+    entity2.removeComponent('B', true);
     expect(queryAB.entities).toEqual([entity1]);
+
+    // Queries are deferred by default, so queries will update after removals
+    entity1.removeComponent('B');
+    expect(queryAB.entities).toEqual([entity1]);
+    entity1.processRemoval();
+    expect(queryAB.entities).toEqual([]);
   });
 
   it('can remove queries', () => {

@@ -57,3 +57,14 @@ export abstract class Component<TypeName extends string = string> {
    */
   onRemove?: (previousOwner: Entity) => void;
 }
+
+/**
+ * Tag components are a way of tagging a component with label and a simple value
+ */
+export class TagComponent<TypeName extends string, MaybeValueType extends string | symbol | number | boolean = never> extends Component<
+TypeName
+> {
+  constructor(public readonly type: TypeName, public readonly value?: MaybeValueType) {
+    super();
+  }
+}

@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { TagComponent } from '@excalibur';
 
 class FakeComponent extends ex.Component {
   constructor(public type: string) {
@@ -37,10 +38,20 @@ describe('An entity', () => {
     expect(entity.types).toEqual(['A']);
     entity.addComponent(typeB);
     expect(entity.types).toEqual(['A', 'B']);
-    entity.removeComponent(typeA);
+    entity.removeComponent(typeA, true);
     expect(entity.types).toEqual(['B']);
-    entity.removeComponent(typeB);
+    entity.removeComponent(typeB, true);
     expect(entity.types).toEqual([]);
+  });
+
+  it('can have type from tag components', () => {
+    const entity = new ex.Entity();
+    const isOffscreen = new TagComponent('offscreen');
+
+    expect(entity.types).toEqual([]);
+    entity.addComponent(isOffscreen);
+
+    expect(entity.types).toEqual(['offscreen']);
   });
 
   it('can be observed for added changes', (done) => {
@@ -71,6 +82,7 @@ describe('An entity', () => {
       }
     });
     entity.removeComponent(typeA);
+    entity.processRemoval();
   });
 
   it('can be cloned', () => {

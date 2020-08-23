@@ -27,7 +27,7 @@ export class EntityManager implements Observer<RemovedComponent | AddedComponent
   }
 
   /**
-   *
+   * Adds an entity to be tracked by the EntityManager
    * @param entity
    */
   public addEntity(entity: Entity): void {
@@ -54,6 +54,12 @@ export class EntityManager implements Observer<RemovedComponent | AddedComponent
       Util.removeItemFromArray(entity, this.entities);
       this._scene.queryManager.removeEntity(entity);
       entity.changes.unregister(this);
+    }
+  }
+
+  public processRemovals(): void {
+    for (const entity of this.entities) {
+      entity.processRemoval();
     }
   }
 

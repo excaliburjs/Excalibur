@@ -70,5 +70,6 @@ describe('An EntityManager', () => {
     };
 
     entity.removeComponent(componentA);
+    entity.processRemoval();
   });
 });
