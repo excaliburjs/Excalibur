@@ -3,6 +3,11 @@ import { Engine } from '../Engine';
 import { Message, Observer } from '../Util/Observable';
 import { Component } from './Component';
 
+export enum SystemType {
+  Update = 'update',
+  Draw = 'draw'
+}
+
 /**
  * An Excalibur [[System]] that updates entities of certain types.
  * Systems are scene specific
@@ -12,6 +17,8 @@ export abstract class System<T extends Component = Component> implements Observe
    * The types of entities that this system operates on
    */
   abstract readonly types: string[];
+
+  abstract readonly systemType: SystemType;
 
   /**
    * System can execute in priority order, by default all systems are priority 0. Lower values indicated higher priority.

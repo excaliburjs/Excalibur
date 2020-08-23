@@ -31,6 +31,7 @@ import { Body } from './Collision/Body';
 import { QueryManager } from './EntityComponentSystem/QueryManager';
 import { EntityManager } from './EntityComponentSystem/EntityManager';
 import { SystemManager } from './EntityComponentSystem/SystemManager';
+import { SystemType } from './EntityComponentSystem/System';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -321,8 +322,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public update(engine: Engine, delta: number) {
     this._preupdate(engine, delta);
-    this.systemManager.updateSystems(engine, delta);
+    this.systemManager.updateSystems(SystemType.Update, engine, delta);
     this.entityManager.processRemovals();
+
     if (this.camera) {
       this.camera.update(engine, delta);
     }
@@ -422,10 +424,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     this._predraw(ctx, delta);
     ctx.save();
-
     if (this.camera) {
       this.camera.draw(ctx);
     }
+    this.systemManager.updateSystems(SystemType.Draw, this._engine, delta);
+    this.entityManager.processRemovals();
 
     let i: number, len: number;
 

@@ -1,4 +1,4 @@
-import { System } from './System';
+import { System, SystemType } from './System';
 import { Engine } from '../Engine';
 import { Util, Component } from '..';
 import { Scene } from '../Scene';
@@ -47,19 +47,20 @@ export class SystemManager {
    * @param engine
    * @param delta
    */
-  public updateSystems(engine: Engine, delta: number) {
-    for (const s of this.systems) {
+  public updateSystems(type: SystemType, engine: Engine, delta: number) {
+    const systems = this.systems.filter((s) => s.systemType === type);
+    for (const s of systems) {
       if (s.preupdate) {
         s.preupdate(engine, delta);
       }
     }
 
-    for (const s of this.systems) {
+    for (const s of systems) {
       const entities = this._scene.queryManager.getQuery(s.types).entities;
       s.update(entities, delta);
     }
 
-    for (const s of this.systems) {
+    for (const s of systems) {
       if (s.postupdate) {
         s.postupdate(engine, delta);
       }
