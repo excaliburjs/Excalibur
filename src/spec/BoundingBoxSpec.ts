@@ -1,4 +1,3 @@
-import { ExcaliburMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 
 describe('A Bounding Box constructed with no parameters', () => {
@@ -39,7 +38,6 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
     let bb: ex.BoundingBox;
 
     beforeEach(function() {
-      jasmine.addMatchers(ExcaliburMatchers);
       //create an instance by invoking the constructor function
       bb = createBoundingBox();
     });
@@ -62,22 +60,6 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
       expect(bb.height).toBe(20);
       bb.top = -20;
       expect(bb.height).toBe(40);
-    });
-
-    it('has topLeft', () => {
-      expect(bb.topLeft).toBeVector(new ex.Vector(0, 0));
-    });
-
-    it('has topRight', () => {
-      expect(bb.topRight).toBeVector(new ex.Vector(10, 0));
-    });
-
-    it('has bottomLeft', () => {
-      expect(bb.bottomLeft).toBeVector(new ex.Vector(0, 10));
-    });
-
-    it('has bottomRight', () => {
-      expect(bb.bottomRight).toBeVector(new ex.Vector(10, 10));
     });
 
     it('can contain points', () => {
