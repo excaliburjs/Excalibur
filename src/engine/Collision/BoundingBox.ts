@@ -32,44 +32,16 @@ export class BoundingBox {
    */
   constructor(leftOrOptions: number | BoundingBoxOptions = 0, top: number = 0, right: number = 0, bottom: number = 0) {
     if (typeof leftOrOptions === 'object') {
-      this.left = leftOrOptions.left || 0;
-      this.top = leftOrOptions.top || 0;
-      this.right = leftOrOptions.right || 0;
-      this.bottom = leftOrOptions.bottom || 0;
+      this.left = leftOrOptions.left;
+      this.top = leftOrOptions.top;
+      this.right = leftOrOptions.right;
+      this.bottom = leftOrOptions.bottom;
     } else if (typeof leftOrOptions === 'number') {
-      this.left = leftOrOptions || 0;
-      this.top = top || 0;
-      this.right = right || 0;
-      this.bottom = bottom || 0;
+      this.left = leftOrOptions;
+      this.top = top;
+      this.right = right;
+      this.bottom = bottom;
     }
-  }
-
-  /**
-   * Returns the vector representing the top left coordinate
-   */
-  public get topLeft() {
-    return new Vector(this.left, this.top);
-  }
-
-  /**
-   * Returns the vector representing the top right coordinate
-   */
-  public get topRight() {
-    return new Vector(this.right, this.top);
-  }
-
-  /**
-   * Returns the vector representing the bottom left coordinate
-   */
-  public get bottomLeft() {
-    return new Vector(this.left, this.bottom);
-  }
-
-  /**
-   * Returns the vector representing the bottom right coordinate
-   */
-  public get bottomRight() {
-    return new Vector(this.right, this.bottom);
   }
 
   /**
