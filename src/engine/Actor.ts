@@ -352,30 +352,6 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    */
   public children: Actor[] = [];
 
-  /**
-   * Gets or sets the current collision type of this actor. By
-   * default it is ([[CollisionType.PreventCollision]]).
-   * @obsolete ex.Actor.collisionType will be removed in v0.24.0, use ex.Actor.body.collider.type
-   */
-  @obsolete({ message: 'ex.Actor.collisionType will be removed in v0.24.0', alternateMethod: 'ex.Actor.body.collider.type' })
-  public get collisionType(): CollisionType {
-    return this.body.collider.type;
-  }
-
-  /**
-   * Gets or sets the current collision type of this actor. By
-   * default it is ([[CollisionType.PreventCollision]]).
-   *  @obsolete ex.Actor.collisionType will be removed in v0.24.0, use ex.Actor.body.collider.type
-   */
-  public set collisionType(type: CollisionType) {
-    this.body.collider.type = type;
-  }
-
-  /**
-   * @obsolete Legacy collision groups will be removed in v0.24.0, use [[Actor.body.collider.collisionGroup]]
-   */
-  public collisionGroups: string[] = [];
-
   public frames: { [key: string]: Drawable } = {};
 
   /**
