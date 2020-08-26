@@ -7,8 +7,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- [#1361] Makes use of proxies, Excalibur longer supports IE11 :boom: ([#1361]https://github.com/excaliburjs/Excalibur/issues/1361)
+
 ### Added
 
+- Adds new ECS Foundations API, which allows excalibur core behavior to be manipulated with ECS style code ([#1361]https://github.com/excaliburjs/Excalibur/issues/1361)
+  - Adds new `ex.Entity` & `ex.EntityManager` which represent anything that can do something in a Scene and are containers for Components
+  - Adds new `ex.Component` type which allows encapsulation of state on entities
+  - Adds new `ex.Query` & `ex.QueryManager` which allows queries over entities that match a component list
+  - Adds new `ex.System` type which operates on matching Entities to do some behavior in Excalibur.
+  - Adds new `ex.Observable` a small observable implementation for observing Entity component changes over time
 - Add new `ex.Screen` abstraction to manage viewport size and resolution independently and all other screen related logic. ([#1617](https://github.com/excaliburjs/Excalibur/issues/1617))
   - New support for the browser fullscreen API
 - Add color blind mode simulation and correction in debug object.
