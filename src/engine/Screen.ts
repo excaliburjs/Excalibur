@@ -143,7 +143,7 @@ export interface ScreenOptions {
 /**
  * The Screen handles all aspects of interacting with the screen for Excalibur.
  *
- * [[include:Screen.md]]
+ * [[include:Screens.md]]
  */
 export class Screen {
   private _canvas: HTMLCanvasElement;

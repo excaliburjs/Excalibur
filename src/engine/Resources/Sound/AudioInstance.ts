@@ -7,12 +7,9 @@ import { AudioContextFactory } from './AudioContext';
  * Internal class for producing of AudioInstances
  */
 /* istanbul ignore next */
+
 export class AudioInstanceFactory {
   public static create(src: string | AudioBuffer): AudioInstance {
-    if (typeof src === 'string') {
-      return new AudioTagInstance(src);
-    }
-
     if (src instanceof AudioBuffer) {
       return new WebAudioInstance(src);
     }
@@ -123,73 +120,6 @@ export class AudioInstance implements Audio {
     /**
      * Override me
      */
-  }
-}
-
-/**
- * Internal class representing a HTML5 audio instance
- */
-/* istanbul ignore next */
-export class AudioTagInstance extends AudioInstance {
-  public set volume(value: number) {
-    value = Util.clamp(value, 0, 1.0);
-
-    this._volume = value;
-    this._instance.volume = value;
-  }
-  public get volume(): number {
-    return this._volume;
-  }
-
-  protected _src: string;
-  protected _instance: HTMLAudioElement;
-
-  constructor(src: string) {
-    super(src);
-
-    this._instance = new Audio(src);
-  }
-
-  public pause() {
-    if (!this._isPlaying) {
-      return;
-    }
-
-    this._instance.pause();
-    this._isPaused = true;
-    this._isPlaying = false;
-  }
-
-  public stop() {
-    super.stop();
-
-    this._instance.pause();
-    this._instance.currentTime = 0;
-
-    this._handleOnEnded();
-  }
-
-  protected _startPlayBack() {
-    super._startPlayBack();
-
-    this._instance.load();
-    this._instance.loop = this.loop;
-    this._instance.play();
-
-    this._wireUpOnEnded();
-  }
-
-  protected _resumePlayBack() {
-    super._resumePlayBack();
-
-    this._instance.play();
-    this._wireUpOnEnded();
-  }
-
-  protected _handleOnEnded() {
-    this._isPlaying = false;
-    this._isPaused = false;
-    this._playingPromise.resolve(true);
   }
 }
 
