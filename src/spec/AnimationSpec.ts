@@ -53,6 +53,87 @@ describe('An animation', () => {
     expect(animation.sprites.length).toBe(0);
   });
 
+  it('should update the animation width/height and sprite anchor, rotation, scale after tick()', (done) => {
+    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        rotation: 0,
+        anchor: new ex.Vector(0.0, 0.0),
+        scale: new ex.Vector(1, 1),
+        flipVertical: false,
+        flipHorizontal: false
+      });
+      const animation = new ex.Animation({
+        engine: engine,
+        sprites: [sprite],
+        speed: 200,
+        loop: false,
+        anchor: new ex.Vector(1, 1),
+        rotation: Math.PI,
+        scale: new ex.Vector(2, 2),
+        flipVertical: true,
+        flipHorizontal: true,
+        width: 100,
+        height: 200
+      });
+
+      animation.tick(10);
+      expect(sprite.scale).toBeVector(animation.scale);
+      expect(sprite.anchor).toBeVector(animation.anchor);
+      expect(sprite.rotation).toBe(animation.rotation);
+
+      expect(animation.width).toBe(sprite.width);
+      expect(animation.height).toBe(sprite.height);
+      expect(animation.drawWidth).toBe(sprite.drawWidth);
+      expect(animation.drawHeight).toBe(sprite.drawHeight);
+      done();
+    });
+  });
+
+  it('should only tick once for an idempotency token', (done) => {
+    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        rotation: 0,
+        anchor: new ex.Vector(0.0, 0.0),
+        scale: new ex.Vector(1, 1),
+        flipVertical: false,
+        flipHorizontal: false
+      });
+      const animation = new ex.Animation({
+        engine: engine,
+        sprites: [sprite, sprite],
+        speed: 200,
+        loop: false,
+        anchor: new ex.Vector(1, 1),
+        rotation: Math.PI,
+        scale: new ex.Vector(2, 2),
+        flipVertical: true,
+        flipHorizontal: true,
+        width: 100,
+        height: 200
+      });
+
+      animation.tick(100, 42);
+      animation.tick(100, 42);
+      animation.tick(100, 42);
+      animation.tick(100, 42);
+      animation.tick(100, 42);
+      expect(animation.currentFrame).toBe(0);
+      done();
+    });
+  });
+
   it('should always pass "flipped" state to the current Sprite', () => {
     const mockSprite: any = jasmine.createSpyObj('sprite', ['draw', 'drawWithOptions']);
     mockSprite.anchor = ex.Vector.Half;
