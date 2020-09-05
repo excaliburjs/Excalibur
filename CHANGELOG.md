@@ -406,7 +406,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Option bag constructors have been added for commonly-used classes (see [Constructors.md](https://github.com/excaliburjs/Excalibur/blob/master/src/engine/Docs/Constructors.md)) ([#410](https://github.com/excaliburjs/Excalibur/issues/410))
+- Option bag constructors have been added for commonly-used classes (see [Constructors.md](https://github.com/excaliburjs/Excalibur/blob/main/src/engine/Docs/Constructors.md)) ([#410](https://github.com/excaliburjs/Excalibur/issues/410))
 
 <!----------------------------------------------------------------------------------------------->
 
@@ -728,7 +728,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - `Actor.addChild()` changed to `Actor.add()` ([#519](https://github.com/excaliburjs/Excalibur/issues/519))
 - `Actor.removeChild()` changed to `Actor.remove()` ([#519](https://github.com/excaliburjs/Excalibur/issues/519))
-- Documentation is only deployed on changes to the master git branch ([#483](https://github.com/excaliburjs/Excalibur/issues/483))
+- Documentation is only deployed on changes to the main git branch ([#483](https://github.com/excaliburjs/Excalibur/issues/483))
 - A warning message is now displayed if no supported audio format is provided for a browser ([#476](https://github.com/excaliburjs/Excalibur/issues/476))
 - Updated TSLint directory scanning ([#442](https://github.com/excaliburjs/Excalibur/issues/442), [#443](https://github.com/excaliburjs/Excalibur/issues/443), [#447](https://github.com/excaliburjs/Excalibur/issues/447))
 - Deprecated older methods ([#399](https://github.com/excaliburjs/Excalibur/issues/399))

@@ -1,7 +1,7 @@
 ![Logo](/assets/logo.png?raw=true)
 
-[![Build Status](https://img.shields.io/travis/excaliburjs/Excalibur/master.svg)](https://travis-ci.org/excaliburjs/Excalibur)
-[![Appveyor status](https://img.shields.io/appveyor/ci/eonarheim/excalibur/master.svg)](https://ci.appveyor.com/project/eonarheim/excalibur)
+[![Build Status](https://img.shields.io/travis/excaliburjs/Excalibur/main.svg)](https://travis-ci.org/excaliburjs/Excalibur)
+[![Appveyor status](https://img.shields.io/appveyor/ci/eonarheim/excalibur/main.svg)](https://ci.appveyor.com/project/eonarheim/excalibur)
 [![Coverage Status](https://coveralls.io/repos/github/excaliburjs/Excalibur/badge.svg)](https://coveralls.io/github/excaliburjs/Excalibur)
 [![npm version](https://img.shields.io/npm/v/excalibur.svg)](https://www.npmjs.com/package/excalibur)
 [![npm downloads](https://img.shields.io/npm/dt/excalibur.svg)](https://www.npmjs.com/package/excalibur)
@@ -31,7 +31,7 @@ Visit the [API Reference](https://excaliburjs.com/docs/api/edge) section for ful
 # Questions
 
 - :question: Ask us anything in the [Excalibur.js forum](https://groups.google.com/forum/#!forum/excaliburjs)
-- :bug: If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues) (please review our [guidelines for reporting bugs](https://github.com/excaliburjs/Excalibur/blob/master/.github/CONTRIBUTING.md#reporting-bugs)).
+- :bug: If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues) (please review our [guidelines for reporting bugs](https://github.com/excaliburjs/Excalibur/blob/main/.github/CONTRIBUTING.md#reporting-bugs)).
 - :mega: You can also follow us on Twitter [@excaliburjs](http://twitter.com/excaliburjs) or [read the blog](http://blog.excaliburjs.com).
 
 # Samples

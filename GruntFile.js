@@ -30,7 +30,7 @@ module.exports = function (grunt) {
       // continuous integration dists
       dist: {
         options: {
-          branch: 'master',
+          branch: 'main',
           remote: 'https://github.com/excaliburjs/excalibur-dist',
           login: 'kamranayub',
           token: process.env.GH_DIST_TOKEN,
