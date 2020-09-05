@@ -2,27 +2,27 @@
  * A sorted list implementation. NOTE: this implementation is not self-balancing
  */
 export class SortedList<T> {
-  private _getComparable: Function;
-  private _root: BinaryTreeNode;
+  private _getComparable: (item: T) => number;
+  private _root: BinaryTreeNode<T>;
 
-  constructor(getComparable: () => any) {
+  constructor(getComparable: (item: T) => number) {
     this._getComparable = getComparable;
   }
 
-  public find(element: any): boolean {
+  public find(element: T): boolean {
     return this._find(this._root, element);
   }
 
-  private _find(node: BinaryTreeNode, element: any): boolean {
+  private _find(node: BinaryTreeNode<T>, element: any): boolean {
     if (node == null) {
       return false;
-    } else if (this._getComparable.call(element) === node.getKey()) {
+    } else if (this._getComparable(element) === node.getKey()) {
       if (node.getData().indexOf(element) > -1) {
         return true;
       } else {
         return false;
       }
-    } else if (this._getComparable.call(element) < node.getKey()) {
+    } else if (this._getComparable(element) < node.getKey()) {
       return this._find(node.getLeft(), element);
     } else {
       return this._find(node.getRight(), element);
@@ -34,7 +34,7 @@ export class SortedList<T> {
     return this._get(this._root, key);
   }
 
-  private _get(node: BinaryTreeNode, key: number): any[] {
+  private _get(node: BinaryTreeNode<T>, key: number): any[] {
     if (node == null) {
       return [];
     } else if (key === node.getKey()) {
@@ -46,34 +46,34 @@ export class SortedList<T> {
     }
   }
 
-  public add(element: any): boolean {
+  public add(element: T): boolean {
     if (this._root == null) {
-      this._root = new BinaryTreeNode(this._getComparable.call(element), [element], null, null);
+      this._root = new BinaryTreeNode(this._getComparable(element), [element], null, null);
       return true;
     } else {
       return this._insert(this._root, element);
     }
   }
 
-  private _insert(node: BinaryTreeNode, element: any): boolean {
+  private _insert(node: BinaryTreeNode<T>, element: T): boolean {
     if (node != null) {
-      if (this._getComparable.call(element) === node.getKey()) {
+      if (this._getComparable(element) === node.getKey()) {
         if (node.getData().indexOf(element) > -1) {
           return false; // the element we're trying to insert already exists
         } else {
           node.getData().push(element);
           return true;
         }
-      } else if (this._getComparable.call(element) < node.getKey()) {
+      } else if (this._getComparable(element) < node.getKey()) {
         if (node.getLeft() == null) {
-          node.setLeft(new BinaryTreeNode(this._getComparable.call(element), [element], null, null));
+          node.setLeft(new BinaryTreeNode(this._getComparable.call(element, element), [element], null, null));
           return true;
         } else {
           return this._insert(node.getLeft(), element);
         }
       } else {
         if (node.getRight() == null) {
-          node.setRight(new BinaryTreeNode(this._getComparable.call(element), [element], null, null));
+          node.setRight(new BinaryTreeNode(this._getComparable.call(element, element), [element], null, null));
           return true;
         } else {
           return this._insert(node.getRight(), element);
@@ -83,14 +83,14 @@ export class SortedList<T> {
     return false;
   }
 
-  public removeByComparable(element: any): void {
+  public removeByComparable(element: T): void {
     this._root = this._remove(this._root, element);
   }
 
-  private _remove(node: BinaryTreeNode, element: any): BinaryTreeNode {
+  private _remove(node: BinaryTreeNode<T>, element: T): BinaryTreeNode<T> {
     if (node == null) {
       return null;
-    } else if (this._getComparable.call(element) === node.getKey()) {
+    } else if (this._getComparable(element) === node.getKey()) {
       const elementIndex = node.getData().indexOf(element);
       // if the node contains the element, remove the element
       if (elementIndex > -1) {
@@ -116,7 +116,7 @@ export class SortedList<T> {
           return node;
         }
       }
-    } else if (this._getComparable.call(element) < node.getKey()) {
+    } else if (this._getComparable(element) < node.getKey()) {
       node.setLeft(this._remove(node.getLeft(), element));
       return node;
     } else {
@@ -127,7 +127,7 @@ export class SortedList<T> {
   }
 
   // called once we have successfully removed the element we wanted, recursively corrects the part of the tree below the removed node
-  private _cleanup(node: BinaryTreeNode, element: BinaryTreeNode): BinaryTreeNode {
+  private _cleanup(node: BinaryTreeNode<T>, element: BinaryTreeNode<T>): BinaryTreeNode<T> {
     const comparable = element.getKey();
     if (node == null) {
       return null;
@@ -147,7 +147,7 @@ export class SortedList<T> {
 
       node.setRight(this._cleanup(node.getRight(), temp));
       return node;
-    } else if (this._getComparable.call(element) < node.getKey()) {
+    } else if (element.getKey() < node.getKey()) {
       node.setLeft(this._cleanup(node.getLeft(), element));
       return node;
     } else {
@@ -156,7 +156,7 @@ export class SortedList<T> {
     }
   }
 
-  private _findMinNode(node: BinaryTreeNode): BinaryTreeNode {
+  private _findMinNode(node: BinaryTreeNode<T>): BinaryTreeNode<T> {
     let current = node;
     while (current.getLeft() != null) {
       current = current.getLeft();
@@ -165,15 +165,15 @@ export class SortedList<T> {
   }
 
   public list(): Array<T> {
-    const results = new Array<any>();
+    const results = new Array<T>();
     this._list(this._root, results);
     return results;
   }
 
-  private _list(treeNode: BinaryTreeNode, results: Array<T>): void {
+  private _list(treeNode: BinaryTreeNode<T>, results: Array<T>): void {
     if (treeNode != null) {
       this._list(treeNode.getLeft(), results);
-      treeNode.getData().forEach(function(element) {
+      treeNode.getData().forEach((element) => {
         results.push(element);
       });
       this._list(treeNode.getRight(), results);
@@ -184,13 +184,13 @@ export class SortedList<T> {
 /**
  * A tree node part of [[SortedList]]
  */
-export class BinaryTreeNode {
+export class BinaryTreeNode<T> {
   private _key: number;
-  private _data: Array<any>;
-  private _left: BinaryTreeNode;
-  private _right: BinaryTreeNode;
+  private _data: Array<T>;
+  private _left: BinaryTreeNode<T>;
+  private _right: BinaryTreeNode<T>;
 
-  constructor(key: number, data: Array<any>, left: BinaryTreeNode, right: BinaryTreeNode) {
+  constructor(key: number, data: Array<T>, left: BinaryTreeNode<T>, right: BinaryTreeNode<T>) {
     this._key = key;
     this._data = data;
     this._left = left;
@@ -205,27 +205,27 @@ export class BinaryTreeNode {
     this._key = key;
   }
 
-  public getData(): Array<any> {
+  public getData(): T[] {
     return this._data;
   }
 
-  public setData(data: any) {
+  public setData(data: T[]) {
     this._data = data;
   }
 
-  public getLeft(): BinaryTreeNode {
+  public getLeft(): BinaryTreeNode<T> {
     return this._left;
   }
 
-  public setLeft(left: BinaryTreeNode) {
+  public setLeft(left: BinaryTreeNode<T>) {
     this._left = left;
   }
 
-  public getRight(): BinaryTreeNode {
+  public getRight(): BinaryTreeNode<T> {
     return this._right;
   }
 
-  public setRight(right: BinaryTreeNode) {
+  public setRight(right: BinaryTreeNode<T>) {
     this._right = right;
   }
 }

@@ -28,6 +28,10 @@ import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
 import { Body } from './Collision/Body';
+import { QueryManager } from './EntityComponentSystem/QueryManager';
+import { EntityManager } from './EntityComponentSystem/EntityManager';
+import { SystemManager } from './EntityComponentSystem/SystemManager';
+import { SystemType } from './EntityComponentSystem/System';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -47,6 +51,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * The actors in the current scene
    */
   public actors: Actor[] = [];
+
+  public queryManager: QueryManager = new QueryManager(this);
+  public entityManager: EntityManager = new EntityManager(this);
+  public systemManager: SystemManager = new SystemManager(this);
 
   /**
    * Physics bodies in the current scene
@@ -95,11 +103,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     }
   }
 
-  public on(eventName: Events.initialize, handler: (event: InitializeEvent) => void): void;
+  public on(eventName: Events.initialize, handler: (event: InitializeEvent<Scene>) => void): void;
   public on(eventName: Events.activate, handler: (event: ActivateEvent) => void): void;
   public on(eventName: Events.deactivate, handler: (event: DeactivateEvent) => void): void;
-  public on(eventName: Events.preupdate, handler: (event: PreUpdateEvent) => void): void;
-  public on(eventName: Events.postupdate, handler: (event: PostUpdateEvent) => void): void;
+  public on(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Scene>) => void): void;
+  public on(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Scene>) => void): void;
   public on(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
   public on(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
   public on(eventName: Events.predebugdraw, handler: (event: PreDebugDrawEvent) => void): void;
@@ -109,11 +117,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     super.on(eventName, handler);
   }
 
-  public once(eventName: Events.initialize, handler: (event: InitializeEvent) => void): void;
+  public once(eventName: Events.initialize, handler: (event: InitializeEvent<Scene>) => void): void;
   public once(eventName: Events.activate, handler: (event: ActivateEvent) => void): void;
   public once(eventName: Events.deactivate, handler: (event: DeactivateEvent) => void): void;
-  public once(eventName: Events.preupdate, handler: (event: PreUpdateEvent) => void): void;
-  public once(eventName: Events.postupdate, handler: (event: PostUpdateEvent) => void): void;
+  public once(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Scene>) => void): void;
+  public once(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Scene>) => void): void;
   public once(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
   public once(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
   public once(eventName: Events.predebugdraw, handler: (event: PreDebugDrawEvent) => void): void;
@@ -123,11 +131,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     super.once(eventName, handler);
   }
 
-  public off(eventName: Events.initialize, handler?: (event: InitializeEvent) => void): void;
+  public off(eventName: Events.initialize, handler?: (event: InitializeEvent<Scene>) => void): void;
   public off(eventName: Events.activate, handler?: (event: ActivateEvent) => void): void;
   public off(eventName: Events.deactivate, handler?: (event: DeactivateEvent) => void): void;
-  public off(eventName: Events.preupdate, handler?: (event: PreUpdateEvent) => void): void;
-  public off(eventName: Events.postupdate, handler?: (event: PostUpdateEvent) => void): void;
+  public off(eventName: Events.preupdate, handler?: (event: PreUpdateEvent<Scene>) => void): void;
+  public off(eventName: Events.postupdate, handler?: (event: PostUpdateEvent<Scene>) => void): void;
   public off(eventName: Events.predraw, handler?: (event: PreDrawEvent) => void): void;
   public off(eventName: Events.postdraw, handler?: (event: PostDrawEvent) => void): void;
   public off(eventName: Events.predebugdraw, handler?: (event: PreDebugDrawEvent) => void): void;
@@ -314,6 +322,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public update(engine: Engine, delta: number) {
     this._preupdate(engine, delta);
+    this.systemManager.updateSystems(SystemType.Update, engine, delta);
+    this.entityManager.processRemovals();
+
     if (this.camera) {
       this.camera.update(engine, delta);
     }
@@ -413,10 +424,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     this._predraw(ctx, delta);
     ctx.save();
-
     if (this.camera) {
       this.camera.draw(ctx);
     }
+    this.systemManager.updateSystems(SystemType.Draw, this._engine, delta);
+    this.entityManager.processRemovals();
 
     let i: number, len: number;
 

@@ -5,7 +5,9 @@ describe('A SortedList', () => {
   let sortedList;
 
   beforeEach(() => {
-    sortedList = new ex.SortedList(Mocks.MockedElement.prototype.getTheKey);
+    sortedList = new ex.SortedList<Mocks.MockedElement>((e) => {
+      return e.getTheKey();
+    });
   });
 
   it('should be loaded', () => {

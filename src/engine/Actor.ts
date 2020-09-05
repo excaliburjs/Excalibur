@@ -1,4 +1,3 @@
-import { Class } from './Class';
 import { Texture } from './Resources/Texture';
 import {
   InitializeEvent,
@@ -47,6 +46,8 @@ import { obsolete } from './Util/Decorators';
 import { Collider } from './Collision/Collider';
 import { Shape } from './Collision/Shape';
 
+import { Entity } from './EntityComponentSystem/Entity';
+
 export function isActor(x: any): x is Actor {
   return x instanceof Actor;
 }
@@ -79,7 +80,7 @@ export interface ActorDefaults {
  * @hidden
  */
 
-export class ActorImpl extends Class implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
+export class ActorImpl extends Entity implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
   /**
@@ -352,7 +353,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    */
   public children: Actor[] = [];
 
-  private _isInitialized: boolean = false;
   public frames: { [key: string]: Drawable } = {};
 
   /**
@@ -536,13 +536,6 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   }
 
   /**
-   * Gets whether the actor is Initialized
-   */
-  public get isInitialized(): boolean {
-    return this._isInitialized;
-  }
-
-  /**
    * Initializes this actor and all it's child actors, meant to be called by the Scene before first update not by users of Excalibur.
    *
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
@@ -550,11 +543,7 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
    * @internal
    */
   public _initialize(engine: Engine) {
-    if (!this.isInitialized) {
-      this.onInitialize(engine);
-      super.emit('initialize', new InitializeEvent(engine, this));
-      this._isInitialized = true;
-    }
+    super._initialize(engine);
     for (const child of this.children) {
       child._initialize(engine);
     }
@@ -654,9 +643,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public on(eventName: Events.kill, handler: (event: KillEvent) => void): void;
   public on(eventName: Events.prekill, handler: (event: PreKillEvent) => void): void;
   public on(eventName: Events.postkill, handler: (event: PostKillEvent) => void): void;
-  public on(eventName: Events.initialize, handler: (event: InitializeEvent) => void): void;
-  public on(eventName: Events.preupdate, handler: (event: PreUpdateEvent) => void): void;
-  public on(eventName: Events.postupdate, handler: (event: PostUpdateEvent) => void): void;
+  public on(eventName: Events.initialize, handler: (event: InitializeEvent<Actor>) => void): void;
+  public on(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Actor>) => void): void;
+  public on(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Actor>) => void): void;
   public on(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
   public on(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
   public on(eventName: Events.predebugdraw, handler: (event: PreDebugDrawEvent) => void): void;
@@ -721,9 +710,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public once(eventName: Events.kill, handler: (event: KillEvent) => void): void;
   public once(eventName: Events.postkill, handler: (event: PostKillEvent) => void): void;
   public once(eventName: Events.prekill, handler: (event: PreKillEvent) => void): void;
-  public once(eventName: Events.initialize, handler: (event: InitializeEvent) => void): void;
-  public once(eventName: Events.preupdate, handler: (event: PreUpdateEvent) => void): void;
-  public once(eventName: Events.postupdate, handler: (event: PostUpdateEvent) => void): void;
+  public once(eventName: Events.initialize, handler: (event: InitializeEvent<Actor>) => void): void;
+  public once(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Actor>) => void): void;
+  public once(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Actor>) => void): void;
   public once(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
   public once(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
   public once(eventName: Events.predebugdraw, handler: (event: PreDebugDrawEvent) => void): void;
@@ -799,9 +788,9 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public off(eventName: Events.pointerdragmove, handler?: (event: PointerDragEvent) => void): void;
   public off(eventName: Events.prekill, handler?: (event: PreKillEvent) => void): void;
   public off(eventName: Events.postkill, handler?: (event: PostKillEvent) => void): void;
-  public off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent) => void): void;
-  public off(eventName: Events.postupdate, handler?: (event: Events.PostUpdateEvent) => void): void;
-  public off(eventName: Events.preupdate, handler?: (event: Events.PreUpdateEvent) => void): void;
+  public off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent<Actor>) => void): void;
+  public off(eventName: Events.postupdate, handler?: (event: Events.PostUpdateEvent<Actor>) => void): void;
+  public off(eventName: Events.preupdate, handler?: (event: Events.PreUpdateEvent<Actor>) => void): void;
   public off(eventName: Events.postdraw, handler?: (event: Events.PostDrawEvent) => void): void;
   public off(eventName: Events.predraw, handler?: (event: Events.PreDrawEvent) => void): void;
   public off(eventName: Events.enterviewport, handler?: (event: EnterViewPortEvent) => void): void;
