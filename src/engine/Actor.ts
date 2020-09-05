@@ -25,6 +25,7 @@ import { PointerEvent, WheelEvent, PointerDragEvent, PointerEventName } from './
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
 import { Sprite } from './Drawing/Sprite';
+import { Animation } from './Drawing/Animation';
 import { Trait } from './Interfaces/Trait';
 import { Drawable } from './Interfaces/Drawable';
 import { CanInitialize, CanUpdate, CanDraw, CanBeKilled } from './Interfaces/LifecycleEvents';
@@ -1128,6 +1129,12 @@ export class ActorImpl extends Class implements Actionable, Eventable, PointerEv
   public update(engine: Engine, delta: number) {
     this._initialize(engine);
     this._preupdate(engine, delta);
+
+    // Tick animations
+    const drawing = this.currentDrawing;
+    if (drawing && drawing instanceof Animation) {
+      drawing.tick(delta, engine.stats.currFrame.id);
+    }
 
     // Update action queue
     this.actionQueue.update(delta);

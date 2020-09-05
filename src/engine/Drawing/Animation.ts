@@ -8,10 +8,18 @@ import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
 import { Configurable } from '../Configurable';
 
+export interface HasTick {
+  /**
+   *
+   * @param elapsedMilliseconds The amount of real world time in milliseconds that has elapsed that must be updated in the animation
+   */
+  tick(elapsedMilliseconds: number, idempotencyToken?: number): void;
+}
+
 /**
  * @hidden
  */
-export class AnimationImpl implements Drawable {
+export class AnimationImpl implements Drawable, HasTick {
   /**
    * The sprite frames to play, in order. See [[SpriteSheet.getAnimationForAll]] to quickly
    * generate an [[Animation]].
@@ -28,7 +36,8 @@ export class AnimationImpl implements Drawable {
    */
   public currentFrame: number = 0;
 
-  private _oldTime: number = Date.now();
+  private _timeLeftInFrame: number = 0;
+  private _idempotencyToken: number = -1;
 
   public anchor: Vector = Vector.Zero;
   public rotation: number = 0.0;
@@ -85,6 +94,7 @@ export class AnimationImpl implements Drawable {
     this.sprites = sprites;
     this.speed = speed;
     this._engine = <Engine>engine;
+    this._timeLeftInFrame = this.speed;
 
     if (loop != null) {
       this.loop = loop;
@@ -243,11 +253,24 @@ export class AnimationImpl implements Drawable {
    * calculates whether to change to the frame.
    * @internal
    */
-  public tick() {
-    const time = Date.now();
-    if (time - this._oldTime > this.speed) {
+  public tick(elapsed: number, idempotencyToken?: number) {
+    if (this._idempotencyToken === idempotencyToken) {
+      return;
+    }
+    this._idempotencyToken = idempotencyToken;
+    this._timeLeftInFrame -= elapsed;
+    if (this._timeLeftInFrame <= 0) {
       this.currentFrame = this.loop ? (this.currentFrame + 1) % this.sprites.length : this.currentFrame + 1;
-      this._oldTime = time;
+      this._timeLeftInFrame = this.speed;
+    }
+
+    this._updateValues();
+    const current = this.sprites[this.currentFrame];
+    if (current) {
+      this.width = current.width;
+      this.height = current.height;
+      this.drawWidth = current.drawWidth;
+      this.drawHeight = current.drawHeight;
     }
   }
 
@@ -297,7 +320,6 @@ export class AnimationImpl implements Drawable {
       opacity: options.opacity ?? this._opacity
     };
 
-    this.tick();
     this._updateValues();
     let currSprite: Sprite;
     if (this.currentFrame < this.sprites.length) {
