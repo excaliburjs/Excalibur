@@ -124,11 +124,6 @@ export class AudioInstance implements Audio {
 }
 
 /**
- * Internal class representing a HTML5 audio instance
- */
-/* istanbul ignore next */
-
-/**
  * Internal class representing a Web Audio AudioBufferSourceNode instance
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
  */
