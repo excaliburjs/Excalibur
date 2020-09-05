@@ -99,7 +99,7 @@
     "karma-chrome-launcher": "3.1.0",
     "karma-coverage": "2.0.3",
     "karma-coverage-istanbul-reporter": "3.0.3",
-    "karma-jasmine": "3.3.1",
+    "karma-jasmine": "4.0.1",
     "karma-webpack": "4.0.2",
     "lint-staged": "10.2.13",
     "prettier": "2.1.1",
