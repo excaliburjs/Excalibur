@@ -260,7 +260,8 @@ describe('Sound resource', () => {
         });
       });
 
-      it('should stop all tracks even when paused', (done) => {
+      // FIXME: issue for flakey test https://github.com/excaliburjs/Excalibur/issues/1547
+      xit('should stop all tracks even when paused', (done) => {
         sut.play();
 
         setTimeout(() => {
