@@ -8,7 +8,6 @@ environment:
   matrix:
     - nodejs_version: '12'
 platform:
-  - x86
   - x64
 install:
   - ps: Install-Product node $env:nodejs_version
