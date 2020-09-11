@@ -7,6 +7,26 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+- Fixed Animation flicker bug when switching to an animation ([#1636](https://github.com/excaliburjs/Excalibur/issues/1636))
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [[0.24.5] - 2020-09-07
+
+### Breaking Changes
+
 - [#1361] Makes use of proxies, Excalibur longer supports IE11 :boom: ([#1361]https://github.com/excaliburjs/Excalibur/issues/1361)
 
 ### Added
@@ -27,10 +47,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed Animation flicker bug on the first frame when using animations with scale, anchors, or rotation. ([#1636](https://github.com/excaliburjs/Excalibur/issues/1636))
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [0.24.4] - 2020-09-02
 
