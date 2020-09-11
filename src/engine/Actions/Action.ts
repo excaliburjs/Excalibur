@@ -46,6 +46,8 @@ export class EaseTo implements Action {
       this._initialized = true;
     }
 
+    // Need to update lerp time first, otherwise the first update will always be zero
+    this._currentLerpTime += delta;
     let newX = this.actor.pos.x;
     let newY = this.actor.pos.y;
     if (this._currentLerpTime < this._lerpDuration) {
@@ -64,10 +66,9 @@ export class EaseTo implements Action {
       } else {
         newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
       }
-      this.actor.vel.x = (newX - this.actor.pos.x) * delta;
-      this.actor.vel.y = (newY - this.actor.pos.y) * delta;
-
-      this._currentLerpTime += delta;
+      // Given the lerp position figure out the velocity in pixels per second
+      this.actor.vel.x = (newX - this.actor.pos.x) / (delta / 1000);
+      this.actor.vel.y = (newY - this.actor.pos.y) / (delta / 1000);
     } else {
       this.actor.pos.x = this._lerpEnd.x;
       this.actor.pos.y = this._lerpEnd.y;
@@ -85,6 +86,8 @@ export class EaseTo implements Action {
     this._initialized = false;
   }
   public stop(): void {
+    this.actor.vel.y = 0;
+    this.actor.vel.x = 0;
     this._stopped = true;
   }
 }
