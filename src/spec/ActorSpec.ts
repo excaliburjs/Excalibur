@@ -560,6 +560,95 @@ describe('A game actor', () => {
     });
   });
 
+  it('will tick animations when drawing switched', (done) => {
+    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        rotation: 0,
+        anchor: new ex.Vector(0.0, 0.0),
+        scale: new ex.Vector(1, 1),
+        flipVertical: false,
+        flipHorizontal: false
+      });
+      const animation = new ex.Animation({
+        engine: engine,
+        sprites: [sprite, sprite],
+        speed: 200,
+        loop: false,
+        anchor: new ex.Vector(1, 1),
+        rotation: Math.PI,
+        scale: new ex.Vector(2, 2),
+        flipVertical: true,
+        flipHorizontal: true,
+        width: 100,
+        height: 200
+      });
+
+      spyOn(animation, 'tick').and.callThrough();
+
+      const actor = new ex.Actor({
+        pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),
+        width: 10,
+        height: 10
+      });
+
+      actor.addDrawing('default', animation);
+      actor.setDrawing('default');
+      expect(animation.tick).toHaveBeenCalledWith(0);
+      done();
+    });
+  });
+
+  it('will tick animations on update', (done) => {
+    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        rotation: 0,
+        anchor: new ex.Vector(0.0, 0.0),
+        scale: new ex.Vector(1, 1),
+        flipVertical: false,
+        flipHorizontal: false
+      });
+      const animation = new ex.Animation({
+        engine: engine,
+        sprites: [sprite, sprite],
+        speed: 200,
+        loop: false,
+        anchor: new ex.Vector(1, 1),
+        rotation: Math.PI,
+        scale: new ex.Vector(2, 2),
+        flipVertical: true,
+        flipHorizontal: true,
+        width: 100,
+        height: 200
+      });
+
+      spyOn(animation, 'tick').and.callThrough();
+
+      const actor = new ex.Actor({
+        pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),
+        width: 10,
+        height: 10
+      });
+
+      actor.addDrawing('anim', animation);
+      actor.setDrawing('anim');
+      actor.update(engine, 100);
+      expect(animation.tick).toHaveBeenCalledWith(100, engine.stats.currFrame.id);
+      done();
+    });
+  });
+
   it('can detect containment off of child actors', () => {
     const parent = new ex.Actor(600, 100, 100, 100);
     const child = new ex.Actor(0, 0, 100, 100);

@@ -915,6 +915,9 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
         Logger.getInstance().error(`the specified drawing key ${key} does not exist`);
       }
     }
+    if (this.currentDrawing && this.currentDrawing instanceof Animation) {
+      this.currentDrawing.tick(0);
+    }
   }
 
   /**
