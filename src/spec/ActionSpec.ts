@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+import { ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('Action', () => {
   let actor: ex.Actor;
@@ -8,6 +9,7 @@ describe('Action', () => {
   let scene: ex.Scene;
 
   beforeEach(() => {
+    jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({ width: 100, height: 100 });
 
     actor = new ex.Actor();
@@ -197,6 +199,43 @@ describe('Action', () => {
       actor.update(engine, 500);
       expect(actor.pos.x).toBe(5);
       expect(actor.pos.y).toBe(0);
+    });
+  });
+
+  describe('easeTo', () => {
+    it('can be eased to a location given an easing function', () => {
+      expect(actor.pos).toBeVector(ex.vec(0, 0));
+
+      actor.actions.easeTo(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+
+      actor.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(50, 0));
+      expect(actor.vel).toBeVector(ex.vec(100, 0));
+
+      actor.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+
+      actor.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+    });
+
+    it('can be stopped', () => {
+      expect(actor.pos).toBeVector(ex.vec(0, 0));
+
+      actor.actions.easeTo(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+
+      actor.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(50, 0));
+      expect(actor.vel).toBeVector(ex.vec(100, 0));
+
+      actor.actions.clearActions();
+
+      // actor should not move and should have zero velocity after stopping
+      actor.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(50, 0));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
     });
   });
 
