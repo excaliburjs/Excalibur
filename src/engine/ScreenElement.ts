@@ -17,7 +17,7 @@ export class ScreenElement extends Actor {
   constructor(xOrConfig?: number, y?: number, width?: number, height?: number);
   constructor(config?: ActorArgs);
   /**
-   * @param x       The starting x coordinate of the actor
+   * @param xOrConfig  The starting x coordinate of the actor or the actor option bag
    * @param y       The starting y coordinate of the actor
    * @param width   The starting width of the actor
    * @param height  The starting height of the actor

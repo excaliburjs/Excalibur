@@ -21,10 +21,16 @@ describe('A Bounding Box constructed with no parameters', () => {
 });
 
 describe('A Bounding Box', function() {
+  /**
+   *
+   */
   function createBBFromOption() {
     return new ex.BoundingBox({ left: 0, top: 0, right: 10, bottom: 10 });
   }
 
+  /**
+   *
+   */
   function createBBFromParameters() {
     return new ex.BoundingBox(0, 0, 10, 10);
   }
@@ -33,6 +39,9 @@ describe('A Bounding Box', function() {
   runBoundingBoxTests('Constructed from parameters', createBBFromParameters);
 });
 
+/**
+ *
+ */
 function runBoundingBoxTests(creationType: string, createBoundingBox: Function) {
   describe(creationType, function() {
     let bb: ex.BoundingBox;

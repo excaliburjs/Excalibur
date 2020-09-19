@@ -7,6 +7,7 @@ import { Vector } from '../Algebra';
  */
 export type LineCapStyle = 'butt' | 'round' | 'square';
 
+/* istanbul ignore next */
 /**
  * Draw a line on canvas context
  *
@@ -19,7 +20,6 @@ export type LineCapStyle = 'butt' | 'round' | 'square';
  * @param thickness The line thickness
  * @param cap The [[LineCapStyle]] (butt, round, or square)
  */
-/* istanbul ignore next */
 export function line(
   ctx: CanvasRenderingContext2D,
   color: Color = Color.Red,
@@ -40,10 +40,10 @@ export function line(
   ctx.stroke();
 }
 
+/* istanbul ignore next */
 /**
  * Draw the vector as a point onto the canvas.
  */
-/* istanbul ignore next */
 export function point(ctx: CanvasRenderingContext2D, color: Color = Color.Red, point: Vector): void {
   ctx.beginPath();
   ctx.strokeStyle = color.toString();
@@ -56,6 +56,9 @@ export function point(ctx: CanvasRenderingContext2D, color: Color = Color.Red, p
  * Draw the vector as a line onto the canvas starting a origin point.
  */
 /* istanbul ignore next */
+/**
+ *
+ */
 export function vector(ctx: CanvasRenderingContext2D, color: Color, origin: Vector, vector: Vector, scale: number = 1.0): void {
   const c = color ? color.toString() : 'blue';
   const v = vector.scale(scale);
@@ -98,8 +101,8 @@ export interface BorderRadius {
  * @param width The width of the rectangle
  * @param height The height of the rectangle
  * @param radius The border radius of the rectangle
- * @param fill The [[Color]] to fill rectangle with
  * @param stroke The [[Color]] to stroke rectangle with
+ * @param fill The [[Color]] to fill rectangle with
  */
 export function roundRect(
   ctx: CanvasRenderingContext2D,
@@ -149,6 +152,9 @@ export function roundRect(
   }
 }
 
+/**
+ *
+ */
 export function circle(
   ctx: CanvasRenderingContext2D,
   x: number,

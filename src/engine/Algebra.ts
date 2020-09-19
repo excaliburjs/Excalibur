@@ -106,7 +106,8 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Compares this point against another and tests for equality
-   * @param point  The other point to compare to
+   * @param vector The other point to compare to
+   * @param tolerance Amount of euclidean distance off we are willing to tolerate
    */
   public equals(vector: Vector, tolerance: number = 0.001): boolean {
     return Math.abs(this.x - vector.x) <= tolerance && Math.abs(this.y - vector.y) <= tolerance;
@@ -206,7 +207,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Subtracts a vector from this one modifying the original
-   * @parallel v The vector to subtract
+   * @param v The vector to subtract
    */
   public subEqual(v: Vector): Vector {
     this.x -= v.x;

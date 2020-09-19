@@ -1,6 +1,11 @@
 export type Constructor<T> = {
   new (...args: any[]): T;
 };
+/**
+ * Configurable helper extends base type and makes all properties available as option bag arguments
+ * @internal
+ * @param base
+ */
 export function Configurable<T extends Constructor<{}>>(base: T): T {
   return class extends base {
     public assign(props: Partial<T>) {

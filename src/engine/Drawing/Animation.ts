@@ -76,8 +76,8 @@ export class AnimationImpl implements Drawable, HasTick {
   /**
    * Typically you will use a [[SpriteSheet]] to generate an [[Animation]].
    *
-   * @param engine  Reference to the current game engine
-   * @param images  An array of sprites to create the frames for the animation
+   * @param engineOrConfig  Reference to the current game engine
+   * @param sprites  An array of sprites to create the frames for the animation
    * @param speed   The number in milliseconds to display each frame in the animation
    * @param loop    Indicates whether the animation should loop after it is completed
    */

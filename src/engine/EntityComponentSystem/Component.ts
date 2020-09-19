@@ -4,6 +4,10 @@ export interface ComponentCtor {
   new (): Component;
 }
 
+/**
+ * Type guard to check if a component implements clone
+ * @param x
+ */
 function hasClone(x: any): x is { clone(): any } {
   return !!x?.clone;
 }

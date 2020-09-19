@@ -7,6 +7,11 @@ export interface _initialize {
   _initialize(engine: Engine): void;
 }
 
+/**
+ * Type guard checking for internal initialize method
+ * @internal
+ * @param a
+ */
 export function has_initialize(a: any): a is _initialize {
   return !!a._initialize;
 }
@@ -15,6 +20,9 @@ export interface OnInitialize {
   onInitialize(engine: Engine): void;
 }
 
+/**
+ *
+ */
 export function hasOnInitialize(a: any): a is OnInitialize {
   return !!a.onInitialize;
 }
@@ -24,6 +32,9 @@ export interface _preupdate {
   _preupdate(engine: Engine, delta: number): void;
 }
 
+/**
+ *
+ */
 export function has_preupdate(a: any): a is _preupdate {
   return !!a._preupdate;
 }
@@ -32,6 +43,9 @@ export interface OnPreUpdate {
   onPreUpdate(engine: Engine, delta: number): void;
 }
 
+/**
+ *
+ */
 export function hasOnPreUpdate(a: any): a is OnPreUpdate {
   return !!a.onPreUpdate;
 }
@@ -41,6 +55,9 @@ export interface _postupdate {
   _postupdate(engine: Engine, delta: number): void;
 }
 
+/**
+ *
+ */
 export function has_postupdate(a: any): a is _postupdate {
   return !!a.onPostUpdate;
 }
@@ -49,6 +66,9 @@ export interface OnPostUpdate {
   onPostUpdate(engine: Engine, delta: number): void;
 }
 
+/**
+ *
+ */
 export function hasOnPostUpdate(a: any): a is OnPostUpdate {
   return !!a.onPostUpdate;
 }
@@ -160,10 +180,16 @@ export interface CanDraw extends OnPreDraw, OnPostDraw {
   off(eventName: Events.postdraw, handler?: (event: Events.PostDrawEvent) => void): void;
 }
 
+/**
+ *
+ */
 export function hasPreDraw(a: any): a is OnPreDraw {
   return !!a.onPreDraw;
 }
 
+/**
+ *
+ */
 export function hasPostDraw(a: any): a is OnPostDraw {
   return !!a.onPostDraw;
 }
