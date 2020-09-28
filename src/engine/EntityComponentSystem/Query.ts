@@ -13,13 +13,23 @@ import { AddedEntity, RemovedEntity } from './System';
  * ```
  */
 export class Query<T extends Component = Component> extends Observable<AddedEntity | RemovedEntity> {
-  public entities: Entity<T>[] = [];
+  private _entities: Entity<T>[] = [];
   public get key(): string {
     return buildTypeKey(this.types);
   }
 
-  public constructor(public types: string[]) {
+  constructor(public types: string[], public sortCompare?: (a: Entity, b: Entity) => number) {
     super();
+  }
+
+  /**
+   * Returns a list of entities that match the query
+   */
+  public getEntities(): Entity<T>[] {
+    if (this.sortCompare) {
+      this._entities.sort(this.sortCompare);
+    }
+    return this._entities;
   }
 
   /**
@@ -27,8 +37,8 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    * @param entity
    */
   public addEntity(entity: Entity<T>): void {
-    if (!Util.contains(this.entities, entity) && this.matches(entity)) {
-      this.entities.push(entity);
+    if (!Util.contains(this._entities, entity) && this.matches(entity)) {
+      this._entities.push(entity);
       this.notifyAll(new AddedEntity(entity));
     }
   }
@@ -38,7 +48,7 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    * @param entity
    */
   public removeEntity(entity: Entity<T>): void {
-    if (Util.removeItemFromArray(entity, this.entities)) {
+    if (Util.removeItemFromArray(entity, this._entities)) {
       this.notifyAll(new RemovedEntity(entity));
     }
   }
@@ -47,7 +57,7 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    * Removes all entities and observers from the query
    */
   public clear(): void {
-    this.entities.length = 0;
+    this._entities.length = 0;
     for (const observer of this.observers) {
       this.unregister(observer);
     }

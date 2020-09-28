@@ -2,6 +2,7 @@ import { Entity } from './Entity';
 import { Engine } from '../Engine';
 import { Message, Observer } from '../Util/Observable';
 import { Component } from './Component';
+import { Scene } from '../Scene';
 
 export enum SystemType {
   Update = 'update',
@@ -26,6 +27,8 @@ export abstract class System<T extends Component = Component> implements Observe
    * For a system to exectue after all other a higher priority value (10 for example) must be set.
    */
   public priority: number = 0;
+
+  initialize(_scene: Scene): void {}
 
   /**
    * Update all entities that match this system's types

@@ -65,9 +65,7 @@ export class QueryManager {
    */
   public removeEntity(entity: Entity) {
     for (const queryType in this._queries) {
-      if (this._queries[queryType].entities.indexOf(entity) > -1) {
-        this._queries[queryType].removeEntity(entity);
-      }
+      this._queries[queryType].removeEntity(entity);
     }
   }
 
@@ -75,12 +73,12 @@ export class QueryManager {
    * Creates a populated query and returns, if the query already exists that will be returned instead of a new instance
    * @param types
    */
-  public createQuery<T extends Component = Component>(types: string[]): Query<T> {
-    const maybeExistingQuery = this.getQuery<T>(types);
+  public createQuery<T extends Component = Component>(types: string[], sortCompare?: (a: Entity, b: Entity) => number): Query<T> {
+    const maybeExistingQuery = this.getQuery<T>(types); // Sorted wont work
     if (maybeExistingQuery) {
       return maybeExistingQuery;
     }
-    const query = new Query<T>(types);
+    const query = new Query<T>(types, sortCompare);
     this._addQuery(query);
     return query;
   }
