@@ -93,14 +93,6 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   public static defaults: ActorDefaults = {
     anchor: Vector.Half
   };
-  /**
-   * Indicates the next id to be set
-   */
-  public static maxId = 0;
-  /**
-   * The unique identifier for the actor
-   */
-  public id: number = ActorImpl.maxId++;
 
   /**
    * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
