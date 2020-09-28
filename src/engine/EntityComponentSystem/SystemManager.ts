@@ -27,6 +27,7 @@ export class SystemManager {
     // TODO polyfil stable .sort(), this mechanism relies on a stable sort
     this.systems.sort((a, b) => a.priority - b.priority);
     query.register(system);
+    system.initialize(this._scene);
   }
 
   /**
@@ -57,7 +58,7 @@ export class SystemManager {
     }
 
     for (const s of systems) {
-      const entities = this._scene.queryManager.getQuery(s.types).entities;
+      const entities = this._scene.queryManager.getQuery(s.types).getEntities();
       s.update(entities, delta);
     }
 
