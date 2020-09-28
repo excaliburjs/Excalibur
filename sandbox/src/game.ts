@@ -236,7 +236,7 @@ follower.actions
 player.rotation = 0;
 
 // Health bar example
-var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
+var healthbar = new ex.Actor({x: 0, y: -70, width: 140, height: 5, color: new ex.Color(0, 255, 0)});
 player.add(healthbar);
 
 // Add Title above player

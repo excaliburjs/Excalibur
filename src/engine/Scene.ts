@@ -16,7 +16,6 @@ import { Logger } from './Util/Log';
 import { Timer } from './Timer';
 import { DynamicTreeCollisionBroadphase } from './Collision/DynamicTreeCollisionBroadphase';
 import { CollisionBroadphase } from './Collision/CollisionResolver';
-import { SortedList } from './Util/SortedList';
 import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Camera } from './Camera';
@@ -32,6 +31,7 @@ import { QueryManager } from './EntityComponentSystem/QueryManager';
 import { EntityManager } from './EntityComponentSystem/EntityManager';
 import { SystemManager } from './EntityComponentSystem/SystemManager';
 import { SystemType } from './EntityComponentSystem/System';
+import { LegacyDrawingSystem } from './Drawing/LegacyDrawingSystem';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -74,7 +74,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * Access to the Excalibur engine
    */
-  private _engine: Engine;
+  public engine: Engine;
 
   /**
    * The [[ScreenElement]]s in a scene, if any; these are drawn last
@@ -82,8 +82,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public screenElements: Actor[] = [];
 
   private _isInitialized: boolean = false;
-
-  private _sortedDrawingTree: SortedList<Actor> = new SortedList<Actor>(a => a.z);
 
   private _broadphase: CollisionBroadphase = new DynamicTreeCollisionBroadphase();
 
@@ -96,11 +94,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   constructor(_engine?: Engine) {
     super();
     this.camera = new Camera();
-    this._engine = _engine;
-    if (_engine) {
-      this.camera.x = _engine.halfDrawWidth;
-      this.camera.y = _engine.halfDrawHeight;
-    }
+    this.engine = _engine;
+    this.camera.x = this.engine.halfDrawWidth;
+    this.camera.y = this.engine.halfDrawHeight;
   }
 
   public on(eventName: Events.initialize, handler: (event: InitializeEvent<Scene>) => void): void;
@@ -210,7 +206,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   private _initializeChildren(): void {
     for (const child of this.actors) {
-      child._initialize(this._engine);
+      child._initialize(this.engine);
     }
   }
 
@@ -230,11 +226,13 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public _initialize(engine: Engine) {
     if (!this.isInitialized) {
-      this._engine = engine;
+      this.engine = engine;
       if (this.camera) {
         this.camera.x = engine.halfDrawWidth;
         this.camera.y = engine.halfDrawHeight;
       }
+
+      this.systemManager.addSystem(new LegacyDrawingSystem());
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
@@ -408,8 +406,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       if (killed.isKilled()) {
         actorIndex = collection.indexOf(killed);
         if (actorIndex > -1) {
-          this._sortedDrawingTree.removeByComparable(killed);
           collection.splice(actorIndex, 1);
+          this.entityManager.removeEntity(killed);
         }
       }
     }
@@ -423,46 +421,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     this._predraw(ctx, delta);
-    ctx.save();
-    if (this.camera) {
-      this.camera.draw(ctx);
-    }
-    this.systemManager.updateSystems(SystemType.Draw, this._engine, delta);
+    
+    this.systemManager.updateSystems(SystemType.Draw, this.engine, delta);
     this.entityManager.processRemovals();
 
-    let i: number, len: number;
-
-    for (i = 0, len = this.tileMaps.length; i < len; i++) {
-      this.tileMaps[i].draw(ctx, delta);
-    }
-
-    const sortedChildren = this._sortedDrawingTree.list();
-    for (i = 0, len = sortedChildren.length; i < len; i++) {
-      // only draw actors that are visible and on screen
-      if (sortedChildren[i].visible && !sortedChildren[i].isOffScreen) {
-        sortedChildren[i].draw(ctx, delta);
-      }
-    }
-
-    if (this._engine && this._engine.isDebug) {
-      ctx.strokeStyle = 'yellow';
-      this.debugDraw(ctx);
-    }
-
-    ctx.restore();
-
-    for (i = 0, len = this.screenElements.length; i < len; i++) {
-      // only draw ui actors that are visible and on screen
-      if (this.screenElements[i].visible) {
-        this.screenElements[i].draw(ctx, delta);
-      }
-    }
-
-    if (this._engine && this._engine.isDebug) {
-      for (i = 0, len = this.screenElements.length; i < len; i++) {
-        this.screenElements[i].debugDraw(ctx);
-      }
-    }
     this._postdraw(ctx, delta);
   }
 
@@ -533,16 +495,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     if (entity instanceof Actor) {
       (<Actor>entity).unkill();
     }
-    if (entity instanceof ScreenElement) {
-      if (!Util.contains(this.screenElements, entity)) {
-        this.addScreenElement(entity);
-      }
-      return;
-    }
-
-    if (entity instanceof Actor) {
+    if (entity instanceof Actor || entity instanceof ScreenElement) {
       if (!Util.contains(this.actors, entity)) {
         this._addChild(entity);
+        entity.children.forEach((c) => this.entityManager.addEntity(c));
       }
       return;
     }
@@ -583,10 +539,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
-    if (entity instanceof ScreenElement) {
-      this.removeScreenElement(entity);
-      return;
-    }
 
     if (entity instanceof Actor) {
       this._removeChild(entity);
@@ -632,7 +584,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       this.actors.push(actor);
     }
 
-    this._sortedDrawingTree.add(actor);
+    this.entityManager.addEntity(actor);
   }
 
   /**
@@ -640,6 +592,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public addTileMap(tileMap: TileMap) {
     this.tileMaps.push(tileMap);
+    this.entityManager.addEntity(tileMap);
   }
 
   /**
@@ -649,6 +602,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     const index = this.tileMaps.indexOf(tileMap);
     if (index > -1) {
       this.tileMaps.splice(index, 1);
+      this.entityManager.removeEntity(tileMap);
     }
   }
 
@@ -711,30 +665,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     return this._timers.indexOf(timer) > -1 && !timer.complete;
   }
 
-  /**
-   * Removes the given actor from the sorted drawing tree
-   */
-  public cleanupDrawTree(actor: Actor) {
-    this._sortedDrawingTree.removeByComparable(actor);
-  }
-
-  /**
-   * Updates the given actor's position in the sorted drawing tree
-   */
-  public updateDrawTree(actor: Actor) {
-    this._sortedDrawingTree.add(actor);
-  }
-
-  /**
-   * Checks if an actor is in this scene's sorted draw tree
-   */
-  public isActorInDrawTree(actor: Actor): boolean {
-    return this._sortedDrawingTree.find(actor);
-  }
-
   public isCurrentScene(): boolean {
-    if (this._engine) {
-      return this._engine.currentScene === this;
+    if (this.engine) {
+      return this.engine.currentScene === this;
     }
     return false;
   }
