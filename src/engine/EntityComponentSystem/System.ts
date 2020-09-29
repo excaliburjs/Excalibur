@@ -4,6 +4,9 @@ import { Message, Observer } from '../Util/Observable';
 import { Component } from './Component';
 import { Scene } from '../Scene';
 
+/**
+ * Enum that determines whether to run the system in the update or draw phase
+ */
 export enum SystemType {
   Update = 'update',
   Draw = 'draw'
@@ -42,19 +45,19 @@ export abstract class System<T extends Component = Component> implements Observe
    * @param engine
    * @param delta Time in milliseconds since the last frame
    */
-  preupdate?: (engine: Engine, delta: number) => void;
+  preupdate?(engine: Engine, delta: number): void;
 
   /**
    * Optionally run a postupdate after the system processes matching entities
    * @param engine
    * @param delta Time in milliseconds since the last frame
    */
-  postupdate?: (engine: Engine, delta: number) => void;
+  postupdate?(engine: Engine, delta: number): void;
 
   /**
    * Optionally run a debug draw step to visualize the internals of the system
    */
-  debugDraw?: (ctx: CanvasRenderingContext2D, delta: number) => void;
+  debugDraw?(ctx: CanvasRenderingContext2D, delta: number): void;
 
   /**
    * Systems observe when entities match their types or no longer match their types, override
