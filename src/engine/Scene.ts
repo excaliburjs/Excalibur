@@ -435,24 +435,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
-
-    let i: number, len: number;
-
-    for (i = 0, len = this.tileMaps.length; i < len; i++) {
-      this.tileMaps[i].debugDraw(ctx);
-    }
-
-    for (i = 0, len = this.actors.length; i < len; i++) {
-      this.actors[i].debugDraw(ctx);
-    }
-
-    for (i = 0, len = this.triggers.length; i < len; i++) {
-      this.triggers[i].debugDraw(ctx);
-    }
-
     this._broadphase.debugDraw(ctx, 20);
 
-    this.camera.debugDraw(ctx);
     this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
   }
 
