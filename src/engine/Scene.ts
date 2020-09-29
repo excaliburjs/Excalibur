@@ -408,6 +408,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         if (actorIndex > -1) {
           collection.splice(actorIndex, 1);
           this.entityManager.removeEntity(killed);
+          killed.children.forEach(c => this.entityManager.removeEntity(c));
         }
       }
     }
