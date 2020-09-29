@@ -232,6 +232,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         this.camera.y = engine.halfDrawHeight;
       }
 
+      // Initialize systems
       this.systemManager.addSystem(new LegacyDrawingSystem());
 
       // This order is important! we want to be sure any custom init that add actors
@@ -531,7 +532,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     if (entity instanceof Timer) {
       this.removeTimer(entity);
     }
-
     if (entity instanceof TileMap) {
       this.removeTileMap(entity);
     }
@@ -541,6 +541,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Adds (any) actor to act as a piece of UI, meaning it is always positioned
    * in screen coordinates. UI actors do not participate in collisions.
    * @todo Should this be `ScreenElement` only?
+   * @deprecated
    */
   public addScreenElement(actor: Actor) {
     this.screenElements.push(actor);
@@ -549,6 +550,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   /**
    * Removes an actor as a piece of UI
+   * @deprecated
    */
   public removeScreenElement(actor: Actor) {
     const index = this.screenElements.indexOf(actor);
