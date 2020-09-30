@@ -24,7 +24,6 @@ export class SystemManager {
 
     const query = this._scene.queryManager.createQuery<T>(system.types);
     this.systems.push(system);
-    // TODO polyfil stable .sort(), this mechanism relies on a stable sort
     this.systems.sort((a, b) => a.priority - b.priority);
     query.register(system);
     system.initialize(this._scene);

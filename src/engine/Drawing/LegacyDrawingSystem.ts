@@ -26,6 +26,7 @@ export class LegacyDrawingSystem extends System<LegacyDrawComponent> {
   public update(entities: Entity[], delta: number) {
     this._clearScreen();
     
+    // TODO these should be sorted by the query
     const sorted = (entities as Actor[]).sort((a, b) => a.z - b.z);
     
     const length = sorted.length;
