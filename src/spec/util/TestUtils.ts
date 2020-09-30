@@ -1,6 +1,10 @@
 import * as ex from '@excalibur';
 
 export namespace TestUtils {
+  /**
+   * Builds an engine with testing switches on
+   * @param options
+   */
   export function engine(options: ex.EngineOptions = {}): ex.Engine {
     options = ex.Util.extend(
       false,

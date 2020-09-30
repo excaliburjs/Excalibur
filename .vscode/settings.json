@@ -4,10 +4,9 @@
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
   "eslint.enable": true,
-  "eslint.options": { "configFile": "./.eslintrc.js" },
+  "eslint.options": { "configFile": "./.eslintrc.json" },
   "eslint.alwaysShowStatus": true,
-  "eslint.autoFixOnSave": true,
-  "eslint.validate": [{ "language": "typescript", "autoFix": true }],
+  "eslint.validate": ["typescript"],
   "files.exclude": {
     "**/.git": true,
     ".grunt/": true,

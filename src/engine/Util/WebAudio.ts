@@ -8,6 +8,11 @@ export interface LegacyWebAudioSource {
   FINISHED_STATE: 'finished';
 }
 
+/**
+ * Patch for detecting legacy web audio in browsers
+ * @internal
+ * @param source
+ */
 function isLegacyWebAudioSource(source: any): source is LegacyWebAudioSource {
   return !!source.playbackState;
 }

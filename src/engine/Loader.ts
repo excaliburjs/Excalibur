@@ -310,6 +310,11 @@ export class Loader extends Class implements CanLoad {
       };
     });
 
+    /**
+     * Helper to load in order
+     * @param list
+     * @param index
+     */
     function loadNext(list: Loadable[], index: number) {
       if (!list[index]) {
         return;

@@ -1,7 +1,5 @@
-import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { Stubs } from './util/Stubs';
-import { Mocks } from './util/Mocks';
 import { TestUtils } from './util/TestUtils';
 
 describe('Sound resource', () => {
@@ -441,6 +439,9 @@ describe('Sound resource', () => {
   });
 });
 
+/**
+ * Creates a buffer of mock data
+ */
 function _base64ToArrayBuffer() {
   const mockData = Stubs.AudioStub.base64StubData;
 

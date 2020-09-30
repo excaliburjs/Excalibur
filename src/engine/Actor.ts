@@ -48,6 +48,10 @@ import { Shape } from './Collision/Shape';
 
 import { Entity } from './EntityComponentSystem/Entity';
 
+/**
+ * Type guard for checking if something is an Actor
+ * @param x
+ */
 export function isActor(x: any): x is Actor {
   return x instanceof Actor;
 }
@@ -450,11 +454,11 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   // #endregion
 
   /**
-   * @param x       The starting x coordinate of the actor
-   * @param y       The starting y coordinate of the actor
-   * @param width   The starting width of the actor
-   * @param height  The starting height of the actor
-   * @param color   The starting color of the actor. Leave null to draw a transparent actor. The opacity of the color will be used as the
+   * @param xOrConfig The starting x coordinate of the actor, or an option bag of [[ActorArgs]]
+   * @param y         The starting y coordinate of the actor
+   * @param width     The starting width of the actor
+   * @param height    The starting height of the actor
+   * @param color     The starting color of the actor. Leave null to draw a transparent actor. The opacity of the color will be used as the
    * initial [[opacity]].
    */
   constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {

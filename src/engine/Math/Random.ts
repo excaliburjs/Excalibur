@@ -160,6 +160,7 @@ export class Random {
 
   /**
    * Returns a new array randomly picking elements in the original (not reused)
+   * @param array Array to pick elements out of
    * @param numPicks must be less than or equal to the number of elements in the array.
    */
   private _pickSetWithoutDuplicates<T>(array: Array<T>, numPicks: number): Array<T> {
@@ -184,6 +185,7 @@ export class Random {
 
   /**
    * Returns a new array random picking elements from the original allowing duplicates
+   * @param array Array to pick elements out of
    * @param numPicks can be any positive number
    */
   private _pickSetWithDuplicates<T>(array: Array<T>, numPicks: number): Array<T> {

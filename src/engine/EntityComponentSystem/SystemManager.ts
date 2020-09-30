@@ -44,8 +44,9 @@ export class SystemManager {
 
   /**
    * Updates all systems
-   * @param engine
-   * @param delta
+   * @param type whether this is an update or draw system
+   * @param engine engine reference
+   * @param delta time in milliseconds
    */
   public updateSystems(type: SystemType, engine: Engine, delta: number) {
     const systems = this.systems.filter((s) => s.systemType === type);

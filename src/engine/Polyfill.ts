@@ -1,6 +1,9 @@
 import 'core-js/es/array';
 import 'core-js/es/function';
 
+/**
+ * Polyfill adding function
+ */
 export function polyfill() {
   /* istanbul ignore next */
   if (typeof window === 'undefined') {

@@ -4,6 +4,14 @@ import { TestUtils } from './util/TestUtils';
 describe('A pointer', () => {
   let engine: ex.Engine = null;
 
+  /**
+   * Helper to make a mouse event in the test
+   * @param type
+   * @param target
+   * @param button
+   * @param x
+   * @param y
+   */
   function executeMouseEvent(type: string, target: HTMLElement, button: ex.Input.NativePointerButton = null, x: number = 0, y: number = 0) {
     const evt = new PointerEvent(type, {
       clientX: x,

@@ -70,6 +70,10 @@ export class AddedEntity implements Message<Entity> {
   constructor(public data: Entity) {}
 }
 
+/**
+ * Type guard to check for AddedEntity messages
+ * @param x
+ */
 export function isAddedSystemEntity(x: Message<Entity>): x is AddedEntity {
   return !!x && x.type === 'Entity Added';
 }
@@ -82,6 +86,9 @@ export class RemovedEntity implements Message<Entity> {
   constructor(public data: Entity) {}
 }
 
+/**
+ *
+ */
 export function isRemoveSystemEntity(x: Message<Entity>): x is RemovedEntity {
   return !!x && x.type === 'Entity Removed';
 }

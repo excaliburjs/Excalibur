@@ -6,24 +6,40 @@ import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/Lifecycle
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
 
+/**
+ * Interface holding an entity component pair
+ */
 export interface EntityComponent {
   component: Component;
   entity: Entity;
 }
+
+/**
+ * AddedComponent message
+ */
 export class AddedComponent implements Message<EntityComponent> {
   readonly type: 'Component Added' = 'Component Added';
   constructor(public data: EntityComponent) {}
 }
 
+/**
+ * Type guard to know if message is f an Added Component
+ */
 export function isAddedComponent(x: Message<EntityComponent>): x is AddedComponent {
   return !!x && x.type === 'Component Added';
 }
 
+/**
+ * RemovedComponent message
+ */
 export class RemovedComponent implements Message<EntityComponent> {
   readonly type: 'Component Removed' = 'Component Removed';
   constructor(public data: EntityComponent) {}
 }
 
+/**
+ * Type guard to know if message is for a Removed Component
+ */
 export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedComponent {
   return !!x && x.type === 'Component Removed';
 }

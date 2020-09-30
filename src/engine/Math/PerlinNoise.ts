@@ -2,10 +2,22 @@ import { Random } from './Random';
 import { Color } from '../Drawing/Color';
 import * as Util from '../Util/Util';
 
+/**
+ * Linear interpolation between a and b
+ * @internal
+ * @param time number between [0, 1]
+ * @param a starting number
+ * @param b ending number
+ */
 function _lerp(time: number, a: number, b: number): number {
   return a + time * (b - a);
 }
 
+/**
+ * Reduce t by a quintic function that produces a desired effect
+ * @internal
+ * @param t
+ */
 function _fade(t: number): number {
   return t * t * t * (t * (t * 6 - 15) + 10);
 }

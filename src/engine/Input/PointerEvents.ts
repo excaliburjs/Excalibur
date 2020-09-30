@@ -83,7 +83,6 @@ export class PointerEvent extends GameEvent<Actor> {
    * @param pointerType         The type of pointer
    * @param button              The button pressed (if [[PointerType.Mouse]])
    * @param ev                  The raw DOM event being handled
-   * @param pos                 (Will be added to signature in 0.14.0 release) The position of the event (in world coordinates)
    */
   constructor(
     protected coordinates: GlobalCoordinates,
@@ -308,6 +307,9 @@ export class WheelEvent extends GameEvent<Actor> {
   }
 }
 
+/**
+ *
+ */
 export function createPointerEventByName(
   eventName: string,
   coordinates: GlobalCoordinates,

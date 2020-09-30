@@ -193,7 +193,7 @@ export class LabelImpl extends Actor {
   private _shadowOffsetY: number;
 
   /**
-   * @param text        The text of the label
+   * @param textOrConfig    The text of the label, or label option bag
    * @param x           The x position of the label
    * @param y           The y position of the label
    * @param fontFamily  Use any valid CSS font string for the label's font. Web fonts are supported. Default is `10px sans-serif`.
