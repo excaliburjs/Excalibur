@@ -171,7 +171,7 @@ describe('The engine', () => {
     expect(engine.isDebug).toBe(false);
     const result = engine.toggleDebug();
     expect(engine.isDebug).toBe(true);
-    expect(result).toBe;
+    expect(result).toBe(true);
   });
 
   it('should return screen dimensions', () => {
