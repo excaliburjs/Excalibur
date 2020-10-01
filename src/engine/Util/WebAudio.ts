@@ -46,12 +46,7 @@ export class WebAudio {
         source.connect(audioContext.destination);
         source.onended = () => (ended = true);
 
-        if ((<any>source).noteOn) {
-          // deprecated
-          (<any>source).noteOn(0);
-        } else {
-          source.start(0);
-        }
+        source.start(0);
 
         // by checking the play state after some time, we know if we're really unlocked
         setTimeout(() => {
