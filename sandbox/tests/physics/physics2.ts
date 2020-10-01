@@ -5,7 +5,7 @@ var game = new ex.Engine({
   height: 400
 });
 
-game.isDebug = true;
+game.showDebug(true);
 
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 ex.Physics.broadphaseDebug = true;

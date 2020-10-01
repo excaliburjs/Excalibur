@@ -45,7 +45,7 @@ var game = new ex.Engine({
   suppressHiDPIScaling: false,
   suppressPlayButton: true
 });
-game.isDebug = true;
+game.showDebug(true);
 
 var heartTex = new ex.Texture('../images/heart.png');
 var imageRun = new ex.Texture('../images/PlayerRun.png');
@@ -80,7 +80,7 @@ heart.addDrawing(heartSprite);
 game.add(heart);
 
 // Turn on debug diagnostics
-game.isDebug = false;
+game.showDebug(false);
 //var blockSprite = new ex.Sprite(imageBlocks, 0, 0, 65, 49);
 var blockSprite = new ex.Sprite({
   image: imageBlocks,
@@ -438,7 +438,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
     game.add(block);
   }
   if (keyDown.key === ex.Input.Keys.D) {
-    game.isDebug = !game.isDebug;
+    game.toggleDebug();
   }
 });
 

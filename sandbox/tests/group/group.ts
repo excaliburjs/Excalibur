@@ -7,7 +7,7 @@ var maxVel = 200;
 var numActors = 300;
 var blockTexture = new ex.Texture('block.png');
 var engine = new ex.Engine({ width: width, height: height, canvasElementId: 'game' });
-//engine.isDebug = true;
+//engine.showDebug(true);
 ex.Physics.useRigidBodyPhysics();
 var blockGroup = ex.CollisionGroupManager.create('blocks');
 var blockSprite = blockTexture.asSprite();

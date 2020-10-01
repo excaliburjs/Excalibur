@@ -5,7 +5,7 @@
 var game = new ex.Engine({ width: 800, height: 600, displayMode: ex.DisplayMode.FullScreen });
 
 // Uncomment next line to make the trigger box visible
-// game.isDebug = true;
+// game.showDebug(true);
 
 // create a handler
 function onTrigger() {
