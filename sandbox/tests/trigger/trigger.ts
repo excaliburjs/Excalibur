@@ -8,7 +8,7 @@ var game = new ex.Engine({
 ex.Physics.showArea = true;
 ex.Physics.showBounds = true;
 
-game.isDebug = true;
+game.showDebug(true);
 
 var trigger = new ex.Trigger({
   pos: new ex.Vector(100, 100),

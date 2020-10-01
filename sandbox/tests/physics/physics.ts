@@ -6,7 +6,7 @@ var game = new ex.Engine({
 });
 game.backgroundColor = ex.Color.Black;
 
-game.isDebug = true;
+game.showDebug(true);
 
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 ex.Physics.broadphaseDebug = false;

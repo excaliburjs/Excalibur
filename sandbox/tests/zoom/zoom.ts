@@ -13,7 +13,7 @@ var raptorAnim = raptorSheet.getAnimationForAll(game, 100);
 raptorAnim.scale.setTo(2, 2);
 raptorAnim.loop = true;
 
-game.isDebug = true;
+game.showDebug(true);
 
 var target = new ex.Actor(game.halfDrawWidth, game.halfDrawHeight, 64 * 2, 64 * 2, ex.Color.Red.clone());
 target.addDrawing('default', raptorAnim);

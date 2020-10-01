@@ -51,7 +51,7 @@ export const withEngine = (storyFn: (game: Engine) => void) => {
 
     game.input.keyboard.on('down', (keyDown?: Input.KeyEvent) => {
       if (keyDown.key === Input.Keys.D) {
-        game.isDebug = !game.isDebug;
+        game.toggleDebug();
       }
     });
 

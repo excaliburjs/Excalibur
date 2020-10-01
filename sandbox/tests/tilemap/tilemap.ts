@@ -5,7 +5,7 @@ var game = new ex.Engine({
   height: 600
 });
 
-game.isDebug = true;
+game.showDebug(true);
 
 var texture = new ex.Texture('desert.png');
 

@@ -155,6 +155,25 @@ describe('The engine', () => {
     expect(status).toBe(false);
   });
 
+  it('should tell debug drawing is disabled', () => {
+    const status = engine.isDebug;
+    expect(status).toBe(false);
+  });
+
+  it('should enable and disable debug drawing', () => {
+    engine.showDebug(true);
+    expect(engine.isDebug).toBe(true);
+    engine.showDebug(false);
+    expect(engine.isDebug).toBe(false);
+  });
+
+  it('should toggle debug drawing', () => {
+    expect(engine.isDebug).toBe(false);
+    const result = engine.toggleDebug();
+    expect(engine.isDebug).toBe(true);
+    expect(result).toBe(true);
+  });
+
   it('should return screen dimensions', () => {
     engine.start();
     const left = engine.screenToWorldCoordinates(ex.Vector.Zero).x;

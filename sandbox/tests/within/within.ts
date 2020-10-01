@@ -7,7 +7,7 @@ var game = new ex.Engine({
   width: 600,
   height: 400
 });
-game.isDebug = true;
+game.showDebug(true);
 
 var floor = new ex.Actor({
   pos: new ex.Vector(game.halfDrawWidth, game.drawHeight),
