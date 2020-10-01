@@ -335,7 +335,10 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Indicates whether the engine should draw with debug information
    */
-  public isDebug: boolean = false;
+  private _isDebug: boolean = false;
+  public get isDebug(): boolean {
+    return this._isDebug;
+  }
   public debugColor: Color = new Color(255, 255, 255);
   /**
    * Sets the background color for the engine.
@@ -1103,6 +1106,22 @@ O|===|* >________________>\n\
 
   public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number) {
     // Override me
+  }
+
+  /**
+   * Enable or disable Excalibur debugging functionality.
+   * @param toggle a value that debug drawing will be changed to
+   */
+  public showDebug(toggle: boolean): void {
+    this._isDebug = toggle;
+  }
+
+  /**
+   * Toggle Excalibur debugging functionality.
+   */
+  public toggleDebug(): boolean {
+    this._isDebug = !this._isDebug;
+    return this._isDebug;
   }
 
   /**
