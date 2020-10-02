@@ -102,7 +102,7 @@
     "karma-webpack": "4.0.2",
     "lint-staged": "10.2.13",
     "prettier": "2.1.2",
-    "puppeteer": "5.2.1",
+    "puppeteer": "5.3.1",
     "rimraf": "3.0.2",
     "semver": "7.3.2",
     "serve": "11.3.2",
