@@ -4,7 +4,8 @@ var travis = new Travis({
   version: '2.0.0',
   headers: {
     'User-Agent': 'Travis/1.0'
-  }
+  },
+  pro: true
 });
 
 var branch = process.env.TRAVIS_BRANCH;
