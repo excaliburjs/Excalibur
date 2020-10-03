@@ -231,7 +231,7 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
  * [[Camera]] is the base class for all Excalibur cameras. Cameras are used
  * to move around your game and set focus. They are used to determine
  * what is "off screen" and can be used to scale the game.
- * 
+ *
  */
 export class Camera extends Class implements CanUpdate, CanInitialize {
   protected _follow: Actor;
