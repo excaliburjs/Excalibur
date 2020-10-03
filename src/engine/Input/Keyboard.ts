@@ -188,7 +188,6 @@ export class Keyboard extends Class {
     // key up is on window because canvas cannot have focus
     global.addEventListener('keyup', (ev: KeyboardEvent) => {
       const code = this._normalizeKeyCode(this._getKeyCode(ev));
-      window.console.log('KEYUP EVENT', code);
       const key = this._keys.indexOf(code);
       this._keys.splice(key, 1);
       this._keysUp.push(code);
@@ -202,7 +201,6 @@ export class Keyboard extends Class {
     // key down is on window because canvas cannot have focus
     global.addEventListener('keydown', (ev: KeyboardEvent) => {
       const code = this._normalizeKeyCode(this._getKeyCode(ev));
-      window.console.log('KEYDOWN EVENT', code);
       if (this._keys.indexOf(code) === -1) {
         this._keys.push(code);
         this._keysDown.push(code);
@@ -244,7 +242,6 @@ export class Keyboard extends Class {
    * @param key  Test whether a key is held down
    */
   public isHeld(key: Keys): boolean {
-    window.console.log('Checking isHeld');
     return this._keys.indexOf(key) > -1;
   }
 
