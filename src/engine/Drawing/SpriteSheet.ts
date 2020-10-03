@@ -188,9 +188,6 @@ export class SpriteSheetImpl {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
   image: Texture;
   sprites?: Sprite[];
@@ -205,8 +202,6 @@ export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
  * Sprite sheets are a useful mechanism for slicing up image resources into
  * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
  * in row major order in the [[SpriteSheet]].
- *
- * [[include:SpriteSheets.md]]
  */
 export class SpriteSheet extends Configurable(SpriteSheetImpl) {
   constructor(config: SpriteSheetArgs);
@@ -430,9 +425,6 @@ export interface SpriteFontOptions {
   maxWidth?: number;
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface SpriteFontArgs extends SpriteSheetArgs {
   image: Texture;
   columns: number;
@@ -447,8 +439,6 @@ export interface SpriteFontArgs extends SpriteSheetArgs {
  * Sprite fonts are a used in conjunction with a [[Label]] to specify
  * a particular bitmap as a font. Note that some font features are not
  * supported by Sprite fonts.
- *
- * [[include:SpriteFonts.md]]
  */
 export class SpriteFont extends Configurable(SpriteFontImpl) {
   constructor(config: SpriteFontArgs);

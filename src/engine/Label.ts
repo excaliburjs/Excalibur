@@ -105,9 +105,6 @@ export enum FontStyle {
   Oblique
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface LabelArgs extends Partial<LabelImpl> {
   x?: number;
   y?: number;
@@ -398,8 +395,6 @@ export class LabelImpl extends Actor {
 /**
  * Labels are the way to draw small amounts of text to the screen. They are
  * actors and inherit all of the benefits and capabilities.
- *
- * [[include:Labels.md]]
  */
 export class Label extends Configurable(LabelImpl) {
   constructor();

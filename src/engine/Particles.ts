@@ -172,9 +172,6 @@ export class ParticleImpl {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface ParticleArgs extends Partial<ParticleImpl> {
   emitter: ParticleEmitter;
   position?: Vector;
@@ -472,9 +469,6 @@ export class ParticleEmitterImpl extends Actor {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface ParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
   width?: number;
   height?: number;
@@ -508,8 +502,6 @@ export interface ParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
  * Using a particle emitter is a great way to create interesting effects
  * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
  * extend [[Actor]] allowing you to use all of the features that come with.
- *
- * [[include:Particles.md]]
  */
 export class ParticleEmitter extends Configurable(ParticleEmitterImpl) {
   constructor(config?: ParticleEmitterArgs);

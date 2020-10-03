@@ -29,9 +29,6 @@ export interface EdgeOptions {
 
 /**
  * Edge is a single line collision shape to create collisions with a single line.
- *
- * Example:
- * [[include:EdgeShape.md]]
  */
 export class Edge implements CollisionShape {
   body: Body;

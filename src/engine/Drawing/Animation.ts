@@ -350,9 +350,6 @@ export class AnimationImpl implements Drawable, HasTick {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface AnimationArgs extends Partial<AnimationImpl> {
   engine: Engine;
   sprites: Sprite[];
@@ -370,8 +367,6 @@ export interface AnimationArgs extends Partial<AnimationImpl> {
 /**
  * Animations allow you to display a series of images one after another,
  * creating the illusion of change. Generally these images will come from a [[SpriteSheet]] source.
- *
- * [[include:Animations.md]]
  */
 export class Animation extends Configurable(AnimationImpl) {
   constructor(config: AnimationArgs);

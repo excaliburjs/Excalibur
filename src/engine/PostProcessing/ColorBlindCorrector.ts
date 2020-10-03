@@ -13,8 +13,6 @@ export enum ColorBlindness {
  * It is possible to use this on every game, but the game's performance
  * will suffer measurably. It's better to use it as a helpful tool while developing your game.
  * Remember, the best practice is to design with color blindness in mind.
- *
- * [[include:ColorBlind.md]]
  */
 export class ColorBlindCorrector implements PostProcessor {
   /*eslint-disable */

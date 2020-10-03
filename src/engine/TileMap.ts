@@ -265,9 +265,6 @@ export class TileMapImpl extends Class {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface TileMapArgs extends Partial<TileMapImpl> {
   x: number;
   y: number;
@@ -280,8 +277,6 @@ export interface TileMapArgs extends Partial<TileMapImpl> {
 /**
  * The [[TileMap]] class provides a lightweight way to do large complex scenes with collision
  * without the overhead of actors.
- *
- * [[include:TileMaps.md]]
  */
 export class TileMap extends Configurable(TileMapImpl) {
   constructor(config: TileMapArgs);
@@ -384,9 +379,6 @@ export class CellImpl {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface CellArgs extends Partial<CellImpl> {
   x: number;
   y: number;

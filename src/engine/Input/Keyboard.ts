@@ -166,8 +166,6 @@ export class KeyEvent extends Events.GameEvent<any> {
 
 /**
  * Provides keyboard support for Excalibur.
- *
- * [[include:Keyboard.md]]
  */
 export class Keyboard extends Class {
   private _keys: Keys[] = [];

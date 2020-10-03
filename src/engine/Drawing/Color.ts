@@ -4,8 +4,6 @@ import { obsolete } from '../Util/Decorators';
  * Provides standard colors (e.g. [[Color.Black]])
  * but you can also create custom colors using RGB, HSL, or Hex. Also provides
  * useful color operations like [[Color.lighten]], [[Color.darken]], and more.
- *
- * [[include:Colors.md]]
  */
 export class Color {
   /**
