@@ -1,4 +1,5 @@
 import { EX_VERSION } from './';
+import { Flags } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
@@ -472,6 +473,8 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     super();
 
     options = { ...Engine._DefaultEngineOptions, ...options };
+
+    Flags.freeze();
 
     // Initialize browser events facade
     this.browser = new BrowserEvents(window, document);

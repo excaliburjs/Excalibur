@@ -8,7 +8,7 @@ polyfill();
 
 // This file is used as the bundle entry point and exports everything
 // that will be exposed as the `ex` global variable.
-
+export * from './Flags';
 export * from './Engine';
 export * from './Screen';
 export { Actor, ActorArgs } from './Actor';
