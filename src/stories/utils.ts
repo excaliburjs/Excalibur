@@ -4,6 +4,9 @@ interface HTMLCanvasElement {
   gameRef?: Engine;
 }
 
+/**
+ *
+ */
 function isCanvasElement(el: any): el is HTMLCanvasElement {
   return el && el.nodeName === 'CANVAS';
 }
@@ -47,7 +50,7 @@ export const withEngine = (storyFn: (game: Engine) => void) => {
       pointerScope: Input.PointerScope.Canvas
     });
 
-    Logger.getInstance().info("Press 'd' for debug mode");
+    Logger.getInstance().info('Press \'d\' for debug mode');
 
     game.input.keyboard.on('down', (keyDown?: Input.KeyEvent) => {
       if (keyDown.key === Input.Keys.D) {
@@ -62,4 +65,17 @@ export const withEngine = (storyFn: (game: Engine) => void) => {
 
     return canvas;
   };
+};
+
+/**
+ * Helper to generate Storybook Knob Select Options from a Enum Type
+ * @param e Enum
+ */
+export const enumToKnobSelect = (e: any): Record<string, any> => {
+  return Object.keys(e)
+    .filter((k) => typeof e[k as any] === 'number')
+    .reduce((o: Record<string, any>, el: string) => {
+      o[el] = e[el];
+      return o;
+    }, {});
 };
