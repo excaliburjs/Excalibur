@@ -6,6 +6,7 @@ import * as Events from '../Events';
  * Enum representing input key codes
  */
 export enum Keys {
+  // NUMPAD
   Num1 = 97,
   Num2 = 98,
   Num3 = 99,
@@ -16,11 +17,31 @@ export enum Keys {
   Num8 = 104,
   Num9 = 105,
   Num0 = 96,
+  NumPlus = 157,
+  NumMinus = 156,
+  NumMultiply = 155,
+  NumDivide = 154,
+  // NumComma = 159, // not x-browser
+  NumDecimal = 158,
 
+  // MODIFIERS
   Numlock = 144,
+  Shift = 16,
+  Alt = 18,
 
-  Semicolon = 186, // 59 in some browsers
+  // NUMBERS
+  Key0 = 48,
+  Key1 = 49,
+  Key2 = 50,
+  Key3 = 51,
+  Key4 = 52,
+  Key5 = 53,
+  Key6 = 54,
+  Key7 = 55,
+  Key8 = 56,
+  Key9 = 57,
 
+  // LETTERS
   A = 65,
   B = 66,
   C = 67,
@@ -48,12 +69,49 @@ export enum Keys {
   Y = 89,
   Z = 90,
 
-  Shift = 16,
-  Alt = 18,
+  // SYMBOLS
+  Semicolon = 186, // 59 in some browsers
+  Quote = 39,
+  Comma = 44,
+  Minus = 45,
+  Period = 46,
+  Slash = 47,
+  Equal = 61,
+  BracketLeft = 91,
+  Backslash = 92,
+  BracketRight = 93,
+  Backquote = 96,
+
+  // SYMBOLS WITH MODIFIER KEY REQUIRED
+  // ExclamationPoint = 33,
+  // DoubleQuote = 34,
+  // Hash = 35,
+  // Dollar = 36,
+  // Modulus = 37,
+  // Ampersand = 38,
+  // ParenLeft = 40,
+  // ParenRight = 41,
+  // Astrisk = 42,
+  // Plus = 43,
+  // Colon = 58,
+  // LessThan = 60,
+  // GreaterThan = 62,
+  // QuestionMark = 63,
+  // At = 64, // @
+  // Caret = 94,
+  // Underscore = 95,
+  // CurlyBracketLeft = 123,
+  // Pipe = 124, // |
+  // CurlyBracketRight = 125,
+  // Tilde = 126, // ~
+
+  // DIRECTIONS
   Up = 38,
   Down = 40,
   Left = 37,
   Right = 39,
+
+  // OTHER
   Space = 32,
   Esc = 27
 }
@@ -129,7 +187,8 @@ export class Keyboard extends Class {
 
     // key up is on window because canvas cannot have focus
     global.addEventListener('keyup', (ev: KeyboardEvent) => {
-      const code = this._normalizeKeyCode(ev.keyCode);
+      const code = this._normalizeKeyCode(this._getKeyCode(ev));
+      window.console.log('KEYUP EVENT', code);
       const key = this._keys.indexOf(code);
       this._keys.splice(key, 1);
       this._keysUp.push(code);
@@ -142,7 +201,8 @@ export class Keyboard extends Class {
 
     // key down is on window because canvas cannot have focus
     global.addEventListener('keydown', (ev: KeyboardEvent) => {
-      const code = this._normalizeKeyCode(ev.keyCode);
+      const code = this._normalizeKeyCode(this._getKeyCode(ev));
+      window.console.log('KEYDOWN EVENT', code);
       if (this._keys.indexOf(code) === -1) {
         this._keys.push(code);
         this._keysDown.push(code);
@@ -184,6 +244,7 @@ export class Keyboard extends Class {
    * @param key  Test whether a key is held down
    */
   public isHeld(key: Keys): boolean {
+    window.console.log('Checking isHeld');
     return this._keys.indexOf(key) > -1;
   }
 
@@ -207,5 +268,12 @@ export class Keyboard extends Class {
       default:
         return code;
     }
+  }
+
+  /**
+   * Gets the key code from KeyboardEvent.code if supported otherwise from KeyboardEvent.keyCode
+   */
+  private _getKeyCode(ev: KeyboardEvent): number {
+    return ev.code !== undefined ? parseInt(ev.code, 10) : ev.keyCode;
   }
 }
