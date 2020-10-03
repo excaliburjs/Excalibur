@@ -83,7 +83,7 @@
     "coveralls": "3.1.0",
     "css-loader": "4.3.0",
     "eslint": "7.10.0",
-    "eslint-plugin-jsdoc": "22.2.0",
+    "eslint-plugin-jsdoc": "30.6.3",
     "excalibur-jasmine": "0.0.1",
     "grunt": "1.3.0",
     "grunt-build-control": "0.7.1",
