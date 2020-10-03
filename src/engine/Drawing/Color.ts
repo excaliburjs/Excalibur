@@ -66,6 +66,28 @@ export class Color {
   }
 
   /**
+   * Creates a new instance of Color from a rgb string
+   *
+   * @param string  CSS color string of the form rgba(255, 255, 255, 1) or rgb(255, 255, 255)
+   */
+  public static fromRGBString(string: string): Color {
+    const rgbaRegEx: RegExp = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/i;
+    let match = null;
+    if ((match = string.match(rgbaRegEx))) {
+      const r = parseInt(match[1], 10);
+      const g = parseInt(match[2], 10);
+      const b = parseInt(match[3], 10);
+      let a = 1;
+      if (match[4]) {
+        a = parseFloat(match[4]);
+      }
+      return new Color(r, g, b, a);
+    } else {
+      throw new Error('Invalid rgb/a string: ' + string);
+    }
+  }
+
+  /**
    * Creates a new instance of Color from a hex string
    *
    * @param hex  CSS color string of the form #ffffff, the alpha component is optional

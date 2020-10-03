@@ -52,6 +52,22 @@ describe('A color', () => {
     expect(color.a).toBe(0);
   });
 
+  it('can be parsed from rgb string', () => {
+    color = ex.Color.fromRGBString('rgb(100, 120, 140)');
+    expect(color.r).toBe(100);
+    expect(color.g).toBe(120);
+    expect(color.b).toBe(140);
+    expect(color.a).toBe(1);
+  });
+
+  it('can be parsed from rgba string', () => {
+    color = ex.Color.fromRGBString('rgb(100, 120, 140, 0.5)');
+    expect(color.r).toBe(100);
+    expect(color.g).toBe(120);
+    expect(color.b).toBe(140);
+    expect(color.a).toBe(0.5);
+  });
+
   it('can be parsed from hsl', () => {
     color = ex.Color.fromHSL(0, 0, 1.0);
     expect(color.r).toBe(255);
