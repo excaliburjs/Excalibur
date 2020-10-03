@@ -9,7 +9,7 @@
 
 ![Sweep Stacks](http://excaliburjs.com/assets/images/homepage-xp.png)
 
-Excalibur is a free game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal is to make it easier for you to create 2D HTML/JS games, whether you're new to game development or you're an experienced game developer. We take care of all of the boilerplate engine code, cross-platform targeting (using [browserstack](http://browserstack.com/) 😎), and more! Use as much or as little as you need!
+**Excalibur** is a free game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal is to make it easier for you to create 2D HTML/JS games, whether you're new to game development or you're an experienced game developer. We take care of all of the boilerplate engine code, cross-platform targeting (using [browserstack](http://browserstack.com/) 😎), and more! Use as much or as little as you need!
 
 Excalibur is an open source project licensed under the 2-clause BSD license (this means you can use it in commercial projects!). It's free and always will be. We welcome any feedback or contributions! If you make something with Excalibur, please [let us know](https://groups.google.com/forum/#!tags/excaliburjs/show-and-tell)!
 
@@ -55,7 +55,7 @@ allow the widest contributions possible. However, you can always use your own pr
 
 [![Browserstack](/assets/browserstack-logo-150x34.png?raw=true)](http://browserstack.com/)
 
-Excalibur is commited to supporting the latest 2 versions of popular desktop and mobile browsers. We leverage [browserstack](http://browserstack.com/) automated testing to ensure that Excalibur is automatically tested as thoroughly as possible on all our supported platforms.
+Excalibur is committed to supporting the latest 2 versions of popular desktop and mobile browsers. We leverage [browserstack](http://browserstack.com/) automated testing to ensure that Excalibur is automatically tested as thoroughly as possible on all our supported platforms.
 
 ### Prerequisites
 
