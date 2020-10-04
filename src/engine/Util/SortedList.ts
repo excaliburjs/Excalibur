@@ -66,14 +66,14 @@ export class SortedList<T> {
         }
       } else if (this._getComparable(element) < node.getKey()) {
         if (node.getLeft() == null) {
-          node.setLeft(new BinaryTreeNode(this._getComparable.call(element, element), [element], null, null));
+          node.setLeft(new BinaryTreeNode(this._getComparable(element), [element], null, null));
           return true;
         } else {
           return this._insert(node.getLeft(), element);
         }
       } else {
         if (node.getRight() == null) {
-          node.setRight(new BinaryTreeNode(this._getComparable.call(element, element), [element], null, null));
+          node.setRight(new BinaryTreeNode(this._getComparable(element), [element], null, null));
           return true;
         } else {
           return this._insert(node.getRight(), element);
