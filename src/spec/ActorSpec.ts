@@ -534,9 +534,9 @@ describe('A game actor', () => {
     blue.z = 2;
 
     // Actors currently need to be in a scene for z to work
-    scene.add(green);
     scene.add(blue);
-    
+    scene.add(green);
+
     scene.draw(engine.ctx, 100);
 
     ensureImagesLoaded(engine.canvas, 'src/spec/images/ActorSpec/zindex-blue-top.png').then(([canvas, image]) => {
