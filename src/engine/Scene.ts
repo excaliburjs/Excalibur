@@ -93,7 +93,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   private _cancelQueue: Timer[] = [];
   private _logger: Logger = Logger.getInstance();
 
-  constructor(_engine: Engine) {
+  constructor(_engine?: Engine) {
     super();
     this.camera = new Camera();
     this._engine = _engine;
