@@ -977,9 +977,10 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * @param newIndex new z-index to assign
    */
   public setZIndex(newIndex: number) {
-    this.scene.cleanupDrawTree(this);
-    this._zIndex = newIndex;
-    this.scene.updateDrawTree(this);
+    const newZ = newIndex;
+    this.scene?.cleanupDrawTree(this);
+    this._zIndex = newZ;
+    this.scene?.updateDrawTree(this);
   }
 
   /**

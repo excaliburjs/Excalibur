@@ -83,7 +83,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   private _isInitialized: boolean = false;
 
-  private _sortedDrawingTree: SortedList<Actor> = new SortedList<Actor>(Actor.prototype.getZIndex);
+  private _sortedDrawingTree: SortedList<Actor> = new SortedList<Actor>(a => a.z);
 
   private _broadphase: CollisionBroadphase = new DynamicTreeCollisionBroadphase();
 
