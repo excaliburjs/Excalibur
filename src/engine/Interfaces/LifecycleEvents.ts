@@ -2,7 +2,7 @@ import { Engine } from './../Engine';
 import * as Events from './../Events';
 import { Scene } from '../Scene';
 
-// eslint-disable-next-line @typescript-eslint/class-name-casing
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface _initialize {
   _initialize(engine: Engine): void;
 }
@@ -27,7 +27,7 @@ export function hasOnInitialize(a: any): a is OnInitialize {
   return !!a.onInitialize;
 }
 
-// eslint-disable-next-line @typescript-eslint/class-name-casing
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface _preupdate {
   _preupdate(engine: Engine, delta: number): void;
 }
@@ -50,7 +50,7 @@ export function hasOnPreUpdate(a: any): a is OnPreUpdate {
   return !!a.onPreUpdate;
 }
 
-// eslint-disable-next-line @typescript-eslint/class-name-casing
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface _postupdate {
   _postupdate(engine: Engine, delta: number): void;
 }

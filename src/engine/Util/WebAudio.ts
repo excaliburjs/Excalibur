@@ -18,7 +18,7 @@ function isLegacyWebAudioSource(source: any): source is LegacyWebAudioSource {
 }
 
 export class WebAudio {
-  private static _unlocked: boolean = false;
+  private static _UNLOCKED: boolean = false;
 
   /**
    * Play an empty sound to unlock Safari WebAudio context. Call this function
@@ -27,7 +27,7 @@ export class WebAudio {
    */
   static unlock(): Promise<boolean> {
     const promise = new Promise<boolean>();
-    if (WebAudio._unlocked || !AudioContextFactory.create()) {
+    if (WebAudio._UNLOCKED || !AudioContextFactory.create()) {
       return promise.resolve(true);
     }
     const unlockTimeoutTimer = setTimeout(() => {
@@ -52,11 +52,11 @@ export class WebAudio {
         setTimeout(() => {
           if (isLegacyWebAudioSource(source)) {
             if (source.playbackState === source.PLAYING_STATE || source.playbackState === source.FINISHED_STATE) {
-              WebAudio._unlocked = true;
+              WebAudio._UNLOCKED = true;
             }
           } else {
             if (audioContext.currentTime > 0 || ended) {
-              WebAudio._unlocked = true;
+              WebAudio._UNLOCKED = true;
             }
           }
         }, 0);
@@ -77,6 +77,6 @@ export class WebAudio {
   }
 
   static isUnlocked() {
-    return this._unlocked;
+    return this._UNLOCKED;
   }
 }

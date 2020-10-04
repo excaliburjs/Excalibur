@@ -74,9 +74,9 @@ export class NativeSoundEvent extends MediaEvent {
 export class NativeSoundProcessedEvent extends MediaEvent {
   public data: string | AudioBuffer;
 
-  constructor(target: Sound, private processedData: string | AudioBuffer) {
+  constructor(target: Sound, private _processedData: string | AudioBuffer) {
     super(target, 'NativeSoundProcessedEvent');
 
-    this.data = this.processedData;
+    this.data = this._processedData;
   }
 }
