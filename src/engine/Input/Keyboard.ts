@@ -231,25 +231,4 @@ export class Keyboard extends Class {
   public wasReleased(key: Keys): boolean {
     return this._keysUp.indexOf(key) > -1;
   }
-
-  /**
-   * Normalizes some browser event key codes to map to standard Excalibur key codes
-   * @param code Event keyCode
-   * @see http://unixpapa.com/js/key.html
-   */
-  private _normalizeKeyCode(code: number) {
-    switch (code) {
-      case 59: // : ; in Firefox, Opera
-        return Keys.Semicolon;
-      default:
-        return code;
-    }
-  }
-
-  /**
-   * Gets the key code from KeyboardEvent.code if supported otherwise from KeyboardEvent.keyCode
-   */
-  private _getKeyCode(ev: KeyboardEvent): number {
-    return ev.code !== undefined ? parseInt(ev.code, 10) : ev.keyCode;
-  }
 }
