@@ -113,9 +113,9 @@ export class KeyEvent extends Events.GameEvent<any> {
  * [[include:Keyboard.md]]
  */
 export class Keyboard extends Class {
-  private _keys: number[] = [];
-  private _keysUp: number[] = [];
-  private _keysDown: number[] = [];
+  private _keys: Keys[] = [];
+  private _keysUp: Keys[] = [];
+  private _keysDown: Keys[] = [];
 
   constructor() {
     super();
@@ -166,7 +166,7 @@ export class Keyboard extends Class {
 
     // key up is on window because canvas cannot have focus
     global.addEventListener('keyup', (ev: KeyboardEvent) => {
-      const code = this._normalizeKeyCode(this._getKeyCode(ev));
+      const code = ev.code as Keys;
       const key = this._keys.indexOf(code);
       this._keys.splice(key, 1);
       this._keysUp.push(code);
@@ -179,7 +179,7 @@ export class Keyboard extends Class {
 
     // key down is on window because canvas cannot have focus
     global.addEventListener('keydown', (ev: KeyboardEvent) => {
-      const code = this._normalizeKeyCode(this._getKeyCode(ev));
+      const code = ev.code as Keys;
       if (this._keys.indexOf(code) === -1) {
         this._keys.push(code);
         this._keysDown.push(code);
