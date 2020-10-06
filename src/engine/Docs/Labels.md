@@ -8,7 +8,7 @@ to be drawn and updated on-screen.
 ```js
 var game = new ex.Engine();
 // constructor
-var label = new ex.Label('Hello World', 50, 50, '10px Arial');
+var label = new ex.Label('Hello World', 50, 50, 'Arial');
 // properties
 var label = new ex.Label();
 label.pos.x = 50;
@@ -43,16 +43,16 @@ or set [[Label.fontFamily]].
 **index.html**
 
 ```html
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-  <!-- Include the web font per usual -->
-  <script src="//google.com/fonts/foobar"></script>
-</head>
-<body>
-  <canvas id="game"></canvas>
-  <script src="game.js"></script>
-</body>
+  <head>
+    <!-- Include the web font per usual -->
+    <script src="//google.com/fonts/foobar"></script>
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+    <script src="game.js"></script>
+  </body>
 </html>
 ```
 

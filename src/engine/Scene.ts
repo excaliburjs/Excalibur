@@ -83,7 +83,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   private _isInitialized: boolean = false;
 
-  private _sortedDrawingTree: SortedList<Actor> = new SortedList<Actor>(Actor.prototype.getZIndex);
+  private _sortedDrawingTree: SortedList<Actor> = new SortedList<Actor>(a => a.z);
 
   private _broadphase: CollisionBroadphase = new DynamicTreeCollisionBroadphase();
 
@@ -93,7 +93,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   private _cancelQueue: Timer[] = [];
   private _logger: Logger = Logger.getInstance();
 
-  constructor(_engine: Engine) {
+  constructor(_engine?: Engine) {
     super();
     this.camera = new Camera();
     this._engine = _engine;

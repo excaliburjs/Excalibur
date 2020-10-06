@@ -95,6 +95,72 @@ describe('A Screen', () => {
     expect(sut.viewport.height).toBe(600);
   });
 
+  it('can specify anti-aliasing off', () => {
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2,
+      antialiasing: false
+    });
+
+    sut.applyResolutionAndViewport();
+
+    expect(context.imageSmoothingEnabled).toBeFalse();
+    expect(canvas.style.imageRendering).toBe('pixelated');
+  });
+
+  it('can specify anti-aliasing off will fall back to crisp-edges if pixelated not supported', () => {
+    // Using some proxy trickery we can simulate the behavior of firefox not supporting pixelated
+    const styleProxy = new Proxy(
+      {},
+      {
+        set: function (object, property, value) {
+          if (property === 'imageRendering' && value === 'pixelated') {
+            object[property] = '';
+            return true;
+          }
+
+          object[property] = value;
+
+          return true;
+        }
+      }
+    );
+    const canvasStub = { ...canvas, style: styleProxy } as HTMLCanvasElement;
+
+    const sut = new ex.Screen({
+      canvas: canvasStub,
+      context,
+      browser,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2,
+      antialiasing: false
+    });
+
+    sut.applyResolutionAndViewport();
+
+    expect(context.imageSmoothingEnabled).toBeFalse();
+    expect(canvasStub.style.imageRendering).toBe('crisp-edges');
+  });
+
+  it('can specify anti-aliasing on', () => {
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2,
+      antialiasing: true
+    });
+
+    sut.applyResolutionAndViewport();
+
+    expect(context.imageSmoothingEnabled).toBeTrue();
+    expect(canvas.style.imageRendering).toBe('auto');
+  });
+
   it('can push and pop screen resolution', () => {
     const sut = new ex.Screen({
       canvas,

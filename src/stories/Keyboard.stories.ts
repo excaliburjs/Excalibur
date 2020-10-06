@@ -27,7 +27,7 @@ export const keyEvents = withEngine(async (game) => {
     if (keys.length === 0) {
       keyLabel.text = 'Press some keys';
     } else {
-      lastKeysPressed = keys.map((key) => Input.Keys[key]).join('');
+      const lastKeysPressed = keys.map((k) => k as Input.Keys).join('');
       keyLabel.text = lastKeysPressed;
     }
   });

@@ -21,7 +21,6 @@ familiar with.
 - [[Actor|Working with Actors]]
   - [[Label|Labels]]
   - [[Trigger|Triggers]]
-  - [[UIActor|UI Actors (HUD)]]
   - [[ActionContext|Action API]]
   - [[CollisionGroup|Collision Groups]]
 - [[Physics|Working with Physics]]

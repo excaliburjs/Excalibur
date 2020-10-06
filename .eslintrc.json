@@ -11,9 +11,35 @@
   "plugins": ["@typescript-eslint", "jsdoc"],
   "extends": ["plugin:jsdoc/recommended"],
   "rules": {
-    "@typescript-eslint/class-name-casing": "error",
+    "@typescript-eslint/naming-convention": ["error",
+      {
+        "selector": "class",
+        "format": ["PascalCase"]
+      },
+      {
+        
+        "selector": "memberLike",
+        "modifiers": ["private", "static"],
+        "format": ["UPPER_CASE"],
+        "leadingUnderscore": "require"
+      },
+      {
+        
+        "selector": "memberLike",
+        "modifiers": ["private"],
+        "format": ["camelCase"],
+        "leadingUnderscore": "require"
+      },
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "custom": {
+          "regex": "^I[A-Z]",
+          "match": false
+        }
+      }
+    ],
     "@typescript-eslint/indent": ["error", 2],
-    "@typescript-eslint/interface-name-prefix": "error",
     "@typescript-eslint/no-empty-function": "error",
     "curly": "error",
     "dot-notation": "error",

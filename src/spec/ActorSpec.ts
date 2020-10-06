@@ -1,5 +1,5 @@
-import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
+import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
 describe('A game actor', () => {
@@ -518,6 +518,39 @@ describe('A game actor', () => {
     scene.draw(engine.ctx, 100);
 
     expect(invisibleActor.draw).not.toHaveBeenCalled();
+  });
+
+  it('can be drawn with a z-index', (done) => {
+    engine = TestUtils.engine({
+      width: 62,
+      height: 64,
+      suppressHiDPIScaling: true
+    });
+
+    const green = new ex.Actor({ x: 50, y: 50, width: 40, height: 40, color: ex.Color.Green });
+    const blue = new ex.Actor({ x: 40, y: 40, width: 40, height: 40, color: ex.Color.Blue });
+
+    green.z = 1;
+    blue.z = 2;
+
+    // Actors currently need to be in a scene for z to work
+    scene.add(blue);
+    scene.add(green);
+
+    scene.draw(engine.ctx, 100);
+
+    ensureImagesLoaded(engine.canvas, 'src/spec/images/ActorSpec/zindex-blue-top.png').then(([canvas, image]) => {
+      expect(canvas).toEqualImage(image);
+
+      green.z = 2;
+      blue.z = 1;
+      scene.draw(engine.ctx, 100);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/ActorSpec/zindex-green-top.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
   });
 
   it('can have a graphic drawn at an opacity', (done) => {

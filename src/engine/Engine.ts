@@ -430,7 +430,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Default [[EngineOptions]]
    */
-  private static _DefaultEngineOptions: EngineOptions = {
+  private static _DEFAULT_ENGINE_OPTIONS: EngineOptions = {
     width: 0,
     height: 0,
     enableCanvasTransparency: true,
@@ -472,7 +472,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   constructor(options?: EngineOptions) {
     super();
 
-    options = { ...Engine._DefaultEngineOptions, ...options };
+    options = { ...Engine._DEFAULT_ENGINE_OPTIONS, ...options };
 
     Flags.freeze();
 

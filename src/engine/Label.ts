@@ -196,7 +196,7 @@ export class LabelImpl extends Actor {
    * @param textOrConfig    The text of the label, or label option bag
    * @param x           The x position of the label
    * @param y           The y position of the label
-   * @param fontFamily  Use any valid CSS font string for the label's font. Web fonts are supported. Default is `10px sans-serif`.
+   * @param fontFamily  Use a value that is valid for the CSS `font-family` property. The default is `sans-serif`.
    * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precedence
    * over a css font.
    */

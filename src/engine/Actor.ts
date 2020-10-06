@@ -977,9 +977,10 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * @param newIndex new z-index to assign
    */
   public setZIndex(newIndex: number) {
-    this.scene.cleanupDrawTree(this);
-    this._zIndex = newIndex;
-    this.scene.updateDrawTree(this);
+    const newZ = newIndex;
+    this.scene?.cleanupDrawTree(this);
+    this._zIndex = newZ;
+    this.scene?.updateDrawTree(this);
   }
 
   /**
@@ -1232,7 +1233,7 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
       this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
     } else {
       if (this.color && this.body && this.body.collider && this.body.collider.shape) {
-        this.body.collider.shape.draw(ctx, this.color, new Vector(this.width * this.anchor.x, this.height * this.anchor.y));
+        this.body.collider.shape.draw(ctx, this.color, new Vector(0, 0));
       }
     }
     ctx.restore();

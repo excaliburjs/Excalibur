@@ -55,7 +55,7 @@ allow the widest contributions possible. However, you can always use your own pr
 
 [![Browserstack](/assets/browserstack-logo-150x34.png?raw=true)](http://browserstack.com/)
 
-Excalibur is commited to supporting the latest 2 versions of popular desktop and mobile browsers. We leverage [browserstack](http://browserstack.com/) automated testing to ensure that Excalibur is automatically tested as thoroughly as possible on all our supported platforms.
+Excalibur is committed to supporting the latest 2 versions of popular desktop and mobile browsers. We leverage [browserstack](http://browserstack.com/) automated testing to ensure that Excalibur is automatically tested as thoroughly as possible on all our supported platforms.
 
 ### Prerequisites
 

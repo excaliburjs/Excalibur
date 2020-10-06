@@ -75,8 +75,8 @@
     "@types/node": "14.11.2",
     "@types/react-color": "3.0.4",
     "@types/webpack-env": "1.15.3",
-    "@typescript-eslint/eslint-plugin": "2.34.0",
-    "@typescript-eslint/parser": "2.34.0",
+    "@typescript-eslint/eslint-plugin": "4.2.0",
+    "@typescript-eslint/parser": "4.2.0",
     "babel-loader": "8.1.0",
     "copy-webpack-plugin": "6.1.1",
     "copyfiles": "2.4.0",
@@ -115,7 +115,7 @@
     "url-loader": "4.1.0",
     "webpack": "4.44.1",
     "webpack-cli": "3.3.12",
-    "webpack-merge": "4.2.2"
+    "webpack-merge": "5.1.4"
   },
   "dependencies": {
     "core-js": "3.6.5"
