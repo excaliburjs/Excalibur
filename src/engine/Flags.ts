@@ -5,14 +5,14 @@
  * Flags are used to enable experimental or preview features in Excalibur.
  */
 export class Flags {
-  private static _frozen = false;
-  private static _flags: Record<string, boolean> = {};
+  private static _FROZEN = false;
+  private static _FLAGS: Record<string, boolean> = {};
 
   /**
    * Freeze all flag modifications making them readonly
    */
   public static freeze() {
-    Flags._frozen = true;
+    Flags._FROZEN = true;
   }
 
   /**
@@ -22,8 +22,8 @@ export class Flags {
    * @internal
    */
   public static _reset() {
-    Flags._frozen = false;
-    Flags._flags = {};
+    Flags._FROZEN = false;
+    Flags._FLAGS = {};
   }
 
   /**
@@ -31,10 +31,10 @@ export class Flags {
    * @param flagName
    */
   public static enable(flagName: string): void {
-    if (this._frozen) {
+    if (this._FROZEN) {
       throw Error('Feature flags can only be enabled before Engine constructor time');
     }
-    Flags._flags[flagName] = true;
+    Flags._FLAGS[flagName] = true;
   }
 
   /**
@@ -42,10 +42,10 @@ export class Flags {
    * @param flagName
    */
   public static disable(flagName: string): void {
-    if (this._frozen) {
+    if (this._FROZEN) {
       throw Error('Feature flags can only be disabled before Engine constructor time');
     }
-    Flags._flags[flagName] = false;
+    Flags._FLAGS[flagName] = false;
   }
 
   /**
@@ -53,13 +53,13 @@ export class Flags {
    * @param flagName
    */
   public static isEnabled(flagName: string): boolean {
-    return !!Flags._flags[flagName];
+    return !!Flags._FLAGS[flagName];
   }
 
   /**
    * Show a list of currently known flags
    */
   public static show(): string[] {
-    return Object.keys(Flags._flags);
+    return Object.keys(Flags._FLAGS);
   }
 }
