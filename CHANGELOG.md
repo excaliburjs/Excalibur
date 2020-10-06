@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Fix for the anchor properly of single shape Actor [#1535](https://github.com/excaliburjs/Excalibur/issues/1535)
 - Color now can parse RGB/A string using Color.fromRGBString('rgb(255, 255, 255)') or Color.fromRGBString('rgb(255, 255, 255, 1)')
 
 ### Changed

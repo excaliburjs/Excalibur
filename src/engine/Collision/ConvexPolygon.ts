@@ -100,10 +100,7 @@ export class ConvexPolygon implements CollisionShape {
     const len = this.points.length;
     this._transformedPoints.length = 0; // clear out old transform
     for (let i = 0; i < len; i++) {
-      this._transformedPoints[i] = this.points[i]
-        .scale(scale)
-        .rotate(angle)
-        .add(pos);
+      this._transformedPoints[i] = this.points[i].scale(scale).rotate(angle).add(pos);
     }
   }
 
@@ -158,7 +155,7 @@ export class ConvexPolygon implements CollisionShape {
     // Always cast to the right, as long as we cast in a consistent fixed direction we
     // will be fine
     const testRay = new Ray(point, new Vector(1, 0));
-    const intersectCount = this.getSides().reduce(function(accum, side) {
+    const intersectCount = this.getSides().reduce(function (accum, side) {
       if (testRay.intersect(side) >= 0) {
         return accum + 1;
       }
@@ -378,18 +375,17 @@ export class ConvexPolygon implements CollisionShape {
   }
 
   public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
+    const basePos = pos.add(this.offset);
     ctx.beginPath();
     ctx.fillStyle = color.toString();
-    const newPos = pos.add(this.offset);
-    // Iterate through the supplied points and construct a 'polygon'
-    const firstPoint = this.points[0].add(newPos);
-    ctx.moveTo(firstPoint.x, firstPoint.y);
+    ctx.moveTo(basePos.x, basePos.y);
+    const diffToBase = this.points[0].sub(basePos);
     this.points
-      .map((p) => p.add(newPos))
-      .forEach(function(point) {
+      .map((p) => p.sub(diffToBase))
+      .forEach(function (point) {
         ctx.lineTo(point.x, point.y);
       });
-    ctx.lineTo(firstPoint.x, firstPoint.y);
+    ctx.lineTo(basePos.x, basePos.y);
     ctx.closePath();
     ctx.fill();
   }
@@ -401,7 +397,7 @@ export class ConvexPolygon implements CollisionShape {
     // Iterate through the supplied points and construct a 'polygon'
     const firstPoint = this.getTransformedPoints()[0];
     ctx.moveTo(firstPoint.x, firstPoint.y);
-    this.getTransformedPoints().forEach(function(point) {
+    this.getTransformedPoints().forEach(function (point) {
       ctx.lineTo(point.x, point.y);
     });
     ctx.lineTo(firstPoint.x, firstPoint.y);
