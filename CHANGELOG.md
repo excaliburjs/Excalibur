@@ -21,6 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed Firefox bug where scaled graphics with anti-aliasing turned off are not pixelated ([#1676](https://github.com/excaliburjs/Excalibur/issues/1676))
 - Fixed z-index regression where actors did not respect z-index ([#1678](https://github.com/excaliburjs/Excalibur/issues/1678))
 - Fixed Animation flicker bug when switching to an animation ([#1636](https://github.com/excaliburjs/Excalibur/issues/1636))
 - Fixed `ex.Actor.easeTo` actions, they now use velocity to move Actors ([#1638](https://github.com/excaliburjs/Excalibur/issues/1638))

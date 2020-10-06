@@ -95,6 +95,22 @@ describe('A Screen', () => {
     expect(sut.viewport.height).toBe(600);
   });
 
+  fit('can specify anti-aliasing off', () => {
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2,
+      antialiasing: false
+    });
+
+    sut.applyResolutionAndViewport();
+
+    expect(context.imageSmoothingEnabled).toBeFalse();
+    expect(canvas.style.imageRendering).toBe('pixelated');
+  });
+
   it('can push and pop screen resolution', () => {
     const sut = new ex.Screen({
       canvas,
@@ -234,4 +250,5 @@ describe('A Screen', () => {
     expect(bounds.bottom).toBe(450);
     expect(bounds.top).toBe(150);
   });
+
 });
