@@ -54,7 +54,6 @@ See:
 - [[Sprite]]
 - [[SpriteSheet]]
 - [[SpriteFont]]
-- [[UIActor]]
 - [[Particle]]
 - [[ParticleEmitter]]
 - [[TileMap]]
