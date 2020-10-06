@@ -683,7 +683,7 @@ describe('Collision Shape', () => {
 
     it('can be drawn', (done) => {
       const polygon = new ex.ConvexPolygon({
-        offset: new ex.Vector(100, 100),
+        offset: new ex.Vector(100, 0),
         points: [new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)]
       });
 
@@ -697,7 +697,7 @@ describe('Collision Shape', () => {
 
     it('can be drawn with actor', (done) => {
       const polygonActor = new ex.Actor({
-        pos: new ex.Vector(150, 100),
+        pos: new ex.Vector(150, 0),
         color: ex.Color.Blue,
         body: new ex.Body({
           collider: new ex.Collider({
