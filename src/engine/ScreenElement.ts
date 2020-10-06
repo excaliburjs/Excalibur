@@ -4,7 +4,6 @@ import { Actor, ActorArgs } from './Actor';
 import * as Traits from './Traits/Index';
 import { CollisionType } from './Collision/CollisionType';
 import { Shape } from './Collision/Shape';
-import { obsolete } from './Util/Decorators';
 
 /**
  * Helper [[Actor]] primitive for drawing UI's, optimized for UI drawing. Does
@@ -50,10 +49,3 @@ export class ScreenElement extends Actor {
     return super.contains(coords.x, coords.y);
   }
 }
-
-/**
- * Legacy UIActor constructor
- * @obsolete UIActor constructor will be removed in v0.25.0 use [[ScreenElement]] instead
- */
-@obsolete({ message: 'Will be removed in v0.25.0', alternateMethod: 'ScreenElement' })
-export class UIActor extends ScreenElement {}
