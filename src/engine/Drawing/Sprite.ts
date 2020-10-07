@@ -400,9 +400,6 @@ export class SpriteImpl implements Drawable {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface SpriteArgs extends Partial<SpriteImpl> {
   image?: Texture;
   x?: number;
@@ -418,8 +415,6 @@ export interface SpriteArgs extends Partial<SpriteImpl> {
 /**
  * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
  * images or parts of images from a [[Texture]] resource to the screen.
- *
- * [[include:Sprites.md]]
  */
 export class Sprite extends Configurable(SpriteImpl) {
   constructor(config: SpriteArgs);

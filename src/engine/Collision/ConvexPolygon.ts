@@ -32,9 +32,6 @@ export interface ConvexPolygonOptions {
 
 /**
  * Polygon collision shape for detecting collisions
- *
- * Example:
- * [[include:BoxAndPolygonShape.md]]
  */
 export class ConvexPolygon implements CollisionShape {
   public offset: Vector;

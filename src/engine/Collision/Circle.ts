@@ -29,9 +29,6 @@ export interface CircleOptions {
 
 /**
  * This is a circle collision shape for the excalibur rigid body physics simulation
- *
- * Example:
- * [[include:CircleShape.md]]
  */
 export class Circle implements CollisionShape {
   /**

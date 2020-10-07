@@ -56,9 +56,6 @@ export function isActor(x: any): x is Actor {
   return x instanceof Actor;
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface ActorArgs extends Partial<ActorImpl> {
   x?: number;
   y?: number;
@@ -1379,12 +1376,6 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
  * can move on the screen, collide with another `Actor`, respond to events,
  * or interact with the current scene, must be an actor. An `Actor` **must**
  * be part of a [[Scene]] for it to be drawn to the screen.
- *
- * [[include:Actors.md]]
- *
- *
- * [[include:Constructors.md]]
- *
  */
 export class Actor extends Configurable(ActorImpl) {
   constructor();

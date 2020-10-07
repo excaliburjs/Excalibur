@@ -26,8 +26,6 @@ export interface PromiseLike<T> {
  * Promises are used to do asynchronous work and they are useful for
  * creating a chain of actions. In Excalibur they are used for loading,
  * sounds, animation, actions, and more.
- *
- * [[include:Promises.md]]
  */
 export class Promise<T> implements PromiseLike<T> {
   private _state: PromiseState = PromiseState.Pending;

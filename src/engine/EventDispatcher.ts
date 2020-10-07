@@ -1,15 +1,6 @@
 import { GameEvent, SubscribeEvent, UnsubscribeEvent } from './Events';
 import { Eventable } from './Interfaces/Evented';
 
-/**
- * Excalibur's internal event dispatcher implementation.
- * Callbacks are fired immediately after an event is published.
- * Typically you will use [[Class.eventDispatcher]] since most classes in
- * Excalibur inherit from [[Class]]. You will rarely create an `EventDispatcher`
- * yourself.
- *
- * [[include:Events.md]]
- */
 export class EventDispatcher<T = any> implements Eventable {
   private _handlers: { [key: string]: { (event: GameEvent<T>): void }[] } = {};
   private _wiredEventDispatchers: Eventable[] = [];

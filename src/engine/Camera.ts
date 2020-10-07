@@ -232,7 +232,6 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
  * to move around your game and set focus. They are used to determine
  * what is "off screen" and can be used to scale the game.
  *
- * [[include:Cameras.md]]
  */
 export class Camera extends Class implements CanUpdate, CanInitialize {
   protected _follow: Actor;
