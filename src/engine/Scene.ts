@@ -32,6 +32,7 @@ import { EntityManager } from './EntityComponentSystem/EntityManager';
 import { SystemManager } from './EntityComponentSystem/SystemManager';
 import { SystemType } from './EntityComponentSystem/System';
 import { LegacyDrawingSystem } from './Drawing/LegacyDrawingSystem';
+import { obsolete } from './Util/Decorators';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -78,8 +79,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   /**
    * The [[ScreenElement]]s in a scene, if any; these are drawn last
+   * @deprecated
    */
-  public screenElements: Actor[] = [];
+  public get screenElements(): ScreenElement[] {
+    return this.actors.filter((a) => a instanceof ScreenElement) as ScreenElement[];
+  }
 
   private _isInitialized: boolean = false;
 
@@ -94,9 +98,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   constructor(_engine?: Engine) {
     super();
     this.camera = new Camera();
-    this.engine = _engine;
-    this.camera.x = this.engine.halfDrawWidth;
-    this.camera.y = this.engine.halfDrawHeight;
+    if (_engine) {
+      this.engine = _engine;
+      this.camera.x = this.engine.halfDrawWidth;
+      this.camera.y = this.engine.halfDrawHeight;
+    }
   }
 
   public on(eventName: Events.initialize, handler: (event: InitializeEvent<Scene>) => void): void;
@@ -340,11 +346,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       timer.update(delta);
     }
 
-    // Cycle through actors updating UI actors
-    for (i = 0, len = this.screenElements.length; i < len; i++) {
-      this.screenElements[i].update(engine, delta);
-    }
-
     // Cycle through actors updating tile maps
     for (i = 0, len = this.tileMaps.length; i < len; i++) {
       this.tileMaps[i].update(engine, delta);
@@ -409,7 +410,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         if (actorIndex > -1) {
           collection.splice(actorIndex, 1);
           this.entityManager.removeEntity(killed);
-          killed.children.forEach(c => this.entityManager.removeEntity(c));
+          killed.children.forEach((c) => this.entityManager.removeEntity(c));
         }
       }
     }
@@ -423,7 +424,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     this._predraw(ctx, delta);
-    
+
     this.systemManager.updateSystems(SystemType.Draw, this.engine, delta);
     this.entityManager.processRemovals();
 
@@ -438,7 +439,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public debugDraw(ctx: CanvasRenderingContext2D) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
     this._broadphase.debugDraw(ctx, 20);
-
     this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
   }
 
@@ -479,11 +479,19 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
     if (entity instanceof Actor) {
-      (<Actor>entity).unkill();
+      entity.unkill();
     }
-    if (entity instanceof Actor || entity instanceof ScreenElement) {
+    if (entity instanceof Actor) {
       if (!Util.contains(this.actors, entity)) {
-        this._addChild(entity);
+        this._broadphase.track(entity.body);
+        entity.scene = this;
+        if (entity instanceof Trigger) {
+          this.triggers.push(entity);
+        } else {
+          this.actors.push(entity);
+        }
+
+        this.entityManager.addEntity(entity);
         entity.children.forEach((c) => this.entityManager.addEntity(c));
       }
       return;
@@ -525,9 +533,21 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
-
     if (entity instanceof Actor) {
-      this._removeChild(entity);
+      if (!Util.contains(this.actors, entity)) {
+        return;
+      }
+      this._broadphase.untrack(entity.body);
+      if (entity instanceof Trigger) {
+        this._triggerKillQueue.push(entity);
+      } else {
+        if (!entity.isKilled()) {
+          entity.kill();
+        }
+        this._killQueue.push(entity);
+      }
+
+      entity.parent = null;
     }
     if (entity instanceof Timer) {
       this.removeTimer(entity);
@@ -543,40 +563,25 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * @todo Should this be `ScreenElement` only?
    * @deprecated
    */
+  @obsolete({})
   public addScreenElement(actor: Actor) {
-    this.screenElements.push(actor);
-    actor.scene = this;
+    this.add(actor);
   }
 
   /**
    * Removes an actor as a piece of UI
    * @deprecated
    */
+  @obsolete({})
   public removeScreenElement(actor: Actor) {
-    const index = this.screenElements.indexOf(actor);
-    if (index > -1) {
-      this.screenElements.splice(index, 1);
-    }
-  }
-
-  /**
-   * Adds an actor to the scene, once this is done the actor will be drawn and updated.
-   */
-  protected _addChild(actor: Actor) {
-    this._broadphase.track(actor.body);
-    actor.scene = this;
-    if (actor instanceof Trigger) {
-      this.triggers.push(actor);
-    } else {
-      this.actors.push(actor);
-    }
-
-    this.entityManager.addEntity(actor);
+    this.remove(actor);
   }
 
   /**
    * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
+   * @deprecated
    */
+  @obsolete({})
   public addTileMap(tileMap: TileMap) {
     this.tileMaps.push(tileMap);
     this.entityManager.addEntity(tileMap);
@@ -584,33 +589,15 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   /**
    * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
+   * @deprecated
    */
+  @obsolete({})
   public removeTileMap(tileMap: TileMap) {
     const index = this.tileMaps.indexOf(tileMap);
     if (index > -1) {
       this.tileMaps.splice(index, 1);
       this.entityManager.removeEntity(tileMap);
     }
-  }
-
-  /**
-   * Removes an actor from the scene, it will no longer be drawn or updated.
-   */
-  protected _removeChild(actor: Actor) {
-    if (!Util.contains(this.actors, actor)) {
-      return;
-    }
-    this._broadphase.untrack(actor.body);
-    if (actor instanceof Trigger) {
-      this._triggerKillQueue.push(actor);
-    } else {
-      if (!actor.isKilled()) {
-        actor.kill();
-      }
-      this._killQueue.push(actor);
-    }
-
-    actor.parent = null;
   }
 
   /**

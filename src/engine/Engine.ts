@@ -39,6 +39,7 @@ import { Class } from './Class';
 import * as Input from './Input/Index';
 import * as Events from './Events';
 import { BrowserEvents } from './Util/Browser';
+import { obsolete } from './Util/Decorators';
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -628,7 +629,9 @@ O|===|* >________________>\n\
    * @param animation  Animation to play
    * @param x          x game coordinate to play the animation
    * @param y          y game coordinate to play the animation
+   * @deprecated
    */
+  @obsolete({}) // TODO separate PR?
   public playAnimation(animation: Animation, x: number, y: number) {
     this._animations.push(new AnimationNode(animation, x, y));
   }
@@ -746,14 +749,7 @@ O|===|* >________________>\n\
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
     if (entity instanceof Actor) {
-      this._addChild(entity);
-    }
-    if (entity instanceof Timer) {
-      this.addTimer(entity);
-    }
-
-    if (entity instanceof TileMap) {
-      this.addTileMap(entity);
+      this.currentScene.add(entity);
     }
 
     if (arguments.length === 2) {
@@ -794,19 +790,8 @@ O|===|* >________________>\n\
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
-    if (entity instanceof ScreenElement) {
-      this.currentScene.removeScreenElement(entity);
-      return;
-    }
     if (entity instanceof Actor) {
-      this._removeChild(entity);
-    }
-    if (entity instanceof Timer) {
-      this.removeTimer(entity);
-    }
-
-    if (entity instanceof TileMap) {
-      this.removeTileMap(entity);
+      this.currentScene.remove(entity);
     }
 
     if (entity instanceof Scene) {
@@ -816,30 +801,6 @@ O|===|* >________________>\n\
     if (typeof entity === 'string') {
       this.removeScene(entity);
     }
-  }
-
-  /**
-   * Adds an actor to the [[currentScene]] of the game. This is synonymous
-   * to calling `engine.currentScene.add(actor)`.
-   *
-   * Actors can only be drawn if they are a member of a scene, and only
-   * the [[currentScene]] may be drawn or updated.
-   *
-   * @param actor  The actor to add to the [[currentScene]]
-   */
-  protected _addChild(actor: Actor) {
-    this.currentScene.add(actor);
-  }
-
-  /**
-   * Removes an actor from the [[currentScene]] of the game. This is synonymous
-   * to calling `engine.currentScene.remove(actor)`.
-   * Actors that are removed from a scene will no longer be drawn or updated.
-   *
-   * @param actor  The actor to remove from the [[currentScene]].
-   */
-  protected _removeChild(actor: Actor) {
-    this.currentScene.remove(actor);
   }
 
   /**
@@ -1276,7 +1237,9 @@ O|===|* >________________>\n\
 
 /**
  * @internal
+ * @deprecated
  */
+@obsolete({})
 class AnimationNode {
   constructor(public animation: Animation, public x: number, public y: number) {}
 }

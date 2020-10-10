@@ -2,6 +2,15 @@ import * as ex from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
+const drawWithTransform = (ctx: CanvasRenderingContext2D, actor: ex.Actor, delta: number = 1) => {
+  ctx.save();
+  ctx.translate(actor.pos.x, actor.pos.y);
+  ctx.rotate(actor.rotation);
+  ctx.scale(actor.scale.x, actor.scale.y);
+  actor.draw(ctx, delta);
+  ctx.restore();
+};
+
 describe('A game actor', () => {
   let actor: ex.Actor;
 
@@ -13,8 +22,9 @@ describe('A game actor', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
     actor = new ex.Actor();
     actor.body.collider.type = ex.CollisionType.Active;
-    scene = new ex.Scene(engine);
-    engine.currentScene = scene;
+    scene = new ex.Scene();
+    engine.addScene('test', scene);
+    engine.goToScene('test');
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(scene, 'debugDraw').and.callThrough();
@@ -522,13 +532,18 @@ describe('A game actor', () => {
 
   it('can be drawn with a z-index', (done) => {
     engine = TestUtils.engine({
-      width: 62,
-      height: 64,
-      suppressHiDPIScaling: true
+      width: 100,
+      height: 100,
+      suppressHiDPIScaling: true,
+      backgroundColor: ex.Color.Transparent
     });
 
-    const green = new ex.Actor({ x: 50, y: 50, width: 40, height: 40, color: ex.Color.Green });
-    const blue = new ex.Actor({ x: 40, y: 40, width: 40, height: 40, color: ex.Color.Blue });
+    scene = new ex.Scene();
+    engine.addScene('test', scene);
+    engine.goToScene('test');
+
+    const green = new ex.Actor({ x: 35, y: 35, width: 50, height: 50, color: ex.Color.Green });
+    const blue = new ex.Actor({ x: 65, y: 65, width: 50, height: 50, color: ex.Color.Blue });
 
     green.z = 1;
     blue.z = 2;
@@ -584,7 +599,7 @@ describe('A game actor', () => {
 
       actor.opacity = 0.1;
 
-      actor.draw(engine.ctx, 0);
+      drawWithTransform(engine.ctx, actor, 0);
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/opacity.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
@@ -925,6 +940,7 @@ describe('A game actor', () => {
     actor.on('predraw', () => {
       predrawFired = true;
     });
+
     actor.on('postdraw', () => {
       expect(predrawFired).toBe(true);
       done();
@@ -1329,7 +1345,7 @@ describe('A game actor', () => {
       a2.draw(engine.ctx, 100);
 
       engine.ctx.clearRect(0, 0, 200, 200);
-      actor.draw(engine.ctx, 100);
+      drawWithTransform(engine.ctx, actor, 100);
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/iconrotate.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image, 0.995);
