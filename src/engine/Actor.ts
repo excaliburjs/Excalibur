@@ -963,6 +963,7 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   /**
    * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
+   * @deprecated Use actor.z
    */
   public getZIndex(): number {
     return this._zIndex;
@@ -973,12 +974,11 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
    * @param newIndex new z-index to assign
+   * @deprecated Use actor.z
    */
   public setZIndex(newIndex: number) {
     const newZ = newIndex;
-    this.scene?.cleanupDrawTree(this);
     this._zIndex = newZ;
-    this.scene?.updateDrawTree(this);
   }
 
   /**
@@ -1230,7 +1230,6 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
       }
     }
     ctx.restore();
-
     this._postdraw(ctx, delta);
   }
 
