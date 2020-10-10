@@ -98,7 +98,7 @@ describe('A SystemManager', () => {
     em.addEntity(e3);
 
     const query = qm.getQuery(['A', 'C']);
-    expect(query.entities).toEqual([e1, e3]);
+    expect(query.getEntities()).toEqual([e1, e3]);
 
     sm.updateSystems(SystemType.Update, null, 10);
 

@@ -1,10 +1,10 @@
-import { Engine } from "../Engine"; 
-import { Actor } from "../Actor";
-import { Entity, System, SystemType } from "../EntityComponentSystem";
-import { LegacyDrawComponent } from "./LegacyDrawComponent";
-import { ScreenElement } from "../ScreenElement";
-import { Scene } from "../Scene";
-import { Camera } from "../Camera";
+import { Engine } from '../Engine';
+import { Actor } from '../Actor';
+import { Entity, System, SystemType } from '../EntityComponentSystem';
+import { LegacyDrawComponent } from './LegacyDrawComponent';
+import { ScreenElement } from '../ScreenElement';
+import { Scene } from '../Scene';
+import { Camera } from '../Camera';
 
 /**
  * Draws anything with a transform and a "draw" method
@@ -18,17 +18,17 @@ export class LegacyDrawingSystem extends System<LegacyDrawComponent> {
   private _engine: Engine;
 
   public initialize(scene: Scene): void {
-    this._ctx = scene.engine.ctx
+    this._ctx = scene.engine.ctx;
     this._engine = scene.engine;
     this._camera = scene.camera;
   }
 
   public update(entities: Entity[], delta: number) {
     this._clearScreen();
-    
+
     // TODO these should be sorted by the query
     const sorted = (entities as Actor[]).sort((a, b) => a.z - b.z);
-    
+
     const length = sorted.length;
     for (let i = 0; i < length; i++) {
       if (sorted[i].visible && !sorted[i].isOffScreen) {
@@ -59,7 +59,6 @@ export class LegacyDrawingSystem extends System<LegacyDrawComponent> {
       this._ctx.restore();
     }
   }
-  
 
   private _applyTransform(actor: Actor) {
     let parent = actor.parent;
@@ -69,11 +68,10 @@ export class LegacyDrawingSystem extends System<LegacyDrawComponent> {
       this._ctx.scale(parent.scale.x, parent.scale.y);
       parent = parent.parent;
     }
-    
+
     this._ctx.translate(actor.pos.x, actor.pos.y);
     this._ctx.rotate(actor.rotation);
     this._ctx.scale(actor.scale.x, actor.scale.y);
-
   }
 
   private _draw(actor: Actor, delta: number) {

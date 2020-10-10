@@ -33,22 +33,22 @@ describe('A QueryManager', () => {
     // Query for all entities that have type A & B components
     const queryAB = scene.queryManager.createQuery<FakeComponent<'A'> | FakeComponent<'B'>>(['A', 'B']);
 
-    expect(queryA.entities).toEqual([entity1, entity2]);
-    expect(queryAB.entities).toEqual([entity1]);
+    expect(queryA.getEntities()).toEqual([entity1, entity2]);
+    expect(queryAB.getEntities()).toEqual([entity1]);
 
     // Queries update if component change
     entity2.addComponent(new FakeComponent('B'));
-    expect(queryAB.entities).toEqual([entity1, entity2 as ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>]);
+    expect(queryAB.getEntities()).toEqual([entity1, entity2 as ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>]);
 
     // Queries update if components change
     entity2.removeComponent('B', true);
-    expect(queryAB.entities).toEqual([entity1]);
+    expect(queryAB.getEntities()).toEqual([entity1]);
 
     // Queries are deferred by default, so queries will update after removals
     entity1.removeComponent('B');
-    expect(queryAB.entities).toEqual([entity1]);
+    expect(queryAB.getEntities()).toEqual([entity1]);
     entity1.processRemoval();
-    expect(queryAB.entities).toEqual([]);
+    expect(queryAB.getEntities()).toEqual([]);
   });
 
   it('can remove queries', () => {
@@ -94,13 +94,13 @@ describe('A QueryManager', () => {
     entity2.addComponent(new FakeComponent('B'));
 
     const queryAB = scene.queryManager.createQuery(['A', 'B']);
-    expect(queryAB.entities).toEqual([]);
+    expect(queryAB.getEntities()).toEqual([]);
 
     scene.queryManager.addEntity(entity1);
-    expect(queryAB.entities).toEqual([entity1]);
+    expect(queryAB.getEntities()).toEqual([entity1]);
 
     scene.queryManager.addEntity(entity2);
-    expect(queryAB.entities).toEqual([entity1, entity2]);
+    expect(queryAB.getEntities()).toEqual([entity1, entity2]);
   });
 
   it('can remove entities from queries', () => {
@@ -116,13 +116,13 @@ describe('A QueryManager', () => {
     const queryAB = scene.queryManager.createQuery(['A', 'B']);
     scene.queryManager.addEntity(entity1);
     scene.queryManager.addEntity(entity2);
-    expect(queryAB.entities).toEqual([entity1, entity2]);
+    expect(queryAB.getEntities()).toEqual([entity1, entity2]);
 
     scene.queryManager.removeEntity(entity1);
-    expect(queryAB.entities).toEqual([entity2]);
+    expect(queryAB.getEntities()).toEqual([entity2]);
 
     scene.queryManager.removeEntity(entity2);
-    expect(queryAB.entities).toEqual([]);
+    expect(queryAB.getEntities()).toEqual([]);
   });
 
   it('can update queries when a component is removed', () => {
@@ -139,12 +139,12 @@ describe('A QueryManager', () => {
     scene.queryManager.addEntity(entity1);
     scene.queryManager.addEntity(entity2);
 
-    expect(queryAB.entities).toEqual([entity1, entity2]);
+    expect(queryAB.getEntities()).toEqual([entity1, entity2]);
 
     const removed = entity1.components.A;
     entity1.removeComponent('A');
     scene.queryManager.removeComponent(entity1, removed);
 
-    expect(queryAB.entities).toEqual([entity2]);
+    expect(queryAB.getEntities()).toEqual([entity2]);
   });
 });

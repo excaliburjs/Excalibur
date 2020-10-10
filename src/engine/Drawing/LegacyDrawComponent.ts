@@ -1,4 +1,4 @@
-import { Component } from "../EntityComponentSystem";
+import { Component } from '../EntityComponentSystem';
 
 export class LegacyDrawComponent extends Component<'legacydraw'> {
   public readonly type = 'legacydraw';
