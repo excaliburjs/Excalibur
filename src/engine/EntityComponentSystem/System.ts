@@ -31,7 +31,7 @@ export abstract class System<T extends Component = Component> implements Observe
    */
   public priority: number = 0;
 
-  initialize(_scene: Scene): void {}
+  initialize?(scene: Scene): void;
 
   /**
    * Update all entities that match this system's types
