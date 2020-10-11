@@ -6,7 +6,8 @@ process.env.CHROME_BIN = require('puppeteer').executablePath();
 module.exports = (config) => {
   config.set({
     singleRun: true,
-    frameworks: ['jasmine'],
+    // Karma gets confused when watching in parallel :( 
+    frameworks: config.singleRun ? ['parallel', 'jasmine'] : ['jasmine'],
     files: [  
             'src/spec/_boot.ts', 
             { pattern: 'src/spec/images/**/*.png', included: false, served: true },
@@ -26,6 +27,9 @@ module.exports = (config) => {
           "@excalibur": path.resolve(__dirname, './src/engine/')
         }
       },
+      output: {
+        pathinfo: false
+      },
       module: {
         rules: [
           {
@@ -33,7 +37,12 @@ module.exports = (config) => {
             loader: 'ts-loader',
             options: {
               projectReferences: true,
-              configFile: 'tsconfig.json'
+              configFile: 'tsconfig.json',
+              experimentalWatchApi: true,
+              compilerOptions: {
+                incremental: true,
+                tsBuildInfoFile: "./tests.tsbuildinfo"
+              }
             }
           },
           {
@@ -64,9 +73,8 @@ module.exports = (config) => {
       }
     },
     webpackMiddleware: {
-    // webpack-dev-middleware configuration
-    // i. e.
-        stats: 'normal'
+        stats: 'none',
+        writeToDisk: true,
     },
     reporters: ['progress', 'coverage-istanbul'],
 
