@@ -10,6 +10,11 @@ module.exports = (config) => {
       executors: 4, // Defaults to cpu-count - 1
       shardStrategy: 'round-robin'
     },
+    client: {
+      jasmine: {
+        timeoutInterval: 10000, // double default
+      }
+    },
     // Karma gets confused when watching in parallel :( 
     frameworks: config.singleRun ? ['parallel', 'jasmine'] : ['jasmine'],
     files: [  
