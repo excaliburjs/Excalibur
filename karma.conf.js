@@ -6,6 +6,10 @@ process.env.CHROME_BIN = require('puppeteer').executablePath();
 module.exports = (config) => {
   config.set({
     singleRun: true,
+    parallelOptions: {
+      executors: 8, // Defaults to cpu-count - 1
+      shardStrategy: 'round-robin'
+    },
     // Karma gets confused when watching in parallel :( 
     frameworks: config.singleRun ? ['parallel', 'jasmine'] : ['jasmine'],
     files: [  
