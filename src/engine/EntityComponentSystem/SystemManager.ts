@@ -26,7 +26,9 @@ export class SystemManager {
     this.systems.push(system);
     this.systems.sort((a, b) => a.priority - b.priority);
     query.register(system);
-    system.initialize(this._scene);
+    if (system.initialize) {
+      system.initialize(this._scene);
+    }
   }
 
   /**
