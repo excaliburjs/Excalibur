@@ -7,7 +7,7 @@ module.exports = (config) => {
   config.set({
     singleRun: true,
     parallelOptions: {
-      executors: 2, // Defaults to cpu-count - 1
+      executors: 4, // Defaults to cpu-count - 1
       shardStrategy: 'round-robin'
     },
     // Karma gets confused when watching in parallel :( 
