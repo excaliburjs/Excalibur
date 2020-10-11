@@ -6,10 +6,10 @@ process.env.CHROME_BIN = require('puppeteer').executablePath();
 module.exports = (config) => {
   config.set({
     singleRun: true,
-    parallelOptions: {
-      executors: 8, // Defaults to cpu-count - 1
-      shardStrategy: 'round-robin'
-    },
+    // parallelOptions: {
+    //   executors: 8, // Defaults to cpu-count - 1
+    //   shardStrategy: 'round-robin'
+    // },
     client: {
       jasmine: {
         timeoutInterval: 10000, // double default
