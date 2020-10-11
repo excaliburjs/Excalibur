@@ -16,8 +16,9 @@ describe('Collision Shape', () => {
 
     beforeEach(() => {
       engine = TestUtils.engine();
-      scene = new ex.Scene(engine);
-      engine.currentScene = scene;
+      scene = new ex.Scene();
+      engine.add('test', scene);
+      engine.goToScene('test');
 
       actor = new ex.Actor(0, 0, 20, 20);
       circle = new ex.Circle({
