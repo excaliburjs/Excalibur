@@ -748,13 +748,10 @@ O|===|* >________________>\n\
    */
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
-    if (entity instanceof Actor) {
-      this.currentScene.add(entity);
-    }
-
     if (arguments.length === 2) {
       this.addScene(<string>arguments[0], <Scene>arguments[1]);
     }
+    this.currentScene.add(entity);
   }
 
   /**
