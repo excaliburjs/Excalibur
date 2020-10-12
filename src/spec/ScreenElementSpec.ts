@@ -20,9 +20,11 @@ describe('A ScreenElement', () => {
     });
     screenElement.body.collider.type = ex.CollisionType.Active;
     engine = TestUtils.engine();
+    engine.backgroundColor = ex.Color.Transparent;
 
-    scene = new ex.Scene(engine);
-    engine.currentScene = scene;
+    scene = new ex.Scene();
+    engine.addScene('test', scene);
+    engine.goToScene('test');
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(screenElement, 'draw').and.callThrough();

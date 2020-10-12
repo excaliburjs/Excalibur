@@ -16,6 +16,7 @@ describe('Collision Shape', () => {
 
     beforeEach(() => {
       engine = TestUtils.engine();
+      engine.backgroundColor = ex.Color.Transparent;
       scene = new ex.Scene();
       engine.add('test', scene);
       engine.goToScene('test');
@@ -393,8 +394,10 @@ describe('Collision Shape', () => {
     let scene: ex.Scene;
     beforeEach(() => {
       engine = TestUtils.engine();
-      scene = new ex.Scene(engine);
-      engine.currentScene = scene;
+      engine.backgroundColor = ex.Color.Transparent;
+      scene = new ex.Scene();
+      engine.addScene('test', scene);
+      engine.goToScene('test');
     });
 
     afterEach(() => {
@@ -767,8 +770,10 @@ describe('Collision Shape', () => {
 
     beforeEach(() => {
       engine = TestUtils.engine();
-      scene = new ex.Scene(engine);
-      engine.currentScene = scene;
+      engine.backgroundColor = ex.Color.Transparent;
+      scene = new ex.Scene();
+      engine.addScene('test', scene);
+      engine.goToScene('test');
 
       actor = new ex.Actor(5, 0, 10, 10);
       edge = new ex.Edge({
