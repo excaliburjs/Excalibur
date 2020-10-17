@@ -462,8 +462,8 @@ export class ActorImpl
     // initialize default options
     this._initDefaults();
 
-    this.addComponent(new TransformComponent);
-    this.addComponent(new CanvasDrawComponent(this.draw.bind(this)));
+    this.addComponent(new TransformComponent());
+    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
 
     let shouldInitializeBody = true;
     let collisionType = CollisionType.Passive;

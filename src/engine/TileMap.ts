@@ -14,7 +14,7 @@ import { TransformComponent } from './EntityComponentSystem/Components/Transform
 /**
  * @hidden
  */
-export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent>{
+export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent> {
   private _collidingX: number = -1;
   private _collidingY: number = -1;
   private _onScreenXStart: number = 0;
@@ -89,8 +89,8 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
       }
     }
 
-    this.addComponent(new TransformComponent);
-    this.addComponent(new CanvasDrawComponent(this.draw.bind(this)));
+    this.addComponent(new TransformComponent());
+    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
   }
 
   public registerSpriteSheet(key: string, spriteSheet: SpriteSheet) {
