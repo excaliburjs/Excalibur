@@ -36,6 +36,10 @@ export abstract class Component<TypeName extends string = string> {
    * Current owning [[Entity]], if any, of this component. Null if not added to any [[Entity]]
    */
   owner?: Entity;
+
+  /**
+   * Clones any properties on this component
+   */
   clone(): this {
     const newComponent = new (this.constructor as any)();
     for (const prop in this) {

@@ -8,12 +8,13 @@ import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
 import { Configurable } from './Configurable';
 import { Entity } from './EntityComponentSystem/Entity';
-import { LegacyDrawComponent } from './Drawing/LegacyDrawComponent';
+import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
+import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 
 /**
  * @hidden
  */
-export class TileMapImpl extends Entity {
+export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent>{
   private _collidingX: number = -1;
   private _collidingY: number = -1;
   private _onScreenXStart: number = 0;
@@ -88,7 +89,8 @@ export class TileMapImpl extends Entity {
       }
     }
 
-    this.addComponent(new LegacyDrawComponent());
+    this.addComponent(new TransformComponent);
+    this.addComponent(new CanvasDrawComponent(this.draw.bind(this)));
   }
 
   public registerSpriteSheet(key: string, spriteSheet: SpriteSheet) {

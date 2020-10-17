@@ -47,7 +47,8 @@ import { Collider } from './Collision/Collider';
 import { Shape } from './Collision/Shape';
 
 import { Entity } from './EntityComponentSystem/Entity';
-import { LegacyDrawComponent } from './Drawing/LegacyDrawComponent';
+import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
+import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 
 /**
  * Type guard for checking if something is an Actor
@@ -85,7 +86,9 @@ export interface ActorDefaults {
  * @hidden
  */
 
-export class ActorImpl extends Entity implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
+export class ActorImpl
+  extends Entity<TransformComponent | CanvasDrawComponent>
+  implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
   /**
@@ -441,7 +444,6 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
     captureDragEvents: false
   };
 
-  private _zIndex: number = 0;
   private _isKilled: boolean = false;
 
   // #endregion
@@ -459,6 +461,9 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
 
     // initialize default options
     this._initDefaults();
+
+    this.addComponent(new TransformComponent);
+    this.addComponent(new CanvasDrawComponent(this.draw.bind(this)));
 
     let shouldInitializeBody = true;
     let collisionType = CollisionType.Passive;
@@ -511,8 +516,6 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
       // set default opacity of an actor to the color
       this.opacity = color.a;
     }
-
-    this.addComponent(new LegacyDrawComponent());
 
     // Build default pipeline
     this.traits.push(new Traits.TileMapCollisionDetection());
@@ -966,7 +969,7 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * @deprecated Use actor.z
    */
   public getZIndex(): number {
-    return this._zIndex;
+    return this.components.transform.z;
   }
 
   /**
@@ -977,8 +980,7 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * @deprecated Use actor.z
    */
   public setZIndex(newIndex: number) {
-    const newZ = newIndex;
-    this._zIndex = newZ;
+    this.components.transform.z = newIndex;
   }
 
   /**

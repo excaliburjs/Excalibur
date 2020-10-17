@@ -31,7 +31,7 @@ import { QueryManager } from './EntityComponentSystem/QueryManager';
 import { EntityManager } from './EntityComponentSystem/EntityManager';
 import { SystemManager } from './EntityComponentSystem/SystemManager';
 import { SystemType } from './EntityComponentSystem/System';
-import { LegacyDrawingSystem } from './Drawing/LegacyDrawingSystem';
+import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { obsolete } from './Util/Decorators';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
@@ -239,7 +239,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       }
 
       // Initialize systems
-      this.systemManager.addSystem(new LegacyDrawingSystem());
+      this.systemManager.addSystem(new CanvasDrawingSystem());
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init

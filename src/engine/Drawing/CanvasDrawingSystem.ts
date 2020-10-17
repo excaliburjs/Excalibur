@@ -1,17 +1,18 @@
 import { Engine } from '../Engine';
 import { Actor } from '../Actor';
 import { Entity, System, SystemType } from '../EntityComponentSystem';
-import { LegacyDrawComponent } from './LegacyDrawComponent';
-import { ScreenElement } from '../ScreenElement';
+import { CanvasDrawComponent } from './CanvasDrawComponent';
 import { Scene } from '../Scene';
 import { Camera } from '../Camera';
+import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 
 /**
  * Draws anything with a transform and a "draw" method
  */
-export class LegacyDrawingSystem extends System<LegacyDrawComponent> {
-  public readonly types = ['legacydraw'];
+export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawComponent> {
+  public readonly types = ['transform', 'canvas'];
   public systemType = SystemType.Draw;
+  public priority = -1;
 
   private _ctx: CanvasRenderingContext2D;
   private _camera: Camera;
@@ -23,32 +24,38 @@ export class LegacyDrawingSystem extends System<LegacyDrawComponent> {
     this._camera = scene.camera;
   }
 
-  public update(entities: Entity[], delta: number) {
+  public update(entities: Entity<TransformComponent | CanvasDrawComponent>[], delta: number) {
     this._clearScreen();
 
     // TODO these should be sorted by the query
     const sorted = (entities as Actor[]).sort((a, b) => a.z - b.z);
 
+    let transform: TransformComponent;
+    let canvasdraw: CanvasDrawComponent;
     const length = sorted.length;
     for (let i = 0; i < length; i++) {
       if (sorted[i].visible && !sorted[i].isOffScreen) {
+        transform = sorted[i].components.transform;
+        canvasdraw = sorted[i].components.canvas;
+
         this._ctx.save();
-        this._pushCameraTransform(sorted[i]);
+        this._pushCameraTransform(transform);
 
         this._ctx.save();
         this._applyTransform(sorted[i]);
-        this._draw(sorted[i], delta);
+        canvasdraw.draw(this._ctx, delta);
         this._ctx.restore();
 
-        this._popCameraTransform(sorted[i]);
+        this._popCameraTransform(transform);
         this._ctx.restore();
       }
+
       if (this._engine.isDebug) {
         this._ctx.save();
-        this._pushCameraTransform(sorted[i]);
+        this._pushCameraTransform(transform);
         this._ctx.strokeStyle = 'yellow';
         sorted[i].debugDraw(this._ctx);
-        this._popCameraTransform(sorted[i]);
+        this._popCameraTransform(transform);
         this._ctx.restore();
       }
     }
@@ -74,19 +81,15 @@ export class LegacyDrawingSystem extends System<LegacyDrawComponent> {
     this._ctx.scale(actor.scale.x, actor.scale.y);
   }
 
-  private _draw(actor: Actor, delta: number) {
-    actor.draw(this._ctx, delta);
-  }
-
   private _clearScreen(): void {
     this._ctx.clearRect(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);
     this._ctx.fillStyle = this._engine.backgroundColor.toString();
     this._ctx.fillRect(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);
   }
 
-  private _pushCameraTransform(actor: Actor) {
+  private _pushCameraTransform(transform: TransformComponent) {
     // Establish camera offset per entity
-    if (!(actor instanceof ScreenElement)) {
+    if (transform.coordPlane === CoordPlane.World) {
       this._ctx.save();
       if (this._camera) {
         this._camera.draw(this._ctx);
@@ -94,8 +97,8 @@ export class LegacyDrawingSystem extends System<LegacyDrawComponent> {
     }
   }
 
-  private _popCameraTransform(actor: Actor) {
-    if (!(actor instanceof ScreenElement)) {
+  private _popCameraTransform(transform: TransformComponent) {
+    if (transform.coordPlane === CoordPlane.World) {
       // Apply camera world offset
       this._ctx.restore();
     }
