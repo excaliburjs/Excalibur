@@ -11,7 +11,7 @@
 
 Excalibur is a free game engine written in TypeScript for making 2D games in HTML5 canvas. Our goal is to make it easier for you to create 2D HTML/JS games, whether you're new to game development or you're an experienced game developer. We take care of all of the boilerplate engine code, cross-platform targeting (using [browserstack](http://browserstack.com/) 😎), and more! Use as much or as little as you need!
 
-Excalibur is an open source project licensed under the 2-clause BSD license (this means you can use it in commercial projects!). It's free and always will be. We welcome any feedback or contributions! If you make something with Excalibur, please [let us know](https://groups.google.com/forum/#!tags/excaliburjs/show-and-tell)!
+Excalibur is an open source project licensed under the 2-clause BSD license (this means you can use it in commercial projects!). It's free and always will be. We welcome any feedback or contributions! If you make something with Excalibur, please [let us know](https://github.com/excaliburjs/Excalibur/discussions?discussions_q=category%3A%22Show+and+tell%22)!
 
 # Get Started
 
@@ -20,7 +20,7 @@ Our user documentation is at https://excaliburjs.com/docs (and you can contribut
 - Follow our [Installation](https://excaliburjs.com/docs/installation) guide to learn how to install Excalibur
 - Follow our [Getting Started](https://excaliburjs.com/docs/getting-started) guide if you're looking to get started.
 - Learn what [Features](https://excaliburjs.com/docs/features) are available for you to leverage in your games
-- View the [Release roadmap](https://github.com/excaliburjs/Excalibur/milestones) to see what's coming next
+- View the [1.0 Release roadmap](https://github.com/excaliburjs/Excalibur/issues/1161) to see what's coming next
 
 :exclamation: **_Note:_** Excalibur is still in version 0.x, which means this project and its associated plugins may be a little rough around the edges. We try to minimize API changes, but breaking changes **will occur** in new released versions. Excalibur is a labor of love and the product of many hours of spare time. Thanks for checking it out!
 
@@ -30,7 +30,7 @@ Visit the [API Reference](https://excaliburjs.com/docs/api/edge) section for ful
 
 # Questions
 
-- :question: Ask us anything in the [Excalibur.js forum](https://groups.google.com/forum/#!forum/excaliburjs)
+- :question: Ask us anything in the [GitHub Discissions area](https://github.com/excaliburjs/Excalibur/discussions)
 - :bug: If you find a bug, report it on the [GitHub issues page](https://github.com/excaliburjs/Excalibur/issues) (please review our [guidelines for reporting bugs](https://github.com/excaliburjs/Excalibur/blob/main/.github/CONTRIBUTING.md#reporting-bugs)).
 - :mega: You can also follow us on Twitter [@excaliburjs](http://twitter.com/excaliburjs) or [read the blog](http://blog.excaliburjs.com).
 
