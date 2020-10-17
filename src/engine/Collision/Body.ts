@@ -144,7 +144,7 @@ export class Body implements Clonable<Body> {
   public set rotation(val: number) {
     this.transform.rotation = val;
   }
-  
+
   /**
    * The scale vector of the actor
    * @obsolete ex.Body.scale will be removed in v0.25.0
