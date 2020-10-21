@@ -24,25 +24,26 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
     this._camera = scene.camera;
   }
 
+  public sort(a: Entity<TransformComponent | CanvasDrawComponent>, b: Entity<TransformComponent | CanvasDrawComponent>) {
+    return a.components.transform.z - b.components.transform.z;
+  }
+
   public update(entities: Entity<TransformComponent | CanvasDrawComponent>[], delta: number) {
     this._clearScreen();
 
-    // TODO these should be sorted by the query
-    const sorted = (entities as Actor[]).sort((a, b) => a.z - b.z);
-
     let transform: TransformComponent;
     let canvasdraw: CanvasDrawComponent;
-    const length = sorted.length;
+    const length = entities.length;
     for (let i = 0; i < length; i++) {
-      if (sorted[i].visible && !sorted[i].isOffScreen) {
-        transform = sorted[i].components.transform;
-        canvasdraw = sorted[i].components.canvas;
+      if ((entities[i] as Actor).visible && !(entities[i] as Actor).isOffScreen) {
+        transform = entities[i].components.transform;
+        canvasdraw = entities[i].components.canvas;
 
         this._ctx.save();
         this._pushCameraTransform(transform);
 
         this._ctx.save();
-        this._applyTransform(sorted[i]);
+        this._applyTransform(entities[i] as Actor);
         canvasdraw.draw(this._ctx, delta);
         this._ctx.restore();
 
@@ -54,7 +55,7 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
         this._ctx.save();
         this._pushCameraTransform(transform);
         this._ctx.strokeStyle = 'yellow';
-        sorted[i].debugDraw(this._ctx);
+        (entities[i] as Actor).debugDraw(this._ctx);
         this._popCameraTransform(transform);
         this._ctx.restore();
       }
