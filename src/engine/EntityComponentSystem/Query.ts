@@ -18,16 +18,18 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
     return buildTypeKey(this.types);
   }
 
-  constructor(public types: string[], public sortCompare?: (a: Entity, b: Entity) => number) {
+  constructor(public types: string[]) {
     super();
   }
 
   /**
    * Returns a list of entities that match the query
+   *
+   * @param sort Optional sorting function to sort entities returned from the query
    */
-  public getEntities(): Entity<T>[] {
-    if (this.sortCompare) {
-      this._entities.sort(this.sortCompare);
+  public getEntities(sort?: (a: Entity<T>, b: Entity<T>) => number): Entity<T>[] {
+    if (sort) {
+      this._entities.sort(sort);
     }
     return this._entities;
   }
