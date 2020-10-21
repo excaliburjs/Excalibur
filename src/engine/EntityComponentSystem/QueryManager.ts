@@ -2,7 +2,7 @@ import { Entity } from './Entity';
 import { buildTypeKey } from './Util';
 import { Query } from './Query';
 import { Component } from './Component';
-import { Scene } from '../Scene';
+import { World } from './World';
 
 /**
  * The query manager is responsible for updating all queries when entities/components change
@@ -10,7 +10,7 @@ import { Scene } from '../Scene';
 export class QueryManager {
   private _queries: { [entityComponentKey: string]: Query<any> } = {};
 
-  constructor(public scene: Scene) {}
+  constructor(private _world: World<any>) {}
 
   /**
    * Adds a query to the manager and populates with any entities that match
@@ -18,7 +18,7 @@ export class QueryManager {
    */
   private _addQuery(query: Query<any>) {
     this._queries[buildTypeKey(query.types)] = query;
-    for (const entity of this.scene.entityManager.entities) {
+    for (const entity of this._world.entityManager.entities) {
       query.addEntity(entity);
     }
   }

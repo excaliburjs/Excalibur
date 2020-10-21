@@ -27,12 +27,10 @@ import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
 import { Body } from './Collision/Body';
-import { QueryManager } from './EntityComponentSystem/QueryManager';
-import { EntityManager } from './EntityComponentSystem/EntityManager';
-import { SystemManager } from './EntityComponentSystem/SystemManager';
 import { SystemType } from './EntityComponentSystem/System';
 import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { obsolete } from './Util/Decorators';
+import { World } from './EntityComponentSystem/World';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -53,9 +51,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public actors: Actor[] = [];
 
-  public queryManager: QueryManager = new QueryManager(this);
-  public entityManager: EntityManager = new EntityManager(this);
-  public systemManager: SystemManager = new SystemManager(this);
+  /**
+   * The ECS world for the scene
+   */
+  public world = new World(this);
 
   /**
    * Physics bodies in the current scene
@@ -239,7 +238,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       }
 
       // Initialize systems
-      this.systemManager.addSystem(new CanvasDrawingSystem());
+      this.world.add(new CanvasDrawingSystem());
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
@@ -327,8 +326,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public update(engine: Engine, delta: number) {
     this._preupdate(engine, delta);
-    this.systemManager.updateSystems(SystemType.Update, engine, delta);
-    this.entityManager.processRemovals();
+    this.world.update(SystemType.Update, delta);
 
     if (this.camera) {
       this.camera.update(engine, delta);
@@ -409,8 +407,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         actorIndex = collection.indexOf(killed);
         if (actorIndex > -1) {
           collection.splice(actorIndex, 1);
-          this.entityManager.removeEntity(killed);
-          killed.children.forEach((c) => this.entityManager.removeEntity(c));
+          this.world.remove(killed);
+          killed.children.forEach((c) => this.world.remove(c));
         }
       }
     }
@@ -425,8 +423,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     this._predraw(ctx, delta);
 
-    this.systemManager.updateSystems(SystemType.Draw, this.engine, delta);
-    this.entityManager.processRemovals();
+    this.world.update(SystemType.Draw, delta);
 
     this._postdraw(ctx, delta);
   }
@@ -491,8 +488,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
           this.actors.push(entity);
         }
 
-        this.entityManager.addEntity(entity);
-        entity.children.forEach((c) => this.entityManager.addEntity(c));
+        this.world.add(entity);
+        entity.children.forEach((c) => this.world.add(c));
       }
       return;
     }
@@ -584,7 +581,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   @obsolete({})
   public addTileMap(tileMap: TileMap) {
     this.tileMaps.push(tileMap);
-    this.entityManager.addEntity(tileMap);
+    this.world.add(tileMap);
   }
 
   /**
@@ -596,7 +593,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     const index = this.tileMaps.indexOf(tileMap);
     if (index > -1) {
       this.tileMaps.splice(index, 1);
-      this.entityManager.removeEntity(tileMap);
+      this.world.remove(tileMap);
     }
   }
 

@@ -1,8 +1,6 @@
 import { Entity } from './Entity';
-import { Engine } from '../Engine';
 import { Message, Observer } from '../Util/Observable';
 import { Component } from './Component';
-import { Scene } from '../Scene';
 
 /**
  * Enum that determines whether to run the system in the update or draw phase
@@ -16,7 +14,7 @@ export enum SystemType {
  * An Excalibur [[System]] that updates entities of certain types.
  * Systems are scene specific
  */
-export abstract class System<T extends Component = Component> implements Observer<AddedEntity | RemovedEntity> {
+export abstract class System<ContextType, T extends Component = Component> implements Observer<AddedEntity | RemovedEntity> {
   /**
    * The types of entities that this system operates on
    * For example ['Transform', 'Motion']
@@ -43,6 +41,12 @@ export abstract class System<T extends Component = Component> implements Observe
   sort?(a: Entity<T>, b: Entity<T>): number;
 
   /**
+   * Optionally specify an initialize handler
+   * @param scene
+   */
+  initialize?(engine: ContextType): void;
+
+  /**
    * Update all entities that match this system's types
    * @param entities Entities to update that match this system's typse
    * @param delta Time in milliseconds
@@ -54,14 +58,14 @@ export abstract class System<T extends Component = Component> implements Observe
    * @param engine
    * @param delta Time in milliseconds since the last frame
    */
-  preupdate?(engine: Engine, delta: number): void;
+  preupdate?(engine: ContextType, delta: number): void;
 
   /**
    * Optionally run a postupdate after the system processes matching entities
    * @param engine
    * @param delta Time in milliseconds since the last frame
    */
-  postupdate?(engine: Engine, delta: number): void;
+  postupdate?(engine: ContextType, delta: number): void;
 
   /**
    * Optionally run a debug draw step to visualize the internals of the system
