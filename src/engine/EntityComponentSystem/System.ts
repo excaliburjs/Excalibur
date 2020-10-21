@@ -19,9 +19,13 @@ export enum SystemType {
 export abstract class System<T extends Component = Component> implements Observer<AddedEntity | RemovedEntity> {
   /**
    * The types of entities that this system operates on
+   * For example ['Transform', 'Motion']
    */
   abstract readonly types: string[];
 
+  /**
+   * Determine whether the system is called in the [[SystemType.Update]] or the [[SystemType.Draw]] phase. Update is first, then Draw.
+   */
   abstract readonly systemType: SystemType;
 
   /**
@@ -31,7 +35,12 @@ export abstract class System<T extends Component = Component> implements Observe
    */
   public priority: number = 0;
 
-  initialize?(scene: Scene): void;
+  /**
+   * Optionally Sepecify a sort order for entities passed to the your system
+   * @param a The left entity
+   * @param b The right entity
+   */
+  sort?(a: Entity<T>, b: Entity<T>): number;
 
   /**
    * Update all entities that match this system's types
