@@ -237,7 +237,6 @@ export function addItemToArray<T>(item: T, array: T[]): boolean {
 
 /**
  * Remove an item from an list
- * @deprecated
  */
 export function removeItemFromArray<T>(item: T, array: T[]): boolean {
   let index = -1;
@@ -251,7 +250,6 @@ export function removeItemFromArray<T>(item: T, array: T[]): boolean {
 
 /**
  * See if an array contains something
- * @deprecated
  */
 export function contains(array: Array<any>, obj: any): boolean {
   for (let i = 0; i < array.length; i++) {

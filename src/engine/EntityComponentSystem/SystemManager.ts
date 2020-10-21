@@ -59,7 +59,7 @@ export class SystemManager {
     }
 
     for (const s of systems) {
-      const entities = this._scene.queryManager.getQuery(s.types).getEntities();
+      const entities = this._world.queryManager.getQuery(s.types).getEntities(s.sort);
       s.update(entities, delta);
     }
 
