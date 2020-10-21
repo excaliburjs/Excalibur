@@ -73,12 +73,12 @@ export class QueryManager {
    * Creates a populated query and returns, if the query already exists that will be returned instead of a new instance
    * @param types
    */
-  public createQuery<T extends Component = Component>(types: string[], sortCompare?: (a: Entity, b: Entity) => number): Query<T> {
-    const maybeExistingQuery = this.getQuery<T>(types); // Sorted wont work
+  public createQuery<T extends Component = Component>(types: string[]): Query<T> {
+    const maybeExistingQuery = this.getQuery<T>(types);
     if (maybeExistingQuery) {
       return maybeExistingQuery;
     }
-    const query = new Query<T>(types, sortCompare);
+    const query = new Query<T>(types);
     this._addQuery(query);
     return query;
   }
