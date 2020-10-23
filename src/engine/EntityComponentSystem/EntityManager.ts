@@ -57,13 +57,19 @@ export class EntityManager implements Observer<RemovedComponent | AddedComponent
     }
   }
 
-  public processRemovals(): void {
+  public processComponentRemovals(): void {
     for (const entity of this.entities) {
-      entity.processRemoval();
+      entity.processComponentRemoval();
     }
   }
 
   public getById(id: number): Entity {
     return this._entityIndex[id];
+  }
+
+  public clear(): void {
+    for (const entity of this.entities) {
+      this.removeEntity(entity);
+    }
   }
 }

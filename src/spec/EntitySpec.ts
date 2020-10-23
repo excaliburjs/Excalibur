@@ -82,7 +82,7 @@ describe('An entity', () => {
       }
     });
     entity.removeComponent(typeA);
-    entity.processRemoval();
+    entity.processComponentRemoval();
   });
 
   it('can be cloned', () => {

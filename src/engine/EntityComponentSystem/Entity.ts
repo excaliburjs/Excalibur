@@ -209,7 +209,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * @hidden
    * @internal
    */
-  public processRemoval() {
+  public processComponentRemoval() {
     for (const componentOrType of this._componentsToRemove) {
       const type = typeof componentOrType === 'string' ? componentOrType : componentOrType.type;
       this._removeComponentByType(type);

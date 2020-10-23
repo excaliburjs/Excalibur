@@ -885,7 +885,7 @@ export class ActorImpl
     if (Util.addItemToArray(actor, this.children)) {
       actor.parent = this;
       if (this.scene) {
-        this.scene.entityManager.addEntity(actor);
+        this.scene.world.add(actor);
       }
     }
   }

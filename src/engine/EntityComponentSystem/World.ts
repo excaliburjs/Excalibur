@@ -23,7 +23,7 @@ export class World<ContextType> {
    */
   update(type: SystemType, delta: number) {
     this.systemManager.updateSystems(type, this.context, delta);
-    this.entityManager.processRemovals();
+    this.entityManager.processComponentRemovals();
   }
 
   /**
@@ -64,5 +64,13 @@ export class World<ContextType> {
     if (entityOrSystem instanceof System) {
       this.systemManager.removeSystem(entityOrSystem);
     }
+  }
+
+  clearEntities(): void {
+    this.entityManager.clear();
+  }
+
+  clearSystems(): void {
+    this.systemManager.clear();
   }
 }

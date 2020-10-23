@@ -71,4 +71,10 @@ export class SystemManager<ContextType> {
       }
     }
   }
+
+  public clear(): void {
+    for (const system of this.systems) {
+      this.removeSystem(system);
+    }
+  }
 }
