@@ -631,7 +631,7 @@ O|===|* >________________>\n\
    * @param y          y game coordinate to play the animation
    * @deprecated
    */
-  @obsolete({}) // TODO separate PR?
+  @obsolete({message: 'Will be removed in excalibur v0.26.0'})
   public playAnimation(animation: Animation, x: number, y: number) {
     this._animations.push(new AnimationNode(animation, x, y));
   }
@@ -1236,7 +1236,7 @@ O|===|* >________________>\n\
  * @internal
  * @deprecated
  */
-@obsolete({})
+@obsolete({message: 'Will be removed in excalibur v0.26.0'})
 class AnimationNode {
   constructor(public animation: Animation, public x: number, public y: number) {}
 }

@@ -1,7 +1,10 @@
+import { obsolete } from './Decorators';
+
 /**
  * A sorted list implementation. NOTE: this implementation is not self-balancing
  * @deprecated
  */
+@obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use built in JS array.sort'})
 export class SortedList<T> {
   private _getComparable: (item: T) => number;
   private _root: BinaryTreeNode<T>;
@@ -186,6 +189,7 @@ export class SortedList<T> {
  * A tree node part of [[SortedList]]
  * @deprecated
  */
+@obsolete({message: 'Will be removed in excalibur v0.26.0'})
 export class BinaryTreeNode<T> {
   private _key: number;
   private _data: Array<T>;

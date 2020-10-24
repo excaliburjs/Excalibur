@@ -80,6 +80,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * The [[ScreenElement]]s in a scene, if any; these are drawn last
    * @deprecated
    */
+  @obsolete({
+    message: 'Will be removed in excalibur v0.26.0',
+    alternateMethod: 'ScreenElements now are normal actors with a Transform Coordinate Plane of Screen'
+  })
   public get screenElements(): ScreenElement[] {
     return this.actors.filter((a) => a instanceof ScreenElement) as ScreenElement[];
   }
@@ -560,7 +564,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * @todo Should this be `ScreenElement` only?
    * @deprecated
    */
-  @obsolete({})
+  @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add'})
   public addScreenElement(actor: Actor) {
     this.add(actor);
   }
@@ -569,7 +573,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Removes an actor as a piece of UI
    * @deprecated
    */
-  @obsolete({})
+  @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove'})
   public removeScreenElement(actor: Actor) {
     this.remove(actor);
   }
@@ -578,7 +582,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
    * @deprecated
    */
-  @obsolete({})
+  @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add'})
   public addTileMap(tileMap: TileMap) {
     this.tileMaps.push(tileMap);
     this.world.add(tileMap);
@@ -588,7 +592,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
    * @deprecated
    */
-  @obsolete({})
+  @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove'})
   public removeTileMap(tileMap: TileMap) {
     const index = this.tileMaps.indexOf(tileMap);
     if (index > -1) {
