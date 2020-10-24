@@ -9,8 +9,8 @@ import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Compone
 /**
  * Draws anything with a transform and a "draw" method
  */
-export class CanvasDrawingSystem extends System<Scene, TransformComponent | CanvasDrawComponent> {
-  public readonly types = ['transform', 'canvas'];
+export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawComponent> {
+  public readonly types = ['transform', 'canvas'] as const;
   public systemType = SystemType.Draw;
   public priority = -1;
 

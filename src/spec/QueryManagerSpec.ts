@@ -33,22 +33,25 @@ describe('A QueryManager', () => {
     // Query for all entities that have type A & B components
     const queryAB = world.queryManager.createQuery<FakeComponent<'A'> | FakeComponent<'B'>>(['A', 'B']);
 
-    expect(queryA.getEntities()).toEqual([entity1, entity2]);
-    expect(queryAB.getEntities()).toEqual([entity1]);
+    expect(queryA.getEntities()).toEqual([entity1, entity2], 'Both entities have component A');
+    expect(queryAB.getEntities()).toEqual([entity1], 'Only entity1 has both A+B');
 
     // Queries update if component change
     entity2.addComponent(new FakeComponent('B'));
-    expect(queryAB.getEntities()).toEqual([entity1, entity2 as ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>]);
+    expect(queryAB.getEntities()).toEqual(
+      [entity1, entity2 as ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>],
+      'Now both entities have A+B'
+    );
 
     // Queries update if components change
     entity2.removeComponent('B', true);
-    expect(queryAB.getEntities()).toEqual([entity1]);
+    expect(queryAB.getEntities()).toEqual([entity1], 'Component force removed from entity, only entity1 A+B');
 
     // Queries are deferred by default, so queries will update after removals
     entity1.removeComponent('B');
-    expect(queryAB.getEntities()).toEqual([entity1]);
+    expect(queryAB.getEntities()).toEqual([entity1], 'Deferred removal, component is still part of entity1');
     entity1.processComponentRemoval();
-    expect(queryAB.getEntities()).toEqual([]);
+    expect(queryAB.getEntities()).toEqual([], 'No entities should match');
   });
 
   it('can remove queries', () => {

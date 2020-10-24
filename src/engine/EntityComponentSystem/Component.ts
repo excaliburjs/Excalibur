@@ -15,7 +15,15 @@ function hasClone(x: any): x is { clone(): any } {
 /**
  * Components are containers for state in Excalibur, the are meant to convey capabilities that an Entity posesses
  *
- * Implementations of Component must have a zero-arg constructor
+ * Implementations of Component must have a zero-arg constructor to support dependecies
+ *
+ * ```typescript
+ * class MyComponent extends ex.Component<'my'> {
+ *   public readonly type = 'my';
+ *   // zero arg support required if you want to use component dependencies
+ *   constructor(public optionalPos?: ex.Vector) {}
+ * }
+ * ```
  */
 export abstract class Component<TypeName extends string = string> {
   /**
@@ -28,7 +36,6 @@ export abstract class Component<TypeName extends string = string> {
 
   /**
    * Type of this component, must be a unique type among component types in you game.
-   * See [[BuiltinComponentTypes]] for a list of built in excalibur types
    */
   abstract readonly type: TypeName;
 
@@ -38,7 +45,7 @@ export abstract class Component<TypeName extends string = string> {
   owner?: Entity;
 
   /**
-   * Clones any properties on this component
+   * Clones any properties on this component, if that property value has a `clone()` method it will be called
    */
   clone(): this {
     const newComponent = new (this.constructor as any)();
@@ -68,6 +75,14 @@ export abstract class Component<TypeName extends string = string> {
 
 /**
  * Tag components are a way of tagging a component with label and a simple value
+ *
+ * For example:
+ *
+ * ```typescript
+ * const isOffscreen = new TagComponent('offscreen');
+ * entity.addComponent(isOffscreen);
+ * entity.tags.includes
+ * ```
  */
 export class TagComponent<TypeName extends string, MaybeValueType extends string | symbol | number | boolean = never> extends Component<
 TypeName

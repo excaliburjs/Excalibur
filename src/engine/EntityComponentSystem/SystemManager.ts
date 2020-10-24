@@ -10,15 +10,15 @@ export class SystemManager<ContextType> {
   /**
    * List of systems, to add a new system call [[SystemManager.addSystem]]
    */
-  public systems: System<ContextType>[] = [];
-  public _keyToSystem: { [key: string]: System<ContextType> };
+  public systems: System<any, ContextType>[] = [];
+  public _keyToSystem: { [key: string]: System<any, ContextType> };
   constructor(private _world: World<ContextType>) {}
 
   /**
    * Adds a system to the manager, it will now be updated every frame
    * @param system
    */
-  public addSystem(system: System<ContextType>): void {
+  public addSystem(system: System<any, ContextType>): void {
     // validate system has types
     if (!system.types || system.types.length === 0) {
       throw new Error(`Attempted to add a System without any types`);
@@ -37,7 +37,7 @@ export class SystemManager<ContextType> {
    * Removes a system from the manager, it will no longer be updated
    * @param system
    */
-  public removeSystem(system: System<ContextType>) {
+  public removeSystem(system: System<any, ContextType>) {
     Util.removeItemFromArray(system, this.systems);
     const query = this._world.queryManager.getQuery(system.types);
     if (query) {

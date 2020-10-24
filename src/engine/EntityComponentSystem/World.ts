@@ -35,8 +35,8 @@ export class World<ContextType> {
    * Add a system to the ECS world
    * @param system
    */
-  add(system: System<ContextType>): void;
-  add(entityOrSystem: Entity | System<ContextType>): void {
+  add(system: System<any, ContextType>): void;
+  add(entityOrSystem: Entity | System<any, ContextType>): void {
     if (entityOrSystem instanceof Entity) {
       this.entityManager.addEntity(entityOrSystem);
     }
@@ -55,8 +55,8 @@ export class World<ContextType> {
    * Remove a system from the ECS world
    * @param system
    */
-  remove(system: System<ContextType>): void;
-  remove(entityOrSystem: Entity | System<ContextType>): void {
+  remove(system: System<any, ContextType>): void;
+  remove(entityOrSystem: Entity | System<any, ContextType>): void {
     if (entityOrSystem instanceof Entity) {
       this.entityManager.removeEntity(entityOrSystem);
     }

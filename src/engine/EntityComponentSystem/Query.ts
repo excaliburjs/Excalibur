@@ -14,11 +14,15 @@ import { AddedEntity, RemovedEntity } from './System';
  */
 export class Query<T extends Component = Component> extends Observable<AddedEntity | RemovedEntity> {
   private _entities: Entity<T>[] = [];
+  private _key: string;
   public get key(): string {
-    return buildTypeKey(this.types);
+    if (this._key) {
+      return this._key;
+    }
+    return (this._key = buildTypeKey(this.types));
   }
 
-  constructor(public types: string[]) {
+  constructor(public types: readonly string[]) {
     super();
   }
 

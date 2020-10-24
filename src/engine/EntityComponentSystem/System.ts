@@ -1,6 +1,7 @@
 import { Entity } from './Entity';
 import { Message, Observer } from '../Util/Observable';
 import { Component } from './Component';
+import { Scene } from '../Scene';
 
 /**
  * Enum that determines whether to run the system in the update or draw phase
@@ -10,16 +11,34 @@ export enum SystemType {
   Draw = 'draw'
 }
 
+export type SystemTypes<ComponentTypes> = ComponentTypes extends Component<infer TypeName> ? TypeName : never;
+
 /**
  * An Excalibur [[System]] that updates entities of certain types.
  * Systems are scene specific
+ *
+ * Excalibur Systems currently require at least 1 Component type to operated
+ *
+ * Multiple types are declared as a type union
+ * For example:
+ *
+ * ```typescript
+ * class MySystem extends System<ComponentA | ComponentB> {
+ *   public readonly types = ['a', 'b'] as const;
+ *   public readonly systemType = SystemType.Update;
+ *   public update(entities: Entity<ComponentA | ComponentB>) {
+ *      ...
+ *   }
+ * }
+ * ```
  */
-export abstract class System<ContextType, T extends Component = Component> implements Observer<AddedEntity | RemovedEntity> {
+export abstract class System<ComponentTypeUnion extends Component = Component, ContextType = Scene>
+implements Observer<AddedEntity | RemovedEntity> {
   /**
    * The types of entities that this system operates on
-   * For example ['Transform', 'Motion']
+   * For example ['transform', 'motion']
    */
-  abstract readonly types: string[];
+  abstract readonly types: readonly SystemTypes<ComponentTypeUnion>[];
 
   /**
    * Determine whether the system is called in the [[SystemType.Update]] or the [[SystemType.Draw]] phase. Update is first, then Draw.
@@ -38,7 +57,7 @@ export abstract class System<ContextType, T extends Component = Component> imple
    * @param a The left entity
    * @param b The right entity
    */
-  sort?(a: Entity<T>, b: Entity<T>): number;
+  sort?(a: Entity<ComponentTypeUnion>, b: Entity<ComponentTypeUnion>): number;
 
   /**
    * Optionally specify an initialize handler
@@ -51,7 +70,7 @@ export abstract class System<ContextType, T extends Component = Component> imple
    * @param entities Entities to update that match this system's typse
    * @param delta Time in milliseconds
    */
-  abstract update(entities: Entity<T>[], delta: number): void;
+  abstract update(entities: Entity<ComponentTypeUnion>[], delta: number): void;
 
   /**
    * Optionally run a preupdate before the system processes matching entities
