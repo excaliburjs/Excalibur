@@ -42,7 +42,7 @@ export abstract class Component<TypeName extends string = string> {
   /**
    * Current owning [[Entity]], if any, of this component. Null if not added to any [[Entity]]
    */
-  owner?: Entity;
+  owner?: Entity = null;
 
   /**
    * Clones any properties on this component, if that property value has a `clone()` method it will be called
