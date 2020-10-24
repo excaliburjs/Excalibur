@@ -125,7 +125,7 @@ export class RemovedEntity implements Message<Entity> {
 }
 
 /**
- *
+ * type guard to check for the RemovedEntity message
  */
 export function isRemoveSystemEntity(x: Message<Entity>): x is RemovedEntity {
   return !!x && x.type === 'Entity Removed';

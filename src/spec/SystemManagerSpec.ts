@@ -129,4 +129,14 @@ describe('A SystemManager', () => {
       sm.addSystem(new FakeSystem(0, 'ErrorSystem', [], SystemType.Update));
     }).toThrow(new Error('Attempted to add a System without any types'));
   });
+
+  it('type guards on messages should work', () => {
+    const add = new ex.AddedEntity(new ex.Entity());
+    expect(ex.isAddedSystemEntity(add)).toBe(true);
+    expect(ex.isRemoveSystemEntity(add)).toBe(false);
+
+    const remove = new ex.RemovedEntity(new ex.Entity());
+    expect(ex.isRemoveSystemEntity(remove)).toBe(true);
+    expect(ex.isAddedSystemEntity(remove)).toBe(false);
+  });
 });
