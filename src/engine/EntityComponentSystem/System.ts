@@ -53,7 +53,7 @@ implements Observer<AddedEntity | RemovedEntity> {
   public priority: number = 0;
 
   /**
-   * Optionally Sepecify a sort order for entities passed to the your system
+   * Optionally specify a sort order for entities passed to the your system
    * @param a The left entity
    * @param b The right entity
    */
