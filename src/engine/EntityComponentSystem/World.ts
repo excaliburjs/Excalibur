@@ -5,7 +5,7 @@ import { System, SystemType } from './System';
 import { SystemManager } from './SystemManager';
 
 /**
- * The World is a self contained entity component system for a particular context.
+ * The World is a self-contained entity component system for a particular context.
  */
 export class World<ContextType> {
   public queryManager: QueryManager = new QueryManager(this);
