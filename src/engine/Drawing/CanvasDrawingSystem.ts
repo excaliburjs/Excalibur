@@ -90,7 +90,7 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
 
   private _pushCameraTransform(transform: TransformComponent) {
     if (transform.coordPlane === CoordPlane.World) {
-      // Apply camera transform to place entity in world space 
+      // Apply camera transform to place entity in world space
       this._ctx.save();
       if (this._camera) {
         this._camera.draw(this._ctx);
