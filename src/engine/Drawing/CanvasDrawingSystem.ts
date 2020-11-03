@@ -89,8 +89,8 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
   }
 
   private _pushCameraTransform(transform: TransformComponent) {
-    // Establish camera offset per entity
     if (transform.coordPlane === CoordPlane.World) {
+      // Apply camera transform to place entity in world space 
       this._ctx.save();
       if (this._camera) {
         this._camera.draw(this._ctx);
@@ -100,7 +100,7 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
 
   private _popCameraTransform(transform: TransformComponent) {
     if (transform.coordPlane === CoordPlane.World) {
-      // Apply camera world offset
+      // Restore back to screen space from world space if we were drawing an entity there
       this._ctx.restore();
     }
   }
