@@ -1,4 +1,4 @@
-import { Component } from './Component';
+import { Component, TagComponent } from './Component';
 
 import { Observable, Message } from '../Util/Observable';
 import { Class } from '../Class';
@@ -61,6 +61,17 @@ export type ExcludeType<TypeUnion, TypeNameOrType> = TypeNameOrType extends stri
   ? Exclude<TypeUnion, Component<TypeNameOrType>>
   : Exclude<TypeUnion, TypeNameOrType>;
 
+/**
+ * An Entity is the base type of anything that can have behavior in Excalibur, they are part of the built in entity component system
+ *
+ * Entities can be strongly typed with the components they contain
+ *
+ * ```typescript
+ * const entity = new Entity<ComponentA | ComponentB>();
+ * entity.components.a; // Type ComponentA
+ * entity.components.b; // Type ComponentB
+ * ```
+ */
 export class Entity<KnownComponents extends Component = never> extends Class implements OnInitialize, OnPreUpdate, OnPostUpdate {
   private static _ID = 0;
 
@@ -74,6 +85,9 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    */
   public active: boolean = true;
 
+  /**
+   * Kill the entity, means it will no longer be updated. Kills are deferred to the end of the update.
+   */
   public kill() {
     this.active = false;
   }
@@ -82,20 +96,49 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
     return !this.active;
   }
 
-  private _componentsToRemove: (Component | string)[] = [];
+  /**
+   * Specifically get the tags on the entity from [[TagComponent]]
+   */
+  public get tags(): string[] {
+    return this._tagsMemo;
+  }
+
+  /**
+   * Check if a tag exists on the entity
+   * @param tag name to check for
+   */
+  public hasTag(tag: string): boolean {
+    return this.tags.includes(tag);
+  }
 
   /**
    * The types of the components on the Entity
    */
   public get types(): string[] {
-    return this._dirty ? (this._typesMemo = Object.keys(this.components)) : this._typesMemo;
+    return this._typesMemo;
   }
-  private _typesMemo: string[] = [];
-  private _dirty = true;
 
+  private _tagsMemo: string[] = [];
+  private _typesMemo: string[] = [];
+  private _rebuildMemos() {
+    this._tagsMemo = Object.values(this.components)
+      .filter((c) => c instanceof TagComponent)
+      .map((c) => c.type);
+    this._typesMemo = Object.keys(this.components);
+  }
+
+  /**
+   * Bucket to hold on to deferred removals
+   */
+  private _componentsToRemove: (Component | string)[] = [];
+
+  /**
+   * Proxy handler for component changes, responsible for notifying observers
+   */
   private _handleChanges = {
     defineProperty: (obj: any, prop: any, descriptor: PropertyDescriptor) => {
       obj[prop] = descriptor.value;
+      this._rebuildMemos();
       this.changes.notifyAll(
         new AddedComponent({
           component: descriptor.value as Component,
@@ -113,14 +156,21 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
           })
         );
         delete obj[prop];
+        this._rebuildMemos();
         return true;
       }
       return false;
     }
   };
 
+  /**
+   * Dictionary that holds entity components
+   */
   public components = new Proxy<ComponentMapper<KnownComponents>>({} as any, this._handleChanges);
 
+  /**
+   * Observable that keeps track of component add or remove changes on the entity
+   */
   public changes = new Observable<AddedComponent | RemovedComponent>();
 
   /**
@@ -134,11 +184,16 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
     return newEntity;
   }
 
+  /**
+   * Adds a component to the entity, or adds a copy of all the components from another entity as a "prefab"
+   * @param componentOrEntity Component or Entity to add copy of components from
+   * @param force Optionally overwrite any existing components of the same type
+   */
   public addComponent<T extends Component>(componentOrEntity: T | Entity<T>, force: boolean = false): Entity<KnownComponents | T> {
     // If you use an entity as a "prefab" or template
     if (componentOrEntity instanceof Entity) {
       for (const c in componentOrEntity.components) {
-        this.addComponent(componentOrEntity.components[c].clone());
+        this.addComponent(componentOrEntity.components[c].clone(), force);
       }
       // Normal component case
     } else {
@@ -156,14 +211,12 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
       if (componentOrEntity.dependencies && componentOrEntity.dependencies.length) {
         for (const ctor of componentOrEntity.dependencies) {
           this.addComponent(new ctor());
-          this._dirty = true;
         }
       }
 
       componentOrEntity.owner = this;
       (this.components as ComponentMap)[componentOrEntity.type] = componentOrEntity;
       if (componentOrEntity.onAdd) {
-        this._dirty = true;
         componentOrEntity.onAdd(this);
       }
     }
@@ -201,7 +254,6 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
         this.components[type].onRemove(this);
       }
       delete this.components[type];
-      this._dirty = true;
     }
   }
 
@@ -209,7 +261,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * @hidden
    * @internal
    */
-  public processRemoval() {
+  public processComponentRemoval() {
     for (const componentOrType of this._componentsToRemove) {
       const type = typeof componentOrType === 'string' ? componentOrType : componentOrType.type;
       this._removeComponentByType(type);
@@ -217,6 +269,10 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
     this._componentsToRemove.length = 0;
   }
 
+  /**
+   * Check if a component type exists
+   * @param type
+   */
   public has(type: string): boolean {
     return !!this.components[type];
   }

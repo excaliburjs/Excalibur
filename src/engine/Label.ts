@@ -335,10 +335,6 @@ export class LabelImpl extends Actor {
 
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     ctx.save();
-    ctx.translate(this.pos.x, this.pos.y);
-    ctx.scale(this.scale.x, this.scale.y);
-    ctx.rotate(this.rotation);
-
     if (this._textShadowOn) {
       ctx.save();
       ctx.translate(this._shadowOffsetX, this._shadowOffsetY);

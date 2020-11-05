@@ -12,12 +12,12 @@ describe('An EntityManager', () => {
   });
 
   it('can be created', () => {
-    const entityManager = new ex.EntityManager(new ex.Scene(null));
+    const entityManager = new ex.EntityManager(new ex.World(null));
     expect(entityManager).not.toBeNull();
   });
 
   it('can have entities added and removed from it', () => {
-    const entityManager = new ex.EntityManager(new ex.Scene(null));
+    const entityManager = new ex.EntityManager(new ex.World(null));
     const entity = new ex.Entity();
     expect(entityManager.entities).toEqual([]);
 
@@ -40,7 +40,7 @@ describe('An EntityManager', () => {
   });
 
   it('will be notified when entity components are added', (done) => {
-    const entityManager = new ex.EntityManager(new ex.Scene(null));
+    const entityManager = new ex.EntityManager(new ex.World(null));
     const entity = new ex.Entity();
     const componentA = new FakeComponent('A');
     entityManager.addEntity(entity);
@@ -56,7 +56,7 @@ describe('An EntityManager', () => {
   });
 
   it('will be notified when entity components are removed', (done) => {
-    const entityManager = new ex.EntityManager(new ex.Scene(null));
+    const entityManager = new ex.EntityManager(new ex.World(null));
     const entity = new ex.Entity();
     const componentA = new FakeComponent('A');
     entity.addComponent(componentA);
@@ -70,6 +70,6 @@ describe('An EntityManager', () => {
     };
 
     entity.removeComponent(componentA);
-    entity.processRemoval();
+    entity.processComponentRemoval();
   });
 });

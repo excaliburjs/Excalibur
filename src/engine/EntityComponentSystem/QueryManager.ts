@@ -2,7 +2,7 @@ import { Entity } from './Entity';
 import { buildTypeKey } from './Util';
 import { Query } from './Query';
 import { Component } from './Component';
-import { Scene } from '../Scene';
+import { World } from './World';
 
 /**
  * The query manager is responsible for updating all queries when entities/components change
@@ -10,7 +10,7 @@ import { Scene } from '../Scene';
 export class QueryManager {
   private _queries: { [entityComponentKey: string]: Query<any> } = {};
 
-  constructor(public scene: Scene) {}
+  constructor(private _world: World<any>) {}
 
   /**
    * Adds a query to the manager and populates with any entities that match
@@ -18,7 +18,7 @@ export class QueryManager {
    */
   private _addQuery(query: Query<any>) {
     this._queries[buildTypeKey(query.types)] = query;
-    for (const entity of this.scene.entityManager.entities) {
+    for (const entity of this._world.entityManager.entities) {
       query.addEntity(entity);
     }
   }
@@ -65,9 +65,7 @@ export class QueryManager {
    */
   public removeEntity(entity: Entity) {
     for (const queryType in this._queries) {
-      if (this._queries[queryType].entities.indexOf(entity) > -1) {
-        this._queries[queryType].removeEntity(entity);
-      }
+      this._queries[queryType].removeEntity(entity);
     }
   }
 
@@ -75,7 +73,7 @@ export class QueryManager {
    * Creates a populated query and returns, if the query already exists that will be returned instead of a new instance
    * @param types
    */
-  public createQuery<T extends Component = Component>(types: string[]): Query<T> {
+  public createQuery<T extends Component = Component>(types: readonly string[]): Query<T> {
     const maybeExistingQuery = this.getQuery<T>(types);
     if (maybeExistingQuery) {
       return maybeExistingQuery;
@@ -89,7 +87,7 @@ export class QueryManager {
    * Retrieves an existing query by types if it exists otherwise returns null
    * @param types
    */
-  public getQuery<T extends Component = Component>(types: string[]): Query<T> {
+  public getQuery<T extends Component = Component>(types: readonly string[]): Query<T> {
     const key = buildTypeKey(types);
     if (this._queries[key]) {
       return this._queries[key] as Query<T>;

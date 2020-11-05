@@ -17,9 +17,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Updates the Excalibur ECS implementation for ease of use and Excalibur draw system integration
+  - Adds `ex.World` to encapsulate all things ECS
+  - Adds `ex.CanvasDrawSystem` to handle all HTML Canvas 2D drawing via ECS
+  - Updates `ex.Actor` to use new `ex.TransformComponent` and `ex.CanvasDrawComponent`
+
 ### Deprecated
 
 - Removed UIActor Stub in favor of ScreenElement ([#1656](https://github.com/excaliburjs/Excalibur/issues/1656))
+- Marks `ex.SortedList` as deprecated 
 
 ### Removed
 

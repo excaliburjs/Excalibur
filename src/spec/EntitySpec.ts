@@ -47,11 +47,15 @@ describe('An entity', () => {
   it('can have type from tag components', () => {
     const entity = new ex.Entity();
     const isOffscreen = new TagComponent('offscreen');
+    const nonTag = new FakeComponent('A');
 
     expect(entity.types).toEqual([]);
     entity.addComponent(isOffscreen);
+    entity.addComponent(nonTag);
 
-    expect(entity.types).toEqual(['offscreen']);
+    expect(entity.types).toEqual(['offscreen', 'A']);
+    expect(entity.tags).toEqual(['offscreen']);
+    expect(entity.hasTag('offscreen')).toBeTrue();
   });
 
   it('can be observed for added changes', (done) => {
@@ -82,7 +86,7 @@ describe('An entity', () => {
       }
     });
     entity.removeComponent(typeA);
-    entity.processRemoval();
+    entity.processComponentRemoval();
   });
 
   it('can be cloned', () => {

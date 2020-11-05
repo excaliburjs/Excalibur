@@ -9,8 +9,7 @@ describe('A scene', () => {
   beforeEach(() => {
     actor = new ex.Actor();
     engine = TestUtils.engine({ width: 100, height: 100 });
-    scene = new ex.Scene(engine);
-    engine.currentScene = scene;
+    scene = new ex.Scene();
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(actor, 'draw');
@@ -23,11 +22,12 @@ describe('A scene', () => {
   });
 
   it('cannot have the same ScreenElement added to it more than once', () => {
+    engine.goToScene('root');
     const screenElement = new ex.ScreenElement();
     scene.add(screenElement);
-    expect(scene.screenElements.length).toBe(1);
+    expect(scene.actors.length).toBe(1);
     scene.add(screenElement);
-    expect(scene.screenElements.length).toBe(1);
+    expect(scene.actors.length).toBe(1);
   });
 
   it('cannot have the same Actor added to it more than once', () => {
@@ -46,6 +46,7 @@ describe('A scene', () => {
   });
 
   it('draws onscreen Actors', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
@@ -62,6 +63,7 @@ describe('A scene', () => {
   });
 
   it('draws onscreen Actors left', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = -4;
@@ -77,6 +79,7 @@ describe('A scene', () => {
     expect(actor.draw).toHaveBeenCalled();
   });
   it('does not draw offscreen Actors left', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = -6;
@@ -93,6 +96,7 @@ describe('A scene', () => {
   });
 
   it('draws onscreen Actors top', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
@@ -109,6 +113,7 @@ describe('A scene', () => {
   });
 
   it('does not draw offscreen Actors top', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
@@ -125,6 +130,7 @@ describe('A scene', () => {
   });
 
   it('draws onscreen Actors right', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 104;
@@ -141,6 +147,7 @@ describe('A scene', () => {
   });
 
   it('does not draw offscreen Actors right', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 106;
@@ -157,6 +164,7 @@ describe('A scene', () => {
   });
 
   it('draws onscreen Actors bottom', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
@@ -173,6 +181,7 @@ describe('A scene', () => {
   });
 
   it('does not draw offscreen Actors bottom', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
@@ -189,6 +198,7 @@ describe('A scene', () => {
   });
 
   it('does not draw offscreen Actors', () => {
+    engine.goToScene('root');
     actor.pos.x = 1000;
     actor.pos.y = 1000;
     scene.update(engine, 100);
@@ -215,6 +225,7 @@ describe('A scene', () => {
   });
 
   it('draws visible Actors', () => {
+    engine.goToScene('root');
     actor.visible = true;
 
     scene.add(actor);
@@ -224,6 +235,7 @@ describe('A scene', () => {
   });
 
   it('does not draw invisible actors', () => {
+    engine.goToScene('root');
     actor.visible = false;
 
     scene.add(actor);
@@ -373,7 +385,6 @@ describe('A scene', () => {
 
     expect(scene.actors.indexOf(actor)).toBe(0);
     expect(scene.actors.length).toBe(1);
-    expect(scene.isActorInDrawTree(actor)).toBe(true);
   });
 
   it('will update Actors that were added in a Timer callback', () => {
@@ -441,7 +452,7 @@ describe('A scene', () => {
     scene.update(engine, 11);
     scene.draw(engine.ctx, 11);
 
-    expect(scene.screenElements.indexOf(actor)).toBeGreaterThan(-1, 'ScreenElement was not added to scene');
+    expect(scene.actors.indexOf(actor)).toBeGreaterThan(-1, 'ScreenElement was not added to scene');
     expect(initialized).toBe(true, 'ScreenElement was not initialized after timer callback');
     expect(updated).toBe(true, 'ScreenElement was not updated after timer callback');
   });

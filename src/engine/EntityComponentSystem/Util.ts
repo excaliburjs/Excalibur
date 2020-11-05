@@ -1,4 +1,4 @@
-export const buildTypeKey = (types: string[]) => {
-  const key = types.sort((a, b) => a.localeCompare(b)).join('+');
+export const buildTypeKey = (types: readonly string[]) => {
+  const key = [...types].sort((a, b) => a.localeCompare(b)).join('+');
   return key;
 };

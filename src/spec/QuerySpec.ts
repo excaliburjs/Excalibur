@@ -49,10 +49,10 @@ describe('A query', () => {
     entity2.addComponent(compA);
 
     queryAB.addEntity(entity1);
-    expect(queryAB.entities).toEqual([entity1]);
+    expect(queryAB.getEntities()).toEqual([entity1]);
 
     queryAB.addEntity(entity2);
-    expect(queryAB.entities).toEqual([entity1]);
+    expect(queryAB.getEntities()).toEqual([entity1]);
   });
 
   it('can remove entities', () => {
@@ -67,13 +67,13 @@ describe('A query', () => {
     entity2.addComponent(compA);
 
     queryAB.addEntity(entity1);
-    expect(queryAB.entities).toEqual([entity1]);
+    expect(queryAB.getEntities()).toEqual([entity1]);
 
     queryAB.removeEntity(entity2);
-    expect(queryAB.entities).toEqual([entity1]);
+    expect(queryAB.getEntities()).toEqual([entity1]);
 
     queryAB.removeEntity(entity1);
-    expect(queryAB.entities).toEqual([]);
+    expect(queryAB.getEntities()).toEqual([]);
   });
 
   it('notifies obersvers of when something is added to the query', (done) => {
@@ -127,10 +127,10 @@ describe('A query', () => {
     queryAB.register({
       notify: () => {} // eslint-disable-line @typescript-eslint/no-empty-function
     });
-    expect(queryAB.entities).toEqual([entity1]);
+    expect(queryAB.getEntities()).toEqual([entity1]);
     expect(queryAB.observers.length).toBe(1);
     queryAB.clear();
-    expect(queryAB.entities).toEqual([]);
+    expect(queryAB.getEntities()).toEqual([]);
     expect(queryAB.observers.length).toBe(0);
   });
 });

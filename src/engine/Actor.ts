@@ -47,6 +47,8 @@ import { Collider } from './Collision/Collider';
 import { Shape } from './Collision/Shape';
 
 import { Entity } from './EntityComponentSystem/Entity';
+import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
+import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 
 /**
  * Type guard for checking if something is an Actor
@@ -81,7 +83,9 @@ export interface ActorDefaults {
  * @hidden
  */
 
-export class ActorImpl extends Entity implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
+export class ActorImpl
+  extends Entity<TransformComponent | CanvasDrawComponent>
+  implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
   /**
@@ -90,14 +94,6 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   public static defaults: ActorDefaults = {
     anchor: Vector.Half
   };
-  /**
-   * Indicates the next id to be set
-   */
-  public static maxId = 0;
-  /**
-   * The unique identifier for the actor
-   */
-  public id: number = ActorImpl.maxId++;
 
   /**
    * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
@@ -445,7 +441,6 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
     captureDragEvents: false
   };
 
-  private _zIndex: number = 0;
   private _isKilled: boolean = false;
 
   // #endregion
@@ -463,6 +458,9 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
 
     // initialize default options
     this._initDefaults();
+
+    this.addComponent(new TransformComponent());
+    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
 
     let shouldInitializeBody = true;
     let collisionType = CollisionType.Passive;
@@ -883,6 +881,9 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
     actor.body.collider.type = CollisionType.PreventCollision;
     if (Util.addItemToArray(actor, this.children)) {
       actor.parent = this;
+      if (this.scene) {
+        this.scene.world.add(actor);
+      }
     }
   }
   /**
@@ -962,9 +963,10 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   /**
    * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
+   * @deprecated Use actor.z
    */
   public getZIndex(): number {
-    return this._zIndex;
+    return this.components.transform.z;
   }
 
   /**
@@ -972,12 +974,10 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
    * @param newIndex new z-index to assign
+   * @deprecated Use actor.z
    */
   public setZIndex(newIndex: number) {
-    const newZ = newIndex;
-    this.scene?.cleanupDrawTree(this);
-    this._zIndex = newZ;
-    this.scene?.updateDrawTree(this);
+    this.components.transform.z = newIndex;
   }
 
   /**
@@ -1210,11 +1210,6 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * @param delta The time since the last draw in milliseconds
    */
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
-    ctx.save();
-    ctx.translate(this.pos.x, this.pos.y);
-    ctx.rotate(this.rotation);
-    ctx.scale(this.scale.x, this.scale.y);
-
     // translate canvas by anchor offset
     ctx.save();
     ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
@@ -1234,16 +1229,7 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
       }
     }
     ctx.restore();
-
-    // Draw child actors
-    for (let i = 0; i < this.children.length; i++) {
-      if (this.children[i].visible) {
-        this.children[i].draw(ctx, delta);
-      }
-    }
-
     this._postdraw(ctx, delta);
-    ctx.restore();
   }
 
   /**

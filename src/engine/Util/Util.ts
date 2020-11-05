@@ -67,7 +67,7 @@ export function extend() {
   const assignExists = typeof (<any>Object).assign === 'function';
   let merge = null;
   if (!assignExists) {
-    merge = function(obj: any) {
+    merge = function (obj: any) {
       for (const prop in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, prop)) {
           // If deep merge and property is an object, merge properties
@@ -224,7 +224,7 @@ export function getPosition(el: HTMLElement): Vector {
 }
 
 /**
- * Add an item to an array list
+ * Add an item to an array list if it doesn't already exist. Returns true if added, false if not and already exists in the array.
  * @deprecated
  */
 export function addItemToArray<T>(item: T, array: T[]): boolean {
@@ -237,7 +237,6 @@ export function addItemToArray<T>(item: T, array: T[]): boolean {
 
 /**
  * Remove an item from an list
- * @deprecated
  */
 export function removeItemFromArray<T>(item: T, array: T[]): boolean {
   let index = -1;
@@ -251,7 +250,6 @@ export function removeItemFromArray<T>(item: T, array: T[]): boolean {
 
 /**
  * See if an array contains something
- * @deprecated
  */
 export function contains(array: Array<any>, obj: any): boolean {
   for (let i = 0; i < array.length; i++) {

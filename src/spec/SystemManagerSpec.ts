@@ -7,7 +7,7 @@ class FakeComponent<T extends string> extends ex.Component<T> {
   }
 }
 
-class FakeSystem extends ex.System {
+class FakeSystem extends ex.System<null> {
   constructor(public priority: number, public name: string, public types: string[], public systemType: ex.SystemType) {
     super();
   }
@@ -26,7 +26,7 @@ describe('A SystemManager', () => {
   });
 
   it('can add systems', () => {
-    const sm = new ex.Scene(null).systemManager;
+    const sm = new ex.World(null).systemManager;
 
     // Lower priority
     const s3 = new FakeSystem(2, 'System3', ['C'], SystemType.Update);
@@ -41,7 +41,7 @@ describe('A SystemManager', () => {
   });
 
   it('can remove systems', () => {
-    const sm = new ex.Scene(null).systemManager;
+    const sm = new ex.World(null).systemManager;
 
     // Lower priority
     const s3 = new FakeSystem(2, 'System3', ['C'], SystemType.Update);
@@ -59,7 +59,7 @@ describe('A SystemManager', () => {
   });
 
   it('can update systems', () => {
-    const sm = new ex.Scene(null).systemManager;
+    const sm = new ex.World(null).systemManager;
     const system = new FakeSystem(2, 'System3', ['C'], SystemType.Update);
     system.preupdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
     system.postupdate = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
@@ -74,10 +74,10 @@ describe('A SystemManager', () => {
   });
 
   it('can update systems with the correct entities', () => {
-    const scene = new ex.Scene(null);
-    const sm = scene.systemManager;
-    const qm = scene.queryManager;
-    const em = scene.entityManager;
+    const world = new ex.World(null);
+    const sm = world.systemManager;
+    const qm = world.queryManager;
+    const em = world.entityManager;
     const system = new FakeSystem(2, 'System3', ['A', 'C'], SystemType.Update);
     spyOn(system, 'update').and.callThrough();
     sm.addSystem(system);
@@ -98,7 +98,7 @@ describe('A SystemManager', () => {
     em.addEntity(e3);
 
     const query = qm.getQuery(['A', 'C']);
-    expect(query.entities).toEqual([e1, e3]);
+    expect(query.getEntities()).toEqual([e1, e3]);
 
     sm.updateSystems(SystemType.Update, null, 10);
 
@@ -106,10 +106,10 @@ describe('A SystemManager', () => {
   });
 
   it('only updates system of the specified system type', () => {
-    const scene = new ex.Scene(null);
-    const sm = scene.systemManager;
-    const qm = scene.queryManager;
-    const em = scene.entityManager;
+    const world = new ex.World(null);
+    const sm = world.systemManager;
+    const qm = world.queryManager;
+    const em = world.entityManager;
     const system1 = new FakeSystem(2, 'System1', ['A', 'C'], SystemType.Update);
     spyOn(system1, 'update').and.callThrough();
     sm.addSystem(system1);
@@ -124,9 +124,19 @@ describe('A SystemManager', () => {
   });
 
   it('should throw on invalid system', () => {
-    const sm = new ex.Scene(null).systemManager;
+    const sm = new ex.World(null).systemManager;
     expect(() => {
       sm.addSystem(new FakeSystem(0, 'ErrorSystem', [], SystemType.Update));
     }).toThrow(new Error('Attempted to add a System without any types'));
+  });
+
+  it('type guards on messages should work', () => {
+    const add = new ex.AddedEntity(new ex.Entity());
+    expect(ex.isAddedSystemEntity(add)).toBe(true);
+    expect(ex.isRemoveSystemEntity(add)).toBe(false);
+
+    const remove = new ex.RemovedEntity(new ex.Entity());
+    expect(ex.isRemoveSystemEntity(remove)).toBe(true);
+    expect(ex.isAddedSystemEntity(remove)).toBe(false);
   });
 });

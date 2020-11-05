@@ -16,7 +16,7 @@ export class OffscreenCulling implements Trait {
     }
 
     let actorBoundsOffscreen = false;
-    if (engine && engine.currentScene && engine.currentScene.camera && engine.currentScene.camera.viewport) {
+    if (engine && engine.currentScene && engine.currentScene.camera && engine.currentScene.camera.viewport && !actor.parent) {
       actorBoundsOffscreen = !engine.currentScene.camera.viewport.intersect(actor.body.collider.bounds);
     }
 

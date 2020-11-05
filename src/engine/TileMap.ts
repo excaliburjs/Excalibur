@@ -1,18 +1,20 @@
 import { BoundingBox } from './Collision/BoundingBox';
 import { Color } from './Drawing/Color';
-import { Class } from './Class';
 import { Engine } from './Engine';
-import { Vector } from './Algebra';
+import { vec, Vector } from './Algebra';
 import { Actor } from './Actor';
 import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
 import { Configurable } from './Configurable';
+import { Entity } from './EntityComponentSystem/Entity';
+import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
+import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 
 /**
  * @hidden
  */
-export class TileMapImpl extends Class {
+export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent> {
   private _collidingX: number = -1;
   private _collidingY: number = -1;
   private _onScreenXStart: number = 0;
@@ -24,10 +26,24 @@ export class TileMapImpl extends Class {
   public data: Cell[] = [];
   public x: number;
   public y: number;
+  public z = 0;
+  public visible = true;
+  public isOffscreen = false;
+  public rotation = 0;
+  public scale = Vector.One;
   public cellWidth: number;
   public cellHeight: number;
   public rows: number;
   public cols: number;
+
+  public get pos(): Vector {
+    return vec(this.x, this.y);
+  }
+
+  public set pos(val: Vector) {
+    this.x = val.x;
+    this.y = val.y;
+  }
 
   public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent<TileMap>) => void): void;
   public on(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent<TileMap>) => void): void;
@@ -72,6 +88,9 @@ export class TileMapImpl extends Class {
         })();
       }
     }
+
+    this.addComponent(new TransformComponent());
+    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
   }
 
   public registerSpriteSheet(key: string, spriteSheet: SpriteSheet) {
@@ -181,9 +200,6 @@ export class TileMapImpl extends Class {
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     this.emit('predraw', new Events.PreDrawEvent(ctx, delta, this));
 
-    ctx.save();
-    ctx.translate(this.x, this.y);
-
     let x = this._onScreenXStart;
     const xEnd = Math.min(this._onScreenXEnd, this.cols);
     let y = this._onScreenYStart;
@@ -216,7 +232,6 @@ export class TileMapImpl extends Class {
       }
       y = this._onScreenYStart;
     }
-    ctx.restore();
 
     this.emit('postdraw', new Events.PostDrawEvent(ctx, delta, this));
   }

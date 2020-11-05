@@ -6,6 +6,7 @@ import { Physics } from '../Physics';
 import { PreCollisionEvent, PostCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
 import { Clonable } from '../Interfaces/Clonable';
 import { Shape } from './Shape';
+import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 
 export interface BodyOptions {
   /**
@@ -75,12 +76,22 @@ export class Body implements Clonable<Body> {
     return this._collider;
   }
 
+  public get transform(): TransformComponent {
+    return this.actor.components.transform;
+  }
+
   /**
    * The (x, y) position of the actor this will be in the middle of the actor if the
    * [[Actor.anchor]] is set to (0.5, 0.5) which is default.
    * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
    */
-  public pos: Vector = new Vector(0, 0);
+  public get pos(): Vector {
+    return this.transform.pos;
+  }
+
+  public set pos(val: Vector) {
+    this.transform.pos = val;
+  }
 
   /**
    * The position of the actor last frame (x, y) in pixels
@@ -126,7 +137,13 @@ export class Body implements Clonable<Body> {
   /**
    * The rotation of the actor in radians
    */
-  public rotation: number = 0; // radians
+  public get rotation() {
+    return this.transform.rotation;
+  }
+
+  public set rotation(val: number) {
+    this.transform.rotation = val;
+  }
 
   /**
    * The scale vector of the actor
