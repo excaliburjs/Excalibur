@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.12.3",
-    "@fortawesome/fontawesome-free": "5.15.0",
+    "@fortawesome/fontawesome-free": "5.15.1",
     "@storybook/addon-actions": "6.0.21",
     "@storybook/addon-console": "1.2.2",
     "@storybook/addon-docs": "6.0.21",
