@@ -115,7 +115,7 @@
     "url-loader": "4.1.0",
     "webpack": "4.44.2",
     "webpack-cli": "3.3.12",
-    "webpack-merge": "5.1.4"
+    "webpack-merge": "5.3.0"
   },
   "dependencies": {
     "core-js": "3.6.5"
