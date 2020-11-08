@@ -4,7 +4,7 @@ import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
 describe('A camera', () => {
-  let Camera;
+  let Camera: ex.Camera;
   let actor: ex.Actor;
   let engine: ex.Engine;
   let scene: ex.Scene;
@@ -130,7 +130,24 @@ describe('A camera', () => {
     Camera.move(new ex.Vector(20, 10), 1000).then(() => {
       Camera.move(new ex.Vector(0, 0), 1000).then(() => {
         Camera.move(new ex.Vector(100, 100), 1000);
+        // wait 11 frames (1100ms)
+        for (let i = 0; i < 11; i++) {
+          Camera.update(engine, 100);
+        }
+
+        // should be at new position
+        expect(Camera.x).toBe(100);
+        expect(Camera.y).toBe(100);
       });
+
+      // wait 11 frames (1100ms)
+      for (let i = 0; i < 11; i++) {
+        Camera.update(engine, 100);
+      }
+
+      // should be at new position
+      expect(Camera.x).toBe(0);
+      expect(Camera.y).toBe(0);
     });
 
     // wait 11 frames (1100ms)
@@ -141,24 +158,6 @@ describe('A camera', () => {
     // should be at new position
     expect(Camera.x).toBe(20);
     expect(Camera.y).toBe(10);
-
-    // wait 11 frames (1100ms)
-    for (let i = 0; i < 11; i++) {
-      Camera.update(engine, 100);
-    }
-
-    // should be at new position
-    expect(Camera.x).toBe(0);
-    expect(Camera.y).toBe(0);
-
-    // wait 11 frames (1100ms)
-    for (let i = 0; i < 11; i++) {
-      Camera.update(engine, 100);
-    }
-
-    // should be at new position
-    expect(Camera.x).toBe(100);
-    expect(Camera.y).toBe(100);
   });
 
   it('can shake', () => {
@@ -166,14 +165,14 @@ describe('A camera', () => {
     engine.currentScene.camera.strategy.lockToActor(actor);
     Camera.shake(5, 5, 5000);
 
-    expect(Camera._isShaking).toBe(true);
+    expect((Camera as any)._isShaking).toBe(true);
   });
 
   it('can zoom', () => {
     engine.currentScene.camera = Camera;
     Camera.zoom(2, 0.1);
 
-    expect(Camera._isZooming).toBe(true);
+    expect((Camera as any)._isZooming).toBe(true);
   });
 
   it('can use built-in locked camera strategy', () => {
@@ -296,11 +295,11 @@ describe('A camera', () => {
         expect(engine.currentScene.camera.pos.y).toBe(200);
         done();
       });
+      engine.currentScene.camera.update(engine, 999);
+      engine.currentScene.camera.update(engine, 1);
+      engine.currentScene.camera.update(engine, 1);
     });
 
-    engine.currentScene.camera.update(engine, 999);
-    engine.currentScene.camera.update(engine, 1);
-    engine.currentScene.camera.update(engine, 1);
     engine.currentScene.camera.update(engine, 999);
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene.camera.update(engine, 1);

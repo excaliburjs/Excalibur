@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-describe('A promise', () => {
+xdescribe('A promise', () => {
   let promise: ex.Promise<any>;
 
   beforeEach(() => {

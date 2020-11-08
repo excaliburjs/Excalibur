@@ -36,6 +36,8 @@ describe('An @obsolete decorator', () => {
   let testObsolete: TestObsolete = null;
   let logger = null;
   beforeEach(() => {
+    ex.Flags._reset();
+    ex.Flags.disable('suppress-obsolete-message');
     testObsolete = new TestObsolete();
     logger = ex.Logger.getInstance();
     spyOn(logger, 'warn');

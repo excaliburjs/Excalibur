@@ -1,5 +1,4 @@
 import { Audio } from '../../Interfaces/Audio';
-import { Promise } from '../../Promises';
 import * as Util from '../../Util/Util';
 import { AudioContextFactory } from './AudioContext';
 
@@ -58,6 +57,7 @@ export class AudioInstance implements Audio {
   protected _isPlaying = false;
   protected _isPaused = false;
   protected _instance: HTMLAudioElement | AudioBufferSourceNode;
+  protected _playingResolve: (value: boolean) => void;
 
   constructor(protected _src: string | AudioBuffer) {}
 
@@ -83,13 +83,16 @@ export class AudioInstance implements Audio {
     this._isPaused = false;
   }
 
-  public play() {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  public play(playStarted: () => any = () => { }) {
     if (this._isPaused) {
       this._resumePlayBack();
+      playStarted();
     }
 
     if (!this._isPlaying) {
       this._startPlayBack();
+      playStarted();
     }
 
     return this._playingPromise;
@@ -98,7 +101,9 @@ export class AudioInstance implements Audio {
   protected _startPlayBack() {
     this._isPlaying = true;
     this._isPaused = false;
-    this._playingPromise = new Promise<boolean>();
+    this._playingPromise = new Promise<boolean>((resolve) => {
+      this._playingResolve = resolve;
+    });
   }
 
   protected _resumePlayBack() {
@@ -117,9 +122,7 @@ export class AudioInstance implements Audio {
   }
 
   protected _handleOnEnded() {
-    /**
-     * Override me
-     */
+    this._playingResolve(true);
   }
 }
 
@@ -164,11 +167,14 @@ export class WebAudioInstance extends AudioInstance {
 
   constructor(_src: AudioBuffer) {
     super(_src);
-
     this._createNewBufferSource();
   }
 
   public pause() {
+    if (!this._isPlaying) {
+      super.pause();
+      return;
+    }
     super.pause();
 
     this._instance.stop(0);
@@ -180,6 +186,10 @@ export class WebAudioInstance extends AudioInstance {
   }
 
   public stop() {
+    if (!this._isPlaying) {
+      super.stop();
+      return;
+    }
     super.stop();
 
     this._currentOffset = 0;
@@ -204,7 +214,6 @@ export class WebAudioInstance extends AudioInstance {
     this._instance.start(0, 0);
     this._currentOffset = 0;
 
-    this._playingPromise = new Promise<boolean>();
     this._wireUpOnEnded();
   }
 
@@ -230,7 +239,7 @@ export class WebAudioInstance extends AudioInstance {
     // so we don't "resolve" yet (when we resume we'll try again)
     if (!this._isPaused) {
       this._isPlaying = false;
-      this._playingPromise.resolve(true);
+      super._handleOnEnded();
     }
   }
 

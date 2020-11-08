@@ -1,4 +1,3 @@
-import { Promise } from '../Promises';
 import { Audio } from './Audio';
 
 export type ExResponseType = '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text';

@@ -1,3 +1,4 @@
+import { Flags } from '../Flags';
 import { Logger } from './Log';
 import * as Util from './Util';
 
@@ -22,7 +23,8 @@ export const resetObsoleteCounter = () => {
 };
 
 const logMessage = (message: string, options: ObsoleteOptions) => {
-  if (obsoleteMessage[message] < maxMessages) {
+  const suppressObsoleteMessages = Flags.isEnabled('suppress-obsolete-message');
+  if (obsoleteMessage[message] < maxMessages && !suppressObsoleteMessages) {
     Logger.getInstance().warn(message);
 
     // tslint:disable-next-line: no-console

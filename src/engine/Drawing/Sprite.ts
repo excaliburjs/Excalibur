@@ -51,7 +51,7 @@ export class SpriteImpl implements Drawable {
   private _spriteCtx: CanvasRenderingContext2D = null;
   private _pixelData: ImageData = null;
   private _pixelsLoaded: boolean = false;
-  private _dirtyEffect: boolean = false;
+  private _dirtyEffect: boolean = true;
 
   /**
    * @param imageOrConfig  The backing image texture to build the Sprite, or Sprite option bag
@@ -69,7 +69,7 @@ export class SpriteImpl implements Drawable {
       height = imageOrConfig.height | 0;
       image = imageOrConfig.image;
       if (!image) {
-        const message = 'An image texture is required to contsruct a sprite';
+        const message = 'An image texture is required to construct a sprite';
         throw new Error(message);
       }
     }
@@ -77,26 +77,29 @@ export class SpriteImpl implements Drawable {
     this.x = x || 0;
     this.y = y || 0;
 
-    this._texture = <Texture>image;
+    this._texture = image as Texture;
     this._spriteCanvas = document.createElement('canvas');
     this._spriteCanvas.width = width;
     this._spriteCanvas.height = height;
-    this._spriteCtx = <CanvasRenderingContext2D>this._spriteCanvas.getContext('2d'); // eslint-disable-line
-    this._texture.loaded
-      .then(() => {
-        this.width = this.width || this._texture.image.naturalWidth;
-        this.height = this.height || this._texture.image.naturalHeight;
-        this._spriteCanvas.width = this._spriteCanvas.width || this._texture.image.naturalWidth;
-        this._spriteCanvas.height = this._spriteCanvas.height || this._texture.image.naturalHeight;
-        this._loadPixels();
-        this._dirtyEffect = true;
-      })
-      .error((e) => {
-        this.logger.error('Error loading texture ', this._texture.path, e);
-      });
+    this._spriteCtx = this._spriteCanvas.getContext('2d');
+    this._initPixelsFromTexture();
 
     this.width = width;
     this.height = height;
+  }
+
+  private async _initPixelsFromTexture() {
+    try {
+      const image = await this._texture.loaded;
+      this.width = this.width || image.naturalWidth;
+      this.height = this.height || image.naturalHeight;
+      this._spriteCanvas.width = this._spriteCanvas.width || image.naturalWidth;
+      this._spriteCanvas.height = this._spriteCanvas.height || image.naturalHeight;
+      this._loadPixels();
+      this._dirtyEffect = true;
+    } catch (e) {
+      this.logger.error('Error loading texture ', this._texture.path, e);
+    }
   }
 
   private _loadPixels() {
@@ -122,20 +125,28 @@ export class SpriteImpl implements Drawable {
         throw new Error(`The height of a sprite cannot be 0 or negative, sprite height: ${this.height}, original height: ${naturalHeight}`);
       }
 
-      this._spriteCtx.drawImage(
-        this._texture.image,
-        clamp(this.x, 0, naturalWidth),
-        clamp(this.y, 0, naturalHeight),
-        clamp(this.width, 0, naturalWidth),
-        clamp(this.height, 0, naturalHeight),
-        0,
-        0,
-        this.width,
-        this.height
-      );
+      this._flushTexture();
 
       this._pixelsLoaded = true;
     }
+  }
+
+  private _flushTexture() {
+    const naturalWidth = this._texture.image.naturalWidth || 0;
+    const naturalHeight = this._texture.image.naturalHeight || 0;
+
+    this._spriteCtx.clearRect(0, 0, this.width, this.height);
+    this._spriteCtx.drawImage(
+      this._texture.image,
+      clamp(this.x, 0, naturalWidth),
+      clamp(this.y, 0, naturalHeight),
+      clamp(this.width, 0, naturalWidth),
+      clamp(this.height, 0, naturalHeight),
+      0,
+      0,
+      this.width,
+      this.height
+    );
   }
 
   private _opacity: number = 1;
@@ -254,21 +265,8 @@ export class SpriteImpl implements Drawable {
   }
 
   private _applyEffects() {
-    const naturalWidth = this._texture.image.naturalWidth || 0;
-    const naturalHeight = this._texture.image.naturalHeight || 0;
 
-    this._spriteCtx.clearRect(0, 0, this.width, this.height);
-    this._spriteCtx.drawImage(
-      this._texture.image,
-      clamp(this.x, 0, naturalWidth),
-      clamp(this.y, 0, naturalHeight),
-      clamp(this.width, 0, naturalWidth),
-      clamp(this.height, 0, naturalHeight),
-      0,
-      0,
-      this.width,
-      this.height
-    );
+    this._flushTexture();
 
     if (this.effects.length > 0) {
       this._pixelData = this._spriteCtx.getImageData(0, 0, this.width, this.height);
@@ -359,7 +357,6 @@ export class SpriteImpl implements Drawable {
     ctx.translate(x, y);
     ctx.rotate(rotation);
 
-    // todo cache flipped sprites
     if (flipHorizontal) {
       ctx.translate(drawWidth, 0);
       ctx.scale(-1, 1);
@@ -368,10 +365,6 @@ export class SpriteImpl implements Drawable {
     if (flipVertical) {
       ctx.translate(0, drawHeight);
       ctx.scale(1, -1);
-    }
-
-    if (this._dirtyEffect) {
-      this._applyEffects();
     }
 
     const oldAlpha = ctx.globalAlpha;

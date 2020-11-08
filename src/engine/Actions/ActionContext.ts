@@ -2,7 +2,6 @@ import * as Actions from './Action';
 import { RotationType } from './RotationType';
 
 import { Actor } from '../Actor';
-import { Promise } from '../Promises';
 import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
 
 /**
@@ -313,16 +312,17 @@ export class ActionContext {
    * Returns a promise that resolves when the current action queue up to now
    * is finished.
    */
-  public asPromise<T>(): Promise<T> {
+  public asPromise<T>(): Promise<T[]> {
     const promises = this._queues.map((q, i) => {
-      const temp = new Promise<T>();
-      q.add(
-        new Actions.CallMethod(this._actors[i], () => {
-          temp.resolve();
-        })
-      );
+      const temp = new Promise<T>((resolve) => {
+        q.add(
+          new Actions.CallMethod(this._actors[i], () => {
+            resolve();
+          })
+        );
+      });
       return temp;
     });
-    return Promise.join.apply(this, promises);
+    return Promise.all(promises);
   }
 }
