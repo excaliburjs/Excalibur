@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 // Promises/A+ Spec http://promises-aplus.github.io/promises-spec/
 
 import { obsolete } from './Util/Decorators';

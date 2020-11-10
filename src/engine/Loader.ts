@@ -10,6 +10,7 @@ import * as DrawUtil from './Util/DrawUtil';
 import logoImg from './Loader.logo.png';
 import loaderCss from './Loader.css';
 import { Vector } from './Algebra';
+import { clamp } from './Util/Util';
 
 /**
  * Pre-loading assets
@@ -353,7 +354,7 @@ export class Loader extends Class implements CanLoad {
    * Returns the progess of the loader as a number between [0, 1] inclusive.
    */
   public get progress(): number {
-    return this._resourceCount > 0 ? this._numLoaded / this._resourceCount : 1;
+    return this._resourceCount > 0 ? clamp(this._numLoaded, 0, this._resourceCount) / this._resourceCount : 1;
   }
 
   /**
