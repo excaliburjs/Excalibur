@@ -56,6 +56,9 @@ export class Texture extends Resource<string> {
     const complete = new Promise<HTMLImageElement>(async (resolve, reject) => {
       this.image = new Image();
       this.image.addEventListener('load', () => {
+        if (this.path.indexOf('data:image/')) {
+          this.oncomplete();
+        }
         this._isLoaded = true;
         this.width = this._sprite.width = this.image.naturalWidth;
         this.height = this._sprite.height = this.image.naturalHeight;
@@ -65,7 +68,6 @@ export class Texture extends Resource<string> {
       });
       if (this.path.indexOf('data:image/') > -1) {
         this.image.src = this.path;
-        this.oncomplete();
       } else {
         try {
           this.image.src = await super.load();

@@ -19,10 +19,7 @@ describe('A Texture', () => {
       expect(base64.isLoaded()).toBe(true);
       expect(base64.width).toBe(62);
       expect(base64.height).toBe(64);
-    });
-
-    base64.oncomplete = () => {
       done();
-    };
+    });
   });
 });
