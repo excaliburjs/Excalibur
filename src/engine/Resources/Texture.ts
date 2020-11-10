@@ -53,28 +53,27 @@ export class Texture extends Resource<string> {
    * Begins loading the texture and returns a promise to be resolved on completion
    */
   public async load(): Promise<HTMLImageElement> {
-    const complete = new Promise<HTMLImageElement>(
-      async (resolve, reject) => {
-        this.image = new Image();
-        this.image.addEventListener('load', () => {
-          this._isLoaded = true;
-          this.width = this._sprite.width = this.image.naturalWidth;
-          this.height = this._sprite.height = this.image.naturalHeight;
-          this._sprite = new Sprite(this, 0, 0, this.width, this.height);
-          this.oncomplete();
-          this._loadedResolve(this.image);
-          resolve(this.image);
-        });
-        if (this.path.indexOf('data:image/') > -1) {
-          this.image.src = this.path;
-        } else {
-          try {
-            this.image.src = await super.load();
-          } catch (e) {
-            reject('Error loading texture');
-          }
-        }
+    const complete = new Promise<HTMLImageElement>(async (resolve, reject) => {
+      this.image = new Image();
+      this.image.addEventListener('load', () => {
+        this._isLoaded = true;
+        this.width = this._sprite.width = this.image.naturalWidth;
+        this.height = this._sprite.height = this.image.naturalHeight;
+        this._sprite = new Sprite(this, 0, 0, this.width, this.height);
+        this._loadedResolve(this.image);
+        resolve(this.image);
       });
+      if (this.path.indexOf('data:image/') > -1) {
+        this.image.src = this.path;
+        this.oncomplete();
+      } else {
+        try {
+          this.image.src = await super.load();
+        } catch (e) {
+          reject('Error loading texture');
+        }
+      }
+    });
     return complete;
   }
 

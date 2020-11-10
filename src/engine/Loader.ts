@@ -285,14 +285,15 @@ export class Loader extends Class implements CanLoad {
       const progressArray = new Array<any>(this._resourceList.length);
       const progressChunks = this._resourceList.length;
 
-      this._resourceList.forEach((r, i) => {
+      for (const index in this._resourceList) {
+        const resource = this._resourceList[index];
         if (this._engine) {
-          r.wireEngine(this._engine);
+          resource.wireEngine(this._engine);
         }
-        r.onprogress = function (e) {
+        resource.onprogress = (e) => {
           const total = <number>e.total;
           const loaded = <number>e.loaded;
-          progressArray[i] = { loaded: (loaded / total) * (100 / progressChunks), total: 100 };
+          progressArray[index] = { loaded: (loaded / total) * (100 / progressChunks), total: 100 };
 
           const progressResult: any = progressArray.reduce(
             function (accum, next) {
@@ -303,7 +304,8 @@ export class Loader extends Class implements CanLoad {
 
           me.onprogress.call(me, progressResult);
         };
-        r.oncomplete = r.onerror = function () {
+
+        resource.oncomplete = resource.onerror = () => {
           me._numLoaded++;
           if (me._numLoaded === me._resourceCount) {
             setTimeout(() => {
@@ -320,19 +322,16 @@ export class Loader extends Class implements CanLoad {
             }, 200); // short delay in showing the button for aesthetics
           }
         };
-      });
+      }
 
-      /**
-       *
-       */
-      function loadNext(list: Loadable[], index: number) {
+      const loadNext = (list: Loadable[], index: number) => {
         if (!list[index]) {
           return;
         }
-        list[index].load().then(function () {
+        list[index].load().then(() => {
           loadNext(list, index + 1);
         });
-      }
+      };
       loadNext(this._resourceList, 0);
     });
     return complete;
