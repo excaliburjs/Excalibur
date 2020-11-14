@@ -16,6 +16,21 @@ describe('A generic Resource', () => {
     expect(resource.isLoaded()).toBe(false);
   });
 
+  it('should log failure when not found', (done) => {
+    const spy = jasmine.createSpy();
+    spyOn(ex.Logger.getInstance(), 'error').and.callFake(spy);
+
+    resource.onerror = jasmine.createSpy();
+    resource.load().then(
+      () => fail(),
+      () => {
+        expect(spy).toHaveBeenCalled();
+        expect(resource.onerror).toHaveBeenCalled();
+        done();
+      }
+    );
+  });
+
   describe('without data', () => {
     it('should not fail on load', (done) => {
       const emptyLoader = new ex.Loader();

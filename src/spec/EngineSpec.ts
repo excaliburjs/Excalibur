@@ -199,6 +199,11 @@ describe('The engine', () => {
     expect(engine.halfCanvasWidth).toBe(250);
   });
 
+  it('should return if fullscreen', () => {
+    engine.start();
+    expect(engine.isFullscreen).toBe(false);
+  });
+
   it('should accept a displayMode of Position', () => {
     engine = TestUtils.engine({
       displayMode: ex.DisplayMode.Position,
@@ -336,6 +341,48 @@ describe('The engine', () => {
       suppressConsoleBootMessage: true
     });
     expect(game.enableCanvasTransparency).toBe(true);
+  });
+
+  it('will warn if scenes are being overwritten', () => {
+    spyOn(ex.Logger.getInstance(), 'warn');
+    const scene = new ex.Scene();
+    engine.addScene('dup', scene);
+    engine.addScene('dup', scene);
+    expect(ex.Logger.getInstance().warn).toHaveBeenCalledWith('Scene', 'dup', 'already exists overwriting');
+  });
+
+  it('can have scenes removed by reference', () => {
+    const scene = new ex.Scene();
+    engine.addScene('otherScene', scene);
+    expect(engine.scenes.otherScene).toBeDefined();
+
+    engine.remove(scene);
+
+    expect(engine.scenes.otherScene).toBeUndefined();
+  });
+
+  it('can remove scenes by key', () => {
+    const scene = new ex.Scene();
+    engine.add('mySceneKey', scene);
+    expect(engine.scenes.mySceneKey).toBeDefined();
+
+    engine.remove('mySceneKey');
+    expect(engine.scenes.mySceneKey).toBeUndefined();
+  });
+
+  it('can remove actors by reference', () => {
+    const actor = new ex.Actor();
+    engine.add(actor);
+    expect(engine.currentScene.actors.length).toBe(1);
+    engine.remove(actor);
+    engine.currentScene.update(engine, 0);
+    expect(engine.currentScene.actors.length).toBe(0);
+  });
+
+  it('will log an error if the scene does not exist', () => {
+    spyOn(ex.Logger.getInstance(), 'error');
+    engine.goToScene('madeUp');
+    expect(ex.Logger.getInstance().error).toHaveBeenCalledWith('Scene', 'madeUp', 'does not exist!');
   });
 
   describe('lifecycle overrides', () => {

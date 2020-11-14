@@ -10,7 +10,6 @@ import { Logger } from '../Util/Log';
 export class Resource<T> extends Class implements Loadable<T> {
   public data: T = null;
   public logger: Logger = Logger.getInstance();
-  public arrayBuffer: ArrayBuffer = null;
 
   /**
    * @param path          Path to the remote resource
@@ -96,10 +95,6 @@ export class Resource<T> extends Class implements Loadable<T> {
    */
   public getData(): any {
     return this.data;
-  }
-
-  public getArrayData(): any {
-    return this.arrayBuffer;
   }
 
   /**

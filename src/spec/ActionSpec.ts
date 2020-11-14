@@ -136,6 +136,19 @@ describe('Action', () => {
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(0);
     });
+
+    it('can be a promise', (done) => {
+      const spy = jasmine.createSpy();
+      actor.actions.delay(1000);
+      actor.actions.callMethod(spy);
+      actor.actions.asPromise().then(() => {
+        expect(spy).toHaveBeenCalled();
+        done();
+      });
+      actor.update(engine, 1000);
+      actor.update(engine, 0);
+      actor.update(engine, 0);
+    });
   });
 
   describe('moveBy', () => {

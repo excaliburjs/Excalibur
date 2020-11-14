@@ -2,7 +2,7 @@ import { ExResponse } from '../../Interfaces/AudioImplementation';
 import { Audio } from '../../Interfaces/Audio';
 import { Engine } from '../../Engine';
 import { Resource } from '../Resource';
-import { AudioInstance, AudioInstanceFactory } from './AudioInstance';
+import { WebAudioInstance } from './WebAudioInstance';
 import { AudioContextFactory } from './AudioContext';
 import { NativeSoundEvent, NativeSoundProcessedEvent } from '../../Events/MediaEvents';
 import { canPlayFile } from '../../Util/Sound';
@@ -52,7 +52,7 @@ export class Sound extends Resource<ArrayBuffer> implements Audio {
   /**
    * Return array of Current AudioInstances playing or being paused
    */
-  public get instances(): AudioInstance[] {
+  public get instances(): Audio[] {
     return this._tracks;
   }
 
@@ -63,7 +63,7 @@ export class Sound extends Resource<ArrayBuffer> implements Audio {
   private _duration: number | undefined = undefined;
   private _isStopped = false;
   private _isPaused = false;
-  private _tracks: AudioInstance[] = [];
+  private _tracks: Audio[] = [];
   private _engine: Engine;
   private _wasPlayingOnHidden: boolean = false;
   private _processedDataResolve: (value: AudioBuffer) => void;
@@ -219,7 +219,7 @@ export class Sound extends Resource<ArrayBuffer> implements Audio {
    * Get Id of provided AudioInstance in current trackList
    * @param track [[AudioInstance]] which Id is to be given
    */
-  public getTrackId(track: AudioInstance): number {
+  public getTrackId(track: Audio): number {
     return this._tracks.indexOf(track);
   }
 
@@ -279,7 +279,7 @@ export class Sound extends Resource<ArrayBuffer> implements Audio {
     this.emit('processed', new NativeSoundProcessedEvent(this, processedData));
   }
 
-  private _createNewTrack(): Promise<AudioInstance> {
+  private _createNewTrack(): Promise<WebAudioInstance> {
     this.processData(this.data);
 
     return new Promise((resolve) => {
@@ -296,8 +296,8 @@ export class Sound extends Resource<ArrayBuffer> implements Audio {
     });
   }
 
-  private _getTrackInstance(data: AudioBuffer): AudioInstance {
-    const newTrack = AudioInstanceFactory.create(data);
+  private _getTrackInstance(data: AudioBuffer): WebAudioInstance {
+    const newTrack = new WebAudioInstance(data);
 
     newTrack.loop = this.loop;
     newTrack.volume = this.volume;
