@@ -695,6 +695,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     ctx.translate(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
   }
 
+  /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D) {
     const focus = this.getFocus();
     ctx.fillStyle = 'red';
