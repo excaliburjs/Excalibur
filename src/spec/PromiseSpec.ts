@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-xdescribe('A promise', () => {
+describe('A promise', () => {
   let promise: ex.Promise<any>;
 
   beforeEach(() => {
@@ -236,7 +236,7 @@ xdescribe('A promise', () => {
       throw new Error('ERROR!!!!!');
     });
 
-    expect(function() {
+    expect(function () {
       promise.resolve();
     }).toThrow();
   });

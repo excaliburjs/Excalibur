@@ -19,10 +19,11 @@ describe('A Gif', () => {
     engine = null;
   });
 
-  it('should parse gif files correctly', () => {
+  it('should parse gif files correctly', (done) => {
     gif.load().then(() => {
-      expect(gif).toBeDefined();
+      expect(gif).not.toBeNull();
       expect(gif.readCheckBytes).toEqual([11, 3, 4, 11, 4]);
+      done();
     });
   });
 
