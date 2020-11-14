@@ -34,34 +34,42 @@ export enum DisplayMode {
  * Mostly sourced from https://emulation.gametechwiki.com/index.php/Resolution
  */
 export class Resolution {
+  /* istanbul ignore next */
   public static get SVGA(): ScreenDimension {
     return { width: 800, height: 600 };
   }
 
+  /* istanbul ignore next */
   public static get Standard(): ScreenDimension {
     return { width: 1920, height: 1080 };
   }
 
+  /* istanbul ignore next */
   public static get Atari2600(): ScreenDimension {
     return { width: 160, height: 192 };
   }
 
+  /* istanbul ignore next */
   public static get GameBoy(): ScreenDimension {
     return { width: 160, height: 144 };
   }
 
+  /* istanbul ignore next */
   public static get GameBoyAdvance(): ScreenDimension {
     return { width: 240, height: 160 };
   }
 
+  /* istanbul ignore next */
   public static get NintendoDS(): ScreenDimension {
     return { width: 256, height: 192 };
   }
 
+  /* istanbul ignore next */
   public static get NES(): ScreenDimension {
     return { width: 256, height: 224 };
   }
 
+  /* istanbul ignore next */
   public static get SNES(): ScreenDimension {
     return { width: 256, height: 244 };
   }

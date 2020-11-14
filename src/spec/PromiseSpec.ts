@@ -236,7 +236,7 @@ describe('A promise', () => {
       throw new Error('ERROR!!!!!');
     });
 
-    expect(function() {
+    expect(function () {
       promise.resolve();
     }).toThrow();
   });

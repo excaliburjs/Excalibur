@@ -235,7 +235,7 @@ export class LabelImpl extends Actor {
     return width;
   }
 
-  // TypeScript doesn't support string enums :(
+  /* istanbul ignore next */
   private _lookupFontUnit(fontUnit: FontUnit): string {
     switch (fontUnit) {
       case FontUnit.Em:
@@ -253,6 +253,7 @@ export class LabelImpl extends Actor {
     }
   }
 
+  /* istanbul ignore next */
   private _lookupTextAlign(textAlign: TextAlign): CanvasTextAlign {
     switch (textAlign) {
       case TextAlign.Left:
@@ -270,6 +271,7 @@ export class LabelImpl extends Actor {
     }
   }
 
+  /* istanbul ignore next */
   private _lookupBaseAlign(baseAlign: BaseAlign): CanvasTextBaseline {
     switch (baseAlign) {
       case BaseAlign.Alphabetic:
@@ -289,6 +291,7 @@ export class LabelImpl extends Actor {
     }
   }
 
+  /* istanbul ignore next */
   private _lookupFontStyle(fontStyle: FontStyle): string {
     const boldstring = this.bold ? ' bold' : '';
     switch (fontStyle) {

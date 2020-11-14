@@ -2,10 +2,9 @@ import { ExResponse } from '../../Interfaces/AudioImplementation';
 import { Audio } from '../../Interfaces/Audio';
 import { Engine } from '../../Engine';
 import { Resource } from '../Resource';
-import { AudioInstance, AudioInstanceFactory } from './AudioInstance';
+import { WebAudioInstance } from './WebAudioInstance';
 import { AudioContextFactory } from './AudioContext';
 import { NativeSoundEvent, NativeSoundProcessedEvent } from '../../Events/MediaEvents';
-import { Promise } from '../../Promises';
 import { canPlayFile } from '../../Util/Sound';
 
 /**
@@ -13,7 +12,7 @@ import { canPlayFile } from '../../Util/Sound';
  * components, from soundtracks to sound effects. [[Sound]] is an [[Loadable]]
  * which means it can be passed to a [[Loader]] to pre-load before a game or level.
  */
-export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
+export class Sound extends Resource<ArrayBuffer> implements Audio {
   /**
    * Indicates whether the clip should loop when complete
    * @param value  Set the looping flag
@@ -53,7 +52,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
   /**
    * Return array of Current AudioInstances playing or being paused
    */
-  public get instances(): AudioInstance[] {
+  public get instances(): Audio[] {
     return this._tracks;
   }
 
@@ -64,10 +63,13 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
   private _duration: number | undefined = undefined;
   private _isStopped = false;
   private _isPaused = false;
-  private _tracks: AudioInstance[] = [];
+  private _tracks: Audio[] = [];
   private _engine: Engine;
   private _wasPlayingOnHidden: boolean = false;
-  private _processedData = new Promise<string | AudioBuffer>();
+  private _processedDataResolve: (value: AudioBuffer) => void;
+  private _processedData = new Promise<AudioBuffer>((resolve) => {
+    this._processedDataResolve = resolve;
+  });
   private _audioContext = AudioContextFactory.create();
 
   /**
@@ -76,7 +78,7 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
   constructor(...paths: string[]) {
     super('', '');
 
-    this._detectResponseType();
+    this.responseType = ExResponse.type.arraybuffer;
     /* Chrome : MP3, WAV, Ogg
      * Firefox : WAV, Ogg,
      * IE : MP3, WAV coming soon
@@ -202,30 +204,28 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
     this.emit('emptied', new NativeSoundEvent(this));
 
     this.data = data;
-    this._processedData = new Promise<string | AudioBuffer>();
   }
 
-  public processData(data: Blob | ArrayBuffer): Promise<string | AudioBuffer> {
+  public async processData(data: ArrayBuffer): Promise<AudioBuffer> {
     /**
      * Processes raw arraybuffer data and decodes into WebAudio buffer (async).
      */
-    const processPromise: Promise<string | AudioBuffer> =
-      data instanceof ArrayBuffer ? this._processArrayBufferData(data) : this._processBlobData(data);
-
-    return processPromise.then((processedData) => this._setProcessedData(processedData));
+    const audioBuffer = await this._processArrayBufferData(data);
+    this._setProcessedData(audioBuffer);
+    return audioBuffer;
   }
 
   /**
    * Get Id of provided AudioInstance in current trackList
    * @param track [[AudioInstance]] which Id is to be given
    */
-  public getTrackId(track: AudioInstance): number {
+  public getTrackId(track: Audio): number {
     return this._tracks.indexOf(track);
   }
 
-  private _resumePlayback(): Promise<boolean> {
+  private async _resumePlayback(): Promise<boolean> {
     if (this._isPaused) {
-      const resumed = [];
+      const resumed: Promise<boolean>[] = [];
       // ensure we resume *current* tracks (if paused)
       for (const track of this._tracks) {
         resumed.push(track.play());
@@ -237,88 +237,67 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
 
       this.logger.debug('Resuming paused instances for sound', this.path, this._tracks);
       // resolve when resumed tracks are done
-      return Promise.join(resumed);
-    } else {
-      return Promise.resolve(true);
+      await Promise.all(resumed);
     }
+    return true;
   }
 
-  private _startPlayback(): Promise<boolean> {
-    const newTrack = this._createNewTrack();
-    const playPromise = new Promise<boolean>();
+  /**
+   * Starts playback, returns a promise that resolves when playback is complete
+   */
+  private async _startPlayback(): Promise<boolean> {
+    const track = await this._createNewTrack();
 
-    newTrack.then((track) => {
-      track.play().then((resolved) => {
-        // when done, remove track
-        this.emit('playbackend', new NativeSoundEvent(this, track));
-        this._tracks.splice(this.getTrackId(track), 1);
-
-        playPromise.resolve(resolved);
-
-        return resolved;
-      });
-
+    const complete = await track.play(() => {
       this.emit('playbackstart', new NativeSoundEvent(this, track));
       this.logger.debug('Playing new instance for sound', this.path);
     });
 
-    return playPromise;
-  }
-
-  private _processArrayBufferData(data: ArrayBuffer): Promise<AudioBuffer> {
-    const complete = new Promise<AudioBuffer>();
-
-    this._audioContext.decodeAudioData(
-      data,
-      (buffer: AudioBuffer) => {
-        complete.resolve(buffer);
-      },
-      () => {
-        this.logger.error(
-          'Unable to decode ' +
-            ' this browser may not fully support this format, or the file may be corrupt, ' +
-            'if this is an mp3 try removing id3 tags and album art from the file.'
-        );
-        complete.resolve(undefined);
-      }
-    );
+    // when done, remove track
+    this.emit('playbackend', new NativeSoundEvent(this, track));
+    this._tracks.splice(this.getTrackId(track), 1);
 
     return complete;
   }
 
-  private _processBlobData(data: Blob): Promise<string> {
-    return new Promise<string>().resolve(super.processData(data));
+  private async _processArrayBufferData(data: ArrayBuffer): Promise<AudioBuffer> {
+    try {
+      return this._audioContext.decodeAudioData(data.slice(0));
+    } catch (e) {
+      this.logger.error(
+        'Unable to decode ' +
+          ' this browser may not fully support this format, or the file may be corrupt, ' +
+          'if this is an mp3 try removing id3 tags and album art from the file.'
+      );
+      return undefined;
+    }
   }
 
-  private _setProcessedData(processedData: string | AudioBuffer): void {
-    this._processedData.resolve(processedData);
+  private _setProcessedData(processedData: AudioBuffer): void {
+    this._processedDataResolve(processedData);
     this._duration = typeof processedData === 'object' ? processedData.duration : undefined;
     this.emit('processed', new NativeSoundProcessedEvent(this, processedData));
   }
 
-  private _createNewTrack(): Promise<AudioInstance> {
-    const aiPromise = new Promise<AudioInstance>();
+  private _createNewTrack(): Promise<WebAudioInstance> {
+    this.processData(this.data);
 
-    if (this._processedData.state() !== 0) {
-      this.processData(this.data);
-    }
+    return new Promise((resolve) => {
+      this._processedData.then(
+        (processedData) => {
+          resolve(this._getTrackInstance(processedData));
 
-    this._processedData.then(
-      (processedData) => {
-        aiPromise.resolve(this._getTrackInstance(processedData));
-
-        return processedData;
-      },
-      (error) => {
-        this.logger.error(error, 'Cannot create AudioInstance due to wrong processed data.');
-      }
-    );
-
-    return aiPromise;
+          return processedData;
+        },
+        (error) => {
+          this.logger.error(error, 'Cannot create AudioInstance due to wrong processed data.');
+        }
+      );
+    });
   }
 
-  private _getTrackInstance(data: string | AudioBuffer): AudioInstance {
-    const newTrack = AudioInstanceFactory.create(data);
+  private _getTrackInstance(data: AudioBuffer): WebAudioInstance {
+    const newTrack = new WebAudioInstance(data);
 
     newTrack.loop = this.loop;
     newTrack.volume = this.volume;
@@ -327,13 +306,5 @@ export class Sound extends Resource<Blob | ArrayBuffer> implements Audio {
     this._tracks.push(newTrack);
 
     return newTrack;
-  }
-
-  private _detectResponseType() {
-    if ((<any>window).AudioContext) {
-      this.responseType = ExResponse.type.arraybuffer;
-    } else {
-      this.responseType = ExResponse.type.blob;
-    }
   }
 }

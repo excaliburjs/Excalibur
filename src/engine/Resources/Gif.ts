@@ -1,5 +1,4 @@
 import { Resource } from './Resource';
-import { Promise } from '../Promises';
 import { Sprite } from '../Drawing/Sprite';
 import { Texture } from './Texture';
 import { Color } from '../Drawing/Color';
@@ -25,14 +24,17 @@ export class Gif extends Resource<Texture[]> {
   /**
    * A [[Promise]] that resolves when the Texture is loaded.
    */
-  public loaded: Promise<any> = new Promise<any>();
+  public loaded: Promise<any> = new Promise<any>((resolve) => {
+    this._loadedResolve = resolve;
+  });
 
   private _isLoaded: boolean = false;
   private _stream: Stream = null;
   private _gif: ParseGif = null;
-  private _texture: Texture[] = [];
+  private _textures: Texture[] = [];
   private _animation: Animation = null;
   private _transparentColor: Color = null;
+  private _loadedResolve: (value?: any) => void;
 
   /**
    * Populated once loading is complete
@@ -61,37 +63,39 @@ export class Gif extends Resource<Texture[]> {
    * Begins loading the texture and returns a promise to be resolved on completion
    */
   public load(): Promise<Texture[]> {
-    const complete = new Promise<Texture[]>();
-    const loaded = super.load();
-    loaded.then(
-      () => {
-        this._stream = new Stream(this.getData());
-        this._gif = new ParseGif(this._stream, this._transparentColor);
-        const promises: Promise<HTMLImageElement>[] = [];
-        for (let imageIndex: number = 0; imageIndex < this._gif.images.length; imageIndex++) {
-          const texture = new Texture(this._gif.images[imageIndex].src, false);
-          this._texture.push(texture);
-          promises.push(texture.load());
+    const complete = new Promise<Texture[]>((resolve, reject) => {
+      return super.load().then(
+        () => {
+          this._stream = new Stream(this.getData());
+          this._gif = new ParseGif(this._stream, this._transparentColor);
+          const promises: Promise<HTMLImageElement>[] = [];
+          for (let imageIndex: number = 0; imageIndex < this._gif.images.length; imageIndex++) {
+            const texture = new Texture(this._gif.images[imageIndex].src, false);
+            this._textures.push(texture);
+            promises.push(texture.load());
+          }
+
+          return Promise.all(promises).then(() => {
+            this._isLoaded = true;
+            this._loadedResolve(this._textures);
+            resolve(this._textures);
+          });
+        },
+        () => {
+          reject('Error loading texture.');
         }
-        Promise.join(promises).then(() => {
-          this._isLoaded = true;
-          complete.resolve(this._texture);
-        });
-      },
-      () => {
-        complete.reject('Error loading texture.');
-      }
-    );
+      );
+    });
     return complete;
   }
 
   public asSprite(id: number = 0): Sprite {
-    const sprite = this._texture[id].asSprite();
+    const sprite = this._textures[id].asSprite();
     return sprite;
   }
 
   public asSpriteSheet(): SpriteSheet {
-    const spriteArray: Sprite[] = this._texture.map((texture) => {
+    const spriteArray: Sprite[] = this._textures.map((texture) => {
       return texture.asSprite();
     });
     return new SpriteSheet(spriteArray);
@@ -125,7 +129,7 @@ export interface Frame {
 }
 
 const bitsToNum = (ba: any) => {
-  return ba.reduce(function(s: number, n: number) {
+  return ba.reduce(function (s: number, n: number) {
     return s * 2 + n;
   }, 0);
 };
@@ -181,11 +185,11 @@ export class Stream {
   };
 }
 
-const lzwDecode = function(minCodeSize: number, data: any) {
+const lzwDecode = function (minCodeSize: number, data: any) {
   // TODO: Now that the GIF parser is a bit different, maybe this should get an array of bytes instead of a String?
   let pos = 0; // Maybe this streaming thing should be merged with the Stream?
 
-  const readCode = function(size: number) {
+  const readCode = function (size: number) {
     let code = 0;
     for (let i = 0; i < size; i++) {
       if (data.charCodeAt(pos >> 3) & (1 << (pos & 7))) {
@@ -205,7 +209,7 @@ const lzwDecode = function(minCodeSize: number, data: any) {
 
   let dict: any[] = [];
 
-  const clear = function() {
+  const clear = function () {
     dict = [];
     codeSize = minCodeSize + 1;
     for (let i = 0; i < clearCode; i++) {

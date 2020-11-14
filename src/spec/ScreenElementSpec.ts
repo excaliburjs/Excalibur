@@ -74,6 +74,20 @@ describe('A ScreenElement', () => {
     });
   });
 
+  it('contains in screen space or world space', () => {
+    screenElement = new ex.ScreenElement({
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100
+    });
+    scene.add(screenElement);
+    scene.update(engine, 0);
+
+    expect(screenElement.contains(50, 50, false)).toBe(true);
+    expect(screenElement.contains(50, 50, true)).toBe(true);
+  });
+
   it('is drawn on the top left with empty constructor', (done) => {
     const game = TestUtils.engine({ width: 720, height: 480 });
     const bg = new ex.Texture('base/src/spec/images/ScreenElementSpec/emptyctor.png', true);

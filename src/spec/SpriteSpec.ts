@@ -1,6 +1,5 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
-import { Mocks } from './util/Mocks';
 import { TestUtils } from './util/TestUtils';
 
 describe('A sprite', () => {
@@ -67,7 +66,7 @@ describe('A sprite', () => {
         height: 1
       });
     } catch (e) {
-      expect(e.message).toBe('An image texture is required to contsruct a sprite');
+      expect(e.message).toBe('An image texture is required to construct a sprite');
     }
   });
 

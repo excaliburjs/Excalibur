@@ -71,7 +71,7 @@ describe('Feature Flags', () => {
       ex.Flags.disable('some-flag');
     }).not.toThrow();
 
-    const engine = new ex.Engine();
+    const engine = new ex.Engine({ suppressConsoleBootMessage: true});
 
     expect(() => {
       ex.Flags.disable('some-flag');
