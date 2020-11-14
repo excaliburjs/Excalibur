@@ -2,7 +2,6 @@ import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import { Texture, ColorBlindness } from '@excalibur';
-import { base64Encode } from '../engine/Util/Util';
 
 describe('A ColorBlindCorrector', () => {
   let bg: Texture;

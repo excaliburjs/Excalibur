@@ -1,5 +1,6 @@
-/* istanbul ignore file */
 // Promises/A+ Spec http://promises-aplus.github.io/promises-spec/
+
+import { obsolete } from './Util/Decorators';
 
 /**
  * Valid states for a promise to be in
@@ -33,6 +34,10 @@ export interface PromiseLike<T> {
  * sounds, animation, actions, and more.
  * @deprecated Will be removed in v0.26.0
  */
+@obsolete({
+  message: 'ex.Promises are being replaced by native browser promises in v0.26.0',
+  alternateMethod: 'Use browser native promises'
+})
 export class Promise<T> implements PromiseLike<T> {
   private _state: PromiseState = PromiseState.Pending;
   private _value: T;

@@ -71,13 +71,14 @@ export function obsolete(options?: ObsoleteOptions): any {
     // If descriptor is null it is a class
     const method = descriptor ? { ...descriptor } : target;
     if (!descriptor) {
-      const constructor = function () {
-        const args = Array.prototype.slice.call(arguments);
-        logMessage(message, options);
-        return new method(...args);
-      };
-      constructor.prototype = method.prototype;
-      return constructor;
+      // with es2015 classes we need to change our decoration tactic
+      class DecoratedClass extends method {
+        constructor(...args: any) {
+          logMessage(message, options);
+          super(...args);
+        }
+      }
+      return DecoratedClass;
     }
 
     if (descriptor && descriptor.value) {
