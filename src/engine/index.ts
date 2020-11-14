@@ -41,6 +41,10 @@ export * from './Resources/Index';
 
 export * from './EntityComponentSystem/index';
 
+// ex.Graphics namespace
+import * as graphics from './Graphics/index';
+export { graphics as Graphics };
+
 // ex.Events namespace
 import * as events from './Events';
 export { events as Events };

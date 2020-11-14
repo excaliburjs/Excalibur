@@ -49,6 +49,7 @@ import { Shape } from './Collision/Shape';
 import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
+import { GraphicsComponent } from './Graphics/GraphicsComponent';
 
 /**
  * Type guard for checking if something is an Actor
@@ -445,6 +446,9 @@ export class ActorImpl
 
   // #endregion
 
+  public transform: TransformComponent;
+  public graphics: GraphicsComponent;
+
   /**
    * @param xOrConfig The starting x coordinate of the actor, or an option bag of [[ActorArgs]]
    * @param y         The starting y coordinate of the actor
@@ -459,7 +463,8 @@ export class ActorImpl
     // initialize default options
     this._initDefaults();
 
-    this.addComponent(new TransformComponent());
+    this.addComponent(this.graphics = new GraphicsComponent());
+    this.addComponent(this.transform = new TransformComponent());
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
 
     let shouldInitializeBody = true;

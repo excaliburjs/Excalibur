@@ -462,3 +462,5 @@ export class Collection<T> {
 export function fail(message: never): never {
   throw new Error(message);
 }
+
+export const range = (from: number, to: number) => [...Array(to + 1).keys()].slice(from);

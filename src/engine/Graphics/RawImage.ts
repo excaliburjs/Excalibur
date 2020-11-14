@@ -76,11 +76,11 @@ export class RawImage extends Resource<HTMLImageElement> {
     const image = new RawImage(tex.path);
     if (tex.isLoaded()) {
       image.image = tex.image;
-      image.data = tex.data;
+      image.data.src = tex.data;
     } else {
       tex.loaded.then(() => {
         image.image = tex.image;
-        image.data = tex.data;
+        image.data.src = tex.data;
       });
     }
     return image;

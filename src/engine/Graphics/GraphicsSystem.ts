@@ -7,17 +7,21 @@ import { Color } from '../Drawing/Color';
 import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';
+import { System, SystemType } from '../EntityComponentSystem';
+import { Engine } from '../Engine';
 
-export class GraphicsSystem {
-  public readonly types = [GraphicsComponent.type, TransformComponent.type];
+export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
+  public readonly types = ['transform', 'graphics'] as const;
+  public readonly systemType = SystemType.Draw;
   private _token = 0;
   private _graphicsContext: ExcaliburGraphicsContext;
-  private _scene: Scene;
   private _camera: Camera;
+  private _engine: Engine;
 
   public initialize(scene: Scene): void {
     this._graphicsContext = scene.engine.graphicsContext;
     this._camera = scene.camera;
+    this._engine = scene.engine;
   }
 
   public sort(a: Entity<TransformComponent | GraphicsComponent>, b: Entity<TransformComponent | GraphicsComponent>) {
@@ -113,8 +117,8 @@ export class GraphicsSystem {
     // Establish camera offset per entity
     if (transform.coordPlane === CoordPlane.World) {
       this._graphicsContext.save();
-      if (this?._scene?.camera) {
-        this._scene.camera.draw(this._graphicsContext);
+      if (this._camera) {
+        this._camera.draw(this._graphicsContext);
       }
     }
   }
@@ -131,7 +135,7 @@ export class GraphicsSystem {
   }
 
   private _graphicsPositionDebugDraw() {
-    if ((this._scene as any)._engine.isDebug) {
+    if (this._engine?.isDebug) {
       this._graphicsContext.drawPoint(Vector.Zero, { color: Color.Yellow, size: 5 });
     }
   }
@@ -141,7 +145,7 @@ export class GraphicsSystem {
     transform: TransformComponent,
     graphics: GraphicsComponent
   ) {
-    if ((this._scene as any)._engine.isDebug) {
+    if (this._engine?.isDebug) {
       if (isActor(entity)) {
         const bb = entity.body.collider.localBounds.translate(entity.getWorldPos());
         bb.draw(this._graphicsContext);

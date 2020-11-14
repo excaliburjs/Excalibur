@@ -28,9 +28,10 @@ import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
 import { Body } from './Collision/Body';
 import { SystemType } from './EntityComponentSystem/System';
-import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
+// import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { obsolete } from './Util/Decorators';
 import { World } from './EntityComponentSystem/World';
+import { GraphicsSystem } from './Graphics/GraphicsSystem';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -240,7 +241,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       }
 
       // Initialize systems
-      this.world.add(new CanvasDrawingSystem());
+      // this.world.add(new CanvasDrawingSystem());
+      this.world.add(new GraphicsSystem());
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
