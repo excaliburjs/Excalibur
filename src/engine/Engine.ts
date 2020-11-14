@@ -40,6 +40,7 @@ import * as Input from './Input/Index';
 import * as Events from './Events';
 import { BrowserEvents } from './Util/Browser';
 import { obsolete } from './Util/Decorators';
+import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL } from './Graphics';
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -188,6 +189,8 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * Direct access to the engine's 2D rendering context
    */
   public ctx: CanvasRenderingContext2D;
+
+  public graphicsContext: ExcaliburGraphicsContext;
 
   /**
    * Direct access to the canvas element ID, if an ID exists
@@ -558,11 +561,33 @@ O|===|* >________________>\n\
     }
 
     // eslint-disable-next-line
-    this.ctx = this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
+    // this.ctx = this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
+
+    if (Flags.isEnabled('use-webgl')) {
+      const exWebglCtx = new ExcaliburGraphicsContextWebGL({
+        canvasElement: this.canvas,
+        enableTransparency: this.enableCanvasTransparency,
+        smoothing: options.antialiasing,
+        backgroundColor: options.backgroundColor,
+        snapToPixel: true // options.snapToPixel
+      });
+      this.graphicsContext = exWebglCtx;
+      this.ctx = exWebglCtx.__ctxShim;
+    } else {
+      const ex2dCtx = new ExcaliburGraphicsContext2DCanvas({
+        canvasElement: this.canvas,
+        enableTransparency: this.enableCanvasTransparency,
+        smoothing: options.antialiasing,
+        backgroundColor: options.backgroundColor,
+        snapToPixel: true // options.snapToPixel
+      });
+      this.graphicsContext = ex2dCtx;
+      this.ctx = ex2dCtx.__ctx;
+    }
 
     this.screen = new Screen({
       canvas: this.canvas,
-      context: this.ctx,
+      context: this.graphicsContext,
       antialiasing: options.antialiasing ?? true,
       browser: this.browser,
       viewport: options.viewport ?? { width: options.width, height: options.height },
@@ -631,7 +656,7 @@ O|===|* >________________>\n\
    * @param y          y game coordinate to play the animation
    * @deprecated
    */
-  @obsolete({message: 'Will be removed in excalibur v0.26.0'})
+  @obsolete({ message: 'Will be removed in excalibur v0.26.0' })
   public playAnimation(animation: Animation, x: number, y: number) {
     this._animations.push(new AnimationNode(animation, x, y));
   }
@@ -1235,7 +1260,7 @@ O|===|* >________________>\n\
  * @internal
  * @deprecated
  */
-@obsolete({message: 'Will be removed in excalibur v0.26.0'})
+@obsolete({ message: 'Will be removed in excalibur v0.26.0' })
 class AnimationNode {
   constructor(public animation: Animation, public x: number, public y: number) {}
 }

@@ -429,6 +429,13 @@ export class Color {
   public static get Transparent(): Color {
     return Color.fromHex('#FFFFFF00');
   }
+
+  /**
+   * ExcaliburBlue (#176BAA)
+   */
+  public static get ExcaliburBlue(): Color {
+    return Color.fromHex('#176BAA');
+  }
 }
 
 /**

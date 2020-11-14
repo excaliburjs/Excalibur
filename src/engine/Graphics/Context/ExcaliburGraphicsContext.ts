@@ -6,7 +6,7 @@ export type ImageSource = HTMLImageElement | HTMLCanvasElement;
 
 export interface ExcaliburGraphicsContextOptions {
   canvasElement: HTMLCanvasElement;
-  antiAlias?: boolean;
+  smoothing?: boolean;
   enableTransparency?: boolean;
   snapToPixel?: boolean;
   backgroundColor?: Color;
@@ -41,14 +41,21 @@ export interface ExcaliburGraphicsContext {
   height: number;
 
   snapToPixel: boolean;
+  smoothing: boolean;
 
   backgroundColor: Color;
   opacity: number;
   z: number;
 
-  updateViewport(): void;
+  /**
+   * Resets the current transform to the identity matrix
+   */
+  resetTransform(): void;
 
-  // diag: ExcaliburContextDiagnostics;
+  /**
+   *
+   */
+  updateViewport(): void;
 
   drawRect(x: number, y: number, width: number, height: number, rectOptions?: RectGraphicsOptions): void;
   drawLine(start: Vector, end: Vector, lineOptions?: LineGraphicsOptions): void;
@@ -84,6 +91,7 @@ export interface ExcaliburGraphicsContext {
    * Save the current state of the canvas to the stack (transforms and opacity)
    */
   save(): void;
+
   /**
    * Restore the state of the canvas from the stack
    */
@@ -95,10 +103,12 @@ export interface ExcaliburGraphicsContext {
    * @param y
    */
   translate(x: number, y: number): void;
+
   /**
    * Rotate the context about the current origin
    */
   rotate(angle: number): void;
+
   /**
    * Scale the context by an x and y factor
    * @param x

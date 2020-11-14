@@ -3,10 +3,10 @@ import { Graphic } from './Graphic';
 import { Animation } from './Animation';
 import { GraphicsGroup } from './GraphicsGroup';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
-import { Component } from '../Component';
 import { Logger } from '../Util/Log';
 import { BoundingBox } from '../Collision/Index';
 import { Color } from '../Drawing/Color';
+import { Component } from '../EntityComponentSystem/Component';
 
 export interface GraphicsShowOptions {
   offset?: Vector;
@@ -216,7 +216,7 @@ export class GraphicsLayers {
 /**
  * Component to manage drawings, using with the position component
  */
-export class GraphicsComponent implements Component<'graphics'> {
+export class GraphicsComponent extends Component<'graphics'> {
   static type: 'graphics';
   readonly type = 'graphics';
 
@@ -258,6 +258,7 @@ export class GraphicsComponent implements Component<'graphics'> {
   public shareGraphics: boolean = false;
 
   constructor(options?: GraphicsComponentOptions) {
+    super();
     // Defaults
     options = {
       visible: this.visible,
@@ -417,19 +418,19 @@ export class GraphicsComponent implements Component<'graphics'> {
           const bounds = graphic.localBounds;
           const offsetX = -bounds.width * graphic.scale.x * anchor.x + offset.x + x;
           const offsetY = -bounds.height * graphic.scale.y * anchor.y + offset.y + y;
-          graphic?.localBounds.translate(vec(offsetX + layer.offset.x, offsetY + layer.offset.y))._debugDraw(ctx, Color.Red);
+          graphic?.localBounds.translate(vec(offsetX + layer.offset.x, offsetY + layer.offset.y)).draw(ctx, Color.Red);
         }
       }
-      this.localBounds._debugDraw(ctx, Color.Red);
+      this.localBounds.draw(ctx, Color.Red);
     }
   }
 
   /**
    * Returns a shallow copy of this component
    */
-  clone(): GraphicsComponent {
-    return new GraphicsComponent({
-      opacity: this.opacity
-    });
-  }
+  // clone(): GraphicsComponent {
+  //   return new GraphicsComponent({
+  //     opacity: this.opacity
+  //   });
+  // }
 }

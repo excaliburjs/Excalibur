@@ -8,6 +8,7 @@ import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './E
 import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
 import { Logger } from './Util/Log';
+import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -681,10 +682,19 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
    * @param ctx    Canvas context to apply transformations
    */
-  public draw(ctx: CanvasRenderingContext2D) {
+  public draw(ctx: CanvasRenderingContext2D): void;
+  public draw(ctx: ExcaliburGraphicsContext): void;
+  public draw(ctx: CanvasRenderingContext2D | ExcaliburGraphicsContext): void {
+    let canvasWidth = 0;
+    let canvasHeight = 0;
+    if (ctx instanceof CanvasRenderingContext2D) {
+      canvasWidth = ctx.canvas.width;
+      canvasHeight = ctx.canvas.height;
+    } else {
+      canvasWidth = ctx.width;
+      canvasHeight = ctx.height;
+    }
     const focus = this.getFocus();
-    const canvasWidth = ctx.canvas.width;
-    const canvasHeight = ctx.canvas.height;
     const pixelRatio = this._engine ? this._engine.pixelRatio : window.devicePixelRatio;
     const zoom = this.getZoom();
 

@@ -45,16 +45,23 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
 
   public snapToPixel: boolean = true;
 
+  public smoothing: boolean = false;
+
   constructor(options: ExcaliburGraphicsContextOptions) {
-    const { canvasElement, enableTransparency, snapToPixel, backgroundColor } = options;
+    const { canvasElement, enableTransparency, snapToPixel, smoothing, backgroundColor } = options;
     this.__ctx = canvasElement.getContext('2d', {
       alpha: enableTransparency ?? true
     });
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
+    this.smoothing = smoothing ?? this.smoothing;
   }
 
-  public updateViewport() {
+  public resetTransform(): void {
+    this.__ctx.resetTransform();
+  }
+
+  public updateViewport(): void {
     // pass
   }
 

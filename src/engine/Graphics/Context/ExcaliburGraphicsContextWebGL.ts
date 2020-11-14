@@ -30,6 +30,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * @internal
    */
   public __gl: WebGLRenderingContext;
+
+  public __ctxShim: CanvasRenderingContext2D;
+
   private _transform = new TransformStack();
   private _state = new StateStack();
   private _ortho!: Matrix;
@@ -41,6 +44,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _imageRenderer: ImageRenderer;
 
   public snapToPixel: boolean = true;
+
+  public smoothing: boolean = false;
 
   public backgroundColor: Color = Color.ExcaliburBlue;
 
@@ -69,15 +74,16 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   constructor(options: ExcaliburGraphicsContextOptions) {
-    const { canvasElement, enableTransparency, antiAlias, snapToPixel, backgroundColor } = options;
+    const { canvasElement, enableTransparency, smoothing, snapToPixel, backgroundColor } = options;
     this.__gl = canvasElement.getContext('webgl', {
-      antialias: antiAlias ?? false,
+      antialias: smoothing ?? this.smoothing,
       premultipliedAlpha: false,
       alpha: enableTransparency ?? true,
       depth: true,
       powerPreference: 'high-performance'
     });
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
+    this.smoothing = smoothing ?? this.smoothing;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
     this._init();
   }
@@ -99,6 +105,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
     this._lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
     this._imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
+  }
+
+  public resetTransform(): void {
+    this._transform.current = Matrix.identity();
   }
 
   public updateViewport(): void {
