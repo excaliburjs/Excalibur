@@ -29,7 +29,6 @@ import {
   PostDrawEvent,
   InitializeEvent
 } from './Events';
-import { CanLoad } from './Interfaces/Loader';
 import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
 import { Scene } from './Scene';
@@ -105,6 +104,11 @@ export interface EngineOptions {
    * Optionally specify the target canvas DOM element directly
    */
   canvasElement?: HTMLCanvasElement;
+
+  /**
+   * Optionally snap drawings to nearest pixel
+   */
+  snapToPixel?: boolean
 
   /**
    * The [[DisplayMode]] of the game. Depending on this value, [[width]] and [[height]] may be ignored.
@@ -375,7 +379,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   private _timescale: number = 1.0;
 
   // loading
-  private _loader: CanLoad;
+  private _loader: Loader;
   private _isLoading: boolean = false;
 
   private _isInitialized: boolean = false;
@@ -437,6 +441,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     enableCanvasTransparency: true,
     canvasElementId: '',
     canvasElement: undefined,
+    snapToPixel: false,
     pointerScope: Input.PointerScope.Document,
     suppressConsoleBootMessage: null,
     suppressMinimumBrowserFeatureDetection: null,
@@ -560,16 +565,13 @@ O|===|* >________________>\n\
       displayMode = DisplayMode.FullScreen;
     }
 
-    // eslint-disable-next-line
-    // this.ctx = this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
-
     if (Flags.isEnabled('use-webgl')) {
       const exWebglCtx = new ExcaliburGraphicsContextWebGL({
         canvasElement: this.canvas,
         enableTransparency: this.enableCanvasTransparency,
         smoothing: options.antialiasing,
         backgroundColor: options.backgroundColor,
-        snapToPixel: true // options.snapToPixel
+        snapToPixel: options.snapToPixel
       });
       this.graphicsContext = exWebglCtx;
       this.ctx = exWebglCtx.__ctxShim;
@@ -579,7 +581,7 @@ O|===|* >________________>\n\
         enableTransparency: this.enableCanvasTransparency,
         smoothing: options.antialiasing,
         backgroundColor: options.backgroundColor,
-        snapToPixel: true // options.snapToPixel
+        snapToPixel: options.snapToPixel
       });
       this.graphicsContext = ex2dCtx;
       this.ctx = ex2dCtx.__ctx;
@@ -597,6 +599,9 @@ O|===|* >________________>\n\
       pixelRatio: options.suppressHiDPIScaling ? 1 : null
     });
 
+    // if (this.isHiDpi) {
+    //   this.graphicsContext.scale(this.screen.pixelRatio, this.screen.pixelRatio);
+    // }
     this.screen.applyResolutionAndViewport();
 
     if (options.backgroundColor) {
@@ -1025,14 +1030,14 @@ O|===|* >________________>\n\
     this._predraw(ctx, delta);
 
     if (this._isLoading) {
-      this._loader.draw(ctx, delta);
+      this._loader.canvas.draw(this.graphicsContext, 0, 0);
+      this.graphicsContext.flush();
       // Drawing nothing else while loading
       return;
     }
 
-    ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-    ctx.fillStyle = this.backgroundColor.toString();
-    ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+    // TODO move to graphics systems?
+    this.graphicsContext.backgroundColor = this.backgroundColor;
 
     this.currentScene.draw(this.ctx, delta);
 
@@ -1044,6 +1049,7 @@ O|===|* >________________>\n\
     }
 
     // Draw debug information
+    // TODO don't access ctx directly
     if (this.isDebug) {
       this.ctx.font = 'Consolas';
       this.ctx.fillStyle = this.debugColor.toString();
@@ -1113,11 +1119,10 @@ O|===|* >________________>\n\
     if (!this._compatible) {
       return Promise.reject('Excalibur is incompatible with your browser');
     }
-    // Changing resolution invalidates context state, so we need to capture it before applying
     this.screen.pushResolutionAndViewport();
     this.screen.resolution = this.screen.viewport;
     this.screen.applyResolutionAndViewport();
-
+    this.graphicsContext.updateViewport();
     let loadingComplete: Promise<any>;
     if (loader) {
       this._loader = loader;
@@ -1131,6 +1136,7 @@ O|===|* >________________>\n\
     loadingComplete.then(() => {
       this.screen.popResolutionAndViewport();
       this.screen.applyResolutionAndViewport();
+      this.graphicsContext.updateViewport();
       this.emit('start', new GameStartEvent(this));
     });
 

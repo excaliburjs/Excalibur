@@ -38,8 +38,8 @@ export abstract class Raster extends Graphic {
     }
 
     this._bitmap = document.createElement('canvas');
-    let bitmapWidth = options.width ?? this._bitmap.width;
-    let bitmapHeight = options.height ?? this._bitmap.height;
+    const bitmapWidth = options.width ?? this._bitmap.width;
+    const bitmapHeight = options.height ?? this._bitmap.height;
     // Rasters use power of two images as an optimization for webgl
     this._bitmap.width = ensurePowerOfTwo(bitmapWidth);
     this._bitmap.height = ensurePowerOfTwo(bitmapHeight);

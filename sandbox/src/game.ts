@@ -37,7 +37,7 @@ var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
 // Create an the game container
-// ex.Flags.enable('use-webgl');
+ex.Flags.disable('use-webgl');
 var game = new ex.Engine({
   width: 800 / 2,
   height: 600 / 2,
@@ -46,7 +46,7 @@ var game = new ex.Engine({
   suppressHiDPIScaling: false,
   suppressPlayButton: true,
   antialiasing: false,
-  // snapToPixel: true
+  snapToPixel: true
 });
 game.setAntialiasing(false);
 game.showDebug(true);
@@ -81,6 +81,7 @@ ex.Physics.acc = new ex.Vector(0, 800); // global accel
 // Add some UI
 //var heart = new ex.ScreenElement(0, 0, 20, 20);
 var heart = new ex.ScreenElement({ x: 0, y: 0, width: 20 * 2, height: 20 * 2 });
+heart.graphics.anchor = ex.vec(0, 0);
 var heartSprite = ex.Graphics.Sprite.from(heartTex);
 heartSprite.scale.setTo(2, 2);
 // heart.addDrawing(heartSprite);
@@ -137,7 +138,7 @@ var text = new ex.Graphics.Text({
   text: 'This is raster text ❤️',
   font: new ex.Graphics.Font({ size: 30 })
 });
-text.showDebug = false;
+// text.showDebug = true;
 
 var group = new ex.Graphics.GraphicsGroup({
   members: [

@@ -91,7 +91,7 @@ export class GraphicsLayer {
    *
    * If `show()` is called multiple times for the same graphic it will be shown multiple times.
    * @param nameOrGraphic
-   * @param offset
+   * @param options
    */
   public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
     options = { offset: this._graphics.offset.clone(), anchor: this._graphics.anchor.clone(), ...options };
@@ -118,7 +118,7 @@ export class GraphicsLayer {
   /**
    * Swap out any current graphics being shown for another
    * @param nameOrGraphic
-   * @param offset
+   * @param options
    */
   public swap<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
     options = { offset: this._graphics.offset.clone(), anchor: this._graphics.anchor.clone(), ...options };
@@ -255,7 +255,10 @@ export class GraphicsComponent extends Component<'graphics'> {
    */
   public anchor: Vector = Vector.Half;
 
-  public shareGraphics: boolean = false;
+  /**
+   * TODO: This seems bad still
+   */
+  public shareGraphics: boolean = true;
 
   constructor(options?: GraphicsComponentOptions) {
     super();
@@ -328,7 +331,7 @@ export class GraphicsComponent extends Component<'graphics'> {
   /**
    * Swap out any graphics on the **default** layer, returns the new [[Graphic]]
    * @param nameOrGraphic
-   * @param offset
+   * @param options
    */
   public swap<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
     return this.layers.default.swap<T>(nameOrGraphic, options);

@@ -52,6 +52,10 @@ module.exports = (config) => {
             ]
           },
           {
+            test: /\.glsl$/,
+            use: ['raw-loader']
+          },
+          {
             test: /\.ts$/,
             enforce: 'post',
             include: path.resolve('src/engine/'),
