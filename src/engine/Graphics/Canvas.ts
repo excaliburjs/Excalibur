@@ -2,7 +2,8 @@ import { GraphicOptions } from './Graphic';
 import { Raster } from './Raster';
 
 export interface CanvasOptions {
-  drawHandler: (ctx: CanvasRenderingContext2D, delta: number) => void;
+  draw: (ctx: CanvasRenderingContext2D) => void;
+  cache?: boolean;
 }
 
 /**
@@ -27,7 +28,9 @@ export class Canvas extends Raster {
   }
 
   execute(ctx: CanvasRenderingContext2D): void {
-    this._options.drawHandler(ctx, 0);
-    this.flagDirty();
+    this._options.draw(ctx);
+    if (!this._options.cache) {
+      this.flagDirty();
+    }
   }
 }

@@ -81,7 +81,7 @@ import { clamp } from './Util/Util';
  */
 export class Loader extends Class implements CanLoad {
   public canvas: Canvas = new Canvas({
-    drawHandler: this.draw.bind(this)
+    draw: this.draw.bind(this)
   });
   private _resourceList: Loadable<any>[] = [];
   private _index = 0;
