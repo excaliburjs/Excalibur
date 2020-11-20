@@ -154,7 +154,7 @@ export class Screen {
   private _resolutionStack: ScreenDimension[] = [];
   private _viewport: ScreenDimension;
   private _viewportStack: ScreenDimension[] = [];
-  private _pixelRatio: number | null = null;
+  private _pixelRatioOverride: number | null = null;
   private _position: CanvasPosition;
   private _displayMode: DisplayMode;
   private _isFullScreen = false;
@@ -171,7 +171,7 @@ export class Screen {
     this._antialiasing = options.antialiasing ?? this._antialiasing;
     this._browser = options.browser;
     this._position = options.position;
-    this._pixelRatio = options.pixelRatio;
+    this._pixelRatioOverride = options.pixelRatio;
     this._applyDisplayMode();
 
     this._mediaQueryList = this._browser.window.nativeComponent.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
@@ -189,6 +189,7 @@ export class Screen {
 
   private _pixelRatioChangeHandler = () => {
     this._logger.debug('Pixel Ratio Change', window.devicePixelRatio);
+    this._devicePixelRatio = this._calculateDevicePixelRatio();
     this.applyResolutionAndViewport();
   };
 
@@ -200,11 +201,7 @@ export class Screen {
     this.applyResolutionAndViewport();
   };
 
-  public get pixelRatio(): number {
-    if (this._pixelRatio) {
-      return this._pixelRatio;
-    }
-
+  private _calculateDevicePixelRatio() {
     if (window.devicePixelRatio < 1) {
       return 1;
     }
@@ -212,6 +209,17 @@ export class Screen {
     const devicePixelRatio = window.devicePixelRatio || 1;
 
     return devicePixelRatio;
+  }
+
+  // Asking the window.devicePixelRatio is expensive we do it once
+  private _devicePixelRatio = this._calculateDevicePixelRatio();
+
+  public get pixelRatio(): number {
+    if (this._pixelRatioOverride) {
+      return this._pixelRatioOverride;
+    }
+
+    return this._devicePixelRatio;
   }
 
   public get isHiDpi() {
