@@ -85,7 +85,7 @@ export interface ActorDefaults {
  */
 
 export class ActorImpl
-  extends Entity<TransformComponent | CanvasDrawComponent>
+  extends Entity<TransformComponent | CanvasDrawComponent | GraphicsComponent>
   implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
@@ -521,6 +521,7 @@ export class ActorImpl
 
     // Build default pipeline
     this.traits.push(new Traits.TileMapCollisionDetection());
+    // TODO remove this trait
     this.traits.push(new Traits.OffscreenCulling());
     this.traits.push(new Traits.CapturePointer());
 
