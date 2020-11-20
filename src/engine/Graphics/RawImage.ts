@@ -2,7 +2,7 @@ import { Resource } from '../Resources/Resource';
 import { Texture } from '../Resources/Texture';
 import { TextureManager } from './Context/texture-manager';
 
-export class RawImage extends Resource<HTMLImageElement> {
+export class RawImage extends Resource<string> {
   public readonly id = TextureManager.generateTextureSourceId();
 
   /**
@@ -76,11 +76,11 @@ export class RawImage extends Resource<HTMLImageElement> {
     const image = new RawImage(tex.path);
     if (tex.isLoaded()) {
       image.image = tex.image;
-      image.data.src = tex.data;
+      image.data = tex.data;
     } else {
       tex.loaded.then(() => {
         image.image = tex.image;
-        image.data.src = tex.data;
+        image.data = tex.data;
       });
     }
     return image;

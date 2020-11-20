@@ -8,27 +8,26 @@ import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
 import { Configurable } from './Configurable';
 import { Entity } from './EntityComponentSystem/Entity';
-import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
+import { ExcaliburGraphicsContext, GraphicsComponent } from './Graphics';
+import * as Graphics from './Graphics';
 
 /**
  * @hidden
  */
-export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent> {
+export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> {
   private _collidingX: number = -1;
   private _collidingY: number = -1;
   private _onScreenXStart: number = 0;
   private _onScreenXEnd: number = 9999;
   private _onScreenYStart: number = 0;
   private _onScreenYEnd: number = 9999;
-  private _spriteSheets: { [key: string]: SpriteSheet } = {};
+  private _spriteSheets: { [key: string]: Graphics.SpriteSheet } = {};
   public logger: Logger = Logger.getInstance();
   public data: Cell[] = [];
   public x: number;
   public y: number;
   public z = 0;
-  public visible = true;
-  public isOffscreen = false;
   public rotation = 0;
   public scale = Vector.One;
   public cellWidth: number;
@@ -89,13 +88,28 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
       }
     }
 
-    this.addComponent(new TransformComponent());
-    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
+    this.addComponent(new TransformComponent);
+    this.addComponent(new GraphicsComponent({
+      onPostDraw: (ctx, delta) => this.draw(ctx, delta)
+    }));
+    this.components.graphics.localBounds = new BoundingBox({
+      left: 0,
+      top: 0,
+      right: this.cols * this.cellWidth,
+      bottom: this.rows * this.cellHeight
+    });
   }
 
-  public registerSpriteSheet(key: string, spriteSheet: SpriteSheet) {
-    this._spriteSheets[key] = spriteSheet;
+  public registerSpriteSheet(key: string, spriteSheet: SpriteSheet): void;
+  public registerSpriteSheet(key: string, spriteSheet: Graphics.SpriteSheet): void;
+  public registerSpriteSheet(key: string, spriteSheet: SpriteSheet | Graphics.SpriteSheet): void {
+    if (spriteSheet instanceof Graphics.SpriteSheet) {
+      this._spriteSheets[key] = spriteSheet;
+    } else {
+      this._spriteSheets[key] = Graphics.SpriteSheet.fromLegacySpriteSheet(spriteSheet);
+    }
   }
+
   /**
    * Returns the intersection vector that can be used to resolve collisions with actors. If there
    * is no collision null is returned.
@@ -187,6 +201,7 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
     this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
     this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0);
     this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
+    this.components.transform.pos.setTo(this.x, this.y);
 
     this.onPostUpdate(engine, delta);
     this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
@@ -197,8 +212,8 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
    * @param ctx    The current rendering context
    * @param delta  The number of milliseconds since the last draw
    */
-  public draw(ctx: CanvasRenderingContext2D, delta: number) {
-    this.emit('predraw', new Events.PreDrawEvent(ctx, delta, this));
+  public draw(ctx: ExcaliburGraphicsContext, delta: number) {
+    this.emit('predraw', new Events.PreDrawEvent(ctx as any, delta, this)); // TODO fix event
 
     let x = this._onScreenXStart;
     const xEnd = Math.min(this._onScreenXEnd, this.cols);
@@ -219,7 +234,7 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
 
           // draw sprite, warning if sprite doesn't exist
           if (ss) {
-            const sprite = ss.getSprite(cs[csi].spriteId);
+            const sprite = ss.sprites[cs[csi].spriteId];
             if (sprite) {
               sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);
             } else {
@@ -233,7 +248,7 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
       y = this._onScreenYStart;
     }
 
-    this.emit('postdraw', new Events.PostDrawEvent(ctx, delta, this));
+    this.emit('postdraw', new Events.PostDrawEvent(ctx as any, delta, this));
   }
 
   /**
@@ -315,7 +330,7 @@ export class TileSprite {
 /**
  * @hidden
  */
-export class CellImpl {
+export class CellImpl extends Entity<TransformComponent | GraphicsComponent> {
   private _bounds: BoundingBox;
   public x: number;
   public y: number;
@@ -324,6 +339,9 @@ export class CellImpl {
   public index: number;
   public solid: boolean = false;
   public sprites: TileSprite[] = [];
+
+  // public transform: TransformComponent;
+  // public graphics: GraphicsComponent;
 
   /**
    * @param xOrConfig Gets or sets x coordinate of the cell in world coordinates or cell option bag
@@ -343,6 +361,7 @@ export class CellImpl {
     solid: boolean = false,
     sprites: TileSprite[] = []
   ) {
+    super();
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
       xOrConfig = config.x;
@@ -361,6 +380,8 @@ export class CellImpl {
     this.solid = solid;
     this.sprites = sprites;
     this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
+    // this.addComponent(this.transform = new TransformComponent);
+    // this.addComponent(this.graphics = new GraphicsComponent);
   }
 
   public get bounds() {

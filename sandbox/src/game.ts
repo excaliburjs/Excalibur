@@ -37,7 +37,7 @@ var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
 // Create an the game container
-ex.Flags.disable('use-webgl');
+ex.Flags.enable('use-webgl');
 var game = new ex.Engine({
   width: 800 / 2,
   height: 600 / 2,
@@ -57,6 +57,7 @@ var imageRun = new ex.Graphics.RawImage('../images/PlayerRun.png');
 var imageJump = new ex.Graphics.RawImage('../images/PlayerJump.png');
 var imageRun2 = new ex.Graphics.RawImage('../images/PlayerRun.png');
 var imageBlocks = new ex.Graphics.RawImage('../images/BlockA0.png');
+var imageBlocksLegacy = new ex.Texture('../images/BlockA0.png');
 var spriteFontImage = new ex.Graphics.RawImage('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
 
@@ -68,6 +69,7 @@ loader.addResource(heartTex);
 loader.addResource(imageRun);
 loader.addResource(imageJump);
 loader.addResource(imageBlocks);
+loader.addResource(imageBlocksLegacy);
 loader.addResource(spriteFontImage);
 loader.addResource(jump);
 
@@ -139,6 +141,18 @@ var text = new ex.Graphics.Text({
   font: new ex.Graphics.Font({ size: 30 })
 });
 // text.showDebug = true;
+var ran = new ex.Random(1337);
+
+var canvas = new ex.Graphics.Canvas({
+  width: 200,
+  height: 200,
+  cache: true,
+  drawHandler: (ctx: CanvasRenderingContext2D) => {
+    const color = new ex.Color(ran.integer(0, 255), ran.integer(0, 255), ran.integer(0, 255));
+    ctx.fillStyle = color.toRGBA();
+    ctx.fillRect(0, 0, 100, 100);
+  }
+});
 
 var group = new ex.Graphics.GraphicsGroup({
   members: [
@@ -173,13 +187,13 @@ var group = new ex.Graphics.GraphicsGroup({
   ]
 });
 
-heart.graphics.add(group);
+heart.graphics.add(canvas);
 heart.pos = ex.vec(10, 10);
 game.add(heart);
 
 // Turn on debug diagnostics
 game.showDebug(false);
-//var blockSprite = new ex.Sprite(imageBlocks, 0, 0, 65, 49);
+var blockSpriteLegacy = new ex.Sprite(imageBlocksLegacy, 0, 0, 65, 49);
 var blockSprite = new ex.Graphics.Sprite({
   image: imageBlocks,
   destSize: {
@@ -215,13 +229,11 @@ var tileBlockWidth = 64,
 // create a collision map
 // var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
 var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
-// tileMap.registerSpriteSheet('default', spriteTiles);
+tileMap.registerSpriteSheet('default', spriteTiles);
 var blocks = ex.Graphics.Sprite.from(imageBlocks);
-tileMap.data.forEach(function (cell: ex.Cell) {
+tileMap.data.forEach(function(cell: ex.Cell) {
   cell.solid = true;
-  // cell.graphics.anchor = ex.Vector.Zero;
-  // cell.graphics.show(blocks);
-  // cell.transform.z = -1;
+  cell.pushSprite(new ex.TileSprite('default', 0));
 });
 game.add(tileMap);
 
@@ -576,7 +588,6 @@ var camera = game.currentScene.camera;
 game.add(player);
 
 // Add particle emitter
-var sprite = blockSprite.clone();
 // sprite.anchor = new ex.Vector(0.5, 0.5);
 var emitter = new ex.ParticleEmitter({
   pos: new ex.Vector(100, 300),
@@ -596,31 +607,10 @@ var emitter = new ex.ParticleEmitter({
   acceleration: new ex.Vector(0, 460),
   beginColor: ex.Color.Red,
   endColor: ex.Color.Yellow,
-  sprite: sprite,
+  particleSprite: blockSpriteLegacy,
   particleRotationalVelocity: Math.PI / 10,
   randomRotation: true
 });
-// var emitter = new ex.ParticleEmitter(100, 300, 2, 2);
-// emitter.minVel = 417;
-// emitter.maxVel = 589;
-// emitter.minAngle = Math.PI;
-// emitter.maxAngle = Math.PI * 2;
-// emitter.isEmitting = false;
-// emitter.emitRate = 494;
-// emitter.opacity = 0.84;
-// emitter.fadeFlag = true;
-// emitter.particleLife = 2465;
-// emitter.maxSize = 1.5;
-// emitter.minSize = .1;
-// emitter.acceleration = new ex.Vector(0, 460);
-// emitter.beginColor = ex.Color.Red;
-// emitter.endColor = ex.Color.Yellow;
-// emitter.particleSprite = blockSprite.clone();
-// emitter.particleSprite.anchor = new ex.Vector(.5, .5);
-// emitter.particleRotationalVelocity = Math.PI / 10;
-// emitter.randomRotation = true;
-// emitter.particleSprite.addEffect(new ex.Effects.Grayscale());
-
 game.add(emitter);
 
 var exploding = false;
@@ -655,10 +645,10 @@ game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
   if (c) {
     if (c.solid) {
       c.solid = false;
-      c.graphics.visible = false;
+      c.sprites.pop();
     } else {
       c.solid = true;
-      c.graphics.visible = true;
+      c.pushSprite(new ex.TileSprite('default', 0));
     }
   }
 });

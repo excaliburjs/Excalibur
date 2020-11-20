@@ -2,6 +2,8 @@ import { Graphic, GraphicOptions } from './Graphic';
 import { RawImage } from './RawImage';
 import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
 
+import { Sprite as LegacySprite } from '../Drawing/Sprite';
+
 export type SourceView = { x: number; y: number; width: number; height: number };
 export type DestinationSize = { width: number; height: number };
 
@@ -52,7 +54,7 @@ export class Sprite extends Graphic {
     this.height = Math.ceil(this.destSize.height);
   }
 
-  public _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
+  public _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     if (this.rawImage.isLoaded()) {
       this._updateSpriteDimensions();
       ex.drawImage(
@@ -69,12 +71,31 @@ export class Sprite extends Graphic {
     }
   }
 
+
   public getSourceId(): number {
     return this.rawImage.id;
   }
 
   public getSource(): ImageSource {
     return this.rawImage.image;
+  }
+
+  /**
+   * Create a RawImage from legacy texture
+   * @param sprite
+   */
+  public static fromLegacySprite(sprite: LegacySprite): Sprite {
+    const tex = sprite._texture;
+    const rawImage = RawImage.fromLegacyTexture(tex);
+    return new Sprite({
+      image: rawImage,
+      sourceView: {
+        x: sprite.x,
+        y: sprite.y,
+        width: sprite.width,
+        height: sprite.height
+      }
+    });
   }
 
   public clone(): Sprite {

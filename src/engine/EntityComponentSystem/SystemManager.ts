@@ -49,25 +49,30 @@ export class SystemManager<ContextType> {
   /**
    * Updates all systems
    * @param type whether this is an update or draw system
-   * @param engine engine reference
+   * @param context context reference
    * @param delta time in milliseconds
    */
-  public updateSystems(type: SystemType, engine: ContextType, delta: number) {
+  public updateSystems(type: SystemType, context: ContextType, delta: number) {
     const systems = this.systems.filter((s) => s.systemType === type);
     for (const s of systems) {
       if (s.preupdate) {
-        s.preupdate(engine, delta);
+        s.preupdate(context, delta);
       }
     }
 
     for (const s of systems) {
+      // Get entities that match the system types, pre-sort
       const entities = this._world.queryManager.getQuery(s.types).getEntities(s.sort);
+      // Initialize entities if needed
+      for (const entity of entities) {
+        entity._initialize((context as any).engine);// slightly gross
+      }
       s.update(entities, delta);
     }
 
     for (const s of systems) {
       if (s.postupdate) {
-        s.postupdate(engine, delta);
+        s.postupdate(context, delta);
       }
     }
   }

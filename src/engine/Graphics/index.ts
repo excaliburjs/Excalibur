@@ -14,6 +14,7 @@ export * from './Rect';
 export * from './Polygon';
 export * from './Text';
 export * from './Font';
+export * from './Canvas';
 
 export * from './Context/ExcaliburGraphicsContext';
 export * from './Context/ExcaliburGraphicsContext2DCanvas';

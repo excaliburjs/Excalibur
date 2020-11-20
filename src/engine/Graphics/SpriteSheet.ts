@@ -1,5 +1,6 @@
 import { RawImage } from './RawImage';
 import { Sprite } from './Sprite';
+import { SpriteSheet as LegacySpriteSheet } from '../Drawing/SpriteSheet';
 
 export interface SpriteSheetGridOptions {
   image: RawImage;
@@ -24,6 +25,15 @@ export class SpriteSheet {
     const { image, sprites } = options;
     this.sprites = sprites;
     this.image = image;
+  }
+
+  public static fromLegacySpriteSheet(legacySpriteSheet: LegacySpriteSheet): SpriteSheet {
+    const image = RawImage.fromLegacyTexture(legacySpriteSheet.image);
+    const sprites = legacySpriteSheet.sprites.map(oldSprite => Sprite.fromLegacySprite(oldSprite));
+    return new SpriteSheet({
+      image,
+      sprites
+    });
   }
 
   public static fromGrid(options: SpriteSheetGridOptions): SpriteSheet {

@@ -12,7 +12,7 @@ import { Configurable } from '../Configurable';
  * @hidden
  */
 export class SpriteImpl implements Drawable {
-  private _texture: Texture;
+  public _texture: Texture;
 
   public x: number = 0;
   public y: number = 0;

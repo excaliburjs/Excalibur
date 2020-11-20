@@ -14,6 +14,9 @@ export interface GraphicsShowOptions {
 }
 
 export interface GraphicsComponentOptions {
+  onPostDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void
+  onPreDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void
+
   /**
    * Name of current graphic to use
    */
@@ -232,8 +235,10 @@ export class GraphicsComponent extends Component<'graphics'> {
     return Object.keys(this._graphics);
   }
 
-  public onPreDraw: (ctx: ExcaliburGraphicsContext) => void;
-  public onPostDraw: (ctx: ExcaliburGraphicsContext) => void;
+
+  // TODO do we want these still
+  public onPreDraw: (ctx: ExcaliburGraphicsContext, elapsed: number) => void;
+  public onPostDraw: (ctx: ExcaliburGraphicsContext, elapsed: number) => void;
 
   /**
    * Sets or gets wether any drawing should be visible in this component
@@ -268,12 +273,14 @@ export class GraphicsComponent extends Component<'graphics'> {
       ...options
     };
 
-    const { current, opacity, visible, graphics, offset, shareGraphics } = options;
+    const { current, opacity, visible, graphics, offset, shareGraphics, onPreDraw, onPostDraw } = options;
 
     this._graphics = graphics || {};
     this.offset = offset ?? this.offset;
     this.opacity = opacity ?? this.opacity;
     this.shareGraphics = shareGraphics ?? this.shareGraphics;
+    this.onPreDraw = onPreDraw ?? this.onPreDraw;
+    this.onPostDraw = onPostDraw ?? this.onPostDraw;
     this.visible = !!visible;
 
     this.layers = new GraphicsLayers(this);
@@ -353,7 +360,15 @@ export class GraphicsComponent extends Component<'graphics'> {
     return graphic instanceof Animation || graphic instanceof GraphicsGroup;
   }
 
+  private _bounds: BoundingBox = null;
+  public set localBounds(bounds: BoundingBox) {
+    this._bounds = bounds;
+  }
+
   public get localBounds(): BoundingBox {
+    if (this._bounds) {
+      return this._bounds;
+    }
     let bb = new BoundingBox();
     for (const layer of this.layers.get()) {
       for (const {

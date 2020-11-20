@@ -49,7 +49,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
       // Optionally run the onPreDraw graphics lifecycle draw
       if (graphics.onPreDraw) {
-        graphics.onPreDraw(this._graphicsContext);
+        graphics.onPreDraw(this._graphicsContext, delta);
       }
 
       // Tick any graphics state (but only once) for animations and graphics groups
@@ -60,16 +60,16 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
       this._graphicsPositionDebugDraw();
 
-      // TODO should this be in apply transform???
       this._graphicsContext.z = transform.z;
       this._graphicsContext.opacity = graphics.opacity * ((entity as any).opacity ?? 1);
 
       // Draw the graphics component
       graphics.draw(this._graphicsContext, 0, 0);
 
+
       // Optionally run the onPostDraw graphics lifecycle draw
       if (graphics.onPostDraw) {
-        graphics.onPostDraw(this._graphicsContext);
+        graphics.onPostDraw(this._graphicsContext, delta);
       }
 
       this._graphicsContext.restore();
