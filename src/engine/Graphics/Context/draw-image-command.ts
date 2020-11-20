@@ -83,10 +83,10 @@ export class DrawImageCommand implements Poolable {
     this._geom[index++] = [this.dest[0], this.dest[1] + this.height];
     this._geom[index++] = [this.dest[0] + this.width, this.dest[1] + this.height];
     if (this.snapToPixel) {
-      this._geom.forEach((point) => {
+      for (const point of this._geom) {
         point[0] = ~~point[0];
         point[1] = ~~point[1];
-      });
+      }
     }
     return this;
   }

@@ -174,7 +174,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
     let potWidth: number = 0;
     let potHeight: number = 0;
     let textureId = 0;
-    for (let command of batch.commands) {
+    for (const command of batch.commands) {
       sx = command.view[0];
       sy = command.view[1];
       sw = command.view[2];
@@ -189,10 +189,10 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       // TODO we need to validate drawImage before we get here with an error :O
 
       // Modifying the images to poweroftwo images warp the UV coordinates
-      let uvx0 = sx / potWidth;
-      let uvy0 = sy / potHeight;
-      let uvx1 = (sx + sw) / potWidth;
-      let uvy1 = (sy + sh) / potHeight;
+      const uvx0 = sx / potWidth;
+      const uvy0 = sy / potHeight;
+      const uvx1 = (sx + sw) / potWidth;
+      const uvy1 = (sy + sh) / potHeight;
 
       // Quad update
       // (0, 0, z)

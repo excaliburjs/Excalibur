@@ -31,7 +31,7 @@ export interface BatchRendererOptions<T extends Poolable> {
 }
 
 export abstract class BatchRenderer<T extends Poolable> implements Renderer {
-  private gl: WebGLRenderingContext;
+  private _gl: WebGLRenderingContext;
   private _vertices: Float32Array;
   private _verticesPerCommand: number;
   private _buffer: WebGLBuffer | null = null;
@@ -43,7 +43,7 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
   private _batchPool: Pool<BatchCommand<T>>;
   private _batches: BatchCommand<T>[] = [];
   constructor(options: BatchRendererOptions<T>) {
-    this.gl = options.gl;
+    this._gl = options.gl;
     const command = options.command;
     this._verticesPerCommand = options?.verticesPerCommand ?? 1;
     this._maxCommandsPerBatch = options?.maxCommandsPerBatch ?? this._maxCommandsPerBatch;
@@ -54,7 +54,7 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
   }
 
   public init() {
-    const gl = this.gl;
+    const gl = this._gl;
     this._shader = this.buildShader(gl);
     // Initialize VBO
     // https://groups.google.com/forum/#!topic/webgl-dev-list/vMNXSNRAg8M
@@ -73,7 +73,7 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
       this._batches.push(this._batchPool.get());
     }
 
-    let lastBatch = this._batches[this._batches.length - 1];
+    const lastBatch = this._batches[this._batches.length - 1];
     if (lastBatch.canAdd()) {
       lastBatch.add(cmd);
     } else {
@@ -102,10 +102,10 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
   abstract renderBatch(gl: WebGLRenderingContext, batch: BatchCommand<T>, vertexCount: number): void;
 
   public render(): void {
-    const gl = this.gl;
+    const gl = this._gl;
     gl.bindBuffer(gl.ARRAY_BUFFER, this._buffer);
     this._shader.use();
-    for (let batch of this._batches) {
+    for (const batch of this._batches) {
       // Build all geometry and ship to GPU
       // interleave VBOs https://goharsha.com/lwjgl-tutorial-series/interleaving-buffer-objects/
       const vertexCount = this.buildBatchVertices(this._vertices, batch);
@@ -113,7 +113,7 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
 
       this.renderBatch(gl, batch, vertexCount);
 
-      for (let c of batch.commands) {
+      for (const c of batch.commands) {
         this.commands.free(c);
       }
       this._batchPool.free(batch);
