@@ -147,7 +147,7 @@ var canvas = new ex.Graphics.Canvas({
   width: 200,
   height: 200,
   cache: true,
-  drawHandler: (ctx: CanvasRenderingContext2D) => {
+  draw: (ctx: CanvasRenderingContext2D) => {
     const color = new ex.Color(ran.integer(0, 255), ran.integer(0, 255), ran.integer(0, 255));
     ctx.fillStyle = color.toRGBA();
     ctx.fillRect(0, 0, 100, 100);
