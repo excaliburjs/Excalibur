@@ -317,6 +317,9 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   private _zoomEasing: EasingFunction = EasingFunctions.EaseInOutCubic;
   private _easing: EasingFunction = EasingFunctions.EaseInOutCubic;
 
+  private _halfWidth: number = 0;
+  private _halfHeight: number = 0;
+
   /**
    * Get the camera's x position
    */
@@ -484,16 +487,15 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     return this.z;
   }
 
+  private _viewport: BoundingBox = null;
   /**
    * Gets the bounding box of the viewport of this camera in world coordinates
    */
   public get viewport(): BoundingBox {
-    if (this._engine) {
-      const halfWidth = this._engine.halfDrawWidth;
-      const halfHeight = this._engine.halfDrawHeight;
-
-      return new BoundingBox(this.x - halfWidth, this.y - halfHeight, this.x + halfWidth, this.y + halfHeight);
+    if (this._viewport) {
+      return this._viewport;
     }
+
     return new BoundingBox(0, 0, 0, 0);
   }
 
@@ -572,6 +574,8 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       super.emit('initialize', new InitializeEvent(_engine, this));
       this._isInitialized = true;
       this._engine = _engine;
+      this._halfWidth = this._engine.halfDrawWidth;
+      this._halfHeight = this._engine.halfDrawHeight;
     }
   }
 
@@ -675,6 +679,13 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       this.pos = s.action.call(s, s.target, this, _engine, delta);
     }
 
+    this._viewport = new BoundingBox(
+      this.x - this._halfWidth,
+      this.y - this._halfHeight,
+      this.x + this._halfWidth,
+      this.y + this._halfHeight
+    );
+
     this._postupdate(_engine, delta);
   }
 
@@ -695,7 +706,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       canvasHeight = ctx.height;
     }
     const focus = this.getFocus();
-    const pixelRatio = this._engine ? this._engine.pixelRatio : window.devicePixelRatio;
+    const pixelRatio = this._engine ? this._engine.pixelRatio : 1;
     const zoom = this.getZoom();
 
     const newCanvasWidth = canvasWidth / zoom / pixelRatio;
