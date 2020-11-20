@@ -28,7 +28,7 @@ export class Canvas extends Raster {
   }
 
   execute(ctx: CanvasRenderingContext2D): void {
-    this._options.draw(ctx);
+    this._options?.draw(ctx);
     if (!this._options.cache) {
       this.flagDirty();
     }
