@@ -77,7 +77,7 @@ export class GraphicsGroup extends Graphic implements HasTick {
       ex.translate(x, y);
       member.graphic.draw(ex, member.pos.x, member.pos.y);
       if (this.showDebug) {
-        ex.drawRect(0, 0, this.width, this.height);
+        ex.debug.drawRect(0, 0, this.width, this.height);
       }
       ex.restore();
     }

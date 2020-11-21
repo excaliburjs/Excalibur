@@ -406,7 +406,12 @@ export class BoundingBox {
     ctx.strokeRect(this.left, this.top, this.width, this.height);
   }
 
+  /**
+   * Draw a debug bounding box
+   * @param ex
+   * @param color
+   */
   public draw(ex: ExcaliburGraphicsContext, color: Color = Color.Yellow) {
-    ex.drawRect(this.left, this.top, this.width, this.height, { color });
+    ex.debug.drawRect(this.left, this.top, this.width, this.height, { color });
   }
 }

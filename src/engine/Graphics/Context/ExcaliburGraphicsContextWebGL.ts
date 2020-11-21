@@ -1,10 +1,10 @@
 import {
   ExcaliburGraphicsContext,
-  ExcaliburContextDiagnostics,
   LineGraphicsOptions,
   RectGraphicsOptions,
   PointGraphicsOptions,
-  ExcaliburGraphicsContextOptions
+  ExcaliburGraphicsContextOptions,
+  DebugDraw
 } from './ExcaliburGraphicsContext';
 
 import { Matrix } from '../../Math/matrix';
@@ -17,6 +17,43 @@ import { Logger } from '../../Util/Log';
 import { LineRenderer } from './line-renderer';
 import { ImageRenderer } from './image-renderer';
 import { PointRenderer } from './point-renderer';
+
+class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
+  constructor(private _ex: ExcaliburGraphicsContextWebGL) {}
+
+  /**
+   * Draw a debugging rectangle to the context
+   * @param x
+   * @param y
+   * @param width
+   * @param height
+   */
+  drawRect(x: number, y: number, width: number, height: number, rectOptions: RectGraphicsOptions = { color: Color.Black }): void {
+    this.drawLine(vec(x, y), vec(x + width, y), { ...rectOptions });
+    this.drawLine(vec(x + width, y), vec(x + width, y + height), { ...rectOptions });
+    this.drawLine(vec(x + width, y + height), vec(x, y + height), { ...rectOptions });
+    this.drawLine(vec(x, y + height), vec(x, y), { ...rectOptions });
+  }
+
+  /**
+   * Draw a debugging line to the context
+   * @param start
+   * @param end
+   * @param lineOptions
+   */
+  drawLine(start: Vector, end: Vector, lineOptions: LineGraphicsOptions = { color: Color.Black }): void {
+    this._ex.__lineRenderer.addLine(start, end, lineOptions.color);
+  }
+
+  /**
+   * Draw a debugging point to the context
+   * @param point
+   * @param pointOptions
+   */
+  drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
+    this._ex.__pointRenderer.addPoint(point, pointOptions.color, pointOptions.size);
+  }
+}
 
 export interface WebGLGraphicsContextInfo {
   transform: TransformStack;
@@ -31,17 +68,20 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    */
   public __gl: WebGLRenderingContext;
 
+  /**
+   * Holds the 2d context shim
+   */
   public __ctxShim: CanvasRenderingContext2D;
 
   private _transform = new TransformStack();
   private _state = new StateStack();
   private _ortho!: Matrix;
 
-  private _pointRenderer: PointRenderer;
+  public __pointRenderer: PointRenderer;
 
-  private _lineRenderer: LineRenderer;
+  public __lineRenderer: LineRenderer;
 
-  private _imageRenderer: ImageRenderer;
+  public __imageRenderer: ImageRenderer;
 
   public snapToPixel: boolean = true;
 
@@ -102,9 +142,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    this._pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
-    this._lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
-    this._imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
+    this.__pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
+    this.__lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
+    this.__imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
   }
 
   public resetTransform(): void {
@@ -114,9 +154,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   public updateViewport(): void {
     const gl = this.__gl;
     this._ortho = this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, 400, -400);
-    this._pointRenderer._shader.addUniformMatrix('u_matrix', this._ortho.data);
-    this._lineRenderer._shader.addUniformMatrix('u_matrix', this._ortho.data);
-    this._imageRenderer._shader.addUniformMatrix('u_matrix', this._ortho.data);
+    this.__pointRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
+    this.__lineRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
+    this.__imageRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
   }
 
   drawImage(graphic: Graphic, x: number, y: number): void;
@@ -152,19 +192,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       }
       return;
     }
-    this._imageRenderer.addImage(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+    this.__imageRenderer.addImage(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
   }
 
-  private _diag: ExcaliburContextDiagnostics = {
-    quads: 0,
-    batches: 0,
-    uniqueTextures: 0,
-    maxTexturePerDraw: 0
-  };
-
-  public get diag(): ExcaliburContextDiagnostics {
-    return this._diag;
-  }
+  debug = new ExcaliburGraphicsContextWebGLDebug(this);
 
   public save(): void {
     this._transform.save();
@@ -206,37 +237,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   flush() {
     const gl = this.__gl;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    this._diag.quads = 0;
-    this._diag.uniqueTextures = 0;
-    this._diag.batches = 0;
-    // this._diag.maxTexturePerDraw = this._maxGPUTextures;
 
     this.clear();
-    // TODO add a list of renderers
-    this._imageRenderer.render();
-    this._lineRenderer.render();
-    this._pointRenderer.render();
-  }
-
-  /**
-   * Draw a debug rectangle to the context
-   * @param x
-   * @param y
-   * @param width
-   * @param height
-   */
-  drawRect(x: number, y: number, width: number, height: number, rectOptions: RectGraphicsOptions = { color: Color.Black }): void {
-    this.drawLine(vec(x, y), vec(x + width, y), { ...rectOptions });
-    this.drawLine(vec(x + width, y), vec(x + width, y + height), { ...rectOptions });
-    this.drawLine(vec(x + width, y + height), vec(x, y + height), { ...rectOptions });
-    this.drawLine(vec(x, y + height), vec(x, y), { ...rectOptions });
-  }
-
-  drawLine(start: Vector, end: Vector, lineOptions: LineGraphicsOptions = { color: Color.Black }): void {
-    this._lineRenderer.addLine(start, end, lineOptions.color);
-  }
-
-  drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
-    this._pointRenderer.addPoint(point, pointOptions.color, pointOptions.size);
+    this.__imageRenderer.render();
+    this.__lineRenderer.render();
+    this.__pointRenderer.render();
   }
 }

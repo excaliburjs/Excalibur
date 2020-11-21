@@ -2,12 +2,64 @@ import {
   ExcaliburGraphicsContext,
   LineGraphicsOptions,
   PointGraphicsOptions,
-  ExcaliburGraphicsContextOptions
+  ExcaliburGraphicsContextOptions,
+  DebugDraw
 } from './ExcaliburGraphicsContext';
 import { Vector } from '../../Algebra';
 import { Graphic } from '../Graphic';
 import { Color } from '../../Drawing/Color';
 import { StateStack } from './state-stack';
+import { Diagnostics } from '../Diagnostics';
+
+class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
+  constructor(private _ex: ExcaliburGraphicsContext2DCanvas) {}
+  /**
+   * Draw a debug rectangle to the context
+   * @param x
+   * @param y
+   * @param width
+   * @param height
+   */
+  drawRect(x: number, y: number, width: number, height: number): void {
+    this._ex.__ctx.save();
+    this._ex.__ctx.strokeStyle = 'red';
+    this._ex.__ctx.strokeRect(
+      this._ex.snapToPixel ? ~~x : x,
+      this._ex.snapToPixel ? ~~y : y,
+      this._ex.snapToPixel ? ~~width : width,
+      this._ex.snapToPixel ? ~~height : height
+    );
+    this._ex.__ctx.restore();
+  }
+
+  drawLine(start: Vector, end: Vector, lineOptions: LineGraphicsOptions = { color: Color.Black }): void {
+    this._ex.__ctx.save();
+    this._ex.__ctx.beginPath();
+    this._ex.__ctx.strokeStyle = lineOptions.color.toString();
+    this._ex.__ctx.moveTo(this._ex.snapToPixel ? ~~start.x : start.x, this._ex.snapToPixel ? ~~start.y : start.y);
+    this._ex.__ctx.lineTo(this._ex.snapToPixel ? ~~end.x : end.x, this._ex.snapToPixel ? ~~end.y : end.y);
+    this._ex.__ctx.lineWidth = 2;
+    this._ex.__ctx.stroke();
+    this._ex.__ctx.closePath();
+    this._ex.__ctx.restore();
+  }
+
+  drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
+    this._ex.__ctx.save();
+    this._ex.__ctx.beginPath();
+    this._ex.__ctx.fillStyle = pointOptions.color.toString();
+    this._ex.__ctx.arc(
+      this._ex.snapToPixel ? ~~point.x : point.x,
+      this._ex.snapToPixel ? ~~point.y : point.y,
+      pointOptions.size,
+      0,
+      Math.PI * 2
+    );
+    this._ex.__ctx.fill();
+    this._ex.__ctx.closePath();
+    this._ex.__ctx.restore();
+  }
+}
 
 export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContext {
   /**
@@ -72,47 +124,6 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   }
 
   /**
-   * Draw a debug rectangle to the context
-   * @param x
-   * @param y
-   * @param width
-   * @param height
-   */
-  drawRect(x: number, y: number, width: number, height: number): void {
-    this.__ctx.save();
-    this.__ctx.strokeStyle = 'red';
-    this.__ctx.strokeRect(
-      this.snapToPixel ? ~~x : x,
-      this.snapToPixel ? ~~y : y,
-      this.snapToPixel ? ~~width : width,
-      this.snapToPixel ? ~~height : height
-    );
-    this.__ctx.restore();
-  }
-
-  drawLine(start: Vector, end: Vector, lineOptions: LineGraphicsOptions = { color: Color.Black }): void {
-    this.__ctx.save();
-    this.__ctx.beginPath();
-    this.__ctx.strokeStyle = lineOptions.color.toString();
-    this.__ctx.moveTo(this.snapToPixel ? ~~start.x : start.x, this.snapToPixel ? ~~start.y : start.y);
-    this.__ctx.lineTo(this.snapToPixel ? ~~end.x : end.x, this.snapToPixel ? ~~end.y : end.y);
-    this.__ctx.lineWidth = 2;
-    this.__ctx.stroke();
-    this.__ctx.closePath();
-    this.__ctx.restore();
-  }
-
-  drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
-    this.__ctx.save();
-    this.__ctx.beginPath();
-    this.__ctx.fillStyle = pointOptions.color.toString();
-    this.__ctx.arc(this.snapToPixel ? ~~point.x : point.x, this.snapToPixel ? ~~point.y : point.y, pointOptions.size, 0, Math.PI * 2);
-    this.__ctx.fill();
-    this.__ctx.closePath();
-    this.__ctx.restore();
-  }
-
-  /**
    * Draw an image to the Excalibur Graphics context at an x and y coordinate using the images width and height
    */
   drawImage(graphic: Graphic, x: number, y: number): void;
@@ -154,7 +165,11 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
       .filter((a) => a !== undefined)
       .map((a) => (typeof a === 'number' && this.snapToPixel ? ~~a : a));
     this.__ctx.drawImage.apply(this.__ctx, args);
+    Diagnostics.DrawCallCount++;
+    Diagnostics.DrawBatchSizeAverage = 1;
   }
+
+  debug = new ExcaliburGraphicsContext2DCanvasDebug(this);
 
   /**
    * Save the current state of the canvas to the stack (transforms and opacity)

@@ -16,13 +16,6 @@ export interface ExcaliburGraphicsContextState {
   opacity: number;
   z: number;
 }
-export interface ExcaliburContextDiagnostics {
-  quads: number;
-  batches: number;
-  uniqueTextures: number;
-  maxTexturePerDraw: number;
-}
-
 export interface LineGraphicsOptions {
   color: Color;
 }
@@ -36,15 +29,58 @@ export interface PointGraphicsOptions {
   size: number;
 }
 
+export interface DebugDraw {
+  /**
+   * Draw a debugging rectangle to the screen
+   * @param x
+   * @param y
+   * @param width
+   * @param height
+   * @param rectOptions
+   */
+  drawRect(x: number, y: number, width: number, height: number, rectOptions?: RectGraphicsOptions): void;
+  /**
+   * Draw a debugging line to the screen
+   * @param start '
+   * @param end
+   * @param lineOptions
+   */
+  drawLine(start: Vector, end: Vector, lineOptions?: LineGraphicsOptions): void;
+  /**
+   * Draw a debugging point to the screen
+   * @param point
+   * @param pointOptions
+   */
+  drawPoint(point: Vector, pointOptions?: PointGraphicsOptions): void;
+}
+
 export interface ExcaliburGraphicsContext {
   width: number;
   height: number;
 
+  /**
+   * Snaps all drawings to the nearest pixel trucated down, by default false
+   */
   snapToPixel: boolean;
+
+  /**
+   * Enable smoothed drawing (also known as anti-aliasing), by default false
+   */
   smoothing: boolean;
 
+  /**
+   * Set the background color of the graphics context, default is [[Color.ExcaliburBlue]]
+   */
   backgroundColor: Color;
+
+  /**
+   * Sets the opacity of the current [[Graphic]] being drawn, default is 1
+   */
   opacity: number;
+
+  /**
+   * Sets the z index of the current [[Graphic]] being drawn, default is 0
+   */
   z: number;
 
   /**
@@ -53,13 +89,14 @@ export interface ExcaliburGraphicsContext {
   resetTransform(): void;
 
   /**
-   *
+   * Update the context with the curren tviewport dimensions (used in resizing)
    */
   updateViewport(): void;
 
-  drawRect(x: number, y: number, width: number, height: number, rectOptions?: RectGraphicsOptions): void;
-  drawLine(start: Vector, end: Vector, lineOptions?: LineGraphicsOptions): void;
-  drawPoint(point: Vector, pointOptions?: PointGraphicsOptions): void;
+  /**
+   * Access the debug drawing api
+   */
+  debug: DebugDraw;
 
   /**
    * Draw an image to the Excalibur Graphics context at an x and y coordinate using the images width and height

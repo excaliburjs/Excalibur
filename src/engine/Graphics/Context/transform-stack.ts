@@ -15,17 +15,14 @@ export class TransformStack {
 
   public translate(x: number, y: number): Matrix {
     return this._currentTransform.translate(x, y);
-    // return (this._currentTransform = this._currentTransform.multm(Matrix.translation(x, y)));
   }
 
   public rotate(angle: number): Matrix {
     return this._currentTransform.rotate(angle);
-    // return (this._currentTransform = this._currentTransform.multm(Matrix.rotation(angle)));
   }
 
   public scale(x: number, y: number): Matrix {
     return this._currentTransform.scale(x, y);
-    // return (this._currentTransform = this._currentTransform.multm(Matrix.scale(x, y)));
   }
 
   public set current(matrix: Matrix) {

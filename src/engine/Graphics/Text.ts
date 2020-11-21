@@ -140,7 +140,7 @@ export class Text extends Raster {
 
   _postDraw(ex: ExcaliburGraphicsContext): void {
     if (this.showDebug) {
-      ex.drawRect(-this._halfRasterWidth, -this._halfRasterHeight, this._rasterWidth, this._rasterHeight);
+      ex.debug.drawRect(-this._halfRasterWidth, -this._halfRasterHeight, this._rasterWidth, this._rasterHeight);
     }
     ex.restore();
   }
