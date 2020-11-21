@@ -13,6 +13,9 @@ export interface UniformDefinition {
   data: any;
 }
 
+/**
+ * Create a shader program for the Excalibur WebGL Graphics Context
+ */
 export class Shader {
   public program: WebGLProgram | null = null;
 
@@ -20,8 +23,14 @@ export class Shader {
   public attributes: { [variableName: string]: VertexAttributeDefinition } = {};
   public layout: VertexAttributeDefinition[] = [];
 
-  constructor(private gl: WebGLRenderingContext, private vertexSource: string, private fragmentSource: string) {
-    this.compile(gl);
+  /**
+   * Create a shader program in excalibur
+   * @param _gl WebGL graphics context
+   * @param _vertexSource Vertex shader source as a string
+   * @param _fragmentSource Fragment shader source as a string
+   */
+  constructor(private _gl: WebGLRenderingContext, private _vertexSource: string, private _fragmentSource: string) {
+    this.compile(_gl);
   }
 
   private _createProgram(gl: WebGLRenderingContext, vertexShader: WebGLShader, fragmentShader: WebGLShader): WebGLProgram {
@@ -61,18 +70,27 @@ export class Shader {
     return shader;
   }
 
+  /**
+   * Compile the current shader against a webgl context
+   * @param gl WebGL context
+   */
   compile(gl: WebGLRenderingContext): WebGLProgram {
-    const vertexShader = this._compileShader(gl, this.vertexSource, gl.VERTEX_SHADER);
-    const fragmentShader = this._compileShader(gl, this.fragmentSource, gl.FRAGMENT_SHADER);
+    const vertexShader = this._compileShader(gl, this._vertexSource, gl.VERTEX_SHADER);
+    const fragmentShader = this._compileShader(gl, this._fragmentSource, gl.FRAGMENT_SHADER);
     const program = this._createProgram(gl, vertexShader, fragmentShader);
     return (this.program = program);
   }
 
+  /**
+   * Add a uniform [[Matrix]] to the shader
+   * @param name Name of the uniform in the shader source
+   * @param data (4x4) matrix in column major order
+   */
   public addUniformMatrix(name: string, data: Float32Array) {
     if (!data) {
       throw Error(`Shader Uniform Matrix '${name}' was set to null or undefined`);
     }
-    const gl = this.gl;
+    const gl = this._gl;
     this.uniforms[name] = {
       name,
       type: 'matrix',
@@ -81,11 +99,16 @@ export class Shader {
     };
   }
 
+  /**
+   * Add a uniform array of numbers to the shader
+   * @param name Name of the uniform in the shader source
+   * @param data List of numbers
+   */
   public addUniformIntegerArray(name: string, data: number[]) {
     if (!data) {
       throw Error(`Shader Uniform Integery Array '${name}' was set to null or undefined`);
     }
-    const gl = this.gl;
+    const gl = this._gl;
     this.uniforms[name] = {
       name,
       type: 'numbers',
@@ -96,10 +119,12 @@ export class Shader {
 
   /**
    * Add attributes in the order they appear in the VBO
-   * @param name
+   * @param name Name of the attribute in the shader source
+   * @param size The size of the attribute in gl.Type units, for example `vec2 a_pos` would be 2 gl.FLOAT
+   * @param glType The gl.Type of the attribute
    */
   public addAttribute(name: string, size: number, glType: number, normalized = false) {
-    const gl = this.gl;
+    const gl = this._gl;
     // TODO needs to be compiled first
     const location = gl.getAttribLocation(this.program, name);
     this.attributes[name] = {
@@ -131,7 +156,7 @@ export class Shader {
     for (const vert of this.layout) {
       let typeSize = 1;
       switch (vert.glType) {
-        case this.gl.FLOAT: {
+        case this._gl.FLOAT: {
           typeSize = 4;
           break;
         }
@@ -145,10 +170,14 @@ export class Shader {
     return vertexSize;
   }
 
+  /**
+   * Get a previously defined attribute size in bytes
+   * @param name
+   */
   public getAttributeSize(name: string) {
     let typeSize = 1;
     switch (this.attributes[name].glType) {
-      case this.gl.FLOAT: {
+      case this._gl.FLOAT: {
         typeSize = 4;
         break;
       }
@@ -159,8 +188,13 @@ export class Shader {
     return typeSize * this.attributes[name].size;
   }
 
+  /**
+   * Sets this shader program as the current in the underlying webgl context
+   *
+   * **Must** specify all attributes and uniforms before calling this
+   */
   public use() {
-    const gl = this.gl;
+    const gl = this._gl;
     gl.useProgram(this.program);
     let offset = 0;
     for (const vert of this.layout) {

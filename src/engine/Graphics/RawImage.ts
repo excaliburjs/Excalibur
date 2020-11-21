@@ -1,26 +1,36 @@
 import { Resource } from '../Resources/Resource';
 import { Texture } from '../Resources/Texture';
 import { TextureManager } from './Context/texture-manager';
+import { Sprite } from './Sprite';
 
 export class RawImage extends Resource<string> {
+  /**
+   * Unique id of raw image
+   */
   public readonly id = TextureManager.generateTextureSourceId();
 
   /**
-   * The original size of the image before any sizing
+   * The original size of the source image in pixels
    */
   public get width() {
     return this.image.naturalWidth;
   }
 
   /**
-   * The original height of the image for any sizing
+   * The original height of the source image in pixels
    */
   public get height() {
     return this.image.naturalHeight;
   }
 
+  /**
+   * Access to the underlying html image elmeent
+   */
   public image: HTMLImageElement = new Image();
 
+  /**
+   * Promise the resolves when the image is loaded, does not initiate loading
+   */
   public whenLoaded: Promise<HTMLImageElement>;
   private _whenLoadedResolve: (value?: HTMLImageElement | PromiseLike<HTMLImageElement>) => void;
 
@@ -50,6 +60,9 @@ export class RawImage extends Resource<string> {
     });
   }
 
+  /**
+   * Begins loading the image and returns a promise that resolves when the image is loaded
+   */
   load(): Promise<HTMLImageElement> {
     return new Promise((resolve, _reject) => {
       if (this.isLoaded()) {
@@ -66,6 +79,13 @@ export class RawImage extends Resource<string> {
         });
       }
     });
+  }
+
+  /**
+   * Build a sprite from this RawImage
+   */
+  public toSprite(): Sprite {
+    return Sprite.from(this);
   }
 
   /**
