@@ -3,13 +3,13 @@ import pointVertexSource from './shaders/point-vertex.glsl';
 import pointFragmentSource from './shaders/point-fragment.glsl';
 import { Vector } from '../../Algebra';
 import { Color } from '../../Drawing/Color';
-import { Poolable, initializePoolData } from './pool';
 import { BatchRenderer } from './renderer';
 import { BatchCommand } from './batch';
 import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
+import { Pool, Poolable } from '../../Util/Pool';
 
 export class DrawPoint implements Poolable {
-  _poolData = initializePoolData();
+  _pool?: Pool<this>;
   public point: Vector;
   public color: Color;
   public size: number;
@@ -20,6 +20,7 @@ export class DrawPoint implements Poolable {
     this.color.b = 0;
     this.color.a = 1;
     this.size = 1;
+    return this;
   }
 }
 
@@ -40,7 +41,7 @@ export class PointRenderer extends BatchRenderer<DrawPoint> {
   }
 
   addPoint(point: Vector, color: Color, size: number) {
-    let cmd = this.commands.get();
+    const cmd = this.commands.get();
     cmd.point = this._contextInfo.transform.current.multv(point);
     cmd.color = color;
     cmd.color.a = color.a * this._contextInfo.state.current.opacity;
@@ -50,7 +51,7 @@ export class PointRenderer extends BatchRenderer<DrawPoint> {
 
   buildBatchVertices(vertexBuffer: Float32Array, batch: BatchCommand<DrawPoint>): number {
     let index = 0;
-    for (let command of batch.commands) {
+    for (const command of batch.commands) {
       vertexBuffer[index++] = command.point.x;
       vertexBuffer[index++] = command.point.y;
 

@@ -3,16 +3,16 @@ import { Color } from '../../Drawing/Color';
 import { Shader } from './shader';
 import lineVertexSource from './shaders/line-vertex.glsl';
 import lineFragmentSource from './shaders/line-fragment.glsl';
-import { Poolable, initializePoolData } from './pool';
 import { BatchRenderer } from './renderer';
 import { BatchCommand } from './batch';
 import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
+import { Pool, Poolable } from '../../Util/Pool';
 
 export class DrawLine implements Poolable {
-  _poolData = initializePoolData();
-  public color: Color;
-  public start: Vector;
-  public end: Vector;
+  _pool?: Pool<this>;
+  public color: Color = Color.Black;
+  public start: Vector = Vector.Zero;
+  public end: Vector = Vector.Zero;
   public dispose() {
     this.color.r = 0;
     this.color.g = 0;
@@ -20,6 +20,7 @@ export class DrawLine implements Poolable {
     this.color.a = 1;
     this.start.setTo(0, 0);
     this.end.setTo(0, 0);
+    return this;
   }
 }
 
@@ -39,7 +40,7 @@ export class LineRenderer extends BatchRenderer<DrawLine> {
   }
 
   addLine(start: Vector, end: Vector, color: Color) {
-    let cmd = this.commands.get();
+    const cmd = this.commands.get();
     cmd.start = this._contextInfo.transform.current.multv(start);
     cmd.end = this._contextInfo.transform.current.multv(end);
     cmd.color = color;
@@ -49,7 +50,7 @@ export class LineRenderer extends BatchRenderer<DrawLine> {
 
   buildBatchVertices(vertexBuffer: Float32Array, batch: BatchCommand<DrawLine>): number {
     let index = 0;
-    for (let command of batch.commands) {
+    for (const command of batch.commands) {
       // Start
       vertexBuffer[index++] = command.start.x;
       vertexBuffer[index++] = command.start.y;

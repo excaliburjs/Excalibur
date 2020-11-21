@@ -1,7 +1,7 @@
-import { Poolable, initializePoolData } from './pool';
+import { Pool, Poolable } from '../../Util/Pool';
 
 export class BatchCommand<T> implements Poolable {
-  _poolData = initializePoolData();
+  _pool: Pool<this> = undefined;
   public commands: T[] = [];
   constructor(public max: number) {}
 
@@ -20,7 +20,8 @@ export class BatchCommand<T> implements Poolable {
     this.commands.push(cmd);
   }
 
-  public dispose() {
+  dispose() {
     this.commands.length = 0;
+    return this;
   }
 }

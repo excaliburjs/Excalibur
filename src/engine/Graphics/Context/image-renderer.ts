@@ -1,7 +1,6 @@
 import { Shader } from './shader';
 import imageVertexSource from './shaders/image-vertex.glsl';
 import imageFragmentSource from './shaders/image-fragment.glsl';
-import { Poolable, initializePoolData } from './pool';
 import { BatchCommand } from './batch';
 import { DrawImageCommand } from './draw-image-command';
 import { TextureManager } from './texture-manager';
@@ -10,9 +9,7 @@ import { ensurePowerOfTwo } from './webgl-util';
 import { BatchRenderer } from './renderer';
 import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
 
-export class BatchImage extends BatchCommand<DrawImageCommand> implements Poolable {
-  _poolData = initializePoolData();
-
+export class BatchImage extends BatchCommand<DrawImageCommand> {
   public textures: WebGLTexture[] = [];
   public commands: DrawImageCommand[] = [];
   private _graphicMap: { [id: string]: Graphic } = {};
@@ -36,7 +33,6 @@ export class BatchImage extends BatchCommand<DrawImageCommand> implements Poolab
       return false;
     }
 
-    // If num textures < maxTextures
     if (this.textures.length < this.maxTextures) {
       return true;
     }
@@ -91,6 +87,7 @@ export class BatchImage extends BatchCommand<DrawImageCommand> implements Poolab
 
   dispose() {
     this.clear();
+    return this;
   }
 
   clear() {
@@ -186,8 +183,6 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       textureId = batch.getBatchTextureId(command);
 
       // potential optimization when divding by 2 (bitshift)
-      // TODO we need to validate drawImage before we get here with an error :O
-
       // Modifying the images to poweroftwo images warp the UV coordinates
       const uvx0 = sx / potWidth;
       const uvy0 = sy / potHeight;

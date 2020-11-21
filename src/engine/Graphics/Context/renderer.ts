@@ -1,12 +1,14 @@
 import { BatchCommand } from './batch';
 import { Shader } from './shader';
-import { Pool, Poolable } from './pool';
+// import { Pool, Poolable } from './pool';
+import { Diagnostics } from '../Diagnostics';
+import { Pool, Poolable } from '../../Util/Pool';
 
 export interface Renderer {
   render(): void;
 }
 
-export interface DrawCommandCtor<T> {
+export interface Ctor<T> {
   new (): T;
 }
 
@@ -15,7 +17,7 @@ export interface BatchRendererOptions<T extends Poolable> {
   /**
    * Draw command constructor
    */
-  command: DrawCommandCtor<T>;
+  command: Ctor<T>;
   /**
    * Number of vertices that are generated per draw command
    */
@@ -31,13 +33,14 @@ export interface BatchRendererOptions<T extends Poolable> {
 }
 
 export abstract class BatchRenderer<T extends Poolable> implements Renderer {
+  priority = 0;
   private _gl: WebGLRenderingContext;
   private _vertices: Float32Array;
   private _verticesPerCommand: number;
   private _buffer: WebGLBuffer | null = null;
   private _maxCommandsPerBatch: number = 2000;
 
-  public _shader: Shader;
+  public shader: Shader;
 
   public commands: Pool<T>;
   private _batchPool: Pool<BatchCommand<T>>;
@@ -49,23 +52,27 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
     this._maxCommandsPerBatch = options?.maxCommandsPerBatch ?? this._maxCommandsPerBatch;
     const batchFactory = options?.batchFactory ?? (() => new BatchCommand<T>(this._maxCommandsPerBatch));
 
-    this.commands = new Pool<T>(() => new command(), this._maxCommandsPerBatch);
-    this._batchPool = new Pool<BatchCommand<T>>(batchFactory);
+    this.commands = new Pool<T>(
+      () => new command(),
+      (c) => c.dispose(),
+      this._maxCommandsPerBatch
+    );
+    this._batchPool = new Pool<BatchCommand<T>>(batchFactory, (b) => b.dispose(), 100);
   }
 
   public init() {
     const gl = this._gl;
-    this._shader = this.buildShader(gl);
+    this.shader = this.buildShader(gl);
     // Initialize VBO
     // https://groups.google.com/forum/#!topic/webgl-dev-list/vMNXSNRAg8M
-    this._vertices = new Float32Array(this._shader.vertexAttributeSize * this._verticesPerCommand * this._maxCommandsPerBatch);
+    this._vertices = new Float32Array(this.shader.vertexAttributeSize * this._verticesPerCommand * this._maxCommandsPerBatch);
     this._buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this._buffer);
     gl.bufferData(gl.ARRAY_BUFFER, this._vertices, gl.DYNAMIC_DRAW);
   }
 
   public get vertexSize(): number {
-    return this._shader.vertexAttributeSize;
+    return this.shader.vertexAttributeSize;
   }
 
   public addCommand(cmd: T) {
@@ -104,7 +111,9 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
   public render(): void {
     const gl = this._gl;
     gl.bindBuffer(gl.ARRAY_BUFFER, this._buffer);
-    this._shader.use();
+    this.shader.use();
+    let drawCallCount = 0;
+    let drawBatchSize = 0;
     for (const batch of this._batches) {
       // Build all geometry and ship to GPU
       // interleave VBOs https://goharsha.com/lwjgl-tutorial-series/interleaving-buffer-objects/
@@ -112,12 +121,16 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._vertices);
 
       this.renderBatch(gl, batch, vertexCount);
+      drawBatchSize += batch.commands.length;
+      drawCallCount++;
 
       for (const c of batch.commands) {
-        this.commands.free(c);
+        this.commands.done(c);
       }
-      this._batchPool.free(batch);
+      this._batchPool.done(batch);
     }
     this._batches.length = 0;
+    Diagnostics.DrawCallCount += drawCallCount;
+    Diagnostics.DrawBatchSizeAverage = drawBatchSize / drawCallCount;
   }
 }

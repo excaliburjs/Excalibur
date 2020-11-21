@@ -1,11 +1,11 @@
 import { Matrix } from '../../Math/matrix';
 import { Graphic } from '../Graphic';
-import { Poolable, initializePoolData } from './pool';
 import { BoundingBox } from '../../Collision/Index';
 import { Color } from '../../Drawing/Color';
+import { Pool, Poolable } from '../../Util/Pool';
 
 export class DrawImageCommand implements Poolable {
-  _poolData = initializePoolData();
+  _pool: Pool<this> = undefined;
 
   public snapToPixel: boolean = true;
   public image: Graphic;
@@ -105,6 +105,7 @@ export class DrawImageCommand implements Poolable {
     this._geom[index++] = [this.dest[0] + this.width, this.dest[1]];
     this._geom[index++] = [this.dest[0], this.dest[1] + this.height];
     this._geom[index++] = [this.dest[0] + this.width, this.dest[1] + this.height];
+    return this;
   }
 
   // todo weird
