@@ -50,7 +50,6 @@ import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
-import { ExcaliburGraphicsContext } from './Graphics';
 
 /**
  * Type guard for checking if something is an Actor
