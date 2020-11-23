@@ -442,13 +442,4 @@ export class GraphicsComponent extends Component<'graphics'> {
       this.localBounds.draw(ctx, Color.Red);
     }
   }
-
-  /**
-   * Returns a shallow copy of this component
-   */
-  // clone(): GraphicsComponent {
-  //   return new GraphicsComponent({
-  //     opacity: this.opacity
-  //   });
-  // }
 }

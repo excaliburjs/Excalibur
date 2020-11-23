@@ -37,6 +37,7 @@ var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
 // Create an the game container
+ex.Flags.enable('use-excalibur-graphics-ctx');
 ex.Flags.enable('use-webgl');
 var game = new ex.Engine({
   width: 800 / 2,
@@ -187,8 +188,12 @@ var group = new ex.Graphics.GraphicsGroup({
   ]
 });
 
-heart.graphics.add(canvas);
+heart.graphics.add(group);
 heart.pos = ex.vec(10, 10);
+heart.onPostDraw = (ctx) => {
+  ctx.fillStyle = ex.Color.Violet.toRGBA();
+  ctx.fillRect(0, 0, 100, 100);
+}
 game.add(heart);
 
 // Turn on debug diagnostics
@@ -351,7 +356,7 @@ player.add(healthbar);
 //   ctx.fillRect(0, 0, 100, 100);
 // };
 player.graphics.onPostDraw = (ctx: ex.Graphics.ExcaliburGraphicsContext) => {
-  ctx.drawLine(ex.vec(0, 0), ex.vec(200, 0));
+  ctx.debug.drawLine(ex.vec(0, 0), ex.vec(200, 0));
 };
 
 var healthbar2 = new ex.Graphics.Rect({

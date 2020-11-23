@@ -574,7 +574,7 @@ O|===|* >________________>\n\
         snapToPixel: options.snapToPixel
       });
       this.graphicsContext = exWebglCtx;
-      this.ctx = exWebglCtx.__ctxShim;
+      this.ctx = exWebglCtx.__ctx;
     } else {
       const ex2dCtx = new ExcaliburGraphicsContext2DCanvas({
         canvasElement: this.canvas,
@@ -599,9 +599,6 @@ O|===|* >________________>\n\
       pixelRatio: options.suppressHiDPIScaling ? 1 : null
     });
 
-    // if (this.isHiDpi) {
-    //   this.graphicsContext.scale(this.screen.pixelRatio, this.screen.pixelRatio);
-    // }
     this.screen.applyResolutionAndViewport();
 
     if (options.backgroundColor) {

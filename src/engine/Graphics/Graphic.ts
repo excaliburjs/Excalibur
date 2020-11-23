@@ -154,7 +154,7 @@ export abstract class Graphic {
    * @param x
    * @param y
    */
-  public draw(ex: ExcaliburGraphicsContext, x: number, y: number) {
+  public draw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     this._preDraw(ex, x, y);
     this._drawImage(ex, 0, 0);
     this._postDraw(ex);

@@ -10,7 +10,6 @@ export class DrawImageCommand implements Poolable {
   public snapToPixel: boolean = true;
   public image: Graphic;
   public opacity: number = 1;
-  public z: number = 0;
   public width: number = 0;
   public height: number = 0;
   public dest: [number, number] = [0, 0]; // x, y
@@ -109,7 +108,7 @@ export class DrawImageCommand implements Poolable {
   }
 
   // todo weird
-  applyTransform(transform: Matrix, opacity: number, z: number): void {
+  applyTransform(transform: Matrix, opacity: number): void {
     if (transform) {
       for (let i = 0; i < this._geom.length; i++) {
         this._geom[i] = transform.multv(this._geom[i]);
@@ -119,7 +118,6 @@ export class DrawImageCommand implements Poolable {
       }
     }
     this.opacity = opacity;
-    this.z = z;
   }
 
   public get geometry() {

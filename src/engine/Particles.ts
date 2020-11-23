@@ -13,6 +13,7 @@ import { TransformComponent } from './EntityComponentSystem/Components/Transform
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Entity } from './EntityComponentSystem/Entity';
 import { Graphics } from '.';
+import { CanvasDrawComponent } from './Drawing/Index';
 
 /**
  * An enum that represents the types of emitter nozzles
@@ -64,6 +65,9 @@ export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent>
   public sizeRate: number = 0;
   public elapsedMultiplier: number = 0;
 
+
+  public visible = true;
+  public isOffscreen = false;
 
   public transform: TransformComponent;
   public graphics: GraphicsComponent;
@@ -118,6 +122,9 @@ export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent>
     }
 
     this.addComponent(this.transform = new TransformComponent);
+    this.addComponent(new CanvasDrawComponent(
+      (ctx) => this.draw(ctx)
+    ));
     this.addComponent(this.graphics = new GraphicsComponent);
 
     this.transform.pos = this.position;
@@ -182,16 +189,15 @@ export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent>
 
   public draw(ctx: CanvasRenderingContext2D) {
     if (this.particleSprite) {
-      this.particleSprite.rotation = this.currentRotation;
-      this.particleSprite.scale.setTo(this.particleSize, this.particleSize);
-      this.particleSprite.draw(ctx, this.position.x, this.position.y);
+      this.particleSprite.opacity(this.opacity);
+      this.particleSprite.draw(ctx, 0, 0);
       return;
     }
 
     this._currentColor.a = Util.clamp(this.opacity, 0.0001, 1);
     ctx.fillStyle = this._currentColor.toString();
     ctx.beginPath();
-    ctx.arc(this.position.x, this.position.y, this.particleSize, 0, Math.PI * 2);
+    ctx.arc(0, 0, this.particleSize, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
   }
@@ -390,6 +396,7 @@ export class ParticleEmitterImpl extends Actor {
     this.particles = new Util.Collection<Particle>();
     this.deadParticles = new Util.Collection<Particle>();
     this.random = new Random();
+    this.removeComponent(this.components.canvas);
 
     // Remove offscreen culling from particle emitters
     for (let i = 0; i < this.traits.length; i++) {

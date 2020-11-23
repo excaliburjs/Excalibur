@@ -11,6 +11,7 @@ import { Entity } from './EntityComponentSystem/Entity';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { ExcaliburGraphicsContext, GraphicsComponent } from './Graphics';
 import * as Graphics from './Graphics';
+import { CanvasDrawComponent } from './Drawing/Index';
 
 /**
  * @hidden
@@ -23,6 +24,7 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
   private _onScreenYStart: number = 0;
   private _onScreenYEnd: number = 9999;
   private _spriteSheets: { [key: string]: Graphics.SpriteSheet } = {};
+  private _graphicsContext: ExcaliburGraphicsContext;
   public logger: Logger = Logger.getInstance();
   public data: Cell[] = [];
   public x: number;
@@ -34,6 +36,10 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
   public cellHeight: number;
   public rows: number;
   public cols: number;
+
+  // These two are required for the CanvasDrawingSystem to process
+  public visible = true;
+  public isOffScreen = false;
 
   public get pos(): Vector {
     return vec(this.x, this.y);
@@ -90,14 +96,22 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
 
     this.addComponent(new TransformComponent);
     this.addComponent(new GraphicsComponent({
-      onPostDraw: (ctx, delta) => this.draw(ctx, delta)
+      onPostDraw: (_ctx, delta) => this.draw(delta)
     }));
+    this.addComponent(new CanvasDrawComponent(
+      (_ctx, delta) => this.draw(delta)
+    ));;
     this.components.graphics.localBounds = new BoundingBox({
       left: 0,
       top: 0,
       right: this.cols * this.cellWidth,
       bottom: this.rows * this.cellHeight
     });
+  }
+
+  public _initialize(engine: Engine) {
+    super._initialize(engine);
+    this._graphicsContext = engine.graphicsContext;
   }
 
   public registerSpriteSheet(key: string, spriteSheet: SpriteSheet): void;
@@ -212,7 +226,8 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
    * @param ctx    The current rendering context
    * @param delta  The number of milliseconds since the last draw
    */
-  public draw(ctx: ExcaliburGraphicsContext, delta: number) {
+  public draw(delta: number): void {
+    const ctx = this._graphicsContext;
     this.emit('predraw', new Events.PreDrawEvent(ctx as any, delta, this)); // TODO fix event
 
     let x = this._onScreenXStart;

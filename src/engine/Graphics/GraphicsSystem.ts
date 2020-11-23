@@ -9,10 +9,14 @@ import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';
 import { System, SystemType } from '../EntityComponentSystem';
 import { Engine } from '../Engine';
+import { Canvas } from './Canvas';
+import { Flags } from '../Flags';
+import { DrawDiagnostics } from './DrawDiagnostics';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['transform', 'graphics'] as const;
   public readonly systemType = SystemType.Draw;
+  public priority = 0;
   private _token = 0;
   private _graphicsContext: ExcaliburGraphicsContext;
   private _camera: Camera;
@@ -33,6 +37,15 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     this._token++;
     let transform: TransformComponent;
     let graphics: GraphicsComponent;
+
+    if (Flags.isEnabled('use-legacy-2d-ctx-shim')) {
+      this._graphicsContext.save();
+      const canvasShim: Canvas = (this._graphicsContext as any)._canvas;
+      canvasShim._flagTextureDirty = true; // TODO this is weird
+      this._graphicsContext.drawImage(canvasShim, 0, 0);
+      this._graphicsContext.restore();
+    }
+
     for (const entity of entities) {
       transform = entity.components.transform;
       graphics = entity.components.graphics;
@@ -60,7 +73,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
       this._graphicsPositionDebugDraw();
 
-      this._graphicsContext.z = transform.z;
       this._graphicsContext.opacity = graphics.opacity * ((entity as any).opacity ?? 1);
 
       // Draw the graphics component
@@ -80,8 +92,9 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       this._popCameraTransform(transform);
     }
 
-    // this.scene.legacyLifecycleDraw(this._graphicsContext);
     this._graphicsContext.flush();
+    this._engine.stats.currFrame.graphics.drawnImages = DrawDiagnostics.DrawnImagesCount;
+    this._engine.stats.currFrame.graphics.drawCalls = DrawDiagnostics.DrawCallCount;
   }
 
   private _clearScreen(): void {

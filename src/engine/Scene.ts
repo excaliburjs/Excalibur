@@ -32,6 +32,8 @@ import { SystemType } from './EntityComponentSystem/System';
 import { obsolete } from './Util/Decorators';
 import { World } from './EntityComponentSystem/World';
 import { GraphicsSystem } from './Graphics/GraphicsSystem';
+import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
+import { Flags } from './Flags';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -241,8 +243,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       }
 
       // Initialize systems
-      // this.world.add(new CanvasDrawingSystem());
-      this.world.add(new GraphicsSystem());
+      if (Flags.isEnabled('use-excalibur-graphics-ctx')) {
+        this.world.add(new GraphicsSystem());
+      } else {
+        this.world.add(new CanvasDrawingSystem());
+      }
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init

@@ -5,6 +5,9 @@ import { CanvasDrawComponent } from './CanvasDrawComponent';
 import { Scene } from '../Scene';
 import { Camera } from '../Camera';
 import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
+import { DrawDiagnostics } from '../Graphics/DrawDiagnostics';
+import { Canvas, ExcaliburGraphicsContext } from '../Graphics';
+import { Flags } from '../Flags';
 
 /**
  * Draws anything with a transform and a "draw" method
@@ -15,11 +18,13 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
   public priority = -1;
 
   private _ctx: CanvasRenderingContext2D;
+  private _ex: ExcaliburGraphicsContext;
   private _camera: Camera;
   private _engine: Engine;
 
   public initialize(scene: Scene): void {
     this._ctx = scene.engine.ctx;
+    this._ex = scene.engine.graphicsContext;
     this._engine = scene.engine;
     this._camera = scene.camera;
   }
@@ -66,20 +71,33 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
       this._camera.debugDraw(this._ctx);
       this._ctx.restore();
     }
+
+    if (Flags.isEnabled('use-webgl')) {
+      this._ex.save();
+      const canvasShim: Canvas = (this._ex as any)._canvas;
+      canvasShim._flagTextureDirty = true; // TODO this is weird
+      this._ex.drawImage(canvasShim, 0, 0);
+      this._ex.restore();
+      this._ex.flush();
+    }
+
+    this._engine.stats.currFrame.graphics.drawnImages = DrawDiagnostics.DrawnImagesCount;
+    this._engine.stats.currFrame.graphics.drawCalls = DrawDiagnostics.DrawCallCount;
   }
 
   private _applyTransform(actor: Actor) {
     let parent = actor.parent;
+    const transform = actor.components.transform;
     while (parent) {
-      this._ctx.translate(parent.pos.x, parent.pos.y);
-      this._ctx.rotate(parent.rotation);
-      this._ctx.scale(parent.scale.x, parent.scale.y);
+      this._ctx.translate(parent.transform.pos.x, parent.transform.pos.y);
+      this._ctx.rotate(parent.transform.rotation);
+      this._ctx.scale(parent.transform.scale.x, parent.transform.scale.y);
       parent = parent.parent;
     }
 
-    this._ctx.translate(actor.pos.x, actor.pos.y);
-    this._ctx.rotate(actor.rotation);
-    this._ctx.scale(actor.scale.x, actor.scale.y);
+    this._ctx.translate(transform.pos.x, transform.pos.y);
+    this._ctx.rotate(transform.rotation);
+    this._ctx.scale(transform.scale.x, transform.scale.y);
   }
 
   private _clearScreen(): void {

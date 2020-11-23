@@ -14,7 +14,6 @@ export interface ExcaliburGraphicsContextOptions {
 
 export interface ExcaliburGraphicsContextState {
   opacity: number;
-  z: number;
 }
 export interface LineGraphicsOptions {
   color: Color;
@@ -77,11 +76,6 @@ export interface ExcaliburGraphicsContext {
    * Sets the opacity of the current [[Graphic]] being drawn, default is 1
    */
   opacity: number;
-
-  /**
-   * Sets the z index of the current [[Graphic]] being drawn, default is 0
-   */
-  z: number;
 
   /**
    * Resets the current transform to the identity matrix

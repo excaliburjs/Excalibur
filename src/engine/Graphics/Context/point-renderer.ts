@@ -10,9 +10,9 @@ import { Pool, Poolable } from '../../Util/Pool';
 
 export class DrawPoint implements Poolable {
   _pool?: Pool<this>;
-  public point: Vector;
-  public color: Color;
-  public size: number;
+  public point: Vector = Vector.Zero;
+  public color: Color = Color.Black;
+  public size: number = 1;
   public dispose() {
     this.point.setTo(0, 0);
     this.color.r = 0;

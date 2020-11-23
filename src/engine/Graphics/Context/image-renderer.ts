@@ -151,7 +151,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
     dheight?: number
   ) {
     const command = this.commands.get().init(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
-    command.applyTransform(this._contextInfo.transform.current, this._contextInfo.state.current.opacity, this._contextInfo.state.current.z);
+    command.applyTransform(this._contextInfo.transform.current, this._contextInfo.state.current.opacity);
     this.addCommand(command);
   }
 
@@ -190,10 +190,10 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       const uvy1 = (sy + sh) / potHeight;
 
       // Quad update
-      // (0, 0, z)
+      // (0, 0, z) z-index doesn't work in batch rendering between batches
       vertexBuffer[vertIndex++] = command.geometry[0][0]; // x + 0 * width;
       vertexBuffer[vertIndex++] = command.geometry[0][1]; //y + 0 * height;
-      vertexBuffer[vertIndex++] = command.z;
+      vertexBuffer[vertIndex++] = 0;
 
       // UV coords
       vertexBuffer[vertIndex++] = uvx0; // 0;
@@ -206,7 +206,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       // (0, 1)
       vertexBuffer[vertIndex++] = command.geometry[1][0]; // x + 0 * width;
       vertexBuffer[vertIndex++] = command.geometry[1][1]; // y + 1 * height;
-      vertexBuffer[vertIndex++] = command.z;
+      vertexBuffer[vertIndex++] = 0;
 
       // UV coords
       vertexBuffer[vertIndex++] = uvx0; // 0;
@@ -219,7 +219,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       // (1, 0)
       vertexBuffer[vertIndex++] = command.geometry[2][0]; // x + 1 * width;
       vertexBuffer[vertIndex++] = command.geometry[2][1]; // y + 0 * height;
-      vertexBuffer[vertIndex++] = command.z;
+      vertexBuffer[vertIndex++] = 0;
 
       // UV coords
       vertexBuffer[vertIndex++] = uvx1; //1;
@@ -232,7 +232,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       // (1, 0)
       vertexBuffer[vertIndex++] = command.geometry[3][0]; // x + 1 * width;
       vertexBuffer[vertIndex++] = command.geometry[3][1]; // y + 0 * height;
-      vertexBuffer[vertIndex++] = command.z;
+      vertexBuffer[vertIndex++] = 0;
 
       // UV coords
       vertexBuffer[vertIndex++] = uvx1; //1;
@@ -245,7 +245,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       // (0, 1)
       vertexBuffer[vertIndex++] = command.geometry[4][0]; // x + 0 * width;
       vertexBuffer[vertIndex++] = command.geometry[4][1]; // y + 1 * height
-      vertexBuffer[vertIndex++] = command.z;
+      vertexBuffer[vertIndex++] = 0;
 
       // UV coords
       vertexBuffer[vertIndex++] = uvx0; // 0;
@@ -258,7 +258,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       // (1, 1)
       vertexBuffer[vertIndex++] = command.geometry[5][0]; // x + 1 * width;
       vertexBuffer[vertIndex++] = command.geometry[5][1]; // y + 1 * height;
-      vertexBuffer[vertIndex++] = command.z;
+      vertexBuffer[vertIndex++] = 0;
 
       // UV coords
       vertexBuffer[vertIndex++] = uvx1; // 1;

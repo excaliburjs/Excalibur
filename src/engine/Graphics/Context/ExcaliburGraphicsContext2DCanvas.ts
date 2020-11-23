@@ -9,7 +9,7 @@ import { Vector } from '../../Algebra';
 import { Graphic } from '../Graphic';
 import { Color } from '../../Drawing/Color';
 import { StateStack } from './state-stack';
-import { Diagnostics } from '../Diagnostics';
+import { DrawDiagnostics } from '../DrawDiagnostics';
 
 class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
   constructor(private _ex: ExcaliburGraphicsContext2DCanvas) {}
@@ -87,14 +87,6 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this._state.current.opacity = value;
   }
 
-  public get z(): number {
-    return this._state.current.z;
-  }
-
-  public set z(value: number) {
-    this._state.current.z = value;
-  }
-
   public snapToPixel: boolean = true;
 
   public get smoothing(): boolean {
@@ -165,8 +157,8 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
       .filter((a) => a !== undefined)
       .map((a) => (typeof a === 'number' && this.snapToPixel ? ~~a : a));
     this.__ctx.drawImage.apply(this.__ctx, args);
-    Diagnostics.DrawCallCount++;
-    Diagnostics.DrawBatchSizeAverage = 1;
+    DrawDiagnostics.DrawCallCount++;
+    DrawDiagnostics.DrawnImagesCount = 1;
   }
 
   debug = new ExcaliburGraphicsContext2DCanvasDebug(this);
@@ -215,6 +207,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.clearRect(0, 0, this.width, this.height);
     this.__ctx.fillStyle = this.backgroundColor.toString();
     this.__ctx.fillRect(0, 0, this.width, this.height);
+    DrawDiagnostics.clear();
   }
 
   /**

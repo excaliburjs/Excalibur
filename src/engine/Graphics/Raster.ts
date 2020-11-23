@@ -23,7 +23,7 @@ export interface RasterOptions {
 export abstract class Raster extends Graphic {
   public _bitmap: HTMLCanvasElement;
   public _flagTextureDirty: boolean;
-  private _ctx: CanvasRenderingContext2D;
+  protected _ctx: CanvasRenderingContext2D;
   private _dirty: boolean = true;
 
   constructor(options?: GraphicOptions & RasterOptions) {
@@ -63,7 +63,7 @@ export abstract class Raster extends Graphic {
   }
 
   /**
-   * Gets whether the graphic is dirty
+   * Gets whether the graphic is dirty, this means there are changes that haven't been re-rasterized
    */
   public get dirty() {
     return this._dirty;

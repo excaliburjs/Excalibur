@@ -1,7 +1,7 @@
 import { BatchCommand } from './batch';
 import { Shader } from './shader';
 // import { Pool, Poolable } from './pool';
-import { Diagnostics } from '../Diagnostics';
+import { DrawDiagnostics } from '../DrawDiagnostics';
 import { Pool, Poolable } from '../../Util/Pool';
 
 export interface Renderer {
@@ -60,6 +60,9 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
     this._batchPool = new Pool<BatchCommand<T>>(batchFactory, (b) => b.dispose(), 100);
   }
 
+  /**
+   * Initialize render, builds shader and initialized webgl buffers
+   */
   public init() {
     const gl = this._gl;
     this.shader = this.buildShader(gl);
@@ -108,12 +111,15 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
    */
   abstract renderBatch(gl: WebGLRenderingContext, batch: BatchCommand<T>, vertexCount: number): void;
 
+  /**
+   * Build batch geometry, submit to the gpu, and issue draw command to underlying webgl
+   */
   public render(): void {
     const gl = this._gl;
     gl.bindBuffer(gl.ARRAY_BUFFER, this._buffer);
     this.shader.use();
     let drawCallCount = 0;
-    let drawBatchSize = 0;
+    let drawnImagesCount = 0;
     for (const batch of this._batches) {
       // Build all geometry and ship to GPU
       // interleave VBOs https://goharsha.com/lwjgl-tutorial-series/interleaving-buffer-objects/
@@ -121,7 +127,7 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._vertices);
 
       this.renderBatch(gl, batch, vertexCount);
-      drawBatchSize += batch.commands.length;
+      drawnImagesCount += batch.commands.length;
       drawCallCount++;
 
       for (const c of batch.commands) {
@@ -130,7 +136,7 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
       this._batchPool.done(batch);
     }
     this._batches.length = 0;
-    Diagnostics.DrawCallCount += drawCallCount;
-    Diagnostics.DrawBatchSizeAverage = drawBatchSize / drawCallCount;
+    DrawDiagnostics.DrawCallCount += drawCallCount;
+    DrawDiagnostics.DrawnImagesCount += drawnImagesCount;
   }
 }

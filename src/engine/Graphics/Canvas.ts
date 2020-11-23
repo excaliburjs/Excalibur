@@ -2,7 +2,7 @@ import { GraphicOptions } from './Graphic';
 import { Raster } from './Raster';
 
 export interface CanvasOptions {
-  draw: (ctx: CanvasRenderingContext2D) => void;
+  draw?: (ctx: CanvasRenderingContext2D) => void;
   cache?: boolean;
 }
 
@@ -15,6 +15,13 @@ export interface CanvasOptions {
  * **Low performance API**
  */
 export class Canvas extends Raster {
+  /**
+   * Return the 2D graphics context of this canvas
+   */
+  public get ctx() {
+    return this._ctx;
+  }
+
   constructor(private _options: GraphicOptions & CanvasOptions) {
     super(_options);
   }
@@ -28,7 +35,9 @@ export class Canvas extends Raster {
   }
 
   execute(ctx: CanvasRenderingContext2D): void {
-    this._options?.draw(ctx);
+    if (this._options?.draw) {
+      this._options?.draw(ctx);
+    }
     if (!this._options.cache) {
       this.flagDirty();
     }

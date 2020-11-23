@@ -50,6 +50,7 @@ import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
+import { ExcaliburGraphicsContext } from './Graphics';
 
 /**
  * Type guard for checking if something is an Actor
@@ -463,8 +464,8 @@ export class ActorImpl
     // initialize default options
     this._initDefaults();
 
-    this.addComponent(this.graphics = new GraphicsComponent());
     this.addComponent(this.transform = new TransformComponent());
+    this.addComponent(this.graphics = new GraphicsComponent());
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
 
     let shouldInitializeBody = true;

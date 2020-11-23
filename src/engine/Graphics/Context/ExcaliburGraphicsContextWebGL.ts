@@ -17,6 +17,8 @@ import { Logger } from '../../Util/Log';
 import { LineRenderer } from './line-renderer';
 import { ImageRenderer } from './image-renderer';
 import { PointRenderer } from './point-renderer';
+import { Canvas } from '../Canvas';
+import { DrawDiagnostics } from '../DrawDiagnostics';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   constructor(private _ex: ExcaliburGraphicsContextWebGL) {}
@@ -68,10 +70,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    */
   public __gl: WebGLRenderingContext;
 
+
   /**
    * Holds the 2d context shim
    */
-  public __ctxShim: CanvasRenderingContext2D;
+  private _canvas: Canvas; // Configure z for shim?
+  public __ctx: CanvasRenderingContext2D;
 
   private _transform = new TransformStack();
   private _state = new StateStack();
@@ -95,14 +99,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public set opacity(value: number) {
     this._state.current.opacity = value;
-  }
-
-  public get z(): number {
-    return this._state.current.z;
-  }
-
-  public set z(value: number) {
-    this._state.current.z = value;
   }
 
   public get width() {
@@ -145,6 +141,13 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.__pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
     this.__lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
     this.__imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
+
+    // 2D ctx shim
+    this._canvas = new Canvas({
+      width: gl.canvas.width,
+      height: gl.canvas.height
+    });
+    this.__ctx = this._canvas.ctx;
   }
 
   public resetTransform(): void {
@@ -157,6 +160,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.__pointRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
     this.__lineRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
     this.__imageRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
+
+    // 2D ctx shim
+    this._canvas.width = gl.canvas.width;
+    this._canvas.height = gl.canvas.height;
   }
 
   drawImage(graphic: Graphic, x: number, y: number): void;
@@ -229,6 +236,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.
     gl.clear(gl.COLOR_BUFFER_BIT);
+    DrawDiagnostics.clear();
   }
 
   /**
@@ -238,7 +246,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     const gl = this.__gl;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-    this.clear();
     this.__imageRenderer.render();
     this.__lineRenderer.render();
     this.__pointRenderer.render();
