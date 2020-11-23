@@ -180,10 +180,10 @@ export class Font {
       direction: this.direction,
       shadow: this.shadow
         ? {
-            blur: this.shadow.blur,
-            offset: this.shadow.offset,
-            color: this.shadow.color
-          }
+          blur: this.shadow.blur,
+          offset: this.shadow.offset,
+          color: this.shadow.color
+        }
         : null
     });
   }

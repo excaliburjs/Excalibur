@@ -100,7 +100,7 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
     }));
     this.addComponent(new CanvasDrawComponent(
       (_ctx, delta) => this.draw(delta)
-    ));;
+    ));
     this.components.graphics.localBounds = new BoundingBox({
       left: 0,
       top: 0,
@@ -223,7 +223,6 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
 
   /**
    * Draws the tile map to the screen. Called by the [[Scene]].
-   * @param ctx    The current rendering context
    * @param delta  The number of milliseconds since the last draw
    */
   public draw(delta: number): void {
