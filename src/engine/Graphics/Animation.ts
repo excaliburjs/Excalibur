@@ -56,6 +56,7 @@ export class Animation extends Graphic implements HasTick {
   public frames: Frame[] = [];
   public strategy: AnimationStrategy = AnimationStrategy.Loop;
   public frameDuration: number = 100;
+  public timeScale: number = 1;
 
   private _idempotencyToken = -1;
 
@@ -214,7 +215,7 @@ export class Animation extends Graphic implements HasTick {
     if (!this._playing) {
       return;
     }
-    this._timeLeftInFrame -= elapsedMilliseconds;
+    this._timeLeftInFrame -= (elapsedMilliseconds * this.timeScale);
     if (this._timeLeftInFrame <= 0) {
       this.goToFrame(this._nextFrame());
     }
