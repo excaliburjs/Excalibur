@@ -1,3 +1,4 @@
+import { Vector } from '../Algebra';
 import { SpriteFont as LegacySpriteFont } from '../Drawing/Index';
 import { Logger } from '../Util/Log';
 import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
@@ -25,6 +26,10 @@ export interface SpriteTextOptions {
    * Optionally adjust the spacing between character sprites
    */
   spacing?: number;
+  /**
+   * Optionally specify a "shadow"
+   */
+  shadow?: { offset: Vector };
 }
 
 export class SpriteFont extends Graphic implements FontRenderer {
@@ -33,6 +38,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
   public alphabet: string = '';
   public spriteSheet: SpriteSheet;
 
+  public shadow: { offset: Vector } = null;
   public caseInsensitive = false;
   public spacing: number = 0;
 
@@ -49,15 +55,18 @@ export class SpriteFont extends Graphic implements FontRenderer {
         sprites
       })
     });
+
+    // TODO shadow
   }
 
   constructor(options: SpriteTextOptions & GraphicOptions) {
     super(options);
-    const { alphabet, spriteSheet, caseInsensitive, spacing } = options;
+    const { alphabet, spriteSheet, caseInsensitive, spacing, shadow } = options;
     this.alphabet = alphabet;
     this.spriteSheet = spriteSheet;
     this.caseInsensitive = caseInsensitive ?? this.caseInsensitive;
     this.spacing = spacing ?? this.spacing;
+    this.shadow = shadow ?? this.shadow;
 
     this.spriteSheet.image.whenLoaded.then(() => {
       this._updateDimensions();
@@ -93,7 +102,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
       }
     }
     this._dirty = false;
-    return this._sprites = results;
+    return (this._sprites = results);
   }
 
   private _updateDimensions() {
@@ -126,6 +135,13 @@ export class SpriteFont extends Graphic implements FontRenderer {
     if (this._text !== text) {
       this._dirty = true;
       this._text = text;
+    }
+
+    if (this.shadow) {
+      ex.save();
+      ex.translate(this.shadow.offset.x, this.shadow.offset.y);
+      this.draw(ex, x, y);
+      ex.restore();
     }
 
     this.draw(ex, x, y);
