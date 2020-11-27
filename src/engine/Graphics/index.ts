@@ -13,8 +13,9 @@ export * from './Circle';
 export * from './Rect';
 export * from './Polygon';
 export * from './Text';
+export * from './FontCommon';
 export * from './Font';
-export * from './SpriteText';
+export * from './SpriteFont';
 export * from './Canvas';
 
 export * from './Context/ExcaliburGraphicsContext';

@@ -1,16 +1,13 @@
-import { SpriteFont } from '../Drawing/Index';
+import { SpriteFont as LegacySpriteFont } from '../Drawing/Index';
 import { Logger } from '../Util/Log';
 import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
+import { FontRenderer } from './FontCommon';
 import { Graphic, GraphicOptions } from './Graphic';
 import { RawImage } from './RawImage';
 import { Sprite } from './Sprite';
 import { SpriteSheet } from './SpriteSheet';
 
 export interface SpriteTextOptions {
-  /**
-   * Text to draw
-   */
-  text: string;
   /**
    * Alphabet string in spritsheet order (default is row column order)
    * example: 'abcdefghijklmnopqrstuvwxyz'
@@ -30,17 +27,9 @@ export interface SpriteTextOptions {
   spacing?: number;
 }
 
-export class SpriteText extends Graphic {
+export class SpriteFont extends Graphic implements FontRenderer {
   private _text = '';
   private _dirty = true;
-  public get text(): string {
-    return this._text;
-  }
-  public set text(text: string) {
-    this._text = text;
-    this._dirty = true;
-  }
-
   public alphabet: string = '';
   public spriteSheet: SpriteSheet;
 
@@ -49,10 +38,9 @@ export class SpriteText extends Graphic {
 
   private _logger = Logger.getInstance();
 
-  static fromLegacySpriteFont(text: string, spriteFont: SpriteFont): SpriteText {
+  static fromLegacySpriteFont(spriteFont: LegacySpriteFont): SpriteFont {
     const sprites = spriteFont.sprites.map(Sprite.fromLegacySprite);
-    return new SpriteText({
-      text,
+    return new SpriteFont({
       alphabet: spriteFont.alphabet,
       spacing: spriteFont.spacing,
       caseInsensitive: spriteFont.caseInsensitive,
@@ -65,8 +53,7 @@ export class SpriteText extends Graphic {
 
   constructor(options: SpriteTextOptions & GraphicOptions) {
     super(options);
-    const { text, alphabet, spriteSheet, caseInsensitive, spacing } = options;
-    this.text = text ?? this.text;
+    const { alphabet, spriteSheet, caseInsensitive, spacing } = options;
     this.alphabet = alphabet;
     this.spriteSheet = spriteSheet;
     this.caseInsensitive = caseInsensitive ?? this.caseInsensitive;
@@ -78,20 +65,20 @@ export class SpriteText extends Graphic {
   }
 
   private _sprites: Sprite[] = [];
-  private _getCharacterSprites(): Sprite[] {
+  private _getCharacterSprites(text: string): Sprite[] {
     if (!this._dirty) {
       return this._sprites;
     }
 
     const results: Sprite[] = [];
     // handle case insenstive
-    const text = this.caseInsensitive ? this.text.toLocaleLowerCase() : this.text;
-    const alphabet = this.caseInsensitive ? this.alphabet.toLocaleLowerCase() : this.text;
+    const textToRender = this.caseInsensitive ? text.toLocaleLowerCase() : text;
+    const alphabet = this.caseInsensitive ? this.alphabet.toLocaleLowerCase() : this.alphabet;
 
     // for each letter in text
-    for (let letterIndex = 0; letterIndex < text.length; letterIndex++) {
+    for (let letterIndex = 0; letterIndex < textToRender.length; letterIndex++) {
       // find the sprite index in alphabet , if there is an error pick the first
-      const letter = text[letterIndex];
+      const letter = textToRender[letterIndex];
       let spriteIndex = alphabet.indexOf(letter);
       if (spriteIndex === -1) {
         spriteIndex = 0;
@@ -110,7 +97,7 @@ export class SpriteText extends Graphic {
   }
 
   private _updateDimensions() {
-    const sprites = this._getCharacterSprites();
+    const sprites = this._getCharacterSprites(this._text);
     let width = 0;
     let height = 0;
     for (const sprite of sprites) {
@@ -121,18 +108,31 @@ export class SpriteText extends Graphic {
     this.height = height;
   }
 
-  protected  _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
+  public _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     this._updateDimensions();
     super._preDraw(ex, x, y);
   }
 
+  public _postDraw(ex: ExcaliburGraphicsContext): void {
+    super._postDraw(ex);
+  }
+
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     let cursor = 0;
-    for (const sprite of this._getCharacterSprites()) {
+    for (const sprite of this._getCharacterSprites(this._text)) {
       // draw it in the right spot and incresase the cursor by sprite width
       sprite.draw(ex, x + cursor, y);
       cursor += sprite.width + this.spacing;
     }
+  }
+
+  render(ex: ExcaliburGraphicsContext, text: string, x: number, y: number) {
+    if (this._text !== text) {
+      this._dirty = true;
+      this._text = text;
+    }
+
+    this.draw(ex, x, y);
   }
 
   getSourceId(): number {
@@ -143,9 +143,8 @@ export class SpriteText extends Graphic {
     return this.spriteSheet.image.image;
   }
 
-  clone(): SpriteText {
-    return new SpriteText({
-      text: this.text,
+  clone(): SpriteFont {
+    return new SpriteFont({
       alphabet: this.alphabet,
       spriteSheet: this.spriteSheet,
       spacing: this.spacing
