@@ -1,6 +1,9 @@
 import { Vector } from '../Algebra';
 import { SpriteEffect } from '../Drawing/SpriteEffects';
 
+/**
+ * @deprecated
+ */
 export interface DrawOptions {
   ctx: CanvasRenderingContext2D;
   x: number;
@@ -17,6 +20,7 @@ export interface DrawOptions {
 
 /**
  * Interface for implementing anything in Excalibur that can be drawn to the screen.
+ * @deprecated
  */
 export interface Drawable {
   /**

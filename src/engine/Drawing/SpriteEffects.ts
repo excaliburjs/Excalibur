@@ -7,10 +7,12 @@
  * @typedoc
  */
 
+import { obsolete } from '../Util/Decorators';
 import { Color } from './Color';
 
 /**
  * The interface that all sprite effects must implement
+ * @deprecated
  */
 export interface SpriteEffect {
   /**
@@ -24,7 +26,9 @@ export interface SpriteEffect {
 
 /**
  * Applies the "Grayscale" effect to a sprite, removing color information.
+ * @deprecated
  */
+@obsolete()
 export class Grayscale implements SpriteEffect {
   updatePixel(x: number, y: number, imageData: ImageData): void {
     const firstPixel = (x + y * imageData.width) * 4;
@@ -38,7 +42,9 @@ export class Grayscale implements SpriteEffect {
 
 /**
  * Applies the "Invert" effect to a sprite, inverting the pixel colors.
+ * @deprecated
  */
+@obsolete()
 export class Invert implements SpriteEffect {
   updatePixel(x: number, y: number, imageData: ImageData): void {
     const firstPixel = (x + y * imageData.width) * 4;
@@ -51,7 +57,9 @@ export class Invert implements SpriteEffect {
 
 /**
  * Applies the "Opacity" effect to a sprite, setting the alpha of all pixels to a given value.
+ * @deprecated
  */
+@obsolete()
 export class Opacity implements SpriteEffect {
   /**
    * @param opacity  The new opacity of the sprite from 0-1.0
@@ -69,7 +77,9 @@ export class Opacity implements SpriteEffect {
 /**
  * Applies the "Colorize" effect to a sprite, changing the color channels of all the pixels to an
  * average of the original color and the provided color
+ * @deprecated
  */
+@obsolete()
 export class Colorize implements SpriteEffect {
   /**
    * @param color  The color to apply to the sprite
@@ -88,7 +98,9 @@ export class Colorize implements SpriteEffect {
 
 /**
  * Applies the "Lighten" effect to a sprite, changes the lightness of the color according to HSL
+ * @deprecated
  */
+@obsolete()
 export class Lighten implements SpriteEffect {
   /**
    * @param factor  The factor of the effect between 0-1
@@ -109,7 +121,9 @@ export class Lighten implements SpriteEffect {
 
 /**
  * Applies the "Darken" effect to a sprite, changes the darkness of the color according to HSL
+ * @deprecated
  */
+@obsolete()
 export class Darken implements SpriteEffect {
   /**
    * @param factor  The factor of the effect between 0-1
@@ -130,7 +144,9 @@ export class Darken implements SpriteEffect {
 
 /**
  * Applies the "Saturate" effect to a sprite, saturates the color according to HSL
+ * @deprecated
  */
+@obsolete()
 export class Saturate implements SpriteEffect {
   /**
    * @param factor  The factor of the effect between 0-1
@@ -151,7 +167,9 @@ export class Saturate implements SpriteEffect {
 
 /**
  * Applies the "Desaturate" effect to a sprite, desaturates the color according to HSL
+ * @deprecated
  */
+@obsolete()
 export class Desaturate implements SpriteEffect {
   /**
    * @param factor  The factor of the effect between 0-1
@@ -173,7 +191,9 @@ export class Desaturate implements SpriteEffect {
 /**
  * Applies the "Fill" effect to a sprite, changing the color channels of all non-transparent pixels to match
  * a given color
+ * @deprecated
  */
+@obsolete()
 export class Fill implements SpriteEffect {
   /**
    * @param color  The color to apply to the sprite

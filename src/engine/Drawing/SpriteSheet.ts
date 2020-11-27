@@ -8,10 +8,13 @@ import { Engine } from '../Engine';
 import { Logger } from '../Util/Log';
 import { Configurable } from '../Configurable';
 import { BaseAlign, TextAlign } from '../Graphics/FontCommon';
+import { obsolete } from '../Util/Decorators';
 
 /**
  * @hidden
+ * @deprecated
  */
+@obsolete()
 export class SpriteSheetImpl {
   public sprites: Sprite[] = [];
   public image: Texture = null;
@@ -188,6 +191,9 @@ export class SpriteSheetImpl {
   }
 }
 
+/**
+ * @deprecated
+ */
 export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
   image: Texture;
   sprites?: Sprite[];
@@ -202,7 +208,9 @@ export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
  * Sprite sheets are a useful mechanism for slicing up image resources into
  * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
  * in row major order in the [[SpriteSheet]].
+ * @deprecated Use [[Graphics.SpriteSheet]]
  */
+@obsolete()
 export class SpriteSheet extends Configurable(SpriteSheetImpl) {
   constructor(config: SpriteSheetArgs);
   constructor(sprites: Sprite[]);
@@ -219,6 +227,10 @@ export class SpriteSheet extends Configurable(SpriteSheetImpl) {
   }
 }
 
+/**
+ * @deprecated
+ */
+@obsolete()
 export class SpriteFontImpl extends SpriteSheet {
   private _currentColor: Color = Color.Black;
   private _currentOpacity: Number = 1.0;
@@ -414,6 +426,7 @@ export class SpriteFontImpl extends SpriteSheet {
 
 /**
  * Specify various font attributes for sprite fonts
+ * @deprecated
  */
 export interface SpriteFontOptions {
   color?: Color;
@@ -425,6 +438,9 @@ export interface SpriteFontOptions {
   maxWidth?: number;
 }
 
+/**
+ * @deprecated Use [[Graphics.SpriteFont]]
+ */
 export interface SpriteFontArgs extends SpriteSheetArgs {
   image: Texture;
   columns: number;
@@ -439,7 +455,9 @@ export interface SpriteFontArgs extends SpriteSheetArgs {
  * Sprite fonts are a used in conjunction with a [[Label]] to specify
  * a particular bitmap as a font. Note that some font features are not
  * supported by Sprite fonts.
+ * @deprecated Use [[Graphics.SpriteFont]]
  */
+@obsolete()
 export class SpriteFont extends Configurable(SpriteFontImpl) {
   constructor(config: SpriteFontArgs);
   constructor(image: Texture, alphabet: string, caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number);

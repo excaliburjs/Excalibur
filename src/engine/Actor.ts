@@ -905,14 +905,17 @@ export class ActorImpl
    * Sets the current drawing of the actor to the drawing corresponding to
    * the key.
    * @param key The key of the drawing
+   * @deprecated Use [[Actor.graphics.show]] or [[Actor.graphics.swap]]
    */
   public setDrawing(key: string): void;
   /**
    * Sets the current drawing of the actor to the drawing corresponding to
    * an `enum` key (e.g. `Animations.Left`)
    * @param key The `enum` key of the drawing
+   * @deprecated Use [[Actor.graphics.show]] or [[Actor.graphics.swap]]
    */
   public setDrawing(key: number): void;
+  @obsolete()
   public setDrawing(key: any): void {
     key = key.toString();
     if (this.currentDrawing !== this.frames[<string>key]) {
@@ -930,18 +933,22 @@ export class ActorImpl
 
   /**
    * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
+   * @deprecated Use [[Actor.graphics.add]]
    */
   public addDrawing(texture: Texture): void;
   /**
    * Adds a whole sprite as the "default" drawing. Set a drawing using [[setDrawing]].
+   * @deprecated Use [[Actor.graphics.add]]
    */
   public addDrawing(sprite: Sprite): void;
   /**
    * Adds a drawing to the list of available drawings for an actor. Set a drawing using [[setDrawing]].
    * @param key     The key to associate with a drawing for this actor
    * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
+   * @deprecated Use [[Actor.graphics.add]]
    */
   public addDrawing(key: any, drawing: Drawable): void;
+  @obsolete()
   public addDrawing(): void {
     if (arguments.length === 2) {
       this.frames[<string>arguments[0]] = arguments[1];

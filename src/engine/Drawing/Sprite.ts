@@ -7,10 +7,13 @@ import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
 import { clamp } from '../Util/Util';
 import { Configurable } from '../Configurable';
+import { obsolete } from '../Util/Decorators';
 
 /**
  * @hidden
+ * @deprecated
  */
+@obsolete()
 export class SpriteImpl implements Drawable {
   public _texture: Texture;
 
@@ -393,6 +396,9 @@ export class SpriteImpl implements Drawable {
   }
 }
 
+/**
+ * @deprecated
+ */
 export interface SpriteArgs extends Partial<SpriteImpl> {
   image?: Texture;
   x?: number;
@@ -408,7 +414,9 @@ export interface SpriteArgs extends Partial<SpriteImpl> {
 /**
  * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
  * images or parts of images from a [[Texture]] resource to the screen.
+ * @deprecated
  */
+@obsolete()
 export class Sprite extends Configurable(SpriteImpl) {
   constructor(config: SpriteArgs);
   constructor(image: Texture, x: number, y: number, width: number, height: number);

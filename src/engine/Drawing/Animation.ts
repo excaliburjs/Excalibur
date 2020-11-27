@@ -7,7 +7,11 @@ import { Vector } from '../Algebra';
 import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
 import { Configurable } from '../Configurable';
+import { obsolete } from '../Util/Decorators';
 
+/**
+ * @deprecated Use [[Graphics.Animation]]
+ */
 export interface HasTick {
   /**
    *
@@ -18,6 +22,7 @@ export interface HasTick {
 
 /**
  * @hidden
+ * @deprecated Use [[Graphics.Animation]]
  */
 export class AnimationImpl implements Drawable, HasTick {
   /**
@@ -350,6 +355,10 @@ export class AnimationImpl implements Drawable, HasTick {
   }
 }
 
+
+/**
+ * @deprecated Use [[Graphics.Animation]]
+ */
 export interface AnimationArgs extends Partial<AnimationImpl> {
   engine: Engine;
   sprites: Sprite[];
@@ -367,7 +376,9 @@ export interface AnimationArgs extends Partial<AnimationImpl> {
 /**
  * Animations allow you to display a series of images one after another,
  * creating the illusion of change. Generally these images will come from a [[SpriteSheet]] source.
+ * @deprecated Use [[Graphics.Animation]]
  */
+@obsolete()
 export class Animation extends Configurable(AnimationImpl) {
   constructor(config: AnimationArgs);
   constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean);
