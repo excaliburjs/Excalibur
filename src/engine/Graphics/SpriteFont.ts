@@ -108,13 +108,9 @@ export class SpriteFont extends Graphic implements FontRenderer {
     this.height = height;
   }
 
-  public _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
+  protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     this._updateDimensions();
     super._preDraw(ex, x, y);
-  }
-
-  public _postDraw(ex: ExcaliburGraphicsContext): void {
-    super._postDraw(ex);
   }
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {

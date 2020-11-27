@@ -71,10 +71,12 @@ export class Text extends Graphic {
 
   protected _rotate(_ex: ExcaliburGraphicsContext) {
     // None this is delegated to font
+    // This override erases the default behavior
   }
 
   protected _flip(_ex: ExcaliburGraphicsContext) {
     // None this is delegated to font
+    // This override erases the default behavior
   }
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {

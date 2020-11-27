@@ -124,7 +124,5 @@ export interface FontOptions {
 }
 
 export interface FontRenderer {
-  _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void;
-  _postDraw(ex: ExcaliburGraphicsContext): void;
   render(ex: ExcaliburGraphicsContext, text: string, x: number, y: number): void;
 }

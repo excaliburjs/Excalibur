@@ -140,11 +140,7 @@ export class Font extends Raster implements FontRenderer {
     }
   }
 
-  public _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number) {
-    super._preDraw(ex, x, y);
-  }
-
-  public _postDraw(ex: ExcaliburGraphicsContext): void {
+  protected _postDraw(ex: ExcaliburGraphicsContext): void {
     if (this.showDebug) {
       ex.debug.drawRect(-this._halfRasterWidth, -this._halfRasterHeight, this._rasterWidth, this._rasterHeight);
     }
