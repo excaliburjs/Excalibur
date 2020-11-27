@@ -54,6 +54,13 @@ export class Sprite extends Graphic {
     this.height = Math.ceil(this.destSize.height);
   }
 
+  protected  _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
+    if (this.rawImage.isLoaded()) {
+      this._updateSpriteDimensions();
+    }
+    super._preDraw(ex, x, y);
+  }
+
   public _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     if (this.rawImage.isLoaded()) {
       this._updateSpriteDimensions();
