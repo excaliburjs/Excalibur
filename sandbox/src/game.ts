@@ -127,6 +127,31 @@ var anim = new ex.Graphics.Animation({
     }
   ]
 });
+
+//   alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+//   caseInsensitive: true,
+//   columns: 16,
+//   rows: 3,
+//   spWidth: 16,
+//   spHeight: 16
+
+var spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
+  image: spriteFontImage,
+  grid: {
+    rows: 3,
+    columns: 16,
+    spriteWidth: 16,
+    spriteHeight: 16
+  }
+});
+
+var spriteText = new ex.Graphics.SpriteText({
+  text: 'Hello',
+  alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+  caseInsensitive: true,
+  spriteSheet: spriteFontSheet
+});
+
 // anim.on('loop', (a) => {
 //   console.log('loop');
 // });
@@ -184,6 +209,10 @@ var group = new ex.Graphics.GraphicsGroup({
     {
       graphic: triangle,
       pos: ex.vec(0, 200)
+    },
+    {
+      graphic: spriteText,
+      pos: ex.vec(300, 200)
     }
   ]
 });
