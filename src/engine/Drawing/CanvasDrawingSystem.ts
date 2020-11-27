@@ -5,7 +5,7 @@ import { CanvasDrawComponent } from './CanvasDrawComponent';
 import { Scene } from '../Scene';
 import { Camera } from '../Camera';
 import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
-import { DrawDiagnostics } from '../Graphics/DrawDiagnostics';
+import { GraphicsDiagnostics } from '../Graphics/GraphicsDiagnostics';
 import { Canvas, ExcaliburGraphicsContext } from '../Graphics';
 import { Flags } from '../Flags';
 
@@ -81,8 +81,8 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
       this._ex.flush();
     }
 
-    this._engine.stats.currFrame.graphics.drawnImages = DrawDiagnostics.DrawnImagesCount;
-    this._engine.stats.currFrame.graphics.drawCalls = DrawDiagnostics.DrawCallCount;
+    this._engine.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;
+    this._engine.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
   }
 
   private _applyTransform(actor: Actor) {

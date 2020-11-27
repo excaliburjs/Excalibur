@@ -9,9 +9,7 @@ import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';
 import { System, SystemType } from '../EntityComponentSystem';
 import { Engine } from '../Engine';
-import { Canvas } from './Canvas';
-import { Flags } from '../Flags';
-import { DrawDiagnostics } from './DrawDiagnostics';
+import { GraphicsDiagnostics } from './GraphicsDiagnostics';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['transform', 'graphics'] as const;
@@ -37,14 +35,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     this._token++;
     let transform: TransformComponent;
     let graphics: GraphicsComponent;
-
-    if (Flags.isEnabled('use-legacy-2d-ctx-shim')) {
-      this._graphicsContext.save();
-      const canvasShim: Canvas = (this._graphicsContext as any)._canvas;
-      canvasShim._flagTextureDirty = true; // TODO this is weird
-      this._graphicsContext.drawImage(canvasShim, 0, 0);
-      this._graphicsContext.restore();
-    }
 
     for (const entity of entities) {
       transform = entity.components.transform;
@@ -93,8 +83,8 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     }
 
     this._graphicsContext.flush();
-    this._engine.stats.currFrame.graphics.drawnImages = DrawDiagnostics.DrawnImagesCount;
-    this._engine.stats.currFrame.graphics.drawCalls = DrawDiagnostics.DrawCallCount;
+    this._engine.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;
+    this._engine.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
   }
 
   private _clearScreen(): void {

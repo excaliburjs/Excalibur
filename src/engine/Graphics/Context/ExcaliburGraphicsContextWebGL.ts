@@ -18,7 +18,7 @@ import { LineRenderer } from './line-renderer';
 import { ImageRenderer } from './image-renderer';
 import { PointRenderer } from './point-renderer';
 import { Canvas } from '../Canvas';
-import { DrawDiagnostics } from '../DrawDiagnostics';
+import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   constructor(private _ex: ExcaliburGraphicsContextWebGL) {}
@@ -236,7 +236,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.
     gl.clear(gl.COLOR_BUFFER_BIT);
-    DrawDiagnostics.clear();
+    GraphicsDiagnostics.clear();
   }
 
   /**

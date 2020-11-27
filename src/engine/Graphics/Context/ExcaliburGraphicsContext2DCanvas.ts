@@ -9,7 +9,7 @@ import { Vector } from '../../Algebra';
 import { Graphic } from '../Graphic';
 import { Color } from '../../Drawing/Color';
 import { StateStack } from './state-stack';
-import { DrawDiagnostics } from '../DrawDiagnostics';
+import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 
 class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
   constructor(private _ex: ExcaliburGraphicsContext2DCanvas) {}
@@ -157,8 +157,8 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
       .filter((a) => a !== undefined)
       .map((a) => (typeof a === 'number' && this.snapToPixel ? ~~a : a));
     this.__ctx.drawImage.apply(this.__ctx, args);
-    DrawDiagnostics.DrawCallCount++;
-    DrawDiagnostics.DrawnImagesCount = 1;
+    GraphicsDiagnostics.DrawCallCount++;
+    GraphicsDiagnostics.DrawnImagesCount = 1;
   }
 
   debug = new ExcaliburGraphicsContext2DCanvasDebug(this);
@@ -207,7 +207,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.clearRect(0, 0, this.width, this.height);
     this.__ctx.fillStyle = this.backgroundColor.toString();
     this.__ctx.fillRect(0, 0, this.width, this.height);
-    DrawDiagnostics.clear();
+    GraphicsDiagnostics.clear();
   }
 
   /**

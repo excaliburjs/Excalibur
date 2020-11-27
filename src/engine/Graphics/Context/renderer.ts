@@ -1,7 +1,7 @@
 import { BatchCommand } from './batch';
 import { Shader } from './shader';
 // import { Pool, Poolable } from './pool';
-import { DrawDiagnostics } from '../DrawDiagnostics';
+import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { Pool, Poolable } from '../../Util/Pool';
 
 export interface Renderer {
@@ -136,7 +136,7 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
       this._batchPool.done(batch);
     }
     this._batches.length = 0;
-    DrawDiagnostics.DrawCallCount += drawCallCount;
-    DrawDiagnostics.DrawnImagesCount += drawnImagesCount;
+    GraphicsDiagnostics.DrawCallCount += drawCallCount;
+    GraphicsDiagnostics.DrawnImagesCount += drawnImagesCount;
   }
 }
