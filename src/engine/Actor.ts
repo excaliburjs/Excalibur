@@ -312,8 +312,16 @@ export class ActorImpl
   public isOffScreen: boolean = false;
   /**
    * The visibility of an actor
+   * @deprecated Use [[Actor.graphics.visible]]
    */
-  public visible: boolean = true;
+  public get visible(): boolean {
+    return this.graphics.visible;
+  }
+
+  public set visible(isVisible: boolean) {
+    this.graphics.visible = isVisible;
+  }
+
   /**
    * The opacity of an actor. Passing in a color in the [[constructor]] will use the
    * color's opacity.

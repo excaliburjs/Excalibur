@@ -394,8 +394,6 @@ export class CellImpl extends Entity<TransformComponent | GraphicsComponent> {
     this.solid = solid;
     this.sprites = sprites;
     this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
-    // this.addComponent(this.transform = new TransformComponent);
-    // this.addComponent(this.graphics = new GraphicsComponent);
   }
 
   public get bounds() {
