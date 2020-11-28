@@ -6,6 +6,6 @@ uniform mat4 u_matrix;
 
 void main() {
   gl_Position = u_matrix * a_position;
-  gl_PointSize = a_size;
+  gl_PointSize = a_size * 2.0;
   v_color = a_color;
 }

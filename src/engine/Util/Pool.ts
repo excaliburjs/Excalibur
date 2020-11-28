@@ -39,7 +39,7 @@ export class Pool<Type extends Poolable> {
   borrow(context: (object: Type) => void) {
     const object = this.get();
     context(object);
-    this.done();
+    this.index--;
   }
 
   /**
@@ -47,7 +47,7 @@ export class Pool<Type extends Poolable> {
    * @param args
    */
   get(...args: any[]): Type {
-    if (this.index === this.maxObjects - 1) {
+    if (this.index === this.maxObjects) {
       // TODO implement hard or soft cap
       throw new Error('Max pooled objects reached, possible memory leak?');
     }
@@ -81,7 +81,6 @@ export class Pool<Type extends Poolable> {
       // Build a new object to take the pool place
       this.objects[poolIndex] = (this as any).builder(); // TODO problematic 0-arg only support
       this.objects[poolIndex]._pool = this;
-      // console.log("Allocation leaving using");
       this.totalAllocations++;
       // Unhook object from the pool
       object._pool = undefined;
