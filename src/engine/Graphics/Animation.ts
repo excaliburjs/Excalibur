@@ -60,6 +60,7 @@ export class Animation extends Graphic implements HasTick {
 
   private _idempotencyToken = -1;
 
+  private _firstTick = true;
   private _currentFrame = 0;
   private _timeLeftInFrame = 0;
   private _direction = 1;
@@ -116,16 +117,22 @@ export class Animation extends Graphic implements HasTick {
     return this.frames[this._currentFrame].graphic.getSource();
   }
 
+  public get isPlaying(): boolean {
+    return this._playing;
+  }
+
   public play(): void {
     this._playing = true;
   }
 
   public pause(): void {
     this._playing = false;
+    this._firstTick = true;
   }
 
   public reset(): void {
     this._done = false;
+    this._firstTick = true;
     this._currentFrame = 0;
   }
 
@@ -146,7 +153,7 @@ export class Animation extends Graphic implements HasTick {
   }
 
   public goToFrame(frameNumber: number) {
-    this._currentFrame = frameNumber; // % this.frames.length;
+    this._currentFrame = frameNumber;
     this._timeLeftInFrame = this.frameDuration;
     const maybeFrame = this.frames[this._currentFrame];
     if (maybeFrame && !this._done) {
@@ -177,7 +184,7 @@ export class Animation extends Graphic implements HasTick {
         if (next >= this.frames.length) {
           this._done = true;
           this._currentFrame = this.frames.length;
-          this.events.emit('ended', this as any);
+          this.events.emit('end', this as any);
         }
         break;
       }
@@ -185,7 +192,7 @@ export class Animation extends Graphic implements HasTick {
         next = clamp(currentFrame + 1, 0, this.frames.length - 1);
         if (next >= this.frames.length - 1) {
           this._done = true;
-          this.events.emit('ended', this as any);
+          this.events.emit('end', this as any);
         }
         break;
       }
@@ -215,6 +222,13 @@ export class Animation extends Graphic implements HasTick {
     if (!this._playing) {
       return;
     }
+
+    // if it's the first frame emit frame event
+    if (this._firstTick) {
+      this._firstTick = false;
+      this.events.emit('frame', this.currentFrame as any);
+    }
+
     this._timeLeftInFrame -= (elapsedMilliseconds * this.timeScale);
     if (this._timeLeftInFrame <= 0) {
       this.goToFrame(this._nextFrame());
