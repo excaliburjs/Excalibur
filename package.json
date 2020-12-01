@@ -104,7 +104,7 @@
     "prettier": "2.1.2",
     "puppeteer": "5.5.0",
     "rimraf": "3.0.2",
-    "semver": "7.3.2",
+    "semver": "7.3.4",
     "serve": "11.3.2",
     "source-map-support": "0.5.19",
     "sync-request": "6.1.0",
