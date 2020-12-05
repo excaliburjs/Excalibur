@@ -65,7 +65,7 @@ export class SystemManager<ContextType> {
       const entities = this._world.queryManager.getQuery(s.types).getEntities(s.sort);
       // Initialize entities if needed
       for (const entity of entities) {
-        entity._initialize((context as any).engine);// slightly gross
+        entity._initialize((context as any)?.engine);// slightly gross
       }
       s.update(entities, delta);
     }

@@ -1,193 +1,190 @@
 import { Engine } from './Engine';
 import { Color } from './Drawing/Color';
-import { SpriteFont } from './Drawing/SpriteSheet';
-import { Actor } from './Actor';
 import { Configurable } from './Configurable';
-import { Vector } from './Algebra';
-import { CollisionType } from './Collision/CollisionType';
-/**
- * Enum representing the different font size units
- * https://developer.mozilla.org/en-US/docs/Web/CSS/font-size
- */
-export enum FontUnit {
-  /**
-   * Em is a scalable unit, 1 em is equal to the current font size of the current element, parent elements can effect em values
-   */
-  Em,
-  /**
-   * Rem is similar to the Em, it is a scalable unit. 1 rem is equal to the font size of the root element
-   */
-  Rem,
-  /**
-   * Pixel is a unit of length in screen pixels
-   */
-  Px,
-  /**
-   * Point is a physical unit length (1/72 of an inch)
-   */
-  Pt,
-  /**
-   * Percent is a scalable unit similar to Em, the only difference is the Em units scale faster when Text-Size stuff
-   */
-  Percent
-}
+import { vec, Vector } from './Algebra';
+import { Text } from './Graphics/Text';
+import { BaseAlign, FontStyle, FontUnit, TextAlign } from './Graphics/FontCommon';
+import { obsolete } from './Util/Decorators';
+import { SpriteFont as LegacySpriteFont } from './Drawing/SpriteSheet';
+import { ExcaliburGraphicsContext, GraphicsComponent, SpriteFont } from './Graphics';
+import { Font } from './Graphics/Font';
+import { CanvasDrawComponent } from './Drawing/Index';
+import { TransformComponent } from './EntityComponentSystem';
+import { Actor } from './Actor';
 
-/**
- * Enum representing the different horizontal text alignments
- */
-export enum TextAlign {
-  /**
-   * The text is left-aligned.
-   */
-  Left,
-  /**
-   * The text is right-aligned.
-   */
-  Right,
-  /**
-   * The text is centered.
-   */
-  Center,
-  /**
-   * The text is aligned at the normal start of the line (left-aligned for left-to-right locales,
-   * right-aligned for right-to-left locales).
-   */
-  Start,
-  /**
-   * The text is aligned at the normal end of the line (right-aligned for left-to-right locales,
-   * left-aligned for right-to-left locales).
-   */
-  End
-}
-
-/**
- * Enum representing the different baseline text alignments
- */
-export enum BaseAlign {
-  /**
-   * The text baseline is the top of the em square.
-   */
-  Top,
-  /**
-   * The text baseline is the hanging baseline.  Currently unsupported; this will act like
-   * alphabetic.
-   */
-  Hanging,
-  /**
-   * The text baseline is the middle of the em square.
-   */
-  Middle,
-  /**
-   * The text baseline is the normal alphabetic baseline.
-   */
-  Alphabetic,
-  /**
-   * The text baseline is the ideographic baseline; this is the bottom of
-   * the body of the characters, if the main body of characters protrudes
-   * beneath the alphabetic baseline.  Currently unsupported; this will
-   * act like alphabetic.
-   */
-  Ideographic,
-  /**
-   * The text baseline is the bottom of the bounding box.  This differs
-   * from the ideographic baseline in that the ideographic baseline
-   * doesn't consider descenders.
-   */
-  Bottom
-}
-
-/**
- * Enum representing the different possible font styles
- */
-export enum FontStyle {
-  Normal,
-  Italic,
-  Oblique
-}
-
-export interface LabelArgs extends Partial<LabelImpl> {
+export interface LabelOptions {
+  text?: string;
   x?: number;
   y?: number;
-  text?: string;
   bold?: boolean;
   pos?: Vector;
-  spriteFont?: SpriteFont;
+  spriteFont?: LegacySpriteFont;
   fontFamily?: string;
   fontSize?: number;
   fontStyle?: FontStyle;
   fontUnit?: FontUnit;
   textAlign?: TextAlign;
-  maxWidth?: number;
 }
 
 /**
  * @hidden
  */
 export class LabelImpl extends Actor {
+  public font: Font = new Font();
+  private _text: Text = new Text({ text: '', font: this.font});
+
   /**
    * The text to draw.
    */
-  public text: string;
+  public get text(): string {
+    return this._text.text;
+  }
+
+  public set text(text: string) {
+    this._text.text = text;
+  }
+
+  public get color(): Color {
+    return this._text.color;
+  }
+
+  public set color(color: Color) {
+    this._text.color = color;
+  }
 
   /**
    * Sets or gets the bold property of the label's text, by default it's false
+   * @deprecated Use Label.font.bold
    */
-  public bold: boolean = false;
+  @obsolete()
+  public get bold(): boolean {
+    return this.font.bold;
+  }
 
-  /**
-   * The [[SpriteFont]] to use, if any. Overrides [[fontFamily]] if present.
-   */
-  public spriteFont: SpriteFont;
+  public set bold(isBold: boolean) {
+    this.font.bold = isBold;
+  }
+
 
   /**
    * The CSS font family string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
    * are supported, same as in CSS.
+   * @deprecated Use [[Label.font.family]]
    */
-  public fontFamily: string;
+  @obsolete()
+  public get fontFamily(): string {
+    return this.font.family;
+  }
+
+  public set fontFamily(family: string) {
+    this.font.family = family;
+  }
 
   /**
    * The font size in the selected units, default is 10 (default units is pixel)
+   * @deprecated Use [[Label.font.size]]
    */
-  public fontSize: number = 10;
+  @obsolete()
+  public get fontSize(): number {
+    return this.font.size;
+  }
+
+  public set fontSize(sizeInUnit: number) {
+    this.font.size = sizeInUnit;
+  }
 
   /**
    * The font style for this label, the default is [[FontStyle.Normal]]
+   * @deprecated Use [[Label.font.style]]
    */
-  public fontStyle: FontStyle = FontStyle.Normal;
+  @obsolete()
+  public get fontStyle(): FontStyle {
+    return this.font.style;
+  }
+
+  public set fontStyle(style: FontStyle) {
+    this.font.style = style;
+  }
+
 
   /**
    * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
+   * @deprecated Use [[Label.font.unit]]
    */
-  public fontUnit: FontUnit = FontUnit.Px;
+  @obsolete()
+  public get fontUnit(): FontUnit {
+    return this.font.unit;
+  }
+
+  public set fontUnit(unit: FontUnit) {
+    this.font.unit = unit;
+  }
 
   /**
    * Gets or sets the horizontal text alignment property for the label.
+   * @deprecated Use [[Label.font.textAlign]]
    */
-  public textAlign: TextAlign = TextAlign.Left;
+  @obsolete()
+  public get textAlign(): TextAlign {
+    return this.font.textAlign;
+  }
+
+  public set textAlign(align: TextAlign) {
+    this.font.textAlign = align;
+  }
 
   /**
    * Gets or sets the baseline alignment property for the label.
+   * @deprecated Use [[Label.font.baseAlign]]
    */
-  public baseAlign: BaseAlign = BaseAlign.Bottom;
+  @obsolete()
+  public get baseAlign(): BaseAlign {
+    return this.font.baseAlign;
+  }
+
+  public set baseAlign(align: BaseAlign) {
+    this.font.baseAlign = align;
+  }
 
   /**
    * Gets or sets the maximum width (in pixels) that the label should occupy
+   * @deprecated The maxWidth constraint is gone
    */
   public maxWidth: number;
 
+  private _legacySpriteFont: LegacySpriteFont;
+  private _spriteFont: SpriteFont;
+  /**
+   * The [[SpriteFont]] to use, if any. Overrides [[fontFamily]] if present.
+   * @deprecated Use [[Graphics.SpriteFont]]
+   */
+  @obsolete()
+  public get spriteFont(): LegacySpriteFont {
+    return this._legacySpriteFont;
+  }
+
+  public set spriteFont(sf: LegacySpriteFont) {
+    this._legacySpriteFont = sf;
+    if (sf) {
+      this._spriteFont = SpriteFont.fromLegacySpriteFont(sf);
+      this._text.font = this._spriteFont;
+    }
+  }
+
+
   /**
    * Gets or sets the letter spacing on a Label. Only supported with Sprite Fonts.
+   * @deprecated Use [[Graphics.SpriteFont.spacing]]
    */
   public letterSpacing: number = 0; //px
 
   /**
    * Whether or not the [[SpriteFont]] will be case-sensitive when matching characters.
+   * @deprecated Use [[Graphics.SpriteFont.caseInsensitive]]
    */
   public caseInsensitive: boolean = true;
 
-  private _textShadowOn: boolean;
-  private _shadowOffsetX: number;
-  private _shadowOffsetY: number;
+  private _graphicsContext: ExcaliburGraphicsContext;
 
   /**
    * @param textOrConfig    The text of the label, or label option bag
@@ -197,113 +194,47 @@ export class LabelImpl extends Actor {
    * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precedence
    * over a css font.
    */
-  constructor(textOrConfig?: string | Partial<LabelImpl>, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
-    super(textOrConfig && typeof textOrConfig === 'object' ? textOrConfig : { pos: new Vector(x, y) });
-
+  constructor(textOrConfig?: string | LabelOptions, x?: number, y?: number, fontFamily?: string, spriteFont?: LegacySpriteFont) {
+    super();
     let text = '';
+    let pos = Vector.Zero;
     if (textOrConfig && typeof textOrConfig === 'object') {
       fontFamily = textOrConfig.fontFamily;
       spriteFont = textOrConfig.spriteFont;
       text = textOrConfig.text;
+      pos = textOrConfig.pos ?? vec(textOrConfig.x ?? 0, textOrConfig.y ?? 0);
     } else {
       text = <string>textOrConfig;
+      pos = vec(x ?? 0, y ?? 0);
     }
+
+    this.addComponent(new TransformComponent);
+    this.components.transform.pos = pos;
+
+    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
+    this.addComponent(new GraphicsComponent);
+    this.components.graphics.swap(this._text);
 
     this.text = text || '';
     this.color = Color.Black;
-    this.spriteFont = spriteFont;
-    this.body.collider.type = CollisionType.PreventCollision;
-    this.fontFamily = fontFamily || 'sans-serif'; // coalesce to default canvas font
-
-    this._textShadowOn = false;
-    this._shadowOffsetX = 0;
-    this._shadowOffsetY = 0;
-    if (spriteFont) {
-      //this._textSprites = spriteFont.getTextSprites();
+    if (fontFamily) {
+      this.font.family = fontFamily;
     }
+    if (spriteFont) {
+      this.spriteFont = spriteFont;
+    }
+  }
+
+  public _initialize(engine: Engine) {
+    super._initialize(engine);
+    this._graphicsContext = engine.graphicsContext;
   }
 
   /**
    * Returns the width of the text in the label (in pixels);
-   * @param ctx  Rendering context to measure the string with
    */
-  public getTextWidth(ctx: CanvasRenderingContext2D): number {
-    const oldFont = ctx.font;
-    ctx.font = this._fontString;
-    const width = ctx.measureText(this.text).width;
-    ctx.font = oldFont;
-    return width;
-  }
-
-  /* istanbul ignore next */
-  private _lookupFontUnit(fontUnit: FontUnit): string {
-    switch (fontUnit) {
-      case FontUnit.Em:
-        return 'em';
-      case FontUnit.Rem:
-        return 'rem';
-      case FontUnit.Pt:
-        return 'pt';
-      case FontUnit.Px:
-        return 'px';
-      case FontUnit.Percent:
-        return '%';
-      default:
-        return 'px';
-    }
-  }
-
-  /* istanbul ignore next */
-  private _lookupTextAlign(textAlign: TextAlign): CanvasTextAlign {
-    switch (textAlign) {
-      case TextAlign.Left:
-        return 'left';
-      case TextAlign.Right:
-        return 'right';
-      case TextAlign.Center:
-        return 'center';
-      case TextAlign.End:
-        return 'end';
-      case TextAlign.Start:
-        return 'start';
-      default:
-        return 'start';
-    }
-  }
-
-  /* istanbul ignore next */
-  private _lookupBaseAlign(baseAlign: BaseAlign): CanvasTextBaseline {
-    switch (baseAlign) {
-      case BaseAlign.Alphabetic:
-        return 'alphabetic';
-      case BaseAlign.Bottom:
-        return 'bottom';
-      case BaseAlign.Hanging:
-        return 'hanging';
-      case BaseAlign.Ideographic:
-        return 'ideographic';
-      case BaseAlign.Middle:
-        return 'middle';
-      case BaseAlign.Top:
-        return 'top';
-      default:
-        return 'alphabetic';
-    }
-  }
-
-  /* istanbul ignore next */
-  private _lookupFontStyle(fontStyle: FontStyle): string {
-    const boldstring = this.bold ? ' bold' : '';
-    switch (fontStyle) {
-      case FontStyle.Italic:
-        return 'italic' + boldstring;
-      case FontStyle.Normal:
-        return 'normal' + boldstring;
-      case FontStyle.Oblique:
-        return 'oblique' + boldstring;
-      default:
-        return 'normal' + boldstring;
-    }
+  public getTextWidth(): number {
+    return this._text.width;
   }
 
   /**
@@ -311,83 +242,36 @@ export class LabelImpl extends Actor {
    * @param offsetX      The x offset in pixels to place the shadow
    * @param offsetY      The y offset in pixels to place the shadow
    * @param shadowColor  The color of the text shadow
+   * @deprecated Use [[Label.font.shadow]]
    */
+  @obsolete()
   public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color) {
-    this.spriteFont.setTextShadow(offsetX, offsetY, shadowColor);
+    this.font.shadow = { offset: vec(offsetX, offsetY), blur: 2, color: shadowColor };
   }
 
   /**
    * Toggles text shadows on or off, only applies when using sprite fonts
+   * @deprecated Use [[Label.font.shadow]]
    */
+  @obsolete()
   public useTextShadow(on: boolean) {
-    this.spriteFont.useTextShadow(on);
+    if (this.spriteFont) {
+      this.spriteFont.useTextShadow(on);
+    }
   }
 
   /**
    * Clears the current text shadow
+   * @deprecated Use [[Label.font.shadow]]
    */
+  @obsolete()
   public clearTextShadow() {
-    this._textShadowOn = false;
-    this._shadowOffsetX = 0;
-    this._shadowOffsetY = 0;
+    this.font.shadow = null;
   }
 
-  public update(engine: Engine, delta: number) {
-    super.update(engine, delta);
-  }
-
-  public draw(ctx: CanvasRenderingContext2D, delta: number) {
-    ctx.save();
-    if (this._textShadowOn) {
-      ctx.save();
-      ctx.translate(this._shadowOffsetX, this._shadowOffsetY);
-      this._fontDraw(ctx);
-      ctx.restore();
-    }
-    this._fontDraw(ctx);
-
-    super.draw(ctx, delta);
-    ctx.restore();
-  }
-
-  private _fontDraw(ctx: CanvasRenderingContext2D) {
-    if (this.spriteFont) {
-      this.spriteFont.draw(ctx, this.text, 0, 0, {
-        color: this.color.clone(),
-        baseAlign: this.baseAlign,
-        textAlign: this.textAlign,
-        fontSize: this.fontSize,
-        letterSpacing: this.letterSpacing,
-        opacity: this.opacity
-      });
-    } else {
-      const oldAlign = ctx.textAlign;
-      const oldTextBaseline = ctx.textBaseline;
-
-      ctx.textAlign = this._lookupTextAlign(this.textAlign);
-      ctx.textBaseline = this._lookupBaseAlign(this.baseAlign);
-      if (this.color) {
-        this.color.a = this.opacity;
-      }
-      ctx.fillStyle = this.color.toString();
-      ctx.font = this._fontString;
-      if (this.maxWidth) {
-        ctx.fillText(this.text, 0, 0, this.maxWidth);
-      } else {
-        ctx.fillText(this.text, 0, 0);
-      }
-
-      ctx.textAlign = oldAlign;
-      ctx.textBaseline = oldTextBaseline;
-    }
-  }
-
-  protected get _fontString() {
-    return `${this._lookupFontStyle(this.fontStyle)} ${this.fontSize}${this._lookupFontUnit(this.fontUnit)} ${this.fontFamily}`;
-  }
-
-  public debugDraw(ctx: CanvasRenderingContext2D) {
-    super.debugDraw(ctx);
+  public draw(_ctx: CanvasRenderingContext2D, _delta: number) {
+    const exctx = this._graphicsContext;
+    this._text.draw(exctx, 0, 0);
   }
 }
 
@@ -397,9 +281,9 @@ export class LabelImpl extends Actor {
  */
 export class Label extends Configurable(LabelImpl) {
   constructor();
-  constructor(config?: LabelArgs);
-  constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont);
-  constructor(textOrConfig?: string | LabelArgs, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
+  constructor(config?: LabelOptions);
+  constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: LegacySpriteFont);
+  constructor(textOrConfig?: string | LabelOptions, x?: number, y?: number, fontFamily?: string, spriteFont?: LegacySpriteFont) {
     super(textOrConfig, x, y, fontFamily, spriteFont);
   }
 }

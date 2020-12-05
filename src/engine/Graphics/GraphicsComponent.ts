@@ -58,7 +58,6 @@ export interface GraphicsLayerOptions {
   name: string;
   order: number;
   offset?: Vector;
-  allowMultipleGraphics?: boolean;
 }
 export class GraphicsLayer {
   public graphics: { graphic: Graphic; options: GraphicsShowOptions }[] = [];
@@ -127,14 +126,6 @@ export class GraphicsLayer {
     options = { offset: this._graphics.offset.clone(), anchor: this._graphics.anchor.clone(), ...options };
     this.hide();
     return this.show<T>(nameOrGraphic, options);
-  }
-
-  public get allowMultipleGraphics() {
-    return !!this._options.allowMultipleGraphics;
-  }
-
-  public set allowMultipleGraphics(value: boolean) {
-    this._options.allowMultipleGraphics = value;
   }
 
   /**
@@ -235,8 +226,6 @@ export class GraphicsComponent extends Component<'graphics'> {
     return Object.keys(this._graphics);
   }
 
-
-  // TODO do we want these still
   public onPreDraw: (ctx: ExcaliburGraphicsContext, elapsed: number) => void;
   public onPostDraw: (ctx: ExcaliburGraphicsContext, elapsed: number) => void;
 

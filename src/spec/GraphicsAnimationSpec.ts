@@ -3,7 +3,7 @@ import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 import { ExcaliburGraphicsContext2DCanvas } from '../engine/Graphics';
 
 
-fdescribe('A Graphics Animation', () => {
+describe('A Graphics Animation', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
@@ -255,7 +255,7 @@ fdescribe('A Graphics Animation', () => {
 
   });
 
-  it('draws the right frame to the screen', (done) => {
+  it('draws the right frame to the screen', async () => {
     const rect = new ex.Graphics.Rect({
       width: 100,
       height: 100,
@@ -296,27 +296,20 @@ fdescribe('A Graphics Animation', () => {
 
     ctx.clear();
     anim.draw(ctx, 0, 0);
+    const [actual1, image1] = await ensureImagesLoaded(output, 'src/spec/images/GraphicsAnimationSpec/frame-1.png');
+    expect(actual1).toEqualImage(image1);
 
-    ensureImagesLoaded(output, 'src/spec/images/GraphicsAnimationSpec/frame-1.png').then(([actual, image]) => {
-      expect(actual).toEqualImage(image);
+    ctx.clear();
+    anim.tick(100, 0);
+    anim.draw(ctx, 0, 0);
+    const [actual2, image2] = await ensureImagesLoaded(output, 'src/spec/images/GraphicsAnimationSpec/frame-2.png');
+    expect(actual2).toEqualImage(image2);
 
-      ctx.clear();
-      anim.tick(100, 0);
-      anim.draw(ctx, 0, 0);
-      ensureImagesLoaded(output, 'src/spec/images/GraphicsAnimationSpec/frame-2.png').then(([actual, image]) => {
-        expect(actual).toEqualImage(image);
-
-        ctx.clear();
-        anim.tick(100, 1);
-        anim.draw(ctx, 0, 0);
-
-        ensureImagesLoaded(output, 'src/spec/images/GraphicsAnimationSpec/frame-3.png').then(([actual, image]) => {
-          expect(actual).toEqualImage(image);
-          done();
-        });
-      });
-    });
-
+    ctx.clear();
+    anim.tick(100, 1);
+    anim.draw(ctx, 0, 0);
+    const [actual3, image3] = await ensureImagesLoaded(output, 'src/spec/images/GraphicsAnimationSpec/frame-3.png');
+    expect(actual3).toEqualImage(image3);
   });
 
 });

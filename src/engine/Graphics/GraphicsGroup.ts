@@ -30,8 +30,7 @@ export class GraphicsGroup extends Graphic implements HasTick {
   constructor(options: GraphicsGroupingOptions & GraphicOptions) {
     super(options);
     this.members = options.members;
-    this.width = 0;
-    this.height = 0;
+    this._updateDimensions();
   }
 
   public clone(): GraphicsGroup {
@@ -39,6 +38,18 @@ export class GraphicsGroup extends Graphic implements HasTick {
       members: [...this.members],
       ...this.cloneGraphicOptions()
     });
+  }
+
+  private _updateDimensions(): BoundingBox {
+    let bb = new BoundingBox();
+    for (const { graphic, pos } of this.members) {
+      bb = graphic.localBounds.translate(pos).combine(bb);
+    }
+
+    this.width = bb.width;
+    this.height = bb.height;
+
+    return bb;
   }
 
   public get localBounds(): BoundingBox {
@@ -69,6 +80,11 @@ export class GraphicsGroup extends Graphic implements HasTick {
         maybeAnimation.reset();
       }
     }
+  }
+
+  protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number) {
+    this._updateDimensions();
+    super._preDraw(ex, x, y);
   }
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {

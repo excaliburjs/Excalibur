@@ -66,6 +66,7 @@ describe('A TileMap', () => {
         cell.solid = true;
         cell.pushSprite(new ex.TileSprite('default', 0));
       });
+      tm._initialize(engine);
 
       drawWithTransform(engine.ctx, tm, 100);
 
@@ -92,6 +93,7 @@ describe('A TileMap', () => {
         cell.solid = true;
         cell.pushSprite(new ex.TileSprite('default', 0));
       });
+      tm._initialize(engine);
 
       tm.update(engine, 100);
       drawWithTransform(engine.ctx, tm, 100);

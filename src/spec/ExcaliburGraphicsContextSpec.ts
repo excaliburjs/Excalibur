@@ -13,7 +13,7 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
   return canvas;
 }
 
-fdescribe('The ExcaliburGraphicsContext', () => {
+describe('The ExcaliburGraphicsContext', () => {
 
   describe('2D', () => {
     beforeEach(() => {
@@ -45,12 +45,12 @@ fdescribe('The ExcaliburGraphicsContext', () => {
       expect(context.height).toBe(canvas.height);
     });
 
-    it('can draw a graphic', (done) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 100;
-      canvas.height = 100;
+    it('can draw a graphic', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
       const sut = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
-        canvasElement: canvas,
+        canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
@@ -64,18 +64,16 @@ fdescribe('The ExcaliburGraphicsContext', () => {
       sut.clear();
       sut.drawImage(rect, 20, 20);
 
-      ensureImagesLoaded(canvas, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawgraphic.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawgraphic.png');
+      expect(actual).toEqualImage(image);
     });
 
-    it('can draw debug point', (done) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 100;
-      canvas.height = 100;
+    it('can draw debug point', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
       const sut = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
-        canvasElement: canvas,
+        canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
@@ -86,18 +84,16 @@ fdescribe('The ExcaliburGraphicsContext', () => {
         color: ex.Color.Blue
       });
 
-      ensureImagesLoaded(canvas, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawpoint.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawpoint.png');
+      expect(actual).toEqualImage(image);
     });
 
-    it('can draw debug line', (done) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 100;
-      canvas.height = 100;
+    it('can draw debug line', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
       const sut = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
-        canvasElement: canvas,
+        canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
@@ -107,18 +103,16 @@ fdescribe('The ExcaliburGraphicsContext', () => {
         color: ex.Color.Blue
       });
 
-      ensureImagesLoaded(canvas, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawline.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawline.png');
+      expect(actual).toEqualImage(image);
     });
 
-    it('can transform the context', (done) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 100;
-      canvas.height = 100;
+    it('can transform the context', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
       const sut = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
-        canvasElement: canvas,
+        canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
@@ -138,18 +132,16 @@ fdescribe('The ExcaliburGraphicsContext', () => {
       sut.drawImage(rect, -25, -25);
       sut.restore();
 
-      ensureImagesLoaded(canvas, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-transform.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-transform.png');
+      expect(actual).toEqualImage(image);
     });
 
-    it('can snap drawings to pixel', (done) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 100;
-      canvas.height = 100;
+    it('can snap drawings to pixel', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
       const sut = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
-        canvasElement: canvas,
+        canvasElement: canvasElement,
         enableTransparency: false,
         snapToPixel: true,
         backgroundColor: ex.Color.White
@@ -164,10 +156,8 @@ fdescribe('The ExcaliburGraphicsContext', () => {
       sut.clear();
       sut.drawImage(rect, 1.9, 1.9);
 
-      ensureImagesLoaded(canvas, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png');
+      expect(actual).toEqualImage(image);
     });
   });
 
@@ -201,12 +191,12 @@ fdescribe('The ExcaliburGraphicsContext', () => {
       expect(context.height).toBe(canvas.height);
     });
 
-    it('can draw a graphic', (done) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 100;
-      canvas.height = 100;
+    it('can draw a graphic', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
       const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
-        canvasElement: canvas,
+        canvasElement: canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
@@ -221,19 +211,17 @@ fdescribe('The ExcaliburGraphicsContext', () => {
       sut.drawImage(rect, 20, 20);
       sut.flush();
 
-      ensureImagesLoaded(flushWebGLCanvasTo2D(canvas),
-        'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawgraphic.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      const [actual, image] = await ensureImagesLoaded(flushWebGLCanvasTo2D(canvasElement),
+        'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawgraphic.png');
+      expect(actual).toEqualImage(image);
     });
 
-    it('can draw debug point', (done) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 100;
-      canvas.height = 100;
+    it('can draw debug point', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
       const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
-        canvasElement: canvas,
+        canvasElement: canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
@@ -245,19 +233,17 @@ fdescribe('The ExcaliburGraphicsContext', () => {
       });
       sut.flush();
 
-      ensureImagesLoaded(flushWebGLCanvasTo2D(canvas),
-        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawpoint.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      const [actual, image] = await ensureImagesLoaded(flushWebGLCanvasTo2D(canvasElement),
+        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawpoint.png');
+      expect(actual).toEqualImage(image);
     });
 
-    it('can draw debug line', (done) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 100;
-      canvas.height = 100;
+    it('can draw debug line', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
       const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
-        canvasElement: canvas,
+        canvasElement: canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
@@ -268,19 +254,17 @@ fdescribe('The ExcaliburGraphicsContext', () => {
       });
       sut.flush();
 
-      ensureImagesLoaded(flushWebGLCanvasTo2D(canvas),
-        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawline.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      const [actual, image] = await ensureImagesLoaded(flushWebGLCanvasTo2D(canvasElement),
+        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawline.png');
+      expect(actual).toEqualImage(image);
     });
 
-    it('can transform the context', (done) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 100;
-      canvas.height = 100;
+    it('can transform the context', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
       const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
-        canvasElement: canvas,
+        canvasElement: canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
@@ -301,19 +285,17 @@ fdescribe('The ExcaliburGraphicsContext', () => {
       sut.restore();
       sut.flush();
 
-      ensureImagesLoaded(flushWebGLCanvasTo2D(canvas),
-        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-transform.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      const [actual, image] = await ensureImagesLoaded(flushWebGLCanvasTo2D(canvasElement),
+        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-transform.png');
+      expect(actual).toEqualImage(image);
     });
 
-    it('can snap drawings to pixel', (done) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 100;
-      canvas.height = 100;
+    it('can snap drawings to pixel', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
       const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
-        canvasElement: canvas,
+        canvasElement: canvasElement,
         enableTransparency: false,
         snapToPixel: true,
         backgroundColor: ex.Color.White
@@ -329,11 +311,9 @@ fdescribe('The ExcaliburGraphicsContext', () => {
       sut.drawImage(rect, 1.9, 1.9);
       sut.flush();
 
-      ensureImagesLoaded(flushWebGLCanvasTo2D(canvas),
-        'src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      const [actual, image] = await ensureImagesLoaded(flushWebGLCanvasTo2D(canvasElement),
+        'src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png');
+      expect(actual).toEqualImage(image);
     });
   });
 });

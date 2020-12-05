@@ -69,6 +69,7 @@ export * from './Util/CullingBox';
 export * from './Util/EasingFunctions';
 export * from './Util/Log';
 export * from './Util/SortedList';
+export * from './Util/Pool';
 
 // ex.Deprecated
 export * from './Promises';

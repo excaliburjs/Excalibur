@@ -96,10 +96,10 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
 
     this.addComponent(new TransformComponent);
     this.addComponent(new GraphicsComponent({
-      onPostDraw: (_ctx, delta) => this.draw(delta)
+      onPostDraw: (_ctx, delta) => this.draw(null, delta)
     }));
     this.addComponent(new CanvasDrawComponent(
-      (_ctx, delta) => this.draw(delta)
+      (_ctx, delta) => this.draw(null, delta)
     ));
     this.components.graphics.localBounds = new BoundingBox({
       left: 0,
@@ -225,7 +225,7 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
    * Draws the tile map to the screen. Called by the [[Scene]].
    * @param delta  The number of milliseconds since the last draw
    */
-  public draw(delta: number): void {
+  public draw(_ctx: CanvasRenderingContext2D, delta: number): void {
     const ctx = this._graphicsContext;
     this.emit('predraw', new Events.PreDrawEvent(ctx as any, delta, this)); // TODO fix event
 

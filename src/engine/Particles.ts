@@ -129,10 +129,17 @@ export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent>
 
     this.transform.pos = this.position;
     this.transform.rotation = this.currentRotation;
-    this.transform.scale = vec(this.particleSize, this.particleSize);
+    this.transform.scale = vec(1, 1); // TODO wut
     if (this.particleSprite) {
       this.graphics.opacity = this.opacity;
       this.graphics.swap(Graphics.Sprite.fromLegacySprite(this.particleSprite));
+    } else {
+      this.graphics.onPostDraw = (ctx) => {
+        ctx.save();
+        ctx.opacity = this.opacity;
+        ctx.debug.drawPoint(vec(0, 0), { color: Color.Black, size: this.particleSize });
+        ctx.restore();
+      };
     }
   }
 
@@ -183,7 +190,7 @@ export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent>
 
     this.transform.pos = this.position;
     this.transform.rotation = this.currentRotation;
-    this.transform.scale = vec(this.particleSize, this.particleSize);
+    this.transform.scale = vec(1, 1); // todo wut
     this.graphics.opacity = this.opacity;
   }
 
@@ -194,12 +201,14 @@ export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent>
       return;
     }
 
+    ctx.save();
     this._currentColor.a = Util.clamp(this.opacity, 0.0001, 1);
     ctx.fillStyle = this._currentColor.toString();
     ctx.beginPath();
     ctx.arc(0, 0, this.particleSize, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
+    ctx.restore();
   }
 }
 
@@ -360,7 +369,9 @@ export class ParticleEmitterImpl extends Actor {
 
   public set particleSprite(val: Sprite) {
     this._og = val;
-    this._sprite = Graphics.Sprite.fromLegacySprite(val);
+    if (val) {
+      this._sprite = Graphics.Sprite.fromLegacySprite(val);
+    }
   }
 
   /**
@@ -408,7 +419,9 @@ export class ParticleEmitterImpl extends Actor {
 
   public removeParticle(particle: Particle) {
     this.deadParticles.push(particle);
-    this.scene.world.remove(particle);
+    if (this?.scene?.world) {
+      this.scene.world.remove(particle);
+    }
   }
 
   /**
@@ -419,7 +432,9 @@ export class ParticleEmitterImpl extends Actor {
     for (let i = 0; i < particleCount; i++) {
       const p = this._createParticle();
       this.particles.push(p);
-      this.scene.world.add(p);
+      if (this?.scene?.world) {
+        this.scene.world.add(p);
+      }
     }
   }
 

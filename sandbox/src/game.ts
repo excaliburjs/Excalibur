@@ -145,11 +145,15 @@ var spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
   }
 });
 
-var spriteText = new ex.Graphics.SpriteText({
-  text: 'Hello',
+var spriteFont = new ex.Graphics.SpriteFont({
   alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
   caseInsensitive: true,
   spriteSheet: spriteFontSheet
+});
+
+var spriteText = new ex.Graphics.Text({
+  text: 'Sprite Text ❤️',
+  font: spriteFont
 });
 
 // anim.on('loop', (a) => {
@@ -224,6 +228,8 @@ heart.onPostDraw = (ctx) => {
   ctx.fillRect(0, 0, 100, 100);
 }
 game.add(heart);
+
+game.add(new ex.Label('Test Label', 200, 200));
 
 // Turn on debug diagnostics
 game.showDebug(false);
@@ -386,6 +392,7 @@ player.add(healthbar);
 // };
 player.graphics.onPostDraw = (ctx: ex.Graphics.ExcaliburGraphicsContext) => {
   ctx.debug.drawLine(ex.vec(0, 0), ex.vec(200, 0));
+  ctx.debug.drawPoint(ex.vec(0, 0), { size: 20, color: ex.Color.Black });
 };
 
 var healthbar2 = new ex.Graphics.Rect({
@@ -393,7 +400,6 @@ var healthbar2 = new ex.Graphics.Rect({
   height: 5,
   color: new ex.Color(0, 255, 0)
 });
-// healthbar2.showDebug = true;
 
 var backroundLayer = player.graphics.layers.create({
   name: 'background',
@@ -636,12 +642,12 @@ var emitter = new ex.ParticleEmitter({
   opacity: 0.84,
   fadeFlag: true,
   particleLife: 2465,
-  maxSize: 1.5,
-  minSize: 0.1,
+  maxSize: 20.5,
+  minSize: 10,
   acceleration: new ex.Vector(0, 460),
   beginColor: ex.Color.Red,
   endColor: ex.Color.Yellow,
-  particleSprite: blockSpriteLegacy,
+  // particleSprite: blockSpriteLegacy,
   particleRotationalVelocity: Math.PI / 10,
   randomRotation: true
 });

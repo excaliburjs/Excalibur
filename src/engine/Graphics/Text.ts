@@ -7,19 +7,23 @@ import { Font } from './Font';
 
 export interface TextOptions {
   text: string;
+  color?: Color;
   font?: Font | SpriteFont;
 }
 
 export class Text extends Graphic {
   constructor(options: TextOptions & GraphicOptions) {
     super(options);
-    this.text = options.text;
+    // This order is important font, color, then text
     this.font = options.font ?? new Font();
+    this.color = options.color ?? this.color;
+    this.text = options.text;
   }
 
   public clone(): Text {
     return new Text({
       text: this.text.slice(),
+      color: this.color.clone(),
       font: this.font.clone()
     });
   }
@@ -31,6 +35,9 @@ export class Text extends Graphic {
 
   public set text(value: string) {
     this._text = value;
+    if (this.font instanceof Font) {
+      this.font.updateText(value);
+    }
   }
 
   // TODO SpriteFont doesn't support a color :O
@@ -53,16 +60,8 @@ export class Text extends Graphic {
     return this.font.width;
   }
 
-  public set width(value: number) {
-    this.font.width = value;
-  }
-
   public get height() {
     return this.font.height;
-  }
-
-  public set height(value: number) {
-    this.font.height = value;
   }
 
   public get localBounds(): BoundingBox {
@@ -80,6 +79,9 @@ export class Text extends Graphic {
   }
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
+    if (this.font instanceof Font) {
+      this.font.color = this.color; // todo this is a problem
+    }
     this.font.flipHorizontal = this.flipHorizontal;
     this.font.flipVertical = this.flipVertical;
     this.font.scale = this.scale;

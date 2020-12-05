@@ -9,7 +9,6 @@ export interface SpriteSheetGridOptions {
     columns: number;
     spriteWidth: number;
     spriteHeight: number;
-    padding?: number;
   };
 }
 
@@ -40,15 +39,15 @@ export class SpriteSheet {
     const sprites: Sprite[] = [];
     const {
       image,
-      grid: { rows, columns: cols, spriteWidth, spriteHeight, padding }
+      grid: { rows, columns: cols, spriteWidth, spriteHeight }
     } = options;
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {
         sprites[x + y * cols] = new Sprite({
           image: image,
           sourceView: {
-            x: x * spriteWidth + (padding ?? 0),
-            y: y * spriteHeight + (padding ?? 0),
+            x: x * spriteWidth,
+            y: y * spriteHeight,
             width: spriteWidth,
             height: spriteHeight
           },

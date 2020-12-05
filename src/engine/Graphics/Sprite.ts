@@ -38,6 +38,7 @@ export class Sprite extends Graphic {
     this.rawImage = options.image;
     this.sourceView = options.sourceView ?? { x: 0, y: 0, width: 0, height: 0 };
     this.destSize = options.destSize ?? { width: 0, height: 0 };
+    this._updateSpriteDimensions();
     this.rawImage.whenLoaded.then(() => {
       this._updateSpriteDimensions();
     });
@@ -45,10 +46,14 @@ export class Sprite extends Graphic {
 
   private _updateSpriteDimensions() {
     const { width: nativeWidth, height: nativeHeight } = this.rawImage;
-    this.sourceView.width = this.sourceView.width || nativeWidth;
-    this.sourceView.height = this.sourceView.height || nativeHeight;
-    this.destSize.width = this.destSize.width || nativeWidth;
-    this.destSize.height = this.destSize.height || nativeHeight;
+    // This code uses || to avoid 0's
+    // If the source is not specified, use the native dimension
+    this.sourceView.width = this.sourceView?.width || nativeWidth;
+    this.sourceView.height = this.sourceView?.height || nativeHeight;
+
+    // If the destination is not specified, use the source if specified, then native
+    this.destSize.width = this.destSize?.width || this.sourceView?.width || nativeWidth;
+    this.destSize.height = this.destSize?.height || this.sourceView?.height || nativeHeight;
 
     this.width = Math.ceil(this.destSize.width);
     this.height = Math.ceil(this.destSize.height);

@@ -62,7 +62,6 @@ describe('The engine', () => {
     engine = TestUtils.engine({
       suppressPlayButton: true
     });
-    engine.currentScene = scene;
     engine.currentScene.add(
       new ex.Actor({
         pos: new ex.Vector(250, 250),

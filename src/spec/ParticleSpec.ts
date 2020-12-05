@@ -11,7 +11,19 @@ const drawWithTransform = (ctx: CanvasRenderingContext2D, actor: ex.Actor, delta
   ctx.restore();
 };
 
-describe('A particle', () => {
+/**
+ *
+ */
+function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = source.width;
+  canvas.height = source.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(source, 0, 0);
+  return canvas;
+}
+
+fdescribe('A particle', () => {
   let engine: ex.Engine;
   let texture: ex.Texture;
   beforeEach(() => {
@@ -19,7 +31,10 @@ describe('A particle', () => {
     engine = TestUtils.engine({
       width: 800,
       height: 200
-    });
+    }, [
+      'use-excalibur-graphics-ctx',
+      'use-webgl'
+    ]);
 
     texture = new ex.Texture('base/src/spec/images/SpriteFontSpec/SpriteFont.png', true);
   });
@@ -117,15 +132,16 @@ describe('A particle', () => {
       randomRotation: false,
       random: new ex.Random(1337)
     });
-
+    engine.backgroundColor = ex.Color.Transparent;
+    engine.add(emitter);
     emitter.emitParticles(10);
-    emitter.update(engine, 100);
-    emitter.update(engine, 100);
-    emitter.update(engine, 100);
 
-    drawWithTransform(engine.ctx, emitter, 100);
+    engine.currentScene.update(engine, 100);
+    engine.currentScene.update(engine, 100);
+    engine.currentScene.update(engine, 100);
+    engine.currentScene.draw(engine.ctx, 100);
 
-    ensureImagesLoaded(engine.canvas, 'src/spec/images/ParticleSpec/Particles.png').then(([canvas, image]) => {
+    ensureImagesLoaded(flushWebGLCanvasTo2D(engine.canvas), 'src/spec/images/ParticleSpec/Particles.png').then(([canvas, image]) => {
       expect(canvas).toEqualImage(image);
       done();
     });

@@ -1,5 +1,5 @@
 import { GraphicOptions } from './Graphic';
-import { Raster } from './Raster';
+import { Raster, RasterOptions } from './Raster';
 
 export interface CanvasOptions {
   draw?: (ctx: CanvasRenderingContext2D) => void;
@@ -22,7 +22,7 @@ export class Canvas extends Raster {
     return this._ctx;
   }
 
-  constructor(private _options: GraphicOptions & CanvasOptions) {
+  constructor(private _options: GraphicOptions & RasterOptions & CanvasOptions) {
     super(_options);
   }
 

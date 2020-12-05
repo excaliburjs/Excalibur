@@ -140,6 +140,41 @@ export class Font extends Raster implements FontRenderer {
     }
   }
 
+  public updateText(text: string) {
+    this._text = text;
+    this._updateDimensions();
+  }
+
+  private _updateDimensions() {
+    if (this._text) {
+      this._applyFont(this._ctx);
+      const metrics = this._ctx.measureText(this._text);
+      this._textWidth = metrics.width;
+      this._textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+
+      // Changing the width and height clears the context properties
+      // We double the bitmap width to account for alignment
+      this._bitmap.width = (metrics.width + this.padding * 2) * 2;
+      this._bitmap.height = (metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + this.padding * 2 || 16) * 2;
+
+      // These bounds exist in raster bitmap space where the top left corner is the corder of the bitmap
+      // TODO need to account for padding
+      const x = 0; // this._halfRasterWidth;
+      const y = 0; //this._halfRasterHeight;
+      this._textBounds = new BoundingBox({
+        left: x - metrics.actualBoundingBoxLeft - this.padding,
+        top: y - metrics.actualBoundingBoxAscent - this.padding,
+        bottom: y + metrics.actualBoundingBoxDescent + this.padding,
+        right: x + metrics.actualBoundingBoxRight + this.padding
+      });
+    }
+  }
+
+  protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
+    this._updateDimensions();
+    super._preDraw(ex, x, y);
+  }
+
   protected _postDraw(ex: ExcaliburGraphicsContext): void {
     if (this.showDebug) {
       ex.debug.drawRect(-this._halfRasterWidth, -this._halfRasterHeight, this._rasterWidth, this._rasterHeight);
@@ -163,27 +198,6 @@ export class Font extends Raster implements FontRenderer {
 
   execute(ctx: CanvasRenderingContext2D): void {
     if (this._text) {
-      this._applyFont(ctx);
-      const metrics = ctx.measureText(this._text);
-      this._textWidth = metrics.width;
-      this._textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-
-      // Changing the width and height clears the context properties
-      // We double the bitmap width to account for alignment
-      this._bitmap.width = (metrics.width + this.padding * 2) * 2;
-      this._bitmap.height = (metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + this.padding * 2 || 16) * 2;
-
-      // These bounds exist in raster bitmap space where the top left corner is the corder of the bitmap
-      // TODO need to account for padding
-      const x = 0; // this._halfRasterWidth;
-      const y = 0; //this._halfRasterHeight;
-      this._textBounds = new BoundingBox({
-        left: x - metrics.actualBoundingBoxLeft - this.padding,
-        top: y - metrics.actualBoundingBoxAscent - this.padding,
-        bottom: y + metrics.actualBoundingBoxDescent + this.padding,
-        right: x + metrics.actualBoundingBoxRight + this.padding
-      });
-
       // The reason we need to re-apply the font is setting raster properties can reset the context
       this._applyRasterProperites(ctx);
       this._applyFont(ctx);
@@ -204,7 +218,7 @@ export class Font extends Raster implements FontRenderer {
 
   public render(ex: ExcaliburGraphicsContext, text: string, x: number, y: number) {
     if (this._text !== text) {
-      this._text = text;
+      this.updateText(text);
       this.flagDirty();
     }
 
