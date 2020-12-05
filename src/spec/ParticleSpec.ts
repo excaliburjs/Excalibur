@@ -32,7 +32,7 @@ fdescribe('A particle', () => {
       width: 800,
       height: 200
     }, [
-      'use-excalibur-graphics-ctx',
+      'use-excalibur-graphics-context',
       'use-webgl'
     ]);
 

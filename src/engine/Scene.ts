@@ -243,7 +243,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       }
 
       // Initialize systems
-      if (Flags.isEnabled('use-excalibur-graphics-ctx')) {
+      if (Flags.isEnabled('use-excalibur-graphics-context')) {
         this.world.add(new GraphicsSystem());
       } else {
         this.world.add(new CanvasDrawingSystem());

@@ -37,7 +37,7 @@ var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
 // Create an the game container
-ex.Flags.enable('use-excalibur-graphics-ctx');
+ex.Flags.enable('use-excalibur-graphics-context');
 ex.Flags.enable('use-webgl');
 var game = new ex.Engine({
   width: 800 / 2,
@@ -229,7 +229,8 @@ heart.onPostDraw = (ctx) => {
 }
 game.add(heart);
 
-game.add(new ex.Label('Test Label', 200, 200));
+var label = new ex.Label('Test Label', 200, 200);
+game.add(label);
 
 // Turn on debug diagnostics
 game.showDebug(false);
@@ -403,8 +404,7 @@ var healthbar2 = new ex.Graphics.Rect({
 
 var backroundLayer = player.graphics.layers.create({
   name: 'background',
-  order: -1,
-  allowMultipleGraphics: true
+  order: -1
 });
 
 backroundLayer.show(healthbar2, { offset: ex.vec(0, -70) });
