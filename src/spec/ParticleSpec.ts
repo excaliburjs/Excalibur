@@ -28,13 +28,14 @@ fdescribe('A particle', () => {
   let texture: ex.Texture;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
-    engine = TestUtils.engine({
-      width: 800,
-      height: 200
-    }, [
-      'use-excalibur-graphics-context',
-      'use-webgl'
-    ]);
+    engine = TestUtils.engine(
+      {
+        width: 800,
+        height: 200,
+        backgroundColor: ex.Color.Transparent
+      },
+      ['use-excalibur-graphics-context', 'use-webgl']
+    );
 
     texture = new ex.Texture('base/src/spec/images/SpriteFontSpec/SpriteFont.png', true);
   });

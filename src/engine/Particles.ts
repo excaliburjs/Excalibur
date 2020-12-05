@@ -65,7 +65,6 @@ export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent>
   public sizeRate: number = 0;
   public elapsedMultiplier: number = 0;
 
-
   public visible = true;
   public isOffscreen = false;
 
@@ -121,11 +120,9 @@ export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent>
       this.particleSize = this.startSize;
     }
 
-    this.addComponent(this.transform = new TransformComponent);
-    this.addComponent(new CanvasDrawComponent(
-      (ctx) => this.draw(ctx)
-    ));
-    this.addComponent(this.graphics = new GraphicsComponent);
+    this.addComponent((this.transform = new TransformComponent()));
+    this.addComponent(new CanvasDrawComponent((ctx) => this.draw(ctx)));
+    this.addComponent((this.graphics = new GraphicsComponent()));
 
     this.transform.pos = this.position;
     this.transform.rotation = this.currentRotation;
@@ -137,7 +134,7 @@ export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent>
       this.graphics.onPostDraw = (ctx) => {
         ctx.save();
         ctx.opacity = this.opacity;
-        ctx.debug.drawPoint(vec(0, 0), { color: Color.Black, size: this.particleSize });
+        ctx.debug.drawPoint(vec(0, 0), { color: this._currentColor, size: this.particleSize });
         ctx.restore();
       };
     }
@@ -365,7 +362,7 @@ export class ParticleEmitterImpl extends Actor {
    */
   public get particleSprite(): Sprite {
     return this._og;
-  };
+  }
 
   public set particleSprite(val: Sprite) {
     this._og = val;
