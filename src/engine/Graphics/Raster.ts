@@ -119,18 +119,29 @@ export abstract class Raster extends Graphic {
   }
 
   private _createColorProxy(color: Color) {
-    return new Proxy(color, {
-      set: (obj, prop, value) => {
-        // The default behavior to store the value
-        (obj as any)[prop] = value;
-        this.flagDirty();
-        // Indicate success
-        return true;
-      }
-    });
+    if ((color as any).__isProxy === undefined) { // expando hack to mark a proxy
+      return new Proxy(color, {
+        set: (obj, prop, value) => {
+          // The default behavior to store the value
+          (obj as any)[prop] = value;
+          if ((obj as any)[prop] !== value) {
+            this.flagDirty();
+          }
+          // Indicate success
+          return true;
+        },
+        get: (obj, prop) => {
+          if (prop !== '__isProxy') {
+            return (obj as any)[prop];
+          }
+          return true;
+        }
+      });
+    }
+    return color;
   }
 
-  private _color: Color;
+  private _color: Color = Color.Black;
   /**
    * Gets or sets the fillStyle of the Raster graphic. Setting the fillStyle will cause the raster to be
    * flagged dirty causing a re-raster on the next draw.
@@ -139,9 +150,10 @@ export abstract class Raster extends Graphic {
     return this._color;
   }
   public set color(value) {
-    // TODO this is a problem
+    if (!this._color.equal(value)) {
+      this.flagDirty();
+    }
     this._color = value ? this._createColorProxy(value) : value;
-    this.flagDirty();
   }
 
   private _strokeColor: Color;

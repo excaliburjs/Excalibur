@@ -141,8 +141,11 @@ export class Font extends Raster implements FontRenderer {
   }
 
   public updateText(text: string) {
-    this._text = text;
-    this._updateDimensions();
+    if (this._text !== text) {
+      this._text = text;
+      this._updateDimensions();
+      this.flagDirty();
+    }
   }
 
   private _updateDimensions() {
@@ -171,7 +174,9 @@ export class Font extends Raster implements FontRenderer {
   }
 
   protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
-    this._updateDimensions();
+    if (this.dirty) {
+      this._updateDimensions();
+    }
     super._preDraw(ex, x, y);
   }
 
@@ -217,11 +222,7 @@ export class Font extends Raster implements FontRenderer {
   }
 
   public render(ex: ExcaliburGraphicsContext, text: string, x: number, y: number) {
-    if (this._text !== text) {
-      this.updateText(text);
-      this.flagDirty();
-    }
-
+    this.updateText(text);
     this.draw(ex, x, y);
   }
 }

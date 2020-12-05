@@ -80,7 +80,7 @@ export class Text extends Graphic {
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.font instanceof Font) {
-      this.font.color = this.color; // todo this is a problem
+      this.font.color = this.color;
     }
     this.font.flipHorizontal = this.flipHorizontal;
     this.font.flipVertical = this.flipVertical;

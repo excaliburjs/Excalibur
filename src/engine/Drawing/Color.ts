@@ -218,6 +218,10 @@ export class Color {
     return new Color(newR, newG, newB, newA);
   }
 
+  public equal(color: Color): boolean {
+    return this.toString() === color.toString();
+  }
+
   /**
    * Returns a CSS string representation of a color.
    *
