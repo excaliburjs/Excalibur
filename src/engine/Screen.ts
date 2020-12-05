@@ -296,6 +296,7 @@ export class Screen {
     this._canvas.style.height = this.viewport.height + 'px';
 
     // After messing with the canvas width/height the graphics context is invalidated and needs to have some properties reset
+    this._ctx.updateViewport();
     this._ctx.resetTransform();
     this._ctx.scale(this.pixelRatio, this.pixelRatio);
     this._ctx.smoothing = this._antialiasing;
