@@ -9,8 +9,6 @@ async function runOnWindows(ctx: () => Promise<any>): Promise<boolean> {
     await ctx();
     return true;
   }
-  // eslint-disable-next-line no-console
-  console.log('Skipped on non-windows');
   return false;
 }
 
@@ -22,8 +20,6 @@ async function runOnLinux(ctx: () => Promise<any>): Promise<boolean> {
     await ctx();
     return true;
   }
-  // eslint-disable-next-line no-console
-  console.log('Skipped on non-linux');
   return false;
 }
 declare global {
@@ -164,8 +160,15 @@ fdescribe('A Text Graphic', () => {
     sut.flipVertical = true;
     sut.draw(ctx, 10, 50);
 
-    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/flipped.png');
-    expect(actual).toEqualImage(image);
+    await runOnWindows(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/flipped.png');
+      expect(actual).toEqualImage(image);
+    });
+
+    await runOnLinux(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/flipped-linux.png');
+      expect(actual).toEqualImage(image);
+    });
   });
 
   it('can rotate text around the middle', async () => {
@@ -187,8 +190,15 @@ fdescribe('A Text Graphic', () => {
     sut.rotation = Math.PI / 2;
     sut.draw(ctx, 10, 50);
 
-    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated.png');
-    expect(actual).toEqualImage(image);
+    await runOnWindows(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated.png');
+      expect(actual).toEqualImage(image);
+    });
+
+    await runOnLinux(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-linux.png');
+      expect(actual).toEqualImage(image);
+    });
   });
 
   it('can rotate text around the left', async () => {
@@ -211,8 +221,15 @@ fdescribe('A Text Graphic', () => {
     sut.rotation = Math.PI / 2;
     sut.draw(ctx, 10, 50);
 
-    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-left.png');
-    expect(actual).toEqualImage(image);
+    await runOnWindows(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-left.png');
+      expect(actual).toEqualImage(image);
+    });
+
+    await runOnLinux(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-left-linux.png');
+      expect(actual).toEqualImage(image);
+    });
   });
 
   it('can rotate text around the right', async () => {
@@ -235,8 +252,15 @@ fdescribe('A Text Graphic', () => {
     sut.rotation = -Math.PI / 2;
     sut.draw(ctx, 10, 50);
 
-    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-right.png');
-    expect(actual).toEqualImage(image);
+    await runOnWindows(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-right.png');
+      expect(actual).toEqualImage(image);
+    });
+
+    await runOnWindows(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-right-linux.png');
+      expect(actual).toEqualImage(image);
+    });
   });
 
   it('can be bold', async () => {
