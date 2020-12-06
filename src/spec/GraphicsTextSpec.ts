@@ -1,10 +1,88 @@
 import * as ex from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+declare global {
+  const FontFace: FontFace;
 
-describe('A Text Graphic', () => {
+  interface Document {
+    fonts: FontFaceSet
+  }
+
+  type CSSOMString = string;
+  type FontFaceLoadStatus = 'unloaded' | 'loading' | 'loaded' | 'error';
+  type FontFaceSetStatus = 'loading' | 'loaded';
+
+  interface FontFace extends FontFaceDescriptors {
+    new(family: string, source: string | ArrayBuffer, descriptors?: FontFaceDescriptors): FontFace;
+    readonly status: FontFaceLoadStatus;
+    readonly loaded: Promise<FontFace>;
+    variationSettings: CSSOMString;
+    display: CSSOMString;
+    load(): Promise<FontFace>;
+  }
+
+  interface FontFaceDescriptors {
+    family: CSSOMString;
+    style: CSSOMString;
+    weight: CSSOMString;
+    stretch: CSSOMString;
+    unicodeRange: CSSOMString;
+    variant: CSSOMString;
+    featureSettings: CSSOMString;
+  }
+
+  interface FontFaceSet extends Iterable<FontFace> {
+    readonly status: FontFaceSetStatus;
+    readonly ready: Promise<FontFaceSet>;
+    add(font: FontFace): void;
+    check(font: string, text?: string): Boolean; // throws exception
+    load(font: string, text?: string): Promise<FontFace[]>
+    delete(font: FontFace): void;
+    clear(): void;
+  }
+}
+
+/**
+ *
+ */
+export async function waitForFontLoad(
+  font: string,
+  timeout = 2000,
+  interval = 100
+) {
+  return new Promise((resolve, reject) => {
+    // repeatedly poll check
+    const poller = setInterval(async () => {
+      try {
+        await document.fonts.load(font, 'some text');
+      } catch (err) {
+        reject(err);
+      }
+      if (document.fonts.check(font)) {
+        clearInterval(poller);
+        resolve(true);
+      }
+    }, interval);
+    setTimeout(() => clearInterval(poller), timeout);
+  });
+}
+
+fdescribe('A Text Graphic', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
+  beforeAll(async () => {
+    const fontcdn = document.createElement('link');
+    fontcdn.href = 'https://fonts.gstatic.com';
+    fontcdn.rel = 'preconnect';
+    const fontface = document.createElement('link');
+    fontface.href =
+    'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600;1,700;1,800&display=swap';
+    fontface.rel = 'stylesheet';
+    document.head.appendChild(fontcdn);
+    document.head.appendChild(fontface);
+    await waitForFontLoad('18px Open Sans');
+  });
+
   it('exists', () => {
     expect(ex.Graphics.Text).toBeDefined();
   });
@@ -16,12 +94,12 @@ describe('A Text Graphic', () => {
     expect(sut).toBeDefined();
   });
 
-  it('can write text', async () => {
+  fit('can write text', async () => {
     const sut = new ex.Graphics.Text({
       text: 'green text',
       color: ex.Color.Green,
       font: new ex.Graphics.Font({
-        family: 'Georgia',
+        family: 'Open Sans',
         size: 18
       })
     });
@@ -42,7 +120,7 @@ describe('A Text Graphic', () => {
       text: 'green text',
       color: ex.Color.Green,
       font: new ex.Graphics.Font({
-        family: 'Georgia',
+        family: 'Open Sans',
         size: 18
       })
     });
@@ -66,7 +144,7 @@ describe('A Text Graphic', () => {
       text: 'green text',
       color: ex.Color.Green,
       font: new ex.Graphics.Font({
-        family: 'Georgia',
+        family: 'Open Sans',
         size: 18
       })
     });
@@ -89,7 +167,7 @@ describe('A Text Graphic', () => {
       text: 'green text',
       color: ex.Color.Green,
       font: new ex.Graphics.Font({
-        family: 'Georgia',
+        family: 'Open Sans',
         size: 18
       })
     });
@@ -113,7 +191,7 @@ describe('A Text Graphic', () => {
       text: 'green text',
       color: ex.Color.Green,
       font: new ex.Graphics.Font({
-        family: 'Georgia',
+        family: 'Open Sans',
         size: 18
       })
     });
@@ -137,7 +215,7 @@ describe('A Text Graphic', () => {
       text: 'green text',
       color: ex.Color.Green,
       font: new ex.Graphics.Font({
-        family: 'Georgia',
+        family: 'Open Sans',
         bold: true,
         size: 18
       })
@@ -160,7 +238,7 @@ describe('A Text Graphic', () => {
       text: 'green text',
       color: ex.Color.Green,
       font: new ex.Graphics.Font({
-        family: 'Georgia',
+        family: 'Open Sans',
         style: ex.Graphics.FontStyle.Italic,
         size: 18
       })
