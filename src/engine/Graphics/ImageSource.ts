@@ -3,7 +3,7 @@ import { Texture } from '../Resources/Texture';
 import { TextureManager } from './Context/texture-manager';
 import { Sprite } from './Sprite';
 
-export class RawImage extends Resource<string> {
+export class ImageSource extends Resource<string> {
   /**
    * Unique id of raw image
    */
@@ -82,18 +82,18 @@ export class RawImage extends Resource<string> {
   }
 
   /**
-   * Build a sprite from this RawImage
+   * Build a sprite from this ImageSource
    */
   public toSprite(): Sprite {
     return Sprite.from(this);
   }
 
   /**
-   * Create a RawImage from legacy texture
+   * Create a ImageSource from legacy texture
    * @param tex
    */
-  public static fromLegacyTexture(tex: Texture): RawImage {
-    const image = new RawImage(tex.path);
+  public static fromLegacyTexture(tex: Texture): ImageSource {
+    const image = new ImageSource(tex.path);
     if (tex.isLoaded()) {
       image.image = tex.image;
       image.data = tex.data;
