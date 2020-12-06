@@ -1,5 +1,29 @@
 import * as ex from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+
+/**
+ *
+ */
+async function runOnWindows(ctx: () => Promise<any>): Promise<boolean> {
+  if (navigator.platform === 'Win32' || navigator.platform === 'Win64') {
+    await ctx();
+    return true;
+  };
+  console.log('Skipped on non-windows');
+  return false;
+}
+
+/**
+ *
+ */
+async function runOnLinux(ctx: () => Promise<any>): Promise<boolean> {
+  if (navigator.platform.includes('Linux')) {
+    await ctx();
+    return true;
+  }
+  console.log('Skipped on non-linux');
+  return false;
+}
 declare global {
   const FontFace: FontFace;
 
@@ -70,7 +94,7 @@ fdescribe('A Text Graphic', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
-  beforeAll(async () => {
+  beforeEach(async () => {
     const fontcdn = document.createElement('link');
     fontcdn.href = 'https://fonts.gstatic.com';
     fontcdn.rel = 'preconnect';
@@ -111,8 +135,15 @@ fdescribe('A Text Graphic', () => {
     ctx.clear();
     sut.draw(ctx, 10, 50);
 
-    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/text.png');
-    expect(actual).toEqualImage(image);
+    await runOnWindows(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/text.png');
+      expect(actual).toEqualImage(image);
+    });
+
+    await runOnLinux(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/text-linux.png');
+      expect(actual).toEqualImage(image);
+    });
   });
 
   it('can flip text vertically and horizontally', async () => {
