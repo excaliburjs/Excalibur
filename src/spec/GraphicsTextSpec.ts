@@ -99,6 +99,9 @@ fdescribe('A Text Graphic', () => {
     document.head.appendChild(fontcdn);
     document.head.appendChild(fontface);
     await waitForFontLoad('18px Open Sans');
+    await waitForFontLoad('bold 18px Open Sans');
+    await waitForFontLoad('italic bold 18px Open Sans');
+    await waitForFontLoad('italic 18px Open Sans');
   });
 
   it('exists', () => {
@@ -257,7 +260,7 @@ fdescribe('A Text Graphic', () => {
       expect(actual).toEqualImage(image);
     });
 
-    await runOnWindows(async () => {
+    await runOnLinux(async () => {
       const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-right-linux.png');
       expect(actual).toEqualImage(image);
     });
