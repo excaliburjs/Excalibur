@@ -92,7 +92,7 @@ fdescribe('A Text Graphic', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
-  beforeEach(async () => {
+  beforeAll(async () => {
     const fontcdn = document.createElement('link');
     fontcdn.href = 'https://fonts.gstatic.com';
     fontcdn.rel = 'preconnect';
