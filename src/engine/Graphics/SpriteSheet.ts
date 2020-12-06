@@ -1,9 +1,9 @@
-import { RawImage } from './RawImage';
+import { ImageSource } from './ImageSource';
 import { Sprite } from './Sprite';
 import { SpriteSheet as LegacySpriteSheet } from '../Drawing/SpriteSheet';
 
 export interface SpriteSheetGridOptions {
-  image: RawImage;
+  image: ImageSource;
   grid: {
     rows: number;
     columns: number;
@@ -13,12 +13,12 @@ export interface SpriteSheetGridOptions {
 }
 
 export interface SpriteSheetOptions {
-  image: RawImage;
+  image: ImageSource;
   sprites: Sprite[];
 }
 
 export class SpriteSheet {
-  public image: RawImage;
+  public image: ImageSource;
   public sprites: Sprite[] = [];
   constructor(options: SpriteSheetOptions) {
     const { image, sprites } = options;
@@ -27,7 +27,7 @@ export class SpriteSheet {
   }
 
   public static fromLegacySpriteSheet(legacySpriteSheet: LegacySpriteSheet): SpriteSheet {
-    const image = RawImage.fromLegacyTexture(legacySpriteSheet.image);
+    const image = ImageSource.fromLegacyTexture(legacySpriteSheet.image);
     const sprites = legacySpriteSheet.sprites.map(oldSprite => Sprite.fromLegacySprite(oldSprite));
     return new SpriteSheet({
       image,

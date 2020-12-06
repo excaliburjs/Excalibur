@@ -1,6 +1,6 @@
 import { Graphic, GraphicOptions } from './Graphic';
-import { RawImage } from './RawImage';
-import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
+import { ImageSource } from './ImageSource';
+import { ExcaliburGraphicsContext, HTMLImageSource } from './Context/ExcaliburGraphicsContext';
 
 import { Sprite as LegacySprite } from '../Drawing/Sprite';
 
@@ -11,23 +11,23 @@ export interface SpriteOptions {
   /**
    * Image to create a sprite from
    */
-  image: RawImage;
+  image: ImageSource;
   /**
-   * By default the source is the entire dimension of the [[RawImage]]
+   * By default the source is the entire dimension of the [[ImageSource]]
    */
   sourceView?: { x: number; y: number; width: number; height: number };
   /**
-   * By default the size of the final sprite is the size of the [[RawImage]]
+   * By default the size of the final sprite is the size of the [[ImageSource]]
    */
   destSize?: { width: number; height: number };
 }
 
 export class Sprite extends Graphic {
-  public rawImage: RawImage;
+  public rawImage: ImageSource;
   public sourceView: SourceView;
   public destSize: DestinationSize;
 
-  public static from(image: RawImage): Sprite {
+  public static from(image: ImageSource): Sprite {
     return new Sprite({
       image: image
     });
@@ -88,17 +88,17 @@ export class Sprite extends Graphic {
     return this.rawImage.id;
   }
 
-  public getSource(): ImageSource {
+  public getSource(): HTMLImageSource {
     return this.rawImage.image;
   }
 
   /**
-   * Create a RawImage from legacy texture
+   * Create a ImageSource from legacy texture
    * @param sprite
    */
   public static fromLegacySprite(sprite: LegacySprite): Sprite {
     const tex = sprite._texture;
-    const rawImage = RawImage.fromLegacyTexture(tex);
+    const rawImage = ImageSource.fromLegacyTexture(tex);
     return new Sprite({
       image: rawImage,
       sourceView: {

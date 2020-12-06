@@ -52,20 +52,20 @@ var game = new ex.Engine({
 game.setAntialiasing(false);
 game.showDebug(true);
 
-var heartTex = new ex.Graphics.RawImage('../images/heart.png');
-var heartRawImage = new ex.Graphics.RawImage('../images/heart.png');
-var imageRun = new ex.Graphics.RawImage('../images/PlayerRun.png');
-var imageJump = new ex.Graphics.RawImage('../images/PlayerJump.png');
-var imageRun2 = new ex.Graphics.RawImage('../images/PlayerRun.png');
-var imageBlocks = new ex.Graphics.RawImage('../images/BlockA0.png');
+var heartTex = new ex.Graphics.ImageSource('../images/heart.png');
+var heartImageSource = new ex.Graphics.ImageSource('../images/heart.png');
+var imageRun = new ex.Graphics.ImageSource('../images/PlayerRun.png');
+var imageJump = new ex.Graphics.ImageSource('../images/PlayerJump.png');
+var imageRun2 = new ex.Graphics.ImageSource('../images/PlayerRun.png');
+var imageBlocks = new ex.Graphics.ImageSource('../images/BlockA0.png');
 var imageBlocksLegacy = new ex.Texture('../images/BlockA0.png');
-var spriteFontImage = new ex.Graphics.RawImage('../images/SpriteFont.png');
+var spriteFontImage = new ex.Graphics.ImageSource('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
 
 jump.volume = 0.3;
 
 var loader = new ex.Loader();
-loader.addResource(heartRawImage);
+loader.addResource(heartImageSource);
 loader.addResource(heartTex);
 loader.addResource(imageRun);
 loader.addResource(imageJump);
@@ -88,7 +88,7 @@ heart.graphics.anchor = ex.vec(0, 0);
 var heartSprite = ex.Graphics.Sprite.from(heartTex);
 heartSprite.scale.setTo(2, 2);
 // heart.addDrawing(heartSprite);
-var newSprite = new ex.Graphics.Sprite({ image: heartRawImage });
+var newSprite = new ex.Graphics.Sprite({ image: heartImageSource });
 newSprite.scale = ex.vec(2, 2);
 
 var circle = new ex.Graphics.Circle({

@@ -35,7 +35,7 @@ class TestGraphic extends ex.Graphics.Graphic {
     this._rect4.draw(ex, x + 25, y + 25);
   }
 
-  getSource(): ex.Graphics.ImageSource {
+  getSource(): ex.Graphics.HTMLImageSource {
     return null;
   }
   clone(): ex.Graphics.Graphic {

@@ -23,7 +23,7 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
   return canvas;
 }
 
-fdescribe('A particle', () => {
+describe('A particle', () => {
   let engine: ex.Engine;
   let texture: ex.Texture;
   beforeEach(() => {

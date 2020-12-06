@@ -1,6 +1,6 @@
 import { Graphic } from '../Graphic';
 import { Raster } from '../Raster';
-import { ImageSource } from './ExcaliburGraphicsContext';
+import { HTMLImageSource } from './ExcaliburGraphicsContext';
 import { ensurePowerOfTwo, isPowerOfTwo } from './webgl-util';
 
 export interface TextureInfo {
@@ -87,7 +87,7 @@ export class TextureManager {
    * https://www.khronos.org/webgl/wiki/WebGL_and_OpenGL_Differences#Non-Power_of_Two_Texture_Support
    * @param image
    */
-  private _ensurePowerOfTwoImage(image: ImageSource): ImageSource {
+  private _ensurePowerOfTwoImage(image: HTMLImageSource): HTMLImageSource {
     if (!isPowerOfTwo(image.width) || !isPowerOfTwo(image.height)) {
       // Scale up the texture to the next highest power of two dimensions.
 

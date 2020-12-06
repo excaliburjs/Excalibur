@@ -180,7 +180,7 @@ describe('A Text Graphic', () => {
 
   describe('with a SpriteFont', () => {
     it('can specify a spritefont', async () => {
-      const spriteFontImage = new ex.Graphics.RawImage('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+      const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
 
       await spriteFontImage.load();
 

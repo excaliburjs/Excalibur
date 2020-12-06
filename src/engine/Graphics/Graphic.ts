@@ -1,5 +1,5 @@
 import { Vector, vec } from '../Algebra';
-import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, HTMLImageSource } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { TextureInfo } from './Context/texture-manager';
 
@@ -226,7 +226,7 @@ export abstract class Graphic {
   /**
    * Return the source native source image for the graphic
    */
-  abstract getSource(): ImageSource;
+  abstract getSource(): HTMLImageSource;
 
   /**
    * Returns a new instance of the graphic that has the same properties

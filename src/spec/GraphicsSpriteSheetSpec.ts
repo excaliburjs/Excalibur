@@ -7,7 +7,7 @@ describe('A SpriteSheet for Graphics', () => {
   });
 
   it('can be created with a constructor', async () => {
-    const image = new ex.Graphics.RawImage('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
 
     await image.load();
     const ss = new ex.Graphics.SpriteSheet({
@@ -21,7 +21,7 @@ describe('A SpriteSheet for Graphics', () => {
   });
 
   it('can be created from a grid', async () => {
-    const image = new ex.Graphics.RawImage('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
 
     await image.load();
     const ss = ex.Graphics.SpriteSheet.fromGrid({

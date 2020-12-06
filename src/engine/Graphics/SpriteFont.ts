@@ -1,10 +1,10 @@
 import { Vector } from '../Algebra';
 import { SpriteFont as LegacySpriteFont } from '../Drawing/Index';
 import { Logger } from '../Util/Log';
-import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, HTMLImageSource } from './Context/ExcaliburGraphicsContext';
 import { FontRenderer } from './FontCommon';
 import { Graphic, GraphicOptions } from './Graphic';
-import { RawImage } from './RawImage';
+import { ImageSource } from './ImageSource';
 import { Sprite } from './Sprite';
 import { SpriteSheet } from './SpriteSheet';
 
@@ -51,7 +51,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
       spacing: spriteFont.spacing,
       caseInsensitive: spriteFont.caseInsensitive,
       spriteSheet: new SpriteSheet({
-        image: RawImage.fromLegacyTexture(spriteFont.image),
+        image: ImageSource.fromLegacyTexture(spriteFont.image),
         sprites
       })
     });
@@ -151,7 +151,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
     return this.spriteSheet.image.id;
   }
 
-  getSource(): ImageSource {
+  getSource(): HTMLImageSource {
     return this.spriteSheet.image.image;
   }
 

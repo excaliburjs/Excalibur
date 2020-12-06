@@ -1,6 +1,6 @@
 import { Graphic, GraphicOptions } from './Graphic';
 import { clamp } from '../Util/Util';
-import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, HTMLImageSource } from './Context/ExcaliburGraphicsContext';
 import { EventDispatcher } from '../EventDispatcher';
 import { SpriteSheet } from './SpriteSheet';
 
@@ -113,7 +113,7 @@ export class Animation extends Graphic implements HasTick {
     return this.frames[this._currentFrame].graphic.getSourceId();
   }
 
-  public getSource(): ImageSource {
+  public getSource(): HTMLImageSource {
     return this.frames[this._currentFrame].graphic.getSource();
   }
 

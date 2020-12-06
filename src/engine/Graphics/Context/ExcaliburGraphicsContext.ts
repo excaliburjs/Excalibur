@@ -2,7 +2,7 @@ import { Vector } from '../../Algebra';
 import { Graphic } from '../Graphic';
 import { Color } from '../../Drawing/Color';
 
-export type ImageSource = HTMLImageElement | HTMLCanvasElement;
+export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
 
 export interface ExcaliburGraphicsContextOptions {
   canvasElement: HTMLCanvasElement;

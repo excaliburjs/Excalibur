@@ -1,5 +1,5 @@
 import { Graphic, GraphicOptions } from './Graphic';
-import { ExcaliburGraphicsContext, ImageSource } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext, HTMLImageSource } from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Drawing/Color';
 import { ensurePowerOfTwo } from './Context/webgl-util';
 import { Vector } from '../Algebra';
@@ -244,7 +244,7 @@ export abstract class Raster extends Graphic {
    */
   abstract execute(ctx: CanvasRenderingContext2D): void;
 
-  public getSource(): ImageSource {
+  public getSource(): HTMLImageSource {
     return this._bitmap;
   }
 }

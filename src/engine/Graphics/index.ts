@@ -3,7 +3,7 @@ export * from './Graphic';
 export * from './Sprite';
 export * from './SpriteSheet';
 export * from './GraphicsGroup';
-export * from './RawImage';
+export * from './ImageSource';
 export * from './Animation';
 
 // Graphics ECS
