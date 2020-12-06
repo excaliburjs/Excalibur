@@ -8,7 +8,7 @@ async function runOnWindows(ctx: () => Promise<any>): Promise<boolean> {
   if (navigator.platform === 'Win32' || navigator.platform === 'Win64') {
     await ctx();
     return true;
-  };
+  }
   // eslint-disable-next-line no-console
   console.log('Skipped on non-windows');
   return false;
@@ -30,7 +30,7 @@ declare global {
   const FontFace: FontFace;
 
   interface Document {
-    fonts: FontFaceSet
+    fonts: FontFaceSet;
   }
 
   type CSSOMString = string;
@@ -38,7 +38,7 @@ declare global {
   type FontFaceSetStatus = 'loading' | 'loaded';
 
   interface FontFace extends FontFaceDescriptors {
-    new(family: string, source: string | ArrayBuffer, descriptors?: FontFaceDescriptors): FontFace;
+    new (family: string, source: string | ArrayBuffer, descriptors?: FontFaceDescriptors): FontFace;
     readonly status: FontFaceLoadStatus;
     readonly loaded: Promise<FontFace>;
     variationSettings: CSSOMString;
@@ -61,7 +61,7 @@ declare global {
     readonly ready: Promise<FontFaceSet>;
     add(font: FontFace): void;
     check(font: string, text?: string): Boolean; // throws exception
-    load(font: string, text?: string): Promise<FontFace[]>
+    load(font: string, text?: string): Promise<FontFace[]>;
     delete(font: FontFace): void;
     clear(): void;
   }
@@ -70,11 +70,7 @@ declare global {
 /**
  *
  */
-export async function waitForFontLoad(
-  font: string,
-  timeout = 2000,
-  interval = 100
-) {
+export async function waitForFontLoad(font: string, timeout = 2000, interval = 100) {
   return new Promise((resolve, reject) => {
     // repeatedly poll check
     const poller = setInterval(async () => {
@@ -102,7 +98,7 @@ fdescribe('A Text Graphic', () => {
     fontcdn.rel = 'preconnect';
     const fontface = document.createElement('link');
     fontface.href =
-    'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600;1,700;1,800&display=swap';
+      'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600;1,700;1,800&display=swap';
     fontface.rel = 'stylesheet';
     document.head.appendChild(fontcdn);
     document.head.appendChild(fontface);
@@ -120,7 +116,7 @@ fdescribe('A Text Graphic', () => {
     expect(sut).toBeDefined();
   });
 
-  fit('can write text', async () => {
+  it('can write text', async () => {
     const sut = new ex.Graphics.Text({
       text: 'green text',
       color: ex.Color.Green,
@@ -133,7 +129,7 @@ fdescribe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
     ctx.clear();
     sut.draw(ctx, 10, 50);
 
@@ -161,7 +157,7 @@ fdescribe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.flipHorizontal = true;
@@ -185,7 +181,7 @@ fdescribe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.rotation = Math.PI / 2;
@@ -208,7 +204,7 @@ fdescribe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.origin = ex.Vector.Zero;
@@ -232,7 +228,7 @@ fdescribe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.origin = ex.vec(sut.width, 0);
@@ -257,7 +253,7 @@ fdescribe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.draw(ctx, 10, 50);
@@ -280,7 +276,7 @@ fdescribe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.draw(ctx, 10, 50);
@@ -320,7 +316,7 @@ fdescribe('A Text Graphic', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 200;
       canvasElement.height = 100;
-      const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+      const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
       ctx.clear();
       sut.draw(ctx, 0, 50);
@@ -329,5 +325,4 @@ fdescribe('A Text Graphic', () => {
       expect(actual).toEqualImage(image);
     });
   });
-
 });
