@@ -9,6 +9,7 @@ async function runOnWindows(ctx: () => Promise<any>): Promise<boolean> {
     await ctx();
     return true;
   };
+  // eslint-disable-next-line no-console
   console.log('Skipped on non-windows');
   return false;
 }
@@ -21,6 +22,7 @@ async function runOnLinux(ctx: () => Promise<any>): Promise<boolean> {
     await ctx();
     return true;
   }
+  // eslint-disable-next-line no-console
   console.log('Skipped on non-linux');
   return false;
 }
