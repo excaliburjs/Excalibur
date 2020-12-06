@@ -284,9 +284,15 @@ fdescribe('A Text Graphic', () => {
 
     ctx.clear();
     sut.draw(ctx, 10, 50);
+    await runOnWindows(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/bold.png');
+      expect(actual).toEqualImage(image);
+    });
 
-    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/bold.png');
-    expect(actual).toEqualImage(image);
+    await runOnLinux(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/bold-linux.png');
+      expect(actual).toEqualImage(image);
+    });
   });
 
   it('can be italic', async () => {
@@ -308,8 +314,15 @@ fdescribe('A Text Graphic', () => {
     ctx.clear();
     sut.draw(ctx, 10, 50);
 
-    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/italic.png');
-    expect(actual).toEqualImage(image);
+    await runOnWindows(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/italic.png');
+      expect(actual).toEqualImage(image);
+    });
+
+    await runOnLinux(async () => {
+      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/italic-linux.png');
+      expect(actual).toEqualImage(image);
+    });
   });
 
   describe('with a SpriteFont', () => {
