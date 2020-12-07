@@ -129,12 +129,9 @@ export abstract class BatchRenderer<T extends Poolable> implements Renderer {
       this.renderBatch(gl, batch, vertexCount);
       drawnImagesCount += batch.commands.length;
       drawCallCount++;
-
-      for (const c of batch.commands) {
-        this.commands.done(c);
-      }
-      this._batchPool.done(batch);
     }
+    this.commands.done();
+    this._batchPool.done();
     this._batches.length = 0;
     GraphicsDiagnostics.DrawCallCount += drawCallCount;
     GraphicsDiagnostics.DrawnImagesCount += drawnImagesCount;

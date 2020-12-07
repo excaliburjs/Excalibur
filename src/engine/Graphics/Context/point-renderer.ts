@@ -7,6 +7,7 @@ import { BatchRenderer } from './renderer';
 import { BatchCommand } from './batch';
 import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
 import { Pool, Poolable } from '../../Util/Pool';
+// import { Random } from '../../Math/Index';
 
 export class DrawPoint implements Poolable {
   _pool?: Pool<this>;
@@ -43,9 +44,11 @@ export class PointRenderer extends BatchRenderer<DrawPoint> {
   addPoint(point: Vector, color: Color, size: number) {
     const cmd = this.commands.get();
     cmd.point = this._contextInfo.transform.current.multv(point);
-    cmd.color = color;
+    cmd.color.r = color.r;
+    cmd.color.g = color.g;
+    cmd.color.b = color.b;
     cmd.color.a = color.a * this._contextInfo.state.current.opacity;
-    cmd.size = size;
+    cmd.size = size * Math.max(this._contextInfo.transform.current.data[0], this._contextInfo.transform.current.data[5]);
     this.addCommand(cmd);
   }
 
@@ -54,10 +57,10 @@ export class PointRenderer extends BatchRenderer<DrawPoint> {
     for (const command of batch.commands) {
       vertexBuffer[index++] = command.point.x;
       vertexBuffer[index++] = command.point.y;
-
-      vertexBuffer[index++] = command.color.r;
-      vertexBuffer[index++] = command.color.g;
-      vertexBuffer[index++] = command.color.b;
+      // normalize to [0, 1] for webgl
+      vertexBuffer[index++] = command.color.r / 255;
+      vertexBuffer[index++] = command.color.g / 255;
+      vertexBuffer[index++] = command.color.b / 255;
       vertexBuffer[index++] = command.color.a;
 
       vertexBuffer[index++] = command.size;

@@ -18,6 +18,5 @@ void main() {
     discard;
   }
 #endif
-
-  gl_FragColor = v_color * alpha;
+  gl_FragColor = vec4(v_color.rgb, v_color.a * alpha);
 }

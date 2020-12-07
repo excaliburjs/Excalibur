@@ -6,8 +6,6 @@ import { Scene } from '../Scene';
 import { Camera } from '../Camera';
 import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { GraphicsDiagnostics } from '../Graphics/GraphicsDiagnostics';
-import { Canvas, ExcaliburGraphicsContext } from '../Graphics';
-import { Flags } from '../Flags';
 
 /**
  * Draws anything with a transform and a "draw" method
@@ -18,13 +16,11 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
   public priority = -1;
 
   private _ctx: CanvasRenderingContext2D;
-  private _ex: ExcaliburGraphicsContext;
   private _camera: Camera;
   private _engine: Engine;
 
   public initialize(scene: Scene): void {
     this._ctx = scene.engine.ctx;
-    this._ex = scene.engine.graphicsContext;
     this._engine = scene.engine;
     this._camera = scene.camera;
   }
@@ -70,15 +66,6 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
       this._camera.draw(this._ctx);
       this._camera.debugDraw(this._ctx);
       this._ctx.restore();
-    }
-
-    if (Flags.isEnabled('use-webgl')) {
-      this._ex.save();
-      const canvasShim: Canvas = (this._ex as any)._canvas;
-      canvasShim._flagTextureDirty = true; // TODO this is weird
-      this._ex.drawImage(canvasShim, 0, 0);
-      this._ex.restore();
-      this._ex.flush();
     }
 
     this._engine.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;

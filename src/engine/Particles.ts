@@ -133,8 +133,10 @@ export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent>
     } else {
       this.graphics.onPostDraw = (ctx) => {
         ctx.save();
-        ctx.opacity = this.opacity;
-        ctx.debug.drawPoint(vec(0, 0), { color: this._currentColor, size: this.particleSize });
+        this.graphics.opacity = this.opacity;
+        const tmpColor = this._currentColor.clone();
+        tmpColor.a = 1;
+        ctx.debug.drawPoint(vec(0, 0), { color: tmpColor, size: this.particleSize });
         ctx.restore();
       };
     }
@@ -495,7 +497,6 @@ export class ParticleEmitterImpl extends Actor {
 
     if (this.isEmitting) {
       this._particlesToEmit += this.emitRate * (delta / 1000);
-      //var numParticles = Math.ceil(this.emitRate * delta / 1000);
       if (this._particlesToEmit > 1.0) {
         this.emitParticles(Math.floor(this._particlesToEmit));
         this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);

@@ -84,7 +84,7 @@ export async function waitForFontLoad(font: string, timeout = 2000, interval = 1
   });
 }
 
-fdescribe('A Text Graphic', () => {
+describe('A Text Graphic', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
