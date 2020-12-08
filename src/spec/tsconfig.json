@@ -8,6 +8,7 @@
     "module": "es2015",
     "noImplicitAny": false,
     "noUnusedLocals": false,
+    "downlevelIteration": true,
     "lib": [
       "dom",
       "es5",

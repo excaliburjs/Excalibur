@@ -17,6 +17,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "allowUnreachableCode": false,
+    "downlevelIteration": true,
     "lib": [
       "dom",
       "es5",

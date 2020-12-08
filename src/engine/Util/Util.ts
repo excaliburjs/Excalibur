@@ -463,4 +463,9 @@ export function fail(message: never): never {
   throw new Error(message);
 }
 
+/**
+ * Generate a range of numbers
+ * @param from
+ * @param to
+ */
 export const range = (from: number, to: number) => [...Array(to + 1).keys()].slice(from);
