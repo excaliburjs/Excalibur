@@ -4,6 +4,7 @@ import { SpriteFont } from './SpriteFont';
 import { Graphic, GraphicOptions } from './Graphic';
 import { Color } from '../Drawing/Color';
 import { Font } from './Font';
+import { watch } from '../Util/Watch';
 
 export interface TextOptions {
   text: string;
@@ -54,7 +55,17 @@ export class Text extends Graphic {
     }
   }
 
-  public font: Font | SpriteFont;
+  private _font: Font | SpriteFont;
+  public get font(): Font | SpriteFont {
+    return this._font;
+  }
+  public set font(font: Font | SpriteFont) {
+    if (font instanceof Font) {
+      this._font = watch(font, font => font.flagDirty());
+    } else {
+      this._font = font;
+    }
+  }
 
   public get width() {
     return this.font.width;

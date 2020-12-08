@@ -47,6 +47,7 @@ export class Font extends Raster implements FontRenderer {
     });
   }
 
+  // TODO these props need to flag dirty
   public family: string = 'sans-serif';
   public style: FontStyle = FontStyle.Normal;
   public bold: boolean = false;
@@ -162,8 +163,8 @@ export class Font extends Raster implements FontRenderer {
 
       // These bounds exist in raster bitmap space where the top left corner is the corder of the bitmap
       // TODO need to account for padding
-      const x = 0; // this._halfRasterWidth;
-      const y = 0; //this._halfRasterHeight;
+      const x = 0;
+      const y = 0;
       this._textBounds = new BoundingBox({
         left: x - metrics.actualBoundingBoxLeft - this.padding,
         top: y - metrics.actualBoundingBoxAscent - this.padding,
@@ -203,7 +204,7 @@ export class Font extends Raster implements FontRenderer {
 
   execute(ctx: CanvasRenderingContext2D): void {
     if (this._text) {
-      // The reason we need to re-apply the font is setting raster properties can reset the context
+      // The reason we need to re-apply the font is setting raster properties (like width/height) can reset the context props
       this._applyRasterProperites(ctx);
       this._applyFont(ctx);
       if (this.color) {
