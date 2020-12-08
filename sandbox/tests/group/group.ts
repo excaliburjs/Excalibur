@@ -1,5 +1,9 @@
 ﻿/// <reference path='../../lib/excalibur.d.ts' />
 
+(function() {
+
+
+
 var width = 600;
 var height = 400;
 var minVel = -200;
@@ -10,8 +14,8 @@ var engine = new ex.Engine({ width: width, height: height, canvasElementId: 'gam
 //engine.showDebug(true);
 ex.Physics.useRigidBodyPhysics();
 var blockGroup = ex.CollisionGroupManager.create('blocks');
-var blockSprite = blockTexture.asSprite();
-blockSprite.scale.setTo(0.2, 0.2);
+var blockSprite2 = blockTexture.asSprite();
+blockSprite2.scale.setTo(0.2, 0.2);
 
 var player = new ex.Actor(width / 2, height / 2, 30, 30, ex.Color.Cyan);
 player.body.collider.type = ex.CollisionType.Fixed;
@@ -21,7 +25,7 @@ engine.currentScene.add(player);
 for (var i = 0; i < numActors; i++) {
   var actor = new ex.Actor(Math.random() * width, Math.random() * height, 0.2 * 64, 0.2 * 48);
 
-  actor.addDrawing('default', blockSprite.clone());
+  actor.addDrawing('default', blockSprite2.clone());
 
   actor.body.collider.type = ex.CollisionType.Active;
   actor.body.collider.group = blockGroup;
@@ -57,3 +61,5 @@ for (var i = 0; i < numActors; i++) {
 engine.start(new ex.Loader([blockTexture])).then(() => {
   // do stuff
 });
+
+})();

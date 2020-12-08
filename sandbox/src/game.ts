@@ -173,7 +173,7 @@ var text = new ex.Graphics.Text({
 // text.showDebug = true;
 var ran = new ex.Random(1337);
 
-var canvas = new ex.Graphics.Canvas({
+var canvasGraphic = new ex.Graphics.Canvas({
   width: 200,
   height: 200,
   cache: true,

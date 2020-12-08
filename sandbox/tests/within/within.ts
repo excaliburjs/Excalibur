@@ -1,5 +1,8 @@
 /// <reference path="../../lib/excalibur.d.ts" />
 
+(function() {
+
+
 ex.Physics.acc = new ex.Vector(0, 200);
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 ex.Physics.allowRigidBodyRotation = false;
@@ -191,3 +194,5 @@ game.add(edge);
 game.add(block4);
 game.add(floor);
 game.start();
+
+})();
