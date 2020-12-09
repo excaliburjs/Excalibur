@@ -140,6 +140,7 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
+      await Promise.resolve(true);
       return;
     }
 
@@ -179,6 +180,7 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
+      await Promise.resolve(true);
       return;
     }
 
@@ -217,6 +219,7 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
+      await Promise.resolve(true);
       return;
     }
 
@@ -256,6 +259,7 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
+      await Promise.resolve(true);
       return;
     }
 
@@ -295,6 +299,7 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
+      await Promise.resolve(true);
       return;
     }
 
@@ -334,6 +339,7 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
+      await Promise.resolve(true);
       return;
     }
 
@@ -372,6 +378,7 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
+      await Promise.resolve(true);
       return;
     }
 
