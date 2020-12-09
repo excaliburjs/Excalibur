@@ -2,6 +2,9 @@
 const process = require('process');
 const path = require('path');
 process.env.CHROME_BIN = require('puppeteer').executablePath();
+const webpack = require('webpack');
+
+const isAppveyor = process.env.APPVEYOR_BUILD_NUMBER ? true : false;
 
 module.exports = (config) => {
   config.set({
@@ -26,6 +29,11 @@ module.exports = (config) => {
           "@excalibur": path.resolve(__dirname, './src/engine/')
         }
       },
+      plugins: [
+        new webpack.DefinePlugin({
+          'globalThis.IS_APPVEYOR': isAppveyor
+        })
+      ],
       module: {
         rules: [
           {
