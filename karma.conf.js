@@ -10,8 +10,10 @@ module.exports = (config) => {
   config.set({
     singleRun: true,
     frameworks: ['jasmine'],
-    jasmine: {
-      timeoutInterval: 10000
+    client: {
+      jasmine: {
+        timeoutInterval: 10000
+      }
     },
     files: [  
             'src/spec/_boot.ts', 
