@@ -139,18 +139,17 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      return Promise.resolve();
+    } else {
+      await runOnWindows(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/text.png');
+        expect(actual).toEqualImage(image);
+      });
+
+      await runOnLinux(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/text-linux.png');
+        expect(actual).toEqualImage(image);
+      });
     }
-
-    await runOnWindows(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/text.png');
-      expect(actual).toEqualImage(image);
-    });
-
-    await runOnLinux(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/text-linux.png');
-      expect(actual).toEqualImage(image);
-    });
   });
 
   it('can flip text vertically and horizontally', async () => {
@@ -178,18 +177,17 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      return Promise.resolve();
+    } else {
+      await runOnWindows(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/flipped.png');
+        expect(actual).toEqualImage(image);
+      });
+
+      await runOnLinux(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/flipped-linux.png');
+        expect(actual).toEqualImage(image);
+      });
     }
-
-    await runOnWindows(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/flipped.png');
-      expect(actual).toEqualImage(image);
-    });
-
-    await runOnLinux(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/flipped-linux.png');
-      expect(actual).toEqualImage(image);
-    });
   });
 
   it('can rotate text around the middle', async () => {
@@ -216,18 +214,17 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      return Promise.resolve();
+    } else {
+      await runOnWindows(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated.png');
+        expect(actual).toEqualImage(image);
+      });
+
+      await runOnLinux(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-linux.png');
+        expect(actual).toEqualImage(image);
+      });
     }
-
-    await runOnWindows(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated.png');
-      expect(actual).toEqualImage(image);
-    });
-
-    await runOnLinux(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-linux.png');
-      expect(actual).toEqualImage(image);
-    });
   });
 
   it('can rotate text around the left', async () => {
@@ -255,18 +252,17 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      return Promise.resolve();
+    } else {
+      await runOnWindows(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-left.png');
+        expect(actual).toEqualImage(image);
+      });
+
+      await runOnLinux(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-left-linux.png');
+        expect(actual).toEqualImage(image);
+      });
     }
-
-    await runOnWindows(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-left.png');
-      expect(actual).toEqualImage(image);
-    });
-
-    await runOnLinux(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-left-linux.png');
-      expect(actual).toEqualImage(image);
-    });
   });
 
   it('can rotate text around the right', async () => {
@@ -294,18 +290,17 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      return Promise.resolve();
+    } else {
+      await runOnWindows(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-right.png');
+        expect(actual).toEqualImage(image);
+      });
+
+      await runOnLinux(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-right-linux.png');
+        expect(actual).toEqualImage(image);
+      });
     }
-
-    await runOnWindows(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-right.png');
-      expect(actual).toEqualImage(image);
-    });
-
-    await runOnLinux(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-right-linux.png');
-      expect(actual).toEqualImage(image);
-    });
   });
 
   it('can be bold', async () => {
@@ -332,18 +327,17 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      return Promise.resolve();
+    } else {
+      await runOnWindows(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/bold.png');
+        expect(actual).toEqualImage(image);
+      });
+
+      await runOnLinux(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/bold-linux.png');
+        expect(actual).toEqualImage(image);
+      });
     }
-
-    await runOnWindows(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/bold.png');
-      expect(actual).toEqualImage(image);
-    });
-
-    await runOnLinux(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/bold-linux.png');
-      expect(actual).toEqualImage(image);
-    });
   });
 
   it('can be italic', async () => {
@@ -370,18 +364,17 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      return Promise.resolve();
+    } else {
+      await runOnWindows(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/italic.png');
+        expect(actual).toEqualImage(image);
+      });
+
+      await runOnLinux(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/italic-linux.png');
+        expect(actual).toEqualImage(image);
+      });
     }
-
-    await runOnWindows(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/italic.png');
-      expect(actual).toEqualImage(image);
-    });
-
-    await runOnLinux(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/italic-linux.png');
-      expect(actual).toEqualImage(image);
-    });
   });
 
   describe('with a SpriteFont', () => {
