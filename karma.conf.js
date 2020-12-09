@@ -97,6 +97,7 @@ module.exports = (config) => {
     },
 
     browsers: ['ChromeHeadless_with_audio'],
+    browserNoActivityTimeout: 60000, // appveyor is slow :(
     customLaunchers: {
       ChromeHeadless_with_audio: {
           base: 'ChromeHeadless',
