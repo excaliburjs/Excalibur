@@ -10,6 +10,9 @@ module.exports = (config) => {
   config.set({
     singleRun: true,
     frameworks: ['jasmine'],
+    jasmine: {
+      timeoutInterval: 10000
+    },
     files: [  
             'src/spec/_boot.ts', 
             { pattern: 'src/spec/images/**/*.png', included: false, served: true },
