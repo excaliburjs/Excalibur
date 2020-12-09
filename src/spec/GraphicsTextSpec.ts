@@ -1,7 +1,6 @@
 import * as ex from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
-
 const isAppVeyor: boolean = !!globalThis.IS_APPVEYOR;
 
 /**
@@ -140,8 +139,7 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      await Promise.resolve(true);
-      return;
+      return Promise.resolve();
     }
 
     await runOnWindows(async () => {
@@ -180,8 +178,7 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      await Promise.resolve(true);
-      return;
+      return Promise.resolve();
     }
 
     await runOnWindows(async () => {
@@ -219,8 +216,7 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      await Promise.resolve(true);
-      return;
+      return Promise.resolve();
     }
 
     await runOnWindows(async () => {
@@ -259,8 +255,7 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      await Promise.resolve(true);
-      return;
+      return Promise.resolve();
     }
 
     await runOnWindows(async () => {
@@ -299,8 +294,7 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      await Promise.resolve(true);
-      return;
+      return Promise.resolve();
     }
 
     await runOnWindows(async () => {
@@ -333,14 +327,12 @@ describe('A Text Graphic', () => {
     ctx.clear();
     sut.draw(ctx, 10, 50);
 
-
     if (isAppVeyor) {
       // Skip appveyor
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      await Promise.resolve(true);
-      return;
+      return Promise.resolve();
     }
 
     await runOnWindows(async () => {
@@ -378,8 +370,7 @@ describe('A Text Graphic', () => {
       // eslint-disable-next-line no-console
       console.log('Skip AppVeyor');
       expect(true).toBe(true);
-      await Promise.resolve(true);
-      return;
+      return Promise.resolve();
     }
 
     await runOnWindows(async () => {
