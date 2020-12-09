@@ -71,7 +71,7 @@ export async function waitForFontLoad(font: string, timeout = 2000, interval = 1
     // repeatedly poll check
     const poller = setInterval(async () => {
       try {
-        await document.fonts.load(font, 'some text');
+        await document.fonts.load(font);
       } catch (err) {
         reject(err);
       }

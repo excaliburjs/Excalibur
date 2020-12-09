@@ -465,7 +465,7 @@ export function fail(message: never): never {
 
 /**
  * Generate a range of numbers
- * @param from
- * @param to
+ * @param from inclusive
+ * @param to inclusive
  */
-export const range = (from: number, to: number) => [...Array(to + 1).keys()].slice(from);
+export const range = (from: number, to: number) => Array.from(new Array(to - from + 1), (_x, i) => i + from);
