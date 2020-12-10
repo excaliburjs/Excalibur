@@ -14,8 +14,8 @@ export interface GraphicsShowOptions {
 }
 
 export interface GraphicsComponentOptions {
-  onPostDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void
-  onPreDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void
+  onPostDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void;
+  onPreDraw?: (ex: ExcaliburGraphicsContext, elapsed: number) => void;
 
   /**
    * Name of current graphic to use
@@ -49,14 +49,23 @@ export interface GraphicsComponentOptions {
   offset?: Vector;
 
   /**
-   * Optional origin
+   * Optional anchor
    */
-  origin?: Vector;
+  anchor?: Vector;
 }
 
 export interface GraphicsLayerOptions {
+  /**
+   * Name of the layer required, for example 'background'
+   */
   name: string;
+  /**
+   * Order of the layer, a layer with order -1 will be below a layer with order of 1
+   */
   order: number;
+  /**
+   * Offset to shift the entire layer
+   */
   offset?: Vector;
 }
 export class GraphicsLayer {
@@ -262,11 +271,12 @@ export class GraphicsComponent extends Component<'graphics'> {
       ...options
     };
 
-    const { current, opacity, visible, graphics, offset, shareGraphics, onPreDraw, onPostDraw } = options;
+    const { current, anchor, opacity, visible, graphics, offset, shareGraphics, onPreDraw, onPostDraw } = options;
 
     this._graphics = graphics || {};
     this.offset = offset ?? this.offset;
     this.opacity = opacity ?? this.opacity;
+    this.anchor = anchor ?? this.anchor;
     this.shareGraphics = shareGraphics ?? this.shareGraphics;
     this.onPreDraw = onPreDraw ?? this.onPreDraw;
     this.onPostDraw = onPostDraw ?? this.onPostDraw;

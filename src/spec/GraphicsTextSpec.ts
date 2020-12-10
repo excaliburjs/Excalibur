@@ -1,8 +1,6 @@
 import * as ex from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
-const isAppVeyor: boolean = !!globalThis.IS_APPVEYOR;
-
 /**
  *
  */
@@ -87,6 +85,7 @@ export async function waitForFontLoad(font: string, timeout = 2000, interval = 1
 }
 
 describe('A Text Graphic', () => {
+  const isAppVeyor: boolean = !!globalThis.IS_APPVEYOR;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
@@ -117,29 +116,38 @@ describe('A Text Graphic', () => {
     expect(sut).toBeDefined();
   });
 
-  it('can write text', async () => {
+  it('can be cloned', () => {
     const sut = new ex.Graphics.Text({
-      text: 'green text',
+      text: 'some text',
       color: ex.Color.Green,
-      font: new ex.Graphics.Font({
-        family: 'Open Sans',
-        size: 18
-      })
+      font: new ex.Graphics.Font({ family: 'some-font-family' })
     });
 
-    const canvasElement = document.createElement('canvas');
-    canvasElement.width = 100;
-    canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
-    ctx.clear();
-    sut.draw(ctx, 10, 50);
+    const clone = sut.clone();
 
-    if (isAppVeyor) {
-      // Skip appveyor
-      // eslint-disable-next-line no-console
-      console.log('Skip AppVeyor');
-      expect(true).toBe(true);
-    } else {
+    expect(clone.text).toBe('some text');
+    expect(clone.color).toEqual(ex.Color.Green);
+    expect((clone.font as ex.Graphics.Font).family).toBe('some-font-family');
+  });
+
+  if (!isAppVeyor) {
+    it('can write text', async () => {
+      const sut = new ex.Graphics.Text({
+        text: 'green text',
+        color: ex.Color.Green,
+        font: new ex.Graphics.Font({
+          family: 'Open Sans',
+          size: 18
+        })
+      });
+
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+      ctx.clear();
+      sut.draw(ctx, 10, 50);
+
       await runOnWindows(async () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/text.png');
         expect(actual).toEqualImage(image);
@@ -149,35 +157,56 @@ describe('A Text Graphic', () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/text-linux.png');
         expect(actual).toEqualImage(image);
       });
-    }
-  });
-
-  it('can flip text vertically and horizontally', async () => {
-    const sut = new ex.Graphics.Text({
-      text: 'green text',
-      color: ex.Color.Green,
-      font: new ex.Graphics.Font({
-        family: 'Open Sans',
-        size: 18
-      })
     });
 
-    const canvasElement = document.createElement('canvas');
-    canvasElement.width = 100;
-    canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    it('can have width and height', () => {
+      const sut = new ex.Graphics.Text({
+        text: 'some extra long text that we want to measure',
+        color: ex.Color.Green,
+        font: new ex.Graphics.Font({
+          family: 'Open Sans',
+          size: 18
+        })
+      });
 
-    ctx.clear();
-    sut.flipHorizontal = true;
-    sut.flipVertical = true;
-    sut.draw(ctx, 10, 50);
+      expect(sut.width).toBeCloseTo(385.9, 0);
+      expect(sut.height).toBeCloseTo(18, 0);
+    });
 
-    if (isAppVeyor) {
-      // Skip appveyor
-      // eslint-disable-next-line no-console
-      console.log('Skip AppVeyor');
-      expect(true).toBe(true);
-    } else {
+    it('uses the same source as the font under the hood', () => {
+      const sut = new ex.Graphics.Text({
+        text: 'some extra long text that we want to measure',
+        color: ex.Color.Green,
+        font: new ex.Graphics.Font({
+          family: 'Open Sans',
+          size: 18
+        })
+      });
+
+      expect(sut.getSourceId()).toBe(sut.font.getSourceId());
+      expect(sut.getSource()).toBe(sut.font.getSource());
+    });
+
+    it('can flip text vertically and horizontally', async () => {
+      const sut = new ex.Graphics.Text({
+        text: 'green text',
+        color: ex.Color.Green,
+        font: new ex.Graphics.Font({
+          family: 'Open Sans',
+          size: 18
+        })
+      });
+
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+      ctx.clear();
+      sut.flipHorizontal = true;
+      sut.flipVertical = true;
+      sut.draw(ctx, 10, 50);
+
       await runOnWindows(async () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/flipped.png');
         expect(actual).toEqualImage(image);
@@ -187,34 +216,27 @@ describe('A Text Graphic', () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/flipped-linux.png');
         expect(actual).toEqualImage(image);
       });
-    }
-  });
-
-  it('can rotate text around the middle', async () => {
-    const sut = new ex.Graphics.Text({
-      text: 'green text',
-      color: ex.Color.Green,
-      font: new ex.Graphics.Font({
-        family: 'Open Sans',
-        size: 18
-      })
     });
 
-    const canvasElement = document.createElement('canvas');
-    canvasElement.width = 100;
-    canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    it('can rotate text around the middle', async () => {
+      const sut = new ex.Graphics.Text({
+        text: 'green text',
+        color: ex.Color.Green,
+        font: new ex.Graphics.Font({
+          family: 'Open Sans',
+          size: 18
+        })
+      });
 
-    ctx.clear();
-    sut.rotation = Math.PI / 2;
-    sut.draw(ctx, 10, 50);
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
-    if (isAppVeyor) {
-      // Skip appveyor
-      // eslint-disable-next-line no-console
-      console.log('Skip AppVeyor');
-      expect(true).toBe(true);
-    } else {
+      ctx.clear();
+      sut.rotation = Math.PI / 2;
+      sut.draw(ctx, 10, 50);
+
       await runOnWindows(async () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated.png');
         expect(actual).toEqualImage(image);
@@ -224,35 +246,28 @@ describe('A Text Graphic', () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-linux.png');
         expect(actual).toEqualImage(image);
       });
-    }
-  });
-
-  it('can rotate text around the left', async () => {
-    const sut = new ex.Graphics.Text({
-      text: 'green text',
-      color: ex.Color.Green,
-      font: new ex.Graphics.Font({
-        family: 'Open Sans',
-        size: 18
-      })
     });
 
-    const canvasElement = document.createElement('canvas');
-    canvasElement.width = 100;
-    canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    it('can rotate text around the left', async () => {
+      const sut = new ex.Graphics.Text({
+        text: 'green text',
+        color: ex.Color.Green,
+        font: new ex.Graphics.Font({
+          family: 'Open Sans',
+          size: 18
+        })
+      });
 
-    ctx.clear();
-    sut.origin = ex.Vector.Zero;
-    sut.rotation = Math.PI / 2;
-    sut.draw(ctx, 10, 50);
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
-    if (isAppVeyor) {
-      // Skip appveyor
-      // eslint-disable-next-line no-console
-      console.log('Skip AppVeyor');
-      expect(true).toBe(true);
-    } else {
+      ctx.clear();
+      sut.origin = ex.Vector.Zero;
+      sut.rotation = Math.PI / 2;
+      sut.draw(ctx, 10, 50);
+
       await runOnWindows(async () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-left.png');
         expect(actual).toEqualImage(image);
@@ -262,35 +277,28 @@ describe('A Text Graphic', () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-left-linux.png');
         expect(actual).toEqualImage(image);
       });
-    }
-  });
-
-  it('can rotate text around the right', async () => {
-    const sut = new ex.Graphics.Text({
-      text: 'green text',
-      color: ex.Color.Green,
-      font: new ex.Graphics.Font({
-        family: 'Open Sans',
-        size: 18
-      })
     });
 
-    const canvasElement = document.createElement('canvas');
-    canvasElement.width = 100;
-    canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    it('can rotate text around the right', async () => {
+      const sut = new ex.Graphics.Text({
+        text: 'green text',
+        color: ex.Color.Green,
+        font: new ex.Graphics.Font({
+          family: 'Open Sans',
+          size: 18
+        })
+      });
 
-    ctx.clear();
-    sut.origin = ex.vec(sut.width, 0);
-    sut.rotation = -Math.PI / 2;
-    sut.draw(ctx, 10, 50);
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
-    if (isAppVeyor) {
-      // Skip appveyor
-      // eslint-disable-next-line no-console
-      console.log('Skip AppVeyor');
-      expect(true).toBe(true);
-    } else {
+      ctx.clear();
+      sut.origin = ex.vec(sut.width, 0);
+      sut.rotation = -Math.PI / 2;
+      sut.draw(ctx, 10, 50);
+
       await runOnWindows(async () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-right.png');
         expect(actual).toEqualImage(image);
@@ -300,34 +308,27 @@ describe('A Text Graphic', () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/rotated-right-linux.png');
         expect(actual).toEqualImage(image);
       });
-    }
-  });
-
-  it('can be bold', async () => {
-    const sut = new ex.Graphics.Text({
-      text: 'green text',
-      color: ex.Color.Green,
-      font: new ex.Graphics.Font({
-        family: 'Open Sans',
-        bold: true,
-        size: 18
-      })
     });
 
-    const canvasElement = document.createElement('canvas');
-    canvasElement.width = 100;
-    canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    it('can be bold', async () => {
+      const sut = new ex.Graphics.Text({
+        text: 'green text',
+        color: ex.Color.Green,
+        font: new ex.Graphics.Font({
+          family: 'Open Sans',
+          bold: true,
+          size: 18
+        })
+      });
 
-    ctx.clear();
-    sut.draw(ctx, 10, 50);
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
-    if (isAppVeyor) {
-      // Skip appveyor
-      // eslint-disable-next-line no-console
-      console.log('Skip AppVeyor');
-      expect(true).toBe(true);
-    } else {
+      ctx.clear();
+      sut.draw(ctx, 10, 50);
+
       await runOnWindows(async () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/bold.png');
         expect(actual).toEqualImage(image);
@@ -337,34 +338,27 @@ describe('A Text Graphic', () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/bold-linux.png');
         expect(actual).toEqualImage(image);
       });
-    }
-  });
-
-  it('can be italic', async () => {
-    const sut = new ex.Graphics.Text({
-      text: 'green text',
-      color: ex.Color.Green,
-      font: new ex.Graphics.Font({
-        family: 'Open Sans',
-        style: ex.Graphics.FontStyle.Italic,
-        size: 18
-      })
     });
 
-    const canvasElement = document.createElement('canvas');
-    canvasElement.width = 100;
-    canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    it('can be italic', async () => {
+      const sut = new ex.Graphics.Text({
+        text: 'green text',
+        color: ex.Color.Green,
+        font: new ex.Graphics.Font({
+          family: 'Open Sans',
+          style: ex.Graphics.FontStyle.Italic,
+          size: 18
+        })
+      });
 
-    ctx.clear();
-    sut.draw(ctx, 10, 50);
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
-    if (isAppVeyor) {
-      // Skip appveyor
-      // eslint-disable-next-line no-console
-      console.log('Skip AppVeyor');
-      expect(true).toBe(true);
-    } else {
+      ctx.clear();
+      sut.draw(ctx, 10, 50);
+
       await runOnWindows(async () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/italic.png');
         expect(actual).toEqualImage(image);
@@ -374,8 +368,11 @@ describe('A Text Graphic', () => {
         const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/italic-linux.png');
         expect(actual).toEqualImage(image);
       });
-    }
-  });
+    });
+  } else {
+    // eslint-disable-next-line no-console
+    console.log('Skipping Text tests in AppVeyor');
+  }
 
   describe('with a SpriteFont', () => {
     it('can specify a spritefont', async () => {
