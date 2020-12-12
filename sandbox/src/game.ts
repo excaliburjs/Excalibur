@@ -96,7 +96,7 @@ var circle = new ex.Graphics.Circle({
   color: ex.Color.Red
 });
 
-var rect = new ex.Graphics.Rect({
+var rect = new ex.Graphics.Rectangle({
   width: 100,
   height: 100,
   color: ex.Color.Green
@@ -333,31 +333,31 @@ for (var i = 0; i < 36; i++) {
 }
 
 var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
-platform.graphics.add(new ex.Graphics.Rect({ color: new ex.Color(0, 200, 0), width: 200, height: 50 }));
+platform.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(0, 200, 0), width: 200, height: 50 }));
 platform.body.collider.type = ex.CollisionType.Fixed;
 platform.actions.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
 game.add(platform);
 
 var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
-platform2.graphics.add(new ex.Graphics.Rect({ color: new ex.Color(0, 0, 140), width: 200, height: 20 }));
+platform2.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(0, 0, 140), width: 200, height: 20 }));
 platform2.body.collider.type = ex.CollisionType.Fixed;
 platform2.actions.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100).repeatForever();
 game.add(platform2);
 
 var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
-platform3.graphics.add(new ex.Graphics.Rect({ color: new ex.Color(50, 0, 100), width: 200, height: 20 }));
+platform3.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(50, 0, 100), width: 200, height: 20 }));
 platform3.body.collider.type = ex.CollisionType.Fixed;
 platform3.actions.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
 game.add(platform3);
 
 var platform4 = new ex.Actor(75, 300, 100, 50, ex.Color.Azure);
-platform4.graphics.add(new ex.Graphics.Rect({ color: ex.Color.Azure, width: 100, height: 50 }));
+platform4.graphics.add(new ex.Graphics.Rectangle({ color: ex.Color.Azure, width: 100, height: 50 }));
 platform4.body.collider.type = ex.CollisionType.Fixed;
 game.add(platform4);
 
 // Test follow api
 var follower = new ex.Actor(50, 100, 20, 20, ex.Color.Black);
-follower.graphics.add(new ex.Graphics.Rect({ color: ex.Color.Black, width: 20, height: 20 }));
+follower.graphics.add(new ex.Graphics.Rectangle({ color: ex.Color.Black, width: 20, height: 20 }));
 follower.body.collider.type = ex.CollisionType.PreventCollision;
 game.add(follower);
 
@@ -372,7 +372,7 @@ var player = new ex.Actor({
   enableCapturePointer: true,
   collisionType: ex.CollisionType.Active
 });
-player.graphics.shareGraphics = true;
+player.graphics.copyGraphics = false;
 follower.actions
   .meet(player, 60)
   .asPromise()
@@ -396,7 +396,7 @@ player.graphics.onPostDraw = (ctx: ex.Graphics.ExcaliburGraphicsContext) => {
   ctx.debug.drawPoint(ex.vec(0, 0), { size: 20, color: ex.Color.Black });
 };
 
-var healthbar2 = new ex.Graphics.Rect({
+var healthbar2 = new ex.Graphics.Rectangle({
   width: 140,
   height: 5,
   color: new ex.Color(0, 255, 0)
