@@ -85,7 +85,10 @@ module.exports = (config) => {
     // i. e.
         stats: 'normal'
     },
-    reporters: ['progress', 'coverage-istanbul'],
+    reporters: ['spec', 'coverage-istanbul'],
+    specReporter: {
+      showSpecTiming: true
+    },
 
     coverageReporter: {
       reporters: [
