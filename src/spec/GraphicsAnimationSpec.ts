@@ -2,7 +2,7 @@ import * as ex from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 import { ExcaliburGraphicsContext2DCanvas } from '../engine/Graphics';
 
-xdescribe('A Graphics Animation', () => {
+describe('A Graphics Animation', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });

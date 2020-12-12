@@ -21,7 +21,7 @@ class TestRaster extends ex.Graphics.Raster {
   }
 }
 
-xdescribe('A Raster', () => {
+describe('A Raster', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.Graphics.ExcaliburGraphicsContext;
   beforeEach(() => {
