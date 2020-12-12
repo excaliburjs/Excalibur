@@ -12,7 +12,7 @@ module.exports = (config) => {
     frameworks: ['jasmine'],
     client: {
       jasmine: {
-        timeoutInterval: 10000
+        timeoutInterval: 30000
       }
     },
     files: [  
