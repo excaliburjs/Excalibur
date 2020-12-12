@@ -11,13 +11,13 @@ describe('A Graphics Group', () => {
   });
 
   it('can be created and drawn', async () => {
-    const rect1 = new ex.Graphics.Rect({
+    const rect1 = new ex.Graphics.Rectangle({
       width: 25,
       height: 25,
       color: ex.Color.Blue
     });
 
-    const rect2 = new ex.Graphics.Rect({
+    const rect2 = new ex.Graphics.Rectangle({
       width: 25,
       height: 25,
       color: ex.Color.Yellow

@@ -13,7 +13,7 @@ export * from './GraphicsSystem';
 // Raster graphics
 export * from './Raster';
 export * from './Circle';
-export * from './Rect';
+export * from './Rectangle';
 export * from './Polygon';
 export * from './Text';
 export * from './FontCommon';

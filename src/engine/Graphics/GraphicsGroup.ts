@@ -24,9 +24,6 @@ export class GraphicsGroup extends Graphic implements HasTick {
     return null;
   }
 
-  public get image(): HTMLImageElement | HTMLCanvasElement {
-    return null;
-  }
   constructor(options: GraphicsGroupingOptions & GraphicOptions) {
     super(options);
     this.members = options.members;
@@ -93,6 +90,7 @@ export class GraphicsGroup extends Graphic implements HasTick {
       ex.translate(x, y);
       member.graphic.draw(ex, member.pos.x, member.pos.y);
       if (this.showDebug) {
+        /* istanbul ignore next */
         ex.debug.drawRect(0, 0, this.width, this.height);
       }
       ex.restore();

@@ -12,7 +12,7 @@ describe('A Graphics Animation', () => {
   });
 
   it('can be constructed', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
@@ -29,7 +29,7 @@ describe('A Graphics Animation', () => {
   });
 
   it('can be cloned', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
@@ -52,7 +52,7 @@ describe('A Graphics Animation', () => {
   });
 
   it('has a source id of the current frame', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
@@ -91,7 +91,7 @@ describe('A Graphics Animation', () => {
   });
 
   it('is playing and looping by default', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
@@ -109,7 +109,7 @@ describe('A Graphics Animation', () => {
   });
 
   it('only ticks once per frame', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
@@ -132,7 +132,7 @@ describe('A Graphics Animation', () => {
   });
 
   it('can be played with end strategy', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
@@ -157,7 +157,7 @@ describe('A Graphics Animation', () => {
   });
 
   it('can be played with loop strategy', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
@@ -186,7 +186,7 @@ describe('A Graphics Animation', () => {
   });
 
   it('can be played with ping pong strategy', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
@@ -229,7 +229,7 @@ describe('A Graphics Animation', () => {
   });
 
   it('can be played with freeze frame strategy', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
@@ -260,7 +260,7 @@ describe('A Graphics Animation', () => {
   });
 
   it('has animation events', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
@@ -306,7 +306,7 @@ describe('A Graphics Animation', () => {
   });
 
   it('can be paused or reset', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
@@ -344,17 +344,17 @@ describe('A Graphics Animation', () => {
   });
 
   it('draws the right frame to the screen', async () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
     });
-    const rect2 = new ex.Graphics.Rect({
+    const rect2 = new ex.Graphics.Rectangle({
       width: 90,
       height: 90,
       color: ex.Color.Yellow
     });
-    const rect3 = new ex.Graphics.Rect({
+    const rect3 = new ex.Graphics.Rectangle({
       width: 80,
       height: 80,
       color: ex.Color.Red

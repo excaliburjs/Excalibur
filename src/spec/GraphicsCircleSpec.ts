@@ -37,4 +37,18 @@ describe('A Circle Graphic', () => {
     const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsCircleSpec/circle.png');
     expect(actual).toEqualImage(image);
   });
+
+  it('can be cloned', () => {
+    const sut = new ex.Graphics.Circle({
+      radius: 10,
+      color: ex.Color.Green,
+      strokeColor: ex.Color.Black
+    });
+
+    const clone = sut.clone();
+
+    expect(clone.radius).toBe(10);
+    expect(clone.color).toEqual(ex.Color.Green);
+    expect(clone.strokeColor).toEqual(ex.Color.Black);
+  });
 });

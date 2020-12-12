@@ -4,6 +4,7 @@ import { Color } from '../Drawing/Color';
 import { ensurePowerOfTwo } from './Context/webgl-util';
 import { Vector } from '../Algebra';
 import { BoundingBox } from '../Collision/BoundingBox';
+import { watch } from '../Util/Watch';
 
 export interface RasterOptions {
   smoothing?: boolean;
@@ -45,6 +46,7 @@ export abstract class Raster extends Graphic {
     this._bitmap.height = ensurePowerOfTwo(bitmapHeight);
     const maybeCtx = this._bitmap.getContext('2d');
     if (!maybeCtx) {
+      /* istanbul ignore next */
       throw new Error('Browser does not support 2d canvas drawing, cannot create Raster graphic');
     } else {
       this._ctx = maybeCtx;
@@ -118,30 +120,7 @@ export abstract class Raster extends Graphic {
     this.flagDirty();
   }
 
-  private _createColorProxy(color: Color) {
-    if ((color as any).__isProxy === undefined) { // expando hack to mark a proxy
-      return new Proxy(color, {
-        set: (obj, prop, value) => {
-          // The default behavior to store the value
-          (obj as any)[prop] = value;
-          if ((obj as any)[prop] !== value) {
-            this.flagDirty();
-          }
-          // Indicate success
-          return true;
-        },
-        get: (obj, prop) => {
-          if (prop !== '__isProxy') {
-            return (obj as any)[prop];
-          }
-          return true;
-        }
-      });
-    }
-    return color;
-  }
-
-  private _color: Color = Color.Black;
+  private _color: Color = watch(Color.Black, () => this.flagDirty());
   /**
    * Gets or sets the fillStyle of the Raster graphic. Setting the fillStyle will cause the raster to be
    * flagged dirty causing a re-raster on the next draw.
@@ -150,10 +129,10 @@ export abstract class Raster extends Graphic {
     return this._color;
   }
   public set color(value) {
-    if (!this._color.equal(value)) {
+    if (!this._color?.equal(value)) {
       this.flagDirty();
     }
-    this._color = value ? this._createColorProxy(value) : value;
+    this._color = watch(value, () => this.flagDirty());
   }
 
   private _strokeColor: Color;
@@ -165,8 +144,10 @@ export abstract class Raster extends Graphic {
     return this._strokeColor;
   }
   public set strokeColor(value) {
-    this._strokeColor = value ? this._createColorProxy(value) : value;
-    this.flagDirty();
+    if (!this._strokeColor?.equal(value)) {
+      this.flagDirty();
+    }
+    this._strokeColor =  watch(value, () => this.flagDirty());
   }
 
   private _lineWidth: number = 1;

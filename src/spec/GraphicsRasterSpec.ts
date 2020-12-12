@@ -52,6 +52,28 @@ describe('A Raster', () => {
     expect(sut.height).toBe(50);
   });
 
+  it('flags dirty when color is changed', () => {
+    const sut = new TestRaster();
+    sut.draw(ctx, 0, 0);
+
+    expect(sut.dirty).toBeFalse();
+    sut.color = new ex.Color(125, 0, 0);
+    sut.color.b = 125;
+
+    expect(sut.color.r).toBe(125);
+    expect(sut.color.b).toBe(125);
+    expect(sut.dirty).toBeTrue();
+
+    sut.draw(ctx, 0, 0);
+
+    expect(sut.dirty).toBeFalse();
+
+    sut.strokeColor = new ex.Color(1, 1, 1);
+    sut.strokeColor.r = 12;
+
+    expect(sut.dirty).toBeTrue();
+  });;
+
   it('can clone RasterOptions', () => {
     const originalRasterOptions = {
       color: new Color(1, 2, 3, 0.5),

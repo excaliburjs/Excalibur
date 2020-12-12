@@ -169,8 +169,10 @@ describe('A Text Graphic', () => {
         })
       });
 
-      expect(sut.width).toBeCloseTo(385.9, 0);
+      expect(sut.width).toBeCloseTo(386.9, 0);
       expect(sut.height).toBeCloseTo(18, 0);
+      expect(sut.localBounds.width).toBeCloseTo(386.9, 0);
+      expect(sut.localBounds.height).toBeCloseTo(18, 0);
     });
 
     it('uses the same source as the font under the hood', () => {
@@ -369,12 +371,105 @@ describe('A Text Graphic', () => {
         expect(actual).toEqualImage(image);
       });
     });
+
+    it('can have a shadow', async () => {
+      const sut = new ex.Graphics.Text({
+        text: 'green text',
+        color: ex.Color.Green,
+        font: new ex.Graphics.Font({
+          family: 'Open Sans',
+          size: 18,
+          shadow: {
+            blur: 5,
+            offset: ex.vec(4, 4),
+            color: ex.Color.Blue
+          }
+        })
+      });
+
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+      ctx.clear();
+      sut.draw(ctx, 10, 50);
+
+      await runOnWindows(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/shadow.png');
+        expect(actual).toEqualImage(image);
+      });
+
+      await runOnLinux(async () => {
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/shadow.png');
+        expect(actual).toEqualImage(image);
+      });
+    });
   } else {
     // eslint-disable-next-line no-console
     console.log('Skipping Text tests in AppVeyor');
   }
 
   describe('with a SpriteFont', () => {
+    it ('has the same source as the sprite sheet', () => {
+      const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+
+      const spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
+        image: spriteFontImage,
+        grid: {
+          rows: 3,
+          columns: 16,
+          spriteWidth: 16,
+          spriteHeight: 16
+        }
+      });
+
+      const spriteFont = new ex.Graphics.SpriteFont({
+        alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+        caseInsensitive: true,
+        spacing: -5,
+        spriteSheet: spriteFontSheet
+      });
+
+      const sut = new ex.Graphics.Text({
+        text: 'Some Sprite Text!?',
+        font: spriteFont
+      });
+
+      expect(sut.getSource()).toBe(spriteFontSheet.image.image);
+      expect(sut.getSourceId()).toBe(spriteFontSheet.image.id);
+    });
+
+    it('can be cloned', () => {
+      const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+
+      const spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
+        image: spriteFontImage,
+        grid: {
+          rows: 3,
+          columns: 16,
+          spriteWidth: 16,
+          spriteHeight: 16
+        }
+      });
+
+      const spriteFont = new ex.Graphics.SpriteFont({
+        alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+        caseInsensitive: true,
+        spacing: -5,
+        spriteSheet: spriteFontSheet
+      });
+
+      const sut = new ex.Graphics.Text({
+        text: 'Some Sprite Text!?',
+        font: spriteFont
+      });
+
+      const clone = sut.clone();
+
+      expect(sut.font).not.toBe(clone.font);
+    });
+
     it('can specify a spritefont', async () => {
       const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
 
@@ -413,5 +508,94 @@ describe('A Text Graphic', () => {
       const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/spritefont-text.png');
       expect(actual).toEqualImage(image);
     });
+  });
+
+  it('will log warnings when there are issues', async () => {
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'warn');
+
+    const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+
+    await spriteFontImage.load();
+
+    const spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
+      image: spriteFontImage,
+      grid: {
+        rows: 1,
+        columns: 16,
+        spriteWidth: 16,
+        spriteHeight: 16
+      }
+    });
+
+    const spriteFont = new ex.Graphics.SpriteFont({
+      alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+      caseInsensitive: true,
+      spacing: -5,
+      spriteSheet: spriteFontSheet
+    });
+
+    const sut = new ex.Graphics.Text({
+      text: 'a',
+      font: spriteFont
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 200;
+    canvasElement.height = 100;
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    sut.text = '~';
+    sut.draw(ctx, 0, 0);
+    expect(logger.warn).toHaveBeenCalledWith(
+      'SpriteFont - Cannot find letter \'~\' in configured alphabet \'0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- \'');
+
+    sut.text = '?';
+    sut.draw(ctx, 0, 0);
+    expect(logger.warn).toHaveBeenCalledWith(
+      'SpriteFont - Cannot find sprite for \'?\' at index \'42\' in configured SpriteSheet'
+    );
+  });
+
+  it('can do some simple shadowing', async () => {
+    const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+
+    await spriteFontImage.load();
+
+    const spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
+      image: spriteFontImage,
+      grid: {
+        rows: 3,
+        columns: 16,
+        spriteWidth: 16,
+        spriteHeight: 16
+      }
+    });
+
+    const spriteFont = new ex.Graphics.SpriteFont({
+      alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+      caseInsensitive: true,
+      spacing: -5,
+      spriteSheet: spriteFontSheet,
+      shadow: {
+        offset: ex.vec(3, 3)
+      }
+    });
+
+    const sut = new ex.Graphics.Text({
+      text: 'Some Sprite Text!?',
+      font: spriteFont
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 200;
+    canvasElement.height = 100;
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    ctx.clear();
+    sut.draw(ctx, 0, 50);
+
+    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/spritefont-shadow.png');
+    expect(actual).toEqualImage(image);
   });
 });

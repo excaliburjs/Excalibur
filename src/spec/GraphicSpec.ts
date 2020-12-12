@@ -7,22 +7,22 @@ class TestGraphic extends ex.Graphics.Graphic {
     this.width = 50;
     this.height = 50;
   }
-  private _rect1 = new ex.Graphics.Rect({
+  private _rect1 = new ex.Graphics.Rectangle({
     width: 25,
     height: 25,
     color: ex.Color.Green
   });
-  private _rect2 = new ex.Graphics.Rect({
+  private _rect2 = new ex.Graphics.Rectangle({
     width: 25,
     height: 25,
     color: ex.Color.Red
   });
-  private _rect3 = new ex.Graphics.Rect({
+  private _rect3 = new ex.Graphics.Rectangle({
     width: 25,
     height: 25,
     color: ex.Color.Yellow
   });
-  private _rect4 = new ex.Graphics.Rect({
+  private _rect4 = new ex.Graphics.Rectangle({
     width: 25,
     height: 25,
     color: ex.Color.Blue

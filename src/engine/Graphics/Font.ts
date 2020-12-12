@@ -18,6 +18,7 @@ export class Font extends Raster implements FontRenderer {
     this.baseAlign = options?.baseAlign ?? this.baseAlign;
     this.direction = options?.direction ?? this.direction;
     if (options?.shadow) {
+      this.shadow = {};
       this.shadow.blur = options.shadow.blur ?? this.shadow.blur;
       this.shadow.offset = options.shadow.offset ?? this.shadow.offset;
       this.shadow.color = options.shadow.color ?? this.shadow.color;
@@ -55,7 +56,7 @@ export class Font extends Raster implements FontRenderer {
   public baseAlign: BaseAlign = BaseAlign.Alphabetic;
   public direction: Direction = Direction.LeftToRight;
   public size: number = 10;
-  public shadow: { blur: number; offset: Vector; color: Color } = null;
+  public shadow: { blur?: number; offset?: Vector; color?: Color } = null;
 
   public get fontString() {
     return `${this.style} ${this.bold ? 'bold' : ''} ${this.size}${this.unit} ${this.family}`;
@@ -152,23 +153,23 @@ export class Font extends Raster implements FontRenderer {
     if (this._text) {
       this._applyFont(this._ctx);
       const metrics = this._ctx.measureText(this._text);
-      this._textWidth = metrics.width;
-      this._textHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+      this._textWidth = Math.abs(metrics.actualBoundingBoxLeft) + Math.abs(metrics.actualBoundingBoxRight);
+      this._textHeight =  Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
 
       // Changing the width and height clears the context properties
       // We double the bitmap width to account for alignment
-      this._bitmap.width = (metrics.width + this.padding * 2) * 2;
-      this._bitmap.height = (metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent + this.padding * 2 || 16) * 2;
+      this._bitmap.width = (this._textWidth + this.padding * 2) * 2;
+      this._bitmap.height = (this._textHeight + this.padding * 2) * 2;
 
       // These bounds exist in raster bitmap space where the top left corner is the corder of the bitmap
       // TODO need to account for padding
       const x = 0;
       const y = 0;
       this._textBounds = new BoundingBox({
-        left: x - metrics.actualBoundingBoxLeft - this.padding,
-        top: y - metrics.actualBoundingBoxAscent - this.padding,
-        bottom: y + metrics.actualBoundingBoxDescent + this.padding,
-        right: x + metrics.actualBoundingBoxRight + this.padding
+        left: x - Math.abs(metrics.actualBoundingBoxLeft) - this.padding,
+        top: y - Math.abs(metrics.actualBoundingBoxAscent) - this.padding,
+        bottom: y + Math.abs(metrics.actualBoundingBoxDescent) + this.padding,
+        right: x + Math.abs(metrics.actualBoundingBoxRight) + this.padding
       });
     }
   }
@@ -182,6 +183,7 @@ export class Font extends Raster implements FontRenderer {
 
   protected _postDraw(ex: ExcaliburGraphicsContext): void {
     if (this.showDebug) {
+      /* istanbul ignore next */
       ex.debug.drawRect(-this._halfRasterWidth, -this._halfRasterHeight, this._rasterWidth, this._rasterHeight);
     }
     ex.restore();
@@ -215,7 +217,9 @@ export class Font extends Raster implements FontRenderer {
       }
 
       if (this.showDebug) {
+        /* istanbul ignore next */
         line(ctx, Color.Red, 0, this._halfRasterHeight, this._rasterWidth, this._halfRasterHeight, 2);
+        /* istanbul ignore next */
         line(ctx, Color.Red, this._halfRasterWidth, 0, this._halfRasterWidth, this._rasterHeight, 2);
       }
     }

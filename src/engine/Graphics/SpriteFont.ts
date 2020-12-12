@@ -8,7 +8,7 @@ import { ImageSource } from './ImageSource';
 import { Sprite } from './Sprite';
 import { SpriteSheet } from './SpriteSheet';
 
-export interface SpriteTextOptions {
+export interface SpriteFontOptions {
   /**
    * Alphabet string in spritsheet order (default is row column order)
    * example: 'abcdefghijklmnopqrstuvwxyz'
@@ -55,11 +55,9 @@ export class SpriteFont extends Graphic implements FontRenderer {
         sprites
       })
     });
-
-    // TODO shadow
   }
 
-  constructor(options: SpriteTextOptions & GraphicOptions) {
+  constructor(options: SpriteFontOptions & GraphicOptions) {
     super(options);
     const { alphabet, spriteSheet, caseInsensitive, spacing, shadow } = options;
     this.alphabet = alphabet;
@@ -91,14 +89,14 @@ export class SpriteFont extends Graphic implements FontRenderer {
       let spriteIndex = alphabet.indexOf(letter);
       if (spriteIndex === -1) {
         spriteIndex = 0;
-        this._logger.warn(`SpriteText - Cannot find letter '${letter}' in configured alphabet '${alphabet}'`);
+        this._logger.warn(`SpriteFont - Cannot find letter '${letter}' in configured alphabet '${alphabet}'`);
       }
 
       const letterSprite = this.spriteSheet.sprites[spriteIndex];
       if (letterSprite) {
         results.push(letterSprite);
       } else {
-        this._logger.warn(`SpriteText - Cannot find sprite for '${letter}' at index '${spriteIndex}' in configured SpriteSheet`);
+        this._logger.warn(`SpriteFont - Cannot find sprite for '${letter}' at index '${spriteIndex}' in configured SpriteSheet`);
       }
     }
     this._dirty = false;

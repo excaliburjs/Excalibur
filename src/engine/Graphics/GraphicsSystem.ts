@@ -136,12 +136,14 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     }
   }
 
+  /* istanbul ignore next */
   private _graphicsPositionDebugDraw() {
     if (this._engine?.isDebug) {
       this._graphicsContext.debug.drawPoint(Vector.Zero, { color: Color.Yellow, size: 5 });
     }
   }
 
+  /* istanbul ignore next */
   private _graphicsBoundsDebugDraw(
     entity: Entity<GraphicsComponent | TransformComponent>,
     transform: TransformComponent,

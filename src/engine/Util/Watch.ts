@@ -2,6 +2,9 @@
  * Watch an object with a proxy
  */
 export function watch<T extends object>(type: T, change: (type: T) => any): T {
+  if (!type) {
+    return type;
+  }
   if ((type as any).__isProxy === undefined) { // expando hack to mark a proxy
     return new Proxy(type, {
       set: (obj, prop, value) => {

@@ -72,6 +72,7 @@ export class ImageSource extends Resource<string> {
 
       this._resolveWhenLoaded(resolve);
       if (this._isDataUrl(this.path)) {
+        this.data = this.path;
         this.image.src = this.path;
       } else {
         super.load().then(() => {

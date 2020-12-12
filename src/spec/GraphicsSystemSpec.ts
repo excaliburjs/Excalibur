@@ -37,7 +37,7 @@ describe('A Graphics ECS System', () => {
     engine.currentScene.camera.update(engine, 1);
     sut.initialize(engine.currentScene);
 
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 25,
       height: 25,
       color: ex.Color.Yellow
@@ -48,7 +48,7 @@ describe('A Graphics ECS System', () => {
       color: ex.Color.Green
     });
 
-    const rect2 = new ex.Graphics.Rect({
+    const rect2 = new ex.Graphics.Rectangle({
       width: 25,
       height: 25,
       color: ex.Color.Red

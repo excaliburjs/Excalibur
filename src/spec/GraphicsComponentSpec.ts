@@ -22,7 +22,7 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('can be constructed with optional params', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 40,
       height: 40
     });
@@ -33,7 +33,7 @@ describe('A Graphics ECS Component', () => {
       current: 'some-gfx',
       visible: false,
       opacity: 0.5,
-      shareGraphics: false,
+      copyGraphics: true,
       offset: ex.vec(10, 11),
       anchor: ex.vec(0, 0)
     });
@@ -51,19 +51,19 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('can implicitly copy graphics', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 40,
       height: 40
     });
     const sut = new ex.Graphics.GraphicsComponent({
-      shareGraphics: false
+      copyGraphics: true
     });
     const shownRect = sut.show(rect);
     expect(shownRect.id).not.toEqual(rect.id);
   });
 
   it('can show graphics', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 40,
       height: 40
     });
@@ -90,12 +90,43 @@ describe('A Graphics ECS Component', () => {
     ]);
   });
 
-  it('can swap all the graphics for a graphic', () => {
-    const rect = new ex.Graphics.Rect({
+  it('can show graphics by name if it exists', () => {
+    const rect = new ex.Graphics.Rectangle({
       width: 40,
       height: 40
     });
-    const rect2 = new ex.Graphics.Rect({
+    const sut = new ex.Graphics.GraphicsComponent({
+      graphics: {
+        'some-gfx-2': rect
+      }
+    });
+
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'error');
+
+    expect(sut.current).toEqual([]);
+    sut.show('some-gfx-2');
+    expect(sut.current).toEqual([
+      {
+        graphic: rect,
+        options: {
+          offset: ex.vec(0, 0),
+          anchor: ex.vec(.5, .5)
+        }
+      }
+    ]);
+
+    const none = sut.show('made-up-name');
+    expect(none).toBeNull();
+    expect(logger.error).toHaveBeenCalled();
+  });
+
+  it('can swap all the graphics for a graphic', () => {
+    const rect = new ex.Graphics.Rectangle({
+      width: 40,
+      height: 40
+    });
+    const rect2 = new ex.Graphics.Rectangle({
       width: 50,
       height: 40
     });
@@ -127,7 +158,7 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('can hide graphics', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 40,
       height: 40
     });
@@ -141,8 +172,50 @@ describe('A Graphics ECS Component', () => {
     expect(sut.current).toEqual([]);
   });
 
+  it('can hide graphics by reference or name', () => {
+    const rect = new ex.Graphics.Rectangle({
+      width: 40,
+      height: 40
+    });
+    const rect2 = new ex.Graphics.Rectangle({
+      width: 40,
+      height: 40
+    });
+    const sut = new ex.Graphics.GraphicsComponent({
+      graphics: {
+        'gfx-1': rect,
+        'gfx-2': rect2
+      }
+    });
+
+    const shown = sut.show('gfx-1');
+    expect(shown).not.toBeNull();
+    const shown2 = sut.show('gfx-2');
+    expect(shown2).not.toBeNull();
+
+    sut.hide(shown);
+    expect(sut.current.length).toBe(1);
+
+    sut.hide('gfx-2');
+    expect(sut.current.length).toBe(0);
+  });
+
+  it('can have graphics added to it', () => {
+    const rect = new ex.Graphics.Rectangle({
+      width: 10,
+      height: 20
+    });
+    const sut = new ex.Graphics.GraphicsComponent;
+
+    sut.add('some-graphic', rect);
+    expect(sut.graphics['some-graphic']).toBe(rect);
+
+    sut.add(rect);
+    expect(sut.graphics.default).toBe(rect);
+  });
+
   it('can have multiple layers', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 40,
       height: 40
     });
@@ -160,5 +233,19 @@ describe('A Graphics ECS Component', () => {
     expect(layers[0].order).toBe(-1);
     expect(layers[1].name).toBe('default');
     expect(layers[1].order).toBe(0);
+  });
+
+  it('ticks graphics that need ticking', () => {
+    const animation = new ex.Graphics.Animation({
+      frames: []
+    });
+    spyOn(animation, 'tick');
+
+    const sut = new ex.Graphics.GraphicsComponent;
+    sut.add(animation);
+
+    sut.update(123, 4);
+
+    expect(animation.tick).toHaveBeenCalledWith(123, 4);
   });
 });

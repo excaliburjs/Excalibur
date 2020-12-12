@@ -55,7 +55,7 @@ describe('The ExcaliburGraphicsContext', () => {
         backgroundColor: ex.Color.White
       });
 
-      const rect = new ex.Graphics.Rect({
+      const rect = new ex.Graphics.Rectangle({
         width: 50,
         height: 50,
         color: ex.Color.Blue
@@ -117,7 +117,7 @@ describe('The ExcaliburGraphicsContext', () => {
         backgroundColor: ex.Color.White
       });
 
-      const rect = new ex.Graphics.Rect({
+      const rect = new ex.Graphics.Rectangle({
         width: 50,
         height: 50,
         color: ex.Color.Blue
@@ -147,7 +147,7 @@ describe('The ExcaliburGraphicsContext', () => {
         backgroundColor: ex.Color.White
       });
 
-      const rect = new ex.Graphics.Rect({
+      const rect = new ex.Graphics.Rectangle({
         width: 50,
         height: 50,
         color: ex.Color.Blue
@@ -201,7 +201,7 @@ describe('The ExcaliburGraphicsContext', () => {
         backgroundColor: ex.Color.White
       });
 
-      const rect = new ex.Graphics.Rect({
+      const rect = new ex.Graphics.Rectangle({
         width: 50,
         height: 50,
         color: ex.Color.Blue
@@ -269,7 +269,7 @@ describe('The ExcaliburGraphicsContext', () => {
         backgroundColor: ex.Color.White
       });
 
-      const rect = new ex.Graphics.Rect({
+      const rect = new ex.Graphics.Rectangle({
         width: 50,
         height: 50,
         color: ex.Color.Blue
@@ -301,7 +301,7 @@ describe('The ExcaliburGraphicsContext', () => {
         backgroundColor: ex.Color.White
       });
 
-      const rect = new ex.Graphics.Rect({
+      const rect = new ex.Graphics.Rectangle({
         width: 50,
         height: 50,
         color: ex.Color.Blue

@@ -23,7 +23,7 @@ export interface SpriteOptions {
 }
 
 export class Sprite extends Graphic {
-  public rawImage: ImageSource;
+  public image: ImageSource;
   public sourceView: SourceView;
   public destSize: DestinationSize;
 
@@ -35,17 +35,17 @@ export class Sprite extends Graphic {
 
   constructor(options: GraphicOptions & SpriteOptions) {
     super(options);
-    this.rawImage = options.image;
+    this.image = options.image;
     this.sourceView = options.sourceView ?? { x: 0, y: 0, width: 0, height: 0 };
     this.destSize = options.destSize ?? { width: 0, height: 0 };
     this._updateSpriteDimensions();
-    this.rawImage.whenLoaded.then(() => {
+    this.image.whenLoaded.then(() => {
       this._updateSpriteDimensions();
     });
   }
 
   private _updateSpriteDimensions() {
-    const { width: nativeWidth, height: nativeHeight } = this.rawImage;
+    const { width: nativeWidth, height: nativeHeight } = this.image;
     // This code uses || to avoid 0's
     // If the source is not specified, use the native dimension
     this.sourceView.width = this.sourceView?.width || nativeWidth;
@@ -60,14 +60,14 @@ export class Sprite extends Graphic {
   }
 
   protected  _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
-    if (this.rawImage.isLoaded()) {
+    if (this.image.isLoaded()) {
       this._updateSpriteDimensions();
     }
     super._preDraw(ex, x, y);
   }
 
   public _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
-    if (this.rawImage.isLoaded()) {
+    if (this.image.isLoaded()) {
       this._updateSpriteDimensions();
       ex.drawImage(
         this,
@@ -85,11 +85,11 @@ export class Sprite extends Graphic {
 
 
   public getSourceId(): number {
-    return this.rawImage.id;
+    return this.image.id;
   }
 
   public getSource(): HTMLImageSource {
-    return this.rawImage.image;
+    return this.image.image;
   }
 
   /**
@@ -98,9 +98,9 @@ export class Sprite extends Graphic {
    */
   public static fromLegacySprite(sprite: LegacySprite): Sprite {
     const tex = sprite._texture;
-    const rawImage = ImageSource.fromLegacyTexture(tex);
+    const image = ImageSource.fromLegacyTexture(tex);
     return new Sprite({
-      image: rawImage,
+      image,
       sourceView: {
         x: sprite.x,
         y: sprite.y,
@@ -112,7 +112,7 @@ export class Sprite extends Graphic {
 
   public clone(): Sprite {
     return new Sprite({
-      image: this.rawImage,
+      image: this.image,
       sourceView: { ...this.sourceView },
       destSize: { ...this.destSize },
       ...this.cloneGraphicOptions()

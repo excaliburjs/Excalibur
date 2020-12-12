@@ -1,6 +1,6 @@
 import { Raster, RasterOptions } from './Raster';
 
-export interface RectOptions {
+export interface RectangleOptions {
   width: number;
   height: number;
 }
@@ -8,16 +8,16 @@ export interface RectOptions {
 /**
  * A Rectangle [[Graphic]] for drawing rectangles to the [[ExcaliburGraphicsContext]]
  */
-export class Rect extends Raster {
-  constructor(options: RasterOptions & RectOptions) {
+export class Rectangle extends Raster {
+  constructor(options: RasterOptions & RectangleOptions) {
     super(options);
     this.width = options.width;
     this.height = options.height;
     this.rasterize();
   }
 
-  public clone(): Rect {
-    return new Rect({
+  public clone(): Rectangle {
+    return new Rectangle({
       width: this.width,
       height: this.height,
       ...this.cloneGraphicOptions(),

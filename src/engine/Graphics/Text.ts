@@ -41,7 +41,7 @@ export class Text extends Graphic {
     }
   }
 
-  // TODO SpriteFont doesn't support a color :O
+  // TODO SpriteFont doesn't support a color yet :(
   public get color() {
     if (this.font instanceof Font) {
       return this.font.color;

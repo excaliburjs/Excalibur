@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
-describe('A Rect Graphic', () => {
+describe('A Rectangle Graphic', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.Graphics.ExcaliburGraphicsContext;
   beforeEach(() => {
@@ -14,11 +14,11 @@ describe('A Rect Graphic', () => {
   });
 
   it('exists', () => {
-    expect(ex.Graphics.Rect).toBeDefined();
+    expect(ex.Graphics.Rectangle).toBeDefined();
   });
 
   it('can be constructed', () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 50,
       height: 50
     });
@@ -26,7 +26,7 @@ describe('A Rect Graphic', () => {
   });
 
   it('can be drawn', async () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 50,
       height: 50,
       color: ex.Color.Green
@@ -39,7 +39,7 @@ describe('A Rect Graphic', () => {
   });
 
   it('can be cloned', async () => {
-    const rect = new ex.Graphics.Rect({
+    const rect = new ex.Graphics.Rectangle({
       width: 75,
       height: 50,
       lineWidth: 10,

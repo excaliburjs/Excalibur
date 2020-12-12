@@ -25,10 +25,25 @@ describe('A Polygon Graphic', () => {
     expect(poly).toBeDefined();
   });
 
+  it('can be cloned', () => {
+    const poly = new ex.Graphics.Polygon({
+      points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
+      color: ex.Color.Green,
+      strokeColor: ex.Color.Violet
+    });
+
+    const clone = poly.clone();
+
+    expect(clone.points).toEqual(poly.points);
+    expect(clone.color).toEqual(poly.color);
+    expect(clone.strokeColor).toEqual(poly.strokeColor);
+  });
+
   it('can be drawn', async () => {
     const poly = new ex.Graphics.Polygon({
       points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
-      color: ex.Color.Green
+      color: ex.Color.Green,
+      strokeColor: ex.Color.Violet
     });
 
     poly.draw(ctx, 0, 0);

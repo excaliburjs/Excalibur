@@ -23,10 +23,10 @@ export interface GraphicsComponentOptions {
   current?: string;
 
   /**
-   * Optionally share instances of graphics, you may set this to true to avoid copying graphics when added to the
-   * component for performance reasons. By default graphics are not shared and are copied when added to the component.
+   * Optionally copy instances of graphics by calling .clone(), you may set this to false to avoid sharing graphics when added to the
+   * component for performance reasons. By default graphics are not copied and are shared when added to the component.
    */
-  shareGraphics?: boolean;
+  copyGraphics?: boolean;
 
   /**
    * Optional visible flag, if the graphics component is not visible it will not be displayed
@@ -108,7 +108,7 @@ export class GraphicsLayer {
     options = { offset: this._graphics.offset.clone(), anchor: this._graphics.anchor.clone(), ...options };
     let gfx: Graphic;
     if (nameOrGraphic instanceof Graphic) {
-      gfx = this._graphics.shareGraphics ? nameOrGraphic : nameOrGraphic.clone();
+      gfx = this._graphics.copyGraphics ? nameOrGraphic.clone() : nameOrGraphic;
     } else {
       gfx = this._graphics.getGraphic(nameOrGraphic);
       if (!gfx) {
@@ -156,7 +156,7 @@ export class GraphicsLayer {
   }
 
   /**
-   * Get or set the pixel offset from the layer origin for all graphics in the layer
+   * Get or set the pixel offset from the layer anchor for all graphics in the layer
    */
   public get offset(): Vector {
     return this._options.offset ?? Vector.Zero;
@@ -259,9 +259,9 @@ export class GraphicsComponent extends Component<'graphics'> {
   public anchor: Vector = Vector.Half;
 
   /**
-   * TODO: This seems bad still
+   * If set to true graphics added to the component will be copied. This can affect performance
    */
-  public shareGraphics: boolean = true;
+  public copyGraphics: boolean = false;
 
   constructor(options?: GraphicsComponentOptions) {
     super();
@@ -271,13 +271,13 @@ export class GraphicsComponent extends Component<'graphics'> {
       ...options
     };
 
-    const { current, anchor, opacity, visible, graphics, offset, shareGraphics, onPreDraw, onPostDraw } = options;
+    const { current, anchor, opacity, visible, graphics, offset, copyGraphics, onPreDraw, onPostDraw } = options;
 
     this._graphics = graphics || {};
     this.offset = offset ?? this.offset;
     this.opacity = opacity ?? this.opacity;
     this.anchor = anchor ?? this.anchor;
-    this.shareGraphics = shareGraphics ?? this.shareGraphics;
+    this.copyGraphics = copyGraphics ?? this.copyGraphics;
     this.onPreDraw = onPreDraw ?? this.onPreDraw;
     this.onPostDraw = onPostDraw ?? this.onPostDraw;
     this.visible = !!visible;
@@ -320,7 +320,7 @@ export class GraphicsComponent extends Component<'graphics'> {
       graphicToSet = nameOrGraphic;
     }
 
-    this._graphics[name] = this.shareGraphics ? graphicToSet : graphicToSet.clone();
+    this._graphics[name] = this.copyGraphics ? graphicToSet.clone() : graphicToSet;
     if (name === 'default') {
       this.show('default');
     }
@@ -423,6 +423,7 @@ export class GraphicsComponent extends Component<'graphics'> {
     }
   }
 
+  /* istanbul ignore next */
   public debugDraw(ctx: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.visible) {
       // this should be moved to the graphics system

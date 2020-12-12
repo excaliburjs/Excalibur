@@ -18,6 +18,22 @@ describe('A Canvas Graphic', () => {
     expect(sut).toBeDefined();
   });
 
+  it('can be cloned', () => {
+    const sut = new ex.Graphics.Canvas({
+      width: 100,
+      height: 100,
+      draw: (ctx) => {
+        ctx.fillStyle = 'green';
+        ctx.fillRect(25, 25, 50, 50);
+      }
+    });
+    const clone = sut.clone();
+
+    expect(sut.draw).toBe(clone.draw);
+    expect(sut.width).toBe(clone.width);
+    expect(sut.height).toBe(clone.height);
+  });
+
   it('can be drawn using the 2d canvas api', async () => {
     const sut = new ex.Graphics.Canvas({
       width: 100,

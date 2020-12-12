@@ -57,4 +57,32 @@ describe('A ImageSource', () => {
     expect(img.width).not.toBe(0);
     expect(img.height).not.toBe(0);
   });
+
+  it('can load from an unloaded legacy texture', async () => {
+    const tex = new ex.Texture('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const img = ex.Graphics.ImageSource.fromLegacyTexture(tex);
+    await tex.load();
+    expect(img.width).not.toBe(0);
+    expect(img.height).not.toBe(0);
+  });
+
+  it('will resolve the image if alreadly loaded', async () => {
+    const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = await spriteFontImage.load();
+
+    expect(spriteFontImage.isLoaded()).toBe(true);
+    const alreadyLoadedImage = await spriteFontImage.load();
+
+    expect(image).toBe(alreadyLoadedImage);
+  });
+
+  it('will load base64 strings', async () => {
+    const base64Image = new ex.Graphics.ImageSource(
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==');
+    await base64Image.load();
+
+    expect(base64Image.isLoaded()).toBe(true);
+    expect(base64Image.image.src).toBe(
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==');
+  });
 });
