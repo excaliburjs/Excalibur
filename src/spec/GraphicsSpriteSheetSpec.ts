@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
-xdescribe('A SpriteSheet for Graphics', () => {
+describe('A SpriteSheet for Graphics', () => {
   it('exists', () => {
     expect(ex.Graphics.SpriteSheet).toBeDefined();
   });

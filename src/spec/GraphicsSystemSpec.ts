@@ -4,16 +4,16 @@ import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 import { GraphicsComponent } from '../engine/Graphics';
 import { TestUtils } from './util/TestUtils';
 
-xdescribe('A Graphics ECS System', () => {
+describe('A Graphics ECS System', () => {
   let entities: ex.Entity<ex.TransformComponent | ex.Graphics.GraphicsComponent>[];
   let engine: ex.Engine;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({ width: 100, height: 100 });
     entities = [
-      new ex.Entity().addComponent(new ex.TransformComponent).addComponent(new ex.Graphics.GraphicsComponent),
-      new ex.Entity().addComponent(new ex.TransformComponent).addComponent(new ex.Graphics.GraphicsComponent),
-      new ex.Entity().addComponent(new ex.TransformComponent).addComponent(new ex.Graphics.GraphicsComponent)
+      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.Graphics.GraphicsComponent()),
+      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.Graphics.GraphicsComponent()),
+      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.Graphics.GraphicsComponent())
     ];
     entities[0].components.transform.z = 10;
     entities[1].components.transform.z = 5;
@@ -65,9 +65,7 @@ xdescribe('A Graphics ECS System', () => {
     entities[2].components.transform.scale = ex.vec(2, 2);
     entities[2].components.graphics.show(rect2);
 
-    const offscreen = new ex.Entity()
-      .addComponent(new TransformComponent)
-      .addComponent(new GraphicsComponent);
+    const offscreen = new ex.Entity().addComponent(new TransformComponent()).addComponent(new GraphicsComponent());
     offscreen.components.transform.pos = ex.vec(112.5, 112.5);
     offscreen.components.graphics.show(rect);
 

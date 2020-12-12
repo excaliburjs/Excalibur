@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
-xdescribe('A Polygon Graphic', () => {
+describe('A Polygon Graphic', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.Graphics.ExcaliburGraphicsContext;
   beforeEach(() => {
@@ -10,7 +10,7 @@ xdescribe('A Polygon Graphic', () => {
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+    ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
   });
 
   it('exists', () => {
@@ -51,5 +51,4 @@ xdescribe('A Polygon Graphic', () => {
     const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsPolygonSpec/poly.png');
     expect(actual).toEqualImage(image);
   });
-
 });

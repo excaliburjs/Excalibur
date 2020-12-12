@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
-xdescribe('A Sprite Graphic', () => {
+describe('A Sprite Graphic', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.Graphics.ExcaliburGraphicsContext;
   beforeEach(() => {
@@ -10,7 +10,7 @@ xdescribe('A Sprite Graphic', () => {
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement, smoothing: false});
+    ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement, smoothing: false });
   });
 
   it('exists', () => {
@@ -40,8 +40,10 @@ xdescribe('A Sprite Graphic', () => {
     const sut = new ex.Graphics.Sprite({
       image,
       sourceView: {
-        x: 0, y: 0,
-        width: 16, height: 16
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16
       },
       destSize: {
         width: 100,
@@ -61,8 +63,10 @@ xdescribe('A Sprite Graphic', () => {
     const sut = new ex.Graphics.Sprite({
       image,
       sourceView: {
-        x: 0, y: 0,
-        width: 16, height: 16
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16
       }
     });
 
@@ -87,17 +91,19 @@ xdescribe('A Sprite Graphic', () => {
     expect(actual).toEqualImage(expectedImage);
   });
 
-
   it('can specify a source view of an image and a dest view dimension is destination', async () => {
     const image = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
     const sut = new ex.Graphics.Sprite({
       image,
       sourceView: {
-        x: 0, y: 0,
-        width: 16, height: 16
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16
       },
       destSize: {
-        width: 50, height: 50
+        width: 50,
+        height: 50
       }
     });
 
@@ -127,7 +133,8 @@ xdescribe('A Sprite Graphic', () => {
     const sut = new ex.Graphics.Sprite({
       image,
       destSize: {
-        width: 100, height: 100
+        width: 100,
+        height: 100
       }
     });
 

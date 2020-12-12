@@ -3,7 +3,6 @@ import { Color } from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 import { RasterOptions } from '../engine/Graphics';
 
-
 class TestRaster extends ex.Graphics.Raster {
   constructor(options?: RasterOptions) {
     super(options);
@@ -20,10 +19,9 @@ class TestRaster extends ex.Graphics.Raster {
   clone(): ex.Graphics.Graphic {
     return null;
   }
-
 }
 
-xdescribe('A Raster', () => {
+describe('A Raster', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.Graphics.ExcaliburGraphicsContext;
   beforeEach(() => {
@@ -32,7 +30,7 @@ xdescribe('A Raster', () => {
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+    ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
   });
 
   it('exists', () => {
@@ -72,7 +70,7 @@ xdescribe('A Raster', () => {
     sut.strokeColor.r = 12;
 
     expect(sut.dirty).toBeTrue();
-  });;
+  });
 
   it('can clone RasterOptions', () => {
     const originalRasterOptions = {
@@ -106,5 +104,4 @@ xdescribe('A Raster', () => {
     sut.smoothing = false;
     expect(sut.dirty).toBe(true);
   });
-
 });
