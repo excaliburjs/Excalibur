@@ -19,7 +19,9 @@ module.exports = (config) => {
             'src/spec/_boot.ts', 
             { pattern: 'src/spec/images/**/*.png', included: false, served: true },
             { pattern: 'src/spec/images/**/*.gif', included: false, served: true },
-            { pattern: 'src/spec/images/**/*.txt', included: false, served: true }
+            { pattern: 'src/spec/images/**/*.txt', included: false, served: true },
+            { pattern: 'src/spec/images/**/*.css', included: false, served: true },
+            { pattern: 'src/spec/images/**/*.woff2', included: false, served: true },
            ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {

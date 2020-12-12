@@ -90,14 +90,10 @@ describe('A Text Graphic', () => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
   beforeAll(async () => {
-    const fontcdn = document.createElement('link');
-    fontcdn.href = 'https://fonts.gstatic.com';
-    fontcdn.rel = 'preconnect';
     const fontface = document.createElement('link');
     fontface.href =
-      'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600;1,700;1,800&display=swap';
+      'base/src/spec/images/GraphicsTextSpec/fonts.css';
     fontface.rel = 'stylesheet';
-    document.head.appendChild(fontcdn);
     document.head.appendChild(fontface);
     await waitForFontLoad('18px Open Sans');
     await waitForFontLoad('bold 18px Open Sans');
