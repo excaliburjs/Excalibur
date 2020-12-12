@@ -2,7 +2,6 @@
 const process = require('process');
 const path = require('path');
 process.env.CHROME_BIN = require('puppeteer').executablePath();
-const webpack = require('webpack');
 
 const isAppveyor = process.env.APPVEYOR_BUILD_NUMBER ? true : false;
 
@@ -36,11 +35,6 @@ module.exports = (config) => {
           "@excalibur": path.resolve(__dirname, './src/engine/')
         }
       },
-      plugins: [
-        new webpack.DefinePlugin({
-          'globalThis.IS_APPVEYOR': isAppveyor
-        })
-      ],
       module: {
         rules: [
           {
@@ -87,11 +81,7 @@ module.exports = (config) => {
     // i. e.
         stats: 'normal'
     },
-    reporters: ['spec', 'coverage-istanbul'],
-    specReporter: {
-      showSpecTiming: true
-    },
-
+    reporters: ['progress', 'coverage-istanbul'],
     coverageReporter: {
       reporters: [
           { type: 'html', dir: 'coverage/' }, 
