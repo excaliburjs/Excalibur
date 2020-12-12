@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
-describe('A Rectangle Graphic', () => {
+xdescribe('A Rectangle Graphic', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.Graphics.ExcaliburGraphicsContext;
   beforeEach(() => {
