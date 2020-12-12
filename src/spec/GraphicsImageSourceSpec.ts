@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
-describe('A ImageSource', () => {
+xdescribe('A ImageSource', () => {
 
   it('exists', () => {
     expect(ex.Graphics.ImageSource).toBeDefined();

@@ -84,7 +84,7 @@ export async function waitForFontLoad(font: string, timeout = 2000, interval = 1
   });
 }
 
-describe('A Text Graphic', () => {
+xdescribe('A Text Graphic', () => {
   const isAppVeyor: boolean = !!globalThis.IS_APPVEYOR;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);

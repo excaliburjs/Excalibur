@@ -13,7 +13,7 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
   return canvas;
 }
 
-describe('The ExcaliburGraphicsContext', () => {
+xdescribe('The ExcaliburGraphicsContext', () => {
 
   describe('2D', () => {
     beforeEach(() => {

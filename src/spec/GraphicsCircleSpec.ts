@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
-describe('A Circle Graphic', () => {
+xdescribe('A Circle Graphic', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
