@@ -259,6 +259,27 @@ describe('The ExcaliburGraphicsContext', () => {
       expect(actual).toEqualImage(image);
     });
 
+    it('can draw debug rectangle', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.clear();
+      sut.debug.drawRect(10, 10, 80, 80, {
+        color: ex.Color.Blue
+      });
+      sut.flush();
+
+      const [actual, image] = await ensureImagesLoaded(flushWebGLCanvasTo2D(canvasElement),
+        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-rect.png');
+      expect(actual).toEqualImage(image);
+    });
+
     it('can transform the context', async () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;

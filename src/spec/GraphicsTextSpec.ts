@@ -169,9 +169,9 @@ describe('A Text Graphic', () => {
         })
       });
 
-      expect(sut.width).toBeCloseTo(386.9, 0);
+      expect(sut.width).toBeCloseTo(386.9, -1);
       expect(sut.height).toBeCloseTo(18, 0);
-      expect(sut.localBounds.width).toBeCloseTo(386.9, 0);
+      expect(sut.localBounds.width).toBeCloseTo(386.9, -1);
       expect(sut.localBounds.height).toBeCloseTo(18, 0);
     });
 
@@ -401,7 +401,7 @@ describe('A Text Graphic', () => {
       });
 
       await runOnLinux(async () => {
-        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/shadow.png');
+        const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/shadow-linux.png');
         expect(actual).toEqualImage(image);
       });
     });
