@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 
 /**
  *
@@ -85,9 +85,9 @@ export async function waitForFontLoad(font: string, timeout = 2000, interval = 1
 }
 
 describe('A Text Graphic', () => {
-  const isAppVeyor: boolean = !!globalThis.IS_APPVEYOR;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
   beforeAll(async () => {
     const fontface = document.createElement('link');
@@ -144,13 +144,11 @@ describe('A Text Graphic', () => {
     sut.draw(ctx, 10, 50);
 
     await runOnWindows(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/text.png');
-      expect(actual).toEqualImage(image);
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/text.png');
     });
 
     await runOnLinux(async () => {
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsTextSpec/text-linux.png');
-      expect(actual).toEqualImage(image);
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/text-linux.png');
     });
   });
 
