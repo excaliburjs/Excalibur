@@ -20,7 +20,7 @@ describe('A ImageSource', () => {
     const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
     const whenLoaded = jasmine.createSpy('whenLoaded');
     const image = await spriteFontImage.load();
-    await spriteFontImage.whenLoaded.then(whenLoaded);
+    await spriteFontImage.checkLoaded.then(whenLoaded);
 
     expect(image.src).not.toBeNull();
     expect(whenLoaded).toHaveBeenCalledTimes(1);
@@ -35,7 +35,7 @@ describe('A ImageSource', () => {
     expect(sprite.height).toBe(0);
 
     const image = await spriteFontImage.load();
-    await spriteFontImage.whenLoaded;
+    await spriteFontImage.checkLoaded;
     expect(sprite.width).toBe(image.width);
     expect(sprite.height).toBe(image.height);
   });

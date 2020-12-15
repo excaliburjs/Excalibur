@@ -31,8 +31,8 @@ export class ImageSource extends Resource<string> {
   /**
    * Promise the resolves when the image is loaded, does not initiate loading
    */
-  public whenLoaded: Promise<HTMLImageElement>;
-  private _whenLoadedResolve: (value?: HTMLImageElement | PromiseLike<HTMLImageElement>) => void;
+  public checkLoaded: Promise<HTMLImageElement>;
+  private _loadedResolve: (value?: HTMLImageElement | PromiseLike<HTMLImageElement>) => void;
 
   /**
    * The path to the image, can also be a data url like 'data:image/'
@@ -40,8 +40,8 @@ export class ImageSource extends Resource<string> {
    */
   constructor(public readonly path: string, bustCache: boolean = false) {
     super(path, 'blob', bustCache);
-    this.whenLoaded = new Promise<HTMLImageElement>((resolve) => {
-      this._whenLoadedResolve = resolve;
+    this.checkLoaded = new Promise<HTMLImageElement>((resolve) => {
+      this._loadedResolve = resolve;
     });
   }
 
@@ -56,7 +56,7 @@ export class ImageSource extends Resource<string> {
   private _resolveWhenLoaded(resolve: (value: HTMLImageElement) => void) {
     this.image.addEventListener('load', () => {
       resolve(this.image);
-      this._whenLoadedResolve(this.image);
+      this._loadedResolve(this.image);
     });
   }
 

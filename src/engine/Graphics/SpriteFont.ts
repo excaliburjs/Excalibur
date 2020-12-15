@@ -66,7 +66,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
     this.spacing = spacing ?? this.spacing;
     this.shadow = shadow ?? this.shadow;
 
-    this.spriteSheet.image.whenLoaded.then(() => {
+    this.spriteSheet.image.checkLoaded.then(() => {
       this._updateDimensions();
     });
   }

@@ -83,7 +83,7 @@ describe('A Sprite Graphic', () => {
     expect(sut.localBounds.height).toBe(16, 'Graphic local bounds height should be 16');
 
     await image.load();
-    await image.whenLoaded;
+    await image.checkLoaded;
 
     ctx.clear();
     sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
@@ -119,7 +119,7 @@ describe('A Sprite Graphic', () => {
     expect(sut.localBounds.height).toBe(50, 'Graphic local bounds height should be 50');
 
     await image.load();
-    await image.whenLoaded;
+    await image.checkLoaded;
 
     ctx.clear();
     sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
@@ -149,7 +149,7 @@ describe('A Sprite Graphic', () => {
     expect(sut.localBounds.height).toBe(100, 'Graphic local bounds height should be 100');
 
     await image.load();
-    await image.whenLoaded;
+    await image.checkLoaded;
 
     expect(sut.sourceView.width).not.toBe(0);
     expect(sut.sourceView.height).not.toBe(0);
