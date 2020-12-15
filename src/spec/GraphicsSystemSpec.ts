@@ -67,17 +67,24 @@ describe('A Graphics ECS System', () => {
     entities[2].components.transform.scale = ex.vec(2, 2);
     entities[2].components.graphics.show(rect2);
 
+    const offscreenRect = rect.clone();
     const offscreen = new ex.Entity().addComponent(new TransformComponent()).addComponent(new GraphicsComponent());
     offscreen.components.transform.pos = ex.vec(112.5, 112.5);
-    offscreen.components.graphics.show(rect);
+    offscreen.components.graphics.show(offscreenRect);
 
-    spyOn(offscreen.components.graphics, 'draw');
+    spyOn(rect, 'draw').and.callThrough();
+    spyOn(circle, 'draw').and.callThrough();
+    spyOn(rect2, 'draw').and.callThrough();
+    spyOn(offscreenRect, 'draw').and.callThrough();
 
     entities.push(offscreen);
 
     sut.update(entities, 1);
 
-    expect(offscreen.components.graphics.draw).not.toHaveBeenCalled();
+    expect(rect.draw).toHaveBeenCalled();
+    expect(circle.draw).toHaveBeenCalled();
+    expect(rect2.draw).toHaveBeenCalled();
+    expect(offscreenRect.draw).not.toHaveBeenCalled();
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-system.png');
   });
 });

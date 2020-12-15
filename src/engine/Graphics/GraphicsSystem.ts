@@ -2,7 +2,7 @@ import { isActor } from '../Actor';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Scene } from '../Scene';
 import { GraphicsComponent } from './GraphicsComponent';
-import { Vector } from '../Algebra';
+import { vec, Vector } from '../Algebra';
 import { Color } from '../Drawing/Color';
 import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../EntityComponentSystem/Entity';
@@ -66,7 +66,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       this._graphicsContext.opacity = graphics.opacity * ((entity as any).opacity ?? 1);
 
       // Draw the graphics component
-      graphics.draw(this._graphicsContext, 0, 0);
+      this._drawGraphicsComponent(graphics);
 
       // Optionally run the onPostDraw graphics lifecycle draw
       if (graphics.onPostDraw) {
@@ -98,6 +98,32 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     } else {
       // TODO sceen coordinates
       return false;
+    }
+  }
+
+  private _drawGraphicsComponent(graphicsComponent: GraphicsComponent) {
+    if (graphicsComponent.visible) {
+      // this should be moved to the graphics system
+      for (const layer of graphicsComponent.layers.get()) {
+        for (const {
+          graphic,
+          options: { offset, anchor }
+        } of layer.graphics) {
+          // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
+          const bounds = graphic.localBounds;
+          const offsetX = -bounds.width * graphic.scale.x * anchor.x + offset.x;
+          const offsetY = -bounds.height * graphic.scale.y * anchor.y + offset.y;
+          graphic?.draw(this._graphicsContext, offsetX + layer.offset.x, offsetY + layer.offset.y);
+          if (this._engine?.isDebug) {
+            /* istanbul ignore next */
+            graphic?.localBounds.translate(vec(offsetX + layer.offset.x, offsetY + layer.offset.y)).draw(this._graphicsContext, Color.Red);
+          }
+        }
+      }
+      if (this._engine?.isDebug) {
+        /* istanbul ignore next */
+        graphicsComponent.localBounds.draw(this._graphicsContext, Color.Red);
+      }
     }
   }
 
@@ -154,11 +180,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         const bb = entity.body.collider.localBounds.translate(entity.getWorldPos());
         bb.draw(this._graphicsContext);
       }
-
-      this._graphicsContext.save();
-      this._applyTransform(transform);
-      graphics.debugDraw(this._graphicsContext, 0, 0);
-      this._graphicsContext.restore();
     }
   }
 }

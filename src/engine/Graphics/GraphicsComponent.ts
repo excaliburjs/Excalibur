@@ -398,48 +398,4 @@ export class GraphicsComponent extends Component<'graphics'> {
     }
   }
 
-  /**
-   * Draws the graphics component to the screen, called internally
-   * @param ctx
-   * @param x
-   * @param y
-   * @internal
-   */
-  public draw(ctx: ExcaliburGraphicsContext, x: number, y: number) {
-    if (this.visible) {
-      // this should be moved to the graphics system
-      for (const layer of this.layers.get()) {
-        for (const {
-          graphic,
-          options: { offset, anchor }
-        } of layer.graphics) {
-          // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-          const bounds = graphic.localBounds;
-          const offsetX = -bounds.width * graphic.scale.x * anchor.x + offset.x + x;
-          const offsetY = -bounds.height * graphic.scale.y * anchor.y + offset.y + y;
-          graphic?.draw(ctx, offsetX + layer.offset.x, offsetY + layer.offset.y);
-        }
-      }
-    }
-  }
-
-  /* istanbul ignore next */
-  public debugDraw(ctx: ExcaliburGraphicsContext, x: number, y: number) {
-    if (this.visible) {
-      // this should be moved to the graphics system
-      for (const layer of this.layers.get()) {
-        for (const {
-          graphic,
-          options: { offset, anchor }
-        } of layer.graphics) {
-          // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-          const bounds = graphic.localBounds;
-          const offsetX = -bounds.width * graphic.scale.x * anchor.x + offset.x + x;
-          const offsetY = -bounds.height * graphic.scale.y * anchor.y + offset.y + y;
-          graphic?.localBounds.translate(vec(offsetX + layer.offset.x, offsetY + layer.offset.y)).draw(ctx, Color.Red);
-        }
-      }
-      this.localBounds.draw(ctx, Color.Red);
-    }
-  }
 }
