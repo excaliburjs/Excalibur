@@ -47,7 +47,7 @@ describe('A Graphics ECS Component', () => {
     expect(sut.graphics).toEqual({
       'some-gfx': rect
     });
-    expect(sut.getGraphicNames()).toEqual(['some-gfx']);
+    expect(sut.getNames()).toEqual(['some-gfx']);
     expect(sut.getGraphic('some-gfx')).toEqual(rect);
   });
 

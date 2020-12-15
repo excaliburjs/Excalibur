@@ -5,7 +5,6 @@ import { GraphicsGroup } from './GraphicsGroup';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Logger } from '../Util/Log';
 import { BoundingBox } from '../Collision/Index';
-import { Color } from '../Drawing/Color';
 import { Component } from '../EntityComponentSystem/Component';
 
 export interface GraphicsShowOptions {
@@ -114,7 +113,7 @@ export class GraphicsLayer {
       if (!gfx) {
         Logger.getInstance().error(
           `No such graphic added to component named ${nameOrGraphic}. These named graphics are available: `,
-          this._graphics.getGraphicNames()
+          this._graphics.getNames()
         );
       }
     }
@@ -231,12 +230,15 @@ export class GraphicsComponent extends Component<'graphics'> {
     return this._graphics[name];
   }
 
-  public getGraphicNames(): string[] {
+  /**
+   * Get registered graphics names
+   */
+  public getNames(): string[] {
     return Object.keys(this._graphics);
   }
 
-  public onPreDraw: (ctx: ExcaliburGraphicsContext, elapsed: number) => void;
-  public onPostDraw: (ctx: ExcaliburGraphicsContext, elapsed: number) => void;
+  public onPreDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+  public onPostDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
 
   /**
    * Sets or gets wether any drawing should be visible in this component

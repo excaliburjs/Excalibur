@@ -172,8 +172,8 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   /* istanbul ignore next */
   private _graphicsBoundsDebugDraw(
     entity: Entity<GraphicsComponent | TransformComponent>,
-    transform: TransformComponent,
-    graphics: GraphicsComponent
+    _transform: TransformComponent,
+    _graphics: GraphicsComponent
   ) {
     if (this._engine?.isDebug) {
       if (isActor(entity)) {
