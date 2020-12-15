@@ -1,13 +1,13 @@
 import { Resource } from '../Resources/Resource';
 import { Texture } from '../Resources/Texture';
-import { TextureManager } from './Context/texture-manager';
+import { TextureLoader } from './Context/texture-loader';
 import { Sprite } from './Sprite';
 
 export class ImageSource extends Resource<string> {
   /**
    * Unique id of raw image
    */
-  public readonly id = TextureManager.generateTextureSourceId();
+  public readonly id = TextureLoader.nextSourceId();
 
   /**
    * The original size of the source image in pixels

@@ -3,18 +3,18 @@ import imageVertexSource from './shaders/image-vertex.glsl';
 import imageFragmentSource from './shaders/image-fragment.glsl';
 import { BatchCommand } from './batch';
 import { DrawImageCommand } from './draw-image-command';
-import { TextureManager } from './texture-manager';
 import { Graphic } from '../Graphic';
 import { ensurePowerOfTwo } from './webgl-util';
 import { BatchRenderer } from './renderer';
 import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
+import { TextureLoader } from './texture-loader';
 
 export class BatchImage extends BatchCommand<DrawImageCommand> {
   public textures: WebGLTexture[] = [];
   public commands: DrawImageCommand[] = [];
   private _graphicMap: { [id: string]: Graphic } = {};
 
-  constructor(public textureManager: TextureManager, public maxDraws: number, public maxTextures: number) {
+  constructor(public maxDraws: number, public maxTextures: number) {
     super(maxDraws);
   }
 
@@ -62,7 +62,7 @@ export class BatchImage extends BatchCommand<DrawImageCommand> {
   }
 
   add(command: DrawImageCommand) {
-    const textureInfo = this.textureManager.loadWebGLTexture(command.image);
+    const textureInfo = TextureLoader.load(command.image);
     if (this.textures.indexOf(textureInfo.texture) === -1) {
       this.textures.push(textureInfo.texture);
     }
@@ -105,8 +105,9 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       // 6 verts per quad
       verticesPerCommand: 6,
       maxCommandsPerBatch: 2000,
-      batchFactory: () => new BatchImage(new TextureManager(gl), 2000, gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS))
+      batchFactory: () => new BatchImage(2000, gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS))
     });
+    TextureLoader.registerContext(gl);
     this.init();
   }
 

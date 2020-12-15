@@ -1,7 +1,7 @@
 import { Vector, vec } from '../Algebra';
 import { ExcaliburGraphicsContext, HTMLImageSource } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/BoundingBox';
-import { TextureInfo } from './Context/texture-manager';
+import { TextureInfo } from './Context/texture-loader';
 
 export interface GraphicOptions {
   /**

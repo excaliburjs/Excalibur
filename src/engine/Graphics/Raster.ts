@@ -5,6 +5,7 @@ import { ensurePowerOfTwo } from './Context/webgl-util';
 import { Vector } from '../Algebra';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { watch } from '../Util/Watch';
+import { TextureLoader } from './Context/texture-loader';
 
 export interface RasterOptions {
   smoothing?: boolean;
@@ -23,7 +24,6 @@ export interface RasterOptions {
  */
 export abstract class Raster extends Graphic {
   public _bitmap: HTMLCanvasElement;
-  public _flagTextureDirty: boolean;
   protected _ctx: CanvasRenderingContext2D;
   private _dirty: boolean = true;
 
@@ -194,9 +194,8 @@ export abstract class Raster extends Graphic {
     this._applyRasterProperites(this._ctx);
     this.execute(this._ctx);
     this._ctx.restore();
-    // TODO this feels kinda bad, should at least be a method or Rasters should be able to manage this
-    // Perhaps a way to upload texture texture
-    this._flagTextureDirty = true;
+    // The webgl texture needs to be updated if it exists after a raster cycle
+    TextureLoader.load(this, true);
   }
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
