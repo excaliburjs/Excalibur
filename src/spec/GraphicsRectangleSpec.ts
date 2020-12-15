@@ -1,11 +1,12 @@
 import * as ex from '@excalibur';
-import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A Rectangle Graphic', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.Graphics.ExcaliburGraphicsContext;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
 
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
@@ -34,8 +35,7 @@ describe('A Rectangle Graphic', () => {
 
     rect.draw(ctx, 25, 25);
 
-    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsRectSpec/rect.png');
-    expect(actual).toEqualImage(image);
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsRectSpec/rect.png');
   });
 
   it('can be cloned', async () => {
@@ -58,7 +58,6 @@ describe('A Rectangle Graphic', () => {
 
     rect2.draw(ctx, 15, 25);
 
-    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsRectSpec/clone-rect.png');
-    expect(actual).toEqualImage(image);
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsRectSpec/clone-rect.png');
   });
 });

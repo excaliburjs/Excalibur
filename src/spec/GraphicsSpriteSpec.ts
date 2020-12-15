@@ -1,11 +1,12 @@
 import * as ex from '@excalibur';
-import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A Sprite Graphic', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.Graphics.ExcaliburGraphicsContext;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
 
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
@@ -87,8 +88,7 @@ describe('A Sprite Graphic', () => {
     ctx.clear();
     sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
 
-    const [actual, expectedImage] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsSpriteSpec/source-view.png');
-    expect(actual).toEqualImage(expectedImage);
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/source-view.png');
   });
 
   it('can specify a source view of an image and a dest view dimension is destination', async () => {
@@ -124,8 +124,7 @@ describe('A Sprite Graphic', () => {
     ctx.clear();
     sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
 
-    const [actual, expectedImage] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsSpriteSpec/dest-size.png');
-    expect(actual).toEqualImage(expectedImage);
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/dest-size.png');
   });
 
   it('can specify only a dest view dimension, infers native size for source view', async () => {
@@ -158,7 +157,6 @@ describe('A Sprite Graphic', () => {
     ctx.clear();
     sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
 
-    const [actual, expectedImage] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsSpriteSpec/dest-view.png');
-    expect(actual).toEqualImage(expectedImage);
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/dest-view.png');
   });
 });

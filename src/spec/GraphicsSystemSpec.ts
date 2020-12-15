@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 import { TransformComponent } from '@excalibur';
-import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { GraphicsComponent } from '../engine/Graphics';
 import { TestUtils } from './util/TestUtils';
 
@@ -9,6 +9,8 @@ describe('A Graphics ECS System', () => {
   let engine: ex.Engine;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
+
     engine = TestUtils.engine({ width: 100, height: 100 });
     entities = [
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.Graphics.GraphicsComponent()),
@@ -76,7 +78,6 @@ describe('A Graphics ECS System', () => {
     sut.update(entities, 1);
 
     expect(offscreen.components.graphics.draw).not.toHaveBeenCalled();
-    const [actual, image] = await ensureImagesLoaded(engine.canvas, 'src/spec/images/GraphicsSystemSpec/graphics-system.png');
-    expect(actual).toEqualImage(image);
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-system.png');
   });
 });

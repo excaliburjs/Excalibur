@@ -1,9 +1,10 @@
 import * as ex from '@excalibur';
-import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A Circle Graphic', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
 
   it('exists', () => {
@@ -29,13 +30,12 @@ describe('A Circle Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.draw(ctx, 50, 50);
 
-    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsCircleSpec/circle.png');
-    expect(actual).toEqualImage(image);
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsCircleSpec/circle.png');
   });
 
   it('can be cloned', () => {

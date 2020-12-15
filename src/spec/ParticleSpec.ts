@@ -1,4 +1,4 @@
-import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import { ExcaliburMatchers, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
@@ -28,6 +28,7 @@ describe('A particle', () => {
   let texture: ex.Texture;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     engine = TestUtils.engine(
       {
         width: 800,
@@ -105,7 +106,7 @@ describe('A particle', () => {
     expect(emitter.random.seed).toBe(1337);
   });
 
-  it('should emit particles', (done) => {
+  it('should emit particles', async () => {
     const emitter = new ex.ParticleEmitter({
       pos: new ex.Vector(400, 100),
       width: 20,
@@ -142,9 +143,6 @@ describe('A particle', () => {
     engine.currentScene.update(engine, 100);
     engine.currentScene.draw(engine.ctx, 100);
 
-    ensureImagesLoaded(flushWebGLCanvasTo2D(engine.canvas), 'src/spec/images/ParticleSpec/Particles.png').then(([canvas, image]) => {
-      expect(canvas).toEqualImage(image);
-      done();
-    });
+    await expectAsync(flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/ParticleSpec/Particles.png');
   });
 });

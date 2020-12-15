@@ -1,9 +1,10 @@
 import * as ex from '@excalibur';
-import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A Canvas Graphic', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
 
   it('exists', () => {
@@ -47,12 +48,11 @@ describe('A Canvas Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     sut.draw(ctx, 0, 0);
 
-    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsCanvasSpec/draw.png');
-    expect(actual).toEqualImage(image);
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsCanvasSpec/draw.png');
   });
 
   it('can cache draws', () => {
@@ -71,7 +71,7 @@ describe('A Canvas Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     sut.draw(ctx, 0, 0);
     sut.draw(ctx, 0, 0);
@@ -97,7 +97,7 @@ describe('A Canvas Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({canvasElement});
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     sut.draw(ctx, 0, 0);
     sut.draw(ctx, 0, 0);

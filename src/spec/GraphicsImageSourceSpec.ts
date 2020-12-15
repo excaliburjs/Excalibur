@@ -1,8 +1,6 @@
 import * as ex from '@excalibur';
-import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A ImageSource', () => {
-
   it('exists', () => {
     expect(ex.Graphics.ImageSource).toBeDefined();
   });
@@ -78,11 +76,13 @@ describe('A ImageSource', () => {
 
   it('will load base64 strings', async () => {
     const base64Image = new ex.Graphics.ImageSource(
-      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==');
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg=='
+    );
     await base64Image.load();
 
     expect(base64Image.isLoaded()).toBe(true);
     expect(base64Image.image.src).toBe(
-      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==');
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg=='
+    );
   });
 });

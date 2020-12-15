@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 import { Color } from '@excalibur';
-import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { RasterOptions } from '../engine/Graphics';
 
 class TestRaster extends ex.Graphics.Raster {
@@ -26,6 +26,7 @@ describe('A Raster', () => {
   let ctx: ex.Graphics.ExcaliburGraphicsContext;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
 
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
@@ -92,8 +93,7 @@ describe('A Raster', () => {
     sut.draw(ctx, 0, 0);
     expect(sut.execute).toHaveBeenCalledTimes(1);
 
-    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsRasterSpec/raster.png');
-    expect(actual).toEqualImage(image);
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsRasterSpec/raster.png');
   });
 
   it('knows when it must be re-rastered', () => {

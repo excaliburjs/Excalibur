@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 /**
  *
@@ -14,10 +14,10 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
 }
 
 describe('The ExcaliburGraphicsContext', () => {
-
   describe('2D', () => {
     beforeEach(() => {
       jasmine.addMatchers(ExcaliburMatchers);
+      jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     });
 
     it('exists', () => {
@@ -64,8 +64,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.clear();
       sut.drawImage(rect, 20, 20);
 
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawgraphic.png');
-      expect(actual).toEqualImage(image);
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-drawgraphic.png');
     });
 
     it('can draw debug point', async () => {
@@ -84,8 +83,7 @@ describe('The ExcaliburGraphicsContext', () => {
         color: ex.Color.Blue
       });
 
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawpoint.png');
-      expect(actual).toEqualImage(image);
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-drawpoint.png');
     });
 
     it('can draw debug line', async () => {
@@ -103,8 +101,7 @@ describe('The ExcaliburGraphicsContext', () => {
         color: ex.Color.Blue
       });
 
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawline.png');
-      expect(actual).toEqualImage(image);
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-drawline.png');
     });
 
     it('can transform the context', async () => {
@@ -125,15 +122,14 @@ describe('The ExcaliburGraphicsContext', () => {
 
       sut.clear();
       sut.save();
-      sut.opacity = .5;
+      sut.opacity = 0.5;
       sut.translate(50, 50);
       sut.rotate(Math.PI / 4);
-      sut.scale(.5, .5);
+      sut.scale(0.5, 0.5);
       sut.drawImage(rect, -25, -25);
       sut.restore();
 
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-transform.png');
-      expect(actual).toEqualImage(image);
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-transform.png');
     });
 
     it('can snap drawings to pixel', async () => {
@@ -156,14 +152,14 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.clear();
       sut.drawImage(rect, 1.9, 1.9);
 
-      const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png');
-      expect(actual).toEqualImage(image);
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png');
     });
   });
 
   describe('WebGL', () => {
     beforeEach(() => {
       jasmine.addMatchers(ExcaliburMatchers);
+      jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     });
 
     it('exists', () => {
@@ -211,9 +207,9 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.drawImage(rect, 20, 20);
       sut.flush();
 
-      const [actual, image] = await ensureImagesLoaded(flushWebGLCanvasTo2D(canvasElement),
-        'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawgraphic.png');
-      expect(actual).toEqualImage(image);
+      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/2d-drawgraphic.png'
+      );
     });
 
     it('can draw debug point', async () => {
@@ -233,9 +229,9 @@ describe('The ExcaliburGraphicsContext', () => {
       });
       sut.flush();
 
-      const [actual, image] = await ensureImagesLoaded(flushWebGLCanvasTo2D(canvasElement),
-        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawpoint.png');
-      expect(actual).toEqualImage(image);
+      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawpoint.png'
+      );
     });
 
     it('can draw debug line', async () => {
@@ -254,9 +250,9 @@ describe('The ExcaliburGraphicsContext', () => {
       });
       sut.flush();
 
-      const [actual, image] = await ensureImagesLoaded(flushWebGLCanvasTo2D(canvasElement),
-        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawline.png');
-      expect(actual).toEqualImage(image);
+      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawline.png'
+      );
     });
 
     it('can draw debug rectangle', async () => {
@@ -275,9 +271,7 @@ describe('The ExcaliburGraphicsContext', () => {
       });
       sut.flush();
 
-      const [actual, image] = await ensureImagesLoaded(flushWebGLCanvasTo2D(canvasElement),
-        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-rect.png');
-      expect(actual).toEqualImage(image);
+      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-rect.png');
     });
 
     it('can transform the context', async () => {
@@ -298,17 +292,17 @@ describe('The ExcaliburGraphicsContext', () => {
 
       sut.clear();
       sut.save();
-      sut.opacity = .5;
+      sut.opacity = 0.5;
       sut.translate(50, 50);
       sut.rotate(Math.PI / 4);
-      sut.scale(.5, .5);
+      sut.scale(0.5, 0.5);
       sut.drawImage(rect, -25, -25);
       sut.restore();
       sut.flush();
 
-      const [actual, image] = await ensureImagesLoaded(flushWebGLCanvasTo2D(canvasElement),
-        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-transform.png');
-      expect(actual).toEqualImage(image);
+      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-transform.png'
+      );
     });
 
     it('can snap drawings to pixel', async () => {
@@ -332,9 +326,9 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.drawImage(rect, 1.9, 1.9);
       sut.flush();
 
-      const [actual, image] = await ensureImagesLoaded(flushWebGLCanvasTo2D(canvasElement),
-        'src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png');
-      expect(actual).toEqualImage(image);
+      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png'
+      );
     });
   });
 });

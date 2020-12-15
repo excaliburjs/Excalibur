@@ -1,9 +1,10 @@
 import * as ex from '@excalibur';
-import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A Graphics Group', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
 
   it('exists', () => {
@@ -43,9 +44,7 @@ describe('A Graphics Group', () => {
     ctx.clear();
     group.draw(ctx, 25, 25);
 
-    const [actual, image] = await ensureImagesLoaded(canvasElement, 'src/spec/images/GraphicsGroupSpec/graphics-group.png');
-
-    expect(actual).toEqualImage(image);
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsGroupSpec/graphics-group.png');
   });
 
   it('can be cloned', () => {

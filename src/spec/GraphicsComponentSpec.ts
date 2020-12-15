@@ -1,9 +1,10 @@
 import * as ex from '@excalibur';
-import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A Graphics ECS Component', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
 
   it('exists', () => {
@@ -111,7 +112,7 @@ describe('A Graphics ECS Component', () => {
         graphic: rect,
         options: {
           offset: ex.vec(0, 0),
-          anchor: ex.vec(.5, .5)
+          anchor: ex.vec(0.5, 0.5)
         }
       }
     ]);
@@ -205,7 +206,7 @@ describe('A Graphics ECS Component', () => {
       width: 10,
       height: 20
     });
-    const sut = new ex.Graphics.GraphicsComponent;
+    const sut = new ex.Graphics.GraphicsComponent();
 
     sut.add('some-graphic', rect);
     expect(sut.graphics['some-graphic']).toBe(rect);
@@ -241,7 +242,7 @@ describe('A Graphics ECS Component', () => {
     });
     spyOn(animation, 'tick');
 
-    const sut = new ex.Graphics.GraphicsComponent;
+    const sut = new ex.Graphics.GraphicsComponent();
     sut.add(animation);
 
     sut.update(123, 4);

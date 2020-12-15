@@ -1,5 +1,4 @@
 import * as ex from '@excalibur';
-import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A SpriteSheet for Graphics', () => {
   it('exists', () => {
