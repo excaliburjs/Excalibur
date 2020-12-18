@@ -293,7 +293,6 @@ export class GraphicsComponent extends Component<'graphics'> {
   /**
    * Returns the currently displayed graphics and their offsets, empty array if hidden
    */
-  // TODO does this make sense anymore?
   public get current(): { graphic: Graphic; options: GraphicsShowOptions }[] {
     return this.layers.default.graphics;
   }
