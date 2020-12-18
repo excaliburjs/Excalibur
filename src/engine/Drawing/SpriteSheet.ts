@@ -207,7 +207,7 @@ export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
  * Sprite sheets are a useful mechanism for slicing up image resources into
  * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
  * in row major order in the [[SpriteSheet]].
- * @deprecated Use [[Graphics.SpriteSheet]]
+ * @deprecated Use [["Graphics/SpriteSheet".SpriteSheet]]
  */
 @obsolete({
   message: 'SpriteSheet will be removed in v0.26.0',
@@ -440,7 +440,7 @@ export interface SpriteFontOptions {
 }
 
 /**
- * @deprecated Use [[Graphics.SpriteFont]]
+ * @deprecated Use [["Graphics/SpriteFont".SpriteFont]]
  */
 export interface SpriteFontArgs extends SpriteSheetArgs {
   image: Texture;
@@ -456,7 +456,7 @@ export interface SpriteFontArgs extends SpriteSheetArgs {
  * Sprite fonts are a used in conjunction with a [[Label]] to specify
  * a particular bitmap as a font. Note that some font features are not
  * supported by Sprite fonts.
- * @deprecated Use [[Graphics.SpriteFont]]
+ * @deprecated Use [["Graphics/SpriteFont".SpriteFont]]
  */
 @obsolete({
   message: 'SpriteFont will be removed in v0.26.0',

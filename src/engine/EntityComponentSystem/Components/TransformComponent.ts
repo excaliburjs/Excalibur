@@ -22,12 +22,12 @@ export class TransformComponent extends Component<'transform'> {
   public readonly type = 'transform';
 
   /**
-   * The [[coordinate plane|CoordPlane]] for this transform for the entity.
+   * The [[CoordPlane|coordinate plane|]] for this transform for the entity.
    */
   public coordPlane = CoordPlane.World;
 
   /**
-   * The current position of the entity in world space or in screen space depending on the the [[coordinate plan|CoordPlane]]
+   * The current position of the entity in world space or in screen space depending on the the [[CoordPlane|coordinate plane]]
    */
   public pos: Vector = Vector.Zero;
 

@@ -217,7 +217,7 @@ export class Sound extends Resource<ArrayBuffer> implements Audio {
 
   /**
    * Get Id of provided AudioInstance in current trackList
-   * @param track [[AudioInstance]] which Id is to be given
+   * @param track [[Audio]] which Id is to be given
    */
   public getTrackId(track: Audio): number {
     return this._tracks.indexOf(track);

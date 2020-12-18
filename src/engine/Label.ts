@@ -177,7 +177,7 @@ export class LabelImpl extends Actor {
   private _spriteFont: SpriteFont;
   /**
    * The [[SpriteFont]] to use, if any. Overrides [[fontFamily]] if present.
-   * @deprecated Use [[Graphics.SpriteFont]]
+   * @deprecated Use [["Graphics/SpriteFont".SpriteFont]]
    */
   @obsolete()
   public get spriteFont(): LegacySpriteFont {
@@ -201,7 +201,7 @@ export class LabelImpl extends Actor {
 
   /**
    * Whether or not the [[SpriteFont]] will be case-sensitive when matching characters.
-   * @deprecated Use [[Graphics.SpriteFont.caseInsensitive]]
+   * @deprecated Use [["Graphics/SpriteFont".SpriteFont.caseInsensitive]]
    */
   public caseInsensitive: boolean = true;
 
@@ -289,7 +289,7 @@ export class LabelImpl extends Actor {
 
   /**
    * Clears the current text shadow
-   * @deprecated Use [[Label.font.shadow]]
+   * @deprecated Use [[Font.shadow|Label.font.shadow]]
    */
   @obsolete({
     message: 'Label.clearTextShadow will be removed in v0.26.0',

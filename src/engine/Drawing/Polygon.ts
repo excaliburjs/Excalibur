@@ -8,7 +8,7 @@ import { obsolete } from '../Util/Decorators';
 /**
  * Creates a closed polygon drawing given a list of [[Vector]]s.
  *
- * @deprecated Use [[Graphics.Polygon]]
+ * @deprecated Use [["Graphics/Polygon".Polygon]]
  * @warning Use sparingly as Polygons are performance intensive
  */
 @obsolete({

@@ -185,7 +185,7 @@ export abstract class Raster extends Graphic {
 
   /**
    * Rasterize the graphic to a bitmap making it usuable as in excalibur. Rasterize is called automatically if
-   * the graphic is [[Graphic.dirty]] on the next [[Graphic.draw]] call
+   * the graphic is [[Raster.dirty]] on the next [[Graphic.draw]] call
    */
   public rasterize(): void {
     this._dirty = false;

@@ -40,7 +40,7 @@ export interface GraphicOptions {
 
 /**
  * A Graphic is the base Excalibur primitive for something that can be drawn to the [[ExcaliburGraphicsContext]].
- * [[Sprite]], [[Animation]], [[GraphicsGroup]], [[Canvas]], [[Rect]], [[Circle]], and [[Polygon]] all derive from the
+ * [[Sprite]], [[Animation]], [[GraphicsGroup]], [[Canvas]], [[Rectangle]], [[Circle]], and [[Polygon]] all derive from the
  * [[Graphic]] abstract class.
  *
  * Implementors of a Graphic must override the abstract [[Graphic._drawImage]] method to render an image to the graphics context. Graphic
