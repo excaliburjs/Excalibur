@@ -312,7 +312,7 @@ export class ActorImpl
   public isOffScreen: boolean = false;
   /**
    * The visibility of an actor
-   * @deprecated Use [[Actor.graphics.visible]]
+   * @deprecated Use [[GraphicsComponent.visible|Actor.graphics.visible]]
    */
   @obsolete({message: 'Actor.visible will be removed in v0.26.0', alternateMethod: 'Use Actor.graphics.visible'})
   public get visible(): boolean {
@@ -914,14 +914,14 @@ export class ActorImpl
    * Sets the current drawing of the actor to the drawing corresponding to
    * the key.
    * @param key The key of the drawing
-   * @deprecated Use [[Actor.graphics.show]] or [[Actor.graphics.swap]]
+   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.swap|Actor.graphics.swap]]
    */
   public setDrawing(key: string): void;
   /**
    * Sets the current drawing of the actor to the drawing corresponding to
    * an `enum` key (e.g. `Animations.Left`)
    * @param key The `enum` key of the drawing
-   * @deprecated Use [[Actor.graphics.show]] or [[Actor.graphics.swap]]
+   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.swap|Actor.graphics.swap]]
    */
   public setDrawing(key: number): void;
   @obsolete({
@@ -945,19 +945,19 @@ export class ActorImpl
 
   /**
    * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
-   * @deprecated Use [[Actor.graphics.add]]
+   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]]
    */
   public addDrawing(texture: Texture): void;
   /**
    * Adds a whole sprite as the "default" drawing. Set a drawing using [[setDrawing]].
-   * @deprecated Use [[Actor.graphics.add]]
+   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]]
    */
   public addDrawing(sprite: Sprite): void;
   /**
    * Adds a drawing to the list of available drawings for an actor. Set a drawing using [[setDrawing]].
    * @param key     The key to associate with a drawing for this actor
    * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
-   * @deprecated Use [[Actor.graphics.add]]
+   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]]
    */
   public addDrawing(key: any, drawing: Drawable): void;
   @obsolete({
