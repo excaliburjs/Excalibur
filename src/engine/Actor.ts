@@ -314,6 +314,7 @@ export class ActorImpl
    * The visibility of an actor
    * @deprecated Use [[Actor.graphics.visible]]
    */
+  @obsolete({message: 'Actor.visible will be removed in v0.26.0', alternateMethod: 'Use Actor.graphics.visible'})
   public get visible(): boolean {
     return this.graphics.visible;
   }
@@ -923,7 +924,10 @@ export class ActorImpl
    * @deprecated Use [[Actor.graphics.show]] or [[Actor.graphics.swap]]
    */
   public setDrawing(key: number): void;
-  @obsolete()
+  @obsolete({
+    message: 'Actor.setDrawing will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.graphics.show() or Actor.graphics.swap()'
+  })
   public setDrawing(key: any): void {
     key = key.toString();
     if (this.currentDrawing !== this.frames[<string>key]) {
@@ -956,7 +960,10 @@ export class ActorImpl
    * @deprecated Use [[Actor.graphics.add]]
    */
   public addDrawing(key: any, drawing: Drawable): void;
-  @obsolete()
+  @obsolete({
+    message: 'Actor.addDrawing will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.graphics.add()'
+  })
   public addDrawing(): void {
     if (arguments.length === 2) {
       this.frames[<string>arguments[0]] = arguments[1];
@@ -984,8 +991,12 @@ export class ActorImpl
   /**
    * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
-   * @deprecated Use actor.z
+   * @deprecated Use [[Actor.z]]
    */
+  @obsolete({
+    message: 'Actor.getZIndex will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.transform.z or Actor.z'
+  })
   public getZIndex(): number {
     return this.components.transform.z;
   }
@@ -995,8 +1006,12 @@ export class ActorImpl
    * The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
    * @param newIndex new z-index to assign
-   * @deprecated Use actor.z
+   * @deprecated Use [[Actor.z]]
    */
+  @obsolete({
+    message: 'Actor.setZIndex will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.transform.z or Actor.z'
+  })
   public setZIndex(newIndex: number) {
     this.components.transform.z = newIndex;
   }

@@ -98,7 +98,7 @@ export function extend() {
 
 /**
  * Encode a string in base64
- * @deprecated This method is marked for removal
+ * @deprecated This will be removed in v0.26.0
  */
 export function base64Encode(inputStr: string) {
   const b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
@@ -225,7 +225,7 @@ export function getPosition(el: HTMLElement): Vector {
 
 /**
  * Add an item to an array list if it doesn't already exist. Returns true if added, false if not and already exists in the array.
- * @deprecated
+ * @deprecated Will be removed in v0.26.0
  */
 export function addItemToArray<T>(item: T, array: T[]): boolean {
   if (array.indexOf(item) === -1) {
@@ -237,6 +237,7 @@ export function addItemToArray<T>(item: T, array: T[]): boolean {
 
 /**
  * Remove an item from an list
+ * @deprecated Will be removed in v0.26.0
  */
 export function removeItemFromArray<T>(item: T, array: T[]): boolean {
   let index = -1;
@@ -263,7 +264,7 @@ export function contains(array: Array<any>, obj: any): boolean {
 /**
  * Get the opposit side
  * TODO: Move to Side type
- * @deprecated
+ * @deprecated Will be removed in v0.26.0
  */
 export function getOppositeSide(side: Side) {
   if (side === Side.Top) {
@@ -304,7 +305,7 @@ export function getSideFromDirection(direction: Vector) {
 
 /**
  * Excalibur's dynamically resizing collection
- * @deprecated Will be removed in future releases
+ * @deprecated Will be removed v0.26.0
  */
 export class Collection<T> {
   /**

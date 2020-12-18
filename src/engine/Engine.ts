@@ -658,7 +658,7 @@ O|===|* >________________>\n\
    * @param y          y game coordinate to play the animation
    * @deprecated
    */
-  @obsolete({ message: 'Will be removed in excalibur v0.26.0' })
+  @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Actor.graphics' })
   public playAnimation(animation: Animation, x: number, y: number) {
     this._animations.push(new AnimationNode(animation, x, y));
   }

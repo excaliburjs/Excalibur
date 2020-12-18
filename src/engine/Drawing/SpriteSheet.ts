@@ -12,9 +12,8 @@ import { obsolete } from '../Util/Decorators';
 
 /**
  * @hidden
- * @deprecated
+ * @deprecated Will be removed in v0.26.0
  */
-@obsolete()
 export class SpriteSheetImpl {
   public sprites: Sprite[] = [];
   public image: Texture = null;
@@ -192,7 +191,7 @@ export class SpriteSheetImpl {
 }
 
 /**
- * @deprecated
+ * @deprecated Will be removed in v0.26.0
  */
 export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
   image: Texture;
@@ -210,7 +209,10 @@ export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
  * in row major order in the [[SpriteSheet]].
  * @deprecated Use [[Graphics.SpriteSheet]]
  */
-@obsolete()
+@obsolete({
+  message: 'SpriteSheet will be removed in v0.26.0',
+  alternateMethod: 'Use Graphics.SpriteSheet'
+})
 export class SpriteSheet extends Configurable(SpriteSheetImpl) {
   constructor(config: SpriteSheetArgs);
   constructor(sprites: Sprite[]);
@@ -228,9 +230,8 @@ export class SpriteSheet extends Configurable(SpriteSheetImpl) {
 }
 
 /**
- * @deprecated
+ * @deprecated Will be removed in v0.26.0
  */
-@obsolete()
 export class SpriteFontImpl extends SpriteSheet {
   private _currentColor: Color = Color.Black;
   private _currentOpacity: Number = 1.0;
@@ -426,7 +427,7 @@ export class SpriteFontImpl extends SpriteSheet {
 
 /**
  * Specify various font attributes for sprite fonts
- * @deprecated
+ * @deprecated Will be removed in v0.26.0
  */
 export interface SpriteFontOptions {
   color?: Color;
@@ -457,7 +458,10 @@ export interface SpriteFontArgs extends SpriteSheetArgs {
  * supported by Sprite fonts.
  * @deprecated Use [[Graphics.SpriteFont]]
  */
-@obsolete()
+@obsolete({
+  message: 'SpriteFont will be removed in v0.26.0',
+  alternateMethod: 'Use Graphics.SpriteFont'
+})
 export class SpriteFont extends Configurable(SpriteFontImpl) {
   constructor(config: SpriteFontArgs);
   constructor(image: Texture, alphabet: string, caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number);

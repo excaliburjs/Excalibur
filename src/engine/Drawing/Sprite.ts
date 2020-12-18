@@ -11,9 +11,8 @@ import { obsolete } from '../Util/Decorators';
 
 /**
  * @hidden
- * @deprecated
+ * @deprecated Use [[Graphics.Sprite]]
  */
-@obsolete()
 export class SpriteImpl implements Drawable {
   public _texture: Texture;
 
@@ -397,7 +396,7 @@ export class SpriteImpl implements Drawable {
 }
 
 /**
- * @deprecated
+ * @deprecated Use [[Graphics.Sprite]]
  */
 export interface SpriteArgs extends Partial<SpriteImpl> {
   image?: Texture;
@@ -414,9 +413,12 @@ export interface SpriteArgs extends Partial<SpriteImpl> {
 /**
  * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
  * images or parts of images from a [[Texture]] resource to the screen.
- * @deprecated
+ * @deprecated Use [[Graphics.Sprite]]
  */
-@obsolete()
+@obsolete({
+  message: 'Label.clearTextShadow will be removed in v0.26.0',
+  alternateMethod: 'Use Label.font.shadow'
+})
 export class Sprite extends Configurable(SpriteImpl) {
   constructor(config: SpriteArgs);
   constructor(image: Texture, x: number, y: number, width: number, height: number);

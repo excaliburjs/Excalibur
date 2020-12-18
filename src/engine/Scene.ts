@@ -79,7 +79,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   /**
    * The [[ScreenElement]]s in a scene, if any; these are drawn last
-   * @deprecated
+   * @deprecated Use [[Scene.actors]]
    */
   @obsolete({
     message: 'Will be removed in excalibur v0.26.0',
@@ -567,7 +567,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Adds (any) actor to act as a piece of UI, meaning it is always positioned
    * in screen coordinates. UI actors do not participate in collisions.
    * @todo Should this be `ScreenElement` only?
-   * @deprecated
+   * @deprecated Use [[Scene.add]]
    */
   @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add'})
   public addScreenElement(actor: Actor) {
@@ -576,7 +576,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   /**
    * Removes an actor as a piece of UI
-   * @deprecated
+   * @deprecated Use [[Scene.remove]]
    */
   @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove'})
   public removeScreenElement(actor: Actor) {
@@ -585,7 +585,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   /**
    * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
-   * @deprecated
+   * @deprecated Use [[Scene.add]]
    */
   @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add'})
   public addTileMap(tileMap: TileMap) {
@@ -595,7 +595,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   /**
    * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
-   * @deprecated
+   * @deprecated Use [[Scene.remove]]
    */
   @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove'})
   public removeTileMap(tileMap: TileMap) {

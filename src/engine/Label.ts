@@ -54,9 +54,12 @@ export class LabelImpl extends Actor {
 
   /**
    * Sets or gets the bold property of the label's text, by default it's false
-   * @deprecated Use Label.font.bold
+   * @deprecated Use [[Font.bold|Label.font.bold]]
    */
-  @obsolete()
+  @obsolete({
+    message: 'Label.bold will be removed in v0.26.0',
+    alternateMethod: 'Use Label.font.bold'
+  })
   public get bold(): boolean {
     return this.font.bold;
   }
@@ -69,9 +72,12 @@ export class LabelImpl extends Actor {
   /**
    * The CSS font family string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
    * are supported, same as in CSS.
-   * @deprecated Use [[Label.font.family]]
+   * @deprecated Use [[Font.family|Label.font.family]]
    */
-  @obsolete()
+  @obsolete({
+    message: 'Label.fontFamily will be removed in v0.26.0',
+    alternateMethod: 'Use Label.font.family'
+  })
   public get fontFamily(): string {
     return this.font.family;
   }
@@ -82,9 +88,12 @@ export class LabelImpl extends Actor {
 
   /**
    * The font size in the selected units, default is 10 (default units is pixel)
-   * @deprecated Use [[Label.font.size]]
+   * @deprecated Use [[Font.size|Label.font.size]]
    */
-  @obsolete()
+  @obsolete({
+    message: 'Label.fontSize will be removed in v0.26.0',
+    alternateMethod: 'Use Label.font.size'
+  })
   public get fontSize(): number {
     return this.font.size;
   }
@@ -95,9 +104,12 @@ export class LabelImpl extends Actor {
 
   /**
    * The font style for this label, the default is [[FontStyle.Normal]]
-   * @deprecated Use [[Label.font.style]]
+   * @deprecated Use [[Font.style|Label.font.style]]
    */
-  @obsolete()
+  @obsolete({
+    message: 'Label.fontStyle will be removed in v0.26.0',
+    alternateMethod: 'Use Lable.font.style'
+  })
   public get fontStyle(): FontStyle {
     return this.font.style;
   }
@@ -109,9 +121,12 @@ export class LabelImpl extends Actor {
 
   /**
    * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
-   * @deprecated Use [[Label.font.unit]]
+   * @deprecated Use [[Font.unit|Label.font.unit]]
    */
-  @obsolete()
+  @obsolete({
+    message: 'Label.fontUnit will be removed in v0.26.0',
+    alternateMethod: 'Use Label.font.unit'
+  })
   public get fontUnit(): FontUnit {
     return this.font.unit;
   }
@@ -122,9 +137,12 @@ export class LabelImpl extends Actor {
 
   /**
    * Gets or sets the horizontal text alignment property for the label.
-   * @deprecated Use [[Label.font.textAlign]]
+   * @deprecated Use [[Font.textAlign|Label.font.textAlign]]
    */
-  @obsolete()
+  @obsolete({
+    message: 'Label.textAlign will be removed in v0.26.0',
+    alternateMethod: 'Use Label.font.textAlign'
+  })
   public get textAlign(): TextAlign {
     return this.font.textAlign;
   }
@@ -135,9 +153,12 @@ export class LabelImpl extends Actor {
 
   /**
    * Gets or sets the baseline alignment property for the label.
-   * @deprecated Use [[Label.font.baseAlign]]
+   * @deprecated Use [[Font.baseAlign|Label.font.baseAlign]]
    */
-  @obsolete()
+  @obsolete({
+    message: 'Label.baseAlign will be removed in v0.26.0',
+    alternateMethod: 'Use Label.font.baseAlign'
+  })
   public get baseAlign(): BaseAlign {
     return this.font.baseAlign;
   }
@@ -174,7 +195,7 @@ export class LabelImpl extends Actor {
 
   /**
    * Gets or sets the letter spacing on a Label. Only supported with Sprite Fonts.
-   * @deprecated Use [[Graphics.SpriteFont.spacing]]
+   * @deprecated Use [[SpriteFont.spacing]]
    */
   public letterSpacing: number = 0; //px
 
@@ -242,18 +263,24 @@ export class LabelImpl extends Actor {
    * @param offsetX      The x offset in pixels to place the shadow
    * @param offsetY      The y offset in pixels to place the shadow
    * @param shadowColor  The color of the text shadow
-   * @deprecated Use [[Label.font.shadow]]
+   * @deprecated Use [[Font.shadow|Label.font.shadow]]
    */
-  @obsolete()
+  @obsolete({
+    message: 'Label.setTextShadow will be removed in v0.26.0',
+    alternateMethod: 'Use Label.font.shadow'
+  })
   public setTextShadow(offsetX: number, offsetY: number, shadowColor: Color) {
     this.font.shadow = { offset: vec(offsetX, offsetY), blur: 2, color: shadowColor };
   }
 
   /**
    * Toggles text shadows on or off, only applies when using sprite fonts
-   * @deprecated Use [[Label.font.shadow]]
+   * @deprecated Use [[Font.shadow|Label.font.shadow]]
    */
-  @obsolete()
+  @obsolete({
+    message: 'Label.useTextShadow will be removed in v0.26.0',
+    alternateMethod: 'Use Label.font.shadow'
+  })
   public useTextShadow(on: boolean) {
     if (this.spriteFont) {
       this.spriteFont.useTextShadow(on);
@@ -264,7 +291,10 @@ export class LabelImpl extends Actor {
    * Clears the current text shadow
    * @deprecated Use [[Label.font.shadow]]
    */
-  @obsolete()
+  @obsolete({
+    message: 'Label.clearTextShadow will be removed in v0.26.0',
+    alternateMethod: 'Use Label.font.shadow'
+  })
   public clearTextShadow() {
     this.font.shadow = null;
   }

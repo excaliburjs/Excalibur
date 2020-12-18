@@ -10,7 +10,7 @@ import { Configurable } from '../Configurable';
 import { obsolete } from '../Util/Decorators';
 
 /**
- * @deprecated Use [[Graphics.Animation]]
+ * @deprecated Use [[Graphics.Animation.HasTick]]
  */
 export interface HasTick {
   /**
@@ -378,7 +378,10 @@ export interface AnimationArgs extends Partial<AnimationImpl> {
  * creating the illusion of change. Generally these images will come from a [[SpriteSheet]] source.
  * @deprecated Use [[Graphics.Animation]]
  */
-@obsolete()
+@obsolete({
+  message: 'Animation will be removed in v0.26.0',
+  alternateMethod: 'Use Graphics.Animation'
+})
 export class Animation extends Configurable(AnimationImpl) {
   constructor(config: AnimationArgs);
   constructor(engine: Engine, images: Sprite[], speed: number, loop?: boolean);
