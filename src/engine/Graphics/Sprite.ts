@@ -39,7 +39,7 @@ export class Sprite extends Graphic {
     this.sourceView = options.sourceView ?? { x: 0, y: 0, width: 0, height: 0 };
     this.destSize = options.destSize ?? { width: 0, height: 0 };
     this._updateSpriteDimensions();
-    this.image.checkLoaded.then(() => {
+    this.image.ready.then(() => {
       this._updateSpriteDimensions();
     });
   }

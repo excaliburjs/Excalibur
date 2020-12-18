@@ -29,9 +29,9 @@ export class ImageSource extends Resource<string> {
   public image: HTMLImageElement = new Image();
 
   /**
-   * Promise the resolves when the image is loaded, does not initiate loading
+   * Promise the resolves when the image is loaded and ready for use, does not initiate loading
    */
-  public checkLoaded: Promise<HTMLImageElement>;
+  public ready: Promise<HTMLImageElement>;
   private _loadedResolve: (value?: HTMLImageElement | PromiseLike<HTMLImageElement>) => void;
 
   /**
@@ -40,7 +40,7 @@ export class ImageSource extends Resource<string> {
    */
   constructor(public readonly path: string, bustCache: boolean = false) {
     super(path, 'blob', bustCache);
-    this.checkLoaded = new Promise<HTMLImageElement>((resolve) => {
+    this.ready = new Promise<HTMLImageElement>((resolve) => {
       this._loadedResolve = resolve;
     });
   }
