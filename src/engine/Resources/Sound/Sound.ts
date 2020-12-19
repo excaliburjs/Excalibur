@@ -6,13 +6,19 @@ import { WebAudioInstance } from './WebAudioInstance';
 import { AudioContextFactory } from './AudioContext';
 import { NativeSoundEvent, NativeSoundProcessedEvent } from '../../Events/MediaEvents';
 import { canPlayFile } from '../../Util/Sound';
+import { Loadable } from '../../Interfaces/Index';
+import { Logger } from '../../Util/Log';
+import { Class } from '../../Class';
 
 /**
  * The [[Sound]] object allows games built in Excalibur to load audio
  * components, from soundtracks to sound effects. [[Sound]] is an [[Loadable]]
  * which means it can be passed to a [[Loader]] to pre-load before a game or level.
  */
-export class Sound extends Resource<ArrayBuffer> implements Audio {
+export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
+  public logger: Logger = Logger.getInstance();
+  public data: AudioBuffer;
+  private _resource: Resource<ArrayBuffer>;
   /**
    * Indicates whether the clip should loop when complete
    * @param value  Set the looping flag
@@ -56,7 +62,13 @@ export class Sound extends Resource<ArrayBuffer> implements Audio {
     return this._tracks;
   }
 
-  public path: string;
+  public get path() {
+    return this._resource.path;
+  }
+
+  public set path(val: string) {
+    this._resource.path = val;
+  }
 
   private _loop = false;
   private _volume = 1;
@@ -66,20 +78,15 @@ export class Sound extends Resource<ArrayBuffer> implements Audio {
   private _tracks: Audio[] = [];
   private _engine: Engine;
   private _wasPlayingOnHidden: boolean = false;
-  private _processedDataResolve: (value: AudioBuffer) => void;
-  private _processedData = new Promise<AudioBuffer>((resolve) => {
-    this._processedDataResolve = resolve;
-  });
   private _audioContext = AudioContextFactory.create();
 
   /**
    * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
    */
   constructor(...paths: string[]) {
-    super('', '');
-
-    this.responseType = ExResponse.type.arraybuffer;
-    /* Chrome : MP3, WAV, Ogg
+    super();
+    this._resource = new Resource('', ExResponse.type.arraybuffer);
+    /** Chrome : MP3, WAV, Ogg
      * Firefox : WAV, Ogg,
      * IE : MP3, WAV coming soon
      * Safari MP3, WAV, Ogg
@@ -95,6 +102,34 @@ export class Sound extends Resource<ArrayBuffer> implements Audio {
       this.logger.warn('This browser does not support any of the audio files specified:', paths.join(', '));
       this.logger.warn('Attempting to use', paths[0]);
       this.path = paths[0]; // select the first specified
+    }
+  }
+
+  public isLoaded() {
+    return !!this.data;
+  }
+
+  public async load(): Promise<AudioBuffer> {
+    if (this.data) {
+      return this.data;
+    }
+    const arraybuffer = await this._resource.load();
+    const audiobuffer = await this.decodeAudio(arraybuffer.slice(0));
+    this._duration = typeof audiobuffer === 'object' ? audiobuffer.duration : undefined;
+    this.emit('processed', new NativeSoundProcessedEvent(this, audiobuffer));
+    return this.data = audiobuffer;
+  }
+
+  public async decodeAudio(data: ArrayBuffer): Promise<AudioBuffer> {
+    try {
+      return await this._audioContext.decodeAudioData(data.slice(0));
+    } catch (e) {
+      this.logger.error(
+        'Unable to decode ' +
+          ' this browser may not fully support this format, or the file may be corrupt, ' +
+          'if this is an mp3 try removing id3 tags and album art from the file.'
+      );
+      return await Promise.reject();
     }
   }
 
@@ -200,20 +235,7 @@ export class Sound extends Resource<ArrayBuffer> implements Audio {
     this.logger.debug('Stopped all instances of sound', this.path);
   }
 
-  public setData(data: any) {
-    this.emit('emptied', new NativeSoundEvent(this));
 
-    this.data = data;
-  }
-
-  public async processData(data: ArrayBuffer): Promise<AudioBuffer> {
-    /**
-     * Processes raw arraybuffer data and decodes into WebAudio buffer (async).
-     */
-    const audioBuffer = await this._processArrayBufferData(data);
-    this._setProcessedData(audioBuffer);
-    return audioBuffer;
-  }
 
   /**
    * Get Id of provided AudioInstance in current trackList
@@ -246,7 +268,7 @@ export class Sound extends Resource<ArrayBuffer> implements Audio {
    * Starts playback, returns a promise that resolves when playback is complete
    */
   private async _startPlayback(): Promise<boolean> {
-    const track = await this._createNewTrack();
+    const track = await this._getTrackInstance(this.data);
 
     const complete = await track.play(() => {
       this.emit('playbackstart', new NativeSoundEvent(this, track));
@@ -258,42 +280,6 @@ export class Sound extends Resource<ArrayBuffer> implements Audio {
     this._tracks.splice(this.getTrackId(track), 1);
 
     return complete;
-  }
-
-  private async _processArrayBufferData(data: ArrayBuffer): Promise<AudioBuffer> {
-    try {
-      return this._audioContext.decodeAudioData(data.slice(0));
-    } catch (e) {
-      this.logger.error(
-        'Unable to decode ' +
-          ' this browser may not fully support this format, or the file may be corrupt, ' +
-          'if this is an mp3 try removing id3 tags and album art from the file.'
-      );
-      return undefined;
-    }
-  }
-
-  private _setProcessedData(processedData: AudioBuffer): void {
-    this._processedDataResolve(processedData);
-    this._duration = typeof processedData === 'object' ? processedData.duration : undefined;
-    this.emit('processed', new NativeSoundProcessedEvent(this, processedData));
-  }
-
-  private _createNewTrack(): Promise<WebAudioInstance> {
-    this.processData(this.data);
-
-    return new Promise((resolve) => {
-      this._processedData.then(
-        (processedData) => {
-          resolve(this._getTrackInstance(processedData));
-
-          return processedData;
-        },
-        (error) => {
-          this.logger.error(error, 'Cannot create AudioInstance due to wrong processed data.');
-        }
-      );
-    });
   }
 
   private _getTrackInstance(data: AudioBuffer): WebAudioInstance {

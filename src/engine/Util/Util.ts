@@ -462,3 +462,15 @@ export class Collection<T> {
 export function fail(message: never): never {
   throw new Error(message);
 }
+
+/**
+ * Create a promise that resovles after a certain number of milliseconds
+ * @param milliseconds
+ */
+export function delay(milliseconds: number): Promise<void> {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, milliseconds);
+  });
+}

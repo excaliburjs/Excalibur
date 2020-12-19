@@ -1,3 +1,4 @@
+import { Flags } from '../../Flags';
 import { Audio } from '../../Interfaces/Audio';
 import * as Util from '../../Util/Util';
 import { AudioContextFactory } from './AudioContext';

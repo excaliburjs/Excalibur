@@ -9,6 +9,7 @@ module.exports = (config) => {
     frameworks: ['jasmine'],
     files: [  
             'src/spec/_boot.ts', 
+            { pattern: 'src/spec/images/**/*.mp3', included: false, served: true },
             { pattern: 'src/spec/images/**/*.png', included: false, served: true },
             { pattern: 'src/spec/images/**/*.gif', included: false, served: true },
             { pattern: 'src/spec/images/**/*.txt', included: false, served: true }
@@ -41,7 +42,7 @@ module.exports = (config) => {
             use: ['css-loader']
           },
           {
-            test: /\.(png|jpg|gif)$/i,
+            test: /\.(png|jpg|gif|mp3)$/i,
             use: [
               {
                 loader: 'url-loader',
@@ -88,7 +89,7 @@ module.exports = (config) => {
     customLaunchers: {
       ChromeHeadless_with_audio: {
           base: 'ChromeHeadless',
-          flags: ['--autoplay-policy=no-user-gesture-required']
+          flags: ['--autoplay-policy=no-user-gesture-required', '--mute-audio']
       },
       ChromeHeadless_with_debug: {
         base: 'ChromeHeadless',
