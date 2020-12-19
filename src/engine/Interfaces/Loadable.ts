@@ -4,7 +4,7 @@
  */
 export interface Loadable<T> {
   /**
-   * Data assocaited with a loadable
+   * Data associated with a loadable
    */
   data: T;
 
