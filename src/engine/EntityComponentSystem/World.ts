@@ -9,7 +9,7 @@ import { SystemManager } from './SystemManager';
  */
 export class World<ContextType> {
   public queryManager: QueryManager = new QueryManager(this);
-  public entityManager: EntityManager = new EntityManager(this);
+  public entityManager: EntityManager<ContextType> = new EntityManager<ContextType>(this);
   public systemManager: SystemManager<ContextType> = new SystemManager<ContextType>(this);
 
   /**
@@ -22,6 +22,9 @@ export class World<ContextType> {
    * Update systems by type and time elapsed in milliseconds
    */
   update(type: SystemType, delta: number) {
+    if (type === SystemType.Update) {
+      this.entityManager.updateEntities(this.context, delta); // TODO should this also hand pre and post lifecycle
+    }
     this.systemManager.updateSystems(type, this.context, delta);
     this.entityManager.processComponentRemovals();
   }

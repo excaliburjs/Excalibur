@@ -8,7 +8,7 @@ export * from './ClosestLineJumpTable';
 export * from './CollisionGroup';
 export * from './CollisionGroupManager';
 export * from './DynamicTree';
-export * from './DynamicTreeCollisionBroadphase';
+export * from './DynamicTreeCollisionProcessor';
 export * from './Edge';
 export * from './CollisionShape';
 export * from './CollisionResolver';

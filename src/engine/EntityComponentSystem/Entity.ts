@@ -350,4 +350,10 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
   public onPostUpdate(_engine: Engine, _delta: number): void {
     // Override me
   }
+
+  public update(engine: Engine, delta: number): void {
+    this._initialize(engine);
+    this._preupdate(engine, delta);
+    this._postupdate(engine, delta);
+  }
 }

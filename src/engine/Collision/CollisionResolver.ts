@@ -6,7 +6,7 @@ import { CollisionResolutionStrategy } from '../Physics';
 /**
  * Definition for collision broadphase
  */
-export interface CollisionBroadphase {
+export interface CollisionProcessor {
   /**
    * Track a physics body
    */

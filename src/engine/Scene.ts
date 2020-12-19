@@ -1,5 +1,4 @@
 import { ScreenElement } from './ScreenElement';
-import { Physics } from './Physics';
 import {
   InitializeEvent,
   ActivateEvent,
@@ -14,8 +13,8 @@ import {
 } from './Events';
 import { Logger } from './Util/Log';
 import { Timer } from './Timer';
-import { DynamicTreeCollisionBroadphase } from './Collision/DynamicTreeCollisionBroadphase';
-import { CollisionBroadphase } from './Collision/CollisionResolver';
+import { DynamicTreeCollisionProcessor } from './Collision/DynamicTreeCollisionProcessor';
+import { CollisionProcessor } from './Collision/CollisionResolver';
 import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Camera } from './Camera';
@@ -26,11 +25,12 @@ import * as Util from './Util/Util';
 import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
-import { Body } from './Collision/Body';
 import { SystemType } from './EntityComponentSystem/System';
 import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { obsolete } from './Util/Decorators';
 import { World } from './EntityComponentSystem/World';
+import { MotionSystem } from './Collision/MotionSystem';
+import { CollisionSystem } from './Collision/CollisionSystem';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -53,11 +53,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * The ECS world for the scene
    */
   public world = new World(this);
-
-  /**
-   * Physics bodies in the current scene
-   */
-  private _bodies: Body[] = [];
 
   /**
    * The triggers in the current scene
@@ -88,7 +83,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   private _isInitialized: boolean = false;
 
-  private _broadphase: CollisionBroadphase = new DynamicTreeCollisionBroadphase();
+  private _broadphase: CollisionProcessor = new DynamicTreeCollisionProcessor();
 
   private _killQueue: Actor[] = [];
   private _triggerKillQueue: Trigger[] = [];
@@ -240,7 +235,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       }
 
       // Initialize systems
+      this.world.add(new MotionSystem());
+      this.world.add(new CollisionSystem());
       this.world.add(new CanvasDrawingSystem());
+
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
@@ -351,46 +349,20 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       this.tileMaps[i].update(engine, delta);
     }
 
-    // Cycle through actors updating actors
-    for (i = 0, len = this.actors.length; i < len; i++) {
-      this.actors[i].update(engine, delta);
-      this._bodies[i] = this.actors[i].body;
-    }
+    // // Cycle through actors updating actors
+    // for (i = 0, len = this.actors.length; i < len; i++) {
+    //   this.actors[i].update(engine, delta);
+    //   this._bodies[i] = this.actors[i].body;
+    // }
 
-    // Cycle through triggers updating
-    for (i = 0, len = this.triggers.length; i < len; i++) {
-      this.triggers[i].update(engine, delta);
-    }
+    // // Cycle through triggers updating
+    // for (i = 0, len = this.triggers.length; i < len; i++) {
+    //   this.triggers[i].update(engine, delta);
+    // }
 
     this._collectActorStats(engine);
 
     engine.input.pointers.dispatchPointerEvents();
-
-    // Run the broadphase and narrowphase
-    if (this._broadphase && Physics.enabled) {
-      const beforeBroadphase = Date.now();
-      this._broadphase.update(this._bodies, delta);
-      let pairs = this._broadphase.broadphase(this._bodies, delta, engine.stats.currFrame);
-      const afterBroadphase = Date.now();
-
-      const beforeNarrowphase = Date.now();
-      let iter: number = Physics.collisionPasses;
-      const collisionDelta = delta / iter;
-      while (iter > 0) {
-        // Run the narrowphase
-        pairs = this._broadphase.narrowphase(pairs, engine.stats.currFrame);
-        // Run collision resolution strategy
-        pairs = this._broadphase.resolve(pairs, collisionDelta, Physics.collisionResolutionStrategy);
-
-        this._broadphase.runCollisionStartEnd(pairs);
-
-        iter--;
-      }
-
-      const afterNarrowphase = Date.now();
-      engine.stats.currFrame.physics.broadphase = afterBroadphase - beforeBroadphase;
-      engine.stats.currFrame.physics.narrowphase = afterNarrowphase - beforeNarrowphase;
-    }
 
     engine.stats.currFrame.actors.killed = this._killQueue.length + this._triggerKillQueue.length;
 

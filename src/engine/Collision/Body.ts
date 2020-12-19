@@ -7,6 +7,7 @@ import { PreCollisionEvent, PostCollisionEvent, CollisionStartEvent, CollisionEn
 import { Clonable } from '../Interfaces/Clonable';
 import { Shape } from './Shape';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
+import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 
 export interface BodyOptions {
   /**
@@ -80,6 +81,10 @@ export class Body implements Clonable<Body> {
     return this.actor.components.transform;
   }
 
+  public get motion(): MotionComponent {
+    return this.actor.components.motion;
+  }
+
   /**
    * The (x, y) position of the actor this will be in the middle of the actor if the
    * [[Actor.anchor]] is set to (0.5, 0.5) which is default.
@@ -101,7 +106,13 @@ export class Body implements Clonable<Body> {
   /**
    * The current velocity vector (vx, vy) of the actor in pixels/second
    */
-  public vel: Vector = new Vector(0, 0);
+  public get vel(): Vector {
+    return this.motion.vel;
+  }
+
+  public set vel(val: Vector) {
+    this.motion.vel = val;
+  }
 
   /**
    * The velocity of the actor last frame (vx, vy) in pixels/second
@@ -112,7 +123,13 @@ export class Body implements Clonable<Body> {
    * The current acceleration vector (ax, ay) of the actor in pixels/second/second. An acceleration pointing down such as (0, 100) may
    * be useful to simulate a gravitational effect.
    */
-  public acc: Vector = new Vector(0, 0);
+  public get acc(): Vector {
+    return this.motion.acc;
+  }
+
+  public set acc(val: Vector) {
+    this.motion.acc = val;
+  }
 
   /**
    * Gets/sets the acceleration of the actor from the last frame. This does not include the global acc [[Physics.acc]].
@@ -122,12 +139,13 @@ export class Body implements Clonable<Body> {
   /**
    * The current torque applied to the actor
    */
-  public torque: number = 0;
+  public get torque(): number {
+    return this.motion.torque;
+  }
 
-  /**
-   * The current "motion" of the actor, used to calculated sleep in the physics simulation
-   */
-  public motion: number = 10;
+  public set torque(val: number) {
+    this.motion.torque = val;
+  }
 
   /**
    * Gets/sets the rotation of the body from the last frame.

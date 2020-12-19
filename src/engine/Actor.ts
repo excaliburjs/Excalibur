@@ -49,6 +49,8 @@ import { Shape } from './Collision/Shape';
 import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
+import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
+import { ColliderComponent } from './Collision/ColliderComponent';
 
 /**
  * Type guard for checking if something is an Actor
@@ -84,7 +86,7 @@ export interface ActorDefaults {
  */
 
 export class ActorImpl
-  extends Entity<TransformComponent | CanvasDrawComponent>
+  extends Entity<TransformComponent | MotionComponent | ColliderComponent | CanvasDrawComponent>
   implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
@@ -460,6 +462,8 @@ export class ActorImpl
     this._initDefaults();
 
     this.addComponent(new TransformComponent());
+    this.addComponent(new MotionComponent());
+    this.addComponent(new ColliderComponent());
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
 
     let shouldInitializeBody = true;
@@ -1146,7 +1150,7 @@ export class ActorImpl
     this.body.captureOldTransform();
 
     // Run Euler integration
-    this.body.integrate(delta);
+    // this.body.integrate(delta);
 
     // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
     for (const trait of this.traits) {
