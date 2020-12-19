@@ -289,6 +289,10 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
 
   }
 
+  public markResourceComplete(): void {
+    this._numLoaded++;
+  }
+
   /**
    * Returns the progess of the loader as a number between [0, 1] inclusive.
    */
