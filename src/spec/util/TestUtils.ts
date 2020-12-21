@@ -5,7 +5,7 @@ export namespace TestUtils {
    * Builds an engine with testing switches on
    * @param options
    */
-  export function engine(options: ex.EngineOptions = {}, flags: string[] = []): ex.Engine {
+  export function engine(options: ex.EngineOptions = {}, flags: string[] = ['use-legacy-drawing']): ex.Engine {
     options = ex.Util.extend(
       false,
       {
