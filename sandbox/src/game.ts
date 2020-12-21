@@ -37,7 +37,6 @@ var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
 // Create an the game container
-ex.Flags.enable('use-excalibur-graphics-context');
 ex.Flags.enable('use-webgl');
 var game = new ex.Engine({
   width: 800 / 2,

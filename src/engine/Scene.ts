@@ -243,10 +243,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       }
 
       // Initialize systems
-      if (Flags.isEnabled('use-excalibur-graphics-context')) {
-        this.world.add(new GraphicsSystem());
-      } else {
+      if (Flags.isEnabled('use-legacy-drawing')) {
         this.world.add(new CanvasDrawingSystem());
+      } else {
+        this.world.add(new GraphicsSystem());
       }
 
       // This order is important! we want to be sure any custom init that add actors

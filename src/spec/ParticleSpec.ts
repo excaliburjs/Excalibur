@@ -35,7 +35,7 @@ describe('A particle', () => {
         height: 200,
         backgroundColor: ex.Color.Transparent
       },
-      ['use-excalibur-graphics-context', 'use-webgl']
+      ['use-webgl']
     );
 
     texture = new ex.Texture('base/src/spec/images/SpriteFontSpec/SpriteFont.png', true);
