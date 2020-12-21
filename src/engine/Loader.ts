@@ -279,9 +279,9 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
     // short delay in showing the button for aesthetics
     await delay(200);
     await this.showPlayButton();
-    // Unlock audio context in chrome after user gesture
-    // https://github.com/excaliburjs/Excalibur/issues/262
-    // https://github.com/excaliburjs/Excalibur/issues/1031
+    // Unlock browser AudioContext in after user gesture
+    // See: https://github.com/excaliburjs/Excalibur/issues/262
+    // See: https://github.com/excaliburjs/Excalibur/issues/1031
     await WebAudio.unlock();
     this.hidePlayButton();
 
