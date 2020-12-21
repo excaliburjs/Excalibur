@@ -29,7 +29,6 @@ import {
   PostDrawEvent,
   InitializeEvent
 } from './Events';
-import { CanLoad } from './Interfaces/Loader';
 import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
 import { Scene } from './Scene';
@@ -372,7 +371,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   private _timescale: number = 1.0;
 
   // loading
-  private _loader: CanLoad;
+  private _loader: Loader;
   private _isLoading: boolean = false;
 
   private _isInitialized: boolean = false;
@@ -1000,7 +999,7 @@ O|===|* >________________>\n\
     this._predraw(ctx, delta);
 
     if (this._isLoading) {
-      this._loader.draw(ctx, delta);
+      this._loader.draw(ctx);
       // Drawing nothing else while loading
       return;
     }
@@ -1209,7 +1208,7 @@ O|===|* >________________>\n\
    * will appear.
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
-  public load(loader: Loadable): Promise<any> {
+  public load(loader: Loadable<any>): Promise<any> {
     const complete = new Promise<any>((resolve) => {
       this._isLoading = true;
 

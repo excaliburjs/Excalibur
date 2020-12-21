@@ -5,12 +5,15 @@ import { Color } from '../Drawing/Color';
 import { SpriteSheet } from '../Drawing/SpriteSheet';
 import { Animation } from '../Drawing/Animation';
 import { Engine } from '../Engine';
+import { Loadable } from '../Interfaces/Index';
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
  * [[Texture]] is an [[Loadable]] which means it can be passed to a [[Loader]]
  * to pre-load before starting a level or game.
  */
-export class Gif extends Resource<Texture[]> {
+export class Gif implements Loadable<Texture[]> {
+  private _resource: Resource<ArrayBuffer>;
+
   /**
    * The width of the texture in pixels
    */
@@ -21,25 +24,14 @@ export class Gif extends Resource<Texture[]> {
    */
   public height: number;
 
-  /**
-   * A [[Promise]] that resolves when the Texture is loaded.
-   */
-  public loaded: Promise<any> = new Promise<any>((resolve) => {
-    this._loadedResolve = resolve;
-  });
 
-  private _isLoaded: boolean = false;
   private _stream: Stream = null;
   private _gif: ParseGif = null;
   private _textures: Texture[] = [];
   private _animation: Animation = null;
   private _transparentColor: Color = null;
-  private _loadedResolve: (value?: any) => void;
 
-  /**
-   * Populated once loading is complete
-   */
-  public images: HTMLImageElement;
+  public data: Texture[];
 
   /**
    * @param path       Path to the image resource
@@ -47,46 +39,26 @@ export class Gif extends Resource<Texture[]> {
    * @param bustCache  Optionally load texture with cache busting
    */
   constructor(public path: string, public color: Color = Color.Magenta, public bustCache = true) {
-    super(path, 'arraybuffer', bustCache);
+    this._resource = new Resource(path, 'arraybuffer', bustCache);
     this._transparentColor = color;
-  }
-
-  /**
-   * Returns true if the Texture is completely loaded and is ready
-   * to be drawn.
-   */
-  public isLoaded(): boolean {
-    return this._isLoaded;
   }
 
   /**
    * Begins loading the texture and returns a promise to be resolved on completion
    */
-  public load(): Promise<Texture[]> {
-    const complete = new Promise<Texture[]>((resolve, reject) => {
-      return super.load().then(
-        () => {
-          this._stream = new Stream(this.getData());
-          this._gif = new ParseGif(this._stream, this._transparentColor);
-          const promises: Promise<HTMLImageElement>[] = [];
-          for (let imageIndex: number = 0; imageIndex < this._gif.images.length; imageIndex++) {
-            const texture = new Texture(this._gif.images[imageIndex].src, false);
-            this._textures.push(texture);
-            promises.push(texture.load());
-          }
+  public async load(): Promise<Texture[]> {
+    const arraybuffer = await this._resource.load();
+    this._stream = new Stream(arraybuffer);
+    this._gif = new ParseGif(this._stream, this._transparentColor);
+    const textures = this._gif.images.map(i => new Texture(i.src, false));
 
-          return Promise.all(promises).then(() => {
-            this._isLoaded = true;
-            this._loadedResolve(this._textures);
-            resolve(this._textures);
-          });
-        },
-        () => {
-          reject('Error loading texture.');
-        }
-      );
-    });
-    return complete;
+    // Load all textures
+    await Promise.all(textures.map(t => t.load()));
+    return this.data = this._textures = textures;
+  }
+
+  public isLoaded() {
+    return !!this.data;
   }
 
   public asSprite(id: number = 0): Sprite {

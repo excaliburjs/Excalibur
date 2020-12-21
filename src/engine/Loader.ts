@@ -1,16 +1,14 @@
 import { Color } from './Drawing/Color';
 import { WebAudio } from './Util/WebAudio';
-import { Logger } from './Util/Log';
 import { Engine } from './Engine';
 import { Loadable } from './Interfaces/Loadable';
-import { CanLoad } from './Interfaces/Loader';
 import { Class } from './Class';
 import * as DrawUtil from './Util/DrawUtil';
 
 import logoImg from './Loader.logo.png';
 import loaderCss from './Loader.css';
 import { Vector } from './Algebra';
-import { clamp } from './Util/Util';
+import { clamp, delay } from './Util/Util';
 
 /**
  * Pre-loading assets
@@ -77,8 +75,8 @@ import { clamp } from './Util/Util';
  * engine.start(loader).then(() => {});
  * ```
  */
-export class Loader extends Class implements CanLoad {
-  private _resourceList: Loadable[] = [];
+export class Loader extends Class implements Loadable<Loadable<any>[]> {
+  private _resourceList: Loadable<any>[] = [];
   private _index = 0;
 
   private _playButtonShown: boolean = false;
@@ -180,7 +178,7 @@ export class Loader extends Class implements CanLoad {
   /**
    * @param loadables  Optionally provide the list of resources you want to load at constructor time
    */
-  constructor(loadables?: Loadable[]) {
+  constructor(loadables?: Loadable<any>[]) {
     super();
 
     if (loadables) {
@@ -196,7 +194,7 @@ export class Loader extends Class implements CanLoad {
    * Add a resource to the loader to load
    * @param loadable  Resource to add
    */
-  public addResource(loadable: Loadable) {
+  public addResource(loadable: Loadable<any>) {
     const key = this._index++;
     this._resourceList.push(loadable);
     this._progressCounts[key] = 0;
@@ -208,7 +206,7 @@ export class Loader extends Class implements CanLoad {
    * Add a list of resources to the loader to load
    * @param loadables  The list of resources to load
    */
-  public addResources(loadables: Loadable[]) {
+  public addResources(loadables: Loadable<any>[]) {
     let i = 0;
     const len = loadables.length;
 
@@ -262,91 +260,36 @@ export class Loader extends Class implements CanLoad {
     }
   }
 
+  update(_engine: Engine, _delta: number): void {
+    // override me
+  }
+
+  data: Loadable<any>[];
+
   /**
    * Begin loading all of the supplied resources, returning a promise
    * that resolves when loading of all is complete
    */
-  public load(): Promise<any> {
-    const complete = new Promise<any>((resolve) => {
-      const me = this;
-      if (this._resourceList.length === 0) {
-        me.showPlayButton().then(() => {
-          // Unlock audio context in chrome after user gesture
-          // https://github.com/excaliburjs/Excalibur/issues/262
-          // https://github.com/excaliburjs/Excalibur/issues/1031
-          WebAudio.unlock().then(() => {
-            me.hidePlayButton();
-            me.oncomplete.call(me);
-            resolve();
-          });
-        });
-        return;
-      }
+  public async load(): Promise<Loadable<any>[]> {
+    await Promise.all(this._resourceList.map(r => r.load().finally(() => {
+      // capture progress
+      this._numLoaded++;
+    })));
 
-      const progressArray = new Array<any>(this._resourceList.length);
-      const progressChunks = this._resourceList.length;
+    // short delay in showing the button for aesthetics
+    await delay(200);
+    await this.showPlayButton();
+    // Unlock browser AudioContext in after user gesture
+    // See: https://github.com/excaliburjs/Excalibur/issues/262
+    // See: https://github.com/excaliburjs/Excalibur/issues/1031
+    await WebAudio.unlock();
+    this.hidePlayButton();
 
-      for (const index in this._resourceList) {
-        const resource = this._resourceList[index];
-        if (this._engine) {
-          resource.wireEngine(this._engine);
-        }
-        resource.onprogress = (e) => {
-          const total = <number>e.total;
-          const loaded = <number>e.loaded;
-          progressArray[index] = { loaded: (loaded / total) * (100 / progressChunks), total: 100 };
+    return this.data = this._resourceList;
 
-          const progressResult: any = progressArray.reduce(
-            function (accum, next) {
-              return { loaded: accum.loaded + next.loaded, total: 100 };
-            },
-            { loaded: 0, total: 100 }
-          );
-
-          me.onprogress.call(me, progressResult);
-        };
-
-        resource.oncomplete = resource.onerror = () => {
-          me._numLoaded++;
-          if (me._numLoaded === me._resourceCount) {
-            setTimeout(() => {
-              me.showPlayButton().then(() => {
-                // Unlock audio context in chrome after user gesture
-                // https://github.com/excaliburjs/Excalibur/issues/262
-                // https://github.com/excaliburjs/Excalibur/issues/1031
-                WebAudio.unlock().then(() => {
-                  me.hidePlayButton();
-                  me.oncomplete.call(me);
-                  resolve();
-                });
-              });
-            }, 200); // short delay in showing the button for aesthetics
-          }
-        };
-      }
-
-      const loadNext = (list: Loadable[], index: number) => {
-        if (!list[index]) {
-          return;
-        }
-        list[index].load().then(() => {
-          loadNext(list, index + 1);
-        });
-      };
-      loadNext(this._resourceList, 0);
-    });
-    return complete;
   }
 
-  public updateResourceProgress(loadedBytes: number, totalBytes: number) {
-    const chunkSize = 100 / this._resourceCount;
-    const resourceProgress = loadedBytes / totalBytes;
-    // This only works if we load 1 resource at a time
-    const totalProgress = resourceProgress * chunkSize + this.progress * 100;
-    this.onprogress({ loaded: totalProgress, total: 100 });
-  }
-
-  public markResourceComplete() {
+  public markResourceComplete(): void {
     this._numLoaded++;
   }
 
@@ -432,38 +375,4 @@ export class Loader extends Class implements CanLoad {
     );
     this._engine.setAntialiasing(oldAntialias);
   }
-
-  /**
-   * Perform any calculations or logic in the `update` method. The default `Loader` does not
-   * do anything in this method so it is safe to override.
-   */
-  public update(_engine: Engine, _delta: number) {
-    // overridable update
-  }
-
-  public getData: () => any = () => {
-    return;
-  };
-
-  public setData: (data: any) => any = () => {
-    return;
-  };
-
-  public processData: (data: any) => any = () => {
-    return;
-  };
-
-  public onprogress: (e: any) => void = (e: any) => {
-    Logger.getInstance().debug('[ex.Loader] Loading ' + ((100 * e.loaded) / e.total).toFixed(0));
-
-    return;
-  };
-
-  public oncomplete: () => void = () => {
-    return;
-  };
-
-  public onerror: () => void = () => {
-    return;
-  };
 }
