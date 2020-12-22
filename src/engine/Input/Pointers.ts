@@ -15,7 +15,7 @@ import { GameEvent } from '../Events';
 
 import * as Events from '../Events';
 import * as Util from '../Util/Util';
-import { GlobalCoordinates, Vector } from '../Algebra';
+import { GlobalCoordinates, vec, Vector } from '../Algebra';
 import { CapturePointer } from '../Traits/CapturePointer';
 import { Actor } from '../Actor';
 
@@ -459,10 +459,8 @@ export class Pointers extends Class {
       ) {
         e.preventDefault();
       }
-
-      const x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
-      const y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
-      const transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
+      const screen = this._engine.screen.pageToScreenCoordinates(vec(e.pageX, e.pageY));
+      const world = this._engine.screen.screenToWorldCoordinates(screen);
 
       // deltaX, deltaY, and deltaZ are the standard modern properties
       // wheelDeltaX, wheelDeltaY, are legacy properties in webkit browsers and older IE
@@ -482,7 +480,7 @@ export class Pointers extends Class {
         }
       }
 
-      const we = new WheelEvent(transformedPoint.x, transformedPoint.y, e.pageX, e.pageY, x, y, 0, deltaX, deltaY, deltaZ, deltaMode, e);
+      const we = new WheelEvent(world.x, world.y, e.pageX, e.pageY, screen.x, screen.y, 0, deltaX, deltaY, deltaZ, deltaMode, e);
 
       eventArr.push(we);
       this.at(0).eventDispatcher.emit(eventName, we);

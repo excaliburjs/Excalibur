@@ -36,14 +36,25 @@
 var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
+var fullscreenButton = document.getElementById('fullscreen') as HTMLButtonElement;
+
 // Create an the game container
 var game = new ex.Engine({
   width: 800,
   height: 600,
+  displayMode: ex.DisplayMode.FullScreen,
   antialiasing: false,
   canvasElementId: 'game',
   suppressHiDPIScaling: false,
   suppressPlayButton: true
+});
+
+fullscreenButton.addEventListener('click', () => {
+  if (game.screen.isFullScreen) {
+    game.screen.exitFullScreen();
+  } else {
+    game.screen.goFullScreen();
+  }
 });
 game.showDebug(true);
 
@@ -79,6 +90,34 @@ heartSprite.scale.setTo(2, 2);
 heart.addDrawing(heartSprite);
 game.add(heart);
 
+
+var pointer = new ex.Actor({
+  width: 25,
+  height: 25,
+  color: ex.Color.Red
+});
+game.add(pointer);
+var otherPointer = new ex.ScreenElement({
+  width: 15,
+  height: 15,
+  color: ex.Color.Blue
+});
+var pagePointer = document.getElementById('page') as HTMLDivElement;
+otherPointer.anchor.setTo(.5, .5);
+game.add(otherPointer);
+game.input.pointers.primary.on('move', (ev) => {
+   pointer.pos = ev.worldPos;
+   otherPointer.pos = game.screen.worldToScreenCoordinates(ev.worldPos);
+   let pagePos = game.screen.screenToPageCoordinates(otherPointer.pos);
+   pagePointer.style.left = pagePos.x + 'px';
+   pagePointer.style.top = pagePos.y + 'px';
+});
+
+game.input.pointers.primary.on('wheel', (ev) => {
+  pointer.pos.setTo(ev.x, ev.y);
+  game.currentScene.camera.z += (ev.deltaY / 1000);
+  game.currentScene.camera.z = ex.Util.clamp(game.currentScene.camera.z, .05, 100);
+})
 // Turn on debug diagnostics
 game.showDebug(false);
 //var blockSprite = new ex.Sprite(imageBlocks, 0, 0, 65, 49);
