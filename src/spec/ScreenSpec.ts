@@ -118,8 +118,8 @@ describe('A Screen', () => {
 
     canvas.dispatchEvent(new Event('fullscreenchange'));
     expect(sut.isFullScreen).toBe(true);
-    
-    const fullScreenScreenCoord = sut.pageToScreenCoordinates(ex.vec(100, 100))
+
+    const fullScreenScreenCoord = sut.pageToScreenCoordinates(ex.vec(100, 100));
     expect(nonFullScreenScreenCoord.sub(fullScreenScreenCoord)).toBeVector(ex.vec(0, 20));
   });
 
@@ -139,8 +139,8 @@ describe('A Screen', () => {
 
     canvas.dispatchEvent(new Event('fullscreenchange'));
     expect(sut.isFullScreen).toBe(true);
-    
-    const fullScreenScreenCoord = sut.pageToScreenCoordinates(ex.vec(100, 100))
+
+    const fullScreenScreenCoord = sut.pageToScreenCoordinates(ex.vec(100, 100));
     expect(nonFullScreenScreenCoord.sub(fullScreenScreenCoord)).toBeVector(ex.vec(87.5, 0));
   });
 
@@ -154,7 +154,7 @@ describe('A Screen', () => {
       displayMode: ex.DisplayMode.FullScreen,
       viewport: { width: 800, height: 600 }
     });
-  
+
     const page = new ex.Vector(100, 200);
     const screen = sut.pageToScreenCoordinates(page);
 
@@ -171,7 +171,7 @@ describe('A Screen', () => {
     expect(page).toBeVector(page2);
     expect(page).toBeVector(page3);
     expect(screen).toBeVector(screen2);
-    expect(world).toBeVector(world2)
+    expect(world).toBeVector(world2);
 
   });
 
@@ -273,7 +273,7 @@ describe('A Screen', () => {
       }
     );
     const canvasStub = { ...canvas, style: styleProxy } as HTMLCanvasElement;
-    canvasStub.addEventListener = () => {};
+    canvasStub.addEventListener = () => { /* nothing */ };
 
     const sut = new ex.Screen({
       canvas: canvasStub,

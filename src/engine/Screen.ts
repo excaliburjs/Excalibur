@@ -12,7 +12,7 @@ export enum DisplayMode {
   /**
    * Use as much space as possible that still fits in the screen while maintaining aspect ratio and resolution.
    * This is not the same as [[Screen.goFullScreen]]
-   * 
+   *
    * You may want to center your game here is an example
    * ```html
    * <!-- html -->
@@ -22,7 +22,7 @@ export enum DisplayMode {
    * </main>
    * </body>
    * ```
-   * 
+   *
    * ```css
    * // css
    * main {
@@ -33,7 +33,7 @@ export enum DisplayMode {
    *   width: 100%;
    * }
    * ```
-   * 
+   *
    */
   FullScreen = 'FullScreen',
 
@@ -42,15 +42,15 @@ export enum DisplayMode {
    * change dynamically as the window is resized This is not the same as [[Screen.goFullScreen]]
    */
   Dynamic = 'Dynamic',
-  
+
   /**
    * Default, use a specified resolution for the game. Like 800x600 pixels for example.
    */
   Fixed = 'Fixed',
-  
+
   /**
    * Allow the game to be positioned with the [[EngineOptions.position]] option
-   * @deprecated Use CSS to position the game
+   * @deprecated Use CSS to position the game canvas, will be removed in v0.26.0
    */
   Position = 'Position',
 
@@ -373,12 +373,12 @@ export class Screen {
   }
 
   /**
-   * Takes a coordinate in normal html page space, for example from a pointer move event, and translates it to 
+   * Takes a coordinate in normal html page space, for example from a pointer move event, and translates it to
    * Excalibur screen space.
-   * 
+   *
    * Excalibur screen space starts at the top left (0, 0) corner of the viewport, and extends to the
    * bottom right corner (resolutionX, resolutionY)
-   * @param point 
+   * @param point
    */
   public pageToScreenCoordinates(point: Vector): Vector {
     let newX = point.x;
@@ -405,19 +405,19 @@ export class Screen {
   }
 
   /**
-   * Takes a coordinate in Excalibur screen space, and translates it to normal html page space. For example, 
+   * Takes a coordinate in Excalibur screen space, and translates it to normal html page space. For example,
    * this is where html elements might live if you want to position them relative to Excalibur.
-   * 
+   *
    * Excalibur screen space starts at the top left (0, 0) corner of the viewport, and extends to the
    * bottom right corner (resolutionX, resolutionY)
-   * @param point 
+   * @param point
    */
   public screenToPageCoordinates(point: Vector): Vector {
     let newX = point.x;
     let newY = point.y;
 
     newX = (newX / this.resolution.width) * this.viewport.width;
-    newY = (newY / this.resolution.height) * this.viewport.height
+    newY = (newY / this.resolution.height) * this.viewport.height;
 
     if (this._isFullScreen) {
       if (window.innerWidth / this.aspectRatio < window.innerHeight) {
@@ -435,9 +435,9 @@ export class Screen {
 
   /**
    * Takes a coordinate in Excalibur screen space, and translates it to Excalibur world space.
-   * 
-   * World space is where [[entities|Entity]] in Excalibur live by default [[CoordPlane.World]] 
-   * and extends infinitely out relative from the [[Camera]]. 
+   *
+   * World space is where [[entities|Entity]] in Excalibur live by default [[CoordPlane.World]]
+   * and extends infinitely out relative from the [[Camera]].
    * @param point  Screen coordinate to convert
    */
   public screenToWorldCoordinates(point: Vector): Vector {
@@ -461,7 +461,7 @@ export class Screen {
 
   /**
    * Takes a coordinate in Excalibur world space, and translates it to Excalibur screen space.
-   * 
+   *
    * Screen space is where [[ScreenElements]] and [[entities|Entity]] with [[CoordPlane.Screen]] live.
    * @param point  World coordinate to convert
    */
@@ -497,7 +497,7 @@ export class Screen {
   /**
    * Returns a BoundingBox of the top left corner of the screen
    * and the bottom right corner of the screen.
-   * 
+   *
    * World bounds are in world coordinates, useful for culling objects offscreen
    */
   public getWorldBounds(): BoundingBox {
@@ -574,8 +574,8 @@ export class Screen {
   }
 
   private _computeFullScreen() {
-    document.body.style.margin = "0px";
-    document.body.style.overflow = "hidden";
+    document.body.style.margin = '0px';
+    document.body.style.overflow = 'hidden';
     const aspect = this.aspectRatio;
     let adjustedWidth = 0;
     let adjustedHeight = 0;
