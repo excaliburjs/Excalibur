@@ -85,6 +85,7 @@ export class Detector {
     }
 
     args.unshift(msg);
+    // eslint-disable-next-line no-console
     console.log.apply(console, args);
   }
 

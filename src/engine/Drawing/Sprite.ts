@@ -1,7 +1,7 @@
 import * as Effects from './SpriteEffects';
 import { Color } from './Color';
 
-import { Drawable } from '../Interfaces/Drawable';
+import { Drawable, DrawOptions } from '../Interfaces/Drawable';
 import { Texture } from '../Resources/Texture';
 import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
@@ -27,7 +27,8 @@ export class SpriteImpl implements Drawable {
 
   public rotation: number = 0.0;
   public anchor: Vector = new Vector(0.0, 0.0);
-  public scale: Vector = new Vector(1, 1);
+  public offset: Vector = Vector.Zero;
+  public scale: Vector = Vector.One;
 
   public logger: Logger = Logger.getInstance();
 
@@ -50,10 +51,10 @@ export class SpriteImpl implements Drawable {
   private _spriteCtx: CanvasRenderingContext2D = null;
   private _pixelData: ImageData = null;
   private _pixelsLoaded: boolean = false;
-  private _dirtyEffect: boolean = false;
+  private _dirtyEffect: boolean = true;
 
   /**
-   * @param image   The backing image texture to build the Sprite
+   * @param imageOrConfig  The backing image texture to build the Sprite, or Sprite option bag
    * @param x      The x position of the sprite
    * @param y      The y position of the sprite
    * @param width  The width of the sprite in pixels
@@ -68,7 +69,7 @@ export class SpriteImpl implements Drawable {
       height = imageOrConfig.height | 0;
       image = imageOrConfig.image;
       if (!image) {
-        const message = 'An image texture is required to contsruct a sprite';
+        const message = 'An image texture is required to construct a sprite';
         throw new Error(message);
       }
     }
@@ -76,26 +77,29 @@ export class SpriteImpl implements Drawable {
     this.x = x || 0;
     this.y = y || 0;
 
-    this._texture = <Texture>image;
+    this._texture = image as Texture;
     this._spriteCanvas = document.createElement('canvas');
     this._spriteCanvas.width = width;
     this._spriteCanvas.height = height;
-    this._spriteCtx = <CanvasRenderingContext2D>this._spriteCanvas.getContext('2d');
-    this._texture.loaded
-      .then(() => {
-        this.width = this.width || this._texture.image.naturalWidth;
-        this.height = this.height || this._texture.image.naturalHeight;
-        this._spriteCanvas.width = this._spriteCanvas.width || this._texture.image.naturalWidth;
-        this._spriteCanvas.height = this._spriteCanvas.height || this._texture.image.naturalHeight;
-        this._loadPixels();
-        this._dirtyEffect = true;
-      })
-      .error((e) => {
-        this.logger.error('Error loading texture ', this._texture.path, e);
-      });
+    this._spriteCtx = this._spriteCanvas.getContext('2d');
+    this._initPixelsFromTexture();
 
     this.width = width;
     this.height = height;
+  }
+
+  private async _initPixelsFromTexture() {
+    try {
+      const image = await this._texture.loaded;
+      this.width = this.width || image.naturalWidth;
+      this.height = this.height || image.naturalHeight;
+      this._spriteCanvas.width = this._spriteCanvas.width || image.naturalWidth;
+      this._spriteCanvas.height = this._spriteCanvas.height || image.naturalHeight;
+      this._loadPixels();
+      this._dirtyEffect = true;
+    } catch (e) {
+      this.logger.error('Error loading texture ', this._texture.path, e);
+    }
   }
 
   private _loadPixels() {
@@ -121,27 +125,36 @@ export class SpriteImpl implements Drawable {
         throw new Error(`The height of a sprite cannot be 0 or negative, sprite height: ${this.height}, original height: ${naturalHeight}`);
       }
 
-      this._spriteCtx.drawImage(
-        this._texture.image,
-        clamp(this.x, 0, naturalWidth),
-        clamp(this.y, 0, naturalHeight),
-        clamp(this.width, 0, naturalWidth),
-        clamp(this.height, 0, naturalHeight),
-        0,
-        0,
-        this.width,
-        this.height
-      );
+      this._flushTexture();
 
       this._pixelsLoaded = true;
     }
   }
 
+  private _flushTexture() {
+    const naturalWidth = this._texture.image.naturalWidth || 0;
+    const naturalHeight = this._texture.image.naturalHeight || 0;
+
+    this._spriteCtx.clearRect(0, 0, this.width, this.height);
+    this._spriteCtx.drawImage(
+      this._texture.image,
+      clamp(this.x, 0, naturalWidth),
+      clamp(this.y, 0, naturalHeight),
+      clamp(this.width, 0, naturalWidth),
+      clamp(this.height, 0, naturalHeight),
+      0,
+      0,
+      this.width,
+      this.height
+    );
+  }
+
+  private _opacity: number = 1;
   /**
    * Applies the [[Opacity]] effect to a sprite, setting the alpha of all pixels to a given value
    */
   public opacity(value: number) {
-    this.addEffect(new Effects.Opacity(value));
+    this._opacity = value;
   }
 
   /**
@@ -202,7 +215,7 @@ export class SpriteImpl implements Drawable {
   }
 
   /**
-   * Adds a new [[ISpriteEffect]] to this drawing.
+   * Adds a new [[SpriteEffect]] to this drawing.
    * @param effect  Effect to add to the this drawing
    */
   public addEffect(effect: Effects.SpriteEffect) {
@@ -217,7 +230,7 @@ export class SpriteImpl implements Drawable {
   }
 
   /**
-   * Removes a [[ISpriteEffect]] from this sprite.
+   * Removes a [[SpriteEffect]] from this sprite.
    * @param effect  Effect to remove from this sprite
    */
   public removeEffect(effect: Effects.SpriteEffect): void;
@@ -252,33 +265,23 @@ export class SpriteImpl implements Drawable {
   }
 
   private _applyEffects() {
-    const naturalWidth = this._texture.image.naturalWidth || 0;
-    const naturalHeight = this._texture.image.naturalHeight || 0;
 
-    this._spriteCtx.clearRect(0, 0, this.width, this.height);
-    this._spriteCtx.drawImage(
-      this._texture.image,
-      clamp(this.x, 0, naturalWidth),
-      clamp(this.y, 0, naturalHeight),
-      clamp(this.width, 0, naturalWidth),
-      clamp(this.height, 0, naturalHeight),
-      0,
-      0,
-      this.width,
-      this.height
-    );
-    this._pixelData = this._spriteCtx.getImageData(0, 0, this.width, this.height);
+    this._flushTexture();
 
-    const len = this.effects.length;
-    for (let i = 0; i < len; i++) {
-      for (let y = 0; y < this.height; y++) {
-        for (let x = 0; x < this.width; x++) {
-          this.effects[i].updatePixel(x, y, this._pixelData);
+    if (this.effects.length > 0) {
+      this._pixelData = this._spriteCtx.getImageData(0, 0, this.width, this.height);
+
+      const len = this.effects.length;
+      for (let i = 0; i < len; i++) {
+        for (let y = 0; y < this.height; y++) {
+          for (let x = 0; x < this.width; x++) {
+            this.effects[i].updatePixel(x, y, this._pixelData);
+          }
         }
       }
+      this._spriteCtx.clearRect(0, 0, this.width, this.height);
+      this._spriteCtx.putImageData(this._pixelData, 0, 0);
     }
-    this._spriteCtx.clearRect(0, 0, this.width, this.height);
-    this._spriteCtx.putImageData(this._pixelData, 0, 0);
 
     this._dirtyEffect = false;
   }
@@ -316,30 +319,58 @@ export class SpriteImpl implements Drawable {
    * @param x    The x coordinate of where to draw
    * @param y    The y coordinate of where to draw
    */
-  public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
+  /**
+   * Draws the sprite with custom options to override internals without mutating them.
+   * @param options
+   */
+  public draw(options: DrawOptions): void;
+  public draw(ctxOrOptions: CanvasRenderingContext2D | DrawOptions, x?: number, y?: number): void {
+    if (ctxOrOptions instanceof CanvasRenderingContext2D) {
+      this._drawWithOptions({ ctx: ctxOrOptions, x, y });
+    } else {
+      this._drawWithOptions(ctxOrOptions);
+    }
+  }
+
+  private _drawWithOptions(options: DrawOptions) {
+    const { ctx, x, y, rotation, drawWidth, drawHeight, anchor, offset, opacity, flipHorizontal, flipVertical } = {
+      ...options,
+      rotation: options.rotation ?? this.rotation,
+      drawWidth: options.drawWidth ?? this.drawWidth,
+      drawHeight: options.drawHeight ?? this.drawHeight,
+      flipHorizontal: options.flipHorizontal ?? this.flipHorizontal,
+      flipVertical: options.flipVertical ?? this.flipVertical,
+      anchor: options.anchor ?? this.anchor,
+      offset: options.offset ?? this.offset,
+      opacity: options.opacity ?? this._opacity
+    };
+
     if (this._dirtyEffect) {
       this._applyEffects();
     }
 
     // calculating current dimensions
     ctx.save();
-    const xpoint = this.drawWidth * this.anchor.x;
-    const ypoint = this.drawHeight * this.anchor.y;
+    const xpoint = drawWidth * anchor.x + offset.x;
+    const ypoint = drawHeight * anchor.y + offset.y;
     ctx.translate(x, y);
-    ctx.rotate(this.rotation);
+    ctx.rotate(rotation);
 
-    // todo cache flipped sprites
-    if (this.flipHorizontal) {
-      ctx.translate(this.drawWidth, 0);
+    if (flipHorizontal) {
+      ctx.translate(drawWidth, 0);
       ctx.scale(-1, 1);
     }
 
-    if (this.flipVertical) {
-      ctx.translate(0, this.drawHeight);
+    if (flipVertical) {
+      ctx.translate(0, drawHeight);
       ctx.scale(1, -1);
     }
 
-    ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, -xpoint, -ypoint, this.drawWidth, this.drawHeight);
+    const oldAlpha = ctx.globalAlpha;
+    ctx.globalAlpha = opacity ?? 1;
+    ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, -xpoint, -ypoint, drawWidth, drawHeight);
+    ctx.globalAlpha = oldAlpha;
 
     ctx.restore();
   }
@@ -362,9 +393,6 @@ export class SpriteImpl implements Drawable {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface SpriteArgs extends Partial<SpriteImpl> {
   image?: Texture;
   x?: number;
@@ -380,8 +408,6 @@ export interface SpriteArgs extends Partial<SpriteImpl> {
 /**
  * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
  * images or parts of images from a [[Texture]] resource to the screen.
- *
- * [[include:Sprites.md]]
  */
 export class Sprite extends Configurable(SpriteImpl) {
   constructor(config: SpriteArgs);

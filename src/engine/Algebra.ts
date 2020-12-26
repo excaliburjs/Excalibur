@@ -1,6 +1,7 @@
 import { Engine } from './Engine';
 import * as Util from './Util/Util';
 import { Clonable } from './Interfaces/Clonable';
+import { obsolete } from './Util/Decorators';
 
 /**
  * A 2D vector on a plane.
@@ -105,7 +106,8 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Compares this point against another and tests for equality
-   * @param point  The other point to compare to
+   * @param vector The other point to compare to
+   * @param tolerance Amount of euclidean distance off we are willing to tolerate
    */
   public equals(vector: Vector, tolerance: number = 0.001): boolean {
     return Math.abs(this.x - vector.x) <= tolerance && Math.abs(this.y - vector.y) <= tolerance;
@@ -124,9 +126,24 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * The magnitude (size) of the Vector
+   * @obsolete magnitude will be removed in favour of '.size' in version 0.25.0
    */
+  @obsolete({ message: 'will be removed in favour of `.size` in version 0.25.0' })
   public magnitude(): number {
     return this.distance();
+  }
+
+  /**
+   * The size(magnitude) of the Vector
+   */
+  public get size(): number {
+    return this.distance();
+  }
+
+  public set size(newLength: number) {
+    const v = this.normalize().scale(newLength);
+    this.x = v.x;
+    this.y = v.y;
   }
 
   /**
@@ -171,7 +188,7 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * Subtracts a vector from another, if you subract vector `B.sub(A)` the resulting vector points from A -> B
+   * Subtracts a vector from another, if you subtract vector `B.sub(A)` the resulting vector points from A -> B
    * @param v The vector to subtract
    */
   public sub(v: Vector): Vector {
@@ -190,7 +207,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Subtracts a vector from this one modifying the original
-   * @parallel v The vector to subtract
+   * @param v The vector to subtract
    */
   public subEqual(v: Vector): Vector {
     this.x -= v.x;
@@ -284,7 +301,7 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * Returns a string repesentation of the vector.
+   * Returns a string representation of the vector.
    */
   public toString(): string {
     return `(${this.x}, ${this.y})`;
@@ -577,4 +594,15 @@ export class GlobalCoordinates {
   }
 
   constructor(public worldPos: Vector, public pagePos: Vector, public screenPos: Vector) {}
+}
+
+/**
+ * Shorthand for creating new Vectors - returns a new Vector instance with the
+ * provided X and Y components.
+ *
+ * @param x  X component of the Vector
+ * @param y  Y component of the Vector
+ */
+export function vec(x: number, y: number): Vector {
+  return new Vector(x, y);
 }

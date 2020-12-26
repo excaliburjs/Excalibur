@@ -21,7 +21,7 @@ game.add(target);
 
 var aim = new ex.Actor(game.halfDrawWidth, game.halfDrawHeight, 100, 100, ex.Color.Black);
 aim.addDrawing(resources.txPlayer);
-aim.setHeight(10);
+aim.height = 10;
 aim.scale.setTo(1, 0.2);
 game.add(aim);
 

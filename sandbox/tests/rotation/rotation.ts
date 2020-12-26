@@ -96,7 +96,7 @@ function distance(x1, y1, x2, y2) {
 
 engine.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
   if (keyDown.key === ex.Input.Keys.D) {
-    engine.isDebug = !engine.isDebug;
+    engine.toggleDebug();
   }
 });
 

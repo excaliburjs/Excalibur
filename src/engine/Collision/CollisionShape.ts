@@ -1,6 +1,5 @@
 import { Color } from '../Drawing/Color';
 import { CollisionContact } from './CollisionContact';
-import { Body } from './Body';
 import { BoundingBox } from './BoundingBox';
 import { Vector, Projection, Ray, Line } from '../Algebra';
 import { Collider } from './Collider';
@@ -17,15 +16,9 @@ export interface CollisionShape extends Clonable<CollisionShape> {
   offset: Vector;
 
   /**
-   * Postion of the collision shape in world coordinates
+   * Position of the collision shape in world coordinates
    */
   worldPos: Vector;
-
-  /**
-   * Reference to the actor associated with this collision shape
-   * @obsolete Will be removed in v0.24.0 please use [[collider]]
-   */
-  body: Body;
 
   /**
    * Reference to the collider associated with this collision shape geometry
@@ -48,7 +41,7 @@ export interface CollisionShape extends Clonable<CollisionShape> {
   bounds: BoundingBox;
 
   /**
-   * Return the axis-aligned boudning box of the collision shape in local coordinates
+   * Return the axis-aligned bounding box of the collision shape in local coordinates
    */
   localBounds: BoundingBox;
 
@@ -58,7 +51,7 @@ export interface CollisionShape extends Clonable<CollisionShape> {
   axes: Vector[];
 
   /**
-   * Return the calculated moment of intertia for this shape
+   * Return the calculated moment of inertia for this shape
    */
   inertia: number;
 
@@ -105,8 +98,3 @@ export interface CollisionShape extends Clonable<CollisionShape> {
    */
   debugDraw(ctx: CanvasRenderingContext2D, color: Color): void;
 }
-
-/**
- * @obsolete Use interface [[CollisionShape]], CollisionArea will be deprecated in v0.24.0
- */
-export interface CollisionArea extends CollisionShape {}

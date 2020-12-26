@@ -1,11 +1,12 @@
 import { EX_VERSION } from './';
+import { Flags } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
 import { Loadable } from './Interfaces/Loadable';
-import { Promise } from './Promises';
 import { Vector } from './Algebra';
-import { UIActor } from './UIActor';
+import { Screen, DisplayMode, AbsolutePosition, ScreenDimension } from './Screen';
+import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
 import { TileMap } from './TileMap';
@@ -28,7 +29,6 @@ import {
   PostDrawEvent,
   InitializeEvent
 } from './Events';
-import { CanLoad } from './Interfaces/Loader';
 import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
 import { Scene } from './Scene';
@@ -36,33 +36,9 @@ import { PostProcessor } from './PostProcessing/PostProcessor';
 import { Debug, DebugStats } from './Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
-import * as Util from './Util/Util';
 import * as Events from './Events';
-import { BoundingBox } from './Collision/BoundingBox';
 import { BrowserEvents } from './Util/Browser';
-
-/**
- * Enum representing the different display modes available to Excalibur
- */
-export enum DisplayMode {
-  /**
-   * Show the game as full screen
-   */
-  FullScreen,
-  /**
-   * Scale the game to the parent DOM container
-   */
-  Container,
-  /**
-   * Show the game as a fixed size
-   */
-  Fixed,
-
-  /**
-   * Allow the game to be positioned with the [[EngineOptions.position]] option
-   */
-  Position
-}
+import { obsolete } from './Util/Decorators';
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -83,30 +59,35 @@ export enum ScrollPreventionMode {
 }
 
 /**
- * Interface describing the absolute CSS position of the game window. For use when [[DisplayMode.Position]]
- * is specified and when the user wants to define exact pixel spacing of the window.
- * When a number is given, the value is interpreted as pixels
- */
-export interface AbsolutePosition {
-  top?: number | string;
-  left?: number | string;
-  right?: number | string;
-  bottom?: number | string;
-}
-
-/**
  * Defines the available options to configure the Excalibur engine at constructor time.
  */
 export interface EngineOptions {
   /**
-   * Optionally configure the native canvas width of the game
+   * Optionally configure the width of the viewport in css pixels
    */
   width?: number;
 
   /**
-   * Optionally configure the native canvas height of the game
+   * Optionally configure the height of the viewport in css pixels
    */
   height?: number;
+
+  /**
+   * Optionally configure the width & height of the viewport in css pixels.
+   * Use `viewport` instead of [[EngineOptions.width]] and [[EngineOptions.height]], or vice versa.
+   */
+  viewport?: ScreenDimension;
+
+  /**
+   * Optionally specify the size the logical pixel resolution, if not specified it will be width x height.
+   * See [[Resolution]] for common presets.
+   */
+  resolution?: ScreenDimension;
+
+  /**
+   * Optionally specify antialiasing (smoothing), by default true (smooth pixels)
+   */
+  antialiasing?: boolean;
 
   /**
    * Optionally configure the native canvas transparent backdrop
@@ -117,6 +98,11 @@ export interface EngineOptions {
    * Optionally specify the target canvas DOM element to render the game in
    */
   canvasElementId?: string;
+
+  /**
+   * Optionally specify the target canvas DOM element directly
+   */
+  canvasElement?: HTMLCanvasElement;
 
   /**
    * The [[DisplayMode]] of the game. Depending on this value, [[width]] and [[height]] may be ignored.
@@ -155,11 +141,11 @@ export interface EngineOptions {
 
   /**
    * Specify how the game window is to be positioned when the [[DisplayMode.Position]] is chosen. This option MUST be specified
-   * if the DisplayMode is set as [[DisplayMode.Position]]. The position can be either a string or an [[IAbsolutePosition]].
+   * if the DisplayMode is set as [[DisplayMode.Position]]. The position can be either a string or an [[AbsolutePosition]].
    * String must be in the format of css style background-position. The vertical position must precede the horizontal position in strings.
    *
    * Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
-   * Valid [[IAbsolutePosition]] examples: `{top: 5, right: 10%}`, `{bottom: 49em, left: 10px}`, `{left: 10, bottom: 40}`
+   * Valid [[AbsolutePosition]] examples: `{top: 5, right: 10%}`, `{bottom: 49em, left: 10px}`, `{left: 10, bottom: 40}`
    */
   position?: string | AbsolutePosition;
 
@@ -180,14 +166,17 @@ export interface EngineOptions {
  * The [[Engine]] is the main driver for a game. It is responsible for
  * starting/stopping the game, maintaining state, transmitting events,
  * loading resources, and managing the scene.
- *
- * [[include:Engine.md]]
  */
 export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    *
    */
   public browser: BrowserEvents;
+
+  /**
+   * Screen abstraction
+   */
+  public screen: Screen;
 
   /**
    * Direct access to the engine's canvas element
@@ -209,14 +198,14 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * resolution of the canvas element)
    */
   public get canvasWidth(): number {
-    return this.canvas.width;
+    return this.screen.canvasWidth;
   }
 
   /**
    * Returns half width of the game canvas in pixels (half physical width component)
    */
   public get halfCanvasWidth(): number {
-    return this.canvas.width / 2;
+    return this.screen.halfCanvasWidth;
   }
 
   /**
@@ -224,55 +213,49 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * the resolution of the canvas element)
    */
   public get canvasHeight(): number {
-    return this.canvas.height;
+    return this.screen.canvasHeight;
   }
 
   /**
    * Returns half height of the game canvas in pixels (half physical height component)
    */
   public get halfCanvasHeight(): number {
-    return this.canvas.height / 2;
+    return this.screen.halfCanvasHeight;
   }
 
   /**
    * Returns the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
    */
   public get drawWidth(): number {
-    if (this.currentScene && this.currentScene.camera) {
-      return this.canvasWidth / this.currentScene.camera.getZoom() / this.pixelRatio;
-    }
-    return this.canvasWidth / this.pixelRatio;
+    return this.screen.drawWidth;
   }
 
   /**
    * Returns half the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
    */
   public get halfDrawWidth(): number {
-    return this.drawWidth / 2;
+    return this.screen.halfDrawWidth;
   }
 
   /**
    * Returns the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
    */
   public get drawHeight(): number {
-    if (this.currentScene && this.currentScene.camera) {
-      return this.canvasHeight / this.currentScene.camera.getZoom() / this.pixelRatio;
-    }
-    return this.canvasHeight / this.pixelRatio;
+    return this.screen.drawHeight;
   }
 
   /**
    * Returns half the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
    */
   public get halfDrawHeight(): number {
-    return this.drawHeight / 2;
+    return this.screen.halfDrawHeight;
   }
 
   /**
    * Returns whether excalibur detects the current screen to be HiDPI
    */
   public get isHiDpi(): boolean {
-    return this.pixelRatio !== 1;
+    return this.screen.isHiDpi;
   }
 
   /**
@@ -285,7 +268,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Access Excalibur debugging functionality.
    */
-  public debug = new Debug();
+  public debug: Debug;
 
   /**
    * Access [[stats]] that holds frame statistics.
@@ -319,32 +302,23 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Indicates whether the engine is set to fullscreen or not
    */
-  public isFullscreen: boolean = false;
+  public get isFullscreen(): boolean {
+    return this.screen.isFullScreen;
+  }
 
   /**
    * Indicates the current [[DisplayMode]] of the engine.
    */
-  public displayMode: DisplayMode = DisplayMode.FullScreen;
-
-  private _suppressHiDPIScaling: boolean = false;
+  public get displayMode(): DisplayMode {
+    return this.screen.displayMode;
+  }
 
   private _suppressPlayButton: boolean = false;
   /**
    * Returns the calculated pixel ration for use in rendering
    */
   public get pixelRatio(): number {
-    if (this._suppressHiDPIScaling) {
-      return 1;
-    }
-
-    if (window.devicePixelRatio < 1) {
-      return 1;
-    }
-
-    const devicePixelRatio = window.devicePixelRatio || 1;
-
-    const pixelRatio = devicePixelRatio;
-    return pixelRatio;
+    return this.screen.pixelRatio;
   }
 
   /**
@@ -359,7 +333,10 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Indicates whether the engine should draw with debug information
    */
-  public isDebug: boolean = false;
+  private _isDebug: boolean = false;
+  public get isDebug(): boolean {
+    return this._isDebug;
+  }
   public debugColor: Color = new Color(255, 255, 255);
   /**
    * Sets the background color for the engine.
@@ -384,7 +361,6 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   public pageScrollPreventionMode: ScrollPreventionMode;
 
   private _logger: Logger;
-  private _isSmoothingEnabled: boolean = true;
 
   // this is a reference to the current requestAnimationFrame return value
   private _requestId: number;
@@ -395,18 +371,18 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   private _timescale: number = 1.0;
 
   // loading
-  private _loader: CanLoad;
+  private _loader: Loader;
   private _isLoading: boolean = false;
 
   private _isInitialized: boolean = false;
 
-  public on(eventName: Events.initialize, handler: (event: Events.InitializeEvent) => void): void;
+  public on(eventName: Events.initialize, handler: (event: Events.InitializeEvent<Engine>) => void): void;
   public on(eventName: Events.visible, handler: (event: VisibleEvent) => void): void;
   public on(eventName: Events.hidden, handler: (event: HiddenEvent) => void): void;
   public on(eventName: Events.start, handler: (event: GameStartEvent) => void): void;
   public on(eventName: Events.stop, handler: (event: GameStopEvent) => void): void;
-  public on(eventName: Events.preupdate, handler: (event: PreUpdateEvent) => void): void;
-  public on(eventName: Events.postupdate, handler: (event: PostUpdateEvent) => void): void;
+  public on(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Engine>) => void): void;
+  public on(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Engine>) => void): void;
   public on(eventName: Events.preframe, handler: (event: PreFrameEvent) => void): void;
   public on(eventName: Events.postframe, handler: (event: PostFrameEvent) => void): void;
   public on(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
@@ -416,13 +392,13 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     super.on(eventName, handler);
   }
 
-  public once(eventName: Events.initialize, handler: (event: Events.InitializeEvent) => void): void;
+  public once(eventName: Events.initialize, handler: (event: Events.InitializeEvent<Engine>) => void): void;
   public once(eventName: Events.visible, handler: (event: VisibleEvent) => void): void;
   public once(eventName: Events.hidden, handler: (event: HiddenEvent) => void): void;
   public once(eventName: Events.start, handler: (event: GameStartEvent) => void): void;
   public once(eventName: Events.stop, handler: (event: GameStopEvent) => void): void;
-  public once(eventName: Events.preupdate, handler: (event: PreUpdateEvent) => void): void;
-  public once(eventName: Events.postupdate, handler: (event: PostUpdateEvent) => void): void;
+  public once(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Engine>) => void): void;
+  public once(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Engine>) => void): void;
   public once(eventName: Events.preframe, handler: (event: PreFrameEvent) => void): void;
   public once(eventName: Events.postframe, handler: (event: PostFrameEvent) => void): void;
   public once(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
@@ -432,13 +408,13 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     super.once(eventName, handler);
   }
 
-  public off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent) => void): void;
+  public off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent<Engine>) => void): void;
   public off(eventName: Events.visible, handler?: (event: VisibleEvent) => void): void;
   public off(eventName: Events.hidden, handler?: (event: HiddenEvent) => void): void;
   public off(eventName: Events.start, handler?: (event: GameStartEvent) => void): void;
   public off(eventName: Events.stop, handler?: (event: GameStopEvent) => void): void;
-  public off(eventName: Events.preupdate, handler?: (event: PreUpdateEvent) => void): void;
-  public off(eventName: Events.postupdate, handler?: (event: PostUpdateEvent) => void): void;
+  public off(eventName: Events.preupdate, handler?: (event: PreUpdateEvent<Engine>) => void): void;
+  public off(eventName: Events.postupdate, handler?: (event: PostUpdateEvent<Engine>) => void): void;
   public off(eventName: Events.preframe, handler?: (event: PreFrameEvent) => void): void;
   public off(eventName: Events.postframe, handler?: (event: PostFrameEvent) => void): void;
   public off(eventName: Events.predraw, handler?: (event: PreDrawEvent) => void): void;
@@ -451,11 +427,12 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Default [[EngineOptions]]
    */
-  private static _DefaultEngineOptions: EngineOptions = {
+  private static _DEFAULT_ENGINE_OPTIONS: EngineOptions = {
     width: 0,
     height: 0,
     enableCanvasTransparency: true,
     canvasElementId: '',
+    canvasElement: undefined,
     pointerScope: Input.PointerScope.Document,
     suppressConsoleBootMessage: null,
     suppressMinimumBrowserFeatureDetection: null,
@@ -492,7 +469,9 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   constructor(options?: EngineOptions) {
     super();
 
-    options = Util.extend({}, Engine._DefaultEngineOptions, options);
+    options = { ...Engine._DEFAULT_ENGINE_OPTIONS, ...options };
+
+    Flags.freeze();
 
     // Initialize browser events facade
     this.browser = new BrowserEvents(window, document);
@@ -504,7 +483,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
       message.innerText = 'Sorry, your browser does not support all the features needed for Excalibur';
       document.body.appendChild(message);
 
-      detector.failedTests.forEach(function(test) {
+      detector.failedTests.forEach(function (test) {
         const testMessage = document.createElement('div');
         testMessage.innerText = 'Browser feature missing ' + test;
         document.body.appendChild(testMessage);
@@ -523,15 +502,19 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     }
 
     // Use native console API for color fun
+    // eslint-disable-next-line no-console
     if (console.log && !options.suppressConsoleBootMessage) {
+      // eslint-disable-next-line no-console
       console.log(
         `%cPowered by Excalibur.js (v${EX_VERSION})`,
         'background: #176BAA; color: white; border-radius: 5px; padding: 15px; font-size: 1.5em; line-height: 80px;'
       );
+      // eslint-disable-next-line no-console
       console.log('\n\
       /| ________________\n\
 O|===|* >________________>\n\
       \\|');
+      // eslint-disable-next-line no-console
       console.log('Visit', 'http://excaliburjs.com', 'for more information');
     }
 
@@ -554,22 +537,41 @@ O|===|* >________________>\n\
     if (options.canvasElementId) {
       this._logger.debug('Using Canvas element specified: ' + options.canvasElementId);
       this.canvas = <HTMLCanvasElement>document.getElementById(options.canvasElementId);
+    } else if (options.canvasElement) {
+      this._logger.debug('Using Canvas element specified:', options.canvasElement);
+      this.canvas = options.canvasElement;
     } else {
       this._logger.debug('Using generated canvas element');
       this.canvas = <HTMLCanvasElement>document.createElement('canvas');
     }
-    if (options.width && options.height) {
+
+    let displayMode = options.displayMode ?? DisplayMode.Fixed;
+    if ((options.width && options.height) || options.viewport) {
       if (options.displayMode === undefined) {
-        this.displayMode = DisplayMode.Fixed;
+        displayMode = DisplayMode.Fixed;
       }
       this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
-
-      this.canvas.width = options.width;
-      this.canvas.height = options.height;
     } else if (!options.displayMode) {
       this._logger.debug('Engine viewport is fullscreen');
-      this.displayMode = DisplayMode.FullScreen;
+      displayMode = DisplayMode.FullScreen;
     }
+
+    // eslint-disable-next-line
+    this.ctx = this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
+
+    this.screen = new Screen({
+      canvas: this.canvas,
+      context: this.ctx,
+      antialiasing: options.antialiasing ?? true,
+      browser: this.browser,
+      viewport: options.viewport ?? { width: options.width, height: options.height },
+      resolution: options.resolution,
+      displayMode,
+      position: options.position,
+      pixelRatio: options.suppressHiDPIScaling ? 1 : null
+    });
+
+    this.screen.applyResolutionAndViewport();
 
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();
@@ -578,6 +580,7 @@ O|===|* >________________>\n\
     this.enableCanvasTransparency = options.enableCanvasTransparency;
 
     this._loader = new Loader();
+    this.debug = new Debug(this);
 
     this._initialize(options);
 
@@ -592,12 +595,7 @@ O|===|* >________________>\n\
    * and the bottom right corner of the screen.
    */
   public getWorldBounds() {
-    const left = this.screenToWorldCoordinates(Vector.Zero).x;
-    const top = this.screenToWorldCoordinates(Vector.Zero).y;
-    const right = left + this.drawWidth;
-    const bottom = top + this.drawHeight;
-
-    return new BoundingBox(left, top, right, bottom);
+    return this.screen.getWorldBounds();
   }
 
   /**
@@ -630,7 +628,9 @@ O|===|* >________________>\n\
    * @param animation  Animation to play
    * @param x          x game coordinate to play the animation
    * @param y          y game coordinate to play the animation
+   * @deprecated
    */
+  @obsolete({message: 'Will be removed in excalibur v0.26.0'})
   public playAnimation(animation: Animation, x: number, y: number) {
     this._animations.push(new AnimationNode(animation, x, y));
   }
@@ -740,31 +740,17 @@ O|===|* >________________>\n\
   public add(actor: Actor): void;
 
   /**
-   * Adds a [[UIActor]] to the [[currentScene]] of the game,
-   * UIActors do not participate in collisions, instead the
+   * Adds a [[ScreenElement]] to the [[currentScene]] of the game,
+   * ScreenElements do not participate in collisions, instead the
    * remain in the same place on the screen.
-   * @param uiActor  The UIActor to add to the [[currentScene]]
+   * @param screenElement  The ScreenElement to add to the [[currentScene]]
    */
-  public add(uiActor: UIActor): void;
+  public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
-    if (entity instanceof UIActor) {
-      this.currentScene.addUIActor(entity);
-      return;
-    }
-    if (entity instanceof Actor) {
-      this._addChild(entity);
-    }
-    if (entity instanceof Timer) {
-      this.addTimer(entity);
-    }
-
-    if (entity instanceof TileMap) {
-      this.addTileMap(entity);
-    }
-
     if (arguments.length === 2) {
       this.addScene(<string>arguments[0], <Scene>arguments[1]);
     }
+    this.currentScene.add(entity);
   }
 
   /**
@@ -795,24 +781,13 @@ O|===|* >________________>\n\
    */
   public remove(actor: Actor): void;
   /**
-   * Removes a [[UIActor]] to the scene, it will no longer be drawn or updated
-   * @param uiActor  The UIActor to remove from the [[currentScene]]
+   * Removes a [[ScreenElement]] to the scene, it will no longer be drawn or updated
+   * @param screenElement  The ScreenElement to remove from the [[currentScene]]
    */
-  public remove(uiActor: UIActor): void;
+  public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
-    if (entity instanceof UIActor) {
-      this.currentScene.removeUIActor(entity);
-      return;
-    }
     if (entity instanceof Actor) {
-      this._removeChild(entity);
-    }
-    if (entity instanceof Timer) {
-      this.removeTimer(entity);
-    }
-
-    if (entity instanceof TileMap) {
-      this.removeTileMap(entity);
+      this.currentScene.remove(entity);
     }
 
     if (entity instanceof Scene) {
@@ -822,30 +797,6 @@ O|===|* >________________>\n\
     if (typeof entity === 'string') {
       this.removeScene(entity);
     }
-  }
-
-  /**
-   * Adds an actor to the [[currentScene]] of the game. This is synonymous
-   * to calling `engine.currentScene.add(actor)`.
-   *
-   * Actors can only be drawn if they are a member of a scene, and only
-   * the [[currentScene]] may be drawn or updated.
-   *
-   * @param actor  The actor to add to the [[currentScene]]
-   */
-  protected _addChild(actor: Actor) {
-    this.currentScene.add(actor);
-  }
-
-  /**
-   * Removes an actor from the [[currentScene]] of the game. This is synonymous
-   * to calling `engine.currentScene.remove(actor)`.
-   * Actors that are removed from a scene will no longer be drawn or updated.
-   *
-   * @param actor  The actor to remove from the [[currentScene]].
-   */
-  protected _removeChild(actor: Actor) {
-    this.currentScene.remove(actor);
   }
 
   /**
@@ -868,6 +819,7 @@ O|===|* >________________>\n\
 
       // set current scene to new one
       this.currentScene = newScene;
+      this.screen.setCurrentCamera(newScene.camera);
 
       // initialize the current scene if has not been already
       this.currentScene._initialize(this);
@@ -884,25 +836,7 @@ O|===|* >________________>\n\
    * @param point  Screen coordinate to convert
    */
   public screenToWorldCoordinates(point: Vector): Vector {
-    let newX = point.x;
-    let newY = point.y;
-
-    // transform back to world space
-    newX = (newX / this.canvas.clientWidth) * this.drawWidth;
-    newY = (newY / this.canvas.clientHeight) * this.drawHeight;
-
-    // transform based on zoom
-    newX = newX - this.halfDrawWidth;
-    newY = newY - this.halfDrawHeight;
-
-    // shift by focus
-    if (this.currentScene && this.currentScene.camera) {
-      const focus = this.currentScene.camera.getFocus();
-      newX += focus.x;
-      newY += focus.y;
-    }
-
-    return new Vector(Math.floor(newX), Math.floor(newY));
+    return this.screen.screenToWorldCoordinates(point);
   }
 
   /**
@@ -910,66 +844,14 @@ O|===|* >________________>\n\
    * @param point  World coordinate to convert
    */
   public worldToScreenCoordinates(point: Vector): Vector {
-    let screenX = point.x;
-    let screenY = point.y;
-
-    // shift by focus
-    if (this.currentScene && this.currentScene.camera) {
-      const focus = this.currentScene.camera.getFocus();
-      screenX -= focus.x;
-      screenY -= focus.y;
-    }
-
-    // transform back on zoom
-    screenX = screenX + this.halfDrawWidth;
-    screenY = screenY + this.halfDrawHeight;
-
-    // transform back to screen space
-    screenX = (screenX * this.canvas.clientWidth) / this.drawWidth;
-    screenY = (screenY * this.canvas.clientHeight) / this.drawHeight;
-
-    return new Vector(Math.floor(screenX), Math.floor(screenY));
+    return this.screen.worldToScreenCoordinates(point);
   }
 
   /**
-   * Sets the internal canvas height based on the selected display mode.
-   */
-  private _setHeightByDisplayMode(parent: HTMLElement | Window) {
-    if (this.displayMode === DisplayMode.Container) {
-      this.canvas.width = (<HTMLElement>parent).clientWidth;
-      this.canvas.height = (<HTMLElement>parent).clientHeight;
-    }
-
-    if (this.displayMode === DisplayMode.FullScreen) {
-      document.body.style.margin = '0px';
-      document.body.style.overflow = 'hidden';
-      this.canvas.width = (<Window>parent).innerWidth;
-      this.canvas.height = (<Window>parent).innerHeight;
-    }
-  }
-
-  /**
-   * Initializes the internal canvas, rendering context, displaymode, and native event listeners
+   * Initializes the internal canvas, rendering context, display mode, and native event listeners
    */
   private _initialize(options?: EngineOptions) {
-    if (options.displayMode) {
-      this.displayMode = options.displayMode;
-    }
-
-    if (this.displayMode === DisplayMode.FullScreen || this.displayMode === DisplayMode.Container) {
-      const parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
-
-      this._setHeightByDisplayMode(parent);
-
-      this.browser.window.on('resize', () => {
-        this._logger.debug('View port resized');
-        this._setHeightByDisplayMode(parent);
-        this._logger.info('parent.clientHeight ' + parent.clientHeight);
-        this.setAntialiasing(this._isSmoothingEnabled);
-      });
-    } else if (this.displayMode === DisplayMode.Position) {
-      this._intializeDisplayModePosition(options);
-    }
+    this.pageScrollPreventionMode = options.scrollPreventionMode;
 
     // initialize inputs
     this.input = {
@@ -980,8 +862,6 @@ O|===|* >________________>\n\
     this.input.keyboard.init();
     this.input.pointers.init(options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas);
     this.input.gamepads.init();
-
-    this.pageScrollPreventionMode = options.scrollPreventionMode;
 
     // Issue #385 make use of the visibility api
     // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
@@ -1009,109 +889,13 @@ O|===|* >________________>\n\
       }
     });
 
-    this.ctx = <CanvasRenderingContext2D>this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
-
-    this._suppressHiDPIScaling = !!options.suppressHiDPIScaling;
-    if (!options.suppressHiDPIScaling) {
-      this._initializeHiDpi();
-    }
-
-    if (!this.canvasElementId) {
+    if (!this.canvasElementId && !options.canvasElement) {
       document.body.appendChild(this.canvas);
     }
   }
 
   public onInitialize(_engine: Engine) {
     // Override me
-  }
-
-  private _intializeDisplayModePosition(options: EngineOptions) {
-    if (!options.position) {
-      throw new Error('DisplayMode of Position was selected but no position option was given');
-    } else {
-      this.canvas.style.display = 'block';
-      this.canvas.style.position = 'absolute';
-
-      if (typeof options.position === 'string') {
-        const specifiedPosition = options.position.split(' ');
-
-        switch (specifiedPosition[0]) {
-          case 'top':
-            this.canvas.style.top = '0px';
-            break;
-          case 'bottom':
-            this.canvas.style.bottom = '0px';
-            break;
-          case 'middle':
-            this.canvas.style.top = '50%';
-            const offsetY = -this.halfDrawHeight;
-            this.canvas.style.marginTop = offsetY.toString();
-            break;
-          default:
-            throw new Error('Invalid Position Given');
-        }
-
-        if (specifiedPosition[1]) {
-          switch (specifiedPosition[1]) {
-            case 'left':
-              this.canvas.style.left = '0px';
-              break;
-            case 'right':
-              this.canvas.style.right = '0px';
-              break;
-            case 'center':
-              this.canvas.style.left = '50%';
-              const offsetX = -this.halfDrawWidth;
-              this.canvas.style.marginLeft = offsetX.toString();
-              break;
-            default:
-              throw new Error('Invalid Position Given');
-          }
-        }
-      } else {
-        if (options.position.top) {
-          typeof options.position.top === 'number'
-            ? (this.canvas.style.top = options.position.top.toString() + 'px')
-            : (this.canvas.style.top = options.position.top);
-        }
-        if (options.position.right) {
-          typeof options.position.right === 'number'
-            ? (this.canvas.style.right = options.position.right.toString() + 'px')
-            : (this.canvas.style.right = options.position.right);
-        }
-        if (options.position.bottom) {
-          typeof options.position.bottom === 'number'
-            ? (this.canvas.style.bottom = options.position.bottom.toString() + 'px')
-            : (this.canvas.style.bottom = options.position.bottom);
-        }
-        if (options.position.left) {
-          typeof options.position.left === 'number'
-            ? (this.canvas.style.left = options.position.left.toString() + 'px')
-            : (this.canvas.style.left = options.position.left);
-        }
-      }
-    }
-  }
-
-  private _initializeHiDpi() {
-    // Scale the canvas if needed
-    if (this.isHiDpi) {
-      const oldWidth = this.canvas.width;
-      const oldHeight = this.canvas.height;
-
-      this.canvas.width = oldWidth * this.pixelRatio;
-      this.canvas.height = oldHeight * this.pixelRatio;
-
-      this.canvas.style.width = oldWidth + 'px';
-      this.canvas.style.height = oldHeight + 'px';
-
-      this._logger.warn(`Hi DPI screen detected, resetting canvas resolution from 
-                           ${oldWidth}x${oldHeight} to ${this.canvas.width}x${this.canvas.height} 
-                           css size will remain ${oldWidth}x${oldHeight}`);
-
-      this.ctx.scale(this.pixelRatio, this.pixelRatio);
-      this._logger.warn(`Canvas drawing context was scaled by ${this.pixelRatio}`);
-    }
   }
 
   /**
@@ -1121,27 +905,14 @@ O|===|* >________________>\n\
    * @param isSmooth  Set smoothing to true or false
    */
   public setAntialiasing(isSmooth: boolean) {
-    this._isSmoothingEnabled = isSmooth;
-
-    const ctx: any = this.ctx;
-    ctx.imageSmoothingEnabled = isSmooth;
-    for (const smoothing of ['webkitImageSmoothingEnabled', 'mozImageSmoothingEnabled', 'msImageSmoothingEnabled']) {
-      if (smoothing in ctx) {
-        ctx[smoothing] = isSmooth;
-      }
-    }
+    this.screen.antialiasing = isSmooth;
   }
 
   /**
    * Return the current smoothing status of the canvas
    */
   public getAntialiasing(): boolean {
-    return (
-      (<any>this.ctx).imageSmoothingEnabled ||
-      (<any>this.ctx).webkitImageSmoothingEnabled ||
-      (<any>this.ctx).mozImageSmoothingEnabled ||
-      (<any>this.ctx).msImageSmoothingEnabled
-    );
+    return this.screen.antialiasing;
   }
 
   /**
@@ -1165,7 +936,7 @@ O|===|* >________________>\n\
    */
   private _update(delta: number) {
     if (this._isLoading) {
-      // suspend updates untill loading is finished
+      // suspend updates until loading is finished
       this._loader.update(this, delta);
       // Update input listeners
       this.input.keyboard.update();
@@ -1181,7 +952,8 @@ O|===|* >________________>\n\
     this.currentScene.update(this, delta);
 
     // update animations
-    this._animations = this._animations.filter(function(a) {
+    // TODO remove
+    this._animations = this._animations.filter(function (a) {
       return !a.animation.isDone();
     });
 
@@ -1227,7 +999,7 @@ O|===|* >________________>\n\
     this._predraw(ctx, delta);
 
     if (this._isLoading) {
-      this._loader.draw(ctx, delta);
+      this._loader.draw(ctx);
       // Drawing nothing else while loading
       return;
     }
@@ -1290,16 +1062,35 @@ O|===|* >________________>\n\
   }
 
   /**
+   * Enable or disable Excalibur debugging functionality.
+   * @param toggle a value that debug drawing will be changed to
+   */
+  public showDebug(toggle: boolean): void {
+    this._isDebug = toggle;
+  }
+
+  /**
+   * Toggle Excalibur debugging functionality.
+   */
+  public toggleDebug(): boolean {
+    this._isDebug = !this._isDebug;
+    return this._isDebug;
+  }
+
+  /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
-   * @param loader  Optional [[ILoader]] to use to load resources. The default loader is [[Loader]], override to provide your own
+   * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]], override to provide your own
    * custom loader.
    */
-  public start(loader?: CanLoad): Promise<any> {
+  public start(loader?: Loader): Promise<any> {
     if (!this._compatible) {
-      const promise = new Promise();
-      return promise.reject('Excalibur is incompatible with your browser');
+      return Promise.reject('Excalibur is incompatible with your browser');
     }
+    // Changing resolution invalidates context state, so we need to capture it before applying
+    this.screen.pushResolutionAndViewport();
+    this.screen.resolution = this.screen.viewport;
+    this.screen.applyResolutionAndViewport();
 
     let loadingComplete: Promise<any>;
     if (loader) {
@@ -1312,6 +1103,8 @@ O|===|* >________________>\n\
     }
 
     loadingComplete.then(() => {
+      this.screen.popResolutionAndViewport();
+      this.screen.applyResolutionAndViewport();
       this.emit('start', new GameStartEvent(this));
     });
 
@@ -1353,7 +1146,6 @@ O|===|* >________________>\n\
 
         // reset frame stats (reuse existing instances)
         const frameId = game.stats.prevFrame.id + 1;
-        game.stats.prevFrame.reset(game.stats.currFrame);
         game.stats.currFrame.reset();
         game.stats.currFrame.id = frameId;
         game.stats.currFrame.delta = delta;
@@ -1371,6 +1163,7 @@ O|===|* >________________>\n\
         lastTime = now;
 
         game.emit('postframe', new PostFrameEvent(game, game.stats.currFrame));
+        game.stats.prevFrame.reset(game.stats.currFrame);
       } catch (e) {
         window.cancelAnimationFrame(game._requestId);
         game.stop();
@@ -1413,24 +1206,24 @@ O|===|* >________________>\n\
    * Another option available to you to load resources into the game.
    * Immediately after calling this the game will pause and the loading screen
    * will appear.
-   * @param loader  Some [[ILoadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
+   * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
-  public load(loader: Loadable): Promise<any> {
-    const complete = new Promise<any>();
+  public load(loader: Loadable<any>): Promise<any> {
+    const complete = new Promise<any>((resolve) => {
+      this._isLoading = true;
 
-    this._isLoading = true;
-
-    loader.load().then(() => {
-      if (this._suppressPlayButton) {
-        setTimeout(() => {
+      loader.load().then(() => {
+        if (this._suppressPlayButton) {
+          setTimeout(() => {
+            this._isLoading = false;
+            resolve();
+            // Delay is to give the logo a chance to show, otherwise don't delay
+          }, 500);
+        } else {
           this._isLoading = false;
-          complete.resolve();
-          // Delay is to give the logo a chance to show, otherwise don't delay
-        }, 500);
-      } else {
-        this._isLoading = false;
-        complete.resolve();
-      }
+          resolve();
+        }
+      });
     });
 
     return complete;
@@ -1439,7 +1232,9 @@ O|===|* >________________>\n\
 
 /**
  * @internal
+ * @deprecated
  */
+@obsolete({message: 'Will be removed in excalibur v0.26.0'})
 class AnimationNode {
   constructor(public animation: Animation, public x: number, public y: number) {}
 }

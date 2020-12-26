@@ -1,6 +1,5 @@
 import { Engine } from './Engine';
 import { EasingFunction, EasingFunctions } from './Util/EasingFunctions';
-import { PromiseLike, Promise, PromiseState } from './Promises';
 import { Vector } from './Algebra';
 import { Actor } from './Actor';
 import { removeItemFromArray } from './Util/Util';
@@ -8,6 +7,7 @@ import { CanUpdate, CanInitialize } from './Interfaces/LifecycleEvents';
 import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './Events';
 import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
+import { Logger } from './Util/Log';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -55,10 +55,10 @@ export class StrategyContainer {
   /**
    * Creates and adds the [[ElasticToActorStrategy]] on the current camera
    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
-   * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillationg spring that will over
+   * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillating spring that will over
    * correct and bounce around the target
    *
-   * @param target Target actor to elastically follow
+   * @param actor Target actor to elastically follow
    * @param cameraElasticity [0 - 1.0] The higher the elasticity the more force that will drive the camera towards the target
    * @param cameraFriction [0 - 1.0] The higher the friction the more that the camera will resist motion towards the target
    */
@@ -68,11 +68,19 @@ export class StrategyContainer {
 
   /**
    * Creates and adds the [[RadiusAroundActorStrategy]] on the current camera
-   * @param target Target actor to follow when it is "radius" pixels away
+   * @param actor Target actor to follow when it is "radius" pixels away
    * @param radius Number of pixels away before the camera will follow
    */
   public radiusAroundActor(actor: Actor, radius: number) {
     this.camera.addStrategy(new RadiusAroundActorStrategy(actor, radius));
+  }
+
+  /**
+   * Creates and adds the [[LimitCameraBoundsStrategy]] on the current camera
+   * @param box The bounding box to limit the camera to.
+   */
+  public limitCameraBounds(box: BoundingBox) {
+    this.camera.addStrategy(new LimitCameraBoundsStrategy(box));
   }
 }
 
@@ -85,7 +93,7 @@ export enum Axis {
 }
 
 /**
- * Lock a camera to the exact x/y postition of an actor.
+ * Lock a camera to the exact x/y position of an actor.
  */
 export class LockCameraToActorStrategy implements CameraStrategy<Actor> {
   constructor(public target: Actor) {}
@@ -117,7 +125,7 @@ export class LockCameraToActorAxisStrategy implements CameraStrategy<Actor> {
 export class ElasticToActorStrategy implements CameraStrategy<Actor> {
   /**
    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
-   * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillationg spring that will over
+   * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillating spring that will over
    * correct and bounce around the target
    *
    * @param target Target actor to elastically follow
@@ -128,9 +136,9 @@ export class ElasticToActorStrategy implements CameraStrategy<Actor> {
   public action = (target: Actor, cam: Camera, _eng: Engine, _delta: number) => {
     const position = target.center;
     let focus = cam.getFocus();
-    let cameraVel = new Vector(cam.dx, cam.dy);
+    let cameraVel = cam.vel.clone();
 
-    // Calculate the strech vector, using the spring equation
+    // Calculate the stretch vector, using the spring equation
     // F = kX
     // https://en.wikipedia.org/wiki/Hooke's_law
     // Apply to the current camera velocity
@@ -161,11 +169,57 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
     const focus = cam.getFocus();
 
     const direction = position.sub(focus);
-    const distance = direction.magnitude();
+    const distance = direction.size;
     if (distance >= this.radius) {
       const offset = distance - this.radius;
       return focus.add(direction.normalize().scale(offset));
     }
+    return focus;
+  };
+}
+
+/**
+ * Prevent a camera from going beyond the given camera dimensions.
+ */
+export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
+  /**
+   * Useful for limiting the camera to a [[TileMap]]'s dimensions, or a specific area inside the map.
+   *
+   * Note that this strategy does not perform any movement by itself.
+   * It only sets the camera position to within the given bounds when the camera has gone beyond them.
+   * Thus, it is a good idea to combine it with other camera strategies and set this strategy as the last one.
+   *
+   * Make sure that the camera bounds are at least as large as the viewport size.
+   *
+   * @param target The bounding box to limit the camera to
+   */
+
+  boundSizeChecked: boolean = false; // Check and warn only once
+
+  constructor(public target: BoundingBox) {}
+
+  public action = (target: BoundingBox, cam: Camera, _eng: Engine, _delta: number) => {
+    const focus = cam.getFocus();
+
+    if (!this.boundSizeChecked) {
+      if (target.bottom - target.top < _eng.drawHeight || target.right - target.left < _eng.drawWidth) {
+        Logger.getInstance().warn('Camera bounds should not be smaller than the engine viewport');
+      }
+      this.boundSizeChecked = true;
+    }
+
+    if (focus.x < target.left + _eng.halfDrawWidth) {
+      focus.x = target.left + _eng.halfDrawWidth;
+    } else if (focus.x > target.right - _eng.halfDrawWidth) {
+      focus.x = target.right - _eng.halfDrawWidth;
+    }
+
+    if (focus.y < target.top + _eng.halfDrawHeight) {
+      focus.y = target.top + _eng.halfDrawHeight;
+    } else if (focus.y > target.bottom - _eng.halfDrawHeight) {
+      focus.y = target.bottom - _eng.halfDrawHeight;
+    }
+
     return focus;
   };
 }
@@ -177,7 +231,6 @@ export class RadiusAroundActorStrategy implements CameraStrategy<Actor> {
  * to move around your game and set focus. They are used to determine
  * what is "off screen" and can be used to scale the game.
  *
- * [[include:Cameras.md]]
  */
 export class Camera extends Class implements CanUpdate, CanInitialize {
   protected _follow: Actor;
@@ -186,28 +239,62 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
   public strategy: StrategyContainer = new StrategyContainer(this);
 
-  // camera physical quantities
+  /**
+   * Get or set current zoom of the camera, defaults to 1
+   */
   public z: number = 1;
-
-  public dx: number = 0;
-  public dy: number = 0;
+  /**
+   * Get or set rate of change in zoom, defaults to 0
+   */
   public dz: number = 0;
-
-  public ax: number = 0;
-  public ay: number = 0;
+  /**
+   * Get or set zoom acceleration
+   */
   public az: number = 0;
 
+  /**
+   * Current rotation of the camera
+   */
   public rotation: number = 0;
+
+  /**
+   * Current angular velocity
+   */
   public rx: number = 0;
 
-  private _x: number = 0;
-  private _y: number = 0;
+  /**
+   * Get or set the camera's angular velocity
+   */
+  public get angularVelocity(): number {
+    return this.rx;
+  }
+
+  public set angularVelocity(value: number) {
+    this.rx = value;
+  }
+
+  /**
+   * Get or set the camera's position
+   */
+  public pos: Vector = Vector.Zero;
+
+  /**
+   * Get or set the camera's velocity
+   */
+  public vel: Vector = Vector.Zero;
+
+  /**
+   * GEt or set the camera's acceleration
+   */
+  public acc: Vector = Vector.Zero;
+
   private _cameraMoving: boolean = false;
   private _currentLerpTime: number = 0;
   private _lerpDuration: number = 1000; // 1 second
   private _lerpStart: Vector = null;
   private _lerpEnd: Vector = null;
-  private _lerpPromise: PromiseLike<Vector>;
+  private _lerpResolve: (value: Vector) => void;
+  private _lerpPromise: Promise<Vector>;
 
   //camera effects
   protected _isShaking: boolean = false;
@@ -224,6 +311,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   private _currentZoomTime: number = 0;
   private _zoomDuration: number = 0;
 
+  private _zoomResolve: (val: boolean) => void;
   private _zoomPromise: Promise<boolean>;
   private _zoomEasing: EasingFunction = EasingFunctions.EaseInOutCubic;
   private _easing: EasingFunction = EasingFunctions.EaseInOutCubic;
@@ -232,7 +320,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * Get the camera's x position
    */
   public get x() {
-    return this._x;
+    return this.pos.x;
   }
 
   /**
@@ -240,7 +328,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    */
   public set x(value: number) {
     if (!this._follow && !this._cameraMoving) {
-      this._x = value;
+      this.pos.x = value;
     }
   }
 
@@ -248,7 +336,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * Get the camera's y position
    */
   public get y() {
-    return this._y;
+    return this.pos.y;
   }
 
   /**
@@ -256,45 +344,59 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    */
   public set y(value: number) {
     if (!this._follow && !this._cameraMoving) {
-      this._y = value;
+      this.pos.y = value;
     }
   }
 
   /**
-   * Get the camera's position as a vector
+   * Get or set the camera's x velocity
    */
-  public get pos(): Vector {
-    return new Vector(this.x, this.y);
+  public get dx() {
+    return this.vel.x;
+  }
+
+  public set dx(value: number) {
+    this.vel.x = value;
   }
 
   /**
-   * Set the cameras position
+   * Get or set the camera's y velocity
    */
-  public set pos(value: Vector) {
-    this.x = value.x;
-    this.y = value.y;
+  public get dy() {
+    return this.vel.y;
+  }
+
+  public set dy(value: number) {
+    this.vel.y = value;
   }
 
   /**
-   * Get the camera's velocity as a vector
+   * Get or set the camera's x acceleration
    */
-  public get vel() {
-    return new Vector(this.dx, this.dy);
+  public get ax() {
+    return this.acc.x;
+  }
+
+  public set ax(value: number) {
+    this.acc.x = value;
   }
 
   /**
-   * Set the camera's velocity
+   * Get or set the camera's y acceleration
    */
-  public set vel(value: Vector) {
-    this.dx = value.x;
-    this.dy = value.y;
+  public get ay() {
+    return this.acc.y;
+  }
+
+  public set ay(value: number) {
+    this.acc.y = value;
   }
 
   /**
    * Returns the focal point of the camera, a new point giving the x and y position of the camera
    */
   public getFocus() {
-    return new Vector(this.x, this.y);
+    return this.pos;
   }
 
   /**
@@ -306,22 +408,24 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * @returns A [[Promise]] that resolves when movement is finished, including if it's interrupted.
    *          The [[Promise]] value is the [[Vector]] of the target position. It will be rejected if a move cannot be made.
    */
-  public move(pos: Vector, duration: number, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): PromiseLike<Vector> {
+  public move(pos: Vector, duration: number, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): Promise<Vector> {
     if (typeof easingFn !== 'function') {
       throw 'Please specify an EasingFunction';
     }
 
     // cannot move when following an actor
     if (this._follow) {
-      return new Promise<Vector>().reject(pos);
+      return Promise.reject(pos);
     }
 
     // resolve existing promise, if any
-    if (this._lerpPromise && this._lerpPromise.state() === PromiseState.Pending) {
-      this._lerpPromise.resolve(pos);
+    if (this._lerpPromise && this._lerpResolve) {
+      this._lerpResolve(pos);
     }
 
-    this._lerpPromise = new Promise<Vector>();
+    this._lerpPromise = new Promise<Vector>((resolve) => {
+      this._lerpResolve = resolve;
+    });
     this._lerpStart = this.getFocus().clone();
     this._lerpDuration = duration;
     this._lerpEnd = pos;
@@ -352,7 +456,9 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * @param duration The duration of the zoom in milliseconds
    */
   public zoom(scale: number, duration: number = 0, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): Promise<boolean> {
-    this._zoomPromise = new Promise<boolean>();
+    this._zoomPromise = new Promise<boolean>((resolve) => {
+      this._zoomResolve = resolve;
+    });
 
     if (duration) {
       this._isZooming = true;
@@ -364,7 +470,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     } else {
       this._isZooming = false;
       this.z = scale;
-      this._zoomPromise.resolve(true);
+      return Promise.resolve(true);
     }
 
     return this._zoomPromise;
@@ -378,7 +484,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   /**
-   * Gets the boundingbox of the viewport of this camera in world coordinates
+   * Gets the bounding box of the viewport of this camera in world coordinates
    */
   public get viewport(): BoundingBox {
     if (this._engine) {
@@ -392,7 +498,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
   /**
    * Adds a new camera strategy to this camera
-   * @param cameraStrategy Instance of an [[ICameraStrategy]]
+   * @param cameraStrategy Instance of an [[CameraStrategy]]
    */
   public addStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     this._cameraStrategies.push(cameraStrategy);
@@ -400,7 +506,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
   /**
    * Removes a camera strategy by reference
-   * @param cameraStrategy Instance of an [[ICameraStrategy]]
+   * @param cameraStrategy Instance of an [[CameraStrategy]]
    */
   public removeStrategy<T>(cameraStrategy: CameraStrategy<T>) {
     removeItemFromArray(cameraStrategy, this._cameraStrategies);
@@ -414,7 +520,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
    * @internal
@@ -434,7 +540,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   /**
-   *  It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   *  It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
    * @internal
@@ -505,15 +611,13 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     this._preupdate(_engine, delta);
 
     // Update placements based on linear algebra
-    this._x += (this.dx * delta) / 1000;
-    this._y += (this.dy * delta) / 1000;
+    this.pos = this.pos.add(this.vel.scale(delta / 1000));
     this.z += (this.dz * delta) / 1000;
 
-    this.dx += (this.ax * delta) / 1000;
-    this.dy += (this.ay * delta) / 1000;
+    this.vel = this.vel.add(this.acc.scale(delta / 1000));
     this.dz += (this.az * delta) / 1000;
 
-    this.rotation += (this.rx * delta) / 1000;
+    this.rotation += (this.angularVelocity * delta) / 1000;
 
     if (this._isZooming) {
       if (this._currentZoomTime < this._zoomDuration) {
@@ -526,7 +630,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
         this._isZooming = false;
         this.z = this._zoomEnd;
         this._currentZoomTime = 0;
-        this._zoomPromise.resolve(true);
+        this._zoomResolve(true);
       }
     }
 
@@ -536,13 +640,11 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
         const lerpPoint = moveEasing(this._currentLerpTime, this._lerpStart, this._lerpEnd, this._lerpDuration);
 
-        this._x = lerpPoint.x;
-        this._y = lerpPoint.y;
+        this.pos = lerpPoint;
 
         this._currentLerpTime += delta;
       } else {
-        this._x = this._lerpEnd.x;
-        this._y = this._lerpEnd.y;
+        this.pos = this._lerpEnd;
         const end = this._lerpEnd.clone();
 
         this._lerpStart = null;
@@ -550,7 +652,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
         this._currentLerpTime = 0;
         this._cameraMoving = false;
         // Order matters here, resolve should be last so any chain promises have a clean slate
-        this._lerpPromise.resolve(end);
+        this._lerpResolve(end);
       }
     }
 
@@ -578,7 +680,6 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   /**
    * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
    * @param ctx    Canvas context to apply transformations
-   * @param delta  The number of milliseconds since the last update
    */
   public draw(ctx: CanvasRenderingContext2D) {
     const focus = this.getFocus();
@@ -594,6 +695,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     ctx.translate(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
   }
 
+  /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D) {
     const focus = this.getFocus();
     ctx.fillStyle = 'red';

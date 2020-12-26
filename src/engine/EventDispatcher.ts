@@ -1,15 +1,6 @@
 import { GameEvent, SubscribeEvent, UnsubscribeEvent } from './Events';
 import { Eventable } from './Interfaces/Evented';
 
-/**
- * Excalibur's internal event dispatcher implementation.
- * Callbacks are fired immediately after an event is published.
- * Typically you will use [[Class.eventDispatcher]] since most classes in
- * Excalibur inherit from [[Class]]. You will rarely create an `EventDispatcher`
- * yourself.
- *
- * [[include:Events.md]]
- */
 export class EventDispatcher<T = any> implements Eventable {
   private _handlers: { [key: string]: { (event: GameEvent<T>): void }[] } = {};
   private _wiredEventDispatchers: Eventable[] = [];
@@ -46,8 +37,11 @@ export class EventDispatcher<T = any> implements Eventable {
     if (!event) {
       event = new GameEvent();
     }
-    event.target = target;
-
+    try {
+      event.target = target;
+    } catch {
+      // pass
+    }
     let i: number, len: number;
 
     if (this._handlers[eventName]) {
@@ -122,7 +116,11 @@ export class EventDispatcher<T = any> implements Eventable {
   public once(eventName: string, handler: (event: GameEvent<T>) => void) {
     const metaHandler = (event: GameEvent<T>) => {
       const ev = event || new GameEvent();
-      ev.target = ev.target || this._target;
+      try {
+        ev.target = ev.target || this._target;
+      } catch {
+        // pass
+      }
 
       this.off(eventName, handler);
       handler.call(ev.target, ev);
@@ -132,7 +130,7 @@ export class EventDispatcher<T = any> implements Eventable {
   }
 
   /**
-   * Wires this event dispatcher to also recieve events from another
+   * Wires this event dispatcher to also receive events from another
    */
   public wire(eventDispatcher: EventDispatcher): void {
     eventDispatcher._wiredEventDispatchers.push(this);

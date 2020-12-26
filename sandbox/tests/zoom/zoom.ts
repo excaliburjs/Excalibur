@@ -13,7 +13,7 @@ var raptorAnim = raptorSheet.getAnimationForAll(game, 100);
 raptorAnim.scale.setTo(2, 2);
 raptorAnim.loop = true;
 
-game.isDebug = true;
+game.showDebug(true);
 
 var target = new ex.Actor(game.halfDrawWidth, game.halfDrawHeight, 64 * 2, 64 * 2, ex.Color.Red.clone());
 target.addDrawing('default', raptorAnim);
@@ -35,10 +35,10 @@ target.on('pointerup', (ev: ex.Input.PointerEvent) => {
 game.add(target);
 
 game.input.keyboard.on('down', (ev: ex.Input.KeyEvent) => {
-  if (ev.key === 107 /* + */) {
+  if (ev.key === ex.Input.Keys.NumAdd /* + */) {
     game.currentScene.camera.zoom((currentZoom += 0.03));
   }
-  if (ev.key === 109 /* - */) {
+  if (ev.key === ex.Input.Keys.NumSubtract /* - */) {
     game.currentScene.camera.zoom((currentZoom -= 0.03));
   }
 

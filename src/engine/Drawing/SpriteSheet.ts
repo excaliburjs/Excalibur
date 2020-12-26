@@ -21,7 +21,7 @@ export class SpriteSheetImpl {
   public spHeight: number = 0;
   public spacing: number = 0;
   /**
-   * @param image     The backing image texture to build the SpriteSheet
+   * @param imageOrConfigOrSprites The backing image texture to build the SpriteSheet, option bag, or sprite list
    * @param columns   The number of columns in the image texture
    * @param rows      The number of rows in the image texture
    * @param spWidth   The width of each individual sprite in pixels
@@ -63,23 +63,23 @@ export class SpriteSheetImpl {
     if (this.image instanceof Texture) {
       let isWidthError: boolean = false;
       let isHeightError: boolean = false;
-      this.image.loaded.then((image: HTMLImageElement) => {
-        isWidthError = this.spWidth * this.columns > image.naturalWidth;
-        isHeightError = this.spHeight * this.rows > image.naturalHeight;
-      });
-      if (isWidthError) {
-        throw new RangeError(
-          `SpriteSheet specified is wider, ` +
-            `${this.columns} cols x ${this.spWidth} pixels > ${this.image.image.naturalWidth} ` +
-            `pixels than image width`
-        );
-      }
-      if (isHeightError) {
-        throw new RangeError(
-          `SpriteSheet specified is taller, ` +
-            `${this.rows} rows x ${this.spHeight} pixels > ${this.image.image.naturalHeight} ` +
-            `pixels than image height`
-        );
+      if (this.image.isLoaded()) {
+        isWidthError = this.spWidth * this.columns > this.image.image.naturalWidth;
+        isHeightError = this.spHeight * this.rows > this.image.image.naturalHeight;
+        if (isWidthError) {
+          throw new RangeError(
+            `SpriteSheet specified is wider, ` +
+              `${this.columns} cols x ${this.spWidth} pixels > ${this.image.image.naturalWidth} ` +
+              `pixels than image width`
+          );
+        }
+        if (isHeightError) {
+          throw new RangeError(
+            `SpriteSheet specified is taller, ` +
+              `${this.rows} rows x ${this.spHeight} pixels > ${this.image.image.naturalHeight} ` +
+              `pixels than image height`
+          );
+        }
       }
     }
 
@@ -117,7 +117,7 @@ export class SpriteSheetImpl {
   }
 
   /**
-   * Create an animation from the this SpriteSheet by specifing the range of
+   * Create an animation from the this SpriteSheet by specifying the range of
    * images with the beginning (inclusive) and ending (exclusive) index
    * For example `getAnimationBetween(engine, 0, 5, 200)` returns an animation with 5 frames.
    * @param engine      Reference to the current game Engine
@@ -147,7 +147,7 @@ export class SpriteSheetImpl {
   }
 
   /**
-   * Retreive a specific sprite from the SpriteSheet by its index. Sprites are organized
+   * Retrieve a specific sprite from the SpriteSheet by its index. Sprites are organized
    * in row major order in the SpriteSheet.
    * @param index  The index of the sprite
    */
@@ -188,9 +188,6 @@ export class SpriteSheetImpl {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
   image: Texture;
   sprites?: Sprite[];
@@ -205,8 +202,6 @@ export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
  * Sprite sheets are a useful mechanism for slicing up image resources into
  * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
  * in row major order in the [[SpriteSheet]].
- *
- * [[include:SpriteSheets.md]]
  */
 export class SpriteSheet extends Configurable(SpriteSheetImpl) {
   constructor(config: SpriteSheetArgs);
@@ -240,7 +235,7 @@ export class SpriteFontImpl extends SpriteSheet {
   private _caseInsensitive: boolean;
 
   /**
-   * @param image           The backing image texture to build the SpriteFont
+   * @param imageOrConfig   The backing image texture to build the SpriteFont or the sprite font option bag
    * @param alphabet        A string representing all the characters in the image, in row major order.
    * @param caseInsensitive  Indicate whether this font takes case into account
    * @param columns         The number of columns of characters in the image
@@ -259,15 +254,15 @@ export class SpriteFontImpl extends SpriteSheet {
     spacing?: number
   ) {
     super(
-      imageOrConfig instanceof Texture
-        ? {
-            image: imageOrConfig,
-            spWidth: spWidth,
-            spHeight: spHeight,
-            rows: rows,
-            columns: columns,
-            spacing: spacing || 0
-          }
+      imageOrConfig instanceof Texture ?
+        {
+          image: imageOrConfig,
+          spWidth: spWidth,
+          spHeight: spHeight,
+          rows: rows,
+          columns: columns,
+          spacing: spacing || 0
+        }
         : imageOrConfig
     );
 
@@ -430,9 +425,6 @@ export interface SpriteFontOptions {
   maxWidth?: number;
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface SpriteFontArgs extends SpriteSheetArgs {
   image: Texture;
   columns: number;
@@ -447,8 +439,6 @@ export interface SpriteFontArgs extends SpriteSheetArgs {
  * Sprite fonts are a used in conjunction with a [[Label]] to specify
  * a particular bitmap as a font. Note that some font features are not
  * supported by Sprite fonts.
- *
- * [[include:SpriteFonts.md]]
  */
 export class SpriteFont extends Configurable(SpriteFontImpl) {
   constructor(config: SpriteFontArgs);

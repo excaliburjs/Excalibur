@@ -1,19 +1,20 @@
 import { BoundingBox } from './Collision/BoundingBox';
 import { Color } from './Drawing/Color';
-import { Class } from './Class';
 import { Engine } from './Engine';
-import { Vector } from './Algebra';
+import { vec, Vector } from './Algebra';
 import { Actor } from './Actor';
 import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
 import { Configurable } from './Configurable';
-import { obsolete } from './Util/Decorators';
+import { Entity } from './EntityComponentSystem/Entity';
+import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
+import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 
 /**
  * @hidden
  */
-export class TileMapImpl extends Class {
+export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent> {
   private _collidingX: number = -1;
   private _collidingY: number = -1;
   private _onScreenXStart: number = 0;
@@ -25,13 +26,27 @@ export class TileMapImpl extends Class {
   public data: Cell[] = [];
   public x: number;
   public y: number;
+  public z = 0;
+  public visible = true;
+  public isOffscreen = false;
+  public rotation = 0;
+  public scale = Vector.One;
   public cellWidth: number;
   public cellHeight: number;
   public rows: number;
   public cols: number;
 
-  public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent) => void): void;
-  public on(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent) => void): void;
+  public get pos(): Vector {
+    return vec(this.x, this.y);
+  }
+
+  public set pos(val: Vector) {
+    this.x = val.x;
+    this.y = val.y;
+  }
+
+  public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent<TileMap>) => void): void;
+  public on(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent<TileMap>) => void): void;
   public on(eventName: Events.predraw, handler: (event: Events.PreDrawEvent) => void): void;
   public on(eventName: Events.postdraw, handler: (event: Events.PostDrawEvent) => void): void;
   public on(eventName: string, handler: (event: Events.GameEvent<any>) => void): void;
@@ -40,7 +55,7 @@ export class TileMapImpl extends Class {
   }
 
   /**
-   * @param x             The x coordinate to anchor the TileMap's upper left corner (should not be changed once set)
+   * @param xOrConfig     The x coordinate to anchor the TileMap's upper left corner (should not be changed once set) or TileMap option bag
    * @param y             The y coordinate to anchor the TileMap's upper left corner (should not be changed once set)
    * @param cellWidth     The individual width of each cell (in pixels) (should not be changed once set)
    * @param cellHeight    The individual height of each cell (in pixels) (should not be changed once set)
@@ -73,6 +88,9 @@ export class TileMapImpl extends Class {
         })();
       }
     }
+
+    this.addComponent(new TransformComponent());
+    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
   }
 
   public registerSpriteSheet(key: string, spriteSheet: SpriteSheet) {
@@ -87,6 +105,9 @@ export class TileMapImpl extends Class {
     const height = actor.pos.y + actor.height;
     const actorBounds = actor.body.collider.bounds;
     const overlaps: Vector[] = [];
+    if (actor.width <= 0 || actor.height <= 0) {
+      return null;
+    }
     // trace points for overlap
     for (let x = actorBounds.left; x <= width; x += Math.min(actor.width / 2, this.cellWidth / 2)) {
       for (let y = actorBounds.top; y <= height; y += Math.min(actor.height / 2, this.cellHeight / 2)) {
@@ -147,7 +168,16 @@ export class TileMapImpl extends Class {
     return null;
   }
 
+  public onPreUpdate(_engine: Engine, _delta: number) {
+    // Override me
+  }
+
+  public onPostUpdate(_engine: Engine, _delta: number) {
+    // Override me
+  }
+
   public update(engine: Engine, delta: number) {
+    this.onPreUpdate(engine, delta);
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
 
     const worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
@@ -158,6 +188,7 @@ export class TileMapImpl extends Class {
     this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0);
     this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
 
+    this.onPostUpdate(engine, delta);
     this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
   }
 
@@ -168,9 +199,6 @@ export class TileMapImpl extends Class {
    */
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     this.emit('predraw', new Events.PreDrawEvent(ctx, delta, this));
-
-    ctx.save();
-    ctx.translate(this.x, this.y);
 
     let x = this._onScreenXStart;
     const xEnd = Math.min(this._onScreenXEnd, this.cols);
@@ -204,7 +232,6 @@ export class TileMapImpl extends Class {
       }
       y = this._onScreenYStart;
     }
-    ctx.restore();
 
     this.emit('postdraw', new Events.PostDrawEvent(ctx, delta, this));
   }
@@ -233,10 +260,10 @@ export class TileMapImpl extends Class {
     const solid = Color.Red;
     solid.a = 0.3;
     this.data
-      .filter(function(cell) {
+      .filter(function (cell) {
         return cell.solid;
       })
-      .forEach(function(cell) {
+      .forEach(function (cell) {
         ctx.fillStyle = solid.toString();
         ctx.fillRect(cell.x, cell.y, cell.width, cell.height);
       });
@@ -253,9 +280,6 @@ export class TileMapImpl extends Class {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface TileMapArgs extends Partial<TileMapImpl> {
   x: number;
   y: number;
@@ -268,8 +292,6 @@ export interface TileMapArgs extends Partial<TileMapImpl> {
 /**
  * The [[TileMap]] class provides a lightweight way to do large complex scenes with collision
  * without the overhead of actors.
- *
- * [[include:TileMaps.md]]
  */
 export class TileMap extends Configurable(TileMapImpl) {
   constructor(config: TileMapArgs);
@@ -304,7 +326,7 @@ export class CellImpl {
   public sprites: TileSprite[] = [];
 
   /**
-   * @param x       Gets or sets x coordinate of the cell in world coordinates
+   * @param xOrConfig Gets or sets x coordinate of the cell in world coordinates or cell option bag
    * @param y       Gets or sets y coordinate of the cell in world coordinates
    * @param width   Gets or sets the width of the cell
    * @param height  Gets or sets the height of the cell
@@ -341,24 +363,8 @@ export class CellImpl {
     this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
   }
 
-  /**
-   * Returns the bounding box for this cell
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.bounds' })
-  public getBounds() {
-    return this._bounds;
-  }
-
   public get bounds() {
     return this._bounds;
-  }
-
-  /**
-   * Gets the center coordinate of this cell
-   */
-  @obsolete({ message: 'Will be removed in v0.24.0', alternateMethod: 'BoundingBox.center' })
-  public getCenter(): Vector {
-    return new Vector(this.x + this.width / 2, this.y + this.height / 2);
   }
 
   public get center(): Vector {
@@ -388,9 +394,6 @@ export class CellImpl {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface CellArgs extends Partial<CellImpl> {
   x: number;
   y: number;

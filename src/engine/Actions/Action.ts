@@ -46,6 +46,8 @@ export class EaseTo implements Action {
       this._initialized = true;
     }
 
+    // Need to update lerp time first, otherwise the first update will always be zero
+    this._currentLerpTime += delta;
     let newX = this.actor.pos.x;
     let newY = this.actor.pos.y;
     if (this._currentLerpTime < this._lerpDuration) {
@@ -64,13 +66,13 @@ export class EaseTo implements Action {
       } else {
         newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
       }
-      this.actor.pos.x = newX;
-      this.actor.pos.y = newY;
-
-      this._currentLerpTime += delta;
+      // Given the lerp position figure out the velocity in pixels per second
+      this.actor.vel.x = (newX - this.actor.pos.x) / (delta / 1000);
+      this.actor.vel.y = (newY - this.actor.pos.y) / (delta / 1000);
     } else {
       this.actor.pos.x = this._lerpEnd.x;
       this.actor.pos.y = this._lerpEnd.y;
+      this.actor.vel = Vector.Zero;
       //this._lerpStart = null;
       //this._lerpEnd = null;
       //this._currentLerpTime = 0;
@@ -84,6 +86,8 @@ export class EaseTo implements Action {
     this._initialized = false;
   }
   public stop(): void {
+    this.actor.vel.y = 0;
+    this.actor.vel.x = 0;
     this._stopped = true;
   }
 }
@@ -168,7 +172,7 @@ export class MoveBy implements Action {
       this._started = true;
       this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
       this._end = this._start.add(this._offset);
-      this._distance = this._offset.magnitude();
+      this._distance = this._offset.size;
       this._dir = this._end.sub(this._start).normalize();
     }
 
@@ -544,7 +548,7 @@ export class RotateBy implements Action {
   }
 }
 
-@obsolete({ message: 'ex.Action.ScaleTo will be removed in v0.24.0', alternateMethod: 'Set width and hight directly' })
+@obsolete({ message: 'ex.Action.ScaleTo will be removed in v0.25.0', alternateMethod: 'Set width and hight directly' })
 export class ScaleTo implements Action {
   private _actor: Actor;
   public x: number;
@@ -616,7 +620,7 @@ export class ScaleTo implements Action {
   }
 }
 
-@obsolete({ message: 'ex.Action.ScaleBy will be removed in v0.24.0', alternateMethod: 'Set width and hight directly' })
+@obsolete({ message: 'ex.Action.ScaleBy will be removed in v0.25.0', alternateMethod: 'Set width and hight directly' })
 export class ScaleBy implements Action {
   private _actor: Actor;
   public x: number;

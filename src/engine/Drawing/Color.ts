@@ -1,9 +1,9 @@
+import { obsolete } from '../Util/Decorators';
+
 /**
  * Provides standard colors (e.g. [[Color.Black]])
  * but you can also create custom colors using RGB, HSL, or Hex. Also provides
  * useful color operations like [[Color.lighten]], [[Color.darken]], and more.
- *
- * [[include:Colors.md]]
  */
 export class Color {
   /**
@@ -64,7 +64,29 @@ export class Color {
   }
 
   /**
-   * Creates a new inscance of Color from a hex string
+   * Creates a new instance of Color from a rgb string
+   *
+   * @param string  CSS color string of the form rgba(255, 255, 255, 1) or rgb(255, 255, 255)
+   */
+  public static fromRGBString(string: string): Color {
+    const rgbaRegEx: RegExp = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)/i;
+    let match = null;
+    if ((match = string.match(rgbaRegEx))) {
+      const r = parseInt(match[1], 10);
+      const g = parseInt(match[2], 10);
+      const b = parseInt(match[3], 10);
+      let a = 1;
+      if (match[4]) {
+        a = parseFloat(match[4]);
+      }
+      return new Color(r, g, b, a);
+    } else {
+      throw new Error('Invalid rgb/a string: ' + string);
+    }
+  }
+
+  /**
+   * Creates a new instance of Color from a hex string
    *
    * @param hex  CSS color string of the form #ffffff, the alpha component is optional
    */
@@ -86,7 +108,7 @@ export class Color {
   }
 
   /**
-   * Creats a new instance of Color from hsla values
+   * Creates a new instance of Color from hsla values
    *
    * @param h  Hue is represented [0-1]
    * @param s  Saturation is represented [0-1]
@@ -147,12 +169,22 @@ export class Color {
    *
    * @param color  The other color
    */
-  public mulitiply(color: Color): Color {
+  public multiply(color: Color): Color {
     const newR = (((color.r / 255) * this.r) / 255) * 255;
     const newG = (((color.g / 255) * this.g) / 255) * 255;
     const newB = (((color.b / 255) * this.b) / 255) * 255;
     const newA = color.a * this.a;
     return new Color(newR, newG, newB, newA);
+  }
+
+  /**
+   * Multiplies a color by another, results in a darker color
+   * @param color
+   * @obsolete Alias for incorrect spelling used in older versions, use multiply instead, will be removed in v0.25.0
+   */
+  @obsolete({ message: 'Alias for incorrect spelling used in older versions, use multiply instead, will be removed in v0.25.0' })
+  public mulitiply(color: Color): Color {
+    return this.multiply(color);
   }
 
   /**
@@ -163,7 +195,7 @@ export class Color {
   public screen(color: Color): Color {
     const color1 = color.invert();
     const color2 = color.invert();
-    return color1.mulitiply(color2).invert();
+    return color1.multiply(color2).invert();
   }
 
   /**
@@ -310,10 +342,22 @@ export class Color {
   }
 
   /**
-   * Vermillion (#FF5B31)
+   * Vermilion (#FF5B31)
    */
-  public static get Vermillion(): Color {
+  public static get Vermilion(): Color {
     return Color.fromHex('#FF5B31');
+  }
+
+  /**
+   * Vermilion (#FF5B31)
+   * @obsolete Alias for incorrect spelling used in older versions, use multiply instead, will be removed in v0.25.0
+   */
+  @obsolete({
+    message: 'Alias for incorrect spelling used in older versions',
+    alternateMethod: 'Vermilion'
+  })
+  public static get Vermillion(): Color {
+    return Color.Vermilion;
   }
 
   /**

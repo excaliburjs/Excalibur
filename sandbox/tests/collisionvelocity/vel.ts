@@ -6,7 +6,7 @@ var engine = new ex.Engine({
   height: 300,
   pointerScope: ex.Input.PointerScope.Canvas
 });
-engine.isDebug = true;
+engine.showDebug(true);
 ex.Physics.acc.setTo(0, 200);
 ex.Physics.showMotionVectors = true;
 

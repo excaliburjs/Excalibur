@@ -1,5 +1,6 @@
-import { DebugFlags } from './DebugFlags';
+import { DebugFlags, ColorBlindFlags } from './DebugFlags';
 import { Pair } from './Collision/Pair';
+import { Engine } from './Engine';
 
 /**
  * Debug stats containing current and previous frame statistics
@@ -111,7 +112,7 @@ export interface PhysicsStatistics {
   pairs: number;
 
   /**
-   * Gets the number of actual collisons
+   * Gets the number of actual collisions
    */
   collisions: number;
 
@@ -147,22 +148,36 @@ export interface PhysicsStatistics {
  * updated during a frame.
  */
 export class Debug implements DebugFlags {
+  private _engine: Engine;
+
+  constructor(engine: Engine) {
+    this._engine = engine;
+
+    this.colorBlindMode = new ColorBlindFlags(this._engine);
+  }
+
   /**
    * Performance statistics
    */
   public stats: DebugStats = {
     /**
      * Current frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats.
-     * Best accessed on [[postframe]] event. See [[IFrameStats]]
+     * Best accessed on [[postframe]] event. See [[FrameStats]]
      */
     currFrame: new FrameStats(),
 
     /**
      * Previous frame statistics. Engine reuses this instance, use [[FrameStats.clone]] to copy frame stats.
-     * Best accessed on [[preframe]] event. Best inspected on engine event `preframe`. See [[IFrameStats]]
+     * Best accessed on [[preframe]] event. Best inspected on engine event `preframe`. See [[FrameStats]]
      */
     prevFrame: new FrameStats()
   };
+
+  /**
+   * Correct or simulate color blindness using [[ColorBlindness]] post processor.
+   * @warning Will reduce FPS.
+   */
+  public colorBlindMode: ColorBlindFlags;
 }
 
 /**
@@ -177,17 +192,17 @@ export class FrameStats implements FrameStatistics {
     alive: 0,
     killed: 0,
     ui: 0,
-    get remaining(this: FrameActorStats) {
+    get remaining() {
       return this.alive - this.killed;
     },
-    get total(this: FrameActorStats) {
+    get total() {
       return this.remaining + this.ui;
     }
   };
   private _durationStats: FrameDurationStats = {
     update: 0,
     draw: 0,
-    get total(this: FrameDurationStats) {
+    get total() {
       return this.update + this.draw;
     }
   };

@@ -1,18 +1,20 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { Mocks } from './util/Mocks';
 
 describe('A SortedList', () => {
   let sortedList;
 
   beforeEach(() => {
-    sortedList = new ex.SortedList(Mocks.MockedElement.prototype.getTheKey);
+    sortedList = new ex.SortedList<Mocks.MockedElement>((e) => {
+      return e.getTheKey();
+    });
   });
 
   it('should be loaded', () => {
     expect(ex.SortedList).toBeTruthy();
   });
 
-  it('can have an element added to it at a non-existant node', () => {
+  it('can have an element added to it at a non-existent node', () => {
     const element = new Mocks.MockedElement(0);
     expect(sortedList.add(element)).toBe(true);
     expect(sortedList.find(element)).toBe(true);

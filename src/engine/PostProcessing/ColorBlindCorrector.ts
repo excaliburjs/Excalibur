@@ -13,11 +13,11 @@ export enum ColorBlindness {
  * It is possible to use this on every game, but the game's performance
  * will suffer measurably. It's better to use it as a helpful tool while developing your game.
  * Remember, the best practice is to design with color blindness in mind.
- *
- * [[include:ColorBlind.md]]
  */
 export class ColorBlindCorrector implements PostProcessor {
+  /*eslint-disable */
   private _vertexShader =
+    '' +
     'attribute vec2 a_position;' +
     'attribute vec2 a_texCoord;' +
     'uniform vec2 u_resolution;' +
@@ -64,7 +64,7 @@ export class ColorBlindCorrector implements PostProcessor {
     // Simulate color blindness
 
     '//MODE CODE//' +
-    /* Deuteranope for testing 
+    /* Deuteranope for testing
       'float l = 1.0 * L + 0.0 * M + 0.0 * S;' +
             'float m = 0.494207 * L + 0.0 * M + 1.24827 * S;' +
             'float s = 0.0 * L + 0.0 * M + 1.0 * S;' +*/
@@ -85,6 +85,7 @@ export class ColorBlindCorrector implements PostProcessor {
     '//SIMULATE//' +
     '}';
 
+  /*eslint-enable */
   private _internalCanvas: HTMLCanvasElement;
   private _gl: WebGLRenderingContext;
   private _program: WebGLProgram;
@@ -94,6 +95,7 @@ export class ColorBlindCorrector implements PostProcessor {
     this._internalCanvas.width = engine.drawWidth;
     this._internalCanvas.height = engine.drawHeight;
 
+    // eslint-disable-next-line
     this._gl = <WebGLRenderingContext>this._internalCanvas.getContext('webgl', { preserveDrawingBuffer: true });
 
     this._program = this._gl.createProgram();
@@ -215,7 +217,7 @@ export class ColorBlindCorrector implements PostProcessor {
     // Draw the rectangle.
     this._gl.drawArrays(this._gl.TRIANGLES, 0, 6);
 
-    // Grab tranformed image from internal canvas
+    // Grab transformed image from internal canvas
     const pixelData = new Uint8Array(image.width * image.height * 4);
     this._gl.readPixels(0, 0, image.width, image.height, this._gl.RGBA, this._gl.UNSIGNED_BYTE, pixelData);
 

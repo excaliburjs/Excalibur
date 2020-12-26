@@ -62,20 +62,20 @@ game.on('postframe', (ev: ex.PostFrameEvent) => {
   updateStat('debug-frame-narrowphase', ev.stats.physics.narrowphase);
 });
 
-game.add(new ex.UIActor(0, 0, 50, 50));
+game.add(new ex.ScreenElement(0, 0, 50, 50));
 
 function spawnBox() {
   var box = new ex.Actor(250, 50, 50, 50, ex.Color.Red);
-  box.collisionType = ex.CollisionType.Active;
-  box.body.useBoxCollision();
+  box.body.collider.type = ex.CollisionType.Active;
+  box.body.useBoxCollider(50, 50);
   game.add(box);
 }
 
 spawnBox();
 
 var floor = new ex.Actor(250, 500, 500, 10, ex.Color.Green);
-floor.collisionType = ex.CollisionType.Fixed;
-floor.body.useBoxCollision();
+floor.body.collider.type = ex.CollisionType.Fixed;
+floor.body.useBoxCollider(50, 50);
 game.add(floor);
 
 game.input.keyboard.on('press', (evt) => {

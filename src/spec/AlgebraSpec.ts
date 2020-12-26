@@ -1,5 +1,5 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
@@ -68,12 +68,32 @@ describe('Vectors', () => {
     expect(v2.distance()).toBe(20);
   });
 
+  // @obsolete v0.25.0
   it('can have a magnitude', () => {
     const v = new ex.Vector(20, 0);
     const v2 = new ex.Vector(0, -20);
 
     expect(v.magnitude()).toBe(20);
     expect(v2.magnitude()).toBe(20);
+  });
+
+  it('can have a size', () => {
+    const v = new ex.Vector(20, 0);
+    const v2 = new ex.Vector(0, -20);
+
+    expect(v.size).toBe(20);
+    expect(v2.size).toBe(20);
+  });
+
+  it('can have size set', () => {
+    const v = new ex.Vector(20, 0);
+    const v2 = new ex.Vector(3, 4);
+
+    v.size = 10;
+    v2.size = 13;
+
+    expect(v.equals(new ex.Vector(10, 0))).toBeTruthy();
+    expect(v2.equals(new ex.Vector(7.8, 10.4))).toBeTruthy();
   });
 
   it('can calculate the distance to another vector', () => {
@@ -109,7 +129,7 @@ describe('Vectors', () => {
     expect(v.add(v2).equals(new ex.Vector(10, 10))).toBeTruthy();
   });
 
-  it('can be subracted from another', () => {
+  it('can be subtracted from another', () => {
     const v = new ex.Vector(10, 0);
     const v2 = new ex.Vector(0, 10);
 
@@ -126,7 +146,7 @@ describe('Vectors', () => {
     expect(v.y).toBe(10);
   });
 
-  it('can be subracted and set at the same time', () => {
+  it('can be subtracted and set at the same time', () => {
     const v = new ex.Vector(10, 0);
     const v2 = new ex.Vector(0, 10);
 
@@ -159,9 +179,9 @@ describe('Vectors', () => {
     expect(v.dot(v2.negate())).toBeGreaterThan(0);
     // vectors that are perpendicular are zero
     expect(v.dot(v.perpendicular())).toBe(0);
-    // dot product indicates the directionness of vectors
-    // if 2 vectors in the same dir 1 at 45 degress should
-    // be cos(45) in the same direction
+    // dot product measures how close two vectors are to being parallel
+    // the dot product of two vectors, where the second vector is at a
+    // 45 degree angle to the first, should be cos(45) in the same direction.
     expect(v.dot(ex.Vector.fromAngle(Math.PI / 4))).toBe(Math.cos(Math.PI / 4));
   });
 
@@ -426,5 +446,26 @@ describe('Projections', () => {
     const proj = new ex.Projection(5, 10);
     const proj2 = new ex.Projection(11, 12);
     expect(proj.getOverlap(proj2)).toBe(0);
+  });
+});
+
+describe('helpers', () => {
+  describe('vec', () => {
+    it('returns a new Vector instance on each call', () => {
+      const vector1 = ex.vec(1, 0);
+      const vector2 = ex.vec(1, 0);
+      const vector3 = ex.vec(NaN, Number.NEGATIVE_INFINITY);
+      expect(vector1 instanceof ex.Vector).toBe(true);
+      expect(vector2 instanceof ex.Vector).toBe(true);
+      expect(vector3 instanceof ex.Vector).toBe(true);
+      expect(vector1).not.toBe(vector2);
+    });
+
+    it('returns a Vector instance with the specified properties', () => {
+      const [x, y] = [Date.now(), Math.random()];
+      const vector = ex.vec(x, y);
+      expect(vector.x).toBe(x);
+      expect(vector.y).toBe(y);
+    });
   });
 });

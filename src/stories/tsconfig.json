@@ -1,0 +1,13 @@
+{
+  "extends": "../engine/tsconfig.json",
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "rootDirs": [".", "../engine"],
+    "declaration": false,
+    "outDir": ".",
+    "target": "es5"
+  },
+  "include": ["**/*", "../engine/*.d.ts"],
+  "exclude": []
+}

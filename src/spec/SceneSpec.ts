@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
 describe('A scene', () => {
@@ -9,8 +9,7 @@ describe('A scene', () => {
   beforeEach(() => {
     actor = new ex.Actor();
     engine = TestUtils.engine({ width: 100, height: 100 });
-    scene = new ex.Scene(engine);
-    engine.currentScene = scene;
+    scene = new ex.Scene();
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(actor, 'draw');
@@ -22,12 +21,13 @@ describe('A scene', () => {
     expect(ex.Scene).toBeTruthy();
   });
 
-  it('cannot have the same UIActor added to it more than once', () => {
-    const uiActor = new ex.UIActor();
-    scene.add(uiActor);
-    expect(scene.uiActors.length).toBe(1);
-    scene.add(uiActor);
-    expect(scene.uiActors.length).toBe(1);
+  it('cannot have the same ScreenElement added to it more than once', () => {
+    engine.goToScene('root');
+    const screenElement = new ex.ScreenElement();
+    scene.add(screenElement);
+    expect(scene.actors.length).toBe(1);
+    scene.add(screenElement);
+    expect(scene.actors.length).toBe(1);
   });
 
   it('cannot have the same Actor added to it more than once', () => {
@@ -46,6 +46,7 @@ describe('A scene', () => {
   });
 
   it('draws onscreen Actors', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
@@ -62,6 +63,7 @@ describe('A scene', () => {
   });
 
   it('draws onscreen Actors left', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = -4;
@@ -77,6 +79,7 @@ describe('A scene', () => {
     expect(actor.draw).toHaveBeenCalled();
   });
   it('does not draw offscreen Actors left', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = -6;
@@ -93,6 +96,7 @@ describe('A scene', () => {
   });
 
   it('draws onscreen Actors top', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
@@ -109,6 +113,7 @@ describe('A scene', () => {
   });
 
   it('does not draw offscreen Actors top', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
@@ -125,6 +130,7 @@ describe('A scene', () => {
   });
 
   it('draws onscreen Actors right', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 104;
@@ -141,6 +147,7 @@ describe('A scene', () => {
   });
 
   it('does not draw offscreen Actors right', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 106;
@@ -157,6 +164,7 @@ describe('A scene', () => {
   });
 
   it('draws onscreen Actors bottom', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
@@ -173,6 +181,7 @@ describe('A scene', () => {
   });
 
   it('does not draw offscreen Actors bottom', () => {
+    engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
@@ -189,6 +198,7 @@ describe('A scene', () => {
   });
 
   it('does not draw offscreen Actors', () => {
+    engine.goToScene('root');
     actor.pos.x = 1000;
     actor.pos.y = 1000;
     scene.update(engine, 100);
@@ -215,6 +225,7 @@ describe('A scene', () => {
   });
 
   it('draws visible Actors', () => {
+    engine.goToScene('root');
     actor.visible = true;
 
     scene.add(actor);
@@ -224,6 +235,7 @@ describe('A scene', () => {
   });
 
   it('does not draw invisible actors', () => {
+    engine.goToScene('root');
     actor.visible = false;
 
     scene.add(actor);
@@ -238,7 +250,7 @@ describe('A scene', () => {
       initialized = true;
     });
     scene.on('activate', (evt: ex.ActivateEvent) => {
-      expect(initialized).toBe(true, 'Initilization should happen before activation');
+      expect(initialized).toBe(true, 'Initialization should happen before activation');
       done();
     });
 
@@ -251,7 +263,7 @@ describe('A scene', () => {
     let actorInitialized = false;
     scene.on('initialize', (evt) => {
       sceneInitialized = true;
-      expect(actorInitialized).toBe(true, 'Actor should be initialized before scene initilization');
+      expect(actorInitialized).toBe(true, 'Actor should be initialized before scene initialization');
     });
     const actor = new ex.Actor();
     actor.on('initialize', (evt) => {
@@ -283,6 +295,21 @@ describe('A scene', () => {
     scene._initialize(engine);
 
     expect(initializeCount).toBe(1, 'Scenes can only be initialized once');
+  });
+
+  it('should initialize before actors in the scene', () => {
+    const actor = new ex.Actor();
+    scene.add(actor);
+    let sceneInit = false;
+    scene.onInitialize = () => {
+      sceneInit = true;
+    };
+    actor.onInitialize = () => {
+      expect(sceneInit).toBe(true, 'Scene should be initialized first before any actors');
+    };
+
+    engine.goToScene('root');
+    scene.update(engine, 100);
   });
 
   it('should allow adding and removing an Actor in same frame', () => {
@@ -358,7 +385,6 @@ describe('A scene', () => {
 
     expect(scene.actors.indexOf(actor)).toBe(0);
     expect(scene.actors.length).toBe(1);
-    expect(scene.isActorInDrawTree(actor)).toBe(true);
   });
 
   it('will update Actors that were added in a Timer callback', () => {
@@ -379,13 +405,13 @@ describe('A scene', () => {
     });
 
     // create Timer
-    const timer = new ex.Timer(
-      () => {
+    const timer = new ex.Timer({
+      interval: 10,
+      fcn: () => {
         scene.add(actor);
       },
-      10,
-      false
-    );
+      repeats: false
+    });
 
     scene.add(timer);
     scene.update(engine, 11);
@@ -396,39 +422,39 @@ describe('A scene', () => {
     expect(updated).toBe(true, 'Actor was not updated after timer callback');
   });
 
-  it('will update UIActors that were added in a Timer callback', () => {
+  it('will update ScreenElement that were added in a Timer callback', () => {
     let updated = false;
     let initialized = false;
-    const actor = new ex.UIActor();
+    const actor = new ex.ScreenElement();
     actor.on('initialize', () => {
       initialized = true;
     });
     actor.on('postupdate', () => {
       updated = true;
 
-      expect(initialized).toBe(true, 'UIActor was not initialized before calling update');
+      expect(initialized).toBe(true, 'ScreenElement was not initialized before calling update');
     });
     actor.on('postdraw', () => {
-      expect(updated).toBe(true, 'UIActor was not updated before calling draw');
-      expect(initialized).toBe(true, 'UIActor was not initialized before calling draw');
+      expect(updated).toBe(true, 'ScreenElement was not updated before calling draw');
+      expect(initialized).toBe(true, 'ScreenElement was not initialized before calling draw');
     });
 
     // create Timer
-    const timer = new ex.Timer(
-      () => {
+    const timer = new ex.Timer({
+      interval: 10,
+      fcn: () => {
         scene.add(actor);
       },
-      10,
-      false
-    );
+      repeats: false
+    });
 
     scene.add(timer);
     scene.update(engine, 11);
     scene.draw(engine.ctx, 11);
 
-    expect(scene.uiActors.indexOf(actor)).toBeGreaterThan(-1, 'UIActor was not added to scene');
-    expect(initialized).toBe(true, 'UIActor was not initialized after timer callback');
-    expect(updated).toBe(true, 'UIActor was not updated after timer callback');
+    expect(scene.actors.indexOf(actor)).toBeGreaterThan(-1, 'ScreenElement was not added to scene');
+    expect(initialized).toBe(true, 'ScreenElement was not initialized after timer callback');
+    expect(updated).toBe(true, 'ScreenElement was not updated after timer callback');
   });
 
   it('will kill the actor if the actor is removed from the scene', () => {
@@ -472,13 +498,13 @@ describe('A scene', () => {
     });
 
     // create Timer
-    const timer = new ex.Timer(
-      () => {
+    const timer = new ex.Timer({
+      interval: 10,
+      fcn: () => {
         scene.add(tilemap);
       },
-      10,
-      false
-    );
+      repeats: false
+    });
 
     scene.add(timer);
     scene.update(engine, 11);
@@ -525,7 +551,7 @@ describe('A scene', () => {
       scene = null;
     });
 
-    it('can have onInitialize overriden safely', () => {
+    it('can have onInitialize overridden safely', () => {
       let initCalled = false;
       scene.onInitialize = (engine) => {
         expect(engine).not.toBe(null);
@@ -544,7 +570,7 @@ describe('A scene', () => {
       expect(scene.onInitialize).toHaveBeenCalledTimes(1);
     });
 
-    it('can have onPostUpdate overriden safely', () => {
+    it('can have onPostUpdate overridden safely', () => {
       scene.onPostUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -560,7 +586,7 @@ describe('A scene', () => {
       expect(scene.onPostUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreUpdate overriden safely', () => {
+    it('can have onPreUpdate overridden safely', () => {
       scene.onPreUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -576,7 +602,7 @@ describe('A scene', () => {
       expect(scene.onPreUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreDraw overriden safely', () => {
+    it('can have onPreDraw overridden safely', () => {
       scene.onPreDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
@@ -592,7 +618,7 @@ describe('A scene', () => {
       expect(scene.onPreDraw).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPostDraw overriden safely', () => {
+    it('can have onPostDraw overridden safely', () => {
       scene.onPostDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);

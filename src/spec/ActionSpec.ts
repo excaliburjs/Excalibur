@@ -1,15 +1,16 @@
-import * as ex from '../../build/dist/excalibur';
-import { Mocks } from './util/Mocks';
+import * as ex from '@excalibur';
+import { TestUtils } from './util/TestUtils';
+import { ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('Action', () => {
   let actor: ex.Actor;
 
-  let engine: ex.Engine;
+  let engine: ex.Engine & any;
   let scene: ex.Scene;
-  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
-    engine = mock.engine(100, 100);
+    jasmine.addMatchers(ExcaliburMatchers);
+    engine = TestUtils.engine({ width: 100, height: 100 });
 
     actor = new ex.Actor();
     scene = new ex.Scene(engine);
@@ -94,10 +95,7 @@ describe('Action', () => {
       expect(actor.pos.y).toBe(0);
       expect(scene.actors.length).toBe(1);
 
-      actor.actions
-        .moveTo(100, 0, 100)
-        .delay(1000)
-        .die();
+      actor.actions.moveTo(100, 0, 100).delay(1000).die();
       actor.update(engine, 1000);
 
       expect(actor.pos.x).toBe(100);
@@ -137,6 +135,19 @@ describe('Action', () => {
       actor.actions.clearActions();
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(0);
+    });
+
+    it('can be a promise', (done) => {
+      const spy = jasmine.createSpy();
+      actor.actions.delay(1000);
+      actor.actions.callMethod(spy);
+      actor.actions.asPromise().then(() => {
+        expect(spy).toHaveBeenCalled();
+        done();
+      });
+      actor.update(engine, 1000);
+      actor.update(engine, 0);
+      actor.update(engine, 0);
     });
   });
 
@@ -204,15 +215,49 @@ describe('Action', () => {
     });
   });
 
+  describe('easeTo', () => {
+    it('can be eased to a location given an easing function', () => {
+      expect(actor.pos).toBeVector(ex.vec(0, 0));
+
+      actor.actions.easeTo(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+
+      actor.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(50, 0));
+      expect(actor.vel).toBeVector(ex.vec(100, 0));
+
+      actor.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+
+      actor.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+    });
+
+    it('can be stopped', () => {
+      expect(actor.pos).toBeVector(ex.vec(0, 0));
+
+      actor.actions.easeTo(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+
+      actor.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(50, 0));
+      expect(actor.vel).toBeVector(ex.vec(100, 0));
+
+      actor.actions.clearActions();
+
+      // actor should not move and should have zero velocity after stopping
+      actor.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(50, 0));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+    });
+  });
+
   describe('repeat', () => {
     it('can repeat previous actions', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions
-        .moveTo(20, 0, 10)
-        .moveTo(0, 0, 10)
-        .repeat();
+      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
 
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
@@ -249,10 +294,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions
-        .moveTo(20, 0, 10)
-        .moveTo(0, 0, 10)
-        .repeat();
+      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
 
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
@@ -292,10 +334,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions
-        .moveTo(20, 0, 10)
-        .moveTo(0, 0, 10)
-        .repeatForever();
+      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
 
       for (let i = 0; i < 20; i++) {
         actor.update(engine, 1000);
@@ -323,10 +362,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions
-        .moveTo(20, 0, 10)
-        .moveTo(0, 0, 10)
-        .repeatForever();
+      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
 
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
@@ -647,10 +683,7 @@ describe('Action', () => {
     it('can go back and forth from 0 to 1 more than once (#512)', () => {
       actor.opacity = 0;
 
-      actor.actions
-        .fade(1, 200)
-        .fade(0, 200)
-        .repeat(1);
+      actor.actions.fade(1, 200).fade(0, 200).repeat(1);
       for (let i = 0; i < 40; i++) {
         actor.update(engine, 20);
       }

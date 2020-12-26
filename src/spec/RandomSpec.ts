@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 
 describe('A random number', () => {
   it('exists', () => {
@@ -21,7 +21,7 @@ describe('A random number', () => {
   });
 
   it('produces the correct first number for a specific seed according to original paper', () => {
-    // C implemenation output http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
+    // C implementation output http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
     const random = new ex.Random(19650218);
     expect(random.seed).toBe(19650218);
     expect(random.nextInt()).toBe(2325592414);
@@ -148,7 +148,7 @@ describe('A random number', () => {
     expect(random1.pickSet(array, 2).length).toBe(2);
   });
 
-  it('can pick a set of an array with dups', () => {
+  it('can pick a set of an array with duplicates', () => {
     const array = ['one', 'two', 'three', 'four'];
     const numCounts = 1000;
 

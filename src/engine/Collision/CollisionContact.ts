@@ -91,7 +91,7 @@ export class CollisionContact {
   }
 
   private _resolveRigidBodyCollision() {
-    // perform collison on bounding areas
+    // perform collision on bounding areas
     const bodyA: Body = this.colliderA.body;
     const bodyB: Body = this.colliderB.body;
     const mtv = this.mtv; // normal pointing away from colliderA
@@ -120,7 +120,7 @@ export class CollisionContact {
     const invMoiA = this.colliderA.type === CollisionType.Fixed ? 0 : 1 / this.colliderA.inertia;
     const invMoiB = this.colliderB.type === CollisionType.Fixed ? 0 : 1 / this.colliderB.inertia;
 
-    // average restitution more relistic
+    // average restitution more realistic
     const coefRestitution = Math.min(this.colliderA.bounciness, this.colliderB.bounciness);
 
     const coefFriction = Math.min(this.colliderA.friction, this.colliderB.friction);

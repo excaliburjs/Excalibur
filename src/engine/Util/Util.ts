@@ -67,7 +67,7 @@ export function extend() {
   const assignExists = typeof (<any>Object).assign === 'function';
   let merge = null;
   if (!assignExists) {
-    merge = function(obj: any) {
+    merge = function (obj: any) {
       for (const prop in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, prop)) {
           // If deep merge and property is an object, merge properties
@@ -96,6 +96,10 @@ export function extend() {
   return extended;
 }
 
+/**
+ * Encode a string in base64
+ * @deprecated This method is marked for removal
+ */
 export function base64Encode(inputStr: string) {
   const b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
   let outputStr = '';
@@ -130,20 +134,38 @@ export function base64Encode(inputStr: string) {
 }
 
 /**
+ * Sugar that will use `nullishVal` if it's not null or undefined. Simulates the `??` operator
+ * @param nullishVal
+ * @param defaultVal
+ */
+export function nullish<T>(nullishVal: T | undefined | null, defaultVal: T): T {
+  return nullishVal !== null && nullishVal !== undefined ? nullishVal : defaultVal;
+}
+
+/**
  * Clamps a value between a min and max inclusive
  */
 export function clamp(val: number, min: number, max: number) {
   return Math.min(Math.max(min, val), max);
 }
 
+/**
+ * Find a random floating point number in range
+ */
 export function randomInRange(min: number, max: number, random: Random = new Random()): number {
   return random ? random.floating(min, max) : min + Math.random() * (max - min);
 }
 
+/**
+ * Find a random integer in a range
+ */
 export function randomIntInRange(min: number, max: number, random: Random = new Random()): number {
   return random ? random.integer(min, max) : Math.round(randomInRange(min, max));
 }
 
+/**
+ * Convert an angle to be the equivalent in the range [0, 2PI]
+ */
 export function canonicalizeAngle(angle: number): number {
   let tmpAngle = angle;
   if (angle > TwoPI) {
@@ -160,14 +182,23 @@ export function canonicalizeAngle(angle: number): number {
   return tmpAngle;
 }
 
+/**
+ * Convert radians to degrees
+ */
 export function toDegrees(radians: number): number {
   return (180 / Math.PI) * radians;
 }
 
+/**
+ * Convert degrees to radians
+ */
 export function toRadians(degrees: number): number {
   return (degrees / 180) * Math.PI;
 }
 
+/**
+ * Find the screen position of an HTML element
+ */
 export function getPosition(el: HTMLElement): Vector {
   let oLeft: number = 0,
     oTop: number = 0;
@@ -192,6 +223,10 @@ export function getPosition(el: HTMLElement): Vector {
   return new Vector(oLeft, oTop);
 }
 
+/**
+ * Add an item to an array list if it doesn't already exist. Returns true if added, false if not and already exists in the array.
+ * @deprecated
+ */
 export function addItemToArray<T>(item: T, array: T[]): boolean {
   if (array.indexOf(item) === -1) {
     array.push(item);
@@ -200,6 +235,9 @@ export function addItemToArray<T>(item: T, array: T[]): boolean {
   return false;
 }
 
+/**
+ * Remove an item from an list
+ */
 export function removeItemFromArray<T>(item: T, array: T[]): boolean {
   let index = -1;
   if ((index = array.indexOf(item)) > -1) {
@@ -210,6 +248,9 @@ export function removeItemFromArray<T>(item: T, array: T[]): boolean {
   return false;
 }
 
+/**
+ * See if an array contains something
+ */
 export function contains(array: Array<any>, obj: any): boolean {
   for (let i = 0; i < array.length; i++) {
     if (array[i] === obj) {
@@ -219,6 +260,11 @@ export function contains(array: Array<any>, obj: any): boolean {
   return false;
 }
 
+/**
+ * Get the opposit side
+ * TODO: Move to Side type
+ * @deprecated
+ */
 export function getOppositeSide(side: Side) {
   if (side === Side.Top) {
     return Side.Bottom;
@@ -237,15 +283,9 @@ export function getOppositeSide(side: Side) {
 }
 
 /**
- * @obsolete use Util.getSideFromDirection
- */
-export function getSideFromVector(direction: Vector) {
-  return getSideFromDirection(direction);
-}
-
-/**
  * Returns the side in the direction of the vector supplied
  * @param direction Vector to check
+ * TODO: Move to Side type
  */
 export function getSideFromDirection(direction: Vector) {
   const directions = [Vector.Left, Vector.Right, Vector.Up, Vector.Down];
@@ -264,6 +304,7 @@ export function getSideFromDirection(direction: Vector) {
 
 /**
  * Excalibur's dynamically resizing collection
+ * @deprecated Will be removed in future releases
  */
 export class Collection<T> {
   /**
@@ -420,4 +461,16 @@ export class Collection<T> {
  */
 export function fail(message: never): never {
   throw new Error(message);
+}
+
+/**
+ * Create a promise that resolves after a certain number of milliseconds
+ * @param milliseconds
+ */
+export function delay(milliseconds: number): Promise<void> {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, milliseconds);
+  });
 }

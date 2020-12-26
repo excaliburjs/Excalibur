@@ -10,9 +10,9 @@ game.backgroundColor = ex.Color.Blue;
 var actor = new ex.Actor();
 
 actor.pos.x = 250;
-actor.setWidth(10);
+actor.width = 10;
 actor.pos.y = 250;
-actor.setHeight(10);
+actor.height = 10;
 actor.color = ex.Color.Red;
 
 game.add(actor);

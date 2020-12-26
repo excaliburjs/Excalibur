@@ -1,6 +1,5 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
-import * as ex from '../../build/dist/excalibur';
-import { Mocks } from './util/Mocks';
+import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
 describe('A sprite', () => {
@@ -67,7 +66,7 @@ describe('A sprite', () => {
         height: 1
       });
     } catch (e) {
-      expect(e.message).toBe('An image texture is required to contsruct a sprite');
+      expect(e.message).toBe('An image texture is required to construct a sprite');
     }
   });
 
@@ -107,6 +106,56 @@ describe('A sprite', () => {
       sprite.draw(engine.ctx, 62 / 2, 64 / 2);
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/iconrotate.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+  });
+
+  it('can be drawn with opacity', (done) => {
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        rotation: 0,
+        anchor: new ex.Vector(0.0, 0.0),
+        scale: new ex.Vector(1, 1),
+        flipVertical: false,
+        flipHorizontal: false
+      });
+
+      sprite.opacity(0.1);
+
+      sprite.draw(engine.ctx, 0, 0);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/opacity.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+  });
+
+  it('can be drawn with opacity as an option', (done) => {
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        rotation: 0,
+        anchor: new ex.Vector(0.0, 0.0),
+        scale: new ex.Vector(1, 1),
+        flipVertical: false,
+        flipHorizontal: false
+      });
+
+      sprite.draw({ ctx: engine.ctx, x: 0, y: 0, opacity: 0.1 });
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/opacity.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
       });
@@ -271,8 +320,9 @@ describe('A sprite', () => {
 
   it('should always have non-zero dimensions', (done) => {
     texture.load().then(() => {
+      let sprite: ex.Sprite;
       try {
-        const sprite = new ex.Sprite({
+        sprite = new ex.Sprite({
           image: texture,
           x: 0,
           y: 0,
@@ -280,11 +330,11 @@ describe('A sprite', () => {
           height: 1
         });
       } catch (e) {
-        expect(e.message).toBe(`The width of a sprite cannot be 0 or negative, sprite width: ${this.width}, original width: 62`);
+        expect(e.message).toBe(`The width of a sprite cannot be 0 or negative, sprite width: ${sprite.width}, original width: 62`);
       }
 
       try {
-        const sprite = new ex.Sprite({
+        sprite = new ex.Sprite({
           image: texture,
           x: 0,
           y: 0,
@@ -292,7 +342,7 @@ describe('A sprite', () => {
           height: 0
         });
       } catch (e) {
-        expect(e.message).toBe(`The height of a sprite cannot be 0 or negative, sprite height: ${this.height}, original height: 64`);
+        expect(e.message).toBe(`The height of a sprite cannot be 0 or negative, sprite height: ${sprite.height}, original height: 64`);
       }
 
       done();

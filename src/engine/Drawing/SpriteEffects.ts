@@ -1,8 +1,6 @@
 /**
  * These effects can be applied to any bitmap image but are mainly used
  * for [[Sprite]] effects or [[Animation]] effects.
- *
- * [[include:SpriteEffects.md]]
  */
 
 /**

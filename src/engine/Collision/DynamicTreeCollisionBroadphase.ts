@@ -58,9 +58,11 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
     const seconds = delta / 1000;
 
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
-    const potentialColliders = targets.map((t) => t.collider).filter((other) => {
-      return other.active && other.type !== CollisionType.PreventCollision;
-    });
+    const potentialColliders = targets
+      .map((t) => t.collider)
+      .filter((other) => {
+        return other.active && other.type !== CollisionType.PreventCollision;
+      });
 
     // clear old list of collision pairs
     this._collisionPairCache = [];
@@ -90,15 +92,15 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
     // Fast moving objects are those moving at least there smallest bound per frame
     if (Physics.checkForFastBodies) {
       for (const collider of potentialColliders) {
-        // Skip non-active objects. Does not make sense on other collison types
+        // Skip non-active objects. Does not make sense on other collision types
         if (collider.type !== CollisionType.Active) {
           continue;
         }
 
         // Maximum travel distance next frame
         const updateDistance =
-          collider.body.vel.magnitude() * seconds + // velocity term
-          collider.body.acc.magnitude() * 0.5 * seconds * seconds; // acc term
+          collider.body.vel.size * seconds + // velocity term
+          collider.body.acc.size * 0.5 * seconds * seconds; // acc term
 
         // Find the minimum dimension
         const minDimension = Math.min(collider.bounds.height, collider.bounds.width);
@@ -108,7 +110,7 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
           }
 
           // start with the oldPos because the integration for actors has already happened
-          // objects resting on a surface may be slightly penatrating in the current position
+          // objects resting on a surface may be slightly penetrating in the current position
           const updateVec = collider.body.pos.sub(collider.body.oldPos);
           const centerPoint = collider.shape.center;
           const furthestPoint = collider.shape.getFurthestPoint(collider.body.vel);
@@ -125,7 +127,7 @@ export class DynamicTreeCollisionBroadphase implements CollisionBroadphase {
               const hitPoint = other.collider.shape.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
               if (hitPoint) {
                 const translate = hitPoint.sub(origin);
-                if (translate.magnitude() < minTranslate.magnitude()) {
+                if (translate.size < minTranslate.size) {
                   minTranslate = translate;
                   minBody = other;
                 }

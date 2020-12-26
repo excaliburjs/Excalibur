@@ -1,4 +1,3 @@
-import { Promise } from '../Promises';
 
 /**
  * Represents an audio control implementation

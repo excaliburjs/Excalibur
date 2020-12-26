@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 
 describe('A color', () => {
   let color;
@@ -50,6 +50,22 @@ describe('A color', () => {
 
     color = ex.Color.fromHex('#00bbaa00');
     expect(color.a).toBe(0);
+  });
+
+  it('can be parsed from rgb string', () => {
+    color = ex.Color.fromRGBString('rgb(100, 120, 140)');
+    expect(color.r).toBe(100);
+    expect(color.g).toBe(120);
+    expect(color.b).toBe(140);
+    expect(color.a).toBe(1);
+  });
+
+  it('can be parsed from rgba string', () => {
+    color = ex.Color.fromRGBString('rgb(100, 120, 140, 0.5)');
+    expect(color.r).toBe(100);
+    expect(color.g).toBe(120);
+    expect(color.b).toBe(140);
+    expect(color.a).toBe(0.5);
   });
 
   it('can be parsed from hsl', () => {

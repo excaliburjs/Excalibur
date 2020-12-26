@@ -15,7 +15,7 @@ export enum FontUnit {
    */
   Em,
   /**
-   * Rem is similar to the Em, it is a scalable unit. 1 rem is eqaul to the font size of the root element
+   * Rem is similar to the Em, it is a scalable unit. 1 rem is equal to the font size of the root element
    */
   Rem,
   /**
@@ -105,10 +105,9 @@ export enum FontStyle {
   Oblique
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface LabelArgs extends Partial<LabelImpl> {
+  x?: number;
+  y?: number;
   text?: string;
   bold?: boolean;
   pos?: Vector;
@@ -191,22 +190,15 @@ export class LabelImpl extends Actor {
   private _shadowOffsetY: number;
 
   /**
-   * @param text        The text of the label
+   * @param textOrConfig    The text of the label, or label option bag
    * @param x           The x position of the label
    * @param y           The y position of the label
-   * @param fontFamily  Use any valid CSS font string for the label's font. Web fonts are supported. Default is `10px sans-serif`.
+   * @param fontFamily  Use a value that is valid for the CSS `font-family` property. The default is `sans-serif`.
    * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precedence
    * over a css font.
    */
   constructor(textOrConfig?: string | Partial<LabelImpl>, x?: number, y?: number, fontFamily?: string, spriteFont?: SpriteFont) {
-    super(
-      textOrConfig && typeof textOrConfig === 'object'
-        ? {
-            x: textOrConfig.x,
-            y: textOrConfig.y
-          }
-        : { x: x, y: y }
-    );
+    super(textOrConfig && typeof textOrConfig === 'object' ? textOrConfig : { pos: new Vector(x, y) });
 
     let text = '';
     if (textOrConfig && typeof textOrConfig === 'object') {
@@ -243,7 +235,7 @@ export class LabelImpl extends Actor {
     return width;
   }
 
-  // TypeScript doesn't support string enums :(
+  /* istanbul ignore next */
   private _lookupFontUnit(fontUnit: FontUnit): string {
     switch (fontUnit) {
       case FontUnit.Em:
@@ -261,6 +253,7 @@ export class LabelImpl extends Actor {
     }
   }
 
+  /* istanbul ignore next */
   private _lookupTextAlign(textAlign: TextAlign): CanvasTextAlign {
     switch (textAlign) {
       case TextAlign.Left:
@@ -278,6 +271,7 @@ export class LabelImpl extends Actor {
     }
   }
 
+  /* istanbul ignore next */
   private _lookupBaseAlign(baseAlign: BaseAlign): CanvasTextBaseline {
     switch (baseAlign) {
       case BaseAlign.Alphabetic:
@@ -297,6 +291,7 @@ export class LabelImpl extends Actor {
     }
   }
 
+  /* istanbul ignore next */
   private _lookupFontStyle(fontStyle: FontStyle): string {
     const boldstring = this.bold ? ' bold' : '';
     switch (fontStyle) {
@@ -343,10 +338,6 @@ export class LabelImpl extends Actor {
 
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     ctx.save();
-    ctx.translate(this.pos.x, this.pos.y);
-    ctx.scale(this.scale.x, this.scale.y);
-    ctx.rotate(this.rotation);
-
     if (this._textShadowOn) {
       ctx.save();
       ctx.translate(this._shadowOffsetX, this._shadowOffsetY);
@@ -403,8 +394,6 @@ export class LabelImpl extends Actor {
 /**
  * Labels are the way to draw small amounts of text to the screen. They are
  * actors and inherit all of the benefits and capabilities.
- *
- * [[include:Labels.md]]
  */
 export class Label extends Configurable(LabelImpl) {
   constructor();

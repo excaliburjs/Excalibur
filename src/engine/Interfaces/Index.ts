@@ -4,6 +4,5 @@ export * from './AudioImplementation';
 export * from './Drawable';
 export * from './Evented';
 export * from './Loadable';
-export * from './Loader';
 export * from './LifecycleEvents';
-export * from './PointerEvents';
+export * from './PointerEventHandlers';

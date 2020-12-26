@@ -1,6 +1,5 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
-import * as ex from '../../build/dist/excalibur';
-import { Mocks } from './util/Mocks';
+import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
 describe('A Gif', () => {
@@ -20,10 +19,11 @@ describe('A Gif', () => {
     engine = null;
   });
 
-  it('should parse gif files correctly', () => {
+  it('should parse gif files correctly', (done) => {
     gif.load().then(() => {
-      expect(gif).toBeDefined();
+      expect(gif).not.toBeNull();
       expect(gif.readCheckBytes).toEqual([11, 3, 4, 11, 4]);
+      done();
     });
   });
 
@@ -42,22 +42,23 @@ describe('A Gif', () => {
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame1.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
-        done();
-      });
-      engine.ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
 
-      sprite = gif.asSprite(1);
-      expect(gif.isLoaded()).toBe(true);
-      sprite.draw(engine.ctx, 0, 0);
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame2.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
+        engine.ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
+
+        sprite = gif.asSprite(1);
+        expect(gif.isLoaded()).toBe(true);
+        sprite.draw(engine.ctx, 0, 0);
+        ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame2.png').then(([canvas, image]) => {
+          expect(canvas).toEqualImage(image);
+          done();
+        });
       });
     });
   });
 
   it('should be read as a SpriteSheet', (done) => {
     gif.load().then(() => {
+      // jasmine.addMatchers(ExcaliburMatchers);
       expect(gif).toBeDefined();
       const spriteSheet: ex.SpriteSheet = gif.asSpriteSheet();
       const sprite = spriteSheet.getSprite(0);

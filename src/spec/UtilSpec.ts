@@ -1,5 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
-import { Mocks } from './util/Mocks';
+import * as ex from '@excalibur';
 
 describe('Utility functions', () => {
   it('can determine the opposite side', () => {
@@ -10,10 +9,10 @@ describe('Utility functions', () => {
   });
 
   it('can determine the side from a vector', () => {
-    expect(ex.Util.getSideFromVector(ex.Vector.Left)).toBe(ex.Side.Left);
-    expect(ex.Util.getSideFromVector(ex.Vector.Right)).toBe(ex.Side.Right);
-    expect(ex.Util.getSideFromVector(ex.Vector.Up)).toBe(ex.Side.Top);
-    expect(ex.Util.getSideFromVector(ex.Vector.Down)).toBe(ex.Side.Bottom);
+    expect(ex.Util.getSideFromDirection(ex.Vector.Left)).toBe(ex.Side.Left);
+    expect(ex.Util.getSideFromDirection(ex.Vector.Right)).toBe(ex.Side.Right);
+    expect(ex.Util.getSideFromDirection(ex.Vector.Up)).toBe(ex.Side.Top);
+    expect(ex.Util.getSideFromDirection(ex.Vector.Down)).toBe(ex.Side.Bottom);
   });
 
   it('can clamp a number to a maximum and minimum', () => {
@@ -41,6 +40,51 @@ describe('Utility functions', () => {
     it('should return false when item to delete is not present', () => {
       const arrayToRemove = ['Godfrey', 'Crizzo', 'Fullstack'];
       expect(ex.Util.removeItemFromArray('Lannister', arrayToRemove)).toBe(false);
+    });
+  });
+
+  describe('nullish', () => {
+    it('should return the default if null or undefined', () => {
+      const defaultNull = ex.Util.nullish(null, 1);
+      const defaultUndefined = ex.Util.nullish(undefined, 2);
+      expect(defaultNull).toBe(1);
+      expect(defaultUndefined).toBe(2);
+    });
+
+    it('should return a value if not null or undefined', () => {
+      const value = ex.Util.nullish('value', 'otherValue');
+      expect(value).toBe('value');
+    });
+  });
+
+  describe('extend', () => {
+    it('should assign simple objects', () => {
+      const obj1 = { foo: true };
+      const obj2 = { bar: true };
+      expect(ex.Util.extend({}, obj1, obj2)).toEqual({
+        ...obj1,
+        ...obj2
+      });
+    });
+
+    it('should assign complex objects', () => {
+      const obj1 = { foo: true, deep: { switch: false, donotswitch: true } };
+      const obj2 = { bar: true, deep: { switch: true } };
+      expect(ex.Util.extend<any, any, any>({}, obj1, obj2)).toEqual({
+        ...obj1,
+        ...obj2
+      });
+    });
+
+    xit('todo: should deeply extend complex objects', () => {
+      const obj1 = { deep: { overwrite: false, preserve: true } };
+      const obj2 = { deep: { overwrite: true } };
+      expect(ex.Util.extend(true, {}, obj1, obj2)).toEqual({
+        deep: {
+          overwrite: true,
+          preserve: true
+        }
+      });
     });
   });
 });

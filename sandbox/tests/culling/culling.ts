@@ -17,7 +17,7 @@ engine.currentScene.add(player);
 
 engine.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
   if (keyDown.key === ex.Input.Keys.D) {
-    engine.isDebug = !engine.isDebug;
+    engine.toggleDebug();
   } else if (keyDown.key === ex.Input.Keys.Up) {
     player.vel.y = -speed;
   } else if (keyDown.key === ex.Input.Keys.Down) {

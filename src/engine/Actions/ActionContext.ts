@@ -2,16 +2,13 @@ import * as Actions from './Action';
 import { RotationType } from './RotationType';
 
 import { Actor } from '../Actor';
-import { Promise } from '../Promises';
 import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
 
 /**
  * The fluent Action API allows you to perform "actions" on
  * [[Actor|Actors]] such as following, moving, rotating, and
  * more. You can implement your own actions by implementing
- * the [[IAction]] interface.
- *
- * [[include:Actions.md]]
+ * the [[Action]] interface.
  */
 export class ActionContext {
   private _actors: Actor[] = [];
@@ -155,7 +152,7 @@ export class ActionContext {
   }
 
   /**
-   * This method will scale an actor by an amount relative to the current scale at a certin speed in scale units/sec
+   * This method will scale an actor by an amount relative to the current scale at a certain speed in scale units/sec
    * and return back the actor. This method is part of the
    * actor 'Action' fluent API allowing action chaining.
    * @param sizeOffsetX   The scaling factor to apply on X axis
@@ -315,16 +312,17 @@ export class ActionContext {
    * Returns a promise that resolves when the current action queue up to now
    * is finished.
    */
-  public asPromise<T>(): Promise<T> {
+  public asPromise<T>(): Promise<T[]> {
     const promises = this._queues.map((q, i) => {
-      const temp = new Promise<T>();
-      q.add(
-        new Actions.CallMethod(this._actors[i], () => {
-          temp.resolve();
-        })
-      );
+      const temp = new Promise<T>((resolve) => {
+        q.add(
+          new Actions.CallMethod(this._actors[i], () => {
+            resolve();
+          })
+        );
+      });
       return temp;
     });
-    return Promise.join.apply(this, promises);
+    return Promise.all(promises);
   }
 }

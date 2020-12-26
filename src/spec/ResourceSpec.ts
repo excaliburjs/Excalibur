@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
@@ -16,6 +16,20 @@ describe('A generic Resource', () => {
     expect(resource.isLoaded()).toBe(false);
   });
 
+  it('should log failure when not found', (done) => {
+    const spy = jasmine.createSpy();
+    spyOn(ex.Logger.getInstance(), 'error').and.callFake(spy);
+
+    resource.events.on('error', jasmine.createSpy());
+    resource.load().then(
+      () => fail(),
+      () => {
+        expect(spy).toHaveBeenCalled();
+        done();
+      }
+    );
+  });
+
   describe('without data', () => {
     it('should not fail on load', (done) => {
       const emptyLoader = new ex.Loader();
@@ -30,11 +44,7 @@ describe('A generic Resource', () => {
 
   describe('with some data', () => {
     beforeEach(() => {
-      spyOn(URL, 'createObjectURL').and.callFake((data) => {
-        return 'blob://' + data;
-      });
-
-      resource.setData('data');
+      resource.data = 'blob://data';
     });
 
     it('should be loaded immediately', () => {
@@ -42,7 +52,7 @@ describe('A generic Resource', () => {
     });
 
     it('should return the processed data', () => {
-      expect(resource.getData()).toBe('blob://data');
+      expect(resource.data).toBe('blob://data');
     });
 
     it('should not trigger an XHR when load is called', (done) => {
@@ -52,14 +62,6 @@ describe('A generic Resource', () => {
       });
     });
 
-    it('should call processData handler', () => {
-      const spy = jasmine.createSpy('handler');
-
-      resource.processData = spy;
-      resource.setData('data');
-
-      expect(spy).toHaveBeenCalledWith('data');
-    });
 
     it('should load a text resource', (done) => {
       const text = new ex.Resource('base/src/spec/images/ResourceSpec/textresource.txt', 'text', true);

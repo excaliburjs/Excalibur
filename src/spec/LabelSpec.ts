@@ -1,5 +1,5 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
@@ -142,7 +142,7 @@ xdescribe('A label', () => {
   });
 
   it('to enable right aligned text', (done) => {
-    label.x = 200;
+    label.pos.x = 200;
     label.text = 'some right aligned text';
     label.fontSize = 30;
     label.color = ex.Color.Blue;
@@ -156,7 +156,7 @@ xdescribe('A label', () => {
   });
 
   it('to enable left aligned text', (done) => {
-    label.x = 200;
+    label.pos.x = 200;
     label.text = 'some left aligned text';
     label.fontSize = 30;
     label.color = ex.Color.Blue;
@@ -170,7 +170,7 @@ xdescribe('A label', () => {
   });
 
   it('to enable center aligned text', (done) => {
-    label.x = 200;
+    label.pos.x = 200;
     label.text = 'some center aligned text';
     label.fontSize = 30;
     label.color = ex.Color.Blue;
@@ -184,7 +184,7 @@ xdescribe('A label', () => {
   });
 
   xit('can measure text width', () => {
-    label.x = 200;
+    label.pos.x = 200;
     label.text = 'some text to measure';
     label.fontSize = 30;
     label.color = ex.Color.Blue;

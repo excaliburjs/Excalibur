@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Logging level that Excalibur will tag
  */
@@ -12,22 +13,20 @@ export enum LogLevel {
 /**
  * Static singleton that represents the logging facility for Excalibur.
  * Excalibur comes built-in with a [[ConsoleAppender]] and [[ScreenAppender]].
- * Derive from [[IAppender]] to create your own logging appenders.
- *
- * [[include:Logger.md]]
+ * Derive from [[Appender]] to create your own logging appenders.
  */
 export class Logger {
-  private static _instance: Logger = null;
+  private static _INSTANCE: Logger = null;
   private _appenders: Appender[] = [];
 
   constructor() {
-    if (Logger._instance) {
+    if (Logger._INSTANCE) {
       throw new Error('Logger is a singleton');
     }
-    Logger._instance = this;
+    Logger._INSTANCE = this;
     // Default console appender
-    Logger._instance.addAppender(new ConsoleAppender());
-    return Logger._instance;
+    Logger._INSTANCE.addAppender(new ConsoleAppender());
+    return Logger._INSTANCE;
   }
 
   /**
@@ -40,14 +39,14 @@ export class Logger {
    * Gets the current static instance of Logger
    */
   public static getInstance(): Logger {
-    if (Logger._instance == null) {
-      Logger._instance = new Logger();
+    if (Logger._INSTANCE == null) {
+      Logger._INSTANCE = new Logger();
     }
-    return Logger._instance;
+    return Logger._INSTANCE;
   }
 
   /**
-   * Adds a new [[IAppender]] to the list of appenders to write to
+   * Adds a new [[Appender]] to the list of appenders to write to
    */
   public addAppender(appender: Appender): void {
     this._appenders.push(appender);
@@ -198,7 +197,8 @@ export class ScreenAppender implements Appender {
     this._canvas.width = width || window.innerWidth;
     this._canvas.height = height || window.innerHeight;
     this._canvas.style.position = 'absolute';
-    this._ctx = <CanvasRenderingContext2D>this._canvas.getContext('2d');
+    // eslint-disable-next-line
+    this._ctx = <CanvasRenderingContext2D>this._canvas.getContext('2d'); // eslint-disable-line
     document.body.appendChild(this._canvas);
   }
 

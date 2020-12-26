@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
@@ -8,10 +8,8 @@ describe('The engine', () => {
   let scene: ex.Scene;
   const mock = new Mocks.Mocker();
   let loop: Mocks.GameLoopLike;
-  let initHiDpiSpy: jasmine.Spy;
 
   const reset = () => {
-    initHiDpiSpy.calls.reset();
     engine.stop();
     engine = null;
     (<any>window).devicePixelRatio = 1;
@@ -24,11 +22,11 @@ describe('The engine', () => {
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
-    initHiDpiSpy = spyOn(<any>ex.Engine.prototype, '_initializeHiDpi');
 
     engine = TestUtils.engine();
     scene = new ex.Scene(engine);
-    engine.currentScene = scene;
+    engine.add('default', scene);
+    engine.goToScene('default');
 
     loop = mock.loop(engine);
 
@@ -157,6 +155,25 @@ describe('The engine', () => {
     expect(status).toBe(false);
   });
 
+  it('should tell debug drawing is disabled', () => {
+    const status = engine.isDebug;
+    expect(status).toBe(false);
+  });
+
+  it('should enable and disable debug drawing', () => {
+    engine.showDebug(true);
+    expect(engine.isDebug).toBe(true);
+    engine.showDebug(false);
+    expect(engine.isDebug).toBe(false);
+  });
+
+  it('should toggle debug drawing', () => {
+    expect(engine.isDebug).toBe(false);
+    const result = engine.toggleDebug();
+    expect(engine.isDebug).toBe(true);
+    expect(result).toBe(true);
+  });
+
   it('should return screen dimensions', () => {
     engine.start();
     const left = engine.screenToWorldCoordinates(ex.Vector.Zero).x;
@@ -167,7 +184,7 @@ describe('The engine', () => {
     expect(engine.getWorldBounds()).toEqual(localBoundingBox);
   });
 
-  it('should return correct scren dimensions if zoomed in', () => {
+  it('should return correct screen dimensions if zoomed in', () => {
     engine.start();
     engine.currentScene.camera.z = 2;
 
@@ -182,11 +199,24 @@ describe('The engine', () => {
     expect(engine.halfCanvasWidth).toBe(250);
   });
 
+  it('should return if fullscreen', () => {
+    engine.start();
+    expect(engine.isFullscreen).toBe(false);
+  });
+
   it('should accept a displayMode of Position', () => {
+    engine = TestUtils.engine({
+      displayMode: ex.DisplayMode.Position,
+      position: 'top'
+    });
     expect(engine.displayMode).toEqual(ex.DisplayMode.Position);
   });
 
   it('should accept strings to position the window', () => {
+    engine = TestUtils.engine({
+      displayMode: ex.DisplayMode.Position,
+      position: 'top'
+    });
     expect(engine.canvas.style.top).toEqual('0px');
   });
 
@@ -244,7 +274,6 @@ describe('The engine', () => {
     engine.start().then(() => {
       // Assert
       expect(engine.isHiDpi).toBe(true);
-      expect((<any>engine)._initializeHiDpi).toHaveBeenCalled();
       (<any>window).devicePixelRatio = 1;
 
       done();
@@ -276,15 +305,9 @@ describe('The engine', () => {
 
   it('should respect a hidpi suppression flag even if the pixel ratio is greater than 1', (done) => {
     // Arrange
-    const oldWidth = 100;
-    const oldHeight = 100;
-
     (<any>window).devicePixelRatio = 2;
-    const newWidth = oldWidth * (<any>window).devicePixelRatio;
-    const newHeight = oldHeight * (<any>window).devicePixelRatio;
-    // Act
 
-    (<any>ex.Engine.prototype)._initializeHiDpi.calls.reset();
+    // Act
     engine = TestUtils.engine({
       width: 100,
       height: 100,
@@ -294,7 +317,8 @@ describe('The engine', () => {
     engine.start().then(() => {
       // Assert
       expect(engine.isHiDpi).toBe(false);
-      expect((<any>engine)._initializeHiDpi).not.toHaveBeenCalled();
+      expect(engine.drawWidth).toBe(100);
+      expect(engine.drawHeight).toBe(100);
       (<any>window).devicePixelRatio = 1;
       done();
     });
@@ -319,6 +343,48 @@ describe('The engine', () => {
     expect(game.enableCanvasTransparency).toBe(true);
   });
 
+  it('will warn if scenes are being overwritten', () => {
+    spyOn(ex.Logger.getInstance(), 'warn');
+    const scene = new ex.Scene();
+    engine.addScene('dup', scene);
+    engine.addScene('dup', scene);
+    expect(ex.Logger.getInstance().warn).toHaveBeenCalledWith('Scene', 'dup', 'already exists overwriting');
+  });
+
+  it('can have scenes removed by reference', () => {
+    const scene = new ex.Scene();
+    engine.addScene('otherScene', scene);
+    expect(engine.scenes.otherScene).toBeDefined();
+
+    engine.remove(scene);
+
+    expect(engine.scenes.otherScene).toBeUndefined();
+  });
+
+  it('can remove scenes by key', () => {
+    const scene = new ex.Scene();
+    engine.add('mySceneKey', scene);
+    expect(engine.scenes.mySceneKey).toBeDefined();
+
+    engine.remove('mySceneKey');
+    expect(engine.scenes.mySceneKey).toBeUndefined();
+  });
+
+  it('can remove actors by reference', () => {
+    const actor = new ex.Actor();
+    engine.add(actor);
+    expect(engine.currentScene.actors.length).toBe(1);
+    engine.remove(actor);
+    engine.currentScene.update(engine, 0);
+    expect(engine.currentScene.actors.length).toBe(0);
+  });
+
+  it('will log an error if the scene does not exist', () => {
+    spyOn(ex.Logger.getInstance(), 'error');
+    engine.goToScene('madeUp');
+    expect(ex.Logger.getInstance().error).toHaveBeenCalledWith('Scene', 'madeUp', 'does not exist!');
+  });
+
   describe('lifecycle overrides', () => {
     let engine: ex.Engine;
     beforeEach(() => {
@@ -330,7 +396,7 @@ describe('The engine', () => {
       engine = null;
     });
 
-    it('can have onInitialize overriden safely', () => {
+    it('can have onInitialize overridden safely', () => {
       let initCalled = false;
       engine.onInitialize = (engine) => {
         expect(engine).not.toBe(null);
@@ -348,7 +414,7 @@ describe('The engine', () => {
       expect(engine.onInitialize).toHaveBeenCalledTimes(1);
     });
 
-    it('can have onPostUpdate overriden safely', () => {
+    it('can have onPostUpdate overridden safely', () => {
       engine.onPostUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -364,7 +430,7 @@ describe('The engine', () => {
       expect(engine.onPostUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreUpdate overriden safely', () => {
+    it('can have onPreUpdate overridden safely', () => {
       engine.onPreUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -380,7 +446,7 @@ describe('The engine', () => {
       expect(engine.onPreUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreDraw overriden safely', () => {
+    it('can have onPreDraw overridden safely', () => {
       engine.onPreDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
@@ -396,7 +462,7 @@ describe('The engine', () => {
       expect(engine.onPreDraw).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPostDraw overriden safely', () => {
+    it('can have onPostDraw overridden safely', () => {
       engine.onPostDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);

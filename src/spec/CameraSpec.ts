@@ -1,10 +1,10 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
 describe('A camera', () => {
-  let Camera;
+  let Camera: ex.Camera;
   let actor: ex.Actor;
   let engine: ex.Engine;
   let scene: ex.Scene;
@@ -80,6 +80,45 @@ describe('A camera', () => {
     expect(Camera.getFocus().y).toBe(10);
   });
 
+  it('can have its position set 2 ways', () => {
+    Camera.x = 100;
+    Camera.y = 1000;
+    expect(Camera.pos).toBeVector(new ex.Vector(100, 1000));
+    expect(Camera.x).toBe(100);
+    expect(Camera.y).toBe(1000);
+
+    Camera.pos.setTo(55, 555);
+    expect(Camera.pos).toBeVector(new ex.Vector(55, 555));
+    expect(Camera.x).toBe(55);
+    expect(Camera.y).toBe(555);
+  });
+
+  it('can have its velocity set 2 ways', () => {
+    Camera.dx = 100;
+    Camera.dy = 1000;
+    expect(Camera.vel).toBeVector(new ex.Vector(100, 1000));
+    expect(Camera.dx).toBe(100);
+    expect(Camera.dy).toBe(1000);
+
+    Camera.vel.setTo(55, 555);
+    expect(Camera.vel).toBeVector(new ex.Vector(55, 555));
+    expect(Camera.dx).toBe(55);
+    expect(Camera.dy).toBe(555);
+  });
+
+  it('can have its acceleration set 2 ways', () => {
+    Camera.ax = 100;
+    Camera.ay = 1000;
+    expect(Camera.acc).toBeVector(new ex.Vector(100, 1000));
+    expect(Camera.ax).toBe(100);
+    expect(Camera.ay).toBe(1000);
+
+    Camera.acc.setTo(55, 555);
+    expect(Camera.acc).toBeVector(new ex.Vector(55, 555));
+    expect(Camera.ax).toBe(55);
+    expect(Camera.ay).toBe(555);
+  });
+
   it('can chain moves from various points', () => {
     Camera.x = 10;
     Camera.y = 20;
@@ -91,7 +130,24 @@ describe('A camera', () => {
     Camera.move(new ex.Vector(20, 10), 1000).then(() => {
       Camera.move(new ex.Vector(0, 0), 1000).then(() => {
         Camera.move(new ex.Vector(100, 100), 1000);
+        // wait 11 frames (1100ms)
+        for (let i = 0; i < 11; i++) {
+          Camera.update(engine, 100);
+        }
+
+        // should be at new position
+        expect(Camera.x).toBe(100);
+        expect(Camera.y).toBe(100);
       });
+
+      // wait 11 frames (1100ms)
+      for (let i = 0; i < 11; i++) {
+        Camera.update(engine, 100);
+      }
+
+      // should be at new position
+      expect(Camera.x).toBe(0);
+      expect(Camera.y).toBe(0);
     });
 
     // wait 11 frames (1100ms)
@@ -102,24 +158,6 @@ describe('A camera', () => {
     // should be at new position
     expect(Camera.x).toBe(20);
     expect(Camera.y).toBe(10);
-
-    // wait 11 frames (1100ms)
-    for (let i = 0; i < 11; i++) {
-      Camera.update(engine, 100);
-    }
-
-    // should be at new position
-    expect(Camera.x).toBe(0);
-    expect(Camera.y).toBe(0);
-
-    // wait 11 frames (1100ms)
-    for (let i = 0; i < 11; i++) {
-      Camera.update(engine, 100);
-    }
-
-    // should be at new position
-    expect(Camera.x).toBe(100);
-    expect(Camera.y).toBe(100);
   });
 
   it('can shake', () => {
@@ -127,14 +165,14 @@ describe('A camera', () => {
     engine.currentScene.camera.strategy.lockToActor(actor);
     Camera.shake(5, 5, 5000);
 
-    expect(Camera._isShaking).toBe(true);
+    expect((Camera as any)._isShaking).toBe(true);
   });
 
   it('can zoom', () => {
     engine.currentScene.camera = Camera;
     Camera.zoom(2, 0.1);
 
-    expect(Camera._isZooming).toBe(true);
+    expect((Camera as any)._isZooming).toBe(true);
   });
 
   it('can use built-in locked camera strategy', () => {
@@ -226,6 +264,30 @@ describe('A camera', () => {
     expect(distance2).toBeLessThan(distance);
   });
 
+  it('can use built-in limit to bounds strategy', () => {
+    engine.currentScene.camera = new ex.Camera();
+    const boundingBox = new ex.BoundingBox(10, 10, 1000, 1000);
+    engine.currentScene.camera.strategy.limitCameraBounds(boundingBox);
+
+    // Test upper-left bounds
+    engine.currentScene.camera.pos.setTo(11, 22);
+
+    engine.currentScene.camera.update(engine, 1);
+    expect(engine.currentScene.camera.pos.x).not.toBe(11);
+    expect(engine.currentScene.camera.pos.y).not.toBe(22);
+    expect(engine.currentScene.camera.pos.x).toBe(260); // screen half size + top-left bounds
+    expect(engine.currentScene.camera.pos.y).toBe(260);
+
+    // Test bottom-right bounds
+    engine.currentScene.camera.pos.setTo(888, 999);
+
+    engine.currentScene.camera.update(engine, 1);
+    expect(engine.currentScene.camera.pos.x).not.toBe(888);
+    expect(engine.currentScene.camera.pos.y).not.toBe(999);
+    expect(engine.currentScene.camera.pos.x).toBe(750);
+    expect(engine.currentScene.camera.pos.y).toBe(750);
+  });
+
   it('can lerp over time', (done) => {
     engine.currentScene.camera.move(new ex.Vector(100, 100), 1000, ex.EasingFunctions.EaseOutCubic).then(() => {
       engine.currentScene.camera.move(new ex.Vector(200, 200), 1000, ex.EasingFunctions.Linear).then(() => {
@@ -233,11 +295,11 @@ describe('A camera', () => {
         expect(engine.currentScene.camera.pos.y).toBe(200);
         done();
       });
+      engine.currentScene.camera.update(engine, 999);
+      engine.currentScene.camera.update(engine, 1);
+      engine.currentScene.camera.update(engine, 1);
     });
 
-    engine.currentScene.camera.update(engine, 999);
-    engine.currentScene.camera.update(engine, 1);
-    engine.currentScene.camera.update(engine, 1);
     engine.currentScene.camera.update(engine, 999);
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene.camera.update(engine, 1);
@@ -272,7 +334,7 @@ describe('A camera', () => {
       camera = new ex.Camera();
     });
 
-    it('can have onInitialize overriden safely', () => {
+    it('can have onInitialize overridden safely', () => {
       let initCalled = false;
       camera.onInitialize = (engine) => {
         expect(engine).not.toBe(null);
@@ -290,7 +352,7 @@ describe('A camera', () => {
       expect(camera.onInitialize).toHaveBeenCalledTimes(1);
     });
 
-    it('can have onPostUpdate overriden safely', () => {
+    it('can have onPostUpdate overridden safely', () => {
       camera.onPostUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -306,7 +368,7 @@ describe('A camera', () => {
       expect(camera.onPostUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreUpdate overriden safely', () => {
+    it('can have onPreUpdate overridden safely', () => {
       camera.onPreUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);

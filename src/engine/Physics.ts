@@ -1,4 +1,5 @@
 import { Vector } from './Algebra';
+import { obsolete } from './Util/Decorators';
 
 /**
  * Possible collision resolution strategies
@@ -34,14 +35,12 @@ export enum Integrator {
 
 /**
  * The [[Physics]] object is the global configuration object for all Excalibur physics.
- *
- * [[include:Physics.md]]
  */
 /* istanbul ignore next */
 export class Physics {
   /**
    * Global acceleration that is applied to all vanilla actors that have a [[CollisionType.Active|active]] collision type.
-   * Global acceleration won't effect [[Label|labels]], [[UIActor|ui actors]], or [[Trigger|triggers]] in Excalibur.
+   * Global acceleration won't effect [[Label|labels]], [[ScreenElement|ui actors]], or [[Trigger|triggers]] in Excalibur.
    *
    * This is a great way to globally simulate effects like gravity.
    */
@@ -152,9 +151,21 @@ export class Physics {
   public static collisionShift = 0.001;
 
   /**
-   * Factor to add to the RigidBody BoundingBox, bounding box (dimensions += vel * dynamicTreeVelocityMultiplyer);
+   * Factor to add to the RigidBody BoundingBox, bounding box (dimensions += vel * dynamicTreeVelocityMultiplier);
    */
-  public static dynamicTreeVelocityMultiplyer = 2;
+  public static dynamicTreeVelocityMultiplier = 2;
+
+  @obsolete({
+    message: 'Alias for incorrect spelling used in older versions, will be removed in v0.25.0',
+    alternateMethod: 'dynamicTreeVelocityMultiplier'
+  })
+  public static get dynamicTreeVelocityMultiplyer() {
+    return Physics.dynamicTreeVelocityMultiplier;
+  }
+
+  public static set dynamicTreeVelocityMultiplyer(value: number) {
+    Physics.dynamicTreeVelocityMultiplier = value;
+  }
 
   /**
    * Pad RigidBody BoundingBox by a constant amount
@@ -162,7 +173,7 @@ export class Physics {
   public static boundsPadding = 5;
 
   /**
-   * Surface epsilon is used to help deal with surface penatration
+   * Surface epsilon is used to help deal with surface penetration
    */
   public static surfaceEpsilon = 0.1;
 
@@ -174,7 +185,7 @@ export class Physics {
 
   /**
    * Disable minimum fast moving body raycast, by default if ex.Physics.checkForFastBodies = true Excalibur will only check if the
-   * body is moving at least half of its minimum diminension in an update. If ex.Physics.disableMinimumSpeedForFastBody is set to true,
+   * body is moving at least half of its minimum dimension in an update. If ex.Physics.disableMinimumSpeedForFastBody is set to true,
    * Excalibur will always perform the fast body raycast regardless of speed.
    */
   public static disableMinimumSpeedForFastBody = false;

@@ -5,8 +5,6 @@ import * as Events from '../Events';
 /**
  * Excalibur leverages the HTML5 Gamepad API [where it is supported](http://caniuse.com/#feat=gamepad)
  * to provide controller support for your games.
- *
- * [[include:Gamepads.md]]
  */
 export class Gamepads extends Class {
   /**

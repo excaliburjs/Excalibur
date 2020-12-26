@@ -1,17 +1,18 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-  "editor.tabSize": 4,
+  "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
-  "restructuredtext.confPath": "docs/source/conf.py",
-  "restructuredtext.builtDocumentationPath": "docs/build/html",
-  "tslint.configFile": "../../tslint/tslint.json",
+  "eslint.enable": true,
+  "eslint.options": { "configFile": "./.eslintrc.json" },
+  "eslint.alwaysShowStatus": true,
+  "eslint.validate": ["typescript"],
   "files.exclude": {
     "**/.git": true,
     ".grunt/": true,
     ".tscache": true,
     "**/.DS_Store": true,
-    "**/node_modules": true,
+    "**/node_modules": false,
     "**/node_shrinkwrap": true,
     "**/bin": true,
     "**/obj": true,
@@ -21,5 +22,8 @@
     "src/spec/*.js": true,
     "src/spec/*.map": true
   },
-  "typescript.tsdk": "./node_modules/typescript/lib"
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }

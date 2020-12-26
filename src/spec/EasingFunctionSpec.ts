@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 
 describe('An Easing Function', () => {
   it('can interpolate linearly', () => {
@@ -13,7 +13,7 @@ describe('An Easing Function', () => {
     expect(finalTime).toBe(20);
   });
 
-  it('can be linearly reversable', () => {
+  it('can be linearly reversible', () => {
     const zeroTime = ex.EasingFunctions.Linear(0, 20, 10, 100);
     const quarterTime = ex.EasingFunctions.Linear(25, 20, 10, 100);
     const threeQuarterTime = ex.EasingFunctions.Linear(75, 20, 10, 100);
@@ -37,7 +37,7 @@ describe('An Easing Function', () => {
     expect(finalTime).toBe(20);
   });
 
-  it('can be EaseInQuad reversable', () => {
+  it('can be EaseInQuad reversible', () => {
     const zeroTime = ex.EasingFunctions.EaseInQuad(0, 20, 10, 100);
     const quarterTime = ex.EasingFunctions.EaseInQuad(25, 20, 10, 100);
     const threeQuarterTime = ex.EasingFunctions.EaseInQuad(75, 20, 10, 100);
@@ -61,7 +61,7 @@ describe('An Easing Function', () => {
     expect(finalTime).toBe(20);
   });
 
-  it('can be EaseOutQuad reversable', () => {
+  it('can be EaseOutQuad reversible', () => {
     const zeroTime = ex.EasingFunctions.EaseOutQuad(0, 20, 10, 100);
     const quarterTime = ex.EasingFunctions.EaseOutQuad(25, 20, 10, 100);
     const threeQuarterTime = ex.EasingFunctions.EaseOutQuad(75, 20, 10, 100);
@@ -85,7 +85,7 @@ describe('An Easing Function', () => {
     expect(finalTime).toBe(20);
   });
 
-  it('can be EaseInOutQuad reversable', () => {
+  it('can be EaseInOutQuad reversible', () => {
     const zeroTime = ex.EasingFunctions.EaseInOutQuad(0, 20, 10, 100);
     const quarterTime = ex.EasingFunctions.EaseInOutQuad(25, 20, 10, 100);
     const threeQuarterTime = ex.EasingFunctions.EaseInOutQuad(75, 20, 10, 100);
@@ -109,7 +109,7 @@ describe('An Easing Function', () => {
     expect(finalTime).toBe(20);
   });
 
-  it('can be EaseInCubic reversable', () => {
+  it('can be EaseInCubic reversible', () => {
     const zeroTime = ex.EasingFunctions.EaseInCubic(0, 20, 10, 100);
     const quarterTime = ex.EasingFunctions.EaseInCubic(25, 20, 10, 100);
     const threeQuarterTime = ex.EasingFunctions.EaseInCubic(75, 20, 10, 100);
@@ -133,7 +133,7 @@ describe('An Easing Function', () => {
     expect(finalTime).toBe(20);
   });
 
-  it('can be EaseOutCubic reversable', () => {
+  it('can be EaseOutCubic reversible', () => {
     const zeroTime = ex.EasingFunctions.EaseOutCubic(0, 20, 10, 100);
     const quarterTime = ex.EasingFunctions.EaseOutCubic(25, 20, 10, 100);
     const threeQuarterTime = ex.EasingFunctions.EaseOutCubic(75, 20, 10, 100);
@@ -157,7 +157,7 @@ describe('An Easing Function', () => {
     expect(finalTime).toBe(20);
   });
 
-  it('can be EaseInOutCubic reversable', () => {
+  it('can be EaseInOutCubic reversible', () => {
     const zeroTime = ex.EasingFunctions.EaseInOutCubic(0, 20, 10, 100);
     const quarterTime = ex.EasingFunctions.EaseInOutCubic(25, 20, 10, 100);
     const threeQuarterTime = ex.EasingFunctions.EaseInOutCubic(75, 20, 10, 100);

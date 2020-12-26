@@ -1,18 +1,25 @@
 import { Sprite } from './Sprite';
-import { AnimationArgs } from '../Drawing/Animation';
 import * as Effects from './SpriteEffects';
 import { Color } from './Color';
 
-import { Drawable } from '../Interfaces/Drawable';
+import { Drawable, DrawOptions } from '../Interfaces/Drawable';
 import { Vector } from '../Algebra';
 import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
 import { Configurable } from '../Configurable';
 
+export interface HasTick {
+  /**
+   *
+   * @param elapsedMilliseconds The amount of real world time in milliseconds that has elapsed that must be updated in the animation
+   */
+  tick(elapsedMilliseconds: number, idempotencyToken?: number): void;
+}
+
 /**
  * @hidden
  */
-export class AnimationImpl implements Drawable {
+export class AnimationImpl implements Drawable, HasTick {
   /**
    * The sprite frames to play, in order. See [[SpriteSheet.getAnimationForAll]] to quickly
    * generate an [[Animation]].
@@ -29,11 +36,12 @@ export class AnimationImpl implements Drawable {
    */
   public currentFrame: number = 0;
 
-  private _oldTime: number = Date.now();
+  private _timeLeftInFrame: number = 0;
+  private _idempotencyToken: number = -1;
 
-  public anchor: Vector = new Vector(0.0, 0.0);
+  public anchor: Vector = Vector.Zero;
   public rotation: number = 0.0;
-  public scale: Vector = new Vector(1, 1);
+  public scale: Vector = Vector.One;
 
   /**
    * Indicates whether the animation should loop after it is completed
@@ -63,11 +71,13 @@ export class AnimationImpl implements Drawable {
   public width: number = 0;
   public height: number = 0;
 
+  private _opacity = 1;
+
   /**
    * Typically you will use a [[SpriteSheet]] to generate an [[Animation]].
    *
-   * @param engine  Reference to the current game engine
-   * @param images  An array of sprites to create the frames for the animation
+   * @param engineOrConfig  Reference to the current game engine
+   * @param sprites  An array of sprites to create the frames for the animation
    * @param speed   The number in milliseconds to display each frame in the animation
    * @param loop    Indicates whether the animation should loop after it is completed
    */
@@ -84,6 +94,7 @@ export class AnimationImpl implements Drawable {
     this.sprites = sprites;
     this.speed = speed;
     this._engine = <Engine>engine;
+    this._timeLeftInFrame = this.speed;
 
     if (loop != null) {
       this.loop = loop;
@@ -104,7 +115,7 @@ export class AnimationImpl implements Drawable {
    * Applies the opacity effect to a sprite, setting the alpha of all pixels to a given value
    */
   public opacity(value: number) {
-    this.addEffect(new Effects.Opacity(value));
+    this._opacity = value;
   }
 
   /**
@@ -165,7 +176,7 @@ export class AnimationImpl implements Drawable {
   }
 
   /**
-   * Add a [[ISpriteEffect]] manually
+   * Add a [[SpriteEffect]] manually
    */
   public addEffect(effect: Effects.SpriteEffect) {
     for (const i in this.sprites) {
@@ -174,7 +185,7 @@ export class AnimationImpl implements Drawable {
   }
 
   /**
-   * Removes an [[ISpriteEffect]] from this animation.
+   * Removes an [[SpriteEffect]] from this animation.
    * @param effect Effect to remove from this animation
    */
   public removeEffect(effect: Effects.SpriteEffect): void;
@@ -242,11 +253,24 @@ export class AnimationImpl implements Drawable {
    * calculates whether to change to the frame.
    * @internal
    */
-  public tick() {
-    const time = Date.now();
-    if (time - this._oldTime > this.speed) {
+  public tick(elapsed: number, idempotencyToken?: number) {
+    if (this._idempotencyToken === idempotencyToken) {
+      return;
+    }
+    this._idempotencyToken = idempotencyToken;
+    this._timeLeftInFrame -= elapsed;
+    if (this._timeLeftInFrame <= 0) {
       this.currentFrame = this.loop ? (this.currentFrame + 1) % this.sprites.length : this.currentFrame + 1;
-      this._oldTime = time;
+      this._timeLeftInFrame = this.speed;
+    }
+
+    this._updateValues();
+    const current = this.sprites[this.currentFrame];
+    if (current) {
+      this.width = current.width;
+      this.height = current.height;
+      this.drawWidth = current.drawWidth;
+      this.drawHeight = current.drawHeight;
     }
   }
 
@@ -264,20 +288,48 @@ export class AnimationImpl implements Drawable {
     this.currentFrame = (this.currentFrame + frames) % this.sprites.length;
   }
 
-  public draw(ctx: CanvasRenderingContext2D, x: number, y: number) {
-    this.tick();
+  /**
+   * Draws the animation appropriately to the 2D rendering context, at an x and y coordinate.
+   * @param ctx  The 2D rendering context
+   * @param x    The x coordinate of where to draw
+   * @param y    The y coordinate of where to draw
+   */
+  public draw(ctx: CanvasRenderingContext2D, x: number, y: number): void;
+  /**
+   * Draws the animation with custom options to override internals without mutating them.
+   * @param options
+   */
+  public draw(options: DrawOptions): void;
+  public draw(ctxOrOptions: CanvasRenderingContext2D | DrawOptions, x?: number, y?: number) {
+    if (ctxOrOptions instanceof CanvasRenderingContext2D) {
+      this._drawWithOptions({ ctx: ctxOrOptions, x, y });
+    } else {
+      this._drawWithOptions(ctxOrOptions);
+    }
+  }
+
+  private _drawWithOptions(options: DrawOptions) {
+    const animOptions = {
+      ...options,
+      rotation: options.rotation ?? this.rotation,
+      drawWidth: options.drawWidth ?? this.drawWidth,
+      drawHeight: options.drawHeight ?? this.drawHeight,
+      flipHorizontal: options.flipHorizontal ?? this.flipHorizontal,
+      flipVertical: options.flipVertical ?? this.flipVertical,
+      anchor: options.anchor ?? this.anchor,
+      opacity: options.opacity ?? this._opacity
+    };
+
     this._updateValues();
     let currSprite: Sprite;
     if (this.currentFrame < this.sprites.length) {
       currSprite = this.sprites[this.currentFrame];
-      currSprite.flipVertical = this.flipVertical;
-      currSprite.flipHorizontal = this.flipHorizontal;
-      currSprite.draw(ctx, x, y);
+      currSprite.draw(animOptions);
     }
 
     if (this.freezeFrame !== -1 && this.currentFrame >= this.sprites.length) {
       currSprite = this.sprites[Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
-      currSprite.draw(ctx, x, y);
+      currSprite.draw(animOptions);
     }
 
     // add the calculated width
@@ -298,9 +350,6 @@ export class AnimationImpl implements Drawable {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface AnimationArgs extends Partial<AnimationImpl> {
   engine: Engine;
   sprites: Sprite[];
@@ -318,8 +367,6 @@ export interface AnimationArgs extends Partial<AnimationImpl> {
 /**
  * Animations allow you to display a series of images one after another,
  * creating the illusion of change. Generally these images will come from a [[SpriteSheet]] source.
- *
- * [[include:Animations.md]]
  */
 export class Animation extends Configurable(AnimationImpl) {
   constructor(config: AnimationArgs);

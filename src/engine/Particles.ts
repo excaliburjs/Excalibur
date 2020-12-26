@@ -172,9 +172,6 @@ export class ParticleImpl {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface ParticleArgs extends Partial<ParticleImpl> {
   emitter: ParticleEmitter;
   position?: Vector;
@@ -295,12 +292,12 @@ export class ParticleEmitterImpl extends Actor {
    */
   public focusAccel: number = 1;
   /*
-    * Gets or sets the optional starting size for the particles
-    */
+   * Gets or sets the optional starting size for the particles
+   */
   public startSize: number = null;
   /*
-    * Gets or sets the optional ending size for the particles
-    */
+   * Gets or sets the optional ending size for the particles
+   */
   public endSize: number = null;
 
   /**
@@ -348,13 +345,13 @@ export class ParticleEmitterImpl extends Actor {
   public randomRotation: boolean = false;
 
   /**
-   * @param x       The x position of the emitter
-   * @param y       The y position of the emitter
-   * @param width   The width of the emitter
-   * @param height  The height of the emitter
+   * @param xOrConfig The x position of the emitter, or the particle emitter options bag
+   * @param y         The y position of the emitter
+   * @param width     The width of the emitter
+   * @param height    The height of the emitter
    */
   constructor(xOrConfig?: number | ParticleEmitterArgs, y?: number, width?: number, height?: number) {
-    super(typeof xOrConfig === 'number' ? { x: xOrConfig, y: y, width: width, height: height } : xOrConfig);
+    super(typeof xOrConfig === 'number' ? { pos: new Vector(xOrConfig, y), width: width, height: height } : xOrConfig);
     this._particlesToEmit = 0;
     this.body.collider.type = CollisionType.PreventCollision;
     this.particles = new Util.Collection<Particle>();
@@ -400,12 +397,12 @@ export class ParticleEmitterImpl extends Actor {
     const dy = vel * Math.sin(angle);
 
     if (this.emitterType === EmitterType.Rectangle) {
-      ranX = Util.randomInRange(this.pos.x, this.pos.x + this.width, this.random);
-      ranY = Util.randomInRange(this.pos.y, this.pos.y + this.height, this.random);
+      ranX = Util.randomInRange(0, this.width, this.random);
+      ranY = Util.randomInRange(0, this.height, this.random);
     } else if (this.emitterType === EmitterType.Circle) {
       const radius = Util.randomInRange(0, this.radius, this.random);
-      ranX = radius * Math.cos(angle) + this.pos.x;
-      ranY = radius * Math.sin(angle) + this.pos.y;
+      ranX = radius * Math.cos(angle);
+      ranY = radius * Math.sin(angle);
     }
 
     const p = new Particle(
@@ -472,9 +469,6 @@ export class ParticleEmitterImpl extends Actor {
   }
 }
 
-/**
- * [[include:Constructors.md]]
- */
 export interface ParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
   width?: number;
   height?: number;
@@ -508,8 +502,6 @@ export interface ParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
  * Using a particle emitter is a great way to create interesting effects
  * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
  * extend [[Actor]] allowing you to use all of the features that come with.
- *
- * [[include:Particles.md]]
  */
 export class ParticleEmitter extends Configurable(ParticleEmitterImpl) {
   constructor(config?: ParticleEmitterArgs);

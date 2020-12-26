@@ -1,10 +1,10 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 
 describe('Logger', () => {
   let logger: ex.Logger;
 
   describe('ConsoleAppender', () => {
-    let appender: ex.IAppender;
+    let appender: ex.Appender;
     let spiedAppender: jasmine.Spy;
     let spiedConsoleLog: jasmine.Spy;
     let spiedConsoleWarn: jasmine.Spy;

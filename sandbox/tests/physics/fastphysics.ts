@@ -28,9 +28,9 @@ function spawnRocket(direction) {
     }
   });
 
-  rocket.collisionType = ex.CollisionType.Active;
+  rocket.body.collider.type = ex.CollisionType.Active;
   rocket.addDrawing(rocketTex);
-  rocket.body.useBoxCollision();
+  rocket.body.useBoxCollider(48, 16);
   //rocket.rotation = Math.PI / 4;
   //block.rx = .1;
   if (direction === 'up') {
@@ -56,23 +56,23 @@ function spawnRocket(direction) {
 }
 
 var ground = new ex.Actor(0, 0, 5, 5, ex.Color.Black.clone());
-ground.collisionType = ex.CollisionType.Fixed;
-ground.body.useEdgeCollision(new ex.Vector(0, 400), new ex.Vector(600, 400));
+ground.body.collider.type = ex.CollisionType.Fixed;
+ground.body.useEdgeCollider(new ex.Vector(0, 400), new ex.Vector(600, 400));
 game.add(ground);
 
 var rightWall = new ex.Actor(600, 200, 10, 400, ex.Color.Black.clone());
-rightWall.collisionType = ex.CollisionType.Fixed;
-rightWall.body.useBoxCollision();
+rightWall.body.collider.type = ex.CollisionType.Fixed;
+rightWall.body.useBoxCollider(10, 400);
 game.add(rightWall);
 
 var leftWall = new ex.Actor(0, 200, 10, 400, ex.Color.Black.clone());
-leftWall.collisionType = ex.CollisionType.Fixed;
-leftWall.body.useBoxCollision();
+leftWall.body.collider.type = ex.CollisionType.Fixed;
+leftWall.body.useBoxCollider(10, 400);
 game.add(leftWall);
 
 var ceiling = new ex.Actor(300, 10, 600, 10, ex.Color.Blue.clone());
-ceiling.collisionType = ex.CollisionType.Fixed;
-ceiling.body.useBoxCollision(); // optional
+ceiling.body.collider.type = ex.CollisionType.Fixed;
+ceiling.body.useBoxCollider(600, 10); // optional
 game.add(ceiling);
 
 game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) => {

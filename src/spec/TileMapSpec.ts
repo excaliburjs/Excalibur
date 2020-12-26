@@ -1,7 +1,15 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
-import * as ex from '../../build/dist/excalibur';
-import { Mocks } from './util/Mocks';
+import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
+
+const drawWithTransform = (ctx: CanvasRenderingContext2D, tm: ex.TileMap, delta: number = 1) => {
+  ctx.save();
+  ctx.translate(tm.pos.x, tm.pos.y);
+  ctx.rotate(tm.rotation);
+  ctx.scale(tm.scale.x, tm.scale.y);
+  tm.draw(ctx, delta);
+  ctx.restore();
+};
 
 describe('A TileMap', () => {
   let engine: ex.Engine;
@@ -54,12 +62,12 @@ describe('A TileMap', () => {
       });
       const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
       tm.registerSpriteSheet('default', spriteTiles);
-      tm.data.forEach(function(cell: ex.Cell) {
+      tm.data.forEach(function (cell: ex.Cell) {
         cell.solid = true;
         cell.pushSprite(new ex.TileSprite('default', 0));
       });
 
-      tm.draw(engine.ctx, 100);
+      drawWithTransform(engine.ctx, tm, 100);
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/TileMapSpec/TileMap.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
@@ -80,18 +88,52 @@ describe('A TileMap', () => {
       });
       const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
       tm.registerSpriteSheet('default', spriteTiles);
-      tm.data.forEach(function(cell: ex.Cell) {
+      tm.data.forEach(function (cell: ex.Cell) {
         cell.solid = true;
         cell.pushSprite(new ex.TileSprite('default', 0));
       });
 
       tm.update(engine, 100);
-      tm.draw(engine.ctx, 100);
+      drawWithTransform(engine.ctx, tm, 100);
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/TileMapSpec/TileMapCulling.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
       });
+    });
+  });
+
+  describe('with an actor', () => {
+    let tm: ex.TileMap;
+    beforeEach(() => {
+      tm = new ex.TileMap({
+        x: 0,
+        y: 0,
+        cellWidth: 64,
+        cellHeight: 48,
+        rows: 10,
+        cols: 10
+      });
+      tm.data.forEach(function (cell: ex.Cell) {
+        cell.solid = true;
+      });
+    });
+
+    it('should collide when the actor is on a solid cell', () => {
+      const actor = new ex.Actor(0, 0, 20, 20);
+
+      const collision = tm.collides(actor);
+
+      expect(collision).not.toBeNull();
+      expect(collision).toBeTruthy();
+    });
+
+    it('should not collide when the actor has zero size dimensions', () => {
+      const actor = new ex.Actor(0, 0, 0, 0);
+
+      const collision = tm.collides(actor);
+
+      expect(collision).toBeNull();
     });
   });
 });

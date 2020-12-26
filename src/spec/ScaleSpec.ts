@@ -1,5 +1,5 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
@@ -12,14 +12,15 @@ describe('A scaled and rotated actor', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
 
-    actor = new ex.UIActor(50, 50, 100, 50);
+    actor = new ex.ScreenElement(50, 50, 100, 50);
     actor.color = ex.Color.Blue;
     actor.body.collider.type = ex.CollisionType.Active;
     engine = TestUtils.engine({ width: 800, height: 600 });
     engine.setAntialiasing(false);
 
-    scene = new ex.Scene(engine);
-    engine.currentScene = scene;
+    scene = new ex.Scene();
+    engine.addScene('test', scene);
+    engine.goToScene('test');
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(actor, 'draw').and.callThrough();
@@ -35,7 +36,7 @@ describe('A scaled and rotated actor', () => {
     engine.start(new ex.Loader([bg])).then(() => {
       const actor = new ex.Actor(engine.halfDrawWidth, engine.halfDrawHeight, 100, 100, ex.Color.Black);
       actor.addDrawing(bg);
-      actor.setHeight(10);
+      actor.height = 10;
       actor.scale.setTo(1, 0.2);
       engine.add(actor);
 

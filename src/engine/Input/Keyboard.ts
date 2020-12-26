@@ -1,67 +1,161 @@
-import { Class } from './../Class';
-import { GameEvent } from '../Events';
+import { Logger } from '../Util/Log';
+import { Class } from '../Class';
 import * as Events from '../Events';
 
 /**
  * Enum representing input key codes
  */
 export enum Keys {
-  Num1 = 97,
-  Num2 = 98,
-  Num3 = 99,
-  Num4 = 100,
-  Num5 = 101,
-  Num6 = 102,
-  Num7 = 103,
-  Num8 = 104,
-  Num9 = 105,
-  Num0 = 96,
+  // NUMPAD
+  Num0 = 'Numpad0',
+  Num1 = 'Numpad1',
+  Num2 = 'Numpad2',
+  Num3 = 'Numpad3',
+  Num4 = 'Numpad4',
+  Num5 = 'Numpad5',
+  Num6 = 'Numpad6',
+  Num7 = 'Numpad7',
+  Num8 = 'Numpad8',
+  Num9 = 'Numpad9',
+  NumAdd = 'NumpadAdd',
+  NumSubtract = 'NumpadSubtract',
+  NumMultiply = 'NumpadMultiply',
+  NumDivide = 'NumpadDivide',
+  // NumComma = 'NumpadComma', // not x-browser
+  NumDecimal = 'NumpadDecimal',
+  Numpad0 = 'Numpad0',
+  Numpad1 = 'Numpad1',
+  Numpad2 = 'Numpad2',
+  Numpad3 = 'Numpad3',
+  Numpad4 = 'Numpad4',
+  Numpad5 = 'Numpad5',
+  Numpad6 = 'Numpad6',
+  Numpad7 = 'Numpad7',
+  Numpad8 = 'Numpad8',
+  Numpad9 = 'Numpad9',
+  NumpadAdd = 'NumpadAdd',
+  NumpadSubtract = 'NumpadSubtract',
+  NumpadMultiply = 'NumpadMultiply',
+  NumpadDivide = 'NumpadDivide',
+  // NumpadComma = 'NumpadComma', // not x-browser
+  NumpadDecimal = 'NumpadDecimal',
 
-  Numlock = 144,
+  // MODIFIERS
+  NumLock = 'NumLock',
+  ShiftLeft = 'ShiftLeft',
+  ShiftRight = 'ShiftRight',
+  AltLeft = 'AltLeft',
+  AltRight = 'AltRight',
 
-  Semicolon = 186, // 59 in some browsers
+  // NUMBERS
+  Key0 = 'Digit0',
+  Key1 = 'Digit1',
+  Key2 = 'Digit2',
+  Key3 = 'Digit3',
+  Key4 = 'Digit4',
+  Key5 = 'Digit5',
+  Key6 = 'Digit6',
+  Key7 = 'Digit7',
+  Key8 = 'Digit8',
+  Key9 = 'Digit9',
+  Digit0 = 'Digit0',
+  Digit1 = 'Digit1',
+  Digit2 = 'Digit2',
+  Digit3 = 'Digit3',
+  Digit4 = 'Digit4',
+  Digit5 = 'Digit5',
+  Digit6 = 'Digit6',
+  Digit7 = 'Digit7',
+  Digit8 = 'Digit8',
+  Digit9 = 'Digit9',
 
-  A = 65,
-  B = 66,
-  C = 67,
-  D = 68,
-  E = 69,
-  F = 70,
-  G = 71,
-  H = 72,
-  I = 73,
-  J = 74,
-  K = 75,
-  L = 76,
-  M = 77,
-  N = 78,
-  O = 79,
-  P = 80,
-  Q = 81,
-  R = 82,
-  S = 83,
-  T = 84,
-  U = 85,
-  V = 86,
-  W = 87,
-  X = 88,
-  Y = 89,
-  Z = 90,
+  // LETTERS
+  A = 'KeyA',
+  B = 'KeyB',
+  C = 'KeyC',
+  D = 'KeyD',
+  E = 'KeyE',
+  F = 'KeyF',
+  G = 'KeyG',
+  H = 'KeyH',
+  I = 'KeyI',
+  J = 'KeyJ',
+  K = 'KeyK',
+  L = 'KeyL',
+  M = 'KeyM',
+  N = 'KeyN',
+  O = 'KeyO',
+  P = 'KeyP',
+  Q = 'KeyQ',
+  R = 'KeyR',
+  S = 'KeyS',
+  T = 'KeyT',
+  U = 'KeyU',
+  V = 'KeyV',
+  W = 'KeyW',
+  X = 'KeyX',
+  Y = 'KeyY',
+  Z = 'KeyZ',
+  KeyA = 'KeyA',
+  KeyB = 'KeyB',
+  KeyC = 'KeyC',
+  KeyD = 'KeyD',
+  KeyE = 'KeyE',
+  KeyF = 'KeyF',
+  KeyG = 'KeyG',
+  KeyH = 'KeyH',
+  KeyI = 'KeyI',
+  KeyJ = 'KeyJ',
+  KeyK = 'KeyK',
+  KeyL = 'KeyL',
+  KeyM = 'KeyM',
+  KeyN = 'KeyN',
+  KeyO = 'KeyO',
+  KeyP = 'KeyP',
+  KeyQ = 'KeyQ',
+  KeyR = 'KeyR',
+  KeyS = 'KeyS',
+  KeyT = 'KeyT',
+  KeyU = 'KeyU',
+  KeyV = 'KeyV',
+  KeyW = 'KeyW',
+  KeyX = 'KeyX',
+  KeyY = 'KeyY',
+  KeyZ = 'KeyZ',
 
-  Shift = 16,
-  Alt = 18,
-  Up = 38,
-  Down = 40,
-  Left = 37,
-  Right = 39,
-  Space = 32,
-  Esc = 27
+  // SYMBOLS
+  Semicolon = 'Semicolon',
+  Quote = 'Quote',
+  Comma = 'Comma',
+  Minus = 'Minus',
+  Period = 'Period',
+  Slash = 'Slash',
+  Equal = 'Equal',
+  BracketLeft = 'BracketLeft',
+  Backslash = 'Backslash',
+  BracketRight = 'BracketRight',
+  Backquote = 'Backquote',
+
+  // DIRECTIONS
+  Up = 'ArrowUp',
+  Down = 'ArrowDown',
+  Left = 'ArrowLeft',
+  Right = 'ArrowRight',
+  ArrowUp = 'ArrowUp',
+  ArrowDown = 'ArrowDown',
+  ArrowLeft = 'ArrowLeft',
+  ArrowRight = 'ArrowRight',
+
+  // OTHER
+  Space = 'Space',
+  Esc = 'Escape',
+  Escape = 'Escape'
 }
 
 /**
  * Event thrown on a game object for a key event
  */
-export class KeyEvent extends GameEvent<any> {
+export class KeyEvent extends Events.GameEvent<any> {
   /**
    * @param key  The key responsible for throwing the event
    */
@@ -72,13 +166,11 @@ export class KeyEvent extends GameEvent<any> {
 
 /**
  * Provides keyboard support for Excalibur.
- *
- * [[include:Keyboard.md]]
  */
 export class Keyboard extends Class {
-  private _keys: number[] = [];
-  private _keysUp: number[] = [];
-  private _keysDown: number[] = [];
+  private _keys: Keys[] = [];
+  private _keysUp: Keys[] = [];
+  private _keysDown: Keys[] = [];
 
   constructor() {
     super();
@@ -87,7 +179,7 @@ export class Keyboard extends Class {
   public on(eventName: Events.press, handler: (event: KeyEvent) => void): void;
   public on(eventName: Events.release, handler: (event: KeyEvent) => void): void;
   public on(eventName: Events.hold, handler: (event: KeyEvent) => void): void;
-  public on(eventName: string, handler: (event: GameEvent<any>) => void): void;
+  public on(eventName: string, handler: (event: Events.GameEvent<any>) => void): void;
   public on(eventName: string, handler: (event: any) => void): void {
     super.on(eventName, handler);
   }
@@ -96,14 +188,40 @@ export class Keyboard extends Class {
    * Initialize Keyboard event listeners
    */
   init(global?: GlobalEventHandlers): void {
-    global = global || window;
+    if (!global) {
+      try {
+        // Try and listen to events on top window frame if within an iframe.
+        //
+        // See https://github.com/excaliburjs/Excalibur/issues/1294
+        //
+        // Attempt to add an event listener, which triggers a DOMException on
+        // cross-origin iframes
+        const noop = () => {
+          return;
+        };
+        window.top.addEventListener('blur', noop);
+        window.top.removeEventListener('blur', noop);
+
+        // this will be the same as window if not embedded within an iframe
+        global = window.top;
+      } catch {
+        // fallback to current frame
+        global = window;
+
+        Logger.getInstance().warn(
+          'Failed to bind to keyboard events to top frame. ' +
+            'If you are trying to embed Excalibur in a cross-origin iframe, keyboard events will not fire.'
+        );
+      }
+    }
+
     global.addEventListener('blur', () => {
       this._keys.length = 0; // empties array efficiently
     });
 
     // key up is on window because canvas cannot have focus
     global.addEventListener('keyup', (ev: KeyboardEvent) => {
-      const code = this._normalizeKeyCode(ev.keyCode);
+      const code = ev.code as Keys;
       const key = this._keys.indexOf(code);
       this._keys.splice(key, 1);
       this._keysUp.push(code);
@@ -116,7 +234,7 @@ export class Keyboard extends Class {
 
     // key down is on window because canvas cannot have focus
     global.addEventListener('keydown', (ev: KeyboardEvent) => {
-      const code = this._normalizeKeyCode(ev.keyCode);
+      const code = ev.code as Keys;
       if (this._keys.indexOf(code) === -1) {
         this._keys.push(code);
         this._keysDown.push(code);
@@ -167,19 +285,5 @@ export class Keyboard extends Class {
    */
   public wasReleased(key: Keys): boolean {
     return this._keysUp.indexOf(key) > -1;
-  }
-
-  /**
-   * Normalizes some browser event key codes to map to standard Excalibur key codes
-   * @param code Event keyCode
-   * @see http://unixpapa.com/js/key.html
-   */
-  private _normalizeKeyCode(code: number) {
-    switch (code) {
-      case 59: // : ; in Firefox, Opera
-        return Keys.Semicolon;
-      default:
-        return code;
-    }
   }
 }

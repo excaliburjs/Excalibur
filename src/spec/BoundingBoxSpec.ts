@@ -1,9 +1,7 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 
-describe('A Bounding Box constructed with no parameters', function() {
-  let bb: ex.BoundingBox;
-
-  bb = new ex.BoundingBox();
+describe('A Bounding Box constructed with no parameters', () => {
+  const bb = new ex.BoundingBox();
 
   it('has a left', () => {
     expect(bb.left).toBe(0);
@@ -23,10 +21,16 @@ describe('A Bounding Box constructed with no parameters', function() {
 });
 
 describe('A Bounding Box', function() {
+  /**
+   *
+   */
   function createBBFromOption() {
     return new ex.BoundingBox({ left: 0, top: 0, right: 10, bottom: 10 });
   }
 
+  /**
+   *
+   */
   function createBBFromParameters() {
     return new ex.BoundingBox(0, 0, 10, 10);
   }
@@ -35,6 +39,9 @@ describe('A Bounding Box', function() {
   runBoundingBoxTests('Constructed from parameters', createBBFromParameters);
 });
 
+/**
+ *
+ */
 function runBoundingBoxTests(creationType: string, createBoundingBox: Function) {
   describe(creationType, function() {
     let bb: ex.BoundingBox;
@@ -217,7 +224,7 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
 
       const ray = new ex.Ray(new ex.Vector(-10, 5), ex.Vector.Right);
 
-      expect(bb.rayCast(ray, ray.dir.magnitude())).toBe(false);
+      expect(bb.rayCast(ray, ray.dir.size)).toBe(false);
     });
 
     it('ray cast when the origin is on the boundary', () => {

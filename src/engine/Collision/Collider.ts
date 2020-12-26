@@ -24,7 +24,8 @@ export function isCollider(x: Actor | Collider): x is Collider {
 
 export interface ColliderOptions {
   /**
-   * Optional [[shape|Shape]] to use with this collider, the shape defines the collidable region along with the [[bounding box|BoundingBox]]
+   * Optional [[CollisionShape|Shape]] to use with this collider, the shape defines the collidable
+   * region along with the [[BoundingBox|bounding box]]
    */
   shape?: CollisionShape;
   /**
@@ -40,7 +41,7 @@ export interface ColliderOptions {
    */
   group?: CollisionGroup;
   /**
-   * Optional [[collision type|CollisionType]], if not specified the default is [[CollisionType.PreventCollision]]
+   * Optional [[CollisionType|collision type]], if not specified the default is [[CollisionType.PreventCollision]]
    */
   type?: CollisionType;
   /**
@@ -166,7 +167,7 @@ export class Collider implements Eventable, Clonable<Collider> {
   public getClosestLineBetween(other: Collider): Line {
     return this.shape.getClosestLineBetween(other.shape);
   }
-  
+
   /**
    * Gets the current pixel offset of the collider
    */
@@ -235,7 +236,7 @@ export class Collider implements Eventable, Clonable<Collider> {
 
   /**
    * Returns the collider's [[BoundingBox]] relative to the body's position.
-   * If there is no shape, a point boudning box is returned
+   * If there is no shape, a point bounding box is returned
    */
   public get localBounds(): BoundingBox {
     if (this.shape) {

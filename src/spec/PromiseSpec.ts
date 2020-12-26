@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 
 describe('A promise', () => {
   let promise: ex.Promise<any>;
@@ -236,7 +236,7 @@ describe('A promise', () => {
       throw new Error('ERROR!!!!!');
     });
 
-    expect(function() {
+    expect(function () {
       promise.resolve();
     }).toThrow();
   });

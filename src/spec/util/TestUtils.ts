@@ -1,7 +1,11 @@
-import * as ex from '../../../build/dist/excalibur';
+import * as ex from '@excalibur';
 
 export namespace TestUtils {
-  export function engine(options: ex.IEngineOptions = {}): ex.Engine {
+  /**
+   * Builds an engine with testing switches on
+   * @param options
+   */
+  export function engine(options: ex.EngineOptions = {}): ex.Engine {
     options = ex.Util.extend(
       false,
       {
@@ -17,6 +21,8 @@ export namespace TestUtils {
       },
       options
     );
+    ex.Flags._reset();
+    ex.Flags.enable('suppress-obsolete-message');
     const game = new ex.Engine(options);
 
     return game;

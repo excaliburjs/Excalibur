@@ -200,7 +200,7 @@ describe('a monkey', () => {
 
 If you'd like to contribute, these labels are good places to start. Our remaining labels are documented on the [Labels page](https://github.com/excaliburjs/Excalibur/labels).
 
-[forum]: https://groups.google.com/forum/#!forum/excaliburjs
+[forum]: https://github.com/excaliburjs/Excalibur/discussions
 [releases]: https://github.com/excaliburjs/Excalibur/releases
 [issues]: https://github.com/excaliburjs/Excalibur/issues
 [keep-a-changelog]: http://keepachangelog.com/en/0.3.0/

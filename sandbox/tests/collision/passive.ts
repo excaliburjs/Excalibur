@@ -7,7 +7,7 @@ var game = new ex.Engine({
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Box;
 
 var activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
-activeBlock.collisionType = ex.CollisionType.Active;
+activeBlock.body.collider.type = ex.CollisionType.Active;
 activeBlock.vel.x = 100;
 game.add(activeBlock);
 
@@ -20,7 +20,7 @@ activeBlock.on('postcollision', () => {
 });
 
 var passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
-passiveBlock.collisionType = ex.CollisionType.Passive;
+passiveBlock.body.collider.type = ex.CollisionType.Passive;
 passiveBlock.vel.x = -100;
 game.add(passiveBlock);
 

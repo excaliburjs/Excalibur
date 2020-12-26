@@ -1,4 +1,4 @@
-import * as ex from '../../build/dist/excalibur';
+import * as ex from '@excalibur';
 
 class TestObsolete {
   private _stuff = 'things';
@@ -36,10 +36,17 @@ describe('An @obsolete decorator', () => {
   let testObsolete: TestObsolete = null;
   let logger = null;
   beforeEach(() => {
+    ex.Flags._reset();
+    ex.Flags.disable('suppress-obsolete-message');
     testObsolete = new TestObsolete();
     logger = ex.Logger.getInstance();
     spyOn(logger, 'warn');
   });
+
+  afterEach(() => {
+    ex.resetObsoleteCounter();
+  });
+
   it('exists', () => {
     expect(ex.obsolete).toBeDefined();
   });
@@ -81,5 +88,33 @@ describe('An @obsolete decorator', () => {
     expect(logger.warn).toHaveBeenCalledWith(
       'ObsoleteClass is marked obsolete: This feature will be ' + 'removed in future versions of Excalibur.'
     );
+  });
+
+  it('is rate limited on method', () => {
+    for (let i = 0; i < 10; i++) {
+      testObsolete.method();
+    }
+    expect(logger.warn).toHaveBeenCalledTimes(5);
+  });
+
+  it('is rate limited on setter', () => {
+    for (let i = 0; i < 10; i++) {
+      testObsolete.setter = 'stuff';
+    }
+    expect(logger.warn).toHaveBeenCalledTimes(5);
+  });
+
+  it('is rate limited on getter', () => {
+    for (let i = 0; i < 10; i++) {
+      const value = testObsolete.getter;
+    }
+    expect(logger.warn).toHaveBeenCalledTimes(5);
+  });
+
+  it('is rate limited on classes', () => {
+    for (let i = 0; i < 10; i++) {
+      const value = new ObsoleteClass();
+    }
+    expect(logger.warn).toHaveBeenCalledTimes(5);
   });
 });

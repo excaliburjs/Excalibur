@@ -8,7 +8,7 @@ var game = new ex.Engine({
 ex.Physics.showArea = true;
 ex.Physics.showBounds = true;
 
-game.isDebug = true;
+game.showDebug(true);
 
 var trigger = new ex.Trigger({
   pos: new ex.Vector(100, 100),
@@ -30,7 +30,7 @@ trigger.on('collisionend', (evt: ex.ExitTriggerEvent) => {
 game.add(trigger);
 
 var actor = new ex.Actor(100, 0, 10, 10);
-actor.collisionType = ex.CollisionType.Active;
+actor.body.collider.type = ex.CollisionType.Active;
 actor.vel.y = 10;
 game.add(actor);
 

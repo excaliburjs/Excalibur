@@ -3,21 +3,32 @@ language: node_js
 addons:
   chrome: stable
 node_js:
-- '8'
+  - '12'
 cache:
   directories:
-  - node_modules
-  - node_cache
-  - $HOME/.npm
+    - node_modules
+    - node_cache
+    - $HOME/.npm
 before_install:
-- google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
-- gem install sass -v 3.4.24
-- npm i -g npm@6.8.0
+  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
+  - gem install sass -v 3.4.24
+  - npm i -g npm@6.14.8
 script:
-- npm run travis
+  - npm run travis
 after_success:
-- node deploy-docs.js
-- if [[ "$TRAVIS_PULL_REQUEST" = "false" && ( "$TRAVIS_BRANCH" = "master" || "$TRAVIS_TAG" != "" ) ]]; then node_modules/.bin/grunt dists; fi
+  - node deploy-docs.js
+  - if [[ "$TRAVIS_PULL_REQUEST" = "false" && ( "$TRAVIS_BRANCH" = "main" || "$TRAVIS_TAG" != "" ) ]]; then node_modules/.bin/grunt dists; fi
+before_deploy:
+  - npm run build-storybook
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GH_TOKEN
+  local_dir: ./build-storybook
+  repo: excaliburjs/examples
+  target_branch: main
+  on:
+    branch: main
 notifications:
   slack:
     secure: aQXFk2/MxX5eR2JM90xWAA9YX03QArY1ejUmnP/NkFHbB4zzKZblACjEeDTDTDCThZpXhrganX2nDWrWFrrXbOG28wKrRhEZSULPAgyiWGpfkMoT44fKmgh+eZ5C/isMF2eeQCrYo3EQCMxfCKxNaBhyLc+jr/Sm232zU2LaXo8=
