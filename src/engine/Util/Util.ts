@@ -285,6 +285,7 @@ export function getOppositeSide(side: Side) {
 /**
  * Returns the side in the direction of the vector supplied
  * @param direction Vector to check
+ * @deprecated
  * TODO: Move to Side type
  */
 export function getSideFromDirection(direction: Vector) {

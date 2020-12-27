@@ -1,88 +1,160 @@
 import { Vector } from '../Algebra';
-import { Actor } from '../Actor';
 import { Collider } from './Collider';
-import { CollisionType } from './CollisionType';
-import { Physics } from '../Physics';
-import { PreCollisionEvent, PostCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
+// import { PreCollisionEvent, PostCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
 import { Clonable } from '../Interfaces/Clonable';
-import { Shape } from './Shape';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
+import { Component } from '../EntityComponentSystem/Component';
+import { Entity } from '../EntityComponentSystem/Entity';
+import { CollisionType } from './CollisionType';
+import { BoundingBox } from './BoundingBox';
+import { Shape } from './Shape';
+import { CollisionGroup } from './CollisionGroup';
+import { EventDispatcher } from '../EventDispatcher';
+import { CollisionContact } from './CollisionContact';
+import { Physics } from '../Physics';
+import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisionEvent } from '../Events';
 
-export interface BodyOptions {
-  /**
-   * Optionally the actor associated with this body
-   */
-  actor?: Actor;
-  /**
-   * An optional collider to use in this body, if none is specified a default Box collider will be created.
-   */
-  collider?: Collider;
+export interface BodyComponentOptions {
+  box?: { width: number, height: number }; 
+  colliders?: Collider[];
+  type?: CollisionType;
+  group?: CollisionGroup;
+  anchor?: Vector;
+  offset?: Vector;
+}
+
+export enum Constraint {
+  Rotation = 'rotation',
+  X = 'x',
+  Y = 'y'
 }
 
 /**
- * Body describes all the physical properties pos, vel, acc, rotation, angular velocity
+ * Body describes all the physical properties pos, vel, acc, rotation, angular velocity for the purpose of 
+ * of physics simulation.
  */
-export class Body implements Clonable<Body> {
-  private _collider: Collider;
-  public actor: Actor;
-  /**
-   * Constructs a new physics body associated with an actor
-   */
-  constructor({ actor, collider }: BodyOptions) {
-    if (!actor && !collider) {
-      throw new Error('An actor or collider are required to create a body');
-    }
+export class BodyComponent extends Component<'body'> implements Clonable<Body> {
+  public readonly type = 'body';
+  public dependencies = [TransformComponent, MotionComponent];
+  public static _ID = 0;
+  public readonly id = BodyComponent._ID++;
+  public events = new EventDispatcher(this);
 
-    this.actor = actor;
-    if (!collider && actor) {
-      this.collider = this.useBoxCollider(actor.width, actor.height, actor.anchor);
+  constructor(options?: BodyComponentOptions) {
+    super();
+    if (options) {
+      if (options.box) {
+        const { box: { width, height }, anchor = Vector.Half, offset = Vector.Zero } = options;
+        this.useBoxCollider(width, height, anchor, offset);
+      }
+      if (this.colliders?.length > 0) {
+        this.colliders.forEach(c => this.add(c));
+      }
+    }
+  }
+
+  public collisionType: CollisionType = CollisionType.PreventCollision;
+
+  public group: CollisionGroup = CollisionGroup.All;
+
+  /**
+   * 
+   */
+  public mass: number = Physics.defaultMass;
+
+  // TODO get inertia from shapes
+  // TODO https://physics.stackexchange.com/questions/273394/is-moment-of-inertia-cumulative
+  // public inertia: number = 1000;
+  public get inertia() {
+    return this.colliders[0].shape.getInertia(this.mass);
+  }
+
+  /**
+   * The also known as coefficient of restitution of this actor, represents the amount of energy preserved after collision or the
+   * bounciness. If 1, it is 100% bouncy, 0 it completely absorbs.
+   */
+  public bounciness: number = 0.2;
+
+  
+  /**
+   * The coefficient of friction on this actor
+   */
+  public friction: number = 0.99;
+
+  /**
+   * Should use global gravity [[Physics.gravity]]
+   */
+  public useGravity: boolean = true;
+
+  /**
+   * Motion constraints
+   */
+  public constraints: Constraint[] = [];
+
+  /**
+   * TODO make list readonly, proxy
+   */
+  public colliders: Collider[] = [];
+
+  get bounds(): BoundingBox {
+    let results: BoundingBox;
+
+    results = this.colliders.reduce(
+      (acc, collider) => acc.combine(collider.bounds),
+      this.colliders[0]?.bounds ?? new BoundingBox().translate(this.pos)
+    );
+    
+    return results;
+  }
+
+  public add(collider: Collider) {
+    if (!collider.owningId) {
+      collider.owningId = this.id
+      collider.body = this;
+      this.colliders.push(collider);
+      this.events.wire(collider.events);
+      // TODO listen to collider events?
     } else {
-      this.collider = collider;
+      // TODO log warning
     }
   }
 
-  public get id() {
-    return this.actor ? this.actor.id : -1;
-  }
-
   /**
-   * Returns a clone of this body, not associated with any actor
+   * For each collider in each body run collision on colliders
+   * @param other 
    */
-  public clone() {
-    return new Body({
-      actor: null,
-      collider: this.collider.clone()
-    });
+  public collide(other: Body): CollisionContact[] {
+    const collisions = []
+
+    for (let colliderA of this.colliders) {
+      for (let colliderB of other.colliders) {
+        const maybeCollision = colliderA.collide(colliderB);
+        if (maybeCollision) {
+          collisions.push(maybeCollision);
+        }
+      }
+    }
+
+    return collisions;
   }
 
   public get active() {
-    return this.actor ? !this.actor.isKilled() : false;
+    return this.owner?.active;
   }
 
   public get center() {
     return this.pos;
   }
 
-  // TODO allow multiple colliders for a single body
-  public set collider(collider: Collider) {
-    if (collider) {
-      this._collider = collider;
-      this._collider.body = this;
-      this._wireColliderEventsToActor();
-    }
-  }
-
-  public get collider(): Collider {
-    return this._collider;
-  }
-
   public get transform(): TransformComponent {
-    return this.actor.components.transform;
+    // todo should the owner be typed 
+    return (this.owner as Entity<TransformComponent>).components.transform;
   }
 
   public get motion(): MotionComponent {
-    return this.actor.components.motion;
+    // todo owner should have the right types
+    return (this.owner as Entity<MotionComponent>).components.motion;
   }
 
   /**
@@ -188,10 +260,23 @@ export class Body implements Clonable<Body> {
 
   /**
    * The rotational velocity of the actor in radians/second
+   * @deprecated
    */
-  public rx: number = 0; //radians/sec
+  public get rx(): number {
+    return this.motion.angularVelocity;
+  }
 
-  private _geometryDirty = false;
+  public set rx(value: number) {
+    this.motion.angularVelocity = value;
+  }
+
+  public get angularVelocity(): number {
+    return this.motion.angularVelocity;
+  }
+
+  public set angularVelocity(value: number) {
+    this.motion.angularVelocity = value;
+  }
 
   private _totalMtv: Vector = Vector.Zero;
 
@@ -203,22 +288,11 @@ export class Body implements Clonable<Body> {
   }
 
   /**
-   * Applies the accumulated translation vectors to the actors position
+   * Applies the accumulated translation vectors to the body's position
    */
   public applyMtv(): void {
     this.pos.addEqual(this._totalMtv);
     this._totalMtv.setTo(0, 0);
-  }
-
-  /**
-   * Flags the shape dirty and must be recalculated in world space
-   */
-  public markCollisionShapeDirty() {
-    this._geometryDirty = true;
-  }
-
-  public get isColliderShapeDirty(): boolean {
-    return this._geometryDirty;
   }
 
   /**
@@ -233,36 +307,35 @@ export class Body implements Clonable<Body> {
     this.oldRotation = this.rotation;
   }
 
-  /**
-   * Perform euler integration at the specified time step
-   */
-  public integrate(delta: number) {
-    // Update placements based on linear algebra
-    const seconds = delta / 1000;
+  public hasChanged() {
+    return (!this.oldPos.equals(this.pos) ||
+          this.oldRotation !== this.rotation ||
+          this.oldScale !== this.scale)
+  }
 
-    const totalAcc = this.acc.clone();
-    // Only active vanilla actors are affected by global acceleration
-    if (this.collider.type === CollisionType.Active) {
-      totalAcc.addEqual(Physics.acc);
+  onAdd(entity: Entity) {
+    this.events.on('precollision', (evt: any) => {
+      entity.events.emit('precollision', new PreCollisionEvent(evt.target.owner, evt.other.body.owner, evt.side, evt.intersection));
+    });
+    this.events.on('postcollision', (evt: any) => {
+      entity.events.emit('postcollision', new PostCollisionEvent(evt.target.owner, evt.other.body.owner, evt.side, evt.intersection));
+    });
+    this.events.on('collisionstart', (evt: any) => {
+      entity.events.emit('collisionstart', new CollisionStartEvent(evt.target.owner, evt.other.owner, evt.pair));
+    });
+    this.events.on('collisionend', (evt: any) => {
+      entity.events.emit('collisionend', new CollisionEndEvent(evt.target.owner, evt.other.owner));
+    });
+  }
+
+  onRemove() {
+    this.events.clear();
+  }
+
+  update() {
+    for (let collider of this.colliders) {
+      collider.update();
     }
-
-    this.vel.addEqual(totalAcc.scale(seconds));
-    this.pos.addEqual(this.vel.scale(seconds)).addEqual(totalAcc.scale(0.5 * seconds * seconds));
-
-    this.rx += this.torque * (1.0 / this.collider.inertia) * seconds;
-    this.rotation += this.rx * seconds;
-
-    this.scale.x += (this.sx * delta) / 1000;
-    this.scale.y += (this.sy * delta) / 1000;
-
-    if (!this.scale.equals(this.oldScale)) {
-      // change in scale effects the geometry
-      this._geometryDirty = true;
-    }
-
-    // Update colliders
-    this.collider.update();
-    this._geometryDirty = false;
   }
 
   /**
@@ -272,16 +345,11 @@ export class Body implements Clonable<Body> {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public useBoxCollider(width?: number, height?: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
-    if (width === null || width === undefined) {
-      width = this.actor ? this.actor.width : 0;
-    }
-    if (height === null || height === undefined) {
-      height = this.actor ? this.actor.height : 0;
-    }
-
-    this.collider.shape = Shape.Box(width, height, anchor, center);
-    return this.collider;
+  public useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
+    this.colliders = [];
+    const collider = new Collider({ shape: Shape.Box(width, height, anchor, center) });
+    this.add(collider);
+    return collider;
   }
 
   /**
@@ -294,8 +362,10 @@ export class Body implements Clonable<Body> {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): Collider {
-    this.collider.shape = Shape.Polygon(points, false, center);
-    return this.collider;
+    this.colliders = [];
+    const collider = new Collider({ shape: Shape.Polygon(points, false, center)});
+    this.add(collider)
+    return collider
   }
 
   /**
@@ -304,8 +374,10 @@ export class Body implements Clonable<Body> {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public useCircleCollider(radius: number, center: Vector = Vector.Zero): Collider {
-    this.collider.shape = Shape.Circle(radius, center);
-    return this.collider;
+    this.colliders = [];
+    const collider = new Collider({ shape: Shape.Circle(radius, center)});
+    this.add(collider)
+    return collider;
   }
 
   /**
@@ -315,32 +387,13 @@ export class Body implements Clonable<Body> {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public useEdgeCollider(begin: Vector, end: Vector): Collider {
-    this.collider.shape = Shape.Edge(begin, end);
-    return this.collider;
-  }
-
-  // TODO remove this, eventually events will stay local to the thing they are around
-  private _wireColliderEventsToActor() {
-    this.collider.clear();
-    this.collider.on('precollision', (evt: PreCollisionEvent<Collider>) => {
-      if (this.actor) {
-        this.actor.emit('precollision', new PreCollisionEvent(evt.target.body.actor, evt.other.body.actor, evt.side, evt.intersection));
-      }
-    });
-    this.collider.on('postcollision', (evt: PostCollisionEvent<Collider>) => {
-      if (this.actor) {
-        this.actor.emit('postcollision', new PostCollisionEvent(evt.target.body.actor, evt.other.body.actor, evt.side, evt.intersection));
-      }
-    });
-    this.collider.on('collisionstart', (evt: CollisionStartEvent<Collider>) => {
-      if (this.actor) {
-        this.actor.emit('collisionstart', new CollisionStartEvent(evt.target.body.actor, evt.other.body.actor, evt.pair));
-      }
-    });
-    this.collider.on('collisionend', (evt: CollisionEndEvent<Collider>) => {
-      if (this.actor) {
-        this.actor.emit('collisionend', new CollisionEndEvent(evt.target.body.actor, evt.other.body.actor));
-      }
-    });
+    this.colliders = [];
+    const collider = new Collider({ shape: Shape.Edge(begin, end)});
+    this.add(collider);
+    return collider;
   }
 }
+
+
+// Alias for backwards compat
+export type Body = BodyComponent;

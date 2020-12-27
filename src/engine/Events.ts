@@ -11,6 +11,7 @@ import { Pair } from './index';
 import { Collider } from './Collision/Collider';
 import { Entity } from './EntityComponentSystem/Entity';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from './Interfaces/LifecycleEvents';
+import { BodyComponent } from './Collision/Body';
 
 export enum EventTypes {
   Kill = 'kill',
@@ -403,7 +404,7 @@ export class HiddenEvent extends GameEvent<Engine> {
 /**
  * Event thrown on an [[Actor|actor]] when a collision will occur this frame if it resolves
  */
-export class PreCollisionEvent<T extends Collider | Entity = Actor> extends GameEvent<T> {
+export class PreCollisionEvent<T extends BodyComponent | Collider | Entity = Actor> extends GameEvent<T> {
   /**
    * @param actor         The actor the event was thrown on
    * @param other         The actor that will collided with the current actor
@@ -412,14 +413,6 @@ export class PreCollisionEvent<T extends Collider | Entity = Actor> extends Game
    */
   constructor(actor: T, public other: T, public side: Side, public intersection: Vector) {
     super();
-    this.target = actor;
-  }
-
-  public get actor() {
-    return this.target;
-  }
-
-  public set actor(actor: T) {
     this.target = actor;
   }
 }
@@ -451,7 +444,7 @@ export class PostCollisionEvent<T extends Collider | Entity = Actor> extends Gam
 /**
  * Event thrown the first time an [[Actor|actor]] collides with another, after an actor is in contact normal collision events are fired.
  */
-export class CollisionStartEvent<T extends Collider | Entity = Actor> extends GameEvent<T> {
+export class CollisionStartEvent<T extends BodyComponent | Collider | Entity = Actor> extends GameEvent<T> {
   /**
    *
    * @param actor
@@ -475,7 +468,7 @@ export class CollisionStartEvent<T extends Collider | Entity = Actor> extends Ga
 /**
  * Event thrown when the [[Actor|actor]] is no longer colliding with another
  */
-export class CollisionEndEvent<T extends Collider | Entity = Actor> extends GameEvent<T> {
+export class CollisionEndEvent<T extends BodyComponent | Collider | Entity = Actor> extends GameEvent<T> {
   /**
    *
    */

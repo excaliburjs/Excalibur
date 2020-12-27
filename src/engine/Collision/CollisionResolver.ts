@@ -1,36 +1,21 @@
-﻿import { Body } from './Body';
-import { FrameStats } from '../Debug';
+﻿import { FrameStats } from '../Debug';
 import { Pair } from './Pair';
-import { CollisionResolutionStrategy } from '../Physics';
+import { Collider } from './Collider';
+import { CollisionContact } from './CollisionContact';
 
 /**
  * Definition for collision broadphase
  */
 export interface CollisionProcessor {
   /**
-   * Track a physics body
-   */
-  track(target: Body): void;
-
-  /**
-   * Untrack a physics body
-   */
-  untrack(tartet: Body): void;
-
-  /**
    * Detect potential collision pairs
    */
-  broadphase(targets: Body[], delta: number, stats?: FrameStats): Pair[];
+  broadphase(targets: Collider[], delta: number, stats?: FrameStats): Pair[];
 
   /**
    * Identify actual collisions from those pairs, and calculate collision impulse
    */
-  narrowphase(pairs: Pair[], stats?: FrameStats): Pair[];
-
-  /**
-   * Resolve the position and velocity of the physics bodies
-   */
-  resolve(pairs: Pair[], delta: number, strategy: CollisionResolutionStrategy): Pair[];
+  narrowphase(pairs: Pair[], stats?: FrameStats): CollisionContact[];
 
   /**
    * Publish collision start/end events
@@ -40,7 +25,7 @@ export interface CollisionProcessor {
   /**
    * Update the internal structures to track bodies
    */
-  update(targets: Body[], delta: number): number;
+  update(targets: Collider[], delta: number): number;
 
   /**
    * Draw any debug information

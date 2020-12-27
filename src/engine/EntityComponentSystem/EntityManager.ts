@@ -17,7 +17,7 @@ export class EntityManager<ContextType> implements Observer<RemovedComponent | A
    */
   public updateEntities(_context: ContextType, elapsed: number) {
     for (const entity of this.entities) {
-      // todo
+      // TODO is this right?
       entity.update((_context as any).engine, elapsed);
     }
   }

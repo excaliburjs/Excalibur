@@ -32,8 +32,8 @@ import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
 import { ActionQueue } from './Actions/Action';
-import { Vector } from './Algebra';
-import { Body } from './Collision/Body';
+import { vec, Vector } from './Algebra';
+import { Body, BodyComponent } from './Collision/Body';
 import { Eventable } from './Interfaces/Evented';
 import { Actionable } from './Actions/Actionable';
 import { Configurable } from './Configurable';
@@ -43,14 +43,11 @@ import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEventHandlers';
 import { CollisionType } from './Collision/CollisionType';
 import { obsolete } from './Util/Decorators';
-import { Collider } from './Collision/Collider';
-import { Shape } from './Collision/Shape';
 
 import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
-import { ColliderComponent } from './Collision/ColliderComponent';
 
 /**
  * Type guard for checking if something is an Actor
@@ -86,7 +83,7 @@ export interface ActorDefaults {
  */
 
 export class ActorImpl
-  extends Entity<TransformComponent | MotionComponent | ColliderComponent | CanvasDrawComponent>
+  extends Entity<TransformComponent | MotionComponent | BodyComponent | CanvasDrawComponent>
   implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
@@ -102,15 +99,9 @@ export class ActorImpl
    * acceleration, mass, inertia, etc.
    */
   public get body(): Body {
-    return this._body;
+    return this.components.body;
   }
-
-  public set body(body: Body) {
-    this._body = body;
-    this._body.actor = this;
-  }
-
-  private _body: Body;
+  
 
   /**
    * Gets the position vector of the actor in pixels
@@ -461,12 +452,25 @@ export class ActorImpl
     // initialize default options
     this._initDefaults();
 
+    if (xOrConfig && typeof xOrConfig === 'object') {
+      const config = xOrConfig;
+      width = config.width;
+      height = config.height;
+    }
+
     this.addComponent(new TransformComponent());
     this.addComponent(new MotionComponent());
-    this.addComponent(new ColliderComponent());
+    // TODO if no width or height don't set a body component
+    this.addComponent(new BodyComponent({
+      box: {
+        width,
+        height
+      },
+      anchor: this.anchor
+    }));
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
 
-    let shouldInitializeBody = true;
+    // let shouldInitializeBody = true;
     let collisionType = CollisionType.Passive;
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
@@ -477,13 +481,11 @@ export class ActorImpl
         xOrConfig = config.x || 0;
         y = config.y || 0;
       }
-      width = config.width;
-      height = config.height;
 
-      if (config.body) {
-        shouldInitializeBody = false;
-        this.body = config.body;
-      }
+      // if (config.body) {
+      //   shouldInitializeBody = false;
+      //   this.body = config.body;
+      // }
 
       if (config.anchor) {
         this.anchor = config.anchor;
@@ -491,22 +493,13 @@ export class ActorImpl
 
       if (config.collisionType) {
         collisionType = config.collisionType;
+        this.body.collisionType = collisionType;
       }
     }
 
     // Body and collider bounds are still determined by actor width/height
     this._width = width || 0;
     this._height = height || 0;
-
-    // Initialize default collider to be a box
-    if (shouldInitializeBody) {
-      this.body = new Body({
-        collider: new Collider({
-          type: collisionType,
-          shape: Shape.Box(this._width, this._height, this.anchor)
-        })
-      });
-    }
 
     // Position uses body to store values must be initialized after body
     this.pos.x = <number>xOrConfig || 0;
@@ -882,7 +875,7 @@ export class ActorImpl
    * @param actor The child actor to add
    */
   public add(actor: Actor) {
-    actor.body.collider.type = CollisionType.PreventCollision;
+    actor.body.collisionType = CollisionType.PreventCollision;
     if (Util.addItemToArray(actor, this.children)) {
       actor.parent = this;
       if (this.scene) {
@@ -997,8 +990,6 @@ export class ActorImpl
 
   public set width(width: number) {
     this._width = width / this.scale.x;
-    this.body.collider.shape = Shape.Box(this._width, this._height, this.anchor);
-    this.body.markCollisionShapeDirty();
   }
 
   public get height() {
@@ -1007,8 +998,6 @@ export class ActorImpl
 
   public set height(height: number) {
     this._height = height / this.scale.y;
-    this.body.collider.shape = Shape.Box(this._width, this._height, this.anchor);
-    this.body.markCollisionShapeDirty();
   }
 
   /**
@@ -1092,7 +1081,7 @@ export class ActorImpl
     // These shenanigans are to handle child actor containment,
     // the only time getWorldPos and pos are different is a child actor
     const childShift = this.getWorldPos().sub(this.pos);
-    const containment = this.body.collider.bounds.translate(childShift).contains(new Vector(x, y));
+    const containment = this.body.bounds.translate(childShift).contains(new Vector(x, y));
 
     if (recurse) {
       return (
@@ -1111,9 +1100,9 @@ export class ActorImpl
    * @param actor     Actor to test
    * @param distance  Distance in pixels to test
    */
-  public within(actor: Actor, distance: number): boolean {
-    return this.body.collider.shape.getClosestLineBetween(actor.body.collider.shape).getLength() <= distance;
-  }
+  // public within(actor: Actor, distance: number): boolean {
+  //   return this.body.collider.shape.getClosestLineBetween(actor.body.collider.shape).getLength() <= distance;
+  // }
 
   // #endregion
 
@@ -1145,12 +1134,6 @@ export class ActorImpl
     if (this.opacity === 0) {
       this.visible = false;
     }
-
-    // capture old transform
-    this.body.captureOldTransform();
-
-    // Run Euler integration
-    // this.body.integrate(delta);
 
     // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
     for (const trait of this.traits) {
@@ -1228,8 +1211,8 @@ export class ActorImpl
 
       this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
     } else {
-      if (this.color && this.body && this.body.collider && this.body.collider.shape) {
-        this.body.collider.shape.draw(ctx, this.color, new Vector(0, 0));
+      if (this.color) {
+        this.body.colliders.forEach(c => c.shape.draw(ctx, this.color, vec(0, 0)));
       }
     }
     ctx.restore();
@@ -1284,14 +1267,16 @@ export class ActorImpl
   public debugDraw(ctx: CanvasRenderingContext2D) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
 
-    this.body.collider.debugDraw(ctx);
+    this.body.colliders.forEach(c => c.debugDraw(ctx));
 
-    // Draw actor bounding box
-    const bb = this.body.collider.localBounds.translate(this.getWorldPos());
-    bb.debugDraw(ctx);
+    // // Draw actor bounding box
+    this.body.colliders.forEach(c => {
+      const bb = c.localBounds.translate(this.getWorldPos());
+      bb.debugDraw(ctx);
+    });
 
     // Draw actor Id
-    ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
+    // ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
 
     // Draw actor anchor Vector
     ctx.fillStyle = Color.Yellow.toString();

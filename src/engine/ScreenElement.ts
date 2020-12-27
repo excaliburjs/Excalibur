@@ -2,8 +2,6 @@ import { Vector } from './Algebra';
 import { Engine } from './Engine';
 import { Actor, ActorArgs } from './Actor';
 import * as Traits from './Traits/Index';
-import { CollisionType } from './Collision/CollisionType';
-import { Shape } from './Collision/Shape';
 import { CoordPlane } from './EntityComponentSystem/Components/TransformComponent';
 
 /**
@@ -32,8 +30,8 @@ export class ScreenElement extends Actor {
     this.traits = [];
     this.traits.push(new Traits.CapturePointer());
     this.anchor.setTo(0, 0);
-    this.body.collider.type = CollisionType.PreventCollision;
-    this.body.collider.shape = Shape.Box(this.width, this.height, this.anchor);
+    // this.body.collider.type = CollisionType.PreventCollision;
+    // this.body.collider.shape = Shape.Box(this.width, this.height, this.anchor);
     this.enableCapturePointer = true;
   }
 

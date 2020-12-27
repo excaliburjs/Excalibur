@@ -1,6 +1,34 @@
 import { Vector } from '../../Algebra';
 import { Component } from '../Component';
 
+export interface Transform {
+   /**
+   * The [[coordinate plane|CoordPlane]] for this transform for the entity.
+   */
+  coordPlane: CoordPlane;
+
+  /**
+   * The current position of the entity in world space or in screen space depending on the the [[coordinate plan|CoordPlane]]
+   */
+  pos: Vector;
+
+  /**
+   * The z-index ordering of the entity, a higher values are drawn on top of lower values.
+   * For example z=99 would be drawn on top of z=0.
+   */
+  z: number;
+
+  /**
+   * The rotation of the entity in radians. For example `Math.PI` radians is the same as 180 degrees.
+   */
+  rotation: number;
+
+  /**
+   * The scale of the entity.
+   */
+  scale: Vector;
+}
+
 /**
  * Enum representing the coordinate plane for the position 2D vector in the [[TransformComponent]]
  */
@@ -17,7 +45,7 @@ export enum CoordPlane {
   Screen = 'screen'
 }
 
-export class TransformComponent extends Component<'transform'> {
+export class TransformComponent extends Component<'transform'> implements Transform {
   public readonly type = 'transform';
 
   /**

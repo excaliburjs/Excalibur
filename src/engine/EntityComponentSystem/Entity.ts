@@ -5,6 +5,7 @@ import { Class } from '../Class';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
+import { EventDispatcher } from '../EventDispatcher';
 
 /**
  * Interface holding an entity component pair
@@ -79,6 +80,13 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * The unique identifier for the entity
    */
   public id: number = Entity._ID++;
+
+  public events: EventDispatcher;
+
+  constructor() {
+    super();
+    this.events = this.eventDispatcher;
+  }
 
   /**
    * Whether this entity is active, if set to false it will be reclaimed
@@ -172,6 +180,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * Observable that keeps track of component add or remove changes on the entity
    */
   public changes = new Observable<AddedComponent | RemovedComponent>();
+
 
   /**
    * Creates a deep copy of the entity and a copy of all its components

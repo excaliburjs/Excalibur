@@ -35,15 +35,14 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
     let canvasdraw: CanvasDrawComponent;
     const length = entities.length;
     for (let i = 0; i < length; i++) {
-      if ((entities[i] as Actor).visible && !(entities[i] as Actor).isOffScreen) {
-        transform = entities[i].components.transform;
-        canvasdraw = entities[i].components.canvas;
-
+      transform = entities[i].components.transform;
+      canvasdraw = entities[i].components.canvas;
+      if ((entities[i] as unknown as Actor).visible && !(entities[i] as unknown as Actor).isOffScreen) {
         this._ctx.save();
         this._pushCameraTransform(transform);
 
         this._ctx.save();
-        this._applyTransform(entities[i] as Actor);
+        this._applyTransform(entities[i] as unknown as Actor);
         canvasdraw.draw(this._ctx, delta);
         this._ctx.restore();
 
@@ -55,7 +54,7 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
         this._ctx.save();
         this._pushCameraTransform(transform);
         this._ctx.strokeStyle = 'yellow';
-        (entities[i] as Actor).debugDraw(this._ctx);
+        (entities[i] as unknown as Actor).debugDraw(this._ctx);
         this._popCameraTransform(transform);
         this._ctx.restore();
       }

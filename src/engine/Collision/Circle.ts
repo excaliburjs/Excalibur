@@ -6,7 +6,6 @@ import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 
 import { Vector, Ray, Projection, Line } from '../Algebra';
-import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
 
@@ -213,8 +212,7 @@ export class Circle implements CollisionShape {
    * Returns the moment of inertia of a circle given it's mass
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public get inertia(): number {
-    const mass = this.collider ? this.collider.mass : Physics.defaultMass;
+  public getInertia(mass: number): number {
     return (mass * this.radius * this.radius) / 2;
   }
 

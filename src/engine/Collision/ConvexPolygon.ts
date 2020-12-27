@@ -1,5 +1,4 @@
 ﻿import { Color } from '../Drawing/Color';
-import { Physics } from '../Physics';
 import { BoundingBox } from './BoundingBox';
 import { Edge } from './Edge';
 import { CollisionJumpTable } from './CollisionJumpTable';
@@ -109,11 +108,7 @@ export class ConvexPolygon implements CollisionShape {
     if (
       !this._transformedPoints.length ||
       // or the position or rotation has changed in world space
-      (this.collider &&
-        this.collider.body &&
-        (!this.collider.body.oldPos.equals(this.collider.body.pos) ||
-          this.collider.body.oldRotation !== this.collider.body.rotation ||
-          this.collider.body.oldScale !== this.collider.body.scale))
+      (this.collider?.body?.hasChanged())
     ) {
       this._calculateTransformation();
     }
@@ -259,8 +254,7 @@ export class ConvexPolygon implements CollisionShape {
    * Get the moment of inertia for an arbitrary polygon
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public get inertia(): number {
-    const mass = this.collider ? this.collider.mass : Physics.defaultMass;
+  public getInertia(mass: number): number {
     let numerator = 0;
     let denominator = 0;
     for (let i = 0; i < this.points.length; i++) {

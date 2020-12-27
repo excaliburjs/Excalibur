@@ -50,10 +50,7 @@ export interface CollisionShape extends Clonable<CollisionShape> {
    */
   axes: Vector[];
 
-  /**
-   * Return the calculated moment of inertia for this shape
-   */
-  inertia: number;
+  getInertia(mass: number): number;
 
   // All new CollisionShape need to do the following
   // Create a new collision function in the CollisionJumpTable against all the primitives

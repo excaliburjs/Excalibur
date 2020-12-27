@@ -2,19 +2,25 @@ import { Physics } from '../Physics';
 import { CollisionProcessor } from './CollisionResolver';
 import { DynamicTree } from './DynamicTree';
 import { Pair } from './Pair';
-import { Body } from './Body';
 
 import { Vector, Ray } from '../Algebra';
 import { FrameStats } from '../Debug';
-import { CollisionResolutionStrategy } from '../Physics';
 import { Logger } from '../Util/Log';
 import { CollisionStartEvent, CollisionEndEvent } from '../Events';
 import { CollisionType } from './CollisionType';
 import { Collider } from './Collider';
+import { CollisionContact } from './CollisionContact';
+import { DrawUtil } from '../Util/Index';
+import { Color } from '../Drawing/Color';
 
+/**
+ * Responsible for performing the collision broadphase (locating potential colllisions) and 
+ * the narrowphase (actual collision contacts)
+ */
 export class DynamicTreeCollisionProcessor implements CollisionProcessor {
-  private _dynamicCollisionTree = new DynamicTree();
-  private _collisionHash: { [key: string]: boolean } = {};
+  private _dynamicCollisionTree = new DynamicTree<Collider>();
+  private _collisions = new Set<string>();
+
   private _collisionPairCache: Pair[] = [];
   private _lastFramePairs: Pair[] = [];
   private _lastFramePairsHash: { [pairId: string]: Pair } = {};
@@ -22,7 +28,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   /**
    * Tracks a physics body for collisions
    */
-  public track(target: Body): void {
+  public track(target: Collider): void {
     if (!target) {
       Logger.getInstance().warn('Cannot track null physics body');
       return;
@@ -33,7 +39,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   /**
    * Untracks a physics body
    */
-  public untrack(target: Body): void {
+  public untrack(target: Collider): void {
     if (!target) {
       Logger.getInstance().warn('Cannot untrack a null physics body');
       return;
@@ -42,31 +48,36 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   }
 
   private _shouldGenerateCollisionPair(colliderA: Collider, colliderB: Collider) {
+    // if the collision pair is part of the same fixture that's invalid
+    if ((colliderA.owningId !== null && colliderB.owningId !== null) && 
+        colliderA.owningId === colliderB.owningId) {
+      return false;
+    }
+
     // if the collision pair has been calculated already short circuit
-    const hash = Pair.calculatePairHash(colliderA, colliderB);
-    if (this._collisionHash[hash]) {
+    const hash = Pair.calculatePairHash(colliderA.body, colliderB.body);
+    if (this._collisions.has(hash)) {
       return false; // pair exists easy exit return false
     }
 
-    return Pair.canCollide(colliderA, colliderB);
+    return Pair.canCollide(colliderA.body, colliderB.body);
   }
 
   /**
    * Detects potential collision pairs in a broadphase approach with the dynamic aabb tree strategy
    */
-  public broadphase(targets: Body[], delta: number, stats?: FrameStats): Pair[] {
+  public broadphase(targets: Collider[], delta: number, stats?: FrameStats): Pair[] {
     const seconds = delta / 1000;
 
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
     const potentialColliders = targets
-      .map((t) => t.collider)
       .filter((other) => {
-        return other.active && other.type !== CollisionType.PreventCollision;
+        return other.body.active && other.body.collisionType !== CollisionType.PreventCollision;
       });
 
     // clear old list of collision pairs
     this._collisionPairCache = [];
-    this._collisionHash = {};
+    this._collisions.clear();
 
     // check for normal collision pairs
     let collider: Collider;
@@ -74,10 +85,10 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       collider = potentialColliders[j];
 
       // Query the collision tree for potential colliders
-      this._dynamicCollisionTree.query(collider.body, (other: Body) => {
-        if (this._shouldGenerateCollisionPair(collider, other.collider)) {
-          const pair = new Pair(collider, other.collider);
-          this._collisionHash[pair.id] = true;
+      this._dynamicCollisionTree.query(collider, (other: Collider) => {
+        if (this._shouldGenerateCollisionPair(collider, other)) {
+          const pair = new Pair(collider.body, other.body);
+          this._collisions.add(pair.id);
           this._collisionPairCache.push(pair);
         }
         // Always return false, to query whole tree. Returning true in the query method stops searching
@@ -93,7 +104,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     if (Physics.checkForFastBodies) {
       for (const collider of potentialColliders) {
         // Skip non-active objects. Does not make sense on other collision types
-        if (collider.type !== CollisionType.Active) {
+        if (collider.body.collisionType !== CollisionType.Active) {
           continue;
         }
 
@@ -120,26 +131,26 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
           // back the ray up by -2x surfaceEpsilon to account for fast moving objects starting on the surface
           ray.pos = ray.pos.add(ray.dir.scale(-2 * Physics.surfaceEpsilon));
-          let minBody: Body;
+          let minCollider: Collider;
           let minTranslate: Vector = new Vector(Infinity, Infinity);
-          this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + Physics.surfaceEpsilon * 2, (other: Body) => {
-            if (collider.body !== other && other.collider.shape && Pair.canCollide(collider, other.collider)) {
-              const hitPoint = other.collider.shape.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
+          this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + Physics.surfaceEpsilon * 2, (other: Collider) => {
+            if (collider !== other && other.shape && Pair.canCollide(collider.body, other.body)) {
+              const hitPoint = other.shape.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
               if (hitPoint) {
                 const translate = hitPoint.sub(origin);
                 if (translate.size < minTranslate.size) {
                   minTranslate = translate;
-                  minBody = other;
+                  minCollider = other;
                 }
               }
             }
             return false;
           });
 
-          if (minBody && Vector.isValid(minTranslate)) {
-            const pair = new Pair(collider, minBody.collider);
-            if (!this._collisionHash[pair.id]) {
-              this._collisionHash[pair.id] = true;
+          if (minCollider && Vector.isValid(minTranslate)) {
+            const pair = new Pair(collider.body, minCollider.body);
+            if (!this._collisions.has(pair.id)) {
+              this._collisions.add(pair.id);
               this._collisionPairCache.push(pair);
             }
             // move the fast moving object to the other body
@@ -162,38 +173,23 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     return this._collisionPairCache;
   }
 
+  private _contacts: CollisionContact[] = [];
   /**
    * Applies narrow phase on collision pairs to find actual area intersections
    * Adds actual colliding pairs to stats' Frame data
    */
-  public narrowphase(pairs: Pair[], stats?: FrameStats): Pair[] {
+  public narrowphase(pairs: Pair[], stats?: FrameStats): CollisionContact[] {
+    let contacts: CollisionContact[] = []
     for (let i = 0; i < pairs.length; i++) {
-      pairs[i].collide();
-      if (stats && pairs[i].collision) {
-        stats.physics.collisions++;
+      contacts = contacts.concat(pairs[i].collide());
+      if (stats && contacts.length > 0) {
         stats.physics.collidersHash[pairs[i].id] = pairs[i];
       }
     }
-    return pairs.filter((p) => p.collision);
-  }
-
-  /**
-   * Perform collision resolution given a strategy (rigid body or box) and move objects out of intersect.
-   */
-  public resolve(pairs: Pair[], delta: number, strategy: CollisionResolutionStrategy): Pair[] {
-    for (const pair of pairs) {
-      pair.resolve(strategy);
-
-      if (pair.collision) {
-        pair.colliderA.body.applyMtv();
-        pair.colliderB.body.applyMtv();
-        // todo still don't like this, this is a small integration step to resolve narrowphase collisions
-        pair.colliderA.body.integrate(delta * Physics.collisionShift);
-        pair.colliderB.body.integrate(delta * Physics.collisionShift);
-      }
+    if (stats) {
+      stats.physics.collisions+= contacts.length;
     }
-
-    return pairs.filter((p) => p.canCollide);
+    return this._contacts = contacts;
   }
 
   public runCollisionStartEnd(pairs: Pair[]) {
@@ -205,20 +201,20 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
       // find all new collisions
       if (!this._lastFramePairsHash[p.id]) {
-        const actor1 = p.colliderA;
-        const actor2 = p.colliderB;
-        actor1.emit('collisionstart', new CollisionStartEvent(actor1, actor2, p));
-        actor2.emit('collisionstart', new CollisionStartEvent(actor2, actor1, p));
+        const colliderA = p.bodyA;
+        const colliderB = p.bodyB;
+        colliderA.events.emit('collisionstart', new CollisionStartEvent(colliderA, colliderB, p));
+        colliderB.events.emit('collisionstart', new CollisionStartEvent(colliderB, colliderA, p));
       }
     }
 
     // find all old collisions
     for (const p of this._lastFramePairs) {
       if (!currentFrameHash[p.id]) {
-        const actor1 = p.colliderA;
-        const actor2 = p.colliderB;
-        actor1.emit('collisionend', new CollisionEndEvent(actor1, actor2));
-        actor2.emit('collisionend', new CollisionEndEvent(actor2, actor1));
+        const colliderA = p.bodyA;
+        const colliderB = p.bodyB;
+        colliderA.events.emit('collisionend', new CollisionEndEvent(colliderA, colliderB));
+        colliderB.events.emit('collisionend', new CollisionEndEvent(colliderB, colliderA));
       }
     }
 
@@ -230,7 +226,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   /**
    * Update the dynamic tree positions
    */
-  public update(targets: Body[]): number {
+  public update(targets: Collider[]): number {
     let updated = 0;
     const len = targets.length;
 
@@ -249,8 +245,13 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     }
 
     if (Physics.showContacts || Physics.showCollisionNormals) {
-      for (const pair of this._collisionPairCache) {
-        pair.debugDraw(ctx);
+      for (const contact of this._contacts) {
+        if (Physics.showContacts) {
+          DrawUtil.point(ctx, Color.Red, contact.point);
+        }
+        if (Physics.showCollisionNormals) {
+          DrawUtil.vector(ctx, Color.Cyan, contact.point, contact.normal, 30);
+        }
       }
     }
   }

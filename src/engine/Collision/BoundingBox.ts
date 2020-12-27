@@ -1,6 +1,3 @@
-import { ConvexPolygon } from './ConvexPolygon';
-
-import { Actor } from '../Actor';
 import { Vector, Ray } from '../Algebra';
 import { Color } from '../Drawing/Color';
 import { Side } from './Side';
@@ -154,21 +151,6 @@ export class BoundingBox {
     results.push(new Vector(this.right, this.bottom));
     results.push(new Vector(this.left, this.bottom));
     return results;
-  }
-
-  /**
-   * Creates a Polygon collision area from the points of the bounding box
-   */
-  public toPolygon(actor?: Actor): ConvexPolygon {
-    let maybeCollider = null;
-    if (actor && actor.body && actor.body.collider) {
-      maybeCollider = actor.body.collider;
-    }
-    return new ConvexPolygon({
-      collider: maybeCollider,
-      points: this.getPoints(),
-      offset: Vector.Zero
-    });
   }
 
   /**

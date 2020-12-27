@@ -165,17 +165,17 @@ for (var i = 0; i < 36; i++) {
     height: tileBlockHeight,
     color: color
   });
-  block.body.collider.type = ex.CollisionType.Fixed;
+  block.body.collisionType = ex.CollisionType.Fixed;
   //var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
   //block.collisionType = ex.CollisionType.Fixed;
-  block.body.collider.group = blockGroup;
+  block.body.group = blockGroup;
   block.addDrawing(Animations.Block, blockAnimation);
 
   game.add(block);
 }
 
 var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
-platform.body.collider.type = ex.CollisionType.Fixed;
+platform.body.collisionType = ex.CollisionType.Fixed;
 platform.actions
   .moveTo(200, 300, 100)
   .moveTo(600, 300, 100)
@@ -184,7 +184,7 @@ platform.actions
 game.add(platform);
 
 var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
-platform2.body.collider.type = ex.CollisionType.Fixed;
+platform2.body.collisionType = ex.CollisionType.Fixed;
 platform2.actions
   .moveTo(2000, 300, 100)
   .moveTo(2000, 100, 100)
@@ -194,7 +194,7 @@ platform2.actions
 game.add(platform2);
 
 var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
-platform3.body.collider.type = ex.CollisionType.Fixed;
+platform3.body.collisionType = ex.CollisionType.Fixed;
 platform3.actions
   .moveTo(-200, 800, 300)
   .moveTo(-200, 400, 50)
@@ -205,12 +205,12 @@ platform3.actions
 game.add(platform3);
 
 var platform4 = new ex.Actor(75, 300, 100, 50, ex.Color.Azure);
-platform4.body.collider.type = ex.CollisionType.Fixed;
+platform4.body.collisionType = ex.CollisionType.Fixed;
 game.add(platform4);
 
 // Test follow api
 var follower = new ex.Actor(50, 100, 20, 20, ex.Color.Black);
-follower.body.collider.type = ex.CollisionType.PreventCollision;
+follower.body.collisionType = ex.CollisionType.PreventCollision;
 game.add(follower);
 
 // Create the player
@@ -352,7 +352,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
     var a = new ex.Actor(player.pos.x + 10, player.pos.y - 50, 10, 10, new ex.Color(222, 222, 222));
     a.vel.x = 200 * direction;
     a.vel.y = 0;
-    a.body.collider.type = ex.CollisionType.Active;
+    a.body.collisionType = ex.CollisionType.Active;
     var inAir = true;
     a.on('precollision', (data?: ex.PreCollisionEvent) => {
       inAir = false;

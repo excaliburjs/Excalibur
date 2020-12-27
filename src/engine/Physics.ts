@@ -45,6 +45,12 @@ export class Physics {
    * This is a great way to globally simulate effects like gravity.
    */
   public static acc = new Vector(0, 0);
+  public static get gravity() {
+    return Physics.acc;
+  }
+  public static set gravity(v: Vector) {
+    Physics.acc = v;
+  }
 
   /**
    * Globally switches all Excalibur physics behavior on or off.

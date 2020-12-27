@@ -1,9 +1,5 @@
 import { Color } from '../Drawing/Color';
-import * as DrawUtil from '../Util/DrawUtil';
-import { Eventable } from '../Interfaces/Index';
-import { GameEvent } from '../Events';
 import { Actor } from '../Actor';
-import { Body } from './Body';
 import { CollisionShape } from './CollisionShape';
 import { Vector, Line } from '../Algebra';
 import { Physics } from '../Physics';
@@ -12,8 +8,9 @@ import { CollisionType } from './CollisionType';
 import { CollisionGroup } from './CollisionGroup';
 import { CollisionContact } from './CollisionContact';
 import { EventDispatcher } from '../EventDispatcher';
-import { Pair } from './Pair';
 import { Clonable } from '../Interfaces/Clonable';
+import { BodyComponent } from './Body';
+import { DrawUtil } from '../Util/Index';
 
 /**
  * Type guard function to determine whether something is a Collider
@@ -28,10 +25,6 @@ export interface ColliderOptions {
    * region along with the [[BoundingBox|bounding box]]
    */
   shape?: CollisionShape;
-  /**
-   * Optional body to associate with this collider
-   */
-  body?: Body;
   /**
    * Optional pixel offset from the position of the body
    */
@@ -48,35 +41,31 @@ export interface ColliderOptions {
    * Optional local bounds if other bounds are required instead of the bounding box from the shape. This overrides shape bounds.
    */
   localBounds?: BoundingBox;
-  /**
-   * Optional flag to indicate moment of inertia from the shape should be used, by default it is true.
-   */
-  useShapeInertia?: boolean;
 }
 
 /**
  * Collider describes material properties like shape,
- * bounds, friction of the physics object. Only **one** collider can be associated with a body at a time
+ * bounds, friction of the physics object.
  */
-
-export class Collider implements Eventable, Clonable<Collider> {
+export class Collider implements Clonable<Collider> {
+  private static _ID = 0;
+  private _id = Collider._ID++;
   private _shape: CollisionShape;
   public useShapeInertia: boolean;
-  private _events: EventDispatcher<Collider> = new EventDispatcher<Collider>(this);
+  public events: EventDispatcher<Collider> = new EventDispatcher<Collider>(this);
+  
+  /**
+   * Owning id
+   */
+  public owningId?: number = null;
 
-  constructor({ body, type, group, shape, offset, useShapeInertia = true }: ColliderOptions) {
-    // If shape is not supplied see if the body has an existing collider with a shape
-    if (body && body.collider && !shape) {
-      this._shape = body.collider.shape;
-    } else {
-      this._shape = shape;
-      this.body = body;
-    }
-    this.useShapeInertia = useShapeInertia;
-    this._shape.collider = this;
-    this.type = type || this.type;
-    this.group = group || this.group;
-    this.offset = offset || Vector.Zero;
+  // TODO can we avoid this
+  public body: BodyComponent;
+
+  constructor(options: ColliderOptions) {
+    const { shape, offset } = options
+    this.shape = shape;
+    this.offset = offset ?? Vector.Zero;
   }
 
   /**
@@ -84,10 +73,9 @@ export class Collider implements Eventable, Clonable<Collider> {
    */
   public clone() {
     return new Collider({
-      body: null,
-      type: this.type,
+      // type: this.type,
       shape: this._shape.clone(),
-      group: this.group,
+      // group: this.group,
       offset: this.offset
     });
   }
@@ -96,22 +84,22 @@ export class Collider implements Eventable, Clonable<Collider> {
    * Get the unique id of the collider
    */
   public get id(): number {
-    return this.body ? this.body.id : -1;
+    return this._id;
   }
 
-  /**
-   * Gets or sets the current collision type of this collider. By
-   * default it is ([[CollisionType.PreventCollision]]).
-   */
-  public type: CollisionType = CollisionType.PreventCollision;
+  // /**
+  //  * Gets or sets the current collision type of this collider. By
+  //  * default it is ([[CollisionType.PreventCollision]]).
+  //  */
+  // public type: CollisionType = CollisionType.PreventCollision;
+
+  // /**
+  //  * Gets or sets the current [[CollisionGroup|collision group]] for the collider, colliders with like collision groups do not collide.
+  //  * By default, the collider will collide with [[CollisionGroup|all groups]].
+  //  */
+  // public group: CollisionGroup = CollisionGroup.All;
 
   /**
-   * Gets or sets the current [[CollisionGroup|collision group]] for the collider, colliders with like collision groups do not collide.
-   * By default, the collider will collide with [[CollisionGroup|all groups]].
-   */
-  public group: CollisionGroup = CollisionGroup.All;
-
-  /*
    * Get the shape of the collider as a [[CollisionShape]]
    */
   public get shape(): CollisionShape {
@@ -124,28 +112,13 @@ export class Collider implements Eventable, Clonable<Collider> {
   public set shape(shape: CollisionShape) {
     this._shape = shape;
     this._shape.collider = this;
-    if (this.useShapeInertia) {
-      this.inertia = isNaN(this._shape.inertia) ? this.inertia : this._shape.inertia;
-    }
   }
-
-  /**
-   * Return a reference to the body associated with this collider
-   */
-  public body: Body;
 
   /**
    * The center of the collider in world space
    */
   public get center(): Vector {
     return this.bounds.center;
-  }
-
-  /**
-   * Is this collider active, if false it wont collide
-   */
-  public get active(): boolean {
-    return this.body.active;
   }
 
   /**
@@ -183,36 +156,14 @@ export class Collider implements Eventable, Clonable<Collider> {
   }
 
   /**
-   * The current mass of the actor, mass can be thought of as the resistance to acceleration.
-   */
-  public mass: number = 1.0;
-
-  /**
-   * The current moment of inertia, moment of inertia can be thought of as the resistance to rotation.
-   */
-  public inertia: number = 1000;
-
-  /**
-   * The coefficient of friction on this actor
-   */
-  public friction: number = 0.99;
-
-  /**
-   * The also known as coefficient of restitution of this actor, represents the amount of energy preserved after collision or the
-   * bounciness. If 1, it is 100% bouncy, 0 it completely absorbs.
-   */
-  public bounciness: number = 0.2;
-
-  /**
    * Returns a boolean indicating whether this body collided with
    * or was in stationary contact with
    * the body of the other [[Collider]]
    */
   public touching(other: Collider): boolean {
-    const pair = new Pair(this, other);
-    pair.collide();
+    const contact = this.collide(other);
 
-    if (pair.collision) {
+    if (contact) {
       return true;
     }
 
@@ -228,9 +179,6 @@ export class Collider implements Eventable, Clonable<Collider> {
       return this.shape.bounds;
     }
 
-    if (this.body) {
-      return new BoundingBox().translate(this.body.pos);
-    }
     return new BoundingBox();
   }
 
@@ -252,23 +200,6 @@ export class Collider implements Eventable, Clonable<Collider> {
     if (this.shape) {
       this.shape.recalc();
     }
-  }
-
-  emit(eventName: string, event: GameEvent<Collider>): void {
-    this._events.emit(eventName, event);
-  }
-  on(eventName: string, handler: (event: GameEvent<Collider>) => void): void {
-    this._events.on(eventName, handler);
-  }
-  off(eventName: string, handler?: (event: GameEvent<Collider>) => void): void {
-    this._events.off(eventName, handler);
-  }
-  once(eventName: string, handler: (event: GameEvent<Collider>) => void): void {
-    this._events.once(eventName, handler);
-  }
-
-  clear() {
-    this._events.clear();
   }
 
   /* istanbul ignore next */

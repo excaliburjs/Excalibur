@@ -103,7 +103,7 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
   public collides(actor: Actor): Vector {
     const width = actor.pos.x + actor.width;
     const height = actor.pos.y + actor.height;
-    const actorBounds = actor.body.collider.bounds;
+    const actorBounds = actor.body.bounds;
     const overlaps: Vector[] = [];
     if (actor.width <= 0 || actor.height <= 0) {
       return null;

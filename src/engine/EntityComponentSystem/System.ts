@@ -95,7 +95,7 @@ implements Observer<AddedEntity | RemovedEntity> {
    * Systems observe when entities match their types or no longer match their types, override
    * @param _entityAddedOrRemoved
    */
-  public notify(_entityAddedOrRemoved: AddedEntity | RemovedEntity) {
+  public notify(_entityAddedOrRemoved: AddedEntity<ComponentTypeUnion> | RemovedEntity) {
     // Override me
   }
 }
@@ -103,9 +103,9 @@ implements Observer<AddedEntity | RemovedEntity> {
 /**
  * An [[Entity]] with [[Component]] types that matches a [[System]] types exists in the current scene.
  */
-export class AddedEntity implements Message<Entity> {
+export class AddedEntity<Components extends Component = never> implements Message<Entity<Components>> {
   readonly type: 'Entity Added' = 'Entity Added';
-  constructor(public data: Entity) {}
+  constructor(public data: Entity<Components>) {}
 }
 
 /**

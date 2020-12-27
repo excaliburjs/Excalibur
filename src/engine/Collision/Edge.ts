@@ -7,7 +7,6 @@ import { Circle } from './Circle';
 import { ConvexPolygon } from './ConvexPolygon';
 
 import { Vector, Ray, Projection, Line } from '../Algebra';
-import { Physics } from '../Physics';
 import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
@@ -240,8 +239,7 @@ export class Edge implements CollisionShape {
    * Get the moment of inertia for an edge
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public get inertia(): number {
-    const mass = this.collider ? this.collider.mass : Physics.defaultMass;
+  public getInertia(mass: number): number {
     const length = this.end.sub(this.begin).distance() / 2;
     return mass * length * length;
   }

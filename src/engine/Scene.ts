@@ -13,8 +13,6 @@ import {
 } from './Events';
 import { Logger } from './Util/Log';
 import { Timer } from './Timer';
-import { DynamicTreeCollisionProcessor } from './Collision/DynamicTreeCollisionProcessor';
-import { CollisionProcessor } from './Collision/CollisionResolver';
 import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Camera } from './Camera';
@@ -82,8 +80,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   private _isInitialized: boolean = false;
-
-  private _broadphase: CollisionProcessor = new DynamicTreeCollisionProcessor();
 
   private _killQueue: Actor[] = [];
   private _triggerKillQueue: Trigger[] = [];
@@ -399,6 +395,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     this.world.update(SystemType.Draw, delta);
 
+    if (this.engine.isDebug) {
+      this.debugDraw(ctx);
+    }
     this._postdraw(ctx, delta);
   }
 
@@ -409,7 +408,12 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
-    this._broadphase.debugDraw(ctx, 20);
+    // this._collisionProcessor.debugDraw(ctx, 20);
+    for (const system of this.world.systemManager.systems) {
+      if (system.debugDraw) {
+        system.debugDraw(ctx, 1);
+      }
+    }
     this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
   }
 
@@ -454,7 +458,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     }
     if (entity instanceof Actor) {
       if (!Util.contains(this.actors, entity)) {
-        this._broadphase.track(entity.body);
+        // this._collisionProcessor.track(entity.body);
         entity.scene = this;
         if (entity instanceof Trigger) {
           this.triggers.push(entity);
@@ -508,7 +512,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       if (!Util.contains(this.actors, entity)) {
         return;
       }
-      this._broadphase.untrack(entity.body);
+      // this._collisionProcessor.untrack(entity.body);
       if (entity instanceof Trigger) {
         this._triggerKillQueue.push(entity);
       } else {
