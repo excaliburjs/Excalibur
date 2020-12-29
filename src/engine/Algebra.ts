@@ -354,6 +354,14 @@ export class Ray {
     return -1;
   }
 
+  public intersectPoint(line: Line): Vector {
+    const time =  this.intersect(line);
+    if (time < 0) {
+      return null;
+    }
+    return this.getPoint(time);
+  }
+
   /**
    * Returns the point of intersection given the intersection time
    */
@@ -391,6 +399,14 @@ export class Line {
    */
   public normal(): Vector {
     return this.end.sub(this.begin).normal();
+  }
+
+  public dir(): Vector {
+    return this.end.sub(this.begin);
+  }
+
+  public getPoints(): Vector[] {
+    return [this.begin, this.end];
   }
 
   /**
@@ -437,11 +453,52 @@ export class Line {
   }
 
   /**
+   * Tests if a given point is below the line, points in the normal direction above the line are considered above.
+   * @param point 
+   */
+  public below(point: Vector): boolean {
+    let above2 = ((this.end.x - this.begin.x) * (point.y - this.begin.y) - 
+    (this.end.y - this.begin.y) * (point.x - this.begin.x))
+    return above2 >= 0;
+  }
+
+  /**
+   * Returns the clip point
+   * @param other 
+   */
+  public clip(sideNormal: Vector, size: number): Line {
+    let dir = sideNormal;
+    dir = dir.normalize();
+
+
+    const near = dir.dot(this.begin) - size;
+    const far = dir.dot(this.end) - size;
+
+    let results = [];
+    if (near <= 0) {
+      results.push(this.begin);
+    }
+    if (far <= 0) {
+      results.push(this.end);
+    }
+
+    if (near * far < 0) {
+      const clipTime = near / (near - far);
+      results.push(this.begin.add(this.end.sub(this.begin).scale(clipTime)));
+    }
+    if (results.length !== 2) {
+      return null;
+    }
+
+    return new Line(results[0], results[1]);
+  }
+
+  /**
    * Find the perpendicular distance from the line to a point
    * https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
    * @param point
    */
-  public distanceToPoint(point: Vector) {
+  public distanceToPoint(point: Vector, signed: boolean = false) {
     const x0 = point.x;
     const y0 = point.y;
 
@@ -449,8 +506,8 @@ export class Line {
 
     const dy = this.end.y - this.begin.y;
     const dx = this.end.x - this.begin.x;
-    const distance = Math.abs(dy * x0 - dx * y0 + this.end.x * this.begin.y - this.end.y * this.begin.x) / l;
-    return distance;
+    const distance = (dy * x0 - dx * y0 + this.end.x * this.begin.y - this.end.y * this.begin.x) / l;
+    return signed ? distance : Math.abs(distance);
   }
 
   /**

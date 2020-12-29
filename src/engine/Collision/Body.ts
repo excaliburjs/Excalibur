@@ -1,6 +1,5 @@
 import { Vector } from '../Algebra';
 import { Collider } from './Collider';
-// import { PreCollisionEvent, PostCollisionEvent, CollisionStartEvent, CollisionEndEvent } from '../Events';
 import { Clonable } from '../Interfaces/Clonable';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
@@ -14,6 +13,7 @@ import { EventDispatcher } from '../EventDispatcher';
 import { CollisionContact } from './CollisionContact';
 import { Physics } from '../Physics';
 import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisionEvent } from '../Events';
+import { createId, Id } from '../Id';
 
 export interface BodyComponentOptions {
   box?: { width: number, height: number }; 
@@ -38,7 +38,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   public readonly type = 'body';
   public dependencies = [TransformComponent, MotionComponent];
   public static _ID = 0;
-  public readonly id = BodyComponent._ID++;
+  public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
   public events = new EventDispatcher(this);
 
   constructor(options?: BodyComponentOptions) {
@@ -48,8 +48,8 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
         const { box: { width, height }, anchor = Vector.Half, offset = Vector.Zero } = options;
         this.useBoxCollider(width, height, anchor, offset);
       }
-      if (this.colliders?.length > 0) {
-        this.colliders.forEach(c => this.add(c));
+      if (this._colliders?.length > 0) {
+        this._colliders.forEach(c => this.addCollider(c));
       }
     }
   }
@@ -58,16 +58,13 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   public group: CollisionGroup = CollisionGroup.All;
 
-  /**
-   * 
-   */
   public mass: number = Physics.defaultMass;
 
   // TODO get inertia from shapes
   // TODO https://physics.stackexchange.com/questions/273394/is-moment-of-inertia-cumulative
   // public inertia: number = 1000;
   public get inertia() {
-    return this.colliders[0].shape.getInertia(this.mass);
+    return this._colliders[0].shape.getInertia(this.mass);
   }
 
   /**
@@ -76,7 +73,6 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    */
   public bounciness: number = 0.2;
 
-  
   /**
    * The coefficient of friction on this actor
    */
@@ -92,32 +88,42 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    */
   public constraints: Constraint[] = [];
 
-  /**
-   * TODO make list readonly, proxy
-   */
-  public colliders: Collider[] = [];
+  private _colliders: Collider[] = [];
 
   get bounds(): BoundingBox {
     let results: BoundingBox;
 
-    results = this.colliders.reduce(
+    results = this._colliders.reduce(
       (acc, collider) => acc.combine(collider.bounds),
-      this.colliders[0]?.bounds ?? new BoundingBox().translate(this.pos)
+      this._colliders[0]?.bounds ?? new BoundingBox().translate(this.pos)
     );
     
     return results;
   }
 
-  public add(collider: Collider) {
+  public addCollider(collider: Collider): BodyComponent {
     if (!collider.owningId) {
       collider.owningId = this.id
-      collider.body = this;
-      this.colliders.push(collider);
+      collider.owner = this;
+      this._colliders.push(collider);
       this.events.wire(collider.events);
       // TODO listen to collider events?
     } else {
       // TODO log warning
     }
+    return this;
+  }
+
+  public getColliders(): Collider[] {
+    return this._colliders;
+  }
+
+  public removeCollider(collider: Collider): BodyComponent {
+    collider.owningId = null;
+    collider.owner = null;
+    this.events.unwire(collider.events);
+    // TODO signal to untrack collider
+    return this;
   }
 
   /**
@@ -127,15 +133,14 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   public collide(other: Body): CollisionContact[] {
     const collisions = []
 
-    for (let colliderA of this.colliders) {
-      for (let colliderB of other.colliders) {
+    for (let colliderA of this._colliders) {
+      for (let colliderB of other._colliders) {
         const maybeCollision = colliderA.collide(colliderB);
         if (maybeCollision) {
           collisions.push(maybeCollision);
         }
       }
     }
-
     return collisions;
   }
 
@@ -148,12 +153,10 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   }
 
   public get transform(): TransformComponent {
-    // todo should the owner be typed 
     return (this.owner as Entity<TransformComponent>).components.transform;
   }
 
   public get motion(): MotionComponent {
-    // todo owner should have the right types
     return (this.owner as Entity<MotionComponent>).components.motion;
   }
 
@@ -283,16 +286,47 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   /**
    * Add minimum translation vectors accumulated during the current frame to resolve collisions.
    */
-  public addMtv(mtv: Vector) {
+  public addOverlap(mtv: Vector) {
     this._totalMtv.addEqual(mtv);
   }
 
   /**
    * Applies the accumulated translation vectors to the body's position
    */
-  public applyMtv(): void {
+  public resolveOverlap(): void {
     this.pos.addEqual(this._totalMtv);
     this._totalMtv.setTo(0, 0);
+  }
+
+  /**
+   * Apply a specific impulse (force) to a body
+   * @param point 
+   * @param impulse 
+   * @param normal 
+   */
+  public applyImpulse(point: Vector, impulse: Vector) {
+    if (this.collisionType !== CollisionType.Active) {
+      return; // only active objects participate in the simulation
+    }
+    const relative = point.sub(this.pos);
+    const normal = impulse.normalize();
+
+    const invMass = 1 / this.mass;
+    const invMoi = 1 / this.inertia;
+
+    const finalImpulse = impulse.scale(invMass);
+    if (this.constraints.includes(Constraint.X)) {
+      finalImpulse.x = 0;
+    }
+    if (this.constraints.includes(Constraint.Y)) {
+      finalImpulse.y = 0;
+    }
+
+    this.vel.addEqual(finalImpulse);
+
+    if (!this.constraints.includes(Constraint.Rotation)) {
+      this.angularVelocity += impulse.size * invMoi * relative.cross(normal);
+    }
   }
 
   /**
@@ -314,11 +348,12 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   }
 
   onAdd(entity: Entity) {
+    this.update();
     this.events.on('precollision', (evt: any) => {
-      entity.events.emit('precollision', new PreCollisionEvent(evt.target.owner, evt.other.body.owner, evt.side, evt.intersection));
+      entity.events.emit('precollision', new PreCollisionEvent(evt.target.owner, evt.other.owner.owner, evt.side, evt.intersection));
     });
     this.events.on('postcollision', (evt: any) => {
-      entity.events.emit('postcollision', new PostCollisionEvent(evt.target.owner, evt.other.body.owner, evt.side, evt.intersection));
+      entity.events.emit('postcollision', new PostCollisionEvent(evt.target.owner, evt.other.owner.owner, evt.side, evt.intersection));
     });
     this.events.on('collisionstart', (evt: any) => {
       entity.events.emit('collisionstart', new CollisionStartEvent(evt.target.owner, evt.other.owner, evt.pair));
@@ -330,11 +365,12 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   onRemove() {
     this.events.clear();
+    // Signal to remove colliders from process
   }
 
   update() {
-    for (let collider of this.colliders) {
-      collider.update();
+    for (let collider of this._colliders) {
+      collider.update(this.transform);
     }
   }
 
@@ -346,9 +382,21 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
-    this.colliders = [];
+    this._colliders = [];
+    return this.addBoxCollider(width, height, anchor, center);
+  }
+
+  /**
+   * 
+   * 
+   * @param width 
+   * @param height 
+   * @param anchor 
+   * @param center 
+   */
+  public addBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
     const collider = new Collider({ shape: Shape.Box(width, height, anchor, center) });
-    this.add(collider);
+    this.addCollider(collider);
     return collider;
   }
 
@@ -362,21 +410,41 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): Collider {
-    this.colliders = [];
+    this._colliders = [];
+    return this.addPolygonCollider(points, center);
+  }
+
+  /**
+   * 
+   * 
+   * @param points 
+   * @param center 
+   */
+  public addPolygonCollider(points: Vector[], center: Vector = Vector.Zero): Collider {
     const collider = new Collider({ shape: Shape.Polygon(points, false, center)});
-    this.add(collider)
+    this.addCollider(collider)
     return collider
   }
 
   /**
-   * Sets up a [[Circle|circle collision geometry]] with a specified radius in pixels.
+   * Sets up a [[Circle|circle collision geometry]] as the only collider with a specified radius in pixels.
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public useCircleCollider(radius: number, center: Vector = Vector.Zero): Collider {
-    this.colliders = [];
+    this._colliders = [];
+    return this.addCircleCollider(radius, center);
+  }
+
+  /**
+   * 
+   * 
+   * @param radius 
+   * @param center 
+   */
+  public addCircleCollider(radius: number, center: Vector = Vector.Zero): Collider {
     const collider = new Collider({ shape: Shape.Circle(radius, center)});
-    this.add(collider)
+    this.addCollider(collider)
     return collider;
   }
 
@@ -387,9 +455,19 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public useEdgeCollider(begin: Vector, end: Vector): Collider {
-    this.colliders = [];
+    this._colliders = [];
+    return this.addEdgeCollider(begin, end);
+  }
+
+  /**
+   * 
+   * 
+   * @param begin 
+   * @param end 
+   */
+  public addEdgeCollider(begin: Vector, end: Vector): Collider {
     const collider = new Collider({ shape: Shape.Edge(begin, end)});
-    this.add(collider);
+    this.addCollider(collider);
     return collider;
   }
 }

@@ -1,5 +1,4 @@
 import { Color } from '../Drawing/Color';
-import { Actor } from '../Actor';
 import { CollisionShape } from './CollisionShape';
 import { Vector, Line } from '../Algebra';
 import { Physics } from '../Physics';
@@ -9,15 +8,10 @@ import { CollisionGroup } from './CollisionGroup';
 import { CollisionContact } from './CollisionContact';
 import { EventDispatcher } from '../EventDispatcher';
 import { Clonable } from '../Interfaces/Clonable';
+import { Transform } from '../EntityComponentSystem/Components/TransformComponent';
 import { BodyComponent } from './Body';
 import { DrawUtil } from '../Util/Index';
-
-/**
- * Type guard function to determine whether something is a Collider
- */
-export function isCollider(x: Actor | Collider): x is Collider {
-  return x instanceof Collider;
-}
+import { createId, Id } from '../Id';
 
 export interface ColliderOptions {
   /**
@@ -49,7 +43,7 @@ export interface ColliderOptions {
  */
 export class Collider implements Clonable<Collider> {
   private static _ID = 0;
-  private _id = Collider._ID++;
+  public readonly id: Id<'collider'> = createId('collider', Collider._ID++);
   private _shape: CollisionShape;
   public useShapeInertia: boolean;
   public events: EventDispatcher<Collider> = new EventDispatcher<Collider>(this);
@@ -57,10 +51,10 @@ export class Collider implements Clonable<Collider> {
   /**
    * Owning id
    */
-  public owningId?: number = null;
+  public owningId?: Id<'body'> = null;
 
-  // TODO can we avoid this
-  public body: BodyComponent;
+  public owner: BodyComponent;
+  // public owner: Owner;
 
   constructor(options: ColliderOptions) {
     const { shape, offset } = options
@@ -79,25 +73,6 @@ export class Collider implements Clonable<Collider> {
       offset: this.offset
     });
   }
-
-  /**
-   * Get the unique id of the collider
-   */
-  public get id(): number {
-    return this._id;
-  }
-
-  // /**
-  //  * Gets or sets the current collision type of this collider. By
-  //  * default it is ([[CollisionType.PreventCollision]]).
-  //  */
-  // public type: CollisionType = CollisionType.PreventCollision;
-
-  // /**
-  //  * Gets or sets the current [[CollisionGroup|collision group]] for the collider, colliders with like collision groups do not collide.
-  //  * By default, the collider will collide with [[CollisionGroup|all groups]].
-  //  */
-  // public group: CollisionGroup = CollisionGroup.All;
 
   /**
    * Get the shape of the collider as a [[CollisionShape]]
@@ -194,11 +169,11 @@ export class Collider implements Clonable<Collider> {
   }
 
   /**
-   * Updates the collision shapes geometry and internal caches if needed
+   * Updates the collision shapes geometry based on the transform
    */
-  public update() {
+  public update(transform: Transform) {
     if (this.shape) {
-      this.shape.recalc();
+      this.shape.update(transform);
     }
   }
 
@@ -206,9 +181,9 @@ export class Collider implements Clonable<Collider> {
   public debugDraw(ctx: CanvasRenderingContext2D) {
     // Draw motion vectors
     if (Physics.showMotionVectors) {
-      DrawUtil.vector(ctx, Color.Yellow, this.body.pos, this.body.acc.add(Physics.acc));
-      DrawUtil.vector(ctx, Color.Red, this.body.pos, this.body.vel);
-      DrawUtil.point(ctx, Color.Red, this.body.pos);
+      DrawUtil.vector(ctx, Color.Yellow, this.owner.pos, this.owner.acc.add(Physics.acc));
+      DrawUtil.vector(ctx, Color.Blue, this.owner.pos, this.owner.vel);
+      DrawUtil.point(ctx, Color.Red, this.owner.pos);
     }
 
     if (Physics.showBounds) {

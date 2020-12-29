@@ -1,4 +1,3 @@
-import { Body } from './Body';
 import { BoundingBox } from './BoundingBox';
 import { CollisionContact } from './CollisionContact';
 import { CollisionJumpTable } from './CollisionJumpTable';
@@ -10,6 +9,7 @@ import { Vector, Ray, Projection, Line } from '../Algebra';
 import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
+import { Transform } from '../EntityComponentSystem/Components/TransformComponent';
 
 export interface EdgeOptions {
   /**
@@ -30,11 +30,12 @@ export interface EdgeOptions {
  * Edge is a single line collision shape to create collisions with a single line.
  */
 export class Edge implements CollisionShape {
-  body: Body;
   collider?: Collider;
   offset: Vector;
   begin: Vector;
   end: Vector;
+
+  private _transform: Transform;
 
   constructor(options: EdgeOptions) {
     this.begin = options.begin || Vector.Zero;
@@ -55,10 +56,7 @@ export class Edge implements CollisionShape {
   }
 
   public get worldPos(): Vector {
-    if (this.collider && this.collider.body) {
-      return this.collider.body.pos.add(this.offset);
-    }
-    return this.offset;
+    return this._transform?.pos.add(this.offset) ?? this.offset;
   }
 
   /**
@@ -70,22 +68,19 @@ export class Edge implements CollisionShape {
   }
 
   private _getBodyPos(): Vector {
-    let bodyPos = Vector.Zero;
-    if (this.collider && this.collider.body) {
-      bodyPos = this.collider.body.pos;
-    }
+    let bodyPos = this._transform?.pos ?? Vector.Zero;
     return bodyPos;
   }
 
   private _getTransformedBegin(): Vector {
-    const body = this.collider ? this.collider.body : null;
-    const angle = body ? body.rotation : 0;
+    const transform = this._transform;
+    const angle = transform ? transform.rotation : 0;
     return this.begin.rotate(angle).add(this._getBodyPos());
   }
 
   private _getTransformedEnd(): Vector {
-    const body = this.collider ? this.collider.body : null;
-    const angle = body ? body.rotation : 0;
+    const transform = this._transform;
+    const angle = transform ? transform.rotation : 0;
     return this.end.rotate(angle).add(this._getBodyPos());
   }
 
@@ -247,8 +242,8 @@ export class Edge implements CollisionShape {
   /**
    * @inheritdoc
    */
-  public recalc(): void {
-    // edges don't have any cached data
+  public update(transform: Transform): void {
+    this._transform = transform;
   }
 
   /**

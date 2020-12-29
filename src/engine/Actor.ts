@@ -462,10 +462,10 @@ export class ActorImpl
     this.addComponent(new MotionComponent());
     // TODO if no width or height don't set a body component
     this.addComponent(new BodyComponent({
-      box: {
-        width,
-        height
-      },
+      box: (width && height) ? {
+        width: width ?? 0,
+        height: height ?? 0
+      }: undefined,
       anchor: this.anchor
     }));
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
@@ -482,10 +482,6 @@ export class ActorImpl
         y = config.y || 0;
       }
 
-      // if (config.body) {
-      //   shouldInitializeBody = false;
-      //   this.body = config.body;
-      // }
 
       if (config.anchor) {
         this.anchor = config.anchor;
@@ -1212,7 +1208,8 @@ export class ActorImpl
       this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
     } else {
       if (this.color) {
-        this.body.colliders.forEach(c => c.shape.draw(ctx, this.color, vec(0, 0)));
+        this.body.getColliders().forEach(c => c.shape.draw(ctx, this.color,
+          vec(this._width * this.anchor.x, this._height * this.anchor.x)));
       }
     }
     ctx.restore();
@@ -1267,13 +1264,13 @@ export class ActorImpl
   public debugDraw(ctx: CanvasRenderingContext2D) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
 
-    this.body.colliders.forEach(c => c.debugDraw(ctx));
+    this.body.getColliders().forEach(c => c.debugDraw(ctx));
 
     // // Draw actor bounding box
-    this.body.colliders.forEach(c => {
-      const bb = c.localBounds.translate(this.getWorldPos());
-      bb.debugDraw(ctx);
-    });
+    // this.body.colliders.forEach(c => {
+    //   const bb = c.localBounds.translate(this.getWorldPos());
+    //   bb.debugDraw(ctx);
+    // });
 
     // Draw actor Id
     // ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
@@ -1293,32 +1290,32 @@ export class ActorImpl
     }
 
     // Unit Circle debug draw
-    ctx.strokeStyle = Color.Yellow.toString();
-    ctx.beginPath();
-    const radius = Math.min(this.width, this.height);
-    ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.stroke();
-    const ticks: { [key: string]: number } = {
-      '0 Pi': 0,
-      'Pi/2': Math.PI / 2,
-      Pi: Math.PI,
-      '3/2 Pi': (3 * Math.PI) / 2
-    };
+    // ctx.strokeStyle = Color.Yellow.toString();
+    // ctx.beginPath();
+    // const radius = Math.min(this.width, this.height);
+    // ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
+    // ctx.closePath();
+    // ctx.stroke();
+    // const ticks: { [key: string]: number } = {
+    //   '0 Pi': 0,
+    //   'Pi/2': Math.PI / 2,
+    //   Pi: Math.PI,
+    //   '3/2 Pi': (3 * Math.PI) / 2
+    // };
 
-    const oldFont = ctx.font;
-    for (const tick in ticks) {
-      ctx.fillStyle = Color.Yellow.toString();
-      ctx.font = '14px';
-      ctx.textAlign = 'center';
-      ctx.fillText(
-        tick,
-        this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10),
-        this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10)
-      );
-    }
+    // const oldFont = ctx.font;
+    // for (const tick in ticks) {
+    //   ctx.fillStyle = Color.Yellow.toString();
+    //   ctx.font = '14px';
+    //   ctx.textAlign = 'center';
+    //   ctx.fillText(
+    //     tick,
+    //     this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10),
+    //     this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10)
+    //   );
+    // }
 
-    ctx.font = oldFont;
+    // ctx.font = oldFont;
 
     // Draw child actors
     for (let i = 0; i < this.children.length; i++) {

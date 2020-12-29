@@ -10,6 +10,7 @@ import { Color } from '../Drawing/Color';
 import { Collider } from './Collider';
 
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
+import { Transform } from '../EntityComponentSystem';
 
 export interface CircleOptions {
   /**
@@ -36,10 +37,7 @@ export class Circle implements CollisionShape {
   public offset: Vector = Vector.Zero;
 
   public get worldPos(): Vector {
-    if (this.collider && this.collider.body) {
-      return this.collider.body.pos.add(this.offset);
-    }
-    return this.offset;
+    return this.offset.add(this._transform?.pos ?? Vector.Zero);
   }
 
   /**
@@ -51,6 +49,8 @@ export class Circle implements CollisionShape {
    * The collider associated for this shape, if any.
    */
   public collider?: Collider;
+
+  private _transform: Transform;
 
   constructor(options: CircleOptions) {
     this.offset = options.offset || Vector.Zero;
@@ -73,20 +73,14 @@ export class Circle implements CollisionShape {
    * Get the center of the collision shape in world coordinates
    */
   public get center(): Vector {
-    if (this.collider && this.collider.body) {
-      return this.offset.add(this.collider.body.pos);
-    }
-    return this.offset;
+    return this.offset.add(this._transform?.pos ?? Vector.Zero);
   }
 
   /**
    * Tests if a point is contained in this collision shape
    */
   public contains(point: Vector): boolean {
-    let pos = this.offset;
-    if (this.collider && this.collider.body) {
-      pos = this.collider.body.pos;
-    }
+    let pos = this._transform?.pos ?? this.offset;
     const distance = pos.distance(point);
     if (distance <= this.radius) {
       return true;
@@ -177,10 +171,7 @@ export class Circle implements CollisionShape {
    * Get the axis aligned bounding box for the circle shape in world coordinates
    */
   public get bounds(): BoundingBox {
-    let bodyPos = Vector.Zero;
-    if (this.collider && this.collider.body) {
-      bodyPos = this.collider.body.pos;
-    }
+    let bodyPos = this._transform?.pos ?? Vector.Zero;
     return new BoundingBox(
       this.offset.x + bodyPos.x - this.radius,
       this.offset.y + bodyPos.y - this.radius,
@@ -250,8 +241,8 @@ export class Circle implements CollisionShape {
   }
 
   /* istanbul ignore next */
-  public recalc(): void {
-    // circles don't cache
+  public update(transform: Transform): void {
+    this._transform = transform;
   }
 
   /**
@@ -278,9 +269,9 @@ export class Circle implements CollisionShape {
 
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Green) {
-    const body = this.collider.body;
-    const pos = body ? body.pos.add(this.offset) : this.offset;
-    const rotation = body ? body.rotation : 0;
+    const transform = this._transform;
+    const pos = transform ? transform.pos.add(this.offset) : this.offset;
+    const rotation = transform ? transform.rotation : 0;
 
     ctx.beginPath();
     ctx.strokeStyle = color.toString();

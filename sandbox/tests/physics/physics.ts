@@ -10,7 +10,7 @@ game.showDebug(true);
 
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 ex.Physics.allowRigidBodyRotation = true;
-ex.Physics.broadphaseDebug = false;
+ex.Physics.broadphaseDebug = true;
 ex.Physics.showArea = true;
 ex.Physics.showMotionVectors = true;
 ex.Physics.showBounds = true;
@@ -26,15 +26,15 @@ function spawnBlock(x: number, y: number) {
     color,
     anchor: ex.Vector.Half
   });
-  (block as any)._width = width + 100; 
-  (block as any)._height = width + 100; 
-  block.rotation = Math.PI / 8;
-  block.body.useBoxCollider(width + 100, width / 2);
-  block.body.add(
-    new ex.Collider({
-      shape: ex.Shape.Box(width / 2, width + 100)
-    })
-  )
+  block.rotation = Math.PI / 4;
+  // block.body.addBoxCollider(width + 200, width / 2);
+  block.body.addBoxCollider(width / 2, width + 100);
+  block.body.events.on('contactstart', (e) => {
+    console.log(e);
+  });
+  block.body.events.on('contactend', (e) => {
+    console.log(e);
+  });
 
   block.width = block.body.bounds.width;
   block.height = block.body.bounds.height;
@@ -56,14 +56,25 @@ function spawnCircle(x: number, y: number) {
   circle.draw = (ctx: CanvasRenderingContext2D) => {
     ex.Util.DrawUtil.circle(ctx, 0, 0, width / 2, color, color);
   };
+  circle.body.events.on('contactstart', (e) => {
+    console.count('contactstart');
+  });
+  circle.body.events.on('contactend', (e) => {
+    console.count('contactend');
+  });
   game.add(circle);
 }
 
-var edge = new ex.Actor(0, 0, 5, 5, ex.Color.Blue.clone());
-edge.body.collisionType = ex.CollisionType.Fixed;
-edge.body.useEdgeCollider(new ex.Vector(200, 300), new ex.Vector(400, 300));
-// edge.rx = .4;
-game.add(edge);
+// var edge = new ex.Actor(200, 300, 5, 5, ex.Color.Blue.clone());
+// edge.body.collisionType = ex.CollisionType.Fixed;
+// edge.body.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(200, 0));
+// // edge.rx = .4;
+// game.add(edge);
+
+
+// var solid = new ex.Actor(300, 380, 100, 100, ex.Color.Azure.clone());
+// solid.body.collisionType = ex.CollisionType.Fixed;
+// game.add(solid);
 
 var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Azure.clone());
 ground.body.collisionType = ex.CollisionType.Fixed;

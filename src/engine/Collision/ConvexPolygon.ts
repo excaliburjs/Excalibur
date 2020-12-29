@@ -6,8 +6,9 @@ import { Circle } from './Circle';
 import { CollisionContact } from './CollisionContact';
 import { CollisionShape } from './CollisionShape';
 import { Vector, Line, Ray, Projection } from '../Algebra';
-import { Collider } from './Collider';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
+import { Transform } from '../EntityComponentSystem';
+import { Collider } from './Collider';
 
 export interface ConvexPolygonOptions {
   /**
@@ -36,6 +37,8 @@ export class ConvexPolygon implements CollisionShape {
   public offset: Vector;
   public points: Vector[];
 
+  private _transform: Transform;
+
   /**
    * Collider associated with this shape
    */
@@ -61,14 +64,13 @@ export class ConvexPolygon implements CollisionShape {
   public clone(): ConvexPolygon {
     return new ConvexPolygon({
       offset: this.offset.clone(),
-      points: this.points.map((p) => p.clone()),
-      collider: null
+      points: this.points.map((p) => p.clone())
     });
   }
 
   public get worldPos(): Vector {
-    if (this.collider && this.collider.body) {
-      return this.collider.body.pos.add(this.offset);
+    if (this._transform) {
+      return this._transform.pos.add(this.offset);
     }
     return this.offset;
   }
@@ -77,21 +79,18 @@ export class ConvexPolygon implements CollisionShape {
    * Get the center of the collision shape in world coordinates
    */
   public get center(): Vector {
-    const body = this.collider ? this.collider.body : null;
-    if (body) {
-      return body.pos.add(this.offset);
-    }
-    return this.offset;
+    return this.bounds.center;
   }
 
   /**
    * Calculates the underlying transformation from the body relative space to world space
    */
   private _calculateTransformation() {
-    const body = this.collider ? this.collider.body : null;
-    const pos = body ? body.pos.add(this.offset) : this.offset;
-    const angle = body ? body.rotation : 0;
-    const scale = body ? body.scale : Vector.One;
+    const transform = this._transform;
+    
+    const pos = transform ? transform.pos.add(this.offset) : this.offset;
+    const angle = transform ? transform.rotation : 0;
+    const scale = transform ? transform.scale : Vector.One;
 
     const len = this.points.length;
     this._transformedPoints.length = 0; // clear out old transform
@@ -108,7 +107,7 @@ export class ConvexPolygon implements CollisionShape {
     if (
       !this._transformedPoints.length ||
       // or the position or rotation has changed in world space
-      (this.collider?.body?.hasChanged())
+      true //(this.collider?.body?.hasChanged())
     ) {
       this._calculateTransformation();
     }
@@ -126,13 +125,27 @@ export class ConvexPolygon implements CollisionShape {
     const points = this.getTransformedPoints();
     const len = points.length;
     for (let i = 0; i < len; i++) {
-      lines.push(new Line(points[i], points[(i - 1 + len) % len]));
+      // This winding is important
+      lines.push(new Line(points[i], points[(i + 1) % len]));
     }
     this._sides = lines;
     return this._sides;
   }
 
-  public recalc(): void {
+  /**
+   * Get the axis associated with the convex polygon
+   */
+  public get axes(): Vector[] {
+    if (this._axes.length) {
+      return this._axes;
+    }
+    const axes = this.getSides().map(s => s.normal());
+    this._axes = axes;
+    return this._axes;
+  }
+
+  public update(transform: Transform): void {
+    this._transform = transform;
     this._sides.length = 0;
     this._axes.length = 0;
     this._transformedPoints.length = 0;
@@ -238,9 +251,15 @@ export class ConvexPolygon implements CollisionShape {
    * Get the axis aligned bounding box for the polygon shape in world coordinates
    */
   public get bounds(): BoundingBox {
-    const points = this.getTransformedPoints();
-
-    return BoundingBox.fromPoints(points);
+    // const points = this.getTransformedPoints();
+    const scale = this._transform?.scale ?? Vector.One;
+    const rotation = this._transform?.rotation ?? 0;
+    const pos = this._transform?.pos ?? Vector.Zero;
+    return this.localBounds
+      .scale(scale)
+      .rotate(rotation)
+      .translate(pos);
+    // return BoundingBox.fromPoints(points);
   }
 
   /**
@@ -295,29 +314,97 @@ export class ConvexPolygon implements CollisionShape {
     return null;
   }
 
-  /**
-   * Get the axis associated with the convex polygon
-   */
-  public get axes(): Vector[] {
-    if (this._axes.length) {
-      return this._axes;
+  public queryAxisSeparation(other: ConvexPolygon): { poly: ConvexPolygon, separation: number, side: Line, axis: Vector } {
+    const polyA = this;
+    const polyB = other;
+
+    const sides = polyA.getSides();
+    let bestSeparation = -Number.MAX_VALUE;
+    let bestSide: Line = null;
+    let bestAxis: Vector = null;
+    for (let i = 0; i < sides.length; i++){
+      const side = sides[i];
+      const axis = side.normal();
+      const vertB = polyB.getFurthestPoint(axis.negate());
+      const vertSeparation = side.distanceToPoint(vertB, true); // Separation on side i's axis
+      if (vertSeparation > bestSeparation) {
+        bestSeparation = vertSeparation;
+        bestSide = side;
+        bestAxis = axis;
+      }
     }
 
-    const axes = [];
-    const points = this.getTransformedPoints();
-    const len = points.length;
-    for (let i = 0; i < len; i++) {
-      axes.push(points[i].sub(points[(i + 1) % len]).normal());
+    return {
+      poly: this,
+      separation: bestSeparation,
+      side: bestSide,
+      axis: bestAxis
     }
-    this._axes = axes;
-    return this._axes;
+  }
+
+  public queryForOppositeSide(direction: Vector): Line {
+
+    const normal = direction.normalize();
+    const sides = this.getSides();
+    let leastParallel = Number.MAX_VALUE;
+    let mostOpposite: Line = null;
+    for (let i = 0; i < sides.length; i++) {
+      const parallel = normal.dot(sides[i].normal());
+      if (parallel < leastParallel) {
+        leastParallel = parallel;
+        mostOpposite = sides[i];
+      }
+    }
+
+    return mostOpposite;
   }
 
   /**
    * Perform Separating Axis test against another polygon, returns null if no overlap in polys
    * Reference http://www.dyn4j.org/2010/01/sat/
+   * Reference https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2013/slides/822403Gregorius_Dirk_TheSeparatingAxisTest.pdf
    */
-  public testSeparatingAxisTheorem(other: ConvexPolygon): Vector {
+  public testSeparatingAxisTheorem(other: ConvexPolygon): { ref: ConvexPolygon, overlap: number, side: Line, normal: Vector } {
+    const polyA = this;
+    const polyB = other;
+
+    // Positive signed separation means there is space between an edge and point in the poly
+    const sep1 = polyA.queryAxisSeparation(polyB);
+    if (sep1.separation > 0) {
+      return null;
+    }
+
+    const sep2 = polyB.queryAxisSeparation(polyA);
+    if (sep2.separation > 0) {
+      return null
+    }
+
+    // We want the closest to zero, minimal movement
+    let bestSeparation = sep1.separation > sep2.separation ? sep1 : sep2;
+
+    let minAxis = bestSeparation.side.normal().normalize();
+    const sameDir = minAxis.dot(polyB.center.sub(polyA.center));
+    minAxis = sameDir < 0 ? minAxis.negate() : minAxis;
+
+    // `this` is allways the reference
+    if (bestSeparation === sep2) {
+      bestSeparation = {
+        poly: this,
+        separation: sep2.separation,
+        side: this.queryForOppositeSide(sep2.side.normal()),
+        axis: minAxis
+      }
+    }
+  
+    return {
+      ref: bestSeparation.poly,
+      overlap: Math.abs(bestSeparation.separation),
+      side: bestSeparation.side,
+      normal: minAxis
+    };
+  }
+
+  public testSeparatingAxisTheoremOld(other: ConvexPolygon): Vector {
     const poly1 = this;
     const poly2 = other;
     const axes = poly1.axes.concat(poly2.axes);
@@ -366,13 +453,12 @@ export class ConvexPolygon implements CollisionShape {
   }
 
   public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
-    const basePos = pos.add(this.offset);
+    const basePos = this.points[0].add(pos);
     ctx.beginPath();
     ctx.fillStyle = color.toString();
     ctx.moveTo(basePos.x, basePos.y);
-    const diffToBase = this.points[0].sub(basePos);
     this.points
-      .map((p) => p.sub(diffToBase))
+      .map((p) => p.add(pos))
       .forEach(function (point) {
         ctx.lineTo(point.x, point.y);
       });

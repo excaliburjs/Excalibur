@@ -4,6 +4,7 @@ import { Body } from './Body';
 
 import { Ray } from '../Algebra';
 import { Logger } from '../Util/Log';
+import { Id } from '../Id';
 
 
 /**
@@ -14,10 +15,10 @@ export class TreeNode<T> {
   public right: TreeNode<T>;
   public bounds: BoundingBox;
   public height: number;
-  public body: T;
+  public data: T;
   constructor(public parent?: TreeNode<T>) {
     this.parent = parent || null;
-    this.body = null;
+    this.data = null;
     this.bounds = new BoundingBox();
     this.left = null;
     this.right = null;
@@ -29,6 +30,12 @@ export class TreeNode<T> {
   }
 }
 
+export interface ColliderProxy<T> {
+  id: Id<'collider'>;
+  owner: T;
+  bounds: BoundingBox;
+}
+
 /**
  * The DynamicTrees provides a spatial partitioning data structure for quickly querying for overlapping bounding boxes for
  * all tracked bodies. The worst case performance of this is O(n*log(n)) where n is the number of bodies in the tree.
@@ -36,7 +43,7 @@ export class TreeNode<T> {
  * Internally the bounding boxes are organized as a balanced binary tree of bounding boxes, where the leaf nodes are tracked bodies.
  * Every non-leaf node is a bounding box that contains child bounding boxes.
  */
-export class DynamicTree<T extends { id: number, body: Body, bounds: BoundingBox }> {
+export class DynamicTree<T extends ColliderProxy<Body>> {
   public root: TreeNode<T>;
   public nodes: { [key: number]: TreeNode<T> };
   constructor(public worldBounds: BoundingBox = new BoundingBox(-Number.MAX_VALUE, -Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)) {
@@ -199,33 +206,32 @@ export class DynamicTree<T extends { id: number, body: Body, bounds: BoundingBox
   /**
    * Tracks a body in the dynamic tree
    */
-  public trackBody(body: T) {
+  public trackCollider(collider: T) {
     const node = new TreeNode<T>();
-    node.body = body;
-    node.bounds = body.bounds;
+    node.data = collider;
+    node.bounds = collider.bounds;
     node.bounds.left -= 2;
     node.bounds.top -= 2;
     node.bounds.right += 2;
     node.bounds.bottom += 2;
-    this.nodes[body.id] = node;
+    this.nodes[collider.id.value] = node;
     this._insert(node);
   }
 
   /**
    * Updates the dynamic tree given the current bounds of each body being tracked
    */
-  public updateBody(body: T) {
-    const node = this.nodes[body.id];
+  public updateCollider(collider: T) {
+    const node = this.nodes[collider.id.value];
     if (!node) {
-      // TODO track body?
       return false;
     }
-    const b = body.bounds;
+    const b = collider.bounds;
 
     // if the body is outside the world no longer update it
     if (!this.worldBounds.contains(b)) {
-      Logger.getInstance().warn('Collider with id ' + body.id + ' is outside the world bounds and will no longer be tracked for physics');
-      this.untrackBody(body);
+      Logger.getInstance().warn('Collider with id ' + collider.id + ' is outside the world bounds and will no longer be tracked for physics');
+      this.untrackCollider(collider);
       return false;
     }
 
@@ -239,10 +245,10 @@ export class DynamicTree<T extends { id: number, body: Body, bounds: BoundingBox
     b.right += Physics.boundsPadding;
     b.bottom += Physics.boundsPadding;
 
-    // TODO still necessary?
-    if (body.body) {
-      const multdx = body.body.vel.x * Physics.dynamicTreeVelocityMultiplier;
-      const multdy = body.body.vel.y * Physics.dynamicTreeVelocityMultiplier;
+    // THIS IS CAUSING UNECESSARY CHECKS
+    if (collider.owner) {
+      const multdx = collider.owner.vel.x * 32/1000 * Physics.dynamicTreeVelocityMultiplier;
+      const multdy = collider.owner.vel.y * 32/1000 * Physics.dynamicTreeVelocityMultiplier;
   
       if (multdx < 0) {
         b.left += multdx;
@@ -265,14 +271,14 @@ export class DynamicTree<T extends { id: number, body: Body, bounds: BoundingBox
   /**
    * Untracks a body from the dynamic tree
    */
-  public untrackBody(body: T) {
-    const node = this.nodes[body.id];
+  public untrackCollider(collider: T) {
+    const node = this.nodes[collider.id.value];
     if (!node) {
       return;
     }
     this._remove(node);
-    this.nodes[body.id] = null;
-    delete this.nodes[body.id];
+    this.nodes[collider.id.value] = null;
+    delete this.nodes[collider.id.value];
   }
 
   /**
@@ -409,12 +415,12 @@ export class DynamicTree<T extends { id: number, body: Body, bounds: BoundingBox
    * that you are complete with your query and you do not want to continue. Returning false will continue searching
    * the tree until all possible colliders have been returned.
    */
-  public query(body: T, callback: (other: T) => boolean): void {
-    const bounds = body.bounds;
+  public query(collider: T, callback: (other: T) => boolean): void {
+    const bounds = collider.bounds;
     const helper = (currentNode: TreeNode<T>): boolean => {
       if (currentNode && currentNode.bounds.intersect(bounds)) {
-        if (currentNode.isLeaf() && currentNode.body !== body) {
-          if (callback.call(body, currentNode.body)) {
+        if (currentNode.isLeaf() && currentNode.data !== collider) {
+          if (callback.call(collider, currentNode.data)) {
             return true;
           }
         } else {
@@ -438,7 +444,7 @@ export class DynamicTree<T extends { id: number, body: Body, bounds: BoundingBox
     const helper = (currentNode: TreeNode<T>): boolean => {
       if (currentNode && currentNode.bounds.rayCast(ray, max)) {
         if (currentNode.isLeaf()) {
-          if (callback.call(ray, currentNode.body)) {
+          if (callback.call(ray, currentNode.data)) {
             // ray hit a leaf! return the body
             return true;
           }

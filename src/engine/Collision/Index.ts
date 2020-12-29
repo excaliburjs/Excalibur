@@ -11,7 +11,7 @@ export * from './DynamicTree';
 export * from './DynamicTreeCollisionProcessor';
 export * from './Edge';
 export * from './CollisionShape';
-export * from './CollisionResolver';
+export * from './CollisionProcessor';
 export * from './Physics';
 export * from './Pair';
 export * from './ConvexPolygon';

@@ -4,6 +4,7 @@ import { BoundingBox } from './BoundingBox';
 import { Vector, Projection, Ray, Line } from '../Algebra';
 import { Collider } from './Collider';
 import { Clonable } from '../Interfaces/Clonable';
+import { Transform } from '../EntityComponentSystem';
 
 /**
  * A collision shape specifies the geometry that can detect when other collision shapes intersect
@@ -79,9 +80,9 @@ export interface CollisionShape extends Clonable<CollisionShape> {
   project(axis: Vector): Projection;
 
   /**
-   * Recalculates internal caches and values
+   * Updates shape world space geometry
    */
-  recalc(): void;
+  update(transform: Transform): void;
 
   /**
    * Draw the shape

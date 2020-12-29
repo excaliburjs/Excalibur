@@ -1,17 +1,14 @@
 import { Physics } from '../Physics';
-import { CollisionProcessor } from './CollisionResolver';
+import { CollisionProcessor } from './CollisionProcessor';
 import { DynamicTree } from './DynamicTree';
 import { Pair } from './Pair';
 
 import { Vector, Ray } from '../Algebra';
 import { FrameStats } from '../Debug';
 import { Logger } from '../Util/Log';
-import { CollisionStartEvent, CollisionEndEvent } from '../Events';
 import { CollisionType } from './CollisionType';
 import { Collider } from './Collider';
 import { CollisionContact } from './CollisionContact';
-import { DrawUtil } from '../Util/Index';
-import { Color } from '../Drawing/Color';
 
 /**
  * Responsible for performing the collision broadphase (locating potential colllisions) and 
@@ -22,8 +19,6 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   private _collisions = new Set<string>();
 
   private _collisionPairCache: Pair[] = [];
-  private _lastFramePairs: Pair[] = [];
-  private _lastFramePairsHash: { [pairId: string]: Pair } = {};
 
   /**
    * Tracks a physics body for collisions
@@ -33,7 +28,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       Logger.getInstance().warn('Cannot track null physics body');
       return;
     }
-    this._dynamicCollisionTree.trackBody(target);
+    this._dynamicCollisionTree.trackCollider(target);
   }
 
   /**
@@ -44,7 +39,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       Logger.getInstance().warn('Cannot untrack a null physics body');
       return;
     }
-    this._dynamicCollisionTree.untrackBody(target);
+    this._dynamicCollisionTree.untrackCollider(target);
   }
 
   private _shouldGenerateCollisionPair(colliderA: Collider, colliderB: Collider) {
@@ -55,12 +50,12 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     }
 
     // if the collision pair has been calculated already short circuit
-    const hash = Pair.calculatePairHash(colliderA.body, colliderB.body);
+    const hash = Pair.calculatePairHash(colliderA.owningId, colliderB.owningId);
     if (this._collisions.has(hash)) {
       return false; // pair exists easy exit return false
     }
 
-    return Pair.canCollide(colliderA.body, colliderB.body);
+    return Pair.canCollide(colliderA.owner, colliderB.owner);
   }
 
   /**
@@ -72,7 +67,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
     const potentialColliders = targets
       .filter((other) => {
-        return other.body.active && other.body.collisionType !== CollisionType.PreventCollision;
+        return other.owner.active && other.owner.collisionType !== CollisionType.PreventCollision;
       });
 
     // clear old list of collision pairs
@@ -87,7 +82,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       // Query the collision tree for potential colliders
       this._dynamicCollisionTree.query(collider, (other: Collider) => {
         if (this._shouldGenerateCollisionPair(collider, other)) {
-          const pair = new Pair(collider.body, other.body);
+          const pair = new Pair(collider.owner, other.owner);
           this._collisions.add(pair.id);
           this._collisionPairCache.push(pair);
         }
@@ -104,14 +99,14 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     if (Physics.checkForFastBodies) {
       for (const collider of potentialColliders) {
         // Skip non-active objects. Does not make sense on other collision types
-        if (collider.body.collisionType !== CollisionType.Active) {
+        if (collider.owner.collisionType !== CollisionType.Active) {
           continue;
         }
 
         // Maximum travel distance next frame
         const updateDistance =
-          collider.body.vel.size * seconds + // velocity term
-          collider.body.acc.size * 0.5 * seconds * seconds; // acc term
+          collider.owner.vel.size * seconds + // velocity term
+          collider.owner.acc.size * 0.5 * seconds * seconds; // acc term
 
         // Find the minimum dimension
         const minDimension = Math.min(collider.bounds.height, collider.bounds.width);
@@ -122,19 +117,19 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
           // start with the oldPos because the integration for actors has already happened
           // objects resting on a surface may be slightly penetrating in the current position
-          const updateVec = collider.body.pos.sub(collider.body.oldPos);
+          const updateVec = collider.owner.pos.sub(collider.owner.oldPos);
           const centerPoint = collider.shape.center;
-          const furthestPoint = collider.shape.getFurthestPoint(collider.body.vel);
+          const furthestPoint = collider.shape.getFurthestPoint(collider.owner.vel);
           const origin: Vector = furthestPoint.sub(updateVec);
 
-          const ray: Ray = new Ray(origin, collider.body.vel);
+          const ray: Ray = new Ray(origin, collider.owner.vel);
 
           // back the ray up by -2x surfaceEpsilon to account for fast moving objects starting on the surface
           ray.pos = ray.pos.add(ray.dir.scale(-2 * Physics.surfaceEpsilon));
           let minCollider: Collider;
           let minTranslate: Vector = new Vector(Infinity, Infinity);
           this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + Physics.surfaceEpsilon * 2, (other: Collider) => {
-            if (collider !== other && other.shape && Pair.canCollide(collider.body, other.body)) {
+            if (collider !== other && other.shape && Pair.canCollide(collider.owner, other.owner)) {
               const hitPoint = other.shape.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
               if (hitPoint) {
                 const translate = hitPoint.sub(origin);
@@ -148,7 +143,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
           });
 
           if (minCollider && Vector.isValid(minTranslate)) {
-            const pair = new Pair(collider.body, minCollider.body);
+            const pair = new Pair(collider.owner, minCollider.owner);
             if (!this._collisions.has(pair.id)) {
               this._collisions.add(pair.id);
               this._collisionPairCache.push(pair);
@@ -156,11 +151,11 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
             // move the fast moving object to the other body
             // need to push into the surface by ex.Physics.surfaceEpsilon
             const shift = centerPoint.sub(furthestPoint);
-            collider.body.pos = origin
+            collider.owner.pos = origin
               .add(shift)
               .add(minTranslate)
               .add(ray.dir.scale(2 * Physics.surfaceEpsilon));
-            collider.shape.recalc();
+            collider.shape.update(collider.owner.transform);
 
             if (stats) {
               stats.physics.fastBodyCollisions++;
@@ -173,7 +168,6 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     return this._collisionPairCache;
   }
 
-  private _contacts: CollisionContact[] = [];
   /**
    * Applies narrow phase on collision pairs to find actual area intersections
    * Adds actual colliding pairs to stats' Frame data
@@ -189,38 +183,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     if (stats) {
       stats.physics.collisions+= contacts.length;
     }
-    return this._contacts = contacts;
-  }
-
-  public runCollisionStartEnd(pairs: Pair[]) {
-    const currentFrameHash: { [pairId: string]: Pair } = {};
-
-    for (const p of pairs) {
-      // load currentFrameHash
-      currentFrameHash[p.id] = p;
-
-      // find all new collisions
-      if (!this._lastFramePairsHash[p.id]) {
-        const colliderA = p.bodyA;
-        const colliderB = p.bodyB;
-        colliderA.events.emit('collisionstart', new CollisionStartEvent(colliderA, colliderB, p));
-        colliderB.events.emit('collisionstart', new CollisionStartEvent(colliderB, colliderA, p));
-      }
-    }
-
-    // find all old collisions
-    for (const p of this._lastFramePairs) {
-      if (!currentFrameHash[p.id]) {
-        const colliderA = p.bodyA;
-        const colliderB = p.bodyB;
-        colliderA.events.emit('collisionend', new CollisionEndEvent(colliderA, colliderB));
-        colliderB.events.emit('collisionend', new CollisionEndEvent(colliderB, colliderA));
-      }
-    }
-
-    // reset the last frame cache
-    this._lastFramePairs = pairs;
-    this._lastFramePairsHash = currentFrameHash;
+    return contacts;
   }
 
   /**
@@ -231,7 +194,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     const len = targets.length;
 
     for (let i = 0; i < len; i++) {
-      if (this._dynamicCollisionTree.updateBody(targets[i])) {
+      if (this._dynamicCollisionTree.updateCollider(targets[i])) {
         updated++;
       }
     }
@@ -242,17 +205,6 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   public debugDraw(ctx: CanvasRenderingContext2D) {
     if (Physics.broadphaseDebug) {
       this._dynamicCollisionTree.debugDraw(ctx);
-    }
-
-    if (Physics.showContacts || Physics.showCollisionNormals) {
-      for (const contact of this._contacts) {
-        if (Physics.showContacts) {
-          DrawUtil.point(ctx, Color.Red, contact.point);
-        }
-        if (Physics.showCollisionNormals) {
-          DrawUtil.vector(ctx, Color.Cyan, contact.point, contact.normal, 30);
-        }
-      }
     }
   }
 }

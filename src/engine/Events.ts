@@ -7,7 +7,7 @@ import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Side } from './Collision/Side';
 import * as Input from './Input/Index';
-import { Pair } from './index';
+import { CollisionContact } from './Collision/CollisionContact';
 import { Collider } from './Collision/Collider';
 import { Entity } from './EntityComponentSystem/Entity';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from './Interfaces/LifecycleEvents';
@@ -441,6 +441,22 @@ export class PostCollisionEvent<T extends Collider | Entity = Actor> extends Gam
   }
 }
 
+export class ContactStartEvent<T> {
+  constructor(public target: T, public other: T, public contact: CollisionContact) {}
+}
+
+export class ContactEndEvent<T> {
+  constructor(public target: T, public other: T) {}
+}
+
+export class BeforeCollisionResolveEvent<T> {
+  constructor(public target: T, public other: T, public side: Side, public intersection: Vector, public contact: CollisionContact) {}
+}
+
+export class AfterCollisionResolveEvent<T> {
+  constructor(public target: T, public other: T, public side: Side, public intersection: Vector, public contact: CollisionContact) {}
+}
+
 /**
  * Event thrown the first time an [[Actor|actor]] collides with another, after an actor is in contact normal collision events are fired.
  */
@@ -451,7 +467,7 @@ export class CollisionStartEvent<T extends BodyComponent | Collider | Entity = A
    * @param other
    * @param pair
    */
-  constructor(actor: T, public other: T, public pair: Pair) {
+  constructor(actor: T, public other: T, public contact: CollisionContact) {
     super();
     this.target = actor;
   }

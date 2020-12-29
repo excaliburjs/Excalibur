@@ -37,7 +37,10 @@ export class EventDispatcher<T = any> implements Eventable {
     if (!event) {
       event = new GameEvent();
     }
-    event.target = target;
+
+    if (!event.target) {
+      event.target = target;
+    }
 
     let i: number, len: number;
 

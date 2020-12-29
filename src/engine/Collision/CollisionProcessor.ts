@@ -18,11 +18,6 @@ export interface CollisionProcessor {
   narrowphase(pairs: Pair[], stats?: FrameStats): CollisionContact[];
 
   /**
-   * Publish collision start/end events
-   */
-  runCollisionStartEnd(pairs: Pair[]): void;
-
-  /**
    * Update the internal structures to track bodies
    */
   update(targets: Collider[], delta: number): number;

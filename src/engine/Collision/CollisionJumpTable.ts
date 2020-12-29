@@ -19,7 +19,7 @@ export const CollisionJumpTable = {
 
     const pointOfCollision = circleA.getFurthestPoint(axisOfCollision);
 
-    return new CollisionContact(circleA.collider, circleB.collider, mvt, pointOfCollision, axisOfCollision);
+    return new CollisionContact(circleA.collider, circleB.collider, mvt, [pointOfCollision], axisOfCollision);
   },
 
   CollideCirclePolygon(circle: Circle, polygon: ConvexPolygon): CollisionContact {
@@ -50,7 +50,7 @@ export const CollisionJumpTable = {
       circle.collider,
       polygon.collider,
       minAxis,
-      verts.length === 2 ? verts[0].average(verts[1]) : verts[0],
+      [verts.length === 2 ? verts[0].average(verts[1]) : verts[0]],
       minAxis.normalize()
     );
   },
@@ -77,7 +77,7 @@ export const CollisionJumpTable = {
         circle.collider,
         edge.collider,
         da.normalize().scale(circle.radius - Math.sqrt(dda)),
-        edge.begin,
+        [edge.begin],
         da.normalize()
       );
     }
@@ -93,7 +93,7 @@ export const CollisionJumpTable = {
         circle.collider,
         edge.collider,
         db.normalize().scale(circle.radius - Math.sqrt(ddb)),
-        edge.end,
+        [edge.end],
         db.normalize()
       );
     }
@@ -121,7 +121,7 @@ export const CollisionJumpTable = {
     n = n.normalize();
 
     const mvt = n.scale(Math.abs(circle.radius - Math.sqrt(dd)));
-    return new CollisionContact(circle.collider, edge.collider, mvt.negate(), pointOnEdge, n.negate());
+    return new CollisionContact(circle.collider, edge.collider, mvt.negate(), [pointOnEdge], n.negate());
   },
 
   CollideEdgeEdge(): CollisionContact {
@@ -130,27 +130,6 @@ export const CollisionJumpTable = {
   },
 
   CollidePolygonEdge(polygon: ConvexPolygon, edge: Edge): CollisionContact {
-    // 3 cases:
-    // (1) Polygon lands on the full face
-    // (2) Polygon lands on the right point
-    // (3) Polygon lands on the left point
-
-    const e = edge.end.sub(edge.begin);
-    let edgeNormal = e.normal();
-
-    if (polygon.contains(edge.begin)) {
-      const { distance: mtv, face } = polygon.getClosestFace(edge.begin);
-      if (mtv) {
-        return new CollisionContact(polygon.collider, edge.collider, mtv.negate(), edge.begin.add(mtv.negate()), face.normal().negate());
-      }
-    }
-
-    if (polygon.contains(edge.end)) {
-      const { distance: mtv, face } = polygon.getClosestFace(edge.end);
-      if (mtv) {
-        return new CollisionContact(polygon.collider, edge.collider, mtv.negate(), edge.end.add(mtv.negate()), face.normal().negate());
-      }
-    }
 
     const pc = polygon.center;
     const ec = edge.center;
@@ -159,56 +138,48 @@ export const CollisionJumpTable = {
     // build a temporary polygon from the edge to use SAT
     const linePoly = new ConvexPolygon({
       collider: edge.collider,
-      points: [edge.begin, edge.end, edge.end.add(dir.scale(30)), edge.begin.add(dir.scale(30))]
+      points: [edge.begin, edge.end, edge.end.add(dir.scale(100)), edge.begin.add(dir.scale(100))]
     });
-
-    let minAxis = polygon.testSeparatingAxisTheorem(linePoly);
-
-    // no minAxis, no overlap, no collision
-    if (!minAxis) {
-      return null;
-    }
-
-    // flip the normal and axis to always have positive collisions
-    edgeNormal = edgeNormal.dot(dir) < 0 ? edgeNormal.negate() : edgeNormal;
-    minAxis = minAxis.dot(dir) < 0 ? minAxis.negate() : minAxis;
-
-    return new CollisionContact(polygon.collider, edge.collider, minAxis, polygon.getFurthestPoint(edgeNormal), edgeNormal);
+    linePoly.update(edge.collider.owner.transform);
+    return this.CollidePolygonPolygon(polygon, linePoly);
   },
 
   CollidePolygonPolygon(polyA: ConvexPolygon, polyB: ConvexPolygon): CollisionContact {
+    // Multi contact from SAT
+    // https://gamedev.stackexchange.com/questions/111390/multiple-contacts-for-sat-collision-detection
     // do a SAT test to find a min axis if it exists
-    let minAxis = polyA.testSeparatingAxisTheorem(polyB);
+    let overlapInfo = polyA.testSeparatingAxisTheorem(polyB);
 
     // no overlap, no collision return null
-    if (!minAxis) {
+    if (!overlapInfo) {
       return null;
     }
 
+    let minAxis = overlapInfo.normal.normalize().scale(overlapInfo.overlap);
+
+    // TODO is this necessary?
     // make sure that minAxis is pointing from A -> B
     const sameDir = minAxis.dot(polyB.center.sub(polyA.center));
     minAxis = sameDir < 0 ? minAxis.negate() : minAxis;
 
-    // find rough point of collision
-    // todo this could be better
-    const verts: Vector[] = [];
-    const pointA = polyA.getFurthestPoint(minAxis);
-    const pointB = polyB.getFurthestPoint(minAxis.negate());
+    // The incident side is the most opposite from the axes of collision on the other shape
+    const other = overlapInfo.ref === polyA ? polyB : polyA;
+    const incident = other.queryForOppositeSide(minAxis)
 
-    if (polyB.contains(pointA)) {
-      verts.push(pointA);
+    // Clip incident side by the perpendicular lines at each end of the reference side
+    // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
+    const sideDirection = overlapInfo.side.dir().normalize();
+    const clipRight = incident.clip(sideDirection.negate(), -sideDirection.dot(overlapInfo.side.begin));
+    const clipLeft = clipRight?.clip(sideDirection, sideDirection.dot(overlapInfo.side.end));
+    if (clipLeft) {
+      // We only want clip points below the reference edge, discard the others
+      // const referencePosition = overlapInfo.side.normal().dot(overlapInfo.side.end);
+      const points = clipLeft.getPoints().filter(p => {
+        return overlapInfo.side.below(p)
+      });
+      
+      return new CollisionContact(polyA.collider, polyB.collider, minAxis, points, minAxis.normalize());
     }
-
-    if (polyA.contains(pointB)) {
-      verts.push(pointB);
-    }
-    // no candidates, pick something
-    if (verts.length === 0) {
-      verts.push(pointB);
-    }
-
-    const contact = verts.length === 2 ? verts[0].add(verts[1]).scale(0.5) : verts[0];
-
-    return new CollisionContact(polyA.collider, polyB.collider, minAxis, contact, minAxis.normalize());
+    return null;
   }
 };
