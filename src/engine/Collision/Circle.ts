@@ -214,8 +214,9 @@ export class Circle implements CollisionShape {
     const axes = polygon.axes;
     const pc = polygon.center;
     // Special SAT with circles
-    const closestPointOnPoly = polygon.getFurthestPoint(this.offset.sub(pc));
-    axes.push(this.offset.sub(closestPointOnPoly).normalize());
+    const polyDir = pc.sub(this.worldPos);
+    const closestPointOnPoly = polygon.getFurthestPoint(polyDir.negate());
+    axes.push(closestPointOnPoly.sub(this.worldPos).normalize());
 
     let minOverlap = Number.MAX_VALUE;
     let minAxis = null;

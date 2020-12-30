@@ -3,8 +3,6 @@ import { CollisionContact } from './CollisionContact';
 import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 
-import { Vector } from '../Algebra';
-
 export const CollisionJumpTable = {
   CollideCircleCircle(circleA: Circle, circleB: Circle): CollisionContact {
     const radius = circleA.radius + circleB.radius;
@@ -32,25 +30,13 @@ export const CollisionJumpTable = {
     const samedir = minAxis.dot(polygon.center.sub(circle.center));
     minAxis = samedir < 0 ? minAxis.negate() : minAxis;
 
-    const verts: Vector[] = [];
-
-    const point1 = polygon.getFurthestPoint(minAxis.negate());
-    const point2 = circle.getFurthestPoint(minAxis); //.add(cc);
-    if (circle.contains(point1)) {
-      verts.push(point1);
-    }
-    if (polygon.contains(point2)) {
-      verts.push(point2);
-    }
-    if (verts.length === 0) {
-      return null;
-    }
+    const point = circle.getFurthestPoint(minAxis);
 
     return new CollisionContact(
       circle.collider,
       polygon.collider,
       minAxis,
-      [verts.length === 2 ? verts[0].average(verts[1]) : verts[0]],
+      [point],
       minAxis.normalize()
     );
   },
