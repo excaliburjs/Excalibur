@@ -83,7 +83,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   }
 
   public updateMotion() {
-    const currentMotion = this.vel.size * this.vel.size + this.angularVelocity * this.angularVelocity;
+    const currentMotion = this.vel.size * this.vel.size + Math.abs(this.angularVelocity * this.angularVelocity);
     const bias = Physics.sleepBias;
     this.sleepmotion = bias * this.sleepmotion + (1 - bias) * currentMotion;
     this.sleepmotion = clamp(this.sleepmotion, 0, 10 * Physics.sleepEpsilon);

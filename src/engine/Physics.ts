@@ -186,7 +186,7 @@ export class Physics {
   /**
    * 
    */
-  public static sleepEpsilon = 0.5;
+  public static sleepEpsilon = 0.1;
 
   public static sleepBias = 0.5;
 
