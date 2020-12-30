@@ -17,7 +17,7 @@ ex.Physics.showBounds = true;
 ex.Physics.showContacts = true;
 ex.Physics.showNormals = true;
 ex.Physics.acc.setTo(0, 100);
-
+var globalRotation = 0;
 function spawnBlock(x: number, y: number) {
   var width = ex.Util.randomInRange(20, 100);
   var color = new ex.Color(ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255));
@@ -26,7 +26,7 @@ function spawnBlock(x: number, y: number) {
     color,
     anchor: ex.Vector.Half
   });
-  block.rotation = Math.PI / 4;
+  block.rotation = globalRotation;
   // block.body.addBoxCollider(width + 200, width / 2);
   block.body.addBoxCollider(width / 2, width + 100);
   block.body.events.on('contactstart', (e) => {
@@ -103,6 +103,14 @@ game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) => {
   if (evt.key === ex.Input.Keys.C) {
     spawnCircle(300, 0);
   }
+
+  if (evt.key === ex.Input.Keys.R) {
+    globalRotation += Math.PI / 4;
+  }
+});
+
+game.input.pointers.primary.on('down', (evt: ex.Input.PointerDownEvent) => {
+  spawnBlock(evt.worldPos.x, evt.worldPos.y);
 });
 
 game.start();

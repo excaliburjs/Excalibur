@@ -68,10 +68,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       let contacts = this._processor.narrowphase(pairs);
 
       // Sort by most severe contacts
-      contacts = contacts.sort((a, b) => a.mtv.size - b.mtv.size);
-
-      // Sort by most severe contacts
-      contacts = contacts.sort((a, b) => a.mtv.size - b.mtv.size);
+      contacts = contacts.sort((a, b) => b.mtv.size - a.mtv.size);
 
       // Resolve collisions adjust positions and apply velocities
       this._resolve(contacts, collisionDelta, Physics.collisionResolutionStrategy);
@@ -80,6 +77,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       contacts.forEach(c => this._currentFrameContacts.set(c.id, c));
 
       // Remove any pairs that can no longer collide
+      // Or they did not have a contact
       pairs = pairs.filter(p => p.canCollide && contacts.find(c => c.id === p.id));
 
       iter--;
@@ -224,8 +222,8 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       bodyA.addOverlap(mtv.negate());
     } else {
       // Split the mtv in half for the two bodies, potentially we could do something smarter here
-      bodyB.addOverlap(mtv.scale(0.5));
-      bodyA.addOverlap(mtv.scale(-0.5));
+      bodyB.addOverlap(mtv.scale(0.5 * Physics.overlapDampening));
+      bodyA.addOverlap(mtv.scale(-0.5 * Physics.overlapDampening));
     }
 
     for (let point of contact.points) {
@@ -254,8 +252,8 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       const impulse =
         -((1 + coefRestitution) * rvNormal) / (invMassA + invMassB + invMoiA * raTangent * raTangent + invMoiB * rbTangent * rbTangent);
 
-      bodyB.applyImpulse(point, normal.scale(impulse));
-      bodyA.applyImpulse(point, normal.scale(-impulse));
+      bodyB.applyImpulse(point, normal.scale(impulse * Physics.impulseDampening));
+      bodyA.applyImpulse(point, normal.scale(-impulse * Physics.impulseDampening));
 
       // Friction portion of impulse
       if (coefFriction && rvTangent) {

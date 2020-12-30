@@ -178,6 +178,10 @@ export class Physics {
    */
   public static boundsPadding = 5;
 
+  public static overlapDampening = 1;
+
+  public static impulseDampening = 1;
+
   /**
    * Surface epsilon is used to help deal with surface penetration
    */
