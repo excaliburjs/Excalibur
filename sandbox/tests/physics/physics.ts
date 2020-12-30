@@ -10,7 +10,7 @@ game.showDebug(true);
 
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 ex.Physics.allowRigidBodyRotation = true;
-ex.Physics.broadphaseDebug = true;
+ex.Physics.broadphaseDebug = false;
 ex.Physics.showArea = true;
 ex.Physics.showMotionVectors = true;
 ex.Physics.showBounds = true;
@@ -43,6 +43,7 @@ function spawnBlock(x: number, y: number) {
   block.body.collisionType = ex.CollisionType.Active;
   window.block = block;
   game.add(block);
+  return block;
 }
 
 function spawnCircle(x: number, y: number) {
@@ -72,9 +73,12 @@ function spawnCircle(x: number, y: number) {
 // game.add(edge);
 
 
-// var solid = new ex.Actor(300, 380, 100, 100, ex.Color.Azure.clone());
-// solid.body.collisionType = ex.CollisionType.Fixed;
-// game.add(solid);
+var solid = new ex.Actor(300, 380, 100, 100, ex.Color.Azure.clone());
+solid.body.collisionType = ex.CollisionType.Fixed;
+solid.body.rotation = Math.PI / 4;
+game.add(solid);
+
+// spawnBlock(300, 200).body.setSleeping(true);
 
 var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Azure.clone());
 ground.body.collisionType = ex.CollisionType.Fixed;

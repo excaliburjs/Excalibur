@@ -184,6 +184,13 @@ export class Physics {
   public static surfaceEpsilon = 0.1;
 
   /**
+   * 
+   */
+  public static sleepEpsilon = 0.5;
+
+  public static sleepBias = 0.5;
+
+  /**
    * Enable fast moving body checking, this enables checking for collision pairs via raycast for fast moving objects to prevent
    * bodies from tunneling through one another.
    */

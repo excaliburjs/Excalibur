@@ -41,4 +41,15 @@ export class CollisionContact {
     this.normal = normal;
     this.id = Pair.calculatePairHash(colliderA.owningId, colliderB.owningId);
   }
+
+  public matchAwake() {
+    if (this.colliderA.owner.sleeping !== this.colliderB.owner.sleeping) {
+      if (this.colliderA.owner.sleeping) {
+        this.colliderA.owner.setSleeping(false);
+      }
+      if (this.colliderB.owner.sleeping) {
+        this.colliderB.owner.setSleeping(false);
+      }
+    } 
+  }
 }

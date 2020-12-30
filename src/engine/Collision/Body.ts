@@ -14,6 +14,7 @@ import { CollisionContact } from './CollisionContact';
 import { Physics } from '../Physics';
 import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisionEvent } from '../Events';
 import { createId, Id } from '../Id';
+import { clamp } from '../Util/Util';
 
 export interface BodyComponentOptions {
   box?: { width: number, height: number }; 
@@ -59,6 +60,37 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   public group: CollisionGroup = CollisionGroup.All;
 
   public mass: number = Physics.defaultMass;
+
+  public sleepmotion: number = Physics.sleepEpsilon * 2;
+  
+  // TODO what should be the default
+  public canSleep: boolean = true;
+
+  private _sleeping = false;
+  public get sleeping(): boolean {
+    return this._sleeping;
+  }
+
+  public setSleeping(sleeping: boolean) {
+    this._sleeping = sleeping;
+    if (sleeping) {
+      this.sleepmotion = Physics.sleepEpsilon * 2;
+    } else {
+      this.vel = Vector.Zero;
+      this.acc = Vector.Zero;
+      this.angularVelocity = 0;
+    }
+  }
+
+  public updateMotion() {
+    const currentMotion = this.vel.size * this.vel.size + this.angularVelocity * this.angularVelocity;
+    const bias = Physics.sleepBias;
+    this.sleepmotion = bias * this.sleepmotion + (1 - bias) * currentMotion;
+    this.sleepmotion = clamp(this.sleepmotion, 0, 10 * Physics.sleepEpsilon);
+    if (this.canSleep && this.sleepmotion < Physics.sleepEpsilon) {
+      this.setSleeping(true);
+    }
+  }
 
   // TODO get inertia from shapes
   // TODO https://physics.stackexchange.com/questions/273394/is-moment-of-inertia-cumulative

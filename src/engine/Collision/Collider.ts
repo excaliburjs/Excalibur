@@ -191,7 +191,7 @@ export class Collider implements Clonable<Collider> {
     }
 
     if (Physics.showArea) {
-      this.shape.debugDraw(ctx, Color.Green);
+      this.shape.debugDraw(ctx, this.owner.sleeping ? Color.Gray : Color.Green);
     }
   }
 }

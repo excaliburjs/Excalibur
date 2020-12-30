@@ -27,8 +27,12 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
       transform = entity.components.transform;
       motion = entity.components.motion;
 
-      const totalAcc = motion.acc.clone();
       const optionalBody = this.getOptional<Body>(entity, 'body');
+      if (optionalBody?.sleeping) {
+        continue;
+      }
+
+      const totalAcc = motion.acc.clone();
       if (optionalBody?.collisionType === CollisionType.Active && 
           optionalBody?.useGravity) {
         totalAcc.addEqual(Physics.gravity);

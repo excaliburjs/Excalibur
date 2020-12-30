@@ -67,23 +67,11 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       // Re-run narrowphase each pass
       let contacts = this._processor.narrowphase(pairs);
 
-      // TODO does sorting contacts like this do any good
-      let bodyContactCount: {[key: number]: number} = {}
-      for (let i = 0; i < contacts.length; i++) {
-        const body1 = contacts[i].colliderA.owner;
-        const body2 = contacts[i].colliderB.owner;
-        if(!bodyContactCount[body1.id.value]) {
-          bodyContactCount[body1.id.value] = 1
-        }
-        if(!bodyContactCount[body2.id.value]) {
-          bodyContactCount[body2.id.value] = 1
-        }
-        bodyContactCount[body1.id.value]++;
-        bodyContactCount[body2.id.value]++;
-      }
-      contacts.sort((a, b) => 
-        (bodyContactCount[a.colliderA.owner.id.value] + bodyContactCount[a.colliderB.owner.id.value] - 
-        (bodyContactCount[b.colliderA.owner.id.value] + bodyContactCount[b.colliderB.owner.id.value])))
+      // Sort by most severe contacts
+      contacts = contacts.sort((a, b) => a.mtv.size - b.mtv.size);
+
+      // Sort by most severe contacts
+      contacts = contacts.sort((a, b) => a.mtv.size - b.mtv.size);
 
       // Resolve collisions adjust positions and apply velocities
       this._resolve(contacts, collisionDelta, Physics.collisionResolutionStrategy);
@@ -92,7 +80,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       contacts.forEach(c => this._currentFrameContacts.set(c.id, c));
 
       // Remove any pairs that can no longer collide
-      pairs = pairs.filter(p => p.canCollide);
+      pairs = pairs.filter(p => p.canCollide && contacts.find(c => c.id === p.id));
 
       iter--;
     }
@@ -129,6 +117,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     for (const contact of contacts) {
       bodyA = contact.colliderA.owner;
       bodyB = contact.colliderB.owner;
+
       if (strategy === CollisionResolutionStrategy.RigidBody) {
         this._resolveRigidBodyCollision(contact);
       } else if (strategy === CollisionResolutionStrategy.Box) {
@@ -136,13 +125,17 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       } else {
         throw new Error('Unknown collision resolution strategy');
       }
-  
+
+      contact.matchAwake();
       bodyA.resolveOverlap();
       bodyB.resolveOverlap();
       // TODO move to system
       // TODO still don't like this, this is a small integration step to resolve narrowphase collisions
       EulerIntegrator.integrate(bodyA.transform, bodyA.motion, bodyA.acc, elapsedMs * Physics.collisionShift);
       EulerIntegrator.integrate(bodyB.transform, bodyB.motion, bodyB.acc, elapsedMs * Physics.collisionShift);
+
+      bodyA.updateMotion();
+      bodyB.updateMotion();
     }
   }
 
