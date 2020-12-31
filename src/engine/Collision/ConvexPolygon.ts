@@ -49,7 +49,7 @@ export class ConvexPolygon implements CollisionShape {
   private _sides: Line[] = [];
 
   constructor(options: ConvexPolygonOptions) {
-    this.offset = options.offset || Vector.Zero;
+    this.offset = options.offset ?? Vector.Zero;
     const winding = !!options.clockwiseWinding;
     this.points = (winding ? options.points.reverse() : options.points) || [];
     this.collider = this.collider = options.collider || null;
@@ -254,7 +254,7 @@ export class ConvexPolygon implements CollisionShape {
     // const points = this.getTransformedPoints();
     const scale = this._transform?.scale ?? Vector.One;
     const rotation = this._transform?.rotation ?? 0;
-    const pos = this._transform?.pos ?? Vector.Zero;
+    const pos = (this._transform?.pos ?? Vector.Zero).add(this.offset);
     return this.localBounds
       .scale(scale)
       .rotate(rotation)

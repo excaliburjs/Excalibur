@@ -508,7 +508,6 @@ export class ActorImpl
     }
 
     // Build default pipeline
-    this.traits.push(new Traits.TileMapCollisionDetection());
     this.traits.push(new Traits.OffscreenCulling());
     this.traits.push(new Traits.CapturePointer());
 
@@ -1096,9 +1095,10 @@ export class ActorImpl
    * @param actor     Actor to test
    * @param distance  Distance in pixels to test
    */
-  // public within(actor: Actor, distance: number): boolean {
-  //   return this.body.collider.shape.getClosestLineBetween(actor.body.collider.shape).getLength() <= distance;
-  // }
+  public within(actor: Actor, distance: number): boolean {
+    // TODO iterate through colliders
+    return this.body.getColliders()[0].shape.getClosestLineBetween(actor.body.getColliders()[0].shape).getLength() <= distance;
+  }
 
   // #endregion
 
@@ -1208,6 +1208,7 @@ export class ActorImpl
       this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
     } else {
       if (this.color) {
+        this.body.update(); // update transforms
         this.body.getColliders().forEach(c => c.shape.draw(ctx, this.color,
           vec(this._width * this.anchor.x, this._height * this.anchor.x)));
       }
@@ -1263,14 +1264,6 @@ export class ActorImpl
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
-
-    this.body.getColliders().forEach(c => c.debugDraw(ctx));
-
-    // // Draw actor bounding box
-    // this.body.colliders.forEach(c => {
-    //   const bb = c.localBounds.translate(this.getWorldPos());
-    //   bb.debugDraw(ctx);
-    // });
 
     // Draw actor Id
     // ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);

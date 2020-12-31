@@ -3,7 +3,7 @@
 var engine = new ex.Engine({ width: 600, height: 400 });
 
 var active = new ex.Actor(0, -50, 100, 100, ex.Color.Cyan);
-active.body.collider.type = ex.CollisionType.Active;
+active.body.collisionType = ex.CollisionType.Active;
 active.vel.y = 100;
 active.acc.y = 900;
 active.on('postupdate', () => {
@@ -11,7 +11,7 @@ active.on('postupdate', () => {
 });
 
 var fixed = new ex.Actor(0, 50, 100, 100, ex.Color.Green);
-fixed.body.collider.type = ex.CollisionType.Fixed;
+fixed.body.collisionType = ex.CollisionType.Fixed;
 
 fixed.actions
   .moveTo(0, 100, 300)

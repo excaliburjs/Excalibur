@@ -96,11 +96,13 @@ export class Physics {
   /**
    * Show the axis-aligned bounding boxes of the collision bodies on the screen.
    */
-  public static showBounds: boolean = false;
+  public static showColliderBounds: boolean = false;
   /**
    * Show the bounding collision area shapes
    */
-  public static showArea: boolean = false;
+  public static showColliderGeometry: boolean = false;
+
+  public static showColliderNormals: boolean = false;
   /**
    * Show points of collision interpreted by excalibur as a result of collision.
    */
@@ -181,6 +183,8 @@ export class Physics {
   public static overlapDampening = 1;
 
   public static impulseDampening = 1;
+
+  public static bodiesCanSleepByDefault = false;
 
   /**
    * Surface epsilon is used to help deal with surface penetration

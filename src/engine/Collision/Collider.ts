@@ -54,12 +54,11 @@ export class Collider implements Clonable<Collider> {
   public owningId?: Id<'body'> = null;
 
   public owner: BodyComponent;
-  // public owner: Owner;
 
   constructor(options: ColliderOptions) {
     const { shape, offset } = options
     this.shape = shape;
-    this.offset = offset ?? Vector.Zero;
+    this.offset = offset ?? shape.offset ?? Vector.Zero;
   }
 
   /**
@@ -180,17 +179,18 @@ export class Collider implements Clonable<Collider> {
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D) {
     // Draw motion vectors
+    // TODO move to motion system
     if (Physics.showMotionVectors) {
       DrawUtil.vector(ctx, Color.Yellow, this.owner.pos, this.owner.acc.add(Physics.acc));
       DrawUtil.vector(ctx, Color.Blue, this.owner.pos, this.owner.vel);
       DrawUtil.point(ctx, Color.Red, this.owner.pos);
     }
 
-    if (Physics.showBounds) {
+    if (Physics.showColliderBounds) {
       this.bounds.debugDraw(ctx, Color.Yellow);
     }
 
-    if (Physics.showArea) {
+    if (Physics.showColliderGeometry) {
       this.shape.debugDraw(ctx, this.owner.sleeping ? Color.Gray : Color.Green);
     }
   }

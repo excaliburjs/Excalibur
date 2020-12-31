@@ -54,7 +54,7 @@ game.add(block2);
 
 var collisionVector: ex.Vector = null;
 game.onPostUpdate = (engine) => {
-  collisionVector = block1.body.collider.bounds.intersect(block2.body.collider.bounds);
+  collisionVector = block1.body.getColliders()[0].bounds.intersect(block2.body.getColliders()[0].bounds);
   console.log('Collision Vector:', collisionVector);
 };
 

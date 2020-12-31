@@ -83,9 +83,9 @@ var circle = new ex.Actor({
 });
 
 circle.onPostDraw = (ctx, delta) => {
-  const closestEdge = circle.body.colliders[0].getClosestLineBetween(edge.body.colliders[0]);
-  const closestCircle = circle.body.colliders[0].getClosestLineBetween(otherCircle.body.colliders[0]);
-  const closestPolygon = circle.body.colliders[0].getClosestLineBetween(otherBlock.body.colliders[0]);
+  const closestEdge = circle.body.getColliders()[0].getClosestLineBetween(edge.body.getColliders()[0]);
+  const closestCircle = circle.body.getColliders()[0].getClosestLineBetween(otherCircle.body.getColliders()[0]);
+  const closestPolygon = circle.body.getColliders()[0].getClosestLineBetween(otherBlock.body.getColliders()[0]);
 
   ctx.restore();
   ctx.save();
@@ -124,9 +124,9 @@ blocks.forEach((b) => {
     }
   };
   b.onPostDraw = (ctx, delta) => {
-    const closestPolygon = b.body.colliders[0].getClosestLineBetween(floor.body.colliders[0]);
-    const closestCircle = b.body.colliders[0].getClosestLineBetween(circle.body.colliders[0]);
-    const closestEdge = b.body.colliders[0].getClosestLineBetween(edge.body.colliders[0]);
+    const closestPolygon = b.body.getColliders()[0].getClosestLineBetween(floor.body.getColliders()[0]);
+    const closestCircle = b.body.getColliders()[0].getClosestLineBetween(circle.body.getColliders()[0]);
+    const closestEdge = b.body.getColliders()[0].getClosestLineBetween(edge.body.getColliders()[0]);
     ctx.restore();
     ctx.save();
     ctx.fillStyle = ex.Color.Red.toString();

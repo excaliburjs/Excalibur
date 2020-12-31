@@ -7,9 +7,9 @@ var game = new ex.Engine({
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
 
 ex.Physics.broadphaseDebug = false;
-ex.Physics.showArea = true;
+ex.Physics.showColliderGeometry = true;
 ex.Physics.showMotionVectors = true;
-ex.Physics.showBounds = true;
+ex.Physics.showColliderBounds = true;
 ex.Physics.showContacts = true;
 ex.Physics.showNormals = true;
 ex.Physics.acc.setTo(0, 300);
@@ -28,7 +28,7 @@ function spawnRocket(direction) {
     }
   });
 
-  rocket.body.collider.type = ex.CollisionType.Active;
+  rocket.body.collisionType = ex.CollisionType.Active;
   rocket.addDrawing(rocketTex);
   rocket.body.useBoxCollider(48, 16);
   //rocket.rotation = Math.PI / 4;
@@ -56,22 +56,22 @@ function spawnRocket(direction) {
 }
 
 var ground = new ex.Actor(0, 0, 5, 5, ex.Color.Black.clone());
-ground.body.collider.type = ex.CollisionType.Fixed;
+ground.body.collisionType = ex.CollisionType.Fixed;
 ground.body.useEdgeCollider(new ex.Vector(0, 400), new ex.Vector(600, 400));
 game.add(ground);
 
 var rightWall = new ex.Actor(600, 200, 10, 400, ex.Color.Black.clone());
-rightWall.body.collider.type = ex.CollisionType.Fixed;
+rightWall.body.collisionType = ex.CollisionType.Fixed;
 rightWall.body.useBoxCollider(10, 400);
 game.add(rightWall);
 
 var leftWall = new ex.Actor(0, 200, 10, 400, ex.Color.Black.clone());
-leftWall.body.collider.type = ex.CollisionType.Fixed;
+leftWall.body.collisionType = ex.CollisionType.Fixed;
 leftWall.body.useBoxCollider(10, 400);
 game.add(leftWall);
 
 var ceiling = new ex.Actor(300, 10, 600, 10, ex.Color.Blue.clone());
-ceiling.body.collider.type = ex.CollisionType.Fixed;
+ceiling.body.collisionType = ex.CollisionType.Fixed;
 ceiling.body.useBoxCollider(600, 10); // optional
 game.add(ceiling);
 

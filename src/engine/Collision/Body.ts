@@ -15,6 +15,7 @@ import { Physics } from '../Physics';
 import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisionEvent } from '../Events';
 import { createId, Id } from '../Id';
 import { clamp } from '../Util/Util';
+import { Observable } from '../Util/Observable';
 
 export interface BodyComponentOptions {
   box?: { width: number, height: number }; 
@@ -45,15 +46,20 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   constructor(options?: BodyComponentOptions) {
     super();
     if (options) {
+      this.collisionType = options.type ?? this.collisionType;
+      this.group = options.group ?? this.group;
       if (options.box) {
         const { box: { width, height }, anchor = Vector.Half, offset = Vector.Zero } = options;
         this.useBoxCollider(width, height, anchor, offset);
       }
-      if (this._colliders?.length > 0) {
-        this._colliders.forEach(c => this.addCollider(c));
+      if (options.colliders) {
+        options.colliders.forEach(c => this.addCollider(c));
       }
     }
   }
+
+  public $collidersAdded = new Observable<Collider>();
+  public $collidersRemoved = new Observable<Collider>();
 
   public collisionType: CollisionType = CollisionType.PreventCollision;
 
@@ -63,8 +69,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   public sleepmotion: number = Physics.sleepEpsilon * 2;
   
-  // TODO what should be the default
-  public canSleep: boolean = true;
+  public canSleep: boolean = Physics.bodiesCanSleepByDefault;
 
   private _sleeping = false;
   public get sleeping(): boolean {
@@ -139,7 +144,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
       collider.owner = this;
       this._colliders.push(collider);
       this.events.wire(collider.events);
-      // TODO listen to collider events?
+      this.$collidersAdded.notifyAll(collider);
     } else {
       // TODO log warning
     }
@@ -150,11 +155,22 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     return this._colliders;
   }
 
+  public clearColliders(): void {
+    let oldColliders = [...this._colliders];
+    for (let c of oldColliders) {
+      this.removeCollider(c);
+    }
+  }
+
   public removeCollider(collider: Collider): BodyComponent {
+    this.$collidersRemoved.notifyAll(collider);
+    const colliderIndex = this._colliders.indexOf(collider);
+    if (colliderIndex !== -1) {
+      this._colliders.splice(colliderIndex, 1);
+    }
     collider.owningId = null;
     collider.owner = null;
     this.events.unwire(collider.events);
-    // TODO signal to untrack collider
     return this;
   }
 
@@ -396,7 +412,11 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   }
 
   onRemove() {
+    // TODO really want to clear all events
     this.events.clear();
+    for (let collider of this._colliders) {
+      this.$collidersRemoved.notifyAll(collider);
+    }
     // Signal to remove colliders from process
   }
 

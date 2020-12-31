@@ -1,11 +1,13 @@
 import { Vector } from "../Algebra";
+import { Camera } from "../Camera";
 import { Color } from "../Drawing/Color";
 import { Entity } from "../EntityComponentSystem";
 import { MotionComponent } from "../EntityComponentSystem/Components/MotionComponent";
 import { TransformComponent } from "../EntityComponentSystem/Components/TransformComponent";
-import { AddedEntity, isAddedSystemEntity, isRemoveSystemEntity, RemovedEntity, System, SystemType } from "../EntityComponentSystem/System";
+import { AddedEntity, isAddedSystemEntity, RemovedEntity, System, SystemType } from "../EntityComponentSystem/System";
 import { AfterCollisionResolveEvent, BeforeCollisionResolveEvent, CollisionEndEvent, CollisionStartEvent, ContactEndEvent, ContactStartEvent, PostCollisionEvent, PreCollisionEvent } from "../Events";
 import { CollisionResolutionStrategy, Physics } from "../Physics";
+import { Scene } from "../Scene";
 import { DrawUtil } from "../Util/Index";
 import { BodyComponent } from "./Body";
 import { Collider } from "./Collider";
@@ -24,25 +26,25 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
   private _lastFrameContacts = new Map<string, CollisionContact>();
   private _currentFrameContacts = new Map<string, CollisionContact>();
 
+  private _trackCollider = (c: Collider) => this._processor.track(c);
+  private _untrackCollider = (c: Collider) => this._processor.untrack(c);
+
+  // Ctx and camera are used for the debug draw
+  private _camera: Camera;
+
   notify(message: AddedEntity<TransformComponent | MotionComponent | BodyComponent> | RemovedEntity) {
     if (isAddedSystemEntity(message)) {
-      // TODO track something better
+      message.data.components.body.$collidersAdded.subscribe(this._trackCollider);
+      message.data.components.body.$collidersRemoved.subscribe(this._untrackCollider);
       // Why do we need to track at all, could I just run broadphase on these?
       for (let collider of message.data.components.body.getColliders()) {
         this._processor.track(collider);
       }
     }
+  }
 
-    if (isRemoveSystemEntity(message)) {
-      // TODO this will be a problem since the component has been removed already by notify time
-      // TODO also you don't know what component dq'd this entity
-      if ((message.data.components as any).body) {
-        let body = (message.data.components.body as BodyComponent);
-        for (let collider of body.getColliders()) {
-          this._processor.untrack(collider);
-        }
-      }
-    }
+  initialize(scene: Scene) {
+    this._camera = scene.camera;
   }
 
   update(_entities: Entity<TransformComponent | MotionComponent | BodyComponent>[], elapsedMs: number): void {
@@ -55,7 +57,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       entity.components.body.update(); // Update body collider geometry
       colliders = colliders.concat(entity.components.body.getColliders());
     }
-    this._processor.update(colliders);
+    this._processor.update(colliders); // TODO if collider invalid it will break the processor
 
     // Run broadphase on all colliders and locates potential collisions
     let pairs = this._processor.broadphase(colliders, elapsedMs);
@@ -91,6 +93,8 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
   }
 
   debugDraw(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+    this._camera.draw(ctx);
     this._processor.debugDraw(ctx)
 
     if (Physics.showContacts || Physics.showCollisionNormals) {
@@ -107,6 +111,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
         }
       }
     }
+    ctx.restore();
   }
 
   private _resolve(contacts: CollisionContact[], elapsedMs: number, strategy: CollisionResolutionStrategy): void {

@@ -33,6 +33,49 @@
  * Thank you,
  * Excalibur.js team
  */
+
+declare class Stats {
+  constructor();
+  dom: HTMLElement;
+  showPanel(option: number);
+  begin(): void;
+  end(): void;
+}
+declare module dat {
+  class GUI {
+    constructor(options: { name: string });
+    addFolder(name: string): GUI;
+    add<T>(object: T, prop: keyof T, min?: number, max?: number, step?: number): any;
+    addColor(object: any, prop: any): any;
+  }
+}
+
+var gui = new dat.GUI({name: 'Excalibur'});
+var folder = gui.addFolder('Physics Flags');
+folder.add(ex.Physics, 'enabled')
+folder.add(ex.Physics, 'showColliderBounds')
+folder.add(ex.Physics, 'showColliderGeometry')
+folder.add(ex.Physics, 'showColliderNormals')
+folder.add(ex.Physics, 'showContacts')
+folder.add(ex.Physics, 'showMotionVectors')
+folder.add(ex.Physics, 'broadphaseDebug')
+folder.add(ex.Physics, 'collisionPasses', 1, 30, 1);
+
+var stats = new Stats();
+stats.showPanel(0);
+document.body.appendChild(stats.dom);
+
+var bootstrap = (game: ex.Engine) => {
+  gui.add({toggleDebug: false}, 'toggleDebug').onChange(() => game.toggleDebug());
+  game.on("preframe", () => {
+      stats.begin();
+  });
+  game.on('postframe', () =>{
+      stats.end();
+  });
+
+  return { stats, gui }
+}
 var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
@@ -43,9 +86,12 @@ var game = new ex.Engine({
   antialiasing: false,
   canvasElementId: 'game',
   suppressHiDPIScaling: false,
-  suppressPlayButton: true
+  suppressPlayButton: true,
+  pointerScope: ex.Input.PointerScope.Canvas
 });
 game.showDebug(true);
+
+
 
 var heartTex = new ex.Texture('../images/heart.png');
 var imageRun = new ex.Texture('../images/PlayerRun.png');
@@ -155,6 +201,7 @@ enum Animations {
 
 var currentX = 0;
 var blockGroup = ex.CollisionGroupManager.create('ground');
+var color = new ex.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
 // Create the level
 for (var i = 0; i < 36; i++) {
   currentX = tileBlockWidth * i + 10;
@@ -224,6 +271,7 @@ var player = new ex.Actor({
   enableCapturePointer: true,
   collisionType: ex.CollisionType.Active
 });
+player.body.canSleep = false;
 follower.actions
   .meet(player, 60)
   .asPromise()
@@ -563,3 +611,4 @@ game.currentScene.camera.y = 200;
 game.start(loader).then(() => {
   logger.info('All Resources have finished loading');
 });
+bootstrap(game);

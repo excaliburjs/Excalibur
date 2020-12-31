@@ -66,7 +66,7 @@ game.add(new ex.ScreenElement(0, 0, 50, 50));
 
 function spawnBox() {
   var box = new ex.Actor(250, 50, 50, 50, ex.Color.Red);
-  box.body.collider.type = ex.CollisionType.Active;
+  box.body.collisionType = ex.CollisionType.Active;
   box.body.useBoxCollider(50, 50);
   game.add(box);
 }
@@ -74,7 +74,7 @@ function spawnBox() {
 spawnBox();
 
 var floor = new ex.Actor(250, 500, 500, 10, ex.Color.Green);
-floor.body.collider.type = ex.CollisionType.Fixed;
+floor.body.collisionType = ex.CollisionType.Fixed;
 floor.body.useBoxCollider(50, 50);
 game.add(floor);
 

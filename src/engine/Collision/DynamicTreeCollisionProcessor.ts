@@ -9,6 +9,9 @@ import { Logger } from '../Util/Log';
 import { CollisionType } from './CollisionType';
 import { Collider } from './Collider';
 import { CollisionContact } from './CollisionContact';
+import { Color } from '../Drawing/Color';
+import { ConvexPolygon } from './ConvexPolygon';
+import { DrawUtil } from '../Util/Index';
 
 /**
  * Responsible for performing the collision broadphase (locating potential colllisions) and 
@@ -19,15 +22,17 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   private _collisions = new Set<string>();
 
   private _collisionPairCache: Pair[] = [];
+  private _colliders: Collider[] = [];
 
   /**
    * Tracks a physics body for collisions
    */
   public track(target: Collider): void {
     if (!target) {
-      Logger.getInstance().warn('Cannot track null physics body');
+      Logger.getInstance().warn('Cannot track null collider');
       return;
     }
+    this._colliders.push(target);
     this._dynamicCollisionTree.trackCollider(target);
   }
 
@@ -36,8 +41,12 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
    */
   public untrack(target: Collider): void {
     if (!target) {
-      Logger.getInstance().warn('Cannot untrack a null physics body');
+      Logger.getInstance().warn('Cannot untrack a null collider');
       return;
+    }
+    const index = this._colliders.indexOf(target);
+    if (index !== -1) {
+      this._colliders.splice(index, 1);
     }
     this._dynamicCollisionTree.untrackCollider(target);
   }
@@ -67,7 +76,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
     const potentialColliders = targets
       .filter((other) => {
-        return other.owner.active && other.owner.collisionType !== CollisionType.PreventCollision;
+        return other.owner?.active && other.owner.collisionType !== CollisionType.PreventCollision;
       });
 
     // clear old list of collision pairs
@@ -205,6 +214,25 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   public debugDraw(ctx: CanvasRenderingContext2D) {
     if (Physics.broadphaseDebug) {
       this._dynamicCollisionTree.debugDraw(ctx);
+    }
+
+    if (Physics.showColliderGeometry) {
+      for (let collider of this._colliders) {
+        if (Physics.showColliderBounds) {
+          collider.bounds.debugDraw(ctx, Color.Yellow);
+        }
+    
+        if (Physics.showColliderGeometry) {
+          collider.shape.debugDraw(ctx, collider.owner.sleeping ? Color.Gray : Color.Green);
+        }
+
+        if (Physics.showColliderNormals && collider.shape instanceof ConvexPolygon) {
+          for (let side of collider.shape.getSides()) {
+            DrawUtil.point(ctx, Color.Blue, side.midpoint);
+            DrawUtil.vector(ctx, Color.Yellow, side.midpoint, side.normal(), 30);
+          }
+        }
+      }
     }
   }
 }

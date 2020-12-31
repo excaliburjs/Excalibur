@@ -9,14 +9,47 @@ game.backgroundColor = ex.Color.Black;
 game.showDebug(true);
 
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
+ex.Physics.bodiesCanSleepByDefault = true;
 ex.Physics.allowRigidBodyRotation = true;
 ex.Physics.broadphaseDebug = false;
-ex.Physics.showArea = true;
+ex.Physics.showColliderGeometry = true;
 ex.Physics.showMotionVectors = true;
-ex.Physics.showBounds = true;
+ex.Physics.showColliderBounds = true;
 ex.Physics.showContacts = true;
 ex.Physics.showNormals = true;
 ex.Physics.acc.setTo(0, 100);
+
+
+var gui = new dat.GUI({name: 'Excalibur'});
+var folder = gui.addFolder('Physics Flags');
+folder.add(ex.Physics, 'enabled')
+folder.add(ex.Physics, 'bodiesCanSleepByDefault')
+folder.add(ex.Physics, 'showColliderBounds')
+folder.add(ex.Physics, 'showColliderGeometry')
+folder.add(ex.Physics, 'showColliderNormals')
+folder.add(ex.Physics, 'showContacts')
+folder.add(ex.Physics, 'showNormals')
+folder.add(ex.Physics, 'showMotionVectors')
+folder.add(ex.Physics, 'broadphaseDebug')
+folder.add(ex.Physics, 'collisionPasses', 1, 30, 1);
+
+var stats = new Stats();
+stats.showPanel(0);
+document.body.appendChild(stats.dom);
+
+var bootstrap = (game: ex.Engine) => {
+  gui.add({toggleDebug: game.isDebug}, 'toggleDebug').onChange(() => game.toggleDebug());
+  game.on("preframe", () => {
+      stats.begin();
+  });
+  game.on('postframe', () =>{
+      stats.end();
+  });
+
+  return { stats, gui }
+}
+
+
 var globalRotation = 0;
 function spawnBlock(x: number, y: number) {
   var width = ex.Util.randomInRange(20, 100);
@@ -114,3 +147,4 @@ game.input.pointers.primary.on('down', (evt: ex.Input.PointerDownEvent) => {
 });
 
 game.start();
+bootstrap(game);

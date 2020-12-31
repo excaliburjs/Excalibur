@@ -20,7 +20,7 @@ function spawnCircle2(x: number, y: number, vx: number) {
   var circle = new ex.Actor(x, y, width, width, color);
   circle.vel.x = vx;
   circle.body.useCircleCollider(width / 2);
-  circle.body.collider.type = ex.CollisionType.Active;
+  circle.body.collisionType = ex.CollisionType.Active;
   game.add(circle);
 }
 
