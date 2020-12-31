@@ -453,6 +453,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
+    this.emit('entityadded', { target: entity } as any);
     if (entity instanceof Actor) {
       entity.unkill();
     }
@@ -508,6 +509,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
+    this.emit('entityremoved', {target: entity} as any);
     if (entity instanceof Actor) {
       if (!Util.contains(this.actors, entity)) {
         return;

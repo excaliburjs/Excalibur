@@ -398,26 +398,25 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   onAdd(entity: Entity) {
     this.update();
     this.events.on('precollision', (evt: any) => {
-      entity.events.emit('precollision', new PreCollisionEvent(evt.target.owner, evt.other.owner.owner, evt.side, evt.intersection));
+      entity.events.emit('precollision', new PreCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection));
     });
     this.events.on('postcollision', (evt: any) => {
-      entity.events.emit('postcollision', new PostCollisionEvent(evt.target.owner, evt.other.owner.owner, evt.side, evt.intersection));
+      entity.events.emit('postcollision', new PostCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection));
     });
     this.events.on('collisionstart', (evt: any) => {
-      entity.events.emit('collisionstart', new CollisionStartEvent(evt.target.owner, evt.other.owner, evt.pair));
+      entity.events.emit('collisionstart', new CollisionStartEvent(evt.target.owner.owner, evt.other.owner.owner, evt.contact));
     });
     this.events.on('collisionend', (evt: any) => {
-      entity.events.emit('collisionend', new CollisionEndEvent(evt.target.owner, evt.other.owner));
+      entity.events.emit('collisionend', new CollisionEndEvent(evt.target.owner.owner, evt.other.owner.owner));
     });
   }
 
   onRemove() {
-    // TODO really want to clear all events
     this.events.clear();
+    // Signal to remove colliders from process
     for (let collider of this._colliders) {
       this.$collidersRemoved.notifyAll(collider);
     }
-    // Signal to remove colliders from process
   }
 
   update() {

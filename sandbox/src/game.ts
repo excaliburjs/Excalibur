@@ -51,6 +51,13 @@ declare module dat {
 }
 
 var gui = new dat.GUI({name: 'Excalibur'});
+var actorfolder = gui.addFolder('Flags');
+actorfolder.add(ex.Debug, 'showDrawingCullBox');
+actorfolder.add(ex.Debug, 'showCameraFocus');
+actorfolder.add(ex.Debug, 'showCameraViewport');
+actorfolder.add(ex.Debug, 'showActorAnchor');
+actorfolder.add(ex.Debug, 'showActorId');
+actorfolder.add(ex.Debug, 'showActorUnitCircle');
 var folder = gui.addFolder('Physics Flags');
 folder.add(ex.Physics, 'enabled')
 folder.add(ex.Physics, 'showColliderBounds')
@@ -67,11 +74,21 @@ document.body.appendChild(stats.dom);
 
 var bootstrap = (game: ex.Engine) => {
   gui.add({toggleDebug: false}, 'toggleDebug').onChange(() => game.toggleDebug());
+  var entities = gui.addFolder('Entities');
   game.on("preframe", () => {
       stats.begin();
   });
   game.on('postframe', () =>{
       stats.end();
+  });
+
+  game.currentScene.on('entityadded', (e: any) => {
+    var entity: ex.Entity<ex.TransformComponent> = e.target;
+    var obj = {id: entity.id, name: entity.constructor.name, types: entity.types};
+
+    var pos = entities.addFolder(`${obj.id}:${obj.name}`)
+    pos.add({pos: entity.components.transform.pos.toString()}, 'pos');
+    pos.add({types: obj.types.join(', ')}, 'types');
   });
 
   return { stats, gui }
@@ -90,6 +107,7 @@ var game = new ex.Engine({
   pointerScope: ex.Input.PointerScope.Canvas
 });
 game.showDebug(true);
+bootstrap(game);
 
 
 
@@ -611,4 +629,3 @@ game.currentScene.camera.y = 200;
 game.start(loader).then(() => {
   logger.info('All Resources have finished loading');
 });
-bootstrap(game);

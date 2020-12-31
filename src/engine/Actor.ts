@@ -48,6 +48,7 @@ import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
+import { Debug } from './Debug';
 
 /**
  * Type guard for checking if something is an Actor
@@ -1266,49 +1267,55 @@ export class ActorImpl
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
 
     // Draw actor Id
-    // ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
+    if (Debug.showActorId) {
+      ctx.fillText('id: ' + this.id, this.body.bounds.left + 3, this.body.bounds.top + 10);
+    }
 
     // Draw actor anchor Vector
-    ctx.fillStyle = Color.Yellow.toString();
-    ctx.beginPath();
-    ctx.arc(this.getWorldPos().x, this.getWorldPos().y, 3, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.fill();
+    if (Debug.showActorAnchor) {
+      ctx.fillStyle = Color.Yellow.toString();
+      ctx.beginPath();
+      ctx.arc(this.getWorldPos().x, this.getWorldPos().y, 3, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+    }
 
     // Culling Box debug draw
     for (let j = 0; j < this.traits.length; j++) {
-      if (this.traits[j] instanceof Traits.OffscreenCulling) {
+      if (this.traits[j] instanceof Traits.OffscreenCulling && Debug.showDrawingCullBox) {
         (<Traits.OffscreenCulling>this.traits[j]).cullingBox.debugDraw(ctx); // eslint-disable-line
       }
     }
 
     // Unit Circle debug draw
-    // ctx.strokeStyle = Color.Yellow.toString();
-    // ctx.beginPath();
-    // const radius = Math.min(this.width, this.height);
-    // ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
-    // ctx.closePath();
-    // ctx.stroke();
-    // const ticks: { [key: string]: number } = {
-    //   '0 Pi': 0,
-    //   'Pi/2': Math.PI / 2,
-    //   Pi: Math.PI,
-    //   '3/2 Pi': (3 * Math.PI) / 2
-    // };
+    if (Debug.showActorUnitCircle) {
+      ctx.strokeStyle = Color.Yellow.toString();
+      ctx.beginPath();
+      const radius = Math.min(this.width, this.height);
+      ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.stroke();
+      const ticks: { [key: string]: number } = {
+        '0 Pi': 0,
+        'Pi/2': Math.PI / 2,
+        Pi: Math.PI,
+        '3/2 Pi': (3 * Math.PI) / 2
+      };
 
-    // const oldFont = ctx.font;
-    // for (const tick in ticks) {
-    //   ctx.fillStyle = Color.Yellow.toString();
-    //   ctx.font = '14px';
-    //   ctx.textAlign = 'center';
-    //   ctx.fillText(
-    //     tick,
-    //     this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10),
-    //     this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10)
-    //   );
-    // }
+      const oldFont = ctx.font;
+      for (const tick in ticks) {
+        ctx.fillStyle = Color.Yellow.toString();
+        ctx.font = '14px';
+        ctx.textAlign = 'center';
+        ctx.fillText(
+          tick,
+          this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10),
+          this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10)
+        );
+      }
 
-    // ctx.font = oldFont;
+      ctx.font = oldFont;
+    }
 
     // Draw child actors
     for (let i = 0; i < this.children.length; i++) {
