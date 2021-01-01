@@ -3,30 +3,61 @@ import { Logger } from './Util/Log';
 import { Camera } from './Camera';
 import { BrowserEvents } from './Util/Browser';
 import { BoundingBox } from './Collision/Index';
+import { getPosition } from './Util/Util';
 
 /**
  * Enum representing the different display modes available to Excalibur.
  */
 export enum DisplayMode {
   /**
-   * Use the entire screen's css width/height for the game resolution dynamically. This is not the same as [[Screen.goFullScreen]]
+   * Use as much space as possible that still fits in the screen while maintaining aspect ratio and resolution.
+   * This is not the same as [[Screen.goFullScreen]]
+   *
+   * You may want to center your game here is an example
+   * ```html
+   * <!-- html -->
+   * <body>
+   * <main>
+   *   <canvas id="game"></canvas>
+   * </main>
+   * </body>
+   * ```
+   *
+   * ```css
+   * // css
+   * main {
+   *   display: flex;
+   *   align-items: center;
+   *   justify-content: center;
+   *   height: 100%;
+   *   width: 100%;
+   * }
+   * ```
+   *
    */
   FullScreen = 'FullScreen',
 
   /**
-   * Use the parent DOM container's css width/height for the game resolution dynamically
+   * Use the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will
+   * change dynamically as the window is resized This is not the same as [[Screen.goFullScreen]]
    */
-  Container = 'Container',
+  Dynamic = 'Dynamic',
 
   /**
-   * Default, use a specified resolution for the game
+   * Default, use a specified resolution for the game. Like 800x600 pixels for example.
    */
   Fixed = 'Fixed',
 
   /**
    * Allow the game to be positioned with the [[EngineOptions.position]] option
+   * @deprecated Use CSS to position the game canvas, will be removed in v0.26.0
    */
-  Position = 'Position'
+  Position = 'Position',
+
+  /**
+   * Use the parent DOM container's css width/height for the game resolution dynamically
+   */
+  Container = 'Container',
 }
 
 /**
@@ -183,6 +214,8 @@ export class Screen {
 
     this._mediaQueryList = this._browser.window.nativeComponent.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
     this._mediaQueryList.addEventListener('change', this._pixelRatioChangeHandler);
+
+    this._canvas.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
   }
 
   public dispose(): void {
@@ -191,7 +224,13 @@ export class Screen {
       this._isDisposed = true;
       this._browser.window.off('resize', this._windowResizeHandler);
       this._mediaQueryList.removeEventListener('change', this._pixelRatioChangeHandler);
+      this._canvas.removeEventListener('fullscreenchange', this._fullscreenChangeHandler);
     }
+  }
+
+  private _fullscreenChangeHandler = () => {
+    this._isFullScreen = !this._isFullScreen;
+    this._logger.debug('Fullscreen Change', this._isFullScreen);
   }
 
   private _pixelRatioChangeHandler = () => {
@@ -202,8 +241,7 @@ export class Screen {
   private _windowResizeHandler = () => {
     const parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
     this._logger.debug('View port resized');
-    this._setHeightByDisplayMode(parent);
-    this._logger.info('parent.clientHeight ' + parent.clientHeight);
+    this._setResolutionAndViewportByDisplayMode(parent);
     this.applyResolutionAndViewport();
   };
 
@@ -250,6 +288,10 @@ export class Screen {
 
   public set viewport(viewport: ScreenDimension) {
     this._viewport = viewport;
+  }
+
+  public get aspectRatio() {
+    return this._resolution.width / this._resolution.height;
   }
 
   public get scaledWidth() {
@@ -320,22 +362,82 @@ export class Screen {
    * Requests to go fullscreen using the browser fullscreen api
    */
   public goFullScreen(): Promise<void> {
-    return this._canvas.requestFullscreen().then(() => {
-      this._isFullScreen = true;
-    });
+    return this._canvas.requestFullscreen();
   }
 
   /**
    * Requests to exit fullscreen using the browser fullscreen api
    */
   public exitFullScreen(): Promise<void> {
-    return document.exitFullscreen().then(() => {
-      this._isFullScreen = false;
-    });
+    return document.exitFullscreen();
   }
 
   /**
-   * Transforms the current x, y from screen coordinates to world coordinates
+   * Takes a coordinate in normal html page space, for example from a pointer move event, and translates it to
+   * Excalibur screen space.
+   *
+   * Excalibur screen space starts at the top left (0, 0) corner of the viewport, and extends to the
+   * bottom right corner (resolutionX, resolutionY)
+   * @param point
+   */
+  public pageToScreenCoordinates(point: Vector): Vector {
+    let newX = point.x;
+    let newY = point.y;
+
+    newX -= getPosition(this._canvas).x;
+    newY -= getPosition(this._canvas).y;
+
+
+    // if fullscreen api on it centers with black bars
+    // we need to adjust the screen to world coordinates in this case
+    if (this._isFullScreen) {
+      if (window.innerWidth / this.aspectRatio < window.innerHeight) {
+        newY -= (window.innerHeight - this.viewport.height) / 2;
+      } else {
+        newX -= (window.innerWidth - this.viewport.width) / 2;
+      }
+    }
+
+    newX = (newX / this.viewport.width) * this.resolution.width;
+    newY = (newY / this.viewport.height) * this.resolution.height;
+
+    return new Vector(newX, newY);
+  }
+
+  /**
+   * Takes a coordinate in Excalibur screen space, and translates it to normal html page space. For example,
+   * this is where html elements might live if you want to position them relative to Excalibur.
+   *
+   * Excalibur screen space starts at the top left (0, 0) corner of the viewport, and extends to the
+   * bottom right corner (resolutionX, resolutionY)
+   * @param point
+   */
+  public screenToPageCoordinates(point: Vector): Vector {
+    let newX = point.x;
+    let newY = point.y;
+
+    newX = (newX / this.resolution.width) * this.viewport.width;
+    newY = (newY / this.resolution.height) * this.viewport.height;
+
+    if (this._isFullScreen) {
+      if (window.innerWidth / this.aspectRatio < window.innerHeight) {
+        newY += (window.innerHeight - this.viewport.height) / 2;
+      } else {
+        newX += (window.innerWidth - this.viewport.width) / 2;
+      }
+    }
+
+    newX += getPosition(this._canvas).x;
+    newY += getPosition(this._canvas).y;
+
+    return new Vector(newX, newY);
+  }
+
+  /**
+   * Takes a coordinate in Excalibur screen space, and translates it to Excalibur world space.
+   *
+   * World space is where [[entities|Entity]] in Excalibur live by default [[CoordPlane.World]]
+   * and extends infinitely out relative from the [[Camera]].
    * @param point  Screen coordinate to convert
    */
   public screenToWorldCoordinates(point: Vector): Vector {
@@ -343,29 +445,31 @@ export class Screen {
     let newY = point.y;
 
     // transform back to world space
-    newX = (newX / this.viewport.width) * this.drawWidth;
-    newY = (newY / this.viewport.height) * this.drawHeight;
+    newX = (newX / this.resolution.width) * this.drawWidth;
+    newY = (newY / this.resolution.height) * this.drawHeight;
 
     // transform based on zoom
     newX = newX - this.halfDrawWidth;
     newY = newY - this.halfDrawHeight;
 
-    // shift by focus
+    // shift by camera focus
     newX += this._camera?.x ?? 0;
     newY += this._camera?.y ?? 0;
 
-    return new Vector(Math.floor(newX), Math.floor(newY));
+    return new Vector(newX, newY);
   }
 
   /**
-   * Transforms a world coordinate, to a screen coordinate
+   * Takes a coordinate in Excalibur world space, and translates it to Excalibur screen space.
+   *
+   * Screen space is where [[ScreenElements]] and [[entities|Entity]] with [[CoordPlane.Screen]] live.
    * @param point  World coordinate to convert
    */
   public worldToScreenCoordinates(point: Vector): Vector {
     let screenX = point.x;
     let screenY = point.y;
 
-    // shift by focus
+    // shift by camera focus
     screenX -= this._camera?.x ?? 0;
     screenY -= this._camera?.y ?? 0;
 
@@ -374,15 +478,27 @@ export class Screen {
     screenY = screenY + this.halfDrawHeight;
 
     // transform back to screen space
-    screenX = (screenX * this.viewport.width) / this.drawWidth;
-    screenY = (screenY * this.viewport.height) / this.drawHeight;
+    screenX = (screenX / this.drawWidth) * this.resolution.width;
+    screenY = (screenY / this.drawHeight) * this.resolution.height;
 
-    return new Vector(Math.floor(screenX), Math.floor(screenY));
+    return new Vector(screenX, screenY);
+  }
+
+  public pageToWorldCoordinates(point: Vector): Vector {
+    const screen = this.pageToScreenCoordinates(point);
+    return this.screenToWorldCoordinates(screen);
+  }
+
+  public worldToPageCoordinates(point: Vector): Vector {
+    const screen = this.worldToScreenCoordinates(point);
+    return this.screenToPageCoordinates(screen);
   }
 
   /**
    * Returns a BoundingBox of the top left corner of the screen
    * and the bottom right corner of the screen.
+   *
+   * World bounds are in world coordinates, useful for culling objects offscreen
    */
   public getWorldBounds(): BoundingBox {
     const left = this.screenToWorldCoordinates(Vector.Zero).x;
@@ -457,11 +573,33 @@ export class Screen {
     return this.drawHeight / 2;
   }
 
+  private _computeFullScreen() {
+    document.body.style.margin = '0px';
+    document.body.style.overflow = 'hidden';
+    const aspect = this.aspectRatio;
+    let adjustedWidth = 0;
+    let adjustedHeight = 0;
+    if (window.innerWidth / aspect < window.innerHeight) {
+      adjustedWidth = window.innerWidth;
+      adjustedHeight = window.innerWidth / aspect;
+    } else {
+      adjustedWidth = window.innerHeight * aspect;
+      adjustedHeight = window.innerHeight;
+    }
+
+    this.viewport = {
+      width: adjustedWidth,
+      height: adjustedHeight
+    };
+  }
+
   private _applyDisplayMode() {
-    if (this.displayMode === DisplayMode.FullScreen || this.displayMode === DisplayMode.Container) {
+    if (this.displayMode === DisplayMode.FullScreen ||
+        this.displayMode === DisplayMode.Dynamic ||
+        this.displayMode === DisplayMode.Container) {
       const parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
 
-      this._setHeightByDisplayMode(parent);
+      this._setResolutionAndViewportByDisplayMode(parent);
 
       this._browser.window.on('resize', this._windowResizeHandler);
     } else if (this.displayMode === DisplayMode.Position) {
@@ -470,9 +608,9 @@ export class Screen {
   }
 
   /**
-   * Sets the internal canvas height based on the selected display mode.
+   * Sets the resoultion and viewport based on the selected display mode.
    */
-  private _setHeightByDisplayMode(parent: HTMLElement | Window) {
+  private _setResolutionAndViewportByDisplayMode(parent: HTMLElement | Window) {
     if (this.displayMode === DisplayMode.Container) {
       this.resolution = {
         width: (<HTMLElement>parent).clientWidth,
@@ -482,7 +620,7 @@ export class Screen {
       this.viewport = this.resolution;
     }
 
-    if (this.displayMode === DisplayMode.FullScreen) {
+    if (this.displayMode === DisplayMode.Dynamic) {
       document.body.style.margin = '0px';
       document.body.style.overflow = 'hidden';
       this.resolution = {
@@ -491,6 +629,10 @@ export class Screen {
       };
 
       this.viewport = this.resolution;
+    }
+
+    if (this.displayMode === DisplayMode.FullScreen) {
+      this._computeFullScreen();
     }
   }
 

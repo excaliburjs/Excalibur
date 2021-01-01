@@ -180,8 +180,9 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
 
-    const worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
-    const worldCoordsLowerRight = engine.screenToWorldCoordinates(new Vector(engine.canvas.clientWidth, engine.canvas.clientHeight));
+    const worldBounds = engine.getWorldBounds();
+    const worldCoordsUpperLeft = vec(worldBounds.left, worldBounds.top);
+    const worldCoordsLowerRight = vec(worldBounds.right, worldBounds.bottom);
 
     this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - this.x) / this.cellWidth) - 2, 0);
     this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);

@@ -1,5 +1,4 @@
 import { Engine } from './Engine';
-import * as Util from './Util/Util';
 import { Clonable } from './Interfaces/Clonable';
 import { obsolete } from './Util/Decorators';
 
@@ -585,10 +584,8 @@ export class GlobalCoordinates {
       engine = <Engine>yOrEngine;
     }
 
-    const screenX: number = pageX - Util.getPosition(engine.canvas).x;
-    const screenY: number = pageY - Util.getPosition(engine.canvas).y;
-    const screenPos = new Vector(screenX, screenY);
-    const worldPos = engine.screenToWorldCoordinates(screenPos);
+    const screenPos = engine.screen.pageToScreenCoordinates(pagePos);
+    const worldPos = engine.screen.screenToWorldCoordinates(screenPos);
 
     return new GlobalCoordinates(worldPos, pagePos, screenPos);
   }
