@@ -118,6 +118,6 @@
     "webpack-merge": "5.4.1"
   },
   "dependencies": {
-    "core-js": "3.8.0"
+    "core-js": "3.8.1"
   }
 }
