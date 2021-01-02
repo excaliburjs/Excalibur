@@ -1,18 +1,16 @@
-var Travis = require('travis-ci');
-var repo = 'excaliburjs/excaliburjs.github.io';
-var travis = new Travis({
-  version: '2.0.0',
-  headers: {
-    'User-Agent': 'Travis/1.0'
-  },
-  pro: true
+const { Octokit } = require('@octokit/rest');
+const owner = 'excaliburjs';
+const repo = 'excaliburjs.github.io';
+const octokit = new Octokit({
+  auth: process.env.GITHUB_TOKEN || process.env.GH_TOKEN,
+  userAgent: 'excaliburjs-deploy-docs'
 });
 
-var branch = process.env.TRAVIS_BRANCH;
-var tag = process.env.TRAVIS_TAG;
-var pr = process.env.TRAVIS_PULL_REQUEST;
+const branch = process.env.GITHUB_REF?.split('/').pop();
+const tag = process.env.GITHUB_REF?.startsWith('refs/tags/') ? branch : undefined;
+const isPullRequest = !!process.env.GITHUB_BASE_REF;
 
-if (pr !== 'false') {
+if (isPullRequest) {
   console.log('Skipping docs deployment, detected pull request');
   return;
 }
@@ -29,31 +27,15 @@ if (tag) {
 
 console.log('Triggering remote build of edge docs...');
 
-travis.authenticate(
-  {
-    github_token: process.env.GH_TOKEN
-  },
-  function (err, res) {
-    if (err) {
-      return console.error(err);
+octokit.actions
+  .createWorkflowDispatch({
+    owner,
+    repo,
+    workflow_id: 'build.yml',
+    ref: 'site'
+  })
+  .then((res) => {
+    if (res.status !== 200) {
+      return console.error('Fatal error:', res.status, res.data);
     }
-
-    travis.repos(repo.split('/')[0], repo.split('/')[1]).builds.get(function (err, res) {
-      if (err) {
-        return console.error(err);
-      }
-
-      travis.requests.post(
-        {
-          build_id: res.builds[0].id
-        },
-        function (err, res) {
-          if (err) {
-            return console.error(err);
-          }
-          console.log(res.flash[0].notice);
-        }
-      );
-    });
-  }
-);
+  });
