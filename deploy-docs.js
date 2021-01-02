@@ -22,21 +22,21 @@ if (tag) {
 
 console.log('Triggering remote build of edge docs...');
 
+const HTTP_204_CREATED = 204;
 const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN || process.env.GH_TOKEN,
   userAgent: 'excaliburjs-deploy-docs'
 });
-const HTTP_204_CREATED = 204;
 
-octokit.actions
-  .createWorkflowDispatch({
+(async () => {
+  const { status, data } = await octokit.actions.createWorkflowDispatch({
     owner: 'excaliburjs',
     repo: 'excaliburjs.github.io',
     workflow_id: 'build.yml',
     ref: 'site'
-  })
-  .then((res) => {
-    if (res.status !== HTTP_204_CREATED) {
-      return console.error('Fatal error:', res.status, res.data);
-    }
   });
+
+  if (status !== HTTP_204_CREATED) {
+    console.error('Expected 204 Created success but instead got:', status, data);
+  }
+})();
