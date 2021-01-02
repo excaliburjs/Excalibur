@@ -5,6 +5,8 @@ name: CI
 
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  COVERALLS_REPO_TOKEN: "${{ secrets.COVERALLS_REPO_TOKEN }}"
+  COVERALLS_GIT_BRANCH: "${{ github.ref }}"
 
 on:
   push:
