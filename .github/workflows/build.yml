@@ -31,6 +31,7 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
+        registry-url: 'https://registry.npmjs.org'
     - uses: actions/cache@v2
       with:
         path: ~/.npm
@@ -46,4 +47,10 @@ jobs:
     needs: build
     if: github.event_name == 'push'
     steps:
-      - run: echo 'publish'
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: echo 'publishing alpha package'
+      - run: echo "alpha_version=$(node -e "console.log(require('./version').getCiVersion(null, false));")" >> $GITHUB_ENV
+      - run: echo $alpha_version
+      - run: npm --no-git-tag-version version $alpha_version
+      # - run: npm publish --tag next
