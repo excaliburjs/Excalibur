@@ -26,6 +26,7 @@ const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN || process.env.GH_TOKEN,
   userAgent: 'excaliburjs-deploy-docs'
 });
+const HTTP_204_CREATED = 204;
 
 octokit.actions
   .createWorkflowDispatch({
@@ -35,7 +36,7 @@ octokit.actions
     ref: 'site'
   })
   .then((res) => {
-    if (res.status !== 200) {
+    if (res.status !== HTTP_204_CREATED) {
       return console.error('Fatal error:', res.status, res.data);
     }
   });
