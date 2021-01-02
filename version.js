@@ -5,9 +5,9 @@ function getCiOptions() {
   return {
     ghToken: process.env.GH_TOKEN || undefined,
     appveyorBuild: process.env.APPVEYOR_BUILD_NUMBER || '',
-    travisBuild: process.env.TRAVIS_BUILD_NUMBER || '',
+    buildNumber: process.env.GITHUB_RUN_NUMBER || '',
     commit: process.env.TRAVIS_COMMIT || '',
-    travisPr: process.env.TRAVIS_PULL_REQUEST || 'false',
+    isPr: (process.env.GITHUB_HEAD_REF || 'false').replace('/', '-'),
     travisTag: process.env.TRAVIS_TAG || '',
     fork: process.env.TRAVIS_REPO_SLUG
   };
@@ -36,11 +36,11 @@ function isTaggedRelease(options) {
 }
 
 function isLocal(options) {
-  return !options.appveyorBuild && !options.travisBuild;
+  return !options.appveyorBuild && !options.buildNumber;
 }
 
 function isPr(options) {
-  return !options.ghToken && options.travisPr !== 'false';
+  return !options.ghToken && options.isPr !== 'false';
 }
 
 function isFork(options) {
@@ -68,7 +68,7 @@ function generateTaggedVersion(options) {
 
 function generateCommunityVersion(options) {
   if (isPr(options)) {
-    return 'pr-' + options.travisPr;
+    return 'pr-' + options.isPr;
   }
   if (isFork(options)) {
     return 'fork-' + options.fork;
@@ -84,7 +84,7 @@ function generateAlphaVersion(options) {
 
   // Nuget doesn't yet support the + suffix in versions
   const appveyVersion = version + '.' + options.appveyorBuild + '-alpha';
-  const travisVersion = version + '-alpha.' + options.travisBuild + '+' + commit.substring(0, 7);
+  const travisVersion = version + '-alpha.' + options.buildNumber + '+' + commit.substring(0, 7);
 
   if (options.appveyorBuild) {
     return appveyVersion;
@@ -139,14 +139,14 @@ function assertContains(actual, value, message) {
 const local = getCiVersion({}, false);
 assertContains(local, '-', 'local version');
 
-const pr = getCiVersion({ travisPr: 'somepr', travisBuild: 'somebuild' }, false);
+const pr = getCiVersion({ isPr: 'somepr', buildNumber: 'somebuild' }, false);
 assertContains(pr, 'pr-', 'pr version');
 
-const fork = getCiVersion({ fork: 'somefork', travisPr: 'false', travisBuild: 'somebuild' }, false);
+const fork = getCiVersion({ fork: 'somefork', isPr: 'false', buildNumber: 'somebuild' }, false);
 assertContains(fork, 'fork-', 'fork version');
 
-const tagged = getCiVersion({ travisTag: 'v0.0.1', ghToken: 'sometoken', travisBuild: 'somebuild' }, false);
+const tagged = getCiVersion({ travisTag: 'v0.0.1', ghToken: 'sometoken', buildNumber: 'somebuild' }, false);
 assertContains(tagged, '0.0.1', 'tagged version');
 
-const alpha = getCiVersion({ travisBuild: 'somebuild', ghToken: 'sometoken' }, false);
+const alpha = getCiVersion({ buildNumber: 'somebuild', ghToken: 'sometoken' }, false);
 assertContains(alpha, '-alpha.', 'alpha version');
