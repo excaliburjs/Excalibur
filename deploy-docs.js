@@ -1,59 +1,41 @@
-var Travis = require('travis-ci');
-var repo = 'excaliburjs/excaliburjs.github.io';
-var travis = new Travis({
-  version: '2.0.0',
-  headers: {
-    'User-Agent': 'Travis/1.0'
-  },
-  pro: true
-});
+const { Octokit } = require('@octokit/rest');
 
-var branch = process.env.TRAVIS_BRANCH;
-var tag = process.env.TRAVIS_TAG;
-var pr = process.env.TRAVIS_PULL_REQUEST;
+const isPullRequest = !!process.env.GITHUB_BASE_REF;
 
-if (pr !== 'false') {
+if (isPullRequest) {
   console.log('Skipping docs deployment, detected pull request');
   return;
 }
 
+const refName = process.env.GITHUB_REF?.split('/').pop();
+const refType = process.env.GITHUB_REF?.startsWith('refs/tags/') ? 'tag' : 'branch';
+const isMainBranch = refType === 'branch' && refName === 'main';
+
 // build docs for tags and main only
-if (tag) {
-  console.log('Current tag is `' + tag + '`');
-} else if (branch == 'main') {
-  console.log('Current branch is `' + branch + '`');
+if (refType === 'tag' || isMainBranch) {
+  console.log(`Current ${refType} is ``${refName}```);
 } else {
-  console.log('Current branch is `' + branch + '`, skipping docs deployment...');
+  console.log('Current ref is `' + refName + "` which isn't allowed, skipping docs deployment...");
   return;
 }
 
 console.log('Triggering remote build of edge docs...');
 
-travis.authenticate(
-  {
-    github_token: process.env.GH_TOKEN
-  },
-  function (err, res) {
-    if (err) {
-      return console.error(err);
-    }
+const HTTP_204_CREATED = 204;
+const octokit = new Octokit({
+  auth: process.env.GITHUB_TOKEN || process.env.GH_TOKEN,
+  userAgent: 'excaliburjs-deploy-docs'
+});
 
-    travis.repos(repo.split('/')[0], repo.split('/')[1]).builds.get(function (err, res) {
-      if (err) {
-        return console.error(err);
-      }
+(async () => {
+  const { status, data } = await octokit.actions.createWorkflowDispatch({
+    owner: 'excaliburjs',
+    repo: 'excaliburjs.github.io',
+    workflow_id: 'build.yml',
+    ref: 'site'
+  });
 
-      travis.requests.post(
-        {
-          build_id: res.builds[0].id
-        },
-        function (err, res) {
-          if (err) {
-            return console.error(err);
-          }
-          console.log(res.flash[0].notice);
-        }
-      );
-    });
+  if (status !== HTTP_204_CREATED) {
+    console.error('Expected 204 Created success but instead got:', status, data);
   }
-);
+})();
