@@ -1,8 +1,4 @@
 const { Octokit } = require('@octokit/rest');
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN || process.env.GH_TOKEN,
-  userAgent: 'excaliburjs-deploy-docs'
-});
 
 const isPullRequest = !!process.env.GITHUB_BASE_REF;
 
@@ -25,6 +21,11 @@ if (tag) {
 }
 
 console.log('Triggering remote build of edge docs...');
+
+const octokit = new Octokit({
+  auth: process.env.GITHUB_TOKEN || process.env.GH_TOKEN,
+  userAgent: 'excaliburjs-deploy-docs'
+});
 
 octokit.actions
   .createWorkflowDispatch({
