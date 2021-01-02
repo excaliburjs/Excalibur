@@ -5,6 +5,7 @@ name: CI
 
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   COVERALLS_REPO_TOKEN: "${{ secrets.COVERALLS_REPO_TOKEN }}"
   COVERALLS_GIT_BRANCH: "${{ github.ref }}"
 
@@ -47,8 +48,6 @@ jobs:
     needs: build
     if: github.event_name == 'push'
     steps:
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: echo 'publishing alpha package'
       - run: echo "alpha_version=$(node -e "console.log(require('./version').getCiVersion(null, false));")" >> $GITHUB_ENV
       - run: echo $alpha_version
