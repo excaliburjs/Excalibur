@@ -44,6 +44,6 @@ jobs:
     name: Publish Alpha NPM Package
     runs-on: [ubuntu-latest]
     needs: build
-    if: github.event_event != 'pull_request'
+    if: github.event_name == 'push'
     steps:
       - run: echo 'publish'
