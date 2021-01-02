@@ -1,19 +1,18 @@
 const { Octokit } = require('@octokit/rest');
-const owner = 'excaliburjs';
-const repo = 'excaliburjs.github.io';
 const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN || process.env.GH_TOKEN,
   userAgent: 'excaliburjs-deploy-docs'
 });
 
-const branch = process.env.GITHUB_REF?.split('/').pop();
-const tag = process.env.GITHUB_REF?.startsWith('refs/tags/') ? branch : undefined;
 const isPullRequest = !!process.env.GITHUB_BASE_REF;
 
 if (isPullRequest) {
   console.log('Skipping docs deployment, detected pull request');
   return;
 }
+
+const branch = process.env.GITHUB_REF?.split('/').pop();
+const tag = process.env.GITHUB_REF?.startsWith('refs/tags/') ? branch : undefined;
 
 // build docs for tags and main only
 if (tag) {
@@ -29,8 +28,8 @@ console.log('Triggering remote build of edge docs...');
 
 octokit.actions
   .createWorkflowDispatch({
-    owner,
-    repo,
+    owner: 'excaliburjs',
+    repo: 'excaliburjs.github.io',
     workflow_id: 'build.yml',
     ref: 'site'
   })
