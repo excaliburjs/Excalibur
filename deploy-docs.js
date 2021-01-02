@@ -7,16 +7,15 @@ if (isPullRequest) {
   return;
 }
 
-const branch = process.env.GITHUB_REF?.split('/').pop();
-const tag = process.env.GITHUB_REF?.startsWith('refs/tags/') ? branch : undefined;
+const refName = process.env.GITHUB_REF?.split('/').pop();
+const refType = process.env.GITHUB_REF?.startsWith('refs/tags/') ? 'tag' : 'branch';
+const isMainBranch = refType === 'branch' && refName === 'main';
 
 // build docs for tags and main only
-if (tag) {
-  console.log('Current tag is `' + tag + '`');
-} else if (branch == 'main') {
-  console.log('Current branch is `' + branch + '`');
+if (refType === 'tag' || isMainBranch) {
+  console.log(`Current ${refType} is ``${refName}```);
 } else {
-  console.log('Current branch is `' + branch + '`, skipping docs deployment...');
+  console.log('Current ref is `' + refName + "` which isn't allowed, skipping docs deployment...");
   return;
 }
 
