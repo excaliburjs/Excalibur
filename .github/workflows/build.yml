@@ -37,5 +37,5 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node-
     - run: sudo gem install sass -v 3.4.24
-    - run: npm ci --ignore-scripts
+    - run: npm ci
     - run: npm run linux:ci
