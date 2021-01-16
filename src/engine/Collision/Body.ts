@@ -67,6 +67,10 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   public mass: number = Physics.defaultMass;
 
+  public get invMass(): number {
+    return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.mass
+  }
+
   public sleepmotion: number = Physics.sleepEpsilon * 5;
   
   public canSleep: boolean = Physics.bodiesCanSleepByDefault;
@@ -90,6 +94,9 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   }
 
   public updateMotion() {
+    if (this._sleeping) {
+      this.setSleeping(true);
+    }
     const currentMotion = this.vel.size * this.vel.size + Math.abs(this.angularVelocity * this.angularVelocity);
     const bias = Physics.sleepBias;
     this.sleepmotion = bias * this.sleepmotion + (1 - bias) * currentMotion;
@@ -104,6 +111,10 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   // public inertia: number = 1000;
   public get inertia() {
     return this._colliders[0].shape.getInertia(this.mass);
+  }
+
+  public get invInertia() {
+    return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia
   }
 
   /**

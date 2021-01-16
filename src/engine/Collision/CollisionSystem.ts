@@ -14,7 +14,6 @@ import { Collider } from "./Collider";
 import { CollisionContact } from "./CollisionContact";
 import { CollisionType } from "./CollisionType";
 import { DynamicTreeCollisionProcessor } from "./DynamicTreeCollisionProcessor";
-import { EulerIntegrator } from "./Integrator";
 import { Side } from "./Side";
 
 export class CollisionSystem extends System<TransformComponent | MotionComponent | BodyComponent> {
@@ -62,7 +61,6 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     let pairs = this._processor.broadphase(colliders, elapsedMs);
 
     let iter: number = Physics.collisionPasses;
-    const collisionDelta = elapsedMs / iter;
     this._currentFrameContacts.clear();
     while (iter > 0) {
       // Re-run narrowphase each pass
@@ -72,7 +70,11 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       contacts = contacts.sort((a, b) => b.mtv.size - a.mtv.size);
 
       // Resolve collisions adjust positions and apply velocities
-      this._resolve(contacts, collisionDelta, Physics.collisionResolutionStrategy);
+      if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.RigidBody) {
+        this._resolveRigidBody(contacts);
+      } else {
+        this._resolveBoxCollisions(contacts)
+      }
 
       // Record contacts
       contacts.forEach(c => this._currentFrameContacts.set(c.id, c));
@@ -113,11 +115,25 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     ctx.restore();
   }
 
-  private _resolve(contacts: CollisionContact[], elapsedMs: number, strategy: CollisionResolutionStrategy): void {
+  private _resolveRigidBody(contacts: CollisionContact[]): void {    
     let bodyA: BodyComponent;
     let bodyB: BodyComponent;
     let contactCounts: {[id: string]: number } = {};
+
     for (const contact of contacts) {
+      // Publish collision events on both participants
+      const side = Side.fromDirection(contact.mtv);
+      contact.colliderA.events.emit('precollision', new PreCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv));
+      contact.colliderA.events.emit('beforecollisionresolve', new BeforeCollisionResolveEvent(
+        contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any);
+      contact.colliderB.events.emit(
+        'precollision',
+        new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate())
+      );
+      contact.colliderB.events.emit('beforecollisionresolve', new BeforeCollisionResolveEvent(
+        contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
+      );
+
       contact.matchAwake();
       let a = contact.colliderA.owner.id.value;
       let b = contact.colliderB.owner.id.value;
@@ -144,11 +160,8 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
         this._solvePosition(contact, contactCounts[bodyA.id.value], contactCounts[bodyB.id.value]);
       }
 
-
       bodyA.applyOverlap();
       bodyB.applyOverlap();
-
-      
     }
 
     // Resolve velocity
@@ -177,24 +190,43 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
       // Find resting contact and zero velocity in contact direction
       const velA = bodyA.pos.sub(bodyA.oldPos).size;
+      const rotA = Math.abs(bodyA.angularVelocity * 5);
       const velB = bodyB.pos.sub(bodyB.oldPos).size;
-      if (!bodyA.sleeping && velA * velA < Physics.restingContactThreshold) {
+      const rotB = Math.abs(bodyB.angularVelocity * 5);
+      if (!bodyA.sleeping && velA * velA < Physics.restingContactThreshold && rotA < .1) {
         const adjust = bodyA.vel.dot(contact.normal.negate());
         const adjustContact = contact.normal.scale(adjust);
         bodyA.vel.addEqual(adjustContact);
+
+        // add a "resting" friction
+        const friction = bodyA.vel.negate().scale(.5);
+        bodyA.vel.addEqual(friction);
       }
 
-      if (!bodyB.sleeping && velB * velB < Physics.restingContactThreshold) {
+      if (!bodyB.sleeping && velB * velB < Physics.restingContactThreshold && rotB < .1) {
         const adjust = bodyB.vel.dot(contact.normal);
         const adjustContact = contact.normal.scale(adjust);
         bodyB.vel.subEqual(adjustContact);
+        // add a "resting" friction
+        const friction = bodyA.vel.negate().scale(.5);
+        bodyB.vel.addEqual(friction);
       }
 
       bodyA.updateMotion();
       bodyB.updateMotion();
 
-      // bodyA.vel.addEqual(accA.scale(elapsedMs/1000));
-      // bodyB.vel.addEqual(accB.scale(elapsedMs/1000));
+      // Publish collision events on both participants
+      const side = Side.fromDirection(contact.mtv);
+      contact.colliderA.events.emit('postcollision', new PostCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv));
+      contact.colliderA.events.emit('aftercollisionresolve', new AfterCollisionResolveEvent(
+        contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any);
+      contact.colliderB.events.emit(
+        'postcollision',
+        new PostCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate())
+      );
+      contact.colliderB.events.emit('aftercollisionresolve', new AfterCollisionResolveEvent(
+        contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact
+      ) as any);
     }
   }
 
@@ -223,15 +255,17 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     }
   }
 
-  private _resolveBoxCollision(contact: CollisionContact) {
-    const side = Side.fromDirection(contact.mtv);
-    const mtv = contact.mtv.negate();
-    // Publish collision events on both participants
-    contact.colliderA.events.emit('precollision', new PreCollisionEvent(contact.colliderA, contact.colliderB, side, mtv));
-    contact.colliderB.events.emit('precollision', new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), mtv.negate()));
-
-    this._applyBoxImpulse(contact.colliderA, contact.colliderB, mtv);
-    this._applyBoxImpulse(contact.colliderB, contact.colliderA, mtv.negate());
+  private _resolveBoxCollisions(contacts: CollisionContact[]) {
+    for (let contact of contacts) {
+      const side = Side.fromDirection(contact.mtv);
+      const mtv = contact.mtv.negate();
+      // Publish collision events on both participants
+      contact.colliderA.events.emit('precollision', new PreCollisionEvent(contact.colliderA, contact.colliderB, side, mtv));
+      contact.colliderB.events.emit('precollision', new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), mtv.negate()));
+      
+      this._applyBoxImpulse(contact.colliderA, contact.colliderB, mtv);
+      this._applyBoxImpulse(contact.colliderB, contact.colliderA, mtv.negate());
+    }
   }
 
   private _solvePosition(contact: CollisionContact, numberContactsA: number, numberContactsB: number) {
@@ -256,10 +290,6 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
   }
 
   private _solveVelocity(contact: CollisionContact, numberContactsA: number, numberContactsB: number) {
-    this._resolveRigidBodyCollision(contact, numberContactsA, numberContactsB);
-  }
-
-  private _resolveRigidBodyCollision(contact: CollisionContact, numberContactsA: number, numberContactsB: number) {
     // perform collision on bounding areas
     const bodyA: BodyComponent = contact.colliderA.owner;
     const bodyB: BodyComponent = contact.colliderB.owner;
@@ -271,18 +301,6 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       return;
     }
 
-    // Publish collision events on both participants
-    const side = Side.fromDirection(contact.mtv);
-    contact.colliderA.events.emit('precollision', new PreCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv));
-    contact.colliderA.events.emit('beforecollisionresolve', new BeforeCollisionResolveEvent(
-      contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any);
-    contact.colliderB.events.emit(
-      'precollision',
-      new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate())
-    );
-    contact.colliderB.events.emit('beforecollisionresolve', new BeforeCollisionResolveEvent(
-      contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
-    );
 
     // If any of the participants are passive then short circuit
     if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
@@ -356,17 +374,6 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       }
     }
 
-    // TODO mtv hasn't actually been resolved yet
-    contact.colliderA.events.emit('postcollision', new PostCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv));
-    contact.colliderA.events.emit('aftercollisionresolve', new AfterCollisionResolveEvent(
-      contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any);
-    contact.colliderB.events.emit(
-      'postcollision',
-      new PostCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate())
-    );
-    contact.colliderB.events.emit('aftercollisionresolve', new AfterCollisionResolveEvent(
-      contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact
-    ) as any);
   }
 
   public runContactStartEnd() {

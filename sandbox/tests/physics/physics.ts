@@ -62,7 +62,7 @@ var bootstrap = (game: ex.Engine) => {
 var globalRotation = 0;
 function spawnBlock(x: number, y: number) {
   var width = ex.Util.randomInRange(20, 100);
-  var color = new ex.Color(ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255));
+  var color = new ex.Color(ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255), 255);
   var block = new ex.Actor({
     pos: ex.vec(x, y),
     color,
@@ -90,7 +90,7 @@ function spawnBlock(x: number, y: number) {
 
 function spawnCircle(x: number, y: number) {
   var width = ex.Util.randomInRange(20, 100);
-  var color = new ex.Color(ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255));
+  var color = new ex.Color(255, ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255));
   var circle = new ex.Actor(x, y, width, width, color);
   circle.rx = ex.Util.randomInRange(-0.5, 0.5);
   circle.vel.setTo(0, 300);

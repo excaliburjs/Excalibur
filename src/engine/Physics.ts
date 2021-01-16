@@ -184,7 +184,7 @@ export class Physics {
 
   public static positionIterations = 10;
 
-  public static velocityIterations = 10;
+  public static velocityIterations = 5;
 
   public static overlapDampening = .9;
 
@@ -199,7 +199,7 @@ export class Physics {
 
   public static sleepEpsilon = 0.07;
 
-  public static wakeThreshold = Physics.sleepEpsilon * 1.5;
+  public static wakeThreshold = Physics.sleepEpsilon * 3;
 
   public static restingContactThreshold = .2;
 
