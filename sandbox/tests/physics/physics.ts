@@ -34,6 +34,7 @@ folder.add(ex.Physics, 'showNormals')
 folder.add(ex.Physics, 'showSleepMotion')
 folder.add(ex.Physics, 'showMotionVectors')
 folder.add(ex.Physics, 'broadphaseDebug')
+folder.add(ex.Physics, 'restingContactThreshold', 0.01, .2, .01);
 folder.add(ex.Physics, 'sleepEpsilon', 0.01, 2, .05);
 folder.add(ex.Physics, 'wakeThreshold', 0.01, 2, .05);
 folder.add(ex.Physics, 'collisionPasses', 1, 30, 1);

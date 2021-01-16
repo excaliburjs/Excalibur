@@ -201,6 +201,8 @@ export class Physics {
 
   public static wakeThreshold = Physics.sleepEpsilon * 1.5;
 
+  public static restingContactThreshold = .2;
+
   public static sleepBias = 0.9;
 
   /**

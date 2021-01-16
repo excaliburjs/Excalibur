@@ -175,8 +175,20 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
         accB.addEqual(Physics.gravity);
       }
 
-      // bodyA.vel = bodyA.pos.sub(bodyA.oldPos);//.addEqual(accA.scale(elapsedMs/1000));
-      // bodyB.vel = bodyB.pos.sub(bodyB.oldPos);//.addEqual(accB.scale(elapsedMs/1000));
+      // Find resting contact and zero velocity in contact direction
+      const velA = bodyA.pos.sub(bodyA.oldPos).size;
+      const velB = bodyB.pos.sub(bodyB.oldPos).size;
+      if (!bodyA.sleeping && velA * velA < Physics.restingContactThreshold) {
+        const adjust = bodyA.vel.dot(contact.normal.negate());
+        const adjustContact = contact.normal.scale(adjust);
+        bodyA.vel.addEqual(adjustContact);
+      }
+
+      if (!bodyB.sleeping && velB * velB < Physics.restingContactThreshold) {
+        const adjust = bodyB.vel.dot(contact.normal);
+        const adjustContact = contact.normal.scale(adjust);
+        bodyB.vel.subEqual(adjustContact);
+      }
 
       bodyA.updateMotion();
       bodyB.updateMotion();
@@ -252,7 +264,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     const bodyA: BodyComponent = contact.colliderA.owner;
     const bodyB: BodyComponent = contact.colliderB.owner;
 
-    const contactsShare = 1 / (numberContactsA + numberContactsB)
+    const contactSplit = 1 / (numberContactsA + numberContactsB)
     let normal = contact.normal; // normal pointing away from colliderA
     if (bodyA === bodyB) {
       // sanity check for existing pairs
@@ -318,8 +330,8 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       const impulse =
         -((1 + coefRestitution) * rvNormal) / (invMassA + invMassB + invMoiA * raTangent * raTangent + invMoiB * rbTangent * rbTangent);
 
-      bodyB.applyImpulse(point, normal.scale(impulse * contactsShare * Physics.impulseDampening));
-      bodyA.applyImpulse(point, normal.scale(-impulse * contactsShare * Physics.impulseDampening));
+      bodyB.applyImpulse(point, normal.scale(impulse * contactSplit));
+      bodyA.applyImpulse(point, normal.scale(-impulse * contactSplit));
 
       // Friction portion of impulse
       if (coefFriction && rvTangent) {
@@ -334,9 +346,9 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
         let frictionImpulse = new Vector(0, 0);
         if (Math.abs(jt) <= impulse * coefFriction) {
-          frictionImpulse = t.scale(jt * contactsShare).negate();
+          frictionImpulse = t.scale(jt * contactSplit).negate();
         } else {
-          frictionImpulse = t.scale(-impulse * coefFriction * contactsShare);
+          frictionImpulse = t.scale(-impulse * coefFriction * contactSplit);
         }
 
         bodyB.applyImpulse(point, frictionImpulse);
