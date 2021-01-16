@@ -67,7 +67,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   public mass: number = Physics.defaultMass;
 
-  public sleepmotion: number = Physics.sleepEpsilon * 2;
+  public sleepmotion: number = Physics.sleepEpsilon * 5;
   
   public canSleep: boolean = Physics.bodiesCanSleepByDefault;
 
@@ -78,12 +78,14 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   public setSleeping(sleeping: boolean) {
     this._sleeping = sleeping;
-    if (sleeping) {
-      this.sleepmotion = Physics.sleepEpsilon * 2;
+    if (!sleeping) {
+      // Give it a kick to keep it from falling asleep immediately
+      this.sleepmotion = Physics.sleepEpsilon * 5;
     } else {
       this.vel = Vector.Zero;
       this.acc = Vector.Zero;
       this.angularVelocity = 0;
+      this.sleepmotion = 0;
     }
   }
 
@@ -329,21 +331,24 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     this.motion.angularVelocity = value;
   }
 
-  private _totalMtv: Vector = Vector.Zero;
+  public totalOverlap: Vector = Vector.Zero;
 
   /**
    * Add minimum translation vectors accumulated during the current frame to resolve collisions.
    */
   public addOverlap(mtv: Vector) {
-    this._totalMtv.addEqual(mtv);
+    this.totalOverlap.addEqual(mtv);
   }
 
   /**
    * Applies the accumulated translation vectors to the body's position
    */
-  public resolveOverlap(): void {
-    this.pos.addEqual(this._totalMtv);
-    this._totalMtv.setTo(0, 0);
+  public applyOverlap(): void {
+    if (!(this.sleeping || this.collisionType === CollisionType.Fixed)) {
+      this.pos.addEqual(this.totalOverlap);
+    }
+
+    this.totalOverlap.setTo(0, 0);
   }
 
   /**

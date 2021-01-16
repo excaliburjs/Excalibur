@@ -36,7 +36,6 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     if (isAddedSystemEntity(message)) {
       message.data.components.body.$collidersAdded.subscribe(this._trackCollider);
       message.data.components.body.$collidersRemoved.subscribe(this._untrackCollider);
-      // Why do we need to track at all, could I just run broadphase on these?
       for (let collider of message.data.components.body.getColliders()) {
         this._processor.track(collider);
       }
@@ -117,28 +116,73 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
   private _resolve(contacts: CollisionContact[], elapsedMs: number, strategy: CollisionResolutionStrategy): void {
     let bodyA: BodyComponent;
     let bodyB: BodyComponent;
+    let contactCounts: {[id: string]: number } = {};
+    for (const contact of contacts) {
+      contact.matchAwake();
+      let a = contact.colliderA.owner.id.value;
+      let b = contact.colliderB.owner.id.value;
+
+      if (!contactCounts[a]) {
+        contactCounts[a] = 1;
+      } else {
+        contactCounts[a]++;
+      }
+
+      if (!contactCounts[b]) {
+        contactCounts[b] = 1;
+      } else {
+        contactCounts[b]++;
+      }
+    }
+
+    // Resolve position
     for (const contact of contacts) {
       bodyA = contact.colliderA.owner;
       bodyB = contact.colliderB.owner;
 
-      if (strategy === CollisionResolutionStrategy.RigidBody) {
-        this._resolveRigidBodyCollision(contact);
-      } else if (strategy === CollisionResolutionStrategy.Box) {
-        this._resolveBoxCollision(contact);
-      } else {
-        throw new Error('Unknown collision resolution strategy');
+      for (let i = 0; i < Physics.positionIterations; i++) {
+        this._solvePosition(contact, contactCounts[bodyA.id.value], contactCounts[bodyB.id.value]);
       }
 
-      contact.matchAwake();
-      bodyA.resolveOverlap();
-      bodyB.resolveOverlap();
-      // TODO move to system
-      // TODO still don't like this, this is a small integration step to resolve narrowphase collisions
-      EulerIntegrator.integrate(bodyA.transform, bodyA.motion, bodyA.acc, elapsedMs * Physics.collisionShift);
-      EulerIntegrator.integrate(bodyB.transform, bodyB.motion, bodyB.acc, elapsedMs * Physics.collisionShift);
+
+      bodyA.applyOverlap();
+      bodyB.applyOverlap();
+
+      
+    }
+
+    // Resolve velocity
+    for (const contact of contacts) {
+      bodyA = contact.colliderA.owner;
+      bodyB = contact.colliderB.owner;
+
+      for (let i = 0; i < Physics.velocityIterations; i++) {
+        this._solveVelocity(contact, contactCounts[bodyA.id.value], contactCounts[bodyB.id.value]);
+      }
+    }
+
+    for (const contact of contacts) {
+      bodyA = contact.colliderA.owner;
+      bodyB = contact.colliderB.owner;
+      // After solving position the "real" instantaneous velocity could actually be different
+
+      const accA = bodyA.acc.clone();
+      const accB = bodyB.acc.clone();
+      if (bodyA.collisionType === CollisionType.Active && bodyA.useGravity) {
+        accA.addEqual(Physics.gravity);
+      }
+      if (bodyB.collisionType === CollisionType.Active && bodyB.useGravity) {
+        accB.addEqual(Physics.gravity);
+      }
+
+      // bodyA.vel = bodyA.pos.sub(bodyA.oldPos);//.addEqual(accA.scale(elapsedMs/1000));
+      // bodyB.vel = bodyB.pos.sub(bodyB.oldPos);//.addEqual(accB.scale(elapsedMs/1000));
 
       bodyA.updateMotion();
       bodyB.updateMotion();
+
+      // bodyA.vel.addEqual(accA.scale(elapsedMs/1000));
+      // bodyB.vel.addEqual(accB.scale(elapsedMs/1000));
     }
   }
 
@@ -178,11 +222,37 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     this._applyBoxImpulse(contact.colliderB, contact.colliderA, mtv.negate());
   }
 
-  private _resolveRigidBodyCollision(contact: CollisionContact) {
+  private _solvePosition(contact: CollisionContact, numberContactsA: number, numberContactsB: number) {
+    const bodyA: BodyComponent = contact.colliderA.owner;
+    const bodyB: BodyComponent = contact.colliderB.owner;
+
+    const centerA = bodyA.center.add(bodyA.totalOverlap);
+
+    const sepScale = centerA.sub((bodyA.center.sub(contact.mtv).add(bodyB.totalOverlap))).dot(contact.normal);
+    const separation = contact.normal.scale(Math.abs(sepScale));
+
+    if (bodyA.collisionType === CollisionType.Fixed || bodyA.sleeping) {
+      bodyB.addOverlap(separation.scale(Physics.overlapDampening / numberContactsB));
+    } else if (bodyB.collisionType === CollisionType.Fixed || bodyB.sleeping) {
+      bodyA.addOverlap(separation.negate().scale(Physics.overlapDampening / numberContactsA));
+    } else {
+      // Split the mtv in half for the two bodies, potentially we could do something smarter here
+      bodyB.addOverlap(separation.scale(0.5).scale(Physics.overlapDampening / numberContactsB));
+      bodyA.addOverlap(separation.scale(-0.5).scale(Physics.overlapDampening / numberContactsA));
+    }
+
+  }
+
+  private _solveVelocity(contact: CollisionContact, numberContactsA: number, numberContactsB: number) {
+    this._resolveRigidBodyCollision(contact, numberContactsA, numberContactsB);
+  }
+
+  private _resolveRigidBodyCollision(contact: CollisionContact, numberContactsA: number, numberContactsB: number) {
     // perform collision on bounding areas
     const bodyA: BodyComponent = contact.colliderA.owner;
     const bodyB: BodyComponent = contact.colliderB.owner;
-    const mtv = contact.mtv; // normal pointing away from colliderA
+
+    const contactsShare = 1 / (numberContactsA + numberContactsB)
     let normal = contact.normal; // normal pointing away from colliderA
     if (bodyA === bodyB) {
       // sanity check for existing pairs
@@ -221,17 +291,8 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     normal = normal.normalize();
     const tangent = normal.normal().normalize();
 
-    if (bodyA.collisionType === CollisionType.Fixed) {
-      bodyB.addOverlap(mtv);
-    } else if (bodyB.collisionType === CollisionType.Fixed) {
-      bodyA.addOverlap(mtv.negate());
-    } else {
-      // Split the mtv in half for the two bodies, potentially we could do something smarter here
-      bodyB.addOverlap(mtv.scale(0.5 * Physics.overlapDampening));
-      bodyA.addOverlap(mtv.scale(-0.5 * Physics.overlapDampening));
-    }
-
     for (let point of contact.points) {
+      // TODO should this be body center now?
       const ra = point.sub(contact.colliderA.center); // point relative to colliderA position
       const rb = point.sub(contact.colliderB.center); /// point relative to colliderB
 
@@ -257,8 +318,8 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       const impulse =
         -((1 + coefRestitution) * rvNormal) / (invMassA + invMassB + invMoiA * raTangent * raTangent + invMoiB * rbTangent * rbTangent);
 
-      bodyB.applyImpulse(point, normal.scale(impulse * Physics.impulseDampening));
-      bodyA.applyImpulse(point, normal.scale(-impulse * Physics.impulseDampening));
+      bodyB.applyImpulse(point, normal.scale(impulse * contactsShare * Physics.impulseDampening));
+      bodyA.applyImpulse(point, normal.scale(-impulse * contactsShare * Physics.impulseDampening));
 
       // Friction portion of impulse
       if (coefFriction && rvTangent) {
@@ -273,9 +334,9 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
         let frictionImpulse = new Vector(0, 0);
         if (Math.abs(jt) <= impulse * coefFriction) {
-          frictionImpulse = t.scale(jt).negate();
+          frictionImpulse = t.scale(jt * contactsShare).negate();
         } else {
-          frictionImpulse = t.scale(-impulse * coefFriction);
+          frictionImpulse = t.scale(-impulse * coefFriction * contactsShare);
         }
 
         bodyB.applyImpulse(point, frictionImpulse);

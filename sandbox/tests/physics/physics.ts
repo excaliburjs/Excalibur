@@ -9,11 +9,13 @@ game.backgroundColor = ex.Color.Black;
 game.showDebug(true);
 
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
+ex.Physics.collisionPasses = 1;
 ex.Physics.bodiesCanSleepByDefault = true;
 ex.Physics.allowRigidBodyRotation = true;
 ex.Physics.broadphaseDebug = false;
 ex.Physics.showColliderGeometry = true;
 ex.Physics.showMotionVectors = true;
+ex.Physics.showSleepMotion = true;
 ex.Physics.showColliderBounds = true;
 ex.Physics.showContacts = true;
 ex.Physics.showNormals = true;
@@ -29,9 +31,15 @@ folder.add(ex.Physics, 'showColliderGeometry')
 folder.add(ex.Physics, 'showColliderNormals')
 folder.add(ex.Physics, 'showContacts')
 folder.add(ex.Physics, 'showNormals')
+folder.add(ex.Physics, 'showSleepMotion')
 folder.add(ex.Physics, 'showMotionVectors')
 folder.add(ex.Physics, 'broadphaseDebug')
+folder.add(ex.Physics, 'sleepEpsilon', 0.01, 2, .05);
+folder.add(ex.Physics, 'wakeThreshold', 0.01, 2, .05);
 folder.add(ex.Physics, 'collisionPasses', 1, 30, 1);
+folder.add(ex.Physics, 'positionIterations', 1, 30, 1);
+folder.add(ex.Physics, 'overlapDampening', .1, 1, .05);
+folder.add(ex.Physics, 'velocityIterations', 1, 30, 1);
 
 var stats = new Stats();
 stats.showPanel(0);
@@ -63,10 +71,10 @@ function spawnBlock(x: number, y: number) {
   // block.body.addBoxCollider(width + 200, width / 2);
   block.body.addBoxCollider(width / 2, width + 100);
   block.body.events.on('contactstart', (e) => {
-    console.log(e);
+    // console.log(e);
   });
   block.body.events.on('contactend', (e) => {
-    console.log(e);
+    // console.log(e);
   });
 
   block.width = block.body.bounds.width;
@@ -91,10 +99,10 @@ function spawnCircle(x: number, y: number) {
     ex.Util.DrawUtil.circle(ctx, 0, 0, width / 2, color, color);
   };
   circle.body.events.on('contactstart', (e) => {
-    console.count('contactstart');
+    // console.count('contactstart');
   });
   circle.body.events.on('contactend', (e) => {
-    console.count('contactend');
+    // console.count('contactend');
   });
   game.add(circle);
 }

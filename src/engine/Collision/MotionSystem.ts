@@ -58,14 +58,22 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
   debugDraw(ctx: CanvasRenderingContext2D) {
     ctx.save();
     this._camera.draw(ctx);
-    if (Physics.showMotionVectors) {
-      for (let entity of this._entities) {
+    for (let entity of this._entities) {
+      if (Physics.showMotionVectors) {
         DrawUtil.vector(ctx, Color.Yellow, entity.components.transform.pos, entity.components.motion.acc.add(Physics.acc));
         DrawUtil.vector(ctx, Color.Blue, entity.components.transform.pos, entity.components.motion.vel);
         DrawUtil.point(ctx, Color.Red, entity.components.transform.pos);
       }
+      if (Physics.showSleepMotion) {
+        const pos = entity.components.transform.pos;
+        const body = this.getOptional<Body>(entity, 'body');
+        if (body) {
+          ctx.fillStyle = 'yellow';
+          ctx.font = '18px';
+          ctx.fillText(body.sleepmotion.toString(), pos.x, pos.y);
+        }
+      }
     }
-
     ctx.restore();
   }
 

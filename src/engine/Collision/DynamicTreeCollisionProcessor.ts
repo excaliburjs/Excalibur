@@ -223,7 +223,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
         }
     
         if (Physics.showColliderGeometry) {
-          collider.shape.debugDraw(ctx, collider.owner.sleeping ? Color.Gray : Color.Green);
+          collider.shape.debugDraw(ctx, collider.owner.sleeping || collider.owner.collisionType === CollisionType.Fixed ? Color.Gray : Color.Green);
         }
 
         if (Physics.showColliderNormals && collider.shape instanceof ConvexPolygon) {

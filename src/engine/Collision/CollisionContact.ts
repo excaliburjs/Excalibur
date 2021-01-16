@@ -1,5 +1,7 @@
 import { Vector } from '../Algebra';
+import { Physics } from '../Physics';
 import { Collider } from './Collider';
+import { CollisionType } from './CollisionType';
 import { Pair } from './Pair';
 
 /**
@@ -42,12 +44,19 @@ export class CollisionContact {
     this.id = Pair.calculatePairHash(colliderA.owningId, colliderB.owningId);
   }
 
+  /**
+   * Match contact awake state, except if body's are Fixed
+   */
   public matchAwake() {
     if (this.colliderA.owner.sleeping !== this.colliderB.owner.sleeping) {
-      if (this.colliderA.owner.sleeping) {
+      if (this.colliderA.owner.sleeping && 
+          this.colliderA.owner.collisionType !== CollisionType.Fixed && 
+          this.colliderB.owner.sleepmotion >= Physics.wakeThreshold) {
         this.colliderA.owner.setSleeping(false);
       }
-      if (this.colliderB.owner.sleeping) {
+      if (this.colliderB.owner.sleeping && 
+        this.colliderB.owner.collisionType !== CollisionType.Fixed  && 
+        this.colliderA.owner.sleepmotion >= Physics.wakeThreshold) {
         this.colliderB.owner.setSleeping(false);
       }
     } 

@@ -68,9 +68,9 @@ export class Physics {
    * Fewer passes will improve the performance of the game at the cost of collision quality, more passes will improve quality at the
    * cost of performance.
    *
-   * The default is set to 5 passes which is a good start.
+   * The default is set to 1 passes which is a good start.
    */
-  public static collisionPasses = 5;
+  public static collisionPasses = 1;
 
   /**
    * Gets or sets the broadphase pair identification strategy.
@@ -93,6 +93,8 @@ export class Physics {
    * Show the position, velocity, and acceleration as graphical vectors.
    */
   public static showMotionVectors: boolean = false;
+
+  public static showSleepMotion: boolean = false;
   /**
    * Show the axis-aligned bounding boxes of the collision bodies on the screen.
    */
@@ -180,7 +182,11 @@ export class Physics {
    */
   public static boundsPadding = 5;
 
-  public static overlapDampening = 1;
+  public static positionIterations = 10;
+
+  public static velocityIterations = 10;
+
+  public static overlapDampening = .9;
 
   public static impulseDampening = 1;
 
@@ -191,12 +197,11 @@ export class Physics {
    */
   public static surfaceEpsilon = 0.1;
 
-  /**
-   * 
-   */
-  public static sleepEpsilon = 0.1;
+  public static sleepEpsilon = 0.07;
 
-  public static sleepBias = 0.5;
+  public static wakeThreshold = Physics.sleepEpsilon * 1.5;
+
+  public static sleepBias = 0.9;
 
   /**
    * Enable fast moving body checking, this enables checking for collision pairs via raycast for fast moving objects to prevent
