@@ -64,7 +64,7 @@ describe('A TileMap', () => {
       tm.registerSpriteSheet('default', spriteTiles);
       tm.data.forEach(function (cell: ex.Cell) {
         cell.solid = true;
-        cell.pushSprite(new ex.TileSprite('default', 0));
+        cell.pushSprite(spriteTiles.sprites[0]);
       });
 
       drawWithTransform(engine.ctx, tm, 100);
@@ -90,7 +90,7 @@ describe('A TileMap', () => {
       tm.registerSpriteSheet('default', spriteTiles);
       tm.data.forEach(function (cell: ex.Cell) {
         cell.solid = true;
-        cell.pushSprite(new ex.TileSprite('default', 0));
+        cell.pushSprite(spriteTiles.sprites[0]);
       });
 
       tm.update(engine, 100);

@@ -10,6 +10,8 @@ import { Configurable } from './Configurable';
 import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
+import { Sprite } from './Drawing/Index';
+import { removeItemFromArray } from './Util/Util';
 
 /**
  * @hidden
@@ -24,17 +26,61 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
   private _spriteSheets: { [key: string]: SpriteSheet } = {};
   public logger: Logger = Logger.getInstance();
   public data: Cell[] = [];
-  public x: number;
-  public y: number;
-  public z = 0;
   public visible = true;
   public isOffscreen = false;
-  public rotation = 0;
-  public scale = Vector.One;
   public cellWidth: number;
   public cellHeight: number;
   public rows: number;
   public cols: number;
+
+  public get x(): number {
+    return this.components?.transform?.pos.x ?? 0;
+  }
+
+  public set x(val: number) {
+    if (this.components?.transform?.pos) {
+      this.components.transform.pos.x = val;
+    }
+  }
+
+  public get y(): number {
+    return this.components?.transform?.pos.y ?? 0;
+  }
+
+  public set y(val: number) {
+    if (this.components?.transform?.pos) {
+      this.components.transform.pos.y = val;
+    }
+  }
+
+  public get z(): number {
+    return this.components?.transform.z ?? 0;
+  }
+
+  public set z(val: number) {
+    if (this.components?.transform?.z) {
+      this.components.transform.z = val;
+    }
+  }
+
+  public get rotation(): number {
+    return this.components?.transform?.rotation ?? 0;
+  }
+
+  public set rotation(val: number) {
+    if (this.components?.transform?.rotation) {
+      this.components.transform.rotation = val;
+    }
+  }
+
+  public get scale(): Vector {
+    return this.components?.transform?.scale ?? Vector.One;
+  }
+  public set scale(val: Vector) {
+    if (this.components?.transform?.scale) {
+      this.components.transform.scale = val;
+    }
+  }
 
   public get pos(): Vector {
     return vec(this.x, this.y);
@@ -206,28 +252,18 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
     let y = this._onScreenYStart;
     const yEnd = Math.min(this._onScreenYEnd, this.rows);
 
-    let cs: TileSprite[], csi: number, cslen: number;
+    let sprites: Sprite[], spriteIndex: number, cslen: number;
 
     for (x; x < xEnd; x++) {
       for (y; y < yEnd; y++) {
         // get non-negative tile sprites
-        cs = this.getCell(x, y).sprites.filter((s) => {
-          return s.spriteId > -1;
-        });
+        sprites = this.getCell(x, y).sprites;
 
-        for (csi = 0, cslen = cs.length; csi < cslen; csi++) {
-          const ss = this._spriteSheets[cs[csi].spriteSheetKey];
-
+        for (spriteIndex = 0, cslen = sprites.length; spriteIndex < cslen; spriteIndex++) {
           // draw sprite, warning if sprite doesn't exist
-          if (ss) {
-            const sprite = ss.getSprite(cs[csi].spriteId);
-            if (sprite) {
-              sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);
-            } else {
-              this.logger.warn('Sprite does not exist for id', cs[csi].spriteId, 'in sprite sheet', cs[csi].spriteSheetKey, sprite, ss);
-            }
-          } else {
-            this.logger.warn('Sprite sheet', cs[csi].spriteSheetKey, 'does not exist', ss);
+          const sprite = sprites[spriteIndex];
+          if (sprite) {
+            sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);
           }
         }
       }
@@ -303,17 +339,6 @@ export class TileMap extends Configurable(TileMapImpl) {
 }
 
 /**
- * Tile sprites are used to render a specific sprite from a [[TileMap]]'s spritesheet(s)
- */
-export class TileSprite {
-  /**
-   * @param spriteSheetKey  The key of the spritesheet to use
-   * @param spriteId        The index of the sprite in the [[SpriteSheet]]
-   */
-  constructor(public spriteSheetKey: string, public spriteId: number) {}
-}
-
-/**
  * @hidden
  */
 export class CellImpl {
@@ -324,7 +349,7 @@ export class CellImpl {
   public height: number;
   public index: number;
   public solid: boolean = false;
-  public sprites: TileSprite[] = [];
+  public sprites: Sprite[] = [];
 
   /**
    * @param xOrConfig Gets or sets x coordinate of the cell in world coordinates or cell option bag
@@ -342,7 +367,7 @@ export class CellImpl {
     height: number,
     index: number,
     solid: boolean = false,
-    sprites: TileSprite[] = []
+    sprites: Sprite[] = []
   ) {
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
@@ -373,19 +398,16 @@ export class CellImpl {
   }
 
   /**
-   * Add another [[TileSprite]] to this cell
+   * Add another [[Sprite]] to this cell
    */
-  public pushSprite(tileSprite: TileSprite) {
-    this.sprites.push(tileSprite);
+  public pushSprite(sprite: Sprite) {
+    this.sprites.push(sprite);
   }
   /**
-   * Remove an instance of [[TileSprite]] from this cell
+   * Remove an instance of [[Sprite]] from this cell
    */
-  public removeSprite(tileSprite: TileSprite) {
-    let index = -1;
-    if ((index = this.sprites.indexOf(tileSprite)) > -1) {
-      this.sprites.splice(index, 1);
-    }
+  public removeSprite(sprite: Sprite) {
+    removeItemFromArray(sprite, this.sprites);
   }
   /**
    * Clear all sprites from this cell
@@ -402,7 +424,7 @@ export interface CellArgs extends Partial<CellImpl> {
   height: number;
   index: number;
   solid?: boolean;
-  sprites?: TileSprite[];
+  sprites?: Sprite[];
 }
 
 /**
@@ -417,7 +439,7 @@ export interface CellArgs extends Partial<CellImpl> {
  */
 export class Cell extends Configurable(CellImpl) {
   constructor(config: CellArgs);
-  constructor(x: number, y: number, width: number, height: number, index: number, solid?: boolean, sprites?: TileSprite[]);
+  constructor(x: number, y: number, width: number, height: number, index: number, solid?: boolean, sprites?: Sprite[]);
   constructor(
     xOrConfig: number | CellArgs,
     y?: number,
@@ -425,7 +447,7 @@ export class Cell extends Configurable(CellImpl) {
     height?: number,
     index?: number,
     solid?: boolean,
-    sprites?: TileSprite[]
+    sprites?: Sprite[]
   ) {
     super(xOrConfig, y, width, height, index, solid, sprites);
   }

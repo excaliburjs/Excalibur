@@ -18,17 +18,18 @@ export class SpriteImpl implements Drawable {
   public y: number = 0;
 
   public get drawWidth(): number {
-    return this.width * this.scale.x;
+    return Math.abs(this.width * this.scale.x);
   }
 
   public get drawHeight(): number {
-    return this.height * this.scale.y;
+    return Math.abs(this.height * this.scale.y);
   }
 
   public rotation: number = 0.0;
-  public anchor: Vector = new Vector(0.0, 0.0);
+  public anchor: Vector = Vector.Half;
   public offset: Vector = Vector.Zero;
   public scale: Vector = Vector.One;
+  public fromAnchor = false;
 
   public logger: Logger = Logger.getInstance();
 
@@ -265,7 +266,6 @@ export class SpriteImpl implements Drawable {
   }
 
   private _applyEffects() {
-
     this._flushTexture();
 
     if (this.effects.length > 0) {
@@ -337,8 +337,8 @@ export class SpriteImpl implements Drawable {
     const { ctx, x, y, rotation, drawWidth, drawHeight, anchor, offset, opacity, flipHorizontal, flipVertical } = {
       ...options,
       rotation: options.rotation ?? this.rotation,
-      drawWidth: options.drawWidth ?? this.drawWidth,
-      drawHeight: options.drawHeight ?? this.drawHeight,
+      drawWidth: options.drawWidth ?? this.width,
+      drawHeight: options.drawHeight ?? this.height,
       flipHorizontal: options.flipHorizontal ?? this.flipHorizontal,
       flipVertical: options.flipVertical ?? this.flipVertical,
       anchor: options.anchor ?? this.anchor,
@@ -349,13 +349,18 @@ export class SpriteImpl implements Drawable {
     if (this._dirtyEffect) {
       this._applyEffects();
     }
-
     // calculating current dimensions
-    ctx.save();
     const xpoint = drawWidth * anchor.x + offset.x;
     const ypoint = drawHeight * anchor.y + offset.y;
-    ctx.translate(x, y);
+    ctx.save();
+    // Move the draw point of origin
+    ctx.translate(x - (this.fromAnchor ? xpoint : 0), y - (this.fromAnchor ? ypoint : 0));
+
+    // Rotate and scale around anchor point
+    ctx.translate(xpoint, ypoint);
     ctx.rotate(rotation);
+    ctx.scale(this.scale.x, this.scale.y);
+    ctx.translate(-xpoint, -ypoint);
 
     if (flipHorizontal) {
       ctx.translate(drawWidth, 0);
@@ -366,12 +371,10 @@ export class SpriteImpl implements Drawable {
       ctx.translate(0, drawHeight);
       ctx.scale(1, -1);
     }
-
     const oldAlpha = ctx.globalAlpha;
-    ctx.globalAlpha = opacity ?? 1;
-    ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, -xpoint, -ypoint, drawWidth, drawHeight);
+    ctx.globalAlpha = opacity !== null && opacity !== void 0 ? opacity : 1;
+    ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, 0, 0, drawWidth, drawHeight);
     ctx.globalAlpha = oldAlpha;
-
     ctx.restore();
   }
 
@@ -380,6 +383,7 @@ export class SpriteImpl implements Drawable {
    */
   public clone(): SpriteImpl {
     const result = new Sprite(this._texture, this.x, this.y, this.width, this.height);
+    result.anchor = this.anchor.clone();
     result.scale = this.scale.clone();
     result.rotation = this.rotation;
     result.flipHorizontal = this.flipHorizontal;

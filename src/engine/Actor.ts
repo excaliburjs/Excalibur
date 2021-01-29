@@ -1219,8 +1219,8 @@ export class ActorImpl
     if (this.currentDrawing) {
       const drawing = this.currentDrawing;
       // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-      const offsetX = (this._width - drawing.width * drawing.scale.x) * this.anchor.x;
-      const offsetY = (this._height - drawing.height * drawing.scale.y) * this.anchor.y;
+      const offsetX = (this._width - drawing.drawWidth) * this.anchor.x;
+      const offsetY = (this._height - drawing.drawHeight) * this.anchor.y;
 
       this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
     } else {

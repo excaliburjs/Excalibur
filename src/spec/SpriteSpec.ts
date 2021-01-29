@@ -82,7 +82,7 @@ describe('A sprite', () => {
         anchor: new ex.Vector(0.5, 0.5)
       });
 
-      sprite.draw(engine.ctx, 62 / 2, 64 / 2);
+      sprite.draw(engine.ctx, 0, 0);
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/iconscale.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
@@ -100,12 +100,79 @@ describe('A sprite', () => {
         width: 62,
         height: 64,
         rotation: Math.PI / 4,
-        anchor: new ex.Vector(0.5, 0.5)
+        anchor: new ex.Vector(0.5, 0.5),
+        fromAnchor: true
       });
 
       sprite.draw(engine.ctx, 62 / 2, 64 / 2);
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/iconrotate.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+  });
+
+  it('should rotate around center and draw fromAnchor top-left', (done) => {
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        rotation: Math.PI / 4,
+        anchor: new ex.Vector(0.5, 0.5),
+        fromAnchor: false
+      });
+
+      sprite.draw(engine.ctx, 0, 0);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/iconrotate.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+  });
+
+  it('should flipHorizontally', (done) => {
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        anchor: new ex.Vector(0.5, 0.5)
+      });
+
+      sprite.flipHorizontal = true;
+
+      sprite.draw(engine.ctx, 0, 0);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/icon-horiz-flip.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+  });
+
+  it('should flipVertically', (done) => {
+    texture.load().then(() => {
+      const sprite = new ex.Sprite({
+        image: texture,
+        x: 0,
+        y: 0,
+        width: 62,
+        height: 64,
+        anchor: new ex.Vector(0.5, 0.5)
+      });
+
+      sprite.flipVertical = true;
+
+      sprite.draw(engine.ctx, 0, 0);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/icon-vert-flip.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
       });
