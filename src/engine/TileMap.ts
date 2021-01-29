@@ -12,6 +12,7 @@ import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { Sprite } from './Drawing/Index';
 import { removeItemFromArray } from './Util/Util';
+import { obsolete } from './Util/Decorators';
 
 /**
  * @hidden
@@ -139,6 +140,14 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
   }
 
+
+  /**
+   *
+   * @param key
+   * @param spriteSheet
+   * @deprecated No longer used, will be removed in v0.26.0
+   */
+  @obsolete({message: 'No longer used, will be removed in v0.26.0'})
   public registerSpriteSheet(key: string, spriteSheet: SpriteSheet) {
     this._spriteSheets[key] = spriteSheet;
   }
@@ -399,10 +408,21 @@ export class CellImpl {
 
   /**
    * Add another [[Sprite]] to this cell
+   * @deprecated Use addSprite, will be removed in v0.26.0
    */
+  @obsolete({message: 'Will be removed in v0.26.0', alternateMethod: 'addSprite'})
   public pushSprite(sprite: Sprite) {
     this.sprites.push(sprite);
   }
+
+  /**
+   * Add another [[Sprite]] to this TileMap cell
+   * @param sprite
+   */
+  public addSprite(sprite: Sprite) {
+    this.sprites.push(sprite);
+  }
+
   /**
    * Remove an instance of [[Sprite]] from this cell
    */
