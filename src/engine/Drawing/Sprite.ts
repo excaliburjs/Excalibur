@@ -29,7 +29,11 @@ export class SpriteImpl implements Drawable {
   public anchor: Vector = Vector.Half;
   public offset: Vector = Vector.Zero;
   public scale: Vector = Vector.One;
-  public fromAnchor = false;
+  /**
+   * Default: false, should the sprite be drawn around the anchor or from the top left.
+   * Sprite rotations/scaling still happen around the anchor regardless of this setting.
+   */
+  public drawAroundAnchor = false;
 
   public logger: Logger = Logger.getInstance();
 
@@ -354,7 +358,7 @@ export class SpriteImpl implements Drawable {
     const ypoint = drawHeight * anchor.y + offset.y;
     ctx.save();
     // Move the draw point of origin
-    ctx.translate(x - (this.fromAnchor ? xpoint : 0), y - (this.fromAnchor ? ypoint : 0));
+    ctx.translate(x - (this.drawAroundAnchor ? xpoint : 0), y - (this.drawAroundAnchor ? ypoint : 0));
 
     // Rotate and scale around anchor point
     ctx.translate(xpoint, ypoint);
@@ -372,7 +376,7 @@ export class SpriteImpl implements Drawable {
       ctx.scale(1, -1);
     }
     const oldAlpha = ctx.globalAlpha;
-    ctx.globalAlpha = opacity !== null && opacity !== void 0 ? opacity : 1;
+    ctx.globalAlpha = opacity ?? 1;
     ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, 0, 0, drawWidth, drawHeight);
     ctx.globalAlpha = oldAlpha;
     ctx.restore();

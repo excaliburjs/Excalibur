@@ -101,7 +101,7 @@ describe('A sprite', () => {
         height: 64,
         rotation: Math.PI / 4,
         anchor: new ex.Vector(0.5, 0.5),
-        fromAnchor: true
+        drawAroundAnchor: true
       });
 
       sprite.draw(engine.ctx, 62 / 2, 64 / 2);
@@ -113,7 +113,7 @@ describe('A sprite', () => {
     });
   });
 
-  it('should rotate around center and draw fromAnchor top-left', (done) => {
+  it('should rotate around center and draw drawAroundAnchor top-left', (done) => {
     texture.load().then(() => {
       const sprite = new ex.Sprite({
         image: texture,
@@ -123,7 +123,7 @@ describe('A sprite', () => {
         height: 64,
         rotation: Math.PI / 4,
         anchor: new ex.Vector(0.5, 0.5),
-        fromAnchor: false
+        drawAroundAnchor: false
       });
 
       sprite.draw(engine.ctx, 0, 0);

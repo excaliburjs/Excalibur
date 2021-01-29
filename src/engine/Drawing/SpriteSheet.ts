@@ -383,14 +383,14 @@ export class SpriteFontImpl extends SpriteSheet {
       try {
         // if text shadow
         if (this._textShadowOn) {
-          this._textShadowSprites[character].fromAnchor = false;
+          this._textShadowSprites[character].drawAroundAnchor = false;
           this._textShadowSprites[character].scale.x = scale;
           this._textShadowSprites[character].scale.y = scale;
           this._textShadowSprites[character].draw(ctx, currX + this._shadowOffsetX, currY + this._shadowOffsetY);
         }
 
         const charSprite = this._sprites[character];
-        charSprite.fromAnchor = false;
+        charSprite.drawAroundAnchor = false;
         charSprite.scale.x = scale;
         charSprite.scale.y = scale;
         charSprite.draw(ctx, currX, currY);

@@ -39,6 +39,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed issues with `Sprite` not rotating/scaling correctly around the anchor (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
+  - Optionally specify whether to draw around the anchor or not `drawAroundAnchor`
 - Fixed in the browser "FullScreen" api, coordinates are now correctly mapped from page space to world space ([#1734](https://github.com/excaliburjs/Excalibur/issues/1734))
 - Fix audio decoding bug introduced in https://github.com/excaliburjs/Excalibur/pull/1707
 - Fixed issue with promise resolve on double resource load ([#1434](https://github.com/excaliburjs/Excalibur/issues/1434))
