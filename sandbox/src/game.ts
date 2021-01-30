@@ -579,7 +579,7 @@ game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
       c.sprites.pop();
     } else {
       c.solid = true;
-      c.addSprite(spriteTiles[0]);
+      c.addSprite(spriteTiles.sprites[0]);
     }
   }
 });
