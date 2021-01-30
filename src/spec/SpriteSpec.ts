@@ -79,10 +79,11 @@ describe('A sprite', () => {
         width: 62,
         height: 64,
         scale: new ex.Vector(2, 2),
-        anchor: new ex.Vector(0.5, 0.5)
+        anchor: new ex.Vector(0.5, 0.5),
+        drawAroundAnchor: true
       });
 
-      sprite.draw(engine.ctx, 0, 0);
+      sprite.draw(engine.ctx, 62 / 2, 64 / 2);
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/iconscale.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
