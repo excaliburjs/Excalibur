@@ -354,17 +354,30 @@ export class SpriteImpl implements Drawable {
       this._applyEffects();
     }
     // calculating current dimensions
-    const xpoint = drawWidth * anchor.x + offset.x;
-    const ypoint = drawHeight * anchor.y + offset.y;
+    const anchorX = drawWidth * anchor.x + offset.x;
+    const anchorY = drawHeight * anchor.y + offset.y;
+    const scaleDirX = this.scale.x > 0 ? 1 : -1;
+    const scaleDirY = this.scale.y > 0 ? 1 : -1;
+
     ctx.save();
     // Move the draw point of origin
-    ctx.translate(x - (this.drawAroundAnchor ? xpoint : 0), y - (this.drawAroundAnchor ? ypoint : 0));
+    ctx.translate(x, y);
 
     // Rotate and scale around anchor point
-    ctx.translate(xpoint, ypoint);
+    // This requires a bit of explaination, scale coordinates first positive flipping or rotating
+    ctx.scale(Math.abs(this.scale.x), Math.abs(this.scale.y));
+
+    if (this.drawAroundAnchor) {
+      // In the case where you want the anchor to match with the point of draw
+      // Otherwise sprites are always drawn from top-left
+      ctx.translate(-anchorX, -anchorY);
+    }
+
+    ctx.translate(anchorX, anchorY);
     ctx.rotate(rotation);
-    ctx.scale(this.scale.x, this.scale.y);
-    ctx.translate(-xpoint, -ypoint);
+    // This is for handling direction changes 1 or -1, that way we don't have mismatched translates()
+    ctx.scale(scaleDirX, scaleDirY);
+    ctx.translate(-anchorX, -anchorY);
 
     if (flipHorizontal) {
       ctx.translate(drawWidth, 0);
@@ -377,7 +390,18 @@ export class SpriteImpl implements Drawable {
     }
     const oldAlpha = ctx.globalAlpha;
     ctx.globalAlpha = opacity ?? 1;
-    ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, 0, 0, drawWidth, drawHeight);
+    // Context is already rotated and scaled
+    ctx.drawImage(
+      this._spriteCanvas,
+      0,
+      0,
+      this.width,
+      this.height, // source
+      0,
+      0,
+      this.width,
+      this.height
+    ); // dest
     ctx.globalAlpha = oldAlpha;
     ctx.restore();
   }
