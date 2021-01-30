@@ -28,12 +28,10 @@ var tm = new ex.TileMap({
   rows: 40
 });
 
-var tilesprite = new ex.TileSprite('root', 0);
-
-tm.registerSpriteSheet('root', ss);
+var tilesprite = ss.sprites[0];
 
 for (var i = 0; i < tm.rows * tm.cols; i++) {
-  tm.getCellByIndex(i).pushSprite(tilesprite);
+  tm.getCellByIndex(i).addSprite(tilesprite);
 }
 
 game.add(tm);

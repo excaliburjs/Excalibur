@@ -152,10 +152,9 @@ var tileBlockWidth = 64,
 // create a collision map
 //var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
 var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
-tileMap.registerSpriteSheet('default', spriteTiles);
 tileMap.data.forEach(function(cell: ex.Cell) {
   cell.solid = true;
-  cell.pushSprite(new ex.TileSprite('default', 0));
+  cell.addSprite(spriteTiles.sprites[0]);
 });
 game.add(tileMap);
 
@@ -580,7 +579,7 @@ game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
       c.sprites.pop();
     } else {
       c.solid = true;
-      c.pushSprite(new ex.TileSprite('default', 0));
+      c.addSprite(spriteTiles.sprites[0]);
     }
   }
 });

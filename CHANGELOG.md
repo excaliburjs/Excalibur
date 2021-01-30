@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- TileMap no longer needs registered SpriteSheets, `Sprite`'s can be added directly to `Cell`'s with `addSprite`
+  - The confusing `TileSprite` type is removed (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
 - Directly changing debug drawing by `engine.isDebug = value` has been replaced by `engine.showDebug(value)` and `engine.toggleDebug()` ([#1655](https://github.com/excaliburjs/Excalibur/issues/1655))
 - `UIActor` Class instances need to be replaced to `ScreenElement` (This Class it's marked as Obsolete) ([#1656](https://github.com/excaliburjs/Excalibur/issues/1656))
 - Switch to browser based promise, the Excalibur implementation `ex.Promise` is marked deprecated ([#994](https://github.com/excaliburjs/Excalibur/issues/994))
@@ -29,7 +31,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Deprecated
 
 - Removed UIActor Stub in favor of ScreenElement ([#1656](https://github.com/excaliburjs/Excalibur/issues/1656))
-- `ex.SortedList` as deprecated 
+- `ex.SortedList` as deprecated
 - `ex.Promise` is marked deprecated ([#994](https://github.com/excaliburjs/Excalibur/issues/994))
 - `DisplayMode.Position` CSS can accomplish this task better than Excalibur ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
 
@@ -37,6 +39,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issues with `Sprite` not rotating/scaling correctly around the anchor (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
+  - Optionally specify whether to draw around the anchor or not `drawAroundAnchor`
 - Fixed in the browser "FullScreen" api, coordinates are now correctly mapped from page space to world space ([#1734](https://github.com/excaliburjs/Excalibur/issues/1734))
 - Fix audio decoding bug introduced in https://github.com/excaliburjs/Excalibur/pull/1707
 - Fixed issue with promise resolve on double resource load ([#1434](https://github.com/excaliburjs/Excalibur/issues/1434))
