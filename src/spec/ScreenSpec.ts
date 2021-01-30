@@ -42,12 +42,12 @@ describe('A Screen', () => {
     expect(sut.aspectRatio).toBe(800/600);
   });
 
-  it('can use fullscreen display mode, the viewport will adjust to it width', () => {
+  it('can use fit display mode, the viewport will adjust to it width', () => {
     const sut = new ex.Screen({
       canvas,
       context,
       browser,
-      displayMode: ex.DisplayMode.FullScreen,
+      displayMode: ex.DisplayMode.Fit,
       viewport: { width: 800, height: 600 }
     });
 
@@ -67,7 +67,7 @@ describe('A Screen', () => {
       canvas,
       context,
       browser,
-      displayMode: ex.DisplayMode.FullScreen,
+      displayMode: ex.DisplayMode.Fit,
       viewport: { width: 800, height: 600 }
     });
 
@@ -82,12 +82,12 @@ describe('A Screen', () => {
     expect(sut.viewport.height).toBe(800);
   });
 
-  it('can use dynamic display mode, the viewport and resolution adjust to match', () => {
+  it('can use fill display mode, the viewport and resolution adjust to match', () => {
     const sut = new ex.Screen({
       canvas,
       context,
       browser,
-      displayMode: ex.DisplayMode.Dynamic,
+      displayMode: ex.DisplayMode.Fill,
       viewport: { width: 800, height: 600 }
     });
 
@@ -109,7 +109,7 @@ describe('A Screen', () => {
       canvas,
       context,
       browser,
-      displayMode: ex.DisplayMode.FullScreen,
+      displayMode: ex.DisplayMode.Fit,
       viewport: { width: 800, height: 600 }
     });
 
@@ -130,7 +130,7 @@ describe('A Screen', () => {
       canvas,
       context,
       browser,
-      displayMode: ex.DisplayMode.FullScreen,
+      displayMode: ex.DisplayMode.Fit,
       viewport: { width: 800, height: 600 }
     });
 
@@ -151,7 +151,7 @@ describe('A Screen', () => {
       canvas,
       context,
       browser,
-      displayMode: ex.DisplayMode.FullScreen,
+      displayMode: ex.DisplayMode.Fit,
       viewport: { width: 800, height: 600 }
     });
 

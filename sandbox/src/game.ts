@@ -42,7 +42,7 @@ var fullscreenButton = document.getElementById('fullscreen') as HTMLButtonElemen
 var game = new ex.Engine({
   width: 800,
   height: 600,
-  displayMode: ex.DisplayMode.FullScreen,
+  displayMode: ex.DisplayMode.Fill,
   antialiasing: false,
   canvasElementId: 'game',
   suppressHiDPIScaling: false,

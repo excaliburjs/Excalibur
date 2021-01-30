@@ -552,8 +552,8 @@ O|===|* >________________>\n\
       }
       this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
     } else if (!options.displayMode) {
-      this._logger.debug('Engine viewport is fullscreen');
-      displayMode = DisplayMode.FullScreen;
+      this._logger.debug('Engine viewport is fit');
+      displayMode = DisplayMode.Fit;
     }
 
     // eslint-disable-next-line
