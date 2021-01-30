@@ -10,7 +10,7 @@ import { getPosition } from './Util/Util';
  */
 export enum DisplayMode {
   /**
-   * Use as much space as possible that still fits in the screen while maintaining aspect ratio and resolution.
+   * Fit to screen using as much space as possible while maintaining aspect ratio and resolution.
    * This is not the same as [[Screen.goFullScreen]]
    *
    * You may want to center your game here is an example
@@ -35,13 +35,13 @@ export enum DisplayMode {
    * ```
    *
    */
-  FullScreen = 'FullScreen',
+  Fit = 'Fit',
 
   /**
-   * Use the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will
-   * change dynamically as the window is resized This is not the same as [[Screen.goFullScreen]]
+   * Fill the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will
+   * change dynamically as the window is resized. This is not the same as [[Screen.goFullScreen]]
    */
-  Dynamic = 'Dynamic',
+  Fill = 'Fill',
 
   /**
    * Default, use a specified resolution for the game. Like 800x600 pixels for example.
@@ -359,7 +359,8 @@ export class Screen {
   }
 
   /**
-   * Requests to go fullscreen using the browser fullscreen api
+   * Requests to go fullscreen using the browser fullscreen api, requires user interaction to be successful.
+   * For example, wire this to a user click handler.
    */
   public goFullScreen(): Promise<void> {
     return this._canvas.requestFullscreen();
@@ -573,7 +574,7 @@ export class Screen {
     return this.drawHeight / 2;
   }
 
-  private _computeFullScreen() {
+  private _computeFit() {
     document.body.style.margin = '0px';
     document.body.style.overflow = 'hidden';
     const aspect = this.aspectRatio;
@@ -594,8 +595,8 @@ export class Screen {
   }
 
   private _applyDisplayMode() {
-    if (this.displayMode === DisplayMode.FullScreen ||
-        this.displayMode === DisplayMode.Dynamic ||
+    if (this.displayMode === DisplayMode.Fit ||
+        this.displayMode === DisplayMode.Fill ||
         this.displayMode === DisplayMode.Container) {
       const parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
 
@@ -620,7 +621,7 @@ export class Screen {
       this.viewport = this.resolution;
     }
 
-    if (this.displayMode === DisplayMode.Dynamic) {
+    if (this.displayMode === DisplayMode.Fill) {
       document.body.style.margin = '0px';
       document.body.style.overflow = 'hidden';
       this.resolution = {
@@ -631,8 +632,8 @@ export class Screen {
       this.viewport = this.resolution;
     }
 
-    if (this.displayMode === DisplayMode.FullScreen) {
-      this._computeFullScreen();
+    if (this.displayMode === DisplayMode.Fit) {
+      this._computeFit();
     }
   }
 
