@@ -338,6 +338,7 @@ export class LabelImpl extends Actor {
 
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     ctx.save();
+    super._predraw(ctx, delta);
     if (this._textShadowOn) {
       ctx.save();
       ctx.translate(this._shadowOffsetX, this._shadowOffsetY);
@@ -346,8 +347,8 @@ export class LabelImpl extends Actor {
     }
     this._fontDraw(ctx);
 
-    super.draw(ctx, delta);
     ctx.restore();
+    super._postdraw(ctx, delta);
   }
 
   private _fontDraw(ctx: CanvasRenderingContext2D) {
@@ -371,6 +372,7 @@ export class LabelImpl extends Actor {
       }
       ctx.fillStyle = this.color.toString();
       ctx.font = this._fontString;
+
       if (this.maxWidth) {
         ctx.fillText(this.text, 0, 0, this.maxWidth);
       } else {
