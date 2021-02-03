@@ -19,7 +19,8 @@ export class SpriteSheetImpl {
   public rows: number = 0;
   public spWidth: number = 0;
   public spHeight: number = 0;
-  public spacing: number = 0;
+  public spacing: number | SpriteSheetSpacingDimensions = 0;
+
   /**
    * @param imageOrConfigOrSprites The backing image texture to build the SpriteSheet, option bag, or sprite list
    * @param columns   The number of columns in the image texture
@@ -34,7 +35,7 @@ export class SpriteSheetImpl {
     rows?: number,
     spWidth?: number,
     spHeight?: number,
-    spacing?: number
+    spacing?: number | SpriteSheetSpacingDimensions
   ) {
     let loadFromImage: boolean = false;
     if (imageOrConfigOrSprites instanceof Array) {
@@ -84,17 +85,39 @@ export class SpriteSheetImpl {
     }
 
     if (loadFromImage) {
-      for (let i = 0; i < this.rows; i++) {
-        for (let j = 0; j < this.columns; j++) {
-          this.sprites[j + i * this.columns] = new Sprite(
+      const spacing = this.getSpacingDimensions();
+
+      for (let row = 0; row < this.rows; row++) {
+        for (let col = 0; col < this.columns; col++) {
+          this.sprites[col + row * this.columns] = new Sprite(
             this.image,
-            j * this.spWidth + this.spacing * j + this.spacing,
-            i * this.spHeight + this.spacing * i + this.spacing,
+            col * this.spWidth + spacing.margin * col + spacing.left,
+            row * this.spHeight + spacing.margin * row + spacing.top,
             this.spWidth,
             this.spHeight
           );
         }
       }
+    }
+  }
+
+  /**
+   * Gets the calculated spacing dimensions based on whether spacing
+   * is a fixed number or has different values for each dimension
+   */
+  public getSpacingDimensions(): SpriteSheetSpacingDimensions {
+    if (typeof this.spacing === 'number') {
+      return {
+        left: this.spacing,
+        top: this.spacing,
+        margin: this.spacing
+      };
+    } else {
+      return {
+        left: this.spacing.left ?? 0,
+        top: this.spacing.top ?? 0,
+        margin: this.spacing.margin ?? 0
+      };
     }
   }
 
@@ -195,7 +218,13 @@ export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
   spHeight: number;
   rows: number;
   columns: number;
-  spacing?: number;
+  spacing?: number | SpriteSheetSpacingDimensions;
+}
+
+export interface SpriteSheetSpacingDimensions {
+  top?: number;
+  left?: number;
+  margin?: number;
 }
 
 /**
