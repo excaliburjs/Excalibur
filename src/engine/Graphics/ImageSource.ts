@@ -2,8 +2,10 @@ import { Resource } from '../Resources/Resource';
 import { Texture } from '../Resources/Texture';
 import { TextureLoader } from './Context/texture-loader';
 import { Sprite } from './Sprite';
+import { Loadable } from '../Interfaces/Index';
 
-export class ImageSource extends Resource<string> {
+export class ImageSource implements Loadable<HTMLImageElement> {
+  private _resource: Resource<Blob>;
   /**
    * Unique id of raw image
    */
@@ -23,10 +25,23 @@ export class ImageSource extends Resource<string> {
     return this.image.naturalHeight;
   }
 
+
+  private _loaded = false;
+  /**
+   * Returns true if the Texture is completely loaded and is ready
+   * to be drawn.
+   */
+  public isLoaded(): boolean {
+    return this._loaded;
+  }
+
   /**
    * Access to the underlying html image elmeent
    */
-  public image: HTMLImageElement = new Image();
+  public data: HTMLImageElement = new Image();
+  public get image(): HTMLImageElement {
+    return this.data;
+  }
 
   /**
    * Promise the resolves when the image is loaded and ready for use, does not initiate loading
@@ -39,47 +54,43 @@ export class ImageSource extends Resource<string> {
    * @param path
    */
   constructor(public readonly path: string, bustCache: boolean = false) {
-    super(path, 'blob', bustCache);
+    this._resource = new Resource(path, 'blob', bustCache);
     this.ready = new Promise<HTMLImageElement>((resolve) => {
       this._loadedResolve = resolve;
     });
   }
 
   /**
-   * Image is already encoded
-   * @param path
-   */
-  private _isDataUrl(path: string) {
-    return path.indexOf('data:image/') > -1;
-  }
-
-  private _resolveWhenLoaded(resolve: (value: HTMLImageElement) => void) {
-    this.image.addEventListener('load', () => {
-      resolve(this.image);
-      this._loadedResolve(this.image);
-    });
-  }
-
-  /**
    * Begins loading the image and returns a promise that resolves when the image is loaded
    */
-  load(): Promise<HTMLImageElement> {
-    return new Promise((resolve, _reject) => {
-      if (this.isLoaded()) {
-        resolve(this.image);
-        return;
+  async load(): Promise<HTMLImageElement> {
+    if (this.isLoaded()) {
+      return this.data;
+    }
+    try {
+      // Load base64 or blob if needed
+      let url: string;
+      if (!this.path.includes('data:image/')) {
+        const blob = await this._resource.load();
+        url = URL.createObjectURL(blob);
+      } else {
+        url = this.path;
       }
 
-      this._resolveWhenLoaded(resolve);
-      if (this._isDataUrl(this.path)) {
-        this.data = this.path;
-        this.image.src = this.path;
-      } else {
-        super.load().then(() => {
-          this.image.src = super.getData();
-        });
-      }
-    });
+      // Decode the image
+      const image = new Image();
+      image.src = url;
+      await image.decode();
+
+      // Set results
+      this.data = image;
+      this._loaded = true;
+    } catch {
+      await Promise.reject('Error loading texture');
+    }
+    // todo emit complete
+    this._loadedResolve(this.data);
+    return this.data;
   }
 
   /**
@@ -96,11 +107,9 @@ export class ImageSource extends Resource<string> {
   public static fromLegacyTexture(tex: Texture): ImageSource {
     const image = new ImageSource(tex.path);
     if (tex.isLoaded()) {
-      image.image = tex.image;
       image.data = tex.data;
     } else {
       tex.loaded.then(() => {
-        image.image = tex.image;
         image.data = tex.data;
       });
     }
@@ -111,7 +120,6 @@ export class ImageSource extends Resource<string> {
    * Unload images from memory
    */
   unload(): void {
-    this.data = null;
-    this.image = new Image();
+    this.data = new Image();
   }
 }
