@@ -258,7 +258,14 @@ export interface SpriteSheetSpacingDimensions {
 export class SpriteSheet extends Configurable(SpriteSheetImpl) {
   constructor(config: SpriteSheetArgs);
   constructor(sprites: Sprite[]);
-  constructor(image: Texture, columns: number, rows: number, spWidth: number, spHeight: number);
+  constructor(
+    image: Texture,
+    columns: number,
+    rows: number,
+    spWidth: number,
+    spHeight: number,
+    spacing?: number | SpriteSheetSpacingDimensions
+  );
   constructor(
     imageOrConfigOrSprites: Texture | SpriteSheetArgs | Sprite[],
     columns?: number,
