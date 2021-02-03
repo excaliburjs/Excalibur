@@ -21,6 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Color now can parse RGB/A string using Color.fromRGBString('rgb(255, 255, 255)') or Color.fromRGBString('rgb(255, 255, 255, 1)')
 - `DisplayMode.Fit` will now scale the game to fit the available space, preserving the `aspectRatio`. ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
 - `SpriteSheet.spacing` now accepts a structure `{ top: number, left: number, margin: number }` for custom spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
+- Add `SpriteSheet.getSpacingDimensions()` method to retrieve calculated spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
 
 ### Changed
 
