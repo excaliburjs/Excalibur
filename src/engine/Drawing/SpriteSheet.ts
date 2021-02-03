@@ -19,7 +19,8 @@ export class SpriteSheetImpl {
   public rows: number = 0;
   public spWidth: number = 0;
   public spHeight: number = 0;
-  public spacing: number | SpriteSheetSpacingDimensions = 0;
+
+  private _spacing: number | SpriteSheetSpacingDimensions = 0;
 
   /**
    * @param imageOrConfigOrSprites The backing image texture to build the SpriteSheet, option bag, or sprite list
@@ -47,14 +48,14 @@ export class SpriteSheetImpl {
         this.spWidth = imageOrConfigOrSprites.spWidth;
         this.spHeight = imageOrConfigOrSprites.spHeight;
         this.image = imageOrConfigOrSprites.image;
-        this.spacing = imageOrConfigOrSprites.spacing || 0;
+        this._spacing = imageOrConfigOrSprites.spacing || 0;
       } else {
         this.image = <Texture>imageOrConfigOrSprites;
         this.columns = columns;
         this.rows = rows;
         this.spWidth = spWidth;
         this.spHeight = spHeight;
-        this.spacing = spacing || 0;
+        this._spacing = spacing || 0;
       }
       this.sprites = new Array(this.columns * this.rows);
       loadFromImage = true;
@@ -85,20 +86,23 @@ export class SpriteSheetImpl {
     }
 
     if (loadFromImage) {
-      const spacing = this.getSpacingDimensions();
-
-      for (let row = 0; row < this.rows; row++) {
-        for (let col = 0; col < this.columns; col++) {
-          this.sprites[col + row * this.columns] = new Sprite(
-            this.image,
-            col * this.spWidth + spacing.margin * col + spacing.left,
-            row * this.spHeight + spacing.margin * row + spacing.top,
-            this.spWidth,
-            this.spHeight
-          );
-        }
-      }
+      this._buildSpritesArray();
     }
+  }
+
+  /**
+   * Gets the raw spacing dimensions for the sprites in the sheet, which can be a fixed number or custom dimensions.
+   */
+  get spacing() {
+    return this._spacing;
+  }
+
+  /**
+   * Adjust the spacing of the spritesheet to the given spacing
+   */
+  set spacing(value: number | SpriteSheetSpacingDimensions) {
+    this._spacing = value;
+    this._buildSpritesArray();
   }
 
   /**
@@ -209,6 +213,25 @@ export class SpriteSheetImpl {
     anim.drawHeight = maxHeight;
     return anim;
   }
+
+  /**
+   * Builds sprites array with dimensions and spacing for loaded image
+   */
+  private _buildSpritesArray() {
+    const spacing = this.getSpacingDimensions();
+
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.columns; col++) {
+        this.sprites[col + row * this.columns] = new Sprite(
+          this.image,
+          col * this.spWidth + spacing.margin * col + spacing.left,
+          row * this.spHeight + spacing.margin * row + spacing.top,
+          this.spWidth,
+          this.spHeight
+        );
+      }
+    }
+  }
 }
 
 export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
@@ -242,7 +265,7 @@ export class SpriteSheet extends Configurable(SpriteSheetImpl) {
     rows?: number,
     spWidth?: number,
     spHeight?: number,
-    spacing?: number
+    spacing?: number | SpriteSheetSpacingDimensions
   ) {
     super(imageOrConfigOrSprites, columns, rows, spWidth, spHeight, spacing);
   }
