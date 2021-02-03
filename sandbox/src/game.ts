@@ -36,6 +36,8 @@
 var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
+var fullscreenButton = document.getElementById('fullscreen') as HTMLButtonElement;
+
 // Create an the game container
 ex.Flags.enable('use-webgl');
 var game = new ex.Engine({
@@ -48,7 +50,14 @@ var game = new ex.Engine({
   antialiasing: false,
   snapToPixel: true
 });
-game.setAntialiasing(false);
+
+fullscreenButton.addEventListener('click', () => {
+  if (game.screen.isFullScreen) {
+    game.screen.exitFullScreen();
+  } else {
+    game.screen.goFullScreen();
+  }
+});
 game.showDebug(true);
 
 var heartTex = new ex.Graphics.ImageSource('../images/heart.png');
@@ -231,6 +240,34 @@ game.add(heart);
 var label = new ex.Label('Test Label', 200, 200);
 game.add(label);
 
+
+var pointer = new ex.Actor({
+  width: 25,
+  height: 25,
+  color: ex.Color.Red
+});
+game.add(pointer);
+var otherPointer = new ex.ScreenElement({
+  width: 15,
+  height: 15,
+  color: ex.Color.Blue
+});
+var pagePointer = document.getElementById('page') as HTMLDivElement;
+otherPointer.anchor.setTo(.5, .5);
+game.add(otherPointer);
+game.input.pointers.primary.on('move', (ev) => {
+   pointer.pos = ev.worldPos;
+   otherPointer.pos = game.screen.worldToScreenCoordinates(ev.worldPos);
+   let pagePos = game.screen.screenToPageCoordinates(otherPointer.pos);
+   pagePointer.style.left = pagePos.x + 'px';
+   pagePointer.style.top = pagePos.y + 'px';
+});
+
+game.input.pointers.primary.on('wheel', (ev) => {
+  pointer.pos.setTo(ev.x, ev.y);
+  game.currentScene.camera.z += (ev.deltaY / 1000);
+  game.currentScene.camera.z = ex.Util.clamp(game.currentScene.camera.z, .05, 100);
+})
 // Turn on debug diagnostics
 game.showDebug(false);
 var blockSpriteLegacy = new ex.Sprite(imageBlocksLegacy, 0, 0, 65, 49);
@@ -269,11 +306,10 @@ var tileBlockWidth = 64,
 // create a collision map
 // var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
 var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
-tileMap.registerSpriteSheet('default', spriteTiles);
 var blocks = ex.Graphics.Sprite.from(imageBlocks);
 tileMap.data.forEach(function(cell: ex.Cell) {
   cell.solid = true;
-  cell.pushSprite(new ex.TileSprite('default', 0));
+  cell.addSprite(spriteTiles.sprites[0]);
 });
 game.add(tileMap);
 
@@ -687,7 +723,7 @@ game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
       c.sprites.pop();
     } else {
       c.solid = true;
-      c.pushSprite(new ex.TileSprite('default', 0));
+      c.addSprite(spriteTiles.sprites[0]);
     }
   }
 });

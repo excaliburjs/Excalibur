@@ -470,3 +470,15 @@ export function fail(message: never): never {
  * @param to inclusive
  */
 export const range = (from: number, to: number) => Array.from(new Array(to - from + 1), (_x, i) => i + from);
+
+/**
+ * Create a promise that resolves after a certain number of milliseconds
+ * @param milliseconds
+ */
+export function delay(milliseconds: number): Promise<void> {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, milliseconds);
+  });
+}

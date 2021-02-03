@@ -27,7 +27,7 @@ export * from './Loader';
 export { Particle, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterType } from './Particles';
 export * from './Physics';
 export * from './Scene';
-export { TileMap, Cell, TileMapArgs, CellArgs, TileSprite } from './TileMap';
+export { TileMap, Cell, TileMapArgs, CellArgs } from './TileMap';
 export * from './Timer';
 export * from './Trigger';
 export * from './ScreenElement';

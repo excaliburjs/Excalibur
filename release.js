@@ -26,8 +26,6 @@ async function main() {
   if (answer) {
     console.log(`Cleaning dist 🧹`);
     console.log(execSync(`npm run clean`).toString());
-    console.log(`Cloning dist repo 🤖`);
-    console.log(execSync(`git clone https://github.com/excaliburjs/excalibur-dist build`).toString());
 
     console.log(`Rebuilding with version v${version} 🔨`);
     process.env.GH_TOKEN = `v${version}`;
@@ -66,23 +64,6 @@ async function main() {
     ).toString();
     console.log(releaseUrl);
     console.log(execSync(`"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe" ${releaseUrl}`));
-
-    const releaseUrlDist = execSync(
-      [
-        'cd ./build && ',
-        'hub release create -d',
-        '--file ../pending-release.md',
-        '--attach ./dist/excalibur.js',
-        '--attach ./dist/excalibur.d.ts',
-        '--attach ./dist/excalibur.min.js',
-        '--attach ./dist/excalibur.min.js.map',
-        `--attach ./dist/Excalibur.${version}.nupkg`,
-        `--attach ./dist.${version}.zip`,
-        `v${version}`
-      ].join(' ')
-    ).toString();
-    console.log(releaseUrlDist);
-    console.log(execSync(`"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe" ${releaseUrlDist}`));
   } else {
     console.log('Abort!');
     rl.close();

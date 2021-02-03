@@ -31,9 +31,6 @@ child_process.execSync(
     ' --name "Excalibur.js ' +
     title +
     ' API Documentation"' +
-    ' --target es5' +
-    ' --experimentalDecorators' +
-    ' --mode modules' +
     ' --readme src/engine/Docs/Index.md' +
     ' --includes src/engine/Docs' +
     ' --out docs/api' +

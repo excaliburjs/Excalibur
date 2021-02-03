@@ -561,8 +561,8 @@ O|===|* >________________>\n\
       }
       this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
     } else if (!options.displayMode) {
-      this._logger.debug('Engine viewport is fullscreen');
-      displayMode = DisplayMode.FullScreen;
+      this._logger.debug('Engine viewport is fit');
+      displayMode = DisplayMode.Fit;
     }
 
     if (Flags.isEnabled('use-webgl')) {
@@ -1237,8 +1237,8 @@ O|===|* >________________>\n\
    * will appear.
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
-  public load(loader: Loadable): Promise<any> {
-    const complete = new Promise<any>((resolve) => {
+  public load(loader: Loadable<any>): Promise<void> {
+    const complete = new Promise<void>((resolve) => {
       this._isLoading = true;
 
       loader.load().then(() => {

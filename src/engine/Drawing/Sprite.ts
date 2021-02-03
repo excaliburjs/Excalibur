@@ -20,17 +20,22 @@ export class SpriteImpl implements Drawable {
   public y: number = 0;
 
   public get drawWidth(): number {
-    return this.width * this.scale.x;
+    return Math.abs(this.width * this.scale.x);
   }
 
   public get drawHeight(): number {
-    return this.height * this.scale.y;
+    return Math.abs(this.height * this.scale.y);
   }
 
   public rotation: number = 0.0;
-  public anchor: Vector = new Vector(0.0, 0.0);
+  public anchor: Vector = Vector.Half;
   public offset: Vector = Vector.Zero;
   public scale: Vector = Vector.One;
+  /**
+   * Default: false, should the sprite be drawn around the anchor or from the top left.
+   * Sprite rotations/scaling still happen around the anchor regardless of this setting.
+   */
+  public drawAroundAnchor = false;
 
   public logger: Logger = Logger.getInstance();
 
@@ -267,7 +272,6 @@ export class SpriteImpl implements Drawable {
   }
 
   private _applyEffects() {
-
     this._flushTexture();
 
     if (this.effects.length > 0) {
@@ -339,8 +343,8 @@ export class SpriteImpl implements Drawable {
     const { ctx, x, y, rotation, drawWidth, drawHeight, anchor, offset, opacity, flipHorizontal, flipVertical } = {
       ...options,
       rotation: options.rotation ?? this.rotation,
-      drawWidth: options.drawWidth ?? this.drawWidth,
-      drawHeight: options.drawHeight ?? this.drawHeight,
+      drawWidth: options.drawWidth ?? this.width,
+      drawHeight: options.drawHeight ?? this.height,
       flipHorizontal: options.flipHorizontal ?? this.flipHorizontal,
       flipVertical: options.flipVertical ?? this.flipVertical,
       anchor: options.anchor ?? this.anchor,
@@ -351,13 +355,31 @@ export class SpriteImpl implements Drawable {
     if (this._dirtyEffect) {
       this._applyEffects();
     }
-
     // calculating current dimensions
+    const anchorX = drawWidth * anchor.x + offset.x;
+    const anchorY = drawHeight * anchor.y + offset.y;
+    const scaleDirX = this.scale.x > 0 ? 1 : -1;
+    const scaleDirY = this.scale.y > 0 ? 1 : -1;
+
     ctx.save();
-    const xpoint = drawWidth * anchor.x + offset.x;
-    const ypoint = drawHeight * anchor.y + offset.y;
+    // Move the draw point of origin
     ctx.translate(x, y);
+
+    // Rotate and scale around anchor point
+    // This requires a bit of explaination, scale coordinates first positive flipping or rotating
+    ctx.scale(Math.abs(this.scale.x), Math.abs(this.scale.y));
+
+    if (this.drawAroundAnchor) {
+      // In the case where you want the anchor to match with the point of draw
+      // Otherwise sprites are always drawn from top-left
+      ctx.translate(-anchorX, -anchorY);
+    }
+
+    ctx.translate(anchorX, anchorY);
     ctx.rotate(rotation);
+    // This is for handling direction changes 1 or -1, that way we don't have mismatched translates()
+    ctx.scale(scaleDirX, scaleDirY);
+    ctx.translate(-anchorX, -anchorY);
 
     if (flipHorizontal) {
       ctx.translate(drawWidth, 0);
@@ -368,12 +390,21 @@ export class SpriteImpl implements Drawable {
       ctx.translate(0, drawHeight);
       ctx.scale(1, -1);
     }
-
     const oldAlpha = ctx.globalAlpha;
     ctx.globalAlpha = opacity ?? 1;
-    ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, -xpoint, -ypoint, drawWidth, drawHeight);
+    // Context is already rotated and scaled
+    ctx.drawImage(
+      this._spriteCanvas,
+      0,
+      0,
+      this.width,
+      this.height, // source
+      0,
+      0,
+      this.width,
+      this.height
+    ); // dest
     ctx.globalAlpha = oldAlpha;
-
     ctx.restore();
   }
 
@@ -382,6 +413,7 @@ export class SpriteImpl implements Drawable {
    */
   public clone(): SpriteImpl {
     const result = new Sprite(this._texture, this.x, this.y, this.width, this.height);
+    result.anchor = this.anchor.clone();
     result.scale = this.scale.clone();
     result.rotation = this.rotation;
     result.flipHorizontal = this.flipHorizontal;

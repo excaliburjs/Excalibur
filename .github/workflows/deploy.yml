@@ -1,0 +1,49 @@
+name: Deploy
+on: workflow_dispatch
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+jobs:
+  build:
+    runs-on: [ubuntu-latest]
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+        fetch-depth: 100
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        registry-url: 'https://registry.npmjs.org'
+    - uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+    - run: sudo gem install sass -v 3.4.24
+    - run: npm ci
+    - run: npm run linux:ci
+  deploy:
+    name: Publish NPM Package
+    runs-on: [ubuntu-latest]
+    needs: build
+    if: github.ref != 'refs/heads/main'
+    steps:
+      - run: echo 'publishing alpha package'
+      - run: echo "alpha_version=$(node -e "console.log(require('./version').getCiVersion(null, false));")" >> $GITHUB_ENV
+      - run: echo $alpha_version
+      - run: npm --no-git-tag-version version $alpha_version
+      - run: npm publish --tag next
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - run: echo 'TODO publish real package'
+      # - run: npm publish --tag next

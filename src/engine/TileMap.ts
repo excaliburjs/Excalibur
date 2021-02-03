@@ -12,6 +12,9 @@ import { TransformComponent } from './EntityComponentSystem/Components/Transform
 import { ExcaliburGraphicsContext, GraphicsComponent } from './Graphics';
 import * as Graphics from './Graphics';
 import { CanvasDrawComponent } from './Drawing/Index';
+import { Sprite as LegacySprite } from './Drawing/Index';
+import { removeItemFromArray } from './Util/Util';
+import { obsolete } from './Util/Decorators';
 
 /**
  * @hidden
@@ -27,19 +30,61 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
   private _graphicsContext: ExcaliburGraphicsContext;
   public logger: Logger = Logger.getInstance();
   public data: Cell[] = [];
-  public x: number;
-  public y: number;
-  public z = 0;
-  public rotation = 0;
-  public scale = Vector.One;
+  public visible = true;
+  public isOffscreen = false;
   public cellWidth: number;
   public cellHeight: number;
   public rows: number;
   public cols: number;
 
-  // These two are required for the CanvasDrawingSystem to process
-  public visible = true;
-  public isOffScreen = false;
+  public get x(): number {
+    return this.components?.transform?.pos.x ?? 0;
+  }
+
+  public set x(val: number) {
+    if (this.components?.transform?.pos) {
+      this.components.transform.pos.x = val;
+    }
+  }
+
+  public get y(): number {
+    return this.components?.transform?.pos.y ?? 0;
+  }
+
+  public set y(val: number) {
+    if (this.components?.transform?.pos) {
+      this.components.transform.pos.y = val;
+    }
+  }
+
+  public get z(): number {
+    return this.components?.transform.z ?? 0;
+  }
+
+  public set z(val: number) {
+    if (this.components?.transform?.z) {
+      this.components.transform.z = val;
+    }
+  }
+
+  public get rotation(): number {
+    return this.components?.transform?.rotation ?? 0;
+  }
+
+  public set rotation(val: number) {
+    if (this.components?.transform?.rotation) {
+      this.components.transform.rotation = val;
+    }
+  }
+
+  public get scale(): Vector {
+    return this.components?.transform?.scale ?? Vector.One;
+  }
+  public set scale(val: Vector) {
+    if (this.components?.transform?.scale) {
+      this.components.transform.scale = val;
+    }
+  }
 
   public get pos(): Vector {
     return vec(this.x, this.y);
@@ -114,8 +159,15 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
     this._graphicsContext = engine.graphicsContext;
   }
 
+  /**
+   *
+   * @param key
+   * @param spriteSheet
+   * @deprecated No longer used, will be removed in v0.26.0
+   */
   public registerSpriteSheet(key: string, spriteSheet: SpriteSheet): void;
   public registerSpriteSheet(key: string, spriteSheet: Graphics.SpriteSheet): void;
+  @obsolete({message: 'No longer used, will be removed in v0.26.0'})
   public registerSpriteSheet(key: string, spriteSheet: SpriteSheet | Graphics.SpriteSheet): void {
     if (spriteSheet instanceof Graphics.SpriteSheet) {
       this._spriteSheets[key] = spriteSheet;
@@ -208,8 +260,9 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
 
-    const worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
-    const worldCoordsLowerRight = engine.screenToWorldCoordinates(new Vector(engine.canvas.clientWidth, engine.canvas.clientHeight));
+    const worldBounds = engine.getWorldBounds();
+    const worldCoordsUpperLeft = vec(worldBounds.left, worldBounds.top);
+    const worldCoordsLowerRight = vec(worldBounds.right, worldBounds.bottom);
 
     this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - this.x) / this.cellWidth) - 2, 0);
     this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
@@ -234,28 +287,18 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
     let y = this._onScreenYStart;
     const yEnd = Math.min(this._onScreenYEnd, this.rows);
 
-    let cs: TileSprite[], csi: number, cslen: number;
+    let sprites: Graphics.Sprite[], spriteIndex: number, cslen: number;
 
     for (x; x < xEnd; x++) {
       for (y; y < yEnd; y++) {
         // get non-negative tile sprites
-        cs = this.getCell(x, y).sprites.filter((s) => {
-          return s.spriteId > -1;
-        });
+        sprites = this.getCell(x, y).sprites;
 
-        for (csi = 0, cslen = cs.length; csi < cslen; csi++) {
-          const ss = this._spriteSheets[cs[csi].spriteSheetKey];
-
+        for (spriteIndex = 0, cslen = sprites.length; spriteIndex < cslen; spriteIndex++) {
           // draw sprite, warning if sprite doesn't exist
-          if (ss) {
-            const sprite = ss.sprites[cs[csi].spriteId];
-            if (sprite) {
-              sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);
-            } else {
-              this.logger.warn('Sprite does not exist for id', cs[csi].spriteId, 'in sprite sheet', cs[csi].spriteSheetKey, sprite, ss);
-            }
-          } else {
-            this.logger.warn('Sprite sheet', cs[csi].spriteSheetKey, 'does not exist', ss);
+          const sprite = sprites[spriteIndex];
+          if (sprite) {
+            sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);
           }
         }
       }
@@ -331,17 +374,6 @@ export class TileMap extends Configurable(TileMapImpl) {
 }
 
 /**
- * Tile sprites are used to render a specific sprite from a [[TileMap]]'s spritesheet(s)
- */
-export class TileSprite {
-  /**
-   * @param spriteSheetKey  The key of the spritesheet to use
-   * @param spriteId        The index of the sprite in the [[SpriteSheet]]
-   */
-  constructor(public spriteSheetKey: string, public spriteId: number) {}
-}
-
-/**
  * @hidden
  */
 export class CellImpl extends Entity<TransformComponent | GraphicsComponent> {
@@ -352,7 +384,7 @@ export class CellImpl extends Entity<TransformComponent | GraphicsComponent> {
   public height: number;
   public index: number;
   public solid: boolean = false;
-  public sprites: TileSprite[] = [];
+  public sprites: Graphics.Sprite[] = [];
 
   // public transform: TransformComponent;
   // public graphics: GraphicsComponent;
@@ -373,7 +405,7 @@ export class CellImpl extends Entity<TransformComponent | GraphicsComponent> {
     height: number,
     index: number,
     solid: boolean = false,
-    sprites: TileSprite[] = []
+    sprites: Graphics.Sprite[] = []
   ) {
     super();
     if (xOrConfig && typeof xOrConfig === 'object') {
@@ -405,19 +437,31 @@ export class CellImpl extends Entity<TransformComponent | GraphicsComponent> {
   }
 
   /**
-   * Add another [[TileSprite]] to this cell
+   * Add another [[Sprite]] to this cell
+   * @deprecated Use addSprite, will be removed in v0.26.0
    */
-  public pushSprite(tileSprite: TileSprite) {
-    this.sprites.push(tileSprite);
+  @obsolete({message: 'Will be removed in v0.26.0', alternateMethod: 'addSprite'})
+  public pushSprite(sprite: Graphics.Sprite | LegacySprite) {
+    this.addSprite(sprite);
   }
+
   /**
-   * Remove an instance of [[TileSprite]] from this cell
+   * Add another [[Sprite]] to this TileMap cell
+   * @param sprite
    */
-  public removeSprite(tileSprite: TileSprite) {
-    let index = -1;
-    if ((index = this.sprites.indexOf(tileSprite)) > -1) {
-      this.sprites.splice(index, 1);
+  public addSprite(sprite: Graphics.Sprite | LegacySprite) {
+    if (sprite instanceof LegacySprite) {
+      this.sprites.push(Graphics.Sprite.fromLegacySprite(sprite));
+    } else {
+      this.sprites.push(sprite);
     }
+  }
+
+  /**
+   * Remove an instance of [[Sprite]] from this cell
+   */
+  public removeSprite(sprite: Graphics.Sprite | LegacySprite) {
+    removeItemFromArray(sprite, this.sprites);
   }
   /**
    * Clear all sprites from this cell
@@ -434,7 +478,7 @@ export interface CellArgs extends Partial<CellImpl> {
   height: number;
   index: number;
   solid?: boolean;
-  sprites?: TileSprite[];
+  sprites?: Graphics.Sprite[];
 }
 
 /**
@@ -449,7 +493,7 @@ export interface CellArgs extends Partial<CellImpl> {
  */
 export class Cell extends Configurable(CellImpl) {
   constructor(config: CellArgs);
-  constructor(x: number, y: number, width: number, height: number, index: number, solid?: boolean, sprites?: TileSprite[]);
+  constructor(x: number, y: number, width: number, height: number, index: number, solid?: boolean, sprites?: Graphics.Sprite[]);
   constructor(
     xOrConfig: number | CellArgs,
     y?: number,
@@ -457,7 +501,7 @@ export class Cell extends Configurable(CellImpl) {
     height?: number,
     index?: number,
     solid?: boolean,
-    sprites?: TileSprite[]
+    sprites?: Graphics.Sprite[]
   ) {
     super(xOrConfig, y, width, height, index, solid, sprites);
   }

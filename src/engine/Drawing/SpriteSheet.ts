@@ -112,7 +112,7 @@ export class SpriteSheetImpl {
       return this.sprites[index];
     });
 
-    images = images.map(function(i) {
+    images = images.map(function (i) {
       return i.clone();
     });
     return new Animation(engine, images, speed);
@@ -129,7 +129,7 @@ export class SpriteSheetImpl {
    */
   public getAnimationBetween(engine: Engine, beginIndex: number, endIndex: number, speed: number) {
     let images = this.sprites.slice(beginIndex, endIndex);
-    images = images.map(function(i) {
+    images = images.map(function (i) {
       return i.clone();
     });
     return new Animation(engine, images, speed);
@@ -142,7 +142,7 @@ export class SpriteSheetImpl {
    * @param speed   The number in milliseconds to display each frame the animation
    */
   public getAnimationForAll(engine: Engine, speed: number) {
-    const sprites = this.sprites.map(function(i) {
+    const sprites = this.sprites.map(function (i) {
       return i.clone();
     });
     return new Animation(engine, sprites, speed);
@@ -267,8 +267,8 @@ export class SpriteFontImpl extends SpriteSheet {
     spacing?: number
   ) {
     super(
-      imageOrConfig instanceof Texture ?
-        {
+      imageOrConfig instanceof Texture
+        ? {
           image: imageOrConfig,
           spWidth: spWidth,
           spHeight: spHeight,
@@ -359,12 +359,12 @@ export class SpriteFontImpl extends SpriteSheet {
     const sprite = this.sprites[0];
 
     // find the current height fo the text in pixels
-    const height = sprite.drawHeight;
+    const height = sprite.height;
 
     // calculate appropriate scale for font size
     const scale = options.fontSize / height;
 
-    const length = text.length * sprite.drawWidth * scale + text.length * options.letterSpacing;
+    const length = text.length * sprite.width * scale + text.length * options.letterSpacing;
 
     let currX = x;
     if (options.textAlign === TextAlign.Left || options.textAlign === TextAlign.Start) {
@@ -396,12 +396,14 @@ export class SpriteFontImpl extends SpriteSheet {
       try {
         // if text shadow
         if (this._textShadowOn) {
+          this._textShadowSprites[character].drawAroundAnchor = false;
           this._textShadowSprites[character].scale.x = scale;
           this._textShadowSprites[character].scale.y = scale;
           this._textShadowSprites[character].draw(ctx, currX + this._shadowOffsetX, currY + this._shadowOffsetY);
         }
 
         const charSprite = this._sprites[character];
+        charSprite.drawAroundAnchor = false;
         charSprite.scale.x = scale;
         charSprite.scale.y = scale;
         charSprite.draw(ctx, currX, currY);

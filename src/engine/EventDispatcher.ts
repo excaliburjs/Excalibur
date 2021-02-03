@@ -37,8 +37,11 @@ export class EventDispatcher<T = any> implements Eventable {
     if (!event) {
       event = new GameEvent();
     }
-    event.target = target;
-
+    try {
+      event.target = target;
+    } catch {
+      // pass
+    }
     let i: number, len: number;
 
     if (this._handlers[eventName]) {
@@ -113,7 +116,11 @@ export class EventDispatcher<T = any> implements Eventable {
   public once(eventName: string, handler: (event: GameEvent<T>) => void) {
     const metaHandler = (event: GameEvent<T>) => {
       const ev = event || new GameEvent();
-      ev.target = ev.target || this._target;
+      try {
+        ev.target = ev.target || this._target;
+      } catch {
+        // pass
+      }
 
       this.off(eventName, handler);
       handler.call(ev.target, ev);
