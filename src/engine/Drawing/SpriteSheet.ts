@@ -13,13 +13,12 @@ import { Configurable } from '../Configurable';
  * @hidden
  */
 export class SpriteSheetImpl {
-  public sprites: Sprite[] = [];
-  public image: Texture = null;
-  public columns: number = 0;
-  public rows: number = 0;
-  public spWidth: number = 0;
-  public spHeight: number = 0;
-
+  private _sprites: Sprite[] = [];
+  private _image: Texture | null = null;
+  private _columns: number = 0;
+  private _rows: number = 0;
+  private _spWidth: number = 0;
+  private _spHeight: number = 0;
   private _spacing: number | SpriteSheetSpacingDimensions = 0;
 
   /**
@@ -40,24 +39,24 @@ export class SpriteSheetImpl {
   ) {
     let loadFromImage: boolean = false;
     if (imageOrConfigOrSprites instanceof Array) {
-      this.sprites = imageOrConfigOrSprites;
+      this._sprites = imageOrConfigOrSprites;
     } else {
       if (imageOrConfigOrSprites && !(imageOrConfigOrSprites instanceof Texture)) {
-        this.columns = imageOrConfigOrSprites.columns;
-        this.rows = imageOrConfigOrSprites.rows;
-        this.spWidth = imageOrConfigOrSprites.spWidth;
-        this.spHeight = imageOrConfigOrSprites.spHeight;
-        this.image = imageOrConfigOrSprites.image;
+        this._columns = imageOrConfigOrSprites.columns;
+        this._rows = imageOrConfigOrSprites.rows;
+        this._spWidth = imageOrConfigOrSprites.spWidth;
+        this._spHeight = imageOrConfigOrSprites.spHeight;
+        this._image = imageOrConfigOrSprites.image;
         this._spacing = imageOrConfigOrSprites.spacing || 0;
       } else {
-        this.image = <Texture>imageOrConfigOrSprites;
-        this.columns = columns;
-        this.rows = rows;
-        this.spWidth = spWidth;
-        this.spHeight = spHeight;
+        this._image = <Texture>imageOrConfigOrSprites;
+        this._columns = columns;
+        this._rows = rows;
+        this._spWidth = spWidth;
+        this._spHeight = spHeight;
         this._spacing = spacing || 0;
       }
-      this.sprites = new Array(this.columns * this.rows);
+      this._sprites = new Array(this._columns * this._rows);
       loadFromImage = true;
     }
 
@@ -86,23 +85,69 @@ export class SpriteSheetImpl {
     }
 
     if (loadFromImage) {
-      this._buildSpritesArray();
+      const spacing = this.getSpacingDimensions();
+
+      for (let row = 0; row < this.rows; row++) {
+        for (let col = 0; col < this.columns; col++) {
+          this.sprites[col + row * this.columns] = new Sprite(
+            this.image,
+            col * this.spWidth + spacing.margin * col + spacing.left,
+            row * this.spHeight + spacing.margin * row + spacing.top,
+            this.spWidth,
+            this.spHeight
+          );
+        }
+      }
     }
   }
 
   /**
    * Gets the raw spacing dimensions for the sprites in the sheet, which can be a fixed number or custom dimensions.
    */
-  get spacing() {
+  public get spacing() {
     return this._spacing;
   }
 
   /**
-   * Adjust the spacing of the spritesheet to the given spacing
+   * Get a copy of the backing sprite array
    */
-  set spacing(value: number | SpriteSheetSpacingDimensions) {
-    this._spacing = value;
-    this._buildSpritesArray();
+  public get sprites() {
+    return [...this._sprites];
+  }
+
+  /**
+   * The backing texture used for the sprite sheet
+   */
+  public get image() {
+    return this._image;
+  }
+
+  /**
+   * The number of columns in the sheet
+   */
+  public get columns() {
+    return this._columns;
+  }
+
+  /**
+   * The number of rows in the sheet
+   */
+  public get rows() {
+    return this._rows;
+  }
+
+  /**
+   * The width of the individual sprites
+   */
+  public get spWidth() {
+    return this._spWidth;
+  }
+
+  /**
+   * The height of the individual sprites
+   */
+  public get spHeight() {
+    return this._spHeight;
   }
 
   /**
@@ -212,25 +257,6 @@ export class SpriteSheetImpl {
     anim.drawWidth = maxWidth;
     anim.drawHeight = maxHeight;
     return anim;
-  }
-
-  /**
-   * Builds sprites array with dimensions and spacing for loaded image
-   */
-  private _buildSpritesArray() {
-    const spacing = this.getSpacingDimensions();
-
-    for (let row = 0; row < this.rows; row++) {
-      for (let col = 0; col < this.columns; col++) {
-        this.sprites[col + row * this.columns] = new Sprite(
-          this.image,
-          col * this.spWidth + spacing.margin * col + spacing.left,
-          row * this.spHeight + spacing.margin * row + spacing.top,
-          this.spWidth,
-          this.spHeight
-        );
-      }
-    }
   }
 }
 

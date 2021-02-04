@@ -21,6 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Color now can parse RGB/A string using Color.fromRGBString('rgb(255, 255, 255)') or Color.fromRGBString('rgb(255, 255, 255, 1)')
 - `DisplayMode.Fit` will now scale the game to fit the available space, preserving the `aspectRatio`. ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
 - `SpriteSheet.spacing` now accepts a structure `{ top: number, left: number, margin: number }` for custom spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
+- `SpriteSheet.ctor` now has an overload that accepts `spacing` for consistency although the object constructor is recommended ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
 - Add `SpriteSheet.getSpacingDimensions()` method to retrieve calculated spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
 
 ### Changed
@@ -29,6 +30,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Adds `ex.World` to encapsulate all things ECS
   - Adds `ex.CanvasDrawSystem` to handle all HTML Canvas 2D drawing via ECS
   - Updates `ex.Actor` to use new `ex.TransformComponent` and `ex.CanvasDrawComponent`
+- `SpriteSheet` now is immutable after creation. The following properties are read-only: `columns`, `rows`, `spWidth`, `spHeight`, `image`, `sprites` and `spacing`.
 
 ### Deprecated
 
