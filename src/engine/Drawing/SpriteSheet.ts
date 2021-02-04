@@ -307,7 +307,7 @@ export class SpriteSheet extends Configurable(SpriteSheetImpl) {
 export class SpriteFontImpl extends SpriteSheet {
   private _currentColor: Color = Color.Black;
   private _currentOpacity: Number = 1.0;
-  private _sprites: { [key: string]: Sprite } = {};
+  private _spriteRecord: Record<string, Sprite> = {};
 
   // text shadow
   private _textShadowOn: boolean = false;
@@ -358,7 +358,7 @@ export class SpriteFontImpl extends SpriteSheet {
 
     this._alphabet = alphabet;
     this._caseInsensitive = caseInsensitive;
-    this._sprites = this.getTextSprites();
+    this._spriteRecord = this.getTextSprites();
   }
 
   /**
@@ -388,8 +388,8 @@ export class SpriteFontImpl extends SpriteSheet {
     this._shadowOffsetY = offsetY;
     this._textShadowColor = shadowColor.clone();
     this._textShadowDirty = true;
-    for (const character in this._sprites) {
-      this._textShadowSprites[character] = this._sprites[character].clone();
+    for (const character in this._spriteRecord) {
+      this._textShadowSprites[character] = this._spriteRecord[character].clone();
     }
   }
 
@@ -412,10 +412,10 @@ export class SpriteFontImpl extends SpriteSheet {
     if (this._currentColor.toString() !== options.color.toString() || this._currentOpacity !== options.opacity) {
       this._currentOpacity = options.opacity;
       this._currentColor = options.color;
-      for (const char in this._sprites) {
-        this._sprites[char].clearEffects();
-        this._sprites[char].fill(options.color);
-        this._sprites[char].opacity(options.opacity);
+      for (const char in this._spriteRecord) {
+        this._spriteRecord[char].clearEffects();
+        this._spriteRecord[char].fill(options.color);
+        this._spriteRecord[char].opacity(options.opacity);
       }
     }
 
@@ -474,7 +474,7 @@ export class SpriteFontImpl extends SpriteSheet {
           this._textShadowSprites[character].draw(ctx, currX + this._shadowOffsetX, currY + this._shadowOffsetY);
         }
 
-        const charSprite = this._sprites[character];
+        const charSprite = this._spriteRecord[character];
         charSprite.drawAroundAnchor = false;
         charSprite.scale.x = scale;
         charSprite.scale.y = scale;
