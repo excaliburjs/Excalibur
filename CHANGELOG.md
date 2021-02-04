@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Switch to browser based promise, the Excalibur implementation `ex.Promise` is marked deprecated ([#994](https://github.com/excaliburjs/Excalibur/issues/994))
 - `DisplayMode.Fill` now does what `DisplayMode.FullScreen` used to do, the resolution and viewport dynamically adjust to fit the available space, DOES NOT preserve `aspectRatio` ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
 - `DisplayMode.FullScreen` is now removed, use `Screen.goFullScreen()`.
+- `SpriteSheet` now is immutable after creation to reduce chance of bugs if you modified a public field. The following properties are read-only: `columns`, `rows`, `spWidth`, `spHeight`, `image`, `sprites` and `spacing`.
 
 ### Added
 
@@ -30,7 +31,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Adds `ex.World` to encapsulate all things ECS
   - Adds `ex.CanvasDrawSystem` to handle all HTML Canvas 2D drawing via ECS
   - Updates `ex.Actor` to use new `ex.TransformComponent` and `ex.CanvasDrawComponent`
-- `SpriteSheet` now is immutable after creation. The following properties are read-only: `columns`, `rows`, `spWidth`, `spHeight`, `image`, `sprites` and `spacing`.
 
 ### Deprecated
 
