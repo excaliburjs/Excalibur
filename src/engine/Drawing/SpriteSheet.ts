@@ -7,7 +7,6 @@ import { Texture } from '../Resources/Texture';
 import { Engine } from '../Engine';
 import { Logger } from '../Util/Log';
 import { TextAlign, BaseAlign } from '../Label';
-import { Configurable } from '../Configurable';
 
 export interface SpriteSheetArgs {
   image: Texture;
