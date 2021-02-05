@@ -1,5 +1,7 @@
 name: Deploy
-on: workflow_dispatch
+on:
+  push:
+    branches: [ main ]
 
 env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -9,7 +11,6 @@ jobs:
   deploy_alpha:
     name: Publish alpha npm package
     runs-on: [ubuntu-latest]
-    if: github.ref == 'refs/heads/main'
 
     strategy:
       matrix:
@@ -37,7 +38,7 @@ jobs:
     - run: echo "alpha_version=$(node -e "console.log(require('./version').getCiVersion(null, false));")" >> $GITHUB_ENV
     - run: echo $alpha_version
     - run: npm --no-git-tag-version version $alpha_version
-    - run: npm publish --tag next --dry-run
+    - run: npm publish --tag next
 
   # deploy_final:
   #   name: Publish alpha NPM Package
