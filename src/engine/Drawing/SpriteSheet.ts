@@ -9,10 +9,28 @@ import { Logger } from '../Util/Log';
 import { TextAlign, BaseAlign } from '../Label';
 import { Configurable } from '../Configurable';
 
+export interface SpriteSheetArgs {
+  image: Texture;
+  sprites?: Sprite[];
+  spWidth: number;
+  spHeight: number;
+  rows: number;
+  columns: number;
+  spacing?: number | SpriteSheetSpacingDimensions;
+}
+
+export interface SpriteSheetSpacingDimensions {
+  top?: number;
+  left?: number;
+  margin?: number;
+}
+
 /**
- * @hidden
+ * Sprite sheets are a useful mechanism for slicing up image resources into
+ * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
+ * in row major order in the [[SpriteSheet]].
  */
-export class SpriteSheetImpl {
+export class SpriteSheet {
   private _sprites: Sprite[] = [];
   private _image: Texture | null = null;
   private _columns: number = 0;
@@ -20,6 +38,33 @@ export class SpriteSheetImpl {
   private _spWidth: number = 0;
   private _spHeight: number = 0;
   private _spacing: number | SpriteSheetSpacingDimensions = 0;
+
+  /**
+   * @param config    The configuration of the SpriteSheet
+   */
+  constructor(config: SpriteSheetArgs);
+
+  /**
+   * @param sprites   The backing sprite array to use, if already available
+   */
+  constructor(sprites: Sprite[]);
+
+  /**
+   * @param image     The backing image texture to build the SpriteSheet
+   * @param columns   The number of columns in the image texture
+   * @param rows      The number of rows in the image texture
+   * @param spWidth   The width of each individual sprite in pixels
+   * @param spHeight  The height of each individual sprite in pixels
+   * @param spacing   The spacing between every sprite in a spritesheet
+   */
+  constructor(
+    image: Texture,
+    columns: number,
+    rows: number,
+    spWidth: number,
+    spHeight: number,
+    spacing?: number | SpriteSheetSpacingDimensions
+  );
 
   /**
    * @param imageOrConfigOrSprites The backing image texture to build the SpriteSheet, option bag, or sprite list
@@ -89,7 +134,7 @@ export class SpriteSheetImpl {
 
       for (let row = 0; row < this.rows; row++) {
         for (let col = 0; col < this.columns; col++) {
-          this.sprites[col + row * this.columns] = new Sprite(
+          this._sprites[col + row * this.columns] = new Sprite(
             this.image,
             col * this.spWidth + spacing.margin * col + spacing.left,
             row * this.spHeight + spacing.margin * row + spacing.top,
@@ -260,51 +305,31 @@ export class SpriteSheetImpl {
   }
 }
 
-export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
-  image: Texture;
-  sprites?: Sprite[];
-  spWidth: number;
-  spHeight: number;
-  rows: number;
-  columns: number;
-  spacing?: number | SpriteSheetSpacingDimensions;
+/**
+ * Specify various font attributes for sprite fonts
+ */
+export interface SpriteFontOptions {
+  color?: Color;
+  opacity?: number;
+  fontSize?: number;
+  letterSpacing?: number;
+  textAlign?: TextAlign;
+  baseAlign?: BaseAlign;
+  maxWidth?: number;
 }
 
-export interface SpriteSheetSpacingDimensions {
-  top?: number;
-  left?: number;
-  margin?: number;
+export interface SpriteFontArgs extends SpriteSheetArgs {
+  alphabet: string;
+  caseInsensitive: boolean;
 }
 
 /**
- * Sprite sheets are a useful mechanism for slicing up image resources into
- * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
- * in row major order in the [[SpriteSheet]].
+ * Sprite fonts are a used in conjunction with a [[Label]] to specify
+ * a particular bitmap as a font. Note that some font features are not
+ * supported by Sprite fonts.
  */
-export class SpriteSheet extends Configurable(SpriteSheetImpl) {
-  constructor(config: SpriteSheetArgs);
-  constructor(sprites: Sprite[]);
-  constructor(
-    image: Texture,
-    columns: number,
-    rows: number,
-    spWidth: number,
-    spHeight: number,
-    spacing?: number | SpriteSheetSpacingDimensions
-  );
-  constructor(
-    imageOrConfigOrSprites: Texture | SpriteSheetArgs | Sprite[],
-    columns?: number,
-    rows?: number,
-    spWidth?: number,
-    spHeight?: number,
-    spacing?: number | SpriteSheetSpacingDimensions
-  ) {
-    super(imageOrConfigOrSprites, columns, rows, spWidth, spHeight, spacing);
-  }
-}
 
-export class SpriteFontImpl extends SpriteSheet {
+export class SpriteFont extends SpriteSheet {
   private _currentColor: Color = Color.Black;
   private _currentOpacity: Number = 1.0;
   private _spriteRecord: Record<string, Sprite> = {};
@@ -319,6 +344,19 @@ export class SpriteFontImpl extends SpriteSheet {
   private _alphabet: string;
   private _caseInsensitive: boolean;
 
+  constructor(config: SpriteFontArgs);
+
+  constructor(
+    image: Texture,
+    alphabet: string,
+    caseInsensitive: boolean,
+    columns: number,
+    rows: number,
+    spWidth: number,
+    spHeight: number,
+    spacing?: number | SpriteSheetSpacingDimensions
+  );
+
   /**
    * @param imageOrConfig   The backing image texture to build the SpriteFont or the sprite font option bag
    * @param alphabet        A string representing all the characters in the image, in row major order.
@@ -330,13 +368,13 @@ export class SpriteFontImpl extends SpriteSheet {
    */
   constructor(
     imageOrConfig: Texture | SpriteFontArgs,
-    alphabet: string,
-    caseInsensitive: boolean,
-    columns: number,
-    rows: number,
-    spWidth: number,
-    spHeight: number,
-    spacing?: number
+    alphabet?: string,
+    caseInsensitive?: boolean,
+    columns?: number,
+    rows?: number,
+    spWidth?: number,
+    spHeight?: number,
+    spacing?: number | SpriteSheetSpacingDimensions
   ) {
     super(
       imageOrConfig instanceof Texture
@@ -496,50 +534,5 @@ export class SpriteFontImpl extends SpriteSheet {
       maxWidth: options.maxWidth || -1,
       opacity: options.opacity || 0
     };
-  }
-}
-
-/**
- * Specify various font attributes for sprite fonts
- */
-export interface SpriteFontOptions {
-  color?: Color;
-  opacity?: number;
-  fontSize?: number;
-  letterSpacing?: number;
-  textAlign?: TextAlign;
-  baseAlign?: BaseAlign;
-  maxWidth?: number;
-}
-
-export interface SpriteFontArgs extends SpriteSheetArgs {
-  image: Texture;
-  columns: number;
-  rows: number;
-  spWidth: number;
-  spHeight: number;
-  alphabet: string;
-  caseInsensitive: boolean;
-}
-
-/**
- * Sprite fonts are a used in conjunction with a [[Label]] to specify
- * a particular bitmap as a font. Note that some font features are not
- * supported by Sprite fonts.
- */
-export class SpriteFont extends Configurable(SpriteFontImpl) {
-  constructor(config: SpriteFontArgs);
-  constructor(image: Texture, alphabet: string, caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number);
-  constructor(
-    imageOrConfig: Texture | SpriteFontArgs,
-    alphabet?: string,
-    caseInsensitive?: boolean,
-    columns?: number,
-    rows?: number,
-    spWidth?: number,
-    spHeight?: number,
-    spacing?: number
-  ) {
-    super(imageOrConfig, alphabet, caseInsensitive, columns, rows, spWidth, spHeight, spacing);
   }
 }
