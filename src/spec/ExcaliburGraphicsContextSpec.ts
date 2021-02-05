@@ -62,7 +62,7 @@ describe('The ExcaliburGraphicsContext', () => {
       });
 
       sut.clear();
-      sut.drawImage(rect, 20, 20);
+      sut.drawImage(rect._bitmap, 20, 20);
 
       await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-drawgraphic.png');
     });
@@ -126,7 +126,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.translate(50, 50);
       sut.rotate(Math.PI / 4);
       sut.scale(0.5, 0.5);
-      sut.drawImage(rect, -25, -25);
+      sut.drawImage(rect._bitmap, -25, -25);
       sut.restore();
 
       await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-transform.png');
@@ -150,7 +150,7 @@ describe('The ExcaliburGraphicsContext', () => {
       });
 
       sut.clear();
-      sut.drawImage(rect, 1.9, 1.9);
+      sut.drawImage(rect._bitmap, 1.9, 1.9);
 
       await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png');
     });
@@ -204,7 +204,7 @@ describe('The ExcaliburGraphicsContext', () => {
       });
 
       sut.clear();
-      sut.drawImage(rect, 20, 20);
+      sut.drawImage(rect._bitmap, 20, 20);
       sut.flush();
 
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
@@ -296,7 +296,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.translate(50, 50);
       sut.rotate(Math.PI / 4);
       sut.scale(0.5, 0.5);
-      sut.drawImage(rect, -25, -25);
+      sut.drawImage(rect._bitmap, -25, -25);
       sut.restore();
       sut.flush();
 
@@ -323,7 +323,7 @@ describe('The ExcaliburGraphicsContext', () => {
       });
 
       sut.clear();
-      sut.drawImage(rect, 1.9, 1.9);
+      sut.drawImage(rect._bitmap, 1.9, 1.9);
       sut.flush();
 
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(

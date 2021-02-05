@@ -188,6 +188,7 @@ export abstract class Raster extends Graphic {
    * the graphic is [[Raster.dirty]] on the next [[Graphic.draw]] call
    */
   public rasterize(): void {
+    this._dirty = false;
     this._ctx.clearRect(0, 0, this.width, this.height);
     this._ctx.save();
     this._applyRasterProperites(this._ctx);
@@ -195,7 +196,6 @@ export abstract class Raster extends Graphic {
     this._ctx.restore();
     // The webgl texture needs to be updated if it exists after a raster cycle
     TextureLoader.load(this._bitmap, true);
-    this._dirty = false;
   }
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {

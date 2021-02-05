@@ -52,27 +52,6 @@ describe('A Graphics Animation', () => {
     expect(clone.strategy).toBe(ex.Graphics.AnimationStrategy.Freeze);
   });
 
-  it('has a source id of the current frame', () => {
-    const rect = new ex.Graphics.Rectangle({
-      width: 100,
-      height: 100,
-      color: ex.Color.Blue
-    });
-    const anim = new ex.Graphics.Animation({
-      frames: [
-        {
-          graphic: rect,
-          duration: 100
-        }
-      ],
-      frameDuration: 222,
-      strategy: ex.Graphics.AnimationStrategy.Freeze
-    });
-
-    expect(anim.getSource()).toBe(rect.getSource());
-    expect(anim.getSourceId()).toBe(rect.getSourceId());
-  });
-
   it('can be defined from a spritesheet', () => {
     const sourceImage = new ex.Graphics.ImageSource('some/image.png');
     const ss = ex.Graphics.SpriteSheet.fromGrid({

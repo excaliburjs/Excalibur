@@ -90,15 +90,4 @@ describe('A Graphics Group', () => {
     group.reset();
     expect(animation.reset).toHaveBeenCalled();
   });
-
-  it('does not have a source', () => {
-    const animation = new ex.Graphics.Animation({
-      frames: []
-    });
-    const group = new ex.Graphics.GraphicsGroup({
-      members: [{ pos: ex.vec(0, 0), graphic: animation }]
-    });
-    expect(group.getSourceId()).toBe(-1);
-    expect(group.getSource()).toBe(null);
-  });
 });

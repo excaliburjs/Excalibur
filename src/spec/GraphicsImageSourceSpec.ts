@@ -10,12 +10,6 @@ describe('A ImageSource', () => {
     expect(spriteFontImage).toBeDefined();
   });
 
-  it('gets a new id', () => {
-    const img1 = new ex.Graphics.ImageSource('');
-    const img2 = new ex.Graphics.ImageSource('');
-    expect(img1.id).not.toBe(img2.id);
-  });
-
   it('can load images', async () => {
     const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
     const whenLoaded = jasmine.createSpy('whenLoaded');

@@ -20,13 +20,12 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     return this.image.naturalHeight;
   }
 
-  private _loaded = false;
   /**
    * Returns true if the Texture is completely loaded and is ready
    * to be drawn.
    */
   public isLoaded(): boolean {
-    return this._loaded;
+    return !!this.data.src;
   }
 
   /**
@@ -78,7 +77,6 @@ export class ImageSource implements Loadable<HTMLImageElement> {
 
       // Set results
       this.data = image;
-      this._loaded = true;
     } catch {
       await Promise.reject('Error loading texture');
     }

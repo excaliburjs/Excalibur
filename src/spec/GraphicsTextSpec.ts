@@ -167,20 +167,6 @@ describe('A Text Graphic', () => {
     expect(sut.localBounds.height).toBeCloseTo(18, 0);
   });
 
-  it('uses the same source as the font under the hood', () => {
-    const sut = new ex.Graphics.Text({
-      text: 'some extra long text that we want to measure',
-      color: ex.Color.Green,
-      font: new ex.Graphics.Font({
-        family: 'Open Sans',
-        size: 18
-      })
-    });
-
-    expect(sut.getSourceId()).toBe(sut.font.getSourceId());
-    expect(sut.getSource()).toBe(sut.font.getSource());
-  });
-
   it('can flip text vertically and horizontally', async () => {
     const sut = new ex.Graphics.Text({
       text: 'green text',
@@ -385,35 +371,6 @@ describe('A Text Graphic', () => {
   });
 
   describe('with a SpriteFont', () => {
-    it('has the same source as the sprite sheet', () => {
-      const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
-
-      const spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
-        image: spriteFontImage,
-        grid: {
-          rows: 3,
-          columns: 16,
-          spriteWidth: 16,
-          spriteHeight: 16
-        }
-      });
-
-      const spriteFont = new ex.Graphics.SpriteFont({
-        alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
-        caseInsensitive: true,
-        spacing: -5,
-        spriteSheet: spriteFontSheet
-      });
-
-      const sut = new ex.Graphics.Text({
-        text: 'Some Sprite Text!?',
-        font: spriteFont
-      });
-
-      expect(sut.getSource()).toBe(spriteFontSheet.image.image);
-      expect(sut.getSourceId()).toBe(spriteFontSheet.image.id);
-    });
-
     it('can be cloned', () => {
       const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
 

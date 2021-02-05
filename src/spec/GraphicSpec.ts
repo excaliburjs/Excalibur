@@ -93,17 +93,6 @@ describe('A Graphic', () => {
     expect(sut.localBounds).toEqual(new ex.BoundingBox(0, 0, sut.width, sut.height));
   });
 
-  it('will return -1 if now texture info associated', () => {
-    const sut = new TestGraphic();
-    expect(sut.getSourceId()).toBe(-1);
-  });
-
-  it('will return the texture id if it has one', () => {
-    const sut = new TestGraphic();
-    sut.__textureInfo = { id: 99, texture: null };
-    expect(sut.getSourceId()).toBe(99);
-  });
-
   it('can rotate a graphic implementation', async () => {
     ctx.clear();
     const sut = new TestGraphic();

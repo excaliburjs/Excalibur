@@ -26,16 +26,6 @@ describe('A Sprite Graphic', () => {
     expect(sut).toBeDefined();
   });
 
-  it('the source is the image', () => {
-    const image = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
-    const sut = new ex.Graphics.Sprite({
-      image
-    });
-
-    expect(sut.getSource()).toBe(image.image);
-    expect(sut.getSourceId()).toBe(image.id);
-  });
-
   it('can be cloned', () => {
     const image = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
     const sut = new ex.Graphics.Sprite({

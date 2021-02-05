@@ -2,7 +2,7 @@ import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
-const drawWithTransform = (ctx: CanvasRenderingContext2D, tm: ex.TileMap, delta: number = 1) => {
+const drawWithTransform = (ctx: CanvasRenderingContext2D | ex.Graphics.ExcaliburGraphicsContext, tm: ex.TileMap, delta: number = 1) => {
   ctx.save();
   ctx.translate(tm.pos.x, tm.pos.y);
   ctx.rotate(tm.rotation);
@@ -67,7 +67,7 @@ describe('A TileMap', () => {
       });
       tm._initialize(engine);
 
-      drawWithTransform(engine.ctx, tm, 100);
+      drawWithTransform(engine.graphicsContext, tm, 100);
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/TileMapSpec/TileMap.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
@@ -94,7 +94,8 @@ describe('A TileMap', () => {
       tm._initialize(engine);
 
       tm.update(engine, 100);
-      drawWithTransform(engine.ctx, tm, 100);
+
+      drawWithTransform(engine.graphicsContext, tm, 100);
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/TileMapSpec/TileMapCulling.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);

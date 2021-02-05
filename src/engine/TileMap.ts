@@ -11,7 +11,7 @@ import { Entity } from './EntityComponentSystem/Entity';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { ExcaliburGraphicsContext, GraphicsComponent } from './Graphics';
 import * as Graphics from './Graphics';
-import { CanvasDrawComponent } from './Drawing/Index';
+import { CanvasDrawComponent, Sprite } from './Drawing/Index';
 import { Sprite as LegacySprite } from './Drawing/Index';
 import { removeItemFromArray } from './Util/Util';
 import { obsolete } from './Util/Decorators';
@@ -27,7 +27,8 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
   private _onScreenYStart: number = 0;
   private _onScreenYEnd: number = 9999;
   private _spriteSheets: { [key: string]: Graphics.SpriteSheet } = {};
-  private _graphicsContext: ExcaliburGraphicsContext;
+
+  private _legacySpriteMap = new Map<Graphics.Sprite, Sprite>();
   public logger: Logger = Logger.getInstance();
   public data: Cell[] = [];
   public visible = true;
@@ -139,13 +140,13 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
       }
     }
 
-    this.addComponent(new TransformComponent);
-    this.addComponent(new GraphicsComponent({
-      onPostDraw: (_ctx, delta) => this.draw(null, delta)
-    }));
-    this.addComponent(new CanvasDrawComponent(
-      (_ctx, delta) => this.draw(null, delta)
-    ));
+    this.addComponent(new TransformComponent());
+    this.addComponent(
+      new GraphicsComponent({
+        onPostDraw: (ctx, delta) => this.draw(ctx, delta)
+      })
+    );
+    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
     this.components.graphics.localBounds = new BoundingBox({
       left: 0,
       top: 0,
@@ -156,7 +157,6 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
 
   public _initialize(engine: Engine) {
     super._initialize(engine);
-    this._graphicsContext = engine.graphicsContext;
   }
 
   /**
@@ -167,7 +167,7 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
    */
   public registerSpriteSheet(key: string, spriteSheet: SpriteSheet): void;
   public registerSpriteSheet(key: string, spriteSheet: Graphics.SpriteSheet): void;
-  @obsolete({message: 'No longer used, will be removed in v0.26.0'})
+  @obsolete({ message: 'No longer used, will be removed in v0.26.0' })
   public registerSpriteSheet(key: string, spriteSheet: SpriteSheet | Graphics.SpriteSheet): void {
     if (spriteSheet instanceof Graphics.SpriteSheet) {
       this._spriteSheets[key] = spriteSheet;
@@ -278,8 +278,7 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
    * Draws the tile map to the screen. Called by the [[Scene]].
    * @param delta  The number of milliseconds since the last draw
    */
-  public draw(_ctx: CanvasRenderingContext2D, delta: number): void {
-    const ctx = this._graphicsContext;
+  public draw(ctx: CanvasRenderingContext2D | ExcaliburGraphicsContext, delta: number): void {
     this.emit('predraw', new Events.PreDrawEvent(ctx as any, delta, this)); // TODO fix event
 
     let x = this._onScreenXStart;
@@ -298,7 +297,15 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
           // draw sprite, warning if sprite doesn't exist
           const sprite = sprites[spriteIndex];
           if (sprite) {
-            sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);
+            if (!(ctx instanceof CanvasRenderingContext2D)) {
+              sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);
+            } else {
+              // TODO legacy drawing mode
+              if (!this._legacySpriteMap.has(sprite)) {
+                this._legacySpriteMap.set(sprite, Graphics.Sprite.toLegacySprite(sprite));
+              }
+              this._legacySpriteMap.get(sprite).draw(ctx, x * this.cellWidth, y * this.cellHeight);
+            }
           }
         }
       }
@@ -440,7 +447,7 @@ export class CellImpl extends Entity<TransformComponent | GraphicsComponent> {
    * Add another [[Sprite]] to this cell
    * @deprecated Use addSprite, will be removed in v0.26.0
    */
-  @obsolete({message: 'Will be removed in v0.26.0', alternateMethod: 'addSprite'})
+  @obsolete({ message: 'Will be removed in v0.26.0', alternateMethod: 'addSprite' })
   public pushSprite(sprite: Graphics.Sprite | LegacySprite) {
     this.addSprite(sprite);
   }

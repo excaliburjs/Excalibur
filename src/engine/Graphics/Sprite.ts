@@ -3,6 +3,7 @@ import { ImageSource } from './ImageSource';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
 import { Sprite as LegacySprite } from '../Drawing/Sprite';
+import { Texture } from '../Resources/Texture';
 
 export type SourceView = { x: number; y: number; width: number; height: number };
 export type DestinationSize = { width: number; height: number };
@@ -99,6 +100,14 @@ export class Sprite extends Graphic {
         height: sprite.height
       }
     });
+  }
+
+  public static toLegacySprite(sprite: Sprite): LegacySprite {
+    const image = sprite.image;
+    const tex = new Texture(image.path);
+    tex.data = image.image;
+
+    return new LegacySprite(tex, sprite.sourceView.x, sprite.sourceView.y, sprite.sourceView.width, sprite.sourceView.height);
   }
 
   public clone(): Sprite {
