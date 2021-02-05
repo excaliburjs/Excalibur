@@ -50,6 +50,7 @@ import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
+import { Rectangle } from './Graphics/Rectangle';
 
 /**
  * Type guard for checking if something is an Actor
@@ -314,7 +315,7 @@ export class ActorImpl
    * The visibility of an actor
    * @deprecated Use [[GraphicsComponent.visible|Actor.graphics.visible]]
    */
-  @obsolete({message: 'Actor.visible will be removed in v0.26.0', alternateMethod: 'Use Actor.graphics.visible'})
+  @obsolete({ message: 'Actor.visible will be removed in v0.26.0', alternateMethod: 'Use Actor.graphics.visible' })
   public get visible(): boolean {
     return this.graphics.visible;
   }
@@ -472,8 +473,8 @@ export class ActorImpl
     // initialize default options
     this._initDefaults();
 
-    this.addComponent(this.transform = new TransformComponent());
-    this.addComponent(this.graphics = new GraphicsComponent());
+    this.addComponent((this.transform = new TransformComponent()));
+    this.addComponent((this.graphics = new GraphicsComponent()));
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
 
     let shouldInitializeBody = true;
@@ -489,6 +490,7 @@ export class ActorImpl
       }
       width = config.width;
       height = config.height;
+      color = config.color;
 
       if (config.body) {
         shouldInitializeBody = false;
@@ -526,6 +528,16 @@ export class ActorImpl
       this.color = color;
       // set default opacity of an actor to the color
       this.opacity = color.a;
+    }
+
+    if (color) {
+      this.graphics.add(
+        new Rectangle({
+          color: color,
+          width: this._width,
+          height: this._height
+        })
+      );
     }
 
     // Build default pipeline
