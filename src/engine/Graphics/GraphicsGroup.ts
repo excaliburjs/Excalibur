@@ -1,7 +1,7 @@
 import { Vector } from '../Algebra';
 import { Graphic, GraphicOptions } from './Graphic';
 import { Animation, HasTick } from './Animation';
-import { ExcaliburGraphicsContext, HTMLImageSource } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/Index';
 
 export interface GraphicsGroupingOptions {
@@ -15,14 +15,6 @@ export interface GraphicsGrouping {
 
 export class GraphicsGroup extends Graphic implements HasTick {
   public members: GraphicsGrouping[] = [];
-
-  public getSourceId(): number {
-    return -1;
-  }
-
-  public getSource(): HTMLImageSource {
-    return null;
-  }
 
   constructor(options: GraphicsGroupingOptions & GraphicOptions) {
     super(options);

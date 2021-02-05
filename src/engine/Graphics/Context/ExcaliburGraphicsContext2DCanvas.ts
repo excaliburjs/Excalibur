@@ -3,10 +3,10 @@ import {
   LineGraphicsOptions,
   PointGraphicsOptions,
   ExcaliburGraphicsContextOptions,
-  DebugDraw
+  DebugDraw,
+  HTMLImageSource
 } from './ExcaliburGraphicsContext';
 import { Vector } from '../../Algebra';
-import { Graphic } from '../Graphic';
 import { Color } from '../../Drawing/Color';
 import { StateStack } from './state-stack';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
@@ -118,19 +118,19 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   /**
    * Draw an image to the Excalibur Graphics context at an x and y coordinate using the images width and height
    */
-  drawImage(graphic: Graphic, x: number, y: number): void;
+  drawImage(image: HTMLImageSource, x: number, y: number): void;
   /**
    *
    * Draw an image to the Excalibur Graphics context at an x and y coordinate with a specific width and height
    */
-  drawImage(graphic: Graphic, x: number, y: number, width: number, height: number): void;
+  drawImage(image: HTMLImageSource, x: number, y: number, width: number, height: number): void;
   /**
    *
    * Draw an image to the Excalibur Graphics context specifying the source image coordinates (sx, sy, swidth, sheight)
    * and to a specific destination on the context (dx, dy, dwidth, dheight)
    */
   drawImage(
-    graphic: Graphic,
+    image: HTMLImageSource,
     sx: number,
     sy: number,
     swidth?: number,
@@ -142,7 +142,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   ): void;
 
   drawImage(
-    graphic: Graphic,
+    image: HTMLImageSource,
     sx: number,
     sy: number,
     swidth?: number,
@@ -153,7 +153,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     dheight?: number
   ): void {
     this.__ctx.globalAlpha = this.opacity;
-    const args = [graphic.getSource(), sx, sy, swidth, sheight, dx, dy, dwidth, dheight]
+    const args = [image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight]
       .filter((a) => a !== undefined)
       .map((a) => (typeof a === 'number' && this.snapToPixel ? ~~a : a));
     this.__ctx.drawImage.apply(this.__ctx, args);

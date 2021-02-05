@@ -61,10 +61,9 @@ describe('A TileMap', () => {
         cols: 7
       });
       const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
-      tm.registerSpriteSheet('default', spriteTiles);
       tm.data.forEach(function (cell: ex.Cell) {
         cell.solid = true;
-        cell.pushSprite(spriteTiles.sprites[0]);
+        cell.addSprite(spriteTiles.sprites[0]);
       });
       tm._initialize(engine);
 
@@ -88,10 +87,9 @@ describe('A TileMap', () => {
         cols: 20
       });
       const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
-      tm.registerSpriteSheet('default', spriteTiles);
       tm.data.forEach(function (cell: ex.Cell) {
         cell.solid = true;
-        cell.pushSprite(spriteTiles.sprites[0]);
+        cell.addSprite(spriteTiles.sprites[0]);
       });
       tm._initialize(engine);
 

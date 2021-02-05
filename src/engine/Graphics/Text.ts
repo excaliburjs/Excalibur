@@ -61,7 +61,7 @@ export class Text extends Graphic {
   }
   public set font(font: Font | SpriteFont) {
     if (font instanceof Font) {
-      this._font = watch(font, font => font.flagDirty());
+      this._font = watch(font, (font) => font.flagDirty());
     } else {
       this._font = font;
     }
@@ -100,13 +100,5 @@ export class Text extends Graphic {
     this.font.origin = this.origin;
     this.font.opacity = this.opacity;
     this.font.render(ex, this._text, x, y);
-  }
-
-  public getSource() {
-    return this.font.getSource();
-  }
-
-  public getSourceId() {
-    return this.font.getSourceId();
   }
 }

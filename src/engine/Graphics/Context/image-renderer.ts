@@ -8,6 +8,7 @@ import { ensurePowerOfTwo } from './webgl-util';
 import { BatchRenderer } from './renderer';
 import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
 import { TextureLoader } from './texture-loader';
+import { HTMLImageSource } from './ExcaliburGraphicsContext';
 
 export class BatchImage extends BatchCommand<DrawImageCommand> {
   public textures: WebGLTexture[] = [];
@@ -62,9 +63,9 @@ export class BatchImage extends BatchCommand<DrawImageCommand> {
   }
 
   add(command: DrawImageCommand) {
-    const textureInfo = TextureLoader.load(command.image);
-    if (this.textures.indexOf(textureInfo.texture) === -1) {
-      this.textures.push(textureInfo.texture);
+    const texture = TextureLoader.load(command.image);
+    if (this.textures.indexOf(texture) === -1) {
+      this.textures.push(texture);
     }
 
     this.commands.push(command);
@@ -79,8 +80,8 @@ export class BatchImage extends BatchCommand<DrawImageCommand> {
   }
 
   getBatchTextureId(command: DrawImageCommand) {
-    if (command.image.__textureInfo) {
-      return this.textures.indexOf(command.image.__textureInfo.texture);
+    if (command.image) {
+      return this.textures.indexOf(TextureLoader.get(command.image));
     }
     return -1;
   }
@@ -141,7 +142,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
   }
 
   public addImage(
-    graphic: Graphic,
+    graphic: HTMLImageSource,
     sx: number,
     sy: number,
     swidth?: number,
@@ -178,8 +179,8 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       sw = command.view[2];
       sh = command.view[3];
 
-      potWidth = ensurePowerOfTwo(command.image.getSource().width || command.width);
-      potHeight = ensurePowerOfTwo(command.image.getSource().height || command.height);
+      potWidth = ensurePowerOfTwo(command.image.width || command.width);
+      potHeight = ensurePowerOfTwo(command.image.height || command.height);
 
       textureId = batch.getBatchTextureId(command);
 

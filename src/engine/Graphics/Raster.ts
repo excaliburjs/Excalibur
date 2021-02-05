@@ -1,5 +1,5 @@
 import { Graphic, GraphicOptions } from './Graphic';
-import { ExcaliburGraphicsContext, HTMLImageSource } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Drawing/Color';
 import { ensurePowerOfTwo } from './Context/webgl-util';
 import { Vector } from '../Algebra';
@@ -147,7 +147,7 @@ export abstract class Raster extends Graphic {
     if (!this._strokeColor?.equal(value)) {
       this.flagDirty();
     }
-    this._strokeColor =  watch(value, () => this.flagDirty());
+    this._strokeColor = watch(value, () => this.flagDirty());
   }
 
   private _lineWidth: number = 1;
@@ -188,14 +188,14 @@ export abstract class Raster extends Graphic {
    * the graphic is [[Raster.dirty]] on the next [[Graphic.draw]] call
    */
   public rasterize(): void {
-    this._dirty = false;
     this._ctx.clearRect(0, 0, this.width, this.height);
     this._ctx.save();
     this._applyRasterProperites(this._ctx);
     this.execute(this._ctx);
     this._ctx.restore();
     // The webgl texture needs to be updated if it exists after a raster cycle
-    TextureLoader.load(this, true);
+    TextureLoader.load(this._bitmap, true);
+    this._dirty = false;
   }
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
@@ -214,7 +214,7 @@ export abstract class Raster extends Graphic {
       this.rasterize();
     }
 
-    ex.drawImage(this, x, y);
+    ex.drawImage(this._bitmap, x, y);
   }
 
   /**
@@ -223,8 +223,4 @@ export abstract class Raster extends Graphic {
    * @param ctx Canvas to draw the graphic to
    */
   abstract execute(ctx: CanvasRenderingContext2D): void;
-
-  public getSource(): HTMLImageSource {
-    return this._bitmap;
-  }
 }

@@ -1,15 +1,10 @@
 import { Resource } from '../Resources/Resource';
 import { Texture } from '../Resources/Texture';
-import { TextureLoader } from './Context/texture-loader';
 import { Sprite } from './Sprite';
 import { Loadable } from '../Interfaces/Index';
 
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _resource: Resource<Blob>;
-  /**
-   * Unique id of raw image
-   */
-  public readonly id = TextureLoader.nextSourceId();
 
   /**
    * The original size of the source image in pixels
@@ -24,7 +19,6 @@ export class ImageSource implements Loadable<HTMLImageElement> {
   public get height() {
     return this.image.naturalHeight;
   }
-
 
   private _loaded = false;
   /**

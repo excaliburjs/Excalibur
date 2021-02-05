@@ -1,6 +1,6 @@
 import { Graphic, GraphicOptions } from './Graphic';
 import { ImageSource } from './ImageSource';
-import { ExcaliburGraphicsContext, HTMLImageSource } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
 import { Sprite as LegacySprite } from '../Drawing/Sprite';
 
@@ -59,7 +59,7 @@ export class Sprite extends Graphic {
     this.height = Math.ceil(this.destSize.height);
   }
 
-  protected  _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
+  protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     if (this.image.isLoaded()) {
       this._updateSpriteDimensions();
     }
@@ -70,7 +70,7 @@ export class Sprite extends Graphic {
     if (this.image.isLoaded()) {
       this._updateSpriteDimensions();
       ex.drawImage(
-        this,
+        this.image.image,
         this.sourceView.x,
         this.sourceView.y,
         this.sourceView.width,
@@ -81,15 +81,6 @@ export class Sprite extends Graphic {
         this.destSize.height
       );
     }
-  }
-
-
-  public getSourceId(): number {
-    return this.image.id;
-  }
-
-  public getSource(): HTMLImageSource {
-    return this.image.image;
   }
 
   /**

@@ -1,5 +1,4 @@
 import { Vector } from '../../Algebra';
-import { Graphic } from '../Graphic';
 import { Color } from '../../Drawing/Color';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
@@ -95,19 +94,19 @@ export interface ExcaliburGraphicsContext {
   /**
    * Draw an image to the Excalibur Graphics context at an x and y coordinate using the images width and height
    */
-  drawImage(graphic: Graphic, x: number, y: number): void;
+  drawImage(image: HTMLImageSource, x: number, y: number): void;
   /**
    *
    * Draw an image to the Excalibur Graphics context at an x and y coordinate with a specific width and height
    */
-  drawImage(graphic: Graphic, x: number, y: number, width: number, height: number): void;
+  drawImage(image: HTMLImageSource, x: number, y: number, width: number, height: number): void;
   /**
    *
    * Draw an image to the Excalibur Graphics context specifying the source image coordinates (sx, sy, swidth, sheight)
    * and to a specific destination on the context (dx, dy, dwidth, dheight)
    */
   drawImage(
-    graphic: Graphic,
+    image: HTMLImageSource,
     sx: number,
     sy: number,
     swidth?: number,

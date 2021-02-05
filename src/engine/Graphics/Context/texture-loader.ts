@@ -1,14 +1,5 @@
-import { Graphic } from '../Graphic';
 import { HTMLImageSource } from './ExcaliburGraphicsContext';
 import { ensurePowerOfTwo, isPowerOfTwo } from './webgl-util';
-
-/**
- * TextureInfo for a webgl texture and it's unique source id
- */
-export interface TextureInfo {
-  id: number;
-  texture: WebGLTexture;
-}
 
 /**
  * Manages loading image sources into webgl textures, a unique id is associated with all sources
@@ -18,63 +9,60 @@ export class TextureLoader {
   private static _POT_CTX = TextureLoader._POT_CANVAS.getContext('2d');
 
   private static _GL: WebGLRenderingContext;
-  private static _TEXTURE_INFO: { [graphicId: number]: TextureInfo } = {};
 
-  private static _SOURCE_ID = 0;
-  public static nextSourceId(): number {
-    return TextureLoader._SOURCE_ID++;
-  }
+  private static _TEXTURE_MAP = new Map<HTMLImageSource, WebGLTexture>();
 
   public static registerContext(context: WebGLRenderingContext): void {
     TextureLoader._GL = context;
   }
 
   /**
-   * Get [[TextureInfo]] from a graphic's source id
-   * @param sourceId
+   * Get [[WebGLTexture]] from a source image
+   * @param image
    */
-  public static get(sourceId: number): TextureInfo {
-    return TextureLoader._TEXTURE_INFO[sourceId];
+  public static get(image: HTMLImageSource): WebGLTexture {
+    return TextureLoader._TEXTURE_MAP.get(image);
   }
 
   /**
-   * Returns whether a graphic has been loaded
-   * @param graphic
+   * Returns whether a source image has been loaded as a texture
+   * @param image
    */
-  public static has(graphic: Graphic): boolean {
-    return graphic.getSourceId() !== -1 && !!TextureLoader._TEXTURE_INFO[graphic.getSourceId()];
+  public static has(image: HTMLImageSource): boolean {
+    return TextureLoader._TEXTURE_MAP.has(image);
   }
 
   /**
    * Loads a graphic into webgl and returns it's texture info, a webgl context must be previously registered
-   * @param graphic Source graphic
+   * @param image Source graphic
    * @param forceUpdate Optionally force a texture to be reloaded, useful if the source graphic has changed
    */
-  public static load(graphic: Graphic, forceUpdate = false): TextureInfo {
+  public static load(image: HTMLImageSource, forceUpdate = false): WebGLTexture {
     // Ignore loading if webgl is not registered
     const gl = TextureLoader._GL;
     if (!gl) {
       return null;
     }
 
+    let tex: WebGLTexture = null;
     // If reuse the texture if it's from the same source
-    if (TextureLoader.has(graphic)) {
-      graphic.__textureInfo = TextureLoader.get(graphic.getSourceId());
+    if (TextureLoader.has(image)) {
+      tex = TextureLoader.get(image);
     }
 
     // Update existing webgl texture and return early
-    if (graphic.__textureInfo) {
+    if (tex) {
       if (forceUpdate) {
-        gl.bindTexture(gl.TEXTURE_2D, graphic.__textureInfo.texture);
-        const source = TextureLoader.toPowerOfTwoImage(graphic.getSource());
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        const source = TextureLoader.toPowerOfTwoImage(image);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
       }
-      return graphic.__textureInfo;
+      return tex;
     }
 
     // No texture exists create a new one
-    const tex = gl.createTexture();
-    const source = TextureLoader.toPowerOfTwoImage(graphic.getSource());
+    tex = gl.createTexture();
+    const source = TextureLoader.toPowerOfTwoImage(image);
 
     gl.bindTexture(gl.TEXTURE_2D, tex);
 
@@ -87,8 +75,8 @@ export class TextureLoader {
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 
-    const textureInfo = { id: TextureLoader.nextSourceId(), texture: tex };
-    return graphic.__textureInfo = TextureLoader._TEXTURE_INFO[graphic.getSourceId()] = textureInfo;
+    TextureLoader._TEXTURE_MAP.set(image, tex);
+    return tex;
   }
 
   /**

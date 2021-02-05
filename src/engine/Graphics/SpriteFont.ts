@@ -1,7 +1,7 @@
 import { Vector } from '../Algebra';
 import { SpriteFont as LegacySpriteFont } from '../Drawing/Index';
 import { Logger } from '../Util/Log';
-import { ExcaliburGraphicsContext, HTMLImageSource } from './Context/ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { FontRenderer } from './FontCommon';
 import { Graphic, GraphicOptions } from './Graphic';
 import { ImageSource } from './ImageSource';
@@ -143,14 +143,6 @@ export class SpriteFont extends Graphic implements FontRenderer {
     }
 
     this.draw(ex, x, y);
-  }
-
-  getSourceId(): number {
-    return this.spriteSheet.image.id;
-  }
-
-  getSource(): HTMLImageSource {
-    return this.spriteSheet.image.image;
   }
 
   clone(): SpriteFont {

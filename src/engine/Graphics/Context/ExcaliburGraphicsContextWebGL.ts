@@ -4,12 +4,12 @@ import {
   RectGraphicsOptions,
   PointGraphicsOptions,
   ExcaliburGraphicsContextOptions,
-  DebugDraw
+  DebugDraw,
+  HTMLImageSource
 } from './ExcaliburGraphicsContext';
 
 import { Matrix } from '../../Math/matrix';
 import { TransformStack } from './transform-stack';
-import { Graphic } from '../Graphic';
 import { Vector, vec } from '../../Algebra';
 import { Color } from '../../Drawing/Color';
 import { StateStack } from './state-stack';
@@ -69,7 +69,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * @internal
    */
   public __gl: WebGLRenderingContext;
-
 
   /**
    * Holds the 2d context shim
@@ -166,10 +165,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._canvas.height = gl.canvas.height;
   }
 
-  drawImage(graphic: Graphic, x: number, y: number): void;
-  drawImage(graphic: Graphic, x: number, y: number, width: number, height: number): void;
+  drawImage(image: HTMLImageSource, x: number, y: number): void;
+  drawImage(image: HTMLImageSource, x: number, y: number, width: number, height: number): void;
   drawImage(
-    graphic: Graphic,
+    image: HTMLImageSource,
     sx: number,
     sy: number,
     swidth?: number,
@@ -180,7 +179,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     dheight?: number
   ): void;
   drawImage(
-    graphic: Graphic,
+    image: HTMLImageSource,
     sx: number,
     sy: number,
     swidth?: number,
@@ -190,7 +189,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     dwidth?: number,
     dheight?: number
   ): void {
-    if (!graphic) {
+    if (!image) {
       Logger.getInstance().warn('Cannot draw a null or undefined image');
       // tslint:disable-next-line: no-console
       if (console.trace) {
@@ -199,7 +198,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       }
       return;
     }
-    this.__imageRenderer.addImage(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+    this.__imageRenderer.addImage(image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
   }
 
   debug = new ExcaliburGraphicsContextWebGLDebug(this);

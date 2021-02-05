@@ -109,7 +109,7 @@ export class Font extends Raster implements FontRenderer {
     }
 
     ex.drawImage(
-      this,
+      this._bitmap,
       0,
       0,
       this._rasterWidth,
@@ -154,7 +154,7 @@ export class Font extends Raster implements FontRenderer {
       this._applyFont(this._ctx);
       const metrics = this._ctx.measureText(this._text);
       this._textWidth = Math.abs(metrics.actualBoundingBoxLeft) + Math.abs(metrics.actualBoundingBoxRight);
-      this._textHeight =  Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
+      this._textHeight = Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
 
       // Changing the width and height clears the context properties
       // We double the bitmap width to account for alignment

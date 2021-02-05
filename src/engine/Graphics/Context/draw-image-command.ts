@@ -1,14 +1,14 @@
 import { Matrix } from '../../Math/matrix';
-import { Graphic } from '../Graphic';
 import { BoundingBox } from '../../Collision/Index';
 import { Color } from '../../Drawing/Color';
 import { Pool, Poolable } from '../../Util/Pool';
+import { HTMLImageSource } from './ExcaliburGraphicsContext';
 
 export class DrawImageCommand implements Poolable {
   _pool: Pool<this> = undefined;
 
   public snapToPixel: boolean = true;
-  public image: Graphic;
+  public image: HTMLImageSource;
   public opacity: number = 1;
   public width: number = 0;
   public height: number = 0;
@@ -23,10 +23,10 @@ export class DrawImageCommand implements Poolable {
     [0, 0]
   ];
   constructor();
-  constructor(image: Graphic, x: number, y: number);
-  constructor(image: Graphic, x: number, y: number, width?: number, height?: number);
+  constructor(image: HTMLImageSource, x: number, y: number);
+  constructor(image: HTMLImageSource, x: number, y: number, width?: number, height?: number);
   constructor(
-    image: Graphic,
+    image: HTMLImageSource,
     sx: number,
     sy: number,
     swidth?: number,
@@ -37,7 +37,7 @@ export class DrawImageCommand implements Poolable {
     dheight?: number
   );
   constructor(
-    image?: Graphic,
+    image?: HTMLImageSource,
     sx?: number,
     sy?: number,
     swidth?: number,
@@ -51,7 +51,7 @@ export class DrawImageCommand implements Poolable {
   }
 
   public init(
-    image?: Graphic,
+    image?: HTMLImageSource,
     sx?: number,
     sy?: number,
     swidth?: number,
