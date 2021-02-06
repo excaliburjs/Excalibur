@@ -1,5 +1,5 @@
 import { System, SystemType } from './System';
-import { Util } from '..';
+import { Scene, Util } from '..';
 import { World } from './World';
 
 /**
@@ -64,8 +64,10 @@ export class SystemManager<ContextType> {
       // Get entities that match the system types, pre-sort
       const entities = this._world.queryManager.getQuery(s.types).getEntities(s.sort);
       // Initialize entities if needed
-      for (const entity of entities) {
-        entity._initialize((context as any)?.engine);// slightly gross
+      if (context instanceof Scene) {
+        for (const entity of entities) {
+          entity._initialize(context?.engine);
+        }
       }
       s.update(entities, delta);
     }

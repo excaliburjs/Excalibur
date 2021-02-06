@@ -1,5 +1,5 @@
 import { EX_VERSION } from './';
-import { Flags } from './Flags';
+import { Experiments, Flags } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
@@ -565,7 +565,7 @@ O|===|* >________________>\n\
       displayMode = DisplayMode.Fit;
     }
 
-    if (Flags.isEnabled('use-webgl')) {
+    if (Flags.isEnabled(Experiments.WebGL)) {
       const exWebglCtx = new ExcaliburGraphicsContextWebGL({
         canvasElement: this.canvas,
         enableTransparency: this.enableCanvasTransparency,

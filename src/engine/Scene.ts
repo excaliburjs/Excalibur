@@ -33,7 +33,7 @@ import { obsolete } from './Util/Decorators';
 import { World } from './EntityComponentSystem/World';
 import { GraphicsSystem } from './Graphics/GraphicsSystem';
 import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
-import { Flags } from './Flags';
+import { Flags, Legacy } from './Flags';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -243,7 +243,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       }
 
       // Initialize systems
-      if (Flags.isEnabled('use-legacy-drawing')) {
+      if (Flags.isEnabled(Legacy.LegacyDrawing)) {
         this.world.add(new CanvasDrawingSystem());
       } else {
         this.world.add(new GraphicsSystem());
