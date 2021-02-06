@@ -58,7 +58,7 @@ export enum DisplayMode {
   /**
    * Use the parent DOM container's css width/height for the game resolution dynamically
    */
-  Container = 'Container',
+  Container = 'Container'
 }
 
 /**
@@ -224,7 +224,7 @@ export class Screen {
   private _fullscreenChangeHandler = () => {
     this._isFullScreen = !this._isFullScreen;
     this._logger.debug('Fullscreen Change', this._isFullScreen);
-  }
+  };
 
   private _pixelRatioChangeHandler = () => {
     this._logger.debug('Pixel Ratio Change', window.devicePixelRatio);
@@ -387,17 +387,24 @@ export class Screen {
     let newX = point.x;
     let newY = point.y;
 
-    newX -= getPosition(this._canvas).x;
-    newY -= getPosition(this._canvas).y;
-
+    if (!this._isFullScreen) {
+      newX -= getPosition(this._canvas).x;
+      newY -= getPosition(this._canvas).y;
+    }
 
     // if fullscreen api on it centers with black bars
     // we need to adjust the screen to world coordinates in this case
     if (this._isFullScreen) {
       if (window.innerWidth / this.aspectRatio < window.innerHeight) {
-        newY -= (window.innerHeight - this.viewport.height) / 2;
+        const screenHeight = window.innerWidth / this.aspectRatio;
+        const screenMarginY = (window.innerHeight - screenHeight) / 2;
+        newY = ((newY - screenMarginY) / screenHeight) * this.viewport.height;
+        newX = (newX / window.innerWidth) * this.viewport.width;
       } else {
-        newX -= (window.innerWidth - this.viewport.width) / 2;
+        const screenWidth = window.innerHeight * this.aspectRatio;
+        const screenMarginX = (window.innerWidth - screenWidth) / 2;
+        newX = ((newX - screenMarginX) / screenWidth) * this.viewport.width;
+        newY = (newY / window.innerHeight) * this.viewport.height;
       }
     }
 
@@ -424,14 +431,22 @@ export class Screen {
 
     if (this._isFullScreen) {
       if (window.innerWidth / this.aspectRatio < window.innerHeight) {
-        newY += (window.innerHeight - this.viewport.height) / 2;
+        const screenHeight = window.innerWidth / this.aspectRatio;
+        const screenMarginY = (window.innerHeight - screenHeight) / 2;
+        newY = (newY / this.viewport.height) * screenHeight + screenMarginY;
+        newX = (newX / this.viewport.width) * window.innerWidth;
       } else {
-        newX += (window.innerWidth - this.viewport.width) / 2;
+        const screenWidth = window.innerHeight * this.aspectRatio;
+        const screenMarginX = (window.innerWidth - screenWidth) / 2;
+        newX = (newX / this.viewport.width) * screenWidth + screenMarginX;
+        newY = (newY / this.viewport.height) * window.innerHeight;
       }
     }
 
-    newX += getPosition(this._canvas).x;
-    newY += getPosition(this._canvas).y;
+    if (!this._isFullScreen) {
+      newX += getPosition(this._canvas).x;
+      newY += getPosition(this._canvas).y;
+    }
 
     return new Vector(newX, newY);
   }
@@ -597,9 +612,7 @@ export class Screen {
   }
 
   private _applyDisplayMode() {
-    if (this.displayMode === DisplayMode.Fit ||
-        this.displayMode === DisplayMode.Fill ||
-        this.displayMode === DisplayMode.Container) {
+    if (this.displayMode === DisplayMode.Fit || this.displayMode === DisplayMode.Fill || this.displayMode === DisplayMode.Container) {
       const parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
 
       this._setResolutionAndViewportByDisplayMode(parent);

@@ -6,22 +6,67 @@ import * as Effects from './SpriteEffects';
 import { Texture } from '../Resources/Texture';
 import { Engine } from '../Engine';
 import { Logger } from '../Util/Log';
-import { Configurable } from '../Configurable';
 import { BaseAlign, TextAlign } from '../Graphics/FontCommon';
 import { obsolete } from '../Util/Decorators';
 
+export interface SpriteSheetArgs {
+  image: Texture;
+  sprites?: Sprite[];
+  spWidth: number;
+  spHeight: number;
+  rows: number;
+  columns: number;
+  spacing?: number | SpriteSheetSpacingDimensions;
+}
+
+export interface SpriteSheetSpacingDimensions {
+  top?: number;
+  left?: number;
+  margin?: number;
+}
+
 /**
- * @hidden
+ * Sprite sheets are a useful mechanism for slicing up image resources into
+ * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
+ * in row major order in the [[SpriteSheet]].
  * @deprecated Will be removed in v0.26.0
  */
-export class SpriteSheetImpl {
-  public sprites: Sprite[] = [];
-  public image: Texture = null;
-  public columns: number = 0;
-  public rows: number = 0;
-  public spWidth: number = 0;
-  public spHeight: number = 0;
-  public spacing: number = 0;
+export class SpriteSheet {
+  private _sprites: Sprite[] = [];
+  private _image: Texture | null = null;
+  private _columns: number = 0;
+  private _rows: number = 0;
+  private _spWidth: number = 0;
+  private _spHeight: number = 0;
+  private _spacing: number | SpriteSheetSpacingDimensions = 0;
+
+  /**
+   * @param config    The configuration of the SpriteSheet
+   */
+  constructor(config: SpriteSheetArgs);
+
+  /**
+   * @param sprites   The backing sprite array to use, if already available
+   */
+  constructor(sprites: Sprite[]);
+
+  /**
+   * @param image     The backing image texture to build the SpriteSheet
+   * @param columns   The number of columns in the image texture
+   * @param rows      The number of rows in the image texture
+   * @param spWidth   The width of each individual sprite in pixels
+   * @param spHeight  The height of each individual sprite in pixels
+   * @param spacing   The spacing between every sprite in a spritesheet
+   */
+  constructor(
+    image: Texture,
+    columns: number,
+    rows: number,
+    spWidth: number,
+    spHeight: number,
+    spacing?: number | SpriteSheetSpacingDimensions
+  );
+
   /**
    * @param imageOrConfigOrSprites The backing image texture to build the SpriteSheet, option bag, or sprite list
    * @param columns   The number of columns in the image texture
@@ -36,28 +81,28 @@ export class SpriteSheetImpl {
     rows?: number,
     spWidth?: number,
     spHeight?: number,
-    spacing?: number
+    spacing?: number | SpriteSheetSpacingDimensions
   ) {
     let loadFromImage: boolean = false;
     if (imageOrConfigOrSprites instanceof Array) {
-      this.sprites = imageOrConfigOrSprites;
+      this._sprites = imageOrConfigOrSprites;
     } else {
       if (imageOrConfigOrSprites && !(imageOrConfigOrSprites instanceof Texture)) {
-        this.columns = imageOrConfigOrSprites.columns;
-        this.rows = imageOrConfigOrSprites.rows;
-        this.spWidth = imageOrConfigOrSprites.spWidth;
-        this.spHeight = imageOrConfigOrSprites.spHeight;
-        this.image = imageOrConfigOrSprites.image;
-        this.spacing = imageOrConfigOrSprites.spacing || 0;
+        this._columns = imageOrConfigOrSprites.columns;
+        this._rows = imageOrConfigOrSprites.rows;
+        this._spWidth = imageOrConfigOrSprites.spWidth;
+        this._spHeight = imageOrConfigOrSprites.spHeight;
+        this._image = imageOrConfigOrSprites.image;
+        this._spacing = imageOrConfigOrSprites.spacing || 0;
       } else {
-        this.image = <Texture>imageOrConfigOrSprites;
-        this.columns = columns;
-        this.rows = rows;
-        this.spWidth = spWidth;
-        this.spHeight = spHeight;
-        this.spacing = spacing || 0;
+        this._image = <Texture>imageOrConfigOrSprites;
+        this._columns = columns;
+        this._rows = rows;
+        this._spWidth = spWidth;
+        this._spHeight = spHeight;
+        this._spacing = spacing || 0;
       }
-      this.sprites = new Array(this.columns * this.rows);
+      this._sprites = new Array(this._columns * this._rows);
       loadFromImage = true;
     }
 
@@ -86,17 +131,88 @@ export class SpriteSheetImpl {
     }
 
     if (loadFromImage) {
-      for (let i = 0; i < this.rows; i++) {
-        for (let j = 0; j < this.columns; j++) {
-          this.sprites[j + i * this.columns] = new Sprite(
+      const spacing = this.getSpacingDimensions();
+
+      for (let row = 0; row < this.rows; row++) {
+        for (let col = 0; col < this.columns; col++) {
+          this._sprites[col + row * this.columns] = new Sprite(
             this.image,
-            j * this.spWidth + this.spacing * j + this.spacing,
-            i * this.spHeight + this.spacing * i + this.spacing,
+            col * this.spWidth + spacing.margin * col + spacing.left,
+            row * this.spHeight + spacing.margin * row + spacing.top,
             this.spWidth,
             this.spHeight
           );
         }
       }
+    }
+  }
+
+  /**
+   * Gets the raw spacing dimensions for the sprites in the sheet, which can be a fixed number or custom dimensions.
+   */
+  public get spacing() {
+    return this._spacing;
+  }
+
+  /**
+   * Get a copy of the backing sprite array
+   */
+  public get sprites() {
+    return [...this._sprites];
+  }
+
+  /**
+   * The backing texture used for the sprite sheet
+   */
+  public get image() {
+    return this._image;
+  }
+
+  /**
+   * The number of columns in the sheet
+   */
+  public get columns() {
+    return this._columns;
+  }
+
+  /**
+   * The number of rows in the sheet
+   */
+  public get rows() {
+    return this._rows;
+  }
+
+  /**
+   * The width of the individual sprites
+   */
+  public get spWidth() {
+    return this._spWidth;
+  }
+
+  /**
+   * The height of the individual sprites
+   */
+  public get spHeight() {
+    return this._spHeight;
+  }
+
+  /**
+   * Gets the calculated spacing dimensions based on whether spacing
+   * is a fixed number or has different values for each dimension
+   */
+  public getSpacingDimensions(): SpriteSheetSpacingDimensions {
+    if (typeof this.spacing === 'number') {
+      return {
+        left: this.spacing,
+        top: this.spacing,
+        margin: this.spacing
+      };
+    } else {
+      return {
+        left: this.spacing.left ?? 0,
+        top: this.spacing.top ?? 0,
+        margin: this.spacing.margin ?? 0
+      };
     }
   }
 
@@ -191,51 +307,37 @@ export class SpriteSheetImpl {
 }
 
 /**
- * @deprecated Will be removed in v0.26.0
+ * Specify various font attributes for sprite fonts
  */
-export interface SpriteSheetArgs extends Partial<SpriteSheetImpl> {
-  image: Texture;
-  sprites?: Sprite[];
-  spWidth: number;
-  spHeight: number;
-  rows: number;
-  columns: number;
-  spacing?: number;
+export interface SpriteFontOptions {
+  color?: Color;
+  opacity?: number;
+  fontSize?: number;
+  letterSpacing?: number;
+  textAlign?: TextAlign;
+  baseAlign?: BaseAlign;
+  maxWidth?: number;
+}
+
+export interface SpriteFontArgs extends SpriteSheetArgs {
+  alphabet: string;
+  caseInsensitive: boolean;
 }
 
 /**
- * Sprite sheets are a useful mechanism for slicing up image resources into
- * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
- * in row major order in the [[SpriteSheet]].
- * @deprecated Use [["Graphics/SpriteSheet".SpriteSheet]]
+ * Sprite fonts are a used in conjunction with a [[Label]] to specify
+ * a particular bitmap as a font. Note that some font features are not
+ * supported by Sprite fonts.
+ * @deprecated Will be removed into v0.26.0
  */
 @obsolete({
   message: 'SpriteSheet will be removed in v0.26.0',
   alternateMethod: 'Use Graphics.SpriteSheet'
 })
-export class SpriteSheet extends Configurable(SpriteSheetImpl) {
-  constructor(config: SpriteSheetArgs);
-  constructor(sprites: Sprite[]);
-  constructor(image: Texture, columns: number, rows: number, spWidth: number, spHeight: number);
-  constructor(
-    imageOrConfigOrSprites: Texture | SpriteSheetArgs | Sprite[],
-    columns?: number,
-    rows?: number,
-    spWidth?: number,
-    spHeight?: number,
-    spacing?: number
-  ) {
-    super(imageOrConfigOrSprites, columns, rows, spWidth, spHeight, spacing);
-  }
-}
-
-/**
- * @deprecated Will be removed in v0.26.0
- */
-export class SpriteFontImpl extends SpriteSheet {
+export class SpriteFont extends SpriteSheet {
   private _currentColor: Color = Color.Black;
   private _currentOpacity: Number = 1.0;
-  private _sprites: { [key: string]: Sprite } = {};
+  private _spriteRecord: Record<string, Sprite> = {};
 
   // text shadow
   private _textShadowOn: boolean = false;
@@ -244,8 +346,21 @@ export class SpriteFontImpl extends SpriteSheet {
   private _textShadowSprites: { [key: string]: Sprite } = {};
   private _shadowOffsetX: number = 5;
   private _shadowOffsetY: number = 5;
-  public alphabet: string;
-  public caseInsensitive: boolean;
+  private _alphabet: string;
+  private _caseInsensitive: boolean;
+
+  constructor(config: SpriteFontArgs);
+
+  constructor(
+    image: Texture,
+    alphabet: string,
+    caseInsensitive: boolean,
+    columns: number,
+    rows: number,
+    spWidth: number,
+    spHeight: number,
+    spacing?: number | SpriteSheetSpacingDimensions
+  );
 
   /**
    * @param imageOrConfig   The backing image texture to build the SpriteFont or the sprite font option bag
@@ -258,13 +373,13 @@ export class SpriteFontImpl extends SpriteSheet {
    */
   constructor(
     imageOrConfig: Texture | SpriteFontArgs,
-    alphabet: string,
-    caseInsensitive: boolean,
-    columns: number,
-    rows: number,
-    spWidth: number,
-    spHeight: number,
-    spacing?: number
+    alphabet?: string,
+    caseInsensitive?: boolean,
+    columns?: number,
+    rows?: number,
+    spWidth?: number,
+    spHeight?: number,
+    spacing?: number | SpriteSheetSpacingDimensions
   ) {
     super(
       imageOrConfig instanceof Texture
@@ -284,9 +399,9 @@ export class SpriteFontImpl extends SpriteSheet {
       caseInsensitive = imageOrConfig.caseInsensitive;
     }
 
-    this.alphabet = alphabet;
-    this.caseInsensitive = caseInsensitive;
-    this._sprites = this.getTextSprites();
+    this._alphabet = alphabet;
+    this._caseInsensitive = caseInsensitive;
+    this._spriteRecord = this.getTextSprites();
   }
 
   /**
@@ -294,9 +409,9 @@ export class SpriteFontImpl extends SpriteSheet {
    */
   public getTextSprites(): { [key: string]: Sprite } {
     const lookup: { [key: string]: Sprite } = {};
-    for (let i = 0; i < this.alphabet.length; i++) {
-      let char = this.alphabet[i];
-      if (this.caseInsensitive) {
+    for (let i = 0; i < this._alphabet.length; i++) {
+      let char = this._alphabet[i];
+      if (this._caseInsensitive) {
         char = char.toLowerCase();
       }
       lookup[char] = this.sprites[i].clone();
@@ -316,8 +431,8 @@ export class SpriteFontImpl extends SpriteSheet {
     this._shadowOffsetY = offsetY;
     this._textShadowColor = shadowColor.clone();
     this._textShadowDirty = true;
-    for (const character in this._sprites) {
-      this._textShadowSprites[character] = this._sprites[character].clone();
+    for (const character in this._spriteRecord) {
+      this._textShadowSprites[character] = this._spriteRecord[character].clone();
     }
   }
 
@@ -340,10 +455,10 @@ export class SpriteFontImpl extends SpriteSheet {
     if (this._currentColor.toString() !== options.color.toString() || this._currentOpacity !== options.opacity) {
       this._currentOpacity = options.opacity;
       this._currentColor = options.color;
-      for (const char in this._sprites) {
-        this._sprites[char].clearEffects();
-        this._sprites[char].fill(options.color);
-        this._sprites[char].opacity(options.opacity);
+      for (const char in this._spriteRecord) {
+        this._spriteRecord[char].clearEffects();
+        this._spriteRecord[char].fill(options.color);
+        this._spriteRecord[char].opacity(options.opacity);
       }
     }
 
@@ -390,7 +505,7 @@ export class SpriteFontImpl extends SpriteSheet {
 
     for (let i = 0; i < text.length; i++) {
       let character = text[i];
-      if (this.caseInsensitive) {
+      if (this._caseInsensitive) {
         character = character.toLowerCase();
       }
       try {
@@ -402,7 +517,7 @@ export class SpriteFontImpl extends SpriteSheet {
           this._textShadowSprites[character].draw(ctx, currX + this._shadowOffsetX, currY + this._shadowOffsetY);
         }
 
-        const charSprite = this._sprites[character];
+        const charSprite = this._spriteRecord[character];
         charSprite.drawAroundAnchor = false;
         charSprite.scale.x = scale;
         charSprite.scale.y = scale;
@@ -424,59 +539,5 @@ export class SpriteFontImpl extends SpriteSheet {
       maxWidth: options.maxWidth || -1,
       opacity: options.opacity || 0
     };
-  }
-}
-
-/**
- * Specify various font attributes for sprite fonts
- * @deprecated Will be removed in v0.26.0
- */
-export interface SpriteFontOptions {
-  color?: Color;
-  opacity?: number;
-  fontSize?: number;
-  letterSpacing?: number;
-  textAlign?: TextAlign;
-  baseAlign?: BaseAlign;
-  maxWidth?: number;
-}
-
-/**
- * @deprecated Use [["Graphics/SpriteFont".SpriteFont]]
- */
-export interface SpriteFontArgs extends SpriteSheetArgs {
-  image: Texture;
-  columns: number;
-  rows: number;
-  spWidth: number;
-  spHeight: number;
-  alphabet: string;
-  caseInsensitive: boolean;
-}
-
-/**
- * Sprite fonts are a used in conjunction with a [[Label]] to specify
- * a particular bitmap as a font. Note that some font features are not
- * supported by Sprite fonts.
- * @deprecated Use [["Graphics/SpriteFont".SpriteFont]]
- */
-@obsolete({
-  message: 'SpriteFont will be removed in v0.26.0',
-  alternateMethod: 'Use Graphics.SpriteFont'
-})
-export class SpriteFont extends Configurable(SpriteFontImpl) {
-  constructor(config: SpriteFontArgs);
-  constructor(image: Texture, alphabet: string, caseInsensitive: boolean, columns: number, rows: number, spWidth: number, spHeight: number);
-  constructor(
-    imageOrConfig: Texture | SpriteFontArgs,
-    alphabet?: string,
-    caseInsensitive?: boolean,
-    columns?: number,
-    rows?: number,
-    spWidth?: number,
-    spHeight?: number,
-    spacing?: number
-  ) {
-    super(imageOrConfig, alphabet, caseInsensitive, columns, rows, spWidth, spHeight, spacing);
   }
 }

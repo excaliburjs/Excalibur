@@ -174,7 +174,7 @@ describe('A spritesheet', () => {
     });
   });
 
-  it('should getSprite at an index with spacing', (done) => {
+  it('should getSprite at an index with equal spacing', (done) => {
     engine = TestUtils.engine({
       width: 32,
       height: 32
@@ -198,9 +198,46 @@ describe('A spritesheet', () => {
 
       expect(ss.sprites.length).toBe(6);
 
-      ss.getSprite(2).draw(engine.ctx, 0, 0);
+      ss.getSprite(4).draw(engine.ctx, 0, 0);
 
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSheetSpec/SpriteSheetSpacing2.png').then(([canvas, image]) => {
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSheetSpec/SpriteSheetSpacingSingle.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
+    });
+  });
+
+  it('should getSprite at an index with custom spacing dimensions', (done) => {
+    engine = TestUtils.engine({
+      width: 32,
+      height: 32
+    });
+    const texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/SpriteSheetSpacingCustom.png', true);
+    texture.load().then(() => {
+      const ss = new ex.SpriteSheet({
+        image: texture,
+        columns: 3,
+        rows: 2,
+        spWidth: 32,
+        spHeight: 32,
+        spacing: {
+          top: 0,
+          left: 0,
+          margin: 1
+        }
+      });
+
+      expect(ss.image.isLoaded());
+      expect(ss.columns).toBe(3);
+      expect(ss.rows).toBe(2);
+      expect(ss.spWidth).toBe(32);
+      expect(ss.spHeight).toBe(32);
+
+      expect(ss.sprites.length).toBe(6);
+
+      ss.getSprite(4).draw(engine.ctx, 0, 0);
+
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSheetSpec/SpriteSheetSpacingSingle.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
       });

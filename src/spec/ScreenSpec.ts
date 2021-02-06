@@ -7,6 +7,11 @@ describe('A Screen', () => {
   let browser: ex.BrowserEvents;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    // It's important nothing else is hanging out in the dom
+    Array.from(document.body.children).forEach((element) => {
+      document.body.removeChild(element);
+    });
+    document.body.style.margin = '0';
     canvas = document.createElement('canvas');
     context = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
       canvasElement: canvas
@@ -41,7 +46,7 @@ describe('A Screen', () => {
       viewport: { width: 800, height: 600 }
     });
 
-    expect(sut.aspectRatio).toBe(800/600);
+    expect(sut.aspectRatio).toBe(800 / 600);
   });
 
   it('can use fit display mode, the viewport will adjust to it width', () => {
@@ -64,7 +69,7 @@ describe('A Screen', () => {
     expect(sut.viewport.height).toBe(1000 / sut.aspectRatio);
   });
 
-  it('can use fullscreen display mode, the viewport will adjust to it height', () => {
+  it('can use fit display mode, the viewport will adjust to it height', () => {
     const sut = new ex.Screen({
       canvas,
       context,
@@ -111,18 +116,24 @@ describe('A Screen', () => {
       canvas,
       context,
       browser,
-      displayMode: ex.DisplayMode.Fit,
+      displayMode: ex.DisplayMode.Fixed,
       viewport: { width: 800, height: 600 }
     });
 
     expect(sut.isFullScreen).toBe(false);
-    const nonFullScreenScreenCoord = sut.pageToScreenCoordinates(ex.vec(100, 100));
+
+    const nonFullScreenPage = sut.screenToPageCoordinates(ex.vec(800, 600));
+    expect(nonFullScreenPage).toBeVector(ex.vec(800, 600));
+    const nonFullScreenScreen = sut.pageToScreenCoordinates(nonFullScreenPage);
+    expect(nonFullScreenScreen).toBeVector(ex.vec(800, 600));
 
     canvas.dispatchEvent(new Event('fullscreenchange'));
     expect(sut.isFullScreen).toBe(true);
 
-    const fullScreenScreenCoord = sut.pageToScreenCoordinates(ex.vec(100, 100));
-    expect(nonFullScreenScreenCoord.sub(fullScreenScreenCoord)).toBeVector(ex.vec(0, 20));
+    const page = sut.screenToPageCoordinates(ex.vec(800, 600));
+    expect(page).toBeVector(ex.vec(1000, 775));
+    const screen = sut.pageToScreenCoordinates(page);
+    expect(screen).toBeVector(ex.vec(800, 600));
   });
 
   it('adjusts coordinates by width when using fullscreen api', () => {
@@ -132,18 +143,23 @@ describe('A Screen', () => {
       canvas,
       context,
       browser,
-      displayMode: ex.DisplayMode.Fit,
+      displayMode: ex.DisplayMode.Fixed,
       viewport: { width: 800, height: 600 }
     });
 
     expect(sut.isFullScreen).toBe(false);
-    const nonFullScreenScreenCoord = sut.pageToScreenCoordinates(ex.vec(100, 100));
+    const nonFullScreenPage = sut.screenToPageCoordinates(ex.vec(800, 600));
+    expect(nonFullScreenPage).toBeVector(ex.vec(800, 600));
+    const nonFullScreenScreen = sut.pageToScreenCoordinates(nonFullScreenPage);
+    expect(nonFullScreenScreen).toBeVector(ex.vec(800, 600));
 
     canvas.dispatchEvent(new Event('fullscreenchange'));
     expect(sut.isFullScreen).toBe(true);
 
-    const fullScreenScreenCoord = sut.pageToScreenCoordinates(ex.vec(100, 100));
-    expect(nonFullScreenScreenCoord.sub(fullScreenScreenCoord)).toBeVector(ex.vec(87.5, 0));
+    const page = sut.screenToPageCoordinates(ex.vec(800, 600));
+    expect(page).toBeVector(ex.vec(1183.33, 800));
+    const screen = sut.pageToScreenCoordinates(page);
+    expect(screen).toBeVector(ex.vec(800, 600));
   });
 
   it('can round trip convert coordinates', () => {
@@ -174,7 +190,6 @@ describe('A Screen', () => {
     expect(page).toBeVector(page3);
     expect(screen).toBeVector(screen2);
     expect(world).toBeVector(world2);
-
   });
 
   it('will use the current pixel ratio', () => {
@@ -275,7 +290,9 @@ describe('A Screen', () => {
       }
     );
     const canvasStub = { ...canvas, style: styleProxy } as HTMLCanvasElement;
-    canvasStub.addEventListener = () => { /* nothing */ };
+    canvasStub.addEventListener = () => {
+      /* nothing */
+    };
 
     const sut = new ex.Screen({
       canvas: canvasStub,
