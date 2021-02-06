@@ -14,7 +14,7 @@ import { obsolete } from '../Util/Decorators';
  * @deprecated Use [["Graphics/Sprite".Sprite]]
  */
 export class SpriteImpl implements Drawable {
-  public _texture: Texture;
+  public texture: Texture;
 
   public x: number = 0;
   public y: number = 0;
@@ -84,7 +84,7 @@ export class SpriteImpl implements Drawable {
     this.x = x || 0;
     this.y = y || 0;
 
-    this._texture = image as Texture;
+    this.texture = image as Texture;
     this._spriteCanvas = document.createElement('canvas');
     this._spriteCanvas.width = width;
     this._spriteCanvas.height = height;
@@ -97,7 +97,7 @@ export class SpriteImpl implements Drawable {
 
   private async _initPixelsFromTexture() {
     try {
-      const image = await this._texture.loaded;
+      const image = await this.texture.loaded;
       this.width = this.width || image.naturalWidth;
       this.height = this.height || image.naturalHeight;
       this._spriteCanvas.width = this._spriteCanvas.width || image.naturalWidth;
@@ -105,18 +105,18 @@ export class SpriteImpl implements Drawable {
       this._loadPixels();
       this._dirtyEffect = true;
     } catch (e) {
-      this.logger.error('Error loading texture ', this._texture.path, e);
+      this.logger.error('Error loading texture ', this.texture.path, e);
     }
   }
 
   private _loadPixels() {
-    if (this._texture.isLoaded() && !this._pixelsLoaded) {
-      const naturalWidth = this._texture.image.naturalWidth || 0;
-      const naturalHeight = this._texture.image.naturalHeight || 0;
+    if (this.texture.isLoaded() && !this._pixelsLoaded) {
+      const naturalWidth = this.texture.image.naturalWidth || 0;
+      const naturalHeight = this.texture.image.naturalHeight || 0;
 
       if (this.width > naturalWidth) {
         this.logger.warn(`The sprite width ${this.width} exceeds the width 
-                              ${naturalWidth} of the backing texture ${this._texture.path}`);
+                              ${naturalWidth} of the backing texture ${this.texture.path}`);
       }
 
       if (this.width <= 0 || naturalWidth <= 0) {
@@ -125,7 +125,7 @@ export class SpriteImpl implements Drawable {
 
       if (this.height > naturalHeight) {
         this.logger.warn(`The sprite height ${this.height} exceeds the height 
-                              ${naturalHeight} of the backing texture ${this._texture.path}`);
+                              ${naturalHeight} of the backing texture ${this.texture.path}`);
       }
 
       if (this.height <= 0 || naturalHeight <= 0) {
@@ -139,12 +139,12 @@ export class SpriteImpl implements Drawable {
   }
 
   private _flushTexture() {
-    const naturalWidth = this._texture.image.naturalWidth || 0;
-    const naturalHeight = this._texture.image.naturalHeight || 0;
+    const naturalWidth = this.texture.image.naturalWidth || 0;
+    const naturalHeight = this.texture.image.naturalHeight || 0;
 
     this._spriteCtx.clearRect(0, 0, this.width, this.height);
     this._spriteCtx.drawImage(
-      this._texture.image,
+      this.texture.image,
       clamp(this.x, 0, naturalWidth),
       clamp(this.y, 0, naturalHeight),
       clamp(this.width, 0, naturalWidth),
@@ -229,7 +229,7 @@ export class SpriteImpl implements Drawable {
     this.effects.push(effect);
     // We must check if the texture and the backing sprite pixels are loaded as well before
     // an effect can be applied
-    if (!this._texture.isLoaded() || !this._pixelsLoaded) {
+    if (!this.texture.isLoaded() || !this._pixelsLoaded) {
       this._dirtyEffect = true;
     } else {
       this._applyEffects();
@@ -264,7 +264,7 @@ export class SpriteImpl implements Drawable {
 
     // We must check if the texture and the backing sprite pixels are loaded as well before
     // an effect can be applied
-    if (!this._texture.isLoaded() || !this._pixelsLoaded) {
+    if (!this.texture.isLoaded() || !this._pixelsLoaded) {
       this._dirtyEffect = true;
     } else {
       this._applyEffects();
@@ -412,7 +412,7 @@ export class SpriteImpl implements Drawable {
    * Produces a copy of the current sprite
    */
   public clone(): SpriteImpl {
-    const result = new Sprite(this._texture, this.x, this.y, this.width, this.height);
+    const result = new Sprite(this.texture, this.x, this.y, this.width, this.height);
     result.anchor = this.anchor.clone();
     result.scale = this.scale.clone();
     result.rotation = this.rotation;

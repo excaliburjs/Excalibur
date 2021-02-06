@@ -126,11 +126,11 @@ export class GraphicsLayer {
   }
 
   /**
-   * Swap out any current graphics being shown for another
+   * Use a specific graphic, swap out any current graphics being shown
    * @param nameOrGraphic
    * @param options
    */
-  public swap<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
+  public use<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
     options = { offset: this._graphics.offset.clone(), anchor: this._graphics.anchor.clone(), ...options };
     this.hide();
     return this.show<T>(nameOrGraphic, options);
@@ -336,12 +336,12 @@ export class GraphicsComponent extends Component<'graphics'> {
   }
 
   /**
-   * Swap out any graphics on the **default** layer, returns the new [[Graphic]]
+   * Use a graphic only, swap out any graphics on the **default** layer, returns the new [[Graphic]]
    * @param nameOrGraphic
    * @param options
    */
-  public swap<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
-    return this.layers.default.swap<T>(nameOrGraphic, options);
+  public use<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
+    return this.layers.default.use<T>(nameOrGraphic, options);
   }
 
   /**

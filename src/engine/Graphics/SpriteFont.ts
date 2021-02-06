@@ -4,7 +4,6 @@ import { Logger } from '../Util/Log';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { FontRenderer } from './FontCommon';
 import { Graphic, GraphicOptions } from './Graphic';
-import { ImageSource } from './ImageSource';
 import { Sprite } from './Sprite';
 import { SpriteSheet } from './SpriteSheet';
 
@@ -52,7 +51,6 @@ export class SpriteFont extends Graphic implements FontRenderer {
       spacing: 0,
       caseInsensitive: spriteFont.caseInsensitive,
       spriteSheet: new SpriteSheet({
-        image: ImageSource.fromLegacyTexture(spriteFont.image),
         sprites
       })
     });
@@ -67,7 +65,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
     this.spacing = spacing ?? this.spacing;
     this.shadow = shadow ?? this.shadow;
 
-    this.spriteSheet.image.ready.then(() => {
+    this.spriteSheet.sprites[0].image.ready.then(() => {
       this._updateDimensions();
     });
   }

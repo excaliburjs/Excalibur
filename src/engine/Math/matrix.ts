@@ -1,11 +1,18 @@
 import { Vector } from '../Algebra';
 
+
+/**
+ * Excalibur Matrix helper for 4x4 matrices
+ */
 export class Matrix {
-  // 4x4 matrix in column major order
-  // | data[0], data[4], data[8],  data[12] |
-  // | data[1], data[5], data[9],  data[13] |
-  // | data[2], data[6], data[10], data[14] |
-  // | data[3], data[7], data[11], data[15] |
+
+  /**
+   *  4x4 matrix in column major order
+   * | data[0], data[4], data[8],  data[12] |
+   * | data[1], data[5], data[9],  data[13] |
+   * | data[2], data[6], data[10], data[14] |
+   * | data[3], data[7], data[11], data[15] |
+   */
   public data: Float32Array = new Float32Array(16);
 
   /**
@@ -42,6 +49,9 @@ export class Matrix {
     return mat;
   }
 
+  /**
+   * Creates a new Matrix with the same data as the current 4x4
+   */
   public clone(): Matrix {
     const mat = new Matrix();
     mat.data[0] = this.data[0];
@@ -66,6 +76,9 @@ export class Matrix {
     return mat;
   }
 
+  /**
+   * Creates a new identity matrix (a matrix that when applied does nothing)
+   */
   public static identity(): Matrix {
     const mat = new Matrix();
     mat.data[0] = 1;
@@ -90,6 +103,12 @@ export class Matrix {
     return mat;
   }
 
+  /**
+   * Creates a brand new translation matrix at the specified 3d point
+   * @param x
+   * @param y
+   * @param z
+   */
   public static translation(x: number, y: number, z: number = 0): Matrix {
     const mat = Matrix.identity();
     mat.data[12] = x;
@@ -98,6 +117,11 @@ export class Matrix {
     return mat;
   }
 
+  /**
+   * Creates a brand new scaling matrix with the specified scaling factor
+   * @param sx
+   * @param sy
+   */
   public static scale(sx: number, sy: number): Matrix {
     const mat = Matrix.identity();
     mat.data[0] = sx;
@@ -107,6 +131,10 @@ export class Matrix {
     return mat;
   }
 
+  /**
+   * Creates a brand new rotation matrix with the specified angle
+   * @param angleRadians
+   */
   public static rotation(angleRadians: number): Matrix {
     const mat = Matrix.identity();
     mat.data[0] = Math.cos(angleRadians);
@@ -116,6 +144,10 @@ export class Matrix {
     return mat;
   }
 
+  /**
+   * Multiplies the current matrix by a vector and returns the resulting vector
+   * @param other
+   */
   multv(other: [number, number]): [number, number];
   multv(other: Vector): Vector;
   multv(other: [number, number] | Vector): [number, number] | Vector {
@@ -135,6 +167,10 @@ export class Matrix {
     }
   }
 
+  /**
+   * Multiplies the current matrix by another and returns the resulting matrix
+   * @param other
+   */
   multm(other: Matrix): Matrix {
     const dest = new Matrix();
     const a11 = this.data[0];
@@ -200,6 +236,11 @@ export class Matrix {
     return dest;
   }
 
+  /**
+   * Applies translation to the current matrix mutating it
+   * @param x
+   * @param y
+   */
   translate(x: number, y: number) {
     const a11 = this.data[0];
     const a21 = this.data[1];
@@ -230,6 +271,10 @@ export class Matrix {
     return this;
   }
 
+  /**
+   * Applies rotation to the current matrix mutating it
+   * @param angle
+   */
   rotate(angle: number) {
     const a11 = this.data[0];
     const a21 = this.data[1];
@@ -257,6 +302,11 @@ export class Matrix {
     return this;
   }
 
+  /**
+   * Applies scaling to the current matrix mutating it
+   * @param x
+   * @param y
+   */
   scale(x: number, y: number) {
     const a11 = this.data[0];
     const a21 = this.data[1];

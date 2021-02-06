@@ -18,7 +18,6 @@ export enum CoordPlane {
 }
 
 export class TransformComponent extends Component<'transform'> {
-  static type: 'transform';
   public readonly type = 'transform';
 
   /**

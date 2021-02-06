@@ -21,7 +21,7 @@ import { Canvas } from '../Canvas';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
-  constructor(private _ex: ExcaliburGraphicsContextWebGL) {}
+  constructor(private _webglCtx: ExcaliburGraphicsContextWebGL) {}
 
   /**
    * Draw a debugging rectangle to the context
@@ -44,7 +44,7 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
    * @param lineOptions
    */
   drawLine(start: Vector, end: Vector, lineOptions: LineGraphicsOptions = { color: Color.Black }): void {
-    this._ex.__lineRenderer.addLine(start, end, lineOptions.color);
+    this._webglCtx.__lineRenderer.addLine(start, end, lineOptions.color);
   }
 
   /**
@@ -53,7 +53,7 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
    * @param pointOptions
    */
   drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
-    this._ex.__pointRenderer.addPoint(point, pointOptions.color, pointOptions.size);
+    this._webglCtx.__pointRenderer.addPoint(point, pointOptions.color, pointOptions.size);
   }
 }
 
@@ -74,16 +74,32 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * Holds the 2d context shim
    */
   private _canvas: Canvas; // Configure z for shim?
+  /**
+   * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
+   * @internal
+   */
   public __ctx: CanvasRenderingContext2D;
 
   private _transform = new TransformStack();
   private _state = new StateStack();
   private _ortho!: Matrix;
 
+  /**
+   * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
+   * @internal
+   */
   public __pointRenderer: PointRenderer;
 
+  /**
+   * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
+   * @internal
+   */
   public __lineRenderer: LineRenderer;
 
+  /**
+   * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
+   * @internal
+   */
   public __imageRenderer: ImageRenderer;
 
   public snapToPixel: boolean = true;

@@ -234,7 +234,7 @@ export class LabelImpl extends Actor {
 
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
     this.addComponent(new GraphicsComponent);
-    this.components.graphics.swap(this._text);
+    this.components.graphics.use(this._text);
 
     this.text = text || '';
     this.color = Color.Black;

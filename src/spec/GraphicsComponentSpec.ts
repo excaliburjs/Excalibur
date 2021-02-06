@@ -145,7 +145,7 @@ describe('A Graphics ECS Component', () => {
       }
     ]);
 
-    sut.swap(rect2);
+    sut.use(rect2);
 
     expect(sut.current).toEqual([
       {

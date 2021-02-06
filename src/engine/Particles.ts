@@ -129,7 +129,7 @@ export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent>
     this.transform.scale = vec(1, 1); // TODO wut
     if (this.particleSprite) {
       this.graphics.opacity = this.opacity;
-      this.graphics.swap(Graphics.Sprite.fromLegacySprite(this.particleSprite));
+      this.graphics.use(Graphics.Sprite.fromLegacySprite(this.particleSprite));
     } else {
       this.graphics.onPostDraw = (ctx) => {
         ctx.save();
@@ -479,7 +479,7 @@ export class ParticleEmitterImpl extends Actor {
     if (this.particleSprite) {
       p.particleSprite = this.particleSprite;
       p.graphics.opacity = this.opacity;
-      p.graphics.swap(this._sprite);
+      p.graphics.use(this._sprite);
     }
     p.particleRotationalVelocity = this.particleRotationalVelocity;
     if (this.randomRotation) {

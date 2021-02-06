@@ -39,7 +39,7 @@ logger.defaultLevel = ex.LogLevel.Debug;
 var fullscreenButton = document.getElementById('fullscreen') as HTMLButtonElement;
 
 // Create an the game container
-ex.Flags.enable('use-webgl');
+ex.Flags.enable(ex.Experiments.WebGL);
 var game = new ex.Engine({
   width: 800 / 2,
   height: 600 / 2,
@@ -321,7 +321,7 @@ var spriteSheetJump = ex.Graphics.SpriteSheet.fromGrid({
 });
 var tileBlockWidth = 64,
   tileBlockHeight = 48,
-  spriteTiles = new ex.Graphics.SpriteSheet({ image: imageBlocks, sprites: [ex.Graphics.Sprite.from(imageBlocks)] });
+  spriteTiles = new ex.Graphics.SpriteSheet({sprites: [ex.Graphics.Sprite.from(imageBlocks)] });
 
 // create a collision map
 // var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
@@ -502,7 +502,7 @@ player.graphics.add(Animations.JumpRight, jumpRight);
 player.graphics.add(Animations.JumpLeft, jumpLeft);
 
 // Set default animation
-player.graphics.swap(Animations.Idle);
+player.graphics.use(Animations.Idle);
 
 var inAir = true;
 var groundSpeed = 150;
@@ -513,7 +513,7 @@ player.on('postupdate', () => {
   if (game.input.keyboard.isHeld(ex.Input.Keys.Left)) {
     direction = -1;
     if (!inAir) {
-      player.graphics.swap(Animations.Left);
+      player.graphics.use(Animations.Left);
     }
     if (inAir) {
       player.vel.x = -airSpeed;
@@ -523,7 +523,7 @@ player.on('postupdate', () => {
   } else if (game.input.keyboard.isHeld(ex.Input.Keys.Right)) {
     direction = 1;
     if (!inAir) {
-      player.graphics.swap(Animations.Right);
+      player.graphics.use(Animations.Right);
     }
     if (inAir) {
       player.vel.x = airSpeed;
@@ -537,9 +537,9 @@ player.on('postupdate', () => {
       player.vel.y = -jumpSpeed;
       inAir = true;
       if (direction === 1) {
-        player.graphics.swap<ex.Graphics.Animation>(Animations.JumpRight).reset();
+        player.graphics.use<ex.Graphics.Animation>(Animations.JumpRight).reset();
       } else {
-        player.graphics.swap<ex.Graphics.Animation>(Animations.JumpLeft).reset();
+        player.graphics.use<ex.Graphics.Animation>(Animations.JumpLeft).reset();
       }
       jump.play();
     }
@@ -550,7 +550,7 @@ game.input.keyboard.on('up', (e?: ex.Input.KeyEvent) => {
   if (inAir) return;
 
   if (e.key === ex.Input.Keys.Left || e.key === ex.Input.Keys.Right) {
-    player.graphics.swap(Animations.Idle);
+    player.graphics.use(Animations.Idle);
   }
 });
 
@@ -606,7 +606,7 @@ player.on('precollision', (data?: ex.PreCollisionEvent) => {
     isColliding = true;
 
     if (inAir) {
-      player.graphics.swap(Animations.Idle);
+      player.graphics.use(Animations.Idle);
     }
     inAir = false;
     if (

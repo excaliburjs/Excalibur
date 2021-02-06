@@ -24,7 +24,6 @@ describe('A SpriteSheet for Graphics', () => {
 
     await image.load();
     const ss = new ex.Graphics.SpriteSheet({
-      image,
       sprites: [ex.Graphics.Sprite.from(image)]
     });
 

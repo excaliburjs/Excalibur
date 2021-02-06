@@ -3,9 +3,13 @@ import { Sprite } from './Sprite';
 import { SpriteSheet as LegacySpriteSheet } from '../Drawing/SpriteSheet';
 
 
+/**
+ * Specify sprite sheet spacing options, useful if your sprites are not tightly packed
+ * and have space between them.
+ */
 export interface SpriteSheetSpacingDimensions {
   /**
-   * The starting point to offset and start slicing the sprite sheet.
+   * The starting point to offset and start slicing the sprite sheet from the top left of the image.
    * Default is (0, 0)
    */
   originOffset?: { x?: number, y?: number };
@@ -16,40 +20,75 @@ export interface SpriteSheetSpacingDimensions {
    */
   margin?: {x?: number, y?: number};
 }
+
+/**
+ * Sprite sheet options for slicing up images
+ */
 export interface SpriteSheetGridOptions {
+  /**
+   * Source image to use for each sprite
+   */
   image: ImageSource;
+  /**
+   * Grid definition for the sprite sheet
+   */
   grid: {
+    /**
+     * Number of rows in the sprite sheet
+     */
     rows: number;
+    /**
+     * Number of columns in the sprite sheet
+     */
     columns: number;
+    /**
+     * Width of each individual sprite
+     */
     spriteWidth: number;
+    /**
+     * Height of each individual sprite
+     */
     spriteHeight: number;
   };
+  /**
+   * Optionally specifiy any spacing information between sprites
+   */
   spacing?: SpriteSheetSpacingDimensions;
 }
 
 export interface SpriteSheetOptions {
-  image: ImageSource;
   sprites: Sprite[];
 }
 
+/**
+ * Represents a collection of sprites from a source image
+ */
 export class SpriteSheet {
-  public image: ImageSource;
   public readonly sprites: Sprite[] = [];
+
+  /**
+   * Build a new sprite sheet from a list of sprites
+   * @param options
+   */
   constructor(options: SpriteSheetOptions) {
-    const { image, sprites } = options;
+    const { sprites } = options;
     this.sprites = sprites;
-    this.image = image;
   }
 
+  /**
+   * To a graphics sprite sheet from a legacy sprite sheet
+   */
   public static fromLegacySpriteSheet(legacySpriteSheet: LegacySpriteSheet): SpriteSheet {
-    const image = ImageSource.fromLegacyTexture(legacySpriteSheet.image);
     const sprites = legacySpriteSheet.sprites.map(oldSprite => Sprite.fromLegacySprite(oldSprite));
     return new SpriteSheet({
-      image,
       sprites
     });
   }
 
+  /**
+   * Parse a sprite sheet from grid options
+   * @param options
+   */
   public static fromGrid(options: SpriteSheetGridOptions): SpriteSheet {
     const sprites: Sprite[] = [];
     options.spacing = options.spacing ?? {};
@@ -75,7 +114,6 @@ export class SpriteSheet {
       }
     }
     return new SpriteSheet({
-      image: image,
       sprites: sprites
     });
   }

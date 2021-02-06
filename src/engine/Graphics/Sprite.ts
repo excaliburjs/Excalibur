@@ -89,7 +89,7 @@ export class Sprite extends Graphic {
    * @param sprite
    */
   public static fromLegacySprite(sprite: LegacySprite): Sprite {
-    const tex = sprite._texture;
+    const tex = sprite.texture;
     const image = ImageSource.fromLegacyTexture(tex);
     return new Sprite({
       image,
