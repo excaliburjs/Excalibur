@@ -58,7 +58,7 @@ export class SpriteSheet {
       grid: { rows, columns: cols, spriteWidth, spriteHeight },
       spacing: { originOffset, margin }
     } = options;
-    const offsetDefaults = { x: 0, y: 0, ...originOffset}
+    const offsetDefaults = { x: 0, y: 0, ...originOffset};
     const marginDefaults = { x: 0, y: 0, ...margin};
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {

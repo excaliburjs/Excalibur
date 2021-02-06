@@ -79,7 +79,7 @@ describe('A SpriteSheet for Graphics', () => {
     ss.sprites[48].draw(ctx, 60, 60);
 
     expect(ss.sprites.length).toBe(4 * 14);
-    
+
     await expectAsync(canvasElement).toEqualImage('src/spec/images/SpriteSheetSpec/NewSpriteSpacing.png');
   });
 

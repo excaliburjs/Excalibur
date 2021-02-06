@@ -276,6 +276,7 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
 
   /**
    * Draws the tile map to the screen. Called by the [[Scene]].
+   * @param ctx CanvasRenderingContext2D or ExcaliburGraphicsContext
    * @param delta  The number of milliseconds since the last draw
    */
   public draw(ctx: CanvasRenderingContext2D | ExcaliburGraphicsContext, delta: number): void {
