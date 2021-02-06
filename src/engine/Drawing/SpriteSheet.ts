@@ -346,8 +346,8 @@ export class SpriteFont extends SpriteSheet {
   private _textShadowSprites: { [key: string]: Sprite } = {};
   private _shadowOffsetX: number = 5;
   private _shadowOffsetY: number = 5;
-  private _alphabet: string;
-  private _caseInsensitive: boolean;
+  public readonly alphabet: string;
+  public readonly caseInsensitive: boolean;
 
   constructor(config: SpriteFontArgs);
 
@@ -399,8 +399,8 @@ export class SpriteFont extends SpriteSheet {
       caseInsensitive = imageOrConfig.caseInsensitive;
     }
 
-    this._alphabet = alphabet;
-    this._caseInsensitive = caseInsensitive;
+    this.alphabet = alphabet;
+    this.caseInsensitive = caseInsensitive;
     this._spriteRecord = this.getTextSprites();
   }
 
@@ -409,9 +409,9 @@ export class SpriteFont extends SpriteSheet {
    */
   public getTextSprites(): { [key: string]: Sprite } {
     const lookup: { [key: string]: Sprite } = {};
-    for (let i = 0; i < this._alphabet.length; i++) {
-      let char = this._alphabet[i];
-      if (this._caseInsensitive) {
+    for (let i = 0; i < this.alphabet.length; i++) {
+      let char = this.alphabet[i];
+      if (this.caseInsensitive) {
         char = char.toLowerCase();
       }
       lookup[char] = this.sprites[i].clone();
@@ -505,7 +505,7 @@ export class SpriteFont extends SpriteSheet {
 
     for (let i = 0; i < text.length; i++) {
       let character = text[i];
-      if (this._caseInsensitive) {
+      if (this.caseInsensitive) {
         character = character.toLowerCase();
       }
       try {

@@ -8,6 +8,7 @@ import { ImageSource } from './ImageSource';
 import { Sprite } from './Sprite';
 import { SpriteSheet } from './SpriteSheet';
 
+
 export interface SpriteFontOptions {
   /**
    * Alphabet string in spritsheet order (default is row column order)
@@ -48,7 +49,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
     const sprites = spriteFont.sprites.map(Sprite.fromLegacySprite);
     return new SpriteFont({
       alphabet: spriteFont.alphabet,
-      spacing: spriteFont.spacing,
+      spacing: 0,
       caseInsensitive: spriteFont.caseInsensitive,
       spriteSheet: new SpriteSheet({
         image: ImageSource.fromLegacyTexture(spriteFont.image),

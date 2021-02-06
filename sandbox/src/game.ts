@@ -69,6 +69,7 @@ var imageBlocks = new ex.Graphics.ImageSource('../images/BlockA0.png');
 var imageBlocksLegacy = new ex.Texture('../images/BlockA0.png');
 var spriteFontImage = new ex.Graphics.ImageSource('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
+var cards = new ex.Graphics.ImageSource('../images/kenny-cards.png');
 
 jump.volume = 0.3;
 
@@ -80,6 +81,7 @@ loader.addResource(imageJump);
 loader.addResource(imageBlocks);
 loader.addResource(imageBlocksLegacy);
 loader.addResource(spriteFontImage);
+loader.addResource(cards);
 loader.addResource(jump);
 
 // Set background color
@@ -142,6 +144,24 @@ var anim = new ex.Graphics.Animation({
 //   rows: 3,
 //   spWidth: 16,
 //   spHeight: 16
+
+var cardSpriteSheet = ex.Graphics.SpriteSheet.fromGrid({
+  image: cards,
+  grid: {
+    rows: 4,
+    columns: 14,
+    spriteWidth: 42,
+    spriteHeight: 60
+  },
+  spacing: {
+    originOffset: { x: 11, y: 2 },
+    margin: { x: 23, y: 5}
+  }
+});
+
+cardSpriteSheet.sprites.forEach(s => s.scale = ex.vec(2, 2));
+
+var cardAnimation = ex.Graphics.Animation.fromSpriteSheet(cardSpriteSheet, ex.Util.range(0, 14 * 4), 200);
 
 var spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
   image: spriteFontImage,
@@ -219,7 +239,7 @@ var group = new ex.Graphics.GraphicsGroup({
       pos: ex.vec(200, 200)
     },
     {
-      graphic: triangle,
+      graphic: cardAnimation,
       pos: ex.vec(0, 200)
     },
     {
