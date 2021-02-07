@@ -116,6 +116,7 @@ export interface FontOptions {
   textAlign?: TextAlign;
   baseAlign?: BaseAlign;
   direction?: Direction;
+  quality?: number;
   shadow?: {
     blur?: number;
     offset?: Vector;

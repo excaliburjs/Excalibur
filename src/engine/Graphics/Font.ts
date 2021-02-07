@@ -17,6 +17,7 @@ export class Font extends Raster implements FontRenderer {
     this.textAlign = options?.textAlign ?? this.textAlign;
     this.baseAlign = options?.baseAlign ?? this.baseAlign;
     this.direction = options?.direction ?? this.direction;
+    this.quality = options?.quality ?? this.quality;
     if (options?.shadow) {
       this.shadow = {};
       this.shadow.blur = options.shadow.blur ?? this.shadow.blur;
@@ -47,6 +48,16 @@ export class Font extends Raster implements FontRenderer {
         : null
     });
   }
+
+  /**
+   * Font quality determines the size of the underlying rastered text, higher quality means less jagged edges.
+   * If quality is set to 1, then just enough raster bitmap is generated to render the text.
+   * 
+   * You can think of quality as how zoomed in to the text you can get before seeing jagged edges.
+   * 
+   * (Default 4)
+   */
+  public quality = 4;
 
   public family: string = 'sans-serif';
   public style: FontStyle = FontStyle.Normal;
@@ -114,10 +125,10 @@ export class Font extends Raster implements FontRenderer {
       0,
       this._rasterWidth,
       this._rasterHeight,
-      x - this._halfRasterWidth,
-      y - this._halfRasterHeight,
-      this._rasterWidth,
-      this._rasterHeight
+      x - (this._rasterWidth / this.quality) / 2,
+      y - (this._rasterHeight / this.quality) / 2,
+      this._rasterWidth / this.quality,
+      this._rasterHeight / this.quality
     );
   }
 
@@ -158,8 +169,9 @@ export class Font extends Raster implements FontRenderer {
 
       // Changing the width and height clears the context properties
       // We double the bitmap width to account for alignment
-      this._bitmap.width = (this._textWidth + this.padding * 2) * 2;
-      this._bitmap.height = (this._textHeight + this.padding * 2) * 2;
+      // We scale by "quality" so we render text without jaggies
+      this._bitmap.width = (this._textWidth + this.padding * 2) * 2 * this.quality;
+      this._bitmap.height = (this._textHeight + this.padding * 2) * 2 * this.quality;
 
       // These bounds exist in raster bitmap space where the top left corner is the corder of the bitmap
       // TODO need to account for padding
@@ -190,6 +202,8 @@ export class Font extends Raster implements FontRenderer {
   }
 
   private _applyFont(ctx: CanvasRenderingContext2D) {
+    ctx.translate(this.padding + this._halfRasterWidth, this.padding + this._halfRasterHeight);
+    ctx.scale(this.quality, this.quality);
     ctx.textAlign = this.textAlign;
     ctx.textBaseline = this.baseAlign;
     ctx.font = this.fontString;
@@ -209,18 +223,20 @@ export class Font extends Raster implements FontRenderer {
       this._applyRasterProperites(ctx);
       this._applyFont(ctx);
       if (this.color) {
-        ctx.fillText(this._text, this.padding + this._halfRasterWidth, this.padding + this._halfRasterHeight);
+        ctx.fillText(this._text, 0, 0);
       }
 
       if (this.strokeColor) {
-        ctx.strokeText(this._text, this.padding + this._halfRasterWidth, this.padding + this._halfRasterHeight);
+        ctx.strokeText(this._text, 0, 0);
       }
 
       if (this.showDebug) {
+        // Horizontal line
         /* istanbul ignore next */
-        line(ctx, Color.Red, 0, this._halfRasterHeight, this._rasterWidth, this._halfRasterHeight, 2);
+        line(ctx, Color.Red, -this._halfRasterWidth, 0, this._halfRasterWidth, 0, 2);
+        // Vertical line
         /* istanbul ignore next */
-        line(ctx, Color.Red, this._halfRasterWidth, 0, this._halfRasterWidth, this._rasterHeight, 2);
+        line(ctx, Color.Red, 0, -this._halfRasterHeight, 0, this._halfRasterHeight, 2);
       }
     }
   }
