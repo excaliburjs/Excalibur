@@ -25,6 +25,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `SpriteSheet.spacing` now accepts a structure `{ top: number, left: number, margin: number }` for custom spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
 - `SpriteSheet.ctor` now has an overload that accepts `spacing` for consistency although the object constructor is recommended ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
 - Add `SpriteSheet.getSpacingDimensions()` method to retrieve calculated spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
+- Add `KeyEvent.value?: string` which is the key value (or "typed" value) that the browser detected. For example, holding Shift and pressing 9 will have a value of `(` which is the typed character.
+- Add `KeyEvent.originalEvent?: KeyboardEvent` which exposes the raw keyboard event handled from the browser.
 
 ### Changed
 
