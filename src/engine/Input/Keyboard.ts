@@ -3,7 +3,7 @@ import { Class } from '../Class';
 import * as Events from '../Events';
 
 /**
- * Enum representing input key codes
+ * Enum representing physical input key codes
  */
 export enum Keys {
   // NUMPAD
@@ -158,8 +158,10 @@ export enum Keys {
 export class KeyEvent extends Events.GameEvent<any> {
   /**
    * @param key  The key responsible for throwing the event
+   * @param character The typed character the browser detected
+   * @param keyboardEvent The original keyboard event that Excalibur handled
    */
-  constructor(public key: Keys) {
+  constructor(public key: Keys, public character?: string, public keyboardEvent?: KeyboardEvent) {
     super();
   }
 }
@@ -225,7 +227,7 @@ export class Keyboard extends Class {
       const key = this._keys.indexOf(code);
       this._keys.splice(key, 1);
       this._keysUp.push(code);
-      const keyEvent = new KeyEvent(code);
+      const keyEvent = new KeyEvent(code, ev.key, ev);
 
       // alias the old api, we may want to deprecate this in the future
       this.eventDispatcher.emit('up', keyEvent);
@@ -238,7 +240,7 @@ export class Keyboard extends Class {
       if (this._keys.indexOf(code) === -1) {
         this._keys.push(code);
         this._keysDown.push(code);
-        const keyEvent = new KeyEvent(code);
+        const keyEvent = new KeyEvent(code, ev.key, ev);
         this.eventDispatcher.emit('down', keyEvent);
         this.eventDispatcher.emit('press', keyEvent);
       }
