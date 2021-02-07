@@ -110,10 +110,15 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
           options: { offset, anchor }
         } of layer.graphics) {
           // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-          const bounds = graphic.localBounds;
-          const offsetX = -bounds.width * graphic.scale.x * anchor.x + offset.x;
-          const offsetY = -bounds.height * graphic.scale.y * anchor.y + offset.y;
-          graphic?.draw(this._graphicsContext, offsetX + layer.offset.x, offsetY + layer.offset.y);
+          const offsetX = -graphic.width * anchor.x + offset.x;
+          const offsetY = -graphic.height * anchor.y + offset.y;
+
+          graphic?.draw(
+            this._graphicsContext,
+            offsetX + layer.offset.x,
+            offsetY + layer.offset.y
+          );
+
           if (this._engine?.isDebug) {
             /* istanbul ignore next */
             graphic?.localBounds.translate(vec(offsetX + layer.offset.x, offsetY + layer.offset.y)).draw(this._graphicsContext, Color.Red);

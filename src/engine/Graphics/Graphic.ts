@@ -109,19 +109,19 @@ export abstract class Graphic {
   private _width: number = 0;
 
   /**
-   * Gets or sets the width of the graphic
+   * Gets or sets the width of the graphic (always positive)
    */
   public get width() {
-    return this._width * this.scale.x;
+    return Math.abs(this._width * this.scale.x);
   }
 
   private _height: number = 0;
 
   /**
-   * Gets or sets the height of the graphic
+   * Gets or sets the height of the graphic (always positive)
    */
   public get height() {
-    return this._height * this.scale.y;
+    return Math.abs(this._height * this.scale.y);
   }
 
   public set width(value: number) {
@@ -136,7 +136,7 @@ export abstract class Graphic {
    * Gets a copy of the bounds in pixels occupied by the graphic on the the screen. This includes scale.
    */
   public get localBounds(): BoundingBox {
-    return BoundingBox.fromDimension(this._width * this.scale.x, this._height * this.scale.y, Vector.Zero);
+    return BoundingBox.fromDimension(this.width, this.height, Vector.Zero);
   }
 
   /**
@@ -170,17 +170,21 @@ export abstract class Graphic {
   protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     ex.save();
     ex.translate(x, y);
-    this._rotate(ex);
     ex.scale(this.scale.x, this.scale.y);
+    this._rotate(ex);
     this._flip(ex);
     // it is important to multiply alphas so graphics respect the current context
     ex.opacity = ex.opacity * this.opacity;
   }
 
   protected _rotate(ex: ExcaliburGraphicsContext) {
+    const scaleDirX = this.scale.x > 0 ? 1 : -1;
+    const scaleDirY = this.scale.y > 0 ? 1 : -1;
     const origin = this.origin ?? vec(this.width / 2, this.height / 2);
     ex.translate(origin.x, origin.y);
     ex.rotate(this.rotation);
+    // This is for handling direction changes 1 or -1, that way we don't have mismatched translates()
+    ex.scale(scaleDirX, scaleDirY);
     ex.translate(-origin.x, -origin.y);
   }
 
