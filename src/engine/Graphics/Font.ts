@@ -52,9 +52,9 @@ export class Font extends Raster implements FontRenderer {
   /**
    * Font quality determines the size of the underlying rastered text, higher quality means less jagged edges.
    * If quality is set to 1, then just enough raster bitmap is generated to render the text.
-   * 
+   *
    * You can think of quality as how zoomed in to the text you can get before seeing jagged edges.
-   * 
+   *
    * (Default 4)
    */
   public quality = 4;
