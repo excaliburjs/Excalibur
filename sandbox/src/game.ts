@@ -94,8 +94,32 @@ game.add(heart);
 var pointer = new ex.Actor({
   width: 25,
   height: 25,
-  color: ex.Color.Red
+  color: ex.Color.Red,
+  collisionType: ex.CollisionType.Fixed
 });
+var pointerChild1 = new ex.Actor({
+  pos: ex.vec(100, 0),
+  width: 30,
+  height: 30,
+  color: ex.Color.Green,
+  collisionType: ex.CollisionType.Fixed
+});
+var pointerChild2 = new ex.Actor({
+  pos: ex.vec(0, 100),
+  width: 30,
+  height: 30,
+  color: ex.Color.Violet,
+  collisionType: ex.CollisionType.Fixed
+});
+var pointerChild3 = new ex.Actor({
+  pos: ex.vec(-100, 0),
+  width: 30,
+  height: 30,
+  color: ex.Color.Rose,
+  collisionType: ex.CollisionType.Fixed
+});
+pointer.add(pointerChild1.add(pointerChild2.add(pointerChild3)));
+
 game.add(pointer);
 var otherPointer = new ex.ScreenElement({
   width: 15,

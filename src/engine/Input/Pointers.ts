@@ -358,7 +358,7 @@ export class Pointers extends Class {
 
     // Recurse and propagate
     if (wheelEvent.bubbles && actor.parent) {
-      this._propagateWheelPointerEvent(actor.parent, wheelEvent);
+      this._propagateWheelPointerEvent(actor.parent as Actor, wheelEvent); // TODO not true
     }
   }
 

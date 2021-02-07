@@ -43,7 +43,7 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
         this._pushCameraTransform(transform);
 
         this._ctx.save();
-        this._applyTransform(entities[i] as Actor);
+        this._applyTransform(entities[i]);
         canvasdraw.draw(this._ctx, delta);
         this._ctx.restore();
 
@@ -68,18 +68,19 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
     }
   }
 
-  private _applyTransform(actor: Actor) {
-    let parent = actor.parent;
-    while (parent) {
-      this._ctx.translate(parent.pos.x, parent.pos.y);
-      this._ctx.rotate(parent.rotation);
-      this._ctx.scale(parent.scale.x, parent.scale.y);
-      parent = parent.parent;
+  private _applyTransform(entity: Entity<TransformComponent>) {
+    let parentTransform = entity.parent?.get<TransformComponent>('transform');
+    while (parentTransform) {
+      this._ctx.translate(parentTransform.pos.x, parentTransform.pos.y);
+      this._ctx.rotate(parentTransform.rotation);
+      this._ctx.scale(parentTransform.scale.x, parentTransform.scale.y);
+      parentTransform = parentTransform.parent;
     }
 
-    this._ctx.translate(actor.pos.x, actor.pos.y);
-    this._ctx.rotate(actor.rotation);
-    this._ctx.scale(actor.scale.x, actor.scale.y);
+    let transform = entity.get<TransformComponent>('transform');
+    this._ctx.translate(transform.pos.x, transform.pos.y);
+    this._ctx.rotate(transform.rotation);
+    this._ctx.scale(transform.scale.x, transform.scale.y);
   }
 
   private _clearScreen(): void {

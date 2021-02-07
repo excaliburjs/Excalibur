@@ -86,11 +86,11 @@ export class Body implements Clonable<Body> {
    * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
    */
   public get pos(): Vector {
-    return this.transform.pos;
+    return this.transform.worldPos;
   }
 
   public set pos(val: Vector) {
-    this.transform.pos = val;
+    this.transform.worldPos = val;
   }
 
   /**
@@ -188,7 +188,7 @@ export class Body implements Clonable<Body> {
    * Applies the accumulated translation vectors to the actors position
    */
   public applyMtv(): void {
-    this.pos.addEqual(this._totalMtv);
+    this.pos = this.pos.add(this._totalMtv);
     this._totalMtv.setTo(0, 0);
   }
 
@@ -229,7 +229,7 @@ export class Body implements Clonable<Body> {
     }
 
     this.vel.addEqual(totalAcc.scale(seconds));
-    this.pos.addEqual(this.vel.scale(seconds)).addEqual(totalAcc.scale(0.5 * seconds * seconds));
+    this.pos = this.pos.add(this.vel.scale(seconds)).add(totalAcc.scale(0.5 * seconds * seconds));
 
     this.rx += this.torque * (1.0 / this.collider.inertia) * seconds;
     this.rotation += this.rx * seconds;

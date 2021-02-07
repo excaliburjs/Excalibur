@@ -31,6 +31,7 @@ import { SystemType } from './EntityComponentSystem/System';
 import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { obsolete } from './Util/Decorators';
 import { World } from './EntityComponentSystem/World';
+import { Entity } from './EntityComponentSystem/Entity';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -471,6 +472,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public add(actor: Actor): void;
 
+  public add(entity: Entity): void;
+
   /**
    * Adds a [[ScreenElement]] to the scene.
    * @param screenElement  The ScreenElement to add to the current scene
@@ -491,7 +494,17 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         }
 
         this.world.add(entity);
-        entity.children.forEach((c) => this.world.add(c));
+        entity.children.forEach((c) => this.add(c));
+        entity.childrenAdded$.register({
+          notify: (e => {
+            this.world.add(e);
+          })
+        });
+        entity.childrenRemoved$.register({
+          notify: (e => {
+            this.world.remove(e);
+          })
+        })
       }
       return;
     }
@@ -526,6 +539,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public remove(actor: Actor): void;
 
+  public remove(entity: Entity): void;
+
   /**
    * Removes a [[ScreenElement]] to the scene, it will no longer be drawn or updated
    * @param screenElement  The ScreenElement to remove from the current scene
@@ -546,7 +561,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         this._killQueue.push(entity);
       }
 
-      entity.parent = null;
+      entity.unparent();
     }
     if (entity instanceof Timer) {
       this.removeTimer(entity);
@@ -653,7 +668,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     for (const actor of this.actors) {
       engine.stats.currFrame.actors.alive++;
       for (const child of actor.children) {
-        if (ActorUtils.isScreenElement(child)) {
+        if (ActorUtils.isScreenElement(child as Actor)) { // TODO not true
           engine.stats.currFrame.actors.ui++;
         } else {
           engine.stats.currFrame.actors.alive++;

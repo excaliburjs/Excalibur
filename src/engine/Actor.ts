@@ -32,13 +32,13 @@ import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
 import { ActionQueue } from './Actions/Action';
-import { Vector } from './Algebra';
+import { vec, Vector } from './Algebra';
 import { Body } from './Collision/Body';
 import { Eventable } from './Interfaces/Evented';
 import { Actionable } from './Actions/Actionable';
 import { Configurable } from './Configurable';
 import * as Traits from './Traits/Index';
-import * as Util from './Util/Util';
+// import * as Util from './Util/Util';
 import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEventHandlers';
 import { CollisionType } from './Collision/CollisionType';
@@ -121,7 +121,7 @@ export class ActorImpl
    * Sets the position vector of the actor in pixels
    */
   public set pos(thePos: Vector) {
-    this.body.pos.setTo(thePos.x, thePos.y);
+    this.body.pos = thePos;//.setTo(thePos.x, thePos.y);
   }
 
   /**
@@ -340,16 +340,6 @@ export class ActorImpl
    */
   public scene: Scene = null;
 
-  /**
-   * The parent of this actor
-   */
-  public parent: Actor = null;
-
-  /**
-   * The children of this actor
-   */
-  public children: Actor[] = [];
-
   public frames: { [key: string]: Drawable } = {};
 
   /**
@@ -505,8 +495,7 @@ export class ActorImpl
     }
 
     // Position uses body to store values must be initialized after body
-    this.pos.x = <number>xOrConfig || 0;
-    this.pos.y = y || 0;
+    this.pos = vec((xOrConfig as number) ?? 0, y ?? 0)
 
     if (color) {
       this.color = color;
@@ -872,30 +861,6 @@ export class ActorImpl
   }
 
   /**
-   * Adds a child actor to this actor. All movement of the child actor will be
-   * relative to the parent actor. Meaning if the parent moves the child will
-   * move with it.
-   * @param actor The child actor to add
-   */
-  public add(actor: Actor) {
-    actor.body.collider.type = CollisionType.PreventCollision;
-    if (Util.addItemToArray(actor, this.children)) {
-      actor.parent = this;
-      if (this.scene) {
-        this.scene.world.add(actor);
-      }
-    }
-  }
-  /**
-   * Removes a child actor from this actor.
-   * @param actor The child actor to remove
-   */
-  public remove(actor: Actor) {
-    if (Util.removeItemFromArray(actor, this.children)) {
-      actor.parent = null;
-    }
-  }
-  /**
    * Sets the current drawing of the actor to the drawing corresponding to
    * the key.
    * @param key The key of the drawing
@@ -1013,11 +978,13 @@ export class ActorImpl
    * @returns Rotation angle in radians
    */
   public getWorldRotation(): number {
-    if (!this.parent) {
-      return this.rotation;
-    }
 
-    return this.rotation + this.parent.getWorldRotation();
+    return this.get<TransformComponent>('transform').worldRotation;
+    // if (!this.parent) {
+    //   return this.rotation;
+    // }
+
+    // return this.rotation + this.parent.getWorldRotation();
   }
 
   /**
@@ -1026,54 +993,57 @@ export class ActorImpl
    * @returns Position in world coordinates
    */
   public getWorldPos(): Vector {
-    if (!this.parent) {
-      return this.pos.clone();
-    }
+    return this.get<TransformComponent>('transform').worldPos;
+    // if (!this.parent) {
+    //   return this.pos.clone();
+    // }
 
-    // collect parents
-    const parents: Actor[] = [];
-    let root: Actor = this;
+    // // collect parents
+    // const parents: Actor[] = [];
+    // let root: Actor = this;
 
-    parents.push(this);
+    // parents.push(this);
 
-    // find parents
-    while (root.parent) {
-      root = root.parent;
-      parents.push(root);
-    }
+    // // find parents
+    // while (root.parent) {
+    //   root = root.parent;
+    //   parents.push(root);
+    // }
 
-    // calculate position
-    const x = parents.reduceRight((px, p) => {
-      if (p.parent) {
-        return px + p.pos.x * p.getGlobalScale().x;
-      }
-      return px + p.pos.x;
-    }, 0);
+    // // calculate position
+    // const x = parents.reduceRight((px, p) => {
+    //   if (p.parent) {
+    //     return px + p.pos.x * p.getGlobalScale().x;
+    //   }
+    //   return px + p.pos.x;
+    // }, 0);
 
-    const y = parents.reduceRight((py, p) => {
-      if (p.parent) {
-        return py + p.pos.y * p.getGlobalScale().y;
-      }
-      return py + p.pos.y;
-    }, 0);
+    // const y = parents.reduceRight((py, p) => {
+    //   if (p.parent) {
+    //     return py + p.pos.y * p.getGlobalScale().y;
+    //   }
+    //   return py + p.pos.y;
+    // }, 0);
 
-    // rotate around root anchor
-    const ra = root.getWorldPos(); // 10, 10
-    const r = this.getWorldRotation();
+    // // rotate around root anchor
+    // const ra = root.getWorldPos(); // 10, 10
+    // const r = this.getWorldRotation();
 
-    return new Vector(x, y).rotate(r, ra);
+    // return new Vector(x, y).rotate(r, ra);
   }
 
   /**
    * Gets the global scale of the Actor
    */
   public getGlobalScale(): Vector {
-    if (!this.parent) {
-      return new Vector(this.scale.x, this.scale.y);
-    }
+    return this.get<TransformComponent>('transform').worldScale;
 
-    const parentScale = this.parent.getGlobalScale();
-    return new Vector(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
+    // if (!this.parent) {
+    //   return new Vector(this.scale.x, this.scale.y);
+    // }
+
+    // const parentScale = this.parent.getGlobalScale();
+    // return new Vector(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
   }
 
   // #region Collision
@@ -1154,9 +1124,9 @@ export class ActorImpl
     }
 
     // Update child actors
-    for (let i = 0; i < this.children.length; i++) {
-      this.children[i].update(engine, delta);
-    }
+    // for (let i = 0; i < this.children.length; i++) {
+    //   this.children[i].update(engine, delta);
+    // }
 
     this._postupdate(engine, delta);
   }
@@ -1332,27 +1302,11 @@ export class ActorImpl
     ctx.font = oldFont;
 
     // Draw child actors
-    for (let i = 0; i < this.children.length; i++) {
-      this.children[i].debugDraw(ctx);
-    }
+    // for (let i = 0; i < this.children.length; i++) {
+    //   this.children[i].debugDraw(ctx);
+    // }
 
     this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
-  }
-
-  /**
-   * Returns the full array of ancestors
-   */
-  public getAncestors(): Actor[] {
-    const path: Actor[] = [this];
-    let currentActor: Actor = this;
-    let parent: Actor;
-
-    while ((parent = currentActor.parent)) {
-      currentActor = parent;
-      path.push(currentActor);
-    }
-
-    return path.reverse();
   }
   // #endregion
 }

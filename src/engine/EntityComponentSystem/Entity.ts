@@ -5,6 +5,7 @@ import { Class } from '../Class';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
+import { Util } from '..';
 
 /**
  * Interface holding an entity component pair
@@ -139,22 +140,22 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
     defineProperty: (obj: any, prop: any, descriptor: PropertyDescriptor) => {
       obj[prop] = descriptor.value;
       this._rebuildMemos();
-      this.changes.notifyAll(
-        new AddedComponent({
-          component: descriptor.value as Component,
-          entity: this
-        })
-      );
+      const added = new AddedComponent({
+        component: descriptor.value as Component,
+        entity: this
+      });
+      this.changes.notifyAll(added);
+      this.componentAdded$.notifyAll(added)
       return true;
     },
     deleteProperty: (obj: any, prop: any) => {
       if (prop in obj) {
-        this.changes.notifyAll(
-          new RemovedComponent({
-            component: obj[prop] as Component,
-            entity: this
-          })
-        );
+        const removed = new RemovedComponent({
+          component: obj[prop] as Component,
+          entity: this
+        });
+        this.changes.notifyAll(removed);
+        this.componentRemoved$.notifyAll(removed);
         delete obj[prop];
         this._rebuildMemos();
         return true;
@@ -172,6 +173,65 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * Observable that keeps track of component add or remove changes on the entity
    */
   public changes = new Observable<AddedComponent | RemovedComponent>();
+  public componentAdded$ = new Observable<AddedComponent>();
+  public componentRemoved$ = new Observable<RemovedComponent>();
+
+  private _parent: Entity = null;
+  public get parent(): Entity {
+    return this._parent
+  }
+
+  public childrenAdded$ = new Observable<Entity>();
+  public childrenRemoved$ = new Observable<Entity>();
+
+  private _children: Entity[] = [];
+  public get children(): readonly Entity[] {
+    return this._children;
+  }
+
+  public unparent() {
+    this._parent = null;
+  }
+
+  // TODO Cycle detection?
+  public add(entity: Entity): Entity {
+    if (entity.parent === null) {
+      this._children.push(entity);
+      entity._parent = this;
+      this.childrenAdded$.notifyAll(entity);
+    } else {
+      // TODO should throw error
+    }
+    return this;
+  }
+
+  public remove(entity: Entity): Entity {
+    if (entity.parent === this) {
+      Util.removeItemFromArray(entity, this._children)
+      entity._parent = null;
+      this.childrenRemoved$.notifyAll(entity);
+    } else {
+      // TODO should throw error
+    }
+    return this;
+  }
+
+  public removeAll(): Entity {
+    this.children.forEach(c => {
+      this.remove(c);
+    });
+    return this;
+  }
+
+  public getAncestors(): Entity[] {
+    const result: Entity[] = [this];
+    let current = this.parent
+    while (current) {
+      result.push(current);
+      current = current.parent;
+    }
+    return result.reverse();
+  }
 
   /**
    * Creates a deep copy of the entity and a copy of all its components
@@ -275,6 +335,10 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    */
   public has(type: string): boolean {
     return !!this.components[type];
+  }
+
+  public get<ComponentType extends Component<string>>(type: string): ComponentType | null {
+    return this.components[type] as ComponentType;
   }
 
   private _isInitialized = false;
