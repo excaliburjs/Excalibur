@@ -13,6 +13,11 @@ function hasClone(x: any): x is { clone(): any } {
 }
 
 /**
+ * Plucks the string type out of a component type 
+ */
+export type ComponentStringType<T> = T extends Component<infer R> ? R : string;
+
+/**
  * Components are containers for state in Excalibur, the are meant to convey capabilities that an Entity posesses
  *
  * Implementations of Component must have a zero-arg constructor to support dependecies

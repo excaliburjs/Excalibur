@@ -1,4 +1,4 @@
-import { Component, TagComponent } from './Component';
+import { Component, ComponentStringType, TagComponent } from './Component';
 
 import { Observable, Message } from '../Util/Observable';
 import { Class } from '../Class';
@@ -337,8 +337,12 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
     return !!this.components[type];
   }
 
-  public get<ComponentType extends Component<string>>(type: string): ComponentType | null {
-    return this.components[type] as ComponentType;
+  /**
+   * Get a component by type with typecheck
+   * @param type 
+   */
+  public get<ComponentType extends Component<string>>(type: ComponentStringType<ComponentType>): ComponentType | null {
+    return (this.components[type] as unknown) as ComponentType;
   }
 
   private _isInitialized = false;
