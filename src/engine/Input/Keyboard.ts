@@ -158,10 +158,10 @@ export enum Keys {
 export class KeyEvent extends Events.GameEvent<any> {
   /**
    * @param key  The key responsible for throwing the event
-   * @param character The typed character the browser detected
-   * @param keyboardEvent The original keyboard event that Excalibur handled
+   * @param value The key's typed value the browser detected
+   * @param originalEvent The original keyboard event that Excalibur handled
    */
-  constructor(public key: Keys, public character?: string, public keyboardEvent?: KeyboardEvent) {
+  constructor(public key: Keys, public value?: string, public originalEvent?: KeyboardEvent) {
     super();
   }
 }
