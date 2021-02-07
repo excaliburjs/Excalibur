@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { Loader } from '@excalibur';
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
@@ -171,5 +172,31 @@ describe('A loader', () => {
     loader.showPlayButton();
     loader.dispose();
     expect(loader.playButtonRootElement).toBeFalsy();
+  });
+
+  it('can have the enter key pressed to start', (done) => {
+    const loader = new ex.Loader([, , , ,]);
+    loader.loadingBarPosition = ex.vec(0, 0);
+    loader.loadingBarColor = ex.Color.Red;
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.showPlayButton().then(() => {
+      done();
+      loader.dispose();
+    });
+    document.body.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter'}));
+  });
+
+  it('can reload without building root elements', () => {
+    const loader = new ex.Loader([,,,]);
+    loader.showPlayButton();
+    loader.showPlayButton();
+    loader.showPlayButton();
+    const roots = document.querySelectorAll('#excalibur-play-root');
+    const buttons = document.querySelectorAll('#excalibur-play');
+    expect(roots.length).toBe(1);
+    expect(buttons.length).toBe(1);
   });
 });

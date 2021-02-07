@@ -141,6 +141,10 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
   /** Loads the css from Loader.css */
   protected _playButtonStyles: string = loaderCss.toString();
   protected get _playButton() {
+    const existingRoot = document.getElementById('excalibur-play-root');
+    if (existingRoot) {
+      this._playButtonRootElement = existingRoot;
+    }
     if (!this._playButtonRootElement) {
       this._playButtonRootElement = document.createElement('div');
       this._playButtonRootElement.id = 'excalibur-play-root';
@@ -168,7 +172,11 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
    * Return a html button element for excalibur to use as a play button
    */
   public startButtonFactory = () => {
-    const buttonElement = document.createElement('button');
+    let buttonElement: HTMLButtonElement = document.getElementById('excalibur-play') as HTMLButtonElement;
+    if (!buttonElement) {
+      buttonElement = document.createElement('button');
+    }
+
     buttonElement.id = 'excalibur-play';
     buttonElement.textContent = this.playButtonText;
     buttonElement.style.display = 'none';
@@ -231,6 +239,11 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
     } else {
       this._playButtonShown = true;
       this._playButton.style.display = 'block';
+      document.body.addEventListener('keyup', (evt: KeyboardEvent) => {
+        if (evt.key === 'Enter') {
+          this._playButton.click();
+        }
+      });
       const promise = new Promise((resolve) => {
         this._playButton.addEventListener('click', () => resolve());
         this._playButton.addEventListener('touchend', () => resolve());
