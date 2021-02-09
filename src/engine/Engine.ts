@@ -1208,8 +1208,8 @@ O|===|* >________________>\n\
    * will appear.
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
-  public load(loader: Loadable<any>): Promise<any> {
-    const complete = new Promise<any>((resolve) => {
+  public load(loader: Loadable<any>): Promise<void> {
+    const complete = new Promise<void>((resolve) => {
       this._isLoading = true;
 
       loader.load().then(() => {

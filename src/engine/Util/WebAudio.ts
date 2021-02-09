@@ -31,7 +31,7 @@ export class WebAudio {
       }
       const unlockTimeoutTimer = setTimeout(() => {
         Logger.getInstance().warn('Excalibur was unable to unlock the audio context, audio probably will not play in this browser.');
-        resolve();
+        resolve(false);
       }, 200);
 
       const audioContext = AudioContextFactory.create();
@@ -62,7 +62,7 @@ export class WebAudio {
           }, 0);
 
           clearTimeout(unlockTimeoutTimer);
-          resolve();
+          resolve(true);
         },
         () => {
           reject();
