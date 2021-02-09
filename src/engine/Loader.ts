@@ -233,7 +233,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
   /**
    * Shows the play button and returns a promise that resolves when clicked
    */
-  public showPlayButton(): Promise<any> {
+  public showPlayButton(): Promise<void> {
     if (this.suppressPlayButton) {
       return Promise.resolve();
     } else {
@@ -244,7 +244,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
           this._playButton.click();
         }
       });
-      const promise = new Promise((resolve) => {
+      const promise = new Promise<void>((resolve) => {
         this._playButton.addEventListener('click', () => resolve());
         this._playButton.addEventListener('touchend', () => resolve());
         this._playButton.addEventListener('pointerup', () => resolve());
