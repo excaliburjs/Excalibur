@@ -34,20 +34,8 @@ jobs:
           ${{ runner.os }}-node-
     - run: npm ci
     - run: npm run core
-    - run: npm run core:bundle-prod
+    - run: npm run core:bundle
     - run: echo "alpha_version=$(node -e "console.log(require('./version').getCiVersion(null, false));")" >> $GITHUB_ENV
     - run: echo $alpha_version
     - run: npm --no-git-tag-version version $alpha_version
     - run: npm publish --tag next
-
-  # deploy_final:
-  #   name: Publish alpha NPM Package
-  #   runs-on: [ubuntu-latest]
-  #   needs: build
-  #   if: github.ref != 'refs/heads/main'
-  #   steps:
-  #     - run: echo 'publishing alpha package'
-  #     - run: echo "alpha_version=$(node -e "console.log(require('./version').getCiVersion(null, false));")" >> $GITHUB_ENV
-  #     - run: echo $alpha_version
-  #     - run: npm --no-git-tag-version version $alpha_version
-  #     - run: npm publish --tag next
