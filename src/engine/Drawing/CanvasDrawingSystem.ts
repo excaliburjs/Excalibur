@@ -69,18 +69,15 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
   }
 
   private _applyTransform(entity: Entity<TransformComponent>) {
-    let parentTransform = entity.parent?.get(TransformComponent);
-    while (parentTransform) {
-      this._ctx.translate(parentTransform.pos.x, parentTransform.pos.y);
-      this._ctx.rotate(parentTransform.rotation);
-      this._ctx.scale(parentTransform.scale.x, parentTransform.scale.y);
-      parentTransform = parentTransform.parent;
+    const ancestors = entity.getAncestors();
+    for (let ancestor of ancestors) {
+      let transform = ancestor?.get(TransformComponent);
+      if (transform) {
+        this._ctx.translate(transform.pos.x, transform.pos.y);
+        this._ctx.rotate(transform.rotation);
+        this._ctx.scale(transform.scale.x, transform.scale.y);
+      }
     }
-
-    let transform = entity.get(TransformComponent);
-    this._ctx.translate(transform.pos.x, transform.pos.y);
-    this._ctx.rotate(transform.rotation);
-    this._ctx.scale(transform.scale.x, transform.scale.y);
   }
 
   private _clearScreen(): void {
