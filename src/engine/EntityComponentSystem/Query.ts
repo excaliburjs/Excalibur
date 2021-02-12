@@ -1,7 +1,7 @@
 import { Entity } from './Entity';
 import { buildTypeKey } from './Util';
 import { Observable } from '../Util/Observable';
-import { Util, Component } from '..';
+import { Util, Component, ComponentCtor } from '..';
 import { AddedEntity, RemovedEntity } from './System';
 
 /**
@@ -9,10 +9,11 @@ import { AddedEntity, RemovedEntity } from './System';
  *
  * Queries can be strongly typed by supplying a type union in the optional type parameter
  * ```typescript
- * const queryAB = new ex.Query<ComponentTypeA, ComponentTypeB>(['A', 'B']);
+ * const queryAB = new ex.Query<ComponentTypeA | ComponentTypeB>(['A', 'B']);
  * ```
  */
 export class Query<T extends Component = Component> extends Observable<AddedEntity | RemovedEntity> {
+  public types: readonly string[];
   private _entities: Entity<T>[] = [];
   private _key: string;
   public get key(): string {
@@ -22,8 +23,15 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
     return (this._key = buildTypeKey(this.types));
   }
 
-  constructor(public types: readonly string[]) {
+  constructor(types: readonly string[]);
+  constructor(types: readonly ComponentCtor<T>[]);
+  constructor(types: readonly string[] | readonly ComponentCtor<T>[]) {
     super();
+    if (types[0] instanceof Function) {
+      this.types = (types as ComponentCtor<T>[]).map(T =>  (new T).type);
+    } else {
+      this.types = types as string[];
+    }
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Component, ComponentStringType, TagComponent } from './Component';
+import { Component, ComponentCtor, TagComponent } from './Component';
 
 import { Observable, Message } from '../Util/Observable';
 import { Class } from '../Class';
@@ -168,6 +168,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * Dictionary that holds entity components
    */
   public components = new Proxy<ComponentMapper<KnownComponents>>({} as any, this._handleChanges);
+  private _componentMap = new Map<ComponentCtor, Component>();
 
   /**
    * Observable that keeps track of component add or remove changes on the entity
@@ -276,6 +277,8 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
 
       componentOrEntity.owner = this;
       (this.components as ComponentMap)[componentOrEntity.type] = componentOrEntity;
+      const type = componentOrEntity.constructor as ComponentCtor<T>;
+      this._componentMap.set(type, componentOrEntity);
       if (componentOrEntity.onAdd) {
         componentOrEntity.onAdd(this);
       }
@@ -313,6 +316,8 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
       if (this.components[type].onRemove) {
         this.components[type].onRemove(this);
       }
+      const ctor = this.components[type].constructor as ComponentCtor;
+      this._componentMap.delete(ctor);
       delete this.components[type];
     }
   }
@@ -333,16 +338,21 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * Check if a component type exists
    * @param type
    */
-  public has(type: string): boolean {
-    return !!this.components[type];
+  public has<T extends Component>(type: ComponentCtor<T>): boolean {
+    // return !!this.components[type];
+    return this._componentMap.has(type);
   }
 
   /**
    * Get a component by type with typecheck
    * @param type 
    */
-  public get<ComponentType extends Component<string>>(type: ComponentStringType<ComponentType>): ComponentType | null {
-    return (this.components[type] as unknown) as ComponentType;
+  // public get<ComponentType extends Component<string>>(type: ComponentStringType<ComponentType>): ComponentType | null {
+  //   return (this.components[type] as unknown) as ComponentType;
+  // }
+
+  public get<T extends Component>(type: ComponentCtor<T>): T {
+    return this._componentMap.get(type) as T;
   }
 
   private _isInitialized = false;

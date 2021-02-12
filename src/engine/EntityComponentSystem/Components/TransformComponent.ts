@@ -1,4 +1,5 @@
-import { Vector } from '../../Algebra';
+import { vec, Vector } from '../../Algebra';
+import { Matrix } from '../../Math/matrix';
 import { Component } from '../Component';
 
 /**
@@ -20,8 +21,9 @@ export enum CoordPlane {
 export class TransformComponent extends Component<'transform'> {
   public readonly type = 'transform';
 
+  public matrix: Matrix;
   public get parent(): TransformComponent | null {
-    return this?.owner?.parent?.get<TransformComponent>('transform');
+    return this?.owner?.parent?.get(TransformComponent);
   }
 
   /**
@@ -36,38 +38,23 @@ export class TransformComponent extends Component<'transform'> {
    * If a parent entity exists coordinates are local to the parent.
    */
   public pos: Vector = Vector.Zero
-  // public get pos(): Vector {
-  //   return this._pos;
-  //   // TODO if x/y updated directly we don't know :(
-  // }
-
-  // public set pos(val: Vector) {
-  //   this._dirty = true;
-  //   this._pos = val;
-  // }
-  
 
   // Dirty flag check up the chain
   private _dirty = true;
   private get dirty(): boolean {
     if (this?.owner?.parent) {
-      const parent = this?.owner?.parent?.get<TransformComponent>('transform');
+      const parent = this.parent;
       return parent.dirty || this._dirty;
     }
     return this._dirty;
   }
-  // private get _parentDirty() {
-  //   if (this?.owner?.parent) {
-  //     const parent = this?.owner?.parent?.get<TransformComponent>('transform');
-  //     return parent._dirty;
-  //   }
-  //   return false;
-  // }
+
   private _worldPos = Vector.Zero;
   /**
    * The current world position calculated 
    */
   public get worldPos(): Vector {
+    // No parent return early
     let parent = this?.owner?.parent;
     if (!parent) {
       return this._worldPos = this.pos;
@@ -77,10 +64,10 @@ export class TransformComponent extends Component<'transform'> {
       return this._worldPos;
       // TODO if x/y updated directly we don't know :(
     }
-    // return this.pos.clone();
+
     let currentPos = this.pos.clone();
     while (parent) {
-      const parentTransform = parent.get<TransformComponent>('transform');
+      const parentTransform = parent.get(TransformComponent);
       if (parentTransform) {
         currentPos = currentPos.add(parentTransform.pos);
         parent = parent.parent;
@@ -93,13 +80,13 @@ export class TransformComponent extends Component<'transform'> {
   }
 
   public set worldPos(val: Vector) {
-    let parent = this?.owner?.parent;
-    if (!parent) {
+    this._dirty = true;
+    const parentTransform = this.parent
+    if (!parentTransform) {
       this.pos = val;
     } else {
-      
+      this.pos = val.sub(parentTransform.worldPos);
     }
-    // this.pos = this.worldPos.sub(val);
   }
 
 
@@ -115,7 +102,32 @@ export class TransformComponent extends Component<'transform'> {
   public rotation: number = 0;
 
   public get worldRotation(): number {
-    return this.rotation;
+    // No parent return early
+    let parent = this?.owner?.parent;
+    if (!parent) {
+      return this.rotation;
+    }
+
+    let currentRotation = this.rotation;
+    while (parent) {
+      const parentTransform = parent.get(TransformComponent);
+      if (parentTransform) {
+        currentRotation += parentTransform.rotation;
+        parent = parent.parent;
+      } else {
+        break;
+      }
+    }
+    return currentRotation;
+  }
+
+  public set worldRotation(val: number) {
+    let parentTransform = this.parent;
+    if (!parentTransform) {
+      this.rotation = val;
+    } else {
+      this.rotation = val - parentTransform.worldRotation;
+    }
   }
 
   /**
@@ -124,6 +136,31 @@ export class TransformComponent extends Component<'transform'> {
   public scale: Vector = Vector.One;
 
   public get worldScale(): Vector {
-    return this.scale;
+    // No parent return early
+    let parent = this?.owner?.parent;
+    if (!parent) {
+      return this.scale;
+    }
+
+    let currentScale = this.scale;
+    while (parent) {
+      const parentTransform = parent.get(TransformComponent);
+      if (parentTransform) {
+        currentScale = currentScale.add(parentTransform.scale);
+        parent = parent.parent;
+      } else {
+        break;
+      }
+    }
+    return currentScale;
+  }
+
+  public set worldScale(val: Vector) {
+    const parentTransform = this.parent;
+    if (!parentTransform) {
+      this.scale = val;
+    } else {
+      this.scale = vec(val.x / parentTransform.worldScale.x, val.y / parentTransform.worldScale.y);
+    }
   }
 }

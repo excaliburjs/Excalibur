@@ -1,7 +1,7 @@
 import { Entity } from './Entity';
 
-export interface ComponentCtor {
-  new (): Component;
+export interface ComponentCtor<T extends Component = Component> {
+  new (): T;
 }
 
 /**

@@ -69,7 +69,7 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
   }
 
   private _applyTransform(entity: Entity<TransformComponent>) {
-    let parentTransform = entity.parent?.get<TransformComponent>('transform');
+    let parentTransform = entity.parent?.get(TransformComponent);
     while (parentTransform) {
       this._ctx.translate(parentTransform.pos.x, parentTransform.pos.y);
       this._ctx.rotate(parentTransform.rotation);
@@ -77,7 +77,7 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
       parentTransform = parentTransform.parent;
     }
 
-    let transform = entity.get<TransformComponent>('transform');
+    let transform = entity.get(TransformComponent);
     this._ctx.translate(transform.pos.x, transform.pos.y);
     this._ctx.rotate(transform.rotation);
     this._ctx.scale(transform.scale.x, transform.scale.y);

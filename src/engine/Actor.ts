@@ -978,13 +978,7 @@ export class ActorImpl
    * @returns Rotation angle in radians
    */
   public getWorldRotation(): number {
-
-    return this.get<TransformComponent>('transform').worldRotation;
-    // if (!this.parent) {
-    //   return this.rotation;
-    // }
-
-    // return this.rotation + this.parent.getWorldRotation();
+    return this.get(TransformComponent).worldRotation;
   }
 
   /**
@@ -993,7 +987,7 @@ export class ActorImpl
    * @returns Position in world coordinates
    */
   public getWorldPos(): Vector {
-    return this.get<TransformComponent>('transform').worldPos;
+    return this.get(TransformComponent).worldPos;
     // if (!this.parent) {
     //   return this.pos.clone();
     // }
@@ -1036,7 +1030,7 @@ export class ActorImpl
    * Gets the global scale of the Actor
    */
   public getGlobalScale(): Vector {
-    return this.get<TransformComponent>('transform').worldScale;
+    return this.get(TransformComponent).worldScale;
 
     // if (!this.parent) {
     //   return new Vector(this.scale.x, this.scale.y);
