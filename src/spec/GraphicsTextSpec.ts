@@ -131,7 +131,8 @@ describe('A Text Graphic', () => {
       color: ex.Color.Green,
       font: new ex.Graphics.Font({
         family: 'Open Sans',
-        size: 18
+        size: 18,
+        quality: 1
       })
     });
 
@@ -157,7 +158,8 @@ describe('A Text Graphic', () => {
       color: ex.Color.Green,
       font: new ex.Graphics.Font({
         family: 'Open Sans',
-        size: 18
+        size: 18,
+        quality: 1
       })
     });
 
@@ -173,7 +175,8 @@ describe('A Text Graphic', () => {
       color: ex.Color.Green,
       font: new ex.Graphics.Font({
         family: 'Open Sans',
-        size: 18
+        size: 18,
+        quality: 1
       })
     });
 
@@ -202,7 +205,8 @@ describe('A Text Graphic', () => {
       color: ex.Color.Green,
       font: new ex.Graphics.Font({
         family: 'Open Sans',
-        size: 18
+        size: 18,
+        quality: 1
       })
     });
 
@@ -230,7 +234,8 @@ describe('A Text Graphic', () => {
       color: ex.Color.Green,
       font: new ex.Graphics.Font({
         family: 'Open Sans',
-        size: 18
+        size: 18,
+        quality: 1
       })
     });
 
@@ -259,7 +264,8 @@ describe('A Text Graphic', () => {
       color: ex.Color.Green,
       font: new ex.Graphics.Font({
         family: 'Open Sans',
-        size: 18
+        size: 18,
+        quality: 1
       })
     });
 
@@ -289,7 +295,8 @@ describe('A Text Graphic', () => {
       font: new ex.Graphics.Font({
         family: 'Open Sans',
         bold: true,
-        size: 18
+        size: 18,
+        quality: 1
       })
     });
 
@@ -317,7 +324,8 @@ describe('A Text Graphic', () => {
       font: new ex.Graphics.Font({
         family: 'Open Sans',
         style: ex.Graphics.FontStyle.Italic,
-        size: 18
+        size: 18,
+        quality: 1
       })
     });
 
@@ -345,6 +353,7 @@ describe('A Text Graphic', () => {
       font: new ex.Graphics.Font({
         family: 'Open Sans',
         size: 18,
+        quality: 1,
         shadow: {
           blur: 5,
           offset: ex.vec(4, 4),
