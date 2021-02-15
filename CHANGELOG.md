@@ -18,12 +18,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Add the ability to press enter to start the game after loaded
 - Add Excalibur Feature Flag implementation for releasing experimental or preview features ([#1673](https://github.com/excaliburjs/Excalibur/issues/1673))
 - Color now can parse RGB/A string using Color.fromRGBString('rgb(255, 255, 255)') or Color.fromRGBString('rgb(255, 255, 255, 1)')
 - `DisplayMode.Fit` will now scale the game to fit the available space, preserving the `aspectRatio`. ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
 - `SpriteSheet.spacing` now accepts a structure `{ top: number, left: number, margin: number }` for custom spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
 - `SpriteSheet.ctor` now has an overload that accepts `spacing` for consistency although the object constructor is recommended ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
 - Add `SpriteSheet.getSpacingDimensions()` method to retrieve calculated spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
+- Add `KeyEvent.value?: string` which is the key value (or "typed" value) that the browser detected. For example, holding Shift and pressing 9 will have a value of `(` which is the typed character.
+- Add `KeyEvent.originalEvent?: KeyboardEvent` which exposes the raw keyboard event handled from the browser.
 
 ### Changed
 
@@ -43,6 +46,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed DOM element leak when restarting games, play button elements piled up in the DOM.
 - Fixed issues with `Sprite` not rotating/scaling correctly around the anchor (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
   - Optionally specify whether to draw around the anchor or not `drawAroundAnchor`
 - Fixed in the browser "FullScreen" api, coordinates are now correctly mapped from page space to world space ([#1734](https://github.com/excaliburjs/Excalibur/issues/1734))

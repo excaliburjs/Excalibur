@@ -312,9 +312,9 @@ export class ActionContext {
    * Returns a promise that resolves when the current action queue up to now
    * is finished.
    */
-  public asPromise<T>(): Promise<T[]> {
+  public asPromise(): Promise<void[]> {
     const promises = this._queues.map((q, i) => {
-      const temp = new Promise<T>((resolve) => {
+      const temp = new Promise<void>((resolve) => {
         q.add(
           new Actions.CallMethod(this._actors[i], () => {
             resolve();
