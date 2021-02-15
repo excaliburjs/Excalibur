@@ -182,7 +182,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   ) {
     if (this._engine?.isDebug) {
       if (isActor(entity)) {
-        const bb = entity.body.collider.localBounds.translate(entity.getWorldPos());
+        const bb = entity.body.collider.localBounds.translate(entity.getGlobalPos());
         bb.draw(this._graphicsContext);
       }
     }
