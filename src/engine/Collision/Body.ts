@@ -86,11 +86,11 @@ export class Body implements Clonable<Body> {
    * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
    */
   public get pos(): Vector {
-    return this.transform.worldPos;
+    return this.transform.globalPos;
   }
 
   public set pos(val: Vector) {
-    this.transform.worldPos = val;
+    this.transform.globalPos = val;
   }
 
   /**
@@ -149,7 +149,13 @@ export class Body implements Clonable<Body> {
    * The scale vector of the actor
    * @obsolete ex.Body.scale will be removed in v0.25.0
    */
-  public scale: Vector = Vector.One;
+  public get scale(): Vector {
+    return this.transform.scale;
+  }
+
+  public set scale(val: Vector) {
+    this.transform.scale = val;
+  }
 
   /**
    * The scale of the actor last frame

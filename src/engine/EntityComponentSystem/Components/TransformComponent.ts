@@ -21,7 +21,25 @@ export enum CoordPlane {
 export class TransformComponent extends Component<'transform'> {
   public readonly type = 'transform';
 
-  public matrix: Matrix;
+
+  private _mat = Matrix.identity()
+    .translate(0, 0)
+    .rotate(0)
+    .scale(1, 1)
+
+  public get matrix(): Matrix {
+    return this._mat;
+  }
+
+  public getGlobalMatrix(): Matrix {
+    // todo if parent is not dirty or matrix is not dirty we can cache
+    if (!this.parent) {
+      return this.matrix;
+    } else {
+      return this.parent.getGlobalMatrix().multm(this.matrix);
+    }
+  }
+
   public get parent(): TransformComponent | null {
     return this?.owner?.parent?.get(TransformComponent);
   }
@@ -37,7 +55,13 @@ export class TransformComponent extends Component<'transform'> {
    * 
    * If a parent entity exists coordinates are local to the parent.
    */
-  public pos: Vector = Vector.Zero
+  public get pos(): Vector {
+    return this._mat.getPosition();
+  }
+
+  public set pos(val: Vector) {
+    this._mat.setPosition(val.x, val.y);
+  }
 
   // Dirty flag check up the chain
   private _dirty = true;
@@ -49,46 +73,22 @@ export class TransformComponent extends Component<'transform'> {
     return this._dirty;
   }
 
-  private _worldPos = Vector.Zero;
   /**
    * The current world position calculated 
    */
-  public get worldPos(): Vector {
-    // No parent return early
-    let parent = this?.owner?.parent;
-    if (!parent) {
-      return this._worldPos = this.pos;
-    }
-
-    if (!this.dirty) {
-      return this._worldPos;
-      // TODO if x/y updated directly we don't know :(
-    }
-
-    let currentPos = this.pos.clone();
-    while (parent) {
-      const parentTransform = parent.get(TransformComponent);
-      if (parentTransform) {
-        currentPos = currentPos.add(parentTransform.pos);
-        parent = parent.parent;
-      } else {
-        break;
-      }
-    }
-    this._dirty = false;
-    return this._worldPos = currentPos;
+  public get globalPos(): Vector {
+    return this.getGlobalMatrix().getPosition();
   }
 
-  public set worldPos(val: Vector) {
+  public set globalPos(val: Vector) {
     this._dirty = true;
     const parentTransform = this.parent
     if (!parentTransform) {
       this.pos = val;
     } else {
-      this.pos = val.sub(parentTransform.worldPos);
+      this.pos = parentTransform.getGlobalMatrix().getAffineInverse().multv(val);
     }
   }
-
 
   /**
    * The z-index ordering of the entity, a higher values are drawn on top of lower values.
@@ -99,68 +99,49 @@ export class TransformComponent extends Component<'transform'> {
   /**
    * The rotation of the entity in radians. For example `Math.PI` radians is the same as 180 degrees.
    */
-  public rotation: number = 0;
+  public get rotation(): number {
+    return this._mat.getRotation();
+  };
 
-  public get worldRotation(): number {
-    // No parent return early
-    let parent = this?.owner?.parent;
-    if (!parent) {
-      return this.rotation;
-    }
+  public set rotation(val: number) {
+    this._mat.setRotation(val);
+  }
+  
 
-    let currentRotation = this.rotation;
-    while (parent) {
-      const parentTransform = parent.get(TransformComponent);
-      if (parentTransform) {
-        currentRotation += parentTransform.rotation;
-        parent = parent.parent;
-      } else {
-        break;
-      }
-    }
-    return currentRotation;
+  public get globalRotation(): number {
+    return this.getGlobalMatrix().getRotation();
   }
 
-  public set worldRotation(val: number) {
+  public set globalRotation(val: number) {
     let parentTransform = this.parent;
     if (!parentTransform) {
       this.rotation = val;
     } else {
-      this.rotation = val - parentTransform.worldRotation;
+      this.rotation = val - parentTransform.globalRotation;
     }
   }
 
   /**
    * The scale of the entity.
    */
-  public scale: Vector = Vector.One;
+  public get scale(): Vector {
+    return this._mat.getScale();
+  };
 
-  public get worldScale(): Vector {
-    // No parent return early
-    let parent = this?.owner?.parent;
-    if (!parent) {
-      return this.scale;
-    }
-
-    let currentScale = this.scale;
-    while (parent) {
-      const parentTransform = parent.get(TransformComponent);
-      if (parentTransform) {
-        currentScale = currentScale.add(parentTransform.scale);
-        parent = parent.parent;
-      } else {
-        break;
-      }
-    }
-    return currentScale;
+  public set scale(val: Vector) {
+    this._mat.setScale(val);
   }
 
-  public set worldScale(val: Vector) {
+  public get globalScale(): Vector {
+    return this.getGlobalMatrix().getScale();
+  }
+
+  public set globalScale(val: Vector) {
     const parentTransform = this.parent;
     if (!parentTransform) {
       this.scale = val;
     } else {
-      this.scale = vec(val.x / parentTransform.worldScale.x, val.y / parentTransform.worldScale.y);
+      this.scale = vec(val.x / parentTransform.globalScale.x, val.y / parentTransform.globalScale.y);
     }
   }
 }

@@ -244,7 +244,7 @@ export class ActorImpl
    * @obsolete ex.Actor.scale will be removed in v0.25.0, set width and height directly in constructor
    */
   public get scale(): Vector {
-    return this.body.scale;
+    return this.get(TransformComponent).scale;
   }
 
   /**
@@ -252,7 +252,7 @@ export class ActorImpl
    * @obsolete ex.Actor.scale will be removed in v0.25.0, set width and height directly in constructor
    */
   public set scale(scale: Vector) {
-    this.body.scale = scale;
+    this.get(TransformComponent).scale = scale;
   }
 
   /**
@@ -978,7 +978,7 @@ export class ActorImpl
    * @returns Rotation angle in radians
    */
   public getWorldRotation(): number {
-    return this.get(TransformComponent).worldRotation;
+    return this.get(TransformComponent).globalRotation;
   }
 
   /**
@@ -986,58 +986,15 @@ export class ActorImpl
    *
    * @returns Position in world coordinates
    */
-  public getWorldPos(): Vector {
-    return this.get(TransformComponent).worldPos;
-    // if (!this.parent) {
-    //   return this.pos.clone();
-    // }
-
-    // // collect parents
-    // const parents: Actor[] = [];
-    // let root: Actor = this;
-
-    // parents.push(this);
-
-    // // find parents
-    // while (root.parent) {
-    //   root = root.parent;
-    //   parents.push(root);
-    // }
-
-    // // calculate position
-    // const x = parents.reduceRight((px, p) => {
-    //   if (p.parent) {
-    //     return px + p.pos.x * p.getGlobalScale().x;
-    //   }
-    //   return px + p.pos.x;
-    // }, 0);
-
-    // const y = parents.reduceRight((py, p) => {
-    //   if (p.parent) {
-    //     return py + p.pos.y * p.getGlobalScale().y;
-    //   }
-    //   return py + p.pos.y;
-    // }, 0);
-
-    // // rotate around root anchor
-    // const ra = root.getWorldPos(); // 10, 10
-    // const r = this.getWorldRotation();
-
-    // return new Vector(x, y).rotate(r, ra);
+  public getGlobalPos(): Vector {
+    return this.get(TransformComponent).globalPos;
   }
 
   /**
    * Gets the global scale of the Actor
    */
   public getGlobalScale(): Vector {
-    return this.get(TransformComponent).worldScale;
-
-    // if (!this.parent) {
-    //   return new Vector(this.scale.x, this.scale.y);
-    // }
-
-    // const parentScale = this.parent.getGlobalScale();
-    // return new Vector(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
+    return this.get(TransformComponent).globalScale;
   }
 
   // #region Collision
@@ -1051,7 +1008,7 @@ export class ActorImpl
   public contains(x: number, y: number, recurse: boolean = false): boolean {
     // These shenanigans are to handle child actor containment,
     // the only time getWorldPos and pos are different is a child actor
-    const childShift = this.getWorldPos().sub(this.pos);
+    const childShift = this.getGlobalPos().sub(this.pos);
     const containment = this.body.collider.bounds.translate(childShift).contains(new Vector(x, y));
 
     if (recurse) {
@@ -1247,7 +1204,7 @@ export class ActorImpl
     this.body.collider.debugDraw(ctx);
 
     // Draw actor bounding box
-    const bb = this.body.collider.localBounds.translate(this.getWorldPos());
+    const bb = this.body.collider.localBounds.translate(this.getGlobalPos());
     bb.debugDraw(ctx);
 
     // Draw actor Id
@@ -1256,7 +1213,7 @@ export class ActorImpl
     // Draw actor anchor Vector
     ctx.fillStyle = Color.Yellow.toString();
     ctx.beginPath();
-    ctx.arc(this.getWorldPos().x, this.getWorldPos().y, 3, 0, Math.PI * 2);
+    ctx.arc(this.getGlobalPos().x, this.getGlobalPos().y, 3, 0, Math.PI * 2);
     ctx.closePath();
     ctx.fill();
 
@@ -1271,7 +1228,7 @@ export class ActorImpl
     ctx.strokeStyle = Color.Yellow.toString();
     ctx.beginPath();
     const radius = Math.min(this.width, this.height);
-    ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
+    ctx.arc(this.getGlobalPos().x, this.getGlobalPos().y, radius, 0, Math.PI * 2);
     ctx.closePath();
     ctx.stroke();
     const ticks: { [key: string]: number } = {
@@ -1288,8 +1245,8 @@ export class ActorImpl
       ctx.textAlign = 'center';
       ctx.fillText(
         tick,
-        this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10),
-        this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10)
+        this.getGlobalPos().x + Math.cos(ticks[tick]) * (radius + 10),
+        this.getGlobalPos().y + Math.sin(ticks[tick]) * (radius + 10)
       );
     }
 

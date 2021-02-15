@@ -26,7 +26,7 @@ export class CullingBox {
     const drawingHeight = actor.currentDrawing.drawHeight;
     const rotation = actor.rotation;
     const anchor = actor.center;
-    const worldPos = actor.getWorldPos();
+    const worldPos = actor.getGlobalPos();
 
     this._topLeft.x = worldPos.x - drawingWidth / 2;
     this._topLeft.y = worldPos.y - drawingHeight / 2;

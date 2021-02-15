@@ -1,3 +1,4 @@
+import { vec } from '..';
 import { Vector } from '../Algebra';
 
 
@@ -8,10 +9,14 @@ export class Matrix {
 
   /**
    *  4x4 matrix in column major order
-   * | data[0], data[4], data[8],  data[12] |
-   * | data[1], data[5], data[9],  data[13] |
-   * | data[2], data[6], data[10], data[14] |
-   * | data[3], data[7], data[11], data[15] |
+   * 
+   * |         |         |          |          |
+   * | ------- | ------- | -------- |          |
+   * | data[0] | data[4] | data[8]  | data[12] |
+   * | data[1] | data[5] | data[9]  | data[13] |
+   * | data[2] | data[6] | data[10] | data[14] |
+   * | data[3] | data[7] | data[11] | data[15] |
+   * 
    */
   public data: Float32Array = new Float32Array(16);
 
@@ -109,11 +114,10 @@ export class Matrix {
    * @param y
    * @param z
    */
-  public static translation(x: number, y: number, z: number = 0): Matrix {
+  public static translation(x: number, y: number): Matrix {
     const mat = Matrix.identity();
     mat.data[12] = x;
     mat.data[13] = y;
-    mat.data[14] = z;
     return mat;
   }
 
@@ -263,17 +267,28 @@ export class Matrix {
     const a44 = this.data[15];
 
     // Doesn't change z
-    this.data[12] = a11 * x + a12 * y + a13 + a14;
-    this.data[13] = a21 * x + a22 * y + a23 + a24;
-    this.data[14] = a31 * x + a32 * y + a33 + a34;
-    this.data[15] = a41 * x + a42 * y + a43 + a44;
+    let z = 0;
+    let w = 1;
+    this.data[12] = a11 * x + a12 * y + a13 * z + a14 * w;
+    this.data[13] = a21 * x + a22 * y + a23 * z + a24 * w;
+    this.data[14] = a31 * x + a32 * y + a33 * z + a34 * w;
+    this.data[15] = a41 * x + a42 * y + a43 * z + a44 * w;
 
     return this;
   }
 
+  public setPosition(x: number, y: number) {
+    this.data[12] = x;
+    this.data[13] = y;
+  }
+
+  public getPosition(): Vector {
+    return vec(this.data[12], this.data[13]);
+  }
+
   /**
    * Applies rotation to the current matrix mutating it
-   * @param angle
+   * @param angle in Radians
    */
   rotate(angle: number) {
     const a11 = this.data[0];
@@ -300,6 +315,25 @@ export class Matrix {
     this.data[7] = cosine * a42 - sine * a41;
 
     return this;
+  }
+
+
+  public setRotation(angle: number) {
+    const oldScale = this.getScale();
+    
+    const sine = Math.sin(angle);
+    const cosine = Math.cos(angle);
+    
+    this.data[0] = cosine;
+    this.data[1] = sine;
+    this.data[4] = -sine;
+    this.data[5] = cosine;
+
+    this.setScale(oldScale);
+  }
+
+  public getRotation(): number {
+    return Math.atan2(this.data[1], this.data[0]);
   }
 
   /**
@@ -329,5 +363,68 @@ export class Matrix {
     this.data[7] = a42 * y;
 
     return this;
+  }
+
+  /**
+   * Get the scale of the matrix
+   */
+  public getScale(): Vector {
+    const det = this.getBasisDeterimant();
+    const sign = det < 0 ? -1 : 1;
+    const xscale = vec(this.data[0], this.data[1]).size;
+    const yscale = vec(this.data[4], this.data[5]).size;
+    return vec(xscale, sign * yscale);
+  }
+
+  public setScale(scale: Vector) {
+    const xscale = vec(this.data[0], this.data[1]).normalize()
+    const yscale = vec(this.data[4], this.data[5]).normalize();
+    this.data[0] = xscale.x * scale.x;
+    this.data[1] = xscale.y * scale.x;
+    this.data[4] = yscale.x * scale.y;
+    this.data[5] = yscale.y * scale.y;
+  }
+
+  /**
+   * Determinant of the upper left 2x2 matrix
+   */
+  public getBasisDeterimant() {
+    return this.data[0] * this.data[5] - this.data[1] * this.data[4];
+  }
+
+  public getAffineInverse(): Matrix {
+    // See http://negativeprobability.blogspot.com/2011/11/affine-transformations-and-their.html
+    // Since we are actually only doing 2D transformations we can use this hack
+    // We don't actually use the 3rd or 4th dimension
+
+    const det = this.getBasisDeterimant();
+    const inverseDet = 1 / det; // todo zero check
+    const cos = this.data[0] * inverseDet;
+    const sin = this.data[1] * inverseDet;
+
+    const tx = this.data[12]
+    const ty = this.data[13];
+
+    const m = Matrix.identity();
+    // scale + rotation
+    m.data[0] = cos;
+    m.data[1] = -sin;
+    m.data[4] = sin;
+    m.data[5] = cos;
+    
+    // translation
+    m.data[12] = -tx * cos - ty * sin;
+    m.data[13] = -ty * cos + tx * sin;
+
+    return m;
+  }
+
+  public toString() {
+    return`
+[${ this.data[0] } ${ this.data[4] } ${ this.data[8] } ${ this.data[12] }]
+[${ this.data[1] } ${ this.data[5] } ${ this.data[9] } ${ this.data[13] }]
+[${ this.data[2] } ${ this.data[6] } ${ this.data[10] } ${ this.data[14] }]
+[${ this.data[3] } ${ this.data[7] } ${ this.data[11] } ${ this.data[15] }]
+`
   }
 }
