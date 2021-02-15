@@ -37,8 +37,7 @@ xdescribe('A label', () => {
       fontSize: 12,
       fontStyle: ex.FontStyle.Normal,
       fontUnit: ex.FontUnit.Px,
-      textAlign: ex.TextAlign.Left,
-      maxWidth: 200
+      textAlign: ex.TextAlign.Left
     });
 
     expect(label.text).toBe('test text');

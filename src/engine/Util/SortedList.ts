@@ -2,7 +2,7 @@ import { obsolete } from './Decorators';
 
 /**
  * A sorted list implementation. NOTE: this implementation is not self-balancing
- * @deprecated
+ * @deprecated WIll be removed in v0.26.0 Use built in JS array.sort
  */
 @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use built in JS array.sort'})
 export class SortedList<T> {
@@ -187,7 +187,7 @@ export class SortedList<T> {
 
 /**
  * A tree node part of [[SortedList]]
- * @deprecated
+ * @deprecated Will be removed in v0.26.0
  */
 @obsolete({message: 'Will be removed in excalibur v0.26.0'})
 export class BinaryTreeNode<T> {
@@ -240,7 +240,7 @@ export class BinaryTreeNode<T> {
  * Mock element for testing
  *
  * @internal
- * @deprecated
+ * @deprecated Will be removed in v0.26.0
  */
 export class MockedElement {
   private _key: number = 0;

@@ -50,6 +50,11 @@ export interface FrameStatistics {
    * Physics statistics
    */
   physics: PhysicsStatistics;
+
+  /**
+   * Graphics statistics
+   */
+  graphics: GraphicsStatistics;
 }
 
 /**
@@ -142,6 +147,11 @@ export interface PhysicsStatistics {
   narrowphase: number;
 }
 
+export interface GraphicsStatistics {
+  drawCalls: number;
+  drawnImages: number;
+}
+
 /**
  * Debug statistics and flags for Excalibur. If polling these values, it would be
  * best to do so on the `postupdate` event for [[Engine]], after all values have been
@@ -209,6 +219,11 @@ export class FrameStats implements FrameStatistics {
 
   private _physicsStats: PhysicsStats = new PhysicsStats();
 
+  private _graphicsStats: GraphicsStatistics = {
+    drawCalls: 0,
+    drawnImages: 0
+  }
+
   /**
    * Zero out values or clone other IFrameStat stats. Allows instance reuse.
    *
@@ -225,11 +240,14 @@ export class FrameStats implements FrameStatistics {
       this.duration.update = otherStats.duration.update;
       this.duration.draw = otherStats.duration.draw;
       this._physicsStats.reset(otherStats.physics);
+      this.graphics.drawCalls = otherStats.graphics.drawCalls;
+      this.graphics.drawnImages = otherStats.graphics.drawnImages;
     } else {
       this.id = this.delta = this.fps = 0;
       this.actors.alive = this.actors.killed = this.actors.ui = 0;
       this.duration.update = this.duration.draw = 0;
       this._physicsStats.reset();
+      this.graphics.drawnImages = this.graphics.drawCalls = 0;
     }
   }
 
@@ -307,6 +325,13 @@ export class FrameStats implements FrameStatistics {
    */
   public get physics() {
     return this._physicsStats;
+  }
+
+  /**
+   * Gets the frame's graphics statistics
+   */
+  public get graphics() {
+    return this._graphicsStats;
   }
 }
 

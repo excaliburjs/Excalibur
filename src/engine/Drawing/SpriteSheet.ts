@@ -6,7 +6,8 @@ import * as Effects from './SpriteEffects';
 import { Texture } from '../Resources/Texture';
 import { Engine } from '../Engine';
 import { Logger } from '../Util/Log';
-import { TextAlign, BaseAlign } from '../Label';
+import { BaseAlign, TextAlign } from '../Graphics/FontCommon';
+import { obsolete } from '../Util/Decorators';
 
 export interface SpriteSheetArgs {
   image: Texture;
@@ -28,6 +29,7 @@ export interface SpriteSheetSpacingDimensions {
  * Sprite sheets are a useful mechanism for slicing up image resources into
  * separate sprites or for generating in game animations. [[Sprite|Sprites]] are organized
  * in row major order in the [[SpriteSheet]].
+ * @deprecated Will be removed in v0.26.0
  */
 export class SpriteSheet {
   private _sprites: Sprite[] = [];
@@ -326,8 +328,12 @@ export interface SpriteFontArgs extends SpriteSheetArgs {
  * Sprite fonts are a used in conjunction with a [[Label]] to specify
  * a particular bitmap as a font. Note that some font features are not
  * supported by Sprite fonts.
+ * @deprecated Will be removed into v0.26.0
  */
-
+@obsolete({
+  message: 'SpriteSheet will be removed in v0.26.0',
+  alternateMethod: 'Use Graphics.SpriteSheet'
+})
 export class SpriteFont extends SpriteSheet {
   private _currentColor: Color = Color.Black;
   private _currentOpacity: Number = 1.0;
@@ -340,8 +346,8 @@ export class SpriteFont extends SpriteSheet {
   private _textShadowSprites: { [key: string]: Sprite } = {};
   private _shadowOffsetX: number = 5;
   private _shadowOffsetY: number = 5;
-  private _alphabet: string;
-  private _caseInsensitive: boolean;
+  public readonly alphabet: string;
+  public readonly caseInsensitive: boolean;
 
   constructor(config: SpriteFontArgs);
 
@@ -393,8 +399,8 @@ export class SpriteFont extends SpriteSheet {
       caseInsensitive = imageOrConfig.caseInsensitive;
     }
 
-    this._alphabet = alphabet;
-    this._caseInsensitive = caseInsensitive;
+    this.alphabet = alphabet;
+    this.caseInsensitive = caseInsensitive;
     this._spriteRecord = this.getTextSprites();
   }
 
@@ -403,9 +409,9 @@ export class SpriteFont extends SpriteSheet {
    */
   public getTextSprites(): { [key: string]: Sprite } {
     const lookup: { [key: string]: Sprite } = {};
-    for (let i = 0; i < this._alphabet.length; i++) {
-      let char = this._alphabet[i];
-      if (this._caseInsensitive) {
+    for (let i = 0; i < this.alphabet.length; i++) {
+      let char = this.alphabet[i];
+      if (this.caseInsensitive) {
         char = char.toLowerCase();
       }
       lookup[char] = this.sprites[i].clone();
@@ -499,7 +505,7 @@ export class SpriteFont extends SpriteSheet {
 
     for (let i = 0; i < text.length; i++) {
       let character = text[i];
-      if (this._caseInsensitive) {
+      if (this.caseInsensitive) {
         character = character.toLowerCase();
       }
       try {

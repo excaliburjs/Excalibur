@@ -7,6 +7,7 @@ import * as DrawUtil from './Util/DrawUtil';
 
 import logoImg from './Loader.logo.png';
 import loaderCss from './Loader.css';
+import { Canvas } from './Graphics/Canvas';
 import { Vector } from './Algebra';
 import { clamp, delay } from './Util/Util';
 
@@ -76,6 +77,10 @@ import { clamp, delay } from './Util/Util';
  * ```
  */
 export class Loader extends Class implements Loadable<Loadable<any>[]> {
+  public canvas: Canvas = new Canvas({
+    smoothing: true,
+    draw: this.draw.bind(this)
+  });
   private _resourceList: Loadable<any>[] = [];
   private _index = 0;
 
@@ -196,6 +201,8 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
 
   public wireEngine(engine: Engine) {
     this._engine = engine;
+    this.canvas.width = this._engine.canvas.width;
+    this.canvas.height = this._engine.canvas.height;
   }
 
   /**
@@ -323,8 +330,8 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
     const canvasWidth = this._engine.canvasWidth / this._engine.pixelRatio;
 
     if (this._playButtonRootElement) {
-      const left = ctx.canvas.offsetLeft;
-      const top = ctx.canvas.offsetTop;
+      const left = this._engine.canvas.offsetLeft;
+      const top = this._engine.canvas.offsetTop;
       const buttonWidth = this._playButton.clientWidth;
       const buttonHeight = this._playButton.clientHeight;
       if (this.playButtonPosition) {

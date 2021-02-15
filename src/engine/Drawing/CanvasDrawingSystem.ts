@@ -5,6 +5,7 @@ import { CanvasDrawComponent } from './CanvasDrawComponent';
 import { Scene } from '../Scene';
 import { Camera } from '../Camera';
 import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
+import { GraphicsDiagnostics } from '../Graphics/GraphicsDiagnostics';
 
 /**
  * Draws anything with a transform and a "draw" method
@@ -66,20 +67,24 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
       this._camera.debugDraw(this._ctx);
       this._ctx.restore();
     }
+
+    this._engine.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;
+    this._engine.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
   }
 
   private _applyTransform(actor: Actor) {
     let parent = actor.parent;
+    const transform = actor.components.transform;
     while (parent) {
-      this._ctx.translate(parent.pos.x, parent.pos.y);
-      this._ctx.rotate(parent.rotation);
-      this._ctx.scale(parent.scale.x, parent.scale.y);
+      this._ctx.translate(parent.transform.pos.x, parent.transform.pos.y);
+      this._ctx.rotate(parent.transform.rotation);
+      this._ctx.scale(parent.transform.scale.x, parent.transform.scale.y);
       parent = parent.parent;
     }
 
-    this._ctx.translate(actor.pos.x, actor.pos.y);
-    this._ctx.rotate(actor.rotation);
-    this._ctx.scale(actor.scale.x, actor.scale.y);
+    this._ctx.translate(transform.pos.x, transform.pos.y);
+    this._ctx.rotate(transform.rotation);
+    this._ctx.scale(transform.scale.x, transform.scale.y);
   }
 
   private _clearScreen(): void {

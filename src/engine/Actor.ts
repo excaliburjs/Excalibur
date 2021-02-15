@@ -49,6 +49,8 @@ import { Shape } from './Collision/Shape';
 import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
+import { GraphicsComponent } from './Graphics/GraphicsComponent';
+import { Rectangle } from './Graphics/Rectangle';
 
 /**
  * Type guard for checking if something is an Actor
@@ -84,7 +86,7 @@ export interface ActorDefaults {
  */
 
 export class ActorImpl
-  extends Entity<TransformComponent | CanvasDrawComponent>
+  extends Entity<TransformComponent | CanvasDrawComponent | GraphicsComponent>
   implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
@@ -311,8 +313,17 @@ export class ActorImpl
   public isOffScreen: boolean = false;
   /**
    * The visibility of an actor
+   * @deprecated Use [[GraphicsComponent.visible|Actor.graphics.visible]]
    */
-  public visible: boolean = true;
+  @obsolete({ message: 'Actor.visible will be removed in v0.26.0', alternateMethod: 'Use Actor.graphics.visible' })
+  public get visible(): boolean {
+    return this.graphics.visible;
+  }
+
+  public set visible(isVisible: boolean) {
+    this.graphics.visible = isVisible;
+  }
+
   /**
    * The opacity of an actor. Passing in a color in the [[constructor]] will use the
    * color's opacity.
@@ -445,6 +456,9 @@ export class ActorImpl
 
   // #endregion
 
+  public transform: TransformComponent;
+  public graphics: GraphicsComponent;
+
   /**
    * @param xOrConfig The starting x coordinate of the actor, or an option bag of [[ActorArgs]]
    * @param y         The starting y coordinate of the actor
@@ -459,7 +473,8 @@ export class ActorImpl
     // initialize default options
     this._initDefaults();
 
-    this.addComponent(new TransformComponent());
+    this.addComponent((this.transform = new TransformComponent()));
+    this.addComponent((this.graphics = new GraphicsComponent()));
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
 
     let shouldInitializeBody = true;
@@ -475,6 +490,7 @@ export class ActorImpl
       }
       width = config.width;
       height = config.height;
+      color = config.color;
 
       if (config.body) {
         shouldInitializeBody = false;
@@ -514,8 +530,19 @@ export class ActorImpl
       this.opacity = color.a;
     }
 
+    if (color) {
+      this.graphics.add(
+        new Rectangle({
+          color: color,
+          width: this._width,
+          height: this._height
+        })
+      );
+    }
+
     // Build default pipeline
     this.traits.push(new Traits.TileMapCollisionDetection());
+    // TODO remove this trait
     this.traits.push(new Traits.OffscreenCulling());
     this.traits.push(new Traits.CapturePointer());
 
@@ -899,14 +926,20 @@ export class ActorImpl
    * Sets the current drawing of the actor to the drawing corresponding to
    * the key.
    * @param key The key of the drawing
+   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.swap|Actor.graphics.swap]]
    */
   public setDrawing(key: string): void;
   /**
    * Sets the current drawing of the actor to the drawing corresponding to
    * an `enum` key (e.g. `Animations.Left`)
    * @param key The `enum` key of the drawing
+   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.swap|Actor.graphics.swap]]
    */
   public setDrawing(key: number): void;
+  @obsolete({
+    message: 'Actor.setDrawing will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.graphics.show() or Actor.graphics.swap()'
+  })
   public setDrawing(key: any): void {
     key = key.toString();
     if (this.currentDrawing !== this.frames[<string>key]) {
@@ -924,18 +957,25 @@ export class ActorImpl
 
   /**
    * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
+   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]]
    */
   public addDrawing(texture: Texture): void;
   /**
    * Adds a whole sprite as the "default" drawing. Set a drawing using [[setDrawing]].
+   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]]
    */
   public addDrawing(sprite: Sprite): void;
   /**
    * Adds a drawing to the list of available drawings for an actor. Set a drawing using [[setDrawing]].
    * @param key     The key to associate with a drawing for this actor
    * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
+   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]]
    */
   public addDrawing(key: any, drawing: Drawable): void;
+  @obsolete({
+    message: 'Actor.addDrawing will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.graphics.add()'
+  })
   public addDrawing(): void {
     if (arguments.length === 2) {
       this.frames[<string>arguments[0]] = arguments[1];
@@ -963,8 +1003,12 @@ export class ActorImpl
   /**
    * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
-   * @deprecated Use actor.z
+   * @deprecated Use [[Actor.z]]
    */
+  @obsolete({
+    message: 'Actor.getZIndex will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.transform.z or Actor.z'
+  })
   public getZIndex(): number {
     return this.components.transform.z;
   }
@@ -974,8 +1018,12 @@ export class ActorImpl
    * The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
    * @param newIndex new z-index to assign
-   * @deprecated Use actor.z
+   * @deprecated Use [[Actor.z]]
    */
+  @obsolete({
+    message: 'Actor.setZIndex will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.transform.z or Actor.z'
+  })
   public setZIndex(newIndex: number) {
     this.components.transform.z = newIndex;
   }

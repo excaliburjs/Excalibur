@@ -3,7 +3,7 @@ import { ExcaliburMatchers } from 'excalibur-jasmine';
 import { Camera } from '@excalibur';
 describe('A Screen', () => {
   let canvas: HTMLCanvasElement;
-  let context: CanvasRenderingContext2D;
+  let context: ex.Graphics.ExcaliburGraphicsContext;
   let browser: ex.BrowserEvents;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -13,7 +13,9 @@ describe('A Screen', () => {
     });
     document.body.style.margin = '0';
     canvas = document.createElement('canvas');
-    context = canvas.getContext('2d');
+    context = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
+      canvasElement: canvas
+    });
     document.body.appendChild(canvas);
     browser = new ex.BrowserEvents(window, document);
   });
@@ -266,7 +268,7 @@ describe('A Screen', () => {
 
     sut.applyResolutionAndViewport();
 
-    expect(context.imageSmoothingEnabled).toBeFalse();
+    expect(context.smoothing).toBeFalse();
     expect(canvas.style.imageRendering).toBe('pixelated');
   });
 
@@ -303,7 +305,7 @@ describe('A Screen', () => {
 
     sut.applyResolutionAndViewport();
 
-    expect(context.imageSmoothingEnabled).toBeFalse();
+    expect(context.smoothing).toBeFalse();
     expect(canvasStub.style.imageRendering).toBe('crisp-edges');
   });
 
@@ -319,7 +321,7 @@ describe('A Screen', () => {
 
     sut.applyResolutionAndViewport();
 
-    expect(context.imageSmoothingEnabled).toBeTrue();
+    expect(context.smoothing).toBeTrue();
     expect(canvas.style.imageRendering).toBe('auto');
   });
 

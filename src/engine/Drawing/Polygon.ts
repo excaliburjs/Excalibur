@@ -3,12 +3,18 @@ import * as Effects from './SpriteEffects';
 
 import { Drawable, DrawOptions } from '../Interfaces/Drawable';
 import { Vector } from '../Algebra';
+import { obsolete } from '../Util/Decorators';
 
 /**
  * Creates a closed polygon drawing given a list of [[Vector]]s.
  *
+ * @deprecated Use [["Graphics/Polygon".Polygon]]
  * @warning Use sparingly as Polygons are performance intensive
  */
+@obsolete({
+  message: 'Polygon will be removed in v0.26.0',
+  alternateMethod: 'Use Graphics.Polygon'
+})
 export class Polygon implements Drawable {
   public flipVertical: boolean;
   public flipHorizontal: boolean;

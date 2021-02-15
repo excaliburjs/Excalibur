@@ -4,6 +4,7 @@ import { Actor } from '../Actor';
 import { Vector, Ray } from '../Algebra';
 import { Color } from '../Drawing/Color';
 import { Side } from './Side';
+import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
 
 export interface BoundingBoxOptions {
   left: number;
@@ -403,5 +404,14 @@ export class BoundingBox {
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Yellow) {
     ctx.strokeStyle = color.toString();
     ctx.strokeRect(this.left, this.top, this.width, this.height);
+  }
+
+  /**
+   * Draw a debug bounding box
+   * @param ex
+   * @param color
+   */
+  public draw(ex: ExcaliburGraphicsContext, color: Color = Color.Yellow) {
+    ex.debug.drawRect(this.left, this.top, this.width, this.height, { color });
   }
 }
