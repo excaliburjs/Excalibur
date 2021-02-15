@@ -40,7 +40,7 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
 
   public set x(val: number) {
     if (this.components?.transform?.pos) {
-      this.components.transform.pos.x = val;
+      this.components.transform.pos = vec(val, this.y);
     }
   }
 
@@ -50,7 +50,7 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
 
   public set y(val: number) {
     if (this.components?.transform?.pos) {
-      this.components.transform.pos.y = val;
+      this.components.transform.pos = vec(this.x, val);
     }
   }
 
@@ -84,12 +84,11 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
   }
 
   public get pos(): Vector {
-    return vec(this.x, this.y);
+    return this.components.transform.pos;
   }
 
   public set pos(val: Vector) {
-    this.x = val.x;
-    this.y = val.y;
+    this.components.transform.pos = val;
   }
 
   public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent<TileMap>) => void): void;
@@ -111,6 +110,8 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
    */
   constructor(xOrConfig: number | TileMapArgs, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number) {
     super();
+    this.addComponent(new TransformComponent());
+    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
       xOrConfig = config.x;
@@ -135,9 +136,6 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
         })();
       }
     }
-
-    this.addComponent(new TransformComponent());
-    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
   }
 
 

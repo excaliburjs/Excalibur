@@ -283,7 +283,7 @@ export class Matrix {
   }
 
   public getPosition(): Vector {
-    return vec(this.data[12], this.data[13]);
+    return new Vector(this.data, 12);
   }
 
   /**
@@ -406,12 +406,11 @@ export class Matrix {
     const ty = this.data[13];
 
     const m = Matrix.identity();
-    // scale + rotation
     m.data[0] = cos;
     m.data[1] = -sin;
     m.data[4] = sin;
     m.data[5] = cos;
-    
+
     // translation
     m.data[12] = -tx * cos - ty * sin;
     m.data[13] = -ty * cos + tx * sin;
