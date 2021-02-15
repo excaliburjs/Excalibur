@@ -21,7 +21,8 @@ export * from './Debug';
 export * from './EventDispatcher';
 export * from './Events/MediaEvents';
 export * from './Events';
-export { Label, FontStyle, FontUnit, TextAlign, BaseAlign } from './Label';
+export { Label } from './Label';
+export { FontStyle, FontUnit, TextAlign, BaseAlign } from './Graphics/FontCommon';
 export * from './Loader';
 export { Particle, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterType } from './Particles';
 export * from './Physics';
@@ -40,6 +41,10 @@ export * from './PostProcessing/Index';
 export * from './Resources/Index';
 
 export * from './EntityComponentSystem/index';
+
+// ex.Graphics namespace
+import * as graphics from './Graphics/index';
+export { graphics as Graphics };
 
 // ex.Events namespace
 import * as events from './Events';
@@ -64,6 +69,7 @@ export * from './Util/CullingBox';
 export * from './Util/EasingFunctions';
 export * from './Util/Log';
 export * from './Util/SortedList';
+export * from './Util/Pool';
 
 // ex.Deprecated
 export * from './Promises';

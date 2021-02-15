@@ -50,6 +50,7 @@ export class Promise<T> implements PromiseLike<T> {
   /**
    * Create and resolve a Promise with an optional value
    * @param value  An optional value to wrap in a resolved promise
+   * @deprecated Use browser native promises
    */
   public static resolve<T>(value?: T): Promise<T> {
     const promise = new Promise<T>().resolve(value);
@@ -60,6 +61,7 @@ export class Promise<T> implements PromiseLike<T> {
   /**
    * Create and reject a Promise with an optional value
    * @param value  An optional value to wrap in a rejected promise
+   * @deprecated Use browser native promises
    */
   public static reject<T>(value?: T): Promise<T> {
     const promise = new Promise<T>().reject(value);
@@ -70,12 +72,14 @@ export class Promise<T> implements PromiseLike<T> {
   /**
    * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
    * when at least 1 promise rejects.
+   * @deprecated Use browser native promises
    */
   public static join<T>(promises: Promise<T>[]): Promise<T>;
 
   /**
    * Returns a new promise that resolves when all the promises passed to it resolve, or rejects
    * when at least 1 promise rejects.
+   * @deprecated Use browser native promises
    */
   public static join<T>(...promises: Promise<T>[]): Promise<T>;
 
@@ -131,6 +135,7 @@ export class Promise<T> implements PromiseLike<T> {
    * Chain success and reject callbacks after the promise is resolved
    * @param successCallback  Call on resolution of promise
    * @param rejectCallback   Call on rejection of promise
+   * @deprecated Use browser native promises
    */
   public then(successCallback?: (value?: T) => any, rejectCallback?: (value?: any) => any) {
     if (successCallback) {
@@ -164,6 +169,7 @@ export class Promise<T> implements PromiseLike<T> {
   /**
    * Add an error callback to the promise
    * @param errorCallback  Call if there was an error in a callback
+   * @deprecated Use browser native promises
    */
   public error(errorCallback?: (value?: any) => any) {
     if (errorCallback) {
@@ -175,6 +181,7 @@ export class Promise<T> implements PromiseLike<T> {
   /**
    * Resolve the promise and pass an option value to the success callbacks
    * @param value  Value to pass to the success callbacks
+   * @deprecated Use browser native promises
    */
   public resolve(value?: T): Promise<T> {
     if (this._state === PromiseState.Pending) {
@@ -196,6 +203,7 @@ export class Promise<T> implements PromiseLike<T> {
   /**
    * Reject the promise and pass an option value to the reject callbacks
    * @param value  Value to pass to the reject callbacks
+   * @deprecated Use browser native promises
    */
   public reject(value?: any) {
     if (this._state === PromiseState.Pending) {
@@ -214,6 +222,7 @@ export class Promise<T> implements PromiseLike<T> {
 
   /**
    * Inspect the current state of a promise
+   * @deprecated Use browser native promises
    */
   public state(): PromiseState {
     return this._state;

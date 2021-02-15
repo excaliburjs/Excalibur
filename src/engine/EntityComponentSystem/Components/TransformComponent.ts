@@ -45,7 +45,7 @@ export class TransformComponent extends Component<'transform'> {
   }
 
   /**
-   * The [[coordinate plane|CoordPlane]] for this transform for the entity.
+   * The [[CoordPlane|coordinate plane|]] for this transform for the entity.
    */
   public coordPlane = CoordPlane.World;
 

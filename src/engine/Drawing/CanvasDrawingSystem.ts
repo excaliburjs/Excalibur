@@ -5,6 +5,7 @@ import { CanvasDrawComponent } from './CanvasDrawComponent';
 import { Scene } from '../Scene';
 import { Camera } from '../Camera';
 import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
+import { GraphicsDiagnostics } from '../Graphics/GraphicsDiagnostics';
 
 /**
  * Draws anything with a transform and a "draw" method
@@ -66,6 +67,9 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
       this._camera.debugDraw(this._ctx);
       this._ctx.restore();
     }
+
+    this._engine.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;
+    this._engine.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
   }
 
   private _applyTransform(entity: Entity<TransformComponent>) {

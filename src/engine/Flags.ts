@@ -1,3 +1,18 @@
+
+/**
+ * Features in preview
+ */
+export enum Experiments {
+  WebGL = 'use-webgl'
+}
+
+/**
+ * Legacy features that will go away
+ */
+export enum Legacy {
+  LegacyDrawing= 'use-legacy-drawing'
+}
+
 /**
  * Flags is a feature flag implementation for Excalibur. They can only be operated **before [[Engine]] construction**
  * after which they are frozen and are read-only.

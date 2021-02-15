@@ -1,5 +1,5 @@
 import { EX_VERSION } from './';
-import { Flags } from './Flags';
+import { Experiments, Flags } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
@@ -39,6 +39,7 @@ import * as Input from './Input/Index';
 import * as Events from './Events';
 import { BrowserEvents } from './Util/Browser';
 import { obsolete } from './Util/Decorators';
+import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL } from './Graphics';
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -103,6 +104,11 @@ export interface EngineOptions {
    * Optionally specify the target canvas DOM element directly
    */
   canvasElement?: HTMLCanvasElement;
+
+  /**
+   * Optionally snap drawings to nearest pixel
+   */
+  snapToPixel?: boolean
 
   /**
    * The [[DisplayMode]] of the game. Depending on this value, [[width]] and [[height]] may be ignored.
@@ -187,6 +193,8 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * Direct access to the engine's 2D rendering context
    */
   public ctx: CanvasRenderingContext2D;
+
+  public graphicsContext: ExcaliburGraphicsContext;
 
   /**
    * Direct access to the canvas element ID, if an ID exists
@@ -433,6 +441,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     enableCanvasTransparency: true,
     canvasElementId: '',
     canvasElement: undefined,
+    snapToPixel: false,
     pointerScope: Input.PointerScope.Document,
     suppressConsoleBootMessage: null,
     suppressMinimumBrowserFeatureDetection: null,
@@ -556,12 +565,31 @@ O|===|* >________________>\n\
       displayMode = DisplayMode.Fit;
     }
 
-    // eslint-disable-next-line
-    this.ctx = this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
+    if (Flags.isEnabled(Experiments.WebGL)) {
+      const exWebglCtx = new ExcaliburGraphicsContextWebGL({
+        canvasElement: this.canvas,
+        enableTransparency: this.enableCanvasTransparency,
+        smoothing: options.antialiasing,
+        backgroundColor: options.backgroundColor,
+        snapToPixel: options.snapToPixel
+      });
+      this.graphicsContext = exWebglCtx;
+      this.ctx = exWebglCtx.__ctx;
+    } else {
+      const ex2dCtx = new ExcaliburGraphicsContext2DCanvas({
+        canvasElement: this.canvas,
+        enableTransparency: this.enableCanvasTransparency,
+        smoothing: options.antialiasing,
+        backgroundColor: options.backgroundColor,
+        snapToPixel: options.snapToPixel
+      });
+      this.graphicsContext = ex2dCtx;
+      this.ctx = ex2dCtx.__ctx;
+    }
 
     this.screen = new Screen({
       canvas: this.canvas,
-      context: this.ctx,
+      context: this.graphicsContext,
       antialiasing: options.antialiasing ?? true,
       browser: this.browser,
       viewport: options.viewport ?? { width: options.width, height: options.height },
@@ -630,7 +658,7 @@ O|===|* >________________>\n\
    * @param y          y game coordinate to play the animation
    * @deprecated
    */
-  @obsolete({message: 'Will be removed in excalibur v0.26.0'})
+  @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Actor.graphics' })
   public playAnimation(animation: Animation, x: number, y: number) {
     this._animations.push(new AnimationNode(animation, x, y));
   }
@@ -999,14 +1027,14 @@ O|===|* >________________>\n\
     this._predraw(ctx, delta);
 
     if (this._isLoading) {
-      this._loader.draw(ctx);
+      this._loader.canvas.draw(this.graphicsContext, 0, 0);
+      this.graphicsContext.flush();
       // Drawing nothing else while loading
       return;
     }
 
-    ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-    ctx.fillStyle = this.backgroundColor.toString();
-    ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+    // TODO move to graphics systems?
+    this.graphicsContext.backgroundColor = this.backgroundColor;
 
     this.currentScene.draw(this.ctx, delta);
 
@@ -1018,6 +1046,7 @@ O|===|* >________________>\n\
     }
 
     // Draw debug information
+    // TODO don't access ctx directly
     if (this.isDebug) {
       this.ctx.font = 'Consolas';
       this.ctx.fillStyle = this.debugColor.toString();
@@ -1087,11 +1116,10 @@ O|===|* >________________>\n\
     if (!this._compatible) {
       return Promise.reject('Excalibur is incompatible with your browser');
     }
-    // Changing resolution invalidates context state, so we need to capture it before applying
     this.screen.pushResolutionAndViewport();
     this.screen.resolution = this.screen.viewport;
     this.screen.applyResolutionAndViewport();
-
+    this.graphicsContext.updateViewport();
     let loadingComplete: Promise<any>;
     if (loader) {
       this._loader = loader;
@@ -1105,6 +1133,7 @@ O|===|* >________________>\n\
     loadingComplete.then(() => {
       this.screen.popResolutionAndViewport();
       this.screen.applyResolutionAndViewport();
+      this.graphicsContext.updateViewport();
       this.emit('start', new GameStartEvent(this));
     });
 
@@ -1234,7 +1263,7 @@ O|===|* >________________>\n\
  * @internal
  * @deprecated
  */
-@obsolete({message: 'Will be removed in excalibur v0.26.0'})
+@obsolete({ message: 'Will be removed in excalibur v0.26.0' })
 class AnimationNode {
   constructor(public animation: Animation, public x: number, public y: number) {}
 }

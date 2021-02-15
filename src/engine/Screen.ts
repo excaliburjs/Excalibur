@@ -3,6 +3,7 @@ import { Logger } from './Util/Log';
 import { Camera } from './Camera';
 import { BrowserEvents } from './Util/Browser';
 import { BoundingBox } from './Collision/Index';
+import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 import { getPosition } from './Util/Util';
 
 /**
@@ -123,14 +124,6 @@ export type CanvasPosition = string | AbsolutePosition;
 export interface ScreenDimension {
   width: number;
   height: number;
-}
-
-export interface ExcaliburGraphicsContext {
-  save(): void;
-  resetTransform(): void;
-  scale(x: number, y: number): void;
-  imageSmoothingEnabled: boolean;
-  restore(): void;
 }
 
 export interface ScreenOptions {
@@ -345,9 +338,10 @@ export class Screen {
     this._canvas.style.height = this.viewport.height + 'px';
 
     // After messing with the canvas width/height the graphics context is invalidated and needs to have some properties reset
+    this._ctx.updateViewport();
     this._ctx.resetTransform();
     this._ctx.scale(this.pixelRatio, this.pixelRatio);
-    this._ctx.imageSmoothingEnabled = this._antialiasing;
+    this._ctx.smoothing = this._antialiasing;
   }
 
   public get antialiasing() {
@@ -356,7 +350,7 @@ export class Screen {
 
   public set antialiasing(isSmooth: boolean) {
     this._antialiasing = isSmooth;
-    this._ctx.imageSmoothingEnabled = this._antialiasing;
+    this._ctx.smoothing = this._antialiasing;
   }
 
   /**

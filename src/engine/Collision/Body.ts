@@ -147,7 +147,7 @@ export class Body implements Clonable<Body> {
 
   /**
    * The scale vector of the actor
-   * @obsolete ex.Body.scale will be removed in v0.25.0
+   * @obsolete ex.Body.scale will be removed in v0.25.0, Use ex.Transform.scale
    */
   public get scale(): Vector {
     return this.transform.globalScale;

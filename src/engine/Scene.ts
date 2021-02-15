@@ -28,10 +28,13 @@ import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
 import { Body } from './Collision/Body';
 import { SystemType } from './EntityComponentSystem/System';
-import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
+// import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { obsolete } from './Util/Decorators';
 import { World } from './EntityComponentSystem/World';
 import { Entity } from './EntityComponentSystem/Entity';
+import { GraphicsSystem } from './Graphics/GraphicsSystem';
+import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
+import { Flags, Legacy } from './Flags';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -77,7 +80,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   /**
    * The [[ScreenElement]]s in a scene, if any; these are drawn last
-   * @deprecated
+   * @deprecated Use [[Scene.actors]]
    */
   @obsolete({
     message: 'Will be removed in excalibur v0.26.0',
@@ -241,7 +244,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       }
 
       // Initialize systems
-      this.world.add(new CanvasDrawingSystem());
+      if (Flags.isEnabled(Legacy.LegacyDrawing)) {
+        this.world.add(new CanvasDrawingSystem());
+      } else {
+        this.world.add(new GraphicsSystem());
+      }
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
@@ -575,7 +582,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Adds (any) actor to act as a piece of UI, meaning it is always positioned
    * in screen coordinates. UI actors do not participate in collisions.
    * @todo Should this be `ScreenElement` only?
-   * @deprecated
+   * @deprecated Use [[Scene.add]]
    */
   @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add'})
   public addScreenElement(actor: Actor) {
@@ -584,7 +591,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   /**
    * Removes an actor as a piece of UI
-   * @deprecated
+   * @deprecated Use [[Scene.remove]]
    */
   @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove'})
   public removeScreenElement(actor: Actor) {
@@ -593,7 +600,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   /**
    * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
-   * @deprecated
+   * @deprecated Use [[Scene.add]]
    */
   @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add'})
   public addTileMap(tileMap: TileMap) {
@@ -603,7 +610,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   /**
    * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
-   * @deprecated
+   * @deprecated Use [[Scene.remove]]
    */
   @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove'})
   public removeTileMap(tileMap: TileMap) {

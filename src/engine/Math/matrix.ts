@@ -112,7 +112,6 @@ export class Matrix {
    * Creates a brand new translation matrix at the specified 3d point
    * @param x
    * @param y
-   * @param z
    */
   public static translation(x: number, y: number): Matrix {
     const mat = Matrix.identity();

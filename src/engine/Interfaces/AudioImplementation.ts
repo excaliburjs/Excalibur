@@ -18,7 +18,7 @@ export class ExResponse {
 }
 
 /**
- * Represents an audio implementation like [[AudioTagInstance]] or [[WebAudioInstance]]
+ * Represents an audio implementation like [[WebAudioInstance]]
  */
 export interface AudioImplementation {
   /**
