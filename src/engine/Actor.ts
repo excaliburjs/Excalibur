@@ -38,7 +38,6 @@ import { Eventable } from './Interfaces/Evented';
 import { Actionable } from './Actions/Actionable';
 import { Configurable } from './Configurable';
 import * as Traits from './Traits/Index';
-// import * as Util from './Util/Util';
 import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEventHandlers';
 import { CollisionType } from './Collision/CollisionType';
@@ -444,13 +443,13 @@ export class ActorImpl
    * initial [[opacity]].
    */
   constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
-    super();
+    super([
+      new TransformComponent(),
+      new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta))
+    ]);
 
     // initialize default options
     this._initDefaults();
-
-    this.addComponent(new TransformComponent());
-    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
 
     let shouldInitializeBody = true;
     let collisionType = CollisionType.Passive;

@@ -77,7 +77,7 @@ export class Body implements Clonable<Body> {
   }
 
   public get transform(): TransformComponent {
-    return this.actor.components.transform;
+    return this.actor.get(TransformComponent);
   }
 
   /**
@@ -138,11 +138,11 @@ export class Body implements Clonable<Body> {
    * The rotation of the actor in radians
    */
   public get rotation() {
-    return this.transform.rotation;
+    return this.transform.globalRotation;
   }
 
   public set rotation(val: number) {
-    this.transform.rotation = val;
+    this.transform.globalRotation = val;
   }
 
   /**
@@ -150,11 +150,11 @@ export class Body implements Clonable<Body> {
    * @obsolete ex.Body.scale will be removed in v0.25.0
    */
   public get scale(): Vector {
-    return this.transform.scale;
+    return this.transform.globalScale;
   }
 
   public set scale(val: Vector) {
-    this.transform.scale = val;
+    this.transform.globalScale = val;
   }
 
   /**

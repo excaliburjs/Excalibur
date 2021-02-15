@@ -109,9 +109,10 @@ export class TileMapImpl extends Entity<TransformComponent | CanvasDrawComponent
    * @param cols          The number of cols in the TileMap (should not be changed once set)
    */
   constructor(xOrConfig: number | TileMapArgs, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number) {
-    super();
-    this.addComponent(new TransformComponent());
-    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
+    super([
+      new TransformComponent(),
+      new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta))
+    ]);
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
       xOrConfig = config.x;

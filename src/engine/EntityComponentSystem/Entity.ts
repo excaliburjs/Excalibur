@@ -76,6 +76,15 @@ export type ExcludeType<TypeUnion, TypeNameOrType> = TypeNameOrType extends stri
 export class Entity<KnownComponents extends Component = never> extends Class implements OnInitialize, OnPreUpdate, OnPostUpdate {
   private static _ID = 0;
 
+  constructor(components?: Component[]) {
+    super();
+    if (components) {
+      for (const component of components) {
+        this.addComponent(component);
+      }
+    }
+  }
+
   /**
    * The unique identifier for the entity
    */
