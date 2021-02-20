@@ -22,6 +22,10 @@ export class TransformComponent extends Component<'transform'> {
   public readonly type = 'transform';
 
 
+  private _dirty = false;
+  private _position = Vector.Zero;
+  private _scale = Vector.One;
+  private _rotation = 0;
   private _mat = Matrix.identity()
     .translate(0, 0)
     .rotate(0)
@@ -31,12 +35,29 @@ export class TransformComponent extends Component<'transform'> {
     return this._mat;
   }
 
-  public getGlobalMatrix(): Matrix {
-    // todo if parent is not dirty or matrix is not dirty we can cache
+  private _recalculate() {
+    this._position = this._mat.getPosition();
+    this._rotation = this._mat.getRotation();
+    this._scale = this._mat.getScale();
+    this._dirty = false;
+  }
+
+  private _globalMat: Matrix;
+  private _globalPos = Vector.Zero;
+  private _globalRotation = 0;
+  private _globalScale = Vector.One;
+  private _recalculateGlobal() {
+    this._globalMat = this.getMatrix();
+    this._globalPos = this._globalMat.getPosition();
+    this._globalRotation = this._globalMat.getRotation();
+    this._globalScale = this._globalMat.getScale();
+  }
+
+  public getMatrix(): Matrix {
     if (!this.parent) {
       return this.matrix;
     } else {
-      return this.parent.getGlobalMatrix().multm(this.matrix);
+      return this.parent.getMatrix().multm(this.matrix);
     }
   }
 
@@ -56,15 +77,18 @@ export class TransformComponent extends Component<'transform'> {
    * If a parent entity exists coordinates are local to the parent.
    */
   public get pos(): Vector {
-    return this._mat.getPosition();
+    if (this._dirty) {
+      this._recalculate();
+    }
+    return this._position;
   }
 
   public set pos(val: Vector) {
     this._mat.setPosition(val.x, val.y);
+    this._position = val;
   }
 
   // Dirty flag check up the chain
-  private _dirty = true;
   private get dirty(): boolean {
     if (this?.owner?.parent) {
       const parent = this.parent;
@@ -77,7 +101,11 @@ export class TransformComponent extends Component<'transform'> {
    * The current world position calculated 
    */
   public get globalPos(): Vector {
-    return this.getGlobalMatrix().getPosition();
+    if (this.dirty) {
+      this._recalculateGlobal();
+    }
+    // return this.getMatrix().getPosition();
+    return this._globalPos;
   }
 
   public set globalPos(val: Vector) {
@@ -86,7 +114,7 @@ export class TransformComponent extends Component<'transform'> {
     if (!parentTransform) {
       this.pos = val;
     } else {
-      this.pos = parentTransform.getGlobalMatrix().getAffineInverse().multv(val);
+      this.pos = parentTransform.getMatrix().getAffineInverse().multv(val);
     }
   }
 
@@ -100,16 +128,24 @@ export class TransformComponent extends Component<'transform'> {
    * The rotation of the entity in radians. For example `Math.PI` radians is the same as 180 degrees.
    */
   public get rotation(): number {
-    return this._mat.getRotation();
+    if (this._dirty) {
+      this._recalculate();
+    }
+    return this._rotation;
   };
 
   public set rotation(val: number) {
     this._mat.setRotation(val);
+    this._dirty = true;
   }
   
 
   public get globalRotation(): number {
-    return this.getGlobalMatrix().getRotation();
+    if (this.dirty) {
+      this._recalculateGlobal();
+    }
+    // return this.getMatrix().getRotation();
+    return this._globalRotation;
   }
 
   public set globalRotation(val: number) {
@@ -125,15 +161,23 @@ export class TransformComponent extends Component<'transform'> {
    * The scale of the entity.
    */
   public get scale(): Vector {
-    return this._mat.getScale();
+    if (this._dirty) {
+      this._recalculate();
+    }
+    return this._scale;
   };
 
   public set scale(val: Vector) {
     this._mat.setScale(val);
+    this._dirty = true;
   }
 
   public get globalScale(): Vector {
-    return this.getGlobalMatrix().getScale();
+    if (this.dirty) {
+      this._recalculateGlobal();
+    }
+    return this._globalScale;
+    // return this.getMatrix().getScale();
   }
 
   public set globalScale(val: Vector) {
