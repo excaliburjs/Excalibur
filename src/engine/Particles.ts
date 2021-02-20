@@ -502,8 +502,9 @@ export class ParticleEmitterImpl extends Actor {
     for (let i = 0; i < this.particles.length; i++) {
       this.particles[i].update(engine, delta);
     }
+    // deferred removal
     for (let i = 0; i < this.deadParticles.length; i++) {
-      Util.removeItemFromArray(this.deadParticles[i], this.deadParticles);
+      Util.removeItemFromArray(this.deadParticles[i], this.particles);
       if (this?.scene?.world) {
         this.scene.world.remove(this.deadParticles[i]);
       }
