@@ -93,7 +93,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
   private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent) {
     if (transform.coordPlane === CoordPlane.World) {
-      const graphicsOffscreen = !this._camera.viewport.intersect(graphics.localBounds.translate(transform.pos));
+      const graphicsOffscreen = !this._camera.viewport.intersect(graphics.localBounds.translate(transform.globalPos));
       return graphicsOffscreen;
     } else {
       // TODO sceen coordinates

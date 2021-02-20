@@ -50,6 +50,7 @@ import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Rectangle } from './Graphics/Rectangle';
+import { Flags, Legacy } from './Flags';
 
 /**
  * Type guard for checking if something is an Actor
@@ -533,8 +534,10 @@ export class ActorImpl
 
     // Build default pipeline
     this.traits.push(new Traits.TileMapCollisionDetection());
-    // TODO remove this trait
-    this.traits.push(new Traits.OffscreenCulling());
+    if (Flags.isEnabled(Legacy.LegacyDrawing)) {
+      // TODO remove offscreen trait after legacy drawing removed
+      this.traits.push(new Traits.OffscreenCulling());
+    }
     this.traits.push(new Traits.CapturePointer());
 
     // Build the action queue
