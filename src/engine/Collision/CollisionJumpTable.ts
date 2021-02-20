@@ -3,7 +3,7 @@ import { CollisionContact } from './CollisionContact';
 import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 
-import { Vector } from '../Algebra';
+import { vec, Vector } from '../Algebra';
 
 export const CollisionJumpTable = {
   CollideCircleCircle(circleA: Circle, circleB: Circle): CollisionContact {
@@ -114,8 +114,7 @@ export const CollisionJumpTable = {
     let n = e.perpendicular();
     // flip correct direction
     if (n.dot(cc.sub(edge.begin)) < 0) {
-      n.x = -n.x;
-      n.y = -n.y;
+      n = vec(-n.x, -n.y);
     }
 
     n = n.normalize();

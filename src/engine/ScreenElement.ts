@@ -31,7 +31,7 @@ export class ScreenElement extends Actor {
     this.get(TransformComponent).coordPlane = CoordPlane.Screen;
     this.traits = [];
     this.traits.push(new Traits.CapturePointer());
-    this.anchor.setTo(0, 0);
+    this.anchor = Vector.Zero;
     this.body.collider.type = CollisionType.PreventCollision;
     this.body.collider.shape = Shape.Box(this.width, this.height, this.anchor);
     this.enableCapturePointer = true;

@@ -49,8 +49,7 @@ describe('A scene', () => {
     engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos.x = 0;
-    actor.pos.y = 0;
+    actor.pos = ex.vec(0, 0);
     actor.width = 10;
     actor.height = 10;
 
@@ -66,8 +65,7 @@ describe('A scene', () => {
     engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos.x = -4;
-    actor.pos.y = 0;
+    actor.pos = ex.vec(-4, 0);
     actor.width = 10;
     actor.height = 10;
 
@@ -82,8 +80,7 @@ describe('A scene', () => {
     engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos.x = -6;
-    actor.pos.y = 0;
+    actor.pos = ex.vec(-6, 0);
     actor.width = 10;
     actor.height = 10;
 
@@ -99,8 +96,7 @@ describe('A scene', () => {
     engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos.x = 0;
-    actor.pos.y = -4;
+    actor.pos = ex.vec(0, -4);
     actor.width = 10;
     actor.height = 10;
 
@@ -116,8 +112,7 @@ describe('A scene', () => {
     engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos.x = 0;
-    actor.pos.y = -6;
+    actor.pos = ex.vec(0, -6);
     actor.width = 10;
     actor.height = 10;
 
@@ -133,8 +128,7 @@ describe('A scene', () => {
     engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos.x = 104;
-    actor.pos.y = 0;
+    actor.pos = ex.vec(104, 0);
     actor.width = 10;
     actor.height = 10;
 
@@ -150,8 +144,7 @@ describe('A scene', () => {
     engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos.x = 106;
-    actor.pos.y = 0;
+    actor.pos = ex.vec(106, 0);
     actor.width = 10;
     actor.height = 10;
 
@@ -167,8 +160,7 @@ describe('A scene', () => {
     engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos.x = 0;
-    actor.pos.y = 104;
+    actor.pos = ex.vec(0, 104);
     actor.width = 10;
     actor.height = 10;
 
@@ -184,8 +176,7 @@ describe('A scene', () => {
     engine.goToScene('root');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos.x = 0;
-    actor.pos.y = 106;
+    actor.pos = ex.vec(0, 106);
     actor.width = 10;
     actor.height = 10;
 
@@ -199,13 +190,11 @@ describe('A scene', () => {
 
   it('does not draw offscreen Actors', () => {
     engine.goToScene('root');
-    actor.pos.x = 1000;
-    actor.pos.y = 1000;
+    actor.pos = ex.vec(1000, 1000);
     scene.update(engine, 100);
     expect(actor.isOffScreen).toBeFalsy();
 
-    actor.pos.x = 1010;
-    actor.pos.y = 1010;
+    actor.pos = ex.vec(1010, 1010);
     actor.width = 5;
     actor.height = 5;
 

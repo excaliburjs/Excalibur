@@ -8,6 +8,7 @@ import { Engine } from '../Engine';
 import { Logger } from '../Util/Log';
 import { BaseAlign, TextAlign } from '../Graphics/FontCommon';
 import { obsolete } from '../Util/Decorators';
+import { vec } from '../Algebra';
 
 export interface SpriteSheetArgs {
   image: Texture;
@@ -512,15 +513,13 @@ export class SpriteFont extends SpriteSheet {
         // if text shadow
         if (this._textShadowOn) {
           this._textShadowSprites[character].drawAroundAnchor = false;
-          this._textShadowSprites[character].scale.x = scale;
-          this._textShadowSprites[character].scale.y = scale;
+          this._textShadowSprites[character].scale = vec(scale, scale);
           this._textShadowSprites[character].draw(ctx, currX + this._shadowOffsetX, currY + this._shadowOffsetY);
         }
 
         const charSprite = this._spriteRecord[character];
         charSprite.drawAroundAnchor = false;
-        charSprite.scale.x = scale;
-        charSprite.scale.y = scale;
+        charSprite.scale = vec(scale, scale);
         charSprite.draw(ctx, currX, currY);
         currX += charSprite.drawWidth + options.letterSpacing;
       } catch (e) {

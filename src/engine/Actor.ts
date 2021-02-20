@@ -122,7 +122,7 @@ export class ActorImpl
    * Sets the position vector of the actor in pixels
    */
   public set pos(thePos: Vector) {
-    this.body.pos = thePos;//.setTo(thePos.x, thePos.y);
+    this.body.pos = thePos;
   }
 
   /**

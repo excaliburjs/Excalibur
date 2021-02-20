@@ -39,7 +39,7 @@ describe('A CollisionContact', () => {
   });
 
   it('can resolve in the Box system', () => {
-    actorB.pos.x = 19;
+    actorB.pos = ex.vec(19, actorB.pos.y);
     const cc = new ex.CollisionContact(
       actorA.body.collider,
       actorB.body.collider,
@@ -68,7 +68,7 @@ describe('A CollisionContact', () => {
       emittedB = true;
     });
 
-    actorB.pos.x = 19;
+    actorB.pos = ex.vec(19, actorB.pos.y);
     const cc = new ex.CollisionContact(
       actorA.body.collider,
       actorB.body.collider,
@@ -89,9 +89,9 @@ describe('A CollisionContact', () => {
     expect(actorB.pos.y).toBe(0, 'Actor B should be y=0');
     expect(actorA.vel.x).toBe(0, 'Actor A should not be moving in x');
     expect(actorB.vel.x).toBe(0, 'Actor B should not be moving in x');
-    actorA.vel.x = 10;
-    actorB.vel.x = -10;
-    actorB.pos.x = 19;
+    actorA.vel = ex.vec(10, actorA.vel.y);
+    actorB.vel = ex.vec(-10, actorB.vel.y);
+    actorB.pos = ex.vec(19, actorB.pos.y);
     actorA.body.collider.shape.recalc();
     actorB.body.collider.shape.recalc();
     const cc = new ex.CollisionContact(
@@ -130,7 +130,7 @@ describe('A CollisionContact', () => {
       emittedB = true;
     });
 
-    actorB.pos.x = 19;
+    actorB.pos = ex.vec(19, actorB.pos.y);
     const cc = new ex.CollisionContact(
       actorA.body.collider,
       actorB.body.collider,

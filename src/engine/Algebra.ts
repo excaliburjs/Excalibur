@@ -89,46 +89,20 @@ export class Vector implements Clonable<Vector> {
     return Math.sqrt(Math.pow(vec1.x - vec2.x, 2) + Math.pow(vec1.y - vec2.y, 2));
   }
 
-  private _offset = 0;
-  private _data: Float32Array = new Float32Array(2);
-  public get x() { return this._data[0 + this._offset] }
-  public set x(val: number) { this._data[0 + this._offset] = val }
-
-
-  public get y() { return this._data[1 + this._offset] }
-  public set y(val: number) { this._data[1 + this._offset] = val }
-
-  /**
-   * Create a Vector backed by a Float32Array, given an offset into the Float32Array, the next 2 cells will be the
-   * x, y component.
-   * 
-   * This is useful for creating fast vector processing 
-   * 
-   * @param data 
-   * @param offset
-   */
-  constructor(data: Float32Array, offset: number);
   /**
    * @param x  X component of the Vector
    * @param y  Y component of the Vector
    */
-  constructor(x: number, y: number);
-  constructor(_x: number | Float32Array, _y?: number) {
-    if (_x instanceof Float32Array) {
-      this._data = _x;
-      this._offset = _y;
-    } else {
-      this.x = _x;
-      this.y = _y;
-    }
-  }
+  constructor(public readonly x: number, public readonly y: number) {}
 
   /**
-   * Sets the x and y components at once
+   * Sets the x and y components at once, THIS MUTATES the current vector. It is usually better to creat a new vector.
+   * 
+   * @warning Be very careful using this, mutating vectors can cause hard to find bugs
    */
-  public setTo(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+  setTo(x: number, y: number) {
+    (this.x as number) = x;
+    (this.y as number) = y;
   }
 
   /**
@@ -167,10 +141,14 @@ export class Vector implements Clonable<Vector> {
     return this.distance();
   }
 
+  /**
+   * Setting the size mutates the current vector
+   * 
+   * @warning Be very careful using this, mutating vectors can cause hard to find bugs
+   */
   public set size(newLength: number) {
     const v = this.normalize().scale(newLength);
-    this.x = v.x;
-    this.y = v.y;
+    this.setTo(v.x, v.y);
   }
 
   /**
@@ -225,29 +203,29 @@ export class Vector implements Clonable<Vector> {
   /**
    * Adds one vector to this one modifying the original
    * @param v The vector to add
+   * @warning Be very careful using this, mutating vectors can cause hard to find bugs
    */
   public addEqual(v: Vector): Vector {
-    this.x += v.x;
-    this.y += v.y;
+    this.setTo(this.x + v.x, this.y + v.y);
     return this;
   }
 
   /**
    * Subtracts a vector from this one modifying the original
    * @param v The vector to subtract
+   * @warning Be very careful using this, mutating vectors can cause hard to find bugs
    */
   public subEqual(v: Vector): Vector {
-    this.x -= v.x;
-    this.y -= v.y;
+    this.setTo(this.x - v.x, this.y - v.y);
     return this;
   }
 
   /**
    * Scales this vector by a factor of size and modifies the original
+   * @warning Be very careful using this, mutating vectors can cause hard to find bugs
    */
   public scaleEqual(size: number): Vector {
-    this.x *= size;
-    this.y *= size;
+    this.setTo(this.x * size, this.y * size);
     return this;
   }
 

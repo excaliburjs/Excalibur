@@ -347,9 +347,14 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * Check if a component type exists
    * @param type
    */
-  public has<T extends Component>(type: ComponentCtor<T>): boolean {
-    // return !!this.components[type];
-    return this._componentMap.has(type);
+  public has<T extends Component>(type: ComponentCtor<T>): boolean;
+  public has(type: string): boolean;
+  public has<T extends Component>(type: ComponentCtor<T> | string): boolean {
+    if (typeof type === 'string') {
+      return !!this.components[type];
+    } else {
+      return this._componentMap.has(type);
+    }
   }
 
   /**
@@ -436,5 +441,20 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    */
   public onPostUpdate(_engine: Engine, _delta: number): void {
     // Override me
+  }
+
+  /**
+   * 
+   * @internal
+   * @param engine 
+   * @param delta 
+   */
+  public update(engine: Engine, delta: number): void {
+    this._initialize(engine);
+    this._preupdate(engine, delta);
+    for (const child of this.children) {
+      child.update(engine, delta);
+    }
+    this._postupdate(engine, delta);
   }
 }

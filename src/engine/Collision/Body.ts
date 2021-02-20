@@ -1,4 +1,4 @@
-import { Vector } from '../Algebra';
+import { vec, Vector } from '../Algebra';
 import { Actor } from '../Actor';
 import { Collider } from './Collider';
 import { CollisionType } from './CollisionType';
@@ -240,8 +240,7 @@ export class Body implements Clonable<Body> {
     this.rx += this.torque * (1.0 / this.collider.inertia) * seconds;
     this.rotation += this.rx * seconds;
 
-    this.scale.x += (this.sx * delta) / 1000;
-    this.scale.y += (this.sy * delta) / 1000;
+    this.scale = vec(this.scale.x + (this.sx * delta) / 1000, this.scale.y + (this.sy * delta) / 1000);
 
     if (!this.scale.equals(this.oldScale)) {
       // change in scale effects the geometry

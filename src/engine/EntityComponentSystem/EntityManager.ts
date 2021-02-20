@@ -5,11 +5,11 @@ import { Util } from '..';
 
 // Add/Remove entitys and components
 
-export class EntityManager implements Observer<RemovedComponent | AddedComponent> {
+export class EntityManager<ContextType = any> implements Observer<RemovedComponent | AddedComponent> {
   public entities: Entity[] = [];
   public _entityIndex: { [entityId: string]: Entity } = {};
 
-  constructor(private _world: World<any>) {}
+  constructor(private _world: World<ContextType>) {}
 
   /**
    * EntityManager observes changes on entities

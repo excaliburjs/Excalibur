@@ -354,20 +354,13 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       timer.update(delta);
     }
 
-    // Cycle through actors updating tile maps
-    for (i = 0, len = this.tileMaps.length; i < len; i++) {
-      this.tileMaps[i].update(engine, delta);
+    for (const entity of this.world.entityManager.entities) {
+      entity.update(engine, delta);
     }
 
     // Cycle through actors updating actors
     for (i = 0, len = this.actors.length; i < len; i++) {
-      this.actors[i].update(engine, delta);
       this._bodies[i] = this.actors[i].body;
-    }
-
-    // Cycle through triggers updating
-    for (i = 0, len = this.triggers.length; i < len; i++) {
-      this.triggers[i].update(engine, delta);
     }
 
     this._collectActorStats(engine);

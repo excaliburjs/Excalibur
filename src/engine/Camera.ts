@@ -1,6 +1,6 @@
 import { Engine } from './Engine';
 import { EasingFunction, EasingFunctions } from './Util/EasingFunctions';
-import { Vector } from './Algebra';
+import { Vector, vec } from './Algebra';
 import { Actor } from './Actor';
 import { removeItemFromArray } from './Util/Util';
 import { CanUpdate, CanInitialize } from './Interfaces/LifecycleEvents';
@@ -209,19 +209,22 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
       this.boundSizeChecked = true;
     }
 
+    let focusX = focus.x;
+    let focusY = focus.y;
     if (focus.x < target.left + _eng.halfDrawWidth) {
-      focus.x = target.left + _eng.halfDrawWidth;
+      focusX = target.left + _eng.halfDrawWidth;
     } else if (focus.x > target.right - _eng.halfDrawWidth) {
-      focus.x = target.right - _eng.halfDrawWidth;
+      focusX = target.right - _eng.halfDrawWidth;
     }
 
     if (focus.y < target.top + _eng.halfDrawHeight) {
-      focus.y = target.top + _eng.halfDrawHeight;
+      focusY = target.top + _eng.halfDrawHeight;
     } else if (focus.y > target.bottom - _eng.halfDrawHeight) {
-      focus.y = target.bottom - _eng.halfDrawHeight;
+      focusY = target.bottom - _eng.halfDrawHeight;
     }
 
-    return focus;
+
+    return vec(focusX, focusY);
   };
 }
 
@@ -332,7 +335,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    */
   public set x(value: number) {
     if (!this._follow && !this._cameraMoving) {
-      this.pos.x = value;
+      this.pos = vec(value, this.pos.y);
     }
   }
 
@@ -348,7 +351,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    */
   public set y(value: number) {
     if (!this._follow && !this._cameraMoving) {
-      this.pos.y = value;
+      this.pos = vec(this.pos.x, value);
     }
   }
 
@@ -360,7 +363,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   public set dx(value: number) {
-    this.vel.x = value;
+    this.vel = vec(value, this.vel.y);
   }
 
   /**
@@ -371,7 +374,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   public set dy(value: number) {
-    this.vel.y = value;
+    this.vel = vec(this.vel.x, value);
   }
 
   /**
@@ -382,7 +385,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   public set ax(value: number) {
-    this.acc.x = value;
+    this.acc = vec(value, this.acc.y);
   }
 
   /**
@@ -393,7 +396,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   public set ay(value: number) {
-    this.acc.y = value;
+    this.acc = vec(this.acc.x, value);
   }
 
   /**

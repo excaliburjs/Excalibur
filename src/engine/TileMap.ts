@@ -267,7 +267,7 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
     this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
     this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0);
     this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
-    this.components.transform.pos.setTo(this.x, this.y);
+    this.components.transform.pos = vec(this.x, this.y);
 
     this.onPostUpdate(engine, delta);
     this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));

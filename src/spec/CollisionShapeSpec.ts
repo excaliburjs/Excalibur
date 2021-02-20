@@ -72,14 +72,14 @@ describe('Collision Shape', () => {
     });
 
     it('has a center', () => {
-      actor.pos.setTo(170, 300);
+      actor.pos = ex.vec(170, 300);
       const center = circle.center;
       expect(center.x).toBe(170);
       expect(center.y).toBe(300);
     });
 
     it('has bounds', () => {
-      actor.pos.setTo(400, 400);
+      actor.pos = ex.vec(400, 400);
 
       const bounds = circle.bounds;
       expect(bounds.left).toBe(390);
@@ -230,7 +230,7 @@ describe('Collision Shape', () => {
 
     it('should collide with other edges when touching the edge face', () => {
       // position the circle actor in the middle of the edge
-      actor.pos.setTo(5, -9.99);
+      actor.pos = ex.vec(5, -9.99);
 
       const actor2 = new ex.Actor(5, 0, 10, 10);
       const edge = new ex.Edge({
@@ -257,7 +257,7 @@ describe('Collision Shape', () => {
 
     it('should collide with other edges when touching the edge end', () => {
       // position the circle actor in the end of the edge
-      actor.pos.setTo(10, -9);
+      actor.pos = ex.vec(10, -9);
 
       const actor2 = new ex.Actor(5, 0, 10, 10);
       const edge = new ex.Edge({
@@ -284,7 +284,7 @@ describe('Collision Shape', () => {
 
     it('should collide with other edges when touching the edge beginning', () => {
       // position the circle actor in the end of the edge
-      actor.pos.setTo(0, -9);
+      actor.pos = ex.vec(0, -9);
 
       const actor2 = new ex.Actor(5, 0, 10, 10);
       const edge = new ex.Edge({
@@ -849,9 +849,8 @@ describe('Collision Shape', () => {
     });
 
     it('has bounds', () => {
-      actor.pos.setTo(400, 400);
+      actor.pos = ex.vec(400, 400);
       const boundingBox = edge.bounds;
-
       const transformedBegin = new ex.Vector(395, 400);
       const transformedEnd = new ex.Vector(405, 400);
 

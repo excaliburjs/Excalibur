@@ -24,8 +24,7 @@ describe('Vectors', () => {
     expect(v.x).toEqual(20);
     expect(v.y).toEqual(200);
 
-    v.x = 200;
-    v.y = 20;
+    v.setTo(200, 20);
 
     expect(v.x).toEqual(200);
     expect(v.y).toEqual(20);

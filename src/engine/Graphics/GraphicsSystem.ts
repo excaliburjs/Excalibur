@@ -59,7 +59,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       graphics.update(delta, this._token);
 
       // Position the entity
-      this._applyTransform(transform);
+      this._applyTransform(entity);
 
       this._graphicsPositionDebugDraw();
 
@@ -136,10 +136,16 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
    * This applies the current entity transform to the graphics context
    * @param transform
    */
-  private _applyTransform(transform: TransformComponent): void {
-    this._graphicsContext.translate(transform.pos.x, transform.pos.y);
-    this._graphicsContext.rotate(transform.rotation);
-    this._graphicsContext.scale(transform.scale.x, transform.scale.y);
+  private _applyTransform(entity: Entity): void {
+    const ancestors = entity.getAncestors();
+    for (let ancestor of ancestors) {
+      let transform = ancestor?.get(TransformComponent);
+      if (transform) {
+        this._graphicsContext.translate(transform.pos.x, transform.pos.y);
+        this._graphicsContext.rotate(transform.rotation);
+        this._graphicsContext.scale(transform.scale.x, transform.scale.y);
+      }
+    }
   }
 
   /**
