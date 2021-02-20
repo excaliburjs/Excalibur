@@ -1,5 +1,6 @@
 import { vec } from '..';
 import { Vector } from '../Algebra';
+import { canonicalizeAngle } from '../Util/Util';
 
 
 /**
@@ -282,7 +283,7 @@ export class Matrix {
   }
 
   public getPosition(): Vector {
-    return new Vector(this.data, 12);
+    return vec(this.data[12], this.data[13]);
   }
 
   /**
@@ -332,7 +333,7 @@ export class Matrix {
   }
 
   public getRotation(): number {
-    return Math.atan2(this.data[1], this.data[0]);
+    return canonicalizeAngle(Math.atan2(this.data[1], this.data[0]));
   }
 
   /**

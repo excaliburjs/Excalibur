@@ -1,6 +1,7 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { canonicalizeAngle } from '../engine/Util/Util';
 
 describe('Action', () => {
   let actor: ex.Actor;
@@ -401,13 +402,13 @@ describe('Action', () => {
 
       actor.update(engine, 1000);
       //rotation is currently incremented by rx delta ,so will be negative while moving counterclockwise
-      expect(actor.rotation).toBe((-1 * Math.PI) / 2);
+      expect(actor.rotation).toBe(canonicalizeAngle((-1 * Math.PI) / 2));
 
       actor.update(engine, 2000);
-      expect(actor.rotation).toBe((-3 * Math.PI) / 2);
+      expect(actor.rotation).toBe(canonicalizeAngle((-3 * Math.PI) / 2));
 
       actor.update(engine, 500);
-      expect(actor.rotation).toBe(Math.PI / 2);
+      expect(actor.rotation).toBe(canonicalizeAngle(Math.PI / 2));
       expect(actor.rx).toBe(0);
     });
 
@@ -432,19 +433,19 @@ describe('Action', () => {
 
       actor.actions.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.CounterClockwise);
       actor.update(engine, 2000);
-      expect(actor.rotation).toBe(-Math.PI);
+      expect(actor.rotation).toBe(canonicalizeAngle(-Math.PI));
 
       actor.update(engine, 1000);
-      expect(actor.rotation).toBe((-3 * Math.PI) / 2);
+      expect(actor.rotation).toBe(canonicalizeAngle((-3 * Math.PI) / 2));
 
       actor.update(engine, 500);
-      expect(actor.rotation).toBe(Math.PI / 2);
+      expect(actor.rotation).toBe(canonicalizeAngle(Math.PI / 2));
       expect(actor.rx).toBe(0);
 
       // rotating back to 0, starting at PI / 2
       actor.actions.rotateTo(0, Math.PI / 2, ex.RotationType.CounterClockwise);
       actor.update(engine, 1000);
-      expect(actor.rotation).toBe(0);
+      expect(actor.rotation).toBe(canonicalizeAngle(0));
 
       actor.update(engine, 1);
       expect(actor.rx).toBe(0);
@@ -487,10 +488,10 @@ describe('Action', () => {
       actor.actions.rotateBy(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
 
       actor.update(engine, 1000);
-      expect(actor.rotation).toBe((-1 * Math.PI) / 2);
+      expect(actor.rotation).toBe(canonicalizeAngle((-1 * Math.PI) / 2));
 
       actor.update(engine, 2000);
-      expect(actor.rotation).toBe((-3 * Math.PI) / 2);
+      expect(actor.rotation).toBe(canonicalizeAngle((-3 * Math.PI) / 2));
 
       actor.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 2);
@@ -519,15 +520,16 @@ describe('Action', () => {
       actor.actions.rotateBy(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
 
       actor.update(engine, 1000);
-      expect(actor.rotation).toBe((-1 * Math.PI) / 2);
+      expect(actor.rotation).toBe(canonicalizeAngle((-1 * Math.PI) / 2));
 
       actor.update(engine, 2000);
-      expect(actor.rotation).toBe((-3 * Math.PI) / 2);
+      expect(actor.rotation).toBe(canonicalizeAngle((-3 * Math.PI) / 2));
 
       actor.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 2);
       expect(actor.rx).toBe(0);
     });
+
     it('can be stopped', () => {
       expect(actor.rotation).toBe(0);
 

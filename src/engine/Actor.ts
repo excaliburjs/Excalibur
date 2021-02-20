@@ -1027,7 +1027,7 @@ export class ActorImpl
    *
    * @returns Rotation angle in radians
    */
-  public getWorldRotation(): number {
+  public getGlobalRotation(): number {
     return this.get(TransformComponent).globalRotation;
   }
 
@@ -1088,6 +1088,7 @@ export class ActorImpl
 
   /**
    * Called by the Engine, updates the state of the actor
+   * @internal
    * @param engine The reference to the current game engine
    * @param delta  The time elapsed since the last update in milliseconds
    */
