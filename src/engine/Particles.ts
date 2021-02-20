@@ -498,10 +498,6 @@ export class ParticleEmitterImpl extends Actor {
       }
     }
 
-    this.particles.forEach((p) => p.update(engine, delta));
-    for (let i = 0; i < this.particles.length; i++) {
-      this.particles[i].update(engine, delta);
-    }
     // deferred removal
     for (let i = 0; i < this.deadParticles.length; i++) {
       Util.removeItemFromArray(this.deadParticles[i], this.particles);
