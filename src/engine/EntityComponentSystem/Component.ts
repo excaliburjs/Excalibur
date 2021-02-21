@@ -13,7 +13,7 @@ function hasClone(x: any): x is { clone(): any } {
 }
 
 /**
- * Plucks the string type out of a component type 
+ * Plucks the string type out of a component type
  */
 export type ComponentStringType<T> = T extends Component<infer R> ? R : string;
 

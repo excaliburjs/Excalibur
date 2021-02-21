@@ -72,10 +72,10 @@ export class TransformComponent extends Component<'transform'> {
    */
   public coordPlane = CoordPlane.World;
 
-  
+
   /**
    * The current position of the entity in world space or in screen space depending on the the [[coordinate plan|CoordPlane]].
-   * 
+   *
    * If a parent entity exists coordinates are local to the parent.
    */
   public get pos(): Vector {
@@ -91,7 +91,7 @@ export class TransformComponent extends Component<'transform'> {
   }
 
   // Dirty flag check up the chain
-  private get dirty(): boolean {
+  public get dirty(): boolean {
     if (this?.owner?.parent) {
       const parent = this.parent;
       return parent.dirty || this._dirty;
@@ -100,7 +100,7 @@ export class TransformComponent extends Component<'transform'> {
   }
 
   /**
-   * The current world position calculated 
+   * The current world position calculated
    */
   public get globalPos(): Vector {
     if (this._globalDirty || this.dirty) {
@@ -110,7 +110,7 @@ export class TransformComponent extends Component<'transform'> {
   }
 
   public set globalPos(val: Vector) {
-    const parentTransform = this.parent
+    const parentTransform = this.parent;
     if (!parentTransform) {
       this.pos = val;
     } else {
@@ -139,7 +139,7 @@ export class TransformComponent extends Component<'transform'> {
     this._mat.setRotation(val);
     this._dirty = true;
   }
-  
+
 
   public get globalRotation(): number {
     if (this._globalDirty || this.dirty) {
@@ -149,7 +149,7 @@ export class TransformComponent extends Component<'transform'> {
   }
 
   public set globalRotation(val: number) {
-    let parentTransform = this.parent;
+    const parentTransform = this.parent;
     if (!parentTransform) {
       this.rotation = val;
     } else {

@@ -154,7 +154,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
         entity: this
       });
       this.changes.notifyAll(added);
-      this.componentAdded$.notifyAll(added)
+      this.componentAdded$.notifyAll(added);
       return true;
     },
     deleteProperty: (obj: any, prop: any) => {
@@ -188,7 +188,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
 
   private _parent: Entity = null;
   public get parent(): Entity {
-    return this._parent
+    return this._parent;
   }
 
   public childrenAdded$ = new Observable<Entity>();
@@ -217,7 +217,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
 
   public remove(entity: Entity): Entity {
     if (entity.parent === this) {
-      Util.removeItemFromArray(entity, this._children)
+      Util.removeItemFromArray(entity, this._children);
       entity._parent = null;
       this.childrenRemoved$.notifyAll(entity);
     } else {
@@ -235,7 +235,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
 
   public getAncestors(): Entity[] {
     const result: Entity[] = [this];
-    let current = this.parent
+    let current = this.parent;
     while (current) {
       result.push(current);
       current = current.parent;
@@ -359,7 +359,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
 
   /**
    * Get a component by type with typecheck
-   * @param type 
+   * @param type
    */
   // public get<ComponentType extends Component<string>>(type: ComponentStringType<ComponentType>): ComponentType | null {
   //   return (this.components[type] as unknown) as ComponentType;
@@ -444,10 +444,10 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
   }
 
   /**
-   * 
+   *
    * @internal
-   * @param engine 
-   * @param delta 
+   * @param engine
+   * @param delta
    */
   public update(engine: Engine, delta: number): void {
     this._initialize(engine);

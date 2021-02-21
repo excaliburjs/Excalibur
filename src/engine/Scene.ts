@@ -504,7 +504,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
           notify: (e => {
             this.world.remove(e);
           })
-        })
+        });
       }
       return;
     }

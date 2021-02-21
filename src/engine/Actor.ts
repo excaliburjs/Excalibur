@@ -514,7 +514,7 @@ export class ActorImpl
     }
 
     // Position uses body to store values must be initialized after body
-    this.pos = vec((xOrConfig as number) ?? 0, y ?? 0)
+    this.pos = vec((xOrConfig as number) ?? 0, y ?? 0);
 
     if (color) {
       this.color = color;

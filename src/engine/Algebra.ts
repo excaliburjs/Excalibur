@@ -97,7 +97,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Creates a new vector with a new X, and the current y
-   * @param x 
+   * @param x
    */
   public withX(x: number): Vector {
     return vec(x, this.y);
@@ -105,7 +105,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Creates a new vector with a new Y, and the current x
-   * @param y 
+   * @param y
    */
   public withY(y: number): Vector {
     return vec(this.x, y);
@@ -113,7 +113,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Sets the x and y components at once, THIS MUTATES the current vector. It is usually better to creat a new vector.
-   * 
+   *
    * @warning **Be very careful using this, mutating vectors can cause hard to find bugs**
    */
   setTo(x: number, y: number) {
@@ -123,8 +123,8 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Set the x component, THIS MUTATES the current vector. It is usually better to creat a new vector.
-   * 
-   * @param x 
+   *
+   * @param x
    * @warning **Be very careful using this, mutating vectors can cause hard to find bugs**
    */
   setX(x: number) {
@@ -133,8 +133,8 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Set the x component, THIS MUTATES the current vector. It is usually better to creat a new vector.
-   * 
-   * @param y 
+   *
+   * @param y
    * @warning **Be very careful using this, mutating vectors can cause hard to find bugs**
    */
   setY(y: number) {
@@ -179,7 +179,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Setting the size mutates the current vector
-   * 
+   *
    * @warning Can be used to set the size of the vector, **be very careful using this, mutating vectors can cause hard to find bugs**
    */
   public set size(newLength: number) {

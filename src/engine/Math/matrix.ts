@@ -10,14 +10,14 @@ export class Matrix {
 
   /**
    *  4x4 matrix in column major order
-   * 
+   *
    * |         |         |          |          |
    * | ------- | ------- | -------- |          |
    * | data[0] | data[4] | data[8]  | data[12] |
    * | data[1] | data[5] | data[9]  | data[13] |
    * | data[2] | data[6] | data[10] | data[14] |
    * | data[3] | data[7] | data[11] | data[15] |
-   * 
+   *
    */
   public data: Float32Array = new Float32Array(16);
 
@@ -267,8 +267,8 @@ export class Matrix {
     const a44 = this.data[15];
 
     // Doesn't change z
-    let z = 0;
-    let w = 1;
+    const z = 0;
+    const w = 1;
     this.data[12] = a11 * x + a12 * y + a13 * z + a14 * w;
     this.data[13] = a21 * x + a22 * y + a23 * z + a24 * w;
     this.data[14] = a31 * x + a32 * y + a33 * z + a34 * w;
@@ -320,10 +320,10 @@ export class Matrix {
 
   public setRotation(angle: number) {
     const oldScale = this.getScale();
-    
+
     const sine = Math.sin(angle);
     const cosine = Math.cos(angle);
-    
+
     this.data[0] = cosine;
     this.data[1] = sine;
     this.data[4] = -sine;
@@ -377,7 +377,7 @@ export class Matrix {
   }
 
   public setScale(scale: Vector) {
-    const xscale = vec(this.data[0], this.data[1]).normalize()
+    const xscale = vec(this.data[0], this.data[1]).normalize();
     const yscale = vec(this.data[4], this.data[5]).normalize();
     this.data[0] = xscale.x * scale.x;
     this.data[1] = xscale.y * scale.x;
@@ -402,7 +402,7 @@ export class Matrix {
     const cos = this.data[0] * inverseDet;
     const sin = this.data[1] * inverseDet;
 
-    const tx = this.data[12]
+    const tx = this.data[12];
     const ty = this.data[13];
 
     const m = Matrix.identity();
@@ -419,11 +419,11 @@ export class Matrix {
   }
 
   public toString() {
-    return`
+    return `
 [${ this.data[0] } ${ this.data[4] } ${ this.data[8] } ${ this.data[12] }]
 [${ this.data[1] } ${ this.data[5] } ${ this.data[9] } ${ this.data[13] }]
 [${ this.data[2] } ${ this.data[6] } ${ this.data[10] } ${ this.data[14] }]
 [${ this.data[3] } ${ this.data[7] } ${ this.data[11] } ${ this.data[15] }]
-`
+`;
   }
 }

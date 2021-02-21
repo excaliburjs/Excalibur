@@ -134,12 +134,12 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
   /**
    * This applies the current entity transform to the graphics context
-   * @param transform
+   * @param entity
    */
   private _applyTransform(entity: Entity): void {
     const ancestors = entity.getAncestors();
-    for (let ancestor of ancestors) {
-      let transform = ancestor?.get(TransformComponent);
+    for (const ancestor of ancestors) {
+      const transform = ancestor?.get(TransformComponent);
       if (transform) {
         this._graphicsContext.translate(transform.pos.x, transform.pos.y);
         this._graphicsContext.rotate(transform.rotation);

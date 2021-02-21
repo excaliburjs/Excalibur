@@ -74,8 +74,8 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
 
   private _applyTransform(entity: Entity<TransformComponent>) {
     const ancestors = entity.getAncestors();
-    for (let ancestor of ancestors) {
-      let transform = ancestor?.get(TransformComponent);
+    for (const ancestor of ancestors) {
+      const transform = ancestor?.get(TransformComponent);
       if (transform) {
         this._ctx.translate(transform.pos.x, transform.pos.y);
         this._ctx.rotate(transform.rotation);
