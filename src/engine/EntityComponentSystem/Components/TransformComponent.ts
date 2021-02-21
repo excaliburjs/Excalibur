@@ -23,6 +23,7 @@ export class TransformComponent extends Component<'transform'> {
 
 
   private _dirty = false;
+  private _globalDirty =  false;
   private _position = Vector.Zero;
   private _scale = Vector.One;
   private _rotation = 0;
@@ -51,6 +52,7 @@ export class TransformComponent extends Component<'transform'> {
     this._globalPos = this._globalMat.getPosition();
     this._globalRotation = this._globalMat.getRotation();
     this._globalScale = this._globalMat.getScale();
+    this._globalDirty = false;
   }
 
   public getMatrix(): Matrix {
@@ -85,7 +87,7 @@ export class TransformComponent extends Component<'transform'> {
 
   public set pos(val: Vector) {
     this._mat.setPosition(val.x, val.y);
-    this._position = val;
+    this._dirty = true;
   }
 
   // Dirty flag check up the chain
@@ -101,21 +103,20 @@ export class TransformComponent extends Component<'transform'> {
    * The current world position calculated 
    */
   public get globalPos(): Vector {
-    if (this.dirty) {
+    if (this._globalDirty || this.dirty) {
       this._recalculateGlobal();
     }
-    // return this.getMatrix().getPosition();
     return this._globalPos;
   }
 
   public set globalPos(val: Vector) {
-    this._dirty = true;
     const parentTransform = this.parent
     if (!parentTransform) {
       this.pos = val;
     } else {
       this.pos = parentTransform.getMatrix().getAffineInverse().multv(val);
     }
+    this._globalDirty = true;
   }
 
   /**
@@ -141,10 +142,9 @@ export class TransformComponent extends Component<'transform'> {
   
 
   public get globalRotation(): number {
-    if (this.dirty) {
+    if (this._globalDirty || this.dirty) {
       this._recalculateGlobal();
     }
-    // return this.getMatrix().getRotation();
     return this._globalRotation;
   }
 
@@ -155,6 +155,7 @@ export class TransformComponent extends Component<'transform'> {
     } else {
       this.rotation = val - parentTransform.globalRotation;
     }
+    this._globalDirty = true;
   }
 
   /**
@@ -173,11 +174,10 @@ export class TransformComponent extends Component<'transform'> {
   }
 
   public get globalScale(): Vector {
-    if (this.dirty) {
+    if (this._globalDirty || this.dirty) {
       this._recalculateGlobal();
     }
     return this._globalScale;
-    // return this.getMatrix().getScale();
   }
 
   public set globalScale(val: Vector) {
@@ -187,5 +187,6 @@ export class TransformComponent extends Component<'transform'> {
     } else {
       this.scale = vec(val.x / parentTransform.globalScale.x, val.y / parentTransform.globalScale.y);
     }
+    this._globalDirty = true;
   }
 }
