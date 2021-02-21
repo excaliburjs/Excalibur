@@ -31,26 +31,26 @@ game.add(trigger);
 
 var actor = new ex.Actor(100, 0, 10, 10);
 actor.body.collider.type = ex.CollisionType.Active;
-actor.vel.y = 10;
+actor.vel = ex.vec(0, 10);
 game.add(actor);
 
 var speed = 100;
 
 game.input.keyboard.on('press', (evt) => {
   if (evt.key === ex.Input.Keys.Up) {
-    actor.vel.y = -speed;
+    actor.vel = actor.vel.withY(-speed);
   }
 
   if (evt.key === ex.Input.Keys.Down) {
-    actor.vel.y = +speed;
+    actor.vel = actor.vel.withY(+speed);
   }
 
   if (evt.key === ex.Input.Keys.Left) {
-    actor.vel.x = -speed;
+    actor.vel = actor.vel.withX(-speed);
   }
 
   if (evt.key === ex.Input.Keys.Right) {
-    actor.vel.x = +speed;
+    actor.vel = actor.vel.withX(+speed);
   }
 });
 

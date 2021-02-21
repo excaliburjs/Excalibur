@@ -8,7 +8,7 @@ ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Box;
 
 var activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
 activeBlock.body.collider.type = ex.CollisionType.Active;
-activeBlock.vel.x = 100;
+activeBlock.vel = ex.vec(100, 0);
 game.add(activeBlock);
 
 activeBlock.on('precollision', () => {
@@ -21,7 +21,7 @@ activeBlock.on('postcollision', () => {
 
 var passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
 passiveBlock.body.collider.type = ex.CollisionType.Passive;
-passiveBlock.vel.x = -100;
+passiveBlock.vel = ex.vec(-100, 0);
 game.add(passiveBlock);
 
 passiveBlock.on('precollision', () => {

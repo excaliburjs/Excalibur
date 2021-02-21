@@ -4,8 +4,8 @@ var engine = new ex.Engine({ width: 600, height: 400 });
 
 var active = new ex.Actor(0, -50, 100, 100, ex.Color.Cyan);
 active.body.collider.type = ex.CollisionType.Active;
-active.vel.y = 100;
-active.acc.y = 900;
+active.vel = ex.vec(0, 100);
+active.acc = ex.vec(0, 900);
 active.on('postupdate', () => {
   //console.log('current dy', active.dy);
 });
@@ -23,7 +23,7 @@ engine.add(fixed);
 
 engine.input.keyboard.on('down', () => {
   console.log('jump');
-  active.vel.y = -300;
+  active.vel = active.vel.withY(-300);
 });
 
 engine.start().then(() => {

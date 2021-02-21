@@ -96,12 +96,48 @@ export class Vector implements Clonable<Vector> {
   constructor(public readonly x: number, public readonly y: number) {}
 
   /**
+   * Creates a new vector with a new X, and the current y
+   * @param x 
+   */
+  public withX(x: number): Vector {
+    return vec(x, this.y);
+  }
+
+  /**
+   * Creates a new vector with a new Y, and the current x
+   * @param y 
+   */
+  public withY(y: number): Vector {
+    return vec(this.x, y);
+  }
+
+  /**
    * Sets the x and y components at once, THIS MUTATES the current vector. It is usually better to creat a new vector.
    * 
-   * @warning Be very careful using this, mutating vectors can cause hard to find bugs
+   * @warning **Be very careful using this, mutating vectors can cause hard to find bugs**
    */
   setTo(x: number, y: number) {
     (this.x as number) = x;
+    (this.y as number) = y;
+  }
+
+  /**
+   * Set the x component, THIS MUTATES the current vector. It is usually better to creat a new vector.
+   * 
+   * @param x 
+   * @warning **Be very careful using this, mutating vectors can cause hard to find bugs**
+   */
+  setX(x: number) {
+    (this.x as number) = x;
+  }
+
+  /**
+   * Set the x component, THIS MUTATES the current vector. It is usually better to creat a new vector.
+   * 
+   * @param y 
+   * @warning **Be very careful using this, mutating vectors can cause hard to find bugs**
+   */
+  setY(y: number) {
     (this.y as number) = y;
   }
 
@@ -135,7 +171,7 @@ export class Vector implements Clonable<Vector> {
   }
 
   /**
-   * The size(magnitude) of the Vector
+   * The size (magnitude) of the Vector
    */
   public get size(): number {
     return this.distance();
@@ -144,7 +180,7 @@ export class Vector implements Clonable<Vector> {
   /**
    * Setting the size mutates the current vector
    * 
-   * @warning Be very careful using this, mutating vectors can cause hard to find bugs
+   * @warning Can be used to set the size of the vector, **be very careful using this, mutating vectors can cause hard to find bugs**
    */
   public set size(newLength: number) {
     const v = this.normalize().scale(newLength);

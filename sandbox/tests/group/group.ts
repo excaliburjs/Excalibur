@@ -53,8 +53,7 @@ for (var i = 0; i < numActors; i++) {
     }
   });
 
-  actor.vel.x = ex.Util.randomInRange(minVel, maxVel);
-  actor.vel.y = ex.Util.randomInRange(minVel, maxVel);
+  actor.vel = ex.vec(ex.Util.randomInRange(minVel, maxVel), ex.Util.randomInRange(minVel, maxVel));
   engine.add(actor);
 }
 

@@ -54,7 +54,7 @@ var buildWorld = function(position) {
   game.add(paddle);
 
   game.input.pointers.primary.on('move', function(evt: ex.Input.PointerEvent) {
-    paddle.pos.x = evt.worldPos.x;
+    paddle.pos = paddle.pos.withX(evt.worldPos.x);
   });
 
   game.start();
