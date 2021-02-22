@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { TagComponent } from '@excalibur';
+import { AddedComponent, TagComponent } from '@excalibur';
 
 class FakeComponent extends ex.Component {
   constructor(public type: string) {
@@ -10,6 +10,18 @@ class FakeComponent extends ex.Component {
 describe('An entity', () => {
   it('exists', () => {
     expect(ex.Entity).toBeDefined();
+  });
+
+  it('can be constructed with a list of components', () => {
+    const e = new ex.Entity([
+      new FakeComponent('A'),
+      new FakeComponent('B'),
+      new FakeComponent('C')
+    ]);
+
+    expect(e.has('A')).toBe(true);
+    expect(e.has('B')).toBe(true);
+    expect(e.has('C')).toBe(true);
   });
 
   it('has a unique id', () => {
@@ -169,5 +181,75 @@ describe('An entity', () => {
     });
 
     entity._postupdate(null, 1);
+  });
+
+  it('can be parented', () => {
+    const parent = new ex.Entity();
+    const child = new ex.Entity();
+    parent.add(child);
+
+    expect(child.parent).toBe(parent);
+    expect(parent.children).toEqual([child]);
+    expect(parent.parent).toBe(null);
+  });
+
+  it('can be grandparented', () => {
+    const parent = new ex.Entity();
+    const child = new ex.Entity();
+    const grandchild = new ex.Entity();
+    parent.add(child.add(grandchild));
+
+    expect(grandchild.parent).toBe(child);
+    expect(child.parent).toBe(parent);
+    expect(parent.children).toEqual([child]);
+
+    expect(grandchild.getAncestors()).toEqual([parent, child, grandchild]);
+    expect(parent.getDescendants()).toEqual([parent, child, grandchild]);
+  });
+
+  it('can\'t have a cycle', () => {
+    const parent = new ex.Entity();
+    const child = new ex.Entity();
+
+    parent.add(child);
+
+    expect(() => {
+      child.add(parent)
+    }).toThrowError('Cycle detected, cannot add entity');
+  });
+
+  it('can\'t parent if already parented', () => {
+    const parent = new ex.Entity();
+    const child = new ex.Entity();
+    const otherparent = new ex.Entity();
+
+    parent.add(child);
+    expect(() => {
+      otherparent.add(child);
+    }).toThrowError('Entity already has a parent, cannot add without unparenting');
+  })
+
+  it('can observe components added', () => {
+    const e = new ex.Entity();
+    const addedSpy = jasmine.createSpy('addedSpy');
+    e.componentAdded$.register({
+      notify: addedSpy
+    });
+    const component = new FakeComponent('A');
+    e.addComponent(component)
+    expect(addedSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('can observe components removed', () => {
+    const e = new ex.Entity();
+    const removedSpy = jasmine.createSpy('removedSpy');
+    e.componentRemoved$.register({
+      notify: removedSpy
+    });
+    const component = new FakeComponent('A');
+    e.addComponent(component);
+    e.removeComponent(component);
+    e.processComponentRemoval();
+    expect(removedSpy).toHaveBeenCalledTimes(1);
   });
 });

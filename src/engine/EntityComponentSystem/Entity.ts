@@ -195,37 +195,57 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
   public childrenRemoved$ = new Observable<Entity>();
 
   private _children: Entity[] = [];
+  /**
+   * Get the direct children of this entity
+   */
   public get children(): readonly Entity[] {
     return this._children;
   }
 
+  /**
+   * Unparents this entity, if there is a parent. Otherwise it does nothing.
+   */
   public unparent() {
-    this._parent = null;
+    if (this._parent) {
+      this._parent.remove(this);
+      this._parent = null;
+    }
   }
 
-  // TODO Cycle detection?
+  /**
+   * Adds an entity to be a child of this entity
+   * @param entity 
+   */
   public add(entity: Entity): Entity {
     if (entity.parent === null) {
+      if (this.getAncestors().includes(entity)) {
+        throw new Error('Cycle detected, cannot add entity');
+      }
       this._children.push(entity);
       entity._parent = this;
       this.childrenAdded$.notifyAll(entity);
     } else {
-      // TODO should throw error
+      throw new Error('Entity already has a parent, cannot add without unparenting');
     }
     return this;
   }
 
+  /**
+   * Remove an entity from children if it exists
+   * @param entity 
+   */
   public remove(entity: Entity): Entity {
     if (entity.parent === this) {
       Util.removeItemFromArray(entity, this._children);
       entity._parent = null;
       this.childrenRemoved$.notifyAll(entity);
-    } else {
-      // TODO should throw error
     }
     return this;
   }
 
+  /**
+   * Removes all children from this entity
+   */
   public removeAll(): Entity {
     this.children.forEach(c => {
       this.remove(c);
@@ -233,6 +253,9 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
     return this;
   }
 
+  /**
+   * Returns a list of parent entities starting with the topmost parent. Includes the current entity.
+   */
   public getAncestors(): Entity[] {
     const result: Entity[] = [this];
     let current = this.parent;
@@ -241,6 +264,20 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
       current = current.parent;
     }
     return result.reverse();
+  }
+
+  /**
+   * Returns a list of all the entities that descend from this entity. Includes the current entity.
+   */
+  public getDescendants(): Entity[] {
+    let result: Entity[] = [this];
+    let queue: Entity[] = [this];
+    while (queue.length > 0) {
+      const curr = queue.pop();
+      queue = queue.concat(curr.children);
+      result = result.concat(curr.children);
+    }
+    return result;
   }
 
   /**
@@ -361,10 +398,6 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * Get a component by type with typecheck
    * @param type
    */
-  // public get<ComponentType extends Component<string>>(type: ComponentStringType<ComponentType>): ComponentType | null {
-  //   return (this.components[type] as unknown) as ComponentType;
-  // }
-
   public get<T extends Component>(type: ComponentCtor<T>): T {
     return this._componentMap.get(type) as T;
   }
@@ -445,6 +478,8 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
 
   /**
    *
+   * Entity update lifecycle, called internally 
+   * 
    * @internal
    * @param engine
    * @param delta
