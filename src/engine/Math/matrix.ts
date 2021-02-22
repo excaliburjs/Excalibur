@@ -365,57 +365,100 @@ export class Matrix {
     return this;
   }
 
+  public getScaleX(): number {
+    const xscale = vec(this.data[0], this.data[1]).size;
+    return xscale;
+  }
+
+  public getScaleY(): number {
+    const det = this.getBasisDeterminant();
+    const sign = det < 0 ? -1 : 1;
+    const yscale = vec(this.data[4], this.data[5]).size;
+    return sign * yscale;
+  }
+
   /**
    * Get the scale of the matrix
    */
   public getScale(): Vector {
-    const det = this.getBasisDeterimant();
+    const det = this.getBasisDeterminant();
     const sign = det < 0 ? -1 : 1;
     const xscale = vec(this.data[0], this.data[1]).size;
     const yscale = vec(this.data[4], this.data[5]).size;
     return vec(xscale, sign * yscale);
   }
 
-  public setScale(scale: Vector) {
+  public setScaleX(val: number) {
     const xscale = vec(this.data[0], this.data[1]).normalize();
+    this.data[0] = xscale.x * val;
+    this.data[1] = xscale.y * val;
+  }
+
+  public setScaleY(val: number) {
     const yscale = vec(this.data[4], this.data[5]).normalize();
-    this.data[0] = xscale.x * scale.x;
-    this.data[1] = xscale.y * scale.x;
-    this.data[4] = yscale.x * scale.y;
-    this.data[5] = yscale.y * scale.y;
+    this.data[4] = yscale.x * val;
+    this.data[5] = yscale.y * val;
+  }
+
+  public setScale(scale: Vector) {
+    this.setScaleX(scale.x)
+    this.setScaleY(scale.y);
   }
 
   /**
    * Determinant of the upper left 2x2 matrix
    */
-  public getBasisDeterimant() {
+  public getBasisDeterminant() {
     return this.data[0] * this.data[5] - this.data[1] * this.data[4];
   }
 
   public getAffineInverse(): Matrix {
     // See http://negativeprobability.blogspot.com/2011/11/affine-transformations-and-their.html
+    // See https://www.mathsisfun.com/algebra/matrix-inverse.html
     // Since we are actually only doing 2D transformations we can use this hack
     // We don't actually use the 3rd or 4th dimension
 
-    const det = this.getBasisDeterimant();
+    const det = this.getBasisDeterminant();
     const inverseDet = 1 / det; // todo zero check
-    const cos = this.data[0] * inverseDet;
-    const sin = this.data[1] * inverseDet;
-
+    const a = this.data[0];
+    const b = this.data[4];
+    const c = this.data[1];
+    const d = this.data[5];
+    
+    const m = Matrix.identity();
+    // inverts rotation and scale
+    m.data[0] = d * inverseDet;
+    m.data[1] = -c * inverseDet;
+    m.data[4] = -b * inverseDet;
+    m.data[5] = a * inverseDet;
+    
     const tx = this.data[12];
     const ty = this.data[13];
-
-    const m = Matrix.identity();
-    m.data[0] = cos;
-    m.data[1] = -sin;
-    m.data[4] = sin;
-    m.data[5] = cos;
-
-    // translation
-    m.data[12] = -tx * cos - ty * sin;
-    m.data[13] = -ty * cos + tx * sin;
+    // invert translation
+    // transform translation into the matrix basis created by rot/scale
+    m.data[12] = -(tx * m.data[0] + ty * m.data[4]);
+    m.data[13] = -(tx * m.data[1] + ty * m.data[5]);
 
     return m;
+  }
+
+  public isIdentity(): boolean {
+    return this.data[0] === 1 &&
+    this.data[1] === 0 &&
+    this.data[2] === 0 &&
+    this.data[3] === 0 &&
+    this.data[4] === 0 &&
+    this.data[5] === 1 &&
+    this.data[6] === 0 &&
+    this.data[7] === 0 &&
+    this.data[8] === 0 &&
+    this.data[9] === 0 &&
+    this.data[10] === 1 &&
+    this.data[11] === 0 &&
+    this.data[12] === 0 &&
+    this.data[13] === 0 &&
+    this.data[14] === 0 &&
+    this.data[15] === 1;
   }
 
   public toString() {
