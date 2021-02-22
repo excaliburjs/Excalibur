@@ -93,7 +93,18 @@ export class Vector implements Clonable<Vector> {
    * @param x  X component of the Vector
    * @param y  Y component of the Vector
    */
-  constructor(public readonly x: number, public readonly y: number) {}
+  constructor(x: number, y: number) {
+    this._x = x;
+    this._y = y;
+  }
+
+  private _x = 0;
+  public get x(): number { return this._x; }
+  public set x(val: number) { this._x = val; }
+
+  private _y = 0;
+  public get y(): number { return this._y; }
+  public set y(val: number) { this._y = val }
 
   /**
    * Creates a new vector with a new X, and the current y
