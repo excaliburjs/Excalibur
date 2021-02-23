@@ -5,6 +5,7 @@ import { Vector, Ray } from '../Algebra';
 import { Color } from '../Drawing/Color';
 import { Side } from './Side';
 import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
+import { Matrix } from '../Math/matrix';
 
 export interface BoundingBoxOptions {
   left: number;
@@ -137,6 +138,11 @@ export class BoundingBox {
   public scale(scale: Vector, point: Vector = Vector.Zero): BoundingBox {
     const shifted = this.translate(point);
     return new BoundingBox(shifted.left * scale.x, shifted.top * scale.y, shifted.right * scale.x, shifted.bottom * scale.y);
+  }
+
+  public transform(matrix: Matrix) {
+    const points = this.getPoints().map((p) => matrix.multv(p));
+    return BoundingBox.fromPoints(points);
   }
 
   /**

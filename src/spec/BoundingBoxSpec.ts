@@ -123,6 +123,19 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
       expect(bb2.intersect(bb).y).toBe(0);
     });
 
+    it('can be transformed be a matrix', () => {
+      const bb = ex.BoundingBox.fromDimension(10, 10);
+      const matrix = ex.Matrix.identity().scale(2, 2).rotate(Math.PI / 4);
+      const newBB = bb.transform(matrix);
+
+      const dim = 20 * Math.cos(Math.PI / 4);
+
+      expect(newBB.left).toBeCloseTo(-dim);
+      expect(newBB.right).toBeCloseTo(dim);
+      expect(newBB.top).toBeCloseTo(-dim);
+      expect(newBB.bottom).toBeCloseTo(dim);
+    });
+
     describe('when in full containment', () => {
       it('closest right', () => {
         const bb = new ex.BoundingBox(0, 0, 50, 50);
