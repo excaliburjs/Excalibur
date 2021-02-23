@@ -1,4 +1,4 @@
-import { Vector } from "../Algebra";
+import { Vector } from '../Algebra';
 
 
 export interface VectorViewOptions<T> {

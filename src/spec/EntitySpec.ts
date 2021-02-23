@@ -214,7 +214,7 @@ describe('An entity', () => {
     parent.add(child);
 
     expect(() => {
-      child.add(parent)
+      child.add(parent);
     }).toThrowError('Cycle detected, cannot add entity');
   });
 
@@ -227,7 +227,7 @@ describe('An entity', () => {
     expect(() => {
       otherparent.add(child);
     }).toThrowError('Entity already has a parent, cannot add without unparenting');
-  })
+  });
 
   it('can observe components added', () => {
     const e = new ex.Entity();
@@ -236,7 +236,7 @@ describe('An entity', () => {
       notify: addedSpy
     });
     const component = new FakeComponent('A');
-    e.addComponent(component)
+    e.addComponent(component);
     expect(addedSpy).toHaveBeenCalledTimes(1);
   });
 

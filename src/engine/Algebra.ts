@@ -99,12 +99,20 @@ export class Vector implements Clonable<Vector> {
   }
 
   private _x = 0;
-  public get x(): number { return this._x; }
-  public set x(val: number) { this._x = val; }
+  public get x(): number {
+    return this._x;
+  }
+  public set x(val: number) {
+    this._x = val;
+  }
 
   private _y = 0;
-  public get y(): number { return this._y; }
-  public set y(val: number) { this._y = val }
+  public get y(): number {
+    return this._y;
+  }
+  public set y(val: number) {
+    this._y = val;
+  }
 
   /**
    * Creates a new vector with a new X, and the current y

@@ -19,7 +19,7 @@ const createPosView = (matrix: Matrix) => {
       return source.data[13];
     }
   });
-}
+};
 
 const createScaleView = (matrix: Matrix) => {
   // let _dirty = true;
@@ -53,7 +53,7 @@ const createScaleView = (matrix: Matrix) => {
       return source.getScaleY();
     }
   });
-}
+};
 
 /**
  * Enum representing the coordinate plane for the position 2D vector in the [[TransformComponent]]

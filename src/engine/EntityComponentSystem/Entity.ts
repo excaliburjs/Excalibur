@@ -214,7 +214,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
 
   /**
    * Adds an entity to be a child of this entity
-   * @param entity 
+   * @param entity
    */
   public add(entity: Entity): Entity {
     if (entity.parent === null) {
@@ -232,7 +232,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
 
   /**
    * Remove an entity from children if it exists
-   * @param entity 
+   * @param entity
    */
   public remove(entity: Entity): Entity {
     if (entity.parent === this) {
@@ -478,8 +478,8 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
 
   /**
    *
-   * Entity update lifecycle, called internally 
-   * 
+   * Entity update lifecycle, called internally
+   *
    * @internal
    * @param engine
    * @param delta

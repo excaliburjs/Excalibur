@@ -55,7 +55,7 @@ describe('A Matrix', () => {
     const mat = ex.Matrix.identity().scale(2, 3);
     const scale = ex.Matrix.scale(2, 3);
     expect(scale.getScale()).toBeVector(mat.getScale());
-  })
+  });
 
   it('can transform a point', () => {
     const mat = ex.Matrix.rotation(Math.PI / 4);
@@ -76,7 +76,7 @@ describe('A Matrix', () => {
     const mat = ex.Matrix.identity()
       .translate(100, -200)
       .scale(2, 4);
-      
+
     const inv = mat.getAffineInverse();
     expect(mat.multm(inv).isIdentity()).toBeTrue();
     expect(inv.multm(mat).isIdentity()).toBeTrue();
@@ -89,6 +89,6 @@ describe('A Matrix', () => {
 [0 1 0 0]
 [0 0 1 0]
 [0 0 0 1]
-`)
+`);
   });
 });

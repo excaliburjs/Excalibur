@@ -401,7 +401,7 @@ export class Matrix {
   }
 
   public setScale(scale: Vector) {
-    this.setScaleX(scale.x)
+    this.setScaleX(scale.x);
     this.setScaleY(scale.y);
   }
 
@@ -424,14 +424,14 @@ export class Matrix {
     const b = this.data[4];
     const c = this.data[1];
     const d = this.data[5];
-    
+
     const m = Matrix.identity();
     // inverts rotation and scale
     m.data[0] = d * inverseDet;
     m.data[1] = -c * inverseDet;
     m.data[4] = -b * inverseDet;
     m.data[5] = a * inverseDet;
-    
+
     const tx = this.data[12];
     const ty = this.data[13];
     // invert translation
