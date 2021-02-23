@@ -48,7 +48,7 @@ export class PointRenderer extends BatchRenderer<DrawPoint> {
     cmd.color.g = color.g;
     cmd.color.b = color.b;
     cmd.color.a = color.a * this._contextInfo.state.current.opacity;
-    cmd.size = size * Math.max(this._contextInfo.transform.current.data[0], this._contextInfo.transform.current.data[5]);
+    cmd.size = size * Math.max(this._contextInfo.transform.current.getScaleX(), this._contextInfo.transform.current.getScaleY());
     this.addCommand(cmd);
   }
 
