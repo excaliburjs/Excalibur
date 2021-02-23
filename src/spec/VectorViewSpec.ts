@@ -1,6 +1,11 @@
 import * as ex from '@excalibur';
+import { ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A VectorView', () => {
+  beforeAll(() => {
+    jasmine.addMatchers(ExcaliburMatchers);
+  });
+
   it('exists', () => {
     expect(ex.VectorView).toBeDefined();
   });
@@ -8,10 +13,18 @@ describe('A VectorView', () => {
   it('can be built', () => {
     const v = new ex.VectorView({
       data: null,
-      getX: () => { return 42; },
-      getY: () => { return 24; },
-      setX: () => {},
-      setY: () => {}
+      getX: () => {
+        return 42;
+      },
+      getY: () => {
+        return 24;
+      },
+      setX: () => {
+        // pass
+      },
+      setY: () => {
+        // pass
+      }
     });
 
     expect(v).toBeDefined();
@@ -23,10 +36,18 @@ describe('A VectorView', () => {
     const data = [42, 24];
     const v = new ex.VectorView({
       data: data,
-      getX: (source) => { return source[0]; },
-      getY: (source) => { return source[1]; },
-      setX: (source, x) => { source[0] = x},
-      setY: (source, y) => { source[1] = y}
+      getX: (source) => {
+        return source[0];
+      },
+      getY: (source) => {
+        return source[1];
+      },
+      setX: (source, x) => {
+        source[0] = x;
+      },
+      setY: (source, y) => {
+        source[1] = y;
+      }
     });
 
     expect(v).toBeVector(ex.vec(42, 24));
