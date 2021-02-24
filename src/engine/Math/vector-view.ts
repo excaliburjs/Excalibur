@@ -1,39 +1,36 @@
 import { Vector } from '../Algebra';
 
 
-export interface VectorViewOptions<T> {
-  data: T;
-  getX: (source: T) => number;
-  getY: (source: T) => number;
-  setX: (source: T, x: number) => void;
-  setY: (source: T, y: number) => void;
+export interface VectorViewOptions {
+  getX: () => number;
+  getY: () => number;
+  setX: (x: number) => void;
+  setY: (y: number) => void;
 }
-export class VectorView<T> extends Vector {
-  private _data: T;
-  private _getX: (source: T) => number;
-  private _getY: (source: T) => number;
-  private _setX: (source: T, x: number) => void;
-  private _setY: (source: T, y: number) => void;
-  constructor(options: VectorViewOptions<T>) {
-    super(options.getX(options.data), options.getY(options.data));
-    this._data = options.data;
+export class VectorView extends Vector {
+  private _getX: () => number;
+  private _getY: () => number;
+  private _setX: (x: number) => void;
+  private _setY: (y: number) => void;
+  constructor(options: VectorViewOptions) {
+    super(0, 0);
     this._getX = options.getX;
     this._getY = options.getY;
     this._setX = options.setX;
     this._setY = options.setY;
   }
   public get x() {
-    return this._getX(this._data);
+    return this._getX();
   }
 
   public set x(val) {
-    this._setX(this._data, val);
+    this._setX(val);
   }
 
   public get y() {
-    return this._getY(this._data);
+    return this._getY();
   }
   public set y(val) {
-    this._setY(this._data, val);
+    this._setY(val);
   }
 }

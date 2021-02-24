@@ -1,55 +1,39 @@
 import { vec, Vector } from '../../Algebra';
-import { Matrix } from '../../Math/matrix';
+import { Matrix, MatrixLocations } from '../../Math/matrix';
 import { VectorView } from '../../Math/vector-view';
 import { Component } from '../Component';
 
 const createPosView = (matrix: Matrix) => {
+  const source = matrix;
   return new VectorView({
-    data: matrix,
-    setX: (source, x) => {
-      source.data[12] = x;
+    setX: (x) => {
+      source.data[MatrixLocations.X] = x;
     },
-    setY: (source, y) => {
-      source.data[13] = y;
+    setY: (y) => {
+      source.data[MatrixLocations.Y] = y;
     },
-    getX: (source) => {
-      return source.data[12];
+    getX: () => {
+      return source.data[MatrixLocations.X];
     },
-    getY: (source) => {
-      return source.data[13];
+    getY: () => {
+      return source.data[MatrixLocations.Y];
     }
   });
 };
 
 const createScaleView = (matrix: Matrix) => {
-  // let _dirty = true;
-  // let scaleX = 1;
-  // let scaleY = 1;
-  // const _recalc = () => {
-  //   scaleX = matrix.getScaleX();
-  //   scaleY = matrix.getScaleY();
-  //   _dirty = false;
-  // }
+  const source = matrix;
   return new VectorView({
-    data: matrix,
-    setX: (source, x) => {
+    setX: (x) => {
       source.setScaleX(x);
-      // _dirty = true;
     },
-    setY: (source, y) => {
+    setY: (y) => {
       source.setScaleY(y);
-      // _dirty = true;
     },
-    getX: (source) => {
-      // if (_dirty) {
-      //   _recalc();
-      // }
+    getX: () => {
       return source.getScaleX();
     },
-    getY: (source) => {
-      // if (_dirty) {
-      //   _recalc()
-      // }
+    getY: () => {
       return source.getScaleY();
     }
   });
@@ -87,17 +71,10 @@ export class TransformComponent extends Component<'transform'> {
 
 
   private _recalculate() {
-    // this._position = new VectorMatrixPosView(this._mat);
     this._rotation = this.matrix.getRotation();
-    // this._scale = new VectorMatrixScaleView(this._mat);
     this._dirty = false;
   }
 
-  // private _globalMat: Matrix;
-  // private _recalculateGlobal() {
-  //   this._globalMat = this.getGlobalMatrix();
-  //   this._globalDirty = false;
-  // }
 
   public getGlobalMatrix(): Matrix {
     if (!this.parent) {
@@ -147,24 +124,24 @@ export class TransformComponent extends Component<'transform'> {
    * The current world position calculated
    */
   public get globalPos(): Vector {
+    const source = this.getGlobalMatrix();
     return new VectorView({
-      data: this.getGlobalMatrix(),
-      getX: (source) => source.data[12],
-      getY: (source) => source.data[13],
-      setX: (source, x) => {
+      getX: () => source.data[MatrixLocations.X],
+      getY: () => source.data[MatrixLocations.Y],
+      setX: (x) => {
         if (this.parent) {
-          const [ newX ] = this.parent?.getGlobalMatrix().getAffineInverse().multv([x, source.data[13]]);
-          this.matrix.data[12] = newX;
+          const [ newX ] = this.parent?.getGlobalMatrix().getAffineInverse().multv([x, source.data[MatrixLocations.Y]]);
+          this.matrix.data[MatrixLocations.X] = newX;
         } else {
-          this.matrix.data[12] = x;
+          this.matrix.data[MatrixLocations.X] = x;
         }
       },
-      setY: (source, y) => {
+      setY: (y) => {
         if (this.parent) {
-          const [, newY ] = this.parent?.getGlobalMatrix().getAffineInverse().multv([source.data[12], y]);
-          this.matrix.data[13] = newY;
+          const [, newY ] = this.parent?.getGlobalMatrix().getAffineInverse().multv([source.data[MatrixLocations.X], y]);
+          this.matrix.data[MatrixLocations.Y] = newY;
         } else {
-          this.matrix.data[13] = y;
+          this.matrix.data[MatrixLocations.Y] = y;
         }
       }
     });
@@ -230,11 +207,11 @@ export class TransformComponent extends Component<'transform'> {
   }
 
   public get globalScale(): Vector {
+    const source = this.getGlobalMatrix();
     return new VectorView({
-      data: this.getGlobalMatrix(),
-      getX: (source) => source.getScaleX(),
-      getY: (source) => source.getScaleY(),
-      setX: (_, x) => {
+      getX: () => source.getScaleX(),
+      getY: () => source.getScaleY(),
+      setX: (x) => {
         if (this.parent) {
           const globalScaleX = this.parent.globalScale.x;
           this.matrix.setScaleX(x / globalScaleX);
@@ -242,7 +219,7 @@ export class TransformComponent extends Component<'transform'> {
           this.matrix.setScaleX(x);
         }
       },
-      setY: (_, y) => {
+      setY: (y) => {
         if (this.parent) {
           const globalScaleY = this.parent.globalScale.y;
           this.matrix.setScaleY(y / globalScaleY);

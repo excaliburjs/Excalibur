@@ -2,9 +2,15 @@ import { vec } from '..';
 import { Vector } from '../Algebra';
 import { canonicalizeAngle } from '../Util/Util';
 
+export enum MatrixLocations {
+  X = 12,
+  Y = 13
+}
 
 /**
  * Excalibur Matrix helper for 4x4 matrices
+ * 
+ * Useful for webgl 4x4 matrices
  */
 export class Matrix {
 

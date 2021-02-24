@@ -12,7 +12,6 @@ describe('A VectorView', () => {
 
   it('can be built', () => {
     const v = new ex.VectorView({
-      data: null,
       getX: () => {
         return 42;
       },
@@ -35,18 +34,17 @@ describe('A VectorView', () => {
   it('can source data from an another place', () => {
     const data = [42, 24];
     const v = new ex.VectorView({
-      data: data,
-      getX: (source) => {
-        return source[0];
+      getX: () => {
+        return data[0];
       },
-      getY: (source) => {
-        return source[1];
+      getY: () => {
+        return data[1];
       },
-      setX: (source, x) => {
-        source[0] = x;
+      setX: (x) => {
+        data[0] = x;
       },
-      setY: (source, y) => {
-        source[1] = y;
+      setY: (y) => {
+        data[1] = y;
       }
     });
 
