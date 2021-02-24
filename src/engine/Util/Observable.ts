@@ -26,4 +26,8 @@ export class Observable<T> {
   notifyAll(message: T) {
     this.observers.forEach((o) => o.notify(message));
   }
+
+  clear() {
+    this.observers.length = 0;
+  }
 }

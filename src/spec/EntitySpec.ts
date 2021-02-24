@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { AddedComponent, TagComponent } from '@excalibur';
+import { TagComponent } from '@excalibur';
 
 class FakeComponent extends ex.Component {
   constructor(public type: string) {
@@ -207,6 +207,20 @@ describe('An entity', () => {
     expect(parent.getDescendants()).toEqual([parent, child, grandchild]);
   });
 
+  it('can be unparented', () => {
+    const parent = new ex.Entity();
+    const child = new ex.Entity();
+    const grandchild = new ex.Entity();
+    parent.add(child.add(grandchild));
+
+    expect(child.parent).toBe(parent);
+
+    child.unparent();
+
+    expect(child.parent).toBe(null);
+
+  });
+
   it('can\'t have a cycle', () => {
     const parent = new ex.Entity();
     const child = new ex.Entity();
@@ -251,5 +265,26 @@ describe('An entity', () => {
     e.removeComponent(component);
     e.processComponentRemoval();
     expect(removedSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('can add and remove children in the ECS world', () => {
+    const e = new ex.Entity();
+    const child = new ex.Entity();
+    const grandchild = new ex.Entity();
+    e.add(child.add(grandchild));
+
+    const world = new ex.World(new ex.Scene());
+
+    world.add(e);
+
+    expect(world.entityManager.entities.length).toBe(3);
+
+    grandchild.add(new ex.Entity());
+
+    expect(world.entityManager.entities.length).toBe(4);
+
+    child.remove(grandchild);
+
+    expect(world.entityManager.entities.length).toBe(2);
   });
 });

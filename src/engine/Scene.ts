@@ -480,6 +480,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
+    this.world.add(entity);
     if (entity instanceof Actor) {
       entity.unkill();
     }
@@ -493,18 +494,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
           this.actors.push(entity);
         }
 
-        this.world.add(entity);
-        entity.children.forEach((c) => this.add(c));
-        entity.childrenAdded$.register({
-          notify: (e => {
-            this.world.add(e);
-          })
-        });
-        entity.childrenRemoved$.register({
-          notify: (e => {
-            this.world.remove(e);
-          })
-        });
+
       }
       return;
     }
@@ -547,6 +537,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
+    this.world.remove(entity);
     if (entity instanceof Actor) {
       if (!Util.contains(this.actors, entity)) {
         return;
@@ -560,8 +551,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         }
         this._killQueue.push(entity);
       }
-
-      entity.unparent();
     }
     if (entity instanceof Timer) {
       this.removeTimer(entity);

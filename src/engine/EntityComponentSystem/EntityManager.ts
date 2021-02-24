@@ -36,6 +36,19 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
       this.entities.push(entity);
       this._world.queryManager.addEntity(entity);
       entity.changes.register(this);
+
+      // if entity has children
+      entity.children.forEach((c) => this.addEntity(c));
+      entity.childrenAdded$.register({
+        notify: (e => {
+          this.addEntity(e);
+        })
+      });
+      entity.childrenRemoved$.register({
+        notify: (e => {
+          this.removeEntity(e);
+        })
+      });
     }
   }
 
@@ -54,6 +67,11 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
       Util.removeItemFromArray(entity, this.entities);
       this._world.queryManager.removeEntity(entity);
       entity.changes.unregister(this);
+
+      // if entity has children
+      entity.children.forEach((c) => this.removeEntity(c));
+      entity.childrenAdded$.clear();
+      entity.childrenRemoved$.clear();
     }
   }
 
