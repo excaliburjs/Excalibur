@@ -59,7 +59,6 @@ export class TransformComponent extends Component<'transform'> {
   public readonly type = 'transform';
 
   private _dirty = false;
-  // private _globalDirty =  false;
 
   public readonly matrix = Matrix.identity()
     .translate(0, 0)

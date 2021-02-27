@@ -7,6 +7,13 @@ export enum MatrixLocations {
   Y = 13
 }
 
+const sign = (val: number) => {
+  if (val === 0) {
+    return 0;
+  }
+  return val < 0 ? -1 : 1;
+}
+
 /**
  * Excalibur Matrix helper for 4x4 matrices
  * 
@@ -372,38 +379,44 @@ export class Matrix {
   }
 
   public getScaleX(): number {
+    // if both components are negative common scale is negative
+    const xsign = sign(sign(this.data[0]) + sign(this.data[1]));
+    // absolute scale of the matrix (we lose sign)
     const xscale = vec(this.data[0], this.data[1]).size;
-    return xscale;
+    return xsign * xscale;
   }
 
   public getScaleY(): number {
-    const det = this.getBasisDeterminant();
-    const sign = det < 0 ? -1 : 1;
+    // if both components are negative common scale is negative
+    // negative coeefficient here because we ignore -sin(rotation) coefficient
+    const ysign = sign(sign(-this.data[4]) + sign(this.data[5]));
+
+    // absolute scale of the matrix (we lose sign)
     const yscale = vec(this.data[4], this.data[5]).size;
-    return sign * yscale;
+    return ysign * yscale;
   }
 
   /**
    * Get the scale of the matrix
    */
   public getScale(): Vector {
-    const det = this.getBasisDeterminant();
-    const sign = det < 0 ? -1 : 1;
-    const xscale = vec(this.data[0], this.data[1]).size;
-    const yscale = vec(this.data[4], this.data[5]).size;
-    return vec(xscale, sign * yscale);
+    return vec(this.getScaleX(), this.getScaleY());
   }
 
   public setScaleX(val: number) {
+    // preserve rotation, get x to length 1
+    // rotated xscale could have negative components
     const xscale = vec(this.data[0], this.data[1]).normalize();
-    this.data[0] = xscale.x * val;
-    this.data[1] = xscale.y * val;
+    this.data[0] = val * xscale.x;
+    this.data[1] = val * xscale.y;
   }
 
   public setScaleY(val: number) {
+    // preserve rotation, get y to length 1
+    // rotated yscale could have negative components
     const yscale = vec(this.data[4], this.data[5]).normalize();
-    this.data[4] = yscale.x * val;
-    this.data[5] = yscale.y * val;
+    this.data[4] = val * yscale.x;
+    this.data[5] = val * yscale.y;
   }
 
   public setScale(scale: Vector) {
@@ -415,7 +428,7 @@ export class Matrix {
    * Determinant of the upper left 2x2 matrix
    */
   public getBasisDeterminant() {
-    return this.data[0] * this.data[5] - this.data[1] * this.data[4];
+    return (this.data[0] * this.data[5]) - (this.data[1] * this.data[4]);
   }
 
   public getAffineInverse(): Matrix {
