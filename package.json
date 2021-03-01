@@ -67,7 +67,7 @@
     "@fortawesome/fontawesome-free": "5.15.2",
     "@octokit/rest": "18.3.0",
     "@storybook/addon-actions": "6.1.15",
-    "@storybook/addon-console": "1.2.2",
+    "@storybook/addon-console": "1.2.3",
     "@storybook/addon-docs": "6.1.15",
     "@storybook/addon-knobs": "6.1.15",
     "@storybook/addon-notes": "5.3.21",
