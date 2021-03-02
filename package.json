@@ -96,7 +96,7 @@
     "karma-coverage": "2.0.3",
     "karma-coverage-istanbul-reporter": "3.0.3",
     "karma-jasmine": "4.0.1",
-    "karma-webpack": "4.0.2",
+    "karma-webpack": "5.0.0",
     "lint-staged": "10.5.4",
     "prettier": "2.2.1",
     "puppeteer": "5.5.0",
