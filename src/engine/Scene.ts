@@ -493,7 +493,18 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         } else {
           this.actors.push(entity);
         }
-
+        // TODO remove after collision ecs
+        entity.children.forEach(c => this.add(c));
+        entity.childrenAdded$.register({	
+          notify: (e => {	
+            this.add(e);	
+          })	
+        });	
+        entity.childrenRemoved$.register({	
+          notify: (e => {	
+            this.remove(e);	
+          })	
+        });
 
       }
       return;

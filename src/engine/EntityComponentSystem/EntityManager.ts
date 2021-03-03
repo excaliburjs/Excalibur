@@ -31,7 +31,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
    * @param entity
    */
   public addEntity(entity: Entity): void {
-    if (entity) {
+    if (entity && !this._entityIndex[entity.id]) {
       this._entityIndex[entity.id] = entity;
       this.entities.push(entity);
       this._world.queryManager.addEntity(entity);
