@@ -264,6 +264,10 @@ export class Matrix {
     dest.data[14] = a31 * b14 + a32 * b24 + a33 * b34 + a34 * b44;
     dest.data[15] = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
 
+    const s = this.getScale();
+    dest._scaleSignX = sign(s.x) * sign(dest._scaleSignX);
+    dest._scaleSignY = sign(s.y) * sign(dest._scaleSignY);
+
     return dest;
   }
 
