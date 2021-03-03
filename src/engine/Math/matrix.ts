@@ -426,16 +426,16 @@ export class Matrix {
   public setScaleX(val: number) {
     this._scaleSignX = sign(val);
     const xscale = vec(this.data[0], this.data[4]).normalize();
-    this.data[0] = xscale.x * val;
-    this.data[4] = xscale.y * val;
+    this.data[0] = Math.abs(xscale.x * val) * this._scaleSignX;
+    this.data[4] = Math.abs(xscale.y * val) * this._scaleSignX;
   }
 
   private _scaleSignY = 1;
   public setScaleY(val: number) {
     this._scaleSignY = sign(val);
     const yscale = vec(this.data[1], this.data[5]).normalize();
-    this.data[1] = yscale.x * val;
-    this.data[5] = yscale.y * val;
+    this.data[1] = Math.abs(yscale.x * val) * this._scaleSignY;
+    this.data[5] = Math.abs(yscale.y * val) * this._scaleSignY;
   }
 
   public setScale(scale: Vector) {
