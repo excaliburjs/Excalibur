@@ -83,8 +83,6 @@ describe('A Matrix', () => {
     mat.setScale(ex.vec(-2, -5));
     expect(mat.getScaleX()).toBe(-2, 'getScaleX()');
     expect(mat.getScaleY()).toBe(-5, 'getScaleY()');
-    expect(mat.data[0]).toBe(-2, 'mat.data[0]');
-    expect(mat.data[5]).toBe(-5, 'mat.data[5]');
 
     mat.setScale(ex.vec(5, 11));
     expect(mat.getScaleX()).toBe(5, 'getScaleX()');

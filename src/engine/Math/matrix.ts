@@ -350,15 +350,17 @@ export class Matrix {
     const sine = Math.sin(angle);
     const cosine = Math.cos(angle);
     
-    this.data[0] = cosine * currentScale.x; // Math.abs(currentScale.x);
-    this.data[1] = sine * currentScale.y; // * Math.abs(currentScale.y);
-    this.data[4] = -sine * currentScale.x; // * Math.abs(currentScale.x);
-    this.data[5] = cosine * currentScale.y; //; * Math.abs(currentScale.y);
+    this.data[0] = cosine * currentScale.x;
+    this.data[1] = sine * currentScale.y;
+    this.data[4] = -sine * currentScale.x;
+    this.data[5] = cosine * currentScale.y;
 
   }
 
   public getRotation(): number {
-    let angle = Math.atan2(this.data[1] / this.getScaleY(), this.data[0] / this.getScaleX());
+    let angle = Math.atan2(
+      this.data[1] / this.getScaleY(),
+      this.data[0] / this.getScaleX());
     return canonicalizeAngle(angle);
   }
 
