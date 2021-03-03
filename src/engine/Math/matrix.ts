@@ -14,6 +14,13 @@ const sign = (val: number) => {
   return val < 0 ? -1 : 1;
 }
 
+// const multMatch = (a: number, b: number) => {
+//   if (sign(a) < 0 && sign(b) < 0) {
+//     return -Math.abs(a * b);
+//   }
+//   return a * b;
+// }
+
 // const epsilon = (val: number) => {
 //   if (val * val < .0001) {
 //     return 0;
@@ -339,24 +346,20 @@ export class Matrix {
 
 
   public setRotation(angle: number) {
-    const oldScale = this.getScale();
-    // Matrix wants [-Math.PI, Math.PI]
-    // if (angle > Math.PI) {
-    //   angle = angle - (Math.PI * 2);
-    // }
+    const currentScale = this.getScale();
     const sine = Math.sin(angle);
     const cosine = Math.cos(angle);
+    
+    this.data[0] = cosine * currentScale.x; // Math.abs(currentScale.x);
+    this.data[1] = sine * currentScale.y; // * Math.abs(currentScale.y);
+    this.data[4] = -sine * currentScale.x; // * Math.abs(currentScale.x);
+    this.data[5] = cosine * currentScale.y; //; * Math.abs(currentScale.y);
 
-    this.data[0] = cosine;
-    this.data[1] = sine;
-    this.data[4] = -sine;
-    this.data[5] = cosine;
-
-    this.setScale(oldScale);
   }
 
   public getRotation(): number {
-    return canonicalizeAngle(Math.atan2(this.data[1], this.data[0]));
+    let angle = Math.atan2(this.data[1] / this.getScaleY(), this.data[0] / this.getScaleX());
+    return canonicalizeAngle(angle);
   }
 
   /**
@@ -395,31 +398,15 @@ export class Matrix {
   }
 
   public getScaleX(): number {
-    const det = this.getBasisDeterminant();
-    // absolute scale of the matrix (we lose sign)
-    const xscale = vec(this.data[0], this.data[1]).size;
-    if (this.data[0] !== 0 || this.data[4] !== 0) {
-      return xscale;
-    }
-    if (this.data[1] !== 0 || this.data[5] !== 0) {
-      return det / xscale;
-    }
-    // if both components are negative common scale is negative
-    const xsign = sign(sign(this.data[0]) + sign(this.data[1]));
-    return (xsign || 1) * xscale;
+    // absolute scale of the matrix (we lose sign so need to add it back)
+    const xscale = vec(this.data[0], this.data[4]).size;
+    return this._scaleSignX * xscale;
   }
 
   public getScaleY(): number {
-    const det = this.getBasisDeterminant();
-    // if both components are negative common scale is negative
-    // negative coeefficient here because we ignore -sin(rotation) coefficient
-    const ysign = -sign(sign(-this.data[4]) + sign(this.data[5]));
-
-    const detSign = -sign(this.getBasisDeterminant());
-
-    // absolute scale of the matrix (we lose sign)
-    const yscale = vec(this.data[4], this.data[5]).size;
-    return (ysign || 1) * yscale * detSign;
+    // absolute scale of the matrix (we lose sign so need to add it back)
+    const yscale = vec(this.data[1], this.data[5]).size;
+    return this._scaleSignY * yscale;
   }
 
   /**
@@ -429,48 +416,20 @@ export class Matrix {
     return vec(this.getScaleX(), this.getScaleY());
   }
 
+  private _scaleSignX = 1;
   public setScaleX(val: number) {
-    // preserve rotation, get x to length 1
-    // rotated xscale could have negative components
-    const xscale = vec(this.data[0], this.data[1]).normalize();
-    const valsign = sign(val);
-    const absval = Math.abs(val);
-
-    // match sign (scale -1, then -1 again flips it otherwise)
-
-    let xsign = -sign(xscale.x);
-    let ysign = -sign(xscale.y);
-    if (valsign === sign(xscale.x)) {
-      xsign = valsign;
-    }
-
-    if (valsign === sign(xscale.y)) {
-      ysign = valsign;
-    }
-    this.data[0] = xsign * absval * Math.abs(xscale.x);
-    this.data[1] = ysign * absval * Math.abs(xscale.y);
+    this._scaleSignX = sign(val);
+    const xscale = vec(this.data[0], this.data[4]).normalize();
+    this.data[0] = xscale.x * val;
+    this.data[4] = xscale.y * val;
   }
 
+  private _scaleSignY = 1;
   public setScaleY(val: number) {
-    // preserve rotation, get y to length 1
-    // rotated yscale could have negative components
-    const yscale = vec(this.data[4], this.data[5]).normalize();
-    const valsign = sign(val);
-    const absval = Math.abs(val);
-
-    // match sign (scale -1, then -1 again flips it otherwise)
-
-    let xsign = -sign(yscale.x);
-    let ysign = -sign(yscale.y);
-    if (valsign === sign(yscale.x)) {
-      xsign = valsign;
-    }
-
-    if (valsign === sign(yscale.y)) {
-      ysign = valsign;
-    }
-    this.data[4] = xsign * absval * Math.abs(yscale.x);
-    this.data[5] = ysign * absval * Math.abs(yscale.y);
+    this._scaleSignY = sign(val);
+    const yscale = vec(this.data[1], this.data[5]).normalize();
+    this.data[1] = yscale.x * val;
+    this.data[5] = yscale.y * val;
   }
 
   public setScale(scale: Vector) {

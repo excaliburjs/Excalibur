@@ -72,6 +72,71 @@ describe('A Matrix', () => {
     expect(mat.getScaleY()).toBe(3);
   });
 
+  fit('can set scale with rotation in the mix', () => {
+    const mat = ex.Matrix.identity();
+    mat.setScale(ex.vec(-1, -1));
+    expect(mat.getScaleX()).toBe(-1, 'getScaleX()');
+    expect(mat.getScaleY()).toBe(-1, 'getScaleY()');
+    expect(mat.data[0]).toBe(-1, 'mat.data[0]');
+    expect(mat.data[5]).toBe(-1, 'mat.data[5]');
+
+    mat.setScale(ex.vec(-2, -5));
+    expect(mat.getScaleX()).toBe(-2, 'getScaleX()');
+    expect(mat.getScaleY()).toBe(-5, 'getScaleY()');
+    expect(mat.data[0]).toBe(-2, 'mat.data[0]');
+    expect(mat.data[5]).toBe(-5, 'mat.data[5]');
+
+    mat.setScale(ex.vec(5, 11));
+    expect(mat.getScaleX()).toBe(5, 'getScaleX()');
+    expect(mat.getScaleY()).toBe(11, 'getScaleY()');
+    expect(mat.data[0]).toBe(5)
+    expect(mat.data[5]).toBe(11)
+
+    mat.setScale(ex.vec(1, -1));
+    expect(mat.getScaleX()).toBe(1, 'getScaleX()');
+    expect(mat.getScaleY()).toBe(-1, 'getScaleY()');
+    expect(mat.data[0]).toBe(1)
+    expect(mat.data[5]).toBe(-1)
+
+    mat.setRotation(Math.PI / 3);
+    expect(mat.getScaleX()).toBeCloseTo(1, 2, 'rotated PI/3 getScaleX()');
+    expect(mat.getScaleY()).toBeCloseTo(-1, 2, 'rotated PI/3 getScaleY()');
+    expect(mat.getRotation()).toBeCloseTo(Math.PI / 3, 2, 'rotated PI/3 getRotation()');
+
+    mat.setRotation(Math.PI);
+    expect(mat.getScaleX()).toBeCloseTo(1, 2, 'rotated PI getScaleX()');
+    expect(mat.getScaleY()).toBeCloseTo(-1, 2, 'rotated PI getScaleY()');
+    expect(mat.getRotation()).toBeCloseTo(Math.PI, 2, 'rotated PI getRotation()');
+
+    mat.setRotation(Math.PI * 2);
+    expect(mat.getScaleX()).toBeCloseTo(1, 2, 'rotated 2 PI getScaleX()');
+    expect(mat.getScaleY()).toBeCloseTo(-1, 2, 'rotated 2 PI getScaleY()');
+    expect(mat.getRotation()).toBeCloseTo(Math.PI * 2, 2, 'rotated 2 PI getRotation()');
+
+    mat.setRotation(Math.PI * 3);
+    expect(mat.getScaleX()).toBeCloseTo(1, 2, 'rotated 3 PI getScaleX()');
+    expect(mat.getScaleY()).toBeCloseTo(-1, 2, 'rotated 3 PI getScaleY()');
+    expect(mat.getRotation()).toBeCloseTo(Math.PI, 2, 'rotated 3 * PI getRotation()');
+  });
+
+  fit('can set the rotation', () => {
+    const mat = ex.Matrix.identity();
+    mat.setRotation(0);
+    expect(mat.getRotation()).toBeCloseTo(0, 2, 'rotation 0');
+
+    mat.setRotation(Math.PI / 3);
+    expect(mat.getRotation()).toBeCloseTo(Math.PI / 3, 2, 'rotation PI/3');
+
+    mat.setRotation(Math.PI);
+    expect(mat.getRotation()).toBeCloseTo(Math.PI, 2, 'rotation PI');
+
+    mat.setRotation(Math.PI * 2);
+    expect(mat.getRotation()).toBeCloseTo(Math.PI * 2, 2, 'rotation 2 PI');
+
+    mat.setRotation(Math.PI * 3);
+    expect(mat.getRotation()).toBeCloseTo(Math.PI, 2, 'roation 3 PI');
+  });
+
   it('can find the affine inverse', () => {
     const mat = ex.Matrix.identity()
       .translate(100, -200)
