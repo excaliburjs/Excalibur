@@ -349,25 +349,6 @@ export class Matrix {
   }
 
 
-  public setRotation(angle: number) {
-    const currentScale = this.getScale();
-    const sine = Math.sin(angle);
-    const cosine = Math.cos(angle);
-    
-    this.data[0] = cosine * currentScale.x;
-    this.data[1] = sine * currentScale.y;
-    this.data[4] = -sine * currentScale.x;
-    this.data[5] = cosine * currentScale.y;
-
-  }
-
-  public getRotation(): number {
-    let angle = Math.atan2(
-      this.data[1] / this.getScaleY(),
-      this.data[0] / this.getScaleX());
-    return canonicalizeAngle(angle);
-  }
-
   /**
    * Applies scaling to the current matrix mutating it
    * @param x
@@ -401,6 +382,26 @@ export class Matrix {
     // https://frederic-wang.fr/decomposition-of-2d-transform-matrices.html
     // https://stackoverflow.com/questions/45159314/decompose-2d-transformation-matrix
     // https://math.stackexchange.com/questions/612006/decomposing-an-affine-transformation
+  }
+
+  public setRotation(angle: number) {
+    const currentScale = this.getScale();
+    const sine = Math.sin(angle);
+    const cosine = Math.cos(angle);
+    
+    this.data[0] = cosine * currentScale.x;
+    this.data[1] = sine * currentScale.y;
+    this.data[4] = -sine * currentScale.x;
+    this.data[5] = cosine * currentScale.y;
+
+  }
+
+  public getRotation(): number {
+    
+    let angle = Math.atan2(
+      this.data[1] / this.getScaleY(),
+      this.data[0] / this.getScaleX());
+    return canonicalizeAngle(angle);
   }
 
   public getScaleX(): number {
