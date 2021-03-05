@@ -427,16 +427,19 @@ export class Matrix {
   public setScaleX(val: number) {
     this._scaleSignX = sign(val);
     const xscale = vec(this.data[0], this.data[4]).normalize();
-    this.data[0] = Math.abs(xscale.x * val) * this._scaleSignX;
-    this.data[4] = Math.abs(xscale.y * val) * this._scaleSignX;
+    // Todo negative scale causes unpredictable flipping as it bounces positive negative
+    // Negative components need to preserved for rotation
+    // a negative scale is like a rotation
+    this.data[0] = xscale.x * val;
+    this.data[4] = xscale.y * val;
   }
 
   private _scaleSignY = 1;
   public setScaleY(val: number) {
     this._scaleSignY = sign(val);
     const yscale = vec(this.data[1], this.data[5]).normalize();
-    this.data[1] = Math.abs(yscale.x * val) * this._scaleSignY;
-    this.data[5] = Math.abs(yscale.y * val) * this._scaleSignY;
+    this.data[1] = yscale.x * val;
+    this.data[5] = yscale.y * val;
   }
 
   public setScale(scale: Vector) {
