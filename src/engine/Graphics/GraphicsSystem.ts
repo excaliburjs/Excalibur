@@ -142,8 +142,8 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       const transform = ancestor?.get(TransformComponent);
       if (transform) {
         this._graphicsContext.translate(transform.pos.x, transform.pos.y);
-        this._graphicsContext.rotate(transform.rotation);
         this._graphicsContext.scale(transform.scale.x, transform.scale.y);
+        this._graphicsContext.rotate(transform.rotation);
       }
     }
   }
