@@ -378,11 +378,6 @@ export class Matrix {
     return this;
   }
 
-  public decompose() {
-    // https://frederic-wang.fr/decomposition-of-2d-transform-matrices.html
-    // https://stackoverflow.com/questions/45159314/decompose-2d-transformation-matrix
-    // https://math.stackexchange.com/questions/612006/decomposing-an-affine-transformation
-  }
 
   public setRotation(angle: number) {
     const currentScale = this.getScale();
@@ -426,10 +421,8 @@ export class Matrix {
   private _scaleSignX = 1;
   public setScaleX(val: number) {
     this._scaleSignX = sign(val);
-    const xscale = vec(this.data[0], this.data[4]).normalize();
-    // Todo negative scale causes unpredictable flipping as it bounces positive negative
-    // Negative components need to preserved for rotation
-    // a negative scale is like a rotation
+    // negative scale acts like a 180 rotation, so flip
+    const xscale = vec(this.data[0] * this._scaleSignX, this.data[4] * this._scaleSignX).normalize();
     this.data[0] = xscale.x * val;
     this.data[4] = xscale.y * val;
   }
@@ -437,7 +430,8 @@ export class Matrix {
   private _scaleSignY = 1;
   public setScaleY(val: number) {
     this._scaleSignY = sign(val);
-    const yscale = vec(this.data[1], this.data[5]).normalize();
+    // negative scale acts like a 180 rotation, so flip
+    const yscale = vec(this.data[1] * this._scaleSignY, this.data[5] * this._scaleSignY).normalize();
     this.data[1] = yscale.x * val;
     this.data[5] = yscale.y * val;
   }
