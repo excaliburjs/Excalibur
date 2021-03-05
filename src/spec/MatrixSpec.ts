@@ -66,7 +66,7 @@ describe('A Matrix', () => {
   });
 
   it('can set a rotation and preserve scale', () => {
-    const mat = ex.Matrix.identity()
+    const mat = ex.Matrix.identity();
     mat.setScale(ex.vec(3, 5));
     mat.setRotation(Math.PI / 2);
     expect(mat.getScaleX()).toBe(3);
@@ -85,8 +85,8 @@ describe('A Matrix', () => {
     mat.setScale(ex.vec(5, 11));
     expect(mat.getScaleX()).toBe(5, 'getScaleX()');
     expect(mat.getScaleY()).toBe(11, 'getScaleY()');
-    expect(mat.data[0]).toBe(5)
-    expect(mat.data[5]).toBe(11)
+    expect(mat.data[0]).toBe(5);
+    expect(mat.data[5]).toBe(11);
 
     mat.setScale(ex.vec(1, -1));
     expect(mat.getScaleX()).toBe(1, 'getScaleX()');

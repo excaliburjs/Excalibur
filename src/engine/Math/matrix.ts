@@ -12,7 +12,7 @@ const sign = (val: number) => {
     return 0;
   }
   return val < 0 ? -1 : 1;
-}
+};
 
 // const multMatch = (a: number, b: number) => {
 //   if (sign(a) < 0 && sign(b) < 0) {
@@ -30,7 +30,7 @@ const sign = (val: number) => {
 
 /**
  * Excalibur Matrix helper for 4x4 matrices
- * 
+ *
  * Useful for webgl 4x4 matrices
  */
 export class Matrix {
@@ -383,7 +383,7 @@ export class Matrix {
     const currentScale = this.getScale();
     const sine = Math.sin(angle);
     const cosine = Math.cos(angle);
-    
+
     this.data[0] = cosine * currentScale.x;
     this.data[1] = sine * currentScale.y;
     this.data[4] = -sine * currentScale.x;
@@ -392,8 +392,8 @@ export class Matrix {
   }
 
   public getRotation(): number {
-    
-    let angle = Math.atan2(
+
+    const angle = Math.atan2(
       this.data[1] / this.getScaleY(),
       this.data[0] / this.getScaleX());
     return canonicalizeAngle(angle);
