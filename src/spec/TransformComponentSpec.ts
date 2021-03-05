@@ -43,13 +43,11 @@ describe('A TransformComponent', () => {
     tx.globalScale.y = -1;
     expect(tx.scale).toBeVector(ex.vec(1, -1));
     expect(tx.globalScale).toBeVector(ex.vec(1, -1));
-    // Setting negative scales is odd because Math.PI rotation is equivalent to a -1 scale
-    // rescalling y by -1 acts like a rotation of the existing matrix by 180 degrees
-    // which is why the scale is now (1, 1)
+
     tx.globalScale.x = 1;
     tx.globalScale.y = -1;
-    expect(tx.scale).toBeVector(ex.vec(1, 1));
-    expect(tx.globalScale).toBeVector(ex.vec(1, 1));
+    expect(tx.scale).toBeVector(ex.vec(1, -1));
+    expect(tx.globalScale).toBeVector(ex.vec(1, -1));
   });
 
   it('can set the scale negative', () => {

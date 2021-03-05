@@ -66,20 +66,18 @@ describe('A Matrix', () => {
   });
 
   it('can set a rotation and preserve scale', () => {
-    const mat = ex.Matrix.scale(3, 5);
-    mat.rotate(Math.PI / 2);
-    expect(mat.getScaleX()).toBe(5);
-    expect(mat.getScaleY()).toBe(3);
+    const mat = ex.Matrix.identity()
+    mat.setScale(ex.vec(3, 5));
+    mat.setRotation(Math.PI / 2);
+    expect(mat.getScaleX()).toBe(3);
+    expect(mat.getScaleY()).toBe(5);
   });
 
-  fit('can set scale with rotation in the mix', () => {
+  it('can set scale with rotation in the mix', () => {
     const mat = ex.Matrix.identity();
     mat.setScale(ex.vec(-1, -1));
     expect(mat.getScaleX()).toBe(-1, 'getScaleX()');
     expect(mat.getScaleY()).toBe(-1, 'getScaleY()');
-    expect(mat.data[0]).toBe(-1, 'mat.data[0]');
-    expect(mat.data[5]).toBe(-1, 'mat.data[5]');
-
     mat.setScale(ex.vec(-2, -5));
     expect(mat.getScaleX()).toBe(-2, 'getScaleX()');
     expect(mat.getScaleY()).toBe(-5, 'getScaleY()');
@@ -93,8 +91,6 @@ describe('A Matrix', () => {
     mat.setScale(ex.vec(1, -1));
     expect(mat.getScaleX()).toBe(1, 'getScaleX()');
     expect(mat.getScaleY()).toBe(-1, 'getScaleY()');
-    expect(mat.data[0]).toBe(1)
-    expect(mat.data[5]).toBe(-1)
 
     mat.setRotation(Math.PI / 3);
     expect(mat.getScaleX()).toBeCloseTo(1, 2, 'rotated PI/3 getScaleX()');
@@ -117,7 +113,7 @@ describe('A Matrix', () => {
     expect(mat.getRotation()).toBeCloseTo(Math.PI, 2, 'rotated 3 * PI getRotation()');
   });
 
-  fit('can set the rotation', () => {
+  it('can set the rotation', () => {
     const mat = ex.Matrix.identity();
     mat.setRotation(0);
     expect(mat.getRotation()).toBeCloseTo(0, 2, 'rotation 0');
