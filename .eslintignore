@@ -1,7 +1,6 @@
-apidocs.js
-deploy-docs.js
-GruntFile.js
+scripts/apidocs.js
+scripts/release.js
 karma.conf.js
-release.js
 webpack.config.js
 webpack.config.prod.js
+version.js

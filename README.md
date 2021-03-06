@@ -80,7 +80,7 @@ npm run all
 
 # Run engine core compilation only
 # Useful for quick checks to ensure everything compiles
-npm run core
+npm run build
 
 # Run engine tests only (does not run compile task)
 # Useful to run tests ad-hoc

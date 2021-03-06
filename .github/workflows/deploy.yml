@@ -38,3 +38,16 @@ jobs:
     - run: echo $alpha_version
     - run: npm --no-git-tag-version version $alpha_version
     - run: npm publish --tag next
+
+  docs:
+    name: docs
+    runs-on: [ubuntu-latest]
+    # needs: deploy # to update homepage with latest release
+
+    steps:
+    - name: Trigger docs deployment
+      uses: peter-evans/repository-dispatch@v1.1.3
+      with:
+        repository: excaliburjs/excaliburjs.github.io
+        token: ${{ secrets.DOCS_GH_TOKEN }}
+        event-type: deploy-docs

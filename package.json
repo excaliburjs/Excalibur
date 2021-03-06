@@ -31,6 +31,7 @@
     "appveyor": "npm run all && npm run nuget 0.0.1",
     "nuget": ".\\src\\tools\\NuGet.exe pack Excalibur.nuspec -OutputDirectory .\\build\\dist -version",
     "start": "npm run core:watch",
+    "build": "npm run core",
     "core": "npm run core:tsc && npm run core:copy && npm run core:bundle",
     "core:tsc": "tsc --project src/engine/tsconfig.json --incremental true --tsBuildInfoFile .tsbuildinfo",
     "core:copy": "copyfiles -u 2 ./src/engine/**/*.png ./src/engine/**/*.css ./src/engine/**/*.glsl ./build/dist/",
@@ -49,9 +50,9 @@
     "test": "karma start",
     "test:watch": "karma start --auto-watch --single-run=false",
     "coveralls": "coveralls < coverage/lcov.info",
-    "apidocs": "git submodule update && node apidocs.js",
+    "apidocs": "git submodule update && node scripts/apidocs.js",
     "pretty": "prettier --write \"{src,sandbox/src,sandbox/tests}/**/*.{ts,js,json,css,md}\" --config prettier.config.js",
-    "release": "node release.js"
+    "release": "node scripts/release.js"
   },
   "husky": {
     "hooks": {

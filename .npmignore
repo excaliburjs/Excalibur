@@ -10,18 +10,16 @@ docs/
 sandbox/
 src/
 typedoc-default-themes/
+scripts/
 
 .tsbuildinfo
 .prettierignore
 .eslintignore
 .eslintrc.json
-apidocs.js
 appveyor.yml
-deploy-docs.js
 Excalibur.nuspec
 karma.conf.js
 prettier.config.js
-release.js
 renovate.json
 version.js
 webpack.config.js
