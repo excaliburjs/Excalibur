@@ -58,8 +58,8 @@ class PointLabel extends ex.Actor {
 
     var xx = this.point.expectedX;
     var xy = this.point.expectedY;
-    var ax = this.point.getWorldPos().x;
-    var ay = this.point.getWorldPos().y;
+    var ax = this.point.getGlobalPos().x;
+    var ay = this.point.getGlobalPos().y;
 
     this._expectLabel.text = `(${xx}, ${xy})`;
     this._actualLabel.text = `(${ax}, ${ay})`;

@@ -103,7 +103,7 @@ export class PointerEvent extends GameEvent<Actor> {
     this.doAction(actor);
 
     if (this.bubbles && actor.parent) {
-      this.propagate(actor.parent);
+      this.propagate(actor.parent as Actor); // TODO not true
     }
   }
 
@@ -192,7 +192,7 @@ export class PointerMoveEvent extends PointerEvent {
       this.doAction(actor);
 
       if (this.bubbles && actor.parent) {
-        this.propagate(actor.parent);
+        this.propagate(actor.parent as Actor); // TODO not true
       }
     }
   }

@@ -62,8 +62,7 @@ export class CollisionContact {
         mtv = mtv.scale(0.5);
       }
       // Apply mtv
-      colliderA.body.pos.y += mtv.y;
-      colliderA.body.pos.x += mtv.x;
+      colliderA.body.pos = colliderA.body.pos.add(mtv);
 
       const mtvDir = mtv.normalize();
 

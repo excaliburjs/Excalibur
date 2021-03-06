@@ -1,10 +1,11 @@
-import { Component, TagComponent } from './Component';
+import { Component, ComponentCtor, TagComponent } from './Component';
 
 import { Observable, Message } from '../Util/Observable';
 import { Class } from '../Class';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
+import { Util } from '..';
 
 /**
  * Interface holding an entity component pair
@@ -75,6 +76,15 @@ export type ExcludeType<TypeUnion, TypeNameOrType> = TypeNameOrType extends stri
 export class Entity<KnownComponents extends Component = never> extends Class implements OnInitialize, OnPreUpdate, OnPostUpdate {
   private static _ID = 0;
 
+  constructor(components?: Component[]) {
+    super();
+    if (components) {
+      for (const component of components) {
+        this.addComponent(component);
+      }
+    }
+  }
+
   /**
    * The unique identifier for the entity
    */
@@ -139,22 +149,22 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
     defineProperty: (obj: any, prop: any, descriptor: PropertyDescriptor) => {
       obj[prop] = descriptor.value;
       this._rebuildMemos();
-      this.changes.notifyAll(
-        new AddedComponent({
-          component: descriptor.value as Component,
-          entity: this
-        })
-      );
+      const added = new AddedComponent({
+        component: descriptor.value as Component,
+        entity: this
+      });
+      this.changes.notifyAll(added);
+      this.componentAdded$.notifyAll(added);
       return true;
     },
     deleteProperty: (obj: any, prop: any) => {
       if (prop in obj) {
-        this.changes.notifyAll(
-          new RemovedComponent({
-            component: obj[prop] as Component,
-            entity: this
-          })
-        );
+        const removed = new RemovedComponent({
+          component: obj[prop] as Component,
+          entity: this
+        });
+        this.changes.notifyAll(removed);
+        this.componentRemoved$.notifyAll(removed);
         delete obj[prop];
         this._rebuildMemos();
         return true;
@@ -167,11 +177,108 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * Dictionary that holds entity components
    */
   public components = new Proxy<ComponentMapper<KnownComponents>>({} as any, this._handleChanges);
+  private _componentMap = new Map<ComponentCtor, Component>();
 
   /**
    * Observable that keeps track of component add or remove changes on the entity
    */
   public changes = new Observable<AddedComponent | RemovedComponent>();
+  public componentAdded$ = new Observable<AddedComponent>();
+  public componentRemoved$ = new Observable<RemovedComponent>();
+
+  private _parent: Entity = null;
+  public get parent(): Entity {
+    return this._parent;
+  }
+
+  public childrenAdded$ = new Observable<Entity>();
+  public childrenRemoved$ = new Observable<Entity>();
+
+  private _children: Entity[] = [];
+  /**
+   * Get the direct children of this entity
+   */
+  public get children(): readonly Entity[] {
+    return this._children;
+  }
+
+  /**
+   * Unparents this entity, if there is a parent. Otherwise it does nothing.
+   */
+  public unparent() {
+    if (this._parent) {
+      this._parent.remove(this);
+      this._parent = null;
+    }
+  }
+
+  /**
+   * Adds an entity to be a child of this entity
+   * @param entity
+   */
+  public add(entity: Entity): Entity {
+    if (entity.parent === null) {
+      if (this.getAncestors().includes(entity)) {
+        throw new Error('Cycle detected, cannot add entity');
+      }
+      this._children.push(entity);
+      entity._parent = this;
+      this.childrenAdded$.notifyAll(entity);
+    } else {
+      throw new Error('Entity already has a parent, cannot add without unparenting');
+    }
+    return this;
+  }
+
+  /**
+   * Remove an entity from children if it exists
+   * @param entity
+   */
+  public remove(entity: Entity): Entity {
+    if (entity.parent === this) {
+      Util.removeItemFromArray(entity, this._children);
+      entity._parent = null;
+      this.childrenRemoved$.notifyAll(entity);
+    }
+    return this;
+  }
+
+  /**
+   * Removes all children from this entity
+   */
+  public removeAll(): Entity {
+    this.children.forEach(c => {
+      this.remove(c);
+    });
+    return this;
+  }
+
+  /**
+   * Returns a list of parent entities starting with the topmost parent. Includes the current entity.
+   */
+  public getAncestors(): Entity[] {
+    const result: Entity[] = [this];
+    let current = this.parent;
+    while (current) {
+      result.push(current);
+      current = current.parent;
+    }
+    return result.reverse();
+  }
+
+  /**
+   * Returns a list of all the entities that descend from this entity. Includes the current entity.
+   */
+  public getDescendants(): Entity[] {
+    let result: Entity[] = [this];
+    let queue: Entity[] = [this];
+    while (queue.length > 0) {
+      const curr = queue.pop();
+      queue = queue.concat(curr.children);
+      result = result.concat(curr.children);
+    }
+    return result;
+  }
 
   /**
    * Creates a deep copy of the entity and a copy of all its components
@@ -216,6 +323,8 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
 
       componentOrEntity.owner = this;
       (this.components as ComponentMap)[componentOrEntity.type] = componentOrEntity;
+      const type = componentOrEntity.constructor as ComponentCtor<T>;
+      this._componentMap.set(type, componentOrEntity);
       if (componentOrEntity.onAdd) {
         componentOrEntity.onAdd(this);
       }
@@ -253,6 +362,8 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
       if (this.components[type].onRemove) {
         this.components[type].onRemove(this);
       }
+      const ctor = this.components[type].constructor as ComponentCtor;
+      this._componentMap.delete(ctor);
       delete this.components[type];
     }
   }
@@ -273,8 +384,22 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * Check if a component type exists
    * @param type
    */
-  public has(type: string): boolean {
-    return !!this.components[type];
+  public has<T extends Component>(type: ComponentCtor<T>): boolean;
+  public has(type: string): boolean;
+  public has<T extends Component>(type: ComponentCtor<T> | string): boolean {
+    if (typeof type === 'string') {
+      return !!this.components[type];
+    } else {
+      return this._componentMap.has(type);
+    }
+  }
+
+  /**
+   * Get a component by type with typecheck
+   * @param type
+   */
+  public get<T extends Component>(type: ComponentCtor<T>): T {
+    return this._componentMap.get(type) as T;
   }
 
   private _isInitialized = false;
@@ -349,5 +474,22 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    */
   public onPostUpdate(_engine: Engine, _delta: number): void {
     // Override me
+  }
+
+  /**
+   *
+   * Entity update lifecycle, called internally
+   *
+   * @internal
+   * @param engine
+   * @param delta
+   */
+  public update(engine: Engine, delta: number): void {
+    this._initialize(engine);
+    this._preupdate(engine, delta);
+    for (const child of this.children) {
+      child.update(engine, delta);
+    }
+    this._postupdate(engine, delta);
   }
 }

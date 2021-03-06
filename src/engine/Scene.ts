@@ -31,6 +31,7 @@ import { SystemType } from './EntityComponentSystem/System';
 // import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { obsolete } from './Util/Decorators';
 import { World } from './EntityComponentSystem/World';
+import { Entity } from './EntityComponentSystem/Entity';
 import { GraphicsSystem } from './Graphics/GraphicsSystem';
 import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { Flags, Legacy } from './Flags';
@@ -353,20 +354,13 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       timer.update(delta);
     }
 
-    // Cycle through actors updating tile maps
-    for (i = 0, len = this.tileMaps.length; i < len; i++) {
-      this.tileMaps[i].update(engine, delta);
+    for (const entity of this.world.entityManager.entities) {
+      entity.update(engine, delta);
     }
 
     // Cycle through actors updating actors
     for (i = 0, len = this.actors.length; i < len; i++) {
-      this.actors[i].update(engine, delta);
       this._bodies[i] = this.actors[i].body;
-    }
-
-    // Cycle through triggers updating
-    for (i = 0, len = this.triggers.length; i < len; i++) {
-      this.triggers[i].update(engine, delta);
     }
 
     this._collectActorStats(engine);
@@ -478,12 +472,15 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public add(actor: Actor): void;
 
+  public add(entity: Entity): void;
+
   /**
    * Adds a [[ScreenElement]] to the scene.
    * @param screenElement  The ScreenElement to add to the current scene
    */
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
+    this.world.add(entity);
     if (entity instanceof Actor) {
       entity.unkill();
     }
@@ -496,9 +493,19 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         } else {
           this.actors.push(entity);
         }
+        // TODO remove after collision ecs
+        entity.children.forEach(c => this.add(c));
+        entity.childrenAdded$.register({
+          notify: (e => {
+            this.add(e);
+          })
+        });
+        entity.childrenRemoved$.register({
+          notify: (e => {
+            this.remove(e);
+          })
+        });
 
-        this.world.add(entity);
-        entity.children.forEach((c) => this.world.add(c));
       }
       return;
     }
@@ -533,12 +540,15 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public remove(actor: Actor): void;
 
+  public remove(entity: Entity): void;
+
   /**
    * Removes a [[ScreenElement]] to the scene, it will no longer be drawn or updated
    * @param screenElement  The ScreenElement to remove from the current scene
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
+    this.world.remove(entity);
     if (entity instanceof Actor) {
       if (!Util.contains(this.actors, entity)) {
         return;
@@ -552,8 +562,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         }
         this._killQueue.push(entity);
       }
-
-      entity.parent = null;
     }
     if (entity instanceof Timer) {
       this.removeTimer(entity);
@@ -660,7 +668,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     for (const actor of this.actors) {
       engine.stats.currFrame.actors.alive++;
       for (const child of actor.children) {
-        if (ActorUtils.isScreenElement(child)) {
+        if (ActorUtils.isScreenElement(child as Actor)) { // TODO not true
           engine.stats.currFrame.actors.ui++;
         } else {
           engine.stats.currFrame.actors.alive++;

@@ -146,7 +146,7 @@ export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent>
     this.emitter.removeParticle(this);
   }
 
-  public update(delta: number) {
+  public update(_engine: Engine, delta: number) {
     this.life = this.life - delta;
     this.elapsedMultiplier = this.elapsedMultiplier + delta;
 
@@ -275,12 +275,12 @@ export class ParticleEmitterImpl extends Actor {
   /**
    * Gets or sets the backing particle collection
    */
-  public particles: Util.Collection<Particle> = null;
+  public particles: Particle[] = [];
 
   /**
    * Gets or sets the backing deadParticle collection
    */
-  public deadParticles: Util.Collection<Particle> = null;
+  public deadParticles: Particle[] = [];
 
   /**
    * Gets or sets the minimum particle velocity
@@ -403,8 +403,6 @@ export class ParticleEmitterImpl extends Actor {
     super(typeof xOrConfig === 'number' ? { pos: new Vector(xOrConfig, y), width: width, height: height } : xOrConfig);
     this._particlesToEmit = 0;
     this.body.collider.type = CollisionType.PreventCollision;
-    this.particles = new Util.Collection<Particle>();
-    this.deadParticles = new Util.Collection<Particle>();
     this.random = new Random();
     this.removeComponent(this.components.canvas);
 
@@ -418,9 +416,6 @@ export class ParticleEmitterImpl extends Actor {
 
   public removeParticle(particle: Particle) {
     this.deadParticles.push(particle);
-    if (this?.scene?.world) {
-      this.scene.world.remove(particle);
-    }
   }
 
   /**
@@ -438,7 +433,7 @@ export class ParticleEmitterImpl extends Actor {
   }
 
   public clearParticles() {
-    this.particles.clear();
+    this.particles.length = 0;
   }
 
   // Creates a new particle given the constraints of the emitter
@@ -503,9 +498,14 @@ export class ParticleEmitterImpl extends Actor {
       }
     }
 
-    this.particles.forEach((p) => p.update(delta));
-    this.deadParticles.forEach((p) => this.particles.removeElement(p));
-    this.deadParticles.clear();
+    // deferred removal
+    for (let i = 0; i < this.deadParticles.length; i++) {
+      Util.removeItemFromArray(this.deadParticles[i], this.particles);
+      if (this?.scene?.world) {
+        this.scene.world.remove(this.deadParticles[i]);
+      }
+    }
+    this.deadParticles.length = 0;
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
@@ -517,7 +517,7 @@ export class ParticleEmitterImpl extends Actor {
   public debugDraw(ctx: CanvasRenderingContext2D) {
     super.debugDraw(ctx);
     ctx.fillStyle = Color.Black.toString();
-    ctx.fillText('Particles: ' + this.particles.count(), this.pos.x, this.pos.y + 20);
+    ctx.fillText('Particles: ' + this.particles.length, this.pos.x, this.pos.y + 20);
 
     if (this.focus) {
       ctx.fillRect(this.focus.x + this.pos.x, this.focus.y + this.pos.y, 3, 3);

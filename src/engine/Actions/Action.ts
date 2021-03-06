@@ -1,7 +1,7 @@
 import { RotationType } from './RotationType';
 
 import { Actor } from '../Actor';
-import { Vector } from '../Algebra';
+import { vec, Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
 import * as Util from '../Util/Util';
 import { obsolete } from '../Util/Decorators';
@@ -67,15 +67,10 @@ export class EaseTo implements Action {
         newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
       }
       // Given the lerp position figure out the velocity in pixels per second
-      this.actor.vel.x = (newX - this.actor.pos.x) / (delta / 1000);
-      this.actor.vel.y = (newY - this.actor.pos.y) / (delta / 1000);
+      this.actor.vel = vec((newX - this.actor.pos.x) / (delta / 1000), (newY - this.actor.pos.y) / (delta / 1000));
     } else {
-      this.actor.pos.x = this._lerpEnd.x;
-      this.actor.pos.y = this._lerpEnd.y;
+      this.actor.pos = vec(this._lerpEnd.x, this._lerpEnd.y);
       this.actor.vel = Vector.Zero;
-      //this._lerpStart = null;
-      //this._lerpEnd = null;
-      //this._currentLerpTime = 0;
     }
   }
   public isComplete(actor: Actor): boolean {
@@ -86,8 +81,7 @@ export class EaseTo implements Action {
     this._initialized = false;
   }
   public stop(): void {
-    this.actor.vel.y = 0;
-    this.actor.vel.x = 0;
+    this.actor.vel = vec(0, 0);
     this._stopped = true;
   }
 }
@@ -117,14 +111,11 @@ export class MoveTo implements Action {
       this._dir = this._end.sub(this._start).normalize();
     }
     const m = this._dir.scale(this._speed);
-    this._actor.vel.x = m.x;
-    this._actor.vel.y = m.y;
+    this._actor.vel = vec(m.x, m.y);
 
     if (this.isComplete(this._actor)) {
-      this._actor.pos.x = this._end.x;
-      this._actor.pos.y = this._end.y;
-      this._actor.vel.y = 0;
-      this._actor.vel.x = 0;
+      this._actor.pos = vec(this._end.x, this._end.y);
+      this._actor.vel = vec(0, 0);
     }
   }
 
@@ -133,8 +124,7 @@ export class MoveTo implements Action {
   }
 
   public stop(): void {
-    this._actor.vel.y = 0;
-    this._actor.vel.x = 0;
+    this._actor.vel = vec(0, 0);
     this._stopped = true;
   }
 
@@ -179,10 +169,8 @@ export class MoveBy implements Action {
     this._actor.vel = this._dir.scale(this._speed);
 
     if (this.isComplete(this._actor)) {
-      this._actor.pos.x = this._end.x;
-      this._actor.pos.y = this._end.y;
-      this._actor.vel.y = 0;
-      this._actor.vel.x = 0;
+      this._actor.pos = vec(this._end.x, this._end.y);
+      this._actor.vel = vec(0, 0);
     }
   }
 
@@ -191,8 +179,7 @@ export class MoveBy implements Action {
   }
 
   public stop(): void {
-    this._actor.vel.y = 0;
-    this._actor.vel.x = 0;
+    this._actor.vel = vec(0, 0);
     this._stopped = true;
   }
 
@@ -235,34 +222,27 @@ export class Follow implements Action {
     if (actorToFollowSpeed !== 0) {
       this._speed = actorToFollowSpeed;
     }
-    this._current.x = this._actor.pos.x;
-    this._current.y = this._actor.pos.y;
+    this._current = vec(this._actor.pos.x, this._actor.pos.y);
 
-    this._end.x = this._actorToFollow.pos.x;
-    this._end.y = this._actorToFollow.pos.y;
+    this._end = vec(this._actorToFollow.pos.x, this._actorToFollow.pos.y);
     this._distanceBetween = this._current.distance(this._end);
     this._dir = this._end.sub(this._current).normalize();
 
     if (this._distanceBetween >= this._maximumDistance) {
       const m = this._dir.scale(this._speed);
-      this._actor.vel.x = m.x;
-      this._actor.vel.y = m.y;
+      this._actor.vel = vec(m.x, m.y);
     } else {
-      this._actor.vel.x = 0;
-      this._actor.vel.y = 0;
+      this._actor.vel = vec(0, 0);
     }
 
     if (this.isComplete()) {
-      this._actor.pos.x = this._end.x;
-      this._actor.pos.y = this._end.y;
-      this._actor.vel.y = 0;
-      this._actor.vel.x = 0;
+      this._actor.pos = vec(this._end.x, this._end.y);
+      this._actor.vel = vec(0, 0);
     }
   }
 
   public stop(): void {
-    this._actor.vel.y = 0;
-    this._actor.vel.x = 0;
+    this._actor.vel = vec(0, 0);
     this._stopped = true;
   }
 
@@ -313,23 +293,18 @@ export class Meet implements Action {
     if (actorToMeetSpeed !== 0 && !this._speedWasSpecified) {
       this._speed = actorToMeetSpeed;
     }
-    this._current.x = this._actor.pos.x;
-    this._current.y = this._actor.pos.y;
+    this._current = vec(this._actor.pos.x, this._actor.pos.y);
 
-    this._end.x = this._actorToMeet.pos.x;
-    this._end.y = this._actorToMeet.pos.y;
+    this._end = vec(this._actorToMeet.pos.x, this._actorToMeet.pos.y);
     this._distanceBetween = this._current.distance(this._end);
     this._dir = this._end.sub(this._current).normalize();
 
     const m = this._dir.scale(this._speed);
-    this._actor.vel.x = m.x;
-    this._actor.vel.y = m.y;
+    this._actor.vel = vec(m.x, m.y);
 
     if (this.isComplete()) {
-      this._actor.pos.x = this._end.x;
-      this._actor.pos.y = this._end.y;
-      this._actor.vel.y = 0;
-      this._actor.vel.x = 0;
+      this._actor.pos = vec(this._end.x, this._end.y);
+      this._actor.vel = vec(0, 0);
     }
   }
 
@@ -338,8 +313,7 @@ export class Meet implements Action {
   }
 
   public stop(): void {
-    this._actor.vel.y = 0;
-    this._actor.vel.x = 0;
+    this._actor.vel = vec(0, 0);
     this._stopped = true;
   }
 
@@ -361,6 +335,7 @@ export class RotateTo implements Action {
   private _shortDistance: number;
   private _longDistance: number;
   private _shortestPathIsPositive: boolean;
+  private _currentNonCannonAngle: number;
   private _started = false;
   private _stopped = false;
   constructor(actor: Actor, angleRadians: number, speed: number, rotationType?: RotationType) {
@@ -374,6 +349,7 @@ export class RotateTo implements Action {
     if (!this._started) {
       this._started = true;
       this._start = this._actor.rotation;
+      this._currentNonCannonAngle = this._actor.rotation;
       const distance1 = Math.abs(this._end - this._start);
       const distance2 = Util.TwoPI - distance1;
       if (distance1 > distance2) {
@@ -423,6 +399,7 @@ export class RotateTo implements Action {
     }
 
     this._actor.rx = this._direction * this._speed;
+    this._currentNonCannonAngle += (this._direction * this._speed) * (_delta / 1000);
 
     if (this.isComplete()) {
       this._actor.rotation = this._end;
@@ -432,7 +409,7 @@ export class RotateTo implements Action {
   }
 
   public isComplete(): boolean {
-    const distanceTravelled = Math.abs(this._actor.rotation - this._start);
+    const distanceTravelled = Math.abs(this._currentNonCannonAngle - this._start);
     return this._stopped || distanceTravelled >= Math.abs(this._distance);
   }
 
@@ -461,6 +438,7 @@ export class RotateBy implements Action {
   private _shortDistance: number;
   private _longDistance: number;
   private _shortestPathIsPositive: boolean;
+  private _currentNonCannonAngle: number;
   private _started = false;
   private _stopped = false;
   constructor(actor: Actor, angleRadiansOffset: number, speed: number, rotationType?: RotationType) {
@@ -474,6 +452,7 @@ export class RotateBy implements Action {
     if (!this._started) {
       this._started = true;
       this._start = this._actor.rotation;
+      this._currentNonCannonAngle = this._actor.rotation;
       this._end = this._start + this._offset;
 
       const distance1 = Math.abs(this._end - this._start);
@@ -525,6 +504,7 @@ export class RotateBy implements Action {
     }
 
     this._actor.rx = this._direction * this._speed;
+    this._currentNonCannonAngle += (this._direction * this._speed) * (_delta / 1000);
 
     if (this.isComplete()) {
       this._actor.rotation = this._end;
@@ -534,7 +514,7 @@ export class RotateBy implements Action {
   }
 
   public isComplete(): boolean {
-    const distanceTravelled = Math.abs(this._actor.rotation - this._start);
+    const distanceTravelled = Math.abs(this._currentNonCannonAngle - this._start);
     return this._stopped || distanceTravelled >= Math.abs(this._distance);
   }
 
@@ -595,8 +575,7 @@ export class ScaleTo implements Action {
     }
 
     if (this.isComplete()) {
-      this._actor.scale.x = this._endX;
-      this._actor.scale.y = this._endY;
+      this._actor.scale = vec(this._endX, this._endY);
       this._actor.sx = 0;
       this._actor.sy = 0;
     }

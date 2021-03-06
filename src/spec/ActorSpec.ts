@@ -33,7 +33,7 @@ describe('A game actor', () => {
     spyOn(actor, 'debugDraw');
 
     ex.Physics.useBoxPhysics();
-    ex.Physics.acc.setTo(0, 0);
+    ex.Physics.acc = ex.vec(0, 0);
   });
 
   afterEach(() => {
@@ -46,7 +46,7 @@ describe('A game actor', () => {
   });
 
   it('should have a position', () => {
-    actor.pos.setTo(10, 10);
+    actor.pos = ex.vec(10, 10);
 
     expect(actor.pos.x).toBe(10);
     expect(actor.pos.y).toBe(10);
@@ -60,7 +60,7 @@ describe('A game actor', () => {
       height: 200,
       vel: new ex.Vector(30, 40),
       acc: new ex.Vector(50, 60),
-      rotation: 2,
+      rotation: 0,
       rx: 0.1,
       z: 10,
       color: ex.Color.Red,
@@ -79,7 +79,7 @@ describe('A game actor', () => {
     expect(actor.vel.y).toBe(40);
     expect(actor.acc.x).toBe(50);
     expect(actor.acc.y).toBe(60);
-    expect(actor.rotation).toBe(2);
+    expect(actor.rotation).toBe(0);
     expect(actor.rx).toBe(0.1);
     expect(actor.z).toBe(10);
     expect(actor.color.toString()).toBe(ex.Color.Red.toString());
@@ -98,18 +98,18 @@ describe('A game actor', () => {
     const actor = new ex.Actor();
     expect(actor.anchor.toString()).toEqual('(0.5, 0.5)');
 
-    ex.Actor.defaults.anchor.setTo(0, 0);
+    ex.Actor.defaults.anchor = ex.vec(0, 0);
 
     const actor2 = new ex.Actor();
     expect(actor2.anchor.toString()).toEqual('(0, 0)');
 
     // revert changes back
-    ex.Actor.defaults.anchor.setTo(0.5, 0.5);
+    ex.Actor.defaults.anchor = ex.vec(0.5, 0.5);
   });
 
   it('should have an old position after an update', () => {
-    actor.pos.setTo(10, 10);
-    actor.vel.setTo(10, 10);
+    actor.pos = ex.vec(10, 10);
+    actor.vel = ex.vec(10, 10);
 
     actor.update(engine, 1000);
 
@@ -135,8 +135,7 @@ describe('A game actor', () => {
     expect(actor.pos.y).toBe(0);
     expect(actor.pos.x).toBe(0);
 
-    actor.vel.y = 10;
-    actor.vel.x = -10;
+    actor.vel = ex.vec(-10, 10);
     expect(actor.pos.x).toBe(0);
     expect(actor.pos.y).toBe(0);
 
@@ -150,9 +149,9 @@ describe('A game actor', () => {
   });
 
   it('should have an old velocity after an update', () => {
-    actor.pos.setTo(0, 0);
-    actor.vel.setTo(10, 10);
-    actor.acc.setTo(10, 10);
+    actor.pos = ex.vec(0, 0);
+    actor.vel = ex.vec(10, 10);
+    actor.acc = ex.vec(10, 10);
 
     actor.update(engine, 1000);
 
@@ -172,21 +171,19 @@ describe('A game actor', () => {
     expect(actor.width).toBe(20);
     expect(actor.height).toBe(20);
 
-    actor.scale.x = 2;
-    actor.scale.y = 3;
+    actor.scale = ex.vec(2, 3);
 
     expect(actor.width).toBe(40);
     expect(actor.height).toBe(60);
 
-    actor.scale.x = 0.5;
-    actor.scale.y = 0.1;
+    actor.scale = ex.vec(0.5, 0.1);
 
-    expect(actor.width).toBe(10);
-    expect(actor.height).toBe(2);
+    expect(actor.width).toBeCloseTo(10);
+    expect(actor.height).toBeCloseTo(2);
   });
 
   it('can have its height and width scaled by parent', () => {
-    actor.scale.setTo(2, 2);
+    actor.scale = ex.vec(2, 2);
 
     const child = new ex.Actor(0, 0, 50, 50);
 
@@ -195,7 +192,7 @@ describe('A game actor', () => {
     expect(child.width).toBe(100);
     expect(child.height).toBe(100);
 
-    actor.scale.setTo(0.5, 0.5);
+    actor.scale = ex.vec(0.5, 0.5);
 
     expect(child.width).toBe(25);
     expect(child.height).toBe(25);
@@ -209,8 +206,7 @@ describe('A game actor', () => {
     expect(center.x).toBe(0);
     expect(center.y).toBe(0);
 
-    actor.pos.x = 100;
-    actor.pos.y = 100;
+    actor.pos = ex.vec(100, 100);
 
     center = actor.center;
     expect(center.x).toBe(100);
@@ -218,15 +214,13 @@ describe('A game actor', () => {
 
     // changing the anchor
     actor.anchor = new ex.Vector(0, 0);
-    actor.pos.x = 0;
-    actor.pos.y = 0;
+    actor.pos = ex.vec(0, 0);
 
     center = actor.center;
     expect(center.x).toBe(25);
     expect(center.y).toBe(50);
 
-    actor.pos.x = 100;
-    actor.pos.y = 100;
+    actor.pos = ex.vec(100, 100);
 
     center = actor.center;
     expect(center.x).toBe(125);
@@ -234,8 +228,7 @@ describe('A game actor', () => {
   });
 
   it('has a left, right, top, and bottom', () => {
-    actor.pos.x = 0;
-    actor.pos.y = 0;
+    actor.pos = ex.vec(0, 0);
     actor.anchor = new ex.Vector(0.5, 0.5);
     actor.width = 100;
     actor.height = 100;
@@ -247,11 +240,10 @@ describe('A game actor', () => {
   });
 
   it('should have correct bounds when scaled', () => {
-    actor.pos.x = 0;
-    actor.pos.y = 0;
+    actor.pos = ex.vec(0, 0);
     actor.width = 100;
     actor.height = 100;
-    actor.scale.setTo(2, 2);
+    actor.scale = ex.vec(2, 2);
     actor.anchor = new ex.Vector(0.5, 0.5);
 
     actor.body.collider.shape.recalc();
@@ -271,26 +263,22 @@ describe('A game actor', () => {
     expect(other.body.collider.bounds.intersectWithSide(actor.body.collider.bounds)).toBe(ex.Side.None);
 
     // move other actor into collision range from the right side
-    other.pos.x = 9;
-    other.pos.y = 0;
+    other.pos = ex.vec(9, 0);
     expect(actor.body.collider.bounds.intersectWithSide(other.body.collider.bounds)).toBe(ex.Side.Right);
     expect(other.body.collider.bounds.intersectWithSide(actor.body.collider.bounds)).toBe(ex.Side.Left);
 
     // move other actor into collision range from the left side
-    other.pos.x = -9;
-    other.pos.y = 0;
+    other.pos = ex.vec(-9, 0);
     expect(actor.body.collider.bounds.intersectWithSide(other.body.collider.bounds)).toBe(ex.Side.Left);
     expect(other.body.collider.bounds.intersectWithSide(actor.body.collider.bounds)).toBe(ex.Side.Right);
 
     // move other actor into collision range from the top
-    other.pos.x = 0;
-    other.pos.y = -9;
+    other.pos = ex.vec(0, -9);
     expect(actor.body.collider.bounds.intersectWithSide(other.body.collider.bounds)).toBe(ex.Side.Top);
     expect(other.body.collider.bounds.intersectWithSide(actor.body.collider.bounds)).toBe(ex.Side.Bottom);
 
     // move other actor into collision range from the bottom
-    other.pos.x = 0;
-    other.pos.y = 9;
+    other.pos = ex.vec(0, 9);
     expect(actor.body.collider.bounds.intersectWithSide(other.body.collider.bounds)).toBe(ex.Side.Bottom);
     expect(other.body.collider.bounds.intersectWithSide(actor.body.collider.bounds)).toBe(ex.Side.Top);
   });
@@ -323,7 +311,7 @@ describe('A game actor', () => {
   it('is rotated along with its parent', () => {
     const rotation = ex.Util.toRadians(90);
 
-    actor.pos.setTo(10, 10);
+    actor.pos = ex.vec(10, 10);
     actor.rotation = rotation;
 
     const child = new ex.Actor(10, 0, 10, 10); // (20, 10)
@@ -331,14 +319,14 @@ describe('A game actor', () => {
     actor.add(child);
     actor.update(engine, 100);
 
-    expect(child.getWorldPos().x).toBeCloseTo(10, 0.001);
-    expect(child.getWorldPos().y).toBeCloseTo(20, 0.001);
+    expect(child.getGlobalPos().x).toBeCloseTo(10, 0.001);
+    expect(child.getGlobalPos().y).toBeCloseTo(20, 0.001);
   });
 
   it('is rotated along with its grandparent', () => {
     const rotation = ex.Util.toRadians(90);
 
-    actor.pos.setTo(10, 10);
+    actor.pos = ex.vec(10, 10);
     actor.rotation = rotation;
 
     const child = new ex.Actor(10, 0, 10, 10); // (20, 10)
@@ -348,29 +336,29 @@ describe('A game actor', () => {
     child.add(grandchild);
     actor.update(engine, 100);
 
-    expect(grandchild.getWorldRotation()).toBe(rotation);
-    expect(grandchild.getWorldPos().x).toBeCloseTo(10, 0.001);
-    expect(grandchild.getWorldPos().y).toBeCloseTo(30, 0.001);
+    expect(grandchild.getGlobalRotation()).toBe(rotation);
+    expect(grandchild.getGlobalPos().x).toBeCloseTo(10, 0.001);
+    expect(grandchild.getGlobalPos().y).toBeCloseTo(30, 0.001);
   });
 
   it('is scaled along with its parent', () => {
-    actor.anchor.setTo(0, 0);
-    actor.pos.setTo(10, 10);
-    actor.scale.setTo(2, 2);
+    actor.anchor = ex.vec(0, 0);
+    actor.pos = ex.vec(10, 10);
+    actor.scale = ex.vec(2, 2);
 
     const child = new ex.Actor(10, 10, 10, 10);
 
     actor.add(child);
     actor.update(engine, 100);
 
-    expect(child.getWorldPos().x).toBe(30);
-    expect(child.getWorldPos().y).toBe(30);
+    expect(child.getGlobalPos().x).toBe(30);
+    expect(child.getGlobalPos().y).toBe(30);
   });
 
   it('is scaled along with its grandparent', () => {
-    actor.anchor.setTo(0, 0);
-    actor.pos.setTo(10, 10);
-    actor.scale.setTo(2, 2);
+    actor.anchor = ex.vec(0, 0);
+    actor.pos = ex.vec(10, 10);
+    actor.scale = ex.vec(2, 2);
 
     const child = new ex.Actor(10, 10, 10, 10);
     const grandchild = new ex.Actor(10, 10, 10, 10);
@@ -383,15 +371,15 @@ describe('A game actor', () => {
     // p = (10, 10)
     // c = (10 * 2 + 10, 10 * 2 + 10) = (30, 30)
     // gc = (10 * 2 + 30, 10 * 2 + 30) = (50, 50)
-    expect(grandchild.getWorldPos().x).toBe(50);
-    expect(grandchild.getWorldPos().y).toBe(50);
+    expect(grandchild.getGlobalPos().x).toBe(50);
+    expect(grandchild.getGlobalPos().y).toBe(50);
   });
 
   it('is rotated and scaled along with its parent', () => {
     const rotation = ex.Util.toRadians(90);
 
-    actor.pos.setTo(10, 10);
-    actor.scale.setTo(2, 2);
+    actor.pos = ex.vec(10, 10);
+    actor.scale = ex.vec(2, 2);
     actor.rotation = rotation;
 
     const child = new ex.Actor(10, 0, 10, 10); // (30, 10)
@@ -399,15 +387,15 @@ describe('A game actor', () => {
     actor.add(child);
     actor.update(engine, 100);
 
-    expect(child.getWorldPos().x).toBeCloseTo(10, 0.001);
-    expect(child.getWorldPos().y).toBeCloseTo(30, 0.001);
+    expect(child.getGlobalPos().x).toBeCloseTo(10, 0.001);
+    expect(child.getGlobalPos().y).toBeCloseTo(30, 0.001);
   });
 
   it('is rotated and scaled along with its grandparent', () => {
     const rotation = ex.Util.toRadians(90);
 
-    actor.pos.setTo(10, 10);
-    actor.scale.setTo(2, 2);
+    actor.pos = ex.vec(10, 10);
+    actor.scale = ex.vec(2, 2);
     actor.rotation = rotation;
 
     const child = new ex.Actor(10, 0, 10, 10); // (30, 10)
@@ -417,8 +405,8 @@ describe('A game actor', () => {
     child.add(grandchild);
     actor.update(engine, 100);
 
-    expect(grandchild.getWorldPos().x).toBeCloseTo(10, 0.001);
-    expect(grandchild.getWorldPos().y).toBeCloseTo(50, 0.001);
+    expect(grandchild.getGlobalPos().x).toBeCloseTo(10, 0.001);
+    expect(grandchild.getGlobalPos().y).toBeCloseTo(50, 0.001);
   });
 
   it('can find its global coordinates if it has a parent', () => {
@@ -435,8 +423,8 @@ describe('A game actor', () => {
     actor.update(engine, 1000);
     actor.update(engine, 1);
 
-    expect(childActor.getWorldPos().x).toBe(60);
-    expect(childActor.getWorldPos().y).toBe(65);
+    expect(childActor.getGlobalPos().x).toBe(60);
+    expect(childActor.getGlobalPos().y).toBe(65);
   });
 
   it('can find its global coordinates if it has multiple parents', () => {
@@ -453,8 +441,8 @@ describe('A game actor', () => {
     actor.update(engine, 1000);
     actor.update(engine, 1);
 
-    expect(grandChildActor.getWorldPos().x).toBe(70);
-    expect(grandChildActor.getWorldPos().y).toBe(75);
+    expect(grandChildActor.getGlobalPos().x).toBe(70);
+    expect(grandChildActor.getGlobalPos().y).toBe(75);
   });
 
   it('can find its global coordinates if it doesnt have a parent', () => {
@@ -465,8 +453,8 @@ describe('A game actor', () => {
     actor.update(engine, 1000);
     actor.update(engine, 1);
 
-    expect(actor.getWorldPos().x).toBe(10);
-    expect(actor.getWorldPos().y).toBe(15);
+    expect(actor.getGlobalPos().x).toBe(10);
+    expect(actor.getGlobalPos().y).toBe(15);
   });
 
   it('can be removed from the scene', () => {
@@ -742,8 +730,8 @@ describe('A game actor', () => {
 
     const active = new ex.Actor(0, -50, 100, 100);
     active.body.collider.type = ex.CollisionType.Active;
-    active.vel.y = 10;
-    active.acc.y = 1000;
+    active.vel = ex.vec(0, 10);
+    active.acc = ex.vec(0, 1000);
 
     const fixed = new ex.Actor(-100, 50, 1000, 100);
     fixed.body.collider.type = ex.CollisionType.Fixed;
@@ -773,8 +761,8 @@ describe('A game actor', () => {
     const scene = new ex.Scene(engine);
     const active = new ex.Actor(0, -50, 100, 100);
     active.body.collider.type = ex.CollisionType.Active;
-    active.vel.y = -100;
-    ex.Physics.acc.setTo(0, 0);
+    active.vel = ex.vec(0, -100);
+    ex.Physics.acc = ex.vec(0, 0);
 
     const fixed = new ex.Actor(-100, 50, 1000, 100);
     fixed.body.collider.type = ex.CollisionType.Fixed;
@@ -1320,15 +1308,15 @@ describe('A game actor', () => {
 
       engine.add(actor);
       const s = texture.asSprite();
-      s.scale.setTo(1, 1);
+      s.scale = ex.vec(1, 1);
       actor.addDrawing(s);
 
       const a1 = new ex.Actor({ scale: new ex.Vector(3, 3) });
-      a1.scale.setTo(3, 3);
+      a1.scale = ex.vec(3, 3);
       a1.addDrawing(texture);
 
       const a2 = new ex.Actor({ scale: new ex.Vector(3, 3) });
-      a1.scale.setTo(3, 3);
+      a1.scale = ex.vec(3, 3);
       a2.addDrawing(texture);
 
       a1.draw(engine.ctx, 100);
@@ -1384,7 +1372,7 @@ describe('A game actor', () => {
 
     expect(actor.isOffScreen).toBe(false, 'Actor should be onscreen');
 
-    actor.pos.x = 106;
+    actor.pos = ex.vec(106, actor.pos.y);
     scene.update(engine, 100);
 
     expect(actor.isOffScreen).toBe(true, 'Actor should be offscreen');

@@ -1,4 +1,4 @@
-import { Vector } from '../Algebra';
+import { vec, Vector } from '../Algebra';
 import { Actor } from '../Actor';
 import { Engine } from '../Engine';
 import { Color } from '../Drawing/Color';
@@ -26,25 +26,19 @@ export class CullingBox {
     const drawingHeight = actor.currentDrawing.drawHeight;
     const rotation = actor.rotation;
     const anchor = actor.center;
-    const worldPos = actor.getWorldPos();
+    const worldPos = actor.getGlobalPos();
 
-    this._topLeft.x = worldPos.x - drawingWidth / 2;
-    this._topLeft.y = worldPos.y - drawingHeight / 2;
+    this._topLeft = vec(worldPos.x - drawingWidth / 2, worldPos.y - drawingHeight / 2);
     this._topLeft = this._topLeft.rotate(rotation, anchor);
 
-    this._topRight.x = worldPos.x + drawingWidth / 2;
-    this._topRight.y = worldPos.y - drawingHeight / 2;
+    this._topRight = vec(worldPos.x + drawingWidth / 2, worldPos.y - drawingHeight / 2);
     this._topRight = this._topRight.rotate(rotation, anchor);
 
-    this._bottomLeft.x = worldPos.x - drawingWidth / 2;
-    this._bottomLeft.y = worldPos.y + drawingHeight / 2;
+    this._bottomLeft = vec(worldPos.x - drawingWidth / 2, worldPos.y + drawingHeight / 2);
     this._bottomLeft = this._bottomLeft.rotate(rotation, anchor);
 
-    this._bottomRight.x = worldPos.x + drawingWidth / 2;
-    this._bottomRight.y = worldPos.y + drawingHeight / 2;
+    this._bottomRight = vec(worldPos.x + drawingWidth / 2, worldPos.y + drawingHeight / 2);
     this._bottomRight = this._bottomRight.rotate(rotation, anchor);
-
-    ///
 
     const topLeftScreen = engine.worldToScreenCoordinates(this._topLeft);
     const topRightScreen = engine.worldToScreenCoordinates(this._topRight);

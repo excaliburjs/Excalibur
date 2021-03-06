@@ -44,7 +44,7 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
         this._pushCameraTransform(transform);
 
         this._ctx.save();
-        this._applyTransform(entities[i] as Actor);
+        this._applyTransform(entities[i]);
         canvasdraw.draw(this._ctx, delta);
         this._ctx.restore();
 
@@ -72,19 +72,16 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
     this._engine.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
   }
 
-  private _applyTransform(actor: Actor) {
-    let parent = actor.parent;
-    const transform = actor.components.transform;
-    while (parent) {
-      this._ctx.translate(parent.transform.pos.x, parent.transform.pos.y);
-      this._ctx.rotate(parent.transform.rotation);
-      this._ctx.scale(parent.transform.scale.x, parent.transform.scale.y);
-      parent = parent.parent;
+  private _applyTransform(entity: Entity<TransformComponent>) {
+    const ancestors = entity.getAncestors();
+    for (const ancestor of ancestors) {
+      const transform = ancestor?.get(TransformComponent);
+      if (transform) {
+        this._ctx.translate(transform.pos.x, transform.pos.y);
+        this._ctx.rotate(transform.rotation);
+        this._ctx.scale(transform.scale.x, transform.scale.y);
+      }
     }
-
-    this._ctx.translate(transform.pos.x, transform.pos.y);
-    this._ctx.rotate(transform.rotation);
-    this._ctx.scale(transform.scale.x, transform.scale.y);
   }
 
   private _clearScreen(): void {

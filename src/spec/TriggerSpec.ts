@@ -36,23 +36,23 @@ describe('A Trigger', () => {
     });
     const actor = new ex.Actor(0, 0, 10, 10);
     actor.body.collider.type = ex.CollisionType.Active;
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
     engine.currentScene.add(trigger);
     engine.currentScene.add(actor);
     spyOn(trigger, 'action');
 
     // Act
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
     for (let i = 0; i < 20; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
-    actor.vel.y = -10;
+    actor.vel = ex.vec(0, -10);
     for (let i = 0; i < 20; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
     for (let i = 0; i < 20; i++) {
       engine.currentScene.update(engine, 1000);
     }
@@ -71,23 +71,23 @@ describe('A Trigger', () => {
     });
     const actor = new ex.Actor(0, 0, 10, 10);
     actor.body.collider.type = ex.CollisionType.Active;
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
     engine.currentScene.add(trigger);
     engine.currentScene.add(actor);
     spyOn(trigger, 'action');
 
     // Act
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
     for (let i = 0; i < 20; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
-    actor.vel.y = -10;
+    actor.vel = ex.vec(0, -10);
     for (let i = 0; i < 20; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
     for (let i = 0; i < 20; i++) {
       engine.currentScene.update(engine, 1000);
     }
@@ -110,7 +110,7 @@ describe('A Trigger', () => {
 
     const actor = new ex.Actor(0, 0, 10, 10);
     actor.body.collider.type = ex.CollisionType.Active;
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
 
     trigger.on('collisionstart', (evt: ex.EnterTriggerEvent) => {
       fired++;
@@ -120,7 +120,7 @@ describe('A Trigger', () => {
     engine.add(actor);
 
     // Act
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
     for (let i = 0; i < 40; i++) {
       loop.advance(1000);
     }
@@ -140,7 +140,7 @@ describe('A Trigger', () => {
 
     const actor = new ex.Actor(0, 0, 10, 10);
     actor.body.collider.type = ex.CollisionType.Active;
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
 
     engine.add(trigger);
     engine.add(actor);
@@ -150,7 +150,7 @@ describe('A Trigger', () => {
     });
 
     // Act
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
     for (let i = 0; i < 40; i++) {
       loop.advance(1000);
     }

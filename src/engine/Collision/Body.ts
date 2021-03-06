@@ -1,4 +1,4 @@
-import { Vector } from '../Algebra';
+import { vec, Vector } from '../Algebra';
 import { Actor } from '../Actor';
 import { Collider } from './Collider';
 import { CollisionType } from './CollisionType';
@@ -77,7 +77,7 @@ export class Body implements Clonable<Body> {
   }
 
   public get transform(): TransformComponent {
-    return this.actor.components.transform;
+    return this.actor.get(TransformComponent);
   }
 
   /**
@@ -86,11 +86,11 @@ export class Body implements Clonable<Body> {
    * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
    */
   public get pos(): Vector {
-    return this.transform.pos;
+    return this.transform.globalPos;
   }
 
   public set pos(val: Vector) {
-    this.transform.pos = val;
+    this.transform.globalPos = val;
   }
 
   /**
@@ -138,11 +138,11 @@ export class Body implements Clonable<Body> {
    * The rotation of the actor in radians
    */
   public get rotation() {
-    return this.transform.rotation;
+    return this.transform.globalRotation;
   }
 
   public set rotation(val: number) {
-    this.transform.rotation = val;
+    this.transform.globalRotation = val;
   }
 
   /**
@@ -150,11 +150,11 @@ export class Body implements Clonable<Body> {
    * @obsolete ex.Body.scale will be removed in v0.25.0, Use ex.Transform.scale
    */
   public get scale(): Vector {
-    return this.transform.scale;
+    return this.transform.globalScale;
   }
 
   public set scale(val: Vector) {
-    this.transform.scale = val;
+    this.transform.globalScale = val;
   }
 
   /**
@@ -194,7 +194,7 @@ export class Body implements Clonable<Body> {
    * Applies the accumulated translation vectors to the actors position
    */
   public applyMtv(): void {
-    this.pos.addEqual(this._totalMtv);
+    this.pos = this.pos.add(this._totalMtv);
     this._totalMtv.setTo(0, 0);
   }
 
@@ -235,13 +235,12 @@ export class Body implements Clonable<Body> {
     }
 
     this.vel.addEqual(totalAcc.scale(seconds));
-    this.pos.addEqual(this.vel.scale(seconds)).addEqual(totalAcc.scale(0.5 * seconds * seconds));
+    this.pos = this.pos.add(this.vel.scale(seconds)).add(totalAcc.scale(0.5 * seconds * seconds));
 
     this.rx += this.torque * (1.0 / this.collider.inertia) * seconds;
     this.rotation += this.rx * seconds;
 
-    this.scale.x += (this.sx * delta) / 1000;
-    this.scale.y += (this.sy * delta) / 1000;
+    this.scale = vec(this.scale.x + (this.sx * delta) / 1000, this.scale.y + (this.sy * delta) / 1000);
 
     if (!this.scale.equals(this.oldScale)) {
       // change in scale effects the geometry

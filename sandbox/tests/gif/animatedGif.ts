@@ -1,5 +1,6 @@
 /// <reference path="../../lib/excalibur.d.ts" />
 
+ex.Flags.enable(ex.Legacy.LegacyDrawing)
 var game = new ex.Engine({
   canvasElementId: 'game',
   width: 600,

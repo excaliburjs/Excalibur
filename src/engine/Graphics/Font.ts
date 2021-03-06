@@ -57,7 +57,7 @@ export class Font extends Raster implements FontRenderer {
    *
    * (Default 4)
    */
-  public quality = 4;
+  public quality = 2;
 
   public family: string = 'sans-serif';
   public style: FontStyle = FontStyle.Normal;

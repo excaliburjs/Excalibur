@@ -23,8 +23,7 @@ export class TileMapCollisionDetection implements Trait {
           side = BoundingBox.getSideFromIntersection(intersectMap);
           eventDispatcher.emit('precollision', new PreCollisionEvent(actor, null, side, intersectMap));
           if (actor.body.collider.type === CollisionType.Active) {
-            actor.pos.y += intersectMap.y;
-            actor.pos.x += intersectMap.x;
+            actor.pos = actor.pos.add(intersectMap);
             eventDispatcher.emit('postcollision', new PostCollisionEvent(actor, null, side, intersectMap));
           }
         }

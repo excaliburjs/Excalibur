@@ -80,10 +80,8 @@ function start() {
       var rightAxisX = pad1.getAxes(ex.Input.Axes.RightStickX);
       var rightAxisY = pad1.getAxes(ex.Input.Axes.RightStickY);
 
-      leftStick.pos.x = 330 + leftAxisX * 20;
-      leftStick.pos.y = 272 + leftAxisY * 20;
-      rightStick.pos.x = 470 + rightAxisX * 20;
-      rightStick.pos.y = 272 + rightAxisY * 20;
+      leftStick.pos = ex.vec(330 + leftAxisX * 20, 272 + leftAxisY * 20);
+      rightStick.pos = ex.vec(470 + rightAxisX * 20, 272 + rightAxisY * 20);
 
       // buttons
       var btnIndex: number;

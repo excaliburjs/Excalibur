@@ -200,12 +200,12 @@ describe('A Collision', () => {
 
     const activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
     activeBlock.body.collider.type = ex.CollisionType.Active;
-    activeBlock.vel.x = 100;
+    activeBlock.vel = ex.vec(100, activeBlock.vel.y);
     engine.add(activeBlock);
 
     const passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
     passiveBlock.body.collider.type = ex.CollisionType.Passive;
-    passiveBlock.vel.x = -100;
+    passiveBlock.vel = ex.vec(-100, activeBlock.vel.y);
     engine.add(passiveBlock);
 
     const collisionHandler = (ev: ex.PreCollisionEvent) => {
@@ -234,12 +234,12 @@ describe('A Collision', () => {
 
     const activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
     activeBlock.body.collider.type = ex.CollisionType.Active;
-    activeBlock.vel.x = 100;
+    activeBlock.vel = ex.vec(100, activeBlock.vel.y);
     engine.add(activeBlock);
 
     const passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
     passiveBlock.body.collider.type = ex.CollisionType.Passive;
-    passiveBlock.vel.x = -100;
+    passiveBlock.vel = ex.vec(-100, activeBlock.vel.y);
     engine.add(passiveBlock);
 
     let count = 0;
@@ -262,12 +262,12 @@ describe('A Collision', () => {
 
     const activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
     activeBlock.body.collider.type = ex.CollisionType.Active;
-    activeBlock.vel.x = 100;
+    activeBlock.vel = ex.vec(100, activeBlock.vel.y);
     engine.add(activeBlock);
 
     const passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
     passiveBlock.body.collider.type = ex.CollisionType.Passive;
-    passiveBlock.vel.x = -100;
+    passiveBlock.vel = ex.vec(-100, activeBlock.vel.y);
     engine.add(passiveBlock);
 
     let count = 0;
@@ -290,7 +290,7 @@ describe('A Collision', () => {
 
     const activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
     activeBlock.body.collider.type = ex.CollisionType.Active;
-    activeBlock.vel.x = 100;
+    activeBlock.vel = ex.vec(100, activeBlock.vel.y);
     engine.add(activeBlock);
 
     const fixedBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
@@ -315,7 +315,7 @@ describe('A Collision', () => {
     fixedBlock.body.collider.type = ex.CollisionType.Fixed;
     engine.add(fixedBlock);
 
-    activeBlock.vel.x = -100;
+    activeBlock.vel = ex.vec(-100, activeBlock.vel.y);
 
     for (let i = 0; i < 20; i++) {
       loop.advance(1000);
@@ -329,12 +329,12 @@ describe('A Collision', () => {
 
     const activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
     activeBlock.body.collider.type = ex.CollisionType.Active;
-    activeBlock.vel.x = 100;
+    activeBlock.vel = ex.vec(100, activeBlock.vel.y);
     engine.add(activeBlock);
 
     const passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
     passiveBlock.body.collider.type = ex.CollisionType.Passive;
-    passiveBlock.vel.x = -100;
+    passiveBlock.vel = ex.vec(-100, activeBlock.vel.y);
     engine.add(passiveBlock);
 
     const collisionEnd = function() {
@@ -354,12 +354,12 @@ describe('A Collision', () => {
 
     const activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
     activeBlock.body.collider.type = ex.CollisionType.Active;
-    activeBlock.vel.x = 100;
+    activeBlock.vel = ex.vec(100, activeBlock.vel.y);
     engine.add(activeBlock);
 
     const passiveBlock = new ex.Actor(400, 200, 50, 50, ex.Color.DarkGray.clone());
     passiveBlock.body.collider.type = ex.CollisionType.Passive;
-    passiveBlock.vel.x = -100;
+    passiveBlock.vel = ex.vec(-100, activeBlock.vel.y);
     engine.add(passiveBlock);
 
     const collisionEnd = function() {

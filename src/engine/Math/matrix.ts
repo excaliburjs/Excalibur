@@ -1,17 +1,50 @@
+import { vec } from '..';
 import { Vector } from '../Algebra';
+import { canonicalizeAngle } from '../Util/Util';
 
+export enum MatrixLocations {
+  X = 12,
+  Y = 13
+}
+
+const sign = (val: number) => {
+  if (val === 0) {
+    return 0;
+  }
+  return val < 0 ? -1 : 1;
+};
+
+// const multMatch = (a: number, b: number) => {
+//   if (sign(a) < 0 && sign(b) < 0) {
+//     return -Math.abs(a * b);
+//   }
+//   return a * b;
+// }
+
+// const epsilon = (val: number) => {
+//   if (val * val < .0001) {
+//     return 0;
+//   }
+//   return val;
+// }
 
 /**
  * Excalibur Matrix helper for 4x4 matrices
+ *
+ * Useful for webgl 4x4 matrices
  */
 export class Matrix {
 
   /**
    *  4x4 matrix in column major order
-   * | data[0], data[4], data[8],  data[12] |
-   * | data[1], data[5], data[9],  data[13] |
-   * | data[2], data[6], data[10], data[14] |
-   * | data[3], data[7], data[11], data[15] |
+   *
+   * |         |         |          |          |
+   * | ------- | ------- | -------- |          |
+   * | data[0] | data[4] | data[8]  | data[12] |
+   * | data[1] | data[5] | data[9]  | data[13] |
+   * | data[2] | data[6] | data[10] | data[14] |
+   * | data[3] | data[7] | data[11] | data[15] |
+   *
    */
   public data: Float32Array = new Float32Array(16);
 
@@ -107,13 +140,11 @@ export class Matrix {
    * Creates a brand new translation matrix at the specified 3d point
    * @param x
    * @param y
-   * @param z
    */
-  public static translation(x: number, y: number, z: number = 0): Matrix {
+  public static translation(x: number, y: number): Matrix {
     const mat = Matrix.identity();
     mat.data[12] = x;
     mat.data[13] = y;
-    mat.data[14] = z;
     return mat;
   }
 
@@ -233,6 +264,10 @@ export class Matrix {
     dest.data[14] = a31 * b14 + a32 * b24 + a33 * b34 + a34 * b44;
     dest.data[15] = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
 
+    const s = this.getScale();
+    dest._scaleSignX = sign(s.x) * sign(dest._scaleSignX);
+    dest._scaleSignY = sign(s.y) * sign(dest._scaleSignY);
+
     return dest;
   }
 
@@ -263,17 +298,28 @@ export class Matrix {
     const a44 = this.data[15];
 
     // Doesn't change z
-    this.data[12] = a11 * x + a12 * y + a13 + a14;
-    this.data[13] = a21 * x + a22 * y + a23 + a24;
-    this.data[14] = a31 * x + a32 * y + a33 + a34;
-    this.data[15] = a41 * x + a42 * y + a43 + a44;
+    const z = 0;
+    const w = 1;
+    this.data[12] = a11 * x + a12 * y + a13 * z + a14 * w;
+    this.data[13] = a21 * x + a22 * y + a23 * z + a24 * w;
+    this.data[14] = a31 * x + a32 * y + a33 * z + a34 * w;
+    this.data[15] = a41 * x + a42 * y + a43 * z + a44 * w;
 
     return this;
   }
 
+  public setPosition(x: number, y: number) {
+    this.data[12] = x;
+    this.data[13] = y;
+  }
+
+  public getPosition(): Vector {
+    return vec(this.data[12], this.data[13]);
+  }
+
   /**
    * Applies rotation to the current matrix mutating it
-   * @param angle
+   * @param angle in Radians
    */
   rotate(angle: number) {
     const a11 = this.data[0];
@@ -302,6 +348,7 @@ export class Matrix {
     return this;
   }
 
+
   /**
    * Applies scaling to the current matrix mutating it
    * @param x
@@ -329,5 +376,133 @@ export class Matrix {
     this.data[7] = a42 * y;
 
     return this;
+  }
+
+
+  public setRotation(angle: number) {
+    const currentScale = this.getScale();
+    const sine = Math.sin(angle);
+    const cosine = Math.cos(angle);
+
+    this.data[0] = cosine * currentScale.x;
+    this.data[1] = sine * currentScale.y;
+    this.data[4] = -sine * currentScale.x;
+    this.data[5] = cosine * currentScale.y;
+
+  }
+
+  public getRotation(): number {
+
+    const angle = Math.atan2(
+      this.data[1] / this.getScaleY(),
+      this.data[0] / this.getScaleX());
+    return canonicalizeAngle(angle);
+  }
+
+  public getScaleX(): number {
+    // absolute scale of the matrix (we lose sign so need to add it back)
+    const xscale = vec(this.data[0], this.data[4]).size;
+    return this._scaleSignX * xscale;
+  }
+
+  public getScaleY(): number {
+    // absolute scale of the matrix (we lose sign so need to add it back)
+    const yscale = vec(this.data[1], this.data[5]).size;
+    return this._scaleSignY * yscale;
+  }
+
+  /**
+   * Get the scale of the matrix
+   */
+  public getScale(): Vector {
+    return vec(this.getScaleX(), this.getScaleY());
+  }
+
+  private _scaleSignX = 1;
+  public setScaleX(val: number) {
+    this._scaleSignX = sign(val);
+    // negative scale acts like a 180 rotation, so flip
+    const xscale = vec(this.data[0] * this._scaleSignX, this.data[4] * this._scaleSignX).normalize();
+    this.data[0] = xscale.x * val;
+    this.data[4] = xscale.y * val;
+  }
+
+  private _scaleSignY = 1;
+  public setScaleY(val: number) {
+    this._scaleSignY = sign(val);
+    // negative scale acts like a 180 rotation, so flip
+    const yscale = vec(this.data[1] * this._scaleSignY, this.data[5] * this._scaleSignY).normalize();
+    this.data[1] = yscale.x * val;
+    this.data[5] = yscale.y * val;
+  }
+
+  public setScale(scale: Vector) {
+    this.setScaleX(scale.x);
+    this.setScaleY(scale.y);
+  }
+
+  /**
+   * Determinant of the upper left 2x2 matrix
+   */
+  public getBasisDeterminant() {
+    return (this.data[0] * this.data[5]) - (this.data[1] * this.data[4]);
+  }
+
+  public getAffineInverse(): Matrix {
+    // See http://negativeprobability.blogspot.com/2011/11/affine-transformations-and-their.html
+    // See https://www.mathsisfun.com/algebra/matrix-inverse.html
+    // Since we are actually only doing 2D transformations we can use this hack
+    // We don't actually use the 3rd or 4th dimension
+
+    const det = this.getBasisDeterminant();
+    const inverseDet = 1 / det; // todo zero check
+    const a = this.data[0];
+    const b = this.data[4];
+    const c = this.data[1];
+    const d = this.data[5];
+
+    const m = Matrix.identity();
+    // inverts rotation and scale
+    m.data[0] = d * inverseDet;
+    m.data[1] = -c * inverseDet;
+    m.data[4] = -b * inverseDet;
+    m.data[5] = a * inverseDet;
+
+    const tx = this.data[12];
+    const ty = this.data[13];
+    // invert translation
+    // transform translation into the matrix basis created by rot/scale
+    m.data[12] = -(tx * m.data[0] + ty * m.data[4]);
+    m.data[13] = -(tx * m.data[1] + ty * m.data[5]);
+
+    return m;
+  }
+
+  public isIdentity(): boolean {
+    return this.data[0] === 1 &&
+    this.data[1] === 0 &&
+    this.data[2] === 0 &&
+    this.data[3] === 0 &&
+    this.data[4] === 0 &&
+    this.data[5] === 1 &&
+    this.data[6] === 0 &&
+    this.data[7] === 0 &&
+    this.data[8] === 0 &&
+    this.data[9] === 0 &&
+    this.data[10] === 1 &&
+    this.data[11] === 0 &&
+    this.data[12] === 0 &&
+    this.data[13] === 0 &&
+    this.data[14] === 0 &&
+    this.data[15] === 1;
+  }
+
+  public toString() {
+    return `
+[${ this.data[0] } ${ this.data[4] } ${ this.data[8] } ${ this.data[12] }]
+[${ this.data[1] } ${ this.data[5] } ${ this.data[9] } ${ this.data[13] }]
+[${ this.data[2] } ${ this.data[6] } ${ this.data[10] } ${ this.data[14] }]
+[${ this.data[3] } ${ this.data[7] } ${ this.data[11] } ${ this.data[15] }]
+`;
   }
 }

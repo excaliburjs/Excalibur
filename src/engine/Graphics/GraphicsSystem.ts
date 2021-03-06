@@ -59,7 +59,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       graphics.update(delta, this._token);
 
       // Position the entity
-      this._applyTransform(transform);
+      this._applyTransform(entity);
 
       this._graphicsPositionDebugDraw();
 
@@ -93,7 +93,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
   private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent) {
     if (transform.coordPlane === CoordPlane.World) {
-      const graphicsOffscreen = !this._camera.viewport.intersect(graphics.localBounds.translate(transform.pos));
+      const graphicsOffscreen = !this._camera.viewport.intersect(graphics.localBounds.transform(transform.getGlobalMatrix()));
       return graphicsOffscreen;
     } else {
       // TODO sceen coordinates
@@ -134,12 +134,18 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
   /**
    * This applies the current entity transform to the graphics context
-   * @param transform
+   * @param entity
    */
-  private _applyTransform(transform: TransformComponent): void {
-    this._graphicsContext.translate(transform.pos.x, transform.pos.y);
-    this._graphicsContext.rotate(transform.rotation);
-    this._graphicsContext.scale(transform.scale.x, transform.scale.y);
+  private _applyTransform(entity: Entity): void {
+    const ancestors = entity.getAncestors();
+    for (const ancestor of ancestors) {
+      const transform = ancestor?.get(TransformComponent);
+      if (transform) {
+        this._graphicsContext.translate(transform.pos.x, transform.pos.y);
+        this._graphicsContext.scale(transform.scale.x, transform.scale.y);
+        this._graphicsContext.rotate(transform.rotation);
+      }
+    }
   }
 
   /**
@@ -182,7 +188,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   ) {
     if (this._engine?.isDebug) {
       if (isActor(entity)) {
-        const bb = entity.body.collider.localBounds.translate(entity.getWorldPos());
+        const bb = entity.body.collider.localBounds.translate(entity.getGlobalPos());
         bb.draw(this._graphicsContext);
       }
     }

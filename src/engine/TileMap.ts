@@ -44,7 +44,7 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
 
   public set x(val: number) {
     if (this.components?.transform?.pos) {
-      this.components.transform.pos.x = val;
+      this.components.transform.pos = vec(val, this.y);
     }
   }
 
@@ -54,7 +54,7 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
 
   public set y(val: number) {
     if (this.components?.transform?.pos) {
-      this.components.transform.pos.y = val;
+      this.components.transform.pos = vec(this.x, val);
     }
   }
 
@@ -88,12 +88,11 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
   }
 
   public get pos(): Vector {
-    return vec(this.x, this.y);
+    return this.components.transform.pos;
   }
 
   public set pos(val: Vector) {
-    this.x = val.x;
-    this.y = val.y;
+    this.components.transform.pos = val;
   }
 
   public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent<TileMap>) => void): void;
@@ -114,7 +113,14 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
    * @param cols          The number of cols in the TileMap (should not be changed once set)
    */
   constructor(xOrConfig: number | TileMapArgs, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number) {
-    super();
+    super([
+      new TransformComponent(),
+      new GraphicsComponent({
+        onPostDraw: (ctx, delta) => this.draw(ctx, delta)
+      }),
+      new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta))
+    ]);
+
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
       xOrConfig = config.x;
@@ -140,13 +146,6 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
       }
     }
 
-    this.addComponent(new TransformComponent());
-    this.addComponent(
-      new GraphicsComponent({
-        onPostDraw: (ctx, delta) => this.draw(ctx, delta)
-      })
-    );
-    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
     this.components.graphics.localBounds = new BoundingBox({
       left: 0,
       top: 0,
@@ -268,7 +267,7 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
     this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
     this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0);
     this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
-    this.components.transform.pos.setTo(this.x, this.y);
+    this.components.transform.pos = vec(this.x, this.y);
 
     this.onPostUpdate(engine, delta);
     this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
