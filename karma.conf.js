@@ -1,6 +1,7 @@
 // Karma configuration
 const process = require('process');
 const path = require('path');
+const webpack = require('webpack');
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 const isAppveyor = process.env.APPVEYOR_BUILD_NUMBER ? true : false;
@@ -36,6 +37,11 @@ module.exports = (config) => {
           "@excalibur": path.resolve(__dirname, './src/engine/')
         }
       },
+      plugins: [
+        new webpack.DefinePlugin({
+          'process.env.__EX_VERSION': '\'test-runner\''
+        }),
+      ],
       module: {
         rules: [
           {
