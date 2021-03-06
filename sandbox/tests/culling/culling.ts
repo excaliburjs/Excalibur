@@ -19,25 +19,25 @@ engine.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
   if (keyDown.key === ex.Input.Keys.D) {
     engine.toggleDebug();
   } else if (keyDown.key === ex.Input.Keys.Up) {
-    player.vel = player.vel.withY(-speed);
+    player.vel.y = -speed;
   } else if (keyDown.key === ex.Input.Keys.Down) {
-    player.vel = player.vel.withY(speed);
+    player.vel.y = speed;
   } else if (keyDown.key === ex.Input.Keys.Left) {
-    player.vel = player.vel.withX(-speed);
+    player.vel.x = -speed;
   } else if (keyDown.key === ex.Input.Keys.Right) {
-    player.vel = player.vel.withX(speed);
+    player.vel.x = speed;
   }
 });
 
 engine.input.keyboard.on('up', (keyUp?: ex.Input.KeyEvent) => {
   if (keyUp.key === ex.Input.Keys.Up) {
-    player.vel = player.vel.withY(0);
+    player.vel.y = 0;
   } else if (keyUp.key === ex.Input.Keys.Down) {
-    player.vel = player.vel.withY(0);
+    player.vel.y = 0;
   } else if (keyUp.key === ex.Input.Keys.Left) {
-    player.vel = player.vel.withX(0);
+    player.vel.x = 0;
   } else if (keyUp.key === ex.Input.Keys.Right) {
-    player.vel = player.vel.withX(0);
+    player.vel.x = 0;
   }
 });
 

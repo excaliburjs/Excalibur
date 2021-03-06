@@ -27,7 +27,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Added `Entity.parent` readonly accessor to the parent (if exists), and  `Entity.unparent()` to unparent an entity.
   - Added `Entity.getAncestors()` is a sorted list of parents starting with the topmost parent.
   - Added `Entity.children` readonly accessor to the list of children.
-- `Vector.withX` and `Vector.withY` are new quick methods for creating a new vector with a changed component
 - Add the ability to press enter to start the game after loaded
 - Add Excalibur Feature Flag implementation for releasing experimental or preview features ([#1673](https://github.com/excaliburjs/Excalibur/issues/1673))
 - Color now can parse RGB/A string using Color.fromRGBString('rgb(255, 255, 255)') or Color.fromRGBString('rgb(255, 255, 255, 1)')

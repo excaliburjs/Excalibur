@@ -99,64 +99,44 @@ export class Vector implements Clonable<Vector> {
   }
 
   private _x = 0;
+  /**
+   * Get the x component of the vector
+   */
   public get x(): number {
     return this._x;
   }
+
+  /**
+   * Set the x component, THIS MUTATES the current vector. It is usually better to create a new vector.
+   * @warning **Be very careful setting components on shared vectors, mutating shared vectors can cause hard to find bugs**
+   */
   public set x(val: number) {
     this._x = val;
   }
 
   private _y = 0;
+  /**
+   * Get the y component of the vector
+   */
   public get y(): number {
     return this._y;
   }
+
+  /**
+   * Set the y component, THIS MUTATES the current vector. It is usually better to create a new vector.
+   * @warning **Be very careful setting components on shared vectors, mutating shared vectors can cause hard to find bugs**
+   */
   public set y(val: number) {
     this._y = val;
   }
 
   /**
-   * Creates a new vector with a new X, and the current y
-   * @param x
-   */
-  public withX(x: number): Vector {
-    return vec(x, this.y);
-  }
-
-  /**
-   * Creates a new vector with a new Y, and the current x
-   * @param y
-   */
-  public withY(y: number): Vector {
-    return vec(this.x, y);
-  }
-
-  /**
-   * Sets the x and y components at once, THIS MUTATES the current vector. It is usually better to creat a new vector.
+   * Sets the x and y components at once, THIS MUTATES the current vector. It is usually better to create a new vector.
    *
    * @warning **Be very careful using this, mutating vectors can cause hard to find bugs**
    */
   setTo(x: number, y: number) {
     (this.x as number) = x;
-    (this.y as number) = y;
-  }
-
-  /**
-   * Set the x component, THIS MUTATES the current vector. It is usually better to creat a new vector.
-   *
-   * @param x
-   * @warning **Be very careful using this, mutating vectors can cause hard to find bugs**
-   */
-  setX(x: number) {
-    (this.x as number) = x;
-  }
-
-  /**
-   * Set the x component, THIS MUTATES the current vector. It is usually better to creat a new vector.
-   *
-   * @param y
-   * @warning **Be very careful using this, mutating vectors can cause hard to find bugs**
-   */
-  setY(y: number) {
     (this.y as number) = y;
   }
 

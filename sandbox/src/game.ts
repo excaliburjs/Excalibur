@@ -201,36 +201,6 @@ var text = new ex.Graphics.Text({
 // text.showDebug = true;
 var ran = new ex.Random(1337);
 
-var parentTest = new ex.Actor({
-  pos: ex.vec(1200, 100),
-  width: 100,
-  height: 100,
-  color: ex.Color.DarkGray,
-  collisionType: ex.CollisionType.Passive
-});
-
-var childTest = new ex.Actor({
-  pos: ex.vec(200, 0),
-  width: 20,
-  height: 20,
-  color: ex.Color.Yellow,
-  collisionType: ex.CollisionType.Passive
-});
-
-var grandChildTest = new ex.Actor({
-  pos: ex.vec(50, 0),
-  width: 20,
-  height: 20,
-  color: ex.Color.Red,
-  collisionType: ex.CollisionType.Fixed
-});
-parentTest.rx = 1;
-childTest.rx = 3;
-grandChildTest.rx = 6;
-parentTest.add(childTest.add(grandChildTest));
-
-game.add(parentTest);
-
 var canvasGraphic = new ex.Graphics.Canvas({
   width: 200,
   height: 200,
@@ -294,31 +264,8 @@ game.add(label);
 var pointer = new ex.Actor({
   width: 25,
   height: 25,
-  color: ex.Color.Red,
-  collisionType: ex.CollisionType.Fixed
+  color: ex.Color.Red
 });
-var pointerChild1 = new ex.Actor({
-  pos: ex.vec(100, 0),
-  width: 30,
-  height: 30,
-  color: ex.Color.Green,
-  collisionType: ex.CollisionType.Fixed
-});
-var pointerChild2 = new ex.Actor({
-  pos: ex.vec(0, 100),
-  width: 30,
-  height: 30,
-  color: ex.Color.Violet,
-  collisionType: ex.CollisionType.Fixed
-});
-var pointerChild3 = new ex.Actor({
-  pos: ex.vec(-100, 0),
-  width: 30,
-  height: 30,
-  color: ex.Color.Rose,
-  collisionType: ex.CollisionType.Fixed
-});
-pointer.add(pointerChild1.add(pointerChild2.add(pointerChild3)));
 game.add(pointer);
 var otherPointer = new ex.ScreenElement({
   width: 15,
@@ -569,25 +516,25 @@ player.on('postupdate', () => {
       player.graphics.use(Animations.Left);
     }
     if (inAir) {
-      player.vel = player.vel.withX(-airSpeed);
+      player.vel.x = -airSpeed;
       return;
     }
-    player.vel = player.vel.withX(-groundSpeed);
+    player.vel.x = -groundSpeed;
   } else if (game.input.keyboard.isHeld(ex.Input.Keys.Right)) {
     direction = 1;
     if (!inAir) {
       player.graphics.use(Animations.Right);
     }
     if (inAir) {
-      player.vel = player.vel.withX(airSpeed);
+      player.vel.x = airSpeed;
       return;
     }
-    player.vel = player.vel.withX(groundSpeed);
+    player.vel.x = groundSpeed;
   }
 
   if (game.input.keyboard.isHeld(ex.Input.Keys.Up)) {
     if (!inAir) {
-      player.vel = player.vel.withY(-jumpSpeed);
+      player.vel.y = -jumpSpeed;
       inAir = true;
       if (direction === 1) {
         player.graphics.use<ex.Graphics.Animation>(Animations.JumpRight).reset();
@@ -627,20 +574,21 @@ game.addScene('label', newScene);
 game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
   if (keyDown.key === ex.Input.Keys.F) {
     var a = new ex.Actor(player.pos.x + 10, player.pos.y - 50, 10, 10, new ex.Color(222, 222, 222));
-    a.vel = ex.vec(200 * direction, 0);
+    a.vel.x = 200 * direction;
+    a.vel.y = 0;
     a.body.collider.type = ex.CollisionType.Active;
     var inAir = true;
     a.on('precollision', (data?: ex.PreCollisionEvent) => {
       inAir = false;
       if (!data.other) {
-        a.vel = a.vel.withY(0);
+        a.vel.y = 0;
       }
     });
     a.on('postupdate', (data?: ex.PostUpdateEvent) => {
       if (inAir) {
-        a.acc = a.vel.withY(400);
+        a.acc.y = 400;
       } else {
-        a.acc = a.acc.withY(0);
+        a.acc.y = 0;
       }
       inAir = true;
     });
@@ -670,19 +618,21 @@ player.on('precollision', (data?: ex.PreCollisionEvent) => {
         game.input.keyboard.isHeld(ex.Input.Keys.Down)
       )
     ) {
-      player.vel = data.other.vel;
+      player.vel.x = data.other.vel.x;
+      player.vel.y = data.other.vel.y;
     }
 
     if (!data.other) {
-      player.vel = ex.Vector.Zero;
+      player.vel.x = 0;
+      player.vel.y = 0;
     }
   }
 
   if (data.side === ex.Side.Top) {
     if (data.other) {
-      player.vel = player.vel.withY(data.other.vel.y - player.vel.y);
+      player.vel.y = data.other.vel.y - player.vel.y;
     } else {
-      player.vel = player.vel.withY(0);
+      player.vel.y = 0;
     }
   }
 });
@@ -691,7 +641,9 @@ player.on('postupdate', (data?: ex.PostUpdateEvent) => {
   // apply gravity if player is in the air
   // only apply gravity when not colliding
   if (!isColliding && data.target instanceof ex.Actor) {
-    data.target.acc = data.target.acc.withY(800);
+    data.target.acc.y = 800; // * data.delta/1000;
+  } else {
+    //data.target.acc.y = 0;
   }
 
   // Reset values because we don't know until we check the next update

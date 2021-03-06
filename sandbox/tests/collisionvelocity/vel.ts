@@ -28,20 +28,20 @@ var player = new ex.Actor({
 
 player.update = (e, ms) => {
   if (engine.input.keyboard.isHeld(ex.Input.Keys.Space)) {
-    player.vel = player.vel.withX(0);
+    player.vel.x = 0;
   }
   if (engine.input.keyboard.isHeld(ex.Input.Keys.Left)) {
-    player.vel = player.vel.sub(ex.vec(10, 0));
+    player.vel.x -= 10;
   }
   if (engine.input.keyboard.isHeld(ex.Input.Keys.Right)) {
-    player.vel = player.vel.add(ex.vec(10, 0));
+    player.vel.x += 10;
   }
   ex.Actor.prototype.update.call(player, e, ms);
 };
 
-player.vel = player.vel.withX(-50);
+player.vel.x = -50;
 
-setTimeout(() => (player.vel = player.vel.withX(50)), 5000);
+setTimeout(() => (player.vel.x = 50), 5000);
 
 engine.add(floor);
 engine.add(player);

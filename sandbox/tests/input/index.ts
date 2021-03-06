@@ -15,28 +15,28 @@ box.on('postupdate', (ue: ex.PostUpdateEvent) => {
 
   // Right/Left
   if (game.input.keyboard.isHeld(ex.Input.Keys.Right) || pad1.isButtonPressed(ex.Input.Buttons.DpadRight)) {
-    box.vel = box.vel.withX(20);
+    box.vel.x = 20;
   } else if (game.input.keyboard.isHeld(ex.Input.Keys.Left) || pad1.isButtonPressed(ex.Input.Buttons.DpadLeft)) {
-    box.vel = box.vel.withX(-20);
+    box.vel.x = -20;
   } else if (!axesLeftX && !axesLeftY) {
-    box.vel = box.vel.withX(0);
+    box.vel.x = 0;
   }
 
   // Up/Down
   if (game.input.keyboard.isHeld(ex.Input.Keys.Up) || pad1.isButtonPressed(ex.Input.Buttons.DpadUp)) {
-    box.vel = box.vel.withY(-20);
+    box.vel.y = -20;
   } else if (game.input.keyboard.isHeld(ex.Input.Keys.Down) || pad1.isButtonPressed(ex.Input.Buttons.DpadDown)) {
-    box.vel = box.vel.withY(20);
+    box.vel.y = 20;
   } else if (!axesLeftY && !axesLeftX) {
-    box.vel = box.vel.withY(0);
+    box.vel.y = 0;
   }
 
   // Axes movement
   if (Math.abs(axesLeftX) > 0) {
-    box.vel = box.vel.withX(axesLeftX * 120);
+    box.vel.x = axesLeftX * 120;
   }
   if (Math.abs(axesLeftY) > 0) {
-    box.vel = box.vel.withY(axesLeftY * 120);
+    box.vel.y = axesLeftY * 120;
   }
 });
 
