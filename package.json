@@ -106,7 +106,7 @@
     "serve": "11.3.2",
     "source-map-support": "0.5.19",
     "sync-request": "6.1.0",
-    "terser-webpack-plugin": "4.2.3",
+    "terser-webpack-plugin": "5.1.1",
     "ts-loader": "8.0.17",
     "typedoc": "0.20.28",
     "typescript": "4.2.2",
