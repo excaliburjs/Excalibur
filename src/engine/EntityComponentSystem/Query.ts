@@ -82,8 +82,9 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    * @param entity
    */
   public matches(entity: Entity): boolean;
+
   /**
-   * Returns whether the list of ComponentTypes match the query
+   * Returns whether the list of ComponentTypes have at least the same types as the query 
    * @param types
    */
   public matches(types: string[]): boolean;
@@ -103,5 +104,9 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
       }
     }
     return matches;
+  }
+
+  public contain(type: string) {
+    return this.types.indexOf(type) > -1;
   }
 }

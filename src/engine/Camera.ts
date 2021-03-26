@@ -246,7 +246,16 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   /**
    * Get or set current zoom of the camera, defaults to 1
    */
-  public z: number = 1;
+  private _z = 1;
+  public get z(): number {
+    return this._z;
+  }
+
+  public set z(val: number) {
+    this._z = val;
+    this._halfWidth = this._engine.halfDrawWidth;
+    this._halfHeight = this._engine.halfDrawHeight;
+  }
   /**
    * Get or set rate of change in zoom, defaults to 0
    */

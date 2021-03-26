@@ -310,7 +310,9 @@ export class ActorImpl
   /**
    * Indicates whether the actor is physically in the viewport
    */
-  public isOffScreen: boolean = false;
+  public get isOffScreen(): boolean {
+    return this.hasTag('offscreen');
+  }
   /**
    * The visibility of an actor
    * @deprecated Use [[GraphicsComponent.visible|Actor.graphics.visible]]

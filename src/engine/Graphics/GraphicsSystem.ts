@@ -7,9 +7,10 @@ import { Color } from '../Drawing/Color';
 import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';
-import { System, SystemType } from '../EntityComponentSystem';
+import { System, SystemType, TagComponent } from '../EntityComponentSystem';
 import { Engine } from '../Engine';
 import { GraphicsDiagnostics } from './GraphicsDiagnostics';
+import { EnterViewPortEvent, ExitViewPortEvent } from '../Events';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['transform', 'graphics'] as const;
@@ -40,8 +41,20 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       transform = entity.components.transform;
       graphics = entity.components.graphics;
 
+      // Figure out if entities are offscreen
+      const entityOffscreen = this._isOffscreen(transform, graphics);
+      if (entityOffscreen && !entity.hasTag('offscreen')) {
+        entity.eventDispatcher.emit('exitviewport', new ExitViewPortEvent(entity));
+        // TODO tag component seems to cause ecs issues
+        entity.addComponent(new TagComponent('offscreen'));
+      }
+      
+      if (!entityOffscreen && entity.hasTag('offscreen')) {
+        entity.eventDispatcher.emit('enterviewport', new EnterViewPortEvent(entity));
+        entity.removeComponent('offscreen');
+      }
       // Skip entities that have graphics offscreen
-      if (this._isOffscreen(transform, graphics)) {
+      if (entityOffscreen) {
         continue;
       }
 

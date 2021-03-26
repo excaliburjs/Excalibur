@@ -150,4 +150,28 @@ describe('A QueryManager', () => {
 
     expect(queryAB.getEntities()).toEqual([entity2]);
   });
+
+  it('removing components unrelated to the query doesnt remove the entity', () => {
+    const world = new ex.World(null);
+    const entity1 = new ex.Entity();
+    entity1.addComponent(new FakeComponent('A'));
+    entity1.addComponent(new FakeComponent('B'));
+    entity1.addComponent(new FakeComponent('C'));
+
+    const entity2 = new ex.Entity();
+    entity2.addComponent(new FakeComponent('A'));
+    entity2.addComponent(new FakeComponent('B'));
+
+    const queryAB = world.queryManager.createQuery(['A', 'B']);
+    world.queryManager.addEntity(entity1);
+    world.queryManager.addEntity(entity2);
+
+    expect(queryAB.getEntities()).toEqual([entity1, entity2]);
+
+    const removed = entity1.components.C;
+    entity1.removeComponent('C');
+    world.queryManager.removeComponent(entity1, removed);
+
+    expect(queryAB.getEntities()).toEqual([entity1, entity2]);
+  });
 });
