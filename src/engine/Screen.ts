@@ -562,7 +562,7 @@ export class Screen {
    */
   public get drawWidth(): number {
     if (this._camera) {
-      return this.scaledWidth / this._camera.z / this.pixelRatio;
+      return this.scaledWidth / this._camera.zoom / this.pixelRatio;
     }
     return this.scaledWidth / this.pixelRatio;
   }
@@ -579,7 +579,7 @@ export class Screen {
    */
   public get drawHeight(): number {
     if (this._camera) {
-      return this.scaledHeight / this._camera.z / this.pixelRatio;
+      return this.scaledHeight / this._camera.zoom / this.pixelRatio;
     }
     return this.scaledHeight / this.pixelRatio;
   }

@@ -122,7 +122,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
   }
 
   /**
-   * Adds a tag to an entitie
+   * Adds a tag to an entity
    * @param tag
    * @returns Entity
    */
@@ -256,7 +256,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * Removes all children from this entity
    */
   public removeAll(): Entity {
-    this.children.forEach(c => {
+    this.children.forEach((c) => {
       this.remove(c);
     });
     return this;
@@ -406,7 +406,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
   /**
    * Get a component by type with typecheck
    *
-   * (Does not work on tag components use .hasTag("mytag"))
+   * (Does not work on tag components, use .hasTag("mytag") instead)
    * @param type
    */
   public get<T extends Component>(type: ComponentCtor<T>): T {
