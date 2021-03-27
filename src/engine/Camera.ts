@@ -223,7 +223,6 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
       focusY = target.bottom - _eng.halfDrawHeight;
     }
 
-
     return vec(focusX, focusY);
   };
 }
@@ -246,7 +245,18 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   /**
    * Get or set current zoom of the camera, defaults to 1
    */
-  public z: number = 1;
+  private _z = 1;
+  public get zoom(): number {
+    return this._z;
+  }
+
+  public set zoom(val: number) {
+    this._z = val;
+    if (this._engine) {
+      this._halfWidth = this._engine.halfDrawWidth;
+      this._halfHeight = this._engine.halfDrawHeight;
+    }
+  }
   /**
    * Get or set rate of change in zoom, defaults to 0
    */
@@ -462,7 +472,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * @param scale    The scale of the zoom
    * @param duration The duration of the zoom in milliseconds
    */
-  public zoom(scale: number, duration: number = 0, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): Promise<boolean> {
+  public zoomOverTime(scale: number, duration: number = 0, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): Promise<boolean> {
     this._zoomPromise = new Promise<boolean>((resolve) => {
       this._zoomResolve = resolve;
     });
@@ -472,22 +482,15 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       this._zoomEasing = easingFn;
       this._currentZoomTime = 0;
       this._zoomDuration = duration;
-      this._zoomStart = this.z;
+      this._zoomStart = this.zoom;
       this._zoomEnd = scale;
     } else {
       this._isZooming = false;
-      this.z = scale;
+      this.zoom = scale;
       return Promise.resolve(true);
     }
 
     return this._zoomPromise;
-  }
-
-  /**
-   * Gets the current zoom scale
-   */
-  public getZoom() {
-    return this.z;
   }
 
   private _viewport: BoundingBox = null;
@@ -620,7 +623,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
     // Update placements based on linear algebra
     this.pos = this.pos.add(this.vel.scale(delta / 1000));
-    this.z += (this.dz * delta) / 1000;
+    this.zoom += (this.dz * delta) / 1000;
 
     this.vel = this.vel.add(this.acc.scale(delta / 1000));
     this.dz += (this.az * delta) / 1000;
@@ -632,11 +635,11 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
         const zoomEasing = this._zoomEasing;
         const newZoom = zoomEasing(this._currentZoomTime, this._zoomStart, this._zoomEnd, this._zoomDuration);
 
-        this.z = newZoom;
+        this.zoom = newZoom;
         this._currentZoomTime += delta;
       } else {
         this._isZooming = false;
-        this.z = this._zoomEnd;
+        this.zoom = this._zoomEnd;
         this._currentZoomTime = 0;
         this._zoomResolve(true);
       }
@@ -710,7 +713,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     }
     const focus = this.getFocus();
     const pixelRatio = this._engine ? this._engine.pixelRatio : 1;
-    const zoom = this.getZoom();
+    const zoom = this.zoom;
 
     const newCanvasWidth = canvasWidth / zoom / pixelRatio;
     const newCanvasHeight = canvasHeight / zoom / pixelRatio;

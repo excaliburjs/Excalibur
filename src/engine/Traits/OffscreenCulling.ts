@@ -3,6 +3,7 @@ import { Trait } from '../Interfaces/Trait';
 import { Actor } from '../Actor';
 import { Engine } from '../Engine';
 import { ExitViewPortEvent, EnterViewPortEvent } from '../Events';
+import { TagComponent } from '../EntityComponentSystem';
 
 export class OffscreenCulling implements Trait {
   public cullingBox: CullingBox = new CullingBox();
@@ -23,12 +24,12 @@ export class OffscreenCulling implements Trait {
     if (!actor.isOffScreen) {
       if (actorBoundsOffscreen && isSpriteOffScreen) {
         events.emit('exitviewport', new ExitViewPortEvent(actor));
-        actor.isOffScreen = true;
+        actor.addComponent(new TagComponent('offscreen'));
       }
     } else {
       if (!actorBoundsOffscreen || !isSpriteOffScreen) {
         events.emit('enterviewport', new EnterViewPortEvent(actor));
-        actor.isOffScreen = false;
+        actor.removeComponent('offscreen');
       }
     }
   }

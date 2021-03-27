@@ -34,6 +34,47 @@ describe('A Graphics ECS System', () => {
     expect(es).toEqual(entities.reverse());
   });
 
+  it('decorates offscreen entities with "offscreen" tag', () => {
+    const sut = new ex.Graphics.GraphicsSystem();
+    engine.currentScene.camera.update(engine, 1);
+    sut.initialize(engine.currentScene);
+
+    const rect = new ex.Graphics.Rectangle({
+      width: 25,
+      height: 25,
+      color: ex.Color.Yellow
+    });
+
+    const offscreen = new ex.Entity([new TransformComponent(), new GraphicsComponent()]) as ex.Entity<
+    TransformComponent | GraphicsComponent
+    >;
+
+    offscreen.get(GraphicsComponent).show(rect);
+    offscreen.get(TransformComponent).pos = ex.vec(112.5, 112.5);
+
+    const offscreenSpy = jasmine.createSpy('offscreenSpy');
+    const onscreenSpy = jasmine.createSpy('onscreenSpy');
+
+    offscreen.eventDispatcher.on('enterviewport', onscreenSpy);
+    offscreen.eventDispatcher.on('exitviewport', offscreenSpy);
+
+    // Should be offscreen
+    sut.update([offscreen], 1);
+    expect(offscreenSpy).toHaveBeenCalled();
+    expect(onscreenSpy).not.toHaveBeenCalled();
+    expect(offscreen.hasTag('offscreen')).toBeTrue();
+    offscreenSpy.calls.reset();
+    onscreenSpy.calls.reset();
+
+    // Should be onscreen
+    offscreen.get(TransformComponent).pos = ex.vec(80, 80);
+    sut.update([offscreen], 1);
+    offscreen.processComponentRemoval();
+    expect(offscreenSpy).not.toHaveBeenCalled();
+    expect(onscreenSpy).toHaveBeenCalled();
+    expect(offscreen.hasTag('offscreen')).toBeFalse();
+  });
+
   it('draws entities with transform and graphics components', async () => {
     const sut = new ex.Graphics.GraphicsSystem();
     engine.currentScene.camera.update(engine, 1);

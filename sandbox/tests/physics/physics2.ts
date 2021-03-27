@@ -12,7 +12,7 @@ ex.Physics.broadphaseDebug = true;
 
 game.currentScene.camera.x = 0;
 game.currentScene.camera.y = 0;
-game.currentScene.camera.zoom(3);
+game.currentScene.camera.zoomOverTime(3);
 
 function spawnCircle2(x: number, y: number, vx: number) {
   var width = 20;

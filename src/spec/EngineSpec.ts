@@ -185,7 +185,7 @@ describe('The engine', () => {
 
   it('should return correct screen dimensions if zoomed in', () => {
     engine.start();
-    engine.currentScene.camera.z = 2;
+    engine.currentScene.camera.zoom = 2;
 
     expect(engine.drawHeight).toBe(250);
     expect(engine.drawWidth).toBe(250);

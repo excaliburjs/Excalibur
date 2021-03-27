@@ -20,10 +20,10 @@ var zoomedIn = false;
 game.input.pointers.primary.on('down', (evt: ex.Input.PointerEvent) => {
   if (!zoomedIn) {
     zoomedIn = true;
-    game.currentScene.camera.zoom(5, 1000);
+    game.currentScene.camera.zoomOverTime(5, 1000);
   } else {
     zoomedIn = false;
-    game.currentScene.camera.zoom(0.2, 1000);
+    game.currentScene.camera.zoomOverTime(0.2, 1000);
   }
 });
 

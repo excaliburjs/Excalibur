@@ -400,7 +400,7 @@ describe('A Screen', () => {
     const camera = new Camera();
     camera.x = 400;
     camera.y = 300;
-    camera.z = 2;
+    camera.zoom = 2;
 
     sut.setCurrentCamera(camera);
 
@@ -426,7 +426,7 @@ describe('A Screen', () => {
     const camera = new Camera();
     camera.x = 400;
     camera.y = 300;
-    camera.z = 2;
+    camera.zoom = 2;
 
     sut.setCurrentCamera(camera);
 
@@ -452,7 +452,7 @@ describe('A Screen', () => {
     const camera = new Camera();
     camera.x = 400;
     camera.y = 300;
-    camera.z = 2;
+    camera.zoom = 2;
 
     sut.setCurrentCamera(camera);
     sut.applyResolutionAndViewport();
