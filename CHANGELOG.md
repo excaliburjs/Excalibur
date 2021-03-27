@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Camera.z has been renamed to property `zoom` which is the zoom factor
+- Camera.zoom(...) has been renamed to function `zoomOverTime()`
 - TileMap no longer needs registered SpriteSheets, `Sprite`'s can be added directly to `Cell`'s with `addSprite`
   - The confusing `TileSprite` type is removed (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
 - Directly changing debug drawing by `engine.isDebug = value` has been replaced by `engine.showDebug(value)` and `engine.toggleDebug()` ([#1655](https://github.com/excaliburjs/Excalibur/issues/1655))
@@ -17,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `SpriteSheet` now is immutable after creation to reduce chance of bugs if you modified a public field. The following properties are read-only: `columns`, `rows`, `spWidth`, `spHeight`, `image`, `sprites` and `spacing`.
 
 ### Added
+
 - `BoundingBox`'s can now by `transform`'d by a `Matrix`
 - Added `new Entity(components: Component[])` constructor overload to create entities with components quickly.
 - Added `Entity.get(type: ComponentType)` to get strongly typed components if they exist on the entity.
@@ -25,7 +28,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added `Entity.componentAdded$` and `Entity.componentRemoved$` for observing component changes on an entity.
 - For child/parent entities:
   - Added `Entity.add(entity: Entity)`, `Entity.remove(entity: Entity)`, `Entity.removeAll()` for managing child entities
-  - Added `Entity.parent` readonly accessor to the parent (if exists), and  `Entity.unparent()` to unparent an entity.
+  - Added `Entity.parent` readonly accessor to the parent (if exists), and `Entity.unparent()` to unparent an entity.
   - Added `Entity.getAncestors()` is a sorted list of parents starting with the topmost parent.
   - Added `Entity.children` readonly accessor to the list of children.
 - Add the ability to press enter to start the game after loaded
