@@ -45,7 +45,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       const entityOffscreen = this._isOffscreen(transform, graphics);
       if (entityOffscreen && !entity.hasTag('offscreen')) {
         entity.eventDispatcher.emit('exitviewport', new ExitViewPortEvent(entity));
-        // TODO tag component seems to cause ecs issues
         entity.addComponent(new TagComponent('offscreen'));
       }
 
@@ -126,11 +125,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
           const offsetX = -graphic.width * anchor.x + offset.x;
           const offsetY = -graphic.height * anchor.y + offset.y;
 
-          graphic?.draw(
-            this._graphicsContext,
-            offsetX + layer.offset.x,
-            offsetY + layer.offset.y
-          );
+          graphic?.draw(this._graphicsContext, offsetX + layer.offset.x, offsetY + layer.offset.y);
 
           if (this._engine?.isDebug) {
             /* istanbul ignore next */
