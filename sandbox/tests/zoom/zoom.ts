@@ -36,10 +36,10 @@ game.add(target);
 
 game.input.keyboard.on('down', (ev: ex.Input.KeyEvent) => {
   if (ev.key === ex.Input.Keys.NumAdd /* + */) {
-    game.currentScene.camera.zoom((currentZoom += 0.03));
+    game.currentScene.camera.zoomOverTime((currentZoom += 0.03));
   }
   if (ev.key === ex.Input.Keys.NumSubtract /* - */) {
-    game.currentScene.camera.zoom((currentZoom -= 0.03));
+    game.currentScene.camera.zoomOverTime((currentZoom -= 0.03));
   }
 
   var currentFocus = game.currentScene.camera.getFocus();

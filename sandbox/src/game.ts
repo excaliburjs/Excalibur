@@ -285,8 +285,8 @@ game.input.pointers.primary.on('move', (ev) => {
 
 game.input.pointers.primary.on('wheel', (ev) => {
   pointer.pos.setTo(ev.x, ev.y);
-  game.currentScene.camera.z += (ev.deltaY / 1000);
-  game.currentScene.camera.z = ex.Util.clamp(game.currentScene.camera.z, .05, 100);
+  game.currentScene.camera.zoom += (ev.deltaY / 1000);
+  game.currentScene.camera.zoom = ex.Util.clamp(game.currentScene.camera.zoom, .05, 100);
 })
 // Turn on debug diagnostics
 game.showDebug(false);

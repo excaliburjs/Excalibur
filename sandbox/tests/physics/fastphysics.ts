@@ -14,7 +14,7 @@ ex.Physics.showContacts = true;
 ex.Physics.showNormals = true;
 ex.Physics.acc.setTo(0, 300);
 //ex.Physics.dynamicTreeVelocityMultiplyer = 1;
-game.currentScene.camera.z = 0.5;
+game.currentScene.camera.zoom = 0.5;
 var rocketTex = new ex.Texture('missile.png');
 var loader = new ex.Loader([rocketTex]);
 
