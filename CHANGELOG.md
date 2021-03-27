@@ -21,6 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added `new Entity(components: Component[])` constructor overload to create entities with components quickly.
 - Added `Entity.get(type: ComponentType)` to get strongly typed components if they exist on the entity.
 - Added `Entity.has(type: ComponentType)` overload to check if an entity has a component of that type.
+  - Tag `offscreen` is now added to entities that are offscreen
 - Added `Entity.componentAdded$` and `Entity.componentRemoved$` for observing component changes on an entity.
 - For child/parent entities:
   - Added `Entity.add(entity: Entity)`, `Entity.remove(entity: Entity)`, `Entity.removeAll()` for managing child entities
@@ -56,6 +57,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Entity update lifecycle is now called correctly
+- Fixed GraphicsSystem `enterviewport` and `exitviewport` event
 - Fixed DOM element leak when restarting games, play button elements piled up in the DOM.
 - Fixed issues with `Sprite` not rotating/scaling correctly around the anchor (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
   - Optionally specify whether to draw around the anchor or not `drawAroundAnchor`
