@@ -84,7 +84,7 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
   public matches(entity: Entity): boolean;
 
   /**
-   * Returns whether the list of ComponentTypes have at least the same types as the query 
+   * Returns whether the list of ComponentTypes have at least the same types as the query
    * @param types
    */
   public matches(types: string[]): boolean;

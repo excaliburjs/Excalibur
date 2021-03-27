@@ -48,7 +48,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         // TODO tag component seems to cause ecs issues
         entity.addComponent(new TagComponent('offscreen'));
       }
-      
+
       if (!entityOffscreen && entity.hasTag('offscreen')) {
         entity.eventDispatcher.emit('enterviewport', new EnterViewPortEvent(entity));
         entity.removeComponent('offscreen');

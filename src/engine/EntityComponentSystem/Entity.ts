@@ -123,11 +123,11 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
 
   /**
    * Adds a tag to an entitie
-   * @param tag 
-   * @returns 
+   * @param tag
+   * @returns Entity
    */
   public addTag(tag: string) {
-    return this.addComponent(new TagComponent(tag))
+    return this.addComponent(new TagComponent(tag));
   }
 
   /**
@@ -405,7 +405,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
 
   /**
    * Get a component by type with typecheck
-   * 
+   *
    * (Does not work on tag components use .hasTag("mytag"))
    * @param type
    */
