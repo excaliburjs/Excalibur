@@ -136,7 +136,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
   public get types(): string[] {
     return this._typesMemo;
   }
-  
+
   /**
    * Bucket to hold on to deferred removals
    */
@@ -148,8 +148,8 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
   private _typesMemo: string[] = [];
   private _rebuildMemos() {
     this._tagsMemo = Array.from(this._componentStringToInstance.values())
-    .filter((c) => c instanceof TagComponent)
-    .map((c) => c.type);
+      .filter((c) => c instanceof TagComponent)
+      .map((c) => c.type);
     this._typesMemo = Array.from(this._componentStringToInstance.keys());
   }
 
@@ -283,7 +283,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
       newEntity.addComponent(this.get(c).clone());
     }
     for (const child of this.children) {
-      newEntity.add(child.clone())
+      newEntity.add(child.clone());
     }
     return newEntity;
   }
@@ -291,13 +291,13 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
   /**
    * Adds a copy of all the components from another template entity as a "prefab"
    * @param templateEntity Entity to use as a template
-   * @param force Force component replacement if it aleady exists on the target entity 
+   * @param force Force component replacement if it aleady exists on the target entity
    */
   public addTemplate(templateEntity: Entity, force: boolean = false): Entity {
     for (const c of templateEntity.getComponents()) {
       this.addComponent(c.clone(), force);
     }
-    for (let child of templateEntity.children) {
+    for (const child of templateEntity.children) {
       this.add(child.clone().addTemplate(child));
     }
     return this;
@@ -330,12 +330,12 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
     component.owner = this;
     const constuctorType = component.constructor as ComponentCtor<T>;
     this._componentTypeToInstance.set(constuctorType, component);
-    this._componentStringToInstance.set(component.type, component)
+    this._componentStringToInstance.set(component.type, component);
     if (component.onAdd) {
       component.onAdd(this);
     }
     this._notifyAddComponent(component);
-    
+
     return this as Entity<KnownComponents | T>;
   }
 
