@@ -441,7 +441,7 @@ player.rotation = 0;
 
 // Health bar example
 var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
-player.add(healthbar);
+player.addChild(healthbar);
 // player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
 //   ctx.fillStyle = 'red';
 //   ctx.fillRect(0, 0, 100, 100);

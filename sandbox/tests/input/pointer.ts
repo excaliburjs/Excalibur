@@ -18,7 +18,7 @@ uiElement.on('pointerdown', (p: ex.Input.PointerEvent) => {
   uiElement.color = ex.Color.Red;
 });
 
-box.add(box2);
+box.addChild(box2);
 // Change color of box when clicked
 box.on('pointerdown', (pe: ex.Input.PointerEvent) => {
   console.log('box clicked');
