@@ -62,7 +62,7 @@ describe('A TransformComponent', () => {
   it('can have parent/child relationships with position', () => {
     const parent = new ex.Entity([new ex.TransformComponent()]);
     const child = new ex.Entity([new ex.TransformComponent()]);
-    parent.add(child);
+    parent.addChild(child);
 
     const parentTx = parent.get(ex.TransformComponent);
     const childTx = child.get(ex.TransformComponent);
@@ -87,7 +87,7 @@ describe('A TransformComponent', () => {
   it('can have parent/child relationships with scale', () => {
     const parent = new ex.Entity([new ex.TransformComponent()]);
     const child = new ex.Entity([new ex.TransformComponent()]);
-    parent.add(child);
+    parent.addChild(child);
 
     const parentTx = parent.get(ex.TransformComponent);
     const childTx = child.get(ex.TransformComponent);
@@ -112,7 +112,7 @@ describe('A TransformComponent', () => {
   it('can have parent/child relations with rotation', () => {
     const parent = new ex.Entity([new ex.TransformComponent()]);
     const child = new ex.Entity([new ex.TransformComponent()]);
-    parent.add(child);
+    parent.addChild(child);
 
     const parentTx = parent.get(ex.TransformComponent);
     const childTx = child.get(ex.TransformComponent);

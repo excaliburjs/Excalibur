@@ -201,7 +201,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    */
   public unparent() {
     if (this._parent) {
-      this._parent.remove(this);
+      this._parent.removeChild(this);
       this._parent = null;
     }
   }
@@ -210,7 +210,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * Adds an entity to be a child of this entity
    * @param entity
    */
-  public add(entity: Entity): Entity {
+  public addChild(entity: Entity): Entity {
     if (entity.parent === null) {
       if (this.getAncestors().includes(entity)) {
         throw new Error('Cycle detected, cannot add entity');
@@ -228,7 +228,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * Remove an entity from children if it exists
    * @param entity
    */
-  public remove(entity: Entity): Entity {
+  public removeChild(entity: Entity): Entity {
     if (entity.parent === this) {
       Util.removeItemFromArray(entity, this._children);
       entity._parent = null;
@@ -240,9 +240,9 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
   /**
    * Removes all children from this entity
    */
-  public removeAll(): Entity {
+  public removeAllChildren(): Entity {
     this.children.forEach((c) => {
-      this.remove(c);
+      this.removeChild(c);
     });
     return this;
   }
@@ -283,7 +283,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
       newEntity.addComponent(this.get(c).clone());
     }
     for (const child of this.children) {
-      newEntity.add(child.clone());
+      newEntity.addChild(child.clone());
     }
     return newEntity;
   }
@@ -298,7 +298,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
       this.addComponent(c.clone(), force);
     }
     for (const child of templateEntity.children) {
-      this.add(child.clone().addTemplate(child));
+      this.addChild(child.clone().addTemplate(child));
     }
     return this;
   }

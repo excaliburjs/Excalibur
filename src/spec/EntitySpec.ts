@@ -122,7 +122,7 @@ describe('An entity', () => {
     const typeB = new FakeComponent('B');
     entity.addComponent(typeA);
     entity.addComponent(typeB);
-    entity.add(
+    entity.addChild(
       new ex.Entity([
         new FakeComponent('Z')
       ])
@@ -144,11 +144,11 @@ describe('An entity', () => {
     const template = new ex.Entity([
       new FakeComponent('A'),
       new FakeComponent('B')
-    ]).add(
+    ]).addChild(
       new ex.Entity([
         new FakeComponent('C'),
         new FakeComponent('D')
-      ]).add(
+      ]).addChild(
         new ex.Entity([
           new FakeComponent('Z')
         ])
@@ -231,7 +231,7 @@ describe('An entity', () => {
   it('can be parented', () => {
     const parent = new ex.Entity();
     const child = new ex.Entity();
-    parent.add(child);
+    parent.addChild(child);
 
     expect(child.parent).toBe(parent);
     expect(parent.children).toEqual([child]);
@@ -242,7 +242,7 @@ describe('An entity', () => {
     const parent = new ex.Entity();
     const child = new ex.Entity();
     const grandchild = new ex.Entity();
-    parent.add(child.add(grandchild));
+    parent.addChild(child.addChild(grandchild));
 
     expect(grandchild.parent).toBe(child);
     expect(child.parent).toBe(parent);
@@ -256,7 +256,7 @@ describe('An entity', () => {
     const parent = new ex.Entity();
     const child = new ex.Entity();
     const grandchild = new ex.Entity();
-    parent.add(child.add(grandchild));
+    parent.addChild(child.addChild(grandchild));
 
     expect(child.parent).toBe(parent);
 
@@ -270,10 +270,10 @@ describe('An entity', () => {
     const parent = new ex.Entity();
     const child = new ex.Entity();
 
-    parent.add(child);
+    parent.addChild(child);
 
     expect(() => {
-      child.add(parent);
+      child.addChild(parent);
     }).toThrowError('Cycle detected, cannot add entity');
   });
 
@@ -282,9 +282,9 @@ describe('An entity', () => {
     const child = new ex.Entity();
     const otherparent = new ex.Entity();
 
-    parent.add(child);
+    parent.addChild(child);
     expect(() => {
-      otherparent.add(child);
+      otherparent.addChild(child);
     }).toThrowError('Entity already has a parent, cannot add without unparenting');
   });
 
@@ -316,7 +316,7 @@ describe('An entity', () => {
     const e = new ex.Entity();
     const child = new ex.Entity();
     const grandchild = new ex.Entity();
-    e.add(child.add(grandchild));
+    e.addChild(child.addChild(grandchild));
 
     const world = new ex.World(new ex.Scene());
 
@@ -324,11 +324,11 @@ describe('An entity', () => {
 
     expect(world.entityManager.entities.length).toBe(3);
 
-    grandchild.add(new ex.Entity());
+    grandchild.addChild(new ex.Entity());
 
     expect(world.entityManager.entities.length).toBe(4);
 
-    child.remove(grandchild);
+    child.removeChild(grandchild);
 
     expect(world.entityManager.entities.length).toBe(2);
   });

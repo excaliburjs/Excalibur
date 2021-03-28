@@ -187,7 +187,7 @@ describe('A game actor', () => {
 
     const child = new ex.Actor(0, 0, 50, 50);
 
-    actor.add(child);
+    actor.addChild(child);
 
     expect(child.width).toBe(100);
     expect(child.height).toBe(100);
@@ -316,7 +316,7 @@ describe('A game actor', () => {
 
     const child = new ex.Actor(10, 0, 10, 10); // (20, 10)
 
-    actor.add(child);
+    actor.addChild(child);
     actor.update(engine, 100);
 
     expect(child.getGlobalPos().x).toBeCloseTo(10, 0.001);
@@ -332,8 +332,8 @@ describe('A game actor', () => {
     const child = new ex.Actor(10, 0, 10, 10); // (20, 10)
     const grandchild = new ex.Actor(10, 0, 10, 10); // (30, 10)
 
-    actor.add(child);
-    child.add(grandchild);
+    actor.addChild(child);
+    child.addChild(grandchild);
     actor.update(engine, 100);
 
     expect(grandchild.getGlobalRotation()).toBe(rotation);
@@ -348,7 +348,7 @@ describe('A game actor', () => {
 
     const child = new ex.Actor(10, 10, 10, 10);
 
-    actor.add(child);
+    actor.addChild(child);
     actor.update(engine, 100);
 
     expect(child.getGlobalPos().x).toBe(30);
@@ -363,8 +363,8 @@ describe('A game actor', () => {
     const child = new ex.Actor(10, 10, 10, 10);
     const grandchild = new ex.Actor(10, 10, 10, 10);
 
-    actor.add(child);
-    child.add(grandchild);
+    actor.addChild(child);
+    child.addChild(grandchild);
     actor.update(engine, 100);
 
     // Logic:
@@ -384,7 +384,7 @@ describe('A game actor', () => {
 
     const child = new ex.Actor(10, 0, 10, 10); // (30, 10)
 
-    actor.add(child);
+    actor.addChild(child);
     actor.update(engine, 100);
 
     expect(child.getGlobalPos().x).toBeCloseTo(10, 0.001);
@@ -401,8 +401,8 @@ describe('A game actor', () => {
     const child = new ex.Actor(10, 0, 10, 10); // (30, 10)
     const grandchild = new ex.Actor(10, 0, 10, 10); // (50, 10)
 
-    actor.add(child);
-    child.add(grandchild);
+    actor.addChild(child);
+    child.addChild(grandchild);
     actor.update(engine, 100);
 
     expect(grandchild.getGlobalPos().x).toBeCloseTo(10, 0.001);
@@ -417,7 +417,7 @@ describe('A game actor', () => {
     expect(childActor.pos.x).toBe(50);
     expect(childActor.pos.y).toBe(50);
 
-    actor.add(childActor);
+    actor.addChild(childActor);
 
     actor.actions.moveTo(10, 15, 1000);
     actor.update(engine, 1000);
@@ -434,8 +434,8 @@ describe('A game actor', () => {
     const childActor = new ex.Actor(50, 50);
     const grandChildActor = new ex.Actor(10, 10);
 
-    actor.add(childActor);
-    childActor.add(grandChildActor);
+    actor.addChild(childActor);
+    childActor.addChild(grandChildActor);
 
     actor.actions.moveBy(10, 15, 1000);
     actor.update(engine, 1000);
@@ -690,8 +690,8 @@ describe('A game actor', () => {
     const child = new ex.Actor(0, 0, 100, 100);
     const child2 = new ex.Actor(-600, -100, 100, 100);
 
-    parent.add(child);
-    child.add(child2);
+    parent.addChild(child);
+    child.addChild(child2);
 
     // check reality
     expect(parent.contains(550, 50)).toBeTruthy();
@@ -713,14 +713,14 @@ describe('A game actor', () => {
     const parent = new ex.Actor(0, 0, 100, 100);
     const child = new ex.Actor(100, 100, 100, 100);
     const child2 = new ex.Actor(100, 100, 100, 100);
-    parent.add(child);
+    parent.addChild(child);
 
     expect(parent.contains(150, 150)).toBeFalsy();
     expect(child.contains(150, 150)).toBeTruthy();
     expect(parent.contains(150, 150, true)).toBeTruthy();
     expect(parent.contains(200, 200, true)).toBeFalsy();
 
-    child.add(child2);
+    child.addChild(child2);
     expect(parent.contains(250, 250, true)).toBeTruthy();
   });
 
@@ -794,7 +794,7 @@ describe('A game actor', () => {
     const parentActor = new ex.Actor();
     const childActor = new ex.Actor();
     scene.add(parentActor);
-    parentActor.add(childActor);
+    parentActor.addChild(childActor);
 
     spyOn(childActor, 'update');
 
@@ -807,7 +807,7 @@ describe('A game actor', () => {
     const parentActor = new ex.Actor();
     const childActor = new ex.Actor();
     scene.add(parentActor);
-    parentActor.add(childActor);
+    parentActor.addChild(childActor);
 
     spyOn(childActor, 'draw');
 
@@ -820,7 +820,7 @@ describe('A game actor', () => {
     const parentActor = new ex.Actor();
     const childActor = new ex.Actor();
     scene.add(parentActor);
-    parentActor.add(childActor);
+    parentActor.addChild(childActor);
 
     spyOn(childActor, 'draw');
 
@@ -899,8 +899,8 @@ describe('A game actor', () => {
     const child = new ex.Actor();
     const grandchild = new ex.Actor();
     let initializeCount = 0;
-    actor.add(child);
-    child.add(grandchild);
+    actor.addChild(child);
+    child.addChild(grandchild);
     actor.on('initialize', () => {
       initializeCount++;
     });
