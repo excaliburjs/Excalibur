@@ -65,9 +65,9 @@ describe('An entity', () => {
     expect(entity.getComponents()).toEqual([]);
 
     entity.addComponent(typeA)
-          .addComponent(typeB)
-          .addComponent(typeC);
-    
+      .addComponent(typeB)
+      .addComponent(typeC);
+
     expect(entity.getComponents().sort((a, b) => a.type.localeCompare(b.type))).toEqual([typeA, typeB, typeC]);
   });
 
