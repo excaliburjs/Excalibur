@@ -404,7 +404,7 @@ export class ParticleEmitterImpl extends Actor {
     this._particlesToEmit = 0;
     this.body.collider.type = CollisionType.PreventCollision;
     this.random = new Random();
-    this.removeComponent(this.components.canvas);
+    this.removeComponent('canvas');
 
     // Remove offscreen culling from particle emitters
     for (let i = 0; i < this.traits.length; i++) {

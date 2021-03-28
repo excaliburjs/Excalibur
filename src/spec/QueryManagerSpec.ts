@@ -144,7 +144,7 @@ describe('A QueryManager', () => {
 
     expect(queryAB.getEntities()).toEqual([entity1, entity2]);
 
-    const removed = entity1.components.A;
+    const removed = entity1.get('A');
     entity1.removeComponent('A');
     world.queryManager.removeComponent(entity1, removed);
 
@@ -168,7 +168,7 @@ describe('A QueryManager', () => {
 
     expect(queryAB.getEntities()).toEqual([entity1, entity2]);
 
-    const removed = entity1.components.C;
+    const removed = entity1.get('C');
     entity1.removeComponent('C');
     world.queryManager.removeComponent(entity1, removed);
 

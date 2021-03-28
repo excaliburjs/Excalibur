@@ -56,6 +56,21 @@ describe('An entity', () => {
     expect(entity.types).toEqual([]);
   });
 
+  it('can get a list of components', () => {
+    const entity = new ex.Entity();
+    const typeA = new FakeComponent('A');
+    const typeB = new FakeComponent('B');
+    const typeC = new FakeComponent('C');
+
+    expect(entity.getComponents()).toEqual([]);
+
+    entity.addComponent(typeA)
+          .addComponent(typeB)
+          .addComponent(typeC);
+    
+    expect(entity.getComponents().sort((a, b) => a.type.localeCompare(b.type))).toEqual([typeA, typeB, typeC]);
+  });
+
   it('can have type from tag components', () => {
     const entity = new ex.Entity();
     const isOffscreen = new TagComponent('offscreen');
@@ -73,7 +88,7 @@ describe('An entity', () => {
   it('can be observed for added changes', (done) => {
     const entity = new ex.Entity();
     const typeA = new FakeComponent('A');
-    entity.changes.register({
+    entity.componentAdded$.register({
       notify: (change) => {
         expect(change.type).toBe('Component Added');
         expect(change.data.entity).toBe(entity);
@@ -89,7 +104,7 @@ describe('An entity', () => {
     const typeA = new FakeComponent('A');
 
     entity.addComponent(typeA);
-    entity.changes.register({
+    entity.componentRemoved$.register({
       notify: (change) => {
         expect(change.type).toBe('Component Removed');
         expect(change.data.entity).toBe(entity);
@@ -107,14 +122,44 @@ describe('An entity', () => {
     const typeB = new FakeComponent('B');
     entity.addComponent(typeA);
     entity.addComponent(typeB);
+    entity.add(
+      new ex.Entity([
+        new FakeComponent('Z')
+      ])
+    );
 
     const clone = entity.clone();
     expect(clone).not.toBe(entity);
     expect(clone.id).not.toBe(entity.id);
-    expect(clone.components.A).not.toBe(entity.components.A);
-    expect(clone.components.B).not.toBe(entity.components.B);
-    expect(clone.components.A.type).toBe(entity.components.A.type);
-    expect(clone.components.B.type).toBe(entity.components.B.type);
+    expect(clone.get('A')).not.toBe(entity.get('A'));
+    expect(clone.get('B')).not.toBe(entity.get('B'));
+    expect(clone.get('A').type).toBe(entity.get('A').type);
+    expect(clone.get('B').type).toBe(entity.get('B').type);
+    expect(clone.children.length).toBe(1);
+    expect(clone.children[0].types).toEqual(['Z']);
+  });
+
+  it('can be initialized with a template', () => {
+    const entity = new ex.Entity();
+    const template = new ex.Entity([
+      new FakeComponent('A'),
+      new FakeComponent('B')
+    ]).add(
+      new ex.Entity([
+        new FakeComponent('C'),
+        new FakeComponent('D')
+      ]).add(
+        new ex.Entity([
+          new FakeComponent('Z')
+        ])
+      )
+    );
+
+    expect(entity.getComponents()).toEqual([]);
+    entity.addTemplate(template);
+    expect(entity.types.sort((a, b) => a.localeCompare(b))).toEqual(['A', 'B']);
+    expect(entity.children[0].types.sort((a, b) => a.localeCompare(b))).toEqual(['C', 'D']);
+    expect(entity.children[0].children[0].types).toEqual(['Z']);
   });
 
   it('can be checked if it has a component', () => {

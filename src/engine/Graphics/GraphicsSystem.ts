@@ -28,7 +28,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   }
 
   public sort(a: Entity<TransformComponent | GraphicsComponent>, b: Entity<TransformComponent | GraphicsComponent>) {
-    return a.components.transform.z - b.components.transform.z;
+    return a.get(TransformComponent).z - b.get(TransformComponent).z;
   }
 
   public update(entities: Entity<GraphicsComponent | TransformComponent>[], delta: number): void {
@@ -38,8 +38,8 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     let graphics: GraphicsComponent;
 
     for (const entity of entities) {
-      transform = entity.components.transform;
-      graphics = entity.components.graphics;
+      transform = entity.get(TransformComponent);
+      graphics = entity.get(GraphicsComponent);
 
       // Figure out if entities are offscreen
       const entityOffscreen = this._isOffscreen(transform, graphics);

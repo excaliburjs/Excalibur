@@ -26,7 +26,7 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
   }
 
   public sort(a: Entity<TransformComponent | CanvasDrawComponent>, b: Entity<TransformComponent | CanvasDrawComponent>) {
-    return a.components.transform.z - b.components.transform.z;
+    return a.get(TransformComponent).z - b.get(TransformComponent).z;
   }
 
   public update(entities: Entity<TransformComponent | CanvasDrawComponent>[], delta: number) {
@@ -37,8 +37,8 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
     const length = entities.length;
     for (let i = 0; i < length; i++) {
       if ((entities[i] as Actor).visible && !(entities[i] as Actor).isOffScreen) {
-        transform = entities[i].components.transform;
-        canvasdraw = entities[i].components.canvas;
+        transform = entities[i].get(TransformComponent);
+        canvasdraw = entities[i].get(CanvasDrawComponent);
 
         this._ctx.save();
         this._pushCameraTransform(transform);
