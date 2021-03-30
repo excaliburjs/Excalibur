@@ -32,7 +32,7 @@ export enum EmitterType {
 /**
  * @hidden
  */
-export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent> {
+export class ParticleImpl extends Entity {
   public position: Vector = new Vector(0, 0);
   public velocity: Vector = new Vector(0, 0);
   public acceleration: Vector = new Vector(0, 0);

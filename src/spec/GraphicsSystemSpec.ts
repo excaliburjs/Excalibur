@@ -5,7 +5,7 @@ import { GraphicsComponent } from '../engine/Graphics';
 import { TestUtils } from './util/TestUtils';
 
 describe('A Graphics ECS System', () => {
-  let entities: ex.Entity<ex.TransformComponent | ex.Graphics.GraphicsComponent>[];
+  let entities: ex.Entity[];
   let engine: ex.Engine;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -45,9 +45,7 @@ describe('A Graphics ECS System', () => {
       color: ex.Color.Yellow
     });
 
-    const offscreen = new ex.Entity([new TransformComponent(), new GraphicsComponent()]) as ex.Entity<
-    TransformComponent | GraphicsComponent
-    >;
+    const offscreen = new ex.Entity([new TransformComponent(), new GraphicsComponent()]);
 
     offscreen.get(GraphicsComponent).show(rect);
     offscreen.get(TransformComponent).pos = ex.vec(112.5, 112.5);

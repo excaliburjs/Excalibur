@@ -45,23 +45,6 @@ export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedCom
   return !!x && x.type === 'Component Removed';
 }
 
-export type ComponentMap = { [type: string]: Component };
-
-// Given a TypeName string (Component.type), find the ComponentType that goes with that type name
-export type MapTypeNameToComponent<TypeName extends string, ComponentType extends Component> =
-  // If the ComponentType is a Component with type = TypeName then that's the type we are looking for
-  ComponentType extends Component<TypeName> ? ComponentType : never;
-
-// Given a type union of PossibleComponentTypes, create a dictionary that maps that type name string to those individual types
-export type ComponentMapper<PossibleComponentTypes extends Component> = {
-  [TypeName in PossibleComponentTypes['type']]: MapTypeNameToComponent<TypeName, PossibleComponentTypes>;
-} &
-ComponentMap;
-
-export type ExcludeType<TypeUnion, TypeNameOrType> = TypeNameOrType extends string
-  ? Exclude<TypeUnion, Component<TypeNameOrType>>
-  : Exclude<TypeUnion, TypeNameOrType>;
-
 /**
  * An Entity is the base type of anything that can have behavior in Excalibur, they are part of the built in entity component system
  *
@@ -73,7 +56,7 @@ export type ExcludeType<TypeUnion, TypeNameOrType> = TypeNameOrType extends stri
  * entity.components.b; // Type ComponentB
  * ```
  */
-export class Entity<KnownComponents extends Component = never> extends Class implements OnInitialize, OnPreUpdate, OnPostUpdate {
+export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUpdate {
   private static _ID = 0;
 
   constructor(components?: Component[]) {
@@ -308,7 +291,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * @param component Component or Entity to add copy of components from
    * @param force Optionally overwrite any existing components of the same type
    */
-  public addComponent<T extends Component>(component: T, force: boolean = false): Entity<KnownComponents | T> {
+  public addComponent<T extends Component>(component: T, force: boolean = false): Entity {
     // if component already exists, skip if not forced
     if (this.has(component.type)) {
       if (force) {
@@ -316,7 +299,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
         this.removeComponent(component);
       } else {
         // early exit component exiss
-        return this as Entity<KnownComponents | T>;
+        return this;
       }
     }
 
@@ -336,7 +319,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
     }
     this._notifyAddComponent(component);
 
-    return this as Entity<KnownComponents | T>;
+    return this;
   }
 
   /**
@@ -349,7 +332,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
   public removeComponent<ComponentOrType extends string | Component>(
     componentOrType: ComponentOrType,
     force = false
-  ): Entity<ExcludeType<KnownComponents, ComponentOrType>> {
+  ): Entity {
     if (force) {
       if (typeof componentOrType === 'string') {
         this._removeComponentByType(componentOrType);
@@ -409,9 +392,9 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
    * (Does not work on tag components, use .hasTag("mytag") instead)
    * @param type
    */
-  public get<T extends Component>(type: ComponentCtor<T>): T;
-  public get<T extends Component>(type: string): T;
-  public get<T extends Component>(type: ComponentCtor<T> | string): T {
+  public get<T extends Component>(type: ComponentCtor<T>): T | null;
+  public get<T extends Component>(type: string): T | null;
+  public get<T extends Component>(type: ComponentCtor<T> | string): T | null {
     if (typeof type === 'string') {
       return this._componentStringToInstance.get(type) as T;
     } else {

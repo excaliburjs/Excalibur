@@ -57,7 +57,7 @@ implements Observer<AddedEntity | RemovedEntity> {
    * @param a The left entity
    * @param b The right entity
    */
-  sort?(a: Entity<ComponentTypeUnion>, b: Entity<ComponentTypeUnion>): number;
+  sort?(a: Entity, b: Entity): number;
 
   /**
    * Optionally specify an initialize handler
@@ -70,7 +70,7 @@ implements Observer<AddedEntity | RemovedEntity> {
    * @param entities Entities to update that match this system's typse
    * @param delta Time in milliseconds
    */
-  abstract update(entities: Entity<ComponentTypeUnion>[], delta: number): void;
+  abstract update(entities: Entity[], delta: number): void;
 
   /**
    * Optionally run a preupdate before the system processes matching entities

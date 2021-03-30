@@ -25,11 +25,11 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
     this._camera = scene.camera;
   }
 
-  public sort(a: Entity<TransformComponent | CanvasDrawComponent>, b: Entity<TransformComponent | CanvasDrawComponent>) {
+  public sort(a: Entity, b: Entity) {
     return a.get(TransformComponent).z - b.get(TransformComponent).z;
   }
 
-  public update(entities: Entity<TransformComponent | CanvasDrawComponent>[], delta: number) {
+  public update(entities: Entity[], delta: number) {
     this._clearScreen();
 
     let transform: TransformComponent;
@@ -72,7 +72,7 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
     this._engine.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
   }
 
-  private _applyTransform(entity: Entity<TransformComponent>) {
+  private _applyTransform(entity: Entity) {
     const ancestors = entity.getAncestors();
     for (const ancestor of ancestors) {
       const transform = ancestor?.get(TransformComponent);

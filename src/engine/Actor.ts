@@ -86,7 +86,7 @@ export interface ActorDefaults {
  */
 
 export class ActorImpl
-  extends Entity<TransformComponent | CanvasDrawComponent | GraphicsComponent>
+  extends Entity
   implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 

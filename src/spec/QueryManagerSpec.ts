@@ -18,11 +18,11 @@ describe('A QueryManager', () => {
 
   it('can create queries for entities', () => {
     const world = new ex.World(null);
-    const entity1 = new ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>();
+    const entity1 = new ex.Entity();
     entity1.addComponent(new FakeComponent('A'));
     entity1.addComponent(new FakeComponent('B'));
 
-    const entity2 = new ex.Entity<FakeComponent<'A'>>();
+    const entity2 = new ex.Entity();
     entity2.addComponent(new FakeComponent('A'));
 
     world.entityManager.addEntity(entity1);
@@ -39,7 +39,7 @@ describe('A QueryManager', () => {
     // Queries update if component change
     entity2.addComponent(new FakeComponent('B'));
     expect(queryAB.getEntities()).toEqual(
-      [entity1, entity2 as ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>],
+      [entity1, entity2],
       'Now both entities have A+B'
     );
 

@@ -19,7 +19,7 @@ import { obsolete } from './Util/Decorators';
 /**
  * @hidden
  */
-export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> {
+export class TileMapImpl extends Entity {
   private _collidingX: number = -1;
   private _collidingY: number = -1;
   private _onScreenXStart: number = 0;
@@ -385,7 +385,7 @@ export class TileMap extends Configurable(TileMapImpl) {
 /**
  * @hidden
  */
-export class CellImpl extends Entity<TransformComponent | GraphicsComponent> {
+export class CellImpl extends Entity {
   private _bounds: BoundingBox;
   public x: number;
   public y: number;

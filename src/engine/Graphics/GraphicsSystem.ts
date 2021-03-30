@@ -27,11 +27,11 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     this._engine = scene.engine;
   }
 
-  public sort(a: Entity<TransformComponent | GraphicsComponent>, b: Entity<TransformComponent | GraphicsComponent>) {
+  public sort(a: Entity, b: Entity) {
     return a.get(TransformComponent).z - b.get(TransformComponent).z;
   }
 
-  public update(entities: Entity<GraphicsComponent | TransformComponent>[], delta: number): void {
+  public update(entities: Entity[], delta: number): void {
     this._clearScreen();
     this._token++;
     let transform: TransformComponent;
@@ -190,7 +190,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
   /* istanbul ignore next */
   private _graphicsBoundsDebugDraw(
-    entity: Entity<GraphicsComponent | TransformComponent>,
+    entity: Entity,
     _transform: TransformComponent,
     _graphics: GraphicsComponent
   ) {
