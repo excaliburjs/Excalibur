@@ -67,7 +67,7 @@ implements Observer<AddedEntity | RemovedEntity> {
 
   /**
    * Update all entities that match this system's types
-   * @param entities Entities to update that match this system's typse
+   * @param entities Entities to update that match this system's types
    * @param delta Time in milliseconds
    */
   abstract update(entities: Entity[], delta: number): void;
