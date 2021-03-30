@@ -19,7 +19,7 @@ import { obsolete } from './Util/Decorators';
 /**
  * @hidden
  */
-export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> {
+export class TileMapImpl extends Entity {
   private _collidingX: number = -1;
   private _collidingY: number = -1;
   private _onScreenXStart: number = 0;
@@ -38,61 +38,63 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
   public rows: number;
   public cols: number;
 
+  private _transform: TransformComponent;
+
   public get x(): number {
-    return this.components?.transform?.pos.x ?? 0;
+    return this._transform.pos.x ?? 0;
   }
 
   public set x(val: number) {
-    if (this.components?.transform?.pos) {
-      this.components.transform.pos = vec(val, this.y);
+    if (this._transform?.pos) {
+      this.get(TransformComponent).pos = vec(val, this.y);
     }
   }
 
   public get y(): number {
-    return this.components?.transform?.pos.y ?? 0;
+    return this._transform?.pos.y ?? 0;
   }
 
   public set y(val: number) {
-    if (this.components?.transform?.pos) {
-      this.components.transform.pos = vec(this.x, val);
+    if (this._transform?.pos) {
+      this._transform.pos = vec(this.x, val);
     }
   }
 
   public get z(): number {
-    return this.components?.transform.z ?? 0;
+    return this._transform.z ?? 0;
   }
 
   public set z(val: number) {
-    if (this.components?.transform?.z) {
-      this.components.transform.z = val;
+    if (this._transform?.z) {
+      this._transform.z = val;
     }
   }
 
   public get rotation(): number {
-    return this.components?.transform?.rotation ?? 0;
+    return this._transform?.rotation ?? 0;
   }
 
   public set rotation(val: number) {
-    if (this.components?.transform?.rotation) {
-      this.components.transform.rotation = val;
+    if (this._transform?.rotation) {
+      this._transform.rotation = val;
     }
   }
 
   public get scale(): Vector {
-    return this.components?.transform?.scale ?? Vector.One;
+    return this._transform?.scale ?? Vector.One;
   }
   public set scale(val: Vector) {
-    if (this.components?.transform?.scale) {
-      this.components.transform.scale = val;
+    if (this._transform?.scale) {
+      this._transform.scale = val;
     }
   }
 
   public get pos(): Vector {
-    return this.components.transform.pos;
+    return this._transform.pos;
   }
 
   public set pos(val: Vector) {
-    this.components.transform.pos = val;
+    this._transform.pos = val;
   }
 
   public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent<TileMap>) => void): void;
@@ -145,8 +147,8 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
         })();
       }
     }
-
-    this.components.graphics.localBounds = new BoundingBox({
+    this._transform = this.get(TransformComponent);
+    this.get(GraphicsComponent).localBounds = new BoundingBox({
       left: 0,
       top: 0,
       right: this.cols * this.cellWidth,
@@ -267,7 +269,7 @@ export class TileMapImpl extends Entity<TransformComponent | GraphicsComponent> 
     this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
     this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0);
     this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
-    this.components.transform.pos = vec(this.x, this.y);
+    this._transform.pos = vec(this.x, this.y);
 
     this.onPostUpdate(engine, delta);
     this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
@@ -383,7 +385,7 @@ export class TileMap extends Configurable(TileMapImpl) {
 /**
  * @hidden
  */
-export class CellImpl extends Entity<TransformComponent | GraphicsComponent> {
+export class CellImpl extends Entity {
   private _bounds: BoundingBox;
   public x: number;
   public y: number;

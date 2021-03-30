@@ -7,6 +7,6 @@ game.showDebug(true);
 game.start().then(() => {
   var parent = new ex.Actor(100, 100, 100 * 1.5, 100 * 1.5, ex.Color.Red);
   var child = new ex.Actor(150, 150, 100, 100, ex.Color.White);
-  parent.add(child);
+  parent.addChild(child);
   game.add(parent);
 });

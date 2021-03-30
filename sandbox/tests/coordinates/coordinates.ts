@@ -46,11 +46,11 @@ class PointLabel extends ex.Actor {
 
     this._expectLabel = new ex.Label('', 5, 10);
     this._expectLabel.color = ex.Color.fromHex('#249111');
-    this.add(this._expectLabel);
+    this.addChild(this._expectLabel);
 
     this._actualLabel = new ex.Label('', 5, 20);
     this._actualLabel.color = ex.Color.Blue;
-    this.add(this._actualLabel);
+    this.addChild(this._actualLabel);
   }
 
   update(engine: ex.Engine, delta: number) {

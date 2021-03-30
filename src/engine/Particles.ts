@@ -32,7 +32,7 @@ export enum EmitterType {
 /**
  * @hidden
  */
-export class ParticleImpl extends Entity<TransformComponent | GraphicsComponent> {
+export class ParticleImpl extends Entity {
   public position: Vector = new Vector(0, 0);
   public velocity: Vector = new Vector(0, 0);
   public acceleration: Vector = new Vector(0, 0);
@@ -404,7 +404,7 @@ export class ParticleEmitterImpl extends Actor {
     this._particlesToEmit = 0;
     this.body.collider.type = CollisionType.PreventCollision;
     this.random = new Random();
-    this.removeComponent(this.components.canvas);
+    this.removeComponent('canvas');
 
     // Remove offscreen culling from particle emitters
     for (let i = 0; i < this.traits.length; i++) {

@@ -27,19 +27,19 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     this._engine = scene.engine;
   }
 
-  public sort(a: Entity<TransformComponent | GraphicsComponent>, b: Entity<TransformComponent | GraphicsComponent>) {
-    return a.components.transform.z - b.components.transform.z;
+  public sort(a: Entity, b: Entity) {
+    return a.get(TransformComponent).z - b.get(TransformComponent).z;
   }
 
-  public update(entities: Entity<GraphicsComponent | TransformComponent>[], delta: number): void {
+  public update(entities: Entity[], delta: number): void {
     this._clearScreen();
     this._token++;
     let transform: TransformComponent;
     let graphics: GraphicsComponent;
 
     for (const entity of entities) {
-      transform = entity.components.transform;
-      graphics = entity.components.graphics;
+      transform = entity.get(TransformComponent);
+      graphics = entity.get(GraphicsComponent);
 
       // Figure out if entities are offscreen
       const entityOffscreen = this._isOffscreen(transform, graphics);
@@ -190,7 +190,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
   /* istanbul ignore next */
   private _graphicsBoundsDebugDraw(
-    entity: Entity<GraphicsComponent | TransformComponent>,
+    entity: Entity,
     _transform: TransformComponent,
     _graphics: GraphicsComponent
   ) {

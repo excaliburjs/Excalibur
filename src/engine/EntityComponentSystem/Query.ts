@@ -14,7 +14,7 @@ import { AddedEntity, RemovedEntity } from './System';
  */
 export class Query<T extends Component = Component> extends Observable<AddedEntity | RemovedEntity> {
   public types: readonly string[];
-  private _entities: Entity<T>[] = [];
+  private _entities: Entity[] = [];
   private _key: string;
   public get key(): string {
     if (this._key) {
@@ -39,7 +39,7 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    *
    * @param sort Optional sorting function to sort entities returned from the query
    */
-  public getEntities(sort?: (a: Entity<T>, b: Entity<T>) => number): Entity<T>[] {
+  public getEntities(sort?: (a: Entity, b: Entity) => number): Entity[] {
     if (sort) {
       this._entities.sort(sort);
     }
@@ -50,7 +50,7 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    * Add an entity to the query, will only be added if the entity matches the query types
    * @param entity
    */
-  public addEntity(entity: Entity<T>): void {
+  public addEntity(entity: Entity): void {
     if (!Util.contains(this._entities, entity) && this.matches(entity)) {
       this._entities.push(entity);
       this.notifyAll(new AddedEntity(entity));
@@ -61,7 +61,7 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    * If the entity is part of the query it will be removed regardless of types
    * @param entity
    */
-  public removeEntity(entity: Entity<T>): void {
+  public removeEntity(entity: Entity): void {
     if (Util.removeItemFromArray(entity, this._entities)) {
       this.notifyAll(new RemovedEntity(entity));
     }

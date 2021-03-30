@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Removes `Entity.components` as a way to access, add, and remove components
 - Camera.z has been renamed to property `zoom` which is the zoom factor
 - Camera.zoom(...) has been renamed to function `zoomOverTime()`
 - TileMap no longer needs registered SpriteSheets, `Sprite`'s can be added directly to `Cell`'s with `addSprite`
@@ -27,7 +28,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Tag `offscreen` is now added to entities that are offscreen
 - Added `Entity.componentAdded$` and `Entity.componentRemoved$` for observing component changes on an entity.
 - For child/parent entities:
-  - Added `Entity.add(entity: Entity)`, `Entity.remove(entity: Entity)`, `Entity.removeAll()` for managing child entities
+  - Added `Entity.addChild(entity: Entity)`, `Entity.removeChild(entity: Entity)`, `Entity.removeAllChildren()` for managing child entities
+  - Added `Entity.addTemplate(templateEntity: Entity)` for adding template entities or "prefab".
   - Added `Entity.parent` readonly accessor to the parent (if exists), and `Entity.unparent()` to unparent an entity.
   - Added `Entity.getAncestors()` is a sorted list of parents starting with the topmost parent.
   - Added `Entity.children` readonly accessor to the list of children.

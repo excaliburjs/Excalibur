@@ -230,12 +230,13 @@ export class LabelImpl extends Actor {
     }
 
     this.addComponent(new TransformComponent);
-    this.components.transform.pos = pos;
+    this.get(TransformComponent).pos = pos;
 
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
     this.addComponent(new GraphicsComponent);
-    this.components.graphics.anchor = Vector.Zero;
-    this.components.graphics.use(this._text);
+    const gfx = this.get(GraphicsComponent);
+    gfx.anchor = Vector.Zero;
+    gfx.use(this._text);
 
     this.text = text || '';
     this.color = Color.Black;

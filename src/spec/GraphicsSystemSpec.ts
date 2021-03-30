@@ -5,7 +5,7 @@ import { GraphicsComponent } from '../engine/Graphics';
 import { TestUtils } from './util/TestUtils';
 
 describe('A Graphics ECS System', () => {
-  let entities: ex.Entity<ex.TransformComponent | ex.Graphics.GraphicsComponent>[];
+  let entities: ex.Entity[];
   let engine: ex.Engine;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -17,9 +17,9 @@ describe('A Graphics ECS System', () => {
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.Graphics.GraphicsComponent()),
       new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.Graphics.GraphicsComponent())
     ];
-    entities[0].components.transform.z = 10;
-    entities[1].components.transform.z = 5;
-    entities[2].components.transform.z = 1;
+    entities[0].get(TransformComponent).z = 10;
+    entities[1].get(TransformComponent).z = 5;
+    entities[2].get(TransformComponent).z = 1;
   });
 
   it('exists', () => {
@@ -45,9 +45,7 @@ describe('A Graphics ECS System', () => {
       color: ex.Color.Yellow
     });
 
-    const offscreen = new ex.Entity([new TransformComponent(), new GraphicsComponent()]) as ex.Entity<
-    TransformComponent | GraphicsComponent
-    >;
+    const offscreen = new ex.Entity([new TransformComponent(), new GraphicsComponent()]);
 
     offscreen.get(GraphicsComponent).show(rect);
     offscreen.get(TransformComponent).pos = ex.vec(112.5, 112.5);
@@ -97,21 +95,21 @@ describe('A Graphics ECS System', () => {
       color: ex.Color.Red
     });
 
-    entities[0].components.transform.pos = ex.vec(25, 25);
-    entities[0].components.transform.rotation = Math.PI / 4;
-    entities[0].components.graphics.show(rect);
+    entities[0].get(TransformComponent).pos = ex.vec(25, 25);
+    entities[0].get(TransformComponent).rotation = Math.PI / 4;
+    entities[0].get(GraphicsComponent).show(rect);
 
-    entities[1].components.transform.pos = ex.vec(75, 75);
-    entities[1].components.graphics.show(circle);
+    entities[1].get(TransformComponent).pos = ex.vec(75, 75);
+    entities[1].get(GraphicsComponent).show(circle);
 
-    entities[2].components.transform.pos = ex.vec(75, 25);
-    entities[2].components.transform.scale = ex.vec(2, 2);
-    entities[2].components.graphics.show(rect2);
+    entities[2].get(TransformComponent).pos = ex.vec(75, 25);
+    entities[2].get(TransformComponent).scale = ex.vec(2, 2);
+    entities[2].get(GraphicsComponent).show(rect2);
 
     const offscreenRect = rect.clone();
     const offscreen = new ex.Entity().addComponent(new TransformComponent()).addComponent(new GraphicsComponent());
-    offscreen.components.transform.pos = ex.vec(112.5, 112.5);
-    offscreen.components.graphics.show(offscreenRect);
+    offscreen.get(TransformComponent).pos = ex.vec(112.5, 112.5);
+    offscreen.get(GraphicsComponent).show(offscreenRect);
 
     spyOn(rect, 'draw').and.callThrough();
     spyOn(circle, 'draw').and.callThrough();

@@ -25,11 +25,11 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
     this._camera = scene.camera;
   }
 
-  public sort(a: Entity<TransformComponent | CanvasDrawComponent>, b: Entity<TransformComponent | CanvasDrawComponent>) {
-    return a.components.transform.z - b.components.transform.z;
+  public sort(a: Entity, b: Entity) {
+    return a.get(TransformComponent).z - b.get(TransformComponent).z;
   }
 
-  public update(entities: Entity<TransformComponent | CanvasDrawComponent>[], delta: number) {
+  public update(entities: Entity[], delta: number) {
     this._clearScreen();
 
     let transform: TransformComponent;
@@ -37,8 +37,8 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
     const length = entities.length;
     for (let i = 0; i < length; i++) {
       if ((entities[i] as Actor).visible && !(entities[i] as Actor).isOffScreen) {
-        transform = entities[i].components.transform;
-        canvasdraw = entities[i].components.canvas;
+        transform = entities[i].get(TransformComponent);
+        canvasdraw = entities[i].get(CanvasDrawComponent);
 
         this._ctx.save();
         this._pushCameraTransform(transform);
@@ -72,7 +72,7 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
     this._engine.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
   }
 
-  private _applyTransform(entity: Entity<TransformComponent>) {
+  private _applyTransform(entity: Entity) {
     const ancestors = entity.getAncestors();
     for (const ancestor of ancestors) {
       const transform = ancestor?.get(TransformComponent);

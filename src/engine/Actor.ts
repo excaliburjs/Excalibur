@@ -86,7 +86,7 @@ export interface ActorDefaults {
  */
 
 export class ActorImpl
-  extends Entity<TransformComponent | CanvasDrawComponent | GraphicsComponent>
+  extends Entity
   implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
@@ -982,7 +982,7 @@ export class ActorImpl
     alternateMethod: 'Use Actor.transform.z or Actor.z'
   })
   public getZIndex(): number {
-    return this.components.transform.z;
+    return this.get(TransformComponent).z;
   }
 
   /**
@@ -997,7 +997,7 @@ export class ActorImpl
     alternateMethod: 'Use Actor.transform.z or Actor.z'
   })
   public setZIndex(newIndex: number) {
-    this.components.transform.z = newIndex;
+    this.get(TransformComponent).z = newIndex;
   }
 
   /**

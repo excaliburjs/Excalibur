@@ -18,11 +18,11 @@ describe('A QueryManager', () => {
 
   it('can create queries for entities', () => {
     const world = new ex.World(null);
-    const entity1 = new ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>();
+    const entity1 = new ex.Entity();
     entity1.addComponent(new FakeComponent('A'));
     entity1.addComponent(new FakeComponent('B'));
 
-    const entity2 = new ex.Entity<FakeComponent<'A'>>();
+    const entity2 = new ex.Entity();
     entity2.addComponent(new FakeComponent('A'));
 
     world.entityManager.addEntity(entity1);
@@ -39,7 +39,7 @@ describe('A QueryManager', () => {
     // Queries update if component change
     entity2.addComponent(new FakeComponent('B'));
     expect(queryAB.getEntities()).toEqual(
-      [entity1, entity2 as ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>],
+      [entity1, entity2],
       'Now both entities have A+B'
     );
 
@@ -144,7 +144,7 @@ describe('A QueryManager', () => {
 
     expect(queryAB.getEntities()).toEqual([entity1, entity2]);
 
-    const removed = entity1.components.A;
+    const removed = entity1.get('A');
     entity1.removeComponent('A');
     world.queryManager.removeComponent(entity1, removed);
 
@@ -168,7 +168,7 @@ describe('A QueryManager', () => {
 
     expect(queryAB.getEntities()).toEqual([entity1, entity2]);
 
-    const removed = entity1.components.C;
+    const removed = entity1.get('C');
     entity1.removeComponent('C');
     world.queryManager.removeComponent(entity1, removed);
 
