@@ -182,9 +182,11 @@ export class Physics {
    */
   public static boundsPadding = 5;
 
-  public static positionIterations = 10;
+  public static positionIterations = 2;
 
-  public static velocityIterations = 5;
+  public static velocityIterations = 8;
+
+  public static warmStart = true;
 
   public static overlapDampening = .9;
 

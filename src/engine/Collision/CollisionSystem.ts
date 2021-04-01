@@ -23,6 +23,8 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
   public systemType = SystemType.Update;
   public priority = -1;
 
+  private _rigidBodySolver = new RigidBodySolver();
+  private _boxSolver = new BoxSolver();
   private _processor = new DynamicTreeCollisionProcessor();
   private _lastFrameContacts = new Map<string, CollisionContact>();
   private _currentFrameContacts = new Map<string, CollisionContact>();
@@ -57,39 +59,31 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       entity.components.body.update(); // Update body collider geometry
       colliders = colliders.concat(entity.components.body.getColliders());
     }
-    this._processor.update(colliders); // TODO if collider invalid it will break the processor
+
+    // Update the spatial partitioning data structures
+    // TODO if collider invalid it will break the processor
+    this._processor.update(colliders); 
 
     // Run broadphase on all colliders and locates potential collisions
     let pairs = this._processor.broadphase(colliders, elapsedMs);
 
-    let iter: number = Physics.collisionPasses;
     this._currentFrameContacts.clear();
-    while (iter > 0) {
-      // Re-run narrowphase each pass
-      let contacts = this._processor.narrowphase(pairs);
 
-      // Sort by most severe contacts
-      contacts = contacts.sort((a, b) => b.mtv.size - a.mtv.size);
+    let contacts = this._processor.narrowphase(pairs);
 
-      // Resolve collisions adjust positions and apply velocities
-      if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.RigidBody) {
-        this._resolveRigidBody(contacts);
-      } else {
-        this._resolveBoxCollisions(contacts)
-      }
-
-      // Record contacts
-      contacts.forEach(c => this._currentFrameContacts.set(c.id, c));
-
-      // Remove any pairs that can no longer collide
-      // Or they did not have a contact
-      pairs = pairs.filter(p => p.canCollide && contacts.find(c => c.id === p.id));
-
-      iter--;
+    // Resolve collisions adjust positions and apply velocities
+    if (Physics.collisionResolutionStrategy === CollisionResolutionStrategy.RigidBody) {
+      this._resolveRigidBody(contacts);
+    } else {
+      this._resolveBoxCollisions(contacts)
     }
-    
+
+    // Record contacts
+    contacts.forEach(c => this._currentFrameContacts.set(c.id, c));
+
     // Keep track of collisions contacts that have started or ended
     this.runContactStartEnd();
+
     // reset the last frame cache
     this._lastFrameContacts.clear();
     this._lastFrameContacts = new Map(this._currentFrameContacts);
@@ -117,119 +111,134 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     ctx.restore();
   }
 
-  private _resolveRigidBody(contacts: CollisionContact[]): void {    
-    let bodyA: BodyComponent;
-    let bodyB: BodyComponent;
-    let contactCounts: {[id: string]: number } = {};
+  private _resolveRigidBody(contacts: CollisionContact[]): void {
+    // let bodyA: BodyComponent;
+    // let bodyB: BodyComponent;
+    // let contactCounts: {[id: string]: number } = {};
 
-    for (const contact of contacts) {
-      // Publish collision events on both participants
-      const side = Side.fromDirection(contact.mtv);
-      contact.colliderA.events.emit('precollision', new PreCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv));
-      contact.colliderA.events.emit('beforecollisionresolve', new BeforeCollisionResolveEvent(
-        contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any);
-      contact.colliderB.events.emit(
-        'precollision',
-        new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate())
-      );
-      contact.colliderB.events.emit('beforecollisionresolve', new BeforeCollisionResolveEvent(
-        contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
-      );
+    // // TODO move into presolve
+    // for (const contact of contacts) {
+    //   // Publish collision events on both participants
+    //   const side = Side.fromDirection(contact.mtv);
+    //   contact.colliderA.events.emit('precollision', new PreCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv));
+    //   contact.colliderA.events.emit('beforecollisionresolve', new BeforeCollisionResolveEvent(
+    //     contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any);
+    //   contact.colliderB.events.emit(
+    //     'precollision',
+    //     new PreCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate())
+    //   );
+    //   contact.colliderB.events.emit('beforecollisionresolve', new BeforeCollisionResolveEvent(
+    //     contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
+    //   );
 
-      contact.matchAwake();
-      let a = contact.colliderA.owner.id.value;
-      let b = contact.colliderB.owner.id.value;
+    //   // Match awake state
+    //   contact.matchAwake();
+    //   let a = contact.colliderA.owner.id.value;
+    //   let b = contact.colliderB.owner.id.value;
 
-      if (!contactCounts[a]) {
-        contactCounts[a] = 1;
-      } else {
-        contactCounts[a]++;
-      }
+    //   if (!contactCounts[a]) {
+    //     contactCounts[a] = 1;
+    //   } else {
+    //     contactCounts[a]++;
+    //   }
 
-      if (!contactCounts[b]) {
-        contactCounts[b] = 1;
-      } else {
-        contactCounts[b]++;
+    //   if (!contactCounts[b]) {
+    //     contactCounts[b] = 1;
+    //   } else {
+    //     contactCounts[b]++;
+    //   }
+    // }
+
+    // Integrate velocities ??
+
+    // Initialization and events
+    this._rigidBodySolver.preSolve(contacts);
+
+    // Warm contacts with accumulated impulse
+    // Useful for tall stacks
+    if (Physics.warmStart) {
+      this._rigidBodySolver.warmStart(contacts);
+      
+    } else {
+      for (let contact of contacts) {
+        let contactPoints = this._rigidBodySolver.getContactPoints(contact.id);
+        for (let point of contactPoints) {
+            point.normalImpulse = 0;
+            point.tangentImpulse = 0;
+        }
       }
     }
 
-    // Resolve position
-    for (const contact of contacts) {
-      bodyA = contact.colliderA.owner;
-      bodyB = contact.colliderB.owner;
 
-      for (let i = 0; i < Physics.positionIterations; i++) {
-        this._solvePosition(contact, contactCounts[bodyA.id.value], contactCounts[bodyB.id.value]);
-      }
-
-      bodyA.applyOverlap();
-      bodyB.applyOverlap();
+    // Solve velocity first
+    for (let i = 0; i < Physics.velocityIterations; i++) {
+      this._rigidBodySolver.solveVelocity(contacts);
     }
 
-    // Resolve velocity
-    for (const contact of contacts) {
-      bodyA = contact.colliderA.owner;
-      bodyB = contact.colliderB.owner;
+    // Integrate positions??
 
-      for (let i = 0; i < Physics.velocityIterations; i++) {
-        this._solveVelocity(contact, contactCounts[bodyA.id.value], contactCounts[bodyB.id.value]);
-      }
+    // Solve position last because non-penetration is the most important
+    for (let i = 0; i < Physics.positionIterations; i++) {
+      this._rigidBodySolver.solvePosition(contacts);
     }
 
-    for (const contact of contacts) {
-      bodyA = contact.colliderA.owner;
-      bodyB = contact.colliderB.owner;
-      // After solving position the "real" instantaneous velocity could actually be different
+    // Events and house-keeping
+    this._rigidBodySolver.postSolve(contacts);
 
-      const accA = bodyA.acc.clone();
-      const accB = bodyB.acc.clone();
-      if (bodyA.collisionType === CollisionType.Active && bodyA.useGravity) {
-        accA.addEqual(Physics.gravity);
-      }
-      if (bodyB.collisionType === CollisionType.Active && bodyB.useGravity) {
-        accB.addEqual(Physics.gravity);
-      }
+    // for (const contact of contacts) {
+    //   bodyA = contact.colliderA.owner;
+    //   bodyB = contact.colliderB.owner;
+    //   // After solving position the "real" instantaneous velocity could actually be different
 
-      // Find resting contact and zero velocity in contact direction
-      const velA = bodyA.pos.sub(bodyA.oldPos).size;
-      const rotA = Math.abs(bodyA.angularVelocity * 5);
-      const velB = bodyB.pos.sub(bodyB.oldPos).size;
-      const rotB = Math.abs(bodyB.angularVelocity * 5);
-      if (!bodyA.sleeping && velA * velA < Physics.restingContactThreshold && rotA < .1) {
-        const adjust = bodyA.vel.dot(contact.normal.negate());
-        const adjustContact = contact.normal.scale(adjust);
-        bodyA.vel.addEqual(adjustContact);
+    //   const accA = bodyA.acc.clone();
+    //   const accB = bodyB.acc.clone();
+    //   if (bodyA.collisionType === CollisionType.Active && bodyA.useGravity) {
+    //     accA.addEqual(Physics.gravity);
+    //   }
+    //   if (bodyB.collisionType === CollisionType.Active && bodyB.useGravity) {
+    //     accB.addEqual(Physics.gravity);
+    //   }
 
-        // add a "resting" friction
-        const friction = bodyA.vel.negate().scale(.5);
-        bodyA.vel.addEqual(friction);
-      }
+    //   // Find resting contact and zero velocity in contact direction
+    //   const velA = bodyA.pos.sub(bodyA.oldPos).size;
+    //   const rotA = Math.abs(bodyA.angularVelocity * 5);
+    //   const velB = bodyB.pos.sub(bodyB.oldPos).size;
+    //   const rotB = Math.abs(bodyB.angularVelocity * 5);
+    //   if (!bodyA.sleeping && velA * velA < Physics.restingContactThreshold && rotA < .1) {
+    //     const adjust = bodyA.vel.dot(contact.normal.negate());
+    //     const adjustContact = contact.normal.scale(adjust);
+    //     bodyA.vel.addEqual(adjustContact);
 
-      if (!bodyB.sleeping && velB * velB < Physics.restingContactThreshold && rotB < .1) {
-        const adjust = bodyB.vel.dot(contact.normal);
-        const adjustContact = contact.normal.scale(adjust);
-        bodyB.vel.subEqual(adjustContact);
-        // add a "resting" friction
-        const friction = bodyA.vel.negate().scale(.5);
-        bodyB.vel.addEqual(friction);
-      }
+    //     // add a "resting" friction
+    //     const friction = bodyA.vel.negate().scale(.5);
+    //     bodyA.vel.addEqual(friction);
+    //   }
 
-      bodyA.updateMotion();
-      bodyB.updateMotion();
+    //   if (!bodyB.sleeping && velB * velB < Physics.restingContactThreshold && rotB < .1) {
+    //     const adjust = bodyB.vel.dot(contact.normal);
+    //     const adjustContact = contact.normal.scale(adjust);
+    //     bodyB.vel.subEqual(adjustContact);
+    //     // add a "resting" friction
+    //     const friction = bodyA.vel.negate().scale(.5);
+    //     bodyB.vel.addEqual(friction);
+    //   }
 
-      // Publish collision events on both participants
-      const side = Side.fromDirection(contact.mtv);
-      contact.colliderA.events.emit('postcollision', new PostCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv));
-      contact.colliderA.events.emit('aftercollisionresolve', new AfterCollisionResolveEvent(
-        contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any);
-      contact.colliderB.events.emit(
-        'postcollision',
-        new PostCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate())
-      );
-      contact.colliderB.events.emit('aftercollisionresolve', new AfterCollisionResolveEvent(
-        contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact
-      ) as any);
-    }
+    //   bodyA.updateMotion();
+    //   bodyB.updateMotion();
+
+    //   // Publish collision events on both participants
+    //   const side = Side.fromDirection(contact.mtv);
+    //   contact.colliderA.events.emit('postcollision', new PostCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv));
+    //   contact.colliderA.events.emit('aftercollisionresolve', new AfterCollisionResolveEvent(
+    //     contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any);
+    //   contact.colliderB.events.emit(
+    //     'postcollision',
+    //     new PostCollisionEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate())
+    //   );
+    //   contact.colliderB.events.emit('aftercollisionresolve', new AfterCollisionResolveEvent(
+    //     contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact
+    //   ) as any);
+    // }
   }
 
   private _applyBoxImpulse(colliderA: Collider, colliderB: Collider, mtv: Vector) {
@@ -268,114 +277,6 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       this._applyBoxImpulse(contact.colliderA, contact.colliderB, mtv);
       this._applyBoxImpulse(contact.colliderB, contact.colliderA, mtv.negate());
     }
-  }
-
-  private _solvePosition(contact: CollisionContact, numberContactsA: number, numberContactsB: number) {
-    const bodyA: BodyComponent = contact.colliderA.owner;
-    const bodyB: BodyComponent = contact.colliderB.owner;
-
-    const centerA = bodyA.center.add(bodyA.totalOverlap);
-
-    const sepScale = centerA.sub((bodyA.center.sub(contact.mtv).add(bodyB.totalOverlap))).dot(contact.normal);
-    const separation = contact.normal.scale(Math.abs(sepScale));
-
-    if (bodyA.collisionType === CollisionType.Fixed || bodyA.sleeping) {
-      bodyB.addOverlap(separation.scale(Physics.overlapDampening / numberContactsB));
-    } else if (bodyB.collisionType === CollisionType.Fixed || bodyB.sleeping) {
-      bodyA.addOverlap(separation.negate().scale(Physics.overlapDampening / numberContactsA));
-    } else {
-      // Split the mtv in half for the two bodies, potentially we could do something smarter here
-      bodyB.addOverlap(separation.scale(0.5).scale(Physics.overlapDampening / numberContactsB));
-      bodyA.addOverlap(separation.scale(-0.5).scale(Physics.overlapDampening / numberContactsA));
-    }
-
-  }
-
-  private _solveVelocity(contact: CollisionContact, numberContactsA: number, numberContactsB: number) {
-    // perform collision on bounding areas
-    const bodyA: BodyComponent = contact.colliderA.owner;
-    const bodyB: BodyComponent = contact.colliderB.owner;
-
-    const contactSplit = 1 / (numberContactsA + numberContactsB)
-    let normal = contact.normal; // normal pointing away from colliderA
-    if (bodyA === bodyB) {
-      // sanity check for existing pairs
-      return;
-    }
-
-
-    // If any of the participants are passive then short circuit
-    if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
-      return;
-    }
-
-    const invMassA = bodyA.collisionType === CollisionType.Fixed ? 0 : 1 / bodyA.mass;
-    const invMassB = bodyB.collisionType === CollisionType.Fixed ? 0 : 1 / bodyB.mass;
-
-    const invMoiA = bodyA.collisionType === CollisionType.Fixed ? 0 : 1 / bodyA.inertia;
-    const invMoiB = bodyB.collisionType === CollisionType.Fixed ? 0 : 1 / bodyB.inertia;
-
-    // average restitution more realistic
-    const coefRestitution = Math.min(bodyA.bounciness, bodyB.bounciness);
-
-    const coefFriction = Math.min(bodyA.friction, bodyB.friction);
-
-    normal = normal.normalize();
-    const tangent = normal.normal().normalize();
-
-    for (let point of contact.points) {
-      // TODO should this be body center now?
-      const ra = point.sub(contact.colliderA.center); // point relative to colliderA position
-      const rb = point.sub(contact.colliderB.center); /// point relative to colliderB
-
-      // Relative velocity in linear terms
-      // Angular to linear velocity formula -> omega = v/r
-      const rv = bodyB.vel.add(rb.cross(-bodyB.angularVelocity)).sub(bodyA.vel.sub(ra.cross(bodyA.angularVelocity)));
-      const rvNormal = rv.dot(normal);
-      const rvTangent = rv.dot(tangent);
-
-      const raTangent = ra.dot(tangent);
-      const raNormal = ra.dot(normal);
-
-      const rbTangent = rb.dot(tangent);
-      const rbNormal = rb.dot(normal);
-
-      // If objects are moving away ignore
-      if (rvNormal > 0) {
-        return;
-      }
-
-      // Collision impulse formula from Chris Hecker
-      // https://en.wikipedia.org/wiki/Collision_response
-      const impulse =
-        -((1 + coefRestitution) * rvNormal) / (invMassA + invMassB + invMoiA * raTangent * raTangent + invMoiB * rbTangent * rbTangent);
-
-      bodyB.applyImpulse(point, normal.scale(impulse * contactSplit));
-      bodyA.applyImpulse(point, normal.scale(-impulse * contactSplit));
-
-      // Friction portion of impulse
-      if (coefFriction && rvTangent) {
-        // Columb model of friction, formula for impulse due to friction from
-        // https://en.wikipedia.org/wiki/Collision_response
-
-        // tangent force exerted by body on another in contact
-        const t = rv.sub(normal.scale(rv.dot(normal))).normalize();
-
-        // impulse in the direction of tangent force
-        const jt = rv.dot(t) / (invMassA + invMassB + raNormal * raNormal * invMoiA + rbNormal * rbNormal * invMoiB);
-
-        let frictionImpulse = new Vector(0, 0);
-        if (Math.abs(jt) <= impulse * coefFriction) {
-          frictionImpulse = t.scale(jt * contactSplit).negate();
-        } else {
-          frictionImpulse = t.scale(-impulse * coefFriction * contactSplit);
-        }
-
-        bodyB.applyImpulse(point, frictionImpulse);
-        bodyA.applyImpulse(point, frictionImpulse.negate());
-      }
-    }
-
   }
 
   public runContactStartEnd() {

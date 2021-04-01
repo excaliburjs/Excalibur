@@ -67,7 +67,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   public mass: number = Physics.defaultMass;
 
-  public get invMass(): number {
+  public get inverseMass(): number {
     return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.mass
   }
 
@@ -113,7 +113,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     return this._colliders[0].shape.getInertia(this.mass);
   }
 
-  public get invInertia() {
+  public get inverseInertia() {
     return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia
   }
 
@@ -372,13 +372,8 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     if (this.collisionType !== CollisionType.Active) {
       return; // only active objects participate in the simulation
     }
-    const relative = point.sub(this.pos);
-    const normal = impulse.normalize();
 
-    const invMass = 1 / this.mass;
-    const invMoi = 1 / this.inertia;
-
-    const finalImpulse = impulse.scale(invMass);
+    const finalImpulse = impulse.scale(this.inverseMass);
     if (this.constraints.includes(Constraint.X)) {
       finalImpulse.x = 0;
     }
@@ -389,7 +384,36 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     this.vel.addEqual(finalImpulse);
 
     if (!this.constraints.includes(Constraint.Rotation)) {
-      this.angularVelocity += impulse.size * invMoi * relative.cross(normal);
+      const distanceFromCenter = point.sub(this.pos);
+      this.angularVelocity += this.inverseInertia * distanceFromCenter.cross(impulse);
+    }
+  }
+
+  public applyLinearImpulse(impulse: Vector) {
+    if (this.collisionType !== CollisionType.Active) {
+      return; // only active objects participate in the simulation
+    }
+
+    const finalImpulse = impulse.scale(this.inverseMass);
+
+    if (this.constraints.includes(Constraint.X)) {
+      finalImpulse.x = 0;
+    }
+    if (this.constraints.includes(Constraint.Y)) {
+      finalImpulse.y = 0;
+    }
+
+    this.vel = this.vel.add(finalImpulse);
+  }
+
+  public applyAngularImpulse(point: Vector, impulse: Vector) {
+    if (this.collisionType !== CollisionType.Active) {
+      return; // only active objects participate in the simulation
+    }
+
+    if (!this.constraints.includes(Constraint.Rotation)) {
+      const distanceFromCenter = point.sub(this.pos);
+      this.angularVelocity += this.inverseInertia * distanceFromCenter.cross(impulse);
     }
   }
 

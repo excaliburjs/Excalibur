@@ -124,6 +124,13 @@ export class Vector implements Clonable<Vector> {
     return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
   }
 
+  public squareDistance(v?: Vector): number {
+    if (!v) {
+      v = Vector.Zero;
+    }
+    return Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2);
+  }
+
   /**
    * The magnitude (size) of the Vector
    * @obsolete magnitude will be removed in favour of '.size' in version 0.25.0
@@ -662,4 +669,9 @@ export class GlobalCoordinates {
  */
 export function vec(x: number, y: number): Vector {
   return new Vector(x, y);
+}
+
+
+export function cross(num: number, vec: Vector): Vector {
+  return new Vector(-num * vec.y, num * vec.x)
 }
