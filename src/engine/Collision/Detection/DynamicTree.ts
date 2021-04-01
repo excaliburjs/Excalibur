@@ -1,11 +1,10 @@
-import { Physics } from './../Physics';
-import { BoundingBox } from './BoundingBox';
-import { Body } from './Body';
+import { Physics } from '../../Physics';
+import { BoundingBox } from '../BoundingBox';
+import { Body } from '../Body';
 
-import { Ray } from '../Algebra';
-import { Logger } from '../Util/Log';
-import { Id } from '../Id';
-
+import { Ray } from '../../Algebra';
+import { Logger } from '../../Util/Log';
+import { Id } from '../../Id';
 
 /**
  * Dynamic Tree Node used for tracking bounds within the tree
@@ -230,7 +229,9 @@ export class DynamicTree<T extends ColliderProxy<Body>> {
 
     // if the body is outside the world no longer update it
     if (!this.worldBounds.contains(b)) {
-      Logger.getInstance().warn('Collider with id ' + collider.id + ' is outside the world bounds and will no longer be tracked for physics');
+      Logger.getInstance().warn(
+        'Collider with id ' + collider.id + ' is outside the world bounds and will no longer be tracked for physics'
+      );
       this.untrackCollider(collider);
       return false;
     }
@@ -247,15 +248,15 @@ export class DynamicTree<T extends ColliderProxy<Body>> {
 
     // THIS IS CAUSING UNECESSARY CHECKS
     if (collider.owner) {
-      const multdx = collider.owner.vel.x * 32/1000 * Physics.dynamicTreeVelocityMultiplier;
-      const multdy = collider.owner.vel.y * 32/1000 * Physics.dynamicTreeVelocityMultiplier;
-  
+      const multdx = ((collider.owner.vel.x * 32) / 1000) * Physics.dynamicTreeVelocityMultiplier;
+      const multdy = ((collider.owner.vel.y * 32) / 1000) * Physics.dynamicTreeVelocityMultiplier;
+
       if (multdx < 0) {
         b.left += multdx;
       } else {
         b.right += multdx;
       }
-  
+
       if (multdy < 0) {
         b.top += multdy;
       } else {

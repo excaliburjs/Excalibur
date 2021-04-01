@@ -7,7 +7,7 @@ import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Side } from './Collision/Side';
 import * as Input from './Input/Index';
-import { CollisionContact } from './Collision/CollisionContact';
+import { CollisionContact } from './Collision/Detection/CollisionContact';
 import { Collider } from './Collision/Collider';
 import { Entity } from './EntityComponentSystem/Entity';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from './Interfaces/LifecycleEvents';

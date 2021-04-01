@@ -4,7 +4,7 @@ import { Vector, Line } from '../Algebra';
 import { Physics } from '../Physics';
 import { BoundingBox } from './BoundingBox';
 import { CollisionType } from './CollisionType';
-import { CollisionGroup } from './CollisionGroup';
+import { CollisionGroup } from './Group/CollisionGroup';
 import { CollisionContact } from './Detection/CollisionContact';
 import { EventDispatcher } from '../EventDispatcher';
 import { Clonable } from '../Interfaces/Clonable';
@@ -46,7 +46,7 @@ export class Collider implements Clonable<Collider> {
   private _shape: CollisionShape;
   public useShapeInertia: boolean;
   public events: EventDispatcher<Collider> = new EventDispatcher<Collider>(this);
-  
+
   /**
    * Owning id
    */
@@ -55,7 +55,7 @@ export class Collider implements Clonable<Collider> {
   public owner: BodyComponent;
 
   constructor(options: ColliderOptions) {
-    const { shape, offset } = options
+    const { shape, offset } = options;
     this.shape = shape;
     this.offset = offset ?? shape.offset ?? Vector.Zero;
   }
