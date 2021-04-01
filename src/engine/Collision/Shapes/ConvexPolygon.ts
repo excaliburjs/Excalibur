@@ -1,14 +1,14 @@
-﻿import { Color } from '../Drawing/Color';
-import { BoundingBox } from './BoundingBox';
+﻿import { Color } from '../../Drawing/Color';
+import { BoundingBox } from '../BoundingBox';
 import { Edge } from './Edge';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { Circle } from './Circle';
-import { CollisionContact } from './CollisionContact';
+import { CollisionContact } from '../Detection/CollisionContact';
 import { CollisionShape } from './CollisionShape';
-import { Vector, Line, Ray, Projection } from '../Algebra';
+import { Vector, Line, Ray, Projection } from '../../Algebra';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
-import { Transform } from '../EntityComponentSystem';
-import { Collider } from './Collider';
+import { Transform } from '../../EntityComponentSystem';
+import { Collider } from '../Collider';
 
 export interface ConvexPolygonOptions {
   /**

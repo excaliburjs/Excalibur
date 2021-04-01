@@ -1,10 +1,10 @@
-﻿import { FrameStats } from '../Debug';
+﻿import { FrameStats } from '../../Debug';
 import { Pair } from './Pair';
-import { Collider } from './Collider';
+import { Collider } from '../Collider';
 import { CollisionContact } from './CollisionContact';
 
 /**
- * Definition for collision broadphase
+ * Definition for collision processor
  */
 export interface CollisionProcessor {
   /**

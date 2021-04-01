@@ -1,15 +1,15 @@
-import { BoundingBox } from './BoundingBox';
-import { CollisionContact } from './CollisionContact';
+import { BoundingBox } from '../BoundingBox';
+import { CollisionContact } from '../Detection/CollisionContact';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { CollisionShape } from './CollisionShape';
 import { Circle } from './Circle';
 import { ConvexPolygon } from './ConvexPolygon';
 
-import { Vector, Ray, Projection, Line } from '../Algebra';
-import { Color } from '../Drawing/Color';
-import { Collider } from './Collider';
-import { ClosestLineJumpTable } from './ClosestLineJumpTable';
-import { Transform } from '../EntityComponentSystem/Components/TransformComponent';
+import { Vector, Ray, Projection, Line } from '../../Algebra';
+import { Color } from '../../Drawing/Color';
+import { Collider } from '../Collider';
+import { ClosestLineJumpTable } from '../Shapes/ClosestLineJumpTable';
+import { Transform } from '../../EntityComponentSystem/Components/TransformComponent';
 
 export interface EdgeOptions {
   /**

@@ -10,10 +10,12 @@ import { CollisionResolutionStrategy, Physics } from "../Physics";
 import { Scene } from "../Scene";
 import { DrawUtil } from "../Util/Index";
 import { BodyComponent } from "./Body";
+import { BoxSolver } from "./Solver/BoxSolver";
 import { Collider } from "./Collider";
-import { CollisionContact } from "./CollisionContact";
+import { CollisionContact } from "./Detection/CollisionContact";
 import { CollisionType } from "./CollisionType";
-import { DynamicTreeCollisionProcessor } from "./DynamicTreeCollisionProcessor";
+import { DynamicTreeCollisionProcessor } from "./Detection/DynamicTreeCollisionProcessor";
+import { RigidBodySolver } from "./Solver/RigidBodySolver";
 import { Side } from "./Side";
 
 export class CollisionSystem extends System<TransformComponent | MotionComponent | BodyComponent> {

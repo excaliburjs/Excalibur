@@ -1,6 +1,6 @@
-import { Line, Vector, Ray } from '../Algebra';
+import { Line, Vector, Ray } from '../../Algebra';
 import { ConvexPolygon } from './ConvexPolygon';
-import { Edge } from './Edge';
+import { Edge } from '../Shapes/Edge';
 import { Circle } from './Circle';
 
 /**

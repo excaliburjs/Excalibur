@@ -1,7 +1,7 @@
-import { Vector } from '../Algebra';
-import { Physics } from '../Physics';
-import { Collider } from './Collider';
-import { CollisionType } from './CollisionType';
+import { Vector } from '../../Algebra';
+import { Physics } from '../../Physics';
+import { Collider } from '../Collider';
+import { CollisionType } from '../CollisionType';
 import { Pair } from './Pair';
 
 /**
@@ -10,7 +10,7 @@ import { Pair } from './Pair';
  */
 export class CollisionContact {
   /**
-   * Currently the ids between bodies
+   * Currently the ids between colliders
    */
   id: string;
   /**
@@ -34,6 +34,11 @@ export class CollisionContact {
    * The collision normal, pointing away from colliderA
    */
   normal: Vector;
+
+  /**
+   * The collision tangent
+   */
+  tangent: Vector;
 
   constructor(colliderA: Collider, colliderB: Collider, mtv: Vector, points: Vector[], normal: Vector) {
     this.colliderA = colliderA;

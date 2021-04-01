@@ -1,7 +1,7 @@
 import { Vector } from "../Algebra";
 
 /**
- * An enum that describes the sides of an Actor for collision
+ * An enum that describes the sides of an axis aligned box for collision
  */
 export enum Side {
   None = 'None',

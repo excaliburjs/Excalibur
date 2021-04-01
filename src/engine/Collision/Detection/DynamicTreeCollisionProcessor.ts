@@ -1,17 +1,17 @@
-import { Physics } from '../Physics';
+import { Physics } from '../../Physics';
 import { CollisionProcessor } from './CollisionProcessor';
 import { DynamicTree } from './DynamicTree';
 import { Pair } from './Pair';
 
-import { Vector, Ray } from '../Algebra';
-import { FrameStats } from '../Debug';
-import { Logger } from '../Util/Log';
-import { CollisionType } from './CollisionType';
-import { Collider } from './Collider';
-import { CollisionContact } from './CollisionContact';
-import { Color } from '../Drawing/Color';
-import { ConvexPolygon } from './ConvexPolygon';
-import { DrawUtil } from '../Util/Index';
+import { Vector, Ray } from '../../Algebra';
+import { FrameStats } from '../../Debug';
+import { Logger } from '../../Util/Log';
+import { CollisionType } from '../CollisionType';
+import { Collider } from '../Collider';
+import { CollisionContact } from '../Detection/CollisionContact';
+import { Color } from '../../Drawing/Color';
+import { ConvexPolygon } from '../Shapes/ConvexPolygon';
+import { DrawUtil } from '../../Util/Index';
 
 /**
  * Responsible for performing the collision broadphase (locating potential colllisions) and 

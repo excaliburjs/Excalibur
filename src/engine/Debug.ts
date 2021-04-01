@@ -1,5 +1,5 @@
 import { DebugFlags, ColorBlindFlags } from './DebugFlags';
-import { Pair } from './Collision/Pair';
+import { Pair } from './Collision/Detection/Pair';
 import { Engine } from './Engine';
 
 /**

@@ -1,11 +1,11 @@
 import { Color } from '../Drawing/Color';
-import { CollisionShape } from './CollisionShape';
+import { CollisionShape } from './Shapes/CollisionShape';
 import { Vector, Line } from '../Algebra';
 import { Physics } from '../Physics';
 import { BoundingBox } from './BoundingBox';
 import { CollisionType } from './CollisionType';
 import { CollisionGroup } from './CollisionGroup';
-import { CollisionContact } from './CollisionContact';
+import { CollisionContact } from './Detection/CollisionContact';
 import { EventDispatcher } from '../EventDispatcher';
 import { Clonable } from '../Interfaces/Clonable';
 import { Transform } from '../EntityComponentSystem/Components/TransformComponent';
@@ -38,8 +38,7 @@ export interface ColliderOptions {
 }
 
 /**
- * Collider describes material properties like shape,
- * bounds, friction of the physics object.
+ * Collider describes the shape, collsion group, and collision type
  */
 export class Collider implements Clonable<Collider> {
   private static _ID = 0;

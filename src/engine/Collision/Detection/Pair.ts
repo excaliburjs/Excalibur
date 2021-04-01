@@ -1,7 +1,7 @@
 import { CollisionContact } from './CollisionContact';
-import { CollisionType } from './CollisionType';
-import { Body } from './Body';
-import { Id } from '../Id';
+import { CollisionType } from '../CollisionType';
+import { Body } from '../Body';
+import { Id } from '../../Id';
 
 /**
  * Models a potential collision between 2 bodies

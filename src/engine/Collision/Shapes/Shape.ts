@@ -1,8 +1,8 @@
 import { ConvexPolygon } from './ConvexPolygon';
 import { Circle } from './Circle';
 import { Edge } from './Edge';
-import { BoundingBox } from './BoundingBox';
-import { Vector } from '../Algebra';
+import { BoundingBox } from '../BoundingBox';
+import { Vector } from '../../Algebra';
 
 /**
  * Excalibur shape helper for defining collision shapes quickly

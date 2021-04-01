@@ -1,19 +1,23 @@
 export * from './Body';
 export * from './Collider';
 export * from './BoundingBox';
-export * from './Circle';
-export * from './CollisionContact';
-export * from './CollisionJumpTable';
-export * from './ClosestLineJumpTable';
-export * from './CollisionGroup';
-export * from './CollisionGroupManager';
-export * from './DynamicTree';
-export * from './DynamicTreeCollisionProcessor';
-export * from './Edge';
-export * from './CollisionShape';
-export * from './CollisionProcessor';
+
+export * from './Shapes/Shape';
+export * from './Shapes/CollisionShape';
+export * from './Shapes/Circle';
+export * from './Shapes/Edge';
+export * from './Shapes/ConvexPolygon';
+export * from './Shapes/CollisionJumpTable';
+export * from './Shapes/ClosestLineJumpTable';
+
+export * from './Group/CollisionGroup';
+export * from './Group/CollisionGroupManager';
+
+export * from './Detection/Pair';
+export * from './Detection/CollisionContact';
+export * from './Detection/CollisionProcessor';
+export * from './Detection/DynamicTree';
+export * from './Detection/DynamicTreeCollisionProcessor';
+
 export * from './Physics';
-export * from './Pair';
-export * from './ConvexPolygon';
 export * from './Side';
-export * from './Shape';

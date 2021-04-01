@@ -1,16 +1,16 @@
-import { BoundingBox } from './BoundingBox';
+import { BoundingBox } from '../BoundingBox';
 import { CollisionJumpTable } from './CollisionJumpTable';
-import { CollisionContact } from './CollisionContact';
+import { CollisionContact } from '../Detection/CollisionContact';
 import { CollisionShape } from './CollisionShape';
 import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 
-import { Vector, Ray, Projection, Line } from '../Algebra';
-import { Color } from '../Drawing/Color';
-import { Collider } from './Collider';
+import { Vector, Ray, Projection, Line } from '../../Algebra';
+import { Color } from '../../Drawing/Color';
+import { Collider } from '../Collider';
 
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
-import { Transform } from '../EntityComponentSystem';
+import { Transform } from '../../EntityComponentSystem';
 
 export interface CircleOptions {
   /**

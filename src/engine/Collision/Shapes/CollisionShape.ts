@@ -1,10 +1,10 @@
-import { Color } from '../Drawing/Color';
-import { CollisionContact } from './CollisionContact';
-import { BoundingBox } from './BoundingBox';
-import { Vector, Projection, Ray, Line } from '../Algebra';
-import { Collider } from './Collider';
-import { Clonable } from '../Interfaces/Clonable';
-import { Transform } from '../EntityComponentSystem';
+import { Color } from '../../Drawing/Color';
+import { CollisionContact } from '../Detection/CollisionContact';
+import { BoundingBox } from '../BoundingBox';
+import { Vector, Projection, Ray, Line } from '../../Algebra';
+import { Collider } from '../Collider';
+import { Clonable } from '../../Interfaces/Clonable';
+import { Transform } from '../../EntityComponentSystem';
 
 /**
  * A collision shape specifies the geometry that can detect when other collision shapes intersect
