@@ -1114,10 +1114,6 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
       this.color.a = this.opacity;
     }
 
-    if (this.opacity === 0) {
-      this.visible = false;
-    }
-
     // capture old transform
     this.body.captureOldTransform();
 
