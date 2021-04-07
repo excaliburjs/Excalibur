@@ -31,7 +31,7 @@ export interface LabelOptions {
  */
 export class LabelImpl extends Actor {
   public font: Font = new Font();
-  private _text: Text = new Text({ text: '', font: this.font});
+  private _text: Text = new Text({ text: '', font: this.font });
 
   /**
    * The text to draw.
@@ -52,6 +52,14 @@ export class LabelImpl extends Actor {
     this._text.color = color;
   }
 
+  public get opacity(): number {
+    return this._text.opacity;
+  }
+
+  public set opacity(opacity: number) {
+    this._text.opacity = opacity;
+  }
+
   /**
    * Sets or gets the bold property of the label's text, by default it's false
    * @deprecated Use [[Font.bold|Label.font.bold]]
@@ -67,7 +75,6 @@ export class LabelImpl extends Actor {
   public set bold(isBold: boolean) {
     this.font.bold = isBold;
   }
-
 
   /**
    * The CSS font family string (e.g. `sans-serif`, `Droid Sans Pro`). Web fonts
@@ -117,7 +124,6 @@ export class LabelImpl extends Actor {
   public set fontStyle(style: FontStyle) {
     this.font.style = style;
   }
-
 
   /**
    * The css units for a font size such as px, pt, em (SpriteFont only support px), by default is 'px';
@@ -192,7 +198,6 @@ export class LabelImpl extends Actor {
     }
   }
 
-
   /**
    * Gets or sets the letter spacing on a Label. Only supported with Sprite Fonts.
    * @deprecated Use [[SpriteFont.spacing]]
@@ -229,11 +234,11 @@ export class LabelImpl extends Actor {
       pos = vec(x ?? 0, y ?? 0);
     }
 
-    this.addComponent(new TransformComponent);
+    this.addComponent(new TransformComponent());
     this.get(TransformComponent).pos = pos;
 
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
-    this.addComponent(new GraphicsComponent);
+    this.addComponent(new GraphicsComponent());
     const gfx = this.get(GraphicsComponent);
     gfx.anchor = Vector.Zero;
     gfx.use(this._text);
