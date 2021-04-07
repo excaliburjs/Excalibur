@@ -85,9 +85,7 @@ export interface ActorDefaults {
  * @hidden
  */
 
-export class ActorImpl
-  extends Entity
-  implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
+export class ActorImpl extends Entity implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
   /**
@@ -331,7 +329,6 @@ export class ActorImpl
    * color's opacity.
    */
   public opacity: number = 1;
-  public previousOpacity: number = 1;
 
   /**
    * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
@@ -460,11 +457,7 @@ export class ActorImpl
    * initial [[opacity]].
    */
   constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
-    super([
-      new TransformComponent(),
-      new GraphicsComponent(),
-      new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta))
-    ]);
+    super([new TransformComponent(), new GraphicsComponent(), new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta))]);
 
     this.transform = this.get(TransformComponent);
     this.graphics = this.get(GraphicsComponent);
