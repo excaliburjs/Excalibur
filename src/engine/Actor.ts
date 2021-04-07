@@ -327,7 +327,13 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   /**
    * The opacity of an actor. Passing in a color in the [[constructor]] will use the
    * color's opacity.
+   *
+   * @obsolete Actor.opacity will be removed in v0.26.0, use [[GraphicsComponent.opacity|Actor.graphics.opacity]].
    */
+  @obsolete({
+    message: 'Actor.opacity will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.graphics.opacity'
+  })
   public opacity: number = 1;
 
   /**
