@@ -1,4 +1,4 @@
-import { Physics } from '../../Physics';
+import { Physics } from '../Physics';
 import { BoundingBox } from '../BoundingBox';
 import { Body } from '../Body';
 
@@ -230,7 +230,7 @@ export class DynamicTree<T extends ColliderProxy<Body>> {
     // if the body is outside the world no longer update it
     if (!this.worldBounds.contains(b)) {
       Logger.getInstance().warn(
-        'Collider with id ' + collider.id + ' is outside the world bounds and will no longer be tracked for physics'
+        'Collider with id ' + collider.id.value + ' is outside the world bounds and will no longer be tracked for physics'
       );
       this.untrackCollider(collider);
       return false;

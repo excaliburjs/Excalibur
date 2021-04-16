@@ -257,6 +257,10 @@ export class Vector implements Clonable<Vector> {
     }
   }
 
+  static cross(num: number, vec: Vector): Vector {
+    return new Vector(-num * vec.y, num * vec.x)
+  }
+
   /**
    * Returns the perpendicular vector to this one
    */
@@ -672,6 +676,3 @@ export function vec(x: number, y: number): Vector {
 }
 
 
-export function cross(num: number, vec: Vector): Vector {
-  return new Vector(-num * vec.y, num * vec.x)
-}

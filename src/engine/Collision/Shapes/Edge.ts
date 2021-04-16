@@ -211,6 +211,9 @@ export class Edge implements CollisionShape {
     return new Line(this._getTransformedBegin(), this._getTransformedEnd());
   }
 
+  /**
+   * Return this edge as a line in local line coordinates (relative to the position)
+   */
   public asLocalLine(): Line {
     return new Line(this.begin, this.end);
   }

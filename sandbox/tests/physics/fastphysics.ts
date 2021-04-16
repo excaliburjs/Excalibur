@@ -4,14 +4,14 @@ var game = new ex.Engine({
   width: 600,
   height: 400
 });
-ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
+ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
 
-ex.Physics.broadphaseDebug = false;
-ex.Physics.showColliderGeometry = true;
-ex.Physics.showMotionVectors = true;
-ex.Physics.showColliderBounds = true;
-ex.Physics.showContacts = true;
-ex.Physics.showNormals = true;
+ex.Physics.debug.broadphaseDebug = false;
+ex.Physics.debug.showColliderGeometry = true;
+ex.Physics.debug.showMotionVectors = true;
+ex.Physics.debug.showColliderBounds = true;
+ex.Physics.debug.showContacts = true;
+ex.Physics.debug.showNormals = true;
 ex.Physics.acc.setTo(0, 300);
 //ex.Physics.dynamicTreeVelocityMultiplyer = 1;
 game.currentScene.camera.z = 0.5;

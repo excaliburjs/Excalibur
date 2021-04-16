@@ -8,39 +8,35 @@ game.backgroundColor = ex.Color.Black;
 
 game.showDebug(true);
 
-ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
-ex.Physics.collisionPasses = 1;
+ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
 ex.Physics.bodiesCanSleepByDefault = true;
-ex.Physics.allowRigidBodyRotation = true;
-ex.Physics.broadphaseDebug = false;
-ex.Physics.showColliderGeometry = true;
-ex.Physics.showMotionVectors = true;
-ex.Physics.showSleepMotion = true;
-ex.Physics.showColliderBounds = true;
-ex.Physics.showContacts = true;
-ex.Physics.showNormals = true;
-ex.Physics.acc.setTo(0, 100);
+ex.Physics.debug.broadphaseDebug = false;
+ex.Physics.debug.showColliderGeometry = true;
+ex.Physics.debug.showMotionVectors = true;
+ex.Physics.debug.showSleepMotion = true;
+ex.Physics.debug.showColliderBounds = true;
+ex.Physics.debug.showContacts = true;
+ex.Physics.debug.showNormals = true;
+ex.Physics.gravity = ex.vec(0, 100);
 
 
 var gui = new dat.GUI({name: 'Excalibur'});
 var folder = gui.addFolder('Physics Flags');
 folder.add(ex.Physics, 'enabled')
 folder.add(ex.Physics, 'bodiesCanSleepByDefault')
-folder.add(ex.Physics, 'showColliderBounds')
-folder.add(ex.Physics, 'showColliderGeometry')
-folder.add(ex.Physics, 'showColliderNormals')
-folder.add(ex.Physics, 'showContacts')
-folder.add(ex.Physics, 'showNormals')
-folder.add(ex.Physics, 'showSleepMotion')
-folder.add(ex.Physics, 'showMotionVectors')
-folder.add(ex.Physics, 'broadphaseDebug')
-folder.add(ex.Physics, 'restingContactThreshold', 0.01, .2, .01);
+folder.add(ex.Physics, 'warmStart')
+folder.add(ex.Physics.debug, 'showColliderBounds')
+folder.add(ex.Physics.debug, 'showColliderGeometry')
+folder.add(ex.Physics.debug, 'showColliderNormals')
+folder.add(ex.Physics.debug, 'showContacts')
+folder.add(ex.Physics.debug, 'showNormals')
+folder.add(ex.Physics.debug, 'showSleepMotion')
+folder.add(ex.Physics.debug, 'showMotionVectors')
+folder.add(ex.Physics.debug, 'broadphaseDebug')
 folder.add(ex.Physics, 'sleepEpsilon', 0.01, 2, .05);
 folder.add(ex.Physics, 'wakeThreshold', 0.01, 2, .05);
-folder.add(ex.Physics, 'collisionPasses', 1, 30, 1);
-folder.add(ex.Physics, 'positionIterations', 1, 30, 1);
-folder.add(ex.Physics, 'overlapDampening', .1, 1, .05);
-folder.add(ex.Physics, 'velocityIterations', 1, 30, 1);
+folder.add(ex.Physics, 'positionIterations', 0, 30, 1);
+folder.add(ex.Physics, 'velocityIterations', 0, 30, 1);
 
 var stats = new Stats();
 stats.showPanel(0);
@@ -48,7 +44,7 @@ document.body.appendChild(stats.dom);
 
 var bootstrap = (game: ex.Engine) => {
   gui.add({toggleDebug: game.isDebug}, 'toggleDebug').onChange(() => game.toggleDebug());
-  game.on("preframe", () => {
+  game.on("preframe", () =>  {
       stats.begin();
   });
   game.on('postframe', () =>{
@@ -92,7 +88,8 @@ function spawnCircle(x: number, y: number) {
   var width = ex.Util.randomInRange(20, 100);
   var color = new ex.Color(255, ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255));
   var circle = new ex.Actor(x, y, width, width, color);
-  circle.rx = ex.Util.randomInRange(-0.5, 0.5);
+  // circle.rx = ex.Util.randomInRange(-0.5, 0.5);
+  circle.rx = 1;
   circle.vel.setTo(0, 300);
   circle.body.useCircleCollider(width / 2);
   circle.body.collisionType = ex.CollisionType.Active;
@@ -115,10 +112,10 @@ function spawnCircle(x: number, y: number) {
 // game.add(edge);
 
 
-var solid = new ex.Actor(300, 380, 100, 100, ex.Color.Azure.clone());
-solid.body.collisionType = ex.CollisionType.Fixed;
-solid.body.rotation = Math.PI / 4;
-game.add(solid);
+// var solid = new ex.Actor(300, 380, 100, 100, ex.Color.Azure.clone());
+// solid.body.collisionType = ex.CollisionType.Fixed;
+// // solid.body.rotation = Math.PI / 4;
+// game.add(solid);
 
 // spawnBlock(300, 200).body.setSleeping(true);
 

@@ -4,7 +4,7 @@ var game = new ex.Engine({
   height: 400
 });
 
-ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Box;
+ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Arcade;
 
 var activeBlock = new ex.Actor(200, 200, 50, 50, ex.Color.Red.clone());
 activeBlock.body.collisionType = ex.CollisionType.Active;

@@ -1,9 +1,9 @@
 import { Vector } from '../../Algebra';
-import { Physics } from '../../Physics';
+import { Physics } from '../Physics';
 import { Collider } from '../Collider';
 import { CollisionType } from '../CollisionType';
-import { Circle } from '../Shapes/Circle';
 import { Pair } from './Pair';
+import { SeparationInfo } from '../Shapes/SeparatingAxis';
 
 /**
  * Collision contacts are used internally by Excalibur to resolve collision between colliders. This
@@ -22,14 +22,21 @@ export class CollisionContact {
    * The second collider in the collision
    */
   colliderB: Collider;
+
   /**
-   * The minimum translation vector to resolve penetration, pointing away from colliderA
+   * The minimum translation vector to resolve overlap, pointing away from colliderA
    */
   mtv: Vector;
+
   /**
-   * The points of collision shared between colliderA and colliderB
+   * World space contact points between colliderA and colliderB
    */
   points: Vector[];
+
+  /**
+   * Local space contact points between colliderA and colliderB
+   */
+  localPoints: Vector[];
 
   /**
    * The collision normal, pointing away from colliderA
@@ -41,12 +48,20 @@ export class CollisionContact {
    */
   tangent: Vector;
 
-  constructor(colliderA: Collider, colliderB: Collider, mtv: Vector, points: Vector[], normal: Vector) {
+  /**
+   * Information about the specifics of the collision contact separation
+   */
+  info: SeparationInfo;
+
+  constructor(colliderA: Collider, colliderB: Collider, mtv: Vector, normal: Vector, tangent: Vector, points: Vector[], localPoints: Vector[], info: SeparationInfo) {
     this.colliderA = colliderA;
     this.colliderB = colliderB;
     this.mtv = mtv;
-    this.points = points;
     this.normal = normal;
+    this.tangent = tangent;
+    this.points = points;
+    this.localPoints = localPoints;
+    this.info = info;
     this.id = Pair.calculatePairHash(colliderA.owningId, colliderB.owningId);
   }
 
@@ -70,21 +85,5 @@ export class CollisionContact {
         this.colliderB.owner.setSleeping(false);
       }
     }
-  }
-
-  /**
-   * Returns a negative value if there is overlap
-   */
-  public getSeparation(): number {
-    if (this.colliderA.shape instanceof Circle && this.colliderB.shape instanceof Circle) {
-      const combinedRadius = this.colliderA.shape.radius + this.colliderB.shape.radius;
-      const distance = this.colliderA.owner.pos.distance(this.colliderB.owner.pos);
-      const separation = combinedRadius - distance;
-      return -separation;
-    }
-    // TODO inefficient if we had more collision info it'd be better to adjust the contact features we care about
-    this.colliderA.update(this.colliderA.owner.transform);
-    this.colliderB.update(this.colliderB.owner.transform);
-    return this.colliderA.getClosestLineBetween(this.colliderB).getLength();
   }
 }

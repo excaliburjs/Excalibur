@@ -5,7 +5,7 @@ import { MotionComponent } from '../EntityComponentSystem/Components/MotionCompo
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { AddedEntity, isAddedSystemEntity, RemovedEntity, System, SystemType } from '../EntityComponentSystem/System';
 import { CollisionEndEvent, CollisionStartEvent, ContactEndEvent, ContactStartEvent } from '../Events';
-import { CollisionResolutionStrategy, Physics } from '../Physics';
+import { CollisionResolutionStrategy, Physics } from './Physics';
 import { Scene } from '../Scene';
 import { DrawUtil } from '../Util/Index';
 import { BodyComponent } from './Body';
@@ -15,6 +15,7 @@ import { CollisionContact } from './Detection/CollisionContact';
 import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
 import { RigidBodySolver } from './Solver/RigidBodySolver';
 import { CollisionSolver } from './Solver/Solver';
+// import { CollisionType } from './CollisionType';
 
 export class CollisionSystem extends System<TransformComponent | MotionComponent | BodyComponent> {
   public readonly types = ['transform', 'motion', 'body'] as const;
@@ -56,12 +57,15 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     // TODO refactor, collecting colliders like this feels rough and inefficient
     let colliders: Collider[] = [];
     for (const entity of _entities) {
-      entity.components.body.update(); // Update body collider geometry
+      // Update body collider geometry, recomputes worldspace geometry
+      entity.components.body.update();
+      // Bodies can have multiple colliders
       colliders = colliders.concat(entity.components.body.getColliders());
     }
 
     // Update the spatial partitioning data structures
     // TODO if collider invalid it will break the processor
+    // TODO rename "update" to something more specific
     this._processor.update(colliders);
 
     // Run broadphase on all colliders and locates potential collisions
@@ -72,7 +76,18 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     // Given possible pairs find actual contacts
     const contacts = this._processor.narrowphase(pairs);
 
-    const solver: CollisionSolver = this._getSolver();
+    const solver: CollisionSolver = this.getSolver();
+    // const acc = Physics.gravity;
+
+    // TODO motion system
+    // Integrate motion
+    // for (let entity of _entities) {
+    //   const body = entity.components.body;
+    //   if (body?.collisionType !== CollisionType.Fixed) {
+    //       body.vel = body.vel.add(acc.scale(elapsedMs / 1000));
+    //       body.angularVelocity = clamp(body.angularVelocity, -Math.PI, Math.PI);
+    //   }
+    // }
 
     // Events and init
     solver.preSolve(contacts);
@@ -80,25 +95,44 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     // Solve velocity first
     solver.solveVelocity(contacts);
 
-    // Solve position last because non-penetration is the most important
+    // TODO motion system
+    // Integration position
+    // for (let entity of _entities) {
+    //   const body = entity.components.body;
+    //   const elapsed = elapsedMs / 1000;
+    //   if (body?.collisionType !== CollisionType.Fixed) {
+    //       body.pos = body.pos.add(body.vel.scale(elapsed)).add(acc.scale(0.5 * elapsed * elapsed));
+    //       body.rotation += body.angularVelocity * elapsed;
+    //       while (body.rotation > Math.PI * 2) {
+    //           body.rotation -= Math.PI * 2;
+    //       }
+    //       while (body.rotation < 0) {
+    //           body.rotation += Math.PI * 2;
+    //       }
+    //   }
+    // }
+
+    // Solve position last because non-overlap is the most important
     solver.solvePosition(contacts);
 
-    // Events and contact house-keeping
+    // Events and any contact house-keeping the solver needs
     solver.postSolve(contacts);
 
     // Record contacts
     contacts.forEach((c) => this._currentFrameContacts.set(c.id, c));
 
-    // Keep track of collisions contacts that have started or ended
+    // Emit contact start/end events
     this.runContactStartEnd();
-
+    
     // reset the last frame cache
     this._lastFrameContacts.clear();
+
+    // Keep track of collisions contacts that have started or ended
     this._lastFrameContacts = new Map(this._currentFrameContacts);
   }
 
-  private _getSolver(): CollisionSolver {
-    return Physics.collisionResolutionStrategy === CollisionResolutionStrategy.RigidBody ? this._rigidBodySolver : this._boxSolver;
+  getSolver(): CollisionSolver {
+    return Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Realistic ? this._rigidBodySolver : this._boxSolver;
   }
 
   debugDraw(ctx: CanvasRenderingContext2D) {
@@ -106,14 +140,14 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     this._camera.draw(ctx);
     this._processor.debugDraw(ctx);
 
-    if (Physics.showContacts || Physics.showCollisionNormals) {
+    if (Physics.debug.showContacts || Physics.debug.showCollisionNormals) {
       for (const [_, contact] of this._currentFrameContacts) {
-        if (Physics.showContacts) {
+        if (Physics.debug.showContacts) {
           contact.points.forEach((p) => {
             DrawUtil.point(ctx, Color.Red, p);
           });
         }
-        if (Physics.showCollisionNormals) {
+        if (Physics.debug.showCollisionNormals) {
           contact.points.forEach((p) => {
             DrawUtil.vector(ctx, Color.Cyan, p, contact.normal, 30);
           });

@@ -7,8 +7,8 @@ var game = new ex.Engine({
 
 game.showDebug(true);
 
-ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
-ex.Physics.broadphaseDebug = true;
+ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+ex.Physics.debug.broadphaseDebug = true;
 
 game.currentScene.camera.x = 0;
 game.currentScene.camera.y = 0;

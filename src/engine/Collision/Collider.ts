@@ -1,7 +1,7 @@
 import { Color } from '../Drawing/Color';
 import { CollisionShape } from './Shapes/CollisionShape';
 import { Vector, Line } from '../Algebra';
-import { Physics } from '../Physics';
+import { Physics } from './Physics';
 import { BoundingBox } from './BoundingBox';
 import { CollisionType } from './CollisionType';
 import { CollisionGroup } from './Group/CollisionGroup';
@@ -179,17 +179,17 @@ export class Collider implements Clonable<Collider> {
   public debugDraw(ctx: CanvasRenderingContext2D) {
     // Draw motion vectors
     // TODO move to motion system
-    if (Physics.showMotionVectors) {
+    if (Physics.debug.showMotionVectors) {
       DrawUtil.vector(ctx, Color.Yellow, this.owner.pos, this.owner.acc.add(Physics.acc));
       DrawUtil.vector(ctx, Color.Blue, this.owner.pos, this.owner.vel);
       DrawUtil.point(ctx, Color.Red, this.owner.pos);
     }
 
-    if (Physics.showColliderBounds) {
+    if (Physics.debug.showColliderBounds) {
       this.bounds.debugDraw(ctx, Color.Yellow);
     }
 
-    if (Physics.showColliderGeometry) {
+    if (Physics.debug.showColliderGeometry) {
       this.shape.debugDraw(ctx, this.owner.sleeping ? Color.Gray : Color.Green);
     }
   }

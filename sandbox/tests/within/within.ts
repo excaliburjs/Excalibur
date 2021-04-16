@@ -1,8 +1,7 @@
 /// <reference path="../../lib/excalibur.d.ts" />
 
 ex.Physics.acc = new ex.Vector(0, 200);
-ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
-ex.Physics.allowRigidBodyRotation = false;
+ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
 var game = new ex.Engine({
   width: 600,
   height: 400

@@ -5,8 +5,8 @@ var game = new ex.Engine({
   height: 400
 });
 
-ex.Physics.showColliderGeometry = true;
-ex.Physics.showColliderBounds = true;
+ex.Physics.debug.showColliderGeometry = true;
+ex.Physics.debug.showColliderBounds = true;
 
 game.showDebug(true);
 

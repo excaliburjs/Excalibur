@@ -24,7 +24,7 @@ export * from './Events';
 export { Label, FontStyle, FontUnit, TextAlign, BaseAlign } from './Label';
 export * from './Loader';
 export { Particle, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterType } from './Particles';
-export * from './Physics';
+export * from './Collision/Physics';
 export * from './Scene';
 export { TileMap, Cell, TileMapArgs, CellArgs, TileSprite } from './TileMap';
 export * from './Timer';

@@ -11,7 +11,7 @@ import { Shape } from './Shapes/Shape';
 import { CollisionGroup } from './Group/CollisionGroup';
 import { EventDispatcher } from '../EventDispatcher';
 import { CollisionContact } from './Detection/CollisionContact';
-import { Physics } from '../Physics';
+import { Physics } from './Physics';
 import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisionEvent } from '../Events';
 import { createId, Id } from '../Id';
 import { clamp } from '../Util/Util';
@@ -444,10 +444,10 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
       entity.events.emit('postcollision', new PostCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection));
     });
     this.events.on('collisionstart', (evt: any) => {
-      entity.events.emit('collisionstart', new CollisionStartEvent(evt.target.owner.owner, evt.other.owner.owner, evt.contact));
+      entity.events.emit('collisionstart', new CollisionStartEvent(evt.target?.owner?.owner, evt.other?.owner?.owner, evt.contact));
     });
     this.events.on('collisionend', (evt: any) => {
-      entity.events.emit('collisionend', new CollisionEndEvent(evt.target.owner.owner, evt.other.owner.owner));
+      entity.events.emit('collisionend', new CollisionEndEvent(evt.target?.owner?.owner, evt.other?.owner?.owner));
     });
   }
 

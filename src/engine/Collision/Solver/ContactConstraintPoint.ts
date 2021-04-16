@@ -1,12 +1,12 @@
-import { cross, Vector } from "../../Algebra";
+import { Vector } from "../../Algebra";
 import { CollisionContact } from "../Detection/CollisionContact";
 
 /**
  * Holds information about contact points, meant to be reused over multiple frames of contact
  */
- export class ContactPoint {
+ export class ContactConstraintPoint {
 
-  constructor(public point: Vector, public contact: CollisionContact) {
+  constructor(public point: Vector, public local: Vector, public contact: CollisionContact) {
       this.update();
    }
 
@@ -45,15 +45,14 @@ import { CollisionContact } from "../Detection/CollisionContact";
    * Returns the relative velocity betwen bodyA and bodyB
    */
   public getRelativeVelocity() {
-      const bodyA = this.contact.colliderA.owner;
-      const bodyB = this.contact.colliderB.owner;
+    const bodyA = this.contact.colliderA.owner;
+    const bodyB = this.contact.colliderB.owner;
+    // Relative velocity in linear terms
+    // Angular to linear velocity formula -> omega = velocity/radius so omega x radius = velocity
+    const velA = bodyA.vel.add(Vector.cross(bodyA.angularVelocity, this.aToContact));
+    const velB = bodyB.vel.add(Vector.cross(bodyB.angularVelocity, this.bToContact));
 
-      // Relative velocity in linear terms
-      // Angular to linear velocity formula -> omega = velocity/radius so omega x radius = velocity
-      const vel = bodyB.vel.add(cross(bodyB.angularVelocity, this.bToContact)).sub(
-             bodyA.vel.sub(cross(bodyA.angularVelocity, this.aToContact)));
-
-      return vel;
+    return velB.sub(velA);
   }
 
   /**

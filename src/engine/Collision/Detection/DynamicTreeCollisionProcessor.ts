@@ -1,4 +1,4 @@
-import { Physics } from '../../Physics';
+import { Physics } from '../Physics';
 import { CollisionProcessor } from './CollisionProcessor';
 import { DynamicTree } from './DynamicTree';
 import { Pair } from './Pair';
@@ -190,7 +190,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       }
     }
     if (stats) {
-      stats.physics.collisions+= contacts.length;
+      stats.physics.collisions += contacts.length;
     }
     return contacts;
   }
@@ -212,21 +212,21 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D) {
-    if (Physics.broadphaseDebug) {
+    if (Physics.debug.broadphaseDebug) {
       this._dynamicCollisionTree.debugDraw(ctx);
     }
 
-    if (Physics.showColliderGeometry) {
+    if (Physics.debug.showColliderGeometry) {
       for (let collider of this._colliders) {
-        if (Physics.showColliderBounds) {
+        if (Physics.debug.showColliderBounds) {
           collider.bounds.debugDraw(ctx, Color.Yellow);
         }
     
-        if (Physics.showColliderGeometry) {
+        if (Physics.debug.showColliderGeometry) {
           collider.shape.debugDraw(ctx, collider.owner.sleeping || collider.owner.collisionType === CollisionType.Fixed ? Color.Gray : Color.Green);
         }
 
-        if (Physics.showColliderNormals && collider.shape instanceof ConvexPolygon) {
+        if (Physics.debug.showColliderNormals && collider.shape instanceof ConvexPolygon) {
           for (let side of collider.shape.getSides()) {
             DrawUtil.point(ctx, Color.Blue, side.midpoint);
             DrawUtil.vector(ctx, Color.Yellow, side.midpoint, side.normal(), 30);

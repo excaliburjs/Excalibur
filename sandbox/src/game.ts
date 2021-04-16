@@ -60,13 +60,14 @@ actorfolder.add(ex.Debug, 'showActorId');
 actorfolder.add(ex.Debug, 'showActorUnitCircle');
 var folder = gui.addFolder('Physics Flags');
 folder.add(ex.Physics, 'enabled')
-folder.add(ex.Physics, 'showColliderBounds')
-folder.add(ex.Physics, 'showColliderGeometry')
-folder.add(ex.Physics, 'showColliderNormals')
-folder.add(ex.Physics, 'showContacts')
-folder.add(ex.Physics, 'showMotionVectors')
-folder.add(ex.Physics, 'broadphaseDebug')
-folder.add(ex.Physics, 'collisionPasses', 1, 30, 1);
+folder.add(ex.Physics.debug, 'showColliderBounds')
+folder.add(ex.Physics.debug, 'showColliderGeometry')
+folder.add(ex.Physics.debug, 'showColliderNormals')
+folder.add(ex.Physics.debug, 'showContacts')
+folder.add(ex.Physics.debug, 'showMotionVectors')
+folder.add(ex.Physics.debug, 'broadphaseDebug')
+folder.add(ex.Physics, "positionIterations")
+folder.add(ex.Physics, "velocityIterations")
 
 var stats = new Stats();
 stats.showPanel(0);

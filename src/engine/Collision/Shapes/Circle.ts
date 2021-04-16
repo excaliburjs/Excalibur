@@ -168,6 +168,15 @@ export class Circle implements CollisionShape {
   }
 
   /**
+   * Find the local point on the shape in the direction specified
+   * @param direction 
+   */
+  public getFurthestLocalPoint(direction: Vector): Vector {
+    const dir = direction.normalize();
+    return dir.scale(this.radius);
+  }
+
+  /**
    * Get the axis aligned bounding box for the circle shape in world coordinates
    */
   public get bounds(): BoundingBox {
@@ -205,40 +214,6 @@ export class Circle implements CollisionShape {
    */
   public getInertia(mass: number): number {
     return (mass * this.radius * this.radius) / 2;
-  }
-
-  /**
-   * Tests the separating axis theorem for circles against polygons
-   */
-  public testSeparatingAxisTheorem(polygon: ConvexPolygon): Vector {
-    const axes = polygon.axes;
-    const pc = polygon.center;
-    // Special SAT with circles
-    const polyDir = pc.sub(this.worldPos);
-    const closestPointOnPoly = polygon.getFurthestPoint(polyDir.negate());
-    axes.push(closestPointOnPoly.sub(this.worldPos).normalize());
-
-    let minOverlap = Number.MAX_VALUE;
-    let minAxis = null;
-    let minIndex = -1;
-    for (let i = 0; i < axes.length; i++) {
-      const proj1 = polygon.project(axes[i]);
-      const proj2 = this.project(axes[i]);
-      const overlap = proj1.getOverlap(proj2);
-      if (overlap <= 0) {
-        return null;
-      } else {
-        if (overlap < minOverlap) {
-          minOverlap = overlap;
-          minAxis = axes[i];
-          minIndex = i;
-        }
-      }
-    }
-    if (minIndex < 0) {
-      return null;
-    }
-    return minAxis.normalize().scale(minOverlap);
   }
 
   /* istanbul ignore next */

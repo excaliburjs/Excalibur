@@ -1,4 +1,4 @@
-import { Vector } from '../../Algebra';
+import { vec, Vector } from '../../Algebra';
 import { Component } from '../Component';
 
 export interface Transform {
@@ -73,4 +73,21 @@ export class TransformComponent extends Component<'transform'> implements Transf
    * The scale of the entity.
    */
   public scale: Vector = Vector.One;
+
+  /**
+   * Apply the transform to a point
+   * @param point 
+   */
+  public apply(point: Vector): Vector {
+    return point.scale(this.scale).rotate(this.rotation).add(this.pos)
+  }
+
+  /**
+   * Apply the inverse transform to a point
+   * @param point 
+   */
+  public applyInverse(point: Vector): Vector {
+    // TODO use matrix inverse after merging main
+    return point.sub(this.pos).rotate(-this.rotation).scale(vec(1/this.scale.x, 1/this.scale.y));
+  }
 }

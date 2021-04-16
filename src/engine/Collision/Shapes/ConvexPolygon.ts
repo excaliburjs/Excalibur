@@ -47,6 +47,7 @@ export class ConvexPolygon implements CollisionShape {
   private _transformedPoints: Vector[] = [];
   private _axes: Vector[] = [];
   private _sides: Line[] = [];
+  private _localSides: Line[] = [];
 
   constructor(options: ConvexPolygonOptions) {
     this.offset = options.offset ?? Vector.Zero;
@@ -95,6 +96,7 @@ export class ConvexPolygon implements CollisionShape {
     const len = this.points.length;
     this._transformedPoints.length = 0; // clear out old transform
     for (let i = 0; i < len; i++) {
+      // TODO use transform component???
       this._transformedPoints[i] = this.points[i].scale(scale).rotate(angle).add(pos);
     }
   }
@@ -132,6 +134,53 @@ export class ConvexPolygon implements CollisionShape {
     return this._sides;
   }
 
+  public getLocalSides(): Line[] {
+    if (this._localSides.length) {
+      return this._localSides;
+    }
+    const lines = [];
+    const points = this.points;
+    const len = points.length;
+    for (let i = 0; i < len; i++) {
+      // This winding is important
+      lines.push(new Line(points[i], points[(i + 1) % len]));
+    }
+    this._localSides = lines;
+    return this._localSides;
+  }
+
+  public findSide(direction: Vector): Line {
+    let sides = this.getSides();
+    let bestSide = sides[0];
+    let maxDistance = -Number.MAX_VALUE;
+    for (let side = 0; side < sides.length; side++) {
+        let currentSide = sides[side];
+        const sideNormal = currentSide.normal();
+        const mostDirection = sideNormal.dot(direction);
+        if (mostDirection > maxDistance) {
+            bestSide = currentSide;
+            maxDistance = mostDirection;
+        }
+    }
+    return bestSide;
+  }
+
+  public findLocalSide(direction: Vector): Line {
+    let sides = this.getLocalSides();
+    let bestSide = sides[0];
+    let maxDistance = -Number.MAX_VALUE;
+    for (let side = 0; side < sides.length; side++) {
+        let currentSide = sides[side];
+        const sideNormal = currentSide.normal();
+        const mostDirection = sideNormal.dot(direction);
+        if (mostDirection > maxDistance) {
+            bestSide = currentSide;
+            maxDistance = mostDirection;
+        }
+    }
+    return bestSide;
+  }
+
   /**
    * Get the axis associated with the convex polygon
    */
@@ -147,10 +196,12 @@ export class ConvexPolygon implements CollisionShape {
   public update(transform: Transform): void {
     this._transform = transform;
     this._sides.length = 0;
+    this._localSides.length = 0;
     this._axes.length = 0;
     this._transformedPoints.length = 0;
     this.getTransformedPoints();
     this.getSides();
+    this.getLocalSides();
   }
 
   /**
@@ -220,6 +271,24 @@ export class ConvexPolygon implements CollisionShape {
   }
 
   /**
+   * Find the local point on the shape furthest in the direction specified
+   * @param direction 
+   */
+  public getFurthestLocalPoint(direction: Vector): Vector {
+    const pts = this.points;
+    let furthestPoint = pts[0];
+    let maxDistance = -Number.MAX_VALUE;
+    for (let i = 0; i < pts.length; i++) {
+        const distance = direction.dot(pts[i]);
+        if (distance > maxDistance) {
+            maxDistance = distance;
+            furthestPoint = pts[i];
+        }
+    }
+    return furthestPoint;
+  }
+
+  /**
    * Finds the closes face to the point using perpendicular distance
    * @param point point to test against polygon
    */
@@ -259,7 +328,6 @@ export class ConvexPolygon implements CollisionShape {
       .scale(scale)
       .rotate(rotation)
       .translate(pos);
-    // return BoundingBox.fromPoints(points);
   }
 
   /**
@@ -312,127 +380,6 @@ export class ConvexPolygon implements CollisionShape {
 
     // no contact found
     return null;
-  }
-
-  public queryAxisSeparation(other: ConvexPolygon): { poly: ConvexPolygon, separation: number, side: Line, axis: Vector } {
-    const polyA = this;
-    const polyB = other;
-
-    const sides = polyA.getSides();
-    let bestSeparation = -Number.MAX_VALUE;
-    let bestSide: Line = null;
-    let bestAxis: Vector = null;
-    for (let i = 0; i < sides.length; i++){
-      const side = sides[i];
-      const axis = side.normal();
-      const vertB = polyB.getFurthestPoint(axis.negate());
-      const vertSeparation = side.distanceToPoint(vertB, true); // Separation on side i's axis
-      if (vertSeparation > bestSeparation) {
-        bestSeparation = vertSeparation;
-        bestSide = side;
-        bestAxis = axis;
-      }
-    }
-
-    return {
-      poly: this,
-      separation: bestSeparation,
-      side: bestSide,
-      axis: bestAxis
-    }
-  }
-
-  public queryForOppositeSide(direction: Vector): Line {
-
-    const normal = direction.normalize();
-    const sides = this.getSides();
-    let leastParallel = Number.MAX_VALUE;
-    let mostOpposite: Line = null;
-    for (let i = 0; i < sides.length; i++) {
-      const parallel = normal.dot(sides[i].normal());
-      if (parallel < leastParallel) {
-        leastParallel = parallel;
-        mostOpposite = sides[i];
-      }
-    }
-
-    return mostOpposite;
-  }
-
-  /**
-   * Perform Separating Axis test against another polygon, returns null if no overlap in polys
-   * Reference http://www.dyn4j.org/2010/01/sat/
-   * Reference https://ubm-twvideo01.s3.amazonaws.com/o1/vault/gdc2013/slides/822403Gregorius_Dirk_TheSeparatingAxisTest.pdf
-   */
-  public testSeparatingAxisTheorem(other: ConvexPolygon): { ref: ConvexPolygon, overlap: number, side: Line, normal: Vector } {
-    const polyA = this;
-    const polyB = other;
-
-    // Positive signed separation means there is space between an edge and point in the poly
-    const sep1 = polyA.queryAxisSeparation(polyB);
-    if (sep1.separation > 0) {
-      return null;
-    }
-
-    const sep2 = polyB.queryAxisSeparation(polyA);
-    if (sep2.separation > 0) {
-      return null
-    }
-
-    // We want the closest to zero, minimal movement
-    let bestSeparation = sep1.separation > sep2.separation ? sep1 : sep2;
-
-    let minAxis = bestSeparation.side.normal().normalize();
-    const sameDir = minAxis.dot(polyB.center.sub(polyA.center));
-    minAxis = sameDir < 0 ? minAxis.negate() : minAxis;
-
-    // `this` is allways the reference
-    if (bestSeparation === sep2) {
-      bestSeparation = {
-        poly: this,
-        separation: sep2.separation,
-        side: this.queryForOppositeSide(sep2.side.normal()),
-        axis: minAxis
-      }
-    }
-  
-    return {
-      ref: bestSeparation.poly,
-      overlap: Math.abs(bestSeparation.separation),
-      side: bestSeparation.side,
-      normal: minAxis
-    };
-  }
-
-  public testSeparatingAxisTheoremOld(other: ConvexPolygon): Vector {
-    const poly1 = this;
-    const poly2 = other;
-    const axes = poly1.axes.concat(poly2.axes);
-
-    let minOverlap = Number.MAX_VALUE;
-    let minAxis = null;
-    let minIndex = -1;
-    for (let i = 0; i < axes.length; i++) {
-      const proj1 = poly1.project(axes[i]);
-      const proj2 = poly2.project(axes[i]);
-      const overlap = proj1.getOverlap(proj2);
-      if (overlap <= 0) {
-        return null;
-      } else {
-        if (overlap < minOverlap) {
-          minOverlap = overlap;
-          minAxis = axes[i];
-          minIndex = i;
-        }
-      }
-    }
-
-    // Sanity check
-    if (minIndex === -1) {
-      return null;
-    }
-
-    return minAxis.normalize().scale(minOverlap);
   }
 
   /**

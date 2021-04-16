@@ -4,12 +4,14 @@ import { Component, ComponentType, Entity } from "../EntityComponentSystem";
 import { MotionComponent } from "../EntityComponentSystem/Components/MotionComponent";
 import { TransformComponent } from "../EntityComponentSystem/Components/TransformComponent";
 import { System, SystemType } from "../EntityComponentSystem/System";
-import { Physics } from "../Physics";
+import { Physics } from "./Physics";
 import { Scene } from "../Scene";
 import { DrawUtil } from "../Util/Index";
 import { Body } from "./Body";
 import { CollisionType } from "./CollisionType";
 import { EulerIntegrator } from "./Integrator";
+// import { CollisionType } from "./CollisionType";
+// import { EulerIntegrator } from "./Integrator";
 
 
 export class MotionSystem extends System<TransformComponent | MotionComponent> {
@@ -30,11 +32,11 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
     return null;
   }
 
-  update(entities: Entity<TransformComponent | MotionComponent>[], elapsedMs: number): void {
+  update(_entities: Entity<TransformComponent | MotionComponent>[], elapsedMs: number): void {
     let transform: TransformComponent;
     let motion; MotionComponent;
-    this._entities = entities;
-    for (const entity of entities) {
+    this._entities = _entities;
+    for (const entity of _entities) {
       transform = entity.components.transform;
       motion = entity.components.motion;
 
@@ -59,12 +61,12 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
     ctx.save();
     this._camera.draw(ctx);
     for (let entity of this._entities) {
-      if (Physics.showMotionVectors) {
+      if (Physics.debug.showMotionVectors) {
         DrawUtil.vector(ctx, Color.Yellow, entity.components.transform.pos, entity.components.motion.acc.add(Physics.acc));
         DrawUtil.vector(ctx, Color.Blue, entity.components.transform.pos, entity.components.motion.vel);
         DrawUtil.point(ctx, Color.Red, entity.components.transform.pos);
       }
-      if (Physics.showSleepMotion) {
+      if (Physics.debug.showSleepMotion) {
         const pos = entity.components.transform.pos;
         const body = this.getOptional<Body>(entity, 'body');
         if (body) {

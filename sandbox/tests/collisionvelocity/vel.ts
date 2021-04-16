@@ -8,7 +8,10 @@ var engine = new ex.Engine({
 });
 engine.showDebug(true);
 ex.Physics.acc.setTo(0, 200);
-ex.Physics.showMotionVectors = true;
+ex.Physics.debug.showMotionVectors = true;
+ex.Physics.debug.showColliderGeometry = true;
+ex.Physics.debug.showContacts = true;
+ex.Physics.debug.showCollisionNormals = true;
 
 var floor = new ex.Actor({
   x: engine.halfDrawWidth,
