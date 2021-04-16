@@ -128,11 +128,12 @@ export class Physics {
   public static integrator: Integrator = Integrator.Euler;
 
   /**
-   * Configures Excalibur to use box physics. Box physics which performs simple axis aligned arcade style physics.
+   * Configures Excalibur to use "arcade" physics. Arcade physics which performs simple axis aligned arcade style physics.
    */
   public static useArcadePhysics(): void {
     Physics.collisionResolutionStrategy = CollisionResolutionStrategy.Arcade;
   }
+  
 
   /**
    * Configures Excalibur to use rigid body physics. Rigid body physics allows for complicated

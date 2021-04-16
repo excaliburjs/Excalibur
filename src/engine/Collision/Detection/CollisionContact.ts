@@ -73,14 +73,14 @@ export class CollisionContact {
       if (
         this.colliderA.owner.sleeping &&
         this.colliderA.owner.collisionType !== CollisionType.Fixed &&
-        this.colliderB.owner.sleepmotion >= Physics.wakeThreshold
+        this.colliderB.owner.sleepMotion >= Physics.wakeThreshold
       ) {
         this.colliderA.owner.setSleeping(false);
       }
       if (
         this.colliderB.owner.sleeping &&
         this.colliderB.owner.collisionType !== CollisionType.Fixed &&
-        this.colliderA.owner.sleepmotion >= Physics.wakeThreshold
+        this.colliderA.owner.sleepMotion >= Physics.wakeThreshold
       ) {
         this.colliderB.owner.setSleeping(false);
       }

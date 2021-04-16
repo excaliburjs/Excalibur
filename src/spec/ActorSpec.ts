@@ -21,7 +21,7 @@ describe('A game actor', () => {
     jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({ width: 100, height: 100 });
     actor = new ex.Actor();
-    actor.body.collider.type = ex.CollisionType.Active;
+    actor.body.collisionType = ex.CollisionType.Active;
     scene = new ex.Scene();
     engine.addScene('test', scene);
     engine.goToScene('test');
@@ -32,7 +32,7 @@ describe('A game actor', () => {
     spyOn(actor, 'draw');
     spyOn(actor, 'debugDraw');
 
-    ex.Physics.useBoxPhysics();
+    ex.Physics.useArcadePhysics();
     ex.Physics.acc.setTo(0, 0);
   });
 
@@ -120,13 +120,10 @@ describe('A game actor', () => {
   });
 
   it('actors should generate pair hashes in the correct order', () => {
-    const actor = new ex.Actor();
-    actor.id = 20;
-    const actor2 = new ex.Actor();
-    actor2.id = 40;
-
-    const hash = ex.Pair.calculatePairHash(actor.body.collider, actor2.body.collider);
-    const hash2 = ex.Pair.calculatePairHash(actor2.body.collider, actor.body.collider);
+    const id1 = ex.createId('body', 20);
+    const id2 = ex.createId('body', 40);
+    const hash = ex.Pair.calculatePairHash(id1, id2);
+    const hash2 = ex.Pair.calculatePairHash(id2, id1);
     expect(hash).toBe('#20+40');
     expect(hash2).toBe('#20+40');
   });
@@ -240,10 +237,10 @@ describe('A game actor', () => {
     actor.width = 100;
     actor.height = 100;
 
-    expect(actor.body.collider.bounds.left).toBe(-50);
-    expect(actor.body.collider.bounds.right).toBe(50);
-    expect(actor.body.collider.bounds.top).toBe(-50);
-    expect(actor.body.collider.bounds.bottom).toBe(50);
+    expect(actor.body.bounds.left).toBe(-50);
+    expect(actor.body.bounds.right).toBe(50);
+    expect(actor.body.bounds.top).toBe(-50);
+    expect(actor.body.bounds.bottom).toBe(50);
   });
 
   it('should have correct bounds when scaled', () => {
@@ -254,12 +251,12 @@ describe('A game actor', () => {
     actor.scale.setTo(2, 2);
     actor.anchor = new ex.Vector(0.5, 0.5);
 
-    actor.body.collider.shape.recalc();
+    actor.body.update();
 
-    expect(actor.body.collider.bounds.left).toBe(-100);
-    expect(actor.body.collider.bounds.right).toBe(100);
-    expect(actor.body.collider.bounds.top).toBe(-100);
-    expect(actor.body.collider.bounds.bottom).toBe(100);
+    expect(actor.body.bounds.left).toBe(-100);
+    expect(actor.body.bounds.right).toBe(100);
+    expect(actor.body.bounds.top).toBe(-100);
+    expect(actor.body.bounds.bottom).toBe(100);
   });
 
   it('can collide with other actors', () => {
@@ -267,39 +264,39 @@ describe('A game actor', () => {
     const other = new ex.Actor(10, 10, 10, 10);
 
     // Actors are adjacent and not overlapping should not collide
-    expect(actor.body.collider.bounds.intersectWithSide(other.body.collider.bounds)).toBe(ex.Side.None);
-    expect(other.body.collider.bounds.intersectWithSide(actor.body.collider.bounds)).toBe(ex.Side.None);
+    expect(actor.body.bounds.intersectWithSide(other.body.bounds)).toBe(ex.Side.None);
+    expect(other.body.bounds.intersectWithSide(actor.body.bounds)).toBe(ex.Side.None);
 
     // move other actor into collision range from the right side
     other.pos.x = 9;
     other.pos.y = 0;
-    expect(actor.body.collider.bounds.intersectWithSide(other.body.collider.bounds)).toBe(ex.Side.Right);
-    expect(other.body.collider.bounds.intersectWithSide(actor.body.collider.bounds)).toBe(ex.Side.Left);
+    expect(actor.body.bounds.intersectWithSide(other.body.bounds)).toBe(ex.Side.Right);
+    expect(other.body.bounds.intersectWithSide(actor.body.bounds)).toBe(ex.Side.Left);
 
     // move other actor into collision range from the left side
     other.pos.x = -9;
     other.pos.y = 0;
-    expect(actor.body.collider.bounds.intersectWithSide(other.body.collider.bounds)).toBe(ex.Side.Left);
-    expect(other.body.collider.bounds.intersectWithSide(actor.body.collider.bounds)).toBe(ex.Side.Right);
+    expect(actor.body.bounds.intersectWithSide(other.body.bounds)).toBe(ex.Side.Left);
+    expect(other.body.bounds.intersectWithSide(actor.body.bounds)).toBe(ex.Side.Right);
 
     // move other actor into collision range from the top
     other.pos.x = 0;
     other.pos.y = -9;
-    expect(actor.body.collider.bounds.intersectWithSide(other.body.collider.bounds)).toBe(ex.Side.Top);
-    expect(other.body.collider.bounds.intersectWithSide(actor.body.collider.bounds)).toBe(ex.Side.Bottom);
+    expect(actor.body.bounds.intersectWithSide(other.body.bounds)).toBe(ex.Side.Top);
+    expect(other.body.bounds.intersectWithSide(actor.body.bounds)).toBe(ex.Side.Bottom);
 
     // move other actor into collision range from the bottom
     other.pos.x = 0;
     other.pos.y = 9;
-    expect(actor.body.collider.bounds.intersectWithSide(other.body.collider.bounds)).toBe(ex.Side.Bottom);
-    expect(other.body.collider.bounds.intersectWithSide(actor.body.collider.bounds)).toBe(ex.Side.Top);
+    expect(actor.body.bounds.intersectWithSide(other.body.bounds)).toBe(ex.Side.Bottom);
+    expect(other.body.bounds.intersectWithSide(actor.body.bounds)).toBe(ex.Side.Top);
   });
 
   it('participates with another in a collision', () => {
     const actor = new ex.Actor(0, 0, 10, 10);
-    actor.body.collider.type = ex.CollisionType.Active;
+    actor.body.collisionType = ex.CollisionType.Active;
     const other = new ex.Actor(8, 0, 10, 10);
-    other.body.collider.type = ex.CollisionType.Active;
+    other.body.collisionType = ex.CollisionType.Active;
     let actorCalled = 'false';
     let otherCalled = 'false';
 
@@ -737,16 +734,16 @@ describe('A game actor', () => {
   });
 
   it('with an active collision type can be placed on a fixed type', () => {
-    ex.Physics.useBoxPhysics();
+    ex.Physics.useArcadePhysics();
     const scene = new ex.Scene(engine);
 
     const active = new ex.Actor(0, -50, 100, 100);
-    active.body.collider.type = ex.CollisionType.Active;
+    active.body.collisionType = ex.CollisionType.Active;
     active.vel.y = 10;
     active.acc.y = 1000;
 
     const fixed = new ex.Actor(-100, 50, 1000, 100);
-    fixed.body.collider.type = ex.CollisionType.Fixed;
+    fixed.body.collisionType = ex.CollisionType.Fixed;
 
     scene.add(active);
     scene.add(fixed);
@@ -772,12 +769,12 @@ describe('A game actor', () => {
   it('with an active collision type can jump on a fixed type', () => {
     const scene = new ex.Scene(engine);
     const active = new ex.Actor(0, -50, 100, 100);
-    active.body.collider.type = ex.CollisionType.Active;
+    active.body.collisionType = ex.CollisionType.Active;
     active.vel.y = -100;
     ex.Physics.acc.setTo(0, 0);
 
     const fixed = new ex.Actor(-100, 50, 1000, 100);
-    fixed.body.collider.type = ex.CollisionType.Fixed;
+    fixed.body.collisionType = ex.CollisionType.Fixed;
 
     scene.add(active);
     scene.add(fixed);

@@ -6,21 +6,12 @@ describe('A CollisionContact', () => {
 
   beforeEach(() => {
     actorA = new ex.Actor(0, 0, 20, 20);
-    const colliderA = actorA.body.collider;
-    colliderA.type = ex.CollisionType.Active;
-    colliderA.shape = new ex.Circle({
-      radius: 10,
-      collider: actorA.body.collider
-    });
+    actorA.body.useCircleCollider(10);
+    actorA.body.collisionType = ex.CollisionType.Active;
 
     actorB = new ex.Actor(20, 0, 20, 20);
-    const colliderB = actorB.body.collider;
-    colliderB.type = ex.CollisionType.Active;
-
-    colliderB.shape = new ex.Circle({
-      radius: 10,
-      collider: actorB.body.collider
-    });
+    actorB.body.useCircleCollider(10);
+    actorB.body.collisionType = ex.CollisionType.Active;
   });
 
   it('exists', () => {
@@ -29,8 +20,8 @@ describe('A CollisionContact', () => {
 
   it('can be created', () => {
     const cc = new ex.CollisionContact(
-      actorA.body.collider,
-      actorB.body.collider,
+      actorA.body.getColliders()[0],
+      actorB.body.getColliders()[0],
       ex.Vector.Zero.clone(),
       new ex.Vector(10, 0),
       ex.Vector.Right.clone()
@@ -92,8 +83,8 @@ describe('A CollisionContact', () => {
     actorA.vel.x = 10;
     actorB.vel.x = -10;
     actorB.pos.x = 19;
-    actorA.body.collider.shape.recalc();
-    actorB.body.collider.shape.recalc();
+    actorA.body.update();
+    actorB.body.update();
     const cc = new ex.CollisionContact(
       actorA.body.collider,
       actorB.body.collider,

@@ -26,7 +26,7 @@ export interface BodyComponentOptions {
   offset?: Vector;
 }
 
-export enum Constraint {
+export enum DegreeOfFreedom {
   Rotation = 'rotation',
   X = 'x',
   Y = 'y'
@@ -58,61 +58,100 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     }
   }
 
+  /**
+   * Observable that notifies when a collider is added to the body
+   */
   public $collidersAdded = new Observable<Collider>();
+
+  /**
+   * Observable that notifies when a collider is removed from the body
+   */
   public $collidersRemoved = new Observable<Collider>();
 
+  /**
+   * Collision type of the body's colliders, by default [[CollisionType.PreventCollision]]
+   */
   public collisionType: CollisionType = CollisionType.PreventCollision;
 
+  /**
+   * The collision group for the body's colliders, by default body colliders collide with everything
+   */
   public group: CollisionGroup = CollisionGroup.All;
 
+  /**
+   * The amount of mass the body has
+   */
   public mass: number = Physics.defaultMass;
 
+  /**
+   * The inverse mass (1/mass) of the body. If [[CollisionType.Fixed]] this is 0, meaning "infinite" mass
+   */
   public get inverseMass(): number {
     return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.mass
   }
 
-  public sleepmotion: number = Physics.sleepEpsilon * 5;
+  /**
+   * Amount of "motion" the body has before sleeping. If below [[Physics.sleepEpsilon]] it goes to "sleep"
+   */
+  public sleepMotion: number = Physics.sleepEpsilon * 5;
   
+  /**
+   * Can this body sleep, by default bodies do not sleep
+   */
   public canSleep: boolean = Physics.bodiesCanSleepByDefault;
 
   private _sleeping = false;
+  /**
+   * Whether this body is sleeping or not
+   */
   public get sleeping(): boolean {
     return this._sleeping;
   }
 
+  /**
+   * Set the sleep state of the body
+   * @param sleeping 
+   */
   public setSleeping(sleeping: boolean) {
     this._sleeping = sleeping;
     if (!sleeping) {
       // Give it a kick to keep it from falling asleep immediately
-      this.sleepmotion = Physics.sleepEpsilon * 5;
+      this.sleepMotion = Physics.sleepEpsilon * 5;
     } else {
       this.vel = Vector.Zero;
       this.acc = Vector.Zero;
       this.angularVelocity = 0;
-      this.sleepmotion = 0;
+      this.sleepMotion = 0;
     }
   }
 
+  /**
+   * Update body's [[BodyComponent.sleepMotion]] for the purpose of sleeping
+   */
   public updateMotion() {
     if (this._sleeping) {
       this.setSleeping(true);
     }
     const currentMotion = this.vel.size * this.vel.size + Math.abs(this.angularVelocity * this.angularVelocity);
     const bias = Physics.sleepBias;
-    this.sleepmotion = bias * this.sleepmotion + (1 - bias) * currentMotion;
-    this.sleepmotion = clamp(this.sleepmotion, 0, 10 * Physics.sleepEpsilon);
-    if (this.canSleep && this.sleepmotion < Physics.sleepEpsilon) {
+    this.sleepMotion = bias * this.sleepMotion + (1 - bias) * currentMotion;
+    this.sleepMotion = clamp(this.sleepMotion, 0, 10 * Physics.sleepEpsilon);
+    if (this.canSleep && this.sleepMotion < Physics.sleepEpsilon) {
       this.setSleeping(true);
     }
   }
 
-  // TODO get inertia from shapes
-  // TODO https://physics.stackexchange.com/questions/273394/is-moment-of-inertia-cumulative
-  // public inertia: number = 1000;
+  /**
+   * Get the moment of inertia from the [[CollisionShape]]
+   */
   public get inertia() {
+    // TODO Add moments https://physics.stackexchange.com/questions/273394/is-moment-of-inertia-cumulative
     return this._colliders[0].shape.getInertia(this.mass);
   }
 
+  /**
+   * Get the inverse moment of inertial from the [[CollisionShape]]. If [[CollisionType.Fixed]] this is 0, meaning "infinite" mass 
+   */
   public get inverseInertia() {
     return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia
   }
@@ -134,12 +173,15 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   public useGravity: boolean = true;
 
   /**
-   * Motion constraints
+   * Degrees of freedom to limit 
    */
-  public constraints: Constraint[] = [];
+  public limitDegreeOfFreedom: DegreeOfFreedom[] = [];
 
   private _colliders: Collider[] = [];
 
+  /**
+   * Get the bounding box of the body's colliders in world space
+   */
   get bounds(): BoundingBox {
     let results: BoundingBox;
 
@@ -151,6 +193,24 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     return results;
   }
 
+  /**
+   * Get the bounding box of the body's colliders in local space
+   */
+  get localBounds(): BoundingBox {
+    let results: BoundingBox;
+
+    results = this._colliders.reduce(
+      (acc, collider) => acc.combine(collider.localBounds),
+      this._colliders[0]?.localBounds ?? new BoundingBox().translate(this.pos)
+    );
+    
+    return results;
+  }
+
+  /**
+   * Add a collider to the body
+   * @param collider 
+   */
   public addCollider(collider: Collider): BodyComponent {
     if (!collider.owningId) {
       collider.owningId = this.id
@@ -164,10 +224,16 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     return this;
   }
 
-  public getColliders(): Collider[] {
+  /**
+   * Return the list of colliders associated with this body
+   */
+  public getColliders(): readonly Collider[] {
     return this._colliders;
   }
 
+  /**
+   * Remove all colliders from the body
+   */
   public clearColliders(): void {
     let oldColliders = [...this._colliders];
     for (let c of oldColliders) {
@@ -175,6 +241,9 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     }
   }
 
+  /**
+   * Remove a specific collider
+   */
   public removeCollider(collider: Collider): BodyComponent {
     this.$collidersRemoved.notifyAll(collider);
     const colliderIndex = this._colliders.indexOf(collider);
@@ -205,7 +274,11 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     return collisions;
   }
 
+  /**
+   * 
+   */
   public get active() {
+    // todo active = alive?
     return this.owner?.active;
   }
 
@@ -289,11 +362,12 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   public oldRotation: number = 0; // radians
 
   /**
-   * The rotation of the actor in radians
+   * The rotation of the body in radians
    */
   public get rotation() {
     return this.transform.rotation;
   }
+
 
   public set rotation(val: number) {
     this.transform.rotation = val;
@@ -334,36 +408,22 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     this.motion.angularVelocity = value;
   }
 
+  /**
+   * Get the angular velocity in radians/second
+   */
   public get angularVelocity(): number {
     return this.motion.angularVelocity;
   }
 
+  /**
+   * Set the angular velocity in radians/second
+   */
   public set angularVelocity(value: number) {
     this.motion.angularVelocity = value;
   }
 
-  public totalOverlap: Vector = Vector.Zero;
-
   /**
-   * Add minimum translation vectors accumulated during the current frame to resolve collisions.
-   */
-  public addOverlap(mtv: Vector) {
-    this.totalOverlap.addEqual(mtv);
-  }
-
-  /**
-   * Applies the accumulated translation vectors to the body's position
-   */
-  public applyOverlap(): void {
-    if (!(this.sleeping || this.collisionType === CollisionType.Fixed)) {
-      this.pos.addEqual(this.totalOverlap);
-    }
-
-    this.totalOverlap.setTo(0, 0);
-  }
-
-  /**
-   * Apply a specific impulse (force) to a body
+   * Apply a specific impulse to the body
    * @param point 
    * @param impulse 
    * @param normal 
@@ -374,21 +434,25 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     }
 
     const finalImpulse = impulse.scale(this.inverseMass);
-    if (this.constraints.includes(Constraint.X)) {
+    if (this.limitDegreeOfFreedom.includes(DegreeOfFreedom.X)) {
       finalImpulse.x = 0;
     }
-    if (this.constraints.includes(Constraint.Y)) {
+    if (this.limitDegreeOfFreedom.includes(DegreeOfFreedom.Y)) {
       finalImpulse.y = 0;
     }
 
     this.vel.addEqual(finalImpulse);
 
-    if (!this.constraints.includes(Constraint.Rotation)) {
+    if (!this.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
       const distanceFromCenter = point.sub(this.pos);
       this.angularVelocity += this.inverseInertia * distanceFromCenter.cross(impulse);
     }
   }
 
+  /**
+   * Apply only linear impulse to the body
+   * @param impulse 
+   */
   public applyLinearImpulse(impulse: Vector) {
     if (this.collisionType !== CollisionType.Active) {
       return; // only active objects participate in the simulation
@@ -396,22 +460,27 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
     const finalImpulse = impulse.scale(this.inverseMass);
 
-    if (this.constraints.includes(Constraint.X)) {
+    if (this.limitDegreeOfFreedom.includes(DegreeOfFreedom.X)) {
       finalImpulse.x = 0;
     }
-    if (this.constraints.includes(Constraint.Y)) {
+    if (this.limitDegreeOfFreedom.includes(DegreeOfFreedom.Y)) {
       finalImpulse.y = 0;
     }
 
     this.vel = this.vel.add(finalImpulse);
   }
 
+  /**
+   * Apply only angular impuse to the body
+   * @param point 
+   * @param impulse 
+   */
   public applyAngularImpulse(point: Vector, impulse: Vector) {
     if (this.collisionType !== CollisionType.Active) {
       return; // only active objects participate in the simulation
     }
 
-    if (!this.constraints.includes(Constraint.Rotation)) {
+    if (!this.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
       const distanceFromCenter = point.sub(this.pos);
       this.angularVelocity += this.inverseInertia * distanceFromCenter.cross(impulse);
     }
@@ -478,7 +547,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   }
 
   /**
-   * 
+   * Add a box collider to the body's existing colliders
    * 
    * @param width 
    * @param height 
@@ -501,12 +570,12 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): Collider {
-    this._colliders = [];
+    this.clearColliders();
     return this.addPolygonCollider(points, center);
   }
 
   /**
-   * 
+   * Adds a polygon collider to the body's existing colliders
    * 
    * @param points 
    * @param center 
@@ -523,15 +592,15 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public useCircleCollider(radius: number, center: Vector = Vector.Zero): Collider {
-    this._colliders = [];
+    this.clearColliders();
     return this.addCircleCollider(radius, center);
   }
 
   /**
+   * Adds a circle collider tot he body's existing colliders
    * 
-   * 
-   * @param radius 
-   * @param center 
+   * @param radius Radius of the circle in pixels
+   * @param center The relative position of the circles center, by default (0, 0) which is centered
    */
   public addCircleCollider(radius: number, center: Vector = Vector.Zero): Collider {
     const collider = new Collider({ shape: Shape.Circle(radius, center)});
@@ -546,12 +615,12 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public useEdgeCollider(begin: Vector, end: Vector): Collider {
-    this._colliders = [];
+    this.clearColliders()
     return this.addEdgeCollider(begin, end);
   }
 
   /**
-   * 
+   * Adds an edge collider to the body's existing colliders 
    * 
    * @param begin 
    * @param end 

@@ -99,7 +99,7 @@ export class ActorImpl
    * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
    * acceleration, mass, inertia, etc.
    */
-  public get body(): Body {
+  public get body(): BodyComponent {
     return this.components.body;
   }
   

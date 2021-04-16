@@ -72,7 +72,7 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
         if (body) {
           ctx.fillStyle = 'yellow';
           ctx.font = '18px';
-          ctx.fillText(body.sleepmotion.toString(), pos.x, pos.y);
+          ctx.fillText(body.sleepMotion.toString(), pos.x, pos.y);
         }
       }
     }

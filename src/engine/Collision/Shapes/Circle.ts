@@ -48,7 +48,7 @@ export class Circle implements CollisionShape {
   /**
    * The collider associated for this shape, if any.
    */
-  public collider?: Collider;
+  public collider?: Collider; // TODO Merge Collider into Shapes? make collider an abstract???
 
   private _transform: Transform;
 
