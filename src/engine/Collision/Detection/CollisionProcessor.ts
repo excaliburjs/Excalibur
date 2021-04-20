@@ -1,6 +1,6 @@
 ﻿import { FrameStats } from '../../Debug';
 import { Pair } from './Pair';
-import { Collider } from '../Collider';
+import { Collider } from '../Shapes/Collider';
 import { CollisionContact } from './CollisionContact';
 
 /**

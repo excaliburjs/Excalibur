@@ -33,22 +33,21 @@ import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
 import { ActionQueue } from './Actions/Action';
 import { vec, Vector } from './Algebra';
-import { Body, BodyComponent } from './Collision/Body';
+import { BodyComponent } from './Collision/Body';
 import { Eventable } from './Interfaces/Evented';
 import { Actionable } from './Actions/Actionable';
-import { Configurable } from './Configurable';
 import * as Traits from './Traits/Index';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEventHandlers';
 import { CollisionType } from './Collision/CollisionType';
-import { obsolete } from './Util/Decorators';
 
 import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
 import { Debug } from './Debug';
+import { ConvexPolygon } from './Collision/Index';
 
 /**
  * Type guard for checking if something is an Actor
@@ -58,20 +57,73 @@ export function isActor(x: any): x is Actor {
   return x instanceof Actor;
 }
 
-export interface ActorArgs extends Partial<ActorImpl> {
+/**
+ * Actor contructor options
+ */
+export interface ActorArgs {
+  /**
+   * Optionally set the x position of the actor, default is 0
+   */
   x?: number;
+  /**
+   * Optionally set the y position of the actor, default is 0
+   */
   y?: number;
-  width?: number;
-  height?: number;
+  /**
+   * Optionaly set the (x, y) position of the actor as a vector, default is (0, 0)
+   */
   pos?: Vector;
+  /**
+   * Optionally set the width of a box collider for the actor
+   */
+  width?: number;
+  /**
+   * Optionally set the height of a box collider for the actor
+   */
+  height?: number;
+  /**
+   * Optionally set the velocity of the actor in pixels/sec
+   */
   vel?: Vector;
+  /**
+   * Optionally set the acceleration of the actor in pixels/sec^2
+   */
   acc?: Vector;
+  /**
+   * Optionally se the rotation in radians (180 degrees = Math.PI radians)
+   */
   rotation?: number;
-  rx?: number;
+  /**
+   * Optionally set the angular velocity of the actor in radians/sec (180 degrees = Math.PI radians)
+   */
+  angularVelocity?: number;
+  /**
+   * Optionally set the scale of the actor's transform
+   */
+  scale?: Vector;
+  /**
+   * Optionally set the z index of the actor, default is 0
+   */
   z?: number;
+  /**
+   * Optionally set the color of an actor, only used if no graphics are present
+   */
   color?: Color;
+  /**
+   * Optionally set the visibility of the actor
+   */
   visible?: boolean;
-  body?: Body;
+  /**
+   * Optionally set a custom physics body on the actory
+   */
+  body?: BodyComponent;
+  /**
+   * Optionally set the anchor for graphics in the actor
+   */
+  anchor?: Vector;
+  /**
+   * Optionally set the collision type
+   */
   collisionType?: CollisionType;
 }
 
@@ -80,17 +132,16 @@ export interface ActorDefaults {
 }
 
 /**
- * @hidden
+ * The most important primitive in Excalibur is an `Actor`. Anything that
+ * can move on the screen, collide with another `Actor`, respond to events,
+ * or interact with the current scene, must be an actor. An `Actor` **must**
+ * be part of a [[Scene]] for it to be drawn to the screen.
  */
-
-export class ActorImpl
+export class Actor
   extends Entity<TransformComponent | MotionComponent | BodyComponent | CanvasDrawComponent>
   implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
-  /**
-   * Indicates the next id to be set
-   */
   public static defaults: ActorDefaults = {
     anchor: Vector.Half
   };
@@ -102,20 +153,27 @@ export class ActorImpl
   public get body(): BodyComponent {
     return this.components.body;
   }
+
+  public get transform(): TransformComponent {
+    return this.components.transform;
+  }
   
+  public get motion(): MotionComponent {
+    return this.components.motion;
+  }
 
   /**
    * Gets the position vector of the actor in pixels
    */
   public get pos(): Vector {
-    return this.body.pos;
+    return this.transform.pos;
   }
 
   /**
    * Sets the position vector of the actor in pixels
    */
   public set pos(thePos: Vector) {
-    this.body.pos.setTo(thePos.x, thePos.y);
+    this.transform.pos = thePos.clone();
   }
 
   /**
@@ -136,14 +194,14 @@ export class ActorImpl
    * Gets the velocity vector of the actor in pixels/sec
    */
   public get vel(): Vector {
-    return this.body.vel;
+    return this.motion.vel;
   }
 
   /**
    * Sets the velocity vector of the actor in pixels/sec
    */
   public set vel(theVel: Vector) {
-    this.body.vel.setTo(theVel.x, theVel.y);
+    this.motion.vel = theVel.clone();
   }
 
   /**
@@ -165,14 +223,14 @@ export class ActorImpl
    * useful to simulate a gravitational effect.
    */
   public get acc(): Vector {
-    return this.body.acc;
+    return this.motion.acc;
   }
 
   /**
    * Sets the acceleration vector of teh actor in pixels/second/second
    */
   public set acc(theAcc: Vector) {
-    this.body.acc.setTo(theAcc.x, theAcc.y);
+    this.motion.acc = theAcc.clone();
   }
 
   /**
@@ -193,28 +251,36 @@ export class ActorImpl
    * Gets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
    */
   public get rotation(): number {
-    return this.body.rotation;
+    return this.transform.rotation;
   }
 
   /**
    * Sets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
    */
   public set rotation(theAngle: number) {
-    this.body.rotation = theAngle;
+    this.transform.rotation = theAngle;
   }
 
   /**
    * Gets the rotational velocity of the actor in radians/second
    */
-  public get rx(): number {
-    return this.body.rx;
+  public get angularVelocity(): number {
+    return this.motion.angularVelocity;
   }
 
   /**
    * Sets the rotational velocity of the actor in radians/sec
    */
-  public set rx(angularVelocity: number) {
-    this.body.rx = angularVelocity;
+  public set angularVelocity(angularVelocity: number) {
+    this.motion.angularVelocity = angularVelocity;
+  }
+
+  public get scale(): Vector {
+    return this.components.transform.scale;
+  }
+
+  public set scale(scale: Vector) {
+    this.components.transform.scale = scale;
   }
 
   /**
@@ -229,75 +295,6 @@ export class ActorImpl
    * `Actor.anchor.setTo(0, 0)` and top-right would be `Actor.anchor.setTo(0, 1)`.
    */
   public anchor: Vector;
-
-  private _height: number = 0;
-  private _width: number = 0;
-
-  /**
-   * Gets the scale vector of the actor
-   * @obsolete ex.Actor.scale will be removed in v0.25.0, set width and height directly in constructor
-   */
-  public get scale(): Vector {
-    return this.body.scale;
-  }
-
-  /**
-   * Sets the scale vector of the actor for
-   * @obsolete ex.Actor.scale will be removed in v0.25.0, set width and height directly in constructor
-   */
-  public set scale(scale: Vector) {
-    this.body.scale = scale;
-  }
-
-  /**
-   * Gets the old scale of the actor last frame
-   * @obsolete ex.Actor.scale will be removed in v0.25.0, set width and height directly in constructor
-   */
-  public get oldScale(): Vector {
-    return this.body.oldScale;
-  }
-
-  /**
-   * Sets the the old scale of the actor last frame
-   * @obsolete ex.Actor.scale will be removed in v0.25.0, set width and height directly in constructor
-   */
-  public set oldScale(scale: Vector) {
-    this.body.oldScale = scale;
-  }
-
-  /**
-   * Gets the x scalar velocity of the actor in scale/second
-   * @obsolete ex.Actor.sx will be removed in v0.25.0, set width and height directly in constructor
-   */
-  public get sx(): number {
-    return this.body.sx;
-  }
-
-  /**
-   * Sets the x scalar velocity of the actor in scale/second
-   * @obsolete ex.Actor.sx will be removed in v0.25.0, set width and height directly in constructor
-   */
-  @obsolete({ message: 'ex.Actor.sx will be removed in v0.25.0', alternateMethod: 'Set width and height directly in constructor' })
-  public set sx(scalePerSecondX: number) {
-    this.body.sx = scalePerSecondX;
-  }
-
-  /**
-   * Gets the y scalar velocity of the actor in scale/second
-   * @obsolete ex.Actor.sy will be removed in v0.25.0, set width and height directly in constructor
-   */
-  public get sy(): number {
-    return this.body.sy;
-  }
-
-  /**
-   * Sets the y scale velocity of the actor in scale/second
-   * @obsolete ex.Actor.sy will be removed in v0.25.0, set width and height directly in constructor
-   */
-  @obsolete({ message: 'ex.Actor.sy will be removed in v0.25.0', alternateMethod: 'Set width and height directly in constructor' })
-  public set sy(scalePerSecondY: number) {
-    this.body.sy = scalePerSecondY;
-  }
 
   /**
    * Indicates whether the actor is physically in the viewport
@@ -344,12 +341,16 @@ export class ActorImpl
    */
   public children: Actor[] = [];
 
+  /**
+   * @deprecated
+   */
   public frames: { [key: string]: Drawable } = {};
 
   /**
    * Access to the current drawing for the actor, this can be
    * an [[Animation]], [[Sprite]], or [[Polygon]].
    * Set drawings with [[setDrawing]].
+   * @deprecated
    */
   public currentDrawing: Drawable = null;
 
@@ -435,72 +436,62 @@ export class ActorImpl
     captureDragEvents: false
   };
 
-  private _isKilled: boolean = false;
 
   // #endregion
 
   /**
-   * @param xOrConfig The starting x coordinate of the actor, or an option bag of [[ActorArgs]]
-   * @param y         The starting y coordinate of the actor
-   * @param width     The starting width of the actor
-   * @param height    The starting height of the actor
-   * @param color     The starting color of the actor. Leave null to draw a transparent actor. The opacity of the color will be used as the
-   * initial [[opacity]].
+   * 
+   * @param config 
    */
-  constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
+  constructor(config?: ActorArgs) {
     super();
 
-    // initialize default options
-    this._initDefaults();
+    const {
+      x,
+      y,
+      pos,
+      scale,
+      width,
+      height,
+      vel,
+      acc,
+      rotation,
+      angularVelocity,
+      z,
+      color,
+      visible,
+      body,
+      anchor,
+      collisionType
+    } = {
+      ...config
+    };
 
-    if (xOrConfig && typeof xOrConfig === 'object') {
-      const config = xOrConfig;
-      width = config.width;
-      height = config.height;
-    }
+    this.anchor = anchor ?? Actor.defaults.anchor.clone();
 
     this.addComponent(new TransformComponent());
+    this.pos = pos ?? vec(x ?? 0, y ?? 0);
+    this.rotation = rotation ?? 0;
+    this.scale = scale ?? vec(1, 1);
+    this.z = z ?? 0;
+
     this.addComponent(new MotionComponent());
-    // TODO if no width or height don't set a body component
-    this.addComponent(new BodyComponent({
+    this.vel = vel ?? Vector.Zero;
+    this.acc = acc ?? Vector.Zero;
+    this.angularVelocity = angularVelocity ?? 0;
+    
+    this.addComponent(body ?? new BodyComponent({
       box: (width && height) ? {
         width: width ?? 0,
         height: height ?? 0
       }: undefined,
       anchor: this.anchor
     }));
+    this.body.collisionType = collisionType ?? CollisionType.Passive;
+
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
 
-    // let shouldInitializeBody = true;
-    let collisionType = CollisionType.Passive;
-    if (xOrConfig && typeof xOrConfig === 'object') {
-      const config = xOrConfig;
-      if (config.pos) {
-        xOrConfig = config.pos ? config.pos.x : 0;
-        y = config.pos ? config.pos.y : 0;
-      } else {
-        xOrConfig = config.x || 0;
-        y = config.y || 0;
-      }
-
-
-      if (config.anchor) {
-        this.anchor = config.anchor;
-      }
-
-      if (config.collisionType) {
-        collisionType = config.collisionType;
-        this.body.collisionType = collisionType;
-      }
-    }
-
-    // Body and collider bounds are still determined by actor width/height
-    this._width = width || 0;
-    this._height = height || 0;
-
-    // Position uses body to store values must be initialized after body
-    this.pos.x = <number>xOrConfig || 0;
-    this.pos.y = y || 0;
+    this.visible = visible ?? true;
 
     if (color) {
       this.color = color;
@@ -541,9 +532,6 @@ export class ActorImpl
     }
   }
 
-  private _initDefaults() {
-    this.anchor = Actor.defaults.anchor.clone();
-  }
 
   // #region Events
 
@@ -842,7 +830,7 @@ export class ActorImpl
     if (this.scene) {
       this._prekill(this.scene);
       this.emit('kill', new KillEvent(this));
-      this._isKilled = true;
+      this.active = false;
       this.scene.remove(this);
       this._postkill(this.scene);
     } else {
@@ -854,14 +842,14 @@ export class ActorImpl
    * If the current actor is killed, it will now not be killed.
    */
   public unkill() {
-    this._isKilled = false;
+    this.active = true;
   }
 
   /**
    * Indicates wether the actor has been killed.
    */
   public isKilled(): boolean {
-    return this._isKilled;
+    return !this.active;
   }
 
   /**
@@ -944,21 +932,12 @@ export class ActorImpl
       }
     }
   }
-
-  public get z(): number {
-    return this.getZIndex();
-  }
-
-  public set z(newZ: number) {
-    this.setZIndex(newZ);
-  }
-
+  
   /**
    * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
-   * @deprecated Use actor.z
    */
-  public getZIndex(): number {
+  public get z(): number {
     return this.components.transform.z;
   }
 
@@ -967,10 +946,9 @@ export class ActorImpl
    * The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
    * @param newIndex new z-index to assign
-   * @deprecated Use actor.z
    */
-  public setZIndex(newIndex: number) {
-    this.components.transform.z = newIndex;
+  public set z(newZ: number) {
+    this.components.transform.z = newZ;
   }
 
   /**
@@ -981,19 +959,11 @@ export class ActorImpl
   }
 
   public get width() {
-    return this._width * this.getGlobalScale().x;
-  }
-
-  public set width(width: number) {
-    this._width = width / this.scale.x;
+    return this.body.localBounds.width * this.getGlobalScale().x;
   }
 
   public get height() {
-    return this._height * this.getGlobalScale().y;
-  }
-
-  public set height(height: number) {
-    this._height = height / this.scale.y;
+    return this.body.localBounds.height * this.getGlobalScale().y;
   }
 
   /**
@@ -1058,11 +1028,9 @@ export class ActorImpl
    */
   public getGlobalScale(): Vector {
     if (!this.parent) {
-      return new Vector(this.scale.x, this.scale.y);
+      return this.components.transform.scale;
     }
-
-    const parentScale = this.parent.getGlobalScale();
-    return new Vector(this.scale.x * parentScale.x, this.scale.y * parentScale.y);
+    return this.components.transform.scale.scale(this.parent.getGlobalScale());
   }
 
   // #region Collision
@@ -1098,7 +1066,7 @@ export class ActorImpl
    */
   public within(actor: Actor, distance: number): boolean {
     // TODO iterate through colliders
-    return this.body.getColliders()[0].shape.getClosestLineBetween(actor.body.getColliders()[0].shape).getLength() <= distance;
+    return this.body.getColliders()[0].getClosestLineBetween(actor.body.getColliders()[0]).getLength() <= distance;
   }
 
   // #endregion
@@ -1196,22 +1164,26 @@ export class ActorImpl
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     // translate canvas by anchor offset
     ctx.save();
-    ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
+    ctx.translate(-(this.width * this.anchor.x), -(this.height * this.anchor.y));
 
     this._predraw(ctx, delta);
 
     if (this.currentDrawing) {
       const drawing = this.currentDrawing;
       // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-      const offsetX = (this._width - drawing.width * drawing.scale.x) * this.anchor.x;
-      const offsetY = (this._height - drawing.height * drawing.scale.y) * this.anchor.y;
+      const offsetX = (this.width - drawing.width * drawing.scale.x) * this.anchor.x;
+      const offsetY = (this.height - drawing.height * drawing.scale.y) * this.anchor.y;
 
       this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
     } else {
       if (this.color) {
-        this.body.update(); // update transforms
-        this.body.getColliders().forEach(c => c.shape.draw(ctx, this.color,
-          vec(this._width * this.anchor.x, this._height * this.anchor.x)));
+        // update collider geometry based on transform
+        this.body.update();
+        const colliders = this.body.getColliders();
+        for (let collider of colliders) {
+          // Colliders are already shifted by anchor, unshift
+          collider.draw(ctx, this.color, vec(this.width * this.anchor.x, this.height * this.anchor.y));
+        }
       }
     }
     ctx.restore();
@@ -1341,19 +1313,4 @@ export class ActorImpl
     return path.reverse();
   }
   // #endregion
-}
-
-/**
- * The most important primitive in Excalibur is an `Actor`. Anything that
- * can move on the screen, collide with another `Actor`, respond to events,
- * or interact with the current scene, must be an actor. An `Actor` **must**
- * be part of a [[Scene]] for it to be drawn to the screen.
- */
-export class Actor extends Configurable(ActorImpl) {
-  constructor();
-  constructor(config?: ActorArgs);
-  constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
-  constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
-    super(xOrConfig, y, width, height, color);
-  }
 }

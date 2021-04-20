@@ -42,8 +42,8 @@ describe('A TileMap', () => {
       cols: 20
     });
 
-    expect(tm.x).toBe(0);
-    expect(tm.y).toBe(0);
+    expect(tm.pos.x).toBe(0);
+    expect(tm.pos.y).toBe(0);
     expect(tm.cellWidth).toBe(64);
     expect(tm.cellHeight).toBe(48);
     expect(tm.rows).toBe(4);
@@ -120,20 +120,22 @@ describe('A TileMap', () => {
     });
 
     it('should collide when the actor is on a solid cell', () => {
-      const actor = new ex.Actor(0, 0, 20, 20);
+      const actor = new ex.Actor({width: 20, height: 20});
 
-      const collision = tm.collides(actor);
+      tm.update(engine, 1);
+      const collision = tm.components.body.collide(actor.body);
 
       expect(collision).not.toBeNull();
       expect(collision).toBeTruthy();
     });
 
     it('should not collide when the actor has zero size dimensions', () => {
-      const actor = new ex.Actor(0, 0, 0, 0);
+      const actor = new ex.Actor({x: 0, y: 0, width: 0,height: 0});
 
-      const collision = tm.collides(actor);
+      tm.update(engine, 1);
+      const collision = tm.components.body.collide(actor.body);
 
-      expect(collision).toBeNull();
+      expect(collision).toEqual([]);
     });
   });
 });

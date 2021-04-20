@@ -7,7 +7,7 @@ import { Vector, Ray } from '../../Algebra';
 import { FrameStats } from '../../Debug';
 import { Logger } from '../../Util/Log';
 import { CollisionType } from '../CollisionType';
-import { Collider } from '../Collider';
+import { Collider } from '../Shapes/Collider';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { Color } from '../../Drawing/Color';
 import { ConvexPolygon } from '../Shapes/ConvexPolygon';
@@ -127,8 +127,8 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
           // start with the oldPos because the integration for actors has already happened
           // objects resting on a surface may be slightly penetrating in the current position
           const updateVec = collider.owner.pos.sub(collider.owner.oldPos);
-          const centerPoint = collider.shape.center;
-          const furthestPoint = collider.shape.getFurthestPoint(collider.owner.vel);
+          const centerPoint = collider.center;
+          const furthestPoint = collider.getFurthestPoint(collider.owner.vel);
           const origin: Vector = furthestPoint.sub(updateVec);
 
           const ray: Ray = new Ray(origin, collider.owner.vel);
@@ -138,8 +138,8 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
           let minCollider: Collider;
           let minTranslate: Vector = new Vector(Infinity, Infinity);
           this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + Physics.surfaceEpsilon * 2, (other: Collider) => {
-            if (collider !== other && other.shape && Pair.canCollide(collider.owner, other.owner)) {
-              const hitPoint = other.shape.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
+            if (collider !== other && Pair.canCollide(collider.owner, other.owner)) {
+              const hitPoint = other.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
               if (hitPoint) {
                 const translate = hitPoint.sub(origin);
                 if (translate.size < minTranslate.size) {
@@ -164,7 +164,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
               .add(shift)
               .add(minTranslate)
               .add(ray.dir.scale(2 * Physics.surfaceEpsilon));
-            collider.shape.update(collider.owner.transform);
+            collider.update(collider.owner.transform);
 
             if (stats) {
               stats.physics.fastBodyCollisions++;
@@ -223,11 +223,11 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
         }
     
         if (Physics.debug.showColliderGeometry) {
-          collider.shape.debugDraw(ctx, collider.owner.sleeping || collider.owner.collisionType === CollisionType.Fixed ? Color.Gray : Color.Green);
+          collider.debugDraw(ctx, collider.owner.sleeping || collider.owner.collisionType === CollisionType.Fixed ? Color.Gray : Color.Green);
         }
 
-        if (Physics.debug.showColliderNormals && collider.shape instanceof ConvexPolygon) {
-          for (let side of collider.shape.getSides()) {
+        if (Physics.debug.showColliderNormals && collider instanceof ConvexPolygon) {
+          for (let side of collider.getSides()) {
             DrawUtil.point(ctx, Color.Blue, side.midpoint);
             DrawUtil.vector(ctx, Color.Yellow, side.midpoint, side.normal(), 30);
           }

@@ -1,5 +1,5 @@
 import { Vector } from '../Algebra';
-import { Collider } from './Collider';
+import { Collider } from './Shapes/Collider';
 import { Clonable } from '../Interfaces/Clonable';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
@@ -16,6 +16,11 @@ import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisio
 import { createId, Id } from '../Id';
 import { clamp } from '../Util/Util';
 import { Observable } from '../Util/Observable';
+import { DrawUtil } from '../Util/Index';
+import { Color } from '../Drawing/Color';
+import { Circle } from './Shapes/Circle';
+import { ConvexPolygon } from './Shapes/ConvexPolygon';
+import { Edge } from './Shapes/Edge';
 
 export interface BodyComponentOptions {
   box?: { width: number, height: number }; 
@@ -146,7 +151,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    */
   public get inertia() {
     // TODO Add moments https://physics.stackexchange.com/questions/273394/is-moment-of-inertia-cumulative
-    return this._colliders[0].shape.getInertia(this.mass);
+    return this._colliders[0].getInertia(this.mass);
   }
 
   /**
@@ -377,7 +382,17 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * The scale vector of the actor
    * @obsolete ex.Body.scale will be removed in v0.25.0
    */
-  public scale: Vector = Vector.One;
+  public get scale(): Vector {
+    return this.transform.scale;
+  }
+
+  /**
+   * The scale vector of the actor
+   * @obsolete ex.Body.scale will be removed in v0.25.0
+   */
+  public set scale(scale: Vector) {
+    this.transform.scale = scale;
+  }
 
   /**
    * The scale of the actor last frame
@@ -389,12 +404,25 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * The x scalar velocity of the actor in scale/second
    * @obsolete ex.Body.scale will be removed in v0.25.0
    */
-  public sx: number = 0; //scale/sec
+  public get sx(): number {
+    return this.motion.scaleFactor.x;
+  }
+
+  public set sx(xFactor: number) {
+    this.motion.scaleFactor.x = xFactor;
+  }
+
   /**
    * The y scalar velocity of the actor in scale/second
    * @obsolete ex.Body.scale will be removed in v0.25.0
    */
-  public sy: number = 0; //scale/sec
+  public get sy(): number {
+    return this.motion.scaleFactor.y;
+  }
+
+  public set sy(yFactor: number) {
+    this.motion.scaleFactor.y = yFactor;
+  }
 
   /**
    * The rotational velocity of the actor in radians/second
@@ -404,6 +432,10 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     return this.motion.angularVelocity;
   }
 
+  /**
+   * The rotational velocity of the actor in radians/second
+   * @deprecated
+   */
   public set rx(value: number) {
     this.motion.angularVelocity = value;
   }
@@ -534,6 +566,26 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     }
   }
 
+  debugDraw(ctx: CanvasRenderingContext2D) {
+    // Draw motion vectors
+    // TODO move to motion system
+    if (Physics.debug.showMotionVectors) {
+      DrawUtil.vector(ctx, Color.Yellow, this.pos, this.acc.add(Physics.acc));
+      DrawUtil.vector(ctx, Color.Blue, this.pos, this.vel);
+      DrawUtil.point(ctx, Color.Red, this.pos);
+    }
+
+    if (Physics.debug.showColliderBounds) {
+      this.bounds.debugDraw(ctx, Color.Yellow);
+    }
+
+    if (Physics.debug.showColliderGeometry) {
+      for (let collider of this._colliders) {
+        collider.debugDraw(ctx, this.sleeping ? Color.Gray : Color.Green);
+      }
+    }
+  }
+
   /**
    * Sets up a box geometry based on the current bounds of the associated actor of this physics body.
    *
@@ -542,7 +594,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
-    this._colliders = [];
+    this.clearColliders();
     return this.addBoxCollider(width, height, anchor, center);
   }
 
@@ -555,7 +607,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * @param center 
    */
   public addBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
-    const collider = new Collider({ shape: Shape.Box(width, height, anchor, center) });
+    const collider = Shape.Box(width, height, anchor, center);
     this.addCollider(collider);
     return collider;
   }
@@ -569,7 +621,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): Collider {
+  public usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): ConvexPolygon {
     this.clearColliders();
     return this.addPolygonCollider(points, center);
   }
@@ -580,8 +632,8 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * @param points 
    * @param center 
    */
-  public addPolygonCollider(points: Vector[], center: Vector = Vector.Zero): Collider {
-    const collider = new Collider({ shape: Shape.Polygon(points, false, center)});
+  public addPolygonCollider(points: Vector[], center: Vector = Vector.Zero): ConvexPolygon {
+    const collider = Shape.Polygon(points, false, center);
     this.addCollider(collider)
     return collider
   }
@@ -591,7 +643,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public useCircleCollider(radius: number, center: Vector = Vector.Zero): Collider {
+  public useCircleCollider(radius: number, center: Vector = Vector.Zero): Circle {
     this.clearColliders();
     return this.addCircleCollider(radius, center);
   }
@@ -602,8 +654,8 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * @param radius Radius of the circle in pixels
    * @param center The relative position of the circles center, by default (0, 0) which is centered
    */
-  public addCircleCollider(radius: number, center: Vector = Vector.Zero): Collider {
-    const collider = new Collider({ shape: Shape.Circle(radius, center)});
+  public addCircleCollider(radius: number, center: Vector = Vector.Zero): Circle {
+    const collider = Shape.Circle(radius, center);
     this.addCollider(collider)
     return collider;
   }
@@ -614,7 +666,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  public useEdgeCollider(begin: Vector, end: Vector): Collider {
+  public useEdgeCollider(begin: Vector, end: Vector): Edge {
     this.clearColliders()
     return this.addEdgeCollider(begin, end);
   }
@@ -625,8 +677,8 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * @param begin 
    * @param end 
    */
-  public addEdgeCollider(begin: Vector, end: Vector): Collider {
-    const collider = new Collider({ shape: Shape.Edge(begin, end)});
+  public addEdgeCollider(begin: Vector, end: Vector): Edge {
+    const collider = Shape.Edge(begin, end);
     this.addCollider(collider);
     return collider;
   }

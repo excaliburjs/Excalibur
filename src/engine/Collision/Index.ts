@@ -1,9 +1,9 @@
 export * from './Body';
-export * from './Collider';
+export * from './Shapes/Collider';
 export * from './BoundingBox';
 
 export * from './Shapes/Shape';
-export * from './Shapes/CollisionShape';
+export * from './Shapes/Collider';
 export * from './Shapes/Circle';
 export * from './Shapes/Edge';
 export * from './Shapes/ConvexPolygon';
@@ -23,6 +23,9 @@ export * from './Solver/BoxSolver'
 export * from './Solver/ContactConstraintPoint'
 export * from './Solver/RigidBodySolver'
 export * from './Solver/Solver'
+
+export * from './CollisionSystem'
+export * from './MotionSystem'
 
 export * from './Physics';
 export * from './Side';

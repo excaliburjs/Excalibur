@@ -54,7 +54,7 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
 
       // Update transform and motion based on Euler linear algebra
       EulerIntegrator.integrate(transform, motion, totalAcc, elapsedMs);
-    } 
+    }
   }
 
   debugDraw(ctx: CanvasRenderingContext2D) {

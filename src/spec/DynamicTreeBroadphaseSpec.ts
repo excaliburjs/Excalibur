@@ -6,48 +6,40 @@ describe('A DynamicTree Broadphase', () => {
   let actorC: ex.Actor;
 
   beforeEach(() => {
-    actorA = new ex.Actor(0, 0, 20, 20);
-    const colliderA = actorA.body.collider;
-    colliderA.type = ex.CollisionType.Active;
-    colliderA.shape = new ex.Circle({
-      radius: 10
-    });
+    actorA = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
+    actorA.body.useCircleCollider(10)
+    actorA.body.collisionType = ex.CollisionType.Active;
+    actorA.body.update();
 
-    actorB = new ex.Actor(20, 0, 20, 20);
-    const colliderB = actorB.body.collider;
-    colliderB.type = ex.CollisionType.Active;
+    actorB = new ex.Actor({x: 20, y: 0, width: 20, height: 20});
+    actorB.body.useCircleCollider(10)
+    actorB.body.collisionType = ex.CollisionType.Active;
+    actorB.body.update();
 
-    colliderB.shape = new ex.Circle({
-      radius: 10
-    });
-
-    actorC = new ex.Actor(1000, 0, 20, 20);
-    const colliderC = actorC.body.collider;
-    colliderC.type = ex.CollisionType.Active;
-
-    colliderC.shape = new ex.Circle({
-      radius: 10
-    });
+    actorC = new ex.Actor({x: 1000, y: 0, width: 20, height: 20});
+    actorC.body.useCircleCollider(10)
+    actorC.body.collisionType = ex.CollisionType.Active;
+    actorC.body.update();
   });
 
   it('exists', () => {
-    expect(ex.DynamicTreeCollisionBroadphase).toBeDefined();
+    expect(ex.DynamicTreeCollisionProcessor).toBeDefined();
   });
 
   it('can be constructed', () => {
-    const dt = new ex.DynamicTreeCollisionBroadphase();
+    const dt = new ex.DynamicTreeCollisionProcessor();
 
     expect(dt).not.toBe(null);
   });
 
   it('can find collision pairs for actors that are potentially colliding', () => {
-    const dt = new ex.DynamicTreeCollisionBroadphase();
-    dt.track(actorA.body);
-    dt.track(actorB.body);
-    dt.track(actorC.body);
+    const dt = new ex.DynamicTreeCollisionProcessor();
+    dt.track(actorA.body.getColliders()[0]);
+    dt.track(actorB.body.getColliders()[0]);
+    dt.track(actorC.body.getColliders()[0]);
 
     // only should be 1 pair since C is very far away
-    const pairs = dt.broadphase([actorA.body, actorB.body, actorC.body], 100);
+    const pairs = dt.broadphase([actorA.body.getColliders()[0], actorB.body.getColliders()[0], actorC.body.getColliders()[0]], 100);
 
     expect(pairs.length).toBe(1);
   });

@@ -12,6 +12,8 @@ describe('A Trigger', () => {
     engine = TestUtils.engine({ width: 600, height: 400 });
 
     scene = new ex.Scene(engine);
+    engine.addScene('test', scene);
+    engine.goToScene('test');
 
     loop = mock.loop(engine);
     engine.start();
@@ -34,7 +36,7 @@ describe('A Trigger', () => {
       height: 100,
       repeat: 1
     });
-    const actor = new ex.Actor(0, 0, 10, 10);
+    const actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
     actor.body.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
     engine.currentScene.add(trigger);
@@ -59,6 +61,7 @@ describe('A Trigger', () => {
 
     // Assert
     expect(trigger.action).toHaveBeenCalledTimes(1);
+    expect(trigger.isKilled()).toBe(true);
   });
 
   it('can be triggered multiple times', () => {
@@ -69,7 +72,7 @@ describe('A Trigger', () => {
       height: 100,
       repeat: 3
     });
-    const actor = new ex.Actor(0, 0, 10, 10);
+    const actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
     actor.body.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
     engine.currentScene.add(trigger);
@@ -108,7 +111,7 @@ describe('A Trigger', () => {
 
     trigger.body.collisionType = ex.CollisionType.Passive;
 
-    const actor = new ex.Actor(0, 0, 10, 10);
+    const actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
     actor.body.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
 
@@ -138,7 +141,7 @@ describe('A Trigger', () => {
       height: 100
     });
 
-    const actor = new ex.Actor(0, 0, 10, 10);
+    const actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
     actor.body.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
 
@@ -210,7 +213,7 @@ describe('A Trigger', () => {
       filter: () => false
     });
 
-    const actor = new ex.Actor(0, 100, 10, 10);
+    const actor = new ex.Actor({x: 0, y: 100, width: 10, height: 10});
 
     engine.add(trigger);
     engine.add(actor);
@@ -235,7 +238,7 @@ describe('A Trigger', () => {
       filter: () => true
     });
 
-    const actor = new ex.Actor(0, 100, 10, 10);
+    const actor = new ex.Actor({x: 0, y: 100, width: 10, height: 10});
     actor.body.collisionType = ex.CollisionType.Active;
 
     engine.add(trigger);
@@ -253,8 +256,8 @@ describe('A Trigger', () => {
 
   it('will only trigger on a target', () => {
     // Arrange
-    const actor = new ex.Actor(0, 100, 10, 10);
-    const actor2 = new ex.Actor(0, 100, 10, 10);
+    const actor = new ex.Actor({x: 0, y: 100, width: 10, height: 10});
+    const actor2 = new ex.Actor({x: 0, y: 100, width: 10, height: 10});
 
     const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),

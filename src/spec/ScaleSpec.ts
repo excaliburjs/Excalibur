@@ -34,9 +34,14 @@ describe('A scaled and rotated actor', () => {
     const bg = new ex.Texture('./base/src/spec/images/ScaleSpec/logo.png', true);
 
     engine.start(new ex.Loader([bg])).then(() => {
-      const actor = new ex.Actor(engine.halfDrawWidth, engine.halfDrawHeight, 100, 100, ex.Color.Black);
+      const actor = new ex.Actor({
+        x: engine.halfDrawWidth,
+        y: engine.halfDrawHeight, 
+        width: 100,
+        height: 10,
+        color: ex.Color.Black
+      });
       actor.addDrawing(bg);
-      actor.height = 10;
       actor.scale.setTo(1, 0.2);
       engine.add(actor);
 

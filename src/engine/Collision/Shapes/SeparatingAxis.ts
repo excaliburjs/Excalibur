@@ -1,5 +1,5 @@
 import { Line, Vector } from "../../Algebra";
-import { Collider } from "../Collider";
+import { Collider } from "./Collider";
 import { Circle } from "./Circle";
 import { ConvexPolygon } from "./ConvexPolygon";
 
@@ -78,7 +78,7 @@ export class SeparatingAxis {
       }
 
       return {
-          collider: polyA.collider,
+          collider: polyA,
           separation: bestSeparation,
           axis: bestAxis as Vector,
           side: bestSide,

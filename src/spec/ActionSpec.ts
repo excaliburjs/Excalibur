@@ -14,7 +14,9 @@ describe('Action', () => {
 
     actor = new ex.Actor();
     scene = new ex.Scene(engine);
-    engine.currentScene = scene;
+    scene.add(actor);
+    engine.addScene('test', scene);
+    engine.goToScene('test');
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(actor, 'draw');
@@ -25,10 +27,10 @@ describe('Action', () => {
       expect(actor.visible).toBe(true);
       actor.actions.blink(200, 200);
 
-      actor.update(engine, 200);
+      scene.update(engine, 200);
       expect(actor.visible).toBe(false);
 
-      actor.update(engine, 250);
+      scene.update(engine, 250);
       expect(actor.visible).toBe(true);
     });
 
@@ -37,13 +39,13 @@ describe('Action', () => {
       actor.actions.blink(200, 200).repeatForever();
 
       for (let i = 0; i < 2; i++) {
-        actor.update(engine, 200);
+        scene.update(engine, 200);
         expect(actor.visible).toBe(false);
 
-        actor.update(engine, 200);
+        scene.update(engine, 200);
         expect(actor.visible).toBe(true);
 
-        actor.update(engine, 200);
+        scene.update(engine, 200);
       }
     });
 
@@ -51,13 +53,13 @@ describe('Action', () => {
       expect(actor.visible).toBe(true);
       actor.actions.blink(1, 3000);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.visible).toBe(false);
 
       actor.actions.clearActions();
 
-      actor.update(engine, 500);
-      actor.update(engine, 500);
+      scene.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.visible).toBe(true);
     });
   });
@@ -65,7 +67,7 @@ describe('Action', () => {
   describe('color', () => {
     it('is cloned from constructor', () => {
       const color = ex.Color.Azure;
-      const sut = new ex.Actor(null, null, null, null, color);
+      const sut = new ex.Actor({color});
 
       expect(sut.color).not.toBe(color, 'Color is not expected to be same instance');
     });
@@ -96,16 +98,16 @@ describe('Action', () => {
       expect(scene.actors.length).toBe(1);
 
       actor.actions.moveTo(100, 0, 100).delay(1000).die();
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
 
       expect(actor.pos.x).toBe(100);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.pos.x).toBe(100);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       scene.update(engine, 100);
       expect(scene.actors.length).toBe(0);
     });
@@ -117,10 +119,10 @@ describe('Action', () => {
       expect(actor.pos.y).toBe(0);
 
       actor.actions.delay(1000).moveTo(20, 0, 20);
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(0);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(20);
     });
 
@@ -129,11 +131,11 @@ describe('Action', () => {
       expect(actor.pos.y).toBe(0);
 
       actor.actions.delay(1000).moveTo(20, 0, 20);
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(0);
 
       actor.actions.clearActions();
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(0);
     });
 
@@ -145,9 +147,9 @@ describe('Action', () => {
         expect(spy).toHaveBeenCalled();
         done();
       });
-      actor.update(engine, 1000);
-      actor.update(engine, 0);
-      actor.update(engine, 0);
+      scene.update(engine, 1000);
+      scene.update(engine, 0);
+      scene.update(engine, 0);
     });
   });
 
@@ -158,7 +160,7 @@ describe('Action', () => {
 
       actor.actions.moveBy(100, 0, 50);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(50);
       expect(actor.pos.y).toBe(0);
     });
@@ -168,14 +170,14 @@ describe('Action', () => {
       expect(actor.pos.y).toBe(0);
 
       actor.actions.moveBy(20, 0, 20);
-      actor.update(engine, 500);
+      scene.update(engine, 500);
 
       actor.actions.clearActions();
       expect(actor.pos.x).toBe(10);
       expect(actor.pos.y).toBe(0);
 
       // Actor should not move after stop
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.pos.x).toBe(10);
       expect(actor.pos.y).toBe(0);
     });
@@ -187,12 +189,12 @@ describe('Action', () => {
       expect(actor.pos.y).toBe(0);
 
       actor.actions.moveTo(100, 0, 100);
-      actor.update(engine, 500);
+      scene.update(engine, 500);
 
       expect(actor.pos.x).toBe(50);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.pos.x).toBe(100);
       expect(actor.pos.y).toBe(0);
     });
@@ -202,14 +204,14 @@ describe('Action', () => {
       expect(actor.pos.y).toBe(0);
 
       actor.actions.moveTo(20, 0, 10);
-      actor.update(engine, 500);
+      scene.update(engine, 500);
 
       actor.actions.clearActions();
       expect(actor.pos.x).toBe(5);
       expect(actor.pos.y).toBe(0);
 
       // Actor should not move after stop
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.pos.x).toBe(5);
       expect(actor.pos.y).toBe(0);
     });
@@ -221,15 +223,15 @@ describe('Action', () => {
 
       actor.actions.easeTo(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(50, 0));
       expect(actor.vel).toBeVector(ex.vec(100, 0));
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(100, 0));
       expect(actor.vel).toBeVector(ex.vec(0, 0));
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(100, 0));
       expect(actor.vel).toBeVector(ex.vec(0, 0));
     });
@@ -239,14 +241,14 @@ describe('Action', () => {
 
       actor.actions.easeTo(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(50, 0));
       expect(actor.vel).toBeVector(ex.vec(100, 0));
 
       actor.actions.clearActions();
 
       // actor should not move and should have zero velocity after stopping
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(50, 0));
       expect(actor.vel).toBeVector(ex.vec(0, 0));
     });
@@ -259,33 +261,33 @@ describe('Action', () => {
 
       actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(20);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 1);
-      actor.update(engine, 1000);
+      scene.update(engine, 1);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 1);
-      actor.update(engine, 1000);
+      scene.update(engine, 1);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(20);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(20);
       expect(actor.pos.y).toBe(0);
     });
@@ -296,34 +298,34 @@ describe('Action', () => {
 
       actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(20);
       expect(actor.pos.y).toBe(0);
 
       actor.actions.clearActions();
-      actor.update(engine, 1);
-      actor.update(engine, 1000);
+      scene.update(engine, 1);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(20);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(20);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 1);
-      actor.update(engine, 1000);
+      scene.update(engine, 1);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(20);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(20);
       expect(actor.pos.y).toBe(0);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(20);
       expect(actor.pos.y).toBe(0);
     });
@@ -337,24 +339,24 @@ describe('Action', () => {
       actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
 
       for (let i = 0; i < 20; i++) {
-        actor.update(engine, 1000);
+        scene.update(engine, 1000);
         expect(actor.pos.x).toBe(10);
         expect(actor.pos.y).toBe(0);
 
-        actor.update(engine, 1000);
+        scene.update(engine, 1000);
         expect(actor.pos.x).toBe(20);
         expect(actor.pos.y).toBe(0);
 
-        actor.update(engine, 1);
-        actor.update(engine, 1000);
+        scene.update(engine, 1);
+        scene.update(engine, 1000);
         expect(actor.pos.x).toBe(10);
         expect(actor.pos.y).toBe(0);
 
-        actor.update(engine, 1000);
+        scene.update(engine, 1000);
         expect(actor.pos.x).toBe(0);
         expect(actor.pos.y).toBe(0);
 
-        actor.update(engine, 1);
+        scene.update(engine, 1);
       }
     });
 
@@ -364,14 +366,14 @@ describe('Action', () => {
 
       actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
       expect(actor.pos.y).toBe(0);
 
       actor.actions.clearActions();
 
       for (let i = 0; i < 20; i++) {
-        actor.update(engine, 1000);
+        scene.update(engine, 1000);
         expect(actor.pos.x).toBe(10);
         expect(actor.pos.y).toBe(0);
       }
@@ -384,14 +386,14 @@ describe('Action', () => {
 
       actor.actions.rotateTo(Math.PI / 2, Math.PI / 2);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 2);
 
-      actor.update(engine, 500);
-      expect(actor.rx).toBe(0);
+      scene.update(engine, 500);
+      expect(actor.angularVelocity).toBe(0);
     });
 
     it('can be rotated to an angle at a speed via LongestPath', () => {
@@ -399,16 +401,16 @@ describe('Action', () => {
 
       actor.actions.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       //rotation is currently incremented by rx delta ,so will be negative while moving counterclockwise
       expect(actor.rotation).toBe((-1 * Math.PI) / 2);
 
-      actor.update(engine, 2000);
+      scene.update(engine, 2000);
       expect(actor.rotation).toBe((-3 * Math.PI) / 2);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 2);
-      expect(actor.rx).toBe(0);
+      expect(actor.angularVelocity).toBe(0);
     });
 
     it('can be rotated to an angle at a speed via Clockwise', () => {
@@ -416,38 +418,38 @@ describe('Action', () => {
 
       actor.actions.rotateTo((3 * Math.PI) / 2, Math.PI / 2, ex.RotationType.Clockwise);
 
-      actor.update(engine, 2000);
+      scene.update(engine, 2000);
       expect(actor.rotation).toBe(Math.PI);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.rotation).toBe((3 * Math.PI) / 2);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.rotation).toBe((3 * Math.PI) / 2);
-      expect(actor.rx).toBe(0);
+      expect(actor.angularVelocity).toBe(0);
     });
 
     it('can be rotated to an angle at a speed via CounterClockwise', () => {
       expect(actor.rotation).toBe(0);
 
       actor.actions.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.CounterClockwise);
-      actor.update(engine, 2000);
+      scene.update(engine, 2000);
       expect(actor.rotation).toBe(-Math.PI);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.rotation).toBe((-3 * Math.PI) / 2);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 2);
-      expect(actor.rx).toBe(0);
+      expect(actor.angularVelocity).toBe(0);
 
       // rotating back to 0, starting at PI / 2
       actor.actions.rotateTo(0, Math.PI / 2, ex.RotationType.CounterClockwise);
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.rotation).toBe(0);
 
-      actor.update(engine, 1);
-      expect(actor.rx).toBe(0);
+      scene.update(engine, 1);
+      expect(actor.angularVelocity).toBe(0);
     });
 
     it('can be stopped', () => {
@@ -455,12 +457,12 @@ describe('Action', () => {
 
       actor.actions.rotateTo(Math.PI / 2, Math.PI / 2);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
 
       actor.actions.clearActions();
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
     });
   });
@@ -471,14 +473,14 @@ describe('Action', () => {
 
       actor.actions.rotateBy(Math.PI / 2, Math.PI / 4);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.rotation).toBe(Math.PI / 4);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.rotation).toBe(Math.PI / 2);
 
-      actor.update(engine, 500);
-      expect(actor.rx).toBe(0);
+      scene.update(engine, 500);
+      expect(actor.angularVelocity).toBe(0);
     });
 
     it('can be rotated to an angle by a certain time via LongestPath', () => {
@@ -486,15 +488,15 @@ describe('Action', () => {
 
       actor.actions.rotateBy(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.rotation).toBe((-1 * Math.PI) / 2);
 
-      actor.update(engine, 2000);
+      scene.update(engine, 2000);
       expect(actor.rotation).toBe((-3 * Math.PI) / 2);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 2);
-      expect(actor.rx).toBe(0);
+      expect(actor.angularVelocity).toBe(0);
     });
 
     it('can be rotated to an angle by a certain time via Clockwise', () => {
@@ -502,15 +504,15 @@ describe('Action', () => {
 
       actor.actions.rotateBy(Math.PI / 2, Math.PI / 2, ex.RotationType.Clockwise);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 4);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 2);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 2);
-      expect(actor.rx).toBe(0);
+      expect(actor.angularVelocity).toBe(0);
     });
 
     it('can be rotated to an angle by a certain time via CounterClockwise', () => {
@@ -518,26 +520,26 @@ describe('Action', () => {
 
       actor.actions.rotateBy(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.rotation).toBe((-1 * Math.PI) / 2);
 
-      actor.update(engine, 2000);
+      scene.update(engine, 2000);
       expect(actor.rotation).toBe((-3 * Math.PI) / 2);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 2);
-      expect(actor.rx).toBe(0);
+      expect(actor.angularVelocity).toBe(0);
     });
     it('can be stopped', () => {
       expect(actor.rotation).toBe(0);
 
       actor.actions.rotateBy(Math.PI / 2, Math.PI / 4);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       actor.actions.clearActions();
       expect(actor.rotation).toBe(Math.PI / 4);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.rotation).toBe(Math.PI / 4);
     });
   });
@@ -548,15 +550,15 @@ describe('Action', () => {
       expect(actor.scale.y).toBe(1);
 
       actor.actions.scaleTo(2, 4, 0.5, 0.5);
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
 
       expect(actor.scale.x).toBe(1.5);
       expect(actor.scale.y).toBe(1.5);
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
 
       expect(actor.scale.x).toBe(2);
       expect(actor.scale.y).toBe(2);
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
 
       expect(actor.scale.x).toBe(2);
       expect(actor.scale.y).toBe(2.5);
@@ -567,13 +569,13 @@ describe('Action', () => {
       expect(actor.scale.y).toBe(1);
 
       actor.actions.scaleTo(2, 2, 0.5, 0.5);
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
 
       actor.actions.clearActions();
       expect(actor.scale.x).toBe(1.5);
       expect(actor.scale.y).toBe(1.5);
 
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.scale.x).toBe(1.5);
       expect(actor.scale.y).toBe(1.5);
     });
@@ -586,12 +588,12 @@ describe('Action', () => {
 
       actor.actions.scaleBy(4, 4, 4);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.scale.x).toBe(3);
       expect(actor.scale.y).toBe(3);
 
-      actor.update(engine, 500);
-      actor.update(engine, 1);
+      scene.update(engine, 500);
+      scene.update(engine, 1);
       expect(actor.scale.x).toBe(5);
       expect(actor.scale.y).toBe(5);
     });
@@ -602,13 +604,13 @@ describe('Action', () => {
 
       actor.actions.scaleBy(4, 4, 3);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
 
       actor.actions.clearActions();
       expect(actor.scale.x).toBe(2.5);
       expect(actor.scale.y).toBe(2.5);
 
-      actor.update(engine, 500);
+      scene.update(engine, 500);
       expect(actor.scale.x).toBe(2.5);
       expect(actor.scale.y).toBe(2.5);
     });
@@ -619,16 +621,17 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      const actorToFollow = new ex.Actor(10, 0);
+      const actorToFollow = new ex.Actor({x: 10, y: 0});
+      scene.add(actorToFollow);
       actorToFollow.actions.moveTo(100, 0, 10);
       actor.actions.follow(actorToFollow);
-      // actor.update(engine, 1000);
+      // scene.update(engine, 1000);
       // expect(actor.pos.x).toBe(actorToFollow.x);
 
       for (let i = 1; i < 10; i++) {
         // actor.follow(actorToFollow);
         actorToFollow.update(engine, 1000);
-        actor.update(engine, 1000);
+        scene.update(engine, 1000);
         expect(actor.pos.x).toBe(actorToFollow.pos.x - 10);
       }
     });
@@ -640,19 +643,20 @@ describe('Action', () => {
       expect(actor.pos.y).toBe(0);
 
       // testing basic meet
-      const actorToMeet = new ex.Actor(10, 0);
+      const actorToMeet = new ex.Actor({x: 10, y: 0});
+      scene.add(actorToMeet)
       actorToMeet.actions.moveTo(100, 0, 10);
       actor.actions.meet(actorToMeet);
 
       for (let i = 0; i < 9; i++) {
         actorToMeet.update(engine, 1000);
-        actor.update(engine, 1000);
+        scene.update(engine, 1000);
         expect(actor.pos.x).toBe(actorToMeet.pos.x - 10);
       }
 
       // actor should have caught up to actorToFollow since it stopped moving
       actorToMeet.update(engine, 1000);
-      actor.update(engine, 1000);
+      scene.update(engine, 1000);
       expect(actor.pos.x).toBe(actorToMeet.pos.x);
     });
   });
@@ -663,7 +667,7 @@ describe('Action', () => {
 
       actor.actions.fade(1, 200);
       for (let i = 0; i < 10; i++) {
-        actor.update(engine, 20);
+        scene.update(engine, 20);
       }
 
       expect(actor.opacity).toBe(1);
@@ -674,7 +678,7 @@ describe('Action', () => {
 
       actor.actions.fade(1, 200).fade(0, 200);
       for (let i = 0; i < 20; i++) {
-        actor.update(engine, 20);
+        scene.update(engine, 20);
       }
 
       expect(actor.opacity).toBe(0);
@@ -685,7 +689,7 @@ describe('Action', () => {
 
       actor.actions.fade(1, 200).fade(0, 200).repeat(1);
       for (let i = 0; i < 40; i++) {
-        actor.update(engine, 20);
+        scene.update(engine, 20);
       }
 
       expect(actor.opacity).toBe(0);

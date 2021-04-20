@@ -15,6 +15,7 @@ describe('A scene', () => {
     spyOn(actor, 'draw');
     engine.removeScene('root');
     engine.addScene('root', scene);
+    engine.goToScene('root');
   });
 
   it('should be loaded', () => {
@@ -47,12 +48,15 @@ describe('A scene', () => {
 
   it('draws onscreen Actors', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
     actor.pos.y = 0;
-    actor.width = 10;
-    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -64,12 +68,15 @@ describe('A scene', () => {
 
   it('draws onscreen Actors left', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = -4;
     actor.pos.y = 0;
-    actor.width = 10;
-    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -80,12 +87,15 @@ describe('A scene', () => {
   });
   it('does not draw offscreen Actors left', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = -6;
     actor.pos.y = 0;
-    actor.width = 10;
-    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -97,12 +107,15 @@ describe('A scene', () => {
 
   it('draws onscreen Actors top', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
     actor.pos.y = -4;
-    actor.width = 10;
-    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -114,12 +127,15 @@ describe('A scene', () => {
 
   it('does not draw offscreen Actors top', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
     actor.pos.y = -6;
-    actor.width = 10;
-    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -131,12 +147,15 @@ describe('A scene', () => {
 
   it('draws onscreen Actors right', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 104;
     actor.pos.y = 0;
-    actor.width = 10;
-    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -148,12 +167,15 @@ describe('A scene', () => {
 
   it('does not draw offscreen Actors right', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 106;
     actor.pos.y = 0;
-    actor.width = 10;
-    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -165,12 +187,15 @@ describe('A scene', () => {
 
   it('draws onscreen Actors bottom', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
     actor.pos.y = 104;
-    actor.width = 10;
-    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -182,12 +207,15 @@ describe('A scene', () => {
 
   it('does not draw offscreen Actors bottom', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
     actor.pos.x = 0;
     actor.pos.y = 106;
-    actor.width = 10;
-    actor.height = 10;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -199,6 +227,11 @@ describe('A scene', () => {
 
   it('does not draw offscreen Actors', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 5,
+      height: 5
+    });
+    spyOn(actor, 'draw');
     actor.pos.x = 1000;
     actor.pos.y = 1000;
     scene.update(engine, 100);
@@ -206,8 +239,6 @@ describe('A scene', () => {
 
     actor.pos.x = 1010;
     actor.pos.y = 1010;
-    actor.width = 5;
-    actor.height = 5;
 
     scene.add(actor);
     scene.update(engine, 100);

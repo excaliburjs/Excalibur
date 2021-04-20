@@ -4,17 +4,15 @@ import { Edge } from './Edge';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { Circle } from './Circle';
 import { CollisionContact } from '../Detection/CollisionContact';
-import { CollisionShape } from './CollisionShape';
 import { Vector, Line, Ray, Projection } from '../../Algebra';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { Transform } from '../../EntityComponentSystem';
-import { Collider } from '../Collider';
+import { Collider } from './Collider';
 
 export interface ConvexPolygonOptions {
   /**
    * Pixel offset relative to a collider's position
    */
-
   offset?: Vector;
   /**
    * Points in the polygon in order around the perimeter in local coordinates
@@ -24,25 +22,16 @@ export interface ConvexPolygonOptions {
    * Whether points are specified in clockwise or counter clockwise order, default counter-clockwise
    */
   clockwiseWinding?: boolean;
-  /**
-   * Collider to associate optionally with this shape
-   */
-  collider?: Collider;
 }
 
 /**
  * Polygon collision shape for detecting collisions
  */
-export class ConvexPolygon implements CollisionShape {
+export class ConvexPolygon extends Collider {
   public offset: Vector;
   public points: Vector[];
 
   private _transform: Transform;
-
-  /**
-   * Collider associated with this shape
-   */
-  public collider?: Collider;
 
   private _transformedPoints: Vector[] = [];
   private _axes: Vector[] = [];
@@ -50,10 +39,10 @@ export class ConvexPolygon implements CollisionShape {
   private _localSides: Line[] = [];
 
   constructor(options: ConvexPolygonOptions) {
+    super();
     this.offset = options.offset ?? Vector.Zero;
     const winding = !!options.clockwiseWinding;
     this.points = (winding ? options.points.reverse() : options.points) || [];
-    this.collider = this.collider = options.collider || null;
 
     // calculate initial transformation
     this._calculateTransformation();
@@ -224,7 +213,7 @@ export class ConvexPolygon implements CollisionShape {
     return true;
   }
 
-  public getClosestLineBetween(shape: CollisionShape): Line {
+  public getClosestLineBetween(shape: Collider): Line {
     if (shape instanceof Circle) {
       return ClosestLineJumpTable.PolygonCircleClosestLine(this, shape);
     } else if (shape instanceof ConvexPolygon) {
@@ -241,7 +230,7 @@ export class ConvexPolygon implements CollisionShape {
    * return null.
    * @param shape
    */
-  public collide(shape: CollisionShape): CollisionContact {
+  public collide(shape: Collider): CollisionContact {
     if (shape instanceof Circle) {
       return CollisionJumpTable.CollideCirclePolygon(shape, this);
     } else if (shape instanceof ConvexPolygon) {
@@ -400,12 +389,13 @@ export class ConvexPolygon implements CollisionShape {
   }
 
   public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
-    const basePos = this.points[0].add(pos);
+    const basePos = pos.add(this.offset);
     ctx.beginPath();
     ctx.fillStyle = color.toString();
     ctx.moveTo(basePos.x, basePos.y);
+    const diffToBase = this.points[0].sub(basePos);
     this.points
-      .map((p) => p.add(pos))
+      .map((p) => p.sub(diffToBase))
       .forEach(function (point) {
         ctx.lineTo(point.x, point.y);
       });

@@ -178,9 +178,9 @@ export class RigidBodySolver {
   }
 
   private _getSeparation(contact: CollisionContact, point: Vector) {
-    let shapeA = contact.colliderA.shape;
+    let shapeA = contact.colliderA;
     let bodyA = contact.colliderA.owner;
-    let shapeB = contact.colliderB.shape;
+    let shapeB = contact.colliderB;
     let bodyB = contact.colliderB.owner;
     if (shapeA instanceof Circle && shapeB instanceof Circle) {
         const combinedRadius = shapeA.radius + shapeB.radius;
@@ -190,18 +190,20 @@ export class RigidBodySolver {
     }
 
     if (shapeA instanceof Circle && shapeB instanceof Line) {
-        // return bodyB.getSeparation(bodyA);
+      // TODO circle line separation
+      // return bodyB.getSeparation(bodyA);
     }
 
     if (shapeA instanceof Line && shapeB instanceof Circle) {
-        // return bodyA.getSeparation(bodyB);
+      // TODO circle line separation
+      // return bodyA.getSeparation(bodyB);
     }
 
     if (shapeA instanceof ConvexPolygon && shapeB instanceof ConvexPolygon) {
         if (contact.info.localSide) {
             let side: Line;
             let worldPoint: Vector;
-            if (contact.info.collider === shapeA.collider) {
+            if (contact.info.collider === shapeA) {
                 side = new Line(bodyA.transform.apply(contact.info.localSide.begin), bodyA.transform.apply(contact.info.localSide.end));
                 worldPoint = bodyB.transform.apply(point);
             } else {

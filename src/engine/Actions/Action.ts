@@ -422,11 +422,11 @@ export class RotateTo implements Action {
       }
     }
 
-    this._actor.rx = this._direction * this._speed;
+    this._actor.angularVelocity = this._direction * this._speed;
 
     if (this.isComplete()) {
       this._actor.rotation = this._end;
-      this._actor.rx = 0;
+      this._actor.angularVelocity = 0;
       this._stopped = true;
     }
   }
@@ -437,7 +437,7 @@ export class RotateTo implements Action {
   }
 
   public stop(): void {
-    this._actor.rx = 0;
+    this._actor.angularVelocity = 0;
     this._stopped = true;
   }
 
@@ -524,11 +524,11 @@ export class RotateBy implements Action {
       }
     }
 
-    this._actor.rx = this._direction * this._speed;
+    this._actor.angularVelocity = this._direction * this._speed;
 
     if (this.isComplete()) {
       this._actor.rotation = this._end;
-      this._actor.rx = 0;
+      this._actor.angularVelocity = 0;
       this._stopped = true;
     }
   }
@@ -539,7 +539,7 @@ export class RotateBy implements Action {
   }
 
   public stop(): void {
-    this._actor.rx = 0;
+    this._actor.angularVelocity = 0;
     this._stopped = true;
   }
 
@@ -582,23 +582,23 @@ export class ScaleTo implements Action {
 
     if (!(Math.abs(this._actor.scale.x - this._startX) >= this._distanceX)) {
       const directionX = this._endY < this._startY ? -1 : 1;
-      this._actor.sx = this._speedX * directionX;
+      this._actor.body.sx = this._speedX * directionX;
     } else {
-      this._actor.sx = 0;
+      this._actor.body.sx = 0;
     }
 
     if (!(Math.abs(this._actor.scale.y - this._startY) >= this._distanceY)) {
       const directionY = this._endY < this._startY ? -1 : 1;
-      this._actor.sy = this._speedY * directionY;
+      this._actor.body.sy = this._speedY * directionY;
     } else {
-      this._actor.sy = 0;
+      this._actor.body.sy = 0;
     }
 
     if (this.isComplete()) {
       this._actor.scale.x = this._endX;
       this._actor.scale.y = this._endY;
-      this._actor.sx = 0;
-      this._actor.sy = 0;
+      this._actor.body.sx = 0;
+      this._actor.body.sy = 0;
     }
   }
 
@@ -610,8 +610,8 @@ export class ScaleTo implements Action {
   }
 
   public stop(): void {
-    this._actor.sx = 0;
-    this._actor.sy = 0;
+    this._actor.body.sx = 0;
+    this._actor.body.sy = 0;
     this._stopped = true;
   }
 
@@ -653,13 +653,13 @@ export class ScaleBy implements Action {
       this._directionY = this._endScale.y < this._startScale.y ? -1 : 1;
     }
 
-    this._actor.sx = this._speedX * this._directionX;
-    this._actor.sy = this._speedY * this._directionY;
+    this._actor.body.sx = this._speedX * this._directionX;
+    this._actor.body.sy = this._speedY * this._directionY;
 
     if (this.isComplete()) {
       this._actor.scale = this._endScale;
-      this._actor.sx = 0;
-      this._actor.sy = 0;
+      this._actor.body.sx = 0;
+      this._actor.body.sy = 0;
     }
   }
 
@@ -672,8 +672,8 @@ export class ScaleBy implements Action {
   }
 
   public stop(): void {
-    this._actor.sx = 0;
-    this._actor.sy = 0;
+    this._actor.body.sx = 0;
+    this._actor.body.sy = 0;
     this._stopped = true;
   }
 

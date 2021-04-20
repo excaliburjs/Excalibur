@@ -183,10 +183,9 @@ export class TileMapImpl extends Entity<TransformComponent | MotionComponent | B
     }
 
     for (let c of colliders) {
-      this.components.body.addCollider(new Collider({
-        shape: Shape.Box(c.width, c.height, Vector.Zero),
-        offset: vec(c.left - this.pos.x, c.top - this.pos.y)
-      }));
+      this.components.body.addCollider(
+        Shape.Box(c.width, c.height, Vector.Zero, vec(c.left - this.pos.x, c.top - this.pos.y)),
+      );
     }
   }
 

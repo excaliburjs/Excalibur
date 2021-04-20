@@ -71,7 +71,7 @@ export class Trigger extends Actor {
    * @param opts Trigger options
    */
   constructor(opts: Partial<TriggerOptions>) {
-    super(opts.pos.x, opts.pos.y, opts.width, opts.height);
+    super({x: opts.pos.x, y: opts.pos.y, width: opts.width, height: opts.height});
     opts = Util.extend({}, triggerDefaults, opts);
 
     this.filter = opts.filter || this.filter;
@@ -118,8 +118,10 @@ export class Trigger extends Actor {
   }
 
   private _dispatchAction() {
-    this.action.call(this);
-    this.repeat--;
+    if (this.repeat > 0) {
+      this.action.call(this);
+      this.repeat--;
+    }
   }
 
   /* istanbul ignore next */

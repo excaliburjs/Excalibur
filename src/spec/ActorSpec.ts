@@ -16,13 +16,18 @@ describe('A game actor', () => {
 
   let engine: ex.Engine;
   let scene: ex.Scene;
+  let motionSystem: ex.MotionSystem;
+  let collisionSystem: ex.CollisionSystem;
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({ width: 100, height: 100 });
     actor = new ex.Actor();
     actor.body.collisionType = ex.CollisionType.Active;
+    motionSystem = new ex.MotionSystem();
+    collisionSystem = new ex.CollisionSystem();
     scene = new ex.Scene();
+    scene.add(actor);
     engine.addScene('test', scene);
     engine.goToScene('test');
 
@@ -55,13 +60,12 @@ describe('A game actor', () => {
   it('should have props set by constructor', () => {
     const actor = new ex.Actor({
       pos: new ex.Vector(2, 3),
-      scene: scene,
       width: 100,
       height: 200,
       vel: new ex.Vector(30, 40),
       acc: new ex.Vector(50, 60),
       rotation: 2,
-      rx: 0.1,
+      angularVelocity: 0.1,
       z: 10,
       color: ex.Color.Red,
       visible: false
@@ -80,7 +84,7 @@ describe('A game actor', () => {
     expect(actor.acc.x).toBe(50);
     expect(actor.acc.y).toBe(60);
     expect(actor.rotation).toBe(2);
-    expect(actor.rx).toBe(0.1);
+    expect(actor.angularVelocity).toBe(0.1);
     expect(actor.z).toBe(10);
     expect(actor.color.toString()).toBe(ex.Color.Red.toString());
     expect(actor.visible).toBe(false);
@@ -111,7 +115,7 @@ describe('A game actor', () => {
     actor.pos.setTo(10, 10);
     actor.vel.setTo(10, 10);
 
-    actor.update(engine, 1000);
+    motionSystem.update([actor], 1000);
 
     expect(actor.oldPos.x).toBe(10);
     expect(actor.oldPos.y).toBe(10);
@@ -137,11 +141,11 @@ describe('A game actor', () => {
     expect(actor.pos.x).toBe(0);
     expect(actor.pos.y).toBe(0);
 
-    actor.update(engine, 1000);
+    motionSystem.update([actor], 1000);
     expect(actor.pos.x).toBe(-10);
     expect(actor.pos.y).toBe(10);
 
-    actor.update(engine, 1000);
+    motionSystem.update([actor], 1000);
     expect(actor.pos.x).toBe(-20);
     expect(actor.pos.y).toBe(20);
   });
@@ -151,7 +155,7 @@ describe('A game actor', () => {
     actor.vel.setTo(10, 10);
     actor.acc.setTo(10, 10);
 
-    actor.update(engine, 1000);
+    motionSystem.update([actor], 1000);
 
     expect(actor.oldVel.x).toBe(10);
     expect(actor.oldVel.y).toBe(10);
@@ -160,11 +164,10 @@ describe('A game actor', () => {
   });
 
   it('can have its height and width scaled', () => {
-    expect(actor.width).toBe(0);
-    expect(actor.height).toBe(0);
-
-    actor.width = 20;
-    actor.height = 20;
+    const actor = new ex.Actor({
+      width: 20,
+      height: 20
+    });
 
     expect(actor.width).toBe(20);
     expect(actor.height).toBe(20);
@@ -185,7 +188,7 @@ describe('A game actor', () => {
   it('can have its height and width scaled by parent', () => {
     actor.scale.setTo(2, 2);
 
-    const child = new ex.Actor(0, 0, 50, 50);
+    const child = new ex.Actor({width: 50, height: 50});
 
     actor.add(child);
 
@@ -199,8 +202,10 @@ describe('A game actor', () => {
   });
 
   it('can have a center point', () => {
-    actor.height = 100;
-    actor.width = 50;
+    const actor = new ex.Actor({
+      width: 50,
+      height: 100
+    });
 
     let center = actor.center;
     expect(center.x).toBe(0);
@@ -231,11 +236,13 @@ describe('A game actor', () => {
   });
 
   it('has a left, right, top, and bottom', () => {
-    actor.pos.x = 0;
-    actor.pos.y = 0;
-    actor.anchor = new ex.Vector(0.5, 0.5);
-    actor.width = 100;
-    actor.height = 100;
+    const actor = new ex.Actor({
+      x: 0,
+      y: 0,
+      anchor: ex.Vector.Half,
+      width: 100,
+      height: 100
+    });
 
     expect(actor.body.bounds.left).toBe(-50);
     expect(actor.body.bounds.right).toBe(50);
@@ -244,12 +251,14 @@ describe('A game actor', () => {
   });
 
   it('should have correct bounds when scaled', () => {
-    actor.pos.x = 0;
-    actor.pos.y = 0;
-    actor.width = 100;
-    actor.height = 100;
+    const actor = new ex.Actor({
+      x: 0,
+      y: 0,
+      anchor: ex.Vector.Half,
+      width: 100,
+      height: 100
+    });
     actor.scale.setTo(2, 2);
-    actor.anchor = new ex.Vector(0.5, 0.5);
 
     actor.body.update();
 
@@ -260,8 +269,8 @@ describe('A game actor', () => {
   });
 
   it('can collide with other actors', () => {
-    const actor = new ex.Actor(0, 0, 10, 10);
-    const other = new ex.Actor(10, 10, 10, 10);
+    const actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
+    const other = new ex.Actor({x: 10, y: 10, width: 10, height: 10});
 
     // Actors are adjacent and not overlapping should not collide
     expect(actor.body.bounds.intersectWithSide(other.body.bounds)).toBe(ex.Side.None);
@@ -293,9 +302,9 @@ describe('A game actor', () => {
   });
 
   it('participates with another in a collision', () => {
-    const actor = new ex.Actor(0, 0, 10, 10);
+    const actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
     actor.body.collisionType = ex.CollisionType.Active;
-    const other = new ex.Actor(8, 0, 10, 10);
+    const other = new ex.Actor({x: 8, y: 0, width: 10, height: 10});
     other.body.collisionType = ex.CollisionType.Active;
     let actorCalled = 'false';
     let otherCalled = 'false';
@@ -310,6 +319,8 @@ describe('A game actor', () => {
 
     scene.add(actor);
     scene.add(other);
+    collisionSystem.update([actor, other], 20);
+    collisionSystem.update([actor, other], 20);
     scene.update(engine, 20);
     scene.update(engine, 20);
 
@@ -323,10 +334,10 @@ describe('A game actor', () => {
     actor.pos.setTo(10, 10);
     actor.rotation = rotation;
 
-    const child = new ex.Actor(10, 0, 10, 10); // (20, 10)
+    const child = new ex.Actor({x: 10, y: 0, width: 10, height: 10}); // (20, 10)
 
     actor.add(child);
-    actor.update(engine, 100);
+    motionSystem.update([actor], 100);
 
     expect(child.getWorldPos().x).toBeCloseTo(10, 0.001);
     expect(child.getWorldPos().y).toBeCloseTo(20, 0.001);
@@ -338,12 +349,12 @@ describe('A game actor', () => {
     actor.pos.setTo(10, 10);
     actor.rotation = rotation;
 
-    const child = new ex.Actor(10, 0, 10, 10); // (20, 10)
-    const grandchild = new ex.Actor(10, 0, 10, 10); // (30, 10)
+    const child =      new ex.Actor({x: 10, y: 0, width: 10, height: 10}); // (20, 10)
+    const grandchild = new ex.Actor({x: 10, y: 0, width: 10, height: 10}); // (30, 10)
 
     actor.add(child);
     child.add(grandchild);
-    actor.update(engine, 100);
+    motionSystem.update([actor], 100);
 
     expect(grandchild.getWorldRotation()).toBe(rotation);
     expect(grandchild.getWorldPos().x).toBeCloseTo(10, 0.001);
@@ -355,10 +366,10 @@ describe('A game actor', () => {
     actor.pos.setTo(10, 10);
     actor.scale.setTo(2, 2);
 
-    const child = new ex.Actor(10, 10, 10, 10);
+    const child = new ex.Actor({x: 10, y: 10, width: 10, height: 10});
 
     actor.add(child);
-    actor.update(engine, 100);
+    motionSystem.update([actor], 100);
 
     expect(child.getWorldPos().x).toBe(30);
     expect(child.getWorldPos().y).toBe(30);
@@ -369,12 +380,12 @@ describe('A game actor', () => {
     actor.pos.setTo(10, 10);
     actor.scale.setTo(2, 2);
 
-    const child = new ex.Actor(10, 10, 10, 10);
-    const grandchild = new ex.Actor(10, 10, 10, 10);
+    const child =      new ex.Actor({x: 10, y: 10, width: 10, height: 10});
+    const grandchild = new ex.Actor({x: 10, y: 10, width: 10, height: 10});
 
     actor.add(child);
     child.add(grandchild);
-    actor.update(engine, 100);
+    motionSystem.update([actor], 100);
 
     // Logic:
     // p = (10, 10)
@@ -391,10 +402,10 @@ describe('A game actor', () => {
     actor.scale.setTo(2, 2);
     actor.rotation = rotation;
 
-    const child = new ex.Actor(10, 0, 10, 10); // (30, 10)
+    const child = new ex.Actor({x: 10, y: 0, width: 10, height: 10}); // (30, 10)
 
     actor.add(child);
-    actor.update(engine, 100);
+    motionSystem.update([actor], 100);
 
     expect(child.getWorldPos().x).toBeCloseTo(10, 0.001);
     expect(child.getWorldPos().y).toBeCloseTo(30, 0.001);
@@ -407,12 +418,12 @@ describe('A game actor', () => {
     actor.scale.setTo(2, 2);
     actor.rotation = rotation;
 
-    const child = new ex.Actor(10, 0, 10, 10); // (30, 10)
-    const grandchild = new ex.Actor(10, 0, 10, 10); // (50, 10)
+    const child =      new ex.Actor({x: 10, y: 0, width: 10, height: 10}); // (30, 10)
+    const grandchild = new ex.Actor({x: 10, y: 0, width: 10, height: 10}); // (50, 10)
 
     actor.add(child);
     child.add(grandchild);
-    actor.update(engine, 100);
+    motionSystem.update([actor], 100);
 
     expect(grandchild.getWorldPos().x).toBeCloseTo(10, 0.001);
     expect(grandchild.getWorldPos().y).toBeCloseTo(50, 0.001);
@@ -422,7 +433,7 @@ describe('A game actor', () => {
     expect(actor.pos.x).toBe(0);
     expect(actor.pos.y).toBe(0);
 
-    const childActor = new ex.Actor(50, 50);
+    const childActor = new ex.Actor({x: 50, y: 50});
     expect(childActor.pos.x).toBe(50);
     expect(childActor.pos.y).toBe(50);
 
@@ -430,7 +441,9 @@ describe('A game actor', () => {
 
     actor.actions.moveTo(10, 15, 1000);
     actor.update(engine, 1000);
+    motionSystem.update([actor], 1000);
     actor.update(engine, 1);
+    motionSystem.update([actor], 1);
 
     expect(childActor.getWorldPos().x).toBe(60);
     expect(childActor.getWorldPos().y).toBe(65);
@@ -440,15 +453,17 @@ describe('A game actor', () => {
     expect(actor.pos.x).toBe(0);
     expect(actor.pos.y).toBe(0);
 
-    const childActor = new ex.Actor(50, 50);
-    const grandChildActor = new ex.Actor(10, 10);
+    const childActor =      new ex.Actor({x: 50, y: 50});
+    const grandChildActor = new ex.Actor({x: 10, y: 10});
 
     actor.add(childActor);
     childActor.add(grandChildActor);
 
     actor.actions.moveBy(10, 15, 1000);
     actor.update(engine, 1000);
+    scene.update(engine, 1000);
     actor.update(engine, 1);
+    scene.update(engine, 1);
 
     expect(grandChildActor.getWorldPos().x).toBe(70);
     expect(grandChildActor.getWorldPos().y).toBe(75);
@@ -460,7 +475,9 @@ describe('A game actor', () => {
 
     actor.actions.moveBy(10, 15, 1000);
     actor.update(engine, 1000);
+    scene.update(engine, 1000);
     actor.update(engine, 1);
+    scene.update(engine, 1);
 
     expect(actor.getWorldPos().x).toBe(10);
     expect(actor.getWorldPos().y).toBe(15);
@@ -695,9 +712,9 @@ describe('A game actor', () => {
   });
 
   it('can detect containment off of child actors', () => {
-    const parent = new ex.Actor(600, 100, 100, 100);
-    const child = new ex.Actor(0, 0, 100, 100);
-    const child2 = new ex.Actor(-600, -100, 100, 100);
+    const parent = new ex.Actor({x: 600, y: 100, width: 100, height: 100});
+    const child =  new ex.Actor({x: 0, y: 0, width: 100, height: 100});
+    const child2 = new ex.Actor({x: -600, y: -100, width: 100, height: 100});
 
     parent.add(child);
     child.add(child2);
@@ -719,9 +736,9 @@ describe('A game actor', () => {
   });
 
   it('can recursively check containment', () => {
-    const parent = new ex.Actor(0, 0, 100, 100);
-    const child = new ex.Actor(100, 100, 100, 100);
-    const child2 = new ex.Actor(100, 100, 100, 100);
+    const parent = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
+    const child =  new ex.Actor({x: 100, y: 100, width: 100, height: 100});
+    const child2 = new ex.Actor({x: 100, y: 100, width: 100, height: 100});
     parent.add(child);
 
     expect(parent.contains(150, 150)).toBeFalsy();
@@ -737,12 +754,12 @@ describe('A game actor', () => {
     ex.Physics.useArcadePhysics();
     const scene = new ex.Scene(engine);
 
-    const active = new ex.Actor(0, -50, 100, 100);
+    const active = new ex.Actor({x: 0, y: -50, width: 100, height: 100});
     active.body.collisionType = ex.CollisionType.Active;
     active.vel.y = 10;
     active.acc.y = 1000;
 
-    const fixed = new ex.Actor(-100, 50, 1000, 100);
+    const fixed = new ex.Actor({x: -100, y: 50, width: 1000, height: 100});
     fixed.body.collisionType = ex.CollisionType.Fixed;
 
     scene.add(active);
@@ -768,12 +785,13 @@ describe('A game actor', () => {
 
   it('with an active collision type can jump on a fixed type', () => {
     const scene = new ex.Scene(engine);
-    const active = new ex.Actor(0, -50, 100, 100);
+    scene._initialize(engine);
+    const active = new ex.Actor({x: 0, y: -50, width: 100, height: 100});
     active.body.collisionType = ex.CollisionType.Active;
     active.vel.y = -100;
     ex.Physics.acc.setTo(0, 0);
 
-    const fixed = new ex.Actor(-100, 50, 1000, 100);
+    const fixed = new ex.Actor({x: -100, y: 50, width: 1000, height: 100});
     fixed.body.collisionType = ex.CollisionType.Fixed;
 
     scene.add(active);
@@ -933,7 +951,6 @@ describe('A game actor', () => {
       height: 10
     });
     let predrawFired = false;
-
     actor.on('predraw', () => {
       predrawFired = true;
     });
@@ -949,7 +966,7 @@ describe('A game actor', () => {
   });
 
   it('should opt into pointer capture when pointerdown', () => {
-    const actor = new ex.Actor(0, 0, 100, 100);
+    const actor = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
 
     expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
     expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
@@ -965,7 +982,7 @@ describe('A game actor', () => {
   });
 
   it('should opt into pointer capture when pointerup', () => {
-    const actor = new ex.Actor(0, 0, 100, 100);
+    const actor = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
 
     expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
     expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
@@ -981,7 +998,7 @@ describe('A game actor', () => {
   });
 
   it('should opt into pointer capture when pointermove', () => {
-    const actor = new ex.Actor(0, 0, 100, 100);
+    const actor = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
 
     expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
     expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
@@ -997,7 +1014,7 @@ describe('A game actor', () => {
   });
 
   it('should opt into pointer capture when pointerenter', () => {
-    const actor = new ex.Actor(0, 0, 100, 100);
+    const actor = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
 
     expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
     expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
@@ -1013,7 +1030,7 @@ describe('A game actor', () => {
   });
 
   it('should opt into pointer capture when pointerleave', () => {
-    const actor = new ex.Actor(0, 0, 100, 100);
+    const actor = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
 
     expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
     expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
@@ -1029,7 +1046,7 @@ describe('A game actor', () => {
   });
 
   it('should opt into pointer capture when pointerdragstart', () => {
-    const actor = new ex.Actor(0, 0, 100, 100);
+    const actor = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
 
     expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
     expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
@@ -1045,7 +1062,7 @@ describe('A game actor', () => {
   });
 
   it('should opt into pointer capture when pointerdragend', () => {
-    const actor = new ex.Actor(0, 0, 100, 100);
+    const actor = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
 
     expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
     expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
@@ -1061,7 +1078,7 @@ describe('A game actor', () => {
   });
 
   it('should opt into pointer capture when pointerdragmove', () => {
-    const actor = new ex.Actor(0, 0, 100, 100);
+    const actor = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
 
     expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
     expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
@@ -1077,7 +1094,7 @@ describe('A game actor', () => {
   });
 
   it('should opt into pointer capture when pointerdragenter', () => {
-    const actor = new ex.Actor(0, 0, 100, 100);
+    const actor = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
 
     expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
     expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
@@ -1093,7 +1110,7 @@ describe('A game actor', () => {
   });
 
   it('should opt into pointer capture when pointerdragleave', () => {
-    const actor = new ex.Actor(0, 0, 100, 100);
+    const actor = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
 
     expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
     expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
@@ -1110,7 +1127,7 @@ describe('A game actor', () => {
 
   describe('should detect assigned events and', () => {
     it('should capture pointer move event', () => {
-      const actor = new ex.Actor(0, 0, 20, 20);
+      const actor = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
       const callables = {
         move: (pe: any) => {
           /* doesn't matter; */
@@ -1128,7 +1145,7 @@ describe('A game actor', () => {
     });
 
     it('should capture pointer enter event', () => {
-      const actor = new ex.Actor(0, 0, 20, 20);
+      const actor = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
       const callables = {
         enter: (pe: any) => {
           /* doesn't matter */
@@ -1147,7 +1164,7 @@ describe('A game actor', () => {
     });
 
     it('should capture pointer leave event', () => {
-      const actor = new ex.Actor(0, 0, 20, 20);
+      const actor = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
       const callables = {
         leave: (pe: any) => {
           /* doesn't matter */
@@ -1166,7 +1183,7 @@ describe('A game actor', () => {
     });
 
     it('should capture pointer drag start event', () => {
-      const actor = new ex.Actor(0, 0, 20, 20);
+      const actor = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
       const callables = {
         dragStart: (pe: any) => {
           /* doesn't matter */
@@ -1185,7 +1202,7 @@ describe('A game actor', () => {
     });
 
     it('should capture pointer drag end event', () => {
-      const actor = new ex.Actor(0, 0, 20, 20);
+      const actor = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
       const callables = {
         dragEnd: (pe: any) => {
           /* doesn't matter */
@@ -1204,7 +1221,7 @@ describe('A game actor', () => {
     });
 
     it('should capture pointer drag move event', () => {
-      const actor = new ex.Actor(0, 0, 20, 20);
+      const actor = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
       const callables = {
         dragMove: (pe: any) => {
           /* doesn't matter */
@@ -1224,7 +1241,7 @@ describe('A game actor', () => {
     });
 
     it('should capture pointer drag enter event', () => {
-      const actor = new ex.Actor(0, 0, 20, 20);
+      const actor = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
       const callables = {
         dragEnter: (pe: any) => {
           /* doesn't matter */
@@ -1243,7 +1260,7 @@ describe('A game actor', () => {
     });
 
     it('should capture pointer drag leave event', () => {
-      const actor = new ex.Actor(0, 0, 20, 20);
+      const actor = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
       const callables = {
         dragLeave: (pe: any) => {
           /* doesn't matter */
@@ -1262,8 +1279,8 @@ describe('A game actor', () => {
     });
 
     it('can prevent pointer events from bubbling', () => {
-      const actor = new ex.Actor(0, 0, 100, 100);
-      const child = new ex.Actor(0, 0, 100, 100);
+      const actor = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
+      const child = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
       const callables = {
         pointerDown: (pe: any) => {
           /* doesn't matter */
@@ -1282,7 +1299,7 @@ describe('A game actor', () => {
     });
 
     it('only has pointer events happen once per frame', () => {
-      const actor = new ex.Actor(0, 0, 100, 100);
+      const actor = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
       let numPointerUps = 0;
 
       scene.add(actor);

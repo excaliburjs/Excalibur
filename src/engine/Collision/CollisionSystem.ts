@@ -10,7 +10,7 @@ import { Scene } from '../Scene';
 import { DrawUtil } from '../Util/Index';
 import { BodyComponent } from './Body';
 import { BoxSolver } from './Solver/BoxSolver';
-import { Collider } from './Collider';
+import { Collider } from './Shapes/Collider';
 import { CollisionContact } from './Detection/CollisionContact';
 import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
 import { RigidBodySolver } from './Solver/RigidBodySolver';
@@ -40,6 +40,13 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       message.data.components.body.$collidersRemoved.subscribe(this._untrackCollider);
       for (const collider of message.data.components.body.getColliders()) {
         this._processor.track(collider);
+      }
+    } else {
+      let maybeBody = message.data.components.body as BodyComponent;
+      if (maybeBody) {
+        for (const collider of maybeBody.getColliders()) {
+          this._processor.untrack(collider);
+        }
       }
     }
   }
@@ -77,40 +84,12 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     const contacts = this._processor.narrowphase(pairs);
 
     const solver: CollisionSolver = this.getSolver();
-    // const acc = Physics.gravity;
-
-    // TODO motion system
-    // Integrate motion
-    // for (let entity of _entities) {
-    //   const body = entity.components.body;
-    //   if (body?.collisionType !== CollisionType.Fixed) {
-    //       body.vel = body.vel.add(acc.scale(elapsedMs / 1000));
-    //       body.angularVelocity = clamp(body.angularVelocity, -Math.PI, Math.PI);
-    //   }
-    // }
 
     // Events and init
     solver.preSolve(contacts);
 
     // Solve velocity first
     solver.solveVelocity(contacts);
-
-    // TODO motion system
-    // Integration position
-    // for (let entity of _entities) {
-    //   const body = entity.components.body;
-    //   const elapsed = elapsedMs / 1000;
-    //   if (body?.collisionType !== CollisionType.Fixed) {
-    //       body.pos = body.pos.add(body.vel.scale(elapsed)).add(acc.scale(0.5 * elapsed * elapsed));
-    //       body.rotation += body.angularVelocity * elapsed;
-    //       while (body.rotation > Math.PI * 2) {
-    //           body.rotation -= Math.PI * 2;
-    //       }
-    //       while (body.rotation < 0) {
-    //           body.rotation += Math.PI * 2;
-    //       }
-    //   }
-    // }
 
     // Solve position last because non-overlap is the most important
     solver.solvePosition(contacts);

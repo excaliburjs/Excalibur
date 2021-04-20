@@ -322,11 +322,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public update(engine: Engine, delta: number) {
     this._preupdate(engine, delta);
-    this.world.update(SystemType.Update, delta);
-
     if (this.camera) {
       this.camera.update(engine, delta);
     }
+    this.world.update(SystemType.Update, delta);
+
 
     let i: number, len: number;
     // Remove timers in the cancel queue before updating them
@@ -503,13 +503,12 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       if (!Util.contains(this.actors, entity)) {
         return;
       }
-      // this._collisionProcessor.untrack(entity.body);
+      if (!entity.isKilled()) {
+        entity.kill();
+      }
       if (entity instanceof Trigger) {
         this._triggerKillQueue.push(entity);
       } else {
-        if (!entity.isKilled()) {
-          entity.kill();
-        }
         this._killQueue.push(entity);
       }
 

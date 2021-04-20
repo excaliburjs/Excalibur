@@ -1,6 +1,6 @@
 import { Vector } from '../../Algebra';
 import { Physics } from '../Physics';
-import { Collider } from '../Collider';
+import { Collider } from '../Shapes/Collider';
 import { CollisionType } from '../CollisionType';
 import { Pair } from './Pair';
 import { SeparationInfo } from '../Shapes/SeparatingAxis';

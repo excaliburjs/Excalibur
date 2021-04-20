@@ -4,6 +4,7 @@ import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 import { SeparatingAxis, SeparationInfo } from './SeparatingAxis';
 import { Line, Vector } from '../../Algebra';
+import { TransformComponent } from '../../EntityComponentSystem';
 
 export const CollisionJumpTable = {
   CollideCircleCircle(circleA: Circle, circleB: Circle): CollisionContact {
@@ -28,13 +29,13 @@ export const CollisionJumpTable = {
     const local = circleA.getFurthestLocalPoint(normal);
 
     const info: SeparationInfo = {
-      collider: circleA.collider,
+      collider: circleA,
       separation,
       axis: normal,
       point: point
     }
 
-    return new CollisionContact(circleA.collider, circleB.collider, mvt, normal, tangent, [point], [local], info);
+    return new CollisionContact(circleA, circleB, mvt, normal, tangent, [point], [local], info);
   },
 
   CollideCirclePolygon(circle: Circle, polygon: ConvexPolygon): CollisionContact {
@@ -48,11 +49,11 @@ export const CollisionJumpTable = {
     minAxis = samedir < 0 ? minAxis.negate() : minAxis;
 
     const point = circle.getFurthestPoint(minAxis);
-    const local = circle.collider.owner.transform.applyInverse(point);
+    const local = circle.owner.transform.applyInverse(point);
     const normal = minAxis.normalize();
 
     const info: SeparationInfo = {
-      collider: circle.collider,
+      collider: circle,
       separation: -minAxis.size,
       axis: normal,
       point: point,
@@ -62,8 +63,8 @@ export const CollisionJumpTable = {
     }
 
     return new CollisionContact(
-      circle.collider,
-      polygon.collider,
+      circle,
+      polygon,
       minAxis,
       normal,
       normal.perpendicular(),
@@ -102,7 +103,7 @@ export const CollisionJumpTable = {
       
 
       const info: SeparationInfo = {
-        collider: circle.collider,
+        collider: circle,
         separation: separation,
         axis: normal,
         point: side.begin,
@@ -111,8 +112,8 @@ export const CollisionJumpTable = {
       }
 
       return new CollisionContact(
-        circle.collider,
-        edge.collider,
+        circle,
+        edge,
         normal.scale(separation),
         normal,
         normal.perpendicular(),
@@ -134,7 +135,7 @@ export const CollisionJumpTable = {
       const separation = circle.radius - Math.sqrt(ddb);
 
       const info: SeparationInfo = {
-        collider: circle.collider,
+        collider: circle,
         separation: separation,
         axis: normal,
         point: side.end,
@@ -143,8 +144,8 @@ export const CollisionJumpTable = {
       }
 
       return new CollisionContact(
-        circle.collider,
-        edge.collider,
+        circle,
+        edge,
         normal.scale(separation),
         normal,
         normal.perpendicular(),
@@ -179,7 +180,7 @@ export const CollisionJumpTable = {
 
     const mvt = normal.scale(separation);
     const info: SeparationInfo = {
-      collider: circle.collider,
+      collider: circle,
       separation: separation,
       axis: normal,
       point: pointOnEdge,
@@ -189,8 +190,8 @@ export const CollisionJumpTable = {
 
 
     return new CollisionContact(
-      circle.collider,
-      edge.collider,
+      circle,
+      edge,
       mvt,
       normal,
       normal.perpendicular(),
@@ -213,10 +214,11 @@ export const CollisionJumpTable = {
 
     // build a temporary polygon from the edge to use SAT
     const linePoly = new ConvexPolygon({
-      collider: edge.collider,
       points: [edge.begin, edge.end, edge.end.add(dir.scale(100)), edge.begin.add(dir.scale(100))]
     });
-    linePoly.update(edge.collider.owner.transform);
+    linePoly.owner = edge.owner;
+    linePoly.owningId = edge.owningId;
+    linePoly.update(edge.owner.transform);
     return this.CollidePolygonPolygon(polygon, linePoly);
   },
 
@@ -240,7 +242,7 @@ export const CollisionJumpTable = {
       const separation = separationA.separation > separationB.separation ? separationA : separationB;
 
       // The incident side is the most opposite from the axes of collision on the other shape
-      const other = separation.collider === polyA.collider ? polyB : polyA;
+      const other = separation.collider === polyA ? polyB : polyA;
       const incident = other.findSide(separation.axis.negate()) as Line;
 
       // Clip incident side by the perpendicular lines at each end of the reference side
@@ -272,14 +274,16 @@ export const CollisionJumpTable = {
           // Points are clipped from incident which is the other collider
           // Store those as locals
           let localPoints: Vector[] = [];
-          if (separation.collider === polyA.collider) {
-              localPoints = points.map(p => polyB.collider.owner.transform.applyInverse(p));
-          } else {
-              localPoints = points.map(p => polyA.collider.owner.transform.applyInverse(p));
+          if (separation.collider === polyA) {
+              const xf = polyB.owner?.transform ?? new TransformComponent(); 
+              localPoints = points.map(p => xf.applyInverse(p));
+            } else {
+            const xf = polyA.owner?.transform ?? new TransformComponent(); 
+              localPoints = points.map(p => xf.applyInverse(p));
           }
           return new CollisionContact(
-            polyA.collider,
-            polyB.collider,
+            polyA,
+            polyB,
             normal.scale(-separation.separation),
             normal,
             tangent,

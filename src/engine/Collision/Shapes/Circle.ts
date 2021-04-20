@@ -1,13 +1,12 @@
 import { BoundingBox } from '../BoundingBox';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { CollisionContact } from '../Detection/CollisionContact';
-import { CollisionShape } from './CollisionShape';
 import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 
 import { Vector, Ray, Projection, Line } from '../../Algebra';
 import { Color } from '../../Drawing/Color';
-import { Collider } from '../Collider';
+import { Collider } from './Collider';
 
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { Transform } from '../../EntityComponentSystem';
@@ -21,16 +20,12 @@ export interface CircleOptions {
    * Required radius of the circle
    */
   radius: number;
-  /**
-   * Optional collider to associate with this shape
-   */
-  collider?: Collider;
 }
 
 /**
  * This is a circle collision shape for the excalibur rigid body physics simulation
  */
-export class Circle implements CollisionShape {
+export class Circle extends Collider {
   /**
    * Position of the circle relative to the collider, by default (0, 0) meaning the shape is positioned on top of the collider.
    */
@@ -45,17 +40,13 @@ export class Circle implements CollisionShape {
    */
   public radius: number;
 
-  /**
-   * The collider associated for this shape, if any.
-   */
-  public collider?: Collider; // TODO Merge Collider into Shapes? make collider an abstract???
 
   private _transform: Transform;
 
   constructor(options: CircleOptions) {
+    super();
     this.offset = options.offset || Vector.Zero;
     this.radius = options.radius || 0;
-    this.collider = options.collider || null;
   }
 
   /**
@@ -64,8 +55,7 @@ export class Circle implements CollisionShape {
   public clone(): Circle {
     return new Circle({
       offset: this.offset.clone(),
-      radius: this.radius,
-      collider: null
+      radius: this.radius
     });
   }
 
@@ -133,7 +123,7 @@ export class Circle implements CollisionShape {
     }
   }
 
-  public getClosestLineBetween(shape: CollisionShape): Line {
+  public getClosestLineBetween(shape: Collider): Line {
     if (shape instanceof Circle) {
       return ClosestLineJumpTable.CircleCircleClosestLine(this, shape);
     } else if (shape instanceof ConvexPolygon) {
@@ -148,7 +138,7 @@ export class Circle implements CollisionShape {
   /**
    * @inheritdoc
    */
-  public collide(shape: CollisionShape): CollisionContact {
+  public collide(shape: Collider): CollisionContact {
     if (shape instanceof Circle) {
       return CollisionJumpTable.CollideCircleCircle(this, shape);
     } else if (shape instanceof ConvexPolygon) {

@@ -1,13 +1,12 @@
 import { BoundingBox } from '../BoundingBox';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { CollisionJumpTable } from './CollisionJumpTable';
-import { CollisionShape } from './CollisionShape';
 import { Circle } from './Circle';
 import { ConvexPolygon } from './ConvexPolygon';
 
 import { Vector, Ray, Projection, Line } from '../../Algebra';
 import { Color } from '../../Drawing/Color';
-import { Collider } from '../Collider';
+import { Collider } from './Collider';
 import { ClosestLineJumpTable } from '../Shapes/ClosestLineJumpTable';
 import { Transform } from '../../EntityComponentSystem/Components/TransformComponent';
 
@@ -20,17 +19,12 @@ export interface EdgeOptions {
    * The ending of the edge defined in local coordinates to the collider
    */
   end: Vector;
-  /**
-   * Optionally the collider associated with this edge
-   */
-  collider?: Collider;
 }
 
 /**
  * Edge is a single line collision shape to create collisions with a single line.
  */
-export class Edge implements CollisionShape {
-  collider?: Collider;
+export class Edge extends Collider {
   offset: Vector;
   begin: Vector;
   end: Vector;
@@ -38,9 +32,9 @@ export class Edge implements CollisionShape {
   private _transform: Transform;
 
   constructor(options: EdgeOptions) {
+    super();
     this.begin = options.begin || Vector.Zero;
     this.end = options.end || Vector.Zero;
-    this.collider = options.collider || null;
     this.offset = this.center;
   }
 
@@ -50,8 +44,7 @@ export class Edge implements CollisionShape {
   public clone(): Edge {
     return new Edge({
       begin: this.begin.clone(),
-      end: this.end.clone(),
-      collider: null
+      end: this.end.clone()
     });
   }
 
@@ -144,7 +137,7 @@ export class Edge implements CollisionShape {
    * Returns the closes line between this and another shape, from this -> shape
    * @param shape
    */
-  public getClosestLineBetween(shape: CollisionShape): Line {
+  public getClosestLineBetween(shape: Collider): Line {
     if (shape instanceof Circle) {
       return ClosestLineJumpTable.CircleEdgeClosestLine(shape, this);
     } else if (shape instanceof ConvexPolygon) {
@@ -159,7 +152,7 @@ export class Edge implements CollisionShape {
   /**
    * @inheritdoc
    */
-  public collide(shape: CollisionShape): CollisionContact {
+  public collide(shape: Collider): CollisionContact {
     if (shape instanceof Circle) {
       return CollisionJumpTable.CollideCircleEdge(shape, this);
     } else if (shape instanceof ConvexPolygon) {
