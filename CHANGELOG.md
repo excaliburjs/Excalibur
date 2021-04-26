@@ -75,6 +75,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed `ex.Actor.easeTo` actions, they now use velocity to move Actors ([#1638](https://github.com/excaliburjs/Excalibur/issues/1638))
 - Fixed `Scene` constructor signature to make the `Engine` argument optional ([#1363](https://github.com/excaliburjs/Excalibur/issues/1363))
 - Fixed `anchor` properly of single shape `Actor` [#1535](https://github.com/excaliburjs/Excalibur/issues/1535)
+- Fixed Safari bug where `Sound` resources would fail to load ([#1848](https://github.com/excaliburjs/Excalibur/issues/1848))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

@@ -34,6 +34,16 @@ export function polyfill() {
   }
   /* istanbul ignore next */
   if (typeof window !== 'undefined' && !(<any>window).AudioContext) {
+    if ((<any>window).webkitAudioContext) {
+      const ctx = (<any>window).webkitAudioContext;
+      const replaceMe = ctx.prototype.decodeAudioData;
+      (<any>window).webkitAudioContext.prototype.decodeAudioData = function (arrayBuffer: ArrayBuffer) {
+        return new Promise((resolve, reject) => {
+          replaceMe.call(this, arrayBuffer, resolve, reject);
+        });
+      };
+    }
+
     (<any>window).AudioContext =
       (<any>window).AudioContext ||
       (<any>window).webkitAudioContext ||
