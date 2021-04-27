@@ -25,6 +25,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added `new Entity(components: Component[])` constructor overload to create entities with components quickly.
 - Added `Entity.get(type: ComponentType)` to get strongly typed components if they exist on the entity.
 - Added `Entity.has(type: ComponentType)` overload to check if an entity has a component of that type.
+- Added `Entity.hasTag(tag: string)`, `Entity.addTag(tag: string)`, and `Entity.removeTag(tag: string, force: boolean)`.
   - Tag `offscreen` is now added to entities that are offscreen
 - Added `Entity.componentAdded$` and `Entity.componentRemoved$` for observing component changes on an entity.
 - For child/parent entities:

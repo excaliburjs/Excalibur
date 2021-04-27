@@ -92,7 +92,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
   /**
    * Specifically get the tags on the entity from [[TagComponent]]
    */
-  public get tags(): string[] {
+  public get tags(): readonly string[] {
     return this._tagsMemo;
   }
 
@@ -111,6 +111,17 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
    */
   public addTag(tag: string) {
     return this.addComponent(new TagComponent(tag));
+  }
+
+  /**
+   * Removes a tag on the entity
+   *
+   * Removals are deferred until the end of update
+   * @param tag
+   * @param force Remove component immediately, no deferred
+   */
+  public removeTag(tag: string, force = false) {
+    return this.removeComponent(tag, force);
   }
 
   /**
@@ -323,16 +334,13 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
   }
 
   /**
-   * Removes a component from the entity, by default removals are deferred to the end of entity processing to avoid consistency issues
+   * Removes a component from the entity, by default removals are deferred to the end of entity update to avoid consistency issues
    *
    * Components can be force removed with the `force` flag, the removal is not deferred and happens immediately
    * @param componentOrType
    * @param force
    */
-  public removeComponent<ComponentOrType extends string | Component>(
-    componentOrType: ComponentOrType,
-    force = false
-  ): Entity {
+  public removeComponent<ComponentOrType extends string | Component>(componentOrType: ComponentOrType, force = false): Entity {
     if (force) {
       if (typeof componentOrType === 'string') {
         this._removeComponentByType(componentOrType);
