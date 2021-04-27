@@ -13,11 +13,7 @@ describe('An entity', () => {
   });
 
   it('can be constructed with a list of components', () => {
-    const e = new ex.Entity([
-      new FakeComponent('A'),
-      new FakeComponent('B'),
-      new FakeComponent('C')
-    ]);
+    const e = new ex.Entity([new FakeComponent('A'), new FakeComponent('B'), new FakeComponent('C')]);
 
     expect(e.has('A')).toBe(true);
     expect(e.has('B')).toBe(true);
@@ -64,9 +60,7 @@ describe('An entity', () => {
 
     expect(entity.getComponents()).toEqual([]);
 
-    entity.addComponent(typeA)
-      .addComponent(typeB)
-      .addComponent(typeC);
+    entity.addComponent(typeA).addComponent(typeB).addComponent(typeC);
 
     expect(entity.getComponents().sort((a, b) => a.type.localeCompare(b.type))).toEqual([typeA, typeB, typeC]);
   });
@@ -83,6 +77,25 @@ describe('An entity', () => {
     expect(entity.types).toEqual(['offscreen', 'A']);
     expect(entity.tags).toEqual(['offscreen']);
     expect(entity.hasTag('offscreen')).toBeTrue();
+  });
+
+  it('can add and remove tags', () => {
+    const entity = new ex.Entity();
+    entity.addTag('someTag1');
+    entity.addTag('someTag2');
+    entity.addTag('someTag3');
+
+    expect(entity.tags).toEqual(['someTag1', 'someTag2', 'someTag3']);
+
+    // deferred removal
+    entity.removeTag('someTag3');
+    expect(entity.tags).toEqual(['someTag1', 'someTag2', 'someTag3']);
+    entity.processComponentRemoval();
+    expect(entity.tags).toEqual(['someTag1', 'someTag2']);
+
+    // immediate removal
+    entity.removeTag('someTag2', true);
+    expect(entity.tags).toEqual(['someTag1']);
   });
 
   it('can be observed for added changes', (done) => {
@@ -122,11 +135,7 @@ describe('An entity', () => {
     const typeB = new FakeComponent('B');
     entity.addComponent(typeA);
     entity.addComponent(typeB);
-    entity.addChild(
-      new ex.Entity([
-        new FakeComponent('Z')
-      ])
-    );
+    entity.addChild(new ex.Entity([new FakeComponent('Z')]));
 
     const clone = entity.clone();
     expect(clone).not.toBe(entity);
@@ -141,18 +150,8 @@ describe('An entity', () => {
 
   it('can be initialized with a template', () => {
     const entity = new ex.Entity();
-    const template = new ex.Entity([
-      new FakeComponent('A'),
-      new FakeComponent('B')
-    ]).addChild(
-      new ex.Entity([
-        new FakeComponent('C'),
-        new FakeComponent('D')
-      ]).addChild(
-        new ex.Entity([
-          new FakeComponent('Z')
-        ])
-      )
+    const template = new ex.Entity([new FakeComponent('A'), new FakeComponent('B')]).addChild(
+      new ex.Entity([new FakeComponent('C'), new FakeComponent('D')]).addChild(new ex.Entity([new FakeComponent('Z')]))
     );
 
     expect(entity.getComponents()).toEqual([]);
@@ -263,7 +262,6 @@ describe('An entity', () => {
     child.unparent();
 
     expect(child.parent).toBe(null);
-
   });
 
   it('can\'t have a cycle', () => {
