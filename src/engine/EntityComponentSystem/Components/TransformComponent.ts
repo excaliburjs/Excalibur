@@ -55,25 +55,20 @@ export enum CoordPlane {
   Screen = 'screen'
 }
 
-export class TransformComponent extends Component<'transform'> {
-  public readonly type = 'transform';
+export class TransformComponent extends Component<'ex.transform'> {
+  public readonly type = 'ex.transform';
 
   private _dirty = false;
 
-  public readonly matrix = Matrix.identity()
-    .translate(0, 0)
-    .rotate(0)
-    .scale(1, 1)
+  public readonly matrix = Matrix.identity().translate(0, 0).rotate(0).scale(1, 1);
   private _position = createPosView(this.matrix);
   private _rotation = 0;
   private _scale = createScaleView(this.matrix);
-
 
   private _recalculate() {
     this._rotation = this.matrix.getRotation();
     this._dirty = false;
   }
-
 
   public getGlobalMatrix(): Matrix {
     if (!this.parent) {
@@ -91,7 +86,6 @@ export class TransformComponent extends Component<'transform'> {
    * The [[CoordPlane|coordinate plane|]] for this transform for the entity.
    */
   public coordPlane = CoordPlane.World;
-
 
   /**
    * The current position of the entity in world space or in screen space depending on the the [[coordinate plan|CoordPlane]].
@@ -129,7 +123,7 @@ export class TransformComponent extends Component<'transform'> {
       getY: () => source.data[MatrixLocations.Y],
       setX: (x) => {
         if (this.parent) {
-          const [ newX ] = this.parent?.getGlobalMatrix().getAffineInverse().multv([x, source.data[MatrixLocations.Y]]);
+          const [newX] = this.parent?.getGlobalMatrix().getAffineInverse().multv([x, source.data[MatrixLocations.Y]]);
           this.matrix.data[MatrixLocations.X] = newX;
         } else {
           this.matrix.data[MatrixLocations.X] = x;
@@ -137,7 +131,7 @@ export class TransformComponent extends Component<'transform'> {
       },
       setY: (y) => {
         if (this.parent) {
-          const [, newY ] = this.parent?.getGlobalMatrix().getAffineInverse().multv([source.data[MatrixLocations.X], y]);
+          const [, newY] = this.parent?.getGlobalMatrix().getAffineInverse().multv([source.data[MatrixLocations.X], y]);
           this.matrix.data[MatrixLocations.Y] = newY;
         } else {
           this.matrix.data[MatrixLocations.Y] = y;
@@ -169,13 +163,12 @@ export class TransformComponent extends Component<'transform'> {
       this._recalculate();
     }
     return this._rotation;
-  };
+  }
 
   public set rotation(val: number) {
     this.matrix.setRotation(val);
     this._dirty = true;
   }
-
 
   public get globalRotation(): number {
     return this.getGlobalMatrix().getRotation();
@@ -198,7 +191,7 @@ export class TransformComponent extends Component<'transform'> {
       this._recalculate();
     }
     return this._scale;
-  };
+  }
 
   public set scale(val: Vector) {
     this.matrix.setScale(val);
