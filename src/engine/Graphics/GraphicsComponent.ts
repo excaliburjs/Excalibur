@@ -218,9 +218,8 @@ export class GraphicsLayers {
 /**
  * Component to manage drawings, using with the position component
  */
-export class GraphicsComponent extends Component<'graphics'> {
-  static type: 'graphics';
-  readonly type = 'graphics';
+export class GraphicsComponent extends Component<'ex.graphics'> {
+  readonly type = 'ex.graphics';
 
   private _graphics: { [graphicName: string]: Graphic } = {};
 
@@ -398,5 +397,4 @@ export class GraphicsComponent extends Component<'graphics'> {
       }
     }
   }
-
 }

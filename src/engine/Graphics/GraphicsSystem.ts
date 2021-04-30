@@ -13,7 +13,7 @@ import { GraphicsDiagnostics } from './GraphicsDiagnostics';
 import { EnterViewPortEvent, ExitViewPortEvent } from '../Events';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
-  public readonly types = ['transform', 'graphics'] as const;
+  public readonly types = ['ex.transform', 'ex.graphics'] as const;
   public readonly systemType = SystemType.Draw;
   public priority = 0;
   private _token = 0;
@@ -189,11 +189,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   }
 
   /* istanbul ignore next */
-  private _graphicsBoundsDebugDraw(
-    entity: Entity,
-    _transform: TransformComponent,
-    _graphics: GraphicsComponent
-  ) {
+  private _graphicsBoundsDebugDraw(entity: Entity, _transform: TransformComponent, _graphics: GraphicsComponent) {
     if (this._engine?.isDebug) {
       if (isActor(entity)) {
         const bb = entity.body.collider.localBounds.translate(entity.getGlobalPos());

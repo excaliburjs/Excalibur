@@ -11,7 +11,7 @@ import { GraphicsDiagnostics } from '../Graphics/GraphicsDiagnostics';
  * Draws anything with a transform and a "draw" method
  */
 export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawComponent> {
-  public readonly types = ['transform', 'canvas'] as const;
+  public readonly types = ['ex.transform', 'ex.canvas'] as const;
   public systemType = SystemType.Draw;
   public priority = -1;
 
