@@ -84,7 +84,7 @@
     "copyfiles": "2.4.1",
     "coveralls": "3.1.0",
     "css-loader": "5.2.4",
-    "eslint": "7.23.0",
+    "eslint": "7.25.0",
     "eslint-plugin-jsdoc": "32.3.0",
     "excalibur-jasmine": "0.1.1",
     "husky": "4.3.8",
