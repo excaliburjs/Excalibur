@@ -7,7 +7,6 @@ import { Graphic, GraphicOptions } from './Graphic';
 import { Sprite } from './Sprite';
 import { SpriteSheet } from './SpriteSheet';
 
-
 export interface SpriteFontOptions {
   /**
    * Alphabet string in spritsheet order (default is row column order)
@@ -114,6 +113,14 @@ export class SpriteFont extends Graphic implements FontRenderer {
     this.height = height;
   }
 
+  public updateText(text: string) {
+    if (this._text !== text) {
+      this._dirty = true;
+      this._text = text;
+      this._updateDimensions();
+    }
+  }
+
   protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     this._updateDimensions();
     super._preDraw(ex, x, y);
@@ -122,7 +129,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     let cursor = 0;
     for (const sprite of this._getCharacterSprites(this._text)) {
-      // draw it in the right spot and incresase the cursor by sprite width
+      // draw it in the right spot and increase the cursor by sprite width
       sprite.draw(ex, x + cursor, y);
       cursor += sprite.width + this.spacing;
     }

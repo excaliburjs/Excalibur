@@ -36,9 +36,7 @@ export class Text extends Graphic {
 
   public set text(value: string) {
     this._text = value;
-    if (this.font instanceof Font) {
-      this.font.updateText(value);
-    }
+    this.font.updateText(value);
   }
 
   // TODO SpriteFont doesn't support a color yet :(
