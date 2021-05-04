@@ -31,7 +31,7 @@ var tm = new ex.TileMap({
 var tilesprite = ss.sprites[0];
 
 for (var i = 0; i < tm.rows * tm.cols; i++) {
-  tm.getCellByIndex(i).addSprite(tilesprite);
+  tm.getCellByIndex(i).addGraphic(tilesprite);
 }
 
 game.add(tm);
