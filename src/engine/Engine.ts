@@ -108,7 +108,7 @@ export interface EngineOptions {
   /**
    * Optionally snap drawings to nearest pixel
    */
-  snapToPixel?: boolean
+  snapToPixel?: boolean;
 
   /**
    * The [[DisplayMode]] of the game. Depending on this value, [[width]] and [[height]] may be ignored.
@@ -298,12 +298,12 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * The default [[Scene]] of the game, use [[Engine.goToScene]] to transition to different scenes.
    */
-  public rootScene: Scene;
+  public readonly rootScene: Scene;
 
   /**
    * Contains all the scenes currently registered with Excalibur
    */
-  public scenes: { [key: string]: Scene } = {};
+  public readonly scenes: { [key: string]: Scene } = {};
 
   private _animations: AnimationNode[] = [];
 
@@ -615,7 +615,6 @@ O|===|* >________________>\n\
     this.rootScene = this.currentScene = new Scene(this);
 
     this.addScene('root', this.rootScene);
-    this.goToScene('root');
   }
 
   /**
@@ -955,6 +954,7 @@ O|===|* >________________>\n\
       this.onInitialize(engine);
       super.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
+      this.goToScene('root');
     }
   }
 

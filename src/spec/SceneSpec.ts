@@ -1,4 +1,6 @@
 import * as ex from '@excalibur';
+import { Scene } from '@excalibur';
+import { Mocks } from './util/Mocks';
 import { TestUtils } from './util/TestUtils';
 
 describe('A scene', () => {
@@ -231,6 +233,19 @@ describe('A scene', () => {
     scene.draw(engine.ctx, 100);
 
     expect(actor.draw).not.toHaveBeenCalled();
+  });
+
+  it('initializes after start or play in first update', () => {
+    const mock = new Mocks.Mocker();
+    const scene = new Scene();
+    spyOn(scene, 'onInitialize');
+    engine.addScene('root', scene);
+
+    const loop = mock.loop(engine);
+    engine.start();
+    loop.advance(100);
+
+    expect(scene.onInitialize).toHaveBeenCalledTimes(1);
   });
 
   it('fires initialize before activate', (done) => {
@@ -529,7 +544,6 @@ describe('A scene', () => {
     beforeEach(() => {
       engine = TestUtils.engine({ width: 100, height: 100 });
       scene = new ex.Scene(engine);
-      engine.currentScene = scene;
       engine.removeScene('root');
       engine.addScene('root', scene);
     });

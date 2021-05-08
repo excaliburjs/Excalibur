@@ -20,7 +20,7 @@ xdescribe('A label', () => {
     label = new ex.Label('Test string', 100, 100);
     label.fontFamily = 'Verdana';
     scene = new ex.Scene(engine);
-    engine.currentScene = scene;
+    engine.addScene('root', scene);
 
     scene.add(label);
 
