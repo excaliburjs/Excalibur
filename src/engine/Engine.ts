@@ -384,6 +384,8 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   private _isInitialized: boolean = false;
 
+  private _deferredGoTo: string = null;
+
   public on(eventName: Events.initialize, handler: (event: Events.InitializeEvent<Engine>) => void): void;
   public on(eventName: Events.visible, handler: (event: VisibleEvent) => void): void;
   public on(eventName: Events.hidden, handler: (event: HiddenEvent) => void): void;
@@ -777,7 +779,12 @@ O|===|* >________________>\n\
     if (arguments.length === 2) {
       this.addScene(<string>arguments[0], <Scene>arguments[1]);
     }
-    this.currentScene.add(entity);
+    if (this._deferredGoTo && this.scenes[this._deferredGoTo]) {
+      this.scenes[this._deferredGoTo].add(entity);
+    } else {
+      this.currentScene.add(entity);
+    }
+
   }
 
   /**
@@ -832,6 +839,12 @@ O|===|* >________________>\n\
    * @param key  The key of the scene to transition to.
    */
   public goToScene(key: string) {
+    // if not yet initialized defer goToScene
+    if (!this.isInitialized) {
+      this._deferredGoTo = key;
+      return;
+    }
+
     if (this.scenes[key]) {
       const oldScene = this.currentScene;
       const newScene = this.scenes[key];
@@ -954,7 +967,11 @@ O|===|* >________________>\n\
       this.onInitialize(engine);
       super.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
-      this.goToScene('root');
+      if (this._deferredGoTo) {
+        this.goToScene(this._deferredGoTo);
+      } else {
+        this.goToScene('root');
+      }
     }
   }
 

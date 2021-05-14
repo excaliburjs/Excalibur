@@ -11,6 +11,8 @@ module.exports = (config) => {
     singleRun: true,
     frameworks: ['jasmine'],
     client: {
+      // Excalibur logs / console logs suppressed when captureConsole = false;
+      captureConsole: false,
       jasmine: {
         timeoutInterval: 30000
       }
