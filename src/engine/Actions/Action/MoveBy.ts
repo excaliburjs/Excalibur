@@ -1,7 +1,7 @@
-import { Actor } from '../Actor';
-import { vec, Vector } from '../Algebra';
-import { Logger } from '../Util/Log';
-import { Action } from './Action';
+import { Actor } from '../../Actor';
+import { vec, Vector } from '../../Algebra';
+import { Logger } from '../../Util/Log';
+import { Action } from '../Action';
 
 export class MoveBy implements Action {
   private _actor: Actor;

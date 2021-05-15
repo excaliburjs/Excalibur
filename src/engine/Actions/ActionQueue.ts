@@ -2,7 +2,7 @@ import { Actor } from '../Actor';
 import { Action } from './Action';
 
 /**
- * Action Queues
+ * Action Queues represent an ordered sequence of actions
  *
  * Action queues are part of the [[ActionContext|Action API]] and
  * store the list of actions to be executed for an [[Actor]].
@@ -20,15 +20,26 @@ export class ActionQueue {
     this._actor = actor;
   }
 
+  /**
+   * Add an action to the sequence
+   * @param action
+   */
   public add(action: Action) {
     this._actions.push(action);
   }
 
+  /**
+   * Remove an action by reference from the sequence
+   * @param action
+   */
   public remove(action: Action) {
     const index = this._actions.indexOf(action);
     this._actions.splice(index, 1);
   }
 
+  /**
+   * Removes all actions from this sequence
+   */
   public clearActions(): void {
     this._actions.length = 0;
     this._completedActions.length = 0;
@@ -37,18 +48,32 @@ export class ActionQueue {
     }
   }
 
+  /**
+   *
+   * @returns The total list of actions in this sequence complete or not
+   */
   public getActions(): Action[] {
     return this._actions.concat(this._completedActions);
   }
 
+  /**
+   *
+   * @returns `true` if there are more actions to process in the sequence
+   */
   public hasNext(): boolean {
     return this._actions.length > 0;
   }
 
+  /**
+   * @returns `true` if the current sequence of actions is done
+   */
   public isComplete(): boolean {
     return this._actions.length === 0;
   }
 
+  /**
+   * Resets the sequence of actions, this is used to restart a sequence from the beginning
+   */
   public reset(): void {
     this._actions = this.getActions();
 
@@ -59,10 +84,14 @@ export class ActionQueue {
     this._completedActions = [];
   }
 
-  public update(delta: number) {
+  /**
+   * Update the queue which updates actions and handles completing actions
+   * @param elapsedMs
+   */
+  public update(elapsedMs: number) {
     if (this._actions.length > 0) {
       this._currentAction = this._actions[0];
-      this._currentAction.update(delta);
+      this._currentAction.update(elapsedMs);
 
       if (this._currentAction.isComplete(this._actor)) {
         this._completedActions.push(this._actions.shift());

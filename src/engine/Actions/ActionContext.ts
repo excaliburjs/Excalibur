@@ -3,10 +3,22 @@ import { RotationType } from './RotationType';
 import { Actor } from '../Actor';
 import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
 import { ActionQueue } from './ActionQueue';
-import { Blink, CallMethod, Delay, Die, EaseTo, Fade, Follow, Meet, MoveTo, RotateBy, RotateTo, ScaleBy, ScaleTo } from './Action';
-import { Repeat } from './Repeat';
-import { RepeatForever } from './RepeatForever';
-import { MoveBy } from './MoveBy';
+import { Repeat } from './Action/Repeat';
+import { RepeatForever } from './Action/RepeatForever';
+import { MoveBy } from './Action/MoveBy';
+import { MoveTo } from './Action/MoveTo';
+import { RotateTo } from './Action/RotateTo';
+import { RotateBy } from './Action/RotateBy';
+import { ScaleTo } from './Action/ScaleTo';
+import { ScaleBy } from './Action/ScaleBy';
+import { CallMethod } from './Action/CallMethod';
+import { EaseTo } from './Action/EaseTo';
+import { Blink } from './Action/Blink';
+import { Fade } from './Action/Fade';
+import { Delay } from './Action/Delay';
+import { Die } from './Action/Die';
+import { Follow } from './Action/Follow';
+import { Meet } from './Action/Meet';
 
 /**
  * The fluent Action API allows you to perform "actions" on
@@ -189,10 +201,20 @@ export class ActionContext {
   }
 
   /**
-   * This method will cause the actor to repeat all of the previously
-   * called actions a certain number of times. If the number of repeats
+   * This method will cause the actor to repeat all of the actions built in
+   * the `repeatBuilder` callback. If the number of repeats
    * is not specified it will repeat forever. This method is part of
    * the actor 'Action' fluent API allowing action chaining
+   *
+   * ```typescript
+   * // Move up in a zig-zag by repeated moveBy's
+   * actor.actions.repeat(repeatCtx => {
+   *  repeatCtx.moveBy(10, 0, 10);
+   *  repeatCtx.moveBy(0, 10, 10);
+   * }, 5);
+   * ```
+   *
+   * @param repeatBuilder The builder to specify the repeatable list of actions
    * @param times  The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions
    * will repeat forever
    */
@@ -207,9 +229,20 @@ export class ActionContext {
   }
 
   /**
-   * This method will cause the actor to repeat all of the previously
-   * called actions forever. This method is part of the actor 'Action'
-   * fluent API allowing action chaining.
+   * This method will cause the actor to repeat all of the actions built in
+   * the `repeatBuilder` callback. If the number of repeats
+   * is not specified it will repeat forever. This method is part of
+   * the actor 'Action' fluent API allowing action chaining
+   *
+   * ```typescript
+   * // Move up in a zig-zag by repeated moveBy's
+   * actor.actions.repeat(repeatCtx => {
+   *  repeatCtx.moveBy(10, 0, 10);
+   *  repeatCtx.moveBy(0, 10, 10);
+   * }, 5);
+   * ```
+   *
+   * @param repeatBuilder The builder to specify the repeatable list of actions
    */
   public repeatForever(repeatBuilder: (repeatContext: ActionContext) => any): ActionContext {
     this._queue.add(new RepeatForever(this._actor, repeatBuilder));
