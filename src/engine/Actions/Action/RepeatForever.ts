@@ -28,7 +28,8 @@ export class RepeatForever implements Action {
     }
 
     if (this._actionQueue.isComplete()) {
-      this._actionQueue.reset();
+      this._actionQueue.clearActions();
+      this._repeatBuilder(this._repeatContext);
     }
 
     this._actionQueue.update(delta);

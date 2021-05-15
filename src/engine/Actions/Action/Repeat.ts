@@ -24,7 +24,8 @@ export class Repeat implements Action {
 
   public update(delta: number): void {
     if (this._actionQueue.isComplete()) {
-      this._actionQueue.reset();
+      this._actionQueue.clearActions();
+      this._repeatBuilder(this._repeatContext);
       this._repeat--;
     }
     this._actionQueue.update(delta);

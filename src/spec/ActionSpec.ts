@@ -265,6 +265,20 @@ describe('Action', () => {
       expect(repeatCallback).toHaveBeenCalledTimes(11);
     });
 
+    it('recalls the builder every repeat', () => {
+      const repeatCallback = jasmine.createSpy('repeat');
+      actor.actions.repeat((ctx) => {
+        ctx.delay(200);
+        repeatCallback();
+      }, 33);
+      // Overshoot
+      for (let i = 0; i < 50; i++) {
+        actor.update(engine, 200);
+      }
+      // should run an action per update
+      expect(repeatCallback).toHaveBeenCalledTimes(33);
+    });
+
     it('can repeat moveBy X times', () => {
       const repeatCallback = jasmine.createSpy('repeat');
       actor.actions.repeat((ctx) => {
@@ -396,6 +410,20 @@ describe('Action', () => {
 
         actor.update(engine, 1);
       }
+    });
+
+    it('recalls the builder every repeat', () => {
+      const repeatCallback = jasmine.createSpy('repeat');
+      actor.actions.repeatForever((ctx) => {
+        ctx.delay(200);
+        repeatCallback();
+      });
+      // Overshoot
+      for (let i = 0; i < 33; i++) {
+        actor.update(engine, 200);
+      }
+      // should run an action per update
+      expect(repeatCallback).toHaveBeenCalledTimes(33);
     });
 
     it('can be stopped', () => {
