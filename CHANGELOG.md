@@ -7,6 +7,22 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `Actor.actions.repeat()` and `Actor.actions.repeatForever()` now require a handler that specifies the actions to repeat. This is more clear and helps prevent bugs like #1891
+
+  ```typescript
+  const actor = new ex.Actor();
+
+  actor.actions
+    // Move up in a zig-zag by repeating 5 times
+    .repeat((ctx) => {
+      ctx.moveBy(10, 0, 10);
+      ctx.moveBy(0, 10, 10);
+    }, 5)
+    .callMethod(() => {
+      console.log('Done repeating!');
+    });
+  ```
+
 - Removes `Entity.components` as a way to access, add, and remove components
 - Camera.z has been renamed to property `zoom` which is the zoom factor
 - Camera.zoom(...) has been renamed to function `zoomOverTime()`
@@ -63,6 +79,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed N+1 repeat/repeatForever bug ([#1891](https://github.com/excaliburjs/Excalibur/issues/1891))
 - Entity update lifecycle is now called correctly
 - Fixed GraphicsSystem `enterviewport` and `exitviewport` event
 - Fixed DOM element leak when restarting games, play button elements piled up in the DOM.
