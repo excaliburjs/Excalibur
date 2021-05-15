@@ -31,7 +31,6 @@ import { CanInitialize, CanUpdate, CanDraw, CanBeKilled } from './Interfaces/Lif
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
-import { ActionQueue } from './Actions/Action';
 import { vec, Vector } from './Algebra';
 import { Body } from './Collision/Body';
 import { Eventable } from './Interfaces/Evented';
@@ -85,9 +84,7 @@ export interface ActorDefaults {
  * @hidden
  */
 
-export class ActorImpl
-  extends Entity
-  implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
+export class ActorImpl extends Entity implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
   /**
@@ -151,7 +148,7 @@ export class ActorImpl
    * Sets the velocity vector of the actor in pixels/sec
    */
   public set vel(theVel: Vector) {
-    this.body.vel.setTo(theVel.x, theVel.y);
+    this.body.vel = theVel;
   }
 
   /**
@@ -334,11 +331,6 @@ export class ActorImpl
   public previousOpacity: number = 1;
 
   /**
-   * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
-   */
-  public actionQueue: ActionQueue;
-
-  /**
    * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
    */
   public actions: ActionContext;
@@ -460,11 +452,7 @@ export class ActorImpl
    * initial [[opacity]].
    */
   constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
-    super([
-      new TransformComponent(),
-      new GraphicsComponent(),
-      new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta))
-    ]);
+    super([new TransformComponent(), new GraphicsComponent(), new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta))]);
 
     this.transform = this.get(TransformComponent);
     this.graphics = this.get(GraphicsComponent);
@@ -543,7 +531,6 @@ export class ActorImpl
     this.traits.push(new Traits.CapturePointer());
 
     // Build the action queue
-    this.actionQueue = new ActionQueue(this);
     this.actions = new ActionContext(this);
   }
 
@@ -1107,8 +1094,8 @@ export class ActorImpl
       drawing.tick(delta, engine.stats.currFrame.id);
     }
 
-    // Update action queue
-    this.actionQueue.update(delta);
+    // Update action context
+    this.actions.update(delta);
 
     // Update color only opacity
     if (this.color) {

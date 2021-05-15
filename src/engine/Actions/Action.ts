@@ -133,61 +133,6 @@ export class MoveTo implements Action {
   }
 }
 
-export class MoveBy implements Action {
-  private _actor: Actor;
-  public x: number;
-  public y: number;
-  private _distance: number;
-  private _speed: number;
-
-  private _start: Vector;
-  private _offset: Vector;
-  private _end: Vector;
-  private _dir: Vector;
-  private _started = false;
-  private _stopped = false;
-
-  constructor(actor: Actor, offsetX: number, offsetY: number, speed: number) {
-    this._actor = actor;
-    this._speed = speed;
-    this._offset = new Vector(offsetX, offsetY);
-    if (speed <= 0) {
-      Logger.getInstance().error('Attempted to moveBy with speed less than or equal to zero : ' + speed);
-      throw new Error('Speed must be greater than 0 pixels per second');
-    }
-  }
-
-  public update(_delta: number) {
-    if (!this._started) {
-      this._started = true;
-      this._start = new Vector(this._actor.pos.x, this._actor.pos.y);
-      this._end = this._start.add(this._offset);
-      this._distance = this._offset.size;
-      this._dir = this._end.sub(this._start).normalize();
-    }
-
-    this._actor.vel = this._dir.scale(this._speed);
-
-    if (this.isComplete(this._actor)) {
-      this._actor.pos = vec(this._end.x, this._end.y);
-      this._actor.vel = vec(0, 0);
-    }
-  }
-
-  public isComplete(actor: Actor): boolean {
-    return this._stopped || actor.pos.distance(this._start) >= this._distance;
-  }
-
-  public stop(): void {
-    this._actor.vel = vec(0, 0);
-    this._stopped = true;
-  }
-
-  public reset(): void {
-    this._started = false;
-  }
-}
-
 export class Follow implements Action {
   private _actor: Actor;
   private _actorToFollow: Actor;
@@ -399,7 +344,7 @@ export class RotateTo implements Action {
     }
 
     this._actor.rx = this._direction * this._speed;
-    this._currentNonCannonAngle += (this._direction * this._speed) * (_delta / 1000);
+    this._currentNonCannonAngle += this._direction * this._speed * (_delta / 1000);
 
     if (this.isComplete()) {
       this._actor.rotation = this._end;
@@ -504,7 +449,7 @@ export class RotateBy implements Action {
     }
 
     this._actor.rx = this._direction * this._speed;
-    this._currentNonCannonAngle += (this._direction * this._speed) * (_delta / 1000);
+    this._currentNonCannonAngle += this._direction * this._speed * (_delta / 1000);
 
     if (this.isComplete()) {
       this._actor.rotation = this._end;
@@ -820,7 +765,7 @@ export class Die implements Action {
   }
 
   public update(_delta: number): void {
-    this._actor.actionQueue.clearActions();
+    this._actor.actions.clearActions();
     this._actor.kill();
     this._stopped = true;
   }
@@ -842,15 +787,13 @@ export class CallMethod implements Action {
   public x: number;
   public y: number;
   private _method: () => any = null;
-  private _actor: Actor = null;
   private _hasBeenCalled: boolean = false;
-  constructor(actor: Actor, method: () => any) {
-    this._actor = actor;
+  constructor(method: () => any) {
     this._method = method;
   }
 
   public update(_delta: number) {
-    this._method.call(this._actor);
+    this._method();
     this._hasBeenCalled = true;
   }
   public isComplete() {
@@ -861,160 +804,5 @@ export class CallMethod implements Action {
   }
   public stop() {
     this._hasBeenCalled = true;
-  }
-}
-
-export class Repeat implements Action {
-  public x: number;
-  public y: number;
-  private _actor: Actor;
-  private _actionQueue: ActionQueue;
-  private _repeat: number;
-  private _originalRepeat: number;
-  private _stopped: boolean = false;
-  constructor(actor: Actor, repeat: number, actions: Action[]) {
-    this._actor = actor;
-    this._actionQueue = new ActionQueue(actor);
-    this._repeat = repeat;
-    this._originalRepeat = repeat;
-
-    const len = actions.length;
-    for (let i = 0; i < len; i++) {
-      actions[i].reset();
-      this._actionQueue.add(actions[i]);
-    }
-  }
-
-  public update(delta: number): void {
-    this.x = this._actor.pos.x;
-    this.y = this._actor.pos.y;
-    if (!this._actionQueue.hasNext()) {
-      this._actionQueue.reset();
-      this._repeat--;
-    }
-    this._actionQueue.update(delta);
-  }
-
-  public isComplete(): boolean {
-    return this._stopped || this._repeat <= 0;
-  }
-
-  public stop(): void {
-    this._stopped = true;
-  }
-
-  public reset(): void {
-    this._repeat = this._originalRepeat;
-  }
-}
-
-export class RepeatForever implements Action {
-  public x: number;
-  public y: number;
-  private _actor: Actor;
-  private _actionQueue: ActionQueue;
-  private _stopped: boolean = false;
-  constructor(actor: Actor, actions: Action[]) {
-    this._actor = actor;
-    this._actionQueue = new ActionQueue(actor);
-
-    const len = actions.length;
-    for (let i = 0; i < len; i++) {
-      actions[i].reset();
-      this._actionQueue.add(actions[i]);
-    }
-  }
-
-  public update(delta: number): void {
-    this.x = this._actor.pos.x;
-    this.y = this._actor.pos.y;
-    if (this._stopped) {
-      return;
-    }
-
-    if (!this._actionQueue.hasNext()) {
-      this._actionQueue.reset();
-    }
-
-    this._actionQueue.update(delta);
-  }
-
-  public isComplete(): boolean {
-    return this._stopped;
-  }
-
-  public stop(): void {
-    this._stopped = true;
-    this._actionQueue.clearActions();
-  }
-
-  public reset(): void {
-    return;
-  }
-}
-
-/**
- * Action Queues
- *
- * Action queues are part of the [[ActionContext|Action API]] and
- * store the list of actions to be executed for an [[Actor]].
- *
- * Actors implement [[Actor.actions]] which can be manipulated by
- * advanced users to adjust the actions currently being executed in the
- * queue.
- */
-export class ActionQueue {
-  private _actor: Actor;
-  private _actions: Action[] = [];
-  private _currentAction: Action;
-  private _completedActions: Action[] = [];
-  constructor(actor: Actor) {
-    this._actor = actor;
-  }
-
-  public add(action: Action) {
-    this._actions.push(action);
-  }
-
-  public remove(action: Action) {
-    const index = this._actions.indexOf(action);
-    this._actions.splice(index, 1);
-  }
-
-  public clearActions(): void {
-    this._actions.length = 0;
-    this._completedActions.length = 0;
-    if (this._currentAction) {
-      this._currentAction.stop();
-    }
-  }
-
-  public getActions(): Action[] {
-    return this._actions.concat(this._completedActions);
-  }
-
-  public hasNext(): boolean {
-    return this._actions.length > 0;
-  }
-
-  public reset(): void {
-    this._actions = this.getActions();
-
-    const len = this._actions.length;
-    for (let i = 0; i < len; i++) {
-      this._actions[i].reset();
-    }
-    this._completedActions = [];
-  }
-
-  public update(delta: number) {
-    if (this._actions.length > 0) {
-      this._currentAction = this._actions[0];
-      this._currentAction.update(delta);
-
-      if (this._currentAction.isComplete(this._actor)) {
-        this._completedActions.push(this._actions.shift());
-      }
-    }
   }
 }
