@@ -35,15 +35,14 @@ describe('Action', () => {
 
     it('can blink at a frequency forever', () => {
       expect(actor.visible).toBe(true);
-      actor.actions.blink(200, 200).repeatForever();
+      actor.actions.repeatForever((ctx) => ctx.blink(200, 200));
+      actor.update(engine, 200);
 
       for (let i = 0; i < 2; i++) {
-        actor.update(engine, 200);
         expect(actor.visible).toBe(false);
-
         actor.update(engine, 200);
-        expect(actor.visible).toBe(true);
 
+        expect(actor.visible).toBe(true);
         actor.update(engine, 200);
       }
     });
@@ -254,11 +253,65 @@ describe('Action', () => {
   });
 
   describe('repeat', () => {
+    it('can repeat X times', () => {
+      const repeatCallback = jasmine.createSpy('repeat');
+      actor.actions.repeat((ctx) => {
+        ctx.callMethod(repeatCallback);
+      }, 11);
+      for (let i = 0; i < 12; i++) {
+        actor.update(engine, 200);
+      }
+      // should run an action per update
+      expect(repeatCallback).toHaveBeenCalledTimes(11);
+    });
+
+    it('recalls the builder every repeat', () => {
+      const repeatCallback = jasmine.createSpy('repeat');
+      actor.actions.repeat((ctx) => {
+        ctx.delay(200);
+        repeatCallback();
+      }, 33);
+      // Overshoot
+      for (let i = 0; i < 50; i++) {
+        actor.update(engine, 200);
+      }
+      // should run an action per update
+      expect(repeatCallback).toHaveBeenCalledTimes(33);
+    });
+
+    it('can repeat moveBy X times', () => {
+      const repeatCallback = jasmine.createSpy('repeat');
+      actor.actions.repeat((ctx) => {
+        ctx.moveBy(10, 0, 10); // move 10 pixels right at 10 px/sec
+        ctx.callMethod(repeatCallback);
+      }, 11);
+
+      // Over shoot
+      for (let i = 0; i < 50; i++) {
+        actor.update(engine, 1000);
+      }
+      // should run an action per update
+      expect(actor.pos.x).toBe(110);
+      expect(actor.vel).toBeVector(ex.Vector.Zero);
+      expect(repeatCallback).toHaveBeenCalledTimes(11);
+    });
+
+    it('can repeat 1 time', () => {
+      const repeatCallback = jasmine.createSpy('repeat');
+      actor.actions.repeat((ctx) => {
+        ctx.callMethod(repeatCallback);
+      }, 1);
+      for (let i = 0; i < 20; i++) {
+        actor.actions.update(200);
+      }
+      expect(repeatCallback).toHaveBeenCalledTimes(1);
+    });
+
     it('can repeat previous actions', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
+      actor.actions.repeat((ctx) => ctx.moveTo(20, 0, 10).moveTo(0, 0, 10));
 
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
@@ -295,7 +348,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeat();
+      actor.actions.repeat((ctx) => ctx.moveTo(20, 0, 10).moveTo(0, 0, 10));
 
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
@@ -335,7 +388,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
+      actor.actions.repeatForever((ctx) => ctx.moveTo(20, 0, 10).moveTo(0, 0, 10));
 
       for (let i = 0; i < 20; i++) {
         actor.update(engine, 1000);
@@ -359,11 +412,25 @@ describe('Action', () => {
       }
     });
 
+    it('recalls the builder every repeat', () => {
+      const repeatCallback = jasmine.createSpy('repeat');
+      actor.actions.repeatForever((ctx) => {
+        ctx.delay(200);
+        repeatCallback();
+      });
+      // Overshoot
+      for (let i = 0; i < 33; i++) {
+        actor.update(engine, 200);
+      }
+      // should run an action per update
+      expect(repeatCallback).toHaveBeenCalledTimes(33);
+    });
+
     it('can be stopped', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      actor.actions.moveTo(20, 0, 10).moveTo(0, 0, 10).repeatForever();
+      actor.actions.repeatForever((ctx) => ctx.moveTo(20, 0, 10).moveTo(0, 0, 10));
 
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(10);
@@ -685,7 +752,7 @@ describe('Action', () => {
     it('can go back and forth from 0 to 1 more than once (#512)', () => {
       actor.opacity = 0;
 
-      actor.actions.fade(1, 200).fade(0, 200).repeat(1);
+      actor.actions.repeat((ctx) => ctx.fade(1, 200).fade(0, 200), 1);
       for (let i = 0; i < 40; i++) {
         actor.update(engine, 20);
       }

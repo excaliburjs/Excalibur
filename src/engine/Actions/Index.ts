@@ -1,9 +1,20 @@
 export * from './ActionContext';
+export * from './ActionQueue';
 export * from './Actionable';
 export * from './RotationType';
 
-import * as actions from './Action';
-export { actions as Actions };
+export * from './Action/Repeat';
+export * from './Action/RepeatForever';
 
-// legacy Internal.Actions namespace support
-export const Internal = { Actions: actions };
+export * from './Action/Blink';
+export * from './Action/Die';
+export * from './Action/EaseTo';
+export * from './Action/Fade';
+export * from './Action/Follow';
+export * from './Action/Meet';
+export * from './Action/MoveBy';
+export * from './Action/MoveTo';
+export * from './Action/RotateBy';
+export * from './Action/RotateTo';
+export * from './Action/ScaleBy';
+export * from './Action/ScaleTo';
