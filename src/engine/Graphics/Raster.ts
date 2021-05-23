@@ -203,7 +203,7 @@ export abstract class Raster extends Graphic {
    */
   public rasterize(): void {
     this._dirty = false;
-    this._ctx.clearRect(0, 0, this.width, this.height);
+    this._ctx.clearRect(0, 0, this._getTotalWidth(), this._getTotalHeight());
     this._ctx.save();
     this._applyRasterProperites(this._ctx);
     this.execute(this._ctx);
