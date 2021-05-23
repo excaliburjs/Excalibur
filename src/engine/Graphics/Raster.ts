@@ -39,7 +39,7 @@ export abstract class Raster extends Graphic {
     }
 
     this._bitmap = document.createElement('canvas');
-    // get the default canvasi width as a fallback
+    // get the default canvas width/height as a fallback
     const bitmapWidth = options?.width ?? this._bitmap.width;
     const bitmapHeight = options?.height ?? this._bitmap.height;
     // Rasters use power of two images as an optimization for webgl
