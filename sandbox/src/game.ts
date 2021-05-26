@@ -390,19 +390,19 @@ for (var i = 0; i < 36; i++) {
 var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
 platform.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(0, 200, 0), width: 200, height: 50 }));
 platform.body.collider.type = ex.CollisionType.Fixed;
-platform.actions.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100).repeatForever();
+platform.actions.repeatForever(ctx => ctx.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100));
 game.add(platform);
 
 var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
 platform2.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(0, 0, 140), width: 200, height: 20 }));
 platform2.body.collider.type = ex.CollisionType.Fixed;
-platform2.actions.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100).repeatForever();
+platform2.actions.repeatForever(ctx => ctx.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100));
 game.add(platform2);
 
 var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
 platform3.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(50, 0, 100), width: 200, height: 20 }));
 platform3.body.collider.type = ex.CollisionType.Fixed;
-platform3.actions.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800).repeatForever();
+platform3.actions.repeatForever(ctx => ctx.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800));
 game.add(platform3);
 
 var platform4 = new ex.Actor(75, 300, 100, 50, ex.Color.Azure);
