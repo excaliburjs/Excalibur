@@ -79,6 +79,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue with Raster padding which caused images to grow over time ([#1897](https://github.com/excaliburjs/Excalibur/issues/1897))
 - Fixed N+1 repeat/repeatForever bug ([#1891](https://github.com/excaliburjs/Excalibur/issues/1891))
 - Fixed repeat/repeatForever issue with `rotateTo` ([#635](https://github.com/excaliburjs/Excalibur/issues/635))
 - Entity update lifecycle is now called correctly

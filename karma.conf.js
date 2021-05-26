@@ -11,6 +11,7 @@ module.exports = (config) => {
     singleRun: true,
     frameworks: ['jasmine'],
     client: {
+      captureConsole: false,
       jasmine: {
         timeoutInterval: 30000
       }
