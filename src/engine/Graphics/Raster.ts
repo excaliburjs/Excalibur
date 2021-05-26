@@ -86,7 +86,7 @@ export abstract class Raster extends Graphic {
    * to be flagged dirty causing a re-raster on the next draw.
    */
   public get width() {
-    return this._bitmap.width;
+    return this._originalWidth;
   }
   public set width(value: number) {
     this._bitmap.width = value;
@@ -100,7 +100,7 @@ export abstract class Raster extends Graphic {
    * to be flagged dirty causing a re-raster on the next draw.
    */
   public get height() {
-    return this._bitmap.height;
+    return this._originalHeight;
   }
 
   public set height(value: number) {
@@ -117,6 +117,9 @@ export abstract class Raster extends Graphic {
     return (this._originalHeight ?? this._bitmap.height) + this.padding * 2;
   }
 
+  /**
+   * Returns the local bounds of the Raster including the padding
+   */
   public get localBounds() {
     return BoundingBox.fromDimension(this._getTotalWidth() * this.scale.x, this._getTotalHeight() * this.scale.y, Vector.Zero);
   }
