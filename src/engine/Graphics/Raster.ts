@@ -84,9 +84,11 @@ export abstract class Raster extends Graphic {
   /**
    * Gets or sets the current width of the Raster graphic. Setting the width will cause the raster
    * to be flagged dirty causing a re-raster on the next draw.
+   *
+   * Any `padding`s set will be factored into the width
    */
   public get width() {
-    return this._originalWidth;
+    return this._getTotalWidth();
   }
   public set width(value: number) {
     this._bitmap.width = value;
@@ -98,9 +100,11 @@ export abstract class Raster extends Graphic {
   /**
    * Gets or sets the current height of the Raster graphic. Setting the height will cause the raster
    * to be flagged dirty causing a re-raster on the next draw.
+   *
+   * Any `padding` set will be factored into the height
    */
   public get height() {
-    return this._originalHeight;
+    return this._getTotalHeight();
   }
 
   public set height(value: number) {
