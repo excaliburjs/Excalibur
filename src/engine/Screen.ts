@@ -38,6 +38,8 @@ export enum DisplayMode {
    */
   Fit = 'Fit',
 
+  FitContainer = 'FitContainer',
+
   /**
    * Fill the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will
    * change dynamically as the window is resized. This is not the same as [[Screen.goFullScreen]]
@@ -611,6 +613,25 @@ export class Screen {
     };
   }
 
+  private _computeFitContainer() {
+    const aspect = this.aspectRatio;
+    let adjustedWidth = 0;
+    let adjustedHeight = 0;
+    let parent = this.canvas.parentElement;
+    if (parent.clientWidth / aspect < parent.clientHeight) {
+      adjustedWidth = parent.clientWidth;
+      adjustedHeight = parent.clientWidth / aspect;
+    } else {
+      adjustedWidth = parent.clientHeight * aspect;
+      adjustedHeight = parent.clientHeight;
+    }
+
+    this.viewport = {
+      width: adjustedWidth,
+      height: adjustedHeight
+    };
+  }
+
   private _applyDisplayMode() {
     if (this.displayMode === DisplayMode.Fit || this.displayMode === DisplayMode.Fill || this.displayMode === DisplayMode.Container) {
       const parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
@@ -649,6 +670,10 @@ export class Screen {
 
     if (this.displayMode === DisplayMode.Fit) {
       this._computeFit();
+    }
+
+    if (this.displayMode === DisplayMode.FitContainer) {
+      this._computeFitContainer();
     }
   }
 
