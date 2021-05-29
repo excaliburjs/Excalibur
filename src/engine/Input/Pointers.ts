@@ -19,6 +19,8 @@ import { GlobalCoordinates, vec, Vector } from '../Algebra';
 import { CapturePointer } from '../Traits/CapturePointer';
 import { Actor } from '../Actor';
 
+export type DOMPointerEvent = globalThis.PointerEvent;
+
 interface TouchEvent extends Event {
   altKey: boolean;
   changedTouches: Touch[];
@@ -186,16 +188,16 @@ export class Pointers extends Class {
 
     switch (eventName) {
       case 'move':
-        this._handlePointerEvent(eventName, this._pointerMove, coords)(eventish as MSPointerEvent);
+        this._handlePointerEvent(eventName, this._pointerMove, coords)(eventish as DOMPointerEvent);
         break;
       case 'down':
-        this._handlePointerEvent(eventName, this._pointerDown, coords)(eventish as MSPointerEvent);
+        this._handlePointerEvent(eventName, this._pointerDown, coords)(eventish as DOMPointerEvent);
         break;
       case 'up':
-        this._handlePointerEvent(eventName, this._pointerUp, coords)(eventish as MSPointerEvent);
+        this._handlePointerEvent(eventName, this._pointerUp, coords)(eventish as DOMPointerEvent);
         break;
       case 'cancel':
-        this._handlePointerEvent(eventName, this._pointerCancel, coords)(eventish as MSPointerEvent);
+        this._handlePointerEvent(eventName, this._pointerCancel, coords)(eventish as DOMPointerEvent);
         break;
     }
     for (const actor of this._engine.currentScene.actors) {
@@ -413,7 +415,7 @@ export class Pointers extends Class {
   }
 
   private _handlePointerEvent(eventName: string, eventArr: PointerEvent[], coords?: GlobalCoordinates) {
-    return (e: MSPointerEvent) => {
+    return (e: DOMPointerEvent) => {
       e.preventDefault();
 
       // get the index for this pointer ID if multi-pointer is asked for
