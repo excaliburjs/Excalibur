@@ -111,7 +111,9 @@ describe('A Raster', () => {
     expect(sut.localBounds.height).toBe(50);
     sut.padding = 4;
     expect(sut.localBounds.width).toBe(58);
+    expect(sut.width).toBe(58);
     expect(sut.localBounds.height).toBe(58);
+    expect(sut.height).toBe(58);
 
     sut.flagDirty();
     sut.draw(ctx, 0, 0);
