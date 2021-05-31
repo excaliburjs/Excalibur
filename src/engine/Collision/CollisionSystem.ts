@@ -9,11 +9,11 @@ import { CollisionResolutionStrategy, Physics } from './Physics';
 import { Scene } from '../Scene';
 import { DrawUtil } from '../Util/Index';
 import { BodyComponent } from './Body';
-import { BoxSolver } from './Solver/BoxSolver';
+import { ArcadeSolver } from './Solver/ArcadeSolver';
 import { Collider } from './Shapes/Collider';
 import { CollisionContact } from './Detection/CollisionContact';
 import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
-import { RigidBodySolver } from './Solver/RigidBodySolver';
+import { RealisticSolver } from './Solver/RealisticSolver';
 import { CollisionSolver } from './Solver/Solver';
 // import { CollisionType } from './CollisionType';
 
@@ -22,8 +22,8 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
   public systemType = SystemType.Update;
   public priority = -1;
 
-  private _rigidBodySolver = new RigidBodySolver();
-  private _boxSolver = new BoxSolver();
+  private _realisticSolver = new RealisticSolver();
+  private _arcadeSolver = new ArcadeSolver();
   private _processor = new DynamicTreeCollisionProcessor();
   private _lastFrameContacts = new Map<string, CollisionContact>();
   private _currentFrameContacts = new Map<string, CollisionContact>();
@@ -81,12 +81,15 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     this._currentFrameContacts.clear();
 
     // Given possible pairs find actual contacts
-    const contacts = this._processor.narrowphase(pairs);
+    let contacts = this._processor.narrowphase(pairs);
 
     const solver: CollisionSolver = this.getSolver();
 
     // Events and init
     solver.preSolve(contacts);
+
+    // Remove any canceled contacts
+    contacts = contacts.filter(c => !c.isCanceled());
 
     // Solve velocity first
     solver.solveVelocity(contacts);
@@ -111,7 +114,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
   }
 
   getSolver(): CollisionSolver {
-    return Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Realistic ? this._rigidBodySolver : this._boxSolver;
+    return Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Realistic ? this._realisticSolver : this._arcadeSolver;
   }
 
   debugDraw(ctx: CanvasRenderingContext2D) {

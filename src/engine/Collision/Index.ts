@@ -19,9 +19,9 @@ export * from './Detection/CollisionProcessor';
 export * from './Detection/DynamicTree';
 export * from './Detection/DynamicTreeCollisionProcessor';
 
-export * from './Solver/BoxSolver'
+export * from './Solver/ArcadeSolver'
 export * from './Solver/ContactConstraintPoint'
-export * from './Solver/RigidBodySolver'
+export * from './Solver/RealisticSolver'
 export * from './Solver/Solver'
 
 export * from './CollisionSystem'

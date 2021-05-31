@@ -11,6 +11,8 @@ import { createId } from '../../Id';
  * Pair prevents collisions from being evaluated more than one time
  */
 export class CollisionContact {
+  private _canceled = false;
+
   /**
    * Currently the ids between colliders
    */
@@ -70,7 +72,7 @@ export class CollisionContact {
   /**
    * Match contact awake state, except if body's are Fixed
    */
-  public matchAwake() {
+  public matchAwake(): void {
     if (this.colliderA.owner.sleeping !== this.colliderB.owner.sleeping) {
       if (
         this.colliderA.owner.sleeping &&
@@ -87,5 +89,13 @@ export class CollisionContact {
         this.colliderB.owner.setSleeping(false);
       }
     }
+  }
+
+  public isCanceled() {
+    return this._canceled;
+  }
+
+  public cancel(): void {
+    this._canceled = true;
   }
 }

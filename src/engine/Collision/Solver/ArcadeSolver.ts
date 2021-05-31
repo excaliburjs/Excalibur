@@ -4,7 +4,14 @@ import { CollisionType } from '../CollisionType';
 import { Side } from '../Side';
 import { CollisionSolver } from './Solver';
 
-export class BoxSolver implements CollisionSolver {
+/**
+ * ArcadeSolver is the default in Excalibur. It solves collisions so that there is no overlap between contacts, 
+ * and negates velocity along the collision normal.
+ * 
+ * This is usually the type of collisions used for 2D games that don't need a more realistic collision simulation.
+ * 
+ */
+export class ArcadeSolver implements CollisionSolver {
   public preSolve(contacts: CollisionContact[]) {
     for (const contact of contacts) {
       const side = Side.fromDirection(contact.mtv);

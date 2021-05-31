@@ -1,4 +1,4 @@
-import { AfterCollisionResolveEvent, BeforeCollisionResolveEvent, PostCollisionEvent, PreCollisionEvent } from '../../Events';
+import { CollisionPostSolveEvent, CollisionPreSolveEvent, PostCollisionEvent, PreCollisionEvent } from '../../Events';
 import { clamp } from '../../Util/Util';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { CollisionType } from '../CollisionType';
@@ -9,7 +9,7 @@ import { Line, Vector } from '../../Algebra';
 import { Circle } from '../Shapes/Circle';
 import { ConvexPolygon } from '../Shapes/ConvexPolygon';
 
-export class RigidBodySolver {
+export class RealisticSolver {
   lastFrameContacts: Map<string, CollisionContact> = new Map();
 
   // map contact id to contact points
@@ -26,7 +26,7 @@ export class RigidBodySolver {
       contact.colliderA.events.emit('precollision', new PreCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv));
       contact.colliderA.events.emit(
         'beforecollisionresolve',
-        new BeforeCollisionResolveEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any
+        new CollisionPreSolveEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any
       );
       contact.colliderB.events.emit(
         'precollision',
@@ -34,7 +34,7 @@ export class RigidBodySolver {
       );
       contact.colliderB.events.emit(
         'beforecollisionresolve',
-        new BeforeCollisionResolveEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
+        new CollisionPreSolveEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
       );
 
       // Match awake state for sleeping
@@ -138,7 +138,7 @@ export class RigidBodySolver {
       contact.colliderA.events.emit('postcollision', new PostCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv));
       contact.colliderA.events.emit(
         'aftercollisionresolve',
-        new AfterCollisionResolveEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any
+        new CollisionPostSolveEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any
       );
       contact.colliderB.events.emit(
         'postcollision',
@@ -146,7 +146,7 @@ export class RigidBodySolver {
       );
       contact.colliderB.events.emit(
         'aftercollisionresolve',
-        new AfterCollisionResolveEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
+        new CollisionPostSolveEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
       );
     }
 

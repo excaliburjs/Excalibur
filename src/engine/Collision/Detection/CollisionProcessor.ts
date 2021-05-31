@@ -5,10 +5,12 @@ import { CollisionContact } from './CollisionContact';
 
 /**
  * Definition for collision processor
+ * 
+ * Collision processors are responsible for tracking colliders and identifying contacts between them
  */
 export interface CollisionProcessor {
   /**
-   * Detect potential collision pairs
+   * Detect potential collision pairs given a list of colliders
    */
   broadphase(targets: Collider[], delta: number, stats?: FrameStats): Pair[];
 
@@ -18,7 +20,7 @@ export interface CollisionProcessor {
   narrowphase(pairs: Pair[], stats?: FrameStats): CollisionContact[];
 
   /**
-   * Update the internal structures to track bodies
+   * Update the internal structures to track colliders
    */
   update(targets: Collider[], delta: number): number;
 

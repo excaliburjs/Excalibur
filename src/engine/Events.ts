@@ -449,11 +449,11 @@ export class ContactEndEvent<T> {
   constructor(public target: T, public other: T) {}
 }
 
-export class BeforeCollisionResolveEvent<T> {
+export class CollisionPreSolveEvent<T> {
   constructor(public target: T, public other: T, public side: Side, public intersection: Vector, public contact: CollisionContact) {}
 }
 
-export class AfterCollisionResolveEvent<T> {
+export class CollisionPostSolveEvent<T> {
   constructor(public target: T, public other: T, public side: Side, public intersection: Vector, public contact: CollisionContact) {}
 }
 
