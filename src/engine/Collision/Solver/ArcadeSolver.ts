@@ -11,7 +11,7 @@ import { CollisionSolver } from './Solver';
  * This is usually the type of collisions used for 2D games that don't need a more realistic collision simulation.
  * 
  */
-export class ArcadeSolver implements CollisionSolver {
+export class ArcadeSolver extends CollisionSolver {
   public preSolve(contacts: CollisionContact[]) {
     for (const contact of contacts) {
       const side = Side.fromDirection(contact.mtv);

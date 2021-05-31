@@ -1,10 +1,14 @@
 import * as ex from '@excalibur';
-import { ArcadeSolver } from '@excalibur';
+import { EulerIntegrator } from '../engine/Collision/Integrator';
 
-fdescribe('A CollisionContact', () => {
+describe('A CollisionContact', () => {
   let actorA: ex.Actor;
   let actorB: ex.Actor;
 
+  let colliderA: ex.Collider;
+  let colliderB: ex.Collider;
+
+  
   beforeEach(() => {
     actorA = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
     actorA.body.useCircleCollider(10);
@@ -12,7 +16,13 @@ fdescribe('A CollisionContact', () => {
 
     actorB = new ex.Actor({x: 20, y: 0, width: 20, height: 20});
     actorB.body.useCircleCollider(10);
+
+
     actorB.body.collisionType = ex.CollisionType.Active;
+
+    colliderA = actorA.body.getColliders()[0];
+    colliderB = actorB.body.getColliders()[0];
+
   });
 
   it('exists', () => {
@@ -21,11 +31,14 @@ fdescribe('A CollisionContact', () => {
 
   it('can be created', () => {
     const cc = new ex.CollisionContact(
-      actorA.body.getColliders()[0],
-      actorB.body.getColliders()[0],
-      ex.Vector.Zero.clone(),
-      new ex.Vector(10, 0),
-      ex.Vector.Right.clone()
+      colliderA,
+      colliderB,
+      ex.Vector.Right,
+      ex.Vector.Right,
+      ex.Vector.Right.perpendicular(),
+      [new ex.Vector(10, 0)],
+      [new ex.Vector(10, 0)],
+      null
     );
     expect(cc).not.toBe(null);
   });
@@ -33,15 +46,18 @@ fdescribe('A CollisionContact', () => {
   it('can resolve in the Box system', () => {
     actorB.pos.x = 19;
     const cc = new ex.CollisionContact(
-      actorA.body.collider,
-      actorB.body.collider,
-      ex.Vector.Right.clone(),
-      new ex.Vector(10, 0),
-      ex.Vector.Right.clone()
+      colliderA,
+      colliderB,
+      ex.Vector.Right,
+      ex.Vector.Right,
+      ex.Vector.Right.perpendicular(),
+      [new ex.Vector(10, 0)],
+      [new ex.Vector(10, 0)],
+      null
     );
 
-    const solver = new ArcadeSolver();
-    cc.resolve(ex.CollisionResolutionStrategy.Arcade);
+    const solver = new ex.ArcadeSolver();
+    solver.solve([cc]);
 
     expect(actorA.pos.x).toBe(-0.5);
     expect(actorA.pos.y).toBe(0);
@@ -50,33 +66,34 @@ fdescribe('A CollisionContact', () => {
     expect(actorB.pos.y).toBe(0);
   });
 
-  it('emits a collision event on both in the Box system', () => {
-    let emittedA = false;
-    let emittedB = false;
+  it('emits a collision event on both actors in the Arcade solver', () => {
+    
+    let actorAPreCollide = jasmine.createSpy('precollision A');
+    let actorBPreCollide = jasmine.createSpy('precollision B');
+    actorA.on('precollision', actorAPreCollide);
 
-    actorA.on('precollision', () => {
-      emittedA = true;
-    });
-
-    actorB.on('precollision', () => {
-      emittedB = true;
-    });
+    actorB.on('precollision', actorBPreCollide);
 
     actorB.pos.x = 19;
     const cc = new ex.CollisionContact(
-      actorA.body.collider,
-      actorB.body.collider,
+      colliderA,
+      colliderB,
       ex.Vector.Right.clone(),
-      new ex.Vector(10, 0),
-      ex.Vector.Right.clone()
+      ex.Vector.Right.clone(),
+      ex.Vector.Right.perpendicular(),
+      [new ex.Vector(10, 0)],
+      [new ex.Vector(10, 0)],
+      null
     );
-    cc.resolve(ex.CollisionResolutionStrategy.Box);
 
-    expect(emittedA).toBe(true);
-    expect(emittedB).toBe(true);
+    const solver = new ex.ArcadeSolver();
+    solver.solve([cc]);
+
+    expect(actorAPreCollide).toHaveBeenCalledTimes(1);
+    expect(actorBPreCollide).toHaveBeenCalledTimes(1);
   });
 
-  it('can resolve in the Dynamic system', () => {
+  it('can resolve in the Realistic solver', () => {
     expect(actorA.pos.x).toBe(0, 'Actor A should be y=10');
     expect(actorA.pos.y).toBe(0, 'Actor A should be y=0');
     expect(actorB.pos.x).toBe(20, 'Actor B should be x=20');
@@ -89,30 +106,39 @@ fdescribe('A CollisionContact', () => {
     actorA.body.update();
     actorB.body.update();
     const cc = new ex.CollisionContact(
-      actorA.body.collider,
-      actorB.body.collider,
+      colliderA,
+      colliderB,
       ex.Vector.Right.clone(),
-      new ex.Vector(10, 0),
-      ex.Vector.Right.clone()
+      ex.Vector.Right.clone(),
+      ex.Vector.Right.perpendicular(),
+      [new ex.Vector(10, 0)],
+      [new ex.Vector(10, 0)],
+      null
     );
-    cc.resolve(ex.CollisionResolutionStrategy.RigidBody);
+    ex.Physics.slop = 0; // slop is normally 1 pixel, we are testing at a pixel scale here
+    const solver = new ex.RealisticSolver();
 
-    // mtv's are cached and not applied until all pairs are resolved, so we need to call it manually here
-    actorA.body.applyMtv();
-    actorB.body.applyMtv();
+    // Realistic solver converges over time 
+    for (let i = 0; i < 4; i++) {
+      solver.solve([cc]);
+      // Realistic solver uses velocity impulses to correct overlap
+      EulerIntegrator.integrate(actorA.components.transform, actorA.components.motion, ex.Vector.Zero, 1000);
+      EulerIntegrator.integrate(actorB.components.transform, actorB.components.motion, ex.Vector.Zero, 1000);
 
-    expect(actorA.pos.x).toBe(-0.5);
+    }
+
+    expect(actorA.pos.x).toBeCloseTo(-0.5, 1);
     expect(actorA.pos.y).toBe(0);
     expect(actorA.vel.x).toBeLessThan(0);
     expect(actorA.vel.y).toBe(0);
 
-    expect(actorB.pos.x).toBe(19.5);
+    expect(actorB.pos.x).toBeCloseTo(19.5, 1);
     expect(actorB.pos.y).toBe(0);
     expect(actorB.vel.x).toBeGreaterThan(0);
     expect(actorB.vel.y).toBe(0);
   });
 
-  it('emits a collision event on both in the Dynamic system', () => {
+  it('emits a collision event on both in the Realistic solver', () => {
     let emittedA = false;
     let emittedB = false;
 
@@ -126,13 +152,19 @@ fdescribe('A CollisionContact', () => {
 
     actorB.pos.x = 19;
     const cc = new ex.CollisionContact(
-      actorA.body.collider,
-      actorB.body.collider,
+      colliderA,
+      colliderB,
       ex.Vector.Right.clone(),
-      new ex.Vector(10, 0),
-      ex.Vector.Right.clone()
+      ex.Vector.Right.clone(),
+      ex.Vector.Right.perpendicular(),
+      [new ex.Vector(10, 0)],
+      [new ex.Vector(10, 0)],
+      null
     );
-    cc.resolve(ex.CollisionResolutionStrategy.RigidBody);
+
+
+    const solver = new ex.RealisticSolver();
+    solver.solve([cc]);
 
     expect(emittedA).toBe(true);
     expect(emittedB).toBe(true);

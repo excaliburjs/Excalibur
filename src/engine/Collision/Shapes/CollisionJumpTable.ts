@@ -39,7 +39,7 @@ export const CollisionJumpTable = {
   },
 
   CollideCirclePolygon(circle: Circle, polygon: ConvexPolygon): CollisionContact {
-    let minAxis =  SeparatingAxis.findCirclePolygonSeparation(circle, polygon);
+    let minAxis = SeparatingAxis.findCirclePolygonSeparation(circle, polygon);
     if (!minAxis) {
       return null;
     }
@@ -100,7 +100,7 @@ export const CollisionJumpTable = {
 
       const normal = da.normalize();
       const separation = circle.radius - Math.sqrt(dda)
-      
+
 
       const info: SeparationInfo = {
         collider: circle,
@@ -227,71 +227,71 @@ export const CollisionJumpTable = {
     // https://gamedev.stackexchange.com/questions/111390/multiple-contacts-for-sat-collision-detection
     // do a SAT test to find a min axis if it exists
     const separationA = SeparatingAxis.findPolygonPolygonSeparation(polyA, polyB);
-      // If there is no overlap from boxA's perspective we can end early
-      if (separationA.separation > 0) {
-          return null;
-      } 
-
-      const separationB = SeparatingAxis.findPolygonPolygonSeparation(polyB, polyA);
-      // If there is no overlap from boxB's perspective exit now
-      if (separationB.separation > 0) {
-          return null;
-      }
-
-      // Separations are both negative, we want to pick the least negative (minimal movement)
-      const separation = separationA.separation > separationB.separation ? separationA : separationB;
-
-      // The incident side is the most opposite from the axes of collision on the other shape
-      const other = separation.collider === polyA ? polyB : polyA;
-      const incident = other.findSide(separation.axis.negate()) as Line;
-
-      // Clip incident side by the perpendicular lines at each end of the reference side
-      // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
-      const reference = separation.side;
-      const refDir = reference.dir().normalize();
-      
-      // Find our contact points by clipping the incident by the collision side
-      const clipRight = incident.clip(refDir.negate(), -refDir.dot(reference.begin));
-      let clipLeft: Line | null = null;
-      if (clipRight) {
-          clipLeft = clipRight.clip(refDir, refDir.dot(reference.end));
-      }
-
-      // If there is no left there is no collision
-      if (clipLeft) {
-          // We only want clip points below the reference edge, discard the others
-          const points = clipLeft.getPoints().filter(p => {
-            return reference.below(p)
-          });
-
-          let normal = separation.axis;
-          let tangent = normal.perpendicular();
-          // Point Contact A -> B
-          if (polyB.worldPos.sub(polyA.worldPos).dot(normal) < 0) {
-              normal = normal.negate();
-              tangent = normal.perpendicular();
-          }
-          // Points are clipped from incident which is the other collider
-          // Store those as locals
-          let localPoints: Vector[] = [];
-          if (separation.collider === polyA) {
-              const xf = polyB.owner?.transform ?? new TransformComponent(); 
-              localPoints = points.map(p => xf.applyInverse(p));
-            } else {
-            const xf = polyA.owner?.transform ?? new TransformComponent(); 
-              localPoints = points.map(p => xf.applyInverse(p));
-          }
-          return new CollisionContact(
-            polyA,
-            polyB,
-            normal.scale(-separation.separation),
-            normal,
-            tangent,
-            points,
-            localPoints,
-            separation
-          );
-      }
+    // If there is no overlap from boxA's perspective we can end early
+    if (separationA.separation > 0) {
       return null;
+    }
+
+    const separationB = SeparatingAxis.findPolygonPolygonSeparation(polyB, polyA);
+    // If there is no overlap from boxB's perspective exit now
+    if (separationB.separation > 0) {
+      return null;
+    }
+
+    // Separations are both negative, we want to pick the least negative (minimal movement)
+    const separation = separationA.separation > separationB.separation ? separationA : separationB;
+
+    // The incident side is the most opposite from the axes of collision on the other shape
+    const other = separation.collider === polyA ? polyB : polyA;
+    const incident = other.findSide(separation.axis.negate()) as Line;
+
+    // Clip incident side by the perpendicular lines at each end of the reference side
+    // https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
+    const reference = separation.side;
+    const refDir = reference.dir().normalize();
+
+    // Find our contact points by clipping the incident by the collision side
+    const clipRight = incident.clip(refDir.negate(), -refDir.dot(reference.begin));
+    let clipLeft: Line | null = null;
+    if (clipRight) {
+      clipLeft = clipRight.clip(refDir, refDir.dot(reference.end));
+    }
+
+    // If there is no left there is no collision
+    if (clipLeft) {
+      // We only want clip points below the reference edge, discard the others
+      const points = clipLeft.getPoints().filter(p => {
+        return reference.below(p)
+      });
+
+      let normal = separation.axis;
+      let tangent = normal.perpendicular();
+      // Point Contact A -> B
+      if (polyB.worldPos.sub(polyA.worldPos).dot(normal) < 0) {
+        normal = normal.negate();
+        tangent = normal.perpendicular();
+      }
+      // Points are clipped from incident which is the other collider
+      // Store those as locals
+      let localPoints: Vector[] = [];
+      if (separation.collider === polyA) {
+        const xf = polyB.owner?.transform ?? new TransformComponent();
+        localPoints = points.map(p => xf.applyInverse(p));
+      } else {
+        const xf = polyA.owner?.transform ?? new TransformComponent();
+        localPoints = points.map(p => xf.applyInverse(p));
+      }
+      return new CollisionContact(
+        polyA,
+        polyB,
+        normal.scale(-separation.separation),
+        normal,
+        tangent,
+        points,
+        localPoints,
+        separation
+      );
+    }
+    return null;
   }
 };

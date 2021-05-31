@@ -16,11 +16,13 @@ export class CollisionContact {
   /**
    * Currently the ids between colliders
    */
-  id: string;
+  readonly id: string;
+
   /**
    * The first collider in the collision
    */
   colliderA: Collider;
+
   /**
    * The second collider in the collision
    */

@@ -15,7 +15,6 @@ import { CollisionContact } from './Detection/CollisionContact';
 import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
 import { RealisticSolver } from './Solver/RealisticSolver';
 import { CollisionSolver } from './Solver/Solver';
-// import { CollisionType } from './CollisionType';
 
 export class CollisionSystem extends System<TransformComponent | MotionComponent | BodyComponent> {
   public readonly types = ['transform', 'motion', 'body'] as const;
@@ -85,20 +84,8 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
     const solver: CollisionSolver = this.getSolver();
 
-    // Events and init
-    solver.preSolve(contacts);
-
-    // Remove any canceled contacts
-    contacts = contacts.filter(c => !c.isCanceled());
-
-    // Solve velocity first
-    solver.solveVelocity(contacts);
-
-    // Solve position last because non-overlap is the most important
-    solver.solvePosition(contacts);
-
-    // Events and any contact house-keeping the solver needs
-    solver.postSolve(contacts);
+    // Solve
+    contacts = solver.solve(contacts);
 
     // Record contacts
     contacts.forEach((c) => this._currentFrameContacts.set(c.id, c));

@@ -8,8 +8,9 @@ import { Physics } from '../Physics';
 import { Line, Vector } from '../../Algebra';
 import { Circle } from '../Shapes/Circle';
 import { ConvexPolygon } from '../Shapes/ConvexPolygon';
+import { CollisionSolver } from './Solver';
 
-export class RealisticSolver {
+export class RealisticSolver extends CollisionSolver {
   lastFrameContacts: Map<string, CollisionContact> = new Map();
 
   // map contact id to contact points
