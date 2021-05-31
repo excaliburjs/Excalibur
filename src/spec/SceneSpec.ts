@@ -276,6 +276,12 @@ describe('A scene', () => {
   });
 
   it('fires initialize before activate', (done) => {
+    engine = TestUtils.engine({ width: 100, height: 100 });
+    scene = new ex.Scene();
+
+    engine.removeScene('root');
+    engine.addScene('root', scene);
+
     let initialized = false;
     scene.on('initialize', (evt: ex.InitializeEvent) => {
       initialized = true;
@@ -289,6 +295,12 @@ describe('A scene', () => {
   });
 
   it('fires initialize before actor initialize before activate', (done) => {
+    engine = TestUtils.engine({ width: 100, height: 100 });
+    scene = new ex.Scene();
+
+    engine.removeScene('root');
+    engine.addScene('root', scene);
+
     let sceneInitialized = false;
     const sceneActivated = false;
     let actorInitialized = false;
@@ -308,11 +320,15 @@ describe('A scene', () => {
 
     scene.add(actor);
     engine.goToScene('root');
-    //scene.update(engine, 100);
-    //scene.update(engine, 100);
   });
 
   it('can only be initialized once', () => {
+    engine = TestUtils.engine({ width: 100, height: 100 });
+    scene = new ex.Scene();
+
+    engine.removeScene('root');
+    engine.addScene('root', scene);
+
     let initializeCount = 0;
     scene.on('initialize', (evt) => {
       initializeCount++;
@@ -329,6 +345,12 @@ describe('A scene', () => {
   });
 
   it('should initialize before actors in the scene', () => {
+    engine = TestUtils.engine({ width: 100, height: 100 });
+    scene = new ex.Scene();
+
+    engine.removeScene('root');
+    engine.addScene('root', scene);
+    
     const actor = new ex.Actor();
     scene.add(actor);
     let sceneInit = false;
@@ -501,7 +523,7 @@ describe('A scene', () => {
 
   it('will not kill the actor if it is already dead', () => {
     scene.add(actor);
-    (actor as any)._isKilled = true;
+    actor.active = false;
 
     spyOn(actor, 'kill').and.callThrough();
 

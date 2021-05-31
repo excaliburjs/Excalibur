@@ -13,7 +13,7 @@ export const CollisionJumpTable = {
     const combinedRadius = circleA.radius + circleB.radius;
     const distance = circleAPos.distance(circleBPos);
 
-    if (distance >= combinedRadius) {
+    if (distance > combinedRadius) {
       return null;
     }
 

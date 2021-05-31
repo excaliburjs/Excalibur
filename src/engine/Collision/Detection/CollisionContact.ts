@@ -4,6 +4,7 @@ import { Collider } from '../Shapes/Collider';
 import { CollisionType } from '../CollisionType';
 import { Pair } from './Pair';
 import { SeparationInfo } from '../Shapes/SeparatingAxis';
+import { createId } from '../../Id';
 
 /**
  * Collision contacts are used internally by Excalibur to resolve collision between colliders. This
@@ -62,7 +63,8 @@ export class CollisionContact {
     this.points = points;
     this.localPoints = localPoints;
     this.info = info;
-    this.id = Pair.calculatePairHash(colliderA.owningId, colliderB.owningId);
+    // TODO should we use body? or is collider id better
+    this.id = Pair.calculatePairHash(colliderA.owningId ?? createId("body", 0), colliderB.owningId ?? createId("body", 0));
   }
 
   /**

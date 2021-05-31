@@ -23,7 +23,9 @@ describe('A pointer', () => {
   }
 
   beforeEach(() => {
-    engine = TestUtils.engine();
+    engine = TestUtils.engine({
+      pointerScope: ex.Input.PointerScope.Document
+    });
     engine.start();
   });
 

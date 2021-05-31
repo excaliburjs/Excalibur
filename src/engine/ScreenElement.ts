@@ -12,20 +12,10 @@ export class ScreenElement extends Actor {
   protected _engine: Engine;
 
   constructor();
-  constructor(xOrConfig?: number, y?: number, width?: number, height?: number);
   constructor(config?: ActorArgs);
-  /**
-   * @param xOrConfig  The starting x coordinate of the actor or the actor option bag
-   * @param y       The starting y coordinate of the actor
-   * @param width   The starting width of the actor
-   * @param height  The starting height of the actor
-   */
-  constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number) {
-    if (typeof xOrConfig !== 'object') {
-      super(<number>xOrConfig, y, width, height);
-    } else {
-      super(<ActorArgs>xOrConfig);
-    }
+  
+  constructor(config?: ActorArgs) {
+    super({...config});
     this.components.transform.coordPlane = CoordPlane.Screen;
     this.traits = [];
     this.traits.push(new Traits.CapturePointer());

@@ -325,9 +325,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     if (this.camera) {
       this.camera.update(engine, delta);
     }
-    this.world.update(SystemType.Update, delta);
-
-
+    // TODO differed entity removal
     let i: number, len: number;
     // Remove timers in the cancel queue before updating them
     for (i = 0, len = this._cancelQueue.length; i < len; i++) {
@@ -340,6 +338,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       timer.update(delta);
     }
 
+    this.world.update(SystemType.Update, delta);
+
     // Cycle through actors updating tile maps
     for (i = 0, len = this.tileMaps.length; i < len; i++) {
       this.tileMaps[i].update(engine, delta);
@@ -351,6 +351,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     engine.stats.currFrame.actors.killed = this._killQueue.length + this._triggerKillQueue.length;
 
+    // TODO differed entity removal
     this._processKillQueue(this._killQueue, this.actors);
     this._processKillQueue(this._triggerKillQueue, this.triggers);
 

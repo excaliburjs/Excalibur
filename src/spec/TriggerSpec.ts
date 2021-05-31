@@ -72,24 +72,45 @@ describe('A Trigger', () => {
       height: 100,
       repeat: 3
     });
+    trigger.body.update();
+    const enterSpy = jasmine.createSpy('enter');
+    const exitSpy = jasmine.createSpy('exit');
+    trigger.on('enter', enterSpy);
+    trigger.on('exit', exitSpy);
+
     const actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
     actor.body.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
     engine.currentScene.add(trigger);
     engine.currentScene.add(actor);
-    spyOn(trigger, 'action');
+    spyOn(trigger, 'action').and.callThrough();
 
     // Act
+    // Enter trigger first
     actor.vel.y = 10;
     for (let i = 0; i < 20; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
+    // Exit trigger first
     actor.vel.y = -10;
     for (let i = 0; i < 20; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
+    // Enter trigger second
+    actor.vel.y = 10;
+    for (let i = 0; i < 20; i++) {
+      engine.currentScene.update(engine, 1000);
+    }
+
+    // Exit trigger second
+    actor.vel.y = -10;
+    for (let i = 0; i < 20; i++) {
+      engine.currentScene.update(engine, 1000);
+    }
+
+    // Enter trigger third
     actor.vel.y = 10;
     for (let i = 0; i < 20; i++) {
       engine.currentScene.update(engine, 1000);
@@ -97,6 +118,9 @@ describe('A Trigger', () => {
 
     // Assert
     expect(trigger.action).toHaveBeenCalledTimes(3);
+    expect(enterSpy).toHaveBeenCalledTimes(3);
+    expect(exitSpy).toHaveBeenCalledTimes(2);
+    expect(trigger.isKilled()).toBe(true);
   });
 
   it('fires an event when an actor enters the trigger once', () => {
@@ -133,13 +157,12 @@ describe('A Trigger', () => {
 
   it('fires an event when the actor exits the trigger', () => {
     // Arrange
-    let fired = 0;
-
     const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
       width: 100,
       height: 100
     });
+    trigger.body.update();
 
     const actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
     actor.body.collisionType = ex.CollisionType.Active;
@@ -148,9 +171,10 @@ describe('A Trigger', () => {
     engine.add(trigger);
     engine.add(actor);
 
-    trigger.on('collisionend', (evt: ex.ExitTriggerEvent) => {
-      fired++;
-    });
+    const exitSpy = jasmine.createSpy('exit');
+    const collisionEnd = jasmine.createSpy('collisionend');
+    trigger.on('exit', exitSpy);
+    trigger.on('collisionend', collisionEnd);
 
     // Act
     actor.vel.y = 10;
@@ -159,7 +183,8 @@ describe('A Trigger', () => {
     }
 
     // Assert
-    expect(fired).toBe(1);
+    expect(exitSpy).toHaveBeenCalledTimes(1);
+    expect(collisionEnd).toHaveBeenCalledTimes(1);
   });
 
   it('does not draw by default', () => {
@@ -212,6 +237,7 @@ describe('A Trigger', () => {
       height: 100,
       filter: () => false
     });
+    trigger.body.update();
 
     const actor = new ex.Actor({x: 0, y: 100, width: 10, height: 10});
 
@@ -237,13 +263,15 @@ describe('A Trigger', () => {
       height: 100,
       filter: () => true
     });
+    trigger.body.update();
 
     const actor = new ex.Actor({x: 0, y: 100, width: 10, height: 10});
     actor.body.collisionType = ex.CollisionType.Active;
+    actor.vel.y = 10;
 
     engine.add(trigger);
     engine.add(actor);
-    spyOn(trigger, 'action');
+    spyOn(trigger, 'action').and.callThrough();
 
     // Act
     for (let i = 0; i < 2; i++) {

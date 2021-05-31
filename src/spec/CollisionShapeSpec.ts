@@ -23,6 +23,7 @@ describe('Collision Shape', () => {
 
       actor = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
       circle = actor.body.useCircleCollider(10, ex.Vector.Zero);
+      actor.body.update();
     });
 
     afterEach(() => {
@@ -55,6 +56,7 @@ describe('Collision Shape', () => {
 
     it('has a center', () => {
       actor.pos.setTo(170, 300);
+
       const center = circle.center;
       expect(center.x).toBe(170);
       expect(center.y).toBe(300);
@@ -139,6 +141,7 @@ describe('Collision Shape', () => {
     it('should collide with other circles when touching', () => {
       const actor2 = new ex.Actor({x: 20, y:0, width: 10, height: 10});
       const circle2 = actor2.body.useCircleCollider(10);
+      actor2.body.update();
 
       const directionOfBodyB = circle2.center.sub(circle.center);
       const contact = circle.collide(circle2);
@@ -200,7 +203,7 @@ describe('Collision Shape', () => {
       // position the circle actor in the middle of the edge
       actor.pos = ex.vec(5, -9.99);
       actor.body.update();
-      const actor2 = new ex.Actor({x: 5, y: 0, width: 10, height: 10});
+      const actor2 = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
       const edge = actor2.body.useEdgeCollider(
         new ex.Vector(0, 0),
         new ex.Vector(10, 0)
@@ -229,7 +232,7 @@ describe('Collision Shape', () => {
       // position the circle actor in the end of the edge
       actor.pos.setTo(10, -9);
 
-      const actor2 = new ex.Actor({x: 5, y: 0, width: 10, height: 10});
+      const actor2 = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
       const edge = actor2.body.useEdgeCollider(
         new ex.Vector(0, 0),
         new ex.Vector(10, 0)
@@ -254,12 +257,14 @@ describe('Collision Shape', () => {
     it('should collide with other edges when touching the edge beginning', () => {
       // position the circle actor in the end of the edge
       actor.pos.setTo(0, -9);
+      actor.body.update();
 
-      const actor2 = new ex.Actor({x: 5, y: 0, width: 10, height: 10});
+      const actor2 = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
       const edge = actor2.body.useEdgeCollider(
         new ex.Vector(0, 0),
         new ex.Vector(10, 0)
       );
+      actor2.body.update();
 
       const directionOfBodyB = edge.center.sub(circle.center);
       const contact = circle.collide(edge);
@@ -492,7 +497,7 @@ describe('Collision Shape', () => {
       );
       actor.body.update();
 
-      const actor2 = new ex.Actor({x: 5, y: 0, width: 10, height: 10});
+      const actor2 = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
       const edge = actor2.body.useEdgeCollider(
         new ex.Vector(0, 0),
         new ex.Vector(0, 10),
@@ -516,7 +521,7 @@ describe('Collision Shape', () => {
       );
       actor.body.update();
 
-      const actor2 = new ex.Actor({x: 5, y: 0, width: 10, height: 10});
+      const actor2 = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
       const edge = actor2.body.useEdgeCollider(
         new ex.Vector(0, 0),
         new ex.Vector(0, 10),
@@ -576,40 +581,36 @@ describe('Collision Shape', () => {
       const polyA = new ex.ConvexPolygon({
         offset: ex.Vector.Zero.clone(),
         // specified relative to the position
+        //           2
+        // (-5, -5) --- (5, -5)
+        //    |            |
+        //  1 |    (0,0)   | 3
+        //    |            |
+        // (-5, 5)  --- (5, 5)
+        //           4
         points: [new ex.Vector(-5, -5), new ex.Vector(5, -5), new ex.Vector(5, 5), new ex.Vector(-5, 5)]
       });
 
       const point1 = new ex.Vector(-5, 0);
       const { face: face1 } = polyA.getClosestFace(point1);
 
+      expect(face1.begin).toBeVector(ex.vec(-5, 5));
+      expect(face1.end).toBeVector(ex.vec(-5, -5));
+
       const point2 = new ex.Vector(0, -5);
       const { face: face2 } = polyA.getClosestFace(point2);
-
+      expect(face2.begin).toBeVector(ex.vec(-5, -5));
+      expect(face2.end).toBeVector(ex.vec(5, -5));
+      
       const point3 = new ex.Vector(5, 0);
       const { face: face3 } = polyA.getClosestFace(point3);
-
+      expect(face3.begin).toBeVector(ex.vec(5, -5));
+      expect(face3.end).toBeVector(ex.vec(5, 5));
+      
       const point4 = new ex.Vector(0, 5);
       const { face: face4 } = polyA.getClosestFace(point4);
-
-      expect(face1.begin.x).toBe(-5);
-      expect(face1.begin.y).toBe(-5);
-      expect(face1.end.x).toBe(-5);
-      expect(face1.end.y).toBe(5);
-
-      expect(face2.begin.x).toBe(5);
-      expect(face2.begin.y).toBe(-5);
-      expect(face2.end.x).toBe(-5);
-      expect(face2.end.y).toBe(-5);
-
-      expect(face3.begin.x).toBe(5);
-      expect(face3.begin.y).toBe(5);
-      expect(face3.end.x).toBe(5);
-      expect(face3.end.y).toBe(-5);
-
-      expect(face4.begin.x).toBe(-5);
-      expect(face4.begin.y).toBe(5);
-      expect(face4.end.x).toBe(5);
-      expect(face4.end.y).toBe(5);
+      expect(face4.begin).toBeVector(ex.vec(5, 5));
+      expect(face4.end).toBeVector(ex.vec(-5, 5));
     });
 
     it('can have ray cast to detect if the ray hits the polygon', () => {
@@ -648,7 +649,7 @@ describe('Collision Shape', () => {
 
     it('can be drawn with actor', (done) => {
       const polygonActor = new ex.Actor({
-        pos: new ex.Vector(150, 0),
+        pos: new ex.Vector(150, 100),
         color: ex.Color.Blue,
         body: new ex.BodyComponent({
           colliders: [ex.Shape.Polygon([new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)])]

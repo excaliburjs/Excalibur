@@ -221,6 +221,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
       collider.owningId = this.id
       collider.owner = this;
       this._colliders.push(collider);
+      this.update();
       this.events.wire(collider.events);
       this.$collidersAdded.notifyAll(collider);
     } else {
@@ -292,11 +293,11 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   }
 
   public get transform(): TransformComponent {
-    return (this.owner as Entity<TransformComponent>).components.transform;
+    return (this.owner as Entity<TransformComponent>)?.components?.transform;
   }
 
   public get motion(): MotionComponent {
-    return (this.owner as Entity<MotionComponent>).components.motion;
+    return (this.owner as Entity<MotionComponent>)?.components?.motion;
   }
 
   /**
@@ -561,8 +562,10 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   }
 
   update() {
-    for (let collider of this._colliders) {
-      collider.update(this.transform);
+    if (this.transform) {
+      for (let collider of this._colliders) {
+        collider.update(this.transform);
+      }
     }
   }
 

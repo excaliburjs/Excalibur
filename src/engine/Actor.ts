@@ -487,6 +487,7 @@ export class Actor
       }: undefined,
       anchor: this.anchor
     }));
+    this.body.update();
     this.body.collisionType = collisionType ?? CollisionType.Passive;
 
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
@@ -1182,7 +1183,7 @@ export class Actor
         const colliders = this.body.getColliders();
         for (let collider of colliders) {
           // Colliders are already shifted by anchor, unshift
-          collider.draw(ctx, this.color, vec(this.width * this.anchor.x, this.height * this.anchor.y));
+          collider.draw(ctx, this.color, vec(0, 0));
         }
       }
     }

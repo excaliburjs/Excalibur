@@ -118,7 +118,7 @@ export class Trigger extends Actor {
   }
 
   private _dispatchAction() {
-    if (this.repeat > 0) {
+    if (this.repeat !== 0) {
       this.action.call(this);
       this.repeat--;
     }

@@ -124,6 +124,11 @@ export class RigidBodySolver {
       const bodyA = contact.colliderA.owner;
       const bodyB = contact.colliderB.owner;
 
+      // Skip post solve for active+passive collisions
+      if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
+        continue;
+      }
+
       // Update motion values for sleeping
       bodyA.updateMotion();
       bodyB.updateMotion();
@@ -234,6 +239,12 @@ export class RigidBodySolver {
       for (const contact of contacts) {
         const bodyA = contact.colliderA.owner;
         const bodyB = contact.colliderB.owner;
+
+        // Skip solving active+passive
+        if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
+          continue;
+        }
+
         const constraints = this.idToContactConstraint.get(contact.id) ?? [];
         for (const point of constraints) {
           const normal = contact.normal;
@@ -269,6 +280,11 @@ export class RigidBodySolver {
       for (const contact of contacts) {
         const bodyA = contact.colliderA.owner;
         const bodyB = contact.colliderB.owner;
+
+        // Skip solving active+passive
+        if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
+          continue;
+        }
 
         const restitution = bodyA.bounciness * bodyB.bounciness;
         const friction = Math.min(bodyA.friction, bodyB.friction);
