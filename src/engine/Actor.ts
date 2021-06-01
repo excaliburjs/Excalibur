@@ -1165,11 +1165,11 @@ export class Actor
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     // translate canvas by anchor offset
     ctx.save();
-    ctx.translate(-(this.width * this.anchor.x), -(this.height * this.anchor.y));
-
-    this._predraw(ctx, delta);
-
+    
     if (this.currentDrawing) {
+      ctx.translate(-(this.width * this.anchor.x), -(this.height * this.anchor.y));
+  
+      this._predraw(ctx, delta);
       const drawing = this.currentDrawing;
       // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
       const offsetX = (this.width - drawing.width * drawing.scale.x) * this.anchor.x;
@@ -1177,6 +1177,7 @@ export class Actor
 
       this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
     } else {
+      this._predraw(ctx, delta);
       if (this.color) {
         // update collider geometry based on transform
         this.body.update();

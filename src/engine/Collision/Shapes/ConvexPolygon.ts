@@ -11,11 +11,11 @@ import { Collider } from './Collider';
 
 export interface ConvexPolygonOptions {
   /**
-   * Pixel offset relative to a collider's position
+   * Pixel offset relative to a collider's body transform position.
    */
   offset?: Vector;
   /**
-   * Points in the polygon in order around the perimeter in local coordinates
+   * Points in the polygon in order around the perimeter in local coordinates. These are relative from the body transform position.
    */
   points: Vector[];
   /**
@@ -28,7 +28,14 @@ export interface ConvexPolygonOptions {
  * Polygon collision shape for detecting collisions
  */
 export class ConvexPolygon extends Collider {
+  /**
+   * Pixel offset relative to a collider's body transform position.
+   */
   public offset: Vector;
+
+  /**
+   * Points in the polygon in order around the perimeter in local coordinates. These are relative from the body transform position.
+   */
   public points: Vector[];
 
   private _transform: Transform;
@@ -58,6 +65,9 @@ export class ConvexPolygon extends Collider {
     });
   }
 
+  /**
+   * Returns the world position of the collider, which is the current body transform plus any defined offset
+   */
   public get worldPos(): Vector {
     if (this._transform) {
       return this._transform.pos.add(this.offset);
@@ -123,6 +133,9 @@ export class ConvexPolygon extends Collider {
     return this._sides;
   }
 
+  /**
+   * Returns the local coordinate space sides
+   */
   public getLocalSides(): Line[] {
     if (this._localSides.length) {
       return this._localSides;
@@ -138,6 +151,10 @@ export class ConvexPolygon extends Collider {
     return this._localSides;
   }
 
+  /**
+   * Given a direction vector find the world space side that is most in that direction
+   * @param direction 
+   */
   public findSide(direction: Vector): Line {
     let sides = this.getSides();
     let bestSide = sides[0];
@@ -154,6 +171,10 @@ export class ConvexPolygon extends Collider {
     return bestSide;
   }
 
+  /**
+   * Given a direction vector find the local space side that is most in that direction
+   * @param direction 
+   */
   public findLocalSide(direction: Vector): Line {
     let sides = this.getLocalSides();
     let bestSide = sides[0];
@@ -389,17 +410,20 @@ export class ConvexPolygon extends Collider {
   }
 
   public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
-    const basePos = pos.add(this.offset);
+    const effectiveOffset = pos.add(this.offset);
     ctx.beginPath();
     ctx.fillStyle = color.toString();
-    ctx.moveTo(basePos.x, basePos.y);
-    const diffToBase = this.points[0].sub(basePos);
+
+    const firstPoint = this.points[0].add(effectiveOffset);
+    ctx.moveTo(firstPoint.x, firstPoint.y);
+
+    // Points are relative
     this.points
-      .map((p) => p.sub(diffToBase))
+      .map((p) => p.add(effectiveOffset))
       .forEach(function (point) {
         ctx.lineTo(point.x, point.y);
       });
-    ctx.lineTo(basePos.x, basePos.y);
+    ctx.lineTo(firstPoint.x, firstPoint.y);
     ctx.closePath();
     ctx.fill();
   }

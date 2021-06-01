@@ -17,7 +17,7 @@ describe('The engine', () => {
     });
     scene = new ex.Scene(engine);
     engine.currentScene = scene;
-    actor = new ex.Actor(0, 0, 10, 10, ex.Color.Red);
+    actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10, color: ex.Color.Red});
     loop = mock.loop(engine);
 
     scene.add(actor);

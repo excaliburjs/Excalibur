@@ -290,7 +290,7 @@ describe('Collision Shape', () => {
 
       circle.draw(engine.ctx, ex.Color.Blue, new ex.Vector(50, 0));
 
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/circle.png').then(([canvas, image]) => {
+      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/circle.old.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
       });
@@ -298,10 +298,10 @@ describe('Collision Shape', () => {
 
     it('can be drawn with actor', (done) => {
       const circleActor = new ex.Actor({
-        pos: new ex.Vector(150, 100),
+        pos: new ex.Vector(100, 100),
         color: ex.Color.Blue,
         body: new ex.BodyComponent({
-          colliders: [ex.Shape.Circle(30)]
+          colliders: [ex.Shape.Circle(100)]
         })
       });
 
@@ -635,10 +635,11 @@ describe('Collision Shape', () => {
 
     it('can be drawn', (done) => {
       const polygon = new ex.ConvexPolygon({
-        offset: new ex.Vector(100, 0),
+        offset: new ex.Vector(100, 100),
         points: [new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)]
       });
 
+      // Effective position is (150, 100)
       polygon.draw(engine.ctx, ex.Color.Blue, new ex.Vector(50, 0));
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/triangle.png').then(([canvas, image]) => {
@@ -652,6 +653,7 @@ describe('Collision Shape', () => {
         pos: new ex.Vector(150, 100),
         color: ex.Color.Blue,
         body: new ex.BodyComponent({
+          // these are relative to actor position
           colliders: [ex.Shape.Polygon([new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)])]
         })
       });

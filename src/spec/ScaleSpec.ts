@@ -12,7 +12,7 @@ describe('A scaled and rotated actor', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
 
-    actor = new ex.ScreenElement(50, 50, 100, 50);
+    actor = new ex.ScreenElement({x: 50, y:50, width: 100, height: 50});
     actor.color = ex.Color.Blue;
     actor.body.collisionType = ex.CollisionType.Active;
     engine = TestUtils.engine({ width: 800, height: 600 });
