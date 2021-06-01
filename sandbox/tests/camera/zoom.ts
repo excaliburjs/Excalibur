@@ -7,13 +7,13 @@ var game = new ex.Engine({
 
 game.backgroundColor = ex.Color.Blue;
 
-var actor = new ex.Actor();
-
-actor.pos.x = 250;
-actor.width = 10;
-actor.pos.y = 250;
-actor.height = 10;
-actor.color = ex.Color.Red;
+var actor = new ex.Actor({
+  x: 250,
+  y: 250,
+  width: 10,
+  height: 10,
+  color: ex.Color.Red
+});
 
 game.add(actor);
 

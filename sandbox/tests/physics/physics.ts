@@ -66,7 +66,7 @@ function spawnBlock(x: number, y: number) {
   });
   block.rotation = globalRotation;
   // block.body.addBoxCollider(width + 200, width / 2);
-  block.body.addBoxCollider(width / 2, width + 100);
+  block.body.useBoxCollider(width / 2, width + 100);
   block.body.events.on('contactstart', (e) => {
     // console.log(e);
   });
@@ -74,8 +74,8 @@ function spawnBlock(x: number, y: number) {
     // console.log(e);
   });
 
-  block.width = block.body.bounds.width;
-  block.height = block.body.bounds.height;
+  // block.width = block.body.bounds.width;
+  // block.height = block.body.bounds.height;
 
   //block.rx = .1;
   block.body.collisionType = ex.CollisionType.Active;
@@ -87,9 +87,9 @@ function spawnBlock(x: number, y: number) {
 function spawnCircle(x: number, y: number) {
   var width = ex.Util.randomInRange(20, 100);
   var color = new ex.Color(255, ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255));
-  var circle = new ex.Actor(x, y, width, width, color);
+  var circle = new ex.Actor({x: x, y: y, width: width, height: width, color: color});
   // circle.rx = ex.Util.randomInRange(-0.5, 0.5);
-  circle.rx = 1;
+  circle.angularVelocity = 1;
   circle.vel.setTo(0, 300);
   circle.body.useCircleCollider(width / 2);
   circle.body.collisionType = ex.CollisionType.Active;
@@ -119,17 +119,17 @@ function spawnCircle(x: number, y: number) {
 
 // spawnBlock(300, 200).body.setSleeping(true);
 
-var ground = new ex.Actor(300, 380, 600, 10, ex.Color.Azure.clone());
+var ground = new ex.Actor({x: 300, y: 380, width: 600, height: 10, color: ex.Color.Azure.clone()});
 ground.body.collisionType = ex.CollisionType.Fixed;
 ground.body.useBoxCollider(600, 10); // optional
 game.add(ground);
 
-var leftWall = new ex.Actor(0, 300, 10, 400, ex.Color.Azure.clone());
+var leftWall = new ex.Actor({x: 0, y: 300, width: 10, height: 400, color: ex.Color.Azure.clone()});
 leftWall.body.collisionType = ex.CollisionType.Fixed;
 leftWall.body.useBoxCollider(10, 400);
 game.add(leftWall);
 
-var rightWall = new ex.Actor(600, 300, 10, 400, ex.Color.Azure.clone());
+var rightWall = new ex.Actor({x: 600, y: 300, width: 10, height: 400, color: ex.Color.Azure.clone()});
 rightWall.body.collisionType = ex.CollisionType.Fixed;
 rightWall.body.useBoxCollider(10, 400);
 game.add(rightWall);

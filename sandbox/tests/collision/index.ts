@@ -2,7 +2,7 @@
 
 var engine = new ex.Engine({ width: 600, height: 400 });
 
-var active = new ex.Actor(0, -50, 100, 100, ex.Color.Cyan);
+var active = new ex.Actor({x: 0, y: -50, width: 100, height: 100, color: ex.Color.Cyan});
 active.body.collisionType = ex.CollisionType.Active;
 active.vel.y = 100;
 active.acc.y = 900;
@@ -10,7 +10,7 @@ active.on('postupdate', () => {
   //console.log('current dy', active.dy);
 });
 
-var fixed = new ex.Actor(0, 50, 100, 100, ex.Color.Green);
+var fixed = new ex.Actor({x: 0, y: 50, width: 100, height: 100, color: ex.Color.Green});
 fixed.body.collisionType = ex.CollisionType.Fixed;
 
 fixed.actions

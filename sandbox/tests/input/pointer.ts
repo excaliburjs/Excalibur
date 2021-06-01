@@ -6,12 +6,12 @@ var game = new ex.Engine({
   canvasElementId: 'game',
   pointerScope: ex.Input.PointerScope.Document
 });
-var box = new ex.Actor(200, 200, 100, 100, ex.Color.Red);
-var box2 = new ex.Actor(0, 0, 50, 50, ex.Color.White);
-var cursor = new ex.Actor(0, 0, 10, 10, ex.Color.Chartreuse);
+var box = new ex.Actor({x: 200, y: 200, width: 100, height: 100, color:  ex.Color.Red});
+var box2 = new ex.Actor({x: 0, y: 0, width: 50, height: 50, color:  ex.Color.White});
+var cursor = new ex.Actor({x: 0, y: 0, width: 10, height: 10, color:  ex.Color.Chartreuse});
 var boxPointerDragging = false;
 
-var uiElement = new ex.ScreenElement(200, 0, 200, 200);
+var uiElement = new ex.ScreenElement({x: 200, y: 0, width: 200, height: 200});
 uiElement.color = ex.Color.Azure;
 uiElement.on('pointerdown', (p: ex.Input.PointerEvent) => {
   console.log(p);
@@ -99,7 +99,7 @@ game.input.pointers.primary.on('wheel', (pe: ex.Input.WheelEvent) => {
 
 var paintBrush = {
   paint: (x: number, y: number, color: ex.Color) => {
-    var brush = new ex.Actor(x, y, 5, 5, color);
+    var brush = new ex.Actor({x, y, width: 5, height: 5, color});
 
     game.add(brush);
   }

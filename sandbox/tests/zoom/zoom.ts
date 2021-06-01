@@ -15,7 +15,7 @@ raptorAnim.loop = true;
 
 game.showDebug(true);
 
-var target = new ex.Actor(game.halfDrawWidth, game.halfDrawHeight, 64 * 2, 64 * 2, ex.Color.Red.clone());
+var target = new ex.Actor({x: game.halfDrawWidth, y: game.halfDrawHeight, width: 64 * 2, height: 64 * 2, color: ex.Color.Red.clone()});
 target.addDrawing('default', raptorAnim);
 
 var currentZoom = 1.0;

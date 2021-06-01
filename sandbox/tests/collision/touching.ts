@@ -4,14 +4,14 @@ var game = new ex.Engine({
   height: 200,
   width: 800
 });
-var paddle = new ex.Actor(150, game.drawHeight - 40, 200, 20);
+var paddle = new ex.Actor({x: 150, y: game.drawHeight - 40, width: 200, height: 20});
 paddle.color = ex.Color.Chartreuse;
 paddle.body.collisionType = ex.CollisionType.Fixed;
 game.add(paddle);
 
 var speed = 300;
 
-var ball = new ex.Actor(150, 50, 20, 20);
+var ball = new ex.Actor({x: 150, y: 50, width: 20, height: 20});
 ball.color = ex.Color.Red;
 ball.vel.setTo(0, speed);
 ball.body.collisionType = ex.CollisionType.Active;

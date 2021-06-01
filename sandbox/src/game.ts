@@ -240,7 +240,7 @@ for (var i = 0; i < 36; i++) {
   game.add(block);
 }
 
-var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
+var platform = new ex.Actor({x: 400, y: 300, width: 200, height: 50, color: new ex.Color(0, 200, 0)});
 platform.body.collisionType = ex.CollisionType.Fixed;
 platform.actions
   .moveTo(200, 300, 100)
@@ -249,7 +249,7 @@ platform.actions
   .repeatForever();
 game.add(platform);
 
-var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
+var platform2 = new ex.Actor({x: 800, y: 300, width: 200, height: 20, color: new ex.Color(0, 0, 140)});
 platform2.body.collisionType = ex.CollisionType.Fixed;
 platform2.actions
   .moveTo(2000, 300, 100)
@@ -259,7 +259,7 @@ platform2.actions
   .repeatForever();
 game.add(platform2);
 
-var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
+var platform3 = new ex.Actor({x: -200, y: 400, width: 200, height: 20, color: new ex.Color(50, 0, 100)});
 platform3.body.collisionType = ex.CollisionType.Fixed;
 platform3.actions
   .moveTo(-200, 800, 300)
@@ -270,12 +270,12 @@ platform3.actions
   .repeatForever();
 game.add(platform3);
 
-var platform4 = new ex.Actor(75, 300, 100, 50, ex.Color.Azure);
+var platform4 = new ex.Actor({x: 75, y: 300, width: 100, height: 50, color: ex.Color.Azure});
 platform4.body.collisionType = ex.CollisionType.Fixed;
 game.add(platform4);
 
 // Test follow api
-var follower = new ex.Actor(50, 100, 20, 20, ex.Color.Black);
+var follower = new ex.Actor({x: 50, y: 100, width: 20, height: 20, color: ex.Color.Black});
 follower.body.collisionType = ex.CollisionType.PreventCollision;
 game.add(follower);
 
@@ -287,7 +287,6 @@ var player = new ex.Actor({
   pos: new ex.Vector(100, -200),
   width: 32,
   height: 96,
-  enableCapturePointer: true,
   collisionType: ex.CollisionType.Active
 });
 player.body.canSleep = false;
@@ -416,7 +415,7 @@ game.addScene('label', newScene);
 
 game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
   if (keyDown.key === ex.Input.Keys.F) {
-    var a = new ex.Actor(player.pos.x + 10, player.pos.y - 50, 10, 10, new ex.Color(222, 222, 222));
+    var a = new ex.Actor({x: player.pos.x + 10, y: player.pos.y - 50, width: 10, height: 10, color: new ex.Color(222, 222, 222)});
     a.vel.x = 200 * direction;
     a.vel.y = 0;
     a.body.collisionType = ex.CollisionType.Active;
@@ -499,7 +498,7 @@ player.on('initialize', (evt?: ex.InitializeEvent) => {
 
 game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
   if (keyDown.key === ex.Input.Keys.B) {
-    var block = new ex.Actor(currentX, 350, 44, 50, color);
+    var block = new ex.Actor({x: currentX, y: 350, width: 44, height: 50, color: color});
     currentX += 46;
     block.addDrawing(Animations.Block, blockAnimation);
     game.add(block);

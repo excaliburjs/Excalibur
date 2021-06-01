@@ -5,8 +5,8 @@ var hrt = new ex.Texture('../../images/heart.png');
 var ldr = new ex.Loader([hrt]);
 
 game.start(ldr).then(() => {
-  var a = new ex.Actor(50, 50, 50, 50, ex.Color.Red);
-  var b = new ex.Actor(150, 50, 50, 50);
+  var a = new ex.Actor({x: 50, y: 50, width: 50, height: 50, color: ex.Color.Red});
+  var b = new ex.Actor({x: 150, y: 50, width: 50, height: 50});
   b.addDrawing(hrt);
 
   b.opacity = 0;

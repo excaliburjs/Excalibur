@@ -10,7 +10,7 @@ var tex = new ex.Texture('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/
 
 var loader = new ex.Loader([tex]);
 
-var actor = new ex.Actor(100, 100, 50, 50, ex.Color.Red);
+var actor = new ex.Actor({x: 100, y: 100, width: 50, height: 50, color: ex.Color.Red});
 actor.onInitialize = () => {
   var sprite = new ex.Sprite({
     image: tex,

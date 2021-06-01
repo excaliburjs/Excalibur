@@ -53,10 +53,7 @@ var otherCircle = new ex.Actor({
   pos: new ex.Vector(400, 100),
   color: ex.Color.Green,
   body: new ex.BodyComponent({
-    colliders: [
-      new ex.Collider({
-      shape: ex.Shape.Circle(30)
-    })]
+    colliders: [ex.Shape.Circle(30)]
   })
 });
 
@@ -65,9 +62,7 @@ var otherBlock = new ex.Actor({
   rotation: Math.PI / 4,
   color: ex.Color.Red,
   body: new ex.BodyComponent({
-    colliders: [new ex.Collider({
-      shape: ex.Shape.Box(50, 50)
-    })]
+    colliders: [ex.Shape.Box(50, 50)]
   })
 });
 
@@ -75,9 +70,7 @@ var circle = new ex.Actor({
   pos: new ex.Vector(300, 300),
   color: ex.Color.Green,
   body: new ex.BodyComponent({
-    colliders: [new ex.Collider({
-      shape: ex.Shape.Circle(40)
-    })]
+    colliders: [ex.Shape.Circle(40)]
   })
 });
 
@@ -106,9 +99,7 @@ var edge = new ex.Actor({
   pos: new ex.Vector(100, 300),
   color: ex.Color.Blue,
   body: new ex.BodyComponent({
-    colliders: [new ex.Collider({
-      shape: ex.Shape.Edge(new ex.Vector(0, 0), new ex.Vector(30, 100))
-    })]
+    colliders: [ex.Shape.Edge(new ex.Vector(0, 0), new ex.Vector(30, 100))]
   })
 });
 
