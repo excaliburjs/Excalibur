@@ -115,6 +115,6 @@
     "webpack-cli": "4.6.0"
   },
   "dependencies": {
-    "core-js": "3.11.1"
+    "core-js": "3.13.1"
   }
 }
