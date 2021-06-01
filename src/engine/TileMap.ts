@@ -11,7 +11,7 @@ import { TransformComponent } from './EntityComponentSystem/Components/Transform
 import { BodyComponent } from './Collision/Body';
 import { CollisionType } from './Collision/CollisionType';
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
-import { Collider, Shape } from './Collision/Index';
+import { Shape } from './Collision/Shapes/Shape';
 
 /**
  * @hidden

@@ -47,7 +47,6 @@ import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
 import { Debug } from './Debug';
-import { ConvexPolygon } from './Collision/Index';
 
 /**
  * Type guard for checking if something is an Actor
