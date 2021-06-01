@@ -465,7 +465,7 @@ export class CollisionStartEvent<T extends BodyComponent | Collider | Entity = A
    *
    * @param actor
    * @param other
-   * @param pair
+   * @param contact
    */
   constructor(actor: T, public other: T, public contact: CollisionContact) {
     super();

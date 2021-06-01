@@ -22,7 +22,7 @@ export abstract class Collider implements Clonable<Collider> {
    * or was in stationary contact with
    * the body of the other [[Collider]]
    */
-   public touching(other: Collider): boolean {
+  public touching(other: Collider): boolean {
     const contact = this.collide(other);
 
     if (contact) {
@@ -38,9 +38,10 @@ export abstract class Collider implements Clonable<Collider> {
   public owningId?: Id<'body'> = null;
 
   public owner: BodyComponent;
-  
+
   /**
-   * Pixel offset of the collision collider relative to the collider, by default (0, 0) meaning the collider is positioned on top of the collider.
+   * Pixel offset of the collision collider relative to the collider, by default (0, 0) meaning the collider is positioned
+   * on top of the collider.
    */
   offset: Vector;
 
@@ -54,12 +55,12 @@ export abstract class Collider implements Clonable<Collider> {
    */
   abstract get center(): Vector;
 
-  
+
   /**
    * Return the axis-aligned bounding box of the collision collider in world coordinates
    */
   abstract get bounds(): BoundingBox;
-  
+
   /**
    * Return the axis-aligned bounding box of the collision collider in local coordinates
    */
@@ -86,7 +87,7 @@ export abstract class Collider implements Clonable<Collider> {
    * @param collider
    */
   abstract getClosestLineBetween(collider: Collider): Line;
-  
+
   /**
    * Return wether the collider contains a point inclusive to it's border
    */

@@ -1,7 +1,7 @@
-import { Line, Vector } from "../../Algebra";
-import { Collider } from "./Collider";
-import { Circle } from "./Circle";
-import { ConvexPolygon } from "./ConvexPolygon";
+import { Line, Vector } from '../../Algebra';
+import { Collider } from './Collider';
+import { Circle } from './Circle';
+import { ConvexPolygon } from './ConvexPolygon';
 
 /**
  * Specific information about a contact and it's separation
@@ -33,7 +33,7 @@ export interface SeparationInfo {
    * Local side of separation (reference) from the collider's perspective
    */
   localSide?: Line,
-  
+
   /**
    * Index of the separation side (reference) from the collider's perspective
    */
@@ -54,39 +54,39 @@ export interface SeparationInfo {
 export class SeparatingAxis {
 
   static findPolygonPolygonSeparation(polyA: ConvexPolygon, polyB: ConvexPolygon): SeparationInfo {
-      let bestSeparation = -Number.MAX_VALUE;
-      let bestSide: Line | null = null;
-      let bestAxis: Vector | null = null;
-      let bestSideIndex: number = -1;
-      let bestOtherPoint: Vector | null = null;
-      let sides = polyA.getSides();
-      let localSides = polyA.getLocalSides();
-      for (let i = 0; i < sides.length; i++){
-          const side = sides[i];
-          const axis = side.normal();
-          const vertB = polyB.getFurthestPoint(axis.negate());
-          // Separation on side i's axis
-          // We are looking for the largest separation between poly A's sides
-          const vertSeparation = side.distanceToPoint(vertB, true); 
-          if (vertSeparation > bestSeparation) {
-              bestSeparation = vertSeparation;
-              bestSide = side;
-              bestAxis = axis;
-              bestSideIndex = i;
-              bestOtherPoint = vertB
-          }
+    let bestSeparation = -Number.MAX_VALUE;
+    let bestSide: Line | null = null;
+    let bestAxis: Vector | null = null;
+    let bestSideIndex: number = -1;
+    let bestOtherPoint: Vector | null = null;
+    const sides = polyA.getSides();
+    const localSides = polyA.getLocalSides();
+    for (let i = 0; i < sides.length; i++){
+      const side = sides[i];
+      const axis = side.normal();
+      const vertB = polyB.getFurthestPoint(axis.negate());
+      // Separation on side i's axis
+      // We are looking for the largest separation between poly A's sides
+      const vertSeparation = side.distanceToPoint(vertB, true);
+      if (vertSeparation > bestSeparation) {
+        bestSeparation = vertSeparation;
+        bestSide = side;
+        bestAxis = axis;
+        bestSideIndex = i;
+        bestOtherPoint = vertB;
       }
+    }
 
-      return {
-          collider: polyA,
-          separation: bestSeparation,
-          axis: bestAxis as Vector,
-          side: bestSide,
-          localSide: localSides[bestSideIndex],
-          sideId: bestSideIndex,
-          point: bestOtherPoint as Vector,
-          localPoint: polyB.getFurthestLocalPoint(bestAxis!.negate())
-      }
+    return {
+      collider: polyA,
+      separation: bestSeparation,
+      axis: bestAxis as Vector,
+      side: bestSide,
+      localSide: localSides[bestSideIndex],
+      sideId: bestSideIndex,
+      point: bestOtherPoint as Vector,
+      localPoint: polyB.getFurthestLocalPoint(bestAxis!.negate())
+    };
   }
 
   static findCirclePolygonSeparation(circle: Circle, polygon: ConvexPolygon): Vector | null {

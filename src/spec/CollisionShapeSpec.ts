@@ -466,7 +466,7 @@ describe('Collision Shape', () => {
         new ex.Vector(5, 5),
         new ex.Vector(-5, 5)
       ]);
-      
+
       actor.body.update();
 
       const actor2 = new ex.Actor({x: 5, y: 0, width: 10, height: 10});
@@ -601,12 +601,12 @@ describe('Collision Shape', () => {
       const { face: face2 } = polyA.getClosestFace(point2);
       expect(face2.begin).toBeVector(ex.vec(-5, -5));
       expect(face2.end).toBeVector(ex.vec(5, -5));
-      
+
       const point3 = new ex.Vector(5, 0);
       const { face: face3 } = polyA.getClosestFace(point3);
       expect(face3.begin).toBeVector(ex.vec(5, -5));
       expect(face3.end).toBeVector(ex.vec(5, 5));
-      
+
       const point4 = new ex.Vector(0, 5);
       const { face: face4 } = polyA.getClosestFace(point4);
       expect(face4.begin).toBeVector(ex.vec(5, 5));

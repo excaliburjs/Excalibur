@@ -2,7 +2,7 @@ import { vec, Vector } from '../../Algebra';
 import { Component } from '../Component';
 
 export interface Transform {
-   /**
+  /**
    * The [[coordinate plane|CoordPlane]] for this transform for the entity.
    */
   coordPlane: CoordPlane;
@@ -76,15 +76,15 @@ export class TransformComponent extends Component<'transform'> implements Transf
 
   /**
    * Apply the transform to a point
-   * @param point 
+   * @param point
    */
   public apply(point: Vector): Vector {
-    return point.scale(this.scale).rotate(this.rotation).add(this.pos)
+    return point.scale(this.scale).rotate(this.rotation).add(this.pos);
   }
 
   /**
    * Apply the inverse transform to a point
-   * @param point 
+   * @param point
    */
   public applyInverse(point: Vector): Vector {
     // TODO use matrix inverse after merging main

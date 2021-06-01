@@ -14,7 +14,7 @@ export class ScreenElement extends Actor {
 
   constructor();
   constructor(config?: ActorArgs);
-  
+
   constructor(config?: ActorArgs) {
     super({...config});
     this.components.transform.coordPlane = CoordPlane.Screen;

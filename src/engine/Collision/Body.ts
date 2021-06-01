@@ -23,7 +23,7 @@ import { ConvexPolygon } from './Shapes/ConvexPolygon';
 import { Edge } from './Shapes/Edge';
 
 export interface BodyComponentOptions {
-  box?: { width: number, height: number }; 
+  box?: { width: number, height: number };
   colliders?: Collider[];
   type?: CollisionType;
   group?: CollisionGroup;
@@ -38,7 +38,7 @@ export enum DegreeOfFreedom {
 }
 
 /**
- * Body describes all the physical properties pos, vel, acc, rotation, angular velocity for the purpose of 
+ * Body describes all the physical properties pos, vel, acc, rotation, angular velocity for the purpose of
  * of physics simulation.
  */
 export class BodyComponent extends Component<'body'> implements Clonable<Body> {
@@ -92,14 +92,14 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * The inverse mass (1/mass) of the body. If [[CollisionType.Fixed]] this is 0, meaning "infinite" mass
    */
   public get inverseMass(): number {
-    return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.mass
+    return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.mass;
   }
 
   /**
    * Amount of "motion" the body has before sleeping. If below [[Physics.sleepEpsilon]] it goes to "sleep"
    */
   public sleepMotion: number = Physics.sleepEpsilon * 5;
-  
+
   /**
    * Can this body sleep, by default bodies do not sleep
    */
@@ -115,7 +115,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   /**
    * Set the sleep state of the body
-   * @param sleeping 
+   * @param sleeping
    */
   public setSleeping(sleeping: boolean) {
     this._sleeping = sleeping;
@@ -155,10 +155,10 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   }
 
   /**
-   * Get the inverse moment of inertial from the [[CollisionShape]]. If [[CollisionType.Fixed]] this is 0, meaning "infinite" mass 
+   * Get the inverse moment of inertial from the [[CollisionShape]]. If [[CollisionType.Fixed]] this is 0, meaning "infinite" mass
    */
   public get inverseInertia() {
-    return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia
+    return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia;
   }
 
   /**
@@ -178,7 +178,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   public useGravity: boolean = true;
 
   /**
-   * Degrees of freedom to limit 
+   * Degrees of freedom to limit
    */
   public limitDegreeOfFreedom: DegreeOfFreedom[] = [];
 
@@ -188,13 +188,11 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * Get the bounding box of the body's colliders in world space
    */
   get bounds(): BoundingBox {
-    let results: BoundingBox;
-
-    results = this._colliders.reduce(
+    const results = this._colliders.reduce(
       (acc, collider) => acc.combine(collider.bounds),
       this._colliders[0]?.bounds ?? new BoundingBox().translate(this.pos)
     );
-    
+
     return results;
   }
 
@@ -202,23 +200,21 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * Get the bounding box of the body's colliders in local space
    */
   get localBounds(): BoundingBox {
-    let results: BoundingBox;
-
-    results = this._colliders.reduce(
+    const results = this._colliders.reduce(
       (acc, collider) => acc.combine(collider.localBounds),
       this._colliders[0]?.localBounds ?? new BoundingBox().translate(this.pos)
     );
-    
+
     return results;
   }
 
   /**
    * Add a collider to the body
-   * @param collider 
+   * @param collider
    */
   public addCollider(collider: Collider): BodyComponent {
     if (!collider.owningId) {
-      collider.owningId = this.id
+      collider.owningId = this.id;
       collider.owner = this;
       this._colliders.push(collider);
       this.update();
@@ -241,8 +237,8 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * Remove all colliders from the body
    */
   public clearColliders(): void {
-    let oldColliders = [...this._colliders];
-    for (let c of oldColliders) {
+    const oldColliders = [...this._colliders];
+    for (const c of oldColliders) {
       this.removeCollider(c);
     }
   }
@@ -264,13 +260,13 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   /**
    * For each collider in each body run collision on colliders
-   * @param other 
+   * @param other
    */
   public collide(other: Body): CollisionContact[] {
-    const collisions = []
+    const collisions = [];
 
-    for (let colliderA of this._colliders) {
-      for (let colliderB of other._colliders) {
+    for (const colliderA of this._colliders) {
+      for (const colliderB of other._colliders) {
         const maybeCollision = colliderA.collide(colliderB);
         if (maybeCollision) {
           collisions.push(maybeCollision);
@@ -281,7 +277,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   }
 
   /**
-   * 
+   *
    */
   public get active() {
     // todo active = alive?
@@ -457,9 +453,8 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   /**
    * Apply a specific impulse to the body
-   * @param point 
-   * @param impulse 
-   * @param normal 
+   * @param point
+   * @param impulse
    */
   public applyImpulse(point: Vector, impulse: Vector) {
     if (this.collisionType !== CollisionType.Active) {
@@ -484,7 +479,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   /**
    * Apply only linear impulse to the body
-   * @param impulse 
+   * @param impulse
    */
   public applyLinearImpulse(impulse: Vector) {
     if (this.collisionType !== CollisionType.Active) {
@@ -505,8 +500,8 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   /**
    * Apply only angular impuse to the body
-   * @param point 
-   * @param impulse 
+   * @param point
+   * @param impulse
    */
   public applyAngularImpulse(point: Vector, impulse: Vector) {
     if (this.collisionType !== CollisionType.Active) {
@@ -534,36 +529,40 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   public hasChanged() {
     return (!this.oldPos.equals(this.pos) ||
           this.oldRotation !== this.rotation ||
-          this.oldScale !== this.scale)
+          this.oldScale !== this.scale);
   }
 
   onAdd(entity: Entity) {
     this.update();
     this.events.on('precollision', (evt: any) => {
-      entity.events.emit('precollision', new PreCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection));
+      entity.events.emit('precollision',
+        new PreCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection));
     });
     this.events.on('postcollision', (evt: any) => {
-      entity.events.emit('postcollision', new PostCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection));
+      entity.events.emit('postcollision',
+        new PostCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection));
     });
     this.events.on('collisionstart', (evt: any) => {
-      entity.events.emit('collisionstart', new CollisionStartEvent(evt.target?.owner?.owner, evt.other?.owner?.owner, evt.contact));
+      entity.events.emit('collisionstart',
+        new CollisionStartEvent(evt.target?.owner?.owner, evt.other?.owner?.owner, evt.contact));
     });
     this.events.on('collisionend', (evt: any) => {
-      entity.events.emit('collisionend', new CollisionEndEvent(evt.target?.owner?.owner, evt.other?.owner?.owner));
+      entity.events.emit('collisionend',
+        new CollisionEndEvent(evt.target?.owner?.owner, evt.other?.owner?.owner));
     });
   }
 
   onRemove() {
     this.events.clear();
     // Signal to remove colliders from process
-    for (let collider of this._colliders) {
+    for (const collider of this._colliders) {
       this.$collidersRemoved.notifyAll(collider);
     }
   }
 
   update() {
     if (this.transform) {
-      for (let collider of this._colliders) {
+      for (const collider of this._colliders) {
         collider.update(this.transform);
       }
     }
@@ -583,7 +582,7 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     }
 
     if (Physics.debug.showColliderGeometry) {
-      for (let collider of this._colliders) {
+      for (const collider of this._colliders) {
         collider.debugDraw(ctx, this.sleeping ? Color.Gray : Color.Green);
       }
     }
@@ -603,11 +602,11 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   /**
    * Add a box collider to the body's existing colliders
-   * 
-   * @param width 
-   * @param height 
-   * @param anchor 
-   * @param center 
+   *
+   * @param width
+   * @param height
+   * @param anchor
+   * @param center
    */
   public addBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
     const collider = Shape.Box(width, height, anchor, center);
@@ -631,14 +630,14 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   /**
    * Adds a polygon collider to the body's existing colliders
-   * 
-   * @param points 
-   * @param center 
+   *
+   * @param points
+   * @param center
    */
   public addPolygonCollider(points: Vector[], center: Vector = Vector.Zero): ConvexPolygon {
     const collider = Shape.Polygon(points, false, center);
-    this.addCollider(collider)
-    return collider
+    this.addCollider(collider);
+    return collider;
   }
 
   /**
@@ -653,13 +652,13 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
 
   /**
    * Adds a circle collider tot he body's existing colliders
-   * 
+   *
    * @param radius Radius of the circle in pixels
    * @param center The relative position of the circles center, by default (0, 0) which is centered
    */
   public addCircleCollider(radius: number, center: Vector = Vector.Zero): Circle {
     const collider = Shape.Circle(radius, center);
-    this.addCollider(collider)
+    this.addCollider(collider);
     return collider;
   }
 
@@ -670,15 +669,15 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   public useEdgeCollider(begin: Vector, end: Vector): Edge {
-    this.clearColliders()
+    this.clearColliders();
     return this.addEdgeCollider(begin, end);
   }
 
   /**
-   * Adds an edge collider to the body's existing colliders 
-   * 
-   * @param begin 
-   * @param end 
+   * Adds an edge collider to the body's existing colliders
+   *
+   * @param begin
+   * @param end
    */
   public addEdgeCollider(begin: Vector, end: Vector): Edge {
     const collider = Shape.Edge(begin, end);

@@ -87,7 +87,7 @@ export class ConvexPolygon extends Collider {
    */
   private _calculateTransformation() {
     const transform = this._transform;
-    
+
     const pos = transform ? transform.pos.add(this.offset) : this.offset;
     const angle = transform ? transform.rotation : 0;
     const scale = transform ? transform.scale : Vector.One;
@@ -153,40 +153,40 @@ export class ConvexPolygon extends Collider {
 
   /**
    * Given a direction vector find the world space side that is most in that direction
-   * @param direction 
+   * @param direction
    */
   public findSide(direction: Vector): Line {
-    let sides = this.getSides();
+    const sides = this.getSides();
     let bestSide = sides[0];
     let maxDistance = -Number.MAX_VALUE;
     for (let side = 0; side < sides.length; side++) {
-        let currentSide = sides[side];
-        const sideNormal = currentSide.normal();
-        const mostDirection = sideNormal.dot(direction);
-        if (mostDirection > maxDistance) {
-            bestSide = currentSide;
-            maxDistance = mostDirection;
-        }
+      const currentSide = sides[side];
+      const sideNormal = currentSide.normal();
+      const mostDirection = sideNormal.dot(direction);
+      if (mostDirection > maxDistance) {
+        bestSide = currentSide;
+        maxDistance = mostDirection;
+      }
     }
     return bestSide;
   }
 
   /**
    * Given a direction vector find the local space side that is most in that direction
-   * @param direction 
+   * @param direction
    */
   public findLocalSide(direction: Vector): Line {
-    let sides = this.getLocalSides();
+    const sides = this.getLocalSides();
     let bestSide = sides[0];
     let maxDistance = -Number.MAX_VALUE;
     for (let side = 0; side < sides.length; side++) {
-        let currentSide = sides[side];
-        const sideNormal = currentSide.normal();
-        const mostDirection = sideNormal.dot(direction);
-        if (mostDirection > maxDistance) {
-            bestSide = currentSide;
-            maxDistance = mostDirection;
-        }
+      const currentSide = sides[side];
+      const sideNormal = currentSide.normal();
+      const mostDirection = sideNormal.dot(direction);
+      if (mostDirection > maxDistance) {
+        bestSide = currentSide;
+        maxDistance = mostDirection;
+      }
     }
     return bestSide;
   }
@@ -282,18 +282,18 @@ export class ConvexPolygon extends Collider {
 
   /**
    * Find the local point on the shape furthest in the direction specified
-   * @param direction 
+   * @param direction
    */
   public getFurthestLocalPoint(direction: Vector): Vector {
     const pts = this.points;
     let furthestPoint = pts[0];
     let maxDistance = -Number.MAX_VALUE;
     for (let i = 0; i < pts.length; i++) {
-        const distance = direction.dot(pts[i]);
-        if (distance > maxDistance) {
-            maxDistance = distance;
-            furthestPoint = pts[i];
-        }
+      const distance = direction.dot(pts[i]);
+      if (distance > maxDistance) {
+        maxDistance = distance;
+        furthestPoint = pts[i];
+      }
     }
     return furthestPoint;
   }

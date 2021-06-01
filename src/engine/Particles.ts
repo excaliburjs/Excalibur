@@ -411,7 +411,7 @@ export class ParticleEmitter extends Actor {
       radius,
       particleRotationalVelocity,
       randomRotation,
-      random,
+      random
     } = { ...config };
 
     this.pos = pos ?? vec(x ?? 0, y ?? 0);
@@ -443,7 +443,7 @@ export class ParticleEmitter extends Actor {
     this.body.collisionType = CollisionType.PreventCollision;
     this.particles = new Util.Collection<Particle>();
     this.deadParticles = new Util.Collection<Particle>();
-    
+
     this.random = random ?? new Random();
 
     // Remove offscreen culling from particle emitters

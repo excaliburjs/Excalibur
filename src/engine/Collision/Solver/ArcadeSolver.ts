@@ -5,11 +5,11 @@ import { Side } from '../Side';
 import { CollisionSolver } from './Solver';
 
 /**
- * ArcadeSolver is the default in Excalibur. It solves collisions so that there is no overlap between contacts, 
+ * ArcadeSolver is the default in Excalibur. It solves collisions so that there is no overlap between contacts,
  * and negates velocity along the collision normal.
- * 
+ *
  * This is usually the type of collisions used for 2D games that don't need a more realistic collision simulation.
- * 
+ *
  */
 export class ArcadeSolver extends CollisionSolver {
   public preSolve(contacts: CollisionContact[]) {
@@ -52,7 +52,7 @@ export class ArcadeSolver extends CollisionSolver {
       if (colliderA.owner.collisionType === CollisionType.Passive || colliderB.owner.collisionType === CollisionType.Passive) {
         continue;
       }
-      
+
       if (colliderA.owner.collisionType === CollisionType.Active && colliderB.owner.collisionType === CollisionType.Active) {
         // split overlaps if both are Active
         mtv = mtv.scale(0.5);

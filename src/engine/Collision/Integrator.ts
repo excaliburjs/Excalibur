@@ -1,6 +1,6 @@
-import { Vector } from "../Algebra";
-import { TransformComponent } from "../EntityComponentSystem";
-import { MotionComponent } from "../EntityComponentSystem/Components/MotionComponent";
+import { Vector } from '../Algebra';
+import { TransformComponent } from '../EntityComponentSystem';
+import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 
 
 export class EulerIntegrator {
@@ -14,4 +14,4 @@ export class EulerIntegrator {
 
     transform.scale.addEqual(motion.scaleFactor.scale(seconds));
   }
-} 
+}

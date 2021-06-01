@@ -19,13 +19,13 @@ export * from './Detection/CollisionProcessor';
 export * from './Detection/DynamicTree';
 export * from './Detection/DynamicTreeCollisionProcessor';
 
-export * from './Solver/ArcadeSolver'
-export * from './Solver/ContactConstraintPoint'
-export * from './Solver/RealisticSolver'
-export * from './Solver/Solver'
+export * from './Solver/ArcadeSolver';
+export * from './Solver/ContactConstraintPoint';
+export * from './Solver/RealisticSolver';
+export * from './Solver/Solver';
 
-export * from './CollisionSystem'
-export * from './MotionSystem'
+export * from './CollisionSystem';
+export * from './MotionSystem';
 
 export * from './Physics';
 export * from './Side';

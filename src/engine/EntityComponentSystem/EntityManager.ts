@@ -13,7 +13,7 @@ export class EntityManager<ContextType> implements Observer<RemovedComponent | A
 
   /**
    * Runs the entity lifecycle
-   * @param _context 
+   * @param _context
    */
   public updateEntities(_context: ContextType, elapsed: number) {
     for (const entity of this.entities) {

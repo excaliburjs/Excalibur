@@ -1,44 +1,44 @@
-import { Vector } from "../../Algebra";
-import { CollisionContact } from "../Detection/CollisionContact";
+import { Vector } from '../../Algebra';
+import { CollisionContact } from '../Detection/CollisionContact';
 
 /**
  * Holds information about contact points, meant to be reused over multiple frames of contact
  */
- export class ContactConstraintPoint {
+export class ContactConstraintPoint {
 
   constructor(public point: Vector, public local: Vector, public contact: CollisionContact) {
-      this.update();
-   }
+    this.update();
+  }
 
   /**
    * Updates the contact information
    */
   update() {
-      const bodyA = this.contact.colliderA.owner;
-      const bodyB = this.contact.colliderB.owner;
-      const normal = this.contact.normal;
-      const tangent = this.contact.tangent;
+    const bodyA = this.contact.colliderA.owner;
+    const bodyB = this.contact.colliderB.owner;
+    const normal = this.contact.normal;
+    const tangent = this.contact.tangent;
 
-      this.aToContact = this.point.sub(bodyA.pos);
-      this.bToContact = this.point.sub(bodyB.pos);
+    this.aToContact = this.point.sub(bodyA.pos);
+    this.bToContact = this.point.sub(bodyB.pos);
 
-      const aToContactNormal = this.aToContact.cross(normal);
-      const bToContactNormal = this.bToContact.cross(normal);
+    const aToContactNormal = this.aToContact.cross(normal);
+    const bToContactNormal = this.bToContact.cross(normal);
 
-      this.normalMass = bodyA.inverseMass + bodyB.inverseMass + 
+    this.normalMass = bodyA.inverseMass + bodyB.inverseMass +
                         bodyA.inverseInertia * aToContactNormal * aToContactNormal +
                         bodyB.inverseInertia * bToContactNormal * bToContactNormal;
-                        
 
-      const aToContactTangent = this.aToContact.cross(tangent);
-      const bToContactTangent = this.bToContact.cross(tangent);
 
-      this.tangentMass = bodyA.inverseMass + bodyB.inverseMass +
+    const aToContactTangent = this.aToContact.cross(tangent);
+    const bToContactTangent = this.bToContact.cross(tangent);
+
+    this.tangentMass = bodyA.inverseMass + bodyB.inverseMass +
                          bodyA.inverseInertia * aToContactTangent * aToContactTangent +
                          bodyB.inverseInertia * bToContactTangent * bToContactTangent;
 
 
-      return this;
+    return this;
   }
 
   /**
@@ -69,18 +69,18 @@ import { CollisionContact } from "../Detection/CollisionContact";
    * Effective mass seen in the normal direction
    */
   public normalMass: number = 0;
-  
+
   /**
    * Effective mass seen in the tangent direction
    */
   public tangentMass: number = 0;
 
-  /** 
+  /**
    * Direction from center of mass of bodyA to contact point
    */
   public aToContact: Vector = new Vector(0, 0);
 
-  /** 
+  /**
    * Direction from center of mass of bodyB to contact point
    */
   public bToContact: Vector = new Vector(0, 0);

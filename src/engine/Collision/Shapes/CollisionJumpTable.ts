@@ -33,7 +33,7 @@ export const CollisionJumpTable = {
       separation,
       axis: normal,
       point: point
-    }
+    };
 
     return new CollisionContact(circleA, circleB, mvt, normal, tangent, [point], [local], info);
   },
@@ -60,7 +60,7 @@ export const CollisionJumpTable = {
       localPoint: local,
       side: polygon.findSide(normal.negate()),
       localSide: polygon.findLocalSide(normal.negate())
-    }
+    };
 
     return new CollisionContact(
       circle,
@@ -99,7 +99,7 @@ export const CollisionJumpTable = {
       }
 
       const normal = da.normalize();
-      const separation = circle.radius - Math.sqrt(dda)
+      const separation = circle.radius - Math.sqrt(dda);
 
 
       const info: SeparationInfo = {
@@ -109,7 +109,7 @@ export const CollisionJumpTable = {
         point: side.begin,
         side: side,
         localSide: localSide
-      }
+      };
 
       return new CollisionContact(
         circle,
@@ -141,7 +141,7 @@ export const CollisionJumpTable = {
         point: side.end,
         side: side,
         localSide: localSide
-      }
+      };
 
       return new CollisionContact(
         circle,
@@ -186,7 +186,7 @@ export const CollisionJumpTable = {
       point: pointOnEdge,
       side: side,
       localSide: localSide
-    }
+    };
 
 
     return new CollisionContact(
@@ -261,7 +261,7 @@ export const CollisionJumpTable = {
     if (clipLeft) {
       // We only want clip points below the reference edge, discard the others
       const points = clipLeft.getPoints().filter(p => {
-        return reference.below(p)
+        return reference.below(p);
       });
 
       let normal = separation.axis;

@@ -82,7 +82,7 @@ export class Entity<KnownComponents extends Component = never> extends Class imp
   public id: number = Entity._ID++;
 
   public get events(): EventDispatcher {
-    return this.eventDispatcher
+    return this.eventDispatcher;
   }
 
   constructor() {

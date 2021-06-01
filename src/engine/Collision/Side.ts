@@ -1,4 +1,4 @@
-import { Vector } from "../Algebra";
+import { Vector } from '../Algebra';
 
 /**
  * An enum that describes the sides of an axis aligned box for collision
@@ -12,6 +12,9 @@ export enum Side {
 }
 
 export module Side {
+  /**
+   *
+   */
   export function getOpposite(side: Side): Side {
     if (side === Side.Top) {
       return Side.Bottom;
@@ -25,14 +28,17 @@ export module Side {
     if (side === Side.Right) {
       return Side.Left;
     }
-  
+
     return Side.None;
   }
 
+  /**
+   *
+   */
   export function fromDirection(direction: Vector): Side {
     const directions = [Vector.Left, Vector.Right, Vector.Up, Vector.Down];
     const directionEnum = [Side.Left, Side.Right, Side.Top, Side.Bottom];
-  
+
     let max = -Number.MAX_VALUE;
     let maxIndex = -1;
     for (let i = 0; i < directions.length; i++) {

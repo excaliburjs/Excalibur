@@ -157,7 +157,7 @@ export class Actor
   public get transform(): TransformComponent {
     return this.components.transform;
   }
-  
+
   public get motion(): MotionComponent {
     return this.components.motion;
   }
@@ -440,8 +440,8 @@ export class Actor
   // #endregion
 
   /**
-   * 
-   * @param config 
+   *
+   * @param config
    */
   constructor(config?: ActorArgs) {
     super();
@@ -479,7 +479,7 @@ export class Actor
     this.vel = vel ?? Vector.Zero;
     this.acc = acc ?? Vector.Zero;
     this.angularVelocity = angularVelocity ?? 0;
-    
+
     this.addComponent(body ?? new BodyComponent({
       box: (width && height) ? {
         width: width ?? 0,
@@ -933,7 +933,7 @@ export class Actor
       }
     }
   }
-  
+
   /**
    * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
@@ -946,7 +946,7 @@ export class Actor
    * Sets the z-index of an actor and updates it in the drawing list for the scene.
    * The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
-   * @param newIndex new z-index to assign
+   * @param newZ new z-index to assign
    */
   public set z(newZ: number) {
     this.components.transform.z = newZ;
@@ -1165,10 +1165,10 @@ export class Actor
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     // translate canvas by anchor offset
     ctx.save();
-    
+
     if (this.currentDrawing) {
       ctx.translate(-(this.width * this.anchor.x), -(this.height * this.anchor.y));
-  
+
       this._predraw(ctx, delta);
       const drawing = this.currentDrawing;
       // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
@@ -1182,7 +1182,7 @@ export class Actor
         // update collider geometry based on transform
         this.body.update();
         const colliders = this.body.getColliders();
-        for (let collider of colliders) {
+        for (const collider of colliders) {
           // Colliders are already shifted by anchor, unshift
           collider.draw(ctx, this.color, vec(0, 0));
         }

@@ -1,18 +1,15 @@
-import { Camera } from "../Camera";
-import { Color } from "../Drawing/Color";
-import { Component, ComponentType, Entity } from "../EntityComponentSystem";
-import { MotionComponent } from "../EntityComponentSystem/Components/MotionComponent";
-import { TransformComponent } from "../EntityComponentSystem/Components/TransformComponent";
-import { System, SystemType } from "../EntityComponentSystem/System";
-import { Physics } from "./Physics";
-import { Scene } from "../Scene";
-import { DrawUtil } from "../Util/Index";
-import { Body } from "./Body";
-import { CollisionType } from "./CollisionType";
-import { EulerIntegrator } from "./Integrator";
-// import { CollisionType } from "./CollisionType";
-// import { EulerIntegrator } from "./Integrator";
-
+import { Camera } from '../Camera';
+import { Color } from '../Drawing/Color';
+import { Component, ComponentType, Entity } from '../EntityComponentSystem';
+import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
+import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
+import { System, SystemType } from '../EntityComponentSystem/System';
+import { Physics } from './Physics';
+import { Scene } from '../Scene';
+import { DrawUtil } from '../Util/Index';
+import { Body } from './Body';
+import { CollisionType } from './CollisionType';
+import { EulerIntegrator } from './Integrator';
 
 export class MotionSystem extends System<TransformComponent | MotionComponent> {
   public readonly types = ['transform', 'motion'] as const;
@@ -27,14 +24,14 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
 
   getOptional<T extends Component>(entity: Entity, component: ComponentType<T>): T | null {
     if (entity.components[component]){
-      return (entity.components as any)[component] ?? null; 
+      return (entity.components as any)[component] ?? null;
     }
     return null;
   }
 
   update(_entities: Entity<TransformComponent | MotionComponent>[], elapsedMs: number): void {
     let transform: TransformComponent;
-    let motion; MotionComponent;
+    let motion: MotionComponent;
     this._entities = _entities;
     for (const entity of _entities) {
       transform = entity.components.transform;
@@ -46,7 +43,7 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
       }
 
       const totalAcc = motion.acc.clone();
-      if (optionalBody?.collisionType === CollisionType.Active && 
+      if (optionalBody?.collisionType === CollisionType.Active &&
           optionalBody?.useGravity) {
         totalAcc.addEqual(Physics.gravity);
       }
@@ -60,7 +57,7 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
   debugDraw(ctx: CanvasRenderingContext2D) {
     ctx.save();
     this._camera.draw(ctx);
-    for (let entity of this._entities) {
+    for (const entity of this._entities) {
       if (Physics.debug.showMotionVectors) {
         DrawUtil.vector(ctx, Color.Yellow, entity.components.transform.pos, entity.components.motion.acc.add(Physics.acc));
         DrawUtil.vector(ctx, Color.Blue, entity.components.transform.pos, entity.components.motion.vel);

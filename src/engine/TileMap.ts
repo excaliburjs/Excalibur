@@ -47,9 +47,9 @@ export class TileMapImpl extends Entity<TransformComponent | MotionComponent | B
   public get pos(): Vector {
     return this.transform.pos;
   }
-  
+
   public set pos(val: Vector) {
-    this.transform.pos = val
+    this.transform.pos = val;
   }
 
   public get scale(): Vector {
@@ -69,13 +69,13 @@ export class TileMapImpl extends Entity<TransformComponent | MotionComponent | B
   }
 
   public get z(): number {
-    return this.transform.z; 
+    return this.transform.z;
   }
 
   public set z(val: number) {
     this.transform.z = val;
   }
-  
+
   public get vel(): Vector {
     return this.motion.vel;
   }
@@ -84,7 +84,7 @@ export class TileMapImpl extends Entity<TransformComponent | MotionComponent | B
     this.motion.vel = val;
   }
 
-  
+
   public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent<TileMap>) => void): void;
   public on(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent<TileMap>) => void): void;
   public on(eventName: Events.predraw, handler: (event: Events.PreDrawEvent) => void): void;
@@ -174,7 +174,7 @@ export class TileMapImpl extends Entity<TransformComponent | MotionComponent | B
       if (current) {
         // if previous is the same combine it
         const prev = colliders[colliders.length - 1];
-        if (prev && prev.top === current.top && prev.bottom == current.bottom) {
+        if (prev && prev.top === current.top && prev.bottom === current.bottom) {
           colliders[colliders.length - 1] = prev.combine(current);
         } else { // else new collider
           colliders.push(current);
@@ -182,7 +182,7 @@ export class TileMapImpl extends Entity<TransformComponent | MotionComponent | B
       }
     }
 
-    for (let c of colliders) {
+    for (const c of colliders) {
       this.components.body.addCollider(
         Shape.Box(c.width, c.height, Vector.Zero, vec(c.left - this.pos.x, c.top - this.pos.y)),
       );
@@ -292,10 +292,6 @@ export class TileMapImpl extends Entity<TransformComponent | MotionComponent | B
     }
 
     this.emit('postdraw', new Events.PostDrawEvent(ctx, delta, this));
-  }
-
-  public debugDraw(_ctx: CanvasRenderingContext2D) {
-
   }
 }
 

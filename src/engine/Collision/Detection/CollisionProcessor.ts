@@ -5,7 +5,7 @@ import { CollisionContact } from './CollisionContact';
 
 /**
  * Definition for collision processor
- * 
+ *
  * Collision processors are responsible for tracking colliders and identifying contacts between them
  */
 export interface CollisionProcessor {

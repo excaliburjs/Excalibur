@@ -258,7 +258,7 @@ export class Vector implements Clonable<Vector> {
   }
 
   static cross(num: number, vec: Vector): Vector {
-    return new Vector(-num * vec.y, num * vec.x)
+    return new Vector(-num * vec.y, num * vec.x);
   }
 
   /**
@@ -465,27 +465,28 @@ export class Line {
 
   /**
    * Tests if a given point is below the line, points in the normal direction above the line are considered above.
-   * @param point 
+   * @param point
    */
   public below(point: Vector): boolean {
-    let above2 = ((this.end.x - this.begin.x) * (point.y - this.begin.y) - 
-    (this.end.y - this.begin.y) * (point.x - this.begin.x))
+    const above2 = ((this.end.x - this.begin.x) * (point.y - this.begin.y) -
+    (this.end.y - this.begin.y) * (point.x - this.begin.x));
     return above2 >= 0;
   }
 
   /**
    * Returns the clip point
-   * @param other 
+   * @param sideVector Vector that traces the line
+   * @param length Length to clip along side
    */
-  public clip(sideNormal: Vector, size: number): Line {
-    let dir = sideNormal;
+  public clip(sideVector: Vector, length: number): Line {
+    let dir = sideVector;
     dir = dir.normalize();
 
 
-    const near = dir.dot(this.begin) - size;
-    const far = dir.dot(this.end) - size;
+    const near = dir.dot(this.begin) - length;
+    const far = dir.dot(this.end) - length;
 
-    let results = [];
+    const results = [];
     if (near <= 0) {
       results.push(this.begin);
     }

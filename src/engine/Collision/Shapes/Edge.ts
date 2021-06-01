@@ -61,7 +61,7 @@ export class Edge extends Collider {
   }
 
   private _getBodyPos(): Vector {
-    let bodyPos = this._transform?.pos ?? Vector.Zero;
+    const bodyPos = this._transform?.pos ?? Vector.Zero;
     return bodyPos;
   }
 

@@ -70,7 +70,7 @@ export class Circle extends Collider {
    * Tests if a point is contained in this collision shape
    */
   public contains(point: Vector): boolean {
-    let pos = this._transform?.pos ?? this.offset;
+    const pos = this._transform?.pos ?? this.offset;
     const distance = pos.distance(point);
     if (distance <= this.radius) {
       return true;
@@ -159,7 +159,7 @@ export class Circle extends Collider {
 
   /**
    * Find the local point on the shape in the direction specified
-   * @param direction 
+   * @param direction
    */
   public getFurthestLocalPoint(direction: Vector): Vector {
     const dir = direction.normalize();
@@ -170,7 +170,7 @@ export class Circle extends Collider {
    * Get the axis aligned bounding box for the circle shape in world coordinates
    */
   public get bounds(): BoundingBox {
-    let bodyPos = this._transform?.pos ?? Vector.Zero;
+    const bodyPos = this._transform?.pos ?? Vector.Zero;
     return new BoundingBox(
       this.offset.x + bodyPos.x - this.radius,
       this.offset.y + bodyPos.y - this.radius,

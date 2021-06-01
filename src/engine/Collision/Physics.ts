@@ -5,45 +5,45 @@ export class PhysicsDebug {
   /**
    * Globally switches the debug information for the broadphase strategy
    */
-   public static broadphaseDebug: boolean = false;
-   /**
-    * Show the normals as a result of collision on the screen.
-    */
-   public static showCollisionNormals: boolean = false;
-   /**
-    * Show the position, velocity, and acceleration as graphical vectors.
-    */
-   public static showMotionVectors: boolean = false;
- 
-   /**
-    * Show the amount of motion a body has accumulated
-    */
-   public static showSleepMotion: boolean = false;
-   /**
-    * Show the axis-aligned bounding boxes of the collision bodies on the screen.
-    */
-   public static showColliderBounds: boolean = false;
-   /**
-    * Show the bounding collision area shapes
-    */
-   public static showColliderGeometry: boolean = false;
- 
-   public static showColliderNormals: boolean = false;
-   /**
-    * Show points of collision interpreted by excalibur as a result of collision.
-    */
-   public static showContacts: boolean = false;
-   /**
-    * Show the surface normals of the collision areas.
-    */
-   public static showNormals: boolean = false;
+  public static broadphaseDebug: boolean = false;
+  /**
+   * Show the normals as a result of collision on the screen.
+   */
+  public static showCollisionNormals: boolean = false;
+  /**
+   * Show the position, velocity, and acceleration as graphical vectors.
+   */
+  public static showMotionVectors: boolean = false;
+
+  /**
+   * Show the amount of motion a body has accumulated
+   */
+  public static showSleepMotion: boolean = false;
+  /**
+   * Show the axis-aligned bounding boxes of the collision bodies on the screen.
+   */
+  public static showColliderBounds: boolean = false;
+  /**
+   * Show the bounding collision area shapes
+   */
+  public static showColliderGeometry: boolean = false;
+
+  public static showColliderNormals: boolean = false;
+  /**
+   * Show points of collision interpreted by excalibur as a result of collision.
+   */
+  public static showContacts: boolean = false;
+  /**
+   * Show the surface normals of the collision areas.
+   */
+  public static showNormals: boolean = false;
 }
 
 /**
  * Possible collision resolution strategies
  *
- * The default is [[CollisionResolutionStrategy.Arcade]] which performs simple axis aligned arcade style physics. This is useful for things like platformers or top
- * down games.
+ * The default is [[CollisionResolutionStrategy.Arcade]] which performs simple axis aligned arcade style physics. This is useful for things
+ * like platformers or top down games.
  *
  * More advanced rigid body physics are enabled by setting [[CollisionResolutionStrategy.Realistic]] which allows for complicated
  * simulated physical interactions.
@@ -133,7 +133,7 @@ export class Physics {
   public static useArcadePhysics(): void {
     Physics.collisionResolutionStrategy = CollisionResolutionStrategy.Arcade;
   }
-  
+
 
   /**
    * Configures Excalibur to use rigid body physics. Rigid body physics allows for complicated

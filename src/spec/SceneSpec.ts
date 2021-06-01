@@ -350,7 +350,7 @@ describe('A scene', () => {
 
     engine.removeScene('root');
     engine.addScene('root', scene);
-    
+
     const actor = new ex.Actor();
     scene.add(actor);
     let sceneInit = false;

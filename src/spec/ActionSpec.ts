@@ -644,7 +644,7 @@ describe('Action', () => {
 
       // testing basic meet
       const actorToMeet = new ex.Actor({x: 10, y: 0});
-      scene.add(actorToMeet)
+      scene.add(actorToMeet);
       actorToMeet.actions.moveTo(100, 0, 10);
       actor.actions.meet(actorToMeet);
 

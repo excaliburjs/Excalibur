@@ -12,7 +12,7 @@ function hasClone(x: any): x is { clone(): any } {
   return !!x?.clone;
 }
 
-export type ComponentType<ComponentToParse> = ComponentToParse extends Component<infer TypeName> ? TypeName : never; 
+export type ComponentType<ComponentToParse> = ComponentToParse extends Component<infer TypeName> ? TypeName : never;
 
 /**
  * Components are containers for state in Excalibur, the are meant to convey capabilities that an Entity posesses

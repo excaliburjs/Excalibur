@@ -58,7 +58,15 @@ export class CollisionContact {
    */
   info: SeparationInfo;
 
-  constructor(colliderA: Collider, colliderB: Collider, mtv: Vector, normal: Vector, tangent: Vector, points: Vector[], localPoints: Vector[], info: SeparationInfo) {
+  constructor(
+    colliderA: Collider,
+    colliderB: Collider,
+    mtv: Vector,
+    normal: Vector,
+    tangent: Vector,
+    points: Vector[],
+    localPoints: Vector[],
+    info: SeparationInfo) {
     this.colliderA = colliderA;
     this.colliderB = colliderB;
     this.mtv = mtv;
@@ -68,7 +76,7 @@ export class CollisionContact {
     this.localPoints = localPoints;
     this.info = info;
     // TODO should we use body? or is collider id better
-    this.id = Pair.calculatePairHash(colliderA.owningId ?? createId("body", 0), colliderB.owningId ?? createId("body", 0));
+    this.id = Pair.calculatePairHash(colliderA.owningId ?? createId('body', 0), colliderB.owningId ?? createId('body', 0));
   }
 
   /**

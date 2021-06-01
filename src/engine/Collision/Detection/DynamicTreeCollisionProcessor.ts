@@ -14,7 +14,7 @@ import { ConvexPolygon } from '../Shapes/ConvexPolygon';
 import { DrawUtil } from '../../Util/Index';
 
 /**
- * Responsible for performing the collision broadphase (locating potential colllisions) and 
+ * Responsible for performing the collision broadphase (locating potential colllisions) and
  * the narrowphase (actual collision contacts)
  */
 export class DynamicTreeCollisionProcessor implements CollisionProcessor {
@@ -53,7 +53,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
   private _shouldGenerateCollisionPair(colliderA: Collider, colliderB: Collider) {
     // if the collision pair is part of the same fixture that's invalid
-    if ((colliderA.owningId !== null && colliderB.owningId !== null) && 
+    if ((colliderA.owningId !== null && colliderB.owningId !== null) &&
         colliderA.owningId === colliderB.owningId) {
       return false;
     }
@@ -182,7 +182,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
    * Adds actual colliding pairs to stats' Frame data
    */
   public narrowphase(pairs: Pair[], stats?: FrameStats): CollisionContact[] {
-    let contacts: CollisionContact[] = []
+    let contacts: CollisionContact[] = [];
     for (let i = 0; i < pairs.length; i++) {
       contacts = contacts.concat(pairs[i].collide());
       if (stats && contacts.length > 0) {
@@ -217,17 +217,21 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     }
 
     if (Physics.debug.showColliderGeometry) {
-      for (let collider of this._colliders) {
+      for (const collider of this._colliders) {
         if (Physics.debug.showColliderBounds) {
           collider.bounds.debugDraw(ctx, Color.Yellow);
         }
-    
+
         if (Physics.debug.showColliderGeometry) {
-          collider.debugDraw(ctx, collider.owner.sleeping || collider.owner.collisionType === CollisionType.Fixed ? Color.Gray : Color.Green);
+          let color = Color.Green;
+          if (collider.owner.sleeping || collider.owner.collisionType === CollisionType.Fixed) {
+            color = Color.Gray;
+          }
+          collider.debugDraw(ctx, color);
         }
 
         if (Physics.debug.showColliderNormals && collider instanceof ConvexPolygon) {
-          for (let side of collider.getSides()) {
+          for (const side of collider.getSides()) {
             DrawUtil.point(ctx, Color.Blue, side.midpoint);
             DrawUtil.vector(ctx, Color.Yellow, side.midpoint, side.normal(), 30);
           }

@@ -41,7 +41,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
         this._processor.track(collider);
       }
     } else {
-      let maybeBody = message.data.components.body as BodyComponent;
+      const maybeBody = message.data.components.body as BodyComponent;
       if (maybeBody) {
         for (const collider of maybeBody.getColliders()) {
           this._processor.untrack(collider);
@@ -92,7 +92,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
     // Emit contact start/end events
     this.runContactStartEnd();
-    
+
     // reset the last frame cache
     this._lastFrameContacts.clear();
 

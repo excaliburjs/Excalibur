@@ -8,7 +8,7 @@ describe('A CollisionContact', () => {
   let colliderA: ex.Collider;
   let colliderB: ex.Collider;
 
-  
+
   beforeEach(() => {
     actorA = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
     actorA.body.useCircleCollider(10);
@@ -67,9 +67,9 @@ describe('A CollisionContact', () => {
   });
 
   it('emits a collision event on both actors in the Arcade solver', () => {
-    
-    let actorAPreCollide = jasmine.createSpy('precollision A');
-    let actorBPreCollide = jasmine.createSpy('precollision B');
+
+    const actorAPreCollide = jasmine.createSpy('precollision A');
+    const actorBPreCollide = jasmine.createSpy('precollision B');
     actorA.on('precollision', actorAPreCollide);
 
     actorB.on('precollision', actorBPreCollide);
@@ -118,7 +118,7 @@ describe('A CollisionContact', () => {
     ex.Physics.slop = 0; // slop is normally 1 pixel, we are testing at a pixel scale here
     const solver = new ex.RealisticSolver();
 
-    // Realistic solver converges over time 
+    // Realistic solver converges over time
     for (let i = 0; i < 4; i++) {
       solver.solve([cc]);
       // Realistic solver uses velocity impulses to correct overlap

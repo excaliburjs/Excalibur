@@ -1,5 +1,5 @@
-import { Vector } from "../../Algebra";
-import { Component } from "../Component";
+import { Vector } from '../../Algebra';
+import { Component } from '../Component';
 
 export interface Motion {
   /**
