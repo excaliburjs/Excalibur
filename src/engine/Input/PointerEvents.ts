@@ -102,12 +102,16 @@ export class PointerEvent extends GameEvent<Actor> {
   public _canceled = false;
 
   /**
-   * Cancels the event and prevents it from propagating to any other actors
+   * Cancels pointer event propogation, event will not be transmitted to any other actors
    */
   public cancel() {
     this._canceled = true;
   }
 
+ /**
+   * 
+   * @returns If the event is canceled it will no longer be transmitted to any other actors
+   */
   public isCanceled(){
     return this._canceled;
   }
