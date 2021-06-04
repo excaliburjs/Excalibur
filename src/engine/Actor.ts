@@ -1051,7 +1051,7 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
     // These shenanigans are to handle child actor containment,
     // the only time getWorldPos and pos are different is a child actor
     const childShift = this.getGlobalPos().sub(this.pos);
-    const containment = this.body.collider.bounds.translate(childShift).contains(new Vector(x, y));
+    const containment = this.body.collider.shape.contains(new Vector(x, y).add(childShift));
 
     if (recurse) {
       return (
