@@ -108,8 +108,8 @@ export class PointerEvent extends GameEvent<Actor> {
     this._canceled = true;
   }
 
- /**
-   * 
+  /**
+   *
    * @returns If the event is canceled it will no longer be transmitted to any other actors
    */
   public isCanceled(){
@@ -333,7 +333,7 @@ export class WheelEvent extends GameEvent<Actor> {
   }
 
   /**
-   * 
+   *
    * @returns If the event is canceled it will no longer be transmitted to any other actors
    */
   public isCanceled() {
