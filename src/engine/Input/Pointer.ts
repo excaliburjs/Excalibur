@@ -155,12 +155,13 @@ export class Pointer extends Class {
       this._actors.push(actor);
     }
 
-    // Actors under the pointer are sorted by z, ties are broken by id
+    // Actors are processed in z-order highest z to lowest
+    // ties are broken by id highest id (newest) to lowest id (oldest)
     this._actors.sort((a, b) => {
       if (a.z === b.z) {
-        return a.id - b.id;
+        return b.id - a.id;
       }
-      return a.z - b.z;
+      return b.z - a.z;
     });
   }
 
