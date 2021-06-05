@@ -142,4 +142,77 @@ describe('A pointer', () => {
     executeMouseEvent('pointerdown', <any>document, null, 50, 50);
     expect(engine.input.pointers.primary.isActorAliveUnderPointer(actor)).toBe(false);
   });
+
+  it('should dispatch events in z order high to low', () => {
+    const actualOrder = [];
+
+    const actor1 = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
+    actor1.z = 0;
+    actor1.on('pointerdown', (e) => {
+      actualOrder.push('actor1');
+    });
+    const actor2 = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
+    actor2.z = 1;
+    actor2.on('pointerdown', (e) => {
+      actualOrder.push('actor2');
+    });
+    const actor3 = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
+    actor3.z = 2;
+    actor3.on('pointerdown', (e) => {
+      actualOrder.push('actor3');
+    });
+    const actor4 = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
+    actor4.z = 3;
+    actor4.on('pointerdown', (e) => {
+      actualOrder.push('actor4');
+    });
+
+    engine.input.pointers.primary.addActorUnderPointer(actor1);
+    engine.input.pointers.primary.addActorUnderPointer(actor2);
+    engine.input.pointers.primary.addActorUnderPointer(actor3);
+    engine.input.pointers.primary.addActorUnderPointer(actor4);
+
+    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
+
+    engine.input.pointers.dispatchPointerEvents();
+
+    expect(actualOrder).toEqual(['actor4', 'actor3', 'actor2', 'actor1']);
+  });
+
+  it('can have pointer event canceled', () => {
+    const actualOrder = [];
+
+    const actor1 = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
+    actor1.z = 0;
+    actor1.on('pointerdown', (e) => {
+      actualOrder.push('actor1');
+    });
+    const actor2 = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
+    actor2.z = 1;
+    actor2.on('pointerdown', (e) => {
+      actualOrder.push('actor2');
+    });
+    const actor3 = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
+    actor3.z = 2;
+    actor3.on('pointerdown', (e) => {
+      actualOrder.push('actor3');
+      e.cancel();
+    });
+    const actor4 = new ex.Actor({ x: 50, y: 50, width: 100, height: 100 });
+    actor4.z = 3;
+    actor4.on('pointerdown', (e) => {
+      actualOrder.push('actor4');
+    });
+
+    engine.input.pointers.primary.addActorUnderPointer(actor1);
+    engine.input.pointers.primary.addActorUnderPointer(actor2);
+    engine.input.pointers.primary.addActorUnderPointer(actor3);
+    engine.input.pointers.primary.addActorUnderPointer(actor4);
+
+    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
+
+    engine.input.pointers.dispatchPointerEvents();
+
+    expect(actualOrder).toEqual(['actor4', 'actor3']);
+  });
 });

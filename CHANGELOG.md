@@ -79,6 +79,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where pointer events propagate in an unexpected order, now they go from high z-index to low z-index ([#1922](https://github.com/excaliburjs/Excalibur/issues/1922)))
 - Fixed issue with Raster padding which caused images to grow over time ([#1897](https://github.com/excaliburjs/Excalibur/issues/1897))
 - Fixed N+1 repeat/repeatForever bug ([#1891](https://github.com/excaliburjs/Excalibur/issues/1891))
 - Fixed repeat/repeatForever issue with `rotateTo` ([#635](https://github.com/excaliburjs/Excalibur/issues/635))

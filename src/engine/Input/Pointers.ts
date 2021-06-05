@@ -259,8 +259,10 @@ export class Pointers extends Class {
   private _dispatchWithBubble(events: PointerEvent[]) {
     for (const evt of events) {
       for (const actor of evt.pointer.getActorsForEvents()) {
-        evt.propagate(actor);
-        if (!evt.bubbles) {
+        if (!evt.isCanceled()) {
+          evt.propagate(actor);
+        }
+        if (!evt.bubbles || evt.isCanceled()) {
           // if the event stops bubbling part way stop processing
           break;
         }
@@ -278,7 +280,8 @@ export class Pointers extends Class {
         if (
           !lastMoveEventPerPointerPerActor[evt.pointer.id + '+' + actor.id] &&
           evt.pointer.wasActorUnderPointer(actor) &&
-          !evt.pointer.isActorAliveUnderPointer(actor)
+          !evt.pointer.isActorAliveUnderPointer(actor) &&
+          !evt.isCanceled()
         ) {
           lastMoveEventPerPointerPerActor[evt.pointer.id + '+' + actor.id] = evt;
           const pe = createPointerEventByName(
@@ -309,7 +312,8 @@ export class Pointers extends Class {
         if (
           !lastMoveEventPerPointer[evt.pointer.id] &&
           !evt.pointer.wasActorUnderPointer(actor) &&
-          evt.pointer.isActorAliveUnderPointer(actor)
+          evt.pointer.isActorAliveUnderPointer(actor) &&
+          !evt.isCanceled()
         ) {
           lastMoveEventPerPointer[evt.pointer.id] = evt;
           const pe = createPointerEventByName(
@@ -345,7 +349,7 @@ export class Pointers extends Class {
     for (const evt of this._wheel) {
       for (const actor of this._pointers[evt.index].getActorsUnderPointer()) {
         this._propagateWheelPointerEvent(actor, evt);
-        if (!evt.bubbles) {
+        if (!evt.bubbles || evt.isCanceled()) {
           // if the event stops bubbling part way stop processing
           break;
         }
@@ -357,7 +361,7 @@ export class Pointers extends Class {
     actor.emit('pointerwheel', wheelEvent);
 
     // Recurse and propagate
-    if (wheelEvent.bubbles && actor.parent) {
+    if (wheelEvent.bubbles && !wheelEvent.isCanceled() && actor.parent) {
       this._propagateWheelPointerEvent(actor.parent as Actor, wheelEvent); // TODO not true
     }
   }

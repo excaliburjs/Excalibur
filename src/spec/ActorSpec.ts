@@ -694,19 +694,19 @@ describe('A game actor', () => {
     child.addChild(child2);
 
     // check reality
-    expect(parent.contains(550, 50)).toBeTruthy();
-    expect(parent.contains(650, 150)).toBeTruthy();
+    expect(parent.contains(550.01, 50.01)).withContext('(550.1, 50.1) is top-left of parent should be contained').toBeTruthy();
+    expect(parent.contains(650, 150)).withContext('(650, 150) is bottom-right of parent should be contained').toBeTruthy();
 
     // in world coordinates this should be false
-    expect(child.contains(50, 50)).toBeFalsy();
+    expect(child.contains(50, 50)).withContext('(50, 50) world coords is outside child world pos').toBeFalsy();
 
     // in world coordinates this should be true
-    expect(child.contains(550, 50)).toBeTruthy();
-    expect(child.contains(650, 150)).toBeTruthy();
+    expect(child.contains(550.01, 50.01)).withContext('(550.1, 50.1) world should be top-left of of child').toBeTruthy();
+    expect(child.contains(650, 150)).withContext('(650, 150) world should be bottom-rght of child').toBeTruthy();
 
     // second order child shifted to the origin
-    expect(child2.contains(-50, -50)).toBeTruthy();
-    expect(child2.contains(50, 50)).toBeTruthy();
+    expect(child2.contains(-49.99, -49.99)).withContext('(-50, -50) world should be top left of second order child').toBeTruthy();
+    expect(child2.contains(50, 50)).withContext('(50, 50) world should be bottom right of second order child').toBeTruthy();
   });
 
   it('can recursively check containment', () => {
