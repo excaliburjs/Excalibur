@@ -3,7 +3,7 @@ image: Visual Studio 2019
 # Fix line endings on Windows
 init:
   - git config --global core.autocrlf true
-  - cmd: set NODE_OPTIONS=--max-old-space-size=2048
+  - cmd: set NODE_OPTIONS=--max-old-space-size=4096
 # What combinations to test
 environment:
   matrix:
