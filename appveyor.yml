@@ -3,10 +3,11 @@ image: Visual Studio 2019
 # Fix line endings on Windows
 init:
   - git config --global core.autocrlf true
+  - cmd: set NODE_OPTIONS=--max-old-space-size=2048
 # What combinations to test
 environment:
   matrix:
-    - nodejs_version: '12'
+    - nodejs_version: '14'
 platform:
   - x64
 install:
