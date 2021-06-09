@@ -402,6 +402,7 @@ export class Pointers extends Class {
 
         eventArr.push(pe);
         pointer.eventDispatcher.emit(eventName, pe);
+        this.emit(eventName, pe);
         // only with multi-pointer
         if (this._pointers.length > 1) {
           if (eventName === 'up') {
@@ -440,6 +441,7 @@ export class Pointers extends Class {
 
       eventArr.push(pe);
       pointer.eventDispatcher.emit(eventName, pe);
+      this.emit(eventName, pe);
 
       // only with multi-pointer
       if (this._pointers.length > 1) {
@@ -488,6 +490,7 @@ export class Pointers extends Class {
 
       eventArr.push(we);
       this.at(0).eventDispatcher.emit(eventName, we);
+      this.emit(eventName, we);
     };
   }
 
