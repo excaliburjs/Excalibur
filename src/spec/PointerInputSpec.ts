@@ -215,4 +215,38 @@ describe('A pointer', () => {
 
     expect(actualOrder).toEqual(['actor4', 'actor3']);
   });
+
+  describe('at the engine level', () => {
+    it('should fire pointer up events', () => {
+      const upHandler = jasmine.createSpy('upHandler');
+      engine.input.pointers.on('up', upHandler);
+
+      executeMouseEvent('pointerup', <any>document, null, 50, 50);
+      expect(upHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fire pointer down events', () => {
+      const downHandler = jasmine.createSpy('downHandler');
+      engine.input.pointers.on('down', downHandler);
+
+      executeMouseEvent('pointerdown', <any>document, null, 50, 50);
+      expect(downHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fire pointer move events', () => {
+      const moveHandler = jasmine.createSpy('moveHandler');
+      engine.input.pointers.on('move', moveHandler);
+
+      executeMouseEvent('pointermove', <any>document, null, 50, 50);
+      expect(moveHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fire wheel events', () => {
+      const wheelHandler = jasmine.createSpy('wheelHandler');
+      engine.input.pointers.on('wheel', wheelHandler);
+
+      executeMouseEvent('wheel', <any>document, null, 50, 50);
+      expect(wheelHandler).toHaveBeenCalledTimes(1);
+    });
+  });
 });
