@@ -252,9 +252,14 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
         }
       });
       const promise = new Promise<void>((resolve) => {
-        this._playButton.addEventListener('click', () => resolve());
-        this._playButton.addEventListener('touchend', () => resolve());
-        this._playButton.addEventListener('pointerup', () => resolve());
+        const startButtonHandler = (e: Event) => {
+          // We want to stop propogation to keep bubbling to the engine pointer handlers
+          e.stopPropagation();
+          resolve();
+        };
+        this._playButton.addEventListener('click', startButtonHandler);
+        this._playButton.addEventListener('touchend', startButtonHandler);
+        this._playButton.addEventListener('pointerup', startButtonHandler);
       });
 
       return promise;
@@ -291,10 +296,14 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
    * that resolves when loading of all is complete
    */
   public async load(): Promise<Loadable<any>[]> {
-    await Promise.all(this._resourceList.map(r => r.load().finally(() => {
-      // capture progress
-      this._numLoaded++;
-    })));
+    await Promise.all(
+      this._resourceList.map((r) =>
+        r.load().finally(() => {
+          // capture progress
+          this._numLoaded++;
+        })
+      )
+    );
 
     // short delay in showing the button for aesthetics
     await delay(200);
@@ -305,8 +314,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
     await WebAudio.unlock();
     this.hidePlayButton();
 
-    return this.data = this._resourceList;
-
+    return (this.data = this._resourceList);
   }
 
   public markResourceComplete(): void {
