@@ -79,6 +79,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where the first scene onInitialize fires at Engine contructor time and before the "play button" clicked ([#1900](https://github.com/excaliburjs/Excalibur/issues/1900))
 - Fixed issue where the "play button" click was being interpreted as an input event excalibur needed to handle ([#1854](https://github.com/excaliburjs/Excalibur/issues/1854))
 - Fixed issue where pointer events were not firing at the ex.Engine.input.pointers level ([#1439](https://github.com/excaliburjs/Excalibur/issues/1439))
 - Fixed issue where pointer events propagate in an unexpected order, now they go from high z-index to low z-index ([#1922](https://github.com/excaliburjs/Excalibur/issues/1922))

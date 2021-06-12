@@ -1,4 +1,6 @@
 import * as ex from '@excalibur';
+import { Scene } from '@excalibur';
+import { Mocks } from './util/Mocks';
 import { TestUtils } from './util/TestUtils';
 
 describe('A scene', () => {
@@ -15,6 +17,12 @@ describe('A scene', () => {
     spyOn(actor, 'draw');
     engine.removeScene('root');
     engine.addScene('root', scene);
+    engine.start();
+  });
+
+  afterEach(() => {
+    engine.stop();
+    engine = null;
   });
 
   it('should be loaded', () => {
@@ -233,7 +241,27 @@ describe('A scene', () => {
     expect(actor.draw).not.toHaveBeenCalled();
   });
 
+  it('initializes after start or play in first update', () => {
+    const mock = new Mocks.Mocker();
+    const scene = new ex.Scene();
+    spyOn(scene, 'onInitialize');
+
+    engine.removeScene('root');
+    engine.addScene('root', scene);
+    expect(scene.onInitialize).toHaveBeenCalledTimes(0);
+
+    const loop = mock.loop(engine);
+    engine.goToScene('root');
+    engine.start();
+    loop.advance(100);
+
+    expect(scene.onInitialize).toHaveBeenCalledTimes(1);
+  });
+
   it('fires initialize before activate', (done) => {
+    const scene = new ex.Scene();
+    engine.removeScene('root');
+    engine.addScene('root', scene);
     let initialized = false;
     scene.on('initialize', (evt: ex.InitializeEvent) => {
       initialized = true;
@@ -244,9 +272,13 @@ describe('A scene', () => {
     });
 
     engine.goToScene('root');
+    engine.start();
   });
 
   it('fires initialize before actor initialize before activate', (done) => {
+    const scene = new ex.Scene();
+    engine.removeScene('root');
+    engine.addScene('root', scene);
     let sceneInitialized = false;
     const sceneActivated = false;
     let actorInitialized = false;
@@ -266,17 +298,22 @@ describe('A scene', () => {
 
     scene.add(actor);
     engine.goToScene('root');
+    engine.start();
     //scene.update(engine, 100);
     //scene.update(engine, 100);
   });
 
   it('can only be initialized once', () => {
+    const scene = new ex.Scene();
+    engine.removeScene('root');
+    engine.addScene('root', scene);
     let initializeCount = 0;
     scene.on('initialize', (evt) => {
       initializeCount++;
     });
 
     engine.goToScene('root');
+    engine.start();
     scene.update(engine, 100);
     scene.update(engine, 100);
     scene._initialize(engine);
@@ -287,6 +324,9 @@ describe('A scene', () => {
   });
 
   it('should initialize before actors in the scene', () => {
+    const scene = new ex.Scene();
+    engine.removeScene('root');
+    engine.addScene('root', scene);
     const actor = new ex.Actor();
     scene.add(actor);
     let sceneInit = false;
@@ -298,6 +338,7 @@ describe('A scene', () => {
     };
 
     engine.goToScene('root');
+    engine.start();
     scene.update(engine, 100);
   });
 
@@ -529,7 +570,6 @@ describe('A scene', () => {
     beforeEach(() => {
       engine = TestUtils.engine({ width: 100, height: 100 });
       scene = new ex.Scene(engine);
-      engine.currentScene = scene;
       engine.removeScene('root');
       engine.addScene('root', scene);
     });

@@ -13,6 +13,7 @@ const drawWithTransform = (ctx: CanvasRenderingContext2D | ex.Graphics.Excalibur
 
 describe('A TileMap', () => {
   let engine: ex.Engine;
+  let scene: ex.Scene;
   let texture: ex.Texture;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -20,6 +21,9 @@ describe('A TileMap', () => {
       width: 800,
       height: 200
     });
+    scene = new ex.Scene();
+    engine.addScene('root', scene);
+    engine.start();
 
     texture = new ex.Texture('base/src/spec/images/TileMapSpec/Blocks.png', true);
   });

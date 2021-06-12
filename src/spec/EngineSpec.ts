@@ -43,7 +43,7 @@ describe('The engine', () => {
       suppressPlayButton: false
     });
     (<any>engine)._suppressPlayButton = false;
-    engine.currentScene = scene;
+    engine.addScene('root', scene);
 
     loop = mock.loop(engine);
 

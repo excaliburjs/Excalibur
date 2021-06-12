@@ -28,7 +28,7 @@ describe('A camera', () => {
     actor.color = ex.Color.Red;
     scene = new ex.Scene(engine);
     scene.add(actor);
-    engine.currentScene = scene;
+    engine.addScene('root', scene);
 
     Camera = new ex.Camera();
   });

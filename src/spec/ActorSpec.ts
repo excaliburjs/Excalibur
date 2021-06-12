@@ -32,6 +32,8 @@ describe('A game actor', () => {
     spyOn(actor, 'draw');
     spyOn(actor, 'debugDraw');
 
+    engine.start();
+
     ex.Physics.useBoxPhysics();
     ex.Physics.acc = ex.vec(0, 0);
   });
@@ -529,6 +531,7 @@ describe('A game actor', () => {
     scene = new ex.Scene();
     engine.addScene('test', scene);
     engine.goToScene('test');
+    engine.start();
 
     const green = new ex.Actor({ x: 35, y: 35, width: 50, height: 50, color: ex.Color.Green });
     const blue = new ex.Actor({ x: 65, y: 65, width: 50, height: 50, color: ex.Color.Blue });
