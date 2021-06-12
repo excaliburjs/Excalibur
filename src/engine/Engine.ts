@@ -5,7 +5,7 @@ polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
 import { Loadable } from './Interfaces/Loadable';
 import { Vector } from './Algebra';
-import { Screen, DisplayMode, AbsolutePosition, ScreenDimension } from './Screen';
+import { Screen, DisplayMode, AbsolutePosition, ScreenDimension, Resolution } from './Screen';
 import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
@@ -111,7 +111,8 @@ export interface EngineOptions {
   snapToPixel?: boolean;
 
   /**
-   * The [[DisplayMode]] of the game. Depending on this value, [[width]] and [[height]] may be ignored.
+   * The [[DisplayMode]] of the game, by default [[DisplayMode.Fit]] with aspect ratio 4:3 (800x600).
+   * Depending on this value, [[width]] and [[height]] may be ignored.
    */
   displayMode?: DisplayMode;
 
@@ -594,7 +595,7 @@ O|===|* >________________>\n\
       context: this.graphicsContext,
       antialiasing: options.antialiasing ?? true,
       browser: this.browser,
-      viewport: options.viewport ?? { width: options.width, height: options.height },
+      viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
       position: options.position,
@@ -784,7 +785,6 @@ O|===|* >________________>\n\
     } else {
       this.currentScene.add(entity);
     }
-
   }
 
   /**

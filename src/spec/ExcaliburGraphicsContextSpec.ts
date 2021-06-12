@@ -154,6 +154,36 @@ describe('The ExcaliburGraphicsContext', () => {
 
       await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png');
     });
+
+    it('can handle drawing a zero dimension image', () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        snapToPixel: true,
+        backgroundColor: ex.Color.White
+      });
+      const rect = new ex.Graphics.Rectangle({
+        width: 0,
+        height: 0,
+        color: ex.Color.Blue
+      });
+      sut.clear();
+
+      expect(() => {
+        sut.drawImage(rect._bitmap, 0, 0);
+      }).not.toThrow();
+
+      expect(() => {
+        sut.drawImage(rect._bitmap, 0, 0, 0, 0);
+      }).not.toThrow();
+
+      expect(() => {
+        sut.drawImage(rect._bitmap, 0, 0, 10, 10, 0, 0, 0, 0);
+      }).not.toThrow();
+    });
   });
 
   describe('WebGL', () => {
@@ -329,6 +359,38 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/2d-snap-to-pixel.png'
       );
+    });
+
+    it('can handle drawing a zero dimension image', () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        snapToPixel: true,
+        backgroundColor: ex.Color.White
+      });
+      const rect = new ex.Graphics.Rectangle({
+        width: 0,
+        height: 0,
+        color: ex.Color.Blue
+      });
+      sut.clear();
+
+      expect(() => {
+        sut.drawImage(rect._bitmap, 0, 0);
+      }).not.toThrow();
+
+      expect(() => {
+        sut.drawImage(rect._bitmap, 0, 0, 0, 0);
+        sut.flush();
+      }).not.toThrow();
+
+      expect(() => {
+        sut.drawImage(rect._bitmap, 0, 0, 10, 10, 0, 0, 0, 0);
+        sut.flush();
+      }).not.toThrow();
     });
   });
 });

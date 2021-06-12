@@ -20,7 +20,18 @@ describe('A Bounding Box constructed with no parameters', () => {
   });
 });
 
-describe('A Bounding Box', function() {
+describe('A Bounding Box', function () {
+  it('can have zero dimensions', () => {
+    const zeroWidth = new ex.BoundingBox({ left: 0, right: 0, top: 0, bottom: 10 });
+    expect(zeroWidth.hasZeroDimensions()).withContext('zero width bb should have zero dimensions').toBe(true);
+
+    const zeroHeight = new ex.BoundingBox({ left: 0, right: 10, top: 0, bottom: 0 });
+    expect(zeroHeight.hasZeroDimensions()).withContext('zero height bb should have zero dimensions').toBe(true);
+
+    const zero = new ex.BoundingBox({ left: 0, right: 0, top: 0, bottom: 0 });
+    expect(zero.hasZeroDimensions()).withContext('zero width/height bb should have zero dimensions').toBe(true);
+  });
+
   /**
    *
    */
@@ -43,10 +54,10 @@ describe('A Bounding Box', function() {
  *
  */
 function runBoundingBoxTests(creationType: string, createBoundingBox: Function) {
-  describe(creationType, function() {
+  describe(creationType, function () {
     let bb: ex.BoundingBox;
 
-    beforeEach(function() {
+    beforeEach(function () {
       //create an instance by invoking the constructor function
       bb = createBoundingBox();
     });
@@ -125,7 +136,9 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
 
     it('can be transformed be a matrix', () => {
       const bb = ex.BoundingBox.fromDimension(10, 10);
-      const matrix = ex.Matrix.identity().scale(2, 2).rotate(Math.PI / 4);
+      const matrix = ex.Matrix.identity()
+        .scale(2, 2)
+        .rotate(Math.PI / 4);
       const newBB = bb.transform(matrix);
 
       const dim = 20 * Math.cos(Math.PI / 4);

@@ -37,6 +37,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- `BoundingBox` now has a method for detecting zero dimensions in width or height `hasZeroDimensions()`
 - `BoundingBox`'s can now by `transform`'d by a `Matrix`
 - Added `new Entity(components: Component[])` constructor overload to create entities with components quickly.
 - Added `Entity.get(type: ComponentType)` to get strongly typed components if they exist on the entity.
@@ -79,6 +80,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where no width/height argmunents to engine throws an error
+- Fixed issue where zero dimension image draws on the ExcaliburGraphicsContext throw an error
 - Fixed issue where the first scene onInitialize fires at Engine contructor time and before the "play button" clicked ([#1900](https://github.com/excaliburjs/Excalibur/issues/1900))
 - Fixed issue where the "play button" click was being interpreted as an input event excalibur needed to handle ([#1854](https://github.com/excaliburjs/Excalibur/issues/1854))
 - Fixed issue where pointer events were not firing at the ex.Engine.input.pointers level ([#1439](https://github.com/excaliburjs/Excalibur/issues/1439))

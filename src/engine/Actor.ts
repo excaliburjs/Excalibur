@@ -1186,7 +1186,7 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
 
       this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
     } else {
-      if (this.color && this.body && this.body.collider && this.body.collider.shape) {
+      if (this.color && this.body && this.body.collider && this.body.collider.shape && !this.body.collider.bounds.hasZeroDimensions()) {
         this.body.collider.shape.draw(ctx, this.color, new Vector(0, 0));
       }
     }

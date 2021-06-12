@@ -57,6 +57,13 @@ describe('The engine', () => {
     }, 600);
   });
 
+  it('should have a default resolution to SVGA (800x600) if none specified', () => {
+    const engine = new ex.Engine();
+    expect(engine.screen.displayMode).toBe(ex.DisplayMode.Fit);
+    expect(engine.screen.resolution.width).toBe(800);
+    expect(engine.screen.resolution.height).toBe(600);
+  });
+
   it('should not show the play button when suppressPlayButton is turned on', (done) => {
     reset();
     engine = TestUtils.engine({

@@ -205,6 +205,14 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     dwidth?: number,
     dheight?: number
   ): void {
+    if (swidth === 0 || sheight === 0) {
+      return; // zero dimension dest exit early
+    } else if (dwidth === 0 || dheight === 0) {
+      return; // zero dimension dest exit early
+    } else if (image.width === 0 || image.height === 0) {
+      return; // zero dimension source exit early
+    }
+
     if (!image) {
       Logger.getInstance().warn('Cannot draw a null or undefined image');
       // tslint:disable-next-line: no-console
