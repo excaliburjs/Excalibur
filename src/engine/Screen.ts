@@ -280,7 +280,8 @@ export class Screen {
   }
 
   public get parent(): HTMLElement | Window {
-    return <HTMLElement | Window>(this.displayMode === DisplayMode.Container || this.displayMode === DisplayMode.FitContainer ? (this.canvas.parentElement || document.body) : window);
+    return <HTMLElement | Window>(this.displayMode === DisplayMode.Container || this.displayMode === DisplayMode.FitContainer ?
+      (this.canvas.parentElement || document.body) : window);
   }
 
   public get resolution(): ScreenDimension {
@@ -626,7 +627,7 @@ export class Screen {
     const aspect = this.aspectRatio;
     let adjustedWidth = 0;
     let adjustedHeight = 0;
-    let parent = this.canvas.parentElement;
+    const parent = this.canvas.parentElement;
     if (parent.clientWidth / aspect < parent.clientHeight) {
       adjustedWidth = parent.clientWidth;
       adjustedHeight = parent.clientWidth / aspect;
@@ -653,7 +654,7 @@ export class Screen {
       } else {
         this._resizeObserver = new ResizeObserver(() => {
           this._resizeHandler();
-        })
+        });
         this._resizeObserver.observe(this.parent);
       }
       this.parent.addEventListener('resize', this._resizeHandler);
