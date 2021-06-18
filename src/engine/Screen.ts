@@ -454,7 +454,7 @@ export class Screen {
   /**
    * Takes a coordinate in Excalibur screen space, and translates it to Excalibur world space.
    *
-   * World space is where [[entities|Entity]] in Excalibur live by default [[CoordPlane.World]]
+   * World space is where [[Entity|entities]] in Excalibur live by default [[CoordPlane.World]]
    * and extends infinitely out relative from the [[Camera]].
    * @param point  Screen coordinate to convert
    */
@@ -480,7 +480,7 @@ export class Screen {
   /**
    * Takes a coordinate in Excalibur world space, and translates it to Excalibur screen space.
    *
-   * Screen space is where [[ScreenElements]] and [[entities|Entity]] with [[CoordPlane.Screen]] live.
+   * Screen space is where [[ScreenElement|screen elements]] and [[Entity|entities]] with [[CoordPlane.Screen]] live.
    * @param point  World coordinate to convert
    */
   public worldToScreenCoordinates(point: Vector): Vector {

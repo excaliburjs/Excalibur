@@ -885,19 +885,19 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * Sets the current drawing of the actor to the drawing corresponding to
    * the key.
    * @param key The key of the drawing
-   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.swap|Actor.graphics.swap]]
+   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.use|Actor.graphics.use]]
    */
   public setDrawing(key: string): void;
   /**
    * Sets the current drawing of the actor to the drawing corresponding to
    * an `enum` key (e.g. `Animations.Left`)
    * @param key The `enum` key of the drawing
-   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.swap|Actor.graphics.swap]]
+   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.use|Actor.graphics.use]]
    */
   public setDrawing(key: number): void;
   @obsolete({
     message: 'Actor.setDrawing will be removed in v0.26.0',
-    alternateMethod: 'Use Actor.graphics.show() or Actor.graphics.swap()'
+    alternateMethod: 'Use Actor.graphics.show() or Actor.graphics.use()'
   })
   public setDrawing(key: any): void {
     key = key.toString();

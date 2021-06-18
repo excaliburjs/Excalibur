@@ -37,7 +37,7 @@ export class Shape {
   }
 
   /**
-   * Creates a new [[circle|Circle]] collision shape
+   * Creates a new [[Circle|circle]] collision shape
    * @param radius Radius of the circle shape
    * @param offset Optional offset relative to the collider in local coordinates
    */

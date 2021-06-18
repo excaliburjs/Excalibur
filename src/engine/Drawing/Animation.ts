@@ -10,7 +10,7 @@ import { Configurable } from '../Configurable';
 import { obsolete } from '../Util/Decorators';
 
 /**
- * @deprecated Use [["Graphics/Animation".HasTick]]
+ * @deprecated Use [[Graphics.HasTick]]
  */
 export interface HasTick {
   /**
@@ -22,7 +22,7 @@ export interface HasTick {
 
 /**
  * @hidden
- * @deprecated Use [["Graphics/Animation".Animation]]
+ * @deprecated Use [[Graphics.Animation]]
  */
 export class AnimationImpl implements Drawable, HasTick {
   /**
@@ -355,9 +355,8 @@ export class AnimationImpl implements Drawable, HasTick {
   }
 }
 
-
 /**
- * @deprecated Use [["Graphics/Animation".Animation]]
+ * @deprecated Use [[Graphics.Animation]]
  */
 export interface AnimationArgs extends Partial<AnimationImpl> {
   engine: Engine;
@@ -376,7 +375,7 @@ export interface AnimationArgs extends Partial<AnimationImpl> {
 /**
  * Animations allow you to display a series of images one after another,
  * creating the illusion of change. Generally these images will come from a [[SpriteSheet]] source.
- * @deprecated Use [["Graphics/Animation".Animation]]
+ * @deprecated Use [[Graphics.Animation]]
  */
 @obsolete({
   message: 'Animation will be removed in v0.26.0',
