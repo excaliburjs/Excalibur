@@ -194,6 +194,7 @@ export class Screen {
   private _mediaQueryList: MediaQueryList;
   private _isDisposed = false;
   private _logger = Logger.getInstance();
+  private _resizeObserver: ResizeObserver;
 
   constructor(options: ScreenOptions) {
     this.viewport = options.viewport;
@@ -217,7 +218,11 @@ export class Screen {
     if (!this._isDisposed) {
       // Clean up handlers
       this._isDisposed = true;
-      this._browser.window.off('resize', this._windowResizeHandler);
+      this._browser.window.off('resize', this._resizeHandler);
+      if (this._resizeObserver) {
+        this._resizeObserver.disconnect();
+      }
+      this.parent.removeEventListener('resize', this._resizeHandler);
       this._mediaQueryList.removeEventListener('change', this._pixelRatioChangeHandler);
       this._canvas.removeEventListener('fullscreenchange', this._fullscreenChangeHandler);
     }
@@ -234,8 +239,8 @@ export class Screen {
     this.applyResolutionAndViewport();
   };
 
-  private _windowResizeHandler = () => {
-    const parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
+  private _resizeHandler = () => {
+    const parent = this.parent;
     this._logger.debug('View port resized');
     this._setResolutionAndViewportByDisplayMode(parent);
     this.applyResolutionAndViewport();
@@ -272,6 +277,10 @@ export class Screen {
 
   public get canvas(): HTMLCanvasElement {
     return this._canvas;
+  }
+
+  public get parent(): HTMLElement | Window {
+    return <HTMLElement | Window>(this.displayMode === DisplayMode.Container || this.displayMode === DisplayMode.FitContainer ? (this.canvas.parentElement || document.body) : window);
   }
 
   public get resolution(): ScreenDimension {
@@ -633,14 +642,21 @@ export class Screen {
   }
 
   private _applyDisplayMode() {
-    if (this.displayMode === DisplayMode.Fit || this.displayMode === DisplayMode.Fill || this.displayMode === DisplayMode.Container) {
-      const parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
-
-      this._setResolutionAndViewportByDisplayMode(parent);
-
-      this._browser.window.on('resize', this._windowResizeHandler);
-    } else if (this.displayMode === DisplayMode.Position) {
+    if (this.displayMode === DisplayMode.Position) {
       this._initializeDisplayModePosition(this._position);
+    } else {
+      this._setResolutionAndViewportByDisplayMode(this.parent);
+
+      // watch resizing
+      if (this.parent instanceof Window) {
+        this._browser.window.on('resize', this._resizeHandler);
+      } else {
+        this._resizeObserver = new ResizeObserver(() => {
+          this._resizeHandler();
+        })
+        this._resizeObserver.observe(this.parent);
+      }
+      this.parent.addEventListener('resize', this._resizeHandler);
     }
   }
 
