@@ -445,7 +445,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     canvasElementId: '',
     canvasElement: undefined,
     snapToPixel: false,
-    pointerScope: Input.PointerScope.Document,
+    pointerScope: Input.PointerScope.Canvas,
     suppressConsoleBootMessage: null,
     suppressMinimumBrowserFeatureDetection: null,
     suppressHiDPIScaling: null,

@@ -34,6 +34,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `DisplayMode.Fill` now does what `DisplayMode.FullScreen` used to do, the resolution and viewport dynamically adjust to fit the available space, DOES NOT preserve `aspectRatio` ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
 - `DisplayMode.FullScreen` is now removed, use `Screen.goFullScreen()`.
 - `SpriteSheet` now is immutable after creation to reduce chance of bugs if you modified a public field. The following properties are read-only: `columns`, `rows`, `spWidth`, `spHeight`, `image`, `sprites` and `spacing`.
+- `Engine.pointerScope` now defaults to a more expected `ex.Input.PointerScope.Canvas` instead of `ex.Input.PointerScope.Document` which can cause frustrating bugs if building an HTML app with Excalibur
 
 ### Added
 
