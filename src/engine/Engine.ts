@@ -5,7 +5,7 @@ polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
 import { Loadable } from './Interfaces/Loadable';
 import { Vector } from './Algebra';
-import { Screen, DisplayMode, AbsolutePosition, ScreenDimension } from './Screen';
+import { Screen, DisplayMode, AbsolutePosition, ScreenDimension, Resolution } from './Screen';
 import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
@@ -108,10 +108,11 @@ export interface EngineOptions {
   /**
    * Optionally snap drawings to nearest pixel
    */
-  snapToPixel?: boolean
+  snapToPixel?: boolean;
 
   /**
-   * The [[DisplayMode]] of the game. Depending on this value, [[width]] and [[height]] may be ignored.
+   * The [[DisplayMode]] of the game, by default [[DisplayMode.Fit]] with aspect ratio 4:3 (800x600).
+   * Depending on this value, [[width]] and [[height]] may be ignored.
    */
   displayMode?: DisplayMode;
 
@@ -298,12 +299,12 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * The default [[Scene]] of the game, use [[Engine.goToScene]] to transition to different scenes.
    */
-  public rootScene: Scene;
+  public readonly rootScene: Scene;
 
   /**
    * Contains all the scenes currently registered with Excalibur
    */
-  public scenes: { [key: string]: Scene } = {};
+  public readonly scenes: { [key: string]: Scene } = {};
 
   private _animations: AnimationNode[] = [];
 
@@ -383,6 +384,8 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   private _isLoading: boolean = false;
 
   private _isInitialized: boolean = false;
+
+  private _deferredGoTo: string = null;
 
   public on(eventName: Events.initialize, handler: (event: Events.InitializeEvent<Engine>) => void): void;
   public on(eventName: Events.visible, handler: (event: VisibleEvent) => void): void;
@@ -592,7 +595,7 @@ O|===|* >________________>\n\
       context: this.graphicsContext,
       antialiasing: options.antialiasing ?? true,
       browser: this.browser,
-      viewport: options.viewport ?? { width: options.width, height: options.height },
+      viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
       position: options.position,
@@ -615,7 +618,6 @@ O|===|* >________________>\n\
     this.rootScene = this.currentScene = new Scene(this);
 
     this.addScene('root', this.rootScene);
-    this.goToScene('root');
   }
 
   /**
@@ -778,7 +780,11 @@ O|===|* >________________>\n\
     if (arguments.length === 2) {
       this.addScene(<string>arguments[0], <Scene>arguments[1]);
     }
-    this.currentScene.add(entity);
+    if (this._deferredGoTo && this.scenes[this._deferredGoTo]) {
+      this.scenes[this._deferredGoTo].add(entity);
+    } else {
+      this.currentScene.add(entity);
+    }
   }
 
   /**
@@ -833,6 +839,12 @@ O|===|* >________________>\n\
    * @param key  The key of the scene to transition to.
    */
   public goToScene(key: string) {
+    // if not yet initialized defer goToScene
+    if (!this.isInitialized) {
+      this._deferredGoTo = key;
+      return;
+    }
+
     if (this.scenes[key]) {
       const oldScene = this.currentScene;
       const newScene = this.scenes[key];
@@ -955,6 +967,11 @@ O|===|* >________________>\n\
       this.onInitialize(engine);
       super.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
+      if (this._deferredGoTo) {
+        this.goToScene(this._deferredGoTo);
+      } else {
+        this.goToScene('root');
+      }
     }
   }
 

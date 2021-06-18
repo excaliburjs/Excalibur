@@ -12,8 +12,7 @@ describe('The engine', () => {
   beforeEach((done) => {
     engine = TestUtils.engine({ width: 0, height: 0 });
     scene = new ex.Scene(engine);
-    engine.add('test', scene);
-    engine.goToScene('test');
+    engine.add('root', scene);
     actor = new ex.Actor(0, 0, 10, 10, ex.Color.Red);
     scene.add(actor);
     loop = mock.loop(engine);

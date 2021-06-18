@@ -32,6 +32,8 @@ describe('A game actor', () => {
     spyOn(actor, 'draw');
     spyOn(actor, 'debugDraw');
 
+    engine.start();
+
     ex.Physics.useBoxPhysics();
     ex.Physics.acc = ex.vec(0, 0);
   });
@@ -529,6 +531,7 @@ describe('A game actor', () => {
     scene = new ex.Scene();
     engine.addScene('test', scene);
     engine.goToScene('test');
+    engine.start();
 
     const green = new ex.Actor({ x: 35, y: 35, width: 50, height: 50, color: ex.Color.Green });
     const blue = new ex.Actor({ x: 65, y: 65, width: 50, height: 50, color: ex.Color.Blue });
@@ -694,19 +697,19 @@ describe('A game actor', () => {
     child.addChild(child2);
 
     // check reality
-    expect(parent.contains(550, 50)).toBeTruthy();
-    expect(parent.contains(650, 150)).toBeTruthy();
+    expect(parent.contains(550.01, 50.01)).withContext('(550.1, 50.1) is top-left of parent should be contained').toBeTruthy();
+    expect(parent.contains(650, 150)).withContext('(650, 150) is bottom-right of parent should be contained').toBeTruthy();
 
     // in world coordinates this should be false
-    expect(child.contains(50, 50)).toBeFalsy();
+    expect(child.contains(50, 50)).withContext('(50, 50) world coords is outside child world pos').toBeFalsy();
 
     // in world coordinates this should be true
-    expect(child.contains(550, 50)).toBeTruthy();
-    expect(child.contains(650, 150)).toBeTruthy();
+    expect(child.contains(550.01, 50.01)).withContext('(550.1, 50.1) world should be top-left of of child').toBeTruthy();
+    expect(child.contains(650, 150)).withContext('(650, 150) world should be bottom-rght of child').toBeTruthy();
 
     // second order child shifted to the origin
-    expect(child2.contains(-50, -50)).toBeTruthy();
-    expect(child2.contains(50, 50)).toBeTruthy();
+    expect(child2.contains(-49.99, -49.99)).withContext('(-50, -50) world should be top left of second order child').toBeTruthy();
+    expect(child2.contains(50, 50)).withContext('(50, 50) world should be bottom right of second order child').toBeTruthy();
   });
 
   it('can recursively check containment', () => {

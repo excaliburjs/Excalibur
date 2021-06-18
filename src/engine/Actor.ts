@@ -1048,10 +1048,8 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * @param recurse checks whether the x/y are contained in any child actors (if they exist).
    */
   public contains(x: number, y: number, recurse: boolean = false): boolean {
-    // These shenanigans are to handle child actor containment,
-    // the only time getWorldPos and pos are different is a child actor
-    const childShift = this.getGlobalPos().sub(this.pos);
-    const containment = this.body.collider.bounds.translate(childShift).contains(new Vector(x, y));
+    const point = vec(x, y);
+    const containment = this.body.collider.shape.contains(point);
 
     if (recurse) {
       return (
@@ -1188,7 +1186,7 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
 
       this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
     } else {
-      if (this.color && this.body && this.body.collider && this.body.collider.shape) {
+      if (this.color && this.body && this.body.collider && this.body.collider.shape && !this.body.collider.bounds.hasZeroDimensions()) {
         this.body.collider.shape.draw(ctx, this.color, new Vector(0, 0));
       }
     }
