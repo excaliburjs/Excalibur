@@ -11,8 +11,13 @@ import { getPosition } from './Util/Util';
  */
 export enum DisplayMode {
   /**
+   * Default, use a specified resolution for the game. Like 800x600 pixels for example.
+   */
+  Fixed = 'Fixed',
+
+  /**
    * Fit to screen using as much space as possible while maintaining aspect ratio and resolution.
-   * This is not the same as [[Screen.goFullScreen]]
+   * This is not the same as [[Screen.goFullScreen]] but behaves in a similar way maintaining aspect ratio.
    *
    * You may want to center your game here is an example
    * ```html
@@ -36,31 +41,29 @@ export enum DisplayMode {
    * ```
    *
    */
-  Fit = 'Fit',
-
-  FitContainer = 'FitContainer',
+  FitScreen = 'FitScreen',
 
   /**
    * Fill the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will
    * change dynamically as the window is resized. This is not the same as [[Screen.goFullScreen]]
    */
-  Fill = 'Fill',
+  FillScreen = 'FillScreen',
 
   /**
-   * Default, use a specified resolution for the game. Like 800x600 pixels for example.
+   * Fit to parent element width/height using as much space as possible while maintaining aspect ratio and resolution.
    */
-  Fixed = 'Fixed',
+  FitContainer = 'FitContainer',
+
+  /**
+   * Use the parent DOM container's css width/height for the game resolution dynamically
+   */
+  FillContainer = 'FillContainer',
 
   /**
    * Allow the game to be positioned with the [[EngineOptions.position]] option
    * @deprecated Use CSS to position the game canvas, will be removed in v0.26.0
    */
-  Position = 'Position',
-
-  /**
-   * Use the parent DOM container's css width/height for the game resolution dynamically
-   */
-  Container = 'Container'
+  Position = 'Position'
 }
 
 /**
@@ -280,8 +283,11 @@ export class Screen {
   }
 
   public get parent(): HTMLElement | Window {
-    return <HTMLElement | Window>(this.displayMode === DisplayMode.Container || this.displayMode === DisplayMode.FitContainer ?
-      (this.canvas.parentElement || document.body) : window);
+    return <HTMLElement | Window>(
+      (this.displayMode === DisplayMode.FillContainer || this.displayMode === DisplayMode.FitContainer
+        ? this.canvas.parentElement || document.body
+        : window)
+    );
   }
 
   public get resolution(): ScreenDimension {
@@ -665,7 +671,7 @@ export class Screen {
    * Sets the resoultion and viewport based on the selected display mode.
    */
   private _setResolutionAndViewportByDisplayMode(parent: HTMLElement | Window) {
-    if (this.displayMode === DisplayMode.Container) {
+    if (this.displayMode === DisplayMode.FillContainer) {
       this.resolution = {
         width: (<HTMLElement>parent).clientWidth,
         height: (<HTMLElement>parent).clientHeight
@@ -674,7 +680,7 @@ export class Screen {
       this.viewport = this.resolution;
     }
 
-    if (this.displayMode === DisplayMode.Fill) {
+    if (this.displayMode === DisplayMode.FillScreen) {
       document.body.style.margin = '0px';
       document.body.style.overflow = 'hidden';
       this.resolution = {
@@ -685,7 +691,7 @@ export class Screen {
       this.viewport = this.resolution;
     }
 
-    if (this.displayMode === DisplayMode.Fit) {
+    if (this.displayMode === DisplayMode.FitScreen) {
       this._computeFit();
     }
 
