@@ -21,7 +21,9 @@ describe('A Screen', () => {
   });
 
   afterEach(() => {
-    document.body.removeChild(canvas);
+    Array.from(document.body.children).forEach((element) => {
+      document.body.removeChild(element);
+    });
   });
 
   it('should exist', () => {
@@ -49,7 +51,7 @@ describe('A Screen', () => {
     expect(sut.aspectRatio).toBe(800 / 600);
   });
 
-  it('can use fit display mode, the viewport will adjust to it width', () => {
+  it('can use fit screen display mode, the viewport will adjust to it width', () => {
     const sut = new ex.Screen({
       canvas,
       context,
@@ -69,7 +71,7 @@ describe('A Screen', () => {
     expect(sut.viewport.height).toBe(1000 / sut.aspectRatio);
   });
 
-  it('can use fit display mode, the viewport will adjust to it height', () => {
+  it('can use fit screen display mode, the viewport will adjust to it height', () => {
     const sut = new ex.Screen({
       canvas,
       context,
@@ -89,7 +91,57 @@ describe('A Screen', () => {
     expect(sut.viewport.height).toBe(800);
   });
 
-  it('can use fill display mode, the viewport and resolution adjust to match', () => {
+  describe('can use fit container display mode, the viewport', () => {
+    it('will adjust to height', () => {
+      const parentEl = document.createElement('div');
+      parentEl.appendChild(canvas);
+      document.body.appendChild(parentEl);
+
+      const sut = new ex.Screen({
+        canvas,
+        context,
+        browser,
+        displayMode: ex.DisplayMode.FitContainer,
+        viewport: { width: 800, height: 600 }
+      });
+      
+      parentEl.style.width = '1300px';
+      parentEl.style.height = '800px';
+      parentEl.dispatchEvent(new Event('resize'));
+
+      expect(sut.parent).toBe(parentEl);
+      expect(sut.resolution.width).toBe(800);
+      expect(sut.resolution.height).toBe(600);
+      expect(sut.viewport.width).toBe(800 * sut.aspectRatio);
+      expect(sut.viewport.height).toBe(800);
+    });
+
+    it('will adjust to width', () => {
+      const parentEl = document.createElement('div');
+      parentEl.appendChild(canvas);
+      document.body.appendChild(parentEl);
+
+      const sut = new ex.Screen({
+        canvas,
+        context,
+        browser,
+        displayMode: ex.DisplayMode.FitContainer,
+        viewport: { width: 800, height: 600 }
+      });
+
+      parentEl.style.width = '1000px';
+      parentEl.style.height = '800px';
+      parentEl.dispatchEvent(new Event('resize'));
+
+      expect(sut.parent).toBe(parentEl);
+      expect(sut.resolution.width).toBe(800);
+      expect(sut.resolution.height).toBe(600);
+      expect(sut.viewport.width).toBe(1000);
+      expect(sut.viewport.height).toBe(1000 / sut.aspectRatio);
+    });
+  });
+
+  it('can use fill screen display mode, the viewport and resolution adjust to match', () => {
     const sut = new ex.Screen({
       canvas,
       context,
