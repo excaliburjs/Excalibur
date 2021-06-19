@@ -155,7 +155,8 @@ export interface ScreenOptions {
   pixelRatio?: number;
   /**
    * Optionally specify the actual pixel resolution in width/height pixels (also known as logical resolution), by default the
-   * resolution will be the same as the viewport. Resolution will be overridden by [[DisplayMode.FillContainer]] and [[DisplayMode.FillScreen]].
+   * resolution will be the same as the viewport. Resolution will be overridden by [[DisplayMode.FillContainer]] and
+   * [[DisplayMode.FillScreen]].
    */
   resolution?: ScreenDimension;
   /**
