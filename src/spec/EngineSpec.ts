@@ -59,7 +59,7 @@ describe('The engine', () => {
 
   it('should have a default resolution to SVGA (800x600) if none specified', () => {
     const engine = new ex.Engine();
-    expect(engine.screen.displayMode).toBe(ex.DisplayMode.Fit);
+    expect(engine.screen.displayMode).toBe(ex.DisplayMode.FitScreen);
     expect(engine.screen.resolution.width).toBe(800);
     expect(engine.screen.resolution.height).toBe(600);
   });

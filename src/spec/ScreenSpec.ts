@@ -54,7 +54,7 @@ describe('A Screen', () => {
       canvas,
       context,
       browser,
-      displayMode: ex.DisplayMode.Fit,
+      displayMode: ex.DisplayMode.FitScreen,
       viewport: { width: 800, height: 600 }
     });
 
@@ -74,7 +74,7 @@ describe('A Screen', () => {
       canvas,
       context,
       browser,
-      displayMode: ex.DisplayMode.Fit,
+      displayMode: ex.DisplayMode.FitScreen,
       viewport: { width: 800, height: 600 }
     });
 
@@ -94,7 +94,7 @@ describe('A Screen', () => {
       canvas,
       context,
       browser,
-      displayMode: ex.DisplayMode.Fill,
+      displayMode: ex.DisplayMode.FillScreen,
       viewport: { width: 800, height: 600 }
     });
 
@@ -169,7 +169,7 @@ describe('A Screen', () => {
       canvas,
       context,
       browser,
-      displayMode: ex.DisplayMode.Fit,
+      displayMode: ex.DisplayMode.FitScreen,
       viewport: { width: 800, height: 600 }
     });
 
