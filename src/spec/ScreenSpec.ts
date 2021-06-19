@@ -104,7 +104,7 @@ describe('A Screen', () => {
         displayMode: ex.DisplayMode.FitContainer,
         viewport: { width: 800, height: 600 }
       });
-      
+
       parentEl.style.width = '1300px';
       parentEl.style.height = '800px';
       parentEl.dispatchEvent(new Event('resize'));
