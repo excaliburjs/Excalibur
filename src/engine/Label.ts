@@ -52,6 +52,14 @@ export class LabelImpl extends Actor {
     this._text.color = color;
   }
 
+  public get opacity(): number {
+    return this._text.opacity;
+  }
+
+  public set opacity(opacity: number) {
+    this._text.opacity = opacity;
+  }
+
   /**
    * Sets or gets the bold property of the label's text, by default it's false
    * @deprecated Use [[Font.bold|Label.font.bold]]

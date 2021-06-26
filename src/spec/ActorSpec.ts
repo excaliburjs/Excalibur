@@ -490,24 +490,24 @@ describe('A game actor', () => {
     expect(actor.enableCapturePointer).toBeTruthy();
   });
 
-  it('changes opacity on color', () => {
+  it('does not change opacity on color', () => {
     actor.color = ex.Color.Black.clone();
     expect(actor.color.a).toBe(1);
     expect(actor.color.r).toBe(0);
     expect(actor.color.g).toBe(0);
     expect(actor.color.b).toBe(0);
-
     expect(actor.opacity).toBe(1.0);
-    actor.opacity = 0.5;
 
+    actor.opacity = 0.5;
     actor.update(engine, 100);
-    expect(actor.color.a).toBe(0.5);
+    expect(actor.color.a).toBe(1.0);
     expect(actor.color.r).toBe(0);
     expect(actor.color.g).toBe(0);
     expect(actor.color.b).toBe(0);
+    expect(actor.opacity).toBe(0.5);
   });
 
-  it('not drawn on opacity 0', () => {
+  it('is drawn on opacity 0', () => {
     const invisibleActor = new ex.Actor();
     spyOn(invisibleActor, 'draw');
     scene.add(invisibleActor);
@@ -517,7 +517,7 @@ describe('A game actor', () => {
     scene.update(engine, 100);
     scene.draw(engine.ctx, 100);
 
-    expect(invisibleActor.draw).not.toHaveBeenCalled();
+    expect(invisibleActor.draw).toHaveBeenCalled();
   });
 
   it('can be drawn with a z-index', (done) => {

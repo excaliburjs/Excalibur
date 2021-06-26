@@ -322,7 +322,7 @@ export class AnimationImpl implements Drawable, HasTick {
       flipHorizontal: options.flipHorizontal ?? this.flipHorizontal,
       flipVertical: options.flipVertical ?? this.flipVertical,
       anchor: options.anchor ?? this.anchor,
-      opacity: options.opacity ?? this._opacity
+      opacity: (options.opacity ?? 1) * (this._opacity ?? 1)
     };
 
     this._updateValues();

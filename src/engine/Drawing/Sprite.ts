@@ -349,7 +349,7 @@ export class SpriteImpl implements Drawable {
       flipVertical: options.flipVertical ?? this.flipVertical,
       anchor: options.anchor ?? this.anchor,
       offset: options.offset ?? this.offset,
-      opacity: options.opacity ?? this._opacity
+      opacity: (options.opacity ?? 1) * (this._opacity ?? 1)
     };
 
     if (this._dirtyEffect) {
@@ -391,7 +391,7 @@ export class SpriteImpl implements Drawable {
       ctx.scale(1, -1);
     }
     const oldAlpha = ctx.globalAlpha;
-    ctx.globalAlpha = opacity ?? 1;
+    ctx.globalAlpha = opacity;
     // Context is already rotated and scaled
     ctx.drawImage(
       this._spriteCanvas,
