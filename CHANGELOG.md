@@ -31,8 +31,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Directly changing debug drawing by `engine.isDebug = value` has been replaced by `engine.showDebug(value)` and `engine.toggleDebug()` ([#1655](https://github.com/excaliburjs/Excalibur/issues/1655))
 - `UIActor` Class instances need to be replaced to `ScreenElement` (This Class it's marked as Obsolete) ([#1656](https://github.com/excaliburjs/Excalibur/issues/1656))
 - Switch to browser based promise, the Excalibur implementation `ex.Promise` is marked deprecated ([#994](https://github.com/excaliburjs/Excalibur/issues/994))
-- `DisplayMode.Fill` now does what `DisplayMode.FullScreen` used to do, the resolution and viewport dynamically adjust to fit the available space, DOES NOT preserve `aspectRatio` ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
-- `DisplayMode.FullScreen` is now removed, use `Screen.goFullScreen()`.
+
+- `DisplayMode`'s have changed ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733)) & ([#1928](https://github.com/excaliburjs/Excalibur/issues/1928)):
+
+  - `DisplayMode.FitContainer` fits the screen to the available width/height in the canvas parent element, while maintaining aspect ratio and resolution
+  - `DisplayMode.FillContainer` update the resolution and viewport dyanmically to fill the available space in the canvas parent element, DOES NOT preserve `aspectRatio`
+  - `DisplayMode.FitScreen` fits the screen to the available browser window space, while maintaining aspect ratio and resolution
+  - `DisplayMode.FillScreen` now does what `DisplayMode.FullScreen` used to do, the resolution and viewport dynamically adjust to fill the available space in the window, DOES NOT preserve `aspectRatio` ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
+  - `DisplayMode.FullScreen` is now removed, use `Screen.goFullScreen()`.
+
 - `SpriteSheet` now is immutable after creation to reduce chance of bugs if you modified a public field. The following properties are read-only: `columns`, `rows`, `spWidth`, `spHeight`, `image`, `sprites` and `spacing`.
 - `Engine.pointerScope` now defaults to a more expected `ex.Input.PointerScope.Canvas` instead of `ex.Input.PointerScope.Document` which can cause frustrating bugs if building an HTML app with Excalibur
 
@@ -55,7 +62,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Add the ability to press enter to start the game after loaded
 - Add Excalibur Feature Flag implementation for releasing experimental or preview features ([#1673](https://github.com/excaliburjs/Excalibur/issues/1673))
 - Color now can parse RGB/A string using Color.fromRGBString('rgb(255, 255, 255)') or Color.fromRGBString('rgb(255, 255, 255, 1)')
-- `DisplayMode.Fit` will now scale the game to fit the available space, preserving the `aspectRatio`. ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
+- `DisplayMode.FitScreen` will now scale the game to fit the available space, preserving the `aspectRatio`. ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
 - `SpriteSheet.spacing` now accepts a structure `{ top: number, left: number, margin: number }` for custom spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
 - `SpriteSheet.ctor` now has an overload that accepts `spacing` for consistency although the object constructor is recommended ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
 - Add `SpriteSheet.getSpacingDimensions()` method to retrieve calculated spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
