@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `Timer`'s no longer automatically start when added to a `Scene`, this `Timer.start()` must be called. ([#1865](ttps://github.com/excaliburjs/Excalibur/issues/1865))
+- `Timer.complete` is now read-only to prevent odd bugs, use `reset()`, `stop()`, and `start()` to manipulate timers. 
 - `Actor.actions.repeat()` and `Actor.actions.repeatForever()` now require a handler that specifies the actions to repeat. This is more clear and helps prevent bugs like #1891
 
   ```typescript
@@ -45,6 +47,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- `Timer.start()` to explicitly start timers, and `Timer.stop()` to stop timers and "rewind" them.
+- `Timer.timeToNextAction` will return the milliseconds until the next action callback
+- `Timer.timeElapsedTowardNextAction` will return the milliseconds counted towards the next action callback
 - `BoundingBox` now has a method for detecting zero dimensions in width or height `hasZeroDimensions()`
 - `BoundingBox`'s can now by `transform`'d by a `Matrix`
 - Added `new Entity(components: Component[])` constructor overload to create entities with components quickly.
@@ -79,6 +84,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+- `Timer.unpause()` has be deprecated in favor of `Timer.resume()` ([#1864](https://github.com/excaliburjs/Excalibur/issues/1864))
 - Removed UIActor Stub in favor of ScreenElement ([#1656](https://github.com/excaliburjs/Excalibur/issues/1656))
 - `ex.SortedList` as deprecated
 - `ex.Promise` is marked deprecated ([#994](https://github.com/excaliburjs/Excalibur/issues/994))
