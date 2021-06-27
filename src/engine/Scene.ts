@@ -494,18 +494,17 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
           this.actors.push(entity);
         }
         // TODO remove after collision ecs
-        entity.children.forEach(c => this.add(c));
+        entity.children.forEach((c) => this.add(c));
         entity.childrenAdded$.register({
-          notify: (e => {
+          notify: (e) => {
             this.add(e);
-          })
+          }
         });
         entity.childrenRemoved$.register({
-          notify: (e => {
+          notify: (e) => {
             this.remove(e);
-          })
+          }
         });
-
       }
       return;
     }
@@ -577,7 +576,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * @todo Should this be `ScreenElement` only?
    * @deprecated Use [[Scene.add]]
    */
-  @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add'})
+  @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add' })
   public addScreenElement(actor: Actor) {
     this.add(actor);
   }
@@ -586,7 +585,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Removes an actor as a piece of UI
    * @deprecated Use [[Scene.remove]]
    */
-  @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove'})
+  @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove' })
   public removeScreenElement(actor: Actor) {
     this.remove(actor);
   }
@@ -595,7 +594,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
    * @deprecated Use [[Scene.add]]
    */
-  @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add'})
+  @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add' })
   public addTileMap(tileMap: TileMap) {
     this.tileMaps.push(tileMap);
     this.world.add(tileMap);
@@ -605,7 +604,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
    * @deprecated Use [[Scene.remove]]
    */
-  @obsolete({message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove'})
+  @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove' })
   public removeTileMap(tileMap: TileMap) {
     const index = this.tileMaps.indexOf(tileMap);
     if (index > -1) {
@@ -668,7 +667,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     for (const actor of this.actors) {
       engine.stats.currFrame.actors.alive++;
       for (const child of actor.children) {
-        if (ActorUtils.isScreenElement(child as Actor)) { // TODO not true
+        if (ActorUtils.isScreenElement(child as Actor)) {
+          // TODO not true
           engine.stats.currFrame.actors.ui++;
         } else {
           engine.stats.currFrame.actors.alive++;

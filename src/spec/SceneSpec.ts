@@ -444,6 +444,7 @@ describe('A scene', () => {
     });
 
     scene.add(timer);
+    timer.start();
     scene.update(engine, 11);
     scene.draw(engine.ctx, 11);
 
@@ -479,6 +480,7 @@ describe('A scene', () => {
     });
 
     scene.add(timer);
+    timer.start();
     scene.update(engine, 11);
     scene.draw(engine.ctx, 11);
 
@@ -537,6 +539,7 @@ describe('A scene', () => {
     });
 
     scene.add(timer);
+    timer.start();
     scene.update(engine, 11);
     scene.draw(engine.ctx, 11);
 

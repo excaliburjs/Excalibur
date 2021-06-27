@@ -1,4 +1,6 @@
 import { Scene } from './Scene';
+import { obsolete } from './Util/Decorators';
+import { Logger } from './Util/Log';
 
 export interface TimerOptions {
   repeats?: boolean;
@@ -12,17 +14,26 @@ export interface TimerOptions {
  * after a certain interval, optionally repeating.
  */
 export class Timer {
-  public static id: number = 0;
+  private _logger = Logger.getInstance();
+  private static _MAX_ID: number = 0;
   public id: number = 0;
+
+  private _elapsedTime: number = 0;
+  private _totalTimeAlive: number = 0;
+
+  private _running = false;
+
+  private _numberOfTicks: number = 0;
+  private _callbacks: Array<() => void>;
+
   public interval: number = 10;
   public repeats: boolean = false;
   public maxNumberOfRepeats: number = -1;
-  private _elapsedTime: number = 0;
-  private _totalTimeAlive: number = 0;
-  private _paused: boolean = false;
-  private _numberOfTicks: number = 0;
-  private _callbacks: Array<() => void>;
-  public complete: boolean = false;
+
+  private _complete = false;
+  public get complete() {
+    return this._complete;
+  }
   public scene: Scene = null;
 
   /**
@@ -48,7 +59,7 @@ export class Timer {
       }
     }
 
-    this.id = Timer.id++;
+    this.id = Timer._MAX_ID++;
     this.interval = interval || this.interval;
     this.repeats = repeats || this.repeats;
 
@@ -81,12 +92,14 @@ export class Timer {
    * @param delta  Number of elapsed milliseconds since the last update.
    */
   public update(delta: number) {
-    if (!this._paused) {
+    if (this._running) {
       this._totalTimeAlive += delta;
       this._elapsedTime += delta;
 
       if (this.maxNumberOfRepeats > -1 && this._numberOfTicks >= this.maxNumberOfRepeats) {
-        this.complete = true;
+        this._complete = true;
+        this._running = false;
+        this._elapsedTime = 0;
       }
 
       if (!this.complete && this._elapsedTime >= this.interval) {
@@ -98,7 +111,9 @@ export class Timer {
         if (this.repeats) {
           this._elapsedTime = 0;
         } else {
-          this.complete = true;
+          this._complete = true;
+          this._running = false;
+          this._elapsedTime = 0;
         }
       }
     }
@@ -106,6 +121,8 @@ export class Timer {
 
   /**
    * Resets the timer so that it can be reused, and optionally reconfigure the timers interval.
+   *
+   * Warning** you may need to call `timer.start()` again if the timer had completed
    * @param newInterval If specified, sets a new non-negative interval in milliseconds to refire the callback
    * @param newNumberOfRepeats If specified, sets a new non-negative upper limit to the number of time this timer executes
    */
@@ -121,7 +138,7 @@ export class Timer {
       }
     }
 
-    this.complete = false;
+    this._complete = false;
     this._elapsedTime = 0;
     this._numberOfTicks = 0;
   }
@@ -135,23 +152,84 @@ export class Timer {
   }
 
   /**
-   * Pauses the timer so that no more time will be incremented towards the next call
+   * @returns milliseconds until the next action callback, if complete will return 0
    */
-  public pause() {
-    this._paused = true;
+  public get timeToNextAction() {
+    if (this.complete) {
+      return 0;
+    }
+    return this.interval - this._elapsedTime;
+  }
+
+  /**
+   * @returns milliseconds elapsed toward the next action
+   */
+  public get timeElapsedTowardNextAction() {
+    return this._elapsedTime;
+  }
+
+  public get isRunning() {
+    return this._running;
+  }
+
+  /**
+   * Pauses the timer, time will no longer increment towards the next call
+   */
+  public pause(): Timer {
+    this._running = false;
+    return this;
   }
 
   /**
    * Unpauses the timer. Time will now increment towards the next call
+   * @deprecated Will be removed in v0.26.0
    */
+  @obsolete({ message: 'Will be removed in v0.26.0', alternateMethod: 'Use Timer.resume()' })
   public unpause() {
-    this._paused = false;
+    this._running = true;
+  }
+
+  /**
+   * Resumes the timer, time will now increment towards the next call.
+   */
+  public resume(): Timer {
+    this._running = true;
+    return this;
+  }
+
+  /**
+   * Starts the timer, if the timer was complete it will restart the timer and reset the elapsed time counter
+   */
+  public start(): Timer {
+    if (!this.scene) {
+      this._logger.warn('Cannot start a timer not part of a scene, timer wont start until added');
+    }
+
+    this._running = true;
+    if (this.complete) {
+      this._complete = false;
+      this._elapsedTime = 0;
+      this._numberOfTicks = 0;
+    }
+
+    return this;
+  }
+
+  /**
+   * Stops the timer and resets the elapsed time counter towards the next action invocation
+   */
+  public stop(): Timer {
+    this._running = false;
+    this._elapsedTime = 0;
+    this._numberOfTicks = 0;
+    return this;
   }
 
   /**
    * Cancels the timer, preventing any further executions.
    */
   public cancel() {
+    this.pause();
     if (this.scene) {
       this.scene.cancelTimer(this);
     }
