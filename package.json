@@ -83,7 +83,7 @@
     "copyfiles": "2.4.1",
     "coveralls": "3.1.1",
     "css-loader": "5.2.6",
-    "eslint": "7.27.0",
+    "eslint": "7.29.0",
     "eslint-plugin-jsdoc": "35.1.2",
     "excalibur-jasmine": "0.1.1",
     "husky": "4.3.8",
