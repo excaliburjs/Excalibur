@@ -70,6 +70,31 @@ describe('A Graphics Animation', () => {
     expect(anim.frames.length).toBe(4);
   });
 
+  it('warns if constructed with invalid indices', () => {
+    const sourceImage = new ex.Graphics.ImageSource('some/image.png');
+    const ss = ex.Graphics.SpriteSheet.fromGrid({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'warn');
+    const invalidIndices = [-1, -2, 101, 102];
+    const anim = ex.Graphics.Animation.fromSpriteSheet(ss, invalidIndices, 100, ex.Graphics.AnimationStrategy.Freeze);
+
+    expect(logger.warn).toHaveBeenCalledTimes(1);
+    expect(logger.warn).toHaveBeenCalledOnceWith(
+      `Indices into SpriteSheet were provided that don\'t exist: ${invalidIndices.join(',')} no frame will be shown`
+    );
+    expect(anim.strategy).toBe(ex.Graphics.AnimationStrategy.Freeze);
+    // expect(anim.frames[0].duration).toBe(100);
+    expect(anim.frames.length).toBe(0);
+  });
+
   it('is playing and looping by default', () => {
     const rect = new ex.Graphics.Rectangle({
       width: 100,
