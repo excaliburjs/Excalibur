@@ -152,11 +152,22 @@ describe('Action', () => {
   });
 
   describe('moveBy', () => {
-    it('can be moved to a location by a certain time', () => {
+    it('can be moved to a location by a certain time (x,y) overload', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
       actor.actions.moveBy(100, 0, 50);
+
+      actor.update(engine, 1000);
+      expect(actor.pos.x).toBe(50);
+      expect(actor.pos.y).toBe(0);
+    });
+
+    it('can be moved to a location by a certain time vector overload', () => {
+      expect(actor.pos.x).toBe(0);
+      expect(actor.pos.y).toBe(0);
+
+      actor.actions.moveBy(ex.vec(100, 0), 50);
 
       actor.update(engine, 1000);
       expect(actor.pos.x).toBe(50);
@@ -182,11 +193,26 @@ describe('Action', () => {
   });
 
   describe('moveTo', () => {
-    it('can be moved to a location at a speed', () => {
+    it('can be moved to a location at a speed (x,y) overload', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
       actor.actions.moveTo(100, 0, 100);
+      actor.update(engine, 500);
+
+      expect(actor.pos.x).toBe(50);
+      expect(actor.pos.y).toBe(0);
+
+      actor.update(engine, 500);
+      expect(actor.pos.x).toBe(100);
+      expect(actor.pos.y).toBe(0);
+    });
+
+    it('can be moved to a location at a speed vector overload', () => {
+      expect(actor.pos.x).toBe(0);
+      expect(actor.pos.y).toBe(0);
+
+      actor.actions.moveTo(ex.vec(100, 0), 100);
       actor.update(engine, 500);
 
       expect(actor.pos.x).toBe(50);
@@ -216,10 +242,28 @@ describe('Action', () => {
   });
 
   describe('easeTo', () => {
-    it('can be eased to a location given an easing function', () => {
+    it('can be eased to a location given an easing function (x,y) overload', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
 
       actor.actions.easeTo(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+
+      actor.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(50, 0));
+      expect(actor.vel).toBeVector(ex.vec(100, 0));
+
+      actor.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+
+      actor.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+    });
+
+    it('can be eased to a location given an easing function vector overload', () => {
+      expect(actor.pos).toBeVector(ex.vec(0, 0));
+
+      actor.actions.easeTo(ex.vec(100, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
 
       actor.update(engine, 500);
       expect(actor.pos).toBeVector(ex.vec(50, 0));
@@ -612,11 +656,30 @@ describe('Action', () => {
   });
 
   describe('scaleTo', () => {
-    it('can be scaled at a speed', () => {
+    it('can be scaled at a speed (x,y) overload', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
       actor.actions.scaleTo(2, 4, 0.5, 0.5);
+      actor.update(engine, 1000);
+
+      expect(actor.scale.x).toBe(1.5);
+      expect(actor.scale.y).toBe(1.5);
+      actor.update(engine, 1000);
+
+      expect(actor.scale.x).toBe(2);
+      expect(actor.scale.y).toBe(2);
+      actor.update(engine, 1000);
+
+      expect(actor.scale.x).toBe(2);
+      expect(actor.scale.y).toBe(2.5);
+    });
+
+    it('can be scaled at a speed vector overload', () => {
+      expect(actor.scale.x).toBe(1);
+      expect(actor.scale.y).toBe(1);
+
+      actor.actions.scaleTo(ex.vec(2, 4), ex.vec(0.5, 0.5));
       actor.update(engine, 1000);
 
       expect(actor.scale.x).toBe(1.5);
@@ -649,11 +712,27 @@ describe('Action', () => {
   });
 
   describe('scaleBy', () => {
-    it('can be scaled by a certain time', () => {
+    it('can be scaled by a certain time (x,y) overload', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
 
       actor.actions.scaleBy(4, 4, 4);
+
+      actor.update(engine, 500);
+      expect(actor.scale.x).toBe(3);
+      expect(actor.scale.y).toBe(3);
+
+      actor.update(engine, 500);
+      actor.update(engine, 1);
+      expect(actor.scale.x).toBe(5);
+      expect(actor.scale.y).toBe(5);
+    });
+
+    it('can be scaled by a certain time vector overload', () => {
+      expect(actor.scale.x).toBe(1);
+      expect(actor.scale.y).toBe(1);
+
+      actor.actions.scaleBy(ex.vec(4, 4), 4);
 
       actor.update(engine, 500);
       expect(actor.scale.x).toBe(3);

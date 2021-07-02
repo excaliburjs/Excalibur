@@ -47,6 +47,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Actions `moveTo()`, `moveBy()`, `easeTo()`, `scaleTo()`, and `scaleBy()` now have vector overloads
 - `new ImageSource()` will now log a warning if an image type isn't fully supported. ([#1855](https://github.com/excaliburjs/Excalibur/issues/1855))
 - `Timer.start()` to explicitly start timers, and `Timer.stop()` to stop timers and "rewind" them.
 - `Timer.timeToNextAction` will return the milliseconds until the next action callback
