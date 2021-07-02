@@ -37,8 +37,9 @@ export class Sprite extends Graphic {
   constructor(options: GraphicOptions & SpriteOptions) {
     super(options);
     this.image = options.image;
-    this.sourceView = options.sourceView ?? { x: 0, y: 0, width: 0, height: 0 };
-    this.destSize = options.destSize ?? { width: 0, height: 0 };
+    const { width, height } = options;
+    this.sourceView = options.sourceView ?? { x: 0, y: 0, width: width ?? 0, height: height ?? 0 };
+    this.destSize = options.destSize ?? { width: width ?? 0, height: height ?? 0 };
     this._updateSpriteDimensions();
     this.image.ready.then(() => {
       this._updateSpriteDimensions();

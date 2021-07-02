@@ -94,6 +94,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where `GraphicsOptions` `width/height` could not be used to define a `Sprite` with equivalent `sourceView` and `destSize` ([#1863](https://github.com/excaliburjs/Excalibur/issues/1863))
 - Fixed issue where `Scene.onActivate/onDeactivate` were called with the wrong arguments ([#1850](https://github.com/excaliburjs/Excalibur/issues/1850))
 - Fixed issue where no width/height argmunents to engine throws an error
 - Fixed issue where zero dimension image draws on the ExcaliburGraphicsContext throw an error
