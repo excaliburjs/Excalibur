@@ -67,7 +67,7 @@ describe('A TileMap', () => {
       const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
       tm.data.forEach(function (cell: ex.Cell) {
         cell.solid = true;
-        cell.addSprite(spriteTiles.sprites[0]);
+        cell.addGraphic(spriteTiles.sprites[0]);
       });
       tm._initialize(engine);
 
@@ -93,7 +93,7 @@ describe('A TileMap', () => {
       const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
       tm.data.forEach(function (cell: ex.Cell) {
         cell.solid = true;
-        cell.addSprite(spriteTiles.sprites[0]);
+        cell.addGraphic(spriteTiles.sprites[0]);
       });
       tm._initialize(engine);
 
