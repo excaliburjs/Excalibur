@@ -147,13 +147,13 @@ export class TileMapImpl extends Entity {
     let currentCol: Cell[] = [];
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
-          const cd = new Cell(i * cellWidth + <number>xOrConfig, j * cellHeight + y, cellWidth, cellHeight, i + j * cols);
-          this.data[i + j * cols] = cd;
-          currentCol.push(cd);
-          if (!this._rows[j]) {
-            this._rows[j] = [];
-          }
-          this._rows[j].push(cd);
+        const cd = new Cell(i * cellWidth + <number>xOrConfig, j * cellHeight + y, cellWidth, cellHeight, i + j * cols);
+        this.data[i + j * cols] = cd;
+        currentCol.push(cd);
+        if (!this._rows[j]) {
+          this._rows[j] = [];
+        }
+        this._rows[j].push(cd);
       }
       this._cols[i] = currentCol;
       currentCol = [];
@@ -497,7 +497,7 @@ export class CellImpl extends Entity {
   public pushSprite(sprite: Graphics.Sprite | LegacySprite) {
     this.addGraphic(sprite);
   }
-  
+
   /**
    * Add another [[Graphic]] to this TileMap cell
    * @param graphic
