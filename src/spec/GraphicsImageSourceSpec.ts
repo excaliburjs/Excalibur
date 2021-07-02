@@ -10,6 +10,15 @@ describe('A ImageSource', () => {
     expect(spriteFontImage).toBeDefined();
   });
 
+  it('logs a warning on image type not supported', () => {
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'warn');
+    const image1 = new ex.Graphics.ImageSource('base/404/img.svg');
+    expect(logger.warn).toHaveBeenCalledTimes(1);
+    const image2 = new ex.Graphics.ImageSource('base/404/img.gif');
+    expect(logger.warn).toHaveBeenCalledTimes(2);
+  });
+
   it('can load images', async () => {
     const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
     const whenLoaded = jasmine.createSpy('whenLoaded');
