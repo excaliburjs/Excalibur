@@ -7,9 +7,7 @@ var game = new ex.Engine({
 });
 var actor = new ex.Actor(100, 100, 50, 50, ex.Color.Red);
 
-actor.actions.moveTo(300, 300, 100);
-actor.actions.moveTo(100, 100, 100);
-actor.actions.repeatForever();
+actor.actions.repeatForever(ctx => ctx.moveTo(300, 300, 100).moveTo(100, 100, 100));
 
 game.add(actor);
 

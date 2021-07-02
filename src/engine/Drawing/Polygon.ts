@@ -8,7 +8,7 @@ import { obsolete } from '../Util/Decorators';
 /**
  * Creates a closed polygon drawing given a list of [[Vector]]s.
  *
- * @deprecated Use [["Graphics/Polygon".Polygon]]
+ * @deprecated Use [[Graphics.Polygon]]
  * @warning Use sparingly as Polygons are performance intensive
  */
 @obsolete({
@@ -138,7 +138,7 @@ export class Polygon implements Drawable {
       flipVertical: options.flipVertical ?? this.flipVertical,
       anchor: options.anchor ?? this.anchor,
       offset: options.offset ?? this.offset,
-      opacity: options.opacity ?? this.opacity
+      opacity: (options.opacity ?? 1) * (this.opacity ?? 1)
     };
 
     const xpoint = drawWidth * anchor.x + offset.x + x;
@@ -183,7 +183,7 @@ export class Polygon implements Drawable {
     }
 
     const oldAlpha = ctx.globalAlpha;
-    ctx.globalAlpha = opacity ?? 1;
+    ctx.globalAlpha = opacity;
     ctx.stroke();
     ctx.globalAlpha = oldAlpha;
 

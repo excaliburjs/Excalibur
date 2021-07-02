@@ -88,7 +88,7 @@ export class TransformComponent extends Component<'ex.transform'> {
   public coordPlane = CoordPlane.World;
 
   /**
-   * The current position of the entity in world space or in screen space depending on the the [[coordinate plan|CoordPlane]].
+   * The current position of the entity in world space or in screen space depending on the the [[CoordPlane|coordinate plane]].
    *
    * If a parent entity exists coordinates are local to the parent.
    */

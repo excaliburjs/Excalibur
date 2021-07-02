@@ -314,9 +314,17 @@ export class ParticleEmitterImpl extends Actor {
    */
   public particleLife: number = 2000;
   /**
-   * Gets or sets the opacity of each particle from 0 to 1.0
+   * Gets the opacity of each particle from 0 to 1.0
    */
-  public opacity: number = 1;
+  public get opacity(): number {
+    return super.opacity;
+  }
+  /**
+   * Gets the opacity of each particle from 0 to 1.0
+   */
+  public set opacity(opacity: number) {
+    super.opacity = opacity;
+  }
   /**
    * Gets or sets the fade flag which causes particles to gradually fade out over the course of their life.
    */

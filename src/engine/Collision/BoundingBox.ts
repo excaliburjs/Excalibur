@@ -116,6 +116,13 @@ export class BoundingBox {
   }
 
   /**
+   * Return whether the bounding box has zero dimensions in height,width or both
+   */
+  public hasZeroDimensions() {
+    return this.width === 0 || this.height === 0;
+  }
+
+  /**
    * Returns the center of the bounding box
    */
   public get center(): Vector {

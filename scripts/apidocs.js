@@ -32,7 +32,6 @@ child_process.execSync(
     title +
     ' API Documentation"' +
     ' --readme src/engine/Docs/Index.md' +
-    ' --includes src/engine/Docs' +
     ' --out docs/api' +
     ' --theme typedoc-default-themes/bin/default' +
     ' --hideGenerator' +

@@ -3,6 +3,7 @@ import { clamp } from '../Util/Util';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { EventDispatcher } from '../EventDispatcher';
 import { SpriteSheet } from './SpriteSheet';
+import { Logger } from '../Util/Log';
 
 export interface HasTick {
   /**
@@ -52,6 +53,7 @@ export type AnimationEvents = {
 };
 
 export class Animation extends Graphic implements HasTick {
+  private static _LOGGER = Logger.getInstance();
   public events = new EventDispatcher<any>(this); // TODO replace with new Emitter
   public frames: Frame[] = [];
   public strategy: AnimationStrategy = AnimationStrategy.Loop;
@@ -91,6 +93,13 @@ export class Animation extends Graphic implements HasTick {
     duration: number,
     strategy: AnimationStrategy = AnimationStrategy.Loop
   ): Animation {
+    const maxIndex = spriteSheet.sprites.length - 1;
+    const invalidIndices = frameIndices.filter((index) => index < 0 || index > maxIndex);
+    if (invalidIndices.length) {
+      Animation._LOGGER.warn(
+        `Indices into SpriteSheet were provided that don\'t exist: ${invalidIndices.join(',')} no frame will be shown`
+      );
+    }
     return new Animation({
       frames: spriteSheet.sprites
         .filter((_, index) => frameIndices.indexOf(index) > -1)

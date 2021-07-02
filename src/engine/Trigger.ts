@@ -1,6 +1,5 @@
 import { Color } from './Drawing/Color';
 import { Engine } from './Engine';
-import { ActionQueue } from './Actions/Action';
 import { EventDispatcher } from './EventDispatcher';
 import { Actor, isActor } from './Actor';
 import { Vector } from './Algebra';
@@ -83,7 +82,6 @@ export class Trigger extends Actor {
     this.visible = opts.visible;
     this.body.collider.type = CollisionType.Passive;
     this.eventDispatcher = new EventDispatcher(this);
-    this.actionQueue = new ActionQueue(this);
 
     this.on('collisionstart', (evt: CollisionStartEvent<Actor>) => {
       if (isActor(evt.other) && this.filter(evt.other)) {

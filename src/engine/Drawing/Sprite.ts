@@ -11,7 +11,7 @@ import { obsolete } from '../Util/Decorators';
 
 /**
  * @hidden
- * @deprecated Use [["Graphics/Sprite".Sprite]]
+ * @deprecated Use [[Graphics.Sprite]]
  */
 export class SpriteImpl implements Drawable {
   public texture: Texture;
@@ -349,7 +349,7 @@ export class SpriteImpl implements Drawable {
       flipVertical: options.flipVertical ?? this.flipVertical,
       anchor: options.anchor ?? this.anchor,
       offset: options.offset ?? this.offset,
-      opacity: options.opacity ?? this._opacity
+      opacity: (options.opacity ?? 1) * (this._opacity ?? 1)
     };
 
     if (this._dirtyEffect) {
@@ -391,7 +391,7 @@ export class SpriteImpl implements Drawable {
       ctx.scale(1, -1);
     }
     const oldAlpha = ctx.globalAlpha;
-    ctx.globalAlpha = opacity ?? 1;
+    ctx.globalAlpha = opacity;
     // Context is already rotated and scaled
     ctx.drawImage(
       this._spriteCanvas,
@@ -428,7 +428,7 @@ export class SpriteImpl implements Drawable {
 }
 
 /**
- * @deprecated Use [["Graphics/Sprite".Sprite]]
+ * @deprecated Use [[Graphics.Sprite]]
  */
 export interface SpriteArgs extends Partial<SpriteImpl> {
   image?: Texture;
@@ -445,7 +445,7 @@ export interface SpriteArgs extends Partial<SpriteImpl> {
 /**
  * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
  * images or parts of images from a [[Texture]] resource to the screen.
- * @deprecated Use [["Graphics/Sprite".Sprite]]
+ * @deprecated Use [[Graphics.Sprite]]
  */
 @obsolete({
   message: 'Label.clearTextShadow will be removed in v0.26.0',

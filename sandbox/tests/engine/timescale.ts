@@ -20,10 +20,10 @@ game.on('postupdate', () => {
 game.start().then(() => {
   var rect = new ex.Actor(200, 200, 50, 50, ex.Color.Red);
 
-  rect.actions
-    .easeTo(300, 200, 600, ex.EasingFunctions.EaseOutCubic)
-    .easeTo(200, 200, 600, ex.EasingFunctions.EaseOutCubic)
-    .repeatForever();
+  rect.actions.repeatForever(ctx => {
+    ctx.easeTo(300, 200, 600, ex.EasingFunctions.EaseOutCubic)
+       .easeTo(200, 200, 600, ex.EasingFunctions.EaseOutCubic)
+  });
 
   game.add(rect);
 });

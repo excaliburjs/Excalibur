@@ -17,7 +17,7 @@ export class TextureLoader {
   }
 
   /**
-   * Get [[WebGLTexture]] from a source image
+   * Get the WebGL Texture from a source image
    * @param image
    */
   public static get(image: HTMLImageSource): WebGLTexture {

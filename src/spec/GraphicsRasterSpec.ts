@@ -104,4 +104,30 @@ describe('A Raster', () => {
     sut.smoothing = false;
     expect(sut.dirty).toBe(true);
   });
+
+  it('can have padding and maintain correct size and not grow after each draw', () => {
+    const sut = new TestRaster();
+    expect(sut.localBounds.width).toBe(50);
+    expect(sut.localBounds.height).toBe(50);
+    sut.padding = 4;
+    expect(sut.localBounds.width).toBe(58);
+    expect(sut.width).toBe(58);
+    expect(sut.localBounds.height).toBe(58);
+    expect(sut.height).toBe(58);
+
+    sut.flagDirty();
+    sut.draw(ctx, 0, 0);
+    expect(sut._bitmap.width).toBe(58);
+    expect(sut._bitmap.height).toBe(58);
+
+    sut.flagDirty();
+    sut.draw(ctx, 0, 0);
+    expect(sut._bitmap.width).toBe(58);
+    expect(sut._bitmap.height).toBe(58);
+
+    sut.flagDirty();
+    sut.draw(ctx, 0, 0);
+    expect(sut._bitmap.width).toBe(58);
+    expect(sut._bitmap.height).toBe(58);
+  });
 });

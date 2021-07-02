@@ -31,7 +31,6 @@ import { CanInitialize, CanUpdate, CanDraw, CanBeKilled } from './Interfaces/Lif
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
-import { ActionQueue } from './Actions/Action';
 import { vec, Vector } from './Algebra';
 import { Body } from './Collision/Body';
 import { Eventable } from './Interfaces/Evented';
@@ -85,9 +84,7 @@ export interface ActorDefaults {
  * @hidden
  */
 
-export class ActorImpl
-  extends Entity
-  implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
+export class ActorImpl extends Entity implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
   /**
@@ -151,7 +148,7 @@ export class ActorImpl
    * Sets the velocity vector of the actor in pixels/sec
    */
   public set vel(theVel: Vector) {
-    this.body.vel.setTo(theVel.x, theVel.y);
+    this.body.vel = theVel;
   }
 
   /**
@@ -327,16 +324,23 @@ export class ActorImpl
   }
 
   /**
-   * The opacity of an actor. Passing in a color in the [[constructor]] will use the
-   * color's opacity.
+   * The opacity of an actor.
+   *
+   * @obsolete Actor.opacity will be removed in v0.26.0, use [[GraphicsComponent.opacity|Actor.graphics.opacity]].
    */
-  public opacity: number = 1;
-  public previousOpacity: number = 1;
+  @obsolete({
+    message: 'Actor.opacity will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.graphics.opacity'
+  })
+  public get opacity(): number {
+    return this._opacity;
+  }
 
-  /**
-   * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
-   */
-  public actionQueue: ActionQueue;
+  public set opacity(opacity: number) {
+    this._opacity = opacity;
+  }
+
+  private _opacity: number = 1;
 
   /**
    * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
@@ -456,15 +460,10 @@ export class ActorImpl
    * @param y         The starting y coordinate of the actor
    * @param width     The starting width of the actor
    * @param height    The starting height of the actor
-   * @param color     The starting color of the actor. Leave null to draw a transparent actor. The opacity of the color will be used as the
-   * initial [[opacity]].
+   * @param color   The starting color of the actor. Leave null to draw a transparent actor.
    */
   constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
-    super([
-      new TransformComponent(),
-      new GraphicsComponent(),
-      new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta))
-    ]);
+    super([new TransformComponent(), new GraphicsComponent(), new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta))]);
 
     this.transform = this.get(TransformComponent);
     this.graphics = this.get(GraphicsComponent);
@@ -520,8 +519,6 @@ export class ActorImpl
 
     if (color) {
       this.color = color;
-      // set default opacity of an actor to the color
-      this.opacity = color.a;
     }
 
     if (color) {
@@ -543,7 +540,6 @@ export class ActorImpl
     this.traits.push(new Traits.CapturePointer());
 
     // Build the action queue
-    this.actionQueue = new ActionQueue(this);
     this.actions = new ActionContext(this);
   }
 
@@ -898,19 +894,19 @@ export class ActorImpl
    * Sets the current drawing of the actor to the drawing corresponding to
    * the key.
    * @param key The key of the drawing
-   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.swap|Actor.graphics.swap]]
+   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.use|Actor.graphics.use]]
    */
   public setDrawing(key: string): void;
   /**
    * Sets the current drawing of the actor to the drawing corresponding to
    * an `enum` key (e.g. `Animations.Left`)
    * @param key The `enum` key of the drawing
-   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.swap|Actor.graphics.swap]]
+   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.use|Actor.graphics.use]]
    */
   public setDrawing(key: number): void;
   @obsolete({
     message: 'Actor.setDrawing will be removed in v0.26.0',
-    alternateMethod: 'Use Actor.graphics.show() or Actor.graphics.swap()'
+    alternateMethod: 'Use Actor.graphics.show() or Actor.graphics.use()'
   })
   public setDrawing(key: any): void {
     key = key.toString();
@@ -1061,10 +1057,8 @@ export class ActorImpl
    * @param recurse checks whether the x/y are contained in any child actors (if they exist).
    */
   public contains(x: number, y: number, recurse: boolean = false): boolean {
-    // These shenanigans are to handle child actor containment,
-    // the only time getWorldPos and pos are different is a child actor
-    const childShift = this.getGlobalPos().sub(this.pos);
-    const containment = this.body.collider.bounds.translate(childShift).contains(new Vector(x, y));
+    const point = vec(x, y);
+    const containment = this.body.collider.shape.contains(point);
 
     if (recurse) {
       return (
@@ -1107,17 +1101,8 @@ export class ActorImpl
       drawing.tick(delta, engine.stats.currFrame.id);
     }
 
-    // Update action queue
-    this.actionQueue.update(delta);
-
-    // Update color only opacity
-    if (this.color) {
-      this.color.a = this.opacity;
-    }
-
-    if (this.opacity === 0) {
-      this.visible = false;
-    }
+    // Update action context
+    this.actions.update(delta);
 
     // capture old transform
     this.body.captureOldTransform();
@@ -1201,7 +1186,8 @@ export class ActorImpl
 
       this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
     } else {
-      if (this.color && this.body && this.body.collider && this.body.collider.shape) {
+      if (this.color && this.body && this.body.collider && this.body.collider.shape && !this.body.collider.bounds.hasZeroDimensions()) {
+        ctx.globalAlpha = this.opacity;
         this.body.collider.shape.draw(ctx, this.color, new Vector(0, 0));
       }
     }

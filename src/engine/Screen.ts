@@ -11,8 +11,13 @@ import { getPosition } from './Util/Util';
  */
 export enum DisplayMode {
   /**
+   * Default, use a specified resolution for the game. Like 800x600 pixels for example.
+   */
+  Fixed = 'Fixed',
+
+  /**
    * Fit to screen using as much space as possible while maintaining aspect ratio and resolution.
-   * This is not the same as [[Screen.goFullScreen]]
+   * This is not the same as [[Screen.goFullScreen]] but behaves in a similar way maintaining aspect ratio.
    *
    * You may want to center your game here is an example
    * ```html
@@ -36,29 +41,29 @@ export enum DisplayMode {
    * ```
    *
    */
-  Fit = 'Fit',
+  FitScreen = 'FitScreen',
 
   /**
    * Fill the entire screen's css width/height for the game resolution dynamically. This means the resolution of the game will
    * change dynamically as the window is resized. This is not the same as [[Screen.goFullScreen]]
    */
-  Fill = 'Fill',
+  FillScreen = 'FillScreen',
 
   /**
-   * Default, use a specified resolution for the game. Like 800x600 pixels for example.
+   * Fit to parent element width/height using as much space as possible while maintaining aspect ratio and resolution.
    */
-  Fixed = 'Fixed',
+  FitContainer = 'FitContainer',
+
+  /**
+   * Use the parent DOM container's css width/height for the game resolution dynamically
+   */
+  FillContainer = 'FillContainer',
 
   /**
    * Allow the game to be positioned with the [[EngineOptions.position]] option
    * @deprecated Use CSS to position the game canvas, will be removed in v0.26.0
    */
-  Position = 'Position',
-
-  /**
-   * Use the parent DOM container's css width/height for the game resolution dynamically
-   */
-  Container = 'Container'
+  Position = 'Position'
 }
 
 /**
@@ -150,7 +155,8 @@ export interface ScreenOptions {
   pixelRatio?: number;
   /**
    * Optionally specify the actual pixel resolution in width/height pixels (also known as logical resolution), by default the
-   * resolution will be the same as the viewport. Resolution will be overridden by DisplayMode.Container and DisplayMode.FullScreen.
+   * resolution will be the same as the viewport. Resolution will be overridden by [[DisplayMode.FillContainer]] and
+   * [[DisplayMode.FillScreen]].
    */
   resolution?: ScreenDimension;
   /**
@@ -192,6 +198,7 @@ export class Screen {
   private _mediaQueryList: MediaQueryList;
   private _isDisposed = false;
   private _logger = Logger.getInstance();
+  private _resizeObserver: ResizeObserver;
 
   constructor(options: ScreenOptions) {
     this.viewport = options.viewport;
@@ -215,7 +222,11 @@ export class Screen {
     if (!this._isDisposed) {
       // Clean up handlers
       this._isDisposed = true;
-      this._browser.window.off('resize', this._windowResizeHandler);
+      this._browser.window.off('resize', this._resizeHandler);
+      if (this._resizeObserver) {
+        this._resizeObserver.disconnect();
+      }
+      this.parent.removeEventListener('resize', this._resizeHandler);
       this._mediaQueryList.removeEventListener('change', this._pixelRatioChangeHandler);
       this._canvas.removeEventListener('fullscreenchange', this._fullscreenChangeHandler);
     }
@@ -232,8 +243,8 @@ export class Screen {
     this.applyResolutionAndViewport();
   };
 
-  private _windowResizeHandler = () => {
-    const parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
+  private _resizeHandler = () => {
+    const parent = this.parent;
     this._logger.debug('View port resized');
     this._setResolutionAndViewportByDisplayMode(parent);
     this.applyResolutionAndViewport();
@@ -270,6 +281,14 @@ export class Screen {
 
   public get canvas(): HTMLCanvasElement {
     return this._canvas;
+  }
+
+  public get parent(): HTMLElement | Window {
+    return <HTMLElement | Window>(
+      (this.displayMode === DisplayMode.FillContainer || this.displayMode === DisplayMode.FitContainer
+        ? this.canvas.parentElement || document.body
+        : window)
+    );
   }
 
   public get resolution(): ScreenDimension {
@@ -454,7 +473,7 @@ export class Screen {
   /**
    * Takes a coordinate in Excalibur screen space, and translates it to Excalibur world space.
    *
-   * World space is where [[entities|Entity]] in Excalibur live by default [[CoordPlane.World]]
+   * World space is where [[Entity|entities]] in Excalibur live by default [[CoordPlane.World]]
    * and extends infinitely out relative from the [[Camera]].
    * @param point  Screen coordinate to convert
    */
@@ -480,7 +499,7 @@ export class Screen {
   /**
    * Takes a coordinate in Excalibur world space, and translates it to Excalibur screen space.
    *
-   * Screen space is where [[ScreenElements]] and [[entities|Entity]] with [[CoordPlane.Screen]] live.
+   * Screen space is where [[ScreenElement|screen elements]] and [[Entity|entities]] with [[CoordPlane.Screen]] live.
    * @param point  World coordinate to convert
    */
   public worldToScreenCoordinates(point: Vector): Vector {
@@ -611,15 +630,41 @@ export class Screen {
     };
   }
 
+  private _computeFitContainer() {
+    const aspect = this.aspectRatio;
+    let adjustedWidth = 0;
+    let adjustedHeight = 0;
+    const parent = this.canvas.parentElement;
+    if (parent.clientWidth / aspect < parent.clientHeight) {
+      adjustedWidth = parent.clientWidth;
+      adjustedHeight = parent.clientWidth / aspect;
+    } else {
+      adjustedWidth = parent.clientHeight * aspect;
+      adjustedHeight = parent.clientHeight;
+    }
+
+    this.viewport = {
+      width: adjustedWidth,
+      height: adjustedHeight
+    };
+  }
+
   private _applyDisplayMode() {
-    if (this.displayMode === DisplayMode.Fit || this.displayMode === DisplayMode.Fill || this.displayMode === DisplayMode.Container) {
-      const parent = <any>(this.displayMode === DisplayMode.Container ? <any>(this.canvas.parentElement || document.body) : <any>window);
-
-      this._setResolutionAndViewportByDisplayMode(parent);
-
-      this._browser.window.on('resize', this._windowResizeHandler);
-    } else if (this.displayMode === DisplayMode.Position) {
+    if (this.displayMode === DisplayMode.Position) {
       this._initializeDisplayModePosition(this._position);
+    } else {
+      this._setResolutionAndViewportByDisplayMode(this.parent);
+
+      // watch resizing
+      if (this.parent instanceof Window) {
+        this._browser.window.on('resize', this._resizeHandler);
+      } else {
+        this._resizeObserver = new ResizeObserver(() => {
+          this._resizeHandler();
+        });
+        this._resizeObserver.observe(this.parent);
+      }
+      this.parent.addEventListener('resize', this._resizeHandler);
     }
   }
 
@@ -627,7 +672,7 @@ export class Screen {
    * Sets the resoultion and viewport based on the selected display mode.
    */
   private _setResolutionAndViewportByDisplayMode(parent: HTMLElement | Window) {
-    if (this.displayMode === DisplayMode.Container) {
+    if (this.displayMode === DisplayMode.FillContainer) {
       this.resolution = {
         width: (<HTMLElement>parent).clientWidth,
         height: (<HTMLElement>parent).clientHeight
@@ -636,7 +681,7 @@ export class Screen {
       this.viewport = this.resolution;
     }
 
-    if (this.displayMode === DisplayMode.Fill) {
+    if (this.displayMode === DisplayMode.FillScreen) {
       document.body.style.margin = '0px';
       document.body.style.overflow = 'hidden';
       this.resolution = {
@@ -647,8 +692,12 @@ export class Screen {
       this.viewport = this.resolution;
     }
 
-    if (this.displayMode === DisplayMode.Fit) {
+    if (this.displayMode === DisplayMode.FitScreen) {
       this._computeFit();
+    }
+
+    if (this.displayMode === DisplayMode.FitContainer) {
+      this._computeFitContainer();
     }
   }
 

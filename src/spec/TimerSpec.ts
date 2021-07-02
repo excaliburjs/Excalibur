@@ -13,18 +13,18 @@ describe('A Timer', () => {
     });
     timer = new ex.Timer({
       interval: 500,
-      fcn: function() {
+      fcn: function () {
         /*do nothing*/
       }
     });
     scene = new ex.Scene(engine);
-    engine.currentScene = scene;
+    engine.addScene('root', scene);
   });
 
   it('has a unique id', () => {
     const newtimer = new ex.Timer({
       interval: 500,
-      fcn: function() {
+      fcn: function () {
         /*do nothing*/
       }
     });
@@ -33,7 +33,7 @@ describe('A Timer', () => {
 
     const newtimer2 = new ex.Timer({
       interval: 500,
-      fcn: function() {
+      fcn: function () {
         /*do nothing*/
       }
     });
@@ -41,66 +41,140 @@ describe('A Timer', () => {
     expect(timer.id).toBe(newtimer2.id - 2);
   });
 
+  it('does not start when added to a scene', () => {
+    const sut = new ex.Timer({
+      interval: 42,
+      fcn: () => {
+        /* nothing */
+      }
+    });
+
+    const scene = new ex.Scene();
+
+    scene.add(sut);
+
+    expect(sut.isRunning).toBe(false);
+  });
+
+  it('can be paused and resumed', () => {
+    const timerSpy = jasmine.createSpy('timer');
+    const sut = new ex.Timer({
+      interval: 42,
+      fcn: timerSpy
+    });
+
+    scene.add(sut);
+    sut.start();
+
+    scene.update(engine, 40);
+    expect(sut.timeToNextAction).toBe(2);
+    expect(sut.timeElapsedTowardNextAction).toBe(40);
+
+    sut.pause();
+    scene.update(engine, 40);
+    expect(sut.timeToNextAction).toBe(2);
+    expect(sut.timeElapsedTowardNextAction).toBe(40);
+    expect(timerSpy).not.toHaveBeenCalled();
+
+    sut.resume();
+    scene.update(engine, 40);
+    expect(timerSpy).toHaveBeenCalledTimes(1);
+    expect(sut.complete).toBe(true);
+    expect(sut.isRunning).toBe(false);
+    expect(sut.timeToNextAction).toBe(0);
+    expect(sut.timeElapsedTowardNextAction).toBe(0);
+  });
+
+  it('can be stopped and started', () => {
+    const timerSpy = jasmine.createSpy('timer');
+    const sut = new ex.Timer({
+      interval: 42,
+      fcn: timerSpy
+    });
+
+    scene.add(sut);
+    sut.start();
+
+    scene.update(engine, 40);
+    expect(sut.timeToNextAction).toBe(2);
+    expect(sut.timeElapsedTowardNextAction).toBe(40);
+
+    sut.stop();
+    expect(sut.timeElapsedTowardNextAction).toBe(0);
+    expect(sut.timeToNextAction).toBe(42);
+    expect(sut.complete).toBe(false);
+    expect(sut.isRunning).toBe(false);
+
+    sut.start();
+    scene.update(engine, 40);
+    expect(sut.timeToNextAction).toBe(2);
+    expect(sut.timeElapsedTowardNextAction).toBe(40);
+  });
+
   it('fires after a specific interval', () => {
-    //scene.addTimer(timer);
-    //scene.update(null, 501);
-    timer.update(501);
-    timer.update(501);
-    expect(timer.complete).toBeTruthy();
+    const timerSpy = jasmine.createSpy('timer');
+    const sut = new ex.Timer({
+      interval: 500,
+      fcn: timerSpy
+    });
+    sut.start();
+    sut.update(501);
+    sut.update(501);
+    expect(sut.complete).toBe(true);
+    expect(timerSpy).toHaveBeenCalledTimes(1);
   });
 
   it('can repeat itself indefinitely at a specified interval', () => {
-    // count the number of fires
-    let count = 0;
+    const timerSpy = jasmine.createSpy('timer');
     timer = new ex.Timer({
       interval: 500,
-      fcn: function() {
-        count++;
-      },
+      fcn: timerSpy,
       repeats: true
     });
 
+    timer.start();
     timer.update(501);
     timer.update(501);
     timer.update(501);
 
-    expect(count).toBe(3);
+    expect(timerSpy).toHaveBeenCalledTimes(3);
   });
 
   it('can repeat itself a finite number of times', () => {
-    // count the number of fires
+    const timerSpy = jasmine.createSpy('timer');
     timer = new ex.Timer({
       interval: 500,
-      fcn: function() {
-        const dummy = 0;
-      },
+      fcn: timerSpy,
       repeats: true,
       numberOfRepeats: 2
     });
 
+    timer.start();
+    timer.update(501);
+    timer.update(501);
     timer.update(501);
     timer.update(501);
     timer.update(501);
 
-    expect(timer.timesRepeated).toBe(2);
+    expect(timerSpy).toHaveBeenCalledTimes(2);
   });
 
   it('can return how long it has been running', () => {
+    timer.start();
     timer.update(372);
 
     expect(timer.getTimeRunning()).toEqual(372);
   });
 
   it('can be canceled', () => {
-    let count = 0;
+    const timerSpy = jasmine.createSpy('timer');
     timer = new ex.Timer({
       interval: 500,
-      fcn: function() {
-        count++;
-      },
+      fcn: timerSpy,
       repeats: true
     });
     scene.addTimer(timer);
+    timer.start();
 
     scene.update(engine, 501);
     scene.update(engine, 501);
@@ -110,11 +184,12 @@ describe('A Timer', () => {
     scene.update(engine, 501);
     scene.update(engine, 501);
 
-    expect(count).toBe(3);
+    expect(timerSpy).toHaveBeenCalledTimes(3);
   });
 
   it('is no longer active in the scene when it is completed', () => {
     scene.addTimer(timer);
+    timer.start();
 
     expect(scene.isTimerActive(timer)).toBeTruthy();
     scene.update(engine, 501);
@@ -123,64 +198,63 @@ describe('A Timer', () => {
 
   it('is in the completed state once it is finished', () => {
     scene.addTimer(timer);
+    timer.start();
     scene.update(engine, 501);
     expect(timer.complete).toBeTruthy();
   });
 
   it('has no completed state when running forever', () => {
-    // count the number of fires
-    let count = 0;
+    const timerSpy = jasmine.createSpy('timer');
     timer = new ex.Timer({
       interval: 500,
-      fcn: function() {
-        count++;
-      },
+      fcn: timerSpy,
       repeats: true
     });
     scene.addTimer(timer);
+    timer.start();
 
     scene.update(engine, 501);
-    expect(count).toBe(1);
+    expect(timerSpy).toHaveBeenCalledTimes(1);
     expect(timer.repeats).toBeTruthy();
     expect(timer.complete).toBeFalsy();
 
     scene.update(engine, 501);
-    expect(count).toBe(2);
+    expect(timerSpy).toHaveBeenCalledTimes(2);
     expect(timer.repeats).toBeTruthy();
     expect(timer.complete).toBeFalsy();
 
     scene.update(engine, 501);
-    expect(count).toBe(3);
+    expect(timerSpy).toHaveBeenCalledTimes(3);
     expect(timer.repeats).toBeTruthy();
     expect(timer.complete).toBeFalsy();
   });
 
   it('can be reset at the same interval', () => {
-    let count = 0;
+    const timerSpy = jasmine.createSpy('timer');
     // non-repeating timer
     timer = new ex.Timer({
       interval: 500,
-      fcn: function() {
-        count++;
-      },
+      fcn: timerSpy,
       repeats: false
     });
     scene.add(timer);
+    timer.start();
 
     // tick the timer
     scene.update(engine, 501);
-    expect(count).toBe(1);
+    expect(timerSpy).toHaveBeenCalledTimes(1);
 
     // tick the timer again, but it shouldn't fire until reset
     scene.update(engine, 501);
-    expect(count).toBe(1);
+    expect(timerSpy).toHaveBeenCalledTimes(1);
     expect(timer.complete).toBe(true);
 
     // once reset the timer should fire again
     timer.reset();
+    timer.start();
     expect(timer.complete).toBe(false);
     scene.update(engine, 501);
-    expect(count).toBe(2);
+    expect(timerSpy).toHaveBeenCalledTimes(2);
   });
 
   it('can be reset at a different interval', () => {
@@ -188,12 +262,13 @@ describe('A Timer', () => {
     // non-repeating timer
     timer = new ex.Timer({
       interval: 500,
-      fcn: function() {
+      fcn: function () {
         count++;
       },
       repeats: false
     });
     scene.add(timer);
+    timer.start();
 
     // tick the timer
     scene.update(engine, 501);
@@ -206,6 +281,7 @@ describe('A Timer', () => {
 
     // once reset at a larger the timer should fire again
     timer.reset(900);
+    timer.start();
     expect(timer.complete).toBe(false);
     scene.update(engine, 901);
     expect(count).toBe(2);
@@ -216,12 +292,13 @@ describe('A Timer', () => {
     // non-repeating timer
     timer = new ex.Timer({
       interval: 500,
-      fcn: function() {
+      fcn: function () {
         count++;
       },
       repeats: true
     });
     scene.add(timer);
+    timer.start();
 
     // tick the timer
     scene.update(engine, 501);
@@ -240,13 +317,14 @@ describe('A Timer', () => {
     // non-repeating timer
     timer = new ex.Timer({
       interval: 500,
-      fcn: function() {
+      fcn: function () {
         const dummy = 0;
       },
       repeats: true,
       numberOfRepeats: 3
     });
     scene.add(timer);
+    timer.start();
 
     // tick the timer
     scene.update(engine, 501);
@@ -261,6 +339,7 @@ describe('A Timer', () => {
 
     // once reset the timer should fire again
     timer.reset(500, 4);
+    timer.start();
     expect(timer.complete).toBe(false);
     scene.update(engine, 501);
     scene.update(engine, 501);
@@ -280,6 +359,7 @@ describe('A Timer', () => {
       repeats: true
     });
     scene.add(timer);
+    timer.start();
 
     // act
     timer.pause();
@@ -301,11 +381,12 @@ describe('A Timer', () => {
       repeats: true
     });
     scene.add(timer);
+    timer.start();
 
     // act
     timer.pause();
     scene.update(engine, 200);
-    timer.unpause();
+    timer.resume();
     scene.update(engine, 100);
     scene.update(engine, 100);
 
@@ -322,6 +403,7 @@ describe('A Timer', () => {
       repeats: true
     });
     scene.add(timer);
+    timer.start();
     scene.update(engine, 100);
 
     // assert
@@ -345,6 +427,8 @@ describe('A Timer', () => {
     });
 
     scene.add(timer);
+    timer.start();
+
     timer.on(() => {
       count++;
     });
@@ -374,6 +458,7 @@ describe('A Timer', () => {
     });
 
     scene.add(timer);
+    timer.start();
 
     const fnc = () => {
       count++;

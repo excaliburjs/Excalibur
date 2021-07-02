@@ -51,6 +51,13 @@ export class Pointer extends Class {
   private _actorsLastFrame: Actor[] = [];
   private _actorsNoLongerUnderPointer: Actor[] = [];
 
+  private _actorSortingFcn = (a: Actor, b: Actor) => {
+    if (a.z === b.z) {
+      return b.id - a.id;
+    }
+    return b.z - a.z;
+  };
+
   /**
    * Whether the Pointer is currently dragging.
    */
@@ -155,13 +162,9 @@ export class Pointer extends Class {
       this._actors.push(actor);
     }
 
-    // Actors under the pointer are sorted by z, ties are broken by id
-    this._actors.sort((a, b) => {
-      if (a.z === b.z) {
-        return a.id - b.id;
-      }
-      return a.z - b.z;
-    });
+    // Actors are processed in z-order highest z to lowest
+    // ties are broken by id highest id (newest) to lowest id (oldest)
+    this._actors.sort(this._actorSortingFcn);
   }
 
   /**
@@ -196,8 +199,8 @@ export class Pointer extends Class {
    */
   public getActorsForEvents(): Actor[] {
     return this._actors.concat(this._actorsLastFrame).filter((actor, i, self) => {
-      return self.indexOf(actor) === i;
-    });
+      return self.indexOf(actor) === i; // de-dup
+    }).sort(this._actorSortingFcn); // sort by z
   }
 
   /**
@@ -216,7 +219,7 @@ export class Pointer extends Class {
    * @param actor
    */
   public wasActorUnderPointer(actor: Actor): boolean {
-    return this._actorsLastFrame.indexOf(actor) > -1; // || !!this._actorsUnderPointerLastFrame.hasOwnProperty(actor.id.toString());
+    return this._actorsLastFrame.indexOf(actor) > -1;
   }
 
   /**

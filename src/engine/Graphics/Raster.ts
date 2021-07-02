@@ -39,11 +39,12 @@ export abstract class Raster extends Graphic {
     }
 
     this._bitmap = document.createElement('canvas');
+    // get the default canvas width/height as a fallback
     const bitmapWidth = options?.width ?? this._bitmap.width;
     const bitmapHeight = options?.height ?? this._bitmap.height;
     // Rasters use power of two images as an optimization for webgl
-    this._bitmap.width = ensurePowerOfTwo(bitmapWidth);
-    this._bitmap.height = ensurePowerOfTwo(bitmapHeight);
+    this.width = ensurePowerOfTwo(bitmapWidth);
+    this.height = ensurePowerOfTwo(bitmapHeight);
     const maybeCtx = this._bitmap.getContext('2d');
     if (!maybeCtx) {
       /* istanbul ignore next */
@@ -79,32 +80,52 @@ export abstract class Raster extends Graphic {
     this._dirty = true;
   }
 
+  private _originalWidth: number;
   /**
    * Gets or sets the current width of the Raster graphic. Setting the width will cause the raster
    * to be flagged dirty causing a re-raster on the next draw.
+   *
+   * Any `padding`s set will be factored into the width
    */
   public get width() {
-    return this._bitmap.width;
+    return this._getTotalWidth();
   }
   public set width(value: number) {
     this._bitmap.width = value;
+    this._originalWidth = value;
     this.flagDirty();
   }
 
+  private _originalHeight: number;
   /**
    * Gets or sets the current height of the Raster graphic. Setting the height will cause the raster
    * to be flagged dirty causing a re-raster on the next draw.
+   *
+   * Any `padding` set will be factored into the height
    */
   public get height() {
-    return this._bitmap.height;
+    return this._getTotalHeight();
   }
+
   public set height(value: number) {
     this._bitmap.height = value;
+    this._originalHeight = value;
     this.flagDirty();
   }
 
+  private _getTotalWidth() {
+    return (this._originalWidth ?? this._bitmap.width) + this.padding * 2;
+  }
+
+  private _getTotalHeight() {
+    return (this._originalHeight ?? this._bitmap.height) + this.padding * 2;
+  }
+
+  /**
+   * Returns the local bounds of the Raster including the padding
+   */
   public get localBounds() {
-    return BoundingBox.fromDimension(this.width * this.scale.x, this.height * this.scale.y, Vector.Zero);
+    return BoundingBox.fromDimension(this._getTotalWidth() * this.scale.x, this._getTotalHeight() * this.scale.y, Vector.Zero);
   }
 
   private _smoothing: boolean = false;
@@ -189,7 +210,7 @@ export abstract class Raster extends Graphic {
    */
   public rasterize(): void {
     this._dirty = false;
-    this._ctx.clearRect(0, 0, this.width, this.height);
+    this._ctx.clearRect(0, 0, this._getTotalWidth(), this._getTotalHeight());
     this._ctx.save();
     this._applyRasterProperites(this._ctx);
     this.execute(this._ctx);
@@ -199,8 +220,8 @@ export abstract class Raster extends Graphic {
   }
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
-    this._bitmap.width = this._bitmap.width + this.padding * 2;
-    this._bitmap.height = this._bitmap.height + this.padding * 2;
+    this._bitmap.width = this._getTotalWidth();
+    this._bitmap.height = this._getTotalHeight();
     ctx.translate(this.padding, this.padding);
     ctx.imageSmoothingEnabled = this.smoothing;
     ctx.lineWidth = this.lineWidth;

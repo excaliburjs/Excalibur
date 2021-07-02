@@ -25,6 +25,7 @@ describe('A ScreenElement', () => {
     scene = new ex.Scene();
     engine.addScene('test', scene);
     engine.goToScene('test');
+    engine.start();
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(screenElement, 'draw').and.callThrough();
@@ -32,6 +33,7 @@ describe('A ScreenElement', () => {
 
   afterEach(() => {
     engine.stop();
+    engine = null;
   });
 
   it('is drawn when visible', () => {
