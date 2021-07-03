@@ -1,4 +1,4 @@
-import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import { ExcaliburMatchers, ensureImagesLoaded, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
@@ -17,6 +17,7 @@ describe('A TileMap', () => {
   let texture: ex.Texture;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     engine = TestUtils.engine({
       width: 800,
       height: 200
@@ -54,58 +55,138 @@ describe('A TileMap', () => {
     expect(tm.cols).toBe(20);
   });
 
-  it('should draw the correct proportions', (done) => {
-    texture.load().then(() => {
-      const tm = new ex.TileMap({
-        x: 30,
-        y: 30,
-        cellWidth: 64,
-        cellHeight: 48,
-        rows: 3,
-        cols: 7
-      });
-      const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
-      tm.data.forEach(function (cell: ex.Cell) {
-        cell.solid = true;
-        cell.addSprite(spriteTiles.sprites[0]);
-      });
-      tm._initialize(engine);
-
-      drawWithTransform(engine.graphicsContext, tm, 100);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/TileMapSpec/TileMap.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+  it('can iterate over rows and cols', () => {
+    const tm = new ex.TileMap({
+      x: 0,
+      y: 0,
+      cellWidth: 32,
+      cellHeight: 32,
+      rows: 3,
+      cols: 5
     });
+
+    expect(tm.getRows().length).toBe(3);
+    expect(tm.getRows()[0].length).toBe(5);
+    expect(tm.getRows()[0][4].x).toBe(4 * 32);
+    expect(tm.getRows()[0][4].y).toBe(0);
+    expect(tm.getRows()[2][4].x).toBe(4 * 32);
+    expect(tm.getRows()[2][4].y).toBe(2 * 32);
+
+    expect(tm.getColumns().length).toBe(5);
+    expect(tm.getColumns()[0].length).toBe(3);
+    expect(tm.getColumns()[4][0].x).toBe(4 * 32);
+    expect(tm.getColumns()[4][0].y).toBe(0);
+    expect(tm.getColumns()[4][2].x).toBe(4 * 32);
+    expect(tm.getColumns()[4][2].y).toBe(2 * 32);
   });
 
-  it('should handle offscreen culling correctly with negative coords', (done) => {
-    texture.load().then(() => {
-      const tm = new ex.TileMap({
-        x: -100,
-        y: -100,
-        cellWidth: 64,
-        cellHeight: 48,
-        rows: 20,
-        cols: 20
-      });
-      const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
-      tm.data.forEach(function (cell: ex.Cell) {
-        cell.solid = true;
-        cell.addSprite(spriteTiles.sprites[0]);
-      });
-      tm._initialize(engine);
-
-      tm.update(engine, 100);
-
-      drawWithTransform(engine.graphicsContext, tm, 100);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/TileMapSpec/TileMapCulling.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+  it('can store arbitrary data in cells', () => {
+    const tm = new ex.TileMap({
+      x: 0,
+      y: 0,
+      cellWidth: 32,
+      cellHeight: 32,
+      rows: 3,
+      cols: 5
     });
+
+    const cell = tm.getCell(4, 2);
+    cell.data.set('some_value', 'anything');
+
+    const otherCell = tm.getCell(4, 2);
+
+    expect(otherCell.data.get('some_value')).toBe('anything');
+
+    const otherCell2 = tm.getCell(0, 0);
+
+    expect(otherCell2.data.get('some_vale')).not.toBeDefined();
+  });
+
+  it('can use arbitrary graphics', async () => {
+    const tm = new ex.TileMap({
+      x: 0,
+      y: 0,
+      cellWidth: 32,
+      cellHeight: 32,
+      rows: 3,
+      cols: 5
+    });
+    tm._initialize(engine);
+
+    const cell = tm.getCell(0, 0);
+    const rectangle = new ex.Graphics.Rectangle({
+      width: 32,
+      height: 32,
+      color: ex.Color.Red
+    });
+    const circle = new ex.Graphics.Circle({
+      radius: 16,
+      color: ex.Color.Blue
+    });
+    const animation = new ex.Graphics.Animation({
+      frames: [
+        { graphic: rectangle, duration: 100 },
+        { graphic: circle, duration: 100 }
+      ]
+    });
+
+    cell.addGraphic(animation);
+
+    drawWithTransform(engine.graphicsContext, tm, 99);
+
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicSquare.png');
+
+    tm.update(engine, 99);
+
+    drawWithTransform(engine.graphicsContext, tm, 99);
+
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicCircle.png');
+  });
+
+  it('should draw the correct proportions', async () => {
+    await texture.load();
+    const tm = new ex.TileMap({
+      x: 30,
+      y: 30,
+      cellWidth: 64,
+      cellHeight: 48,
+      rows: 3,
+      cols: 7
+    });
+    const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
+    tm.data.forEach(function (cell: ex.Cell) {
+      cell.solid = true;
+      cell.addGraphic(spriteTiles.sprites[0]);
+    });
+    tm._initialize(engine);
+
+    drawWithTransform(engine.graphicsContext, tm, 100);
+
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMap.png');
+  });
+
+  it('should handle offscreen culling correctly with negative coords', async () => {
+    await texture.load();
+    const tm = new ex.TileMap({
+      x: -100,
+      y: -100,
+      cellWidth: 64,
+      cellHeight: 48,
+      rows: 20,
+      cols: 20
+    });
+    const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
+    tm.data.forEach(function (cell: ex.Cell) {
+      cell.solid = true;
+      cell.addGraphic(spriteTiles.sprites[0]);
+    });
+    tm._initialize(engine);
+
+    tm.update(engine, 100);
+
+    drawWithTransform(engine.graphicsContext, tm, 100);
+
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapCulling.png');
   });
 
   describe('with an actor', () => {

@@ -1,12 +1,14 @@
 import { Vector, vec } from '../Algebra';
 import { Graphic } from './Graphic';
-import { Animation } from './Animation';
-import { GraphicsGroup } from './GraphicsGroup';
+import { HasTick } from './Animation';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Logger } from '../Util/Log';
 import { BoundingBox } from '../Collision/Index';
 import { Component } from '../EntityComponentSystem/Component';
 
+export function hasGraphicsTick(graphic: Graphic): graphic is Graphic & HasTick {
+  return !!(graphic as unknown as HasTick).tick;
+}
 export interface GraphicsShowOptions {
   offset?: Vector;
   anchor?: Vector;
@@ -355,10 +357,6 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
     this.layers.default.hide(nameOrGraphic);
   }
 
-  private _isAnimationOrGroup(graphic: Graphic): graphic is Animation | GraphicsGroup {
-    return graphic instanceof Animation || graphic instanceof GraphicsGroup;
-  }
-
   private _bounds: BoundingBox = null;
   public set localBounds(bounds: BoundingBox) {
     this._bounds = bounds;
@@ -391,7 +389,7 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
   public update(elapsed: number, idempotencyToken: number = 0) {
     for (const layer of this.layers.get()) {
       for (const { graphic } of layer.graphics) {
-        if (this._isAnimationOrGroup(graphic)) {
+        if (hasGraphicsTick(graphic)) {
           graphic?.tick(elapsed, idempotencyToken);
         }
       }
