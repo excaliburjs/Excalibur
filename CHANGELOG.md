@@ -47,6 +47,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `TileMap` arbitrary graphics support with `.addGraphic()` ([#1862](https://github.com/excaliburjs/Excalibur/issues/1862))
+- Added `TileMap` row and column accessors `getRows()` and `getColumns()` ([#1859](https://github.com/excaliburjs/Excalibur/issues/1859))
+- Added the ability to store arbitrary data in `TileMap` cells with `Cell.data.set('key', 'value')` and `Cell.data.get('key')` ([#1861](https://github.com/excaliburjs/Excalibur/issues/1861))
 - Actions `moveTo()`, `moveBy()`, `easeTo()`, `scaleTo()`, and `scaleBy()` now have vector overloads
 - `Animation.fromSpriteSheet` will now log a warning if an index into the `SpriteSheet` is invalid ([#1856](https://github.com/excaliburjs/Excalibur/issues/1856))
 - `new ImageSource()` will now log a warning if an image type isn't fully supported. ([#1855](https://github.com/excaliburjs/Excalibur/issues/1855))
