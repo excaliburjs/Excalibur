@@ -74,6 +74,7 @@ export class Font extends Raster implements FontRenderer {
   }
 
   private _text: string;
+  private _lines: string[];
   private _textBounds: BoundingBox = new BoundingBox();
   private _textWidth: number = 0;
   private _textHeight: number = 0;
@@ -125,8 +126,8 @@ export class Font extends Raster implements FontRenderer {
       0,
       this._rasterWidth,
       this._rasterHeight,
-      x - (this._rasterWidth / this.quality) / 2,
-      y - (this._rasterHeight / this.quality) / 2,
+      x - this._rasterWidth / this.quality / 2,
+      y - this._rasterHeight / this.quality / 2,
       this._rasterWidth / this.quality,
       this._rasterHeight / this.quality
     );
@@ -155,6 +156,7 @@ export class Font extends Raster implements FontRenderer {
   public updateText(text: string) {
     if (this._text !== text) {
       this._text = text;
+      this._lines = this._text.split('\n');
       this._updateDimensions();
       this.flagDirty();
     }
@@ -163,24 +165,30 @@ export class Font extends Raster implements FontRenderer {
   private _updateDimensions() {
     if (this._text) {
       this._applyFont(this._ctx);
-      const metrics = this._ctx.measureText(this._text);
+      const maxWidthLine = this._lines.reduce((a, b) => {
+        return a.length > b.length ? a : b;
+      });
+      const metrics = this._ctx.measureText(maxWidthLine);
       this._textWidth = Math.abs(metrics.actualBoundingBoxLeft) + Math.abs(metrics.actualBoundingBoxRight);
       this._textHeight = Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
 
+      // TODO lineheight makes the text bounds wonky
+      const lineAdjustedHeight = this._textHeight * this._lines.length;
+      // this._textHeight = lineAdjustedHeight;
       // Changing the width and height clears the context properties
       // We double the bitmap width to account for alignment
       // We scale by "quality" so we render text without jaggies
       this._bitmap.width = (this._textWidth + this.padding * 2) * 2 * this.quality;
-      this._bitmap.height = (this._textHeight + this.padding * 2) * 2 * this.quality;
+      this._bitmap.height = (lineAdjustedHeight + this.padding * 2) * 2 * this.quality;
 
       // These bounds exist in raster bitmap space where the top left corner is the corder of the bitmap
-      // TODO need to account for padding
       const x = 0;
       const y = 0;
+      const bottomBounds = lineAdjustedHeight - Math.abs(metrics.actualBoundingBoxAscent);
       this._textBounds = new BoundingBox({
         left: x - Math.abs(metrics.actualBoundingBoxLeft) - this.padding,
         top: y - Math.abs(metrics.actualBoundingBoxAscent) - this.padding,
-        bottom: y + Math.abs(metrics.actualBoundingBoxDescent) + this.padding,
+        bottom: y + bottomBounds + this.padding,
         right: x + Math.abs(metrics.actualBoundingBoxRight) + this.padding
       });
     }
@@ -222,12 +230,17 @@ export class Font extends Raster implements FontRenderer {
       // The reason we need to re-apply the font is setting raster properties (like width/height) can reset the context props
       this._applyRasterProperites(ctx);
       this._applyFont(ctx);
-      if (this.color) {
-        ctx.fillText(this._text, 0, 0);
-      }
 
-      if (this.strokeColor) {
-        ctx.strokeText(this._text, 0, 0);
+      const lineHeight = this._textHeight; // TODO user specified line height
+      for (let i = 0; i < this._lines.length; i++) {
+        const line = this._lines[i];
+        if (this.color) {
+          ctx.fillText(line, 0, i * lineHeight);
+        }
+
+        if (this.strokeColor) {
+          ctx.strokeText(line, 0, i * lineHeight);
+        }
       }
 
       if (this.showDebug) {
