@@ -152,6 +152,37 @@ describe('A Text Graphic', () => {
     });
   });
 
+  it('can draw multiple lines of text', async () => {
+    const sut = new ex.Graphics.Text({
+      text: 'multiple\nlines\nof text',
+      color: ex.Color.Green,
+      font: new ex.Graphics.Font({
+        family: 'Open Sans',
+        size: 18,
+        quality: 1
+      })
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    ctx.clear();
+    sut.draw(ctx, 10, 20);
+
+    expect(sut.width).toBeCloseTo(69.8, -1);
+    expect(sut.height).toBeCloseTo(18 * 3, 0);
+    expect(sut.localBounds.width).toBeCloseTo(69.8, -1);
+    expect(sut.localBounds.height).toBeCloseTo(18 * 3, 0);
+    await runOnWindows(async () => {
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/multi-text.png');
+    });
+
+    await runOnLinux(async () => {
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/multi-text-linux.png');
+    });
+  });
+
   it('can have width and height', () => {
     const sut = new ex.Graphics.Text({
       text: 'some extra long text that we want to measure',
