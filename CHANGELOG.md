@@ -47,6 +47,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added multi-line support to `Text` graphics ([#1866](https://github.com/excaliburjs/Excalibur/issues/1866))
 - Added `TileMap` arbitrary graphics support with `.addGraphic()` ([#1862](https://github.com/excaliburjs/Excalibur/issues/1862))
 - Added `TileMap` row and column accessors `getRows()` and `getColumns()` ([#1859](https://github.com/excaliburjs/Excalibur/issues/1859))
 - Added the ability to store arbitrary data in `TileMap` cells with `Cell.data.set('key', 'value')` and `Cell.data.get('key')` ([#1861](https://github.com/excaliburjs/Excalibur/issues/1861))
