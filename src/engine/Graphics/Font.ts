@@ -88,11 +88,13 @@ export class Font extends Raster implements FontRenderer {
   }
 
   public get height() {
-    return this._textHeight;
+    const numLines = this._lines?.length ?? 1;
+    return this._textHeight * numLines;
   }
 
   public set height(value: number) {
-    this._textHeight = value;
+    const numLines = this._lines?.length ?? 1;
+    this._textHeight = value / numLines;
   }
 
   private get _rasterWidth() {
