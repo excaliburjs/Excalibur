@@ -31,7 +31,6 @@ import { CanInitialize, CanUpdate, CanDraw, CanBeKilled } from './Interfaces/Lif
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
-import { ActionQueue } from './Actions/Action';
 import { vec, Vector } from './Algebra';
 import { BodyComponent } from './Collision/Body';
 import { Eventable } from './Interfaces/Evented';
@@ -430,7 +429,6 @@ export class Actor
     captureDragEvents: false
   };
 
-
   // #endregion
 
   /**
@@ -440,24 +438,7 @@ export class Actor
   constructor(config?: ActorArgs) {
     super();
 
-    const {
-      x,
-      y,
-      pos,
-      scale,
-      width,
-      height,
-      vel,
-      acc,
-      rotation,
-      angularVelocity,
-      z,
-      color,
-      visible,
-      body,
-      anchor,
-      collisionType
-    } = {
+    const { x, y, pos, scale, width, height, vel, acc, rotation, angularVelocity, z, color, visible, body, anchor, collisionType } = {
       ...config
     };
 
@@ -478,16 +459,21 @@ export class Actor
     this.acc = acc ?? Vector.Zero;
     this.angularVelocity = angularVelocity ?? 0;
 
-    this.addComponent(body ?? new BodyComponent({
-      box: (width && height) ? {
-        width: width ?? 0,
-        height: height ?? 0
-      }: undefined,
-      anchor: this.anchor
-    }));
+    this.addComponent(
+      body ??
+        new BodyComponent({
+          box:
+            width && height
+              ? {
+                width: width ?? 0,
+                height: height ?? 0
+              }
+              : undefined,
+          anchor: this.anchor
+        })
+    );
     this.body.update();
     this.body.collisionType = collisionType ?? CollisionType.Passive;
-
 
     this.visible = visible ?? true;
 
@@ -495,7 +481,7 @@ export class Actor
       this.color = color;
       // set default opacity of an actor to the color
       this.opacity = color.a;
-    
+
       this.graphics.add(
         new Rectangle({
           color: color,
@@ -539,7 +525,6 @@ export class Actor
       child._initialize(engine);
     }
   }
-
 
   // #region Events
 
@@ -936,7 +921,6 @@ export class Actor
    */
   public get z(): number {
     return this.get(TransformComponent).z;
-
   }
 
   /**
