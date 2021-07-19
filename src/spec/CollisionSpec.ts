@@ -315,7 +315,7 @@ describe('A Collision', () => {
     fixedBlock.body.collisionType = ex.CollisionType.Fixed;
     engine.add(fixedBlock);
 
-    activeBlock.vel.x = -100;
+    activeBlock.vel = ex.vec(-100, activeBlock.vel.y);
 
     for (let i = 0; i < 20; i++) {
       loop.advance(1000);

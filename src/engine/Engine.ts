@@ -1,11 +1,11 @@
 import { EX_VERSION } from './';
-import { Flags } from './Flags';
+import { Experiments, Flags } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
 import { Loadable } from './Interfaces/Loadable';
 import { Vector } from './Algebra';
-import { Screen, DisplayMode, AbsolutePosition, ScreenDimension } from './Screen';
+import { Screen, DisplayMode, AbsolutePosition, ScreenDimension, Resolution } from './Screen';
 import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
@@ -29,7 +29,6 @@ import {
   PostDrawEvent,
   InitializeEvent
 } from './Events';
-import { CanLoad } from './Interfaces/Loader';
 import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
 import { Scene } from './Scene';
@@ -40,6 +39,7 @@ import * as Input from './Input/Index';
 import * as Events from './Events';
 import { BrowserEvents } from './Util/Browser';
 import { obsolete } from './Util/Decorators';
+import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL } from './Graphics';
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -106,7 +106,13 @@ export interface EngineOptions {
   canvasElement?: HTMLCanvasElement;
 
   /**
-   * The [[DisplayMode]] of the game. Depending on this value, [[width]] and [[height]] may be ignored.
+   * Optionally snap drawings to nearest pixel
+   */
+  snapToPixel?: boolean;
+
+  /**
+   * The [[DisplayMode]] of the game, by default [[DisplayMode.Fit]] with aspect ratio 4:3 (800x600).
+   * Depending on this value, [[width]] and [[height]] may be ignored.
    */
   displayMode?: DisplayMode;
 
@@ -188,6 +194,8 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * Direct access to the engine's 2D rendering context
    */
   public ctx: CanvasRenderingContext2D;
+
+  public graphicsContext: ExcaliburGraphicsContext;
 
   /**
    * Direct access to the canvas element ID, if an ID exists
@@ -291,12 +299,12 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * The default [[Scene]] of the game, use [[Engine.goToScene]] to transition to different scenes.
    */
-  public rootScene: Scene;
+  public readonly rootScene: Scene;
 
   /**
    * Contains all the scenes currently registered with Excalibur
    */
-  public scenes: { [key: string]: Scene } = {};
+  public readonly scenes: { [key: string]: Scene } = {};
 
   private _animations: AnimationNode[] = [];
 
@@ -372,10 +380,12 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   private _timescale: number = 1.0;
 
   // loading
-  private _loader: CanLoad;
+  private _loader: Loader;
   private _isLoading: boolean = false;
 
   private _isInitialized: boolean = false;
+
+  private _deferredGoTo: string = null;
 
   public on(eventName: Events.initialize, handler: (event: Events.InitializeEvent<Engine>) => void): void;
   public on(eventName: Events.visible, handler: (event: VisibleEvent) => void): void;
@@ -434,6 +444,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     enableCanvasTransparency: true,
     canvasElementId: '',
     canvasElement: undefined,
+    snapToPixel: false,
     pointerScope: Input.PointerScope.Canvas,
     suppressConsoleBootMessage: null,
     suppressMinimumBrowserFeatureDetection: null,
@@ -553,19 +564,38 @@ O|===|* >________________>\n\
       }
       this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
     } else if (!options.displayMode) {
-      this._logger.debug('Engine viewport is fullscreen');
-      displayMode = DisplayMode.FullScreen;
+      this._logger.debug('Engine viewport is fit');
+      displayMode = DisplayMode.Fit;
     }
 
-    // eslint-disable-next-line
-    this.ctx = this.canvas.getContext('2d', { alpha: this.enableCanvasTransparency });
+    if (Flags.isEnabled(Experiments.WebGL)) {
+      const exWebglCtx = new ExcaliburGraphicsContextWebGL({
+        canvasElement: this.canvas,
+        enableTransparency: this.enableCanvasTransparency,
+        smoothing: options.antialiasing,
+        backgroundColor: options.backgroundColor,
+        snapToPixel: options.snapToPixel
+      });
+      this.graphicsContext = exWebglCtx;
+      this.ctx = exWebglCtx.__ctx;
+    } else {
+      const ex2dCtx = new ExcaliburGraphicsContext2DCanvas({
+        canvasElement: this.canvas,
+        enableTransparency: this.enableCanvasTransparency,
+        smoothing: options.antialiasing,
+        backgroundColor: options.backgroundColor,
+        snapToPixel: options.snapToPixel
+      });
+      this.graphicsContext = ex2dCtx;
+      this.ctx = ex2dCtx.__ctx;
+    }
 
     this.screen = new Screen({
       canvas: this.canvas,
-      context: this.ctx,
+      context: this.graphicsContext,
       antialiasing: options.antialiasing ?? true,
       browser: this.browser,
-      viewport: options.viewport ?? { width: options.width, height: options.height },
+      viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
       position: options.position,
@@ -588,7 +618,6 @@ O|===|* >________________>\n\
     this.rootScene = this.currentScene = new Scene(this);
 
     this.addScene('root', this.rootScene);
-    this.goToScene('root');
   }
 
   /**
@@ -631,7 +660,7 @@ O|===|* >________________>\n\
    * @param y          y game coordinate to play the animation
    * @deprecated
    */
-  @obsolete({message: 'Will be removed in excalibur v0.26.0'})
+  @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Actor.graphics' })
   public playAnimation(animation: Animation, x: number, y: number) {
     this._animations.push(new AnimationNode(animation, x, y));
   }
@@ -751,7 +780,11 @@ O|===|* >________________>\n\
     if (arguments.length === 2) {
       this.addScene(<string>arguments[0], <Scene>arguments[1]);
     }
-    this.currentScene.add(entity);
+    if (this._deferredGoTo && this.scenes[this._deferredGoTo]) {
+      this.scenes[this._deferredGoTo].add(entity);
+    } else {
+      this.currentScene.add(entity);
+    }
   }
 
   /**
@@ -806,6 +839,12 @@ O|===|* >________________>\n\
    * @param key  The key of the scene to transition to.
    */
   public goToScene(key: string) {
+    // if not yet initialized defer goToScene
+    if (!this.isInitialized) {
+      this._deferredGoTo = key;
+      return;
+    }
+
     if (this.scenes[key]) {
       const oldScene = this.currentScene;
       const newScene = this.scenes[key];
@@ -928,6 +967,11 @@ O|===|* >________________>\n\
       this.onInitialize(engine);
       super.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
+      if (this._deferredGoTo) {
+        this.goToScene(this._deferredGoTo);
+      } else {
+        this.goToScene('root');
+      }
     }
   }
 
@@ -1000,14 +1044,14 @@ O|===|* >________________>\n\
     this._predraw(ctx, delta);
 
     if (this._isLoading) {
-      this._loader.draw(ctx, delta);
+      this._loader.canvas.draw(this.graphicsContext, 0, 0);
+      this.graphicsContext.flush();
       // Drawing nothing else while loading
       return;
     }
 
-    ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-    ctx.fillStyle = this.backgroundColor.toString();
-    ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+    // TODO move to graphics systems?
+    this.graphicsContext.backgroundColor = this.backgroundColor;
 
     this.currentScene.draw(this.ctx, delta);
 
@@ -1019,6 +1063,7 @@ O|===|* >________________>\n\
     }
 
     // Draw debug information
+    // TODO don't access ctx directly
     if (this.isDebug) {
       this.ctx.font = 'Consolas';
       this.ctx.fillStyle = this.debugColor.toString();
@@ -1088,11 +1133,10 @@ O|===|* >________________>\n\
     if (!this._compatible) {
       return Promise.reject('Excalibur is incompatible with your browser');
     }
-    // Changing resolution invalidates context state, so we need to capture it before applying
     this.screen.pushResolutionAndViewport();
     this.screen.resolution = this.screen.viewport;
     this.screen.applyResolutionAndViewport();
-
+    this.graphicsContext.updateViewport();
     let loadingComplete: Promise<any>;
     if (loader) {
       this._loader = loader;
@@ -1106,6 +1150,7 @@ O|===|* >________________>\n\
     loadingComplete.then(() => {
       this.screen.popResolutionAndViewport();
       this.screen.applyResolutionAndViewport();
+      this.graphicsContext.updateViewport();
       this.emit('start', new GameStartEvent(this));
     });
 
@@ -1209,8 +1254,8 @@ O|===|* >________________>\n\
    * will appear.
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
-  public load(loader: Loadable): Promise<any> {
-    const complete = new Promise<any>((resolve) => {
+  public load(loader: Loadable<any>): Promise<void> {
+    const complete = new Promise<void>((resolve) => {
       this._isLoading = true;
 
       loader.load().then(() => {
@@ -1235,7 +1280,7 @@ O|===|* >________________>\n\
  * @internal
  * @deprecated
  */
-@obsolete({message: 'Will be removed in excalibur v0.26.0'})
+@obsolete({ message: 'Will be removed in excalibur v0.26.0' })
 class AnimationNode {
   constructor(public animation: Animation, public x: number, public y: number) {}
 }

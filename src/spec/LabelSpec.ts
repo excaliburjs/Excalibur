@@ -20,7 +20,7 @@ xdescribe('A label', () => {
     label = new ex.Label('Test string', 100, 100);
     label.fontFamily = 'Verdana';
     scene = new ex.Scene(engine);
-    engine.currentScene = scene;
+    engine.addScene('root', scene);
 
     scene.add(label);
 
@@ -37,8 +37,7 @@ xdescribe('A label', () => {
       fontSize: 12,
       fontStyle: ex.FontStyle.Normal,
       fontUnit: ex.FontUnit.Px,
-      textAlign: ex.TextAlign.Left,
-      maxWidth: 200
+      textAlign: ex.TextAlign.Left
     });
 
     expect(label.text).toBe('test text');
@@ -142,7 +141,7 @@ xdescribe('A label', () => {
   });
 
   it('to enable right aligned text', (done) => {
-    label.pos.x = 200;
+    label.pos = ex.vec(200, 0);
     label.text = 'some right aligned text';
     label.fontSize = 30;
     label.color = ex.Color.Blue;
@@ -156,7 +155,7 @@ xdescribe('A label', () => {
   });
 
   it('to enable left aligned text', (done) => {
-    label.pos.x = 200;
+    label.pos = ex.vec(200, 0);
     label.text = 'some left aligned text';
     label.fontSize = 30;
     label.color = ex.Color.Blue;
@@ -170,7 +169,7 @@ xdescribe('A label', () => {
   });
 
   it('to enable center aligned text', (done) => {
-    label.pos.x = 200;
+    label.pos = ex.vec(200, 0);
     label.text = 'some center aligned text';
     label.fontSize = 30;
     label.color = ex.Color.Blue;
@@ -184,7 +183,7 @@ xdescribe('A label', () => {
   });
 
   xit('can measure text width', () => {
-    label.pos.x = 200;
+    label.pos = ex.vec(200, 0);
     label.text = 'some text to measure';
     label.fontSize = 30;
     label.color = ex.Color.Blue;

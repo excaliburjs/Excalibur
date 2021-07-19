@@ -39,4 +39,8 @@ export class Observable<T> {
     this.observers.forEach((o) => o.notify(message));
     this.subscriptions.forEach(cb => cb(message));
   }
+
+  clear() {
+    this.observers.length = 0;
+  }
 }

@@ -3,12 +3,19 @@ import { ExcaliburMatchers } from 'excalibur-jasmine';
 import { Camera } from '@excalibur';
 describe('A Screen', () => {
   let canvas: HTMLCanvasElement;
-  let context: CanvasRenderingContext2D;
+  let context: ex.Graphics.ExcaliburGraphicsContext;
   let browser: ex.BrowserEvents;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    // It's important nothing else is hanging out in the dom
+    Array.from(document.body.children).forEach((element) => {
+      document.body.removeChild(element);
+    });
+    document.body.style.margin = '0';
     canvas = document.createElement('canvas');
-    context = canvas.getContext('2d');
+    context = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
+      canvasElement: canvas
+    });
     document.body.appendChild(canvas);
     browser = new ex.BrowserEvents(window, document);
   });
@@ -29,6 +36,160 @@ describe('A Screen', () => {
       viewport: { width: 400, height: 400 }
     });
     expect(sut).toBeDefined();
+  });
+
+  it('can calculate the aspect ratio', () => {
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      viewport: { width: 800, height: 600 }
+    });
+
+    expect(sut.aspectRatio).toBe(800 / 600);
+  });
+
+  it('can use fit display mode, the viewport will adjust to it width', () => {
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.Fit,
+      viewport: { width: 800, height: 600 }
+    });
+
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1000 });
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 800 });
+
+    window.dispatchEvent(new Event('resize'));
+
+    expect(sut.resolution.width).toBe(800);
+    expect(sut.resolution.height).toBe(600);
+    expect(sut.viewport.width).toBe(1000);
+    expect(sut.viewport.height).toBe(1000 / sut.aspectRatio);
+  });
+
+  it('can use fit display mode, the viewport will adjust to it height', () => {
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.Fit,
+      viewport: { width: 800, height: 600 }
+    });
+
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 800 });
+
+    window.dispatchEvent(new Event('resize'));
+
+    expect(sut.resolution.width).toBe(800);
+    expect(sut.resolution.height).toBe(600);
+    expect(sut.viewport.width).toBe(800 * sut.aspectRatio);
+    expect(sut.viewport.height).toBe(800);
+  });
+
+  it('can use fill display mode, the viewport and resolution adjust to match', () => {
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.Fill,
+      viewport: { width: 800, height: 600 }
+    });
+
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 800 });
+
+    window.dispatchEvent(new Event('resize'));
+
+    expect(sut.resolution.width).toBe(1300);
+    expect(sut.resolution.height).toBe(800);
+    expect(sut.viewport.width).toBe(1300);
+    expect(sut.viewport.height).toBe(800);
+  });
+
+  it('adjusts coordinates by height when using fullscreen api', () => {
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1000 });
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 800 });
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.Fixed,
+      viewport: { width: 800, height: 600 }
+    });
+
+    expect(sut.isFullScreen).toBe(false);
+
+    const nonFullScreenPage = sut.screenToPageCoordinates(ex.vec(800, 600));
+    expect(nonFullScreenPage).toBeVector(ex.vec(800, 600));
+    const nonFullScreenScreen = sut.pageToScreenCoordinates(nonFullScreenPage);
+    expect(nonFullScreenScreen).toBeVector(ex.vec(800, 600));
+
+    canvas.dispatchEvent(new Event('fullscreenchange'));
+    expect(sut.isFullScreen).toBe(true);
+
+    const page = sut.screenToPageCoordinates(ex.vec(800, 600));
+    expect(page).toBeVector(ex.vec(1000, 775));
+    const screen = sut.pageToScreenCoordinates(page);
+    expect(screen).toBeVector(ex.vec(800, 600));
+  });
+
+  it('adjusts coordinates by width when using fullscreen api', () => {
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 800 });
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.Fixed,
+      viewport: { width: 800, height: 600 }
+    });
+
+    expect(sut.isFullScreen).toBe(false);
+    const nonFullScreenPage = sut.screenToPageCoordinates(ex.vec(800, 600));
+    expect(nonFullScreenPage).toBeVector(ex.vec(800, 600));
+    const nonFullScreenScreen = sut.pageToScreenCoordinates(nonFullScreenPage);
+    expect(nonFullScreenScreen).toBeVector(ex.vec(800, 600));
+
+    canvas.dispatchEvent(new Event('fullscreenchange'));
+    expect(sut.isFullScreen).toBe(true);
+
+    const page = sut.screenToPageCoordinates(ex.vec(800, 600));
+    expect(page).toBeVector(ex.vec(1183.33, 800));
+    const screen = sut.pageToScreenCoordinates(page);
+    expect(screen).toBeVector(ex.vec(800, 600));
+  });
+
+  it('can round trip convert coordinates', () => {
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
+    Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 800 });
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.Fit,
+      viewport: { width: 800, height: 600 }
+    });
+
+    const page = new ex.Vector(100, 200);
+    const screen = sut.pageToScreenCoordinates(page);
+
+    const world = sut.screenToWorldCoordinates(screen);
+
+    const screen2 = sut.worldToScreenCoordinates(world);
+
+    const page2 = sut.screenToPageCoordinates(screen2);
+
+    const world2 = sut.pageToWorldCoordinates(page);
+
+    const page3 = sut.worldToPageCoordinates(world2);
+
+    expect(page).toBeVector(page2);
+    expect(page).toBeVector(page3);
+    expect(screen).toBeVector(screen2);
+    expect(world).toBeVector(world2);
   });
 
   it('will use the current pixel ratio', () => {
@@ -107,7 +268,7 @@ describe('A Screen', () => {
 
     sut.applyResolutionAndViewport();
 
-    expect(context.imageSmoothingEnabled).toBeFalse();
+    expect(context.smoothing).toBeFalse();
     expect(canvas.style.imageRendering).toBe('pixelated');
   });
 
@@ -129,6 +290,9 @@ describe('A Screen', () => {
       }
     );
     const canvasStub = { ...canvas, style: styleProxy } as HTMLCanvasElement;
+    canvasStub.addEventListener = () => {
+      /* nothing */
+    };
 
     const sut = new ex.Screen({
       canvas: canvasStub,
@@ -141,7 +305,7 @@ describe('A Screen', () => {
 
     sut.applyResolutionAndViewport();
 
-    expect(context.imageSmoothingEnabled).toBeFalse();
+    expect(context.smoothing).toBeFalse();
     expect(canvasStub.style.imageRendering).toBe('crisp-edges');
   });
 
@@ -157,7 +321,7 @@ describe('A Screen', () => {
 
     sut.applyResolutionAndViewport();
 
-    expect(context.imageSmoothingEnabled).toBeTrue();
+    expect(context.smoothing).toBeTrue();
     expect(canvas.style.imageRendering).toBe('auto');
   });
 
@@ -236,7 +400,7 @@ describe('A Screen', () => {
     const camera = new Camera();
     camera.x = 400;
     camera.y = 300;
-    camera.z = 2;
+    camera.zoom = 2;
 
     sut.setCurrentCamera(camera);
 
@@ -262,7 +426,7 @@ describe('A Screen', () => {
     const camera = new Camera();
     camera.x = 400;
     camera.y = 300;
-    camera.z = 2;
+    camera.zoom = 2;
 
     sut.setCurrentCamera(camera);
 
@@ -288,7 +452,7 @@ describe('A Screen', () => {
     const camera = new Camera();
     camera.x = 400;
     camera.y = 300;
-    camera.z = 2;
+    camera.zoom = 2;
 
     sut.setCurrentCamera(camera);
     sut.applyResolutionAndViewport();

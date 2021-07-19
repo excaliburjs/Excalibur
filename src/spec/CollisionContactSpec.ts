@@ -1,5 +1,7 @@
 import * as ex from '@excalibur';
+import { TransformComponent } from '@excalibur';
 import { EulerIntegrator } from '../engine/Collision/Integrator';
+import { MotionComponent } from '../engine/EntityComponentSystem/Components/MotionComponent';
 
 describe('A CollisionContact', () => {
   let actorA: ex.Actor;
@@ -44,7 +46,7 @@ describe('A CollisionContact', () => {
   });
 
   it('can resolve in the Box system', () => {
-    actorB.pos.x = 19;
+    actorB.pos = ex.vec(19, actorB.pos.y);
     const cc = new ex.CollisionContact(
       colliderA,
       colliderB,
@@ -74,7 +76,7 @@ describe('A CollisionContact', () => {
 
     actorB.on('precollision', actorBPreCollide);
 
-    actorB.pos.x = 19;
+    actorB.pos = ex.vec(19, actorB.pos.y);
     const cc = new ex.CollisionContact(
       colliderA,
       colliderB,
@@ -122,8 +124,8 @@ describe('A CollisionContact', () => {
     for (let i = 0; i < 4; i++) {
       solver.solve([cc]);
       // Realistic solver uses velocity impulses to correct overlap
-      EulerIntegrator.integrate(actorA.components.transform, actorA.components.motion, ex.Vector.Zero, 1000);
-      EulerIntegrator.integrate(actorB.components.transform, actorB.components.motion, ex.Vector.Zero, 1000);
+      EulerIntegrator.integrate(actorA.get(TransformComponent), actorA.get(MotionComponent), ex.Vector.Zero, 1000);
+      EulerIntegrator.integrate(actorB.get(TransformComponent), actorB.get(MotionComponent), ex.Vector.Zero, 1000);
 
     }
 
@@ -150,7 +152,7 @@ describe('A CollisionContact', () => {
       emittedB = true;
     });
 
-    actorB.pos.x = 19;
+    actorB.pos = ex.vec(19, actorB.pos.y);
     const cc = new ex.CollisionContact(
       colliderA,
       colliderB,

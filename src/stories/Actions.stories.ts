@@ -22,7 +22,7 @@ export const usingActions: Story = withEngine(async (game) => {
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.z = 4;
+  game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({
@@ -52,7 +52,7 @@ export const fade: Story = withEngine(async (game) => {
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.z = 4;
+  game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({
@@ -89,7 +89,7 @@ export const rotateTo: Story = withEngine(async (game) => {
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.z = 4;
+  game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({
@@ -144,7 +144,7 @@ export const rotateBy: Story = withEngine(async (game) => {
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.z = 4;
+  game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({
@@ -199,7 +199,7 @@ export const move: Story = withEngine(async (game) => {
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.z = 4;
+  game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({
@@ -239,7 +239,7 @@ export const ease: Story = withEngine(async (game) => {
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.z = 4;
+  game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({
@@ -281,7 +281,7 @@ export const scale: Story = withEngine(async (game) => {
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.z = 4;
+  game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({

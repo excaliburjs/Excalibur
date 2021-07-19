@@ -1,7 +1,7 @@
 import { Entity } from './Entity';
 
-export interface ComponentCtor {
-  new (): Component;
+export interface ComponentCtor<T extends Component = Component> {
+  new (): T;
 }
 
 /**
@@ -13,6 +13,11 @@ function hasClone(x: any): x is { clone(): any } {
 }
 
 export type ComponentType<ComponentToParse> = ComponentToParse extends Component<infer TypeName> ? TypeName : never;
+
+/**
+ * Plucks the string type out of a component type
+ */
+export type ComponentStringType<T> = T extends Component<infer R> ? R : string;
 
 /**
  * Components are containers for state in Excalibur, the are meant to convey capabilities that an Entity posesses

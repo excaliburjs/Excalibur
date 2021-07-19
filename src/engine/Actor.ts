@@ -37,7 +37,6 @@ import { BodyComponent } from './Collision/Body';
 import { Eventable } from './Interfaces/Evented';
 import { Actionable } from './Actions/Actionable';
 import * as Traits from './Traits/Index';
-import * as Util from './Util/Util';
 import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEventHandlers';
 import { CollisionType } from './Collision/CollisionType';
@@ -47,6 +46,9 @@ import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
 import { Debug } from './Debug';
+import { GraphicsComponent } from './Graphics/GraphicsComponent';
+import { Rectangle } from './Graphics/Rectangle';
+import { Flags, Legacy } from './Flags';
 
 /**
  * Type guard for checking if something is an Actor
@@ -150,15 +152,15 @@ export class Actor
    * acceleration, mass, inertia, etc.
    */
   public get body(): BodyComponent {
-    return this.components.body;
+    return this.get(BodyComponent);
   }
 
   public get transform(): TransformComponent {
-    return this.components.transform;
+    return this.get(TransformComponent);
   }
 
   public get motion(): MotionComponent {
-    return this.components.motion;
+    return this.get(MotionComponent);
   }
 
   /**
@@ -275,11 +277,11 @@ export class Actor
   }
 
   public get scale(): Vector {
-    return this.components.transform.scale;
+    return this.get(TransformComponent).scale;
   }
 
   public set scale(scale: Vector) {
-    this.components.transform.scale = scale;
+    this.get(TransformComponent).scale = scale;
   }
 
   /**
@@ -298,22 +300,28 @@ export class Actor
   /**
    * Indicates whether the actor is physically in the viewport
    */
-  public isOffScreen: boolean = false;
+  public get isOffScreen(): boolean {
+    return this.hasTag('offscreen');
+  }
   /**
    * The visibility of an actor
+   * @deprecated Use [[GraphicsComponent.visible|Actor.graphics.visible]]
    */
-  public visible: boolean = true;
+  @obsolete({ message: 'Actor.visible will be removed in v0.26.0', alternateMethod: 'Use Actor.graphics.visible' })
+  public get visible(): boolean {
+    return this.graphics.visible;
+  }
+
+  public set visible(isVisible: boolean) {
+    this.graphics.visible = isVisible;
+  }
+
   /**
    * The opacity of an actor. Passing in a color in the [[constructor]] will use the
    * color's opacity.
    */
   public opacity: number = 1;
   public previousOpacity: number = 1;
-
-  /**
-   * Direct access to the actor's [[ActionQueue]]. Useful if you are building custom actions.
-   */
-  public actionQueue: ActionQueue;
 
   /**
    * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
@@ -330,19 +338,6 @@ export class Actor
    */
   public scene: Scene = null;
 
-  /**
-   * The parent of this actor
-   */
-  public parent: Actor = null;
-
-  /**
-   * The children of this actor
-   */
-  public children: Actor[] = [];
-
-  /**
-   * @deprecated
-   */
   public frames: { [key: string]: Drawable } = {};
 
   /**
@@ -474,6 +469,10 @@ export class Actor
     this.scale = scale ?? vec(1, 1);
     this.z = z ?? 0;
 
+    this.addComponent(new GraphicsComponent());
+    // TODO remove canvas draw with flag?
+    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
+
     this.addComponent(new MotionComponent());
     this.vel = vel ?? Vector.Zero;
     this.acc = acc ?? Vector.Zero;
@@ -489,7 +488,6 @@ export class Actor
     this.body.update();
     this.body.collisionType = collisionType ?? CollisionType.Passive;
 
-    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
 
     this.visible = visible ?? true;
 
@@ -497,14 +495,24 @@ export class Actor
       this.color = color;
       // set default opacity of an actor to the color
       this.opacity = color.a;
+    
+      this.graphics.add(
+        new Rectangle({
+          color: color,
+          width,
+          height
+        })
+      );
     }
 
     // Build default pipeline
-    this.traits.push(new Traits.OffscreenCulling());
+    if (Flags.isEnabled(Legacy.LegacyDrawing)) {
+      // TODO remove offscreen trait after legacy drawing removed
+      this.traits.push(new Traits.OffscreenCulling());
+    }
     this.traits.push(new Traits.CapturePointer());
 
     // Build the action queue
-    this.actionQueue = new ActionQueue(this);
     this.actions = new ActionContext(this);
   }
 
@@ -853,41 +861,23 @@ export class Actor
   }
 
   /**
-   * Adds a child actor to this actor. All movement of the child actor will be
-   * relative to the parent actor. Meaning if the parent moves the child will
-   * move with it.
-   * @param actor The child actor to add
-   */
-  public add(actor: Actor) {
-    actor.body.collisionType = CollisionType.PreventCollision;
-    if (Util.addItemToArray(actor, this.children)) {
-      actor.parent = this;
-      if (this.scene) {
-        this.scene.world.add(actor);
-      }
-    }
-  }
-  /**
-   * Removes a child actor from this actor.
-   * @param actor The child actor to remove
-   */
-  public remove(actor: Actor) {
-    if (Util.removeItemFromArray(actor, this.children)) {
-      actor.parent = null;
-    }
-  }
-  /**
    * Sets the current drawing of the actor to the drawing corresponding to
    * the key.
    * @param key The key of the drawing
+   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.use|Actor.graphics.use]]
    */
   public setDrawing(key: string): void;
   /**
    * Sets the current drawing of the actor to the drawing corresponding to
    * an `enum` key (e.g. `Animations.Left`)
    * @param key The `enum` key of the drawing
+   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.use|Actor.graphics.use]]
    */
   public setDrawing(key: number): void;
+  @obsolete({
+    message: 'Actor.setDrawing will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.graphics.show() or Actor.graphics.use()'
+  })
   public setDrawing(key: any): void {
     key = key.toString();
     if (this.currentDrawing !== this.frames[<string>key]) {
@@ -905,18 +895,25 @@ export class Actor
 
   /**
    * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
+   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]]
    */
   public addDrawing(texture: Texture): void;
   /**
    * Adds a whole sprite as the "default" drawing. Set a drawing using [[setDrawing]].
+   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]]
    */
   public addDrawing(sprite: Sprite): void;
   /**
    * Adds a drawing to the list of available drawings for an actor. Set a drawing using [[setDrawing]].
    * @param key     The key to associate with a drawing for this actor
    * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
+   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]]
    */
   public addDrawing(key: any, drawing: Drawable): void;
+  @obsolete({
+    message: 'Actor.addDrawing will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.graphics.add()'
+  })
   public addDrawing(): void {
     if (arguments.length === 2) {
       this.frames[<string>arguments[0]] = arguments[1];
@@ -938,7 +935,19 @@ export class Actor
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
    */
   public get z(): number {
-    return this.components.transform.z;
+    return this.get(TransformComponent).z;
+
+  }
+
+  /**
+   * @deprecated Use [[Actor.z]]
+   */
+  @obsolete({
+    message: 'Actor.getZIndex will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.transform.z or Actor.z'
+  })
+  public getZIndex(): number {
+    return this.get(TransformComponent).z;
   }
 
   /**
@@ -948,7 +957,19 @@ export class Actor
    * @param newZ new z-index to assign
    */
   public set z(newZ: number) {
-    this.components.transform.z = newZ;
+    this.get(TransformComponent).z = newZ;
+  }
+
+  /**
+   * @param newIndex new z-index to assign
+   * @deprecated Use [[Actor.z]]
+   */
+  @obsolete({
+    message: 'Actor.setZIndex will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.transform.z or Actor.z'
+  })
+  public setZIndex(newIndex: number) {
+    this.get(TransformComponent).z = newIndex;
   }
 
   /**
@@ -971,12 +992,8 @@ export class Actor
    *
    * @returns Rotation angle in radians
    */
-  public getWorldRotation(): number {
-    if (!this.parent) {
-      return this.rotation;
-    }
-
-    return this.rotation + this.parent.getWorldRotation();
+  public getGlobalRotation(): number {
+    return this.get(TransformComponent).globalRotation;
   }
 
   /**
@@ -984,53 +1001,15 @@ export class Actor
    *
    * @returns Position in world coordinates
    */
-  public getWorldPos(): Vector {
-    if (!this.parent) {
-      return this.pos.clone();
-    }
-
-    // collect parents
-    const parents: Actor[] = [];
-    let root: Actor = this;
-
-    parents.push(this);
-
-    // find parents
-    while (root.parent) {
-      root = root.parent;
-      parents.push(root);
-    }
-
-    // calculate position
-    const x = parents.reduceRight((px, p) => {
-      if (p.parent) {
-        return px + p.pos.x * p.getGlobalScale().x;
-      }
-      return px + p.pos.x;
-    }, 0);
-
-    const y = parents.reduceRight((py, p) => {
-      if (p.parent) {
-        return py + p.pos.y * p.getGlobalScale().y;
-      }
-      return py + p.pos.y;
-    }, 0);
-
-    // rotate around root anchor
-    const ra = root.getWorldPos(); // 10, 10
-    const r = this.getWorldRotation();
-
-    return new Vector(x, y).rotate(r, ra);
+  public getGlobalPos(): Vector {
+    return this.get(TransformComponent).globalPos;
   }
 
   /**
    * Gets the global scale of the Actor
    */
   public getGlobalScale(): Vector {
-    if (!this.parent) {
-      return this.components.transform.scale;
-    }
-    return this.components.transform.scale.scale(this.parent.getGlobalScale());
+    return this.get(TransformComponent).globalScale;
   }
 
   // #region Collision
@@ -1042,10 +1021,8 @@ export class Actor
    * @param recurse checks whether the x/y are contained in any child actors (if they exist).
    */
   public contains(x: number, y: number, recurse: boolean = false): boolean {
-    // These shenanigans are to handle child actor containment,
-    // the only time getWorldPos and pos are different is a child actor
-    const childShift = this.getWorldPos().sub(this.pos);
-    const containment = this.body.bounds.translate(childShift).contains(new Vector(x, y));
+    const point = vec(x, y);
+    const containment = this.body.collider.shape.contains(point);
 
     if (recurse) {
       return (
@@ -1075,6 +1052,7 @@ export class Actor
 
   /**
    * Called by the Engine, updates the state of the actor
+   * @internal
    * @param engine The reference to the current game engine
    * @param delta  The time elapsed since the last update in milliseconds
    */
@@ -1088,8 +1066,8 @@ export class Actor
       drawing.tick(delta, engine.stats.currFrame.id);
     }
 
-    // Update action queue
-    this.actionQueue.update(delta);
+    // Update action context
+    this.actions.update(delta);
 
     // Update color only opacity
     if (this.color) {
@@ -1106,9 +1084,9 @@ export class Actor
     }
 
     // Update child actors
-    for (let i = 0; i < this.children.length; i++) {
-      this.children[i].update(engine, delta);
-    }
+    // for (let i = 0; i < this.children.length; i++) {
+    //   this.children[i].update(engine, delta);
+    // }
 
     this._postupdate(engine, delta);
   }
@@ -1248,7 +1226,7 @@ export class Actor
     if (Debug.showActorAnchor) {
       ctx.fillStyle = Color.Yellow.toString();
       ctx.beginPath();
-      ctx.arc(this.getWorldPos().x, this.getWorldPos().y, 3, 0, Math.PI * 2);
+      ctx.arc(this.getGlobalPos().x, this.getGlobalPos().y, 3, 0, Math.PI * 2);
       ctx.closePath();
       ctx.fill();
     }
@@ -1265,7 +1243,7 @@ export class Actor
       ctx.strokeStyle = Color.Yellow.toString();
       ctx.beginPath();
       const radius = Math.min(this.width, this.height);
-      ctx.arc(this.getWorldPos().x, this.getWorldPos().y, radius, 0, Math.PI * 2);
+      ctx.arc(this.getGlobalPos().x, this.getGlobalPos().y, radius, 0, Math.PI * 2);
       ctx.closePath();
       ctx.stroke();
       const ticks: { [key: string]: number } = {
@@ -1282,8 +1260,8 @@ export class Actor
         ctx.textAlign = 'center';
         ctx.fillText(
           tick,
-          this.getWorldPos().x + Math.cos(ticks[tick]) * (radius + 10),
-          this.getWorldPos().y + Math.sin(ticks[tick]) * (radius + 10)
+          this.getGlobalPos().x + Math.cos(ticks[tick]) * (radius + 10),
+          this.getGlobalPos().y + Math.sin(ticks[tick]) * (radius + 10)
         );
       }
 
@@ -1291,27 +1269,11 @@ export class Actor
     }
 
     // Draw child actors
-    for (let i = 0; i < this.children.length; i++) {
-      this.children[i].debugDraw(ctx);
-    }
+    // for (let i = 0; i < this.children.length; i++) {
+    //   this.children[i].debugDraw(ctx);
+    // }
 
     this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
-  }
-
-  /**
-   * Returns the full array of ancestors
-   */
-  public getAncestors(): Actor[] {
-    const path: Actor[] = [this];
-    let currentActor: Actor = this;
-    let parent: Actor;
-
-    while ((parent = currentActor.parent)) {
-      currentActor = parent;
-      path.push(currentActor);
-    }
-
-    return path.reverse();
   }
   // #endregion
 }

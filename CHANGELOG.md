@@ -7,18 +7,65 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `Actor.actions.repeat()` and `Actor.actions.repeatForever()` now require a handler that specifies the actions to repeat. This is more clear and helps prevent bugs like #1891
+
+  ```typescript
+  const actor = new ex.Actor();
+
+  actor.actions
+    // Move up in a zig-zag by repeating 5 times
+    .repeat((ctx) => {
+      ctx.moveBy(10, 0, 10);
+      ctx.moveBy(0, 10, 10);
+    }, 5)
+    .callMethod(() => {
+      console.log('Done repeating!');
+    });
+  ```
+
+- Removes `Entity.components` as a way to access, add, and remove components
+- Camera.z has been renamed to property `zoom` which is the zoom factor
+- Camera.zoom(...) has been renamed to function `zoomOverTime()`
+- TileMap no longer needs registered SpriteSheets, `Sprite`'s can be added directly to `Cell`'s with `addSprite`
+  - The confusing `TileSprite` type is removed (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
 - Directly changing debug drawing by `engine.isDebug = value` has been replaced by `engine.showDebug(value)` and `engine.toggleDebug()` ([#1655](https://github.com/excaliburjs/Excalibur/issues/1655))
 - `UIActor` Class instances need to be replaced to `ScreenElement` (This Class it's marked as Obsolete) ([#1656](https://github.com/excaliburjs/Excalibur/issues/1656))
 - Switch to browser based promise, the Excalibur implementation `ex.Promise` is marked deprecated ([#994](https://github.com/excaliburjs/Excalibur/issues/994))
+- `DisplayMode.Fill` now does what `DisplayMode.FullScreen` used to do, the resolution and viewport dynamically adjust to fit the available space, DOES NOT preserve `aspectRatio` ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
+- `DisplayMode.FullScreen` is now removed, use `Screen.goFullScreen()`.
+- `SpriteSheet` now is immutable after creation to reduce chance of bugs if you modified a public field. The following properties are read-only: `columns`, `rows`, `spWidth`, `spHeight`, `image`, `sprites` and `spacing`.
+- `Engine.pointerScope` now defaults to a more expected `ex.Input.PointerScope.Canvas` instead of `ex.Input.PointerScope.Document` which can cause frustrating bugs if building an HTML app with Excalibur
 
 ### Added
 
+- `BoundingBox` now has a method for detecting zero dimensions in width or height `hasZeroDimensions()`
+- `BoundingBox`'s can now by `transform`'d by a `Matrix`
+- Added `new Entity(components: Component[])` constructor overload to create entities with components quickly.
+- Added `Entity.get(type: ComponentType)` to get strongly typed components if they exist on the entity.
+- Added `Entity.has(type: ComponentType)` overload to check if an entity has a component of that type.
+- Added `Entity.hasTag(tag: string)`, `Entity.addTag(tag: string)`, and `Entity.removeTag(tag: string, force: boolean)`.
+  - Tag `offscreen` is now added to entities that are offscreen
+- Added `Entity.componentAdded$` and `Entity.componentRemoved$` for observing component changes on an entity.
+- For child/parent entities:
+  - Added `Entity.addChild(entity: Entity)`, `Entity.removeChild(entity: Entity)`, `Entity.removeAllChildren()` for managing child entities
+  - Added `Entity.addTemplate(templateEntity: Entity)` for adding template entities or "prefab".
+  - Added `Entity.parent` readonly accessor to the parent (if exists), and `Entity.unparent()` to unparent an entity.
+  - Added `Entity.getAncestors()` is a sorted list of parents starting with the topmost parent.
+  - Added `Entity.children` readonly accessor to the list of children.
+- Add the ability to press enter to start the game after loaded
 - Add Excalibur Feature Flag implementation for releasing experimental or preview features ([#1673](https://github.com/excaliburjs/Excalibur/issues/1673))
 - Color now can parse RGB/A string using Color.fromRGBString('rgb(255, 255, 255)') or Color.fromRGBString('rgb(255, 255, 255, 1)')
+- `DisplayMode.Fit` will now scale the game to fit the available space, preserving the `aspectRatio`. ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
+- `SpriteSheet.spacing` now accepts a structure `{ top: number, left: number, margin: number }` for custom spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
+- `SpriteSheet.ctor` now has an overload that accepts `spacing` for consistency although the object constructor is recommended ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
+- Add `SpriteSheet.getSpacingDimensions()` method to retrieve calculated spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
+- Add `KeyEvent.value?: string` which is the key value (or "typed" value) that the browser detected. For example, holding Shift and pressing 9 will have a value of `(` which is the typed character.
+- Add `KeyEvent.originalEvent?: KeyboardEvent` which exposes the raw keyboard event handled from the browser.
 
 ### Changed
 
 - Updates the Excalibur ECS implementation for ease of use and Excalibur draw system integration
+  - Adds "ex." namespace to built in component types like "ex.transform"
   - Adds `ex.World` to encapsulate all things ECS
   - Adds `ex.CanvasDrawSystem` to handle all HTML Canvas 2D drawing via ECS
   - Updates `ex.Actor` to use new `ex.TransformComponent` and `ex.CanvasDrawComponent`
@@ -26,19 +73,38 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Deprecated
 
 - Removed UIActor Stub in favor of ScreenElement ([#1656](https://github.com/excaliburjs/Excalibur/issues/1656))
-- `ex.SortedList` as deprecated 
+- `ex.SortedList` as deprecated
 - `ex.Promise` is marked deprecated ([#994](https://github.com/excaliburjs/Excalibur/issues/994))
+- `DisplayMode.Position` CSS can accomplish this task better than Excalibur ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
 
 ### Removed
 
 ### Fixed
 
+- Fixed issue where no width/height argmunents to engine throws an error
+- Fixed issue where zero dimension image draws on the ExcaliburGraphicsContext throw an error
+- Fixed issue where the first scene onInitialize fires at Engine contructor time and before the "play button" clicked ([#1900](https://github.com/excaliburjs/Excalibur/issues/1900))
+- Fixed issue where the "play button" click was being interpreted as an input event excalibur needed to handle ([#1854](https://github.com/excaliburjs/Excalibur/issues/1854))
+- Fixed issue where pointer events were not firing at the ex.Engine.input.pointers level ([#1439](https://github.com/excaliburjs/Excalibur/issues/1439))
+- Fixed issue where pointer events propagate in an unexpected order, now they go from high z-index to low z-index ([#1922](https://github.com/excaliburjs/Excalibur/issues/1922))
+- Fixed issue with Raster padding which caused images to grow over time ([#1897](https://github.com/excaliburjs/Excalibur/issues/1897))
+- Fixed N+1 repeat/repeatForever bug ([#1891](https://github.com/excaliburjs/Excalibur/issues/1891))
+- Fixed repeat/repeatForever issue with `rotateTo` ([#635](https://github.com/excaliburjs/Excalibur/issues/635))
+- Entity update lifecycle is now called correctly
+- Fixed GraphicsSystem `enterviewport` and `exitviewport` event
+- Fixed DOM element leak when restarting games, play button elements piled up in the DOM.
+- Fixed issues with `Sprite` not rotating/scaling correctly around the anchor (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
+  - Optionally specify whether to draw around the anchor or not `drawAroundAnchor`
+- Fixed in the browser "FullScreen" api, coordinates are now correctly mapped from page space to world space ([#1734](https://github.com/excaliburjs/Excalibur/issues/1734))
+- Fix audio decoding bug introduced in https://github.com/excaliburjs/Excalibur/pull/1707
+- Fixed issue with promise resolve on double resource load ([#1434](https://github.com/excaliburjs/Excalibur/issues/1434))
 - Fixed Firefox bug where scaled graphics with anti-aliasing turned off are not pixelated ([#1676](https://github.com/excaliburjs/Excalibur/issues/1676))
 - Fixed z-index regression where actors did not respect z-index ([#1678](https://github.com/excaliburjs/Excalibur/issues/1678))
 - Fixed Animation flicker bug when switching to an animation ([#1636](https://github.com/excaliburjs/Excalibur/issues/1636))
 - Fixed `ex.Actor.easeTo` actions, they now use velocity to move Actors ([#1638](https://github.com/excaliburjs/Excalibur/issues/1638))
 - Fixed `Scene` constructor signature to make the `Engine` argument optional ([#1363](https://github.com/excaliburjs/Excalibur/issues/1363))
 - Fixed `anchor` properly of single shape `Actor` [#1535](https://github.com/excaliburjs/Excalibur/issues/1535)
+- Fixed Safari bug where `Sound` resources would fail to load ([#1848](https://github.com/excaliburjs/Excalibur/issues/1848))
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

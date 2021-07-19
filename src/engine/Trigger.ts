@@ -1,6 +1,5 @@
 import { Color } from './Drawing/Color';
 import { Engine } from './Engine';
-import { ActionQueue } from './Actions/Action';
 import { EventDispatcher } from './EventDispatcher';
 import { Vector } from './Algebra';
 import { ExitTriggerEvent, EnterTriggerEvent, CollisionEndEvent, CollisionStartEvent } from './Events';
@@ -84,7 +83,6 @@ export class Trigger extends Actor {
     this.visible = opts.visible;
     this.body.collisionType = CollisionType.Passive;
     this.eventDispatcher = new EventDispatcher(this);
-    this.actionQueue = new ActionQueue(this);
 
     this.events.on('collisionstart', (evt: CollisionStartEvent<Actor>) => {
       if (this.filter(evt.other)) {
@@ -132,7 +130,7 @@ export class Trigger extends Actor {
     ctx.translate(this.pos.x, this.pos.y);
 
     const bb = this.body.bounds;
-    const wp = this.getWorldPos();
+    const wp = this.getGlobalPos();
     bb.left = bb.left - wp.x;
     bb.right = bb.right - wp.x;
     bb.top = bb.top - wp.y;

@@ -12,6 +12,14 @@ describe('An entity', () => {
     expect(ex.Entity).toBeDefined();
   });
 
+  it('can be constructed with a list of components', () => {
+    const e = new ex.Entity([new FakeComponent('A'), new FakeComponent('B'), new FakeComponent('C')]);
+
+    expect(e.has('A')).toBe(true);
+    expect(e.has('B')).toBe(true);
+    expect(e.has('C')).toBe(true);
+  });
+
   it('has a unique id', () => {
     const entity1 = new ex.Entity();
     const entity2 = new ex.Entity();
@@ -44,6 +52,19 @@ describe('An entity', () => {
     expect(entity.types).toEqual([]);
   });
 
+  it('can get a list of components', () => {
+    const entity = new ex.Entity();
+    const typeA = new FakeComponent('A');
+    const typeB = new FakeComponent('B');
+    const typeC = new FakeComponent('C');
+
+    expect(entity.getComponents()).toEqual([]);
+
+    entity.addComponent(typeA).addComponent(typeB).addComponent(typeC);
+
+    expect(entity.getComponents().sort((a, b) => a.type.localeCompare(b.type))).toEqual([typeA, typeB, typeC]);
+  });
+
   it('can have type from tag components', () => {
     const entity = new ex.Entity();
     const isOffscreen = new TagComponent('offscreen');
@@ -58,10 +79,29 @@ describe('An entity', () => {
     expect(entity.hasTag('offscreen')).toBeTrue();
   });
 
+  it('can add and remove tags', () => {
+    const entity = new ex.Entity();
+    entity.addTag('someTag1');
+    entity.addTag('someTag2');
+    entity.addTag('someTag3');
+
+    expect(entity.tags).toEqual(['someTag1', 'someTag2', 'someTag3']);
+
+    // deferred removal
+    entity.removeTag('someTag3');
+    expect(entity.tags).toEqual(['someTag1', 'someTag2', 'someTag3']);
+    entity.processComponentRemoval();
+    expect(entity.tags).toEqual(['someTag1', 'someTag2']);
+
+    // immediate removal
+    entity.removeTag('someTag2', true);
+    expect(entity.tags).toEqual(['someTag1']);
+  });
+
   it('can be observed for added changes', (done) => {
     const entity = new ex.Entity();
     const typeA = new FakeComponent('A');
-    entity.changes.register({
+    entity.componentAdded$.register({
       notify: (change) => {
         expect(change.type).toBe('Component Added');
         expect(change.data.entity).toBe(entity);
@@ -77,7 +117,7 @@ describe('An entity', () => {
     const typeA = new FakeComponent('A');
 
     entity.addComponent(typeA);
-    entity.changes.register({
+    entity.componentRemoved$.register({
       notify: (change) => {
         expect(change.type).toBe('Component Removed');
         expect(change.data.entity).toBe(entity);
@@ -95,14 +135,30 @@ describe('An entity', () => {
     const typeB = new FakeComponent('B');
     entity.addComponent(typeA);
     entity.addComponent(typeB);
+    entity.addChild(new ex.Entity([new FakeComponent('Z')]));
 
     const clone = entity.clone();
     expect(clone).not.toBe(entity);
     expect(clone.id).not.toBe(entity.id);
-    expect(clone.components.A).not.toBe(entity.components.A);
-    expect(clone.components.B).not.toBe(entity.components.B);
-    expect(clone.components.A.type).toBe(entity.components.A.type);
-    expect(clone.components.B.type).toBe(entity.components.B.type);
+    expect(clone.get('A')).not.toBe(entity.get('A'));
+    expect(clone.get('B')).not.toBe(entity.get('B'));
+    expect(clone.get('A').type).toBe(entity.get('A').type);
+    expect(clone.get('B').type).toBe(entity.get('B').type);
+    expect(clone.children.length).toBe(1);
+    expect(clone.children[0].types).toEqual(['Z']);
+  });
+
+  it('can be initialized with a template', () => {
+    const entity = new ex.Entity();
+    const template = new ex.Entity([new FakeComponent('A'), new FakeComponent('B')]).addChild(
+      new ex.Entity([new FakeComponent('C'), new FakeComponent('D')]).addChild(new ex.Entity([new FakeComponent('Z')]))
+    );
+
+    expect(entity.getComponents()).toEqual([]);
+    entity.addTemplate(template);
+    expect(entity.types.sort((a, b) => a.localeCompare(b))).toEqual(['A', 'B']);
+    expect(entity.children[0].types.sort((a, b) => a.localeCompare(b))).toEqual(['C', 'D']);
+    expect(entity.children[0].children[0].types).toEqual(['Z']);
   });
 
   it('can be checked if it has a component', () => {
@@ -169,5 +225,109 @@ describe('An entity', () => {
     });
 
     entity._postupdate(null, 1);
+  });
+
+  it('can be parented', () => {
+    const parent = new ex.Entity();
+    const child = new ex.Entity();
+    parent.addChild(child);
+
+    expect(child.parent).toBe(parent);
+    expect(parent.children).toEqual([child]);
+    expect(parent.parent).toBe(null);
+  });
+
+  it('can be grandparented', () => {
+    const parent = new ex.Entity();
+    const child = new ex.Entity();
+    const grandchild = new ex.Entity();
+    parent.addChild(child.addChild(grandchild));
+
+    expect(grandchild.parent).toBe(child);
+    expect(child.parent).toBe(parent);
+    expect(parent.children).toEqual([child]);
+
+    expect(grandchild.getAncestors()).toEqual([parent, child, grandchild]);
+    expect(parent.getDescendants()).toEqual([parent, child, grandchild]);
+  });
+
+  it('can be unparented', () => {
+    const parent = new ex.Entity();
+    const child = new ex.Entity();
+    const grandchild = new ex.Entity();
+    parent.addChild(child.addChild(grandchild));
+
+    expect(child.parent).toBe(parent);
+
+    child.unparent();
+
+    expect(child.parent).toBe(null);
+  });
+
+  it('can\'t have a cycle', () => {
+    const parent = new ex.Entity();
+    const child = new ex.Entity();
+
+    parent.addChild(child);
+
+    expect(() => {
+      child.addChild(parent);
+    }).toThrowError('Cycle detected, cannot add entity');
+  });
+
+  it('can\'t parent if already parented', () => {
+    const parent = new ex.Entity();
+    const child = new ex.Entity();
+    const otherparent = new ex.Entity();
+
+    parent.addChild(child);
+    expect(() => {
+      otherparent.addChild(child);
+    }).toThrowError('Entity already has a parent, cannot add without unparenting');
+  });
+
+  it('can observe components added', () => {
+    const e = new ex.Entity();
+    const addedSpy = jasmine.createSpy('addedSpy');
+    e.componentAdded$.register({
+      notify: addedSpy
+    });
+    const component = new FakeComponent('A');
+    e.addComponent(component);
+    expect(addedSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('can observe components removed', () => {
+    const e = new ex.Entity();
+    const removedSpy = jasmine.createSpy('removedSpy');
+    e.componentRemoved$.register({
+      notify: removedSpy
+    });
+    const component = new FakeComponent('A');
+    e.addComponent(component);
+    e.removeComponent(component);
+    e.processComponentRemoval();
+    expect(removedSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('can add and remove children in the ECS world', () => {
+    const e = new ex.Entity();
+    const child = new ex.Entity();
+    const grandchild = new ex.Entity();
+    e.addChild(child.addChild(grandchild));
+
+    const world = new ex.World(new ex.Scene());
+
+    world.add(e);
+
+    expect(world.entityManager.entities.length).toBe(3);
+
+    grandchild.addChild(new ex.Entity());
+
+    expect(world.entityManager.entities.length).toBe(4);
+
+    child.removeChild(grandchild);
+
+    expect(world.entityManager.entities.length).toBe(2);
   });
 });

@@ -1,16 +1,15 @@
 import { Color } from './Drawing/Color';
 import { WebAudio } from './Util/WebAudio';
-import { Logger } from './Util/Log';
 import { Engine } from './Engine';
 import { Loadable } from './Interfaces/Loadable';
-import { CanLoad } from './Interfaces/Loader';
 import { Class } from './Class';
 import * as DrawUtil from './Util/DrawUtil';
 
 import logoImg from './Loader.logo.png';
 import loaderCss from './Loader.css';
+import { Canvas } from './Graphics/Canvas';
 import { Vector } from './Algebra';
-import { clamp } from './Util/Util';
+import { clamp, delay } from './Util/Util';
 
 /**
  * Pre-loading assets
@@ -77,8 +76,12 @@ import { clamp } from './Util/Util';
  * engine.start(loader).then(() => {});
  * ```
  */
-export class Loader extends Class implements CanLoad {
-  private _resourceList: Loadable[] = [];
+export class Loader extends Class implements Loadable<Loadable<any>[]> {
+  public canvas: Canvas = new Canvas({
+    smoothing: true,
+    draw: this.draw.bind(this)
+  });
+  private _resourceList: Loadable<any>[] = [];
   private _index = 0;
 
   private _playButtonShown: boolean = false;
@@ -143,6 +146,10 @@ export class Loader extends Class implements CanLoad {
   /** Loads the css from Loader.css */
   protected _playButtonStyles: string = loaderCss.toString();
   protected get _playButton() {
+    const existingRoot = document.getElementById('excalibur-play-root');
+    if (existingRoot) {
+      this._playButtonRootElement = existingRoot;
+    }
     if (!this._playButtonRootElement) {
       this._playButtonRootElement = document.createElement('div');
       this._playButtonRootElement.id = 'excalibur-play-root';
@@ -170,7 +177,11 @@ export class Loader extends Class implements CanLoad {
    * Return a html button element for excalibur to use as a play button
    */
   public startButtonFactory = () => {
-    const buttonElement = document.createElement('button');
+    let buttonElement: HTMLButtonElement = document.getElementById('excalibur-play') as HTMLButtonElement;
+    if (!buttonElement) {
+      buttonElement = document.createElement('button');
+    }
+
     buttonElement.id = 'excalibur-play';
     buttonElement.textContent = this.playButtonText;
     buttonElement.style.display = 'none';
@@ -180,7 +191,7 @@ export class Loader extends Class implements CanLoad {
   /**
    * @param loadables  Optionally provide the list of resources you want to load at constructor time
    */
-  constructor(loadables?: Loadable[]) {
+  constructor(loadables?: Loadable<any>[]) {
     super();
 
     if (loadables) {
@@ -190,13 +201,15 @@ export class Loader extends Class implements CanLoad {
 
   public wireEngine(engine: Engine) {
     this._engine = engine;
+    this.canvas.width = this._engine.canvas.width;
+    this.canvas.height = this._engine.canvas.height;
   }
 
   /**
    * Add a resource to the loader to load
    * @param loadable  Resource to add
    */
-  public addResource(loadable: Loadable) {
+  public addResource(loadable: Loadable<any>) {
     const key = this._index++;
     this._resourceList.push(loadable);
     this._progressCounts[key] = 0;
@@ -208,7 +221,7 @@ export class Loader extends Class implements CanLoad {
    * Add a list of resources to the loader to load
    * @param loadables  The list of resources to load
    */
-  public addResources(loadables: Loadable[]) {
+  public addResources(loadables: Loadable<any>[]) {
     let i = 0;
     const len = loadables.length;
 
@@ -227,16 +240,26 @@ export class Loader extends Class implements CanLoad {
   /**
    * Shows the play button and returns a promise that resolves when clicked
    */
-  public showPlayButton(): Promise<any> {
+  public showPlayButton(): Promise<void> {
     if (this.suppressPlayButton) {
       return Promise.resolve();
     } else {
       this._playButtonShown = true;
       this._playButton.style.display = 'block';
-      const promise = new Promise((resolve) => {
-        this._playButton.addEventListener('click', () => resolve());
-        this._playButton.addEventListener('touchend', () => resolve());
-        this._playButton.addEventListener('pointerup', () => resolve());
+      document.body.addEventListener('keyup', (evt: KeyboardEvent) => {
+        if (evt.key === 'Enter') {
+          this._playButton.click();
+        }
+      });
+      const promise = new Promise<void>((resolve) => {
+        const startButtonHandler = (e: Event) => {
+          // We want to stop propogation to keep bubbling to the engine pointer handlers
+          e.stopPropagation();
+          resolve();
+        };
+        this._playButton.addEventListener('click', startButtonHandler);
+        this._playButton.addEventListener('touchend', startButtonHandler);
+        this._playButton.addEventListener('pointerup', startButtonHandler);
       });
 
       return promise;
@@ -262,91 +285,39 @@ export class Loader extends Class implements CanLoad {
     }
   }
 
+  update(_engine: Engine, _delta: number): void {
+    // override me
+  }
+
+  data: Loadable<any>[];
+
   /**
    * Begin loading all of the supplied resources, returning a promise
    * that resolves when loading of all is complete
    */
-  public load(): Promise<any> {
-    const complete = new Promise<any>((resolve) => {
-      const me = this;
-      if (this._resourceList.length === 0) {
-        me.showPlayButton().then(() => {
-          // Unlock audio context in chrome after user gesture
-          // https://github.com/excaliburjs/Excalibur/issues/262
-          // https://github.com/excaliburjs/Excalibur/issues/1031
-          WebAudio.unlock().then(() => {
-            me.hidePlayButton();
-            me.oncomplete.call(me);
-            resolve();
-          });
-        });
-        return;
-      }
+  public async load(): Promise<Loadable<any>[]> {
+    await Promise.all(
+      this._resourceList.map((r) =>
+        r.load().finally(() => {
+          // capture progress
+          this._numLoaded++;
+        })
+      )
+    );
 
-      const progressArray = new Array<any>(this._resourceList.length);
-      const progressChunks = this._resourceList.length;
+    // short delay in showing the button for aesthetics
+    await delay(200);
+    await this.showPlayButton();
+    // Unlock browser AudioContext in after user gesture
+    // See: https://github.com/excaliburjs/Excalibur/issues/262
+    // See: https://github.com/excaliburjs/Excalibur/issues/1031
+    await WebAudio.unlock();
+    this.hidePlayButton();
 
-      for (const index in this._resourceList) {
-        const resource = this._resourceList[index];
-        if (this._engine) {
-          resource.wireEngine(this._engine);
-        }
-        resource.onprogress = (e) => {
-          const total = <number>e.total;
-          const loaded = <number>e.loaded;
-          progressArray[index] = { loaded: (loaded / total) * (100 / progressChunks), total: 100 };
-
-          const progressResult: any = progressArray.reduce(
-            function (accum, next) {
-              return { loaded: accum.loaded + next.loaded, total: 100 };
-            },
-            { loaded: 0, total: 100 }
-          );
-
-          me.onprogress.call(me, progressResult);
-        };
-
-        resource.oncomplete = resource.onerror = () => {
-          me._numLoaded++;
-          if (me._numLoaded === me._resourceCount) {
-            setTimeout(() => {
-              me.showPlayButton().then(() => {
-                // Unlock audio context in chrome after user gesture
-                // https://github.com/excaliburjs/Excalibur/issues/262
-                // https://github.com/excaliburjs/Excalibur/issues/1031
-                WebAudio.unlock().then(() => {
-                  me.hidePlayButton();
-                  me.oncomplete.call(me);
-                  resolve();
-                });
-              });
-            }, 200); // short delay in showing the button for aesthetics
-          }
-        };
-      }
-
-      const loadNext = (list: Loadable[], index: number) => {
-        if (!list[index]) {
-          return;
-        }
-        list[index].load().then(() => {
-          loadNext(list, index + 1);
-        });
-      };
-      loadNext(this._resourceList, 0);
-    });
-    return complete;
+    return (this.data = this._resourceList);
   }
 
-  public updateResourceProgress(loadedBytes: number, totalBytes: number) {
-    const chunkSize = 100 / this._resourceCount;
-    const resourceProgress = loadedBytes / totalBytes;
-    // This only works if we load 1 resource at a time
-    const totalProgress = resourceProgress * chunkSize + this.progress * 100;
-    this.onprogress({ loaded: totalProgress, total: 100 });
-  }
-
-  public markResourceComplete() {
+  public markResourceComplete(): void {
     this._numLoaded++;
   }
 
@@ -367,8 +338,8 @@ export class Loader extends Class implements CanLoad {
     const canvasWidth = this._engine.canvasWidth / this._engine.pixelRatio;
 
     if (this._playButtonRootElement) {
-      const left = ctx.canvas.offsetLeft;
-      const top = ctx.canvas.offsetTop;
+      const left = this._engine.canvas.offsetLeft;
+      const top = this._engine.canvas.offsetTop;
       const buttonWidth = this._playButton.clientWidth;
       const buttonHeight = this._playButton.clientHeight;
       if (this.playButtonPosition) {
@@ -432,38 +403,4 @@ export class Loader extends Class implements CanLoad {
     );
     this._engine.setAntialiasing(oldAntialias);
   }
-
-  /**
-   * Perform any calculations or logic in the `update` method. The default `Loader` does not
-   * do anything in this method so it is safe to override.
-   */
-  public update(_engine: Engine, _delta: number) {
-    // overridable update
-  }
-
-  public getData: () => any = () => {
-    return;
-  };
-
-  public setData: (data: any) => any = () => {
-    return;
-  };
-
-  public processData: (data: any) => any = () => {
-    return;
-  };
-
-  public onprogress: (e: any) => void = (e: any) => {
-    Logger.getInstance().debug('[ex.Loader] Loading ' + ((100 * e.loaded) / e.total).toFixed(0));
-
-    return;
-  };
-
-  public oncomplete: () => void = () => {
-    return;
-  };
-
-  public onerror: () => void = () => {
-    return;
-  };
 }

@@ -20,12 +20,11 @@ describe('A generic Resource', () => {
     const spy = jasmine.createSpy();
     spyOn(ex.Logger.getInstance(), 'error').and.callFake(spy);
 
-    resource.onerror = jasmine.createSpy();
+    resource.events.on('error', jasmine.createSpy());
     resource.load().then(
       () => fail(),
       () => {
         expect(spy).toHaveBeenCalled();
-        expect(resource.onerror).toHaveBeenCalled();
         done();
       }
     );
@@ -45,11 +44,7 @@ describe('A generic Resource', () => {
 
   describe('with some data', () => {
     beforeEach(() => {
-      spyOn(URL, 'createObjectURL').and.callFake((data) => {
-        return 'blob://' + data;
-      });
-
-      resource.setData('data');
+      resource.data = 'blob://data';
     });
 
     it('should be loaded immediately', () => {
@@ -57,7 +52,7 @@ describe('A generic Resource', () => {
     });
 
     it('should return the processed data', () => {
-      expect(resource.getData()).toBe('blob://data');
+      expect(resource.data).toBe('blob://data');
     });
 
     it('should not trigger an XHR when load is called', (done) => {
@@ -67,14 +62,6 @@ describe('A generic Resource', () => {
       });
     });
 
-    it('should call processData handler', () => {
-      const spy = jasmine.createSpy('handler');
-
-      resource.processData = spy;
-      resource.setData('data');
-
-      expect(spy).toHaveBeenCalledWith('data');
-    });
 
     it('should load a text resource', (done) => {
       const text = new ex.Resource('base/src/spec/images/ResourceSpec/textresource.txt', 'text', true);

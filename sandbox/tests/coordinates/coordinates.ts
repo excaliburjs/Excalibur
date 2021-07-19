@@ -46,11 +46,11 @@ class PointLabel extends ex.Actor {
 
     this._expectLabel = new ex.Label('', 5, 10);
     this._expectLabel.color = ex.Color.fromHex('#249111');
-    this.add(this._expectLabel);
+    this.addChild(this._expectLabel);
 
     this._actualLabel = new ex.Label('', 5, 20);
     this._actualLabel.color = ex.Color.Blue;
-    this.add(this._actualLabel);
+    this.addChild(this._actualLabel);
   }
 
   update(engine: ex.Engine, delta: number) {
@@ -58,8 +58,8 @@ class PointLabel extends ex.Actor {
 
     var xx = this.point.expectedX;
     var xy = this.point.expectedY;
-    var ax = this.point.getWorldPos().x;
-    var ay = this.point.getWorldPos().y;
+    var ax = this.point.getGlobalPos().x;
+    var ay = this.point.getGlobalPos().y;
 
     this._expectLabel.text = `(${xx}, ${xy})`;
     this._actualLabel.text = `(${ax}, ${ay})`;

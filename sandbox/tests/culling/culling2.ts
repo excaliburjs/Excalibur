@@ -51,10 +51,10 @@ game.start();
 let zoomed = false;
 setInterval(() => {
   if (zoomed) {
-    game.currentScene.camera.zoom(1, 3500);
+    game.currentScene.camera.zoomOverTime(1, 3500);
     zoomed = false;
   } else {
-    game.currentScene.camera.zoom(2, 3500);
+    game.currentScene.camera.zoomOverTime(2, 3500);
     zoomed = true;
   }
 }, 4000);

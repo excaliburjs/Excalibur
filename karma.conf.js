@@ -1,17 +1,30 @@
 // Karma configuration
 const process = require('process');
 const path = require('path');
+const webpack = require('webpack');
 process.env.CHROME_BIN = require('puppeteer').executablePath();
+
+const isAppveyor = process.env.APPVEYOR_BUILD_NUMBER ? true : false;
 
 module.exports = (config) => {
   config.set({
     singleRun: true,
     frameworks: ['jasmine'],
+    client: {
+      // Excalibur logs / console logs suppressed when captureConsole = false;
+      captureConsole: false,
+      jasmine: {
+        timeoutInterval: 30000
+      }
+    },
     files: [  
             'src/spec/_boot.ts', 
+            { pattern: 'src/spec/images/**/*.mp3', included: false, served: true },
             { pattern: 'src/spec/images/**/*.png', included: false, served: true },
             { pattern: 'src/spec/images/**/*.gif', included: false, served: true },
-            { pattern: 'src/spec/images/**/*.txt', included: false, served: true }
+            { pattern: 'src/spec/images/**/*.txt', included: false, served: true },
+            { pattern: 'src/spec/images/**/*.css', included: false, served: true },
+            { pattern: 'src/spec/images/**/*.woff2', included: false, served: true },
            ],
     mime: { 'text/x-typescript': ['ts', 'tsx'] },
     preprocessors: {
@@ -26,6 +39,11 @@ module.exports = (config) => {
           "@excalibur": path.resolve(__dirname, './src/engine/')
         }
       },
+      plugins: [
+        new webpack.DefinePlugin({
+          'process.env.__EX_VERSION': '\'test-runner\''
+        }),
+      ],
       module: {
         rules: [
           {
@@ -41,7 +59,7 @@ module.exports = (config) => {
             use: ['css-loader']
           },
           {
-            test: /\.(png|jpg|gif)$/i,
+            test: /\.(png|jpg|gif|mp3)$/i,
             use: [
               {
                 loader: 'url-loader',
@@ -50,6 +68,10 @@ module.exports = (config) => {
                 }
               }
             ]
+          },
+          {
+            test: /\.glsl$/,
+            use: ['raw-loader']
           },
           {
             test: /\.ts$/,
@@ -69,7 +91,6 @@ module.exports = (config) => {
         stats: 'normal'
     },
     reporters: ['progress', 'coverage-istanbul'],
-
     coverageReporter: {
       reporters: [
           { type: 'html', dir: 'coverage/' }, 
@@ -85,10 +106,11 @@ module.exports = (config) => {
     },
 
     browsers: ['ChromeHeadless_with_audio'],
+    browserNoActivityTimeout: 60000, // appveyor is slow :(
     customLaunchers: {
       ChromeHeadless_with_audio: {
           base: 'ChromeHeadless',
-          flags: ['--autoplay-policy=no-user-gesture-required']
+          flags: ['--autoplay-policy=no-user-gesture-required', '--mute-audio']
       },
       ChromeHeadless_with_debug: {
         base: 'ChromeHeadless',

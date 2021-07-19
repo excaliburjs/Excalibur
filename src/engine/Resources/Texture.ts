@@ -1,11 +1,13 @@
 import { Resource } from './Resource';
 import { Sprite } from '../Drawing/Sprite';
+import { Loadable } from '../Interfaces/Index';
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
  * [[Texture]] is an [[Loadable]] which means it can be passed to a [[Loader]]
  * to pre-load before starting a level or game.
  */
-export class Texture extends Resource<string> {
+export class Texture implements Loadable<HTMLImageElement> {
+  private _resource: Resource<Blob>;
   /**
    * The width of the texture in pixels
    */
@@ -16,28 +18,27 @@ export class Texture extends Resource<string> {
    */
   public height: number;
 
-  /**
-   * A [[Promise]] that resolves when the Texture is loaded.
-   */
-  private _loadedResolve: (value?: HTMLImageElement) => void;
-  public loaded: Promise<HTMLImageElement> = new Promise<HTMLImageElement>((resolve) => {
-    this._loadedResolve = resolve;
-  });
-
-  private _isLoaded: boolean = false;
   private _sprite: Sprite = null;
 
   /**
    * Populated once loading is complete
    */
-  public image: HTMLImageElement;
+  public data: HTMLImageElement;
+  public get image() {
+    return this.data;
+  }
+
+  private _loadedResolve: (image: HTMLImageElement) => any;
+  public loaded = new Promise<HTMLImageElement>(resolve => {
+    this._loadedResolve = resolve;
+  });
 
   /**
    * @param path       Path to the image resource or a base64 string representing an image "data:image/png;base64,iVB..."
    * @param bustCache  Optionally load texture with cache busting
    */
   constructor(public path: string, public bustCache = true) {
-    super(path, 'blob', bustCache);
+    this._resource = new Resource(path, 'blob', bustCache);
     this._sprite = new Sprite(this, 0, 0, 0, 0);
   }
 
@@ -46,35 +47,39 @@ export class Texture extends Resource<string> {
    * to be drawn.
    */
   public isLoaded(): boolean {
-    return this._isLoaded;
+    return !!this.data;
   }
 
   /**
    * Begins loading the texture and returns a promise to be resolved on completion
    */
   public async load(): Promise<HTMLImageElement> {
-    const complete = new Promise<HTMLImageElement>(async (resolve, reject) => {
-      this.image = new Image();
-      this.image.addEventListener('load', () => {
-        this._isLoaded = true;
-        this.width = this._sprite.width = this.image.naturalWidth;
-        this.height = this._sprite.height = this.image.naturalHeight;
-        this._sprite = new Sprite(this, 0, 0, this.width, this.height);
-        this._loadedResolve(this.image);
-        resolve(this.image);
-      });
-      if (this.path.indexOf('data:image/') > -1) {
-        this.image.src = this.path;
-        this.oncomplete();
+    try {
+      // Load base64 or blob if needed
+      let url: string;
+      if (!this.path.includes('data:image/')) {
+        const blob = await this._resource.load();
+        url = URL.createObjectURL(blob);
       } else {
-        try {
-          this.image.src = await super.load();
-        } catch (e) {
-          reject('Error loading texture');
-        }
+        url = this.path;
       }
-    });
-    return complete;
+
+      // Decode the image
+      const image = new Image();
+      image.src = url;
+      await image.decode();
+
+      // Set results
+      this.data = image;
+      this.width = this._sprite.width = image.naturalWidth;
+      this.height = this._sprite.height = image.naturalHeight;
+      this._sprite = new Sprite(this, 0, 0, this.width, this.height);
+    } catch {
+      await Promise.reject('Error loading texture');
+    }
+    // todo emit complete
+    this._loadedResolve(this.data);
+    return this.data;
   }
 
   public asSprite(): Sprite {

@@ -57,7 +57,7 @@ implements Observer<AddedEntity | RemovedEntity> {
    * @param a The left entity
    * @param b The right entity
    */
-  sort?(a: Entity<ComponentTypeUnion>, b: Entity<ComponentTypeUnion>): number;
+  sort?(a: Entity, b: Entity): number;
 
   /**
    * Optionally specify an initialize handler
@@ -67,10 +67,10 @@ implements Observer<AddedEntity | RemovedEntity> {
 
   /**
    * Update all entities that match this system's types
-   * @param entities Entities to update that match this system's typse
-   * @param elapsedMs Time in milliseconds
+   * @param entities Entities to update that match this system's types
+   * @param delta Time in milliseconds
    */
-  abstract update(entities: Entity<ComponentTypeUnion>[], elapsedMs: number): void;
+  abstract update(entities: Entity[], delta: number): void;
 
   /**
    * Optionally run a preupdate before the system processes matching entities
@@ -95,7 +95,7 @@ implements Observer<AddedEntity | RemovedEntity> {
    * Systems observe when entities match their types or no longer match their types, override
    * @param _entityAddedOrRemoved
    */
-  public notify(_entityAddedOrRemoved: AddedEntity<ComponentTypeUnion> | RemovedEntity) {
+  public notify(_entityAddedOrRemoved: AddedEntity | RemovedEntity) {
     // Override me
   }
 }
@@ -103,9 +103,9 @@ implements Observer<AddedEntity | RemovedEntity> {
 /**
  * An [[Entity]] with [[Component]] types that matches a [[System]] types exists in the current scene.
  */
-export class AddedEntity<Components extends Component = never> implements Message<Entity<Components>> {
+export class AddedEntity implements Message<Entity> {
   readonly type: 'Entity Added' = 'Entity Added';
-  constructor(public data: Entity<Components>) {}
+  constructor(public data: Entity) {}
 }
 
 /**

@@ -2,7 +2,7 @@ import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
-const drawWithTransform = (ctx: CanvasRenderingContext2D, tm: ex.TileMap, delta: number = 1) => {
+const drawWithTransform = (ctx: CanvasRenderingContext2D | ex.Graphics.ExcaliburGraphicsContext, tm: ex.TileMap, delta: number = 1) => {
   ctx.save();
   ctx.translate(tm.pos.x, tm.pos.y);
   ctx.rotate(tm.rotation);
@@ -13,6 +13,7 @@ const drawWithTransform = (ctx: CanvasRenderingContext2D, tm: ex.TileMap, delta:
 
 describe('A TileMap', () => {
   let engine: ex.Engine;
+  let scene: ex.Scene;
   let texture: ex.Texture;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -20,6 +21,9 @@ describe('A TileMap', () => {
       width: 800,
       height: 200
     });
+    scene = new ex.Scene();
+    engine.addScene('root', scene);
+    engine.start();
 
     texture = new ex.Texture('base/src/spec/images/TileMapSpec/Blocks.png', true);
   });
@@ -61,13 +65,13 @@ describe('A TileMap', () => {
         cols: 7
       });
       const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
-      tm.registerSpriteSheet('default', spriteTiles);
       tm.data.forEach(function (cell: ex.Cell) {
         cell.solid = true;
-        cell.pushSprite(new ex.TileSprite('default', 0));
+        cell.addSprite(spriteTiles.sprites[0]);
       });
+      tm._initialize(engine);
 
-      drawWithTransform(engine.ctx, tm, 100);
+      drawWithTransform(engine.graphicsContext, tm, 100);
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/TileMapSpec/TileMap.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
@@ -87,14 +91,15 @@ describe('A TileMap', () => {
         cols: 20
       });
       const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
-      tm.registerSpriteSheet('default', spriteTiles);
       tm.data.forEach(function (cell: ex.Cell) {
         cell.solid = true;
-        cell.pushSprite(new ex.TileSprite('default', 0));
+        cell.addSprite(spriteTiles.sprites[0]);
       });
+      tm._initialize(engine);
 
       tm.update(engine, 100);
-      drawWithTransform(engine.ctx, tm, 100);
+
+      drawWithTransform(engine.graphicsContext, tm, 100);
 
       ensureImagesLoaded(engine.canvas, 'src/spec/images/TileMapSpec/TileMapCulling.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);

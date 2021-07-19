@@ -28,12 +28,10 @@ var tm = new ex.TileMap({
   rows: 40
 });
 
-var tilesprite = new ex.TileSprite('root', 0);
-
-tm.registerSpriteSheet('root', ss);
+var tilesprite = ss.sprites[0];
 
 for (var i = 0; i < tm.rows * tm.cols; i++) {
-  tm.getCellByIndex(i).pushSprite(tilesprite);
+  tm.getCellByIndex(i).addSprite(tilesprite);
 }
 
 game.add(tm);
@@ -41,8 +39,8 @@ game.add(tm);
 game.start(loader).then(() => {
   game.currentScene.camera.move(ex.Vector.Zero.clone(), 2000, ex.EasingFunctions.EaseInOutCubic).then(() => {
     game.currentScene.camera.move(new ex.Vector(600, 600), 2000, ex.EasingFunctions.EaseInOutCubic).then(() => {
-      game.currentScene.camera.zoom(2, 1000).then(() => {
-        game.currentScene.camera.zoom(1, 1000);
+      game.currentScene.camera.zoomOverTime(2, 1000).then(() => {
+        game.currentScene.camera.zoomOverTime(1, 1000);
       });
     });
   });

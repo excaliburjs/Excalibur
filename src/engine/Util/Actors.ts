@@ -5,7 +5,7 @@ import { Trigger } from '../Trigger';
 
 /**
  * Type guard to detect if something is an actor
- * @deprecated
+ * @deprecated Will be removed in v0.26.0
  * @param actor
  */
 export function isVanillaActor(actor: Actor) {
@@ -14,7 +14,7 @@ export function isVanillaActor(actor: Actor) {
 
 /**
  * Type guard to detect a screen element
- * TODO: Move to screen element
+ * @todo move to ScreenElement
  */
 export function isScreenElement(actor: Actor) {
   return actor instanceof ScreenElement;

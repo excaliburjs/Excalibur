@@ -43,7 +43,7 @@ describe('The engine', () => {
       suppressPlayButton: false
     });
     (<any>engine)._suppressPlayButton = false;
-    engine.currentScene = scene;
+    engine.addScene('root', scene);
 
     loop = mock.loop(engine);
 
@@ -57,12 +57,18 @@ describe('The engine', () => {
     }, 600);
   });
 
+  it('should have a default resolution to SVGA (800x600) if none specified', () => {
+    const engine = new ex.Engine();
+    expect(engine.screen.displayMode).toBe(ex.DisplayMode.Fit);
+    expect(engine.screen.resolution.width).toBe(800);
+    expect(engine.screen.resolution.height).toBe(600);
+  });
+
   it('should not show the play button when suppressPlayButton is turned on', (done) => {
     reset();
     engine = TestUtils.engine({
       suppressPlayButton: true
     });
-    engine.currentScene = scene;
     engine.currentScene.add(
       new ex.Actor({
         pos: new ex.Vector(250, 250),
@@ -186,7 +192,7 @@ describe('The engine', () => {
 
   it('should return correct screen dimensions if zoomed in', () => {
     engine.start();
-    engine.currentScene.camera.z = 2;
+    engine.currentScene.camera.zoom = 2;
 
     expect(engine.drawHeight).toBe(250);
     expect(engine.drawWidth).toBe(250);

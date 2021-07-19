@@ -1,0 +1,53 @@
+name: Deploy
+on:
+  push:
+    branches: [ main ]
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+jobs:
+  deploy_alpha:
+    name: Publish alpha npm package
+    runs-on: [ubuntu-latest]
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+        fetch-depth: 100
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        registry-url: 'https://registry.npmjs.org'
+    - uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+    - run: npm ci
+    - run: npm run core
+    - run: echo "alpha_version=$(node -e "console.log(require('./version').getCiVersion(null, false));")" >> $GITHUB_ENV
+    - run: echo $alpha_version
+    - run: npm --no-git-tag-version version $alpha_version
+    - run: npm publish --tag next
+
+  docs:
+    name: docs
+    runs-on: [ubuntu-latest]
+    # needs: deploy # to update homepage with latest release
+
+    steps:
+    - name: Trigger docs deployment
+      uses: peter-evans/repository-dispatch@v1.1.3
+      with:
+        repository: excaliburjs/excaliburjs.github.io
+        token: ${{ secrets.DOCS_GH_TOKEN }}
+        event-type: deploy-docs

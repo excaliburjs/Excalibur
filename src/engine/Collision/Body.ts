@@ -1,17 +1,17 @@
-import { Vector } from '../Algebra';
 import { Collider } from './Shapes/Collider';
+import { vec, Vector } from '../Algebra';
+import { CollisionType } from './CollisionType';
+import { Physics } from '../Physics';
 import { Clonable } from '../Interfaces/Clonable';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { Component } from '../EntityComponentSystem/Component';
 import { Entity } from '../EntityComponentSystem/Entity';
-import { CollisionType } from './CollisionType';
 import { BoundingBox } from './BoundingBox';
 import { Shape } from './Shapes/Shape';
 import { CollisionGroup } from './Group/CollisionGroup';
 import { EventDispatcher } from '../EventDispatcher';
 import { CollisionContact } from './Detection/CollisionContact';
-import { Physics } from './Physics';
 import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisionEvent } from '../Events';
 import { createId, Id } from '../Id';
 import { clamp } from '../Util/Util';
@@ -289,11 +289,11 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   }
 
   public get transform(): TransformComponent {
-    return (this.owner as Entity<TransformComponent>)?.components?.transform;
+    return this.owner?.get(TransformComponent);
   }
 
   public get motion(): MotionComponent {
-    return (this.owner as Entity<MotionComponent>)?.components?.motion;
+    return this.owner?.get(MotionComponent);
   }
 
   /**
@@ -302,11 +302,11 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
    */
   public get pos(): Vector {
-    return this.transform.pos;
+    return this.transform.globalPos;
   }
 
   public set pos(val: Vector) {
-    this.transform.pos = val;
+    this.transform.globalPos = val;
   }
 
   /**
@@ -367,28 +367,24 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
    * The rotation of the body in radians
    */
   public get rotation() {
-    return this.transform.rotation;
+    return this.transform.globalRotation;
   }
 
 
   public set rotation(val: number) {
-    this.transform.rotation = val;
+    this.transform.globalRotation = val;
   }
 
   /**
    * The scale vector of the actor
-   * @obsolete ex.Body.scale will be removed in v0.25.0
+   * @obsolete ex.Body.scale will be removed in v0.25.0, Use ex.Transform.scale
    */
   public get scale(): Vector {
-    return this.transform.scale;
+    return this.transform.globalScale;
   }
 
-  /**
-   * The scale vector of the actor
-   * @obsolete ex.Body.scale will be removed in v0.25.0
-   */
-  public set scale(scale: Vector) {
-    this.transform.scale = scale;
+  public set scale(val: Vector) {
+    this.transform.globalScale = val;
   }
 
   /**

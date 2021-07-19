@@ -7,28 +7,35 @@ import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
 import { clamp } from '../Util/Util';
 import { Configurable } from '../Configurable';
+import { obsolete } from '../Util/Decorators';
 
 /**
  * @hidden
+ * @deprecated Use [[Graphics.Sprite]]
  */
 export class SpriteImpl implements Drawable {
-  private _texture: Texture;
+  public texture: Texture;
 
   public x: number = 0;
   public y: number = 0;
 
   public get drawWidth(): number {
-    return this.width * this.scale.x;
+    return Math.abs(this.width * this.scale.x);
   }
 
   public get drawHeight(): number {
-    return this.height * this.scale.y;
+    return Math.abs(this.height * this.scale.y);
   }
 
   public rotation: number = 0.0;
-  public anchor: Vector = new Vector(0.0, 0.0);
+  public anchor: Vector = Vector.Half;
   public offset: Vector = Vector.Zero;
   public scale: Vector = Vector.One;
+  /**
+   * Default: false, should the sprite be drawn around the anchor or from the top left.
+   * Sprite rotations/scaling still happen around the anchor regardless of this setting.
+   */
+  public drawAroundAnchor = false;
 
   public logger: Logger = Logger.getInstance();
 
@@ -77,7 +84,7 @@ export class SpriteImpl implements Drawable {
     this.x = x || 0;
     this.y = y || 0;
 
-    this._texture = image as Texture;
+    this.texture = image as Texture;
     this._spriteCanvas = document.createElement('canvas');
     this._spriteCanvas.width = width;
     this._spriteCanvas.height = height;
@@ -90,7 +97,7 @@ export class SpriteImpl implements Drawable {
 
   private async _initPixelsFromTexture() {
     try {
-      const image = await this._texture.loaded;
+      const image = await this.texture.loaded;
       this.width = this.width || image.naturalWidth;
       this.height = this.height || image.naturalHeight;
       this._spriteCanvas.width = this._spriteCanvas.width || image.naturalWidth;
@@ -98,18 +105,18 @@ export class SpriteImpl implements Drawable {
       this._loadPixels();
       this._dirtyEffect = true;
     } catch (e) {
-      this.logger.error('Error loading texture ', this._texture.path, e);
+      this.logger.error('Error loading texture ', this.texture.path, e);
     }
   }
 
   private _loadPixels() {
-    if (this._texture.isLoaded() && !this._pixelsLoaded) {
-      const naturalWidth = this._texture.image.naturalWidth || 0;
-      const naturalHeight = this._texture.image.naturalHeight || 0;
+    if (this.texture.isLoaded() && !this._pixelsLoaded) {
+      const naturalWidth = this.texture.image.naturalWidth || 0;
+      const naturalHeight = this.texture.image.naturalHeight || 0;
 
       if (this.width > naturalWidth) {
         this.logger.warn(`The sprite width ${this.width} exceeds the width 
-                              ${naturalWidth} of the backing texture ${this._texture.path}`);
+                              ${naturalWidth} of the backing texture ${this.texture.path}`);
       }
 
       if (this.width <= 0 || naturalWidth <= 0) {
@@ -118,7 +125,7 @@ export class SpriteImpl implements Drawable {
 
       if (this.height > naturalHeight) {
         this.logger.warn(`The sprite height ${this.height} exceeds the height 
-                              ${naturalHeight} of the backing texture ${this._texture.path}`);
+                              ${naturalHeight} of the backing texture ${this.texture.path}`);
       }
 
       if (this.height <= 0 || naturalHeight <= 0) {
@@ -132,12 +139,12 @@ export class SpriteImpl implements Drawable {
   }
 
   private _flushTexture() {
-    const naturalWidth = this._texture.image.naturalWidth || 0;
-    const naturalHeight = this._texture.image.naturalHeight || 0;
+    const naturalWidth = this.texture.image.naturalWidth || 0;
+    const naturalHeight = this.texture.image.naturalHeight || 0;
 
     this._spriteCtx.clearRect(0, 0, this.width, this.height);
     this._spriteCtx.drawImage(
-      this._texture.image,
+      this.texture.image,
       clamp(this.x, 0, naturalWidth),
       clamp(this.y, 0, naturalHeight),
       clamp(this.width, 0, naturalWidth),
@@ -222,7 +229,7 @@ export class SpriteImpl implements Drawable {
     this.effects.push(effect);
     // We must check if the texture and the backing sprite pixels are loaded as well before
     // an effect can be applied
-    if (!this._texture.isLoaded() || !this._pixelsLoaded) {
+    if (!this.texture.isLoaded() || !this._pixelsLoaded) {
       this._dirtyEffect = true;
     } else {
       this._applyEffects();
@@ -257,7 +264,7 @@ export class SpriteImpl implements Drawable {
 
     // We must check if the texture and the backing sprite pixels are loaded as well before
     // an effect can be applied
-    if (!this._texture.isLoaded() || !this._pixelsLoaded) {
+    if (!this.texture.isLoaded() || !this._pixelsLoaded) {
       this._dirtyEffect = true;
     } else {
       this._applyEffects();
@@ -265,7 +272,6 @@ export class SpriteImpl implements Drawable {
   }
 
   private _applyEffects() {
-
     this._flushTexture();
 
     if (this.effects.length > 0) {
@@ -337,8 +343,8 @@ export class SpriteImpl implements Drawable {
     const { ctx, x, y, rotation, drawWidth, drawHeight, anchor, offset, opacity, flipHorizontal, flipVertical } = {
       ...options,
       rotation: options.rotation ?? this.rotation,
-      drawWidth: options.drawWidth ?? this.drawWidth,
-      drawHeight: options.drawHeight ?? this.drawHeight,
+      drawWidth: options.drawWidth ?? this.width,
+      drawHeight: options.drawHeight ?? this.height,
       flipHorizontal: options.flipHorizontal ?? this.flipHorizontal,
       flipVertical: options.flipVertical ?? this.flipVertical,
       anchor: options.anchor ?? this.anchor,
@@ -349,13 +355,31 @@ export class SpriteImpl implements Drawable {
     if (this._dirtyEffect) {
       this._applyEffects();
     }
-
     // calculating current dimensions
+    const anchorX = drawWidth * anchor.x + offset.x;
+    const anchorY = drawHeight * anchor.y + offset.y;
+    const scaleDirX = this.scale.x > 0 ? 1 : -1;
+    const scaleDirY = this.scale.y > 0 ? 1 : -1;
+
     ctx.save();
-    const xpoint = drawWidth * anchor.x + offset.x;
-    const ypoint = drawHeight * anchor.y + offset.y;
+    // Move the draw point of origin
     ctx.translate(x, y);
+
+    // Rotate and scale around anchor point
+    // This requires a bit of explaination, scale coordinates first positive flipping or rotating
+    ctx.scale(Math.abs(this.scale.x), Math.abs(this.scale.y));
+
+    if (this.drawAroundAnchor) {
+      // In the case where you want the anchor to match with the point of draw
+      // Otherwise sprites are always drawn from top-left
+      ctx.translate(-anchorX, -anchorY);
+    }
+
+    ctx.translate(anchorX, anchorY);
     ctx.rotate(rotation);
+    // This is for handling direction changes 1 or -1, that way we don't have mismatched translates()
+    ctx.scale(scaleDirX, scaleDirY);
+    ctx.translate(-anchorX, -anchorY);
 
     if (flipHorizontal) {
       ctx.translate(drawWidth, 0);
@@ -366,12 +390,21 @@ export class SpriteImpl implements Drawable {
       ctx.translate(0, drawHeight);
       ctx.scale(1, -1);
     }
-
     const oldAlpha = ctx.globalAlpha;
     ctx.globalAlpha = opacity ?? 1;
-    ctx.drawImage(this._spriteCanvas, 0, 0, this.width, this.height, -xpoint, -ypoint, drawWidth, drawHeight);
+    // Context is already rotated and scaled
+    ctx.drawImage(
+      this._spriteCanvas,
+      0,
+      0,
+      this.width,
+      this.height, // source
+      0,
+      0,
+      this.width,
+      this.height
+    ); // dest
     ctx.globalAlpha = oldAlpha;
-
     ctx.restore();
   }
 
@@ -379,7 +412,8 @@ export class SpriteImpl implements Drawable {
    * Produces a copy of the current sprite
    */
   public clone(): SpriteImpl {
-    const result = new Sprite(this._texture, this.x, this.y, this.width, this.height);
+    const result = new Sprite(this.texture, this.x, this.y, this.width, this.height);
+    result.anchor = this.anchor.clone();
     result.scale = this.scale.clone();
     result.rotation = this.rotation;
     result.flipHorizontal = this.flipHorizontal;
@@ -393,6 +427,9 @@ export class SpriteImpl implements Drawable {
   }
 }
 
+/**
+ * @deprecated Use [[Graphics.Sprite]]
+ */
 export interface SpriteArgs extends Partial<SpriteImpl> {
   image?: Texture;
   x?: number;
@@ -408,7 +445,12 @@ export interface SpriteArgs extends Partial<SpriteImpl> {
 /**
  * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
  * images or parts of images from a [[Texture]] resource to the screen.
+ * @deprecated Use [[Graphics.Sprite]]
  */
+@obsolete({
+  message: 'Label.clearTextShadow will be removed in v0.26.0',
+  alternateMethod: 'Use Label.font.shadow'
+})
 export class Sprite extends Configurable(SpriteImpl) {
   constructor(config: SpriteArgs);
   constructor(image: Texture, x: number, y: number, width: number, height: number);

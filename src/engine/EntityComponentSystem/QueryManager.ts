@@ -53,7 +53,9 @@ export class QueryManager {
    */
   public removeComponent(entity: Entity, component: Component) {
     for (const queryType in this._queries) {
-      if (this._queries[queryType].matches(entity.types.concat([component.type]))) {
+      // If the component being removed from an entity is a part of a query,
+      // it is now disqualified from that query, remove it
+      if (this._queries[queryType].contain(component.type)) {
         this._queries[queryType].removeEntity(entity);
       }
     }

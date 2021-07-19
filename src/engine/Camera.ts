@@ -1,6 +1,6 @@
 import { Engine } from './Engine';
 import { EasingFunction, EasingFunctions } from './Util/EasingFunctions';
-import { Vector } from './Algebra';
+import { Vector, vec } from './Algebra';
 import { Actor } from './Actor';
 import { removeItemFromArray } from './Util/Util';
 import { CanUpdate, CanInitialize } from './Interfaces/LifecycleEvents';
@@ -9,6 +9,7 @@ import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
 import { Logger } from './Util/Log';
 import { Debug } from './Debug';
+import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -209,19 +210,21 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
       this.boundSizeChecked = true;
     }
 
+    let focusX = focus.x;
+    let focusY = focus.y;
     if (focus.x < target.left + _eng.halfDrawWidth) {
-      focus.x = target.left + _eng.halfDrawWidth;
+      focusX = target.left + _eng.halfDrawWidth;
     } else if (focus.x > target.right - _eng.halfDrawWidth) {
-      focus.x = target.right - _eng.halfDrawWidth;
+      focusX = target.right - _eng.halfDrawWidth;
     }
 
     if (focus.y < target.top + _eng.halfDrawHeight) {
-      focus.y = target.top + _eng.halfDrawHeight;
+      focusY = target.top + _eng.halfDrawHeight;
     } else if (focus.y > target.bottom - _eng.halfDrawHeight) {
-      focus.y = target.bottom - _eng.halfDrawHeight;
+      focusY = target.bottom - _eng.halfDrawHeight;
     }
 
-    return focus;
+    return vec(focusX, focusY);
   };
 }
 
@@ -243,7 +246,18 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   /**
    * Get or set current zoom of the camera, defaults to 1
    */
-  public z: number = 1;
+  private _z = 1;
+  public get zoom(): number {
+    return this._z;
+  }
+
+  public set zoom(val: number) {
+    this._z = val;
+    if (this._engine) {
+      this._halfWidth = this._engine.halfDrawWidth;
+      this._halfHeight = this._engine.halfDrawHeight;
+    }
+  }
   /**
    * Get or set rate of change in zoom, defaults to 0
    */
@@ -317,6 +331,9 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   private _zoomEasing: EasingFunction = EasingFunctions.EaseInOutCubic;
   private _easing: EasingFunction = EasingFunctions.EaseInOutCubic;
 
+  private _halfWidth: number = 0;
+  private _halfHeight: number = 0;
+
   /**
    * Get the camera's x position
    */
@@ -329,7 +346,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    */
   public set x(value: number) {
     if (!this._follow && !this._cameraMoving) {
-      this.pos.x = value;
+      this.pos = vec(value, this.pos.y);
     }
   }
 
@@ -345,7 +362,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    */
   public set y(value: number) {
     if (!this._follow && !this._cameraMoving) {
-      this.pos.y = value;
+      this.pos = vec(this.pos.x, value);
     }
   }
 
@@ -357,7 +374,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   public set dx(value: number) {
-    this.vel.x = value;
+    this.vel = vec(value, this.vel.y);
   }
 
   /**
@@ -368,7 +385,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   public set dy(value: number) {
-    this.vel.y = value;
+    this.vel = vec(this.vel.x, value);
   }
 
   /**
@@ -379,7 +396,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   public set ax(value: number) {
-    this.acc.x = value;
+    this.acc = vec(value, this.acc.y);
   }
 
   /**
@@ -390,7 +407,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   public set ay(value: number) {
-    this.acc.y = value;
+    this.acc = vec(this.acc.x, value);
   }
 
   /**
@@ -456,7 +473,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * @param scale    The scale of the zoom
    * @param duration The duration of the zoom in milliseconds
    */
-  public zoom(scale: number, duration: number = 0, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): Promise<boolean> {
+  public zoomOverTime(scale: number, duration: number = 0, easingFn: EasingFunction = EasingFunctions.EaseInOutCubic): Promise<boolean> {
     this._zoomPromise = new Promise<boolean>((resolve) => {
       this._zoomResolve = resolve;
     });
@@ -466,34 +483,26 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       this._zoomEasing = easingFn;
       this._currentZoomTime = 0;
       this._zoomDuration = duration;
-      this._zoomStart = this.z;
+      this._zoomStart = this.zoom;
       this._zoomEnd = scale;
     } else {
       this._isZooming = false;
-      this.z = scale;
+      this.zoom = scale;
       return Promise.resolve(true);
     }
 
     return this._zoomPromise;
   }
 
-  /**
-   * Gets the current zoom scale
-   */
-  public getZoom() {
-    return this.z;
-  }
-
+  private _viewport: BoundingBox = null;
   /**
    * Gets the bounding box of the viewport of this camera in world coordinates
    */
   public get viewport(): BoundingBox {
-    if (this._engine) {
-      const halfWidth = this._engine.halfDrawWidth;
-      const halfHeight = this._engine.halfDrawHeight;
-
-      return new BoundingBox(this.x - halfWidth, this.y - halfHeight, this.x + halfWidth, this.y + halfHeight);
+    if (this._viewport) {
+      return this._viewport;
     }
+
     return new BoundingBox(0, 0, 0, 0);
   }
 
@@ -572,6 +581,8 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       super.emit('initialize', new InitializeEvent(_engine, this));
       this._isInitialized = true;
       this._engine = _engine;
+      this._halfWidth = this._engine.halfDrawWidth;
+      this._halfHeight = this._engine.halfDrawHeight;
     }
   }
 
@@ -613,7 +624,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
     // Update placements based on linear algebra
     this.pos = this.pos.add(this.vel.scale(delta / 1000));
-    this.z += (this.dz * delta) / 1000;
+    this.zoom += (this.dz * delta) / 1000;
 
     this.vel = this.vel.add(this.acc.scale(delta / 1000));
     this.dz += (this.az * delta) / 1000;
@@ -625,11 +636,11 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
         const zoomEasing = this._zoomEasing;
         const newZoom = zoomEasing(this._currentZoomTime, this._zoomStart, this._zoomEnd, this._zoomDuration);
 
-        this.z = newZoom;
+        this.zoom = newZoom;
         this._currentZoomTime += delta;
       } else {
         this._isZooming = false;
-        this.z = this._zoomEnd;
+        this.zoom = this._zoomEnd;
         this._currentZoomTime = 0;
         this._zoomResolve(true);
       }
@@ -675,6 +686,13 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       this.pos = s.action.call(s, s.target, this, _engine, delta);
     }
 
+    this._viewport = new BoundingBox(
+      this.x - this._halfWidth,
+      this.y - this._halfHeight,
+      this.x + this._halfWidth,
+      this.y + this._halfHeight
+    );
+
     this._postupdate(_engine, delta);
   }
 
@@ -682,12 +700,21 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
    * @param ctx    Canvas context to apply transformations
    */
-  public draw(ctx: CanvasRenderingContext2D) {
+  public draw(ctx: CanvasRenderingContext2D): void;
+  public draw(ctx: ExcaliburGraphicsContext): void;
+  public draw(ctx: CanvasRenderingContext2D | ExcaliburGraphicsContext): void {
+    let canvasWidth = 0;
+    let canvasHeight = 0;
+    if (ctx instanceof CanvasRenderingContext2D) {
+      canvasWidth = ctx.canvas.width;
+      canvasHeight = ctx.canvas.height;
+    } else {
+      canvasWidth = ctx.width;
+      canvasHeight = ctx.height;
+    }
     const focus = this.getFocus();
-    const canvasWidth = ctx.canvas.width;
-    const canvasHeight = ctx.canvas.height;
-    const pixelRatio = this._engine ? this._engine.pixelRatio : window.devicePixelRatio;
-    const zoom = this.getZoom();
+    const pixelRatio = this._engine ? this._engine.pixelRatio : 1;
+    const zoom = this.zoom;
 
     const newCanvasWidth = canvasWidth / zoom / pixelRatio;
     const newCanvasHeight = canvasHeight / zoom / pixelRatio;

@@ -41,11 +41,11 @@ describe('A query', () => {
     const queryAB = new ex.Query(['A', 'B']);
     const compA = new FakeComponent('A');
     const compB = new FakeComponent('B');
-    const entity1 = new ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>();
+    const entity1 = new ex.Entity();
     entity1.addComponent(compA);
     entity1.addComponent(compB);
 
-    const entity2 = new ex.Entity<FakeComponent<'A'>>();
+    const entity2 = new ex.Entity();
     entity2.addComponent(compA);
 
     queryAB.addEntity(entity1);
@@ -59,11 +59,11 @@ describe('A query', () => {
     const queryAB = new ex.Query(['A', 'B']);
     const compA = new FakeComponent('A');
     const compB = new FakeComponent('B');
-    const entity1 = new ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>();
+    const entity1 = new ex.Entity();
     entity1.addComponent(compA);
     entity1.addComponent(compB);
 
-    const entity2 = new ex.Entity<FakeComponent<'A'>>();
+    const entity2 = new ex.Entity();
     entity2.addComponent(compA);
 
     queryAB.addEntity(entity1);
@@ -80,7 +80,7 @@ describe('A query', () => {
     const queryAB = new ex.Query(['A', 'B']);
     const compA = new FakeComponent('A');
     const compB = new FakeComponent('B');
-    const entity1 = new ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>();
+    const entity1 = new ex.Entity();
     entity1.addComponent(compA);
     entity1.addComponent(compB);
 
@@ -99,7 +99,7 @@ describe('A query', () => {
     const queryAB = new ex.Query(['A', 'B']);
     const compA = new FakeComponent('A');
     const compB = new FakeComponent('B');
-    const entity1 = new ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>();
+    const entity1 = new ex.Entity();
     entity1.addComponent(compA);
     entity1.addComponent(compB);
     queryAB.addEntity(entity1);
@@ -119,7 +119,7 @@ describe('A query', () => {
     const queryAB = new ex.Query(['A', 'B']);
     const compA = new FakeComponent('A');
     const compB = new FakeComponent('B');
-    const entity1 = new ex.Entity<FakeComponent<'A'> | FakeComponent<'B'>>();
+    const entity1 = new ex.Entity();
     entity1.addComponent(compA);
     entity1.addComponent(compB);
 

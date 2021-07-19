@@ -51,7 +51,7 @@ describe('A game actor', () => {
   });
 
   it('should have a position', () => {
-    actor.pos.setTo(10, 10);
+    actor.pos = ex.vec(10, 10);
 
     expect(actor.pos.x).toBe(10);
     expect(actor.pos.y).toBe(10);
@@ -102,18 +102,18 @@ describe('A game actor', () => {
     const actor = new ex.Actor();
     expect(actor.anchor.toString()).toEqual('(0.5, 0.5)');
 
-    ex.Actor.defaults.anchor.setTo(0, 0);
+    ex.Actor.defaults.anchor = ex.vec(0, 0);
 
     const actor2 = new ex.Actor();
     expect(actor2.anchor.toString()).toEqual('(0, 0)');
 
     // revert changes back
-    ex.Actor.defaults.anchor.setTo(0.5, 0.5);
+    ex.Actor.defaults.anchor = ex.vec(0.5, 0.5);
   });
 
   it('should have an old position after an update', () => {
-    actor.pos.setTo(10, 10);
-    actor.vel.setTo(10, 10);
+    actor.pos = ex.vec(10, 10);
+    actor.vel = ex.vec(10, 10);
 
     motionSystem.update([actor], 1000);
 
@@ -136,8 +136,7 @@ describe('A game actor', () => {
     expect(actor.pos.y).toBe(0);
     expect(actor.pos.x).toBe(0);
 
-    actor.vel.y = 10;
-    actor.vel.x = -10;
+    actor.vel = ex.vec(-10, 10);
     expect(actor.pos.x).toBe(0);
     expect(actor.pos.y).toBe(0);
 
@@ -151,9 +150,9 @@ describe('A game actor', () => {
   });
 
   it('should have an old velocity after an update', () => {
-    actor.pos.setTo(0, 0);
-    actor.vel.setTo(10, 10);
-    actor.acc.setTo(10, 10);
+    actor.pos = ex.vec(0, 0);
+    actor.vel = ex.vec(10, 10);
+    actor.acc = ex.vec(10, 10);
 
     motionSystem.update([actor], 1000);
 
@@ -172,30 +171,28 @@ describe('A game actor', () => {
     expect(actor.width).toBe(20);
     expect(actor.height).toBe(20);
 
-    actor.scale.x = 2;
-    actor.scale.y = 3;
+    actor.scale = ex.vec(2, 3);
 
     expect(actor.width).toBe(40);
     expect(actor.height).toBe(60);
 
-    actor.scale.x = 0.5;
-    actor.scale.y = 0.1;
+    actor.scale = ex.vec(0.5, 0.1);
 
-    expect(actor.width).toBe(10);
-    expect(actor.height).toBe(2);
+    expect(actor.width).toBeCloseTo(10);
+    expect(actor.height).toBeCloseTo(2);
   });
 
   it('can have its height and width scaled by parent', () => {
-    actor.scale.setTo(2, 2);
+    actor.scale = ex.vec(2, 2);
 
     const child = new ex.Actor({width: 50, height: 50});
 
-    actor.add(child);
+    actor.addChild(child);
 
     expect(child.width).toBe(100);
     expect(child.height).toBe(100);
 
-    actor.scale.setTo(0.5, 0.5);
+    actor.scale = ex.vec(0.5, 0.5);
 
     expect(child.width).toBe(25);
     expect(child.height).toBe(25);
@@ -211,8 +208,7 @@ describe('A game actor', () => {
     expect(center.x).toBe(0);
     expect(center.y).toBe(0);
 
-    actor.pos.x = 100;
-    actor.pos.y = 100;
+    actor.pos = ex.vec(100, 100);
 
     center = actor.center;
     expect(center.x).toBe(100);
@@ -220,15 +216,13 @@ describe('A game actor', () => {
 
     // changing the anchor
     actor.anchor = new ex.Vector(0, 0);
-    actor.pos.x = 0;
-    actor.pos.y = 0;
+    actor.pos = ex.vec(0, 0);
 
     center = actor.center;
     expect(center.x).toBe(25);
     expect(center.y).toBe(50);
 
-    actor.pos.x = 100;
-    actor.pos.y = 100;
+    actor.pos = ex.vec(100, 100);
 
     center = actor.center;
     expect(center.x).toBe(125);
@@ -331,102 +325,102 @@ describe('A game actor', () => {
   it('is rotated along with its parent', () => {
     const rotation = ex.Util.toRadians(90);
 
-    actor.pos.setTo(10, 10);
+    actor.pos = ex.vec(10, 10);
     actor.rotation = rotation;
 
     const child = new ex.Actor({x: 10, y: 0, width: 10, height: 10}); // (20, 10)
 
-    actor.add(child);
+    actor.addChild(child);
     motionSystem.update([actor], 100);
 
-    expect(child.getWorldPos().x).toBeCloseTo(10, 0.001);
-    expect(child.getWorldPos().y).toBeCloseTo(20, 0.001);
+    expect(child.getGlobalPos().x).toBeCloseTo(10, 0.001);
+    expect(child.getGlobalPos().y).toBeCloseTo(20, 0.001);
   });
 
   it('is rotated along with its grandparent', () => {
     const rotation = ex.Util.toRadians(90);
 
-    actor.pos.setTo(10, 10);
+    actor.pos = ex.vec(10, 10);
     actor.rotation = rotation;
 
     const child =      new ex.Actor({x: 10, y: 0, width: 10, height: 10}); // (20, 10)
     const grandchild = new ex.Actor({x: 10, y: 0, width: 10, height: 10}); // (30, 10)
 
-    actor.add(child);
-    child.add(grandchild);
+    actor.addChild(child);
+    child.addChild(grandchild);
     motionSystem.update([actor], 100);
 
-    expect(grandchild.getWorldRotation()).toBe(rotation);
-    expect(grandchild.getWorldPos().x).toBeCloseTo(10, 0.001);
-    expect(grandchild.getWorldPos().y).toBeCloseTo(30, 0.001);
+    expect(grandchild.getGlobalRotation()).toBe(rotation);
+    expect(grandchild.getGlobalPos().x).toBeCloseTo(10, 0.001);
+    expect(grandchild.getGlobalPos().y).toBeCloseTo(30, 0.001);
   });
 
   it('is scaled along with its parent', () => {
-    actor.anchor.setTo(0, 0);
-    actor.pos.setTo(10, 10);
-    actor.scale.setTo(2, 2);
+    actor.anchor = ex.vec(0, 0);
+    actor.pos = ex.vec(10, 10);
+    actor.scale = ex.vec(2, 2);
 
     const child = new ex.Actor({x: 10, y: 10, width: 10, height: 10});
 
-    actor.add(child);
+    actor.addChild(child);
     motionSystem.update([actor], 100);
 
-    expect(child.getWorldPos().x).toBe(30);
-    expect(child.getWorldPos().y).toBe(30);
+    expect(child.getGlobalPos().x).toBe(30);
+    expect(child.getGlobalPos().y).toBe(30);
   });
 
   it('is scaled along with its grandparent', () => {
-    actor.anchor.setTo(0, 0);
-    actor.pos.setTo(10, 10);
-    actor.scale.setTo(2, 2);
+    actor.anchor = ex.vec(0, 0);
+    actor.pos = ex.vec(10, 10);
+    actor.scale = ex.vec(2, 2);
 
     const child =      new ex.Actor({x: 10, y: 10, width: 10, height: 10});
     const grandchild = new ex.Actor({x: 10, y: 10, width: 10, height: 10});
 
-    actor.add(child);
-    child.add(grandchild);
+    actor.addChild(child);
+    child.addChild(grandchild);
     motionSystem.update([actor], 100);
 
     // Logic:
     // p = (10, 10)
     // c = (10 * 2 + 10, 10 * 2 + 10) = (30, 30)
     // gc = (10 * 2 + 30, 10 * 2 + 30) = (50, 50)
-    expect(grandchild.getWorldPos().x).toBe(50);
-    expect(grandchild.getWorldPos().y).toBe(50);
+    expect(grandchild.getGlobalPos().x).toBe(50);
+    expect(grandchild.getGlobalPos().y).toBe(50);
   });
 
   it('is rotated and scaled along with its parent', () => {
     const rotation = ex.Util.toRadians(90);
 
-    actor.pos.setTo(10, 10);
-    actor.scale.setTo(2, 2);
+    actor.pos = ex.vec(10, 10);
+    actor.scale = ex.vec(2, 2);
     actor.rotation = rotation;
 
     const child = new ex.Actor({x: 10, y: 0, width: 10, height: 10}); // (30, 10)
 
-    actor.add(child);
+    actor.addChild(child);
     motionSystem.update([actor], 100);
 
-    expect(child.getWorldPos().x).toBeCloseTo(10, 0.001);
-    expect(child.getWorldPos().y).toBeCloseTo(30, 0.001);
+    expect(child.getGlobalPos().x).toBeCloseTo(10, 0.001);
+    expect(child.getGlobalPos().y).toBeCloseTo(30, 0.001);
   });
 
   it('is rotated and scaled along with its grandparent', () => {
     const rotation = ex.Util.toRadians(90);
 
-    actor.pos.setTo(10, 10);
-    actor.scale.setTo(2, 2);
+    actor.pos = ex.vec(10, 10);
+    actor.scale = ex.vec(2, 2);
     actor.rotation = rotation;
 
     const child =      new ex.Actor({x: 10, y: 0, width: 10, height: 10}); // (30, 10)
     const grandchild = new ex.Actor({x: 10, y: 0, width: 10, height: 10}); // (50, 10)
 
-    actor.add(child);
-    child.add(grandchild);
+    actor.addChild(child);
+    child.addChild(grandchild);
     motionSystem.update([actor], 100);
 
-    expect(grandchild.getWorldPos().x).toBeCloseTo(10, 0.001);
-    expect(grandchild.getWorldPos().y).toBeCloseTo(50, 0.001);
+    expect(grandchild.getGlobalPos().x).toBeCloseTo(10, 0.001);
+    expect(grandchild.getGlobalPos().y).toBeCloseTo(50, 0.001);
   });
 
   it('can find its global coordinates if it has a parent', () => {
@@ -437,7 +431,7 @@ describe('A game actor', () => {
     expect(childActor.pos.x).toBe(50);
     expect(childActor.pos.y).toBe(50);
 
-    actor.add(childActor);
+    actor.addChild(childActor);
 
     actor.actions.moveTo(10, 15, 1000);
     actor.update(engine, 1000);
@@ -445,8 +439,8 @@ describe('A game actor', () => {
     actor.update(engine, 1);
     motionSystem.update([actor], 1);
 
-    expect(childActor.getWorldPos().x).toBe(60);
-    expect(childActor.getWorldPos().y).toBe(65);
+    expect(childActor.getGlobalPos().x).toBe(60);
+    expect(childActor.getGlobalPos().y).toBe(65);
   });
 
   it('can find its global coordinates if it has multiple parents', () => {
@@ -456,8 +450,8 @@ describe('A game actor', () => {
     const childActor =      new ex.Actor({x: 50, y: 50});
     const grandChildActor = new ex.Actor({x: 10, y: 10});
 
-    actor.add(childActor);
-    childActor.add(grandChildActor);
+    actor.addChild(childActor);
+    childActor.addChild(grandChildActor);
 
     actor.actions.moveBy(10, 15, 1000);
     actor.update(engine, 1000);
@@ -465,8 +459,8 @@ describe('A game actor', () => {
     actor.update(engine, 1);
     scene.update(engine, 1);
 
-    expect(grandChildActor.getWorldPos().x).toBe(70);
-    expect(grandChildActor.getWorldPos().y).toBe(75);
+    expect(grandChildActor.getGlobalPos().x).toBe(70);
+    expect(grandChildActor.getGlobalPos().y).toBe(75);
   });
 
   it('can find its global coordinates if it doesnt have a parent', () => {
@@ -479,8 +473,8 @@ describe('A game actor', () => {
     actor.update(engine, 1);
     scene.update(engine, 1);
 
-    expect(actor.getWorldPos().x).toBe(10);
-    expect(actor.getWorldPos().y).toBe(15);
+    expect(actor.getGlobalPos().x).toBe(10);
+    expect(actor.getGlobalPos().y).toBe(15);
   });
 
   it('can be removed from the scene', () => {
@@ -555,6 +549,7 @@ describe('A game actor', () => {
     scene = new ex.Scene();
     engine.addScene('test', scene);
     engine.goToScene('test');
+    engine.start();
 
     const green = new ex.Actor({ x: 35, y: 35, width: 50, height: 50, color: ex.Color.Green });
     const blue = new ex.Actor({ x: 65, y: 65, width: 50, height: 50, color: ex.Color.Blue });
@@ -716,37 +711,37 @@ describe('A game actor', () => {
     const child =  new ex.Actor({x: 0, y: 0, width: 100, height: 100});
     const child2 = new ex.Actor({x: -600, y: -100, width: 100, height: 100});
 
-    parent.add(child);
-    child.add(child2);
+    parent.addChild(child);
+    child.addChild(child2);
 
     // check reality
-    expect(parent.contains(550, 50)).toBeTruthy();
-    expect(parent.contains(650, 150)).toBeTruthy();
+    expect(parent.contains(550.01, 50.01)).withContext('(550.1, 50.1) is top-left of parent should be contained').toBeTruthy();
+    expect(parent.contains(650, 150)).withContext('(650, 150) is bottom-right of parent should be contained').toBeTruthy();
 
     // in world coordinates this should be false
-    expect(child.contains(50, 50)).toBeFalsy();
+    expect(child.contains(50, 50)).withContext('(50, 50) world coords is outside child world pos').toBeFalsy();
 
     // in world coordinates this should be true
-    expect(child.contains(550, 50)).toBeTruthy();
-    expect(child.contains(650, 150)).toBeTruthy();
+    expect(child.contains(550.01, 50.01)).withContext('(550.1, 50.1) world should be top-left of of child').toBeTruthy();
+    expect(child.contains(650, 150)).withContext('(650, 150) world should be bottom-rght of child').toBeTruthy();
 
     // second order child shifted to the origin
-    expect(child2.contains(-50, -50)).toBeTruthy();
-    expect(child2.contains(50, 50)).toBeTruthy();
+    expect(child2.contains(-49.99, -49.99)).withContext('(-50, -50) world should be top left of second order child').toBeTruthy();
+    expect(child2.contains(50, 50)).withContext('(50, 50) world should be bottom right of second order child').toBeTruthy();
   });
 
   it('can recursively check containment', () => {
     const parent = new ex.Actor({x: 0, y: 0, width: 100, height: 100});
     const child =  new ex.Actor({x: 100, y: 100, width: 100, height: 100});
     const child2 = new ex.Actor({x: 100, y: 100, width: 100, height: 100});
-    parent.add(child);
+    parent.addChild(child);
 
     expect(parent.contains(150, 150)).toBeFalsy();
     expect(child.contains(150, 150)).toBeTruthy();
     expect(parent.contains(150, 150, true)).toBeTruthy();
     expect(parent.contains(200, 200, true)).toBeFalsy();
 
-    child.add(child2);
+    child.addChild(child2);
     expect(parent.contains(250, 250, true)).toBeTruthy();
   });
 
@@ -821,7 +816,7 @@ describe('A game actor', () => {
     const parentActor = new ex.Actor();
     const childActor = new ex.Actor();
     scene.add(parentActor);
-    parentActor.add(childActor);
+    parentActor.addChild(childActor);
 
     spyOn(childActor, 'update');
 
@@ -834,7 +829,7 @@ describe('A game actor', () => {
     const parentActor = new ex.Actor();
     const childActor = new ex.Actor();
     scene.add(parentActor);
-    parentActor.add(childActor);
+    parentActor.addChild(childActor);
 
     spyOn(childActor, 'draw');
 
@@ -847,7 +842,7 @@ describe('A game actor', () => {
     const parentActor = new ex.Actor();
     const childActor = new ex.Actor();
     scene.add(parentActor);
-    parentActor.add(childActor);
+    parentActor.addChild(childActor);
 
     spyOn(childActor, 'draw');
 
@@ -926,8 +921,8 @@ describe('A game actor', () => {
     const child = new ex.Actor();
     const grandchild = new ex.Actor();
     let initializeCount = 0;
-    actor.add(child);
-    child.add(grandchild);
+    actor.addChild(child);
+    child.addChild(grandchild);
     actor.on('initialize', () => {
       initializeCount++;
     });
@@ -1334,15 +1329,15 @@ describe('A game actor', () => {
 
       engine.add(actor);
       const s = texture.asSprite();
-      s.scale.setTo(1, 1);
+      s.scale = ex.vec(1, 1);
       actor.addDrawing(s);
 
       const a1 = new ex.Actor({ scale: new ex.Vector(3, 3) });
-      a1.scale.setTo(3, 3);
+      a1.scale = ex.vec(3, 3);
       a1.addDrawing(texture);
 
       const a2 = new ex.Actor({ scale: new ex.Vector(3, 3) });
-      a1.scale.setTo(3, 3);
+      a1.scale = ex.vec(3, 3);
       a2.addDrawing(texture);
 
       a1.draw(engine.ctx, 100);
@@ -1398,7 +1393,7 @@ describe('A game actor', () => {
 
     expect(actor.isOffScreen).toBe(false, 'Actor should be onscreen');
 
-    actor.pos.x = 106;
+    actor.pos = ex.vec(106, actor.pos.y);
     scene.update(engine, 100);
 
     expect(actor.isOffScreen).toBe(true, 'Actor should be offscreen');

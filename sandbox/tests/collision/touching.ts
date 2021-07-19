@@ -21,12 +21,11 @@ ball.on('collisionstart', (evt: ex.CollisionStartEvent) => {
 
 ball.on('collisionend', (evt: ex.CollisionEndEvent) => {
   console.log('Ball was being touched on frame:', game.stats.currFrame.id);
-  evt.actor.vel.setTo(0, speed);
-  evt.actor.vel.y = -speed;
+  evt.actor.vel = ex.vec(0, -speed);
 });
 ball.on('postupdate', function() {
-  if (this.pos.y < 0) {
-    this.vel.y = speed;
+  if (ball.pos.y < 0) {
+    ball.vel = ex.vec(0, speed);
   }
 });
 ball.draw = function(ctx, delta) {

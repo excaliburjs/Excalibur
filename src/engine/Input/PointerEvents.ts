@@ -99,11 +99,28 @@ export class PointerEvent extends GameEvent<Actor> {
     return this.coordinates.worldPos.clone();
   }
 
+  public _canceled = false;
+
+  /**
+   * Cancels pointer event propogation, event will not be transmitted to any other actors
+   */
+  public cancel() {
+    this._canceled = true;
+  }
+
+  /**
+   *
+   * @returns If the event is canceled it will no longer be transmitted to any other actors
+   */
+  public isCanceled(){
+    return this._canceled;
+  }
+
   public propagate(actor: Actor): void {
     this.doAction(actor);
 
-    if (this.bubbles && actor.parent) {
-      this.propagate(actor.parent);
+    if (this.bubbles && !this.isCanceled() && actor.parent) {
+      this.propagate(actor.parent as Actor); // TODO not true
     }
   }
 
@@ -191,8 +208,8 @@ export class PointerMoveEvent extends PointerEvent {
     if (this.pointer.isActorAliveUnderPointer(actor)) {
       this.doAction(actor);
 
-      if (this.bubbles && actor.parent) {
-        this.propagate(actor.parent);
+      if (this.bubbles && !this.isCanceled() && actor.parent) {
+        this.propagate(actor.parent as Actor); // TODO not true
       }
     }
   }
@@ -304,6 +321,23 @@ export class WheelEvent extends GameEvent<Actor> {
     public ev: any
   ) {
     super();
+  }
+
+  private _isCanceled = false;
+
+  /**
+   * Cancels pointer event propogation, event will not be transmitted to any other actors
+   */
+  public cancel() {
+    this._isCanceled = true;
+  }
+
+  /**
+   *
+   * @returns If the event is canceled it will no longer be transmitted to any other actors
+   */
+  public isCanceled() {
+    return this._isCanceled;
   }
 }
 

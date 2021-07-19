@@ -5,7 +5,7 @@ import { Util } from '..';
 
 // Add/Remove entitys and components
 
-export class EntityManager<ContextType> implements Observer<RemovedComponent | AddedComponent> {
+export class EntityManager<ContextType = any> implements Observer<RemovedComponent | AddedComponent> {
   public entities: Entity[] = [];
   public _entityIndex: { [entityId: string]: Entity } = {};
 
@@ -42,11 +42,25 @@ export class EntityManager<ContextType> implements Observer<RemovedComponent | A
    * @param entity
    */
   public addEntity(entity: Entity): void {
-    if (entity) {
+    if (entity && !this._entityIndex[entity.id]) {
       this._entityIndex[entity.id] = entity;
       this.entities.push(entity);
       this._world.queryManager.addEntity(entity);
-      entity.changes.register(this);
+      entity.componentAdded$.register(this);
+      entity.componentRemoved$.register(this);
+
+      // if entity has children
+      entity.children.forEach((c) => this.addEntity(c));
+      entity.childrenAdded$.register({
+        notify: (e => {
+          this.addEntity(e);
+        })
+      });
+      entity.childrenRemoved$.register({
+        notify: (e => {
+          this.removeEntity(e);
+        })
+      });
     }
   }
 
@@ -64,7 +78,13 @@ export class EntityManager<ContextType> implements Observer<RemovedComponent | A
     if (entity) {
       Util.removeItemFromArray(entity, this.entities);
       this._world.queryManager.removeEntity(entity);
-      entity.changes.unregister(this);
+      entity.componentAdded$.unregister(this);
+      entity.componentRemoved$.unregister(this);
+
+      // if entity has children
+      entity.children.forEach((c) => this.removeEntity(c));
+      entity.childrenAdded$.clear();
+      entity.childrenRemoved$.clear();
     }
   }
 

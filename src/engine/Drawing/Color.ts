@@ -218,6 +218,10 @@ export class Color {
     return new Color(newR, newG, newB, newA);
   }
 
+  public equal(color: Color): boolean {
+    return this.toString() === color.toString();
+  }
+
   /**
    * Returns a CSS string representation of a color.
    *
@@ -428,6 +432,13 @@ export class Color {
    */
   public static get Transparent(): Color {
     return Color.fromHex('#FFFFFF00');
+  }
+
+  /**
+   * ExcaliburBlue (#176BAA)
+   */
+  public static get ExcaliburBlue(): Color {
+    return Color.fromHex('#176BAA');
   }
 }
 

@@ -5,12 +5,13 @@ import { CanvasDrawComponent } from './CanvasDrawComponent';
 import { Scene } from '../Scene';
 import { Camera } from '../Camera';
 import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
+import { GraphicsDiagnostics } from '../Graphics/GraphicsDiagnostics';
 
 /**
  * Draws anything with a transform and a "draw" method
  */
 export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawComponent> {
-  public readonly types = ['transform', 'canvas'] as const;
+  public readonly types = ['ex.transform', 'ex.canvas'] as const;
   public systemType = SystemType.Draw;
   public priority = -1;
 
@@ -24,25 +25,26 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
     this._camera = scene.camera;
   }
 
-  public sort(a: Entity<TransformComponent | CanvasDrawComponent>, b: Entity<TransformComponent | CanvasDrawComponent>) {
-    return a.components.transform.z - b.components.transform.z;
+  public sort(a: Entity, b: Entity) {
+    return a.get(TransformComponent).z - b.get(TransformComponent).z;
   }
 
-  public update(entities: Entity<TransformComponent | CanvasDrawComponent>[], delta: number) {
+  public update(entities: Entity[], delta: number) {
     this._clearScreen();
 
     let transform: TransformComponent;
     let canvasdraw: CanvasDrawComponent;
     const length = entities.length;
     for (let i = 0; i < length; i++) {
-      transform = entities[i].components.transform;
-      canvasdraw = entities[i].components.canvas;
-      if ((entities[i] as unknown as Actor).visible && !(entities[i] as unknown as Actor).isOffScreen) {
+      if ((entities[i] as Actor).visible && !(entities[i] as Actor).isOffScreen) {
+        transform = entities[i].get(TransformComponent);
+        canvasdraw = entities[i].get(CanvasDrawComponent);
+
         this._ctx.save();
         this._pushCameraTransform(transform);
 
         this._ctx.save();
-        this._applyTransform(entities[i] as unknown as Actor);
+        this._applyTransform(entities[i]);
         canvasdraw.draw(this._ctx, delta);
         this._ctx.restore();
 
@@ -65,20 +67,21 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
       this._camera.debugDraw(this._ctx);
       this._ctx.restore();
     }
+
+    this._engine.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;
+    this._engine.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
   }
 
-  private _applyTransform(actor: Actor) {
-    let parent = actor.parent;
-    while (parent) {
-      this._ctx.translate(parent.pos.x, parent.pos.y);
-      this._ctx.rotate(parent.rotation);
-      this._ctx.scale(parent.scale.x, parent.scale.y);
-      parent = parent.parent;
+  private _applyTransform(entity: Entity) {
+    const ancestors = entity.getAncestors();
+    for (const ancestor of ancestors) {
+      const transform = ancestor?.get(TransformComponent);
+      if (transform) {
+        this._ctx.translate(transform.pos.x, transform.pos.y);
+        this._ctx.rotate(transform.rotation);
+        this._ctx.scale(transform.scale.x, transform.scale.y);
+      }
     }
-
-    this._ctx.translate(actor.pos.x, actor.pos.y);
-    this._ctx.rotate(actor.rotation);
-    this._ctx.scale(actor.scale.x, actor.scale.y);
   }
 
   private _clearScreen(): void {

@@ -1,5 +1,9 @@
 ﻿/// <reference path='../../lib/excalibur.d.ts' />
 
+(function() {
+
+
+
 var width = 600;
 var height = 400;
 var minVel = -200;
@@ -10,8 +14,8 @@ var engine = new ex.Engine({ width: width, height: height, canvasElementId: 'gam
 //engine.showDebug(true);
 ex.Physics.useRealisticPhysics();
 var blockGroup = ex.CollisionGroupManager.create('blocks');
-var blockSprite = blockTexture.asSprite();
-blockSprite.scale.setTo(0.2, 0.2);
+var blockSprite2 = blockTexture.asSprite();
+blockSprite2.scale.setTo(0.2, 0.2);
 
 var player = new ex.Actor({x: width / 2, y: height / 2, width: 30, height: 30, color: ex.Color.Cyan});
 player.body.collisionType = ex.CollisionType.Fixed;
@@ -21,7 +25,7 @@ engine.currentScene.add(player);
 for (var i = 0; i < numActors; i++) {
   var actor = new ex.Actor({x: Math.random() * width, y: Math.random() * height, width: 0.2 * 64, height: 0.2 * 48});
 
-  actor.addDrawing('default', blockSprite.clone());
+  actor.addDrawing('default', blockSprite2.clone());
 
   actor.body.collisionType = ex.CollisionType.Active;
   actor.body.group = blockGroup;
@@ -49,11 +53,12 @@ for (var i = 0; i < numActors; i++) {
     }
   });
 
-  actor.vel.x = ex.Util.randomInRange(minVel, maxVel);
-  actor.vel.y = ex.Util.randomInRange(minVel, maxVel);
+  actor.vel = ex.vec(ex.Util.randomInRange(minVel, maxVel), ex.Util.randomInRange(minVel, maxVel));
   engine.add(actor);
 }
 
 engine.start(new ex.Loader([blockTexture])).then(() => {
   // do stuff
 });
+
+})();

@@ -13,10 +13,10 @@ active.on('postupdate', () => {
 var fixed = new ex.Actor({x: 0, y: 50, width: 100, height: 100, color: ex.Color.Green});
 fixed.body.collisionType = ex.CollisionType.Fixed;
 
-fixed.actions
-  .moveTo(0, 100, 300)
-  .moveTo(0, 50, 300)
-  .repeatForever();
+fixed.actions.repeatForever(ctx => {
+  ctx.moveTo(0, 100, 300)
+     .moveTo(0, 50, 300)
+});
 
 engine.add(active);
 engine.add(fixed);

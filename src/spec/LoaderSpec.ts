@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { Loader } from '@excalibur';
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
@@ -171,5 +172,65 @@ describe('A loader', () => {
     loader.showPlayButton();
     loader.dispose();
     expect(loader.playButtonRootElement).toBeFalsy();
+  });
+
+  it('can have the enter key pressed to start', (done) => {
+    const loader = new ex.Loader([, , , ,]);
+    loader.loadingBarPosition = ex.vec(0, 0);
+    loader.loadingBarColor = ex.Color.Red;
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.showPlayButton().then(() => {
+      done();
+      loader.dispose();
+    });
+    document.body.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter' }));
+  });
+
+  it('can reload without building root elements', () => {
+    const loader = new ex.Loader([, , ,]);
+    loader.showPlayButton();
+    loader.showPlayButton();
+    loader.showPlayButton();
+    const roots = document.querySelectorAll('#excalibur-play-root');
+    const buttons = document.querySelectorAll('#excalibur-play');
+    expect(roots.length).toBe(1);
+    expect(buttons.length).toBe(1);
+  });
+
+  /**
+   *
+   */
+  function executeMouseEvent(type: string, target: HTMLElement, button: ex.Input.NativePointerButton = null, x: number = 0, y: number = 0) {
+    const evt = new PointerEvent(type, {
+      clientX: x,
+      clientY: y,
+      button: button,
+      bubbles: true
+    });
+
+    target.dispatchEvent(evt);
+  }
+
+  it('does not propagate the start button click to pointers', (done) => {
+    const engine = new ex.Engine({ width: 1000, height: 1000 });
+    const pointerHandler = jasmine.createSpy('pointerHandler');
+    engine.input.pointers.primary.on('up', pointerHandler);
+    const loader = new Loader([new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png')]);
+    engine.start(loader);
+
+    setTimeout(() => {
+      const btn = (loader as any)._playButton;
+      const btnClickHandler = jasmine.createSpy('btnClickHandler');
+      btn.addEventListener('pointerup', btnClickHandler);
+      const rect = btn.getBoundingClientRect();
+      executeMouseEvent('pointerup', btn as any, ex.Input.NativePointerButton.Left, rect.x + rect.width / 2, rect.y + rect.height / 2);
+
+      expect(pointerHandler).not.toHaveBeenCalled();
+      expect(btnClickHandler).toHaveBeenCalled();
+      done();
+    }, 1000);
   });
 });

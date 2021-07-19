@@ -6,7 +6,6 @@ import { Mocks } from './util/Mocks';
 describe('A scaled and rotated actor', () => {
   let actor: ex.Actor;
   let engine: ex.Engine;
-  let scene: ex.Scene;
   const mock = new Mocks.Mocker();
 
   beforeEach(() => {
@@ -18,11 +17,7 @@ describe('A scaled and rotated actor', () => {
     engine = TestUtils.engine({ width: 800, height: 600 });
     engine.setAntialiasing(false);
 
-    scene = new ex.Scene();
-    engine.addScene('test', scene);
-    engine.goToScene('test');
-
-    spyOn(scene, 'draw').and.callThrough();
+    spyOn(engine.rootScene, 'draw').and.callThrough();
     spyOn(actor, 'draw').and.callThrough();
   });
 

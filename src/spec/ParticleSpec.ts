@@ -1,4 +1,4 @@
-import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import { ExcaliburMatchers, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
@@ -11,15 +11,36 @@ const drawWithTransform = (ctx: CanvasRenderingContext2D, actor: ex.Actor, delta
   ctx.restore();
 };
 
+/**
+ *
+ */
+function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = source.width;
+  canvas.height = source.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(source, 0, 0);
+  return canvas;
+}
+
 describe('A particle', () => {
   let engine: ex.Engine;
+  let scene: ex.Scene;
   let texture: ex.Texture;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
-    engine = TestUtils.engine({
-      width: 800,
-      height: 200
-    });
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
+    engine = TestUtils.engine(
+      {
+        width: 800,
+        height: 200,
+        backgroundColor: ex.Color.Transparent
+      },
+      ['use-webgl']
+    );
+    scene = new ex.Scene();
+    engine.addScene('root', scene);
+    engine.start();
 
     texture = new ex.Texture('base/src/spec/images/SpriteFontSpec/SpriteFont.png', true);
   });
@@ -89,7 +110,7 @@ describe('A particle', () => {
     expect(emitter.random.seed).toBe(1337);
   });
 
-  it('should emit particles', (done) => {
+  it('should emit particles', async () => {
     const emitter = new ex.ParticleEmitter({
       pos: new ex.Vector(400, 100),
       width: 20,
@@ -117,17 +138,15 @@ describe('A particle', () => {
       randomRotation: false,
       random: new ex.Random(1337)
     });
-
+    engine.backgroundColor = ex.Color.Transparent;
+    engine.add(emitter);
     emitter.emitParticles(10);
-    emitter.update(engine, 100);
-    emitter.update(engine, 100);
-    emitter.update(engine, 100);
 
-    drawWithTransform(engine.ctx, emitter, 100);
+    engine.currentScene.update(engine, 100);
+    engine.currentScene.update(engine, 100);
+    engine.currentScene.update(engine, 100);
+    engine.currentScene.draw(engine.ctx, 100);
 
-    ensureImagesLoaded(engine.canvas, 'src/spec/images/ParticleSpec/Particles.png').then(([canvas, image]) => {
-      expect(canvas).toEqualImage(image);
-      done();
-    });
+    await expectAsync(flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/ParticleSpec/Particles.png');
   });
 });

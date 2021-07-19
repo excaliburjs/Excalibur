@@ -9,6 +9,11 @@ import * as Traits from './Traits/Index';
 import { Configurable } from './Configurable';
 import { Random } from './Math/Random';
 import { CollisionType } from './Collision/CollisionType';
+import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
+import { GraphicsComponent } from './Graphics/GraphicsComponent';
+import { Entity } from './EntityComponentSystem/Entity';
+import { Graphics } from '.';
+import { CanvasDrawComponent } from './Drawing/Index';
 
 /**
  * An enum that represents the types of emitter nozzles
@@ -27,7 +32,7 @@ export enum EmitterType {
 /**
  * @hidden
  */
-export class ParticleImpl {
+export class ParticleImpl extends Entity {
   public position: Vector = new Vector(0, 0);
   public velocity: Vector = new Vector(0, 0);
   public acceleration: Vector = new Vector(0, 0);
@@ -60,6 +65,12 @@ export class ParticleImpl {
   public sizeRate: number = 0;
   public elapsedMultiplier: number = 0;
 
+  public visible = true;
+  public isOffscreen = false;
+
+  public transform: TransformComponent;
+  public graphics: GraphicsComponent;
+
   constructor(
     emitterOrConfig: ParticleEmitter | ParticleArgs,
     life?: number,
@@ -72,6 +83,7 @@ export class ParticleImpl {
     startSize?: number,
     endSize?: number
   ) {
+    super();
     let emitter = emitterOrConfig;
     if (emitter && !(emitterOrConfig instanceof ParticleEmitter)) {
       const config = emitterOrConfig;
@@ -92,7 +104,7 @@ export class ParticleImpl {
     this.endColor = endColor || this.endColor.clone();
     this.beginColor = beginColor || this.beginColor.clone();
     this._currentColor = this.beginColor.clone();
-    this.position = position || this.position;
+    this.position = (position || this.position).add(this.emitter.pos);
     this.velocity = velocity || this.velocity;
     this.acceleration = acceleration || this.acceleration;
     this._rRate = (this.endColor.r - this.beginColor.r) / this.life;
@@ -107,13 +119,34 @@ export class ParticleImpl {
       this.sizeRate = (this.endSize - this.startSize) / this.life;
       this.particleSize = this.startSize;
     }
+
+    this.addComponent((this.transform = new TransformComponent()));
+    this.addComponent(new CanvasDrawComponent((ctx) => this.draw(ctx)));
+    this.addComponent((this.graphics = new GraphicsComponent()));
+
+    this.transform.pos = this.position;
+    this.transform.rotation = this.currentRotation;
+    this.transform.scale = vec(1, 1); // TODO wut
+    if (this.particleSprite) {
+      this.graphics.opacity = this.opacity;
+      this.graphics.use(Graphics.Sprite.fromLegacySprite(this.particleSprite));
+    } else {
+      this.graphics.onPostDraw = (ctx) => {
+        ctx.save();
+        this.graphics.opacity = this.opacity;
+        const tmpColor = this._currentColor.clone();
+        tmpColor.a = 1;
+        ctx.debug.drawPoint(vec(0, 0), { color: tmpColor, size: this.particleSize });
+        ctx.restore();
+      };
+    }
   }
 
   public kill() {
     this.emitter.removeParticle(this);
   }
 
-  public update(delta: number) {
+  public update(_engine: Engine, delta: number) {
     this.life = this.life - delta;
     this.elapsedMultiplier = this.elapsedMultiplier + delta;
 
@@ -153,22 +186,28 @@ export class ParticleImpl {
     if (this.particleRotationalVelocity) {
       this.currentRotation = (this.currentRotation + (this.particleRotationalVelocity * delta) / 1000) % (2 * Math.PI);
     }
+
+    this.transform.pos = this.position;
+    this.transform.rotation = this.currentRotation;
+    this.transform.scale = vec(1, 1); // todo wut
+    this.graphics.opacity = this.opacity;
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
     if (this.particleSprite) {
-      this.particleSprite.rotation = this.currentRotation;
-      this.particleSprite.scale.setTo(this.particleSize, this.particleSize);
-      this.particleSprite.draw(ctx, this.position.x, this.position.y);
+      this.particleSprite.opacity(this.opacity);
+      this.particleSprite.draw(ctx, 0, 0);
       return;
     }
 
+    ctx.save();
     this._currentColor.a = Util.clamp(this.opacity, 0.0001, 1);
     ctx.fillStyle = this._currentColor.toString();
     ctx.beginPath();
-    ctx.arc(this.position.x, this.position.y, this.particleSize, 0, Math.PI * 2);
+    ctx.arc(0, 0, this.particleSize, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
+    ctx.restore();
   }
 }
 
@@ -271,12 +310,12 @@ export class ParticleEmitter extends Actor {
   /**
    * Gets or sets the backing particle collection
    */
-  public particles: Util.Collection<Particle> = null;
+  public particles: Particle[] = [];
 
   /**
    * Gets or sets the backing deadParticle collection
    */
-  public deadParticles: Util.Collection<Particle> = null;
+  public deadParticles: Particle[] = [];
 
   /**
    * Gets or sets the minimum particle velocity
@@ -353,10 +392,21 @@ export class ParticleEmitter extends Actor {
    */
   public endColor: Color = Color.White;
 
+  private _og: Sprite = null;
+  private _sprite: Graphics.Sprite = null;
   /**
    * Gets or sets the sprite that a particle should use
    */
-  public particleSprite: Sprite = null;
+  public get particleSprite(): Sprite {
+    return this._og;
+  }
+
+  public set particleSprite(val: Sprite) {
+    this._og = val;
+    if (val) {
+      this._sprite = Graphics.Sprite.fromLegacySprite(val);
+    }
+  }
 
   /**
    * Gets or sets the emitter type for the particle emitter
@@ -441,8 +491,6 @@ export class ParticleEmitter extends Actor {
 
 
     this.body.collisionType = CollisionType.PreventCollision;
-    this.particles = new Util.Collection<Particle>();
-    this.deadParticles = new Util.Collection<Particle>();
 
     this.random = random ?? new Random();
 
@@ -464,12 +512,16 @@ export class ParticleEmitter extends Actor {
    */
   public emitParticles(particleCount: number) {
     for (let i = 0; i < particleCount; i++) {
-      this.particles.push(this._createParticle());
+      const p = this._createParticle();
+      this.particles.push(p);
+      if (this?.scene?.world) {
+        this.scene.world.add(p);
+      }
     }
   }
 
   public clearParticles() {
-    this.particles.clear();
+    this.particles.length = 0;
   }
 
   // Creates a new particle given the constraints of the emitter
@@ -509,6 +561,8 @@ export class ParticleEmitter extends Actor {
     p.particleSize = size;
     if (this.particleSprite) {
       p.particleSprite = this.particleSprite;
+      p.graphics.opacity = this.opacity;
+      p.graphics.use(this._sprite);
     }
     p.particleRotationalVelocity = this.particleRotationalVelocity;
     if (this.randomRotation) {
@@ -526,16 +580,20 @@ export class ParticleEmitter extends Actor {
 
     if (this.isEmitting) {
       this._particlesToEmit += this.emitRate * (delta / 1000);
-      //var numParticles = Math.ceil(this.emitRate * delta / 1000);
       if (this._particlesToEmit > 1.0) {
         this.emitParticles(Math.floor(this._particlesToEmit));
         this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
       }
     }
 
-    this.particles.forEach((p) => p.update(delta));
-    this.deadParticles.forEach((p) => this.particles.removeElement(p));
-    this.deadParticles.clear();
+    // deferred removal
+    for (let i = 0; i < this.deadParticles.length; i++) {
+      Util.removeItemFromArray(this.deadParticles[i], this.particles);
+      if (this?.scene?.world) {
+        this.scene.world.remove(this.deadParticles[i]);
+      }
+    }
+    this.deadParticles.length = 0;
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
@@ -547,7 +605,7 @@ export class ParticleEmitter extends Actor {
   public debugDraw(ctx: CanvasRenderingContext2D) {
     super.debugDraw(ctx);
     ctx.fillStyle = Color.Black.toString();
-    ctx.fillText('Particles: ' + this.particles.count(), this.pos.x, this.pos.y + 20);
+    ctx.fillText('Particles: ' + this.particles.length, this.pos.x, this.pos.y + 20);
 
     if (this.focus) {
       ctx.fillRect(this.focus.x + this.pos.x, this.focus.y + this.pos.y, 3, 3);

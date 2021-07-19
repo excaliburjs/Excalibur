@@ -1,7 +1,7 @@
 import { Entity } from './Entity';
 import { buildTypeKey } from './Util';
 import { Observable } from '../Util/Observable';
-import { Util, Component } from '..';
+import { Util, Component, ComponentCtor } from '..';
 import { AddedEntity, RemovedEntity } from './System';
 
 /**
@@ -9,11 +9,12 @@ import { AddedEntity, RemovedEntity } from './System';
  *
  * Queries can be strongly typed by supplying a type union in the optional type parameter
  * ```typescript
- * const queryAB = new ex.Query<ComponentTypeA, ComponentTypeB>(['A', 'B']);
+ * const queryAB = new ex.Query<ComponentTypeA | ComponentTypeB>(['A', 'B']);
  * ```
  */
 export class Query<T extends Component = Component> extends Observable<AddedEntity | RemovedEntity> {
-  private _entities: Entity<T>[] = [];
+  public types: readonly string[];
+  private _entities: Entity[] = [];
   private _key: string;
   public get key(): string {
     if (this._key) {
@@ -22,8 +23,15 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
     return (this._key = buildTypeKey(this.types));
   }
 
-  constructor(public types: readonly string[]) {
+  constructor(types: readonly string[]);
+  constructor(types: readonly ComponentCtor<T>[]);
+  constructor(types: readonly string[] | readonly ComponentCtor<T>[]) {
     super();
+    if (types[0] instanceof Function) {
+      this.types = (types as ComponentCtor<T>[]).map(T =>  (new T).type);
+    } else {
+      this.types = types as string[];
+    }
   }
 
   /**
@@ -31,7 +39,7 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    *
    * @param sort Optional sorting function to sort entities returned from the query
    */
-  public getEntities(sort?: (a: Entity<T>, b: Entity<T>) => number): Entity<T>[] {
+  public getEntities(sort?: (a: Entity, b: Entity) => number): Entity[] {
     if (sort) {
       this._entities.sort(sort);
     }
@@ -42,7 +50,7 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    * Add an entity to the query, will only be added if the entity matches the query types
    * @param entity
    */
-  public addEntity(entity: Entity<T>): void {
+  public addEntity(entity: Entity): void {
     if (!Util.contains(this._entities, entity) && this.matches(entity)) {
       this._entities.push(entity);
       this.notifyAll(new AddedEntity(entity));
@@ -53,7 +61,7 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    * If the entity is part of the query it will be removed regardless of types
    * @param entity
    */
-  public removeEntity(entity: Entity<T>): void {
+  public removeEntity(entity: Entity): void {
     if (Util.removeItemFromArray(entity, this._entities)) {
       this.notifyAll(new RemovedEntity(entity));
     }
@@ -74,8 +82,9 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
    * @param entity
    */
   public matches(entity: Entity): boolean;
+
   /**
-   * Returns whether the list of ComponentTypes match the query
+   * Returns whether the list of ComponentTypes have at least the same types as the query
    * @param types
    */
   public matches(types: string[]): boolean;
@@ -95,5 +104,9 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
       }
     }
     return matches;
+  }
+
+  public contain(type: string) {
+    return this.types.indexOf(type) > -1;
   }
 }

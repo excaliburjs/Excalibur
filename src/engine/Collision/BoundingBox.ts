@@ -1,6 +1,8 @@
 import { Vector, Ray } from '../Algebra';
 import { Color } from '../Drawing/Color';
 import { Side } from './Side';
+import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
+import { Matrix } from '../Math/matrix';
 
 export interface BoundingBoxOptions {
   left: number;
@@ -111,6 +113,13 @@ export class BoundingBox {
   }
 
   /**
+   * Return whether the bounding box has zero dimensions in height,width or both
+   */
+  public hasZeroDimensions() {
+    return this.width === 0 || this.height === 0;
+  }
+
+  /**
    * Returns the center of the bounding box
    */
   public get center(): Vector {
@@ -133,6 +142,11 @@ export class BoundingBox {
   public scale(scale: Vector, point: Vector = Vector.Zero): BoundingBox {
     const shifted = this.translate(point);
     return new BoundingBox(shifted.left * scale.x, shifted.top * scale.y, shifted.right * scale.x, shifted.bottom * scale.y);
+  }
+
+  public transform(matrix: Matrix) {
+    const points = this.getPoints().map((p) => matrix.multv(p));
+    return BoundingBox.fromPoints(points);
   }
 
   /**
@@ -385,5 +399,14 @@ export class BoundingBox {
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Yellow) {
     ctx.strokeStyle = color.toString();
     ctx.strokeRect(this.left, this.top, this.width, this.height);
+  }
+
+  /**
+   * Draw a debug bounding box
+   * @param ex
+   * @param color
+   */
+  public draw(ex: ExcaliburGraphicsContext, color: Color = Color.Yellow) {
+    ex.debug.drawRect(this.left, this.top, this.width, this.height, { color });
   }
 }

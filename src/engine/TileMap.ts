@@ -6,22 +6,28 @@ import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
 import { Configurable } from './Configurable';
 import { Entity } from './EntityComponentSystem/Entity';
-import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { BodyComponent } from './Collision/Body';
 import { CollisionType } from './Collision/CollisionType';
-import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
 import { Shape } from './Collision/Shapes/Shape';
+import { ExcaliburGraphicsContext, GraphicsComponent } from './Graphics';
+import * as Graphics from './Graphics';
+import { CanvasDrawComponent, Sprite } from './Drawing/Index';
+import { Sprite as LegacySprite } from './Drawing/Index';
+import { removeItemFromArray } from './Util/Util';
+import { obsolete } from './Util/Decorators';
 
 /**
  * @hidden
  */
-export class TileMapImpl extends Entity<TransformComponent | MotionComponent | BodyComponent | CanvasDrawComponent> {
+export class TileMapImpl extends Entity {
   private _onScreenXStart: number = 0;
   private _onScreenXEnd: number = 9999;
   private _onScreenYStart: number = 0;
   private _onScreenYEnd: number = 9999;
-  private _spriteSheets: { [key: string]: SpriteSheet } = {};
+  private _spriteSheets: { [key: string]: Graphics.SpriteSheet } = {};
+
+  private _legacySpriteMap = new Map<Graphics.Sprite, Sprite>();
   public logger: Logger = Logger.getInstance();
   public data: Cell[] = [];
   public visible = true;
@@ -35,53 +41,64 @@ export class TileMapImpl extends Entity<TransformComponent | MotionComponent | B
   public flagDirty() {
     this._dirty = true;
   }
+  private _transform: TransformComponent;
+  private _body: BodyComponent;
 
-  public get transform(): TransformComponent {
-    return this.components.transform;
+  public get x(): number {
+    return this._transform.pos.x ?? 0;
   }
 
-  public get motion(): MotionComponent {
-    return this.components.motion;
+  public set x(val: number) {
+    if (this._transform?.pos) {
+      this.get(TransformComponent).pos = vec(val, this.y);
+    }
   }
 
-  public get pos(): Vector {
-    return this.transform.pos;
+  public get y(): number {
+    return this._transform?.pos.y ?? 0;
   }
 
-  public set pos(val: Vector) {
-    this.transform.pos = val;
-  }
-
-  public get scale(): Vector {
-    return this.transform.scale;
-  }
-
-  public set scale(val: Vector) {
-    this.transform.scale = val;
-  }
-
-  public get rotation(): number {
-    return this.transform.rotation;
-  }
-
-  public set rotation(val: number) {
-    this.transform.rotation = val;
+  public set y(val: number) {
+    if (this._transform?.pos) {
+      this._transform.pos = vec(this.x, val);
+    }
   }
 
   public get z(): number {
-    return this.transform.z;
+    return this._transform.z ?? 0;
   }
 
   public set z(val: number) {
-    this.transform.z = val;
+    if (this._transform?.z) {
+      this._transform.z = val;
+    }
   }
 
-  public get vel(): Vector {
-    return this.motion.vel;
+  public get rotation(): number {
+    return this._transform?.rotation ?? 0;
   }
 
-  public set vel(val: Vector) {
-    this.motion.vel = val;
+  public set rotation(val: number) {
+    if (this._transform?.rotation) {
+      this._transform.rotation = val;
+    }
+  }
+
+  public get scale(): Vector {
+    return this._transform?.scale ?? Vector.One;
+  }
+  public set scale(val: Vector) {
+    if (this._transform?.scale) {
+      this._transform.scale = val;
+    }
+  }
+
+  public get pos(): Vector {
+    return this._transform.pos;
+  }
+
+  public set pos(val: Vector) {
+    this._transform.pos = val;
   }
 
 
@@ -120,8 +137,11 @@ export class TileMapImpl extends Entity<TransformComponent | MotionComponent | B
       anchor: Vector.Zero
     }));
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
+    this._transform = this.get(TransformComponent);
+    this._body = this.get(BodyComponent);
 
-    this.transform.pos.setTo(<number>xOrConfig, y);
+    this.x = <number>xOrConfig;
+    this.y = y;
     this.cellWidth = cellWidth;
     this.cellHeight = cellHeight;
     this.rows = rows;
@@ -136,13 +156,41 @@ export class TileMapImpl extends Entity<TransformComponent | MotionComponent | B
         })();
       }
     }
+    
+    this.get(GraphicsComponent).localBounds = new BoundingBox({
+      left: 0,
+      top: 0,
+      right: this.cols * this.cellWidth,
+      bottom: this.rows * this.cellHeight
+    });
+  }
+
+  public _initialize(engine: Engine) {
+    super._initialize(engine);
+  }
+
+  /**
+   *
+   * @param key
+   * @param spriteSheet
+   * @deprecated No longer used, will be removed in v0.26.0
+   */
+  public registerSpriteSheet(key: string, spriteSheet: SpriteSheet): void;
+  public registerSpriteSheet(key: string, spriteSheet: Graphics.SpriteSheet): void;
+  @obsolete({ message: 'No longer used, will be removed in v0.26.0' })
+  public registerSpriteSheet(key: string, spriteSheet: SpriteSheet | Graphics.SpriteSheet): void {
+    if (spriteSheet instanceof Graphics.SpriteSheet) {
+      this._spriteSheets[key] = spriteSheet;
+    } else {
+      this._spriteSheets[key] = Graphics.SpriteSheet.fromLegacySpriteSheet(spriteSheet);
+    }
   }
 
   /**
    * Tiles colliders based on the solid tiles in the tilemap.
    */
   private _updateColliders(): void {
-    this.components.body.clearColliders();
+    this._body.clearColliders();
     const colliders: BoundingBox[] = [];
     let current: BoundingBox;
     // Bad square tessalation algo
@@ -183,14 +231,10 @@ export class TileMapImpl extends Entity<TransformComponent | MotionComponent | B
     }
 
     for (const c of colliders) {
-      this.components.body.addCollider(
+      this._body.addCollider(
         Shape.Box(c.width, c.height, Vector.Zero, vec(c.left - this.pos.x, c.top - this.pos.y)),
       );
     }
-  }
-
-  public registerSpriteSheet(key: string, spriteSheet: SpriteSheet) {
-    this._spriteSheets[key] = spriteSheet;
   }
 
   /**
@@ -238,13 +282,15 @@ export class TileMapImpl extends Entity<TransformComponent | MotionComponent | B
       this._updateColliders();
     }
 
-    const worldCoordsUpperLeft = engine.screenToWorldCoordinates(new Vector(0, 0));
-    const worldCoordsLowerRight = engine.screenToWorldCoordinates(new Vector(engine.canvas.clientWidth, engine.canvas.clientHeight));
+    const worldBounds = engine.getWorldBounds();
+    const worldCoordsUpperLeft = vec(worldBounds.left, worldBounds.top);
+    const worldCoordsLowerRight = vec(worldBounds.right, worldBounds.bottom);
 
-    this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - this.pos.x) / this.cellWidth) - 2, 0);
-    this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.pos.y) / this.cellHeight) - 2, 0);
-    this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.pos.x) / this.cellWidth) + 2, 0);
-    this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.pos.y) / this.cellHeight) + 2, 0);
+    this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - this.x) / this.cellWidth) - 2, 0);
+    this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
+    this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0);
+    this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
+    this._transform.pos = vec(this.x, this.y);
 
     this.onPostUpdate(engine, delta);
     this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
@@ -252,46 +298,44 @@ export class TileMapImpl extends Entity<TransformComponent | MotionComponent | B
 
   /**
    * Draws the tile map to the screen. Called by the [[Scene]].
-   * @param ctx    The current rendering context
+   * @param ctx CanvasRenderingContext2D or ExcaliburGraphicsContext
    * @param delta  The number of milliseconds since the last draw
    */
-  public draw(ctx: CanvasRenderingContext2D, delta: number) {
-    this.emit('predraw', new Events.PreDrawEvent(ctx, delta, this));
+  public draw(ctx: CanvasRenderingContext2D | ExcaliburGraphicsContext, delta: number): void {
+    this.emit('predraw', new Events.PreDrawEvent(ctx as any, delta, this)); // TODO fix event
 
     let x = this._onScreenXStart;
     const xEnd = Math.min(this._onScreenXEnd, this.cols);
     let y = this._onScreenYStart;
     const yEnd = Math.min(this._onScreenYEnd, this.rows);
 
-    let cs: TileSprite[], csi: number, cslen: number;
+    let sprites: Graphics.Sprite[], spriteIndex: number, cslen: number;
 
     for (x; x < xEnd; x++) {
       for (y; y < yEnd; y++) {
         // get non-negative tile sprites
-        cs = this.getCell(x, y).sprites.filter((s) => {
-          return s.spriteId > -1;
-        });
+        sprites = this.getCell(x, y).sprites;
 
-        for (csi = 0, cslen = cs.length; csi < cslen; csi++) {
-          const ss = this._spriteSheets[cs[csi].spriteSheetKey];
-
+        for (spriteIndex = 0, cslen = sprites.length; spriteIndex < cslen; spriteIndex++) {
           // draw sprite, warning if sprite doesn't exist
-          if (ss) {
-            const sprite = ss.getSprite(cs[csi].spriteId);
-            if (sprite) {
+          const sprite = sprites[spriteIndex];
+          if (sprite) {
+            if (!(ctx instanceof CanvasRenderingContext2D)) {
               sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);
             } else {
-              this.logger.warn('Sprite does not exist for id', cs[csi].spriteId, 'in sprite sheet', cs[csi].spriteSheetKey, sprite, ss);
+              // TODO legacy drawing mode
+              if (!this._legacySpriteMap.has(sprite)) {
+                this._legacySpriteMap.set(sprite, Graphics.Sprite.toLegacySprite(sprite));
+              }
+              this._legacySpriteMap.get(sprite).draw(ctx, x * this.cellWidth, y * this.cellHeight);
             }
-          } else {
-            this.logger.warn('Sprite sheet', cs[csi].spriteSheetKey, 'does not exist', ss);
           }
         }
       }
       y = this._onScreenYStart;
     }
 
-    this.emit('postdraw', new Events.PostDrawEvent(ctx, delta, this));
+    this.emit('postdraw', new Events.PostDrawEvent(ctx as any, delta, this));
   }
 }
 
@@ -317,20 +361,9 @@ export class TileMap extends Configurable(TileMapImpl) {
 }
 
 /**
- * Tile sprites are used to render a specific sprite from a [[TileMap]]'s spritesheet(s)
- */
-export class TileSprite {
-  /**
-   * @param spriteSheetKey  The key of the spritesheet to use
-   * @param spriteId        The index of the sprite in the [[SpriteSheet]]
-   */
-  constructor(public spriteSheetKey: string, public spriteId: number) {}
-}
-
-/**
  * @hidden
  */
-export class CellImpl {
+export class CellImpl extends Entity {
   private _bounds: BoundingBox;
   public readonly x: number;
   public readonly y: number;
@@ -347,7 +380,7 @@ export class CellImpl {
     this.map?.flagDirty();
     this._solid = val;
   }
-  public sprites: TileSprite[] = [];
+  public sprites: Graphics.Sprite[] = [];
 
   /**
    * @param xOrConfig Gets or sets x coordinate of the cell in world coordinates or cell option bag
@@ -365,8 +398,9 @@ export class CellImpl {
     height: number,
     index: number,
     solid: boolean = false,
-    sprites: TileSprite[] = []
+    sprites: Graphics.Sprite[] = []
   ) {
+    super();
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
       xOrConfig = config.x;
@@ -396,19 +430,31 @@ export class CellImpl {
   }
 
   /**
-   * Add another [[TileSprite]] to this cell
+   * Add another [[Sprite]] to this cell
+   * @deprecated Use addSprite, will be removed in v0.26.0
    */
-  public pushSprite(tileSprite: TileSprite) {
-    this.sprites.push(tileSprite);
+  @obsolete({ message: 'Will be removed in v0.26.0', alternateMethod: 'addSprite' })
+  public pushSprite(sprite: Graphics.Sprite | LegacySprite) {
+    this.addSprite(sprite);
   }
+
   /**
-   * Remove an instance of [[TileSprite]] from this cell
+   * Add another [[Sprite]] to this TileMap cell
+   * @param sprite
    */
-  public removeSprite(tileSprite: TileSprite) {
-    let index = -1;
-    if ((index = this.sprites.indexOf(tileSprite)) > -1) {
-      this.sprites.splice(index, 1);
+  public addSprite(sprite: Graphics.Sprite | LegacySprite) {
+    if (sprite instanceof LegacySprite) {
+      this.sprites.push(Graphics.Sprite.fromLegacySprite(sprite));
+    } else {
+      this.sprites.push(sprite);
     }
+  }
+
+  /**
+   * Remove an instance of [[Sprite]] from this cell
+   */
+  public removeSprite(sprite: Graphics.Sprite | LegacySprite) {
+    removeItemFromArray(sprite, this.sprites);
   }
   /**
    * Clear all sprites from this cell
@@ -425,7 +471,7 @@ export interface CellArgs extends Partial<CellImpl> {
   height: number;
   index: number;
   solid?: boolean;
-  sprites?: TileSprite[];
+  sprites?: Graphics.Sprite[];
 }
 
 /**
@@ -440,7 +486,7 @@ export interface CellArgs extends Partial<CellImpl> {
  */
 export class Cell extends Configurable(CellImpl) {
   constructor(config: CellArgs);
-  constructor(x: number, y: number, width: number, height: number, index: number, solid?: boolean, sprites?: TileSprite[]);
+  constructor(x: number, y: number, width: number, height: number, index: number, solid?: boolean, sprites?: Graphics.Sprite[]);
   constructor(
     xOrConfig: number | CellArgs,
     y?: number,
@@ -448,7 +494,7 @@ export class Cell extends Configurable(CellImpl) {
     height?: number,
     index?: number,
     solid?: boolean,
-    sprites?: TileSprite[]
+    sprites?: Graphics.Sprite[]
   ) {
     super(xOrConfig, y, width, height, index, solid, sprites);
   }

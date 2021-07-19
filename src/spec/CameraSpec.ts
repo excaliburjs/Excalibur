@@ -1,14 +1,12 @@
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { Mocks } from './util/Mocks';
 
 describe('A camera', () => {
   let Camera: ex.Camera;
   let actor: ex.Actor;
   let engine: ex.Engine;
   let scene: ex.Scene;
-  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -32,7 +30,7 @@ describe('A camera', () => {
     actor.color = ex.Color.Red;
     scene = new ex.Scene(engine);
     scene.add(actor);
-    engine.currentScene = scene;
+    engine.addScene('root', scene);
 
     Camera = new ex.Camera();
   });
@@ -88,7 +86,7 @@ describe('A camera', () => {
     expect(Camera.x).toBe(100);
     expect(Camera.y).toBe(1000);
 
-    Camera.pos.setTo(55, 555);
+    Camera.pos = ex.vec(55, 555);
     expect(Camera.pos).toBeVector(new ex.Vector(55, 555));
     expect(Camera.x).toBe(55);
     expect(Camera.y).toBe(555);
@@ -101,7 +99,7 @@ describe('A camera', () => {
     expect(Camera.dx).toBe(100);
     expect(Camera.dy).toBe(1000);
 
-    Camera.vel.setTo(55, 555);
+    Camera.vel = ex.vec(55, 555);
     expect(Camera.vel).toBeVector(new ex.Vector(55, 555));
     expect(Camera.dx).toBe(55);
     expect(Camera.dy).toBe(555);
@@ -114,7 +112,7 @@ describe('A camera', () => {
     expect(Camera.ax).toBe(100);
     expect(Camera.ay).toBe(1000);
 
-    Camera.acc.setTo(55, 555);
+    Camera.acc = ex.vec(55, 555);
     expect(Camera.acc).toBeVector(new ex.Vector(55, 555));
     expect(Camera.ax).toBe(55);
     expect(Camera.ay).toBe(555);
@@ -171,7 +169,7 @@ describe('A camera', () => {
 
   it('can zoom', () => {
     engine.currentScene.camera = Camera;
-    Camera.zoom(2, 0.1);
+    Camera.zoomOverTime(2, 0.1);
 
     expect((Camera as any)._isZooming).toBe(true);
   });
@@ -186,7 +184,7 @@ describe('A camera', () => {
     expect(engine.currentScene.camera.x).toBe(0);
     expect(engine.currentScene.camera.y).toBe(0);
 
-    actor.pos.setTo(100, 100);
+    actor.pos = ex.vec(100, 100);
     engine.currentScene.camera.update(engine, 100);
     expect(engine.currentScene.camera.x).toBe(100);
     expect(engine.currentScene.camera.y).toBe(100);
@@ -202,7 +200,7 @@ describe('A camera', () => {
     expect(engine.currentScene.camera.x).toBe(0);
     expect(engine.currentScene.camera.y).toBe(0);
 
-    actor.pos.setTo(100, 100);
+    actor.pos = ex.vec(100, 100);
     engine.currentScene.camera.update(engine, 100);
     expect(engine.currentScene.camera.x).toBe(100);
     expect(engine.currentScene.camera.y).toBe(0);
@@ -218,7 +216,7 @@ describe('A camera', () => {
     expect(engine.currentScene.camera.x).toBe(0);
     expect(engine.currentScene.camera.y).toBe(0);
 
-    actor.pos.setTo(100, 100);
+    actor.pos = ex.vec(100, 100);
     engine.currentScene.camera.update(engine, 100);
     expect(engine.currentScene.camera.x).toBe(0);
     expect(engine.currentScene.camera.y).toBe(100);
@@ -234,7 +232,7 @@ describe('A camera', () => {
     expect(engine.currentScene.camera.x).toBe(0);
     expect(engine.currentScene.camera.y).toBe(0);
 
-    actor.pos.setTo(100, 100);
+    actor.pos = ex.vec(100, 100);
     engine.currentScene.camera.update(engine, 100);
     const distance = engine.currentScene.camera.pos.distance(actor.pos);
     expect(distance).toBeCloseTo(15, 0.01);
@@ -251,7 +249,7 @@ describe('A camera', () => {
     expect(engine.currentScene.camera.x).toBe(0);
     expect(engine.currentScene.camera.y).toBe(0);
 
-    actor.pos.setTo(100, 100);
+    actor.pos = ex.vec(100, 100);
     engine.currentScene.camera.update(engine, 100);
     engine.currentScene.camera.update(engine, 100);
     engine.currentScene.camera.update(engine, 100);
@@ -271,7 +269,7 @@ describe('A camera', () => {
     engine.currentScene.camera.strategy.limitCameraBounds(boundingBox);
 
     // Test upper-left bounds
-    engine.currentScene.camera.pos.setTo(11, 22);
+    engine.currentScene.camera.pos = ex.vec(11, 22);
 
     engine.currentScene.camera.update(engine, 1);
     expect(engine.currentScene.camera.pos.x).not.toBe(11);
@@ -280,7 +278,7 @@ describe('A camera', () => {
     expect(engine.currentScene.camera.pos.y).toBe(260);
 
     // Test bottom-right bounds
-    engine.currentScene.camera.pos.setTo(888, 999);
+    engine.currentScene.camera.pos = ex.vec(888, 999);
 
     engine.currentScene.camera.update(engine, 1);
     expect(engine.currentScene.camera.pos.x).not.toBe(888);
@@ -308,7 +306,7 @@ describe('A camera', () => {
 
   xit('can zoom in over time', (done) => {
     engine.start().then(() => {
-      engine.currentScene.camera.zoom(5, 1000).then(() => {
+      engine.currentScene.camera.zoomOverTime(5, 1000).then(() => {
         ensureImagesLoaded(engine.canvas, 'src/spec/images/CameraSpec/zoomin.png').then(([canvas, image]) => {
           expect(canvas).toEqualImage(image, 0.995);
           done();
@@ -319,7 +317,7 @@ describe('A camera', () => {
 
   xit('can zoom out over time', (done) => {
     engine.start().then(() => {
-      engine.currentScene.camera.zoom(0.2, 1000).then(() => {
+      engine.currentScene.camera.zoomOverTime(0.2, 1000).then(() => {
         ensureImagesLoaded(engine.canvas, 'src/spec/images/CameraSpec/zoomout.png').then(([canvas, image]) => {
           expect(canvas).toEqualImage(image, 0.995);
           done();

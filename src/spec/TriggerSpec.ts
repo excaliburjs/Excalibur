@@ -44,17 +44,17 @@ describe('A Trigger', () => {
     spyOn(trigger, 'action');
 
     // Act
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
     for (let i = 0; i < 20; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
-    actor.vel.y = -10;
+    actor.vel = ex.vec(0, -10);
     for (let i = 0; i < 20; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
     for (let i = 0; i < 20; i++) {
       engine.currentScene.update(engine, 1000);
     }
@@ -147,7 +147,7 @@ describe('A Trigger', () => {
     engine.add(actor);
 
     // Act
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
     for (let i = 0; i < 40; i++) {
       loop.advance(1000);
     }
@@ -177,7 +177,7 @@ describe('A Trigger', () => {
     trigger.on('collisionend', collisionEnd);
 
     // Act
-    actor.vel.y = 10;
+    actor.vel = ex.vec(0, 10);
     for (let i = 0; i < 40; i++) {
       loop.advance(1000);
     }

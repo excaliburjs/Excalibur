@@ -15,9 +15,11 @@ import { GameEvent } from '../Events';
 
 import * as Events from '../Events';
 import * as Util from '../Util/Util';
-import { GlobalCoordinates, Vector } from '../Algebra';
+import { GlobalCoordinates, vec, Vector } from '../Algebra';
 import { CapturePointer } from '../Traits/CapturePointer';
 import { Actor } from '../Actor';
+
+export type DOMPointerEvent = globalThis.PointerEvent;
 
 interface TouchEvent extends Event {
   altKey: boolean;
@@ -186,16 +188,16 @@ export class Pointers extends Class {
 
     switch (eventName) {
       case 'move':
-        this._handlePointerEvent(eventName, this._pointerMove, coords)(eventish as MSPointerEvent);
+        this._handlePointerEvent(eventName, this._pointerMove, coords)(eventish as DOMPointerEvent);
         break;
       case 'down':
-        this._handlePointerEvent(eventName, this._pointerDown, coords)(eventish as MSPointerEvent);
+        this._handlePointerEvent(eventName, this._pointerDown, coords)(eventish as DOMPointerEvent);
         break;
       case 'up':
-        this._handlePointerEvent(eventName, this._pointerUp, coords)(eventish as MSPointerEvent);
+        this._handlePointerEvent(eventName, this._pointerUp, coords)(eventish as DOMPointerEvent);
         break;
       case 'cancel':
-        this._handlePointerEvent(eventName, this._pointerCancel, coords)(eventish as MSPointerEvent);
+        this._handlePointerEvent(eventName, this._pointerCancel, coords)(eventish as DOMPointerEvent);
         break;
     }
     for (const actor of this._engine.currentScene.actors) {
@@ -259,8 +261,10 @@ export class Pointers extends Class {
   private _dispatchWithBubble(events: PointerEvent[]) {
     for (const evt of events) {
       for (const actor of evt.pointer.getActorsForEvents()) {
-        evt.propagate(actor);
-        if (!evt.bubbles) {
+        if (!evt.isCanceled()) {
+          evt.propagate(actor);
+        }
+        if (!evt.bubbles || evt.isCanceled()) {
           // if the event stops bubbling part way stop processing
           break;
         }
@@ -278,7 +282,8 @@ export class Pointers extends Class {
         if (
           !lastMoveEventPerPointerPerActor[evt.pointer.id + '+' + actor.id] &&
           evt.pointer.wasActorUnderPointer(actor) &&
-          !evt.pointer.isActorAliveUnderPointer(actor)
+          !evt.pointer.isActorAliveUnderPointer(actor) &&
+          !evt.isCanceled()
         ) {
           lastMoveEventPerPointerPerActor[evt.pointer.id + '+' + actor.id] = evt;
           const pe = createPointerEventByName(
@@ -309,7 +314,8 @@ export class Pointers extends Class {
         if (
           !lastMoveEventPerPointer[evt.pointer.id] &&
           !evt.pointer.wasActorUnderPointer(actor) &&
-          evt.pointer.isActorAliveUnderPointer(actor)
+          evt.pointer.isActorAliveUnderPointer(actor) &&
+          !evt.isCanceled()
         ) {
           lastMoveEventPerPointer[evt.pointer.id] = evt;
           const pe = createPointerEventByName(
@@ -345,7 +351,7 @@ export class Pointers extends Class {
     for (const evt of this._wheel) {
       for (const actor of this._pointers[evt.index].getActorsUnderPointer()) {
         this._propagateWheelPointerEvent(actor, evt);
-        if (!evt.bubbles) {
+        if (!evt.bubbles || evt.isCanceled()) {
           // if the event stops bubbling part way stop processing
           break;
         }
@@ -357,8 +363,8 @@ export class Pointers extends Class {
     actor.emit('pointerwheel', wheelEvent);
 
     // Recurse and propagate
-    if (wheelEvent.bubbles && actor.parent) {
-      this._propagateWheelPointerEvent(actor.parent, wheelEvent);
+    if (wheelEvent.bubbles && !wheelEvent.isCanceled() && actor.parent) {
+      this._propagateWheelPointerEvent(actor.parent as Actor, wheelEvent); // TODO not true
     }
   }
 
@@ -398,6 +404,7 @@ export class Pointers extends Class {
 
         eventArr.push(pe);
         pointer.eventDispatcher.emit(eventName, pe);
+        this.emit(eventName, pe);
         // only with multi-pointer
         if (this._pointers.length > 1) {
           if (eventName === 'up') {
@@ -413,7 +420,7 @@ export class Pointers extends Class {
   }
 
   private _handlePointerEvent(eventName: string, eventArr: PointerEvent[], coords?: GlobalCoordinates) {
-    return (e: MSPointerEvent) => {
+    return (e: DOMPointerEvent) => {
       e.preventDefault();
 
       // get the index for this pointer ID if multi-pointer is asked for
@@ -436,6 +443,7 @@ export class Pointers extends Class {
 
       eventArr.push(pe);
       pointer.eventDispatcher.emit(eventName, pe);
+      this.emit(eventName, pe);
 
       // only with multi-pointer
       if (this._pointers.length > 1) {
@@ -459,10 +467,8 @@ export class Pointers extends Class {
       ) {
         e.preventDefault();
       }
-
-      const x: number = e.pageX - Util.getPosition(this._engine.canvas).x;
-      const y: number = e.pageY - Util.getPosition(this._engine.canvas).y;
-      const transformedPoint = this._engine.screenToWorldCoordinates(new Vector(x, y));
+      const screen = this._engine.screen.pageToScreenCoordinates(vec(e.pageX, e.pageY));
+      const world = this._engine.screen.screenToWorldCoordinates(screen);
 
       // deltaX, deltaY, and deltaZ are the standard modern properties
       // wheelDeltaX, wheelDeltaY, are legacy properties in webkit browsers and older IE
@@ -482,10 +488,11 @@ export class Pointers extends Class {
         }
       }
 
-      const we = new WheelEvent(transformedPoint.x, transformedPoint.y, e.pageX, e.pageY, x, y, 0, deltaX, deltaY, deltaZ, deltaMode, e);
+      const we = new WheelEvent(world.x, world.y, e.pageX, e.pageY, screen.x, screen.y, 0, deltaX, deltaY, deltaZ, deltaMode, e);
 
       eventArr.push(we);
       this.at(0).eventDispatcher.emit(eventName, we);
+      this.emit(eventName, we);
     };
   }
 

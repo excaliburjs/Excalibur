@@ -10,11 +10,32 @@
             margin: auto;
             display: block;
         }
+
+        #fullscreen {
+          position: fixed;
+          right: 20px;
+          top: 20px;
+          color: white;
+          background-color: green;
+          padding: 10px;
+          border: none;
+          border-radius: 2px;
+          z-index: 2;
+        }
+
+        #page {
+          position: fixed;
+          width: 5px;
+          height: 5px;
+          background-color: green;
+        }
     </style>
 
     <link rel="icon" type="image/x-icon" href="../images/favicon.png" />
 </head>
 <body>
+    <button id="fullscreen">Go Fullscreen</button>
+    <div id="page"></div>
     <div id="container" class="container">
         <canvas id="game"></canvas>
     </div>
