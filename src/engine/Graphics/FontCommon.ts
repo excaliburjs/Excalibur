@@ -110,6 +110,7 @@ export enum Direction {
 export interface FontOptions {
   size?: number;
   unit?: FontUnit;
+  lineHeight?: number;
   family?: string;
   style?: FontStyle;
   bold?: boolean;

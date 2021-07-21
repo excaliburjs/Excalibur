@@ -48,6 +48,7 @@ import { Debug } from './Debug';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Rectangle } from './Graphics/Rectangle';
 import { Flags, Legacy } from './Flags';
+import { obsolete } from './Util/Decorators';
 
 /**
  * Type guard for checking if something is an Actor
@@ -138,7 +139,7 @@ export interface ActorDefaults {
  * be part of a [[Scene]] for it to be drawn to the screen.
  */
 export class Actor
-  extends Entity<TransformComponent | MotionComponent | BodyComponent | CanvasDrawComponent>
+  extends Entity
   implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
@@ -160,6 +161,10 @@ export class Actor
 
   public get motion(): MotionComponent {
     return this.get(MotionComponent);
+  }
+
+  public get graphics(): GraphicsComponent {
+    return this.get(GraphicsComponent);
   }
 
   /**
@@ -316,11 +321,23 @@ export class Actor
   }
 
   /**
-   * The opacity of an actor. Passing in a color in the [[constructor]] will use the
-   * color's opacity.
+   * The opacity of an actor.
+   *
+   * @obsolete Actor.opacity will be removed in v0.26.0, use [[GraphicsComponent.opacity|Actor.graphics.opacity]].
    */
-  public opacity: number = 1;
-  public previousOpacity: number = 1;
+  @obsolete({
+    message: 'Actor.opacity will be removed in v0.26.0',
+    alternateMethod: 'Use Actor.graphics.opacity'
+  })
+  public get opacity(): number {
+    return this._opacity;
+  }
+
+  public set opacity(opacity: number) {
+    this._opacity = opacity;
+  }
+
+  private _opacity: number = 1;
 
   /**
    * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
@@ -479,9 +496,6 @@ export class Actor
 
     if (color) {
       this.color = color;
-      // set default opacity of an actor to the color
-      this.opacity = color.a;
-
       this.graphics.add(
         new Rectangle({
           color: color,
@@ -1006,7 +1020,8 @@ export class Actor
    */
   public contains(x: number, y: number, recurse: boolean = false): boolean {
     const point = vec(x, y);
-    const containment = this.body.collider.shape.contains(point);
+    // TODO iterate through colliders
+    const containment = this.body.getColliders()[0].contains(point);
 
     if (recurse) {
       return (
@@ -1052,15 +1067,6 @@ export class Actor
 
     // Update action context
     this.actions.update(delta);
-
-    // Update color only opacity
-    if (this.color) {
-      this.color.a = this.opacity;
-    }
-
-    if (this.opacity === 0) {
-      this.visible = false;
-    }
 
     // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
     for (const trait of this.traits) {
@@ -1139,13 +1145,16 @@ export class Actor
       this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
     } else {
       this._predraw(ctx, delta);
-      if (this.color) {
+      if (this.color && this.body) {
         // update collider geometry based on transform
         this.body.update();
         const colliders = this.body.getColliders();
         for (const collider of colliders) {
-          // Colliders are already shifted by anchor, unshift
-          collider.draw(ctx, this.color, vec(0, 0));
+          if (!collider.bounds.hasZeroDimensions()) {
+            // Colliders are already shifted by anchor, unshift
+            ctx.globalAlpha = this.opacity;
+            collider.draw(ctx, this.color, vec(0, 0));
+          }
         }
       }
     }

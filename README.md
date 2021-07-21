@@ -2,7 +2,7 @@
 
 [![Build Status](https://img.shields.io/travis/excaliburjs/Excalibur/main.svg)](https://travis-ci.org/excaliburjs/Excalibur)
 [![Appveyor status](https://img.shields.io/appveyor/ci/eonarheim/excalibur/main.svg)](https://ci.appveyor.com/project/eonarheim/excalibur)
-[![Coverage Status](https://coveralls.io/repos/github/excaliburjs/Excalibur/badge.svg)](https://coveralls.io/github/excaliburjs/Excalibur)
+[![Coverage Status](https://coveralls.io/repos/github/excaliburjs/Excalibur/badge.svg?branch=main)](https://coveralls.io/github/excaliburjs/Excalibur?branch=main)
 [![npm version](https://img.shields.io/npm/v/excalibur.svg)](https://www.npmjs.com/package/excalibur)
 [![npm downloads](https://img.shields.io/npm/dt/excalibur.svg)](https://www.npmjs.com/package/excalibur)
 [![NuGet version](https://img.shields.io/nuget/v/Excalibur.svg)](https://www.nuget.org/packages/Excalibur/)

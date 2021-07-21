@@ -8,7 +8,7 @@ class Game extends ex.Engine {
 
   constructor() {
     super({
-      displayMode: ex.DisplayMode.Fill,
+      displayMode: ex.DisplayMode.FillScreen,
       enableCanvasTransparency: true,
 
     });

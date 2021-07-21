@@ -300,6 +300,31 @@ describe('A scene', () => {
     expect(scene.onInitialize).toHaveBeenCalledTimes(1);
   });
 
+  it('calls onActivate and onDeactivate with the correct args', () => {
+    const mock = new Mocks.Mocker();
+    const sceneA = new ex.Scene();
+    sceneA.onDeactivate = jasmine.createSpy('onDeactivate()');
+    const sceneB = new ex.Scene();
+    sceneB.onActivate = jasmine.createSpy('onActivate()');
+
+    engine.removeScene('root');
+    engine.addScene('root', sceneA);
+    engine.addScene('sceneB', sceneB);
+
+    const loop = mock.loop(engine);
+    engine.goToScene('root');
+    engine.start();
+    loop.advance(100);
+    loop.advance(100);
+
+    engine.goToScene('sceneB');
+    loop.advance(100);
+    loop.advance(100);
+
+    expect(sceneA.onDeactivate).toHaveBeenCalledWith(sceneA, sceneB);
+    expect(sceneB.onActivate).toHaveBeenCalledWith(sceneA, sceneB);
+  });
+
   it('fires initialize before activate', (done) => {
     engine = TestUtils.engine({ width: 100, height: 100 });
     scene = new ex.Scene();
@@ -495,6 +520,7 @@ describe('A scene', () => {
     });
 
     scene.add(timer);
+    timer.start();
     scene.update(engine, 11);
     scene.draw(engine.ctx, 11);
 
@@ -530,6 +556,7 @@ describe('A scene', () => {
     });
 
     scene.add(timer);
+    timer.start();
     scene.update(engine, 11);
     scene.draw(engine.ctx, 11);
 
@@ -588,6 +615,7 @@ describe('A scene', () => {
     });
 
     scene.add(timer);
+    timer.start();
     scene.update(engine, 11);
     scene.draw(engine.ctx, 11);
 

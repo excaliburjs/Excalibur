@@ -10,7 +10,7 @@ import { TransformComponent } from './EntityComponentSystem/Components/Transform
 import { BodyComponent } from './Collision/Body';
 import { CollisionType } from './Collision/CollisionType';
 import { Shape } from './Collision/Shapes/Shape';
-import { ExcaliburGraphicsContext, GraphicsComponent } from './Graphics';
+import { ExcaliburGraphicsContext, GraphicsComponent, hasGraphicsTick } from './Graphics';
 import * as Graphics from './Graphics';
 import { CanvasDrawComponent, Sprite } from './Drawing/Index';
 import { Sprite as LegacySprite } from './Drawing/Index';
@@ -21,6 +21,7 @@ import { obsolete } from './Util/Decorators';
  * @hidden
  */
 export class TileMapImpl extends Entity {
+  private _token = 0;
   private _onScreenXStart: number = 0;
   private _onScreenXEnd: number = 9999;
   private _onScreenYStart: number = 0;
@@ -29,13 +30,15 @@ export class TileMapImpl extends Entity {
 
   private _legacySpriteMap = new Map<Graphics.Sprite, Sprite>();
   public logger: Logger = Logger.getInstance();
-  public data: Cell[] = [];
+  public readonly data: Cell[] = [];
+  private _rows: Cell[][] = [];
+  private _cols: Cell[][] = [];
   public visible = true;
   public isOffscreen = false;
-  public cellWidth: number;
-  public cellHeight: number;
-  public rows: number;
-  public cols: number;
+  public readonly cellWidth: number;
+  public readonly cellHeight: number;
+  public readonly rows: number;
+  public readonly cols: number;
 
   private _dirty = true;
   public flagDirty() {
@@ -147,14 +150,21 @@ export class TileMapImpl extends Entity {
     this.rows = rows;
     this.cols = cols;
     this.data = new Array<Cell>(rows * cols);
+    this._rows = new Array(rows);
+    this._cols = new Array(cols);
+    let currentCol: Cell[] = [];
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
-        (() => {
-          const cd = new Cell(i * cellWidth + <number>xOrConfig, j * cellHeight + y, cellWidth, cellHeight, i + j * cols);
-          cd.map = this;
-          this.data[i + j * cols] = cd;
-        })();
+        const cd = new Cell(i * cellWidth + <number>xOrConfig, j * cellHeight + y, cellWidth, cellHeight, i + j * cols);
+        this.data[i + j * cols] = cd;
+        currentCol.push(cd);
+        if (!this._rows[j]) {
+          this._rows[j] = [];
+        }
+        this._rows[j].push(cd);
       }
+      this._cols[i] = currentCol;
+      currentCol = [];
     }
     
     this.get(GraphicsComponent).localBounds = new BoundingBox({
@@ -266,6 +276,14 @@ export class TileMapImpl extends Entity {
     return null;
   }
 
+  public getRows(): readonly Cell[][] {
+    return this._rows;
+  }
+
+  public getColumns(): readonly Cell[][] {
+    return this._cols;
+  }
+
   public onPreUpdate(_engine: Engine, _delta: number) {
     // Override me
   }
@@ -282,6 +300,7 @@ export class TileMapImpl extends Entity {
       this._updateColliders();
     }
 
+    this._token++;
     const worldBounds = engine.getWorldBounds();
     const worldCoordsUpperLeft = vec(worldBounds.left, worldBounds.top);
     const worldCoordsLowerRight = vec(worldBounds.right, worldBounds.bottom);
@@ -309,25 +328,28 @@ export class TileMapImpl extends Entity {
     let y = this._onScreenYStart;
     const yEnd = Math.min(this._onScreenYEnd, this.rows);
 
-    let sprites: Graphics.Sprite[], spriteIndex: number, cslen: number;
+    let graphics: Graphics.Graphic[], graphicsIndex: number, graphicsLen: number;
 
     for (x; x < xEnd; x++) {
       for (y; y < yEnd; y++) {
         // get non-negative tile sprites
-        sprites = this.getCell(x, y).sprites;
+        graphics = this.getCell(x, y).graphics;
 
-        for (spriteIndex = 0, cslen = sprites.length; spriteIndex < cslen; spriteIndex++) {
+        for (graphicsIndex = 0, graphicsLen = graphics.length; graphicsIndex < graphicsLen; graphicsIndex++) {
           // draw sprite, warning if sprite doesn't exist
-          const sprite = sprites[spriteIndex];
-          if (sprite) {
+          const graphic = graphics[graphicsIndex];
+          if (graphic) {
             if (!(ctx instanceof CanvasRenderingContext2D)) {
-              sprite.draw(ctx, x * this.cellWidth, y * this.cellHeight);
-            } else {
-              // TODO legacy drawing mode
-              if (!this._legacySpriteMap.has(sprite)) {
-                this._legacySpriteMap.set(sprite, Graphics.Sprite.toLegacySprite(sprite));
+              if (hasGraphicsTick(graphic)) {
+                graphic?.tick(delta, this._token);
               }
-              this._legacySpriteMap.get(sprite).draw(ctx, x * this.cellWidth, y * this.cellHeight);
+              graphic.draw(ctx, x * this.cellWidth, y * this.cellHeight);
+            } else if (graphic instanceof Graphics.Sprite) {
+              // TODO legacy drawing mode
+              if (!this._legacySpriteMap.has(graphic)) {
+                this._legacySpriteMap.set(graphic, Graphics.Sprite.toLegacySprite(graphic));
+              }
+              this._legacySpriteMap.get(graphic).draw(ctx, x * this.cellWidth, y * this.cellHeight);
             }
           }
         }
@@ -365,22 +387,54 @@ export class TileMap extends Configurable(TileMapImpl) {
  */
 export class CellImpl extends Entity {
   private _bounds: BoundingBox;
+  /**
+   * World space x coordinate of the left of the cell
+   */
   public readonly x: number;
+  /**
+   * World space y coordinate of the top of the cell
+   */
   public readonly y: number;
+  /**
+   * Width of the cell in pixels
+   */
   public readonly width: number;
+  /**
+   * Height of the cell in pixels
+   */
   public readonly height: number;
+  /**
+   * Current index in the tilemap
+   */
   public readonly index: number;
+
+  /**
+   * Reference to the TileMap this Cell is associated with
+   */
   public map: TileMap;
 
   private _solid = false;
+  /**
+   * Wether this cell should be treated as solid by the tilemap
+   */
   public get solid(): boolean {
     return this._solid;
   }
+  /**
+   * Wether this cell should be treated as solid by the tilemap
+   */
   public set solid(val: boolean) {
     this.map?.flagDirty();
     this._solid = val;
   }
-  public sprites: Graphics.Sprite[] = [];
+  /**
+   * Current list of graphics for this cell
+   */
+  public readonly graphics: Graphics.Graphic[] = [];
+  /**
+   * Abitrary data storage per cell, useful for any game specific data
+   */
+  public data = new Map<string, any>();
 
   /**
    * @param xOrConfig Gets or sets x coordinate of the cell in world coordinates or cell option bag
@@ -398,7 +452,7 @@ export class CellImpl extends Entity {
     height: number,
     index: number,
     solid: boolean = false,
-    sprites: Graphics.Sprite[] = []
+    graphics: Graphics.Graphic[] = []
   ) {
     super();
     if (xOrConfig && typeof xOrConfig === 'object') {
@@ -409,7 +463,7 @@ export class CellImpl extends Entity {
       height = config.height;
       index = config.index;
       solid = config.solid;
-      sprites = config.sprites;
+      graphics = config.sprites;
     }
     this.x = <number>xOrConfig;
     this.y = y;
@@ -417,7 +471,7 @@ export class CellImpl extends Entity {
     this.height = height;
     this.index = index;
     this.solid = solid;
-    this.sprites = sprites;
+    this.graphics = graphics;
     this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
   }
 
@@ -435,32 +489,33 @@ export class CellImpl extends Entity {
    */
   @obsolete({ message: 'Will be removed in v0.26.0', alternateMethod: 'addSprite' })
   public pushSprite(sprite: Graphics.Sprite | LegacySprite) {
-    this.addSprite(sprite);
+    this.addGraphic(sprite);
   }
 
   /**
-   * Add another [[Sprite]] to this TileMap cell
-   * @param sprite
+   * Add another [[Graphic]] to this TileMap cell
+   * @param graphic
    */
-  public addSprite(sprite: Graphics.Sprite | LegacySprite) {
-    if (sprite instanceof LegacySprite) {
-      this.sprites.push(Graphics.Sprite.fromLegacySprite(sprite));
+  public addGraphic(graphic: Graphics.Graphic | LegacySprite) {
+    if (graphic instanceof LegacySprite) {
+      this.graphics.push(Graphics.Sprite.fromLegacySprite(graphic));
     } else {
-      this.sprites.push(sprite);
+      this.graphics.push(graphic);
     }
   }
 
   /**
-   * Remove an instance of [[Sprite]] from this cell
+   * Remove an instance of a [[Graphic]] from this cell
    */
-  public removeSprite(sprite: Graphics.Sprite | LegacySprite) {
-    removeItemFromArray(sprite, this.sprites);
+  public removeGraphic(graphic: Graphics.Graphic | LegacySprite) {
+    removeItemFromArray(graphic, this.graphics);
   }
+
   /**
-   * Clear all sprites from this cell
+   * Clear all graphis from this cell
    */
-  public clearSprites() {
-    this.sprites.length = 0;
+  public clearGraphics() {
+    this.graphics.length = 0;
   }
 }
 

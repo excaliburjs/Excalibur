@@ -2,8 +2,10 @@ import { Resource } from '../Resources/Resource';
 import { Texture } from '../Resources/Texture';
 import { Sprite } from './Sprite';
 import { Loadable } from '../Interfaces/Index';
+import { Logger } from '../Util/Log';
 
 export class ImageSource implements Loadable<HTMLImageElement> {
+  private _logger = Logger.getInstance();
   private _resource: Resource<Blob>;
 
   /**
@@ -48,6 +50,9 @@ export class ImageSource implements Loadable<HTMLImageElement> {
    */
   constructor(public readonly path: string, bustCache: boolean = false) {
     this._resource = new Resource(path, 'blob', bustCache);
+    if (path.endsWith('.svg') || path.endsWith('.gif')) {
+      this._logger.warn(`Image type is not fully supported, you may have mixed results ${path}. Fully supported: jpg, bmp, and png`);
+    }
     this.ready = new Promise<HTMLImageElement>((resolve) => {
       this._loadedResolve = resolve;
     });

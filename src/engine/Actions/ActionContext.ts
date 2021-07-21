@@ -19,6 +19,7 @@ import { Delay } from './Action/Delay';
 import { Die } from './Action/Die';
 import { Follow } from './Action/Follow';
 import { Meet } from './Action/Meet';
+import { Vector } from '..';
 
 /**
  * The fluent Action API allows you to perform "actions" on
@@ -54,12 +55,38 @@ export class ActionContext {
    * This method will move an actor to the specified `x` and `y` position over the
    * specified duration using a given [[EasingFunctions]] and return back the actor. This
    * method is part of the actor 'Action' fluent API allowing action chaining.
+   * @param pos       The x,y vector location to move the actor to
+   * @param duration  The time it should take the actor to move to the new location in milliseconds
+   * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position, Default is [[EasingFunctions.Linear]]
+   */
+  public easeTo(pos: Vector, duration: number, easingFcn?: EasingFunction): ActionContext
+  /**
+   * This method will move an actor to the specified `x` and `y` position over the
+   * specified duration using a given [[EasingFunctions]] and return back the actor. This
+   * method is part of the actor 'Action' fluent API allowing action chaining.
    * @param x         The x location to move the actor to
    * @param y         The y location to move the actor to
    * @param duration  The time it should take the actor to move to the new location in milliseconds
-   * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position
+   * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position, Default is [[EasingFunctions.Linear]]
    */
-  public easeTo(x: number, y: number, duration: number, easingFcn: EasingFunction = EasingFunctions.Linear) {
+  public easeTo(x: number, y: number, duration: number, easingFcn?: EasingFunction): ActionContext
+  public easeTo(...args: any[]): ActionContext {
+    let x = 0;
+    let y = 0;
+    let duration = 0;
+    let easingFcn = EasingFunctions.Linear;
+    if (args[0] instanceof Vector) {
+      x = args[0].x;
+      y = args[0].y;
+      duration = args[1];
+      easingFcn = args[2] ?? easingFcn;
+    } else {
+      x = args[0];
+      y = args[1];
+      duration = args[2];
+      easingFcn = args[3] ?? easingFcn;
+    }
+
     this._queue.add(new EaseTo(this._actor, x, y, duration, easingFcn));
     return this;
   }
@@ -68,11 +95,32 @@ export class ActionContext {
    * This method will move an actor to the specified x and y position at the
    * speed specified (in pixels per second) and return back the actor. This
    * method is part of the actor 'Action' fluent API allowing action chaining.
+   * @param pos    The x,y vector location to move the actor to
+   * @param speed  The speed in pixels per second to move
+   */
+  public moveTo(pos: Vector, speed: number): ActionContext;
+  /**
+   * This method will move an actor to the specified x and y position at the
+   * speed specified (in pixels per second) and return back the actor. This
+   * method is part of the actor 'Action' fluent API allowing action chaining.
    * @param x      The x location to move the actor to
    * @param y      The y location to move the actor to
    * @param speed  The speed in pixels per second to move
    */
-  public moveTo(x: number, y: number, speed: number): ActionContext {
+  public moveTo(x: number, y: number, speed: number): ActionContext;
+  public moveTo(xOrPos: number | Vector, yOrSpeed: number, speedOrUndefined?: number | undefined): ActionContext {
+    let x = 0;
+    let y = 0;
+    let speed = 0;
+    if (xOrPos instanceof Vector) {
+      x = xOrPos.x;
+      y = xOrPos.y;
+      speed = yOrSpeed;
+    } else {
+      x = xOrPos;
+      y = yOrSpeed;
+      speed = speedOrUndefined;
+    }
     this._queue.add(new MoveTo(this._actor, x, y, speed));
     return this;
   }
@@ -84,7 +132,21 @@ export class ActionContext {
    * @param yOffset     The y location to move the actor to
    * @param speed  The speed in pixels per second the actor should move
    */
-  public moveBy(xOffset: number, yOffset: number, speed: number): ActionContext {
+  public moveBy(offset: Vector, speed: number): ActionContext;
+  public moveBy(xOffset: number, yOffset: number, speed: number): ActionContext;
+  public moveBy(xOffsetOrVector: number | Vector, yOffsetOrSpeed: number, speedOrUndefined?: number | undefined): ActionContext {
+    let xOffset = 0;
+    let yOffset = 0;
+    let speed = 0;
+    if (xOffsetOrVector instanceof Vector) {
+      xOffset = xOffsetOrVector.x;
+      yOffset = xOffsetOrVector.y;
+      speed = yOffsetOrSpeed;
+    } else {
+      xOffset = xOffsetOrVector;
+      yOffset = yOffsetOrSpeed;
+      speed = speedOrUndefined;
+    }
     this._queue.add(new MoveBy(this._actor, xOffset, yOffset, speed));
     return this;
   }
@@ -120,12 +182,46 @@ export class ActionContext {
    * specified (in magnitude increase per second) and return back the
    * actor. This method is part of the actor 'Action' fluent API allowing
    * action chaining.
+   * @param size    The scale to adjust the actor to over time
+   * @param speed   The speed of scaling specified in magnitude increase per second
+   */
+  public scaleTo(size: Vector, speed: Vector): ActionContext;
+  /**
+   * This method will scale an actor to the specified size at the speed
+   * specified (in magnitude increase per second) and return back the
+   * actor. This method is part of the actor 'Action' fluent API allowing
+   * action chaining.
    * @param sizeX   The scaling factor to apply on X axis
    * @param sizeY   The scaling factor to apply on Y axis
    * @param speedX  The speed of scaling specified in magnitude increase per second on X axis
    * @param speedY  The speed of scaling specified in magnitude increase per second on Y axis
    */
-  public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): ActionContext {
+  public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): ActionContext;
+  public scaleTo(sizeXOrVector: number | Vector,
+    sizeYOrSpeed: number | Vector,
+    speedXOrUndefined?: number | undefined,
+    speedYOrUndefined?: number | undefined): ActionContext {
+
+    let sizeX = 1;
+    let sizeY = 1;
+    let speedX = 0;
+    let speedY = 0;
+
+    if (sizeXOrVector instanceof Vector && sizeYOrSpeed instanceof Vector) {
+      sizeX = sizeXOrVector.x;
+      sizeY = sizeXOrVector.y;
+
+      speedX = sizeYOrSpeed.x;
+      speedY = sizeYOrSpeed.y;
+    }
+    if (typeof sizeXOrVector === 'number' && typeof sizeYOrSpeed === 'number') {
+      sizeX = sizeXOrVector;
+      sizeY = sizeYOrSpeed;
+
+      speedX = speedXOrUndefined;
+      speedY = speedYOrUndefined;
+    }
+
     this._queue.add(new ScaleTo(this._actor, sizeX, sizeY, speedX, speedY));
     return this;
   }
@@ -134,11 +230,34 @@ export class ActionContext {
    * This method will scale an actor by an amount relative to the current scale at a certain speed in scale units/sec
    * and return back the actor. This method is part of the
    * actor 'Action' fluent API allowing action chaining.
+   * @param offset   The scaling factor to apply to the actor
+   * @param speed    The speed to scale at in scale units/sec
+   */
+  public scaleBy(offset: Vector, speed: number): ActionContext;
+  /**
+   * This method will scale an actor by an amount relative to the current scale at a certain speed in scale units/sec
+   * and return back the actor. This method is part of the
+   * actor 'Action' fluent API allowing action chaining.
    * @param sizeOffsetX   The scaling factor to apply on X axis
    * @param sizeOffsetY   The scaling factor to apply on Y axis
    * @param speed    The speed to scale at in scale units/sec
    */
-  public scaleBy(sizeOffsetX: number, sizeOffsetY: number, speed: number): ActionContext {
+  public scaleBy(sizeOffsetX: number, sizeOffsetY: number, speed: number): ActionContext;
+  public scaleBy(sizeOffsetXOrVector: number | Vector, sizeOffsetYOrSpeed: number, speed?: number | undefined): ActionContext {
+    let sizeOffsetX = 1;
+    let sizeOffsetY = 1;
+
+    if (sizeOffsetXOrVector instanceof Vector) {
+      sizeOffsetX = sizeOffsetXOrVector.x;
+      sizeOffsetY = sizeOffsetXOrVector.y;
+
+      speed = sizeOffsetYOrSpeed;
+    }
+    if (typeof sizeOffsetXOrVector === 'number' && typeof sizeOffsetYOrSpeed === 'number') {
+      sizeOffsetX = sizeOffsetXOrVector;
+      sizeOffsetY = sizeOffsetYOrSpeed;
+    }
+
     this._queue.add(new ScaleBy(this._actor, sizeOffsetX, sizeOffsetY, speed));
     return this;
   }

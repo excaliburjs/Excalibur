@@ -565,7 +565,7 @@ O|===|* >________________>\n\
       this._logger.debug('Engine viewport is size ' + options.width + ' x ' + options.height);
     } else if (!options.displayMode) {
       this._logger.debug('Engine viewport is fit');
-      displayMode = DisplayMode.Fit;
+      displayMode = DisplayMode.FitScreen;
     }
 
     if (Flags.isEnabled(Experiments.WebGL)) {
@@ -853,7 +853,7 @@ O|===|* >________________>\n\
 
       // only deactivate when initialized
       if (this.currentScene.isInitialized) {
-        this.currentScene._deactivate.call(this.currentScene, [oldScene, newScene]);
+        this.currentScene._deactivate.apply(this.currentScene, [oldScene, newScene]);
         this.currentScene.eventDispatcher.emit('deactivate', new DeactivateEvent(newScene, this.currentScene));
       }
 
@@ -864,7 +864,7 @@ O|===|* >________________>\n\
       // initialize the current scene if has not been already
       this.currentScene._initialize(this);
 
-      this.currentScene._activate.call(this.currentScene, [oldScene, newScene]);
+      this.currentScene._activate.apply(this.currentScene, [oldScene, newScene]);
       this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(oldScene, this.currentScene));
     } else {
       this._logger.error('Scene', key, 'does not exist!');

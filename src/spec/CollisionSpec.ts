@@ -209,17 +209,17 @@ describe('A Collision', () => {
     engine.add(passiveBlock);
 
     const collisionHandler = (ev: ex.PreCollisionEvent) => {
-      engine.add(
-        new ex.Timer({
-          interval: 30,
-          fcn: () => {
-            expect(activeBlock.vel.x).toBeGreaterThan(0);
-            expect(passiveBlock.vel.x).toBeLessThan(0);
-            done();
-          },
-          repeats: false
-        })
-      );
+      const timer = new ex.Timer({
+        interval: 30,
+        fcn: () => {
+          expect(activeBlock.vel.x).toBeGreaterThan(0);
+          expect(passiveBlock.vel.x).toBeLessThan(0);
+          done();
+        },
+        repeats: false
+      });
+      timer.start();
+      engine.add(timer);
     };
 
     activeBlock.once('precollision', collisionHandler);
@@ -337,7 +337,7 @@ describe('A Collision', () => {
     passiveBlock.vel.x = -100;
     engine.add(passiveBlock);
 
-    const collisionEnd = function() {
+    const collisionEnd = function () {
       expect(this).toBe(activeBlock);
       done();
     };
@@ -362,7 +362,7 @@ describe('A Collision', () => {
     passiveBlock.vel.x = -100;
     engine.add(passiveBlock);
 
-    const collisionEnd = function() {
+    const collisionEnd = function () {
       expect(this).toBe(activeBlock);
       done();
     };

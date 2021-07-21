@@ -392,9 +392,17 @@ var tileBlockWidth = 64,
 // var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
 var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
 var blocks = ex.Graphics.Sprite.from(imageBlocks);
+// var flipped = spriteTiles.sprites[0].clone();
+// flipped.flipVertical = true;
+// var blockAnim = new ex.Graphics.Animation({
+//   frames: [
+//     { graphic: spriteTiles.sprites[0], duration: 200 },
+//     { graphic: flipped, duration: 200 }
+//   ]
+// })
 tileMap.data.forEach(function(cell: ex.Cell) {
   cell.solid = true;
-  cell.addSprite(spriteTiles.sprites[0]);
+  cell.addGraphic(spriteTiles.sprites[0]);
 });
 game.add(tileMap);
 
@@ -806,10 +814,10 @@ game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
   if (c) {
     if (c.solid) {
       c.solid = false;
-      c.sprites.pop();
+      c.clearGraphics();
     } else {
       c.solid = true;
-      c.addSprite(spriteTiles.sprites[0]);
+      c.addGraphic(spriteTiles.sprites[0]);
     }
   }
 });
