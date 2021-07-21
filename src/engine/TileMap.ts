@@ -104,7 +104,6 @@ export class TileMapImpl extends Entity {
     this._transform.pos = val;
   }
 
-
   public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent<TileMap>) => void): void;
   public on(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent<TileMap>) => void): void;
   public on(eventName: Events.predraw, handler: (event: Events.PreDrawEvent) => void): void;
@@ -134,11 +133,13 @@ export class TileMapImpl extends Entity {
       cols = config.cols;
     }
     this.addComponent(new TransformComponent());
-    this.addComponent(new BodyComponent({
-      box: { width: cellWidth * cols, height: cellHeight * rows },
-      type: CollisionType.Fixed,
-      anchor: Vector.Zero
-    }));
+    this.addComponent(
+      new BodyComponent({
+        box: { width: cellWidth * cols, height: cellHeight * rows },
+        type: CollisionType.Fixed,
+        anchor: Vector.Zero
+      })
+    );
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
     this._transform = this.get(TransformComponent);
     this._body = this.get(BodyComponent);
@@ -166,7 +167,7 @@ export class TileMapImpl extends Entity {
       this._cols[i] = currentCol;
       currentCol = [];
     }
-    
+
     this.get(GraphicsComponent).localBounds = new BoundingBox({
       left: 0,
       top: 0,
@@ -205,7 +206,6 @@ export class TileMapImpl extends Entity {
     let current: BoundingBox;
     // Bad square tessalation algo
     for (let i = 0; i < this.cols; i++) {
-
       // Scan column for colliders
       for (let j = 0; j < this.rows; j++) {
         // Columns start with a new collider
@@ -234,16 +234,15 @@ export class TileMapImpl extends Entity {
         const prev = colliders[colliders.length - 1];
         if (prev && prev.top === current.top && prev.bottom === current.bottom) {
           colliders[colliders.length - 1] = prev.combine(current);
-        } else { // else new collider
+        } else {
+          // else new collider
           colliders.push(current);
         }
       }
     }
 
     for (const c of colliders) {
-      this._body.addCollider(
-        Shape.Box(c.width, c.height, Vector.Zero, vec(c.left - this.pos.x, c.top - this.pos.y)),
-      );
+      this._body.addCollider(Shape.Box(c.width, c.height, Vector.Zero, vec(c.left - this.pos.x, c.top - this.pos.y)));
     }
   }
 
@@ -443,7 +442,7 @@ export class CellImpl extends Entity {
    * @param height  Gets or sets the height of the cell
    * @param index   The index of the cell in row major order
    * @param solid   Gets or sets whether this cell is solid
-   * @param sprites The list of tile sprites to use to draw in this cell (in order)
+   * @param graphics The list of tile graphics to use to draw in this cell (in order)
    */
   constructor(
     xOrConfig: number | CellArgs,
