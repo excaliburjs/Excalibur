@@ -1,5 +1,7 @@
 import { Actor } from '../../Actor';
 import { vec } from '../../Algebra';
+import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
+import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { Action } from '../Action';
 
 export class ScaleTo implements Action {
@@ -25,32 +27,34 @@ export class ScaleTo implements Action {
   }
 
   public update(_delta: number): void {
+    const transform = this._actor.get(TransformComponent);
+    const motion = this._actor.get(MotionComponent);
     if (!this._started) {
       this._started = true;
-      this._startX = this._actor.scale.x;
-      this._startY = this._actor.scale.y;
+      this._startX = transform.scale.x;
+      this._startY = transform.scale.y;
       this._distanceX = Math.abs(this._endX - this._startX);
       this._distanceY = Math.abs(this._endY - this._startY);
     }
 
-    if (!(Math.abs(this._actor.scale.x - this._startX) >= this._distanceX)) {
+    if (!(Math.abs(transform.scale.x - this._startX) >= this._distanceX)) {
       const directionX = this._endY < this._startY ? -1 : 1;
-      this._actor.sx = this._speedX * directionX;
+      motion.scaleFactor.x = this._speedX * directionX;
     } else {
-      this._actor.sx = 0;
+      motion.scaleFactor.x = 0;
     }
 
-    if (!(Math.abs(this._actor.scale.y - this._startY) >= this._distanceY)) {
+    if (!(Math.abs(transform.scale.y - this._startY) >= this._distanceY)) {
       const directionY = this._endY < this._startY ? -1 : 1;
-      this._actor.sy = this._speedY * directionY;
+      motion.scaleFactor.y = this._speedY * directionY;
     } else {
-      this._actor.sy = 0;
+      motion.scaleFactor.y = 0;
     }
 
     if (this.isComplete()) {
       this._actor.scale = vec(this._endX, this._endY);
-      this._actor.sx = 0;
-      this._actor.sy = 0;
+      motion.scaleFactor.x = 0;
+      motion.scaleFactor.y = 0;
     }
   }
 
@@ -62,8 +66,9 @@ export class ScaleTo implements Action {
   }
 
   public stop(): void {
-    this._actor.sx = 0;
-    this._actor.sy = 0;
+    const motion = this._actor.get(MotionComponent);
+    motion.scaleFactor.x = 0;
+    motion.scaleFactor.y = 0;
     this._stopped = true;
   }
 

@@ -243,7 +243,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
         this.world.add(new GraphicsSystem());
       }
 
-
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
       this.onInitialize.call(this, engine);
@@ -393,7 +392,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     this.world.update(SystemType.Draw, delta);
 
-    if (this.engine.isDebug) {
+    if (this.engine?.isDebug) {
       this.debugDraw(ctx);
     }
     this._postdraw(ctx, delta);
@@ -521,7 +520,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
-    this.emit('entityremoved', {target: entity} as any);
+    this.emit('entityremoved', { target: entity } as any);
     this.world.remove(entity);
     if (entity instanceof Actor) {
       if (!Util.contains(this.actors, entity)) {

@@ -258,4 +258,20 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
       this.scale = vec(val.x / parentTransform.globalScale.x, val.y / parentTransform.globalScale.y);
     }
   }
+
+  /**
+   * Apply the transform to a point
+   * @param point
+   */
+  public apply(point: Vector): Vector {
+    return this.matrix.multv(point);
+  }
+
+  /**
+   * Apply the inverse transform to a point
+   * @param point
+   */
+  public applyInverse(point: Vector): Vector {
+    return this.matrix.getAffineInverse().multv(point);
+  }
 }

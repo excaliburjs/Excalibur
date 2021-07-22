@@ -1,50 +1,42 @@
 import { Camera } from '../Camera';
 import { Color } from '../Drawing/Color';
-import { Component, ComponentType, Entity } from '../EntityComponentSystem';
+import { Entity } from '../EntityComponentSystem';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { Physics } from './Physics';
 import { Scene } from '../Scene';
 import { DrawUtil } from '../Util/Index';
-import { Body } from './Body';
+import { BodyComponent } from './Body';
 import { CollisionType } from './CollisionType';
 import { EulerIntegrator } from './Integrator';
 
 export class MotionSystem extends System<TransformComponent | MotionComponent> {
-  public readonly types = ['transform', 'motion'] as const;
+  public readonly types = ['ex.transform', 'ex.motion'] as const;
   public systemType = SystemType.Update;
   public priority = -1;
 
-  private _entities: Entity<TransformComponent | MotionComponent>[] = [];
+  private _entities: Entity[] = [];
   private _camera: Camera;
   initialize(scene: Scene) {
     this._camera = scene.camera;
   }
 
-  getOptional<T extends Component>(entity: Entity, component: ComponentType<T>): T | null {
-    if (entity.components[component]){
-      return (entity.components as any)[component] ?? null;
-    }
-    return null;
-  }
-
-  update(_entities: Entity<TransformComponent | MotionComponent>[], elapsedMs: number): void {
+  update(_entities: Entity[], elapsedMs: number): void {
     let transform: TransformComponent;
     let motion: MotionComponent;
     this._entities = _entities;
     for (const entity of _entities) {
-      transform = entity.components.transform;
-      motion = entity.components.motion;
+      transform = entity.get(TransformComponent);
+      motion = entity.get(MotionComponent);
 
-      const optionalBody = this.getOptional<Body>(entity, 'body');
+      const optionalBody = entity.get(BodyComponent);
       if (optionalBody?.sleeping) {
         continue;
       }
 
       const totalAcc = motion.acc.clone();
-      if (optionalBody?.collisionType === CollisionType.Active &&
-          optionalBody?.useGravity) {
+      if (optionalBody?.collisionType === CollisionType.Active && optionalBody?.useGravity) {
         totalAcc.addEqual(Physics.gravity);
       }
       optionalBody?.captureOldTransform();
@@ -58,14 +50,16 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
     ctx.save();
     this._camera.draw(ctx);
     for (const entity of this._entities) {
+      const transform = entity.get(TransformComponent);
+      const motion = entity.get(MotionComponent);
       if (Physics.debug.showMotionVectors) {
-        DrawUtil.vector(ctx, Color.Yellow, entity.components.transform.pos, entity.components.motion.acc.add(Physics.acc));
-        DrawUtil.vector(ctx, Color.Blue, entity.components.transform.pos, entity.components.motion.vel);
-        DrawUtil.point(ctx, Color.Red, entity.components.transform.pos);
+        DrawUtil.vector(ctx, Color.Yellow, transform.pos, motion.acc.add(Physics.acc));
+        DrawUtil.vector(ctx, Color.Blue, transform.pos, motion.vel);
+        DrawUtil.point(ctx, Color.Red, transform.pos);
       }
       if (Physics.debug.showSleepMotion) {
-        const pos = entity.components.transform.pos;
-        const body = this.getOptional<Body>(entity, 'body');
+        const pos = transform.pos;
+        const body = entity.get(BodyComponent);
         if (body) {
           ctx.fillStyle = 'yellow';
           ctx.font = '18px';
@@ -75,5 +69,4 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
     }
     ctx.restore();
   }
-
 }

@@ -69,7 +69,7 @@ describe('Action', () => {
   describe('color', () => {
     it('is cloned from constructor', () => {
       const color = ex.Color.Azure;
-      const sut = new ex.Actor({color});
+      const sut = new ex.Actor({ color });
 
       expect(sut.color).not.toBe(color, 'Color is not expected to be same instance');
     });
@@ -555,7 +555,7 @@ describe('Action', () => {
 
       actor.update(engine, 500);
       expect(actor.rotation).toBe(canonicalizeAngle(Math.PI / 2));
-      expect(actor.rx).toBe(0);
+      expect(actor.angularVelocity).toBe(0);
 
       // rotating back to 0, starting at PI / 2
       actor.actions.rotateTo(0, Math.PI / 2, ex.RotationType.CounterClockwise);
@@ -771,7 +771,7 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
 
-      const actorToFollow = new ex.Actor({x: 10, y: 0});
+      const actorToFollow = new ex.Actor({ x: 10, y: 0 });
       scene.add(actorToFollow);
       actorToFollow.actions.moveTo(100, 0, 10);
       actor.actions.follow(actorToFollow);
@@ -793,7 +793,7 @@ describe('Action', () => {
       expect(actor.pos.y).toBe(0);
 
       // testing basic meet
-      const actorToMeet = new ex.Actor({x: 10, y: 0});
+      const actorToMeet = new ex.Actor({ x: 10, y: 0 });
       scene.add(actorToMeet);
       actorToMeet.actions.moveTo(100, 0, 10);
       actor.actions.meet(actorToMeet);

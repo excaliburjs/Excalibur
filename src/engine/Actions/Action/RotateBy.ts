@@ -83,12 +83,12 @@ export class RotateBy implements Action {
       }
     }
 
-    this._actor.rx = this._direction * this._speed;
+    this._actor.angularVelocity = this._direction * this._speed;
     this._currentNonCannonAngle += this._direction * this._speed * (_delta / 1000);
 
     if (this.isComplete()) {
       this._actor.rotation = this._end;
-      this._actor.rx = 0;
+      this._actor.angularVelocity = 0;
       this._stopped = true;
     }
   }
@@ -99,7 +99,7 @@ export class RotateBy implements Action {
   }
 
   public stop(): void {
-    this._actor.rx = 0;
+    this._actor.angularVelocity = 0;
     this._stopped = true;
   }
 

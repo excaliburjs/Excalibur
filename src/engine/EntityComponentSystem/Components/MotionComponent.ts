@@ -33,8 +33,8 @@ export interface Motion {
   inertia: number;
 }
 
-export class MotionComponent extends Component<'motion'> {
-  public readonly type = 'motion';
+export class MotionComponent extends Component<'ex.motion'> {
+  public readonly type = 'ex.motion';
 
   /**
    * The velocity of an entity in pixels per second

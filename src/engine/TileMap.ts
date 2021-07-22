@@ -141,6 +141,11 @@ export class TileMapImpl extends Entity {
       })
     );
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
+    this.addComponent(
+      new GraphicsComponent({
+        onPostDraw: (ctx, delta) => this.draw(ctx, delta)
+      })
+    );
     this._transform = this.get(TransformComponent);
     this._body = this.get(BodyComponent);
 

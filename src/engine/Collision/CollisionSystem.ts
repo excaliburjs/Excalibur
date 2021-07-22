@@ -17,7 +17,7 @@ import { RealisticSolver } from './Solver/RealisticSolver';
 import { CollisionSolver } from './Solver/Solver';
 
 export class CollisionSystem extends System<TransformComponent | MotionComponent | BodyComponent> {
-  public readonly types = ['transform', 'motion', 'body'] as const;
+  public readonly types = ['ex.transform', 'ex.motion', 'ex.body'] as const;
   public systemType = SystemType.Update;
   public priority = -1;
 
@@ -33,15 +33,16 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
   // Ctx and camera are used for the debug draw
   private _camera: Camera;
 
-  notify(message: AddedEntity<TransformComponent | MotionComponent | BodyComponent> | RemovedEntity) {
+  notify(message: AddedEntity | RemovedEntity) {
     if (isAddedSystemEntity(message)) {
-      message.data.components.body.$collidersAdded.subscribe(this._trackCollider);
-      message.data.components.body.$collidersRemoved.subscribe(this._untrackCollider);
-      for (const collider of message.data.components.body.getColliders()) {
+      const bodyComponent = message.data.get(BodyComponent);
+      bodyComponent.$collidersAdded.subscribe(this._trackCollider);
+      bodyComponent.$collidersRemoved.subscribe(this._untrackCollider);
+      for (const collider of bodyComponent.getColliders()) {
         this._processor.track(collider);
       }
     } else {
-      const maybeBody = message.data.components.body as BodyComponent;
+      const maybeBody = message.data.get(BodyComponent);
       if (maybeBody) {
         for (const collider of maybeBody.getColliders()) {
           this._processor.untrack(collider);
@@ -54,7 +55,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     this._camera = scene.camera;
   }
 
-  update(_entities: Entity<TransformComponent | MotionComponent | BodyComponent>[], elapsedMs: number): void {
+  update(_entities: Entity[], elapsedMs: number): void {
     if (!Physics.enabled) {
       // TODO remove system entirely if not enabled
       return;
@@ -64,9 +65,9 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     let colliders: Collider[] = [];
     for (const entity of _entities) {
       // Update body collider geometry, recomputes worldspace geometry
-      entity.components.body.update();
+      entity.get(BodyComponent)?.update();
       // Bodies can have multiple colliders
-      colliders = colliders.concat(entity.components.body.getColliders());
+      colliders = colliders.concat(entity.get(BodyComponent).getColliders());
     }
 
     // Update the spatial partitioning data structures

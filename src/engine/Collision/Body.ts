@@ -1,7 +1,7 @@
 import { Collider } from './Shapes/Collider';
-import { vec, Vector } from '../Algebra';
+import { Vector } from '../Algebra';
 import { CollisionType } from './CollisionType';
-import { Physics } from '../Physics';
+import { Physics } from './Physics';
 import { Clonable } from '../Interfaces/Clonable';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
@@ -23,7 +23,7 @@ import { ConvexPolygon } from './Shapes/ConvexPolygon';
 import { Edge } from './Shapes/Edge';
 
 export interface BodyComponentOptions {
-  box?: { width: number, height: number };
+  box?: { width: number; height: number };
   colliders?: Collider[];
   type?: CollisionType;
   group?: CollisionGroup;
@@ -41,8 +41,8 @@ export enum DegreeOfFreedom {
  * Body describes all the physical properties pos, vel, acc, rotation, angular velocity for the purpose of
  * of physics simulation.
  */
-export class BodyComponent extends Component<'body'> implements Clonable<Body> {
-  public readonly type = 'body';
+export class BodyComponent extends Component<'ex.body'> implements Clonable<Body> {
+  public readonly type = 'ex.body';
   public dependencies = [TransformComponent, MotionComponent];
   public static _ID = 0;
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
@@ -54,11 +54,15 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
       this.collisionType = options.type ?? this.collisionType;
       this.group = options.group ?? this.group;
       if (options.box) {
-        const { box: { width, height }, anchor = Vector.Half, offset = Vector.Zero } = options;
+        const {
+          box: { width, height },
+          anchor = Vector.Half,
+          offset = Vector.Zero
+        } = options;
         this.useBoxCollider(width, height, anchor, offset);
       }
       if (options.colliders) {
-        options.colliders.forEach(c => this.addCollider(c));
+        options.colliders.forEach((c) => this.addCollider(c));
       }
     }
   }
@@ -370,7 +374,6 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     return this.transform.globalRotation;
   }
 
-
   public set rotation(val: number) {
     this.transform.globalRotation = val;
   }
@@ -523,28 +526,25 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
   }
 
   public hasChanged() {
-    return (!this.oldPos.equals(this.pos) ||
-          this.oldRotation !== this.rotation ||
-          this.oldScale !== this.scale);
+    return !this.oldPos.equals(this.pos) || this.oldRotation !== this.rotation || this.oldScale !== this.scale;
   }
 
   onAdd(entity: Entity) {
     this.update();
     this.events.on('precollision', (evt: any) => {
-      entity.events.emit('precollision',
-        new PreCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection));
+      entity.events.emit('precollision', new PreCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection));
     });
     this.events.on('postcollision', (evt: any) => {
-      entity.events.emit('postcollision',
-        new PostCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection));
+      entity.events.emit(
+        'postcollision',
+        new PostCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection)
+      );
     });
     this.events.on('collisionstart', (evt: any) => {
-      entity.events.emit('collisionstart',
-        new CollisionStartEvent(evt.target?.owner?.owner, evt.other?.owner?.owner, evt.contact));
+      entity.events.emit('collisionstart', new CollisionStartEvent(evt.target?.owner?.owner, evt.other?.owner?.owner, evt.contact));
     });
     this.events.on('collisionend', (evt: any) => {
-      entity.events.emit('collisionend',
-        new CollisionEndEvent(evt.target?.owner?.owner, evt.other?.owner?.owner));
+      entity.events.emit('collisionend', new CollisionEndEvent(evt.target?.owner?.owner, evt.other?.owner?.owner));
     });
   }
 
@@ -681,7 +681,6 @@ export class BodyComponent extends Component<'body'> implements Clonable<Body> {
     return collider;
   }
 }
-
 
 // Alias for backwards compat
 export type Body = BodyComponent;
