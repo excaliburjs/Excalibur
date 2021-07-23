@@ -99,6 +99,16 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       this.camera.x = this.engine.halfDrawWidth;
       this.camera.y = this.engine.halfDrawHeight;
     }
+
+    // TODO how to people do there own systems
+    // Initialize systems
+    this.world.add(new MotionSystem());
+    this.world.add(new CollisionSystem());
+    if (Flags.isEnabled(Legacy.LegacyDrawing)) {
+      this.world.add(new CanvasDrawingSystem());
+    } else {
+      this.world.add(new GraphicsSystem());
+    }
   }
 
   public on(eventName: Events.initialize, handler: (event: InitializeEvent<Scene>) => void): void;
@@ -232,15 +242,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       if (this.camera) {
         this.camera.x = engine.halfDrawWidth;
         this.camera.y = engine.halfDrawHeight;
-      }
-
-      // Initialize systems
-      this.world.add(new MotionSystem());
-      this.world.add(new CollisionSystem());
-      if (Flags.isEnabled(Legacy.LegacyDrawing)) {
-        this.world.add(new CanvasDrawingSystem());
-      } else {
-        this.world.add(new GraphicsSystem());
       }
 
       // This order is important! we want to be sure any custom init that add actors

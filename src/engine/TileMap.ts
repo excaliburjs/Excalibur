@@ -16,6 +16,7 @@ import { CanvasDrawComponent, Sprite } from './Drawing/Index';
 import { Sprite as LegacySprite } from './Drawing/Index';
 import { removeItemFromArray } from './Util/Util';
 import { obsolete } from './Util/Decorators';
+import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
 
 /**
  * @hidden
@@ -45,6 +46,7 @@ export class TileMapImpl extends Entity {
     this._dirty = true;
   }
   private _transform: TransformComponent;
+  private _motion: MotionComponent;
   private _body: BodyComponent;
 
   public get x(): number {
@@ -104,6 +106,14 @@ export class TileMapImpl extends Entity {
     this._transform.pos = val;
   }
 
+  public get vel(): Vector {
+    return this._motion.vel;
+  }
+
+  public set vel(val: Vector) {
+    this._motion.vel = val;
+  }
+
   public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent<TileMap>) => void): void;
   public on(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent<TileMap>) => void): void;
   public on(eventName: Events.predraw, handler: (event: Events.PreDrawEvent) => void): void;
@@ -133,6 +143,7 @@ export class TileMapImpl extends Entity {
       cols = config.cols;
     }
     this.addComponent(new TransformComponent());
+    this.addComponent(new MotionComponent());
     this.addComponent(
       new BodyComponent({
         box: { width: cellWidth * cols, height: cellHeight * rows },
@@ -147,6 +158,7 @@ export class TileMapImpl extends Entity {
       })
     );
     this._transform = this.get(TransformComponent);
+    this._motion = this.get(MotionComponent);
     this._body = this.get(BodyComponent);
 
     this.x = <number>xOrConfig;
