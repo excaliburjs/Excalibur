@@ -36,7 +36,7 @@ describe('A Trigger', () => {
       height: 100,
       repeat: 1
     });
-    const actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
+    const actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
     actor.body.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
     engine.currentScene.add(trigger);
@@ -78,7 +78,7 @@ describe('A Trigger', () => {
     trigger.on('enter', enterSpy);
     trigger.on('exit', exitSpy);
 
-    const actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
+    const actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
     actor.body.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
     engine.currentScene.add(trigger);
@@ -88,38 +88,41 @@ describe('A Trigger', () => {
     // Act
     // Enter trigger first
     actor.vel.y = 10;
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
     // Exit trigger first
     actor.vel.y = -10;
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
     // Enter trigger second
     actor.vel.y = 10;
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
     // Exit trigger second
     actor.vel.y = -10;
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
     // Enter trigger third
     actor.vel.y = 10;
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       engine.currentScene.update(engine, 1000);
     }
+
+    // The last enter also has an exit because the actor is killed
+    // and no longer generates a pair, therefore exit
 
     // Assert
     expect(trigger.action).toHaveBeenCalledTimes(3);
     expect(enterSpy).toHaveBeenCalledTimes(3);
-    expect(exitSpy).toHaveBeenCalledTimes(2);
+    expect(exitSpy).toHaveBeenCalledTimes(3);
     expect(trigger.isKilled()).toBe(true);
   });
 
@@ -135,7 +138,7 @@ describe('A Trigger', () => {
 
     trigger.body.collisionType = ex.CollisionType.Passive;
 
-    const actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
+    const actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
     actor.body.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
 
@@ -164,7 +167,7 @@ describe('A Trigger', () => {
     });
     trigger.body.update();
 
-    const actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
+    const actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
     actor.body.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
 
@@ -239,7 +242,7 @@ describe('A Trigger', () => {
     });
     trigger.body.update();
 
-    const actor = new ex.Actor({x: 0, y: 100, width: 10, height: 10});
+    const actor = new ex.Actor({ x: 0, y: 100, width: 10, height: 10 });
 
     engine.add(trigger);
     engine.add(actor);
@@ -265,7 +268,7 @@ describe('A Trigger', () => {
     });
     trigger.body.update();
 
-    const actor = new ex.Actor({x: 0, y: 100, width: 10, height: 10});
+    const actor = new ex.Actor({ x: 0, y: 100, width: 10, height: 10 });
     actor.body.collisionType = ex.CollisionType.Active;
     actor.vel.y = 10;
 
@@ -284,8 +287,8 @@ describe('A Trigger', () => {
 
   it('will only trigger on a target', () => {
     // Arrange
-    const actor = new ex.Actor({x: 0, y: 100, width: 10, height: 10});
-    const actor2 = new ex.Actor({x: 0, y: 100, width: 10, height: 10});
+    const actor = new ex.Actor({ x: 0, y: 100, width: 10, height: 10 });
+    const actor2 = new ex.Actor({ x: 0, y: 100, width: 10, height: 10 });
 
     const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),

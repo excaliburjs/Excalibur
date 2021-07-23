@@ -1022,6 +1022,8 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   public contains(x: number, y: number, recurse: boolean = false): boolean {
     const point = vec(x, y);
     // TODO iterate through colliders
+    // TODO ineffecient
+    this.body.update();
     const containment = this.body.getColliders()[0].contains(point);
 
     if (recurse) {

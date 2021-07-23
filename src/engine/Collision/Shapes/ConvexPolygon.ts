@@ -6,7 +6,7 @@ import { Circle } from './Circle';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { Vector, Line, Ray, Projection } from '../../Algebra';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
-import { Transform } from '../../EntityComponentSystem';
+import { Transform, TransformComponent } from '../../EntityComponentSystem';
 import { Collider } from './Collider';
 
 export interface ConvexPolygonOptions {
@@ -86,11 +86,11 @@ export class ConvexPolygon extends Collider {
    * Calculates the underlying transformation from the body relative space to world space
    */
   private _calculateTransformation() {
-    const transform = this._transform;
+    const transform = this._transform as TransformComponent;
 
-    const pos = transform ? transform.pos.add(this.offset) : this.offset;
-    const angle = transform ? transform.rotation : 0;
-    const scale = transform ? transform.scale : Vector.One;
+    const pos = transform ? transform.globalPos.add(this.offset) : this.offset;
+    const angle = transform ? transform.globalRotation : 0;
+    const scale = transform ? transform.globalScale : Vector.One;
 
     const len = this.points.length;
     this._transformedPoints.length = 0; // clear out old transform
@@ -104,14 +104,9 @@ export class ConvexPolygon extends Collider {
    * Gets the points that make up the polygon in world space, from actor relative space (if specified)
    */
   public getTransformedPoints(): Vector[] {
-    // only recalculate geometry if, hasn't been calculated
-    if (
-      !this._transformedPoints.length ||
-      // or the position or rotation has changed in world space
-      true //(this.collider?.body?.hasChanged())
-    ) {
-      this._calculateTransformation();
-    }
+    // TODO only recalculate geometry if, hasn't been calculated
+    this._calculateTransformation();
+
     return this._transformedPoints;
   }
 
@@ -198,7 +193,7 @@ export class ConvexPolygon extends Collider {
     if (this._axes.length) {
       return this._axes;
     }
-    const axes = this.getSides().map(s => s.normal());
+    const axes = this.getSides().map((s) => s.normal());
     this._axes = axes;
     return this._axes;
   }
@@ -334,10 +329,7 @@ export class ConvexPolygon extends Collider {
     const scale = this._transform?.scale ?? Vector.One;
     const rotation = this._transform?.rotation ?? 0;
     const pos = (this._transform?.pos ?? Vector.Zero).add(this.offset);
-    return this.localBounds
-      .scale(scale)
-      .rotate(rotation)
-      .translate(pos);
+    return this.localBounds.scale(scale).rotate(rotation).translate(pos);
   }
 
   /**

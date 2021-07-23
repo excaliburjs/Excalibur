@@ -15,9 +15,11 @@ describe('The engine', () => {
       width: 400,
       height: 400
     });
-    scene = new ex.Scene(engine);
-    engine.currentScene = scene;
-    actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10, color: ex.Color.Red});
+    scene = new ex.Scene();
+    engine.removeScene('root');
+    engine.addScene('root', scene);
+    engine.goToScene('root');
+    actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10, color: ex.Color.Red });
     loop = mock.loop(engine);
 
     scene.add(actor);

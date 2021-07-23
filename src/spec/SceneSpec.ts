@@ -371,6 +371,7 @@ describe('A scene', () => {
 
     scene.add(actor);
     engine.goToScene('root');
+    engine.start();
   });
 
   it('can only be initialized once', () => {
