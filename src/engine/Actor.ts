@@ -138,9 +138,7 @@ export interface ActorDefaults {
  * or interact with the current scene, must be an actor. An `Actor` **must**
  * be part of a [[Scene]] for it to be drawn to the screen.
  */
-export class Actor
-  extends Entity
-  implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
+export class Actor extends Entity implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
   public static defaults: ActorDefaults = {
@@ -496,6 +494,9 @@ export class Actor
 
     if (color) {
       this.color = color;
+    }
+
+    if (color) {
       this.graphics.add(
         new Rectangle({
           color: color,
