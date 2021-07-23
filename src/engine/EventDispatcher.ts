@@ -38,7 +38,9 @@ export class EventDispatcher<T = any> implements Eventable {
       event = new GameEvent();
     }
     try {
-      event.target = target;
+      if (!event.target) {
+        event.target = target;
+      }
     } catch {
       // pass
     }
