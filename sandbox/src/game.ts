@@ -84,11 +84,11 @@ var bootstrap = (game: ex.Engine) => {
   });
 
   game.currentScene.on('entityadded', (e: any) => {
-    var entity: ex.Entity<ex.TransformComponent> = e.target;
+    var entity: ex.Entity = e.target;
     var obj = {id: entity.id, name: entity.constructor.name, types: entity.types};
 
     var pos = entities.addFolder(`${obj.id}:${obj.name}`)
-    pos.add({pos: entity.components.transform.pos.toString()}, 'pos');
+    pos.add({pos: entity.get(ex.TransformComponent).pos.toString()}, 'pos');
     pos.add({types: obj.types.join(', ')}, 'types');
   });
 
@@ -455,39 +455,39 @@ for (var i = 0; i < 36; i++) {
   block.body.collisionType = ex.CollisionType.Fixed;
   //var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
   //block.collisionType = ex.CollisionType.Fixed;
-  block.body.collider.group = blockGroup;
+  block.body.group = blockGroup;
   block.graphics.add(blockAnimation);
 
   game.add(block);
 }
 
-var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
+var platform = new ex.Actor({x: 400, y: 300, width: 200, height: 50, color: new ex.Color(0, 200, 0)});
 platform.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(0, 200, 0), width: 200, height: 50 }));
-platform.body.collider.type = ex.CollisionType.Fixed;
+platform.body.collisionType = ex.CollisionType.Fixed;
 platform.actions.repeatForever(ctx => ctx.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100));
 game.add(platform);
 
-var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
+var platform2 = new ex.Actor({x: 800, y: 300, width: 200, height: 20, color: new ex.Color(0, 0, 140)});
 platform2.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(0, 0, 140), width: 200, height: 20 }));
-platform2.body.collider.type = ex.CollisionType.Fixed;
+platform2.body.collisionType = ex.CollisionType.Fixed;
 platform2.actions.repeatForever(ctx => ctx.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100));
 game.add(platform2);
 
-var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
+var platform3 = new ex.Actor({x: -200, y: 400, width: 200, height: 20, color: new ex.Color(50, 0, 100)});
 platform3.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(50, 0, 100), width: 200, height: 20 }));
-platform3.body.collider.type = ex.CollisionType.Fixed;
+platform3.body.collisionType = ex.CollisionType.Fixed;
 platform3.actions.repeatForever(ctx => ctx.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800));
 game.add(platform3);
 
-var platform4 = new ex.Actor(75, 300, 100, 50, ex.Color.Azure);
+var platform4 = new ex.Actor({x: 75, y: 300, width: 100, height: 50, color: ex.Color.Azure});
 platform4.graphics.add(new ex.Graphics.Rectangle({ color: ex.Color.Azure, width: 100, height: 50 }));
-platform4.body.collider.type = ex.CollisionType.Fixed;
+platform4.body.collisionType = ex.CollisionType.Fixed;
 game.add(platform4);
 
 // Test follow api
-var follower = new ex.Actor(50, 100, 20, 20, ex.Color.Black);
+var follower = new ex.Actor({x: 50, y: 100, width: 20, height: 20, color: ex.Color.Black});
 follower.graphics.add(new ex.Graphics.Rectangle({ color: ex.Color.Black, width: 20, height: 20 }));
-follower.body.collider.type = ex.CollisionType.PreventCollision;
+follower.body.collisionType = ex.CollisionType.PreventCollision;
 game.add(follower);
 
 // Create the player
@@ -514,7 +514,7 @@ follower.actions
 player.rotation = 0;
 
 // Health bar example
-var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
+var healthbar = new ex.Actor({x: 0, y: -70, width: 140, height: 5, color: new ex.Color(0, 255, 0)});
 player.addChild(healthbar);
 // player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
 //   ctx.fillStyle = 'red';
