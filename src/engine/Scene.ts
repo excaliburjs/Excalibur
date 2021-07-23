@@ -33,7 +33,6 @@ import { Entity } from './EntityComponentSystem/Entity';
 import { GraphicsSystem } from './Graphics/GraphicsSystem';
 import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { Flags, Legacy } from './Flags';
-import { BodyComponent } from './Collision/Body';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
