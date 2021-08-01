@@ -84,7 +84,7 @@
     "coveralls": "3.1.1",
     "css-loader": "5.2.7",
     "eslint": "7.32.0",
-    "eslint-plugin-jsdoc": "35.4.1",
+    "eslint-plugin-jsdoc": "35.5.1",
     "excalibur-jasmine": "0.1.1",
     "husky": "4.3.8",
     "istanbul": "0.4.5",
