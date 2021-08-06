@@ -12,17 +12,16 @@ module.exports = {
       use: ['raw-loader']
     });
 
-    config.module.rules.push({
-      test: /\.(ts|tsx)$/,
-      use: [
-        {
-          loader: require.resolve('ts-loader'),
-          options: {
-            onlyCompileBundledFiles: true
-          }
+    const tsrules = config.module.rules.find((r) => r.test.test('foo.ts'));
+
+    tsrules.use = [
+      {
+        loader: require.resolve('ts-loader'),
+        options: {
+          configFile: path.join(__dirname, '../src/stories/tsconfig.json')
         }
-      ]
-    });
+      }
+    ];
     config.resolve.extensions.push('.ts', '.tsx');
 
     if (configType === 'PRODUCTION') {

@@ -1,5 +1,5 @@
 import { Actor, Texture, Loader, EasingFunctions, RotationType } from '../engine';
-import { withEngine } from './utils';
+import { enumToKnobSelect, withEngine } from './utils';
 
 import heartTexture from './assets/heart.png';
 
@@ -89,7 +89,7 @@ fade.args = {
   pause: 2000
 };
 
-export const rotateTo: Story = withEngine(async (game) => {
+export const rotateTo: Story = withEngine(async (game, { duration, rotationType, rotateTo, pause }) => {
   const heartTx = new Texture(heartTexture);
   const loader = new Loader([heartTx]);
 
@@ -112,27 +112,13 @@ export const rotateTo: Story = withEngine(async (game) => {
   heart.addDrawing(heartTx);
   game.add(heart);
 
-  const rotateTo = number('Rotate to (in radians)', Math.PI);
-  const rotationType = select(
-    'Rotation Type',
-    {
-      ShortestPath: RotationType.ShortestPath,
-      LongestPath: RotationType.LongestPath,
-      Clockwise: RotationType.Clockwise,
-      CounterClockwise: RotationType.CounterClockwise
-    },
-    RotationType.ShortestPath
-  );
-
-  const duration = number('Duration (radians/s)', 1);
-
   // Rotate back and forth and loop
   const originalRotation = heart.rotation;
   heart.actions
 
     // Rotate by an amount in radians
     .rotateTo(originalRotation + rotateTo, duration, rotationType)
-    .delay(number('Pause', 2000))
+    .delay(pause)
 
     // Rotate to a specific rotation
     .rotateTo(originalRotation, duration, rotationType);
@@ -144,7 +130,21 @@ rotateTo.story = {
   }
 };
 
-export const rotateBy: Story = withEngine(async (game) => {
+rotateTo.argTypes = {
+  rotateTo: { control: { type: 'number' } },
+  duration: { control: { type: 'number' } },
+  pause: { control: { type: 'number' } },
+  rotationType: { control: { type: 'select' }, options: enumToKnobSelect(RotationType) }
+};
+
+rotateTo.args = {
+  duration: 1,
+  pause: 2000,
+  rotateTo: Math.PI,
+  rotationType: RotationType.ShortestPath
+};
+
+export const rotateBy: Story = withEngine(async (game, { duration, rotationType, rotateBy, pause }) => {
   const heartTx = new Texture(heartTexture);
   const loader = new Loader([heartTx]);
 
@@ -167,27 +167,12 @@ export const rotateBy: Story = withEngine(async (game) => {
   heart.addDrawing(heartTx);
   game.add(heart);
 
-  const rotateBy = number('Rotate by (in radians)', Math.PI);
-
-  const rotationType = select(
-    'Rotation Type',
-    {
-      ShortestPath: RotationType.ShortestPath,
-      LongestPath: RotationType.LongestPath,
-      Clockwise: RotationType.Clockwise,
-      CounterClockwise: RotationType.CounterClockwise
-    },
-    RotationType.ShortestPath
-  );
-
-  const duration = number('Duration (radians/s)', 1);
-
   // Rotate back and forth and loop
   heart.actions
 
     // Rotate by an amount in radians
     .rotateBy(rotateBy, duration, rotationType)
-    .delay(number('Pause', 2000))
+    .delay(pause)
 
     // Rotate back
     .rotateBy(-rotateBy, duration, rotationType);
@@ -199,7 +184,21 @@ rotateBy.story = {
   }
 };
 
-export const move: Story = withEngine(async (game) => {
+rotateBy.argTypes = {
+  rotateBy: { control: { type: 'number' } },
+  duration: { control: { type: 'number' } },
+  pause: { control: { type: 'number' } },
+  rotationType: { control: { type: 'select' }, options: enumToKnobSelect(RotationType) }
+};
+
+rotateBy.args = {
+  duration: 1,
+  pause: 2000,
+  rotateBy: Math.PI,
+  rotationType: RotationType.ShortestPath
+};
+
+export const move: Story = withEngine(async (game, { moveX, moveY, pause, duration }) => {
   const heartTx = new Texture(heartTexture);
   const loader = new Loader([heartTx]);
 
@@ -227,10 +226,10 @@ export const move: Story = withEngine(async (game) => {
   heart.actions
 
     // Move by an amount in radians
-    .moveBy(number('Move by x (px)', -100), number('Move by y (px)', 0), number('Duration (px/s)', 10))
-    .delay(number('Pause', 2000))
+    .moveBy(moveX, moveY, duration)
+    .delay(pause)
     // Move to a specific rotation
-    .moveTo(originalPos.x, originalPos.y, number('Duration (px/s)', 10));
+    .moveTo(originalPos.x, originalPos.y, duration);
 });
 
 move.story = {
@@ -239,7 +238,21 @@ move.story = {
   }
 };
 
-export const ease: Story = withEngine(async (game) => {
+move.argTypes = {
+  moveX: { control: { type: 'number' } },
+  moveY: { control: { type: 'number' } },
+  duration: { control: { type: 'number' } },
+  pause: { control: { type: 'number' } }
+};
+
+move.args = {
+  duration: 10,
+  pause: 2000,
+  moveX: -100,
+  moveY: 0
+};
+
+export const ease: Story = withEngine(async (game, { easeX, easeY, pause, duration }) => {
   const heartTx = new Texture(heartTexture);
   const loader = new Loader([heartTx]);
 
@@ -264,15 +277,11 @@ export const ease: Story = withEngine(async (game) => {
 
   // Ease back and forth and loop
   const originalPos = heart.pos.clone();
-  heart.actions
-    .easeTo(
-      originalPos.x + number('Ease by x (px)', -100),
-      originalPos.y + number('Ease by y (px)', 0),
-      number('Duration (ms)', 1000),
-      EasingFunctions.EaseOutCubic
-    )
-    .easeTo(originalPos.x, originalPos.y, number('Duration (ms)', 1000), EasingFunctions.EaseInOutCubic)
-    .repeatForever();
+  heart.actions.repeatForever((actions) => {
+    actions
+      .easeTo(originalPos.x + easeX, originalPos.y + easeY, duration, EasingFunctions.EaseOutCubic)
+      .easeTo(originalPos.x, originalPos.y, duration, EasingFunctions.EaseInOutCubic);
+  });
 });
 
 ease.story = {
@@ -281,7 +290,21 @@ ease.story = {
   }
 };
 
-export const scale: Story = withEngine(async (game) => {
+ease.argTypes = {
+  easeX: { control: { type: 'number' } },
+  easeY: { control: { type: 'number' } },
+  duration: { control: { type: 'number' } },
+  pause: { control: { type: 'number' } }
+};
+
+ease.args = {
+  duration: 1000,
+  pause: 2000,
+  easeX: -100,
+  easeY: 0
+};
+
+export const scale: Story = withEngine(async (game, { scaleX, scaleY, speed }) => {
   const heartTx = new Texture(heartTexture);
   const loader = new Loader([heartTx]);
 
@@ -306,10 +329,9 @@ export const scale: Story = withEngine(async (game) => {
 
   // Scale back and forth and loop
   const originalScale = heart.scale.clone();
-  heart.actions
-    .scaleBy(number('Scale by x factor', 2), number('Scale by y factor', 2), number('Speed (factor/s)', 2))
-    .scaleTo(originalScale.x, originalScale.y, number('Speed (factor/s)', 2), number('Speed (factor/s)', 2))
-    .repeatForever();
+  heart.actions.repeatForever((actions) => {
+    actions.scaleBy(scaleX, scaleY, speed).scaleTo(originalScale.x, originalScale.y, speed, speed);
+  });
 });
 
 scale.story = {
@@ -319,4 +341,16 @@ scale.story = {
         'Use `Actor.actions.scaleBy()` and `Actor.actions.scaleTo()` to scale the Actor by a scale factor at a specific speed'
     }
   }
+};
+
+scale.argTypes = {
+  scaleX: { control: { type: 'number' } },
+  scaleY: { control: { type: 'number' } },
+  speed: { control: { type: 'number' } }
+};
+
+scale.args = {
+  speed: 2,
+  scaleX: 2,
+  scaleY: 2
 };
