@@ -12,6 +12,7 @@ export class SystemManager<ContextType> {
    */
   public systems: System<any, ContextType>[] = [];
   public _keyToSystem: { [key: string]: System<any, ContextType> };
+  public initialized = false;
   constructor(private _world: World<ContextType>) {}
 
   /**
@@ -28,7 +29,7 @@ export class SystemManager<ContextType> {
     this.systems.push(system);
     this.systems.sort((a, b) => a.priority - b.priority);
     query.register(system);
-    if (system.initialize) {
+    if (this.initialized && system.initialize) {
       system.initialize(this._world.context);
     }
   }
@@ -53,6 +54,15 @@ export class SystemManager<ContextType> {
    * @param delta time in milliseconds
    */
   public updateSystems(type: SystemType, context: ContextType, delta: number) {
+    if (!this.initialized) {
+      this.initialized = true;
+      for (const s of this.systems) {
+        if (s.initialize) {
+          s.initialize(this._world.context);
+        }
+      }
+    }
+
     const systems = this.systems.filter((s) => s.systemType === type);
     for (const s of systems) {
       if (s.preupdate) {
