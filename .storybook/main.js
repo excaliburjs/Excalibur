@@ -1,9 +1,17 @@
 const path = require('path');
 
 module.exports = {
-  addons: ['@storybook/addon-docs', '@storybook/addon-knobs/register', '@storybook/addon-actions/register'],
   stories: ['../src/stories/*.stories.ts'],
+  addons: ['@storybook/addon-knobs', '@storybook/addon-links', '@storybook/addon-essentials'],
+  core: {
+    builder: 'webpack5'
+  },
   webpackFinal: async (config, { configType }) => {
+    config.module.rules.push({
+      test: /\.glsl$/,
+      use: ['raw-loader']
+    });
+
     config.module.rules.push({
       test: /\.(ts|tsx)$/,
       use: [
