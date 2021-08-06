@@ -1,4 +1,5 @@
 import { Actor, Texture, Loader, EasingFunctions, RotationType } from '../engine';
+import { ImageSource } from '../engine/Graphics';
 import { enumToKnobSelect, withEngine } from './utils';
 
 import heartTexture from './assets/heart.png';
@@ -12,15 +13,16 @@ export default {
 };
 
 export const usingActions: Story = withEngine(async (game) => {
-  const heartTx = new Texture(heartTexture);
-  const loader = new Loader([heartTx]);
+  const heartImage = new ImageSource(heartTexture);
+  const loader = new Loader([heartImage]);
 
   await game.start(loader);
 
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.zoom = 4;
+  // TODO: bug with camera zoom off center
+  // game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({
@@ -31,7 +33,7 @@ export const usingActions: Story = withEngine(async (game) => {
   });
 
   // Assign texture to heart actor
-  heart.addDrawing(heartTx);
+  heart.graphics.add(heartImage.toSprite());
   game.add(heart);
 
   // Actions execute sequentially
@@ -252,7 +254,7 @@ move.args = {
   moveY: 0
 };
 
-export const ease: Story = withEngine(async (game, { easeX, easeY, pause, duration }) => {
+export const ease: Story = withEngine(async (game, { easeX, easeY, duration }) => {
   const heartTx = new Texture(heartTexture);
   const loader = new Loader([heartTx]);
 
@@ -293,13 +295,11 @@ ease.story = {
 ease.argTypes = {
   easeX: { control: { type: 'number' } },
   easeY: { control: { type: 'number' } },
-  duration: { control: { type: 'number' } },
-  pause: { control: { type: 'number' } }
+  duration: { control: { type: 'number' } }
 };
 
 ease.args = {
   duration: 1000,
-  pause: 2000,
   easeX: -100,
   easeY: 0
 };

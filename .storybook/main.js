@@ -12,17 +12,24 @@ module.exports = {
       use: ['raw-loader']
     });
 
-    const tsrules = config.module.rules.find((r) => r.test.test('foo.ts'));
+    // Remove TS handling from babel-loader
+    const babelloader = config.module.rules.find((r) => r.test.test('foo.ts'));
+    babelloader.test = /\.(mjs|jsx?)$/;
 
-    tsrules.use = [
-      {
-        loader: require.resolve('ts-loader'),
-        options: {
-          configFile: path.join(__dirname, '../src/stories/tsconfig.json')
+    config.module.rules.unshift({
+      test: /\.(tsx?)$/,
+      use: [
+        {
+          loader: require.resolve('ts-loader'),
+          options: {
+            configFile: path.join(__dirname, '../src/stories/tsconfig.json')
+          }
         }
-      }
-    ];
-    config.resolve.extensions.push('.ts', '.tsx');
+      ]
+    });
+
+    const assetloader = config.module.rules.find((r) => r.test.test('file.png'));
+    assetloader.generator.filename = 'static/media/[path][name][ext]';
 
     if (configType === 'PRODUCTION') {
       config.mode = 'development';
