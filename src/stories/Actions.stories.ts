@@ -1,4 +1,3 @@
-import { withKnobs, number, select } from '@storybook/addon-knobs';
 import { Actor, Texture, Loader, EasingFunctions, RotationType } from '../engine';
 import { withEngine } from './utils';
 
@@ -6,7 +5,6 @@ import heartTexture from './assets/heart.png';
 
 export default {
   title: 'Actors/Actions',
-  decorators: [withKnobs],
   parameters: {
     componentSubtitle:
       'The Actions API is available for Actors using the `.actions` property and can be chained together to create sequences of movement'
@@ -43,7 +41,7 @@ export const usingActions: Story = withEngine(async (game) => {
     .scaleBy(-2, -2, 2);
 });
 
-export const fade: Story = withEngine(async (game) => {
+export const fade: Story = withEngine(async (game, { startOpacity, endOpacity, pause, duration }) => {
   const heartTx = new Texture(heartTexture);
   const loader = new Loader([heartTx]);
 
@@ -68,16 +66,27 @@ export const fade: Story = withEngine(async (game) => {
   game.add(heart);
 
   // Fade in then out and loop
-  heart.actions
-    .fade(number('Starting Opacity', 1), number('Duration (ms)', 200))
-    .delay(number('Pause', 2000))
-    .fade(number('Ending Opacity', 0), number('Duration (ms)', 200));
+  heart.actions.fade(startOpacity, duration).delay(pause).fade(endOpacity, duration);
 });
 
 fade.story = {
   parameters: {
     docs: { storyDescription: 'Use `Actor.actions.fade()` to fade in or out the Actor over time' }
   }
+};
+
+fade.argTypes = {
+  startOpacity: { control: { type: 'number', min: 0, max: 1 } },
+  endOpacity: { control: { type: 'number', min: 0, max: 1 } },
+  duration: { control: { type: 'number' } },
+  pause: { control: { type: 'number' } }
+};
+
+fade.args = {
+  startOpacity: 1,
+  endOpacity: 0,
+  duration: 200,
+  pause: 2000
 };
 
 export const rotateTo: Story = withEngine(async (game) => {

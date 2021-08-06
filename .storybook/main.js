@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
   stories: ['../src/stories/*.stories.ts'],
-  addons: ['@storybook/addon-knobs', '@storybook/addon-links', '@storybook/addon-essentials'],
+  addons: ['@storybook/addon-links', '@storybook/addon-essentials'],
   core: {
     builder: 'webpack5'
   },

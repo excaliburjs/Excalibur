@@ -35,13 +35,13 @@ const onDomMutated: MutationCallback = (records) => {
  * Helper to generate Storybook game engine instance
  * @param storyFn The storybook fn to pass the engine to
  */
-export const withEngine = (storyFn: (game: Engine) => void) => {
+export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) => void) => {
   if (!observer) {
     observer = new MutationObserver(onDomMutated);
     observer.observe(document.getElementById('root'), { childList: true, subtree: true });
   }
 
-  return () => {
+  return (args?: any) => {
     const canvas = document.createElement('canvas');
     const game = new Engine({
       canvasElement: canvas,
@@ -58,7 +58,7 @@ export const withEngine = (storyFn: (game: Engine) => void) => {
       }
     });
 
-    storyFn(game);
+    storyFn(game, args);
 
     // store game ref
     (canvas as any).gameRef = game;

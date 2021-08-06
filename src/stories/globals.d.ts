@@ -6,4 +6,6 @@ interface Story {
     decorators?: any;
     parameters?: any;
   };
+  argTypes?: object;
+  args?: object;
 }
