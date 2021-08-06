@@ -18,7 +18,7 @@ module.exports = {
         {
           loader: require.resolve('ts-loader'),
           options: {
-            configFile: path.join(__dirname, '../src/stories/tsconfig.json')
+            onlyCompileBundledFiles: true
           }
         }
       ]

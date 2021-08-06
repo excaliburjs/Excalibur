@@ -5,8 +5,7 @@
     "baseUrl": ".",
     "rootDirs": [".", "../engine"],
     "declaration": false,
-    "outDir": ".",
-    "target": "es5"
+    "outDir": "."
   },
   "include": ["**/*", "../engine/*.d.ts"],
   "exclude": []

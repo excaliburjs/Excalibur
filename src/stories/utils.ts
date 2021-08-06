@@ -71,11 +71,8 @@ export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) =
  * Helper to generate Storybook Knob Select Options from a Enum Type
  * @param e Enum
  */
-export const enumToKnobSelect = (e: any): Record<string, any> => {
+export const enumToKnobSelect = (e: any): number[] => {
   return Object.keys(e)
     .filter((k) => typeof e[k as any] === 'number')
-    .reduce((o: Record<string, any>, el: string) => {
-      o[el] = e[el];
-      return o;
-    }, {});
+    .map((k) => e[k]);
 };
