@@ -43,7 +43,7 @@ export const playingASound: Story = withEngine(async (game) => {
 
   startOrPauseBtn.graphics.add('play', playSprite);
   startOrPauseBtn.graphics.add('pause', pauseSprite);
-  startOrPauseBtn.graphics.use('play');
+  startOrPauseBtn.graphics.show('play');
 
   startOrPauseBtn.enableCapturePointer = true;
   startOrPauseBtn.on('pointerup', (evt) => {
