@@ -28,8 +28,8 @@ module.exports = {
       ]
     });
 
-    const assetloader = config.module.rules.find((r) => r.test.test('file.png'));
-    assetloader.generator.filename = 'static/media/[path][name][ext]';
+    // const assetloader = config.module.rules.find((r) => r.test.test('file.png'));
+    // assetloader.generator.filename = 'static/media/[path][name][ext]';
 
     if (configType === 'PRODUCTION') {
       config.mode = 'development';
