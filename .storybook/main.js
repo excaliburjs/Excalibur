@@ -24,6 +24,13 @@ module.exports = {
       ]
     });
 
+    const sourceLoader = config.module.rules.findIndex((r) => r.loader && r.loader.includes('source-loader'));
+
+    if (sourceLoader > -1) {
+      // TODO: Investigate why source-loader is messing with graphics.add(string, object); expressions
+      config.module.rules.splice(sourceLoader, 1);
+    }
+
     if (configType === 'PRODUCTION') {
       config.mode = 'development';
     }

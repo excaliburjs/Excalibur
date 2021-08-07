@@ -1,4 +1,4 @@
-import { Actor, Texture, Loader, EasingFunctions, RotationType } from '../engine';
+import { Actor, Loader, EasingFunctions, RotationType } from '../engine';
 import { ImageSource } from '../engine/Graphics';
 import { enumToControlSelectLabels, enumToControlSelectOptions, withEngine } from './utils';
 
