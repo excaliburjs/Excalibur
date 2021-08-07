@@ -12,11 +12,7 @@ module.exports = {
       use: ['raw-loader']
     });
 
-    // Remove TS handling from babel-loader
-    const babelloader = config.module.rules.find((r) => r.test.test('foo.ts'));
-    babelloader.test = /\.(mjs|jsx?)$/;
-
-    config.module.rules.unshift({
+    config.module.rules.push({
       test: /\.(tsx?)$/,
       use: [
         {
@@ -27,9 +23,6 @@ module.exports = {
         }
       ]
     });
-
-    // const assetloader = config.module.rules.find((r) => r.test.test('file.png'));
-    // assetloader.generator.filename = 'static/media/[path][name][ext]';
 
     if (configType === 'PRODUCTION') {
       config.mode = 'development';
