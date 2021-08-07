@@ -1,5 +1,5 @@
 import { ParticleEmitter, EmitterType, Color, Vector } from '../engine';
-import { withEngine, enumToKnobSelect } from './utils';
+import { withEngine, enumToControlSelectOptions } from './utils';
 
 export default {
   title: 'ParticleEmitter'
@@ -67,7 +67,7 @@ export const main: Story = withEngine(
 main.argTypes = {
   width: { control: { type: 'number', range: true, min: 0, max: 100, step: 1 } },
   height: { control: { type: 'number', range: true, min: 0, max: 100, step: 1 } },
-  emitterType: { control: { type: 'select' }, options: enumToKnobSelect(EmitterType) },
+  emitterType: { control: { type: 'select' }, options: enumToControlSelectOptions(EmitterType) },
   radius: { control: { type: 'number', range: true, min: 0, max: 1000, step: 1 } },
   minVel: { control: { type: 'number', range: true, min: 0, max: 1000, step: 1 } },
   maxVel: { control: { type: 'number', range: true, min: 0, max: 1000, step: 1 } },

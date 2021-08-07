@@ -68,11 +68,19 @@ export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) =
 };
 
 /**
- * Helper to generate Storybook Knob Select Options from a Enum Type
+ * Helper to generate Storybook Control Select Options from a Enum Type
  * @param e Enum
  */
-export const enumToKnobSelect = (e: any): number[] => {
+export const enumToControlSelectOptions = (e: any): number[] => {
   return Object.keys(e)
     .filter((k) => typeof e[k as any] === 'number')
     .map((k) => e[k]);
+};
+
+/**
+ * Helper to generate Storybook Control Select Labels from a Enum Type
+ * @param e Enum
+ */
+export const enumToControlSelectLabels = (e: any): string[] => {
+  return Object.keys(e).filter((k) => typeof e[k as any] === 'number');
 };

@@ -1,6 +1,6 @@
 import { Actor, Texture, Loader, EasingFunctions, RotationType } from '../engine';
 import { ImageSource } from '../engine/Graphics';
-import { enumToKnobSelect, withEngine } from './utils';
+import { enumToControlSelectLabels, enumToControlSelectOptions, withEngine } from './utils';
 
 import heartTexture from './assets/heart.png';
 
@@ -44,7 +44,7 @@ export const usingActions: Story = withEngine(async (game) => {
 });
 
 export const fade: Story = withEngine(async (game, { startOpacity, endOpacity, pause, duration }) => {
-  const heartTx = new Texture(heartTexture);
+  const heartTx = new ImageSource(heartTexture);
   const loader = new Loader([heartTx]);
 
   await game.start(loader);
@@ -52,7 +52,7 @@ export const fade: Story = withEngine(async (game, { startOpacity, endOpacity, p
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.zoom = 4;
+  // game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({
@@ -64,7 +64,7 @@ export const fade: Story = withEngine(async (game, { startOpacity, endOpacity, p
   });
 
   // Assign texture to heart actor
-  heart.addDrawing(heartTx);
+  heart.graphics.add(heartTx.toSprite());
   game.add(heart);
 
   // Fade in then out and loop
@@ -78,10 +78,10 @@ fade.story = {
 };
 
 fade.argTypes = {
-  startOpacity: { control: { type: 'number', min: 0, max: 1 } },
-  endOpacity: { control: { type: 'number', min: 0, max: 1 } },
-  duration: { control: { type: 'number' } },
-  pause: { control: { type: 'number' } }
+  startOpacity: { name: 'Start Opacity', control: { min: 0, max: 1 } },
+  endOpacity: { name: 'End Opacity', control: { min: 0, max: 1 } },
+  duration: { name: 'Duration (in ms)' },
+  pause: { name: 'Fade Delay (in ms)' }
 };
 
 fade.args = {
@@ -92,7 +92,7 @@ fade.args = {
 };
 
 export const rotateTo: Story = withEngine(async (game, { duration, rotationType, rotateTo, pause }) => {
-  const heartTx = new Texture(heartTexture);
+  const heartTx = new ImageSource(heartTexture);
   const loader = new Loader([heartTx]);
 
   await game.start(loader);
@@ -100,7 +100,7 @@ export const rotateTo: Story = withEngine(async (game, { duration, rotationType,
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.zoom = 4;
+  // game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({
@@ -111,7 +111,7 @@ export const rotateTo: Story = withEngine(async (game, { duration, rotationType,
   });
 
   // Assign texture to heart actor
-  heart.addDrawing(heartTx);
+  heart.graphics.add(heartTx.toSprite());
   game.add(heart);
 
   // Rotate back and forth and loop
@@ -133,10 +133,14 @@ rotateTo.story = {
 };
 
 rotateTo.argTypes = {
-  rotateTo: { control: { type: 'number' } },
-  duration: { control: { type: 'number' } },
-  pause: { control: { type: 'number' } },
-  rotationType: { control: { type: 'select' }, options: enumToKnobSelect(RotationType) }
+  rotateTo: { name: 'Rotate to (in radians)' },
+  duration: { name: 'Duration (radians/s)' },
+  pause: { name: 'Pause' },
+  rotationType: {
+    name: 'Rotation Type',
+    control: { type: 'select', labels: enumToControlSelectLabels(RotationType) },
+    options: enumToControlSelectOptions(RotationType)
+  }
 };
 
 rotateTo.args = {
@@ -147,7 +151,7 @@ rotateTo.args = {
 };
 
 export const rotateBy: Story = withEngine(async (game, { duration, rotationType, rotateBy, pause }) => {
-  const heartTx = new Texture(heartTexture);
+  const heartTx = new ImageSource(heartTexture);
   const loader = new Loader([heartTx]);
 
   await game.start(loader);
@@ -155,7 +159,7 @@ export const rotateBy: Story = withEngine(async (game, { duration, rotationType,
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.zoom = 4;
+  // game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({
@@ -166,7 +170,7 @@ export const rotateBy: Story = withEngine(async (game, { duration, rotationType,
   });
 
   // Assign texture to heart actor
-  heart.addDrawing(heartTx);
+  heart.graphics.add(heartTx.toSprite());
   game.add(heart);
 
   // Rotate back and forth and loop
@@ -187,10 +191,14 @@ rotateBy.story = {
 };
 
 rotateBy.argTypes = {
-  rotateBy: { control: { type: 'number' } },
-  duration: { control: { type: 'number' } },
-  pause: { control: { type: 'number' } },
-  rotationType: { control: { type: 'select' }, options: enumToKnobSelect(RotationType) }
+  rotateBy: { name: 'Rotate by (in radians)' },
+  duration: { name: 'Duration (radians/s)' },
+  pause: { name: 'Pause' },
+  rotationType: {
+    name: 'Rotation Type',
+    control: { type: 'select', labels: enumToControlSelectLabels(RotationType) },
+    options: enumToControlSelectOptions(RotationType)
+  }
 };
 
 rotateBy.args = {
@@ -201,7 +209,7 @@ rotateBy.args = {
 };
 
 export const move: Story = withEngine(async (game, { moveX, moveY, pause, duration }) => {
-  const heartTx = new Texture(heartTexture);
+  const heartTx = new ImageSource(heartTexture);
   const loader = new Loader([heartTx]);
 
   await game.start(loader);
@@ -209,7 +217,7 @@ export const move: Story = withEngine(async (game, { moveX, moveY, pause, durati
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.zoom = 4;
+  // game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({
@@ -220,7 +228,7 @@ export const move: Story = withEngine(async (game, { moveX, moveY, pause, durati
   });
 
   // Assign texture to heart actor
-  heart.addDrawing(heartTx);
+  heart.graphics.add(heartTx.toSprite());
   game.add(heart);
 
   // Move back and forth and loop
@@ -241,10 +249,10 @@ move.story = {
 };
 
 move.argTypes = {
-  moveX: { control: { type: 'number' } },
-  moveY: { control: { type: 'number' } },
-  duration: { control: { type: 'number' } },
-  pause: { control: { type: 'number' } }
+  moveX: { name: 'Move by x (px)' },
+  moveY: { name: 'Move by y (px)' },
+  duration: { name: 'Duration (px/s)' },
+  pause: { name: 'Pause' }
 };
 
 move.args = {
@@ -255,7 +263,7 @@ move.args = {
 };
 
 export const ease: Story = withEngine(async (game, { easeX, easeY, duration }) => {
-  const heartTx = new Texture(heartTexture);
+  const heartTx = new ImageSource(heartTexture);
   const loader = new Loader([heartTx]);
 
   await game.start(loader);
@@ -263,7 +271,7 @@ export const ease: Story = withEngine(async (game, { easeX, easeY, duration }) =
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.zoom = 4;
+  // game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({
@@ -274,7 +282,7 @@ export const ease: Story = withEngine(async (game, { easeX, easeY, duration }) =
   });
 
   // Assign texture to heart actor
-  heart.addDrawing(heartTx);
+  heart.graphics.add(heartTx.toSprite());
   game.add(heart);
 
   // Ease back and forth and loop
@@ -293,9 +301,9 @@ ease.story = {
 };
 
 ease.argTypes = {
-  easeX: { control: { type: 'number' } },
-  easeY: { control: { type: 'number' } },
-  duration: { control: { type: 'number' } }
+  easeX: { name: 'Ease by x (px)' },
+  easeY: { name: 'Ease by y (px)' },
+  duration: { name: 'Duration (ms)' }
 };
 
 ease.args = {
@@ -305,7 +313,7 @@ ease.args = {
 };
 
 export const scale: Story = withEngine(async (game, { scaleX, scaleY, speed }) => {
-  const heartTx = new Texture(heartTexture);
+  const heartTx = new ImageSource(heartTexture);
   const loader = new Loader([heartTx]);
 
   await game.start(loader);
@@ -313,7 +321,7 @@ export const scale: Story = withEngine(async (game, { scaleX, scaleY, speed }) =
   game.setAntialiasing(false);
 
   // Zoom in a bit
-  game.currentScene.camera.zoom = 4;
+  // game.currentScene.camera.zoom = 4;
 
   // Center the actor on the camera coordinates
   const heart = new Actor({
@@ -324,7 +332,7 @@ export const scale: Story = withEngine(async (game, { scaleX, scaleY, speed }) =
   });
 
   // Assign texture to heart actor
-  heart.addDrawing(heartTx);
+  heart.graphics.add(heartTx.toSprite());
   game.add(heart);
 
   // Scale back and forth and loop
@@ -344,9 +352,9 @@ scale.story = {
 };
 
 scale.argTypes = {
-  scaleX: { control: { type: 'number' } },
-  scaleY: { control: { type: 'number' } },
-  speed: { control: { type: 'number' } }
+  scaleX: { name: 'Scale by x factor' },
+  scaleY: { name: 'Scale by y factor' },
+  speed: { name: 'Speed (factor/s)' }
 };
 
 scale.args = {
