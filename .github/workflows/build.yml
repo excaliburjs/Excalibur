@@ -41,6 +41,7 @@ jobs:
     - run: sudo gem install sass -v 3.4.24
     - run: npm ci
     - run: npm run linux:ci
+    - run: npm run build-storybook
     - name: Coveralls 
       uses: coverallsapp/github-action@1.1.3
       with:
