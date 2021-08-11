@@ -68,13 +68,22 @@ export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) =
 };
 
 /**
+ *
+ */
+function isNumberBasedEnum(e: any) {
+  return Object.values(e).some((v) => typeof v === 'number');
+}
+
+/**
  * Helper to generate Storybook Control Select Options from a Enum Type
  * @param e Enum
  */
-export const enumToControlSelectOptions = (e: any): number[] => {
-  return Object.keys(e)
-    .filter((k) => typeof e[k as any] === 'number')
-    .map((k) => e[k]);
+export const enumToControlSelectOptions = (e: any): unknown[] => {
+  if (isNumberBasedEnum(e)) {
+    return Object.values(e).filter((v) => typeof v === 'number');
+  }
+
+  return Object.values(e);
 };
 
 /**
@@ -82,5 +91,8 @@ export const enumToControlSelectOptions = (e: any): number[] => {
  * @param e Enum
  */
 export const enumToControlSelectLabels = (e: any): string[] => {
-  return Object.keys(e).filter((k) => typeof e[k as any] === 'number');
+  if (isNumberBasedEnum(e)) {
+    return Object.keys(e).filter((k) => typeof e[k] === 'number');
+  }
+  return Object.keys(e);
 };
