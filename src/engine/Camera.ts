@@ -298,6 +298,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
   public set pos(vec: Vector) {
     this._pos = watchAny(vec, () => (this._posChanged = true));
+    this._posChanged = true;
   }
 
   /**
