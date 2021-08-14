@@ -241,7 +241,14 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
     return Object.keys(this._graphics);
   }
 
+  /**
+   * Draws after the entity transform has bene applied, but before graphics component graphics have been drawn
+   */
   public onPreDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+
+  /**
+   * Draws after the entity transform has been applied, and after graphics component graphics has been drawn
+   */
   public onPostDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
 
   /**

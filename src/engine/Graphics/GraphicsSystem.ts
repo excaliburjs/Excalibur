@@ -62,16 +62,16 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
       this._graphicsContext.save();
 
-      // Optionally run the onPreDraw graphics lifecycle draw
-      if (graphics.onPreDraw) {
-        graphics.onPreDraw(this._graphicsContext, delta);
-      }
-
       // Tick any graphics state (but only once) for animations and graphics groups
       graphics.update(delta, this._token);
 
       // Position the entity
       this._applyTransform(entity);
+
+      // Optionally run the onPreDraw graphics lifecycle draw
+      if (graphics.onPreDraw) {
+        graphics.onPreDraw(this._graphicsContext, delta);
+      }
 
       this._graphicsPositionDebugDraw();
 
