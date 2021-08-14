@@ -578,12 +578,12 @@ describe('A scene', () => {
   });
 
   it('will not be the current scene if no engine is given', () => {
-    const otherScene = new ex.Scene(engine);
+    const otherScene = new ex.Scene();
     expect(otherScene.isCurrentScene()).toBe(false);
   });
 
   it('will not be the current scene if the scene was switched', () => {
-    const otherScene = new ex.Scene(engine);
+    const otherScene = new ex.Scene();
     engine.goToScene('root');
     engine.addScene('secondaryScene', otherScene);
     engine.goToScene('secondaryScene');
@@ -597,7 +597,7 @@ describe('A scene', () => {
     let engine: ex.Engine;
     beforeEach(() => {
       engine = TestUtils.engine({ width: 100, height: 100 });
-      scene = new ex.Scene(engine);
+      scene = new ex.Scene();
       engine.removeScene('root');
       engine.addScene('root', scene);
     });

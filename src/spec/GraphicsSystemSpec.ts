@@ -28,6 +28,7 @@ describe('A Graphics ECS System', () => {
 
   it('sorts entities by transform.z', () => {
     const sut = new ex.Graphics.GraphicsSystem();
+    engine.currentScene._initialize(engine);
     sut.initialize(engine.currentScene);
     const es = [...entities];
     es.sort(sut.sort);
@@ -37,6 +38,7 @@ describe('A Graphics ECS System', () => {
   it('decorates offscreen entities with "offscreen" tag', () => {
     const sut = new ex.Graphics.GraphicsSystem();
     engine.currentScene.camera.update(engine, 1);
+    engine.currentScene._initialize(engine);
     sut.initialize(engine.currentScene);
 
     const rect = new ex.Graphics.Rectangle({
@@ -76,6 +78,7 @@ describe('A Graphics ECS System', () => {
   it('draws entities with transform and graphics components', async () => {
     const sut = new ex.Graphics.GraphicsSystem();
     engine.currentScene.camera.update(engine, 1);
+    engine.currentScene._initialize(engine);
     sut.initialize(engine.currentScene);
 
     const rect = new ex.Graphics.Rectangle({

@@ -24,7 +24,7 @@ describe('The engine', () => {
     jasmine.addMatchers(ExcaliburMatchers);
 
     engine = TestUtils.engine();
-    scene = new ex.Scene(engine);
+    scene = new ex.Scene();
     engine.add('default', scene);
     engine.goToScene('default');
 

@@ -110,10 +110,7 @@ describe('A Graphics ECS Component', () => {
     expect(sut.current).toEqual([
       {
         graphic: rect,
-        options: {
-          offset: ex.vec(0, 0),
-          anchor: ex.vec(0.5, 0.5)
-        }
+        options: {}
       }
     ]);
 
@@ -150,10 +147,7 @@ describe('A Graphics ECS Component', () => {
     expect(sut.current).toEqual([
       {
         graphic: rect2,
-        options: {
-          offset: ex.vec(0, 0),
-          anchor: ex.vec(0.5, 0.5)
-        }
+        options: {}
       }
     ]);
   });
