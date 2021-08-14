@@ -50,6 +50,7 @@ import { TransformComponent } from './EntityComponentSystem/Components/Transform
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Rectangle } from './Graphics/Rectangle';
 import { Flags, Legacy } from './Flags';
+import { watch } from './Util/Watch';
 
 /**
  * Type guard for checking if something is an Actor
@@ -233,7 +234,19 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * values between 0 and 1. For example, anchoring to the top-left would be
    * `Actor.anchor.setTo(0, 0)` and top-right would be `Actor.anchor.setTo(0, 1)`.
    */
-  public anchor: Vector;
+  private _anchor: Vector = watch(Vector.Half, this._handleAnchorChange);
+  public get anchor(): Vector {
+    return this._anchor;
+  }
+
+  public set anchor(vec: Vector) {
+    this._anchor = watch(vec, this._handleAnchorChange);
+    this._handleAnchorChange(vec);
+  }
+
+  private _handleAnchorChange(v: Vector) {
+    this.graphics.anchor = v;
+  }
 
   private _height: number = 0;
   private _width: number = 0;
@@ -519,9 +532,6 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
 
     if (color) {
       this.color = color;
-    }
-
-    if (color) {
       this.graphics.add(
         new Rectangle({
           color: color,

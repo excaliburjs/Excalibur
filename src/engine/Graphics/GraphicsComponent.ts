@@ -6,6 +6,9 @@ import { Logger } from '../Util/Log';
 import { BoundingBox } from '../Collision/Index';
 import { Component } from '../EntityComponentSystem/Component';
 
+/**
+ *
+ */
 export function hasGraphicsTick(graphic: Graphic): graphic is Graphic & HasTick {
   return !!(graphic as unknown as HasTick).tick;
 }
@@ -106,7 +109,7 @@ export class GraphicsLayer {
    * @param options
    */
   public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
-    options = { offset: this._graphics.offset.clone(), anchor: this._graphics.anchor.clone(), ...options };
+    options = { ...options };
     let gfx: Graphic;
     if (nameOrGraphic instanceof Graphic) {
       gfx = this._graphics.copyGraphics ? nameOrGraphic.clone() : nameOrGraphic;
@@ -133,7 +136,7 @@ export class GraphicsLayer {
    * @param options
    */
   public use<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
-    options = { offset: this._graphics.offset.clone(), anchor: this._graphics.anchor.clone(), ...options };
+    options = { ...options };
     this.hide();
     return this.show<T>(nameOrGraphic, options);
   }
@@ -368,10 +371,15 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
     }
     let bb = new BoundingBox();
     for (const layer of this.layers.get()) {
-      for (const {
-        graphic,
-        options: { offset, anchor }
-      } of layer.graphics) {
+      for (const { graphic, options } of layer.graphics) {
+        let anchor = this.anchor;
+        let offset = this.offset;
+        if (options?.anchor) {
+          anchor = options.anchor;
+        }
+        if (options?.offset) {
+          offset = options.offset;
+        }
         const bounds = graphic.localBounds;
         const offsetX = -bounds.width * graphic.scale.x * anchor.x + offset.x;
         const offsetY = -bounds.height * graphic.scale.y * anchor.y + offset.y;

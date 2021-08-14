@@ -117,10 +117,15 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     if (graphicsComponent.visible) {
       // this should be moved to the graphics system
       for (const layer of graphicsComponent.layers.get()) {
-        for (const {
-          graphic,
-          options: { offset, anchor }
-        } of layer.graphics) {
+        for (const { graphic, options } of layer.graphics) {
+          let anchor = graphicsComponent.anchor;
+          let offset = graphicsComponent.offset;
+          if (options?.anchor) {
+            anchor = options.anchor;
+          }
+          if (options?.offset) {
+            offset = options.offset;
+          }
           // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
           const offsetX = -graphic.width * anchor.x + offset.x;
           const offsetY = -graphic.height * anchor.y + offset.y;
