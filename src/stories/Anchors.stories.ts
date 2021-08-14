@@ -1,4 +1,4 @@
-import { Texture, Loader, Color, Actor, Util, Vector } from '../engine';
+import { Texture, Loader, Color, Actor, Util, Vector, Flags, Legacy, vec } from '../engine';
 import { withEngine } from './utils';
 
 import heartBitmap from './assets/heart.png';
@@ -10,6 +10,14 @@ export default {
 class Cross extends Actor {
   constructor(x: number, y: number) {
     super(x, y, 40, 40);
+    this.graphics.onPreDraw = (ctx) => {
+      ctx.save();
+      // onPreDraw doesnt factor anchor anymore
+      ctx.translate(-20, -20);
+      ctx.debug.drawLine(vec(this.width / 2, 0), vec(this.width / 2, this.height), { color: Color.Black });
+      ctx.debug.drawLine(vec(0, this.height / 2), vec(this.width, this.height / 2), { color: Color.Black });
+      ctx.restore();
+    };
   }
 
   onPreDraw(ctx: CanvasRenderingContext2D) {
@@ -28,7 +36,7 @@ class Cross extends Actor {
     ctx.closePath();
   }
 }
-
+// Flags.enable(Legacy.LegacyDrawing);
 export const centered = withEngine(async (game) => {
   const heartTx = new Texture(heartBitmap);
   const ldr = new Loader([heartTx]);

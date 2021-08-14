@@ -45,7 +45,7 @@ export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) =
     const canvas = document.createElement('canvas');
     const game = new Engine({
       canvasElement: canvas,
-      displayMode: DisplayMode.FillScreen,
+      displayMode: DisplayMode.FitScreen,
       suppressPlayButton: true,
       pointerScope: Input.PointerScope.Canvas
     });
