@@ -17,7 +17,7 @@ describe('A Timer', () => {
         /*do nothing*/
       }
     });
-    scene = new ex.Scene(engine);
+    scene = new ex.Scene();
     engine.addScene('root', scene);
   });
 

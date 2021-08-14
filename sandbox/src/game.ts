@@ -566,7 +566,7 @@ player.on('pointerdown', (e?: ex.Input.PointerEvent) => {
   alert('Player clicked!');
 });
 
-var newScene = new ex.Scene(game);
+var newScene = new ex.Scene();
 newScene.add(new ex.Label('MAH LABEL!', 200, 100));
 newScene.on('activate', (evt?: ex.ActivateEvent) => {
   console.log('activate newScene');

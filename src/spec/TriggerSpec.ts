@@ -11,7 +11,7 @@ describe('A Trigger', () => {
   beforeEach(() => {
     engine = TestUtils.engine({ width: 600, height: 400 });
 
-    scene = new ex.Scene(engine);
+    scene = new ex.Scene();
 
     loop = mock.loop(engine);
     engine.start();

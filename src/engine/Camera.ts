@@ -9,6 +9,7 @@ import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
 import { Logger } from './Util/Log';
 import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
+import { watchAny } from './Util/Watch';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -290,7 +291,15 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   /**
    * Get or set the camera's position
    */
-  public pos: Vector = Vector.Zero;
+  private _posChanged = false;
+  private _pos: Vector = watchAny(Vector.Zero, () => (this._posChanged = true));
+  public get pos(): Vector {
+    return this._pos;
+  }
+  public set pos(vec: Vector) {
+    this._pos = watchAny(vec, () => (this._posChanged = true));
+    this._posChanged = true;
+  }
 
   /**
    * Get or set the camera's velocity
@@ -576,12 +585,18 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
   public _initialize(_engine: Engine) {
     if (!this.isInitialized) {
+      this._engine = _engine;
+      this._halfWidth = _engine.halfDrawWidth;
+      this._halfHeight = _engine.halfDrawHeight;
+      // pos unset apply default position is center screen
+      if (!this._posChanged) {
+        this.pos.x = _engine.halfDrawWidth;
+        this.pos.y = _engine.halfDrawHeight;
+      }
+
       this.onInitialize(_engine);
       super.emit('initialize', new InitializeEvent(_engine, this));
       this._isInitialized = true;
-      this._engine = _engine;
-      this._halfWidth = this._engine.halfDrawWidth;
-      this._halfHeight = this._engine.halfDrawHeight;
     }
   }
 

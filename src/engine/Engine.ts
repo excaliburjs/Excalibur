@@ -615,7 +615,7 @@ O|===|* >________________>\n\
 
     this._initialize(options);
 
-    this.rootScene = this.currentScene = new Scene(this);
+    this.rootScene = this.currentScene = new Scene();
 
     this.addScene('root', this.rootScene);
   }

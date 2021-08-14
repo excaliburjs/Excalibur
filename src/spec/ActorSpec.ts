@@ -729,7 +729,7 @@ describe('A game actor', () => {
 
   it('with an active collision type can be placed on a fixed type', () => {
     ex.Physics.useBoxPhysics();
-    const scene = new ex.Scene(engine);
+    const scene = new ex.Scene();
 
     const active = new ex.Actor(0, -50, 100, 100);
     active.body.collider.type = ex.CollisionType.Active;
@@ -761,7 +761,7 @@ describe('A game actor', () => {
   });
 
   it('with an active collision type can jump on a fixed type', () => {
-    const scene = new ex.Scene(engine);
+    const scene = new ex.Scene();
     const active = new ex.Actor(0, -50, 100, 100);
     active.body.collider.type = ex.CollisionType.Active;
     active.vel = ex.vec(0, -100);

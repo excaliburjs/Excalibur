@@ -26,7 +26,7 @@ describe('A camera', () => {
     actor.width = 10;
     actor.height = 10;
     actor.color = ex.Color.Red;
-    scene = new ex.Scene(engine);
+    scene = new ex.Scene();
     scene.add(actor);
     engine.addScene('root', scene);
 
@@ -190,6 +190,7 @@ describe('A camera', () => {
 
   it('can use built-in locked camera x axis strategy', () => {
     engine.currentScene.camera = new ex.Camera();
+    engine.currentScene.camera.pos = ex.Vector.Zero;
     const actor = new ex.Actor(0, 0);
 
     engine.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.X);
@@ -206,6 +207,7 @@ describe('A camera', () => {
 
   it('can use built-in locked camera y axis strategy', () => {
     engine.currentScene.camera = new ex.Camera();
+    engine.currentScene.camera.pos = ex.Vector.Zero;
     const actor = new ex.Actor(0, 0);
 
     engine.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.Y);
@@ -222,6 +224,7 @@ describe('A camera', () => {
 
   it('can use built-in radius around actor strategy', () => {
     engine.currentScene.camera = new ex.Camera();
+    engine.currentScene.camera.pos = ex.Vector.Zero;
     const actor = new ex.Actor(0, 0);
 
     engine.currentScene.camera.strategy.radiusAroundActor(actor, 15);

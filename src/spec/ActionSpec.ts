@@ -14,7 +14,7 @@ describe('Action', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
 
     actor = new ex.Actor();
-    scene = new ex.Scene(engine);
+    scene = new ex.Scene();
     engine.currentScene = scene;
 
     spyOn(scene, 'draw').and.callThrough();
