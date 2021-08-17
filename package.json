@@ -102,7 +102,7 @@
     "puppeteer": "10.1.0",
     "rimraf": "3.0.2",
     "semver": "7.3.5",
-    "serve": "11.3.2",
+    "serve": "12.0.0",
     "source-map-support": "0.5.19",
     "sync-request": "6.1.0",
     "terser-webpack-plugin": "3.1.0",
