@@ -565,7 +565,7 @@ describe('A game actor', () => {
       height: 64,
       suppressHiDPIScaling: true
     });
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
       const sprite = new ex.Sprite({
         image: texture,
@@ -600,7 +600,7 @@ describe('A game actor', () => {
   });
 
   it('will tick animations when drawing switched', (done) => {
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
       const sprite = new ex.Sprite({
         image: texture,
@@ -644,7 +644,7 @@ describe('A game actor', () => {
   });
 
   it('will tick animations on update', (done) => {
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
       const sprite = new ex.Sprite({
         image: texture,
@@ -1300,7 +1300,7 @@ describe('A game actor', () => {
       suppressHiDPIScaling: true
     });
 
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
       const actor = new ex.Actor({
         pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),

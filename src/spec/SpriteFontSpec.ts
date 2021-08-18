@@ -12,7 +12,7 @@ describe('A spritefont', () => {
       height: 200
     });
 
-    texture = new ex.Texture('base/src/spec/images/SpriteFontSpec/SpriteFont.png', true);
+    texture = new ex.Texture('src/spec/images/SpriteFontSpec/SpriteFont.png', true);
   });
   afterEach(() => {
     engine.stop();

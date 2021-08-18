@@ -47,7 +47,7 @@ describe('The engine', () => {
 
     loop = mock.loop(engine);
 
-    engine.start(new ex.Loader([new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true)]));
+    engine.start(new ex.Loader([new ex.Texture('src/spec/images/SpriteSpec/icon.png', true)]));
     setTimeout(() => {
       ensureImagesLoaded(engine.canvas, 'src/spec/images/EngineSpec/engine-load-complete.png').then(([canvas, image]) => {
         expect(document.getElementById('excalibur-play')).toBeDefined('Play button should exist in the document');
@@ -80,7 +80,7 @@ describe('The engine', () => {
 
     loop = mock.loop(engine);
 
-    engine.start(new ex.Loader([new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true)])).then(() => {
+    engine.start(new ex.Loader([new ex.Texture('src/spec/images/SpriteSpec/icon.png', true)])).then(() => {
       setTimeout(() => {
         ensureImagesLoaded(engine.canvas, 'src/spec/images/EngineSpec/engine-suppress-play.png').then(([canvas, image]) => {
           expect(canvas).toEqualImage(image);

@@ -11,7 +11,7 @@ describe('A ColorBlindCorrector', () => {
     jasmine.addMatchers(ExcaliburMatchers);
 
     engine = TestUtils.engine({ width: 800, height: 200 });
-    bg = new ex.Texture('base/src/spec/images/ColorBlindCorrectorSpec/actor.png', true);
+    bg = new ex.Texture('src/spec/images/ColorBlindCorrectorSpec/actor.png', true);
 
     return engine.start(new ex.Loader([bg]));
   });

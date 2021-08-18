@@ -91,7 +91,7 @@ describe('A Text Graphic', () => {
   });
   beforeAll(async () => {
     const fontface = document.createElement('link');
-    fontface.href = 'base/src/spec/images/GraphicsTextSpec/fonts.css';
+    fontface.href = 'src/spec/images/GraphicsTextSpec/fonts.css';
     fontface.rel = 'stylesheet';
     document.head.appendChild(fontface);
     await waitForFontLoad('18px Open Sans');
@@ -412,7 +412,7 @@ describe('A Text Graphic', () => {
 
   describe('with a SpriteFont', () => {
     it('can be cloned', () => {
-      const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+      const spriteFontImage = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
       const spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
         image: spriteFontImage,
@@ -442,7 +442,7 @@ describe('A Text Graphic', () => {
     });
 
     it('can specify a spritefont', async () => {
-      const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+      const spriteFontImage = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
       await spriteFontImage.load();
 
@@ -484,7 +484,7 @@ describe('A Text Graphic', () => {
     const logger = ex.Logger.getInstance();
     spyOn(logger, 'warn');
 
-    const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
     await spriteFontImage.load();
 
@@ -527,7 +527,7 @@ describe('A Text Graphic', () => {
   });
 
   it('can do some simple shadowing', async () => {
-    const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
     await spriteFontImage.load();
 

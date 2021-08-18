@@ -26,7 +26,7 @@ describe('A TileMap', () => {
     engine.addScene('root', scene);
     engine.start();
 
-    texture = new ex.Texture('base/src/spec/images/TileMapSpec/Blocks.png', true);
+    texture = new ex.Texture('src/spec/images/TileMapSpec/Blocks.png', true);
   });
   afterEach(() => {
     engine.stop();

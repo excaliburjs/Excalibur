@@ -42,7 +42,7 @@ describe('A particle', () => {
     engine.addScene('root', scene);
     engine.start();
 
-    texture = new ex.Texture('base/src/spec/images/SpriteFontSpec/SpriteFont.png', true);
+    texture = new ex.Texture('src/spec/images/SpriteFontSpec/SpriteFont.png', true);
   });
   afterEach(() => {
     engine.stop();

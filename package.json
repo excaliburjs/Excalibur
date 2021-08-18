@@ -85,7 +85,7 @@
     "css-loader": "6.2.0",
     "eslint": "7.32.0",
     "eslint-plugin-jsdoc": "36.0.7",
-    "excalibur-jasmine": "0.1.1",
+    "excalibur-jasmine": "0.2.0",
     "husky": "4.3.8",
     "istanbul": "0.4.5",
     "istanbul-instrumenter-loader": "3.0.1",
