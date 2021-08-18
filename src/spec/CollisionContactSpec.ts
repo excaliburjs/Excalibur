@@ -13,17 +13,17 @@ describe('A CollisionContact', () => {
 
   beforeEach(() => {
     actorA = new ex.Actor({x: 0, y: 0, width: 20, height: 20});
-    actorA.body.useCircleCollider(10);
+    actorA.collider.useCircleCollider(10);
     actorA.body.collisionType = ex.CollisionType.Active;
 
     actorB = new ex.Actor({x: 20, y: 0, width: 20, height: 20});
-    actorB.body.useCircleCollider(10);
+    actorB.collider.useCircleCollider(10);
 
 
     actorB.body.collisionType = ex.CollisionType.Active;
 
-    colliderA = actorA.body.getColliders()[0];
-    colliderB = actorB.body.getColliders()[0];
+    colliderA = actorA.collider.collider;
+    colliderB = actorB.collider.collider;
 
   });
 
@@ -105,8 +105,8 @@ describe('A CollisionContact', () => {
     actorA.vel.x = 10;
     actorB.vel.x = -10;
     actorB.pos.x = 19;
-    actorA.body.update();
-    actorB.body.update();
+    actorA.collider.update();
+    actorB.collider.update();
     const cc = new ex.CollisionContact(
       colliderA,
       colliderB,

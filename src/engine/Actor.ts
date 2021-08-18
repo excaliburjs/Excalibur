@@ -32,7 +32,7 @@ import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
 import { vec, Vector } from './Algebra';
-import { BodyComponent } from './Collision/Body';
+import { BodyComponent } from './Collision/BodyComponent';
 import { Eventable } from './Interfaces/Evented';
 import { Actionable } from './Actions/Actionable';
 import * as Traits from './Traits/Index';
@@ -49,6 +49,8 @@ import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Rectangle } from './Graphics/Rectangle';
 import { Flags, Legacy } from './Flags';
 import { obsolete } from './Util/Decorators';
+import { ColliderComponent } from './Collision/ColliderComponent';
+import { Shape } from './Collision/Shapes/Shape';
 
 /**
  * Type guard for checking if something is an Actor
@@ -115,10 +117,6 @@ export interface ActorArgs {
    */
   visible?: boolean;
   /**
-   * Optionally set a custom physics body on the actory
-   */
-  body?: BodyComponent;
-  /**
    * Optionally set the anchor for graphics in the actor
    */
   anchor?: Vector;
@@ -163,6 +161,10 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
 
   public get graphics(): GraphicsComponent {
     return this.get(GraphicsComponent);
+  }
+
+  public get collider(): ColliderComponent {
+    return this.get(ColliderComponent);
   }
 
   /**
@@ -453,7 +455,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   constructor(config?: ActorArgs) {
     super();
 
-    const { x, y, pos, scale, width, height, vel, acc, rotation, angularVelocity, z, color, visible, body, anchor, collisionType } = {
+    const { x, y, pos, scale, width, height, vel, acc, rotation, angularVelocity, z, color, visible, anchor, collisionType } = {
       ...config
     };
 
@@ -474,21 +476,10 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
     this.acc = acc ?? Vector.Zero;
     this.angularVelocity = angularVelocity ?? 0;
 
-    this.addComponent(
-      body ??
-        new BodyComponent({
-          box:
-            width && height
-              ? {
-                width: width ?? 0,
-                height: height ?? 0
-              }
-              : undefined,
-          anchor: this.anchor
-        })
-    );
-    this.body.update();
+    this.addComponent(new BodyComponent());
     this.body.collisionType = collisionType ?? CollisionType.Passive;
+    this.addComponent(new ColliderComponent(Shape.Box(width ?? 0, height ?? 0, this.anchor)))
+    // this.collider.update();
 
     this.visible = visible ?? true;
 
@@ -979,11 +970,11 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   }
 
   public get width() {
-    return this.body.localBounds.width * this.getGlobalScale().x;
+    return this.collider.localBounds.width * this.getGlobalScale().x;
   }
 
   public get height() {
-    return this.body.localBounds.height * this.getGlobalScale().y;
+    return this.collider.localBounds.height * this.getGlobalScale().y;
   }
 
   /**
@@ -1023,8 +1014,9 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
     const point = vec(x, y);
     // TODO iterate through colliders
     // TODO ineffecient
-    this.body.update();
-    const containment = this.body.getColliders()[0].contains(point);
+    const collider = this.get(ColliderComponent);
+    collider.update();
+    const containment = collider.collider.contains(point);
 
     if (recurse) {
       return (
@@ -1045,7 +1037,9 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
    */
   public within(actor: Actor, distance: number): boolean {
     // TODO iterate through colliders
-    return this.body.getColliders()[0].getClosestLineBetween(actor.body.getColliders()[0]).getLength() <= distance;
+    const collider = this.get(ColliderComponent);
+    const other = actor.get(ColliderComponent);
+    return collider.collider.getClosestLineBetween(other.collider).getLength() <= distance;
   }
 
   // #endregion
@@ -1150,15 +1144,23 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
       this._predraw(ctx, delta);
       if (this.color && this.body) {
         // update collider geometry based on transform
-        this.body.update();
-        const colliders = this.body.getColliders();
-        for (const collider of colliders) {
-          if (!collider.bounds.hasZeroDimensions()) {
-            // Colliders are already shifted by anchor, unshift
-            ctx.globalAlpha = this.opacity;
-            collider.draw(ctx, this.color, vec(0, 0));
-          }
+        const collider = this.get(ColliderComponent);
+        collider.update();
+        if (collider.bounds.hasZeroDimensions()) {
+          // Colliders are already shifted by anchor, unshift
+          ctx.globalAlpha = this.opacity;
+          collider.collider.draw(ctx, this.color, vec(0, 0));
         }
+
+        // this.collider.update();
+        // const colliders = this.body.getColliders();
+        // for (const collider of colliders) {
+        //   if (!collider.bounds.hasZeroDimensions()) {
+        //     // Colliders are already shifted by anchor, unshift
+        //     ctx.globalAlpha = this.opacity;
+        //     collider.draw(ctx, this.color, vec(0, 0));
+        //   }
+        // }
       }
     }
     ctx.restore();
@@ -1215,7 +1217,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
 
     // Draw actor Id
     if (Debug.showActorId) {
-      ctx.fillText('id: ' + this.id, this.body.bounds.left + 3, this.body.bounds.top + 10);
+      ctx.fillText('id: ' + this.id, this.collider.bounds.left + 3, this.collider.bounds.top + 10);
     }
 
     // Draw actor anchor Vector

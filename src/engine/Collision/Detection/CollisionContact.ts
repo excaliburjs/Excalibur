@@ -4,7 +4,7 @@ import { Collider } from '../Shapes/Collider';
 import { CollisionType } from '../CollisionType';
 import { Pair } from './Pair';
 import { SeparationInfo } from '../Shapes/SeparatingAxis';
-import { createId } from '../../Id';
+import { BodyComponent } from '../BodyComponent';
 
 /**
  * Collision contacts are used internally by Excalibur to resolve collision between colliders. This
@@ -75,28 +75,31 @@ export class CollisionContact {
     this.points = points;
     this.localPoints = localPoints;
     this.info = info;
-    // TODO should we use body? or is collider id better
-    this.id = Pair.calculatePairHash(colliderA.owningId ?? createId('body', 0), colliderB.owningId ?? createId('body', 0));
+    this.id = Pair.calculatePairHash(colliderA.id, colliderB.id);
   }
 
   /**
    * Match contact awake state, except if body's are Fixed
    */
   public matchAwake(): void {
-    if (this.colliderA.owner.sleeping !== this.colliderB.owner.sleeping) {
-      if (
-        this.colliderA.owner.sleeping &&
-        this.colliderA.owner.collisionType !== CollisionType.Fixed &&
-        this.colliderB.owner.sleepMotion >= Physics.wakeThreshold
-      ) {
-        this.colliderA.owner.setSleeping(false);
-      }
-      if (
-        this.colliderB.owner.sleeping &&
-        this.colliderB.owner.collisionType !== CollisionType.Fixed &&
-        this.colliderA.owner.sleepMotion >= Physics.wakeThreshold
-      ) {
-        this.colliderB.owner.setSleeping(false);
+    const bodyA = this.colliderA.owner.get(BodyComponent);
+    const bodyB = this.colliderB.owner.get(BodyComponent);
+    if (bodyA && bodyB) {
+      if (bodyA.sleeping !== bodyB.sleeping) {
+        if (
+          bodyA.sleeping &&
+          bodyA.collisionType !== CollisionType.Fixed &&
+          bodyB.sleepMotion >= Physics.wakeThreshold
+        ) {
+          bodyA.setSleeping(false);
+        }
+        if (
+          bodyB.sleeping &&
+          bodyB.collisionType !== CollisionType.Fixed &&
+          bodyA.sleepMotion >= Physics.wakeThreshold
+        ) {
+          bodyB.setSleeping(false);
+        }
       }
     }
   }

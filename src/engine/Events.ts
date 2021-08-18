@@ -11,7 +11,7 @@ import { CollisionContact } from './Collision/Detection/CollisionContact';
 import { Collider } from './Collision/Shapes/Collider';
 import { Entity } from './EntityComponentSystem/Entity';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from './Interfaces/LifecycleEvents';
-import { BodyComponent } from './Collision/Body';
+import { BodyComponent } from './Collision/BodyComponent';
 
 export enum EventTypes {
   Kill = 'kill',

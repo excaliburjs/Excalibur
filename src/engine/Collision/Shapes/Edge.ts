@@ -152,7 +152,7 @@ export class Edge extends Collider {
   /**
    * @inheritdoc
    */
-  public collide(shape: Collider): CollisionContact {
+  public collide(shape: Collider): CollisionContact[] {
     if (shape instanceof Circle) {
       return CollisionJumpTable.CollideCircleEdge(shape, this);
     } else if (shape instanceof ConvexPolygon) {

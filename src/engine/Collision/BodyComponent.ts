@@ -1,4 +1,3 @@
-import { Collider } from './Shapes/Collider';
 import { Vector } from '../Algebra';
 import { CollisionType } from './CollisionType';
 import { Physics } from './Physics';
@@ -7,28 +6,18 @@ import { TransformComponent } from '../EntityComponentSystem/Components/Transfor
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { Component } from '../EntityComponentSystem/Component';
 import { Entity } from '../EntityComponentSystem/Entity';
-import { BoundingBox } from './BoundingBox';
-import { Shape } from './Shapes/Shape';
 import { CollisionGroup } from './Group/CollisionGroup';
 import { EventDispatcher } from '../EventDispatcher';
-import { CollisionContact } from './Detection/CollisionContact';
 import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisionEvent } from '../Events';
 import { createId, Id } from '../Id';
 import { clamp } from '../Util/Util';
-import { Observable } from '../Util/Observable';
 import { DrawUtil } from '../Util/Index';
 import { Color } from '../Drawing/Color';
-import { Circle } from './Shapes/Circle';
-import { ConvexPolygon } from './Shapes/ConvexPolygon';
-import { Edge } from './Shapes/Edge';
+import { ColliderComponent } from './ColliderComponent';
 
 export interface BodyComponentOptions {
-  box?: { width: number; height: number };
-  colliders?: Collider[];
   type?: CollisionType;
   group?: CollisionGroup;
-  anchor?: Vector;
-  offset?: Vector;
 }
 
 export enum DegreeOfFreedom {
@@ -41,7 +30,7 @@ export enum DegreeOfFreedom {
  * Body describes all the physical properties pos, vel, acc, rotation, angular velocity for the purpose of
  * of physics simulation.
  */
-export class BodyComponent extends Component<'ex.body'> implements Clonable<Body> {
+export class BodyComponent extends Component<'ex.body'> implements Clonable<BodyComponent> {
   public readonly type = 'ex.body';
   public dependencies = [TransformComponent, MotionComponent];
   public static _ID = 0;
@@ -53,29 +42,8 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     if (options) {
       this.collisionType = options.type ?? this.collisionType;
       this.group = options.group ?? this.group;
-      if (options.box) {
-        const {
-          box: { width, height },
-          anchor = Vector.Half,
-          offset = Vector.Zero
-        } = options;
-        this.useBoxCollider(width, height, anchor, offset);
-      }
-      if (options.colliders) {
-        options.colliders.forEach((c) => this.addCollider(c));
-      }
     }
   }
-
-  /**
-   * Observable that notifies when a collider is added to the body
-   */
-  public $collidersAdded = new Observable<Collider>();
-
-  /**
-   * Observable that notifies when a collider is removed from the body
-   */
-  public $collidersRemoved = new Observable<Collider>();
 
   /**
    * Collision type of the body's colliders, by default [[CollisionType.PreventCollision]]
@@ -155,7 +123,12 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
    */
   public get inertia() {
     // TODO Add moments https://physics.stackexchange.com/questions/273394/is-moment-of-inertia-cumulative
-    return this._colliders[0].getInertia(this.mass);
+    // TODO does this belong here?
+    const collider = this.owner.get(ColliderComponent);
+    if (collider?.collider) {
+      return collider.collider.getInertia(this.mass);
+    }
+    return 0;
   }
 
   /**
@@ -185,100 +158,6 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
    * Degrees of freedom to limit
    */
   public limitDegreeOfFreedom: DegreeOfFreedom[] = [];
-
-  private _colliders: Collider[] = [];
-
-  /**
-   * Get the bounding box of the body's colliders in world space
-   */
-  get bounds(): BoundingBox {
-    const results = this._colliders.reduce(
-      (acc, collider) => acc.combine(collider.bounds),
-      this._colliders[0]?.bounds ?? new BoundingBox().translate(this.pos)
-    );
-
-    return results;
-  }
-
-  /**
-   * Get the bounding box of the body's colliders in local space
-   */
-  get localBounds(): BoundingBox {
-    const results = this._colliders.reduce(
-      (acc, collider) => acc.combine(collider.localBounds),
-      this._colliders[0]?.localBounds ?? new BoundingBox().translate(this.pos)
-    );
-
-    return results;
-  }
-
-  /**
-   * Add a collider to the body
-   * @param collider
-   */
-  public addCollider(collider: Collider): BodyComponent {
-    if (!collider.owningId) {
-      collider.owningId = this.id;
-      collider.owner = this;
-      this._colliders.push(collider);
-      this.update();
-      this.events.wire(collider.events);
-      this.$collidersAdded.notifyAll(collider);
-    } else {
-      // TODO log warning
-    }
-    return this;
-  }
-
-  /**
-   * Return the list of colliders associated with this body
-   */
-  public getColliders(): readonly Collider[] {
-    return this._colliders;
-  }
-
-  /**
-   * Remove all colliders from the body
-   */
-  public clearColliders(): void {
-    const oldColliders = [...this._colliders];
-    for (const c of oldColliders) {
-      this.removeCollider(c);
-    }
-  }
-
-  /**
-   * Remove a specific collider
-   */
-  public removeCollider(collider: Collider): BodyComponent {
-    this.$collidersRemoved.notifyAll(collider);
-    const colliderIndex = this._colliders.indexOf(collider);
-    if (colliderIndex !== -1) {
-      this._colliders.splice(colliderIndex, 1);
-    }
-    collider.owningId = null;
-    collider.owner = null;
-    this.events.unwire(collider.events);
-    return this;
-  }
-
-  /**
-   * For each collider in each body run collision on colliders
-   * @param other
-   */
-  public collide(other: Body): CollisionContact[] {
-    const collisions = [];
-
-    for (const colliderA of this._colliders) {
-      for (const colliderB of other._colliders) {
-        const maybeCollision = colliderA.collide(colliderB);
-        if (maybeCollision) {
-          collisions.push(maybeCollision);
-        }
-      }
-    }
-    return collisions;
-  }
 
   /**
    *
@@ -530,7 +409,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   }
 
   onAdd(entity: Entity) {
-    this.update();
+    // this.update();
     this.events.on('precollision', (evt: any) => {
       entity.events.emit('precollision', new PreCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection));
     });
@@ -548,21 +427,21 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     });
   }
 
-  onRemove() {
-    this.events.clear();
-    // Signal to remove colliders from process
-    for (const collider of this._colliders) {
-      this.$collidersRemoved.notifyAll(collider);
-    }
-  }
+  // onRemove() {
+  //   this.events.clear();
+  //   // Signal to remove colliders from process
+  //   for (const collider of this._colliders) {
+  //     this.$collidersRemoved.notifyAll(collider);
+  //   }
+  // }
 
-  update() {
-    if (this.transform) {
-      for (const collider of this._colliders) {
-        collider.update(this.transform);
-      }
-    }
-  }
+  // update() {
+  //   if (this.transform) {
+  //     for (const collider of this._colliders) {
+  //       collider.update(this.transform);
+  //     }
+  //   }
+  // }
 
   debugDraw(ctx: CanvasRenderingContext2D) {
     // Draw motion vectors
@@ -573,114 +452,16 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
       DrawUtil.point(ctx, Color.Red, this.pos);
     }
 
-    if (Physics.debug.showColliderBounds) {
-      this.bounds.debugDraw(ctx, Color.Yellow);
-    }
+    // TODO move to collision system
+    // if (Physics.debug.showColliderBounds) {
+    //   this.bounds.debugDraw(ctx, Color.Yellow);
+    // }
 
-    if (Physics.debug.showColliderGeometry) {
-      for (const collider of this._colliders) {
-        collider.debugDraw(ctx, this.sleeping ? Color.Gray : Color.Green);
-      }
-    }
+    // if (Physics.debug.showColliderGeometry) {
+    //   for (const collider of this._colliders) {
+    //     collider.debugDraw(ctx, this.sleeping ? Color.Gray : Color.Green);
+    //   }
+    // }
   }
 
-  /**
-   * Sets up a box geometry based on the current bounds of the associated actor of this physics body.
-   *
-   * If no width/height are specified the body will attempt to use the associated actor's width/height.
-   *
-   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
-   */
-  public useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
-    this.clearColliders();
-    return this.addBoxCollider(width, height, anchor, center);
-  }
-
-  /**
-   * Add a box collider to the body's existing colliders
-   *
-   * @param width
-   * @param height
-   * @param anchor
-   * @param center
-   */
-  public addBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): Collider {
-    const collider = Shape.Box(width, height, anchor, center);
-    this.addCollider(collider);
-    return collider;
-  }
-
-  /**
-   * Sets up a [[ConvexPolygon|convex polygon]] collision geometry based on a list of of points relative
-   *  to the anchor of the associated actor
-   * of this physics body.
-   *
-   * Only [convex polygon](https://en.wikipedia.org/wiki/Convex_polygon) definitions are supported.
-   *
-   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
-   */
-  public usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): ConvexPolygon {
-    this.clearColliders();
-    return this.addPolygonCollider(points, center);
-  }
-
-  /**
-   * Adds a polygon collider to the body's existing colliders
-   *
-   * @param points
-   * @param center
-   */
-  public addPolygonCollider(points: Vector[], center: Vector = Vector.Zero): ConvexPolygon {
-    const collider = Shape.Polygon(points, false, center);
-    this.addCollider(collider);
-    return collider;
-  }
-
-  /**
-   * Sets up a [[Circle|circle collision geometry]] as the only collider with a specified radius in pixels.
-   *
-   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
-   */
-  public useCircleCollider(radius: number, center: Vector = Vector.Zero): Circle {
-    this.clearColliders();
-    return this.addCircleCollider(radius, center);
-  }
-
-  /**
-   * Adds a circle collider tot he body's existing colliders
-   *
-   * @param radius Radius of the circle in pixels
-   * @param center The relative position of the circles center, by default (0, 0) which is centered
-   */
-  public addCircleCollider(radius: number, center: Vector = Vector.Zero): Circle {
-    const collider = Shape.Circle(radius, center);
-    this.addCollider(collider);
-    return collider;
-  }
-
-  /**
-   * Sets up an [[Edge|edge collision geometry]] with a start point and an end point relative to the anchor of the associated actor
-   * of this physics body.
-   *
-   * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
-   */
-  public useEdgeCollider(begin: Vector, end: Vector): Edge {
-    this.clearColliders();
-    return this.addEdgeCollider(begin, end);
-  }
-
-  /**
-   * Adds an edge collider to the body's existing colliders
-   *
-   * @param begin
-   * @param end
-   */
-  public addEdgeCollider(begin: Vector, end: Vector): Edge {
-    const collider = Shape.Edge(begin, end);
-    this.addCollider(collider);
-    return collider;
-  }
 }
-
-// Alias for backwards compat
-export type Body = BodyComponent;

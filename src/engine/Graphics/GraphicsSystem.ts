@@ -11,7 +11,6 @@ import { System, SystemType, TagComponent } from '../EntityComponentSystem';
 import { Engine } from '../Engine';
 import { GraphicsDiagnostics } from './GraphicsDiagnostics';
 import { EnterViewPortEvent, ExitViewPortEvent } from '../Events';
-import { BodyComponent } from '../Collision/Body';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -193,7 +192,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   private _graphicsBoundsDebugDraw(entity: Entity, _transform: TransformComponent, _graphics: GraphicsComponent) {
     if (this._engine?.isDebug) {
       if (isActor(entity)) {
-        const bb = entity.get(BodyComponent).localBounds.translate(entity.getGlobalPos());
+        const bb = entity.get(GraphicsComponent).localBounds.translate(entity.getGlobalPos());
         bb.draw(this._graphicsContext);
       }
     }

@@ -72,7 +72,7 @@ describe('A Trigger', () => {
       height: 100,
       repeat: 3
     });
-    trigger.body.update();
+    trigger.collider.update();
     const enterSpy = jasmine.createSpy('enter');
     const exitSpy = jasmine.createSpy('exit');
     trigger.on('enter', enterSpy);
@@ -165,7 +165,7 @@ describe('A Trigger', () => {
       width: 100,
       height: 100
     });
-    trigger.body.update();
+    trigger.collider.update();
 
     const actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
     actor.body.collisionType = ex.CollisionType.Active;
@@ -240,7 +240,7 @@ describe('A Trigger', () => {
       height: 100,
       filter: () => false
     });
-    trigger.body.update();
+    trigger.collider.update();
 
     const actor = new ex.Actor({ x: 0, y: 100, width: 10, height: 10 });
 
@@ -266,7 +266,7 @@ describe('A Trigger', () => {
       height: 100,
       filter: () => true
     });
-    trigger.body.update();
+    trigger.collider.update();
 
     const actor = new ex.Actor({ x: 0, y: 100, width: 10, height: 10 });
     actor.body.collisionType = ex.CollisionType.Active;

@@ -138,15 +138,15 @@ export class Circle extends Collider {
   /**
    * @inheritdoc
    */
-  public collide(shape: Collider): CollisionContact {
-    if (shape instanceof Circle) {
-      return CollisionJumpTable.CollideCircleCircle(this, shape);
-    } else if (shape instanceof ConvexPolygon) {
-      return CollisionJumpTable.CollideCirclePolygon(this, shape);
-    } else if (shape instanceof Edge) {
-      return CollisionJumpTable.CollideCircleEdge(this, shape);
+  public collide(collider: Collider): CollisionContact[] {
+    if (collider instanceof Circle) {
+      return CollisionJumpTable.CollideCircleCircle(this, collider);
+    } else if (collider instanceof ConvexPolygon) {
+      return CollisionJumpTable.CollideCirclePolygon(this, collider);
+    } else if (collider instanceof Edge) {
+      return CollisionJumpTable.CollideCircleEdge(this, collider);
     } else {
-      throw new Error(`Circle could not collide with unknown CollisionShape ${typeof shape}`);
+      throw new Error(`Circle could not collide with unknown CollisionShape ${typeof collider}`);
     }
   }
 

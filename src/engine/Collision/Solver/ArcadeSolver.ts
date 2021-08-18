@@ -3,6 +3,7 @@ import { CollisionContact } from '../Detection/CollisionContact';
 import { CollisionType } from '../CollisionType';
 import { Side } from '../Side';
 import { CollisionSolver } from './Solver';
+import { BodyComponent } from '../BodyComponent';
 
 /**
  * ArcadeSolver is the default in Excalibur. It solves collisions so that there is no overlap between contacts,
@@ -29,8 +30,12 @@ export class ArcadeSolver extends CollisionSolver {
     for (const contact of contacts) {
       const colliderA = contact.colliderA;
       const colliderB = contact.colliderB;
-      if (colliderA.owner.collisionType === CollisionType.Passive || colliderB.owner.collisionType === CollisionType.Passive) {
-        continue;
+      const bodyA = colliderA.owner?.get(BodyComponent);
+      const bodyB = colliderB.owner?.get(BodyComponent);
+      if (bodyA && bodyB) {
+        if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
+          continue;
+        }
       }
       const side = Side.fromDirection(contact.mtv);
       const mtv = contact.mtv.negate();
@@ -48,25 +53,28 @@ export class ArcadeSolver extends CollisionSolver {
       let mtv = contact.mtv;
       const colliderA = contact.colliderA;
       const colliderB = contact.colliderB;
-
-      if (colliderA.owner.collisionType === CollisionType.Passive || colliderB.owner.collisionType === CollisionType.Passive) {
-        continue;
-      }
-
-      if (colliderA.owner.collisionType === CollisionType.Active && colliderB.owner.collisionType === CollisionType.Active) {
-        // split overlaps if both are Active
-        mtv = mtv.scale(0.5);
-      }
-
-      // Resolve overlaps
-      if (colliderA.owner.collisionType === CollisionType.Active) {
-        colliderA.owner.pos.x -= mtv.x;
-        colliderA.owner.pos.y -= mtv.y;
-      }
-
-      if (colliderB.owner.collisionType === CollisionType.Active) {
-        colliderB.owner.pos.x += mtv.x;
-        colliderB.owner.pos.y += mtv.y;
+      const bodyA = colliderA.owner?.get(BodyComponent);
+      const bodyB = colliderB.owner?.get(BodyComponent);
+      if (bodyA && bodyB) {
+        if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
+          continue;
+        }
+        
+        if (bodyA.collisionType === CollisionType.Active && bodyB.collisionType === CollisionType.Active) {
+          // split overlaps if both are Active
+          mtv = mtv.scale(0.5);
+        }
+        
+        // Resolve overlaps
+        if (bodyA.collisionType === CollisionType.Active) {
+          bodyA.pos.x -= mtv.x;
+          bodyA.pos.y -= mtv.y;
+        }
+        
+        if (bodyB.collisionType === CollisionType.Active) {
+          bodyB.pos.x += mtv.x;
+          bodyB.pos.y += mtv.y;
+        }
       }
     }
   }
@@ -75,23 +83,28 @@ export class ArcadeSolver extends CollisionSolver {
     for (const contact of contacts) {
       const colliderA = contact.colliderA;
       const colliderB = contact.colliderB;
+      const bodyA = colliderA.owner?.get(BodyComponent);
+      const bodyB = colliderB.owner?.get(BodyComponent);
 
-      if (colliderA.owner.collisionType === CollisionType.Passive || colliderB.owner.collisionType === CollisionType.Passive) {
-        continue;
-      }
+      if (bodyA && bodyB) {
 
-      const normal = contact.normal;
-      const opposite = normal.negate();
-
-      // Cancel out velocity opposite direction of collision normal
-      if (colliderA.owner.collisionType === CollisionType.Active) {
-        const velAdj = normal.scale(normal.dot(colliderA.owner.vel.negate()));
-        colliderA.owner.vel = colliderA.owner.vel.add(velAdj);
-      }
-
-      if (colliderB.owner.collisionType === CollisionType.Active) {
-        const velAdj = opposite.scale(opposite.dot(colliderB.owner.vel.negate()));
-        colliderB.owner.vel = colliderB.owner.vel.add(velAdj);
+        if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
+          continue;
+        }
+        
+        const normal = contact.normal;
+        const opposite = normal.negate();
+        
+        // Cancel out velocity opposite direction of collision normal
+        if (bodyA.collisionType === CollisionType.Active) {
+          const velAdj = normal.scale(normal.dot(bodyA.vel.negate()));
+          bodyA.vel = bodyA.vel.add(velAdj);
+        }
+        
+        if (bodyB.collisionType === CollisionType.Active) {
+          const velAdj = opposite.scale(opposite.dot(bodyB.vel.negate()));
+          bodyB.vel = bodyB.vel.add(velAdj);
+        }
       }
     }
   }

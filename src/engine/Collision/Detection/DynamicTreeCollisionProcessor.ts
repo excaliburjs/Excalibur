@@ -12,6 +12,7 @@ import { CollisionContact } from '../Detection/CollisionContact';
 import { Color } from '../../Drawing/Color';
 import { ConvexPolygon } from '../Shapes/ConvexPolygon';
 import { DrawUtil } from '../../Util/Index';
+import { BodyComponent } from '../BodyComponent';
 
 /**
  * Responsible for performing the collision broadphase (locating potential colllisions) and
@@ -52,19 +53,24 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   }
 
   private _shouldGenerateCollisionPair(colliderA: Collider, colliderB: Collider) {
-    // if the collision pair is part of the same fixture that's invalid
-    if ((colliderA.owningId !== null && colliderB.owningId !== null) &&
-        colliderA.owningId === colliderB.owningId) {
+    // if the collision pair must be 2 separate colliders
+    if ((colliderA.id !== null && colliderB.id !== null) &&
+        colliderA.id === colliderB.id) {
       return false;
     }
 
     // if the collision pair has been calculated already short circuit
-    const hash = Pair.calculatePairHash(colliderA.owningId, colliderB.owningId);
+    const hash = Pair.calculatePairHash(colliderA.id, colliderB.id);
     if (this._collisions.has(hash)) {
       return false; // pair exists easy exit return false
     }
 
-    return Pair.canCollide(colliderA.owner, colliderB.owner);
+    // if the pair has a member with zero dimension
+    if (colliderA.localBounds.hasZeroDimensions() || colliderB.localBounds.hasZeroDimensions()){
+      return false;
+    }
+
+    return Pair.canCollide(colliderA.owner?.get(BodyComponent), colliderB.owner?.get(BodyComponent));
   }
 
   /**
@@ -76,7 +82,8 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
     const potentialColliders = targets
       .filter((other) => {
-        return other.owner?.active && other.owner.collisionType !== CollisionType.PreventCollision;
+        const body = other.owner?.get(BodyComponent);
+        return other.owner?.active && body.collisionType !== CollisionType.PreventCollision;
       });
 
     // clear old list of collision pairs
@@ -87,11 +94,12 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     let collider: Collider;
     for (let j = 0, l = potentialColliders.length; j < l; j++) {
       collider = potentialColliders[j];
+      const body = collider.owner?.get(BodyComponent);
 
       // Query the collision tree for potential colliders
       this._dynamicCollisionTree.query(collider, (other: Collider) => {
         if (this._shouldGenerateCollisionPair(collider, other)) {
-          const pair = new Pair(collider.owner, other.owner);
+          const pair = new Pair(body, other.owner?.get(BodyComponent));
           this._collisions.add(pair.id);
           this._collisionPairCache.push(pair);
         }
@@ -107,15 +115,16 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     // Fast moving objects are those moving at least there smallest bound per frame
     if (Physics.checkForFastBodies) {
       for (const collider of potentialColliders) {
+        const body = collider.owner.get(BodyComponent);
         // Skip non-active objects. Does not make sense on other collision types
-        if (collider.owner.collisionType !== CollisionType.Active) {
+        if (body.collisionType !== CollisionType.Active) {
           continue;
         }
 
         // Maximum travel distance next frame
         const updateDistance =
-          collider.owner.vel.size * seconds + // velocity term
-          collider.owner.acc.size * 0.5 * seconds * seconds; // acc term
+          body.vel.size * seconds + // velocity term
+          body.acc.size * 0.5 * seconds * seconds; // acc term
 
         // Find the minimum dimension
         const minDimension = Math.min(collider.bounds.height, collider.bounds.width);
@@ -126,19 +135,19 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
           // start with the oldPos because the integration for actors has already happened
           // objects resting on a surface may be slightly penetrating in the current position
-          const updateVec = collider.owner.pos.sub(collider.owner.oldPos);
+          const updateVec = body.pos.sub(body.oldPos);
           const centerPoint = collider.center;
-          const furthestPoint = collider.getFurthestPoint(collider.owner.vel);
+          const furthestPoint = collider.getFurthestPoint(body.vel);
           const origin: Vector = furthestPoint.sub(updateVec);
 
-          const ray: Ray = new Ray(origin, collider.owner.vel);
+          const ray: Ray = new Ray(origin, body.vel);
 
           // back the ray up by -2x surfaceEpsilon to account for fast moving objects starting on the surface
           ray.pos = ray.pos.add(ray.dir.scale(-2 * Physics.surfaceEpsilon));
           let minCollider: Collider;
           let minTranslate: Vector = new Vector(Infinity, Infinity);
           this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + Physics.surfaceEpsilon * 2, (other: Collider) => {
-            if (collider !== other && Pair.canCollide(collider.owner, other.owner)) {
+            if (collider !== other && Pair.canCollide(body, other.owner?.get(BodyComponent))) {
               const hitPoint = other.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
               if (hitPoint) {
                 const translate = hitPoint.sub(origin);
@@ -152,7 +161,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
           });
 
           if (minCollider && Vector.isValid(minTranslate)) {
-            const pair = new Pair(collider.owner, minCollider.owner);
+            const pair = new Pair(body, minCollider.owner?.get(BodyComponent));
             if (!this._collisions.has(pair.id)) {
               this._collisions.add(pair.id);
               this._collisionPairCache.push(pair);
@@ -160,11 +169,11 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
             // move the fast moving object to the other body
             // need to push into the surface by ex.Physics.surfaceEpsilon
             const shift = centerPoint.sub(furthestPoint);
-            collider.owner.pos = origin
+            body.pos = origin
               .add(shift)
               .add(minTranslate)
               .add(ray.dir.scale(2 * Physics.surfaceEpsilon));
-            collider.update(collider.owner.transform);
+            collider.update(body.transform);
 
             if (stats) {
               stats.physics.fastBodyCollisions++;
@@ -218,13 +227,14 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
     if (Physics.debug.showColliderGeometry) {
       for (const collider of this._colliders) {
+        const body = collider.owner.get(BodyComponent);
         if (Physics.debug.showColliderBounds) {
           collider.bounds.debugDraw(ctx, Color.Yellow);
         }
 
         if (Physics.debug.showColliderGeometry) {
           let color = Color.Green;
-          if (collider.owner.sleeping || collider.owner.collisionType === CollisionType.Fixed) {
+          if (body.sleeping || body.collisionType === CollisionType.Fixed) {
             color = Color.Gray;
           }
           collider.debugDraw(ctx, color);

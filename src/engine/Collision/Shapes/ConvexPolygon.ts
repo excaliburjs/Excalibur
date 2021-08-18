@@ -229,32 +229,32 @@ export class ConvexPolygon extends Collider {
     return true;
   }
 
-  public getClosestLineBetween(shape: Collider): Line {
-    if (shape instanceof Circle) {
-      return ClosestLineJumpTable.PolygonCircleClosestLine(this, shape);
-    } else if (shape instanceof ConvexPolygon) {
-      return ClosestLineJumpTable.PolygonPolygonClosestLine(this, shape);
-    } else if (shape instanceof Edge) {
-      return ClosestLineJumpTable.PolygonEdgeClosestLine(this, shape);
+  public getClosestLineBetween(collider: Collider): Line {
+    if (collider instanceof Circle) {
+      return ClosestLineJumpTable.PolygonCircleClosestLine(this, collider);
+    } else if (collider instanceof ConvexPolygon) {
+      return ClosestLineJumpTable.PolygonPolygonClosestLine(this, collider);
+    } else if (collider instanceof Edge) {
+      return ClosestLineJumpTable.PolygonEdgeClosestLine(this, collider);
     } else {
-      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof collider}`);
     }
   }
 
   /**
    * Returns a collision contact if the 2 collision shapes collide, otherwise collide will
    * return null.
-   * @param shape
+   * @param collider
    */
-  public collide(shape: Collider): CollisionContact {
-    if (shape instanceof Circle) {
-      return CollisionJumpTable.CollideCirclePolygon(shape, this);
-    } else if (shape instanceof ConvexPolygon) {
-      return CollisionJumpTable.CollidePolygonPolygon(this, shape);
-    } else if (shape instanceof Edge) {
-      return CollisionJumpTable.CollidePolygonEdge(this, shape);
+  public collide(collider: Collider): CollisionContact[] {
+    if (collider instanceof Circle) {
+      return CollisionJumpTable.CollideCirclePolygon(collider, this);
+    } else if (collider instanceof ConvexPolygon) {
+      return CollisionJumpTable.CollidePolygonPolygon(this, collider);
+    } else if (collider instanceof Edge) {
+      return CollisionJumpTable.CollidePolygonEdge(this, collider);
     } else {
-      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof collider}`);
     }
   }
 

@@ -7,7 +7,7 @@ import { System, SystemType } from '../EntityComponentSystem/System';
 import { Physics } from './Physics';
 import { Scene } from '../Scene';
 import { DrawUtil } from '../Util/Index';
-import { BodyComponent } from './Body';
+import { BodyComponent } from './BodyComponent';
 import { CollisionType } from './CollisionType';
 import { EulerIntegrator } from './Integrator';
 

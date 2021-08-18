@@ -693,7 +693,6 @@ player.on('precollision', (data?: ex.PreCollisionEvent) => {
         game.input.keyboard.isHeld(ex.Input.Keys.Down)
       )
     ) {
-      console.log(data);
       player.vel.x = data.other.vel.x;
       player.vel.y = data.other.vel.y;
     }

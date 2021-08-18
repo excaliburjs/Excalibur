@@ -7,7 +7,7 @@ import * as Events from './Events';
 import { Configurable } from './Configurable';
 import { Entity } from './EntityComponentSystem/Entity';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
-import { BodyComponent } from './Collision/Body';
+import { BodyComponent } from './Collision/BodyComponent';
 import { CollisionType } from './Collision/CollisionType';
 import { Shape } from './Collision/Shapes/Shape';
 import { ExcaliburGraphicsContext, GraphicsComponent, hasGraphicsTick } from './Graphics';
@@ -17,6 +17,8 @@ import { Sprite as LegacySprite } from './Drawing/Index';
 import { removeItemFromArray } from './Util/Util';
 import { obsolete } from './Util/Decorators';
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
+import { ColliderComponent } from './Collision/ColliderComponent';
+import { CompositeCollider } from './Collision/Shapes/CompositeCollider';
 
 /**
  * @hidden
@@ -47,7 +49,8 @@ export class TileMapImpl extends Entity {
   }
   private _transform: TransformComponent;
   private _motion: MotionComponent;
-  private _body: BodyComponent;
+  private _collider: ColliderComponent;
+  private _composite: CompositeCollider;
 
   public get x(): number {
     return this._transform.pos.x ?? 0;
@@ -146,9 +149,7 @@ export class TileMapImpl extends Entity {
     this.addComponent(new MotionComponent());
     this.addComponent(
       new BodyComponent({
-        box: { width: cellWidth * cols, height: cellHeight * rows },
-        type: CollisionType.Fixed,
-        anchor: Vector.Zero
+        type: CollisionType.Fixed
       })
     );
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
@@ -157,9 +158,11 @@ export class TileMapImpl extends Entity {
         onPostDraw: (ctx, delta) => this.draw(ctx, delta)
       })
     );
+    this.addComponent(new ColliderComponent());
     this._transform = this.get(TransformComponent);
     this._motion = this.get(MotionComponent);
-    this._body = this.get(BodyComponent);
+    this._collider = this.get(ColliderComponent);
+    this._composite = this._collider.useCompositeCollider([])
 
     this.x = <number>xOrConfig;
     this.y = y;
@@ -174,6 +177,7 @@ export class TileMapImpl extends Entity {
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
         const cd = new Cell(i * cellWidth + <number>xOrConfig, j * cellHeight + y, cellWidth, cellHeight, i + j * cols);
+        cd.map = this;
         this.data[i + j * cols] = cd;
         currentCol.push(cd);
         if (!this._rows[j]) {
@@ -218,7 +222,7 @@ export class TileMapImpl extends Entity {
    * Tiles colliders based on the solid tiles in the tilemap.
    */
   private _updateColliders(): void {
-    this._body.clearColliders();
+    this._composite.clearColliders();
     const colliders: BoundingBox[] = [];
     let current: BoundingBox;
     // Bad square tessalation algo
@@ -257,10 +261,13 @@ export class TileMapImpl extends Entity {
         }
       }
     }
-
+    this._composite = this._collider.useCompositeCollider([]);
     for (const c of colliders) {
-      this._body.addCollider(Shape.Box(c.width, c.height, Vector.Zero, vec(c.left - this.pos.x, c.top - this.pos.y)));
+      const collider = Shape.Box(c.width, c.height, Vector.Zero, vec(c.left - this.pos.x, c.top - this.pos.y));
+      collider.owner = this;
+      this._composite.addCollider(collider);
     }
+    this._collider.update();
   }
 
   /**

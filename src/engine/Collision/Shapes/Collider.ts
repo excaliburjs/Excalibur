@@ -3,10 +3,9 @@ import { CollisionContact } from '../Detection/CollisionContact';
 import { BoundingBox } from '../BoundingBox';
 import { Vector, Projection, Ray, Line } from '../../Algebra';
 import { Clonable } from '../../Interfaces/Clonable';
-import { Transform } from '../../EntityComponentSystem';
+import { Entity, Transform } from '../../EntityComponentSystem';
 import { createId, Id } from '../../Id';
 import { EventDispatcher } from '../../EventDispatcher';
-import { BodyComponent } from '../Body';
 
 /**
  * A collision collider specifies the geometry that can detect when other collision colliders intersect
@@ -32,12 +31,7 @@ export abstract class Collider implements Clonable<Collider> {
     return false;
   }
 
-  /**
-   * Owning id
-   */
-  public owningId?: Id<'body'> = null;
-
-  public owner: BodyComponent;
+  public owner: Entity;
 
   /**
    * Pixel offset of the collision collider relative to the collider, by default (0, 0) meaning the collider is positioned
@@ -80,7 +74,7 @@ export abstract class Collider implements Clonable<Collider> {
   // All new CollisionShape need to do the following
   // Create a new collision function in the CollisionJumpTable against all the primitives
   // Currently there are 3 primitive collision collider 3! = 6 jump functions
-  abstract collide(collider: Collider): CollisionContact;
+  abstract collide(collider: Collider): CollisionContact[];
 
   /**
    * Returns the closest line between the surfaces this collider and another

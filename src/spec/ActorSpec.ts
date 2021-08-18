@@ -127,8 +127,8 @@ describe('A game actor', () => {
   });
 
   it('actors should generate pair hashes in the correct order', () => {
-    const id1 = ex.createId('body', 20);
-    const id2 = ex.createId('body', 40);
+    const id1 = ex.createId('collider', 20);
+    const id2 = ex.createId('collider', 40);
     const hash = ex.Pair.calculatePairHash(id1, id2);
     const hash2 = ex.Pair.calculatePairHash(id2, id1);
     expect(hash).toBe('#20+40');
@@ -241,10 +241,10 @@ describe('A game actor', () => {
       height: 100
     });
 
-    expect(actor.body.bounds.left).toBe(-50);
-    expect(actor.body.bounds.right).toBe(50);
-    expect(actor.body.bounds.top).toBe(-50);
-    expect(actor.body.bounds.bottom).toBe(50);
+    expect(actor.collider.bounds.left).toBe(-50);
+    expect(actor.collider.bounds.right).toBe(50);
+    expect(actor.collider.bounds.top).toBe(-50);
+    expect(actor.collider.bounds.bottom).toBe(50);
   });
 
   it('should have correct bounds when scaled', () => {
@@ -257,12 +257,12 @@ describe('A game actor', () => {
     });
     actor.scale.setTo(2, 2);
 
-    actor.body.update();
+    actor.collider.update();
 
-    expect(actor.body.bounds.left).toBe(-100);
-    expect(actor.body.bounds.right).toBe(100);
-    expect(actor.body.bounds.top).toBe(-100);
-    expect(actor.body.bounds.bottom).toBe(100);
+    expect(actor.collider.bounds.left).toBe(-100);
+    expect(actor.collider.bounds.right).toBe(100);
+    expect(actor.collider.bounds.top).toBe(-100);
+    expect(actor.collider.bounds.bottom).toBe(100);
   });
 
   it('can collide with other actors', () => {
@@ -270,32 +270,32 @@ describe('A game actor', () => {
     const other = new ex.Actor({ x: 10, y: 10, width: 10, height: 10 });
 
     // Actors are adjacent and not overlapping should not collide
-    expect(actor.body.bounds.intersectWithSide(other.body.bounds)).toBe(ex.Side.None);
-    expect(other.body.bounds.intersectWithSide(actor.body.bounds)).toBe(ex.Side.None);
+    expect(actor.collider.bounds.intersectWithSide(other.collider.bounds)).toBe(ex.Side.None);
+    expect(other.collider.bounds.intersectWithSide(actor.collider.bounds)).toBe(ex.Side.None);
 
     // move other actor into collision range from the right side
     other.pos.x = 9;
     other.pos.y = 0;
-    expect(actor.body.bounds.intersectWithSide(other.body.bounds)).toBe(ex.Side.Right);
-    expect(other.body.bounds.intersectWithSide(actor.body.bounds)).toBe(ex.Side.Left);
+    expect(actor.collider.bounds.intersectWithSide(other.collider.bounds)).toBe(ex.Side.Right);
+    expect(other.collider.bounds.intersectWithSide(actor.collider.bounds)).toBe(ex.Side.Left);
 
     // move other actor into collision range from the left side
     other.pos.x = -9;
     other.pos.y = 0;
-    expect(actor.body.bounds.intersectWithSide(other.body.bounds)).toBe(ex.Side.Left);
-    expect(other.body.bounds.intersectWithSide(actor.body.bounds)).toBe(ex.Side.Right);
+    expect(actor.collider.bounds.intersectWithSide(other.collider.bounds)).toBe(ex.Side.Left);
+    expect(other.collider.bounds.intersectWithSide(actor.collider.bounds)).toBe(ex.Side.Right);
 
     // move other actor into collision range from the top
     other.pos.x = 0;
     other.pos.y = -9;
-    expect(actor.body.bounds.intersectWithSide(other.body.bounds)).toBe(ex.Side.Top);
-    expect(other.body.bounds.intersectWithSide(actor.body.bounds)).toBe(ex.Side.Bottom);
+    expect(actor.collider.bounds.intersectWithSide(other.collider.bounds)).toBe(ex.Side.Top);
+    expect(other.collider.bounds.intersectWithSide(actor.collider.bounds)).toBe(ex.Side.Bottom);
 
     // move other actor into collision range from the bottom
     other.pos.x = 0;
     other.pos.y = 9;
-    expect(actor.body.bounds.intersectWithSide(other.body.bounds)).toBe(ex.Side.Bottom);
-    expect(other.body.bounds.intersectWithSide(actor.body.bounds)).toBe(ex.Side.Top);
+    expect(actor.collider.bounds.intersectWithSide(other.collider.bounds)).toBe(ex.Side.Bottom);
+    expect(other.collider.bounds.intersectWithSide(actor.collider.bounds)).toBe(ex.Side.Top);
   });
 
   it('participates with another in a collision', () => {

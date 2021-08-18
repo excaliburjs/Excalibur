@@ -66,7 +66,7 @@ function spawnBlock(x: number, y: number) {
   });
   block.rotation = globalRotation;
   // block.body.addBoxCollider(width + 200, width / 2);
-  block.body.useBoxCollider(width / 2, width + 100);
+  block.collider.useBoxCollider(width / 2, width + 100);
   block.body.events.on('contactstart', (e) => {
     // console.log(e);
   });
@@ -74,8 +74,8 @@ function spawnBlock(x: number, y: number) {
     // console.log(e);
   });
 
-  // block.width = block.body.bounds.width;
-  // block.height = block.body.bounds.height;
+  // block.width = block.collider.bounds.width;
+  // block.height = block.collider.bounds.height;
 
   //block.rx = .1;
   block.body.collisionType = ex.CollisionType.Active;
@@ -91,7 +91,7 @@ function spawnCircle(x: number, y: number) {
   // circle.rx = ex.Util.randomInRange(-0.5, 0.5);
   circle.angularVelocity = 1;
   circle.vel.setTo(0, 300);
-  circle.body.useCircleCollider(width / 2);
+  circle.collider.useCircleCollider(width / 2);
   circle.body.collisionType = ex.CollisionType.Active;
   circle.draw = (ctx: CanvasRenderingContext2D) => {
     ex.Util.DrawUtil.circle(ctx, 0, 0, width / 2, color, color);
@@ -107,7 +107,7 @@ function spawnCircle(x: number, y: number) {
 
 // var edge = new ex.Actor(200, 300, 5, 5, ex.Color.Blue.clone());
 // edge.body.collisionType = ex.CollisionType.Fixed;
-// edge.body.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(200, 0));
+// edge.collider.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(200, 0));
 // // edge.rx = .4;
 // game.add(edge);
 
@@ -121,17 +121,17 @@ function spawnCircle(x: number, y: number) {
 
 var ground = new ex.Actor({x: 300, y: 380, width: 600, height: 10, color: ex.Color.Azure.clone()});
 ground.body.collisionType = ex.CollisionType.Fixed;
-ground.body.useBoxCollider(600, 10); // optional
+ground.collider.useBoxCollider(600, 10); // optional
 game.add(ground);
 
 var leftWall = new ex.Actor({x: 0, y: 300, width: 10, height: 400, color: ex.Color.Azure.clone()});
 leftWall.body.collisionType = ex.CollisionType.Fixed;
-leftWall.body.useBoxCollider(10, 400);
+leftWall.collider.useBoxCollider(10, 400);
 game.add(leftWall);
 
 var rightWall = new ex.Actor({x: 600, y: 300, width: 10, height: 400, color: ex.Color.Azure.clone()});
 rightWall.body.collisionType = ex.CollisionType.Fixed;
-rightWall.body.useBoxCollider(10, 400);
+rightWall.collider.useBoxCollider(10, 400);
 game.add(rightWall);
 
 game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) => {

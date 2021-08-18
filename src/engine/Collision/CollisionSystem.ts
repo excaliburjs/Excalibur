@@ -8,16 +8,17 @@ import { CollisionEndEvent, CollisionStartEvent, ContactEndEvent, ContactStartEv
 import { CollisionResolutionStrategy, Physics } from './Physics';
 import { Scene } from '../Scene';
 import { DrawUtil } from '../Util/Index';
-import { BodyComponent } from './Body';
+// import { BodyComponent } from './BodyComponent';
 import { ArcadeSolver } from './Solver/ArcadeSolver';
 import { Collider } from './Shapes/Collider';
 import { CollisionContact } from './Detection/CollisionContact';
 import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
 import { RealisticSolver } from './Solver/RealisticSolver';
 import { CollisionSolver } from './Solver/Solver';
+import { ColliderComponent } from './ColliderComponent';
 
-export class CollisionSystem extends System<TransformComponent | MotionComponent | BodyComponent> {
-  public readonly types = ['ex.transform', 'ex.motion', 'ex.body'] as const;
+export class CollisionSystem extends System<TransformComponent | MotionComponent | ColliderComponent > {
+  public readonly types = ['ex.transform', 'ex.motion', 'ex.collider'] as const;
   public systemType = SystemType.Update;
   public priority = -1;
 
@@ -35,18 +36,17 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
   notify(message: AddedEntity | RemovedEntity) {
     if (isAddedSystemEntity(message)) {
-      const bodyComponent = message.data.get(BodyComponent);
-      bodyComponent.$collidersAdded.subscribe(this._trackCollider);
-      bodyComponent.$collidersRemoved.subscribe(this._untrackCollider);
-      for (const collider of bodyComponent.getColliders()) {
-        this._processor.track(collider);
+      const colliderComponent = message.data.get(ColliderComponent);
+      colliderComponent.$colliderAdded.subscribe(this._trackCollider);
+      colliderComponent.$colliderRemoved.subscribe(this._untrackCollider);
+      if (colliderComponent.collider) {
+        // TODO if composite collider should we track all colliders?
+        this._processor.track(colliderComponent.collider);
       }
     } else {
-      const maybeBody = message.data.get(BodyComponent);
-      if (maybeBody) {
-        for (const collider of maybeBody.getColliders()) {
-          this._processor.untrack(collider);
-        }
+      const colliderComponent = message.data.get(ColliderComponent);
+      if (colliderComponent.collider) {
+        this._processor.untrack(colliderComponent.collider);
       }
     }
   }
@@ -57,17 +57,17 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
   update(_entities: Entity[], elapsedMs: number): void {
     if (!Physics.enabled) {
-      // TODO remove system entirely if not enabled
       return;
     }
 
     // TODO refactor, collecting colliders like this feels rough and inefficient
     let colliders: Collider[] = [];
     for (const entity of _entities) {
-      // Update body collider geometry, recomputes worldspace geometry
-      entity.get(BodyComponent)?.update();
-      // Bodies can have multiple colliders
-      colliders = colliders.concat(entity.get(BodyComponent).getColliders());
+      const collider = entity.get(ColliderComponent);
+      if (collider.collider) {
+        collider.update();
+        colliders.push(collider.collider)
+      }
     }
 
     // Update the spatial partitioning data structures
@@ -85,7 +85,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
     const solver: CollisionSolver = this.getSolver();
 
-    // Solve
+    // Solve, this resolves the position/velocity so entities arent overlapping
     contacts = solver.solve(contacts);
 
     // Record contacts

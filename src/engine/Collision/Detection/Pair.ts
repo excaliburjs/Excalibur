@@ -1,7 +1,8 @@
 import { CollisionContact } from './CollisionContact';
 import { CollisionType } from '../CollisionType';
-import { Body } from '../Body';
+import { BodyComponent } from '../BodyComponent';
 import { Id } from '../../Id';
+import { ColliderComponent } from '../ColliderComponent';
 
 /**
  * Models a potential collision between 2 bodies
@@ -9,11 +10,19 @@ import { Id } from '../../Id';
 export class Pair {
   public id: string = null;
 
-  constructor(public bodyA: Body, public bodyB: Body) {
-    this.id = Pair.calculatePairHash(bodyA.id, bodyB.id);
+  constructor(public bodyA: BodyComponent, public bodyB: BodyComponent) {
+    const colliderA = bodyA.owner.get(ColliderComponent);
+    const colliderB = bodyB.owner.get(ColliderComponent);
+    this.id = Pair.calculatePairHash(colliderA.collider.id, colliderB.collider.id);
   }
 
-  public static canCollide(bodyA: Body, bodyB: Body) {
+  public static canCollide(bodyA: BodyComponent, bodyB: BodyComponent) {
+    // Body's needed for collision
+    // TODO can we collide without a body?
+    if (!bodyA || !bodyB) {
+      return false;
+    }
+
     // If both are in the same collision group short circuit
     if (!bodyA.group.canCollide(bodyB.group)) {
       return false;
@@ -50,13 +59,15 @@ export class Pair {
    * Runs the collision intersection logic on the members of this pair
    */
   public collide(): CollisionContact[] {
-    return this.bodyA.collide(this.bodyB);
+    const colliderA = this.bodyA.owner.get(ColliderComponent);
+    const colliderB = this.bodyB.owner.get(ColliderComponent);
+    return colliderA.collide(colliderB);
   }
 
   /**
    * Calculates the unique pair hash id for this collision pair (owning id)
    */
-  public static calculatePairHash(idA: Id<'body'>, idB: Id<'body'>): string {
+  public static calculatePairHash(idA: Id<'collider'>, idB: Id<'collider'>): string {
     if (idA.value < idB.value) {
       return `#${idA.value}+${idB.value}`;
     } else {

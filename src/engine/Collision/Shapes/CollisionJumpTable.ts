@@ -7,7 +7,7 @@ import { Line, Vector } from '../../Algebra';
 import { TransformComponent } from '../../EntityComponentSystem';
 
 export const CollisionJumpTable = {
-  CollideCircleCircle(circleA: Circle, circleB: Circle): CollisionContact {
+  CollideCircleCircle(circleA: Circle, circleB: Circle): CollisionContact[] {
     const circleAPos = circleA.worldPos;
     const circleBPos = circleB.worldPos;
     const combinedRadius = circleA.radius + circleB.radius;
@@ -35,10 +35,10 @@ export const CollisionJumpTable = {
       point: point
     };
 
-    return new CollisionContact(circleA, circleB, mvt, normal, tangent, [point], [local], info);
+    return [new CollisionContact(circleA, circleB, mvt, normal, tangent, [point], [local], info)];
   },
 
-  CollideCirclePolygon(circle: Circle, polygon: ConvexPolygon): CollisionContact {
+  CollideCirclePolygon(circle: Circle, polygon: ConvexPolygon): CollisionContact[] {
     let minAxis = SeparatingAxis.findCirclePolygonSeparation(circle, polygon);
     if (!minAxis) {
       return null;
@@ -49,7 +49,7 @@ export const CollisionJumpTable = {
     minAxis = samedir < 0 ? minAxis.negate() : minAxis;
 
     const point = circle.getFurthestPoint(minAxis);
-    const local = circle.owner.transform.applyInverse(point);
+    const local = circle.owner.get(TransformComponent).applyInverse(point);
     const normal = minAxis.normalize();
 
     const info: SeparationInfo = {
@@ -62,7 +62,7 @@ export const CollisionJumpTable = {
       localSide: polygon.findLocalSide(normal.negate())
     };
 
-    return new CollisionContact(
+    return [new CollisionContact(
       circle,
       polygon,
       minAxis,
@@ -71,10 +71,10 @@ export const CollisionJumpTable = {
       [point],
       [local],
       info
-    );
+    )];
   },
 
-  CollideCircleEdge(circle: Circle, edge: Edge): CollisionContact {
+  CollideCircleEdge(circle: Circle, edge: Edge): CollisionContact[] {
     // TODO not sure this actually abides by local/world collisions
     // Are edge.begin and edge.end local space or world space? I think they should be local
 
@@ -111,7 +111,7 @@ export const CollisionJumpTable = {
         localSide: localSide
       };
 
-      return new CollisionContact(
+      return [new CollisionContact(
         circle,
         edge,
         normal.scale(separation),
@@ -120,7 +120,7 @@ export const CollisionJumpTable = {
         [side.begin],
         [localSide.begin],
         info
-      );
+      )];
     }
 
     // Potential region B collision (circle is on the right side of the edge, after the end)
@@ -143,7 +143,7 @@ export const CollisionJumpTable = {
         localSide: localSide
       };
 
-      return new CollisionContact(
+      return [new CollisionContact(
         circle,
         edge,
         normal.scale(separation),
@@ -152,7 +152,7 @@ export const CollisionJumpTable = {
         [side.end],
         [localSide.end],
         info
-      );
+      )];
     }
 
     // Otherwise potential region AB collision (circle is in the middle of the edge between the beginning and end)
@@ -189,7 +189,7 @@ export const CollisionJumpTable = {
     };
 
 
-    return new CollisionContact(
+    return [new CollisionContact(
       circle,
       edge,
       mvt,
@@ -198,15 +198,15 @@ export const CollisionJumpTable = {
       [pointOnEdge],
       [pointOnEdge],
       info
-    );
+    )];
   },
 
-  CollideEdgeEdge(): CollisionContact {
+  CollideEdgeEdge(): CollisionContact[] {
     // Edge-edge collision doesn't make sense
     return null;
   },
 
-  CollidePolygonEdge(polygon: ConvexPolygon, edge: Edge): CollisionContact {
+  CollidePolygonEdge(polygon: ConvexPolygon, edge: Edge): CollisionContact[] {
 
     const pc = polygon.center;
     const ec = edge.center;
@@ -217,12 +217,11 @@ export const CollisionJumpTable = {
       points: [edge.begin, edge.end, edge.end.add(dir.scale(100)), edge.begin.add(dir.scale(100))]
     });
     linePoly.owner = edge.owner;
-    linePoly.owningId = edge.owningId;
-    linePoly.update(edge.owner.transform);
+    linePoly.update(edge.owner.get(TransformComponent));
     return this.CollidePolygonPolygon(polygon, linePoly);
   },
 
-  CollidePolygonPolygon(polyA: ConvexPolygon, polyB: ConvexPolygon): CollisionContact {
+  CollidePolygonPolygon(polyA: ConvexPolygon, polyB: ConvexPolygon): CollisionContact[] {
     // Multi contact from SAT
     // https://gamedev.stackexchange.com/questions/111390/multiple-contacts-for-sat-collision-detection
     // do a SAT test to find a min axis if it exists
@@ -275,13 +274,13 @@ export const CollisionJumpTable = {
       // Store those as locals
       let localPoints: Vector[] = [];
       if (separation.collider === polyA) {
-        const xf = polyB.owner?.transform ?? new TransformComponent();
+        const xf = polyB.owner?.get(TransformComponent) ?? new TransformComponent();
         localPoints = points.map(p => xf.applyInverse(p));
       } else {
-        const xf = polyA.owner?.transform ?? new TransformComponent();
+        const xf = polyA.owner?.get(TransformComponent) ?? new TransformComponent();
         localPoints = points.map(p => xf.applyInverse(p));
       }
-      return new CollisionContact(
+      return [new CollisionContact(
         polyA,
         polyB,
         normal.scale(-separation.separation),
@@ -290,7 +289,7 @@ export const CollisionJumpTable = {
         points,
         localPoints,
         separation
-      );
+      )];
     }
     return null;
   }

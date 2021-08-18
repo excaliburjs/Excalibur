@@ -1,4 +1,5 @@
 import { Vector } from '../../Algebra';
+import { BodyComponent } from '../BodyComponent';
 import { CollisionContact } from '../Detection/CollisionContact';
 
 /**
@@ -14,29 +15,32 @@ export class ContactConstraintPoint {
    * Updates the contact information
    */
   update() {
-    const bodyA = this.contact.colliderA.owner;
-    const bodyB = this.contact.colliderB.owner;
-    const normal = this.contact.normal;
-    const tangent = this.contact.tangent;
+    const bodyA = this.contact.colliderA.owner?.get(BodyComponent);
+    const bodyB = this.contact.colliderB.owner?.get(BodyComponent);
 
-    this.aToContact = this.point.sub(bodyA.pos);
-    this.bToContact = this.point.sub(bodyB.pos);
+    if (bodyA && bodyB) {
+      const normal = this.contact.normal;
+      const tangent = this.contact.tangent;
 
-    const aToContactNormal = this.aToContact.cross(normal);
-    const bToContactNormal = this.bToContact.cross(normal);
+      this.aToContact = this.point.sub(bodyA.pos);
+      this.bToContact = this.point.sub(bodyB.pos);
 
-    this.normalMass = bodyA.inverseMass + bodyB.inverseMass +
-                        bodyA.inverseInertia * aToContactNormal * aToContactNormal +
-                        bodyB.inverseInertia * bToContactNormal * bToContactNormal;
+      const aToContactNormal = this.aToContact.cross(normal);
+      const bToContactNormal = this.bToContact.cross(normal);
+
+      this.normalMass = bodyA.inverseMass + bodyB.inverseMass +
+                          bodyA.inverseInertia * aToContactNormal * aToContactNormal +
+                          bodyB.inverseInertia * bToContactNormal * bToContactNormal;
 
 
-    const aToContactTangent = this.aToContact.cross(tangent);
-    const bToContactTangent = this.bToContact.cross(tangent);
+      const aToContactTangent = this.aToContact.cross(tangent);
+      const bToContactTangent = this.bToContact.cross(tangent);
 
-    this.tangentMass = bodyA.inverseMass + bodyB.inverseMass +
-                         bodyA.inverseInertia * aToContactTangent * aToContactTangent +
-                         bodyB.inverseInertia * bToContactTangent * bToContactTangent;
+      this.tangentMass = bodyA.inverseMass + bodyB.inverseMass +
+                          bodyA.inverseInertia * aToContactTangent * aToContactTangent +
+                          bodyB.inverseInertia * bToContactTangent * bToContactTangent;
 
+    }
 
     return this;
   }
@@ -45,14 +49,16 @@ export class ContactConstraintPoint {
    * Returns the relative velocity betwen bodyA and bodyB
    */
   public getRelativeVelocity() {
-    const bodyA = this.contact.colliderA.owner;
-    const bodyB = this.contact.colliderB.owner;
-    // Relative velocity in linear terms
-    // Angular to linear velocity formula -> omega = velocity/radius so omega x radius = velocity
-    const velA = bodyA.vel.add(Vector.cross(bodyA.angularVelocity, this.aToContact));
-    const velB = bodyB.vel.add(Vector.cross(bodyB.angularVelocity, this.bToContact));
-
-    return velB.sub(velA);
+    const bodyA = this.contact.colliderA.owner?.get(BodyComponent);
+    const bodyB = this.contact.colliderB.owner?.get(BodyComponent);
+    if (bodyA && bodyB) {
+      // Relative velocity in linear terms
+      // Angular to linear velocity formula -> omega = velocity/radius so omega x radius = velocity
+      const velA = bodyA.vel.add(Vector.cross(bodyA.angularVelocity, this.aToContact));
+      const velB = bodyB.vel.add(Vector.cross(bodyB.angularVelocity, this.bToContact));
+      return velB.sub(velA);
+    }
+    return Vector.Zero;
   }
 
   /**

@@ -5,6 +5,7 @@ import { Loadable } from '../Interfaces/Index';
  * The [[Texture]] object allows games built in Excalibur to load image resources.
  * [[Texture]] is an [[Loadable]] which means it can be passed to a [[Loader]]
  * to pre-load before starting a level or game.
+ * @deprecated
  */
 export class Texture implements Loadable<HTMLImageElement> {
   private _resource: Resource<Blob>;

@@ -1,10 +1,11 @@
 import { Physics } from '../Physics';
 import { BoundingBox } from '../BoundingBox';
-import { Body } from '../Body';
 
 import { Ray } from '../../Algebra';
 import { Logger } from '../../Util/Log';
 import { Id } from '../../Id';
+import { Entity } from '../../EntityComponentSystem/Entity';
+import { BodyComponent } from '../BodyComponent';
 
 /**
  * Dynamic Tree Node used for tracking bounds within the tree
@@ -42,7 +43,7 @@ export interface ColliderProxy<T> {
  * Internally the bounding boxes are organized as a balanced binary tree of bounding boxes, where the leaf nodes are tracked bodies.
  * Every non-leaf node is a bounding box that contains child bounding boxes.
  */
-export class DynamicTree<T extends ColliderProxy<Body>> {
+export class DynamicTree<T extends ColliderProxy<Entity>> {
   public root: TreeNode<T>;
   public nodes: { [key: number]: TreeNode<T> };
   constructor(public worldBounds: BoundingBox = new BoundingBox(-Number.MAX_VALUE, -Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)) {
@@ -248,19 +249,22 @@ export class DynamicTree<T extends ColliderProxy<Body>> {
 
     // THIS IS CAUSING UNECESSARY CHECKS
     if (collider.owner) {
-      const multdx = ((collider.owner.vel.x * 32) / 1000) * Physics.dynamicTreeVelocityMultiplier;
-      const multdy = ((collider.owner.vel.y * 32) / 1000) * Physics.dynamicTreeVelocityMultiplier;
-
-      if (multdx < 0) {
-        b.left += multdx;
-      } else {
-        b.right += multdx;
-      }
-
-      if (multdy < 0) {
-        b.top += multdy;
-      } else {
-        b.bottom += multdy;
+      const body = collider.owner?.get(BodyComponent);
+      if (body) {
+        const multdx = ((body.vel.x * 32) / 1000) * Physics.dynamicTreeVelocityMultiplier;
+        const multdy = ((body.vel.y * 32) / 1000) * Physics.dynamicTreeVelocityMultiplier;
+        
+        if (multdx < 0) {
+          b.left += multdx;
+        } else {
+          b.right += multdx;
+        }
+        
+        if (multdy < 0) {
+          b.top += multdy;
+        } else {
+          b.bottom += multdy;
+        }
       }
     }
 

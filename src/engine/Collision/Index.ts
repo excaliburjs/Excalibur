@@ -1,4 +1,4 @@
-export * from './Body';
+export * from './BodyComponent';
 export * from './Shapes/Collider';
 export * from './BoundingBox';
 

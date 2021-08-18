@@ -67,7 +67,7 @@ game.add(new ex.ScreenElement({width: 50, height: 50}));
 function spawnBox() {
   var box = new ex.Actor({x: 250, y: 50, width: 50, height: 50, color: ex.Color.Red});
   box.body.collisionType = ex.CollisionType.Active;
-  box.body.useBoxCollider(50, 50);
+  box.collider.useBoxCollider(50, 50);
   game.add(box);
 }
 
@@ -75,7 +75,7 @@ spawnBox();
 
 var floor = new ex.Actor({x: 250, y: 500, width: 500, height: 10, color: ex.Color.Green});
 floor.body.collisionType = ex.CollisionType.Fixed;
-floor.body.useBoxCollider(50, 50);
+floor.collider.useBoxCollider(50, 50);
 game.add(floor);
 
 game.input.keyboard.on('press', (evt) => {

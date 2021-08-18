@@ -2,6 +2,7 @@ import { ExcaliburMatchers, ensureImagesLoaded, ExcaliburAsyncMatchers } from 'e
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { BodyComponent } from '@excalibur';
+import { ColliderComponent } from '../engine/Collision/ColliderComponent';
 
 const drawWithTransform = (ctx: CanvasRenderingContext2D | ex.Graphics.ExcaliburGraphicsContext, tm: ex.TileMap, delta: number = 1) => {
   ctx.save();
@@ -210,7 +211,7 @@ describe('A TileMap', () => {
       const actor = new ex.Actor({ width: 20, height: 20 });
 
       tm.update(engine, 1);
-      const collision = tm.get(BodyComponent).collide(actor.body);
+      const collision = tm.get(ColliderComponent).collide(actor.collider);
 
       expect(collision).not.toBeNull();
       expect(collision).toBeTruthy();
@@ -220,7 +221,7 @@ describe('A TileMap', () => {
       const actor = new ex.Actor({ x: 0, y: 0, width: 0, height: 0 });
 
       tm.update(engine, 1);
-      const collision = tm.get(BodyComponent).collide(actor.body);
+      const collision = tm.get(ColliderComponent).collide(actor.collider);
 
       expect(collision).toEqual([]);
     });
