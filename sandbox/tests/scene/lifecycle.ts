@@ -24,7 +24,7 @@ class MyGame2 extends ex.Engine {
 
 var mygame = new MyGame2({ width: 300, height: 300, canvasElementId: 'game' });
 
-var scene2 = new ex.Scene(mygame);
+var scene2 = new ex.Scene();
 
 mygame.add('scene2', scene2);
 

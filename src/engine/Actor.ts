@@ -51,6 +51,7 @@ import { Flags, Legacy } from './Flags';
 import { obsolete } from './Util/Decorators';
 import { ColliderComponent } from './Collision/ColliderComponent';
 import { Shape } from './Collision/Shapes/Shape';
+import { watch } from './Util/Watch';
 
 /**
  * Type guard for checking if something is an Actor
@@ -299,7 +300,21 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
    * values between 0 and 1. For example, anchoring to the top-left would be
    * `Actor.anchor.setTo(0, 0)` and top-right would be `Actor.anchor.setTo(0, 1)`.
    */
-  public anchor: Vector;
+  private _anchor: Vector = watch(Vector.Half, (v) => this._handleAnchorChange(v));
+  public get anchor(): Vector {
+    return this._anchor;
+  }
+
+  public set anchor(vec: Vector) {
+    this._anchor = watch(vec, (v) => this._handleAnchorChange(v));
+    this._handleAnchorChange(vec);
+  }
+
+  private _handleAnchorChange(v: Vector) {
+    if (this.graphics) {
+      this.graphics.anchor = v;
+    }
+  }
 
   /**
    * Indicates whether the actor is physically in the viewport
@@ -485,9 +500,6 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
 
     if (color) {
       this.color = color;
-    }
-
-    if (color) {
       this.graphics.add(
         new Rectangle({
           color: color,

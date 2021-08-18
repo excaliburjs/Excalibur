@@ -54,7 +54,7 @@ describe('An animation', () => {
   });
 
   it('should update the animation width/height and sprite anchor, rotation, scale after tick()', (done) => {
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
       const sprite = new ex.Sprite({
         image: texture,
@@ -96,7 +96,7 @@ describe('An animation', () => {
   });
 
   it('should only tick once for an idempotency token', (done) => {
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
       const sprite = new ex.Sprite({
         image: texture,
@@ -162,7 +162,7 @@ describe('An animation', () => {
       width: 62,
       height: 64
     });
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
       const sprite = new ex.Sprite({
         image: texture,

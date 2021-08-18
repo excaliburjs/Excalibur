@@ -44,7 +44,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * Gets or sets the current camera for the scene
    */
-  public camera: Camera;
+  public camera: Camera = new Camera();
 
   /**
    * The actors in the current scene
@@ -91,15 +91,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   private _cancelQueue: Timer[] = [];
   private _logger: Logger = Logger.getInstance();
 
-  constructor(_engine?: Engine) {
+  constructor() {
     super();
-    this.camera = new Camera();
-    if (_engine) {
-      this.engine = _engine;
-      this.camera.x = this.engine.halfDrawWidth;
-      this.camera.y = this.engine.halfDrawHeight;
-    }
-
     // TODO how to people do there own systems
     // Initialize systems
     this.world.add(new MotionSystem());
@@ -239,10 +232,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public _initialize(engine: Engine) {
     if (!this.isInitialized) {
       this.engine = engine;
-      if (this.camera) {
-        this.camera.x = engine.halfDrawWidth;
-        this.camera.y = engine.halfDrawHeight;
-      }
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init

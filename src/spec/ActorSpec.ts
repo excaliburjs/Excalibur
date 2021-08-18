@@ -605,7 +605,7 @@ describe('A game actor', () => {
       height: 64,
       suppressHiDPIScaling: true
     });
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
       const sprite = new ex.Sprite({
         image: texture,
@@ -640,7 +640,7 @@ describe('A game actor', () => {
   });
 
   it('will tick animations when drawing switched', (done) => {
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
       const sprite = new ex.Sprite({
         image: texture,
@@ -684,7 +684,7 @@ describe('A game actor', () => {
   });
 
   it('will tick animations on update', (done) => {
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
       const sprite = new ex.Sprite({
         image: texture,
@@ -769,7 +769,7 @@ describe('A game actor', () => {
 
   it('with an active collision type can be placed on a fixed type', () => {
     ex.Physics.useArcadePhysics();
-    const scene = new ex.Scene(engine);
+    const scene = new ex.Scene();
 
     const active = new ex.Actor({ x: 0, y: -50, width: 100, height: 100 });
     active.body.collisionType = ex.CollisionType.Active;
@@ -801,7 +801,7 @@ describe('A game actor', () => {
   });
 
   it('with an active collision type can jump on a fixed type', () => {
-    const scene = new ex.Scene(engine);
+    const scene = new ex.Scene();
     scene._initialize(engine);
     const active = new ex.Actor({ x: 0, y: -50, width: 100, height: 100 });
     active.body.collisionType = ex.CollisionType.Active;
@@ -1340,7 +1340,7 @@ describe('A game actor', () => {
       suppressHiDPIScaling: true
     });
 
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
       const actor = new ex.Actor({
         pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),

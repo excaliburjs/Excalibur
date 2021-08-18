@@ -12,7 +12,7 @@ describe('A sprite', () => {
       height: 64
     });
 
-    texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
   });
   afterEach(() => {
     engine.stop();

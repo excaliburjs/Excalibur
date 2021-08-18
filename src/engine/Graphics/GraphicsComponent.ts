@@ -110,7 +110,7 @@ export class GraphicsLayer {
    * @param options
    */
   public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
-    options = { offset: this._graphics.offset.clone(), anchor: this._graphics.anchor.clone(), ...options };
+    options = { ...options };
     let gfx: Graphic;
     if (nameOrGraphic instanceof Graphic) {
       gfx = this._graphics.copyGraphics ? nameOrGraphic.clone() : nameOrGraphic;
@@ -137,7 +137,7 @@ export class GraphicsLayer {
    * @param options
    */
   public use<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
-    options = { offset: this._graphics.offset.clone(), anchor: this._graphics.anchor.clone(), ...options };
+    options = { ...options };
     this.hide();
     return this.show<T>(nameOrGraphic, options);
   }
@@ -242,7 +242,14 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
     return Object.keys(this._graphics);
   }
 
+  /**
+   * Draws after the entity transform has bene applied, but before graphics component graphics have been drawn
+   */
   public onPreDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
+
+  /**
+   * Draws after the entity transform has been applied, and after graphics component graphics has been drawn
+   */
   public onPostDraw: (ctx: ExcaliburGraphicsContext, elapsedMilliseconds: number) => void;
 
   /**
@@ -372,10 +379,15 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
     }
     let bb = new BoundingBox();
     for (const layer of this.layers.get()) {
-      for (const {
-        graphic,
-        options: { offset, anchor }
-      } of layer.graphics) {
+      for (const { graphic, options } of layer.graphics) {
+        let anchor = this.anchor;
+        let offset = this.offset;
+        if (options?.anchor) {
+          anchor = options.anchor;
+        }
+        if (options?.offset) {
+          offset = options.offset;
+        }
         const bounds = graphic.localBounds;
         const offsetX = -bounds.width * graphic.scale.x * anchor.x + offset.x;
         const offsetY = -bounds.height * graphic.scale.y * anchor.y + offset.y;

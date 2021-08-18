@@ -12,7 +12,7 @@ describe('A Gif', () => {
       height: 100
     });
 
-    gif = new ex.Gif('base/src/spec/images/GifSpec/sword.gif', ex.Color.Black.clone());
+    gif = new ex.Gif('src/spec/images/GifSpec/sword.gif', ex.Color.Black.clone());
   });
   afterEach(() => {
     engine.stop();

@@ -6,7 +6,7 @@ describe('A ImageSource', () => {
   });
 
   it('can be constructed', () => {
-    const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     expect(spriteFontImage).toBeDefined();
   });
 
@@ -20,7 +20,7 @@ describe('A ImageSource', () => {
   });
 
   it('can load images', async () => {
-    const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const whenLoaded = jasmine.createSpy('whenLoaded');
     const image = await spriteFontImage.load();
     await spriteFontImage.ready.then(whenLoaded);
@@ -30,7 +30,7 @@ describe('A ImageSource', () => {
   });
 
   it('can convert to a Sprite', async () => {
-    const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const sprite = spriteFontImage.toSprite();
 
     // Sprites have no width/height until the underlying image is loaded
@@ -44,7 +44,7 @@ describe('A ImageSource', () => {
   });
 
   it('can unload from memory', async () => {
-    const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     await spriteFontImage.load();
     expect(spriteFontImage.image.src).not.toBeNull();
     spriteFontImage.unload();
@@ -52,7 +52,7 @@ describe('A ImageSource', () => {
   });
 
   it('can load from a legacy texture', async () => {
-    const tex = new ex.Texture('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const tex = new ex.Texture('src/spec/images/GraphicsTextSpec/spritefont.png');
     await tex.load();
     const img = ex.Graphics.ImageSource.fromLegacyTexture(tex);
     expect(img.width).not.toBe(0);
@@ -60,7 +60,7 @@ describe('A ImageSource', () => {
   });
 
   it('can load from an unloaded legacy texture', async () => {
-    const tex = new ex.Texture('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const tex = new ex.Texture('src/spec/images/GraphicsTextSpec/spritefont.png');
     const img = ex.Graphics.ImageSource.fromLegacyTexture(tex);
     await tex.load();
     expect(img.width).not.toBe(0);
@@ -68,7 +68,7 @@ describe('A ImageSource', () => {
   });
 
   it('will resolve the image if alreadly loaded', async () => {
-    const spriteFontImage = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const image = await spriteFontImage.load();
 
     expect(spriteFontImage.isLoaded()).toBe(true);

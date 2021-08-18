@@ -19,7 +19,7 @@ describe('A Sprite Graphic', () => {
   });
 
   it('can be constructed', () => {
-    const image = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const sut = new ex.Graphics.Sprite({
       image
     });
@@ -27,7 +27,7 @@ describe('A Sprite Graphic', () => {
   });
 
   it('can be cloned', () => {
-    const image = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const sut = new ex.Graphics.Sprite({
       image,
       sourceView: {
@@ -50,7 +50,7 @@ describe('A Sprite Graphic', () => {
   });
 
   it('can specify a source/dest viewof an image with default width and height', async () => {
-    const image = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const sut = new ex.Graphics.Sprite({
       image,
       width: 16,
@@ -78,7 +78,7 @@ describe('A Sprite Graphic', () => {
   });
 
   it('can specify a source view of an image by default is same dimension as the source', async () => {
-    const image = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const sut = new ex.Graphics.Sprite({
       image,
       sourceView: {
@@ -110,7 +110,7 @@ describe('A Sprite Graphic', () => {
   });
 
   it('can specify a source view of an image and a dest view dimension is destination', async () => {
-    const image = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const sut = new ex.Graphics.Sprite({
       image,
       sourceView: {
@@ -146,7 +146,7 @@ describe('A Sprite Graphic', () => {
   });
 
   it('can specify only a dest view dimension, infers native size for source view', async () => {
-    const image = new ex.Graphics.ImageSource('base/src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const sut = new ex.Graphics.Sprite({
       image,
       destSize: {
