@@ -54,28 +54,22 @@ var block4 = new ex.Actor({
 
 var otherCircle = new ex.Actor({
   pos: new ex.Vector(400, 100),
-  color: ex.Color.Green,
-  body: new ex.BodyComponent({
-    colliders: [ex.Shape.Circle(30)]
-  })
+  color: ex.Color.Green
 });
+otherCircle.collider.useCircleCollider(30);
 
 var otherBlock = new ex.Actor({
   pos: new ex.Vector(400, 400),
   rotation: Math.PI / 4,
-  color: ex.Color.Red,
-  body: new ex.BodyComponent({
-    colliders: [ex.Shape.Box(50, 50)]
-  })
+  color: ex.Color.Red
 });
+otherBlock.collider.useBoxCollider(50, 50);
 
 var circle = new ex.Actor({
   pos: new ex.Vector(300, 300),
-  color: ex.Color.Green,
-  body: new ex.BodyComponent({
-    colliders: [ex.Shape.Circle(40)]
-  })
+  color: ex.Color.Green
 });
+circle.collider.useCircleCollider(40);
 
 circle.onPostDraw = (ctx, delta) => {
   const closestEdge = circle.collider.collider.getClosestLineBetween(edge.collider.collider);
@@ -100,11 +94,9 @@ circle.onPostDraw = (ctx, delta) => {
 
 var edge = new ex.Actor({
   pos: new ex.Vector(100, 300),
-  color: ex.Color.Blue,
-  body: new ex.BodyComponent({
-    colliders: [ex.Shape.Edge(new ex.Vector(0, 0), new ex.Vector(30, 100))]
-  })
+  color: ex.Color.Blue
 });
+edge.collider.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(30, 100));
 
 var blocks = [block, block2, block3, block4];
 
