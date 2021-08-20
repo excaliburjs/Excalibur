@@ -7,37 +7,36 @@ import { ConvexPolygon } from './ConvexPolygon';
  * Specific information about a contact and it's separation
  */
 export interface SeparationInfo {
-
   /**
    * Collider A
    */
-  collider: Collider,
+  collider: Collider;
 
   /**
    * Signed value (negative means overlap, positive no overlap)
    */
-  separation: number,
+  separation: number;
 
   /**
    * Axis of separation from the collider's perpective
    */
-  axis: Vector,
+  axis: Vector;
 
   /**
    * Side of separation (reference) from the collider's perpsective
    */
 
-  side?: Line,
+  side?: Line;
 
   /**
    * Local side of separation (reference) from the collider's perspective
    */
-  localSide?: Line,
+  localSide?: Line;
 
   /**
    * Index of the separation side (reference) from the collider's perspective
    */
-  sideId?: number,
+  sideId?: number;
 
   /**
    * Point on collider B (incident point)
@@ -50,9 +49,7 @@ export interface SeparationInfo {
   localPoint?: Vector;
 }
 
-
 export class SeparatingAxis {
-
   static findPolygonPolygonSeparation(polyA: ConvexPolygon, polyB: ConvexPolygon): SeparationInfo {
     let bestSeparation = -Number.MAX_VALUE;
     let bestSide: Line | null = null;
@@ -61,7 +58,7 @@ export class SeparatingAxis {
     let bestOtherPoint: Vector | null = null;
     const sides = polyA.getSides();
     const localSides = polyA.getLocalSides();
-    for (let i = 0; i < sides.length; i++){
+    for (let i = 0; i < sides.length; i++) {
       const side = sides[i];
       const axis = side.normal();
       const vertB = polyB.getFurthestPoint(axis.negate());
@@ -79,13 +76,13 @@ export class SeparatingAxis {
 
     return {
       collider: polyA,
-      separation: bestSeparation,
+      separation: bestAxis ? bestSeparation : 99,
       axis: bestAxis as Vector,
       side: bestSide,
       localSide: localSides[bestSideIndex],
       sideId: bestSideIndex,
       point: bestOtherPoint as Vector,
-      localPoint: polyB.getFurthestLocalPoint(bestAxis!.negate())
+      localPoint: bestAxis ? polyB.getFurthestLocalPoint(bestAxis!.negate()) : null
     };
   }
 

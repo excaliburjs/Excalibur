@@ -493,7 +493,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
 
     this.addComponent(new BodyComponent());
     this.body.collisionType = collisionType ?? CollisionType.Passive;
-    this.addComponent(new ColliderComponent(Shape.Box(width ?? 0, height ?? 0, this.anchor)))
+    this.addComponent(new ColliderComponent(Shape.Box(width ?? 0, height ?? 0, this.anchor)));
     // this.collider.update();
 
     this.visible = visible ?? true;
@@ -1154,25 +1154,15 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
       this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
     } else {
       this._predraw(ctx, delta);
-      if (this.color && this.body) {
+      if (this.color && this.collider) {
         // update collider geometry based on transform
         const collider = this.get(ColliderComponent);
         collider.update();
-        if (collider.bounds.hasZeroDimensions()) {
+        if (!collider.bounds.hasZeroDimensions()) {
           // Colliders are already shifted by anchor, unshift
           ctx.globalAlpha = this.opacity;
           collider.collider.draw(ctx, this.color, vec(0, 0));
         }
-
-        // this.collider.update();
-        // const colliders = this.body.getColliders();
-        // for (const collider of colliders) {
-        //   if (!collider.bounds.hasZeroDimensions()) {
-        //     // Colliders are already shifted by anchor, unshift
-        //     ctx.globalAlpha = this.opacity;
-        //     collider.draw(ctx, this.color, vec(0, 0));
-        //   }
-        // }
       }
     }
     ctx.restore();

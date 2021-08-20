@@ -680,6 +680,7 @@ describe('A scene', () => {
     });
 
     it('can have onPostUpdate overridden safely', () => {
+      scene._initialize(engine);
       scene.onPostUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -696,6 +697,7 @@ describe('A scene', () => {
     });
 
     it('can have onPreUpdate overridden safely', () => {
+      scene._initialize(engine);
       scene.onPreUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -712,6 +714,7 @@ describe('A scene', () => {
     });
 
     it('can have onPreDraw overridden safely', () => {
+      scene._initialize(engine);
       scene.onPreDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
@@ -728,6 +731,7 @@ describe('A scene', () => {
     });
 
     it('can have onPostDraw overridden safely', () => {
+      scene._initialize(engine);
       scene.onPostDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
