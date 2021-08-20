@@ -1,27 +1,27 @@
-import { Vector } from "../Algebra";
-import { TransformComponent } from "../EntityComponentSystem";
-import { Component } from "../EntityComponentSystem/Component";
-import { Entity } from "../EntityComponentSystem/Entity";
-import { EventDispatcher } from "../EventDispatcher";
-import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisionEvent } from "../Events";
-import { Observable } from "../Util/Observable";
-import { BoundingBox } from "./BoundingBox";
-import { CollisionContact } from "./Detection/CollisionContact";
-import { Circle } from "./Shapes/Circle";
-import { Collider } from "./Shapes/Collider";
-import { CompositeCollider } from "./Shapes/CompositeCollider";
-import { ConvexPolygon } from "./Shapes/ConvexPolygon";
-import { Edge } from "./Shapes/Edge";
-import { Shape } from "./Shapes/Shape";
+import { Vector } from '../Algebra';
+import { TransformComponent } from '../EntityComponentSystem';
+import { Component } from '../EntityComponentSystem/Component';
+import { Entity } from '../EntityComponentSystem/Entity';
+import { EventDispatcher } from '../EventDispatcher';
+import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisionEvent } from '../Events';
+import { Observable } from '../Util/Observable';
+import { BoundingBox } from './BoundingBox';
+import { CollisionContact } from './Detection/CollisionContact';
+import { Circle } from './Shapes/Circle';
+import { Collider } from './Shapes/Collider';
+import { CompositeCollider } from './Shapes/CompositeCollider';
+import { ConvexPolygon } from './Shapes/ConvexPolygon';
+import { Edge } from './Shapes/Edge';
+import { Shape } from './Shapes/Shape';
 
 export class ColliderComponent extends Component<'ex.collider'> {
   public readonly type = 'ex.collider';
-  
+
   public events = new EventDispatcher(this);
   /**
    * Observable that notifies when a collider is added to the body
    */
-   public $colliderAdded = new Observable<Collider>();
+  public $colliderAdded = new Observable<Collider>();
 
   /**
    * Observable that notifies when a collider is removed from the body
@@ -94,9 +94,9 @@ export class ColliderComponent extends Component<'ex.collider'> {
             contact.colliderB = other._collider;
           });
         }
-        return contacts
+        return contacts;
       }
-      return []
+      return [];
     }
     return [];
   }
@@ -107,7 +107,10 @@ export class ColliderComponent extends Component<'ex.collider'> {
     }
     this.events.on('precollision', (evt: any) => {
       const precollision = evt as PreCollisionEvent<Collider>;
-      entity.events.emit('precollision', new PreCollisionEvent(precollision.target.owner, precollision.other.owner, precollision.side, precollision.intersection));
+      entity.events.emit(
+        'precollision',
+        new PreCollisionEvent(precollision.target.owner, precollision.other.owner, precollision.side, precollision.intersection)
+      );
     });
     this.events.on('postcollision', (evt: any) => {
       const postcollision = evt as PostCollisionEvent<Collider>;
@@ -130,7 +133,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
     this.events.clear();
     this.$colliderRemoved.notifyAll(this.collider);
   }
-  
+
 
   /**
    * Sets up a box geometry based on the current bounds of the associated actor of this physics body.

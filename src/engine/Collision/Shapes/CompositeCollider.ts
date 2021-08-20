@@ -1,9 +1,9 @@
-import { Vector, Line, Ray, Projection } from "../../Algebra";
-import { Color } from "../../Drawing/Color";
-import { Transform } from "../../EntityComponentSystem";
-import { BoundingBox } from "../BoundingBox";
-import { CollisionContact } from "../Detection/CollisionContact";
-import { Collider } from "./Collider";
+import { Vector, Line, Ray, Projection } from '../../Algebra';
+import { Color } from '../../Drawing/Color';
+import { Transform } from '../../EntityComponentSystem';
+import { BoundingBox } from '../BoundingBox';
+import { CollisionContact } from '../Detection/CollisionContact';
+import { Collider } from './Collider';
 
 
 export class CompositeCollider extends Collider {
@@ -13,7 +13,7 @@ export class CompositeCollider extends Collider {
     super();
     this._colliders = colliders;
   }
-  
+
   private _colliders: Collider[];
 
   clearColliders() {
@@ -90,7 +90,7 @@ export class CompositeCollider extends Collider {
 
   collide(other: Collider): CollisionContact[] {
     const colliders = this.getColliders();
-    let contacts: CollisionContact[] = []
+    let contacts: CollisionContact[] = [];
     if (other instanceof CompositeCollider) {
       const otherColliders = other.getColliders();
       for (const colliderA of colliders) {
@@ -118,7 +118,7 @@ export class CompositeCollider extends Collider {
 
   getClosestLineBetween(other: Collider): Line {
     const colliders = this.getColliders();
-    let lines: Line[] = []
+    const lines: Line[] = [];
     if (other instanceof CompositeCollider) {
       const otherColliders = other.getColliders();
       for (const colliderA of colliders) {
@@ -144,7 +144,7 @@ export class CompositeCollider extends Collider {
     return null;
   }
   contains(point: Vector): boolean {
-    let colliders = this.getColliders();
+    const colliders = this.getColliders();
     for (const collider of colliders) {
       if (collider.contains(point)) {
         return true;
@@ -153,8 +153,8 @@ export class CompositeCollider extends Collider {
     return false;
   }
   rayCast(ray: Ray, max?: number): Vector {
-    let colliders = this.getColliders();
-    let points: Vector[] = [];
+    const colliders = this.getColliders();
+    const points: Vector[] = [];
     for (const collider of colliders) {
       const vec = collider.rayCast(ray, max);
       if (vec) {
@@ -163,13 +163,13 @@ export class CompositeCollider extends Collider {
     }
     // TODO select best point
     if (points.length) {
-      return points[0]
+      return points[0];
     }
     return null;
   }
   project(axis: Vector): Projection {
-    let colliders = this.getColliders();
-    let projs: Projection[] = [];
+    const colliders = this.getColliders();
+    const projs: Projection[] = [];
     for (const collider of colliders) {
       const proj = collider.project(axis);
       if (proj) {
@@ -205,6 +205,6 @@ export class CompositeCollider extends Collider {
     }
   }
   clone(): Collider {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 }

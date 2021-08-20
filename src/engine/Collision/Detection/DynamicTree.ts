@@ -253,13 +253,13 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
       if (body) {
         const multdx = ((body.vel.x * 32) / 1000) * Physics.dynamicTreeVelocityMultiplier;
         const multdy = ((body.vel.y * 32) / 1000) * Physics.dynamicTreeVelocityMultiplier;
-        
+
         if (multdx < 0) {
           b.left += multdx;
         } else {
           b.right += multdx;
         }
-        
+
         if (multdy < 0) {
           b.top += multdy;
         } else {

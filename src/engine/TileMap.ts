@@ -162,7 +162,7 @@ export class TileMapImpl extends Entity {
     this._transform = this.get(TransformComponent);
     this._motion = this.get(MotionComponent);
     this._collider = this.get(ColliderComponent);
-    this._composite = this._collider.useCompositeCollider([])
+    this._composite = this._collider.useCompositeCollider([]);
 
     this.x = <number>xOrConfig;
     this.y = y;

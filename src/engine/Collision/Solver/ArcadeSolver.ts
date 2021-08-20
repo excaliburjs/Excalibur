@@ -59,18 +59,18 @@ export class ArcadeSolver extends CollisionSolver {
         if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
           continue;
         }
-        
+
         if (bodyA.collisionType === CollisionType.Active && bodyB.collisionType === CollisionType.Active) {
           // split overlaps if both are Active
           mtv = mtv.scale(0.5);
         }
-        
+
         // Resolve overlaps
         if (bodyA.collisionType === CollisionType.Active) {
           bodyA.pos.x -= mtv.x;
           bodyA.pos.y -= mtv.y;
         }
-        
+
         if (bodyB.collisionType === CollisionType.Active) {
           bodyB.pos.x += mtv.x;
           bodyB.pos.y += mtv.y;
@@ -91,16 +91,16 @@ export class ArcadeSolver extends CollisionSolver {
         if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
           continue;
         }
-        
+
         const normal = contact.normal;
         const opposite = normal.negate();
-        
+
         // Cancel out velocity opposite direction of collision normal
         if (bodyA.collisionType === CollisionType.Active) {
           const velAdj = normal.scale(normal.dot(bodyA.vel.negate()));
           bodyA.vel = bodyA.vel.add(velAdj);
         }
-        
+
         if (bodyB.collisionType === CollisionType.Active) {
           const velAdj = opposite.scale(opposite.dot(bodyB.vel.negate()));
           bodyB.vel = bodyB.vel.add(velAdj);

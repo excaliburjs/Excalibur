@@ -61,12 +61,12 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     }
 
     // TODO refactor, collecting colliders like this feels rough and inefficient
-    let colliders: Collider[] = [];
+    const colliders: Collider[] = [];
     for (const entity of _entities) {
       const collider = entity.get(ColliderComponent);
       if (collider.collider) {
         collider.update();
-        colliders.push(collider.collider)
+        colliders.push(collider.collider);
       }
     }
 

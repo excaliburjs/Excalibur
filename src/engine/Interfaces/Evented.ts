@@ -22,7 +22,6 @@ export interface Eventable {
    *
    * @param eventName  The name of the event to unsubscribe
    * @param handler    Optionally the specific handler to unsubscribe
-   *
    */
   off(eventName: string, handler?: (event: GameEvent<any>) => void): void;
 
