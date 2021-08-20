@@ -162,17 +162,20 @@ describe('Collision Shape', () => {
     it('should not collide with other circles when touching', () => {
       const actor2 = new ex.Actor({ x: 21, y: 0, width: 10, height: 10 });
       const circle2 = actor2.collider.useCircleCollider(10);
+      actor2.collider.update();
+      circle2.update(actor2.transform);
 
       const contact = circle.collide(circle2);
 
       // there should not be a collision contact formed, null indicates that
-      expect(contact).toBe([]);
+      expect(contact).toEqual([]);
     });
 
     it('should collide with other polygons when touching', () => {
       const actor2 = new ex.Actor({ x: 14.99, y: 0, width: 10, height: 10 }); // meh close enough
       const poly = actor2.collider.usePolygonCollider(actor2.collider.localBounds.getPoints());
-
+      actor2.collider.update();
+      poly.update(actor2.transform);
       const directionOfBodyB = poly.center.sub(circle.center);
       const contact = circle.collide(poly)[0];
 
@@ -192,11 +195,12 @@ describe('Collision Shape', () => {
     it('should not collide with other polygons when not touching', () => {
       const actor2 = new ex.Actor({ x: 16, y: 0, width: 10, height: 10 });
       const poly = actor2.collider.usePolygonCollider(actor2.collider.localBounds.getPoints());
-
-      const contact = circle.collide(poly)[0];
+      actor2.collider.update();
+      poly.update(actor2.transform);
+      const contact = circle.collide(poly);
 
       // there should not be a collision contact formed
-      expect(contact).toBe(null);
+      expect(contact).toEqual([]);
     });
 
     it('should collide with other edges when touching the edge face', () => {
@@ -541,7 +545,7 @@ describe('Collision Shape', () => {
       const contact = polyA.collide(edge);
 
       // there should not be a collision
-      expect(contact).toBe(null);
+      expect(contact).toEqual([]);
     });
 
     it('should detected contained points', () => {
@@ -810,11 +814,9 @@ describe('Collision Shape', () => {
     it('can be drawn with actor', (done) => {
       const edgeActor = new ex.Actor({
         pos: new ex.Vector(150, 100),
-        color: ex.Color.Blue,
-        body: new ex.BodyComponent({
-          colliders: [ex.Shape.Edge(ex.Vector.Zero, new ex.Vector(300, 300))]
-        })
+        color: ex.Color.Blue
       });
+      edgeActor.collider.useEdgeCollider(ex.Vector.Zero, new ex.Vector(300, 300));
 
       scene.add(edgeActor);
       scene.draw(engine.ctx, 100);

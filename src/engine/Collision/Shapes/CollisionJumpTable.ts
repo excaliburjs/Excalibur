@@ -14,7 +14,7 @@ export const CollisionJumpTable = {
     const distance = circleAPos.distance(circleBPos);
 
     if (distance > combinedRadius) {
-      return null;
+      return [];
     }
 
     // negative means overlap
@@ -41,7 +41,7 @@ export const CollisionJumpTable = {
   CollideCirclePolygon(circle: Circle, polygon: ConvexPolygon): CollisionContact[] {
     let minAxis = SeparatingAxis.findCirclePolygonSeparation(circle, polygon);
     if (!minAxis) {
-      return null;
+      return [];
     }
 
     // make sure that the minAxis is pointing away from circle
@@ -62,16 +62,7 @@ export const CollisionJumpTable = {
       localSide: polygon.findLocalSide(normal.negate())
     };
 
-    return [new CollisionContact(
-      circle,
-      polygon,
-      minAxis,
-      normal,
-      normal.perpendicular(),
-      [point],
-      [local],
-      info
-    )];
+    return [new CollisionContact(circle, polygon, minAxis, normal, normal.perpendicular(), [point], [local], info)];
   },
 
   CollideCircleEdge(circle: Circle, edge: Edge): CollisionContact[] {
@@ -95,12 +86,11 @@ export const CollisionJumpTable = {
       const dda = da.dot(da); // quick and dirty way of calc'n distance in r^2 terms saves some sqrts
       // save some sqrts
       if (dda > circle.radius * circle.radius) {
-        return null; // no collision
+        return []; // no collision
       }
 
       const normal = da.normalize();
       const separation = circle.radius - Math.sqrt(dda);
-
 
       const info: SeparationInfo = {
         collider: circle,
@@ -111,16 +101,9 @@ export const CollisionJumpTable = {
         localSide: localSide
       };
 
-      return [new CollisionContact(
-        circle,
-        edge,
-        normal.scale(separation),
-        normal,
-        normal.perpendicular(),
-        [side.begin],
-        [localSide.begin],
-        info
-      )];
+      return [
+        new CollisionContact(circle, edge, normal.scale(separation), normal, normal.perpendicular(), [side.begin], [localSide.begin], info)
+      ];
     }
 
     // Potential region B collision (circle is on the right side of the edge, after the end)
@@ -128,7 +111,7 @@ export const CollisionJumpTable = {
       const db = edge.end.sub(cc);
       const ddb = db.dot(db);
       if (ddb > circle.radius * circle.radius) {
-        return null;
+        return [];
       }
 
       const normal = db.normalize();
@@ -143,16 +126,9 @@ export const CollisionJumpTable = {
         localSide: localSide
       };
 
-      return [new CollisionContact(
-        circle,
-        edge,
-        normal.scale(separation),
-        normal,
-        normal.perpendicular(),
-        [side.end],
-        [localSide.end],
-        info
-      )];
+      return [
+        new CollisionContact(circle, edge, normal.scale(separation), normal, normal.perpendicular(), [side.end], [localSide.end], info)
+      ];
     }
 
     // Otherwise potential region AB collision (circle is in the middle of the edge between the beginning and end)
@@ -165,7 +141,7 @@ export const CollisionJumpTable = {
 
     const dd = d.dot(d);
     if (dd > circle.radius * circle.radius) {
-      return null; // no collision
+      return []; // no collision
     }
 
     let normal = e.perpendicular();
@@ -188,26 +164,15 @@ export const CollisionJumpTable = {
       localSide: localSide
     };
 
-
-    return [new CollisionContact(
-      circle,
-      edge,
-      mvt,
-      normal,
-      normal.perpendicular(),
-      [pointOnEdge],
-      [pointOnEdge],
-      info
-    )];
+    return [new CollisionContact(circle, edge, mvt, normal, normal.perpendicular(), [pointOnEdge], [pointOnEdge], info)];
   },
 
   CollideEdgeEdge(): CollisionContact[] {
     // Edge-edge collision doesn't make sense
-    return null;
+    return [];
   },
 
   CollidePolygonEdge(polygon: ConvexPolygon, edge: Edge): CollisionContact[] {
-
     const pc = polygon.center;
     const ec = edge.center;
     const dir = ec.sub(pc).normalize();
@@ -228,13 +193,13 @@ export const CollisionJumpTable = {
     const separationA = SeparatingAxis.findPolygonPolygonSeparation(polyA, polyB);
     // If there is no overlap from boxA's perspective we can end early
     if (separationA.separation > 0) {
-      return null;
+      return [];
     }
 
     const separationB = SeparatingAxis.findPolygonPolygonSeparation(polyB, polyA);
     // If there is no overlap from boxB's perspective exit now
     if (separationB.separation > 0) {
-      return null;
+      return [];
     }
 
     // Separations are both negative, we want to pick the least negative (minimal movement)
@@ -259,7 +224,7 @@ export const CollisionJumpTable = {
     // If there is no left there is no collision
     if (clipLeft) {
       // We only want clip points below the reference edge, discard the others
-      const points = clipLeft.getPoints().filter(p => {
+      const points = clipLeft.getPoints().filter((p) => {
         return reference.below(p);
       });
 
@@ -275,22 +240,13 @@ export const CollisionJumpTable = {
       let localPoints: Vector[] = [];
       if (separation.collider === polyA) {
         const xf = polyB.owner?.get(TransformComponent) ?? new TransformComponent();
-        localPoints = points.map(p => xf.applyInverse(p));
+        localPoints = points.map((p) => xf.applyInverse(p));
       } else {
         const xf = polyA.owner?.get(TransformComponent) ?? new TransformComponent();
-        localPoints = points.map(p => xf.applyInverse(p));
+        localPoints = points.map((p) => xf.applyInverse(p));
       }
-      return [new CollisionContact(
-        polyA,
-        polyB,
-        normal.scale(-separation.separation),
-        normal,
-        tangent,
-        points,
-        localPoints,
-        separation
-      )];
+      return [new CollisionContact(polyA, polyB, normal.scale(-separation.separation), normal, tangent, points, localPoints, separation)];
     }
-    return null;
+    return [];
   }
 };
