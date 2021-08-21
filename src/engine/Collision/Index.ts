@@ -4,6 +4,7 @@ export * from './BoundingBox';
 
 export * from './Shapes/Shape';
 export * from './Shapes/Collider';
+export * from './Shapes/CompositeCollider';
 export * from './Shapes/Circle';
 export * from './Shapes/Edge';
 export * from './Shapes/ConvexPolygon';

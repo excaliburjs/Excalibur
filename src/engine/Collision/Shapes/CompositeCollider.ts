@@ -117,7 +117,7 @@ export class CompositeCollider extends Collider {
     if (contacts.length) {
       return contacts;
     }
-    return null;
+    return [];
   }
 
   getClosestLineBetween(other: Collider): Line {

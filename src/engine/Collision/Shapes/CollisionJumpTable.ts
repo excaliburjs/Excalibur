@@ -49,7 +49,8 @@ export const CollisionJumpTable = {
     minAxis = samedir < 0 ? minAxis.negate() : minAxis;
 
     const point = circle.getFurthestPoint(minAxis);
-    const local = circle.owner.get(TransformComponent).applyInverse(point);
+    const xf = circle.owner?.get(TransformComponent) ?? new TransformComponent();
+    const local = xf.applyInverse(point);
     const normal = minAxis.normalize();
 
     const info: SeparationInfo = {

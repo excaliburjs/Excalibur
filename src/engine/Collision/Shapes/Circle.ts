@@ -40,7 +40,6 @@ export class Circle extends Collider {
    */
   public radius: number;
 
-
   private _transform: Transform;
 
   constructor(options: CircleOptions) {
@@ -195,7 +194,7 @@ export class Circle extends Collider {
    * Get axis not implemented on circles, since there are infinite axis in a circle
    */
   public get axes(): Vector[] {
-    return null;
+    return [];
   }
 
   /**
