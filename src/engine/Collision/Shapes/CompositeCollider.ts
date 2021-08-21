@@ -5,7 +5,6 @@ import { BoundingBox } from '../BoundingBox';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { Collider } from './Collider';
 
-
 export class CompositeCollider extends Collider {
   private _transform: Transform;
 
@@ -21,7 +20,6 @@ export class CompositeCollider extends Collider {
   }
 
   addCollider(collider: Collider) {
-    // TODO track all colliders?
     this._colliders.push(collider);
   }
   getColliders(): Collider[] {
@@ -51,10 +49,7 @@ export class CompositeCollider extends Collider {
   get localBounds(): BoundingBox {
     // TODO cache this
     const colliders = this.getColliders();
-    const results = colliders.reduce(
-      (acc, collider) => acc.combine(collider.localBounds),
-      colliders[0]?.localBounds ?? new BoundingBox()
-    );
+    const results = colliders.reduce((acc, collider) => acc.combine(collider.localBounds), colliders[0]?.localBounds ?? new BoundingBox());
 
     return results;
   }
@@ -75,8 +70,17 @@ export class CompositeCollider extends Collider {
     for (const collider of colliders) {
       furthestPoints.push(collider.getFurthestPoint(direction));
     }
-    // TODO pick best point
-    return furthestPoints[0];
+    // Pick best point from all colliders
+    let bestPoint = furthestPoints[0];
+    let maxDistance = -Number.MAX_VALUE;
+    for (const point of furthestPoints) {
+      const distance = point.dot(direction);
+      if (distance > maxDistance) {
+        bestPoint = point;
+        maxDistance = distance;
+      }
+    }
+    return bestPoint;
   }
 
   getInertia(mass: number): number {
@@ -109,7 +113,7 @@ export class CompositeCollider extends Collider {
         }
       }
     }
-    // TODO return best contact?
+    // Return all the contacts
     if (contacts.length) {
       return contacts;
     }
@@ -137,9 +141,18 @@ export class CompositeCollider extends Collider {
         }
       }
     }
-    // TODO return best contact?
+
     if (lines.length) {
-      return lines[0];
+      let minLength = lines[0].getLength();
+      let minLine = lines[0];
+      for (const line of lines) {
+        const length = line.getLength();
+        if (length < minLength) {
+          minLength = length;
+          minLine = line;
+        }
+      }
+      return minLine;
     }
     return null;
   }
@@ -161,9 +174,17 @@ export class CompositeCollider extends Collider {
         points.push(vec);
       }
     }
-    // TODO select best point
     if (points.length) {
-      return points[0];
+      let minPoint = points[0];
+      let minDistance = minPoint.dot(ray.dir);
+      for (const point of points) {
+        const distance = ray.dir.dot(point);
+        if (distance < minDistance) {
+          minPoint = point;
+          minDistance = distance;
+        }
+      }
+      return minPoint;
     }
     return null;
   }
@@ -176,9 +197,14 @@ export class CompositeCollider extends Collider {
         projs.push(proj);
       }
     }
-    // TODO select best projection
+    // Merge all proj's on the same axis
     if (projs.length) {
-      return projs[0];
+      const newProjection = new Projection(projs[0].min, projs[0].max);
+      for (const proj of projs) {
+        newProjection.min = Math.min(proj.min, newProjection.min);
+        newProjection.max = Math.max(proj.max, newProjection.max);
+      }
+      return newProjection;
     }
     return null;
   }
@@ -205,6 +231,6 @@ export class CompositeCollider extends Collider {
     }
   }
   clone(): Collider {
-    throw new Error('Method not implemented.');
+    return new CompositeCollider(this._colliders.map((c) => c.clone()));
   }
 }

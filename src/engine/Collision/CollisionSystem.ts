@@ -17,7 +17,7 @@ import { RealisticSolver } from './Solver/RealisticSolver';
 import { CollisionSolver } from './Solver/Solver';
 import { ColliderComponent } from './ColliderComponent';
 
-export class CollisionSystem extends System<TransformComponent | MotionComponent | ColliderComponent > {
+export class CollisionSystem extends System<TransformComponent | MotionComponent | ColliderComponent> {
   public readonly types = ['ex.transform', 'ex.motion', 'ex.collider'] as const;
   public systemType = SystemType.Update;
   public priority = -1;
@@ -40,7 +40,6 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       colliderComponent.$colliderAdded.subscribe(this._trackCollider);
       colliderComponent.$colliderRemoved.subscribe(this._untrackCollider);
       if (colliderComponent.collider) {
-        // TODO if composite collider should we track all colliders?
         this._processor.track(colliderComponent.collider);
       }
     } else {
@@ -60,7 +59,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       return;
     }
 
-    // TODO refactor, collecting colliders like this feels rough and inefficient
+    // Collect up all the colliders
     const colliders: Collider[] = [];
     for (const entity of _entities) {
       const collider = entity.get(ColliderComponent);

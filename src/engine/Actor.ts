@@ -483,9 +483,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
     this.z = z ?? 0;
 
     this.addComponent(new GraphicsComponent());
-    // TODO remove canvas draw with flag?
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
-
     this.addComponent(new MotionComponent());
     this.vel = vel ?? Vector.Zero;
     this.acc = acc ?? Vector.Zero;
@@ -1024,8 +1022,6 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
    */
   public contains(x: number, y: number, recurse: boolean = false): boolean {
     const point = vec(x, y);
-    // TODO iterate through colliders
-    // TODO ineffecient
     const collider = this.get(ColliderComponent);
     collider.update();
     const containment = collider.collider.contains(point);
@@ -1048,7 +1044,6 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
    * @param distance  Distance in pixels to test
    */
   public within(actor: Actor, distance: number): boolean {
-    // TODO iterate through colliders
     const collider = this.get(ColliderComponent);
     const other = actor.get(ColliderComponent);
     return collider.collider.getClosestLineBetween(other.collider).getLength() <= distance;

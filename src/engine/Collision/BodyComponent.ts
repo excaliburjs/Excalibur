@@ -122,8 +122,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
    * Get the moment of inertia from the [[CollisionShape]]
    */
   public get inertia() {
-    // TODO Add moments https://physics.stackexchange.com/questions/273394/is-moment-of-inertia-cumulative
-    // TODO does this belong here?
+    // Inertia is a property of the geometry, so this is a little goofy but seems to be okay?
     const collider = this.owner.get(ColliderComponent);
     if (collider?.collider) {
       return collider.collider.getInertia(this.mass);
@@ -164,7 +163,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
    */
   public get active() {
     // todo active = alive?
-    return this.owner?.active;
+    return !!this.owner?.active;
   }
 
   public get center() {
@@ -404,45 +403,6 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     this.oldRotation = this.rotation;
   }
 
-  public hasChanged() {
-    return !this.oldPos.equals(this.pos) || this.oldRotation !== this.rotation || this.oldScale !== this.scale;
-  }
-
-  onAdd(entity: Entity) {
-    // this.update();
-    this.events.on('precollision', (evt: any) => {
-      entity.events.emit('precollision', new PreCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection));
-    });
-    this.events.on('postcollision', (evt: any) => {
-      entity.events.emit(
-        'postcollision',
-        new PostCollisionEvent(evt.target.owner.owner, evt.other.owner.owner, evt.side, evt.intersection)
-      );
-    });
-    this.events.on('collisionstart', (evt: any) => {
-      entity.events.emit('collisionstart', new CollisionStartEvent(evt.target?.owner?.owner, evt.other?.owner?.owner, evt.contact));
-    });
-    this.events.on('collisionend', (evt: any) => {
-      entity.events.emit('collisionend', new CollisionEndEvent(evt.target?.owner?.owner, evt.other?.owner?.owner));
-    });
-  }
-
-  // onRemove() {
-  //   this.events.clear();
-  //   // Signal to remove colliders from process
-  //   for (const collider of this._colliders) {
-  //     this.$collidersRemoved.notifyAll(collider);
-  //   }
-  // }
-
-  // update() {
-  //   if (this.transform) {
-  //     for (const collider of this._colliders) {
-  //       collider.update(this.transform);
-  //     }
-  //   }
-  // }
-
   debugDraw(ctx: CanvasRenderingContext2D) {
     // Draw motion vectors
     // TODO move to motion system
@@ -463,5 +423,4 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     //   }
     // }
   }
-
 }

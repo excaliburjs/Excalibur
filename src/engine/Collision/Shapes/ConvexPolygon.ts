@@ -95,7 +95,6 @@ export class ConvexPolygon extends Collider {
     const len = this.points.length;
     this._transformedPoints.length = 0; // clear out old transform
     for (let i = 0; i < len; i++) {
-      // TODO use transform component???
       this._transformedPoints[i] = this.points[i].scale(scale).rotate(angle).add(pos);
     }
   }
@@ -104,9 +103,7 @@ export class ConvexPolygon extends Collider {
    * Gets the points that make up the polygon in world space, from actor relative space (if specified)
    */
   public getTransformedPoints(): Vector[] {
-    // TODO only recalculate geometry if, hasn't been calculated
     this._calculateTransformation();
-
     return this._transformedPoints;
   }
 

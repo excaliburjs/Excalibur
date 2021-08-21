@@ -52,11 +52,11 @@ export class ColliderComponent extends Component<'ex.collider'> {
   }
 
   public get bounds() {
-    return this.collider?.bounds ?? new BoundingBox;
+    return this.collider?.bounds ?? new BoundingBox();
   }
 
   public get localBounds() {
-    return this.collider?.localBounds ?? new BoundingBox;
+    return this.collider?.localBounds ?? new BoundingBox();
   }
 
   public update() {
@@ -74,7 +74,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
     let colliderB = other._collider;
 
     // If we have a composite lefthand side :(
-    // TODO update all handlers?
+    // Might bite us, but to avoid updating all the handlers make composite always left side
     let flipped = false;
     if (colliderB instanceof CompositeCollider) {
       colliderA = colliderB;
@@ -86,7 +86,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
       const contacts = colliderA.collide(colliderB);
       if (contacts) {
         if (flipped) {
-          contacts.forEach(contact => {
+          contacts.forEach((contact) => {
             contact.mtv = contact.mtv.negate();
             contact.normal = contact.normal.negate();
             contact.tangent = contact.normal.perpendicular();
@@ -105,6 +105,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
     if (this.collider) {
       this.update();
     }
+    // Wire up the collider events to the owning entity
     this.events.on('precollision', (evt: any) => {
       const precollision = evt as PreCollisionEvent<Collider>;
       entity.events.emit(
@@ -134,7 +135,6 @@ export class ColliderComponent extends Component<'ex.collider'> {
     this.$colliderRemoved.notifyAll(this.collider);
   }
 
-
   /**
    * Sets up a box geometry based on the current bounds of the associated actor of this physics body.
    *
@@ -144,7 +144,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
    */
   useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): ConvexPolygon {
     const collider = Shape.Box(width, height, anchor, center);
-    return this.collider = collider;
+    return (this.collider = collider);
   }
 
   /**
@@ -158,7 +158,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
    */
   usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): ConvexPolygon {
     const poly = Shape.Polygon(points, false, center);
-    return this.collider = poly;
+    return (this.collider = poly);
   }
 
   /**
@@ -168,7 +168,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
    */
   useCircleCollider(radius: number, center: Vector = Vector.Zero): Circle {
     const collider = Shape.Circle(radius, center);
-    return this.collider = collider;
+    return (this.collider = collider);
   }
 
   /**
@@ -179,10 +179,10 @@ export class ColliderComponent extends Component<'ex.collider'> {
    */
   useEdgeCollider(begin: Vector, end: Vector): Edge {
     const collider = Shape.Edge(begin, end);
-    return this.collider = collider;
+    return (this.collider = collider);
   }
 
-  useCompositeCollider(colliders: Collider[]): CompositeCollider{
-    return this.collider = new CompositeCollider(colliders);
+  useCompositeCollider(colliders: Collider[]): CompositeCollider {
+    return (this.collider = new CompositeCollider(colliders));
   }
 }
