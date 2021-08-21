@@ -55,15 +55,15 @@ export class World<ContextType> {
    * Remove an entity from the ECS world
    * @param entity
    */
-  remove(entity: Entity): void;
+  remove(entity: Entity, deferred?: boolean): void;
   /**
    * Remove a system from the ECS world
    * @param system
    */
   remove(system: System<any, ContextType>): void;
-  remove(entityOrSystem: Entity | System<any, ContextType>): void {
+  remove(entityOrSystem: Entity | System<any, ContextType>, deferred = true): void {
     if (entityOrSystem instanceof Entity) {
-      this.entityManager.removeEntity(entityOrSystem);
+      this.entityManager.removeEntity(entityOrSystem, deferred);
     }
 
     if (entityOrSystem instanceof System) {

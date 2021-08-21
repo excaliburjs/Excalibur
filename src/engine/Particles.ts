@@ -255,7 +255,6 @@ export class Particle extends Configurable(ParticleImpl) {
   }
 }
 
-
 export interface ParticleEmitterArgs {
   x?: number;
   y?: number;
@@ -497,7 +496,6 @@ export class ParticleEmitter extends Actor {
     this.particleRotationalVelocity = particleRotationalVelocity ?? this.particleRotationalVelocity;
     this.randomRotation = randomRotation ?? this.randomRotation;
 
-
     this.body.collisionType = CollisionType.PreventCollision;
 
     this.random = random ?? new Random();
@@ -598,7 +596,7 @@ export class ParticleEmitter extends Actor {
     for (let i = 0; i < this.deadParticles.length; i++) {
       Util.removeItemFromArray(this.deadParticles[i], this.particles);
       if (this?.scene?.world) {
-        this.scene.world.remove(this.deadParticles[i]);
+        this.scene.world.remove(this.deadParticles[i], false);
       }
     }
     this.deadParticles.length = 0;
