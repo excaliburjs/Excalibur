@@ -100,7 +100,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
       entity.childrenRemoved$.clear();
 
       // stats
-      if ((this._world.context as any).engine) {
+      if ((this._world.context as any)?.engine) {
         (this._world.context as any).engine.stats.currFrame.actors.killed++;
       }
     }
