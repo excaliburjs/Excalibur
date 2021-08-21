@@ -39,8 +39,8 @@ describe('A World', () => {
     const entity = new ex.Entity();
 
     world.add(entity);
-    world.remove(entity);
-    expect(world.entityManager.removeEntity).toHaveBeenCalledWith(entity as any);
+    world.remove(entity, false);
+    expect(world.entityManager.removeEntity).toHaveBeenCalledWith(entity as any, false);
   });
 
   it('can add systems', () => {
