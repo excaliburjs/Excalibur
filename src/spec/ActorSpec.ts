@@ -1397,13 +1397,13 @@ describe('A game actor', () => {
     expect(actor.kill).toHaveBeenCalledTimes(1);
   });
 
-  it('when killed should be removed from the scene', () => {
-    spyOn(scene, 'remove').and.callThrough();
-
+  it('when killed should be removed from the scene eventually', () => {
     scene.add(actor);
-    actor.kill();
 
-    expect(scene.remove).toHaveBeenCalledWith(<any>actor);
+    actor.kill();
+    scene.update(engine, 100);
+
+    expect(scene.actors).not.toContain(actor);
   });
 
   it('can be offscreen', () => {

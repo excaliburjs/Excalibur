@@ -488,7 +488,7 @@ describe('A scene', () => {
     actor.kill();
     scene.add(actor);
 
-    scene.update(engine, 10); //call _processKillQueue
+    scene.update(engine, 10); // deferred removals are processed
 
     expect(scene.actors.indexOf(actor)).toBe(0);
     expect(scene.actors.length).toBe(1);
@@ -592,7 +592,8 @@ describe('A scene', () => {
     spyOn(scene, 'remove').and.callThrough();
 
     actor.kill();
-    expect(scene.remove).toHaveBeenCalledTimes(1);
+    scene.update(engine, 100);
+    expect(scene.actors).not.toContain(actor);
     expect(actor.isKilled()).toBe(true);
   });
 

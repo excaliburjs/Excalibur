@@ -24,7 +24,6 @@ import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
 import { SystemType } from './EntityComponentSystem/System';
-// import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { obsolete } from './Util/Decorators';
 import { World } from './EntityComponentSystem/World';
 import { MotionSystem } from './Collision/MotionSystem';
@@ -41,15 +40,11 @@ import { Flags, Legacy } from './Flags';
  * Typical usages of a scene include: levels, menus, loading screens, etc.
  */
 export class Scene extends Class implements CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw {
+  private _logger: Logger = Logger.getInstance();
   /**
    * Gets or sets the current camera for the scene
    */
   public camera: Camera = new Camera();
-
-  /**
-   * The actors in the current scene
-   */
-  public actors: Actor[] = [];
 
   /**
    * The ECS world for the scene
@@ -57,14 +52,35 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public world = new World(this);
 
   /**
+   * The actors in the current scene
+   */
+  public get actors(): Actor[] {
+    return this.world.entityManager.entities.filter((e) => {
+      return e instanceof Actor;
+    }) as Actor[];
+  }
+
+  public get entities(): Entity[] {
+    return this.world.entityManager.entities;
+  }
+
+  /**
    * The triggers in the current scene
    */
-  public triggers: Trigger[] = [];
+  public get triggers(): Trigger[] {
+    return this.world.entityManager.entities.filter((e) => {
+      return e instanceof Trigger;
+    }) as Trigger[];
+  }
 
   /**
    * The [[TileMap]]s in the scene, if any
    */
-  public tileMaps: TileMap[] = [];
+  public get tileMaps(): TileMap[] {
+    return this.world.entityManager.entities.filter((e) => {
+      return e instanceof TileMap;
+    }) as TileMap[];
+  }
 
   /**
    * Access to the Excalibur engine
@@ -84,12 +100,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   private _isInitialized: boolean = false;
-
-  private _killQueue: Actor[] = [];
-  private _triggerKillQueue: Trigger[] = [];
   private _timers: Timer[] = [];
   private _cancelQueue: Timer[] = [];
-  private _logger: Logger = Logger.getInstance();
 
   constructor() {
     super();
@@ -210,7 +222,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Initializes actors in the scene
    */
   private _initializeChildren(): void {
-    for (const child of this.actors) {
+    for (const child of this.entities) {
       child._initialize(this.engine);
     }
   }
@@ -322,7 +334,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     if (this.camera) {
       this.camera.update(engine, delta);
     }
-    // TODO differed entity removal
+    // TODO differed entity removal for timers
     let i: number, len: number;
     // Remove timers in the cancel queue before updating them
     for (i = 0, len = this._cancelQueue.length; i < len; i++) {
@@ -337,39 +349,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     this.world.update(SystemType.Update, delta);
 
-    // Cycle through actors updating tile maps
-    for (i = 0, len = this.tileMaps.length; i < len; i++) {
-      this.tileMaps[i].update(engine, delta);
-    }
-
     this._collectActorStats(engine);
 
     engine.input.pointers.dispatchPointerEvents();
 
-    engine.stats.currFrame.actors.killed = this._killQueue.length + this._triggerKillQueue.length;
-
-    // TODO differed entity removal
-    this._processKillQueue(this._killQueue, this.actors);
-    this._processKillQueue(this._triggerKillQueue, this.triggers);
-
     this._postupdate(engine, delta);
-  }
-
-  private _processKillQueue(killQueue: Actor[], collection: Actor[]) {
-    // Remove actors from scene graph after being killed
-    let actorIndex: number;
-    for (const killed of killQueue) {
-      //don't remove actors that were readded during the same frame they were killed
-      if (killed.isKilled()) {
-        actorIndex = collection.indexOf(killed);
-        if (actorIndex > -1) {
-          collection.splice(actorIndex, 1);
-          this.world.remove(killed);
-          killed.children.forEach((c) => this.world.remove(c));
-        }
-      }
-    }
-    killQueue.length = 0;
   }
 
   /**
@@ -444,43 +428,12 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public add(entity: any): void {
     this.emit('entityadded', { target: entity } as any);
     this.world.add(entity);
-    if (entity instanceof Actor) {
-      entity.unkill();
-    }
-    if (entity instanceof Actor) {
-      if (!Util.contains(this.actors, entity)) {
-        // this._collisionProcessor.track(entity.body);
-        entity.scene = this;
-        if (entity instanceof Trigger) {
-          this.triggers.push(entity);
-        } else {
-          this.actors.push(entity);
-        }
-        // TODO remove after collision ecs
-        entity.children.forEach((c) => this.add(c));
-        entity.childrenAdded$.register({
-          notify: (e) => {
-            this.add(e);
-          }
-        });
-        entity.childrenRemoved$.register({
-          notify: (e) => {
-            this.remove(e);
-          }
-        });
-      }
-      return;
-    }
+    entity.scene = this;
     if (entity instanceof Timer) {
       if (!Util.contains(this._timers, entity)) {
         this.addTimer(entity);
       }
       return;
-    }
-    if (entity instanceof TileMap) {
-      if (!Util.contains(this.tileMaps, entity)) {
-        this.addTileMap(entity);
-      }
     }
   }
 
@@ -510,26 +463,12 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
-    this.emit('entityremoved', { target: entity } as any);
-    this.world.remove(entity);
-    if (entity instanceof Actor) {
-      if (!Util.contains(this.actors, entity)) {
-        return;
-      }
-      if (!entity.isKilled()) {
-        entity.kill();
-      }
-      if (entity instanceof Trigger) {
-        this._triggerKillQueue.push(entity);
-      } else {
-        this._killQueue.push(entity);
-      }
+    if (entity instanceof Entity) {
+      this.emit('entityremoved', { target: entity } as any);
+      this.world.remove(entity);
     }
     if (entity instanceof Timer) {
       this.removeTimer(entity);
-    }
-    if (entity instanceof TileMap) {
-      this.removeTileMap(entity);
     }
   }
 
@@ -559,7 +498,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add' })
   public addTileMap(tileMap: TileMap) {
-    this.tileMaps.push(tileMap);
     this.world.add(tileMap);
   }
 
@@ -569,11 +507,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove' })
   public removeTileMap(tileMap: TileMap) {
-    const index = this.tileMaps.indexOf(tileMap);
-    if (index > -1) {
-      this.tileMaps.splice(index, 1);
-      this.world.remove(tileMap);
-    }
+    this.world.remove(tileMap);
   }
 
   /**

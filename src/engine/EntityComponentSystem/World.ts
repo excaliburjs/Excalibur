@@ -23,10 +23,12 @@ export class World<ContextType> {
    */
   update(type: SystemType, delta: number) {
     if (type === SystemType.Update) {
-      this.entityManager.updateEntities(this.context, delta); // TODO should this also hand pre and post lifecycle
+      // TODO should this also hand pre and post lifecycle
+      this.entityManager.updateEntities(this.context, delta);
     }
     this.systemManager.updateSystems(type, this.context, delta);
     this.entityManager.processComponentRemovals();
+    this.entityManager.processEntityRemovals();
   }
 
   /**

@@ -78,12 +78,13 @@ describe('A World', () => {
 
   it('can update', () => {
     const world = new ex.World('context');
-    world.entityManager = jasmine.createSpyObj('EntityManager', ['processComponentRemovals', 'updateEntities']);
+    world.entityManager = jasmine.createSpyObj('EntityManager', ['processEntityRemovals', 'processComponentRemovals', 'updateEntities']);
     world.systemManager = jasmine.createSpyObj('SystemManager', ['updateSystems']);
 
     world.update(SystemType.Update, 100);
 
     expect(world.systemManager.updateSystems).toHaveBeenCalledWith(SystemType.Update, 'context', 100);
     expect(world.entityManager.processComponentRemovals).toHaveBeenCalled();
+    expect(world.entityManager.processEntityRemovals).toHaveBeenCalled();
   });
 });

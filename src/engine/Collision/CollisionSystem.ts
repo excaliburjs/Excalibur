@@ -63,7 +63,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     const colliders: Collider[] = [];
     for (const entity of _entities) {
       const collider = entity.get(ColliderComponent);
-      if (collider.collider) {
+      if (collider.collider && collider.owner?.active) {
         collider.update();
         colliders.push(collider.collider);
       }

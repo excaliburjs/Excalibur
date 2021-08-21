@@ -839,8 +839,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
     if (this.scene) {
       this._prekill(this.scene);
       this.emit('kill', new KillEvent(this));
-      this.active = false;
-      this.scene.remove(this);
+      super.kill();
       this._postkill(this.scene);
     } else {
       this.logger.warn('Cannot kill actor, it was never added to the Scene');
