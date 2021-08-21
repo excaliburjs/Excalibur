@@ -113,7 +113,7 @@ describe('Collision Shape', () => {
 
     it('doesnt have axes', () => {
       // technically circles have infinite axes
-      expect(circle.axes).toBe(null);
+      expect(circle.axes).toEqual([]);
     });
 
     it('has a moment of inertia', () => {
