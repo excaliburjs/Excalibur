@@ -152,18 +152,30 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
     return this.get(BodyComponent);
   }
 
+  /**
+   * Access the Actor's built in [[TransformComponent]]
+   */
   public get transform(): TransformComponent {
     return this.get(TransformComponent);
   }
 
+  /**
+   * Access the Actor's built in [[MotionComponent]]
+   */
   public get motion(): MotionComponent {
     return this.get(MotionComponent);
   }
 
+  /**
+   * Access to the Actor's built in [[GraphicsComponent]]
+   */
   public get graphics(): GraphicsComponent {
     return this.get(GraphicsComponent);
   }
 
+  /**
+   * Access to the Actor's build in [[ColliderComponent]]
+   */
   public get collider(): ColliderComponent {
     return this.get(ColliderComponent);
   }
@@ -382,7 +394,6 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   /**
    * Draggable helper
    */
-
   private _draggable: boolean = false;
   private _dragging: boolean = false;
 

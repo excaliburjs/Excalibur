@@ -53,7 +53,7 @@ export class CollisionGroup {
   private _mask: number;
 
   /**
-   * **STOP!!** It is preferred that [[CollisionGroupManager.create]] is used to create collision groups
+   * STOP!!** It is preferred that [[CollisionGroupManager.create]] is used to create collision groups
    *  unless you know how to construct the proper bitmasks. See https://github.com/excaliburjs/Excalibur/issues/1091 for more info.
    * @param name Name of the collision group
    * @param category 32 bit category for the group, should be a unique power of 2. For example `0b001` or `0b010`
@@ -92,5 +92,36 @@ export class CollisionGroup {
    */
   public canCollide(other: CollisionGroup): boolean {
     return (this.category & other.mask) !== 0 && (other.category & this.mask) !== 0;
+  }
+
+  /**
+   * Inverts the collision group. For example, if before the group specified "players",
+   * inverting would specify all groups except players
+   * @returns CollisionGroup
+   */
+  public invert(): CollisionGroup {
+    return new CollisionGroup('~(' + this.name + ')', ~this.category, ~this.mask);
+  }
+
+  /**
+   * Combine collision groups with each other. The new group includes all of the previous groups.
+   *
+   * @param collisionGroups
+   * @returns
+   */
+  public static combine(collisionGroups: CollisionGroup[]) {
+    const combinedName = collisionGroups.map((c) => c.name).join('+');
+    const combinedCategory = collisionGroups.reduce((current, g) => g.category | current, 0b0);
+    const combinedMask = ~combinedCategory;
+
+    return new CollisionGroup(combinedName, combinedCategory, combinedMask);
+  }
+
+  /**
+   * Creates a collision group that collides with the listed groups
+   * @param collisionGroups
+   */
+  public static collidesWith(collisionGroups: CollisionGroup[]) {
+    return CollisionGroup.combine(collisionGroups).invert();
   }
 }

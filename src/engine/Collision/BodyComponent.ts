@@ -16,6 +16,7 @@ import { ColliderComponent } from './ColliderComponent';
 export interface BodyComponentOptions {
   type?: CollisionType;
   group?: CollisionGroup;
+  useGravity?: boolean;
 }
 
 export enum DegreeOfFreedom {
@@ -40,11 +41,12 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     if (options) {
       this.collisionType = options.type ?? this.collisionType;
       this.group = options.group ?? this.group;
+      this.useGravity = options.useGravity ?? this.useGravity;
     }
   }
 
   /**
-   * Collision type of the body's colliders, by default [[CollisionType.PreventCollision]]
+   * Collision type for the rigidbody physics simulation, by default [[CollisionType.PreventCollision]]
    */
   public collisionType: CollisionType = CollisionType.PreventCollision;
 
@@ -147,7 +149,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   public friction: number = 0.99;
 
   /**
-   * Should use global gravity [[Physics.gravity]]
+   * Should use global gravity [[Physics.gravity]] in it's physics simulation, default is true
    */
   public useGravity: boolean = true;
 
@@ -157,10 +159,9 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   public limitDegreeOfFreedom: DegreeOfFreedom[] = [];
 
   /**
-   *
+   * Returns if the owner is active
    */
   public get active() {
-    // todo active = alive?
     return !!this.owner?.active;
   }
 
