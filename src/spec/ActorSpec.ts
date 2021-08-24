@@ -1,5 +1,4 @@
 import * as ex from '@excalibur';
-import { BodyComponent } from '@excalibur';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
@@ -112,6 +111,16 @@ describe('A game actor', () => {
 
     // revert changes back
     ex.Actor.defaults.anchor = ex.vec(0.5, 0.5);
+  });
+
+  it('can be created with a custom collider', () => {
+    const actor = new ex.Actor({
+      pos: ex.vec(10, 10),
+      collider: ex.Shape.Circle(10)
+    });
+
+    expect(actor.collider.bounds).toEqual(ex.BoundingBox.fromDimension(20, 20, ex.Vector.Half).translate(ex.vec(10, 10)));
+    expect(actor.collider.localBounds).toEqual(ex.BoundingBox.fromDimension(20, 20, ex.Vector.Half));
   });
 
   it('should have an old position after an update', () => {
