@@ -25,7 +25,7 @@ export interface ConvexPolygonOptions {
 }
 
 /**
- * Polygon collision shape for detecting collisions
+ * Polygon collider for detecting collisions
  */
 export class ConvexPolygon extends Collider {
   /**
@@ -76,7 +76,7 @@ export class ConvexPolygon extends Collider {
   }
 
   /**
-   * Get the center of the collision shape in world coordinates
+   * Get the center of the collider in world coordinates
    */
   public get center(): Vector {
     return this.bounds.center;
@@ -207,7 +207,7 @@ export class ConvexPolygon extends Collider {
   }
 
   /**
-   * Tests if a point is contained in this collision shape in world space
+   * Tests if a point is contained in this collider in world space
    */
   public contains(point: Vector): boolean {
     // Always cast to the right, as long as we cast in a consistent fixed direction we
@@ -239,7 +239,7 @@ export class ConvexPolygon extends Collider {
   }
 
   /**
-   * Returns a collision contact if the 2 collision shapes collide, otherwise collide will
+   * Returns a collision contact if the 2 colliders collide, otherwise collide will
    * return null.
    * @param collider
    */
@@ -256,7 +256,7 @@ export class ConvexPolygon extends Collider {
   }
 
   /**
-   * Find the point on the shape furthest in the direction specified
+   * Find the point on the collider furthest in the direction specified
    */
   public getFurthestPoint(direction: Vector): Vector {
     const pts = this.getTransformedPoints();
@@ -273,7 +273,7 @@ export class ConvexPolygon extends Collider {
   }
 
   /**
-   * Find the local point on the shape furthest in the direction specified
+   * Find the local point on the collider furthest in the direction specified
    * @param direction
    */
   public getFurthestLocalPoint(direction: Vector): Vector {
@@ -319,7 +319,7 @@ export class ConvexPolygon extends Collider {
   }
 
   /**
-   * Get the axis aligned bounding box for the polygon shape in world coordinates
+   * Get the axis aligned bounding box for the polygon collider in world coordinates
    */
   public get bounds(): BoundingBox {
     // const points = this.getTransformedPoints();
@@ -330,7 +330,7 @@ export class ConvexPolygon extends Collider {
   }
 
   /**
-   * Get the axis aligned bounding box for the polygon shape in local coordinates
+   * Get the axis aligned bounding box for the polygon collider in local coordinates
    */
   public get localBounds(): BoundingBox {
     return BoundingBox.fromPoints(this.points);

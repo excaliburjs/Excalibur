@@ -5,11 +5,11 @@ import { BoundingBox } from '../BoundingBox';
 import { Vector } from '../../Algebra';
 
 /**
- * Excalibur shape helper for defining collision shapes quickly
+ * Excalibur helper for defining colliders quickly
  */
 export class Shape {
   /**
-   * Creates a box collision shape, under the hood defines a [[ConvexPolygon]] collision shape
+   * Creates a box collider, under the hood defines a [[ConvexPolygon]] collider
    * @param width Width of the box
    * @param height Height of the box
    * @param anchor Anchor of the box (default (.5, .5)) which positions the box relative to the center of the collider's position
@@ -23,7 +23,7 @@ export class Shape {
   }
 
   /**
-   * Creates a new [[ConvexPolygon|arbitrary polygon]] collision shape
+   * Creates a new [[ConvexPolygon|arbitrary polygon]] collider
    * @param points Points specified in counter clockwise
    * @param clockwiseWinding Optionally changed the winding of points, by default false meaning counter-clockwise winding.
    * @param offset Optional offset relative to the collider in local coordinates
@@ -37,8 +37,8 @@ export class Shape {
   }
 
   /**
-   * Creates a new [[Circle|circle]] collision shape
-   * @param radius Radius of the circle shape
+   * Creates a new [[Circle|circle]] collider
+   * @param radius Radius of the circle collider
    * @param offset Optional offset relative to the collider in local coordinates
    */
   static Circle(radius: number, offset: Vector = Vector.Zero): Circle {
@@ -49,7 +49,7 @@ export class Shape {
   }
 
   /**
-   * Creates a new [[Edge|edge]] collision shape
+   * Creates a new [[Edge|edge]] collider
    * @param begin Beginning of the edge in local coordinates to the collider
    * @param end Ending of the edge in local coordinates to the collider
    */

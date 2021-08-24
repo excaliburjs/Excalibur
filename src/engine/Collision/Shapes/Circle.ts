@@ -23,11 +23,11 @@ export interface CircleOptions {
 }
 
 /**
- * This is a circle collision shape for the excalibur rigid body physics simulation
+ * This is a circle collider for the excalibur rigid body physics simulation
  */
 export class Circle extends Collider {
   /**
-   * Position of the circle relative to the collider, by default (0, 0) meaning the shape is positioned on top of the collider.
+   * Position of the circle relative to the collider, by default (0, 0).
    */
   public offset: Vector = Vector.Zero;
 
@@ -59,14 +59,14 @@ export class Circle extends Collider {
   }
 
   /**
-   * Get the center of the collision shape in world coordinates
+   * Get the center of the collider in world coordinates
    */
   public get center(): Vector {
     return this.offset.add(this._transform?.pos ?? Vector.Zero);
   }
 
   /**
-   * Tests if a point is contained in this collision shape
+   * Tests if a point is contained in this collider
    */
   public contains(point: Vector): boolean {
     const pos = this._transform?.pos ?? this.offset;
@@ -78,7 +78,7 @@ export class Circle extends Collider {
   }
 
   /**
-   * Casts a ray at the Circle shape and returns the nearest point of collision
+   * Casts a ray at the Circle collider and returns the nearest point of collision
    * @param ray
    */
   public rayCast(ray: Ray, max: number = Infinity): Vector {
@@ -150,7 +150,7 @@ export class Circle extends Collider {
   }
 
   /**
-   * Find the point on the shape furthest in the direction specified
+   * Find the point on the collider furthest in the direction specified
    */
   public getFurthestPoint(direction: Vector): Vector {
     return this.center.add(direction.normalize().scale(this.radius));
@@ -166,7 +166,7 @@ export class Circle extends Collider {
   }
 
   /**
-   * Get the axis aligned bounding box for the circle shape in world coordinates
+   * Get the axis aligned bounding box for the circle collider in world coordinates
    */
   public get bounds(): BoundingBox {
     const bodyPos = this._transform?.pos ?? Vector.Zero;
@@ -179,7 +179,7 @@ export class Circle extends Collider {
   }
 
   /**
-   * Get the axis aligned bounding box for the circle shape in local coordinates
+   * Get the axis aligned bounding box for the circle collider in local coordinates
    */
   public get localBounds(): BoundingBox {
     return new BoundingBox(

@@ -52,6 +52,7 @@ import { obsolete } from './Util/Decorators';
 import { ColliderComponent } from './Collision/ColliderComponent';
 import { Shape } from './Collision/Shapes/Shape';
 import { watch } from './Util/Watch';
+import { Collider } from './Collision/Index';
 
 /**
  * Type guard for checking if something is an Actor
@@ -125,6 +126,10 @@ export interface ActorArgs {
    * Optionally set the collision type
    */
   collisionType?: CollisionType;
+  /**
+   * Optionally supply a collider for an actor, if supplied ignores any supplied width/height
+   */
+  collider?: Collider;
 }
 
 export interface ActorDefaults {
@@ -481,7 +486,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   constructor(config?: ActorArgs) {
     super();
 
-    const { x, y, pos, scale, width, height, vel, acc, rotation, angularVelocity, z, color, visible, anchor, collisionType } = {
+    const { x, y, pos, scale, width, height, collider, vel, acc, rotation, angularVelocity, z, color, visible, anchor, collisionType } = {
       ...config
     };
 
@@ -502,8 +507,12 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
 
     this.addComponent(new BodyComponent());
     this.body.collisionType = collisionType ?? CollisionType.Passive;
-    this.addComponent(new ColliderComponent(Shape.Box(width ?? 0, height ?? 0, this.anchor)));
-    // this.collider.update();
+
+    if (collider) {
+      this.addComponent(new ColliderComponent(collider));
+    } else {
+      this.addComponent(new ColliderComponent(Shape.Box(width ?? 0, height ?? 0, this.anchor)));
+    }
 
     this.visible = visible ?? true;
 
@@ -1049,7 +1058,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   }
 
   /**
-   * Returns true if the two actor.body.collider.shape's surfaces are less than or equal to the distance specified from each other
+   * Returns true if the two actor.collider's surfaces are less than or equal to the distance specified from each other
    * @param actor     Actor to test
    * @param distance  Distance in pixels to test
    */

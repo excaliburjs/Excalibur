@@ -22,7 +22,7 @@ export interface EdgeOptions {
 }
 
 /**
- * Edge is a single line collision shape to create collisions with a single line.
+ * Edge is a single line collider to create collisions with a single line.
  */
 export class Edge extends Collider {
   offset: Vector;
@@ -134,7 +134,7 @@ export class Edge extends Collider {
   }
 
   /**
-   * Returns the closes line between this and another shape, from this -> shape
+   * Returns the closes line between this and another collider, from this -> collider
    * @param shape
    */
   public getClosestLineBetween(shape: Collider): Line {
@@ -165,7 +165,7 @@ export class Edge extends Collider {
   }
 
   /**
-   * Find the point on the shape furthest in the direction specified
+   * Find the point on the collider furthest in the direction specified
    */
   public getFurthestPoint(direction: Vector): Vector {
     const transformedBegin = this._getTransformedBegin();
@@ -182,7 +182,7 @@ export class Edge extends Collider {
   }
 
   /**
-   * Get the axis aligned bounding box for the edge shape in world space
+   * Get the axis aligned bounding box for the edge collider in world space
    */
   public get bounds(): BoundingBox {
     const transformedBegin = this._getTransformedBegin();
@@ -191,7 +191,7 @@ export class Edge extends Collider {
   }
 
   /**
-   * Get the axis aligned bounding box for the edge shape in local space
+   * Get the axis aligned bounding box for the edge collider in local space
    */
   public get localBounds(): BoundingBox {
     return this._boundsFromBeginEnd(this.begin, this.end);

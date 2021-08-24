@@ -206,7 +206,7 @@ export const CollisionJumpTable = {
     // Separations are both negative, we want to pick the least negative (minimal movement)
     const separation = separationA.separation > separationB.separation ? separationA : separationB;
 
-    // The incident side is the most opposite from the axes of collision on the other shape
+    // The incident side is the most opposite from the axes of collision on the other collider
     const other = separation.collider === polyA ? polyB : polyA;
     const incident = other.findSide(separation.axis.negate()) as Line;
 
