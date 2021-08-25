@@ -51,6 +51,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new helpers to `CollisionGroup` to define groups that collide with specified groups `CollisionGroup.collidesWith([groupA, groupB])` 
+   - Combine groups with `const groupAandB = CollisionGroup.combine([groupA, groupB])`
+   - Invert a group instance `const everthingButGroupA = groupA.invert()`
 - Improved Collision Simulation
   - New ECS based `CollisionSystem` and `MotionSystem`
   - Rigid body's can now sleep for improved performance
