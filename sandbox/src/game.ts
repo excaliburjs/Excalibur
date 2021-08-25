@@ -33,6 +33,67 @@
  * Thank you,
  * Excalibur.js team
  */
+
+declare class Stats {
+  constructor();
+  dom: HTMLElement;
+  showPanel(option: number);
+  begin(): void;
+  end(): void;
+}
+declare module dat {
+  class GUI {
+    constructor(options: { name: string });
+    addFolder(name: string): GUI;
+    add<T>(object: T, prop: keyof T, min?: number, max?: number, step?: number): any;
+    addColor(object: any, prop: any): any;
+  }
+}
+
+var gui = new dat.GUI({name: 'Excalibur'});
+var actorfolder = gui.addFolder('Flags');
+actorfolder.add(ex.Debug, 'showDrawingCullBox');
+actorfolder.add(ex.Debug, 'showCameraFocus');
+actorfolder.add(ex.Debug, 'showCameraViewport');
+actorfolder.add(ex.Debug, 'showActorAnchor');
+actorfolder.add(ex.Debug, 'showActorId');
+actorfolder.add(ex.Debug, 'showActorUnitCircle');
+var folder = gui.addFolder('Physics Flags');
+folder.add(ex.Physics, 'enabled')
+folder.add(ex.Physics.debug, 'showColliderBounds')
+folder.add(ex.Physics.debug, 'showColliderGeometry')
+folder.add(ex.Physics.debug, 'showColliderNormals')
+folder.add(ex.Physics.debug, 'showContacts')
+folder.add(ex.Physics.debug, 'showMotionVectors')
+folder.add(ex.Physics.debug, 'broadphaseDebug')
+folder.add(ex.Physics, "positionIterations")
+folder.add(ex.Physics, "velocityIterations")
+
+var stats = new Stats();
+stats.showPanel(0);
+document.body.appendChild(stats.dom);
+
+var bootstrap = (game: ex.Engine) => {
+  gui.add({toggleDebug: false}, 'toggleDebug').onChange(() => game.toggleDebug());
+  var entities = gui.addFolder('Entities');
+  game.on("preframe", () => {
+      stats.begin();
+  });
+  game.on('postframe', () =>{
+      stats.end();
+  });
+
+  game.currentScene.on('entityadded', (e: any) => {
+    var entity: ex.Entity = e.target;
+    var obj = {id: entity.id, name: entity.constructor.name, types: entity.types};
+
+    var pos = entities.addFolder(`${obj.id}:${obj.name}`)
+    pos.add({pos: entity.get(ex.TransformComponent).pos.toString()}, 'pos');
+    pos.add({types: obj.types.join(', ')}, 'types');
+  });
+
+  return { stats, gui }
+}
 var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
@@ -47,6 +108,7 @@ var game = new ex.Engine({
   canvasElementId: 'game',
   suppressHiDPIScaling: false,
   suppressPlayButton: true,
+  pointerScope: ex.Input.PointerScope.Canvas,
   antialiasing: false,
   snapToPixel: true
 });
@@ -59,6 +121,9 @@ fullscreenButton.addEventListener('click', () => {
   }
 });
 game.showDebug(true);
+bootstrap(game);
+
+
 
 var heartTex = new ex.Graphics.ImageSource('../images/heart.png');
 var heartImageSource = new ex.Graphics.ImageSource('../images/heart.png');
@@ -88,8 +153,9 @@ loader.addResource(jump);
 game.backgroundColor = new ex.Color(114, 213, 224);
 
 // setup physics defaults
+ex.Physics.useArcadePhysics();
 ex.Physics.checkForFastBodies = true;
-ex.Physics.acc = new ex.Vector(0, 800); // global accel
+ex.Physics.acc = new ex.Vector(0, 10); // global accel
 
 // Add some UI
 //var heart = new ex.ScreenElement(0, 0, 20, 20);
@@ -376,6 +442,7 @@ enum Animations {
 
 var currentX = 0;
 var blockGroup = ex.CollisionGroupManager.create('ground');
+var color = new ex.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
 // Create the level
 for (var i = 0; i < 36; i++) {
   currentX = tileBlockWidth * i + 10;
@@ -386,42 +453,42 @@ for (var i = 0; i < 36; i++) {
     height: tileBlockHeight,
     color: color
   });
-  block.body.collider.type = ex.CollisionType.Fixed;
+  block.body.collisionType = ex.CollisionType.Fixed;
   //var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
   //block.collisionType = ex.CollisionType.Fixed;
-  block.body.collider.group = blockGroup;
+  block.body.group = blockGroup;
   block.graphics.add(blockAnimation);
 
   game.add(block);
 }
 
-var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
+var platform = new ex.Actor({x: 400, y: 300, width: 200, height: 50, color: new ex.Color(0, 200, 0)});
 platform.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(0, 200, 0), width: 200, height: 50 }));
-platform.body.collider.type = ex.CollisionType.Fixed;
+platform.body.collisionType = ex.CollisionType.Fixed;
 platform.actions.repeatForever(ctx => ctx.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100));
 game.add(platform);
 
-var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
+var platform2 = new ex.Actor({x: 800, y: 300, width: 200, height: 20, color: new ex.Color(0, 0, 140)});
 platform2.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(0, 0, 140), width: 200, height: 20 }));
-platform2.body.collider.type = ex.CollisionType.Fixed;
+platform2.body.collisionType = ex.CollisionType.Fixed;
 platform2.actions.repeatForever(ctx => ctx.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100));
 game.add(platform2);
 
-var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
+var platform3 = new ex.Actor({x: -200, y: 400, width: 200, height: 20, color: new ex.Color(50, 0, 100)});
 platform3.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(50, 0, 100), width: 200, height: 20 }));
-platform3.body.collider.type = ex.CollisionType.Fixed;
+platform3.body.collisionType = ex.CollisionType.Fixed;
 platform3.actions.repeatForever(ctx => ctx.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800));
 game.add(platform3);
 
-var platform4 = new ex.Actor(75, 300, 100, 50, ex.Color.Azure);
+var platform4 = new ex.Actor({x: 75, y: 300, width: 100, height: 50, color: ex.Color.Azure});
 platform4.graphics.add(new ex.Graphics.Rectangle({ color: ex.Color.Azure, width: 100, height: 50 }));
-platform4.body.collider.type = ex.CollisionType.Fixed;
+platform4.body.collisionType = ex.CollisionType.Fixed;
 game.add(platform4);
 
 // Test follow api
-var follower = new ex.Actor(50, 100, 20, 20, ex.Color.Black);
+var follower = new ex.Actor({x: 50, y: 100, width: 20, height: 20, color: ex.Color.Black});
 follower.graphics.add(new ex.Graphics.Rectangle({ color: ex.Color.Black, width: 20, height: 20 }));
-follower.body.collider.type = ex.CollisionType.PreventCollision;
+follower.body.collisionType = ex.CollisionType.PreventCollision;
 game.add(follower);
 
 // Create the player
@@ -432,9 +499,9 @@ var player = new ex.Actor({
   pos: new ex.Vector(100, -200),
   width: 32,
   height: 96,
-  enableCapturePointer: true,
   collisionType: ex.CollisionType.Active
 });
+player.body.canSleep = false;
 player.graphics.copyGraphics = false;
 follower.actions
   .meet(player, 60)
@@ -448,7 +515,7 @@ follower.actions
 player.rotation = 0;
 
 // Health bar example
-var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
+var healthbar = new ex.Actor({x: 0, y: -70, width: 140, height: 5, color: new ex.Color(0, 255, 0)});
 player.addChild(healthbar);
 // player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
 //   ctx.fillStyle = 'red';
@@ -581,10 +648,10 @@ game.addScene('label', newScene);
 
 game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
   if (keyDown.key === ex.Input.Keys.F) {
-    var a = new ex.Actor(player.pos.x + 10, player.pos.y - 50, 10, 10, new ex.Color(222, 222, 222));
+    var a = new ex.Actor({x: player.pos.x + 10, y: player.pos.y - 50, width: 10, height: 10, color: new ex.Color(222, 222, 222)});
     a.vel.x = 200 * direction;
     a.vel.y = 0;
-    a.body.collider.type = ex.CollisionType.Active;
+    a.body.collisionType = ex.CollisionType.Active;
     var inAir = true;
     a.on('precollision', (data?: ex.PreCollisionEvent) => {
       inAir = false;
@@ -664,7 +731,7 @@ player.on('initialize', (evt?: ex.InitializeEvent) => {
 
 game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
   if (keyDown.key === ex.Input.Keys.B) {
-    var block = new ex.Actor(currentX, 350, 44, 50, color);
+    var block = new ex.Actor({x: currentX, y: 350, width: 44, height: 50, color: color});
     currentX += 46;
     block.graphics.add(blockAnimation);
     game.add(block);

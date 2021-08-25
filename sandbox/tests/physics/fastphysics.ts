@@ -4,14 +4,14 @@ var game = new ex.Engine({
   width: 600,
   height: 400
 });
-ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
+ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
 
-ex.Physics.broadphaseDebug = false;
-ex.Physics.showArea = true;
-ex.Physics.showMotionVectors = true;
-ex.Physics.showBounds = true;
-ex.Physics.showContacts = true;
-ex.Physics.showNormals = true;
+ex.Physics.debug.broadphaseDebug = false;
+ex.Physics.debug.showColliderGeometry = true;
+ex.Physics.debug.showMotionVectors = true;
+ex.Physics.debug.showColliderBounds = true;
+ex.Physics.debug.showContacts = true;
+ex.Physics.debug.showNormals = true;
 ex.Physics.acc.setTo(0, 300);
 //ex.Physics.dynamicTreeVelocityMultiplyer = 1;
 game.currentScene.camera.zoom = 0.5;
@@ -19,7 +19,7 @@ var rocketTex = new ex.Texture('missile.png');
 var loader = new ex.Loader([rocketTex]);
 
 function spawnRocket(direction) {
-  var rocket = new ex.Actor(300, 200, 48, 16);
+  var rocket = new ex.Actor({x: 300, y: 200, width: 48, height: 16});
 
   rocket.on('preupdate', () => {
     if (rocket.isOffScreen) {
@@ -28,9 +28,9 @@ function spawnRocket(direction) {
     }
   });
 
-  rocket.body.collider.type = ex.CollisionType.Active;
+  rocket.body.collisionType = ex.CollisionType.Active;
   rocket.addDrawing(rocketTex);
-  rocket.body.useBoxCollider(48, 16);
+  rocket.collider.useBoxCollider(48, 16);
   //rocket.rotation = Math.PI / 4;
   //block.rx = .1;
   if (direction === 'up') {
@@ -55,24 +55,24 @@ function spawnRocket(direction) {
   game.add(rocket);
 }
 
-var ground = new ex.Actor(0, 0, 5, 5, ex.Color.Black.clone());
-ground.body.collider.type = ex.CollisionType.Fixed;
-ground.body.useEdgeCollider(new ex.Vector(0, 400), new ex.Vector(600, 400));
+var ground = new ex.Actor({x: 0, y: 0, width: 5, height: 5, color: ex.Color.Black.clone()});
+ground.body.collisionType = ex.CollisionType.Fixed;
+ground.collider.useEdgeCollider(new ex.Vector(0, 400), new ex.Vector(600, 400));
 game.add(ground);
 
-var rightWall = new ex.Actor(600, 200, 10, 400, ex.Color.Black.clone());
-rightWall.body.collider.type = ex.CollisionType.Fixed;
-rightWall.body.useBoxCollider(10, 400);
+var rightWall = new ex.Actor({x: 600, y: 200, width: 10, height: 400, color: ex.Color.Black.clone()});
+rightWall.body.collisionType = ex.CollisionType.Fixed;
+rightWall.collider.useBoxCollider(10, 400);
 game.add(rightWall);
 
-var leftWall = new ex.Actor(0, 200, 10, 400, ex.Color.Black.clone());
-leftWall.body.collider.type = ex.CollisionType.Fixed;
-leftWall.body.useBoxCollider(10, 400);
+var leftWall = new ex.Actor({x: 0, y: 200, width: 10, height: 400, color: ex.Color.Black.clone()});
+leftWall.body.collisionType = ex.CollisionType.Fixed;
+leftWall.collider.useBoxCollider(10, 400);
 game.add(leftWall);
 
-var ceiling = new ex.Actor(300, 10, 600, 10, ex.Color.Blue.clone());
-ceiling.body.collider.type = ex.CollisionType.Fixed;
-ceiling.body.useBoxCollider(600, 10); // optional
+var ceiling = new ex.Actor({x: 300, y: 10, width: 600, height: 10, color: ex.Color.Blue.clone()});
+ceiling.body.collisionType = ex.CollisionType.Fixed;
+ceiling.collider.useBoxCollider(600, 10); // optional
 game.add(ceiling);
 
 game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) => {

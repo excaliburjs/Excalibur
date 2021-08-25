@@ -255,11 +255,45 @@ export class Particle extends Configurable(ParticleImpl) {
   }
 }
 
+export interface ParticleEmitterArgs {
+  x?: number;
+  y?: number;
+  pos?: Vector;
+  width?: number;
+  height?: number;
+  isEmitting?: boolean;
+  minVel?: number;
+  maxVel?: number;
+  acceleration?: Vector;
+  minAngle?: number;
+  maxAngle?: number;
+  emitRate?: number;
+  particleLife?: number;
+  opacity?: number;
+  fadeFlag?: boolean;
+  focus?: Vector;
+  focusAccel?: number;
+  startSize?: number;
+  endSize?: number;
+  minSize?: number;
+  maxSize?: number;
+  beginColor?: Color;
+  endColor?: Color;
+  particleSprite?: Sprite;
+  emitterType?: EmitterType;
+  radius?: number;
+  particleRotationalVelocity?: number;
+  randomRotation?: boolean;
+  random?: Random;
+}
+
 /**
- * @hidden
+ * Using a particle emitter is a great way to create interesting effects
+ * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
+ * extend [[Actor]] allowing you to use all of the features that come with.
  */
-export class ParticleEmitterImpl extends Actor {
-  private _particlesToEmit: number;
+export class ParticleEmitter extends Actor {
+  private _particlesToEmit: number = 0;
 
   public numParticles: number = 0;
 
@@ -337,12 +371,12 @@ export class ParticleEmitterImpl extends Actor {
   /**
    * Gets or sets the acceleration for focusing particles if a focus has been specified
    */
-  public focusAccel: number = 1;
-  /*
+  public focusAccel: number = null;
+  /**
    * Gets or sets the optional starting size for the particles
    */
   public startSize: number = null;
-  /*
+  /**
    * Gets or sets the optional ending size for the particles
    */
   public endSize: number = null;
@@ -402,17 +436,69 @@ export class ParticleEmitterImpl extends Actor {
   public randomRotation: boolean = false;
 
   /**
-   * @param xOrConfig The x position of the emitter, or the particle emitter options bag
-   * @param y         The y position of the emitter
-   * @param width     The width of the emitter
-   * @param height    The height of the emitter
+   * @param config particle emitter options bag
    */
-  constructor(xOrConfig?: number | ParticleEmitterArgs, y?: number, width?: number, height?: number) {
-    super(typeof xOrConfig === 'number' ? { pos: new Vector(xOrConfig, y), width: width, height: height } : xOrConfig);
-    this._particlesToEmit = 0;
-    this.body.collider.type = CollisionType.PreventCollision;
-    this.random = new Random();
-    this.removeComponent('canvas');
+  constructor(config: ParticleEmitterArgs) {
+    super({ width: config.width ?? 0, height: config.height ?? 0 });
+
+    const {
+      x,
+      y,
+      pos,
+      isEmitting,
+      minVel,
+      maxVel,
+      acceleration,
+      minAngle,
+      maxAngle,
+      emitRate,
+      particleLife,
+      opacity,
+      fadeFlag,
+      focus,
+      focusAccel,
+      startSize,
+      endSize,
+      minSize,
+      maxSize,
+      beginColor,
+      endColor,
+      particleSprite,
+      emitterType,
+      radius,
+      particleRotationalVelocity,
+      randomRotation,
+      random
+    } = { ...config };
+
+    this.pos = pos ?? vec(x ?? 0, y ?? 0);
+    this.isEmitting = isEmitting ?? this.isEmitting;
+    this.minVel = minVel ?? this.minVel;
+    this.maxVel = maxVel ?? this.maxVel;
+    this.acceleration = acceleration ?? this.acceleration;
+    this.minAngle = minAngle ?? this.minAngle;
+    this.maxAngle = maxAngle ?? this.maxAngle;
+    this.emitRate = emitRate ?? this.emitRate;
+    this.particleLife = particleLife ?? this.particleLife;
+    this.opacity = opacity ?? this.opacity;
+    this.fadeFlag = fadeFlag ?? this.fadeFlag;
+    this.focus = focus ?? this.focus;
+    this.focusAccel = focusAccel ?? this.focusAccel;
+    this.startSize = startSize ?? this.startSize;
+    this.endSize = endSize ?? this.endSize;
+    this.minSize = minSize ?? this.minSize;
+    this.maxSize = maxSize ?? this.maxSize;
+    this.beginColor = beginColor ?? this.beginColor;
+    this.endColor = endColor ?? this.endColor;
+    this.particleSprite = particleSprite ?? this.particleSprite;
+    this.emitterType = emitterType ?? this.emitterType;
+    this.radius = radius ?? this.radius;
+    this.particleRotationalVelocity = particleRotationalVelocity ?? this.particleRotationalVelocity;
+    this.randomRotation = randomRotation ?? this.randomRotation;
+
+    this.body.collisionType = CollisionType.PreventCollision;
+
+    this.random = random ?? new Random();
 
     // Remove offscreen culling from particle emitters
     for (let i = 0; i < this.traits.length; i++) {
@@ -510,7 +596,7 @@ export class ParticleEmitterImpl extends Actor {
     for (let i = 0; i < this.deadParticles.length; i++) {
       Util.removeItemFromArray(this.deadParticles[i], this.particles);
       if (this?.scene?.world) {
-        this.scene.world.remove(this.deadParticles[i]);
+        this.scene.world.remove(this.deadParticles[i], false);
       }
     }
     this.deadParticles.length = 0;
@@ -532,47 +618,5 @@ export class ParticleEmitterImpl extends Actor {
       DrawUtil.line(ctx, Color.Yellow, this.focus.x + this.pos.x, this.focus.y + this.pos.y, this.center.x, this.center.y);
       ctx.fillText('Focus', this.focus.x + this.pos.x, this.focus.y + this.pos.y);
     }
-  }
-}
-
-export interface ParticleEmitterArgs extends Partial<ParticleEmitterImpl> {
-  width?: number;
-  height?: number;
-  isEmitting?: boolean;
-  minVel?: number;
-  maxVel?: number;
-  acceleration?: Vector;
-  minAngle?: number;
-  maxAngle?: number;
-  emitRate?: number;
-  particleLife?: number;
-  opacity?: number;
-  fadeFlag?: boolean;
-  focus?: Vector;
-  focusAccel?: number;
-  startSize?: number;
-  endSize?: number;
-  minSize?: number;
-  maxSize?: number;
-  beginColor?: Color;
-  endColor?: Color;
-  particleSprite?: Sprite;
-  emitterType?: EmitterType;
-  radius?: number;
-  particleRotationalVelocity?: number;
-  randomRotation?: boolean;
-  random?: Random;
-}
-
-/**
- * Using a particle emitter is a great way to create interesting effects
- * in your game, like smoke, fire, water, explosions, etc. `ParticleEmitter`
- * extend [[Actor]] allowing you to use all of the features that come with.
- */
-export class ParticleEmitter extends Configurable(ParticleEmitterImpl) {
-  constructor(config?: ParticleEmitterArgs);
-  constructor(x?: number | ParticleEmitterArgs, y?: number, width?: number, height?: number);
-  constructor(xOrConfig?: number | ParticleEmitterArgs, y?: number, width?: number, height?: number) {
-    super(xOrConfig, y, width, height);
   }
 }

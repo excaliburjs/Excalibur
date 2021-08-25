@@ -1,28 +1,30 @@
 import { BoundingBox } from './Collision/BoundingBox';
-import { Color } from './Drawing/Color';
 import { Engine } from './Engine';
 import { vec, Vector } from './Algebra';
-import { Actor } from './Actor';
 import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';
 import { Configurable } from './Configurable';
 import { Entity } from './EntityComponentSystem/Entity';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
+import { BodyComponent } from './Collision/BodyComponent';
+import { CollisionType } from './Collision/CollisionType';
+import { Shape } from './Collision/Shapes/Shape';
 import { ExcaliburGraphicsContext, GraphicsComponent, hasGraphicsTick } from './Graphics';
 import * as Graphics from './Graphics';
 import { CanvasDrawComponent, Sprite } from './Drawing/Index';
 import { Sprite as LegacySprite } from './Drawing/Index';
 import { removeItemFromArray } from './Util/Util';
 import { obsolete } from './Util/Decorators';
+import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
+import { ColliderComponent } from './Collision/ColliderComponent';
+import { CompositeCollider } from './Collision/Shapes/CompositeCollider';
 
 /**
  * @hidden
  */
 export class TileMapImpl extends Entity {
   private _token = 0;
-  private _collidingX: number = -1;
-  private _collidingY: number = -1;
   private _onScreenXStart: number = 0;
   private _onScreenXEnd: number = 9999;
   private _onScreenYStart: number = 0;
@@ -41,7 +43,14 @@ export class TileMapImpl extends Entity {
   public readonly rows: number;
   public readonly cols: number;
 
+  private _dirty = true;
+  public flagDirty() {
+    this._dirty = true;
+  }
   private _transform: TransformComponent;
+  private _motion: MotionComponent;
+  private _collider: ColliderComponent;
+  private _composite: CompositeCollider;
 
   public get x(): number {
     return this._transform.pos.x ?? 0;
@@ -100,6 +109,14 @@ export class TileMapImpl extends Entity {
     this._transform.pos = val;
   }
 
+  public get vel(): Vector {
+    return this._motion.vel;
+  }
+
+  public set vel(val: Vector) {
+    this._motion.vel = val;
+  }
+
   public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent<TileMap>) => void): void;
   public on(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent<TileMap>) => void): void;
   public on(eventName: Events.predraw, handler: (event: Events.PreDrawEvent) => void): void;
@@ -118,14 +135,7 @@ export class TileMapImpl extends Entity {
    * @param cols          The number of cols in the TileMap (should not be changed once set)
    */
   constructor(xOrConfig: number | TileMapArgs, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number) {
-    super([
-      new TransformComponent(),
-      new GraphicsComponent({
-        onPostDraw: (ctx, delta) => this.draw(ctx, delta)
-      }),
-      new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta))
-    ]);
-
+    super();
     if (xOrConfig && typeof xOrConfig === 'object') {
       const config = xOrConfig;
       xOrConfig = config.x;
@@ -135,6 +145,25 @@ export class TileMapImpl extends Entity {
       rows = config.rows;
       cols = config.cols;
     }
+    this.addComponent(new TransformComponent());
+    this.addComponent(new MotionComponent());
+    this.addComponent(
+      new BodyComponent({
+        type: CollisionType.Fixed
+      })
+    );
+    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
+    this.addComponent(
+      new GraphicsComponent({
+        onPostDraw: (ctx, delta) => this.draw(ctx, delta)
+      })
+    );
+    this.addComponent(new ColliderComponent());
+    this._transform = this.get(TransformComponent);
+    this._motion = this.get(MotionComponent);
+    this._collider = this.get(ColliderComponent);
+    this._composite = this._collider.useCompositeCollider([]);
+
     this.x = <number>xOrConfig;
     this.y = y;
     this.cellWidth = cellWidth;
@@ -148,6 +177,7 @@ export class TileMapImpl extends Entity {
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
         const cd = new Cell(i * cellWidth + <number>xOrConfig, j * cellHeight + y, cellWidth, cellHeight, i + j * cols);
+        cd.map = this;
         this.data[i + j * cols] = cd;
         currentCol.push(cd);
         if (!this._rows[j]) {
@@ -158,7 +188,7 @@ export class TileMapImpl extends Entity {
       this._cols[i] = currentCol;
       currentCol = [];
     }
-    this._transform = this.get(TransformComponent);
+
     this.get(GraphicsComponent).localBounds = new BoundingBox({
       left: 0,
       top: 0,
@@ -189,46 +219,55 @@ export class TileMapImpl extends Entity {
   }
 
   /**
-   * Returns the intersection vector that can be used to resolve collisions with actors. If there
-   * is no collision null is returned.
+   * Tiles colliders based on the solid tiles in the tilemap.
    */
-  public collides(actor: Actor): Vector {
-    const width = actor.pos.x + actor.width;
-    const height = actor.pos.y + actor.height;
-    const actorBounds = actor.body.collider.bounds;
-    const overlaps: Vector[] = [];
-    if (actor.width <= 0 || actor.height <= 0) {
-      return null;
-    }
-    // trace points for overlap
-    for (let x = actorBounds.left; x <= width; x += Math.min(actor.width / 2, this.cellWidth / 2)) {
-      for (let y = actorBounds.top; y <= height; y += Math.min(actor.height / 2, this.cellHeight / 2)) {
-        const cell = this.getCellByPoint(x, y);
-        if (cell && cell.solid) {
-          const overlap = actorBounds.intersect(cell.bounds);
-          const dir = actor.center.sub(cell.center);
-          if (overlap && overlap.dot(dir) > 0) {
-            overlaps.push(overlap);
+  private _updateColliders(): void {
+    this._composite.clearColliders();
+    const colliders: BoundingBox[] = [];
+    let current: BoundingBox;
+    // Bad square tessalation algo
+    for (let i = 0; i < this.cols; i++) {
+      // Scan column for colliders
+      for (let j = 0; j < this.rows; j++) {
+        // Columns start with a new collider
+        if (j === 0) {
+          current = null;
+        }
+        const tile = this.data[i + j * this.cols];
+        // Current tile in column is solid build up current collider
+        if (tile.solid) {
+          if (!current) {
+            current = tile.bounds;
+          } else {
+            current = current.combine(tile.bounds);
           }
+        } else {
+          // Not solid skip and cut off the current collider
+          if (current) {
+            colliders.push(current);
+          }
+          current = null;
+        }
+      }
+      // After a column is complete check to see if it can be merged into the last one
+      if (current) {
+        // if previous is the same combine it
+        const prev = colliders[colliders.length - 1];
+        if (prev && prev.top === current.top && prev.bottom === current.bottom) {
+          colliders[colliders.length - 1] = prev.combine(current);
+        } else {
+          // else new collider
+          colliders.push(current);
         }
       }
     }
-    if (overlaps.length === 0) {
-      return null;
+    this._composite = this._collider.useCompositeCollider([]);
+    for (const c of colliders) {
+      const collider = Shape.Box(c.width, c.height, Vector.Zero, vec(c.left - this.pos.x, c.top - this.pos.y));
+      collider.owner = this;
+      this._composite.addCollider(collider);
     }
-    // Return the smallest change other than zero
-    const result = overlaps.reduce((accum, next) => {
-      let x = accum.x;
-      let y = accum.y;
-      if (Math.abs(accum.x) < Math.abs(next.x)) {
-        x = next.x;
-      }
-      if (Math.abs(accum.y) < Math.abs(next.y)) {
-        y = next.y;
-      }
-      return new Vector(x, y);
-    });
-    return result;
+    this._collider.update();
   }
 
   /**
@@ -251,8 +290,8 @@ export class TileMapImpl extends Entity {
    * returns `null` if no cell was found.
    */
   public getCellByPoint(x: number, y: number): Cell {
-    x = Math.floor((x - this.x) / this.cellWidth);
-    y = Math.floor((y - this.y) / this.cellHeight);
+    x = Math.floor((x - this.pos.x) / this.cellWidth);
+    y = Math.floor((y - this.pos.y) / this.cellHeight);
     const cell = this.getCell(x, y);
     if (x >= 0 && y >= 0 && x < this.cols && y < this.rows && cell) {
       return cell;
@@ -279,6 +318,11 @@ export class TileMapImpl extends Entity {
   public update(engine: Engine, delta: number) {
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
+    if (this._dirty) {
+      this._dirty = false;
+      this._updateColliders();
+    }
+
     this._token++;
     const worldBounds = engine.getWorldBounds();
     const worldCoordsUpperLeft = vec(worldBounds.left, worldBounds.top);
@@ -338,49 +382,6 @@ export class TileMapImpl extends Entity {
 
     this.emit('postdraw', new Events.PostDrawEvent(ctx as any, delta, this));
   }
-
-  /**
-   * Draws all the tile map's debug info. Called by the [[Scene]].
-   * @param ctx  The current rendering context
-   */
-  public debugDraw(ctx: CanvasRenderingContext2D) {
-    const width = this.cols * this.cellWidth;
-    const height = this.rows * this.cellHeight;
-    ctx.save();
-    ctx.strokeStyle = Color.Red.toString();
-    for (let x = 0; x < this.cols + 1; x++) {
-      ctx.beginPath();
-      ctx.moveTo(this.x + x * this.cellWidth, this.y);
-      ctx.lineTo(this.x + x * this.cellWidth, this.y + height);
-      ctx.stroke();
-    }
-    for (let y = 0; y < this.rows + 1; y++) {
-      ctx.beginPath();
-      ctx.moveTo(this.x, this.y + y * this.cellHeight);
-      ctx.lineTo(this.x + width, this.y + y * this.cellHeight);
-      ctx.stroke();
-    }
-    const solid = Color.Red;
-    solid.a = 0.3;
-    this.data
-      .filter(function (cell) {
-        return cell.solid;
-      })
-      .forEach(function (cell) {
-        ctx.fillStyle = solid.toString();
-        ctx.fillRect(cell.x, cell.y, cell.width, cell.height);
-      });
-    if (this._collidingY > -1 && this._collidingX > -1) {
-      ctx.fillStyle = Color.Cyan.toString();
-      ctx.fillRect(
-        this.x + this._collidingX * this.cellWidth,
-        this.y + this._collidingY * this.cellHeight,
-        this.cellWidth,
-        this.cellHeight
-      );
-    }
-    ctx.restore();
-  }
 }
 
 export interface TileMapArgs extends Partial<TileMapImpl> {
@@ -429,14 +430,30 @@ export class CellImpl extends Entity {
    * Current index in the tilemap
    */
   public readonly index: number;
+
+  /**
+   * Reference to the TileMap this Cell is associated with
+   */
+  public map: TileMap;
+
+  private _solid = false;
+  /**
+   * Wether this cell should be treated as solid by the tilemap
+   */
+  public get solid(): boolean {
+    return this._solid;
+  }
+  /**
+   * Wether this cell should be treated as solid by the tilemap
+   */
+  public set solid(val: boolean) {
+    this.map?.flagDirty();
+    this._solid = val;
+  }
   /**
    * Current list of graphics for this cell
    */
   public readonly graphics: Graphics.Graphic[] = [];
-  /**
-   * Wether this cell should be treated as solid by the tilemap
-   */
-  public solid: boolean = false;
   /**
    * Abitrary data storage per cell, useful for any game specific data
    */
@@ -449,7 +466,7 @@ export class CellImpl extends Entity {
    * @param height  Gets or sets the height of the cell
    * @param index   The index of the cell in row major order
    * @param solid   Gets or sets whether this cell is solid
-   * @param sprites The list of tile sprites to use to draw in this cell (in order)
+   * @param graphics The list of tile graphics to use to draw in this cell (in order)
    */
   constructor(
     xOrConfig: number | CellArgs,

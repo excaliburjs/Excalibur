@@ -7,6 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Renames `CollisionResolutionStrategy.Box` collision resolution strategy to `Arcade`
+- Renames `CollisionResolutionStrategy.RigidBody` collision resolution strategy to `Realistic`
+- `Collider` is now a first class type and encapsulates what `Shape` used to be. `Collider` is no longer a member of the `Body`
+- `CollisionType` and `CollisionGroup` are now a member of the `Body` component, the reasoning is they define how the simulated physics body will behave in simulation.
 - `Timer`'s no longer automatically start when added to a `Scene`, this `Timer.start()` must be called. ([#1865](ttps://github.com/excaliburjs/Excalibur/issues/1865))
 - `Timer.complete` is now read-only to prevent odd bugs, use `reset()`, `stop()`, and `start()` to manipulate timers.
 - `Actor.actions.repeat()` and `Actor.actions.repeatForever()` now require a handler that specifies the actions to repeat. This is more clear and helps prevent bugs like #1891
@@ -47,6 +51,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new helpers to `CollisionGroup` to define groups that collide with specified groups `CollisionGroup.collidesWith([groupA, groupB])` 
+   - Combine groups with `const groupAandB = CollisionGroup.combine([groupA, groupB])`
+   - Invert a group instance `const everthingButGroupA = groupA.invert()`
+- Improved Collision Simulation
+  - New ECS based `CollisionSystem` and `MotionSystem`
+  - Rigid body's can now sleep for improved performance
+  - Multiple contacts now supported which improves stability
+  - Iterative solver for improved stability
+- Added `ColliderComponent` to hold individual `Collider` implementations like `Circle`, `Box`, or `CompositeCollider`
+- New `CompositeCollider` type to combine multiple colliders together into one for an entity
+- New `TransformComponent` to encapsulate Entity transform, that is to say position, rotation, and scale
+- New `MotionComponent` to encapsulate Entity transform values changing over time like velocity and acceleration
 - Added multi-line support to `Text` graphics ([#1866](https://github.com/excaliburjs/Excalibur/issues/1866))
 - Added `TileMap` arbitrary graphics support with `.addGraphic()` ([#1862](https://github.com/excaliburjs/Excalibur/issues/1862))
 - Added `TileMap` row and column accessors `getRows()` and `getColumns()` ([#1859](https://github.com/excaliburjs/Excalibur/issues/1859))
@@ -82,7 +98,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Add `KeyEvent.originalEvent?: KeyboardEvent` which exposes the raw keyboard event handled from the browser.
 
 ### Changed
-
+- Engine/Scene refactored to make use of the new ECS world which simplifies their logic
+- `TileMap` now uses the built in `Collider` component instead of custom collision code.
 - Updates the Excalibur ECS implementation for ease of use and Excalibur draw system integration
   - Adds "ex." namespace to built in component types like "ex.transform"
   - Adds `ex.World` to encapsulate all things ECS

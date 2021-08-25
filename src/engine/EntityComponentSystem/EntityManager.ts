@@ -12,6 +12,20 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
   constructor(private _world: World<ContextType>) {}
 
   /**
+   * Runs the entity lifecycle
+   * @param _context
+   */
+  public updateEntities(_context: ContextType, elapsed: number) {
+    for (const entity of this.entities) {
+      // TODO is this right?
+      entity.update((_context as any).engine, elapsed);
+      if (!entity.active) {
+        this.removeEntity(entity);
+      }
+    }
+  }
+
+  /**
    * EntityManager observes changes on entities
    * @param message
    */
@@ -31,6 +45,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
    * @param entity
    */
   public addEntity(entity: Entity): void {
+    entity.active = true;
     if (entity && !this._entityIndex[entity.id]) {
       this._entityIndex[entity.id] = entity;
       this.entities.push(entity);
@@ -41,21 +56,21 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
       // if entity has children
       entity.children.forEach((c) => this.addEntity(c));
       entity.childrenAdded$.register({
-        notify: (e => {
+        notify: (e) => {
           this.addEntity(e);
-        })
+        }
       });
       entity.childrenRemoved$.register({
-        notify: (e => {
-          this.removeEntity(e);
-        })
+        notify: (e) => {
+          this.removeEntity(e, false);
+        }
       });
     }
   }
 
-  public removeEntity(entity: Entity): void;
-  public removeEntity(id: number): void;
-  public removeEntity(idOrEntity: number | Entity): void {
+  public removeEntity(entity: Entity, deferred?: boolean): void;
+  public removeEntity(id: number, deferred?: boolean): void;
+  public removeEntity(idOrEntity: number | Entity, deferred = true): void {
     let id = 0;
     if (idOrEntity instanceof Entity) {
       id = idOrEntity.id;
@@ -63,6 +78,15 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
       id = idOrEntity;
     }
     const entity = this._entityIndex[id];
+    if (entity && entity.active) {
+      entity.kill();
+    }
+
+    if (entity && deferred) {
+      this._entitiesToRemove.push(entity);
+      return;
+    }
+
     delete this._entityIndex[id];
     if (entity) {
       Util.removeItemFromArray(entity, this.entities);
@@ -71,9 +95,24 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
       entity.componentRemoved$.unregister(this);
 
       // if entity has children
-      entity.children.forEach((c) => this.removeEntity(c));
+      entity.children.forEach((c) => this.removeEntity(c, deferred));
       entity.childrenAdded$.clear();
       entity.childrenRemoved$.clear();
+
+      // stats
+      if ((this._world.context as any)?.engine) {
+        (this._world.context as any).engine.stats.currFrame.actors.killed++;
+      }
+    }
+  }
+
+  private _entitiesToRemove: Entity[] = [];
+  public processEntityRemovals(): void {
+    for (const entity of this._entitiesToRemove) {
+      if (entity.active) {
+        continue;
+      }
+      this.removeEntity(entity, false);
     }
   }
 

@@ -18,7 +18,7 @@ describe('A ScreenElement', () => {
       height: 50,
       color: ex.Color.Blue
     });
-    screenElement.body.collider.type = ex.CollisionType.Active;
+    screenElement.body.collisionType = ex.CollisionType.Active;
     engine = TestUtils.engine();
     engine.backgroundColor = ex.Color.Transparent;
 

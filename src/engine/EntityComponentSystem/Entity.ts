@@ -5,6 +5,7 @@ import { Class } from '../Class';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
+import { EventDispatcher } from '../EventDispatcher';
 import { Util } from '..';
 
 /**
@@ -72,6 +73,10 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
    * The unique identifier for the entity
    */
   public id: number = Entity._ID++;
+
+  public get events(): EventDispatcher {
+    return this.eventDispatcher;
+  }
 
   /**
    * Whether this entity is active, if set to false it will be reclaimed
@@ -267,6 +272,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
     }
     return result;
   }
+
 
   /**
    * Creates a deep copy of the entity and a copy of all its components

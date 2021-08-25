@@ -32,6 +32,7 @@ import {
 import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Drawing/Color';
 import { Scene } from './Scene';
+import { Entity } from './EntityComponentSystem/Entity';
 import { PostProcessor } from './PostProcessing/PostProcessor';
 import { Debug, DebugStats } from './Debug';
 import { Class } from './Class';
@@ -779,6 +780,7 @@ O|===|* >________________>\n\
   public add(entity: any): void {
     if (arguments.length === 2) {
       this.addScene(<string>arguments[0], <Scene>arguments[1]);
+      return;
     }
     if (this._deferredGoTo && this.scenes[this._deferredGoTo]) {
       this.scenes[this._deferredGoTo].add(entity);
@@ -820,7 +822,7 @@ O|===|* >________________>\n\
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
-    if (entity instanceof Actor) {
+    if (entity instanceof Entity) {
       this.currentScene.remove(entity);
     }
 

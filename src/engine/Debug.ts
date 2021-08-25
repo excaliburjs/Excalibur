@@ -1,5 +1,5 @@
 import { DebugFlags, ColorBlindFlags } from './DebugFlags';
-import { Pair } from './Collision/Pair';
+import { Pair } from './Collision/Detection/Pair';
 import { Engine } from './Engine';
 
 /**
@@ -165,6 +165,13 @@ export class Debug implements DebugFlags {
 
     this.colorBlindMode = new ColorBlindFlags(this._engine);
   }
+
+  public static showDrawingCullBox = false;
+  public static showCameraFocus = false;
+  public static showCameraViewport = false;
+  public static showActorAnchor = false;
+  public static showActorId = false;
+  public static showActorUnitCircle = false;
 
   /**
    * Performance statistics

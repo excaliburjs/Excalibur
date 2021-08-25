@@ -56,7 +56,7 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
         this._ctx.save();
         this._pushCameraTransform(transform);
         this._ctx.strokeStyle = 'yellow';
-        (entities[i] as Actor).debugDraw(this._ctx);
+        (entities[i] as unknown as Actor).debugDraw(this._ctx);
         this._popCameraTransform(transform);
         this._ctx.restore();
       }

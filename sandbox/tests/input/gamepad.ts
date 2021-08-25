@@ -27,7 +27,7 @@ function start() {
   });
 
   // Draw gamepad
-  var gamepad = new ex.Actor(0, 0, padSprite.width, padSprite.height);
+  var gamepad = new ex.Actor({width: padSprite.width, height: padSprite.height});
   gamepad.anchor.setTo(0, 0);
   gamepad.addDrawing('bg', padSprite);
   game.add(gamepad);
@@ -56,13 +56,13 @@ function start() {
   var buttonDef;
   for (var b = 0; b < buttonDefs.length; b++) {
     buttonDef = buttonDefs[b];
-    buttons[b] = new CircleActor(buttonDef[1], buttonDef[2], 10, 10, new ex.Color(0, 0, 0, 0.7));
+    buttons[b] = new CircleActor({x: buttonDef[1], y: buttonDef[2], width: 10, height: 10, color: new ex.Color(0, 0, 0, 0.7)});
     game.add(buttons[b]);
   }
 
   // Sticks
-  var leftStick = new CircleActor(330, 272, 25, 25, ex.Color.fromRGB(95, 164, 22, 0.6));
-  var rightStick = new CircleActor(470, 272, 25, 25, ex.Color.fromRGB(164, 45, 22, 0.6));
+  var leftStick = new CircleActor({x: 330, y: 272, width: 25, height: 25, color: ex.Color.fromRGB(95, 164, 22, 0.6)});
+  var rightStick = new CircleActor({x: 470, y: 272, width: 25, height: 25, color: ex.Color.fromRGB(164, 45, 22, 0.6)});
 
   game.add(leftStick);
   game.add(rightStick);

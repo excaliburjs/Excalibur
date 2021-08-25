@@ -9,7 +9,7 @@ var engine = new ex.Engine({ width: width, height: height, canvasElementId: 'gam
 
 engine.backgroundColor = ex.Color.Black;
 
-var player = new ex.Actor(width / 2, height / 2, 30, 30, ex.Color.Red);
+var player = new ex.Actor({x: width / 2, y: height / 2, width: 30, height: 30, color: ex.Color.Red});
 var playerSprite = playerTexture.asSprite();
 player.addDrawing('default', playerSprite);
 //player.currentDrawing.scale = new ex.Point(0.5, 0.5);

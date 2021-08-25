@@ -7,8 +7,8 @@ var game = new ex.Engine({
 
 game.showDebug(true);
 
-ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
-ex.Physics.broadphaseDebug = true;
+ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
+ex.Physics.debug.broadphaseDebug = true;
 
 game.currentScene.camera.x = 0;
 game.currentScene.camera.y = 0;
@@ -17,10 +17,10 @@ game.currentScene.camera.zoomOverTime(3);
 function spawnCircle2(x: number, y: number, vx: number) {
   var width = 20;
   var color = new ex.Color(ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255));
-  var circle = new ex.Actor(x, y, width, width, color);
-  circle.vel = ex.vec(vx, 0);
-  circle.body.useCircleCollider(width / 2);
-  circle.body.collider.type = ex.CollisionType.Active;
+  var circle = new ex.Actor({x, y, width, height: width, color});
+  circle.vel.x = vx;
+  circle.collider.useCircleCollider(width / 2);
+  circle.body.collisionType = ex.CollisionType.Active;
   game.add(circle);
 }
 

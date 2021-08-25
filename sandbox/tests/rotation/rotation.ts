@@ -25,13 +25,13 @@ engine.on('postupdate', (ev: ex.PostUpdateEvent) => {
   labelCurrentRotation.text = ex.RotationType[rotationType];
 });
 
-var player = new ex.Actor(width / 2, height / 2, 100, 30, ex.Color.Red);
+var player = new ex.Actor({x: width / 2, y: height / 2, width: 100, height: 30, color: ex.Color.Red});
 var playerSprite = playerTexture.asSprite();
 player.addDrawing('default', playerSprite);
 engine.currentScene.add(player);
 
 // rotation type buttons
-var shortestPath = new ex.Actor(50, 50, 50, 50, ex.Color.White);
+var shortestPath = new ex.Actor({x: 50, y: 50, width: 50, height: 50, color: ex.Color.White});
 shortestPath.on('pointerdown', (e?: ex.Input.PointerEvent) => {
   rotationType = ex.RotationType.ShortestPath;
 });
@@ -42,7 +42,7 @@ labelShortestPath.color = ex.Color.White;
 labelShortestPath.textAlign = ex.TextAlign.Center;
 engine.add(labelShortestPath);
 
-var longestPath = new ex.Actor(150, 50, 50, 50, ex.Color.White);
+var longestPath = new ex.Actor({x: 150, y: 50, width: 50, height: 50, color: ex.Color.White});
 longestPath.on('pointerdown', (e?: ex.Input.PointerEvent) => {
   rotationType = ex.RotationType.LongestPath;
 });
@@ -53,7 +53,7 @@ labelLongestPath.color = ex.Color.White;
 labelLongestPath.textAlign = ex.TextAlign.Center;
 engine.add(labelLongestPath);
 
-var clockwise = new ex.Actor(250, 50, 50, 50, ex.Color.White);
+var clockwise = new ex.Actor({x: 250, y: 50, width: 50, height: 50, color: ex.Color.White});
 clockwise.on('pointerdown', (e?: ex.Input.PointerEvent) => {
   rotationType = ex.RotationType.Clockwise;
 });
@@ -64,7 +64,7 @@ labelClockwise.color = ex.Color.White;
 labelClockwise.textAlign = ex.TextAlign.Center;
 engine.add(labelClockwise);
 
-var counterclockwise = new ex.Actor(350, 50, 50, 50, ex.Color.White);
+var counterclockwise = new ex.Actor({x: 350, y: 50, width: 50, height: 50, color: ex.Color.White});
 counterclockwise.on('pointerdown', (e?: ex.Input.PointerEvent) => {
   rotationType = ex.RotationType.CounterClockwise;
 });

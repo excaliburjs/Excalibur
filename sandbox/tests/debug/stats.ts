@@ -1,7 +1,7 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 
 var game = new ex.Engine({ width: 500, height: 500 });
-ex.Physics.useRigidBodyPhysics();
+ex.Physics.useRealisticPhysics();
 ex.Physics.acc.setTo(0, 500);
 
 var historicFrameStats = new Array(10);
@@ -62,20 +62,20 @@ game.on('postframe', (ev: ex.PostFrameEvent) => {
   updateStat('debug-frame-narrowphase', ev.stats.physics.narrowphase);
 });
 
-game.add(new ex.ScreenElement(0, 0, 50, 50));
+game.add(new ex.ScreenElement({width: 50, height: 50}));
 
 function spawnBox() {
-  var box = new ex.Actor(250, 50, 50, 50, ex.Color.Red);
-  box.body.collider.type = ex.CollisionType.Active;
-  box.body.useBoxCollider(50, 50);
+  var box = new ex.Actor({x: 250, y: 50, width: 50, height: 50, color: ex.Color.Red});
+  box.body.collisionType = ex.CollisionType.Active;
+  box.collider.useBoxCollider(50, 50);
   game.add(box);
 }
 
 spawnBox();
 
-var floor = new ex.Actor(250, 500, 500, 10, ex.Color.Green);
-floor.body.collider.type = ex.CollisionType.Fixed;
-floor.body.useBoxCollider(50, 50);
+var floor = new ex.Actor({x: 250, y: 500, width: 500, height: 10, color: ex.Color.Green});
+floor.body.collisionType = ex.CollisionType.Fixed;
+floor.collider.useBoxCollider(50, 50);
 game.add(floor);
 
 game.input.keyboard.on('press', (evt) => {

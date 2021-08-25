@@ -1,56 +1,55 @@
-﻿import { Color } from '../Drawing/Color';
-import { Physics } from '../Physics';
-import { BoundingBox } from './BoundingBox';
+﻿import { Color } from '../../Drawing/Color';
+import { BoundingBox } from '../BoundingBox';
 import { Edge } from './Edge';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { Circle } from './Circle';
-import { CollisionContact } from './CollisionContact';
-import { CollisionShape } from './CollisionShape';
-import { Vector, Line, Ray, Projection } from '../Algebra';
-import { Collider } from './Collider';
+import { CollisionContact } from '../Detection/CollisionContact';
+import { Vector, Line, Ray, Projection } from '../../Algebra';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
+import { Transform, TransformComponent } from '../../EntityComponentSystem';
+import { Collider } from './Collider';
 
 export interface ConvexPolygonOptions {
   /**
-   * Pixel offset relative to a collider's position
+   * Pixel offset relative to a collider's body transform position.
    */
-
   offset?: Vector;
   /**
-   * Points in the polygon in order around the perimeter in local coordinates
+   * Points in the polygon in order around the perimeter in local coordinates. These are relative from the body transform position.
    */
   points: Vector[];
   /**
    * Whether points are specified in clockwise or counter clockwise order, default counter-clockwise
    */
   clockwiseWinding?: boolean;
-  /**
-   * Collider to associate optionally with this shape
-   */
-  collider?: Collider;
 }
 
 /**
- * Polygon collision shape for detecting collisions
+ * Polygon collider for detecting collisions
  */
-export class ConvexPolygon implements CollisionShape {
+export class ConvexPolygon extends Collider {
+  /**
+   * Pixel offset relative to a collider's body transform position.
+   */
   public offset: Vector;
-  public points: Vector[];
 
   /**
-   * Collider associated with this shape
+   * Points in the polygon in order around the perimeter in local coordinates. These are relative from the body transform position.
    */
-  public collider?: Collider;
+  public points: Vector[];
+
+  private _transform: Transform;
 
   private _transformedPoints: Vector[] = [];
   private _axes: Vector[] = [];
   private _sides: Line[] = [];
+  private _localSides: Line[] = [];
 
   constructor(options: ConvexPolygonOptions) {
-    this.offset = options.offset || Vector.Zero;
+    super();
+    this.offset = options.offset ?? Vector.Zero;
     const winding = !!options.clockwiseWinding;
     this.points = (winding ? options.points.reverse() : options.points) || [];
-    this.collider = this.collider = options.collider || null;
 
     // calculate initial transformation
     this._calculateTransformation();
@@ -62,37 +61,36 @@ export class ConvexPolygon implements CollisionShape {
   public clone(): ConvexPolygon {
     return new ConvexPolygon({
       offset: this.offset.clone(),
-      points: this.points.map((p) => p.clone()),
-      collider: null
+      points: this.points.map((p) => p.clone())
     });
   }
 
+  /**
+   * Returns the world position of the collider, which is the current body transform plus any defined offset
+   */
   public get worldPos(): Vector {
-    if (this.collider && this.collider.body) {
-      return this.collider.body.pos.add(this.offset);
+    if (this._transform) {
+      return this._transform.pos.add(this.offset);
     }
     return this.offset;
   }
 
   /**
-   * Get the center of the collision shape in world coordinates
+   * Get the center of the collider in world coordinates
    */
   public get center(): Vector {
-    const body = this.collider ? this.collider.body : null;
-    if (body) {
-      return body.pos.add(this.offset);
-    }
-    return this.offset;
+    return this.bounds.center;
   }
 
   /**
    * Calculates the underlying transformation from the body relative space to world space
    */
   private _calculateTransformation() {
-    const body = this.collider ? this.collider.body : null;
-    const pos = body ? body.pos.add(this.offset) : this.offset;
-    const angle = body ? body.rotation : 0;
-    const scale = body ? body.scale : Vector.One;
+    const transform = this._transform as TransformComponent;
+
+    const pos = transform ? transform.globalPos.add(this.offset) : this.offset;
+    const angle = transform ? transform.globalRotation : 0;
+    const scale = transform ? transform.globalScale : Vector.One;
 
     const len = this.points.length;
     this._transformedPoints.length = 0; // clear out old transform
@@ -105,18 +103,7 @@ export class ConvexPolygon implements CollisionShape {
    * Gets the points that make up the polygon in world space, from actor relative space (if specified)
    */
   public getTransformedPoints(): Vector[] {
-    // only recalculate geometry if, hasn't been calculated
-    if (
-      !this._transformedPoints.length ||
-      // or the position or rotation has changed in world space
-      (this.collider &&
-        this.collider.body &&
-        (!this.collider.body.oldPos.equals(this.collider.body.pos) ||
-          this.collider.body.oldRotation !== this.collider.body.rotation ||
-          this.collider.body.oldScale !== this.collider.body.scale))
-    ) {
-      this._calculateTransformation();
-    }
+    this._calculateTransformation();
     return this._transformedPoints;
   }
 
@@ -131,22 +118,96 @@ export class ConvexPolygon implements CollisionShape {
     const points = this.getTransformedPoints();
     const len = points.length;
     for (let i = 0; i < len; i++) {
-      lines.push(new Line(points[i], points[(i - 1 + len) % len]));
+      // This winding is important
+      lines.push(new Line(points[i], points[(i + 1) % len]));
     }
     this._sides = lines;
     return this._sides;
   }
 
-  public recalc(): void {
+  /**
+   * Returns the local coordinate space sides
+   */
+  public getLocalSides(): Line[] {
+    if (this._localSides.length) {
+      return this._localSides;
+    }
+    const lines = [];
+    const points = this.points;
+    const len = points.length;
+    for (let i = 0; i < len; i++) {
+      // This winding is important
+      lines.push(new Line(points[i], points[(i + 1) % len]));
+    }
+    this._localSides = lines;
+    return this._localSides;
+  }
+
+  /**
+   * Given a direction vector find the world space side that is most in that direction
+   * @param direction
+   */
+  public findSide(direction: Vector): Line {
+    const sides = this.getSides();
+    let bestSide = sides[0];
+    let maxDistance = -Number.MAX_VALUE;
+    for (let side = 0; side < sides.length; side++) {
+      const currentSide = sides[side];
+      const sideNormal = currentSide.normal();
+      const mostDirection = sideNormal.dot(direction);
+      if (mostDirection > maxDistance) {
+        bestSide = currentSide;
+        maxDistance = mostDirection;
+      }
+    }
+    return bestSide;
+  }
+
+  /**
+   * Given a direction vector find the local space side that is most in that direction
+   * @param direction
+   */
+  public findLocalSide(direction: Vector): Line {
+    const sides = this.getLocalSides();
+    let bestSide = sides[0];
+    let maxDistance = -Number.MAX_VALUE;
+    for (let side = 0; side < sides.length; side++) {
+      const currentSide = sides[side];
+      const sideNormal = currentSide.normal();
+      const mostDirection = sideNormal.dot(direction);
+      if (mostDirection > maxDistance) {
+        bestSide = currentSide;
+        maxDistance = mostDirection;
+      }
+    }
+    return bestSide;
+  }
+
+  /**
+   * Get the axis associated with the convex polygon
+   */
+  public get axes(): Vector[] {
+    if (this._axes.length) {
+      return this._axes;
+    }
+    const axes = this.getSides().map((s) => s.normal());
+    this._axes = axes;
+    return this._axes;
+  }
+
+  public update(transform: Transform): void {
+    this._transform = transform;
     this._sides.length = 0;
+    this._localSides.length = 0;
     this._axes.length = 0;
     this._transformedPoints.length = 0;
     this.getTransformedPoints();
     this.getSides();
+    this.getLocalSides();
   }
 
   /**
-   * Tests if a point is contained in this collision shape in world space
+   * Tests if a point is contained in this collider in world space
    */
   public contains(point: Vector): boolean {
     // Always cast to the right, as long as we cast in a consistent fixed direction we
@@ -165,41 +226,59 @@ export class ConvexPolygon implements CollisionShape {
     return true;
   }
 
-  public getClosestLineBetween(shape: CollisionShape): Line {
-    if (shape instanceof Circle) {
-      return ClosestLineJumpTable.PolygonCircleClosestLine(this, shape);
-    } else if (shape instanceof ConvexPolygon) {
-      return ClosestLineJumpTable.PolygonPolygonClosestLine(this, shape);
-    } else if (shape instanceof Edge) {
-      return ClosestLineJumpTable.PolygonEdgeClosestLine(this, shape);
+  public getClosestLineBetween(collider: Collider): Line {
+    if (collider instanceof Circle) {
+      return ClosestLineJumpTable.PolygonCircleClosestLine(this, collider);
+    } else if (collider instanceof ConvexPolygon) {
+      return ClosestLineJumpTable.PolygonPolygonClosestLine(this, collider);
+    } else if (collider instanceof Edge) {
+      return ClosestLineJumpTable.PolygonEdgeClosestLine(this, collider);
     } else {
-      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof collider}`);
     }
   }
 
   /**
-   * Returns a collision contact if the 2 collision shapes collide, otherwise collide will
+   * Returns a collision contact if the 2 colliders collide, otherwise collide will
    * return null.
-   * @param shape
+   * @param collider
    */
-  public collide(shape: CollisionShape): CollisionContact {
-    if (shape instanceof Circle) {
-      return CollisionJumpTable.CollideCirclePolygon(shape, this);
-    } else if (shape instanceof ConvexPolygon) {
-      return CollisionJumpTable.CollidePolygonPolygon(this, shape);
-    } else if (shape instanceof Edge) {
-      return CollisionJumpTable.CollidePolygonEdge(this, shape);
+  public collide(collider: Collider): CollisionContact[] {
+    if (collider instanceof Circle) {
+      return CollisionJumpTable.CollideCirclePolygon(collider, this);
+    } else if (collider instanceof ConvexPolygon) {
+      return CollisionJumpTable.CollidePolygonPolygon(this, collider);
+    } else if (collider instanceof Edge) {
+      return CollisionJumpTable.CollidePolygonEdge(this, collider);
     } else {
-      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
+      throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof collider}`);
     }
   }
 
   /**
-   * Find the point on the shape furthest in the direction specified
+   * Find the point on the collider furthest in the direction specified
    */
   public getFurthestPoint(direction: Vector): Vector {
     const pts = this.getTransformedPoints();
     let furthestPoint = null;
+    let maxDistance = -Number.MAX_VALUE;
+    for (let i = 0; i < pts.length; i++) {
+      const distance = direction.dot(pts[i]);
+      if (distance > maxDistance) {
+        maxDistance = distance;
+        furthestPoint = pts[i];
+      }
+    }
+    return furthestPoint;
+  }
+
+  /**
+   * Find the local point on the collider furthest in the direction specified
+   * @param direction
+   */
+  public getFurthestLocalPoint(direction: Vector): Vector {
+    const pts = this.points;
+    let furthestPoint = pts[0];
     let maxDistance = -Number.MAX_VALUE;
     for (let i = 0; i < pts.length; i++) {
       const distance = direction.dot(pts[i]);
@@ -240,16 +319,18 @@ export class ConvexPolygon implements CollisionShape {
   }
 
   /**
-   * Get the axis aligned bounding box for the polygon shape in world coordinates
+   * Get the axis aligned bounding box for the polygon collider in world coordinates
    */
   public get bounds(): BoundingBox {
-    const points = this.getTransformedPoints();
-
-    return BoundingBox.fromPoints(points);
+    // const points = this.getTransformedPoints();
+    const scale = this._transform?.scale ?? Vector.One;
+    const rotation = this._transform?.rotation ?? 0;
+    const pos = (this._transform?.pos ?? Vector.Zero).add(this.offset);
+    return this.localBounds.scale(scale).rotate(rotation).translate(pos);
   }
 
   /**
-   * Get the axis aligned bounding box for the polygon shape in local coordinates
+   * Get the axis aligned bounding box for the polygon collider in local coordinates
    */
   public get localBounds(): BoundingBox {
     return BoundingBox.fromPoints(this.points);
@@ -259,8 +340,7 @@ export class ConvexPolygon implements CollisionShape {
    * Get the moment of inertia for an arbitrary polygon
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public get inertia(): number {
-    const mass = this.collider ? this.collider.mass : Physics.defaultMass;
+  public getInertia(mass: number): number {
     let numerator = 0;
     let denominator = 0;
     for (let i = 0; i < this.points.length; i++) {
@@ -302,59 +382,6 @@ export class ConvexPolygon implements CollisionShape {
   }
 
   /**
-   * Get the axis associated with the convex polygon
-   */
-  public get axes(): Vector[] {
-    if (this._axes.length) {
-      return this._axes;
-    }
-
-    const axes = [];
-    const points = this.getTransformedPoints();
-    const len = points.length;
-    for (let i = 0; i < len; i++) {
-      axes.push(points[i].sub(points[(i + 1) % len]).normal());
-    }
-    this._axes = axes;
-    return this._axes;
-  }
-
-  /**
-   * Perform Separating Axis test against another polygon, returns null if no overlap in polys
-   * Reference http://www.dyn4j.org/2010/01/sat/
-   */
-  public testSeparatingAxisTheorem(other: ConvexPolygon): Vector {
-    const poly1 = this;
-    const poly2 = other;
-    const axes = poly1.axes.concat(poly2.axes);
-
-    let minOverlap = Number.MAX_VALUE;
-    let minAxis = null;
-    let minIndex = -1;
-    for (let i = 0; i < axes.length; i++) {
-      const proj1 = poly1.project(axes[i]);
-      const proj2 = poly2.project(axes[i]);
-      const overlap = proj1.getOverlap(proj2);
-      if (overlap <= 0) {
-        return null;
-      } else {
-        if (overlap < minOverlap) {
-          minOverlap = overlap;
-          minAxis = axes[i];
-          minIndex = i;
-        }
-      }
-    }
-
-    // Sanity check
-    if (minIndex === -1) {
-      return null;
-    }
-
-    return minAxis.normalize().scale(minOverlap);
-  }
-
-  /**
    * Project the edges of the polygon along a specified axis
    */
   public project(axis: Vector): Projection {
@@ -372,17 +399,20 @@ export class ConvexPolygon implements CollisionShape {
   }
 
   public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
-    const basePos = pos.add(this.offset);
+    const effectiveOffset = pos.add(this.offset);
     ctx.beginPath();
     ctx.fillStyle = color.toString();
-    ctx.moveTo(basePos.x, basePos.y);
-    const diffToBase = this.points[0].sub(basePos);
+
+    const firstPoint = this.points[0].add(effectiveOffset);
+    ctx.moveTo(firstPoint.x, firstPoint.y);
+
+    // Points are relative
     this.points
-      .map((p) => p.sub(diffToBase))
+      .map((p) => p.add(effectiveOffset))
       .forEach(function (point) {
         ctx.lineTo(point.x, point.y);
       });
-    ctx.lineTo(basePos.x, basePos.y);
+    ctx.lineTo(firstPoint.x, firstPoint.y);
     ctx.closePath();
     ctx.fill();
   }

@@ -9,10 +9,10 @@ polyfill();
 // This file is used as the bundle entry point and exports everything
 // that will be exposed as the `ex` global variable.
 export * from './Flags';
+export * from './Id';
 export * from './Engine';
 export * from './Screen';
 export { Actor, ActorArgs } from './Actor';
-export { CollisionType } from './Collision/CollisionType';
 export * from './Algebra';
 export * from './Camera';
 export * from './Class';
@@ -25,7 +25,7 @@ export { Label } from './Label';
 export { FontStyle, FontUnit, TextAlign, BaseAlign } from './Graphics/FontCommon';
 export * from './Loader';
 export { Particle, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterType } from './Particles';
-export * from './Physics';
+export * from './Collision/Physics';
 export * from './Scene';
 export { TileMap, Cell, TileMapArgs, CellArgs } from './TileMap';
 export * from './Timer';

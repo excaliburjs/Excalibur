@@ -1,16 +1,14 @@
-import { Body } from './Body';
-import { BoundingBox } from './BoundingBox';
-import { CollisionContact } from './CollisionContact';
+import { BoundingBox } from '../BoundingBox';
+import { CollisionContact } from '../Detection/CollisionContact';
 import { CollisionJumpTable } from './CollisionJumpTable';
-import { CollisionShape } from './CollisionShape';
 import { Circle } from './Circle';
 import { ConvexPolygon } from './ConvexPolygon';
 
-import { Vector, Ray, Projection, Line } from '../Algebra';
-import { Physics } from '../Physics';
-import { Color } from '../Drawing/Color';
+import { Vector, Ray, Projection, Line } from '../../Algebra';
+import { Color } from '../../Drawing/Color';
 import { Collider } from './Collider';
-import { ClosestLineJumpTable } from './ClosestLineJumpTable';
+import { ClosestLineJumpTable } from '../Shapes/ClosestLineJumpTable';
+import { Transform } from '../../EntityComponentSystem/Components/TransformComponent';
 
 export interface EdgeOptions {
   /**
@@ -21,26 +19,22 @@ export interface EdgeOptions {
    * The ending of the edge defined in local coordinates to the collider
    */
   end: Vector;
-  /**
-   * Optionally the collider associated with this edge
-   */
-  collider?: Collider;
 }
 
 /**
- * Edge is a single line collision shape to create collisions with a single line.
+ * Edge is a single line collider to create collisions with a single line.
  */
-export class Edge implements CollisionShape {
-  body: Body;
-  collider?: Collider;
+export class Edge extends Collider {
   offset: Vector;
   begin: Vector;
   end: Vector;
 
+  private _transform: Transform;
+
   constructor(options: EdgeOptions) {
+    super();
     this.begin = options.begin || Vector.Zero;
     this.end = options.end || Vector.Zero;
-    this.collider = options.collider || null;
     this.offset = this.center;
   }
 
@@ -50,16 +44,12 @@ export class Edge implements CollisionShape {
   public clone(): Edge {
     return new Edge({
       begin: this.begin.clone(),
-      end: this.end.clone(),
-      collider: null
+      end: this.end.clone()
     });
   }
 
   public get worldPos(): Vector {
-    if (this.collider && this.collider.body) {
-      return this.collider.body.pos.add(this.offset);
-    }
-    return this.offset;
+    return this._transform?.pos.add(this.offset) ?? this.offset;
   }
 
   /**
@@ -71,22 +61,19 @@ export class Edge implements CollisionShape {
   }
 
   private _getBodyPos(): Vector {
-    let bodyPos = Vector.Zero;
-    if (this.collider && this.collider.body) {
-      bodyPos = this.collider.body.pos;
-    }
+    const bodyPos = this._transform?.pos ?? Vector.Zero;
     return bodyPos;
   }
 
   private _getTransformedBegin(): Vector {
-    const body = this.collider ? this.collider.body : null;
-    const angle = body ? body.rotation : 0;
+    const transform = this._transform;
+    const angle = transform ? transform.rotation : 0;
     return this.begin.rotate(angle).add(this._getBodyPos());
   }
 
   private _getTransformedEnd(): Vector {
-    const body = this.collider ? this.collider.body : null;
-    const angle = body ? body.rotation : 0;
+    const transform = this._transform;
+    const angle = transform ? transform.rotation : 0;
     return this.end.rotate(angle).add(this._getBodyPos());
   }
 
@@ -147,10 +134,10 @@ export class Edge implements CollisionShape {
   }
 
   /**
-   * Returns the closes line between this and another shape, from this -> shape
+   * Returns the closes line between this and another collider, from this -> collider
    * @param shape
    */
-  public getClosestLineBetween(shape: CollisionShape): Line {
+  public getClosestLineBetween(shape: Collider): Line {
     if (shape instanceof Circle) {
       return ClosestLineJumpTable.CircleEdgeClosestLine(shape, this);
     } else if (shape instanceof ConvexPolygon) {
@@ -165,7 +152,7 @@ export class Edge implements CollisionShape {
   /**
    * @inheritdoc
    */
-  public collide(shape: CollisionShape): CollisionContact {
+  public collide(shape: Collider): CollisionContact[] {
     if (shape instanceof Circle) {
       return CollisionJumpTable.CollideCircleEdge(shape, this);
     } else if (shape instanceof ConvexPolygon) {
@@ -178,7 +165,7 @@ export class Edge implements CollisionShape {
   }
 
   /**
-   * Find the point on the shape furthest in the direction specified
+   * Find the point on the collider furthest in the direction specified
    */
   public getFurthestPoint(direction: Vector): Vector {
     const transformedBegin = this._getTransformedBegin();
@@ -195,7 +182,7 @@ export class Edge implements CollisionShape {
   }
 
   /**
-   * Get the axis aligned bounding box for the edge shape in world space
+   * Get the axis aligned bounding box for the edge collider in world space
    */
   public get bounds(): BoundingBox {
     const transformedBegin = this._getTransformedBegin();
@@ -204,7 +191,7 @@ export class Edge implements CollisionShape {
   }
 
   /**
-   * Get the axis aligned bounding box for the edge shape in local space
+   * Get the axis aligned bounding box for the edge collider in local space
    */
   public get localBounds(): BoundingBox {
     return this._boundsFromBeginEnd(this.begin, this.end);
@@ -217,6 +204,9 @@ export class Edge implements CollisionShape {
     return new Line(this._getTransformedBegin(), this._getTransformedEnd());
   }
 
+  /**
+   * Return this edge as a line in local line coordinates (relative to the position)
+   */
   public asLocalLine(): Line {
     return new Line(this.begin, this.end);
   }
@@ -240,8 +230,7 @@ export class Edge implements CollisionShape {
    * Get the moment of inertia for an edge
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public get inertia(): number {
-    const mass = this.collider ? this.collider.mass : Physics.defaultMass;
+  public getInertia(mass: number): number {
     const length = this.end.sub(this.begin).distance() / 2;
     return mass * length * length;
   }
@@ -249,8 +238,8 @@ export class Edge implements CollisionShape {
   /**
    * @inheritdoc
    */
-  public recalc(): void {
-    // edges don't have any cached data
+  public update(transform: Transform): void {
+    this._transform = transform;
   }
 
   /**

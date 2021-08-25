@@ -4,8 +4,7 @@
 
 
 ex.Physics.acc = new ex.Vector(0, 200);
-ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.RigidBody;
-ex.Physics.allowRigidBodyRotation = false;
+ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
 var game = new ex.Engine({
   width: 600,
   height: 400
@@ -55,39 +54,27 @@ var block4 = new ex.Actor({
 
 var otherCircle = new ex.Actor({
   pos: new ex.Vector(400, 100),
-  color: ex.Color.Green,
-  body: new ex.Body({
-    collider: new ex.Collider({
-      shape: ex.Shape.Circle(30)
-    })
-  })
+  color: ex.Color.Green
 });
+otherCircle.collider.useCircleCollider(30);
 
 var otherBlock = new ex.Actor({
   pos: new ex.Vector(400, 400),
   rotation: Math.PI / 4,
-  color: ex.Color.Red,
-  body: new ex.Body({
-    collider: new ex.Collider({
-      shape: ex.Shape.Box(50, 50)
-    })
-  })
+  color: ex.Color.Red
 });
+otherBlock.collider.useBoxCollider(50, 50);
 
 var circle = new ex.Actor({
   pos: new ex.Vector(300, 300),
-  color: ex.Color.Green,
-  body: new ex.Body({
-    collider: new ex.Collider({
-      shape: ex.Shape.Circle(40)
-    })
-  })
+  color: ex.Color.Green
 });
+circle.collider.useCircleCollider(40);
 
 circle.onPostDraw = (ctx, delta) => {
-  const closestEdge = circle.body.collider.getClosestLineBetween(edge.body.collider);
-  const closestCircle = circle.body.collider.getClosestLineBetween(otherCircle.body.collider);
-  const closestPolygon = circle.body.collider.getClosestLineBetween(otherBlock.body.collider);
+  const closestEdge = circle.collider.collider.getClosestLineBetween(edge.collider.collider);
+  const closestCircle = circle.collider.collider.getClosestLineBetween(otherCircle.collider.collider);
+  const closestPolygon = circle.collider.collider.getClosestLineBetween(otherBlock.collider.collider);
 
   ctx.restore();
   ctx.save();
@@ -107,13 +94,9 @@ circle.onPostDraw = (ctx, delta) => {
 
 var edge = new ex.Actor({
   pos: new ex.Vector(100, 300),
-  color: ex.Color.Blue,
-  body: new ex.Body({
-    collider: new ex.Collider({
-      shape: ex.Shape.Edge(new ex.Vector(0, 0), new ex.Vector(30, 100))
-    })
-  })
+  color: ex.Color.Blue
 });
+edge.collider.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(30, 100));
 
 var blocks = [block, block2, block3, block4];
 
@@ -126,9 +109,9 @@ blocks.forEach((b) => {
     }
   };
   b.onPostDraw = (ctx, delta) => {
-    const closestPolygon = b.body.collider.getClosestLineBetween(floor.body.collider);
-    const closestCircle = b.body.collider.getClosestLineBetween(circle.body.collider);
-    const closestEdge = b.body.collider.getClosestLineBetween(edge.body.collider);
+    const closestPolygon = b.collider.collider.getClosestLineBetween(floor.collider.collider);
+    const closestCircle = b.collider.collider.getClosestLineBetween(circle.collider.collider);
+    const closestEdge = b.collider.collider.getClosestLineBetween(edge.collider.collider);
     ctx.restore();
     ctx.save();
     ctx.fillStyle = ex.Color.Red.toString();

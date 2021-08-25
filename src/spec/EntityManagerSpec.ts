@@ -27,7 +27,7 @@ describe('An EntityManager', () => {
     expect(entityManager.getById(entity.id)).toBe(entity);
 
     // Remove by entity
-    entityManager.removeEntity(entity);
+    entityManager.removeEntity(entity, false);
 
     expect(entityManager.entities).toEqual([]);
     expect(entityManager.getById(entity.id)).toBeUndefined();
@@ -35,7 +35,7 @@ describe('An EntityManager', () => {
     // Remove by id
     entityManager.addEntity(entity);
     expect(entityManager.entities).toEqual([entity]);
-    entityManager.removeEntity(entity.id);
+    entityManager.removeEntity(entity.id, false);
     expect(entityManager.entities).toEqual([]);
   });
 

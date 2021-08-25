@@ -27,6 +27,30 @@ describe('A Collision Group', () => {
     expect(groupC.canCollide(groupB)).toBe(true);
   });
 
+  it('can invert collision groups', () => {
+    const invertedA = groupA.invert();
+    expect(invertedA.name).toBe('~(groupA)');
+    expect(invertedA.canCollide(groupA)).toBe(true);
+    expect(invertedA.canCollide(groupB)).toBe(false);
+    expect(invertedA.canCollide(groupC)).toBe(false);
+  });
+
+  it('can combine collision groups', () => {
+    const AandB = ex.CollisionGroup.combine([groupA, groupB]);
+    expect(AandB.name).toBe('groupA+groupB');
+    expect(AandB.canCollide(groupA)).toBe(false);
+    expect(AandB.canCollide(groupB)).toBe(false);
+    expect(AandB.canCollide(groupC)).toBe(true);
+  });
+
+  it('can create collidesWith groups', () => {
+    const collidesWithBAndC = ex.CollisionGroup.collidesWith([groupB, groupC]);
+    expect(collidesWithBAndC.name).toBe('~(groupB+groupC)');
+    expect(collidesWithBAndC.canCollide(groupA)).toBe(false);
+    expect(collidesWithBAndC.canCollide(groupB)).toBe(true);
+    expect(collidesWithBAndC.canCollide(groupC)).toBe(true);
+  });
+
   it('should collide with the All collision group', () => {
     expect(ex.CollisionGroup.All.canCollide(groupA)).toBe(true, 'All should collide with groupA');
     expect(ex.CollisionGroup.All.canCollide(groupB)).toBe(true, 'All should collide with groupB');

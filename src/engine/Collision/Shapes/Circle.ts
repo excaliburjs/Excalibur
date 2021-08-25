@@ -1,16 +1,15 @@
-import { BoundingBox } from './BoundingBox';
+import { BoundingBox } from '../BoundingBox';
 import { CollisionJumpTable } from './CollisionJumpTable';
-import { CollisionContact } from './CollisionContact';
-import { CollisionShape } from './CollisionShape';
+import { CollisionContact } from '../Detection/CollisionContact';
 import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 
-import { Vector, Ray, Projection, Line } from '../Algebra';
-import { Physics } from '../Physics';
-import { Color } from '../Drawing/Color';
+import { Vector, Ray, Projection, Line } from '../../Algebra';
+import { Color } from '../../Drawing/Color';
 import { Collider } from './Collider';
 
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
+import { Transform } from '../../EntityComponentSystem';
 
 export interface CircleOptions {
   /**
@@ -21,26 +20,19 @@ export interface CircleOptions {
    * Required radius of the circle
    */
   radius: number;
-  /**
-   * Optional collider to associate with this shape
-   */
-  collider?: Collider;
 }
 
 /**
- * This is a circle collision shape for the excalibur rigid body physics simulation
+ * This is a circle collider for the excalibur rigid body physics simulation
  */
-export class Circle implements CollisionShape {
+export class Circle extends Collider {
   /**
-   * Position of the circle relative to the collider, by default (0, 0) meaning the shape is positioned on top of the collider.
+   * Position of the circle relative to the collider, by default (0, 0).
    */
   public offset: Vector = Vector.Zero;
 
   public get worldPos(): Vector {
-    if (this.collider && this.collider.body) {
-      return this.collider.body.pos.add(this.offset);
-    }
-    return this.offset;
+    return this.offset.add(this._transform?.pos ?? Vector.Zero);
   }
 
   /**
@@ -48,15 +40,12 @@ export class Circle implements CollisionShape {
    */
   public radius: number;
 
-  /**
-   * The collider associated for this shape, if any.
-   */
-  public collider?: Collider;
+  private _transform: Transform;
 
   constructor(options: CircleOptions) {
+    super();
     this.offset = options.offset || Vector.Zero;
     this.radius = options.radius || 0;
-    this.collider = options.collider || null;
   }
 
   /**
@@ -65,29 +54,22 @@ export class Circle implements CollisionShape {
   public clone(): Circle {
     return new Circle({
       offset: this.offset.clone(),
-      radius: this.radius,
-      collider: null
+      radius: this.radius
     });
   }
 
   /**
-   * Get the center of the collision shape in world coordinates
+   * Get the center of the collider in world coordinates
    */
   public get center(): Vector {
-    if (this.collider && this.collider.body) {
-      return this.offset.add(this.collider.body.pos);
-    }
-    return this.offset;
+    return this.offset.add(this._transform?.pos ?? Vector.Zero);
   }
 
   /**
-   * Tests if a point is contained in this collision shape
+   * Tests if a point is contained in this collider
    */
   public contains(point: Vector): boolean {
-    let pos = this.offset;
-    if (this.collider && this.collider.body) {
-      pos = this.collider.body.pos;
-    }
+    const pos = this._transform?.pos ?? this.offset;
     const distance = pos.distance(point);
     if (distance <= this.radius) {
       return true;
@@ -96,7 +78,7 @@ export class Circle implements CollisionShape {
   }
 
   /**
-   * Casts a ray at the Circle shape and returns the nearest point of collision
+   * Casts a ray at the Circle collider and returns the nearest point of collision
    * @param ray
    */
   public rayCast(ray: Ray, max: number = Infinity): Vector {
@@ -140,7 +122,7 @@ export class Circle implements CollisionShape {
     }
   }
 
-  public getClosestLineBetween(shape: CollisionShape): Line {
+  public getClosestLineBetween(shape: Collider): Line {
     if (shape instanceof Circle) {
       return ClosestLineJumpTable.CircleCircleClosestLine(this, shape);
     } else if (shape instanceof ConvexPolygon) {
@@ -155,33 +137,39 @@ export class Circle implements CollisionShape {
   /**
    * @inheritdoc
    */
-  public collide(shape: CollisionShape): CollisionContact {
-    if (shape instanceof Circle) {
-      return CollisionJumpTable.CollideCircleCircle(this, shape);
-    } else if (shape instanceof ConvexPolygon) {
-      return CollisionJumpTable.CollideCirclePolygon(this, shape);
-    } else if (shape instanceof Edge) {
-      return CollisionJumpTable.CollideCircleEdge(this, shape);
+  public collide(collider: Collider): CollisionContact[] {
+    if (collider instanceof Circle) {
+      return CollisionJumpTable.CollideCircleCircle(this, collider);
+    } else if (collider instanceof ConvexPolygon) {
+      return CollisionJumpTable.CollideCirclePolygon(this, collider);
+    } else if (collider instanceof Edge) {
+      return CollisionJumpTable.CollideCircleEdge(this, collider);
     } else {
-      throw new Error(`Circle could not collide with unknown CollisionShape ${typeof shape}`);
+      throw new Error(`Circle could not collide with unknown CollisionShape ${typeof collider}`);
     }
   }
 
   /**
-   * Find the point on the shape furthest in the direction specified
+   * Find the point on the collider furthest in the direction specified
    */
   public getFurthestPoint(direction: Vector): Vector {
     return this.center.add(direction.normalize().scale(this.radius));
   }
 
   /**
-   * Get the axis aligned bounding box for the circle shape in world coordinates
+   * Find the local point on the shape in the direction specified
+   * @param direction
+   */
+  public getFurthestLocalPoint(direction: Vector): Vector {
+    const dir = direction.normalize();
+    return dir.scale(this.radius);
+  }
+
+  /**
+   * Get the axis aligned bounding box for the circle collider in world coordinates
    */
   public get bounds(): BoundingBox {
-    let bodyPos = Vector.Zero;
-    if (this.collider && this.collider.body) {
-      bodyPos = this.collider.body.pos;
-    }
+    const bodyPos = this._transform?.pos ?? Vector.Zero;
     return new BoundingBox(
       this.offset.x + bodyPos.x - this.radius,
       this.offset.y + bodyPos.y - this.radius,
@@ -191,7 +179,7 @@ export class Circle implements CollisionShape {
   }
 
   /**
-   * Get the axis aligned bounding box for the circle shape in local coordinates
+   * Get the axis aligned bounding box for the circle collider in local coordinates
    */
   public get localBounds(): BoundingBox {
     return new BoundingBox(
@@ -206,54 +194,20 @@ export class Circle implements CollisionShape {
    * Get axis not implemented on circles, since there are infinite axis in a circle
    */
   public get axes(): Vector[] {
-    return null;
+    return [];
   }
 
   /**
    * Returns the moment of inertia of a circle given it's mass
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
-  public get inertia(): number {
-    const mass = this.collider ? this.collider.mass : Physics.defaultMass;
+  public getInertia(mass: number): number {
     return (mass * this.radius * this.radius) / 2;
   }
 
-  /**
-   * Tests the separating axis theorem for circles against polygons
-   */
-  public testSeparatingAxisTheorem(polygon: ConvexPolygon): Vector {
-    const axes = polygon.axes;
-    const pc = polygon.center;
-    // Special SAT with circles
-    const closestPointOnPoly = polygon.getFurthestPoint(this.offset.sub(pc));
-    axes.push(this.offset.sub(closestPointOnPoly).normalize());
-
-    let minOverlap = Number.MAX_VALUE;
-    let minAxis = null;
-    let minIndex = -1;
-    for (let i = 0; i < axes.length; i++) {
-      const proj1 = polygon.project(axes[i]);
-      const proj2 = this.project(axes[i]);
-      const overlap = proj1.getOverlap(proj2);
-      if (overlap <= 0) {
-        return null;
-      } else {
-        if (overlap < minOverlap) {
-          minOverlap = overlap;
-          minAxis = axes[i];
-          minIndex = i;
-        }
-      }
-    }
-    if (minIndex < 0) {
-      return null;
-    }
-    return minAxis.normalize().scale(minOverlap);
-  }
-
   /* istanbul ignore next */
-  public recalc(): void {
-    // circles don't cache
+  public update(transform: Transform): void {
+    this._transform = transform;
   }
 
   /**
@@ -280,9 +234,9 @@ export class Circle implements CollisionShape {
 
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Green) {
-    const body = this.collider.body;
-    const pos = body ? body.pos.add(this.offset) : this.offset;
-    const rotation = body ? body.rotation : 0;
+    const transform = this._transform;
+    const pos = transform ? transform.pos.add(this.offset) : this.offset;
+    const rotation = transform ? transform.rotation : 0;
 
     ctx.beginPath();
     ctx.strokeStyle = color.toString();

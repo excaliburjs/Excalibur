@@ -453,11 +453,11 @@ describe('The engine', () => {
     });
 
     it('can have onPreDraw overridden safely', () => {
+      engine.currentScene._initialize(engine);
       engine.onPreDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
       };
-
       spyOn(engine, 'onPreDraw').and.callThrough();
       spyOn(engine, '_predraw').and.callThrough();
 
@@ -469,6 +469,7 @@ describe('The engine', () => {
     });
 
     it('can have onPostDraw overridden safely', () => {
+      engine.currentScene._initialize(engine);
       engine.onPostDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);

@@ -19,6 +19,7 @@ describe('A Timer', () => {
     });
     scene = new ex.Scene();
     engine.addScene('root', scene);
+    scene._initialize(engine);
   });
 
   it('has a unique id', () => {

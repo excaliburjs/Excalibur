@@ -1,22 +1,24 @@
-import { Physics } from './../Physics';
-import { BoundingBox } from './BoundingBox';
-import { Body } from './Body';
+import { Physics } from '../Physics';
+import { BoundingBox } from '../BoundingBox';
 
-import { Ray } from '../Algebra';
-import { Logger } from '../Util/Log';
+import { Ray } from '../../Algebra';
+import { Logger } from '../../Util/Log';
+import { Id } from '../../Id';
+import { Entity } from '../../EntityComponentSystem/Entity';
+import { BodyComponent } from '../BodyComponent';
 
 /**
  * Dynamic Tree Node used for tracking bounds within the tree
  */
-export class TreeNode {
-  public left: TreeNode;
-  public right: TreeNode;
+export class TreeNode<T> {
+  public left: TreeNode<T>;
+  public right: TreeNode<T>;
   public bounds: BoundingBox;
   public height: number;
-  public body: Body;
-  constructor(public parent?: TreeNode) {
+  public data: T;
+  constructor(public parent?: TreeNode<T>) {
     this.parent = parent || null;
-    this.body = null;
+    this.data = null;
     this.bounds = new BoundingBox();
     this.left = null;
     this.right = null;
@@ -28,6 +30,12 @@ export class TreeNode {
   }
 }
 
+export interface ColliderProxy<T> {
+  id: Id<'collider'>;
+  owner: T;
+  bounds: BoundingBox;
+}
+
 /**
  * The DynamicTrees provides a spatial partitioning data structure for quickly querying for overlapping bounding boxes for
  * all tracked bodies. The worst case performance of this is O(n*log(n)) where n is the number of bodies in the tree.
@@ -35,9 +43,9 @@ export class TreeNode {
  * Internally the bounding boxes are organized as a balanced binary tree of bounding boxes, where the leaf nodes are tracked bodies.
  * Every non-leaf node is a bounding box that contains child bounding boxes.
  */
-export class DynamicTree {
-  public root: TreeNode;
-  public nodes: { [key: number]: TreeNode };
+export class DynamicTree<T extends ColliderProxy<Entity>> {
+  public root: TreeNode<T>;
+  public nodes: { [key: number]: TreeNode<T> };
   constructor(public worldBounds: BoundingBox = new BoundingBox(-Number.MAX_VALUE, -Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)) {
     this.root = null;
     this.nodes = {};
@@ -46,7 +54,7 @@ export class DynamicTree {
   /**
    * Inserts a node into the dynamic tree
    */
-  private _insert(leaf: TreeNode): void {
+  private _insert(leaf: TreeNode<T>): void {
     // If there are no nodes in the tree, make this the root leaf
     if (this.root === null) {
       this.root = leaf;
@@ -158,7 +166,7 @@ export class DynamicTree {
   /**
    * Removes a node from the dynamic tree
    */
-  private _remove(leaf: TreeNode) {
+  private _remove(leaf: TreeNode<T>) {
     if (leaf === this.root) {
       this.root = null;
       return;
@@ -166,7 +174,7 @@ export class DynamicTree {
 
     const parent = leaf.parent;
     const grandParent = parent.parent;
-    let sibling: TreeNode;
+    let sibling: TreeNode<T>;
     if (parent.left === leaf) {
       sibling = parent.right;
     } else {
@@ -198,32 +206,34 @@ export class DynamicTree {
   /**
    * Tracks a body in the dynamic tree
    */
-  public trackBody(body: Body) {
-    const node = new TreeNode();
-    node.body = body;
-    node.bounds = body.collider.bounds;
+  public trackCollider(collider: T) {
+    const node = new TreeNode<T>();
+    node.data = collider;
+    node.bounds = collider.bounds;
     node.bounds.left -= 2;
     node.bounds.top -= 2;
     node.bounds.right += 2;
     node.bounds.bottom += 2;
-    this.nodes[body.id] = node;
+    this.nodes[collider.id.value] = node;
     this._insert(node);
   }
 
   /**
    * Updates the dynamic tree given the current bounds of each body being tracked
    */
-  public updateBody(body: Body) {
-    const node = this.nodes[body.id];
+  public updateCollider(collider: T) {
+    const node = this.nodes[collider.id.value];
     if (!node) {
       return false;
     }
-    const b = body.collider.bounds;
+    const b = collider.bounds;
 
     // if the body is outside the world no longer update it
     if (!this.worldBounds.contains(b)) {
-      Logger.getInstance().warn('Collider with id ' + body.id + ' is outside the world bounds and will no longer be tracked for physics');
-      this.untrackBody(body);
+      Logger.getInstance().warn(
+        'Collider with id ' + collider.id.value + ' is outside the world bounds and will no longer be tracked for physics'
+      );
+      this.untrackCollider(collider);
       return false;
     }
 
@@ -237,19 +247,25 @@ export class DynamicTree {
     b.right += Physics.boundsPadding;
     b.bottom += Physics.boundsPadding;
 
-    const multdx = body.vel.x * Physics.dynamicTreeVelocityMultiplier;
-    const multdy = body.vel.y * Physics.dynamicTreeVelocityMultiplier;
+    // THIS IS CAUSING UNECESSARY CHECKS
+    if (collider.owner) {
+      const body = collider.owner?.get(BodyComponent);
+      if (body) {
+        const multdx = ((body.vel.x * 32) / 1000) * Physics.dynamicTreeVelocityMultiplier;
+        const multdy = ((body.vel.y * 32) / 1000) * Physics.dynamicTreeVelocityMultiplier;
 
-    if (multdx < 0) {
-      b.left += multdx;
-    } else {
-      b.right += multdx;
-    }
+        if (multdx < 0) {
+          b.left += multdx;
+        } else {
+          b.right += multdx;
+        }
 
-    if (multdy < 0) {
-      b.top += multdy;
-    } else {
-      b.bottom += multdy;
+        if (multdy < 0) {
+          b.top += multdy;
+        } else {
+          b.bottom += multdy;
+        }
+      }
     }
 
     node.bounds = b;
@@ -260,20 +276,20 @@ export class DynamicTree {
   /**
    * Untracks a body from the dynamic tree
    */
-  public untrackBody(body: Body) {
-    const node = this.nodes[body.collider.id];
+  public untrackCollider(collider: T) {
+    const node = this.nodes[collider.id.value];
     if (!node) {
       return;
     }
     this._remove(node);
-    this.nodes[body.collider.id] = null;
-    delete this.nodes[body.collider.id];
+    this.nodes[collider.id.value] = null;
+    delete this.nodes[collider.id.value];
   }
 
   /**
    * Balances the tree about a node
    */
-  private _balance(node: TreeNode) {
+  private _balance(node: TreeNode<T>) {
     if (node === null) {
       throw new Error('Cannot balance at null node');
     }
@@ -404,12 +420,12 @@ export class DynamicTree {
    * that you are complete with your query and you do not want to continue. Returning false will continue searching
    * the tree until all possible colliders have been returned.
    */
-  public query(body: Body, callback: (other: Body) => boolean): void {
-    const bounds = body.collider.bounds;
-    const helper = (currentNode: TreeNode): boolean => {
+  public query(collider: T, callback: (other: T) => boolean): void {
+    const bounds = collider.bounds;
+    const helper = (currentNode: TreeNode<T>): boolean => {
       if (currentNode && currentNode.bounds.intersect(bounds)) {
-        if (currentNode.isLeaf() && currentNode.body !== body) {
-          if (callback.call(body, currentNode.body)) {
+        if (currentNode.isLeaf() && currentNode.data !== collider) {
+          if (callback.call(collider, currentNode.data)) {
             return true;
           }
         } else {
@@ -429,11 +445,11 @@ export class DynamicTree {
    * callback indicates that your are complete with your query and do not want to continue. Return false will continue searching
    * the tree until all possible bodies that would intersect with the ray have been returned.
    */
-  public rayCastQuery(ray: Ray, max: number = Infinity, callback: (other: Body) => boolean): void {
-    const helper = (currentNode: TreeNode): boolean => {
+  public rayCastQuery(ray: Ray, max: number = Infinity, callback: (other: T) => boolean): void {
+    const helper = (currentNode: TreeNode<T>): boolean => {
       if (currentNode && currentNode.bounds.rayCast(ray, max)) {
         if (currentNode.isLeaf()) {
-          if (callback.call(ray, currentNode.body)) {
+          if (callback.call(ray, currentNode.data)) {
             // ray hit a leaf! return the body
             return true;
           }
@@ -447,8 +463,8 @@ export class DynamicTree {
     helper(this.root);
   }
 
-  public getNodes(): TreeNode[] {
-    const helper = (currentNode: TreeNode): TreeNode[] => {
+  public getNodes(): TreeNode<T>[] {
+    const helper = (currentNode: TreeNode<T>): TreeNode<T>[] => {
       if (currentNode) {
         return [currentNode].concat(helper(currentNode.left), helper(currentNode.right));
       } else {
@@ -460,7 +476,7 @@ export class DynamicTree {
 
   public debugDraw(ctx: CanvasRenderingContext2D) {
     // draw all the nodes in the Dynamic Tree
-    const helper = (currentNode: TreeNode) => {
+    const helper = (currentNode: TreeNode<T>) => {
       if (currentNode) {
         if (currentNode.isLeaf()) {
           ctx.lineWidth = 1;

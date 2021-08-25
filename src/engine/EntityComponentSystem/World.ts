@@ -9,7 +9,7 @@ import { SystemManager } from './SystemManager';
  */
 export class World<ContextType> {
   public queryManager: QueryManager = new QueryManager(this);
-  public entityManager: EntityManager = new EntityManager(this);
+  public entityManager: EntityManager<ContextType> = new EntityManager<ContextType>(this);
   public systemManager: SystemManager<ContextType> = new SystemManager<ContextType>(this);
 
   /**
@@ -22,8 +22,13 @@ export class World<ContextType> {
    * Update systems by type and time elapsed in milliseconds
    */
   update(type: SystemType, delta: number) {
+    if (type === SystemType.Update) {
+      // TODO should this also hand pre and post lifecycle
+      this.entityManager.updateEntities(this.context, delta);
+    }
     this.systemManager.updateSystems(type, this.context, delta);
     this.entityManager.processComponentRemovals();
+    this.entityManager.processEntityRemovals();
   }
 
   /**
@@ -50,15 +55,15 @@ export class World<ContextType> {
    * Remove an entity from the ECS world
    * @param entity
    */
-  remove(entity: Entity): void;
+  remove(entity: Entity, deferred?: boolean): void;
   /**
    * Remove a system from the ECS world
    * @param system
    */
   remove(system: System<any, ContextType>): void;
-  remove(entityOrSystem: Entity | System<any, ContextType>): void {
+  remove(entityOrSystem: Entity | System<any, ContextType>, deferred = true): void {
     if (entityOrSystem instanceof Entity) {
-      this.entityManager.removeEntity(entityOrSystem);
+      this.entityManager.removeEntity(entityOrSystem, deferred);
     }
 
     if (entityOrSystem instanceof System) {
