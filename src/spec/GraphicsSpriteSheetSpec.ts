@@ -3,7 +3,7 @@ import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A SpriteSheet for Graphics', () => {
   let canvasElement: HTMLCanvasElement;
-  let ctx: ex.Graphics.ExcaliburGraphicsContext;
+  let ctx: ex.ExcaliburGraphicsContext;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -11,19 +11,19 @@ describe('A SpriteSheet for Graphics', () => {
     canvasElement = document.createElement('canvas');
     canvasElement.width = 120;
     canvasElement.height = 120;
-    ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement, smoothing: false });
+    ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement, smoothing: false });
   });
 
   it('exists', () => {
-    expect(ex.Graphics.SpriteSheet).toBeDefined();
+    expect(ex.SpriteSheet).toBeDefined();
   });
 
   it('can be created with a constructor', async () => {
-    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
     await image.load();
-    const ss = new ex.Graphics.SpriteSheet({
-      sprites: [ex.Graphics.Sprite.from(image)]
+    const ss = new ex.SpriteSheet({
+      sprites: [ex.Sprite.from(image)]
     });
 
     expect(ss.sprites.length).toBe(1);
@@ -32,10 +32,10 @@ describe('A SpriteSheet for Graphics', () => {
   });
 
   it('can be created from a grid', async () => {
-    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
     await image.load();
-    const ss = ex.Graphics.SpriteSheet.fromGrid({
+    const ss = ex.SpriteSheet.fromGrid({
       image,
       grid: {
         rows: 3,
@@ -51,11 +51,11 @@ describe('A SpriteSheet for Graphics', () => {
   });
 
   it('can be created from a grid with interesting spacing', async () => {
-    const image = new ex.Graphics.ImageSource('src/spec/images/SpriteSheetSpec/kenny-cards.png');
+    const image = new ex.ImageSource('src/spec/images/SpriteSheetSpec/kenny-cards.png');
 
     await image.load();
 
-    const ss = ex.Graphics.SpriteSheet.fromGrid({
+    const ss = ex.SpriteSheet.fromGrid({
       image,
       grid: {
         rows: 4,
@@ -82,10 +82,10 @@ describe('A SpriteSheet for Graphics', () => {
   });
 
   it('can be created from a legacy sprite sheet', async () => {
-    const texture = new ex.Texture('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/GraphicsTextSpec/spritefont.png');
     await texture.load();
 
-    const legacy = new ex.SpriteSheet({
+    const legacy = new ex.LegacyDrawing.SpriteSheet({
       image: texture,
       rows: 3,
       columns: 16,
@@ -93,7 +93,7 @@ describe('A SpriteSheet for Graphics', () => {
       spHeight: 16
     });
 
-    const ss = ex.Graphics.SpriteSheet.fromLegacySpriteSheet(legacy);
+    const ss = ex.SpriteSheet.fromLegacySpriteSheet(legacy);
 
     expect(ss.sprites.length).toBe(3 * 16);
     expect(ss.sprites[0].width).toBe(16);

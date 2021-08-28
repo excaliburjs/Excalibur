@@ -101,35 +101,35 @@ describe('A Text Graphic', () => {
   });
 
   it('exists', () => {
-    expect(ex.Graphics.Text).toBeDefined();
+    expect(ex.Text).toBeDefined();
   });
 
   it('can be constructed', () => {
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'yo'
     });
     expect(sut).toBeDefined();
   });
 
   it('can be cloned', () => {
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'some text',
       color: ex.Color.Green,
-      font: new ex.Graphics.Font({ family: 'some-font-family' })
+      font: new ex.Font({ family: 'some-font-family' })
     });
 
     const clone = sut.clone();
 
     expect(clone.text).toBe('some text');
     expect(clone.color).toEqual(ex.Color.Green);
-    expect((clone.font as ex.Graphics.Font).family).toBe('some-font-family');
+    expect((clone.font as ex.Font).family).toBe('some-font-family');
   });
 
   it('can write text', async () => {
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'green text',
       color: ex.Color.Green,
-      font: new ex.Graphics.Font({
+      font: new ex.Font({
         family: 'Open Sans',
         size: 18,
         quality: 1
@@ -139,7 +139,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
     ctx.clear();
     sut.draw(ctx, 10, 50);
 
@@ -153,10 +153,10 @@ describe('A Text Graphic', () => {
   });
 
   it('can draw multiple lines of text', async () => {
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'multiple\nlines\nof text',
       color: ex.Color.Green,
-      font: new ex.Graphics.Font({
+      font: new ex.Font({
         family: 'Open Sans',
         size: 18,
         quality: 1
@@ -166,7 +166,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
     ctx.clear();
     sut.draw(ctx, 10, 20);
 
@@ -184,10 +184,10 @@ describe('A Text Graphic', () => {
   });
 
   it('can have width and height', () => {
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'some extra long text that we want to measure',
       color: ex.Color.Green,
-      font: new ex.Graphics.Font({
+      font: new ex.Font({
         family: 'Open Sans',
         size: 18,
         quality: 1
@@ -201,10 +201,10 @@ describe('A Text Graphic', () => {
   });
 
   it('can flip text vertically and horizontally', async () => {
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'green text',
       color: ex.Color.Green,
-      font: new ex.Graphics.Font({
+      font: new ex.Font({
         family: 'Open Sans',
         size: 18,
         quality: 1
@@ -214,7 +214,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.flipHorizontal = true;
@@ -231,10 +231,10 @@ describe('A Text Graphic', () => {
   });
 
   it('can rotate text around the middle', async () => {
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'green text',
       color: ex.Color.Green,
-      font: new ex.Graphics.Font({
+      font: new ex.Font({
         family: 'Open Sans',
         size: 18,
         quality: 1
@@ -244,7 +244,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.rotation = Math.PI / 2;
@@ -260,10 +260,10 @@ describe('A Text Graphic', () => {
   });
 
   it('can rotate text around the left', async () => {
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'green text',
       color: ex.Color.Green,
-      font: new ex.Graphics.Font({
+      font: new ex.Font({
         family: 'Open Sans',
         size: 18,
         quality: 1
@@ -273,7 +273,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.origin = ex.Vector.Zero;
@@ -290,10 +290,10 @@ describe('A Text Graphic', () => {
   });
 
   it('can rotate text around the right', async () => {
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'green text',
       color: ex.Color.Green,
-      font: new ex.Graphics.Font({
+      font: new ex.Font({
         family: 'Open Sans',
         size: 18,
         quality: 1
@@ -303,7 +303,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.origin = ex.vec(sut.width, 0);
@@ -320,10 +320,10 @@ describe('A Text Graphic', () => {
   });
 
   it('can be bold', async () => {
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'green text',
       color: ex.Color.Green,
-      font: new ex.Graphics.Font({
+      font: new ex.Font({
         family: 'Open Sans',
         bold: true,
         size: 18,
@@ -334,7 +334,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.draw(ctx, 10, 50);
@@ -349,12 +349,12 @@ describe('A Text Graphic', () => {
   });
 
   it('can be italic', async () => {
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'green text',
       color: ex.Color.Green,
-      font: new ex.Graphics.Font({
+      font: new ex.Font({
         family: 'Open Sans',
-        style: ex.Graphics.FontStyle.Italic,
+        style: ex.FontStyle.Italic,
         size: 18,
         quality: 1
       })
@@ -363,7 +363,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.draw(ctx, 10, 50);
@@ -378,10 +378,10 @@ describe('A Text Graphic', () => {
   });
 
   it('can have a shadow', async () => {
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'green text',
       color: ex.Color.Green,
-      font: new ex.Graphics.Font({
+      font: new ex.Font({
         family: 'Open Sans',
         size: 18,
         quality: 1,
@@ -396,7 +396,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.draw(ctx, 10, 50);
@@ -412,9 +412,9 @@ describe('A Text Graphic', () => {
 
   describe('with a SpriteFont', () => {
     it('can be cloned', () => {
-      const spriteFontImage = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+      const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
-      const spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
+      const spriteFontSheet = ex.SpriteSheet.fromGrid({
         image: spriteFontImage,
         grid: {
           rows: 3,
@@ -424,14 +424,14 @@ describe('A Text Graphic', () => {
         }
       });
 
-      const spriteFont = new ex.Graphics.SpriteFont({
+      const spriteFont = new ex.SpriteFont({
         alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
         caseInsensitive: true,
         spacing: -5,
         spriteSheet: spriteFontSheet
       });
 
-      const sut = new ex.Graphics.Text({
+      const sut = new ex.Text({
         text: 'Some Sprite Text!?',
         font: spriteFont
       });
@@ -442,11 +442,11 @@ describe('A Text Graphic', () => {
     });
 
     it('can specify a spritefont', async () => {
-      const spriteFontImage = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+      const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
       await spriteFontImage.load();
 
-      const spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
+      const spriteFontSheet = ex.SpriteSheet.fromGrid({
         image: spriteFontImage,
         grid: {
           rows: 3,
@@ -456,14 +456,14 @@ describe('A Text Graphic', () => {
         }
       });
 
-      const spriteFont = new ex.Graphics.SpriteFont({
+      const spriteFont = new ex.SpriteFont({
         alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
         caseInsensitive: true,
         spacing: -5,
         spriteSheet: spriteFontSheet
       });
 
-      const sut = new ex.Graphics.Text({
+      const sut = new ex.Text({
         text: 'Some Sprite Text!?',
         font: spriteFont
       });
@@ -471,7 +471,7 @@ describe('A Text Graphic', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 200;
       canvasElement.height = 100;
-      const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+      const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
       ctx.clear();
       sut.draw(ctx, 0, 50);
@@ -484,11 +484,11 @@ describe('A Text Graphic', () => {
     const logger = ex.Logger.getInstance();
     spyOn(logger, 'warn');
 
-    const spriteFontImage = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
     await spriteFontImage.load();
 
-    const spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
+    const spriteFontSheet = ex.SpriteSheet.fromGrid({
       image: spriteFontImage,
       grid: {
         rows: 1,
@@ -498,14 +498,14 @@ describe('A Text Graphic', () => {
       }
     });
 
-    const spriteFont = new ex.Graphics.SpriteFont({
+    const spriteFont = new ex.SpriteFont({
       alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
       caseInsensitive: true,
       spacing: -5,
       spriteSheet: spriteFontSheet
     });
 
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'a',
       font: spriteFont
     });
@@ -513,7 +513,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 200;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     sut.text = '~';
     sut.draw(ctx, 0, 0);
@@ -527,11 +527,11 @@ describe('A Text Graphic', () => {
   });
 
   it('can do some simple shadowing', async () => {
-    const spriteFontImage = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
     await spriteFontImage.load();
 
-    const spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
+    const spriteFontSheet = ex.SpriteSheet.fromGrid({
       image: spriteFontImage,
       grid: {
         rows: 3,
@@ -541,7 +541,7 @@ describe('A Text Graphic', () => {
       }
     });
 
-    const spriteFont = new ex.Graphics.SpriteFont({
+    const spriteFont = new ex.SpriteFont({
       alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
       caseInsensitive: true,
       spacing: -5,
@@ -551,7 +551,7 @@ describe('A Text Graphic', () => {
       }
     });
 
-    const sut = new ex.Graphics.Text({
+    const sut = new ex.Text({
       text: 'Some Sprite Text!?',
       font: spriteFont
     });
@@ -559,7 +559,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 200;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     sut.draw(ctx, 0, 50);

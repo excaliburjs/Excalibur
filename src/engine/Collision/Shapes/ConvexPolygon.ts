@@ -1,8 +1,8 @@
-﻿import { Color } from '../../Drawing/Color';
+﻿import { Color } from '../../Color';
 import { BoundingBox } from '../BoundingBox';
 import { Edge } from './Edge';
 import { CollisionJumpTable } from './CollisionJumpTable';
-import { Circle } from './Circle';
+import { CircleCollider } from './CircleCollider';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { Vector, Line, Ray, Projection } from '../../Algebra';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
@@ -227,7 +227,7 @@ export class ConvexPolygon extends Collider {
   }
 
   public getClosestLineBetween(collider: Collider): Line {
-    if (collider instanceof Circle) {
+    if (collider instanceof CircleCollider) {
       return ClosestLineJumpTable.PolygonCircleClosestLine(this, collider);
     } else if (collider instanceof ConvexPolygon) {
       return ClosestLineJumpTable.PolygonPolygonClosestLine(this, collider);
@@ -244,7 +244,7 @@ export class ConvexPolygon extends Collider {
    * @param collider
    */
   public collide(collider: Collider): CollisionContact[] {
-    if (collider instanceof Circle) {
+    if (collider instanceof CircleCollider) {
       return CollisionJumpTable.CollideCirclePolygon(collider, this);
     } else if (collider instanceof ConvexPolygon) {
       return CollisionJumpTable.CollidePolygonPolygon(this, collider);

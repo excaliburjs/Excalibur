@@ -7,7 +7,7 @@ import {
   HTMLImageSource
 } from './ExcaliburGraphicsContext';
 import { Vector } from '../../Algebra';
-import { Color } from '../../Drawing/Color';
+import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 

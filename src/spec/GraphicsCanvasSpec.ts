@@ -8,11 +8,11 @@ describe('A Canvas Graphic', () => {
   });
 
   it('exists', () => {
-    expect(ex.Graphics.Canvas).toBeDefined();
+    expect(ex.Canvas).toBeDefined();
   });
 
   it('can be constructed', () => {
-    const sut = new ex.Graphics.Canvas({
+    const sut = new ex.Canvas({
       width: 100,
       height: 100
     });
@@ -20,7 +20,7 @@ describe('A Canvas Graphic', () => {
   });
 
   it('can be cloned', () => {
-    const sut = new ex.Graphics.Canvas({
+    const sut = new ex.Canvas({
       width: 100,
       height: 100,
       draw: (ctx) => {
@@ -36,7 +36,7 @@ describe('A Canvas Graphic', () => {
   });
 
   it('can be drawn using the 2d canvas api', async () => {
-    const sut = new ex.Graphics.Canvas({
+    const sut = new ex.Canvas({
       width: 100,
       height: 100,
       draw: (ctx) => {
@@ -48,7 +48,7 @@ describe('A Canvas Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     sut.draw(ctx, 0, 0);
 
@@ -56,7 +56,7 @@ describe('A Canvas Graphic', () => {
   });
 
   it('can cache draws', () => {
-    const sut = new ex.Graphics.Canvas({
+    const sut = new ex.Canvas({
       width: 100,
       height: 100,
       cache: true,
@@ -71,7 +71,7 @@ describe('A Canvas Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     sut.draw(ctx, 0, 0);
     sut.draw(ctx, 0, 0);
@@ -82,7 +82,7 @@ describe('A Canvas Graphic', () => {
   });
 
   it('can redraw on each draws', () => {
-    const sut = new ex.Graphics.Canvas({
+    const sut = new ex.Canvas({
       width: 100,
       height: 100,
       cache: false,
@@ -97,7 +97,7 @@ describe('A Canvas Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     sut.draw(ctx, 0, 0);
     sut.draw(ctx, 0, 0);

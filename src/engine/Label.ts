@@ -1,5 +1,5 @@
 import { Engine } from './Engine';
-import { Color } from './Drawing/Color';
+import { Color } from './Color';
 import { Configurable } from './Configurable';
 import { vec, Vector } from './Algebra';
 import { Text } from './Graphics/Text';
@@ -18,7 +18,7 @@ export interface LabelOptions {
   y?: number;
   bold?: boolean;
   pos?: Vector;
-  spriteFont?: LegacySpriteFont;
+  spriteFont?: SpriteFont | LegacySpriteFont;
   fontFamily?: string;
   fontSize?: number;
   fontStyle?: FontStyle;
@@ -190,12 +190,15 @@ export class LabelImpl extends Actor {
     return this._legacySpriteFont;
   }
 
-  public set spriteFont(sf: LegacySpriteFont) {
-    this._legacySpriteFont = sf;
-    if (sf) {
+  public set spriteFont(sf: LegacySpriteFont | SpriteFont) {
+    if (sf instanceof LegacySpriteFont) {
+      this._legacySpriteFont = sf;
       this._spriteFont = SpriteFont.fromLegacySpriteFont(sf);
       this._text.font = this._spriteFont;
+      return;
     }
+    this._spriteFont = sf;
+    this._text.font = this._spriteFont;
   }
 
   /**
@@ -220,7 +223,12 @@ export class LabelImpl extends Actor {
    * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precedence
    * over a css font.
    */
-  constructor(textOrConfig?: string | LabelOptions, x?: number, y?: number, fontFamily?: string, spriteFont?: LegacySpriteFont) {
+  constructor(
+    textOrConfig?: string | LabelOptions,
+    x?: number,
+    y?: number,
+    fontFamily?: string,
+    spriteFont?: LegacySpriteFont | SpriteFont) {
     super();
     let text = '';
     let pos = Vector.Zero;

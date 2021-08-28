@@ -8,7 +8,7 @@
  */
 
 import { obsolete } from '../Util/Decorators';
-import { Color } from './Color';
+import { Color } from '../Color';
 
 /**
  * The interface that all sprite effects must implement

@@ -1,7 +1,7 @@
 import { vec, Vector } from '../Algebra';
 import { Actor } from '../Actor';
 import { Engine } from '../Engine';
-import { Color } from '../Drawing/Color';
+import { Color } from '../Color';
 
 export class CullingBox {
   private _topLeft: Vector = new Vector(0, 0);

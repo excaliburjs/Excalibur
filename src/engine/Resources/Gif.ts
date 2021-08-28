@@ -1,7 +1,7 @@
 import { Resource } from './Resource';
 import { Sprite } from '../Drawing/Sprite';
-import { Texture } from './Texture';
-import { Color } from '../Drawing/Color';
+import { Texture } from '../Drawing/Texture';
+import { Color } from '../Color';
 import { SpriteSheet } from '../Drawing/SpriteSheet';
 import { Animation } from '../Drawing/Animation';
 import { Engine } from '../Engine';
@@ -84,7 +84,7 @@ export class Gif implements Loadable<Texture[]> {
   }
 }
 
-export interface Frame {
+export interface GifFrame {
   sentinel: number;
   type: string;
   leftPos: number;
@@ -233,7 +233,7 @@ export class ParseGif {
   private _st: Stream = null;
   private _handler: any = {};
   private _transparentColor: Color = null;
-  public frames: Frame[] = [];
+  public frames: GifFrame[] = [];
   public images: HTMLImageElement[] = [];
   public globalColorTable: any[] = [];
   public checkBytes: number[] = [];
@@ -508,7 +508,7 @@ export class ParseGif {
     }
   };
 
-  arrayToImage = (frame: Frame) => {
+  arrayToImage = (frame: GifFrame) => {
     let count = 0;
     const c = document.createElement('canvas');
     c.id = count.toString();

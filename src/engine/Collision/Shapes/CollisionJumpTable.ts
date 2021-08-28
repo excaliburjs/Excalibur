@@ -1,4 +1,4 @@
-﻿import { Circle } from './Circle';
+﻿import { CircleCollider } from './CircleCollider';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
@@ -7,7 +7,7 @@ import { Line, Vector } from '../../Algebra';
 import { TransformComponent } from '../../EntityComponentSystem';
 
 export const CollisionJumpTable = {
-  CollideCircleCircle(circleA: Circle, circleB: Circle): CollisionContact[] {
+  CollideCircleCircle(circleA: CircleCollider, circleB: CircleCollider): CollisionContact[] {
     const circleAPos = circleA.worldPos;
     const circleBPos = circleB.worldPos;
     const combinedRadius = circleA.radius + circleB.radius;
@@ -38,7 +38,7 @@ export const CollisionJumpTable = {
     return [new CollisionContact(circleA, circleB, mvt, normal, tangent, [point], [local], info)];
   },
 
-  CollideCirclePolygon(circle: Circle, polygon: ConvexPolygon): CollisionContact[] {
+  CollideCirclePolygon(circle: CircleCollider, polygon: ConvexPolygon): CollisionContact[] {
     let minAxis = SeparatingAxis.findCirclePolygonSeparation(circle, polygon);
     if (!minAxis) {
       return [];
@@ -66,7 +66,7 @@ export const CollisionJumpTable = {
     return [new CollisionContact(circle, polygon, minAxis, normal, normal.perpendicular(), [point], [local], info)];
   },
 
-  CollideCircleEdge(circle: Circle, edge: Edge): CollisionContact[] {
+  CollideCircleEdge(circle: CircleCollider, edge: Edge): CollisionContact[] {
     // TODO not sure this actually abides by local/world collisions
     // Are edge.begin and edge.end local space or world space? I think they should be local
 

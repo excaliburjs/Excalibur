@@ -3,7 +3,7 @@ import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A Sprite Graphic', () => {
   let canvasElement: HTMLCanvasElement;
-  let ctx: ex.Graphics.ExcaliburGraphicsContext;
+  let ctx: ex.ExcaliburGraphicsContext;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -11,24 +11,24 @@ describe('A Sprite Graphic', () => {
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement, smoothing: false });
+    ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement, smoothing: false });
   });
 
   it('exists', () => {
-    expect(ex.Graphics.Sprite).toBeDefined();
+    expect(ex.Sprite).toBeDefined();
   });
 
   it('can be constructed', () => {
-    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
-    const sut = new ex.Graphics.Sprite({
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
       image
     });
     expect(sut).toBeDefined();
   });
 
   it('can be cloned', () => {
-    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
-    const sut = new ex.Graphics.Sprite({
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
       image,
       sourceView: {
         x: 0,
@@ -50,8 +50,8 @@ describe('A Sprite Graphic', () => {
   });
 
   it('can specify a source/dest viewof an image with default width and height', async () => {
-    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
-    const sut = new ex.Graphics.Sprite({
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
       image,
       width: 16,
       height: 16
@@ -78,8 +78,8 @@ describe('A Sprite Graphic', () => {
   });
 
   it('can specify a source view of an image by default is same dimension as the source', async () => {
-    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
-    const sut = new ex.Graphics.Sprite({
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
       image,
       sourceView: {
         x: 0,
@@ -110,8 +110,8 @@ describe('A Sprite Graphic', () => {
   });
 
   it('can specify a source view of an image and a dest view dimension is destination', async () => {
-    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
-    const sut = new ex.Graphics.Sprite({
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
       image,
       sourceView: {
         x: 0,
@@ -146,8 +146,8 @@ describe('A Sprite Graphic', () => {
   });
 
   it('can specify only a dest view dimension, infers native size for source view', async () => {
-    const image = new ex.Graphics.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
-    const sut = new ex.Graphics.Sprite({
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
       image,
       destSize: {
         width: 100,

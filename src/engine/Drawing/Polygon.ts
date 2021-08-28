@@ -1,4 +1,4 @@
-import { Color } from './Color';
+import { Color } from '../Color';
 import * as Effects from './SpriteEffects';
 
 import { Drawable, DrawOptions } from '../Interfaces/Drawable';

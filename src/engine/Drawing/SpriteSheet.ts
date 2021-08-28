@@ -1,9 +1,9 @@
 import { Sprite, SpriteArgs } from './Sprite';
 import { Animation } from './Animation';
-import { Color } from './Color';
+import { Color } from '../Color';
 import * as Effects from './SpriteEffects';
 
-import { Texture } from '../Resources/Texture';
+import { Texture } from './Texture';
 import { Engine } from '../Engine';
 import { Logger } from '../Util/Log';
 import { BaseAlign, TextAlign } from '../Graphics/FontCommon';

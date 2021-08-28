@@ -31,12 +31,12 @@ describe('A Gif', () => {
     gif.load().then(() => {
       expect(gif).toBeDefined();
 
-      const spriteFrame: ex.Sprite = gif.asSprite();
+      const spriteFrame: ex.LegacyDrawing.Sprite = gif.asSprite();
       expect(spriteFrame).toBeDefined();
       expect(spriteFrame.drawHeight).toBe(100);
       expect(spriteFrame.drawWidth).toBe(100);
 
-      let sprite: ex.Sprite = gif.asSprite();
+      let sprite: ex.LegacyDrawing.Sprite = gif.asSprite();
       expect(gif.isLoaded()).toBe(true);
       sprite.draw(engine.ctx, 0, 0);
 
@@ -60,7 +60,7 @@ describe('A Gif', () => {
     gif.load().then(() => {
       // jasmine.addMatchers(ExcaliburMatchers);
       expect(gif).toBeDefined();
-      const spriteSheet: ex.SpriteSheet = gif.asSpriteSheet();
+      const spriteSheet: ex.LegacyDrawing.SpriteSheet = gif.asSpriteSheet();
       const sprite = spriteSheet.getSprite(0);
       sprite.draw(engine.ctx, 0, 0);
 
@@ -75,7 +75,7 @@ describe('A Gif', () => {
   it('should be read as an Animation', (done) => {
     gif.load().then(() => {
       expect(gif).toBeDefined();
-      const animation: ex.Animation = gif.asAnimation(engine, 500);
+      const animation: ex.LegacyDrawing.Animation = gif.asAnimation(engine, 500);
 
       expect(animation.sprites.length).toBe(2);
       const frame1 = animation.sprites[0];

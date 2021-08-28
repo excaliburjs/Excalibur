@@ -1,5 +1,5 @@
 import { Resource } from '../Resources/Resource';
-import { Texture } from '../Resources/Texture';
+import { Texture } from '../Drawing/Texture';
 import { Sprite } from './Sprite';
 import { Loadable } from '../Interfaces/Index';
 import { Logger } from '../Util/Log';

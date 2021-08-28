@@ -1,4 +1,4 @@
-import { Color } from '../../Drawing/Color';
+import { Color } from '../../Color';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { BoundingBox } from '../BoundingBox';
 import { Vector, Projection, Ray, Line } from '../../Algebra';

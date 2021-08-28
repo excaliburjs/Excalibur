@@ -42,6 +42,20 @@ export class Flags {
   }
 
   /**
+   * Turn on webgl support
+   */
+  public static useWebGL() {
+    Flags.enable(Experiments.WebGL);
+  }
+
+  /**
+   * @deprecated Recommended not to use legacy drawing, going away in v0.26.0
+   */
+  public static useLegacyDrawing() {
+    Flags.enable(Legacy.LegacyDrawing);
+  }
+
+  /**
    * Enable a specific feature flag by name. **Note: can only be set before [[Engine]] constructor time**
    * @param flagName
    */

@@ -1,5 +1,5 @@
 import { Vector, Line, Ray, Projection } from '../../Algebra';
-import { Color } from '../../Drawing/Color';
+import { Color } from '../../Color';
 import { Transform } from '../../EntityComponentSystem';
 import { BoundingBox } from '../BoundingBox';
 import { CollisionContact } from '../Detection/CollisionContact';

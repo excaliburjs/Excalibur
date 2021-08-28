@@ -8,7 +8,7 @@ var game = new ex.Engine({
 // create an asset loader
 var loader = new ex.Loader();
 var resources = {
-  txPlayer: new ex.Texture('logo.png')
+  txPlayer: new ex.ImageSource('logo.png')
 };
 
 // queue resources for loading
@@ -20,7 +20,7 @@ var target = new ex.Actor({x: 500, y: 500, width: 20, height: 20, color: ex.Colo
 game.add(target);
 
 var aim = new ex.Actor({x: game.halfDrawWidth, y: game.halfDrawHeight, width: 100, height: 10, color: ex.Color.Black});
-aim.addDrawing(resources.txPlayer);
+aim.graphics.add(resources.txPlayer.toSprite());
 aim.scale.setTo(1, 0.2);
 game.add(aim);
 

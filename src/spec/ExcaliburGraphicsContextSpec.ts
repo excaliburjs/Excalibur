@@ -21,12 +21,12 @@ describe('The ExcaliburGraphicsContext', () => {
     });
 
     it('exists', () => {
-      expect(ex.Graphics.ExcaliburGraphicsContext2DCanvas).toBeDefined();
+      expect(ex.ExcaliburGraphicsContext2DCanvas).toBeDefined();
     });
 
     it('can be constructed', () => {
       const canvas = document.createElement('canvas');
-      const context = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
+      const context = new ex.ExcaliburGraphicsContext2DCanvas({
         canvasElement: canvas,
         backgroundColor: ex.Color.Red
       });
@@ -37,7 +37,7 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvas = document.createElement('canvas');
       canvas.width = 123;
       canvas.height = 456;
-      const context = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
+      const context = new ex.ExcaliburGraphicsContext2DCanvas({
         canvasElement: canvas,
         backgroundColor: ex.Color.Red
       });
@@ -49,13 +49,13 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
-      const sut = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
+      const sut = new ex.ExcaliburGraphicsContext2DCanvas({
         canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
 
-      const rect = new ex.Graphics.Rectangle({
+      const rect = new ex.Rectangle({
         width: 50,
         height: 50,
         color: ex.Color.Blue
@@ -71,7 +71,7 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
-      const sut = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
+      const sut = new ex.ExcaliburGraphicsContext2DCanvas({
         canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
@@ -90,7 +90,7 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
-      const sut = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
+      const sut = new ex.ExcaliburGraphicsContext2DCanvas({
         canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
@@ -108,13 +108,13 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
-      const sut = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
+      const sut = new ex.ExcaliburGraphicsContext2DCanvas({
         canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
 
-      const rect = new ex.Graphics.Rectangle({
+      const rect = new ex.Rectangle({
         width: 50,
         height: 50,
         color: ex.Color.Blue
@@ -136,14 +136,14 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
-      const sut = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
+      const sut = new ex.ExcaliburGraphicsContext2DCanvas({
         canvasElement: canvasElement,
         enableTransparency: false,
         snapToPixel: true,
         backgroundColor: ex.Color.White
       });
 
-      const rect = new ex.Graphics.Rectangle({
+      const rect = new ex.Rectangle({
         width: 50,
         height: 50,
         color: ex.Color.Blue
@@ -159,13 +159,13 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
-      const sut = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
+      const sut = new ex.ExcaliburGraphicsContext2DCanvas({
         canvasElement: canvasElement,
         enableTransparency: false,
         snapToPixel: true,
         backgroundColor: ex.Color.White
       });
-      const rect = new ex.Graphics.Rectangle({
+      const rect = new ex.Rectangle({
         width: 0,
         height: 0,
         color: ex.Color.Blue
@@ -193,12 +193,12 @@ describe('The ExcaliburGraphicsContext', () => {
     });
 
     it('exists', () => {
-      expect(ex.Graphics.ExcaliburGraphicsContextWebGL).toBeDefined();
+      expect(ex.ExcaliburGraphicsContextWebGL).toBeDefined();
     });
 
     it('can be constructed', () => {
       const canvas = document.createElement('canvas');
-      const context = new ex.Graphics.ExcaliburGraphicsContextWebGL({
+      const context = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvas,
         backgroundColor: ex.Color.Red
       });
@@ -209,7 +209,7 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvas = document.createElement('canvas');
       canvas.width = 123;
       canvas.height = 456;
-      const context = new ex.Graphics.ExcaliburGraphicsContextWebGL({
+      const context = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvas,
         backgroundColor: ex.Color.Red
       });
@@ -221,13 +221,13 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
-      const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
 
-      const rect = new ex.Graphics.Rectangle({
+      const rect = new ex.Rectangle({
         width: 50,
         height: 50,
         color: ex.Color.Blue
@@ -246,7 +246,7 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
-      const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
@@ -268,7 +268,7 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
-      const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
@@ -289,7 +289,7 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
-      const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
@@ -308,13 +308,13 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
-      const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
 
-      const rect = new ex.Graphics.Rectangle({
+      const rect = new ex.Rectangle({
         width: 50,
         height: 50,
         color: ex.Color.Blue
@@ -339,14 +339,14 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
-      const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
         snapToPixel: true,
         backgroundColor: ex.Color.White
       });
 
-      const rect = new ex.Graphics.Rectangle({
+      const rect = new ex.Rectangle({
         width: 50,
         height: 50,
         color: ex.Color.Blue
@@ -365,13 +365,13 @@ describe('The ExcaliburGraphicsContext', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
-      const sut = new ex.Graphics.ExcaliburGraphicsContextWebGL({
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
         snapToPixel: true,
         backgroundColor: ex.Color.White
       });
-      const rect = new ex.Graphics.Rectangle({
+      const rect = new ex.Rectangle({
         width: 0,
         height: 0,
         color: ex.Color.Blue

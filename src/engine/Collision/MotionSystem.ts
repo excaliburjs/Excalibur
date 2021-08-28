@@ -1,5 +1,5 @@
 import { Camera } from '../Camera';
-import { Color } from '../Drawing/Color';
+import { Color } from '../Color';
 import { Entity } from '../EntityComponentSystem';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';

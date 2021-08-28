@@ -3,7 +3,7 @@ import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A Rectangle Graphic', () => {
   let canvasElement: HTMLCanvasElement;
-  let ctx: ex.Graphics.ExcaliburGraphicsContext;
+  let ctx: ex.ExcaliburGraphicsContext;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -11,15 +11,15 @@ describe('A Rectangle Graphic', () => {
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
   });
 
   it('exists', () => {
-    expect(ex.Graphics.Rectangle).toBeDefined();
+    expect(ex.Rectangle).toBeDefined();
   });
 
   it('can be constructed', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 50,
       height: 50
     });
@@ -27,7 +27,7 @@ describe('A Rectangle Graphic', () => {
   });
 
   it('can be drawn', async () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 50,
       height: 50,
       color: ex.Color.Green
@@ -39,7 +39,7 @@ describe('A Rectangle Graphic', () => {
   });
 
   it('can be cloned', async () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 75,
       height: 50,
       lineWidth: 10,

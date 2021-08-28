@@ -1,6 +1,6 @@
 import { Matrix } from '../../Math/matrix';
 import { BoundingBox } from '../../Collision/Index';
-import { Color } from '../../Drawing/Color';
+import { Color } from '../../Color';
 import { Pool, Poolable } from '../../Util/Pool';
 import { HTMLImageSource } from './ExcaliburGraphicsContext';
 

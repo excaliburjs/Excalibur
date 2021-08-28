@@ -2,7 +2,7 @@ import { Shader } from './shader';
 import pointVertexSource from './shaders/point-vertex.glsl';
 import pointFragmentSource from './shaders/point-fragment.glsl';
 import { Vector } from '../../Algebra';
-import { Color } from '../../Drawing/Color';
+import { Color } from '../../Color';
 import { BatchRenderer } from './renderer';
 import { BatchCommand } from './batch';
 import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';

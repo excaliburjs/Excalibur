@@ -1,8 +1,8 @@
 import * as Effects from './SpriteEffects';
-import { Color } from './Color';
+import { Color } from '../Color';
 
 import { Drawable, DrawOptions } from '../Interfaces/Drawable';
-import { Texture } from '../Resources/Texture';
+import { Texture } from './Texture';
 import { Vector } from '../Algebra';
 import { Logger } from '../Util/Log';
 import { clamp } from '../Util/Util';

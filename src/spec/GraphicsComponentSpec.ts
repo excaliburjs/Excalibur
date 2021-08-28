@@ -8,11 +8,11 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('exists', () => {
-    expect(ex.Graphics.GraphicsComponent);
+    expect(ex.GraphicsComponent);
   });
 
   it('can be constructed', () => {
-    const sut = new ex.Graphics.GraphicsComponent();
+    const sut = new ex.GraphicsComponent();
     expect(sut).toBeDefined();
     expect(sut.anchor).toBeVector(ex.vec(0.5, 0.5));
     expect(sut.offset).toBeVector(ex.vec(0, 0));
@@ -23,11 +23,11 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('can be constructed with optional params', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 40,
       height: 40
     });
-    const sut = new ex.Graphics.GraphicsComponent({
+    const sut = new ex.GraphicsComponent({
       graphics: {
         'some-gfx': rect
       },
@@ -52,11 +52,11 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('can implicitly copy graphics', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 40,
       height: 40
     });
-    const sut = new ex.Graphics.GraphicsComponent({
+    const sut = new ex.GraphicsComponent({
       copyGraphics: true
     });
     const shownRect = sut.show(rect);
@@ -64,11 +64,11 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('can show graphics', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 40,
       height: 40
     });
-    const sut = new ex.Graphics.GraphicsComponent();
+    const sut = new ex.GraphicsComponent();
 
     sut.show(rect, { offset: ex.vec(1, 2), anchor: ex.vec(1, 1) });
     sut.show(rect, { offset: ex.vec(-1, -2), anchor: ex.vec(0, 0) });
@@ -92,11 +92,11 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('can show graphics by name if it exists', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 40,
       height: 40
     });
-    const sut = new ex.Graphics.GraphicsComponent({
+    const sut = new ex.GraphicsComponent({
       graphics: {
         'some-gfx-2': rect
       }
@@ -120,15 +120,15 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('can swap all the graphics for a graphic', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 40,
       height: 40
     });
-    const rect2 = new ex.Graphics.Rectangle({
+    const rect2 = new ex.Rectangle({
       width: 50,
       height: 40
     });
-    const sut = new ex.Graphics.GraphicsComponent();
+    const sut = new ex.GraphicsComponent();
 
     sut.show(rect, { offset: ex.vec(1, 2), anchor: ex.vec(1, 1) });
 
@@ -153,11 +153,11 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('can hide graphics', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 40,
       height: 40
     });
-    const sut = new ex.Graphics.GraphicsComponent();
+    const sut = new ex.GraphicsComponent();
 
     sut.show(rect, { offset: ex.vec(1, 2), anchor: ex.vec(1, 1) });
     sut.show(rect, { offset: ex.vec(-1, -2), anchor: ex.vec(0, 0) });
@@ -168,15 +168,15 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('can hide graphics by reference or name', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 40,
       height: 40
     });
-    const rect2 = new ex.Graphics.Rectangle({
+    const rect2 = new ex.Rectangle({
       width: 40,
       height: 40
     });
-    const sut = new ex.Graphics.GraphicsComponent({
+    const sut = new ex.GraphicsComponent({
       graphics: {
         'gfx-1': rect,
         'gfx-2': rect2
@@ -196,11 +196,11 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('can have graphics added to it', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 10,
       height: 20
     });
-    const sut = new ex.Graphics.GraphicsComponent();
+    const sut = new ex.GraphicsComponent();
 
     sut.add('some-graphic', rect);
     expect(sut.graphics['some-graphic']).toBe(rect);
@@ -210,11 +210,11 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('can have multiple layers', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 40,
       height: 40
     });
-    const sut = new ex.Graphics.GraphicsComponent();
+    const sut = new ex.GraphicsComponent();
 
     sut.show(rect);
     sut.layers.create({ name: 'background', order: -1 }).show(rect);
@@ -231,12 +231,12 @@ describe('A Graphics ECS Component', () => {
   });
 
   it('ticks graphics that need ticking', () => {
-    const animation = new ex.Graphics.Animation({
+    const animation = new ex.Animation({
       frames: []
     });
     spyOn(animation, 'tick');
 
-    const sut = new ex.Graphics.GraphicsComponent();
+    const sut = new ex.GraphicsComponent();
     sut.add(animation);
 
     sut.update(123, 4);

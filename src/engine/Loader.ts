@@ -1,4 +1,4 @@
-import { Color } from './Drawing/Color';
+import { Color } from './Color';
 import { WebAudio } from './Util/WebAudio';
 import { Engine } from './Engine';
 import { Loadable } from './Interfaces/Loadable';

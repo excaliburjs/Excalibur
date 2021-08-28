@@ -3,7 +3,7 @@ import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Scene } from '../Scene';
 import { GraphicsComponent } from './GraphicsComponent';
 import { vec, Vector } from '../Algebra';
-import { Color } from '../Drawing/Color';
+import { Color } from '../Color';
 import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';

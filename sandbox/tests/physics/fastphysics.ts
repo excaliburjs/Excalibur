@@ -15,7 +15,7 @@ ex.Physics.debug.showNormals = true;
 ex.Physics.acc.setTo(0, 300);
 //ex.Physics.dynamicTreeVelocityMultiplyer = 1;
 game.currentScene.camera.zoom = 0.5;
-var rocketTex = new ex.Texture('missile.png');
+var rocketTex = new ex.ImageSource('missile.png');
 var loader = new ex.Loader([rocketTex]);
 
 function spawnRocket(direction) {
@@ -29,7 +29,7 @@ function spawnRocket(direction) {
   });
 
   rocket.body.collisionType = ex.CollisionType.Active;
-  rocket.addDrawing(rocketTex);
+  rocket.graphics.add(rocketTex.toSprite());
   rocket.collider.useBoxCollider(48, 16);
   //rocket.rotation = Math.PI / 4;
   //block.rx = .1;

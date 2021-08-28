@@ -1,14 +1,14 @@
 ﻿/// <reference path='../../lib/excalibur.d.ts' />
 
 var game = new ex.Engine({ width: 800, height: 503, canvasElementId: 'game' });
-var padTexture = new ex.Texture('gamepad.png');
+var padTexture = new ex.ImageSource('gamepad.png');
 
 game.backgroundColor = ex.Color.White;
 game.start(new ex.Loader([padTexture])).then(start);
 
 function start() {
   // Load gamepad sprite
-  var padSprite = new ex.Sprite(padTexture, 0, 0, padTexture.width, padTexture.height);
+  var padSprite = padTexture.toSprite();
 
   // Enable Gamepad support
   game.input.gamepads.enabled = true;
@@ -29,7 +29,7 @@ function start() {
   // Draw gamepad
   var gamepad = new ex.Actor({width: padSprite.width, height: padSprite.height});
   gamepad.anchor.setTo(0, 0);
-  gamepad.addDrawing('bg', padSprite);
+  gamepad.graphics.add(padSprite);
   game.add(gamepad);
 
   // Buttons
@@ -101,22 +101,24 @@ function start() {
 }
 
 class CircleActor extends ex.Actor {
-  public value: number = 0;
-
-  public draw(ctx: CanvasRenderingContext2D, delta: number) {
-    ctx.save();
-    ctx.translate(this.pos.x, this.pos.y);
-
-    ctx.beginPath();
-    ctx.arc(0, 0, this.width, 0, 2 * Math.PI, true);
-    ctx.fillStyle = this.color.toString();
-    ctx.fill();
-    ctx.closePath();
-
-    if (this.value > 0) {
-      ctx.fillText(this.value.toString(), 10, -10);
-    }
-
-    ctx.restore();
+  private _value = 0;
+  public get value(): number {
+    return this._value;
+  }
+  public set value(val: number) {
+    this._value = val;
+    this._text.text = this._value.toString();
+  }
+  private _text = new ex.Text({
+    text: this.value.toString(),
+  });
+  constructor(args: ex.ActorArgs) {
+    super(args);
+    this.graphics.add(new ex.Circle({
+      radius: this.width,
+      color: this.color
+    }));
+    this.graphics.add(this._text);
+    this._text.color = this.color;
   }
 }

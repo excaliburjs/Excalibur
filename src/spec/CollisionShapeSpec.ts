@@ -11,7 +11,7 @@ describe('Collision Shape', () => {
     let engine: ex.Engine;
     let scene: ex.Scene;
 
-    let circle: ex.Circle;
+    let circle: ex.CircleCollider;
     let actor: ex.Actor;
 
     beforeEach(() => {
@@ -37,7 +37,7 @@ describe('Collision Shape', () => {
     });
 
     it('can be constructed with empty args', () => {
-      const circle = new ex.Circle({
+      const circle = new ex.CircleCollider({
         radius: 1
       });
       expect(circle).not.toBeNull();
@@ -124,12 +124,12 @@ describe('Collision Shape', () => {
     });
 
     it('should collide without a collider or body', () => {
-      const circle1 = new ex.Circle({
+      const circle1 = new ex.CircleCollider({
         offset: new ex.Vector(0, 0),
         radius: 5
       });
 
-      const circle2 = new ex.Circle({
+      const circle2 = new ex.CircleCollider({
         offset: new ex.Vector(9, 0),
         radius: 5
       });
@@ -278,7 +278,7 @@ describe('Collision Shape', () => {
     });
 
     it('can be drawn', (done) => {
-      const circle = new ex.Circle({
+      const circle = new ex.CircleCollider({
         offset: new ex.Vector(100, 100),
         radius: 30
       });
@@ -308,12 +308,12 @@ describe('Collision Shape', () => {
     });
 
     it('can calculate the distance to another circle', () => {
-      const circle = new ex.Circle({
+      const circle = new ex.CircleCollider({
         offset: new ex.Vector(100, 100),
         radius: 30
       });
 
-      const circle2 = new ex.Circle({
+      const circle2 = new ex.CircleCollider({
         offset: new ex.Vector(200, 100),
         radius: 30
       });
@@ -325,7 +325,7 @@ describe('Collision Shape', () => {
     });
 
     it('can calculate the distance to another polygon', () => {
-      const circle = new ex.Circle({
+      const circle = new ex.CircleCollider({
         offset: new ex.Vector(100, 100),
         radius: 30
       });
@@ -339,7 +339,7 @@ describe('Collision Shape', () => {
     });
 
     it('can calculate the distance to another edge', () => {
-      const circle = new ex.Circle({
+      const circle = new ex.CircleCollider({
         offset: new ex.Vector(100, 100),
         radius: 30
       });
@@ -660,7 +660,7 @@ describe('Collision Shape', () => {
     it('can calculate the distance to another circle', () => {
       const poly = ex.Shape.Box(40, 40, ex.Vector.Half, new ex.Vector(100, 100));
 
-      const circle = new ex.Circle({
+      const circle = new ex.CircleCollider({
         offset: new ex.Vector(200, 100),
         radius: 30
       });
@@ -830,7 +830,7 @@ describe('Collision Shape', () => {
     it('can calculate the distance to another circle', () => {
       const edge = ex.Shape.Edge(new ex.Vector(100, 50), new ex.Vector(100, 150));
 
-      const circle = new ex.Circle({
+      const circle = new ex.CircleCollider({
         offset: new ex.Vector(200, 100),
         radius: 30
       });

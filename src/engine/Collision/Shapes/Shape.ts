@@ -1,5 +1,5 @@
 import { ConvexPolygon } from './ConvexPolygon';
-import { Circle } from './Circle';
+import { CircleCollider } from './CircleCollider';
 import { Edge } from './Edge';
 import { BoundingBox } from '../BoundingBox';
 import { Vector } from '../../Algebra';
@@ -41,8 +41,8 @@ export class Shape {
    * @param radius Radius of the circle collider
    * @param offset Optional offset relative to the collider in local coordinates
    */
-  static Circle(radius: number, offset: Vector = Vector.Zero): Circle {
-    return new Circle({
+  static Circle(radius: number, offset: Vector = Vector.Zero): CircleCollider {
+    return new CircleCollider({
       radius: radius,
       offset: offset
     });

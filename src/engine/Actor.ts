@@ -1,4 +1,4 @@
-import { Texture } from './Resources/Texture';
+import { Texture } from './Drawing/Texture';
 import {
   InitializeEvent,
   KillEvent,
@@ -22,7 +22,7 @@ import {
 } from './Events';
 import { PointerEvent, WheelEvent, PointerDragEvent, PointerEventName } from './Input/PointerEvents';
 import { Engine } from './Engine';
-import { Color } from './Drawing/Color';
+import { Color } from './Color';
 import { Sprite } from './Drawing/Sprite';
 import { Animation } from './Drawing/Animation';
 import { Trait } from './Interfaces/Trait';

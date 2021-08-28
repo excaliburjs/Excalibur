@@ -9,7 +9,7 @@ import { Logger } from '../../Util/Log';
 import { CollisionType } from '../CollisionType';
 import { Collider } from '../Shapes/Collider';
 import { CollisionContact } from '../Detection/CollisionContact';
-import { Color } from '../../Drawing/Color';
+import { Color } from '../../Color';
 import { ConvexPolygon } from '../Shapes/ConvexPolygon';
 import { DrawUtil } from '../../Util/Index';
 import { BodyComponent } from '../BodyComponent';
