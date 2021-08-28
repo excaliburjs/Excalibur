@@ -98,7 +98,7 @@ export class Vector implements Clonable<Vector> {
     this._y = y;
   }
 
-  private _x = 0;
+  protected _x = 0;
   /**
    * Get the x component of the vector
    */
@@ -114,7 +114,7 @@ export class Vector implements Clonable<Vector> {
     this._x = val;
   }
 
-  private _y = 0;
+  protected _y = 0;
   /**
    * Get the y component of the vector
    */
@@ -406,7 +406,7 @@ export class Ray {
   }
 
   public intersectPoint(line: Line): Vector {
-    const time =  this.intersect(line);
+    const time = this.intersect(line);
     if (time < 0) {
       return null;
     }
@@ -508,8 +508,7 @@ export class Line {
    * @param point
    */
   public below(point: Vector): boolean {
-    const above2 = ((this.end.x - this.begin.x) * (point.y - this.begin.y) -
-    (this.end.y - this.begin.y) * (point.x - this.begin.x));
+    const above2 = (this.end.x - this.begin.x) * (point.y - this.begin.y) - (this.end.y - this.begin.y) * (point.x - this.begin.x);
     return above2 >= 0;
   }
 
@@ -521,7 +520,6 @@ export class Line {
   public clip(sideVector: Vector, length: number): Line {
     let dir = sideVector;
     dir = dir.normalize();
-
 
     const near = dir.dot(this.begin) - length;
     const far = dir.dot(this.end) - length;
@@ -713,5 +711,3 @@ export class GlobalCoordinates {
 export function vec(x: number, y: number): Vector {
   return new Vector(x, y);
 }
-
-
