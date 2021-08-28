@@ -1,6 +1,5 @@
 import { Engine } from './Engine';
 import { Actor } from './Actor';
-import { Sprite } from './Drawing/Sprite';
 import { Color } from './Color';
 import { vec, Vector } from './Algebra';
 import * as Util from './Util/Util';
@@ -12,8 +11,9 @@ import { CollisionType } from './Collision/CollisionType';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Entity } from './EntityComponentSystem/Entity';
-import { Graphics } from '.';
 import { CanvasDrawComponent } from './Drawing/Index';
+import { Sprite } from './Graphics/Sprite';
+import { LegacyDrawing } from '.';
 
 /**
  * An enum that represents the types of emitter nozzles
@@ -58,7 +58,7 @@ export class ParticleImpl extends Entity {
 
   public emitter: ParticleEmitter = null;
   public particleSize: number = 5;
-  public particleSprite: Sprite = null;
+  public particleSprite: LegacyDrawing.Sprite = null;
 
   public startSize: number;
   public endSize: number;
@@ -129,7 +129,7 @@ export class ParticleImpl extends Entity {
     this.transform.scale = vec(1, 1); // TODO wut
     if (this.particleSprite) {
       this.graphics.opacity = this.opacity;
-      this.graphics.use(Graphics.Sprite.fromLegacySprite(this.particleSprite));
+      this.graphics.use(Sprite.fromLegacySprite(this.particleSprite));
     } else {
       this.graphics.onPostDraw = (ctx) => {
         ctx.save();
@@ -219,7 +219,7 @@ export interface ParticleArgs extends Partial<ParticleImpl> {
   particleRotationalVelocity?: number;
   currentRotation?: number;
   particleSize?: number;
-  particleSprite?: Sprite;
+  particleSprite?: LegacyDrawing.Sprite;
 }
 
 /**
@@ -279,7 +279,7 @@ export interface ParticleEmitterArgs {
   maxSize?: number;
   beginColor?: Color;
   endColor?: Color;
-  particleSprite?: Sprite;
+  particleSprite?: LegacyDrawing.Sprite;
   emitterType?: EmitterType;
   radius?: number;
   particleRotationalVelocity?: number;
@@ -399,19 +399,19 @@ export class ParticleEmitter extends Actor {
    */
   public endColor: Color = Color.White;
 
-  private _og: Sprite = null;
-  private _sprite: Graphics.Sprite = null;
+  private _og: LegacyDrawing.Sprite = null;
+  private _sprite: Sprite = null;
   /**
    * Gets or sets the sprite that a particle should use
    */
-  public get particleSprite(): Sprite {
+  public get particleSprite(): LegacyDrawing.Sprite {
     return this._og;
   }
 
-  public set particleSprite(val: Sprite) {
+  public set particleSprite(val: LegacyDrawing.Sprite) {
     this._og = val;
     if (val) {
-      this._sprite = Graphics.Sprite.fromLegacySprite(val);
+      this._sprite = Sprite.fromLegacySprite(val);
     }
   }
 

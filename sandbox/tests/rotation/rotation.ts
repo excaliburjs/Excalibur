@@ -2,7 +2,7 @@
 
 var width = 600;
 var height = 400;
-var playerTexture = new ex.Texture('rotation-sprite.png');
+var playerTexture = new ex.ImageSource('rotation-sprite.png');
 var speed = 100;
 
 var rotationType = ex.RotationType.ShortestPath;
@@ -26,8 +26,8 @@ engine.on('postupdate', (ev: ex.PostUpdateEvent) => {
 });
 
 var player = new ex.Actor({x: width / 2, y: height / 2, width: 100, height: 30, color: ex.Color.Red});
-var playerSprite = playerTexture.asSprite();
-player.addDrawing('default', playerSprite);
+var playerSprite = playerTexture.toSprite();
+player.graphics.add(playerSprite);
 engine.currentScene.add(player);
 
 // rotation type buttons
