@@ -11,7 +11,7 @@ import {
 import { Matrix } from '../../Math/matrix';
 import { TransformStack } from './transform-stack';
 import { Vector, vec } from '../../Algebra';
-import { Color } from '../../Drawing/Color';
+import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { Logger } from '../../Util/Log';
 import { LineRenderer } from './line-renderer';

@@ -614,9 +614,9 @@ describe('A game actor', () => {
       height: 64,
       suppressHiDPIScaling: true
     });
-    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -649,9 +649,9 @@ describe('A game actor', () => {
   });
 
   it('will tick animations when drawing switched', (done) => {
-    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -663,7 +663,7 @@ describe('A game actor', () => {
         flipVertical: false,
         flipHorizontal: false
       });
-      const animation = new ex.Animation({
+      const animation = new ex.LegacyDrawing.Animation({
         engine: engine,
         sprites: [sprite, sprite],
         speed: 200,
@@ -693,9 +693,9 @@ describe('A game actor', () => {
   });
 
   it('will tick animations on update', (done) => {
-    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -707,7 +707,7 @@ describe('A game actor', () => {
         flipVertical: false,
         flipHorizontal: false
       });
-      const animation = new ex.Animation({
+      const animation = new ex.LegacyDrawing.Animation({
         engine: engine,
         sprites: [sprite, sprite],
         speed: 200,
@@ -1352,7 +1352,7 @@ describe('A game actor', () => {
       suppressHiDPIScaling: true
     });
 
-    const texture = new ex.Texture('src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
       const actor = new ex.Actor({
         pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),

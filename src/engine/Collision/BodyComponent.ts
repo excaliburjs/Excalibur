@@ -10,7 +10,7 @@ import { EventDispatcher } from '../EventDispatcher';
 import { createId, Id } from '../Id';
 import { clamp } from '../Util/Util';
 import { DrawUtil } from '../Util/Index';
-import { Color } from '../Drawing/Color';
+import { Color } from '../Color';
 import { ColliderComponent } from './ColliderComponent';
 
 export interface BodyComponentOptions {

@@ -1,5 +1,5 @@
-import { Resource } from './Resource';
-import { Sprite } from '../Drawing/Sprite';
+import { Resource } from '../Resources/Resource';
+import { Sprite } from './Sprite';
 import { Loadable } from '../Interfaces/Index';
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.

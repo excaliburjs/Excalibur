@@ -1,51 +1,51 @@
 import * as ex from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
-class TestGraphic extends ex.Graphics.Graphic {
-  constructor(options?: ex.Graphics.GraphicOptions) {
+class TestGraphic extends ex.Graphic {
+  constructor(options?: ex.GraphicOptions) {
     super(options ?? {});
     this.width = 50;
     this.height = 50;
   }
-  private _rect1 = new ex.Graphics.Rectangle({
+  private _rect1 = new ex.Rectangle({
     width: 25,
     height: 25,
     color: ex.Color.Green
   });
-  private _rect2 = new ex.Graphics.Rectangle({
+  private _rect2 = new ex.Rectangle({
     width: 25,
     height: 25,
     color: ex.Color.Red
   });
-  private _rect3 = new ex.Graphics.Rectangle({
+  private _rect3 = new ex.Rectangle({
     width: 25,
     height: 25,
     color: ex.Color.Yellow
   });
-  private _rect4 = new ex.Graphics.Rectangle({
+  private _rect4 = new ex.Rectangle({
     width: 25,
     height: 25,
     color: ex.Color.Blue
   });
 
-  protected _drawImage(ex: ex.Graphics.ExcaliburGraphicsContext, x: number, y: number): void {
+  protected _drawImage(ex: ex.ExcaliburGraphicsContext, x: number, y: number): void {
     this._rect1.draw(ex, x, y);
     this._rect2.draw(ex, x, y + 25);
     this._rect3.draw(ex, x + 25, y);
     this._rect4.draw(ex, x + 25, y + 25);
   }
 
-  getSource(): ex.Graphics.HTMLImageSource {
+  getSource(): ex.HTMLImageSource {
     return null;
   }
-  clone(): ex.Graphics.Graphic {
+  clone(): ex.Graphic {
     return null;
   }
 }
 
 describe('A Graphic', () => {
   let canvasElement: HTMLCanvasElement;
-  let ctx: ex.Graphics.ExcaliburGraphicsContext;
+  let ctx: ex.ExcaliburGraphicsContext;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -53,11 +53,11 @@ describe('A Graphic', () => {
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
   });
 
   it('exists', () => {
-    expect(ex.Graphics.Graphic).toBeDefined();
+    expect(ex.Graphic).toBeDefined();
   });
 
   it('generates a new id', () => {
@@ -67,7 +67,7 @@ describe('A Graphic', () => {
   });
 
   it('can clone all graphic options', () => {
-    const originalOptions: ex.Graphics.GraphicOptions = {
+    const originalOptions: ex.GraphicOptions = {
       origin: ex.vec(1, 1),
       flipHorizontal: true,
       flipVertical: true,

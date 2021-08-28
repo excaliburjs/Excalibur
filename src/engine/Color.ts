@@ -1,4 +1,4 @@
-import { obsolete } from '../Util/Decorators';
+import { obsolete } from './Util/Decorators';
 
 /**
  * Provides standard colors (e.g. [[Color.Black]])

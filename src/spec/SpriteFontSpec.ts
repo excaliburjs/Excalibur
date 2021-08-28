@@ -4,7 +4,7 @@ import { TestUtils } from './util/TestUtils';
 
 describe('A spritefont', () => {
   let engine: ex.Engine;
-  let texture: ex.Texture;
+  let texture: ex.LegacyDrawing.Texture;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({
@@ -12,7 +12,7 @@ describe('A spritefont', () => {
       height: 200
     });
 
-    texture = new ex.Texture('src/spec/images/SpriteFontSpec/SpriteFont.png', true);
+    texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteFontSpec/SpriteFont.png', true);
   });
   afterEach(() => {
     engine.stop();
@@ -21,7 +21,7 @@ describe('A spritefont', () => {
 
   it('should have props set by the constructor', () => {
     texture.load().then(() => {
-      const sf = new ex.SpriteFont({
+      const sf = new ex.LegacyDrawing.SpriteFont({
         image: texture,
         alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
         caseInsensitive: true,
@@ -41,7 +41,7 @@ describe('A spritefont', () => {
 
   it('should draw a string', (done) => {
     texture.load().then(() => {
-      const sf = new ex.SpriteFont({
+      const sf = new ex.LegacyDrawing.SpriteFont({
         image: texture,
         alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
         caseInsensitive: true,
@@ -70,7 +70,7 @@ describe('A spritefont', () => {
 
   it('should get text sprites', (done) => {
     texture.load().then(() => {
-      const sf = new ex.SpriteFont({
+      const sf = new ex.LegacyDrawing.SpriteFont({
         image: texture,
         alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
         caseInsensitive: true,
@@ -106,7 +106,7 @@ describe('A spritefont', () => {
 
   it('should have text shadow', (done) => {
     texture.load().then(() => {
-      const sf = new ex.SpriteFont({
+      const sf = new ex.LegacyDrawing.SpriteFont({
         image: texture,
         alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
         caseInsensitive: true,

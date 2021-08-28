@@ -1,5 +1,5 @@
 import { Vector, Ray } from '../Algebra';
-import { Color } from '../Drawing/Color';
+import { Color } from '../Color';
 import { Side } from './Side';
 import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
 import { Matrix } from '../Math/matrix';

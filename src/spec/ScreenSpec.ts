@@ -3,7 +3,7 @@ import { ExcaliburMatchers } from 'excalibur-jasmine';
 import { Camera } from '@excalibur';
 describe('A Screen', () => {
   let canvas: HTMLCanvasElement;
-  let context: ex.Graphics.ExcaliburGraphicsContext;
+  let context: ex.ExcaliburGraphicsContext;
   let browser: ex.BrowserEvents;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -13,7 +13,7 @@ describe('A Screen', () => {
     });
     document.body.style.margin = '0';
     canvas = document.createElement('canvas');
-    context = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({
+    context = new ex.ExcaliburGraphicsContext2DCanvas({
       canvasElement: canvas
     });
     document.body.appendChild(canvas);

@@ -1,5 +1,5 @@
 import { Vector } from '../../Algebra';
-import { Color } from '../../Drawing/Color';
+import { Color } from '../../Color';
 import { Shader } from './shader';
 import lineVertexSource from './shaders/line-vertex.glsl';
 import lineFragmentSource from './shaders/line-fragment.glsl';

@@ -1,7 +1,7 @@
 import { Line, Vector, Ray } from '../../Algebra';
 import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from '../Shapes/Edge';
-import { Circle } from './Circle';
+import { CircleCollider } from './CircleCollider';
 
 /**
  * Finds the closes line between 2 line segments, were the magnitude of u, v are the lengths of each segment
@@ -150,7 +150,7 @@ export const ClosestLineJumpTable = {
     return ClosestLine(p0, u, q0, v);
   },
 
-  PolygonCircleClosestLine(polygon: ConvexPolygon, circle: Circle) {
+  PolygonCircleClosestLine(polygon: ConvexPolygon, circle: CircleCollider) {
     // https://math.stackexchange.com/questions/1919177/how-to-find-point-on-line-closest-to-sphere
     // Find the 2 closest faces on each polygon
     const otherWorldPos = circle.worldPos;
@@ -184,7 +184,7 @@ export const ClosestLineJumpTable = {
     return new Line(u.scale(t).add(p0), new Vector(otherWorldPos.x + circlex, otherWorldPos.y + circley));
   },
 
-  CircleCircleClosestLine(circleA: Circle, circleB: Circle) {
+  CircleCircleClosestLine(circleA: CircleCollider, circleB: CircleCollider) {
     // Find the 2 closest faces on each polygon
     const otherWorldPos = circleB.worldPos;
     const otherDirection = otherWorldPos.sub(circleA.worldPos);
@@ -201,7 +201,7 @@ export const ClosestLineJumpTable = {
     return new Line(thisPoint, otherPoint);
   },
 
-  CircleEdgeClosestLine(circle: Circle, edge: Edge) {
+  CircleEdgeClosestLine(circle: CircleCollider, edge: Edge) {
     // https://math.stackexchange.com/questions/1919177/how-to-find-point-on-line-closest-to-sphere
     const circleWorlPos = circle.worldPos;
 

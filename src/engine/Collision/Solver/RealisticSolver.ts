@@ -6,7 +6,7 @@ import { ContactConstraintPoint } from './ContactConstraintPoint';
 import { Side } from '../Side';
 import { Physics } from '../Physics';
 import { Line, Vector } from '../../Algebra';
-import { Circle } from '../Shapes/Circle';
+import { CircleCollider } from '../Shapes/CircleCollider';
 import { ConvexPolygon } from '../Shapes/ConvexPolygon';
 import { CollisionSolver } from './Solver';
 import { BodyComponent } from '../BodyComponent';
@@ -195,19 +195,19 @@ export class RealisticSolver extends CollisionSolver {
     const bodyA = contact.colliderA.owner.get(BodyComponent);
     const shapeB = contact.colliderB;
     const bodyB = contact.colliderB.owner.get(BodyComponent);
-    if (shapeA instanceof Circle && shapeB instanceof Circle) {
+    if (shapeA instanceof CircleCollider && shapeB instanceof CircleCollider) {
       const combinedRadius = shapeA.radius + shapeB.radius;
       const distance = bodyA.transform.pos.distance(bodyB.transform.pos);
       const separation = combinedRadius - distance;
       return -separation;
     }
 
-    if (shapeA instanceof Circle && shapeB instanceof Line) {
+    if (shapeA instanceof CircleCollider && shapeB instanceof Line) {
       // TODO circle line separation
       // return bodyB.getSeparation(bodyA);
     }
 
-    if (shapeA instanceof Line && shapeB instanceof Circle) {
+    if (shapeA instanceof Line && shapeB instanceof CircleCollider) {
       // TODO circle line separation
       // return bodyA.getSeparation(bodyB);
     }
@@ -228,8 +228,8 @@ export class RealisticSolver extends CollisionSolver {
       }
     }
 
-    if (shapeA instanceof ConvexPolygon && shapeB instanceof Circle ||
-        shapeB instanceof ConvexPolygon && shapeA instanceof Circle) {
+    if (shapeA instanceof ConvexPolygon && shapeB instanceof CircleCollider ||
+        shapeB instanceof ConvexPolygon && shapeA instanceof CircleCollider) {
       if (contact.info.side) {
         return contact.info.side.distanceToPoint(bodyA.transform.apply(point), true);
       }

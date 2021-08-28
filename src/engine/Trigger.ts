@@ -1,4 +1,4 @@
-import { Color } from './Drawing/Color';
+import { Color } from './Color';
 import { Engine } from './Engine';
 import { EventDispatcher } from './EventDispatcher';
 import { Vector } from './Algebra';

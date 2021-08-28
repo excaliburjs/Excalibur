@@ -3,7 +3,7 @@ import { ImageSource } from './ImageSource';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
 import { Sprite as LegacySprite } from '../Drawing/Sprite';
-import { Texture } from '../Resources/Texture';
+import { Texture } from '../Drawing/Texture';
 
 export type SourceView = { x: number; y: number; width: number; height: number };
 export type DestinationSize = { width: number; height: number };

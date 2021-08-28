@@ -1,6 +1,6 @@
 import { Line, Vector } from '../../Algebra';
 import { Collider } from './Collider';
-import { Circle } from './Circle';
+import { CircleCollider } from './CircleCollider';
 import { ConvexPolygon } from './ConvexPolygon';
 
 /**
@@ -86,7 +86,7 @@ export class SeparatingAxis {
     };
   }
 
-  static findCirclePolygonSeparation(circle: Circle, polygon: ConvexPolygon): Vector | null {
+  static findCirclePolygonSeparation(circle: CircleCollider, polygon: ConvexPolygon): Vector | null {
     const axes = polygon.axes;
     const pc = polygon.center;
     // Special SAT with circles

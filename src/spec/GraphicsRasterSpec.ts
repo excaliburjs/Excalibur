@@ -3,7 +3,7 @@ import { Color } from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { RasterOptions } from '../engine/Graphics';
 
-class TestRaster extends ex.Graphics.Raster {
+class TestRaster extends ex.Raster {
   constructor(options?: RasterOptions) {
     super(options);
     this.width = 50;
@@ -16,14 +16,14 @@ class TestRaster extends ex.Graphics.Raster {
     ctx.strokeRect(0, 0, 50, 50);
   }
 
-  clone(): ex.Graphics.Graphic {
+  clone(): ex.Graphic {
     return null;
   }
 }
 
 describe('A Raster', () => {
   let canvasElement: HTMLCanvasElement;
-  let ctx: ex.Graphics.ExcaliburGraphicsContext;
+  let ctx: ex.ExcaliburGraphicsContext;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -31,11 +31,11 @@ describe('A Raster', () => {
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
   });
 
   it('exists', () => {
-    expect(ex.Graphics.Raster).toBeDefined();
+    expect(ex.Raster).toBeDefined();
   });
 
   it('can be constructed', () => {

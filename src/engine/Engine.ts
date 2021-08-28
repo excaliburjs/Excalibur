@@ -30,7 +30,7 @@ import {
   InitializeEvent
 } from './Events';
 import { Logger, LogLevel } from './Util/Log';
-import { Color } from './Drawing/Color';
+import { Color } from './Color';
 import { Scene } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
 import { PostProcessor } from './PostProcessing/PostProcessor';

@@ -4,7 +4,7 @@ import { TestUtils } from './util/TestUtils';
 import { BodyComponent } from '@excalibur';
 import { ColliderComponent } from '../engine/Collision/ColliderComponent';
 
-const drawWithTransform = (ctx: CanvasRenderingContext2D | ex.Graphics.ExcaliburGraphicsContext, tm: ex.TileMap, delta: number = 1) => {
+const drawWithTransform = (ctx: CanvasRenderingContext2D | ex.ExcaliburGraphicsContext, tm: ex.TileMap, delta: number = 1) => {
   ctx.save();
   ctx.translate(tm.pos.x, tm.pos.y);
   ctx.rotate(tm.rotation);
@@ -16,7 +16,7 @@ const drawWithTransform = (ctx: CanvasRenderingContext2D | ex.Graphics.Excalibur
 describe('A TileMap', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
-  let texture: ex.Texture;
+  let texture: ex.LegacyDrawing.Texture;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -28,7 +28,7 @@ describe('A TileMap', () => {
     engine.addScene('root', scene);
     engine.start();
 
-    texture = new ex.Texture('src/spec/images/TileMapSpec/Blocks.png', true);
+    texture = new ex.LegacyDrawing.Texture('src/spec/images/TileMapSpec/Blocks.png', true);
   });
   afterEach(() => {
     engine.stop();
@@ -116,16 +116,16 @@ describe('A TileMap', () => {
     tm._initialize(engine);
 
     const cell = tm.getCell(0, 0);
-    const rectangle = new ex.Graphics.Rectangle({
+    const rectangle = new ex.Rectangle({
       width: 32,
       height: 32,
       color: ex.Color.Red
     });
-    const circle = new ex.Graphics.Circle({
+    const circle = new ex.Circle({
       radius: 16,
       color: ex.Color.Blue
     });
-    const animation = new ex.Graphics.Animation({
+    const animation = new ex.Animation({
       frames: [
         { graphic: rectangle, duration: 100 },
         { graphic: circle, duration: 100 }
@@ -155,7 +155,7 @@ describe('A TileMap', () => {
       rows: 3,
       cols: 7
     });
-    const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
+    const spriteTiles = new ex.LegacyDrawing.SpriteSheet(texture, 1, 1, 64, 48);
     tm.data.forEach(function (cell: ex.Cell) {
       cell.solid = true;
       cell.addGraphic(spriteTiles.sprites[0]);
@@ -177,7 +177,7 @@ describe('A TileMap', () => {
       rows: 20,
       cols: 20
     });
-    const spriteTiles = new ex.SpriteSheet(texture, 1, 1, 64, 48);
+    const spriteTiles = new ex.LegacyDrawing.SpriteSheet(texture, 1, 1, 64, 48);
     tm.data.forEach(function (cell: ex.Cell) {
       cell.solid = true;
       cell.addGraphic(spriteTiles.sprites[0]);

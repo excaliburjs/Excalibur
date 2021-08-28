@@ -1,5 +1,5 @@
 import { Random } from './Random';
-import { Color } from '../Drawing/Color';
+import { Color } from '../Color';
 import * as Util from '../Util/Util';
 
 /**

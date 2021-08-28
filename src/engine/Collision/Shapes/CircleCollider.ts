@@ -5,13 +5,13 @@ import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 
 import { Vector, Ray, Projection, Line } from '../../Algebra';
-import { Color } from '../../Drawing/Color';
+import { Color } from '../../Color';
 import { Collider } from './Collider';
 
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { Transform } from '../../EntityComponentSystem';
 
-export interface CircleOptions {
+export interface CircleColliderOptions {
   /**
    * Optional pixel offset to shift the circle relative to the collider, by default (0, 0).
    */
@@ -25,7 +25,7 @@ export interface CircleOptions {
 /**
  * This is a circle collider for the excalibur rigid body physics simulation
  */
-export class Circle extends Collider {
+export class CircleCollider extends Collider {
   /**
    * Position of the circle relative to the collider, by default (0, 0).
    */
@@ -42,7 +42,7 @@ export class Circle extends Collider {
 
   private _transform: Transform;
 
-  constructor(options: CircleOptions) {
+  constructor(options: CircleColliderOptions) {
     super();
     this.offset = options.offset || Vector.Zero;
     this.radius = options.radius || 0;
@@ -51,8 +51,8 @@ export class Circle extends Collider {
   /**
    * Returns a clone of this shape, not associated with any collider
    */
-  public clone(): Circle {
-    return new Circle({
+  public clone(): CircleCollider {
+    return new CircleCollider({
       offset: this.offset.clone(),
       radius: this.radius
     });
@@ -123,7 +123,7 @@ export class Circle extends Collider {
   }
 
   public getClosestLineBetween(shape: Collider): Line {
-    if (shape instanceof Circle) {
+    if (shape instanceof CircleCollider) {
       return ClosestLineJumpTable.CircleCircleClosestLine(this, shape);
     } else if (shape instanceof ConvexPolygon) {
       return ClosestLineJumpTable.PolygonCircleClosestLine(shape, this).flip();
@@ -138,7 +138,7 @@ export class Circle extends Collider {
    * @inheritdoc
    */
   public collide(collider: Collider): CollisionContact[] {
-    if (collider instanceof Circle) {
+    if (collider instanceof CircleCollider) {
       return CollisionJumpTable.CollideCircleCircle(this, collider);
     } else if (collider instanceof ConvexPolygon) {
       return CollisionJumpTable.CollideCirclePolygon(this, collider);

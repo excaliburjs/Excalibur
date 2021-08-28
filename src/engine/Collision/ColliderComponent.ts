@@ -7,7 +7,7 @@ import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisio
 import { Observable } from '../Util/Observable';
 import { BoundingBox } from './BoundingBox';
 import { CollisionContact } from './Detection/CollisionContact';
-import { Circle } from './Shapes/Circle';
+import { CircleCollider } from './Shapes/CircleCollider';
 import { Collider } from './Shapes/Collider';
 import { CompositeCollider } from './Shapes/CompositeCollider';
 import { ConvexPolygon } from './Shapes/ConvexPolygon';
@@ -166,7 +166,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  useCircleCollider(radius: number, center: Vector = Vector.Zero): Circle {
+  useCircleCollider(radius: number, center: Vector = Vector.Zero): CircleCollider {
     const collider = Shape.Circle(radius, center);
     return (this.collider = collider);
   }

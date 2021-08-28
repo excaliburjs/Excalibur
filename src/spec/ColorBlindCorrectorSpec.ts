@@ -1,17 +1,17 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
-import { Texture, ColorBlindness } from '@excalibur';
+import { ColorBlindness } from '@excalibur';
 
 describe('A ColorBlindCorrector', () => {
-  let bg: Texture;
+  let bg: ex.LegacyDrawing.Texture;
   let engine: ex.Engine;
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
 
     engine = TestUtils.engine({ width: 800, height: 200 });
-    bg = new ex.Texture('src/spec/images/ColorBlindCorrectorSpec/actor.png', true);
+    bg = new ex.LegacyDrawing.Texture('src/spec/images/ColorBlindCorrectorSpec/actor.png', true);
 
     return engine.start(new ex.Loader([bg]));
   });

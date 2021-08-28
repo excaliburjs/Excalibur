@@ -1,6 +1,6 @@
 import { Graphic, GraphicOptions } from './Graphic';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
-import { Color } from '../Drawing/Color';
+import { Color } from '../Color';
 import { ensurePowerOfTwo } from './Context/webgl-util';
 import { Vector } from '../Algebra';
 import { BoundingBox } from '../Collision/BoundingBox';

@@ -34,7 +34,10 @@ export * from './ScreenElement';
 
 export * from './Actions/Index';
 export * from './Collision/Index';
-export * from './Drawing/Index';
+
+// ex.LegacyDrawing namespace
+import * as legacyDrawing from './Drawing/Index';
+export { legacyDrawing as LegacyDrawing };
 export * from './Interfaces/Index';
 export * from './Math/Index';
 export * from './PostProcessing/Index';
@@ -42,9 +45,9 @@ export * from './Resources/Index';
 
 export * from './EntityComponentSystem/index';
 
-// ex.Graphics namespace
-import * as graphics from './Graphics/index';
-export { graphics as Graphics };
+export * from './Color';
+
+export * from './Graphics/index';
 
 // ex.Events namespace
 import * as events from './Events';

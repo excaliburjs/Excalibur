@@ -1,5 +1,5 @@
 import { Engine } from './Engine';
-import { Color } from './Drawing/Color';
+import { Color } from './Color';
 import { Configurable } from './Configurable';
 import { vec, Vector } from './Algebra';
 import { Text } from './Graphics/Text';

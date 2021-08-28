@@ -1,4 +1,4 @@
-import { Color } from '../Drawing/Color';
+import { Color } from '../Color';
 import { Vector } from '../Algebra';
 
 /**
