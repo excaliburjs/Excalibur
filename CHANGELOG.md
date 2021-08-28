@@ -9,7 +9,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Legacy drawing implementations are moved behind `ex.LegacyDrawing` new Graphics implemenations of `Sprite`, `SpriteSheet`, `Animation` are now the default import.
   - To use any of the `ex.LegacyDrawing.*` implementations you must opt-in with the `ex.Flags.useLegacyDrawing()` note: new graphics do not work in this egacy mode
-
 - Renames `CollisionResolutionStrategy.Box` collision resolution strategy to `Arcade`
 - Renames `CollisionResolutionStrategy.RigidBody` collision resolution strategy to `Realistic`
 - `Collider` is now a first class type and encapsulates what `Shape` used to be. `Collider` is no longer a member of the `Body`
@@ -54,6 +53,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Turn on WebGL support with `ex.Flags.useWebGL()`
 - Added new helpers to `CollisionGroup` to define groups that collide with specified groups `CollisionGroup.collidesWith([groupA, groupB])` 
    - Combine groups with `const groupAandB = CollisionGroup.combine([groupA, groupB])`
    - Invert a group instance `const everthingButGroupA = groupA.invert()`
