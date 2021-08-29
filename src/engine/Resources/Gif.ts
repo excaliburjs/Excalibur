@@ -357,7 +357,7 @@ export class ParseGif {
     const parseAppExt = (block: any) => {
       const parseNetscapeExt = (block: any) => {
         this.checkBytes.push(this._st.readByte()); // Always 3
-        block.unknown = this._st.readByte(); // ??? Always 1? What is this?
+        block.unknown = this._st.readByte(); // Q: Always 1? What is this?
         block.iterations = this._st.readUnsigned();
         block.terminator = this._st.readByte();
         if (this._handler.app && this._handler.app.NETSCAPE && this._handler.app.NETSCAPE(block)) {

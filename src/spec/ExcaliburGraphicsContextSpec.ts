@@ -217,7 +217,7 @@ describe('The ExcaliburGraphicsContext', () => {
       expect(context.height).toBe(canvas.height);
     });
 
-    it('can draw a graphic', async () => {
+    fit('can draw a graphic', async () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
@@ -235,6 +235,11 @@ describe('The ExcaliburGraphicsContext', () => {
 
       sut.clear();
       sut.drawImage(rect._bitmap, 20, 20);
+      // sut.opacity = .5;
+      // sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Green);
+      // sut.drawLine(ex.vec(10, 10), ex.vec(90, 90), ex.Color.Red, 5);
+      // sut.drawLine(ex.vec(90, 10), ex.vec(10, 90), ex.Color.Red, 5);
+      // sut.drawRectangle(ex.vec(10, 10), 80, 80, ex.Color.Blue);
       sut.flush();
 
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(

@@ -225,6 +225,18 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.__imageRenderer.addImage(image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
   }
 
+  public drawLine(start: Vector, end: Vector, color: Color, thickness = 1) {
+    this.__imageRenderer.addLine(color, start, end, thickness);
+  }
+
+  public drawRectangle(pos: Vector, width: number, height: number, color: Color) {
+    this.__imageRenderer.addRectangle(color, pos, width, height);
+  }
+
+  public drawCircle(pos: Vector, radius: number, color: Color) {
+    this.__imageRenderer.addCircle(pos, radius, color);
+  }
+
   debug = new ExcaliburGraphicsContextWebGLDebug(this);
 
   public save(): void {

@@ -146,7 +146,7 @@ describe('A CompositeCollider', () => {
 
     const rayRight = new Ray(vec(-200, 0), Vector.Right);
 
-    const leftBox = compCollider.rayCast(rayRight); //?
+    const leftBox = compCollider.rayCast(rayRight);
     expect(leftBox).toEqual(vec(-100, 0));
 
     const rayDown = new Ray(vec(0, -200), Vector.Down);
