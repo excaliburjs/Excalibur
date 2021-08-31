@@ -2,22 +2,22 @@ import { CollisionContact } from './CollisionContact';
 import { CollisionType } from '../CollisionType';
 import { BodyComponent } from '../BodyComponent';
 import { Id } from '../../Id';
-import { ColliderComponent } from '../ColliderComponent';
+import { Collider } from '../Shapes/Collider';
 
 /**
- * Models a potential collision between 2 bodies
+ * Models a potential collision between 2 colliders
  */
 export class Pair {
   public id: string = null;
-
-  constructor(public bodyA: BodyComponent, public bodyB: BodyComponent) {
-    const colliderA = bodyA.owner.get(ColliderComponent);
-    const colliderB = bodyB.owner.get(ColliderComponent);
-    this.id = Pair.calculatePairHash(colliderA.collider.id, colliderB.collider.id);
+  constructor(public colliderA: Collider, public colliderB: Collider) {
+    this.id = Pair.calculatePairHash(colliderA.id, colliderB.id);
   }
 
-  public static canCollide(bodyA: BodyComponent, bodyB: BodyComponent) {
-    // Body's needed for collision
+  public static canCollide(colliderA: Collider, colliderB: Collider) {
+    const bodyA = colliderA?.owner?.get(BodyComponent);
+    const bodyB = colliderB?.owner?.get(BodyComponent);
+
+    // Body's needed for collision in the current state
     // TODO can we collide without a body?
     if (!bodyA || !bodyB) {
       return false;
@@ -50,18 +50,25 @@ export class Pair {
    * Returns whether or not it is possible for the pairs to collide
    */
   public get canCollide(): boolean {
-    const bodyA = this.bodyA;
-    const bodyB = this.bodyB;
-    return Pair.canCollide(bodyA, bodyB);
+    const colliderA = this.colliderA;
+    const colliderB = this.colliderB;
+    return Pair.canCollide(colliderA, colliderB);
   }
 
   /**
    * Runs the collision intersection logic on the members of this pair
    */
   public collide(): CollisionContact[] {
-    const colliderA = this.bodyA.owner.get(ColliderComponent);
-    const colliderB = this.bodyB.owner.get(ColliderComponent);
-    return colliderA.collide(colliderB);
+    return this.colliderA.collide(this.colliderB);
+  }
+
+  /**
+   * Check if the collider is part of the pair
+   * @param collider 
+   * @returns 
+   */
+  public hasCollider(collider: Collider) {
+    return collider === this.colliderA || collider === this.colliderB;
   }
 
   /**
