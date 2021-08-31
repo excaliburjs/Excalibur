@@ -170,7 +170,7 @@ export abstract class Graphic {
   protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     ex.save();
     ex.translate(x, y);
-    ex.scale(this.scale.x, this.scale.y);
+    ex.scale(Math.abs(this.scale.x), Math.abs(this.scale.y));
     this._rotate(ex);
     this._flip(ex);
     // it is important to multiply alphas so graphics respect the current context
