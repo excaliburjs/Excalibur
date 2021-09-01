@@ -1,4 +1,4 @@
-import { Util } from '../..';
+import { Pair, Util } from '../..';
 import { Vector, Line, Ray, Projection } from '../../Algebra';
 import { Color } from '../../Color';
 import { Transform } from '../../EntityComponentSystem';
@@ -11,12 +11,12 @@ import { Collider } from './Collider';
 export class CompositeCollider extends Collider {
   private _transform: Transform;
   private _collisionProcessor = new DynamicTreeCollisionProcessor();
-  private _dynamicAABBTree  = new DynamicTree();
+  private _dynamicAABBTree = new DynamicTree();
   private _colliders: Collider[] = [];
 
   constructor(colliders: Collider[]) {
     super();
-    for (let c of colliders) {
+    for (const c of colliders) {
       this.addCollider(c);
     }
   }
@@ -107,59 +107,25 @@ export class CompositeCollider extends Collider {
     return totalInertia;
   }
 
-  collide(_other: Collider): CollisionContact[] {
-    console.log('composite collide called');
-    // Composite colliders are an artiface
-    // Their individual colliders are added to the collision system
-    return [];
-    // let otherColliders = [other];
-    // if (other instanceof CompositeCollider) {
-    //   otherColliders = other.getColliders();
-    // }
-    
-    // this._dynamicAABBTree.query(other, (potentialCollider) => {
+  collide(other: Collider): CollisionContact[] {
+    let otherColliders = [other];
+    if (other instanceof CompositeCollider) {
+      otherColliders = other.getColliders();
+    }
 
-    //   return false;
-    // });
+    const pairs: Pair[] = [];
+    for (const c of otherColliders) {
+      this._dynamicAABBTree.query(c, (potentialCollider: Collider) => {
+        pairs.push(new Pair(c, potentialCollider));
+        return false;
+      });
+    }
 
-    // this._collisionProcessor.track(other);
-    // const possibleColliders = [...otherColliders, ...this.getColliders()];
-    // // TODO maybe just dynamic tree?
-    // this._collisionProcessor.update(possibleColliders);
-    // let pairs = this._collisionProcessor.broadphase(possibleColliders, 16);
-    // // Only interested in pairs from other
-    // pairs = pairs.filter(p => otherColliders.some(other => p.hasCollider(other)));
-
-    // let contacts = this._collisionProcessor.narrowphase(pairs);
-    // this._collisionProcessor.untrack(other);
-    // return contacts;
-
-
-    // const colliders = this.getColliders();
-    // let contacts: CollisionContact[] = [];
-    // if (other instanceof CompositeCollider) {
-    //   const otherColliders = other.getColliders();
-    //   for (const colliderA of colliders) {
-    //     for (const colliderB of otherColliders) {
-    //       const maybeContact = colliderA.collide(colliderB);
-    //       if (maybeContact) {
-    //         contacts = contacts.concat(maybeContact);
-    //       }
-    //     }
-    //   }
-    // } else {
-    //   for (const collider of colliders) {
-    //     const maybeContact = collider.collide(other);
-    //     if (maybeContact) {
-    //       contacts = contacts.concat(maybeContact);
-    //     }
-    //   }
-    // }
-    // // Return all the contacts
-    // if (contacts.length) {
-    //   return contacts;
-    // }
-    // return [];
+    let contacts: CollisionContact[] = [];
+    for (const p of pairs) {
+      contacts = contacts.concat(p.collide());
+    }
+    return contacts;
   }
 
   getClosestLineBetween(other: Collider): Line {

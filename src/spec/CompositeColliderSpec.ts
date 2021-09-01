@@ -119,7 +119,7 @@ describe('A CompositeCollider', () => {
     expect(contacts.length).toBe(1);
     expect(contacts[0].points)
       .withContext('Right edge of comp1 poly')
-      .toEqual([vec(100, -5), vec(100, 5)]);
+      .toEqual([vec(100, 5), vec(100, -5)]);
   });
 
   it('returns empty on no contacts', () => {
