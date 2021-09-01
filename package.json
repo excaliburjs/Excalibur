@@ -112,7 +112,7 @@
     "url-loader": "4.1.1",
     "wallaby-webpack": "3.9.16",
     "webpack": "5.51.1",
-    "webpack-cli": "4.7.2"
+    "webpack-cli": "4.8.0"
   },
   "dependencies": {
     "core-js": "3.16.4"
