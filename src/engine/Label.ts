@@ -1,7 +1,7 @@
 import { Engine } from './Engine';
 import { Color } from './Color';
 import { Configurable } from './Configurable';
-import { vec, Vector } from './Algebra';
+import { Vector } from './Math/vector';
 import { Text } from './Graphics/Text';
 import { BaseAlign, FontStyle, FontUnit, TextAlign } from './Graphics/FontCommon';
 import { obsolete } from './Util/Decorators';
@@ -228,7 +228,8 @@ export class LabelImpl extends Actor {
     x?: number,
     y?: number,
     fontFamily?: string,
-    spriteFont?: LegacySpriteFont | SpriteFont) {
+    spriteFont?: LegacySpriteFont | SpriteFont
+  ) {
     super();
     let text = '';
     let pos = Vector.Zero;

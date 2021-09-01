@@ -3,7 +3,7 @@ import * as Effects from './SpriteEffects';
 import { Color } from '../Color';
 
 import { Drawable, DrawOptions } from '../Interfaces/Drawable';
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
 import { Configurable } from '../Configurable';

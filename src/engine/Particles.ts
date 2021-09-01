@@ -1,7 +1,7 @@
 import { Engine } from './Engine';
 import { Actor } from './Actor';
 import { Color } from './Color';
-import { vec, Vector } from './Algebra';
+import { Vector, vec } from './Math/vector';
 import * as Util from './Util/Util';
 import * as DrawUtil from './Util/DrawUtil';
 import * as Traits from './Traits/Index';

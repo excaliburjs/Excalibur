@@ -1,4 +1,4 @@
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { Graphic, GraphicOptions } from './Graphic';
 import { Animation, HasTick } from './Animation';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';

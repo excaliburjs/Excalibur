@@ -4,7 +4,7 @@ import { polyfill } from './Polyfill';
 polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
 import { Loadable } from './Interfaces/Loadable';
-import { Vector } from './Algebra';
+import { Vector } from './Math/vector';
 import { Screen, DisplayMode, AbsolutePosition, ScreenDimension, Resolution } from './Screen';
 import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';

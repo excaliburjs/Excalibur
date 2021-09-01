@@ -1,5 +1,5 @@
 import { vec } from '..';
-import { Vector } from '../Algebra';
+import { Vector } from './vector';
 import { canonicalizeAngle } from '../Util/Util';
 
 export enum MatrixLocations {
@@ -34,7 +34,6 @@ const sign = (val: number) => {
  * Useful for webgl 4x4 matrices
  */
 export class Matrix {
-
   /**
    *  4x4 matrix in column major order
    *
@@ -348,7 +347,6 @@ export class Matrix {
     return this;
   }
 
-
   /**
    * Applies scaling to the current matrix mutating it
    * @param x
@@ -378,7 +376,6 @@ export class Matrix {
     return this;
   }
 
-
   public setRotation(angle: number) {
     const currentScale = this.getScale();
     const sine = Math.sin(angle);
@@ -388,14 +385,10 @@ export class Matrix {
     this.data[1] = sine * currentScale.y;
     this.data[4] = -sine * currentScale.x;
     this.data[5] = cosine * currentScale.y;
-
   }
 
   public getRotation(): number {
-
-    const angle = Math.atan2(
-      this.data[1] / this.getScaleY(),
-      this.data[0] / this.getScaleX());
+    const angle = Math.atan2(this.data[1] / this.getScaleY(), this.data[0] / this.getScaleX());
     return canonicalizeAngle(angle);
   }
 
@@ -445,7 +438,7 @@ export class Matrix {
    * Determinant of the upper left 2x2 matrix
    */
   public getBasisDeterminant() {
-    return (this.data[0] * this.data[5]) - (this.data[1] * this.data[4]);
+    return this.data[0] * this.data[5] - this.data[1] * this.data[4];
   }
 
   public getAffineInverse(): Matrix {
@@ -479,30 +472,32 @@ export class Matrix {
   }
 
   public isIdentity(): boolean {
-    return this.data[0] === 1 &&
-    this.data[1] === 0 &&
-    this.data[2] === 0 &&
-    this.data[3] === 0 &&
-    this.data[4] === 0 &&
-    this.data[5] === 1 &&
-    this.data[6] === 0 &&
-    this.data[7] === 0 &&
-    this.data[8] === 0 &&
-    this.data[9] === 0 &&
-    this.data[10] === 1 &&
-    this.data[11] === 0 &&
-    this.data[12] === 0 &&
-    this.data[13] === 0 &&
-    this.data[14] === 0 &&
-    this.data[15] === 1;
+    return (
+      this.data[0] === 1 &&
+      this.data[1] === 0 &&
+      this.data[2] === 0 &&
+      this.data[3] === 0 &&
+      this.data[4] === 0 &&
+      this.data[5] === 1 &&
+      this.data[6] === 0 &&
+      this.data[7] === 0 &&
+      this.data[8] === 0 &&
+      this.data[9] === 0 &&
+      this.data[10] === 1 &&
+      this.data[11] === 0 &&
+      this.data[12] === 0 &&
+      this.data[13] === 0 &&
+      this.data[14] === 0 &&
+      this.data[15] === 1
+    );
   }
 
   public toString() {
     return `
-[${ this.data[0] } ${ this.data[4] } ${ this.data[8] } ${ this.data[12] }]
-[${ this.data[1] } ${ this.data[5] } ${ this.data[9] } ${ this.data[13] }]
-[${ this.data[2] } ${ this.data[6] } ${ this.data[10] } ${ this.data[14] }]
-[${ this.data[3] } ${ this.data[7] } ${ this.data[11] } ${ this.data[15] }]
+[${this.data[0]} ${this.data[4]} ${this.data[8]} ${this.data[12]}]
+[${this.data[1]} ${this.data[5]} ${this.data[9]} ${this.data[13]}]
+[${this.data[2]} ${this.data[6]} ${this.data[10]} ${this.data[14]}]
+[${this.data[3]} ${this.data[7]} ${this.data[11]} ${this.data[15]}]
 `;
   }
 }

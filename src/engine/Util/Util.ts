@@ -1,4 +1,4 @@
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { Random } from '../Math/Random';
 import { Side } from '../Collision/Side';
 
@@ -477,7 +477,7 @@ export const range = (from: number, to: number) => Array.from(new Array(to - fro
  * @param milliseconds
  */
 export function delay(milliseconds: number): Promise<void> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       resolve();
     }, milliseconds);

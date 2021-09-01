@@ -8,7 +8,7 @@ import * as DrawUtil from './Util/DrawUtil';
 import logoImg from './Loader.logo.png';
 import loaderCss from './Loader.css';
 import { Canvas } from './Graphics/Canvas';
-import { Vector } from './Algebra';
+import { Vector } from './Math/vector';
 import { clamp, delay } from './Util/Util';
 
 /**

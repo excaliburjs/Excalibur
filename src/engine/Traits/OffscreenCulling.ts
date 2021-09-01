@@ -5,6 +5,9 @@ import { Engine } from '../Engine';
 import { ExitViewPortEvent, EnterViewPortEvent } from '../Events';
 import { TagComponent } from '../EntityComponentSystem';
 
+/**
+ * @deprecated will be removed in 0.26.0
+ */
 export class OffscreenCulling implements Trait {
   public cullingBox: CullingBox = new CullingBox();
 
