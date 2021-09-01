@@ -64,8 +64,8 @@ export class Pair {
 
   /**
    * Check if the collider is part of the pair
-   * @param collider 
-   * @returns 
+   * @param collider
+   * @returns
    */
   public hasCollider(collider: Collider) {
     return collider === this.colliderA || collider === this.colliderB;

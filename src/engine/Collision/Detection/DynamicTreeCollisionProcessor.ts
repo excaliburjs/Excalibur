@@ -36,7 +36,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     }
     if (target instanceof CompositeCollider) {
       const colliders = target.getColliders();
-      for (let c of colliders) {
+      for (const c of colliders) {
         c.owner = target.owner;
         this._colliders.push(c);
         this._dynamicCollisionTree.trackCollider(c);
@@ -58,12 +58,12 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
     if (target instanceof CompositeCollider) {
       const colliders = target.getColliders();
-      for (let c of colliders) {
+      for (const c of colliders) {
         const index = this._colliders.indexOf(c);
-      if (index !== -1) {
-        this._colliders.splice(index, 1);
-      }
-      this._dynamicCollisionTree.untrackCollider(c);
+        if (index !== -1) {
+          this._colliders.splice(index, 1);
+        }
+        this._dynamicCollisionTree.untrackCollider(c);
       }
     } else {
       const index = this._colliders.indexOf(target);
@@ -76,8 +76,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
   private _shouldGenerateCollisionPair(colliderA: Collider, colliderB: Collider) {
     // if the collision pair must be 2 separate colliders
-    if ((colliderA.id !== null && colliderB.id !== null) &&
-        colliderA.id === colliderB.id) {
+    if (colliderA.id !== null && colliderB.id !== null && colliderA.id === colliderB.id) {
       return false;
     }
 
@@ -88,7 +87,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     }
 
     // if the pair has a member with zero dimension
-    if (colliderA.localBounds.hasZeroDimensions() || colliderB.localBounds.hasZeroDimensions()){
+    if (colliderA.localBounds.hasZeroDimensions() || colliderB.localBounds.hasZeroDimensions()) {
       return false;
     }
 
@@ -102,11 +101,10 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     const seconds = delta / 1000;
 
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
-    const potentialColliders = targets
-      .filter((other) => {
-        const body = other.owner?.get(BodyComponent);
-        return other.owner?.active && body.collisionType !== CollisionType.PreventCollision;
-      });
+    const potentialColliders = targets.filter((other) => {
+      const body = other.owner?.get(BodyComponent);
+      return other.owner?.active && body.collisionType !== CollisionType.PreventCollision;
+    });
 
     // clear old list of collision pairs
     this._collisionPairCache = [];
