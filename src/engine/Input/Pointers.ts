@@ -20,6 +20,7 @@ import { CapturePointer } from '../Traits/CapturePointer';
 import { Actor } from '../Actor';
 
 export type DOMPointerEvent = globalThis.PointerEvent;
+export type DOMWheelEvent = globalThis.WheelEvent;
 
 interface TouchEvent extends Event {
   altKey: boolean;
@@ -459,7 +460,7 @@ export class Pointers extends Class {
   }
 
   private _handleWheelEvent(eventName: string, eventArr: WheelEvent[]) {
-    return (e: MouseWheelEvent) => {
+    return (e: DOMWheelEvent) => {
       // Should we prevent page scroll because of this event
       if (
         this._engine.pageScrollPreventionMode === ScrollPreventionMode.All ||
