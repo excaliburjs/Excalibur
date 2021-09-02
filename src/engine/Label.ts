@@ -1,7 +1,7 @@
 import { Engine } from './Engine';
 import { Color } from './Color';
 import { Configurable } from './Configurable';
-import { Vector } from './Math/vector';
+import { vec, Vector } from './Math/vector';
 import { Text } from './Graphics/Text';
 import { BaseAlign, FontStyle, FontUnit, TextAlign } from './Graphics/FontCommon';
 import { obsolete } from './Util/Decorators';

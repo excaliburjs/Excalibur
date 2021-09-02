@@ -13,7 +13,7 @@ export * from './Id';
 export * from './Engine';
 export * from './Screen';
 export { Actor, ActorArgs } from './Actor';
-export * from './Math';
+export * from './Math/Index';
 export * from './Camera';
 export * from './Class';
 export * from './Configurable';
@@ -39,7 +39,6 @@ export * from './Collision/Index';
 import * as legacyDrawing from './Drawing/Index';
 export { legacyDrawing as LegacyDrawing };
 export * from './Interfaces/Index';
-export * from './Math/Index';
 export * from './PostProcessing/Index';
 export * from './Resources/Index';
 
