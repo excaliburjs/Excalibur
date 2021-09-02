@@ -23,33 +23,15 @@ async function runOnLinux(ctx: () => Promise<any>): Promise<boolean> {
   return false;
 }
 declare global {
-  const FontFace: FontFace;
-
   interface Document {
     fonts: FontFaceSet;
   }
 
   type CSSOMString = string;
-  type FontFaceLoadStatus = 'unloaded' | 'loading' | 'loaded' | 'error';
   type FontFaceSetStatus = 'loading' | 'loaded';
-
-  interface FontFace extends FontFaceDescriptors {
-    new (family: string, source: string | ArrayBuffer, descriptors?: FontFaceDescriptors): FontFace;
-    readonly status: FontFaceLoadStatus;
-    readonly loaded: Promise<FontFace>;
-    variationSettings: CSSOMString;
-    display: CSSOMString;
-    load(): Promise<FontFace>;
-  }
 
   interface FontFaceDescriptors {
     family: CSSOMString;
-    style: CSSOMString;
-    weight: CSSOMString;
-    stretch: CSSOMString;
-    unicodeRange: CSSOMString;
-    variant: CSSOMString;
-    featureSettings: CSSOMString;
   }
 
   interface FontFaceSet extends Iterable<FontFace> {
