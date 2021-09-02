@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `PerlinNoise` has been removed from the core repo will now be offered as a [plugin](https://github.com/excaliburjs/excalibur-perlin)
 - Legacy drawing implementations are moved behind `ex.LegacyDrawing` new Graphics implemenations of `Sprite`, `SpriteSheet`, `Animation` are now the default import.
   - To use any of the `ex.LegacyDrawing.*` implementations you must opt-in with the `ex.Flags.useLegacyDrawing()` note: new graphics do not work in this egacy mode
 - Renames `CollisionResolutionStrategy.Box` collision resolution strategy to `Arcade`
@@ -101,6 +102,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Add `KeyEvent.originalEvent?: KeyboardEvent` which exposes the raw keyboard event handled from the browser.
 
 ### Changed
+- `Algebra.ts` refactored into separate files in `Math/`
 - Engine/Scene refactored to make use of the new ECS world which simplifies their logic
 - `TileMap` now uses the built in `Collider` component instead of custom collision code.
 - Updates the Excalibur ECS implementation for ease of use and Excalibur draw system integration
