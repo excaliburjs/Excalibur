@@ -8,7 +8,7 @@ import { Engine } from '../Engine';
 import { Logger } from '../Util/Log';
 import { BaseAlign, TextAlign } from '../Graphics/FontCommon';
 import { obsolete } from '../Util/Decorators';
-import { vec } from '../Algebra';
+import { vec } from '../Math/vector';
 
 export interface SpriteSheetArgs {
   image: Texture;

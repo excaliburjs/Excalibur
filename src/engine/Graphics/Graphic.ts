@@ -1,4 +1,4 @@
-import { Vector, vec } from '../Algebra';
+import { Vector, vec } from '../Math/vector';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/BoundingBox';
 

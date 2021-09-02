@@ -1,4 +1,4 @@
-import { Vector } from '../../Algebra';
+import { Vector } from '../../Math/vector';
 import { Color } from '../../Color';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;

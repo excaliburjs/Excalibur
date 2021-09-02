@@ -1,6 +1,6 @@
 import { Engine } from './Engine';
 import { EasingFunction, EasingFunctions } from './Util/EasingFunctions';
-import { Vector, vec } from './Algebra';
+import { Vector, vec } from './Math/vector';
 import { Actor } from './Actor';
 import { removeItemFromArray } from './Util/Util';
 import { CanUpdate, CanInitialize } from './Interfaces/LifecycleEvents';

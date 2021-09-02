@@ -1,6 +1,6 @@
 import { BoundingBox } from './Collision/BoundingBox';
 import { Engine } from './Engine';
-import { vec, Vector } from './Algebra';
+import { Vector, vec } from './Math/vector';
 import { Logger } from './Util/Log';
 import { SpriteSheet } from './Drawing/SpriteSheet';
 import * as Events from './Events';

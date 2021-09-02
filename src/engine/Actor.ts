@@ -31,7 +31,7 @@ import { CanInitialize, CanUpdate, CanDraw, CanBeKilled } from './Interfaces/Lif
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
-import { vec, Vector } from './Algebra';
+import { Vector, vec } from './Math/vector';
 import { BodyComponent } from './Collision/BodyComponent';
 import { Eventable } from './Interfaces/Evented';
 import { Actionable } from './Actions/Actionable';

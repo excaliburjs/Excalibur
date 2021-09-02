@@ -3,7 +3,8 @@ import { CollisionProcessor } from './CollisionProcessor';
 import { DynamicTree } from './DynamicTree';
 import { Pair } from './Pair';
 
-import { Vector, Ray } from '../../Algebra';
+import { Vector } from '../../Math/vector';
+import { Ray } from '../../Math/ray';
 import { FrameStats } from '../../Debug';
 import { Logger } from '../../Util/Log';
 import { CollisionType } from '../CollisionType';
@@ -54,8 +55,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
   private _shouldGenerateCollisionPair(colliderA: Collider, colliderB: Collider) {
     // if the collision pair must be 2 separate colliders
-    if ((colliderA.id !== null && colliderB.id !== null) &&
-        colliderA.id === colliderB.id) {
+    if (colliderA.id !== null && colliderB.id !== null && colliderA.id === colliderB.id) {
       return false;
     }
 
@@ -66,7 +66,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     }
 
     // if the pair has a member with zero dimension
-    if (colliderA.localBounds.hasZeroDimensions() || colliderB.localBounds.hasZeroDimensions()){
+    if (colliderA.localBounds.hasZeroDimensions() || colliderB.localBounds.hasZeroDimensions()) {
       return false;
     }
 
@@ -80,11 +80,10 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     const seconds = delta / 1000;
 
     // Retrieve the list of potential colliders, exclude killed, prevented, and self
-    const potentialColliders = targets
-      .filter((other) => {
-        const body = other.owner?.get(BodyComponent);
-        return other.owner?.active && body.collisionType !== CollisionType.PreventCollision;
-      });
+    const potentialColliders = targets.filter((other) => {
+      const body = other.owner?.get(BodyComponent);
+      return other.owner?.active && body.collisionType !== CollisionType.PreventCollision;
+    });
 
     // clear old list of collision pairs
     this._collisionPairCache = [];

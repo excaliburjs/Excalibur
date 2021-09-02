@@ -1,6 +1,6 @@
 import { Matrix, MatrixLocations } from '../../Math/matrix';
 import { VectorView } from '../../Math/vector-view';
-import { vec, Vector } from '../../Algebra';
+import { Vector, vec } from '../../Math/vector';
 import { Component } from '../Component';
 
 export interface Transform {

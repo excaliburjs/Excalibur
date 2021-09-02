@@ -2,7 +2,7 @@ import { Graphic, GraphicOptions } from './Graphic';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Color } from '../Color';
 import { ensurePowerOfTwo } from './Context/webgl-util';
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { watch } from '../Util/Watch';
 import { TextureLoader } from './Context/texture-loader';

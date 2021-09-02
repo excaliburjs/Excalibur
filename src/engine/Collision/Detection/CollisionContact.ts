@@ -1,4 +1,4 @@
-import { Vector } from '../../Algebra';
+import { Vector } from '../../Math/vector';
 import { Physics } from '../Physics';
 import { Collider } from '../Shapes/Collider';
 import { CollisionType } from '../CollisionType';
@@ -66,7 +66,8 @@ export class CollisionContact {
     tangent: Vector,
     points: Vector[],
     localPoints: Vector[],
-    info: SeparationInfo) {
+    info: SeparationInfo
+  ) {
     this.colliderA = colliderA;
     this.colliderB = colliderB;
     this.mtv = mtv;
@@ -86,18 +87,10 @@ export class CollisionContact {
     const bodyB = this.colliderB.owner.get(BodyComponent);
     if (bodyA && bodyB) {
       if (bodyA.sleeping !== bodyB.sleeping) {
-        if (
-          bodyA.sleeping &&
-          bodyA.collisionType !== CollisionType.Fixed &&
-          bodyB.sleepMotion >= Physics.wakeThreshold
-        ) {
+        if (bodyA.sleeping && bodyA.collisionType !== CollisionType.Fixed && bodyB.sleepMotion >= Physics.wakeThreshold) {
           bodyA.setSleeping(false);
         }
-        if (
-          bodyB.sleeping &&
-          bodyB.collisionType !== CollisionType.Fixed &&
-          bodyA.sleepMotion >= Physics.wakeThreshold
-        ) {
+        if (bodyB.sleeping && bodyB.collisionType !== CollisionType.Fixed && bodyA.sleepMotion >= Physics.wakeThreshold) {
           bodyB.setSleeping(false);
         }
       }

@@ -1,4 +1,4 @@
-import { vec, Vector } from './Algebra';
+import { Vector, vec } from './Math/vector';
 import { Engine } from './Engine';
 import { Actor, ActorArgs } from './Actor';
 import * as Traits from './Traits/Index';
@@ -16,7 +16,7 @@ export class ScreenElement extends Actor {
   constructor(config?: ActorArgs);
 
   constructor(config?: ActorArgs) {
-    super({...config});
+    super({ ...config });
     this.get(TransformComponent).coordPlane = CoordPlane.Screen;
     this.traits = [];
     this.traits.push(new Traits.CapturePointer());

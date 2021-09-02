@@ -1,5 +1,5 @@
 import { Scene } from './Scene';
-import { Vector } from './Algebra';
+import { Vector } from './Math/vector';
 import { Actor } from './Actor';
 import { Trigger } from './Trigger';
 import { FrameStats } from './Debug';

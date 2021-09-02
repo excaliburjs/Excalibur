@@ -1,5 +1,5 @@
 import { Actor } from '../Actor';
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { Class } from '../Class';
 import * as Actors from '../Util/Actors';
 import { removeItemFromArray } from '../Util/Util';
@@ -198,9 +198,12 @@ export class Pointer extends Class {
    * Returns all actors relevant for events to pointer this frame
    */
   public getActorsForEvents(): Actor[] {
-    return this._actors.concat(this._actorsLastFrame).filter((actor, i, self) => {
-      return self.indexOf(actor) === i; // de-dup
-    }).sort(this._actorSortingFcn); // sort by z
+    return this._actors
+      .concat(this._actorsLastFrame)
+      .filter((actor, i, self) => {
+        return self.indexOf(actor) === i; // de-dup
+      })
+      .sort(this._actorSortingFcn); // sort by z
   }
 
   /**

@@ -4,7 +4,10 @@ import { CollisionJumpTable } from './CollisionJumpTable';
 import { CircleCollider } from './CircleCollider';
 import { ConvexPolygon } from './ConvexPolygon';
 
-import { Vector, Ray, Projection, Line } from '../../Algebra';
+import { Projection } from '../../Math/projection';
+import { Line } from '../../Math/line';
+import { Vector } from '../../Math/vector';
+import { Ray } from '../../Math/ray';
 import { Color } from '../../Color';
 import { Collider } from './Collider';
 import { ClosestLineJumpTable } from '../Shapes/ClosestLineJumpTable';

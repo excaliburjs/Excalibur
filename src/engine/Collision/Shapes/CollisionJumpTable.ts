@@ -3,7 +3,8 @@ import { CollisionContact } from '../Detection/CollisionContact';
 import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 import { SeparatingAxis, SeparationInfo } from './SeparatingAxis';
-import { Line, Vector } from '../../Algebra';
+import { Line } from '../../Math/line';
+import { Vector } from '../../Math/vector';
 import { TransformComponent } from '../../EntityComponentSystem';
 
 export const CollisionJumpTable = {

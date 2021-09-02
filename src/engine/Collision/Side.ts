@@ -1,4 +1,4 @@
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 
 /**
  * An enum that describes the sides of an axis aligned box for collision

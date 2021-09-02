@@ -1,4 +1,4 @@
-import { Vector, vec } from '../Algebra';
+import { Vector, vec } from '../Math/vector';
 import { Graphic } from './Graphic';
 import { HasTick } from './Animation';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
@@ -11,7 +11,7 @@ import { Component } from '../EntityComponentSystem/Component';
  * @param graphic
  */
 export function hasGraphicsTick(graphic: Graphic): graphic is Graphic & HasTick {
-  return !!((graphic as unknown) as HasTick).tick;
+  return !!(graphic as unknown as HasTick).tick;
 }
 export interface GraphicsShowOptions {
   offset?: Vector;

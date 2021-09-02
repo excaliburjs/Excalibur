@@ -1,5 +1,5 @@
 import { Actor } from '../../Actor';
-import { vec } from '../../Algebra';
+import { vec } from '../../Math/vector';
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { Action } from '../Action';
