@@ -1,4 +1,4 @@
-import { Vector } from '../../Algebra';
+import { Vector } from '../../Math/vector';
 import { Color } from '../../Color';
 import { Shader } from './shader';
 import lineVertexSource from './shaders/line-vertex.glsl';

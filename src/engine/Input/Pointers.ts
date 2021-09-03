@@ -15,11 +15,14 @@ import { GameEvent } from '../Events';
 
 import * as Events from '../Events';
 import * as Util from '../Util/Util';
-import { GlobalCoordinates, vec, Vector } from '../Algebra';
+import { vec } from '../Math/vector';
+import { GlobalCoordinates } from '../Math/global-coordinates';
+import { Vector } from '../Math/vector';
 import { CapturePointer } from '../Traits/CapturePointer';
 import { Actor } from '../Actor';
 
 export type DOMPointerEvent = globalThis.PointerEvent;
+export type DOMWheelEvent = globalThis.WheelEvent;
 
 interface TouchEvent extends Event {
   altKey: boolean;
@@ -459,7 +462,7 @@ export class Pointers extends Class {
   }
 
   private _handleWheelEvent(eventName: string, eventArr: WheelEvent[]) {
-    return (e: MouseWheelEvent) => {
+    return (e: DOMWheelEvent) => {
       // Should we prevent page scroll because of this event
       if (
         this._engine.pageScrollPreventionMode === ScrollPreventionMode.All ||

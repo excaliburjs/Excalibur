@@ -1,4 +1,4 @@
-import { Vector } from '../../Algebra';
+import { Vector } from '../../Math/vector';
 import { Color } from '../../Color';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
@@ -53,8 +53,8 @@ export interface DebugDraw {
 
   /**
    * Draw debug text
-   * @param text 
-   * @param pos 
+   * @param text
+   * @param pos
    */
   drawText(text: string, pos: Vector): void;
 }
@@ -126,27 +126,27 @@ export interface ExcaliburGraphicsContext {
 
   /**
    * Draw a solid line to the Excalibur Graphics context
-   * @param start 
-   * @param end 
-   * @param color 
-   * @param thickness 
+   * @param start
+   * @param end
+   * @param color
+   * @param thickness
    */
   drawLine(start: Vector, end: Vector, color: Color, thickness: number): void;
 
   /**
    * Draw a solid rectangle to the Excalibur Graphics context
-   * @param pos 
-   * @param width 
-   * @param height 
-   * @param color 
+   * @param pos
+   * @param width
+   * @param height
+   * @param color
    */
   drawRectangle(pos: Vector, width: number, height: number, color: Color): void;
 
   /**
    * Draw a solid circle to the Excalibur Graphics context
-   * @param pos 
-   * @param radius 
-   * @param color 
+   * @param pos
+   * @param radius
+   * @param color
    */
   drawCircle(pos: Vector, radius: number, color: Color): void;
 

@@ -10,7 +10,7 @@ import {
 
 import { Matrix } from '../../Math/matrix';
 import { TransformStack } from './transform-stack';
-import { Vector, vec } from '../../Algebra';
+import { Vector, vec } from '../../Math/vector';
 import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { Logger } from '../../Util/Log';

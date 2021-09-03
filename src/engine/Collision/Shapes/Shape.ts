@@ -2,7 +2,7 @@ import { ConvexPolygon } from './ConvexPolygon';
 import { CircleCollider } from './CircleCollider';
 import { Edge } from './Edge';
 import { BoundingBox } from '../BoundingBox';
-import { Vector } from '../../Algebra';
+import { Vector } from '../../Math/vector';
 
 /**
  * Excalibur helper for defining colliders quickly

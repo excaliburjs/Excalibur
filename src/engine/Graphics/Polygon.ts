@@ -1,4 +1,4 @@
-import { Vector, vec } from '../Algebra';
+import { Vector, vec } from '../Math/vector';
 import { Raster, RasterOptions } from './Raster';
 
 export interface PolygonOptions {

@@ -6,7 +6,7 @@ import {
   DebugDraw,
   HTMLImageSource
 } from './ExcaliburGraphicsContext';
-import { Vector } from '../../Algebra';
+import { Vector } from '../../Math/vector';
 import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
@@ -203,13 +203,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.save();
     this.__ctx.beginPath();
     this.__ctx.fillStyle = color.toString();
-    this.__ctx.arc(
-      this.snapToPixel ? ~~pos.x : pos.x,
-      this.snapToPixel ? ~~pos.y : pos.y,
-      radius,
-      0,
-      Math.PI * 2
-    );
+    this.__ctx.arc(this.snapToPixel ? ~~pos.x : pos.x, this.snapToPixel ? ~~pos.y : pos.y, radius, 0, Math.PI * 2);
     this.__ctx.fill();
     this.__ctx.closePath();
     this.__ctx.restore();

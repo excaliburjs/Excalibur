@@ -1,8 +1,11 @@
-import { vec, Vector } from '../Algebra';
+import { Vector, vec } from '../Math/vector';
 import { Actor } from '../Actor';
 import { Engine } from '../Engine';
 import { Color } from '../Color';
 
+/**
+ * @deprecated Will be removed in 0.26.0
+ */
 export class CullingBox {
   private _topLeft: Vector = new Vector(0, 0);
   private _topRight: Vector = new Vector(0, 0);

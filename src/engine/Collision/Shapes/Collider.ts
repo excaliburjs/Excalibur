@@ -1,7 +1,10 @@
 import { Color } from '../../Color';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { BoundingBox } from '../BoundingBox';
-import { Vector, Projection, Ray, Line } from '../../Algebra';
+import { Projection } from '../../Math/projection';
+import { Line } from '../../Math/line';
+import { Vector } from '../../Math/vector';
+import { Ray } from '../../Math/ray';
 import { Clonable } from '../../Interfaces/Clonable';
 import { Entity, Transform } from '../../EntityComponentSystem';
 import { createId, Id } from '../../Id';
@@ -48,7 +51,6 @@ export abstract class Collider implements Clonable<Collider> {
    * The center point of the collision collider, for example if the collider is a circle it would be the center.
    */
   abstract get center(): Vector;
-
 
   /**
    * Return the axis-aligned bounding box of the collision collider in world coordinates
