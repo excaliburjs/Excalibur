@@ -32,6 +32,7 @@ import { Entity } from './EntityComponentSystem/Entity';
 import { GraphicsSystem } from './Graphics/GraphicsSystem';
 import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { Flags, Legacy } from './Flags';
+import { DebugSystem } from './Debug/DebugSystem';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -114,6 +115,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     } else {
       this.world.add(new GraphicsSystem());
     }
+    this.world.add(new DebugSystem());
   }
 
   public on(eventName: Events.initialize, handler: (event: InitializeEvent<Scene>) => void): void;

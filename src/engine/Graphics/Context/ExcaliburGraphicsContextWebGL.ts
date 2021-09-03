@@ -19,8 +19,10 @@ import { ImageRenderer } from './image-renderer';
 import { PointRenderer } from './point-renderer';
 import { Canvas } from '../Canvas';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
+import { DebugText } from './debug-text';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
+  private _debugText = new DebugText();
   constructor(private _webglCtx: ExcaliburGraphicsContextWebGL) {}
 
   /**
@@ -54,6 +56,10 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
    */
   drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
     this._webglCtx.__pointRenderer.addPoint(point, pointOptions.color, pointOptions.size);
+  }
+
+  drawText(text: string, pos: Vector) {
+    this._debugText.write(this._webglCtx, text, pos);
   }
 }
 

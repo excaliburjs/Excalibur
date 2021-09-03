@@ -1,6 +1,7 @@
 import { DebugFlags, ColorBlindFlags } from './DebugFlags';
 import { Pair } from './Collision/Detection/Pair';
 import { Engine } from './Engine';
+import { Color } from '.';
 
 /**
  * Debug stats containing current and previous frame statistics
@@ -195,6 +196,66 @@ export class Debug implements DebugFlags {
    * @warning Will reduce FPS.
    */
   public colorBlindMode: ColorBlindFlags;
+
+  public entity = {
+    showAll: false,
+    showId: false,
+    showName: false,
+  }
+
+  public transform = {
+    showAll: false,
+    
+    showPosition: true,
+    positionColor: Color.Yellow,
+    
+    showScale: false,
+    scaleColor: Color.Green,
+    
+    showRotation: false,
+    rotationColor: Color.Blue
+  };
+  public graphics = {
+    showAll: false,
+    
+    showBounds: false,
+    boundsColor: Color.Yellow
+  };
+  public collider = {
+    showAll: false,
+    
+    showBounds: false,
+    boundsColor: Color.Blue,
+    
+    showGeometry: false,
+    geometryColor: Color.Green,
+
+  };
+  public motion = {
+    showAll: false,
+
+    showVelocity: false,
+    velocityColor: Color.Yellow,
+
+    showAcceleration: false,
+    accelerationColor: Color.Red
+  };
+
+  public body = {
+    showAll: false,
+
+    showCollisionGroup: false,
+    showCollisionType: false
+  }
+  public camera = {
+    showAll: false,
+
+    showFocus: false,
+    focusColor: Color.Black,
+
+    showZoom: false,
+    zoomColor: Color.Black
+  }
 }
 
 /**

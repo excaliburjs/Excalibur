@@ -10,8 +10,10 @@ import { Vector } from '../../Algebra';
 import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
+import { DebugText } from './debug-text';
 
 class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
+  private _debugText = new DebugText();
   constructor(private _ex: ExcaliburGraphicsContext2DCanvas) {}
   /**
    * Draw a debug rectangle to the context
@@ -58,6 +60,10 @@ class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
     this._ex.__ctx.fill();
     this._ex.__ctx.closePath();
     this._ex.__ctx.restore();
+  }
+
+  drawText(text: string, pos: Vector) {
+    this._debugText.write(this._ex, text, pos);
   }
 }
 
@@ -167,6 +173,46 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.drawImage.apply(this.__ctx, args);
     GraphicsDiagnostics.DrawCallCount++;
     GraphicsDiagnostics.DrawnImagesCount = 1;
+  }
+
+  public drawLine(start: Vector, end: Vector, color: Color, thickness = 1) {
+    this.__ctx.save();
+    this.__ctx.beginPath();
+    this.__ctx.strokeStyle = color.toString();
+    this.__ctx.moveTo(this.snapToPixel ? ~~start.x : start.x, this.snapToPixel ? ~~start.y : start.y);
+    this.__ctx.lineTo(this.snapToPixel ? ~~end.x : end.x, this.snapToPixel ? ~~end.y : end.y);
+    this.__ctx.lineWidth = thickness;
+    this.__ctx.stroke();
+    this.__ctx.closePath();
+    this.__ctx.restore();
+  }
+
+  public drawRectangle(pos: Vector, width: number, height: number, color: Color) {
+    this.__ctx.save();
+    this.__ctx.fillStyle = color.toString();
+    this.__ctx.strokeRect(
+      this.snapToPixel ? ~~pos.x : pos.x,
+      this.snapToPixel ? ~~pos.y : pos.y,
+      this.snapToPixel ? ~~width : width,
+      this.snapToPixel ? ~~height : height
+    );
+    this.__ctx.restore();
+  }
+
+  public drawCircle(pos: Vector, radius: number, color: Color) {
+    this.__ctx.save();
+    this.__ctx.beginPath();
+    this.__ctx.fillStyle = color.toString();
+    this.__ctx.arc(
+      this.snapToPixel ? ~~pos.x : pos.x,
+      this.snapToPixel ? ~~pos.y : pos.y,
+      radius,
+      0,
+      Math.PI * 2
+    );
+    this.__ctx.fill();
+    this.__ctx.closePath();
+    this.__ctx.restore();
   }
 
   debug = new ExcaliburGraphicsContext2DCanvasDebug(this);
