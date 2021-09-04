@@ -65,7 +65,7 @@ export class BatchImage extends BatchCommand<DrawImageCommand> {
   }
 
   add(command: DrawImageCommand) {
-    if ((command.type === DrawCommandType.Image)) {
+    if (command.type === DrawCommandType.Image) {
       const texture = TextureLoader.load(command.image);
       if (this.textures.indexOf(texture) === -1) {
         this.textures.push(texture);
@@ -141,7 +141,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       if (i === 0) {
         texturePickerBuilder += `if (v_textureIndex <= ${i}.5) {\n`;
       } else {
-        texturePickerBuilder += `   else if (v_textureIndex <= ${i}.5) {\n`
+        texturePickerBuilder += `   else if (v_textureIndex <= ${i}.5) {\n`;
       }
       texturePickerBuilder += `      color = texture2D(u_textures[${i}], v_texcoord);\n`;
       texturePickerBuilder += `   }\n`;
@@ -207,25 +207,25 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       sw = command.view[2];
       sh = command.view[3];
 
-      potWidth = ensurePowerOfTwo(command.image?.width || command.width);//?
-      potHeight = ensurePowerOfTwo(command.image?.height || command.height);//?
+      potWidth = ensurePowerOfTwo(command.image?.width || command.width);
+      potHeight = ensurePowerOfTwo(command.image?.height || command.height);
 
-      textureId = batch.getBatchTextureId(command);//?
+      textureId = batch.getBatchTextureId(command);
       if (command.type === DrawCommandType.Line || command.type === DrawCommandType.Rectangle) {
-        textureId === -1
+        textureId = -1; // sentinel for no image rect
         commandColor = command.color;
       }
       if (command.type === DrawCommandType.Circle) {
-        textureId = -2;
+        textureId = -2; // sentinel for circle
         commandColor = command.color;
       }
-      
+
       // potential optimization when divding by 2 (bitshift)
       // Modifying the images to poweroftwo images warp the UV coordinates
-      let uvx0 = sx / potWidth;//?
-      let uvy0 = sy / potHeight;//?
-      let uvx1 = (sx + sw) / potWidth;//?
-      let uvy1 = (sy + sh) / potHeight;//?
+      let uvx0 = sx / potWidth;
+      let uvy0 = sy / potHeight;
+      let uvx1 = (sx + sw) / potWidth;
+      let uvy1 = (sy + sh) / potHeight;
       if (textureId === -2) {
         uvx0 = 0;
         uvy0 = 0;
@@ -247,9 +247,9 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       // opacity
       vertexBuffer[vertIndex++] = command.opacity;
       // color
-      vertexBuffer[vertIndex++] = commandColor.r;
-      vertexBuffer[vertIndex++] = commandColor.g;
-      vertexBuffer[vertIndex++] = commandColor.b;
+      vertexBuffer[vertIndex++] = commandColor.r / 255;
+      vertexBuffer[vertIndex++] = commandColor.g / 255;
+      vertexBuffer[vertIndex++] = commandColor.b / 255;
       vertexBuffer[vertIndex++] = commandColor.a;
 
       // (0, 1)
@@ -265,9 +265,9 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       // opacity
       vertexBuffer[vertIndex++] = command.opacity;
       // color
-      vertexBuffer[vertIndex++] = commandColor.r;
-      vertexBuffer[vertIndex++] = commandColor.g;
-      vertexBuffer[vertIndex++] = commandColor.b;
+      vertexBuffer[vertIndex++] = commandColor.r / 255;
+      vertexBuffer[vertIndex++] = commandColor.g / 255;
+      vertexBuffer[vertIndex++] = commandColor.b / 255;
       vertexBuffer[vertIndex++] = commandColor.a;
 
       // (1, 0)
@@ -283,9 +283,9 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       // opacity
       vertexBuffer[vertIndex++] = command.opacity;
       // color
-      vertexBuffer[vertIndex++] = commandColor.r;
-      vertexBuffer[vertIndex++] = commandColor.g;
-      vertexBuffer[vertIndex++] = commandColor.b;
+      vertexBuffer[vertIndex++] = commandColor.r / 255;
+      vertexBuffer[vertIndex++] = commandColor.g / 255;
+      vertexBuffer[vertIndex++] = commandColor.b / 255;
       vertexBuffer[vertIndex++] = commandColor.a;
 
       // (1, 0)
@@ -301,9 +301,9 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       // opacity
       vertexBuffer[vertIndex++] = command.opacity;
       // color
-      vertexBuffer[vertIndex++] = commandColor.r;
-      vertexBuffer[vertIndex++] = commandColor.g;
-      vertexBuffer[vertIndex++] = commandColor.b;
+      vertexBuffer[vertIndex++] = commandColor.r / 255;
+      vertexBuffer[vertIndex++] = commandColor.g / 255;
+      vertexBuffer[vertIndex++] = commandColor.b / 255;
       vertexBuffer[vertIndex++] = commandColor.a;
 
       // (0, 1)
@@ -319,9 +319,9 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       // opacity
       vertexBuffer[vertIndex++] = command.opacity;
       // color
-      vertexBuffer[vertIndex++] = commandColor.r;
-      vertexBuffer[vertIndex++] = commandColor.g;
-      vertexBuffer[vertIndex++] = commandColor.b;
+      vertexBuffer[vertIndex++] = commandColor.r / 255;
+      vertexBuffer[vertIndex++] = commandColor.g / 255;
+      vertexBuffer[vertIndex++] = commandColor.b / 255;
       vertexBuffer[vertIndex++] = commandColor.a;
 
       // (1, 1)
@@ -337,9 +337,9 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       // opacity
       vertexBuffer[vertIndex++] = command.opacity;
       // color
-      vertexBuffer[vertIndex++] = commandColor.r;
-      vertexBuffer[vertIndex++] = commandColor.g;
-      vertexBuffer[vertIndex++] = commandColor.b;
+      vertexBuffer[vertIndex++] = commandColor.r / 255;
+      vertexBuffer[vertIndex++] = commandColor.g / 255;
+      vertexBuffer[vertIndex++] = commandColor.b / 255;
       vertexBuffer[vertIndex++] = commandColor.a;
     }
 

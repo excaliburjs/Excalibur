@@ -44,7 +44,6 @@ import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
-import { Debug } from './Debug';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Rectangle } from './Graphics/Rectangle';
 import { Flags, Legacy } from './Flags';
@@ -66,6 +65,10 @@ export function isActor(x: any): x is Actor {
  * Actor contructor options
  */
 export interface ActorArgs {
+  /**
+   * Optionally set the name of the actor, default is 'anonymous'
+   */
+  name?: string;
   /**
    * Optionally set the x position of the actor, default is 0
    */
@@ -486,10 +489,29 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   constructor(config?: ActorArgs) {
     super();
 
-    const { x, y, pos, scale, width, height, collider, vel, acc, rotation, angularVelocity, z, color, visible, anchor, collisionType } = {
+    const {
+      name,
+      x,
+      y,
+      pos,
+      scale,
+      width,
+      height,
+      collider,
+      vel,
+      acc,
+      rotation,
+      angularVelocity,
+      z,
+      color,
+      visible,
+      anchor,
+      collisionType
+    } = {
       ...config
     };
 
+    this._setName(name);
     this.anchor = anchor ?? Actor.defaults.anchor.clone();
 
     this.addComponent(new TransformComponent());
@@ -1228,66 +1250,8 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
    * @param ctx The rendering context
    */
   /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D) {
-    this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
-
-    // Draw actor Id
-    if (Debug.showActorId) {
-      ctx.fillText('id: ' + this.id, this.collider.bounds.left + 3, this.collider.bounds.top + 10);
-    }
-
-    // Draw actor anchor Vector
-    if (Debug.showActorAnchor) {
-      ctx.fillStyle = Color.Yellow.toString();
-      ctx.beginPath();
-      ctx.arc(this.getGlobalPos().x, this.getGlobalPos().y, 3, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    // Culling Box debug draw
-    for (let j = 0; j < this.traits.length; j++) {
-      if (this.traits[j] instanceof Traits.OffscreenCulling && Debug.showDrawingCullBox) {
-        (<Traits.OffscreenCulling>this.traits[j]).cullingBox.debugDraw(ctx); // eslint-disable-line
-      }
-    }
-
-    // Unit Circle debug draw
-    if (Debug.showActorUnitCircle) {
-      ctx.strokeStyle = Color.Yellow.toString();
-      ctx.beginPath();
-      const radius = Math.min(this.width, this.height);
-      ctx.arc(this.getGlobalPos().x, this.getGlobalPos().y, radius, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.stroke();
-      const ticks: { [key: string]: number } = {
-        '0 Pi': 0,
-        'Pi/2': Math.PI / 2,
-        Pi: Math.PI,
-        '3/2 Pi': (3 * Math.PI) / 2
-      };
-
-      const oldFont = ctx.font;
-      for (const tick in ticks) {
-        ctx.fillStyle = Color.Yellow.toString();
-        ctx.font = '14px';
-        ctx.textAlign = 'center';
-        ctx.fillText(
-          tick,
-          this.getGlobalPos().x + Math.cos(ticks[tick]) * (radius + 10),
-          this.getGlobalPos().y + Math.sin(ticks[tick]) * (radius + 10)
-        );
-      }
-
-      ctx.font = oldFont;
-    }
-
-    // Draw child actors
-    // for (let i = 0; i < this.children.length; i++) {
-    //   this.children[i].debugDraw(ctx);
-    // }
-
-    this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
+  public debugDraw(_ctx: CanvasRenderingContext2D) {
+    // pass
   }
   // #endregion
 }

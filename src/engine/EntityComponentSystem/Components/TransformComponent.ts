@@ -106,6 +106,16 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
     }
   }
 
+  public getGlobalTransform(): Transform {
+    return {
+      pos: this.globalPos,
+      scale: this.globalScale,
+      rotation: this.globalRotation,
+      z: this.z,
+      coordPlane: this.coordPlane
+    };
+  }
+
   public get parent(): TransformComponent | null {
     return this?.owner?.parent?.get(TransformComponent);
   }

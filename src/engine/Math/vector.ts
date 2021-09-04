@@ -354,7 +354,10 @@ export class Vector implements Clonable<Vector> {
   /**
    * Returns a string representation of the vector.
    */
-  public toString(): string {
+  public toString(fixed?: number): string {
+    if (fixed) {
+      return `(${this.x.toFixed(fixed)}, ${this.y.toFixed(fixed)})`;
+    }
     return `(${this.x}, ${this.y})`;
   }
 }

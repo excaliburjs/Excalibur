@@ -8,7 +8,6 @@ import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './E
 import { Class } from './Class';
 import { BoundingBox } from './Collision/BoundingBox';
 import { Logger } from './Util/Log';
-import { Debug } from './Debug';
 import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 import { watchAny } from './Util/Watch';
 
@@ -739,31 +738,8 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D) {
-    if (Debug.showCameraFocus) {
-      const focus = this.getFocus();
-      ctx.fillStyle = 'red';
-      ctx.strokeStyle = 'white';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(focus.x, focus.y, 15, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(focus.x, focus.y, 5, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.stroke();
-    }
-
-    if (Debug.showCameraViewport) {
-      ctx.beginPath();
-      ctx.setLineDash([5, 15]);
-      ctx.lineWidth = 5;
-      ctx.strokeStyle = 'white';
-      ctx.strokeRect(this.viewport.left, this.viewport.top, this.viewport.width, this.viewport.height);
-      ctx.closePath();
-    }
+  public debugDraw(_ctx: CanvasRenderingContext2D) {
+    // pass
   }
 
   private _isDoneShaking(): boolean {

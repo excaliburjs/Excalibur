@@ -11,7 +11,8 @@ import { Ray } from '../../Math/ray';
 import { Color } from '../../Color';
 import { Collider } from './Collider';
 import { ClosestLineJumpTable } from '../Shapes/ClosestLineJumpTable';
-import { Transform } from '../../EntityComponentSystem/Components/TransformComponent';
+import { Transform, TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
+import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 
 export interface EdgeOptions {
   /**
@@ -64,19 +65,20 @@ export class Edge extends Collider {
   }
 
   private _getBodyPos(): Vector {
-    const bodyPos = this._transform?.pos ?? Vector.Zero;
+    const tx = this._transform as TransformComponent;
+    const bodyPos = tx?.globalPos ?? Vector.Zero;
     return bodyPos;
   }
 
   private _getTransformedBegin(): Vector {
-    const transform = this._transform;
-    const angle = transform ? transform.rotation : 0;
+    const tx = this._transform as TransformComponent;
+    const angle = tx ? tx.globalRotation : 0;
     return this.begin.rotate(angle).add(this._getBodyPos());
   }
 
   private _getTransformedEnd(): Vector {
-    const transform = this._transform;
-    const angle = transform ? transform.rotation : 0;
+    const tx = this._transform as TransformComponent;
+    const angle = tx ? tx.globalRotation : 0;
     return this.end.rotate(angle).add(this._getBodyPos());
   }
 
@@ -269,6 +271,14 @@ export class Edge extends Collider {
     ctx.lineTo(end.x, end.y);
     ctx.closePath();
     ctx.stroke();
+  }
+
+  public debug(ex: ExcaliburGraphicsContext, color: Color) {
+    const begin = this._getTransformedBegin();
+    const end = this._getTransformedEnd();
+    ex.drawLine(begin, end, color, 2);
+    ex.drawCircle(begin, 2, color);
+    ex.drawCircle(end, 2, color);
   }
 
   /* istanbul ignore next */

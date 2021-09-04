@@ -167,13 +167,6 @@ export class Debug implements DebugFlags {
     this.colorBlindMode = new ColorBlindFlags(this._engine);
   }
 
-  public static showDrawingCullBox = false;
-  public static showCameraFocus = false;
-  public static showCameraViewport = false;
-  public static showActorAnchor = false;
-  public static showActorId = false;
-  public static showActorUnitCircle = false;
-
   /**
    * Performance statistics
    */
@@ -197,40 +190,50 @@ export class Debug implements DebugFlags {
    */
   public colorBlindMode: ColorBlindFlags;
 
+  public filter: { useFilter: boolean; nameQuery: string; ids: number[] } = {
+    useFilter: false,
+    nameQuery: '',
+    ids: []
+  };
+
   public entity = {
     showAll: false,
-    showId: false,
-    showName: false,
-  }
+    showId: true,
+    showName: false
+  };
 
   public transform = {
     showAll: false,
-    
-    showPosition: true,
+
+    showPosition: false,
     positionColor: Color.Yellow,
-    
+
     showScale: false,
     scaleColor: Color.Green,
-    
+
     showRotation: false,
     rotationColor: Color.Blue
   };
+
   public graphics = {
     showAll: false,
-    
-    showBounds: false,
+
+    showBounds: true,
     boundsColor: Color.Yellow
   };
+
   public collider = {
     showAll: false,
-    
-    showBounds: false,
-    boundsColor: Color.Blue,
-    
-    showGeometry: false,
-    geometryColor: Color.Green,
 
+    showBounds: true,
+    boundsColor: Color.Blue,
+
+    showOwner: false,
+
+    showGeometry: true,
+    geometryColor: Color.Green
   };
+
   public motion = {
     showAll: false,
 
@@ -245,8 +248,12 @@ export class Debug implements DebugFlags {
     showAll: false,
 
     showCollisionGroup: false,
-    showCollisionType: false
-  }
+    showCollisionType: false,
+    showSleeping: false,
+    showMotion: false,
+    showMass: false
+  };
+
   public camera = {
     showAll: false,
 
@@ -255,7 +262,7 @@ export class Debug implements DebugFlags {
 
     showZoom: false,
     zoomColor: Color.Black
-  }
+  };
 }
 
 /**
@@ -290,7 +297,7 @@ export class FrameStats implements FrameStatistics {
   private _graphicsStats: GraphicsStatistics = {
     drawCalls: 0,
     drawnImages: 0
-  }
+  };
 
   /**
    * Zero out values or clone other IFrameStat stats. Allows instance reuse.

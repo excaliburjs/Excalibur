@@ -76,6 +76,11 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
   public id: number = Entity._ID++;
 
   private _name: string = 'anonymous';
+  protected _setName(name: string) {
+    if (name) {
+      this._name = name;
+    }
+  }
   public get name(): string {
     return this._name;
   }
@@ -278,7 +283,6 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
     }
     return result;
   }
-
 
   /**
    * Creates a deep copy of the entity and a copy of all its components

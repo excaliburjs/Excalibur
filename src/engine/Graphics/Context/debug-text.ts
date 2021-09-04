@@ -3,7 +3,6 @@ import { Vector } from '../..';
 import debugFont from './debug-font.png';
 
 export class DebugText {
-
   constructor() {
     this.load();
   }
@@ -27,11 +26,12 @@ export class DebugText {
           spriteWidth: 16,
           spriteHeight: 16
         }
-      })
+      });
       this._spriteFont = new SpriteFont({
-        alphabet: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ,!\'&."?-()+',
+        alphabet: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ,!\'&."?-()+ ',
         caseInsensitive: true,
-        spriteSheet: this._spriteSheet
+        spriteSheet: this._spriteSheet,
+        spacing: -6
       });
     });
   }

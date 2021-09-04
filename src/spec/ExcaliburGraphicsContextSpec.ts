@@ -217,7 +217,7 @@ describe('The ExcaliburGraphicsContext', () => {
       expect(context.height).toBe(canvas.height);
     });
 
-    fit('can draw a graphic', async () => {
+    it('can draw a graphic', async () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
