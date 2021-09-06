@@ -1,4 +1,4 @@
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { CollisionType } from './CollisionType';
 import { Physics } from './Physics';
 import { Clonable } from '../Interfaces/Clonable';

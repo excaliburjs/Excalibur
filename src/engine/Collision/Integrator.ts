@@ -1,7 +1,6 @@
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { TransformComponent } from '../EntityComponentSystem';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
-
 
 export class EulerIntegrator {
   static integrate(transform: TransformComponent, motion: MotionComponent, totalAcc: Vector, elapsedMs: number): void {

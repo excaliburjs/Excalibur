@@ -1,4 +1,4 @@
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { obsolete } from '../Util/Decorators';
 
 export class PhysicsDebug {
@@ -133,7 +133,6 @@ export class Physics {
   public static useArcadePhysics(): void {
     Physics.collisionResolutionStrategy = CollisionResolutionStrategy.Arcade;
   }
-
 
   /**
    * Configures Excalibur to use rigid body physics. Rigid body physics allows for complicated

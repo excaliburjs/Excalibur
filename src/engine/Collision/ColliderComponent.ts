@@ -1,4 +1,4 @@
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { TransformComponent } from '../EntityComponentSystem';
 import { Component } from '../EntityComponentSystem/Component';
 import { Entity } from '../EntityComponentSystem/Entity';

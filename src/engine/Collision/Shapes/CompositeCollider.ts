@@ -1,7 +1,11 @@
-import { Pair, Util } from '../..';
-import { Vector, Line, Ray, Projection } from '../../Algebra';
+import { Util } from '../..';
+import { Pair } from '../Detection/Pair';
 import { Color } from '../../Color';
 import { Transform } from '../../EntityComponentSystem';
+import { Line } from '../../Math/line';
+import { Projection } from '../../Math/projection';
+import { Ray } from '../../Math/ray';
+import { Vector } from '../../Math/vector';
 import { BoundingBox } from '../BoundingBox';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { DynamicTree } from '../Detection/DynamicTree';

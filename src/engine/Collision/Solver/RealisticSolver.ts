@@ -5,7 +5,8 @@ import { CollisionType } from '../CollisionType';
 import { ContactConstraintPoint } from './ContactConstraintPoint';
 import { Side } from '../Side';
 import { Physics } from '../Physics';
-import { Line, Vector } from '../../Algebra';
+import { Line } from '../../Math/line';
+import { Vector } from '../../Math/vector';
 import { CircleCollider } from '../Shapes/CircleCollider';
 import { ConvexPolygon } from '../Shapes/ConvexPolygon';
 import { CollisionSolver } from './Solver';
@@ -228,8 +229,10 @@ export class RealisticSolver extends CollisionSolver {
       }
     }
 
-    if (shapeA instanceof ConvexPolygon && shapeB instanceof CircleCollider ||
-        shapeB instanceof ConvexPolygon && shapeA instanceof CircleCollider) {
+    if (
+      (shapeA instanceof ConvexPolygon && shapeB instanceof CircleCollider) ||
+      (shapeB instanceof ConvexPolygon && shapeA instanceof CircleCollider)
+    ) {
       if (contact.info.side) {
         return contact.info.side.distanceToPoint(bodyA.transform.apply(point), true);
       }

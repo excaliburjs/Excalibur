@@ -4,7 +4,10 @@ import { CollisionContact } from '../Detection/CollisionContact';
 import { ConvexPolygon } from './ConvexPolygon';
 import { Edge } from './Edge';
 
-import { Vector, Ray, Projection, Line } from '../../Algebra';
+import { Projection } from '../../Math/projection';
+import { Line } from '../../Math/line';
+import { Vector } from '../../Math/vector';
+import { Ray } from '../../Math/ray';
 import { Color } from '../../Color';
 import { Collider } from './Collider';
 

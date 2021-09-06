@@ -1,4 +1,4 @@
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { BoundingBox } from '../Collision/Index';
 import { Color } from '../Color';
 import { line } from '../Util/DrawUtil';

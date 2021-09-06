@@ -3,7 +3,8 @@ import { CollisionProcessor } from './CollisionProcessor';
 import { DynamicTree } from './DynamicTree';
 import { Pair } from './Pair';
 
-import { Vector, Ray } from '../../Algebra';
+import { Vector } from '../../Math/vector';
+import { Ray } from '../../Math/ray';
 import { FrameStats } from '../../Debug';
 import { Logger } from '../../Util/Log';
 import { CollisionType } from '../CollisionType';

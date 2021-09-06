@@ -1,4 +1,4 @@
-import { Vector } from '../../Algebra';
+import { Vector } from '../../Math/vector';
 import { BodyComponent } from '../BodyComponent';
 import { CollisionContact } from '../Detection/CollisionContact';
 
@@ -6,7 +6,6 @@ import { CollisionContact } from '../Detection/CollisionContact';
  * Holds information about contact points, meant to be reused over multiple frames of contact
  */
 export class ContactConstraintPoint {
-
   constructor(public point: Vector, public local: Vector, public contact: CollisionContact) {
     this.update();
   }
@@ -28,18 +27,20 @@ export class ContactConstraintPoint {
       const aToContactNormal = this.aToContact.cross(normal);
       const bToContactNormal = this.bToContact.cross(normal);
 
-      this.normalMass = bodyA.inverseMass + bodyB.inverseMass +
-                          bodyA.inverseInertia * aToContactNormal * aToContactNormal +
-                          bodyB.inverseInertia * bToContactNormal * bToContactNormal;
-
+      this.normalMass =
+        bodyA.inverseMass +
+        bodyB.inverseMass +
+        bodyA.inverseInertia * aToContactNormal * aToContactNormal +
+        bodyB.inverseInertia * bToContactNormal * bToContactNormal;
 
       const aToContactTangent = this.aToContact.cross(tangent);
       const bToContactTangent = this.bToContact.cross(tangent);
 
-      this.tangentMass = bodyA.inverseMass + bodyB.inverseMass +
-                          bodyA.inverseInertia * aToContactTangent * aToContactTangent +
-                          bodyB.inverseInertia * bToContactTangent * bToContactTangent;
-
+      this.tangentMass =
+        bodyA.inverseMass +
+        bodyB.inverseMass +
+        bodyA.inverseInertia * aToContactTangent * aToContactTangent +
+        bodyB.inverseInertia * bToContactTangent * bToContactTangent;
     }
 
     return this;

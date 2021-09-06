@@ -1,5 +1,4 @@
-import { Vector } from '../Algebra';
-
+import { Vector } from './vector';
 
 export interface VectorViewOptions {
   getX: () => number;

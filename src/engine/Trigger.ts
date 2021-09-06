@@ -1,7 +1,7 @@
 import { Color } from './Color';
 import { Engine } from './Engine';
 import { EventDispatcher } from './EventDispatcher';
-import { Vector } from './Algebra';
+import { Vector } from './Math/vector';
 import { ExitTriggerEvent, EnterTriggerEvent, CollisionEndEvent, CollisionStartEvent } from './Events';
 import * as Util from './Util/Util';
 import { CollisionType } from './Collision/CollisionType';
@@ -70,7 +70,7 @@ export class Trigger extends Actor {
    * @param opts Trigger options
    */
   constructor(opts: Partial<TriggerOptions>) {
-    super({x: opts.pos.x, y: opts.pos.y, width: opts.width, height: opts.height});
+    super({ x: opts.pos.x, y: opts.pos.y, width: opts.width, height: opts.height });
     opts = Util.extend({}, triggerDefaults, opts);
 
     this.filter = opts.filter || this.filter;

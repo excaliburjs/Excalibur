@@ -1,5 +1,5 @@
 import { Actor } from '../../Actor';
-import { vec, Vector } from '../../Algebra';
+import { Vector, vec } from '../../Math/vector';
 import { Action } from '../Action';
 
 export class Meet implements Action {

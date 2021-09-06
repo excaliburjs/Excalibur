@@ -1,7 +1,7 @@
 import { Physics } from '../Physics';
 import { BoundingBox } from '../BoundingBox';
 
-import { Ray } from '../../Algebra';
+import { Ray } from '../../Math/ray';
 import { Logger } from '../../Util/Log';
 import { Id } from '../../Id';
 import { Entity } from '../../EntityComponentSystem/Entity';

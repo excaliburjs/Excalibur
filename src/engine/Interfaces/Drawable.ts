@@ -1,4 +1,4 @@
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { SpriteEffect } from '../Drawing/SpriteEffects';
 
 /**
