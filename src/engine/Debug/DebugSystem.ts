@@ -48,7 +48,8 @@ export class DebugSystem extends System<TransformComponent> {
 
     let body: BodyComponent;
     const bodySettings = this._engine.debug.body;
-    // let offscreen: boolean;
+
+    const cameraSettings = this._engine.debug.camera;
     for (const entity of entities) {
       if (entity.hasTag('offscreen')) {
         // skip offscreen entities
@@ -165,31 +166,6 @@ export class DebugSystem extends System<TransformComponent> {
         }
       }
 
-      // if (Debug.showCameraFocus) {
-      //   const focus = this.getFocus();
-      //   ctx.fillStyle = 'red';
-      //   ctx.strokeStyle = 'white';
-      //   ctx.lineWidth = 3;
-      //   ctx.beginPath();
-      //   ctx.arc(focus.x, focus.y, 15, 0, Math.PI * 2);
-      //   ctx.closePath();
-      //   ctx.stroke();
-
-      //   ctx.beginPath();
-      //   ctx.arc(focus.x, focus.y, 5, 0, Math.PI * 2);
-      //   ctx.closePath();
-      //   ctx.stroke();
-      // }
-
-      // if (Debug.showCameraViewport) {
-      //   ctx.beginPath();
-      //   ctx.setLineDash([5, 15]);
-      //   ctx.lineWidth = 5;
-      //   ctx.strokeStyle = 'white';
-      //   ctx.strokeRect(this.viewport.left, this.viewport.top, this.viewport.width, this.viewport.height);
-      //   ctx.closePath();
-      // }
-
       this._graphicsContext.restore();
 
       // Colliders live in world space already so after the restore()
@@ -222,9 +198,21 @@ export class DebugSystem extends System<TransformComponent> {
       }
 
       this._popCameraTransform(tx);
-
-      this._graphicsContext.flush();
     }
+
+    if (cameraSettings) {
+      this._graphicsContext.save();
+      this._camera.draw(this._graphicsContext);
+      if (cameraSettings.showAll || cameraSettings.showFocus) {
+        this._graphicsContext.drawCircle(this._camera.pos, 4, cameraSettings.focusColor);
+      }
+      if (cameraSettings.showAll || cameraSettings.showZoom) {
+        this._graphicsContext.debug.drawText(`zoom(${this._camera.zoom})`, this._camera.pos);
+      }
+      this._graphicsContext.restore();
+    }
+
+    this._graphicsContext.flush();
   }
 
   /**

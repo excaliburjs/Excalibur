@@ -258,10 +258,9 @@ export class Debug implements DebugFlags {
     showAll: false,
 
     showFocus: false,
-    focusColor: Color.Black,
+    focusColor: Color.Red,
 
-    showZoom: false,
-    zoomColor: Color.Black
+    showZoom: false
   };
 }
 
