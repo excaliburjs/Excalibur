@@ -17,7 +17,7 @@ export class DebugText {
   private _spriteFont: SpriteFont;
   public load() {
     this._imageSource = new ImageSource(this.fontSheet);
-    this._imageSource.load().then(() => {
+    return this._imageSource.load().then(() => {
       this._spriteSheet = SpriteSheet.fromGrid({
         image: this._imageSource,
         grid: {

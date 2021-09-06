@@ -62,7 +62,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
 
   constructor(components?: Component[], name?: string) {
     super();
-    this._name = name ?? this._name;
+    this._setName(name);
     if (components) {
       for (const component of components) {
         this.addComponent(component);

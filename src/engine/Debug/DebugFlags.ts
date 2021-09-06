@@ -1,5 +1,5 @@
-﻿import { Engine } from './Engine';
-import { ColorBlindCorrector, ColorBlindness } from './PostProcessing/Index';
+﻿import { Engine } from '../Engine';
+import { ColorBlindCorrector, ColorBlindness } from '../PostProcessing/Index';
 
 export interface DebugFlags {
   colorBlindMode: ColorBlindFlags;

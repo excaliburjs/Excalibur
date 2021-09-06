@@ -1,7 +1,7 @@
 import { DebugFlags, ColorBlindFlags } from './DebugFlags';
-import { Pair } from './Collision/Detection/Pair';
-import { Engine } from './Engine';
-import { Color } from '.';
+import { Pair } from '../Collision/Detection/Pair';
+import { Engine } from '../Engine';
+import { Color } from '..';
 
 /**
  * Debug stats containing current and previous frame statistics

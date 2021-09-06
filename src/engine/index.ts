@@ -17,7 +17,7 @@ export * from './Math/Index';
 export * from './Camera';
 export * from './Class';
 export * from './Configurable';
-export * from './Debug';
+export * from './Debug/Debug';
 export * from './EventDispatcher';
 export * from './Events/MediaEvents';
 export * from './Events';

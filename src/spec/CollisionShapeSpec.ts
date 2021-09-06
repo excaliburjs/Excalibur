@@ -292,6 +292,26 @@ describe('Collision Shape', () => {
       });
     });
 
+    it('can be debug drawn', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+      const circle = new ex.CircleCollider({
+        offset: new ex.Vector(50, 50),
+        radius: 30
+      });
+
+      ctx.clear();
+
+      circle.debug(ctx, ex.Color.Red);
+
+      ctx.flush();
+
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/CollisionShapeSpec/circle-debug.png');
+    });
+
     it('can be drawn with actor', async () => {
       const circleActor = new ex.Actor({
         pos: new ex.Vector(100, 100),
