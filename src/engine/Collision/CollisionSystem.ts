@@ -16,6 +16,7 @@ import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionP
 import { RealisticSolver } from './Solver/RealisticSolver';
 import { CollisionSolver } from './Solver/Solver';
 import { ColliderComponent } from './ColliderComponent';
+import { CompositeCollider } from './Shapes/CompositeCollider';
 
 export class CollisionSystem extends System<TransformComponent | MotionComponent | ColliderComponent> {
   public readonly types = ['ex.transform', 'ex.motion', 'ex.collider'] as const;
@@ -60,12 +61,16 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     }
 
     // Collect up all the colliders
-    const colliders: Collider[] = [];
+    let colliders: Collider[] = [];
     for (const entity of _entities) {
       const collider = entity.get(ColliderComponent);
       if (collider.collider && collider.owner?.active) {
         collider.update();
-        colliders.push(collider.collider);
+        if (collider.collider instanceof CompositeCollider) {
+          colliders = colliders.concat(collider.collider.getColliders());
+        } else {
+          colliders.push(collider.collider);
+        }
       }
     }
 

@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Collision `Pair`'s are now between Collider's and not bodies
 - `PerlinNoise` has been removed from the core repo will now be offered as a [plugin](https://github.com/excaliburjs/excalibur-perlin)
 - Legacy drawing implementations are moved behind `ex.LegacyDrawing` new Graphics implemenations of `Sprite`, `SpriteSheet`, `Animation` are now the default import.
   - To use any of the `ex.LegacyDrawing.*` implementations you must opt-in with the `ex.Flags.useLegacyDrawing()` note: new graphics do not work in this egacy mode
@@ -65,6 +66,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Iterative solver for improved stability
 - Added `ColliderComponent` to hold individual `Collider` implementations like `Circle`, `Box`, or `CompositeCollider`
 - New `CompositeCollider` type to combine multiple colliders together into one for an entity
+  - Composite colliders flatten into their individual colliders in the collision system
+  - Composite collider keeps it's internal colliders in a DynamicTree for fast `.collide` checks
 - New `TransformComponent` to encapsulate Entity transform, that is to say position, rotation, and scale
 - New `MotionComponent` to encapsulate Entity transform values changing over time like velocity and acceleration
 - Added multi-line support to `Text` graphics ([#1866](https://github.com/excaliburjs/Excalibur/issues/1866))

@@ -119,7 +119,7 @@ describe('A CompositeCollider', () => {
     expect(contacts.length).toBe(1);
     expect(contacts[0].points)
       .withContext('Right edge of comp1 poly')
-      .toEqual([vec(100, -5), vec(100, 5)]);
+      .toEqual([vec(100, 5), vec(100, -5)]);
   });
 
   it('returns empty on no contacts', () => {
@@ -203,5 +203,28 @@ describe('A CompositeCollider', () => {
     ctx.flush();
 
     await expectAsync(canvasElement).toEqualImage('src/spec/images/CompositeColliderSpec/composite.png');
+  });
+
+  it('is separated into a series of colliders in the dynamic tree', () => {
+    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+
+    const dynamicTreeProcessor = new ex.DynamicTreeCollisionProcessor();
+    dynamicTreeProcessor.track(compCollider);
+
+    expect(dynamicTreeProcessor.getColliders().length).toBe(2);
+    expect(dynamicTreeProcessor.getColliders()[0] instanceof ex.CompositeCollider).toBe(false);
+    expect(dynamicTreeProcessor.getColliders()[1] instanceof ex.CompositeCollider).toBe(false);
+  });
+
+  it('removes all colliders in the dynamic tree', () => {
+    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+
+    const dynamicTreeProcessor = new ex.DynamicTreeCollisionProcessor();
+    dynamicTreeProcessor.track(compCollider);
+
+    expect(dynamicTreeProcessor.getColliders().length).toBe(2);
+
+    dynamicTreeProcessor.untrack(compCollider);
+    expect(dynamicTreeProcessor.getColliders().length).toBe(0);
   });
 });
