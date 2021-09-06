@@ -155,7 +155,7 @@ export class DebugSystem extends System<TransformComponent> {
         }
 
         if (bodySettings.showAll || bodySettings.showMotion) {
-          this._graphicsContext.debug.drawText(`motion(${body.motion})`, cursor);
+          this._graphicsContext.debug.drawText(`motion(${body.sleepMotion})`, cursor);
           cursor = cursor.add(lineHeight);
         }
 

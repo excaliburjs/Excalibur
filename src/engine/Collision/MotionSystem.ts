@@ -1,10 +1,8 @@
-import { Camera } from '../Camera';
 import { Entity } from '../EntityComponentSystem';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { Physics } from './Physics';
-import { Scene } from '../Scene';
 import { BodyComponent } from './BodyComponent';
 import { CollisionType } from './CollisionType';
 import { EulerIntegrator } from './Integrator';
