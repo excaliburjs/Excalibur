@@ -195,29 +195,29 @@ export class DebugSystem extends System<TransformComponent> {
       // Colliders live in world space already so after the restore()
       collider = entity.get(ColliderComponent);
       if (collider) {
+        if (colliderSettings.showAll || colliderSettings.showGeometry) {
+          collider.collider.debug(this._graphicsContext, colliderSettings.geometryColor);
+        }
         if (colliderSettings.showAll || colliderSettings.showBounds) {
           if (collider.collider instanceof CompositeCollider) {
             const colliders = collider.collider.getColliders();
             for (const collider of colliders) {
               const bounds = collider.bounds;
               const pos = vec(bounds.left, bounds.top);
-              if (colliderSettings.showOwner) {
+              this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, { color: colliderSettings.boundsColor });
+              if (colliderSettings.showAll || colliderSettings.showOwner) {
                 this._graphicsContext.debug.drawText(`owner id(${collider.owner.id})`, pos);
               }
-              this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, { color: colliderSettings.boundsColor });
             }
+            collider.bounds.draw(this._graphicsContext, colliderSettings.boundsColor);
           } else {
             const bounds = collider.bounds;
             const pos = vec(bounds.left, bounds.top);
-            if (colliderSettings.showOwner) {
+            this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, { color: colliderSettings.boundsColor });
+            if (colliderSettings.showAll || colliderSettings.showOwner) {
               this._graphicsContext.debug.drawText(`owner id(${collider.owner.id})`, pos);
             }
-            this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, { color: colliderSettings.boundsColor });
           }
-        }
-
-        if (colliderSettings.showAll || colliderSettings.showGeometry) {
-          collider.collider.debug(this._graphicsContext, colliderSettings.geometryColor);
         }
       }
 

@@ -101,7 +101,26 @@ describe('DebugSystem', () => {
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/DebugSystemSpec/collider.png');
   });
 
-  it('can show collider info', async () => {
+  it('can show composite collider info', async () => {
+    const debugSystem = new ex.DebugSystem();
+    engine.currentScene.world.add(debugSystem);
+    debugSystem.initialize(engine.currentScene);
+
+    engine.graphicsContext.clear();
+    await (engine.graphicsContext.debug as any)._debugText.load();
+
+    const actor = new ex.Actor({ name: 'thingy', x: -100, y: 0, width: 50, height: 50, color: ex.Color.Yellow });
+    actor.collider.useCompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(150, 20), ex.Shape.Box(10, 150)]);
+    actor.id = 0;
+    engine.debug.collider.showAll = true;
+    debugSystem.update([actor], 100);
+
+    engine.graphicsContext.flush();
+
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/DebugSystemSpec/composite-collider.png');
+  });
+
+  it('can show graphics info', async () => {
     const debugSystem = new ex.DebugSystem();
     engine.currentScene.world.add(debugSystem);
     debugSystem.initialize(engine.currentScene);
