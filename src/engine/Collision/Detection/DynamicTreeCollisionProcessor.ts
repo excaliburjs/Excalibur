@@ -14,6 +14,7 @@ import { Color } from '../../Color';
 import { ConvexPolygon } from '../Shapes/ConvexPolygon';
 import { DrawUtil } from '../../Util/Index';
 import { BodyComponent } from '../BodyComponent';
+import { CompositeCollider } from '../Shapes/CompositeCollider';
 
 /**
  * Responsible for performing the collision broadphase (locating potential colllisions) and
@@ -26,6 +27,10 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   private _collisionPairCache: Pair[] = [];
   private _colliders: Collider[] = [];
 
+  public getColliders(): readonly Collider[] {
+    return this._colliders;
+  }
+
   /**
    * Tracks a physics body for collisions
    */
@@ -34,8 +39,17 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       Logger.getInstance().warn('Cannot track null collider');
       return;
     }
-    this._colliders.push(target);
-    this._dynamicCollisionTree.trackCollider(target);
+    if (target instanceof CompositeCollider) {
+      const colliders = target.getColliders();
+      for (const c of colliders) {
+        c.owner = target.owner;
+        this._colliders.push(c);
+        this._dynamicCollisionTree.trackCollider(c);
+      }
+    } else {
+      this._colliders.push(target);
+      this._dynamicCollisionTree.trackCollider(target);
+    }
   }
 
   /**
@@ -46,11 +60,23 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       Logger.getInstance().warn('Cannot untrack a null collider');
       return;
     }
-    const index = this._colliders.indexOf(target);
-    if (index !== -1) {
-      this._colliders.splice(index, 1);
+
+    if (target instanceof CompositeCollider) {
+      const colliders = target.getColliders();
+      for (const c of colliders) {
+        const index = this._colliders.indexOf(c);
+        if (index !== -1) {
+          this._colliders.splice(index, 1);
+        }
+        this._dynamicCollisionTree.untrackCollider(c);
+      }
+    } else {
+      const index = this._colliders.indexOf(target);
+      if (index !== -1) {
+        this._colliders.splice(index, 1);
+      }
+      this._dynamicCollisionTree.untrackCollider(target);
     }
-    this._dynamicCollisionTree.untrackCollider(target);
   }
 
   private _shouldGenerateCollisionPair(colliderA: Collider, colliderB: Collider) {
@@ -70,7 +96,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       return false;
     }
 
-    return Pair.canCollide(colliderA.owner?.get(BodyComponent), colliderB.owner?.get(BodyComponent));
+    return Pair.canCollide(colliderA, colliderB);
   }
 
   /**
@@ -93,12 +119,10 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     let collider: Collider;
     for (let j = 0, l = potentialColliders.length; j < l; j++) {
       collider = potentialColliders[j];
-      const body = collider.owner?.get(BodyComponent);
-
       // Query the collision tree for potential colliders
       this._dynamicCollisionTree.query(collider, (other: Collider) => {
         if (this._shouldGenerateCollisionPair(collider, other)) {
-          const pair = new Pair(body, other.owner?.get(BodyComponent));
+          const pair = new Pair(collider, other);
           this._collisions.add(pair.id);
           this._collisionPairCache.push(pair);
         }
@@ -146,7 +170,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
           let minCollider: Collider;
           let minTranslate: Vector = new Vector(Infinity, Infinity);
           this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + Physics.surfaceEpsilon * 2, (other: Collider) => {
-            if (collider !== other && Pair.canCollide(body, other.owner?.get(BodyComponent))) {
+            if (collider !== other && Pair.canCollide(collider, other)) {
               const hitPoint = other.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
               if (hitPoint) {
                 const translate = hitPoint.sub(origin);
@@ -160,7 +184,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
           });
 
           if (minCollider && Vector.isValid(minTranslate)) {
-            const pair = new Pair(body, minCollider.owner?.get(BodyComponent));
+            const pair = new Pair(collider, minCollider);
             if (!this._collisions.has(pair.id)) {
               this._collisions.add(pair.id);
               this._collisionPairCache.push(pair);
