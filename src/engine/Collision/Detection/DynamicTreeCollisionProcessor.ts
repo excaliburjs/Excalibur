@@ -27,6 +27,10 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   private _collisionPairCache: Pair[] = [];
   private _colliders: Collider[] = [];
 
+  public getColliders(): readonly Collider[] {
+    return this._colliders;
+  }
+
   /**
    * Tracks a physics body for collisions
    */

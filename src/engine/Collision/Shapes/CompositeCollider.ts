@@ -228,7 +228,6 @@ export class CompositeCollider extends Collider {
         collider.owner = this.owner;
         collider.update(transform);
       }
-      // this._collisionProcessor.update(colliders);
     }
   }
 
