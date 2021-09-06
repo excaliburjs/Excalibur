@@ -35,7 +35,7 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
     }
   }
 
-  debugDraw(ctx: CanvasRenderingContext2D) {
+  debugDraw(_ctx: CanvasRenderingContext2D) {
     // pass
   }
 }
