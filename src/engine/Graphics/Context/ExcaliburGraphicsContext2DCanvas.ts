@@ -190,7 +190,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   public drawRectangle(pos: Vector, width: number, height: number, color: Color) {
     this.__ctx.save();
     this.__ctx.fillStyle = color.toString();
-    this.__ctx.strokeRect(
+    this.__ctx.fillRect(
       this.snapToPixel ? ~~pos.x : pos.x,
       this.snapToPixel ? ~~pos.y : pos.y,
       this.snapToPixel ? ~~width : width,

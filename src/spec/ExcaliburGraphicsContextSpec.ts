@@ -132,6 +132,57 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-transform.png');
     });
 
+    it('can draw rectangle', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContext2DCanvas({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.clear();
+      sut.drawRectangle(ex.vec(10, 10), 80, 80, ex.Color.Blue);
+      sut.flush();
+
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-solid-rect.png');
+    });
+
+    it('can draw circle', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContext2DCanvas({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.clear();
+      sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
+      sut.flush();
+
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-circle.png');
+    });
+
+    it('can draw a line', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContext2DCanvas({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.clear();
+      sut.drawLine(ex.vec(0, 0), ex.vec(100, 100), ex.Color.Blue, 5);
+      sut.flush();
+
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/2d-line.png');
+    });
+
     it('can snap drawings to pixel', async () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
@@ -307,6 +358,59 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.flush();
 
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-rect.png');
+    });
+
+    it('can draw rectangle', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.clear();
+      sut.drawRectangle(ex.vec(10, 10), 80, 80, ex.Color.Blue);
+      sut.flush();
+
+      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-solid-rect.png'
+      );
+    });
+
+    it('can draw circle', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.clear();
+      sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
+      sut.flush();
+
+      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-circle.png');
+    });
+
+    it('can draw a line', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.clear();
+      sut.drawLine(ex.vec(0, 0), ex.vec(100, 100), ex.Color.Blue, 5);
+      sut.flush();
+
+      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-line.png');
     });
 
     it('can transform the context', async () => {
