@@ -7,7 +7,7 @@ import { CoordPlane, Entity, TransformComponent } from '../EntityComponentSystem
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
 import { vec, Vector } from '../Math/vector';
-import { BodyComponent, CollisionSystem, Color, CompositeCollider, GraphicsComponent, Particle, Util } from '..';
+import { BodyComponent, CollisionSystem, CompositeCollider, GraphicsComponent, Particle, Util } from '..';
 
 export class DebugSystem extends System<TransformComponent> {
   public readonly types = ['ex.transform'] as const;
