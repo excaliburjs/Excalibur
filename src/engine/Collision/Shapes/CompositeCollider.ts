@@ -2,6 +2,7 @@ import { Util } from '../..';
 import { Pair } from '../Detection/Pair';
 import { Color } from '../../Color';
 import { Transform } from '../../EntityComponentSystem';
+import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { Line } from '../../Math/line';
 import { Projection } from '../../Math/projection';
 import { Ray } from '../../Math/ray';
@@ -237,6 +238,14 @@ export class CompositeCollider extends Collider {
       collider.draw(ctx, color, pos);
     }
   }
+
+  public debug(ex: ExcaliburGraphicsContext, color: Color) {
+    const colliders = this.getColliders();
+    for (const collider of colliders) {
+      collider.debug(ex, color);
+    }
+  }
+
   debugDraw(ctx: CanvasRenderingContext2D, color: Color): void {
     const colliders = this.getColliders();
     for (const collider of colliders) {

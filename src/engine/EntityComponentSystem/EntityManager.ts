@@ -126,6 +126,10 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
     return this._entityIndex[id];
   }
 
+  public getByName(name: string): Entity[]{
+    return this.entities.filter(e => e.name === name);
+  }
+
   public clear(): void {
     for (const entity of this.entities) {
       this.removeEntity(entity);

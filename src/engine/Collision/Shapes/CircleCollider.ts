@@ -12,7 +12,8 @@ import { Color } from '../../Color';
 import { Collider } from './Collider';
 
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
-import { Transform } from '../../EntityComponentSystem';
+import { Transform, TransformComponent } from '../../EntityComponentSystem';
+import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 
 export interface CircleColliderOptions {
   /**
@@ -172,7 +173,8 @@ export class CircleCollider extends Collider {
    * Get the axis aligned bounding box for the circle collider in world coordinates
    */
   public get bounds(): BoundingBox {
-    const bodyPos = this._transform?.pos ?? Vector.Zero;
+    const tx = this._transform as TransformComponent;
+    const bodyPos = tx?.globalPos ?? Vector.Zero;
     return new BoundingBox(
       this.offset.x + bodyPos.x - this.radius,
       this.offset.y + bodyPos.y - this.radius,
@@ -233,6 +235,12 @@ export class CircleCollider extends Collider {
     ctx.arc(newPos.x, newPos.y, this.radius, 0, Math.PI * 2);
     ctx.closePath();
     ctx.fill();
+  }
+
+  public debug(ex: ExcaliburGraphicsContext, color: Color) {
+    const tx = this._transform as TransformComponent;
+    const pos = tx?.globalPos ? tx?.globalPos.add(this.offset) : this.offset;
+    ex.drawCircle(pos, this.radius, color);
   }
 
   /* istanbul ignore next */

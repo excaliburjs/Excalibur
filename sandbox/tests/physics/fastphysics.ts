@@ -1,17 +1,16 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 
+ex.Physics.useRealisticPhysics()
 var game = new ex.Engine({
   width: 600,
   height: 400
 });
-ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
 
-ex.Physics.debug.broadphaseDebug = false;
-ex.Physics.debug.showColliderGeometry = true;
-ex.Physics.debug.showMotionVectors = true;
-ex.Physics.debug.showColliderBounds = true;
-ex.Physics.debug.showContacts = true;
-ex.Physics.debug.showNormals = true;
+game.debug.physics.showBroadphaseSpacePartitionDebug = false;
+game.debug.physics.showCollisionContacts = true;
+game.debug.collider.showGeometry = true;
+game.debug.motion.showAll = true;
+game.debug.collider.showBounds = true;
 ex.Physics.acc.setTo(0, 300);
 //ex.Physics.dynamicTreeVelocityMultiplyer = 1;
 game.currentScene.camera.zoom = 0.5;

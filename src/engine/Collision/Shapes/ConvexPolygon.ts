@@ -11,6 +11,7 @@ import { Ray } from '../../Math/ray';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { Transform, TransformComponent } from '../../EntityComponentSystem';
 import { Collider } from './Collider';
+import { ExcaliburGraphicsContext } from '../..';
 
 export interface ConvexPolygonOptions {
   /**
@@ -325,10 +326,10 @@ export class ConvexPolygon extends Collider {
    * Get the axis aligned bounding box for the polygon collider in world coordinates
    */
   public get bounds(): BoundingBox {
-    // const points = this.getTransformedPoints();
-    const scale = this._transform?.scale ?? Vector.One;
-    const rotation = this._transform?.rotation ?? 0;
-    const pos = (this._transform?.pos ?? Vector.Zero).add(this.offset);
+    const tx = this._transform as TransformComponent;
+    const scale = tx?.globalScale ?? Vector.One;
+    const rotation = tx?.globalRotation ?? 0;
+    const pos = (tx?.globalPos ?? Vector.Zero).add(this.offset);
     return this.localBounds.scale(scale).rotate(rotation).translate(pos);
   }
 
@@ -418,6 +419,15 @@ export class ConvexPolygon extends Collider {
     ctx.lineTo(firstPoint.x, firstPoint.y);
     ctx.closePath();
     ctx.fill();
+  }
+  public debug(ex: ExcaliburGraphicsContext, color: Color) {
+    const firstPoint = this.getTransformedPoints()[0];
+    const points = [firstPoint, ...this.getTransformedPoints(), firstPoint];
+    for (let i = 0; i < points.length - 1; i++) {
+      ex.drawLine(points[i], points[i + 1], color, 2);
+      ex.drawCircle(points[i], 2, color);
+      ex.drawCircle(points[i + 1], 2, color);
+    }
   }
 
   /* istanbul ignore next */

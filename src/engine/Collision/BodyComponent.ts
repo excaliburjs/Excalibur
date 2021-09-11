@@ -9,8 +9,6 @@ import { CollisionGroup } from './Group/CollisionGroup';
 import { EventDispatcher } from '../EventDispatcher';
 import { createId, Id } from '../Id';
 import { clamp } from '../Util/Util';
-import { DrawUtil } from '../Util/Index';
-import { Color } from '../Color';
 import { ColliderComponent } from './ColliderComponent';
 
 export interface BodyComponentOptions {
@@ -402,24 +400,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     this.oldRotation = this.rotation;
   }
 
-  debugDraw(ctx: CanvasRenderingContext2D) {
-    // Draw motion vectors
-    // TODO move to motion system
-    if (Physics.debug.showMotionVectors) {
-      DrawUtil.vector(ctx, Color.Yellow, this.pos, this.acc.add(Physics.acc));
-      DrawUtil.vector(ctx, Color.Blue, this.pos, this.vel);
-      DrawUtil.point(ctx, Color.Red, this.pos);
-    }
-
-    // TODO move to collision system
-    // if (Physics.debug.showColliderBounds) {
-    //   this.bounds.debugDraw(ctx, Color.Yellow);
-    // }
-
-    // if (Physics.debug.showColliderGeometry) {
-    //   for (const collider of this._colliders) {
-    //     collider.debugDraw(ctx, this.sleeping ? Color.Gray : Color.Green);
-    //   }
-    // }
+  debugDraw(_ctx: CanvasRenderingContext2D) {
+    // pass
   }
 }

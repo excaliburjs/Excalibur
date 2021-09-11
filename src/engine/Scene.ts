@@ -32,6 +32,7 @@ import { Entity } from './EntityComponentSystem/Entity';
 import { GraphicsSystem } from './Graphics/GraphicsSystem';
 import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { Flags, Legacy } from './Flags';
+import { DebugSystem } from './Debug/DebugSystem';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -114,6 +115,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     } else {
       this.world.add(new GraphicsSystem());
     }
+    this.world.add(new DebugSystem());
   }
 
   public on(eventName: Events.initialize, handler: (event: InitializeEvent<Scene>) => void): void;
@@ -375,16 +377,12 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
    * @param ctx  The current rendering context
+   * @deprecated
    */
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
-    // this._collisionProcessor.debugDraw(ctx, 20);
-    for (const system of this.world.systemManager.systems) {
-      if (system.debugDraw) {
-        system.debugDraw(ctx, 1);
-      }
-    }
+    // pass
     this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
   }
 

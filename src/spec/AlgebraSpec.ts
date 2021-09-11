@@ -244,6 +244,12 @@ describe('Vectors', () => {
     expect(c.x).not.toBe(v.x);
     expect(c.y).not.toBe(v.y);
   });
+
+  it('can be printed toString(fixed)', () => {
+    const v = new ex.Vector(1.2345, 2.345);
+
+    expect(v.toString(2)).toBe('(1.23, 2.35)');
+  });
 });
 
 describe('Rays', () => {

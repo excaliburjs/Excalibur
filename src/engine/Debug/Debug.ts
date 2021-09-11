@@ -1,6 +1,7 @@
 import { DebugFlags, ColorBlindFlags } from './DebugFlags';
-import { Pair } from './Collision/Detection/Pair';
-import { Engine } from './Engine';
+import { Engine } from '../Engine';
+import { Color } from '../Color';
+import { CollisionContact } from '../Collision/Detection/CollisionContact';
 
 /**
  * Debug stats containing current and previous frame statistics
@@ -8,13 +9,6 @@ import { Engine } from './Engine';
 export interface DebugStats {
   currFrame: FrameStats;
   prevFrame: FrameStats;
-}
-
-/**
- * Hash containing the [[Pair.id]]s of pairs that collided in a frame
- */
-export interface CollidersHash {
-  [pairId: string]: Pair;
 }
 
 /**
@@ -122,9 +116,9 @@ export interface PhysicsStatistics {
   collisions: number;
 
   /**
-   * A Hash storing the [[Pair.id]]s of [[Pair]]s that collided in the frame
+   * Copy of the current frame contacts (only updated if debug is toggled on)
    */
-  collidersHash: CollidersHash;
+  contacts: Map<string, CollisionContact>;
 
   /**
    * Gets the number of fast moving bodies using raycast continuous collisions in the scene
@@ -166,13 +160,6 @@ export class Debug implements DebugFlags {
     this.colorBlindMode = new ColorBlindFlags(this._engine);
   }
 
-  public static showDrawingCullBox = false;
-  public static showCameraFocus = false;
-  public static showCameraViewport = false;
-  public static showActorAnchor = false;
-  public static showActorId = false;
-  public static showActorUnitCircle = false;
-
   /**
    * Performance statistics
    */
@@ -195,6 +182,127 @@ export class Debug implements DebugFlags {
    * @warning Will reduce FPS.
    */
   public colorBlindMode: ColorBlindFlags;
+
+  /**
+   * Filter debug context to named entities or entity ids
+   */
+  public filter: { useFilter: boolean; nameQuery: string; ids: number[] } = {
+    /**
+     * Toggle filter on or off (default off) must be on for DebugDraw to use filters
+     */
+    useFilter: false,
+    /**
+     * Query for entities by name, if the entity name contains `nameQuery` it will be included
+     */
+    nameQuery: '',
+    /**
+     * Query for Entity ids, if the id matches it will be included
+     */
+    ids: []
+  };
+
+  /**
+   * Entity debug settings
+   */
+  public entity = {
+    showAll: false,
+    showId: true,
+    showName: false
+  };
+
+  /**
+   * Transform component debug settings
+   */
+  public transform = {
+    showAll: false,
+
+    showPosition: false,
+    positionColor: Color.Yellow,
+
+    showScale: false,
+    scaleColor: Color.Green,
+
+    showRotation: false,
+    rotationColor: Color.Blue
+  };
+
+  /**
+   * Graphics component debug settings
+   */
+  public graphics = {
+    showAll: false,
+
+    showBounds: true,
+    boundsColor: Color.Yellow
+  };
+
+  /**
+   * Collider component debug settings
+   */
+  public collider = {
+    showAll: false,
+
+    showBounds: true,
+    boundsColor: Color.Blue,
+
+    showOwner: false,
+
+    showGeometry: true,
+    geometryColor: Color.Green
+  };
+
+  /**
+   * Physics simulation debug settings
+   */
+  public physics = {
+    showAll: false,
+
+    showBroadphaseSpacePartitionDebug: false,
+
+    showCollisionNormals: false,
+    collisionNormalColor: Color.Cyan,
+
+    showCollisionContacts: true,
+    collisionContactColor: Color.Red
+  };
+
+  /**
+   * Motion component debug settings
+   */
+  public motion = {
+    showAll: false,
+
+    showVelocity: false,
+    velocityColor: Color.Yellow,
+
+    showAcceleration: false,
+    accelerationColor: Color.Red
+  };
+
+  /**
+   * Body component debug settings
+   */
+  public body = {
+    showAll: false,
+
+    showCollisionGroup: false,
+    showCollisionType: false,
+    showSleeping: false,
+    showMotion: false,
+    showMass: false
+  };
+
+  /**
+   * Camera debug settings
+   */
+  public camera = {
+    showAll: false,
+
+    showFocus: false,
+    focusColor: Color.Red,
+
+    showZoom: false
+  };
 }
 
 /**
@@ -229,7 +337,7 @@ export class FrameStats implements FrameStatistics {
   private _graphicsStats: GraphicsStatistics = {
     drawCalls: 0,
     drawnImages: 0
-  }
+  };
 
   /**
    * Zero out values or clone other IFrameStat stats. Allows instance reuse.
@@ -345,7 +453,7 @@ export class FrameStats implements FrameStatistics {
 export class PhysicsStats implements PhysicsStatistics {
   private _pairs: number = 0;
   private _collisions: number = 0;
-  private _collidersHash: CollidersHash = {};
+  private _contacts: Map<string, CollisionContact> = new Map();
   private _fastBodies: number = 0;
   private _fastBodyCollisions: number = 0;
   private _broadphase: number = 0;
@@ -360,7 +468,7 @@ export class PhysicsStats implements PhysicsStatistics {
     if (otherStats) {
       this.pairs = otherStats.pairs;
       this.collisions = otherStats.collisions;
-      this.collidersHash = otherStats.collidersHash;
+      this.contacts = otherStats.contacts;
       this.fastBodies = otherStats.fastBodies;
       this.fastBodyCollisions = otherStats.fastBodyCollisions;
       this.broadphase = otherStats.broadphase;
@@ -368,7 +476,7 @@ export class PhysicsStats implements PhysicsStatistics {
     } else {
       this.pairs = this.collisions = this.fastBodies = 0;
       this.fastBodyCollisions = this.broadphase = this.narrowphase = 0;
-      this.collidersHash = {};
+      this.contacts.clear();
     }
   }
 
@@ -399,12 +507,12 @@ export class PhysicsStats implements PhysicsStatistics {
     this._collisions = value;
   }
 
-  public get collidersHash(): CollidersHash {
-    return this._collidersHash;
+  public get contacts(): Map<string, CollisionContact> {
+    return this._contacts;
   }
 
-  public set collidersHash(colliders: CollidersHash) {
-    this._collidersHash = colliders;
+  public set contacts(contacts: Map<string, CollisionContact>) {
+    this._contacts = contacts;
   }
 
   public get fastBodies(): number {

@@ -34,7 +34,7 @@ import { Color } from './Color';
 import { Scene } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
 import { PostProcessor } from './PostProcessing/PostProcessor';
-import { Debug, DebugStats } from './Debug';
+import { Debug, DebugStats } from './Debug/Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
 import * as Events from './Events';

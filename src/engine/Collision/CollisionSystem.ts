@@ -1,14 +1,9 @@
-import { Camera } from '../Camera';
-import { Color } from '../Color';
 import { Entity } from '../EntityComponentSystem';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { AddedEntity, isAddedSystemEntity, RemovedEntity, System, SystemType } from '../EntityComponentSystem/System';
 import { CollisionEndEvent, CollisionStartEvent, ContactEndEvent, ContactStartEvent } from '../Events';
 import { CollisionResolutionStrategy, Physics } from './Physics';
-import { Scene } from '../Scene';
-import { DrawUtil } from '../Util/Index';
-// import { BodyComponent } from './BodyComponent';
 import { ArcadeSolver } from './Solver/ArcadeSolver';
 import { Collider } from './Shapes/Collider';
 import { CollisionContact } from './Detection/CollisionContact';
@@ -17,12 +12,14 @@ import { RealisticSolver } from './Solver/RealisticSolver';
 import { CollisionSolver } from './Solver/Solver';
 import { ColliderComponent } from './ColliderComponent';
 import { CompositeCollider } from './Shapes/CompositeCollider';
+import { Engine, ExcaliburGraphicsContext, Scene } from '..';
 
 export class CollisionSystem extends System<TransformComponent | MotionComponent | ColliderComponent> {
   public readonly types = ['ex.transform', 'ex.motion', 'ex.collider'] as const;
   public systemType = SystemType.Update;
   public priority = -1;
 
+  private _engine: Engine;
   private _realisticSolver = new RealisticSolver();
   private _arcadeSolver = new ArcadeSolver();
   private _processor = new DynamicTreeCollisionProcessor();
@@ -31,9 +28,6 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
   private _trackCollider = (c: Collider) => this._processor.track(c);
   private _untrackCollider = (c: Collider) => this._processor.untrack(c);
-
-  // Ctx and camera are used for the debug draw
-  private _camera: Camera;
 
   notify(message: AddedEntity | RemovedEntity) {
     if (isAddedSystemEntity(message)) {
@@ -52,7 +46,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
   }
 
   initialize(scene: Scene) {
-    this._camera = scene.camera;
+    this._engine = scene.engine;
   }
 
   update(_entities: Entity[], elapsedMs: number): void {
@@ -85,7 +79,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     this._currentFrameContacts.clear();
 
     // Given possible pairs find actual contacts
-    let contacts = this._processor.narrowphase(pairs);
+    let contacts = this._processor.narrowphase(pairs, this._engine.debug.stats.currFrame);
 
     const solver: CollisionSolver = this.getSolver();
 
@@ -109,26 +103,8 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     return Physics.collisionResolutionStrategy === CollisionResolutionStrategy.Realistic ? this._realisticSolver : this._arcadeSolver;
   }
 
-  debugDraw(ctx: CanvasRenderingContext2D) {
-    ctx.save();
-    this._camera.draw(ctx);
-    this._processor.debugDraw(ctx);
-
-    if (Physics.debug.showContacts || Physics.debug.showCollisionNormals) {
-      for (const [_, contact] of this._currentFrameContacts) {
-        if (Physics.debug.showContacts) {
-          contact.points.forEach((p) => {
-            DrawUtil.point(ctx, Color.Red, p);
-          });
-        }
-        if (Physics.debug.showCollisionNormals) {
-          contact.points.forEach((p) => {
-            DrawUtil.vector(ctx, Color.Cyan, p, contact.normal, 30);
-          });
-        }
-      }
-    }
-    ctx.restore();
+  debug(ex: ExcaliburGraphicsContext) {
+    this._processor.debug(ex);
   }
 
   public runContactStartEnd() {

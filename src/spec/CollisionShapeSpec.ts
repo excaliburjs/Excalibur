@@ -1,10 +1,11 @@
 import * as ex from '@excalibur';
-import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import { ExcaliburMatchers, ensureImagesLoaded, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
 describe('Collision Shape', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
 
   describe('a Circle', () => {
@@ -291,20 +292,36 @@ describe('Collision Shape', () => {
       });
     });
 
-    it('can be drawn with actor', (done) => {
+    it('can be debug drawn', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+      const circle = new ex.CircleCollider({
+        offset: new ex.Vector(50, 50),
+        radius: 30
+      });
+
+      ctx.clear();
+
+      circle.debug(ctx, ex.Color.Red);
+
+      ctx.flush();
+
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/CollisionShapeSpec/circle-debug.png');
+    });
+
+    it('can be drawn with actor', async () => {
       const circleActor = new ex.Actor({
         pos: new ex.Vector(100, 100),
         color: ex.Color.Blue
       });
       circleActor.collider.useCircleCollider(100);
-
       scene.add(circleActor);
       scene.draw(engine.ctx, 100);
 
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/circle.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      await expectAsync(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/circle.png');
     });
 
     it('can calculate the distance to another circle', () => {

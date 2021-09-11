@@ -2,6 +2,10 @@ import { System, SystemType } from './System';
 import { Scene, Util } from '..';
 import { World } from './World';
 
+export interface SystemCtor<T extends System> {
+  new (): T;
+}
+
 /**
  * The SystemManager is responsible for keeping track of all systems in a scene.
  * Systems are scene specific
@@ -14,6 +18,15 @@ export class SystemManager<ContextType> {
   public _keyToSystem: { [key: string]: System<any, ContextType> };
   public initialized = false;
   constructor(private _world: World<ContextType>) {}
+
+  /**
+   * Get a system registered in the manager by type
+   * @param systemType
+   * @returns
+   */
+  public get<T extends System>(systemType: SystemCtor<T>): T | null {
+    return this.systems.find((s) => s instanceof systemType) as unknown as T;
+  }
 
   /**
    * Adds a system to the manager, it will now be updated every frame

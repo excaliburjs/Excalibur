@@ -1,7 +1,6 @@
 import * as ex from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 
-
 describe('A TransformComponent', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -100,13 +99,13 @@ describe('A TransformComponent', () => {
     // Changing a child global scale affects childs local and not parent scale
     childTx.globalScale = ex.vec(1, 1);
     expect(parentTx.scale).toBeVector(ex.vec(2, 3));
-    expect(childTx.scale).toBeVector(ex.vec(1/2, 1/3));
+    expect(childTx.scale).toBeVector(ex.vec(1 / 2, 1 / 3));
 
     // can change scale by prop
     childTx.globalScale.x = 3;
     childTx.globalScale.y = 4;
     expect(parentTx.scale).toBeVector(ex.vec(2, 3));
-    expect(childTx.scale).toBeVector(ex.vec(3/2, 4/3));
+    expect(childTx.scale).toBeVector(ex.vec(3 / 2, 4 / 3));
   });
 
   it('can have parent/child relations with rotation', () => {
@@ -128,4 +127,22 @@ describe('A TransformComponent', () => {
     expect(childTx.rotation).toBeCloseTo(Math.PI); // Math.PI + Math.PI = 2PI = 0 global
   });
 
+  it('can retrieve the global transform', () => {
+    const parent = new ex.Entity([new ex.TransformComponent()]);
+    const child = new ex.Entity([new ex.TransformComponent()]);
+    parent.addChild(child);
+
+    const parentTx = parent.get(ex.TransformComponent);
+    const childTx = child.get(ex.TransformComponent);
+
+    // Changing a parent position influences the child global position
+    parentTx.pos = ex.vec(100, 200);
+    parentTx.rotation = Math.PI;
+    parentTx.scale = ex.vec(2, 3);
+
+    expect(childTx.pos).toBeVector(ex.vec(0, 0));
+    expect(childTx.getGlobalTransform().pos).toBeVector(ex.vec(100, 200));
+    expect(childTx.getGlobalTransform().rotation).toBe(Math.PI);
+    expect(childTx.getGlobalTransform().scale).toBeVector(ex.vec(2, 3));
+  });
 });

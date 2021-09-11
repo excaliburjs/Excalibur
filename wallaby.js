@@ -5,6 +5,7 @@ module.exports = function (wallaby) {
   return {
     files: [
       { pattern: 'src/engine/**/*.ts', load: false },
+      { pattern: 'src/engine/**/*.glsl', load: false },
       { pattern: 'src/spec/images/**/*.mp3' },
       { pattern: 'src/spec/images/**/*.png' },
       { pattern: 'src/spec/images/**/*.gif' },

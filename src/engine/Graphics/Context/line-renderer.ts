@@ -43,7 +43,9 @@ export class LineRenderer extends BatchRenderer<DrawLine> {
     const cmd = this.commands.get();
     cmd.start = this._contextInfo.transform.current.multv(start);
     cmd.end = this._contextInfo.transform.current.multv(end);
-    cmd.color = color;
+    cmd.color.r = color.r;
+    cmd.color.g = color.g;
+    cmd.color.b = color.b;
     cmd.color.a = cmd.color.a * this._contextInfo.state.current.opacity;
     this.addCommand(cmd);
   }

@@ -98,7 +98,7 @@ export class Vector implements Clonable<Vector> {
     this._y = y;
   }
 
-  private _x = 0;
+  protected _x = 0;
   /**
    * Get the x component of the vector
    */
@@ -114,7 +114,7 @@ export class Vector implements Clonable<Vector> {
     this._x = val;
   }
 
-  private _y = 0;
+  protected _y = 0;
   /**
    * Get the y component of the vector
    */
@@ -354,7 +354,10 @@ export class Vector implements Clonable<Vector> {
   /**
    * Returns a string representation of the vector.
    */
-  public toString(): string {
+  public toString(fixed?: number): string {
+    if (fixed) {
+      return `(${this.x.toFixed(fixed)}, ${this.y.toFixed(fixed)})`;
+    }
     return `(${this.x}, ${this.y})`;
   }
 }

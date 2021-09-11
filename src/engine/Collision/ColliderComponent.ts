@@ -48,6 +48,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
       this._collider.owner = this.owner;
       this.events.wire(collider.events);
       this.$colliderAdded.notifyAll(collider);
+      this.update();
     }
   }
 
@@ -60,7 +61,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
   }
 
   public update() {
-    const tx = this.owner.get(TransformComponent);
+    const tx = this.owner?.get(TransformComponent);
     if (this.collider) {
       this.collider.owner = this.owner;
       if (tx) {

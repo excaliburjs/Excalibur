@@ -51,23 +51,7 @@ declare module dat {
 }
 
 var gui = new dat.GUI({name: 'Excalibur'});
-var actorfolder = gui.addFolder('Flags');
-actorfolder.add(ex.Debug, 'showDrawingCullBox');
-actorfolder.add(ex.Debug, 'showCameraFocus');
-actorfolder.add(ex.Debug, 'showCameraViewport');
-actorfolder.add(ex.Debug, 'showActorAnchor');
-actorfolder.add(ex.Debug, 'showActorId');
-actorfolder.add(ex.Debug, 'showActorUnitCircle');
-var folder = gui.addFolder('Physics Flags');
-folder.add(ex.Physics, 'enabled')
-folder.add(ex.Physics.debug, 'showColliderBounds')
-folder.add(ex.Physics.debug, 'showColliderGeometry')
-folder.add(ex.Physics.debug, 'showColliderNormals')
-folder.add(ex.Physics.debug, 'showContacts')
-folder.add(ex.Physics.debug, 'showMotionVectors')
-folder.add(ex.Physics.debug, 'broadphaseDebug')
-folder.add(ex.Physics, "positionIterations")
-folder.add(ex.Physics, "velocityIterations")
+
 
 var stats = new Stats();
 stats.showPanel(0);
@@ -75,7 +59,30 @@ document.body.appendChild(stats.dom);
 
 var bootstrap = (game: ex.Engine) => {
   gui.add({toggleDebug: false}, 'toggleDebug').onChange(() => game.toggleDebug());
-  var entities = gui.addFolder('Entities');
+  var supportedKeys = ['filter', 'entity', 'transform', 'motion', 'body', 'collider', 'physics', 'graphics', 'camera'];
+  for (let key of supportedKeys) {
+    let folder = gui.addFolder(key);
+    if (game.debug[key]) {
+      for (let option in game.debug[key]) {
+        if (option) {
+          if (option.toLocaleLowerCase().includes('color')) {
+            folder.addColor(game.debug[key], option);
+          } else {
+            if (Array.isArray(game.debug[key][option])) {
+              continue;
+            }
+            folder.add(game.debug[key], option);
+          }
+        }
+      }
+    }
+  }
+
+  var physics = gui.addFolder('Physics Flags');
+  physics.add(ex.Physics, 'enabled')
+  physics.add(ex.Physics, "positionIterations", 1, 15, 1);
+  physics.add(ex.Physics, "velocityIterations", 1, 15, 1);
+
   game.on("preframe", () => {
       stats.begin();
   });
@@ -83,14 +90,14 @@ var bootstrap = (game: ex.Engine) => {
       stats.end();
   });
 
-  game.currentScene.on('entityadded', (e: any) => {
-    var entity: ex.Entity = e.target;
-    var obj = {id: entity.id, name: entity.constructor.name, types: entity.types};
+  // game.currentScene.on('entityadded', (e: any) => {
+  //   var entity: ex.Entity = e.target;
+  //   var obj = {id: entity.id, name: entity.constructor.name, types: entity.types};
 
-    var pos = entities.addFolder(`${obj.id}:${obj.name}`)
-    pos.add({pos: entity.get(ex.TransformComponent).pos.toString()}, 'pos');
-    pos.add({types: obj.types.join(', ')}, 'types');
-  });
+  //   var pos = entities.addFolder(`${obj.id}:${obj.name}`)
+  //   pos.add({pos: entity.get(ex.TransformComponent).pos.toString()}, 'pos');
+  //   pos.add({types: obj.types.join(', ')}, 'types');
+  // });
 
   return { stats, gui }
 }
@@ -496,6 +503,7 @@ game.add(follower);
 // player.enableCapturePointer = true;
 // player.collisionType = ex.CollisionType.Active;
 var player = new ex.Actor({
+  name: 'player',
   pos: new ex.Vector(100, -200),
   width: 32,
   height: 96,
@@ -515,7 +523,13 @@ follower.actions
 player.rotation = 0;
 
 // Health bar example
-var healthbar = new ex.Actor({x: 0, y: -70, width: 140, height: 5, color: new ex.Color(0, 255, 0)});
+var healthbar = new ex.Actor({
+  name: 'player healthbar',
+  x: 0,
+  y: -70,
+  width: 140,
+  height: 5,
+  color: new ex.Color(0, 255, 0)});
 player.addChild(healthbar);
 // player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
 //   ctx.fillStyle = 'red';

@@ -10,11 +10,9 @@ import { Logger } from '../../Util/Log';
 import { CollisionType } from '../CollisionType';
 import { Collider } from '../Shapes/Collider';
 import { CollisionContact } from '../Detection/CollisionContact';
-import { Color } from '../../Color';
-import { ConvexPolygon } from '../Shapes/ConvexPolygon';
-import { DrawUtil } from '../../Util/Index';
 import { BodyComponent } from '../BodyComponent';
 import { CompositeCollider } from '../Shapes/CompositeCollider';
+import { ExcaliburGraphicsContext } from '../..';
 
 /**
  * Responsible for performing the collision broadphase (locating potential colllisions) and
@@ -216,9 +214,12 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   public narrowphase(pairs: Pair[], stats?: FrameStats): CollisionContact[] {
     let contacts: CollisionContact[] = [];
     for (let i = 0; i < pairs.length; i++) {
-      contacts = contacts.concat(pairs[i].collide());
-      if (stats && contacts.length > 0) {
-        stats.physics.collidersHash[pairs[i].id] = pairs[i];
+      const newContacts = pairs[i].collide();
+      contacts = contacts.concat(newContacts);
+      if (stats && newContacts.length > 0) {
+        for (const c of newContacts) {
+          stats.physics.contacts.set(c.id, c);
+        }
       }
     }
     if (stats) {
@@ -242,34 +243,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     return updated;
   }
 
-  /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D) {
-    if (Physics.debug.broadphaseDebug) {
-      this._dynamicCollisionTree.debugDraw(ctx);
-    }
-
-    if (Physics.debug.showColliderGeometry) {
-      for (const collider of this._colliders) {
-        const body = collider.owner.get(BodyComponent);
-        if (Physics.debug.showColliderBounds) {
-          collider.bounds.debugDraw(ctx, Color.Yellow);
-        }
-
-        if (Physics.debug.showColliderGeometry) {
-          let color = Color.Green;
-          if (body.sleeping || body.collisionType === CollisionType.Fixed) {
-            color = Color.Gray;
-          }
-          collider.debugDraw(ctx, color);
-        }
-
-        if (Physics.debug.showColliderNormals && collider instanceof ConvexPolygon) {
-          for (const side of collider.getSides()) {
-            DrawUtil.point(ctx, Color.Blue, side.midpoint);
-            DrawUtil.vector(ctx, Color.Yellow, side.midpoint, side.normal(), 30);
-          }
-        }
-      }
-    }
+  public debug(ex: ExcaliburGraphicsContext) {
+    this._dynamicCollisionTree.debug(ex);
   }
 }

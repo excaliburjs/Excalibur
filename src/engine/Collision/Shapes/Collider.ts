@@ -9,6 +9,7 @@ import { Clonable } from '../../Interfaces/Clonable';
 import { Entity, Transform } from '../../EntityComponentSystem';
 import { createId, Id } from '../../Id';
 import { EventDispatcher } from '../../EventDispatcher';
+import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 
 /**
  * A collision collider specifies the geometry that can detect when other collision colliders intersect
@@ -111,6 +112,7 @@ export abstract class Collider implements Clonable<Collider> {
    */
   abstract draw(ctx: CanvasRenderingContext2D, color?: Color, pos?: Vector): void;
 
+  abstract debug(ex: ExcaliburGraphicsContext, color: Color): void;
   /**
    * Draw any debug information
    */

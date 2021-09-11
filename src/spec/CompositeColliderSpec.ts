@@ -146,7 +146,7 @@ describe('A CompositeCollider', () => {
 
     const rayRight = new Ray(vec(-200, 0), Vector.Right);
 
-    const leftBox = compCollider.rayCast(rayRight); //?
+    const leftBox = compCollider.rayCast(rayRight);
     expect(leftBox).toEqual(vec(-100, 0));
 
     const rayDown = new Ray(vec(0, -200), Vector.Down);
@@ -183,6 +183,26 @@ describe('A CompositeCollider', () => {
     expect(compCollider.contains(vec(101, 0))).toBe(false);
     expect(compCollider.contains(vec(-99.9, 0))).toBe(true);
     expect(compCollider.contains(vec(-101, 0))).toBe(false);
+  });
+
+  it('can be debug drawn', async () => {
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 300;
+    canvasElement.height = 300;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const tx = new TransformComponent();
+    tx.pos = ex.vec(150, 150);
+    compCollider.update(tx);
+
+    ctx.clear();
+
+    compCollider.debug(ctx, ex.Color.Red);
+
+    ctx.flush();
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/CompositeColliderSpec/composite.png');
   });
 
   it('is separated into a series of colliders in the dynamic tree', () => {

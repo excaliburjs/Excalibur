@@ -1,9 +1,7 @@
-import { isActor } from '../Actor';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Scene } from '../Scene';
 import { GraphicsComponent } from './GraphicsComponent';
-import { Vector, vec } from '../Math/vector';
-import { Color } from '../Color';
+import { vec } from '../Math/vector';
 import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';
@@ -11,6 +9,7 @@ import { System, SystemType, TagComponent } from '../EntityComponentSystem';
 import { Engine } from '../Engine';
 import { GraphicsDiagnostics } from './GraphicsDiagnostics';
 import { EnterViewPortEvent, ExitViewPortEvent } from '../Events';
+import { GraphicsGroup } from '.';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -73,8 +72,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         graphics.onPreDraw(this._graphicsContext, delta);
       }
 
-      this._graphicsPositionDebugDraw();
-
       this._graphicsContext.opacity = graphics.opacity * ((entity as any).opacity ?? 1);
 
       // Draw the graphics component
@@ -86,9 +83,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       }
 
       this._graphicsContext.restore();
-
-      // Draw the graphics bounds
-      this._graphicsBoundsDebugDraw(entity, transform, graphics);
 
       // Reset the transform back to the original
       this._popCameraTransform(transform);
@@ -132,15 +126,18 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
           graphic?.draw(this._graphicsContext, offsetX + layer.offset.x, offsetY + layer.offset.y);
 
-          if (this._engine?.isDebug) {
-            /* istanbul ignore next */
-            graphic?.localBounds.translate(vec(offsetX + layer.offset.x, offsetY + layer.offset.y)).draw(this._graphicsContext, Color.Red);
+          if (this._engine?.isDebug && this._engine.debug.graphics.showBounds) {
+            const offset = vec(offsetX + layer.offset.x, offsetY + layer.offset.y);
+            if (graphic instanceof GraphicsGroup) {
+              for (const g of graphic.members) {
+                g.graphic?.localBounds.translate(offset.add(g.pos)).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
+              }
+            } else {
+              /* istanbul ignore next */
+              graphic?.localBounds.translate(offset).draw(this._graphicsContext, this._engine.debug.graphics.boundsColor);
+            }
           }
         }
-      }
-      if (this._engine?.isDebug) {
-        /* istanbul ignore next */
-        graphicsComponent.localBounds.draw(this._graphicsContext, Color.Red);
       }
     }
   }
@@ -183,23 +180,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     if (transform.coordPlane === CoordPlane.World) {
       // Apply camera world offset
       this._graphicsContext.restore();
-    }
-  }
-
-  /* istanbul ignore next */
-  private _graphicsPositionDebugDraw() {
-    if (this._engine?.isDebug) {
-      this._graphicsContext.debug.drawPoint(Vector.Zero, { color: Color.Yellow, size: 5 });
-    }
-  }
-
-  /* istanbul ignore next */
-  private _graphicsBoundsDebugDraw(entity: Entity, _transform: TransformComponent, _graphics: GraphicsComponent) {
-    if (this._engine?.isDebug) {
-      if (isActor(entity)) {
-        const bb = entity.get(GraphicsComponent).localBounds.translate(entity.getGlobalPos());
-        bb.draw(this._graphicsContext);
-      }
     }
   }
 }
