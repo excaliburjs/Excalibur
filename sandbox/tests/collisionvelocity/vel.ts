@@ -7,11 +7,11 @@ var engine = new ex.Engine({
   pointerScope: ex.Input.PointerScope.Canvas
 });
 engine.showDebug(true);
+engine.debug.body.showAll = true;
+engine.debug.collider.showGeometry = true;
+engine.debug.physics.showCollisionContacts = true;
+engine.debug.physics.showCollisionNormals = true;
 ex.Physics.acc.setTo(0, 200);
-ex.Physics.debug.showMotionVectors = true;
-ex.Physics.debug.showColliderGeometry = true;
-ex.Physics.debug.showContacts = true;
-ex.Physics.debug.showCollisionNormals = true;
 
 var floor = new ex.Actor({
   x: engine.halfDrawWidth,

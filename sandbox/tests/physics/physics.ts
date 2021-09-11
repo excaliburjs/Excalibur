@@ -7,16 +7,15 @@ var game = new ex.Engine({
 game.backgroundColor = ex.Color.Black;
 
 game.showDebug(true);
+game.debug.physics.showBroadphaseSpacePartitionDebug = false;
+game.debug.physics.showCollisionContacts = true;
+game.debug.collider.showGeometry = true;
+game.debug.collider.showBounds = true;
+game.debug.motion.showAll = true;
+game.debug.body.showMotion = true;
 
 ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
 ex.Physics.bodiesCanSleepByDefault = true;
-ex.Physics.debug.broadphaseDebug = false;
-ex.Physics.debug.showColliderGeometry = true;
-ex.Physics.debug.showMotionVectors = true;
-ex.Physics.debug.showSleepMotion = true;
-ex.Physics.debug.showColliderBounds = true;
-ex.Physics.debug.showContacts = true;
-ex.Physics.debug.showNormals = true;
 ex.Physics.gravity = ex.vec(0, 100);
 
 
@@ -25,14 +24,6 @@ var folder = gui.addFolder('Physics Flags');
 folder.add(ex.Physics, 'enabled')
 folder.add(ex.Physics, 'bodiesCanSleepByDefault')
 folder.add(ex.Physics, 'warmStart')
-folder.add(ex.Physics.debug, 'showColliderBounds')
-folder.add(ex.Physics.debug, 'showColliderGeometry')
-folder.add(ex.Physics.debug, 'showColliderNormals')
-folder.add(ex.Physics.debug, 'showContacts')
-folder.add(ex.Physics.debug, 'showNormals')
-folder.add(ex.Physics.debug, 'showSleepMotion')
-folder.add(ex.Physics.debug, 'showMotionVectors')
-folder.add(ex.Physics.debug, 'broadphaseDebug')
 folder.add(ex.Physics, 'sleepEpsilon', 0.01, 2, .05);
 folder.add(ex.Physics, 'wakeThreshold', 0.01, 2, .05);
 folder.add(ex.Physics, 'positionIterations', 0, 30, 1);

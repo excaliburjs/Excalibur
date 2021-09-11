@@ -1,43 +1,6 @@
 import { Vector } from '../Math/vector';
 import { obsolete } from '../Util/Decorators';
 
-export class PhysicsDebug {
-  /**
-   * Globally switches the debug information for the broadphase strategy
-   */
-  public static broadphaseDebug: boolean = false;
-  /**
-   * Show the normals as a result of collision on the screen.
-   */
-  public static showCollisionNormals: boolean = false;
-  /**
-   * Show the position, velocity, and acceleration as graphical vectors.
-   */
-  public static showMotionVectors: boolean = false;
-
-  /**
-   * Show the amount of motion a body has accumulated
-   */
-  public static showSleepMotion: boolean = false;
-  /**
-   * Show the axis-aligned bounding boxes of the collision bodies on the screen.
-   */
-  public static showColliderBounds: boolean = false;
-  /**
-   * Show the bounding collision area shapes
-   */
-  public static showColliderGeometry: boolean = false;
-
-  public static showColliderNormals: boolean = false;
-  /**
-   * Show points of collision interpreted by excalibur as a result of collision.
-   */
-  public static showContacts: boolean = false;
-  /**
-   * Show the surface normals of the collision areas.
-   */
-  public static showNormals: boolean = false;
-}
 
 /**
  * Possible collision resolution strategies
@@ -94,11 +57,6 @@ export class Physics {
    * Globally switches all Excalibur physics behavior on or off.
    */
   public static enabled = true;
-
-  /**
-   * Physics debug toggles for debug mode
-   */
-  public static debug = PhysicsDebug;
 
   /**
    * Gets or sets the broadphase pair identification strategy.

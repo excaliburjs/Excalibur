@@ -59,7 +59,7 @@ document.body.appendChild(stats.dom);
 
 var bootstrap = (game: ex.Engine) => {
   gui.add({toggleDebug: false}, 'toggleDebug').onChange(() => game.toggleDebug());
-  var supportedKeys = ['filter', 'entity', 'transform', 'motion', 'body', 'collider', 'graphics', 'camera'];
+  var supportedKeys = ['filter', 'entity', 'transform', 'motion', 'body', 'collider', 'physics', 'graphics', 'camera'];
   for (let key of supportedKeys) {
     let folder = gui.addFolder(key);
     if (game.debug[key]) {
@@ -80,13 +80,8 @@ var bootstrap = (game: ex.Engine) => {
 
   var physics = gui.addFolder('Physics Flags');
   physics.add(ex.Physics, 'enabled')
-  physics.add(ex.Physics.debug, 'showColliderBounds')
-  physics.add(ex.Physics.debug, 'showColliderGeometry')
-  physics.add(ex.Physics.debug, 'showColliderNormals')
-  physics.add(ex.Physics.debug, 'showContacts')
-  physics.add(ex.Physics.debug, 'broadphaseDebug')
-  physics.add(ex.Physics, "positionIterations")
-  physics.add(ex.Physics, "velocityIterations")
+  physics.add(ex.Physics, "positionIterations", 1, 15, 1);
+  physics.add(ex.Physics, "velocityIterations", 1, 15, 1);
 
   game.on("preframe", () => {
       stats.begin();

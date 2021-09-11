@@ -6,6 +6,7 @@ import { Logger } from '../../Util/Log';
 import { Id } from '../../Id';
 import { Entity } from '../../EntityComponentSystem/Entity';
 import { BodyComponent } from '../BodyComponent';
+import { Color, ExcaliburGraphicsContext } from '../..';
 
 /**
  * Dynamic Tree Node used for tracking bounds within the tree
@@ -474,18 +475,15 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
     return helper(this.root);
   }
 
-  public debugDraw(ctx: CanvasRenderingContext2D) {
+  public debug(ex: ExcaliburGraphicsContext) {
     // draw all the nodes in the Dynamic Tree
     const helper = (currentNode: TreeNode<T>) => {
       if (currentNode) {
         if (currentNode.isLeaf()) {
-          ctx.lineWidth = 1;
-          ctx.strokeStyle = 'green';
+          currentNode.bounds.draw(ex, Color.Green);
         } else {
-          ctx.lineWidth = 1;
-          ctx.strokeStyle = 'white';
+          currentNode.bounds.draw(ex, Color.White);
         }
-        currentNode.bounds.debugDraw(ctx);
 
         if (currentNode.left) {
           helper(currentNode.left);

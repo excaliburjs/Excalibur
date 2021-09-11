@@ -7,13 +7,14 @@ import { CoordPlane, Entity, TransformComponent } from '../EntityComponentSystem
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
 import { vec, Vector } from '../Math/vector';
-import { BodyComponent, CompositeCollider, GraphicsComponent, Particle, Util } from '..';
+import { BodyComponent, CollisionSystem, Color, CompositeCollider, GraphicsComponent, Particle, Util } from '..';
 
 export class DebugSystem extends System<TransformComponent> {
   public readonly types = ['ex.transform'] as const;
   public readonly systemType = SystemType.Draw;
   public priority = 999; // lowest priority
   private _graphicsContext: ExcaliburGraphicsContext;
+  private _collisionSystem: CollisionSystem;
   private _camera: Camera;
   private _engine: Engine;
 
@@ -21,6 +22,7 @@ export class DebugSystem extends System<TransformComponent> {
     this._graphicsContext = scene.engine.graphicsContext;
     this._camera = scene.camera;
     this._engine = scene.engine;
+    this._collisionSystem = scene.world.systemManager.get(CollisionSystem);
   }
   update(entities: Entity[], _delta: number): void {
     if (!this._engine.isDebug) {
@@ -30,7 +32,6 @@ export class DebugSystem extends System<TransformComponent> {
     const filterSettings = this._engine.debug.filter;
 
     let id: number;
-    // let killed: boolean;
     let name: string;
     const entitySettings = this._engine.debug.entity;
 
@@ -42,6 +43,8 @@ export class DebugSystem extends System<TransformComponent> {
 
     let collider: ColliderComponent;
     const colliderSettings = this._engine.debug.collider;
+
+    const physicsSettings = this._engine.debug.physics;
 
     let graphics: GraphicsComponent;
     const graphicsSettings = this._engine.debug.graphics;
@@ -199,6 +202,27 @@ export class DebugSystem extends System<TransformComponent> {
 
       this._popCameraTransform(tx);
     }
+
+    this._graphicsContext.save();
+    this._camera.draw(this._graphicsContext);
+    if (physicsSettings.showAll || physicsSettings.showBroadphaseSpacePartitionDebug) {
+      this._collisionSystem.debug(this._graphicsContext);
+    }
+    if (physicsSettings.showAll || physicsSettings.showCollisionContacts || physicsSettings.showCollisionNormals) {
+      for (const [_, contact] of this._engine.debug.stats.currFrame.physics.contacts) {
+        if (physicsSettings.showAll || physicsSettings.showCollisionContacts) {
+          for (const point of contact.points) {
+            this._graphicsContext.debug.drawPoint(point, { size: 5, color: physicsSettings.collisionContactColor});
+          }
+        }
+        if (physicsSettings.showAll || physicsSettings.showCollisionNormals) {
+          for (const point of contact.points) {
+            this._graphicsContext.debug.drawLine(point, contact.normal.scale(30).add(point), { color: physicsSettings.collisionNormalColor });
+          };
+        }
+      }
+    }
+    this._graphicsContext.restore();
 
     if (cameraSettings) {
       this._graphicsContext.save();

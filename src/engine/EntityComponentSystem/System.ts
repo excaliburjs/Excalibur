@@ -87,11 +87,6 @@ implements Observer<AddedEntity | RemovedEntity> {
   postupdate?(engine: ContextType, elapsedMs: number): void;
 
   /**
-   * Optionally run a debug draw step to visualize the internals of the system
-   */
-  debugDraw?(ctx: CanvasRenderingContext2D, elapsedMs: number): void;
-
-  /**
    * Systems observe when entities match their types or no longer match their types, override
    * @param _entityAddedOrRemoved
    */

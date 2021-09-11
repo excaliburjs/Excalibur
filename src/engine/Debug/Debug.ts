@@ -1,7 +1,7 @@
 import { DebugFlags, ColorBlindFlags } from './DebugFlags';
-import { Pair } from '../Collision/Detection/Pair';
 import { Engine } from '../Engine';
-import { Color } from '..';
+import { Color } from '../Color';
+import { CollisionContact } from '../Collision/Detection/CollisionContact';
 
 /**
  * Debug stats containing current and previous frame statistics
@@ -9,13 +9,6 @@ import { Color } from '..';
 export interface DebugStats {
   currFrame: FrameStats;
   prevFrame: FrameStats;
-}
-
-/**
- * Hash containing the [[Pair.id]]s of pairs that collided in a frame
- */
-export interface CollidersHash {
-  [pairId: string]: Pair;
 }
 
 /**
@@ -123,9 +116,9 @@ export interface PhysicsStatistics {
   collisions: number;
 
   /**
-   * A Hash storing the [[Pair.id]]s of [[Pair]]s that collided in the frame
+   * Copy of the current frame contacts (only updated if debug is toggled on)
    */
-  collidersHash: CollidersHash;
+  contacts: Map<string, CollisionContact>;
 
   /**
    * Gets the number of fast moving bodies using raycast continuous collisions in the scene
@@ -231,7 +224,20 @@ export class Debug implements DebugFlags {
     showOwner: false,
 
     showGeometry: true,
-    geometryColor: Color.Green
+    geometryColor: Color.Green,
+  };
+
+  public physics = {
+    showAll: false,
+    
+    showBroadphaseSpacePartitionDebug: false,
+
+    showCollisionNormals: false,
+    collisionNormalColor: Color.Cyan,
+
+    showCollisionContacts: true,
+    collisionContactColor: Color.Red
+
   };
 
   public motion = {
@@ -412,7 +418,7 @@ export class FrameStats implements FrameStatistics {
 export class PhysicsStats implements PhysicsStatistics {
   private _pairs: number = 0;
   private _collisions: number = 0;
-  private _collidersHash: CollidersHash = {};
+  private _contacts: Map<string, CollisionContact> = new Map();
   private _fastBodies: number = 0;
   private _fastBodyCollisions: number = 0;
   private _broadphase: number = 0;
@@ -427,7 +433,7 @@ export class PhysicsStats implements PhysicsStatistics {
     if (otherStats) {
       this.pairs = otherStats.pairs;
       this.collisions = otherStats.collisions;
-      this.collidersHash = otherStats.collidersHash;
+      this.contacts = otherStats.contacts;
       this.fastBodies = otherStats.fastBodies;
       this.fastBodyCollisions = otherStats.fastBodyCollisions;
       this.broadphase = otherStats.broadphase;
@@ -435,7 +441,7 @@ export class PhysicsStats implements PhysicsStatistics {
     } else {
       this.pairs = this.collisions = this.fastBodies = 0;
       this.fastBodyCollisions = this.broadphase = this.narrowphase = 0;
-      this.collidersHash = {};
+      this.contacts.clear();
     }
   }
 
@@ -466,12 +472,12 @@ export class PhysicsStats implements PhysicsStatistics {
     this._collisions = value;
   }
 
-  public get collidersHash(): CollidersHash {
-    return this._collidersHash;
+  public get contacts(): Map<string, CollisionContact> {
+    return this._contacts;
   }
 
-  public set collidersHash(colliders: CollidersHash) {
-    this._collidersHash = colliders;
+  public set contacts(contacts: Map<string, CollisionContact>) {
+    this._contacts = contacts;
   }
 
   public get fastBodies(): number {

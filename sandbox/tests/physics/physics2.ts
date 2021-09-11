@@ -1,5 +1,6 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 
+ex.Physics.useRealisticPhysics();
 var game = new ex.Engine({
   width: 600,
   height: 400
@@ -7,8 +8,7 @@ var game = new ex.Engine({
 
 game.showDebug(true);
 
-ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Realistic;
-ex.Physics.debug.broadphaseDebug = true;
+game.debug.physics.showBroadphaseSpacePartitionDebug = true;
 
 game.currentScene.camera.x = 0;
 game.currentScene.camera.y = 0;

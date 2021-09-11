@@ -2,6 +2,7 @@
 import { Pair } from './Pair';
 import { Collider } from '../Shapes/Collider';
 import { CollisionContact } from './CollisionContact';
+import { ExcaliburGraphicsContext } from '../..';
 
 /**
  * Definition for collision processor
@@ -27,5 +28,5 @@ export interface CollisionProcessor {
   /**
    * Draw any debug information
    */
-  debugDraw(ctx: CanvasRenderingContext2D, delta: number): void;
+  debug(ex: ExcaliburGraphicsContext, delta: number): void;
 }

@@ -377,16 +377,12 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
    * @param ctx  The current rendering context
+   * @deprecated
    */
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
-    // this._collisionProcessor.debugDraw(ctx, 20);
-    for (const system of this.world.systemManager.systems) {
-      if (system.debugDraw) {
-        system.debugDraw(ctx, 1);
-      }
-    }
+    // pass
     this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
   }
 
