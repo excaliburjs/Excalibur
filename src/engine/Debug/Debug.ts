@@ -224,12 +224,12 @@ export class Debug implements DebugFlags {
     showOwner: false,
 
     showGeometry: true,
-    geometryColor: Color.Green,
+    geometryColor: Color.Green
   };
 
   public physics = {
     showAll: false,
-    
+
     showBroadphaseSpacePartitionDebug: false,
 
     showCollisionNormals: false,
@@ -237,7 +237,6 @@ export class Debug implements DebugFlags {
 
     showCollisionContacts: true,
     collisionContactColor: Color.Red
-
   };
 
   public motion = {

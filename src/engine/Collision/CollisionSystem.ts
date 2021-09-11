@@ -19,7 +19,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
   public systemType = SystemType.Update;
   public priority = -1;
 
-  private _engine: Engine; 
+  private _engine: Engine;
   private _realisticSolver = new RealisticSolver();
   private _arcadeSolver = new ArcadeSolver();
   private _processor = new DynamicTreeCollisionProcessor();

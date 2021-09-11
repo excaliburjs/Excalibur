@@ -24,6 +24,7 @@ export class DebugSystem extends System<TransformComponent> {
     this._engine = scene.engine;
     this._collisionSystem = scene.world.systemManager.get(CollisionSystem);
   }
+
   update(entities: Entity[], _delta: number): void {
     if (!this._engine.isDebug) {
       return;
@@ -212,13 +213,16 @@ export class DebugSystem extends System<TransformComponent> {
       for (const [_, contact] of this._engine.debug.stats.currFrame.physics.contacts) {
         if (physicsSettings.showAll || physicsSettings.showCollisionContacts) {
           for (const point of contact.points) {
-            this._graphicsContext.debug.drawPoint(point, { size: 5, color: physicsSettings.collisionContactColor});
+            this._graphicsContext.debug.drawPoint(point, { size: 5, color: physicsSettings.collisionContactColor });
           }
         }
+
         if (physicsSettings.showAll || physicsSettings.showCollisionNormals) {
           for (const point of contact.points) {
-            this._graphicsContext.debug.drawLine(point, contact.normal.scale(30).add(point), { color: physicsSettings.collisionNormalColor });
-          };
+            this._graphicsContext.debug.drawLine(point, contact.normal.scale(30).add(point), {
+              color: physicsSettings.collisionNormalColor
+            });
+          }
         }
       }
     }
