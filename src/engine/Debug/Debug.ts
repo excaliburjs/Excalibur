@@ -183,18 +183,36 @@ export class Debug implements DebugFlags {
    */
   public colorBlindMode: ColorBlindFlags;
 
+  /**
+   * Filter debug context to named entities or entity ids
+   */
   public filter: { useFilter: boolean; nameQuery: string; ids: number[] } = {
+    /**
+     * Toggle filter on or off (default off) must be on for DebugDraw to use filters
+     */
     useFilter: false,
+    /**
+     * Query for entities by name, if the entity name contains `nameQuery` it will be included
+     */
     nameQuery: '',
+    /**
+     * Query for Entity ids, if the id matches it will be included
+     */
     ids: []
   };
 
+  /**
+   * Entity debug settings
+   */
   public entity = {
     showAll: false,
     showId: true,
     showName: false
   };
 
+  /**
+   * Transform component debug settings
+   */
   public transform = {
     showAll: false,
 
@@ -208,6 +226,9 @@ export class Debug implements DebugFlags {
     rotationColor: Color.Blue
   };
 
+  /**
+   * Graphics component debug settings
+   */
   public graphics = {
     showAll: false,
 
@@ -215,6 +236,9 @@ export class Debug implements DebugFlags {
     boundsColor: Color.Yellow
   };
 
+  /**
+   * Collider component debug settings
+   */
   public collider = {
     showAll: false,
 
@@ -227,6 +251,9 @@ export class Debug implements DebugFlags {
     geometryColor: Color.Green
   };
 
+  /**
+   * Physics simulation debug settings
+   */
   public physics = {
     showAll: false,
 
@@ -239,6 +266,9 @@ export class Debug implements DebugFlags {
     collisionContactColor: Color.Red
   };
 
+  /**
+   * Motion component debug settings
+   */
   public motion = {
     showAll: false,
 
@@ -249,6 +279,9 @@ export class Debug implements DebugFlags {
     accelerationColor: Color.Red
   };
 
+  /**
+   * Body component debug settings
+   */
   public body = {
     showAll: false,
 
@@ -259,6 +292,9 @@ export class Debug implements DebugFlags {
     showMass: false
   };
 
+  /**
+   * Camera debug settings
+   */
   public camera = {
     showAll: false,
 

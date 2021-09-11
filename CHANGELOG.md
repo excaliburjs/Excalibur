@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `ex.Physics.debug` properties for Debug drawing are now moved to `engine.debug.physics`, `engine.debug.collider`, and `engine.debug.body`.
+  - Old `debugDraw(ctx: CanvasRenderingContext2D)` methods are removed.
 - Collision `Pair`'s are now between Collider's and not bodies
 - `PerlinNoise` has been removed from the core repo will now be offered as a [plugin](https://github.com/excaliburjs/excalibur-perlin)
 - Legacy drawing implementations are moved behind `ex.LegacyDrawing` new Graphics implemenations of `Sprite`, `SpriteSheet`, `Animation` are now the default import.
@@ -36,7 +38,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Removes `Entity.components` as a way to access, add, and remove components
 - Camera.z has been renamed to property `zoom` which is the zoom factor
 - Camera.zoom(...) has been renamed to function `zoomOverTime()`
-- TileMap no longer needs registered SpriteSheets, `Sprite`'s can be added directly to `Cell`'s with `addSprite`
+- TileMap no longer needs registered SpriteSheets, `Sprite`'s can be added directly to `Cell`'s with `addGraphic`
   - The confusing `TileSprite` type is removed (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
 - Directly changing debug drawing by `engine.isDebug = value` has been replaced by `engine.showDebug(value)` and `engine.toggleDebug()` ([#1655](https://github.com/excaliburjs/Excalibur/issues/1655))
 - `UIActor` Class instances need to be replaced to `ScreenElement` (This Class it's marked as Obsolete) ([#1656](https://github.com/excaliburjs/Excalibur/issues/1656))
@@ -55,6 +57,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- The `ExcaliburGraphicsContext` now supports drawing debug text
+- `Entity` may also now optionally have a `name`, this is useful for finding entities by name or when displaying in debug mode.
+- New `DebugSystem` ECS system will show debug drawing output for things toggled on/off in the `engine.debug` section, this allows for a less cluttered debug experience.
+  - Each debug section now has a configurable color.
 - Turn on WebGL support with `ex.Flags.useWebGL()`
 - Added new helpers to `CollisionGroup` to define groups that collide with specified groups `CollisionGroup.collidesWith([groupA, groupB])`
   - Combine groups with `const groupAandB = CollisionGroup.combine([groupA, groupB])`

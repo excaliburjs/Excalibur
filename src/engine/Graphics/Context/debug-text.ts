@@ -2,6 +2,9 @@ import { ExcaliburGraphicsContext, ImageSource, SpriteFont, SpriteSheet } from '
 import { Vector } from '../..';
 import debugFont from './debug-font.png';
 
+/**
+ * Internal debugtext helper
+ */
 export class DebugText {
   constructor() {
     this.load();
@@ -36,6 +39,12 @@ export class DebugText {
     });
   }
 
+  /**
+   * Writes debug text using the built in sprint font
+   * @param ctx
+   * @param text
+   * @param pos
+   */
   public write(ctx: ExcaliburGraphicsContext, text: string, pos: Vector) {
     if (this._imageSource.isLoaded()) {
       this._spriteFont.render(ctx, text, pos.x, pos.y);
