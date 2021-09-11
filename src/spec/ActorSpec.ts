@@ -38,6 +38,7 @@ describe('A game actor', () => {
     spyOn(actor, 'debugDraw');
 
     engine.start();
+    collisionSystem.initialize(scene);
 
     ex.Physics.useArcadePhysics();
     ex.Physics.acc.setTo(0, 0);
