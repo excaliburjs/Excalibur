@@ -6,6 +6,7 @@ import { SeparatingAxis, SeparationInfo } from './SeparatingAxis';
 import { Line } from '../../Math/line';
 import { Vector } from '../../Math/vector';
 import { TransformComponent } from '../../EntityComponentSystem';
+import { Pair } from '../Detection/Pair';
 
 export const CollisionJumpTable = {
   CollideCircleCircle(circleA: CircleCollider, circleB: CircleCollider): CollisionContact[] {
@@ -71,20 +72,21 @@ export const CollisionJumpTable = {
     // TODO not sure this actually abides by local/world collisions
     // Are edge.begin and edge.end local space or world space? I think they should be local
 
-    // center of the circle
+    // center of the circle in world pos
     const cc = circle.center;
     // vector in the direction of the edge
-    const e = edge.end.sub(edge.begin);
+    const edgeWorld = edge.asLine();
+    const e = edgeWorld.end.sub(edgeWorld.begin);
 
     // amount of overlap with the circle's center along the edge direction
-    const u = e.dot(edge.end.sub(cc));
-    const v = e.dot(cc.sub(edge.begin));
+    const u = e.dot(edgeWorld.end.sub(cc));
+    const v = e.dot(cc.sub(edgeWorld.begin));
     const side = edge.asLine();
     const localSide = edge.asLocalLine();
 
     // Potential region A collision (circle is on the left side of the edge, before the beginning)
     if (v <= 0) {
-      const da = edge.begin.sub(cc);
+      const da = edgeWorld.begin.sub(cc);
       const dda = da.dot(da); // quick and dirty way of calc'n distance in r^2 terms saves some sqrts
       // save some sqrts
       if (dda > circle.radius * circle.radius) {
@@ -110,7 +112,7 @@ export const CollisionJumpTable = {
 
     // Potential region B collision (circle is on the right side of the edge, after the end)
     if (u <= 0) {
-      const db = edge.end.sub(cc);
+      const db = edgeWorld.end.sub(cc);
       const ddb = db.dot(db);
       if (ddb > circle.radius * circle.radius) {
         return [];
@@ -135,9 +137,9 @@ export const CollisionJumpTable = {
 
     // Otherwise potential region AB collision (circle is in the middle of the edge between the beginning and end)
     const den = e.dot(e);
-    const pointOnEdge = edge.begin
+    const pointOnEdge = edgeWorld.begin
       .scale(u)
-      .add(edge.end.scale(v))
+      .add(edgeWorld.end.scale(v))
       .scale(1 / den);
     const d = cc.sub(pointOnEdge);
 
@@ -148,7 +150,7 @@ export const CollisionJumpTable = {
 
     let normal = e.perpendicular();
     // flip correct direction
-    if (normal.dot(cc.sub(edge.begin)) < 0) {
+    if (normal.dot(cc.sub(edgeWorld.begin)) < 0) {
       normal.x = -normal.x;
       normal.y = -normal.y;
     }
@@ -166,7 +168,18 @@ export const CollisionJumpTable = {
       localSide: localSide
     };
 
-    return [new CollisionContact(circle, edge, mvt, normal, normal.perpendicular(), [pointOnEdge], [pointOnEdge], info)];
+    return [
+      new CollisionContact(
+        circle,
+        edge,
+        mvt,
+        normal.negate(),
+        normal.negate().perpendicular(),
+        [pointOnEdge],
+        [pointOnEdge.sub(edge.worldPos)],
+        info
+      )
+    ];
   },
 
   CollideEdgeEdge(): CollisionContact[] {
@@ -185,7 +198,14 @@ export const CollisionJumpTable = {
     });
     linePoly.owner = edge.owner;
     linePoly.update(edge.owner.get(TransformComponent));
-    return this.CollidePolygonPolygon(polygon, linePoly);
+    // Gross hack but poly-poly works well
+    const contact = this.CollidePolygonPolygon(polygon, linePoly);
+    if (contact.length) {
+      // Fudge the contact back to edge
+      contact[0].colliderB = edge;
+      (contact[0].id as any) = Pair.calculatePairHash(polygon.id, edge.id);
+    }
+    return contact;
   },
 
   CollidePolygonPolygon(polyA: ConvexPolygon, polyB: ConvexPolygon): CollisionContact[] {
