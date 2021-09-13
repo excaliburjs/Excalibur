@@ -34,13 +34,15 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       const colliderComponent = message.data.get(ColliderComponent);
       colliderComponent.$colliderAdded.subscribe(this._trackCollider);
       colliderComponent.$colliderRemoved.subscribe(this._untrackCollider);
-      if (colliderComponent.collider) {
-        this._processor.track(colliderComponent.collider);
+      const collider = colliderComponent.get();
+      if (collider) {
+        this._processor.track(collider);
       }
     } else {
       const colliderComponent = message.data.get(ColliderComponent);
-      if (colliderComponent.collider) {
-        this._processor.untrack(colliderComponent.collider);
+      const collider = colliderComponent.get();
+      if (colliderComponent) {
+        this._processor.untrack(collider);
       }
     }
   }
@@ -57,13 +59,14 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     // Collect up all the colliders
     let colliders: Collider[] = [];
     for (const entity of _entities) {
-      const collider = entity.get(ColliderComponent);
-      if (collider.collider && collider.owner?.active) {
-        collider.update();
-        if (collider.collider instanceof CompositeCollider) {
-          colliders = colliders.concat(collider.collider.getColliders());
+      const colliderComp = entity.get(ColliderComponent);
+      const collider = colliderComp?.get();
+      if (colliderComp && colliderComp.owner?.active) {
+        colliderComp.update();
+        if (collider instanceof CompositeCollider) {
+          colliders = colliders.concat(collider.getColliders());
         } else {
-          colliders.push(collider.collider);
+          colliders.push(collider);
         }
       }
     }

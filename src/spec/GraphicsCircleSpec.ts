@@ -13,6 +13,7 @@ describe('A Circle Graphic', () => {
 
   it('can have a radius', () => {
     const sut = new ex.Circle({
+      padding: 0,
       radius: 10
     });
     expect(sut.radius).toBe(10);
@@ -23,6 +24,7 @@ describe('A Circle Graphic', () => {
   it('can set a color', async () => {
     const sut = new ex.Circle({
       radius: 10,
+      padding: 0,
       color: ex.Color.Green,
       strokeColor: ex.Color.Black
     });

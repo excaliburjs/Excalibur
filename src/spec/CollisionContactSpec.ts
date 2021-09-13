@@ -22,8 +22,8 @@ describe('A CollisionContact', () => {
 
     actorB.body.collisionType = ex.CollisionType.Active;
 
-    colliderA = actorA.collider.collider;
-    colliderB = actorB.collider.collider;
+    colliderA = actorA.collider.get();
+    colliderB = actorB.collider.get();
 
   });
 

@@ -30,18 +30,18 @@ export class ColliderComponent extends Component<'ex.collider'> {
 
   constructor(collider?: Collider) {
     super();
-    this.collider = collider;
+    this.set(collider);
   }
 
   private _collider: Collider;
-  public get collider() {
+  public get() {
     return this._collider;
   }
 
-  public set collider(collider: Collider) {
-    if (this.collider) {
+  public set<T extends Collider>(collider: T): T {
+    if (this._collider) {
       this.events.unwire(collider.events);
-      this.$colliderRemoved.notifyAll(this.collider);
+      this.$colliderRemoved.notifyAll(this._collider);
     }
     if (collider) {
       this._collider = collider;
@@ -50,22 +50,23 @@ export class ColliderComponent extends Component<'ex.collider'> {
       this.$colliderAdded.notifyAll(collider);
       this.update();
     }
+    return collider;
   }
 
   public get bounds() {
-    return this.collider?.bounds ?? new BoundingBox();
+    return this._collider?.bounds ?? new BoundingBox();
   }
 
   public get localBounds() {
-    return this.collider?.localBounds ?? new BoundingBox();
+    return this._collider?.localBounds ?? new BoundingBox();
   }
 
   public update() {
     const tx = this.owner?.get(TransformComponent);
-    if (this.collider) {
-      this.collider.owner = this.owner;
+    if (this._collider) {
+      this._collider.owner = this.owner;
       if (tx) {
-        this.collider.update(tx);
+        this._collider.update(tx);
       }
     }
   }
@@ -103,7 +104,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
   }
 
   onAdd(entity: Entity) {
-    if (this.collider) {
+    if (this._collider) {
       this.update();
     }
     // Wire up the collider events to the owning entity
@@ -133,7 +134,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
 
   onRemove() {
     this.events.clear();
-    this.$colliderRemoved.notifyAll(this.collider);
+    this.$colliderRemoved.notifyAll(this._collider);
   }
 
   /**
@@ -145,7 +146,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
    */
   useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): ConvexPolygon {
     const collider = Shape.Box(width, height, anchor, center);
-    return (this.collider = collider);
+    return (this.set(collider));
   }
 
   /**
@@ -159,7 +160,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
    */
   usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): ConvexPolygon {
     const poly = Shape.Polygon(points, false, center);
-    return (this.collider = poly);
+    return (this.set(poly));
   }
 
   /**
@@ -169,7 +170,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
    */
   useCircleCollider(radius: number, center: Vector = Vector.Zero): CircleCollider {
     const collider = Shape.Circle(radius, center);
-    return (this.collider = collider);
+    return (this.set(collider));
   }
 
   /**
@@ -180,10 +181,10 @@ export class ColliderComponent extends Component<'ex.collider'> {
    */
   useEdgeCollider(begin: Vector, end: Vector): Edge {
     const collider = Shape.Edge(begin, end);
-    return (this.collider = collider);
+    return (this.set(collider));
   }
 
   useCompositeCollider(colliders: Collider[]): CompositeCollider {
-    return (this.collider = new CompositeCollider(colliders));
+    return (this.set(new CompositeCollider(colliders)));
   }
 }
