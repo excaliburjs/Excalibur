@@ -121,8 +121,6 @@ export class DebugSystem extends System<TransformComponent> {
         }
       }
 
-      
-
       graphics = entity.get(GraphicsComponent);
       if (graphics) {
         if (graphicsSettings.showAll || graphicsSettings.showBounds) {

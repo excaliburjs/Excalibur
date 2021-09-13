@@ -563,7 +563,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
             color: color,
             radius
           })
-        )
+        );
       }
     }
 

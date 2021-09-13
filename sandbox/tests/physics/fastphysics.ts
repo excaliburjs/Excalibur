@@ -19,7 +19,7 @@ var rocketTex = new ex.ImageSource('missile.png');
 var loader = new ex.Loader([rocketTex]);
 
 function spawnRocket(direction) {
-  var rocket = new ex.Actor({x: 300, y: 200, radius: 48});
+  var rocket = new ex.Actor({x: 300, y: 200, radius: 48, height: 16});
   rocket.body.canSleep = true;
 
   rocket.on('preupdate', () => {
@@ -31,7 +31,7 @@ function spawnRocket(direction) {
 
   rocket.body.collisionType = ex.CollisionType.Active;
   rocket.graphics.add(rocketTex.toSprite());
-  // rocket.collider.useBoxCollider(48, 16);
+  rocket.collider.useBoxCollider(48, 16);
   //rocket.rotation = Math.PI / 4;
   //block.rx = .1;
   if (direction === 'up') {
