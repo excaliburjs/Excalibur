@@ -194,16 +194,21 @@ export const CollisionJumpTable = {
 
     // build a temporary polygon from the edge to use SAT
     const linePoly = new ConvexPolygon({
-      points: [edge.begin, edge.end, edge.end.add(dir.scale(100)), edge.begin.add(dir.scale(100))]
+      points: [edge.begin, edge.end, edge.end.add(dir.scale(100)), edge.begin.add(dir.scale(100))],
+      offset: edge.offset
     });
     linePoly.owner = edge.owner;
-    linePoly.update(edge.owner.get(TransformComponent));
+    const tx = edge.owner?.get(TransformComponent);
+    if (tx) {
+      linePoly.update(edge.owner.get(TransformComponent));
+    }
     // Gross hack but poly-poly works well
     const contact = this.CollidePolygonPolygon(polygon, linePoly);
     if (contact.length) {
       // Fudge the contact back to edge
       contact[0].colliderB = edge;
       (contact[0].id as any) = Pair.calculatePairHash(polygon.id, edge.id);
+      // contact[0].info.collider
     }
     return contact;
   },
@@ -270,5 +275,80 @@ export const CollisionJumpTable = {
       return [new CollisionContact(polyA, polyB, normal.scale(-separation.separation), normal, tangent, points, localPoints, separation)];
     }
     return [];
+  },
+
+  FindContactSeparation(contact: CollisionContact, localPoint: Vector) {
+    const shapeA = contact.colliderA;
+    const txA = contact.colliderA.owner?.get(TransformComponent) ?? new TransformComponent();
+    const shapeB = contact.colliderB;
+    const txB = contact.colliderB.owner?.get(TransformComponent) ?? new TransformComponent();
+
+    // both are circles
+    if (shapeA instanceof CircleCollider && shapeB instanceof CircleCollider) {
+      const combinedRadius = shapeA.radius + shapeB.radius;
+      const distance = txA.pos.distance(txB.pos);
+      const separation = combinedRadius - distance;
+      return -separation;
+    }
+
+    // both are polygons
+    if (shapeA instanceof ConvexPolygon && shapeB instanceof ConvexPolygon) {
+      if (contact.info.localSide) {
+        let side: Line;
+        let worldPoint: Vector;
+        if (contact.info.collider === shapeA) {
+          side = new Line(txA.apply(contact.info.localSide.begin), txA.apply(contact.info.localSide.end));
+          worldPoint = txB.apply(localPoint);
+        } else {
+          side = new Line(txB.apply(contact.info.localSide.begin), txB.apply(contact.info.localSide.end));
+          worldPoint = txA.apply(localPoint);
+        }
+
+        return side.distanceToPoint(worldPoint, true);
+      }
+    }
+
+    // polygon v circle
+    if (
+      (shapeA instanceof ConvexPolygon && shapeB instanceof CircleCollider) ||
+      (shapeB instanceof ConvexPolygon && shapeA instanceof CircleCollider)
+    ) {
+      const worldPoint = txA.apply(localPoint);
+      if (contact.info.side) {
+        return contact.info.side.distanceToPoint(worldPoint, true);
+      }
+    }
+
+    // polygon v edge
+    if ((shapeA instanceof Edge && shapeB instanceof ConvexPolygon) || (shapeB instanceof Edge && shapeA instanceof ConvexPolygon)) {
+      let worldPoint: Vector;
+      if (contact.info.collider === shapeA) {
+        worldPoint = txB.apply(localPoint);
+      } else {
+        worldPoint = txA.apply(localPoint);
+      }
+      if (contact.info.side) {
+        return contact.info.side.distanceToPoint(worldPoint, true);
+      }
+    }
+
+    // circle v edge
+    if ((shapeA instanceof CircleCollider && shapeB instanceof Edge) || (shapeB instanceof CircleCollider && shapeA instanceof Edge)) {
+      // Local point is always on the edge which is always shapeB
+      const worldPoint = txB.apply(localPoint);
+
+      let circlePoint: Vector;
+      if (shapeA instanceof CircleCollider) {
+        circlePoint = shapeA.getFurthestPoint(contact.normal);
+      }
+
+      const dist = worldPoint.distance(circlePoint);
+
+      if (contact.info.side) {
+        return dist > 0 ? -dist : 0;
+      }
+    }
+
+    return 0;
   }
 };

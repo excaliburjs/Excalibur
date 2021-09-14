@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { CollisionJumpTable } from '@excalibur';
 import { ExcaliburMatchers, ensureImagesLoaded, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
@@ -878,6 +879,108 @@ describe('Collision Shape', () => {
 
       expect(line.getLength()).toBe(100);
       expect(line.getEdge().dot(ex.Vector.Right)).toBeGreaterThan(0, 'Line from circle to edge should be away from circle');
+    });
+
+    it('can collide with a circle center edge', () => {
+      const edge = ex.Shape.Edge(ex.vec(-100, 30), ex.vec(100, 30));
+      const circle = ex.Shape.Circle(30);
+      const contact = circle.collide(edge)[0];
+      expect(contact.normal)
+        .withContext('Circle/Edge normals point away from circle')
+        .toBeVector(ex.Vector.Down);
+      expect(contact.points[0]).toBeVector(ex.vec(0, 30));
+      expect(contact.info.collider).toBe(circle);
+      expect(contact.info.point).toBeVector(ex.vec(0, 30));
+
+      const separation = CollisionJumpTable.FindContactSeparation(contact, ex.vec(0, 40));
+      expect(separation).withContext('Negative separation means overlap').toBe(-10);
+    });
+
+    it('can collide with a circle, left edge', () => {
+      const edge = ex.Shape.Edge(ex.vec(30, 0), ex.vec(100, 0));
+      const circle = ex.Shape.Circle(30);
+      const contact = circle.collide(edge)[0];
+      expect(contact.normal)
+        .withContext('Circle/Edge normals point away from circle')
+        .toBeVector(ex.Vector.Right);
+      expect(contact.points[0]).toBeVector(ex.vec(30, 0));
+      expect(contact.info.collider).toBe(circle);
+      expect(contact.info.point).toBeVector(ex.vec(30, 0));
+
+      const separation = CollisionJumpTable.FindContactSeparation(contact, ex.vec(40, 0));
+      expect(separation).toBe(-10);
+    });
+
+    it('can collide with a circle, right edge', () => {
+      const edge = ex.Shape.Edge(ex.vec(-100, 0), ex.vec(-30, 0));
+      const circle = ex.Shape.Circle(30);
+      const contact = circle.collide(edge)[0];
+      expect(contact.normal)
+        .withContext('Circle/Edge normals point away from circle')
+        .toBeVector(ex.Vector.Left);
+      expect(contact.points[0]).toBeVector(ex.vec(-30, 0));
+      expect(contact.info.collider).toBe(circle);
+      expect(contact.info.point).toBeVector(ex.vec(-30, 0));
+
+      const separation = CollisionJumpTable.FindContactSeparation(contact, ex.vec(-40, 0));
+      expect(separation).toBe(-10);
+    });
+
+    it('can collide with a circle, bottom edge', () => {
+      const edge = ex.Shape.Edge(ex.vec(-100, -30), ex.vec(100, -30));
+      const circle = ex.Shape.Circle(30);
+      const contact = circle.collide(edge)[0];
+      expect(contact.normal)
+        .withContext('Circle/Edge normals point away from circle')
+        .toBeVector(ex.Vector.Up);
+      expect(contact.points[0]).toBeVector(ex.vec(0, -30));
+      expect(contact.info.collider).toBe(circle);
+      expect(contact.info.point).toBeVector(ex.vec(0, -30));
+
+      const separation = CollisionJumpTable.FindContactSeparation(contact, ex.vec(0, -40));
+      expect(separation).toBe(-10);
+    });
+
+    it('can collide with a polygon, center edge', () => {
+      const edge = ex.Shape.Edge(ex.vec(-100, 10), ex.vec(100, 10));
+      const rect = ex.Shape.Box(40, 20, ex.Vector.Half);
+      const contact = rect.collide(edge)[0];
+      expect(contact.normal)
+        .withContext('Rect/Edge normal point away from edge')
+        .toBeVector(ex.Vector.Up);
+      expect(contact.points[0]).toBeVector(ex.vec(20, 10));
+      expect(contact.points[1]).toBeVector(ex.vec(-20, 10));
+
+      const separation = CollisionJumpTable.FindContactSeparation(contact, ex.vec(0, 20));
+      expect(separation).toBe(-10);
+    });
+
+    it('can collide with a polygon, right edge', () => {
+      const edge = ex.Shape.Edge(ex.vec(10, 10), ex.vec(100, 10));
+      const rect = ex.Shape.Box(40, 20, ex.Vector.Half);
+      const contact = rect.collide(edge)[0];
+      expect(contact.normal)
+        .withContext('Rect/Edge normal point away from edge')
+        .toBeVector(ex.Vector.Up);
+      expect(contact.points[0]).toBeVector(ex.vec(20, 10));
+      expect(contact.points[1]).toBeVector(ex.vec(10, 10));
+
+      const separation = CollisionJumpTable.FindContactSeparation(contact, ex.vec(0, 20));
+      expect(separation).toBe(-10);
+    });
+
+    it('can collide with a polygon, right edge', () => {
+      const edge = ex.Shape.Edge(ex.vec(-100, 10), ex.vec(0, 10));
+      const rect = ex.Shape.Box(40, 20, ex.Vector.Half);
+      const contact = rect.collide(edge)[0];
+      expect(contact.normal)
+        .withContext('Rect/Edge normal point away from edge')
+        .toBeVector(ex.Vector.Up);
+      expect(contact.points[0]).toBeVector(ex.vec(-20, 10));
+      expect(contact.points[1]).toBeVector(ex.vec(0, 10));
+
+      const separation = CollisionJumpTable.FindContactSeparation(contact, ex.vec(0, 20));
+      expect(separation).toBe(-10);
     });
   });
 });

@@ -5,13 +5,9 @@ import { CollisionType } from '../CollisionType';
 import { ContactConstraintPoint } from './ContactConstraintPoint';
 import { Side } from '../Side';
 import { Physics } from '../Physics';
-import { Line } from '../../Math/line';
-import { Vector } from '../../Math/vector';
-import { CircleCollider } from '../Shapes/CircleCollider';
-import { ConvexPolygon } from '../Shapes/ConvexPolygon';
 import { CollisionSolver } from './Solver';
 import { BodyComponent } from '../BodyComponent';
-import { Edge } from '../Shapes/Edge';
+import { CollisionJumpTable } from '../Shapes/CollisionJumpTable';
 
 export class RealisticSolver extends CollisionSolver {
   lastFrameContacts: Map<string, CollisionContact> = new Map();
@@ -192,81 +188,6 @@ export class RealisticSolver extends CollisionSolver {
     }
   }
 
-  private _getSeparation(contact: CollisionContact, localPoint: Vector) {
-    const shapeA = contact.colliderA;
-    const bodyA = contact.colliderA.owner.get(BodyComponent);
-    const shapeB = contact.colliderB;
-    const bodyB = contact.colliderB.owner.get(BodyComponent);
-
-    // both are circles
-    if (shapeA instanceof CircleCollider && shapeB instanceof CircleCollider) {
-      const combinedRadius = shapeA.radius + shapeB.radius;
-      const distance = bodyA.transform.pos.distance(bodyB.transform.pos);
-      const separation = combinedRadius - distance;
-      return -separation;
-    }
-
-    // both are polygons
-    if (shapeA instanceof ConvexPolygon && shapeB instanceof ConvexPolygon) {
-      if (contact.info.localSide) {
-        let side: Line;
-        let worldPoint: Vector;
-        if (contact.info.collider === shapeA) {
-          side = new Line(bodyA.transform.apply(contact.info.localSide.begin), bodyA.transform.apply(contact.info.localSide.end));
-          worldPoint = bodyB.transform.apply(localPoint);
-        } else {
-          side = new Line(bodyB.transform.apply(contact.info.localSide.begin), bodyB.transform.apply(contact.info.localSide.end));
-          worldPoint = bodyA.transform.apply(localPoint);
-        }
-
-        return side.distanceToPoint(worldPoint, true);
-      }
-    }
-
-    // polygon v circle
-    if (
-      (shapeA instanceof ConvexPolygon && shapeB instanceof CircleCollider) ||
-      (shapeB instanceof ConvexPolygon && shapeA instanceof CircleCollider)
-    ) {
-      const worldPoint = bodyA.transform.apply(localPoint);
-      if (contact.info.side) {
-        return contact.info.side.distanceToPoint(worldPoint, true);
-      }
-    }
-
-    // polygon v edge
-    if ((shapeA instanceof Edge && shapeB instanceof ConvexPolygon) || (shapeB instanceof Edge && shapeA instanceof ConvexPolygon)) {
-      let worldPoint: Vector;
-      if (contact.info.collider === shapeA) {
-        worldPoint = bodyB.transform.apply(localPoint);
-      } else {
-        worldPoint = bodyA.transform.apply(localPoint);
-      }
-      if (contact.info.side) {
-        return contact.info.side.distanceToPoint(worldPoint, true);
-      }
-    }
-
-    // circle v line
-    if ((shapeA instanceof CircleCollider && shapeB instanceof Edge) || (shapeB instanceof CircleCollider && shapeA instanceof Edge)) {
-      // Local point is always on the edge
-      const worldPoint = bodyB.transform.apply(localPoint);
-
-      let circlePoint: Vector;
-      if (shapeA instanceof CircleCollider) {
-        circlePoint = shapeA.getFurthestPoint(contact.normal);
-      }
-
-      const dist = worldPoint.distance(circlePoint);
-
-      if (contact.info.side) {
-        return dist > 0 ? -dist : 0;
-      }
-    }
-
-    return 0;
-  }
-
   /**
    * Iteratively solve the position overlap constraint
    * @param contacts
@@ -286,7 +207,7 @@ export class RealisticSolver extends CollisionSolver {
           const constraints = this.idToContactConstraint.get(contact.id) ?? [];
           for (const point of constraints) {
             const normal = contact.normal;
-            const separation = this._getSeparation(contact, point.local);
+            const separation = CollisionJumpTable.FindContactSeparation(contact, point.local);
 
             const steeringConstant = Physics.steeringFactor; //0.2;
             const maxCorrection = -5;
