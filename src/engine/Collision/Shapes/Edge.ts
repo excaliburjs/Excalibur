@@ -188,6 +188,8 @@ export class Edge extends Collider {
   }
 
   private _boundsFromBeginEnd(begin: Vector, end: Vector, padding = 10) {
+    // A perfectly vertical or horizontal edge would have a bounds 0 width or height
+    // this causes problems for the collision system so we give them some padding
     return new BoundingBox(
       Math.min(begin.x, end.x) - padding,
       Math.min(begin.y, end.y) - padding,
