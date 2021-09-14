@@ -71,6 +71,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Multiple contacts now supported which improves stability
   - Iterative solver for improved stability
 - Added `ColliderComponent` to hold individual `Collider` implementations like `Circle`, `Box`, or `CompositeCollider`
+  - `Actor.collider.get()` will get the current collider
+  - `Actor.collider.set(someCollider)` allows you to set a specific collider
 - New `CompositeCollider` type to combine multiple colliders together into one for an entity
   - Composite colliders flatten into their individual colliders in the collision system
   - Composite collider keeps it's internal colliders in a DynamicTree for fast `.collide` checks
