@@ -57,6 +57,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- `new Actor({radius: 10})` can now take a radius parameter to help create circular actors
 - The `ExcaliburGraphicsContext` now supports drawing debug text
 - `Entity` may also now optionally have a `name`, this is useful for finding entities by name or when displaying in debug mode.
 - New `DebugSystem` ECS system will show debug drawing output for things toggled on/off in the `engine.debug` section, this allows for a less cluttered debug experience.
