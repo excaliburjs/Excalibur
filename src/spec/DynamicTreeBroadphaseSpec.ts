@@ -34,12 +34,12 @@ describe('A DynamicTree Broadphase', () => {
 
   it('can find collision pairs for actors that are potentially colliding', () => {
     const dt = new ex.DynamicTreeCollisionProcessor();
-    dt.track(actorA.collider.collider);
-    dt.track(actorB.collider.collider);
-    dt.track(actorC.collider.collider);
+    dt.track(actorA.collider.get());
+    dt.track(actorB.collider.get());
+    dt.track(actorC.collider.get());
 
     // only should be 1 pair since C is very far away
-    const pairs = dt.broadphase([actorA.collider.collider, actorB.collider.collider, actorC.collider.collider], 100);
+    const pairs = dt.broadphase([actorA.collider.get(), actorB.collider.get(), actorC.collider.get()], 100);
 
     expect(pairs.length).toBe(1);
   });

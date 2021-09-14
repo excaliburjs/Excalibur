@@ -23,6 +23,10 @@ export interface EdgeOptions {
    * The ending of the edge defined in local coordinates to the collider
    */
   end: Vector;
+  /**
+   * Optionall specify an offset
+   */
+  offset?: Vector;
 }
 
 /**
@@ -39,7 +43,7 @@ export class Edge extends Collider {
     super();
     this.begin = options.begin || Vector.Zero;
     this.end = options.end || Vector.Zero;
-    this.offset = this.center;
+    this.offset = options.offset ?? Vector.Zero;
   }
 
   /**
@@ -53,7 +57,8 @@ export class Edge extends Collider {
   }
 
   public get worldPos(): Vector {
-    return this._transform?.pos.add(this.offset) ?? this.offset;
+    const tx = this._transform as TransformComponent;
+    return tx?.globalPos.add(this.offset) ?? this.offset;
   }
 
   /**
@@ -182,8 +187,15 @@ export class Edge extends Collider {
     }
   }
 
-  private _boundsFromBeginEnd(begin: Vector, end: Vector) {
-    return new BoundingBox(Math.min(begin.x, end.x), Math.min(begin.y, end.y), Math.max(begin.x, end.x), Math.max(begin.y, end.y));
+  private _boundsFromBeginEnd(begin: Vector, end: Vector, padding = 10) {
+    // A perfectly vertical or horizontal edge would have a bounds 0 width or height
+    // this causes problems for the collision system so we give them some padding
+    return new BoundingBox(
+      Math.min(begin.x, end.x) - padding,
+      Math.min(begin.y, end.y) - padding,
+      Math.max(begin.x, end.x) + padding,
+      Math.max(begin.y, end.y) + padding
+    );
   }
 
   /**

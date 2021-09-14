@@ -57,6 +57,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- `new Actor({radius: 10})` can now take a radius parameter to help create circular actors
 - The `ExcaliburGraphicsContext` now supports drawing debug text
 - `Entity` may also now optionally have a `name`, this is useful for finding entities by name or when displaying in debug mode.
 - New `DebugSystem` ECS system will show debug drawing output for things toggled on/off in the `engine.debug` section, this allows for a less cluttered debug experience.
@@ -71,6 +72,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Multiple contacts now supported which improves stability
   - Iterative solver for improved stability
 - Added `ColliderComponent` to hold individual `Collider` implementations like `Circle`, `Box`, or `CompositeCollider`
+  - `Actor.collider.get()` will get the current collider
+  - `Actor.collider.set(someCollider)` allows you to set a specific collider
 - New `CompositeCollider` type to combine multiple colliders together into one for an entity
   - Composite colliders flatten into their individual colliders in the collision system
   - Composite collider keeps it's internal colliders in a DynamicTree for fast `.collide` checks

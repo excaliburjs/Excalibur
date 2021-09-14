@@ -11,8 +11,18 @@ describe('A Circle Graphic', () => {
     expect(ex.Circle).toBeDefined();
   });
 
+  it('has default padding', () => {
+    const sut = new ex.Circle({
+      radius: 10
+    });
+    expect(sut.padding).toBe(2);
+    expect(sut.width).toBe(24);
+    expect(sut.height).toBe(24);
+  });
+
   it('can have a radius', () => {
     const sut = new ex.Circle({
+      padding: 0,
       radius: 10
     });
     expect(sut.radius).toBe(10);
@@ -23,6 +33,7 @@ describe('A Circle Graphic', () => {
   it('can set a color', async () => {
     const sut = new ex.Circle({
       radius: 10,
+      padding: 0,
       color: ex.Color.Green,
       strokeColor: ex.Color.Black
     });

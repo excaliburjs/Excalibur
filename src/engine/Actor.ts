@@ -52,6 +52,7 @@ import { ColliderComponent } from './Collision/ColliderComponent';
 import { Shape } from './Collision/Shapes/Shape';
 import { watch } from './Util/Watch';
 import { Collider } from './Collision/Index';
+import { Circle } from './Graphics/Circle';
 
 /**
  * Type guard for checking if something is an Actor
@@ -90,6 +91,10 @@ export interface ActorArgs {
    */
   height?: number;
   /**
+   * Optionally set the radius of the circle collider for the actor
+   */
+  radius?: number;
+  /**
    * Optionally set the velocity of the actor in pixels/sec
    */
   vel?: Vector;
@@ -115,6 +120,7 @@ export interface ActorArgs {
   z?: number;
   /**
    * Optionally set the color of an actor, only used if no graphics are present
+   * If a width/height or a radius was set a default graphic will be added
    */
   color?: Color;
   /**
@@ -497,6 +503,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
       scale,
       width,
       height,
+      radius,
       collider,
       vel,
       acc,
@@ -532,6 +539,8 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
 
     if (collider) {
       this.addComponent(new ColliderComponent(collider));
+    } else if (radius) {
+      this.addComponent(new ColliderComponent(Shape.Circle(radius, this.anchor)));
     } else {
       this.addComponent(new ColliderComponent(Shape.Box(width ?? 0, height ?? 0, this.anchor)));
     }
@@ -540,13 +549,22 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
 
     if (color) {
       this.color = color;
-      this.graphics.add(
-        new Rectangle({
-          color: color,
-          width,
-          height
-        })
-      );
+      if (width && height) {
+        this.graphics.add(
+          new Rectangle({
+            color: color,
+            width,
+            height
+          })
+        );
+      } else if (radius) {
+        this.graphics.add(
+          new Circle({
+            color: color,
+            radius
+          })
+        );
+      }
     }
 
     // Build default pipeline
@@ -1065,7 +1083,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
     const point = vec(x, y);
     const collider = this.get(ColliderComponent);
     collider.update();
-    const containment = collider.collider.contains(point);
+    const containment = collider.get().contains(point);
 
     if (recurse) {
       return (
@@ -1086,8 +1104,8 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
    */
   public within(actor: Actor, distance: number): boolean {
     const collider = this.get(ColliderComponent);
-    const other = actor.get(ColliderComponent);
-    return collider.collider.getClosestLineBetween(other.collider).getLength() <= distance;
+    const otherCollider = actor.get(ColliderComponent);
+    return collider.get().getClosestLineBetween(otherCollider.get()).getLength() <= distance;
   }
 
   // #endregion
@@ -1197,7 +1215,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
         if (!collider.bounds.hasZeroDimensions()) {
           // Colliders are already shifted by anchor, unshift
           ctx.globalAlpha = this.opacity;
-          collider.collider.draw(ctx, this.color, vec(0, 0));
+          collider.get().draw(ctx, this.color, vec(0, 0));
         }
       }
     }

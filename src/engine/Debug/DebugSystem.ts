@@ -42,7 +42,7 @@ export class DebugSystem extends System<TransformComponent> {
     let motion: MotionComponent;
     const motionSettings = this._engine.debug.motion;
 
-    let collider: ColliderComponent;
+    let colliderComp: ColliderComponent;
     const colliderSettings = this._engine.debug.collider;
 
     const physicsSettings = this._engine.debug.physics;
@@ -121,19 +121,6 @@ export class DebugSystem extends System<TransformComponent> {
         }
       }
 
-      motion = entity.get(MotionComponent);
-      if (motion) {
-        if (motionSettings.showAll || motionSettings.showVelocity) {
-          this._graphicsContext.debug.drawText(`vel${motion.vel.toString(2)}`, cursor);
-          this._graphicsContext.drawLine(Vector.Zero, motion.vel, motionSettings.velocityColor, 2);
-          cursor = cursor.add(lineHeight);
-        }
-
-        if (motionSettings.showAll || motionSettings.showAcceleration) {
-          this._graphicsContext.drawLine(Vector.Zero, motion.acc, motionSettings.accelerationColor, 2);
-        }
-      }
-
       graphics = entity.get(GraphicsComponent);
       if (graphics) {
         if (graphicsSettings.showAll || graphicsSettings.showBounds) {
@@ -165,22 +152,36 @@ export class DebugSystem extends System<TransformComponent> {
         }
 
         if (bodySettings.showAll || bodySettings.showSleeping) {
-          this._graphicsContext.debug.drawText(`sleeping(${body.canSleep ? 'cant sleep' : body.sleeping})`, cursor);
+          this._graphicsContext.debug.drawText(`sleeping(${body.canSleep ? body.sleeping: 'cant sleep'})`, cursor);
           cursor = cursor.add(lineHeight);
         }
       }
 
       this._graphicsContext.restore();
 
+      motion = entity.get(MotionComponent);
+      if (motion) {
+        if (motionSettings.showAll || motionSettings.showVelocity) {
+          this._graphicsContext.debug.drawText(`vel${motion.vel.toString(2)}`, cursor);
+          this._graphicsContext.drawLine(tx.globalPos, tx.globalPos.add(motion.vel), motionSettings.velocityColor, 2);
+          cursor = cursor.add(lineHeight);
+        }
+
+        if (motionSettings.showAll || motionSettings.showAcceleration) {
+          this._graphicsContext.drawLine(tx.globalPos, tx.globalPos.add(motion.acc), motionSettings.accelerationColor, 2);
+        }
+      }
+
       // Colliders live in world space already so after the restore()
-      collider = entity.get(ColliderComponent);
-      if (collider) {
+      colliderComp = entity.get(ColliderComponent);
+      if (colliderComp) {
+        const collider = colliderComp.get();
         if (colliderSettings.showAll || colliderSettings.showGeometry) {
-          collider.collider.debug(this._graphicsContext, colliderSettings.geometryColor);
+          collider.debug(this._graphicsContext, colliderSettings.geometryColor);
         }
         if (colliderSettings.showAll || colliderSettings.showBounds) {
-          if (collider.collider instanceof CompositeCollider) {
-            const colliders = collider.collider.getColliders();
+          if (collider instanceof CompositeCollider) {
+            const colliders = collider.getColliders();
             for (const collider of colliders) {
               const bounds = collider.bounds;
               const pos = vec(bounds.left, bounds.top);
@@ -189,13 +190,13 @@ export class DebugSystem extends System<TransformComponent> {
                 this._graphicsContext.debug.drawText(`owner id(${collider.owner.id})`, pos);
               }
             }
-            collider.bounds.draw(this._graphicsContext, colliderSettings.boundsColor);
+            colliderComp.bounds.draw(this._graphicsContext, colliderSettings.boundsColor);
           } else {
-            const bounds = collider.bounds;
+            const bounds = colliderComp.bounds;
             const pos = vec(bounds.left, bounds.top);
             this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, { color: colliderSettings.boundsColor });
             if (colliderSettings.showAll || colliderSettings.showOwner) {
-              this._graphicsContext.debug.drawText(`owner id(${collider.owner.id})`, pos);
+              this._graphicsContext.debug.drawText(`owner id(${colliderComp.owner.id})`, pos);
             }
           }
         }
