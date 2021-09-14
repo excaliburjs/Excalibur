@@ -107,6 +107,7 @@ export abstract class Collider implements Clonable<Collider> {
 
   /**
    * Draw the collider
+   * @deprecated Will be removed in 0.26.0
    * @param ctx
    * @param color
    */
@@ -115,6 +116,7 @@ export abstract class Collider implements Clonable<Collider> {
   abstract debug(ex: ExcaliburGraphicsContext, color: Color): void;
   /**
    * Draw any debug information
+   * @deprecated Will be removed in 0.26.0
    */
   abstract debugDraw(ctx: CanvasRenderingContext2D, color: Color): void;
 
