@@ -103,6 +103,12 @@ export class Sprite extends Graphic {
     });
   }
 
+  /**
+   * Converts a sprite to a Legacy sprite
+   * @deprecated
+   * @param sprite
+   * @returns LegacyDrawing.Sprite
+   */
   public static toLegacySprite(sprite: Sprite): LegacySprite {
     const image = sprite.image;
     const tex = new Texture(image.path);

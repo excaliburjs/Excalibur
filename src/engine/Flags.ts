@@ -10,7 +10,8 @@ export enum Experiments {
  * Legacy features that will go away
  */
 export enum Legacy {
-  LegacyDrawing= 'use-legacy-drawing'
+  Canvas = 'use-canvas-context',
+  LegacyDrawing = 'use-legacy-drawing'
 }
 
 /**
@@ -46,6 +47,10 @@ export class Flags {
    */
   public static useWebGL() {
     Flags.enable(Experiments.WebGL);
+  }
+
+  public static useCanvasGraphicsContext() {
+    Flags.enable(Legacy.Canvas);
   }
 
   /**

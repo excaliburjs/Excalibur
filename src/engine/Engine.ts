@@ -1,5 +1,5 @@
 import { EX_VERSION } from './';
-import { Experiments, Flags } from './Flags';
+import { Flags, Legacy } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
@@ -569,17 +569,7 @@ O|===|* >________________>\n\
       displayMode = DisplayMode.FitScreen;
     }
 
-    if (Flags.isEnabled(Experiments.WebGL)) {
-      const exWebglCtx = new ExcaliburGraphicsContextWebGL({
-        canvasElement: this.canvas,
-        enableTransparency: this.enableCanvasTransparency,
-        smoothing: options.antialiasing,
-        backgroundColor: options.backgroundColor,
-        snapToPixel: options.snapToPixel
-      });
-      this.graphicsContext = exWebglCtx;
-      this.ctx = exWebglCtx.__ctx;
-    } else {
+    if (Flags.isEnabled(Legacy.Canvas)) {
       const ex2dCtx = new ExcaliburGraphicsContext2DCanvas({
         canvasElement: this.canvas,
         enableTransparency: this.enableCanvasTransparency,
@@ -589,6 +579,16 @@ O|===|* >________________>\n\
       });
       this.graphicsContext = ex2dCtx;
       this.ctx = ex2dCtx.__ctx;
+    } else {
+      const exWebglCtx = new ExcaliburGraphicsContextWebGL({
+        canvasElement: this.canvas,
+        enableTransparency: this.enableCanvasTransparency,
+        smoothing: options.antialiasing,
+        backgroundColor: options.backgroundColor,
+        snapToPixel: options.snapToPixel
+      });
+      this.graphicsContext = exWebglCtx;
+      this.ctx = exWebglCtx.__ctx;
     }
 
     this.screen = new Screen({

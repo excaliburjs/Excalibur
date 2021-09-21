@@ -467,6 +467,7 @@ export function fail(message: never): never {
 
 /**
  * Generate a range of numbers
+ * For example: range(0, 5) -> [0, 1, 2, 3, 4, 5]
  * @param from inclusive
  * @param to inclusive
  */

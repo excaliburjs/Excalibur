@@ -1,6 +1,6 @@
 /// <reference path="../../lib/excalibur.d.ts" />
 
-ex.Flags.enable(ex.Legacy.LegacyDrawing)
+// ex.Flags.enable(ex.Legacy.LegacyDrawing)
 var game = new ex.Engine({
   canvasElementId: 'game',
   width: 600,
@@ -11,6 +11,6 @@ var gif: ex.Gif = new ex.Gif('./sword.gif', ex.Color.Black);
 var loader = new ex.Loader([gif]);
 game.start(loader).then(() => {
   var actor = new ex.Actor({x: game.drawWidth / 2, y: game.drawHeight / 2, width: gif.width, height: gif.height});
-  actor.addDrawing('swing', gif.asAnimation(game, 500));
+  actor.graphics.add(gif.toAnimation(500));
   game.add(actor);
 });

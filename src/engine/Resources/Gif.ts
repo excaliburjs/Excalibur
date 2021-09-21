@@ -1,17 +1,19 @@
 import { Resource } from './Resource';
-import { Sprite } from '../Drawing/Sprite';
-import { Texture } from '../Drawing/Texture';
+import { Sprite } from '../Graphics/Sprite';
 import { Color } from '../Color';
-import { SpriteSheet } from '../Drawing/SpriteSheet';
-import { Animation } from '../Drawing/Animation';
+import { SpriteSheet } from '../Graphics/SpriteSheet';
+import { Animation } from '../Graphics/Animation';
 import { Engine } from '../Engine';
 import { Loadable } from '../Interfaces/Index';
+import { ImageSource } from '../Graphics/ImageSource';
+import { LegacyDrawing } from '..';
+import { range } from '../Util/Util';
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
  * [[Texture]] is an [[Loadable]] which means it can be passed to a [[Loader]]
  * to pre-load before starting a level or game.
  */
-export class Gif implements Loadable<Texture[]> {
+export class Gif implements Loadable<ImageSource[]> {
   private _resource: Resource<ArrayBuffer>;
 
   /**
@@ -27,11 +29,11 @@ export class Gif implements Loadable<Texture[]> {
 
   private _stream: Stream = null;
   private _gif: ParseGif = null;
-  private _textures: Texture[] = [];
+  private _textures: ImageSource[] = [];
   private _animation: Animation = null;
   private _transparentColor: Color = null;
 
-  public data: Texture[];
+  public data: ImageSource[];
 
   /**
    * @param path       Path to the image resource
@@ -46,36 +48,73 @@ export class Gif implements Loadable<Texture[]> {
   /**
    * Begins loading the texture and returns a promise to be resolved on completion
    */
-  public async load(): Promise<Texture[]> {
+  public async load(): Promise<ImageSource[]> {
     const arraybuffer = await this._resource.load();
     this._stream = new Stream(arraybuffer);
     this._gif = new ParseGif(this._stream, this._transparentColor);
-    const textures = this._gif.images.map(i => new Texture(i.src, false));
+    const images = this._gif.images.map(i => new ImageSource(i.src, false));
 
     // Load all textures
-    await Promise.all(textures.map(t => t.load()));
-    return this.data = this._textures = textures;
+    await Promise.all(images.map(t => t.load()));
+    return this.data = this._textures = images;
   }
 
   public isLoaded() {
     return !!this.data;
   }
 
-  public asSprite(id: number = 0): Sprite {
-    const sprite = this._textures[id].asSprite();
+  /**
+   * Return a frame of the gif as a legacy sprite by index
+   * @deprecated
+   */
+  public toLegacySprite(id: number = 0): LegacyDrawing.Sprite {
+    return Sprite.toLegacySprite(this.toSprite(id));
+  }
+
+  /**
+   * Return the gif as a legacy spritesheet
+   * @deprecated
+   * @returns
+   */
+  public toLegacySpriteSheet(): LegacyDrawing.SpriteSheet {
+    return SpriteSheet.toLegacySpriteSheet(this.toSpriteSheet());
+  }
+
+  /**
+   * Return the gif as a legacy animation
+   * @deprecated
+   * @param speed
+   */
+  public toLegacyAnimation(engine: Engine, speed: number): LegacyDrawing.Animation {
+    return Animation.toLegacyAnimation(engine, this.toAnimation(speed));
+  }
+
+  /**
+   * Return a frame of the gif as a sprite by id
+   * @param id
+   */
+  public toSprite(id: number = 0): Sprite {
+    const sprite = this._textures[id].toSprite();
     return sprite;
   }
 
-  public asSpriteSheet(): SpriteSheet {
-    const spriteArray: Sprite[] = this._textures.map((texture) => {
-      return texture.asSprite();
+  /**
+   * Return the gif as a spritesheet
+   */
+  public toSpriteSheet(): SpriteSheet {
+    const sprites: Sprite[] = this._textures.map((image) => {
+      return image.toSprite();
     });
-    return new SpriteSheet(spriteArray);
+    return new SpriteSheet({ sprites });
   }
 
-  public asAnimation(engine: Engine, speed: number): Animation {
-    const spriteSheet: SpriteSheet = this.asSpriteSheet();
-    this._animation = spriteSheet.getAnimationForAll(engine, speed);
+  /**
+   * Transform the GIF into an animation with duration per frame
+   */
+  public toAnimation(durationPerFrameMs: number): Animation {
+    const spriteSheet: SpriteSheet = this.toSpriteSheet();
+    const length = spriteSheet.sprites.length;
+    this._animation = Animation.fromSpriteSheet(spriteSheet, range(0, length), durationPerFrameMs);
     return this._animation;
   }
 

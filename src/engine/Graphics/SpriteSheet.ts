@@ -86,6 +86,16 @@ export class SpriteSheet {
   }
 
   /**
+   * @deprecated
+   * @param spriteSheet
+   * @returns
+   */
+  public static toLegacySpriteSheet(spriteSheet: SpriteSheet): LegacySpriteSheet {
+    const sprites = spriteSheet.sprites.map(sprite => Sprite.toLegacySprite(sprite));
+    return new LegacySpriteSheet(sprites);
+  }
+
+  /**
    * Parse a sprite sheet from grid options
    * @param options
    */

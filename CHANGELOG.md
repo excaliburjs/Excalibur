@@ -115,6 +115,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- `Gif` now supports new graphics component
 - `Algebra.ts` refactored into separate files in `Math/`
 - Engine/Scene refactored to make use of the new ECS world which simplifies their logic
 - `TileMap` now uses the built in `Collider` component instead of custom collision code.
