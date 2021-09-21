@@ -53,15 +53,6 @@
     "pretty": "prettier --write \"{src,sandbox/src,sandbox/tests}/**/*.{ts,js,json,css,md}\" --config prettier.config.js",
     "release": "node scripts/release.js"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{ts,js,json,md,css}": "prettier --write",
-    "*.ts": "eslint --fix"
-  },
   "devDependencies": {
     "@babel/core": "7.15.0",
     "@fortawesome/fontawesome-free": "5.15.4",
@@ -86,7 +77,6 @@
     "eslint": "7.32.0",
     "eslint-plugin-jsdoc": "36.0.8",
     "excalibur-jasmine": "0.2.0",
-    "husky": "4.3.8",
     "istanbul": "0.4.5",
     "istanbul-instrumenter-loader": "3.0.1",
     "jasmine": "3.9.0",
@@ -97,8 +87,6 @@
     "karma-coverage-istanbul-reporter": "3.0.3",
     "karma-jasmine": "4.0.1",
     "karma-webpack": "5.0.0",
-    "lint-staged": "11.1.2",
-    "prettier": "2.3.2",
     "puppeteer": "10.2.0",
     "rimraf": "3.0.2",
     "semver": "7.3.5",
