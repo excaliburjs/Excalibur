@@ -396,7 +396,7 @@ describe('A Text Graphic', () => {
     it('can be cloned', () => {
       const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
-      const spriteFontSheet = ex.SpriteSheet.fromGrid({
+      const spriteFontSheet = ex.SpriteSheet.fromImageSource({
         image: spriteFontImage,
         grid: {
           rows: 3,
@@ -428,7 +428,7 @@ describe('A Text Graphic', () => {
 
       await spriteFontImage.load();
 
-      const spriteFontSheet = ex.SpriteSheet.fromGrid({
+      const spriteFontSheet = ex.SpriteSheet.fromImageSource({
         image: spriteFontImage,
         grid: {
           rows: 3,
@@ -470,7 +470,7 @@ describe('A Text Graphic', () => {
 
     await spriteFontImage.load();
 
-    const spriteFontSheet = ex.SpriteSheet.fromGrid({
+    const spriteFontSheet = ex.SpriteSheet.fromImageSource({
       image: spriteFontImage,
       grid: {
         rows: 1,
@@ -513,7 +513,7 @@ describe('A Text Graphic', () => {
 
     await spriteFontImage.load();
 
-    const spriteFontSheet = ex.SpriteSheet.fromGrid({
+    const spriteFontSheet = ex.SpriteSheet.fromImageSource({
       image: spriteFontImage,
       grid: {
         rows: 3,

@@ -11,7 +11,7 @@ var texture = new ex.ImageSource('desert.png');
 
 var loader = new ex.Loader([texture]);
 
-var ss = ex.SpriteSheet.fromGrid({
+var ss = ex.SpriteSheet.fromImageSource({
   image: texture,
   grid: {
     rows: 1,

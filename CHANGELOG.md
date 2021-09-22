@@ -57,6 +57,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- `SpriteSheet.getSprite(x, y)` can retrieve a sprite from the SpriteSheet by x and y coordinate. For example, `getSprite(0, 0)` returns the top left sprite in the sheet.
+  - `SpriteSheet`'s now have dimensionality with `rows` and `columns` optionally specified, if not there is always 1 row, and `sprites.length` columns
 - `new Actor({radius: 10})` can now take a radius parameter to help create circular actors
 - The `ExcaliburGraphicsContext` now supports drawing debug text
 - `Entity` may also now optionally have a `name`, this is useful for finding entities by name or when displaying in debug mode.

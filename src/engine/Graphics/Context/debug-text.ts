@@ -21,7 +21,7 @@ export class DebugText {
   public load() {
     this._imageSource = new ImageSource(this.fontSheet);
     return this._imageSource.load().then(() => {
-      this._spriteSheet = SpriteSheet.fromGrid({
+      this._spriteSheet = SpriteSheet.fromImageSource({
         image: this._imageSource,
         grid: {
           rows: 3,

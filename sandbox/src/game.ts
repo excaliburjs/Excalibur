@@ -218,7 +218,7 @@ var anim = new ex.Animation({
 //   spWidth: 16,
 //   spHeight: 16
 
-var cardSpriteSheet = ex.SpriteSheet.fromGrid({
+var cardSpriteSheet = ex.SpriteSheet.fromImageSource({
   image: cards,
   grid: {
     rows: 4,
@@ -236,7 +236,7 @@ cardSpriteSheet.sprites.forEach(s => s.scale = ex.vec(2, 2));
 
 var cardAnimation = ex.Animation.fromSpriteSheet(cardSpriteSheet, ex.Util.range(0, 14 * 4), 200);
 
-var spriteFontSheet = ex.SpriteSheet.fromGrid({
+var spriteFontSheet = ex.SpriteSheet.fromImageSource({
   image: spriteFontImage,
   grid: {
     rows: 3,
@@ -373,7 +373,7 @@ var blockSprite = new ex.Sprite({
 });
 // Create spritesheet
 //var spriteSheetRun = new ex.SpriteSheet(imageRun, 21, 1, 96, 96);
-var spriteSheetRun = ex.SpriteSheet.fromGrid({
+var spriteSheetRun = ex.SpriteSheet.fromImageSource({
   image: imageRun,
   grid: {
     rows: 1,
@@ -383,7 +383,7 @@ var spriteSheetRun = ex.SpriteSheet.fromGrid({
   }
 });
 //var spriteSheetJump = new ex.SpriteSheet(imageJump, 21, 1, 96, 96);
-var spriteSheetJump = ex.SpriteSheet.fromGrid({
+var spriteSheetJump = ex.SpriteSheet.fromImageSource({
   image: imageJump,
   grid: {
     columns: 21,

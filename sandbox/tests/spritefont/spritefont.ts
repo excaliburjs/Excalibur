@@ -8,7 +8,7 @@ var game = new ex.Engine({
 });
 
 var spriteFontTex = new ex.ImageSource('spritefont.png');
-var spriteFontSheet = ex.SpriteSheet.fromGrid({
+var spriteFontSheet = ex.SpriteSheet.fromImageSource({
   image: spriteFontTex,
   grid: {
     columns: 16,

@@ -8,7 +8,7 @@ var game = new ex.Engine({
 game.setAntialiasing(false);
 
 var raptorTex = new ex.ImageSource('raptor.png');
-var raptorSheet = ex.SpriteSheet.fromGrid({
+var raptorSheet = ex.SpriteSheet.fromImageSource({
   image: raptorTex,
   grid: {
     columns: 8, 

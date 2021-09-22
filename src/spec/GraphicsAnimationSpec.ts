@@ -54,7 +54,7 @@ describe('A Graphics Animation', () => {
 
   it('can be defined from a spritesheet', () => {
     const sourceImage = new ex.ImageSource('some/image.png');
-    const ss = ex.SpriteSheet.fromGrid({
+    const ss = ex.SpriteSheet.fromImageSource({
       image: sourceImage,
       grid: {
         spriteWidth: 10,
@@ -72,7 +72,7 @@ describe('A Graphics Animation', () => {
 
   it('warns if constructed with invalid indices', () => {
     const sourceImage = new ex.ImageSource('some/image.png');
-    const ss = ex.SpriteSheet.fromGrid({
+    const ss = ex.SpriteSheet.fromImageSource({
       image: sourceImage,
       grid: {
         spriteWidth: 10,
