@@ -182,8 +182,8 @@ export class LabelImpl extends Actor {
   private _legacySpriteFont: LegacySpriteFont;
   private _spriteFont: SpriteFont;
   /**
-   * The [[SpriteFont]] to use, if any. Overrides [[fontFamily]] if present.
-   * @deprecated Use [[Graphics.SpriteFont]]
+   * The [[LegacyDrawing.SpriteFont]] to use, if any. Overrides [[fontFamily]] if present.
+   * @deprecated Use [[SpriteFont]]
    */
   @obsolete()
   public get spriteFont(): LegacySpriteFont {

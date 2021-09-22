@@ -473,13 +473,13 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   private _color: Color;
 
   /**
-   * Whether or not to enable the [[CapturePointer]] trait that propagates
+   * Whether or not to enable the [[Traits.CapturePointer]] trait that propagates
    * pointer events to this actor
    */
   public enableCapturePointer: boolean = false;
 
   /**
-   * Configuration for [[CapturePointer]] trait
+   * Configuration for [[Traits.CapturePointer]] trait
    */
   public capturePointer: CapturePointerConfig = {
     captureMoveEvents: false,
