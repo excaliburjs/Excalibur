@@ -7,6 +7,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- `ex.Label` constructor now only takes the option bag constructor and the font properties have been replaced with `ex.Font`
+  ```typescript
+  const label = new ex.Label({
+    text: 'My Text',
+    x: 100,
+    y: 100,
+    font: new ex.Font({
+      family: 'Consolas',
+      size: 32
+    })
+  });
+  ```
 - `ex.Physics.debug` properties for Debug drawing are now moved to `engine.debug.physics`, `engine.debug.collider`, and `engine.debug.body`.
   - Old `debugDraw(ctx: CanvasRenderingContext2D)` methods are removed.
 - Collision `Pair`'s are now between Collider's and not bodies

@@ -330,7 +330,7 @@ heart.onPostDraw = (ctx) => {
 }
 game.add(heart);
 
-var label = new ex.Label('Test Label', 200, 200);
+var label = new ex.Label({text: 'Test Label', x: 200, y: 200});
 game.add(label);
 
 
@@ -648,7 +648,7 @@ player.on('pointerdown', (e?: ex.Input.PointerEvent) => {
 });
 
 var newScene = new ex.Scene();
-newScene.add(new ex.Label('MAH LABEL!', 200, 100));
+newScene.add(new ex.Label({text: 'MAH LABEL!', x: 200, y: 100}));
 newScene.on('activate', (evt?: ex.ActivateEvent) => {
   console.log('activate newScene');
 });

@@ -15,7 +15,7 @@ var engine = new ex.Engine({
 });
 engine.backgroundColor = ex.Color.Black;
 
-var labelCurrentRotation = new ex.Label(rotationType.toString(), 500, 100);
+var labelCurrentRotation = new ex.Label({text: rotationType.toString(), x: 500, y: 100});
 labelCurrentRotation.color = ex.Color.White;
 labelCurrentRotation.textAlign = ex.TextAlign.Center;
 labelCurrentRotation.scale = new ex.Vector(2, 2);
@@ -37,7 +37,7 @@ shortestPath.on('pointerdown', (e?: ex.Input.PointerEvent) => {
 });
 engine.add(shortestPath);
 
-var labelShortestPath = new ex.Label('Shortest Path', shortestPath.pos.x, 100);
+var labelShortestPath = new ex.Label({text: 'Shortest Path', x: shortestPath.pos.x, y: 100});
 labelShortestPath.color = ex.Color.White;
 labelShortestPath.textAlign = ex.TextAlign.Center;
 engine.add(labelShortestPath);
@@ -48,7 +48,7 @@ longestPath.on('pointerdown', (e?: ex.Input.PointerEvent) => {
 });
 engine.add(longestPath);
 
-var labelLongestPath = new ex.Label('Longest Path', longestPath.pos.x, 100);
+var labelLongestPath = new ex.Label({text: 'Longest Path', x: longestPath.pos.x, y: 100});
 labelLongestPath.color = ex.Color.White;
 labelLongestPath.textAlign = ex.TextAlign.Center;
 engine.add(labelLongestPath);
@@ -59,7 +59,7 @@ clockwise.on('pointerdown', (e?: ex.Input.PointerEvent) => {
 });
 engine.add(clockwise);
 
-var labelClockwise = new ex.Label('Clockwise', clockwise.pos.x, 100);
+var labelClockwise = new ex.Label({text: 'Clockwise', x: clockwise.pos.x, y: 100});
 labelClockwise.color = ex.Color.White;
 labelClockwise.textAlign = ex.TextAlign.Center;
 engine.add(labelClockwise);
@@ -70,7 +70,7 @@ counterclockwise.on('pointerdown', (e?: ex.Input.PointerEvent) => {
 });
 engine.add(counterclockwise);
 
-var labelCounterClockwise = new ex.Label('CounterClockwise', counterclockwise.pos.x, 100);
+var labelCounterClockwise = new ex.Label({text: 'CounterClockwise', x: counterclockwise.pos.x, y: 100});
 labelCounterClockwise.color = ex.Color.White;
 labelCounterClockwise.textAlign = ex.TextAlign.Center;
 engine.add(labelCounterClockwise);
