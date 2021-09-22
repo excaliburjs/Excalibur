@@ -1,4 +1,5 @@
 /**
+ * @module
  * Pseudo-Random Utility
  *
  * A pseudo-random utility to add seeded random support for help in

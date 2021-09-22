@@ -84,7 +84,7 @@ export class SpriteSheet {
   /**
    * Build a new sprite sheet from a list of sprites
    *
-   * Use [[SpriteSheet.fromGrid]] to create a SpriteSheet from an [[ImageSource]] organized in a grid
+   * Use [[SpriteSheet.fromImageSource]] to create a SpriteSheet from an [[ImageSource]] organized in a grid
    * @param options
    */
   constructor(options: SpriteSheetOptions) {

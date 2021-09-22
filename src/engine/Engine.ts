@@ -112,7 +112,7 @@ export interface EngineOptions {
   snapToPixel?: boolean;
 
   /**
-   * The [[DisplayMode]] of the game, by default [[DisplayMode.Fit]] with aspect ratio 4:3 (800x600).
+   * The [[DisplayMode]] of the game, by default [[DisplayMode.FitScreen]] with aspect ratio 4:3 (800x600).
    * Depending on this value, [[width]] and [[height]] may be ignored.
    */
   displayMode?: DisplayMode;
@@ -307,6 +307,10 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    */
   public readonly scenes: { [key: string]: Scene } = {};
 
+  /**
+   * @hidden
+   * @deprecated
+   */
   private _animations: AnimationNode[] = [];
 
   /**

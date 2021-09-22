@@ -20,8 +20,7 @@ export enum CollisionResolutionStrategy {
  * Possible broadphase collision pair identification strategies
  *
  * The default strategy is [[BroadphaseStrategy.DynamicAABBTree]] which uses a binary tree of axis-aligned bounding boxes to identify
- * potential collision pairs which is O(nlog(n)) faster. The other possible strategy is the [[BroadphaseStrategy.Naive]] strategy
- * which loops over every object for every object in the scene to identify collision pairs which is O(n^2) slower.
+ * potential collision pairs which is O(nlog(n)) faster.
  */
 export enum BroadphaseStrategy {
   DynamicAABBTree
@@ -62,8 +61,7 @@ export class Physics {
    * Gets or sets the broadphase pair identification strategy.
    *
    * The default strategy is [[BroadphaseStrategy.DynamicAABBTree]] which uses a binary tree of axis-aligned bounding boxes to identify
-   * potential collision pairs which is O(nlog(n)) faster. The other possible strategy is the [[BroadphaseStrategy.Naive]] strategy
-   * which loops over every object for every object in the scene to identify collision pairs which is O(n^2) slower.
+   * potential collision pairs which is O(nlog(n)) faster.
    */
   public static broadphaseStrategy: BroadphaseStrategy = BroadphaseStrategy.DynamicAABBTree;
 

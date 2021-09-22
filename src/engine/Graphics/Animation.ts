@@ -76,7 +76,7 @@ export type AnimationEvents = {
 };
 
 /**
- * Create an Animation given a list of [[Frames]] in [[AnimationOptions]]
+ * Create an Animation given a list of [[Frame|frames]] in [[AnimationOptions]]
  *
  * To create an Animation from a [[SpriteSheet]], use [[Animation.fromSpriteSheet]]
  */

@@ -13,7 +13,7 @@ export enum Side {
 
 export module Side {
   /**
-   *
+   * Returns the opposite side from the current
    */
   export function getOpposite(side: Side): Side {
     if (side === Side.Top) {
@@ -33,7 +33,7 @@ export module Side {
   }
 
   /**
-   *
+   * Given a vector, return the Side most in that direction (via dot product)
    */
   export function fromDirection(direction: Vector): Side {
     const directions = [Vector.Left, Vector.Right, Vector.Up, Vector.Down];

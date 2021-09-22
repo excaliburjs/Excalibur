@@ -53,6 +53,7 @@ import { Shape } from './Collision/Shapes/Shape';
 import { watch } from './Util/Watch';
 import { Collider } from './Collision/Index';
 import { Circle } from './Graphics/Circle';
+import { CapturePointerConfig } from './Input/CapturePointerConfig';
 
 /**
  * Type guard for checking if something is an Actor
@@ -141,10 +142,6 @@ export interface ActorArgs {
   collider?: Collider;
 }
 
-export interface ActorDefaults {
-  anchor: Vector;
-}
-
 /**
  * The most important primitive in Excalibur is an `Actor`. Anything that
  * can move on the screen, collide with another `Actor`, respond to events,
@@ -154,7 +151,10 @@ export interface ActorDefaults {
 export class Actor extends Entity implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
-  public static defaults: ActorDefaults = {
+  /**
+   * Set defaults for all Actors
+   */
+  public static defaults = {
     anchor: Vector.Half
   };
 
@@ -481,7 +481,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   /**
    * Configuration for [[CapturePointer]] trait
    */
-  public capturePointer: Traits.CapturePointerConfig = {
+  public capturePointer: CapturePointerConfig = {
     captureMoveEvents: false,
     captureDragEvents: false
   };
@@ -655,15 +655,15 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   public on(eventName: Events.exittrigger, handler: (event: ExitTriggerEvent) => void): void;
   public on(eventName: Events.entertrigger, handler: (event: EnterTriggerEvent) => void): void;
   /**
-   * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
-   *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
+   * The **collisionstart** event is fired when a [[BodyComponent|physics body]], usually attached to an actor,
+   *  first starts colliding with another [[BodyComponent|body]], and will not fire again while in contact until
    *  the the pair separates and collides again.
    * Use cases for the **collisionstart** event may be detecting when an actor has touched a surface
    * (like landing) or if a item has been touched and needs to be picked up.
    */
   public on(eventName: Events.collisionstart, handler: (event: CollisionStartEvent) => void): void;
   /**
-   * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
+   * The **collisionend** event is fired when two [[BodyComponent|physics bodies]] are no longer in contact.
    * This event will not fire again until another collision and separation.
    *
    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
@@ -722,15 +722,15 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   public once(eventName: Events.exittrigger, handler: (event: ExitTriggerEvent) => void): void;
   public once(eventName: Events.entertrigger, handler: (event: EnterTriggerEvent) => void): void;
   /**
-   * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
-   *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
+   * The **collisionstart** event is fired when a [[BodyComponent|physics body]], usually attached to an actor,
+   *  first starts colliding with another [[BodyComponent|body]], and will not fire again while in contact until
    *  the the pair separates and collides again.
    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface
    * (like landing) or if a item has been touched and needs to be picked up.
    */
   public once(eventName: Events.collisionstart, handler: (event: CollisionStartEvent) => void): void;
   /**
-   * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
+   * The **collisionend** event is fired when two [[BodyComponent|physics bodies]] are no longer in contact.
    * This event will not fire again until another collision and separation.
    *
    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
@@ -789,15 +789,15 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   public off(eventName: Events.exittrigger, handler?: (event: ExitTriggerEvent) => void): void;
   public off(eventName: Events.entertrigger, handler?: (event: EnterTriggerEvent) => void): void;
   /**
-   * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
-   *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
+   * The **collisionstart** event is fired when a [[BodyComponent|physics body]], usually attached to an actor,
+   *  first starts colliding with another [[BodyComponent|body]], and will not fire again while in contact until
    *  the the pair separates and collides again.
    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface
    * (like landing) or if a item has been touched and needs to be picked up.
    */
   public off(eventName: Events.collisionstart, handler?: (event: CollisionStartEvent) => void): void;
   /**
-   * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
+   * The **collisionend** event is fired when two [[BodyComponent|physics bodies]] are no longer in contact.
    * This event will not fire again until another collision and separation.
    *
    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
