@@ -1,7 +1,7 @@
 /// <reference path='../../lib/excalibur.d.ts' />
 
 var game = new ex.Engine({ width: 800, height: 600, canvasElementId: 'game' });
-var label = new ex.Label(null, 400, 300, '48px Arial');
+var label = new ex.Label({text: '', x: 400, y: 300, font: new ex.Font({size: 48, family: 'Arial'})});
 label.color = ex.Color.Chartreuse;
 label.textAlign = ex.TextAlign.Center;
 

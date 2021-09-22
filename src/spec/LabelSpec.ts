@@ -2,6 +2,7 @@ import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
+import { Font } from '@excalibur';
 
 xdescribe('A label', () => {
   let label: ex.Label;
@@ -17,27 +18,25 @@ xdescribe('A label', () => {
       suppressMinimumBrowserFeatureDetection: true
     });
 
-    label = new ex.Label('Test string', 100, 100);
+    label = new ex.Label({text: 'Test string', x: 100, y: 100});
     label.fontFamily = 'Verdana';
     scene = new ex.Scene();
     engine.addScene('root', scene);
 
     scene.add(label);
-
-    //console.log('============================\n OS:' + platform.os.family);
   });
 
   it('should have props set by constructor', () => {
     const label = new ex.Label({
       text: 'test text',
-      bold: true,
       pos: new ex.Vector(1, 2),
-      spriteFont: null,
-      fontFamily: 'Verdana',
-      fontSize: 12,
-      fontStyle: ex.FontStyle.Normal,
-      fontUnit: ex.FontUnit.Px,
-      textAlign: ex.TextAlign.Left
+      font: new Font({
+        family: 'Verdana',
+        size: 12,
+        style: ex.FontStyle.Normal,
+        unit: ex.FontUnit.Px,
+        textAlign: ex.TextAlign.Left
+      })
     });
 
     expect(label.text).toBe('test text');
