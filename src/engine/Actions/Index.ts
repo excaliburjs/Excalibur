@@ -3,9 +3,9 @@ export * from './ActionQueue';
 export * from './Actionable';
 export * from './RotationType';
 
+export * from './Action';
 export * from './Action/Repeat';
 export * from './Action/RepeatForever';
-
 export * from './Action/Blink';
 export * from './Action/Die';
 export * from './Action/EaseTo';

@@ -21,7 +21,7 @@ export * from './Debug/index';
 export * from './EventDispatcher';
 export * from './Events/MediaEvents';
 export * from './Events';
-export { Label } from './Label';
+export * from './Label';
 export { FontStyle, FontUnit, TextAlign, BaseAlign } from './Graphics/FontCommon';
 export * from './Loader';
 export { Particle, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterType } from './Particles';

@@ -117,7 +117,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   }
 
   /**
-   * Get the moment of inertia from the [[CollisionShape]]
+   * Get the moment of inertia from the [[ColliderComponent]]
    */
   public get inertia() {
     // Inertia is a property of the geometry, so this is a little goofy but seems to be okay?
@@ -129,7 +129,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   }
 
   /**
-   * Get the inverse moment of inertial from the [[CollisionShape]]. If [[CollisionType.Fixed]] this is 0, meaning "infinite" mass
+   * Get the inverse moment of inertial from the [[ColliderComponent]]. If [[CollisionType.Fixed]] this is 0, meaning "infinite" mass
    */
   public get inverseInertia() {
     return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia;

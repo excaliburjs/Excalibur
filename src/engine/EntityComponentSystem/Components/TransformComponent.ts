@@ -5,12 +5,14 @@ import { Component } from '../Component';
 
 export interface Transform {
   /**
-   * The [[coordinate plane|CoordPlane]] for this transform for the entity.
+   * The [[CoordPlane|coordinate plane]] for this transform for the entity.
    */
   coordPlane: CoordPlane;
 
   /**
-   * The current position of the entity in world space or in screen space depending on the the [[coordinate plan|CoordPlane]]
+   * The current position of the entity in world space or in screen space depending on the the [[CoordPlane|coordinate plane]].
+   *
+   * If the entity has a parent this position is relative to the parent entity.
    */
   pos: Vector;
 
@@ -22,11 +24,13 @@ export interface Transform {
 
   /**
    * The rotation of the entity in radians. For example `Math.PI` radians is the same as 180 degrees.
+   *
+   * If the entity has a parent this rotation is relative to the parent.
    */
   rotation: number;
 
   /**
-   * The scale of the entity.
+   * The scale of the entity. If the entity has a parent this scale is relative to the parent.
    */
   scale: Vector;
 }

@@ -49,7 +49,7 @@
     "test": "karma start",
     "test:watch": "karma start --auto-watch --single-run=false",
     "coveralls": "echo 'Temporarily Remove Coveralls Due To Outage'",
-    "apidocs": "git submodule update && node scripts/apidocs.js",
+    "apidocs": "node scripts/apidocs.js",
     "pretty": "prettier --write \"{src,sandbox/src,sandbox/tests}/**/*.{ts,js,json,css,md}\" --config prettier.config.js",
     "release": "node scripts/release.js"
   },
@@ -95,7 +95,7 @@
     "sync-request": "6.1.0",
     "terser-webpack-plugin": "3.1.0",
     "ts-loader": "9.2.6",
-    "typedoc": "0.21.9",
+    "typedoc": "0.22.4",
     "typescript": "4.4.3",
     "url-loader": "4.1.1",
     "wallaby-webpack": "3.9.16",

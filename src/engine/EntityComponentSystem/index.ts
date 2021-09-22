@@ -8,3 +8,4 @@ export * from './SystemManager';
 export * from './World';
 
 export * from './Components/TransformComponent';
+export * from './Components/MotionComponent';
