@@ -79,7 +79,14 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
   private _shouldGenerateCollisionPair(colliderA: Collider, colliderB: Collider) {
     // if the collision pair must be 2 separate colliders
-    if (colliderA.id !== null && colliderB.id !== null && colliderA.id === colliderB.id) {
+    // Also separate owners for composite colliders
+    if (
+      (colliderA.id !== null &&
+      colliderB.id !== null &&
+      colliderA.id === colliderB.id) ||
+      (colliderA.owner !== null &&
+       colliderB.owner !== null &&
+       colliderA.owner === colliderB.owner)) {
       return false;
     }
 

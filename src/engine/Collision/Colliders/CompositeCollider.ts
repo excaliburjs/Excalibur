@@ -31,12 +31,14 @@ export class CompositeCollider extends Collider {
   }
 
   addCollider(collider: Collider) {
+    this.events.wire(collider.events);
     this._colliders.push(collider);
     this._collisionProcessor.track(collider);
     this._dynamicAABBTree.trackCollider(collider);
   }
 
   removeCollider(collider: Collider) {
+    this.events.unwire(collider.events);
     Util.removeItemFromArray(collider, this._colliders);
     this._collisionProcessor.untrack(collider);
     this._dynamicAABBTree.untrackCollider(collider);

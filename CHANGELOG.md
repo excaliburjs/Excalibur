@@ -153,6 +153,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where collision events were not being forwarded from individual colliders in a `ex.CompositeCollider`
+- Fixed issue where `ex.CompositeCollider`'s individual colliders were erroneously generating pairs
 - Fixed issue where `GraphicsOptions` `width/height` could not be used to define a `Sprite` with equivalent `sourceView` and `destSize` ([#1863](https://github.com/excaliburjs/Excalibur/issues/1863))
 - Fixed issue where `Scene.onActivate/onDeactivate` were called with the wrong arguments ([#1850](https://github.com/excaliburjs/Excalibur/issues/1850))
 - Fixed issue where no width/height argmunents to engine throws an error

@@ -502,11 +502,18 @@ game.add(follower);
 // var player = new ex.Actor(100, -200, 32, 96);
 // player.enableCapturePointer = true;
 // player.collisionType = ex.CollisionType.Active;
+var playerWidth = 32;
+var playerHeight = 96;
+var capsule = new ex.CompositeCollider([
+  ex.Shape.Circle(playerWidth / 2, ex.vec(0, -playerHeight/2 + playerWidth / 2)),
+  ex.Shape.Box(playerWidth, playerHeight - playerWidth),
+  ex.Shape.Circle(playerWidth / 2, ex.vec(0, playerHeight/2 - playerWidth / 2))
+]);
+
 var player = new ex.Actor({
   name: 'player',
   pos: new ex.Vector(100, -200),
-  width: 32,
-  height: 96,
+  collider: capsule,
   collisionType: ex.CollisionType.Active
 });
 player.body.canSleep = false;
@@ -536,8 +543,8 @@ player.addChild(healthbar);
 //   ctx.fillRect(0, 0, 100, 100);
 // };
 player.graphics.onPostDraw = (ctx: ex.ExcaliburGraphicsContext) => {
-  ctx.debug.drawLine(ex.vec(0, 0), ex.vec(200, 0));
-  ctx.debug.drawPoint(ex.vec(0, 0), { size: 20, color: ex.Color.Black });
+  // ctx.debug.drawLine(ex.vec(0, 0), ex.vec(200, 0));
+  // ctx.debug.drawPoint(ex.vec(0, 0), { size: 20, color: ex.Color.Black });
 };
 
 var healthbar2 = new ex.Rectangle({

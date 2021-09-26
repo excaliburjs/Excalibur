@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { BoundingBox, Line, Projection, Ray, TransformComponent, vec, Vector } from '@excalibur';
+import { BoundingBox, GameEvent, Line, Projection, Ray, TransformComponent, vec, Vector } from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 describe('A CompositeCollider', () => {
   beforeAll(() => {
@@ -19,6 +19,35 @@ describe('A CompositeCollider', () => {
     expect(compCollider).toBeDefined();
     expect(compCollider.bounds).toEqual(BoundingBox.fromDimension(200, 100, Vector.Half, vec(100, 100)));
     expect(compCollider.localBounds).toEqual(BoundingBox.fromDimension(200, 100, Vector.Half));
+  });
+
+  it('can forward events from the individual colliders', () => {
+    const circle = ex.Shape.Circle(50);
+    const box = ex.Shape.Box(200, 10);
+    const precollision = jasmine.createSpy('event');
+    const postcollision = jasmine.createSpy('event');
+    const collisionstart = jasmine.createSpy('event');
+    const collisionend = jasmine.createSpy('event');
+    
+    const compCollider = new ex.CompositeCollider([
+      circle,
+      box
+    ]);
+    
+    compCollider.events.on('precollision', precollision);
+    compCollider.events.on('postcollision', postcollision);
+    compCollider.events.on('collisionstart', collisionstart);
+    compCollider.events.on('collisionend', collisionend);
+
+    circle.events.emit('precollision', new GameEvent());
+    circle.events.emit('postcollision', new GameEvent());
+    circle.events.emit('collisionstart', new GameEvent());
+    circle.events.emit('collisionend', new GameEvent());
+
+    expect(precollision).toHaveBeenCalled();
+    expect(postcollision).toHaveBeenCalled();
+    expect(collisionstart).toHaveBeenCalled();
+    expect(collisionend).toHaveBeenCalled();
   });
 
   it('can find the furthest point', () => {
