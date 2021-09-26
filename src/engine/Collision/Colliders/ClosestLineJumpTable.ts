@@ -1,8 +1,8 @@
 import { Line } from '../../Math/line';
 import { Vector } from '../../Math/vector';
 import { Ray } from '../../Math/ray';
-import { ConvexPolygon } from './ConvexPolygon';
-import { Edge } from '../Shapes/Edge';
+import { PolygonCollider } from './PolygonCollider';
+import { EdgeCollider } from './EdgeCollider';
 import { CircleCollider } from './CircleCollider';
 
 /**
@@ -101,7 +101,7 @@ export function ClosestLine(p0: Vector, u: Vector, q0: Vector, v: Vector) {
 }
 
 export const ClosestLineJumpTable = {
-  PolygonPolygonClosestLine(polygonA: ConvexPolygon, polygonB: ConvexPolygon) {
+  PolygonPolygonClosestLine(polygonA: PolygonCollider, polygonB: PolygonCollider) {
     // Find the 2 closest faces on each polygon
     const otherWorldPos = polygonB.worldPos;
     const otherDirection = otherWorldPos.sub(polygonA.worldPos);
@@ -127,7 +127,7 @@ export const ClosestLineJumpTable = {
     return ClosestLine(p0, u, q0, v);
   },
 
-  PolygonEdgeClosestLine(polygon: ConvexPolygon, edge: Edge) {
+  PolygonEdgeClosestLine(polygon: PolygonCollider, edge: EdgeCollider) {
     // Find the 2 closest faces on each polygon
     const otherWorldPos = edge.worldPos;
     const otherDirection = otherWorldPos.sub(polygon.worldPos);
@@ -152,7 +152,7 @@ export const ClosestLineJumpTable = {
     return ClosestLine(p0, u, q0, v);
   },
 
-  PolygonCircleClosestLine(polygon: ConvexPolygon, circle: CircleCollider) {
+  PolygonCircleClosestLine(polygon: PolygonCollider, circle: CircleCollider) {
     // https://math.stackexchange.com/questions/1919177/how-to-find-point-on-line-closest-to-sphere
     // Find the 2 closest faces on each polygon
     const otherWorldPos = circle.worldPos;
@@ -203,7 +203,7 @@ export const ClosestLineJumpTable = {
     return new Line(thisPoint, otherPoint);
   },
 
-  CircleEdgeClosestLine(circle: CircleCollider, edge: Edge) {
+  CircleEdgeClosestLine(circle: CircleCollider, edge: EdgeCollider) {
     // https://math.stackexchange.com/questions/1919177/how-to-find-point-on-line-closest-to-sphere
     const circleWorlPos = circle.worldPos;
 
@@ -232,7 +232,7 @@ export const ClosestLineJumpTable = {
     return new Line(u.scale(t).add(p0), new Vector(circleWorlPos.x + circlex, circleWorlPos.y + circley));
   },
 
-  EdgeEdgeClosestLine(edgeA: Edge, edgeB: Edge) {
+  EdgeEdgeClosestLine(edgeA: EdgeCollider, edgeB: EdgeCollider) {
     // L1 = P(s) = p0 + s * u, where s is time and p0 is the start of the line
     const edgeLineA = edgeA.asLine();
     const edgeStartA = edgeLineA.begin;

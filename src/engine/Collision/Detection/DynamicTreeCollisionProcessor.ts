@@ -8,10 +8,10 @@ import { Ray } from '../../Math/ray';
 import { FrameStats } from '../../Debug';
 import { Logger } from '../../Util/Log';
 import { CollisionType } from '../CollisionType';
-import { Collider } from '../Shapes/Collider';
+import { Collider } from '../Colliders/Collider';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { BodyComponent } from '../BodyComponent';
-import { CompositeCollider } from '../Shapes/CompositeCollider';
+import { CompositeCollider } from '../Colliders/CompositeCollider';
 import { ExcaliburGraphicsContext } from '../..';
 
 /**

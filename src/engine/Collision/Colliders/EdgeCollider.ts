@@ -2,7 +2,7 @@ import { BoundingBox } from '../BoundingBox';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { CircleCollider } from './CircleCollider';
-import { ConvexPolygon } from './ConvexPolygon';
+import { PolygonCollider } from './PolygonCollider';
 
 import { Projection } from '../../Math/projection';
 import { Line } from '../../Math/line';
@@ -10,11 +10,11 @@ import { Vector } from '../../Math/vector';
 import { Ray } from '../../Math/ray';
 import { Color } from '../../Color';
 import { Collider } from './Collider';
-import { ClosestLineJumpTable } from '../Shapes/ClosestLineJumpTable';
+import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { Transform, TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 
-export interface EdgeOptions {
+export interface EdgeColliderOptions {
   /**
    * The beginning of the edge defined in local coordinates to the collider
    */
@@ -32,14 +32,14 @@ export interface EdgeOptions {
 /**
  * Edge is a single line collider to create collisions with a single line.
  */
-export class Edge extends Collider {
+export class EdgeCollider extends Collider {
   offset: Vector;
   begin: Vector;
   end: Vector;
 
   private _transform: Transform;
 
-  constructor(options: EdgeOptions) {
+  constructor(options: EdgeColliderOptions) {
     super();
     this.begin = options.begin || Vector.Zero;
     this.end = options.end || Vector.Zero;
@@ -49,8 +49,8 @@ export class Edge extends Collider {
   /**
    * Returns a clone of this Edge, not associated with any collider
    */
-  public clone(): Edge {
-    return new Edge({
+  public clone(): EdgeCollider {
+    return new EdgeCollider({
       begin: this.begin.clone(),
       end: this.end.clone()
     });
@@ -150,9 +150,9 @@ export class Edge extends Collider {
   public getClosestLineBetween(shape: Collider): Line {
     if (shape instanceof CircleCollider) {
       return ClosestLineJumpTable.CircleEdgeClosestLine(shape, this);
-    } else if (shape instanceof ConvexPolygon) {
+    } else if (shape instanceof PolygonCollider) {
       return ClosestLineJumpTable.PolygonEdgeClosestLine(shape, this).flip();
-    } else if (shape instanceof Edge) {
+    } else if (shape instanceof EdgeCollider) {
       return ClosestLineJumpTable.EdgeEdgeClosestLine(this, shape);
     } else {
       throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
@@ -165,9 +165,9 @@ export class Edge extends Collider {
   public collide(shape: Collider): CollisionContact[] {
     if (shape instanceof CircleCollider) {
       return CollisionJumpTable.CollideCircleEdge(shape, this);
-    } else if (shape instanceof ConvexPolygon) {
+    } else if (shape instanceof PolygonCollider) {
       return CollisionJumpTable.CollidePolygonEdge(shape, this);
-    } else if (shape instanceof Edge) {
+    } else if (shape instanceof EdgeCollider) {
       return CollisionJumpTable.CollideEdgeEdge();
     } else {
       throw new Error(`Edge could not collide with unknown CollisionShape ${typeof shape}`);

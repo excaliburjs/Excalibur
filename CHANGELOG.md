@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Rename `ex.Edge` to `ex.EdgeCollider` and `ex.ConvexPolygon` to `ex.PolygonCollider` to avoid confusion and maintian consistency
 - `ex.Label` constructor now only takes the option bag constructor and the font properties have been replaced with `ex.Font`
   ```typescript
   const label = new ex.Label({
@@ -69,6 +70,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- New collision group constructor argument added to Actor`new Actor({collisionGroup: collisionGroup})`
 - `SpriteSheet.getSprite(x, y)` can retrieve a sprite from the SpriteSheet by x and y coordinate. For example, `getSprite(0, 0)` returns the top left sprite in the sheet.
   - `SpriteSheet`'s now have dimensionality with `rows` and `columns` optionally specified, if not there is always 1 row, and `sprites.length` columns
 - `new Actor({radius: 10})` can now take a radius parameter to help create circular actors

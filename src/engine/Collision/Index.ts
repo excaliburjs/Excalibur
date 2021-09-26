@@ -2,17 +2,17 @@ export * from './BodyComponent';
 export * from './ColliderComponent';
 export * from './CollisionType';
 
-export * from './Shapes/Collider';
+export * from './Colliders/Collider';
 export * from './BoundingBox';
 
-export * from './Shapes/Shape';
-export * from './Shapes/Collider';
-export * from './Shapes/CompositeCollider';
-export * from './Shapes/CircleCollider';
-export * from './Shapes/Edge';
-export * from './Shapes/ConvexPolygon';
-export * from './Shapes/CollisionJumpTable';
-export * from './Shapes/ClosestLineJumpTable';
+export * from './Colliders/Shape';
+export * from './Colliders/Collider';
+export * from './Colliders/CompositeCollider';
+export * from './Colliders/CircleCollider';
+export * from './Colliders/EdgeCollider';
+export * from './Colliders/PolygonCollider';
+export * from './Colliders/CollisionJumpTable';
+export * from './Colliders/ClosestLineJumpTable';
 
 export * from './Group/CollisionGroup';
 export * from './Group/CollisionGroupManager';

@@ -389,11 +389,11 @@ describe('Collision Shape', () => {
     });
 
     it('exists', () => {
-      expect(ex.ConvexPolygon).toBeDefined();
+      expect(ex.PolygonCollider).toBeDefined();
     });
 
     it('can be constructed with empty args', () => {
-      const poly = new ex.ConvexPolygon({
+      const poly = new ex.PolygonCollider({
         points: [ex.Vector.One]
       });
       expect(poly).not.toBe(null);
@@ -412,7 +412,7 @@ describe('Collision Shape', () => {
     });
 
     it('can be constructed with points', () => {
-      const poly = new ex.ConvexPolygon({
+      const poly = new ex.PolygonCollider({
         offset: ex.Vector.Zero.clone(),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
@@ -420,7 +420,7 @@ describe('Collision Shape', () => {
     });
 
     it('can have be constructed with position', () => {
-      const poly = new ex.ConvexPolygon({
+      const poly = new ex.PolygonCollider({
         offset: new ex.Vector(10, 0),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
@@ -437,13 +437,13 @@ describe('Collision Shape', () => {
     });
 
     it('can collide with other polygons', () => {
-      const polyA = new ex.ConvexPolygon({
+      const polyA = new ex.PolygonCollider({
         offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
 
-      const polyB = new ex.ConvexPolygon({
+      const polyB = new ex.PolygonCollider({
         offset: new ex.Vector(10, 0),
         points: [new ex.Vector(-10, -10), new ex.Vector(10, -10), new ex.Vector(10, 10), new ex.Vector(-10, 10)]
       });
@@ -586,7 +586,7 @@ describe('Collision Shape', () => {
     });
 
     it('can calculate the closest face to a point', () => {
-      const polyA = new ex.ConvexPolygon({
+      const polyA = new ex.PolygonCollider({
         offset: ex.Vector.Zero.clone(),
         // specified relative to the position
         //           2
@@ -645,7 +645,7 @@ describe('Collision Shape', () => {
     });
 
     it('can be drawn', (done) => {
-      const polygon = new ex.ConvexPolygon({
+      const polygon = new ex.PolygonCollider({
         offset: new ex.Vector(100, 100),
         points: [new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)]
       });
@@ -714,7 +714,7 @@ describe('Collision Shape', () => {
 
   describe('an Edge', () => {
     let actor: ex.Actor = null;
-    let edge: ex.Edge = null;
+    let edge: ex.EdgeCollider = null;
 
     let engine: ex.Engine;
     let scene: ex.Scene;
@@ -816,7 +816,7 @@ describe('Collision Shape', () => {
     });
 
     it('can be drawn', (done) => {
-      const edge = new ex.Edge({
+      const edge = new ex.EdgeCollider({
         begin: new ex.Vector(100, 100),
         end: new ex.Vector(400, 400)
       });

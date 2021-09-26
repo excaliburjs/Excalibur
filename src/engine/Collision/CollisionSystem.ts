@@ -5,13 +5,13 @@ import { AddedEntity, isAddedSystemEntity, RemovedEntity, System, SystemType } f
 import { CollisionEndEvent, CollisionStartEvent, ContactEndEvent, ContactStartEvent } from '../Events';
 import { CollisionResolutionStrategy, Physics } from './Physics';
 import { ArcadeSolver } from './Solver/ArcadeSolver';
-import { Collider } from './Shapes/Collider';
+import { Collider } from './Colliders/Collider';
 import { CollisionContact } from './Detection/CollisionContact';
 import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
 import { RealisticSolver } from './Solver/RealisticSolver';
 import { CollisionSolver } from './Solver/Solver';
 import { ColliderComponent } from './ColliderComponent';
-import { CompositeCollider } from './Shapes/CompositeCollider';
+import { CompositeCollider } from './Colliders/CompositeCollider';
 import { Engine, ExcaliburGraphicsContext, Scene } from '..';
 
 export class CollisionSystem extends System<TransformComponent | MotionComponent | ColliderComponent> {

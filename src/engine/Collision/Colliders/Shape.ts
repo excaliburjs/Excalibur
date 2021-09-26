@@ -1,6 +1,6 @@
-import { ConvexPolygon } from './ConvexPolygon';
+import { PolygonCollider } from './PolygonCollider';
 import { CircleCollider } from './CircleCollider';
-import { Edge } from './Edge';
+import { EdgeCollider } from './EdgeCollider';
 import { BoundingBox } from '../BoundingBox';
 import { Vector } from '../../Math/vector';
 
@@ -15,8 +15,8 @@ export class Shape {
    * @param anchor Anchor of the box (default (.5, .5)) which positions the box relative to the center of the collider's position
    * @param offset Optional offset relative to the collider in local coordinates
    */
-  static Box(width: number, height: number, anchor: Vector = Vector.Half, offset: Vector = Vector.Zero): ConvexPolygon {
-    return new ConvexPolygon({
+  static Box(width: number, height: number, anchor: Vector = Vector.Half, offset: Vector = Vector.Zero): PolygonCollider {
+    return new PolygonCollider({
       points: new BoundingBox(-width * anchor.x, -height * anchor.y, width - width * anchor.x, height - height * anchor.y).getPoints(),
       offset: offset
     });
@@ -28,8 +28,8 @@ export class Shape {
    * @param clockwiseWinding Optionally changed the winding of points, by default false meaning counter-clockwise winding.
    * @param offset Optional offset relative to the collider in local coordinates
    */
-  static Polygon(points: Vector[], clockwiseWinding: boolean = false, offset: Vector = Vector.Zero): ConvexPolygon {
-    return new ConvexPolygon({
+  static Polygon(points: Vector[], clockwiseWinding: boolean = false, offset: Vector = Vector.Zero): PolygonCollider {
+    return new PolygonCollider({
       points: points,
       offset: offset,
       clockwiseWinding: clockwiseWinding
@@ -53,8 +53,8 @@ export class Shape {
    * @param begin Beginning of the edge in local coordinates to the collider
    * @param end Ending of the edge in local coordinates to the collider
    */
-  static Edge(begin: Vector, end: Vector): Edge {
-    return new Edge({
+  static Edge(begin: Vector, end: Vector): EdgeCollider {
+    return new EdgeCollider({
       begin: begin,
       end: end
     });

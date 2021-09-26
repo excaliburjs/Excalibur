@@ -132,7 +132,7 @@ describe('A game actor', () => {
     expect((actor.graphics.current[0].graphic as ex.Rectangle).width).toBe(10);
     expect((actor.graphics.current[0].graphic as ex.Rectangle).height).toBe(10);
     expect((actor.graphics.current[0].graphic as ex.Rectangle).color).toEqual(ex.Color.Red);
-    expect(actor.collider.get()).toBeInstanceOf(ex.ConvexPolygon);
+    expect(actor.collider.get()).toBeInstanceOf(ex.PolygonCollider);
   });
 
   it('can be created with a custom collider', () => {

@@ -2,7 +2,7 @@ import { CollisionContact } from './CollisionContact';
 import { CollisionType } from '../CollisionType';
 import { BodyComponent } from '../BodyComponent';
 import { Id } from '../../Id';
-import { Collider } from '../Shapes/Collider';
+import { Collider } from '../Colliders/Collider';
 
 /**
  * Models a potential collision between 2 colliders

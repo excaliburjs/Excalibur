@@ -1,7 +1,7 @@
 ﻿import { CircleCollider } from './CircleCollider';
 import { CollisionContact } from '../Detection/CollisionContact';
-import { ConvexPolygon } from './ConvexPolygon';
-import { Edge } from './Edge';
+import { PolygonCollider } from './PolygonCollider';
+import { EdgeCollider } from './EdgeCollider';
 import { SeparatingAxis, SeparationInfo } from './SeparatingAxis';
 import { Line } from '../../Math/line';
 import { Vector } from '../../Math/vector';
@@ -40,7 +40,7 @@ export const CollisionJumpTable = {
     return [new CollisionContact(circleA, circleB, mvt, normal, tangent, [point], [local], info)];
   },
 
-  CollideCirclePolygon(circle: CircleCollider, polygon: ConvexPolygon): CollisionContact[] {
+  CollideCirclePolygon(circle: CircleCollider, polygon: PolygonCollider): CollisionContact[] {
     let minAxis = SeparatingAxis.findCirclePolygonSeparation(circle, polygon);
     if (!minAxis) {
       return [];
@@ -68,7 +68,7 @@ export const CollisionJumpTable = {
     return [new CollisionContact(circle, polygon, minAxis, normal, normal.perpendicular(), [point], [local], info)];
   },
 
-  CollideCircleEdge(circle: CircleCollider, edge: Edge): CollisionContact[] {
+  CollideCircleEdge(circle: CircleCollider, edge: EdgeCollider): CollisionContact[] {
     // TODO not sure this actually abides by local/world collisions
     // Are edge.begin and edge.end local space or world space? I think they should be local
 
@@ -187,13 +187,13 @@ export const CollisionJumpTable = {
     return [];
   },
 
-  CollidePolygonEdge(polygon: ConvexPolygon, edge: Edge): CollisionContact[] {
+  CollidePolygonEdge(polygon: PolygonCollider, edge: EdgeCollider): CollisionContact[] {
     const pc = polygon.center;
     const ec = edge.center;
     const dir = ec.sub(pc).normalize();
 
     // build a temporary polygon from the edge to use SAT
-    const linePoly = new ConvexPolygon({
+    const linePoly = new PolygonCollider({
       points: [edge.begin, edge.end, edge.end.add(dir.scale(100)), edge.begin.add(dir.scale(100))],
       offset: edge.offset
     });
@@ -213,7 +213,7 @@ export const CollisionJumpTable = {
     return contact;
   },
 
-  CollidePolygonPolygon(polyA: ConvexPolygon, polyB: ConvexPolygon): CollisionContact[] {
+  CollidePolygonPolygon(polyA: PolygonCollider, polyB: PolygonCollider): CollisionContact[] {
     // Multi contact from SAT
     // https://gamedev.stackexchange.com/questions/111390/multiple-contacts-for-sat-collision-detection
     // do a SAT test to find a min axis if it exists
@@ -292,7 +292,7 @@ export const CollisionJumpTable = {
     }
 
     // both are polygons
-    if (shapeA instanceof ConvexPolygon && shapeB instanceof ConvexPolygon) {
+    if (shapeA instanceof PolygonCollider && shapeB instanceof PolygonCollider) {
       if (contact.info.localSide) {
         let side: Line;
         let worldPoint: Vector;
@@ -310,8 +310,8 @@ export const CollisionJumpTable = {
 
     // polygon v circle
     if (
-      (shapeA instanceof ConvexPolygon && shapeB instanceof CircleCollider) ||
-      (shapeB instanceof ConvexPolygon && shapeA instanceof CircleCollider)
+      (shapeA instanceof PolygonCollider && shapeB instanceof CircleCollider) ||
+      (shapeB instanceof PolygonCollider && shapeA instanceof CircleCollider)
     ) {
       const worldPoint = txA.apply(localPoint);
       if (contact.info.side) {
@@ -320,7 +320,10 @@ export const CollisionJumpTable = {
     }
 
     // polygon v edge
-    if ((shapeA instanceof Edge && shapeB instanceof ConvexPolygon) || (shapeB instanceof Edge && shapeA instanceof ConvexPolygon)) {
+    if (
+      (shapeA instanceof EdgeCollider && shapeB instanceof PolygonCollider) ||
+      (shapeB instanceof EdgeCollider && shapeA instanceof PolygonCollider)
+    ) {
       let worldPoint: Vector;
       if (contact.info.collider === shapeA) {
         worldPoint = txB.apply(localPoint);
@@ -333,7 +336,10 @@ export const CollisionJumpTable = {
     }
 
     // circle v edge
-    if ((shapeA instanceof CircleCollider && shapeB instanceof Edge) || (shapeB instanceof CircleCollider && shapeA instanceof Edge)) {
+    if (
+      (shapeA instanceof CircleCollider && shapeB instanceof EdgeCollider) ||
+      (shapeB instanceof CircleCollider && shapeA instanceof EdgeCollider)
+    ) {
       // Local point is always on the edge which is always shapeB
       const worldPoint = txB.apply(localPoint);
 

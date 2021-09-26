@@ -1,6 +1,6 @@
 ﻿import { Color } from '../../Color';
 import { BoundingBox } from '../BoundingBox';
-import { Edge } from './Edge';
+import { EdgeCollider } from './EdgeCollider';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { CircleCollider } from './CircleCollider';
 import { CollisionContact } from '../Detection/CollisionContact';
@@ -13,7 +13,7 @@ import { Transform, TransformComponent } from '../../EntityComponentSystem';
 import { Collider } from './Collider';
 import { ExcaliburGraphicsContext } from '../..';
 
-export interface ConvexPolygonOptions {
+export interface PolygonColliderOptions {
   /**
    * Pixel offset relative to a collider's body transform position.
    */
@@ -31,7 +31,7 @@ export interface ConvexPolygonOptions {
 /**
  * Polygon collider for detecting collisions
  */
-export class ConvexPolygon extends Collider {
+export class PolygonCollider extends Collider {
   /**
    * Pixel offset relative to a collider's body transform position.
    */
@@ -49,7 +49,7 @@ export class ConvexPolygon extends Collider {
   private _sides: Line[] = [];
   private _localSides: Line[] = [];
 
-  constructor(options: ConvexPolygonOptions) {
+  constructor(options: PolygonColliderOptions) {
     super();
     this.offset = options.offset ?? Vector.Zero;
     const winding = !!options.clockwiseWinding;
@@ -62,8 +62,8 @@ export class ConvexPolygon extends Collider {
   /**
    * Returns a clone of this ConvexPolygon, not associated with any collider
    */
-  public clone(): ConvexPolygon {
-    return new ConvexPolygon({
+  public clone(): PolygonCollider {
+    return new PolygonCollider({
       offset: this.offset.clone(),
       points: this.points.map((p) => p.clone())
     });
@@ -233,9 +233,9 @@ export class ConvexPolygon extends Collider {
   public getClosestLineBetween(collider: Collider): Line {
     if (collider instanceof CircleCollider) {
       return ClosestLineJumpTable.PolygonCircleClosestLine(this, collider);
-    } else if (collider instanceof ConvexPolygon) {
+    } else if (collider instanceof PolygonCollider) {
       return ClosestLineJumpTable.PolygonPolygonClosestLine(this, collider);
-    } else if (collider instanceof Edge) {
+    } else if (collider instanceof EdgeCollider) {
       return ClosestLineJumpTable.PolygonEdgeClosestLine(this, collider);
     } else {
       throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof collider}`);
@@ -250,9 +250,9 @@ export class ConvexPolygon extends Collider {
   public collide(collider: Collider): CollisionContact[] {
     if (collider instanceof CircleCollider) {
       return CollisionJumpTable.CollideCirclePolygon(collider, this);
-    } else if (collider instanceof ConvexPolygon) {
+    } else if (collider instanceof PolygonCollider) {
       return CollisionJumpTable.CollidePolygonPolygon(this, collider);
-    } else if (collider instanceof Edge) {
+    } else if (collider instanceof EdgeCollider) {
       return CollisionJumpTable.CollidePolygonEdge(this, collider);
     } else {
       throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof collider}`);

@@ -7,7 +7,7 @@ import { Side } from '../Side';
 import { Physics } from '../Physics';
 import { CollisionSolver } from './Solver';
 import { BodyComponent } from '../BodyComponent';
-import { CollisionJumpTable } from '../Shapes/CollisionJumpTable';
+import { CollisionJumpTable } from '../Colliders/CollisionJumpTable';
 
 export class RealisticSolver extends CollisionSolver {
   lastFrameContacts: Map<string, CollisionContact> = new Map();

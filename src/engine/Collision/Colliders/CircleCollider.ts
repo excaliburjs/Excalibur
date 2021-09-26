@@ -1,8 +1,8 @@
 import { BoundingBox } from '../BoundingBox';
 import { CollisionJumpTable } from './CollisionJumpTable';
 import { CollisionContact } from '../Detection/CollisionContact';
-import { ConvexPolygon } from './ConvexPolygon';
-import { Edge } from './Edge';
+import { PolygonCollider } from './PolygonCollider';
+import { EdgeCollider } from './EdgeCollider';
 
 import { Projection } from '../../Math/projection';
 import { Line } from '../../Math/line';
@@ -129,9 +129,9 @@ export class CircleCollider extends Collider {
   public getClosestLineBetween(shape: Collider): Line {
     if (shape instanceof CircleCollider) {
       return ClosestLineJumpTable.CircleCircleClosestLine(this, shape);
-    } else if (shape instanceof ConvexPolygon) {
+    } else if (shape instanceof PolygonCollider) {
       return ClosestLineJumpTable.PolygonCircleClosestLine(shape, this).flip();
-    } else if (shape instanceof Edge) {
+    } else if (shape instanceof EdgeCollider) {
       return ClosestLineJumpTable.CircleEdgeClosestLine(this, shape).flip();
     } else {
       throw new Error(`Polygon could not collide with unknown CollisionShape ${typeof shape}`);
@@ -144,9 +144,9 @@ export class CircleCollider extends Collider {
   public collide(collider: Collider): CollisionContact[] {
     if (collider instanceof CircleCollider) {
       return CollisionJumpTable.CollideCircleCircle(this, collider);
-    } else if (collider instanceof ConvexPolygon) {
+    } else if (collider instanceof PolygonCollider) {
       return CollisionJumpTable.CollideCirclePolygon(this, collider);
-    } else if (collider instanceof Edge) {
+    } else if (collider instanceof EdgeCollider) {
       return CollisionJumpTable.CollideCircleEdge(this, collider);
     } else {
       throw new Error(`Circle could not collide with unknown CollisionShape ${typeof collider}`);

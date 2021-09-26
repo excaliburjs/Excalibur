@@ -49,9 +49,9 @@ import { Rectangle } from './Graphics/Rectangle';
 import { Flags, Legacy } from './Flags';
 import { obsolete } from './Util/Decorators';
 import { ColliderComponent } from './Collision/ColliderComponent';
-import { Shape } from './Collision/Shapes/Shape';
+import { Shape } from './Collision/Colliders/Shape';
 import { watch } from './Util/Watch';
-import { Collider } from './Collision/Index';
+import { Collider, CollisionGroup } from './Collision/Index';
 import { Circle } from './Graphics/Circle';
 import { CapturePointerConfig } from './Input/CapturePointerConfig';
 
@@ -140,6 +140,10 @@ export interface ActorArgs {
    * Optionally supply a collider for an actor, if supplied ignores any supplied width/height
    */
   collider?: Collider;
+  /**
+   * Optionally suppy a [[CollisionGroup]]
+   */
+  collisionGroup?: CollisionGroup;
 }
 
 /**
@@ -513,7 +517,8 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
       color,
       visible,
       anchor,
-      collisionType
+      collisionType,
+      collisionGroup
     } = {
       ...config
     };
@@ -536,6 +541,9 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
 
     this.addComponent(new BodyComponent());
     this.body.collisionType = collisionType ?? CollisionType.Passive;
+    if (collisionGroup) {
+      this.body.group = collisionGroup;
+    }
 
     if (collider) {
       this.addComponent(new ColliderComponent(collider));

@@ -7,12 +7,12 @@ import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisio
 import { Observable } from '../Util/Observable';
 import { BoundingBox } from './BoundingBox';
 import { CollisionContact } from './Detection/CollisionContact';
-import { CircleCollider } from './Shapes/CircleCollider';
-import { Collider } from './Shapes/Collider';
-import { CompositeCollider } from './Shapes/CompositeCollider';
-import { ConvexPolygon } from './Shapes/ConvexPolygon';
-import { Edge } from './Shapes/Edge';
-import { Shape } from './Shapes/Shape';
+import { CircleCollider } from './Colliders/CircleCollider';
+import { Collider } from './Colliders/Collider';
+import { CompositeCollider } from './Colliders/CompositeCollider';
+import { PolygonCollider } from './Colliders/PolygonCollider';
+import { EdgeCollider } from './Colliders/EdgeCollider';
+import { Shape } from './Colliders/Shape';
 
 export class ColliderComponent extends Component<'ex.collider'> {
   public readonly type = 'ex.collider';
@@ -144,7 +144,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): ConvexPolygon {
+  useBoxCollider(width: number, height: number, anchor: Vector = Vector.Half, center: Vector = Vector.Zero): PolygonCollider {
     const collider = Shape.Box(width, height, anchor, center);
     return (this.set(collider));
   }
@@ -158,7 +158,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): ConvexPolygon {
+  usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): PolygonCollider {
     const poly = Shape.Polygon(points, false, center);
     return (this.set(poly));
   }
@@ -179,7 +179,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
    *
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
-  useEdgeCollider(begin: Vector, end: Vector): Edge {
+  useEdgeCollider(begin: Vector, end: Vector): EdgeCollider {
     const collider = Shape.Edge(begin, end);
     return (this.set(collider));
   }

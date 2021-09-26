@@ -2,7 +2,7 @@ import { Line } from '../../Math/line';
 import { Vector } from '../../Math/vector';
 import { Collider } from './Collider';
 import { CircleCollider } from './CircleCollider';
-import { ConvexPolygon } from './ConvexPolygon';
+import { PolygonCollider } from './PolygonCollider';
 
 /**
  * Specific information about a contact and it's separation
@@ -51,7 +51,7 @@ export interface SeparationInfo {
 }
 
 export class SeparatingAxis {
-  static findPolygonPolygonSeparation(polyA: ConvexPolygon, polyB: ConvexPolygon): SeparationInfo {
+  static findPolygonPolygonSeparation(polyA: PolygonCollider, polyB: PolygonCollider): SeparationInfo {
     let bestSeparation = -Number.MAX_VALUE;
     let bestSide: Line | null = null;
     let bestAxis: Vector | null = null;
@@ -87,7 +87,7 @@ export class SeparatingAxis {
     };
   }
 
-  static findCirclePolygonSeparation(circle: CircleCollider, polygon: ConvexPolygon): Vector | null {
+  static findCirclePolygonSeparation(circle: CircleCollider, polygon: PolygonCollider): Vector | null {
     const axes = polygon.axes;
     const pc = polygon.center;
     // Special SAT with circles

@@ -9,7 +9,7 @@ import { Entity } from './EntityComponentSystem/Entity';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { BodyComponent } from './Collision/BodyComponent';
 import { CollisionType } from './Collision/CollisionType';
-import { Shape } from './Collision/Shapes/Shape';
+import { Shape } from './Collision/Colliders/Shape';
 import { ExcaliburGraphicsContext, GraphicsComponent, hasGraphicsTick } from './Graphics';
 import * as Graphics from './Graphics';
 import { CanvasDrawComponent, Sprite } from './Drawing/Index';
@@ -18,7 +18,7 @@ import { removeItemFromArray } from './Util/Util';
 import { obsolete } from './Util/Decorators';
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
 import { ColliderComponent } from './Collision/ColliderComponent';
-import { CompositeCollider } from './Collision/Shapes/CompositeCollider';
+import { CompositeCollider } from './Collision/Colliders/CompositeCollider';
 
 /**
  * @hidden
