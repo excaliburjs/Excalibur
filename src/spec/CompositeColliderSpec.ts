@@ -28,12 +28,12 @@ describe('A CompositeCollider', () => {
     const postcollision = jasmine.createSpy('event');
     const collisionstart = jasmine.createSpy('event');
     const collisionend = jasmine.createSpy('event');
-    
+
     const compCollider = new ex.CompositeCollider([
       circle,
       box
     ]);
-    
+
     compCollider.events.on('precollision', precollision);
     compCollider.events.on('postcollision', postcollision);
     compCollider.events.on('collisionstart', collisionstart);

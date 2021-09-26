@@ -37,13 +37,13 @@ describe('A DynamicTree Broadphase', () => {
     dt.track(actorA.collider.get());
     dt.track(actorB.collider.get());
     dt.track(actorC.collider.get());
-    
+
     // only should be 1 pair since C is very far away
     const pairs = dt.broadphase([actorA.collider.get(), actorB.collider.get(), actorC.collider.get()], 100);
-    
+
     expect(pairs.length).toBe(1);
   });
-  
+
   it('should not find pairs for a composite collider', () => {
     const circle = ex.Shape.Circle(50);
     const box = ex.Shape.Box(200, 10);
