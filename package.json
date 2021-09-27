@@ -87,7 +87,7 @@
     "karma-coverage-istanbul-reporter": "3.0.3",
     "karma-jasmine": "4.0.1",
     "karma-webpack": "5.0.0",
-    "puppeteer": "10.2.0",
+    "puppeteer": "10.4.0",
     "rimraf": "3.0.2",
     "semver": "7.3.5",
     "serve": "12.0.1",
