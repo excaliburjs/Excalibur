@@ -40,8 +40,7 @@ jobs:
           ${{ runner.os }}-node-
     - run: npm ci
     - run: npm run linux:ci
-    - name: Coveralls 
-      if: ${{ false }} # Temporarily disable
+    - name: Coveralls
       uses: coverallsapp/github-action@1.1.3
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
