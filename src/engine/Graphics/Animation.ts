@@ -121,15 +121,7 @@ export class Animation extends Graphic implements HasTick {
    *
    * Example:
    * ```typescript
-   * const spriteSheet = SpriteSheet.fromImageSource({
-   *   image: imageSource,
-   *   grid: {
-   *     rows: 5,
-   *     columns: 2,
-   *     spriteWidth: 32, // pixels
-   *     spriteHeight: 32, // pixels
-   *   }
-   * });
+   * const spriteSheet = SpriteSheet.fromImageSource({...});
    *
    * const anim = Animation.fromSpriteSheet(spriteSheet, range(0, 5), 200, AnimationStrategy.Loop);
    * ```
