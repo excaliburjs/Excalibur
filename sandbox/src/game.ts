@@ -499,21 +499,10 @@ follower.body.collisionType = ex.CollisionType.PreventCollision;
 game.add(follower);
 
 // Create the player
-// var player = new ex.Actor(100, -200, 32, 96);
-// player.enableCapturePointer = true;
-// player.collisionType = ex.CollisionType.Active;
-var playerWidth = 32;
-var playerHeight = 96;
-var capsule = new ex.CompositeCollider([
-  ex.Shape.Circle(playerWidth / 2, ex.vec(0, -playerHeight/2 + playerWidth / 2)),
-  ex.Shape.Box(playerWidth, playerHeight - playerWidth),
-  ex.Shape.Circle(playerWidth / 2, ex.vec(0, playerHeight/2 - playerWidth / 2))
-]);
-
 var player = new ex.Actor({
   name: 'player',
   pos: new ex.Vector(100, -200),
-  collider: capsule,
+  collider: ex.Shape.Capsule(32, 96),
   collisionType: ex.CollisionType.Active
 });
 player.body.canSleep = false;

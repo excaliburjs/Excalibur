@@ -2,14 +2,16 @@ import { PolygonCollider } from './PolygonCollider';
 import { CircleCollider } from './CircleCollider';
 import { EdgeCollider } from './EdgeCollider';
 import { BoundingBox } from '../BoundingBox';
-import { Vector } from '../../Math/vector';
+import { vec, Vector } from '../../Math/vector';
+import { CompositeCollider } from './CompositeCollider';
+import { Logger } from '../..';
 
 /**
  * Excalibur helper for defining colliders quickly
  */
 export class Shape {
   /**
-   * Creates a box collider, under the hood defines a [[ConvexPolygon]] collider
+   * Creates a box collider, under the hood defines a [[PolygonCollider]] collider
    * @param width Width of the box
    * @param height Height of the box
    * @param anchor Anchor of the box (default (.5, .5)) which positions the box relative to the center of the collider's position
@@ -23,7 +25,9 @@ export class Shape {
   }
 
   /**
-   * Creates a new [[ConvexPolygon|arbitrary polygon]] collider
+   * Creates a new [[PolygonCollider|arbitrary polygon]] collider
+   *
+   * PolygonColliders are useful for creating convex polygon shapes
    * @param points Points specified in counter clockwise
    * @param clockwiseWinding Optionally changed the winding of points, by default false meaning counter-clockwise winding.
    * @param offset Optional offset relative to the collider in local coordinates
@@ -37,7 +41,9 @@ export class Shape {
   }
 
   /**
-   * Creates a new [[Circle|circle]] collider
+   * Creates a new [[CircleCollider|circle]] collider
+   *
+   * Circle colliders are useful for balls, or to make collisions more forgiving on sharp edges
    * @param radius Radius of the circle collider
    * @param offset Optional offset relative to the collider in local coordinates
    */
@@ -49,7 +55,9 @@ export class Shape {
   }
 
   /**
-   * Creates a new [[Edge|edge]] collider
+   * Creates a new [[EdgeCollider|edge]] collider
+   *
+   * Edge colliders are useful for  floors, walls, and other barriers
    * @param begin Beginning of the edge in local coordinates to the collider
    * @param end Ending of the edge in local coordinates to the collider
    */
@@ -58,5 +66,42 @@ export class Shape {
       begin: begin,
       end: end
     });
+  }
+
+  /**
+   * Creates a new capsule shaped [[CompositeCollider]] using 2 circles and a box
+   *
+   * Capsule colliders are useful for platformers with incline or jagged floors to have a smooth
+   * player experience.
+   *
+   * @param width
+   * @param height
+   * @param offset Optional offset
+   */
+  static Capsule(width: number, height: number, offset = Vector.Zero): CompositeCollider {
+    const logger = Logger.getInstance();
+    if (width === height) {
+      logger.warn('A capsule collider with equal width and height is a circle, consider using a ex.Shape.Circle or ex.CircleCollider');
+    }
+
+    const vertical = height >= width;
+
+    if (vertical) {
+      // height > width, if equal maybe use a circle
+      const capsule = new CompositeCollider([
+        Shape.Circle(width / 2, vec(0, -height / 2 + width / 2).add(offset)),
+        Shape.Box(width, height - width, Vector.Half, offset),
+        Shape.Circle(width / 2, vec(0, height / 2 - width / 2).add(offset))
+      ]);
+      return capsule;
+    } else {
+      // width > height, if equal maybe use a circle
+      const capsule = new CompositeCollider([
+        Shape.Circle(height / 2, vec(-width / 2 + height / 2, 0).add(offset)),
+        Shape.Box(width - height, height, Vector.Half, offset),
+        Shape.Circle(height / 2, vec(width / 2 - height / 2, 0).add(offset))
+      ]);
+      return capsule;
+    }
   }
 }

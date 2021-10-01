@@ -70,6 +70,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- New `ex.Shape.Capsule(width, height)` helper for defining capsule colliders, these are useful for ramps or jagged floor colliders.
 - New collision group constructor argument added to Actor`new Actor({collisionGroup: collisionGroup})`
 - `SpriteSheet.getSprite(x, y)` can retrieve a sprite from the SpriteSheet by x and y coordinate. For example, `getSprite(0, 0)` returns the top left sprite in the sheet.
   - `SpriteSheet`'s now have dimensionality with `rows` and `columns` optionally specified, if not there is always 1 row, and `sprites.length` columns

@@ -983,4 +983,42 @@ describe('Collision Shape', () => {
       expect(separation).toBe(-10);
     });
   });
+
+  describe('a Capsule', () => {
+    it('can be constructed vertically', () => {
+      const sut = ex.Shape.Capsule(100, 200);
+      expect(sut.bounds.width).toBe(100);
+      expect(sut.bounds.height).toBe(200);
+    });
+
+    it('can be constructed horizontally', () => {
+      const sut = ex.Shape.Capsule(200, 100);
+      expect(sut.bounds.width).toBe(200);
+      expect(sut.bounds.height).toBe(100);
+    });
+
+    it('will warn if should use a circle', () => {
+      const logger = ex.Logger.getInstance();
+      spyOn(logger, 'warn');
+      const sut = ex.Shape.Capsule(100, 100);
+      expect(logger.warn).toHaveBeenCalledWith(
+        'A capsule collider with equal width and height is a circle, consider using a ex.Shape.Circle or ex.CircleCollider');
+    });
+
+    it('can be defined with an offset horizontally', () => {
+      const sut = ex.Shape.Capsule(200, 100, ex.vec(0, -100));
+      expect(sut.bounds.top).toEqual(-150);
+      expect(sut.bounds.left).toEqual(-100);
+      expect(sut.bounds.right).toEqual(100);
+      expect(sut.bounds.bottom).toEqual(-50);
+    });
+
+    it('can be defined with an offset vertically', () => {
+      const sut = ex.Shape.Capsule(100, 200, ex.vec(0, -100));
+      expect(sut.bounds.top).toEqual(-200);
+      expect(sut.bounds.left).toEqual(-50);
+      expect(sut.bounds.right).toEqual(50);
+      expect(sut.bounds.bottom).toEqual(0);
+    });
+  });
 });
