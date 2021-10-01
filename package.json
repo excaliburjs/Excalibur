@@ -54,7 +54,7 @@
     "release": "node scripts/release.js"
   },
   "devDependencies": {
-    "@babel/core": "7.15.0",
+    "@babel/core": "7.15.5",
     "@fortawesome/fontawesome-free": "5.15.4",
     "@octokit/rest": "18.10.0",
     "@storybook/addon-actions": "6.3.7",
