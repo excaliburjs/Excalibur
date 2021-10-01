@@ -1,4 +1,4 @@
-import { Vector } from './Math/vector';
+import { Vector, vec } from './Math/vector';
 import { Logger } from './Util/Log';
 import { Camera } from './Camera';
 import { BrowserEvents } from './Util/Browser';
@@ -608,6 +608,13 @@ export class Screen {
    */
   public get halfDrawHeight(): number {
     return this.drawHeight / 2;
+  }
+
+  /**
+   * Returns screen center coordinates including zoom and device pixel ratio.
+   */
+  public get center(): Vector {
+    return vec(this.halfDrawWidth, this.halfDrawHeight);
   }
 
   private _computeFit() {

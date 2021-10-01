@@ -1,10 +1,12 @@
 import * as ex from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 import { Camera } from '@excalibur';
+
 describe('A Screen', () => {
   let canvas: HTMLCanvasElement;
   let context: ex.ExcaliburGraphicsContext;
   let browser: ex.BrowserEvents;
+
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     // It's important nothing else is hanging out in the dom
@@ -515,5 +517,65 @@ describe('A Screen', () => {
     expect(bounds.right).toBe(600);
     expect(bounds.bottom).toBe(450);
     expect(bounds.top).toBe(150);
+  });
+
+  it('can calculate screen center without a camera and no relevant pixel ratio', () => {
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      viewport: { width: 800, height: 600 }
+    });
+
+    expect(sut.center).toBeVector(ex.vec(400, 300));
+  });
+
+  it('can calculate screen center with a camera with zoom and no relevant pixel ratio', () => {
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      viewport: { width: 800, height: 600 }
+    });
+
+    const camera = new Camera();
+    camera.x = 400;
+    camera.y = 300;
+    camera.zoom = 2;
+
+    sut.setCurrentCamera(camera);
+
+    expect(sut.center).toBeVector(ex.vec(200, 150));
+  });
+
+  it('can calculate screen center without a camera and relevant pixel ratio', () => {
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2
+    });
+
+    expect(sut.center).toBeVector(ex.vec(400, 300));
+  });
+
+  it('can calculate screen center with a camera with zoom and relevant pixel ratio', () => {
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2
+    });
+
+    const camera = new Camera();
+    camera.x = 400;
+    camera.y = 300;
+    camera.zoom = 2;
+
+    sut.setCurrentCamera(camera);
+
+    expect(sut.center).toBeVector(ex.vec(200, 150));
   });
 });
