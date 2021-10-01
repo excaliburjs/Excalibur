@@ -10,6 +10,7 @@ import { Engine } from '../Engine';
 import { GraphicsDiagnostics } from './GraphicsDiagnostics';
 import { EnterViewPortEvent, ExitViewPortEvent } from '../Events';
 import { GraphicsGroup } from '.';
+import { Particle } from '../Particles';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -72,7 +73,9 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         graphics.onPreDraw(this._graphicsContext, delta);
       }
 
-      this._graphicsContext.opacity = graphics.opacity * ((entity as any).opacity ?? 1);
+      // TODO remove this hack on the particle redo
+      const particleOpacity = (entity instanceof Particle) ? entity.opacity : 1;
+      this._graphicsContext.opacity = graphics.opacity * particleOpacity;
 
       // Draw the graphics component
       this._drawGraphicsComponent(graphics);

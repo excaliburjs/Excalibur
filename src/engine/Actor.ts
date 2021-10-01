@@ -354,7 +354,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   }
   /**
    * The visibility of an actor
-   * @deprecated Use [[GraphicsComponent.visible|Actor.graphics.visible]]
+   * @deprecated Use [[GraphicsComponent.visible|Actor.graphics.visible]], will be removed in v0.26.0
    */
   @obsolete({ message: 'Actor.visible will be removed in v0.26.0', alternateMethod: 'Use Actor.graphics.visible' })
   public get visible(): boolean {
@@ -368,21 +368,19 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   /**
    * The opacity of an actor.
    *
-   * @obsolete Actor.opacity will be removed in v0.26.0, use [[GraphicsComponent.opacity|Actor.graphics.opacity]].
+   * @deprecated Actor.opacity will be removed in v0.26.0, use [[GraphicsComponent.opacity|Actor.graphics.opacity]].
    */
   @obsolete({
     message: 'Actor.opacity will be removed in v0.26.0',
     alternateMethod: 'Use Actor.graphics.opacity'
   })
   public get opacity(): number {
-    return this._opacity;
+    return this.graphics.opacity;
   }
 
   public set opacity(opacity: number) {
-    this._opacity = opacity;
+    this.graphics.opacity = opacity;
   }
-
-  private _opacity: number = 1;
 
   /**
    * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
@@ -553,7 +551,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
       this.addComponent(new ColliderComponent(Shape.Box(width ?? 0, height ?? 0, this.anchor)));
     }
 
-    this.visible = visible ?? true;
+    this.graphics.visible = visible ?? true;
 
     if (color) {
       this.color = color;
@@ -1199,6 +1197,9 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
    * Called by the Engine, draws the actor to the screen
    * @param ctx   The rendering context
    * @param delta The time since the last draw in milliseconds
+   *
+   * **Warning** only works with Flags.useLegacyDrawing() enabled
+   * @deprecated Use Actor.graphics, will be removed in v0.26.0
    */
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     // translate canvas by anchor offset
@@ -1213,7 +1214,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
       const offsetX = (this.width - drawing.width * drawing.scale.x) * this.anchor.x;
       const offsetY = (this.height - drawing.height * drawing.scale.y) * this.anchor.y;
 
-      this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
+      this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.graphics.opacity });
     } else {
       this._predraw(ctx, delta);
       if (this.color && this.collider) {
@@ -1222,7 +1223,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
         collider.update();
         if (!collider.bounds.hasZeroDimensions()) {
           // Colliders are already shifted by anchor, unshift
-          ctx.globalAlpha = this.opacity;
+          ctx.globalAlpha = this.graphics.opacity;
           collider.get().draw(ctx, this.color, vec(0, 0));
         }
       }
@@ -1235,6 +1236,9 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
    * Safe to override onPreDraw lifecycle event handler. Synonymous with `.on('predraw', (evt) =>{...})`
    *
    * `onPreDraw` is called directly before an actor is drawn, but after local transforms are made.
+   *
+   * **Warning** only works with Flags.useLegacyDrawing() enabled
+   * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
    */
   public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
     // Override me
@@ -1244,6 +1248,9 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
    * Safe to override onPostDraw lifecycle event handler. Synonymous with `.on('postdraw', (evt) =>{...})`
    *
    * `onPostDraw` is called directly after an actor is drawn, and before local transforms are removed.
+   *
+   * **Warning** only works with Flags.useLegacyDrawing() enabled
+   * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
    */
   public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
     // Override me
@@ -1253,6 +1260,9 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _predraw handler for [[onPreDraw]] lifecycle event
+   *
+   * **Warning** only works with Flags.useLegacyDrawing() enabled
+   * @deprecated Use Actor.graphics.onPreDraw, will be removed in v0.26.0
    * @internal
    */
   public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {
@@ -1264,6 +1274,9 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
+   *
+   * **Warning** only works with Flags.useLegacyDrawing() enabled
+   * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
    * @internal
    */
   public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
@@ -1274,6 +1287,11 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   /**
    * Called by the Engine, draws the actors debugging to the screen
    * @param ctx The rendering context
+   *
+   *
+   * **Warning** only works with Flags.useLegacyDrawing() enabled
+   * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
+   * @internal
    */
   /* istanbul ignore next */
   public debugDraw(_ctx: CanvasRenderingContext2D) {

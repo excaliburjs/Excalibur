@@ -9,6 +9,7 @@ import { GraphicsDiagnostics } from '../Graphics/GraphicsDiagnostics';
 
 /**
  * Draws anything with a transform and a "draw" method
+ * @deprecated Shim for canvas drawing, will be removed v0.26.0
  */
 export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawComponent> {
   public readonly types = ['ex.transform', 'ex.canvas'] as const;
@@ -36,7 +37,9 @@ export class CanvasDrawingSystem extends System<TransformComponent | CanvasDrawC
     let canvasdraw: CanvasDrawComponent;
     const length = entities.length;
     for (let i = 0; i < length; i++) {
-      if ((entities[i] as Actor).visible && !(entities[i] as Actor).isOffScreen) {
+      const visible = (entities[i] as Actor)?.graphics?.visible ?? true;
+      const offscreen = (entities[i] as Actor).isOffScreen;
+      if (visible && !offscreen) {
         transform = entities[i].get(TransformComponent);
         canvasdraw = entities[i].get(CanvasDrawComponent);
 

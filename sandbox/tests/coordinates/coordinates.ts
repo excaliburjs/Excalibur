@@ -14,7 +14,7 @@ function addTestPoint(x, y, ax, ay, s = 1, rd = 0, parent = null) {
   }
 
   if (parent != null) {
-    parent.add(p);
+    parent.addChild(p);
   } else {
     game.add(p);
   }

@@ -61,6 +61,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     }) as Actor[];
   }
 
+  /**
+   * The entities in the current scene
+   */
   public get entities(): Entity[] {
     return this.world.entityManager.entities;
   }
@@ -555,7 +558,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   private _collectActorStats(engine: Engine) {
-    for (const _ui of this.screenElements) {
+    const screenElements = this.actors.filter((a) => a instanceof ScreenElement) as ScreenElement[];
+    for (const _ui of screenElements) {
       engine.stats.currFrame.actors.ui++;
     }
 

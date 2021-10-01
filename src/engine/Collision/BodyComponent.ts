@@ -255,7 +255,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
 
   /**
    * The scale vector of the actor
-   * @obsolete ex.Body.scale will be removed in v0.25.0, Use ex.Transform.scale
+   * @deprecated ex.Body.scale will be removed in v0.25.0, Use ex.Transform.scale
    */
   public get scale(): Vector {
     return this.transform.globalScale;
@@ -267,13 +267,13 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
 
   /**
    * The scale of the actor last frame
-   * @obsolete ex.Body.scale will be removed in v0.25.0
+   * @deprecated ex.Body.scale will be removed in v0.25.0
    */
   public oldScale: Vector = Vector.One;
 
   /**
    * The x scalar velocity of the actor in scale/second
-   * @obsolete ex.Body.scale will be removed in v0.25.0
+   * @deprecated ex.Body.scale will be removed in v0.25.0
    */
   public get sx(): number {
     return this.motion.scaleFactor.x;
@@ -285,7 +285,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
 
   /**
    * The y scalar velocity of the actor in scale/second
-   * @obsolete ex.Body.scale will be removed in v0.25.0
+   * @deprecated ex.Body.scale will be removed in v0.25.0
    */
   public get sy(): number {
     return this.motion.scaleFactor.y;

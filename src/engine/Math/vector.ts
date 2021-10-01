@@ -169,7 +169,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * The magnitude (size) of the Vector
-   * @obsolete magnitude will be removed in favour of '.size' in version 0.25.0
+   * @deprecated magnitude will be removed in favour of '.size' in version 0.25.0
    */
   @obsolete({ message: 'will be removed in favour of `.size` in version 0.25.0' })
   public magnitude(): number {

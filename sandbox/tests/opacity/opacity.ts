@@ -9,14 +9,14 @@ game.start(ldr).then(() => {
   var b = new ex.Actor({x: 150, y: 50, width: 50, height: 50});
   b.graphics.add(hrt.toSprite());
 
-  b.opacity = 0;
-  a.opacity = 0;
+  b.graphics.opacity = 0;
+  a.graphics.opacity = 0;
 
   game.add(a);
   game.add(b);
 
   a.actions.delay(1000).callMethod(() => {
-    a.opacity = 1;
-    b.opacity = 1;
+    a.graphics.opacity = 1;
+    b.graphics.opacity = 1;
   });
 });

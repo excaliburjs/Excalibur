@@ -89,7 +89,7 @@ If the code you are deprecating is called anywhere else in Excalibur, or in any 
 example:
 
 ```ts
-/** @obsolete use [[SomeClass]].someNewFunction instead **/
+/** @deprecated use [[SomeClass]].someNewFunction instead **/
 @obsolete({message: 'ex.SomeClass.someFunction is deprecated, and will be removed in 0.2.0',
 	alternateMethod: 'SomeClass.someNewFunction'})
 public someFunction() {...}
