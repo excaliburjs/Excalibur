@@ -823,7 +823,7 @@ var trigger = new ex.Trigger({
             emitter.isEmitting = false;
             exploding = false;
           }
-        })
+        }).start()
       );
     }
   }
