@@ -41,7 +41,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     } else {
       const colliderComponent = message.data.get(ColliderComponent);
       const collider = colliderComponent.get();
-      if (colliderComponent) {
+      if (colliderComponent && collider) {
         this._processor.untrack(collider);
       }
     }
@@ -61,7 +61,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     for (const entity of _entities) {
       const colliderComp = entity.get(ColliderComponent);
       const collider = colliderComp?.get();
-      if (colliderComp && colliderComp.owner?.active) {
+      if (colliderComp && colliderComp.owner?.active && collider) {
         colliderComp.update();
         if (collider instanceof CompositeCollider) {
           colliders = colliders.concat(collider.getColliders());

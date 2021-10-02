@@ -50,4 +50,21 @@ describe('A ColliderComponent', () => {
 
     expect(comp.events.clear).toHaveBeenCalled();
   });
+
+  it('clear a collider', () => {
+    const collider = ex.Shape.Circle(50);
+    const comp = new ex.ColliderComponent(collider);
+    spyOn(comp.events, 'unwire');
+    spyOn(comp.$colliderRemoved, 'notifyAll');
+    const e = new ex.Entity();
+    e.addComponent(comp);
+    expect(collider.owner).not.toBeNull();
+
+    comp.clear();
+
+    expect(comp.get()).toBeNull();
+    expect(comp.events.unwire).toHaveBeenCalled();
+    expect(comp.$colliderRemoved.notifyAll).toHaveBeenCalled();
+    expect(collider.owner).toBeNull();
+  });
 });

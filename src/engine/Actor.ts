@@ -548,7 +548,11 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
     } else if (radius) {
       this.addComponent(new ColliderComponent(Shape.Circle(radius, this.anchor)));
     } else {
-      this.addComponent(new ColliderComponent(Shape.Box(width ?? 0, height ?? 0, this.anchor)));
+      if (width > 0 && height > 0) {
+        this.addComponent(new ColliderComponent(Shape.Box(width, height, this.anchor)));
+      } else {
+        this.addComponent(new ColliderComponent()); // no collider
+      }
     }
 
     this.graphics.visible = visible ?? true;
@@ -1089,7 +1093,11 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
     const point = vec(x, y);
     const collider = this.get(ColliderComponent);
     collider.update();
-    const containment = collider.get().contains(point);
+    const geom = collider.get();
+    if (!geom) {
+      return false;
+    }
+    const containment = geom.contains(point);
 
     if (recurse) {
       return (
@@ -1111,7 +1119,12 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   public within(actor: Actor, distance: number): boolean {
     const collider = this.get(ColliderComponent);
     const otherCollider = actor.get(ColliderComponent);
-    return collider.get().getClosestLineBetween(otherCollider.get()).getLength() <= distance;
+    const me = collider.get();
+    const other = otherCollider.get();
+    if (me && other) {
+      return me.getClosestLineBetween(other).getLength() <= distance;
+    }
+    return false;
   }
 
   // #endregion
@@ -1221,10 +1234,10 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
         // update collider geometry based on transform
         const collider = this.get(ColliderComponent);
         collider.update();
-        if (!collider.bounds.hasZeroDimensions()) {
+        if (collider && !collider.bounds.hasZeroDimensions()) {
           // Colliders are already shifted by anchor, unshift
           ctx.globalAlpha = this.graphics.opacity;
-          collider.get().draw(ctx, this.color, vec(0, 0));
+          collider.get()?.draw(ctx, this.color, vec(0, 0));
         }
       }
     }

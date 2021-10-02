@@ -191,7 +191,7 @@ export class DebugSystem extends System<TransformComponent> {
               }
             }
             colliderComp.bounds.draw(this._graphicsContext, colliderSettings.boundsColor);
-          } else {
+          } else if (collider) {
             const bounds = colliderComp.bounds;
             const pos = vec(bounds.left, bounds.top);
             this._graphicsContext.debug.drawRect(pos.x, pos.y, bounds.width, bounds.height, { color: colliderSettings.boundsColor });

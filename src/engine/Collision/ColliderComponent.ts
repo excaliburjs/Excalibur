@@ -34,15 +34,21 @@ export class ColliderComponent extends Component<'ex.collider'> {
   }
 
   private _collider: Collider;
+  /**
+   * Get the current collider geometry
+   * @returns
+   */
   public get() {
     return this._collider;
   }
 
+  /**
+   * Set the collider geometry
+   * @param collider
+   * @returns the collider you set
+   */
   public set<T extends Collider>(collider: T): T {
-    if (this._collider) {
-      this.events.unwire(collider.events);
-      this.$colliderRemoved.notifyAll(this._collider);
-    }
+    this.clear();
     if (collider) {
       this._collider = collider;
       this._collider.owner = this.owner;
@@ -53,14 +59,35 @@ export class ColliderComponent extends Component<'ex.collider'> {
     return collider;
   }
 
+  /**
+   * Remove collider geometry from collider component
+   */
+  public clear() {
+    if (this._collider) {
+      this.events.unwire(this._collider.events);
+      this.$colliderRemoved.notifyAll(this._collider);
+      this._collider.owner = null;
+      this._collider = null;
+    }
+  }
+
+  /**
+   * Return world space bounds
+   */
   public get bounds() {
     return this._collider?.bounds ?? new BoundingBox();
   }
 
+  /**
+   * Return local space bounds
+   */
   public get localBounds() {
     return this._collider?.localBounds ?? new BoundingBox();
   }
 
+  /**
+   * Update the collider's transformed geometry
+   */
   public update() {
     const tx = this.owner?.get(TransformComponent);
     if (this._collider) {
@@ -71,9 +98,17 @@ export class ColliderComponent extends Component<'ex.collider'> {
     }
   }
 
+  /**
+   * Collide component with another
+   * @param other
+   * @returns
+   */
   collide(other: ColliderComponent): CollisionContact[] {
     let colliderA = this._collider;
     let colliderB = other._collider;
+    if (!colliderA || !colliderB) {
+      return [];
+    }
 
     // If we have a composite lefthand side :(
     // Might bite us, but to avoid updating all the handlers make composite always left side
@@ -184,6 +219,11 @@ export class ColliderComponent extends Component<'ex.collider'> {
     return (this.set(collider));
   }
 
+  /**
+   * Setups up a [[CompositeCollider]] which can define any arbitrary set of excalibur colliders
+   * @param colliders
+   * @returns
+   */
   useCompositeCollider(colliders: Collider[]): CompositeCollider {
     return (this.set(new CompositeCollider(colliders)));
   }
