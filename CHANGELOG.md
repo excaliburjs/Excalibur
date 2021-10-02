@@ -70,6 +70,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- New property `center` to `Screen` to encapsulate screen center coordinates calculation considering zoom and device pixel ratio
 - New `ex.Shape.Capsule(width, height)` helper for defining capsule colliders, these are useful for ramps or jagged floor colliders.
 - New collision group constructor argument added to Actor`new Actor({collisionGroup: collisionGroup})`
 - `SpriteSheet.getSprite(x, y)` can retrieve a sprite from the SpriteSheet by x and y coordinate. For example, `getSprite(0, 0)` returns the top left sprite in the sheet.
