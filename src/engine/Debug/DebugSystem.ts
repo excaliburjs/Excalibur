@@ -162,7 +162,7 @@ export class DebugSystem extends System<TransformComponent> {
       motion = entity.get(MotionComponent);
       if (motion) {
         if (motionSettings.showAll || motionSettings.showVelocity) {
-          this._graphicsContext.debug.drawText(`vel${motion.vel.toString(2)}`, cursor);
+          this._graphicsContext.debug.drawText(`vel${motion.vel.toString(2)}`, cursor.add(tx.globalPos));
           this._graphicsContext.drawLine(tx.globalPos, tx.globalPos.add(motion.vel), motionSettings.velocityColor, 2);
           cursor = cursor.add(lineHeight);
         }

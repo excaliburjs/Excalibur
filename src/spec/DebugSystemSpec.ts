@@ -7,12 +7,14 @@ describe('DebugSystem', () => {
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
   let engine: ex.Engine;
+  let center: ex.Vector;
 
   beforeEach(() => {
     engine = TestUtils.engine();
     engine.toggleDebug();
     engine.currentScene.world.clearSystems();
     engine.currentScene._initialize(engine);
+    center = engine.screen.center;
   });
 
   afterEach(() => {
@@ -32,7 +34,7 @@ describe('DebugSystem', () => {
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
 
-    const actor = new ex.Actor({ name: 'thingy', x: 0, y: 0, width: 50, height: 50, color: ex.Color.Yellow });
+    const actor = new ex.Actor({ name: 'thingy', x: center.x, y: center.y, width: 50, height: 50, color: ex.Color.Yellow });
     actor.id = 0;
     engine.debug.transform.showAll = true;
     engine.debug.entity.showAll = true;
@@ -51,7 +53,7 @@ describe('DebugSystem', () => {
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
 
-    const actor = new ex.Actor({ name: 'thingy', x: 0, y: 0, width: 50, height: 50, color: ex.Color.Yellow });
+    const actor = new ex.Actor({ name: 'thingy', x: center.x, y: center.y, width: 50, height: 50, color: ex.Color.Yellow });
     actor.id = 0;
     actor.vel = ex.vec(100, 0);
     actor.acc = ex.vec(100, -100);
@@ -71,7 +73,7 @@ describe('DebugSystem', () => {
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
 
-    const actor = new ex.Actor({ name: 'thingy', x: -100, y: 0, width: 50, height: 50, color: ex.Color.Yellow });
+    const actor = new ex.Actor({ name: 'thingy', x: -100 + center.x, y: center.y, width: 50, height: 50, color: ex.Color.Yellow });
     actor.id = 0;
     actor.vel = ex.vec(100, 0);
     actor.acc = ex.vec(100, -100);
@@ -91,7 +93,7 @@ describe('DebugSystem', () => {
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
 
-    const actor = new ex.Actor({ name: 'thingy', x: -100, y: 0, width: 50, height: 50, color: ex.Color.Yellow });
+    const actor = new ex.Actor({ name: 'thingy', x: -100 + center.x, y: center.y, width: 50, height: 50, color: ex.Color.Yellow });
     actor.id = 0;
     engine.debug.collider.showAll = true;
     debugSystem.update([actor], 100);
@@ -109,7 +111,7 @@ describe('DebugSystem', () => {
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
 
-    const actor = new ex.Actor({ name: 'thingy', x: -100, y: 0, width: 50, height: 50, color: ex.Color.Yellow });
+    const actor = new ex.Actor({ name: 'thingy', x: -100 + center.x, y: center.y, width: 50, height: 50, color: ex.Color.Yellow });
     actor.collider.useCompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(150, 20), ex.Shape.Box(10, 150)]);
     actor.id = 0;
     engine.debug.collider.showAll = true;
@@ -128,7 +130,7 @@ describe('DebugSystem', () => {
     engine.graphicsContext.clear();
     await (engine.graphicsContext.debug as any)._debugText.load();
 
-    const actor = new ex.Actor({ name: 'thingy', x: -100, y: 0, width: 50, height: 50 });
+    const actor = new ex.Actor({ name: 'thingy', x: -100 + center.x, y: center.y, width: 50, height: 50 });
     actor.graphics.use(new ex.Rectangle({ width: 200, height: 100, color: ex.Color.Red }));
     actor.id = 0;
     engine.debug.collider.showBounds = false;
