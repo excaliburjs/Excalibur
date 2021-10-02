@@ -7,6 +7,34 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+-
+### Added
+
+- 
+### Changed
+
+- 
+### Deprecated
+
+- 
+### Removed
+
+-
+### Fixed
+
+- 
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.25.0] - 2021-10-03
+
+### Breaking Changes
+
+- Actor Drawing: `ex.Actor.addDrawing`, `ex.Actor.setDrawing`, `onPostDraw()`, and `onPreDraw()` are no longer on by default and will be removed in v0.26.0, they are available behind a flag `ex.Flags.useLegacyDrawing()`
+  - For custom drawing use the `ex.Canvas`
+- `ex.Actor.rx` has been renamed to `ex.Actor.angularVelocity`
 - Rename `ex.Edge` to `ex.EdgeCollider` and `ex.ConvexPolygon` to `ex.PolygonCollider` to avoid confusion and maintian consistency
 - `ex.Label` constructor now only takes the option bag constructor and the font properties have been replaced with `ex.Font`
   ```typescript
@@ -49,8 +77,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   ```
 
 - Removes `Entity.components` as a way to access, add, and remove components
-- Camera.z has been renamed to property `zoom` which is the zoom factor
-- Camera.zoom(...) has been renamed to function `zoomOverTime()`
+- `ex.Camera.z` has been renamed to property `ex.Camera.zoom` which is the zoom factor
+- `ex.Camera.zoom(...)` has been renamed to function `ex.Camera.zoomOverTime()`
 - TileMap no longer needs registered SpriteSheets, `Sprite`'s can be added directly to `Cell`'s with `addGraphic`
   - The confusing `TileSprite` type is removed (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
 - Directly changing debug drawing by `engine.isDebug = value` has been replaced by `engine.showDebug(value)` and `engine.toggleDebug()` ([#1655](https://github.com/excaliburjs/Excalibur/issues/1655))
@@ -149,7 +177,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Removed UIActor Stub in favor of ScreenElement ([#1656](https://github.com/excaliburjs/Excalibur/issues/1656))
 - `ex.SortedList` as deprecated
 - `ex.Promise` is marked deprecated ([#994](https://github.com/excaliburjs/Excalibur/issues/994))
-- `DisplayMode.Position` CSS can accomplish this task better than Excalibur ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
+- `ex.DisplayMode.Position` CSS can accomplish this task better than Excalibur ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
 
 ### Removed
 
@@ -158,8 +186,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed allow `ex.ColliderComponent` to not have a collider
 - Fixed issue where collision events were not being forwarded from individual colliders in a `ex.CompositeCollider`
 - Fixed issue where `ex.CompositeCollider`'s individual colliders were erroneously generating pairs
-- Fixed issue where `GraphicsOptions` `width/height` could not be used to define a `Sprite` with equivalent `sourceView` and `destSize` ([#1863](https://github.com/excaliburjs/Excalibur/issues/1863))
-- Fixed issue where `Scene.onActivate/onDeactivate` were called with the wrong arguments ([#1850](https://github.com/excaliburjs/Excalibur/issues/1850))
+- Fixed issue where `GraphicsOptions` `width/height` could not be used to define a `ex.Sprite` with equivalent `sourceView` and `destSize` ([#1863](https://github.com/excaliburjs/Excalibur/issues/1863))
+- Fixed issue where `ex.Scene.onActivate/onDeactivate` were called with the wrong arguments ([#1850](https://github.com/excaliburjs/Excalibur/issues/1850))
 - Fixed issue where no width/height argmunents to engine throws an error
 - Fixed issue where zero dimension image draws on the ExcaliburGraphicsContext throw an error
 - Fixed issue where the first scene onInitialize fires at Engine contructor time and before the "play button" clicked ([#1900](https://github.com/excaliburjs/Excalibur/issues/1900))
@@ -172,7 +200,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Entity update lifecycle is now called correctly
 - Fixed GraphicsSystem `enterviewport` and `exitviewport` event
 - Fixed DOM element leak when restarting games, play button elements piled up in the DOM.
-- Fixed issues with `Sprite` not rotating/scaling correctly around the anchor (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
+- Fixed issues with `ex.Sprite` not rotating/scaling correctly around the anchor (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
   - Optionally specify whether to draw around the anchor or not `drawAroundAnchor`
 - Fixed in the browser "FullScreen" api, coordinates are now correctly mapped from page space to world space ([#1734](https://github.com/excaliburjs/Excalibur/issues/1734))
 - Fix audio decoding bug introduced in https://github.com/excaliburjs/Excalibur/pull/1707
@@ -185,9 +213,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed `anchor` properly of single shape `Actor` [#1535](https://github.com/excaliburjs/Excalibur/issues/1535)
 - Fixed Safari bug where `Sound` resources would fail to load ([#1848](https://github.com/excaliburjs/Excalibur/issues/1848))
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [[0.24.5] - 2020-09-07
 
