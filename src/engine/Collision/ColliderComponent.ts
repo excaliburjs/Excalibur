@@ -185,7 +185,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
   }
 
   /**
-   * Sets up a [[ConvexPolygon|convex polygon]] collision geometry based on a list of of points relative
+   * Sets up a [[PolygonCollider|polygon]] collision geometry based on a list of of points relative
    *  to the anchor of the associated actor
    * of this physics body.
    *
