@@ -1,8 +1,9 @@
 import { Entity } from './Entity';
 
-export interface ComponentCtor<T extends Component = Component> {
-  new (): T;
-}
+/**
+ * Component Contructor Types
+ */
+export declare type ComponentCtor<T extends Component = Component> = new (...args:any[]) => T;
 
 /**
  * Type guard to check if a component implements clone
