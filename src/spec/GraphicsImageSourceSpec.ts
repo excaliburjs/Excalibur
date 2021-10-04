@@ -88,4 +88,12 @@ describe('A ImageSource', () => {
       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg=='
     );
   });
+
+  it('will return error if image doesn\'t exist', async () => {
+    const spriteFontImage = new ex.ImageSource('42.png');
+
+    await expectAsync(spriteFontImage.load()).toBeRejectedWith(
+      'Error loading ImageSource from path \'42.png\' with error [Not Found]'
+    );
+  });
 });

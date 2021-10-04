@@ -65,7 +65,7 @@ export class Resource<T> implements Loadable<T> {
         if (request.status !== 0 && request.status !== 200) {
           this.logger.error('Failed to load resource ', this.path, ' server responded with error code', request.status);
           this.events.emit('error', request.response);
-          reject(request.response);
+          reject(new Error(request.statusText));
           return;
         }
 
