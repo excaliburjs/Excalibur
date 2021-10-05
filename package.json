@@ -100,7 +100,7 @@
     "typescript": "4.4.3",
     "url-loader": "4.1.1",
     "wallaby-webpack": "3.9.16",
-    "webpack": "5.56.0",
+    "webpack": "5.56.1",
     "webpack-cli": "4.8.0"
   },
   "dependencies": {
