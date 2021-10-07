@@ -1,8 +1,16 @@
-import { ColliderComponent, Engine } from "..";
+import { ColliderComponent, Engine, GraphicsComponent } from "..";
 import { System, TransformComponent, SystemType, Entity } from "../EntityComponentSystem";
 import { Scene } from "../Scene";
+import { PointerComponent } from "./PointerComponent";
 import { ExPointerEvent, PointerEventReceiver } from "./PointerEventReceiver";
 
+/**
+ * The PointerSystem is responsible for dispatching pointer events to entities
+ * that need them.
+ * 
+ * The PointerSystem can be optionally configured by the [[PointerComponent]], by default Entities use
+ * the [[Collider]]'s shape for pointer events.
+ */
 export class PointerSystem extends System<TransformComponent> {
   public readonly types = ["ex.transform"] as const;
   public readonly systemType = SystemType.Update;
@@ -72,41 +80,39 @@ export class PointerSystem extends System<TransformComponent> {
   }
 
   private _processPointerToEntity(entities: Entity[]) {
-    // let transform: TransformComponent;
+    let transform: TransformComponent;
     let collider: ColliderComponent;
-    // let graphics: GraphicsComponent;
+    let graphics: GraphicsComponent;
+    let pointerConfig: PointerComponent;
 
     // TODO probably a spatial partition optimization here to quickly query bounds for pointer
     // Pre-process find entities under pointers
     for (let entity of entities) {
       // transform = entity.get(TransformComponent);
-      
+      pointerConfig = entity.get(PointerComponent) ?? new PointerComponent;
       // Check collider contains pointer
       collider = entity.get(ColliderComponent);
-      if (collider) {
+      if (collider && pointerConfig.useColliderShape) {
         const geom = collider.get();
         if (geom) {
           for (const [pointerId, pos] of this._receiver.pointerPositions) {
             if (geom.contains(pos)) {
               this.addPointerToEntity(entity, pointerId);
-              // if (entity.name !== 'anonymous') {
-              //   console.log(entity.name);
-              // }
             }
           }
         }
       }
-      
+
       // Check graphics contains pointer
-      // graphics = entity.get(GraphicsComponent);
-      // if (graphics) {
-      //   const graphicBounds = graphics.localBounds.transform(transform.getGlobalMatrix())
-      //   for (const [pointerId, pos] of this._receiver.pointerPositions) {
-      //     if (graphicBounds.contains(pos)) {
-      //       this.addPointerToEntity(entity, pointerId);
-      //     }
-      //   }
-      // }
+      graphics = entity.get(GraphicsComponent);
+      if (graphics && pointerConfig.useGraphicsBounds) {
+        const graphicBounds = graphics.localBounds.transform(transform.getGlobalMatrix())
+        for (const [pointerId, pos] of this._receiver.pointerPositions) {
+          if (graphicBounds.contains(pos)) {
+            this.addPointerToEntity(entity, pointerId);
+          }
+        }
+      }
     }
   }
 

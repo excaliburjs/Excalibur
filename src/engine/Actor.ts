@@ -54,6 +54,7 @@ import { watch } from './Util/Watch';
 import { Collider, CollisionGroup } from './Collision/Index';
 import { Circle } from './Graphics/Circle';
 import { CapturePointerConfig } from './Input/CapturePointerConfig';
+import { PointerComponent } from './Input/PointerComponent';
 
 /**
  * Type guard for checking if something is an Actor
@@ -196,6 +197,13 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
    */
   public get collider(): ColliderComponent {
     return this.get(ColliderComponent);
+  }
+
+  /**
+   * Access to the Actor's built in [[PointerComponent]] config
+   */
+  public get pointer(): PointerComponent {
+    return this.get(PointerComponent);
   }
 
   /**
@@ -457,6 +465,7 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
 
   /**
    * Modify the current actor update pipeline.
+   * @deprecated will be removed in v0.26.0
    */
   public traits: Trait[] = [];
 
@@ -473,20 +482,6 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
     this._color = v.clone();
   }
   private _color: Color;
-
-  /**
-   * Whether or not to enable the [[Traits.CapturePointer]] trait that propagates
-   * pointer events to this actor
-   */
-  public enableCapturePointer: boolean = false;
-
-  /**
-   * Configuration for [[Traits.CapturePointer]] trait
-   */
-  public capturePointer: CapturePointerConfig = {
-    captureMoveEvents: false,
-    captureDragEvents: false
-  };
 
   // #endregion
 
@@ -529,6 +524,8 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
     this.rotation = rotation ?? 0;
     this.scale = scale ?? vec(1, 1);
     this.z = z ?? 0;
+
+    this.addComponent(new PointerComponent);
 
     this.addComponent(new GraphicsComponent());
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
@@ -582,7 +579,6 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
       // TODO remove offscreen trait after legacy drawing removed
       this.traits.push(new Traits.OffscreenCulling());
     }
-    this.traits.push(new Traits.CapturePointer());
 
     // Build the action queue
     this.actions = new ActionContext(this);
@@ -613,54 +609,6 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   }
 
   // #region Events
-
-  private _capturePointerEvents: PointerEventName[] = [
-    'pointerup',
-    'pointerdown',
-    'pointermove',
-    'pointerenter',
-    'pointerleave',
-    'pointerdragstart',
-    'pointerdragend',
-    'pointerdragmove',
-    'pointerdragenter',
-    'pointerdragleave'
-  ];
-
-  private _captureMoveEvents: PointerEventName[] = [
-    'pointermove',
-    'pointerenter',
-    'pointerleave',
-    'pointerdragmove',
-    'pointerdragenter',
-    'pointerdragleave'
-  ];
-
-  private _captureDragEvents: PointerEventName[] = [
-    'pointerdragstart',
-    'pointerdragend',
-    'pointerdragmove',
-    'pointerdragenter',
-    'pointerdragleave'
-  ];
-
-  private _checkForPointerOptIn(eventName: string) {
-    if (eventName) {
-      const normalized = <PointerEventName>eventName.toLowerCase();
-
-      if (this._capturePointerEvents.indexOf(normalized) !== -1) {
-        this.enableCapturePointer = true;
-
-        if (this._captureMoveEvents.indexOf(normalized) !== -1) {
-          this.capturePointer.captureMoveEvents = true;
-        }
-
-        if (this._captureDragEvents.indexOf(normalized) !== -1) {
-          this.capturePointer.captureDragEvents = true;
-        }
-      }
-    }
-  }
 
   public on(eventName: Events.exittrigger, handler: (event: ExitTriggerEvent) => void): void;
   public on(eventName: Events.entertrigger, handler: (event: EnterTriggerEvent) => void): void;
@@ -725,7 +673,6 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   public on(eventName: Events.exitviewport, handler: (event: ExitViewPortEvent) => void): void;
   public on(eventName: string, handler: (event: GameEvent<Actor>) => void): void;
   public on(eventName: string, handler: (event: any) => void): void {
-    this._checkForPointerOptIn(eventName);
     super.on(eventName, handler);
   }
 
@@ -792,7 +739,6 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   public once(eventName: Events.exitviewport, handler: (event: ExitViewPortEvent) => void): void;
   public once(eventName: string, handler: (event: GameEvent<Actor>) => void): void;
   public once(eventName: string, handler: (event: any) => void): void {
-    this._checkForPointerOptIn(eventName);
     super.once(eventName, handler);
   }
 
