@@ -11,32 +11,6 @@ export interface ActorsUnderPointer {
 }
 
 /**
- * The type of pointer for a [[PointerEvent]].
- */
-export enum PointerType {
-  Touch = 'Touch',
-  Mouse = 'Mouse',
-  Pen = 'Pen',
-  Unknown = 'Unknown'
-}
-
-/**
- * Determines the scope of handling mouse/touch events. See [[Pointers]] for more information.
- */
-export enum PointerScope {
-  /**
-   * Handle events on the `canvas` element only. Events originating outside the
-   * `canvas` will not be handled.
-   */
-  Canvas = 'Canvas',
-
-  /**
-   * Handles events on the entire document. All events will be handled by Excalibur.
-   */
-  Document = 'Document'
-}
-
-/**
  * Captures and dispatches PointerEvents
  */
 export class Pointer extends Class {

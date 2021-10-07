@@ -1,6 +1,7 @@
 import { Class } from '../Class';
 import { Engine, ScrollPreventionMode } from '../Engine';
-import { Pointer, PointerType } from './Pointer';
+import { Pointer } from './Pointer';
+import { PointerType } from "./PointerType";
 import {
   PointerEvent,
   WheelEvent,

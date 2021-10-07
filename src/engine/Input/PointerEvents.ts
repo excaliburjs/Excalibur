@@ -1,7 +1,8 @@
 import { Actor } from '../Actor';
 import { GlobalCoordinates } from '../Math/global-coordinates';
 import { Vector } from '../Math/vector';
-import { Pointer, PointerType } from './Pointer';
+import { Pointer } from './Pointer';
+import { PointerType } from "./PointerType";
 import { GameEvent } from '../Events';
 
 /**
