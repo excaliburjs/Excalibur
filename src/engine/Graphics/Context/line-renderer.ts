@@ -1,5 +1,5 @@
-import { Vector } from '../../Algebra';
-import { Color } from '../../Drawing/Color';
+import { Vector } from '../../Math/vector';
+import { Color } from '../../Color';
 import { Shader } from './shader';
 import lineVertexSource from './shaders/line-vertex.glsl';
 import lineFragmentSource from './shaders/line-fragment.glsl';
@@ -43,7 +43,9 @@ export class LineRenderer extends BatchRenderer<DrawLine> {
     const cmd = this.commands.get();
     cmd.start = this._contextInfo.transform.current.multv(start);
     cmd.end = this._contextInfo.transform.current.multv(end);
-    cmd.color = color;
+    cmd.color.r = color.r;
+    cmd.color.g = color.g;
+    cmd.color.b = color.b;
     cmd.color.a = cmd.color.a * this._contextInfo.state.current.opacity;
     this.addCommand(cmd);
   }

@@ -5,6 +5,7 @@ import { Class } from '../Class';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
+import { EventDispatcher } from '../EventDispatcher';
 import { Util } from '..';
 
 /**
@@ -59,8 +60,9 @@ export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedCom
 export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUpdate {
   private static _ID = 0;
 
-  constructor(components?: Component[]) {
+  constructor(components?: Component[], name?: string) {
     super();
+    this._setName(name);
     if (components) {
       for (const component of components) {
         this.addComponent(component);
@@ -72,6 +74,20 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
    * The unique identifier for the entity
    */
   public id: number = Entity._ID++;
+
+  private _name: string = 'anonymous';
+  protected _setName(name: string) {
+    if (name) {
+      this._name = name;
+    }
+  }
+  public get name(): string {
+    return this._name;
+  }
+
+  public get events(): EventDispatcher {
+    return this.eventDispatcher;
+  }
 
   /**
    * Whether this entity is active, if set to false it will be reclaimed

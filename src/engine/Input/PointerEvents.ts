@@ -1,5 +1,6 @@
 import { Actor } from '../Actor';
-import { Vector, GlobalCoordinates } from '../Algebra';
+import { GlobalCoordinates } from '../Math/global-coordinates';
+import { Vector } from '../Math/vector';
 import { Pointer, PointerType } from './Pointer';
 import { GameEvent } from '../Events';
 
@@ -112,7 +113,7 @@ export class PointerEvent extends GameEvent<Actor> {
    *
    * @returns If the event is canceled it will no longer be transmitted to any other actors
    */
-  public isCanceled(){
+  public isCanceled() {
     return this._canceled;
   }
 

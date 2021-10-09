@@ -38,7 +38,9 @@ export class EventDispatcher<T = any> implements Eventable {
       event = new GameEvent();
     }
     try {
-      event.target = target;
+      if (!event.target) {
+        event.target = target;
+      }
     } catch {
       // pass
     }
@@ -86,7 +88,6 @@ export class EventDispatcher<T = any> implements Eventable {
    *
    * @param eventName  The name of the event to unsubscribe
    * @param handler    Optionally the specific handler to unsubscribe
-   *
    */
   public off(eventName: string, handler?: (event: GameEvent<T>) => void) {
     eventName = eventName.toLowerCase();

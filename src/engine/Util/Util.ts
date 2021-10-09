@@ -1,4 +1,4 @@
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { Random } from '../Math/Random';
 import { Side } from '../Collision/Side';
 
@@ -286,6 +286,7 @@ export function getOppositeSide(side: Side) {
 /**
  * Returns the side in the direction of the vector supplied
  * @param direction Vector to check
+ * @deprecated
  * TODO: Move to Side type
  */
 export function getSideFromDirection(direction: Vector) {
@@ -466,6 +467,7 @@ export function fail(message: never): never {
 
 /**
  * Generate a range of numbers
+ * For example: range(0, 5) -> [0, 1, 2, 3, 4, 5]
  * @param from inclusive
  * @param to inclusive
  */
@@ -476,7 +478,7 @@ export const range = (from: number, to: number) => Array.from(new Array(to - fro
  * @param milliseconds
  */
 export function delay(milliseconds: number): Promise<void> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       resolve();
     }, milliseconds);

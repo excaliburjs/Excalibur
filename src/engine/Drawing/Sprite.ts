@@ -1,9 +1,9 @@
 import * as Effects from './SpriteEffects';
-import { Color } from './Color';
+import { Color } from '../Color';
 
 import { Drawable, DrawOptions } from '../Interfaces/Drawable';
-import { Texture } from '../Resources/Texture';
-import { Vector } from '../Algebra';
+import { Texture } from './Texture';
+import { Vector } from '../Math/vector';
 import { Logger } from '../Util/Log';
 import { clamp } from '../Util/Util';
 import { Configurable } from '../Configurable';
@@ -11,7 +11,7 @@ import { obsolete } from '../Util/Decorators';
 
 /**
  * @hidden
- * @deprecated Use [[Graphics.Sprite]]
+ * @deprecated Use [[Sprite]]
  */
 export class SpriteImpl implements Drawable {
   public texture: Texture;
@@ -428,7 +428,7 @@ export class SpriteImpl implements Drawable {
 }
 
 /**
- * @deprecated Use [[Graphics.Sprite]]
+ * @deprecated Use [[Sprite]]
  */
 export interface SpriteArgs extends Partial<SpriteImpl> {
   image?: Texture;
@@ -443,9 +443,9 @@ export interface SpriteArgs extends Partial<SpriteImpl> {
 }
 
 /**
- * A [[Sprite]] is one of the main drawing primitives. It is responsible for drawing
- * images or parts of images from a [[Texture]] resource to the screen.
- * @deprecated Use [[Graphics.Sprite]]
+ * A [[LegacyDrawing.Sprite]] is one of the main drawing primitives. It is responsible for drawing
+ * images or parts of images from a [[LegacyDrawing.Texture]] resource to the screen.
+ * @deprecated Use [[Sprite]]
  */
 @obsolete({
   message: 'Label.clearTextShadow will be removed in v0.26.0',

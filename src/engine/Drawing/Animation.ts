@@ -1,16 +1,16 @@
 import { Sprite } from './Sprite';
 import * as Effects from './SpriteEffects';
-import { Color } from './Color';
+import { Color } from '../Color';
 
 import { Drawable, DrawOptions } from '../Interfaces/Drawable';
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { Engine } from '../Engine';
 import * as Util from '../Util/Util';
 import { Configurable } from '../Configurable';
 import { obsolete } from '../Util/Decorators';
 
 /**
- * @deprecated Use [[Graphics.HasTick]]
+ * @deprecated Use [[HasTick]]
  */
 export interface HasTick {
   /**
@@ -22,7 +22,7 @@ export interface HasTick {
 
 /**
  * @hidden
- * @deprecated Use [[Graphics.Animation]]
+ * @deprecated Use [[Animation]]
  */
 export class AnimationImpl implements Drawable, HasTick {
   /**
@@ -356,7 +356,7 @@ export class AnimationImpl implements Drawable, HasTick {
 }
 
 /**
- * @deprecated Use [[Graphics.Animation]]
+ * @deprecated Use [[Animation]]
  */
 export interface AnimationArgs extends Partial<AnimationImpl> {
   engine: Engine;
@@ -375,7 +375,7 @@ export interface AnimationArgs extends Partial<AnimationImpl> {
 /**
  * Animations allow you to display a series of images one after another,
  * creating the illusion of change. Generally these images will come from a [[SpriteSheet]] source.
- * @deprecated Use [[Graphics.Animation]]
+ * @deprecated Use [[Animation]]
  */
 @obsolete({
   message: 'Animation will be removed in v0.26.0',

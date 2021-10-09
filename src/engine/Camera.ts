@@ -1,6 +1,6 @@
 import { Engine } from './Engine';
 import { EasingFunction, EasingFunctions } from './Util/EasingFunctions';
-import { Vector, vec } from './Algebra';
+import { Vector, vec } from './Math/vector';
 import { Actor } from './Actor';
 import { removeItemFromArray } from './Util/Util';
 import { CanUpdate, CanInitialize } from './Interfaces/LifecycleEvents';
@@ -738,27 +738,8 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D) {
-    const focus = this.getFocus();
-    ctx.fillStyle = 'red';
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(focus.x, focus.y, 15, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(focus.x, focus.y, 5, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.setLineDash([5, 15]);
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = 'white';
-    ctx.strokeRect(this.viewport.left, this.viewport.top, this.viewport.width, this.viewport.height);
-    ctx.closePath();
+  public debugDraw(_ctx: CanvasRenderingContext2D) {
+    // pass
   }
 
   private _isDoneShaking(): boolean {

@@ -1,10 +1,10 @@
 import { EX_VERSION } from './';
-import { Experiments, Flags } from './Flags';
+import { Flags, Legacy } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
 import { Loadable } from './Interfaces/Loadable';
-import { Vector } from './Algebra';
+import { Vector } from './Math/vector';
 import { Screen, DisplayMode, AbsolutePosition, ScreenDimension, Resolution } from './Screen';
 import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
@@ -30,10 +30,11 @@ import {
   InitializeEvent
 } from './Events';
 import { Logger, LogLevel } from './Util/Log';
-import { Color } from './Drawing/Color';
+import { Color } from './Color';
 import { Scene } from './Scene';
+import { Entity } from './EntityComponentSystem/Entity';
 import { PostProcessor } from './PostProcessing/PostProcessor';
-import { Debug, DebugStats } from './Debug';
+import { Debug, DebugStats } from './Debug/Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
 import * as Events from './Events';
@@ -111,7 +112,7 @@ export interface EngineOptions {
   snapToPixel?: boolean;
 
   /**
-   * The [[DisplayMode]] of the game, by default [[DisplayMode.Fit]] with aspect ratio 4:3 (800x600).
+   * The [[DisplayMode]] of the game, by default [[DisplayMode.FitScreen]] with aspect ratio 4:3 (800x600).
    * Depending on this value, [[width]] and [[height]] may be ignored.
    */
   displayMode?: DisplayMode;
@@ -306,6 +307,10 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    */
   public readonly scenes: { [key: string]: Scene } = {};
 
+  /**
+   * @hidden
+   * @deprecated
+   */
   private _animations: AnimationNode[] = [];
 
   /**
@@ -568,17 +573,7 @@ O|===|* >________________>\n\
       displayMode = DisplayMode.FitScreen;
     }
 
-    if (Flags.isEnabled(Experiments.WebGL)) {
-      const exWebglCtx = new ExcaliburGraphicsContextWebGL({
-        canvasElement: this.canvas,
-        enableTransparency: this.enableCanvasTransparency,
-        smoothing: options.antialiasing,
-        backgroundColor: options.backgroundColor,
-        snapToPixel: options.snapToPixel
-      });
-      this.graphicsContext = exWebglCtx;
-      this.ctx = exWebglCtx.__ctx;
-    } else {
+    if (Flags.isEnabled(Legacy.Canvas)) {
       const ex2dCtx = new ExcaliburGraphicsContext2DCanvas({
         canvasElement: this.canvas,
         enableTransparency: this.enableCanvasTransparency,
@@ -588,6 +583,16 @@ O|===|* >________________>\n\
       });
       this.graphicsContext = ex2dCtx;
       this.ctx = ex2dCtx.__ctx;
+    } else {
+      const exWebglCtx = new ExcaliburGraphicsContextWebGL({
+        canvasElement: this.canvas,
+        enableTransparency: this.enableCanvasTransparency,
+        smoothing: options.antialiasing,
+        backgroundColor: options.backgroundColor,
+        snapToPixel: options.snapToPixel
+      });
+      this.graphicsContext = exWebglCtx;
+      this.ctx = exWebglCtx.__ctx;
     }
 
     this.screen = new Screen({
@@ -779,6 +784,7 @@ O|===|* >________________>\n\
   public add(entity: any): void {
     if (arguments.length === 2) {
       this.addScene(<string>arguments[0], <Scene>arguments[1]);
+      return;
     }
     if (this._deferredGoTo && this.scenes[this._deferredGoTo]) {
       this.scenes[this._deferredGoTo].add(entity);
@@ -820,7 +826,7 @@ O|===|* >________________>\n\
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
-    if (entity instanceof Actor) {
+    if (entity instanceof Entity) {
       this.currentScene.remove(entity);
     }
 

@@ -86,7 +86,8 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
   constructor(...paths: string[]) {
     super();
     this._resource = new Resource('', ExResponse.type.arraybuffer);
-    /** Chrome : MP3, WAV, Ogg
+    /**
+     * Chrome : MP3, WAV, Ogg
      * Firefox : WAV, Ogg,
      * IE : MP3, WAV coming soon
      * Safari MP3, WAV, Ogg

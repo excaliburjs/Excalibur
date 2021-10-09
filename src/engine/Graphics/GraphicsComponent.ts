@@ -1,4 +1,4 @@
-import { Vector, vec } from '../Algebra';
+import { Vector, vec } from '../Math/vector';
 import { Graphic } from './Graphic';
 import { HasTick } from './Animation';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
@@ -7,7 +7,8 @@ import { BoundingBox } from '../Collision/Index';
 import { Component } from '../EntityComponentSystem/Component';
 
 /**
- *
+ * Type guard for checking if a Graphic HasTick (used for graphics that change over time like animations)
+ * @param graphic
  */
 export function hasGraphicsTick(graphic: Graphic): graphic is Graphic & HasTick {
   return !!(graphic as unknown as HasTick).tick;

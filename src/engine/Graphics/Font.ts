@@ -1,6 +1,6 @@
-import { Vector } from '../Algebra';
+import { Vector } from '../Math/vector';
 import { BoundingBox } from '../Collision/Index';
-import { Color } from '../Drawing/Color';
+import { Color } from '../Color';
 import { line } from '../Util/DrawUtil';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { BaseAlign, Direction, FontOptions, FontStyle, FontUnit, TextAlign, FontRenderer } from './FontCommon';

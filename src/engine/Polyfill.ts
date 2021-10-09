@@ -1,6 +1,5 @@
-import 'core-js/es/array';
-import 'core-js/es/object';
-import 'core-js/es/function';
+import 'core-js/es/array/sort';
+import 'core-js/es/object/keys';
 
 /**
  * Polyfill adding function

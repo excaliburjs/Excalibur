@@ -1,5 +1,7 @@
 import { Actor } from '../../Actor';
-import { Vector } from '../../Algebra';
+import { Vector } from '../../Math/vector';
+import { TransformComponent } from '../../EntityComponentSystem';
+import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { Action } from '../Action';
 
 export class ScaleBy implements Action {
@@ -24,9 +26,11 @@ export class ScaleBy implements Action {
   }
 
   public update(_delta: number): void {
+    const transform = this._actor.get(TransformComponent);
+    const motion = this._actor.get(MotionComponent);
     if (!this._started) {
       this._started = true;
-      this._startScale = this._actor.scale.clone();
+      this._startScale = transform.scale.clone();
       this._endScale = this._startScale.add(this._offset);
       this._distanceX = Math.abs(this._endScale.x - this._startScale.x);
       this._distanceY = Math.abs(this._endScale.y - this._startScale.y);
@@ -34,13 +38,13 @@ export class ScaleBy implements Action {
       this._directionY = this._endScale.y < this._startScale.y ? -1 : 1;
     }
 
-    this._actor.sx = this._speedX * this._directionX;
-    this._actor.sy = this._speedY * this._directionY;
+    motion.scaleFactor.x = this._speedX * this._directionX;
+    motion.scaleFactor.y = this._speedY * this._directionY;
 
     if (this.isComplete()) {
-      this._actor.scale = this._endScale;
-      this._actor.sx = 0;
-      this._actor.sy = 0;
+      transform.scale = this._endScale;
+      motion.scaleFactor.x = 0;
+      motion.scaleFactor.y = 0;
     }
   }
 
@@ -53,8 +57,9 @@ export class ScaleBy implements Action {
   }
 
   public stop(): void {
-    this._actor.sx = 0;
-    this._actor.sy = 0;
+    const motion = this._actor.get(MotionComponent);
+    motion.scaleFactor.x = 0;
+    motion.scaleFactor.y = 0;
     this._stopped = true;
   }
 

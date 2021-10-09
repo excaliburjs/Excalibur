@@ -7,16 +7,28 @@ var game = new ex.Engine({
 });
 game.setAntialiasing(false);
 
-var raptorTex = new ex.Texture('raptor.png');
-var raptorSheet = new ex.SpriteSheet(raptorTex, 8, 1, 64, 64);
-var raptorAnim = raptorSheet.getAnimationForAll(game, 100);
+var raptorTex = new ex.ImageSource('raptor.png');
+var raptorSheet = ex.SpriteSheet.fromImageSource({
+  image: raptorTex,
+  grid: {
+    columns: 8, 
+    rows:1, 
+    spriteWidth: 64, 
+    spriteHeight: 64
+  }
+});
+var raptorAnim = ex.Animation.fromSpriteSheet(raptorSheet, ex.Util.range(1, 8), 100, ex.AnimationStrategy.Loop);
 raptorAnim.scale.setTo(2, 2);
-raptorAnim.loop = true;
 
 game.showDebug(true);
 
-var target = new ex.Actor(game.halfDrawWidth, game.halfDrawHeight, 64 * 2, 64 * 2, ex.Color.Red.clone());
-target.addDrawing('default', raptorAnim);
+var target = new ex.Actor({
+  x: game.halfDrawWidth, 
+  y: game.halfDrawHeight, 
+  width: 64 * 2, 
+  height: 64 * 2, 
+});
+target.graphics.add(raptorAnim);
 
 var currentZoom = 1.0;
 

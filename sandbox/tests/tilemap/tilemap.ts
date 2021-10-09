@@ -7,16 +7,18 @@ var game = new ex.Engine({
 
 game.showDebug(true);
 
-var texture = new ex.Texture('desert.png');
+var texture = new ex.ImageSource('desert.png');
 
 var loader = new ex.Loader([texture]);
 
-var ss = new ex.SpriteSheet({
+var ss = ex.SpriteSheet.fromImageSource({
   image: texture,
-  rows: 1,
-  columns: 1,
-  spWidth: 16,
-  spHeight: 16
+  grid: {
+    rows: 1,
+    columns: 1,
+    spriteWidth: 16,
+    spriteHeight: 16
+  }
 });
 
 var tm = new ex.TileMap({

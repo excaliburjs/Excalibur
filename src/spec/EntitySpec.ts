@@ -29,6 +29,16 @@ describe('An entity', () => {
     expect(entity2.id).not.toBe(entity3.id);
   });
 
+  it('can have a name', () => {
+    const e = new ex.Entity([], 'my-name');
+    expect(e.name).toBe('my-name');
+  });
+
+  it('has a default name', () => {
+    const e = new ex.Entity();
+    expect(e.name).toBe('anonymous');
+  });
+
   it('can be killed', () => {
     const entity = new ex.Entity();
     expect(entity.isKilled()).toBe(false);

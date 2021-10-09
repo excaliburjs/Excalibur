@@ -3,7 +3,7 @@ import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A Polygon Graphic', () => {
   let canvasElement: HTMLCanvasElement;
-  let ctx: ex.Graphics.ExcaliburGraphicsContext;
+  let ctx: ex.ExcaliburGraphicsContext;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -11,15 +11,15 @@ describe('A Polygon Graphic', () => {
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
   });
 
   it('exists', () => {
-    expect(ex.Graphics.Polygon).toBeDefined();
+    expect(ex.Polygon).toBeDefined();
   });
 
   it('can be constructed', () => {
-    const poly = new ex.Graphics.Polygon({
+    const poly = new ex.Polygon({
       points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
       color: ex.Color.Green
     });
@@ -27,7 +27,7 @@ describe('A Polygon Graphic', () => {
   });
 
   it('can be cloned', () => {
-    const poly = new ex.Graphics.Polygon({
+    const poly = new ex.Polygon({
       points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
       color: ex.Color.Green,
       strokeColor: ex.Color.Violet
@@ -41,7 +41,7 @@ describe('A Polygon Graphic', () => {
   });
 
   it('can be drawn', async () => {
-    const poly = new ex.Graphics.Polygon({
+    const poly = new ex.Polygon({
       points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
       color: ex.Color.Green,
       strokeColor: ex.Color.Violet

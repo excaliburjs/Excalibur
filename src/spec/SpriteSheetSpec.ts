@@ -17,9 +17,9 @@ describe('A spritesheet', () => {
   });
 
   it('should have props set by the constructor', (done) => {
-    const texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
     texture.load().then(() => {
-      const ss = new ex.SpriteSheet({
+      const ss = new ex.LegacyDrawing.SpriteSheet({
         image: texture,
         columns: 21,
         rows: 1,
@@ -45,9 +45,9 @@ describe('A spritesheet', () => {
   });
 
   it('should getAnimationByIndices', () => {
-    const texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
     texture.load().then(() => {
-      const ss = new ex.SpriteSheet({
+      const ss = new ex.LegacyDrawing.SpriteSheet({
         image: texture,
         columns: 21,
         rows: 1,
@@ -65,9 +65,9 @@ describe('A spritesheet', () => {
   });
 
   it('should getAnimationBetween', () => {
-    const texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
     texture.load().then(() => {
-      const ss = new ex.SpriteSheet({
+      const ss = new ex.LegacyDrawing.SpriteSheet({
         image: texture,
         columns: 21,
         rows: 1,
@@ -84,9 +84,9 @@ describe('A spritesheet', () => {
   });
 
   it('should getAnimationForAll', () => {
-    const texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
     texture.load().then(() => {
-      const ss = new ex.SpriteSheet({
+      const ss = new ex.LegacyDrawing.SpriteSheet({
         image: texture,
         columns: 21,
         rows: 1,
@@ -103,9 +103,9 @@ describe('A spritesheet', () => {
   });
 
   it('should getSprite at an index', (done) => {
-    const texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
     texture.load().then(() => {
-      const ss = new ex.SpriteSheet({
+      const ss = new ex.LegacyDrawing.SpriteSheet({
         image: texture,
         columns: 21,
         rows: 1,
@@ -135,9 +135,9 @@ describe('A spritesheet', () => {
       width: 162 + 89,
       height: 94
     });
-    const texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/genericItems_spritesheet_colored.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/genericItems_spritesheet_colored.png', true);
     texture.load().then(() => {
-      const ss = new ex.SpriteSheet({
+      const ss = new ex.LegacyDrawing.SpriteSheet({
         image: texture,
         columns: 0,
         rows: 0,
@@ -179,9 +179,9 @@ describe('A spritesheet', () => {
       width: 32,
       height: 32
     });
-    const texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/SpriteSheetSpacing.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/SpriteSheetSpacing.png', true);
     texture.load().then(() => {
-      const ss = new ex.SpriteSheet({
+      const ss = new ex.LegacyDrawing.SpriteSheet({
         image: texture,
         columns: 3,
         rows: 2,
@@ -212,9 +212,9 @@ describe('A spritesheet', () => {
       width: 32,
       height: 32
     });
-    const texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/SpriteSheetSpacingCustom.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/SpriteSheetSpacingCustom.png', true);
     texture.load().then(() => {
-      const ss = new ex.SpriteSheet({
+      const ss = new ex.LegacyDrawing.SpriteSheet({
         image: texture,
         columns: 3,
         rows: 2,
@@ -246,10 +246,10 @@ describe('A spritesheet', () => {
 
   it('should throw Error SpriteSheet specified is wider than image width', (done) => {
     let error: any;
-    const texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
     texture.load().then(() => {
       try {
-        const ss = new ex.SpriteSheet({
+        const ss = new ex.LegacyDrawing.SpriteSheet({
           image: texture,
           columns: 22,
           rows: 1,
@@ -268,10 +268,10 @@ describe('A spritesheet', () => {
 
   it('should throw Error SpriteSheet specified is higher than image height', (done) => {
     let error: any;
-    const texture = new ex.Texture('base/src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
     texture.load().then(() => {
       try {
-        const ss = new ex.SpriteSheet({
+        const ss = new ex.LegacyDrawing.SpriteSheet({
           image: texture,
           columns: 21,
           rows: 2,

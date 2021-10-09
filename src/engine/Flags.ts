@@ -10,7 +10,8 @@ export enum Experiments {
  * Legacy features that will go away
  */
 export enum Legacy {
-  LegacyDrawing= 'use-legacy-drawing'
+  Canvas = 'use-canvas-context',
+  LegacyDrawing = 'use-legacy-drawing'
 }
 
 /**
@@ -39,6 +40,24 @@ export class Flags {
   public static _reset() {
     Flags._FROZEN = false;
     Flags._FLAGS = {};
+  }
+
+  /**
+   * Turn on webgl support
+   */
+  public static useWebGL() {
+    Flags.enable(Experiments.WebGL);
+  }
+
+  public static useCanvasGraphicsContext() {
+    Flags.enable(Legacy.Canvas);
+  }
+
+  /**
+   * @deprecated Recommended not to use legacy drawing, going away in v0.26.0
+   */
+  public static useLegacyDrawing() {
+    Flags.enable(Legacy.LegacyDrawing);
   }
 
   /**

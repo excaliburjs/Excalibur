@@ -4,6 +4,8 @@ import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { EventDispatcher } from '../EventDispatcher';
 import { SpriteSheet } from './SpriteSheet';
 import { Logger } from '../Util/Log';
+import { Engine, LegacyDrawing } from '..';
+import { Sprite } from '.';
 
 export interface HasTick {
   /**
@@ -34,14 +36,35 @@ export enum AnimationStrategy {
   Freeze = 'freeze'
 }
 
+/**
+ * Frame of animation
+ */
 export interface Frame {
+  /**
+   * Optionally specify a graphic to show, no graphic shows an empty frame
+   */
   graphic?: Graphic;
-  duration?: number; // number of ms the frame should be visible, overrides the animation duration
+  /**
+   * Optionally specify the number of ms the frame should be visible, overrids the animation duration (default 100 ms)
+   */
+  duration?: number;
 }
 
+/**
+ * Animation options for building an animation via constructor.
+ */
 export interface AnimationOptions {
+  /**
+   * List of frames in the order you wish to play them
+   */
   frames: Frame[];
+  /**
+   * Optionally specify a default frame duration in ms (Default is 1000)
+   */
   frameDuration?: number;
+  /**
+   * Optionally specify the [[AnimationStrategy]] for the Animation
+   */
   strategy?: AnimationStrategy;
 }
 
@@ -52,6 +75,11 @@ export type AnimationEvents = {
   ended: Animation;
 };
 
+/**
+ * Create an Animation given a list of [[Frame|frames]] in [[AnimationOptions]]
+ *
+ * To create an Animation from a [[SpriteSheet]], use [[Animation.fromSpriteSheet]]
+ */
 export class Animation extends Graphic implements HasTick {
   private static _LOGGER = Logger.getInstance();
   public events = new EventDispatcher<any>(this); // TODO replace with new Emitter
@@ -87,10 +115,26 @@ export class Animation extends Graphic implements HasTick {
     });
   }
 
+  /**
+   * Create an Animation from a [[SpriteSheet]], a list of indices into the sprite sheet, a duration per frame
+   * and optional [[AnimationStrategy]]
+   *
+   * Example:
+   * ```typescript
+   * const spriteSheet = SpriteSheet.fromImageSource({...});
+   *
+   * const anim = Animation.fromSpriteSheet(spriteSheet, range(0, 5), 200, AnimationStrategy.Loop);
+   * ```
+   *
+   * @param spriteSheet
+   * @param frameIndices
+   * @param durationPerFrameMs
+   * @param strategy
+   */
   public static fromSpriteSheet(
     spriteSheet: SpriteSheet,
     frameIndices: number[],
-    duration: number,
+    durationPerFrameMs: number,
     strategy: AnimationStrategy = AnimationStrategy.Loop
   ): Animation {
     const maxIndex = spriteSheet.sprites.length - 1;
@@ -105,9 +149,27 @@ export class Animation extends Graphic implements HasTick {
         .filter((_, index) => frameIndices.indexOf(index) > -1)
         .map((f) => ({
           graphic: f,
-          duration: duration
+          duration: durationPerFrameMs
         })),
       strategy: strategy
+    });
+  }
+
+  /**
+   * Converts an animation to a legacy animation
+   * @deprecated
+   * @param engine
+   * @param animation
+   * @returns LegacyDrawing.Animation
+   */
+  public static toLegacyAnimation(engine: Engine, animation: Animation): LegacyDrawing.Animation {
+    const legacySprites = animation.frames.map(f => Sprite.toLegacySprite(f.graphic as Sprite));
+    return new LegacyDrawing.Animation({
+      sprites: legacySprites,
+      loop: animation.strategy === AnimationStrategy.Loop,
+      freezeFrame: animation.strategy === AnimationStrategy.Freeze ? legacySprites.length - 1 : undefined,
+      speed: animation.frameDuration,
+      engine: engine
     });
   }
 

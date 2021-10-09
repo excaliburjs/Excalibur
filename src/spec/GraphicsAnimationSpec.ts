@@ -9,16 +9,16 @@ describe('A Graphics Animation', () => {
   });
 
   it('exists', () => {
-    expect(ex.Graphics.Animation).toBeDefined();
+    expect(ex.Animation).toBeDefined();
   });
 
   it('can be constructed', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
     });
-    const anim = new ex.Graphics.Animation({
+    const anim = new ex.Animation({
       frames: [
         {
           graphic: rect,
@@ -30,12 +30,12 @@ describe('A Graphics Animation', () => {
   });
 
   it('can be cloned', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
     });
-    const anim = new ex.Graphics.Animation({
+    const anim = new ex.Animation({
       frames: [
         {
           graphic: rect,
@@ -43,18 +43,18 @@ describe('A Graphics Animation', () => {
         }
       ],
       frameDuration: 222,
-      strategy: ex.Graphics.AnimationStrategy.Freeze
+      strategy: ex.AnimationStrategy.Freeze
     });
 
     const clone = anim.clone();
 
     expect(clone.frameDuration).toBe(222);
-    expect(clone.strategy).toBe(ex.Graphics.AnimationStrategy.Freeze);
+    expect(clone.strategy).toBe(ex.AnimationStrategy.Freeze);
   });
 
   it('can be defined from a spritesheet', () => {
-    const sourceImage = new ex.Graphics.ImageSource('some/image.png');
-    const ss = ex.Graphics.SpriteSheet.fromGrid({
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
       image: sourceImage,
       grid: {
         spriteWidth: 10,
@@ -63,16 +63,16 @@ describe('A Graphics Animation', () => {
         columns: 10
       }
     });
-    const anim = ex.Graphics.Animation.fromSpriteSheet(ss, [0, 1, 2, 3], 100, ex.Graphics.AnimationStrategy.Freeze);
+    const anim = ex.Animation.fromSpriteSheet(ss, [0, 1, 2, 3], 100, ex.AnimationStrategy.Freeze);
 
-    expect(anim.strategy).toBe(ex.Graphics.AnimationStrategy.Freeze);
+    expect(anim.strategy).toBe(ex.AnimationStrategy.Freeze);
     expect(anim.frames[0].duration).toBe(100);
     expect(anim.frames.length).toBe(4);
   });
 
   it('warns if constructed with invalid indices', () => {
-    const sourceImage = new ex.Graphics.ImageSource('some/image.png');
-    const ss = ex.Graphics.SpriteSheet.fromGrid({
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
       image: sourceImage,
       grid: {
         spriteWidth: 10,
@@ -84,24 +84,24 @@ describe('A Graphics Animation', () => {
     const logger = ex.Logger.getInstance();
     spyOn(logger, 'warn');
     const invalidIndices = [-1, -2, 101, 102];
-    const anim = ex.Graphics.Animation.fromSpriteSheet(ss, invalidIndices, 100, ex.Graphics.AnimationStrategy.Freeze);
+    const anim = ex.Animation.fromSpriteSheet(ss, invalidIndices, 100, ex.AnimationStrategy.Freeze);
 
     expect(logger.warn).toHaveBeenCalledTimes(1);
     expect(logger.warn).toHaveBeenCalledOnceWith(
       `Indices into SpriteSheet were provided that don\'t exist: ${invalidIndices.join(',')} no frame will be shown`
     );
-    expect(anim.strategy).toBe(ex.Graphics.AnimationStrategy.Freeze);
+    expect(anim.strategy).toBe(ex.AnimationStrategy.Freeze);
     // expect(anim.frames[0].duration).toBe(100);
     expect(anim.frames.length).toBe(0);
   });
 
   it('is playing and looping by default', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
     });
-    const anim = new ex.Graphics.Animation({
+    const anim = new ex.Animation({
       frames: [
         {
           graphic: rect,
@@ -110,16 +110,16 @@ describe('A Graphics Animation', () => {
       ]
     });
     expect(anim.isPlaying).toBe(true);
-    expect(anim.strategy).toBe(ex.Graphics.AnimationStrategy.Loop);
+    expect(anim.strategy).toBe(ex.AnimationStrategy.Loop);
   });
 
   it('only ticks once per frame', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
     });
-    const anim = new ex.Graphics.Animation({
+    const anim = new ex.Animation({
       frames: [
         {
           graphic: rect,
@@ -137,13 +137,13 @@ describe('A Graphics Animation', () => {
   });
 
   it('can be played with end strategy', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
     });
-    const anim = new ex.Graphics.Animation({
-      strategy: ex.Graphics.AnimationStrategy.End,
+    const anim = new ex.Animation({
+      strategy: ex.AnimationStrategy.End,
       frames: [
         {
           graphic: rect,
@@ -162,13 +162,13 @@ describe('A Graphics Animation', () => {
   });
 
   it('can be played with loop strategy', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
     });
-    const anim = new ex.Graphics.Animation({
-      strategy: ex.Graphics.AnimationStrategy.Loop,
+    const anim = new ex.Animation({
+      strategy: ex.AnimationStrategy.Loop,
       frames: [
         {
           graphic: rect,
@@ -191,13 +191,13 @@ describe('A Graphics Animation', () => {
   });
 
   it('can be played with ping pong strategy', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
     });
-    const anim = new ex.Graphics.Animation({
-      strategy: ex.Graphics.AnimationStrategy.PingPong,
+    const anim = new ex.Animation({
+      strategy: ex.AnimationStrategy.PingPong,
       frames: [
         {
           graphic: rect,
@@ -234,13 +234,13 @@ describe('A Graphics Animation', () => {
   });
 
   it('can be played with freeze frame strategy', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
     });
-    const anim = new ex.Graphics.Animation({
-      strategy: ex.Graphics.AnimationStrategy.Freeze,
+    const anim = new ex.Animation({
+      strategy: ex.AnimationStrategy.Freeze,
       frames: [
         {
           graphic: rect,
@@ -265,13 +265,13 @@ describe('A Graphics Animation', () => {
   });
 
   it('has animation events', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
     });
-    const anim = new ex.Graphics.Animation({
-      strategy: ex.Graphics.AnimationStrategy.End,
+    const anim = new ex.Animation({
+      strategy: ex.AnimationStrategy.End,
       frames: [
         {
           graphic: rect,
@@ -284,8 +284,8 @@ describe('A Graphics Animation', () => {
       ]
     });
 
-    const looper = new ex.Graphics.Animation({
-      strategy: ex.Graphics.AnimationStrategy.Loop,
+    const looper = new ex.Animation({
+      strategy: ex.AnimationStrategy.Loop,
       frames: [
         {
           graphic: rect,
@@ -311,13 +311,13 @@ describe('A Graphics Animation', () => {
   });
 
   it('can be paused or reset', () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
     });
-    const anim = new ex.Graphics.Animation({
-      strategy: ex.Graphics.AnimationStrategy.End,
+    const anim = new ex.Animation({
+      strategy: ex.AnimationStrategy.End,
       frames: [
         {
           graphic: rect,
@@ -349,23 +349,23 @@ describe('A Graphics Animation', () => {
   });
 
   it('draws the right frame to the screen', async () => {
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 100,
       height: 100,
       color: ex.Color.Blue
     });
-    const rect2 = new ex.Graphics.Rectangle({
+    const rect2 = new ex.Rectangle({
       width: 90,
       height: 90,
       color: ex.Color.Yellow
     });
-    const rect3 = new ex.Graphics.Rectangle({
+    const rect3 = new ex.Rectangle({
       width: 80,
       height: 80,
       color: ex.Color.Red
     });
-    const anim = new ex.Graphics.Animation({
-      strategy: ex.Graphics.AnimationStrategy.End,
+    const anim = new ex.Animation({
+      strategy: ex.AnimationStrategy.End,
       frames: [
         {
           graphic: rect,

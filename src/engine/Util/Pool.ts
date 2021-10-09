@@ -1,3 +1,5 @@
+import { Logger } from '..';
+
 export interface Poolable {
   /**
    * Any type that is a member of a an object pool will have a reference to teh pool
@@ -11,6 +13,7 @@ export class Pool<Type extends Poolable> {
   public totalAllocations = 0;
   public index = 0;
   public objects: Type[] = [];
+  private _logger = Logger.getInstance();
 
   constructor(
     public builder: (...args: any[]) => Type,
@@ -49,7 +52,9 @@ export class Pool<Type extends Poolable> {
   get(...args: any[]): Type {
     if (this.index === this.maxObjects) {
       // TODO implement hard or soft cap
-      throw new Error('Max pooled objects reached, possible memory leak?');
+      this._logger.warn('Max pooled objects reached, possible memory leak? Doubling');
+      this.maxObjects = this.maxObjects * 2;
+      // throw new Error('Max pooled objects reached, possible memory leak?');
     }
 
     if (this.objects[this.index]) {

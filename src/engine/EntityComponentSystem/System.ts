@@ -75,21 +75,16 @@ implements Observer<AddedEntity | RemovedEntity> {
   /**
    * Optionally run a preupdate before the system processes matching entities
    * @param engine
-   * @param delta Time in milliseconds since the last frame
+   * @param elapsedMs Time in milliseconds since the last frame
    */
-  preupdate?(engine: ContextType, delta: number): void;
+  preupdate?(engine: ContextType, elapsedMs: number): void;
 
   /**
    * Optionally run a postupdate after the system processes matching entities
    * @param engine
-   * @param delta Time in milliseconds since the last frame
+   * @param elapsedMs Time in milliseconds since the last frame
    */
-  postupdate?(engine: ContextType, delta: number): void;
-
-  /**
-   * Optionally run a debug draw step to visualize the internals of the system
-   */
-  debugDraw?(ctx: CanvasRenderingContext2D, delta: number): void;
+  postupdate?(engine: ContextType, elapsedMs: number): void;
 
   /**
    * Systems observe when entities match their types or no longer match their types, override

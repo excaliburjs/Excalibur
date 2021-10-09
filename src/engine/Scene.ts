@@ -1,5 +1,4 @@
 import { ScreenElement } from './ScreenElement';
-import { Physics } from './Physics';
 import {
   InitializeEvent,
   ActivateEvent,
@@ -14,8 +13,6 @@ import {
 } from './Events';
 import { Logger } from './Util/Log';
 import { Timer } from './Timer';
-import { DynamicTreeCollisionBroadphase } from './Collision/DynamicTreeCollisionBroadphase';
-import { CollisionBroadphase } from './Collision/CollisionResolver';
 import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Camera } from './Camera';
@@ -26,15 +23,16 @@ import * as Util from './Util/Util';
 import * as Events from './Events';
 import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
-import { Body } from './Collision/Body';
 import { SystemType } from './EntityComponentSystem/System';
-// import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { obsolete } from './Util/Decorators';
 import { World } from './EntityComponentSystem/World';
+import { MotionSystem } from './Collision/MotionSystem';
+import { CollisionSystem } from './Collision/CollisionSystem';
 import { Entity } from './EntityComponentSystem/Entity';
 import { GraphicsSystem } from './Graphics/GraphicsSystem';
 import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { Flags, Legacy } from './Flags';
+import { DebugSystem } from './Debug/DebugSystem';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -43,15 +41,11 @@ import { Flags, Legacy } from './Flags';
  * Typical usages of a scene include: levels, menus, loading screens, etc.
  */
 export class Scene extends Class implements CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw {
+  private _logger: Logger = Logger.getInstance();
   /**
    * Gets or sets the current camera for the scene
    */
   public camera: Camera = new Camera();
-
-  /**
-   * The actors in the current scene
-   */
-  public actors: Actor[] = [];
 
   /**
    * The ECS world for the scene
@@ -59,19 +53,38 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public world = new World(this);
 
   /**
-   * Physics bodies in the current scene
+   * The actors in the current scene
    */
-  private _bodies: Body[] = [];
+  public get actors(): Actor[] {
+    return this.world.entityManager.entities.filter((e) => {
+      return e instanceof Actor;
+    }) as Actor[];
+  }
+
+  /**
+   * The entities in the current scene
+   */
+  public get entities(): Entity[] {
+    return this.world.entityManager.entities;
+  }
 
   /**
    * The triggers in the current scene
    */
-  public triggers: Trigger[] = [];
+  public get triggers(): Trigger[] {
+    return this.world.entityManager.entities.filter((e) => {
+      return e instanceof Trigger;
+    }) as Trigger[];
+  }
 
   /**
    * The [[TileMap]]s in the scene, if any
    */
-  public tileMaps: TileMap[] = [];
+  public get tileMaps(): TileMap[] {
+    return this.world.entityManager.entities.filter((e) => {
+      return e instanceof TileMap;
+    }) as TileMap[];
+  }
 
   /**
    * Access to the Excalibur engine
@@ -91,17 +104,21 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   private _isInitialized: boolean = false;
-
-  private _broadphase: CollisionBroadphase = new DynamicTreeCollisionBroadphase();
-
-  private _killQueue: Actor[] = [];
-  private _triggerKillQueue: Trigger[] = [];
   private _timers: Timer[] = [];
   private _cancelQueue: Timer[] = [];
-  private _logger: Logger = Logger.getInstance();
 
   constructor() {
     super();
+    // TODO how to people do there own systems
+    // Initialize systems
+    this.world.add(new MotionSystem());
+    this.world.add(new CollisionSystem());
+    if (Flags.isEnabled(Legacy.LegacyDrawing)) {
+      this.world.add(new CanvasDrawingSystem());
+    } else {
+      this.world.add(new GraphicsSystem());
+    }
+    this.world.add(new DebugSystem());
   }
 
   public on(eventName: Events.initialize, handler: (event: InitializeEvent<Scene>) => void): void;
@@ -210,7 +227,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Initializes actors in the scene
    */
   private _initializeChildren(): void {
-    for (const child of this.actors) {
+    for (const child of this.entities) {
       child._initialize(this.engine);
     }
   }
@@ -232,13 +249,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   public _initialize(engine: Engine) {
     if (!this.isInitialized) {
       this.engine = engine;
-
-      // Initialize systems
-      if (Flags.isEnabled(Legacy.LegacyDrawing)) {
-        this.world.add(new CanvasDrawingSystem());
-      } else {
-        this.world.add(new GraphicsSystem());
-      }
+      // Initialize camera first
+      this.camera._initialize(engine);
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
@@ -326,12 +338,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public update(engine: Engine, delta: number) {
     this._preupdate(engine, delta);
-    this.world.update(SystemType.Update, delta);
-
     if (this.camera) {
       this.camera.update(engine, delta);
     }
-
+    // TODO differed entity removal for timers
     let i: number, len: number;
     // Remove timers in the cancel queue before updating them
     for (i = 0, len = this._cancelQueue.length; i < len; i++) {
@@ -344,68 +354,13 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       timer.update(delta);
     }
 
-    for (const entity of this.world.entityManager.entities) {
-      entity.update(engine, delta);
-    }
-
-    // Cycle through actors updating actors
-    for (i = 0, len = this.actors.length; i < len; i++) {
-      this._bodies[i] = this.actors[i].body;
-    }
+    this.world.update(SystemType.Update, delta);
 
     this._collectActorStats(engine);
 
     engine.input.pointers.dispatchPointerEvents();
 
-    // Run the broadphase and narrowphase
-    if (this._broadphase && Physics.enabled) {
-      const beforeBroadphase = Date.now();
-      this._broadphase.update(this._bodies, delta);
-      let pairs = this._broadphase.broadphase(this._bodies, delta, engine.stats.currFrame);
-      const afterBroadphase = Date.now();
-
-      const beforeNarrowphase = Date.now();
-      let iter: number = Physics.collisionPasses;
-      const collisionDelta = delta / iter;
-      while (iter > 0) {
-        // Run the narrowphase
-        pairs = this._broadphase.narrowphase(pairs, engine.stats.currFrame);
-        // Run collision resolution strategy
-        pairs = this._broadphase.resolve(pairs, collisionDelta, Physics.collisionResolutionStrategy);
-
-        this._broadphase.runCollisionStartEnd(pairs);
-
-        iter--;
-      }
-
-      const afterNarrowphase = Date.now();
-      engine.stats.currFrame.physics.broadphase = afterBroadphase - beforeBroadphase;
-      engine.stats.currFrame.physics.narrowphase = afterNarrowphase - beforeNarrowphase;
-    }
-
-    engine.stats.currFrame.actors.killed = this._killQueue.length + this._triggerKillQueue.length;
-
-    this._processKillQueue(this._killQueue, this.actors);
-    this._processKillQueue(this._triggerKillQueue, this.triggers);
-
     this._postupdate(engine, delta);
-  }
-
-  private _processKillQueue(killQueue: Actor[], collection: Actor[]) {
-    // Remove actors from scene graph after being killed
-    let actorIndex: number;
-    for (const killed of killQueue) {
-      //don't remove actors that were readded during the same frame they were killed
-      if (killed.isKilled()) {
-        actorIndex = collection.indexOf(killed);
-        if (actorIndex > -1) {
-          collection.splice(actorIndex, 1);
-          this.world.remove(killed);
-          killed.children.forEach((c) => this.world.remove(c));
-        }
-      }
-    }
-    killQueue.length = 0;
   }
 
   /**
@@ -418,17 +373,21 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     this.world.update(SystemType.Draw, delta);
 
+    if (this.engine?.isDebug) {
+      this.debugDraw(ctx);
+    }
     this._postdraw(ctx, delta);
   }
 
   /**
    * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
    * @param ctx  The current rendering context
+   * @deprecated
    */
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
-    this._broadphase.debugDraw(ctx, 20);
+    // pass
     this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
   }
 
@@ -470,44 +429,14 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
+    this.emit('entityadded', { target: entity } as any);
     this.world.add(entity);
-    if (entity instanceof Actor) {
-      entity.unkill();
-    }
-    if (entity instanceof Actor) {
-      if (!Util.contains(this.actors, entity)) {
-        this._broadphase.track(entity.body);
-        entity.scene = this;
-        if (entity instanceof Trigger) {
-          this.triggers.push(entity);
-        } else {
-          this.actors.push(entity);
-        }
-        // TODO remove after collision ecs
-        entity.children.forEach((c) => this.add(c));
-        entity.childrenAdded$.register({
-          notify: (e) => {
-            this.add(e);
-          }
-        });
-        entity.childrenRemoved$.register({
-          notify: (e) => {
-            this.remove(e);
-          }
-        });
-      }
-      return;
-    }
+    entity.scene = this;
     if (entity instanceof Timer) {
       if (!Util.contains(this._timers, entity)) {
         this.addTimer(entity);
       }
       return;
-    }
-    if (entity instanceof TileMap) {
-      if (!Util.contains(this.tileMaps, entity)) {
-        this.addTileMap(entity);
-      }
     }
   }
 
@@ -537,26 +466,12 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
-    this.world.remove(entity);
-    if (entity instanceof Actor) {
-      if (!Util.contains(this.actors, entity)) {
-        return;
-      }
-      this._broadphase.untrack(entity.body);
-      if (entity instanceof Trigger) {
-        this._triggerKillQueue.push(entity);
-      } else {
-        if (!entity.isKilled()) {
-          entity.kill();
-        }
-        this._killQueue.push(entity);
-      }
+    if (entity instanceof Entity) {
+      this.emit('entityremoved', { target: entity } as any);
+      this.world.remove(entity);
     }
     if (entity instanceof Timer) {
       this.removeTimer(entity);
-    }
-    if (entity instanceof TileMap) {
-      this.removeTileMap(entity);
     }
   }
 
@@ -586,7 +501,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add' })
   public addTileMap(tileMap: TileMap) {
-    this.tileMaps.push(tileMap);
     this.world.add(tileMap);
   }
 
@@ -596,11 +510,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove' })
   public removeTileMap(tileMap: TileMap) {
-    const index = this.tileMaps.indexOf(tileMap);
-    if (index > -1) {
-      this.tileMaps.splice(index, 1);
-      this.world.remove(tileMap);
-    }
+    this.world.remove(tileMap);
   }
 
   /**
@@ -650,7 +560,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   private _collectActorStats(engine: Engine) {
-    for (const _ui of this.screenElements) {
+    const screenElements = this.actors.filter((a) => a instanceof ScreenElement) as ScreenElement[];
+    for (const _ui of screenElements) {
       engine.stats.currFrame.actors.ui++;
     }
 

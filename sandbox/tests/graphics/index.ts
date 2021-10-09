@@ -17,7 +17,7 @@ class Game extends ex.Engine {
   public start() {
     const scene = new ex.Scene();
     const actor = new ex.Actor({ pos: ex.vec(150, 150) });
-    const circle = new ex.Graphics.Circle({
+    const circle = new ex.Circle({
       radius: 30,
       strokeColor: ex.Color.DarkGray,
       lineWidth: 10,
@@ -36,7 +36,7 @@ class Game extends ex.Engine {
     return super.start(loader);
   }
 
-  private async simulate(circle: ex.Graphics.Circle) {
+  private async simulate(circle: ex.Circle) {
     while (true) {
       await ex.Util.delay(1000);
       circle.color = ex.Color.Red;

@@ -7,6 +7,57 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+-
+### Added
+
+- 
+### Changed
+
+- 
+### Deprecated
+
+- 
+### Removed
+
+-
+### Fixed
+
+- 
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.25.0] - 2021-10-03
+
+### Breaking Changes
+
+- Actor Drawing: `ex.Actor.addDrawing`, `ex.Actor.setDrawing`, `onPostDraw()`, and `onPreDraw()` are no longer on by default and will be removed in v0.26.0, they are available behind a flag `ex.Flags.useLegacyDrawing()`
+  - For custom drawing use the `ex.Canvas`
+- `ex.Actor.rx` has been renamed to `ex.Actor.angularVelocity`
+- Rename `ex.Edge` to `ex.EdgeCollider` and `ex.ConvexPolygon` to `ex.PolygonCollider` to avoid confusion and maintian consistency
+- `ex.Label` constructor now only takes the option bag constructor and the font properties have been replaced with `ex.Font`
+  ```typescript
+  const label = new ex.Label({
+    text: 'My Text',
+    x: 100,
+    y: 100,
+    font: new ex.Font({
+      family: 'Consolas',
+      size: 32
+    })
+  });
+  ```
+- `ex.Physics.debug` properties for Debug drawing are now moved to `engine.debug.physics`, `engine.debug.collider`, and `engine.debug.body`.
+  - Old `debugDraw(ctx: CanvasRenderingContext2D)` methods are removed.
+- Collision `Pair`'s are now between Collider's and not bodies
+- `PerlinNoise` has been removed from the core repo will now be offered as a [plugin](https://github.com/excaliburjs/excalibur-perlin)
+- Legacy drawing implementations are moved behind `ex.LegacyDrawing` new Graphics implemenations of `Sprite`, `SpriteSheet`, `Animation` are now the default import.
+  - To use any of the `ex.LegacyDrawing.*` implementations you must opt-in with the `ex.Flags.useLegacyDrawing()` note: new graphics do not work in this egacy mode
+- Renames `CollisionResolutionStrategy.Box` collision resolution strategy to `Arcade`
+- Renames `CollisionResolutionStrategy.RigidBody` collision resolution strategy to `Realistic`
+- `Collider` is now a first class type and encapsulates what `Shape` used to be. `Collider` is no longer a member of the `Body`
+- `CollisionType` and `CollisionGroup` are now a member of the `Body` component, the reasoning is they define how the simulated physics body will behave in simulation.
 - `Timer`'s no longer automatically start when added to a `Scene`, this `Timer.start()` must be called. ([#1865](ttps://github.com/excaliburjs/Excalibur/issues/1865))
 - `Timer.complete` is now read-only to prevent odd bugs, use `reset()`, `stop()`, and `start()` to manipulate timers.
 - `Actor.actions.repeat()` and `Actor.actions.repeatForever()` now require a handler that specifies the actions to repeat. This is more clear and helps prevent bugs like #1891
@@ -26,9 +77,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   ```
 
 - Removes `Entity.components` as a way to access, add, and remove components
-- Camera.z has been renamed to property `zoom` which is the zoom factor
-- Camera.zoom(...) has been renamed to function `zoomOverTime()`
-- TileMap no longer needs registered SpriteSheets, `Sprite`'s can be added directly to `Cell`'s with `addSprite`
+- `ex.Camera.z` has been renamed to property `ex.Camera.zoom` which is the zoom factor
+- `ex.Camera.zoom(...)` has been renamed to function `ex.Camera.zoomOverTime()`
+- TileMap no longer needs registered SpriteSheets, `Sprite`'s can be added directly to `Cell`'s with `addGraphic`
   - The confusing `TileSprite` type is removed (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
 - Directly changing debug drawing by `engine.isDebug = value` has been replaced by `engine.showDebug(value)` and `engine.toggleDebug()` ([#1655](https://github.com/excaliburjs/Excalibur/issues/1655))
 - `UIActor` Class instances need to be replaced to `ScreenElement` (This Class it's marked as Obsolete) ([#1656](https://github.com/excaliburjs/Excalibur/issues/1656))
@@ -47,6 +98,33 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- New property `center` to `Screen` to encapsulate screen center coordinates calculation considering zoom and device pixel ratio
+- New `ex.Shape.Capsule(width, height)` helper for defining capsule colliders, these are useful for ramps or jagged floor colliders.
+- New collision group constructor argument added to Actor`new Actor({collisionGroup: collisionGroup})`
+- `SpriteSheet.getSprite(x, y)` can retrieve a sprite from the SpriteSheet by x and y coordinate. For example, `getSprite(0, 0)` returns the top left sprite in the sheet.
+  - `SpriteSheet`'s now have dimensionality with `rows` and `columns` optionally specified, if not there is always 1 row, and `sprites.length` columns
+- `new Actor({radius: 10})` can now take a radius parameter to help create circular actors
+- The `ExcaliburGraphicsContext` now supports drawing debug text
+- `Entity` may also now optionally have a `name`, this is useful for finding entities by name or when displaying in debug mode.
+- New `DebugSystem` ECS system will show debug drawing output for things toggled on/off in the `engine.debug` section, this allows for a less cluttered debug experience.
+  - Each debug section now has a configurable color.
+- Turn on WebGL support with `ex.Flags.useWebGL()`
+- Added new helpers to `CollisionGroup` to define groups that collide with specified groups `CollisionGroup.collidesWith([groupA, groupB])`
+  - Combine groups with `const groupAandB = CollisionGroup.combine([groupA, groupB])`
+  - Invert a group instance `const everthingButGroupA = groupA.invert()`
+- Improved Collision Simulation
+  - New ECS based `CollisionSystem` and `MotionSystem`
+  - Rigid body's can now sleep for improved performance
+  - Multiple contacts now supported which improves stability
+  - Iterative solver for improved stability
+- Added `ColliderComponent` to hold individual `Collider` implementations like `Circle`, `Box`, or `CompositeCollider`
+  - `Actor.collider.get()` will get the current collider
+  - `Actor.collider.set(someCollider)` allows you to set a specific collider
+- New `CompositeCollider` type to combine multiple colliders together into one for an entity
+  - Composite colliders flatten into their individual colliders in the collision system
+  - Composite collider keeps it's internal colliders in a DynamicTree for fast `.collide` checks
+- New `TransformComponent` to encapsulate Entity transform, that is to say position, rotation, and scale
+- New `MotionComponent` to encapsulate Entity transform values changing over time like velocity and acceleration
 - Added multi-line support to `Text` graphics ([#1866](https://github.com/excaliburjs/Excalibur/issues/1866))
 - Added `TileMap` arbitrary graphics support with `.addGraphic()` ([#1862](https://github.com/excaliburjs/Excalibur/issues/1862))
 - Added `TileMap` row and column accessors `getRows()` and `getColumns()` ([#1859](https://github.com/excaliburjs/Excalibur/issues/1859))
@@ -83,6 +161,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- `Gif` now supports new graphics component
+- `Algebra.ts` refactored into separate files in `Math/`
+- Engine/Scene refactored to make use of the new ECS world which simplifies their logic
+- `TileMap` now uses the built in `Collider` component instead of custom collision code.
 - Updates the Excalibur ECS implementation for ease of use and Excalibur draw system integration
   - Adds "ex." namespace to built in component types like "ex.transform"
   - Adds `ex.World` to encapsulate all things ECS
@@ -95,14 +177,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Removed UIActor Stub in favor of ScreenElement ([#1656](https://github.com/excaliburjs/Excalibur/issues/1656))
 - `ex.SortedList` as deprecated
 - `ex.Promise` is marked deprecated ([#994](https://github.com/excaliburjs/Excalibur/issues/994))
-- `DisplayMode.Position` CSS can accomplish this task better than Excalibur ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
+- `ex.DisplayMode.Position` CSS can accomplish this task better than Excalibur ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
 
 ### Removed
 
 ### Fixed
 
-- Fixed issue where `GraphicsOptions` `width/height` could not be used to define a `Sprite` with equivalent `sourceView` and `destSize` ([#1863](https://github.com/excaliburjs/Excalibur/issues/1863))
-- Fixed issue where `Scene.onActivate/onDeactivate` were called with the wrong arguments ([#1850](https://github.com/excaliburjs/Excalibur/issues/1850))
+- Fixed allow `ex.ColliderComponent` to not have a collider
+- Fixed issue where collision events were not being forwarded from individual colliders in a `ex.CompositeCollider`
+- Fixed issue where `ex.CompositeCollider`'s individual colliders were erroneously generating pairs
+- Fixed issue where `GraphicsOptions` `width/height` could not be used to define a `ex.Sprite` with equivalent `sourceView` and `destSize` ([#1863](https://github.com/excaliburjs/Excalibur/issues/1863))
+- Fixed issue where `ex.Scene.onActivate/onDeactivate` were called with the wrong arguments ([#1850](https://github.com/excaliburjs/Excalibur/issues/1850))
 - Fixed issue where no width/height argmunents to engine throws an error
 - Fixed issue where zero dimension image draws on the ExcaliburGraphicsContext throw an error
 - Fixed issue where the first scene onInitialize fires at Engine contructor time and before the "play button" clicked ([#1900](https://github.com/excaliburjs/Excalibur/issues/1900))
@@ -115,7 +200,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Entity update lifecycle is now called correctly
 - Fixed GraphicsSystem `enterviewport` and `exitviewport` event
 - Fixed DOM element leak when restarting games, play button elements piled up in the DOM.
-- Fixed issues with `Sprite` not rotating/scaling correctly around the anchor (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
+- Fixed issues with `ex.Sprite` not rotating/scaling correctly around the anchor (Related to TileMap plugin updates https://github.com/excaliburjs/excalibur-tiled/issues/4, https://github.com/excaliburjs/excalibur-tiled/issues/23, https://github.com/excaliburjs/excalibur-tiled/issues/108)
   - Optionally specify whether to draw around the anchor or not `drawAroundAnchor`
 - Fixed in the browser "FullScreen" api, coordinates are now correctly mapped from page space to world space ([#1734](https://github.com/excaliburjs/Excalibur/issues/1734))
 - Fix audio decoding bug introduced in https://github.com/excaliburjs/Excalibur/pull/1707
@@ -128,9 +213,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed `anchor` properly of single shape `Actor` [#1535](https://github.com/excaliburjs/Excalibur/issues/1535)
 - Fixed Safari bug where `Sound` resources would fail to load ([#1848](https://github.com/excaliburjs/Excalibur/issues/1848))
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [[0.24.5] - 2020-09-07
 

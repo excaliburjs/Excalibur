@@ -10,8 +10,8 @@ import {
 
 import { Matrix } from '../../Math/matrix';
 import { TransformStack } from './transform-stack';
-import { Vector, vec } from '../../Algebra';
-import { Color } from '../../Drawing/Color';
+import { Vector, vec } from '../../Math/vector';
+import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { Logger } from '../../Util/Log';
 import { LineRenderer } from './line-renderer';
@@ -19,8 +19,10 @@ import { ImageRenderer } from './image-renderer';
 import { PointRenderer } from './point-renderer';
 import { Canvas } from '../Canvas';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
+import { DebugText } from './debug-text';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
+  private _debugText = new DebugText();
   constructor(private _webglCtx: ExcaliburGraphicsContextWebGL) {}
 
   /**
@@ -54,6 +56,10 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
    */
   drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
     this._webglCtx.__pointRenderer.addPoint(point, pointOptions.color, pointOptions.size);
+  }
+
+  drawText(text: string, pos: Vector) {
+    this._debugText.write(this._webglCtx, text, pos);
   }
 }
 
@@ -223,6 +229,18 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       return;
     }
     this.__imageRenderer.addImage(image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+  }
+
+  public drawLine(start: Vector, end: Vector, color: Color, thickness = 1) {
+    this.__imageRenderer.addLine(color, start, end, thickness);
+  }
+
+  public drawRectangle(pos: Vector, width: number, height: number, color: Color) {
+    this.__imageRenderer.addRectangle(color, pos, width, height);
+  }
+
+  public drawCircle(pos: Vector, radius: number, color: Color) {
+    this.__imageRenderer.addCircle(pos, radius, color);
   }
 
   debug = new ExcaliburGraphicsContextWebGLDebug(this);

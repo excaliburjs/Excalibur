@@ -1,5 +1,9 @@
 import { Component } from '../EntityComponentSystem';
 
+/**
+ * Shim to draw to the canvas when in LegacyDrawing mode
+ * @deprecated
+ */
 export class CanvasDrawComponent extends Component<'ex.canvas'> {
   public readonly type = 'ex.canvas';
 

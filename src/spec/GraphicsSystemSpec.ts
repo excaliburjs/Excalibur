@@ -13,9 +13,9 @@ describe('A Graphics ECS System', () => {
 
     engine = TestUtils.engine({ width: 100, height: 100 });
     entities = [
-      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.Graphics.GraphicsComponent()),
-      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.Graphics.GraphicsComponent()),
-      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.Graphics.GraphicsComponent())
+      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
+      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent()),
+      new ex.Entity().addComponent(new ex.TransformComponent()).addComponent(new ex.GraphicsComponent())
     ];
     entities[0].get(TransformComponent).z = 10;
     entities[1].get(TransformComponent).z = 5;
@@ -23,11 +23,11 @@ describe('A Graphics ECS System', () => {
   });
 
   it('exists', () => {
-    expect(ex.Graphics.GraphicsSystem).toBeDefined();
+    expect(ex.GraphicsSystem).toBeDefined();
   });
 
   it('sorts entities by transform.z', () => {
-    const sut = new ex.Graphics.GraphicsSystem();
+    const sut = new ex.GraphicsSystem();
     engine.currentScene._initialize(engine);
     sut.initialize(engine.currentScene);
     const es = [...entities];
@@ -36,12 +36,12 @@ describe('A Graphics ECS System', () => {
   });
 
   it('decorates offscreen entities with "offscreen" tag', () => {
-    const sut = new ex.Graphics.GraphicsSystem();
+    const sut = new ex.GraphicsSystem();
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene._initialize(engine);
     sut.initialize(engine.currentScene);
 
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 25,
       height: 25,
       color: ex.Color.Yellow
@@ -76,23 +76,23 @@ describe('A Graphics ECS System', () => {
   });
 
   it('draws entities with transform and graphics components', async () => {
-    const sut = new ex.Graphics.GraphicsSystem();
+    const sut = new ex.GraphicsSystem();
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene._initialize(engine);
     sut.initialize(engine.currentScene);
 
-    const rect = new ex.Graphics.Rectangle({
+    const rect = new ex.Rectangle({
       width: 25,
       height: 25,
       color: ex.Color.Yellow
     });
 
-    const circle = new ex.Graphics.Circle({
+    const circle = new ex.Circle({
       radius: 13,
       color: ex.Color.Green
     });
 
-    const rect2 = new ex.Graphics.Rectangle({
+    const rect2 = new ex.Rectangle({
       width: 25,
       height: 25,
       color: ex.Color.Red

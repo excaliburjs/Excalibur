@@ -1,5 +1,5 @@
 import { Resource } from '../Resources/Resource';
-import { Texture } from '../Resources/Texture';
+import { Texture } from '../Drawing/Texture';
 import { Sprite } from './Sprite';
 import { Loadable } from '../Interfaces/Index';
 import { Logger } from '../Util/Log';
@@ -82,8 +82,8 @@ export class ImageSource implements Loadable<HTMLImageElement> {
 
       // Set results
       this.data = image;
-    } catch {
-      await Promise.reject('Error loading texture');
+    } catch (error) {
+      throw `Error loading ImageSource from path '${this.path}' with error [${error.message}]`;
     }
     // todo emit complete
     this._loadedResolve(this.data);

@@ -17,6 +17,7 @@ describe('A scene', () => {
     spyOn(actor, 'draw');
     engine.removeScene('root');
     engine.addScene('root', scene);
+    engine.goToScene('root');
     engine.start();
   });
 
@@ -55,11 +56,15 @@ describe('A scene', () => {
 
   it('draws onscreen Actors', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos = ex.vec(0, 0);
-    actor.width = 10;
-    actor.height = 10;
+    actor.pos.x = 0;
+    actor.pos.y = 0;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -71,11 +76,15 @@ describe('A scene', () => {
 
   it('draws onscreen Actors left', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos = ex.vec(-4, 0);
-    actor.width = 10;
-    actor.height = 10;
+    actor.pos.x = -4;
+    actor.pos.y = 0;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -86,11 +95,15 @@ describe('A scene', () => {
   });
   it('does not draw offscreen Actors left', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos = ex.vec(-6, 0);
-    actor.width = 10;
-    actor.height = 10;
+    actor.pos.x = -6;
+    actor.pos.y = 0;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -102,11 +115,15 @@ describe('A scene', () => {
 
   it('draws onscreen Actors top', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos = ex.vec(0, -4);
-    actor.width = 10;
-    actor.height = 10;
+    actor.pos.x = 0;
+    actor.pos.y = -4;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -118,11 +135,15 @@ describe('A scene', () => {
 
   it('does not draw offscreen Actors top', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos = ex.vec(0, -6);
-    actor.width = 10;
-    actor.height = 10;
+    actor.pos.x = 0;
+    actor.pos.y = -6;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -134,11 +155,15 @@ describe('A scene', () => {
 
   it('draws onscreen Actors right', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos = ex.vec(104, 0);
-    actor.width = 10;
-    actor.height = 10;
+    actor.pos.x = 104;
+    actor.pos.y = 0;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -150,11 +175,15 @@ describe('A scene', () => {
 
   it('does not draw offscreen Actors right', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos = ex.vec(106, 0);
-    actor.width = 10;
-    actor.height = 10;
+    actor.pos.x = 106;
+    actor.pos.y = 0;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -166,11 +195,15 @@ describe('A scene', () => {
 
   it('draws onscreen Actors bottom', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos = ex.vec(0, 104);
-    actor.width = 10;
-    actor.height = 10;
+    actor.pos.x = 0;
+    actor.pos.y = 104;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -182,11 +215,15 @@ describe('A scene', () => {
 
   it('does not draw offscreen Actors bottom', () => {
     engine.goToScene('root');
+    const actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
+    spyOn(actor, 'draw');
     actor.traits.length = 0;
     actor.traits.push(new ex.Traits.OffscreenCulling());
-    actor.pos = ex.vec(0, 106);
-    actor.width = 10;
-    actor.height = 10;
+    actor.pos.x = 0;
+    actor.pos.y = 106;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -198,13 +235,18 @@ describe('A scene', () => {
 
   it('does not draw offscreen Actors', () => {
     engine.goToScene('root');
-    actor.pos = ex.vec(1000, 1000);
+    const actor = new ex.Actor({
+      width: 5,
+      height: 5
+    });
+    spyOn(actor, 'draw');
+    actor.pos.x = 1000;
+    actor.pos.y = 1000;
     scene.update(engine, 100);
     expect(actor.isOffScreen).toBeFalsy();
 
-    actor.pos = ex.vec(1010, 1010);
-    actor.width = 5;
-    actor.height = 5;
+    actor.pos.x = 1010;
+    actor.pos.y = 1010;
 
     scene.add(actor);
     scene.update(engine, 100);
@@ -284,9 +326,12 @@ describe('A scene', () => {
   });
 
   it('fires initialize before activate', (done) => {
-    const scene = new ex.Scene();
+    engine = TestUtils.engine({ width: 100, height: 100 });
+    scene = new ex.Scene();
+
     engine.removeScene('root');
     engine.addScene('root', scene);
+
     let initialized = false;
     scene.on('initialize', (evt: ex.InitializeEvent) => {
       initialized = true;
@@ -301,9 +346,12 @@ describe('A scene', () => {
   });
 
   it('fires initialize before actor initialize before activate', (done) => {
-    const scene = new ex.Scene();
+    engine = TestUtils.engine({ width: 100, height: 100 });
+    scene = new ex.Scene();
+
     engine.removeScene('root');
     engine.addScene('root', scene);
+
     let sceneInitialized = false;
     const sceneActivated = false;
     let actorInitialized = false;
@@ -324,14 +372,15 @@ describe('A scene', () => {
     scene.add(actor);
     engine.goToScene('root');
     engine.start();
-    //scene.update(engine, 100);
-    //scene.update(engine, 100);
   });
 
   it('can only be initialized once', () => {
-    const scene = new ex.Scene();
+    engine = TestUtils.engine({ width: 100, height: 100 });
+    scene = new ex.Scene();
+
     engine.removeScene('root');
     engine.addScene('root', scene);
+
     let initializeCount = 0;
     scene.on('initialize', (evt) => {
       initializeCount++;
@@ -349,9 +398,12 @@ describe('A scene', () => {
   });
 
   it('should initialize before actors in the scene', () => {
-    const scene = new ex.Scene();
+    engine = TestUtils.engine({ width: 100, height: 100 });
+    scene = new ex.Scene();
+
     engine.removeScene('root');
     engine.addScene('root', scene);
+
     const actor = new ex.Actor();
     scene.add(actor);
     let sceneInit = false;
@@ -436,7 +488,7 @@ describe('A scene', () => {
     actor.kill();
     scene.add(actor);
 
-    scene.update(engine, 10); //call _processKillQueue
+    scene.update(engine, 10); // deferred removals are processed
 
     expect(scene.actors.indexOf(actor)).toBe(0);
     expect(scene.actors.length).toBe(1);
@@ -527,7 +579,7 @@ describe('A scene', () => {
 
   it('will not kill the actor if it is already dead', () => {
     scene.add(actor);
-    (actor as any)._isKilled = true;
+    actor.active = false;
 
     spyOn(actor, 'kill').and.callThrough();
 
@@ -540,7 +592,8 @@ describe('A scene', () => {
     spyOn(scene, 'remove').and.callThrough();
 
     actor.kill();
-    expect(scene.remove).toHaveBeenCalledTimes(1);
+    scene.update(engine, 100);
+    expect(scene.actors).not.toContain(actor);
     expect(actor.isKilled()).toBe(true);
   });
 
@@ -628,6 +681,7 @@ describe('A scene', () => {
     });
 
     it('can have onPostUpdate overridden safely', () => {
+      scene._initialize(engine);
       scene.onPostUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -644,6 +698,7 @@ describe('A scene', () => {
     });
 
     it('can have onPreUpdate overridden safely', () => {
+      scene._initialize(engine);
       scene.onPreUpdate = (engine, delta) => {
         expect(engine).not.toBe(null);
         expect(delta).toBe(100);
@@ -660,6 +715,7 @@ describe('A scene', () => {
     });
 
     it('can have onPreDraw overridden safely', () => {
+      scene._initialize(engine);
       scene.onPreDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
@@ -676,6 +732,7 @@ describe('A scene', () => {
     });
 
     it('can have onPostDraw overridden safely', () => {
+      scene._initialize(engine);
       scene.onPostDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);

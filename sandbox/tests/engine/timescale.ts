@@ -18,7 +18,7 @@ game.on('postupdate', () => {
 });
 
 game.start().then(() => {
-  var rect = new ex.Actor(200, 200, 50, 50, ex.Color.Red);
+  var rect = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red});
 
   rect.actions.repeatForever(ctx => {
     ctx.easeTo(300, 200, 600, ex.EasingFunctions.EaseOutCubic)

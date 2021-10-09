@@ -12,7 +12,7 @@ describe('A Gif', () => {
       height: 100
     });
 
-    gif = new ex.Gif('base/src/spec/images/GifSpec/sword.gif', ex.Color.Black.clone());
+    gif = new ex.Gif('src/spec/images/GifSpec/sword.gif', ex.Color.Black.clone());
   });
   afterEach(() => {
     engine.stop();
@@ -31,12 +31,12 @@ describe('A Gif', () => {
     gif.load().then(() => {
       expect(gif).toBeDefined();
 
-      const spriteFrame: ex.Sprite = gif.asSprite();
+      const spriteFrame: ex.LegacyDrawing.Sprite = gif.toLegacySprite();
       expect(spriteFrame).toBeDefined();
       expect(spriteFrame.drawHeight).toBe(100);
       expect(spriteFrame.drawWidth).toBe(100);
 
-      let sprite: ex.Sprite = gif.asSprite();
+      let sprite: ex.LegacyDrawing.Sprite = gif.toLegacySprite();
       expect(gif.isLoaded()).toBe(true);
       sprite.draw(engine.ctx, 0, 0);
 
@@ -45,7 +45,7 @@ describe('A Gif', () => {
 
         engine.ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
 
-        sprite = gif.asSprite(1);
+        sprite = gif.toLegacySprite(1);
         expect(gif.isLoaded()).toBe(true);
         sprite.draw(engine.ctx, 0, 0);
         ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame2.png').then(([canvas, image]) => {
@@ -60,7 +60,7 @@ describe('A Gif', () => {
     gif.load().then(() => {
       // jasmine.addMatchers(ExcaliburMatchers);
       expect(gif).toBeDefined();
-      const spriteSheet: ex.SpriteSheet = gif.asSpriteSheet();
+      const spriteSheet: ex.LegacyDrawing.SpriteSheet = gif.toLegacySpriteSheet();
       const sprite = spriteSheet.getSprite(0);
       sprite.draw(engine.ctx, 0, 0);
 
@@ -75,7 +75,7 @@ describe('A Gif', () => {
   it('should be read as an Animation', (done) => {
     gif.load().then(() => {
       expect(gif).toBeDefined();
-      const animation: ex.Animation = gif.asAnimation(engine, 500);
+      const animation: ex.LegacyDrawing.Animation = gif.toLegacyAnimation(engine, 500);
 
       expect(animation.sprites.length).toBe(2);
       const frame1 = animation.sprites[0];

@@ -4,7 +4,7 @@ import { TestUtils } from './util/TestUtils';
 
 describe('A sprite', () => {
   let engine: ex.Engine;
-  let texture: ex.Texture;
+  let texture: ex.LegacyDrawing.Texture;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     engine = TestUtils.engine({
@@ -12,7 +12,7 @@ describe('A sprite', () => {
       height: 64
     });
 
-    texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true);
   });
   afterEach(() => {
     engine.stop();
@@ -21,7 +21,7 @@ describe('A sprite', () => {
 
   it('should have props set by the constructor', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -57,9 +57,9 @@ describe('A sprite', () => {
   });
 
   it('should throw if no image texture is provided', () => {
-    let s: ex.Sprite = null;
+    let s: ex.LegacyDrawing.Sprite = null;
     try {
-      s = new ex.Sprite({
+      s = new ex.LegacyDrawing.Sprite({
         x: 1,
         y: 1,
         width: 1,
@@ -72,7 +72,7 @@ describe('A sprite', () => {
 
   it('should scale about the anchor', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -94,7 +94,7 @@ describe('A sprite', () => {
 
   it('should rotate about the anchor', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -116,7 +116,7 @@ describe('A sprite', () => {
 
   it('should rotate around center and draw drawAroundAnchor top-left', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -138,7 +138,7 @@ describe('A sprite', () => {
 
   it('should flipHorizontally', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -160,7 +160,7 @@ describe('A sprite', () => {
 
   it('should flipVertically', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -182,7 +182,7 @@ describe('A sprite', () => {
 
   it('can be drawn with opacity', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -208,7 +208,7 @@ describe('A sprite', () => {
 
   it('can be drawn with opacity as an option', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -232,7 +232,7 @@ describe('A sprite', () => {
 
   it('can be inverted', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -258,7 +258,7 @@ describe('A sprite', () => {
 
   it('can be colorized', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -284,7 +284,7 @@ describe('A sprite', () => {
 
   it('can be lightened', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -310,7 +310,7 @@ describe('A sprite', () => {
 
   it('can be darkened', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -336,7 +336,7 @@ describe('A sprite', () => {
 
   it('can be saturated', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -362,7 +362,7 @@ describe('A sprite', () => {
 
   it('can be desaturated', (done) => {
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -388,9 +388,9 @@ describe('A sprite', () => {
 
   it('should always have non-zero dimensions', (done) => {
     texture.load().then(() => {
-      let sprite: ex.Sprite;
+      let sprite: ex.LegacyDrawing.Sprite;
       try {
-        sprite = new ex.Sprite({
+        sprite = new ex.LegacyDrawing.Sprite({
           image: texture,
           x: 0,
           y: 0,
@@ -402,7 +402,7 @@ describe('A sprite', () => {
       }
 
       try {
-        sprite = new ex.Sprite({
+        sprite = new ex.LegacyDrawing.Sprite({
           image: texture,
           x: 0,
           y: 0,

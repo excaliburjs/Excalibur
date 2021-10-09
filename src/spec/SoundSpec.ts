@@ -11,10 +11,9 @@ describe('Sound resource', () => {
   });
 
   beforeEach(() => {
-    sut = new ex.Sound('base/src/spec/images/SoundSpec/test.mp3');
-    expect(sut.path).toBe('base/src/spec/images/SoundSpec/test.mp3');
+    sut = new ex.Sound('src/spec/images/SoundSpec/test.mp3');
+    expect(sut.path).toBe('src/spec/images/SoundSpec/test.mp3');
   });
-
 
   it('should be able to be constructed', () => {
     expect(sut).toBeDefined();
@@ -34,7 +33,6 @@ describe('Sound resource', () => {
   });
 
   it('should fire playbackstart event', async () => {
-
     const playbackSpy = jasmine.createSpy('playbackstart');
 
     sut.on('playbackstart', playbackSpy);
@@ -75,7 +73,7 @@ describe('Sound resource', () => {
   it('should fire volumechange event', () => {
     const volumenChangeSpy = jasmine.createSpy('volume');
 
-    sut.once('volumechange',  volumenChangeSpy);
+    sut.once('volumechange', volumenChangeSpy);
 
     sut.volume = 0.3;
     expect(volumenChangeSpy).toHaveBeenCalledTimes(1);
@@ -83,7 +81,6 @@ describe('Sound resource', () => {
 
   it('should fire pause event', (done) => {
     sut.load().then(() => {
-
       const pauseSpy = jasmine.createSpy('pause');
 
       sut.once('pause', pauseSpy);
@@ -92,7 +89,6 @@ describe('Sound resource', () => {
         sut.pause();
         expect(pauseSpy).toHaveBeenCalledTimes(1);
         done();
-
       });
       sut.play();
     });
@@ -100,7 +96,6 @@ describe('Sound resource', () => {
 
   it('should fire stop event', (done) => {
     sut.load().then(() => {
-
       const stopSpy = jasmine.createSpy('stop');
 
       sut.once('stop', stopSpy);
@@ -118,7 +113,6 @@ describe('Sound resource', () => {
 
   it('should create a new audio instance when played', (done) => {
     sut.load().then(() => {
-
       spyOn(sut, 'instanceCount').and.callThrough();
 
       const initialInstancesCnt = sut.instanceCount();
@@ -135,7 +129,6 @@ describe('Sound resource', () => {
 
   it('should set tracks loop value same as own', (done) => {
     sut.load().then(() => {
-
       sut.loop = true;
 
       sut.once('playbackstart', () => {
@@ -149,7 +142,6 @@ describe('Sound resource', () => {
 
   it('should set tracks volume value same as own', (done) => {
     sut.load().then(() => {
-
       sut.volume = 0.5;
 
       sut.once('playbackstart', () => {
@@ -163,7 +155,6 @@ describe('Sound resource', () => {
 
   it('should set volume with argument sent to play', (done) => {
     sut.load().then(() => {
-
       sut.once('playbackstart', () => {
         expect(sut.volume).toBe(0.5);
         expect(sut.instances[0].volume).toBe(sut.volume);
@@ -176,7 +167,6 @@ describe('Sound resource', () => {
 
   it('should play once and then finish if loop set to false', (done) => {
     sut.load().then(() => {
-
       sut.loop = false;
 
       sut.once('playbackstart', () => {
@@ -191,10 +181,8 @@ describe('Sound resource', () => {
     });
   });
 
-
   it('should stop all currently playing tracks', (done) => {
     sut.load().then(() => {
-
       sut.play();
 
       sut.once('playbackstart', () => {
@@ -231,7 +219,6 @@ describe('Sound resource', () => {
 
   it('should not have any tracks when stopped', (done) => {
     sut.load().then(() => {
-
       sut.play();
 
       sut.once('playbackstart', () => {
@@ -248,7 +235,6 @@ describe('Sound resource', () => {
 
   it('should not remove instance if paused', (done) => {
     sut.load().then(() => {
-
       sut.play();
 
       sut.once('playbackstart', () => {
@@ -265,7 +251,6 @@ describe('Sound resource', () => {
 
   it('should remove tracks as they are done when multiple are playing', (done) => {
     sut.load().then(() => {
-
       sut.loop = false;
       // start playing first track
       sut.play().then(() => {
@@ -288,7 +273,6 @@ describe('Sound resource', () => {
 
   it('should remove multiple tracks when stopped', (done) => {
     sut.load().then(() => {
-
       sut.loop = false;
       // start playing first track
 
@@ -322,7 +306,6 @@ describe('Sound resource', () => {
 
     it('should stop all tracks when engine is stopped', (done) => {
       sut.load().then(() => {
-
         sut.wireEngine(engine);
         sut.play();
 
@@ -341,7 +324,6 @@ describe('Sound resource', () => {
 
     it('should not allow playing tracks when engine is stopped', (done) => {
       sut.load().then(() => {
-
         sut.wireEngine(engine);
         sut.play();
 
@@ -361,7 +343,6 @@ describe('Sound resource', () => {
 
     it('should pause tracks when game is hidden and pauseAudioWhenHidden is true', (done) => {
       sut.load().then(() => {
-
         engine.pauseAudioWhenHidden = true;
         sut.wireEngine(engine);
         sut.play();
@@ -383,7 +364,6 @@ describe('Sound resource', () => {
 
     it('should resume tracks when game is visible from hidden and pauseAudioWhenHidden is true', (done) => {
       sut.load().then(() => {
-
         engine.pauseAudioWhenHidden = true;
         sut.wireEngine(engine);
         sut.play();

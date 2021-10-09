@@ -3,12 +3,12 @@ import { TestUtils } from './util/TestUtils';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('An animation', () => {
-  let animation: ex.Animation;
+  let animation: ex.LegacyDrawing.Animation;
   let engine: ex.Engine;
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
-    animation = new ex.Animation(null, null, 0);
+    animation = new ex.LegacyDrawing.Animation(null, null, 0);
     engine = TestUtils.engine({
       width: 500,
       height: 500
@@ -25,7 +25,7 @@ describe('An animation', () => {
   });
 
   it('should have props set by constructor', () => {
-    const animation = new ex.Animation({
+    const animation = new ex.LegacyDrawing.Animation({
       engine: engine,
       sprites: [],
       speed: 20,
@@ -54,9 +54,9 @@ describe('An animation', () => {
   });
 
   it('should update the animation width/height and sprite anchor, rotation, scale after tick()', (done) => {
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -68,7 +68,7 @@ describe('An animation', () => {
         flipVertical: false,
         flipHorizontal: false
       });
-      const animation = new ex.Animation({
+      const animation = new ex.LegacyDrawing.Animation({
         engine: engine,
         sprites: [sprite],
         speed: 200,
@@ -96,9 +96,9 @@ describe('An animation', () => {
   });
 
   it('should only tick once for an idempotency token', (done) => {
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -110,7 +110,7 @@ describe('An animation', () => {
         flipVertical: false,
         flipHorizontal: false
       });
-      const animation = new ex.Animation({
+      const animation = new ex.LegacyDrawing.Animation({
         engine: engine,
         sprites: [sprite, sprite],
         speed: 200,
@@ -162,9 +162,9 @@ describe('An animation', () => {
       width: 62,
       height: 64
     });
-    const texture = new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true);
+    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true);
     texture.load().then(() => {
-      const sprite = new ex.Sprite({
+      const sprite = new ex.LegacyDrawing.Sprite({
         image: texture,
         x: 0,
         y: 0,
@@ -177,7 +177,7 @@ describe('An animation', () => {
         flipHorizontal: false
       });
 
-      const animation = new ex.Animation(engine, [sprite], 10, true);
+      const animation = new ex.LegacyDrawing.Animation(engine, [sprite], 10, true);
 
       animation.draw({ ctx: engine.ctx, x: 0, y: 0, opacity: 0.1 });
       ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/opacity.png').then(([canvas, image]) => {

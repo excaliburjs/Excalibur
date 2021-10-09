@@ -46,10 +46,10 @@ var buildWorld = function(position) {
     position: position
   });
 
-  var paddle = new ex.Actor(150, game.drawHeight - 40, 200, 20);
+  var paddle = new ex.Actor({x: 150, y: game.drawHeight - 40, width: 200, height: 20});
   paddle.color = ex.Color.Chartreuse;
 
-  paddle.body.collider.type = ex.CollisionType.Fixed;
+  paddle.body.collisionType = ex.CollisionType.Fixed;
 
   game.add(paddle);
 

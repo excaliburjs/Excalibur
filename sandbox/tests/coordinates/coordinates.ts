@@ -14,7 +14,7 @@ function addTestPoint(x, y, ax, ay, s = 1, rd = 0, parent = null) {
   }
 
   if (parent != null) {
-    parent.add(p);
+    parent.addChild(p);
   } else {
     game.add(p);
   }
@@ -27,7 +27,7 @@ function addTestPoint(x, y, ax, ay, s = 1, rd = 0, parent = null) {
 
 class Point extends ex.Actor {
   constructor(x, y, public expectedX, public expectedY) {
-    super(x, y, 3, 3, ex.Color.Red);
+    super({x, y, width: 3, height: 3, color: ex.Color.Red});
   }
 }
 
@@ -36,7 +36,7 @@ class PointLabel extends ex.Actor {
   private _actualLabel: ex.Label;
 
   constructor(public point: Point) {
-    super(0, 0, 0, 0);
+    super({x: 0, y: 0, width: 0, height: 0});
 
     this.anchor.setTo(0, 0);
   }
@@ -44,11 +44,11 @@ class PointLabel extends ex.Actor {
   onInitialize(engine: ex.Engine) {
     super.onInitialize(engine);
 
-    this._expectLabel = new ex.Label('', 5, 10);
+    this._expectLabel = new ex.Label({text: '', x: 5, y: 10});
     this._expectLabel.color = ex.Color.fromHex('#249111');
     this.addChild(this._expectLabel);
 
-    this._actualLabel = new ex.Label('', 5, 20);
+    this._actualLabel = new ex.Label({text: '', x: 5, y: 20});
     this._actualLabel.color = ex.Color.Blue;
     this.addChild(this._actualLabel);
   }
@@ -81,7 +81,13 @@ function isCloseEnough(a, b, t = 1) {
 
 class GridLine extends ex.Actor {
   constructor(dir: 'x' | 'y', pos: number, size: number) {
-    super(dir === 'x' ? pos : 0, dir === 'y' ? pos : 0, dir === 'x' ? 1 : size, dir === 'y' ? 1 : size, ex.Color.fromHex('#dedede'));
+    super({
+      x: dir === 'x' ? pos : 0,
+      y: dir === 'y' ? pos : 0,
+      width: dir === 'x' ? 1 : size,
+      height: dir === 'y' ? 1 : size,
+      color: ex.Color.fromHex('#dedede')
+    });
 
     this.anchor.setTo(0, 0);
   }

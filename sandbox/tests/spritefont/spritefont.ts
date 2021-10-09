@@ -7,14 +7,33 @@ var game = new ex.Engine({
   pointerScope: ex.Input.PointerScope.Canvas
 });
 
-var spriteFontTex = new ex.Texture('spritefont.png');
+var spriteFontTex = new ex.ImageSource('spritefont.png');
+var spriteFontSheet = ex.SpriteSheet.fromImageSource({
+  image: spriteFontTex,
+  grid: {
+    columns: 16,
+    rows: 3,
+    spriteHeight: 16,
+    spriteWidth: 16
+  }
+})
 var label: ex.Label = null;
 var loader = new ex.Loader([spriteFontTex]);
 
-game.start(loader).then(() => {
-  var spriteFont = new ex.SpriteFont(spriteFontTex, '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ', true, 16, 3, 16, 16);
 
-  label = new ex.Label('This is a sprite Font test', game.halfDrawWidth, game.halfDrawHeight, null, spriteFont);
+game.start(loader).then(() => {
+  var spriteFont = new ex.SpriteFont({
+    spriteSheet: spriteFontSheet,
+    alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+    caseInsensitive: true
+  });
+
+  label = new ex.Label({
+    text: 'This is a sprite Font test', 
+    x: game.halfDrawWidth, 
+    y: game.halfDrawHeight,
+    spriteFont: spriteFont
+  });
   label.color = ex.Color.Azure.clone();
   label.letterSpacing = -20;
   label.fontSize = 10;

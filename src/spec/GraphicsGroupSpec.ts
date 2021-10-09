@@ -8,23 +8,23 @@ describe('A Graphics Group', () => {
   });
 
   it('exists', () => {
-    expect(ex.Graphics.GraphicsGroup).toBeDefined();
+    expect(ex.GraphicsGroup).toBeDefined();
   });
 
   it('can be created and drawn', async () => {
-    const rect1 = new ex.Graphics.Rectangle({
+    const rect1 = new ex.Rectangle({
       width: 25,
       height: 25,
       color: ex.Color.Blue
     });
 
-    const rect2 = new ex.Graphics.Rectangle({
+    const rect2 = new ex.Rectangle({
       width: 25,
       height: 25,
       color: ex.Color.Yellow
     });
 
-    const group = new ex.Graphics.GraphicsGroup({
+    const group = new ex.GraphicsGroup({
       members: [
         { pos: ex.vec(0, 0), graphic: rect1 },
         { pos: ex.vec(25, 25), graphic: rect2 }
@@ -39,7 +39,7 @@ describe('A Graphics Group', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.Graphics.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     ctx.clear();
     group.draw(ctx, 25, 25);
@@ -48,10 +48,10 @@ describe('A Graphics Group', () => {
   });
 
   it('can be cloned', () => {
-    const animation = new ex.Graphics.Animation({
+    const animation = new ex.Animation({
       frames: []
     });
-    const group = new ex.Graphics.GraphicsGroup({
+    const group = new ex.GraphicsGroup({
       members: [{ pos: ex.vec(0, 0), graphic: animation }]
     });
 
@@ -60,14 +60,14 @@ describe('A Graphics Group', () => {
   });
 
   it('will tick any graphics that need ticking in the group', () => {
-    const animation = new ex.Graphics.Animation({
+    const animation = new ex.Animation({
       frames: []
     });
     spyOn(animation, 'tick').and.callFake((elapsed, idempot) => {
       // fake
     });
 
-    const group = new ex.Graphics.GraphicsGroup({
+    const group = new ex.GraphicsGroup({
       members: [{ pos: ex.vec(0, 0), graphic: animation }]
     });
 
@@ -76,14 +76,14 @@ describe('A Graphics Group', () => {
   });
 
   it('will tick any graphics that need reseting in the group', () => {
-    const animation = new ex.Graphics.Animation({
+    const animation = new ex.Animation({
       frames: []
     });
     spyOn(animation, 'reset').and.callFake(() => {
       // fake
     });
 
-    const group = new ex.Graphics.GraphicsGroup({
+    const group = new ex.GraphicsGroup({
       members: [{ pos: ex.vec(0, 0), graphic: animation }]
     });
 

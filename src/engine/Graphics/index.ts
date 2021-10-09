@@ -24,3 +24,5 @@ export * from './Canvas';
 export * from './Context/ExcaliburGraphicsContext';
 export * from './Context/ExcaliburGraphicsContext2DCanvas';
 export * from './Context/ExcaliburGraphicsContextWebGL';
+
+export * from './Context/debug-text';

@@ -1,4 +1,4 @@
-import { Texture } from './Resources/Texture';
+import { Texture } from './Drawing/Texture';
 import {
   InitializeEvent,
   KillEvent,
@@ -22,7 +22,7 @@ import {
 } from './Events';
 import { PointerEvent, WheelEvent, PointerDragEvent, PointerEventName } from './Input/PointerEvents';
 import { Engine } from './Engine';
-import { Color } from './Drawing/Color';
+import { Color } from './Color';
 import { Sprite } from './Drawing/Sprite';
 import { Animation } from './Drawing/Animation';
 import { Trait } from './Interfaces/Trait';
@@ -31,26 +31,29 @@ import { CanInitialize, CanUpdate, CanDraw, CanBeKilled } from './Interfaces/Lif
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { ActionContext } from './Actions/ActionContext';
-import { vec, Vector } from './Algebra';
-import { Body } from './Collision/Body';
+import { Vector, vec } from './Math/vector';
+import { BodyComponent } from './Collision/BodyComponent';
 import { Eventable } from './Interfaces/Evented';
 import { Actionable } from './Actions/Actionable';
-import { Configurable } from './Configurable';
 import * as Traits from './Traits/Index';
 import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEventHandlers';
 import { CollisionType } from './Collision/CollisionType';
-import { obsolete } from './Util/Decorators';
-import { Collider } from './Collision/Collider';
-import { Shape } from './Collision/Shape';
 
 import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
+import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Rectangle } from './Graphics/Rectangle';
 import { Flags, Legacy } from './Flags';
+import { obsolete } from './Util/Decorators';
+import { ColliderComponent } from './Collision/ColliderComponent';
+import { Shape } from './Collision/Colliders/Shape';
 import { watch } from './Util/Watch';
+import { Collider, CollisionGroup } from './Collision/Index';
+import { Circle } from './Graphics/Circle';
+import { CapturePointerConfig } from './Input/CapturePointerConfig';
 
 /**
  * Type guard for checking if something is an Actor
@@ -60,38 +63,102 @@ export function isActor(x: any): x is Actor {
   return x instanceof Actor;
 }
 
-export interface ActorArgs extends Partial<ActorImpl> {
+/**
+ * Actor contructor options
+ */
+export interface ActorArgs {
+  /**
+   * Optionally set the name of the actor, default is 'anonymous'
+   */
+  name?: string;
+  /**
+   * Optionally set the x position of the actor, default is 0
+   */
   x?: number;
+  /**
+   * Optionally set the y position of the actor, default is 0
+   */
   y?: number;
-  width?: number;
-  height?: number;
+  /**
+   * Optionaly set the (x, y) position of the actor as a vector, default is (0, 0)
+   */
   pos?: Vector;
+  /**
+   * Optionally set the width of a box collider for the actor
+   */
+  width?: number;
+  /**
+   * Optionally set the height of a box collider for the actor
+   */
+  height?: number;
+  /**
+   * Optionally set the radius of the circle collider for the actor
+   */
+  radius?: number;
+  /**
+   * Optionally set the velocity of the actor in pixels/sec
+   */
   vel?: Vector;
+  /**
+   * Optionally set the acceleration of the actor in pixels/sec^2
+   */
   acc?: Vector;
+  /**
+   * Optionally se the rotation in radians (180 degrees = Math.PI radians)
+   */
   rotation?: number;
-  rx?: number;
+  /**
+   * Optionally set the angular velocity of the actor in radians/sec (180 degrees = Math.PI radians)
+   */
+  angularVelocity?: number;
+  /**
+   * Optionally set the scale of the actor's transform
+   */
+  scale?: Vector;
+  /**
+   * Optionally set the z index of the actor, default is 0
+   */
   z?: number;
+  /**
+   * Optionally set the color of an actor, only used if no graphics are present
+   * If a width/height or a radius was set a default graphic will be added
+   */
   color?: Color;
+  /**
+   * Optionally set the visibility of the actor
+   */
   visible?: boolean;
-  body?: Body;
+  /**
+   * Optionally set the anchor for graphics in the actor
+   */
+  anchor?: Vector;
+  /**
+   * Optionally set the collision type
+   */
   collisionType?: CollisionType;
-}
-
-export interface ActorDefaults {
-  anchor: Vector;
+  /**
+   * Optionally supply a collider for an actor, if supplied ignores any supplied width/height
+   */
+  collider?: Collider;
+  /**
+   * Optionally suppy a [[CollisionGroup]]
+   */
+  collisionGroup?: CollisionGroup;
 }
 
 /**
- * @hidden
+ * The most important primitive in Excalibur is an `Actor`. Anything that
+ * can move on the screen, collide with another `Actor`, respond to events,
+ * or interact with the current scene, must be an actor. An `Actor` **must**
+ * be part of a [[Scene]] for it to be drawn to the screen.
  */
-
-export class ActorImpl extends Entity implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
+export class Actor extends Entity implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
   /**
-   * Indicates the next id to be set
+   * Set defaults for all Actors
    */
-  public static defaults: ActorDefaults = {
+  public static defaults = {
     anchor: Vector.Half
   };
 
@@ -99,29 +166,50 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * The physics body the is associated with this actor. The body is the container for all physical properties, like position, velocity,
    * acceleration, mass, inertia, etc.
    */
-  public get body(): Body {
-    return this._body;
+  public get body(): BodyComponent {
+    return this.get(BodyComponent);
   }
 
-  public set body(body: Body) {
-    this._body = body;
-    this._body.actor = this;
+  /**
+   * Access the Actor's built in [[TransformComponent]]
+   */
+  public get transform(): TransformComponent {
+    return this.get(TransformComponent);
   }
 
-  private _body: Body;
+  /**
+   * Access the Actor's built in [[MotionComponent]]
+   */
+  public get motion(): MotionComponent {
+    return this.get(MotionComponent);
+  }
+
+  /**
+   * Access to the Actor's built in [[GraphicsComponent]]
+   */
+  public get graphics(): GraphicsComponent {
+    return this.get(GraphicsComponent);
+  }
+
+  /**
+   * Access to the Actor's build in [[ColliderComponent]]
+   */
+  public get collider(): ColliderComponent {
+    return this.get(ColliderComponent);
+  }
 
   /**
    * Gets the position vector of the actor in pixels
    */
   public get pos(): Vector {
-    return this.body.pos;
+    return this.transform.pos;
   }
 
   /**
    * Sets the position vector of the actor in pixels
    */
   public set pos(thePos: Vector) {
-    this.body.pos = thePos;
+    this.transform.pos = thePos.clone();
   }
 
   /**
@@ -142,14 +230,14 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * Gets the velocity vector of the actor in pixels/sec
    */
   public get vel(): Vector {
-    return this.body.vel;
+    return this.motion.vel;
   }
 
   /**
    * Sets the velocity vector of the actor in pixels/sec
    */
   public set vel(theVel: Vector) {
-    this.body.vel = theVel;
+    this.motion.vel = theVel.clone();
   }
 
   /**
@@ -171,14 +259,14 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * useful to simulate a gravitational effect.
    */
   public get acc(): Vector {
-    return this.body.acc;
+    return this.motion.acc;
   }
 
   /**
    * Sets the acceleration vector of teh actor in pixels/second/second
    */
   public set acc(theAcc: Vector) {
-    this.body.acc.setTo(theAcc.x, theAcc.y);
+    this.motion.acc = theAcc.clone();
   }
 
   /**
@@ -199,28 +287,36 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * Gets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
    */
   public get rotation(): number {
-    return this.body.rotation;
+    return this.transform.rotation;
   }
 
   /**
    * Sets the rotation of the actor in radians. 1 radian = 180/PI Degrees.
    */
   public set rotation(theAngle: number) {
-    this.body.rotation = theAngle;
+    this.transform.rotation = theAngle;
   }
 
   /**
    * Gets the rotational velocity of the actor in radians/second
    */
-  public get rx(): number {
-    return this.body.rx;
+  public get angularVelocity(): number {
+    return this.motion.angularVelocity;
   }
 
   /**
    * Sets the rotational velocity of the actor in radians/sec
    */
-  public set rx(angularVelocity: number) {
-    this.body.rx = angularVelocity;
+  public set angularVelocity(angularVelocity: number) {
+    this.motion.angularVelocity = angularVelocity;
+  }
+
+  public get scale(): Vector {
+    return this.get(TransformComponent).scale;
+  }
+
+  public set scale(scale: Vector) {
+    this.get(TransformComponent).scale = scale;
   }
 
   /**
@@ -234,87 +330,20 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * values between 0 and 1. For example, anchoring to the top-left would be
    * `Actor.anchor.setTo(0, 0)` and top-right would be `Actor.anchor.setTo(0, 1)`.
    */
-  private _anchor: Vector = watch(Vector.Half, this._handleAnchorChange);
+  private _anchor: Vector = watch(Vector.Half, (v) => this._handleAnchorChange(v));
   public get anchor(): Vector {
     return this._anchor;
   }
 
   public set anchor(vec: Vector) {
-    this._anchor = watch(vec, this._handleAnchorChange);
+    this._anchor = watch(vec, (v) => this._handleAnchorChange(v));
     this._handleAnchorChange(vec);
   }
 
   private _handleAnchorChange(v: Vector) {
-    this.graphics.anchor = v;
-  }
-
-  private _height: number = 0;
-  private _width: number = 0;
-
-  /**
-   * Gets the scale vector of the actor
-   * @obsolete ex.Actor.scale will be removed in v0.25.0, set width and height directly in constructor
-   */
-  public get scale(): Vector {
-    return this.get(TransformComponent).scale;
-  }
-
-  /**
-   * Sets the scale vector of the actor for
-   * @obsolete ex.Actor.scale will be removed in v0.25.0, set width and height directly in constructor
-   */
-  public set scale(scale: Vector) {
-    this.get(TransformComponent).scale = scale;
-  }
-
-  /**
-   * Gets the old scale of the actor last frame
-   * @obsolete ex.Actor.scale will be removed in v0.25.0, set width and height directly in constructor
-   */
-  public get oldScale(): Vector {
-    return this.body.oldScale;
-  }
-
-  /**
-   * Sets the the old scale of the actor last frame
-   * @obsolete ex.Actor.scale will be removed in v0.25.0, set width and height directly in constructor
-   */
-  public set oldScale(scale: Vector) {
-    this.body.oldScale = scale;
-  }
-
-  /**
-   * Gets the x scalar velocity of the actor in scale/second
-   * @obsolete ex.Actor.sx will be removed in v0.25.0, set width and height directly in constructor
-   */
-  public get sx(): number {
-    return this.body.sx;
-  }
-
-  /**
-   * Sets the x scalar velocity of the actor in scale/second
-   * @obsolete ex.Actor.sx will be removed in v0.25.0, set width and height directly in constructor
-   */
-  @obsolete({ message: 'ex.Actor.sx will be removed in v0.25.0', alternateMethod: 'Set width and height directly in constructor' })
-  public set sx(scalePerSecondX: number) {
-    this.body.sx = scalePerSecondX;
-  }
-
-  /**
-   * Gets the y scalar velocity of the actor in scale/second
-   * @obsolete ex.Actor.sy will be removed in v0.25.0, set width and height directly in constructor
-   */
-  public get sy(): number {
-    return this.body.sy;
-  }
-
-  /**
-   * Sets the y scale velocity of the actor in scale/second
-   * @obsolete ex.Actor.sy will be removed in v0.25.0, set width and height directly in constructor
-   */
-  @obsolete({ message: 'ex.Actor.sy will be removed in v0.25.0', alternateMethod: 'Set width and height directly in constructor' })
-  public set sy(scalePerSecondY: number) {
-    this.body.sy = scalePerSecondY;
+    if (this.graphics) {
+      this.graphics.anchor = v;
+    }
   }
 
   /**
@@ -325,7 +354,7 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   }
   /**
    * The visibility of an actor
-   * @deprecated Use [[GraphicsComponent.visible|Actor.graphics.visible]]
+   * @deprecated Use [[GraphicsComponent.visible|Actor.graphics.visible]], will be removed in v0.26.0
    */
   @obsolete({ message: 'Actor.visible will be removed in v0.26.0', alternateMethod: 'Use Actor.graphics.visible' })
   public get visible(): boolean {
@@ -339,21 +368,19 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   /**
    * The opacity of an actor.
    *
-   * @obsolete Actor.opacity will be removed in v0.26.0, use [[GraphicsComponent.opacity|Actor.graphics.opacity]].
+   * @deprecated Actor.opacity will be removed in v0.26.0, use [[GraphicsComponent.opacity|Actor.graphics.opacity]].
    */
   @obsolete({
     message: 'Actor.opacity will be removed in v0.26.0',
     alternateMethod: 'Use Actor.graphics.opacity'
   })
   public get opacity(): number {
-    return this._opacity;
+    return this.graphics.opacity;
   }
 
   public set opacity(opacity: number) {
-    this._opacity = opacity;
+    this.graphics.opacity = opacity;
   }
-
-  private _opacity: number = 1;
 
   /**
    * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
@@ -376,13 +403,13 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * Access to the current drawing for the actor, this can be
    * an [[Animation]], [[Sprite]], or [[Polygon]].
    * Set drawings with [[setDrawing]].
+   * @deprecated
    */
   public currentDrawing: Drawable = null;
 
   /**
    * Draggable helper
    */
-
   private _draggable: boolean = false;
   private _dragging: boolean = false;
 
@@ -448,101 +475,109 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   private _color: Color;
 
   /**
-   * Whether or not to enable the [[CapturePointer]] trait that propagates
+   * Whether or not to enable the [[Traits.CapturePointer]] trait that propagates
    * pointer events to this actor
    */
   public enableCapturePointer: boolean = false;
 
   /**
-   * Configuration for [[CapturePointer]] trait
+   * Configuration for [[Traits.CapturePointer]] trait
    */
-  public capturePointer: Traits.CapturePointerConfig = {
+  public capturePointer: CapturePointerConfig = {
     captureMoveEvents: false,
     captureDragEvents: false
   };
 
-  private _isKilled: boolean = false;
-
   // #endregion
 
-  public transform: TransformComponent;
-  public graphics: GraphicsComponent;
-
   /**
-   * @param xOrConfig The starting x coordinate of the actor, or an option bag of [[ActorArgs]]
-   * @param y         The starting y coordinate of the actor
-   * @param width     The starting width of the actor
-   * @param height    The starting height of the actor
-   * @param color   The starting color of the actor. Leave null to draw a transparent actor.
+   *
+   * @param config
    */
-  constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
-    super([new TransformComponent(), new GraphicsComponent(), new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta))]);
+  constructor(config?: ActorArgs) {
+    super();
 
-    this.transform = this.get(TransformComponent);
-    this.graphics = this.get(GraphicsComponent);
+    const {
+      name,
+      x,
+      y,
+      pos,
+      scale,
+      width,
+      height,
+      radius,
+      collider,
+      vel,
+      acc,
+      rotation,
+      angularVelocity,
+      z,
+      color,
+      visible,
+      anchor,
+      collisionType,
+      collisionGroup
+    } = {
+      ...config
+    };
 
-    // initialize default options
-    this._initDefaults();
+    this._setName(name);
+    this.anchor = anchor ?? Actor.defaults.anchor.clone();
 
-    let shouldInitializeBody = true;
-    let collisionType = CollisionType.Passive;
-    if (xOrConfig && typeof xOrConfig === 'object') {
-      const config = xOrConfig;
-      if (config.pos) {
-        xOrConfig = config.pos ? config.pos.x : 0;
-        y = config.pos ? config.pos.y : 0;
+    this.addComponent(new TransformComponent());
+    this.pos = pos ?? vec(x ?? 0, y ?? 0);
+    this.rotation = rotation ?? 0;
+    this.scale = scale ?? vec(1, 1);
+    this.z = z ?? 0;
+
+    this.addComponent(new GraphicsComponent());
+    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
+    this.addComponent(new MotionComponent());
+    this.vel = vel ?? Vector.Zero;
+    this.acc = acc ?? Vector.Zero;
+    this.angularVelocity = angularVelocity ?? 0;
+
+    this.addComponent(new BodyComponent());
+    this.body.collisionType = collisionType ?? CollisionType.Passive;
+    if (collisionGroup) {
+      this.body.group = collisionGroup;
+    }
+
+    if (collider) {
+      this.addComponent(new ColliderComponent(collider));
+    } else if (radius) {
+      this.addComponent(new ColliderComponent(Shape.Circle(radius, this.anchor)));
+    } else {
+      if (width > 0 && height > 0) {
+        this.addComponent(new ColliderComponent(Shape.Box(width, height, this.anchor)));
       } else {
-        xOrConfig = config.x || 0;
-        y = config.y || 0;
-      }
-      width = config.width;
-      height = config.height;
-      color = config.color;
-
-      if (config.body) {
-        shouldInitializeBody = false;
-        this.body = config.body;
-      }
-
-      if (config.anchor) {
-        this.anchor = config.anchor;
-      }
-
-      if (config.collisionType) {
-        collisionType = config.collisionType;
+        this.addComponent(new ColliderComponent()); // no collider
       }
     }
 
-    // Body and collider bounds are still determined by actor width/height
-    this._width = width || 0;
-    this._height = height || 0;
-
-    // Initialize default collider to be a box
-    if (shouldInitializeBody) {
-      this.body = new Body({
-        collider: new Collider({
-          type: collisionType,
-          shape: Shape.Box(this._width, this._height, this.anchor)
-        })
-      });
-    }
-
-    // Position uses body to store values must be initialized after body
-    this.pos = vec((xOrConfig as number) ?? 0, y ?? 0);
+    this.graphics.visible = visible ?? true;
 
     if (color) {
       this.color = color;
-      this.graphics.add(
-        new Rectangle({
-          color: color,
-          width: this._width,
-          height: this._height
-        })
-      );
+      if (width && height) {
+        this.graphics.add(
+          new Rectangle({
+            color: color,
+            width,
+            height
+          })
+        );
+      } else if (radius) {
+        this.graphics.add(
+          new Circle({
+            color: color,
+            radius
+          })
+        );
+      }
     }
 
     // Build default pipeline
-    this.traits.push(new Traits.TileMapCollisionDetection());
     if (Flags.isEnabled(Legacy.LegacyDrawing)) {
       // TODO remove offscreen trait after legacy drawing removed
       this.traits.push(new Traits.OffscreenCulling());
@@ -575,10 +610,6 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
     for (const child of this.children) {
       child._initialize(engine);
     }
-  }
-
-  private _initDefaults() {
-    this.anchor = Actor.defaults.anchor.clone();
   }
 
   // #region Events
@@ -634,15 +665,15 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   public on(eventName: Events.exittrigger, handler: (event: ExitTriggerEvent) => void): void;
   public on(eventName: Events.entertrigger, handler: (event: EnterTriggerEvent) => void): void;
   /**
-   * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
-   *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
+   * The **collisionstart** event is fired when a [[BodyComponent|physics body]], usually attached to an actor,
+   *  first starts colliding with another [[BodyComponent|body]], and will not fire again while in contact until
    *  the the pair separates and collides again.
    * Use cases for the **collisionstart** event may be detecting when an actor has touched a surface
    * (like landing) or if a item has been touched and needs to be picked up.
    */
   public on(eventName: Events.collisionstart, handler: (event: CollisionStartEvent) => void): void;
   /**
-   * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
+   * The **collisionend** event is fired when two [[BodyComponent|physics bodies]] are no longer in contact.
    * This event will not fire again until another collision and separation.
    *
    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
@@ -701,15 +732,15 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   public once(eventName: Events.exittrigger, handler: (event: ExitTriggerEvent) => void): void;
   public once(eventName: Events.entertrigger, handler: (event: EnterTriggerEvent) => void): void;
   /**
-   * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
-   *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
+   * The **collisionstart** event is fired when a [[BodyComponent|physics body]], usually attached to an actor,
+   *  first starts colliding with another [[BodyComponent|body]], and will not fire again while in contact until
    *  the the pair separates and collides again.
    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface
    * (like landing) or if a item has been touched and needs to be picked up.
    */
   public once(eventName: Events.collisionstart, handler: (event: CollisionStartEvent) => void): void;
   /**
-   * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
+   * The **collisionend** event is fired when two [[BodyComponent|physics bodies]] are no longer in contact.
    * This event will not fire again until another collision and separation.
    *
    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
@@ -768,15 +799,15 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   public off(eventName: Events.exittrigger, handler?: (event: ExitTriggerEvent) => void): void;
   public off(eventName: Events.entertrigger, handler?: (event: EnterTriggerEvent) => void): void;
   /**
-   * The **collisionstart** event is fired when a [[Body|physics body]], usually attached to an actor,
-   *  first starts colliding with another [[Body|body]], and will not fire again while in contact until
+   * The **collisionstart** event is fired when a [[BodyComponent|physics body]], usually attached to an actor,
+   *  first starts colliding with another [[BodyComponent|body]], and will not fire again while in contact until
    *  the the pair separates and collides again.
    * Use cases for the **collisionstart** event may be detecting when an actor has touch a surface
    * (like landing) or if a item has been touched and needs to be picked up.
    */
   public off(eventName: Events.collisionstart, handler?: (event: CollisionStartEvent) => void): void;
   /**
-   * The **collisionend** event is fired when two [[Body|physics bodies]] are no longer in contact.
+   * The **collisionend** event is fired when two [[BodyComponent|physics bodies]] are no longer in contact.
    * This event will not fire again until another collision and separation.
    *
    * Use cases for the **collisionend** event might be to detect when an actor has left a surface
@@ -878,8 +909,7 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
     if (this.scene) {
       this._prekill(this.scene);
       this.emit('kill', new KillEvent(this));
-      this._isKilled = true;
-      this.scene.remove(this);
+      super.kill();
       this._postkill(this.scene);
     } else {
       this.logger.warn('Cannot kill actor, it was never added to the Scene');
@@ -890,14 +920,14 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * If the current actor is killed, it will now not be killed.
    */
   public unkill() {
-    this._isKilled = false;
+    this.active = true;
   }
 
   /**
    * Indicates wether the actor has been killed.
    */
   public isKilled(): boolean {
-    return this._isKilled;
+    return !this.active;
   }
 
   /**
@@ -970,17 +1000,15 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
     }
   }
 
-  public get z(): number {
-    return this.getZIndex();
-  }
-
-  public set z(newZ: number) {
-    this.setZIndex(newZ);
-  }
-
   /**
    * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
+   */
+  public get z(): number {
+    return this.get(TransformComponent).z;
+  }
+
+  /**
    * @deprecated Use [[Actor.z]]
    */
   @obsolete({
@@ -995,6 +1023,13 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * Sets the z-index of an actor and updates it in the drawing list for the scene.
    * The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
+   * @param newZ new z-index to assign
+   */
+  public set z(newZ: number) {
+    this.get(TransformComponent).z = newZ;
+  }
+
+  /**
    * @param newIndex new z-index to assign
    * @deprecated Use [[Actor.z]]
    */
@@ -1014,23 +1049,11 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   }
 
   public get width() {
-    return this._width * this.getGlobalScale().x;
-  }
-
-  public set width(width: number) {
-    this._width = width / this.scale.x;
-    this.body.collider.shape = Shape.Box(this._width, this._height, this.anchor);
-    this.body.markCollisionShapeDirty();
+    return this.collider.localBounds.width * this.getGlobalScale().x;
   }
 
   public get height() {
-    return this._height * this.getGlobalScale().y;
-  }
-
-  public set height(height: number) {
-    this._height = height / this.scale.y;
-    this.body.collider.shape = Shape.Box(this._width, this._height, this.anchor);
-    this.body.markCollisionShapeDirty();
+    return this.collider.localBounds.height * this.getGlobalScale().y;
   }
 
   /**
@@ -1068,7 +1091,13 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    */
   public contains(x: number, y: number, recurse: boolean = false): boolean {
     const point = vec(x, y);
-    const containment = this.body.collider.shape.contains(point);
+    const collider = this.get(ColliderComponent);
+    collider.update();
+    const geom = collider.get();
+    if (!geom) {
+      return false;
+    }
+    const containment = geom.contains(point);
 
     if (recurse) {
       return (
@@ -1083,12 +1112,19 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   }
 
   /**
-   * Returns true if the two actor.body.collider.shape's surfaces are less than or equal to the distance specified from each other
+   * Returns true if the two actor.collider's surfaces are less than or equal to the distance specified from each other
    * @param actor     Actor to test
    * @param distance  Distance in pixels to test
    */
   public within(actor: Actor, distance: number): boolean {
-    return this.body.collider.shape.getClosestLineBetween(actor.body.collider.shape).getLength() <= distance;
+    const collider = this.get(ColliderComponent);
+    const otherCollider = actor.get(ColliderComponent);
+    const me = collider.get();
+    const other = otherCollider.get();
+    if (me && other) {
+      return me.getClosestLineBetween(other).getLength() <= distance;
+    }
+    return false;
   }
 
   // #endregion
@@ -1113,12 +1149,6 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
 
     // Update action context
     this.actions.update(delta);
-
-    // capture old transform
-    this.body.captureOldTransform();
-
-    // Run Euler integration
-    this.body.integrate(delta);
 
     // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
     for (const trait of this.traits) {
@@ -1180,25 +1210,35 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * Called by the Engine, draws the actor to the screen
    * @param ctx   The rendering context
    * @param delta The time since the last draw in milliseconds
+   *
+   * **Warning** only works with Flags.useLegacyDrawing() enabled
+   * @deprecated Use Actor.graphics, will be removed in v0.26.0
    */
   public draw(ctx: CanvasRenderingContext2D, delta: number) {
     // translate canvas by anchor offset
     ctx.save();
-    ctx.translate(-(this._width * this.anchor.x), -(this._height * this.anchor.y));
-
-    this._predraw(ctx, delta);
 
     if (this.currentDrawing) {
+      ctx.translate(-(this.width * this.anchor.x), -(this.height * this.anchor.y));
+
+      this._predraw(ctx, delta);
       const drawing = this.currentDrawing;
       // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-      const offsetX = (this._width - drawing.drawWidth) * this.anchor.x;
-      const offsetY = (this._height - drawing.drawHeight) * this.anchor.y;
+      const offsetX = (this.width - drawing.width * drawing.scale.x) * this.anchor.x;
+      const offsetY = (this.height - drawing.height * drawing.scale.y) * this.anchor.y;
 
-      this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.opacity });
+      this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.graphics.opacity });
     } else {
-      if (this.color && this.body && this.body.collider && this.body.collider.shape && !this.body.collider.bounds.hasZeroDimensions()) {
-        ctx.globalAlpha = this.opacity;
-        this.body.collider.shape.draw(ctx, this.color, new Vector(0, 0));
+      this._predraw(ctx, delta);
+      if (this.color && this.collider) {
+        // update collider geometry based on transform
+        const collider = this.get(ColliderComponent);
+        collider.update();
+        if (collider && !collider.bounds.hasZeroDimensions()) {
+          // Colliders are already shifted by anchor, unshift
+          ctx.globalAlpha = this.graphics.opacity;
+          collider.get()?.draw(ctx, this.color, vec(0, 0));
+        }
       }
     }
     ctx.restore();
@@ -1209,6 +1249,9 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * Safe to override onPreDraw lifecycle event handler. Synonymous with `.on('predraw', (evt) =>{...})`
    *
    * `onPreDraw` is called directly before an actor is drawn, but after local transforms are made.
+   *
+   * **Warning** only works with Flags.useLegacyDrawing() enabled
+   * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
    */
   public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
     // Override me
@@ -1218,6 +1261,9 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * Safe to override onPostDraw lifecycle event handler. Synonymous with `.on('postdraw', (evt) =>{...})`
    *
    * `onPostDraw` is called directly after an actor is drawn, and before local transforms are removed.
+   *
+   * **Warning** only works with Flags.useLegacyDrawing() enabled
+   * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
    */
   public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
     // Override me
@@ -1227,6 +1273,9 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _predraw handler for [[onPreDraw]] lifecycle event
+   *
+   * **Warning** only works with Flags.useLegacyDrawing() enabled
+   * @deprecated Use Actor.graphics.onPreDraw, will be removed in v0.26.0
    * @internal
    */
   public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {
@@ -1238,6 +1287,9 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
+   *
+   * **Warning** only works with Flags.useLegacyDrawing() enabled
+   * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
    * @internal
    */
   public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
@@ -1248,83 +1300,15 @@ export class ActorImpl extends Entity implements Actionable, Eventable, PointerE
   /**
    * Called by the Engine, draws the actors debugging to the screen
    * @param ctx The rendering context
+   *
+   *
+   * **Warning** only works with Flags.useLegacyDrawing() enabled
+   * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
+   * @internal
    */
   /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D) {
-    this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
-
-    this.body.collider.debugDraw(ctx);
-
-    // Draw actor bounding box
-    const bb = this.body.collider.localBounds.translate(this.getGlobalPos());
-    bb.debugDraw(ctx);
-
-    // Draw actor Id
-    ctx.fillText('id: ' + this.id, bb.left + 3, bb.top + 10);
-
-    // Draw actor anchor Vector
-    ctx.fillStyle = Color.Yellow.toString();
-    ctx.beginPath();
-    ctx.arc(this.getGlobalPos().x, this.getGlobalPos().y, 3, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.fill();
-
-    // Culling Box debug draw
-    for (let j = 0; j < this.traits.length; j++) {
-      if (this.traits[j] instanceof Traits.OffscreenCulling) {
-        (<Traits.OffscreenCulling>this.traits[j]).cullingBox.debugDraw(ctx); // eslint-disable-line
-      }
-    }
-
-    // Unit Circle debug draw
-    ctx.strokeStyle = Color.Yellow.toString();
-    ctx.beginPath();
-    const radius = Math.min(this.width, this.height);
-    ctx.arc(this.getGlobalPos().x, this.getGlobalPos().y, radius, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.stroke();
-    const ticks: { [key: string]: number } = {
-      '0 Pi': 0,
-      'Pi/2': Math.PI / 2,
-      Pi: Math.PI,
-      '3/2 Pi': (3 * Math.PI) / 2
-    };
-
-    const oldFont = ctx.font;
-    for (const tick in ticks) {
-      ctx.fillStyle = Color.Yellow.toString();
-      ctx.font = '14px';
-      ctx.textAlign = 'center';
-      ctx.fillText(
-        tick,
-        this.getGlobalPos().x + Math.cos(ticks[tick]) * (radius + 10),
-        this.getGlobalPos().y + Math.sin(ticks[tick]) * (radius + 10)
-      );
-    }
-
-    ctx.font = oldFont;
-
-    // Draw child actors
-    // for (let i = 0; i < this.children.length; i++) {
-    //   this.children[i].debugDraw(ctx);
-    // }
-
-    this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
+  public debugDraw(_ctx: CanvasRenderingContext2D) {
+    // pass
   }
   // #endregion
-}
-
-/**
- * The most important primitive in Excalibur is an `Actor`. Anything that
- * can move on the screen, collide with another `Actor`, respond to events,
- * or interact with the current scene, must be an actor. An `Actor` **must**
- * be part of a [[Scene]] for it to be drawn to the screen.
- */
-export class Actor extends Configurable(ActorImpl) {
-  constructor();
-  constructor(config?: ActorArgs);
-  constructor(x?: number, y?: number, width?: number, height?: number, color?: Color);
-  constructor(xOrConfig?: number | ActorArgs, y?: number, width?: number, height?: number, color?: Color) {
-    super(xOrConfig, y, width, height, color);
-  }
 }

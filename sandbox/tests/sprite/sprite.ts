@@ -6,20 +6,20 @@ var game = new ex.Engine({
   height: 400
 });
 
-var tex = new ex.Texture('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
+var tex = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
 
 var loader = new ex.Loader([tex]);
 
-var actor = new ex.Actor(100, 100, 50, 50, ex.Color.Red);
+var actor = new ex.Actor({x: 100, y: 100, width: 50, height: 50});
 actor.onInitialize = () => {
   var sprite = new ex.Sprite({
     image: tex,
-    x: 0,
-    y: 0,
-    width: 100,
-    height: 100
+    destSize: {
+      width: 100,
+      height: 100
+    }
   });
-  actor.addDrawing(sprite);
+  actor.graphics.add(sprite);
 };
 game.add(actor);
 game.start(loader);

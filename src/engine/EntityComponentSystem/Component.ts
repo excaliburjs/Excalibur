@@ -1,8 +1,9 @@
 import { Entity } from './Entity';
 
-export interface ComponentCtor<T extends Component = Component> {
-  new (): T;
-}
+/**
+ * Component Contructor Types
+ */
+export declare type ComponentCtor<T extends Component = Component> = new (...args:any[]) => T;
 
 /**
  * Type guard to check if a component implements clone
@@ -11,6 +12,8 @@ export interface ComponentCtor<T extends Component = Component> {
 function hasClone(x: any): x is { clone(): any } {
   return !!x?.clone;
 }
+
+export type ComponentType<ComponentToParse> = ComponentToParse extends Component<infer TypeName> ? TypeName : never;
 
 /**
  * Plucks the string type out of a component type
@@ -38,6 +41,9 @@ export abstract class Component<TypeName extends string = string> {
    * Only components with zero-arg constructors are supported as automatic component dependencies
    */
   readonly dependencies?: ComponentCtor[];
+
+  // todo implement optional
+  readonly optional?: ComponentCtor[];
 
   /**
    * Type of this component, must be a unique type among component types in you game.
@@ -70,12 +76,12 @@ export abstract class Component<TypeName extends string = string> {
   /**
    * Optional callback called when a component is added to an entity
    */
-  onAdd?: (owner: Entity) => void;
+  onAdd?(owner: Entity): void;
 
   /**
    * Opitonal callback called when acomponent is added to an entity
    */
-  onRemove?: (previousOwner: Entity) => void;
+  onRemove?(previousOwner: Entity): void;
 }
 
 /**

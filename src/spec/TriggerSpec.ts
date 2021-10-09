@@ -12,6 +12,8 @@ describe('A Trigger', () => {
     engine = TestUtils.engine({ width: 600, height: 400 });
 
     scene = new ex.Scene();
+    engine.addScene('test', scene);
+    engine.goToScene('test');
 
     loop = mock.loop(engine);
     engine.start();
@@ -34,9 +36,9 @@ describe('A Trigger', () => {
       height: 100,
       repeat: 1
     });
-    const actor = new ex.Actor(0, 0, 10, 10);
-    actor.body.collider.type = ex.CollisionType.Active;
-    actor.vel = ex.vec(0, 10);
+    const actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
+    actor.body.collisionType = ex.CollisionType.Active;
+    actor.vel.y = 10;
     engine.currentScene.add(trigger);
     engine.currentScene.add(actor);
     spyOn(trigger, 'action');
@@ -59,6 +61,7 @@ describe('A Trigger', () => {
 
     // Assert
     expect(trigger.action).toHaveBeenCalledTimes(1);
+    expect(trigger.isKilled()).toBe(true);
   });
 
   it('can be triggered multiple times', () => {
@@ -69,31 +72,58 @@ describe('A Trigger', () => {
       height: 100,
       repeat: 3
     });
-    const actor = new ex.Actor(0, 0, 10, 10);
-    actor.body.collider.type = ex.CollisionType.Active;
-    actor.vel = ex.vec(0, 10);
+    trigger.collider.update();
+    const enterSpy = jasmine.createSpy('enter');
+    const exitSpy = jasmine.createSpy('exit');
+    trigger.on('enter', enterSpy);
+    trigger.on('exit', exitSpy);
+
+    const actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
+    actor.body.collisionType = ex.CollisionType.Active;
+    actor.vel.y = 10;
     engine.currentScene.add(trigger);
     engine.currentScene.add(actor);
-    spyOn(trigger, 'action');
+    spyOn(trigger, 'action').and.callThrough();
 
     // Act
-    actor.vel = ex.vec(0, 10);
-    for (let i = 0; i < 20; i++) {
+    // Enter trigger first
+    actor.vel.y = 10;
+    for (let i = 0; i < 10; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
-    actor.vel = ex.vec(0, -10);
-    for (let i = 0; i < 20; i++) {
+    // Exit trigger first
+    actor.vel.y = -10;
+    for (let i = 0; i < 10; i++) {
       engine.currentScene.update(engine, 1000);
     }
 
-    actor.vel = ex.vec(0, 10);
-    for (let i = 0; i < 20; i++) {
+    // Enter trigger second
+    actor.vel.y = 10;
+    for (let i = 0; i < 10; i++) {
       engine.currentScene.update(engine, 1000);
     }
+
+    // Exit trigger second
+    actor.vel.y = -10;
+    for (let i = 0; i < 10; i++) {
+      engine.currentScene.update(engine, 1000);
+    }
+
+    // Enter trigger third
+    actor.vel.y = 10;
+    for (let i = 0; i < 10; i++) {
+      engine.currentScene.update(engine, 1000);
+    }
+
+    // The last enter also has an exit because the actor is killed
+    // and no longer generates a pair, therefore exit
 
     // Assert
     expect(trigger.action).toHaveBeenCalledTimes(3);
+    expect(enterSpy).toHaveBeenCalledTimes(3);
+    expect(exitSpy).toHaveBeenCalledTimes(3);
+    expect(trigger.isKilled()).toBe(true);
   });
 
   it('fires an event when an actor enters the trigger once', () => {
@@ -106,11 +136,11 @@ describe('A Trigger', () => {
       height: 100
     });
 
-    trigger.body.collider.type = ex.CollisionType.Passive;
+    trigger.body.collisionType = ex.CollisionType.Passive;
 
-    const actor = new ex.Actor(0, 0, 10, 10);
-    actor.body.collider.type = ex.CollisionType.Active;
-    actor.vel = ex.vec(0, 10);
+    const actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
+    actor.body.collisionType = ex.CollisionType.Active;
+    actor.vel.y = 10;
 
     trigger.on('collisionstart', (evt: ex.EnterTriggerEvent) => {
       fired++;
@@ -130,24 +160,24 @@ describe('A Trigger', () => {
 
   it('fires an event when the actor exits the trigger', () => {
     // Arrange
-    let fired = 0;
-
     const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
       width: 100,
       height: 100
     });
+    trigger.collider.update();
 
-    const actor = new ex.Actor(0, 0, 10, 10);
-    actor.body.collider.type = ex.CollisionType.Active;
-    actor.vel = ex.vec(0, 10);
+    const actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
+    actor.body.collisionType = ex.CollisionType.Active;
+    actor.vel.y = 10;
 
     engine.add(trigger);
     engine.add(actor);
 
-    trigger.on('collisionend', (evt: ex.ExitTriggerEvent) => {
-      fired++;
-    });
+    const exitSpy = jasmine.createSpy('exit');
+    const collisionEnd = jasmine.createSpy('collisionend');
+    trigger.on('exit', exitSpy);
+    trigger.on('collisionend', collisionEnd);
 
     // Act
     actor.vel = ex.vec(0, 10);
@@ -156,7 +186,8 @@ describe('A Trigger', () => {
     }
 
     // Assert
-    expect(fired).toBe(1);
+    expect(exitSpy).toHaveBeenCalledTimes(1);
+    expect(collisionEnd).toHaveBeenCalledTimes(1);
   });
 
   it('does not draw by default', () => {
@@ -209,8 +240,9 @@ describe('A Trigger', () => {
       height: 100,
       filter: () => false
     });
+    trigger.collider.update();
 
-    const actor = new ex.Actor(0, 100, 10, 10);
+    const actor = new ex.Actor({ x: 0, y: 100, width: 10, height: 10 });
 
     engine.add(trigger);
     engine.add(actor);
@@ -234,13 +266,15 @@ describe('A Trigger', () => {
       height: 100,
       filter: () => true
     });
+    trigger.collider.update();
 
-    const actor = new ex.Actor(0, 100, 10, 10);
-    actor.body.collider.type = ex.CollisionType.Active;
+    const actor = new ex.Actor({ x: 0, y: 100, width: 10, height: 10 });
+    actor.body.collisionType = ex.CollisionType.Active;
+    actor.vel.y = 10;
 
     engine.add(trigger);
     engine.add(actor);
-    spyOn(trigger, 'action');
+    spyOn(trigger, 'action').and.callThrough();
 
     // Act
     for (let i = 0; i < 2; i++) {
@@ -253,8 +287,8 @@ describe('A Trigger', () => {
 
   it('will only trigger on a target', () => {
     // Arrange
-    const actor = new ex.Actor(0, 100, 10, 10);
-    const actor2 = new ex.Actor(0, 100, 10, 10);
+    const actor = new ex.Actor({ x: 0, y: 100, width: 10, height: 10 });
+    const actor2 = new ex.Actor({ x: 0, y: 100, width: 10, height: 10 });
 
     const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),

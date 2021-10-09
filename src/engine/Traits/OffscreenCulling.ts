@@ -5,6 +5,9 @@ import { Engine } from '../Engine';
 import { ExitViewPortEvent, EnterViewPortEvent } from '../Events';
 import { TagComponent } from '../EntityComponentSystem';
 
+/**
+ * @deprecated will be removed in 0.26.0
+ */
 export class OffscreenCulling implements Trait {
   public cullingBox: CullingBox = new CullingBox();
 
@@ -18,7 +21,7 @@ export class OffscreenCulling implements Trait {
 
     let actorBoundsOffscreen = false;
     if (engine && engine.currentScene && engine.currentScene.camera && engine.currentScene.camera.viewport && !actor.parent) {
-      actorBoundsOffscreen = !engine.currentScene.camera.viewport.intersect(actor.body.collider.bounds);
+      actorBoundsOffscreen = !engine.currentScene.camera.viewport.intersect(actor.collider.bounds);
     }
 
     if (!actor.isOffScreen) {

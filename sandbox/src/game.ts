@@ -33,6 +33,74 @@
  * Thank you,
  * Excalibur.js team
  */
+
+declare class Stats {
+  constructor();
+  dom: HTMLElement;
+  showPanel(option: number);
+  begin(): void;
+  end(): void;
+}
+declare module dat {
+  class GUI {
+    constructor(options: { name: string });
+    addFolder(name: string): GUI;
+    add<T>(object: T, prop: keyof T, min?: number, max?: number, step?: number): any;
+    addColor(object: any, prop: any): any;
+  }
+}
+
+var gui = new dat.GUI({name: 'Excalibur'});
+
+
+var stats = new Stats();
+stats.showPanel(0);
+document.body.appendChild(stats.dom);
+
+var bootstrap = (game: ex.Engine) => {
+  gui.add({toggleDebug: false}, 'toggleDebug').onChange(() => game.toggleDebug());
+  var supportedKeys = ['filter', 'entity', 'transform', 'motion', 'body', 'collider', 'physics', 'graphics', 'camera'];
+  for (let key of supportedKeys) {
+    let folder = gui.addFolder(key);
+    if (game.debug[key]) {
+      for (let option in game.debug[key]) {
+        if (option) {
+          if (option.toLocaleLowerCase().includes('color')) {
+            folder.addColor(game.debug[key], option);
+          } else {
+            if (Array.isArray(game.debug[key][option])) {
+              continue;
+            }
+            folder.add(game.debug[key], option);
+          }
+        }
+      }
+    }
+  }
+
+  var physics = gui.addFolder('Physics Flags');
+  physics.add(ex.Physics, 'enabled')
+  physics.add(ex.Physics, "positionIterations", 1, 15, 1);
+  physics.add(ex.Physics, "velocityIterations", 1, 15, 1);
+
+  game.on("preframe", () => {
+      stats.begin();
+  });
+  game.on('postframe', () =>{
+      stats.end();
+  });
+
+  // game.currentScene.on('entityadded', (e: any) => {
+  //   var entity: ex.Entity = e.target;
+  //   var obj = {id: entity.id, name: entity.constructor.name, types: entity.types};
+
+  //   var pos = entities.addFolder(`${obj.id}:${obj.name}`)
+  //   pos.add({pos: entity.get(ex.TransformComponent).pos.toString()}, 'pos');
+  //   pos.add({types: obj.types.join(', ')}, 'types');
+  // });
+
+  return { stats, gui }
+}
 var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
@@ -47,6 +115,7 @@ var game = new ex.Engine({
   canvasElementId: 'game',
   suppressHiDPIScaling: false,
   suppressPlayButton: true,
+  pointerScope: ex.Input.PointerScope.Canvas,
   antialiasing: false,
   snapToPixel: true
 });
@@ -59,17 +128,20 @@ fullscreenButton.addEventListener('click', () => {
   }
 });
 game.showDebug(true);
+bootstrap(game);
 
-var heartTex = new ex.Graphics.ImageSource('../images/heart.png');
-var heartImageSource = new ex.Graphics.ImageSource('../images/heart.png');
-var imageRun = new ex.Graphics.ImageSource('../images/PlayerRun.png');
-var imageJump = new ex.Graphics.ImageSource('../images/PlayerJump.png');
-var imageRun2 = new ex.Graphics.ImageSource('../images/PlayerRun.png');
-var imageBlocks = new ex.Graphics.ImageSource('../images/BlockA0.png');
-var imageBlocksLegacy = new ex.Texture('../images/BlockA0.png');
-var spriteFontImage = new ex.Graphics.ImageSource('../images/SpriteFont.png');
+
+
+var heartTex = new ex.ImageSource('../images/heart.png');
+var heartImageSource = new ex.ImageSource('../images/heart.png');
+var imageRun = new ex.ImageSource('../images/PlayerRun.png');
+var imageJump = new ex.ImageSource('../images/PlayerJump.png');
+var imageRun2 = new ex.ImageSource('../images/PlayerRun.png');
+var imageBlocks = new ex.ImageSource('../images/BlockA0.png');
+var imageBlocksLegacy = new ex.LegacyDrawing.Texture('../images/BlockA0.png');
+var spriteFontImage = new ex.ImageSource('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
-var cards = new ex.Graphics.ImageSource('../images/kenny-cards.png');
+var cards = new ex.ImageSource('../images/kenny-cards.png');
 
 jump.volume = 0.3;
 
@@ -88,36 +160,37 @@ loader.addResource(jump);
 game.backgroundColor = new ex.Color(114, 213, 224);
 
 // setup physics defaults
+ex.Physics.useArcadePhysics();
 ex.Physics.checkForFastBodies = true;
-ex.Physics.acc = new ex.Vector(0, 800); // global accel
+ex.Physics.acc = new ex.Vector(0, 10); // global accel
 
 // Add some UI
 //var heart = new ex.ScreenElement(0, 0, 20, 20);
 var heart = new ex.ScreenElement({ x: 0, y: 0, width: 20 * 2, height: 20 * 2 });
 heart.graphics.anchor = ex.vec(0, 0);
-var heartSprite = ex.Graphics.Sprite.from(heartTex);
+var heartSprite = ex.Sprite.from(heartTex);
 heartSprite.scale.setTo(2, 2);
 // heart.addDrawing(heartSprite);
-var newSprite = new ex.Graphics.Sprite({ image: heartImageSource });
+var newSprite = new ex.Sprite({ image: heartImageSource });
 newSprite.scale = ex.vec(2, 2);
 
-var circle = new ex.Graphics.Circle({
+var circle = new ex.Circle({
   radius: 10,
   color: ex.Color.Red
 });
 
-var rect = new ex.Graphics.Rectangle({
+var rect = new ex.Rectangle({
   width: 100,
   height: 100,
   color: ex.Color.Green
 });
 
-var triangle = new ex.Graphics.Polygon({
+var triangle = new ex.Polygon({
   points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
   color: ex.Color.Yellow
 });
 
-var anim = new ex.Graphics.Animation({
+var anim = new ex.Animation({
   frames: [
     {
       graphic: newSprite,
@@ -145,7 +218,7 @@ var anim = new ex.Graphics.Animation({
 //   spWidth: 16,
 //   spHeight: 16
 
-var cardSpriteSheet = ex.Graphics.SpriteSheet.fromGrid({
+var cardSpriteSheet = ex.SpriteSheet.fromImageSource({
   image: cards,
   grid: {
     rows: 4,
@@ -161,9 +234,9 @@ var cardSpriteSheet = ex.Graphics.SpriteSheet.fromGrid({
 
 cardSpriteSheet.sprites.forEach(s => s.scale = ex.vec(2, 2));
 
-var cardAnimation = ex.Graphics.Animation.fromSpriteSheet(cardSpriteSheet, ex.Util.range(0, 14 * 4), 200);
+var cardAnimation = ex.Animation.fromSpriteSheet(cardSpriteSheet, ex.Util.range(0, 14 * 4), 200);
 
-var spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
+var spriteFontSheet = ex.SpriteSheet.fromImageSource({
   image: spriteFontImage,
   grid: {
     rows: 3,
@@ -173,13 +246,13 @@ var spriteFontSheet = ex.Graphics.SpriteSheet.fromGrid({
   }
 });
 
-var spriteFont = new ex.Graphics.SpriteFont({
+var spriteFont = new ex.SpriteFont({
   alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
   caseInsensitive: true,
   spriteSheet: spriteFontSheet
 });
 
-var spriteText = new ex.Graphics.Text({
+var spriteText = new ex.Text({
   text: 'Sprite Text ❤️',
   font: spriteFont
 });
@@ -194,14 +267,14 @@ var spriteText = new ex.Graphics.Text({
 //   console.log('ended');
 // });
 
-var text = new ex.Graphics.Text({
+var text = new ex.Text({
   text: 'This is raster text ❤️',
-  font: new ex.Graphics.Font({ size: 30 })
+  font: new ex.Font({ size: 30 })
 });
 // text.showDebug = true;
 var ran = new ex.Random(1337);
 
-var canvasGraphic = new ex.Graphics.Canvas({
+var canvasGraphic = new ex.Canvas({
   width: 200,
   height: 200,
   cache: true,
@@ -212,7 +285,7 @@ var canvasGraphic = new ex.Graphics.Canvas({
   }
 });
 
-var group = new ex.Graphics.GraphicsGroup({
+var group = new ex.GraphicsGroup({
   members: [
     {
       graphic: newSprite,
@@ -257,7 +330,7 @@ heart.onPostDraw = (ctx) => {
 }
 game.add(heart);
 
-var label = new ex.Label('Test Label', 200, 200);
+var label = new ex.Label({text: 'Test Label', x: 200, y: 200});
 game.add(label);
 
 
@@ -290,8 +363,8 @@ game.input.pointers.primary.on('wheel', (ev) => {
 })
 // Turn on debug diagnostics
 game.showDebug(false);
-var blockSpriteLegacy = new ex.Sprite(imageBlocksLegacy, 0, 0, 65, 49);
-var blockSprite = new ex.Graphics.Sprite({
+var blockSpriteLegacy = new ex.LegacyDrawing.Sprite(imageBlocksLegacy, 0, 0, 65, 49);
+var blockSprite = new ex.Sprite({
   image: imageBlocks,
   destSize: {
     width: 65,
@@ -300,7 +373,7 @@ var blockSprite = new ex.Graphics.Sprite({
 });
 // Create spritesheet
 //var spriteSheetRun = new ex.SpriteSheet(imageRun, 21, 1, 96, 96);
-var spriteSheetRun = ex.Graphics.SpriteSheet.fromGrid({
+var spriteSheetRun = ex.SpriteSheet.fromImageSource({
   image: imageRun,
   grid: {
     rows: 1,
@@ -310,7 +383,7 @@ var spriteSheetRun = ex.Graphics.SpriteSheet.fromGrid({
   }
 });
 //var spriteSheetJump = new ex.SpriteSheet(imageJump, 21, 1, 96, 96);
-var spriteSheetJump = ex.Graphics.SpriteSheet.fromGrid({
+var spriteSheetJump = ex.SpriteSheet.fromImageSource({
   image: imageJump,
   grid: {
     columns: 21,
@@ -321,15 +394,15 @@ var spriteSheetJump = ex.Graphics.SpriteSheet.fromGrid({
 });
 var tileBlockWidth = 64,
   tileBlockHeight = 48,
-  spriteTiles = new ex.Graphics.SpriteSheet({sprites: [ex.Graphics.Sprite.from(imageBlocks)] });
+  spriteTiles = new ex.SpriteSheet({sprites: [ex.Sprite.from(imageBlocks)] });
 
 // create a collision map
 // var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
 var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
-var blocks = ex.Graphics.Sprite.from(imageBlocks);
+var blocks = ex.Sprite.from(imageBlocks);
 // var flipped = spriteTiles.sprites[0].clone();
 // flipped.flipVertical = true;
-// var blockAnim = new ex.Graphics.Animation({
+// var blockAnim = new ex.Animation({
 //   frames: [
 //     { graphic: spriteTiles.sprites[0], duration: 200 },
 //     { graphic: flipped, duration: 200 }
@@ -376,6 +449,7 @@ enum Animations {
 
 var currentX = 0;
 var blockGroup = ex.CollisionGroupManager.create('ground');
+var color = new ex.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
 // Create the level
 for (var i = 0; i < 36; i++) {
   currentX = tileBlockWidth * i + 10;
@@ -386,55 +460,52 @@ for (var i = 0; i < 36; i++) {
     height: tileBlockHeight,
     color: color
   });
-  block.body.collider.type = ex.CollisionType.Fixed;
+  block.body.collisionType = ex.CollisionType.Fixed;
   //var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
   //block.collisionType = ex.CollisionType.Fixed;
-  block.body.collider.group = blockGroup;
+  block.body.group = blockGroup;
   block.graphics.add(blockAnimation);
 
   game.add(block);
 }
 
-var platform = new ex.Actor(400, 300, 200, 50, new ex.Color(0, 200, 0));
-platform.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(0, 200, 0), width: 200, height: 50 }));
-platform.body.collider.type = ex.CollisionType.Fixed;
+var platform = new ex.Actor({x: 400, y: 300, width: 200, height: 50, color: new ex.Color(0, 200, 0)});
+platform.graphics.add(new ex.Rectangle({ color: new ex.Color(0, 200, 0), width: 200, height: 50 }));
+platform.body.collisionType = ex.CollisionType.Fixed;
 platform.actions.repeatForever(ctx => ctx.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100));
 game.add(platform);
 
-var platform2 = new ex.Actor(800, 300, 200, 20, new ex.Color(0, 0, 140));
-platform2.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(0, 0, 140), width: 200, height: 20 }));
-platform2.body.collider.type = ex.CollisionType.Fixed;
+var platform2 = new ex.Actor({x: 800, y: 300, width: 200, height: 20, color: new ex.Color(0, 0, 140)});
+platform2.graphics.add(new ex.Rectangle({ color: new ex.Color(0, 0, 140), width: 200, height: 20 }));
+platform2.body.collisionType = ex.CollisionType.Fixed;
 platform2.actions.repeatForever(ctx => ctx.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100));
 game.add(platform2);
 
-var platform3 = new ex.Actor(-200, 400, 200, 20, new ex.Color(50, 0, 100));
-platform3.graphics.add(new ex.Graphics.Rectangle({ color: new ex.Color(50, 0, 100), width: 200, height: 20 }));
-platform3.body.collider.type = ex.CollisionType.Fixed;
+var platform3 = new ex.Actor({x: -200, y: 400, width: 200, height: 20, color: new ex.Color(50, 0, 100)});
+platform3.graphics.add(new ex.Rectangle({ color: new ex.Color(50, 0, 100), width: 200, height: 20 }));
+platform3.body.collisionType = ex.CollisionType.Fixed;
 platform3.actions.repeatForever(ctx => ctx.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800));
 game.add(platform3);
 
-var platform4 = new ex.Actor(75, 300, 100, 50, ex.Color.Azure);
-platform4.graphics.add(new ex.Graphics.Rectangle({ color: ex.Color.Azure, width: 100, height: 50 }));
-platform4.body.collider.type = ex.CollisionType.Fixed;
+var platform4 = new ex.Actor({x: 75, y: 300, width: 100, height: 50, color: ex.Color.Azure});
+platform4.graphics.add(new ex.Rectangle({ color: ex.Color.Azure, width: 100, height: 50 }));
+platform4.body.collisionType = ex.CollisionType.Fixed;
 game.add(platform4);
 
 // Test follow api
-var follower = new ex.Actor(50, 100, 20, 20, ex.Color.Black);
-follower.graphics.add(new ex.Graphics.Rectangle({ color: ex.Color.Black, width: 20, height: 20 }));
-follower.body.collider.type = ex.CollisionType.PreventCollision;
+var follower = new ex.Actor({x: 50, y: 100, width: 20, height: 20, color: ex.Color.Black});
+follower.graphics.add(new ex.Rectangle({ color: ex.Color.Black, width: 20, height: 20 }));
+follower.body.collisionType = ex.CollisionType.PreventCollision;
 game.add(follower);
 
 // Create the player
-// var player = new ex.Actor(100, -200, 32, 96);
-// player.enableCapturePointer = true;
-// player.collisionType = ex.CollisionType.Active;
 var player = new ex.Actor({
+  name: 'player',
   pos: new ex.Vector(100, -200),
-  width: 32,
-  height: 96,
-  enableCapturePointer: true,
+  collider: ex.Shape.Capsule(32, 96),
   collisionType: ex.CollisionType.Active
 });
+player.body.canSleep = false;
 player.graphics.copyGraphics = false;
 follower.actions
   .meet(player, 60)
@@ -448,18 +519,24 @@ follower.actions
 player.rotation = 0;
 
 // Health bar example
-var healthbar = new ex.Actor(0, -70, 140, 5, new ex.Color(0, 255, 0));
+var healthbar = new ex.Actor({
+  name: 'player healthbar',
+  x: 0,
+  y: -70,
+  width: 140,
+  height: 5,
+  color: new ex.Color(0, 255, 0)});
 player.addChild(healthbar);
 // player.onPostDraw = (ctx: CanvasRenderingContext2D) => {
 //   ctx.fillStyle = 'red';
 //   ctx.fillRect(0, 0, 100, 100);
 // };
-player.graphics.onPostDraw = (ctx: ex.Graphics.ExcaliburGraphicsContext) => {
-  ctx.debug.drawLine(ex.vec(0, 0), ex.vec(200, 0));
-  ctx.debug.drawPoint(ex.vec(0, 0), { size: 20, color: ex.Color.Black });
+player.graphics.onPostDraw = (ctx: ex.ExcaliburGraphicsContext) => {
+  // ctx.debug.drawLine(ex.vec(0, 0), ex.vec(200, 0));
+  // ctx.debug.drawPoint(ex.vec(0, 0), { size: 20, color: ex.Color.Black });
 };
 
-var healthbar2 = new ex.Graphics.Rectangle({
+var healthbar2 = new ex.Rectangle({
   width: 140,
   height: 5,
   color: new ex.Color(0, 255, 0)
@@ -471,9 +548,9 @@ var backroundLayer = player.graphics.layers.create({
 });
 
 backroundLayer.show(healthbar2, { offset: ex.vec(0, -70) });
-var playerText = new ex.Graphics.Text({
+var playerText = new ex.Text({
   text: 'A long piece of text is long',
-  font: new ex.Graphics.Font({
+  font: new ex.Font({
     size: 20,
     family: 'Times New Roman'
   })
@@ -482,19 +559,19 @@ var playerText = new ex.Graphics.Text({
 backroundLayer.show(playerText, { offset: ex.vec(0, -70) });
 
 // Retrieve animations for player from sprite sheet
-var left = ex.Graphics.Animation.fromSpriteSheet(spriteSheetRun, ex.Util.range(1, 10), 50);
+var left = ex.Animation.fromSpriteSheet(spriteSheetRun, ex.Util.range(1, 10), 50);
 // var left = new ex.Animation(game, left_sprites, 50);
 var right = left.clone(); // spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
 right.flipHorizontal = true;
-var idle = ex.Graphics.Animation.fromSpriteSheet(spriteSheetRun, [0], 200); // spriteSheetRun.getAnimationByIndices(game, [0], 200);
+var idle = ex.Animation.fromSpriteSheet(spriteSheetRun, [0], 200); // spriteSheetRun.getAnimationByIndices(game, [0], 200);
 //idle.anchor.setTo(.5, .5);
-var jumpLeft = ex.Graphics.Animation.fromSpriteSheet(
+var jumpLeft = ex.Animation.fromSpriteSheet(
   spriteSheetJump,
   ex.Util.range(0, 10).reverse(),
   100,
-  ex.Graphics.AnimationStrategy.Freeze
+  ex.AnimationStrategy.Freeze
 ); // spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
-var jumpRight = ex.Graphics.Animation.fromSpriteSheet(spriteSheetJump, ex.Util.range(11, 21), 100, ex.Graphics.AnimationStrategy.Freeze); // spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
+var jumpRight = ex.Animation.fromSpriteSheet(spriteSheetJump, ex.Util.range(11, 21), 100, ex.AnimationStrategy.Freeze); // spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
 // left.loop = true;
 // right.loop = true;
 // idle.loop = true;
@@ -545,9 +622,9 @@ player.on('postupdate', () => {
       player.vel.y = -jumpSpeed;
       inAir = true;
       if (direction === 1) {
-        player.graphics.use<ex.Graphics.Animation>(Animations.JumpRight).reset();
+        player.graphics.use<ex.Animation>(Animations.JumpRight).reset();
       } else {
-        player.graphics.use<ex.Graphics.Animation>(Animations.JumpLeft).reset();
+        player.graphics.use<ex.Animation>(Animations.JumpLeft).reset();
       }
       jump.play();
     }
@@ -566,8 +643,8 @@ player.on('pointerdown', (e?: ex.Input.PointerEvent) => {
   alert('Player clicked!');
 });
 
-var newScene = new ex.Scene(game);
-newScene.add(new ex.Label('MAH LABEL!', 200, 100));
+var newScene = new ex.Scene();
+newScene.add(new ex.Label({text: 'MAH LABEL!', x: 200, y: 100}));
 newScene.on('activate', (evt?: ex.ActivateEvent) => {
   console.log('activate newScene');
 });
@@ -581,10 +658,10 @@ game.addScene('label', newScene);
 
 game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
   if (keyDown.key === ex.Input.Keys.F) {
-    var a = new ex.Actor(player.pos.x + 10, player.pos.y - 50, 10, 10, new ex.Color(222, 222, 222));
+    var a = new ex.Actor({x: player.pos.x + 10, y: player.pos.y - 50, width: 10, height: 10, color: new ex.Color(222, 222, 222)});
     a.vel.x = 200 * direction;
     a.vel.y = 0;
-    a.body.collider.type = ex.CollisionType.Active;
+    a.body.collisionType = ex.CollisionType.Active;
     var inAir = true;
     a.on('precollision', (data?: ex.PreCollisionEvent) => {
       inAir = false;
@@ -664,7 +741,7 @@ player.on('initialize', (evt?: ex.InitializeEvent) => {
 
 game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
   if (keyDown.key === ex.Input.Keys.B) {
-    var block = new ex.Actor(currentX, 350, 44, 50, color);
+    var block = new ex.Actor({x: currentX, y: 350, width: 44, height: 50, color: color});
     currentX += 46;
     block.graphics.add(blockAnimation);
     game.add(block);
@@ -735,7 +812,7 @@ var trigger = new ex.Trigger({
             emitter.isEmitting = false;
             exploding = false;
           }
-        })
+        }).start()
       );
     }
   }

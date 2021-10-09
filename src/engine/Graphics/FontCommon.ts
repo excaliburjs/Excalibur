@@ -1,5 +1,5 @@
-import { Color } from '../Drawing/Color';
-import { Vector } from '../Algebra';
+import { Color } from '../Color';
+import { Vector } from '../Math/vector';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
 /**

@@ -1,7 +1,7 @@
 /// <reference path="../../lib/excalibur.d.ts" />
 
 var Resources = {
-  Background: new ex.Texture('../../images/Background.png')
+  Background: new ex.ImageSource('../../images/Background.png')
 };
 
 var game = new ex.Engine({ width: 720, height: 480 });
@@ -16,6 +16,6 @@ for (var key in Resources) {
 game.start(loader).then(() => {
   // draw background
   var bg = new ex.ScreenElement();
-  bg.addDrawing(Resources.Background);
+  bg.graphics.add(Resources.Background.toSprite());
   game.add(bg);
 });

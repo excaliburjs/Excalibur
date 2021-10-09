@@ -47,7 +47,7 @@ describe('The engine', () => {
 
     loop = mock.loop(engine);
 
-    engine.start(new ex.Loader([new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true)]));
+    engine.start(new ex.Loader([new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true)]));
     setTimeout(() => {
       ensureImagesLoaded(engine.canvas, 'src/spec/images/EngineSpec/engine-load-complete.png').then(([canvas, image]) => {
         expect(document.getElementById('excalibur-play')).toBeDefined('Play button should exist in the document');
@@ -80,7 +80,7 @@ describe('The engine', () => {
 
     loop = mock.loop(engine);
 
-    engine.start(new ex.Loader([new ex.Texture('base/src/spec/images/SpriteSpec/icon.png', true)])).then(() => {
+    engine.start(new ex.Loader([new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true)])).then(() => {
       setTimeout(() => {
         ensureImagesLoaded(engine.canvas, 'src/spec/images/EngineSpec/engine-suppress-play.png').then(([canvas, image]) => {
           expect(canvas).toEqualImage(image);
@@ -453,11 +453,11 @@ describe('The engine', () => {
     });
 
     it('can have onPreDraw overridden safely', () => {
+      engine.currentScene._initialize(engine);
       engine.onPreDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);
       };
-
       spyOn(engine, 'onPreDraw').and.callThrough();
       spyOn(engine, '_predraw').and.callThrough();
 
@@ -469,6 +469,7 @@ describe('The engine', () => {
     });
 
     it('can have onPostDraw overridden safely', () => {
+      engine.currentScene._initialize(engine);
       engine.onPostDraw = (ctx, delta) => {
         expect(<any>ctx).not.toBe(null);
         expect(delta).toBe(100);

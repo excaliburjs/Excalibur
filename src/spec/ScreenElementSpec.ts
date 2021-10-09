@@ -18,7 +18,7 @@ describe('A ScreenElement', () => {
       height: 50,
       color: ex.Color.Blue
     });
-    screenElement.body.collider.type = ex.CollisionType.Active;
+    screenElement.body.collisionType = ex.CollisionType.Active;
     engine = TestUtils.engine();
     engine.backgroundColor = ex.Color.Transparent;
 
@@ -92,7 +92,7 @@ describe('A ScreenElement', () => {
 
   it('is drawn on the top left with empty constructor', (done) => {
     const game = TestUtils.engine({ width: 720, height: 480 });
-    const bg = new ex.Texture('base/src/spec/images/ScreenElementSpec/emptyctor.png', true);
+    const bg = new ex.LegacyDrawing.Texture('src/spec/images/ScreenElementSpec/emptyctor.png', true);
 
     game.start(new ex.Loader([bg])).then(() => {
       const screenElement = new ex.ScreenElement();

@@ -7,7 +7,7 @@ describe('A Texture', () => {
   });
 
   it('can be loaded from a base64 string', (done) => {
-    const base64 = new ex.Texture(
+    const base64 = new ex.LegacyDrawing.Texture(
       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD4AAABACAYAAABC6cT1AAAACXBIWXMAAAsSAAALEgHS3X78AAABJElEQVRo3u2aoQ' +
         'rCQByHdyIYBjZNpmXBahHbsNiGxQew7gGMWn2AdYusWeyCGIZpjyAY7NaZ78JtzHDn3fdrx47Bx+8+/jeYqKoq8DGdwNMADjjgbqfrAkSSJI1GU5' +
         '7ngsZdaDiOY+3+oihwHHAcd8jpKIpwnKMOuMWO/+p0WZbSOssyQeOA47g7TqdpKmgccMDNOW7CaRoHHMfddprGAcfx5tmtB5Kz2+Nb2O40jQPuaU' +

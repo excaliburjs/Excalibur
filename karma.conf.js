@@ -17,6 +17,10 @@ module.exports = (config) => {
         timeoutInterval: 30000
       }
     },
+    proxies: {
+      // smooths over loading files because karma prepends '/base/' to everything
+      '/src/' : '/base/src/'
+    },
     files: [  
             'src/spec/_boot.ts', 
             { pattern: 'src/spec/images/**/*.mp3', included: false, served: true },
@@ -104,7 +108,6 @@ module.exports = (config) => {
       // base output directory. If you include %browser% in the path it will be replaced with the karma browser name
       dir: path.join(__dirname, 'coverage')
     },
-
     browsers: ['ChromeHeadless_with_audio'],
     browserNoActivityTimeout: 60000, // appveyor is slow :(
     customLaunchers: {

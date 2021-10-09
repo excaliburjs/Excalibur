@@ -1,11 +1,12 @@
-import { Color } from './Drawing/Color';
+import { Color } from './Color';
 import { Engine } from './Engine';
 import { EventDispatcher } from './EventDispatcher';
-import { Actor, isActor } from './Actor';
-import { Vector } from './Algebra';
+import { Vector } from './Math/vector';
 import { ExitTriggerEvent, EnterTriggerEvent, CollisionEndEvent, CollisionStartEvent } from './Events';
 import * as Util from './Util/Util';
 import { CollisionType } from './Collision/CollisionType';
+import { Entity } from './EntityComponentSystem';
+import { Actor } from './Actor';
 
 /**
  * ITriggerOptions
@@ -22,9 +23,9 @@ export interface TriggerOptions {
   // action to take when triggered
   action: () => void;
   // if specified the trigger will only fire on a specific actor and overrides any filter
-  target: Actor;
+  target: Entity;
   // Returns true if the triggers should fire on the collided actor
-  filter: (actor: Actor) => boolean;
+  filter: (actor: Entity) => boolean;
   // -1 if it should repeat forever
   repeat: number;
 }
@@ -47,7 +48,7 @@ const triggerDefaults: Partial<TriggerOptions> = {
  * are invisible, and can only be seen when [[Trigger.visible]] is set to `true`.
  */
 export class Trigger extends Actor {
-  private _target: Actor;
+  private _target: Entity;
   /**
    * Action to fire when triggered by collision
    */
@@ -58,7 +59,7 @@ export class Trigger extends Actor {
    * Filter to add additional granularity to action dispatch, if a filter is specified the action will only fire when
    * filter return true for the collided actor.
    */
-  public filter: (actor: Actor) => boolean = () => true;
+  public filter: (actor: Entity) => boolean = () => true;
   /**
    * Number of times to repeat before killing the trigger,
    */
@@ -69,7 +70,7 @@ export class Trigger extends Actor {
    * @param opts Trigger options
    */
   constructor(opts: Partial<TriggerOptions>) {
-    super(opts.pos.x, opts.pos.y, opts.width, opts.height);
+    super({ x: opts.pos.x, y: opts.pos.y, width: opts.width, height: opts.height });
     opts = Util.extend({}, triggerDefaults, opts);
 
     this.filter = opts.filter || this.filter;
@@ -79,12 +80,12 @@ export class Trigger extends Actor {
       this.target = opts.target;
     }
 
-    this.visible = opts.visible;
-    this.body.collider.type = CollisionType.Passive;
+    this.graphics.visible = opts.visible;
+    this.body.collisionType = CollisionType.Passive;
     this.eventDispatcher = new EventDispatcher(this);
 
-    this.on('collisionstart', (evt: CollisionStartEvent<Actor>) => {
-      if (isActor(evt.other) && this.filter(evt.other)) {
+    this.events.on('collisionstart', (evt: CollisionStartEvent<Actor>) => {
+      if (this.filter(evt.other)) {
         this.emit('enter', new EnterTriggerEvent(this, evt.other));
         this._dispatchAction();
         // remove trigger if its done, -1 repeat forever
@@ -94,16 +95,16 @@ export class Trigger extends Actor {
       }
     });
 
-    this.on('collisionend', (evt: CollisionEndEvent<Actor>) => {
-      if (isActor(evt.other) && this.filter(evt.other)) {
+    this.events.on('collisionend', (evt: CollisionEndEvent<Actor>) => {
+      if (this.filter(evt.other)) {
         this.emit('exit', new ExitTriggerEvent(this, evt.other));
       }
     });
   }
 
-  public set target(target: Actor) {
+  public set target(target: Entity) {
     this._target = target;
-    this.filter = (actor: Actor) => actor === target;
+    this.filter = (actor: Entity) => actor === target;
   }
 
   public get target() {
@@ -115,8 +116,10 @@ export class Trigger extends Actor {
   }
 
   private _dispatchAction() {
-    this.action.call(this);
-    this.repeat--;
+    if (this.repeat !== 0) {
+      this.action.call(this);
+      this.repeat--;
+    }
   }
 
   /* istanbul ignore next */
@@ -126,15 +129,13 @@ export class Trigger extends Actor {
     ctx.save();
     ctx.translate(this.pos.x, this.pos.y);
 
-    const bb = this.body.collider.bounds;
+    const bb = this.collider.bounds;
     const wp = this.getGlobalPos();
     bb.left = bb.left - wp.x;
     bb.right = bb.right - wp.x;
     bb.top = bb.top - wp.y;
     bb.bottom = bb.bottom - wp.y;
 
-    // Currently collision primitives cannot rotate
-    // ctx.rotate(this.rotation);
     ctx.fillStyle = Color.Violet.toString();
     ctx.strokeStyle = Color.Violet.toString();
     ctx.fillText('Trigger', 10, 10);

@@ -26,7 +26,7 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
 describe('A particle', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
-  let texture: ex.Texture;
+  let texture: ex.LegacyDrawing.Texture;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -42,7 +42,7 @@ describe('A particle', () => {
     engine.addScene('root', scene);
     engine.start();
 
-    texture = new ex.Texture('base/src/spec/images/SpriteFontSpec/SpriteFont.png', true);
+    texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteFontSpec/SpriteFont.png', true);
   });
   afterEach(() => {
     engine.stop();

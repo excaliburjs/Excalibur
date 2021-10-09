@@ -10,7 +10,10 @@ describe('A camera', () => {
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
-    actor = new ex.Actor();
+    actor = new ex.Actor({
+      width: 10,
+      height: 10
+    });
 
     // mock engine
     engine = TestUtils.engine({
@@ -22,9 +25,8 @@ describe('A camera', () => {
 
     engine.backgroundColor = ex.Color.Blue;
 
-    actor.pos = ex.vec(250, 250);
-    actor.width = 10;
-    actor.height = 10;
+    actor.pos.x = 250;
+    actor.pos.y = 250;
     actor.color = ex.Color.Red;
     scene = new ex.Scene();
     scene.add(actor);
@@ -174,7 +176,7 @@ describe('A camera', () => {
 
   it('can use built-in locked camera strategy', () => {
     engine.currentScene.camera = new ex.Camera();
-    const actor = new ex.Actor(0, 0);
+    const actor = new ex.Actor();
 
     engine.currentScene.camera.strategy.lockToActor(actor);
 
@@ -191,7 +193,7 @@ describe('A camera', () => {
   it('can use built-in locked camera x axis strategy', () => {
     engine.currentScene.camera = new ex.Camera();
     engine.currentScene.camera.pos = ex.Vector.Zero;
-    const actor = new ex.Actor(0, 0);
+    const actor = new ex.Actor({x: 0, y: 0});
 
     engine.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.X);
 
@@ -208,7 +210,7 @@ describe('A camera', () => {
   it('can use built-in locked camera y axis strategy', () => {
     engine.currentScene.camera = new ex.Camera();
     engine.currentScene.camera.pos = ex.Vector.Zero;
-    const actor = new ex.Actor(0, 0);
+    const actor = new ex.Actor({x: 0, y: 0});
 
     engine.currentScene.camera.strategy.lockToActorAxis(actor, ex.Axis.Y);
 
@@ -225,7 +227,7 @@ describe('A camera', () => {
   it('can use built-in radius around actor strategy', () => {
     engine.currentScene.camera = new ex.Camera();
     engine.currentScene.camera.pos = ex.Vector.Zero;
-    const actor = new ex.Actor(0, 0);
+    const actor = new ex.Actor({x: 0, y: 0});
 
     engine.currentScene.camera.strategy.radiusAroundActor(actor, 15);
 
@@ -241,8 +243,8 @@ describe('A camera', () => {
 
   it('can use built-in elastic around actor strategy', () => {
     engine.currentScene.camera = new ex.Camera();
-    engine.currentScene.camera.pos = ex.vec(0, 0);
-    const actor = new ex.Actor(0, 0);
+    engine.currentScene.camera.pos.setTo(0, 0);
+    const actor = new ex.Actor();
 
     engine.currentScene.camera.strategy.elasticToActor(actor, 0.05, 0.1);
 

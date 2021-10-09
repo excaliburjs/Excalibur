@@ -20,6 +20,7 @@ export class Circle extends Raster {
   }
   constructor(options: RasterOptions & CircleOptions) {
     super(options);
+    this.padding = options.padding ?? 2; // default 2 padding for circles looks nice
     this.radius = options.radius;
     this.rasterize();
   }

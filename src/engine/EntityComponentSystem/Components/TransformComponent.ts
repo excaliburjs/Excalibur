@@ -1,7 +1,39 @@
-import { vec, Vector } from '../../Algebra';
 import { Matrix, MatrixLocations } from '../../Math/matrix';
 import { VectorView } from '../../Math/vector-view';
+import { Vector, vec } from '../../Math/vector';
 import { Component } from '../Component';
+
+export interface Transform {
+  /**
+   * The [[CoordPlane|coordinate plane]] for this transform for the entity.
+   */
+  coordPlane: CoordPlane;
+
+  /**
+   * The current position of the entity in world space or in screen space depending on the the [[CoordPlane|coordinate plane]].
+   *
+   * If the entity has a parent this position is relative to the parent entity.
+   */
+  pos: Vector;
+
+  /**
+   * The z-index ordering of the entity, a higher values are drawn on top of lower values.
+   * For example z=99 would be drawn on top of z=0.
+   */
+  z: number;
+
+  /**
+   * The rotation of the entity in radians. For example `Math.PI` radians is the same as 180 degrees.
+   *
+   * If the entity has a parent this rotation is relative to the parent.
+   */
+  rotation: number;
+
+  /**
+   * The scale of the entity. If the entity has a parent this scale is relative to the parent.
+   */
+  scale: Vector;
+}
 
 const createPosView = (matrix: Matrix) => {
   const source = matrix;
@@ -55,7 +87,7 @@ export enum CoordPlane {
   Screen = 'screen'
 }
 
-export class TransformComponent extends Component<'ex.transform'> {
+export class TransformComponent extends Component<'ex.transform'> implements Transform {
   public readonly type = 'ex.transform';
 
   private _dirty = false;
@@ -76,6 +108,16 @@ export class TransformComponent extends Component<'ex.transform'> {
     } else {
       return this.parent.getGlobalMatrix().multm(this.matrix);
     }
+  }
+
+  public getGlobalTransform(): Transform {
+    return {
+      pos: this.globalPos,
+      scale: this.globalScale,
+      rotation: this.globalRotation,
+      z: this.z,
+      coordPlane: this.coordPlane
+    };
   }
 
   public get parent(): TransformComponent | null {
@@ -229,5 +271,21 @@ export class TransformComponent extends Component<'ex.transform'> {
     } else {
       this.scale = vec(val.x / parentTransform.globalScale.x, val.y / parentTransform.globalScale.y);
     }
+  }
+
+  /**
+   * Apply the transform to a point
+   * @param point
+   */
+  public apply(point: Vector): Vector {
+    return this.matrix.multv(point);
+  }
+
+  /**
+   * Apply the inverse transform to a point
+   * @param point
+   */
+  public applyInverse(point: Vector): Vector {
+    return this.matrix.getAffineInverse().multv(point);
   }
 }

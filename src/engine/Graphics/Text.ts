@@ -2,7 +2,7 @@ import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { SpriteFont } from './SpriteFont';
 import { Graphic, GraphicOptions } from './Graphic';
-import { Color } from '../Drawing/Color';
+import { Color } from '../Color';
 import { Font } from './Font';
 import { watch } from '../Util/Watch';
 

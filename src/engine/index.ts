@@ -9,23 +9,23 @@ polyfill();
 // This file is used as the bundle entry point and exports everything
 // that will be exposed as the `ex` global variable.
 export * from './Flags';
+export * from './Id';
 export * from './Engine';
 export * from './Screen';
 export { Actor, ActorArgs } from './Actor';
-export { CollisionType } from './Collision/CollisionType';
-export * from './Algebra';
+export * from './Math/Index';
 export * from './Camera';
 export * from './Class';
 export * from './Configurable';
-export * from './Debug';
+export * from './Debug/index';
 export * from './EventDispatcher';
 export * from './Events/MediaEvents';
 export * from './Events';
-export { Label } from './Label';
+export * from './Label';
 export { FontStyle, FontUnit, TextAlign, BaseAlign } from './Graphics/FontCommon';
 export * from './Loader';
 export { Particle, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterType } from './Particles';
-export * from './Physics';
+export * from './Collision/Physics';
 export * from './Scene';
 export { TileMap, Cell, TileMapArgs, CellArgs } from './TileMap';
 export * from './Timer';
@@ -34,17 +34,19 @@ export * from './ScreenElement';
 
 export * from './Actions/Index';
 export * from './Collision/Index';
-export * from './Drawing/Index';
+
+// ex.LegacyDrawing namespace
+import * as legacyDrawing from './Drawing/Index';
+export { legacyDrawing as LegacyDrawing };
 export * from './Interfaces/Index';
-export * from './Math/Index';
 export * from './PostProcessing/Index';
 export * from './Resources/Index';
 
 export * from './EntityComponentSystem/index';
 
-// ex.Graphics namespace
-import * as graphics from './Graphics/index';
-export { graphics as Graphics };
+export * from './Color';
+
+export * from './Graphics/index';
 
 // ex.Events namespace
 import * as events from './Events';
@@ -61,12 +63,22 @@ export { traits as Traits };
 // ex.Util namespaces
 import * as util from './Util/Index';
 export { util as Util };
+export {
+  clamp,
+  range,
+  toDegrees,
+  toRadians,
+  randomInRange,
+  randomIntInRange,
+  canonicalizeAngle
+} from './Util/Index';
 
 export * from './Util/Browser';
 export * from './Util/Decorators';
 export * from './Util/Detector';
 export * from './Util/CullingBox';
 export * from './Util/EasingFunctions';
+export * from './Util/Observable';
 export * from './Util/Log';
 export * from './Util/SortedList';
 export * from './Util/Pool';

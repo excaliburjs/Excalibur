@@ -1,6 +1,7 @@
 import { ImageSource } from './ImageSource';
 import { Sprite } from './Sprite';
 import { SpriteSheet as LegacySpriteSheet } from '../Drawing/SpriteSheet';
+import { Logger } from '..';
 
 
 /**
@@ -57,22 +58,58 @@ export interface SpriteSheetGridOptions {
 }
 
 export interface SpriteSheetOptions {
+  /**
+   * Source sprites for the sprite sheet
+   */
   sprites: Sprite[];
+  /**
+   * Optionally specify the number of rows in a sprite sheet (default 1 row)
+   */
+  rows?: number;
+  /**
+   * Optionally specify the number of columns in a sprite sheet (default sprites.length)
+   */
+  columns?: number;
 }
 
 /**
- * Represents a collection of sprites from a source image
+ * Represents a collection of sprites from a source image with some organization in a grid
  */
 export class SpriteSheet {
+  private _logger = Logger.getInstance();
   public readonly sprites: Sprite[] = [];
+  public readonly rows: number;
+  public readonly columns: number;
 
   /**
    * Build a new sprite sheet from a list of sprites
+   *
+   * Use [[SpriteSheet.fromImageSource]] to create a SpriteSheet from an [[ImageSource]] organized in a grid
    * @param options
    */
   constructor(options: SpriteSheetOptions) {
-    const { sprites } = options;
+    const { sprites, rows, columns } = options;
     this.sprites = sprites;
+    this.rows = rows ?? 1;
+    this.columns = columns ?? this.sprites.length;
+  }
+
+  /**
+   * Find a sprite by their x/y position in the SpriteSheet, for example `getSprite(0, 0)` is the [[Sprite]] in the top-left
+   * @param x
+   * @param y
+   */
+  public getSprite(x: number, y: number): Sprite | null {
+    if (x >= this.columns || x < 0) {
+      this._logger.warn(`No sprite exists in the SpriteSheet at (${x}, ${y}), x: ${x} should be between 0 and ${this.columns - 1}`);
+      return null;
+    }
+    if (y >= this.rows || y < 0) {
+      this._logger.warn(`No sprite exists in the SpriteSheet at (${x}, ${y}), y: ${y} should be between 0 and ${this.rows - 1}`);
+      return null;
+    }
+    const spriteIndex = x + y * this.columns;
+    return this.sprites[spriteIndex];
   }
 
   /**
@@ -86,10 +123,47 @@ export class SpriteSheet {
   }
 
   /**
-   * Parse a sprite sheet from grid options
+   * @deprecated
+   * @param spriteSheet
+   * @returns
+   */
+  public static toLegacySpriteSheet(spriteSheet: SpriteSheet): LegacySpriteSheet {
+    const sprites = spriteSheet.sprites.map(sprite => Sprite.toLegacySprite(sprite));
+    return new LegacySpriteSheet(sprites);
+  }
+
+  /**
+   * Create a SpriteSheet from an [[ImageSource]] organized in a grid
+   *
+   * Example:
+   * ```
+   * const spriteSheet = SpriteSheet.fromImageSource({
+   *   image: imageSource,
+   *   grid: {
+   *     rows: 5,
+   *     columns: 2,
+   *     spriteWidth: 32, // pixels
+   *     spriteHeight: 32 // pixels
+   *   },
+   *   // Optionally specify spacing
+   *   spacing: {
+   *     // pixels from the top left to start the sprite parsing
+   *     originOffset: {
+   *       x: 5,
+   *       y: 5
+   *     },
+   *     // pixels between each sprite while parsing
+   *     margin: {
+   *       x: 1,
+   *       y: 1
+   *     }
+   *   }
+   * })
+   * ```
+   *
    * @param options
    */
-  public static fromGrid(options: SpriteSheetGridOptions): SpriteSheet {
+  public static fromImageSource(options: SpriteSheetGridOptions): SpriteSheet {
     const sprites: Sprite[] = [];
     options.spacing = options.spacing ?? {};
     const {
@@ -114,7 +188,9 @@ export class SpriteSheet {
       }
     }
     return new SpriteSheet({
-      sprites: sprites
+      sprites: sprites,
+      rows: rows,
+      columns: cols
     });
   }
 }

@@ -1,5 +1,5 @@
-import { Color } from '../Drawing/Color';
-import { Vector } from '../Algebra';
+import { Color } from '../Color';
+import { Vector } from '../Math/vector';
 
 /**
  * A canvas linecap style. "butt" is the default flush style, "round" is a semi-circle cap with a radius half the width of

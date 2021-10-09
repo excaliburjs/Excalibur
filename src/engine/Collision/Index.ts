@@ -1,19 +1,35 @@
-export * from './Body';
-export * from './Collider';
+export * from './BodyComponent';
+export * from './ColliderComponent';
+export * from './CollisionType';
+
+export * from './Colliders/Collider';
 export * from './BoundingBox';
-export * from './Circle';
-export * from './CollisionContact';
-export * from './CollisionJumpTable';
-export * from './ClosestLineJumpTable';
-export * from './CollisionGroup';
-export * from './CollisionGroupManager';
-export * from './DynamicTree';
-export * from './DynamicTreeCollisionBroadphase';
-export * from './Edge';
-export * from './CollisionShape';
-export * from './CollisionResolver';
+
+export * from './Colliders/Shape';
+export * from './Colliders/Collider';
+export * from './Colliders/CompositeCollider';
+export * from './Colliders/CircleCollider';
+export * from './Colliders/EdgeCollider';
+export * from './Colliders/PolygonCollider';
+export * from './Colliders/CollisionJumpTable';
+export * from './Colliders/ClosestLineJumpTable';
+
+export * from './Group/CollisionGroup';
+export * from './Group/CollisionGroupManager';
+
+export * from './Detection/Pair';
+export * from './Detection/CollisionContact';
+export * from './Detection/CollisionProcessor';
+export * from './Detection/DynamicTree';
+export * from './Detection/DynamicTreeCollisionProcessor';
+
+export * from './Solver/ArcadeSolver';
+export * from './Solver/ContactConstraintPoint';
+export * from './Solver/RealisticSolver';
+export * from './Solver/Solver';
+
+export * from './CollisionSystem';
+export * from './MotionSystem';
+
 export * from './Physics';
-export * from './Pair';
-export * from './ConvexPolygon';
 export * from './Side';
-export * from './Shape';

@@ -27,7 +27,7 @@ describe('An EntityManager', () => {
     expect(entityManager.getById(entity.id)).toBe(entity);
 
     // Remove by entity
-    entityManager.removeEntity(entity);
+    entityManager.removeEntity(entity, false);
 
     expect(entityManager.entities).toEqual([]);
     expect(entityManager.getById(entity.id)).toBeUndefined();
@@ -35,7 +35,7 @@ describe('An EntityManager', () => {
     // Remove by id
     entityManager.addEntity(entity);
     expect(entityManager.entities).toEqual([entity]);
-    entityManager.removeEntity(entity.id);
+    entityManager.removeEntity(entity.id, false);
     expect(entityManager.entities).toEqual([]);
   });
 
@@ -71,5 +71,28 @@ describe('An EntityManager', () => {
 
     entity.removeComponent(componentA);
     entity.processComponentRemoval();
+  });
+
+  it('can find entities by name', () => {
+    const entityManager = new ex.EntityManager(new ex.World(null));
+    const entity = new ex.Entity([], 'some-e');
+    const entity2 = new ex.Entity();
+    entityManager.addEntity(entity);
+    entityManager.addEntity(entity2);
+    expect(entityManager.getByName('some-e')).toEqual([entity]);
+    expect(entityManager.getByName('anonymous')).toEqual([entity2]);
+  });
+
+  it('can clear entities', () => {
+    const entityManager = new ex.EntityManager(new ex.World(null));
+    const entity = new ex.Entity([], 'some-e');
+    const entity2 = new ex.Entity();
+    entityManager.addEntity(entity);
+    entityManager.addEntity(entity2);
+
+    expect(entityManager.entities.length).toBe(2);
+    entityManager.clear();
+    entityManager.processEntityRemovals();
+    expect(entityManager.entities.length).toBe(0);
   });
 });

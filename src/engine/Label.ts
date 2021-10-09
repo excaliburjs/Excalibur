@@ -1,35 +1,45 @@
 import { Engine } from './Engine';
-import { Color } from './Drawing/Color';
-import { Configurable } from './Configurable';
-import { vec, Vector } from './Algebra';
+import { Color } from './Color';
+import { vec, Vector } from './Math/vector';
 import { Text } from './Graphics/Text';
 import { BaseAlign, FontStyle, FontUnit, TextAlign } from './Graphics/FontCommon';
 import { obsolete } from './Util/Decorators';
 import { SpriteFont as LegacySpriteFont } from './Drawing/SpriteSheet';
 import { ExcaliburGraphicsContext, GraphicsComponent, SpriteFont } from './Graphics';
 import { Font } from './Graphics/Font';
-import { CanvasDrawComponent } from './Drawing/Index';
-import { TransformComponent } from './EntityComponentSystem';
 import { Actor } from './Actor';
+import { ActorArgs } from '.';
 
+/**
+ * Option for creating a label
+ */
 export interface LabelOptions {
+  /**
+   * Specify the label text
+   */
   text?: string;
+  /**
+   * Specify the color of the text (does not apply to SpriteFonts)
+   */
+  color?: Color;
   x?: number;
   y?: number;
-  bold?: boolean;
   pos?: Vector;
-  spriteFont?: LegacySpriteFont;
-  fontFamily?: string;
-  fontSize?: number;
-  fontStyle?: FontStyle;
-  fontUnit?: FontUnit;
-  textAlign?: TextAlign;
+  /**
+   * Optionally specify a sprite font, will take precedence over any other [[Font]]
+   */
+  spriteFont?: SpriteFont | LegacySpriteFont;
+  /**
+   * Specify a custom font
+   */
+  font?: Font
 }
 
 /**
- * @hidden
+ * Labels are the way to draw small amounts of text to the screen. They are
+ * actors and inherit all of the benefits and capabilities.
  */
-export class LabelImpl extends Actor {
+export class Label extends Actor {
   public font: Font = new Font();
   private _text: Text = new Text({ text: '', font: this.font });
 
@@ -182,18 +192,23 @@ export class LabelImpl extends Actor {
   private _legacySpriteFont: LegacySpriteFont;
   private _spriteFont: SpriteFont;
   /**
-   * The [[SpriteFont]] to use, if any. Overrides [[fontFamily]] if present.
-   * @deprecated Use [[Graphics.SpriteFont]]
+   * The [[LegacyDrawing.SpriteFont]] to use, if any. Overrides [[fontFamily]] if present.
+   * @deprecated Use [[SpriteFont]]
    */
   @obsolete()
   public get spriteFont(): LegacySpriteFont {
     return this._legacySpriteFont;
   }
 
-  public set spriteFont(sf: LegacySpriteFont) {
-    this._legacySpriteFont = sf;
+  public set spriteFont(sf: LegacySpriteFont | SpriteFont) {
     if (sf) {
-      this._spriteFont = SpriteFont.fromLegacySpriteFont(sf);
+      if (sf instanceof LegacySpriteFont) {
+        this._legacySpriteFont = sf;
+        this._spriteFont = SpriteFont.fromLegacySpriteFont(sf);
+        this._text.font = this._spriteFont;
+        return;
+      }
+      this._spriteFont = sf;
       this._text.font = this._spriteFont;
     }
   }
@@ -213,44 +228,21 @@ export class LabelImpl extends Actor {
   private _graphicsContext: ExcaliburGraphicsContext;
 
   /**
-   * @param textOrConfig    The text of the label, or label option bag
-   * @param x           The x position of the label
-   * @param y           The y position of the label
-   * @param fontFamily  Use a value that is valid for the CSS `font-family` property. The default is `sans-serif`.
-   * @param spriteFont  Use an Excalibur sprite font for the label's font, if a SpriteFont is provided it will take precedence
-   * over a css font.
+   * Build a new label
+   * @param options
    */
-  constructor(textOrConfig?: string | LabelOptions, x?: number, y?: number, fontFamily?: string, spriteFont?: LegacySpriteFont) {
-    super();
-    let text = '';
-    let pos = Vector.Zero;
-    if (textOrConfig && typeof textOrConfig === 'object') {
-      fontFamily = textOrConfig.fontFamily;
-      spriteFont = textOrConfig.spriteFont;
-      text = textOrConfig.text;
-      pos = textOrConfig.pos ?? vec(textOrConfig.x ?? 0, textOrConfig.y ?? 0);
-    } else {
-      text = <string>textOrConfig;
-      pos = vec(x ?? 0, y ?? 0);
-    }
+  constructor(options?: LabelOptions & ActorArgs) {
+    super(options);
+    const {text, pos, x, y, spriteFont, font, color} = options;
 
-    this.addComponent(new TransformComponent());
-    this.get(TransformComponent).pos = pos;
-
-    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
-    this.addComponent(new GraphicsComponent());
+    this.pos = pos ?? (x && y ? vec(x, y) : this.pos);
+    this.text = text ?? this.text;
+    this.spriteFont = spriteFont ?? this.spriteFont;
+    this.font = font ?? this.font;
+    this.color = color ?? this.color;
     const gfx = this.get(GraphicsComponent);
     gfx.anchor = Vector.Zero;
     gfx.use(this._text);
-
-    this.text = text || '';
-    this.color = Color.Black;
-    if (fontFamily) {
-      this.font.family = fontFamily;
-    }
-    if (spriteFont) {
-      this.spriteFont = spriteFont;
-    }
   }
 
   public _initialize(engine: Engine) {
@@ -309,18 +301,5 @@ export class LabelImpl extends Actor {
   public draw(_ctx: CanvasRenderingContext2D, _delta: number) {
     const exctx = this._graphicsContext;
     this._text.draw(exctx, 0, 0);
-  }
-}
-
-/**
- * Labels are the way to draw small amounts of text to the screen. They are
- * actors and inherit all of the benefits and capabilities.
- */
-export class Label extends Configurable(LabelImpl) {
-  constructor();
-  constructor(config?: LabelOptions);
-  constructor(text?: string, x?: number, y?: number, fontFamily?: string, spriteFont?: LegacySpriteFont);
-  constructor(textOrConfig?: string | LabelOptions, x?: number, y?: number, fontFamily?: string, spriteFont?: LegacySpriteFont) {
-    super(textOrConfig, x, y, fontFamily, spriteFont);
   }
 }

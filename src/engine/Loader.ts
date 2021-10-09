@@ -1,4 +1,4 @@
-import { Color } from './Drawing/Color';
+import { Color } from './Color';
 import { WebAudio } from './Util/WebAudio';
 import { Engine } from './Engine';
 import { Loadable } from './Interfaces/Loadable';
@@ -8,7 +8,7 @@ import * as DrawUtil from './Util/DrawUtil';
 import logoImg from './Loader.logo.png';
 import loaderCss from './Loader.css';
 import { Canvas } from './Graphics/Canvas';
-import { Vector } from './Algebra';
+import { Vector } from './Math/vector';
 import { clamp, delay } from './Util/Util';
 
 /**

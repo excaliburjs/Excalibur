@@ -24,7 +24,7 @@ export class Fade implements Action {
       this._started = true;
 
       // determine direction when we start
-      if (this._endOpacity < this._actor.opacity) {
+      if (this._endOpacity < this._actor.graphics.opacity) {
         this._multiplier = -1;
       } else {
         this._multiplier = 1;
@@ -32,20 +32,21 @@ export class Fade implements Action {
     }
 
     if (this._speed > 0) {
-      this._actor.opacity += (this._multiplier * (Math.abs(this._actor.opacity - this._endOpacity) * delta)) / this._speed;
+      this._actor.graphics.opacity += (this._multiplier *
+        (Math.abs(this._actor.graphics.opacity - this._endOpacity) * delta)) / this._speed;
     }
 
     this._speed -= delta;
 
     if (this.isComplete()) {
-      this._actor.opacity = this._endOpacity;
+      this._actor.graphics.opacity = this._endOpacity;
     }
 
-    Logger.getInstance().debug('[Action fade] Actor opacity:', this._actor.opacity);
+    Logger.getInstance().debug('[Action fade] Actor opacity:', this._actor.graphics.opacity);
   }
 
   public isComplete(): boolean {
-    return this._stopped || Math.abs(this._actor.opacity - this._endOpacity) < 0.05;
+    return this._stopped || Math.abs(this._actor.graphics.opacity - this._endOpacity) < 0.05;
   }
 
   public stop(): void {
