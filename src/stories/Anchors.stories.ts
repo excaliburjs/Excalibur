@@ -1,4 +1,4 @@
-import { Loader, Color, Actor, Util, Vector } from '../engine';
+import { Loader, Color, Actor, Util, Vector, vec } from '../engine';
 import { ImageSource, Canvas } from '../engine/Graphics';
 import { withEngine } from './utils';
 
@@ -10,7 +10,7 @@ export default {
 
 class Cross extends Actor {
   constructor(x: number, y: number) {
-    super(x, y, 40, 40);
+    super({ x, y, width: 40, height: 40 });
     this.graphics.onPreDraw = (ctx) => {
       ctx.save();
       // onPreDraw doesnt factor anchor anymore
@@ -60,7 +60,7 @@ export const centered = withEngine(async (game) => {
   const heartSprite = heartTx.toSprite();
   heartSprite.scale.setTo(3, 3);
   ca4.graphics.add(heartSprite);
-  ca4.rx = 0.5;
+  ca4.angularVelocity = 0.5;
   ca3.rotation = Util.toRadians(45);
 
   game.add(ca4);

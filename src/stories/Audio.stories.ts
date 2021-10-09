@@ -30,9 +30,9 @@ export const playingASound: Story = withEngine(async (game) => {
   await game.start(loader);
 
   const startOrPauseBtn = new Actor({ x: game.currentScene.camera.x - 42, y: 50, width: 32, height: 32 });
-  const stopBtn = new Actor(game.currentScene.camera.x, 50, 32, 32, Color.Blue);
-  const playHead = new Actor(game.currentScene.camera.x, 100, 2, 25, Color.White);
-  const playTimeline = new Actor(game.currentScene.camera.x, 100, 250, 3, Color.White);
+  const stopBtn = new Actor({ x: game.currentScene.camera.x, y: 50, width: 32, height: 32, color: Color.Blue });
+  const playHead = new Actor({ x: game.currentScene.camera.x, y: 100, width: 2, height: 25, color: Color.White });
+  const playTimeline = new Actor({ x: game.currentScene.camera.x, y: 100, width: 250, height: 3, color: Color.White });
 
   const playSprite = new Sprite({ image: playIconTx, destSize: { width: 32, height: 32 } });
   // playSprite.fill(Color.White);
@@ -58,8 +58,8 @@ export const playingASound: Story = withEngine(async (game) => {
   stopBtn.graphics.show(stopSprite);
   stopBtn.enableCapturePointer = true;
 
-  const playheadStartPos = playTimeline.body.collider.bounds.left;
-  const playheadEndPos = playTimeline.body.collider.bounds.right;
+  const playheadStartPos = playTimeline.collider.bounds.left;
+  const playheadEndPos = playTimeline.collider.bounds.right;
   let startTime = 0;
   let elapsedTime = 0;
 
@@ -133,7 +133,7 @@ export const multipleTracksAndLooping: Story = withEngine(async (game, { beginGu
   const playAction = action('play');
   const startGuitarAt = beginGuitarDelay;
 
-  const startBtn = new Actor(game.currentScene.camera.x - 42, 50, 32, 32, Color.White);
+  const startBtn = new Actor({x: game.currentScene.camera.x - 42, y: 50, width: 32, height: 32, color: Color.White });
   const playSprite = new Sprite({ image: playIconTx, destSize: { width: 32, height: 32 } });
   // playSprite.fill(Color.White);
 
@@ -173,7 +173,7 @@ export const volumeLevels: Story = withEngine(async (game, { initialVolume, dela
 
   // click a button to play the sound
   const playAction = action('play');
-  const startBtn = new Actor(game.currentScene.camera.x - 42, 50, 32, 32, Color.White);
+  const startBtn = new Actor({x: game.currentScene.camera.x - 42, y: 50, width: 32, height: 32, color: Color.White });
   const playSprite = new Sprite({ image: playIconTx, destSize: { width: 32, height: 32 } });
   // playSprite.fill(Color.White);
   startBtn.graphics.add(playSprite);

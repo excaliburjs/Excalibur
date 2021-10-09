@@ -9,17 +9,16 @@ export const keyEvents = withEngine(async (game) => {
   let lastKeysPressed: string;
   const keyLabel = new Label({
     x: game.halfCanvasWidth,
-    y: game.halfCanvasHeight,
-    fontSize: 72
+    y: game.halfCanvasHeight
   });
+  keyLabel.font.size = 72;
   keyLabel.color = Color.White;
 
   const lastKey = new Label({
     x: game.halfCanvasWidth,
-    y: game.halfCanvasHeight + 72,
-
-    fontSize: 18
+    y: game.halfCanvasHeight + 72
   });
+  lastKey.font.size = 18;
   lastKey.color = Color.Cyan;
 
   keyLabel.on('preupdate', () => {

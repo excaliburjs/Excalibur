@@ -36,9 +36,8 @@ export const main: Story = withEngine(
     game.backgroundColor = Color.Black;
 
     // Particle Emitter
-    const emitter = new ParticleEmitter(game.currentScene.camera.x, game.currentScene.camera.y);
-    emitter.width = width;
-    emitter.height = height;
+    const emitter = new ParticleEmitter({ x: game.currentScene.camera.x, y: game.currentScene.camera.y, width, height });
+
     emitter.emitterType = emitterType;
     emitter.radius = radius;
     emitter.minVel = minVel;

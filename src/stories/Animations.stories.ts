@@ -13,7 +13,7 @@ export const multipleFrames: Story = withEngine(async (game, { strategy }) => {
 
   const player = new Actor({ x: game.currentScene.camera.x, y: game.currentScene.camera.y, width: 100, height: 30 });
   player.anchor.setTo(0.5, 0.5);
-  const spritesheet = SpriteSheet.fromGrid({
+  const spritesheet = SpriteSheet.fromImageSource({
     image: playerTexture,
     grid: {
       columns: 3,

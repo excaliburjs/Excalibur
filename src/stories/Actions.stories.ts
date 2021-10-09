@@ -59,9 +59,9 @@ export const fade: Story = withEngine(async (game, { startOpacity, endOpacity, p
     x: game.currentScene.camera.x,
     y: game.currentScene.camera.y,
     width: 50,
-    height: 50,
-    opacity: 0
+    height: 50
   });
+  heart.graphics.opacity = 0;
 
   // Assign texture to heart actor
   heart.graphics.add(heartTx.toSprite());
