@@ -649,7 +649,7 @@ player.on('pointerup', () => {
   console.log('pointer up');
 });
 player.on('pointermove', () => {
-  console.log('pointer over');
+  //console.log('pointer over');
 });
 player.on('pointerleave', () => {
   console.log('pointer exit');

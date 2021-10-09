@@ -23,7 +23,7 @@ export class ScreenElement extends Actor {
     this.anchor = vec(0, 0);
     this.body.collisionType = CollisionType.PreventCollision;
     this.collider.useBoxCollider(this.width, this.height, this.anchor);
-    this.enableCapturePointer = true;
+    // this.enableCapturePointer = true;
   }
 
   public _initialize(engine: Engine) {

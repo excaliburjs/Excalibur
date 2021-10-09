@@ -65,7 +65,6 @@ export class PointerSystem extends System<TransformComponent> {
   }
 
   update(entities: Entity[]): void {
-
     // Locate all the pointer/entity mappings
     this._processPointerToEntity(entities)
 
@@ -73,6 +72,7 @@ export class PointerSystem extends System<TransformComponent> {
     this._dispatchEvents(entities);
 
     // Clear last frame's events
+    this._receiver.update();
     this.lastFrameEntityToPointers.clear();
     this.lastFrameEntityToPointers = new Map<number, number[]>(this.currentFrameEntityToPointers);
     this.currentFrameEntityToPointers.clear();
@@ -85,6 +85,11 @@ export class PointerSystem extends System<TransformComponent> {
     let graphics: GraphicsComponent;
     let pointerConfig: PointerComponent;
 
+    // const pointers = Array.from(this._receiver.pointerPositions.keys());
+    // if (pointers.length) {
+    //   console.log(pointers);
+    // }
+
     // TODO probably a spatial partition optimization here to quickly query bounds for pointer
     // Pre-process find entities under pointers
     for (let entity of entities) {
@@ -95,7 +100,7 @@ export class PointerSystem extends System<TransformComponent> {
       if (collider && pointerConfig.useColliderShape) {
         const geom = collider.get();
         if (geom) {
-          for (const [pointerId, pos] of this._receiver.pointerPositions) {
+          for (const [pointerId, pos] of this._receiver.currentFramePointerPositions.entries()) {
             if (geom.contains(pos)) {
               this.addPointerToEntity(entity, pointerId);
             }
@@ -107,7 +112,7 @@ export class PointerSystem extends System<TransformComponent> {
       graphics = entity.get(GraphicsComponent);
       if (graphics && pointerConfig.useGraphicsBounds) {
         const graphicBounds = graphics.localBounds.transform(transform.getGlobalMatrix())
-        for (const [pointerId, pos] of this._receiver.pointerPositions) {
+        for (const [pointerId, pos] of this._receiver.currentFramePointerPositions.entries()) {
           if (graphicBounds.contains(pos)) {
             this.addPointerToEntity(entity, pointerId);
           }
@@ -122,21 +127,29 @@ export class PointerSystem extends System<TransformComponent> {
     // Filter preserves z order 
     const entitiesWithEvents = entities.filter(e => lastFrameEntities.has(e.id) || currentFrameEntities.has(e.id));
     const lastMovePerPointer = new Map<number, ExPointerEvent>();
+    const lastUpPerPointer = new Map<number, ExPointerEvent>();
+    const lastDownPerPointer = new Map<number, ExPointerEvent>();
     // Dispatch events in entity z order
     for (let entity of entitiesWithEvents) {
+      
       // down
       for (let event of this._receiver.down) {
         if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
           entity.events.emit('pointerdown', event as any);
+          console.log('pointerdown', event.pointerId);
         }
+        lastDownPerPointer.set(event.pointerId, event);
       }
       // up
       for (let event of this._receiver.up) {
         if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
           entity.events.emit('pointerup', event as any);
+          console.log('pointerup', event.pointerId);
         }
+        lastUpPerPointer.set(event.pointerId, event);
       }
 
+      // active pointer move
       for (let event of this._receiver.move) {
         if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
           // move
@@ -145,14 +158,19 @@ export class PointerSystem extends System<TransformComponent> {
         lastMovePerPointer.set(event.pointerId, event);
       }
 
-      for (let event of lastMovePerPointer.values()) {
+      // up, down, and move are considered for enter and leave
+      for (let event of [...lastMovePerPointer.values(), ...lastDownPerPointer.values(), ...lastUpPerPointer.values()]) {
         // enter
         if (event.active && entity.active && this.entered(entity, event.pointerId)) {
           entity.events.emit('pointerenter', event as any);
+          break;
         }
         // leave
-        if (event.active && entity.active && this.left(entity, event.pointerId)) {
+        if (event.active && entity.active &&
+            (this.left(entity, event.pointerId) ||
+            (this.entityCurrentlyUnderPointer(entity, event.pointerId) && event.type === 'up'))) {
           entity.events.emit('pointerleave', event as any);
+          break;
         }
       }
 

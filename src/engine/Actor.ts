@@ -20,7 +20,7 @@ import {
   EnterViewPortEvent,
   ExitViewPortEvent
 } from './Events';
-import { PointerEvent, WheelEvent, PointerDragEvent, PointerEventName } from './Input/PointerEvents';
+import { PointerEvent, WheelEvent, PointerDragEvent } from './Input/PointerEvents';
 import { Engine } from './Engine';
 import { Color } from './Color';
 import { Sprite } from './Drawing/Sprite';
@@ -53,7 +53,6 @@ import { Shape } from './Collision/Colliders/Shape';
 import { watch } from './Util/Watch';
 import { Collider, CollisionGroup } from './Collision/Index';
 import { Circle } from './Graphics/Circle';
-import { CapturePointerConfig } from './Input/CapturePointerConfig';
 import { PointerComponent } from './Input/PointerComponent';
 
 /**

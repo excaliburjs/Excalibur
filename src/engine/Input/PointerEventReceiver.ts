@@ -43,7 +43,8 @@ export class ExWheelEvent {
  */
 export class PointerEventReceiver {
   // TODO pointers type
-  public pointerPositions = new Map<number, Vector>();
+  public lastFramePointerPosition = new Map<number, Vector>();
+  public currentFramePointerPositions = new Map<number, Vector>();
   public pointerDown = new Map<number, boolean>();
 
   public down: ExPointerEvent[] = [];
@@ -52,16 +53,27 @@ export class PointerEventReceiver {
   public cancel: ExPointerEvent[] = [];
   public wheel: ExWheelEvent[] = [];
   // TODO held and drag events?
-  
+
   constructor(public readonly target: GlobalEventHandlers & EventTarget, public engine: Engine) {}
-  
+
+  // public get pointerPositions(): Map<number, Vector> {
+  //   return new Map([...this.lastFramePointerPosition, ...this.currentFramePointerPositions])
+  // }
+
+  public update() {
+    this.lastFramePointerPosition = new Map(this.currentFramePointerPositions);
+    // this.currentFramePointerPositions.clear();
+  }
+
   public clear() {
+    for (let event of this.up) {
+      this.currentFramePointerPositions.delete(event.pointerId);
+    }
     this.down.length = 0;
     this.up.length = 0;
     this.move.length = 0;
     this.cancel.length = 0;
     this.wheel.length = 0;
-    // this.pointerPositions.clear();
   }
 
   public attach() {
@@ -128,23 +140,24 @@ export class PointerEventReceiver {
     let eventCoords = new Map<number, GlobalCoordinates>();
     if (ev instanceof TouchEvent) {
       // https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent
-      for (let touchId = 0; touchId < ev.changedTouches.length; touchId++) {
-        const touch = ev.changedTouches[touchId];
+      for (let i = 0; i < ev.changedTouches.length; i++) {
+        const touch = ev.changedTouches[i];
         const coordinates = GlobalCoordinates.fromPagePosition(touch.pageX, touch.pageY, this.engine);
-        this.pointerPositions.set(touchId, coordinates.worldPos);
-        eventCoords.set(touchId, coordinates);
+        this.currentFramePointerPositions.set(i + 1, coordinates.worldPos);
+        eventCoords.set(i + 1, coordinates);
       }
     } else {
       const coordinates = GlobalCoordinates.fromPagePosition(ev.pageX, ev.pageY, this.engine);
       let pointerId = 0;
       if (ev instanceof PointerEvent) {
         pointerId = ev.pointerId;
-      } 
-      this.pointerPositions.set(pointerId, coordinates.worldPos);
+      }
+      this.currentFramePointerPositions.set(pointerId, coordinates.worldPos);
       eventCoords.set(pointerId, coordinates);
+      console.log(pointerId);
     }
 
-    for (let [pointerId, coord] of eventCoords) {
+    for (let [pointerId, coord] of eventCoords.entries()) {
       switch(ev.type) {
         case 'mousedown':
         case 'pointerdown':

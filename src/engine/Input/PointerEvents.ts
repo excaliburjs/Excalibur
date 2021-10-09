@@ -181,7 +181,7 @@ export class PointerUpEvent extends PointerEvent {
   protected _onActionEnd(actor: Actor) {
     const pointer = this.pointer;
 
-    if (pointer.isDragEnd && actor.capturePointer.captureDragEvents) {
+    if (pointer.isDragEnd) {
       actor.eventDispatcher.emit('pointerdragend', this);
     }
   }
@@ -191,7 +191,7 @@ export class PointerDownEvent extends PointerEvent {
   protected _name = 'pointerdown';
 
   protected _onActionEnd(actor: Actor) {
-    if (this.pointer.isDragStart && actor.capturePointer.captureDragEvents) {
+    if (this.pointer.isDragStart) {
       actor.eventDispatcher.emit('pointerdragstart', this);
     }
   }
@@ -217,16 +217,14 @@ export class PointerMoveEvent extends PointerEvent {
   }
 
   protected _onActionStart(actor: Actor) {
-    if (!actor.capturePointer.captureMoveEvents) {
-      return;
-    }
+    
 
     // In the case this is new
     // if (this.pointer.checkActorUnderPointer(actor) && !this.pointer.wasActorUnderPointer(actor)) {
     //   this._onActorEnter(actor);
     // }
 
-    if (this.pointer.isDragging && actor.capturePointer.captureDragEvents) {
+    if (this.pointer.isDragging) {
       actor.eventDispatcher.emit('pointerdragmove', this);
     }
   }
@@ -251,16 +249,14 @@ export class PointerMoveEvent extends PointerEvent {
 export class PointerEnterEvent extends PointerEvent {
   protected _name = 'pointerenter';
 
-  protected _onActionStart(actor: Actor) {
-    if (!actor.capturePointer.captureMoveEvents) {
-      return;
-    }
+  protected _onActionStart(_actor: Actor) {
+
   }
 
   protected _onActionEnd(actor: Actor) {
     const pointer = this.pointer;
 
-    if (pointer.isDragging && actor.capturePointer.captureDragEvents) {
+    if (pointer.isDragging) {
       actor.eventDispatcher.emit('pointerdragenter', this);
     }
   }
@@ -269,16 +265,14 @@ export class PointerEnterEvent extends PointerEvent {
 export class PointerLeaveEvent extends PointerEvent {
   protected _name = 'pointerleave';
 
-  protected _onActionStart(actor: Actor) {
-    if (!actor.capturePointer.captureMoveEvents) {
-      return;
-    }
+  protected _onActionStart(_actor: Actor) {
+
   }
 
   protected _onActionEnd(actor: Actor) {
     const pointer = this.pointer;
 
-    if (pointer.isDragging && actor.capturePointer.captureDragEvents) {
+    if (pointer.isDragging) {
       actor.eventDispatcher.emit('pointerdragleave', this);
     }
   }

@@ -8,9 +8,9 @@ import { Engine } from '../Engine';
  */
 export class CapturePointer implements Trait {
   public update(actor: Actor, engine: Engine) {
-    if (!actor.enableCapturePointer) {
-      return;
-    }
+    // if (!actor.enableCapturePointer) {
+    //   return;
+    // }
     if (actor.isKilled()) {
       return;
     }
