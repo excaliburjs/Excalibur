@@ -85,12 +85,8 @@ npm run build
 npm test
 npm run test
 
-# Compile HTML visual tests
-# Useful to ensure HTML sandbox compiles
-npm run visual
-
-# Start sandbox dev server (long-running)
-# Run in separate terminal alongside `npm run visual`
+# Start Storybook-based sandbox
+# Used for creating interactive visual tests and examples for docs
 npm run sandbox
 
 # Compile API docs
