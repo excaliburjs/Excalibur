@@ -22,7 +22,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 ### Fixed
 
-- 
+- Fixed crash in debug system if there is no collider geometry
+- Fixed ImageSource loading error message [#2049]
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
