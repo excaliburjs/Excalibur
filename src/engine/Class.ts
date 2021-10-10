@@ -1,4 +1,3 @@
-import { GameEvent } from './Events';
 import { EventDispatcher } from './EventDispatcher';
 import { Eventable } from './Interfaces/Evented';
 
@@ -22,7 +21,7 @@ export class Class implements Eventable {
    * @param eventName  Name of the event to listen for
    * @param handler    Event handler for the thrown event
    */
-  public on(eventName: string, handler: (event: GameEvent<any>) => void) {
+  public on(eventName: string, handler: (event: any) => void) {
     this.eventDispatcher.on(eventName, handler);
   }
 
@@ -34,7 +33,7 @@ export class Class implements Eventable {
    * @param eventName  Name of the event to listen for
    * @param handler    Event handler for the thrown event
    */
-  public off(eventName: string, handler?: (event: GameEvent<any>) => void) {
+  public off(eventName: string, handler?: (event: any) => void) {
     this.eventDispatcher.off(eventName, handler);
   }
 
@@ -43,7 +42,7 @@ export class Class implements Eventable {
    * @param eventName   Name of the event to emit
    * @param eventObject Data associated with this event
    */
-  public emit(eventName: string, eventObject: GameEvent<any>) {
+  public emit(eventName: string, eventObject: any) {
     this.eventDispatcher.emit(eventName, eventObject);
   }
 
@@ -53,7 +52,7 @@ export class Class implements Eventable {
    * @param eventName The name of the event to subscribe to once
    * @param handler   The handler of the event that will be auto unsubscribed
    */
-  public once(eventName: string, handler: (event: GameEvent<any>) => void) {
+  public once(eventName: string, handler: (event: any) => void) {
     this.eventDispatcher.once(eventName, handler);
   }
 }

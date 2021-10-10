@@ -41,6 +41,7 @@ import * as Events from './Events';
 import { BrowserEvents } from './Util/Browser';
 import { obsolete } from './Util/Decorators';
 import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL } from './Graphics';
+import { PointerEventReceiver } from './Input/PointerEventReceiver';
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -900,13 +901,16 @@ O|===|* >________________>\n\
     this.pageScrollPreventionMode = options.scrollPreventionMode;
 
     // initialize inputs
+    const pointerTarget = options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas;
     this.input = {
       keyboard: new Input.Keyboard(),
-      pointers: new Input.Pointers(this),
+      pointers: new PointerEventReceiver(pointerTarget, this),
       gamepads: new Input.Gamepads()
     };
     this.input.keyboard.init();
-    // this.input.pointers.init(options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas);
+    // TODO detach?
+    // TODO rename to init?
+    this.input.pointers.attach();
     this.input.gamepads.init();
 
     // Issue #385 make use of the visibility api
@@ -991,7 +995,7 @@ O|===|* >________________>\n\
       this._loader.update(this, delta);
       // Update input listeners
       this.input.keyboard.update();
-      this.input.pointers.update();
+      // this.input.pointers.update();
       this.input.gamepads.update();
       return;
     }
@@ -1010,7 +1014,7 @@ O|===|* >________________>\n\
 
     // Update input listeners
     this.input.keyboard.update();
-    this.input.pointers.update();
+    // this.input.pointers.update();
     this.input.gamepads.update();
 
     // Publish update event

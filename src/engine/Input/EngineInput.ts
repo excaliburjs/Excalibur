@@ -1,9 +1,9 @@
 ﻿import { Keyboard } from './Keyboard';
 import { Gamepads } from './Gamepad';
-import { Pointers } from './Pointers';
+import { PointerEventReceiver } from './PointerEventReceiver';
 
 export interface EngineInput {
   keyboard: Keyboard;
-  pointers: Pointers;
+  pointers: PointerEventReceiver;
   gamepads: Gamepads;
 }

@@ -1,4 +1,4 @@
-import { Component } from "..";
+import { Component } from "../EntityComponentSystem/Component";
 
 /**
  * Add this component to optionally configure how the pointer

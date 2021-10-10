@@ -546,21 +546,6 @@ describe('A game actor', () => {
     expect(actor.draw).not.toHaveBeenCalled();
   });
 
-  it('does not incur pointer overhead until an event is registered', () => {
-    expect(actor.enableCapturePointer).toBeFalsy();
-    expect(actor.capturePointer.captureMoveEvents).toBeFalsy();
-    actor.on('pointerdown', () => {
-      /*do nothing*/
-    });
-    expect(actor.capturePointer.captureMoveEvents).toBeFalsy();
-    expect(actor.enableCapturePointer).toBeTruthy();
-    actor.on('pointermove', () => {
-      /*do nothing*/
-    });
-    expect(actor.capturePointer.captureMoveEvents).toBeTruthy();
-    expect(actor.enableCapturePointer).toBeTruthy();
-  });
-
   it('does not change opacity on color', () => {
     actor.color = ex.Color.Black.clone();
     expect(actor.color.a).toBe(1);
@@ -1016,166 +1001,6 @@ describe('A game actor', () => {
     scene.draw(engine.ctx, 100);
   });
 
-  it('should opt into pointer capture when pointerdown', () => {
-    const actor = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });
-
-    expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
-
-    actor.on('pointerdown', () => {
-      /* doesn't matter; */
-    });
-
-    expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerdown');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not capture move events after pointerdown');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not capture drag events after pointerdown');
-  });
-
-  it('should opt into pointer capture when pointerup', () => {
-    const actor = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });
-
-    expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
-
-    actor.on('pointerup', () => {
-      /* doesn't matter; */
-    });
-
-    expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerup');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not capture move events after pointerdown');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not capture drag events after pointerdown');
-  });
-
-  it('should opt into pointer capture when pointermove', () => {
-    const actor = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });
-
-    expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
-
-    actor.on('pointermove', () => {
-      /* doesn't matter; */
-    });
-
-    expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointermove');
-    expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actor should capture move events after pointermove');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not capture drag events after pointermove');
-  });
-
-  it('should opt into pointer capture when pointerenter', () => {
-    const actor = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });
-
-    expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
-
-    actor.on('pointerenter', () => {
-      /* doesn't matter; */
-    });
-
-    expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerenter');
-    expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actor should capture move events after pointerenter');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not capture drag events after pointerenter');
-  });
-
-  it('should opt into pointer capture when pointerleave', () => {
-    const actor = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });
-
-    expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
-
-    actor.on('pointerleave', () => {
-      /* doesn't matter; */
-    });
-
-    expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerleave');
-    expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actor should capture move events after pointerleave');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not capture drag events after pointerleave');
-  });
-
-  it('should opt into pointer capture when pointerdragstart', () => {
-    const actor = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });
-
-    expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
-
-    actor.on('pointerdragstart', () => {
-      /* doesn't matter; */
-    });
-
-    expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerdragstart');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should capture move events after pointerdragstart');
-    expect(actor.capturePointer.captureDragEvents).toBe(true, 'Actors should capture drag events after pointerdragstart');
-  });
-
-  it('should opt into pointer capture when pointerdragend', () => {
-    const actor = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });
-
-    expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
-
-    actor.on('pointerdragend', () => {
-      /* doesn't matter; */
-    });
-
-    expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerdragend');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should capture move events after pointerdragend');
-    expect(actor.capturePointer.captureDragEvents).toBe(true, 'Actors should capture drag events after pointerdragend');
-  });
-
-  it('should opt into pointer capture when pointerdragmove', () => {
-    const actor = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });
-
-    expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
-
-    actor.on('pointerdragmove', () => {
-      /* doesn't matter; */
-    });
-
-    expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerdragmove');
-    expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actors should capture move events after pointerdragmove');
-    expect(actor.capturePointer.captureDragEvents).toBe(true, 'Actors should capture drag events after pointerdragmove');
-  });
-
-  it('should opt into pointer capture when pointerdragenter', () => {
-    const actor = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });
-
-    expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
-
-    actor.on('pointerdragenter', () => {
-      /* doesn't matter; */
-    });
-
-    expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerdragenter');
-    expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actors should capture move events after pointerdragenter');
-    expect(actor.capturePointer.captureDragEvents).toBe(true, 'Actors should capture drag events after pointerdragenter');
-  });
-
-  it('should opt into pointer capture when pointerdragleave', () => {
-    const actor = new ex.Actor({ x: 0, y: 0, width: 100, height: 100 });
-
-    expect(actor.enableCapturePointer).toBe(false, 'Actors start without pointer capture enabled');
-    expect(actor.capturePointer.captureMoveEvents).toBe(false, 'Actors should not start with capturing move events');
-    expect(actor.capturePointer.captureDragEvents).toBe(false, 'Actors should not start with capturing drag events');
-
-    actor.on('pointerdragleave', () => {
-      /* doesn't matter; */
-    });
-
-    expect(actor.enableCapturePointer).toBe(true, 'Actors should have pointer capture enabled after pointerdragleave');
-    expect(actor.capturePointer.captureMoveEvents).toBe(true, 'Actors should capture move events after pointerdragleave');
-    expect(actor.capturePointer.captureDragEvents).toBe(true, 'Actors should capture drag events after pointerdragleave');
-  });
-
   describe('should detect assigned events and', () => {
     it('should capture pointer move event', () => {
       const actor = new ex.Actor({ x: 0, y: 0, width: 20, height: 20 });
@@ -1214,16 +1039,11 @@ describe('A game actor', () => {
       expect(engine.input.pointers.at(0).lastWorldPos).toBeVector(new ex.Vector(0, 0), 0.001);
     });
 
-    it('should capture pointer leave event', () => {
+    fit('should capture pointer leave event', () => {
       const actor = new ex.Actor({ x: 0, y: 0, width: 20, height: 20 });
-      const callables = {
-        leave: (pe: any) => {
-          /* doesn't matter */
-        }
-      };
-      const leaveSpy = spyOn(callables, 'leave').and.callThrough();
 
-      actor.on('pointerleave', callables.leave);
+      const leaveSpy = jasmine.createSpy('leave');
+      actor.on('pointerleave', leaveSpy);
       scene.add(actor);
 
       engine.input.pointers.triggerEvent('move', new ex.Vector(0, 0));

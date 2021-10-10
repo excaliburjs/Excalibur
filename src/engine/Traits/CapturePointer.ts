@@ -7,14 +7,14 @@ import { Engine } from '../Engine';
  * @deprecated Will be removed in 0.26.0
  */
 export class CapturePointer implements Trait {
-  public update(actor: Actor, engine: Engine) {
+  public update(_actor: Actor, _engine: Engine) {
     // if (!actor.enableCapturePointer) {
     //   return;
     // }
-    if (actor.isKilled()) {
-      return;
-    }
+    // if (actor.isKilled()) {
+    //   return;
+    // }
 
-    engine.input.pointers.checkAndUpdateActorUnderPointer(actor);
+    // engine.input.pointers.checkAndUpdateActorUnderPointer(actor);
   }
 }

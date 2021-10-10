@@ -1,8 +1,11 @@
-import { ColliderComponent, Engine, GraphicsComponent } from "..";
+import { ColliderComponent } from "../Collision/ColliderComponent";
+import { Engine } from "../Engine";
 import { System, TransformComponent, SystemType, Entity } from "../EntityComponentSystem";
+import { GraphicsComponent } from "../Graphics/GraphicsComponent";
 import { Scene } from "../Scene";
 import { PointerComponent } from "./PointerComponent";
-import { ExPointerEvent, PointerEventReceiver } from "./PointerEventReceiver";
+import { PointerEventReceiver } from "./PointerEventReceiver";
+import { ExPointerEvent } from "./ExPointerEvent";
 
 /**
  * The PointerSystem is responsible for dispatching pointer events to entities
@@ -24,10 +27,7 @@ export class PointerSystem extends System<TransformComponent> {
 
   public initialize(scene: Scene): void {
     this._engine = scene.engine;
-    // TODO maybe move the processor to engine?
-    this._receiver = new PointerEventReceiver(this._engine.canvas, this._engine);
-    this._receiver.attach();
-    // TODO detach?
+    this._receiver = this._engine.input.pointers;
   }
 
   public sort(a: Entity, b: Entity) {
@@ -64,7 +64,7 @@ export class PointerSystem extends System<TransformComponent> {
     this.currentFrameEntityToPointers.set(entity.id, pointers.concat(pointerId));
   }
 
-  update(entities: Entity[]): void {
+  public update(entities: Entity[]): void {
     // Locate all the pointer/entity mappings
     this._processPointerToEntity(entities)
 
@@ -84,11 +84,6 @@ export class PointerSystem extends System<TransformComponent> {
     let collider: ColliderComponent;
     let graphics: GraphicsComponent;
     let pointerConfig: PointerComponent;
-
-    // const pointers = Array.from(this._receiver.pointerPositions.keys());
-    // if (pointers.length) {
-    //   console.log(pointers);
-    // }
 
     // TODO probably a spatial partition optimization here to quickly query bounds for pointer
     // Pre-process find entities under pointers
@@ -131,43 +126,51 @@ export class PointerSystem extends System<TransformComponent> {
     const lastDownPerPointer = new Map<number, ExPointerEvent>();
     // Dispatch events in entity z order
     for (let entity of entitiesWithEvents) {
-      
-      // down
-      for (let event of this._receiver.down) {
+      // Loop through down and dispatch to entities
+      for (let event of this._receiver.currentFrameDown) {
         if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
           entity.events.emit('pointerdown', event as any);
-          console.log('pointerdown', event.pointerId);
+          if (this._receiver.isDragStart(event.pointerId)) {
+            entity.events.emit('pointerdragstart', event as any);
+          }
         }
         lastDownPerPointer.set(event.pointerId, event);
       }
-      // up
-      for (let event of this._receiver.up) {
+      // Loop through up and dispatch to entities
+      for (let event of this._receiver.currentFrameUp) {
         if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
           entity.events.emit('pointerup', event as any);
-          console.log('pointerup', event.pointerId);
+          if (this._receiver.isDragEnd(event.pointerId)) {
+            entity.events.emit('pointerdragend', event as any);
+          }
         }
         lastUpPerPointer.set(event.pointerId, event);
       }
 
-      // active pointer move
-      for (let event of this._receiver.move) {
+      // Loop through move and dispatch to entities
+      for (let event of this._receiver.currentFrameMove) {
         if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
           // move
           entity.events.emit('pointermove', event as any);
+
+          if (this._receiver.isDragging(event.pointerId)) {
+            entity.events.emit('pointerdragmove', event as any);
+          }
         }
         lastMovePerPointer.set(event.pointerId, event);
       }
-
+      const lastEvents = [...lastMovePerPointer.values(), ...lastDownPerPointer.values(), ...lastUpPerPointer.values()];
       // up, down, and move are considered for enter and leave
-      for (let event of [...lastMovePerPointer.values(), ...lastDownPerPointer.values(), ...lastUpPerPointer.values()]) {
+      for (let event of lastEvents) {
         // enter
         if (event.active && entity.active && this.entered(entity, event.pointerId)) {
           entity.events.emit('pointerenter', event as any);
           break;
         }
-        // leave
         if (event.active && entity.active &&
+            // leave can happen on move
             (this.left(entity, event.pointerId) ||
+            // or leave can happen on pointer up
             (this.entityCurrentlyUnderPointer(entity, event.pointerId) && event.type === 'up'))) {
           entity.events.emit('pointerleave', event as any);
           break;
@@ -175,16 +178,16 @@ export class PointerSystem extends System<TransformComponent> {
       }
 
       // cancel
-      for (let event of this._receiver.cancel) {
+      for (let event of this._receiver.currentFrameCancel) {
         if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)){
           entity.events.emit('pointercancel', event as any);
         }
       }
 
       // wheel
-      for (let event of this._receiver.wheel) {
-        // Currently the wheel only fires under the primary pointer '1'
-        if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, 1)) {
+      for (let event of this._receiver.currentFrameWheel) {
+        // Currently the wheel only fires under the primary pointer '0'
+        if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, 0)) {
           entity.events.emit('pointerwheel', event as any);
         }
       }
