@@ -1,8 +1,13 @@
+import { Entity} from '../../EntityComponentSystem/Entity';
+import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
+import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { Actor } from '../../Actor';
 import { vec, Vector } from '../../Math/vector';
 import { Action } from '../Action';
 
 export class EaseTo implements Action {
+  private _tx: TransformComponent;
+  private _motion: MotionComponent;
   private _currentLerpTime: number = 0;
   private _lerpDuration: number = 1 * 1000; // 1 second
   private _lerpStart: Vector = new Vector(0, 0);
@@ -11,17 +16,20 @@ export class EaseTo implements Action {
   private _stopped: boolean = false;
   private _distance: number = 0;
   constructor(
-    public actor: Actor,
+    entity: Entity,
     x: number,
     y: number,
     duration: number,
     public easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number
   ) {
+    this._tx = entity.get(TransformComponent);
+    this._motion = entity.get(MotionComponent);
     this._lerpDuration = duration;
     this._lerpEnd = new Vector(x, y);
   }
   private _initialize() {
-    this._lerpStart = new Vector(this.actor.pos.x, this.actor.pos.y);
+    
+    this._lerpStart = new Vector(this._tx.pos.x, this._tx.pos.y);
     this._currentLerpTime = 0;
     this._distance = this._lerpStart.distance(this._lerpEnd);
   }
@@ -34,8 +42,8 @@ export class EaseTo implements Action {
 
     // Need to update lerp time first, otherwise the first update will always be zero
     this._currentLerpTime += delta;
-    let newX = this.actor.pos.x;
-    let newY = this.actor.pos.y;
+    let newX = this._tx.pos.x;
+    let newY = this._tx.pos.y;
     if (this._currentLerpTime < this._lerpDuration) {
       if (this._lerpEnd.x < this._lerpStart.x) {
         newX =
@@ -53,10 +61,10 @@ export class EaseTo implements Action {
         newY = this.easingFcn(this._currentLerpTime, this._lerpStart.y, this._lerpEnd.y, this._lerpDuration);
       }
       // Given the lerp position figure out the velocity in pixels per second
-      this.actor.vel = vec((newX - this.actor.pos.x) / (delta / 1000), (newY - this.actor.pos.y) / (delta / 1000));
+      this._motion.vel = vec((newX - this._tx.pos.x) / (delta / 1000), (newY - this._tx.pos.y) / (delta / 1000));
     } else {
-      this.actor.pos = vec(this._lerpEnd.x, this._lerpEnd.y);
-      this.actor.vel = Vector.Zero;
+      this._tx.pos = vec(this._lerpEnd.x, this._lerpEnd.y);
+      this._motion.vel = Vector.Zero;
     }
   }
   public isComplete(actor: Actor): boolean {
@@ -67,7 +75,7 @@ export class EaseTo implements Action {
     this._initialized = false;
   }
   public stop(): void {
-    this.actor.vel = vec(0, 0);
+    this._motion.vel = vec(0, 0);
     this._stopped = true;
   }
 }

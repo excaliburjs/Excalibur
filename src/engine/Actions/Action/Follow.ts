@@ -1,10 +1,15 @@
-import { Actor } from '../../Actor';
+import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
+import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
+import { Entity } from '../../EntityComponentSystem/Entity';
 import { vec, Vector } from '../../Math/vector';
 import { Action } from '../Action';
 
 export class Follow implements Action {
-  private _actor: Actor;
-  private _actorToFollow: Actor;
+  private _tx: TransformComponent;
+  private _motion: MotionComponent;
+  private _followTx: TransformComponent;
+  private _followMotion: MotionComponent;
+
   public x: number;
   public y: number;
   private _current: Vector;
@@ -16,11 +21,13 @@ export class Follow implements Action {
   private _started = false;
   private _stopped = false;
 
-  constructor(actor: Actor, actorToFollow: Actor, followDistance?: number) {
-    this._actor = actor;
-    this._actorToFollow = actorToFollow;
-    this._current = new Vector(this._actor.pos.x, this._actor.pos.y);
-    this._end = new Vector(actorToFollow.pos.x, actorToFollow.pos.y);
+  constructor(entity: Entity, entityToFollow: Entity, followDistance?: number) {
+    this._tx = entity.get(TransformComponent);
+    this._motion = entity.get(MotionComponent);
+    this._followTx = entityToFollow.get(TransformComponent);
+    this._followMotion = entityToFollow.get(MotionComponent);
+    this._current = new Vector(this._tx.pos.x, this._tx.pos.y);
+    this._end = new Vector(this._followTx.pos.x, this._followTx.pos.y);
     this._maximumDistance = followDistance !== undefined ? followDistance : this._current.distance(this._end);
     this._speed = 0;
   }
@@ -32,31 +39,31 @@ export class Follow implements Action {
       this._dir = this._end.sub(this._current).normalize();
     }
 
-    const actorToFollowSpeed = Math.sqrt(Math.pow(this._actorToFollow.vel.x, 2) + Math.pow(this._actorToFollow.vel.y, 2));
+    const actorToFollowSpeed = Math.sqrt(Math.pow(this._followMotion.vel.x, 2) + Math.pow(this._followMotion.vel.y, 2));
     if (actorToFollowSpeed !== 0) {
       this._speed = actorToFollowSpeed;
     }
-    this._current = vec(this._actor.pos.x, this._actor.pos.y);
+    this._current = vec(this._tx.pos.x, this._tx.pos.y);
 
-    this._end = vec(this._actorToFollow.pos.x, this._actorToFollow.pos.y);
+    this._end = vec(this._followTx.pos.x, this._followTx.pos.y);
     this._distanceBetween = this._current.distance(this._end);
     this._dir = this._end.sub(this._current).normalize();
 
     if (this._distanceBetween >= this._maximumDistance) {
       const m = this._dir.scale(this._speed);
-      this._actor.vel = vec(m.x, m.y);
+      this._motion.vel = vec(m.x, m.y);
     } else {
-      this._actor.vel = vec(0, 0);
+      this._motion.vel = vec(0, 0);
     }
 
     if (this.isComplete()) {
-      this._actor.pos = vec(this._end.x, this._end.y);
-      this._actor.vel = vec(0, 0);
+      this._tx.pos = vec(this._end.x, this._end.y);
+      this._motion.vel = vec(0, 0);
     }
   }
 
   public stop(): void {
-    this._actor.vel = vec(0, 0);
+    this._motion.vel = vec(0, 0);
     this._stopped = true;
   }
 

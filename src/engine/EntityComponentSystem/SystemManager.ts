@@ -85,6 +85,7 @@ export class SystemManager<ContextType> {
 
     for (const s of systems) {
       // Get entities that match the system types, pre-sort
+      s.types;//?
       const entities = this._world.queryManager.getQuery(s.types).getEntities(s.sort);
       // Initialize entities if needed
       if (context instanceof Scene) {

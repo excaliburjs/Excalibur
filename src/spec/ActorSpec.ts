@@ -18,6 +18,7 @@ describe('A game actor', () => {
   let scene: ex.Scene;
   let motionSystem: ex.MotionSystem;
   let collisionSystem: ex.CollisionSystem;
+  let actionSystem: ex.ActionSystem;
 
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -30,6 +31,7 @@ describe('A game actor', () => {
     actor.body.collisionType = ex.CollisionType.Active;
     motionSystem = new ex.MotionSystem();
     collisionSystem = new ex.CollisionSystem();
+    actionSystem = new ex.ActionSystem();
     scene = new ex.Scene();
     scene.add(actor);
     engine.addScene('test', scene);
@@ -468,9 +470,9 @@ describe('A game actor', () => {
     actor.addChild(childActor);
 
     actor.actions.moveTo(10, 15, 1000);
-    actor.update(engine, 1000);
+    actionSystem.update([actor], 1000)
     motionSystem.update([actor], 1000);
-    actor.update(engine, 1);
+    actionSystem.update([actor], 1);
     motionSystem.update([actor], 1);
 
     expect(childActor.getGlobalPos().x).toBe(60);

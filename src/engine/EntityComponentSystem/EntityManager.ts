@@ -25,6 +25,14 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
     }
   }
 
+  public findEntitiesForRemoval() {
+    for (let entity of this.entities) {
+      if (!entity.active) {
+        this.removeEntity(entity);
+      }
+    }
+  }
+
   /**
    * EntityManager observes changes on entities
    * @param message
@@ -89,6 +97,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
 
     delete this._entityIndex[id];
     if (entity) {
+      console.log('removed');
       Util.removeItemFromArray(entity, this.entities);
       this._world.queryManager.removeEntity(entity);
       entity.componentAdded$.unregister(this);
@@ -108,10 +117,12 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
 
   private _entitiesToRemove: Entity[] = [];
   public processEntityRemovals(): void {
+    this._entitiesToRemove;//?
     for (const entity of this._entitiesToRemove) {
       if (entity.active) {
         continue;
       }
+      entity.active;//?
       this.removeEntity(entity, false);
     }
   }

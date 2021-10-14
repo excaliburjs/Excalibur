@@ -1,6 +1,5 @@
 import { RotationType } from './RotationType';
 
-import { Actor } from '../Actor';
 import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
 import { ActionQueue } from './ActionQueue';
 import { Repeat } from './Action/Repeat';
@@ -19,7 +18,8 @@ import { Delay } from './Action/Delay';
 import { Die } from './Action/Die';
 import { Follow } from './Action/Follow';
 import { Meet } from './Action/Meet';
-import { Vector } from '..';
+import { Vector } from '../Math/vector';
+import { Entity } from '../EntityComponentSystem/Entity';
 
 /**
  * The fluent Action API allows you to perform "actions" on
@@ -28,12 +28,12 @@ import { Vector } from '..';
  * the [[Action]] interface.
  */
 export class ActionContext {
-  private _actor: Actor;
+  private _entity: Entity;
   private _queue: ActionQueue;
 
-  constructor(actor: Actor) {
-    this._actor = actor;
-    this._queue = new ActionQueue(actor);
+  constructor(entity: Entity) {
+    this._entity = entity;
+    this._queue = new ActionQueue(entity);
   }
 
   public getQueue(): ActionQueue {
@@ -87,7 +87,7 @@ export class ActionContext {
       easingFcn = args[3] ?? easingFcn;
     }
 
-    this._queue.add(new EaseTo(this._actor, x, y, duration, easingFcn));
+    this._queue.add(new EaseTo(this._entity, x, y, duration, easingFcn));
     return this;
   }
 
@@ -121,7 +121,7 @@ export class ActionContext {
       y = yOrSpeed;
       speed = speedOrUndefined;
     }
-    this._queue.add(new MoveTo(this._actor, x, y, speed));
+    this._queue.add(new MoveTo(this._entity, x, y, speed));
     return this;
   }
 
@@ -147,7 +147,7 @@ export class ActionContext {
       yOffset = yOffsetOrSpeed;
       speed = speedOrUndefined;
     }
-    this._queue.add(new MoveBy(this._actor, xOffset, yOffset, speed));
+    this._queue.add(new MoveBy(this._entity, xOffset, yOffset, speed));
     return this;
   }
 
@@ -160,7 +160,7 @@ export class ActionContext {
    * @param rotationType  The [[RotationType]] to use for this rotation
    */
   public rotateTo(angleRadians: number, speed: number, rotationType?: RotationType): ActionContext {
-    this._queue.add(new RotateTo(this._actor, angleRadians, speed, rotationType));
+    this._queue.add(new RotateTo(this._entity, angleRadians, speed, rotationType));
     return this;
   }
 
@@ -173,7 +173,7 @@ export class ActionContext {
    * @param rotationType  The [[RotationType]] to use for this rotation, default is shortest path
    */
   public rotateBy(angleRadiansOffset: number, speed: number, rotationType?: RotationType): ActionContext {
-    this._queue.add(new RotateBy(this._actor, angleRadiansOffset, speed, rotationType));
+    this._queue.add(new RotateBy(this._entity, angleRadiansOffset, speed, rotationType));
     return this;
   }
 
@@ -222,7 +222,7 @@ export class ActionContext {
       speedY = speedYOrUndefined;
     }
 
-    this._queue.add(new ScaleTo(this._actor, sizeX, sizeY, speedX, speedY));
+    this._queue.add(new ScaleTo(this._entity, sizeX, sizeY, speedX, speedY));
     return this;
   }
 
@@ -258,7 +258,7 @@ export class ActionContext {
       sizeOffsetY = sizeOffsetYOrSpeed;
     }
 
-    this._queue.add(new ScaleBy(this._actor, sizeOffsetX, sizeOffsetY, speed));
+    this._queue.add(new ScaleBy(this._entity, sizeOffsetX, sizeOffsetY, speed));
     return this;
   }
 
@@ -272,7 +272,7 @@ export class ActionContext {
    * @param numBlinks       The number of times to blink
    */
   public blink(timeVisible: number, timeNotVisible: number, numBlinks: number = 1): ActionContext {
-    this._queue.add(new Blink(this._actor, timeVisible, timeNotVisible, numBlinks));
+    this._queue.add(new Blink(this._entity, timeVisible, timeNotVisible, numBlinks));
     return this;
   }
 
@@ -284,7 +284,7 @@ export class ActionContext {
    * @param time     The time it should take to fade the actor (in milliseconds)
    */
   public fade(opacity: number, time: number): ActionContext {
-    this._queue.add(new Fade(this._actor, opacity, time));
+    this._queue.add(new Fade(this._entity, opacity, time));
     return this;
   }
 
@@ -295,7 +295,7 @@ export class ActionContext {
    * @param time  The amount of time to delay the next action in the queue from executing in milliseconds
    */
   public delay(time: number): ActionContext {
-    this._queue.add(new Delay(this._actor, time));
+    this._queue.add(new Delay(time));
     return this;
   }
 
@@ -305,7 +305,7 @@ export class ActionContext {
    * action queue after this action will not be executed.
    */
   public die(): ActionContext {
-    this._queue.add(new Die(this._actor));
+    this._queue.add(new Die(this._entity));
     return this;
   }
 
@@ -342,7 +342,7 @@ export class ActionContext {
       this.repeatForever(repeatBuilder);
       return this;
     }
-    this._queue.add(new Repeat(this._actor, repeatBuilder, times));
+    this._queue.add(new Repeat(this._entity, repeatBuilder, times));
 
     return this;
   }
@@ -364,35 +364,35 @@ export class ActionContext {
    * @param repeatBuilder The builder to specify the repeatable list of actions
    */
   public repeatForever(repeatBuilder: (repeatContext: ActionContext) => any): ActionContext {
-    this._queue.add(new RepeatForever(this._actor, repeatBuilder));
+    this._queue.add(new RepeatForever(this._entity, repeatBuilder));
     return this;
   }
 
   /**
-   * This method will cause the actor to follow another at a specified distance
-   * @param actor           The actor to follow
+   * This method will cause the entity to follow another at a specified distance
+   * @param entity           The entity to follow
    * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
    */
-  public follow(actor: Actor, followDistance?: number): ActionContext {
+  public follow(entity: Entity, followDistance?: number): ActionContext {
     if (followDistance === undefined) {
-      this._queue.add(new Follow(this._actor, actor));
+      this._queue.add(new Follow(this._entity, entity));
     } else {
-      this._queue.add(new Follow(this._actor, actor, followDistance));
+      this._queue.add(new Follow(this._entity, entity, followDistance));
     }
     return this;
   }
 
   /**
-   * This method will cause the actor to move towards another until they
+   * This method will cause the entity to move towards another until they
    * collide "meet" at a specified speed.
-   * @param actor  The actor to meet
+   * @param entity  The entity to meet
    * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
    */
-  public meet(actor: Actor, speed?: number): ActionContext {
+  public meet(entity: Entity, speed?: number): ActionContext {
     if (speed === undefined) {
-      this._queue.add(new Meet(this._actor, actor));
+      this._queue.add(new Meet(this._entity, entity));
     } else {
-      this._queue.add(new Meet(this._actor, actor, speed));
+      this._queue.add(new Meet(this._entity, entity, speed));
     }
     return this;
   }
@@ -401,7 +401,7 @@ export class ActionContext {
    * Returns a promise that resolves when the current action queue up to now
    * is finished.
    */
-  public asPromise(): Promise<void> {
+  public toPromise(): Promise<void> {
     const temp = new Promise<void>((resolve) => {
       this._queue.add(
         new CallMethod(() => {
