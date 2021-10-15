@@ -13,10 +13,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - 
 ### Changed
 
-- 
+- Internal Actions implementation converted to ECS system and component, this is a backwards compatible change with v0.25.0
+  - `ActionsSystem` and `ActionsComponent` 
 ### Deprecated
 
-- 
+- Actions `asPromise()` renamed to `toPromise()`
 ### Removed
 
 -
