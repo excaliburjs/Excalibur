@@ -78,7 +78,8 @@ describe('A World', () => {
 
   it('can update', () => {
     const world = new ex.World('context');
-    world.entityManager = jasmine.createSpyObj('EntityManager', ['processEntityRemovals', 'findEntitiesForRemoval', 'processComponentRemovals', 'updateEntities']);
+    world.entityManager = jasmine.createSpyObj('EntityManager',
+      ['processEntityRemovals', 'findEntitiesForRemoval', 'processComponentRemovals', 'updateEntities']);
     world.systemManager = jasmine.createSpyObj('SystemManager', ['updateSystems']);
 
     world.update(SystemType.Update, 100);

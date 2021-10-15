@@ -29,7 +29,6 @@ export class ScaleTo implements Action {
   }
 
   public update(_delta: number): void {
-    
     if (!this._started) {
       this._started = true;
       this._startX = this._tx.scale.x;

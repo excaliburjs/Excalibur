@@ -30,11 +30,9 @@ import { Drawable } from './Interfaces/Drawable';
 import { CanInitialize, CanUpdate, CanDraw, CanBeKilled } from './Interfaces/LifecycleEvents';
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
-import { ActionContext } from './Actions/ActionContext';
 import { Vector, vec } from './Math/vector';
 import { BodyComponent } from './Collision/BodyComponent';
 import { Eventable } from './Interfaces/Evented';
-import { Actionable } from './Actions/Actionable';
 import * as Traits from './Traits/Index';
 import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEventHandlers';
@@ -203,7 +201,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Useful for quickly scripting actor behavior, like moving to a place, patroling back and forth, blinking, etc.
    *
    *  Access to the Actor's built in [[ActionsComponent]] which forwards to the
-   * [[ActionContext|Action context]] of the actor. 
+   * [[ActionContext|Action context]] of the actor.
    */
   public get actions(): ActionsComponent {
     return this.get(ActionsComponent);

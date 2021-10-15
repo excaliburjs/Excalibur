@@ -1,10 +1,10 @@
-import { Entity } from "../EntityComponentSystem";
-import { System, SystemType } from "../EntityComponentSystem/System";
-import { ActionsComponent } from "./ActionsComponent";
+import { Entity } from '../EntityComponentSystem';
+import { System, SystemType } from '../EntityComponentSystem/System';
+import { ActionsComponent } from './ActionsComponent';
 
 
 export class ActionSystem extends System<ActionsComponent> {
-  public readonly types = ["ex.actions"] as const;
+  public readonly types = ['ex.actions'] as const;
   systemType = SystemType.Update;
   priority = -1;
 

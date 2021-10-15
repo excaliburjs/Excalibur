@@ -509,7 +509,7 @@ player.body.canSleep = false;
 player.graphics.copyGraphics = false;
 follower.actions
   .meet(player, 60)
-  .asPromise()
+  .toPromise()
   .then(() => {
     console.log('Player met!!');
   });

@@ -26,7 +26,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
   }
 
   public findEntitiesForRemoval() {
-    for (let entity of this.entities) {
+    for (const entity of this.entities) {
       if (!entity.active) {
         this.removeEntity(entity);
       }

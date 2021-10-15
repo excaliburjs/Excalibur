@@ -28,7 +28,6 @@ export class EaseTo implements Action {
     this._lerpEnd = new Vector(x, y);
   }
   private _initialize() {
-    
     this._lerpStart = new Vector(this._tx.pos.x, this._tx.pos.y);
     this._currentLerpTime = 0;
     this._distance = this._lerpStart.distance(this._lerpEnd);

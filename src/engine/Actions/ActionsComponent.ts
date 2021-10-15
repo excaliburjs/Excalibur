@@ -1,27 +1,29 @@
-import { ActionContext } from "./ActionContext";
-import { Component } from "../EntityComponentSystem/Component"
-import { Actor, Entity, MotionComponent, TransformComponent } from "..";
-import { Vector } from "../Math/vector";
-import { EasingFunction } from "../Util/EasingFunctions";
-import { ActionQueue } from "./ActionQueue";
-import { RotationType } from "./RotationType";
+import { ActionContext } from './ActionContext';
+import { Component } from '../EntityComponentSystem/Component';
+import { Entity } from '../EntityComponentSystem/Entity';
+import { Actor } from '../Actor';
+import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
+import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
+import { Vector } from '../Math/vector';
+import { EasingFunction } from '../Util/EasingFunctions';
+import { ActionQueue } from './ActionQueue';
+import { RotationType } from './RotationType';
 
 export interface ActionContextMethods extends Pick<ActionContext, keyof ActionContext> {};
 
 export class ActionsComponent extends Component<'ex.actions'> implements ActionContextMethods {
-  public readonly type = "ex.actions";
+  public readonly type = 'ex.actions';
   dependencies = [TransformComponent, MotionComponent]
-  
   private _ctx: ActionContext;
-  
+
   onAdd(entity: Entity) {
     this._ctx = new ActionContext(entity);
   }
-  
+
   onRemove() {
     this._ctx = null;
   }
-  
+
   public getQueue(): ActionQueue {
     return this._ctx?.getQueue();
   }
@@ -54,8 +56,12 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
   }
   public scaleTo(size: Vector, speed: Vector): ActionContext;
   public scaleTo(sizeX: number, sizeY: number, speedX: number, speedY: number): ActionContext;
-  public scaleTo(sizeXOrVector: number | Vector, sizeYOrSpeed: number | Vector, speedXOrUndefined?: number, speedYOrUndefined?: number): ActionContext {
-    return this._ctx.scaleTo.apply(this._ctx, [sizeXOrVector, sizeYOrSpeed, speedXOrUndefined, speedYOrUndefined])
+  public scaleTo(
+    sizeXOrVector: number | Vector,
+    sizeYOrSpeed: number | Vector,
+    speedXOrUndefined?: number,
+    speedYOrUndefined?: number): ActionContext {
+    return this._ctx.scaleTo.apply(this._ctx, [sizeXOrVector, sizeYOrSpeed, speedXOrUndefined, speedYOrUndefined]);
   }
   public scaleBy(offset: Vector, speed: number): ActionContext;
   public scaleBy(sizeOffsetX: number, sizeOffsetY: number, speed: number): ActionContext;

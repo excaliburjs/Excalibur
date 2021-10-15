@@ -4,7 +4,7 @@ import { Entity } from '../../EntityComponentSystem/Entity';
 import { Vector, vec } from '../../Math/vector';
 import { Action } from '../Action';
 
-export class Meet implements Action {  
+export class Meet implements Action {
   private _tx: TransformComponent;
   private _motion: MotionComponent;
   private _meetTx: TransformComponent;
