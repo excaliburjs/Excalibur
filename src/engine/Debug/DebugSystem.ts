@@ -176,7 +176,7 @@ export class DebugSystem extends System<TransformComponent> {
       colliderComp = entity.get(ColliderComponent);
       if (colliderComp) {
         const collider = colliderComp.get();
-        if (colliderSettings.showAll || colliderSettings.showGeometry) {
+        if ((colliderSettings.showAll || colliderSettings.showGeometry) && collider) {
           collider.debug(this._graphicsContext, colliderSettings.geometryColor);
         }
         if (colliderSettings.showAll || colliderSettings.showBounds) {

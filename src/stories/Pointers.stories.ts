@@ -17,19 +17,19 @@ export const subscribingToEvents: Story = withEngine(async (game) => {
     }
 
     onInitialize() {
-      this.on(ex.EventTypes.PointerUp, (e) => {
+      this.on(ex.EventTypes.PointerUp, () => {
         this.color = ex.Color.Black;
       });
-      this.on(ex.EventTypes.PointerDown, (e) => {
+      this.on(ex.EventTypes.PointerDown, () => {
         this.color = ex.Color.Green;
       });
-      this.on(ex.EventTypes.PointerEnter, (e) => {
+      this.on(ex.EventTypes.PointerEnter, () => {
         this.color = ex.Color.Yellow;
       });
-      this.on(ex.EventTypes.PointerLeave, (e) => {
+      this.on(ex.EventTypes.PointerLeave, () => {
         this.color = ex.Color.Red;
       });
-      this.on(ex.EventTypes.PointerMove, (e) => {
+      this.on(ex.EventTypes.PointerMove, () => {
         this.color = ex.Color.Blue;
       });
     }
@@ -68,24 +68,24 @@ export const dragEvents: Story = withEngine(async (game) => {
     }
 
     onInitialize() {
-      this.on(ex.EventTypes.PointerDragStart, (e) => {
+      this.on(ex.EventTypes.PointerDragStart, () => {
         this.color = ex.Color.Black;
       });
-      this.on(ex.EventTypes.PointerDragEnd, (e) => {
+      this.on(ex.EventTypes.PointerDragEnd, () => {
         this.color = ex.Color.Green;
       });
       this.on(ex.EventTypes.PointerDragMove, (e) => {
         this.color = ex.Color.Yellow;
         this.pos.setTo(e.pos.x, e.pos.y);
       });
-      this.on(ex.EventTypes.PointerLeave, (e) => {
+      this.on(ex.EventTypes.PointerLeave, () => {
         this.color = ex.Color.Red;
       });
     }
   }
 
-  var testBlockOne = new TestBlock(150, 100);
-  var testBlockTwo = new TestBlock(450, 100);
+  const testBlockOne = new TestBlock(150, 100);
+  const testBlockTwo = new TestBlock(450, 100);
 
   game.add(testBlockOne);
   game.add(testBlockTwo);

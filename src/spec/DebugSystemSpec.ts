@@ -26,6 +26,23 @@ describe('DebugSystem', () => {
     expect(ex.DebugSystem).toBeDefined();
   });
 
+  it('does not crash with an empty collider', async () => {
+    const debugSystem = new ex.DebugSystem();
+    engine.currentScene.world.add(debugSystem);
+    debugSystem.initialize(engine.currentScene);
+
+    engine.graphicsContext.clear();
+    await (engine.graphicsContext.debug as any)._debugText.load();
+
+    const entity = new ex.Entity([new ex.TransformComponent(), new ex.ColliderComponent()]);
+
+    engine.debug.collider.showAll = true;
+
+    expect(() => {
+      debugSystem.update([entity], 100);
+    }).not.toThrow();
+  });
+
   it('can show transform and entity info', async () => {
     const debugSystem = new ex.DebugSystem();
     engine.currentScene.world.add(debugSystem);

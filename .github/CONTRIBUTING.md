@@ -97,9 +97,9 @@ public someFunction() {...}
 
 #### Code Organization
 
-Excalibur uses an AMD bundler using TypeScript to generate a browser self-bootstrapping bundle.
+Excalibur uses Webpack with TypeScript to bundle code.
 
-The Excalibur public API (i.e. `ex.*`) is defined in `src/engine/index.ts`. Any new classes or APIs that should be made available publicly should be exported there. The AMD bundler will then ensure the APIs or classes are exposed in the browser.
+The Excalibur public API (i.e. `ex.*`) is defined in `src/engine/index.ts`. Any new classes or APIs that should be made available publicly should be exported there. The bundler will then ensure the APIs or classes are exposed in the browser.
 
 An example of exporting all public members from a new `MyClass.ts` that contains a `MyClass` ES6 class:
 
@@ -123,9 +123,9 @@ export { feature as Feature };
 
 A number of our code formatting rules are enforced via linting. When you build Excalibur on your computer, the linter will make sure that certain aspects of your code are formatted properly. Additionally:
 
-- Use 3 spaces for indenting
+- Use 2 spaces for indenting
 - All methods must explicitly specify their access modifier (public, private, etc.)
-- Use the CamelCase naming convention, with a lowercase first letter for variables.
+- Use the `TitleCase` naming convention for classes/interfaces, with a lowercase first letter for variables (`camelCase`).
 
 #### Commit Messages
 
@@ -186,6 +186,12 @@ describe('a monkey', () => {
   });
 });
 ```
+
+#### Visual Examples
+
+Excalibur uses Storybook for writing visual tests and examples. These can be interactive and showcase different parts of the engine or specific features. We sometimes embed these examples in the documentation site.
+
+Use `npm run visual` to start Storybook. Stories are written in the `src/stories` directory.
 
 #### Documentation
 

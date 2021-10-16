@@ -35,17 +35,17 @@ const onDomMutated: MutationCallback = (records) => {
  * Helper to generate Storybook game engine instance
  * @param storyFn The storybook fn to pass the engine to
  */
-export const withEngine = (storyFn: (game: Engine) => void) => {
+export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) => void) => {
   if (!observer) {
     observer = new MutationObserver(onDomMutated);
     observer.observe(document.getElementById('root'), { childList: true, subtree: true });
   }
 
-  return () => {
+  return (args?: any) => {
     const canvas = document.createElement('canvas');
     const game = new Engine({
       canvasElement: canvas,
-      displayMode: DisplayMode.FillScreen,
+      displayMode: DisplayMode.FitScreen,
       suppressPlayButton: true,
       pointerScope: Input.PointerScope.Canvas
     });
@@ -58,7 +58,7 @@ export const withEngine = (storyFn: (game: Engine) => void) => {
       }
     });
 
-    storyFn(game);
+    storyFn(game, args);
 
     // store game ref
     (canvas as any).gameRef = game;
@@ -68,14 +68,31 @@ export const withEngine = (storyFn: (game: Engine) => void) => {
 };
 
 /**
- * Helper to generate Storybook Knob Select Options from a Enum Type
+ *
+ */
+function isNumberBasedEnum(e: any) {
+  return Object.values(e).some((v) => typeof v === 'number');
+}
+
+/**
+ * Helper to generate Storybook Control Select Options from a Enum Type
  * @param e Enum
  */
-export const enumToKnobSelect = (e: any): Record<string, any> => {
-  return Object.keys(e)
-    .filter((k) => typeof e[k as any] === 'number')
-    .reduce((o: Record<string, any>, el: string) => {
-      o[el] = e[el];
-      return o;
-    }, {});
+export const enumToControlSelectOptions = (e: any): unknown[] => {
+  if (isNumberBasedEnum(e)) {
+    return Object.values(e).filter((v) => typeof v === 'number');
+  }
+
+  return Object.values(e);
+};
+
+/**
+ * Helper to generate Storybook Control Select Labels from a Enum Type
+ * @param e Enum
+ */
+export const enumToControlSelectLabels = (e: any): string[] => {
+  if (isNumberBasedEnum(e)) {
+    return Object.keys(e).filter((k) => typeof e[k] === 'number');
+  }
+  return Object.keys(e);
 };

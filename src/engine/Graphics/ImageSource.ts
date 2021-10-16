@@ -82,8 +82,8 @@ export class ImageSource implements Loadable<HTMLImageElement> {
 
       // Set results
       this.data = image;
-    } catch {
-      await Promise.reject('Error loading texture');
+    } catch (error) {
+      throw `Error loading ImageSource from path '${this.path}' with error [${error.message}]`;
     }
     // todo emit complete
     this._loadedResolve(this.data);

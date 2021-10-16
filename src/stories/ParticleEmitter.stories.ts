@@ -1,63 +1,112 @@
-import { withKnobs, number, select, boolean, color } from '@storybook/addon-knobs';
 import { ParticleEmitter, EmitterType, Color, Vector } from '../engine';
-import { withEngine, enumToKnobSelect } from './utils';
+import { withEngine, enumToControlSelectOptions } from './utils';
 
 export default {
-  title: 'ParticleEmitter',
-  decorators: [withKnobs]
+  title: 'ParticleEmitter'
 };
 
-export const main = withEngine(async (game) => {
-  // Knobs
-  const width = number('width', 1, { range: true, min: 0, max: 100, step: 1 });
-  const height = number('height', 1, { range: true, min: 0, max: 100, step: 1 });
-  const emitterType = select('emitterType', enumToKnobSelect(EmitterType), EmitterType.Rectangle);
-  const radius = number('radius', 5, { range: true, min: 0, max: 1000, step: 1 });
-  const minVel = number('minVel', 100, { range: true, min: 0, max: 1000, step: 1 });
-  const maxVel = number('maxVel', 200, { range: true, min: 0, max: 1000, step: 1 });
-  const minAngle = number('minAngle', 0, { range: true, min: 0, max: 6.2, step: 0.1 });
-  const maxAngle = number('maxAngle', 6.2, { range: true, min: 0, max: 6.2, step: 0.1 });
-  const isEmitting = boolean('isEmitting', true);
-  const emitRate = number('emitRate', 300, { range: true, min: 0, max: 1000, step: 1 });
-  const opacity = number('opacity', 0.5, { range: true, min: 0, max: 1, step: 0.01 });
-  const fadeFlag = boolean('fadeFlag', true);
-  const particleLife = number('particleLife (ms)', 1000, { range: true, min: 0, max: 5000, step: 10 });
-  const minSize = number('minSize', 1, { range: true, min: 0, max: 200, step: 1 });
-  const maxSize = number('maxSize', 10, { range: true, min: 0, max: 200, step: 1 });
-  const startSize = number('startSize', 5, { range: true, min: 0, max: 200, step: 1 });
-  const endSize = number('endSize', 10, { range: true, min: 0, max: 200, step: 1 });
-  const accelX = number('Accel X', 0, { range: true, min: -2000, max: 2000, step: 1 });
-  const accelY = number('Accel Y', 0, { range: true, min: -2000, max: 2000, step: 1 });
-  const beginColor = color('beginColor', Color.Rose.toRGBA());
-  const endColor = color('endColor', Color.Yellow.toRGBA());
+export const main: Story = withEngine(
+  async (
+    game,
+    {
+      width,
+      height,
+      emitterType,
+      radius,
+      minVel,
+      maxVel,
+      minAngle,
+      maxAngle,
+      isEmitting,
+      emitRate,
+      opacity,
+      fadeFlag,
+      particleLife,
+      minSize,
+      maxSize,
+      startSize,
+      endSize,
+      accelX,
+      accelY,
+      beginColor,
+      endColor
+    }
+  ) => {
+    // Default Scenario
+    game.backgroundColor = Color.Black;
 
-  // Default Scenario
-  game.backgroundColor = Color.Black;
+    // Particle Emitter
+    const emitter = new ParticleEmitter({ x: game.currentScene.camera.x, y: game.currentScene.camera.y, width, height });
 
-  // Particle Emitter
-  const emitter = new ParticleEmitter(game.currentScene.camera.x, game.currentScene.camera.y);
-  emitter.width = width;
-  emitter.height = height;
-  emitter.emitterType = emitterType;
-  emitter.radius = radius;
-  emitter.minVel = minVel;
-  emitter.maxVel = maxVel;
-  emitter.minAngle = minAngle;
-  emitter.maxAngle = maxAngle;
-  emitter.isEmitting = isEmitting;
-  emitter.emitRate = emitRate;
-  emitter.opacity = opacity;
-  emitter.fadeFlag = fadeFlag;
-  emitter.particleLife = particleLife;
-  emitter.minSize = minSize;
-  emitter.maxSize = maxSize;
-  emitter.startSize = startSize;
-  emitter.endSize = endSize;
-  emitter.acceleration = new Vector(accelX, accelY);
-  emitter.beginColor = Color.fromRGBString(beginColor);
-  emitter.endColor = Color.fromRGBString(endColor);
-  emitter.focusAccel = 800;
-  game.add(emitter);
+    emitter.emitterType = emitterType;
+    emitter.radius = radius;
+    emitter.minVel = minVel;
+    emitter.maxVel = maxVel;
+    emitter.minAngle = minAngle;
+    emitter.maxAngle = maxAngle;
+    emitter.isEmitting = isEmitting;
+    emitter.emitRate = emitRate;
+    emitter.opacity = opacity;
+    emitter.fadeFlag = fadeFlag;
+    emitter.particleLife = particleLife;
+    emitter.minSize = minSize;
+    emitter.maxSize = maxSize;
+    emitter.startSize = startSize;
+    emitter.endSize = endSize;
+    emitter.acceleration = new Vector(accelX, accelY);
+    emitter.beginColor = Color.fromRGBString(beginColor);
+    emitter.endColor = Color.fromRGBString(endColor);
+    emitter.focusAccel = 800;
+    game.add(emitter);
 
-  await game.start();
-});
+    await game.start();
+  }
+);
+
+main.argTypes = {
+  width: { control: { type: 'number', range: true, min: 0, max: 100, step: 1 } },
+  height: { control: { type: 'number', range: true, min: 0, max: 100, step: 1 } },
+  emitterType: { control: { type: 'select' }, options: enumToControlSelectOptions(EmitterType) },
+  radius: { control: { type: 'number', range: true, min: 0, max: 1000, step: 1 } },
+  minVel: { control: { type: 'number', range: true, min: 0, max: 1000, step: 1 } },
+  maxVel: { control: { type: 'number', range: true, min: 0, max: 1000, step: 1 } },
+  minAngle: { control: { type: 'number', range: true, min: 0, max: 6.2, step: 0.1 } },
+  maxAngle: { control: { type: 'number', range: true, min: 0, max: 6.2, step: 0.1 } },
+  isEmitting: { control: { type: 'boolean' } },
+  emitRate: { control: { type: 'number', range: true, min: 0, max: 1000, step: 1 } },
+  opacity: { control: { type: 'number', range: true, min: 0, max: 1, step: 0.01 } },
+  fadeFlag: { control: { type: 'boolean' } },
+  particleLife: { control: { type: 'number', range: true, min: 0, max: 5000, step: 10 } },
+  minSize: { control: { type: 'number', range: true, min: 0, max: 200, step: 1 } },
+  maxSize: { control: { type: 'number', range: true, min: 0, max: 200, step: 1 } },
+  startSize: { control: { type: 'number', range: true, min: 0, max: 200, step: 1 } },
+  endSize: { control: { type: 'number', range: true, min: 0, max: 200, step: 1 } },
+  accelX: { control: { type: 'number', range: true, min: -2000, max: 2000, step: 1 } },
+  accelY: { control: { type: 'number', range: true, min: -2000, max: 2000, step: 1 } },
+  beginColor: { control: { type: 'color' } },
+  endColor: { control: { type: 'color' } }
+};
+
+main.args = {
+  width: 1,
+  height: 1,
+  emitterType: EmitterType.Rectangle,
+  radius: 5,
+  minVel: 100,
+  maxVel: 200,
+  minAngle: 0,
+  maxAngle: 6.2,
+  isEmitting: true,
+  emitRate: 300,
+  opacity: 0.5,
+  fadeFlag: true,
+  particleLife: 1000,
+  minSize: 1,
+  maxSize: 10,
+  startSize: 5,
+  endSize: 10,
+  accelX: 0,
+  accelY: 0,
+  beginColor: Color.Rose.toRGBA(),
+  endColor: Color.Yellow.toRGBA()
+};
