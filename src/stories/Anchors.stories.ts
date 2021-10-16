@@ -1,4 +1,5 @@
-import { Texture, Loader, Color, Actor, Util, Vector } from '../engine';
+import { Loader, Color, Actor, Util, Vector, vec } from '../engine';
+import { ImageSource, Canvas } from '../engine/Graphics';
 import { withEngine } from './utils';
 
 import heartBitmap from './assets/heart.png';
@@ -9,28 +10,42 @@ export default {
 
 class Cross extends Actor {
   constructor(x: number, y: number) {
-    super(x, y, 40, 40);
+    super({ x, y, width: 40, height: 40 });
+    this.graphics.onPreDraw = (ctx) => {
+      ctx.save();
+      // onPreDraw doesnt factor anchor anymore
+      ctx.translate(-20, -20);
+      ctx.debug.drawLine(vec(this.width / 2, 0), vec(this.width / 2, this.height), { color: Color.Black });
+      ctx.debug.drawLine(vec(0, this.height / 2), vec(this.width, this.height / 2), { color: Color.Black });
+      ctx.restore();
+    };
   }
 
-  onPreDraw(ctx: CanvasRenderingContext2D) {
-    ctx.beginPath();
-    ctx.lineTo(this.width / 2, 0);
-    ctx.lineTo(this.width / 2, this.height);
-    ctx.strokeStyle = Color.Black.toString();
-    ctx.stroke();
-    ctx.closePath();
+  onInitialize() {
+    const canvas = new Canvas({
+      draw: (ctx) => {
+        ctx.beginPath();
+        ctx.lineTo(this.width / 2, 0);
+        ctx.lineTo(this.width / 2, this.height);
+        ctx.strokeStyle = Color.Black.toString();
+        ctx.stroke();
+        ctx.closePath();
 
-    ctx.beginPath();
-    ctx.lineTo(0, this.height / 2);
-    ctx.lineTo(this.width, this.height / 2);
-    ctx.strokeStyle = Color.Black.toString();
-    ctx.stroke();
-    ctx.closePath();
+        ctx.beginPath();
+        ctx.lineTo(0, this.height / 2);
+        ctx.lineTo(this.width, this.height / 2);
+        ctx.strokeStyle = Color.Black.toString();
+        ctx.stroke();
+        ctx.closePath();
+      }
+    });
+
+    this.graphics.add(canvas);
   }
 }
-
+// Flags.enable(Legacy.LegacyDrawing);
 export const centered = withEngine(async (game) => {
-  const heartTx = new Texture(heartBitmap);
+  const heartTx = new ImageSource(heartBitmap);
   const ldr = new Loader([heartTx]);
 
   game.backgroundColor = Color.White;
@@ -42,10 +57,10 @@ export const centered = withEngine(async (game) => {
   const ca2 = new Actor({ width: 10 * 2, height: 10 * 2, color: Color.Green, anchor: Vector.Half });
   const ca3 = new Actor({ width: 10, height: 10, color: Color.Blue, anchor: Vector.Half });
   const ca4 = new Actor({ width: 20 * 2, height: 20 * 2, anchor: Vector.Half });
-  const heartSprite = heartTx.asSprite();
+  const heartSprite = heartTx.toSprite();
   heartSprite.scale.setTo(3, 3);
-  ca4.addDrawing(heartSprite);
-  ca4.rx = 0.5;
+  ca4.graphics.add(heartSprite);
+  ca4.angularVelocity = 0.5;
   ca3.rotation = Util.toRadians(45);
 
   game.add(ca4);
@@ -54,14 +69,13 @@ export const centered = withEngine(async (game) => {
   game.add(ca3);
   game.add(cc);
 
-  game.currentScene.camera.x = 0;
-  game.currentScene.camera.y = 0;
+  game.currentScene.camera.strategy.lockToActor(cc);
 
   await game.start(ldr);
 });
 
 export const topLeft = withEngine(async (game) => {
-  const heartTx = new Texture(heartBitmap);
+  const heartTx = new ImageSource(heartBitmap);
   const ldr = new Loader([heartTx]);
 
   game.backgroundColor = Color.White;
@@ -96,9 +110,9 @@ export const topLeft = withEngine(async (game) => {
     height: 20 * 2,
     anchor: Vector.Zero
   });
-  const heartSprite2 = heartTx.asSprite();
+  const heartSprite2 = heartTx.toSprite();
   heartSprite2.scale.setTo(3, 3);
-  tla4.addDrawing(heartSprite2);
+  tla4.graphics.add(heartSprite2);
   tla3.rotation = Util.toRadians(45);
 
   game.add(tla4);
@@ -107,14 +121,13 @@ export const topLeft = withEngine(async (game) => {
   game.add(tla3);
   game.add(tlc);
 
-  game.currentScene.camera.x = 0;
-  game.currentScene.camera.y = 0;
+  game.currentScene.camera.strategy.lockToActor(tlc);
 
   await game.start(ldr);
 });
 
 export const topRight = withEngine(async (game) => {
-  const heartTx = new Texture(heartBitmap);
+  const heartTx = new ImageSource(heartBitmap);
   const ldr = new Loader([heartTx]);
 
   game.backgroundColor = Color.White;
@@ -126,9 +139,9 @@ export const topRight = withEngine(async (game) => {
   const tra2 = new Actor({ x: 100, y: -100, width: 10 * 2, height: 10 * 2, color: Color.Green, anchor: new Vector(1, 0) });
   const tra3 = new Actor({ x: 100, y: -100, width: 10, height: 10, color: Color.Blue, anchor: new Vector(1, 0) });
   const tra4 = new Actor({ x: 100, y: -100, width: 20 * 2, height: 20 * 2, anchor: new Vector(1, 0) });
-  const heartSprite2 = heartTx.asSprite();
+  const heartSprite2 = heartTx.toSprite();
   heartSprite2.scale.setTo(3, 3);
-  tra4.addDrawing(heartSprite2);
+  tra4.graphics.add(heartSprite2);
   tra3.rotation = Util.toRadians(45);
 
   game.add(tra4);
@@ -137,14 +150,13 @@ export const topRight = withEngine(async (game) => {
   game.add(tra3);
   game.add(trc);
 
-  game.currentScene.camera.x = 0;
-  game.currentScene.camera.y = 0;
+  game.currentScene.camera.strategy.lockToActor(trc);
 
   await game.start(ldr);
 });
 
 export const bottomLeft = withEngine(async (game) => {
-  const heartTx = new Texture(heartBitmap);
+  const heartTx = new ImageSource(heartBitmap);
   const ldr = new Loader([heartTx]);
 
   game.backgroundColor = Color.White;
@@ -156,9 +168,9 @@ export const bottomLeft = withEngine(async (game) => {
   const bla2 = new Actor({ x: -100, y: 100, width: 10 * 2, height: 10 * 2, color: Color.Green, anchor: new Vector(0, 1) });
   const bla3 = new Actor({ x: -100, y: 100, width: 10, height: 10, color: Color.Blue, anchor: new Vector(0, 1) });
   const bla4 = new Actor({ x: -100, y: 100, width: 20 * 2, height: 20 * 2, anchor: new Vector(0, 1) });
-  const heartSprite2 = heartTx.asSprite();
+  const heartSprite2 = heartTx.toSprite();
   heartSprite2.scale.setTo(3, 3);
-  bla4.addDrawing(heartSprite2);
+  bla4.graphics.add(heartSprite2);
   bla3.rotation = Util.toRadians(45);
 
   game.add(bla4);
@@ -174,7 +186,7 @@ export const bottomLeft = withEngine(async (game) => {
 });
 
 export const bottomRight = withEngine(async (game) => {
-  const heartTx = new Texture(heartBitmap);
+  const heartTx = new ImageSource(heartBitmap);
   const ldr = new Loader([heartTx]);
 
   game.backgroundColor = Color.White;
@@ -185,9 +197,9 @@ export const bottomRight = withEngine(async (game) => {
   const bra2 = new Actor({ x: 100, y: 100, width: 10 * 2, height: 10 * 2, color: Color.Green, anchor: new Vector(1, 1) });
   const bra3 = new Actor({ x: 100, y: 100, width: 10, height: 10, color: Color.Blue, anchor: new Vector(1, 1) });
   const bra4 = new Actor({ x: 100, y: 100, width: 20 * 2, height: 20 * 2, anchor: new Vector(1, 1) });
-  const heartSprite2 = heartTx.asSprite();
+  const heartSprite2 = heartTx.toSprite();
   heartSprite2.scale.setTo(3, 3);
-  bra4.addDrawing(heartSprite2);
+  bra4.graphics.add(heartSprite2);
   bra3.rotation = Util.toRadians(45);
 
   game.add(bra4);

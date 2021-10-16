@@ -2,11 +2,13 @@
   "extends": "../engine/tsconfig.json",
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "baseUrl": ".",
     "rootDirs": [".", "../engine"],
     "declaration": false,
     "outDir": ".",
-    "target": "es5"
+    "target": "es2015",
+    "module": "commonjs"
   },
   "include": ["**/*", "../engine/*.d.ts"],
   "exclude": []
