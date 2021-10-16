@@ -14,7 +14,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Internal Actions implementation converted to ECS system and component, this is a backwards compatible change with v0.25.0
-  - `ActionsSystem` and `ActionsComponent` 
+  - `ex.ActionsSystem` and `ex.ActionsComponent` now wrap the existing `ex.ActionContext`
+  - Actions can be shared with all entities now!
 ### Deprecated
 
 - Actions `asPromise()` renamed to `toPromise()`
