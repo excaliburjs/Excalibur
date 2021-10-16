@@ -34,7 +34,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
 
   /**
    * Updates the internal action context, performing action and moving through the internal queue
-   * @param elapsedMs 
+   * @param elapsedMs
    */
   public update(elapsedMs: number): void {
     return this._ctx?.update(elapsedMs);
