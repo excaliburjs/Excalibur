@@ -18,7 +18,7 @@ describe('A game actor', () => {
   let scene: ex.Scene;
   let motionSystem: ex.MotionSystem;
   let collisionSystem: ex.CollisionSystem;
-  let actionSystem: ex.ActionSystem;
+  let actionSystem: ex.ActionsSystem;
 
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -31,7 +31,7 @@ describe('A game actor', () => {
     actor.body.collisionType = ex.CollisionType.Active;
     motionSystem = new ex.MotionSystem();
     collisionSystem = new ex.CollisionSystem();
-    actionSystem = new ex.ActionSystem();
+    actionSystem = new ex.ActionsSystem();
     scene = new ex.Scene();
     scene.add(actor);
     engine.addScene('test', scene);
