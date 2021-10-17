@@ -282,8 +282,8 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * @param entity           The entity to follow
    * @param followDistance  The distance to maintain when following, if not specified the actor will follow at the current distance.
    */
-  public follow(actor: Actor, followDistance?: number): ActionContext {
-    return this._ctx.follow(actor, followDistance);
+  public follow(entity: Actor, followDistance?: number): ActionContext {
+    return this._ctx.follow(entity, followDistance);
   }
 
   /**
