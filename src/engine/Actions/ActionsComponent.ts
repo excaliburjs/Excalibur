@@ -292,8 +292,8 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * @param entity  The entity to meet
    * @param speed  The speed in pixels per second to move, if not specified it will match the speed of the other actor
    */
-  public meet(actor: Actor, speed?: number): ActionContext {
-    return this._ctx.meet(actor, speed);
+  public meet(entity: Actor, speed?: number): ActionContext {
+    return this._ctx.meet(entity, speed);
   }
 
   /**
