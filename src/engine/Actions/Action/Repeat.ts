@@ -1,4 +1,4 @@
-import { Actor } from '../../Actor';
+import { Entity } from '../../EntityComponentSystem/Entity';
 import { Action } from '../Action';
 import { ActionContext } from '../ActionContext';
 import { ActionQueue } from '../ActionQueue';
@@ -10,9 +10,9 @@ export class Repeat implements Action {
   private _stopped: boolean = false;
   private _repeatContext: ActionContext;
   private _repeatBuilder: (repeatContext: ActionContext) => any;
-  constructor(actor: Actor, repeatBuilder: (repeatContext: ActionContext) => any, repeat: number) {
+  constructor(entity: Entity, repeatBuilder: (repeatContext: ActionContext) => any, repeat: number) {
     this._repeatBuilder = repeatBuilder;
-    this._repeatContext = new ActionContext(actor);
+    this._repeatContext = new ActionContext(entity);
     this._actionQueue = this._repeatContext.getQueue();
 
     this._repeat = repeat;

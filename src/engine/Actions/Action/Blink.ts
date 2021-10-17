@@ -1,17 +1,18 @@
-import { Actor } from '../../Actor';
+import { GraphicsComponent } from '../../Graphics/GraphicsComponent';
+import { Entity } from '../../EntityComponentSystem/Entity';
 import { Action } from '../Action';
 
 export class Blink implements Action {
+  private _graphics: GraphicsComponent;
   private _timeVisible: number = 0;
   private _timeNotVisible: number = 0;
   private _elapsedTime: number = 0;
   private _totalTime: number = 0;
-  private _actor: Actor;
   private _duration: number;
   private _stopped: boolean = false;
   private _started: boolean = false;
-  constructor(actor: Actor, timeVisible: number, timeNotVisible: number, numBlinks: number = 1) {
-    this._actor = actor;
+  constructor(entity: Entity, timeVisible: number, timeNotVisible: number, numBlinks: number = 1) {
+    this._graphics = entity.get(GraphicsComponent);
     this._timeVisible = timeVisible;
     this._timeNotVisible = timeNotVisible;
     this._duration = (timeVisible + timeNotVisible) * numBlinks;
@@ -21,21 +22,24 @@ export class Blink implements Action {
     if (!this._started) {
       this._started = true;
     }
+    if (!this._graphics) {
+      return;
+    }
 
     this._elapsedTime += delta;
     this._totalTime += delta;
-    if (this._actor.graphics.visible && this._elapsedTime >= this._timeVisible) {
-      this._actor.graphics.visible = false;
+    if (this._graphics.visible && this._elapsedTime >= this._timeVisible) {
+      this._graphics.visible = false;
       this._elapsedTime = 0;
     }
 
-    if (!this._actor.graphics.visible && this._elapsedTime >= this._timeNotVisible) {
-      this._actor.graphics.visible = true;
+    if (!this._graphics.visible && this._elapsedTime >= this._timeNotVisible) {
+      this._graphics.visible = true;
       this._elapsedTime = 0;
     }
 
     if (this.isComplete()) {
-      this._actor.graphics.visible = true;
+      this._graphics.visible = true;
     }
   }
 
@@ -44,7 +48,9 @@ export class Blink implements Action {
   }
 
   public stop(): void {
-    this._actor.graphics.visible = true;
+    if (this._graphics) {
+      this._graphics.visible = true;
+    }
     this._stopped = true;
   }
 

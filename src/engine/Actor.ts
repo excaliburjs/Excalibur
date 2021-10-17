@@ -30,11 +30,9 @@ import { Drawable } from './Interfaces/Drawable';
 import { CanInitialize, CanUpdate, CanDraw, CanBeKilled } from './Interfaces/LifecycleEvents';
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
-import { ActionContext } from './Actions/ActionContext';
 import { Vector, vec } from './Math/vector';
 import { BodyComponent } from './Collision/BodyComponent';
 import { Eventable } from './Interfaces/Evented';
-import { Actionable } from './Actions/Actionable';
 import * as Traits from './Traits/Index';
 import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEventHandlers';
@@ -54,6 +52,7 @@ import { watch } from './Util/Watch';
 import { Collider, CollisionGroup } from './Collision/Index';
 import { Circle } from './Graphics/Circle';
 import { CapturePointerConfig } from './Input/CapturePointerConfig';
+import { ActionsComponent } from './Actions/ActionsComponent';
 
 /**
  * Type guard for checking if something is an Actor
@@ -152,7 +151,7 @@ export interface ActorArgs {
  * or interact with the current scene, must be an actor. An `Actor` **must**
  * be part of a [[Scene]] for it to be drawn to the screen.
  */
-export class Actor extends Entity implements Actionable, Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
+export class Actor extends Entity implements Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
   // #region Properties
 
   /**
@@ -192,10 +191,20 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   }
 
   /**
-   * Access to the Actor's build in [[ColliderComponent]]
+   * Access to the Actor's built in [[ColliderComponent]]
    */
   public get collider(): ColliderComponent {
     return this.get(ColliderComponent);
+  }
+
+  /**
+   * Useful for quickly scripting actor behavior, like moving to a place, patroling back and forth, blinking, etc.
+   *
+   *  Access to the Actor's built in [[ActionsComponent]] which forwards to the
+   * [[ActionContext|Action context]] of the actor.
+   */
+  public get actions(): ActionsComponent {
+    return this.get(ActionsComponent);
   }
 
   /**
@@ -383,11 +392,6 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
   }
 
   /**
-   * [[ActionContext|Action context]] of the actor. Useful for scripting actor behavior.
-   */
-  public actions: ActionContext;
-
-  /**
    * Convenience reference to the global logger
    */
   public logger: Logger = Logger.getInstance();
@@ -537,6 +541,8 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
     this.acc = acc ?? Vector.Zero;
     this.angularVelocity = angularVelocity ?? 0;
 
+    this.addComponent(new ActionsComponent());
+
     this.addComponent(new BodyComponent());
     this.body.collisionType = collisionType ?? CollisionType.Passive;
     if (collisionGroup) {
@@ -584,8 +590,6 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
     }
     this.traits.push(new Traits.CapturePointer());
 
-    // Build the action queue
-    this.actions = new ActionContext(this);
   }
 
   /**
@@ -1147,18 +1151,10 @@ export class Actor extends Entity implements Actionable, Eventable, PointerEvent
       drawing.tick(delta, engine.stats.currFrame.id);
     }
 
-    // Update action context
-    this.actions.update(delta);
-
     // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
     for (const trait of this.traits) {
       trait.update(this, engine, delta);
     }
-
-    // Update child actors
-    // for (let i = 0; i < this.children.length; i++) {
-    //   this.children[i].update(engine, delta);
-    // }
 
     this._postupdate(engine, delta);
   }

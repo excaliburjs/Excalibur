@@ -1,20 +1,18 @@
-import { Actor } from '../../Actor';
+import { Entity } from '../../EntityComponentSystem/Entity';
 import { Action } from '../Action';
+import { ActionsComponent } from '../ActionsComponent';
 
 export class Die implements Action {
-  public x: number;
-  public y: number;
-
-  private _actor: Actor;
+  private _entity: Entity;
   private _stopped = false;
 
-  constructor(actor: Actor) {
-    this._actor = actor;
+  constructor(entity: Entity) {
+    this._entity = entity;
   }
 
   public update(_delta: number): void {
-    this._actor.actions.clearActions();
-    this._actor.kill();
+    this._entity.get(ActionsComponent).clearActions();
+    this._entity.kill();
     this._stopped = true;
   }
 
