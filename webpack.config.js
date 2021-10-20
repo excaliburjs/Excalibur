@@ -10,8 +10,8 @@ const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
 module.exports = {
   mode: 'development',
   devtool: 'source-map',
-  entry: { 
-    'excalibur': './index.ts',
+  entry: {
+    excalibur: './index.ts',
     'excalibur.min': './index.ts'
   },
   context: path.resolve(__dirname, 'src/engine'),

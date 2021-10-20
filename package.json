@@ -77,6 +77,7 @@
     "coveralls": "3.1.1",
     "css-loader": "6.3.0",
     "eslint": "7.32.0",
+    "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-jsdoc": "36.1.0",
     "excalibur-jasmine": "0.2.0",
     "istanbul": "0.4.5",
