@@ -10,7 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 ### Added
 
-- 
+- *Experimental:* Native ES module bundle distribution in package `esm/excalibur.js` entrypoint ([#2064](https://github.com/excaliburjs/Excalibur/pull/2064))
 ### Changed
 
 - Internal Actions implementation converted to ECS system and component, this is a backwards compatible change with v0.25.0
