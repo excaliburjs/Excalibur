@@ -1,4 +1,5 @@
 !build/dist/**/*.*
+!build/esm/**/*.*
 .github/
 .storybook/
 .vscode/
