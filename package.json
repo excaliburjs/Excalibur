@@ -8,6 +8,7 @@
   "homepage": "https://github.com/excaliburjs/Excalibur",
   "main": "build/dist/excalibur.min.js",
   "typings": "build/dist/excalibur.d.ts",
+  "module": "build/dist/index.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/excaliburjs/Excalibur.git"
