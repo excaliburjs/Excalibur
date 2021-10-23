@@ -63,6 +63,10 @@ export interface AnimationOptions {
    */
   frameDuration?: number;
   /**
+   * Optionally specify a total duration of the animation in ms to calculate each frame's duration
+   */
+  totalDuration?: number;
+  /**
    * Optionally specify the [[AnimationStrategy]] for the Animation
    */
   strategy?: AnimationStrategy;
@@ -101,8 +105,7 @@ export class Animation extends Graphic implements HasTick {
     super(options);
     this.frames = options.frames;
     this.strategy = options.strategy ?? this.strategy;
-    this.frameDuration = options.frameDuration ?? this.frameDuration;
-
+    this.frameDuration = options.totalDuration ? options.totalDuration / this.frames.length : options.frameDuration ?? this.frameDuration;
     this.goToFrame(0);
   }
 
