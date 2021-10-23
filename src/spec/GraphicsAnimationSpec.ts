@@ -401,4 +401,35 @@ describe('A Graphics Animation', () => {
     anim.draw(ctx, 0, 0);
     await expectAsync(output).toEqualImage('src/spec/images/GraphicsAnimationSpec/frame-3.png');
   });
+
+  it('calculate automatically the frame duration based on the animation total duration', () => {
+
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const totalDuration = 1000;
+    const frames = [
+      {
+        graphic: rect
+      },
+      {
+        graphic: rect
+      }
+    ];
+    const expectedFrameDuration = totalDuration / frames.length;
+    const anim = new ex.Animation({
+      totalDuration,
+      frames: frames
+    });
+
+    expect(anim.frameDuration).toBe(expectedFrameDuration);
+    anim.play();
+    expect(anim.currentFrame).toBe(anim.frames[0]);
+    anim.tick(expectedFrameDuration, 0);
+    expect(anim.currentFrame).toBe(anim.frames[1]);
+    anim.tick(expectedFrameDuration, 2);
+    expect(anim.currentFrame).toBe(anim.frames[0]);
+  });
 });
