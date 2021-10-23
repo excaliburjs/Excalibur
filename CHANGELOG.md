@@ -10,7 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 ### Added
 
-- 
+- `ex.Animation` now support `totalDuration` that will calculate automatically each frame duration based on how many frames have.
+-
 ### Changed
 
 - Internal Actions implementation converted to ECS system and component, this is a backwards compatible change with v0.25.0
