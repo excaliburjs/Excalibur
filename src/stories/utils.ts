@@ -1,4 +1,4 @@
-import { DisplayMode, Engine, Input, Logger } from '../engine';
+import { DisplayMode, Engine, EngineOptions, Input, Logger } from '../engine';
 
 interface HTMLCanvasElement {
   gameRef?: Engine;
@@ -34,8 +34,9 @@ const onDomMutated: MutationCallback = (records) => {
 /**
  * Helper to generate Storybook game engine instance
  * @param storyFn The storybook fn to pass the engine to
+ * @param options Engine options to override the default behavior of the engine on storybook (see EngineOptions)
  */
-export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) => void) => {
+export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) => void, options?: EngineOptions) => {
   if (!observer) {
     observer = new MutationObserver(onDomMutated);
     observer.observe(document.getElementById('root'), { childList: true, subtree: true });
@@ -47,7 +48,8 @@ export const withEngine = (storyFn: (game: Engine, args?: Record<string, any>) =
       canvasElement: canvas,
       displayMode: DisplayMode.FitScreen,
       suppressPlayButton: true,
-      pointerScope: Input.PointerScope.Canvas
+      pointerScope: Input.PointerScope.Canvas,
+      ...options
     });
 
     Logger.getInstance().info('Press \'d\' for debug mode');
