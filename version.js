@@ -1,5 +1,6 @@
 const { execSync } = require('child_process');
 const semver = require('semver');
+const package = require('./package.json');
 
 function getCiOptions() {
   return {
@@ -18,17 +19,8 @@ function getCurrentCommit() {
   return commit;
 }
 
-function getLatestTag(commit) {
-  execSync('git fetch --depth=1000');
-  execSync('git fetch --all --tags');
-  const tag = execSync(`git describe --tags ${commit} --abbrev=0`).toString().trim();
-  return tag;
-}
-
-function getLatestVersion() {
-  const commit = getCurrentCommit();
-  const tag = getLatestTag(commit);
-  return tag.match(/^v?([0-9\.]+)$/)[1];
+function getNextVersion() {
+  return package.exNextVersion;
 }
 
 function isTaggedRelease(options) {
@@ -52,8 +44,7 @@ function generateLocalVersion() {
   try {
     execSync('git fetch');
     const commit = getCurrentCommit();
-    version = getLatestVersion();
-    version = semver.inc(version, 'minor');
+    version = getNextVersion();
     version = version + '-' + commit.substring(0, 7);
   } catch (err) {
     console.error(err);
@@ -78,9 +69,7 @@ function generateCommunityVersion(options) {
 
 function generateAlphaVersion(options) {
   let commit = getCurrentCommit();
-  let version = getLatestVersion();
-  // Alpha builds target next projected release pre 1.0
-  version = semver.inc(version, 'minor');
+  let version = getNextVersion();
 
   // Nuget doesn't yet support the + suffix in versions
   const appveyVersion = version + '.' + options.appveyorBuild + '-alpha';
@@ -117,8 +106,7 @@ function getCiVersion(ciOptions, log = true) {
 
 exports.getCiOptions = getCiOptions;
 exports.getCurrentCommit = getCurrentCommit;
-exports.getLatestTag = getLatestTag;
-exports.getLatestVersion = getLatestVersion;
+exports.getNextVersion = getNextVersion;
 exports.isTaggedRelease = isTaggedRelease;
 exports.isLocal = isLocal;
 exports.isFork = isFork;

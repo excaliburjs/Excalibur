@@ -11,11 +11,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - *Experimental:* Native ES module bundle distribution in package `esm/excalibur.js` entrypoint ([#2064](https://github.com/excaliburjs/Excalibur/pull/2064))
+- `withEngine` utils support an aditional options parameter to override the Engine default options.
+- Story to show a play / pause implementation. 
+- `ex.Animation` now support `totalDuration` that will calculate automatically each frame duration based on how many frames have.
+-
 ### Changed
 
 - Internal Actions implementation converted to ECS system and component, this is a backwards compatible change with v0.25.0
   - `ex.ActionsSystem` and `ex.ActionsComponent` now wrap the existing `ex.ActionContext`
   - Actions can be shared with all entities now!
+- Dispatch the `hidePlayButton` on the Button Event to prevent that keep on the screen on some situations [#1431].
+- Revert VSCode Workbench Colors
+-
 ### Deprecated
 
 - Actions `asPromise()` renamed to `toPromise()`

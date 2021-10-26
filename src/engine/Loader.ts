@@ -242,6 +242,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
    */
   public showPlayButton(): Promise<void> {
     if (this.suppressPlayButton) {
+      this.hidePlayButton();
       return Promise.resolve();
     } else {
       this._playButtonShown = true;
@@ -255,6 +256,8 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
         const startButtonHandler = (e: Event) => {
           // We want to stop propogation to keep bubbling to the engine pointer handlers
           e.stopPropagation();
+          // Hide Button after click
+          this.hidePlayButton();
           resolve();
         };
         this._playButton.addEventListener('click', startButtonHandler);
@@ -312,7 +315,6 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
     // See: https://github.com/excaliburjs/Excalibur/issues/262
     // See: https://github.com/excaliburjs/Excalibur/issues/1031
     await WebAudio.unlock();
-    this.hidePlayButton();
 
     return (this.data = this._resourceList);
   }
