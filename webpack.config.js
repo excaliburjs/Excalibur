@@ -7,8 +7,25 @@ const TerserPlugin = require('terser-webpack-plugin');
 const now = new Date();
 const dt = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate();
 
-module.exports = {
-  mode: 'development',
+const umdOutput = {
+  path: path.resolve(__dirname, 'build/dist'),
+  filename: '[name].js',
+  library: {
+    name: 'ex',
+    type: 'umd'
+  }
+};
+
+const esmOutput = {
+  path: path.resolve(__dirname, 'build/esm'),
+  filename: '[name].js',
+  library: {
+    type: 'module'
+  }
+};
+
+module.exports = (env, argv) => ({
+  mode: env.production ? 'production' : 'development',
   devtool: 'source-map',
   entry: {
     excalibur: './index.ts',
@@ -23,12 +40,13 @@ module.exports = {
       })
     ]
   },
-  output: {
-    path: path.resolve(__dirname, 'build/dist'),
-    filename: '[name].js',
-    library: 'ex',
-    libraryTarget: 'umd'
-  },
+  output: env.output === 'esm' ? esmOutput : umdOutput,
+  experiments:
+    env.output === 'esm'
+      ? {
+          outputModule: true
+        }
+      : {},
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.
     extensions: ['.ts', '.tsx', '.js']
@@ -38,7 +56,12 @@ module.exports = {
       // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
       {
         test: /\.tsx?$/,
-        loader: 'ts-loader'
+        loader: 'ts-loader',
+        options: {
+          compilerOptions: {
+            outDir: env.output === 'esm' ? esmOutput.path : umdOutput.path
+          }
+        }
       },
       {
         test: /\.css$/,
@@ -74,4 +97,4 @@ Licensed ${pkg.license}
 @preserve`
     )
   ]
-};
+});

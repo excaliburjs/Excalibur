@@ -8,7 +8,7 @@
   "homepage": "https://github.com/excaliburjs/Excalibur",
   "main": "build/dist/excalibur.min.js",
   "typings": "build/dist/excalibur.d.ts",
-  "module": "build/dist/index.js",
+  "module": "build/esm/excalibur.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/excaliburjs/Excalibur.git"
@@ -26,17 +26,19 @@
     "simple"
   ],
   "scripts": {
-    "all": "npm run lint && npm run core && npm run test && npm run legacy-visual",
+    "all": "npm run lint && npm run core && npm run build:esm && npm run test && npm run legacy-visual",
     "clean": "rimraf .tsbuildinfo ./build/dist ./build ./src/spec/*.js ./src/spec/*.map",
     "linux:ci": "npm run clean && npm run all && npm run coveralls && npm run apidocs",
     "appveyor": "npm run all && npm run nuget 0.0.1",
     "nuget": ".\\src\\tools\\NuGet.exe pack Excalibur.nuspec -OutputDirectory .\\build\\dist -version",
     "start": "npm run core:watch",
     "build": "npm run core",
+    "build:esm": "npm run core:bundle:esm",
     "core": "npm run core:tsc && npm run core:copy && npm run core:bundle",
     "core:tsc": "tsc --project src/engine/tsconfig.json --incremental true --tsBuildInfoFile .tsbuildinfo && node ./scripts/excalibur-version.js",
     "core:copy": "copyfiles -u 2 ./src/engine/**/*.png ./src/engine/**/*.css ./src/engine/**/*.glsl ./build/dist/",
     "core:bundle": "webpack --progress --config webpack.config.js --mode production",
+    "core:bundle:esm": "webpack --progress --config webpack.config.js --mode production --env output=esm",
     "core:watch": "npm run core:bundle -- --watch",
     "lint": "npm run eslint && npm run eslint:spec",
     "eslint": "eslint \"src/engine/**/*.ts\"",

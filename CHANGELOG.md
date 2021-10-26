@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 ### Added
 
+- *Experimental:* Native ES module bundle distribution in package `esm/excalibur.js` entrypoint ([#2064](https://github.com/excaliburjs/Excalibur/pull/2064))
 - `withEngine` utils support an aditional options parameter to override the Engine default options.
 - Story to show a play / pause implementation. 
 - `ex.Animation` now support `totalDuration` that will calculate automatically each frame duration based on how many frames have.
