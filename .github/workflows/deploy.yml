@@ -33,7 +33,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node-
     - run: npm ci
-    - run: npm run core
+    - run: npm run build
+    - run: npm run build:esm
     - run: echo "alpha_version=$(node -e "console.log(require('./version').getCiVersion(null, false));")" >> $GITHUB_ENV
     - run: echo $alpha_version
     - run: npm --no-git-tag-version version $alpha_version
