@@ -56,7 +56,12 @@ module.exports = (env, argv) => ({
       // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
       {
         test: /\.tsx?$/,
-        loader: 'ts-loader'
+        loader: 'ts-loader',
+        options: {
+          compilerOptions: {
+            outDir: env.output === 'esm' ? esmOutput.path : umdOutput.path
+          }
+        }
       },
       {
         test: /\.css$/,
