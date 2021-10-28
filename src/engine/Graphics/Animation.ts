@@ -282,7 +282,7 @@ export class Animation extends Graphic implements HasTick {
   /**
    * Returns `true` if the animation is done, for looping type animations
    * `ex.AnimationStrategy.PingPong` and `ex.AnimationStrategy.Loop` this will always return `false`
-   * 
+   *
    * See the `ex.Animation.canFinish()` method to know if an animation type can end
    */
   public get done(): boolean {
@@ -359,9 +359,8 @@ export class Animation extends Graphic implements HasTick {
    * Called internally by Excalibur to update the state of the animation potential update the current frame
    * @param elapsedMilliseconds Milliseconds elapsed
    * @param idempotencyToken Prevents double ticking in a frame by passing a unique token to the frame
-   * @returns 
    */
-  public tick(elapsedMilliseconds: number, idempotencyToken: number = 0) {
+  public tick(elapsedMilliseconds: number, idempotencyToken: number = 0): void {
     if (this._idempotencyToken === idempotencyToken) {
       return;
     }
