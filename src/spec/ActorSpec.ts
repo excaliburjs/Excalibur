@@ -1039,7 +1039,7 @@ describe('A game actor', () => {
       expect(engine.input.pointers.at(0).lastWorldPos).toBeVector(new ex.Vector(0, 0), 0.001);
     });
 
-    fit('should capture pointer leave event', () => {
+    it('should capture pointer leave event', () => {
       const actor = new ex.Actor({ x: 0, y: 0, width: 20, height: 20 });
 
       const leaveSpy = jasmine.createSpy('leave');
