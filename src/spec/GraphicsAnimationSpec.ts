@@ -90,7 +90,7 @@ describe('A Graphics Animation', () => {
     expect(anim.strategy).toBe(ex.AnimationStrategy.Freeze);
     expect(anim.frames[0].duration).toBe(100);
     expect(anim.frames.length).toBe(4);
-    expect(anim.currentFrameIndex).toBe(2);
+    expect(anim.currentFrameIndex).toBe(1);
     expect(anim.direction).toBe(ex.AnimationDirection.Backward);
   });
 

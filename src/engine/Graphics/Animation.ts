@@ -225,8 +225,6 @@ export class Animation extends Graphic implements HasTick {
   public reverse(): void {
     // Don't mutate with the original frame list, create a copy
     this.frames = this.frames.slice().reverse();
-    // Preseve the logical current frame
-    this._currentFrame = (this.frames.length - 1) - this._currentFrame;
     this._reversed = !this._reversed;
   }
 
