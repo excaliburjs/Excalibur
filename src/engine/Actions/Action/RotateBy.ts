@@ -1,10 +1,13 @@
-import { Actor } from '../../Actor';
 import { Action } from '../Action';
 import { RotationType } from '../RotationType';
 import * as Util from '../../Util/Util';
+import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
+import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
+import { Entity } from '../../EntityComponentSystem/Entity';
 
 export class RotateBy implements Action {
-  private _actor: Actor;
+  private _tx: TransformComponent;
+  private _motion: MotionComponent;
   public x: number;
   public y: number;
   private _start: number;
@@ -21,8 +24,9 @@ export class RotateBy implements Action {
   private _currentNonCannonAngle: number;
   private _started = false;
   private _stopped = false;
-  constructor(actor: Actor, angleRadiansOffset: number, speed: number, rotationType?: RotationType) {
-    this._actor = actor;
+  constructor(entity: Entity, angleRadiansOffset: number, speed: number, rotationType?: RotationType) {
+    this._tx = entity.get(TransformComponent);
+    this._motion = entity.get(MotionComponent);
     this._speed = speed;
     this._offset = angleRadiansOffset;
     this._rotationType = rotationType || RotationType.ShortestPath;
@@ -31,8 +35,8 @@ export class RotateBy implements Action {
   public update(_delta: number): void {
     if (!this._started) {
       this._started = true;
-      this._start = this._actor.rotation;
-      this._currentNonCannonAngle = this._actor.rotation;
+      this._start = this._tx.rotation;
+      this._currentNonCannonAngle = this._tx.rotation;
       this._end = this._start + this._offset;
 
       const distance1 = Math.abs(this._end - this._start);
@@ -83,12 +87,12 @@ export class RotateBy implements Action {
       }
     }
 
-    this._actor.angularVelocity = this._direction * this._speed;
+    this._motion.angularVelocity = this._direction * this._speed;
     this._currentNonCannonAngle += this._direction * this._speed * (_delta / 1000);
 
     if (this.isComplete()) {
-      this._actor.rotation = this._end;
-      this._actor.angularVelocity = 0;
+      this._tx.rotation = this._end;
+      this._motion.angularVelocity = 0;
       this._stopped = true;
     }
   }
@@ -99,7 +103,7 @@ export class RotateBy implements Action {
   }
 
   public stop(): void {
-    this._actor.angularVelocity = 0;
+    this._motion.angularVelocity = 0;
     this._stopped = true;
   }
 

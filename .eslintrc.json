@@ -9,7 +9,7 @@
     "sourceType": "module"
   },
   "plugins": ["@typescript-eslint", "jsdoc"],
-  "extends": ["plugin:jsdoc/recommended"],
+  "extends": ["plugin:jsdoc/recommended", "prettier"],
   "rules": {
     "@typescript-eslint/naming-convention": ["error",
       {

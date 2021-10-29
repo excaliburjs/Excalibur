@@ -34,6 +34,7 @@ import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { Flags, Legacy } from './Flags';
 import { DebugSystem } from './Debug/DebugSystem';
 import { PointerSystem } from './Input/PointerSystem';
+import { ActionsSystem } from './Actions/ActionsSystem';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -111,6 +112,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   constructor() {
     super();
     // Initialize systems
+    this.world.add(new ActionsSystem());
     this.world.add(new MotionSystem());
     this.world.add(new CollisionSystem());
     this.world.add(new PointerSystem());

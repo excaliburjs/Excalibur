@@ -22,6 +22,7 @@ describe('Action', () => {
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(actor, 'draw');
+    engine.stop();
   });
 
   afterEach(() => {
@@ -94,6 +95,7 @@ describe('Action', () => {
       expect(scene.actors.length).toBe(1);
       actor.actions.die();
       scene.update(engine, 100);
+      expect(actor.active).toBeFalse();
       expect(scene.actors.length).toBe(0);
     });
 
@@ -115,6 +117,7 @@ describe('Action', () => {
 
       scene.update(engine, 1000);
       scene.update(engine, 100);
+      scene.update(engine, 1); // TODO extra update needed for die
       expect(scene.actors.length).toBe(0);
     });
   });
@@ -149,7 +152,7 @@ describe('Action', () => {
       const spy = jasmine.createSpy();
       actor.actions.delay(1000);
       actor.actions.callMethod(spy);
-      actor.actions.asPromise().then(() => {
+      actor.actions.toPromise().then(() => {
         expect(spy).toHaveBeenCalled();
         done();
       });
@@ -858,12 +861,9 @@ describe('Action', () => {
       scene.add(actorToFollow);
       actorToFollow.actions.moveTo(100, 0, 10);
       actor.actions.follow(actorToFollow);
-      // scene.update(engine, 1000);
-      // expect(actor.pos.x).toBe(actorToFollow.x);
 
+      scene.update(engine, 0); // TODO extra update
       for (let i = 1; i < 10; i++) {
-        // actor.follow(actorToFollow);
-        actorToFollow.update(engine, 1000);
         scene.update(engine, 1000);
         expect(actor.pos.x).toBe(actorToFollow.pos.x - 10);
       }
@@ -881,14 +881,13 @@ describe('Action', () => {
       actorToMeet.actions.moveTo(100, 0, 10);
       actor.actions.meet(actorToMeet);
 
+      scene.update(engine, 0); // TODO extra updated
       for (let i = 0; i < 9; i++) {
-        actorToMeet.update(engine, 1000);
         scene.update(engine, 1000);
         expect(actor.pos.x).toBe(actorToMeet.pos.x - 10);
       }
 
       // actor should have caught up to actorToFollow since it stopped moving
-      actorToMeet.update(engine, 1000);
       scene.update(engine, 1000);
       expect(actor.pos.x).toBe(actorToMeet.pos.x);
     });

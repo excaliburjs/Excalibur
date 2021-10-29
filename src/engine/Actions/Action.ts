@@ -1,11 +1,11 @@
-import { Actor } from '../Actor';
+import { Entity } from '../EntityComponentSystem/Entity';
 
 /**
  * Used for implementing actions for the [[ActionContext|Action API]].
  */
 export interface Action {
   update(delta: number): void;
-  isComplete(actor: Actor): boolean;
+  isComplete(entity: Entity): boolean;
   reset(): void;
   stop(): void;
 }

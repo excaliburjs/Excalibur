@@ -16,6 +16,8 @@ module.exports = function (wallaby) {
     tests: ['./src/spec/*Spec.ts'],
     env: {
       kind: 'chrome',
+      // This is tied to the puppeteer install
+      runner: './node_modules/puppeteer/.local-chromium/win64-901912/chrome-win/chrome.exe',
       params: {
         runner: '--headless --mute-audio --autoplay-policy=no-user-gesture-required'
       }

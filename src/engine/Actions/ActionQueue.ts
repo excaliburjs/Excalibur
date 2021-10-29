@@ -1,4 +1,4 @@
-import { Actor } from '../Actor';
+import { Entity } from '../EntityComponentSystem/Entity';
 import { Action } from './Action';
 
 /**
@@ -12,12 +12,12 @@ import { Action } from './Action';
  * queue.
  */
 export class ActionQueue {
-  private _actor: Actor;
+  private _entity: Entity;
   private _actions: Action[] = [];
   private _currentAction: Action;
   private _completedActions: Action[] = [];
-  constructor(actor: Actor) {
-    this._actor = actor;
+  constructor(entity: Entity) {
+    this._entity = entity;
   }
 
   /**
@@ -93,7 +93,7 @@ export class ActionQueue {
       this._currentAction = this._actions[0];
       this._currentAction.update(elapsedMs);
 
-      if (this._currentAction.isComplete(this._actor)) {
+      if (this._currentAction.isComplete(this._entity)) {
         this._completedActions.push(this._actions.shift());
       }
     }

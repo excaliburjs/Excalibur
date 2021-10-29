@@ -25,6 +25,14 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
     }
   }
 
+  public findEntitiesForRemoval() {
+    for (const entity of this.entities) {
+      if (!entity.active) {
+        this.removeEntity(entity);
+      }
+    }
+  }
+
   /**
    * EntityManager observes changes on entities
    * @param message

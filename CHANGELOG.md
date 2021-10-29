@@ -10,19 +10,30 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 ### Added
 
-- 
+- *Experimental:* Native ES module bundle distribution in package `esm/excalibur.js` entrypoint ([#2064](https://github.com/excaliburjs/Excalibur/pull/2064))
+- `withEngine` utils support an aditional options parameter to override the Engine default options.
+- Story to show a play / pause implementation. 
+- `ex.Animation` now support `totalDuration` that will calculate automatically each frame duration based on how many frames have.
+- `ex.Animation` now supports `.reverse()` to reverse the direction of play in an animation, use the `ex.Animation.direction` to inspect if the animation is playing in the `ex.AnimationDirection.Forward` direction or the `ex.AnimationDirection.Backward` direction.
+-
 ### Changed
 
-- 
+- Internal Actions implementation converted to ECS system and component, this is a backwards compatible change with v0.25.0
+  - `ex.ActionsSystem` and `ex.ActionsComponent` now wrap the existing `ex.ActionContext`
+  - Actions can be shared with all entities now!
+- Dispatch the `hidePlayButton` on the Button Event to prevent that keep on the screen on some situations [#1431].
+- Revert VSCode Workbench Colors
+-
 ### Deprecated
 
-- 
+- Actions `asPromise()` renamed to `toPromise()`
 ### Removed
 
 -
 ### Fixed
 
-- 
+- Fixed crash in debug system if there is no collider geometry
+- Fixed ImageSource loading error message [#2049]
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->

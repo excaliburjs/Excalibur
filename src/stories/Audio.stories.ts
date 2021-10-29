@@ -1,9 +1,9 @@
 import { action } from '@storybook/addon-actions';
-import { number, withKnobs } from '@storybook/addon-knobs';
 import playIcon from '@fortawesome/fontawesome-free/svgs/solid/play.svg';
 import pauseIcon from '@fortawesome/fontawesome-free/svgs/solid/pause.svg';
 import stopIcon from '@fortawesome/fontawesome-free/svgs/solid/stop.svg';
-import { Actor, Sound, Loader, Color, Texture, Sprite, NativeSoundEvent, EasingFunctions, NativeSoundProcessedEvent } from '../engine';
+import { Actor, Sound, Loader, Color, NativeSoundEvent, EasingFunctions, NativeSoundProcessedEvent } from '../engine';
+import { ImageSource, Sprite } from '../engine/Graphics';
 import { withEngine } from './utils';
 
 import guitarLoop from './assets/loop-guitar.mp3';
@@ -11,16 +11,15 @@ import campfireLoop from './assets/loop-campfire.mp3';
 import forestLoop from './assets/loop-forest.mp3';
 
 export default {
-  title: 'Audio',
-  decorators: [withKnobs]
+  title: 'Audio'
 };
 
 export const playingASound: Story = withEngine(async (game) => {
   const loader = new Loader();
   const guitarLoopSound = new Sound(guitarLoop);
-  const playIconTx = new Texture(playIcon);
-  const pauseIconTx = new Texture(pauseIcon);
-  const stopIconTx = new Texture(stopIcon);
+  const playIconTx = new ImageSource(playIcon);
+  const pauseIconTx = new ImageSource(pauseIcon);
+  const stopIconTx = new ImageSource(stopIcon);
 
   loader.addResources([guitarLoopSound, playIconTx, pauseIconTx, stopIconTx]);
 
@@ -30,21 +29,21 @@ export const playingASound: Story = withEngine(async (game) => {
 
   await game.start(loader);
 
-  const startOrPauseBtn = new Actor(game.currentScene.camera.x - 42, 50, 32, 32, Color.White);
-  const stopBtn = new Actor(game.currentScene.camera.x, 50, 32, 32, Color.Blue);
-  const playHead = new Actor(game.currentScene.camera.x, 100, 2, 25, Color.White);
-  const playTimeline = new Actor(game.currentScene.camera.x, 100, 250, 3, Color.White);
+  const startOrPauseBtn = new Actor({ x: game.currentScene.camera.x - 42, y: 50, width: 32, height: 32 });
+  const stopBtn = new Actor({ x: game.currentScene.camera.x, y: 50, width: 32, height: 32, color: Color.Blue });
+  const playHead = new Actor({ x: game.currentScene.camera.x, y: 100, width: 2, height: 25, color: Color.White });
+  const playTimeline = new Actor({ x: game.currentScene.camera.x, y: 100, width: 250, height: 3, color: Color.White });
 
-  const playSprite = new Sprite({ image: playIconTx, x: 0, y: 0, width: 32, height: 32 });
-  playSprite.fill(Color.White);
-  const pauseSprite = new Sprite({ image: pauseIconTx, x: 0, y: 0, width: 32, height: 32 });
-  pauseSprite.fill(Color.White);
-  const stopSprite = new Sprite({ image: stopIconTx, x: 0, y: 0, width: 32, height: 32 });
-  stopSprite.fill(Color.White);
+  const playSprite = new Sprite({ image: playIconTx, destSize: { width: 32, height: 32 } });
+  // playSprite.fill(Color.White);
+  const pauseSprite = new Sprite({ image: pauseIconTx, destSize: { width: 32, height: 32 } });
+  // pauseSprite.fill(Color.White);
+  const stopSprite = new Sprite({ image: stopIconTx, destSize: { width: 32, height: 32 } });
+  // stopSprite.fill(Color.White);
 
-  startOrPauseBtn.addDrawing('play', playSprite);
-  startOrPauseBtn.addDrawing('pause', pauseSprite);
-  startOrPauseBtn.setDrawing('play');
+  startOrPauseBtn.graphics.add('play', playSprite);
+  startOrPauseBtn.graphics.add('pause', pauseSprite);
+  startOrPauseBtn.graphics.show('play');
 
   startOrPauseBtn.enableCapturePointer = true;
   startOrPauseBtn.on('pointerup', (evt) => {
@@ -56,11 +55,11 @@ export const playingASound: Story = withEngine(async (game) => {
 
     evt.stopPropagation();
   });
-  stopBtn.addDrawing(stopSprite);
+  stopBtn.graphics.show(stopSprite);
   stopBtn.enableCapturePointer = true;
 
-  const playheadStartPos = playTimeline.body.collider.bounds.left;
-  const playheadEndPos = playTimeline.body.collider.bounds.right;
+  const playheadStartPos = playTimeline.collider.bounds.left;
+  const playheadEndPos = playTimeline.collider.bounds.right;
   let startTime = 0;
   let elapsedTime = 0;
 
@@ -73,14 +72,14 @@ export const playingASound: Story = withEngine(async (game) => {
       elapsedTime = 0;
       playHead.actions.easeTo(playheadEndPos, playHead.pos.y, guitarLoopSound.duration * 1000, EasingFunctions.Linear);
     }
-    startOrPauseBtn.setDrawing('pause');
+    startOrPauseBtn.graphics.show('pause');
     action('playbackstart')(e);
   });
 
   guitarLoopSound.on('pause', (e) => {
     elapsedTime = Date.now() - startTime + elapsedTime;
     playHead.actions.clearActions();
-    startOrPauseBtn.setDrawing('play');
+    startOrPauseBtn.graphics.show('play');
     action('pause')(e, elapsedTime);
   });
 
@@ -89,14 +88,14 @@ export const playingASound: Story = withEngine(async (game) => {
     if (guitarLoopSound.duration > 0) {
       playHead.actions.easeTo(playheadEndPos, playHead.pos.y, guitarLoopSound.duration * 1000 - elapsedTime, EasingFunctions.Linear);
     }
-    startOrPauseBtn.setDrawing('pause');
+    startOrPauseBtn.graphics.show('pause');
     action('resume')(e);
   });
 
   guitarLoopSound.on('playbackend', (e) => {
     playHead.actions.clearActions();
     playHead.pos.setTo(playheadStartPos, playHead.pos.y);
-    startOrPauseBtn.setDrawing('play');
+    startOrPauseBtn.graphics.show('play');
     action('playbackend')(e);
   });
 
@@ -113,12 +112,12 @@ export const playingASound: Story = withEngine(async (game) => {
   game.add(playHead);
 });
 
-export const multipleTracksAndLooping = withEngine(async (game) => {
+export const multipleTracksAndLooping: Story = withEngine(async (game, { beginGuitarDelay }) => {
   const loader = new Loader();
   const guitarLoopSound = new Sound(guitarLoop);
   const campfireLoopSound = new Sound(campfireLoop);
   const forestLoopSound = new Sound(forestLoop);
-  const playIconTx = new Texture(playIcon);
+  const playIconTx = new ImageSource(playIcon);
   loader.addResources([guitarLoopSound, campfireLoopSound, forestLoopSound, playIconTx]);
 
   game.on('visible', () => {
@@ -132,17 +131,17 @@ export const multipleTracksAndLooping = withEngine(async (game) => {
   await game.start(loader);
 
   const playAction = action('play');
-  const startGuitarAt = number('Begin playing guitar after (in milliseconds)', 2000);
+  const startGuitarAt = beginGuitarDelay;
 
-  const startBtn = new Actor(game.currentScene.camera.x - 42, 50, 32, 32, Color.White);
-  const playSprite = new Sprite({ image: playIconTx, x: 0, y: 0, width: 32, height: 32 });
-  playSprite.fill(Color.White);
+  const startBtn = new Actor({x: game.currentScene.camera.x - 42, y: 50, width: 32, height: 32, color: Color.White });
+  const playSprite = new Sprite({ image: playIconTx, destSize: { width: 32, height: 32 } });
+  // playSprite.fill(Color.White);
 
-  startBtn.addDrawing(playSprite);
+  startBtn.graphics.add(playSprite);
   startBtn.enableCapturePointer = true;
   startBtn.on('pointerup', (evt) => {
     playAction('Playing campfire and forest sounds ');
-    playSprite.fill(Color.Green);
+    // playSprite.fill(Color.Green);
 
     guitarLoopSound.loop = true;
     campfireLoopSound.loop = true;
@@ -161,40 +160,34 @@ export const multipleTracksAndLooping = withEngine(async (game) => {
   game.add(startBtn);
 });
 
+multipleTracksAndLooping.args = {
+  beginGuitarDelay: 2000
+};
 
-export const volumeLevels = withEngine(async (game) => {
+export const volumeLevels: Story = withEngine(async (game, { initialVolume, delayVolume }) => {
   const loader = new Loader();
   const testSound = new Sound(guitarLoop);
-  const playIconTx = new Texture(playIcon);
+  const playIconTx = new ImageSource(playIcon);
 
   loader.addResources([testSound, playIconTx]);
 
-  //click a button to play the sound
+  // click a button to play the sound
   const playAction = action('play');
-  const startBtn = new Actor(game.currentScene.camera.x - 42, 50, 32, 32, Color.White);
-  const playSprite = new Sprite({ image: playIconTx, x: 0, y: 0, width: 32, height: 32 });
-  playSprite.fill(Color.White);
-  startBtn.addDrawing(playSprite);
+  const startBtn = new Actor({x: game.currentScene.camera.x - 42, y: 50, width: 32, height: 32, color: Color.White });
+  const playSprite = new Sprite({ image: playIconTx, destSize: { width: 32, height: 32 } });
+  // playSprite.fill(Color.White);
+  startBtn.graphics.add(playSprite);
   startBtn.enableCapturePointer = true;
-
-  const volumeOptions = {
-    range: true,
-    min: 0,
-    max: 1,
-    step: 0.1
-  };
-  const initialVolume = number('Initial volume', 0.2, volumeOptions);
-  const delayVolume = number('Adjusted volume', 1, volumeOptions);
 
   startBtn.on('pointerup', function () {
     playAction('Playing guitar sound, volume will adjust in 2 seconds');
 
-    playSprite.fill(Color.Green);
+    // playSprite.fill(Color.Green);
 
     //button will turn red again when song is done
     if (!testSound.isPlaying()) {
       testSound.play(initialVolume).then(function () {
-        playSprite.fill(Color.White);
+        // playSprite.fill(Color.White);
       });
 
       //change volume of the sound after 2000 ms to show that
@@ -208,3 +201,25 @@ export const volumeLevels = withEngine(async (game) => {
 
   await game.start(loader);
 });
+volumeLevels.argTypes = {
+  initialVolume: {
+    control: {
+      type: 'range',
+      min: 0,
+      max: 1,
+      step: 0.1
+    }
+  },
+  delayVolume: {
+    control: {
+      type: 'range',
+      min: 0,
+      max: 1,
+      step: 0.1
+    }
+  }
+};
+volumeLevels.args = {
+  initialVolume: 0.2,
+  delayVolume: 1
+};
