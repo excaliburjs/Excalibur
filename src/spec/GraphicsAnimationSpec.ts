@@ -42,6 +42,7 @@ describe('A Graphics Animation', () => {
           duration: 100
         }
       ],
+      reverse: true,
       frameDuration: 222,
       strategy: ex.AnimationStrategy.Freeze
     });
@@ -50,6 +51,7 @@ describe('A Graphics Animation', () => {
 
     expect(clone.frameDuration).toBe(222);
     expect(clone.strategy).toBe(ex.AnimationStrategy.Freeze);
+    expect(clone.direction).toBe(ex.AnimationDirection.Backward);
   });
 
   it('can be defined from a spritesheet', () => {
@@ -68,6 +70,66 @@ describe('A Graphics Animation', () => {
     expect(anim.strategy).toBe(ex.AnimationStrategy.Freeze);
     expect(anim.frames[0].duration).toBe(100);
     expect(anim.frames.length).toBe(4);
+  });
+
+  it('can be reversed', () => {
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const anim = ex.Animation.fromSpriteSheet(ss, [0, 1, 2, 3], 100, ex.AnimationStrategy.Freeze);
+    anim.goToFrame(1);
+    anim.reverse();
+
+    expect(anim.strategy).toBe(ex.AnimationStrategy.Freeze);
+    expect(anim.frames[0].duration).toBe(100);
+    expect(anim.frames.length).toBe(4);
+    expect(anim.currentFrameIndex).toBe(1);
+    expect(anim.direction).toBe(ex.AnimationDirection.Backward);
+  });
+
+  it('can be reversed with ping-pong', () => {
+    const rect = new ex.Rectangle({
+      width: 100,
+      height: 100,
+      color: ex.Color.Blue
+    });
+    const anim = new ex.Animation({
+      strategy: ex.AnimationStrategy.PingPong,
+      reverse: true,
+      frames: [
+        {
+          graphic: rect,
+          duration: 100
+        },
+        {
+          graphic: rect,
+          duration: 100
+        },
+        {
+          graphic: rect,
+          duration: 100
+        }
+      ]
+    });
+
+    expect(anim.direction).toBe(ex.AnimationDirection.Backward);
+    anim.play();
+    anim.tick(50, 0);
+    expect(anim.currentFrame).toBe(anim.frames[0]);
+    anim.tick(50, 1);
+    expect(anim.currentFrame).toBe(anim.frames[1]);
+    anim.tick(100, 2);
+    expect(anim.currentFrame).toBe(anim.frames[2]);
+    anim.tick(100, 3);
+    expect(anim.currentFrame).toBe(anim.frames[1]);
+    expect(anim.direction).toBe(ex.AnimationDirection.Forward);
   });
 
   it('warns if constructed with invalid indices', () => {

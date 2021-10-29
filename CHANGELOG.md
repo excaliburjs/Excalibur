@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `withEngine` utils support an aditional options parameter to override the Engine default options.
 - Story to show a play / pause implementation. 
 - `ex.Animation` now support `totalDuration` that will calculate automatically each frame duration based on how many frames have.
+- `ex.Animation` now supports `.reverse()` to reverse the direction of play in an animation, use the `ex.Animation.direction` to inspect if the animation is playing in the `ex.AnimationDirection.Forward` direction or the `ex.AnimationDirection.Backward` direction.
 -
 ### Changed
 

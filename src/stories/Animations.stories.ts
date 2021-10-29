@@ -8,7 +8,7 @@ export default {
   title: 'Animations'
 };
 
-export const multipleFrames: Story = withEngine(async (game, { strategy }) => {
+export const multipleFrames: Story = withEngine(async (game, { strategy, reverse }) => {
   const playerTexture = new ImageSource(animationSprite);
   const player = new Actor({
     x: game.screen.center.x,
@@ -27,6 +27,9 @@ export const multipleFrames: Story = withEngine(async (game, { strategy }) => {
     }
   });
   const animation = Animation.fromSpriteSheet(spritesheet, Util.range(0, 2), 1500, strategy);
+  if (reverse) {
+    animation.reverse();
+  }
   player.graphics.add(animation);
   game.currentScene.add(player);
 
@@ -46,6 +49,11 @@ multipleFrames.argTypes = {
     control: {
       type: 'select',
       labels: enumToControlSelectLabels(AnimationStrategy)
+    }
+  },
+  reverse: {
+    control: {
+      type: 'boolean'
     }
   }
 };

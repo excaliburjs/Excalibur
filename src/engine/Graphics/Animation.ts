@@ -16,6 +16,17 @@ export interface HasTick {
   tick(elapsedMilliseconds: number, idempotencyToken?: number): void;
 }
 
+export enum AnimationDirection {
+  /**
+   * Animation is playing forwards
+   */
+  Forward = 'forward',
+  /**
+   * Animation is play backwards
+   */
+  Backward = 'backward'
+}
+
 export enum AnimationStrategy {
   /**
    * Animation ends without displaying anything
@@ -29,7 +40,6 @@ export enum AnimationStrategy {
    * Animation plays to the last frame, then backwards to the first frame, then repeats
    */
   PingPong = 'pingpong',
-
   /**
    * Animation ends stopping on the last frame
    */
@@ -58,6 +68,10 @@ export interface AnimationOptions {
    * List of frames in the order you wish to play them
    */
   frames: Frame[];
+  /**
+   * Optionally reverse the direction of play
+   */
+  reverse?: boolean;
   /**
    * Optionally specify a default frame duration in ms (Default is 1000)
    */
@@ -97,7 +111,7 @@ export class Animation extends Graphic implements HasTick {
   private _firstTick = true;
   private _currentFrame = 0;
   private _timeLeftInFrame = 0;
-  private _direction = 1;
+  private _direction = 1; // TODO only used in ping-pong
   private _done = false;
   private _playing = true;
 
@@ -106,6 +120,9 @@ export class Animation extends Graphic implements HasTick {
     this.frames = options.frames;
     this.strategy = options.strategy ?? this.strategy;
     this.frameDuration = options.totalDuration ? options.totalDuration / this.frames.length : options.frameDuration ?? this.frameDuration;
+    if (options.reverse) {
+      this.reverse();
+    }
     this.goToFrame(0);
   }
 
@@ -113,6 +130,7 @@ export class Animation extends Graphic implements HasTick {
     return new Animation({
       frames: this.frames.map((f) => ({ ...f })),
       frameDuration: this.frameDuration,
+      reverse: this._reversed,
       strategy: this.strategy,
       ...this.cloneGraphicOptions()
     });
@@ -176,6 +194,9 @@ export class Animation extends Graphic implements HasTick {
     });
   }
 
+  /**
+   * Returns the current Frame of the animation
+   */
   public get currentFrame(): Frame | null {
     if (this._currentFrame >= 0 && this._currentFrame < this.frames.length) {
       return this.frames[this._currentFrame];
@@ -183,25 +204,67 @@ export class Animation extends Graphic implements HasTick {
     return null;
   }
 
+  /**
+   * Returns the current frame index of the animation
+   */
+  public get currentFrameIndex(): number {
+    return this._currentFrame;
+  }
+
+  /**
+   * Returns `true` if the animation is playing
+   */
   public get isPlaying(): boolean {
     return this._playing;
   }
 
+  private _reversed = false;
+  /**
+   * Reverses the play direction of the Animation, this preserves the current frame
+   */
+  public reverse(): void {
+    // Don't mutate with the original frame list, create a copy
+    this.frames = this.frames.slice().reverse();
+    this._reversed = !this._reversed;
+  }
+
+  /**
+   * Returns the current play direction of the animation
+   */
+  public get direction(): AnimationDirection {
+    // Keep logically consistent with ping-pong direction
+    // If ping-pong is forward = 1 and reversed is true then we are logically reversed
+    const reversed = (this._reversed && this._direction === 1) ? true : false;
+    return reversed ? AnimationDirection.Backward : AnimationDirection.Forward;
+  }
+
+  /**
+   * Plays or resumes the animation from the current frame
+   */
   public play(): void {
     this._playing = true;
   }
 
+  /**
+   * Pauses the animation on the current frame
+   */
   public pause(): void {
     this._playing = false;
-    this._firstTick = true;
+    this._firstTick = true; // firstTick must be set to emit the proper frame event
   }
 
+  /**
+   * Reset the animation back to the beginning, including if the animation were done
+   */
   public reset(): void {
     this._done = false;
     this._firstTick = true;
     this._currentFrame = 0;
   }
 
+  /**
+   * Returns `true` if the animation can end
+   */
   public get canFinish(): boolean {
     switch (this.strategy) {
       case AnimationStrategy.End:
@@ -214,10 +277,20 @@ export class Animation extends Graphic implements HasTick {
     }
   }
 
+  /**
+   * Returns `true` if the animation is done, for looping type animations
+   * `ex.AnimationStrategy.PingPong` and `ex.AnimationStrategy.Loop` this will always return `false`
+   *
+   * See the `ex.Animation.canFinish()` method to know if an animation type can end
+   */
   public get done(): boolean {
     return this._done;
   }
 
+  /**
+   * Jump the animation immediately to a specific frame if it exists
+   * @param frameNumber
+   */
   public goToFrame(frameNumber: number) {
     this._currentFrame = frameNumber;
     this._timeLeftInFrame = this.frameDuration;
@@ -280,7 +353,12 @@ export class Animation extends Graphic implements HasTick {
     return next;
   }
 
-  public tick(elapsedMilliseconds: number, idempotencyToken: number = 0) {
+  /**
+   * Called internally by Excalibur to update the state of the animation potential update the current frame
+   * @param elapsedMilliseconds Milliseconds elapsed
+   * @param idempotencyToken Prevents double ticking in a frame by passing a unique token to the frame
+   */
+  public tick(elapsedMilliseconds: number, idempotencyToken: number = 0): void {
     if (this._idempotencyToken === idempotencyToken) {
       return;
     }
