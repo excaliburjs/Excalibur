@@ -55,6 +55,10 @@ export class PointerEventReceiver extends Class {
     return this._pointers[index];
   }
 
+  public count(): number {
+    return this._pointers.length;
+  }
+
   public isDown(pointerId: number) {
     return this.currentFramePointerDown.get(pointerId) ?? false
   }
