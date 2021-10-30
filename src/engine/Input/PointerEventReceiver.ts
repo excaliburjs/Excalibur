@@ -37,9 +37,15 @@ export class PointerEventReceiver extends Class {
     super();
   }
 
-  public at(_index: number): PointerAbstraction {
-    // TODO pointers
-    return new PointerAbstraction();
+  private _pointers: PointerAbstraction[] = [this.primary];
+  public at(index: number): PointerAbstraction {
+    if (index >= this._pointers.length) {
+      // Ensure there is a pointer to retrieve
+      for (let i = this._pointers.length - 1, max = index; i < max; i++) {
+        this._pointers.push(new PointerAbstraction());
+      }
+    }
+    return this._pointers[index];
   }
 
   public isDown(pointerId: number) {
@@ -100,27 +106,32 @@ export class PointerEventReceiver extends Class {
     this.lastFramePointerPosition = new Map(this.currentFramePointerPositions);
 
     for (let event of this.currentFrameDown) {
-      this.emit('pointerdown', event as any);
+      this.emit('down', event as any);
+      const pointer = this.at(event.pointerId);
+      pointer.emit('down', event);
       this.primary.emit('pointerdown', event as any);
     }
 
     for (let event of this.currentFrameUp) {
-      this.emit('pointerup', event as any);
-      this.primary.emit('pointerup', event as any);
+      this.emit('up', event as any);
+      const pointer = this.at(event.pointerId);
+      pointer.emit('up', event);
     }
 
     for (let event of this.currentFrameMove) {
-      this.emit('pointermove', event as any);
-      this.primary.emit('pointermove', event as any);
+      this.emit('move', event as any);
+      const pointer = this.at(event.pointerId);
+      pointer.emit('move', event);
     }
 
     for (let event of this.currentFrameCancel) {
-      this.emit('pointercancel', event as any);
-      this.primary.emit('pointercancel', event as any);
+      this.emit('cancel', event as any);
+      const pointer = this.at(event.pointerId);
+      pointer.emit('cancel', event);
     }
 
     for (let event of this.currentFrameWheel) {
-      this.emit('pointerwheel', event as any);
+      this.emit('wheel', event as any);
       this.primary.emit('pointerwheel', event as any);
     }
   }
@@ -329,14 +340,18 @@ export class PointerEventReceiver extends Class {
       this.currentFrameWheel.push(we);
   }
 
+  /**
+   * Triggers an excalibur pointer event in a world space pos
+   * @param type 
+   * @param pos 
+   */
   public triggerEvent(type: 'down' | 'up' | 'move' | 'cancel', pos: Vector) {
-    const page = this.engine.screen.worldToScreenCoordinates(pos);
-    
+    const page = this.engine.screen.worldToPageCoordinates(pos);
     // Send an event to the event receiver
     this._handle(new PointerEvent('pointer' + type, {
       pointerId: 0,
-      screenX: page.x,
-      screenY: page.y
+      clientX: page.x,
+      clientY: page.y
     }));
 
     // Force update pointer system

@@ -1,7 +1,6 @@
 import { GlobalCoordinates } from "../Math/global-coordinates";
 import { Vector } from "../Math/vector";
 
-
 export class ExPointerEvent {
   public active = true;
   public cancel() {

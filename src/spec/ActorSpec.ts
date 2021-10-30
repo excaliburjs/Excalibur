@@ -45,6 +45,7 @@ describe('A game actor', () => {
 
     engine.start();
     collisionSystem.initialize(scene);
+    scene.world.systemManager.get(ex.Input.PointerSystem).initialize(scene);
 
     ex.Physics.useArcadePhysics();
     ex.Physics.acc.setTo(0, 0);

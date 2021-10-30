@@ -52,7 +52,7 @@ describe('A pointer', () => {
     let eventLeftFired = false;
     let eventRightFired = false;
     let eventMiddleFired = false;
-    engine.input.pointers.primary.on('down', (ev: ex.Input.PointerEvent) => {
+    engine.input.pointers.primary.on('down', (ev: ex.Input.ExPointerEvent) => {
       if (ev.button === ex.Input.PointerButton.Left) {
         eventLeftFired = true;
       }
@@ -67,6 +67,8 @@ describe('A pointer', () => {
     executeMouseEvent('pointerdown', <any>document, ex.Input.NativePointerButton.Left);
     executeMouseEvent('pointerdown', <any>document, ex.Input.NativePointerButton.Right);
     executeMouseEvent('pointerdown', <any>document, ex.Input.NativePointerButton.Middle);
+    // process pointer events
+    engine.currentScene.update(engine, 0);
 
     expect(eventLeftFired).toBe(true, 'left should fire');
     expect(eventRightFired).toBe(true, 'right should fire');
@@ -78,7 +80,7 @@ describe('A pointer', () => {
     let eventRightFired = false;
     let eventMiddleFired = false;
 
-    engine.input.pointers.primary.on('up', function (ev: ex.Input.PointerEvent) {
+    engine.input.pointers.primary.on('up', function (ev: ex.Input.ExPointerEvent) {
       if (ev.button === ex.Input.PointerButton.Left) {
         eventLeftFired = true;
       }
@@ -93,6 +95,8 @@ describe('A pointer', () => {
     executeMouseEvent('pointerup', <any>document, ex.Input.NativePointerButton.Left);
     executeMouseEvent('pointerup', <any>document, ex.Input.NativePointerButton.Right);
     executeMouseEvent('pointerup', <any>document, ex.Input.NativePointerButton.Middle);
+    // process pointer events
+    engine.currentScene.update(engine, 0);
 
     expect(eventLeftFired).toBeTruthy('left should fire');
     expect(eventRightFired).toBeTruthy('right should fire');
@@ -102,47 +106,37 @@ describe('A pointer', () => {
   it('should fire pointermove events', () => {
     let eventMoveFired = false;
 
-    engine.input.pointers.primary.on('move', function (ev: ex.Input.PointerEvent) {
+    engine.input.pointers.primary.on('move', function (ev: ex.Input.ExPointerEvent) {
       eventMoveFired = true;
     });
 
     executeMouseEvent('pointermove', <any>document);
+    // process pointer events
+    engine.currentScene.update(engine, 0);
 
     expect(eventMoveFired).toBeTruthy();
   });
 
   it('should update last position on down and move', () => {
     executeMouseEvent('pointerdown', <any>document, null, 10, 800);
+    // process pointer events
+    engine.currentScene.update(engine, 0);
     expect(engine.input.pointers.primary.lastPagePos.x).toBe(10);
     expect(engine.input.pointers.primary.lastPagePos.y).toBe(800);
 
     executeMouseEvent('pointermove', <any>document, null, 100, 200);
+    // process pointer events
+    engine.currentScene.update(engine, 0);
 
     expect(engine.input.pointers.primary.lastPagePos.x).toBe(100);
     expect(engine.input.pointers.primary.lastPagePos.y).toBe(200);
 
     executeMouseEvent('pointermove', <any>document, null, 300, 400);
+    // process pointer events
+    engine.currentScene.update(engine, 0);
 
     expect(engine.input.pointers.primary.lastPagePos.x).toBe(300);
     expect(engine.input.pointers.primary.lastPagePos.y).toBe(400);
-  });
-
-  it('should not throw when checking if actors are under pointer if no pointer events have happened yet', () => {
-    const actor = new ex.Actor({ pos: new ex.Vector(50, 50), width: 100, height: 100 });
-    expect(() => engine.input.pointers.primary.checkActorUnderPointer(actor)).not.toThrowError();
-    expect(engine.input.pointers.primary.checkActorUnderPointer(actor)).toBe(false);
-  });
-
-  it('should return true when an actor is under the pointer', () => {
-    const actor = new ex.Actor({ pos: new ex.Vector(50, 50), width: 100, height: 100 });
-    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
-
-    expect(engine.input.pointers.primary.checkActorUnderPointer(actor)).toBe(true);
-  });
-  it('should only add actors under pointer that are in scene', () => {
-    const actor = new ex.Actor({ pos: new ex.Vector(50, 50), width: 100, height: 100 });
-    executeMouseEvent('pointerdown', <any>document, null, 50, 50);
-    expect(engine.input.pointers.primary.isActorAliveUnderPointer(actor)).toBe(false);
   });
 
   it('should dispatch events in z order high to low', () => {
@@ -169,14 +163,15 @@ describe('A pointer', () => {
       actualOrder.push('actor4');
     });
 
-    engine.input.pointers.primary.addActorUnderPointer(actor1);
-    engine.input.pointers.primary.addActorUnderPointer(actor2);
-    engine.input.pointers.primary.addActorUnderPointer(actor3);
-    engine.input.pointers.primary.addActorUnderPointer(actor4);
+    engine.add(actor1);
+    engine.add(actor2);
+    engine.add(actor3);
+    engine.add(actor4);
 
     executeMouseEvent('pointerdown', <any>document, null, 50, 50);
 
-    engine.input.pointers.dispatchPointerEvents();
+    // process pointer events
+    engine.currentScene.update(engine, 0);
 
     expect(actualOrder).toEqual(['actor4', 'actor3', 'actor2', 'actor1']);
   });
@@ -206,14 +201,15 @@ describe('A pointer', () => {
       actualOrder.push('actor4');
     });
 
-    engine.input.pointers.primary.addActorUnderPointer(actor1);
-    engine.input.pointers.primary.addActorUnderPointer(actor2);
-    engine.input.pointers.primary.addActorUnderPointer(actor3);
-    engine.input.pointers.primary.addActorUnderPointer(actor4);
+    engine.add(actor1);
+    engine.add(actor2);
+    engine.add(actor3);
+    engine.add(actor4);
 
     executeMouseEvent('pointerdown', <any>document, null, 50, 50);
 
-    engine.input.pointers.dispatchPointerEvents();
+    // process pointer events
+    engine.currentScene.update(engine, 0);
 
     expect(actualOrder).toEqual(['actor4', 'actor3']);
   });
@@ -224,6 +220,10 @@ describe('A pointer', () => {
       engine.input.pointers.on('up', upHandler);
 
       executeMouseEvent('pointerup', <any>document, null, 50, 50);
+
+      // process pointer events
+      engine.currentScene.update(engine, 0);
+
       expect(upHandler).toHaveBeenCalledTimes(1);
     });
 
@@ -232,6 +232,10 @@ describe('A pointer', () => {
       engine.input.pointers.on('down', downHandler);
 
       executeMouseEvent('pointerdown', <any>document, null, 50, 50);
+
+      // process pointer events
+      engine.currentScene.update(engine, 0);
+
       expect(downHandler).toHaveBeenCalledTimes(1);
     });
 
@@ -240,6 +244,10 @@ describe('A pointer', () => {
       engine.input.pointers.on('move', moveHandler);
 
       executeMouseEvent('pointermove', <any>document, null, 50, 50);
+
+      // process pointer events
+      engine.currentScene.update(engine, 0);
+
       expect(moveHandler).toHaveBeenCalledTimes(1);
     });
 
@@ -248,6 +256,10 @@ describe('A pointer', () => {
       engine.input.pointers.on('wheel', wheelHandler);
 
       executeMouseEvent('wheel', <any>document, null, 50, 50);
+
+      // process pointer events
+      engine.currentScene.update(engine, 0);
+
       expect(wheelHandler).toHaveBeenCalledTimes(1);
     });
   });

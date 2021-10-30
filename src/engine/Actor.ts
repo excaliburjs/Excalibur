@@ -52,7 +52,6 @@ import { watch } from './Util/Watch';
 import { Collider, CollisionGroup } from './Collision/Index';
 import { Circle } from './Graphics/Circle';
 import { PointerComponent } from './Input/PointerComponent';
-import { CapturePointerConfig } from './Input/CapturePointerConfig';
 import { ActionsComponent } from './Actions/ActionsComponent';
 
 /**

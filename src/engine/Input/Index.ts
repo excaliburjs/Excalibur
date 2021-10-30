@@ -17,3 +17,6 @@ export * from './PointerEvents';
 export * from './Keyboard';
 export * from './EngineInput';
 export * from './CapturePointerConfig';
+
+export * from './ExPointerEvent';
+export * from './ExWheelEvent';
