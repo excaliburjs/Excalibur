@@ -33,17 +33,6 @@ describe('A pointer', () => {
     engine.stop();
   });
 
-  it('should exist', () => {
-    expect(ex.Input.Pointers).toBeDefined();
-    expect(engine.input.pointers).toBeTruthy();
-  });
-
-  it('should have a new id', () => {
-    const pointer1 = new ex.Input.Pointer();
-    const pointer2 = new ex.Input.Pointer();
-    expect(pointer1.id).not.toEqual(pointer2.id);
-  });
-
   it('should detect pointer event', () => {
     expect((<any>window).PointerEvent).toBeDefined();
   });
