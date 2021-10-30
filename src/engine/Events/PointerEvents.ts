@@ -1,5 +1,5 @@
 import { GlobalCoordinates } from "..";
-import { WheelDeltaMode } from "../Input/PointerEvents";
+import { WheelDeltaMode } from "../Input/WheelDeltaMode";
 import { Vent } from "./ExEvent";
 
 

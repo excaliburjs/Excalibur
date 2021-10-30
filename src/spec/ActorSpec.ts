@@ -1116,18 +1116,16 @@ describe('A game actor', () => {
 
     it('should capture pointer drag enter event', () => {
       const actor = new ex.Actor({ x: 0, y: 0, width: 20, height: 20 });
-      const callables = {
-        dragEnter: (pe: any) => {
-          /* doesn't matter */
-        }
-      };
-      const dragEnterSpy = spyOn(callables, 'dragEnter').and.callThrough();
+      const dragEnterSpy = jasmine.createSpy('dragenter');
 
-      actor.on('pointerdragenter', callables.dragEnter);
+      actor.on('pointerdragenter', dragEnterSpy);
       scene.add(actor);
 
       engine.input.pointers.triggerEvent('down', new ex.Vector(-20, -20));
       engine.input.pointers.triggerEvent('move', new ex.Vector(0, 0));
+
+      // Process pointer events
+      scene.update(engine, 0);
 
       expect(dragEnterSpy).toHaveBeenCalledTimes(1);
       expect(engine.input.pointers.at(0).lastWorldPos).toBeVector(new ex.Vector(0, 0));
@@ -1135,18 +1133,16 @@ describe('A game actor', () => {
 
     it('should capture pointer drag leave event', () => {
       const actor = new ex.Actor({ x: 0, y: 0, width: 20, height: 20 });
-      const callables = {
-        dragLeave: (pe: any) => {
-          /* doesn't matter */
-        }
-      };
-      const dragLeaveSpy = spyOn(callables, 'dragLeave').and.callThrough();
+      const dragLeaveSpy = jasmine.createSpy('dragLeave');
 
-      actor.on('pointerdragleave', callables.dragLeave);
+      actor.on('pointerdragleave', dragLeaveSpy);
       scene.add(actor);
 
       engine.input.pointers.triggerEvent('down', new ex.Vector(0, 0));
       engine.input.pointers.triggerEvent('move', new ex.Vector(30, 30));
+
+      // Process pointer events
+      scene.update(engine, 0);
 
       expect(dragLeaveSpy).toHaveBeenCalledTimes(1);
       expect(engine.input.pointers.at(0).lastWorldPos).toBeVector(new ex.Vector(30, 30));

@@ -6,8 +6,12 @@ import { ExPointerEvent } from "./ExPointerEvent";
 import { ExWheelEvent } from "./ExWheelEvent";
 import { PointerAbstraction } from "./PointerAbstraction";
 
-import { WheelDeltaMode } from "./PointerEvents";
+import { WheelDeltaMode } from "./WheelDeltaMode";
 import { PointerSystem } from "./PointerSystem";
+import { NativePointerButton } from "./NativePointerButton";
+import { PointerButton } from "./PointerButton";
+import { Util } from "..";
+import { PointerType } from "./PointerType";
 
 
 
@@ -256,7 +260,11 @@ export class PointerEventReceiver extends Class {
   private _handle(ev: TouchEvent | PointerEvent | MouseEvent) {
     ev.preventDefault();
     let eventCoords = new Map<number, GlobalCoordinates>();
+    let button: PointerButton;
+    let pointerType: PointerType;
     if (ev instanceof TouchEvent) {
+      button = PointerButton.Unknown;
+      pointerType = PointerType.Touch;
       // https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent
       for (let i = 0; i < ev.changedTouches.length; i++) {
         const touch = ev.changedTouches[i];
@@ -267,10 +275,13 @@ export class PointerEventReceiver extends Class {
         eventCoords.set(pointerId, coordinates);
       }
     } else {
+      button = this._nativeButtonToPointerButton(ev.button);
+      pointerType = PointerType.Mouse;
       const coordinates = GlobalCoordinates.fromPagePosition(ev.pageX, ev.pageY, this.engine);
       let nativePointerId = 1;
       if (ev instanceof PointerEvent) {
         nativePointerId = ev.pointerId;
+        pointerType = this._stringToPointerType(ev.pointerType);
       }
       const pointerId = this._normalizePointerId(nativePointerId);
       this.currentFramePointerPositions.set(pointerId, coordinates.worldPos);
@@ -282,23 +293,23 @@ export class PointerEventReceiver extends Class {
         case 'mousedown':
         case 'pointerdown':
         case 'touchstart':
-          this.currentFrameDown.push(new ExPointerEvent('down', pointerId, coord, ev))
+          this.currentFrameDown.push(new ExPointerEvent('down', pointerId, button, pointerType, coord, ev))
           this.currentFramePointerDown.set(pointerId, true);
           break;
         case 'mouseup':
         case 'pointerup':
         case 'touchend':
-          this.currentFrameUp.push(new ExPointerEvent('up', pointerId, coord, ev))
+          this.currentFrameUp.push(new ExPointerEvent('up', pointerId, button, pointerType, coord, ev))
           this.currentFramePointerDown.set(pointerId, false);
           break;
         case 'mousemove':
         case 'pointermove':
         case 'touchmove':
-          this.currentFrameMove.push(new ExPointerEvent('move', pointerId, coord, ev))
+          this.currentFrameMove.push(new ExPointerEvent('move', pointerId, button, pointerType, coord, ev))
           break;
         case 'touchcancel':
         case 'pointercance':
-          this.currentFrameCancel.push(new ExPointerEvent('cancel', pointerId, coord, ev))
+          this.currentFrameCancel.push(new ExPointerEvent('cancel', pointerId, button, pointerType, coord, ev))
           break;
       }
     }
@@ -358,6 +369,36 @@ export class PointerEventReceiver extends Class {
     const pointerSystem = this.engine.currentScene.world.systemManager.get(PointerSystem);
     const transformEntities = this.engine.currentScene.world.queryManager.createQuery(pointerSystem.types);
     pointerSystem.update(transformEntities.getEntities());
+  }
+
+  private _nativeButtonToPointerButton(s: NativePointerButton): PointerButton {
+    switch (s) {
+      case NativePointerButton.NoButton:
+        return PointerButton.NoButton;
+      case NativePointerButton.Left:
+        return PointerButton.Left;
+      case NativePointerButton.Middle:
+        return PointerButton.Middle;
+      case NativePointerButton.Right:
+        return PointerButton.Right;
+      case NativePointerButton.Unknown:
+        return PointerButton.Unknown;
+      default:
+        return Util.fail(s);
+    }
+  }
+
+  private _stringToPointerType(s: string) {
+    switch (s) {
+      case 'touch':
+        return PointerType.Touch;
+      case 'mouse':
+        return PointerType.Mouse;
+      case 'pen':
+        return PointerType.Pen;
+      default:
+        return PointerType.Unknown;
+    }
   }
   
   public dispatchEvent(type: 'pointerdown', opts?: PointerEventInit) {

@@ -4,34 +4,8 @@ import { Vector } from '../Math/vector';
 import { Pointer } from './Pointer';
 import { PointerType } from "./PointerType";
 import { GameEvent } from '../Events';
-
-/**
- * Native browser button enumeration
- */
-export enum NativePointerButton {
-  NoButton = -1,
-  Left = 0,
-  Middle = 1,
-  Right = 2,
-  Unknown = 3
-}
-
-/**
- * The mouse button being pressed.
- */
-export enum PointerButton {
-  Left = 'Left',
-  Middle = 'Middle',
-  Right = 'Right',
-  Unknown = 'Unknown',
-  NoButton = 'NoButton'
-}
-
-export enum WheelDeltaMode {
-  Pixel = 'Pixel',
-  Line = 'Line',
-  Page = 'Page'
-}
+import { PointerButton } from './PointerButton';
+import { WheelDeltaMode } from './WheelDeltaMode';
 
 /**
  * Type that indicates Excalibur's valid synthetic pointer events

@@ -18,5 +18,8 @@ export * from './Keyboard';
 export * from './EngineInput';
 export * from './CapturePointerConfig';
 
+export * from './NativePointerButton';
+export * from './PointerButton';
+export * from './WheelDeltaMode';
 export * from './ExPointerEvent';
 export * from './ExWheelEvent';

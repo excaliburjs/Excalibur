@@ -1,4 +1,4 @@
-import { WheelDeltaMode } from "./PointerEvents";
+import { WheelDeltaMode } from "./WheelDeltaMode";
 
 
 export class ExWheelEvent {

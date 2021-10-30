@@ -5,13 +5,13 @@ import { PointerType } from "./PointerType";
 import {
   PointerEvent,
   WheelEvent,
-  NativePointerButton,
-  PointerButton,
-  WheelDeltaMode,
   createPointerEventByName,
   PointerLeaveEvent,
   PointerEnterEvent
 } from './PointerEvents';
+import { WheelDeltaMode } from "./WheelDeltaMode";
+import { NativePointerButton } from "./NativePointerButton";
+import { PointerButton } from "./PointerButton";
 import { GameEvent } from '../Events';
 
 import * as Events from '../Events';

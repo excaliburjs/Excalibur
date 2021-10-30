@@ -165,6 +165,9 @@ export class PointerSystem extends System<TransformComponent> {
         // enter
         if (event.active && entity.active && this.entered(entity, event.pointerId)) {
           entity.events.emit('pointerenter', event as any);
+          if (this._receiver.isDragging(event.pointerId)) {
+            entity.events.emit('pointerdragenter', event as any);
+          }
           break;
         }
         if (event.active && entity.active &&
@@ -173,6 +176,9 @@ export class PointerSystem extends System<TransformComponent> {
             // or leave can happen on pointer up
             (this.entityCurrentlyUnderPointer(entity, event.pointerId) && event.type === 'up'))) {
           entity.events.emit('pointerleave', event as any);
+          if (this._receiver.isDragging(event.pointerId)) {
+            entity.events.emit('pointerdragleave', event as any);
+          }
           break;
         }
       }
