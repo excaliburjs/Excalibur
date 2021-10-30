@@ -24,6 +24,20 @@ Our user documentation is at https://excaliburjs.com/docs (and you can contribut
 
 :exclamation: **_Note:_** Excalibur is still in version 0.x, which means this project and its associated plugins may be a little rough around the edges. We try to minimize API changes, but breaking changes **will occur** in new released versions. Excalibur is a labor of love and the product of many hours of spare time. Thanks for checking it out!
 
+## Using Excalibur.js as a ES Module
+Use a dedicated CDN to do that. Two popular ones are [esm.sh](https://esm.sh/) and [skypack.dev](https://www.skypack.dev/). 
+
+```typescript
+// index.ts
+
+import { Engine } from 'https://esm.sh/excalibur'
+
+const game = new Engine()
+game.start()
+```
+
+Learn more in [our `Deno` guide](https://excaliburjs.com/docs/bundlers#deno).
+
 # API Reference
 
 Visit the [API Reference](https://excaliburjs.com/docs/api/edge) section for fully-annotated documentation of the API.
