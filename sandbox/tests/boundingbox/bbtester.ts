@@ -38,14 +38,14 @@ block2.on('pointerdragend', (pe: ex.Input.PointerEvent) => {
 // Drag box around
 block2.on('pointerdragmove', (pe: ex.Input.PointerEvent) => {
   if (boxPointerDragging) {
-    block2.pos = pe.pointer.lastWorldPos;
+    block2.pos = pe.worldPos;
   }
 });
 
 // Drag box around
 block2.on('pointerdragleave', (pe: ex.Input.PointerEvent) => {
   if (boxPointerDragging) {
-    block2.pos = pe.pointer.lastWorldPos;
+    block2.pos = pe.worldPos;
   }
 });
 

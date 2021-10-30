@@ -31,7 +31,7 @@ box.on('pointerdown', (pe: ex.Input.PointerEvent) => {
 
 box2.on('pointerdown', (pe: ex.Input.PointerEvent) => {
   console.log('box2 clicked');
-  pe.stopPropagation();
+  pe.cancel();
   if (box2.color.toString() === ex.Color.White.toString()) {
     box2.color = ex.Color.Yellow;
   } else {
@@ -52,14 +52,14 @@ box.on('pointerdragend', (pe: ex.Input.PointerEvent) => {
 // Drag box around
 box.on('pointerdragmove', (pe: ex.Input.PointerEvent) => {
   if (boxPointerDragging) {
-    box.pos = pe.pointer.lastWorldPos;
+    box.pos = pe.worldPos;
   }
 });
 
 // Drag box around
 box.on('pointerdragleave', (pe: ex.Input.PointerEvent) => {
   if (boxPointerDragging) {
-    box.pos = pe.pointer.lastWorldPos;
+    box.pos = pe.worldPos;
   }
 });
 
@@ -69,7 +69,7 @@ box.on('pointerwheel', (pe: ex.Input.WheelEvent) => {
 
 // Follow cursor
 game.input.pointers.primary.on('move', (pe: ex.Input.PointerEvent) => {
-  cursor.pos = pe.pointer.lastWorldPos;
+  cursor.pos = pe.worldPos;
 });
 
 // Button type
