@@ -1,6 +1,6 @@
-import { GlobalCoordinates } from "..";
-import { WheelDeltaMode } from "../Input/WheelDeltaMode";
-import { Vent } from "./ExEvent";
+import { GlobalCoordinates } from '..';
+import { WheelDeltaMode } from '../Input/WheelDeltaMode';
+import { Vent } from './ExEvent';
 
 
 export abstract class PointerEvent extends Vent<'down' | 'up' | 'move' | 'cancel'> {

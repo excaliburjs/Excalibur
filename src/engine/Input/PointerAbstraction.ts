@@ -1,7 +1,7 @@
-import { Class } from "../Class";
-import { Vector } from "../Math/vector";
-import { WheelEvent } from "./WheelEvent";
-import { PointerEvent } from "./PointerEvent";
+import { Class } from '../Class';
+import { Vector } from '../Math/vector';
+import { WheelEvent } from './WheelEvent';
+import { PointerEvent } from './PointerEvent';
 
 export class PointerAbstraction extends Class {
 
@@ -22,10 +22,8 @@ export class PointerAbstraction extends Class {
 
   constructor() {
     super();
-
     this.on('move', this._onPointerMove);
     this.on('down', this._onPointerDown);
-    this.on('up', this._onPointerUp);
   }
 
   on(event: 'move', handler: (event: PointerEvent) => void): void;
@@ -63,8 +61,5 @@ export class PointerAbstraction extends Class {
     this.lastPagePos = new Vector(ev.pagePos.x, ev.pagePos.y);
     this.lastScreenPos = new Vector(ev.screenPos.x, ev.screenPos.y);
     this.lastWorldPos = new Vector(ev.worldPos.x, ev.worldPos.y);
-  }
-
-  private _onPointerUp(_ev: PointerEvent): void {
   }
 }

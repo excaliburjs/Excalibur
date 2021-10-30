@@ -1,7 +1,7 @@
 
 export abstract class Vent<TName extends string> {
   abstract readonly type: TName;
-  
+
   private _active = true;
   public get active() {
     return this._active;

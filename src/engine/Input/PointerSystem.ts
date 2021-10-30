@@ -1,21 +1,21 @@
-import { ColliderComponent } from "../Collision/ColliderComponent";
-import { Engine } from "../Engine";
-import { System, TransformComponent, SystemType, Entity } from "../EntityComponentSystem";
-import { GraphicsComponent } from "../Graphics/GraphicsComponent";
-import { Scene } from "../Scene";
-import { PointerComponent } from "./PointerComponent";
-import { PointerEventReceiver } from "./PointerEventReceiver";
-import { PointerEvent } from "./PointerEvent";
+import { ColliderComponent } from '../Collision/ColliderComponent';
+import { Engine } from '../Engine';
+import { System, TransformComponent, SystemType, Entity } from '../EntityComponentSystem';
+import { GraphicsComponent } from '../Graphics/GraphicsComponent';
+import { Scene } from '../Scene';
+import { PointerComponent } from './PointerComponent';
+import { PointerEventReceiver } from './PointerEventReceiver';
+import { PointerEvent } from './PointerEvent';
 
 /**
  * The PointerSystem is responsible for dispatching pointer events to entities
  * that need them.
- * 
+ *
  * The PointerSystem can be optionally configured by the [[PointerComponent]], by default Entities use
  * the [[Collider]]'s shape for pointer events.
  */
 export class PointerSystem extends System<TransformComponent> {
-  public readonly types = ["ex.transform"] as const;
+  public readonly types = ['ex.transform'] as const;
   public readonly systemType = SystemType.Update;
   public priority = -1;
 
@@ -37,7 +37,7 @@ export class PointerSystem extends System<TransformComponent> {
 
   public entityCurrentlyUnderPointer(entity: Entity, pointerId: number) {
     return this.currentFrameEntityToPointers.has(entity.id) &&
-           this.currentFrameEntityToPointers.get(entity.id).includes(pointerId)
+           this.currentFrameEntityToPointers.get(entity.id).includes(pointerId);
   }
 
   public entityWasUnderPointer(entity: Entity, pointerId: number) {
@@ -46,18 +46,18 @@ export class PointerSystem extends System<TransformComponent> {
   }
 
   public entered(entity: Entity, pointerId: number) {
-    return this.entityCurrentlyUnderPointer(entity, pointerId) && 
+    return this.entityCurrentlyUnderPointer(entity, pointerId) &&
            !this.lastFrameEntityToPointers.has(entity.id);
   }
 
   public left(entity: Entity, pointerId: number) {
-    return !this.currentFrameEntityToPointers.has(entity.id) && 
-            this.entityWasUnderPointer(entity, pointerId)
+    return !this.currentFrameEntityToPointers.has(entity.id) &&
+            this.entityWasUnderPointer(entity, pointerId);
   }
 
   public addPointerToEntity(entity: Entity, pointerId: number) {
     if (!this.currentFrameEntityToPointers.has(entity.id)) {
-      this.currentFrameEntityToPointers.set(entity.id, [pointerId])
+      this.currentFrameEntityToPointers.set(entity.id, [pointerId]);
       return;
     }
     const pointers = this.currentFrameEntityToPointers.get(entity.id);
@@ -66,7 +66,7 @@ export class PointerSystem extends System<TransformComponent> {
 
   public update(entities: Entity[]): void {
     // Locate all the pointer/entity mappings
-    this._processPointerToEntity(entities)
+    this._processPointerToEntity(entities);
 
     // Dispatch pointer events on entities
     this._dispatchEvents(entities);
@@ -87,7 +87,7 @@ export class PointerSystem extends System<TransformComponent> {
 
     // TODO probably a spatial partition optimization here to quickly query bounds for pointer
     // Pre-process find entities under pointers
-    for (let entity of entities) {
+    for (const entity of entities) {
       // transform = entity.get(TransformComponent);
       pointerConfig = entity.get(PointerComponent) ?? new PointerComponent;
       // Check collider contains pointer
@@ -106,7 +106,7 @@ export class PointerSystem extends System<TransformComponent> {
       // Check graphics contains pointer
       graphics = entity.get(GraphicsComponent);
       if (graphics && pointerConfig.useGraphicsBounds) {
-        const graphicBounds = graphics.localBounds.transform(transform.getGlobalMatrix())
+        const graphicBounds = graphics.localBounds.transform(transform.getGlobalMatrix());
         for (const [pointerId, pos] of this._receiver.currentFramePointerPositions.entries()) {
           if (graphicBounds.contains(pos)) {
             this.addPointerToEntity(entity, pointerId);
@@ -119,15 +119,15 @@ export class PointerSystem extends System<TransformComponent> {
   private _dispatchEvents(entities: Entity[]) {
     const lastFrameEntities = new Set(this.lastFrameEntityToPointers.keys());
     const currentFrameEntities = new Set(this.currentFrameEntityToPointers.keys());
-    // Filter preserves z order 
+    // Filter preserves z order
     const entitiesWithEvents = entities.filter(e => lastFrameEntities.has(e.id) || currentFrameEntities.has(e.id));
     const lastMovePerPointer = new Map<number, PointerEvent>();
     const lastUpPerPointer = new Map<number, PointerEvent>();
     const lastDownPerPointer = new Map<number, PointerEvent>();
     // Dispatch events in entity z order
-    for (let entity of entitiesWithEvents) {
+    for (const entity of entitiesWithEvents) {
       // Loop through down and dispatch to entities
-      for (let event of this._receiver.currentFrameDown) {
+      for (const event of this._receiver.currentFrameDown) {
         if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
           entity.events.emit('pointerdown', event as any);
           if (this._receiver.isDragStart(event.pointerId)) {
@@ -137,7 +137,7 @@ export class PointerSystem extends System<TransformComponent> {
         lastDownPerPointer.set(event.pointerId, event);
       }
       // Loop through up and dispatch to entities
-      for (let event of this._receiver.currentFrameUp) {
+      for (const event of this._receiver.currentFrameUp) {
         if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
           entity.events.emit('pointerup', event as any);
           if (this._receiver.isDragEnd(event.pointerId)) {
@@ -148,7 +148,7 @@ export class PointerSystem extends System<TransformComponent> {
       }
 
       // Loop through move and dispatch to entities
-      for (let event of this._receiver.currentFrameMove) {
+      for (const event of this._receiver.currentFrameMove) {
         if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
           // move
           entity.events.emit('pointermove', event as any);
@@ -161,7 +161,7 @@ export class PointerSystem extends System<TransformComponent> {
       }
       const lastEvents = [...lastMovePerPointer.values(), ...lastDownPerPointer.values(), ...lastUpPerPointer.values()];
       // up, down, and move are considered for enter and leave
-      for (let event of lastEvents) {
+      for (const event of lastEvents) {
         // enter
         if (event.active && entity.active && this.entered(entity, event.pointerId)) {
           entity.events.emit('pointerenter', event as any);
@@ -184,14 +184,14 @@ export class PointerSystem extends System<TransformComponent> {
       }
 
       // cancel
-      for (let event of this._receiver.currentFrameCancel) {
+      for (const event of this._receiver.currentFrameCancel) {
         if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)){
           entity.events.emit('pointercancel', event as any);
         }
       }
 
       // wheel
-      for (let event of this._receiver.currentFrameWheel) {
+      for (const event of this._receiver.currentFrameWheel) {
         // Currently the wheel only fires under the primary pointer '0'
         if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, 0)) {
           entity.events.emit('pointerwheel', event as any);
