@@ -7,7 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
--
+- Pointer Events:
+  * Event types (up, down, move, etc) now all exist in 2 types `ex.Input.PointerEvent` and `ex.Input.WheelEvent`
+  * The `stopPropagation()` method used to cancel further dispatches has been renamed to `cancel()` to match other events API.
+  * Events no longer have a reference to the `pointer` but now have all of the same information that was availabe on the pointer `worldPos`, `screenPos`, `pagePos`
 ### Added
 
 - *Experimental:* Native ES module bundle distribution in package `esm/excalibur.js` entrypoint ([#2064](https://github.com/excaliburjs/Excalibur/pull/2064))
@@ -15,9 +18,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Story to show a play / pause implementation. 
 - `ex.Animation` now support `totalDuration` that will calculate automatically each frame duration based on how many frames have.
 - `ex.Animation` now supports `.reverse()` to reverse the direction of play in an animation, use the `ex.Animation.direction` to inspect if the animation is playing in the `ex.AnimationDirection.Forward` direction or the `ex.AnimationDirection.Backward` direction.
--
+- Pointers can now be configured to use the collider or the graphics bounds as the target for pointers with the `ex.PointerComponent`
+  - `useColliderShape` - (default true) uses the collider component geometry for pointer events
+  - `useGraphicsBounds` - (default false) uses the graphics bounds for pointer events
 ### Changed
 
+- Pointer system refactored into 2 parts:
+   * First is an ECS style system `ex.PointerSystem` that dispatches events to Entities/Actors
+   * Second is an event receiver `ex.PointerEventReceiver` which is responsible for collecting the native browser events
+   * The API is mostly backwards compatible breaking changes are listed in the breaking change secion, event types have been simplified, and `stopPropagation()` and been renamed to `cancel()`
 - Internal Actions implementation converted to ECS system and component, this is a backwards compatible change with v0.25.0
   - `ex.ActionsSystem` and `ex.ActionsComponent` now wrap the existing `ex.ActionContext`
   - Actions can be shared with all entities now!
