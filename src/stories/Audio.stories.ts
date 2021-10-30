@@ -45,7 +45,6 @@ export const playingASound: Story = withEngine(async (game) => {
   startOrPauseBtn.graphics.add('pause', pauseSprite);
   startOrPauseBtn.graphics.show('play');
 
-  startOrPauseBtn.enableCapturePointer = true;
   startOrPauseBtn.on('pointerup', (evt) => {
     if (!guitarLoopSound.isPlaying()) {
       guitarLoopSound.play();
@@ -53,10 +52,9 @@ export const playingASound: Story = withEngine(async (game) => {
       guitarLoopSound.pause();
     }
 
-    evt.stopPropagation();
+    evt.cancel();
   });
   stopBtn.graphics.show(stopSprite);
-  stopBtn.enableCapturePointer = true;
 
   const playheadStartPos = playTimeline.collider.bounds.left;
   const playheadEndPos = playTimeline.collider.bounds.right;
@@ -103,7 +101,7 @@ export const playingASound: Story = withEngine(async (game) => {
     guitarLoopSound.stop();
     playHead.pos.setTo(playheadStartPos, playHead.pos.y);
 
-    evt.stopPropagation();
+    evt.cancel();
   });
 
   game.add(stopBtn);
@@ -138,7 +136,6 @@ export const multipleTracksAndLooping: Story = withEngine(async (game, { beginGu
   // playSprite.fill(Color.White);
 
   startBtn.graphics.add(playSprite);
-  startBtn.enableCapturePointer = true;
   startBtn.on('pointerup', (evt) => {
     playAction('Playing campfire and forest sounds ');
     // playSprite.fill(Color.Green);
@@ -154,7 +151,7 @@ export const multipleTracksAndLooping: Story = withEngine(async (game, { beginGu
       guitarLoopSound.play();
     }, startGuitarAt);
 
-    evt.stopPropagation();
+    evt.cancel();
   });
 
   game.add(startBtn);
@@ -177,7 +174,6 @@ export const volumeLevels: Story = withEngine(async (game, { initialVolume, dela
   const playSprite = new Sprite({ image: playIconTx, destSize: { width: 32, height: 32 } });
   // playSprite.fill(Color.White);
   startBtn.graphics.add(playSprite);
-  startBtn.enableCapturePointer = true;
 
   startBtn.on('pointerup', function () {
     playAction('Playing guitar sound, volume will adjust in 2 seconds');

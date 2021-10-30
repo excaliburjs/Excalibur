@@ -76,7 +76,7 @@ export const dragEvents: Story = withEngine(async (game) => {
       });
       this.on(ex.EventTypes.PointerDragMove, (e) => {
         this.color = ex.Color.Yellow;
-        this.pos.setTo(e.pos.x, e.pos.y);
+        this.pos.setTo(e.worldPos.x, e.worldPos.y);
       });
       this.on(ex.EventTypes.PointerLeave, () => {
         this.color = ex.Color.Red;
