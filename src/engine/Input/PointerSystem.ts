@@ -5,7 +5,7 @@ import { GraphicsComponent } from "../Graphics/GraphicsComponent";
 import { Scene } from "../Scene";
 import { PointerComponent } from "./PointerComponent";
 import { PointerEventReceiver } from "./PointerEventReceiver";
-import { ExPointerEvent } from "./ExPointerEvent";
+import { PointerEvent } from "./PointerEvent";
 
 /**
  * The PointerSystem is responsible for dispatching pointer events to entities
@@ -121,9 +121,9 @@ export class PointerSystem extends System<TransformComponent> {
     const currentFrameEntities = new Set(this.currentFrameEntityToPointers.keys());
     // Filter preserves z order 
     const entitiesWithEvents = entities.filter(e => lastFrameEntities.has(e.id) || currentFrameEntities.has(e.id));
-    const lastMovePerPointer = new Map<number, ExPointerEvent>();
-    const lastUpPerPointer = new Map<number, ExPointerEvent>();
-    const lastDownPerPointer = new Map<number, ExPointerEvent>();
+    const lastMovePerPointer = new Map<number, PointerEvent>();
+    const lastUpPerPointer = new Map<number, PointerEvent>();
+    const lastDownPerPointer = new Map<number, PointerEvent>();
     // Dispatch events in entity z order
     for (let entity of entitiesWithEvents) {
       // Loop through down and dispatch to entities

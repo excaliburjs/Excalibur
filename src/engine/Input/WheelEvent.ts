@@ -1,7 +1,7 @@
 import { WheelDeltaMode } from "./WheelDeltaMode";
 
 
-export class ExWheelEvent {
+export class WheelEvent {
   public active = true;
   public cancel() {
     this.active = false;

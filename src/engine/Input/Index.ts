@@ -18,5 +18,5 @@ export * from './CapturePointerConfig';
 export * from './NativePointerButton';
 export * from './PointerButton';
 export * from './WheelDeltaMode';
-export * from './ExPointerEvent';
-export * from './ExWheelEvent';
+export * from './PointerEvent';
+export * from './WheelEvent';

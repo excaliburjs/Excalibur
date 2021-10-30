@@ -2,8 +2,8 @@ import { Class } from "../Class";
 import { Engine, ScrollPreventionMode } from "../Engine";
 import { GlobalCoordinates } from "../Math/global-coordinates";
 import { vec, Vector } from "../Math/vector";
-import { ExPointerEvent } from "./ExPointerEvent";
-import { ExWheelEvent } from "./ExWheelEvent";
+import { PointerEvent } from "./PointerEvent";
+import { WheelEvent } from "./WheelEvent";
 import { PointerAbstraction } from "./PointerAbstraction";
 
 import { WheelDeltaMode } from "./WheelDeltaMode";
@@ -14,7 +14,10 @@ import { Util } from "..";
 import { PointerType } from "./PointerType";
 
 
-
+export type NativePointerEvent = globalThis.PointerEvent;
+export type NativeMouseEvent = globalThis.MouseEvent;
+export type NativeTouchEvent = globalThis.TouchEvent;
+export type NativeWheelEvent = globalThis.WheelEvent;
 
 /**
  * The PointerEventProcessor is responsible for collecting all the events from the canvas and transforming them into GlobalCoordinates
@@ -31,11 +34,11 @@ export class PointerEventReceiver extends Class {
 
   // TODO held and drag events?
   // TODO make this private
-  public currentFrameDown: ExPointerEvent[] = [];
-  public currentFrameUp: ExPointerEvent[] = [];
-  public currentFrameMove: ExPointerEvent[] = [];
-  public currentFrameCancel: ExPointerEvent[] = [];
-  public currentFrameWheel: ExWheelEvent[] = [];
+  public currentFrameDown: PointerEvent[] = [];
+  public currentFrameUp: PointerEvent[] = [];
+  public currentFrameMove: PointerEvent[] = [];
+  public currentFrameCancel: PointerEvent[] = [];
+  public currentFrameWheel: WheelEvent[] = [];
 
   constructor(public readonly target: GlobalEventHandlers & EventTarget, public engine: Engine) {
     super();
@@ -81,26 +84,26 @@ export class PointerEventReceiver extends Class {
     return !this.isDown(pointerId) && this.wasDown(pointerId);
   }
 
-  on(event: 'move', handler: (event: ExPointerEvent) => void): void;
-  on(event: 'down', handler: (event: ExPointerEvent) => void): void;
-  on(event: 'up', handler: (event: ExPointerEvent) => void): void;
-  on(event: 'wheel', handler: (event: ExWheelEvent) => void): void;
+  on(event: 'move', handler: (event: PointerEvent) => void): void;
+  on(event: 'down', handler: (event: PointerEvent) => void): void;
+  on(event: 'up', handler: (event: PointerEvent) => void): void;
+  on(event: 'wheel', handler: (event: WheelEvent) => void): void;
   on(event: string, handler: (event: any) => void): void {
     super.on(event, handler);
   }
 
-  once(event: 'move', handler: (event: ExPointerEvent) => void): void;
-  once(event: 'down', handler: (event: ExPointerEvent) => void): void;
-  once(event: 'up', handler: (event: ExPointerEvent) => void): void;
-  once(event: 'wheel', handler: (event: ExWheelEvent) => void): void;
+  once(event: 'move', handler: (event: PointerEvent) => void): void;
+  once(event: 'down', handler: (event: PointerEvent) => void): void;
+  once(event: 'up', handler: (event: PointerEvent) => void): void;
+  once(event: 'wheel', handler: (event: WheelEvent) => void): void;
   once(event: string, handler: (event: any) => void): void {
     super.once(event, handler);
   }
 
-  off(event: 'move', handler?: (event: ExPointerEvent) => void): void;
-  off(event: 'down', handler?: (event: ExPointerEvent) => void): void;
-  off(event: 'up', handler?: (event: ExPointerEvent) => void): void;
-  off(event: 'wheel', handler?: (event: ExWheelEvent) => void): void;
+  off(event: 'move', handler?: (event: PointerEvent) => void): void;
+  off(event: 'down', handler?: (event: PointerEvent) => void): void;
+  off(event: 'up', handler?: (event: PointerEvent) => void): void;
+  off(event: 'wheel', handler?: (event: WheelEvent) => void): void;
   off(event: string, handler?: (event: any) => void): void {
     super.off(event, handler);
   }
@@ -257,7 +260,7 @@ export class PointerEventReceiver extends Class {
   /**
    * Responsible for handling and parsing pointer events
    */
-  private _handle(ev: TouchEvent | PointerEvent | MouseEvent) {
+  private _handle(ev: NativeTouchEvent | NativePointerEvent | NativeMouseEvent) {
     ev.preventDefault();
     let eventCoords = new Map<number, GlobalCoordinates>();
     let button: PointerButton;
@@ -279,7 +282,7 @@ export class PointerEventReceiver extends Class {
       pointerType = PointerType.Mouse;
       const coordinates = GlobalCoordinates.fromPagePosition(ev.pageX, ev.pageY, this.engine);
       let nativePointerId = 1;
-      if (ev instanceof PointerEvent) {
+      if (ev instanceof window.PointerEvent) {
         nativePointerId = ev.pointerId;
         pointerType = this._stringToPointerType(ev.pointerType);
       }
@@ -293,29 +296,29 @@ export class PointerEventReceiver extends Class {
         case 'mousedown':
         case 'pointerdown':
         case 'touchstart':
-          this.currentFrameDown.push(new ExPointerEvent('down', pointerId, button, pointerType, coord, ev))
+          this.currentFrameDown.push(new PointerEvent('down', pointerId, button, pointerType, coord, ev))
           this.currentFramePointerDown.set(pointerId, true);
           break;
         case 'mouseup':
         case 'pointerup':
         case 'touchend':
-          this.currentFrameUp.push(new ExPointerEvent('up', pointerId, button, pointerType, coord, ev))
+          this.currentFrameUp.push(new PointerEvent('up', pointerId, button, pointerType, coord, ev))
           this.currentFramePointerDown.set(pointerId, false);
           break;
         case 'mousemove':
         case 'pointermove':
         case 'touchmove':
-          this.currentFrameMove.push(new ExPointerEvent('move', pointerId, button, pointerType, coord, ev))
+          this.currentFrameMove.push(new PointerEvent('move', pointerId, button, pointerType, coord, ev))
           break;
         case 'touchcancel':
         case 'pointercance':
-          this.currentFrameCancel.push(new ExPointerEvent('cancel', pointerId, button, pointerType, coord, ev))
+          this.currentFrameCancel.push(new PointerEvent('cancel', pointerId, button, pointerType, coord, ev))
           break;
       }
     }
   }
 
-  private _handleWheel(ev: WheelEvent) {
+  private _handleWheel(ev: NativeWheelEvent) {
     // Should we prevent page scroll because of this event
     if (
       this.engine.pageScrollPreventionMode === ScrollPreventionMode.All ||
@@ -347,7 +350,7 @@ export class PointerEventReceiver extends Class {
         }
       }
 
-      const we = new ExWheelEvent(world.x, world.y, ev.pageX, ev.pageY, screen.x, screen.y, 0, deltaX, deltaY, deltaZ, deltaMode, ev);
+      const we = new WheelEvent(world.x, world.y, ev.pageX, ev.pageY, screen.x, screen.y, 0, deltaX, deltaY, deltaZ, deltaMode, ev);
       this.currentFrameWheel.push(we);
   }
 
@@ -359,7 +362,7 @@ export class PointerEventReceiver extends Class {
   public triggerEvent(type: 'down' | 'up' | 'move' | 'cancel', pos: Vector) {
     const page = this.engine.screen.worldToPageCoordinates(pos);
     // Send an event to the event receiver
-    this._handle(new PointerEvent('pointer' + type, {
+    this._handle(new window.PointerEvent('pointer' + type, {
       pointerId: 0,
       clientX: page.x,
       clientY: page.y
@@ -402,11 +405,11 @@ export class PointerEventReceiver extends Class {
   }
   
   public dispatchEvent(type: 'pointerdown', opts?: PointerEventInit) {
-    this.simulate(new PointerEvent(type, opts))
+    this.simulate(new window.PointerEvent(type, opts))
 
   }
 
-  public simulate(ev: TouchEvent | PointerEvent | MouseEvent) {
+  public simulate(ev: NativeTouchEvent | NativePointerEvent | NativeMouseEvent) {
     this.target.dispatchEvent(ev);
   }
 }

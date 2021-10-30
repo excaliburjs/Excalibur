@@ -20,7 +20,6 @@ import {
   EnterViewPortEvent,
   ExitViewPortEvent
 } from './Events';
-import { PointerEvent, WheelEvent, PointerDragEvent } from './Input/PointerEvents';
 import { Engine } from './Engine';
 import { Color } from './Color';
 import { Sprite } from './Drawing/Sprite';
@@ -51,6 +50,8 @@ import { Shape } from './Collision/Colliders/Shape';
 import { watch } from './Util/Watch';
 import { Collider, CollisionGroup } from './Collision/Index';
 import { Circle } from './Graphics/Circle';
+import { PointerEvent } from './Input/PointerEvent';
+import { WheelEvent } from './Input/WheelEvent';
 import { PointerComponent } from './Input/PointerComponent';
 import { ActionsComponent } from './Actions/ActionsComponent';
 
@@ -434,13 +435,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   private _pointerDragMoveHandler = (pe: PointerEvent) => {
     if (this._dragging) {
-      this.pos = pe.pointer.lastWorldPos;
+      this.pos = pe.worldPos;
     }
   };
 
   private _pointerDragLeaveHandler = (pe: PointerEvent) => {
     if (this._dragging) {
-      this.pos = pe.pointer.lastWorldPos;
+      this.pos = pe.worldPos;
     }
   };
 
@@ -667,11 +668,11 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public on(eventName: Events.pointermove, handler: (event: PointerEvent) => void): void;
   public on(eventName: Events.pointercancel, handler: (event: PointerEvent) => void): void;
   public on(eventName: Events.pointerwheel, handler: (event: WheelEvent) => void): void;
-  public on(eventName: Events.pointerdragstart, handler: (event: PointerDragEvent) => void): void;
-  public on(eventName: Events.pointerdragend, handler: (event: PointerDragEvent) => void): void;
-  public on(eventName: Events.pointerdragenter, handler: (event: PointerDragEvent) => void): void;
-  public on(eventName: Events.pointerdragleave, handler: (event: PointerDragEvent) => void): void;
-  public on(eventName: Events.pointerdragmove, handler: (event: PointerDragEvent) => void): void;
+  public on(eventName: Events.pointerdragstart, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointerdragend, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointerdragenter, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointerdragleave, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointerdragmove, handler: (event: PointerEvent) => void): void;
   public on(eventName: Events.enterviewport, handler: (event: EnterViewPortEvent) => void): void;
   public on(eventName: Events.exitviewport, handler: (event: ExitViewPortEvent) => void): void;
   public on(eventName: string, handler: (event: GameEvent<Actor>) => void): void;
@@ -733,11 +734,11 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public once(eventName: Events.pointermove, handler: (event: PointerEvent) => void): void;
   public once(eventName: Events.pointercancel, handler: (event: PointerEvent) => void): void;
   public once(eventName: Events.pointerwheel, handler: (event: WheelEvent) => void): void;
-  public once(eventName: Events.pointerdragstart, handler: (event: PointerDragEvent) => void): void;
-  public once(eventName: Events.pointerdragend, handler: (event: PointerDragEvent) => void): void;
-  public once(eventName: Events.pointerdragenter, handler: (event: PointerDragEvent) => void): void;
-  public once(eventName: Events.pointerdragleave, handler: (event: PointerDragEvent) => void): void;
-  public once(eventName: Events.pointerdragmove, handler: (event: PointerDragEvent) => void): void;
+  public once(eventName: Events.pointerdragstart, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointerdragend, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointerdragenter, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointerdragleave, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointerdragmove, handler: (event: PointerEvent) => void): void;
   public once(eventName: Events.enterviewport, handler: (event: EnterViewPortEvent) => void): void;
   public once(eventName: Events.exitviewport, handler: (event: ExitViewPortEvent) => void): void;
   public once(eventName: string, handler: (event: GameEvent<Actor>) => void): void;
@@ -789,11 +790,11 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public off(eventName: Events.pointermove, handler?: (event: PointerEvent) => void): void;
   public off(eventName: Events.pointercancel, handler?: (event: PointerEvent) => void): void;
   public off(eventName: Events.pointerwheel, handler?: (event: WheelEvent) => void): void;
-  public off(eventName: Events.pointerdragstart, handler?: (event: PointerDragEvent) => void): void;
-  public off(eventName: Events.pointerdragend, handler?: (event: PointerDragEvent) => void): void;
-  public off(eventName: Events.pointerdragenter, handler?: (event: PointerDragEvent) => void): void;
-  public off(eventName: Events.pointerdragleave, handler?: (event: PointerDragEvent) => void): void;
-  public off(eventName: Events.pointerdragmove, handler?: (event: PointerDragEvent) => void): void;
+  public off(eventName: Events.pointerdragstart, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointerdragend, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointerdragenter, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointerdragleave, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointerdragmove, handler?: (event: PointerEvent) => void): void;
   public off(eventName: Events.prekill, handler?: (event: PreKillEvent) => void): void;
   public off(eventName: Events.postkill, handler?: (event: PostKillEvent) => void): void;
   public off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent<Actor>) => void): void;

@@ -3,7 +3,7 @@ import { Vector } from "../Math/vector";
 import { PointerButton } from "./PointerButton";
 import { PointerType } from "./PointerType";
 
-export class ExPointerEvent {
+export class PointerEvent {
   public active = true;
   public cancel() {
     this.active = false;

@@ -41,7 +41,7 @@ describe('A pointer', () => {
     let eventLeftFired = false;
     let eventRightFired = false;
     let eventMiddleFired = false;
-    engine.input.pointers.primary.on('down', (ev: ex.Input.ExPointerEvent) => {
+    engine.input.pointers.primary.on('down', (ev: ex.Input.PointerEvent) => {
       if (ev.button === ex.Input.PointerButton.Left) {
         eventLeftFired = true;
       }
@@ -69,7 +69,7 @@ describe('A pointer', () => {
     let eventRightFired = false;
     let eventMiddleFired = false;
 
-    engine.input.pointers.primary.on('up', function (ev: ex.Input.ExPointerEvent) {
+    engine.input.pointers.primary.on('up', function (ev: ex.Input.PointerEvent) {
       if (ev.button === ex.Input.PointerButton.Left) {
         eventLeftFired = true;
       }
@@ -95,7 +95,7 @@ describe('A pointer', () => {
   it('should fire pointermove events', () => {
     let eventMoveFired = false;
 
-    engine.input.pointers.primary.on('move', function (ev: ex.Input.ExPointerEvent) {
+    engine.input.pointers.primary.on('move', function (ev: ex.Input.PointerEvent) {
       eventMoveFired = true;
     });
 
