@@ -208,7 +208,7 @@ export class GraphicsLayers {
   public currentKeys() {
     const graphicsLayerKeys = [];
     for (const layer of this._layers) {
-      graphicsLayerKeys.push(layer.name);
+      graphicsLayerKeys.push(layer.currentKeys);
     }
     return graphicsLayerKeys;
   }

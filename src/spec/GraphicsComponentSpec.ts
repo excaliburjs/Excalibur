@@ -253,5 +253,6 @@ describe('A Graphics ECS Component', () => {
     sut.layers.create({ name: 'background', order: -1 }).show(rect);
     const layers = sut.layers.currentKeys();
     expect(typeof layers).toBe('object');
+    expect(layers.length).toBe(2);
   });
 });
