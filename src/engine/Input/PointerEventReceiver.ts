@@ -137,33 +137,33 @@ export class PointerEventReceiver extends Class {
     this.lastFramePointerPosition = new Map(this.currentFramePointerPositions);
 
     for (const event of this.currentFrameDown) {
-      this.emit('down', event as any);
+      this.emit('down', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('down', event);
-      this.primary.emit('pointerdown', event as any);
+      this.primary.emit('pointerdown', event);
     }
 
     for (const event of this.currentFrameUp) {
-      this.emit('up', event as any);
+      this.emit('up', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('up', event);
     }
 
     for (const event of this.currentFrameMove) {
-      this.emit('move', event as any);
+      this.emit('move', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('move', event);
     }
 
     for (const event of this.currentFrameCancel) {
-      this.emit('cancel', event as any);
+      this.emit('cancel', event);
       const pointer = this.at(event.pointerId);
       pointer.emit('cancel', event);
     }
 
     for (const event of this.currentFrameWheel) {
-      this.emit('wheel', event as any);
-      this.primary.emit('pointerwheel', event as any);
+      this.emit('wheel', event);
+      this.primary.emit('pointerwheel', event);
     }
   }
 

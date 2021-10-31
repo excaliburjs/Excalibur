@@ -115,87 +115,123 @@ export class PointerSystem extends System<TransformComponent> {
     }
   }
 
+  private _processDownAndEmit(entity: Entity): Map<number, PointerEvent> {
+    const lastDownPerPointer = new Map<number, PointerEvent>();
+    // Loop through down and dispatch to entities
+    for (const event of this._receiver.currentFrameDown) {
+      if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
+        entity.events.emit('pointerdown', event as any);
+        if (this._receiver.isDragStart(event.pointerId)) {
+          entity.events.emit('pointerdragstart', event as any);
+        }
+      }
+      lastDownPerPointer.set(event.pointerId, event);
+    }
+    return lastDownPerPointer;
+  }
+
+  private _processUpAndEmit(entity: Entity): Map<number, PointerEvent> {
+    const lastUpPerPointer = new Map<number, PointerEvent>();
+    // Loop through up and dispatch to entities
+    for (const event of this._receiver.currentFrameUp) {
+      if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
+        entity.events.emit('pointerup', event as any);
+        if (this._receiver.isDragEnd(event.pointerId)) {
+          entity.events.emit('pointerdragend', event as any);
+        }
+      }
+      lastUpPerPointer.set(event.pointerId, event);
+    }
+    return lastUpPerPointer;
+  }
+
+  private _processMoveAndEmit(entity: Entity): Map<number, PointerEvent> {
+    const lastMovePerPointer = new Map<number, PointerEvent>();
+    // Loop through move and dispatch to entities
+    for (const event of this._receiver.currentFrameMove) {
+      if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
+        // move
+        entity.events.emit('pointermove', event as any);
+
+        if (this._receiver.isDragging(event.pointerId)) {
+          entity.events.emit('pointerdragmove', event as any);
+        }
+      }
+      lastMovePerPointer.set(event.pointerId, event);
+    }
+    return lastMovePerPointer;
+  }
+
+  private _processEnterLeaveAndEmit(entity: Entity, lastUpDownMoveEvents: PointerEvent[]) {
+    // up, down, and move are considered for enter and leave
+    for (const event of lastUpDownMoveEvents) {
+      // enter
+      if (event.active && entity.active && this.entered(entity, event.pointerId)) {
+        entity.events.emit('pointerenter', event as any);
+        if (this._receiver.isDragging(event.pointerId)) {
+          entity.events.emit('pointerdragenter', event as any);
+        }
+        break;
+      }
+      if (event.active && entity.active &&
+          // leave can happen on move
+          (this.left(entity, event.pointerId) ||
+          // or leave can happen on pointer up
+          (this.entityCurrentlyUnderPointer(entity, event.pointerId) && event.type === 'up'))) {
+        entity.events.emit('pointerleave', event as any);
+        if (this._receiver.isDragging(event.pointerId)) {
+          entity.events.emit('pointerdragleave', event as any);
+        }
+        break;
+      }
+    }
+  }
+
+  private _processCancelAndEmit(entity: Entity) {
+    // cancel
+    for (const event of this._receiver.currentFrameCancel) {
+      if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)){
+        entity.events.emit('pointercancel', event as any);
+      }
+    }
+  }
+
+  private _processWheelAndEmit(entity: Entity) {
+    // wheel
+    for (const event of this._receiver.currentFrameWheel) {
+      // Currently the wheel only fires under the primary pointer '0'
+      if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, 0)) {
+        entity.events.emit('pointerwheel', event as any);
+      }
+    }
+  }
+
   private _dispatchEvents(entities: Entity[]) {
     const lastFrameEntities = new Set(this.lastFrameEntityToPointers.keys());
     const currentFrameEntities = new Set(this.currentFrameEntityToPointers.keys());
     // Filter preserves z order
     const entitiesWithEvents = entities.filter(e => lastFrameEntities.has(e.id) || currentFrameEntities.has(e.id));
-    const lastMovePerPointer = new Map<number, PointerEvent>();
-    const lastUpPerPointer = new Map<number, PointerEvent>();
-    const lastDownPerPointer = new Map<number, PointerEvent>();
+    let lastMovePerPointer: Map<number, PointerEvent>;
+    let lastUpPerPointer: Map<number, PointerEvent>;
+    let lastDownPerPointer: Map<number, PointerEvent>;
     // Dispatch events in entity z order
     for (const entity of entitiesWithEvents) {
-      // Loop through down and dispatch to entities
-      for (const event of this._receiver.currentFrameDown) {
-        if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
-          entity.events.emit('pointerdown', event as any);
-          if (this._receiver.isDragStart(event.pointerId)) {
-            entity.events.emit('pointerdragstart', event as any);
-          }
-        }
-        lastDownPerPointer.set(event.pointerId, event);
-      }
-      // Loop through up and dispatch to entities
-      for (const event of this._receiver.currentFrameUp) {
-        if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
-          entity.events.emit('pointerup', event as any);
-          if (this._receiver.isDragEnd(event.pointerId)) {
-            entity.events.emit('pointerdragend', event as any);
-          }
-        }
-        lastUpPerPointer.set(event.pointerId, event);
-      }
+      lastDownPerPointer = this._processDownAndEmit(entity);
 
-      // Loop through move and dispatch to entities
-      for (const event of this._receiver.currentFrameMove) {
-        if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)) {
-          // move
-          entity.events.emit('pointermove', event as any);
+      lastUpPerPointer = this._processUpAndEmit(entity);
 
-          if (this._receiver.isDragging(event.pointerId)) {
-            entity.events.emit('pointerdragmove', event as any);
-          }
-        }
-        lastMovePerPointer.set(event.pointerId, event);
-      }
-      const lastEvents = [...lastMovePerPointer.values(), ...lastDownPerPointer.values(), ...lastUpPerPointer.values()];
-      // up, down, and move are considered for enter and leave
-      for (const event of lastEvents) {
-        // enter
-        if (event.active && entity.active && this.entered(entity, event.pointerId)) {
-          entity.events.emit('pointerenter', event as any);
-          if (this._receiver.isDragging(event.pointerId)) {
-            entity.events.emit('pointerdragenter', event as any);
-          }
-          break;
-        }
-        if (event.active && entity.active &&
-            // leave can happen on move
-            (this.left(entity, event.pointerId) ||
-            // or leave can happen on pointer up
-            (this.entityCurrentlyUnderPointer(entity, event.pointerId) && event.type === 'up'))) {
-          entity.events.emit('pointerleave', event as any);
-          if (this._receiver.isDragging(event.pointerId)) {
-            entity.events.emit('pointerdragleave', event as any);
-          }
-          break;
-        }
-      }
+      lastMovePerPointer = this._processMoveAndEmit(entity);
 
-      // cancel
-      for (const event of this._receiver.currentFrameCancel) {
-        if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, event.pointerId)){
-          entity.events.emit('pointercancel', event as any);
-        }
-      }
+      const lastUpDownMoveEvents = [
+        ...lastMovePerPointer.values(),
+        ...lastDownPerPointer.values(),
+        ...lastUpPerPointer.values()
+      ];
+      this._processEnterLeaveAndEmit(entity, lastUpDownMoveEvents);
 
-      // wheel
-      for (const event of this._receiver.currentFrameWheel) {
-        // Currently the wheel only fires under the primary pointer '0'
-        if (event.active && entity.active && this.entityCurrentlyUnderPointer(entity, 0)) {
-          entity.events.emit('pointerwheel', event as any);
-        }
-      }
+      this._processCancelAndEmit(entity);
+
+      this._processWheelAndEmit(entity);
     }
   }
 }
