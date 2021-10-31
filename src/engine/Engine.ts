@@ -908,9 +908,7 @@ O|===|* >________________>\n\
       gamepads: new Input.Gamepads()
     };
     this.input.keyboard.init();
-    // TODO detach?
-    // TODO rename to init?
-    this.input.pointers.attach();
+    this.input.pointers.init();
     this.input.gamepads.init();
 
     // Issue #385 make use of the visibility api
@@ -995,7 +993,6 @@ O|===|* >________________>\n\
       this._loader.update(this, delta);
       // Update input listeners
       this.input.keyboard.update();
-      // this.input.pointers.update();
       this.input.gamepads.update();
       return;
     }
@@ -1014,7 +1011,6 @@ O|===|* >________________>\n\
 
     // Update input listeners
     this.input.keyboard.update();
-    // this.input.pointers.update();
     this.input.gamepads.update();
 
     // Publish update event

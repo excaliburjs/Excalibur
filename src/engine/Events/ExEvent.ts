@@ -1,5 +1,5 @@
 
-export abstract class Vent<TName extends string> {
+export abstract class ExEvent<TName extends string> {
   abstract readonly type: TName;
 
   private _active = true;

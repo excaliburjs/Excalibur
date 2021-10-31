@@ -88,7 +88,6 @@ export class PointerSystem extends System<TransformComponent> {
     // TODO probably a spatial partition optimization here to quickly query bounds for pointer
     // Pre-process find entities under pointers
     for (const entity of entities) {
-      // transform = entity.get(TransformComponent);
       pointerConfig = entity.get(PointerComponent) ?? new PointerComponent;
       // Check collider contains pointer
       collider = entity.get(ColliderComponent);

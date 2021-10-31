@@ -32,8 +32,6 @@ export class PointerEventReceiver extends Class {
   public currentFramePointerDown = new Map<number, boolean>();
   public lastFramePointerDown = new Map<number, boolean>();
 
-  // TODO held and drag events?
-  // TODO make this private
   public currentFrameDown: PointerEvent[] = [];
   public currentFrameUp: PointerEvent[] = [];
   public currentFrameMove: PointerEvent[] = [];
@@ -45,6 +43,10 @@ export class PointerEventReceiver extends Class {
   }
 
   private _pointers: PointerAbstraction[] = [this.primary];
+  /**
+   * Locates a specific pointer by id, creates it if it doesn't exist
+   * @param index 
+   */
   public at(index: number): PointerAbstraction {
     if (index >= this._pointers.length) {
       // Ensure there is a pointer to retrieve
@@ -55,14 +57,25 @@ export class PointerEventReceiver extends Class {
     return this._pointers[index];
   }
 
+  /**
+   * The number of pointers currently being tracked by excalibur
+   */
   public count(): number {
     return this._pointers.length;
   }
 
+  /**
+   * Is the specified pointer id down this frame
+   * @param pointerId 
+   */
   public isDown(pointerId: number) {
     return this.currentFramePointerDown.get(pointerId) ?? false;
   }
 
+  /**
+   * Was the specified pointer id down last frame
+   * @param pointerId
+   */
   public wasDown(pointerId: number) {
     return this.lastFramePointerDown.get(pointerId) ?? false;
   }
@@ -112,6 +125,13 @@ export class PointerEventReceiver extends Class {
     super.off(event, handler);
   }
 
+  /**
+   * Called internally by excalibur
+   * 
+   * Updates the current frame pointer info and emits raw pointer events
+   * 
+   * This does not emit events to entities, see PointerSystem
+   */
   public update() {
     this.lastFramePointerDown = new Map(this.currentFramePointerDown);
     this.lastFramePointerPosition = new Map(this.currentFramePointerPositions);
@@ -147,6 +167,9 @@ export class PointerEventReceiver extends Class {
     }
   }
 
+  /**
+   * Clears the current frame event and pointer data
+   */
   public clear() {
     for (const event of this.currentFrameUp) {
       this.currentFramePointerPositions.delete(event.pointerId);
@@ -166,7 +189,11 @@ export class PointerEventReceiver extends Class {
 
   private _boundHandle = this._handle.bind(this);
   private _boundWheel = this._handleWheel.bind(this);
-  public attach() {
+  /**
+   * Initializes the pointer event receiver so that it can start listening to native
+   * browser events.
+   */
+  public init() {
     // Disabling the touch action avoids browser/platform gestures from firing on the canvas
     this.engine.canvas.style.touchAction = 'none';
     // Preferred pointer events
@@ -361,6 +388,8 @@ export class PointerEventReceiver extends Class {
 
   /**
    * Triggers an excalibur pointer event in a world space pos
+   * 
+   * Useful for testing pointers in excalibur
    * @param type
    * @param pos
    */
@@ -407,14 +436,5 @@ export class PointerEventReceiver extends Class {
       default:
         return PointerType.Unknown;
     }
-  }
-
-  public dispatchEvent(type: 'pointerdown', opts?: PointerEventInit) {
-    this.simulate(new window.PointerEvent(type, opts));
-
-  }
-
-  public simulate(ev: NativeTouchEvent | NativePointerEvent | NativeMouseEvent) {
-    this.target.dispatchEvent(ev);
   }
 }

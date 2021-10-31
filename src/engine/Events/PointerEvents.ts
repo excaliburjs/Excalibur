@@ -1,9 +1,9 @@
 import { GlobalCoordinates } from '..';
 import { WheelDeltaMode } from '../Input/WheelDeltaMode';
-import { Vent } from './ExEvent';
+import { ExEvent } from './ExEvent';
 
 
-export abstract class PointerEvent extends Vent<'down' | 'up' | 'move' | 'cancel'> {
+export abstract class PointerEvent extends ExEvent<'down' | 'up' | 'move' | 'cancel'> {
   constructor(
     public pointerId: number,
     public coordinatess: GlobalCoordinates,
@@ -24,7 +24,7 @@ export class PointerCancel extends PointerEvent {
   public readonly type = 'cancel'
 }
 
-export class Wheel extends Vent<'wheel'> {
+export class Wheel extends ExEvent<'wheel'> {
   public readonly type = 'wheel'
   constructor(
     public x: number,

@@ -361,8 +361,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     this._collectActorStats(engine);
 
-    // engine.input.pointers.dispatchPointerEvents();
-
     this._postupdate(engine, delta);
   }
 

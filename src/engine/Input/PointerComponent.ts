@@ -12,11 +12,14 @@ import { Component } from '../EntityComponentSystem/Component';
 export class PointerComponent extends Component<'ex.pointer'> {
   public readonly type = 'ex.pointer';
   /**
-   * Use any existsing Collider component geometry for pointers
+   * Use any existsing Collider component geometry for pointer events. This is useful if you want
+   * user pointer events only to trigger on the same collision geometry used in the collider component
+   * for collision resolution. Default is `true`.
    */
   public useColliderShape = true;
   /**
-   * Use any existing Graphics component bounds for pointers
+   * Use any existing Graphics component bounds for pointers. This is useful if you want the axis aligned
+   * bounds around the graphic to trigger pointer events. Default is `false`.
    */
   public useGraphicsBounds = false;
 }
