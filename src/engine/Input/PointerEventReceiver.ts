@@ -45,7 +45,7 @@ export class PointerEventReceiver extends Class {
   private _pointers: PointerAbstraction[] = [this.primary];
   /**
    * Locates a specific pointer by id, creates it if it doesn't exist
-   * @param index 
+   * @param index
    */
   public at(index: number): PointerAbstraction {
     if (index >= this._pointers.length) {
@@ -66,7 +66,7 @@ export class PointerEventReceiver extends Class {
 
   /**
    * Is the specified pointer id down this frame
-   * @param pointerId 
+   * @param pointerId
    */
   public isDown(pointerId: number) {
     return this.currentFramePointerDown.get(pointerId) ?? false;
@@ -127,9 +127,9 @@ export class PointerEventReceiver extends Class {
 
   /**
    * Called internally by excalibur
-   * 
+   *
    * Updates the current frame pointer info and emits raw pointer events
-   * 
+   *
    * This does not emit events to entities, see PointerSystem
    */
   public update() {
@@ -388,7 +388,7 @@ export class PointerEventReceiver extends Class {
 
   /**
    * Triggers an excalibur pointer event in a world space pos
-   * 
+   *
    * Useful for testing pointers in excalibur
    * @param type
    * @param pos
