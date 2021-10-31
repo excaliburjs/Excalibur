@@ -26,7 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Pointer system refactored into 2 parts:
    * First is an ECS style system `ex.PointerSystem` that dispatches events to Entities/Actors
    * Second is an event receiver `ex.PointerEventReceiver` which is responsible for collecting the native browser events
-   * The API is mostly backwards compatible breaking changes are listed in the breaking change secion, event types have been simplified, and `stopPropagation()` and been renamed to `cancel()`
+   * The API is mostly backwards compatible breaking changes are listed in the breaking change section, event types have been simplified, and `stopPropagation()` and been renamed to `cancel()`
 - Internal Actions implementation converted to ECS system and component, this is a backwards compatible change with v0.25.0
   - `ex.ActionsSystem` and `ex.ActionsComponent` now wrap the existing `ex.ActionContext`
   - Actions can be shared with all entities now!
