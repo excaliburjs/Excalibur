@@ -77,7 +77,7 @@
     "copy-webpack-plugin": "9.0.1",
     "copyfiles": "2.4.1",
     "coveralls": "3.1.1",
-    "css-loader": "6.3.0",
+    "css-loader": "6.5.0",
     "eslint": "7.32.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-jsdoc": "36.1.1",
