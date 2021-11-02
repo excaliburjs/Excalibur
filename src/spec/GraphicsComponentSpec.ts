@@ -243,4 +243,16 @@ describe('A Graphics ECS Component', () => {
 
     expect(animation.tick).toHaveBeenCalledWith(123, 4);
   });
+
+  it('currentKeys should return names of graphics show in all layers', () => {
+    const rect = new ex.Rectangle({
+      width: 40,
+      height: 40
+    });
+    const sut = new ex.GraphicsComponent();
+    sut.layers.create({ name: 'background', order: -1 }).show(rect);
+    const layers = sut.layers.currentKeys();
+    expect(typeof layers).toBe('object');
+    expect(layers.length).toBe(2);
+  });
 });

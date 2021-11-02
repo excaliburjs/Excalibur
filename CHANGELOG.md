@@ -169,7 +169,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Add `SpriteSheet.getSpacingDimensions()` method to retrieve calculated spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
 - Add `KeyEvent.value?: string` which is the key value (or "typed" value) that the browser detected. For example, holding Shift and pressing 9 will have a value of `(` which is the typed character.
 - Add `KeyEvent.originalEvent?: KeyboardEvent` which exposes the raw keyboard event handled from the browser.
-
+- Added a new getter to GraphicsComponent.ts called currentKeys that will return the names of the graphics shown in all layers
+- Added a new getter to GraphicsLayer called currentKeys that will the names of the graphics shown in this layer
 ### Changed
 
 - `Gif` now supports new graphics component
