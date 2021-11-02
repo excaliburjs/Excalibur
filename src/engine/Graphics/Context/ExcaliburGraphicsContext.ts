@@ -89,7 +89,7 @@ export interface ExcaliburGraphicsContext {
   resetTransform(): void;
 
   /**
-   * Update the context with the curren tviewport dimensions (used in resizing)
+   * Update the context with the current viewport dimensions (used in resizing)
    */
   updateViewport(): void;
 

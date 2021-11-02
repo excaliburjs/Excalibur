@@ -844,7 +844,7 @@ O|===|* >________________>\n\
    * named scene. Calls the [[Scene]] lifecycle events.
    * @param key  The key of the scene to transition to.
    */
-  public goToScene(key: string) {
+  public goToScene(key: string): void {
     // if not yet initialized defer goToScene
     if (!this.isInitialized) {
       this._deferredGoTo = key;
@@ -995,26 +995,30 @@ O|===|* >________________>\n\
       this.input.gamepads.update();
       return;
     }
-    this._overrideInitialize(this);
-    // Publish preupdate events
-    this._preupdate(delta);
 
-    // process engine level events
-    this.currentScene.update(this, delta);
+    if (this._gameStart) {
+      this._overrideInitialize(this);
 
-    // update animations
-    // TODO remove
-    this._animations = this._animations.filter(function (a) {
-      return !a.animation.isDone();
-    });
+      // Publish preupdate events
+      this._preupdate(delta);
 
-    // Update input listeners
-    this.input.keyboard.update();
-    this.input.pointers.update();
-    this.input.gamepads.update();
+      // process engine level events
+      this.currentScene.update(this, delta);
 
-    // Publish update event
-    this._postupdate(delta);
+      // update animations
+      // TODO remove
+      this._animations = this._animations.filter(function (a) {
+        return !a.animation.isDone();
+      });
+
+      // Update input listeners
+      this.input.keyboard.update();
+      this.input.pointers.update();
+      this.input.gamepads.update();
+
+      // Publish update event
+      this._postupdate(delta);
+    }
   }
 
   /**
@@ -1056,37 +1060,39 @@ O|===|* >________________>\n\
       return;
     }
 
-    // TODO move to graphics systems?
-    this.graphicsContext.backgroundColor = this.backgroundColor;
-
-    this.currentScene.draw(this.ctx, delta);
-
-    // todo needs to be a better way of doing this
-    let a = 0;
-    const len = this._animations.length;
-    for (a; a < len; a++) {
-      this._animations[a].animation.draw(ctx, this._animations[a].x, this._animations[a].y);
-    }
-
-    // Draw debug information
-    // TODO don't access ctx directly
-    if (this.isDebug) {
-      this.ctx.font = 'Consolas';
-      this.ctx.fillStyle = this.debugColor.toString();
-      const keys = this.input.keyboard.getKeys();
-      for (let j = 0; j < keys.length; j++) {
-        this.ctx.fillText(keys[j].toString() + ' : ' + (Input.Keys[keys[j]] ? Input.Keys[keys[j]] : 'Not Mapped'), 100, 10 * j + 10);
+    if (this._gameStart) {
+      // TODO move to graphics systems?
+      this.graphicsContext.backgroundColor = this.backgroundColor;
+  
+      this.currentScene.draw(this.ctx, delta);
+  
+      // todo needs to be a better way of doing this
+      let a = 0;
+      const len = this._animations.length;
+      for (a; a < len; a++) {
+        this._animations[a].animation.draw(ctx, this._animations[a].x, this._animations[a].y);
       }
-
-      this.ctx.fillText('FPS:' + this.stats.currFrame.fps.toFixed(2).toString(), 10, 10);
+  
+      // Draw debug information
+      // TODO don't access ctx directly
+      if (this.isDebug) {
+        this.ctx.font = 'Consolas';
+        this.ctx.fillStyle = this.debugColor.toString();
+        const keys = this.input.keyboard.getKeys();
+        for (let j = 0; j < keys.length; j++) {
+          this.ctx.fillText(keys[j].toString() + ' : ' + (Input.Keys[keys[j]] ? Input.Keys[keys[j]] : 'Not Mapped'), 100, 10 * j + 10);
+        }
+  
+        this.ctx.fillText('FPS:' + this.stats.currFrame.fps.toFixed(2).toString(), 10, 10);
+      }
+  
+      // Post processing
+      for (let i = 0; i < this.postProcessors.length; i++) {
+        this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight), this.ctx);
+      }
+  
+      this._postdraw(ctx, delta);
     }
-
-    // Post processing
-    for (let i = 0; i < this.postProcessors.length; i++) {
-      this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight), this.ctx);
-    }
-
-    this._postdraw(ctx, delta);
   }
 
   /**
@@ -1129,13 +1135,14 @@ O|===|* >________________>\n\
     return this._isDebug;
   }
 
+  private _gameStart: boolean = false;
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
    * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]], override to provide your own
    * custom loader.
    */
-  public start(loader?: Loader): Promise<any> {
+  public start(loader?: Loader): Promise<void> {
     if (!this._compatible) {
       return Promise.reject('Excalibur is incompatible with your browser');
     }
@@ -1143,7 +1150,7 @@ O|===|* >________________>\n\
     this.screen.resolution = this.screen.viewport;
     this.screen.applyResolutionAndViewport();
     this.graphicsContext.updateViewport();
-    let loadingComplete: Promise<any>;
+    let loadingComplete: Promise<void>;
     if (loader) {
       this._loader = loader;
       this._loader.suppressPlayButton = this._suppressPlayButton || this._loader.suppressPlayButton;
@@ -1158,6 +1165,7 @@ O|===|* >________________>\n\
       this.screen.applyResolutionAndViewport();
       this.graphicsContext.updateViewport();
       this.emit('start', new GameStartEvent(this));
+      this._gameStart = true;
     });
 
     if (!this._hasStarted) {
@@ -1165,7 +1173,6 @@ O|===|* >________________>\n\
       this._logger.debug('Starting game...');
       this.browser.resume();
       Engine.createMainLoop(this, window.requestAnimationFrame, Date.now)();
-
       this._logger.debug('Game started');
     } else {
       // Game already started;
