@@ -4,7 +4,8 @@
 var game = new ex.Engine({
   canvasElementId: 'game',
   width: 600,
-  height: 400
+  height: 400,
+  displayMode: ex.DisplayMode.FitScreen
 });
 
 var gif: ex.Gif = new ex.Gif('./sword.gif', ex.Color.Black);

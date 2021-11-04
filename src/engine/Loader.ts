@@ -245,6 +245,12 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
       this.hidePlayButton();
       return Promise.resolve();
     } else {
+      const resizeHandler = () => {
+        this._positionPlayButton();
+      };
+      if (this._engine?.browser) {
+        this._engine.browser.window.on('resize', resizeHandler);
+      }
       this._playButtonShown = true;
       this._playButton.style.display = 'block';
       document.body.addEventListener('keyup', (evt: KeyboardEvent) => {
@@ -258,6 +264,9 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
           e.stopPropagation();
           // Hide Button after click
           this.hidePlayButton();
+          if (this._engine?.browser) {
+            this._engine.browser.window.off('resize', resizeHandler);
+          }
           resolve();
         };
         this._playButton.addEventListener('click', startButtonHandler);
@@ -330,15 +339,9 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
     return this._resourceCount > 0 ? clamp(this._numLoaded, 0, this._resourceCount) / this._resourceCount : 1;
   }
 
-  /**
-   * Loader draw function. Draws the default Excalibur loading screen.
-   * Override `logo`, `logoWidth`, `logoHeight` and `backgroundColor` properties
-   * to customize the drawing, or just override entire method.
-   */
-  public draw(ctx: CanvasRenderingContext2D) {
-    const canvasHeight = this._engine.canvasHeight / this._engine.pixelRatio;
-    const canvasWidth = this._engine.canvasWidth / this._engine.pixelRatio;
-
+  private _positionPlayButton() {
+    const screenHeight = this._engine.screen.viewport.height;
+    const screenWidth = this._engine.screen.viewport.width;
     if (this._playButtonRootElement) {
       const left = this._engine.canvas.offsetLeft;
       const top = this._engine.canvas.offsetTop;
@@ -348,10 +351,22 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
         this._playButtonRootElement.style.left = `${this.playButtonPosition.x}px`;
         this._playButtonRootElement.style.top = `${this.playButtonPosition.y}px`;
       } else {
-        this._playButtonRootElement.style.left = `${left + canvasWidth / 2 - buttonWidth / 2}px`;
-        this._playButtonRootElement.style.top = `${top + canvasHeight / 2 - buttonHeight / 2 + 100}px`;
+        this._playButtonRootElement.style.left = `${left + screenWidth / 2 - buttonWidth / 2}px`;
+        this._playButtonRootElement.style.top = `${top + screenHeight / 2 - buttonHeight / 2 + 100}px`;
       }
     }
+  }
+
+  /**
+   * Loader draw function. Draws the default Excalibur loading screen.
+   * Override `logo`, `logoWidth`, `logoHeight` and `backgroundColor` properties
+   * to customize the drawing, or just override entire method.
+   */
+  public draw(ctx: CanvasRenderingContext2D) {
+    const canvasHeight = this._engine.canvasHeight / this._engine.pixelRatio;
+    const canvasWidth = this._engine.canvasWidth / this._engine.pixelRatio;
+
+    this._positionPlayButton();
 
     ctx.fillStyle = this.backgroundColor;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
