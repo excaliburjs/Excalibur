@@ -609,6 +609,16 @@ O|===|* >________________>\n\
 
     this.screen.applyResolutionAndViewport();
 
+    if (this.graphicsContext instanceof ExcaliburGraphicsContextWebGL) {
+      const supported = this.graphicsContext.checkIfResolutionSupported({ width: this.screen.scaledWidth, height: this.screen.scaledHeight });
+      if (!supported) {
+        this._logger.warn(
+          `The currently configured resolution (${this.screen.resolution.width}x${this.screen.resolution.height})` +
+          ' is too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly' +
+          ' Try reducing the resolution or disabling Hi DPI scaling to avoid this (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).')
+      }
+    }
+
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();
     }
@@ -996,7 +1006,7 @@ O|===|* >________________>\n\
       return;
     }
 
-    if (this._loadingComplete) {
+    // if (this._loadingComplete) {
       this._overrideInitialize(this);
 
       // Publish preupdate events
@@ -1018,7 +1028,7 @@ O|===|* >________________>\n\
 
       // Publish update event
       this._postupdate(delta);
-    }
+    // }
   }
 
   /**
@@ -1060,7 +1070,7 @@ O|===|* >________________>\n\
       return;
     }
 
-    if (this._loadingComplete) {
+    // if (this._loadingComplete) {
       // TODO move to graphics systems?
       this.graphicsContext.backgroundColor = this.backgroundColor;
   
@@ -1092,7 +1102,7 @@ O|===|* >________________>\n\
       }
   
       this._postdraw(ctx, delta);
-    }
+    // }
   }
 
   /**
@@ -1137,6 +1147,12 @@ O|===|* >________________>\n\
 
   private _loadingComplete: boolean = false;
   /**
+   * Returns true when loading is totally complete and the player has clicked start
+   */
+  public get loadingComplete() {
+    return this._loadingComplete;
+  }
+  /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
    * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]], override to provide your own
@@ -1169,6 +1185,7 @@ O|===|* >________________>\n\
     });
 
     if (!this._hasStarted) {
+      // has started is a slight misnomer, it's really mainloop started
       this._hasStarted = true;
       this._logger.debug('Starting game...');
       this.browser.resume();

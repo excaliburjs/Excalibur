@@ -20,6 +20,7 @@ import { PointRenderer } from './point-renderer';
 import { Canvas } from '../Canvas';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
+import { ScreenDimension } from '../../Screen';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -128,6 +129,22 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public get height() {
     return this.__gl.canvas.height;
+  }
+
+  /**
+   * Checks the underlying webgl implementation if the requested internal resolution is supported
+   * @param dim
+   */
+  public checkIfResolutionSupported(dim: ScreenDimension): boolean {
+    const gl = this.__gl;
+    const oldViewport = { width: this.__gl.canvas.width, height: this.__gl.canvas.height };
+    let supported = true;
+    gl.viewport(0, 0, dim.width, dim.height);
+    if (gl.drawingBufferWidth !== dim.width || gl.drawingBufferHeight !== dim.height) {
+      supported = false;
+    }
+    gl.viewport(0, 0, oldViewport.width, oldViewport.height);
+    return supported;
   }
 
   constructor(options: ExcaliburGraphicsContextOptions) {

@@ -334,6 +334,14 @@ export class Screen {
     this.viewport = { ...this.viewport };
   }
 
+  public peekViewport(): ScreenDimension {
+    return this._viewportStack[this._viewportStack.length - 1];
+  }
+
+  public peekResolution(): ScreenDimension {
+    return this._resolutionStack[this._resolutionStack.length - 1];
+  }
+
   public popResolutionAndViewport() {
     this.resolution = this._resolutionStack.pop();
     this.viewport = this._viewportStack.pop();
