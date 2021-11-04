@@ -996,7 +996,7 @@ O|===|* >________________>\n\
       return;
     }
 
-    if (this._gameStart) {
+    if (this._loadingComplete) {
       this._overrideInitialize(this);
 
       // Publish preupdate events
@@ -1060,7 +1060,7 @@ O|===|* >________________>\n\
       return;
     }
 
-    if (this._gameStart) {
+    if (this._loadingComplete) {
       // TODO move to graphics systems?
       this.graphicsContext.backgroundColor = this.backgroundColor;
   
@@ -1135,7 +1135,7 @@ O|===|* >________________>\n\
     return this._isDebug;
   }
 
-  private _gameStart: boolean = false;
+  private _loadingComplete: boolean = false;
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
@@ -1165,7 +1165,7 @@ O|===|* >________________>\n\
       this.screen.applyResolutionAndViewport();
       this.graphicsContext.updateViewport();
       this.emit('start', new GameStartEvent(this));
-      this._gameStart = true;
+      this._loadingComplete = true;
     });
 
     if (!this._hasStarted) {
