@@ -77,7 +77,7 @@ export class TileMapImpl extends Entity {
   }
 
   public set z(val: number) {
-    if (this._transform?.z) {
+    if (this._transform) {
       this._transform.z = val;
     }
   }

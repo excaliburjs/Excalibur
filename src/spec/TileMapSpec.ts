@@ -57,6 +57,22 @@ describe('A TileMap', () => {
     expect(tm.cols).toBe(20);
   });
 
+  it('can set the z-index convenience prop', () => {
+    const tm = new ex.TileMap({
+      x: 0,
+      y: 0,
+      cellWidth: 32,
+      cellHeight: 32,
+      rows: 3,
+      cols: 5
+    });
+
+    tm.z = 99;
+    const tx = tm.get(ex.TransformComponent);
+    expect(tm.z).toEqual(99);
+    expect(tx.z).toEqual(99);
+  });
+
   it('can iterate over rows and cols', () => {
     const tm = new ex.TileMap({
       x: 0,

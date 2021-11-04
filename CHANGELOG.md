@@ -32,6 +32,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 ### Fixed
 
+- Fixed issue with setting `ex.TileMap.z` to a value
 - Fixed crash in debug system if there is no collider geometry
 - Fixed ImageSource loading error message [#2049]
 
