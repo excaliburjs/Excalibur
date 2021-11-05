@@ -609,16 +609,6 @@ O|===|* >________________>\n\
 
     this.screen.applyResolutionAndViewport();
 
-    if (this.graphicsContext instanceof ExcaliburGraphicsContextWebGL) {
-      const supported = this.graphicsContext.checkIfResolutionSupported({ width: this.screen.scaledWidth, height: this.screen.scaledHeight });
-      if (!supported) {
-        this._logger.warn(
-          `The currently configured resolution (${this.screen.resolution.width}x${this.screen.resolution.height})` +
-          ' is too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly' +
-          ' Try reducing the resolution or disabling Hi DPI scaling to avoid this (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).')
-      }
-    }
-
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();
     }
@@ -1006,29 +996,27 @@ O|===|* >________________>\n\
       return;
     }
 
-    // if (this._loadingComplete) {
-      this._overrideInitialize(this);
+    this._overrideInitialize(this);
 
-      // Publish preupdate events
-      this._preupdate(delta);
+    // Publish preupdate events
+    this._preupdate(delta);
 
-      // process engine level events
-      this.currentScene.update(this, delta);
+    // process engine level events
+    this.currentScene.update(this, delta);
 
-      // update animations
-      // TODO remove
-      this._animations = this._animations.filter(function (a) {
-        return !a.animation.isDone();
-      });
+    // update animations
+    // TODO remove
+    this._animations = this._animations.filter(function (a) {
+      return !a.animation.isDone();
+    });
 
-      // Update input listeners
-      this.input.keyboard.update();
-      this.input.pointers.update();
-      this.input.gamepads.update();
+    // Update input listeners
+    this.input.keyboard.update();
+    this.input.pointers.update();
+    this.input.gamepads.update();
 
-      // Publish update event
-      this._postupdate(delta);
-    // }
+    // Publish update event
+    this._postupdate(delta);
   }
 
   /**
@@ -1070,39 +1058,37 @@ O|===|* >________________>\n\
       return;
     }
 
-    // if (this._loadingComplete) {
-      // TODO move to graphics systems?
-      this.graphicsContext.backgroundColor = this.backgroundColor;
-  
-      this.currentScene.draw(this.ctx, delta);
-  
-      // todo needs to be a better way of doing this
-      let a = 0;
-      const len = this._animations.length;
-      for (a; a < len; a++) {
-        this._animations[a].animation.draw(ctx, this._animations[a].x, this._animations[a].y);
+    // TODO move to graphics systems?
+    this.graphicsContext.backgroundColor = this.backgroundColor;
+
+    this.currentScene.draw(this.ctx, delta);
+
+    // todo needs to be a better way of doing this
+    let a = 0;
+    const len = this._animations.length;
+    for (a; a < len; a++) {
+      this._animations[a].animation.draw(ctx, this._animations[a].x, this._animations[a].y);
+    }
+
+    // Draw debug information
+    // TODO don't access ctx directly
+    if (this.isDebug) {
+      this.ctx.font = 'Consolas';
+      this.ctx.fillStyle = this.debugColor.toString();
+      const keys = this.input.keyboard.getKeys();
+      for (let j = 0; j < keys.length; j++) {
+        this.ctx.fillText(keys[j].toString() + ' : ' + (Input.Keys[keys[j]] ? Input.Keys[keys[j]] : 'Not Mapped'), 100, 10 * j + 10);
       }
-  
-      // Draw debug information
-      // TODO don't access ctx directly
-      if (this.isDebug) {
-        this.ctx.font = 'Consolas';
-        this.ctx.fillStyle = this.debugColor.toString();
-        const keys = this.input.keyboard.getKeys();
-        for (let j = 0; j < keys.length; j++) {
-          this.ctx.fillText(keys[j].toString() + ' : ' + (Input.Keys[keys[j]] ? Input.Keys[keys[j]] : 'Not Mapped'), 100, 10 * j + 10);
-        }
-  
-        this.ctx.fillText('FPS:' + this.stats.currFrame.fps.toFixed(2).toString(), 10, 10);
-      }
-  
-      // Post processing
-      for (let i = 0; i < this.postProcessors.length; i++) {
-        this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight), this.ctx);
-      }
-  
-      this._postdraw(ctx, delta);
-    // }
+
+      this.ctx.fillText('FPS:' + this.stats.currFrame.fps.toFixed(2).toString(), 10, 10);
+    }
+
+    // Post processing
+    for (let i = 0; i < this.postProcessors.length; i++) {
+      this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight), this.ctx);
+    }
+
+    this._postdraw(ctx, delta);
   }
 
   /**

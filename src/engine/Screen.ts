@@ -5,6 +5,7 @@ import { BrowserEvents } from './Util/Browser';
 import { BoundingBox } from './Collision/Index';
 import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 import { getPosition } from './Util/Util';
+import { ExcaliburGraphicsContextWebGL } from './Graphics/Context/ExcaliburGraphicsContextWebGL';
 
 /**
  * Enum representing the different display modes available to Excalibur.
@@ -297,6 +298,19 @@ export class Screen {
 
   public set resolution(resolution: ScreenDimension) {
     this._resolution = resolution;
+    if (this._ctx instanceof ExcaliburGraphicsContextWebGL) {
+      const supported = this._ctx.checkIfResolutionSupported({
+        width: this.scaledWidth,
+        height: this.scaledHeight
+      });
+      if (!supported) {
+        this._logger.warn(
+          `The currently configured resolution (${this.resolution.width}x${this.resolution.height})` +
+          ' is too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
+          ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
+          ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).');
+      }
+    }
   }
 
   public get viewport(): ScreenDimension {

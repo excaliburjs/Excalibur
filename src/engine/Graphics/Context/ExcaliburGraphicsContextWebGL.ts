@@ -167,8 +167,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // Setup viewport and view matrix
     this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, 400, -400);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    
-    //console.log(`Draw Buffer (${gl.drawingBufferWidth} x ${gl.drawingBufferHeight})`);
 
     // Clear background
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
