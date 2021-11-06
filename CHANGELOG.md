@@ -8,6 +8,36 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 
 -
+### Deprecated
+
+-
+
+### Added
+
+-
+
+
+### Fixed
+
+-
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+## [v0.25.1] - 2021-11-05
+
+### Breaking Changes
+
+-
 ### Added
 
 - *Experimental:* Native ES module bundle distribution in package `esm/excalibur.js` entrypoint ([#2064](https://github.com/excaliburjs/Excalibur/pull/2064))
@@ -36,10 +66,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed issue with setting `ex.TileMap.z` to a value
 - Fixed crash in debug system if there is no collider geometry
 - Fixed ImageSource loading error message [#2049]
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [0.25.0] - 2021-10-03
 
