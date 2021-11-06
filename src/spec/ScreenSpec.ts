@@ -606,7 +606,7 @@ describe('A Screen', () => {
     sut.resolution = { width: 3000, height: 3000 };
     sut.applyResolutionAndViewport();
     expect(context.checkIfResolutionSupported).toHaveBeenCalled();
-    expect(logger.warn).toHaveBeenCalledWith(
+    expect(logger.warn).toHaveBeenCalledOnceWith(
       `The currently configured resolution (${sut.resolution.width}x${sut.resolution.height})` +
           ' is too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
           ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
