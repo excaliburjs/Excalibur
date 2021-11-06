@@ -8,6 +8,8 @@ var game = new ex.Engine({
   displayMode: ex.DisplayMode.FitScreen
 });
 
+game.currentScene.camera.zoom = 2;
+
 var gif: ex.Gif = new ex.Gif('./sword.gif', ex.Color.Black);
 var loader = new ex.Loader([gif]);
 game.start(loader).then(() => {

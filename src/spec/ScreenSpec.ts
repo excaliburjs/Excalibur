@@ -578,4 +578,39 @@ describe('A Screen', () => {
 
     expect(sut.center).toBeVector(ex.vec(200, 150));
   });
+
+  it('will warn if the resolution is too large', () => {
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'warn');
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+
+    const context = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvasElement,
+      enableTransparency: false,
+      snapToPixel: true,
+      backgroundColor: ex.Color.White
+    });
+
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2
+    });
+
+    spyOn(context, 'checkIfResolutionSupported').and.returnValue(false);
+    sut.resolution = { width: 3000, height: 3000 };
+    sut.applyResolutionAndViewport();
+    expect(context.checkIfResolutionSupported).toHaveBeenCalled();
+    expect(logger.warn).toHaveBeenCalledOnceWith(
+      `The currently configured resolution (${sut.resolution.width}x${sut.resolution.height})` +
+          ' is too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
+          ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
+          ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
+    );
+  });
 });

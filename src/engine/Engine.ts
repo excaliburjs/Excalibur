@@ -607,8 +607,6 @@ O|===|* >________________>\n\
       pixelRatio: options.suppressHiDPIScaling ? 1 : null
     });
 
-    this.screen.applyResolutionAndViewport();
-
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();
     }
@@ -844,7 +842,7 @@ O|===|* >________________>\n\
    * named scene. Calls the [[Scene]] lifecycle events.
    * @param key  The key of the scene to transition to.
    */
-  public goToScene(key: string) {
+  public goToScene(key: string): void {
     // if not yet initialized defer goToScene
     if (!this.isInitialized) {
       this._deferredGoTo = key;
@@ -995,7 +993,9 @@ O|===|* >________________>\n\
       this.input.gamepads.update();
       return;
     }
+
     this._overrideInitialize(this);
+
     // Publish preupdate events
     this._preupdate(delta);
 
@@ -1129,21 +1129,30 @@ O|===|* >________________>\n\
     return this._isDebug;
   }
 
+  private _loadingComplete: boolean = false;
+  /**
+   * Returns true when loading is totally complete and the player has clicked start
+   */
+  public get loadingComplete() {
+    return this._loadingComplete;
+  }
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
    * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]], override to provide your own
    * custom loader.
    */
-  public start(loader?: Loader): Promise<any> {
+  public start(loader?: Loader): Promise<void> {
     if (!this._compatible) {
       return Promise.reject('Excalibur is incompatible with your browser');
     }
+    let loadingComplete: Promise<void>;
+    // Push the current user entered resolution/viewport
     this.screen.pushResolutionAndViewport();
+    // Configure resolution for loader
     this.screen.resolution = this.screen.viewport;
     this.screen.applyResolutionAndViewport();
     this.graphicsContext.updateViewport();
-    let loadingComplete: Promise<any>;
     if (loader) {
       this._loader = loader;
       this._loader.suppressPlayButton = this._suppressPlayButton || this._loader.suppressPlayButton;
@@ -1158,14 +1167,15 @@ O|===|* >________________>\n\
       this.screen.applyResolutionAndViewport();
       this.graphicsContext.updateViewport();
       this.emit('start', new GameStartEvent(this));
+      this._loadingComplete = true;
     });
 
     if (!this._hasStarted) {
+      // has started is a slight misnomer, it's really mainloop started
       this._hasStarted = true;
       this._logger.debug('Starting game...');
       this.browser.resume();
       Engine.createMainLoop(this, window.requestAnimationFrame, Date.now)();
-
       this._logger.debug('Game started');
     } else {
       // Game already started;

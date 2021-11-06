@@ -39,6 +39,40 @@ describe('A camera', () => {
     engine.stop();
   });
 
+  it('should be center screen by default (when loading not complete)', () => {
+    engine = TestUtils.engine({
+      viewport: {width: 100, height: 100},
+      resolution: {width: 1000, height: 1200 }
+    });
+    engine.screen.pushResolutionAndViewport();
+    engine.screen.resolution = {width: 100, height: 1000};
+    spyOnProperty(engine, 'loadingComplete', 'get').and.returnValue(false);
+    spyOn(engine.screen, 'peekResolution').and.callThrough();
+
+    const sut = new ex.Camera();
+    sut.zoom = 2; // zoom should not change the center position
+    sut._initialize(engine);
+
+    expect(sut.pos).toBeVector(ex.vec(500, 600));
+    expect(engine.screen.peekResolution).toHaveBeenCalled();
+  });
+
+  it('should be center screen by default (when loading complete)', () => {
+    engine = TestUtils.engine({
+      viewport: {width: 100, height: 100},
+      resolution: {width: 1000, height: 1200 }
+    });
+
+    spyOnProperty(engine, 'loadingComplete', 'get').and.returnValue(true);
+    spyOn(engine.screen, 'peekResolution').and.callThrough();
+    const sut = new ex.Camera();
+    sut.zoom = 2; // zoom should not change the center position
+    sut._initialize(engine);
+
+    expect(sut.pos).toBeVector(ex.vec(500, 600));
+    expect(engine.screen.peekResolution).not.toHaveBeenCalled();
+  });
+
   it('can focus on a point', () => {
     // set the focus with positional attributes
     Camera.x = 10;
