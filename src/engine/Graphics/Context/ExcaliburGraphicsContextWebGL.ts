@@ -136,14 +136,14 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * @param dim
    */
   public checkIfResolutionSupported(dim: ScreenDimension): boolean {
+    // Slight hack based on this thread https://groups.google.com/g/webgl-dev-list/c/AHONvz3oQTo
     const gl = this.__gl;
-    const oldViewport = { width: this.__gl.canvas.width, height: this.__gl.canvas.height };
+    // If any dimension is greater than max texture size (divide by 4 bytes per pixel)
+    const maxDim = gl.getParameter(gl.MAX_TEXTURE_SIZE) / 4;
     let supported = true;
-    gl.viewport(0, 0, dim.width, dim.height);
-    if (gl.drawingBufferWidth !== dim.width || gl.drawingBufferHeight !== dim.height) {
+    if (dim.width > maxDim ||dim.height > maxDim) {
       supported = false;
     }
-    gl.viewport(0, 0, oldViewport.width, oldViewport.height);
     return supported;
   }
 

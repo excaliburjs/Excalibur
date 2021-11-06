@@ -7,6 +7,8 @@ var game = new ex.Engine({
   height: 400
 });
 
+game.currentScene.camera.zoom = 2;
+
 var gif: ex.Gif = new ex.Gif('./sword.gif', ex.Color.Black);
 var loader = new ex.Loader([gif]);
 game.start(loader).then(() => {

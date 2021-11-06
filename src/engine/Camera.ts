@@ -587,21 +587,19 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     if (!this.isInitialized) {
       this._engine = _engine;
 
-      let center = vec(0, 0);
-      if (this._engine.loadingComplete) {
-        center = this._engine.screen.center;
-      } else {
-        // If there was a loading screen peek the resolution
+      const currentRes = this._engine.screen.resolution;
+      let center = vec(currentRes.width / 2, currentRes.height / 2);
+      if (!this._engine.loadingComplete) {
+        // If there was a loading screen, we peek the configured resolution
         const res = this._engine.screen.peekResolution();
         if (res) {
           center = vec(res.width / 2, res.height / 2);
-        } else {
-          center = this._engine.screen.center;
         }
       }
       this._halfWidth = center.x;
       this._halfHeight = center.x;
-      // pos unset apply default position is center screen
+
+      // If the user has not set the camera pos, apply default center screen position
       if (!this._posChanged) {
         this.pos = center;
       }

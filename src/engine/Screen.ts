@@ -217,6 +217,7 @@ export class Screen {
     this._mediaQueryList.addEventListener('change', this._pixelRatioChangeHandler);
 
     this._canvas.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
+    this.applyResolutionAndViewport();
   }
 
   public dispose(): void {
@@ -298,19 +299,6 @@ export class Screen {
 
   public set resolution(resolution: ScreenDimension) {
     this._resolution = resolution;
-    if (this._ctx instanceof ExcaliburGraphicsContextWebGL) {
-      const supported = this._ctx.checkIfResolutionSupported({
-        width: this.scaledWidth,
-        height: this.scaledHeight
-      });
-      if (!supported) {
-        this._logger.warn(
-          `The currently configured resolution (${this.resolution.width}x${this.resolution.height})` +
-          ' is too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
-          ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
-          ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).');
-      }
-    }
   }
 
   public get viewport(): ScreenDimension {
@@ -364,6 +352,20 @@ export class Screen {
   public applyResolutionAndViewport() {
     this._canvas.width = this.scaledWidth;
     this._canvas.height = this.scaledHeight;
+
+    if (this._ctx instanceof ExcaliburGraphicsContextWebGL) {
+      const supported = this._ctx.checkIfResolutionSupported({
+        width: this.scaledWidth,
+        height: this.scaledHeight
+      });
+      if (!supported) {
+        this._logger.warn(
+          `The currently configured resolution (${this.resolution.width}x${this.resolution.height})` +
+          ' is too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
+          ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
+          ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).');
+      }
+    }
 
     if (this._antialiasing) {
       this._canvas.style.imageRendering = 'auto';
@@ -603,9 +605,9 @@ export class Screen {
    */
   public get drawWidth(): number {
     if (this._camera) {
-      return this.scaledWidth / this._camera.zoom / this.pixelRatio;
+      return this.resolution.width / this._camera.zoom;
     }
-    return this.scaledWidth / this.pixelRatio;
+    return this.resolution.width;
   }
 
   /**
@@ -620,9 +622,9 @@ export class Screen {
    */
   public get drawHeight(): number {
     if (this._camera) {
-      return this.scaledHeight / this._camera.zoom / this.pixelRatio;
+      return this.resolution.height / this._camera.zoom;
     }
-    return this.scaledHeight / this.pixelRatio;
+    return this.resolution.height;
   }
 
   /**

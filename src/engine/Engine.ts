@@ -607,8 +607,6 @@ O|===|* >________________>\n\
       pixelRatio: options.suppressHiDPIScaling ? 1 : null
     });
 
-    this.screen.applyResolutionAndViewport();
-
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();
     }
@@ -1148,11 +1146,13 @@ O|===|* >________________>\n\
     if (!this._compatible) {
       return Promise.reject('Excalibur is incompatible with your browser');
     }
+    let loadingComplete: Promise<void>;
+    // Push the current user entered resolution/viewport
     this.screen.pushResolutionAndViewport();
+    // Configure resolution for loader
     this.screen.resolution = this.screen.viewport;
     this.screen.applyResolutionAndViewport();
     this.graphicsContext.updateViewport();
-    let loadingComplete: Promise<void>;
     if (loader) {
       this._loader = loader;
       this._loader.suppressPlayButton = this._suppressPlayButton || this._loader.suppressPlayButton;

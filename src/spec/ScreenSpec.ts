@@ -605,6 +605,7 @@ describe('A Screen', () => {
     });
 
     sut.resolution = { width: 3000, height: 3000 };
+    sut.applyResolutionAndViewport();
     expect(context.checkIfResolutionSupported).toHaveBeenCalled();
     expect(logger.warn).toHaveBeenCalledWith(
       `The currently configured resolution (${sut.resolution.width}x${sut.resolution.height})` +
