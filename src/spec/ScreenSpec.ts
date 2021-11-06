@@ -594,8 +594,6 @@ describe('A Screen', () => {
       backgroundColor: ex.Color.White
     });
 
-    spyOn(context, 'checkIfResolutionSupported').and.returnValue(false);
-
     const sut = new ex.Screen({
       canvas,
       context,
@@ -604,6 +602,7 @@ describe('A Screen', () => {
       pixelRatio: 2
     });
 
+    spyOn(context, 'checkIfResolutionSupported').and.returnValue(false);
     sut.resolution = { width: 3000, height: 3000 };
     sut.applyResolutionAndViewport();
     expect(context.checkIfResolutionSupported).toHaveBeenCalled();

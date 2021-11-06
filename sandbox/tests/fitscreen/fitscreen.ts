@@ -1,9 +1,9 @@
 
 async function main() {
     const game = new ex.Engine({
-        width: 6000,
-        height: 6000,
-        // suppressHiDPIScaling: true,
+        width: 3000,
+        height: 3000,
+        suppressHiDPIScaling: true,
         displayMode: ex.DisplayMode.FitScreen,
     });
 
