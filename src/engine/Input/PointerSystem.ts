@@ -14,8 +14,8 @@ import { PointerEvent } from './PointerEvent';
  * The PointerSystem can be optionally configured by the [[PointerComponent]], by default Entities use
  * the [[Collider]]'s shape for pointer events.
  */
-export class PointerSystem extends System<TransformComponent> {
-  public readonly types = ['ex.transform'] as const;
+export class PointerSystem extends System<TransformComponent | PointerComponent> {
+  public readonly types = ['ex.transform', 'ex.pointer'] as const;
   public readonly systemType = SystemType.Update;
   public priority = -1;
 
@@ -83,15 +83,16 @@ export class PointerSystem extends System<TransformComponent> {
     let transform: TransformComponent;
     let collider: ColliderComponent;
     let graphics: GraphicsComponent;
-    let pointerConfig: PointerComponent;
+    let pointer: PointerComponent;
 
     // TODO probably a spatial partition optimization here to quickly query bounds for pointer
     // Pre-process find entities under pointers
     for (const entity of entities) {
-      pointerConfig = entity.get(PointerComponent) ?? new PointerComponent;
+      transform = entity.get(TransformComponent);
+      pointer = entity.get(PointerComponent) ?? new PointerComponent;
       // Check collider contains pointer
       collider = entity.get(ColliderComponent);
-      if (collider && pointerConfig.useColliderShape) {
+      if (collider && pointer.useColliderShape) {
         const geom = collider.get();
         if (geom) {
           for (const [pointerId, pos] of this._receiver.currentFramePointerPositions.entries()) {
@@ -104,7 +105,7 @@ export class PointerSystem extends System<TransformComponent> {
 
       // Check graphics contains pointer
       graphics = entity.get(GraphicsComponent);
-      if (graphics && pointerConfig.useGraphicsBounds) {
+      if (graphics && pointer.useGraphicsBounds) {
         const graphicBounds = graphics.localBounds.transform(transform.getGlobalMatrix());
         for (const [pointerId, pos] of this._receiver.currentFramePointerPositions.entries()) {
           if (graphicBounds.contains(pos)) {

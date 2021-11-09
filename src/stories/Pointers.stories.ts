@@ -37,8 +37,6 @@ export const subscribingToEvents: Story = withEngine(async (game) => {
 
   const block = new TestBlock(100, 100);
 
-  game.add(block);
-
   await game.start(new ex.Loader());
 
   // game.input.pointers.primary.on('up', (e) => {
@@ -54,6 +52,83 @@ subscribingToEvents.story = {
   parameters: {
     componentSubtitle: 'The Pointer Events API provides consistent support for mouse and touch events'
   }
+};
+
+export const configuringPointerTarget: Story = withEngine(async (game, { useCollider, useGraphics }) => {
+  class TestBlock extends ex.Actor {
+
+    public rectangle = new ex.Rectangle({
+      width: 50,
+      height: 50,
+      color: ex.Color.Blue
+    });
+    constructor(x: number, y: number) {
+      super({
+        pos: new ex.Vector(x, y),
+        height: 100,
+        width: 100
+      });
+
+      this.graphics.add(this.rectangle);
+
+      this.get(ex.PointerComponent).useColliderShape = useCollider;
+      this.get(ex.PointerComponent).useGraphicsBounds = useGraphics;
+    }
+
+    onInitialize() {
+      this.on(ex.EventTypes.PointerUp, () => {
+        this.rectangle.color = ex.Color.Black;
+      });
+      this.on(ex.EventTypes.PointerDown, () => {
+        this.rectangle.color = ex.Color.Green;
+      });
+      this.on(ex.EventTypes.PointerEnter, () => {
+        this.rectangle.color = ex.Color.Yellow;
+      });
+      this.on(ex.EventTypes.PointerLeave, () => {
+        this.rectangle.color = ex.Color.Red;
+      });
+      this.on(ex.EventTypes.PointerMove, () => {
+        this.rectangle.color = ex.Color.Yellow;
+      });
+    }
+  }
+
+  const block = new TestBlock(100, 100);
+
+  game.add(block);
+
+  game.toggleDebug();
+  game.debug.entity.showId = false;
+  game.debug.graphics.showBounds = true;
+  game.debug.collider.showGeometry = true;
+  game.debug.collider.showBounds = false;
+
+  await game.start(new ex.Loader());
+});
+
+configuringPointerTarget.story = {
+  parameters: {
+    notes: 'Pointers can be configured to use the collider geometry and/or the graphic bounds for triggering events'
+  }
+}
+configuringPointerTarget.argTypes = {
+  useCollider: {
+    name: 'Use Collider geometry for pointers (default true)',
+    control: {
+      type: 'boolean'
+    }
+  },
+  useGraphics: {
+    name: 'Use Graphics bounds for pointers (default false)',
+    control: {
+      type: 'boolean'
+    }
+  }
+};
+configuringPointerTarget.args = {
+  useCollider: true,
+  useGraphics: false
 };
 
 export const dragEvents: Story = withEngine(async (game) => {

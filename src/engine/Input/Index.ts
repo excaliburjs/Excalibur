@@ -10,6 +10,7 @@ export * from './Gamepad';
 export * from './PointerScope';
 export * from './PointerType';
 export * from './PointerSystem';
+export * from './PointerComponent';
 export * from './PointerEventReceiver';
 export * from './Keyboard';
 export * from './EngineInput';
