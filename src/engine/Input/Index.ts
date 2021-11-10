@@ -7,9 +7,17 @@
  * @typedoc
  */
 export * from './Gamepad';
-export * from './Pointer';
-export * from './Pointers';
-export * from './PointerEvents';
+export * from './PointerScope';
+export * from './PointerType';
+export * from './PointerSystem';
+export * from './PointerComponent';
+export * from './PointerEventReceiver';
 export * from './Keyboard';
 export * from './EngineInput';
 export * from './CapturePointerConfig';
+
+export * from './NativePointerButton';
+export * from './PointerButton';
+export * from './WheelDeltaMode';
+export * from './PointerEvent';
+export * from './WheelEvent';

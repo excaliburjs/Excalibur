@@ -141,7 +141,7 @@ game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) => {
   }
 });
 
-game.input.pointers.primary.on('down', (evt: ex.Input.PointerDownEvent) => {
+game.input.pointers.primary.on('down', (evt: ex.Input.PointerEvent) => {
   spawnBlock(evt.worldPos.x, evt.worldPos.y);
 });
 

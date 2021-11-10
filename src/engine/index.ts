@@ -55,6 +55,7 @@ export { events as Events };
 // ex.Input namespace
 import * as input from './Input/Index';
 export { input as Input };
+export { PointerComponent } from './Input/Index';
 
 // ex.Traits namespace
 import * as traits from './Traits/Index';

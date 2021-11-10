@@ -142,7 +142,7 @@ export namespace Mocks {
             }
           },
           // eslint-disable-next-line
-          pointers: new ex.Input.Pointers(<any>this),
+          pointers: new ex.Input.PointerEventReceiver(window, null),
           gamepads: {
             update: function () {
               /* do nothing */
@@ -278,39 +278,6 @@ export namespace Mocks {
       };
 
       return mockWindow;
-    }
-
-    pointerEvent(eventName, pointer: ex.Input.Pointer = new ex.Input.Pointer()): ex.Input.PointerEvent {
-      const coordinates = new ex.GlobalCoordinates(new ex.Vector(0, 0), new ex.Vector(0, 0), new ex.Vector(0, 0));
-      const pointerType = ex.Input.PointerType.Mouse;
-      const pointerButton = ex.Input.PointerButton.Unknown;
-
-      pointer.lastWorldPos = new ex.Vector(0, 0);
-
-      let factory: ex.Input.PointerEventFactory<ex.Input.PointerEvent>;
-
-      switch (eventName) {
-        case 'up':
-          factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerUpEvent);
-          break;
-        case 'down':
-          factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerDownEvent);
-          break;
-        case 'move':
-          factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerMoveEvent);
-          break;
-        case 'cancel':
-          factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerCancelEvent);
-          break;
-        case 'enter':
-          factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerEnterEvent);
-          break;
-        case 'leave':
-          factory = new ex.Input.PointerEventFactory(<any>ex.Input.PointerLeaveEvent);
-          break;
-      }
-
-      return factory.create(coordinates, pointer, 0, pointerType, pointerButton, {});
     }
   }
 }

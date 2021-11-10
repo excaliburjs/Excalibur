@@ -20,7 +20,6 @@ import {
   EnterViewPortEvent,
   ExitViewPortEvent
 } from './Events';
-import { PointerEvent, WheelEvent, PointerDragEvent, PointerEventName } from './Input/PointerEvents';
 import { Engine } from './Engine';
 import { Color } from './Color';
 import { Sprite } from './Drawing/Sprite';
@@ -51,7 +50,9 @@ import { Shape } from './Collision/Colliders/Shape';
 import { watch } from './Util/Watch';
 import { Collider, CollisionGroup } from './Collision/Index';
 import { Circle } from './Graphics/Circle';
-import { CapturePointerConfig } from './Input/CapturePointerConfig';
+import { PointerEvent } from './Input/PointerEvent';
+import { WheelEvent } from './Input/WheelEvent';
+import { PointerComponent } from './Input/PointerComponent';
 import { ActionsComponent } from './Actions/ActionsComponent';
 
 /**
@@ -195,6 +196,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    */
   public get collider(): ColliderComponent {
     return this.get(ColliderComponent);
+  }
+
+  /**
+   * Access to the Actor's built in [[PointerComponent]] config
+   */
+  public get pointer(): PointerComponent {
+    return this.get(PointerComponent);
   }
 
   /**
@@ -427,13 +435,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   private _pointerDragMoveHandler = (pe: PointerEvent) => {
     if (this._dragging) {
-      this.pos = pe.pointer.lastWorldPos;
+      this.pos = pe.worldPos;
     }
   };
 
   private _pointerDragLeaveHandler = (pe: PointerEvent) => {
     if (this._dragging) {
-      this.pos = pe.pointer.lastWorldPos;
+      this.pos = pe.worldPos;
     }
   };
 
@@ -461,6 +469,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   /**
    * Modify the current actor update pipeline.
+   * @deprecated will be removed in v0.26.0
    */
   public traits: Trait[] = [];
 
@@ -477,20 +486,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     this._color = v.clone();
   }
   private _color: Color;
-
-  /**
-   * Whether or not to enable the [[Traits.CapturePointer]] trait that propagates
-   * pointer events to this actor
-   */
-  public enableCapturePointer: boolean = false;
-
-  /**
-   * Configuration for [[Traits.CapturePointer]] trait
-   */
-  public capturePointer: CapturePointerConfig = {
-    captureMoveEvents: false,
-    captureDragEvents: false
-  };
 
   // #endregion
 
@@ -533,6 +528,8 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     this.rotation = rotation ?? 0;
     this.scale = scale ?? vec(1, 1);
     this.z = z ?? 0;
+
+    this.addComponent(new PointerComponent);
 
     this.addComponent(new GraphicsComponent());
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
@@ -588,7 +585,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       // TODO remove offscreen trait after legacy drawing removed
       this.traits.push(new Traits.OffscreenCulling());
     }
-    this.traits.push(new Traits.CapturePointer());
 
   }
 
@@ -617,54 +613,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   // #region Events
-
-  private _capturePointerEvents: PointerEventName[] = [
-    'pointerup',
-    'pointerdown',
-    'pointermove',
-    'pointerenter',
-    'pointerleave',
-    'pointerdragstart',
-    'pointerdragend',
-    'pointerdragmove',
-    'pointerdragenter',
-    'pointerdragleave'
-  ];
-
-  private _captureMoveEvents: PointerEventName[] = [
-    'pointermove',
-    'pointerenter',
-    'pointerleave',
-    'pointerdragmove',
-    'pointerdragenter',
-    'pointerdragleave'
-  ];
-
-  private _captureDragEvents: PointerEventName[] = [
-    'pointerdragstart',
-    'pointerdragend',
-    'pointerdragmove',
-    'pointerdragenter',
-    'pointerdragleave'
-  ];
-
-  private _checkForPointerOptIn(eventName: string) {
-    if (eventName) {
-      const normalized = <PointerEventName>eventName.toLowerCase();
-
-      if (this._capturePointerEvents.indexOf(normalized) !== -1) {
-        this.enableCapturePointer = true;
-
-        if (this._captureMoveEvents.indexOf(normalized) !== -1) {
-          this.capturePointer.captureMoveEvents = true;
-        }
-
-        if (this._captureDragEvents.indexOf(normalized) !== -1) {
-          this.capturePointer.captureDragEvents = true;
-        }
-      }
-    }
-  }
 
   public on(eventName: Events.exittrigger, handler: (event: ExitTriggerEvent) => void): void;
   public on(eventName: Events.entertrigger, handler: (event: EnterTriggerEvent) => void): void;
@@ -720,16 +668,15 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public on(eventName: Events.pointermove, handler: (event: PointerEvent) => void): void;
   public on(eventName: Events.pointercancel, handler: (event: PointerEvent) => void): void;
   public on(eventName: Events.pointerwheel, handler: (event: WheelEvent) => void): void;
-  public on(eventName: Events.pointerdragstart, handler: (event: PointerDragEvent) => void): void;
-  public on(eventName: Events.pointerdragend, handler: (event: PointerDragEvent) => void): void;
-  public on(eventName: Events.pointerdragenter, handler: (event: PointerDragEvent) => void): void;
-  public on(eventName: Events.pointerdragleave, handler: (event: PointerDragEvent) => void): void;
-  public on(eventName: Events.pointerdragmove, handler: (event: PointerDragEvent) => void): void;
+  public on(eventName: Events.pointerdragstart, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointerdragend, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointerdragenter, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointerdragleave, handler: (event: PointerEvent) => void): void;
+  public on(eventName: Events.pointerdragmove, handler: (event: PointerEvent) => void): void;
   public on(eventName: Events.enterviewport, handler: (event: EnterViewPortEvent) => void): void;
   public on(eventName: Events.exitviewport, handler: (event: ExitViewPortEvent) => void): void;
   public on(eventName: string, handler: (event: GameEvent<Actor>) => void): void;
   public on(eventName: string, handler: (event: any) => void): void {
-    this._checkForPointerOptIn(eventName);
     super.on(eventName, handler);
   }
 
@@ -787,16 +734,15 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public once(eventName: Events.pointermove, handler: (event: PointerEvent) => void): void;
   public once(eventName: Events.pointercancel, handler: (event: PointerEvent) => void): void;
   public once(eventName: Events.pointerwheel, handler: (event: WheelEvent) => void): void;
-  public once(eventName: Events.pointerdragstart, handler: (event: PointerDragEvent) => void): void;
-  public once(eventName: Events.pointerdragend, handler: (event: PointerDragEvent) => void): void;
-  public once(eventName: Events.pointerdragenter, handler: (event: PointerDragEvent) => void): void;
-  public once(eventName: Events.pointerdragleave, handler: (event: PointerDragEvent) => void): void;
-  public once(eventName: Events.pointerdragmove, handler: (event: PointerDragEvent) => void): void;
+  public once(eventName: Events.pointerdragstart, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointerdragend, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointerdragenter, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointerdragleave, handler: (event: PointerEvent) => void): void;
+  public once(eventName: Events.pointerdragmove, handler: (event: PointerEvent) => void): void;
   public once(eventName: Events.enterviewport, handler: (event: EnterViewPortEvent) => void): void;
   public once(eventName: Events.exitviewport, handler: (event: ExitViewPortEvent) => void): void;
   public once(eventName: string, handler: (event: GameEvent<Actor>) => void): void;
   public once(eventName: string, handler: (event: any) => void): void {
-    this._checkForPointerOptIn(eventName);
     super.once(eventName, handler);
   }
 
@@ -844,11 +790,11 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public off(eventName: Events.pointermove, handler?: (event: PointerEvent) => void): void;
   public off(eventName: Events.pointercancel, handler?: (event: PointerEvent) => void): void;
   public off(eventName: Events.pointerwheel, handler?: (event: WheelEvent) => void): void;
-  public off(eventName: Events.pointerdragstart, handler?: (event: PointerDragEvent) => void): void;
-  public off(eventName: Events.pointerdragend, handler?: (event: PointerDragEvent) => void): void;
-  public off(eventName: Events.pointerdragenter, handler?: (event: PointerDragEvent) => void): void;
-  public off(eventName: Events.pointerdragleave, handler?: (event: PointerDragEvent) => void): void;
-  public off(eventName: Events.pointerdragmove, handler?: (event: PointerDragEvent) => void): void;
+  public off(eventName: Events.pointerdragstart, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointerdragend, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointerdragenter, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointerdragleave, handler?: (event: PointerEvent) => void): void;
+  public off(eventName: Events.pointerdragmove, handler?: (event: PointerEvent) => void): void;
   public off(eventName: Events.prekill, handler?: (event: PreKillEvent) => void): void;
   public off(eventName: Events.postkill, handler?: (event: PostKillEvent) => void): void;
   public off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent<Actor>) => void): void;

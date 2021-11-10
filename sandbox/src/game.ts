@@ -640,7 +640,25 @@ game.input.keyboard.on('up', (e?: ex.Input.KeyEvent) => {
 });
 
 player.on('pointerdown', (e?: ex.Input.PointerEvent) => {
-  alert('Player clicked!');
+  // alert('Player clicked!');
+});
+player.on('pointerdown', () => {
+  console.log('pointer down');
+});
+player.on('pointerup', () => {
+  console.log('pointer up');
+});
+player.on('pointermove', () => {
+  //console.log('pointer over');
+});
+player.on('pointerleave', () => {
+  console.log('pointer exit');
+});
+player.on('pointerenter', () => {
+  console.log('pointer enter');
+});
+player.on('pointerwheel', () => {
+  console.log('pointer wheel');
 });
 
 var newScene = new ex.Scene();
@@ -820,7 +838,7 @@ var trigger = new ex.Trigger({
 
 game.add(trigger);
 
-game.input.pointers.primary.on('down', (evt?: ex.Input.PointerEvent) => {
+game.input.pointers.primary.on('down', (evt: ex.Input.PointerEvent) => {
   var c = tileMap.getCellByPoint(evt.worldPos.x, evt.worldPos.y);
   if (c) {
     if (c.solid) {

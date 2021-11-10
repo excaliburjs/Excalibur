@@ -33,6 +33,7 @@ import { GraphicsSystem } from './Graphics/GraphicsSystem';
 import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
 import { Flags, Legacy } from './Flags';
 import { DebugSystem } from './Debug/DebugSystem';
+import { PointerSystem } from './Input/PointerSystem';
 import { ActionsSystem } from './Actions/ActionsSystem';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
@@ -110,11 +111,11 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   constructor() {
     super();
-    // TODO how to people do there own systems
     // Initialize systems
     this.world.add(new ActionsSystem());
     this.world.add(new MotionSystem());
     this.world.add(new CollisionSystem());
+    this.world.add(new PointerSystem());
     if (Flags.isEnabled(Legacy.LegacyDrawing)) {
       this.world.add(new CanvasDrawingSystem());
     } else {
@@ -359,8 +360,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     this.world.update(SystemType.Update, delta);
 
     this._collectActorStats(engine);
-
-    engine.input.pointers.dispatchPointerEvents();
 
     this._postupdate(engine, delta);
   }

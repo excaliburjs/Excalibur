@@ -1,7 +1,6 @@
 import { Vector, vec } from './Math/vector';
 import { Engine } from './Engine';
 import { Actor, ActorArgs } from './Actor';
-import * as Traits from './Traits/Index';
 import { CoordPlane, TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { CollisionType } from './Collision/CollisionType';
 
@@ -18,12 +17,9 @@ export class ScreenElement extends Actor {
   constructor(config?: ActorArgs) {
     super({ ...config });
     this.get(TransformComponent).coordPlane = CoordPlane.Screen;
-    this.traits = [];
-    this.traits.push(new Traits.CapturePointer());
     this.anchor = vec(0, 0);
     this.body.collisionType = CollisionType.PreventCollision;
     this.collider.useBoxCollider(this.width, this.height, this.anchor);
-    this.enableCapturePointer = true;
   }
 
   public _initialize(engine: Engine) {
