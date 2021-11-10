@@ -37,6 +37,8 @@ export const subscribingToEvents: Story = withEngine(async (game) => {
 
   const block = new TestBlock(100, 100);
 
+  game.add(block);
+
   await game.start(new ex.Loader());
 
   // game.input.pointers.primary.on('up', (e) => {
