@@ -82,7 +82,7 @@ export class Trigger extends Actor {
 
     this.graphics.visible = opts.visible;
     this.body.collisionType = CollisionType.Passive;
-    this.eventDispatcher = new EventDispatcher(this);
+    this.eventDispatcher = new EventDispatcher();
 
     this.events.on('collisionstart', (evt: CollisionStartEvent<Actor>) => {
       if (this.filter(evt.other)) {

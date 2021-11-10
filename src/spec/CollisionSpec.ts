@@ -337,8 +337,8 @@ describe('A Collision', () => {
     passiveBlock.vel.x = -100;
     engine.add(passiveBlock);
 
-    const collisionEnd = function () {
-      expect(this).toBe(activeBlock);
+    const collisionEnd = function (event: ex.GameEvent<unknown>) {
+      expect(event.target).toBe(activeBlock);
       done();
     };
 
@@ -362,8 +362,8 @@ describe('A Collision', () => {
     passiveBlock.vel.x = -100;
     engine.add(passiveBlock);
 
-    const collisionEnd = function () {
-      expect(this).toBe(activeBlock);
+    const collisionEnd = function (event: ex.GameEvent<unknown>) {
+      expect(event.target).toBe(activeBlock);
       done();
     };
 

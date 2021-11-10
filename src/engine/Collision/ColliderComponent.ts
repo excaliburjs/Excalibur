@@ -17,7 +17,7 @@ import { Shape } from './Colliders/Shape';
 export class ColliderComponent extends Component<'ex.collider'> {
   public readonly type = 'ex.collider';
 
-  public events = new EventDispatcher(this);
+  public events = new EventDispatcher();
   /**
    * Observable that notifies when a collider is added to the body
    */

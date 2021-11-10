@@ -100,7 +100,7 @@ export type AnimationEvents = {
  */
 export class Animation extends Graphic implements HasTick {
   private static _LOGGER = Logger.getInstance();
-  public events = new EventDispatcher<any>(this); // TODO replace with new Emitter
+  public events = new EventDispatcher<any>(); // TODO replace with new Emitter
   public frames: Frame[] = [];
   public strategy: AnimationStrategy = AnimationStrategy.Loop;
   public frameDuration: number = 100;

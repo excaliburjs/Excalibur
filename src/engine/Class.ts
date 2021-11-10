@@ -12,7 +12,7 @@ export class Class implements Eventable {
   public eventDispatcher: EventDispatcher;
 
   constructor() {
-    this.eventDispatcher = new EventDispatcher(this);
+    this.eventDispatcher = new EventDispatcher();
   }
 
   /**
