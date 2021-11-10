@@ -170,6 +170,10 @@ export class GraphicsLayer {
   public set offset(value: Vector) {
     this._options.offset = value;
   }
+
+  public get currentKeys(): string {
+    return this.name ?? 'anonymous';
+  }
 }
 
 export class GraphicsLayers {
@@ -199,6 +203,14 @@ export class GraphicsLayers {
       return this._getLayer(name);
     }
     return this._layers;
+  }
+
+  public currentKeys() {
+    const graphicsLayerKeys = [];
+    for (const layer of this._layers) {
+      graphicsLayerKeys.push(layer.currentKeys);
+    }
+    return graphicsLayerKeys;
   }
 
   public has(name: string): boolean {

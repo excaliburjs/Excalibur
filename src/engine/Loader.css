@@ -16,6 +16,7 @@ button#excalibur-play {
   color: #ffffff;
   font-family: sans-serif;
   font-size: 2rem;
+  white-space: nowrap;
   line-height: 1;
   cursor: pointer;
   text-align: center;

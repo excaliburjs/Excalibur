@@ -7,10 +7,41 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+-
+
+### Deprecated
+
+-
+
+### Added
+
+- Pointers can now be configured to use the collider or the graphics bounds as the target for pointers with the `ex.PointerComponent`
+  - `useColliderShape` - (default true) uses the collider component geometry for pointer events
+  - `useGraphicsBounds` - (default false) uses the graphics bounds for pointer events
+-
+
+### Fixed
+
+-
+
+### Updates
+
+-
+
+### Changed
+
 - Pointer Events:
   * Event types (up, down, move, etc) now all exist in 2 types `ex.Input.PointerEvent` and `ex.Input.WheelEvent`
   * The `stopPropagation()` method used to cancel further dispatches has been renamed to `cancel()` to match other events API.
   * Events no longer have a reference to the `pointer` but now have all of the same information that was availabe on the pointer `worldPos`, `screenPos`, `pagePos`
+-
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.25.1] - 2021-11-05
+
 ### Added
 
 - *Experimental:* Native ES module bundle distribution in package `esm/excalibur.js` entrypoint ([#2064](https://github.com/excaliburjs/Excalibur/pull/2064))
@@ -18,9 +49,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Story to show a play / pause implementation. 
 - `ex.Animation` now support `totalDuration` that will calculate automatically each frame duration based on how many frames have.
 - `ex.Animation` now supports `.reverse()` to reverse the direction of play in an animation, use the `ex.Animation.direction` to inspect if the animation is playing in the `ex.AnimationDirection.Forward` direction or the `ex.AnimationDirection.Backward` direction.
-- Pointers can now be configured to use the collider or the graphics bounds as the target for pointers with the `ex.PointerComponent`
-  - `useColliderShape` - (default true) uses the collider component geometry for pointer events
-  - `useGraphicsBounds` - (default false) uses the graphics bounds for pointer events
 ### Changed
 
 - Pointer system refactored into 2 parts:
@@ -32,21 +60,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Actions can be shared with all entities now!
 - Dispatch the `hidePlayButton` on the Button Event to prevent that keep on the screen on some situations [#1431].
 - Revert VSCode Workbench Colors
--
+
 ### Deprecated
 
 - Actions `asPromise()` renamed to `toPromise()`
-### Removed
 
--
 ### Fixed
 
+- Fixed loader button position on window resize
+- Fixed issue with setting `ex.TileMap.z` to a value
 - Fixed crash in debug system if there is no collider geometry
 - Fixed ImageSource loading error message [#2049]
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [0.25.0] - 2021-10-03
 
@@ -104,7 +128,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Directly changing debug drawing by `engine.isDebug = value` has been replaced by `engine.showDebug(value)` and `engine.toggleDebug()` ([#1655](https://github.com/excaliburjs/Excalibur/issues/1655))
 - `UIActor` Class instances need to be replaced to `ScreenElement` (This Class it's marked as Obsolete) ([#1656](https://github.com/excaliburjs/Excalibur/issues/1656))
 - Switch to browser based promise, the Excalibur implementation `ex.Promise` is marked deprecated ([#994](https://github.com/excaliburjs/Excalibur/issues/994))
-
 - `DisplayMode`'s have changed ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733)) & ([#1928](https://github.com/excaliburjs/Excalibur/issues/1928)):
 
   - `DisplayMode.FitContainer` fits the screen to the available width/height in the canvas parent element, while maintaining aspect ratio and resolution
@@ -178,6 +201,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Add `SpriteSheet.getSpacingDimensions()` method to retrieve calculated spacing dimensions ([#1788](https://github.com/excaliburjs/Excalibur/issues/1778))
 - Add `KeyEvent.value?: string` which is the key value (or "typed" value) that the browser detected. For example, holding Shift and pressing 9 will have a value of `(` which is the typed character.
 - Add `KeyEvent.originalEvent?: KeyboardEvent` which exposes the raw keyboard event handled from the browser.
+- Added a new getter to GraphicsComponent.ts called currentKeys that will return the names of the graphics shown in all layers
+- Added a new getter to GraphicsLayer called currentKeys that will the names of the graphics shown in this layer
 
 ### Changed
 
@@ -198,8 +223,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `ex.SortedList` as deprecated
 - `ex.Promise` is marked deprecated ([#994](https://github.com/excaliburjs/Excalibur/issues/994))
 - `ex.DisplayMode.Position` CSS can accomplish this task better than Excalibur ([#1733](https://github.com/excaliburjs/Excalibur/issues/1733))
-
-### Removed
 
 ### Fixed
 
@@ -233,8 +256,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed `anchor` properly of single shape `Actor` [#1535](https://github.com/excaliburjs/Excalibur/issues/1535)
 - Fixed Safari bug where `Sound` resources would fail to load ([#1848](https://github.com/excaliburjs/Excalibur/issues/1848))
 
+<!----------------------------------------------------------------------------------------------->
 
-## [[0.24.5] - 2020-09-07
+## [0.24.5] - 2020-09-07
 
 ### Breaking Changes
 
@@ -249,19 +273,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Adds new `ex.System` type which operates on matching Entities to do some behavior in Excalibur.
   - Adds new `ex.Observable` a small observable implementation for observing Entity component changes over time
 
-### Changed
-
-### Deprecated
-
-### Removed
-
 ### Fixed
 
 - Fixed Animation flicker bug on the first frame when using animations with scale, anchors, or rotation. ([#1636](https://github.com/excaliburjs/Excalibur/issues/1636))
 
-## [0.24.4] - 2020-09-02
+<!----------------------------------------------------------------------------------------------->
 
-### Breaking Changes
+## [0.24.4] - 2020-09-02
 
 ### Added
 
@@ -282,10 +300,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Upgrade Excalibur to TypeScript 3.9.2
 - Upgrade Excalibur to Node 12 LTS
 
-### Deprecated
-
-### Removed
-
 ### Fixed
 
 - Fixed Loader play button markup and styles are now cleaned up after clicked ([#1431](https://github.com/excaliburjs/Excalibur/issues/1431))
@@ -294,6 +308,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed issue when loading images from a base64 strings that would crash the loader ([#1543](https://github.com/excaliburjs/Excalibur/issues/1543))
 - Fixed issue where actors that were not in scene still received pointer events ([#1555](https://github.com/excaliburjs/Excalibur/issues/1555))
 - Fixed Scene initialization order when using the lifecycle overrides ([#1553](https://github.com/excaliburjs/Excalibur/issues/1553))
+
+<!----------------------------------------------------------------------------------------------->
 
 ## [0.24.0] - 2020-04-23
 
@@ -362,7 +378,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Changed `moveBy`, `rotateBy`, and `scaleBy` to operate relative to the current actor position at a speed, instead of moving to an absolute by a certain time.
 - Changed event handlers in excalibur to expect non-null event objects, before `hander: (event?: GameEvent) => void` implied that event could be null. This change addresses ([#1147](https://github.com/excaliburjs/Excalibur/issues/1147)) making strict null/function checks compatible with new TypeScript.
 - Changed collision system to remove actor coupling, in addition `ex.Collider` is a new type that encapsulates all collision behavior. Use `ex.Actor.body.collider` to interact with collisions in Excalibur ([#1119](https://github.com/excaliburjs/Excalibur/issues/1119))
-
   - Add new `ex.Collider` type that is the housing for all collision related code
     - The source of truth for `ex.CollisionType` is now on collider, with a convenience getter on actor
     - The collision system now operates on `ex.Collider`'s not `ex.Actor`'s
@@ -402,7 +417,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Removed `NaiveCollisionBroadphase` as it was no longer used
 - Renamed methods and properties will be available until `v0.24.0`
 - Deprecated collision attributes on actor, use `Actor.body.collider`
-
   - `Actor.x` & `Actor.y` will be removed in `v0.24.0` use `Actor.pos.x` & `Actor.pos.y`
   - `Actor.collisionArea` will be removed in `v0.24.0` use `Actor.body.collider.shape`
   - `Actor.getLeft()`, `Actor.getRight()`, `Actor.getTop()`, and `Actor.getBottom` are deprecated
@@ -1164,7 +1178,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 <!----------------------------------------------------------------------------------------------->
 
-[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.24.0...HEAD
+[unreleased]: https://github.com/excaliburjs/Excalibur/compare/v0.25.1...HEAD
+[0.25.1]: https://github.com/excaliburjs/Excalibur/compare/v0.25.0...v0.25.1
+[0.25.0]: https://github.com/excaliburjs/Excalibur/compare/v0.24.5...v0.25.0
+[0.24.5]: https://github.com/excaliburjs/Excalibur/compare/v0.24.4...v0.24.5
+[0.24.4]: https://github.com/excaliburjs/Excalibur/compare/v0.24.0...v0.24.4
 [0.24.0]: https://github.com/excaliburjs/Excalibur/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/excaliburjs/Excalibur/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/excaliburjs/Excalibur/compare/v0.21.0...v0.22.0

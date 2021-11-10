@@ -45,7 +45,7 @@ Please do a quick search through our [backlog][issues] to see if your improvemen
 
 ### Getting Started
 
-Below is the general workflow for submitting changes:
+Below is the workflow for submitting changes:
 
 1.  [Discuss an issue you want to contribute to](#discussing-a-contribution)
 2.  Create a fork of Excalibur
@@ -61,7 +61,7 @@ If you’re not sure where to start, take a look at the "good first issue" or "h
 
 #### Discussing a Contribution
 
-It's helpful to let us know that you'd like to contribute for an issue, to prevent duplicate work. Ask us any questions you have about the issue, so that we can clarify the work you'll need to do. We're here to help!
+We require code contributions to have an open issue in our backlog prior to development work. This issue should be open long enough that the maintainers can have a discussion with you about the intended feature or improvement. Discussing issues before starting development helps us determine if the change aligns with Excalibur's goals. Ask us any questions you have in the GitHub issue, so that we can clarify the work you'll need to do. We're here to help!
 
 #### Creating a Pull Request
 

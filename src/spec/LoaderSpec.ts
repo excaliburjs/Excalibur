@@ -233,4 +233,33 @@ describe('A loader', () => {
       done();
     }, 1000);
   });
+
+  it('updates the play button postion on resize', () => {
+    const engine = new ex.Engine({width: 1000, height: 1000});
+    const loader = new ex.Loader([, , , ,]);
+    loader.wireEngine(engine);
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.markResourceComplete();
+    loader.showPlayButton();
+
+    expect(loader.playButtonRootElement).toBeTruthy();
+
+    engine.browser.window.nativeComponent.dispatchEvent(new Event('resize'));
+
+    const oldPos = [
+      loader.playButtonRootElement.style.left,
+      loader.playButtonRootElement.style.top];
+
+    engine.screen.viewport = {width: 100, height: 100};
+
+    engine.browser.window.nativeComponent.dispatchEvent(new Event('resize'));
+
+    const newPos = [
+      loader.playButtonRootElement.style.left,
+      loader.playButtonRootElement.style.top];
+
+    expect(oldPos).not.toEqual(newPos);
+  });
 });

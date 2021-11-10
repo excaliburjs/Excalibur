@@ -20,6 +20,7 @@ import { PointRenderer } from './point-renderer';
 import { Canvas } from '../Canvas';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
+import { ScreenDimension } from '../../Screen';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -128,6 +129,22 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public get height() {
     return this.__gl.canvas.height;
+  }
+
+  /**
+   * Checks the underlying webgl implementation if the requested internal resolution is supported
+   * @param dim
+   */
+  public checkIfResolutionSupported(dim: ScreenDimension): boolean {
+    // Slight hack based on this thread https://groups.google.com/g/webgl-dev-list/c/AHONvz3oQTo
+    const gl = this.__gl;
+    // If any dimension is greater than max texture size (divide by 4 bytes per pixel)
+    const maxDim = gl.getParameter(gl.MAX_TEXTURE_SIZE) / 4;
+    let supported = true;
+    if (dim.width > maxDim ||dim.height > maxDim) {
+      supported = false;
+    }
+    return supported;
   }
 
   constructor(options: ExcaliburGraphicsContextOptions) {
