@@ -48,6 +48,9 @@ export * from './Color';
 
 export * from './Graphics/index';
 
+export * from './Html/HtmlComponent';
+export * from './Html/HtmlSystem';
+
 // ex.Events namespace
 import * as events from './Events';
 export { events as Events };

@@ -505,6 +505,7 @@ var player = new ex.Actor({
   collider: ex.Shape.Capsule(32, 96),
   collisionType: ex.CollisionType.Active
 });
+player.addComponent(new ex.HtmlComponent());
 player.body.canSleep = false;
 player.graphics.copyGraphics = false;
 follower.actions
