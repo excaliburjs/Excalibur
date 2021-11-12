@@ -18,7 +18,7 @@ import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphi
 export abstract class Collider implements Clonable<Collider> {
   private static _ID = 0;
   public readonly id: Id<'collider'> = createId('collider', Collider._ID++);
-  public events: EventDispatcher<Collider> = new EventDispatcher<Collider>(this);
+  public events: EventDispatcher<Collider> = new EventDispatcher<Collider>();
 
   /**
    * Returns a boolean indicating whether this body collided with

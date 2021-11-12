@@ -32,7 +32,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   public dependencies = [TransformComponent, MotionComponent];
   public static _ID = 0;
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
-  public events = new EventDispatcher(this);
+  public events = new EventDispatcher();
 
   constructor(options?: BodyComponentOptions) {
     super();
