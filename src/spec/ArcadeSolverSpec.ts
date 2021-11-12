@@ -1,6 +1,11 @@
 import * as ex from '@excalibur';
+import { ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('An ArcadeSolver', () => {
+  beforeAll(() => {
+    jasmine.addMatchers(ExcaliburMatchers);
+  });
+
   it('should exist', () => {
     expect(ex.ArcadeSolver).toBeDefined();
   });
@@ -22,6 +27,11 @@ describe('An ArcadeSolver', () => {
 
     sut.solvePosition(contacts);
 
+    // Each contact has the same mtv
+    expect(contacts[0].mtv).toBeVector(ex.vec(0, -1))
+    expect(contacts[1].mtv).toBeVector(ex.vec(0, -1))
+
+    // Only 1 contact mtv is applied
     expect(player.pos.y).toBe(100);
     expect(player.pos.x).toBe(50);
   });
