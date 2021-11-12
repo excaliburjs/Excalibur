@@ -22,7 +22,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
--
+- Fixed issue with `ArcadeSolver` where stacked/overlapped tiles would double solve the position of the collider for the same overlap
 
 ### Updates
 
