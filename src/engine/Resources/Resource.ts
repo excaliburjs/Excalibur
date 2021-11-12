@@ -9,7 +9,7 @@ import { EventDispatcher } from '../EventDispatcher';
 export class Resource<T> implements Loadable<T> {
   public data: T = null;
   public logger: Logger = Logger.getInstance();
-  public events: EventDispatcher = new EventDispatcher(this);
+  public events: EventDispatcher = new EventDispatcher();
 
   /**
    * @param path          Path to the remote resource

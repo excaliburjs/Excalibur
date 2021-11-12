@@ -5,15 +5,6 @@ export class EventDispatcher<T = any> implements Eventable {
   private _handlers: { [key: string]: { (event: GameEvent<T>): void }[] } = {};
   private _wiredEventDispatchers: Eventable[] = [];
 
-  private _target: T;
-
-  /**
-   * @param target  The object that will be the recipient of events from this event dispatcher
-   */
-  constructor(target: T) {
-    this._target = target;
-  }
-
   /**
    * Clears any existing handlers or wired event dispatchers on this event dispatcher
    */
@@ -33,16 +24,8 @@ export class EventDispatcher<T = any> implements Eventable {
       return;
     }
     eventName = eventName.toLowerCase();
-    const target = this._target;
     if (!event) {
       event = new GameEvent();
-    }
-    try {
-      if (!event.target) {
-        event.target = target;
-      }
-    } catch {
-      // pass
     }
     let i: number, len: number;
 
@@ -51,7 +34,7 @@ export class EventDispatcher<T = any> implements Eventable {
       len = this._handlers[eventName].length;
 
       for (i; i < len; i++) {
-        this._handlers[eventName][i].call(target, event);
+        this._handlers[eventName][i](event);
       }
     }
 
@@ -117,14 +100,8 @@ export class EventDispatcher<T = any> implements Eventable {
   public once(eventName: string, handler: (event: GameEvent<T>) => void) {
     const metaHandler = (event: GameEvent<T>) => {
       const ev = event || new GameEvent();
-      try {
-        ev.target = ev.target || this._target;
-      } catch {
-        // pass
-      }
-
       this.off(eventName, handler);
-      handler.call(ev.target, ev);
+      handler(ev);
     };
 
     this.on(eventName, metaHandler);

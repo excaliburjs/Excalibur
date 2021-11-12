@@ -23,10 +23,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed issue with `ArcadeSolver` where stacked/overlapped tiles would double solve the position of the collider for the same overlap
+- EventDispatcher
+  - `EventDispatcher` - doesn't require the target object. The context of `this` is not tampered anymore.
+- Pointers
+  - `PointerAbstraction` - is fixed to maintain reference
+-
 
 ### Updates
 
--
+- The following Engine's pieces: `Collision` `Graphics` `Resources` `Trigger` are updated to reflect the new EventDispatcher behavior.
 
 ### Changed
 
