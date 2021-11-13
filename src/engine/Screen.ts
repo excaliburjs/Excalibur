@@ -214,7 +214,13 @@ export class Screen {
     this._applyDisplayMode();
 
     this._mediaQueryList = this._browser.window.nativeComponent.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
-    this._mediaQueryList.addEventListener('change', this._pixelRatioChangeHandler);
+
+    // Safari <=13.1 workaround
+    if (this._mediaQueryList.addEventListener) {
+      this._mediaQueryList.addEventListener('change', this._pixelRatioChangeHandler);
+    } else {
+      this._mediaQueryList.addListener(this._pixelRatioChangeHandler);
+    }
 
     this._canvas.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
     this.applyResolutionAndViewport();
@@ -229,7 +235,12 @@ export class Screen {
         this._resizeObserver.disconnect();
       }
       this.parent.removeEventListener('resize', this._resizeHandler);
-      this._mediaQueryList.removeEventListener('change', this._pixelRatioChangeHandler);
+      // Safari <=13.1 workaround
+      if (this._mediaQueryList.removeEventListener) {
+        this._mediaQueryList.removeEventListener('change', this._pixelRatioChangeHandler);
+      } else {
+        this._mediaQueryList.removeListener(this._pixelRatioChangeHandler);
+      }
       this._canvas.removeEventListener('fullscreenchange', this._fullscreenChangeHandler);
     }
   }

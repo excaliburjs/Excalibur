@@ -19,6 +19,16 @@ export type NativeMouseEvent = globalThis.MouseEvent;
 export type NativeTouchEvent = globalThis.TouchEvent;
 export type NativeWheelEvent = globalThis.WheelEvent;
 
+function isTouchEvent(value: any): value is NativeTouchEvent {
+  // Gaurd for Safari <= 13.1
+  return globalThis.TouchEvent && value instanceof globalThis.TouchEvent;
+}
+
+function isPointerEvent(value: any): value is NativePointerEvent {
+  // Gaurd for Safari <= 13.1
+  return globalThis.PointerEvent && value instanceof globalThis.PointerEvent;
+}
+
 /**
  * The PointerEventProcessor is responsible for collecting all the events from the canvas and transforming them into GlobalCoordinates
  */
@@ -296,7 +306,7 @@ export class PointerEventReceiver extends Class {
     const eventCoords = new Map<number, GlobalCoordinates>();
     let button: PointerButton;
     let pointerType: PointerType;
-    if (ev instanceof TouchEvent) {
+    if (isTouchEvent(ev)) {
       button = PointerButton.Unknown;
       pointerType = PointerType.Touch;
       // https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent
@@ -313,7 +323,7 @@ export class PointerEventReceiver extends Class {
       pointerType = PointerType.Mouse;
       const coordinates = GlobalCoordinates.fromPagePosition(ev.pageX, ev.pageY, this.engine);
       let nativePointerId = 1;
-      if (ev instanceof window.PointerEvent) {
+      if (isPointerEvent(ev)) {
         nativePointerId = ev.pointerId;
         pointerType = this._stringToPointerType(ev.pointerType);
       }
