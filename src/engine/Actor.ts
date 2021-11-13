@@ -531,7 +531,9 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
     this.addComponent(new PointerComponent);
 
-    this.addComponent(new GraphicsComponent());
+    this.addComponent(new GraphicsComponent({
+      anchor: this.anchor
+    }));
     this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
     this.addComponent(new MotionComponent());
     this.vel = vel ?? Vector.Zero;

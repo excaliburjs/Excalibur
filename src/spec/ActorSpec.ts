@@ -108,6 +108,16 @@ describe('A game actor', () => {
     expect(actor.anchor).toEqual(ex.Actor.defaults.anchor);
   });
 
+  it('should have constructor anchor set on graphics component', () => {
+    const actor = new ex.Actor({anchor: ex.vec(.7, .7)});
+
+    expect(actor.anchor).toEqual(ex.vec(.7, .7));
+    expect(actor.graphics.anchor).toEqual(ex.vec(.7, .7));
+
+    actor.anchor = ex.vec(0, 0);
+    expect(actor.graphics.anchor).toEqual(ex.vec(0, 0));
+  });
+
   it('should create actor with valid default options', () => {
     const actor = new ex.Actor();
     expect(actor.anchor.toString()).toEqual('(0.5, 0.5)');
