@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
--
+- `ex.Util.extend()` is removed, modern js spread operator `{...someobject, ...someotherobject}` handles this better.
 
 ### Deprecated
 
