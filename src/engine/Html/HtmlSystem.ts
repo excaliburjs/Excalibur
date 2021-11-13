@@ -1,7 +1,7 @@
-import { Scene, TransformComponent, Vector } from "..";
-import { Entity } from "../EntityComponentSystem";
-import { System, SystemType } from "../EntityComponentSystem/System";
-import { HtmlComponent } from "./HtmlComponent";
+import { Scene, TransformComponent, Vector } from '..';
+import { Entity } from '../EntityComponentSystem';
+import { System, SystemType } from '../EntityComponentSystem/System';
+import { HtmlComponent } from './HtmlComponent';
 import { Screen } from '../Screen';
 
 
@@ -21,8 +21,11 @@ export class HtmlSystem extends System<TransformComponent | HtmlComponent> {
       transform = entity.get(TransformComponent);
       html = entity.get(HtmlComponent);
       pageCoords = this._screen.worldToPageCoordinates(transform.pos);
-      html.html.style.left = `${pageCoords.x}px`;
-      html.html.style.top = `${pageCoords.y}px`;
+      if (html?.html) {
+        html.html.style.position = 'absolute';
+        html.html.style.left = `${pageCoords.x}px`;
+        html.html.style.top = `${pageCoords.y}px`;
+      }
     }
   }
 }

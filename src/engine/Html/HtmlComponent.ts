@@ -1,15 +1,22 @@
-import { Entity } from "../EntityComponentSystem";
-import { Component } from "../EntityComponentSystem/Component";
+import { Entity } from '../EntityComponentSystem';
+import { Component } from '../EntityComponentSystem/Component';
 
+
+export interface HtmlComponentOptions {
+  render: () => HTMLElement;
+}
 export class HtmlComponent extends Component<'ex.html'> {
   public readonly type = 'ex.html' as const;
   owner?: Entity;
   html: HTMLElement;
+  private _render: () => HTMLElement;
+  constructor(options: HtmlComponentOptions) {
+    super();
+    this._render = options.render;
+  }
+
   buildHtml(): HTMLElement {
-    const element = document.createElement('div');
-    element.innerText = 'Hello Div';
-    element.style.position = 'absolute';
-    return element;
+    return this._render();
   }
 
   onAdd(_owner: Entity): void {
