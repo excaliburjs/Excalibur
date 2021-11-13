@@ -3,7 +3,6 @@ import { Engine } from './Engine';
 import { EventDispatcher } from './EventDispatcher';
 import { Vector } from './Math/vector';
 import { ExitTriggerEvent, EnterTriggerEvent, CollisionEndEvent, CollisionStartEvent } from './Events';
-import * as Util from './Util/Util';
 import { CollisionType } from './Collision/CollisionType';
 import { Entity } from './EntityComponentSystem';
 import { Actor } from './Actor';
@@ -71,7 +70,10 @@ export class Trigger extends Actor {
    */
   constructor(opts: Partial<TriggerOptions>) {
     super({ x: opts.pos.x, y: opts.pos.y, width: opts.width, height: opts.height });
-    opts = Util.extend({}, triggerDefaults, opts);
+    opts = {
+      ...triggerDefaults,
+      ...opts
+    };
 
     this.filter = opts.filter || this.filter;
     this.repeat = opts.repeat || this.repeat;
@@ -82,7 +84,7 @@ export class Trigger extends Actor {
 
     this.graphics.visible = opts.visible;
     this.body.collisionType = CollisionType.Passive;
-    this.eventDispatcher = new EventDispatcher(this);
+    this.eventDispatcher = new EventDispatcher();
 
     this.events.on('collisionstart', (evt: CollisionStartEvent<Actor>) => {
       if (this.filter(evt.other)) {

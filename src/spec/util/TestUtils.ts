@@ -9,21 +9,18 @@ export namespace TestUtils {
     'use-legacy-drawing',
     'use-canvas-context',
     'suppress-obsolete-message']): ex.Engine {
-    options = ex.Util.extend(
-      false,
-      {
-        width: 500,
-        height: 500,
-        suppressConsoleBootMessage: true,
-        enableCanvasTransparency: true,
-        suppressMinimumBrowserFeatureDetection: true,
-        suppressHiDPIScaling: true,
-        suppressPlayButton: true,
-        displayMode: ex.DisplayMode.Position,
-        position: 'top'
-      },
-      options
-    );
+    options = {
+      width: 500,
+      height: 500,
+      suppressConsoleBootMessage: true,
+      enableCanvasTransparency: true,
+      suppressMinimumBrowserFeatureDetection: true,
+      suppressHiDPIScaling: true,
+      suppressPlayButton: true,
+      displayMode: ex.DisplayMode.Position,
+      position: 'top',
+      ...options
+    };
     ex.Flags._reset();
     ex.Flags.enable('suppress-obsolete-message');
     flags.forEach(f => ex.Flags.enable(f));

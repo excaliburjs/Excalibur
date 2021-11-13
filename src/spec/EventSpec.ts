@@ -3,7 +3,7 @@ import * as ex from '@excalibur';
 describe('An Event Dispatcher', () => {
   let pubsub: ex.EventDispatcher;
   beforeEach(() => {
-    pubsub = new ex.EventDispatcher(null);
+    pubsub = new ex.EventDispatcher();
   });
 
   it('exists', () => {
@@ -23,16 +23,16 @@ describe('An Event Dispatcher', () => {
     expect(eventFired).toBeTruthy();
   });
 
-  it('can published against a target', () => {
+  it('cannot published against a target', () => {
     let targetContext = null;
     const target = new ex.Actor();
 
-    pubsub = new ex.EventDispatcher(target);
+    pubsub = new ex.EventDispatcher();
     pubsub.on('event', function() {
       targetContext = this;
     });
     pubsub.emit('event', null);
-    expect(target).toBe(targetContext);
+    expect(target).not.toBe(targetContext);
   });
 
   it('has an emit alias for publish', () => {
@@ -67,7 +67,7 @@ describe('An Event Dispatcher', () => {
   });
 
   it('can wire to other event dispatchers', () => {
-    const newPubSub = new ex.EventDispatcher(null);
+    const newPubSub = new ex.EventDispatcher();
     pubsub.wire(newPubSub);
 
     let eventFired = false;
@@ -80,7 +80,7 @@ describe('An Event Dispatcher', () => {
   });
 
   it('can unwire from other event dispatchers', () => {
-    const newPubSub = new ex.EventDispatcher(null);
+    const newPubSub = new ex.EventDispatcher();
     pubsub.wire(newPubSub);
 
     let eventFired = false;
@@ -103,7 +103,7 @@ describe('An Event Dispatcher', () => {
   });
 
   it('can listen to a handler only once', () => {
-    const pubsub = new ex.EventDispatcher(null);
+    const pubsub = new ex.EventDispatcher();
 
     let callCount = 0;
     pubsub.once('onlyonce', () => {

@@ -50,6 +50,11 @@ export class ArcadeSolver extends CollisionSolver {
 
   public solvePosition(contacts: CollisionContact[]) {
     for (const contact of contacts) {
+      // if bounds no longer interesect skip to the next
+      // this removes jitter from overlapping/stacked solid tiles or a wall of solid tiles
+      if (!contact.colliderA.bounds.intersect(contact.colliderB.bounds)) {
+        continue;
+      }
       let mtv = contact.mtv;
       const colliderA = contact.colliderA;
       const colliderB = contact.colliderB;

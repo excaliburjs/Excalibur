@@ -1,6 +1,5 @@
 import { Flags } from '../Flags';
 import { Logger } from './Log';
-import { extend } from './Util';
 
 /**
  * Obsolete decorator options
@@ -41,15 +40,12 @@ const logMessage = (message: string, options: ObsoleteOptions) => {
  * method do the deprecated one. Inspired by https://github.com/jayphelps/core-decorators.js
  */
 export function obsolete(options?: ObsoleteOptions): any {
-  options = extend(
-    {},
-    {
-      message: 'This feature will be removed in future versions of Excalibur.',
-      alternateMethod: null,
-      showStackTrack: false
-    },
-    options
-  );
+  options = {
+    message: 'This feature will be removed in future versions of Excalibur.',
+    alternateMethod: null,
+    showStackTrace: false,
+    ...options
+  };
 
   return function (target: any, property: string, descriptor: PropertyDescriptor): any {
     if (
