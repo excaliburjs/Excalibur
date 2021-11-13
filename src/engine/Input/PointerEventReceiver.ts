@@ -406,11 +406,19 @@ export class PointerEventReceiver extends Class {
   public triggerEvent(type: 'down' | 'up' | 'move' | 'cancel', pos: Vector) {
     const page = this.engine.screen.worldToPageCoordinates(pos);
     // Send an event to the event receiver
-    this._handle(new window.PointerEvent('pointer' + type, {
-      pointerId: 0,
-      clientX: page.x,
-      clientY: page.y
-    }));
+    if (window.PointerEvent) {
+      this._handle(new window.PointerEvent('pointer' + type, {
+        pointerId: 0,
+        clientX: page.x,
+        clientY: page.y
+      }));
+    } else {
+      // Safari hack
+      this._handle(new window.MouseEvent('mouse' + type, {
+        clientX: page.x,
+        clientY: page.y
+      }))
+    }
 
     // Force update pointer system
     const pointerSystem = this.engine.currentScene.world.systemManager.get(PointerSystem);
