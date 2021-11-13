@@ -46,6 +46,24 @@ export class Sprite extends Graphic {
     });
   }
 
+  public get width(): number {
+    return this.destSize.width;
+  }
+
+  public get height(): number {
+    return this.destSize.height;
+  }
+
+  public set width(newWidth: number) {
+    this.destSize.width = newWidth;
+    super.width = Math.ceil(this.destSize.width);
+  }
+
+  public set height(newHeight: number) {
+    this.destSize.height = newHeight;
+    super.height = Math.ceil(this.destSize.height);
+  }
+
   private _updateSpriteDimensions() {
     const { width: nativeWidth, height: nativeHeight } = this.image;
     // This code uses || to avoid 0's
