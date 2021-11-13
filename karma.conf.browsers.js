@@ -8,6 +8,7 @@ module.exports = (config) => {
   config.set({
     // global config of your BrowserStack account
     browserStack: {
+      project: 'Excalibur',
       username: process.env.BS_USERNAME,
       accessKey: process.env.BS_PASSWORD
     },
