@@ -417,7 +417,7 @@ export class PointerEventReceiver extends Class {
       this._handle(new window.MouseEvent('mouse' + type, {
         clientX: page.x,
         clientY: page.y
-      }))
+      }));
     }
 
     // Force update pointer system
