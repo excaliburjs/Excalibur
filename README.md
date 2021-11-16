@@ -1,6 +1,5 @@
 ![Logo](/assets/logo.png?raw=true)
 
-[![Build Status](https://img.shields.io/travis/excaliburjs/Excalibur/main.svg)](https://travis-ci.org/excaliburjs/Excalibur)
 [![Appveyor status](https://img.shields.io/appveyor/ci/eonarheim/excalibur/main.svg)](https://ci.appveyor.com/project/eonarheim/excalibur)
 [![Coverage Status](https://coveralls.io/repos/github/excaliburjs/Excalibur/badge.svg?branch=main)](https://coveralls.io/github/excaliburjs/Excalibur?branch=main)
 [![npm version](https://img.shields.io/npm/v/excalibur.svg)](https://www.npmjs.com/package/excalibur)
