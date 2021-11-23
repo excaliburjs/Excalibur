@@ -640,7 +640,6 @@ O|===|* >________________>\n\
     this.clock = new StandardClock({
       maxFps: this.maxFps,
       tick: this._mainloop.bind(this),
-      raf: (cb) => window.requestAnimationFrame(cb),
       onFatalException: (e) => this.onFatalException(e)
     });
 

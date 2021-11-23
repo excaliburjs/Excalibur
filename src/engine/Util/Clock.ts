@@ -1,15 +1,34 @@
 import { FpsSampler } from './Fps';
 
 export interface ClockOptions {
+  /**
+   * Define the function you'd like the clock to tick when it is started
+   */
   tick: (elapsedMs: number) => any;
-  onFatalException: (e: unknown) => any;
+  /**
+   * Optionally define the fatal exception handler, used if an error is thrown in tick
+   */
+  onFatalException?: (e: unknown) => any;
+  /**
+   * Optionally limit the maximum FPS of the clock
+   */
   maxFps?: number;
 }
 
 
+/**
+ * Abstract Clock is the base type of all Clocks
+ * 
+ * It has a few opinions
+ * 1. It manages the calculation of what "elapsed" time means and thus maximum fps
+ * 2. The default timing api is implemented in now()
+ * 
+ * To implement your own clock, extend Clock and override start/stop to start and stop the clock, then call update() with whatever 
+ * method is unique to your clock implementation.
+ */
 export abstract class Clock {
   protected tick: (elapsedMs: number) => any;
-  private _onFatalException: (e: unknown) => any;
+  private _onFatalException: (e: unknown) => any = () => {};
   private _maxFps: number = Infinity;
   private _lastTime: number = 0;
   public fpsSampler: FpsSampler;
@@ -20,17 +39,23 @@ export abstract class Clock {
     this.tick = options.tick;
     this._lastTime = this.now() ?? 0;
     this._maxFps = options.maxFps ?? this._maxFps;
-    this._onFatalException = options.onFatalException;
+    this._onFatalException = options.onFatalException ?? this._onFatalException;
     this.fpsSampler = new FpsSampler({
       initialFps: 60,
       nowFn: () => this.now()
     });
   }
 
+  /**
+   * Get the elapsed time for the last completed frame
+   */
   public elapsed(): number {
     return this._elapsed;
   }
 
+  /**
+   * Get the current time in milliseconds
+   */
   public now(): number {
     return performance.now();
   }
@@ -45,8 +70,7 @@ export abstract class Clock {
 
   public toStandardClock() {
     const clock = new StandardClock({
-      ...this._options,
-      raf: (cb) => window.requestAnimationFrame(cb)
+      ...this._options
     });
     return clock;
   }
@@ -105,18 +129,16 @@ export abstract class Clock {
   public abstract stop(): void;
 }
 
-export interface StandardClockOptions {
-  raf: (func: () => void) => number;
-}
 
+/**
+ * The [[StandardClock]] implements the requestAnimationFrame browser api to run the tick()
+ */
 export class StandardClock extends Clock {
 
   private _running = false;
-  private _raf: (func: () => void) => number;
   private _requestId: number;
-  constructor(options: ClockOptions & StandardClockOptions) {
+  constructor(options: ClockOptions) {
     super(options);
-    this._raf = options.raf;
   }
 
   public isRunning(): boolean {
@@ -132,7 +154,7 @@ export class StandardClock extends Clock {
       }
       try {
         // request next loop
-        this._requestId = this._raf(mainloop);
+        this._requestId = window.requestAnimationFrame(mainloop);
         this.update();
       } catch (e) {
         window.cancelAnimationFrame(this._requestId);
@@ -169,6 +191,10 @@ export class TestClock extends Clock {
     });
     this._updateMs = options.defaultUpdateMs;
   }
+
+  /**
+   * Get the current time in milliseconds
+   */
   public override now() {
     return this._currentTime;
   }
@@ -182,6 +208,11 @@ export class TestClock extends Clock {
   public stop(): void {
     this._running = false;
   }
+
+  /**
+   * Manually step the clock forward 1 tick, optionally specify an elapsed time in milliseconds
+   * @param overrideUpdateMs 
+   */
   step(overrideUpdateMs?: number): void {
     if (this._running) {
       this.update(overrideUpdateMs ?? this._updateMs);
