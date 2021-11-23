@@ -160,6 +160,22 @@ export class Debug implements DebugFlags {
     this.colorBlindMode = new ColorBlindFlags(this._engine);
   }
 
+  public useTestClock() {
+    const clock = this._engine.clock;
+    clock.stop();
+    const testClock = clock.toTestClock();
+    testClock.start();
+    this._engine.clock = testClock;
+  }
+
+  public useStandardClock() {
+    const currentClock = this._engine.clock;
+    currentClock.stop();
+    const standardClock = currentClock.toStandardClock();
+    standardClock.start();
+    this._engine.clock = standardClock;
+  }
+
   /**
    * Performance statistics
    */

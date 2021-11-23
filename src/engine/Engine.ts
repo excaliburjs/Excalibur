@@ -43,6 +43,7 @@ import { obsolete } from './Util/Decorators';
 import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL } from './Graphics';
 import { PointerEventReceiver } from './Input/PointerEventReceiver';
 import { FpsSampler } from './Util/Fps';
+import { Clock, StandardClock } from './Util/Clock';
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -220,6 +221,11 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * one that bounces between 30fps and 60fps
    */
   public maxFps: number = Number.POSITIVE_INFINITY;
+
+  /**
+   * Direct access to the excalibur clock
+   */
+  public clock: Clock;
 
   /**
    * The width of the game canvas in pixels (physical width component of the
@@ -630,6 +636,13 @@ O|===|* >________________>\n\
     }
 
     this.maxFps = options.maxFps ?? this.maxFps;
+
+    this.clock = new StandardClock({
+      maxFps: this.maxFps,
+      tick: this._mainloop.bind(this),
+      raf: (cb) => window.requestAnimationFrame(cb),
+      onFatalException: (e) => this.onFatalException(e)
+    });
 
     this.enableCanvasTransparency = options.enableCanvasTransparency;
 
@@ -1155,6 +1168,8 @@ O|===|* >________________>\n\
   public get loadingComplete() {
     return this._loadingComplete;
   }
+
+
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
@@ -1194,7 +1209,8 @@ O|===|* >________________>\n\
       this._hasStarted = true;
       this._logger.debug('Starting game...');
       this.browser.resume();
-      Engine.createMainLoop(this, window.requestAnimationFrame, () => performance.now())();
+      // Engine.createMainLoop(this, window.requestAnimationFrame, () => performance.now())();
+      this.clock.start();
       this._logger.debug('Game started');
     } else {
       // Game already started;
@@ -1202,6 +1218,36 @@ O|===|* >________________>\n\
     return loadingComplete;
   }
 
+  private _mainloop(elapsed: number) {
+    this.emit('preframe', new PreFrameEvent(this, this.stats.prevFrame));
+    const delta = elapsed * this.timescale;
+
+    // reset frame stats (reuse existing instances)
+    const frameId = this.stats.prevFrame.id + 1;
+    this.stats.currFrame.reset();
+    this.stats.currFrame.id = frameId;
+    this.stats.currFrame.delta = delta;
+    this.stats.currFrame.fps = this.clock.fpsSampler.fps;
+
+    const beforeUpdate = this.clock.now();
+    this._update(delta);
+    const afterUpdate = this.clock.now();
+    this._draw(delta);
+    const afterDraw = this.clock.now();
+
+    this.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
+    this.stats.currFrame.duration.draw = afterDraw - afterUpdate;
+
+    this.emit('postframe', new PostFrameEvent(this, this.stats.currFrame));
+  }
+
+  /**
+   *
+   * @param game
+   * @param raf
+   * @param nowFn
+   * @deprecated Use [[Clock]] to run the mainloop, will be removed in v0.26.0
+   */
   public static createMainLoop(game: Engine, raf: (func: Function) => number, nowFn: () => number) {
     let lastTime = nowFn();
     const fpsSampler = new FpsSampler({
@@ -1277,6 +1323,7 @@ O|===|* >________________>\n\
       this.emit('stop', new GameStopEvent(this));
       this.browser.pause();
       this._hasStarted = false;
+      this.clock.stop();
       this._logger.debug('Game stopped');
     }
   }
