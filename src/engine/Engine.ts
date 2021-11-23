@@ -170,9 +170,9 @@ export interface EngineOptions {
 
   /**
    * Optionally set the maximum fps if not set Excalibur will go as fast as the device allows.
-   * 
+   *
    * You may want to constrain max fps if your game cannot maintain fps consistenly, it can look and feel better to have a 30fps game than
-   * one that bounces between 30fps and 60fps  
+   * one that bounces between 30fps and 60fps
    */
   maxFps?: number;
 }
@@ -214,9 +214,9 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   /**
    * Optionally set the maximum fps if not set Excalibur will go as fast as the device allows.
-   * 
+   *
    * You may want to constrain max fps if your game cannot maintain fps consistenly, it can look and feel better to have a 30fps game than
-   * one that bounces between 30fps and 60fps  
+   * one that bounces between 30fps and 60fps
    */
   public maxFps: number = Number.POSITIVE_INFINITY;
 
