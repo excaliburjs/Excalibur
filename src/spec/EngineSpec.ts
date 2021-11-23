@@ -361,11 +361,11 @@ describe('The engine', () => {
     let _currentTime = 0;
     const mockNow = () => {
       return _currentTime;
-    }
+    };
     // 16ms tick
-    let actualFpsInterval = 1000/60;
+    const actualFpsInterval = 1000/60;
     const tick = () => _currentTime += actualFpsInterval;
-    
+
     const sut = Engine.createMainLoop(game, mockRAF, mockNow);
 
     for (let i = 0; i < 6; i++) {
@@ -388,11 +388,11 @@ describe('The engine', () => {
     let _currentTime = 0;
     const mockNow = () => {
       return _currentTime;
-    }
-    
-    let actualFpsInterval = 1000/120;
+    };
+
+    const actualFpsInterval = 1000/120;
     const tick = () => _currentTime += actualFpsInterval;
-  
+
     const sut = Engine.createMainLoop(game, mockRAF, mockNow);
     game.on('postframe', tick);
 
