@@ -2,6 +2,7 @@ import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+import { Engine } from '@excalibur';
 
 describe('The engine', () => {
   let engine: ex.Engine;
@@ -347,6 +348,63 @@ describe('The engine', () => {
       suppressConsoleBootMessage: true
     });
     expect(game.enableCanvasTransparency).toBe(true);
+  });
+
+  it('can limit fps', () => {
+    const game = new ex.Engine({height: 600, width: 800, maxFps: 15});
+    (game as any)._hasStarted = true; // TODO gross
+
+    const mockRAF = (_mainloop: () => any) => {
+      return 0;
+    };
+
+    let _currentTime = 0;
+    const mockNow = () => {
+      return _currentTime;
+    }
+    // 16ms tick
+    let actualFpsInterval = 1000/60;
+    const tick = () => _currentTime += actualFpsInterval;
+    
+    const sut = Engine.createMainLoop(game, mockRAF, mockNow);
+
+    for (let i = 0; i < 6; i++) {
+      sut();
+      tick();
+    }
+
+    expect(game.maxFps).toBe(15);
+    expect(game.stats.currFrame.fps).toBeCloseTo(15);
+  });
+
+  it('will allow fps as fast as the tick', () => {
+    const game = new ex.Engine({height: 600, width: 800});
+    (game as any)._hasStarted = true; // TODO gross
+
+    const mockRAF = (_mainloop: () => any) => {
+      return 0;
+    };
+
+    let _currentTime = 0;
+    const mockNow = () => {
+      return _currentTime;
+    }
+    
+    let actualFpsInterval = 1000/120;
+    const tick = () => _currentTime += actualFpsInterval;
+  
+    const sut = Engine.createMainLoop(game, mockRAF, mockNow);
+    game.on('postframe', tick);
+
+    expect(game.maxFps).toBe(Infinity);
+
+    sut();
+
+    // fps sampler samples every 100ms
+    for (let i = 0; i < (100/actualFpsInterval) + 2; i++) {
+      sut();
+    }
+    expect(game.stats.currFrame.fps).toBeCloseTo(120);
   });
 
   it('will warn if scenes are being overwritten', () => {

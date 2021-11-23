@@ -42,6 +42,7 @@ import { BrowserEvents } from './Util/Browser';
 import { obsolete } from './Util/Decorators';
 import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL } from './Graphics';
 import { PointerEventReceiver } from './Input/PointerEventReceiver';
+import { FpsSampler } from './Util/Fps';
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -628,9 +629,7 @@ O|===|* >________________>\n\
       this.backgroundColor = options.backgroundColor.clone();
     }
 
-    if (options.maxFps) {
-      this.maxFps = options.maxFps ?? Number.POSITIVE_INFINITY;
-    }
+    this.maxFps = options.maxFps ?? this.maxFps;
 
     this.enableCanvasTransparency = options.enableCanvasTransparency;
 
@@ -1195,7 +1194,7 @@ O|===|* >________________>\n\
       this._hasStarted = true;
       this._logger.debug('Starting game...');
       this.browser.resume();
-      Engine.createMainLoop(this, window.requestAnimationFrame, Date.now)();
+      Engine.createMainLoop(this, window.requestAnimationFrame, () => performance.now())();
       this._logger.debug('Game started');
     } else {
       // Game already started;
@@ -1205,18 +1204,22 @@ O|===|* >________________>\n\
 
   public static createMainLoop(game: Engine, raf: (func: Function) => number, nowFn: () => number) {
     let lastTime = nowFn();
-
+    const fpsSampler = new FpsSampler({
+      nowFn,
+      initialFps: game.maxFps === Infinity ? 60 : game.maxFps
+    });
     return function mainloop() {
       if (!game._hasStarted) {
         return;
       }
       try {
         game._requestId = raf(mainloop);
+        fpsSampler.start();
         game.emit('preframe', new PreFrameEvent(game, game.stats.prevFrame));
 
         // Get the time to calculate time-elapsed
         const now = nowFn();
-        let elapsed = Math.floor(now - lastTime) || 1;
+        let elapsed = now - lastTime || 1; // first frame
 
         // Constrain fps
         const fpsInterval = game.maxFps === Number.POSITIVE_INFINITY ? 0 : 1000 / game.maxFps;
@@ -1238,7 +1241,7 @@ O|===|* >________________>\n\
         game.stats.currFrame.reset();
         game.stats.currFrame.id = frameId;
         game.stats.currFrame.delta = delta;
-        game.stats.currFrame.fps = 1.0 / (delta / 1000);
+        game.stats.currFrame.fps = fpsSampler.fps;
 
         const beforeUpdate = nowFn();
         game._update(delta);
@@ -1255,8 +1258,8 @@ O|===|* >________________>\n\
         } else {
           lastTime = now;
         }
-
         game.emit('postframe', new PostFrameEvent(game, game.stats.currFrame));
+        fpsSampler.end();
         game.stats.prevFrame.reset(game.stats.currFrame);
       } catch (e) {
         window.cancelAnimationFrame(game._requestId);

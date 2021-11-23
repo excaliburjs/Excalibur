@@ -42,11 +42,11 @@ describe('The engine', () => {
 
   describe('after frame is ended', () => {
     it('should collect frame delta', () => {
-      expect(stats.delta).toBe(16, 'Frame stats delta is wrong');
+      expect(stats.delta).withContext('Frame stats delta should be ~16ms').toBeCloseTo(16.6, 0);
     });
 
     it('should collect frame fps', () => {
-      expect(stats.fps).toBe(62.5, 'Frame stats fps is wrong');
+      expect(stats.fps).withContext('Frame stats fps should be ~60fps').toBeCloseTo(60);
     });
 
     it('should collect frame actor stats', () => {
