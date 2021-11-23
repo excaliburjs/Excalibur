@@ -18,17 +18,17 @@ export interface ClockOptions {
 
 /**
  * Abstract Clock is the base type of all Clocks
- * 
+ *
  * It has a few opinions
  * 1. It manages the calculation of what "elapsed" time means and thus maximum fps
  * 2. The default timing api is implemented in now()
- * 
- * To implement your own clock, extend Clock and override start/stop to start and stop the clock, then call update() with whatever 
+ *
+ * To implement your own clock, extend Clock and override start/stop to start and stop the clock, then call update() with whatever
  * method is unique to your clock implementation.
  */
 export abstract class Clock {
   protected tick: (elapsedMs: number) => any;
-  private _onFatalException: (e: unknown) => any = () => {};
+  private _onFatalException: (e: unknown) => any = () => { /* default nothing */ };
   private _maxFps: number = Infinity;
   private _lastTime: number = 0;
   public fpsSampler: FpsSampler;
@@ -211,7 +211,7 @@ export class TestClock extends Clock {
 
   /**
    * Manually step the clock forward 1 tick, optionally specify an elapsed time in milliseconds
-   * @param overrideUpdateMs 
+   * @param overrideUpdateMs
    */
   step(overrideUpdateMs?: number): void {
     if (this._running) {
