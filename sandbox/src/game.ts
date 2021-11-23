@@ -117,7 +117,8 @@ var game = new ex.Engine({
   suppressPlayButton: true,
   pointerScope: ex.Input.PointerScope.Canvas,
   antialiasing: false,
-  snapToPixel: true
+  snapToPixel: true,
+  maxFps: 60
 });
 
 fullscreenButton.addEventListener('click', () => {
