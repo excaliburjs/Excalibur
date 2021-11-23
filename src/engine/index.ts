@@ -83,6 +83,7 @@ export * from './Util/Observable';
 export * from './Util/Log';
 export * from './Util/SortedList';
 export * from './Util/Pool';
+export * from './Util/Fps';
 export * from './Util/Clock';
 
 // ex.Deprecated

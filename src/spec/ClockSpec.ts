@@ -33,7 +33,7 @@ describe('Clocks', () => {
 
     it('can be converted to a standard clock', () => {
       const testClock = new ex.TestClock({
-        tick: () => {},
+        tick: () => { /* nothing */ },
         defaultUpdateMs: 1000
       });
 
@@ -55,7 +55,7 @@ describe('Clocks', () => {
 
       expect(tickSpy).not.toHaveBeenCalled();
       clock.start();
-      
+
       expect(clock.isRunning()).toBe(true);
       expect(tickSpy).toHaveBeenCalled();
 
@@ -72,16 +72,18 @@ describe('Clocks', () => {
 
       clock.start();
       setTimeout(() => {
-        expect(clock.fpsSampler.fps).toBeCloseTo(15, 0);
+        expect(clock.fpsSampler.fps).toBeCloseTo(15, -1);
         stop();
         done();
-      }, 300)
+      }, 300);
     });
 
     it('can handle exceptions and stop', () => {
       const errorSpy = jasmine.createSpy('error');
       const clock = new ex.StandardClock({
-        tick: () => { throw new Error('some error') },
+        tick: () => {
+          throw new Error('some error');
+        },
         onFatalException: errorSpy
       });
       spyOn(clock, 'stop');
@@ -94,7 +96,7 @@ describe('Clocks', () => {
 
     it('can return the elapsed time', () => {
       const clock = new ex.StandardClock({
-        tick: () => {}
+        tick: () => { /* nothing */ }
       });
       (clock as any).update(100);
       expect(clock.elapsed()).toBe(100);
@@ -102,7 +104,7 @@ describe('Clocks', () => {
 
     it('can be converted to a test clock', () => {
       const clock = new ex.StandardClock({
-        tick: () => {}
+        tick: () => { /* nothing */ }
       });
 
       const test = clock.toTestClock();
@@ -110,4 +112,4 @@ describe('Clocks', () => {
       expect(test).toBeInstanceOf(ex.TestClock);
     });
   });
-})
+});

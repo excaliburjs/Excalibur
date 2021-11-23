@@ -1208,7 +1208,6 @@ O|===|* >________________>\n\
       this._hasStarted = true;
       this._logger.debug('Starting game...');
       this.browser.resume();
-      // Engine.createMainLoop(this, window.requestAnimationFrame, () => performance.now())();
       this.clock.start();
       this._logger.debug('Game started');
     } else {
