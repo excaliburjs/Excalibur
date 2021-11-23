@@ -167,6 +167,14 @@ export interface EngineOptions {
    * Optionally set the background color
    */
   backgroundColor?: Color;
+
+  /**
+   * Optionally set the maximum fps if not set Excalibur will go as fast as the device allows.
+   * 
+   * You may want to constrain max fps if your game cannot maintain fps consistenly, it can look and feel better to have a 30fps game than
+   * one that bounces between 30fps and 60fps  
+   */
+  maxFps?: number;
 }
 
 /**
@@ -203,6 +211,14 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * Direct access to the canvas element ID, if an ID exists
    */
   public canvasElementId: string;
+
+  /**
+   * Optionally set the maximum fps if not set Excalibur will go as fast as the device allows.
+   * 
+   * You may want to constrain max fps if your game cannot maintain fps consistenly, it can look and feel better to have a 30fps game than
+   * one that bounces between 30fps and 60fps  
+   */
+  public maxFps: number = Number.POSITIVE_INFINITY;
 
   /**
    * The width of the game canvas in pixels (physical width component of the
@@ -610,6 +626,10 @@ O|===|* >________________>\n\
 
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();
+    }
+
+    if (options.maxFps) {
+      this.maxFps = options.maxFps ?? Number.POSITIVE_INFINITY;
     }
 
     this.enableCanvasTransparency = options.enableCanvasTransparency;
@@ -1197,6 +1217,13 @@ O|===|* >________________>\n\
         // Get the time to calculate time-elapsed
         const now = nowFn();
         let elapsed = Math.floor(now - lastTime) || 1;
+
+        // Constrain fps
+        const fpsInterval = game.maxFps === Number.POSITIVE_INFINITY ? 0 : 1000 / game.maxFps;
+        if (elapsed <= fpsInterval) {
+          return; // too fast 😎 skip this frame
+        }
+
         // Resolves issue #138 if the game has been paused, or blurred for
         // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability
         // and provides more expected behavior when the engine comes back
@@ -1222,7 +1249,12 @@ O|===|* >________________>\n\
         game.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
         game.stats.currFrame.duration.draw = afterDraw - afterUpdate;
 
-        lastTime = now;
+        // if fps interval is not a multple
+        if (fpsInterval > 0) {
+          lastTime = now - (elapsed % fpsInterval);
+        } else {
+          lastTime = now;
+        }
 
         game.emit('postframe', new PostFrameEvent(game, game.stats.currFrame));
         game.stats.prevFrame.reset(game.stats.currFrame);

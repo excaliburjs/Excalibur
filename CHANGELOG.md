@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added a new feature to Engine options to set a maximum fps `new ex.Engine({...options, maxFps: 30})`. This can be useful when needing to deliver a consistent experience across devices.
 - Pointers can now be configured to use the collider or the graphics bounds as the target for pointers with the `ex.PointerComponent`
   - `useColliderShape` - (default true) uses the collider component geometry for pointer events
   - `useGraphicsBounds` - (default false) uses the graphics bounds for pointer events
