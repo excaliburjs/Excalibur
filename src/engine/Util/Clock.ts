@@ -1,3 +1,4 @@
+import { Logger } from '..';
 import { FpsSampler } from './Fps';
 
 export interface ClockOptions {
@@ -182,6 +183,7 @@ export interface TestClockOptions {
  * The TestClock is meant for debugging interactions in excalibur that require precise timing to replicate or test
  */
 export class TestClock extends Clock {
+  private _logger = Logger.getInstance();
   private _updateMs: number;
   private _running: boolean;
   private _currentTime = 0;
@@ -213,10 +215,32 @@ export class TestClock extends Clock {
    * Manually step the clock forward 1 tick, optionally specify an elapsed time in milliseconds
    * @param overrideUpdateMs
    */
-  step(overrideUpdateMs?: number): void {
-    if (this._running) {
-      this.update(overrideUpdateMs ?? this._updateMs);
-      this._currentTime += overrideUpdateMs ?? this._updateMs;
+  async step(overrideUpdateMs?: number): Promise<void> {
+    return new Promise((resolve) => {
+
+      if (this._running) {
+        // to be comparable to RAF this needs to be a full blown Task
+        // For example, images cannot decode syncronously in a single step
+        setTimeout(() => {
+          this.update(overrideUpdateMs ?? this._updateMs);
+          this._currentTime += overrideUpdateMs ?? this._updateMs;
+          resolve();
+        });
+      } else {
+        this._logger.warn('')
+        resolve();
+      }
+    });
+  }
+
+  /**
+   * Run a number of steps that tick the clock, optionally specify an elapsed time in milliseconds
+   * @param numberOfSteps 
+   * @param overrideUpdateMs 
+   */
+  async run(numberOfSteps: number, overrideUpdateMs?: number): Promise<void> {
+    for (let i = 0; i < numberOfSteps; i++) {
+      await this.step(overrideUpdateMs ?? this._updateMs);
     }
   }
 }
