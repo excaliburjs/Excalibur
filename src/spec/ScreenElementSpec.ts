@@ -27,6 +27,9 @@ describe('A ScreenElement', () => {
     engine.goToScene('test');
     engine.start();
 
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+
     spyOn(scene, 'draw').and.callThrough();
     spyOn(screenElement, 'draw').and.callThrough();
   });
@@ -92,9 +95,11 @@ describe('A ScreenElement', () => {
 
   it('is drawn on the top left with empty constructor', (done) => {
     const game = TestUtils.engine({ width: 720, height: 480 });
+    const clock = game.clock as ex.TestClock;
     const bg = new ex.LegacyDrawing.Texture('src/spec/images/ScreenElementSpec/emptyctor.png', true);
+    const loader = new ex.Loader([bg]);
 
-    game.start(new ex.Loader([bg])).then(() => {
+    game.start(loader).then(() => {
       const screenElement = new ex.ScreenElement();
       screenElement.addDrawing(bg);
       game.add(screenElement);
@@ -107,6 +112,11 @@ describe('A ScreenElement', () => {
           done();
         });
       });
+      clock.step(500);
+    });
+
+    loader.areResourcesLoaded().then(() => {
+      clock.step(200);
     });
   });
 });

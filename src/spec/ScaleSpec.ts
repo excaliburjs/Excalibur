@@ -26,9 +26,10 @@ describe('A scaled and rotated actor', () => {
   });
 
   it('is drawn correctly scaled at 90 degrees', (done) => {
+    const clock = engine.clock as ex.TestClock;
     const bg = new ex.LegacyDrawing.Texture('./src/spec/images/ScaleSpec/logo.png', true);
-
-    engine.start(new ex.Loader([bg])).then(() => {
+    const loader = new ex.Loader([bg]);
+    engine.start(loader).then(() => {
       const actor = new ex.Actor({
         x: engine.halfDrawWidth,
         y: engine.halfDrawHeight,
@@ -41,7 +42,7 @@ describe('A scaled and rotated actor', () => {
       engine.add(actor);
 
       actor.rotation = Math.PI / 2;
-
+        
       actor.on('postdraw', (ev: ex.PostDrawEvent) => {
         engine.stop();
         ensureImagesLoaded(engine.canvas, 'src/spec/images/ScaleSpec/scale.png').then(([canvas, image]) => {
@@ -49,6 +50,11 @@ describe('A scaled and rotated actor', () => {
           done();
         });
       });
+      clock.step(500);
+    });
+
+    loader.areResourcesLoaded().then(() => {
+      clock.step(200);
     });
   });
 });

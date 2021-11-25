@@ -39,6 +39,11 @@ describe('A generic Resource', () => {
         game.stop();
         done();
       });
+
+      emptyLoader.areResourcesLoaded().then(() => {
+        const clock = game.clock as ex.TestClock;
+        clock.step(200);
+      })
     });
   });
 

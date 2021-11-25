@@ -6,14 +6,20 @@ import { ColorBlindness } from '@excalibur';
 describe('A ColorBlindCorrector', () => {
   let bg: ex.LegacyDrawing.Texture;
   let engine: ex.Engine;
+  let clock: ex.TestClock;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jasmine.addMatchers(ExcaliburMatchers);
 
     engine = TestUtils.engine({ width: 800, height: 200 });
     bg = new ex.LegacyDrawing.Texture('src/spec/images/ColorBlindCorrectorSpec/actor.png', true);
-
-    return engine.start(new ex.Loader([bg]));
+    const loader = new ex.Loader([bg]);
+    const start = engine.start(loader);
+    clock = engine.clock as ex.TestClock;
+    await loader.areResourcesLoaded();
+    clock.run(2, 100);
+    await start;
+    clock.run(5, 100);
   });
 
   afterEach(() => {
@@ -30,6 +36,7 @@ describe('A ColorBlindCorrector', () => {
         done();
       });
     });
+    clock.step(1);
   });
 
   it('corrects deuteranopia', (done) => {
@@ -43,6 +50,7 @@ describe('A ColorBlindCorrector', () => {
         done();
       });
     });
+    clock.step(1);
   });
 
   it('simulates deuteranopia', (done) => {
@@ -56,6 +64,7 @@ describe('A ColorBlindCorrector', () => {
         done();
       });
     });
+    clock.step(1);
   });
 
   it('corrects protanopia', (done) => {
@@ -69,6 +78,7 @@ describe('A ColorBlindCorrector', () => {
         done();
       });
     });
+    clock.step(1);
   });
 
   it('simulates protanopia', (done) => {
@@ -82,6 +92,7 @@ describe('A ColorBlindCorrector', () => {
         done();
       });
     });
+    clock.step(1);
   });
 
   it('corrects tritanopia', (done) => {
@@ -95,6 +106,7 @@ describe('A ColorBlindCorrector', () => {
         done();
       });
     });
+    clock.step(1);
   });
 
   it('simulates tritanopia', (done) => {
@@ -108,5 +120,6 @@ describe('A ColorBlindCorrector', () => {
         done();
       });
     });
+    clock.step(1);
   });
 });

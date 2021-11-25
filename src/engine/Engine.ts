@@ -1017,6 +1017,7 @@ O|===|* >________________>\n\
    * @param delta  Number of milliseconds elapsed since the last update.
    */
   private _update(delta: number) {
+    // if (!this.ready) {
     if (this._isLoading) {
       // suspend updates until loading is finished
       this._loader.update(this, delta);
@@ -1168,12 +1169,24 @@ O|===|* >________________>\n\
     return this._loadingComplete;
   }
 
+  private _isReady = false;
+  public get ready() {
+    return this._isReady;
+  }
+  private _isReadyResolve: () => any;
+  private _isReadyPromise = new Promise<void>(resolve => () => { this._isReadyResolve = resolve; });
+  public isReady(): Promise<void> {
+    return this._isReadyPromise;
+  }
+
 
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
    * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]], override to provide your own
    * custom loader.
+   * 
+   * Note: start() only resolves AFTER the user has clicked the play button
    */
   public start(loader?: Loader): Promise<void> {
     if (!this._compatible) {
@@ -1199,6 +1212,8 @@ O|===|* >________________>\n\
       this.screen.popResolutionAndViewport();
       this.screen.applyResolutionAndViewport();
       this.graphicsContext.updateViewport();
+      this._isReady = true;
+      this._isReadyResolve();
       this.emit('start', new GameStartEvent(this));
       this._loadingComplete = true;
     });
@@ -1355,8 +1370,9 @@ O|===|* >________________>\n\
       this._isLoading = true;
 
       loader.load().then(() => {
+        // TODO move this to loader?
         if (this._suppressPlayButton) {
-          setTimeout(() => {
+          this.clock.schedule(() => {
             this._isLoading = false;
             resolve();
             // Delay is to give the logo a chance to show, otherwise don't delay
@@ -1365,6 +1381,8 @@ O|===|* >________________>\n\
           this._isLoading = false;
           resolve();
         }
+      }).finally(() => {
+        resolve();
       });
     });
 

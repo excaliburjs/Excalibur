@@ -35,6 +35,8 @@ export abstract class Clock {
   public fpsSampler: FpsSampler;
   private _options: ClockOptions;
   private _elapsed: number = 1;
+  private _scheduledCbs: [cb: () => any, scheduledTime: number][] = [];
+  private _totalElapsed: number = 0;
   constructor(options: ClockOptions) {
     this._options = options;
     this.tick = options.tick;
@@ -76,6 +78,31 @@ export abstract class Clock {
     return clock;
   }
 
+  /**
+   * Schedule a callback to fire given a a timeout in milliseconds using the excalibur [[Clock]]
+   * 
+   * This is useful to use over the built in browser `setTimeout` because callbacks will be tied to the 
+   * excalibur update clock, instead of browser time, this means that callbacks wont fire if the game is 
+   * stopped or paused.
+   * 
+   * @param cb callback to fire
+   * @param timeoutMs Optionally sepcify a timeout in milliseconds from now, default is 0ms which means the next possible tick
+   */
+  public schedule(cb: () => any, timeoutMs: number = 0) {
+    const scheduledTime = this.now() + timeoutMs;
+    this._scheduledCbs.push([cb, scheduledTime]);
+  }
+
+  private _runScheduledCbs() {
+    // walk backwards to delete items as we loop
+    for (let i = this._scheduledCbs.length - 1; i > -1; i--) {
+      if (this._scheduledCbs[i][1] <= this._totalElapsed) {
+        this._scheduledCbs[i][0]();
+        this._scheduledCbs.splice(i, 1);
+      }
+    }
+  }
+
   protected update(overrideUpdateMs?: number): void {
     try {
       this.fpsSampler.start();
@@ -97,8 +124,10 @@ export abstract class Clock {
         elapsed = 1;
       }
 
-      // tick the mainloop
+      // tick the mainloop and run scheduled callbacks
       this._elapsed = overrideUpdateMs || elapsed;
+      this._totalElapsed += this._elapsed;
+      this._runScheduledCbs();
       this.tick(overrideUpdateMs || elapsed);
 
       // if fps interval is not a multple
@@ -185,7 +214,7 @@ export interface TestClockOptions {
 export class TestClock extends Clock {
   private _logger = Logger.getInstance();
   private _updateMs: number;
-  private _running: boolean;
+  private _running: boolean = false;
   private _currentTime = 0;
   constructor(options: ClockOptions & TestClockOptions) {
     super({
@@ -198,7 +227,7 @@ export class TestClock extends Clock {
    * Get the current time in milliseconds
    */
   public override now() {
-    return this._currentTime;
+    return this._currentTime ?? 0;
   }
 
   public isRunning(): boolean {
@@ -215,22 +244,17 @@ export class TestClock extends Clock {
    * Manually step the clock forward 1 tick, optionally specify an elapsed time in milliseconds
    * @param overrideUpdateMs
    */
-  async step(overrideUpdateMs?: number): Promise<void> {
-    return new Promise((resolve) => {
+  step(overrideUpdateMs?: number): void {
+    const time = overrideUpdateMs ?? this._updateMs;
 
-      if (this._running) {
-        // to be comparable to RAF this needs to be a full blown Task
-        // For example, images cannot decode syncronously in a single step
-        setTimeout(() => {
-          this.update(overrideUpdateMs ?? this._updateMs);
-          this._currentTime += overrideUpdateMs ?? this._updateMs;
-          resolve();
-        });
-      } else {
-        this._logger.warn('')
-        resolve();
-      }
-    });
+    if (this._running) {
+      // to be comparable to RAF this needs to be a full blown Task
+      // For example, images cannot decode syncronously in a single step
+      this.update(time);
+      this._currentTime += time;
+    } else {
+      this._logger.warn('The clock is not running, no step will be performed');
+    }
   }
 
   /**
@@ -238,9 +262,9 @@ export class TestClock extends Clock {
    * @param numberOfSteps 
    * @param overrideUpdateMs 
    */
-  async run(numberOfSteps: number, overrideUpdateMs?: number): Promise<void> {
+  run(numberOfSteps: number, overrideUpdateMs?: number): void {
     for (let i = 0; i < numberOfSteps; i++) {
-      await this.step(overrideUpdateMs ?? this._updateMs);
+      this.step(overrideUpdateMs ?? this._updateMs);
     }
   }
 }

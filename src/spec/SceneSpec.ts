@@ -19,6 +19,9 @@ describe('A scene', () => {
     engine.addScene('root', scene);
     engine.goToScene('root');
     engine.start();
+
+    const clock = engine.clock as ex.TestClock;
+    clock.step(100);
   });
 
   afterEach(() => {
@@ -343,6 +346,8 @@ describe('A scene', () => {
 
     engine.goToScene('root');
     engine.start();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(100);
   });
 
   it('fires initialize before actor initialize before activate', (done) => {
@@ -372,22 +377,26 @@ describe('A scene', () => {
     scene.add(actor);
     engine.goToScene('root');
     engine.start();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(100);
   });
 
   it('can only be initialized once', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
+    const clock = engine.clock as ex.TestClock;
     scene = new ex.Scene();
-
+    
     engine.removeScene('root');
     engine.addScene('root', scene);
-
+    
     let initializeCount = 0;
     scene.on('initialize', (evt) => {
       initializeCount++;
     });
-
+    
     engine.goToScene('root');
     engine.start();
+    clock.step(1);
     scene.update(engine, 100);
     scene.update(engine, 100);
     scene._initialize(engine);
@@ -399,6 +408,7 @@ describe('A scene', () => {
 
   it('should initialize before actors in the scene', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
+    const clock = engine.clock as ex.TestClock;
     scene = new ex.Scene();
 
     engine.removeScene('root');
@@ -416,6 +426,7 @@ describe('A scene', () => {
 
     engine.goToScene('root');
     engine.start();
+    clock.step(1);
     scene.update(engine, 100);
   });
 

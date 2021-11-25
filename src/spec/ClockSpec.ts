@@ -40,6 +40,62 @@ describe('Clocks', () => {
       const standard = testClock.toStandardClock();
       expect(standard).toBeInstanceOf(ex.StandardClock);
     });
+
+    it('will log a warning if not started', () => {
+      const logger = ex.Logger.getInstance();
+      spyOn(logger, 'warn');
+
+      const testClock = new ex.TestClock({
+        tick: () => { /* nothing */ },
+        defaultUpdateMs: 1000
+      });
+
+      testClock.step();
+      expect(testClock.isRunning()).toBe(false);
+      expect(logger.warn).toHaveBeenCalledWith('The clock is not running, no step will be performed')
+    });
+
+    it('works with delay()', (done) => {
+      const testClock = new ex.TestClock({
+        tick: () => { /* nothing */ },
+        defaultUpdateMs: 1000
+      });
+      testClock.start();
+      ex.Util.delay(1000, testClock).then(() => {
+        done();
+      });
+
+      testClock.step(500);
+      testClock.step(500);
+    });
+
+    it('can schedule a callbacks to fire', async () => {
+      const testClock = new ex.TestClock({
+        tick: () => { /* nothing */ },
+        defaultUpdateMs: 1000
+      });
+      testClock.start();
+
+      const scheduledCb = jasmine.createSpy('scheduled');
+      const scheduledCb2 = jasmine.createSpy('scheduled2');
+
+      testClock.schedule(scheduledCb, 1000);
+      testClock.schedule(scheduledCb2, 1500);
+
+      expect(scheduledCb).not.toHaveBeenCalled();
+      expect(scheduledCb2).not.toHaveBeenCalled();
+
+      await testClock.step(500);
+      expect(scheduledCb).not.toHaveBeenCalled();
+      expect(scheduledCb2).not.toHaveBeenCalled();
+
+      await testClock.step(500);
+      expect(scheduledCb).toHaveBeenCalledTimes(1);
+      expect(scheduledCb2).not.toHaveBeenCalled();
+
+      await testClock.step(500);
+      expect(scheduledCb2).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('A StandardClock', () => {

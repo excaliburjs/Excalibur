@@ -303,11 +303,21 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
 
   data: Loadable<any>[];
 
+  private _isLoadedResolve: () => any;
+  private _isLoadedPromise = new Promise<void>(resolve => {
+    this._isLoadedResolve = resolve;
+  });
+  public areResourcesLoaded() {
+    return this._isLoadedPromise;
+  }
+
   /**
    * Begin loading all of the supplied resources, returning a promise
-   * that resolves when loading of all is complete
+   * that resolves when loading of all is complete AND the user has clicked the "Play button"
    */
   public async load(): Promise<Loadable<any>[]> {
+    await this._image?.decode(); // decode logo if it exists
+
     await Promise.all(
       this._resourceList.map((r) =>
         r.load().finally(() => {
@@ -316,9 +326,11 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
         })
       )
     );
+    this._isLoadedResolve();
 
     // short delay in showing the button for aesthetics
-    await delay(200);
+    await delay(200, this._engine?.clock);
+
     await this.showPlayButton();
     // Unlock browser AudioContext in after user gesture
     // See: https://github.com/excaliburjs/Excalibur/issues/262

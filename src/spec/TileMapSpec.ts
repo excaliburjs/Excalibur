@@ -17,7 +17,7 @@ describe('A TileMap', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
   let texture: ex.LegacyDrawing.Texture;
-  beforeEach(() => {
+  beforeEach(async () => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     engine = TestUtils.engine({
@@ -27,8 +27,10 @@ describe('A TileMap', () => {
     scene = new ex.Scene();
     engine.addScene('root', scene);
     engine.start();
-
+    const clock = engine.clock as ex.TestClock;
     texture = new ex.LegacyDrawing.Texture('src/spec/images/TileMapSpec/Blocks.png', true);
+    await texture.load();
+    clock.step(1);
   });
   afterEach(() => {
     engine.stop();

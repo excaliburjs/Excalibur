@@ -1,14 +1,11 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { Mocks } from './util/Mocks';
-import { ensureImagesLoaded, ExcaliburMatchers } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { Engine } from '@excalibur';
 
 describe('The engine', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
-  const mock = new Mocks.Mocker();
-  let loop: Mocks.GameLoopLike;
 
   const reset = () => {
     engine.stop();
@@ -23,15 +20,15 @@ describe('The engine', () => {
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
 
     engine = TestUtils.engine();
     scene = new ex.Scene();
     engine.add('default', scene);
     engine.goToScene('default');
-
-    loop = mock.loop(engine);
-
     engine.start();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
   });
 
   afterEach(() => {
@@ -42,20 +39,24 @@ describe('The engine', () => {
     reset();
     engine = TestUtils.engine({
       suppressPlayButton: false
-    });
+    }, ['use-canvas-context']);
     (<any>engine)._suppressPlayButton = false;
-    engine.addScene('root', scene);
+    const imageSource = new ex.ImageSource('src/spec/images/SpriteSpec/icon.png');
 
-    loop = mock.loop(engine);
+    const loader = new ex.Loader([imageSource]);
+    const start = engine.start(loader);
+    const testClock = engine.clock as ex.TestClock;
 
-    engine.start(new ex.Loader([new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true)]));
-    setTimeout(() => {
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/EngineSpec/engine-load-complete.png').then(([canvas, image]) => {
-        expect(document.getElementById('excalibur-play')).toBeDefined('Play button should exist in the document');
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    }, 600);
+    loader.areResourcesLoaded().then(() => {
+      testClock.run(2, 100); // 200 ms delay in loader
+      expect(document.getElementById('excalibur-play')).withContext('Play button should exist in the document').toBeDefined();
+      setTimeout(() => { // needed for the delay to work
+        testClock.run(1, 100);
+        expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/engine-load-complete.png').then(() => {
+          done();
+        });
+      })
+    });
   });
 
   it('should have a default resolution to SVGA (800x600) if none specified', () => {
@@ -79,70 +80,86 @@ describe('The engine', () => {
       })
     );
 
-    loop = mock.loop(engine);
-
-    engine.start(new ex.Loader([new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true)])).then(() => {
+    const testClock = engine.clock as ex.TestClock;
+    const loader = new ex.Loader([new ex.ImageSource('src/spec/images/SpriteSpec/icon.png')]);
+    engine.start(loader).then(() => {
+      // With suppress play there is another 500 ms delay in engine load()
+      testClock.step(500);
       setTimeout(() => {
-        ensureImagesLoaded(engine.canvas, 'src/spec/images/EngineSpec/engine-suppress-play.png').then(([canvas, image]) => {
-          expect(canvas).toEqualImage(image);
+        expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png').then(() => {
           done();
         });
-      }, 600);
+      })
+    });
+  
+    loader.areResourcesLoaded().then(() => {
+      // Once resources are there is a 200 ms delay in excalibur loader
+      testClock.step(200);
     });
   });
 
   it('should emit a preframe event', () => {
-    let fired = false;
-    engine.on('preframe', () => (fired = true));
-
-    loop.advance(100);
-
-    expect(fired).toBe(true);
+    const fired = jasmine.createSpy('fired');
+    engine.on('preframe', fired);
+    expect(fired).not.toHaveBeenCalled();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+    clock.step(1);
+    expect(fired).toHaveBeenCalledTimes(2);
   });
 
   it('should emit a postframe event', () => {
-    let fired = false;
-    engine.on('postframe', () => (fired = true));
+    const fired = jasmine.createSpy('fired');
+    engine.on('postframe', fired);
 
-    loop.advance(100);
-
-    expect(fired).toBe(true);
+    expect(fired).not.toHaveBeenCalled();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+    clock.step(1);
+    expect(fired).toHaveBeenCalledTimes(2);
   });
 
   it('should emit a preupdate event', () => {
-    let fired = false;
-    engine.on('preupdate', () => (fired = true));
-
-    loop.advance(100);
-
-    expect(fired).toBe(true);
+    const fired = jasmine.createSpy('fired');
+    engine.on('preupdate', fired);
+    expect(fired).not.toHaveBeenCalled();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+    clock.step(1);
+    expect(fired).toHaveBeenCalledTimes(2);
   });
 
   it('should emit a postupdate event', () => {
-    let fired = false;
-    engine.on('postupdate', () => (fired = true));
+    const fired = jasmine.createSpy('fired');
+    engine.on('postupdate', fired);
 
-    loop.advance(100);
-
-    expect(fired).toBe(true);
+    expect(fired).not.toHaveBeenCalled();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+    clock.step(1);
+    expect(fired).toHaveBeenCalledTimes(2);
   });
 
   it('should emit a predraw event', () => {
-    let fired = false;
-    engine.on('predraw', () => (fired = true));
+    const fired = jasmine.createSpy('fired');
+    engine.on('predraw', fired);
 
-    loop.advance(100);
-
-    expect(fired).toBe(true);
+    expect(fired).not.toHaveBeenCalled();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+    clock.step(1);
+    expect(fired).toHaveBeenCalledTimes(2);
   });
 
   it('should emit a postdraw event', () => {
-    let fired = false;
-    engine.on('postdraw', () => (fired = true));
+    const fired = jasmine.createSpy('fired');
+    engine.on('postdraw', fired);
 
-    loop.advance(100);
-
-    expect(fired).toBe(true);
+    expect(fired).not.toHaveBeenCalled();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+    clock.step(1);
+    expect(fired).toHaveBeenCalledTimes(2);
   });
 
   it('should tell engine is running', () => {
@@ -193,6 +210,8 @@ describe('The engine', () => {
 
   it('should return correct screen dimensions if zoomed in', () => {
     engine.start();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
     engine.currentScene.camera.zoom = 2;
 
     expect(engine.drawHeight).toBe(250);

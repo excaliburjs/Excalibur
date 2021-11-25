@@ -1,18 +1,15 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
-import { Mocks } from './util/Mocks';
 
 describe('A Collision', () => {
   let actor1: ex.Actor = null;
   let actor2: ex.Actor = null;
-  const scene: ex.Scene = null;
   let engine: ex.Engine = null;
-  const mock = new Mocks.Mocker();
-  let loop: Mocks.GameLoopLike;
+  let clock: ex.TestClock = null;
 
   beforeEach(() => {
     engine = TestUtils.engine({ width: 600, height: 400 });
-    loop = mock.loop(engine);
+    clock = engine.clock = engine.clock.toTestClock();
 
     actor1 = new ex.Actor({x: 0, y: 0, width: 10, height: 10});
     actor2 = new ex.Actor({x: 5, y: 5, width: 10, height: 10});
@@ -32,7 +29,7 @@ describe('A Collision', () => {
     actor2 = null;
   });
 
-  it('should throw one event for each actor participating', () => {
+  it('should throw one event for each actor participating', async () => {
     let actor1Collision = 0;
     let actor2Collision = 0;
     actor1.on('precollision', (e: ex.PreCollisionEvent) => {
@@ -44,9 +41,7 @@ describe('A Collision', () => {
       actor2Collision++;
     });
 
-    for (let i = 0; i < 50; i++) {
-      loop.advance(100);
-    }
+    clock.run(1, 100);
 
     expect(actor1Collision).toBe(1);
     expect(actor2Collision).toBe(1);
@@ -151,9 +146,7 @@ describe('A Collision', () => {
 
     actor2.body.collisionType = ex.CollisionType.Passive;
 
-    for (let i = 0; i < 50; i++) {
-      loop.advance(100);
-    }
+    clock.run(1, 100);
 
     expect(actor1Collision).toBe(1);
     expect(actor2Collision).toBe(1);
@@ -172,9 +165,7 @@ describe('A Collision', () => {
 
     actor2.kill();
 
-    for (let i = 0; i < 50; i++) {
-      loop.advance(100);
-    }
+    clock.run(1, 100);
 
     expect(actor1Collision).toBe(0);
     expect(actor2Collision).toBe(0);
@@ -188,9 +179,7 @@ describe('A Collision', () => {
       }
     });
 
-    for (let i = 0; i < 50; i++) {
-      loop.advance(100);
-    }
+    clock.run(5, 100);
 
     expect(touching).toBe(true);
   });
@@ -224,9 +213,7 @@ describe('A Collision', () => {
 
     activeBlock.once('precollision', collisionHandler);
 
-    for (let i = 0; i < 20; i++) {
-      loop.advance(1000);
-    }
+    clock.run(5, 1000);
   });
 
   it('should emit a start collision once when objects start colliding', () => {
@@ -250,9 +237,7 @@ describe('A Collision', () => {
 
     activeBlock.on('collisionstart', collisionStart);
 
-    for (let i = 0; i < 20; i++) {
-      loop.advance(1000);
-    }
+    clock.run(5, 1000)
 
     expect(count).toBe(1);
   });
@@ -278,9 +263,7 @@ describe('A Collision', () => {
 
     activeBlock.on('collisionend', collisionEnd);
 
-    for (let i = 0; i < 20; i++) {
-      loop.advance(1000);
-    }
+    clock.run(5, 1000);
 
     expect(count).toBe(1);
   });
@@ -297,9 +280,7 @@ describe('A Collision', () => {
     fixedBlock.body.collisionType = ex.CollisionType.Fixed;
     engine.add(fixedBlock);
 
-    for (let i = 0; i < 20; i++) {
-      loop.advance(1000);
-    }
+    clock.run(5, 1000);
 
     expect(activeBlock.vel.x).toBe(0);
   });
@@ -317,9 +298,7 @@ describe('A Collision', () => {
 
     activeBlock.vel = ex.vec(-100, activeBlock.vel.y);
 
-    for (let i = 0; i < 20; i++) {
-      loop.advance(1000);
-    }
+    clock.run(5, 1000);
 
     expect(activeBlock.vel.x).toBe(-100);
   });
@@ -344,9 +323,7 @@ describe('A Collision', () => {
 
     activeBlock.on('collisionstart', collisionEnd);
 
-    for (let i = 0; i < 20; i++) {
-      loop.advance(1000);
-    }
+    clock.run(5, 1000);
   });
 
   it('should have the actor as the handler context for collisionend', (done) => {
@@ -369,8 +346,6 @@ describe('A Collision', () => {
 
     activeBlock.on('collisionend', collisionEnd);
 
-    for (let i = 0; i < 20; i++) {
-      loop.advance(1000);
-    }
+    clock.run(5, 1000);
   });
 });

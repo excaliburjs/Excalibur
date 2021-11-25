@@ -26,6 +26,12 @@ export namespace TestUtils {
     flags.forEach(f => ex.Flags.enable(f));
     const game = new ex.Engine(options);
 
+    // Make all the clocks test clocks in the test utils
+    game.clock.stop();
+    game.clock = game.clock.toTestClock();
+
+    (ex.WebAudio as any)._UNLOCKED = true;
+
     return game;
   }
 }

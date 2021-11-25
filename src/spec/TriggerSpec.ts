@@ -17,6 +17,8 @@ describe('A Trigger', () => {
 
     loop = mock.loop(engine);
     engine.start();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
   });
 
   afterEach(() => {
