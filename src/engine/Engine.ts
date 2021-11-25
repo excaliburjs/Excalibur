@@ -1173,7 +1173,9 @@ O|===|* >________________>\n\
     return this._isReady;
   }
   private _isReadyResolve: () => any;
-  private _isReadyPromise = new Promise<void>(resolve => { this._isReadyResolve = resolve; });
+  private _isReadyPromise = new Promise<void>(resolve => {
+    this._isReadyResolve = resolve;
+  });
   public isReady(): Promise<void> {
     return this._isReadyPromise;
   }
@@ -1184,7 +1186,7 @@ O|===|* >________________>\n\
    * any provided assets.
    * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]], override to provide your own
    * custom loader.
-   * 
+   *
    * Note: start() only resolves AFTER the user has clicked the play button
    */
   public async start(loader?: Loader): Promise<void> {

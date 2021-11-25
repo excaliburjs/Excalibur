@@ -388,17 +388,17 @@ export const range = (from: number, to: number) => Array.from(new Array(to - fro
 
 /**
  * Create a promise that resolves after a certain number of milliseconds
- * 
+ *
  * It is strongly recommended you pass the excalibur clock so delays are bound to the
  * excalibur clock which would be unaffected by stop/pause.
  * @param milliseconds
  * @param clock
  */
 export function delay(milliseconds: number, clock?: Clock): Promise<void> {
-  const schedule = clock?.schedule.bind(clock) ?? setTimeout
+  const schedule = clock?.schedule.bind(clock) ?? setTimeout;
   return new Promise<void>(resolve => {
     schedule(() => {
-        resolve();
+      resolve();
     }, milliseconds);
   });
 }
