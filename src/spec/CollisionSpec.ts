@@ -237,7 +237,7 @@ describe('A Collision', () => {
 
     activeBlock.on('collisionstart', collisionStart);
 
-    clock.run(5, 1000)
+    clock.run(5, 1000);
 
     expect(count).toBe(1);
   });

@@ -55,7 +55,7 @@ describe('The engine', () => {
         expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/engine-load-complete.png').then(() => {
           done();
         });
-      })
+      });
     });
   });
 
@@ -79,7 +79,7 @@ describe('The engine', () => {
         color: ex.Color.Red
       })
     );
-    
+
     const testClock = engine.clock as ex.TestClock;
     const loader = new ex.Loader([new ex.ImageSource('src/spec/images/SpriteSpec/icon.png')]);
 
@@ -476,11 +476,11 @@ describe('The engine', () => {
     it('can have onInitialize overridden safely', async () => {
       await TestUtils.runToReady(engine);
       let initCalled = false;
-      
+
       engine.onInitialize = (engine) => {
         expect(engine).not.toBe(null);
       };
-      
+
       engine.on('initialize', () => {
         initCalled = true;
       });

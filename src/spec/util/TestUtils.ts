@@ -35,6 +35,9 @@ export namespace TestUtils {
     return game;
   }
 
+  /**
+   *
+   */
   export async function runToReady(engine: ex.Engine, loader?: ex.Loader) {
     const clock = engine.clock as ex.TestClock;
     const start = engine.start(loader);

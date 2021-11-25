@@ -52,7 +52,7 @@ describe('Clocks', () => {
 
       testClock.step();
       expect(testClock.isRunning()).toBe(false);
-      expect(logger.warn).toHaveBeenCalledWith('The clock is not running, no step will be performed')
+      expect(logger.warn).toHaveBeenCalledWith('The clock is not running, no step will be performed');
     });
 
     it('works with delay()', (done) => {

@@ -385,15 +385,15 @@ describe('A scene', () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
     const clock = engine.clock as ex.TestClock;
     scene = new ex.Scene();
-    
+
     engine.removeScene('root');
     engine.addScene('root', scene);
-    
+
     let initializeCount = 0;
     scene.on('initialize', (evt) => {
       initializeCount++;
     });
-    
+
     engine.goToScene('root');
     engine.start();
     clock.step(1);
