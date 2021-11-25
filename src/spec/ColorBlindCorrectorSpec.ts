@@ -14,12 +14,8 @@ describe('A ColorBlindCorrector', () => {
     engine = TestUtils.engine({ width: 800, height: 200 });
     bg = new ex.LegacyDrawing.Texture('src/spec/images/ColorBlindCorrectorSpec/actor.png', true);
     const loader = new ex.Loader([bg]);
-    const start = engine.start(loader);
     clock = engine.clock as ex.TestClock;
-    await loader.areResourcesLoaded();
-    clock.run(2, 100);
-    await start;
-    clock.run(5, 100);
+    await TestUtils.runToReady(engine, loader);
   });
 
   afterEach(() => {

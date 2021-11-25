@@ -176,6 +176,7 @@ describe('A loader', () => {
 
   it('can have the enter key pressed to start', (done) => {
     const loader = new ex.Loader([, , , ,]);
+    loader.wireEngine(engine);
     loader.loadingBarPosition = ex.vec(0, 0);
     loader.loadingBarColor = ex.Color.Red;
     loader.markResourceComplete();

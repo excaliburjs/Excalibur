@@ -7,7 +7,6 @@ describe('A ScreenElement', () => {
   let screenElement: ex.ScreenElement;
   let engine: ex.Engine;
   let scene: ex.Scene;
-  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -98,8 +97,7 @@ describe('A ScreenElement', () => {
     const clock = game.clock as ex.TestClock;
     const bg = new ex.LegacyDrawing.Texture('src/spec/images/ScreenElementSpec/emptyctor.png', true);
     const loader = new ex.Loader([bg]);
-
-    game.start(loader).then(() => {
+    TestUtils.runToReady(game, loader).then(() => {
       const screenElement = new ex.ScreenElement();
       screenElement.addDrawing(bg);
       game.add(screenElement);
@@ -112,11 +110,7 @@ describe('A ScreenElement', () => {
           done();
         });
       });
-      clock.step(500);
-    });
-
-    loader.areResourcesLoaded().then(() => {
-      clock.step(200);
+      clock.step(1);
     });
   });
 });

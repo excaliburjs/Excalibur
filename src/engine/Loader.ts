@@ -240,10 +240,11 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
   /**
    * Shows the play button and returns a promise that resolves when clicked
    */
-  public showPlayButton(): Promise<void> {
+  public async showPlayButton(): Promise<void> {
     if (this.suppressPlayButton) {
       this.hidePlayButton();
-      return Promise.resolve();
+      // Delay is to give the logo a chance to show, otherwise don't delay
+      await delay(500, this._engine?.clock);
     } else {
       const resizeHandler = () => {
         this._positionPlayButton();
@@ -258,7 +259,8 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
           this._playButton.click();
         }
       });
-      const promise = new Promise<void>((resolve) => {
+      this._positionPlayButton();
+      const playButtonClicked = new Promise<void>((resolve) => {
         const startButtonHandler = (e: Event) => {
           // We want to stop propogation to keep bubbling to the engine pointer handlers
           e.stopPropagation();
@@ -274,7 +276,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
         this._playButton.addEventListener('pointerup', startButtonHandler);
       });
 
-      return promise;
+      return await playButtonClicked;
     }
   }
 

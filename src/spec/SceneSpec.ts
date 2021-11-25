@@ -673,6 +673,8 @@ describe('A scene', () => {
     });
 
     it('can have onInitialize overridden safely', () => {
+      TestUtils.runToReady(engine);
+      const clock = engine.clock as ex.TestClock;
       let initCalled = false;
       scene.onInitialize = (engine) => {
         expect(engine).not.toBe(null);
@@ -685,7 +687,7 @@ describe('A scene', () => {
       spyOn(scene, 'onInitialize').and.callThrough();
 
       engine.goToScene('root');
-      (<any>engine)._update(100);
+      clock.step(100);
 
       expect(initCalled).toBe(true);
       expect(scene.onInitialize).toHaveBeenCalledTimes(1);

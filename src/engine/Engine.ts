@@ -410,7 +410,6 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   // loading
   private _loader: Loader;
-  private _isLoading: boolean = false;
 
   private _isInitialized: boolean = false;
 
@@ -1017,8 +1016,7 @@ O|===|* >________________>\n\
    * @param delta  Number of milliseconds elapsed since the last update.
    */
   private _update(delta: number) {
-    // if (!this.ready) {
-    if (this._isLoading) {
+    if (!this.ready) {
       // suspend updates until loading is finished
       this._loader.update(this, delta);
       // Update input listeners
@@ -1081,10 +1079,10 @@ O|===|* >________________>\n\
     const ctx = this.ctx;
     this._predraw(ctx, delta);
 
-    if (this._isLoading) {
+    // Drawing nothing else while loading
+    if (!this._isReady) {
       this._loader.canvas.draw(this.graphicsContext, 0, 0);
       this.graphicsContext.flush();
-      // Drawing nothing else while loading
       return;
     }
 
@@ -1162,6 +1160,7 @@ O|===|* >________________>\n\
   }
 
   private _loadingComplete: boolean = false;
+
   /**
    * Returns true when loading is totally complete and the player has clicked start
    */
@@ -1174,7 +1173,7 @@ O|===|* >________________>\n\
     return this._isReady;
   }
   private _isReadyResolve: () => any;
-  private _isReadyPromise = new Promise<void>(resolve => () => { this._isReadyResolve = resolve; });
+  private _isReadyPromise = new Promise<void>(resolve => { this._isReadyResolve = resolve; });
   public isReady(): Promise<void> {
     return this._isReadyPromise;
   }
@@ -1188,47 +1187,48 @@ O|===|* >________________>\n\
    * 
    * Note: start() only resolves AFTER the user has clicked the play button
    */
-  public start(loader?: Loader): Promise<void> {
+  public async start(loader?: Loader): Promise<void> {
     if (!this._compatible) {
-      return Promise.reject('Excalibur is incompatible with your browser');
+      throw new Error('Excalibur is incompatible with your browser');
     }
-    let loadingComplete: Promise<void>;
-    // Push the current user entered resolution/viewport
-    this.screen.pushResolutionAndViewport();
-    // Configure resolution for loader
-    this.screen.resolution = this.screen.viewport;
-    this.screen.applyResolutionAndViewport();
-    this.graphicsContext.updateViewport();
+
+    // Wire loader if we have it
     if (loader) {
+      // Push the current user entered resolution/viewport
+      this.screen.pushResolutionAndViewport();
+
+      // Configure resolution for loader, it expects resolution === viewport
+      this.screen.resolution = this.screen.viewport;
+      this.screen.applyResolutionAndViewport();
+      this.graphicsContext.updateViewport();
       this._loader = loader;
       this._loader.suppressPlayButton = this._suppressPlayButton || this._loader.suppressPlayButton;
       this._loader.wireEngine(this);
-      loadingComplete = this.load(this._loader);
-    } else {
-      loadingComplete = Promise.resolve();
     }
 
-    loadingComplete.then(() => {
+    // Start the excalibur clock which drives the mainloop
+    // has started is a slight misnomer, it's really mainloop started
+    this._logger.debug('Starting game clock...');
+    this.browser.resume();
+    this.clock.start();
+    this._logger.debug('Game clock started');
+
+    if (loader) {
+      await this.load(this._loader);
+      this._loadingComplete = true;
+
+      // reset back to previous user resolution/viewport
       this.screen.popResolutionAndViewport();
       this.screen.applyResolutionAndViewport();
       this.graphicsContext.updateViewport();
-      this._isReady = true;
-      this._isReadyResolve();
-      this.emit('start', new GameStartEvent(this));
-      this._loadingComplete = true;
-    });
-
-    if (!this._hasStarted) {
-      // has started is a slight misnomer, it's really mainloop started
-      this._hasStarted = true;
-      this._logger.debug('Starting game...');
-      this.browser.resume();
-      this.clock.start();
-      this._logger.debug('Game started');
-    } else {
-      // Game already started;
     }
-    return loadingComplete;
+
+    this._loadingComplete = true;
+
+    this._isReady = true;
+    this._isReadyResolve();
+    this.emit('start', new GameStartEvent(this));
+    return this._isReadyPromise;
   }
 
   private _mainloop(elapsed: number) {
@@ -1332,10 +1332,9 @@ O|===|* >________________>\n\
    * Stops Excalibur's main loop, useful for pausing the game.
    */
   public stop() {
-    if (this._hasStarted) {
+    if (this.clock.isRunning()) {
       this.emit('stop', new GameStopEvent(this));
       this.browser.pause();
-      this._hasStarted = false;
       this.clock.stop();
       this._logger.debug('Game stopped');
     }
@@ -1345,7 +1344,7 @@ O|===|* >________________>\n\
    * Returns the Engine's Running status, Useful for checking whether engine is running or paused.
    */
   public isPaused(): boolean {
-    return !this._hasStarted;
+    return !this.clock.isRunning();
   }
 
   /**
@@ -1365,28 +1364,12 @@ O|===|* >________________>\n\
    * will appear.
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
-  public load(loader: Loadable<any>): Promise<void> {
-    const complete = new Promise<void>((resolve) => {
-      this._isLoading = true;
-
-      loader.load().then(() => {
-        // TODO move this to loader?
-        if (this._suppressPlayButton) {
-          this.clock.schedule(() => {
-            this._isLoading = false;
-            resolve();
-            // Delay is to give the logo a chance to show, otherwise don't delay
-          }, 500);
-        } else {
-          this._isLoading = false;
-          resolve();
-        }
-      }).finally(() => {
-        resolve();
-      });
-    });
-
-    return complete;
+  public async load(loader: Loadable<any>): Promise<void> {
+    try {
+      await loader.load();
+    } catch {
+      await Promise.resolve();
+    }
   }
 }
 
