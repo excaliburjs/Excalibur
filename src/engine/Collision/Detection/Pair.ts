@@ -17,6 +17,11 @@ export class Pair {
     const bodyA = colliderA?.owner?.get(BodyComponent);
     const bodyB = colliderB?.owner?.get(BodyComponent);
 
+    // Colliders with the same owner do not collide
+    if (colliderA.owner.id === colliderB.owner.id) {
+      return false;
+    }
+
     // Body's needed for collision in the current state
     // TODO can we collide without a body?
     if (!bodyA || !bodyB) {
