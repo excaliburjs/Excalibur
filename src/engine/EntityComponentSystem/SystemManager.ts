@@ -62,7 +62,7 @@ export class SystemManager<ContextType> {
 
   /**
    * Initialize all systems in the manager
-   * 
+   *
    * Systems added after initialize() will be initialized on add
    */
   public initialize() {
