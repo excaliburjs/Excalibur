@@ -255,6 +255,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
       // Initialize camera first
       this.camera._initialize(engine);
 
+      this.world.systemManager.initialize();
+
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
       this.onInitialize.call(this, engine);

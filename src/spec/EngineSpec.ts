@@ -474,7 +474,6 @@ describe('The engine', () => {
     });
 
     it('can have onInitialize overridden safely', async () => {
-      await TestUtils.runToReady(engine);
       let initCalled = false;
 
       engine.onInitialize = (engine) => {
@@ -487,6 +486,7 @@ describe('The engine', () => {
 
       spyOn(engine, 'onInitialize').and.callThrough();
 
+      await TestUtils.runToReady(engine);
       const clock = engine.clock as ex.TestClock;
       clock.step(1);
 

@@ -1025,7 +1025,6 @@ O|===|* >________________>\n\
       return;
     }
 
-    this._overrideInitialize(this);
 
     // Publish preupdate events
     this._preupdate(delta);
@@ -1227,7 +1226,11 @@ O|===|* >________________>\n\
 
     this._loadingComplete = true;
 
+    // Initialize before ready
+    this._overrideInitialize(this);
+
     this._isReady = true;
+
     this._isReadyResolve();
     this.emit('start', new GameStartEvent(this));
     return this._isReadyPromise;

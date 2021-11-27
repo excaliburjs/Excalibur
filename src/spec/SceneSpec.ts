@@ -673,7 +673,6 @@ describe('A scene', () => {
     });
 
     it('can have onInitialize overridden safely', () => {
-      TestUtils.runToReady(engine);
       const clock = engine.clock as ex.TestClock;
       let initCalled = false;
       scene.onInitialize = (engine) => {
@@ -686,6 +685,7 @@ describe('A scene', () => {
 
       spyOn(scene, 'onInitialize').and.callThrough();
 
+      TestUtils.runToReady(engine);
       engine.goToScene('root');
       clock.step(100);
 

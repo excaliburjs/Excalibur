@@ -61,12 +61,11 @@ export class SystemManager<ContextType> {
   }
 
   /**
-   * Updates all systems
-   * @param type whether this is an update or draw system
-   * @param context context reference
-   * @param delta time in milliseconds
+   * Initialize all systems in the manager
+   * 
+   * Systems added after initialize() will be initialized on add
    */
-  public updateSystems(type: SystemType, context: ContextType, delta: number) {
+  public initialize() {
     if (!this.initialized) {
       this.initialized = true;
       for (const s of this.systems) {
@@ -75,7 +74,15 @@ export class SystemManager<ContextType> {
         }
       }
     }
+  }
 
+  /**
+   * Updates all systems
+   * @param type whether this is an update or draw system
+   * @param context context reference
+   * @param delta time in milliseconds
+   */
+  public updateSystems(type: SystemType, context: ContextType, delta: number) {
     const systems = this.systems.filter((s) => s.systemType === type);
     for (const s of systems) {
       if (s.preupdate) {
