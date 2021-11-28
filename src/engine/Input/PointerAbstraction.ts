@@ -54,11 +54,11 @@ export class PointerAbstraction extends Class {
     this.lastPagePos = new Vector(ev.pagePos.x, ev.pagePos.y);
     this.lastScreenPos = new Vector(ev.screenPos.x, ev.screenPos.y);
     this.lastWorldPos = new Vector(ev.worldPos.x, ev.worldPos.y);
-  }
+  };
 
   private _onPointerDown = (ev: PointerEvent): void => {
     this.lastPagePos = new Vector(ev.pagePos.x, ev.pagePos.y);
     this.lastScreenPos = new Vector(ev.screenPos.x, ev.screenPos.y);
     this.lastWorldPos = new Vector(ev.worldPos.x, ev.worldPos.y);
-  }
+  };
 }
