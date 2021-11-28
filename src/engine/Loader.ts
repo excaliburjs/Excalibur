@@ -354,19 +354,21 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
   }
 
   private _positionPlayButton() {
-    const screenHeight = this._engine.screen.viewport.height;
-    const screenWidth = this._engine.screen.viewport.width;
-    if (this._playButtonRootElement) {
-      const left = this._engine.canvas.offsetLeft;
-      const top = this._engine.canvas.offsetTop;
-      const buttonWidth = this._playButton.clientWidth;
-      const buttonHeight = this._playButton.clientHeight;
-      if (this.playButtonPosition) {
-        this._playButtonRootElement.style.left = `${this.playButtonPosition.x}px`;
-        this._playButtonRootElement.style.top = `${this.playButtonPosition.y}px`;
-      } else {
-        this._playButtonRootElement.style.left = `${left + screenWidth / 2 - buttonWidth / 2}px`;
-        this._playButtonRootElement.style.top = `${top + screenHeight / 2 - buttonHeight / 2 + 100}px`;
+    if (this._engine) {
+      const screenHeight = this._engine.screen.viewport.height;
+      const screenWidth = this._engine.screen.viewport.width;
+      if (this._playButtonRootElement) {
+        const left = this._engine.canvas.offsetLeft;
+        const top = this._engine.canvas.offsetTop;
+        const buttonWidth = this._playButton.clientWidth;
+        const buttonHeight = this._playButton.clientHeight;
+        if (this.playButtonPosition) {
+          this._playButtonRootElement.style.left = `${this.playButtonPosition.x}px`;
+          this._playButtonRootElement.style.top = `${this.playButtonPosition.y}px`;
+        } else {
+          this._playButtonRootElement.style.left = `${left + screenWidth / 2 - buttonWidth / 2}px`;
+          this._playButtonRootElement.style.top = `${top + screenHeight / 2 - buttonHeight / 2 + 100}px`;
+        }
       }
     }
   }
