@@ -83,6 +83,9 @@ export * from './Util/Observable';
 export * from './Util/Log';
 export * from './Util/SortedList';
 export * from './Util/Pool';
+export * from './Util/Fps';
+export * from './Util/Clock';
+export * from './Util/WebAudio';
 
 // ex.Deprecated
 export * from './Promises';

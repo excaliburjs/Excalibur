@@ -23,6 +23,8 @@ describe('Collision Shape', () => {
       engine.add('test', scene);
       engine.goToScene('test');
       engine.start();
+      const clock = engine.clock as ex.TestClock;
+      clock.step(1);
 
       actor = new ex.Actor({ x: 0, y: 0, width: 20, height: 20 });
       circle = actor.collider.useCircleCollider(10, ex.Vector.Zero);
@@ -381,6 +383,8 @@ describe('Collision Shape', () => {
       engine.addScene('test', scene);
       engine.goToScene('test');
       engine.start();
+      const clock = engine.clock as ex.TestClock;
+      clock.step(1);
     });
 
     afterEach(() => {
@@ -731,6 +735,8 @@ describe('Collision Shape', () => {
       engine.addScene('test', scene);
       engine.goToScene('test');
       engine.start();
+      const clock = engine.clock as ex.TestClock;
+      clock.step(1);
 
       actor = new ex.Actor({ x: 5, y: 0, width: 10, height: 10 });
       edge = actor.collider.useEdgeCollider(new ex.Vector(-5, 0), new ex.Vector(5, 0));

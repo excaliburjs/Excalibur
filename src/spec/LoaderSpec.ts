@@ -176,6 +176,7 @@ describe('A loader', () => {
 
   it('can have the enter key pressed to start', (done) => {
     const loader = new ex.Loader([, , , ,]);
+    loader.wireEngine(engine);
     loader.loadingBarPosition = ex.vec(0, 0);
     loader.loadingBarColor = ex.Color.Red;
     loader.markResourceComplete();
@@ -214,24 +215,26 @@ describe('A loader', () => {
     target.dispatchEvent(evt);
   }
 
-  it('does not propagate the start button click to pointers', (done) => {
+  it('does not propagate the start button click to pointers', async () => {
     const engine = new ex.Engine({ width: 1000, height: 1000 });
+    (ex.WebAudio as any)._UNLOCKED = true;
+    const clock = engine.clock = engine.clock.toTestClock();
     const pointerHandler = jasmine.createSpy('pointerHandler');
     engine.input.pointers.primary.on('up', pointerHandler);
     const loader = new Loader([new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png')]);
     engine.start(loader);
 
-    setTimeout(() => {
-      const btn = (loader as any)._playButton;
-      const btnClickHandler = jasmine.createSpy('btnClickHandler');
-      btn.addEventListener('pointerup', btnClickHandler);
-      const rect = btn.getBoundingClientRect();
-      executeMouseEvent('pointerup', btn as any, ex.Input.NativePointerButton.Left, rect.x + rect.width / 2, rect.y + rect.height / 2);
+    await loader.areResourcesLoaded();
+    clock.step(200);
 
-      expect(pointerHandler).not.toHaveBeenCalled();
-      expect(btnClickHandler).toHaveBeenCalled();
-      done();
-    }, 1000);
+    const btn = (loader as any)._playButton;
+    const btnClickHandler = jasmine.createSpy('btnClickHandler');
+    btn.addEventListener('pointerup', btnClickHandler);
+    const rect = btn.getBoundingClientRect();
+    executeMouseEvent('pointerup', btn as any, ex.Input.NativePointerButton.Left, rect.x + rect.width / 2, rect.y + rect.height / 2);
+
+    expect(pointerHandler).not.toHaveBeenCalled();
+    expect(btnClickHandler).toHaveBeenCalled();
   });
 
   it('updates the play button postion on resize', () => {

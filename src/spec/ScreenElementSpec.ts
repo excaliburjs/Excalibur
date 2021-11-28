@@ -7,7 +7,6 @@ describe('A ScreenElement', () => {
   let screenElement: ex.ScreenElement;
   let engine: ex.Engine;
   let scene: ex.Scene;
-  const mock = new Mocks.Mocker();
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
@@ -26,6 +25,9 @@ describe('A ScreenElement', () => {
     engine.addScene('test', scene);
     engine.goToScene('test');
     engine.start();
+
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(screenElement, 'draw').and.callThrough();
@@ -92,9 +94,10 @@ describe('A ScreenElement', () => {
 
   it('is drawn on the top left with empty constructor', (done) => {
     const game = TestUtils.engine({ width: 720, height: 480 });
+    const clock = game.clock as ex.TestClock;
     const bg = new ex.LegacyDrawing.Texture('src/spec/images/ScreenElementSpec/emptyctor.png', true);
-
-    game.start(new ex.Loader([bg])).then(() => {
+    const loader = new ex.Loader([bg]);
+    TestUtils.runToReady(game, loader).then(() => {
       const screenElement = new ex.ScreenElement();
       screenElement.addDrawing(bg);
       game.add(screenElement);
@@ -107,6 +110,7 @@ describe('A ScreenElement', () => {
           done();
         });
       });
+      clock.step(1);
     });
   });
 });

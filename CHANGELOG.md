@@ -11,10 +11,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
--
+- The static `Engine.createMainLoop` is now marked deprecated and will be removed in v0.26.0, it is replaced by the `Clock` api
 
 ### Added
 
+- Added new `Clock` api to manage the core main loop. Clocks hide the implementation detail of how the mainloop runs, users just knows that it ticks somehow. Clocks additionally encapsulate any related browser timing, like `performance.now()`
+  1. `StandardClock` encapsulates the existing `requestAnimationFrame` api logic
+  2. `TestClock` allows a user to manually step the mainloop, this can be useful for frame by frame debugging #1170 
+  3. The base abstract clock implements the specifics of elapsed time 
+
+- Added a new feature to Engine options to set a maximum fps `new ex.Engine({...options, maxFps: 30})`. This can be useful when needing to deliver a consistent experience across devices.
 - Pointers can now be configured to use the collider or the graphics bounds as the target for pointers with the `ex.PointerComponent`
   - `useColliderShape` - (default true) uses the collider component geometry for pointer events
   - `useGraphicsBounds` - (default false) uses the graphics bounds for pointer events
@@ -39,7 +45,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - The following Engine's pieces: `Collision` `Graphics` `Resources` `Trigger` are updated to reflect the new EventDispatcher behavior.
 
 ### Changed
-
+- Excalibur FPS is now sampled over 100ms blocks, this gives a more usable fps in the stats. The sampler is available off of the engine clock `engine.clock.fpsSampler.fps` 
 - Pointer Events:
   * Event types (up, down, move, etc) now all exist in 2 types `ex.Input.PointerEvent` and `ex.Input.WheelEvent`
   * The `stopPropagation()` method used to cancel further dispatches has been renamed to `cancel()` to match other events API.

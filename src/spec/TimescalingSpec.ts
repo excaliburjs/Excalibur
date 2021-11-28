@@ -5,21 +5,18 @@ import { TestUtils } from './util/TestUtils';
 describe('The engine', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
-  const mock = new Mocks.Mocker();
-  let loop: Mocks.GameLoopLike;
   let actor: ex.Actor;
+  let clock: ex.TestClock;
 
-  beforeEach((done) => {
+  beforeEach(async () => {
     engine = TestUtils.engine({ width: 0, height: 0 });
     scene = new ex.Scene();
     engine.add('test', scene);
     engine.goToScene('test');
     actor = new ex.Actor({x: 0, y: 0, width: 10, height: 10, color: ex.Color.Red});
     scene.add(actor);
-    loop = mock.loop(engine);
-    engine.start().then(() => {
-      done();
-    });
+    clock = engine.clock as ex.TestClock;
+    await TestUtils.runToReady(engine);
   });
 
   afterEach(() => {
@@ -40,7 +37,7 @@ describe('The engine', () => {
     // 1s = 5px
     // 5px * 2x = 10px
     // actor moves twice as fast
-    loop.advance(1100);
+    clock.step(1000);
 
     expect(actor.pos.x).toBe(10, 'actor did not move twice as fast');
   });
@@ -54,7 +51,7 @@ describe('The engine', () => {
     // 2s = 10px
     // 10px * 0.5x = 5px
     // actor moves twice as slow
-    loop.advance(2000);
+    clock.step(2000);
 
     expect(actor.pos.x).toBeCloseTo(5, 0.2, 'actor did not move twice as slow');
   });

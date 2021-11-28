@@ -44,6 +44,8 @@ describe('A game actor', () => {
     spyOn(actor, 'debugDraw');
 
     engine.start();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
     collisionSystem.initialize(scene);
     scene.world.systemManager.get(ex.Input.PointerSystem).initialize(scene);
 
@@ -601,6 +603,8 @@ describe('A game actor', () => {
     engine.addScene('test', scene);
     engine.goToScene('test');
     engine.start();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
 
     const green = new ex.Actor({ x: 35, y: 35, width: 50, height: 50, color: ex.Color.Green });
     const blue = new ex.Actor({ x: 65, y: 65, width: 50, height: 50, color: ex.Color.Blue });

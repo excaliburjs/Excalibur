@@ -4,7 +4,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "experimentalDecorators": true,
-    "target": "es2015",
+    "target": "es2018",
     "module": "es2015",
     "declaration": true,
     "removeComments": false,
@@ -21,13 +21,7 @@
     "lib": [
       "dom",
       "es5",
-      "es2015.collection",
-      "es2015.iterable",
-      "es2015.promise",
-      "es2018.promise",
-      "es2015.proxy",
-      "es2016",
-      "es2017.object"
+      "es2018"
     ]
   }
 }
