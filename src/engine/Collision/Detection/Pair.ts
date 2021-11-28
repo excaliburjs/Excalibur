@@ -15,8 +15,8 @@ export class Pair {
 
   /**
    * Returns whether a it is allowed for 2 colliders in a Pair to collide
-   * @param colliderA 
-   * @param colliderB 
+   * @param colliderA
+   * @param colliderB
    */
   public static canCollide(colliderA: Collider, colliderB: Collider) {
     const bodyA = colliderA?.owner?.get(BodyComponent);
@@ -28,7 +28,7 @@ export class Pair {
     }
 
     // Colliders with the same owner do not collide (composite colliders)
-    if (colliderA.owner && 
+    if (colliderA.owner &&
         colliderB.owner &&
         colliderA.owner.id === colliderB.owner.id) {
       return false;

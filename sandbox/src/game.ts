@@ -704,7 +704,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
 });
 
 var isColliding = false;
-player.on('precollision', (data?: ex.PreCollisionEvent) => {
+player.on('postcollision', (data?: ex.PreCollisionEvent) => {
   if (data.side === ex.Side.Bottom) {
     isColliding = true;
 

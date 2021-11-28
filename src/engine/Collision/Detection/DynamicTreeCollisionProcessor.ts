@@ -80,7 +80,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   private _pairExists(colliderA: Collider, colliderB: Collider) {
     // if the collision pair has been calculated already short circuit
     const hash = Pair.calculatePairHash(colliderA.id, colliderB.id);
-    return this._pairs.has(hash)
+    return this._pairs.has(hash);
   }
 
   /**
