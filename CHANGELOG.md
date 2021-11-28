@@ -22,6 +22,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where fast moving `CompositeCollider`s were erroneously generating pairs for their constituent parts
 - Fixed Safari 13.1 crash when booting Excalibur because of they odd MediaQuery API in older Safari
 - Fixed issue where pointers did not work because of missing types
 - Fixed issue with `ArcadeSolver` where stacked/overlapped tiles would double solve the position of the collider for the same overlap
