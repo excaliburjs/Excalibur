@@ -78,7 +78,7 @@ describe('A Collision Pair', () => {
   });
 
   it('cannot collide with same collision group', () => {
-    const group = ex.CollisionGroupManager.create('group');
+    const group = new ex.CollisionGroup('group', 1, ~1);
     const actor1 = new ex.Actor({
       width: 10,
       height: 10
