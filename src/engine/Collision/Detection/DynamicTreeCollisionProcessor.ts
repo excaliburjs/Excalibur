@@ -20,7 +20,7 @@ import { ExcaliburGraphicsContext } from '../..';
  */
 export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   private _dynamicCollisionTree = new DynamicTree<Collider>();
-  private _collisions = new Set<string>();
+  private _pairs = new Set<string>();
 
   private _collisionPairCache: Pair[] = [];
   private _colliders: Collider[] = [];
@@ -77,31 +77,10 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     }
   }
 
-  private _shouldGenerateCollisionPair(colliderA: Collider, colliderB: Collider) {
-    // if the collision pair must be 2 separate colliders
-    // Also separate owners for composite colliders
-    if (
-      (colliderA.id !== null &&
-      colliderB.id !== null &&
-      colliderA.id === colliderB.id) ||
-      (colliderA.owner !== null &&
-       colliderB.owner !== null &&
-       colliderA.owner === colliderB.owner)) {
-      return false;
-    }
-
+  private _pairExists(colliderA: Collider, colliderB: Collider) {
     // if the collision pair has been calculated already short circuit
     const hash = Pair.calculatePairHash(colliderA.id, colliderB.id);
-    if (this._collisions.has(hash)) {
-      return false; // pair exists easy exit return false
-    }
-
-    // if the pair has a member with zero dimension
-    if (colliderA.localBounds.hasZeroDimensions() || colliderB.localBounds.hasZeroDimensions()) {
-      return false;
-    }
-
-    return Pair.canCollide(colliderA, colliderB);
+    return this._pairs.has(hash);
   }
 
   /**
@@ -118,7 +97,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
     // clear old list of collision pairs
     this._collisionPairCache = [];
-    this._collisions.clear();
+    this._pairs.clear();
 
     // check for normal collision pairs
     let collider: Collider;
@@ -126,9 +105,9 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
       collider = potentialColliders[j];
       // Query the collision tree for potential colliders
       this._dynamicCollisionTree.query(collider, (other: Collider) => {
-        if (this._shouldGenerateCollisionPair(collider, other)) {
+        if (!this._pairExists(collider, other) && Pair.canCollide(collider, other)) {
           const pair = new Pair(collider, other);
-          this._collisions.add(pair.id);
+          this._pairs.add(pair.id);
           this._collisionPairCache.push(pair);
         }
         // Always return false, to query whole tree. Returning true in the query method stops searching
@@ -175,7 +154,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
           let minCollider: Collider;
           let minTranslate: Vector = new Vector(Infinity, Infinity);
           this._dynamicCollisionTree.rayCastQuery(ray, updateDistance + Physics.surfaceEpsilon * 2, (other: Collider) => {
-            if (collider !== other && Pair.canCollide(collider, other)) {
+            if (!this._pairExists(collider, other) && Pair.canCollide(collider, other)) {
               const hitPoint = other.rayCast(ray, updateDistance + Physics.surfaceEpsilon * 10);
               if (hitPoint) {
                 const translate = hitPoint.sub(origin);
@@ -190,8 +169,8 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
           if (minCollider && Vector.isValid(minTranslate)) {
             const pair = new Pair(collider, minCollider);
-            if (!this._collisions.has(pair.id)) {
-              this._collisions.add(pair.id);
+            if (!this._pairs.has(pair.id)) {
+              this._pairs.add(pair.id);
               this._collisionPairCache.push(pair);
             }
             // move the fast moving object to the other body

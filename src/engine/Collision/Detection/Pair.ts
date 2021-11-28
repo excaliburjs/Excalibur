@@ -13,9 +13,31 @@ export class Pair {
     this.id = Pair.calculatePairHash(colliderA.id, colliderB.id);
   }
 
+  /**
+   * Returns whether a it is allowed for 2 colliders in a Pair to collide
+   * @param colliderA
+   * @param colliderB
+   */
   public static canCollide(colliderA: Collider, colliderB: Collider) {
     const bodyA = colliderA?.owner?.get(BodyComponent);
     const bodyB = colliderB?.owner?.get(BodyComponent);
+
+    // Prevent self collision
+    if (colliderA.id === colliderB.id) {
+      return false;
+    }
+
+    // Colliders with the same owner do not collide (composite colliders)
+    if (colliderA.owner &&
+        colliderB.owner &&
+        colliderA.owner.id === colliderB.owner.id) {
+      return false;
+    }
+
+    // if the pair has a member with zero dimension don't collide
+    if (colliderA.localBounds.hasZeroDimensions() || colliderB.localBounds.hasZeroDimensions()) {
+      return false;
+    }
 
     // Body's needed for collision in the current state
     // TODO can we collide without a body?
