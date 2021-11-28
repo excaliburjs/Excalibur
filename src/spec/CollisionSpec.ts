@@ -280,7 +280,7 @@ describe('A Collision', () => {
     fixedBlock.body.collisionType = ex.CollisionType.Fixed;
     engine.add(fixedBlock);
 
-    clock.run(5, 1000);
+    clock.run(15, 100);
 
     expect(activeBlock.vel.x).toBe(0);
   });
