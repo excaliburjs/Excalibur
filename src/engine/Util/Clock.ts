@@ -79,14 +79,14 @@ export abstract class Clock {
   }
 
   /**
-   * Schedule a callback to fire given a a timeout in milliseconds using the excalibur [[Clock]]
+   * Schedule a callback to fire given a timeout in milliseconds using the excalibur [[Clock]]
    *
    * This is useful to use over the built in browser `setTimeout` because callbacks will be tied to the
    * excalibur update clock, instead of browser time, this means that callbacks wont fire if the game is
    * stopped or paused.
    *
    * @param cb callback to fire
-   * @param timeoutMs Optionally sepcify a timeout in milliseconds from now, default is 0ms which means the next possible tick
+   * @param timeoutMs Optionally specify a timeout in milliseconds from now, default is 0ms which means the next possible tick
    */
   public schedule(cb: () => any, timeoutMs: number = 0) {
     const scheduledTime = this.now() + timeoutMs;
