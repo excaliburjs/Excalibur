@@ -5,18 +5,18 @@ import { TestUtils } from './util/TestUtils';
 describe('A Trigger', () => {
   let scene: ex.Scene;
   let engine: ex.Engine;
-  const mock = new Mocks.Mocker();
-  let loop: Mocks.GameLoopLike;
+  let clock: ex.TestClock;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     engine = TestUtils.engine({ width: 600, height: 400 });
 
     scene = new ex.Scene();
     engine.addScene('test', scene);
     engine.goToScene('test');
 
-    loop = mock.loop(engine);
-    engine.start();
+    await TestUtils.runToReady(engine);
+    clock = engine.clock as ex.TestClock;
+    clock.step(1);
   });
 
   afterEach(() => {
@@ -151,9 +151,7 @@ describe('A Trigger', () => {
 
     // Act
     actor.vel = ex.vec(0, 10);
-    for (let i = 0; i < 40; i++) {
-      loop.advance(1000);
-    }
+    clock.run(40, 1000);
 
     expect(fired).toBe(1);
   });
@@ -181,9 +179,7 @@ describe('A Trigger', () => {
 
     // Act
     actor.vel = ex.vec(0, 10);
-    for (let i = 0; i < 40; i++) {
-      loop.advance(1000);
-    }
+    clock.run(40, 1000);
 
     // Assert
     expect(exitSpy).toHaveBeenCalledTimes(1);
@@ -202,9 +198,7 @@ describe('A Trigger', () => {
 
     spyOn(trigger, 'draw');
     // Act
-    for (let i = 0; i < 2; i++) {
-      loop.advance(1000);
-    }
+    clock.run(2, 1000);
 
     // Assert
     expect(trigger.draw).not.toHaveBeenCalled();
@@ -223,9 +217,7 @@ describe('A Trigger', () => {
 
     spyOn(trigger, 'draw');
     // Act
-    for (let i = 0; i < 2; i++) {
-      loop.advance(1000);
-    }
+    clock.run(2, 1000);
 
     // Assert
     expect(trigger.draw).toHaveBeenCalled();
@@ -249,9 +241,7 @@ describe('A Trigger', () => {
     spyOn(trigger, 'action');
 
     // Act
-    for (let i = 0; i < 2; i++) {
-      loop.advance(1000);
-    }
+    clock.run(2, 1000);
 
     // Assert
     expect(trigger.action).not.toHaveBeenCalled();
@@ -277,9 +267,7 @@ describe('A Trigger', () => {
     spyOn(trigger, 'action').and.callThrough();
 
     // Act
-    for (let i = 0; i < 2; i++) {
-      loop.advance(1000);
-    }
+    clock.run(2, 1000);
 
     // Assert
     expect(trigger.action).toHaveBeenCalled();
@@ -303,9 +291,7 @@ describe('A Trigger', () => {
     spyOn(trigger, 'action');
 
     // Act
-    for (let i = 0; i < 2; i++) {
-      loop.advance(1000);
-    }
+    clock.run(2, 1000);
 
     // Assert
     expect(trigger.action).not.toHaveBeenCalled();

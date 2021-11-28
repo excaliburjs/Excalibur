@@ -19,6 +19,8 @@ describe('Action', () => {
     engine.addScene('test', scene);
     engine.goToScene('test');
     engine.start();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(100);
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(actor, 'draw');

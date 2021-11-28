@@ -45,6 +45,7 @@ declare module dat {
   class GUI {
     constructor(options: { name: string });
     addFolder(name: string): GUI;
+    add<T>(object: T): any;
     add<T>(object: T, prop: keyof T, min?: number, max?: number, step?: number): any;
     addColor(object: any, prop: any): any;
   }
@@ -59,6 +60,14 @@ document.body.appendChild(stats.dom);
 
 var bootstrap = (game: ex.Engine) => {
   gui.add({toggleDebug: false}, 'toggleDebug').onChange(() => game.toggleDebug());
+  let clock = gui.addFolder('clock');
+  clock.add({"Use Test Clock": () => game.debug.useTestClock()}, "Use Test Clock");
+  clock.add({"Use Standard Clock": () => game.debug.useStandardClock()}, "Use Standard Clock");
+  let msStep = {
+    "Step MS": 1000
+  }
+  clock.add(msStep, "Step MS", 1, 2000, 16);
+  clock.add({"Step": () => (game.clock as any).step(msStep["Step MS"]) }, "Step");
   var supportedKeys = ['filter', 'entity', 'transform', 'motion', 'body', 'collider', 'physics', 'graphics', 'camera'];
   for (let key of supportedKeys) {
     let folder = gui.addFolder(key);
@@ -117,7 +126,8 @@ var game = new ex.Engine({
   suppressPlayButton: true,
   pointerScope: ex.Input.PointerScope.Canvas,
   antialiasing: false,
-  snapToPixel: true
+  snapToPixel: true,
+  maxFps: 60
 });
 
 fullscreenButton.addEventListener('click', () => {
@@ -704,7 +714,7 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
 });
 
 var isColliding = false;
-player.on('precollision', (data?: ex.PreCollisionEvent) => {
+player.on('postcollision', (data: ex.PostCollisionEvent) => {
   if (data.side === ex.Side.Bottom) {
     isColliding = true;
 

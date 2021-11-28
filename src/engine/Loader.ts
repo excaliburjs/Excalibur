@@ -240,10 +240,11 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
   /**
    * Shows the play button and returns a promise that resolves when clicked
    */
-  public showPlayButton(): Promise<void> {
+  public async showPlayButton(): Promise<void> {
     if (this.suppressPlayButton) {
       this.hidePlayButton();
-      return Promise.resolve();
+      // Delay is to give the logo a chance to show, otherwise don't delay
+      await delay(500, this._engine?.clock);
     } else {
       const resizeHandler = () => {
         this._positionPlayButton();
@@ -258,7 +259,8 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
           this._playButton.click();
         }
       });
-      const promise = new Promise<void>((resolve) => {
+      this._positionPlayButton();
+      const playButtonClicked = new Promise<void>((resolve) => {
         const startButtonHandler = (e: Event) => {
           // We want to stop propogation to keep bubbling to the engine pointer handlers
           e.stopPropagation();
@@ -274,7 +276,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
         this._playButton.addEventListener('pointerup', startButtonHandler);
       });
 
-      return promise;
+      return await playButtonClicked;
     }
   }
 
@@ -303,11 +305,21 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
 
   data: Loadable<any>[];
 
+  private _isLoadedResolve: () => any;
+  private _isLoadedPromise = new Promise<void>(resolve => {
+    this._isLoadedResolve = resolve;
+  });
+  public areResourcesLoaded() {
+    return this._isLoadedPromise;
+  }
+
   /**
    * Begin loading all of the supplied resources, returning a promise
-   * that resolves when loading of all is complete
+   * that resolves when loading of all is complete AND the user has clicked the "Play button"
    */
   public async load(): Promise<Loadable<any>[]> {
+    await this._image?.decode(); // decode logo if it exists
+
     await Promise.all(
       this._resourceList.map((r) =>
         r.load().finally(() => {
@@ -316,9 +328,11 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
         })
       )
     );
+    this._isLoadedResolve();
 
     // short delay in showing the button for aesthetics
-    await delay(200);
+    await delay(200, this._engine?.clock);
+
     await this.showPlayButton();
     // Unlock browser AudioContext in after user gesture
     // See: https://github.com/excaliburjs/Excalibur/issues/262

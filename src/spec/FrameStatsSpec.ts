@@ -1,12 +1,12 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
+import { TestClock } from '@excalibur';
 
 describe('The engine', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
   const mock = new Mocks.Mocker();
-  let loop: Mocks.GameLoopLike;
   let actor: ex.Actor;
   let stats: ex.FrameStats;
 
@@ -20,13 +20,11 @@ describe('The engine', () => {
     engine.addScene('root', scene);
     engine.goToScene('root');
     actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10, color: ex.Color.Red });
-    loop = mock.loop(engine);
 
     scene.add(actor);
-    engine.start();
-
-    loop.advance(100);
-
+    TestUtils.runToReady(engine);
+    const clock = engine.clock as TestClock;
+    clock.step(16.6);
     stats = engine.stats.currFrame;
   });
 
@@ -42,11 +40,11 @@ describe('The engine', () => {
 
   describe('after frame is ended', () => {
     it('should collect frame delta', () => {
-      expect(stats.delta).toBe(16, 'Frame stats delta is wrong');
+      expect(stats.delta).withContext('Frame stats delta should be ~16ms').toBeCloseTo(16.6, 0);
     });
 
     it('should collect frame fps', () => {
-      expect(stats.fps).toBe(62.5, 'Frame stats fps is wrong');
+      expect(stats.fps).withContext('Frame stats fps should be ~60fps').toBeCloseTo(60);
     });
 
     it('should collect frame actor stats', () => {

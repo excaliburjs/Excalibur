@@ -70,7 +70,6 @@ export class WebAudio {
       );
     });
 
-
     return promise;
   }
 

@@ -42,6 +42,9 @@ describe('A particle', () => {
     engine.addScene('root', scene);
     engine.start();
 
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+
     texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteFontSpec/SpriteFont.png', true);
   });
   afterEach(() => {

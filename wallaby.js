@@ -4,6 +4,7 @@ const webpack = require('webpack');
 module.exports = function (wallaby) {
   return {
     files: [
+      { pattern: 'src/spec/util/*.ts', load: false },
       { pattern: 'src/engine/**/*.ts', load: false },
       { pattern: 'src/engine/**/*.glsl', load: false },
       { pattern: 'src/spec/images/**/*.mp3' },

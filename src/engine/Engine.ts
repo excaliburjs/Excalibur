@@ -42,6 +42,8 @@ import { BrowserEvents } from './Util/Browser';
 import { obsolete } from './Util/Decorators';
 import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL } from './Graphics';
 import { PointerEventReceiver } from './Input/PointerEventReceiver';
+import { FpsSampler } from './Util/Fps';
+import { Clock, StandardClock } from './Util/Clock';
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -167,6 +169,14 @@ export interface EngineOptions {
    * Optionally set the background color
    */
   backgroundColor?: Color;
+
+  /**
+   * Optionally set the maximum fps if not set Excalibur will go as fast as the device allows.
+   *
+   * You may want to constrain max fps if your game cannot maintain fps consistenly, it can look and feel better to have a 30fps game than
+   * one that bounces between 30fps and 60fps
+   */
+  maxFps?: number;
 }
 
 /**
@@ -203,6 +213,19 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * Direct access to the canvas element ID, if an ID exists
    */
   public canvasElementId: string;
+
+  /**
+   * Optionally set the maximum fps if not set Excalibur will go as fast as the device allows.
+   *
+   * You may want to constrain max fps if your game cannot maintain fps consistenly, it can look and feel better to have a 30fps game than
+   * one that bounces between 30fps and 60fps
+   */
+  public maxFps: number = Number.POSITIVE_INFINITY;
+
+  /**
+   * Direct access to the excalibur clock
+   */
+  public clock: Clock;
 
   /**
    * The width of the game canvas in pixels (physical width component of the
@@ -387,7 +410,6 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   // loading
   private _loader: Loader;
-  private _isLoading: boolean = false;
 
   private _isInitialized: boolean = false;
 
@@ -611,6 +633,14 @@ O|===|* >________________>\n\
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();
     }
+
+    this.maxFps = options.maxFps ?? this.maxFps;
+
+    this.clock = new StandardClock({
+      maxFps: this.maxFps,
+      tick: this._mainloop.bind(this),
+      onFatalException: (e) => this.onFatalException(e)
+    });
 
     this.enableCanvasTransparency = options.enableCanvasTransparency;
 
@@ -986,7 +1016,7 @@ O|===|* >________________>\n\
    * @param delta  Number of milliseconds elapsed since the last update.
    */
   private _update(delta: number) {
-    if (this._isLoading) {
+    if (!this.ready) {
       // suspend updates until loading is finished
       this._loader.update(this, delta);
       // Update input listeners
@@ -995,7 +1025,6 @@ O|===|* >________________>\n\
       return;
     }
 
-    this._overrideInitialize(this);
 
     // Publish preupdate events
     this._preupdate(delta);
@@ -1049,10 +1078,10 @@ O|===|* >________________>\n\
     const ctx = this.ctx;
     this._predraw(ctx, delta);
 
-    if (this._isLoading) {
+    // Drawing nothing else while loading
+    if (!this._isReady) {
       this._loader.canvas.draw(this.graphicsContext, 0, 0);
       this.graphicsContext.flush();
-      // Drawing nothing else while loading
       return;
     }
 
@@ -1130,73 +1159,138 @@ O|===|* >________________>\n\
   }
 
   private _loadingComplete: boolean = false;
+
   /**
    * Returns true when loading is totally complete and the player has clicked start
    */
   public get loadingComplete() {
     return this._loadingComplete;
   }
+
+  private _isReady = false;
+  public get ready() {
+    return this._isReady;
+  }
+  private _isReadyResolve: () => any;
+  private _isReadyPromise = new Promise<void>(resolve => {
+    this._isReadyResolve = resolve;
+  });
+  public isReady(): Promise<void> {
+    return this._isReadyPromise;
+  }
+
+
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
    * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]], override to provide your own
    * custom loader.
+   *
+   * Note: start() only resolves AFTER the user has clicked the play button
    */
-  public start(loader?: Loader): Promise<void> {
+  public async start(loader?: Loader): Promise<void> {
     if (!this._compatible) {
-      return Promise.reject('Excalibur is incompatible with your browser');
+      throw new Error('Excalibur is incompatible with your browser');
     }
-    let loadingComplete: Promise<void>;
-    // Push the current user entered resolution/viewport
-    this.screen.pushResolutionAndViewport();
-    // Configure resolution for loader
-    this.screen.resolution = this.screen.viewport;
-    this.screen.applyResolutionAndViewport();
-    this.graphicsContext.updateViewport();
+
+    // Wire loader if we have it
     if (loader) {
+      // Push the current user entered resolution/viewport
+      this.screen.pushResolutionAndViewport();
+
+      // Configure resolution for loader, it expects resolution === viewport
+      this.screen.resolution = this.screen.viewport;
+      this.screen.applyResolutionAndViewport();
+      this.graphicsContext.updateViewport();
       this._loader = loader;
       this._loader.suppressPlayButton = this._suppressPlayButton || this._loader.suppressPlayButton;
       this._loader.wireEngine(this);
-      loadingComplete = this.load(this._loader);
-    } else {
-      loadingComplete = Promise.resolve();
     }
 
-    loadingComplete.then(() => {
+    // Start the excalibur clock which drives the mainloop
+    // has started is a slight misnomer, it's really mainloop started
+    this._logger.debug('Starting game clock...');
+    this.browser.resume();
+    this.clock.start();
+    this._logger.debug('Game clock started');
+
+    if (loader) {
+      await this.load(this._loader);
+      this._loadingComplete = true;
+
+      // reset back to previous user resolution/viewport
       this.screen.popResolutionAndViewport();
       this.screen.applyResolutionAndViewport();
       this.graphicsContext.updateViewport();
-      this.emit('start', new GameStartEvent(this));
-      this._loadingComplete = true;
-    });
-
-    if (!this._hasStarted) {
-      // has started is a slight misnomer, it's really mainloop started
-      this._hasStarted = true;
-      this._logger.debug('Starting game...');
-      this.browser.resume();
-      Engine.createMainLoop(this, window.requestAnimationFrame, Date.now)();
-      this._logger.debug('Game started');
-    } else {
-      // Game already started;
     }
-    return loadingComplete;
+
+    this._loadingComplete = true;
+
+    // Initialize before ready
+    this._overrideInitialize(this);
+
+    this._isReady = true;
+
+    this._isReadyResolve();
+    this.emit('start', new GameStartEvent(this));
+    return this._isReadyPromise;
   }
 
+  private _mainloop(elapsed: number) {
+    this.emit('preframe', new PreFrameEvent(this, this.stats.prevFrame));
+    const delta = elapsed * this.timescale;
+
+    // reset frame stats (reuse existing instances)
+    const frameId = this.stats.prevFrame.id + 1;
+    this.stats.currFrame.reset();
+    this.stats.currFrame.id = frameId;
+    this.stats.currFrame.delta = delta;
+    this.stats.currFrame.fps = this.clock.fpsSampler.fps;
+
+    const beforeUpdate = this.clock.now();
+    this._update(delta);
+    const afterUpdate = this.clock.now();
+    this._draw(delta);
+    const afterDraw = this.clock.now();
+
+    this.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
+    this.stats.currFrame.duration.draw = afterDraw - afterUpdate;
+
+    this.emit('postframe', new PostFrameEvent(this, this.stats.currFrame));
+  }
+
+  /**
+   *
+   * @param game
+   * @param raf
+   * @param nowFn
+   * @deprecated Use [[Clock]] to run the mainloop, will be removed in v0.26.0
+   */
   public static createMainLoop(game: Engine, raf: (func: Function) => number, nowFn: () => number) {
     let lastTime = nowFn();
-
+    const fpsSampler = new FpsSampler({
+      nowFn,
+      initialFps: game.maxFps === Infinity ? 60 : game.maxFps
+    });
     return function mainloop() {
       if (!game._hasStarted) {
         return;
       }
       try {
         game._requestId = raf(mainloop);
+        fpsSampler.start();
         game.emit('preframe', new PreFrameEvent(game, game.stats.prevFrame));
 
         // Get the time to calculate time-elapsed
         const now = nowFn();
-        let elapsed = Math.floor(now - lastTime) || 1;
+        let elapsed = now - lastTime || 1; // first frame
+
+        // Constrain fps
+        const fpsInterval = game.maxFps === Number.POSITIVE_INFINITY ? 0 : 1000 / game.maxFps;
+        if (elapsed <= fpsInterval) {
+          return; // too fast 😎 skip this frame
+        }
+
         // Resolves issue #138 if the game has been paused, or blurred for
         // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability
         // and provides more expected behavior when the engine comes back
@@ -1211,7 +1305,7 @@ O|===|* >________________>\n\
         game.stats.currFrame.reset();
         game.stats.currFrame.id = frameId;
         game.stats.currFrame.delta = delta;
-        game.stats.currFrame.fps = 1.0 / (delta / 1000);
+        game.stats.currFrame.fps = fpsSampler.fps;
 
         const beforeUpdate = nowFn();
         game._update(delta);
@@ -1222,9 +1316,14 @@ O|===|* >________________>\n\
         game.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
         game.stats.currFrame.duration.draw = afterDraw - afterUpdate;
 
-        lastTime = now;
-
+        // if fps interval is not a multple
+        if (fpsInterval > 0) {
+          lastTime = now - (elapsed % fpsInterval);
+        } else {
+          lastTime = now;
+        }
         game.emit('postframe', new PostFrameEvent(game, game.stats.currFrame));
+        fpsSampler.end();
         game.stats.prevFrame.reset(game.stats.currFrame);
       } catch (e) {
         window.cancelAnimationFrame(game._requestId);
@@ -1238,10 +1337,10 @@ O|===|* >________________>\n\
    * Stops Excalibur's main loop, useful for pausing the game.
    */
   public stop() {
-    if (this._hasStarted) {
+    if (this.clock.isRunning()) {
       this.emit('stop', new GameStopEvent(this));
       this.browser.pause();
-      this._hasStarted = false;
+      this.clock.stop();
       this._logger.debug('Game stopped');
     }
   }
@@ -1250,7 +1349,7 @@ O|===|* >________________>\n\
    * Returns the Engine's Running status, Useful for checking whether engine is running or paused.
    */
   public isPaused(): boolean {
-    return !this._hasStarted;
+    return !this.clock.isRunning();
   }
 
   /**
@@ -1270,25 +1369,12 @@ O|===|* >________________>\n\
    * will appear.
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
-  public load(loader: Loadable<any>): Promise<void> {
-    const complete = new Promise<void>((resolve) => {
-      this._isLoading = true;
-
-      loader.load().then(() => {
-        if (this._suppressPlayButton) {
-          setTimeout(() => {
-            this._isLoading = false;
-            resolve();
-            // Delay is to give the logo a chance to show, otherwise don't delay
-          }, 500);
-        } else {
-          this._isLoading = false;
-          resolve();
-        }
-      });
-    });
-
-    return complete;
+  public async load(loader: Loadable<any>): Promise<void> {
+    try {
+      await loader.load();
+    } catch {
+      await Promise.resolve();
+    }
   }
 }
 

@@ -34,7 +34,7 @@ describe('A generic Resource', () => {
     it('should not fail on load', (done) => {
       const emptyLoader = new ex.Loader();
       const game = TestUtils.engine();
-      game.start(emptyLoader).then(() => {
+      TestUtils.runToReady(game, emptyLoader).then(() => {
         expect(emptyLoader.isLoaded()).toBe(true);
         game.stop();
         done();

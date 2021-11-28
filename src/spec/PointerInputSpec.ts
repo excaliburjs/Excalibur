@@ -27,6 +27,9 @@ describe('A pointer', () => {
       pointerScope: ex.Input.PointerScope.Document
     });
     engine.start();
+
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
   });
 
   afterEach(() => {
