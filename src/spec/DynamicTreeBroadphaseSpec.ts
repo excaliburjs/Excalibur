@@ -58,4 +58,20 @@ describe('A DynamicTree Broadphase', () => {
     const pairs = dt.broadphase([circle, box], 100);
     expect(pairs).toEqual([]);
   });
+
+  it('should not find pairs for a composite collider when moving fast', () => {
+    const circle = ex.Shape.Circle(50);
+    const box = ex.Shape.Box(200, 10);
+    const compCollider = new ex.CompositeCollider([
+      circle,
+      box
+    ]);
+    const actor = new ex.Actor({collider: compCollider, collisionType: ex.CollisionType.Active});
+    actor.body.vel = ex.vec(2000, 0); // extra fast to trigger the fast object detection
+    const dt = new ex.DynamicTreeCollisionProcessor();
+    dt.track(compCollider);
+
+    const pairs = dt.broadphase([circle, box], 100);
+    expect(pairs).toEqual([]);
+  });
 });
