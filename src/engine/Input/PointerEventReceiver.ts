@@ -19,11 +19,17 @@ export type NativeMouseEvent = globalThis.MouseEvent;
 export type NativeTouchEvent = globalThis.TouchEvent;
 export type NativeWheelEvent = globalThis.WheelEvent;
 
+/**
+ * Is this event a native touch event?
+ */
 function isTouchEvent(value: any): value is NativeTouchEvent {
   // Gaurd for Safari <= 13.1
   return globalThis.TouchEvent && value instanceof globalThis.TouchEvent;
 }
 
+/**
+ * Is this event a native pointer event
+ */
 function isPointerEvent(value: any): value is NativePointerEvent {
   // Gaurd for Safari <= 13.1
   return globalThis.PointerEvent && value instanceof globalThis.PointerEvent;

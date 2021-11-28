@@ -13,7 +13,7 @@ export interface ActionContextMethods extends Pick<ActionContext, keyof ActionCo
 
 export class ActionsComponent extends Component<'ex.actions'> implements ActionContextMethods {
   public readonly type = 'ex.actions';
-  dependencies = [TransformComponent, MotionComponent]
+  dependencies = [TransformComponent, MotionComponent];
   private _ctx: ActionContext;
 
   onAdd(entity: Entity) {

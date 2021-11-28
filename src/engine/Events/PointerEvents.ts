@@ -12,20 +12,20 @@ export abstract class PointerEvent extends ExEvent<'down' | 'up' | 'move' | 'can
   }
 }
 export class PointerUp extends PointerEvent {
-  public readonly type = 'up'
+  public readonly type = 'up';
 }
 export class PointerDown extends PointerEvent {
-  public readonly type = 'down'
+  public readonly type = 'down';
 }
 export class PointerMove extends PointerEvent {
-  public readonly type = 'move'
+  public readonly type = 'move';
 }
 export class PointerCancel extends PointerEvent {
-  public readonly type = 'cancel'
+  public readonly type = 'cancel';
 }
 
 export class Wheel extends ExEvent<'wheel'> {
-  public readonly type = 'wheel'
+  public readonly type = 'wheel';
   constructor(
     public x: number,
     public y: number,
