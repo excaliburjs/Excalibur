@@ -22,7 +22,6 @@ export class SystemManager<ContextType> {
   /**
    * Get a system registered in the manager by type
    * @param systemType
-   * @returns
    */
   public get<T extends System>(systemType: SystemCtor<T>): T | null {
     return this.systems.find((s) => s instanceof systemType) as unknown as T;

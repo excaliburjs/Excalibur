@@ -74,7 +74,6 @@ export class Gif implements Loadable<ImageSource[]> {
   /**
    * Return the gif as a legacy spritesheet
    * @deprecated
-   * @returns
    */
   public toLegacySpriteSheet(): LegacyDrawing.SpriteSheet {
     return SpriteSheet.toLegacySpriteSheet(this.toSpriteSheet());
@@ -83,6 +82,7 @@ export class Gif implements Loadable<ImageSource[]> {
   /**
    * Return the gif as a legacy animation
    * @deprecated
+   * @param engine
    * @param speed
    */
   public toLegacyAnimation(engine: Engine, speed: number): LegacyDrawing.Animation {

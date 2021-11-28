@@ -36,7 +36,6 @@ export class ColliderComponent extends Component<'ex.collider'> {
   private _collider: Collider;
   /**
    * Get the current collider geometry
-   * @returns
    */
   public get() {
     return this._collider;
@@ -101,7 +100,6 @@ export class ColliderComponent extends Component<'ex.collider'> {
   /**
    * Collide component with another
    * @param other
-   * @returns
    */
   collide(other: ColliderComponent): CollisionContact[] {
     let colliderA = this._collider;
@@ -222,7 +220,6 @@ export class ColliderComponent extends Component<'ex.collider'> {
   /**
    * Setups up a [[CompositeCollider]] which can define any arbitrary set of excalibur colliders
    * @param colliders
-   * @returns
    */
   useCompositeCollider(colliders: Collider[]): CompositeCollider {
     return (this.set(new CompositeCollider(colliders)));

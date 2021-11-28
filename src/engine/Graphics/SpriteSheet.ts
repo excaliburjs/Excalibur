@@ -125,7 +125,6 @@ export class SpriteSheet {
   /**
    * @deprecated
    * @param spriteSheet
-   * @returns
    */
   public static toLegacySpriteSheet(spriteSheet: SpriteSheet): LegacySpriteSheet {
     const sprites = spriteSheet.sprites.map(sprite => Sprite.toLegacySprite(sprite));

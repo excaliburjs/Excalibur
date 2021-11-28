@@ -285,7 +285,6 @@ export class PointerEventReceiver extends Class {
   /**
    * Take native pointer id and map it to index in active pointers
    * @param nativePointerId
-   * @returns
    */
   private _normalizePointerId(nativePointerId: number) {
     // Add to the the native pointer set id
