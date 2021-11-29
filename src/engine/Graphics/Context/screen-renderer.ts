@@ -3,7 +3,6 @@ import { Shader } from "./shader";
 
 import screenVertex from './shaders/screen-vertex.glsl';
 import screenFragment from './shaders/screen-fragment.glsl';
-import { RenderSource } from "./render-source";
 import { Matrix } from "../..";
 
 export class ScreenRenderer implements Renderer {
@@ -24,12 +23,12 @@ export class ScreenRenderer implements Renderer {
   setResolution(width: number, height: number) {
     const gl = this._gl;
     this._screenQuad = new Float32Array([
-      0, 0,          0, 0,
-      0, height,     0, 1,
-      width, 0,      1, 0,
-      width, 0,      1, 0,
-      0, height,     0, 1,
-      width, height, 1, 1,
+      0, 0,          0, 1,
+      0, height,     0, 0,
+      width, 0,      1, 1,
+      width, 0,      1, 1,
+      0, height,     0, 0,
+      width, height, 1, 0,
     ]);
     gl.bindBuffer(gl.ARRAY_BUFFER, this._screenQuadBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this._screenQuad, gl.STATIC_DRAW);
