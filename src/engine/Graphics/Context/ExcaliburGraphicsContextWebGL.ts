@@ -23,8 +23,7 @@ import { DebugText } from './debug-text';
 import { ScreenDimension } from '../../Screen';
 import { RenderTarget } from './render-target';
 import { ScreenRenderer } from './screen-renderer';
-import { PostProcess } from './postprocess';
-import { Shader } from './shader';
+import { PostProcessor } from './postprocess';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -75,12 +74,12 @@ export interface WebGLGraphicsContextInfo {
 }
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
-  private renderTarget: RenderTarget;
+  private _renderTarget: RenderTarget;
 
-  private postProcessTargets: RenderTarget[] = [];
+  private _postProcessTargets: RenderTarget[] = [];
 
-  private screenRenderer: ScreenRenderer;
-  private _postprocessors: Shader[] = [];
+  private _screenRenderer: ScreenRenderer;
+  private _postprocessors: PostProcessor[] = [];
   /**
    * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
    * @internal
@@ -189,15 +188,16 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.__pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
     this.__lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
     this.__imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
-    this.screenRenderer = new ScreenRenderer(gl, this._ortho, this.width, this.height);
-    this.renderTarget = new RenderTarget({
+    this._screenRenderer = new ScreenRenderer(gl);
+
+    this._renderTarget = new RenderTarget({
       gl,
       width: gl.canvas.width,
       height: gl.canvas.height
     });
 
 
-    this.postProcessTargets = [
+    this._postProcessTargets = [
       new RenderTarget({
         gl,
         width: gl.canvas.width,
@@ -228,16 +228,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.__pointRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
     this.__lineRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
     this.__imageRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
-    this.screenRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
 
-    for (let shader of this._postprocessors) {
-      shader.addUniformMatrix('u_matrix', this._ortho.data);
-    }
-
-    this.renderTarget.setResolution(gl.canvas.width, gl.canvas.height);
-    this.postProcessTargets[0].setResolution(gl.canvas.width, gl.canvas.height);
-    this.postProcessTargets[1].setResolution(gl.canvas.width, gl.canvas.height);
-    this.screenRenderer.setResolution(gl.canvas.width, gl.canvas.height);
+    this._renderTarget.setResolution(gl.canvas.width, gl.canvas.height);
+    this._postProcessTargets[0].setResolution(gl.canvas.width, gl.canvas.height);
+    this._postProcessTargets[1].setResolution(gl.canvas.width, gl.canvas.height);
 
     // 2D ctx shim
     this._canvas.width = gl.canvas.width;
@@ -328,6 +322,15 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._transform.current = matrix;
   }
 
+  public addPostProcessor(postprocessor: PostProcessor) {
+    this._postprocessors.push(postprocessor);
+    postprocessor.intialize(this.__gl);
+  }
+
+  public clearPostProcessors() {
+    this._postprocessors.length = 0;
+  }
+
   clear() {
     const gl = this.__gl;
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
@@ -344,27 +347,27 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     const gl = this.__gl;
 
     // render target captures all draws and redirects to the render target
-    this.renderTarget.use();
+    this._renderTarget.use();
     this.clear(); // clears the render target
     this.__imageRenderer.render();
     this.__lineRenderer.render();
     this.__pointRenderer.render();
-    this.renderTarget.disable();
+    this._renderTarget.disable();
 
     // post process step
-    const source = this.renderTarget.toRenderSource();
+    const source = this._renderTarget.toRenderSource();
     source.use();
 
     // flip flop render targets
     for (let i = 0; i < this._postprocessors.length; i++) {
-      this.postProcessTargets[i % 2].use();
+      this._postProcessTargets[i % 2].use();
       this.clear();
-      this.screenRenderer.renderWithShader(this._postprocessors[i]);
-      this.postProcessTargets[i % 2].toRenderSource().use();
+      this._screenRenderer.renderWithShader(this._postprocessors[i].getShader());
+      this._postProcessTargets[i % 2].toRenderSource().use();
     }
 
     // passing null switches renderering back to the canvas
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    this.screenRenderer.render();
+    this._screenRenderer.render();
   }
 }

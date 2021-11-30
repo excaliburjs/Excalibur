@@ -3,36 +3,31 @@ import { Shader } from "./shader";
 
 import screenVertex from './shaders/screen-vertex.glsl';
 import screenFragment from './shaders/screen-fragment.glsl';
-import { Matrix } from "../..";
 
 export class ScreenRenderer implements Renderer {
   private _gl: WebGLRenderingContext;
   private _screenQuadBuffer: WebGLBuffer;
   private _screenQuad: Float32Array;
-  shader: Shader;
-  constructor(gl: WebGLRenderingContext, ortho: Matrix, width: number, height: number) {
+  private _shader: Shader;
+  constructor(gl: WebGLRenderingContext) {
     this._gl = gl;
-    this.shader = new Shader(gl, screenVertex, screenFragment);
-    this.shader.addAttribute('a_position', 2, gl.FLOAT);
-    this.shader.addAttribute('a_texcoord', 2, gl.FLOAT);
-    this.shader.addUniformMatrix('u_matrix', ortho.data);
+    this._shader = new Shader(gl, screenVertex, screenFragment);
+    this._shader.addAttribute('a_position', 2, gl.FLOAT);
+    this._shader.addAttribute('a_texcoord', 2, gl.FLOAT);
     this._screenQuadBuffer = gl.createBuffer();
-    this.setResolution(width, height);
-  };
-
-  setResolution(width: number, height: number) {
-    const gl = this._gl;
+    // clip space quad + uv since we don't need a camera
     this._screenQuad = new Float32Array([
-      0, 0,          0, 1,
-      0, height,     0, 0,
-      width, 0,      1, 1,
-      width, 0,      1, 1,
-      0, height,     0, 0,
-      width, height, 1, 0,
+      -1, -1,          0, 0,
+      -1, 1,           0, 1,
+      1, -1,           1, 0,
+
+      1, -1,            1, 0,
+      -1, 1,           0, 1,
+      1, 1,            1, 1,
     ]);
     gl.bindBuffer(gl.ARRAY_BUFFER, this._screenQuadBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this._screenQuad, gl.STATIC_DRAW);
-  }
+  };
 
   renderWithShader(customShader: Shader): void {
     const gl = this._gl;
@@ -47,7 +42,7 @@ export class ScreenRenderer implements Renderer {
     const gl = this._gl;
     gl.bindBuffer(gl.ARRAY_BUFFER, this._screenQuadBuffer);
 
-    this.shader.use();
+    this._shader.use();
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }

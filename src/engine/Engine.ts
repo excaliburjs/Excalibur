@@ -33,7 +33,6 @@ import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Color';
 import { Scene } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
-import { PostProcessor } from './PostProcessing/PostProcessor';
 import { Debug, DebugStats } from './Debug/Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
@@ -310,11 +309,6 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   public get stats(): DebugStats {
     return this.debug.stats;
   }
-
-  /**
-   * Gets or sets the list of post processors to apply at the end of drawing a frame (such as [[ColorBlindCorrector]])
-   */
-  public postProcessors: PostProcessor[] = [];
 
   /**
    * The current [[Scene]] being drawn and updated on screen
@@ -1108,11 +1102,6 @@ O|===|* >________________>\n\
       }
 
       this.ctx.fillText('FPS:' + this.stats.currFrame.fps.toFixed(2).toString(), 10, 10);
-    }
-
-    // Post processing
-    for (let i = 0; i < this.postProcessors.length; i++) {
-      this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight), this.ctx);
     }
 
     this._postdraw(ctx, delta);

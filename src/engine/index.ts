@@ -39,7 +39,6 @@ export * from './Collision/Index';
 import * as legacyDrawing from './Drawing/Index';
 export { legacyDrawing as LegacyDrawing };
 export * from './Interfaces/Index';
-export * from './PostProcessing/Index';
 export * from './Resources/Index';
 
 export * from './EntityComponentSystem/index';
