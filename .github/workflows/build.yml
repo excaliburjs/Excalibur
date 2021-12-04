@@ -25,7 +25,7 @@ jobs:
         fetch-depth: 100
     - uses: actions/setup-node@v2
       with:
-        node-version: 14
+        node-version-file: '.nvmrc'
         registry-url: 'https://registry.npmjs.org'
         cache: npm
     - run: npm ci
@@ -47,7 +47,7 @@ jobs:
         fetch-depth: 100
     - uses: actions/setup-node@v2
       with:
-        node-version: 14
+        node-version-file: '.nvmrc'
         cache: npm
         registry-url: 'https://registry.npmjs.org'
     - run: npm ci --ignore-scripts
@@ -65,7 +65,7 @@ jobs:
         fetch-depth: 100
     - uses: actions/setup-node@v2
       with:
-        node-version: 14
+        node-version-file: '.nvmrc'
         cache: npm
         registry-url: 'https://registry.npmjs.org'
     - run: npm ci --ignore-scripts
