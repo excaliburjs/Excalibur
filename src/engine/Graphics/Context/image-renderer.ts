@@ -13,22 +13,28 @@ import { Color } from '../../Color';
 import { Engine, vec, Vector } from '../..';
 import { Screen } from '../../Screen';
 
+/**
+ *
+ */
 function quantizeToScreenPixelFloor(screen: Screen, coord: Vector): Vector {
   const bodge = vec(.5,.5);
   let quantizedPos = vec((coord.x / screen.drawWidth) * screen.viewport.width,
-                         (coord.y / screen.drawHeight) * screen.viewport.height).add(bodge);
+    (coord.y / screen.drawHeight) * screen.viewport.height).add(bodge);
   quantizedPos = vec((Math.floor(quantizedPos.x) / screen.viewport.width) * screen.drawWidth,
-                     (Math.floor(quantizedPos.y) / screen.viewport.height) * screen.drawHeight);
+    (Math.floor(quantizedPos.y) / screen.viewport.height) * screen.drawHeight);
 
   return quantizedPos;
 }
 
+/**
+ *
+ */
 function quantizeToScreenPixelCeil(screen: Screen, coord: Vector): Vector {
   const bodge = vec(.5,.5);
   let quantizedPos = vec((coord.x / screen.drawWidth) * screen.viewport.width,
-                         (coord.y / screen.drawHeight) * screen.viewport.height).add(bodge);
+    (coord.y / screen.drawHeight) * screen.viewport.height).add(bodge);
   quantizedPos = vec((Math.ceil(quantizedPos.x) / screen.viewport.width) * screen.drawWidth,
-                     (Math.ceil(quantizedPos.y) / screen.viewport.height) * screen.drawHeight);
+    (Math.ceil(quantizedPos.y) / screen.viewport.height) * screen.drawHeight);
 
   return quantizedPos;
 }
@@ -247,10 +253,10 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       const screen = this._engine.screen;
 
       // Bias to the nearest screen pixel
-      let quantizedPos = quantizeToScreenPixelFloor(screen, topLeft);
-      let quantizedBottomRight = quantizeToScreenPixelCeil(screen, bottomRight);
+      const quantizedPos = quantizeToScreenPixelFloor(screen, topLeft);
+      const quantizedBottomRight = quantizeToScreenPixelCeil(screen, bottomRight);
 
-      let quantizedDim = vec(quantizedBottomRight.x - quantizedPos.x, quantizedBottomRight.y - quantizedPos.y);
+      const quantizedDim = vec(quantizedBottomRight.x - quantizedPos.x, quantizedBottomRight.y - quantizedPos.y);
 
       // potential optimization when divding by 2 (bitshift)
       // Modifying the images to poweroftwo images warp the UV coordinates
