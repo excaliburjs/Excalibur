@@ -27,13 +27,11 @@ void main() {
     m = 0.0 * L + 1.0 * M + 0.0 * S;
     s = 0.0 * L + 0.0 * M + 1.0 * S;;
   } else if (u_type == 1) {
-
     // Deuteranope
     l = 1.0 * L + 0.0 * M + 0.0 * S;
     m = 0.494207 * L + 0.0 * M + 1.24827 * S;
     s = 0.0 * L + 0.0 * M + 1.0 * S;
   } else if (u_type == 2) {
-
     // Tritanope
     l = 1.0 * L + 0.0 * M + 0.0 * S;
     m = 0.0 * L + 1.0 * M + 0.0 * S;

@@ -23,7 +23,7 @@ import { DebugText } from './debug-text';
 import { ScreenDimension } from '../../Screen';
 import { RenderTarget } from './render-target';
 import { ScreenRenderer } from './screen-renderer';
-import { PostProcessor } from './postprocess';
+import { PostProcessor } from '../PostProcessor/PostProcessor';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -182,8 +182,13 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Enable alpha blending
+    // https://www.realtimerendering.com/blog/gpus-prefer-premultiplication/
     gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendEquation(gl.FUNC_ADD);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
+    gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
     this.__pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
     this.__lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
@@ -327,16 +332,25 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     postprocessor.intialize(this.__gl);
   }
 
+  public removePostProcessor(postprocessor: PostProcessor) {
+    const index = this._postprocessors.indexOf(postprocessor);
+    if (index !== -1) {
+      this._postprocessors.splice(index, 1);
+    }
+  }
+
   public clearPostProcessors() {
     this._postprocessors.length = 0;
   }
 
   clear() {
     const gl = this.__gl;
+    this._renderTarget.use();
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.
     gl.clear(gl.COLOR_BUFFER_BIT);
+    this._renderTarget.disable();
     GraphicsDiagnostics.clear();
   }
 
@@ -348,7 +362,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     // render target captures all draws and redirects to the render target
     this._renderTarget.use();
-    this.clear(); // clears the render target
     this.__imageRenderer.render();
     this.__lineRenderer.render();
     this.__pointRenderer.render();
@@ -361,7 +374,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // flip flop render targets
     for (let i = 0; i < this._postprocessors.length; i++) {
       this._postProcessTargets[i % 2].use();
-      this.clear();
       this._screenRenderer.renderWithShader(this._postprocessors[i].getShader());
       this._postProcessTargets[i % 2].toRenderSource().use();
     }

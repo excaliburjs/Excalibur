@@ -1,28 +1,22 @@
+import screenVertexSource from '../Context/shaders/screen-vertex.glsl';
+import { Shader } from '../Context/shader';
+import colorBlindCorrectSource from './color-blind-fragment.glsl';
+import { PostProcessor } from './PostProcessor';
+import { ColorBlindnessMode } from "./ColorBlindnessMode";
 
-import screenVertexSource from './shaders/screen-vertex.glsl';
-import { Shader } from './shader';
-
-import colorBlindCorrectSource from './shaders/color-blind-fragment.glsl';
-
-export interface PostProcessor {
-  intialize(gl: WebGLRenderingContext): void;
-  getShader(): Shader;
-}
-
-
-export enum ColorBlindnessMode {
-  Protanope = 'Protanope',
-  Deuteranope = 'Deuteranope',
-  Tritanope = 'Tritanope'
-}
 export class ColorBlindnessPostProcessor implements PostProcessor {
   private _shader: Shader;
-  constructor(private _colorBlindnessMode: ColorBlindnessMode , private _simulate = false) {}
+  private _simulate = false;
+  constructor(private _colorBlindnessMode: ColorBlindnessMode, simulate = false) {
+    this._simulate = simulate;
+   }
 
   intialize(gl: WebGLRenderingContext): void {
     this._shader = new Shader(gl, screenVertexSource, colorBlindCorrectSource);
     this._shader.addAttribute('a_position', 2, gl.FLOAT);
     this._shader.addAttribute('a_texcoord', 2, gl.FLOAT);
+    this.simulate = this._simulate;
+    this.colorBlindnessMode = this._colorBlindnessMode;
   }
 
   getShader(): Shader {

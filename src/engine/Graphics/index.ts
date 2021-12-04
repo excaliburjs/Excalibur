@@ -28,4 +28,6 @@ export * from './Context/ExcaliburGraphicsContextWebGL';
 export * from './Context/debug-text';
 
 // Post Processor
-export * from './Context/postprocess';
+export * from './PostProcessor/PostProcessor';
+export * from './PostProcessor/ColorBlindnessMode';
+export * from './PostProcessor/ColorBlindnessPostProcessor';

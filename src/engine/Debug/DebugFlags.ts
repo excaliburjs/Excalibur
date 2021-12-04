@@ -1,4 +1,5 @@
-﻿import { ColorBlindnessMode, ColorBlindnessPostProcessor } from '../Graphics/Context/postprocess';
+﻿import { ColorBlindnessMode } from "../Graphics/PostProcessor/ColorBlindnessMode";
+import { ColorBlindnessPostProcessor } from "../Graphics/PostProcessor/ColorBlindnessPostProcessor";
 import { Engine } from '../Engine';
 import { ExcaliburGraphicsContextWebGL } from '..';
 
@@ -13,15 +14,15 @@ export class ColorBlindFlags {
     this._engine = engine;
   }
 
-  public correct(_colorBlindness: ColorBlindnessMode) {
+  public correct(colorBlindness: ColorBlindnessMode) {
     if (this._engine.graphicsContext instanceof ExcaliburGraphicsContextWebGL) {
-      this._engine.graphicsContext.addPostProcessor(new ColorBlindnessPostProcessor(_colorBlindness));
+      this._engine.graphicsContext.addPostProcessor(new ColorBlindnessPostProcessor(colorBlindness, false));
     }
   }
   
-  public simulate(_colorBlindness: ColorBlindnessMode) {
+  public simulate(colorBlindness: ColorBlindnessMode) {
     if (this._engine.graphicsContext instanceof ExcaliburGraphicsContextWebGL) {
-      this._engine.graphicsContext.addPostProcessor(new ColorBlindnessPostProcessor(_colorBlindness, true));
+      this._engine.graphicsContext.addPostProcessor(new ColorBlindnessPostProcessor(colorBlindness, true));
     }
   }
 }
