@@ -37,7 +37,9 @@ jobs:
         
   typedoc:
     runs-on: [ubuntu-latest]
-
+    env:
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+      
     steps:
     - uses: actions/checkout@v2
       with:
@@ -53,7 +55,9 @@ jobs:
 
   examples:
     runs-on: [ubuntu-latest]
-
+    env:
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+      
     steps:
     - uses: actions/checkout@v2
       with:
