@@ -21,6 +21,7 @@ import { Canvas } from '../Canvas';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
 import { ScreenDimension } from '../../Screen';
+import { Engine } from '../../Engine';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -114,7 +115,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   public smoothing: boolean = false;
 
   public backgroundColor: Color = Color.ExcaliburBlue;
-  engine: import("c:/projects/excalibur-mainline/src/engine/Engine").Engine;
+  private _engine: Engine;
 
   public get opacity(): number {
     return this._state.current.opacity;
@@ -160,7 +161,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = smoothing ?? this.smoothing;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
-    this.engine = engine;
+    this._engine = engine;
     this._init();
   }
 
@@ -180,7 +181,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     this.__pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
     this.__lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
-    this.__imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state }, this.engine);
+    this.__imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state }, this._engine);
 
     // 2D ctx shim
     this._canvas = new Canvas({
