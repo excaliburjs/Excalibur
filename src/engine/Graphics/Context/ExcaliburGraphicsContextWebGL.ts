@@ -114,6 +114,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   public smoothing: boolean = false;
 
   public backgroundColor: Color = Color.ExcaliburBlue;
+  engine: import("c:/projects/excalibur-mainline/src/engine/Engine").Engine;
 
   public get opacity(): number {
     return this._state.current.opacity;
@@ -148,7 +149,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   constructor(options: ExcaliburGraphicsContextOptions) {
-    const { canvasElement, enableTransparency, smoothing, snapToPixel, backgroundColor } = options;
+    const { canvasElement, enableTransparency, smoothing, snapToPixel, backgroundColor, engine } = options;
     this.__gl = canvasElement.getContext('webgl', {
       antialias: smoothing ?? this.smoothing,
       premultipliedAlpha: false,
@@ -159,6 +160,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = smoothing ?? this.smoothing;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
+    this.engine = engine;
     this._init();
   }
 
@@ -178,7 +180,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     this.__pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
     this.__lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
-    this.__imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
+    this.__imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state }, this.engine);
 
     // 2D ctx shim
     this._canvas = new Canvas({

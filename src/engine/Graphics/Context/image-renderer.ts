@@ -4,13 +4,34 @@ import imageFragmentSource from './shaders/image-fragment.glsl';
 import { BatchCommand } from './batch';
 import { DrawCommandType, DrawImageCommand } from './draw-image-command';
 import { Graphic } from '../Graphic';
-import { ensurePowerOfTwo } from './webgl-util';
+// import { ensurePowerOfTwo } from './webgl-util';
 import { BatchRenderer } from './renderer';
 import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
 import { TextureLoader } from './texture-loader';
 import { HTMLImageSource } from './ExcaliburGraphicsContext';
 import { Color } from '../../Color';
-import { Vector } from '../..';
+import { Engine, vec, Vector } from '../..';
+import { Screen } from '../../Screen';
+
+function quantizeToScreenPixelFloor(screen: Screen, coord: Vector): Vector {
+  const bodge = vec(.5,.5);
+  let quantizedPos = vec((coord.x / screen.drawWidth) * screen.viewport.width,
+                         (coord.y / screen.drawHeight) * screen.viewport.height).add(bodge);
+  quantizedPos = vec((Math.floor(quantizedPos.x) / screen.viewport.width) * screen.drawWidth,
+                     (Math.floor(quantizedPos.y) / screen.viewport.height) * screen.drawHeight);
+
+  return quantizedPos;
+}
+
+function quantizeToScreenPixelCeil(screen: Screen, coord: Vector): Vector {
+  const bodge = vec(.5,.5);
+  let quantizedPos = vec((coord.x / screen.drawWidth) * screen.viewport.width,
+                         (coord.y / screen.drawHeight) * screen.viewport.height).add(bodge);
+  quantizedPos = vec((Math.ceil(quantizedPos.x) / screen.viewport.width) * screen.drawWidth,
+                     (Math.ceil(quantizedPos.y) / screen.viewport.height) * screen.drawHeight);
+
+  return quantizedPos;
+}
 
 export class BatchImage extends BatchCommand<DrawImageCommand> {
   public textures: WebGLTexture[] = [];
@@ -103,7 +124,7 @@ export class BatchImage extends BatchCommand<DrawImageCommand> {
 }
 
 export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
-  constructor(gl: WebGLRenderingContext, private _contextInfo: WebGLGraphicsContextInfo) {
+  constructor(gl: WebGLRenderingContext, private _contextInfo: WebGLGraphicsContextInfo, private _engine: Engine) {
     super({
       gl,
       command: DrawImageCommand,
@@ -207,8 +228,8 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       sw = command.view[2];
       sh = command.view[3];
 
-      potWidth = ensurePowerOfTwo(command.image?.width || command.width);
-      potHeight = ensurePowerOfTwo(command.image?.height || command.height);
+      potWidth = (command.image?.width || command.width);
+      potHeight = (command.image?.height || command.height);
 
       textureId = batch.getBatchTextureId(command);
       if (command.type === DrawCommandType.Line || command.type === DrawCommandType.Rectangle) {
@@ -220,12 +241,24 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
         commandColor = command.color;
       }
 
+      const topLeft = vec(command.geometry[0][0], command.geometry[0][1]);
+      const bottomRight = vec(command.geometry[5][0], command.geometry[5][1]);
+
+      const screen = this._engine.screen;
+
+      // Bias to the nearest screen pixel
+      let quantizedPos = quantizeToScreenPixelFloor(screen, topLeft);
+      let quantizedBottomRight = quantizeToScreenPixelCeil(screen, bottomRight);
+
+      let quantizedDim = vec(quantizedBottomRight.x - quantizedPos.x, quantizedBottomRight.y - quantizedPos.y);
+
       // potential optimization when divding by 2 (bitshift)
       // Modifying the images to poweroftwo images warp the UV coordinates
-      let uvx0 = sx / potWidth;
-      let uvy0 = sy / potHeight;
-      let uvx1 = (sx + sw) / potWidth;
-      let uvy1 = (sy + sh) / potHeight;
+      const uvbodge = 0.0001;
+      let uvx0 = (sx + uvbodge) / potWidth;
+      let uvy0 = (sy + uvbodge) / potHeight;
+      let uvx1 = (sx + sw - uvbodge) / potWidth;
+      let uvy1 = (sy + sh  - uvbodge) / potHeight;
       if (textureId === -2) {
         uvx0 = 0;
         uvy0 = 0;
@@ -235,8 +268,8 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
 
       // Quad update
       // (0, 0, z) z-index doesn't work in batch rendering between batches
-      vertexBuffer[vertIndex++] = command.geometry[0][0]; // x + 0 * width;
-      vertexBuffer[vertIndex++] = command.geometry[0][1]; //y + 0 * height;
+      vertexBuffer[vertIndex++] = quantizedPos.x; // x + 0 * width;
+      vertexBuffer[vertIndex++] = quantizedPos.y; //y + 0 * height;
       vertexBuffer[vertIndex++] = 0;
 
       // UV coords
@@ -253,8 +286,8 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       vertexBuffer[vertIndex++] = commandColor.a;
 
       // (0, 1)
-      vertexBuffer[vertIndex++] = command.geometry[1][0]; // x + 0 * width;
-      vertexBuffer[vertIndex++] = command.geometry[1][1]; // y + 1 * height;
+      vertexBuffer[vertIndex++] = quantizedPos.x; // x + 0 * width;
+      vertexBuffer[vertIndex++] = quantizedPos.y + quantizedDim.y; // y + 1 * height;
       vertexBuffer[vertIndex++] = 0;
 
       // UV coords
@@ -271,8 +304,8 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       vertexBuffer[vertIndex++] = commandColor.a;
 
       // (1, 0)
-      vertexBuffer[vertIndex++] = command.geometry[2][0]; // x + 1 * width;
-      vertexBuffer[vertIndex++] = command.geometry[2][1]; // y + 0 * height;
+      vertexBuffer[vertIndex++] = quantizedPos.x + quantizedDim.x; // x + 1 * width;
+      vertexBuffer[vertIndex++] = quantizedPos.y; // y + 0 * height;
       vertexBuffer[vertIndex++] = 0;
 
       // UV coords
@@ -289,8 +322,8 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       vertexBuffer[vertIndex++] = commandColor.a;
 
       // (1, 0)
-      vertexBuffer[vertIndex++] = command.geometry[3][0]; // x + 1 * width;
-      vertexBuffer[vertIndex++] = command.geometry[3][1]; // y + 0 * height;
+      vertexBuffer[vertIndex++] = quantizedPos.x + quantizedDim.x; // x + 1 * width;
+      vertexBuffer[vertIndex++] = quantizedPos.y; // y + 0 * height;
       vertexBuffer[vertIndex++] = 0;
 
       // UV coords
@@ -307,8 +340,8 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       vertexBuffer[vertIndex++] = commandColor.a;
 
       // (0, 1)
-      vertexBuffer[vertIndex++] = command.geometry[4][0]; // x + 0 * width;
-      vertexBuffer[vertIndex++] = command.geometry[4][1]; // y + 1 * height
+      vertexBuffer[vertIndex++] = quantizedPos.x; // x + 0 * width;
+      vertexBuffer[vertIndex++] = quantizedPos.y + quantizedDim.y; // y + 1 * height
       vertexBuffer[vertIndex++] = 0;
 
       // UV coords
@@ -325,8 +358,8 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       vertexBuffer[vertIndex++] = commandColor.a;
 
       // (1, 1)
-      vertexBuffer[vertIndex++] = command.geometry[5][0]; // x + 1 * width;
-      vertexBuffer[vertIndex++] = command.geometry[5][1]; // y + 1 * height;
+      vertexBuffer[vertIndex++] = quantizedPos.x + quantizedDim.x; // x + 1 * width;
+      vertexBuffer[vertIndex++] = quantizedPos.y + quantizedDim.y; // y + 1 * height;
       vertexBuffer[vertIndex++] = 0;
 
       // UV coords

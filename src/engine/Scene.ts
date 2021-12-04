@@ -343,9 +343,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    */
   public update(engine: Engine, delta: number) {
     this._preupdate(engine, delta);
-    if (this.camera) {
-      this.camera.update(engine, delta);
-    }
+
     // TODO differed entity removal for timers
     let i: number, len: number;
     // Remove timers in the cancel queue before updating them
@@ -360,6 +358,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     }
 
     this.world.update(SystemType.Update, delta);
+
+    if (this.camera) {
+      this.camera.update(engine, delta);
+    }
 
     this._collectActorStats(engine);
 

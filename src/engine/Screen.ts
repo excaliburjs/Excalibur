@@ -519,8 +519,8 @@ export class Screen {
     let newY = point.y;
 
     // transform back to world space
-    newX = (newX / this.resolution.width) * this.drawWidth;
-    newY = (newY / this.resolution.height) * this.drawHeight;
+    newX = (newX / this.viewport.width) * this.drawWidth;
+    newY = (newY / this.viewport.height) * this.drawHeight;
 
     // transform based on zoom
     newX = newX - this.halfDrawWidth;
@@ -552,8 +552,8 @@ export class Screen {
     screenY = screenY + this.halfDrawHeight;
 
     // transform back to screen space
-    screenX = (screenX / this.drawWidth) * this.resolution.width;
-    screenY = (screenY / this.drawHeight) * this.resolution.height;
+    screenX = (screenX / this.drawWidth) * this.viewport.width;
+    screenY = (screenY / this.drawHeight) * this.viewport.height;
 
     return new Vector(screenX, screenY);
   }

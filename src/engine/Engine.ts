@@ -602,7 +602,8 @@ O|===|* >________________>\n\
         enableTransparency: this.enableCanvasTransparency,
         smoothing: options.antialiasing,
         backgroundColor: options.backgroundColor,
-        snapToPixel: options.snapToPixel
+        snapToPixel: options.snapToPixel,
+        engine: this
       });
       this.graphicsContext = ex2dCtx;
       this.ctx = ex2dCtx.__ctx;
@@ -612,7 +613,8 @@ O|===|* >________________>\n\
         enableTransparency: this.enableCanvasTransparency,
         smoothing: options.antialiasing,
         backgroundColor: options.backgroundColor,
-        snapToPixel: options.snapToPixel
+        snapToPixel: options.snapToPixel,
+        engine: this
       });
       this.graphicsContext = exWebglCtx;
       this.ctx = exWebglCtx.__ctx;

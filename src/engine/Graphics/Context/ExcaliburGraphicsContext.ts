@@ -1,5 +1,6 @@
 import { Vector } from '../../Math/vector';
 import { Color } from '../../Color';
+import { Engine } from '../..';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
 
@@ -9,6 +10,7 @@ export interface ExcaliburGraphicsContextOptions {
   enableTransparency?: boolean;
   snapToPixel?: boolean;
   backgroundColor?: Color;
+  engine: Engine;
 }
 
 export interface ExcaliburGraphicsContextState {
