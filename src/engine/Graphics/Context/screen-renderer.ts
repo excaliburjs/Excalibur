@@ -1,5 +1,5 @@
-import { Renderer } from "./renderer";
-import { Shader } from "./shader";
+import { Renderer } from './renderer';
+import { Shader } from './shader';
 
 import screenVertex from './shaders/screen-vertex.glsl';
 import screenFragment from './shaders/screen-fragment.glsl';
@@ -23,7 +23,7 @@ export class ScreenRenderer implements Renderer {
 
       1, -1,            1, 0,
       -1, 1,           0, 1,
-      1, 1,            1, 1,
+      1, 1,            1, 1
     ]);
     gl.bindBuffer(gl.ARRAY_BUFFER, this._screenQuadBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this._screenQuad, gl.STATIC_DRAW);

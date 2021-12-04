@@ -2,14 +2,14 @@ import screenVertexSource from '../Context/shaders/screen-vertex.glsl';
 import { Shader } from '../Context/shader';
 import colorBlindCorrectSource from './color-blind-fragment.glsl';
 import { PostProcessor } from './PostProcessor';
-import { ColorBlindnessMode } from "./ColorBlindnessMode";
+import { ColorBlindnessMode } from './ColorBlindnessMode';
 
 export class ColorBlindnessPostProcessor implements PostProcessor {
   private _shader: Shader;
   private _simulate = false;
   constructor(private _colorBlindnessMode: ColorBlindnessMode, simulate = false) {
     this._simulate = simulate;
-   }
+  }
 
   intialize(gl: WebGLRenderingContext): void {
     this._shader = new Shader(gl, screenVertexSource, colorBlindCorrectSource);

@@ -184,7 +184,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // Enable alpha blending
     // https://www.realtimerendering.com/blog/gpus-prefer-premultiplication/
     gl.enable(gl.BLEND);
-    // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.blendEquation(gl.FUNC_ADD);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);

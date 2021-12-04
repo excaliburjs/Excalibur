@@ -6,7 +6,7 @@ export class RenderSource {
   public use() {
     const gl = this._gl;
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this._texture)
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
   }
 
   public disable() {

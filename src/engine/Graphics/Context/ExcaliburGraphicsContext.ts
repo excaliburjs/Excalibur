@@ -182,15 +182,15 @@ export interface ExcaliburGraphicsContext {
 
   /**
    * Add a post processor to the graphics context
-   * 
+   *
    * Post processors are run in the order they were added.
-   * @param postprocessor 
+   * @param postprocessor
    */
   addPostProcessor(postprocessor: PostProcessor): void;
 
   /**
    * Remove a specific post processor from the graphics context
-   * @param postprocessor 
+   * @param postprocessor
    */
   removePostProcessor(postprocessor: PostProcessor): void;
 
