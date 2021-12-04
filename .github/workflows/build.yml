@@ -50,7 +50,7 @@ jobs:
         node-version: 14
         cache: npm
         registry-url: 'https://registry.npmjs.org'
-    - run: npm ci
+    - run: npm ci --ignore-scripts
     - run: npm run apidocs
 
   examples:
@@ -68,6 +68,6 @@ jobs:
         node-version: 14
         cache: npm
         registry-url: 'https://registry.npmjs.org'
-    - run: npm ci
+    - run: npm ci --ignore-scripts
     - run: npm run build-storybook
 
