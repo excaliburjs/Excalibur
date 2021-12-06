@@ -117,6 +117,26 @@ export class Shader {
     };
   }
 
+  public addUniformBool(name: string, data: boolean) {
+    const gl = this._gl;
+    this.uniforms[name] = {
+      name,
+      type: 'boolean',
+      location: gl.getUniformLocation(this.program, name),
+      data: data
+    };
+  }
+
+  public addUniformInt(name: string, data: number) {
+    const gl = this._gl;
+    this.uniforms[name] = {
+      name,
+      type: 'int',
+      location: gl.getUniformLocation(this.program, name),
+      data: data
+    };
+  }
+
   /**
    * Add attributes in the order they appear in the VBO
    * @param name Name of the attribute in the shader source
@@ -212,6 +232,14 @@ export class Shader {
         }
         case 'numbers': {
           gl.uniform1iv(uniform.location, uniform.data);
+          break;
+        }
+        case 'int': {
+          gl.uniform1i(uniform.location, uniform.data);
+          break;
+        }
+        case 'boolean': {
+          gl.uniform1i(uniform.location, uniform.data);
           break;
         }
       }

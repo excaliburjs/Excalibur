@@ -1,5 +1,6 @@
 import { Vector } from '../../Math/vector';
 import { Color } from '../../Color';
+import { PostProcessor } from '../PostProcessor/PostProcessor';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
 
@@ -178,6 +179,25 @@ export interface ExcaliburGraphicsContext {
    * @param y
    */
   scale(x: number, y: number): void;
+
+  /**
+   * Add a post processor to the graphics context
+   *
+   * Post processors are run in the order they were added.
+   * @param postprocessor
+   */
+  addPostProcessor(postprocessor: PostProcessor): void;
+
+  /**
+   * Remove a specific post processor from the graphics context
+   * @param postprocessor
+   */
+  removePostProcessor(postprocessor: PostProcessor): void;
+
+  /**
+   * Remove all post processors from the graphics context
+   */
+  clearPostProcessors(): void;
 
   /**
    * Clears the screen with the current background color

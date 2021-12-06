@@ -21,6 +21,9 @@ import { Canvas } from '../Canvas';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
 import { ScreenDimension } from '../../Screen';
+import { RenderTarget } from './render-target';
+import { ScreenRenderer } from './screen-renderer';
+import { PostProcessor } from '../PostProcessor/PostProcessor';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -71,6 +74,12 @@ export interface WebGLGraphicsContextInfo {
 }
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
+  private _renderTarget: RenderTarget;
+
+  private _postProcessTargets: RenderTarget[] = [];
+
+  private _screenRenderer: ScreenRenderer;
+  private _postprocessors: PostProcessor[] = [];
   /**
    * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
    * @internal
@@ -173,12 +182,37 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Enable alpha blending
+    // https://www.realtimerendering.com/blog/gpus-prefer-premultiplication/
     gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendEquation(gl.FUNC_ADD);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
+    gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
     this.__pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
     this.__lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
     this.__imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
+    this._screenRenderer = new ScreenRenderer(gl);
+
+    this._renderTarget = new RenderTarget({
+      gl,
+      width: gl.canvas.width,
+      height: gl.canvas.height
+    });
+
+
+    this._postProcessTargets = [
+      new RenderTarget({
+        gl,
+        width: gl.canvas.width,
+        height: gl.canvas.height
+      }),
+      new RenderTarget({
+        gl,
+        width: gl.canvas.width,
+        height: gl.canvas.height
+      })
+    ];
 
     // 2D ctx shim
     this._canvas = new Canvas({
@@ -198,6 +232,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.__pointRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
     this.__lineRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
     this.__imageRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
+
+    this._renderTarget.setResolution(gl.canvas.width, gl.canvas.height);
+    this._postProcessTargets[0].setResolution(gl.canvas.width, gl.canvas.height);
+    this._postProcessTargets[1].setResolution(gl.canvas.width, gl.canvas.height);
 
     // 2D ctx shim
     this._canvas.width = gl.canvas.width;
@@ -288,12 +326,30 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._transform.current = matrix;
   }
 
+  public addPostProcessor(postprocessor: PostProcessor) {
+    this._postprocessors.push(postprocessor);
+    postprocessor.intialize(this.__gl);
+  }
+
+  public removePostProcessor(postprocessor: PostProcessor) {
+    const index = this._postprocessors.indexOf(postprocessor);
+    if (index !== -1) {
+      this._postprocessors.splice(index, 1);
+    }
+  }
+
+  public clearPostProcessors() {
+    this._postprocessors.length = 0;
+  }
+
   clear() {
     const gl = this.__gl;
+    this._renderTarget.use();
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.
     gl.clear(gl.COLOR_BUFFER_BIT);
+    this._renderTarget.disable();
     GraphicsDiagnostics.clear();
   }
 
@@ -302,10 +358,27 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    */
   flush() {
     const gl = this.__gl;
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
+    // render target captures all draws and redirects to the render target
+    this._renderTarget.use();
     this.__imageRenderer.render();
     this.__lineRenderer.render();
     this.__pointRenderer.render();
+    this._renderTarget.disable();
+
+    // post process step
+    const source = this._renderTarget.toRenderSource();
+    source.use();
+
+    // flip flop render targets
+    for (let i = 0; i < this._postprocessors.length; i++) {
+      this._postProcessTargets[i % 2].use();
+      this._screenRenderer.renderWithShader(this._postprocessors[i].getShader());
+      this._postProcessTargets[i % 2].toRenderSource().use();
+    }
+
+    // passing null switches renderering back to the canvas
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    this._screenRenderer.render();
   }
 }

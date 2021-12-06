@@ -11,6 +11,7 @@ import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
+import { PostProcessor } from '../PostProcessor/PostProcessor';
 
 class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -248,6 +249,18 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
    */
   scale(x: number, y: number): void {
     this.__ctx.scale(x, y);
+  }
+
+  public addPostProcessor(_postprocessor: PostProcessor) {
+    throw Error('Not implemented');
+  }
+
+  public removePostProcessor(_postprocessor: PostProcessor) {
+    throw Error('Not implemented');
+  }
+
+  public clearPostProcessors() {
+    throw Error('Not implemented');
   }
 
   clear(): void {
