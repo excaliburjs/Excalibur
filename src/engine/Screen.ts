@@ -664,7 +664,7 @@ export class Screen {
    * Pushes a world space coordintate towards the nearest screen pixel (floor)
    */
   public quantizeToScreenPixelFloor(coord: Vector): Vector {
-    const bodge = vec(0.75, 0.75);
+    const bodge = vec(0.5, 0.5);
     const screen = { 
       width: this.viewport.width * window.devicePixelRatio,
       height: this.viewport.height * window.devicePixelRatio
