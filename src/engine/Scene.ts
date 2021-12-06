@@ -359,6 +359,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
     this.world.update(SystemType.Update, delta);
 
+    // Camera last keeps renders smooth that are based on entity/actor
     if (this.camera) {
       this.camera.update(engine, delta);
     }

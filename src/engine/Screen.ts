@@ -575,12 +575,11 @@ export class Screen {
    * World bounds are in world coordinates, useful for culling objects offscreen
    */
   public getWorldBounds(): BoundingBox {
-    const left = this.screenToWorldCoordinates(Vector.Zero).x;
-    const top = this.screenToWorldCoordinates(Vector.Zero).y;
-    const right = left + this.drawWidth;
-    const bottom = top + this.drawHeight;
+    const topLeft = this.screenToWorldCoordinates(Vector.Zero);
+    const right = topLeft.x + this.drawWidth;
+    const bottom = topLeft.y + this.drawHeight;
 
-    return new BoundingBox(left, top, right, bottom);
+    return new BoundingBox(topLeft.x, topLeft.y, right, bottom);
   }
 
   /**
