@@ -28,6 +28,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed #1815 issue where Camera would jitter when using a strategies based off of actors in the previous frame. 
+- Fixed issue where TileMaps would sometimes have a geometry seam that may not fall on an actual screen pixel causing a visible gap between tiles and the background
+  -- ![image](https://user-images.githubusercontent.com/612071/144700377-ac4585ba-3f4c-44b8-95db-ad36c5fc9a32.png)
 - Fixed issue where fast moving `CompositeCollider`s were erroneously generating pairs for their constituent parts
 - Fixed Safari 13.1 crash when booting Excalibur because of they odd MediaQuery API in older Safari
 - Fixed issue where pointers did not work because of missing types
