@@ -54,7 +54,7 @@ export class TextureLoader {
     if (tex) {
       if (forceUpdate) {
         gl.bindTexture(gl.TEXTURE_2D, tex);
-        const source = image;//TextureLoader.toPowerOfTwoImage(image);
+        const source = TextureLoader.toPowerOfTwoImage(image);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
       }
       return tex;
@@ -62,14 +62,15 @@ export class TextureLoader {
 
     // No texture exists create a new one
     tex = gl.createTexture();
-    const source = image;//TextureLoader.toPowerOfTwoImage(image);
+    const source = TextureLoader.toPowerOfTwoImage(image);
 
     gl.bindTexture(gl.TEXTURE_2D, tex);
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-    // NEAREST for pixels
+    // TODO support different sampler filter?
+    // NEAREST for pixel art
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 

@@ -10,34 +10,8 @@ import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
 import { TextureLoader } from './texture-loader';
 import { HTMLImageSource } from './ExcaliburGraphicsContext';
 import { Color } from '../../Color';
-import { Engine, vec, Vector } from '../..';
-import { Screen } from '../../Screen';
-
-/**
- *
- */
-function quantizeToScreenPixelFloor(screen: Screen, coord: Vector): Vector {
-  const bodge = vec(.5,.5);
-  let quantizedPos = vec((coord.x / screen.drawWidth) * screen.viewport.width,
-    (coord.y / screen.drawHeight) * screen.viewport.height).add(bodge);
-  quantizedPos = vec((Math.floor(quantizedPos.x) / screen.viewport.width) * screen.drawWidth,
-    (Math.floor(quantizedPos.y) / screen.viewport.height) * screen.drawHeight);
-
-  return quantizedPos;
-}
-
-/**
- *
- */
-function quantizeToScreenPixelCeil(screen: Screen, coord: Vector): Vector {
-  const bodge = vec(.5,.5);
-  let quantizedPos = vec((coord.x / screen.drawWidth) * screen.viewport.width,
-    (coord.y / screen.drawHeight) * screen.viewport.height).add(bodge);
-  quantizedPos = vec((Math.ceil(quantizedPos.x) / screen.viewport.width) * screen.drawWidth,
-    (Math.ceil(quantizedPos.y) / screen.viewport.height) * screen.drawHeight);
-
-  return quantizedPos;
-}
+import { vec, Vector } from '../../Math/vector';
+import { ensurePowerOfTwo } from './webgl-util';
 
 export class BatchImage extends BatchCommand<DrawImageCommand> {
   public textures: WebGLTexture[] = [];
@@ -130,7 +104,7 @@ export class BatchImage extends BatchCommand<DrawImageCommand> {
 }
 
 export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
-  constructor(gl: WebGLRenderingContext, private _contextInfo: WebGLGraphicsContextInfo, private _engine: Engine) {
+  constructor(gl: WebGLRenderingContext, private _contextInfo: WebGLGraphicsContextInfo) {
     super({
       gl,
       command: DrawImageCommand,
@@ -234,8 +208,8 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       sw = command.view[2];
       sh = command.view[3];
 
-      potWidth = (command.image?.width || command.width);
-      potHeight = (command.image?.height || command.height);
+      potWidth = ensurePowerOfTwo(command.image?.width || command.width);
+      potHeight = ensurePowerOfTwo(command.image?.height || command.height);
 
       textureId = batch.getBatchTextureId(command);
       if (command.type === DrawCommandType.Line || command.type === DrawCommandType.Rectangle) {
@@ -250,21 +224,19 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
       const topLeft = vec(command.geometry[0][0], command.geometry[0][1]);
       const bottomRight = vec(command.geometry[5][0], command.geometry[5][1]);
 
-      const screen = this._engine.screen;
-
+      const screen = this._contextInfo.engine.screen;
       // Bias to the nearest screen pixel
-      const quantizedPos = quantizeToScreenPixelFloor(screen, topLeft);
-      const quantizedBottomRight = quantizeToScreenPixelCeil(screen, bottomRight);
-
+      const quantizedPos = screen.quantizeToScreenPixelFloor(topLeft);
+      const quantizedBottomRight = screen.quantizeToScreenPixelCeil(bottomRight);
       const quantizedDim = vec(quantizedBottomRight.x - quantizedPos.x, quantizedBottomRight.y - quantizedPos.y);
 
       // potential optimization when divding by 2 (bitshift)
       // Modifying the images to poweroftwo images warp the UV coordinates
-      const uvbodge = 0.0001;
+      const uvbodge = 0;
       let uvx0 = (sx + uvbodge) / potWidth;
       let uvy0 = (sy + uvbodge) / potHeight;
       let uvx1 = (sx + sw - uvbodge) / potWidth;
-      let uvy1 = (sy + sh  - uvbodge) / potHeight;
+      let uvy1 = (sy + sh - uvbodge) / potHeight;
       if (textureId === -2) {
         uvx0 = 0;
         uvy0 = 0;

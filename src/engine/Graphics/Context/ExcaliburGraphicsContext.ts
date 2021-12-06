@@ -1,6 +1,6 @@
 import { Vector } from '../../Math/vector';
 import { Color } from '../../Color';
-import { Engine } from '../..';
+import type { Engine } from '../../Engine';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
 

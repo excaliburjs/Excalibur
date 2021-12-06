@@ -69,6 +69,7 @@ export interface WebGLGraphicsContextInfo {
   transform: TransformStack;
   state: StateStack;
   matrix: Matrix;
+  engine: Engine;
 }
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
@@ -91,6 +92,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _transform = new TransformStack();
   private _state = new StateStack();
   private _ortho!: Matrix;
+  private _engine: Engine;
 
   /**
    * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
@@ -115,7 +117,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   public smoothing: boolean = false;
 
   public backgroundColor: Color = Color.ExcaliburBlue;
-  private _engine: Engine;
 
   public get opacity(): number {
     return this._state.current.opacity;
@@ -179,9 +180,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    this.__pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
-    this.__lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
-    this.__imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state }, this._engine);
+    this.__pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state, engine: this._engine });
+    this.__lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state, engine: this._engine });
+    this.__imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state, engine: this._engine });
 
     // 2D ctx shim
     this._canvas = new Canvas({

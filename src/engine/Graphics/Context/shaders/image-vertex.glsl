@@ -1,3 +1,4 @@
+precision highp float;
 attribute vec4 a_position;
 
 // Opacity 

@@ -743,16 +743,10 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     const newCanvasWidth = canvasWidth / zoom / pixelRatio;
     const newCanvasHeight = canvasHeight / zoom / pixelRatio;
 
-    ctx.scale(zoom, zoom);
-    const bodge = vec(.5,.5);
-
     const cameraPos = vec(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
-    // Bias to the nearest screen pixel
-    let quantizedPos = this._engine.screen.worldToScreenCoordinates(cameraPos).add(bodge);
-    quantizedPos = this._engine.screen.screenToWorldCoordinates(vec(Math.floor(quantizedPos.x), Math.floor(quantizedPos.y)));
 
-    ctx.translate(quantizedPos.x, quantizedPos.y);
-    // ctx.translate(cameraPos.x, cameraPos.y);
+    ctx.scale(zoom, zoom);
+    ctx.translate(cameraPos.x, cameraPos.y);
   }
 
   /* istanbul ignore next */

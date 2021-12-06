@@ -654,6 +654,39 @@ export class Screen {
     return vec(this.halfDrawWidth, this.halfDrawHeight);
   }
 
+
+  /**
+   * Pushes a world space coordintate towards the nearest screen pixel (floor)
+   */
+  public quantizeToScreenPixelFloor(coord: Vector): Vector {
+    const bodge = vec(.5, .5);
+    // map coordinate to screen space and add a half pixel bodge
+    let quantizedPos = vec((coord.x / this.drawWidth) * this.viewport.width,
+      (coord.y / this.drawHeight) * this.viewport.height).add(bodge);
+    // find the floor exact pixel in screen space, then convert back to world space
+    quantizedPos = vec(
+      (Math.floor(quantizedPos.x) / this.viewport.width) * this.drawWidth,
+      (Math.floor(quantizedPos.y) / this.viewport.height) * this.drawHeight);
+
+    return quantizedPos;
+  }
+
+  /**
+   * Pushes a world space coordintate towards the nearest screen pixel (ceiling)
+   */
+  public quantizeToScreenPixelCeil(coord: Vector): Vector {
+    const bodge = vec(.5, .5);
+    // map coordinate to screen space and add a half pixel bodge
+    let quantizedPos = vec((coord.x / this.drawWidth) * this.viewport.width,
+      (coord.y / this.drawHeight) * this.viewport.height).add(bodge);
+    // find the ceil exact pixel in screen space, then convert back to world space
+    quantizedPos = vec(
+      (Math.ceil(quantizedPos.x) / this.viewport.width) * this.drawWidth,
+      (Math.ceil(quantizedPos.y) / this.viewport.height) * this.drawHeight);
+
+    return quantizedPos;
+  }
+
   private _computeFit() {
     document.body.style.margin = '0px';
     document.body.style.overflow = 'hidden';
