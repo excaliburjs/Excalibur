@@ -144,7 +144,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // If any dimension is greater than max texture size (divide by 4 bytes per pixel)
     const maxDim = gl.getParameter(gl.MAX_TEXTURE_SIZE) / 4;
     let supported = true;
-    if (dim.width > maxDim ||dim.height > maxDim) {
+    if (dim.width > maxDim || dim.height > maxDim) {
       supported = false;
     }
     return supported;

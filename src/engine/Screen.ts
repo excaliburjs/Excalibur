@@ -213,17 +213,22 @@ export class Screen {
     this._pixelRatioOverride = options.pixelRatio;
     this._applyDisplayMode();
 
+    this._listenForPixelRatio();
+
+    this._canvas.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
+    this.applyResolutionAndViewport();
+  }
+
+  private _listenForPixelRatio() {
     this._mediaQueryList = this._browser.window.nativeComponent.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
 
     // Safari <=13.1 workaround
     if (this._mediaQueryList.addEventListener) {
-      this._mediaQueryList.addEventListener('change', this._pixelRatioChangeHandler);
+      // TODO handle safari
+      this._mediaQueryList.addEventListener('change', this._pixelRatioChangeHandler, { once: true });
     } else {
       this._mediaQueryList.addListener(this._pixelRatioChangeHandler);
     }
-
-    this._canvas.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
-    this.applyResolutionAndViewport();
   }
 
   public dispose(): void {
@@ -252,6 +257,7 @@ export class Screen {
 
   private _pixelRatioChangeHandler = () => {
     this._logger.debug('Pixel Ratio Change', window.devicePixelRatio);
+    this._listenForPixelRatio();
     this._devicePixelRatio = this._calculateDevicePixelRatio();
     this.applyResolutionAndViewport();
   };
@@ -613,7 +619,7 @@ export class Screen {
   }
 
   /**
-   * Returns the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+   * Returns the width of the engine's visible drawing surface in pixels including camera zoom.
    */
   public get drawWidth(): number {
     if (this._camera) {
@@ -623,14 +629,14 @@ export class Screen {
   }
 
   /**
-   * Returns half the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+   * Returns half the width of the engine's visible drawing surface in pixels including camera zoom.
    */
   public get halfDrawWidth(): number {
     return this.drawWidth / 2;
   }
 
   /**
-   * Returns the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+   * Returns the height of the engine's visible drawing surface in pixels including camera zoom.
    */
   public get drawHeight(): number {
     if (this._camera) {
@@ -640,14 +646,14 @@ export class Screen {
   }
 
   /**
-   * Returns half the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+   * Returns half the height of the engine's visible drawing surface in pixels including camera zoom.
    */
   public get halfDrawHeight(): number {
     return this.drawHeight / 2;
   }
 
   /**
-   * Returns screen center coordinates including zoom and device pixel ratio.
+   * Returns screen center coordinates including camera zoom.
    */
   public get center(): Vector {
     return vec(this.halfDrawWidth, this.halfDrawHeight);
@@ -658,14 +664,19 @@ export class Screen {
    * Pushes a world space coordintate towards the nearest screen pixel (floor)
    */
   public quantizeToScreenPixelFloor(coord: Vector): Vector {
-    const bodge = vec(.5, .5);
+    const bodge = vec(0.75, 0.75);
+    const screen = { 
+      width: this.viewport.width * window.devicePixelRatio,
+      height: this.viewport.height * window.devicePixelRatio
+    };
     // map coordinate to screen space and add a half pixel bodge
-    let quantizedPos = vec((coord.x / this.drawWidth) * this.viewport.width,
-      (coord.y / this.drawHeight) * this.viewport.height).add(bodge);
+    let quantizedPos = vec(
+      ((coord.x) / this.drawWidth) * screen.width,
+      ((coord.y) / this.drawHeight) * screen.height).add(bodge);
     // find the floor exact pixel in screen space, then convert back to world space
     quantizedPos = vec(
-      (Math.floor(quantizedPos.x) / this.viewport.width) * this.drawWidth,
-      (Math.floor(quantizedPos.y) / this.viewport.height) * this.drawHeight);
+      (Math.floor(quantizedPos.x) / screen.width) * this.drawWidth,
+      (Math.floor(quantizedPos.y) / screen.height) * this.drawHeight);
 
     return quantizedPos;
   }
@@ -674,14 +685,19 @@ export class Screen {
    * Pushes a world space coordintate towards the nearest screen pixel (ceiling)
    */
   public quantizeToScreenPixelCeil(coord: Vector): Vector {
-    const bodge = vec(.5, .5);
+    const bodge = vec(0.5, 0.5);
+    const screen = {
+      width: this.viewport.width * window.devicePixelRatio,
+      height: this.viewport.height * window.devicePixelRatio 
+    };
     // map coordinate to screen space and add a half pixel bodge
-    let quantizedPos = vec((coord.x / this.drawWidth) * this.viewport.width,
-      (coord.y / this.drawHeight) * this.viewport.height).add(bodge);
+    let quantizedPos = vec(
+      ((coord.x) / this.drawWidth) * screen.width,
+      ((coord.y) / this.drawHeight) * screen.height).add(bodge);
     // find the ceil exact pixel in screen space, then convert back to world space
     quantizedPos = vec(
-      (Math.ceil(quantizedPos.x) / this.viewport.width) * this.drawWidth,
-      (Math.ceil(quantizedPos.y) / this.viewport.height) * this.drawHeight);
+      (Math.ceil(quantizedPos.x) / screen.width) * this.drawWidth,
+      (Math.ceil(quantizedPos.y) / screen.height) * this.drawHeight);
 
     return quantizedPos;
   }
