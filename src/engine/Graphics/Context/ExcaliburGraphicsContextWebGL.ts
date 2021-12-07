@@ -292,6 +292,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._transform.current = matrix;
   }
 
+  public getTransform(): Matrix {
+    return this._transform.current;
+  }
+
   clear() {
     const gl = this.__gl;
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);

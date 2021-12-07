@@ -664,6 +664,8 @@ export class Screen {
    * Pushes a world space coordintate towards the nearest screen pixel (floor)
    */
   public quantizeToScreenPixelFloor(coord: Vector): Vector {
+    const mat = this._ctx.getTransform();
+    coord = mat.getAffineInverse().multv(coord);
     const bodge = vec(0.5, 0.5);
     const screen = { 
       width: this.viewport.width * window.devicePixelRatio,
@@ -678,13 +680,15 @@ export class Screen {
       (Math.floor(quantizedPos.x) / screen.width) * this.drawWidth,
       (Math.floor(quantizedPos.y) / screen.height) * this.drawHeight);
 
-    return quantizedPos;
+    return mat.multv(quantizedPos);
   }
 
   /**
    * Pushes a world space coordintate towards the nearest screen pixel (ceiling)
    */
   public quantizeToScreenPixelCeil(coord: Vector): Vector {
+    const mat = this._ctx.getTransform();
+    coord = mat.getAffineInverse().multv(coord);
     const bodge = vec(0.5, 0.5);
     const screen = {
       width: this.viewport.width * window.devicePixelRatio,
@@ -699,7 +703,7 @@ export class Screen {
       (Math.ceil(quantizedPos.x) / screen.width) * this.drawWidth,
       (Math.ceil(quantizedPos.y) / screen.height) * this.drawHeight);
 
-    return quantizedPos;
+    return mat.multv(quantizedPos);
   }
 
   private _computeFit() {

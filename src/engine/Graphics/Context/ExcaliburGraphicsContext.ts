@@ -1,6 +1,7 @@
 import { Vector } from '../../Math/vector';
 import { Color } from '../../Color';
 import type { Engine } from '../../Engine';
+import { Matrix } from '../..';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
 
@@ -89,6 +90,11 @@ export interface ExcaliburGraphicsContext {
    * Resets the current transform to the identity matrix
    */
   resetTransform(): void;
+
+  /**
+   * Gets the current transform
+   */
+  getTransform(): Matrix;
 
   /**
    * Update the context with the current viewport dimensions (used in resizing)
