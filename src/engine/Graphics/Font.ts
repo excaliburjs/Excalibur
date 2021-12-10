@@ -4,10 +4,10 @@ import { Color } from '../Color';
 import { line } from '../Util/DrawUtil';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { BaseAlign, Direction, FontOptions, FontStyle, FontUnit, TextAlign, FontRenderer } from './FontCommon';
-import { Raster, RasterOptions } from './Raster';
+import { Graphic, GraphicOptions } from './Graphic';
 
-export class Font extends Raster implements FontRenderer {
-  constructor(options: FontOptions & RasterOptions = {}) {
+export class Font extends Graphic implements FontRenderer {
+  constructor(options: FontOptions & GraphicOptions = {}) {
     super(options);
     this.family = options?.family ?? this.family;
     this.style = options?.style ?? this.style;
@@ -24,13 +24,11 @@ export class Font extends Raster implements FontRenderer {
       this.shadow.offset = options.shadow.offset ?? this.shadow.offset;
       this.shadow.color = options.shadow.color ?? this.shadow.color;
     }
-    this.flagDirty();
   }
 
   public clone() {
     return new Font({
       ...this.cloneGraphicOptions(),
-      ...this.cloneRasterOptions(),
       size: this.size,
       unit: this.unit,
       family: this.family,
@@ -55,10 +53,13 @@ export class Font extends Raster implements FontRenderer {
    *
    * You can think of quality as how zoomed in to the text you can get before seeing jagged edges.
    *
-   * (Default 4)
+   * (Default 2)
    */
   public quality = 2;
 
+  public padding = 0;
+  public color: Color = Color.Black;
+  public strokeColor: Color;
   public family: string = 'sans-serif';
   public style: FontStyle = FontStyle.Normal;
   public bold: boolean = false;
@@ -73,7 +74,6 @@ export class Font extends Raster implements FontRenderer {
     return `${this.style} ${this.bold ? 'bold' : ''} ${this.size}${this.unit} ${this.family}`;
   }
 
-  private _text: string;
   private _lines: string[];
   private _textBounds: BoundingBox = new BoundingBox();
   private _textWidth: number = 0;
@@ -97,43 +97,13 @@ export class Font extends Raster implements FontRenderer {
     this._textHeight = value / numLines;
   }
 
-  private get _rasterWidth() {
-    return this._bitmap.width;
-  }
-
-  private get _rasterHeight() {
-    return this._bitmap.height;
-  }
-
-  private get _halfRasterWidth() {
-    return Math.floor(this._bitmap.width / 2);
-  }
-
-  private get _halfRasterHeight() {
-    return Math.floor(this._bitmap.height / 2);
-  }
-
   public get localBounds(): BoundingBox {
     return this._textBounds;
   }
 
-  protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
-    if (this.dirty) {
-      this.rasterize();
-    }
+  // TODO weird vestigial drawimage
+  protected _drawImage(_ex: ExcaliburGraphicsContext, _x: number, _y: number) { }
 
-    ex.drawImage(
-      this._bitmap,
-      0,
-      0,
-      this._rasterWidth,
-      this._rasterHeight,
-      x - this._rasterWidth / this.quality / 2,
-      y - this._rasterHeight / this.quality / 2,
-      this._rasterWidth / this.quality,
-      this._rasterHeight / this.quality
-    );
-  }
 
   protected _rotate(ex: ExcaliburGraphicsContext) {
     // TODO this needs to change depending on the bounding box...
@@ -155,64 +125,61 @@ export class Font extends Raster implements FontRenderer {
     }
   }
 
-  public updateText(text: string) {
-    if (this._text !== text) {
-      this._text = text;
-      this._lines = this._text.split('\n');
-      this._updateDimensions();
-      this.flagDirty();
-    }
+
+  /**
+   * Returns a BoundingBox that is the total size of the text including mutliple lines
+   * 
+   * Does not include any padding or adjustment
+   * @param text 
+   * @returns BoundingBox
+   */
+  public measureText(text: string): BoundingBox {
+    const lines = text.split('\n');
+    const maxWidthLine = lines.reduce((a, b) => {
+      return a.length > b.length ? a : b;
+    });
+    const ctx = this._getTextBitmap(text);
+
+    this._applyFont(ctx); // font must be applied to the context to measure it
+    const metrics = ctx.measureText(maxWidthLine);
+    let textHeight = Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
+
+    // TODO lineheight makes the text bounds wonky
+    const lineAdjustedHeight = textHeight * lines.length;
+    textHeight = lineAdjustedHeight;
+    const bottomBounds = lineAdjustedHeight - Math.abs(metrics.actualBoundingBoxAscent);
+    const x = 0;
+    const y = 0;
+    return new BoundingBox({
+      left: x - Math.abs(metrics.actualBoundingBoxLeft) - this.padding,
+      top: y - Math.abs(metrics.actualBoundingBoxAscent) - this.padding,
+      bottom: y + bottomBounds + this.padding,
+      right: x + Math.abs(metrics.actualBoundingBoxRight) + this.padding
+    });
   }
 
-  private _updateDimensions() {
-    if (this._text) {
-      this._applyFont(this._ctx);
-      const maxWidthLine = this._lines.reduce((a, b) => {
-        return a.length > b.length ? a : b;
-      });
-      const metrics = this._ctx.measureText(maxWidthLine);
-      this._textWidth = Math.abs(metrics.actualBoundingBoxLeft) + Math.abs(metrics.actualBoundingBoxRight);
-      this._textHeight = Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
+  private _setDimension(text: string, bitmap: CanvasRenderingContext2D): BoundingBox {
+    const textBounds = this.measureText(text);
 
-      // TODO lineheight makes the text bounds wonky
-      const lineAdjustedHeight = this._textHeight * this._lines.length;
-      // this._textHeight = lineAdjustedHeight;
-      // Changing the width and height clears the context properties
-      // We double the bitmap width to account for alignment
-      // We scale by "quality" so we render text without jaggies
-      this._bitmap.width = (this._textWidth + this.padding * 2) * 2 * this.quality;
-      this._bitmap.height = (lineAdjustedHeight + this.padding * 2) * 2 * this.quality;
+    // Changing the width and height clears the context properties
+    // We double the bitmap width to account for all possible alignment
+    // We scale by "quality" so we render text without jaggies
+    bitmap.canvas.width = (textBounds.width + this.padding * 2) * 2 * this.quality;
+    bitmap.canvas.height = (textBounds.height + this.padding * 2) * 2 * this.quality;
 
-      // These bounds exist in raster bitmap space where the top left corner is the corder of the bitmap
-      const x = 0;
-      const y = 0;
-      const bottomBounds = lineAdjustedHeight - Math.abs(metrics.actualBoundingBoxAscent);
-      this._textBounds = new BoundingBox({
-        left: x - Math.abs(metrics.actualBoundingBoxLeft) - this.padding,
-        top: y - Math.abs(metrics.actualBoundingBoxAscent) - this.padding,
-        bottom: y + bottomBounds + this.padding,
-        right: x + Math.abs(metrics.actualBoundingBoxRight) + this.padding
-      });
-    }
-  }
-
-  protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
-    if (this.dirty) {
-      this._updateDimensions();
-    }
-    super._preDraw(ex, x, y);
+    return textBounds;
   }
 
   protected _postDraw(ex: ExcaliburGraphicsContext): void {
     if (this.showDebug) {
       /* istanbul ignore next */
-      ex.debug.drawRect(-this._halfRasterWidth, -this._halfRasterHeight, this._rasterWidth, this._rasterHeight);
+      // ex.debug.drawRect(-this._halfRasterWidth, -this._halfRasterHeight, this._rasterWidth, this._rasterHeight);
     }
     ex.restore();
   }
 
   private _applyFont(ctx: CanvasRenderingContext2D) {
-    ctx.translate(this.padding + this._halfRasterWidth, this.padding + this._halfRasterHeight);
+    ctx.translate(this.padding + ctx.canvas.width / 2, this.padding + ctx.canvas.height / 2);
     ctx.scale(this.quality, this.quality);
     ctx.textAlign = this.textAlign;
     ctx.textBaseline = this.baseAlign;
@@ -227,37 +194,78 @@ export class Font extends Raster implements FontRenderer {
     }
   }
 
-  execute(ctx: CanvasRenderingContext2D): void {
-    if (this._text) {
-      // The reason we need to re-apply the font is setting raster properties (like width/height) can reset the context props
-      this._applyRasterProperites(ctx);
-      this._applyFont(ctx);
+  drawText(ctx: CanvasRenderingContext2D, text: string, lineHeight: number): void {
+    const lines = text.split('\n');
+    // this._applyRasterProperites(ctx);
+    this._applyFont(ctx);
 
-      const lineHeight = this._textHeight; // TODO user specified line height
-      for (let i = 0; i < this._lines.length; i++) {
-        const line = this._lines[i];
-        if (this.color) {
-          ctx.fillText(line, 0, i * lineHeight);
-        }
-
-        if (this.strokeColor) {
-          ctx.strokeText(line, 0, i * lineHeight);
-        }
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (this.color) {
+        ctx.fillText(line, 0, i * lineHeight);
       }
 
-      if (this.showDebug) {
-        // Horizontal line
-        /* istanbul ignore next */
-        line(ctx, Color.Red, -this._halfRasterWidth, 0, this._halfRasterWidth, 0, 2);
-        // Vertical line
-        /* istanbul ignore next */
-        line(ctx, Color.Red, 0, -this._halfRasterHeight, 0, this._halfRasterHeight, 2);
+      if (this.strokeColor) {
+        ctx.strokeText(line, 0, i * lineHeight);
       }
+    }
+
+    if (this.showDebug) {
+      // Horizontal line
+      /* istanbul ignore next */
+      line(ctx, Color.Red, -ctx.canvas.width / 2, 0, ctx.canvas.width / 2, 0, 2);
+      // Vertical line
+      /* istanbul ignore next */
+      line(ctx, Color.Red, 0, -ctx.canvas.height / 2, 0, ctx.canvas.height / 2, 2);
     }
   }
 
+  // TODO this will leak canvas
+  private _textToBitmap = new Map<string, CanvasRenderingContext2D>();
+  private _getTextBitmap(text: string): CanvasRenderingContext2D {
+    const bitmap = this._textToBitmap.get(text);
+    if (bitmap) {
+      return bitmap
+    }
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    this._textToBitmap.set(text, ctx);
+    return ctx;
+  }
+
   public render(ex: ExcaliburGraphicsContext, text: string, x: number, y: number) {
-    this.updateText(text);
-    this.draw(ex, x, y);
+    // TODO should produce a new bitmap for each unique piece of text
+    // TODO should each "bitmap" be it's own raster?
+    const bitmap = this._getTextBitmap(text);
+    const bounds = this._setDimension(text, bitmap);
+    this._textBounds = bounds;
+    bitmap.canvas.width = (bounds.width + this.padding * 2) * 2 * this.quality;
+    bitmap.canvas.height = (bounds.height + this.padding * 2) * 2 * this.quality;
+
+    this._preDraw(ex, x, y);
+
+    const lines = text.split('\n');
+    const lineHeight = bounds.height / lines.length;
+
+    // draws the text to the bitmap
+    this.drawText(bitmap, text, lineHeight);
+
+    const rasterWidth = bitmap.canvas.width;
+    const rasterHeight = bitmap.canvas.height;
+
+    ex.drawImage(
+      bitmap.canvas,
+      0,
+      0,
+      rasterWidth,
+      rasterHeight,
+      x - rasterWidth / this.quality / 2,
+      y - rasterHeight / this.quality / 2,
+      rasterWidth / this.quality,
+      rasterHeight / this.quality
+    );
+
+    this._postDraw(ex);
   }
 }

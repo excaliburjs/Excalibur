@@ -4,7 +4,6 @@ import { SpriteFont } from './SpriteFont';
 import { Graphic, GraphicOptions } from './Graphic';
 import { Color } from '../Color';
 import { Font } from './Font';
-import { watch } from '../Util/Watch';
 
 export interface TextOptions {
   text: string;
@@ -36,7 +35,6 @@ export class Text extends Graphic {
 
   public set text(value: string) {
     this._text = value;
-    this.font.updateText(value);
   }
 
   // TODO SpriteFont doesn't support a color yet :(
@@ -58,39 +56,46 @@ export class Text extends Graphic {
     return this._font;
   }
   public set font(font: Font | SpriteFont) {
-    if (font instanceof Font) {
-      this._font = watch(font, (font) => font.flagDirty());
-    } else {
-      this._font = font;
-    }
+    this._font = font;
   }
 
+  private _textWidth: number = 0;
+  /**
+   * TODO not set until the first draw
+   */
   public get width() {
-    return this.font.width;
+    return this._textWidth;
   }
 
+  private _textHeight: number = 0;
   public get height() {
-    return this.font.height;
+    return this._textHeight;
   }
 
   public get localBounds(): BoundingBox {
-    return this.font.localBounds;
+    const bounds = this.font.measureText(this._text);
+    return bounds;
   }
 
-  protected _rotate(_ex: ExcaliburGraphicsContext) {
+  protected override _rotate(_ex: ExcaliburGraphicsContext) {
     // None this is delegated to font
     // This override erases the default behavior
   }
 
-  protected _flip(_ex: ExcaliburGraphicsContext) {
+  protected override _flip(_ex: ExcaliburGraphicsContext) {
     // None this is delegated to font
     // This override erases the default behavior
   }
 
-  protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
+  protected override _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.font instanceof Font) {
       this.font.color = this.color;
     }
+    const { width, height } = this.font.measureText(this._text);
+    this._textWidth = width;
+    this._textHeight = height;
+
+    // TODO this mutates the font, we should render without mutating the font
     this.font.flipHorizontal = this.flipHorizontal;
     this.font.flipVertical = this.flipVertical;
     this.font.scale = this.scale;
