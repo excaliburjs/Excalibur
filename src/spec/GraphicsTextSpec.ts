@@ -134,7 +134,47 @@ describe('A Text Graphic', () => {
     });
   });
 
-  it('can draw multiple lines of text', async () => {
+  it('can draw mutliple lines of text (spritefont)', async () => {
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    await spriteFontImage.load();
+    const spriteFontSheet = ex.SpriteSheet.fromImageSource({
+      image: spriteFontImage,
+      grid: {
+        rows: 3,
+        columns: 16,
+        spriteWidth: 16,
+        spriteHeight: 16
+      }
+    });
+
+    const spriteFont = new ex.SpriteFont({
+      alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+      caseInsensitive: true,
+      spriteSheet: spriteFontSheet,
+      spacing: -6
+    });
+    const sut = new ex.Text({
+      text: 'multiple\nlines\nof text',
+      color: ex.Color.Green,
+      font: spriteFont
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    ctx.clear();
+    sut.draw(ctx, 10, 20);
+
+    expect(sut.width).toBeCloseTo(80);
+    expect(sut.height).toBeCloseTo(48);
+    expect(sut.localBounds.width).toBeCloseTo(80);
+    expect(sut.localBounds.height).toBeCloseTo(48);
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/multi-text-spritefont.png');
+  });
+
+  it('can draw multiple lines of text (font)', async () => {
     const sut = new ex.Text({
       text: 'multiple\nlines\nof text',
       color: ex.Color.Green,
@@ -239,6 +279,42 @@ describe('A Text Graphic', () => {
     await runOnLinux(async () => {
       await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/rotated-linux.png');
     });
+  });
+
+  it('can rotate spritefont text around the middle', async () => {
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    await spriteFontImage.load();
+    const spriteFontSheet = ex.SpriteSheet.fromImageSource({
+      image: spriteFontImage,
+      grid: {
+        rows: 3,
+        columns: 16,
+        spriteWidth: 16,
+        spriteHeight: 16
+      }
+    });
+
+    const spriteFont = new ex.SpriteFont({
+      alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+      caseInsensitive: true,
+      spriteSheet: spriteFontSheet,
+      spacing: -6
+    });
+    const sut = new ex.Text({
+      text: 'some text',
+      font: spriteFont
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    ctx.clear();
+    sut.rotation = Math.PI / 2;
+    sut.draw(ctx, 10, 40);
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/rotated-spritefont.png');
   });
 
   it('can rotate text around the left', async () => {
