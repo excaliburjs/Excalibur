@@ -241,11 +241,11 @@ export class Font extends Graphic implements FontRenderer {
   }
 
   public render(ex: ExcaliburGraphicsContext, text: string, x: number, y: number) {
-    // TODO should produce a new bitmap for each unique piece of text
     // TODO should each "bitmap" be it's own raster?
     const bitmap = this._getTextBitmap(text);
     const bounds = this._setDimension(text, bitmap);
     this._textBounds = bounds;
+
     bitmap.canvas.width = (bounds.width + this.padding * 2) * 2 * this.quality;
     bitmap.canvas.height = (bounds.height + this.padding * 2) * 2 * this.quality;
 
@@ -260,6 +260,7 @@ export class Font extends Graphic implements FontRenderer {
     const rasterWidth = bitmap.canvas.width;
     const rasterHeight = bitmap.canvas.height;
 
+    // draws the bitmap to excalibur graphics context
     ex.drawImage(
       bitmap.canvas,
       0,

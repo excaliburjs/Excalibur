@@ -1,3 +1,4 @@
+import { BoundingBox } from '../Collision/BoundingBox';
 import { Color } from '../Color';
 import { Vector } from '../Math/vector';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
@@ -126,5 +127,6 @@ export interface FontOptions {
 }
 
 export interface FontRenderer {
+  measureText(text: string): BoundingBox;
   render(ex: ExcaliburGraphicsContext, text: string, x: number, y: number): void;
 }
