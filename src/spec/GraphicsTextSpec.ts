@@ -239,7 +239,7 @@ describe('A Text Graphic', () => {
     });
 
     await runOnLinux(async () => {
-      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/rotated-linux.png');
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/font-alignment-linux.png');
     });
   });
 
