@@ -35,6 +35,9 @@ export class Text extends Graphic {
 
   public set text(value: string) {
     this._text = value;
+    const bounds = this.font.measureText(this._text);
+    this._textWidth = bounds.width;
+    this._textHeight = bounds.height;
   }
 
   // TODO SpriteFont doesn't support a color yet :(
@@ -73,8 +76,7 @@ export class Text extends Graphic {
   }
 
   public get localBounds(): BoundingBox {
-    const bounds = this.font.measureText(this._text);
-    return bounds;
+    return this.font.measureText(this._text);
   }
 
   protected override _rotate(_ex: ExcaliburGraphicsContext) {

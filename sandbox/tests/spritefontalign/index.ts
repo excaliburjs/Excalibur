@@ -1,6 +1,7 @@
 
 
 var game = new ex.Engine({
+  antialiasing: false,
   width: 800,
   height: 600,
   resolution: { width: 200, height: 200 }

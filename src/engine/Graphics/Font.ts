@@ -5,10 +5,21 @@ import { line } from '../Util/DrawUtil';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { BaseAlign, Direction, FontOptions, FontStyle, FontUnit, TextAlign, FontRenderer } from './FontCommon';
 import { Graphic, GraphicOptions } from './Graphic';
+import { RasterOptions } from './Raster';
 
 export class Font extends Graphic implements FontRenderer {
-  constructor(options: FontOptions & GraphicOptions = {}) {
+  constructor(options: FontOptions & GraphicOptions & RasterOptions = {}) {
     super(options);
+
+    // TODO raster properties
+    this.smoothing = options?.smoothing ?? this.smoothing;
+    this.padding = options?.padding ?? this.padding;
+    this.color = options?.color ?? this.color;
+    this.strokeColor = options?.strokeColor ?? this.strokeColor;
+    this.lineDash = options?.lineDash ?? this.lineDash;
+    this.lineWidth = options?.lineWidth ?? this.lineWidth;
+
+
     this.family = options?.family ?? this.family;
     this.style = options?.style ?? this.style;
     this.bold = options?.bold ?? this.bold;
@@ -57,9 +68,14 @@ export class Font extends Graphic implements FontRenderer {
    */
   public quality = 2;
 
+  // TODO raster properties?
   public padding = 0;
+  public smoothing = false;
+  public lineWidth = 1;
+  public lineDash: number[] = [];
   public color: Color = Color.Black;
   public strokeColor: Color;
+  
   public family: string = 'sans-serif';
   public style: FontStyle = FontStyle.Normal;
   public bold: boolean = false;
@@ -74,28 +90,7 @@ export class Font extends Graphic implements FontRenderer {
     return `${this.style} ${this.bold ? 'bold' : ''} ${this.size}${this.unit} ${this.family}`;
   }
 
-  private _lines: string[];
   private _textBounds: BoundingBox = new BoundingBox();
-  private _textWidth: number = 0;
-  private _textHeight: number = 0;
-
-  public get width() {
-    return this._textWidth;
-  }
-
-  public set width(value: number) {
-    this._textWidth = value;
-  }
-
-  public get height() {
-    const numLines = this._lines?.length ?? 1;
-    return this._textHeight * numLines;
-  }
-
-  public set height(value: number) {
-    const numLines = this._lines?.length ?? 1;
-    this._textHeight = value / numLines;
-  }
 
   public get localBounds(): BoundingBox {
     return this._textBounds;
@@ -178,6 +173,15 @@ export class Font extends Graphic implements FontRenderer {
     ex.restore();
   }
 
+  protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
+    ctx.translate(this.padding, this.padding);
+    ctx.imageSmoothingEnabled = this.smoothing;
+    ctx.lineWidth = this.lineWidth;
+    ctx.setLineDash(this.lineDash ?? ctx.getLineDash());
+    ctx.strokeStyle = this.strokeColor?.toString();
+    ctx.fillStyle = this.color?.toString();
+  }
+
   private _applyFont(ctx: CanvasRenderingContext2D) {
     ctx.translate(this.padding + ctx.canvas.width / 2, this.padding + ctx.canvas.height / 2);
     ctx.scale(this.quality, this.quality);
@@ -196,7 +200,7 @@ export class Font extends Graphic implements FontRenderer {
 
   drawText(ctx: CanvasRenderingContext2D, text: string, lineHeight: number): void {
     const lines = text.split('\n');
-    // this._applyRasterProperites(ctx);
+    this._applyRasterProperites(ctx);
     this._applyFont(ctx);
 
     for (let i = 0; i < lines.length; i++) {
