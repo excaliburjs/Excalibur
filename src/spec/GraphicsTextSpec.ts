@@ -183,6 +183,18 @@ describe('A Text Graphic', () => {
     expect(sut.localBounds.height).toBeCloseTo(18, 0);
   });
 
+  it('can measure text for a font', () => {
+    const sut = new ex.Font({
+      family: 'Open Sans',
+      size: 18,
+      quality: 1
+    });
+
+    const bounds = sut.measureText('some extra long text that we want to measure');
+    expect(bounds.width).toBeCloseTo(386.9, -1);
+    expect(bounds.height).toBeCloseTo(18, 0);
+  });
+
   it('can flip text vertically and horizontally', async () => {
     const sut = new ex.Text({
       text: 'green text',
@@ -692,5 +704,30 @@ describe('A Text Graphic', () => {
     expect(sut.localBounds.height).toBeCloseTo(48);
 
     await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/multi-text-spritefont.png');
+  });
+
+  it('can measure text for a spritefont', async () => {
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    await spriteFontImage.load();
+    const spriteFontSheet = ex.SpriteSheet.fromImageSource({
+      image: spriteFontImage,
+      grid: {
+        rows: 3,
+        columns: 16,
+        spriteWidth: 16,
+        spriteHeight: 16
+      }
+    });
+
+    const sut = new ex.SpriteFont({
+      alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+      caseInsensitive: true,
+      spriteSheet: spriteFontSheet,
+      spacing: -6
+    });
+
+    const bounds = sut.measureText('some extra long text that we want to measure');
+    expect(bounds.width).toBeCloseTo(440, -1);
+    expect(bounds.height).toBeCloseTo(16, 0);
   });
 });
