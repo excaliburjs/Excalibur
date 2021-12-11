@@ -111,7 +111,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
     let yCursor = 0;
     let height = 0;
     const lines = this._text.split('\n');
-    for (let line of lines) {
+    for (const line of lines) {
       for (const sprite of this._getCharacterSprites(line)) {
         // draw it in the right spot and increase the cursor by sprite width
         sprite.draw(ex, x + xCursor, y + yCursor);

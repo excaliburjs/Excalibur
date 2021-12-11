@@ -75,7 +75,7 @@ export class Font extends Graphic implements FontRenderer {
   public lineDash: number[] = [];
   public color: Color = Color.Black;
   public strokeColor: Color;
-  
+
   public family: string = 'sans-serif';
   public style: FontStyle = FontStyle.Normal;
   public bold: boolean = false;
@@ -97,7 +97,9 @@ export class Font extends Graphic implements FontRenderer {
   }
 
   // TODO weird vestigial drawimage
-  protected _drawImage(_ex: ExcaliburGraphicsContext, _x: number, _y: number) { }
+  protected _drawImage(_ex: ExcaliburGraphicsContext, _x: number, _y: number) {
+    // TODO remove
+  }
 
 
   protected _rotate(ex: ExcaliburGraphicsContext) {
@@ -123,9 +125,9 @@ export class Font extends Graphic implements FontRenderer {
 
   /**
    * Returns a BoundingBox that is the total size of the text including mutliple lines
-   * 
+   *
    * Does not include any padding or adjustment
-   * @param text 
+   * @param text
    * @returns BoundingBox
    */
   public measureText(text: string): BoundingBox {
@@ -229,7 +231,7 @@ export class Font extends Graphic implements FontRenderer {
   private _getTextBitmap(text: string): CanvasRenderingContext2D {
     const bitmap = this._textToBitmap.get(text);
     if (bitmap) {
-      return bitmap
+      return bitmap;
     }
 
     const canvas = document.createElement('canvas');
