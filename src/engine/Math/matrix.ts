@@ -7,6 +7,7 @@ export enum MatrixLocations {
   Y = 13
 }
 
+// TODO move to math util file
 const sign = (val: number) => {
   if (val === 0) {
     return 0;
@@ -14,19 +15,6 @@ const sign = (val: number) => {
   return val < 0 ? -1 : 1;
 };
 
-// const multMatch = (a: number, b: number) => {
-//   if (sign(a) < 0 && sign(b) < 0) {
-//     return -Math.abs(a * b);
-//   }
-//   return a * b;
-// }
-
-// const epsilon = (val: number) => {
-//   if (val * val < .0001) {
-//     return 0;
-//   }
-//   return val;
-// }
 
 /**
  * Excalibur Matrix helper for 4x4 matrices

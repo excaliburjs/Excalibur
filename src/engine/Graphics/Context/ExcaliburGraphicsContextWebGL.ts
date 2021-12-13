@@ -198,7 +198,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public updateViewport(): void {
     const gl = this.__gl;
-    this._ortho = this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, 400, -400);
+    // TODO use the game screen resolution to set the ortho
+    this._ortho = this._ortho = Matrix.ortho(0, 800, 600, 0, 400, -400);
     this.__pointRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
     this.__lineRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
     this.__imageRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);

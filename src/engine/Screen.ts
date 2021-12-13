@@ -7,6 +7,15 @@ import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsCo
 import { getPosition } from './Util/Util';
 import { ExcaliburGraphicsContextWebGL } from './Graphics/Context/ExcaliburGraphicsContextWebGL';
 
+// TODO move to math util
+export function frac(x: number): number {
+  if (x >= 0) {
+    return x - Math.floor(x);
+  } else {
+    return x - Math.ceil(x);
+  }
+}
+
 /**
  * Enum representing the different display modes available to Excalibur.
  */
@@ -211,6 +220,10 @@ export class Screen {
     this._browser = options.browser;
     this._position = options.position;
     this._pixelRatioOverride = options.pixelRatio;
+
+
+    // TODO create graphics context?
+
     this._applyDisplayMode();
 
     this._listenForPixelRatio();
@@ -402,7 +415,6 @@ export class Screen {
     // After messing with the canvas width/height the graphics context is invalidated and needs to have some properties reset
     this._ctx.updateViewport();
     this._ctx.resetTransform();
-    this._ctx.scale(this.pixelRatio, this.pixelRatio);
     this._ctx.smoothing = this._antialiasing;
   }
 

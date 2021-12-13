@@ -223,20 +223,23 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
 
       const topLeft = vec(command.geometry[0][0], command.geometry[0][1]);
       const bottomRight = vec(command.geometry[5][0], command.geometry[5][1]);
-
-      const screen = this._contextInfo.engine.screen;
-      // Bias to the nearest screen pixel
-      const quantizedPos = screen.quantizeToScreenPixelFloor(topLeft);
-      const quantizedBottomRight = screen.quantizeToScreenPixelCeil(bottomRight);
-      const quantizedDim = vec(quantizedBottomRight.x - quantizedPos.x, quantizedBottomRight.y - quantizedPos.y);
+      let quantizedPos = topLeft;
+      let quantizedDim =  vec(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+      const quantize = false;
+      if (command.type == DrawCommandType.Image && quantize) {
+        const screen = this._contextInfo.engine.screen;
+        // Bias to the nearest screen pixel
+        const quantizedPos = screen.quantizeToScreenPixelFloor(topLeft);
+        const quantizedBottomRight = screen.quantizeToScreenPixelCeil(bottomRight);
+        quantizedDim = vec(quantizedBottomRight.x - quantizedPos.x, quantizedBottomRight.y - quantizedPos.y);
+      }
 
       // potential optimization when divding by 2 (bitshift)
       // Modifying the images to poweroftwo images warp the UV coordinates
-      const uvbodge = 0;
-      let uvx0 = (sx + uvbodge) / potWidth;
-      let uvy0 = (sy + uvbodge) / potHeight;
-      let uvx1 = (sx + sw - uvbodge) / potWidth;
-      let uvy1 = (sy + sh - uvbodge) / potHeight;
+      let uvx0 = (sx) / potWidth;
+      let uvy0 = (sy) / potHeight;
+      let uvx1 = (sx + sw - 0.01) / potWidth;
+      let uvy1 = (sy + sh - 0.01) / potHeight;
       if (textureId === -2) {
         uvx0 = 0;
         uvy0 = 0;
