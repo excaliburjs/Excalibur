@@ -22,6 +22,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new `measureText` method to the `ex.SpriteFont` and `ex.Font` to return the bounds of any particular text
 - Added new `Clock` api to manage the core main loop. Clocks hide the implementation detail of how the mainloop runs, users just knows that it ticks somehow. Clocks additionally encapsulate any related browser timing, like `performance.now()`
   1. `StandardClock` encapsulates the existing `requestAnimationFrame` api logic
   2. `TestClock` allows a user to manually step the mainloop, this can be useful for frame by frame debugging #1170 
@@ -35,6 +36,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue [#2152] where shared state in `ex.Font` and `ex.SpriteFont` prevented text from aligning properly when re-used
 - Fixed issue where fast moving `CompositeCollider`s were erroneously generating pairs for their constituent parts
 - Fixed Safari 13.1 crash when booting Excalibur because of they odd MediaQuery API in older Safari
 - Fixed issue where pointers did not work because of missing types
@@ -53,6 +55,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Chaned the debug system to separate displaying the debug position point (`game.debug.transform.showPosition = true`) and debug position label (`game.debug.transform.showPositionLabel = true`)
 - `ex.ColorBlindCorrector` is renamed to `ex.ColorBlindnessPostProcessor`, and `ex.ColorBlindness` is renamed to `ex.ColorBlindnessMode`
    - Color blindness can still be corrected or simulated:
       * `game.debug.colorBlindMode.correct(ex.ColorBlindnessMode.Deuteranope)`

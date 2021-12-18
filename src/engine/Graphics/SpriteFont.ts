@@ -6,6 +6,7 @@ import { FontRenderer } from './FontCommon';
 import { Graphic, GraphicOptions } from './Graphic';
 import { Sprite } from './Sprite';
 import { SpriteSheet } from './SpriteSheet';
+import { BoundingBox, Color } from '..';
 
 export interface SpriteFontOptions {
   /**
@@ -32,8 +33,7 @@ export interface SpriteFontOptions {
 }
 
 export class SpriteFont extends Graphic implements FontRenderer {
-  private _text = '';
-  private _dirty = true;
+  private _text: string = '';
   public alphabet: string = '';
   public spriteSheet: SpriteSheet;
 
@@ -63,18 +63,9 @@ export class SpriteFont extends Graphic implements FontRenderer {
     this.caseInsensitive = caseInsensitive ?? this.caseInsensitive;
     this.spacing = spacing ?? this.spacing;
     this.shadow = shadow ?? this.shadow;
-
-    this.spriteSheet.sprites[0].image.ready.then(() => {
-      this._updateDimensions();
-    });
   }
 
-  private _sprites: Sprite[] = [];
   private _getCharacterSprites(text: string): Sprite[] {
-    if (!this._dirty) {
-      return this._sprites;
-    }
-
     const results: Sprite[] = [];
     // handle case insenstive
     const textToRender = this.caseInsensitive ? text.toLocaleLowerCase() : text;
@@ -97,50 +88,47 @@ export class SpriteFont extends Graphic implements FontRenderer {
         this._logger.warn(`SpriteFont - Cannot find sprite for '${letter}' at index '${spriteIndex}' in configured SpriteSheet`);
       }
     }
-    this._dirty = false;
-    return (this._sprites = results);
+    return results;
   }
 
-  private _updateDimensions() {
-    const sprites = this._getCharacterSprites(this._text);
+  public measureText(text: string): BoundingBox {
+    const lines = text.split('\n');
+    const maxWidthLine = lines.reduce((a, b) => {
+      return a.length > b.length ? a : b;
+    });
+    const sprites = this._getCharacterSprites(maxWidthLine);
     let width = 0;
     let height = 0;
     for (const sprite of sprites) {
       width += sprite.width + this.spacing;
       height = Math.max(height, sprite.height);
     }
-    this.width = width;
-    this.height = height;
-  }
-
-  public updateText(text: string) {
-    if (this._text !== text) {
-      this._dirty = true;
-      this._text = text;
-      this._updateDimensions();
-    }
-  }
-
-  protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
-    this._updateDimensions();
-    super._preDraw(ex, x, y);
+    return BoundingBox.fromDimension(width, height * lines.length, Vector.Zero);
   }
 
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
-    let cursor = 0;
-    for (const sprite of this._getCharacterSprites(this._text)) {
-      // draw it in the right spot and increase the cursor by sprite width
-      sprite.draw(ex, x + cursor, y);
-      cursor += sprite.width + this.spacing;
+    let xCursor = 0;
+    let yCursor = 0;
+    let height = 0;
+    const lines = this._text.split('\n');
+    for (const line of lines) {
+      for (const sprite of this._getCharacterSprites(line)) {
+        // draw it in the right spot and increase the cursor by sprite width
+        sprite.draw(ex, x + xCursor, y + yCursor);
+        xCursor += sprite.width + this.spacing;
+        height = Math.max(height, sprite.height);
+      }
+      xCursor = 0;
+      yCursor += height;
     }
   }
 
-  render(ex: ExcaliburGraphicsContext, text: string, x: number, y: number) {
-    if (this._text !== text) {
-      this._dirty = true;
-      this._text = text;
-    }
-
+  render(ex: ExcaliburGraphicsContext, text: string, _color: Color, x: number, y: number) {
+    // SpriteFont doesn't support _color, yet...
+    this._text = text;
+    const bounds = this.measureText(text);
+    this.width = bounds.width;
+    this.height = bounds.height;
     if (this.shadow) {
       ex.save();
       ex.translate(this.shadow.offset.x, this.shadow.offset.y);

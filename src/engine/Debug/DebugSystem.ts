@@ -91,6 +91,8 @@ export class DebugSystem extends System<TransformComponent> {
       if (tx) {
         if (txSettings.showAll || txSettings.showPosition) {
           this._graphicsContext.debug.drawPoint(Vector.Zero, { size: 2, color: txSettings.positionColor });
+        }
+        if (txSettings.showAll || txSettings.showPositionLabel) {
           this._graphicsContext.debug.drawText(`pos${tx.pos.toString(2)}`, cursor);
           cursor = cursor.add(lineHeight);
         }

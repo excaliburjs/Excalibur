@@ -47,7 +47,7 @@ export class DebugText {
    */
   public write(ctx: ExcaliburGraphicsContext, text: string, pos: Vector) {
     if (this._imageSource.isLoaded()) {
-      this._spriteFont.render(ctx, text, pos.x, pos.y);
+      this._spriteFont.render(ctx, text, null, pos.x, pos.y);
     }
   }
 }
