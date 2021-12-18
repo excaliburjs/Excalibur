@@ -122,8 +122,8 @@ export abstract class Clock {
         let leftover = 0;
         if (fpsInterval !== 0) {
           leftover = (elapsed % fpsInterval);
+          elapsed = elapsed - leftover; // shift elapsed to be "in phase" with the current loop fps
         }
-        elapsed = elapsed - leftover; // shift elapsed to be "in phase" with the current loop fps
 
         // Resolves issue #138 if the game has been paused, or blurred for
         // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability
