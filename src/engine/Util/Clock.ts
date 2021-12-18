@@ -115,11 +115,16 @@ export abstract class Clock {
       let elapsed = now - this._lastTime || 1; // first frame
 
       // Constrain fps
-      const fpsInterval = 1000 / this._maxFps;
+      const fpsInterval = (1000 / this._maxFps);
 
       // only run frame if enough time has elapsed
-      if (elapsed > fpsInterval) {
-        
+      if (elapsed >= fpsInterval) {
+        let leftover = 0;
+        if (fpsInterval !== 0) {
+          leftover = (elapsed % fpsInterval);
+        }
+        elapsed = elapsed - leftover; // shift elapsed to be "in phase" with the current loop fps
+
         // Resolves issue #138 if the game has been paused, or blurred for
         // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability
         // and provides more expected behavior when the engine comes back
@@ -132,23 +137,13 @@ export abstract class Clock {
         this._elapsed = overrideUpdateMs || elapsed;
         this._totalElapsed += this._elapsed;
         this._runScheduledCbs();
-        // console.log('Elapsed', elapsed);
         this.tick(overrideUpdateMs || elapsed);
 
-        // if fps interval is not a multple
-        // const numElapsed = Math.floor(elapsed / fpsInterval);
-        // console.log(numElapsed);
-        if (elapsed > 2 * fpsInterval) {
-          elapsed = 0;
-        }
         if (fpsInterval !== 0) {
-          this._lastTime = now - (elapsed % fpsInterval);
+          this._lastTime = now - leftover; 
         } else {
           this._lastTime = now;
         }
-        // } else {
-        //   this._lastTime = now - (elapsed * numElapsed);
-        // }
         this.fpsSampler.end();
       }
     } catch (e) {
