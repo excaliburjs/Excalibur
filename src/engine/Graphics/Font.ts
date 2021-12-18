@@ -180,11 +180,11 @@ export class Font extends Graphic implements FontRenderer {
 
   /**
    * We need to identify bitmaps with more than just the text content
-   * 
+   *
    * Any properites that can change the rendering of the text
    */
   private _getRasterPropertiesHash(color?: Color): string {
-    const hash = '__hashcode__' + 
+    const hash = '__hashcode__' +
     this.fontString +
     this.showDebug +
     this.textAlign +
