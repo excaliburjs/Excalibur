@@ -720,13 +720,21 @@ describe('A Text Graphic', () => {
 
     sut.text = '~';
     sut.draw(ctx, 0, 0);
-    expect(logger.warn).toHaveBeenCalledWith(
-      'SpriteFont - Cannot find letter \'~\' in configured alphabet \'0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- \''
-    );
-
+    sut.draw(ctx, 0, 0);
+    const warnSpy = logger.warn as jasmine.Spy;
+    expect(warnSpy.calls.argsFor(0)).toEqual([
+      'SpriteFont - Cannot find letter \'~\' in configured alphabet \'0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- \'.']);
+    expect(warnSpy.calls.argsFor(1)).toEqual([
+      'There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.']);
+    expect(warnSpy.calls.argsFor(2)).toEqual([]); // warn only once
     sut.text = '?';
     sut.draw(ctx, 0, 0);
-    expect(logger.warn).toHaveBeenCalledWith('SpriteFont - Cannot find sprite for \'?\' at index \'42\' in configured SpriteSheet');
+    sut.draw(ctx, 0, 0);
+    expect(warnSpy.calls.argsFor(2)).toEqual([
+      'SpriteFont - Cannot find sprite for \'?\' at index \'42\' in configured SpriteSheet']);
+    expect(warnSpy.calls.argsFor(3)).toEqual([
+      'There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.']);
+    expect(warnSpy.calls.argsFor(4)).toEqual([]); // warn only once
   });
 
   it('can do some simple shadowing', async () => {

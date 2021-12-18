@@ -36,6 +36,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed unreleased issue where SpriteFonts log every frame they detect a misconfigured font.
 - Fixed unreleased issue where clock when constraining fps would pass larger than expected elapsed times to the simulation causing things to "speed up" bizarrely
 - Fixed unreleased issue where games with no resources would crash
 - Fixed issue [#2152] where shared state in `ex.Font` and `ex.SpriteFont` prevented text from aligning properly when re-used

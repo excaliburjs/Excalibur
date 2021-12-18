@@ -266,7 +266,7 @@ var spriteFont = new ex.SpriteFont({
 });
 
 var spriteText = new ex.Text({
-  text: 'Sprite Text',
+  text: 'Sprite Text 💖',
   font: spriteFont
 });
 
