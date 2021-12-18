@@ -6,12 +6,29 @@ import { Color } from '../Color';
 import { Font } from './Font';
 
 export interface TextOptions {
+  /**
+   * Text to draw
+   */
   text: string;
+
+  /**
+   * Optionally override the font color, currently unsupported by SpriteFont
+   */
   color?: Color;
+
+  /**
+   * Optionally specify a font, if none specified a default font is used (System sans-serif 10 pixel)
+   */
   font?: Font | SpriteFont;
 }
 
+/**
+ * Represent Text graphics in excalibur
+ *
+ * Useful for in game labels, ui, or overlays
+ */
 export class Text extends Graphic {
+  public color?: Color;
   constructor(options: TextOptions & GraphicOptions) {
     super(options);
     // This order is important font, color, then text
@@ -23,7 +40,7 @@ export class Text extends Graphic {
   public clone(): Text {
     return new Text({
       text: this.text.slice(),
-      color: this.color.clone(),
+      color: this.color?.clone() ?? Color.Black,
       font: this.font.clone()
     });
   }
@@ -40,20 +57,6 @@ export class Text extends Graphic {
     this._textHeight = bounds.height;
   }
 
-  // TODO SpriteFont doesn't support a color yet :(
-  public get color() {
-    if (this.font instanceof Font) {
-      return this.font.color;
-    }
-    return Color.Black;
-  }
-
-  public set color(color: Color) {
-    if (this.font instanceof Font) {
-      this.font.color = color;
-    }
-  }
-
   private _font: Font | SpriteFont;
   public get font(): Font | SpriteFont {
     return this._font;
@@ -63,16 +66,26 @@ export class Text extends Graphic {
   }
 
   private _textWidth: number = 0;
-  /**
-   * TODO not set until the first draw
-   */
+
   public get width() {
+    if (this._textWidth === 0) {
+      this._calculateDimension();
+    }
     return this._textWidth;
   }
 
   private _textHeight: number = 0;
   public get height() {
+    if (this._textHeight === 0) {
+      this._calculateDimension();
+    }
     return this._textHeight;
+  }
+
+  private _calculateDimension() {
+    const { width, height } = this.font.measureText(this._text);
+    this._textWidth = width;
+    this._textHeight = height;
   }
 
   public get localBounds(): BoundingBox {
@@ -90,20 +103,21 @@ export class Text extends Graphic {
   }
 
   protected override _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
+    let color = Color.Black;
     if (this.font instanceof Font) {
-      this.font.color = this.color;
+      color = this.color ?? this.font.color;
     }
-    const { width, height } = this.font.measureText(this._text);
-    this._textWidth = width;
-    this._textHeight = height;
-
-    // TODO this mutates the font, we should render without mutating the font
     this.font.flipHorizontal = this.flipHorizontal;
     this.font.flipVertical = this.flipVertical;
     this.font.scale = this.scale;
     this.font.rotation = this.rotation;
     this.font.origin = this.origin;
     this.font.opacity = this.opacity;
-    this.font.render(ex, this._text, x, y);
+
+    const { width, height } = this.font.measureText(this._text);
+    this._textWidth = width;
+    this._textHeight = height;
+
+    this.font.render(ex, this._text, color, x, y);
   }
 }

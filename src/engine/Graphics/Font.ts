@@ -7,11 +7,18 @@ import { BaseAlign, Direction, FontOptions, FontStyle, FontUnit, TextAlign, Font
 import { Graphic, GraphicOptions } from './Graphic';
 import { RasterOptions } from './Raster';
 
+/**
+ * Represents a system or web font in Excalibur
+ *
+ * If no options specfied, the system sans-serif 10 pixel is used
+ *
+ * If loading a custom web font be sure to have the font loaded before you use it https://erikonarheim.com/posts/dont-test-fonts/
+ */
 export class Font extends Graphic implements FontRenderer {
   constructor(options: FontOptions & GraphicOptions & RasterOptions = {}) {
-    super(options);
+    super(options); // <- Graphics properties
 
-    // TODO raster properties
+    // Raster properties
     this.smoothing = options?.smoothing ?? this.smoothing;
     this.padding = options?.padding ?? this.padding;
     this.color = options?.color ?? this.color;
@@ -19,7 +26,7 @@ export class Font extends Graphic implements FontRenderer {
     this.lineDash = options?.lineDash ?? this.lineDash;
     this.lineWidth = options?.lineWidth ?? this.lineWidth;
 
-
+    // Font specific properts
     this.family = options?.family ?? this.family;
     this.style = options?.style ?? this.style;
     this.bold = options?.bold ?? this.bold;
@@ -68,7 +75,7 @@ export class Font extends Graphic implements FontRenderer {
    */
   public quality = 2;
 
-  // TODO raster properties?
+  // Raster properties for fonts
   public padding = 0;
   public smoothing = false;
   public lineWidth = 1;
@@ -96,9 +103,9 @@ export class Font extends Graphic implements FontRenderer {
     return this._textBounds;
   }
 
-  // TODO weird vestigial drawimage
+
   protected _drawImage(_ex: ExcaliburGraphicsContext, _x: number, _y: number) {
-    // TODO remove
+    // TODO weird vestigial drawimage
   }
 
 
@@ -175,13 +182,27 @@ export class Font extends Graphic implements FontRenderer {
     ex.restore();
   }
 
-  protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
+  /**
+   * We need to identify bitmaps with more than just the text content
+   * Raster properties are needed
+   */
+  private _getRasterPropertiesHash(color?: Color): string {
+    const hash = '__hashcode__' + (this.padding.toString() +
+    this.smoothing.toString() +
+    this.lineWidth.toString() +
+    this.lineDash.toString() +
+    this.strokeColor?.toString() +
+    ( color ? color.toString() : this.color?.toString()).toString());
+    return hash;
+  }
+
+  protected _applyRasterProperites(ctx: CanvasRenderingContext2D, color: Color) {
     ctx.translate(this.padding, this.padding);
     ctx.imageSmoothingEnabled = this.smoothing;
     ctx.lineWidth = this.lineWidth;
     ctx.setLineDash(this.lineDash ?? ctx.getLineDash());
     ctx.strokeStyle = this.strokeColor?.toString();
-    ctx.fillStyle = this.color?.toString();
+    ctx.fillStyle = color ? color.toString() : this.color?.toString();
   }
 
   private _applyFont(ctx: CanvasRenderingContext2D) {
@@ -200,9 +221,9 @@ export class Font extends Graphic implements FontRenderer {
     }
   }
 
-  drawText(ctx: CanvasRenderingContext2D, text: string, lineHeight: number): void {
+  private _drawText(ctx: CanvasRenderingContext2D, text: string, colorOverride: Color, lineHeight: number): void {
     const lines = text.split('\n');
-    this._applyRasterProperites(ctx);
+    this._applyRasterProperites(ctx, colorOverride);
     this._applyFont(ctx);
 
     for (let i = 0; i < lines.length; i++) {
@@ -228,21 +249,22 @@ export class Font extends Graphic implements FontRenderer {
 
   private _textToBitmap = new Map<string, CanvasRenderingContext2D>();
   private _bitmapUsage = new Map<CanvasRenderingContext2D, number>();
-  private _getTextBitmap(text: string): CanvasRenderingContext2D {
-    const bitmap = this._textToBitmap.get(text);
+  private _getTextBitmap(text: string, color?: Color): CanvasRenderingContext2D {
+    const textAndHash = text + this._getRasterPropertiesHash(color);
+    const bitmap = this._textToBitmap.get(textAndHash);
     if (bitmap) {
       return bitmap;
     }
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    this._textToBitmap.set(text, ctx);
+    this._textToBitmap.set(textAndHash, ctx);
     return ctx;
   }
 
-  public render(ex: ExcaliburGraphicsContext, text: string, x: number, y: number) {
-    this.checkAndClear();
-    const bitmap = this._getTextBitmap(text);
+  public render(ex: ExcaliburGraphicsContext, text: string, colorOverride: Color, x: number, y: number) {
+    this.checkAndClearCache();
+    const bitmap = this._getTextBitmap(text, colorOverride);
     const bounds = this._setDimension(text, bitmap);
     this._textBounds = bounds;
 
@@ -255,7 +277,7 @@ export class Font extends Graphic implements FontRenderer {
     const lineHeight = bounds.height / lines.length;
 
     // draws the text to the bitmap
-    this.drawText(bitmap, text, lineHeight);
+    this._drawText(bitmap, text, colorOverride, lineHeight);
     // Cache the bitmap for certain amount of time
     this._bitmapUsage.set(bitmap, performance.now());
 
@@ -279,16 +301,24 @@ export class Font extends Graphic implements FontRenderer {
   }
 
   /**
+   * Get the internal cache size of the font
+   * This is useful when debugging memory useage, these numbers indicate the number of cached in memory text bitmaps
+   */
+  public get cacheSize() {
+    return this._bitmapUsage.size;
+  }
+
+  /**
    * Force clear all cached text bitmaps
    */
-  public clear() {
+  public clearCache() {
     this._bitmapUsage.clear();
   }
 
   /**
    * Remove any expired cached text bitmaps
    */
-  public checkAndClear() {
+  public checkAndClearCache() {
     for (const [bitmap, time] of this._bitmapUsage.entries()) {
       // if bitmap hasn't been used in 1 second clear it
       if (time + 1000 < performance.now()) {

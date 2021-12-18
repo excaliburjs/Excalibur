@@ -6,7 +6,7 @@ import { FontRenderer } from './FontCommon';
 import { Graphic, GraphicOptions } from './Graphic';
 import { Sprite } from './Sprite';
 import { SpriteSheet } from './SpriteSheet';
-import { BoundingBox } from '..';
+import { BoundingBox, Color } from '..';
 
 export interface SpriteFontOptions {
   /**
@@ -123,7 +123,8 @@ export class SpriteFont extends Graphic implements FontRenderer {
     }
   }
 
-  render(ex: ExcaliburGraphicsContext, text: string, x: number, y: number) {
+  render(ex: ExcaliburGraphicsContext, text: string, _color: Color, x: number, y: number) {
+    // SpriteFont doesn't support _color, yet...
     this._text = text;
     const bounds = this.measureText(text);
     this.width = bounds.width;

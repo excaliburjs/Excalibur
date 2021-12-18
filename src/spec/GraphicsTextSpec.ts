@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { delay } from '../engine/Util/Util';
 
 /**
  *
@@ -434,6 +435,182 @@ describe('A Text Graphic', () => {
     await runOnLinux(async () => {
       await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/shadow-linux.png');
     });
+  });
+
+  it('can force clear text bitmap cache', () => {
+    const sut = new ex.Font({
+      family: 'Open Sans',
+      size: 18,
+      quality: 1,
+      shadow: {
+        blur: 5,
+        offset: ex.vec(4, 4),
+        color: ex.Color.Blue
+      }
+    });
+
+    const text = new ex.Text({
+      text: 'green text',
+      color: ex.Color.Green,
+      font: sut
+    });
+
+    const text2 = new ex.Text({
+      text: 'red text',
+      color: ex.Color.Green,
+      font: sut
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    ctx.clear();
+    text.draw(ctx, 10, 50);
+    text2.draw(ctx, 10, 50);
+
+    expect(sut.cacheSize).toBe(2);
+    sut.clearCache();
+    expect(sut.cacheSize).toBe(0);
+
+  });
+
+  it('will collect text bitmap garbage', async () => {
+    const sut = new ex.Font({
+      family: 'Open Sans',
+      size: 18,
+      quality: 1,
+      shadow: {
+        blur: 5,
+        offset: ex.vec(4, 4),
+        color: ex.Color.Blue
+      }
+    });
+
+    const text = new ex.Text({
+      text: 'green text',
+      color: ex.Color.Green,
+      font: sut
+    });
+
+    const text2 = new ex.Text({
+      text: 'red text',
+      color: ex.Color.Green,
+      font: sut
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    ctx.clear();
+    text.draw(ctx, 10, 50);
+    text2.draw(ctx, 10, 50);
+    expect(sut.cacheSize).toBe(2);
+
+    await delay(1001); // text is cached for 1 second
+
+    sut.checkAndClearCache();
+    expect(sut.cacheSize).toBe(0);
+  });
+
+  it('will collect text bitmap garbage', async () => {
+    const sut = new ex.Font({
+      family: 'Open Sans',
+      size: 18,
+      quality: 1,
+      shadow: {
+        blur: 5,
+        offset: ex.vec(4, 4),
+        color: ex.Color.Blue
+      }
+    });
+
+    const text = new ex.Text({
+      text: 'green text',
+      color: ex.Color.Green,
+      font: sut
+    });
+
+    const text2 = new ex.Text({
+      text: 'red text',
+      color: ex.Color.Green,
+      font: sut
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    ctx.clear();
+    text.draw(ctx, 10, 50);
+    text2.draw(ctx, 10, 50);
+    expect(sut.cacheSize).toBe(2);
+
+    await delay(1001); // text is cached for 1 second
+
+    sut.checkAndClearCache();
+    expect(sut.cacheSize).toBe(0);
+  });
+
+  it('should cache based on text and raster props', () => {
+    const sut = new ex.Font({
+      family: 'Open Sans',
+      size: 18,
+      quality: 1,
+      shadow: {
+        blur: 5,
+        offset: ex.vec(4, 4),
+        color: ex.Color.Blue
+      }
+    });
+
+    const text = new ex.Text({
+      text: 'same text',
+      color: ex.Color.Green,
+      font: sut
+    });
+
+    const text2 = new ex.Text({
+      text: 'same text',
+      color: ex.Color.Red,
+      font: sut
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    ctx.clear();
+    text.draw(ctx, 10, 50);
+    text2.draw(ctx, 10, 50);
+    expect(sut.cacheSize).toBe(2);
+  });
+
+  it('can get text dimension before drawing', () => {
+    const sut = new ex.Font({
+      family: 'Open Sans',
+      size: 18,
+      quality: 1,
+      shadow: {
+        blur: 5,
+        offset: ex.vec(4, 4),
+        color: ex.Color.Blue
+      }
+    });
+
+    const text = new ex.Text({
+      text: 'same text',
+      color: ex.Color.Green,
+      font: sut
+    });
+    
+    expect(text.width).not.toBe(0);
+    expect(text.height).not.toBe(0);
   });
 
   describe('with a SpriteFont', () => {
