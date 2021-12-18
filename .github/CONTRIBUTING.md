@@ -1,14 +1,14 @@
 # How to Contribute
 
-#### Code of Conduct
+## Code of Conduct
 
 This project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project, you agree to abide by its terms.
 
-#### Questions
+## Questions
 
 Have questions? Ask them in our [forum]!
 
-#### Table of Contents
+## Table of Contents
 
 - [Reporting Bugs](#reporting-bugs)
 - [Suggesting Improvements](#suggesting-improvements)
@@ -117,9 +117,9 @@ export { feature as Feature };
 // ex.Feature.MyClass will be exposed
 ```
 
-## Styleguides
+## Style guides
 
-#### Code
+### Code
 
 A number of our code formatting rules are enforced via linting. When you build Excalibur on your computer, the linter will make sure that certain aspects of your code are formatted properly. Additionally:
 
@@ -127,7 +127,7 @@ A number of our code formatting rules are enforced via linting. When you build E
 - All methods must explicitly specify their access modifier (public, private, etc.)
 - Use the `TitleCase` naming convention for classes/interfaces, with a lowercase first letter for variables (`camelCase`).
 
-#### Commit Messages
+### Commit Messages
 
 Follow the guidelines below to help maintain a readable and informative git history:
 
@@ -168,7 +168,7 @@ Resolves: #100
 See also: #200, #300
 ```
 
-#### Tests
+### Tests
 
 All features, changes, and bug fixes must be tested by specifications (unit tests). Write tests to cover any potential scenarios your code introduces.
 
@@ -187,13 +187,13 @@ describe('a monkey', () => {
 });
 ```
 
-#### Visual Examples
+### Visual Examples
 
 Excalibur uses Storybook for writing visual tests and examples. These can be interactive and showcase different parts of the engine or specific features. We sometimes embed these examples in the documentation site.
 
 Use `npm run visual` to start Storybook. Stories are written in the `src/stories` directory.
 
-#### Documentation
+### Documentation
 
 - Add JSDoc comments to all public and protected methods
 - Link to other classes using the TypeDoc double bracket notation.
