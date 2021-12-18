@@ -96,6 +96,23 @@ describe('Clocks', () => {
       await testClock.step(500);
       expect(scheduledCb2).toHaveBeenCalledTimes(1);
     });
+
+    it('can limit fps', () => {
+      const tickSpy = jasmine.createSpy('tick');
+      const clock = new ex.TestClock({
+        tick: tickSpy,
+        maxFps: 15,
+        defaultUpdateMs: null
+      });
+
+      clock.start();
+      clock.step(1000 / 15);
+      clock.step(1000 / 15);
+      clock.step(1000 / 15);
+      expect(clock.fpsSampler.fps).toBeCloseTo(15, -1);
+      expect(tickSpy).toHaveBeenCalledWith(1000 / 15);
+      clock.stop();
+    });
   });
 
   describe('A StandardClock', () => {
@@ -129,7 +146,8 @@ describe('Clocks', () => {
       clock.start();
       setTimeout(() => {
         expect(clock.fpsSampler.fps).toBeCloseTo(15, -1);
-        stop();
+        expect(tickSpy).toHaveBeenCalledWith(1000 / 15);
+        clock.stop();
         done();
       }, 300);
     });
