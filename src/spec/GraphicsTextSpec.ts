@@ -608,7 +608,7 @@ describe('A Text Graphic', () => {
       color: ex.Color.Green,
       font: sut
     });
-    
+
     expect(text.width).not.toBe(0);
     expect(text.height).not.toBe(0);
   });
