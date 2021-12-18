@@ -119,5 +119,8 @@ export class Text extends Graphic {
     this._textHeight = height;
 
     this.font.render(ex, this._text, color, x, y);
+    if (this.font.showDebug) {
+      ex.debug.drawRect(x - width, y - height, width * 2, height * 2);
+    }
   }
 }

@@ -175,19 +175,23 @@ export class Font extends Graphic implements FontRenderer {
   }
 
   protected _postDraw(ex: ExcaliburGraphicsContext): void {
-    if (this.showDebug) {
-      /* istanbul ignore next */
-      // ex.debug.drawRect(-this._halfRasterWidth, -this._halfRasterHeight, this._rasterWidth, this._rasterHeight);
-    }
     ex.restore();
   }
 
   /**
    * We need to identify bitmaps with more than just the text content
-   * Raster properties are needed
+   * 
+   * Any properites that can change the rendering of the text
    */
   private _getRasterPropertiesHash(color?: Color): string {
-    const hash = '__hashcode__' + (this.padding.toString() +
+    const hash = '__hashcode__' + 
+    this.fontString +
+    this.showDebug +
+    this.textAlign +
+    this.baseAlign +
+    this.direction +
+    JSON.stringify(this.shadow) +
+    (this.padding.toString() +
     this.smoothing.toString() +
     this.lineWidth.toString() +
     this.lineDash.toString() +
@@ -263,6 +267,9 @@ export class Font extends Graphic implements FontRenderer {
   }
 
   public render(ex: ExcaliburGraphicsContext, text: string, colorOverride: Color, x: number, y: number) {
+    if (this.showDebug) {
+      this.clearCache();
+    }
     this.checkAndClearCache();
     const bitmap = this._getTextBitmap(text, colorOverride);
     const bounds = this._setDimension(text, bitmap);
