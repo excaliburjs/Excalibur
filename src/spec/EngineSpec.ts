@@ -35,6 +35,20 @@ describe('The engine', () => {
     reset();
   });
 
+  it('should not throw if no loader provided', () => {
+    const exceptionSpy = jasmine.createSpy('exception');
+    const boot = () => {
+      const engine = TestUtils.engine();
+      const clock = engine.clock as ex.TestClock;
+      clock.setFatalExceptionHandler(exceptionSpy);
+      clock.start();
+      clock.step(100);
+    };
+
+    boot();
+
+    expect(exceptionSpy).not.toHaveBeenCalled();
+  });
   it('should show the play button by default', (done) => {
     reset();
     engine = TestUtils.engine({

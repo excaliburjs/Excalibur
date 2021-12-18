@@ -639,6 +639,7 @@ O|===|* >________________>\n\
     this.enableCanvasTransparency = options.enableCanvasTransparency;
 
     this._loader = new Loader();
+    this._loader.wireEngine(this);
     this.debug = new Debug(this);
 
     this._initialize(options);

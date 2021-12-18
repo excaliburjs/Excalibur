@@ -78,6 +78,10 @@ export abstract class Clock {
     return clock;
   }
 
+  public setFatalExceptionHandler(handler: (e: unknown) => any) {
+    this._onFatalException = handler;
+  }
+
   /**
    * Schedule a callback to fire given a timeout in milliseconds using the excalibur [[Clock]]
    *
