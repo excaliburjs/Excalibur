@@ -65,6 +65,8 @@ export class SpriteFont extends Graphic implements FontRenderer {
     this.shadow = shadow ?? this.shadow;
   }
 
+  private _alreadyWarnedAlphabet = false;
+  private _alreadyWarnedSpriteSheet = false;
   private _getCharacterSprites(text: string): Sprite[] {
     const results: Sprite[] = [];
     // handle case insenstive
@@ -78,14 +80,22 @@ export class SpriteFont extends Graphic implements FontRenderer {
       let spriteIndex = alphabet.indexOf(letter);
       if (spriteIndex === -1) {
         spriteIndex = 0;
-        this._logger.warn(`SpriteFont - Cannot find letter '${letter}' in configured alphabet '${alphabet}'`);
+        if (!this._alreadyWarnedAlphabet) {
+          this._logger.warn(`SpriteFont - Cannot find letter '${letter}' in configured alphabet '${alphabet}'.`);
+          this._logger.warn('There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.');
+          this._alreadyWarnedAlphabet = true;
+        }
       }
 
       const letterSprite = this.spriteSheet.sprites[spriteIndex];
       if (letterSprite) {
         results.push(letterSprite);
       } else {
-        this._logger.warn(`SpriteFont - Cannot find sprite for '${letter}' at index '${spriteIndex}' in configured SpriteSheet`);
+        if (!this._alreadyWarnedSpriteSheet) {
+          this._logger.warn(`SpriteFont - Cannot find sprite for '${letter}' at index '${spriteIndex}' in configured SpriteSheet`);
+          this._logger.warn('There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.');
+          this._alreadyWarnedSpriteSheet = true;
+        }
       }
     }
     return results;
