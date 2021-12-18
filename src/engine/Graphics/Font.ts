@@ -289,7 +289,7 @@ export class Font extends Graphic implements FontRenderer {
    * Remove any expired cached text bitmaps
    */
   public checkAndClear() {
-    for (let [bitmap, time] of this._bitmapUsage.entries()) {
+    for (const [bitmap, time] of this._bitmapUsage.entries()) {
       // if bitmap hasn't been used in 1 second clear it
       if (time + 1000 < performance.now()) {
         this._bitmapUsage.delete(bitmap);
