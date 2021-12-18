@@ -727,7 +727,7 @@ describe('A Text Graphic', () => {
     expect(warnSpy.calls.argsFor(1)).toEqual([
       'There maybe be more issues in the SpriteFont configuration. No additional warnings will be logged.']);
     expect(warnSpy.calls.argsFor(2)).toEqual([]); // warn only once
-      sut.text = '?';
+    sut.text = '?';
     sut.draw(ctx, 0, 0);
     sut.draw(ctx, 0, 0);
     expect(warnSpy.calls.argsFor(2)).toEqual([
