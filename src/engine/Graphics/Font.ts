@@ -226,8 +226,8 @@ export class Font extends Graphic implements FontRenderer {
     }
   }
 
-  // TODO this will leak canvas
   private _textToBitmap = new Map<string, CanvasRenderingContext2D>();
+  private _bitmapUsage = new Map<CanvasRenderingContext2D, number>();
   private _getTextBitmap(text: string): CanvasRenderingContext2D {
     const bitmap = this._textToBitmap.get(text);
     if (bitmap) {
@@ -241,7 +241,7 @@ export class Font extends Graphic implements FontRenderer {
   }
 
   public render(ex: ExcaliburGraphicsContext, text: string, x: number, y: number) {
-    // TODO should each "bitmap" be it's own raster?
+    this.checkAndClear();
     const bitmap = this._getTextBitmap(text);
     const bounds = this._setDimension(text, bitmap);
     this._textBounds = bounds;
@@ -256,6 +256,8 @@ export class Font extends Graphic implements FontRenderer {
 
     // draws the text to the bitmap
     this.drawText(bitmap, text, lineHeight);
+    // Cache the bitmap for certain amount of time
+    this._bitmapUsage.set(bitmap, performance.now());
 
     const rasterWidth = bitmap.canvas.width;
     const rasterHeight = bitmap.canvas.height;
@@ -274,5 +276,24 @@ export class Font extends Graphic implements FontRenderer {
     );
 
     this._postDraw(ex);
+  }
+
+  /**
+   * Force clear all cached text bitmaps
+   */
+  public clear() {
+    this._bitmapUsage.clear();
+  }
+
+  /**
+   * Remove any expired cached text bitmaps
+   */
+  public checkAndClear() {
+    for (let [bitmap, time] of this._bitmapUsage.entries()) {
+      // if bitmap hasn't been used in 1 second clear it
+      if (time + 1000 < performance.now()) {
+        this._bitmapUsage.delete(bitmap);
+      }
+    }
   }
 }
