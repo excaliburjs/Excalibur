@@ -132,7 +132,7 @@ export abstract class Clock {
         if (elapsed > 200) {
           elapsed = 1;
         }
-        
+
         // tick the mainloop and run scheduled callbacks
         this._elapsed = overrideUpdateMs || elapsed;
         this._totalElapsed += this._elapsed;
@@ -140,7 +140,7 @@ export abstract class Clock {
         this.tick(overrideUpdateMs || elapsed);
 
         if (fpsInterval !== 0) {
-          this._lastTime = now - leftover; 
+          this._lastTime = now - leftover;
         } else {
           this._lastTime = now;
         }
