@@ -597,7 +597,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
         }
       }
       this._halfWidth = center.x;
-      this._halfHeight = center.x;
+      this._halfHeight = center.y;
 
       // If the user has not set the camera pos, apply default center screen position
       if (!this._posChanged) {
