@@ -212,6 +212,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Safe to override onPreDraw lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
    *
    * `onPreDraw` is called directly before a scene is drawn.
+   *
+   * @deprecated Signature will change in v0.26.0
    */
   public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
     // will be overridden
@@ -221,6 +223,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Safe to override onPostDraw lifecycle event handler. Synonymous with `.on('preupdate', (evt) =>{...})`
    *
    * `onPostDraw` is called directly after a scene is drawn.
+   *
+   * @deprecated Signature will change in v0.26.0
    */
   public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
     // will be overridden
@@ -317,6 +321,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    *
    * Internal _predraw handler for [[onPreDraw]] lifecycle event
    *
+   * @deprecated Signature will change in v0.26.0
    * @internal
    */
   public _predraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
@@ -329,6 +334,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    *
    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
    *
+   * @deprecated Signature will change in v0.26.0
    * @internal
    */
   public _postdraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
@@ -368,6 +374,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   /**
    * Draws all the actors in the Scene. Called by the [[Engine]].
+   *
+   * @deprecated Signature will change in v0.26.0
    * @param ctx    The current rendering context
    * @param delta  The number of milliseconds since the last draw
    */
@@ -385,7 +393,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
    * @param ctx  The current rendering context
-   * @deprecated
+   * @deprecated Signature will change in v0.26.0
    */
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D) {

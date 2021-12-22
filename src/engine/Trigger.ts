@@ -124,6 +124,10 @@ export class Trigger extends Actor {
     }
   }
 
+  /**
+   * @deprecated signature will change in v0.26.0
+   * @param ctx
+   */
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D) {
     super.debugDraw(ctx);

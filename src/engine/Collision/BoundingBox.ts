@@ -396,6 +396,12 @@ export class BoundingBox {
     return BoundingBox.getSideFromIntersection(intersect);
   }
 
+  /**
+   *
+   * @deprecated signature will change in v0.26.0
+   * @param ctx
+   * @param color
+   */
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Yellow) {
     ctx.strokeStyle = color.toString();

@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Deprecated
 
 - The static `Engine.createMainLoop` is now marked deprecated and will be removed in v0.26.0, it is replaced by the `Clock` api
+- Mark legacy draw routines in `ex.Engine`, `ex.Scene`, and `ex.Actor` deprecated
 
 ### Added
 

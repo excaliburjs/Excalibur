@@ -193,6 +193,10 @@ export class ParticleImpl extends Entity {
     this.graphics.opacity = this.opacity;
   }
 
+  /**
+   * @deprecated signature will change in v0.26.0
+   * @param ctx
+   */
   public draw(ctx: CanvasRenderingContext2D) {
     if (this.particleSprite) {
       this.particleSprite.opacity(this.opacity);
@@ -602,12 +606,20 @@ export class ParticleEmitter extends Actor {
     this.deadParticles.length = 0;
   }
 
+  /**
+   * @deprecated signature will change in v0.26.0
+   * @param ctx
+   */
   public draw(ctx: CanvasRenderingContext2D) {
     // todo is there a more efficient to draw
     // possibly use a webgl offscreen canvas and shaders to do particles?
     this.particles.forEach((p) => p.draw(ctx));
   }
 
+  /**
+   * @deprecated signature will change in v0.26.0
+   * @param ctx
+   */
   public debugDraw(ctx: CanvasRenderingContext2D) {
     super.debugDraw(ctx);
     ctx.fillStyle = Color.Black.toString();

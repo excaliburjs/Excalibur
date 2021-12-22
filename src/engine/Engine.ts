@@ -187,7 +187,7 @@ export interface EngineOptions {
  */
 export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
-   *
+   * Excalibur browser events abstraction used for wiring to native browser events safely
    */
   public browser: BrowserEvents;
 
@@ -203,9 +203,13 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   /**
    * Direct access to the engine's 2D rendering context
+   * @deprecated will be removed v0.26.0
    */
   public ctx: CanvasRenderingContext2D;
 
+  /**
+   * Direct access to the ExcaliburGraphicsContext used for drawing things to the screen
+   */
   public graphicsContext: ExcaliburGraphicsContext;
 
   /**
@@ -300,6 +304,11 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   /**
    * Access Excalibur debugging functionality.
+   *
+   * Useful when you want to debug different aspects of built in engine features like
+   *   * Transform
+   *   * Graphics
+   *   * Colliders
    */
   public debug: Debug;
 
@@ -327,7 +336,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   /**
    * @hidden
-   * @deprecated
+   * @deprecated will be removed in v0.26.0
    */
   private _animations: AnimationNode[] = [];
 
@@ -355,8 +364,10 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   /**
    * Indicates the current position of the engine. Valid only when DisplayMode is DisplayMode.Position
+   * @deprecated will be removed in v0.26.0
    */
   public position: string | AbsolutePosition;
+
   /**
    * Indicates whether audio should be paused when the game is no longer visible.
    */
@@ -369,7 +380,13 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   public get isDebug(): boolean {
     return this._isDebug;
   }
+
+  /**
+   * No longer used
+   * @deprecated will be removed in v0.26.0
+   */
   public debugColor: Color = new Color(255, 255, 255);
+
   /**
    * Sets the background color for the engine.
    */
@@ -1337,9 +1354,17 @@ O|===|* >________________>\n\
 
   /**
    * Returns the Engine's Running status, Useful for checking whether engine is running or paused.
+   * @deprecated will be removed in v0.26.0, use isRunning()
    */
   public isPaused(): boolean {
     return !this.clock.isRunning();
+  }
+
+  /**
+   * Returns the Engine's running status, Useful for checking whether engine is running or paused.
+   */
+  public isRunning() {
+    return this.clock.isRunning();
   }
 
   /**

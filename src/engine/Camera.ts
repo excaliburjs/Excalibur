@@ -722,7 +722,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
   /**
    * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
-   * @param ctx    Canvas context to apply transformations
+   * @param ctx Canvas context to apply transformations
    */
   public draw(ctx: CanvasRenderingContext2D): void;
   public draw(ctx: ExcaliburGraphicsContext): void;

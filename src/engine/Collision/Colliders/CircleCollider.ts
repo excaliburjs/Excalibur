@@ -228,6 +228,12 @@ export class CircleCollider extends Collider {
     return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
   }
 
+  /**
+   * @deprecated signature will change in v0.26.0
+   * @param ctx
+   * @param color
+   * @param pos
+   */
   public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
     const newPos = pos.add(this.offset);
     ctx.beginPath();
@@ -243,6 +249,11 @@ export class CircleCollider extends Collider {
     ex.drawCircle(pos, this.radius, color);
   }
 
+  /**
+   * @deprecated signature will change in v0.26.0
+   * @param ctx
+   * @param color
+   */
   /* istanbul ignore next */
   public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Green) {
     const transform = this._transform;
