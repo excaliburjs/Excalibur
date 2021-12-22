@@ -409,13 +409,16 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    */
   public scene: Scene = null;
 
+  /**
+   * @deprecated will be removed in v0.26.0
+   */
   public frames: { [key: string]: Drawable } = {};
 
   /**
    * Access to the current drawing for the actor, this can be
    * an [[Animation]], [[Sprite]], or [[Polygon]].
    * Set drawings with [[setDrawing]].
-   * @deprecated
+   * @deprecated will be removed in v0.26.0
    */
   public currentDrawing: Drawable = null;
 
@@ -917,19 +920,19 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   /**
    * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
-   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]]
+   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]], will be removed in v0.26.0
    */
   public addDrawing(texture: Texture): void;
   /**
    * Adds a whole sprite as the "default" drawing. Set a drawing using [[setDrawing]].
-   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]]
+   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]], will be removed in v0.26.0
    */
   public addDrawing(sprite: Sprite): void;
   /**
    * Adds a drawing to the list of available drawings for an actor. Set a drawing using [[setDrawing]].
    * @param key     The key to associate with a drawing for this actor
    * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
-   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]]
+   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]], will be removed in v0.26.0
    */
   public addDrawing(key: any, drawing: Drawable): void;
   @obsolete({
@@ -961,7 +964,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
-   * @deprecated Use [[Actor.z]]
+   * @deprecated Use [[Actor.z]], will be removed in v0.26.0
    */
   @obsolete({
     message: 'Actor.getZIndex will be removed in v0.26.0',
@@ -983,7 +986,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   /**
    * @param newIndex new z-index to assign
-   * @deprecated Use [[Actor.z]]
+   * @deprecated Use [[Actor.z]], will be removed in v0.26.0
    */
   @obsolete({
     message: 'Actor.setZIndex will be removed in v0.26.0',
@@ -1247,7 +1250,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    *
    * **Warning** only works with Flags.useLegacyDrawing() enabled
-   * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
+   * @deprecated will be removed in v0.26.0
    * @internal
    */
   /* istanbul ignore next */

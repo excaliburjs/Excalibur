@@ -130,6 +130,9 @@ var game = new ex.Engine({
   maxFps: 60
 });
 
+// var colorblind = new ex.ColorBlindnessPostProcessor(ex.ColorBlindnessMode.Deuteranope);
+// game.graphicsContext.addPostProcessor(colorblind);
+
 fullscreenButton.addEventListener('click', () => {
   if (game.screen.isFullScreen) {
     game.screen.exitFullScreen();
@@ -263,7 +266,7 @@ var spriteFont = new ex.SpriteFont({
 });
 
 var spriteText = new ex.Text({
-  text: 'Sprite Text ❤️',
+  text: 'Sprite Text 💖',
   font: spriteFont
 });
 

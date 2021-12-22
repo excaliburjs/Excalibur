@@ -298,6 +298,11 @@ export class Label extends Actor {
     this.font.shadow = null;
   }
 
+  /**
+   * @deprecated signature will change in v0.26.0
+   * @param _ctx
+   * @param _delta
+   */
   public draw(_ctx: CanvasRenderingContext2D, _delta: number) {
     const exctx = this._graphicsContext;
     this._text.draw(exctx, 0, 0);

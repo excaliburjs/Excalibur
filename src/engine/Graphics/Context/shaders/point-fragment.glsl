@@ -9,7 +9,7 @@ void main() {
   float r = 0.0, delta = 0.0, alpha = 1.0;
   vec2 cxy = 2.0 * gl_PointCoord - 1.0;
   r = dot(cxy, cxy);
-  
+
 #ifdef GL_OES_standard_derivatives
   delta = fwidth(r);
   alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);
@@ -19,4 +19,6 @@ void main() {
   }
 #endif
   gl_FragColor = vec4(v_color.rgb, v_color.a * alpha);
+  // "premultiply" the color by alpha
+  gl_FragColor.rgb *= gl_FragColor.a;
 }

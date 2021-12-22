@@ -39,7 +39,6 @@ export * from './Collision/Index';
 import * as legacyDrawing from './Drawing/Index';
 export { legacyDrawing as LegacyDrawing };
 export * from './Interfaces/Index';
-export * from './PostProcessing/Index';
 export * from './Resources/Index';
 
 export * from './EntityComponentSystem/index';
@@ -64,15 +63,7 @@ export { traits as Traits };
 // ex.Util namespaces
 import * as util from './Util/Index';
 export { util as Util };
-export {
-  clamp,
-  range,
-  toDegrees,
-  toRadians,
-  randomInRange,
-  randomIntInRange,
-  canonicalizeAngle
-} from './Util/Index';
+export { clamp, range, toDegrees, toRadians, randomInRange, randomIntInRange, canonicalizeAngle } from './Util/Index';
 
 export * from './Util/Browser';
 export * from './Util/Decorators';

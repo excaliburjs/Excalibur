@@ -2,15 +2,6 @@ import { ExcaliburMatchers, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
-const drawWithTransform = (ctx: CanvasRenderingContext2D, actor: ex.Actor, delta: number = 1) => {
-  ctx.save();
-  ctx.translate(actor.pos.x, actor.pos.y);
-  ctx.rotate(actor.rotation);
-  ctx.scale(actor.scale.x, actor.scale.y);
-  actor.draw(ctx, delta);
-  ctx.restore();
-};
-
 /**
  *
  */
@@ -26,7 +17,6 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
 describe('A particle', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
-  let texture: ex.LegacyDrawing.Texture;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -34,9 +24,9 @@ describe('A particle', () => {
       {
         width: 800,
         height: 200,
-        backgroundColor: ex.Color.Transparent
+        backgroundColor: ex.Color.Black
       },
-      ['use-webgl']
+      []
     );
     scene = new ex.Scene();
     engine.addScene('root', scene);
@@ -45,7 +35,6 @@ describe('A particle', () => {
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
 
-    texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteFontSpec/SpriteFont.png', true);
   });
   afterEach(() => {
     engine.stop();

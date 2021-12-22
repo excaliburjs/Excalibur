@@ -13,6 +13,7 @@ import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
 import { Matrix } from '../../Math/matrix';
 import { ScreenDimension } from '../../Screen';
+import { PostProcessor } from '../PostProcessor/PostProcessor';
 
 class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -254,6 +255,18 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
 
   public getTransform(): Matrix {
     throw new Error('Not implemented');
+  }
+
+  public addPostProcessor(_postprocessor: PostProcessor) {
+    throw Error('Not implemented');
+  }
+
+  public removePostProcessor(_postprocessor: PostProcessor) {
+    throw Error('Not implemented');
+  }
+
+  public clearPostProcessors() {
+    throw Error('Not implemented');
   }
 
   clear(): void {

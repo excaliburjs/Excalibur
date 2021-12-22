@@ -8,13 +8,22 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Breaking Changes
 
 - `ex.Util.extend()` is removed, modern js spread operator `{...someobject, ...someotherobject}` handles this better.
-
+- Excalibur post processing is now moved to the `engine.graphicsContext.addPostProcessor()`
+- Breaking change to `ex.PostProcessor`, all post processors must now now implement this interface
+  ```typescript
+  export interface PostProcessor {
+    intialize(gl: WebGLRenderingContext): void;
+    getShader(): Shader;
+  }
+  ```
 ### Deprecated
 
 - The static `Engine.createMainLoop` is now marked deprecated and will be removed in v0.26.0, it is replaced by the `Clock` api
+- Mark legacy draw routines in `ex.Engine`, `ex.Scene`, and `ex.Actor` deprecated
 
 ### Added
 
+- Added new `measureText` method to the `ex.SpriteFont` and `ex.Font` to return the bounds of any particular text
 - Added new `Clock` api to manage the core main loop. Clocks hide the implementation detail of how the mainloop runs, users just knows that it ticks somehow. Clocks additionally encapsulate any related browser timing, like `performance.now()`
   1. `StandardClock` encapsulates the existing `requestAnimationFrame` api logic
   2. `TestClock` allows a user to manually step the mainloop, this can be useful for frame by frame debugging #1170 
@@ -24,13 +33,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Pointers can now be configured to use the collider or the graphics bounds as the target for pointers with the `ex.PointerComponent`
   - `useColliderShape` - (default true) uses the collider component geometry for pointer events
   - `useGraphicsBounds` - (default false) uses the graphics bounds for pointer events
--
+
 
 ### Fixed
 
 - Fixed #1815 issue where Camera would jitter when using a strategies based off of actors in the previous frame. 
 - Fixed issue where TileMaps would sometimes have a geometry seam that may not fall on an actual screen pixel causing a visible gap between tiles and the background
   -- ![image](https://user-images.githubusercontent.com/612071/144700377-ac4585ba-3f4c-44b8-95db-ad36c5fc9a32.png)
+- Fixed unreleased issue where SpriteFonts log every frame they detect a misconfigured font.
+- Fixed unreleased issue where clock when constraining fps would pass larger than expected elapsed times to the simulation causing things to "speed up" bizarrely
+- Fixed unreleased issue where games with no resources would crash
+- Fixed issue [#2152] where shared state in `ex.Font` and `ex.SpriteFont` prevented text from aligning properly when re-used
 - Fixed issue where fast moving `CompositeCollider`s were erroneously generating pairs for their constituent parts
 - Fixed Safari 13.1 crash when booting Excalibur because of they odd MediaQuery API in older Safari
 - Fixed issue where pointers did not work because of missing types
@@ -48,6 +61,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - The following Engine's pieces: `Collision` `Graphics` `Resources` `Trigger` are updated to reflect the new EventDispatcher behavior.
 
 ### Changed
+
+- Chaned the debug system to separate displaying the debug position point (`game.debug.transform.showPosition = true`) and debug position label (`game.debug.transform.showPositionLabel = true`)
+- `ex.ColorBlindCorrector` is renamed to `ex.ColorBlindnessPostProcessor`, and `ex.ColorBlindness` is renamed to `ex.ColorBlindnessMode`
+   - Color blindness can still be corrected or simulated:
+      * `game.debug.colorBlindMode.correct(ex.ColorBlindnessMode.Deuteranope)`
+      * `game.debug.colorBlindMode.simulate(ex.ColorBlindnessMode.Deuteranope)`
+- Excalibur now uses pre-multiplied alpha automatically, images will be unpacked into memory using `gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true)`
 - Excalibur FPS is now sampled over 100ms blocks, this gives a more usable fps in the stats. The sampler is available off of the engine clock `engine.clock.fpsSampler.fps` 
 - Pointer Events:
   * Event types (up, down, move, etc) now all exist in 2 types `ex.Input.PointerEvent` and `ex.Input.WheelEvent`

@@ -33,7 +33,6 @@ import { Logger, LogLevel } from './Util/Log';
 import { Color } from './Color';
 import { Scene } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
-import { PostProcessor } from './PostProcessing/PostProcessor';
 import { Debug, DebugStats } from './Debug/Debug';
 import { Class } from './Class';
 import * as Input from './Input/Index';
@@ -188,7 +187,7 @@ export interface EngineOptions {
  */
 export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
-   *
+   * Excalibur browser events abstraction used for wiring to native browser events safely
    */
   public browser: BrowserEvents;
 
@@ -208,6 +207,9 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    */
   public ctx: CanvasRenderingContext2D;
 
+  /**
+   * Direct access to the ExcaliburGraphicsContext used for drawing things to the screen
+   */
   public graphicsContext: ExcaliburGraphicsContext;
 
   /**
@@ -302,6 +304,11 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   /**
    * Access Excalibur debugging functionality.
+   *
+   * Useful when you want to debug different aspects of built in engine features like
+   *   * Transform
+   *   * Graphics
+   *   * Colliders
    */
   public debug: Debug;
 
@@ -311,11 +318,6 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   public get stats(): DebugStats {
     return this.debug.stats;
   }
-
-  /**
-   * Gets or sets the list of post processors to apply at the end of drawing a frame (such as [[ColorBlindCorrector]])
-   */
-  public postProcessors: PostProcessor[] = [];
 
   /**
    * The current [[Scene]] being drawn and updated on screen
@@ -334,7 +336,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   /**
    * @hidden
-   * @deprecated
+   * @deprecated will be removed in v0.26.0
    */
   private _animations: AnimationNode[] = [];
 
@@ -362,8 +364,10 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   /**
    * Indicates the current position of the engine. Valid only when DisplayMode is DisplayMode.Position
+   * @deprecated will be removed in v0.26.0
    */
   public position: string | AbsolutePosition;
+
   /**
    * Indicates whether audio should be paused when the game is no longer visible.
    */
@@ -376,7 +380,13 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   public get isDebug(): boolean {
     return this._isDebug;
   }
+
+  /**
+   * No longer used
+   * @deprecated will be removed in v0.26.0
+   */
   public debugColor: Color = new Color(255, 255, 255);
+
   /**
    * Sets the background color for the engine.
    */
@@ -651,6 +661,7 @@ O|===|* >________________>\n\
     this.enableCanvasTransparency = options.enableCanvasTransparency;
 
     this._loader = new Loader();
+    this._loader.wireEngine(this);
     this.debug = new Debug(this);
 
     this._initialize(options);
@@ -1116,11 +1127,6 @@ O|===|* >________________>\n\
       this.ctx.fillText('FPS:' + this.stats.currFrame.fps.toFixed(2).toString(), 10, 10);
     }
 
-    // Post processing
-    for (let i = 0; i < this.postProcessors.length; i++) {
-      this.postProcessors[i].process(this.ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight), this.ctx);
-    }
-
     this._postdraw(ctx, delta);
   }
 
@@ -1351,9 +1357,17 @@ O|===|* >________________>\n\
 
   /**
    * Returns the Engine's Running status, Useful for checking whether engine is running or paused.
+   * @deprecated will be removed in v0.26.0, use isRunning()
    */
   public isPaused(): boolean {
     return !this.clock.isRunning();
+  }
+
+  /**
+   * Returns the Engine's running status, Useful for checking whether engine is running or paused.
+   */
+  public isRunning() {
+    return this.clock.isRunning();
   }
 
   /**

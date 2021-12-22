@@ -78,6 +78,10 @@ export abstract class Clock {
     return clock;
   }
 
+  public setFatalExceptionHandler(handler: (e: unknown) => any) {
+    this._onFatalException = handler;
+  }
+
   /**
    * Schedule a callback to fire given a timeout in milliseconds using the excalibur [[Clock]]
    *
@@ -111,32 +115,37 @@ export abstract class Clock {
       let elapsed = now - this._lastTime || 1; // first frame
 
       // Constrain fps
-      const fpsInterval = this._maxFps === Infinity ? 0 : 1000 / this._maxFps;
-      if (elapsed <= fpsInterval) {
-        return; // too fast 😎 skip this frame
-      }
+      const fpsInterval = (1000 / this._maxFps);
 
-      // Resolves issue #138 if the game has been paused, or blurred for
-      // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability
-      // and provides more expected behavior when the engine comes back
-      // into focus
-      if (elapsed > 200) {
-        elapsed = 1;
-      }
+      // only run frame if enough time has elapsed
+      if (elapsed >= fpsInterval) {
+        let leftover = 0;
+        if (fpsInterval !== 0) {
+          leftover = (elapsed % fpsInterval);
+          elapsed = elapsed - leftover; // shift elapsed to be "in phase" with the current loop fps
+        }
 
-      // tick the mainloop and run scheduled callbacks
-      this._elapsed = overrideUpdateMs || elapsed;
-      this._totalElapsed += this._elapsed;
-      this._runScheduledCbs();
-      this.tick(overrideUpdateMs || elapsed);
+        // Resolves issue #138 if the game has been paused, or blurred for
+        // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability
+        // and provides more expected behavior when the engine comes back
+        // into focus
+        if (elapsed > 200) {
+          elapsed = 1;
+        }
 
-      // if fps interval is not a multple
-      if (fpsInterval > 0) {
-        this._lastTime = now - (elapsed % fpsInterval);
-      } else {
-        this._lastTime = now;
+        // tick the mainloop and run scheduled callbacks
+        this._elapsed = overrideUpdateMs || elapsed;
+        this._totalElapsed += this._elapsed;
+        this._runScheduledCbs();
+        this.tick(overrideUpdateMs || elapsed);
+
+        if (fpsInterval !== 0) {
+          this._lastTime = now - leftover;
+        } else {
+          this._lastTime = now;
+        }
+        this.fpsSampler.end();
       }
-      this.fpsSampler.end();
     } catch (e) {
       this._onFatalException(e);
       this.stop();
@@ -176,6 +185,9 @@ export class StandardClock extends Clock {
   }
 
   public start(): void {
+    if (this._running) {
+      return;
+    }
     this._running = true;
     const mainloop = () => {
       // stop the loop

@@ -1,3 +1,4 @@
+import { BoundingBox } from '../Collision/BoundingBox';
 import { Color } from '../Color';
 import { Vector } from '../Math/vector';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
@@ -102,22 +103,58 @@ export enum FontStyle {
   Oblique = 'oblique'
 }
 
+/**
+ * Enum representing the text direction, useful for other languages, or writing text in reverse
+ */
 export enum Direction {
   LeftToRight = 'ltr',
   RightToLeft = 'rtl'
 }
 
+/**
+ * Font rendering option
+ */
 export interface FontOptions {
+  /**
+   * Optionally the size of the font in the specified [[FontUnit]] by default 10.
+   */
   size?: number;
+  /**
+   * Optionally specify unit to measure fonts in, by default Pixels
+   */
   unit?: FontUnit;
-  lineHeight?: number;
+  /**
+   * Optionally specify the font family, by default 'sans-serif'
+   */
   family?: string;
+  /**
+   * Optionally specify the font style, by default Normal
+   */
   style?: FontStyle;
+  /**
+   * Optionally set whether the font is bold, by default false
+   */
   bold?: boolean;
+  /**
+   * Optionally specify the text align, by default Left
+   */
   textAlign?: TextAlign;
+  /**
+   * Optionally specify the text base align, by default Alphabetic
+   */
   baseAlign?: BaseAlign;
+  /**
+   * Optionally specify the text direction, by default LeftToRight
+   */
   direction?: Direction;
+  /**
+   * Optionally specify the quality of the text bitmap, it is a multiplier on the size size, by default 2.
+   * Higher quality text has a higher memory impact
+   */
   quality?: number;
+  /**
+   * Optionally specify a text shadow, by default none is specified
+   */
   shadow?: {
     blur?: number;
     offset?: Vector;
@@ -125,6 +162,10 @@ export interface FontOptions {
   };
 }
 
+/**
+ * @internal
+ */
 export interface FontRenderer {
-  render(ex: ExcaliburGraphicsContext, text: string, x: number, y: number): void;
+  measureText(text: string): BoundingBox;
+  render(ex: ExcaliburGraphicsContext, text: string, color: Color, x: number, y: number): void;
 }
