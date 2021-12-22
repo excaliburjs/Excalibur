@@ -65,7 +65,7 @@ describe('A camera', () => {
 
     const sut = new ex.Camera();
 
-    spyOn(sut, "runStrategies").and.callThrough();
+    spyOn(sut, 'runStrategies').and.callThrough();
     sut._initialize(engine);
 
     expect(sut.runStrategies).toHaveBeenCalledTimes(1);
@@ -79,9 +79,9 @@ describe('A camera', () => {
 
     const sut = new ex.Camera();
     expect(sut.viewport).toEqual(new ex.BoundingBox());
-    spyOn(sut, "updateViewport").and.callThrough();
+    spyOn(sut, 'updateViewport').and.callThrough();
     sut._initialize(engine);
-    
+
     expect(sut.viewport).toEqual(ex.BoundingBox.fromDimension(1000, 1200, ex.Vector.Zero));
     expect(sut.updateViewport).toHaveBeenCalledTimes(1);
   });
