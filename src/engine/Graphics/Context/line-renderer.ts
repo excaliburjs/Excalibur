@@ -35,7 +35,7 @@ export class LineRenderer extends BatchRenderer<DrawLine> {
 
     shader.addAttribute('a_position', 2, gl.FLOAT);
     shader.addAttribute('a_color', 4, gl.FLOAT);
-    shader.addUniformMatrix('u_matrix', this._contextInfo.matrix.data);
+    shader.addUniformMatrix('u_matrix', this._contextInfo.ortho.data);
     return shader;
   }
 

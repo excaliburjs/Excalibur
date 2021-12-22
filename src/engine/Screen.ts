@@ -8,6 +8,10 @@ import { getPosition } from './Util/Util';
 import { ExcaliburGraphicsContextWebGL } from './Graphics/Context/ExcaliburGraphicsContextWebGL';
 
 // TODO move to math util
+/**
+ * Returns the fractional part of a number
+ * @param x
+ */
 export function frac(x: number): number {
   if (x >= 0) {
     return x - Math.floor(x);
@@ -146,6 +150,7 @@ export interface ScreenOptions {
    * Canvas element to build a screen on
    */
   canvas: HTMLCanvasElement;
+
   /**
    * Graphics context for the screen
    */
@@ -192,8 +197,8 @@ export interface ScreenOptions {
  * The Screen handles all aspects of interacting with the screen for Excalibur.
  */
 export class Screen {
+  public graphicsContext: ExcaliburGraphicsContext;
   private _canvas: HTMLCanvasElement;
-  private _ctx: ExcaliburGraphicsContext;
   private _antialiasing: boolean = true;
   private _browser: BrowserEvents;
   private _camera: Camera;
@@ -215,14 +220,11 @@ export class Screen {
     this.resolution = options.resolution ?? { ...this.viewport };
     this._displayMode = options.displayMode ?? DisplayMode.Fixed;
     this._canvas = options.canvas;
-    this._ctx = options.context;
+    this.graphicsContext = options.context;
     this._antialiasing = options.antialiasing ?? this._antialiasing;
     this._browser = options.browser;
     this._position = options.position;
     this._pixelRatioOverride = options.pixelRatio;
-
-
-    // TODO create graphics context?
 
     this._applyDisplayMode();
 
@@ -384,8 +386,8 @@ export class Screen {
     this._canvas.width = this.scaledWidth;
     this._canvas.height = this.scaledHeight;
 
-    if (this._ctx instanceof ExcaliburGraphicsContextWebGL) {
-      const supported = this._ctx.checkIfResolutionSupported({
+    if (this.graphicsContext instanceof ExcaliburGraphicsContextWebGL) {
+      const supported = this.graphicsContext.checkIfResolutionSupported({
         width: this.scaledWidth,
         height: this.scaledHeight
       });
@@ -413,9 +415,9 @@ export class Screen {
     this._canvas.style.height = this.viewport.height + 'px';
 
     // After messing with the canvas width/height the graphics context is invalidated and needs to have some properties reset
-    this._ctx.updateViewport();
-    this._ctx.resetTransform();
-    this._ctx.smoothing = this._antialiasing;
+    this.graphicsContext.updateViewport(this.resolution);
+    this.graphicsContext.resetTransform();
+    this.graphicsContext.smoothing = this._antialiasing;
   }
 
   public get antialiasing() {
@@ -424,7 +426,7 @@ export class Screen {
 
   public set antialiasing(isSmooth: boolean) {
     this._antialiasing = isSmooth;
-    this._ctx.smoothing = this._antialiasing;
+    this.graphicsContext.smoothing = this._antialiasing;
   }
 
   /**
@@ -669,53 +671,6 @@ export class Screen {
    */
   public get center(): Vector {
     return vec(this.halfDrawWidth, this.halfDrawHeight);
-  }
-
-
-  /**
-   * Pushes a world space coordintate towards the nearest screen pixel (floor)
-   */
-  public quantizeToScreenPixelFloor(coord: Vector): Vector {
-    const mat = this._ctx.getTransform();
-    coord = mat.getAffineInverse().multv(coord);
-    const bodge = vec(0.5, 0.5);
-    const screen = { 
-      width: this.viewport.width * window.devicePixelRatio,
-      height: this.viewport.height * window.devicePixelRatio
-    };
-    // map coordinate to screen space and add a half pixel bodge
-    let quantizedPos = vec(
-      ((coord.x) / this.drawWidth) * screen.width,
-      ((coord.y) / this.drawHeight) * screen.height).add(bodge);
-    // find the floor exact pixel in screen space, then convert back to world space
-    quantizedPos = vec(
-      (Math.floor(quantizedPos.x) / screen.width) * this.drawWidth,
-      (Math.floor(quantizedPos.y) / screen.height) * this.drawHeight);
-
-    return mat.multv(quantizedPos);
-  }
-
-  /**
-   * Pushes a world space coordintate towards the nearest screen pixel (ceiling)
-   */
-  public quantizeToScreenPixelCeil(coord: Vector): Vector {
-    const mat = this._ctx.getTransform();
-    coord = mat.getAffineInverse().multv(coord);
-    const bodge = vec(0.5, 0.5);
-    const screen = {
-      width: this.viewport.width * window.devicePixelRatio,
-      height: this.viewport.height * window.devicePixelRatio 
-    };
-    // map coordinate to screen space and add a half pixel bodge
-    let quantizedPos = vec(
-      ((coord.x) / this.drawWidth) * screen.width,
-      ((coord.y) / this.drawHeight) * screen.height).add(bodge);
-    // find the ceil exact pixel in screen space, then convert back to world space
-    quantizedPos = vec(
-      (Math.ceil(quantizedPos.x) / screen.width) * this.drawWidth,
-      (Math.ceil(quantizedPos.y) / screen.height) * this.drawHeight);
-
-    return mat.multv(quantizedPos);
   }
 
   private _computeFit() {

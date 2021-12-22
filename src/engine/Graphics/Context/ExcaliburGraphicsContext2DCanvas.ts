@@ -11,7 +11,8 @@ import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
-import { Matrix } from '../..';
+import { Matrix } from '../../Math/matrix';
+import { ScreenDimension } from '../../Screen';
 
 class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -118,7 +119,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.resetTransform();
   }
 
-  public updateViewport(): void {
+  public updateViewport(_resolution: ScreenDimension): void {
     // pass
   }
 
@@ -252,7 +253,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   }
 
   public getTransform(): Matrix {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   clear(): void {

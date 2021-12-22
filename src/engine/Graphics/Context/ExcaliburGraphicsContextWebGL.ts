@@ -21,7 +21,6 @@ import { Canvas } from '../Canvas';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
 import { ScreenDimension } from '../../Screen';
-import { Engine } from '../../Engine';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -68,8 +67,8 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
 export interface WebGLGraphicsContextInfo {
   transform: TransformStack;
   state: StateStack;
-  matrix: Matrix;
-  engine: Engine;
+  ortho: Matrix;
+  context: ExcaliburGraphicsContextWebGL;
 }
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
@@ -92,7 +91,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _transform = new TransformStack();
   private _state = new StateStack();
   private _ortho!: Matrix;
-  private _engine: Engine;
 
   /**
    * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
@@ -151,7 +149,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   constructor(options: ExcaliburGraphicsContextOptions) {
-    const { canvasElement, enableTransparency, smoothing, snapToPixel, backgroundColor, engine } = options;
+    const { canvasElement, enableTransparency, smoothing, snapToPixel, backgroundColor } = options;
     this.__gl = canvasElement.getContext('webgl', {
       antialias: smoothing ?? this.smoothing,
       premultipliedAlpha: false,
@@ -162,7 +160,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = smoothing ?? this.smoothing;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
-    this._engine = engine;
     this._init();
   }
 
@@ -180,9 +177,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    this.__pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state, engine: this._engine });
-    this.__lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state, engine: this._engine });
-    this.__imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state, engine: this._engine });
+    this.__pointRenderer = new PointRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
+    this.__lineRenderer = new LineRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
+    this.__imageRenderer = new ImageRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
 
     // 2D ctx shim
     this._canvas = new Canvas({
@@ -196,10 +193,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._transform.current = Matrix.identity();
   }
 
-  public updateViewport(): void {
+  public updateViewport(resolution: ScreenDimension): void {
     const gl = this.__gl;
-    // TODO use the game screen resolution to set the ortho
-    this._ortho = this._ortho = Matrix.ortho(0, 800, 600, 0, 400, -400);
+    this._ortho = this._ortho = Matrix.ortho(0, resolution.width, resolution.height, 0, 400, -400);
     this.__pointRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
     this.__lineRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
     this.__imageRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);

@@ -204,6 +204,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   /**
    * Direct access to the engine's 2D rendering context
+   * @deprecated Will be removed in v0.26.0, use Engine.graphicsContext
    */
   public ctx: CanvasRenderingContext2D;
 
@@ -385,6 +386,11 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * Sets the Transparency for the engine.
    */
   public enableCanvasTransparency: boolean = true;
+
+  /**
+   * Hints the graphics context to truncate fractional world space coordinates
+   */
+  public snapToPixel: boolean = false;
 
   /**
    * The action to take when a fatal exception is thrown
@@ -602,8 +608,7 @@ O|===|* >________________>\n\
         enableTransparency: this.enableCanvasTransparency,
         smoothing: options.antialiasing,
         backgroundColor: options.backgroundColor,
-        snapToPixel: options.snapToPixel,
-        engine: this
+        snapToPixel: options.snapToPixel
       });
       this.graphicsContext = ex2dCtx;
       this.ctx = ex2dCtx.__ctx;
@@ -613,8 +618,7 @@ O|===|* >________________>\n\
         enableTransparency: this.enableCanvasTransparency,
         smoothing: options.antialiasing,
         backgroundColor: options.backgroundColor,
-        snapToPixel: options.snapToPixel,
-        engine: this
+        snapToPixel: options.snapToPixel
       });
       this.graphicsContext = exWebglCtx;
       this.ctx = exWebglCtx.__ctx;
@@ -1203,7 +1207,6 @@ O|===|* >________________>\n\
       // Configure resolution for loader, it expects resolution === viewport
       this.screen.resolution = this.screen.viewport;
       this.screen.applyResolutionAndViewport();
-      this.graphicsContext.updateViewport();
       this._loader = loader;
       this._loader.suppressPlayButton = this._suppressPlayButton || this._loader.suppressPlayButton;
       this._loader.wireEngine(this);
@@ -1223,7 +1226,6 @@ O|===|* >________________>\n\
       // reset back to previous user resolution/viewport
       this.screen.popResolutionAndViewport();
       this.screen.applyResolutionAndViewport();
-      this.graphicsContext.updateViewport();
     }
 
     this._loadingComplete = true;

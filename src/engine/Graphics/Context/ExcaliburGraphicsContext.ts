@@ -1,7 +1,7 @@
 import { Vector } from '../../Math/vector';
+import { Matrix } from '../../Math/matrix';
 import { Color } from '../../Color';
-import type { Engine } from '../../Engine';
-import { Matrix } from '../..';
+import { ScreenDimension } from '../../Screen';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
 
@@ -11,7 +11,6 @@ export interface ExcaliburGraphicsContextOptions {
   enableTransparency?: boolean;
   snapToPixel?: boolean;
   backgroundColor?: Color;
-  engine: Engine;
 }
 
 export interface ExcaliburGraphicsContextState {
@@ -99,7 +98,7 @@ export interface ExcaliburGraphicsContext {
   /**
    * Update the context with the current viewport dimensions (used in resizing)
    */
-  updateViewport(): void;
+  updateViewport(resolution: ScreenDimension): void;
 
   /**
    * Access the debug drawing api
