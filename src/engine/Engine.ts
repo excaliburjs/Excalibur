@@ -400,7 +400,13 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Hints the graphics context to truncate fractional world space coordinates
    */
-  public snapToPixel: boolean = false;
+  public get snapToPixel(): boolean {
+    return this.graphicsContext.snapToPixel;
+  };
+
+  public set snapToPixel(shouldSnapToPixel: boolean) {
+    this.graphicsContext.snapToPixel = shouldSnapToPixel;
+  };
 
   /**
    * The action to take when a fatal exception is thrown

@@ -1,20 +1,11 @@
-import { vec } from '..';
-import { Vector } from './vector';
+import { sign } from './util';
+import { Vector, vec } from './vector';
 import { canonicalizeAngle } from '../Util/Util';
 
 export enum MatrixLocations {
   X = 12,
   Y = 13
 }
-
-// TODO move to math util file
-const sign = (val: number) => {
-  if (val === 0) {
-    return 0;
-  }
-  return val < 0 ? -1 : 1;
-};
-
 
 /**
  * Excalibur Matrix helper for 4x4 matrices

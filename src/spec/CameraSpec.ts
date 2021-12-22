@@ -57,6 +57,35 @@ describe('A camera', () => {
     expect(engine.screen.peekResolution).toHaveBeenCalled();
   });
 
+  it('should run strategies on initialize for the first frame', () => {
+    engine = TestUtils.engine({
+      viewport: {width: 100, height: 100},
+      resolution: {width: 1000, height: 1200 }
+    });
+
+    const sut = new ex.Camera();
+
+    spyOn(sut, "runStrategies").and.callThrough();
+    sut._initialize(engine);
+
+    expect(sut.runStrategies).toHaveBeenCalledTimes(1);
+  });
+
+  it('should update viewport on initialize for the first frame', () => {
+    engine = TestUtils.engine({
+      viewport: {width: 100, height: 100},
+      resolution: {width: 1000, height: 1200 }
+    });
+
+    const sut = new ex.Camera();
+    expect(sut.viewport).toEqual(new ex.BoundingBox());
+    spyOn(sut, "updateViewport").and.callThrough();
+    sut._initialize(engine);
+    
+    expect(sut.viewport).toEqual(ex.BoundingBox.fromDimension(1000, 1200, ex.Vector.Zero));
+    expect(sut.updateViewport).toHaveBeenCalledTimes(1);
+  });
+
   it('should be center screen by default (when loading complete)', () => {
     engine = TestUtils.engine({
       viewport: {width: 100, height: 100},

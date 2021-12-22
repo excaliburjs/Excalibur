@@ -4,14 +4,13 @@ import imageFragmentSource from './shaders/image-fragment.glsl';
 import { BatchCommand } from './batch';
 import { DrawCommandType, DrawImageCommand } from './draw-image-command';
 import { Graphic } from '../Graphic';
-// import { ensurePowerOfTwo } from './webgl-util';
+import { ensurePowerOfTwo } from './webgl-util';
 import { BatchRenderer } from './renderer';
 import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
 import { TextureLoader } from './texture-loader';
 import { HTMLImageSource } from './ExcaliburGraphicsContext';
 import { Color } from '../../Color';
 import { Vector } from '../../Math/vector';
-import { ensurePowerOfTwo } from './webgl-util';
 
 export class BatchImage extends BatchCommand<DrawImageCommand> {
   public textures: WebGLTexture[] = [];

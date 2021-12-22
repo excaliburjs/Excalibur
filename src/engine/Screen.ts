@@ -7,19 +7,6 @@ import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsCo
 import { getPosition } from './Util/Util';
 import { ExcaliburGraphicsContextWebGL } from './Graphics/Context/ExcaliburGraphicsContextWebGL';
 
-// TODO move to math util
-/**
- * Returns the fractional part of a number
- * @param x
- */
-export function frac(x: number): number {
-  if (x >= 0) {
-    return x - Math.floor(x);
-  } else {
-    return x - Math.ceil(x);
-  }
-}
-
 /**
  * Enum representing the different display modes available to Excalibur.
  */
