@@ -7,6 +7,7 @@ import { BaseAlign, Direction, FontOptions, FontStyle, FontUnit, TextAlign, Font
 import { Graphic, GraphicOptions } from './Graphic';
 import { RasterOptions } from './Raster';
 import { TextureLoader } from '.';
+import { ImageFiltering } from './Filtering';
 
 /**
  * Represents a system or web font in Excalibur
@@ -16,6 +17,12 @@ import { TextureLoader } from '.';
  * If loading a custom web font be sure to have the font loaded before you use it https://erikonarheim.com/posts/dont-test-fonts/
  */
 export class Font extends Graphic implements FontRenderer {
+  /**
+   * Set the font filtering mode, by default set to [[ImageFiltering.Blended]] regardles of the engine default smoothing
+   * 
+   * If you have a pixel style font that may be a reason to switch this to [[ImageFiltering.Pixel]]
+   */
+  public filtering: ImageFiltering = ImageFiltering.Blended;
   constructor(options: FontOptions & GraphicOptions & RasterOptions = {}) {
     super(options); // <- Graphics properties
 
@@ -26,6 +33,7 @@ export class Font extends Graphic implements FontRenderer {
     this.strokeColor = options?.strokeColor ?? this.strokeColor;
     this.lineDash = options?.lineDash ?? this.lineDash;
     this.lineWidth = options?.lineWidth ?? this.lineWidth;
+    this.filtering = options?.filtering ?? this.filtering;
 
     // Font specific properts
     this.family = options?.family ?? this.family;
@@ -293,7 +301,7 @@ export class Font extends Graphic implements FontRenderer {
     const rasterHeight = bitmap.canvas.height;
 
     // draws the bitmap to excalibur graphics context
-    TextureLoader.load(bitmap.canvas, this.filterMode, true);
+    TextureLoader.load(bitmap.canvas, this.filtering, true);
     ex.drawImage(
       bitmap.canvas,
       0,

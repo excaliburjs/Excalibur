@@ -10,6 +10,7 @@ import loaderCss from './Loader.css';
 import { Canvas } from './Graphics/Canvas';
 import { Vector } from './Math/vector';
 import { clamp, delay } from './Util/Util';
+import { ImageFiltering } from './Graphics/Filtering';
 
 /**
  * Pre-loading assets
@@ -78,7 +79,7 @@ import { clamp, delay } from './Util/Util';
  */
 export class Loader extends Class implements Loadable<Loadable<any>[]> {
   public canvas: Canvas = new Canvas({
-    filtering: "Linear",
+    filtering: ImageFiltering.Blended,
     smoothing: true,
     draw: this.draw.bind(this)
   });
