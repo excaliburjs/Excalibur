@@ -115,7 +115,8 @@ describe('A Text Graphic', () => {
       font: new ex.Font({
         family: 'Open Sans',
         size: 18,
-        quality: 1
+        quality: 1,
+        padding: 0
       })
     });
 
@@ -143,7 +144,8 @@ describe('A Text Graphic', () => {
       font: new ex.Font({
         family: 'Open Sans',
         size: 18,
-        quality: 1
+        quality: 1,
+        padding: 0
       })
     });
 
@@ -174,7 +176,8 @@ describe('A Text Graphic', () => {
       font: new ex.Font({
         family: 'Open Sans',
         size: 18,
-        quality: 1
+        quality: 1,
+        padding: 0
       })
     });
 
@@ -188,7 +191,8 @@ describe('A Text Graphic', () => {
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
-      quality: 1
+      quality: 1,
+      padding: 0
     });
 
     const bounds = sut.measureText('some extra long text that we want to measure');
@@ -203,7 +207,8 @@ describe('A Text Graphic', () => {
       font: new ex.Font({
         family: 'Open Sans',
         size: 18,
-        quality: 1
+        quality: 1,
+        padding: 0
       })
     });
 
@@ -233,7 +238,8 @@ describe('A Text Graphic', () => {
       font: new ex.Font({
         family: 'Open Sans',
         size: 18,
-        quality: 1
+        quality: 1,
+        padding: 0
       })
     });
 
@@ -263,7 +269,8 @@ describe('A Text Graphic', () => {
       font: new ex.Font({
         family: 'Open Sans',
         size: 18,
-        quality: 1
+        quality: 1,
+        padding: 0
       })
     });
 
@@ -293,7 +300,8 @@ describe('A Text Graphic', () => {
       font: new ex.Font({
         family: 'Open Sans',
         size: 18,
-        quality: 1
+        quality: 1,
+        padding: 0
       })
     });
 
@@ -323,7 +331,8 @@ describe('A Text Graphic', () => {
       font: new ex.Font({
         family: 'Open Sans',
         size: 18,
-        quality: 1
+        quality: 1,
+        padding: 0
       })
     });
 
@@ -354,7 +363,8 @@ describe('A Text Graphic', () => {
         family: 'Open Sans',
         bold: true,
         size: 18,
-        quality: 1
+        quality: 1,
+        padding: 0
       })
     });
 
@@ -383,7 +393,8 @@ describe('A Text Graphic', () => {
         family: 'Open Sans',
         style: ex.FontStyle.Italic,
         size: 18,
-        quality: 1
+        quality: 1,
+        padding: 0
       })
     });
 
@@ -412,6 +423,7 @@ describe('A Text Graphic', () => {
         family: 'Open Sans',
         size: 18,
         quality: 1,
+        padding: 0,
         shadow: {
           blur: 5,
           offset: ex.vec(4, 4),
