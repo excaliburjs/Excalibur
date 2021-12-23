@@ -106,6 +106,16 @@ describe('The engine', () => {
     });
   });
 
+  it('can set snapToPixel', () => {
+    engine = TestUtils.engine({width: 100, height: 100});
+    expect(engine.snapToPixel).toBeFalse();
+
+    engine.snapToPixel = true;
+
+    expect(engine.snapToPixel).toBeTrue();
+    expect(engine.graphicsContext.snapToPixel).toBeTrue();
+  });
+
   it('should emit a preframe event', () => {
     const fired = jasmine.createSpy('fired');
     engine.on('preframe', fired);

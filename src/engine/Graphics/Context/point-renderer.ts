@@ -7,7 +7,6 @@ import { BatchRenderer } from './renderer';
 import { BatchCommand } from './batch';
 import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
 import { Pool, Poolable } from '../../Util/Pool';
-// import { Random } from '../../Math/Index';
 
 export class DrawPoint implements Poolable {
   _pool?: Pool<this>;
@@ -37,7 +36,7 @@ export class PointRenderer extends BatchRenderer<DrawPoint> {
     shader.addAttribute('a_position', 2, gl.FLOAT);
     shader.addAttribute('a_color', 4, gl.FLOAT);
     shader.addAttribute('a_size', 1, gl.FLOAT);
-    shader.addUniformMatrix('u_matrix', this._contextInfo.matrix.data);
+    shader.addUniformMatrix('u_matrix', this._contextInfo.ortho.data);
     return shader;
   }
 

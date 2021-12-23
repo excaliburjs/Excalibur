@@ -1,32 +1,11 @@
-import { vec } from '..';
-import { Vector } from './vector';
+import { sign } from './util';
+import { Vector, vec } from './vector';
 import { canonicalizeAngle } from '../Util/Util';
 
 export enum MatrixLocations {
   X = 12,
   Y = 13
 }
-
-const sign = (val: number) => {
-  if (val === 0) {
-    return 0;
-  }
-  return val < 0 ? -1 : 1;
-};
-
-// const multMatch = (a: number, b: number) => {
-//   if (sign(a) < 0 && sign(b) < 0) {
-//     return -Math.abs(a * b);
-//   }
-//   return a * b;
-// }
-
-// const epsilon = (val: number) => {
-//   if (val * val < .0001) {
-//     return 0;
-//   }
-//   return val;
-// }
 
 /**
  * Excalibur Matrix helper for 4x4 matrices

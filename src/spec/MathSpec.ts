@@ -39,4 +39,15 @@ describe('Excalibur Math', () => {
   it('has a constant for 2 Pi', () => {
     expect(ex.Util.TwoPI).toBe(2 * Math.PI);
   });
+
+  it('can get the fractional portion of a number', () => {
+    expect(ex.frac(42.123)).toBeCloseTo(.123);
+    expect(ex.frac(-42.123)).toBeCloseTo(-.123);
+  });
+
+  it('can return the sign of a number', () => {
+    expect(ex.sign(-100)).toBe(-1);
+    expect(ex.sign(100)).toBe(1);
+    expect(ex.sign(0)).toBe(0);
+  });
 });

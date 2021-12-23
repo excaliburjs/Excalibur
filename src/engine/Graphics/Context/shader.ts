@@ -99,6 +99,16 @@ export class Shader {
     };
   }
 
+  public addUniformFloat2(name: string, float1: number = 0, float2: number = 0) {
+    const gl = this._gl;
+    this.uniforms[name] = {
+      name,
+      type: '2f',
+      location: gl.getUniformLocation(this.program, name) ?? Error(`Could not find uniform [${name}]`),
+      data: [float1, float2]
+    };
+  }
+
   /**
    * Add a uniform array of numbers to the shader
    * @param name Name of the uniform in the shader source
@@ -228,6 +238,10 @@ export class Shader {
       switch (uniform.type) {
         case 'matrix': {
           gl.uniformMatrix4fv(uniform.location, false, uniform.data);
+          break;
+        }
+        case '2f': {
+          gl.uniform2f(uniform.location, uniform.data[0], uniform.data[1]);
           break;
         }
         case 'numbers': {

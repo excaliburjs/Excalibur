@@ -6,3 +6,4 @@ export * from './global-coordinates';
 export * from './line';
 export * from './projection';
 export * from './ray';
+export * from './util';

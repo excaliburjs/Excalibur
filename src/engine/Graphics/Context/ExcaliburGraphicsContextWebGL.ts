@@ -70,7 +70,8 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
 export interface WebGLGraphicsContextInfo {
   transform: TransformStack;
   state: StateStack;
-  matrix: Matrix;
+  ortho: Matrix;
+  context: ExcaliburGraphicsContextWebGL;
 }
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
@@ -150,7 +151,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // If any dimension is greater than max texture size (divide by 4 bytes per pixel)
     const maxDim = gl.getParameter(gl.MAX_TEXTURE_SIZE) / 4;
     let supported = true;
-    if (dim.width > maxDim ||dim.height > maxDim) {
+    if (dim.width > maxDim || dim.height > maxDim) {
       supported = false;
     }
     return supported;
@@ -189,9 +190,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
     gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
-    this.__pointRenderer = new PointRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
-    this.__lineRenderer = new LineRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
-    this.__imageRenderer = new ImageRenderer(gl, { matrix: this._ortho, transform: this._transform, state: this._state });
+    this.__pointRenderer = new PointRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
+    this.__lineRenderer = new LineRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
+    this.__imageRenderer = new ImageRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
     this._screenRenderer = new ScreenRenderer(gl);
 
     this._renderTarget = new RenderTarget({
@@ -226,9 +227,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._transform.current = Matrix.identity();
   }
 
-  public updateViewport(): void {
+  public updateViewport(resolution: ScreenDimension): void {
     const gl = this.__gl;
-    this._ortho = this._ortho = Matrix.ortho(0, gl.canvas.width, gl.canvas.height, 0, 400, -400);
+    this._ortho = this._ortho = Matrix.ortho(0, resolution.width, resolution.height, 0, 400, -400);
     this.__pointRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
     this.__lineRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
     this.__imageRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
@@ -324,6 +325,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public transform(matrix: Matrix) {
     this._transform.current = matrix;
+  }
+
+  public getTransform(): Matrix {
+    return this._transform.current;
   }
 
   public addPostProcessor(postprocessor: PostProcessor) {

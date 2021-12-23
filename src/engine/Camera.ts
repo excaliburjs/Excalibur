@@ -597,12 +597,20 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
         }
       }
       this._halfWidth = center.x;
-      this._halfHeight = center.x;
+      this._halfHeight = center.y;
 
       // If the user has not set the camera pos, apply default center screen position
       if (!this._posChanged) {
         this.pos = center;
       }
+
+      // First frame boostrap
+
+      // Run strategies for first frame
+      this.runStrategies(_engine, _engine.clock.elapsed());
+
+      // Setup the first frame viewport
+      this.updateViewport();
 
       this.onInitialize(_engine);
       super.emit('initialize', new InitializeEvent(_engine, this));
@@ -640,6 +648,22 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   public once(eventName: string, handler: (event: GameEvent<Camera>) => void): void;
   public once(eventName: string, handler: (event: any) => void): void {
     super.once(eventName, handler);
+  }
+
+  public runStrategies(engine: Engine, delta: number) {
+    for (const s of this._cameraStrategies) {
+      this.pos = s.action.call(s, s.target, this, engine, delta);
+    }
+  }
+
+  public updateViewport() {
+    // recalc viewport
+    this._viewport = new BoundingBox(
+      this.x - this._halfWidth,
+      this.y - this._halfHeight,
+      this.x + this._halfWidth,
+      this.y + this._halfHeight
+    );
   }
 
   public update(_engine: Engine, delta: number) {
@@ -706,16 +730,9 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       this._yShake = ((Math.random() * this._shakeMagnitudeY) | 0) + 1;
     }
 
-    for (const s of this._cameraStrategies) {
-      this.pos = s.action.call(s, s.target, this, _engine, delta);
-    }
+    this.runStrategies(_engine, delta);
 
-    this._viewport = new BoundingBox(
-      this.x - this._halfWidth,
-      this.y - this._halfHeight,
-      this.x + this._halfWidth,
-      this.y + this._halfHeight
-    );
+    this.updateViewport();
 
     this._postupdate(_engine, delta);
   }
@@ -736,6 +753,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       canvasWidth = ctx.width;
       canvasHeight = ctx.height;
     }
+
     const focus = this.getFocus();
     const pixelRatio = this._engine ? this._engine.pixelRatio : 1;
     const zoom = this.zoom;
@@ -743,8 +761,10 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     const newCanvasWidth = canvasWidth / zoom / pixelRatio;
     const newCanvasHeight = canvasHeight / zoom / pixelRatio;
 
+    const cameraPos = vec(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
+
     ctx.scale(zoom, zoom);
-    ctx.translate(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
+    ctx.translate(cameraPos.x, cameraPos.y);
   }
 
   /* istanbul ignore next */

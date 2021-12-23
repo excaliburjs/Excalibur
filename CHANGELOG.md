@@ -37,6 +37,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed [#1815] issue where Camera would jitter when using a strategies based off of actors in the previous frame. 
+- Fixed issue where TileMaps would sometimes have a geometry seam that may not fall on an actual screen pixel causing a visible gap between tiles and the background
+  -- ![image](https://user-images.githubusercontent.com/612071/144700377-ac4585ba-3f4c-44b8-95db-ad36c5fc9a32.png)
 - Fixed unreleased issue where SpriteFonts log every frame they detect a misconfigured font.
 - Fixed unreleased issue where clock when constraining fps would pass larger than expected elapsed times to the simulation causing things to "speed up" bizarrely
 - Fixed unreleased issue where games with no resources would crash

@@ -10,7 +10,7 @@ import { WebGLGraphicsContextInfo } from './ExcaliburGraphicsContextWebGL';
 import { TextureLoader } from './texture-loader';
 import { HTMLImageSource } from './ExcaliburGraphicsContext';
 import { Color } from '../../Color';
-import { Vector } from '../..';
+import { Vector } from '../../Math/vector';
 
 export class BatchImage extends BatchCommand<DrawImageCommand> {
   public textures: WebGLTexture[] = [];
@@ -125,7 +125,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
     shader.addAttribute('a_textureIndex', 1, gl.FLOAT);
     shader.addAttribute('a_opacity', 1, gl.FLOAT);
     shader.addAttribute('a_color', 4, gl.FLOAT);
-    shader.addUniformMatrix('u_matrix', this._contextInfo.matrix.data);
+    shader.addUniformMatrix('u_matrix', this._contextInfo.ortho.data);
     // Initialize texture slots to [0, 1, 2, 3, 4, .... maxGPUTextures]
     shader.addUniformIntegerArray(
       'u_textures',
@@ -180,6 +180,7 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
     dheight?: number
   ) {
     const command = this.commands.get().init(graphic, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+    command.snapToPixel = this._contextInfo?.context?.snapToPixel ?? false;
     command.applyTransform(this._contextInfo.transform.current, this._contextInfo.state.current.opacity);
     this.addCommand(command);
   }
@@ -222,10 +223,10 @@ export class ImageRenderer extends BatchRenderer<DrawImageCommand> {
 
       // potential optimization when divding by 2 (bitshift)
       // Modifying the images to poweroftwo images warp the UV coordinates
-      let uvx0 = sx / potWidth;
-      let uvy0 = sy / potHeight;
-      let uvx1 = (sx + sw) / potWidth;
-      let uvy1 = (sy + sh) / potHeight;
+      let uvx0 = (sx) / potWidth;
+      let uvy0 = (sy) / potHeight;
+      let uvx1 = (sx + sw - 0.01) / potWidth;
+      let uvy1 = (sy + sh - 0.01) / potHeight;
       if (textureId === -2) {
         uvx0 = 0;
         uvy0 = 0;

@@ -1,5 +1,7 @@
 import { Vector } from '../../Math/vector';
+import { Matrix } from '../../Math/matrix';
 import { Color } from '../../Color';
+import { ScreenDimension } from '../../Screen';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
@@ -90,9 +92,14 @@ export interface ExcaliburGraphicsContext {
   resetTransform(): void;
 
   /**
+   * Gets the current transform
+   */
+  getTransform(): Matrix;
+
+  /**
    * Update the context with the current viewport dimensions (used in resizing)
    */
-  updateViewport(): void;
+  updateViewport(resolution: ScreenDimension): void;
 
   /**
    * Access the debug drawing api

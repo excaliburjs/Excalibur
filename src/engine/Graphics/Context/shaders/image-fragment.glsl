@@ -1,7 +1,7 @@
 #ifdef GL_OES_standard_derivatives
 #extension GL_OES_standard_derivatives : enable
 #endif
-precision mediump float;
+precision highp float;
 
 // UV coord
 varying vec2 v_texcoord;

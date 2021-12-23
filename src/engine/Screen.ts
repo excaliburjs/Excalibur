@@ -137,6 +137,7 @@ export interface ScreenOptions {
    * Canvas element to build a screen on
    */
   canvas: HTMLCanvasElement;
+
   /**
    * Graphics context for the screen
    */
@@ -183,8 +184,8 @@ export interface ScreenOptions {
  * The Screen handles all aspects of interacting with the screen for Excalibur.
  */
 export class Screen {
+  public graphicsContext: ExcaliburGraphicsContext;
   private _canvas: HTMLCanvasElement;
-  private _ctx: ExcaliburGraphicsContext;
   private _antialiasing: boolean = true;
   private _browser: BrowserEvents;
   private _camera: Camera;
@@ -206,24 +207,30 @@ export class Screen {
     this.resolution = options.resolution ?? { ...this.viewport };
     this._displayMode = options.displayMode ?? DisplayMode.Fixed;
     this._canvas = options.canvas;
-    this._ctx = options.context;
+    this.graphicsContext = options.context;
     this._antialiasing = options.antialiasing ?? this._antialiasing;
     this._browser = options.browser;
     this._position = options.position;
     this._pixelRatioOverride = options.pixelRatio;
+
     this._applyDisplayMode();
 
+    this._listenForPixelRatio();
+
+    this._canvas.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
+    this.applyResolutionAndViewport();
+  }
+
+  private _listenForPixelRatio() {
     this._mediaQueryList = this._browser.window.nativeComponent.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
 
     // Safari <=13.1 workaround
     if (this._mediaQueryList.addEventListener) {
-      this._mediaQueryList.addEventListener('change', this._pixelRatioChangeHandler);
+      // TODO handle safari
+      this._mediaQueryList.addEventListener('change', this._pixelRatioChangeHandler, { once: true });
     } else {
       this._mediaQueryList.addListener(this._pixelRatioChangeHandler);
     }
-
-    this._canvas.addEventListener('fullscreenchange', this._fullscreenChangeHandler);
-    this.applyResolutionAndViewport();
   }
 
   public dispose(): void {
@@ -252,6 +259,7 @@ export class Screen {
 
   private _pixelRatioChangeHandler = () => {
     this._logger.debug('Pixel Ratio Change', window.devicePixelRatio);
+    this._listenForPixelRatio();
     this._devicePixelRatio = this._calculateDevicePixelRatio();
     this.applyResolutionAndViewport();
   };
@@ -365,8 +373,8 @@ export class Screen {
     this._canvas.width = this.scaledWidth;
     this._canvas.height = this.scaledHeight;
 
-    if (this._ctx instanceof ExcaliburGraphicsContextWebGL) {
-      const supported = this._ctx.checkIfResolutionSupported({
+    if (this.graphicsContext instanceof ExcaliburGraphicsContextWebGL) {
+      const supported = this.graphicsContext.checkIfResolutionSupported({
         width: this.scaledWidth,
         height: this.scaledHeight
       });
@@ -394,10 +402,9 @@ export class Screen {
     this._canvas.style.height = this.viewport.height + 'px';
 
     // After messing with the canvas width/height the graphics context is invalidated and needs to have some properties reset
-    this._ctx.updateViewport();
-    this._ctx.resetTransform();
-    this._ctx.scale(this.pixelRatio, this.pixelRatio);
-    this._ctx.smoothing = this._antialiasing;
+    this.graphicsContext.updateViewport(this.resolution);
+    this.graphicsContext.resetTransform();
+    this.graphicsContext.smoothing = this._antialiasing;
   }
 
   public get antialiasing() {
@@ -406,7 +413,7 @@ export class Screen {
 
   public set antialiasing(isSmooth: boolean) {
     this._antialiasing = isSmooth;
-    this._ctx.smoothing = this._antialiasing;
+    this.graphicsContext.smoothing = this._antialiasing;
   }
 
   /**
@@ -519,8 +526,8 @@ export class Screen {
     let newY = point.y;
 
     // transform back to world space
-    newX = (newX / this.resolution.width) * this.drawWidth;
-    newY = (newY / this.resolution.height) * this.drawHeight;
+    newX = (newX / this.viewport.width) * this.drawWidth;
+    newY = (newY / this.viewport.height) * this.drawHeight;
 
     // transform based on zoom
     newX = newX - this.halfDrawWidth;
@@ -552,8 +559,8 @@ export class Screen {
     screenY = screenY + this.halfDrawHeight;
 
     // transform back to screen space
-    screenX = (screenX / this.drawWidth) * this.resolution.width;
-    screenY = (screenY / this.drawHeight) * this.resolution.height;
+    screenX = (screenX / this.drawWidth) * this.viewport.width;
+    screenY = (screenY / this.drawHeight) * this.viewport.height;
 
     return new Vector(screenX, screenY);
   }
@@ -575,12 +582,11 @@ export class Screen {
    * World bounds are in world coordinates, useful for culling objects offscreen
    */
   public getWorldBounds(): BoundingBox {
-    const left = this.screenToWorldCoordinates(Vector.Zero).x;
-    const top = this.screenToWorldCoordinates(Vector.Zero).y;
-    const right = left + this.drawWidth;
-    const bottom = top + this.drawHeight;
+    const topLeft = this.screenToWorldCoordinates(Vector.Zero);
+    const right = topLeft.x + this.drawWidth;
+    const bottom = topLeft.y + this.drawHeight;
 
-    return new BoundingBox(left, top, right, bottom);
+    return new BoundingBox(topLeft.x, topLeft.y, right, bottom);
   }
 
   /**
@@ -614,7 +620,7 @@ export class Screen {
   }
 
   /**
-   * Returns the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+   * Returns the width of the engine's visible drawing surface in pixels including camera zoom.
    */
   public get drawWidth(): number {
     if (this._camera) {
@@ -624,14 +630,14 @@ export class Screen {
   }
 
   /**
-   * Returns half the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+   * Returns half the width of the engine's visible drawing surface in pixels including camera zoom.
    */
   public get halfDrawWidth(): number {
     return this.drawWidth / 2;
   }
 
   /**
-   * Returns the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+   * Returns the height of the engine's visible drawing surface in pixels including camera zoom.
    */
   public get drawHeight(): number {
     if (this._camera) {
@@ -641,14 +647,14 @@ export class Screen {
   }
 
   /**
-   * Returns half the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
+   * Returns half the height of the engine's visible drawing surface in pixels including camera zoom.
    */
   public get halfDrawHeight(): number {
     return this.drawHeight / 2;
   }
 
   /**
-   * Returns screen center coordinates including zoom and device pixel ratio.
+   * Returns screen center coordinates including camera zoom.
    */
   public get center(): Vector {
     return vec(this.halfDrawWidth, this.halfDrawHeight);
