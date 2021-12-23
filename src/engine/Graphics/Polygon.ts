@@ -8,7 +8,7 @@ export interface PolygonOptions {
 
 /**
  * A polygon [[Graphic]] for drawing arbitrary polygons to the [[ExcaliburGraphicsContext]]
- * 
+ *
  * Polygons default to [[ImageFiltering.Blended]]
  */
 export class Polygon extends Raster {

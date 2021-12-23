@@ -55,7 +55,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
    */
   constructor(public readonly path: string, bustCache: boolean = false, filtering?: ImageFiltering) {
     this._resource = new Resource(path, 'blob', bustCache);
-    this._filtering = filtering
+    this._filtering = filtering;
     if (path.endsWith('.svg') || path.endsWith('.gif')) {
       this._logger.warn(`Image type is not fully supported, you may have mixed results ${path}. Fully supported: jpg, bmp, and png`);
     }

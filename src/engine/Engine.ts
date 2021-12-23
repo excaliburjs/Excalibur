@@ -91,11 +91,11 @@ export interface EngineOptions {
 
   /**
    * Optionally specify antialiasing (smoothing), by default true (smooth pixels)
-   * 
-   *  * `true` - useful for high resolution art work you would like smoothed, this also hints excalibur to load images 
+   *
+   *  * `true` - useful for high resolution art work you would like smoothed, this also hints excalibur to load images
    * with [[ImageFiltering.Blended]]
    *
-   *  * `false` - useful for pixel art style art work you would like sharp, this also hints excalibur to load images 
+   *  * `false` - useful for pixel art style art work you would like sharp, this also hints excalibur to load images
    * with [[ImageFiltering.Pixel]]
    */
   antialiasing?: boolean;
@@ -659,7 +659,7 @@ O|===|* >________________>\n\
       pixelRatio: options.suppressHiDPIScaling ? 1 : null
     });
 
-    TextureLoader.filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel
+    TextureLoader.filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
 
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();

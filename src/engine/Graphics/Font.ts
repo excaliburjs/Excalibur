@@ -19,7 +19,7 @@ import { ImageFiltering } from './Filtering';
 export class Font extends Graphic implements FontRenderer {
   /**
    * Set the font filtering mode, by default set to [[ImageFiltering.Blended]] regardles of the engine default smoothing
-   * 
+   *
    * If you have a pixel style font that may be a reason to switch this to [[ImageFiltering.Pixel]]
    */
   public filtering: ImageFiltering = ImageFiltering.Blended;

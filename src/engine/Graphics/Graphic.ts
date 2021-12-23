@@ -103,7 +103,7 @@ export abstract class Graphic {
       flipVertical: this.flipVertical,
       rotation: this.rotation,
       opacity: this.opacity,
-      scale: this.scale ? this.scale.clone() : null,
+      scale: this.scale ? this.scale.clone() : null
     };
   }
 

@@ -41,8 +41,9 @@ export interface RasterOptions {
   padding?: number;
 
   /**
-   * Optionally specify what image filtering mode should be used, [[ImageFiltering.Pixel]] for pixel art, [[ImageFiltering.Blended]] for hi-res art
-   * 
+   * Optionally specify what image filtering mode should be used, [[ImageFiltering.Pixel]] for pixel art,
+   * [[ImageFiltering.Blended]] for hi-res art
+   *
    * By default unset, rasters defer to the engine antialiasing setting
    */
   filtering?: ImageFiltering;
