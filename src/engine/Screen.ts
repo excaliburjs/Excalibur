@@ -222,11 +222,14 @@ export class Screen {
   }
 
   private _listenForPixelRatio() {
+    if (this._mediaQueryList && !this._mediaQueryList.addEventListener) {
+      // Safari <=13.1 workaround, remove any existing handlers
+      this._mediaQueryList.removeListener(this._pixelRatioChangeHandler);
+    }
     this._mediaQueryList = this._browser.window.nativeComponent.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
 
     // Safari <=13.1 workaround
     if (this._mediaQueryList.addEventListener) {
-      // TODO handle safari
       this._mediaQueryList.addEventListener('change', this._pixelRatioChangeHandler, { once: true });
     } else {
       this._mediaQueryList.addListener(this._pixelRatioChangeHandler);
