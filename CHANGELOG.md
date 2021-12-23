@@ -23,6 +23,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added support for different webgl texture blending modes as `ex.ImageFiltering` :
+  * `ex.ImageFiltering.Blended` -  Blended is useful when you have high resolution artwork and would like it blended and smoothed
+  * `ex.ImageFiltering.Pixel` - Pixel is useful when you do not want smoothing aka antialiasing applied to your graphics.
+- Excalibur will set a "default" blend mode based on the `ex.EngineOption` antialiasing property, but can be overridden per graphic
+  - `antialiasing: true`, then the blend mode defaults to  `ex.ImageFiltering.Blended`
+  - `antialiasing: false`, then the blend mode defaults to `ex.ImageFiltering.Pixel`
+- `ex.Text/ex.Font` defaults to blended which improves the default look of text rendering dramatically!
+- `ex.Circle` and `ex.Polygon` also default to blended which improves the default look dramatically!
+- `ex.ImageSource` can now specify a blend mode before the Image is loaded, otherwise
 - Added new `measureText` method to the `ex.SpriteFont` and `ex.Font` to return the bounds of any particular text
 - Added new `Clock` api to manage the core main loop. Clocks hide the implementation detail of how the mainloop runs, users just knows that it ticks somehow. Clocks additionally encapsulate any related browser timing, like `performance.now()`
   1. `StandardClock` encapsulates the existing `requestAnimationFrame` api logic
