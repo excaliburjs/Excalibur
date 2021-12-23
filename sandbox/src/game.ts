@@ -147,10 +147,10 @@ bootstrap(game);
 
 var heartTex = new ex.ImageSource('../images/heart.png');
 var heartImageSource = new ex.ImageSource('../images/heart.png');
-var imageRun = new ex.ImageSource('../images/PlayerRun.png');
+var imageRun = new ex.ImageSource('../images/PlayerRun.png', false, ex.ImageFiltering.Blended);
 var imageJump = new ex.ImageSource('../images/PlayerJump.png');
 var imageRun2 = new ex.ImageSource('../images/PlayerRun.png');
-var imageBlocks = new ex.ImageSource('../images/BlockA0.png');
+var imageBlocks = new ex.ImageSource('../images/BlockA0.png', false, ex.ImageFiltering.Blended);
 var imageBlocksLegacy = new ex.LegacyDrawing.Texture('../images/BlockA0.png');
 var spriteFontImage = new ex.ImageSource('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
@@ -189,7 +189,8 @@ newSprite.scale = ex.vec(2, 2);
 
 var circle = new ex.Circle({
   radius: 10,
-  color: ex.Color.Red
+  color: ex.Color.Red,
+  filtering: ex.ImageFiltering.Blended
 });
 
 var rect = new ex.Rectangle({
@@ -384,6 +385,8 @@ var blockSprite = new ex.Sprite({
     height: 49
   }
 });
+otherPointer.get(ex.TransformComponent).z = 100;
+otherPointer.graphics.use(blockSprite);
 // Create spritesheet
 //var spriteSheetRun = new ex.SpriteSheet(imageRun, 21, 1, 96, 96);
 var spriteSheetRun = ex.SpriteSheet.fromImageSource({
@@ -477,7 +480,7 @@ for (var i = 0; i < 36; i++) {
   //var block = new ex.Actor(currentX, 350 + Math.random() * 100, tileBlockWidth, tileBlockHeight, color);
   //block.collisionType = ex.CollisionType.Fixed;
   block.body.group = blockGroup;
-  block.graphics.add(blockAnimation);
+  block.graphics.add(blockSprite);
 
   game.add(block);
 }

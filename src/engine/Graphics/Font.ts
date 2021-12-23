@@ -85,7 +85,7 @@ export class Font extends Graphic implements FontRenderer {
   public quality = 2;
 
   // Raster properties for fonts
-  public padding = 0;
+  public padding = 2;
   public smoothing = false;
   public lineWidth = 1;
   public lineDash: number[] = [];
