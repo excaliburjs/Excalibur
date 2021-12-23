@@ -78,6 +78,7 @@ import { clamp, delay } from './Util/Util';
  */
 export class Loader extends Class implements Loadable<Loadable<any>[]> {
   public canvas: Canvas = new Canvas({
+    filtering: "Linear",
     smoothing: true,
     draw: this.draw.bind(this)
   });

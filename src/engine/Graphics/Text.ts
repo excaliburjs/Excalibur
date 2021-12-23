@@ -35,6 +35,7 @@ export class Text extends Graphic {
     this.font = options.font ?? new Font();
     this.color = options.color ?? this.color;
     this.text = options.text;
+    this.filterMode = "Linear";
   }
 
   public clone(): Text {
@@ -113,6 +114,7 @@ export class Text extends Graphic {
     this.font.rotation = this.rotation;
     this.font.origin = this.origin;
     this.font.opacity = this.opacity;
+    this.font.filterMode = this.filterMode;
 
     const { width, height } = this.font.measureText(this._text);
     this._textWidth = width;

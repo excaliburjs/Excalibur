@@ -5,6 +5,7 @@ import { ensurePowerOfTwo, isPowerOfTwo } from './webgl-util';
  * Manages loading image sources into webgl textures, a unique id is associated with all sources
  */
 export class TextureLoader {
+  public static imageFiltering: "Pixel" | "Linear" = "Pixel";
   private static _POT_CANVAS = document.createElement('canvas');
   private static _POT_CTX = TextureLoader._POT_CANVAS.getContext('2d');
 
@@ -37,7 +38,7 @@ export class TextureLoader {
    * @param image Source graphic
    * @param forceUpdate Optionally force a texture to be reloaded, useful if the source graphic has changed
    */
-  public static load(image: HTMLImageSource, forceUpdate = false): WebGLTexture {
+  public static load(image: HTMLImageSource, filtering?: "Linear" | "Pixel", forceUpdate = false): WebGLTexture {
     // Ignore loading if webgl is not registered
     const gl = TextureLoader._GL;
     if (!gl) {
@@ -70,10 +71,10 @@ export class TextureLoader {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-    // TODO support different sampler filter?
-    // NEAREST for pixel art
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    // NEAREST for pixel art, LINEAR for hi-res 
+    const filterMode = filtering ?? TextureLoader.imageFiltering;
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filterMode === "Pixel" ? gl.NEAREST : gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filterMode === "Pixel" ? gl.NEAREST : gl.LINEAR);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 

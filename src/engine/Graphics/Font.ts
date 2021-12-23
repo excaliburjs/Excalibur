@@ -6,6 +6,7 @@ import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { BaseAlign, Direction, FontOptions, FontStyle, FontUnit, TextAlign, FontRenderer } from './FontCommon';
 import { Graphic, GraphicOptions } from './Graphic';
 import { RasterOptions } from './Raster';
+import { TextureLoader } from '.';
 
 /**
  * Represents a system or web font in Excalibur
@@ -292,6 +293,7 @@ export class Font extends Graphic implements FontRenderer {
     const rasterHeight = bitmap.canvas.height;
 
     // draws the bitmap to excalibur graphics context
+    TextureLoader.load(bitmap.canvas, this.filterMode, true);
     ex.drawImage(
       bitmap.canvas,
       0,

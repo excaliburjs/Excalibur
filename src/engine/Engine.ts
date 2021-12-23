@@ -39,7 +39,7 @@ import * as Input from './Input/Index';
 import * as Events from './Events';
 import { BrowserEvents } from './Util/Browser';
 import { obsolete } from './Util/Decorators';
-import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL } from './Graphics';
+import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
 import { PointerEventReceiver } from './Input/PointerEventReceiver';
 import { FpsSampler } from './Util/Fps';
 import { Clock, StandardClock } from './Util/Clock';
@@ -651,6 +651,8 @@ O|===|* >________________>\n\
       position: options.position,
       pixelRatio: options.suppressHiDPIScaling ? 1 : null
     });
+
+    TextureLoader.imageFiltering = options.antialiasing ? "Linear" : "Pixel"
 
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();

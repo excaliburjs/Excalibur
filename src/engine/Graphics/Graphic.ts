@@ -35,6 +35,10 @@ export interface GraphicOptions {
    * The origin of the drawing in pixels to use when applying transforms, by default it will be the center of the image
    */
   origin?: Vector;
+  /**
+   * Optionally specify what image filtering mode should be used, Pixel for pixel art, Linear for hi-res art
+   */
+  filtering?: "Pixel" | "Linear";
 }
 
 /**
@@ -48,6 +52,8 @@ export interface GraphicOptions {
 export abstract class Graphic {
   private static _ID: number = 0;
   readonly id = Graphic._ID++;
+
+  public filterMode: "Pixel" | "Linear" = null;
 
   /**
    * Gets or sets wether to show debug information about the graphic
@@ -92,6 +98,7 @@ export abstract class Graphic {
       this.rotation = options.rotation ?? this.rotation;
       this.opacity = options.opacity ?? this.opacity;
       this.scale = options.scale ?? this.scale;
+      this.filterMode = options.filtering ?? this.filterMode;
     }
   }
 
@@ -102,7 +109,8 @@ export abstract class Graphic {
       flipVertical: this.flipVertical,
       rotation: this.rotation,
       opacity: this.opacity,
-      scale: this.scale ? this.scale.clone() : null
+      scale: this.scale ? this.scale.clone() : null,
+      filtering: this.filterMode
     };
   }
 

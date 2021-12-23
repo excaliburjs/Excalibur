@@ -37,7 +37,6 @@ export abstract class Raster extends Graphic {
       this.lineDash = options.lineDash ?? this.lineDash;
       this.padding = options.padding ?? this.padding;
     }
-
     this._bitmap = document.createElement('canvas');
     // get the default canvas width/height as a fallback
     const bitmapWidth = options?.width ?? this._bitmap.width;
@@ -216,7 +215,7 @@ export abstract class Raster extends Graphic {
     this.execute(this._ctx);
     this._ctx.restore();
     // The webgl texture needs to be updated if it exists after a raster cycle
-    TextureLoader.load(this._bitmap, true);
+    TextureLoader.load(this._bitmap, this.filterMode, true);
   }
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
