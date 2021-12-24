@@ -80,6 +80,20 @@ describe('The engine', () => {
     expect(engine.screen.resolution.height).toBe(600);
   });
 
+  it('should hint the texture loader image filter to Blended when aa=true', () => {
+    engine = TestUtils.engine({
+      antialiasing: true
+    });
+    expect(ex.TextureLoader.filtering).toBe(ex.ImageFiltering.Blended);
+  });
+
+  it('should hint the texture loader image filter to Pixel when aa=false', () => {
+    engine = TestUtils.engine({
+      antialiasing: false
+    });
+    expect(ex.TextureLoader.filtering).toBe(ex.ImageFiltering.Pixel);
+  });
+
   it('should not show the play button when suppressPlayButton is turned on', (done) => {
     reset();
     engine = TestUtils.engine({

@@ -94,6 +94,14 @@ describe('A Text Graphic', () => {
     expect(sut).toBeDefined();
   });
 
+  it('defaults to blended', () => {
+    const sut = new ex.Text({
+      text: 'yo'
+    });
+    const font = sut.font as ex.Font;
+    expect(font.filtering).toBe(ex.ImageFiltering.Blended);
+  });
+
   it('can be cloned', () => {
     const sut = new ex.Text({
       text: 'some text',

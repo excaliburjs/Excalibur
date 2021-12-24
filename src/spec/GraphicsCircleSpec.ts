@@ -20,6 +20,13 @@ describe('A Circle Graphic', () => {
     expect(sut.height).toBe(24);
   });
 
+  it('has default filtering', () => {
+    const sut = new ex.Circle({
+      radius: 10
+    });
+    expect(sut.filtering).toBe(ex.ImageFiltering.Blended);
+  });
+
   it('can have a radius', () => {
     const sut = new ex.Circle({
       padding: 0,
