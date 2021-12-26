@@ -37,8 +37,7 @@ void main() {
      color = v_color;
    // -2 If there is no texture we are drawing a circle
    } else if (v_textureIndex == -2.0) {
-     color = v_color;
-     color.a = color.a * circle(v_texcoord, .95);
+     color = v_color * circle(v_texcoord, .95);
    } else {
      // GLSL is templated out to pick the right texture and set the vec4 color
       %%texture_picker%%
