@@ -29,6 +29,30 @@ describe('A ImageSource', () => {
     expect(whenLoaded).toHaveBeenCalledTimes(1);
   });
 
+  it('can load images with an image filtering Blended', async () => {
+    spyOn(ex.TextureLoader, 'load').and.callThrough();
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Blended);
+    const whenLoaded = jasmine.createSpy('whenLoaded');
+    const image = await spriteFontImage.load();
+    await spriteFontImage.ready.then(whenLoaded);
+
+    expect(image.src).not.toBeNull();
+    expect(whenLoaded).toHaveBeenCalledTimes(1);
+    expect(ex.TextureLoader.load).toHaveBeenCalledWith(image, ex.ImageFiltering.Blended);
+  });
+
+  it('can load images with an image filtering Pixel', async () => {
+    spyOn(ex.TextureLoader, 'load').and.callThrough();
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
+    const whenLoaded = jasmine.createSpy('whenLoaded');
+    const image = await spriteFontImage.load();
+    await spriteFontImage.ready.then(whenLoaded);
+
+    expect(image.src).not.toBeNull();
+    expect(whenLoaded).toHaveBeenCalledTimes(1);
+    expect(ex.TextureLoader.load).toHaveBeenCalledWith(image, ex.ImageFiltering.Pixel);
+  });
+
   it('can convert to a Sprite', async () => {
     const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const sprite = spriteFontImage.toSprite();

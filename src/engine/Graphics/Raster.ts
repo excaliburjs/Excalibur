@@ -6,14 +6,47 @@ import { Vector } from '../Math/vector';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { watch } from '../Util/Watch';
 import { TextureLoader } from './Context/texture-loader';
+import { ImageFiltering } from './Filtering';
+
 
 export interface RasterOptions {
+  /**
+   * Optionally specify "smoothing" if you want antialiasing to apply to the raster's bitmap context, by default `false`
+   */
   smoothing?: boolean;
+
+  /**
+   * Optionally specify the color of the raster's bitmap context, by default [[Color.Black]]
+   */
   color?: Color;
+
+  /**
+   * Optionally specify the stroke color of the raster's bitmap context, by default undefined
+   */
   strokeColor?: Color;
+
+  /**
+   * Optionally specify the line width of the raster's bitmap, by default 1 pixel
+   */
   lineWidth?: number;
+
+  /**
+   * Optionally specify the line dash of the raster's bitmap, by default `[]` which means none
+   */
   lineDash?: number[];
+
+  /**
+   * Optionally specify the padding to apply to the bitmap
+   */
   padding?: number;
+
+  /**
+   * Optionally specify what image filtering mode should be used, [[ImageFiltering.Pixel]] for pixel art,
+   * [[ImageFiltering.Blended]] for hi-res art
+   *
+   * By default unset, rasters defer to the engine antialiasing setting
+   */
+  filtering?: ImageFiltering;
 }
 
 /**
@@ -23,6 +56,7 @@ export interface RasterOptions {
  * Implementors must implemenet the [[Raster.execute]] method to rasterize their drawing.
  */
 export abstract class Raster extends Graphic {
+  public filtering: ImageFiltering = null;
   public _bitmap: HTMLCanvasElement;
   protected _ctx: CanvasRenderingContext2D;
   private _dirty: boolean = true;
@@ -36,8 +70,8 @@ export abstract class Raster extends Graphic {
       this.lineWidth = options.lineWidth ?? this.lineWidth;
       this.lineDash = options.lineDash ?? this.lineDash;
       this.padding = options.padding ?? this.padding;
+      this.filtering = options.filtering ?? this.filtering;
     }
-
     this._bitmap = document.createElement('canvas');
     // get the default canvas width/height as a fallback
     const bitmapWidth = options?.width ?? this._bitmap.width;
@@ -216,7 +250,7 @@ export abstract class Raster extends Graphic {
     this.execute(this._ctx);
     this._ctx.restore();
     // The webgl texture needs to be updated if it exists after a raster cycle
-    TextureLoader.load(this._bitmap, true);
+    TextureLoader.load(this._bitmap, this.filtering, true);
   }
 
   protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {

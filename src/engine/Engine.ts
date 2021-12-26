@@ -39,10 +39,11 @@ import * as Input from './Input/Index';
 import * as Events from './Events';
 import { BrowserEvents } from './Util/Browser';
 import { obsolete } from './Util/Decorators';
-import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL } from './Graphics';
+import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
 import { PointerEventReceiver } from './Input/PointerEventReceiver';
 import { FpsSampler } from './Util/Fps';
 import { Clock, StandardClock } from './Util/Clock';
+import { ImageFiltering } from './Graphics/Filtering';
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -90,6 +91,12 @@ export interface EngineOptions {
 
   /**
    * Optionally specify antialiasing (smoothing), by default true (smooth pixels)
+   *
+   *  * `true` - useful for high resolution art work you would like smoothed, this also hints excalibur to load images
+   * with [[ImageFiltering.Blended]]
+   *
+   *  * `false` - useful for pixel art style art work you would like sharp, this also hints excalibur to load images
+   * with [[ImageFiltering.Pixel]]
    */
   antialiasing?: boolean;
 
@@ -651,6 +658,8 @@ O|===|* >________________>\n\
       position: options.position,
       pixelRatio: options.suppressHiDPIScaling ? 1 : null
     });
+
+    TextureLoader.filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
 
     if (options.backgroundColor) {
       this.backgroundColor = options.backgroundColor.clone();

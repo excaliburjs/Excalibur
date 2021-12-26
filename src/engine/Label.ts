@@ -41,7 +41,7 @@ export interface LabelOptions {
  */
 export class Label extends Actor {
   public font: Font = new Font();
-  private _text: Text = new Text({ text: '', font: this.font });
+  private _text: Text = new Text({ text: '', font: this.font});
 
   /**
    * The text to draw.

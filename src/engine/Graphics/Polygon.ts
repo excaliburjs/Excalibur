@@ -1,3 +1,4 @@
+import { ImageFiltering } from '.';
 import { Vector, vec } from '../Math/vector';
 import { Raster, RasterOptions } from './Raster';
 
@@ -7,6 +8,8 @@ export interface PolygonOptions {
 
 /**
  * A polygon [[Graphic]] for drawing arbitrary polygons to the [[ExcaliburGraphicsContext]]
+ *
+ * Polygons default to [[ImageFiltering.Blended]]
  */
 export class Polygon extends Raster {
   private _points: Vector[];
@@ -30,6 +33,7 @@ export class Polygon extends Raster {
   constructor(options: RasterOptions & PolygonOptions) {
     super(options);
     this.points = options.points;
+    this.filtering = ImageFiltering.Blended;
     this.rasterize();
   }
 

@@ -3,10 +3,13 @@ import { Texture } from '../Drawing/Texture';
 import { Sprite } from './Sprite';
 import { Loadable } from '../Interfaces/Index';
 import { Logger } from '../Util/Log';
+import { TextureLoader } from '.';
+import { ImageFiltering } from './Filtering';
 
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _logger = Logger.getInstance();
   private _resource: Resource<Blob>;
+  private _filtering: ImageFiltering;
 
   /**
    * The original size of the source image in pixels
@@ -46,10 +49,13 @@ export class ImageSource implements Loadable<HTMLImageElement> {
 
   /**
    * The path to the image, can also be a data url like 'data:image/'
-   * @param path
+   * @param path {string} Path to the image resource relative from the HTML document hosting the game, or absolute
+   * @param bustCache {boolean} Should excalibur add a cache busting querystring?
+   * @param filtering {ImageFiltering} Optionally override the image filtering set by [[EngineOptions.antialiasing]]
    */
-  constructor(public readonly path: string, bustCache: boolean = false) {
+  constructor(public readonly path: string, bustCache: boolean = false, filtering?: ImageFiltering) {
     this._resource = new Resource(path, 'blob', bustCache);
+    this._filtering = filtering;
     if (path.endsWith('.svg') || path.endsWith('.gif')) {
       this._logger.warn(`Image type is not fully supported, you may have mixed results ${path}. Fully supported: jpg, bmp, and png`);
     }
@@ -85,6 +91,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     } catch (error) {
       throw `Error loading ImageSource from path '${this.path}' with error [${error.message}]`;
     }
+    TextureLoader.load(this.data, this._filtering);
     // todo emit complete
     this._loadedResolve(this.data);
     return this.data;

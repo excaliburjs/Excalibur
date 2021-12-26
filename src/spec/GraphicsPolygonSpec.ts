@@ -26,6 +26,14 @@ describe('A Polygon Graphic', () => {
     expect(poly).toBeDefined();
   });
 
+  it('has default filtering', () => {
+    const sut = new ex.Polygon({
+      points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],
+      color: ex.Color.Green
+    });
+    expect(sut.filtering).toBe(ex.ImageFiltering.Blended);
+  });
+
   it('can be cloned', () => {
     const poly = new ex.Polygon({
       points: [ex.vec(10 * 5, 0), ex.vec(0, 20 * 5), ex.vec(20 * 5, 20 * 5)],

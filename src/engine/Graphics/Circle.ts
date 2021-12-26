@@ -1,3 +1,4 @@
+import { ImageFiltering } from '.';
 import { Raster, RasterOptions } from './Raster';
 
 export interface CircleOptions {
@@ -6,6 +7,8 @@ export interface CircleOptions {
 
 /**
  * A circle [[Graphic]] for drawing circles to the [[ExcaliburGraphicsContext]]
+ *
+ * Circles default to [[ImageFiltering.Blended]]
  */
 export class Circle extends Raster {
   private _radius: number = 0;
@@ -22,6 +25,7 @@ export class Circle extends Raster {
     super(options);
     this.padding = options.padding ?? 2; // default 2 padding for circles looks nice
     this.radius = options.radius;
+    this.filtering = options.filtering ?? ImageFiltering.Blended;
     this.rasterize();
   }
 

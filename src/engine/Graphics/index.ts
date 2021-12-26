@@ -31,3 +31,6 @@ export * from './Context/debug-text';
 export * from './PostProcessor/PostProcessor';
 export * from './PostProcessor/ColorBlindnessMode';
 export * from './PostProcessor/ColorBlindnessPostProcessor';
+
+export * from './Context/texture-loader';
+export * from './Filtering';
