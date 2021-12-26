@@ -1,4 +1,5 @@
 import { Engine } from './Engine';
+import { Screen } from './Screen';
 import { EasingFunction, EasingFunctions } from './Util/EasingFunctions';
 import { Vector, vec } from './Math/vector';
 import { Actor } from './Actor';
@@ -240,6 +241,8 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
 export class Camera extends Class implements CanUpdate, CanInitialize {
   public transform: Matrix = Matrix.identity();
   public inverse: Matrix = Matrix.identity();
+
+
   protected _follow: Actor;
 
   private _cameraStrategies: CameraStrategy<any>[] = [];
@@ -277,6 +280,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
   /**
    * Current angular velocity
+   * @deprecated will be removed in v0.26.0, use angularVelocity
    */
   public rx: number = 0;
 
@@ -310,7 +314,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   public vel: Vector = Vector.Zero;
 
   /**
-   * GEt or set the camera's acceleration
+   * Get or set the camera's acceleration
    */
   public acc: Vector = Vector.Zero;
 
@@ -581,6 +585,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   private _engine: Engine;
+  private _screen: Screen;
   private _isInitialized = false;
   public get isInitialized() {
     return this._isInitialized;
@@ -589,12 +594,13 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   public _initialize(_engine: Engine) {
     if (!this.isInitialized) {
       this._engine = _engine;
+      this._screen = _engine.screen;
 
-      const currentRes = this._engine.screen.resolution;
+      const currentRes = this._screen.resolution;
       let center = vec(currentRes.width / 2, currentRes.height / 2);
       if (!this._engine.loadingComplete) {
         // If there was a loading screen, we peek the configured resolution
-        const res = this._engine.screen.peekResolution();
+        const res = this._screen.peekResolution();
         if (res) {
           center = vec(res.width / 2, res.height / 2);
         }
@@ -606,6 +612,8 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       if (!this._posChanged) {
         this.pos = center;
       }
+
+      this._calculateTransform();
 
       // First frame boostrap
 
@@ -750,16 +758,24 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     const focus = this.getFocus();
 
     // center the camera
-    const newCanvasWidth = this._engine.screen.resolution.width / this.zoom;
-    const newCanvasHeight = this._engine.screen.resolution.height / this.zoom;
+    const newCanvasWidth = this._screen.resolution.width / this.zoom;
+    const newCanvasHeight = this._screen.resolution.height / this.zoom;
     const cameraPos = vec(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
 
-    this.transform = Matrix.identity();
     ctx.scale(this.zoom, this.zoom);
     ctx.translate(cameraPos.x, cameraPos.y);
+    this._calculateTransform();
+  }
+
+  private _calculateTransform() {
+    const focus = this.getFocus();
+    const newCanvasWidth = this._screen.resolution.width / this.zoom;
+    const newCanvasHeight = this._screen.resolution.height / this.zoom;
     // this looks like the inverse...
-    this.transform.translate(-newCanvasWidth / 2 + focus.x, -newCanvasHeight / 2 + focus.y);
-    this.transform.scale(1/this.zoom, 1/this.zoom);
+    this.transform = Matrix.identity();
+    const cameraPos = vec(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
+    this.transform.scale(this.zoom, this.zoom);
+    this.transform.translate(cameraPos.x, cameraPos.y);
     this.inverse = this.transform.getAffineInverse();
   }
 

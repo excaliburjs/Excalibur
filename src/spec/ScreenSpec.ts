@@ -459,6 +459,7 @@ describe('A Screen', () => {
     sut.setCurrentCamera(camera);
 
     sut.applyResolutionAndViewport();
+    camera._initialize({screen: sut, clock: { elapsed: () => 16}} as ex.Engine);
 
     // The camera is always center screen
     // The absense of a camera is treated like a camera at (0, 0) in world space
@@ -485,6 +486,7 @@ describe('A Screen', () => {
     sut.setCurrentCamera(camera);
 
     sut.applyResolutionAndViewport();
+    camera._initialize({screen: sut, clock: { elapsed: () => 16}} as ex.Engine);
 
     // The camera is always center screen
     // The absense of a camera is treated like a camera at (0, 0) in world space
@@ -510,6 +512,7 @@ describe('A Screen', () => {
 
     sut.setCurrentCamera(camera);
     sut.applyResolutionAndViewport();
+    camera._initialize({screen: sut, clock: { elapsed: () => 16}} as ex.Engine);
 
     const bounds = sut.getWorldBounds();
 
