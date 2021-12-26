@@ -10,6 +10,7 @@ import { BoundingBox } from './Collision/BoundingBox';
 import { Logger } from './Util/Log';
 import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 import { watchAny } from './Util/Watch';
+import { Matrix } from './Math/matrix';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -237,6 +238,8 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
  *
  */
 export class Camera extends Class implements CanUpdate, CanInitialize {
+  public transform: Matrix = Matrix.identity();
+  public inverse: Matrix = Matrix.identity();
   protected _follow: Actor;
 
   private _cameraStrategies: CameraStrategy<any>[] = [];
@@ -744,27 +747,20 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   public draw(ctx: CanvasRenderingContext2D): void;
   public draw(ctx: ExcaliburGraphicsContext): void;
   public draw(ctx: CanvasRenderingContext2D | ExcaliburGraphicsContext): void {
-    let canvasWidth = 0;
-    let canvasHeight = 0;
-    if (ctx instanceof CanvasRenderingContext2D) {
-      canvasWidth = ctx.canvas.width;
-      canvasHeight = ctx.canvas.height;
-    } else {
-      canvasWidth = ctx.width;
-      canvasHeight = ctx.height;
-    }
-
     const focus = this.getFocus();
-    const pixelRatio = this._engine ? this._engine.pixelRatio : 1;
-    const zoom = this.zoom;
 
-    const newCanvasWidth = canvasWidth / zoom / pixelRatio;
-    const newCanvasHeight = canvasHeight / zoom / pixelRatio;
-
+    // center the camera
+    const newCanvasWidth = this._engine.screen.resolution.width / this.zoom;
+    const newCanvasHeight = this._engine.screen.resolution.height / this.zoom;
     const cameraPos = vec(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
 
-    ctx.scale(zoom, zoom);
+    this.transform = Matrix.identity();
+    ctx.scale(this.zoom, this.zoom);
     ctx.translate(cameraPos.x, cameraPos.y);
+    // this looks like the inverse...
+    this.transform.translate(-newCanvasWidth / 2 + focus.x, -newCanvasHeight / 2 + focus.y);
+    this.transform.scale(1/this.zoom, 1/this.zoom);
+    this.inverse = this.transform.getAffineInverse();
   }
 
   /* istanbul ignore next */
