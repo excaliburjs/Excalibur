@@ -525,22 +525,11 @@ export class Screen {
    * @param point  Screen coordinate to convert
    */
   public screenToWorldCoordinates(point: Vector): Vector {
-    let newX = point.x;
-    let newY = point.y;
-
-    // transform back to world space
-    newX = (newX / this.viewport.width) * this.drawWidth;
-    newY = (newY / this.viewport.height) * this.drawHeight;
-
-    // transform based on zoom
-    newX = newX - this.halfDrawWidth;
-    newY = newY - this.halfDrawHeight;
-
-    // shift by camera focus
-    newX += this._camera?.x ?? 0;
-    newY += this._camera?.y ?? 0;
-
-    return new Vector(newX, newY);
+    // the only difference between screen & world is the camera transform
+    if (this._camera) {
+      return this._camera.transform.multv(point);
+    }
+    return point;
   }
 
   /**
@@ -550,22 +539,10 @@ export class Screen {
    * @param point  World coordinate to convert
    */
   public worldToScreenCoordinates(point: Vector): Vector {
-    let screenX = point.x;
-    let screenY = point.y;
-
-    // shift by camera focus
-    screenX -= this._camera?.x ?? 0;
-    screenY -= this._camera?.y ?? 0;
-
-    // transform back on zoom
-    screenX = screenX + this.halfDrawWidth;
-    screenY = screenY + this.halfDrawHeight;
-
-    // transform back to screen space
-    screenX = (screenX / this.drawWidth) * this.viewport.width;
-    screenY = (screenY / this.drawHeight) * this.viewport.height;
-
-    return new Vector(screenX, screenY);
+    if (this._camera) {
+      return this._camera.inverse.multv(point);
+    }
+    return point;
   }
 
   public pageToWorldCoordinates(point: Vector): Vector {
@@ -623,7 +600,7 @@ export class Screen {
   }
 
   /**
-   * Returns the width of the engine's visible drawing surface in pixels including camera zoom.
+   * Returns the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
    */
   public get drawWidth(): number {
     if (this._camera) {
@@ -633,14 +610,14 @@ export class Screen {
   }
 
   /**
-   * Returns half the width of the engine's visible drawing surface in pixels including camera zoom.
+   * Returns half the width of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
    */
   public get halfDrawWidth(): number {
     return this.drawWidth / 2;
   }
 
   /**
-   * Returns the height of the engine's visible drawing surface in pixels including camera zoom.
+   * Returns the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
    */
   public get drawHeight(): number {
     if (this._camera) {
@@ -650,14 +627,14 @@ export class Screen {
   }
 
   /**
-   * Returns half the height of the engine's visible drawing surface in pixels including camera zoom.
+   * Returns half the height of the engine's visible drawing surface in pixels including zoom and device pixel ratio.
    */
   public get halfDrawHeight(): number {
     return this.drawHeight / 2;
   }
 
   /**
-   * Returns screen center coordinates including camera zoom.
+   * Returns screen center coordinates including zoom and device pixel ratio.
    */
   public get center(): Vector {
     return vec(this.halfDrawWidth, this.halfDrawHeight);
