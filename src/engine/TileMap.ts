@@ -19,6 +19,8 @@ import { obsolete } from './Util/Decorators';
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
 import { ColliderComponent } from './Collision/ColliderComponent';
 import { CompositeCollider } from './Collision/Colliders/CompositeCollider';
+import { Color } from './Color';
+import { DebugGraphicsComponent } from './Graphics/DebugGraphicsComponent';
 
 /**
  * @hidden
@@ -158,6 +160,7 @@ export class TileMapImpl extends Entity {
         onPostDraw: (ctx, delta) => this.draw(ctx, delta)
       })
     );
+    this.addComponent(new DebugGraphicsComponent((ctx) => this.debug(ctx)));
     this.addComponent(new ColliderComponent());
     this._transform = this.get(TransformComponent);
     this._motion = this.get(MotionComponent);
@@ -381,6 +384,30 @@ export class TileMapImpl extends Entity {
     }
 
     this.emit('postdraw', new Events.PostDrawEvent(ctx as any, delta, this));
+  }
+
+  public debug(gfx: ExcaliburGraphicsContext) {
+    const width = this.cellWidth * this.cols;
+    const height = this.cellHeight * this.rows;
+    const pos = Vector.Zero;
+    for (let r = 0; r < this.rows + 1; r++) {
+      const yOffset = vec(0, r * this.cellHeight);
+      gfx.drawLine(pos.add(yOffset), pos.add(vec(width, yOffset.y)), Color.Red, 2);
+    }
+
+    for (let c = 0; c < this.cols +1; c++) {
+      const xOffset = vec(c * this.cellWidth, 0);
+      gfx.drawLine(pos.add(xOffset), pos.add(vec(xOffset.x, height)), Color.Red, 2);
+    }
+
+    const colliders = this._composite.getColliders();
+    for (let collider of colliders) {
+      const grayish = Color.Gray;
+      grayish.a = .1;
+      const bounds = collider.localBounds;
+      const pos = collider.worldPos.sub(this.pos);
+      gfx.drawRectangle(pos, bounds.width, bounds.height, grayish);
+    }
   }
 }
 
