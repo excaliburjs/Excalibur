@@ -401,7 +401,7 @@ export class TileMapImpl extends Entity {
     }
 
     const colliders = this._composite.getColliders();
-    for (let collider of colliders) {
+    for (const collider of colliders) {
       const grayish = Color.Gray;
       grayish.a = .1;
       const bounds = collider.localBounds;
