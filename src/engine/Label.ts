@@ -40,8 +40,17 @@ export interface LabelOptions {
  * actors and inherit all of the benefits and capabilities.
  */
 export class Label extends Actor {
-  public font: Font = new Font();
-  private _text: Text = new Text({ text: '', font: this.font});
+  private _font: Font = new Font();
+  private _text: Text = new Text({ text: '', font: this._font });
+
+  public get font(): Font {
+    return this._font;
+  }
+
+  public set font(newFont: Font) {
+    this._font = newFont;
+    this._text.font = newFont;
+  }
 
   /**
    * The text to draw.
@@ -237,8 +246,15 @@ export class Label extends Actor {
 
     this.pos = pos ?? (x && y ? vec(x, y) : this.pos);
     this.text = text ?? this.text;
-    this.spriteFont = spriteFont ?? this.spriteFont;
     this.font = font ?? this.font;
+    this.spriteFont = spriteFont ?? this.spriteFont;
+    const bounds = this._text.localBounds;
+    if (!this.spriteFont) {
+      // font's draw different than spritefonts at the moment
+      this.collider.useBoxCollider(bounds.width, bounds.height, vec(0, 1));
+    } else {
+      this.collider.useBoxCollider(bounds.width, bounds.height, vec(0, 0));
+    }
     this.color = color ?? this.color;
     const gfx = this.get(GraphicsComponent);
     gfx.anchor = Vector.Zero;
