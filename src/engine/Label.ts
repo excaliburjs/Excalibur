@@ -204,7 +204,6 @@ export class Label extends Actor {
    * The [[LegacyDrawing.SpriteFont]] to use, if any. Overrides [[fontFamily]] if present.
    * @deprecated Use [[SpriteFont]]
    */
-  @obsolete()
   public get spriteFont(): LegacySpriteFont {
     return this._legacySpriteFont;
   }
