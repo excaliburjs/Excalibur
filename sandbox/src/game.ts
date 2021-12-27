@@ -34,82 +34,6 @@
  * Excalibur.js team
  */
 
-declare class Stats {
-  constructor();
-  dom: HTMLElement;
-  showPanel(option: number);
-  begin(): void;
-  end(): void;
-}
-declare module dat {
-  class GUI {
-    constructor(options: { name: string });
-    addFolder(name: string): GUI;
-    add<T>(object: T): any;
-    add<T>(object: T, prop: keyof T, min?: number, max?: number, step?: number): any;
-    addColor(object: any, prop: any): any;
-  }
-}
-
-var gui = new dat.GUI({name: 'Excalibur'});
-
-
-var stats = new Stats();
-stats.showPanel(0);
-document.body.appendChild(stats.dom);
-
-var bootstrap = (game: ex.Engine) => {
-  gui.add({toggleDebug: false}, 'toggleDebug').onChange(() => game.toggleDebug());
-  let clock = gui.addFolder('clock');
-  clock.add({"Use Test Clock": () => game.debug.useTestClock()}, "Use Test Clock");
-  clock.add({"Use Standard Clock": () => game.debug.useStandardClock()}, "Use Standard Clock");
-  let msStep = {
-    "Step MS": 1000
-  }
-  clock.add(msStep, "Step MS", 1, 2000, 16);
-  clock.add({"Step": () => (game.clock as any).step(msStep["Step MS"]) }, "Step");
-  var supportedKeys = ['filter', 'entity', 'transform', 'motion', 'body', 'collider', 'physics', 'graphics', 'camera'];
-  for (let key of supportedKeys) {
-    let folder = gui.addFolder(key);
-    if (game.debug[key]) {
-      for (let option in game.debug[key]) {
-        if (option) {
-          if (option.toLocaleLowerCase().includes('color')) {
-            folder.addColor(game.debug[key], option);
-          } else {
-            if (Array.isArray(game.debug[key][option])) {
-              continue;
-            }
-            folder.add(game.debug[key], option);
-          }
-        }
-      }
-    }
-  }
-
-  var physics = gui.addFolder('Physics Flags');
-  physics.add(ex.Physics, 'enabled')
-  physics.add(ex.Physics, "positionIterations", 1, 15, 1);
-  physics.add(ex.Physics, "velocityIterations", 1, 15, 1);
-
-  game.on("preframe", () => {
-      stats.begin();
-  });
-  game.on('postframe', () =>{
-      stats.end();
-  });
-
-  // game.currentScene.on('entityadded', (e: any) => {
-  //   var entity: ex.Entity = e.target;
-  //   var obj = {id: entity.id, name: entity.constructor.name, types: entity.types};
-
-  //   var pos = entities.addFolder(`${obj.id}:${obj.name}`)
-  //   pos.add({pos: entity.get(ex.TransformComponent).pos.toString()}, 'pos');
-  //   pos.add({types: obj.types.join(', ')}, 'types');
-  // });
-
-  return { stats, gui }
-}
 var logger = ex.Logger.getInstance();
 logger.defaultLevel = ex.LogLevel.Debug;
 
@@ -130,6 +54,9 @@ var game = new ex.Engine({
   snapToPixel: true,
   maxFps: 60
 });
+//@ts-ignore For some reason ts doesn't like the /// slash import
+const devtool = new ex.DevTools.DevTool(game);
+
 
 // var colorblind = new ex.ColorBlindnessPostProcessor(ex.ColorBlindnessMode.Deuteranope);
 // game.graphicsContext.addPostProcessor(colorblind);
@@ -142,8 +69,6 @@ fullscreenButton.addEventListener('click', () => {
   }
 });
 game.showDebug(true);
-bootstrap(game);
-
 
 
 var heartTex = new ex.ImageSource('../images/heart.png');
@@ -363,13 +288,13 @@ var otherPointer = new ex.ScreenElement({
 var pagePointer = document.getElementById('page') as HTMLDivElement;
 otherPointer.anchor.setTo(.5, .5);
 game.add(otherPointer);
-game.input.pointers.primary.on('move', (ev) => {
-   pointer.pos = ev.worldPos;
-   otherPointer.pos = game.screen.worldToScreenCoordinates(ev.worldPos);
-   let pagePos = game.screen.screenToPageCoordinates(otherPointer.pos);
-   pagePointer.style.left = pagePos.x + 'px';
-   pagePointer.style.top = pagePos.y + 'px';
-});
+// game.input.pointers.primary.on('move', (ev) => {
+//    pointer.pos = ev.worldPos;
+//    otherPointer.pos = game.screen.worldToScreenCoordinates(ev.worldPos);
+//    let pagePos = game.screen.screenToPageCoordinates(otherPointer.pos);
+//    pagePointer.style.left = pagePos.x + 'px';
+//    pagePointer.style.top = pagePos.y + 'px';
+// });
 
 game.input.pointers.primary.on('wheel', (ev) => {
   pointer.pos.setTo(ev.x, ev.y);
