@@ -23,6 +23,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added convenience feature, setting the color, sets the color on default graphic if applicable
+- Added a `DebugGraphicsComponent` for doing direct debug draw in the `DebugSystem`
+- Added back TileMap debug draw
+- Added `ex.Scene.timers` to expose the list of timers
 - Added support for different webgl texture blending modes as `ex.ImageFiltering` :
   * `ex.ImageFiltering.Blended` -  Blended is useful when you have high resolution artwork and would like it blended and smoothed
   * `ex.ImageFiltering.Pixel` - Pixel is useful when you do not want smoothing aka antialiasing applied to your graphics.
@@ -46,6 +50,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed alpha pre-multiply math in multiple shaders
+- Fixed label initialization of fonts, passing a font in the constructor work
+- Fixed bug in sprite bounds calculations not taking scale into account
+- Fixed bug with pointer api where clicking on screen coordinate actors didn't work
 - Fixed [#1815] issue where Camera would jitter when using a strategies based off of actors in the previous frame. 
 - Fixed issue where TileMaps would sometimes have a geometry seam that may not fall on an actual screen pixel causing a visible gap between tiles and the background
   -- ![image](https://user-images.githubusercontent.com/612071/144700377-ac4585ba-3f4c-44b8-95db-ad36c5fc9a32.png)
@@ -68,7 +76,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Updates
 
 - The following Engine's pieces: `Collision` `Graphics` `Resources` `Trigger` are updated to reflect the new EventDispatcher behavior.
-
+- Refactor camera/screen interaction to utilize transforms instead of bespoke coordinate conversion
 ### Changed
 
 - Chaned the debug system to separate displaying the debug position point (`game.debug.transform.showPosition = true`) and debug position label (`game.debug.transform.showPositionLabel = true`)
