@@ -147,7 +147,7 @@ describe('A Matrix', () => {
       .translate(100, -200)
       .scale(2, 4);
 
-    spyOn(ex.Matrix, "identity");
+    spyOn(ex.Matrix, 'identity');
     const inv = mat.getAffineInverse(target);
     expect(mat.multm(inv).isIdentity()).toBeTrue();
     expect(inv.multm(mat).isIdentity()).toBeTrue();
