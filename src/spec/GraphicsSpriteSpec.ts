@@ -101,6 +101,33 @@ describe('A Sprite Graphic', () => {
     await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/change-size.png');
   });
 
+  it('can specify the width and height and scale', async () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
+      image,
+      sourceView: {
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16
+      }
+    });
+
+    sut.width = 64;
+    sut.height = 64;
+
+    sut.scale = ex.vec(2, 2);
+
+    await image.load();
+    await image.ready;
+
+    ctx.clear();
+    sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+    expect(sut.width).toBe(128);
+    expect(sut.height).toBe(128);
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/change-size-and-scale.png');
+  });
+
   it('can specify a source view of an image by default is same dimension as the source', async () => {
     const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const sut = new ex.Sprite({
