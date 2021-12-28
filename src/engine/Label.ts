@@ -63,12 +63,14 @@ export class Label extends Actor {
     this._text.text = text;
   }
 
-  public get color(): Color {
+  public override get color(): Color {
     return this._text.color;
   }
 
-  public set color(color: Color) {
-    this._text.color = color;
+  public override set color(color: Color) {
+    if (this._text) {
+      this._text.color = color;
+    }
   }
 
   public get opacity(): number {
@@ -248,13 +250,13 @@ export class Label extends Actor {
     this.font = font ?? this.font;
     this.spriteFont = spriteFont ?? this.spriteFont;
     const bounds = this._text.localBounds;
-    if (!this.spriteFont) {
+    if (!spriteFont) {
       // font's draw different than spritefonts at the moment
       this.collider.useBoxCollider(bounds.width, bounds.height, vec(0, 1));
     } else {
       this.collider.useBoxCollider(bounds.width, bounds.height, vec(0, 0));
     }
-    this.color = color ?? this.color;
+    this._text.color = color ?? this.color;
     const gfx = this.get(GraphicsComponent);
     gfx.anchor = Vector.Zero;
     gfx.use(this._text);
