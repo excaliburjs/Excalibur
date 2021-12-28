@@ -67,7 +67,7 @@ describe('A label', () => {
       spacing: -5,
       spriteSheet: spriteFontSheet
     });
-    
+
     const sut = new ex.Label({
       text: 'some text',
       spriteFont: spriteFont

@@ -183,8 +183,8 @@ describe('DebugSystem', () => {
     const entity = new ex.Entity([
       new ex.TransformComponent(),
       new ex.DebugGraphicsComponent(ctx => {
-      ctx.drawCircle(ex.vec(250, 250), 100, ex.Color.Blue);
-    })])
+        ctx.drawCircle(ex.vec(250, 250), 100, ex.Color.Blue);
+      })]);
     debugSystem.update([entity], 100);
 
     engine.graphicsContext.flush();

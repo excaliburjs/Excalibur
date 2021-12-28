@@ -411,7 +411,8 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
       sut.flush();
 
-      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-circle-with-opacity.png');
+      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/webgl-circle-with-opacity.png');
     });
 
     it('can draw a line', async () => {

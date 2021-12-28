@@ -508,11 +508,11 @@ describe('A scene', () => {
   it('can have timers added and retrieved', () => {
     const timer = new ex.Timer({
       repeats: true,
-      interval: 1000,
+      interval: 1000
     });
     const timer2 = new ex.Timer({
       repeats: true,
-      interval: 1000,
+      interval: 1000
     });
     scene.add(timer);
     scene.add(timer2);
