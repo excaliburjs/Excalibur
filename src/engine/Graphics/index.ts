@@ -8,6 +8,7 @@ export * from './Animation';
 
 // Graphics ECS
 export * from './GraphicsComponent';
+export * from './DebugGraphicsComponent';
 export * from './GraphicsSystem';
 
 // Raster graphics

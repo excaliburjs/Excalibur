@@ -172,4 +172,22 @@ describe('DebugSystem', () => {
 
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/DebugSystemSpec/graphics.png');
   });
+
+  it('can show DebugGraphicsComponent', async () => {
+    const debugSystem = new ex.DebugSystem();
+    engine.currentScene.world.add(debugSystem);
+    debugSystem.initialize(engine.currentScene);
+
+    engine.graphicsContext.clear();
+
+    const entity = new ex.Entity([
+      new ex.TransformComponent(),
+      new ex.DebugGraphicsComponent(ctx => {
+      ctx.drawCircle(ex.vec(250, 250), 100, ex.Color.Blue);
+    })])
+    debugSystem.update([entity], 100);
+
+    engine.graphicsContext.flush();
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/DebugSystemSpec/debug-draw-component.png');
+  });
 });
