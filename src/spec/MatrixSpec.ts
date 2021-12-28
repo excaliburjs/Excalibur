@@ -141,6 +141,30 @@ describe('A Matrix', () => {
     expect(inv.multm(mat).isIdentity()).toBeTrue();
   });
 
+  it('can find the affine inverse and store it into a target', () => {
+    const target = ex.Matrix.identity();
+    const mat = ex.Matrix.identity()
+      .translate(100, -200)
+      .scale(2, 4);
+
+    spyOn(ex.Matrix, "identity");
+    const inv = mat.getAffineInverse(target);
+    expect(mat.multm(inv).isIdentity()).toBeTrue();
+    expect(inv.multm(mat).isIdentity()).toBeTrue();
+    expect(target).toBe(inv);
+    expect(ex.Matrix.identity).withContext('using a target doesnt create a new mat')
+      .not.toHaveBeenCalledWith();
+  });
+
+  it('can reset to identity', () => {
+    const mat = ex.Matrix.identity()
+      .translate(100, -200)
+      .scale(2, 4);
+
+    mat.reset();
+    expect(mat.isIdentity()).toBe(true);
+  });
+
   it('can print a matrix', () => {
     const mat = ex.Matrix.identity();
     expect(mat.toString()).toBe(`

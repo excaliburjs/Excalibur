@@ -87,11 +87,43 @@ export class Matrix {
     return mat;
   }
 
+  public toDOMMatrix(): DOMMatrix {
+    return new DOMMatrix([...this.data]);
+  }
+
   /**
    * Creates a new identity matrix (a matrix that when applied does nothing)
    */
   public static identity(): Matrix {
     const mat = new Matrix();
+    mat.data[0] = 1;
+    mat.data[1] = 0;
+    mat.data[2] = 0;
+    mat.data[3] = 0;
+
+    mat.data[4] = 0;
+    mat.data[5] = 1;
+    mat.data[6] = 0;
+    mat.data[7] = 0;
+
+    mat.data[8] = 0;
+    mat.data[9] = 0;
+    mat.data[10] = 1;
+    mat.data[11] = 0;
+
+    mat.data[12] = 0;
+    mat.data[13] = 0;
+    mat.data[14] = 0;
+    mat.data[15] = 1;
+    return mat;
+  }
+
+  /**
+   * Resets the current matrix to the identity matrix, mutating it
+   * @returns {Matrix}
+   */
+  public reset(): Matrix {
+    const mat = this;
     mat.data[0] = 1;
     mat.data[1] = 0;
     mat.data[2] = 0;
@@ -420,7 +452,14 @@ export class Matrix {
     return this.data[0] * this.data[5] - this.data[1] * this.data[4];
   }
 
-  public getAffineInverse(): Matrix {
+  /**
+   * Return the affine inverse, optionally store it in a target matrix
+   *
+   * It's recommended you call .reset() the target unless you know what you're doing
+   * @param target 
+   * @returns
+   */
+  public getAffineInverse(target?: Matrix): Matrix {
     // See http://negativeprobability.blogspot.com/2011/11/affine-transformations-and-their.html
     // See https://www.mathsisfun.com/algebra/matrix-inverse.html
     // Since we are actually only doing 2D transformations we can use this hack
@@ -433,7 +472,7 @@ export class Matrix {
     const c = this.data[1];
     const d = this.data[5];
 
-    const m = Matrix.identity();
+    const m = target || Matrix.identity();
     // inverts rotation and scale
     m.data[0] = d * inverseDet;
     m.data[1] = -c * inverseDet;

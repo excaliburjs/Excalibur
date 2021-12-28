@@ -257,6 +257,10 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     throw new Error('Not implemented');
   }
 
+  public multiply(_m: Matrix): void {
+    this.__ctx.setTransform(this.__ctx.getTransform().multiply(_m.toDOMMatrix()));
+  }
+
   public addPostProcessor(_postprocessor: PostProcessor) {
     throw Error('Not implemented');
   }

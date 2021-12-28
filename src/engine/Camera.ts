@@ -612,9 +612,6 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       if (!this._posChanged) {
         this.pos = center;
       }
-
-      this._calculateTransform();
-
       // First frame boostrap
 
       // Run strategies for first frame
@@ -622,6 +619,9 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
       // Setup the first frame viewport
       this.updateViewport();
+
+      // Ensure camera tx is correct
+      this.updateTransform();
 
       this.onInitialize(_engine);
       super.emit('initialize', new InitializeEvent(_engine, this));
@@ -745,6 +745,8 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
     this.updateViewport();
 
+    this.updateTransform();
+
     this._postupdate(_engine, delta);
   }
 
@@ -755,29 +757,33 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   public draw(ctx: CanvasRenderingContext2D): void;
   public draw(ctx: ExcaliburGraphicsContext): void;
   public draw(ctx: CanvasRenderingContext2D | ExcaliburGraphicsContext): void {
-    const focus = this.getFocus();
+    // Apply transform
+    if (ctx instanceof CanvasRenderingContext2D) {
+      // TODO This will be removed in v0.26.0
+      const focus = this.getFocus();
 
+      // center the camera
+      const newCanvasWidth = this._screen.resolution.width / this.zoom;
+      const newCanvasHeight = this._screen.resolution.height / this.zoom;
+      const cameraPos = vec(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(cameraPos.x, cameraPos.y);
+    } else {
+      ctx.multiply(this.transform);
+    }
+  }
+
+  public updateTransform() {
     // center the camera
     const newCanvasWidth = this._screen.resolution.width / this.zoom;
     const newCanvasHeight = this._screen.resolution.height / this.zoom;
-    const cameraPos = vec(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
+    const cameraPos = vec(-this.x + newCanvasWidth / 2 + this._xShake, -this.y + newCanvasHeight / 2 + this._yShake);
 
-    ctx.scale(this.zoom, this.zoom);
-    ctx.translate(cameraPos.x, cameraPos.y);
-    this._calculateTransform();
-  }
-
-  private _calculateTransform() {
-    // TODO refactor this to use only transform?
-    const focus = this.getFocus();
-    const newCanvasWidth = this._screen.resolution.width / this.zoom;
-    const newCanvasHeight = this._screen.resolution.height / this.zoom;
-    // this looks like the inverse...
-    this.transform = Matrix.identity();
-    const cameraPos = vec(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
+    // Calculate camera transform
+    this.transform.reset();
     this.transform.scale(this.zoom, this.zoom);
     this.transform.translate(cameraPos.x, cameraPos.y);
-    this.inverse = this.transform.getAffineInverse();
+    this.transform.getAffineInverse(this.inverse);
   }
 
   /* istanbul ignore next */
