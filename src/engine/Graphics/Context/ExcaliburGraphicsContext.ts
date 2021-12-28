@@ -97,10 +97,10 @@ export interface ExcaliburGraphicsContext {
   getTransform(): Matrix;
 
   /**
-   * Multiplies the current transform by a matrix 
-   * @param m 
+   * Multiplies the current transform by a matrix
+   * @param m
    */
-   multiply(m: Matrix): void;
+  multiply(m: Matrix): void;
 
   /**
    * Update the context with the current viewport dimensions (used in resizing)

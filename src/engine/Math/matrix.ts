@@ -87,6 +87,12 @@ export class Matrix {
     return mat;
   }
 
+  /**
+   * Converts the curtent matrix into a DOMMatrix
+   *
+   * This is useful when working with the browser Canvas context
+   * @returns {DOMMatrix} DOMMatrix
+   */
   public toDOMMatrix(): DOMMatrix {
     return new DOMMatrix([...this.data]);
   }
@@ -453,11 +459,10 @@ export class Matrix {
   }
 
   /**
-   * Return the affine inverse, optionally store it in a target matrix
+   * Return the affine inverse, optionally store it in a target matrix.
    *
    * It's recommended you call .reset() the target unless you know what you're doing
-   * @param target 
-   * @returns
+   * @param target
    */
   public getAffineInverse(target?: Matrix): Matrix {
     // See http://negativeprobability.blogspot.com/2011/11/affine-transformations-and-their.html
