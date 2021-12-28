@@ -207,21 +207,21 @@ describe('A pointer', () => {
   });
 
   it('can click on screen locked actors', () => {
-    const clickSpy = jasmine.createSpy('down')
+    const clickSpy = jasmine.createSpy('down');
     const actor1 = new ex.Actor({
       pos: ex.vec(50, 50),
       width: 100,
-      height: 100,
+      height: 100
     });
     actor1.transform.coordPlane = ex.CoordPlane.Screen;
     actor1.on('pointerdown', clickSpy);
     engine.currentScene.camera.pos = ex.vec(1000, 1000);
     engine.currentScene.camera.draw(engine.graphicsContext);
-    
+
     engine.add(actor1);
-    
+
     executeMouseEvent('pointerdown', <any>document, null, 50, 50);
-    
+
     engine.currentScene.update(engine, 0);
     // process pointer events
     expect(clickSpy).toHaveBeenCalled();
