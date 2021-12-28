@@ -190,4 +190,25 @@ describe('DebugSystem', () => {
     engine.graphicsContext.flush();
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/DebugSystemSpec/debug-draw-component.png');
   });
+
+  it('can debug draw a tilemap', async () => {
+    const debugSystem = new ex.DebugSystem();
+    engine.currentScene.world.add(debugSystem);
+    debugSystem.initialize(engine.currentScene);
+
+    engine.graphicsContext.clear();
+
+    const tilemap = new ex.TileMap({
+      x: 0,
+      y: 0,
+      cellWidth: 50,
+      cellHeight: 50,
+      rows: 10,
+      cols: 10
+    });
+    debugSystem.update([tilemap], 100);
+
+    engine.graphicsContext.flush();
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/DebugSystemSpec/tilemap-debug.png');
+  });
 });
