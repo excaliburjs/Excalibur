@@ -206,6 +206,8 @@ describe('DebugSystem', () => {
       rows: 10,
       cols: 10
     });
+    tilemap.data[0].solid = true;
+    tilemap.update(engine, 1);
     debugSystem.update([tilemap], 100);
 
     engine.graphicsContext.flush();
