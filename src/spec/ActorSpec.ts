@@ -69,6 +69,15 @@ describe('A game actor', () => {
     expect(actor.pos.y).toBe(10);
   });
 
+  it('can be constructed with a coord plane', () => {
+    const sut = new ex.Actor({
+      coordPlane: ex.CoordPlane.Screen
+    });
+    const sut2 = new ex.Actor(); // default is world
+    expect(sut.transform.coordPlane).toBe(ex.CoordPlane.Screen);
+    expect(sut2.transform.coordPlane).toBe(ex.CoordPlane.World);
+  });
+
   it('should have props set by constructor', () => {
     const actor = new ex.Actor({
       pos: new ex.Vector(2, 3),

@@ -39,7 +39,7 @@ import { CollisionType } from './Collision/CollisionType';
 
 import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
-import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
+import { CoordPlane, TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Rectangle } from './Graphics/Rectangle';
@@ -82,9 +82,13 @@ export interface ActorArgs {
    */
   y?: number;
   /**
-   * Optionaly set the (x, y) position of the actor as a vector, default is (0, 0)
+   * Optionally set the (x, y) position of the actor as a vector, default is (0, 0)
    */
   pos?: Vector;
+  /**
+   * Optionally set the coordinate plane of the actor, default is [[CoordPlane.World]] meaning actor is subject to camera positioning
+   */
+  coordPlane?: CoordPlane;
   /**
    * Optionally set the width of a box collider for the actor
    */
@@ -508,6 +512,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       x,
       y,
       pos,
+      coordPlane,
       scale,
       width,
       height,
@@ -529,12 +534,13 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
     this._setName(name);
     this.anchor = anchor ?? Actor.defaults.anchor.clone();
-
-    this.addComponent(new TransformComponent());
+    const tx = new TransformComponent();
+    this.addComponent(tx);
     this.pos = pos ?? vec(x ?? 0, y ?? 0);
     this.rotation = rotation ?? 0;
     this.scale = scale ?? vec(1, 1);
     this.z = z ?? 0;
+    tx.coordPlane = coordPlane ?? CoordPlane.World;
 
     this.addComponent(new PointerComponent);
 

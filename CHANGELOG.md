@@ -23,6 +23,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `ex.CoordPlane` can be set in the `new ex.Actor({coordPlane: CoordPlane.Screen})` constructor
 - Added convenience feature, setting the color, sets the color on default graphic if applicable
 - Added a `DebugGraphicsComponent` for doing direct debug draw in the `DebugSystem`
 - Added back TileMap debug draw
