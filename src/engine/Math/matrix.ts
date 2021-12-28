@@ -126,7 +126,7 @@ export class Matrix {
 
   /**
    * Resets the current matrix to the identity matrix, mutating it
-   * @returns {Matrix}
+   * @returns {Matrix} Current matrix as identity
    */
   public reset(): Matrix {
     const mat = this;
