@@ -396,6 +396,24 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-circle.png');
     });
 
+    it('can draw circle with opacity', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.clear();
+      sut.opacity = 0.05;
+      sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
+      sut.flush();
+
+      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/webgl-circle-with-opacity.png');
+    });
+
     it('can draw a line', async () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
