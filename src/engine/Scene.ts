@@ -107,6 +107,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
 
   private _isInitialized: boolean = false;
   private _timers: Timer[] = [];
+  public get timers(): readonly Timer[] {
+    return this._timers;
+  }
   private _cancelQueue: Timer[] = [];
 
   constructor() {

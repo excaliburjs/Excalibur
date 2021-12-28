@@ -46,20 +46,20 @@ export class Sprite extends Graphic {
     });
   }
 
-  public get width(): number {
-    return this.destSize.width;
+  public override get width(): number {
+    return this.destSize.width * this.scale.x;
   }
 
-  public get height(): number {
-    return this.destSize.height;
+  public override get height(): number {
+    return this.destSize.height * this.scale.y;
   }
 
-  public set width(newWidth: number) {
+  public override set width(newWidth: number) {
     this.destSize.width = newWidth;
     super.width = Math.ceil(this.destSize.width);
   }
 
-  public set height(newHeight: number) {
+  public override set height(newHeight: number) {
     this.destSize.height = newHeight;
     super.height = Math.ceil(this.destSize.height);
   }

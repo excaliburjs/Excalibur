@@ -505,6 +505,20 @@ describe('A scene', () => {
     expect(scene.actors.length).toBe(1);
   });
 
+  it('can have timers added and retrieved', () => {
+    const timer = new ex.Timer({
+      repeats: true,
+      interval: 1000
+    });
+    const timer2 = new ex.Timer({
+      repeats: true,
+      interval: 1000
+    });
+    scene.add(timer);
+    scene.add(timer2);
+    expect(scene.timers).toEqual([timer, timer2]);
+  });
+
   it('will update Actors that were added in a Timer callback', () => {
     let updated = false;
     let initialized = false;

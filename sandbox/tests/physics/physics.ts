@@ -19,32 +19,6 @@ ex.Physics.bodiesCanSleepByDefault = true;
 ex.Physics.gravity = ex.vec(0, 100);
 
 
-var gui = new dat.GUI({name: 'Excalibur'});
-var folder = gui.addFolder('Physics Flags');
-folder.add(ex.Physics, 'enabled')
-folder.add(ex.Physics, 'bodiesCanSleepByDefault')
-folder.add(ex.Physics, 'warmStart')
-folder.add(ex.Physics, 'sleepEpsilon', 0.01, 2, .05);
-folder.add(ex.Physics, 'wakeThreshold', 0.01, 2, .05);
-folder.add(ex.Physics, 'positionIterations', 0, 30, 1);
-folder.add(ex.Physics, 'velocityIterations', 0, 30, 1);
-
-var stats = new Stats();
-stats.showPanel(0);
-document.body.appendChild(stats.dom);
-
-var bootstrap = (game: ex.Engine) => {
-  gui.add({toggleDebug: game.isDebug}, 'toggleDebug').onChange(() => game.toggleDebug());
-  game.on("preframe", () =>  {
-      stats.begin();
-  });
-  game.on('postframe', () =>{
-      stats.end();
-  });
-
-  return { stats, gui }
-}
-
 
 var globalRotation = 0;
 function spawnBlock(x: number, y: number) {
@@ -146,4 +120,5 @@ game.input.pointers.primary.on('down', (evt: ex.Input.PointerEvent) => {
 });
 
 game.start();
-bootstrap(game);
+//@ts-ignore
+const dev = new ex.DevTools.DevTool(game);

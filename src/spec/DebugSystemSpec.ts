@@ -172,4 +172,45 @@ describe('DebugSystem', () => {
 
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/DebugSystemSpec/graphics.png');
   });
+
+  it('can show DebugGraphicsComponent', async () => {
+    const debugSystem = new ex.DebugSystem();
+    engine.currentScene.world.add(debugSystem);
+    debugSystem.initialize(engine.currentScene);
+
+    engine.graphicsContext.clear();
+
+    const entity = new ex.Entity([
+      new ex.TransformComponent(),
+      new ex.DebugGraphicsComponent(ctx => {
+        ctx.drawCircle(ex.vec(250, 250), 100, ex.Color.Blue);
+      })]);
+    debugSystem.update([entity], 100);
+
+    engine.graphicsContext.flush();
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/DebugSystemSpec/debug-draw-component.png');
+  });
+
+  it('can debug draw a tilemap', async () => {
+    const debugSystem = new ex.DebugSystem();
+    engine.currentScene.world.add(debugSystem);
+    debugSystem.initialize(engine.currentScene);
+
+    engine.graphicsContext.clear();
+
+    const tilemap = new ex.TileMap({
+      x: 0,
+      y: 0,
+      cellWidth: 50,
+      cellHeight: 50,
+      rows: 10,
+      cols: 10
+    });
+    tilemap.data[0].solid = true;
+    tilemap.update(engine, 1);
+    debugSystem.update([tilemap], 100);
+
+    engine.graphicsContext.flush();
+    await expectAsync(engine.canvas).toEqualImage('src/spec/images/DebugSystemSpec/tilemap-debug.png');
+  });
 });

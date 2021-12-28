@@ -54,6 +54,8 @@ import { PointerEvent } from './Input/PointerEvent';
 import { WheelEvent } from './Input/WheelEvent';
 import { PointerComponent } from './Input/PointerComponent';
 import { ActionsComponent } from './Actions/ActionsComponent';
+import { Raster } from './Graphics/Raster';
+import { Text } from './Graphics/Text';
 
 /**
  * Type guard for checking if something is an Actor
@@ -477,16 +479,18 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public traits: Trait[] = [];
 
   /**
-   * Sets the color of the actor. A rectangle of this color will be
-   * drawn if no [[Drawable]] is specified as the actors drawing.
-   *
-   * The default is `null` which prevents a rectangle from being drawn.
+   * Sets the color of the actor's current graphic
    */
   public get color(): Color {
     return this._color;
   }
   public set color(v: Color) {
     this._color = v.clone();
+    const defaultLayer = this.graphics.layers.default;
+    const currentGraphic = defaultLayer.graphics[0]?.graphic;
+    if (currentGraphic instanceof Raster || currentGraphic instanceof Text) {
+      currentGraphic.color = this._color;
+    }
   }
   private _color: Color;
 

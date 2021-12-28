@@ -184,9 +184,7 @@ export abstract class Raster extends Graphic {
     return this._color;
   }
   public set color(value) {
-    if (!this._color?.equal(value)) {
-      this.flagDirty();
-    }
+    this.flagDirty();
     this._color = watch(value, () => this.flagDirty());
   }
 
@@ -199,9 +197,7 @@ export abstract class Raster extends Graphic {
     return this._strokeColor;
   }
   public set strokeColor(value) {
-    if (!this._strokeColor?.equal(value)) {
-      this.flagDirty();
-    }
+    this.flagDirty();
     this._strokeColor = watch(value, () => this.flagDirty());
   }
 

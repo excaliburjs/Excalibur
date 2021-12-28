@@ -1,4 +1,5 @@
 import { Engine } from './Engine';
+import { Screen } from './Screen';
 import { EasingFunction, EasingFunctions } from './Util/EasingFunctions';
 import { Vector, vec } from './Math/vector';
 import { Actor } from './Actor';
@@ -10,6 +11,7 @@ import { BoundingBox } from './Collision/BoundingBox';
 import { Logger } from './Util/Log';
 import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 import { watchAny } from './Util/Watch';
+import { Matrix } from './Math/matrix';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -237,6 +239,10 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
  *
  */
 export class Camera extends Class implements CanUpdate, CanInitialize {
+  public transform: Matrix = Matrix.identity();
+  public inverse: Matrix = Matrix.identity();
+
+
   protected _follow: Actor;
 
   private _cameraStrategies: CameraStrategy<any>[] = [];
@@ -274,6 +280,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
   /**
    * Current angular velocity
+   * @deprecated will be removed in v0.26.0, use angularVelocity
    */
   public rx: number = 0;
 
@@ -307,7 +314,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   public vel: Vector = Vector.Zero;
 
   /**
-   * GEt or set the camera's acceleration
+   * Get or set the camera's acceleration
    */
   public acc: Vector = Vector.Zero;
 
@@ -578,6 +585,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   private _engine: Engine;
+  private _screen: Screen;
   private _isInitialized = false;
   public get isInitialized() {
     return this._isInitialized;
@@ -586,12 +594,13 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   public _initialize(_engine: Engine) {
     if (!this.isInitialized) {
       this._engine = _engine;
+      this._screen = _engine.screen;
 
-      const currentRes = this._engine.screen.resolution;
+      const currentRes = this._screen.resolution;
       let center = vec(currentRes.width / 2, currentRes.height / 2);
       if (!this._engine.loadingComplete) {
         // If there was a loading screen, we peek the configured resolution
-        const res = this._engine.screen.peekResolution();
+        const res = this._screen.peekResolution();
         if (res) {
           center = vec(res.width / 2, res.height / 2);
         }
@@ -603,7 +612,6 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       if (!this._posChanged) {
         this.pos = center;
       }
-
       // First frame boostrap
 
       // Run strategies for first frame
@@ -611,6 +619,9 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
       // Setup the first frame viewport
       this.updateViewport();
+
+      // Ensure camera tx is correct
+      this.updateTransform();
 
       this.onInitialize(_engine);
       super.emit('initialize', new InitializeEvent(_engine, this));
@@ -734,6 +745,8 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
     this.updateViewport();
 
+    this.updateTransform();
+
     this._postupdate(_engine, delta);
   }
 
@@ -744,27 +757,33 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   public draw(ctx: CanvasRenderingContext2D): void;
   public draw(ctx: ExcaliburGraphicsContext): void;
   public draw(ctx: CanvasRenderingContext2D | ExcaliburGraphicsContext): void {
-    let canvasWidth = 0;
-    let canvasHeight = 0;
+    // Apply transform
     if (ctx instanceof CanvasRenderingContext2D) {
-      canvasWidth = ctx.canvas.width;
-      canvasHeight = ctx.canvas.height;
+      // TODO This will be removed in v0.26.0
+      const focus = this.getFocus();
+
+      // center the camera
+      const newCanvasWidth = this._screen.resolution.width / this.zoom;
+      const newCanvasHeight = this._screen.resolution.height / this.zoom;
+      const cameraPos = vec(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
+      ctx.scale(this.zoom, this.zoom);
+      ctx.translate(cameraPos.x, cameraPos.y);
     } else {
-      canvasWidth = ctx.width;
-      canvasHeight = ctx.height;
+      ctx.multiply(this.transform);
     }
+  }
 
-    const focus = this.getFocus();
-    const pixelRatio = this._engine ? this._engine.pixelRatio : 1;
-    const zoom = this.zoom;
+  public updateTransform() {
+    // center the camera
+    const newCanvasWidth = this._screen.resolution.width / this.zoom;
+    const newCanvasHeight = this._screen.resolution.height / this.zoom;
+    const cameraPos = vec(-this.x + newCanvasWidth / 2 + this._xShake, -this.y + newCanvasHeight / 2 + this._yShake);
 
-    const newCanvasWidth = canvasWidth / zoom / pixelRatio;
-    const newCanvasHeight = canvasHeight / zoom / pixelRatio;
-
-    const cameraPos = vec(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
-
-    ctx.scale(zoom, zoom);
-    ctx.translate(cameraPos.x, cameraPos.y);
+    // Calculate camera transform
+    this.transform.reset();
+    this.transform.scale(this.zoom, this.zoom);
+    this.transform.translate(cameraPos.x, cameraPos.y);
+    this.transform.getAffineInverse(this.inverse);
   }
 
   /* istanbul ignore next */

@@ -8,6 +8,7 @@ import { System, SystemType } from '../EntityComponentSystem/System';
 import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
 import { vec, Vector } from '../Math/vector';
 import { BodyComponent, CollisionSystem, CompositeCollider, GraphicsComponent, Particle, Util } from '..';
+import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 
 export class DebugSystem extends System<TransformComponent> {
   public readonly types = ['ex.transform'] as const;
@@ -50,6 +51,8 @@ export class DebugSystem extends System<TransformComponent> {
     let graphics: GraphicsComponent;
     const graphicsSettings = this._engine.debug.graphics;
 
+    let debugDraw: DebugGraphicsComponent;
+
     let body: BodyComponent;
     const bodySettings = this._engine.debug.body;
 
@@ -90,7 +93,7 @@ export class DebugSystem extends System<TransformComponent> {
       this._applyTransform(entity);
       if (tx) {
         if (txSettings.showAll || txSettings.showPosition) {
-          this._graphicsContext.debug.drawPoint(Vector.Zero, { size: 2, color: txSettings.positionColor });
+          this._graphicsContext.debug.drawPoint(Vector.Zero, { size: 4, color: txSettings.positionColor });
         }
         if (txSettings.showAll || txSettings.showPositionLabel) {
           this._graphicsContext.debug.drawText(`pos${tx.pos.toString(2)}`, cursor);
@@ -129,6 +132,11 @@ export class DebugSystem extends System<TransformComponent> {
           const bounds = graphics.localBounds;
           bounds.draw(this._graphicsContext, graphicsSettings.boundsColor);
         }
+      }
+
+      debugDraw = entity.get(DebugGraphicsComponent);
+      if (debugDraw) {
+        debugDraw.draw(this._graphicsContext);
       }
 
       body = entity.get(BodyComponent);

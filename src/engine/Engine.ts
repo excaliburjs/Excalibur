@@ -684,6 +684,7 @@ O|===|* >________________>\n\
     this.rootScene = this.currentScene = new Scene();
 
     this.addScene('root', this.rootScene);
+    (window as any).___EXCALIBUR_DEVTOOL = this;
   }
 
   /**

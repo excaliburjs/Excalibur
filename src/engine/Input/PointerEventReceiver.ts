@@ -42,8 +42,8 @@ export class PointerEventReceiver extends Class {
   public primary: PointerAbstraction = new PointerAbstraction();
 
   private _activeNativePointerIdsToNormalized = new Map<number, number>();
-  public lastFramePointerPosition = new Map<number, Vector>();
-  public currentFramePointerPositions = new Map<number, Vector>();
+  public lastFramePointerCoords = new Map<number, GlobalCoordinates>();
+  public currentFramePointerCoords = new Map<number, GlobalCoordinates>();
 
   public currentFramePointerDown = new Map<number, boolean>();
   public lastFramePointerDown = new Map<number, boolean>();
@@ -150,7 +150,7 @@ export class PointerEventReceiver extends Class {
    */
   public update() {
     this.lastFramePointerDown = new Map(this.currentFramePointerDown);
-    this.lastFramePointerPosition = new Map(this.currentFramePointerPositions);
+    this.lastFramePointerCoords = new Map(this.currentFramePointerCoords);
 
     for (const event of this.currentFrameDown) {
       this.emit('down', event);
@@ -188,7 +188,7 @@ export class PointerEventReceiver extends Class {
    */
   public clear() {
     for (const event of this.currentFrameUp) {
-      this.currentFramePointerPositions.delete(event.pointerId);
+      this.currentFramePointerCoords.delete(event.pointerId);
       const ids = this._activeNativePointerIdsToNormalized.entries();
       for (const [native, normalized] of ids) {
         if (normalized === event.pointerId) {
@@ -320,7 +320,7 @@ export class PointerEventReceiver extends Class {
         const coordinates = GlobalCoordinates.fromPagePosition(touch.pageX, touch.pageY, this.engine);
         const nativePointerId = i + 1;
         const pointerId = this._normalizePointerId(nativePointerId);
-        this.currentFramePointerPositions.set(pointerId, coordinates.worldPos);
+        this.currentFramePointerCoords.set(pointerId, coordinates);
         eventCoords.set(pointerId, coordinates);
       }
     } else {
@@ -333,7 +333,7 @@ export class PointerEventReceiver extends Class {
         pointerType = this._stringToPointerType(ev.pointerType);
       }
       const pointerId = this._normalizePointerId(nativePointerId);
-      this.currentFramePointerPositions.set(pointerId, coordinates.worldPos);
+      this.currentFramePointerCoords.set(pointerId, coordinates);
       eventCoords.set(pointerId, coordinates);
     }
 

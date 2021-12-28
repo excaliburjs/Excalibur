@@ -18,7 +18,9 @@ void main() {
     discard;
   }
 #endif
-  gl_FragColor = vec4(v_color.rgb, v_color.a * alpha);
   // "premultiply" the color by alpha
-  gl_FragColor.rgb *= gl_FragColor.a;
+  vec4 color = v_color;
+  color.a = color.a * alpha;
+  color.rgb = color.rgb * color.a;
+  gl_FragColor = color;
 }

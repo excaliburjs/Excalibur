@@ -2,196 +2,78 @@ import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
-import { Font } from '@excalibur';
 
-xdescribe('A label', () => {
+describe('A label', () => {
   let label: ex.Label;
   let engine: ex.Engine;
   let scene: ex.Scene;
 
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
-    engine = new ex.Engine({
+    engine = TestUtils.engine({
       width: 500,
-      height: 500,
-      suppressConsoleBootMessage: true,
-      suppressMinimumBrowserFeatureDetection: true
+      height: 500
     });
-
-    label = new ex.Label({text: 'Test string', x: 100, y: 100});
-    label.fontFamily = 'Verdana';
-    scene = new ex.Scene();
-    engine.addScene('root', scene);
-
-    scene.add(label);
   });
 
-  it('should have props set by constructor', () => {
-    const label = new ex.Label({
-      text: 'test text',
-      pos: new ex.Vector(1, 2),
-      font: new Font({
-        family: 'Verdana',
-        size: 12,
-        style: ex.FontStyle.Normal,
-        unit: ex.FontUnit.Px,
-        textAlign: ex.TextAlign.Left
+  it('exists', () => {
+    expect(ex.Label).toBeDefined();
+  });
+
+  it('can be constructed', () => {
+    const sut = new ex.Label({text: 'some text'});
+    expect(sut).not.toBeNull();
+  });
+
+  it('can be constructed with a font', () => {
+    const sut = new ex.Label({
+      text: 'some text',
+      color: ex.Color.Red,
+      font: new ex.Font({
+        color: ex.Color.Blue,
+        family: 'Open Sans',
+        size: 18,
+        quality: 1,
+        padding: 0
       })
     });
-
-    expect(label.text).toBe('test text');
-    expect(label.bold).toBe(true);
-    expect(label.pos.x).toBe(1);
-    expect(label.pos.y).toBe(2);
-    expect(label.spriteFont).toBe(null);
-    expect(label.fontFamily).toBe('Verdana');
-    expect(label.fontSize).toBe(12);
-    expect(label.fontStyle).toBe(ex.FontStyle.Normal);
-    expect(label.fontUnit).toBe(ex.FontUnit.Px);
-    expect(label.textAlign).toBe(ex.TextAlign.Left);
-    expect(label.maxWidth).toBe(200);
+    expect(sut.text).toBe('some text');
+    expect(sut.font.family).toBe('Open Sans');
+    expect(sut.font.color).toEqual(ex.Color.Blue);
+    expect(sut.color).toEqual(ex.Color.Red);
+    expect(sut.font.size).toBe(18);
+    expect(sut.font.quality).toBe(1);
+    expect(sut.font.padding).toBe(0);
   });
 
-  it('should be loaded', () => {
-    expect(ex.Label).toBeTruthy();
-  });
+  it('can be constructed with a spritefont', async () => {
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
-  it('should be loaded', () => {
-    expect(ex.Label).toBeTruthy();
-  });
+    await spriteFontImage.load();
 
-  it('should have text', () => {
-    expect(label.text).toBe('Test string');
-  });
-
-  it('should default to black', () => {
-    expect(label.color.toString()).toBe(ex.Color.Black.toString());
-  });
-
-  it('can change color', (done) => {
-    label.text = 'some blue text';
-    label.fontSize = 30;
-    label.color = ex.Color.Blue.clone();
-
-    expect(label.color.toString()).toBe(ex.Color.Blue.toString());
-
-    label.update(engine, 100);
-    label.draw(engine.ctx, 100);
-    expect(label.color.toString()).toBe(ex.Color.Blue.toString());
-
-    ensureImagesLoaded(engine.canvas, 'src/spec/images/LabelSpec/bluetext.png').then(([canvas, image]) => {
-      expect(canvas).toEqualImage(image, 1);
-      done();
+    const spriteFontSheet = ex.SpriteSheet.fromImageSource({
+      image: spriteFontImage,
+      grid: {
+        rows: 1,
+        columns: 16,
+        spriteWidth: 16,
+        spriteHeight: 16
+      }
     });
-  });
 
-  it('to enable italic fontStyle', (done) => {
-    label.text = 'some italic text';
-    label.fontSize = 30;
-    label.color = ex.Color.Black;
-    label.fontStyle = ex.FontStyle.Italic;
-    label.draw(engine.ctx, 100);
-
-    ensureImagesLoaded(engine.canvas, 'src/spec/images/LabelSpec/italictext-linux.png').then(([canvas, image]) => {
-      expect(canvas).toEqualImage(image, 0.98);
-      done();
+    const spriteFont = new ex.SpriteFont({
+      alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+      caseInsensitive: true,
+      spacing: -5,
+      spriteSheet: spriteFontSheet
     });
-  });
 
-  it('to enable oblique fontStyle', (done) => {
-    label.text = 'some oblique text';
-    label.fontSize = 30;
-    label.color = ex.Color.Black;
-    label.fontStyle = ex.FontStyle.Oblique;
-    label.draw(engine.ctx, 100);
-    ensureImagesLoaded(engine.canvas, 'src/spec/images/LabelSpec/obliquetext-linux.png').then(([canvas, image]) => {
-      expect(canvas).toEqualImage(image, 0.98);
-      done();
+    const sut = new ex.Label({
+      text: 'some text',
+      spriteFont: spriteFont
     });
-  });
-
-  it('to enable normal fontStyle', (done) => {
-    label.text = 'some normal text';
-    label.fontFamily = 'Arial';
-    label.fontSize = 30;
-    label.color = ex.Color.Black;
-    label.bold = false;
-    label.fontStyle = ex.FontStyle.Normal;
-
-    label.draw(engine.ctx, 100);
-    ensureImagesLoaded(engine.canvas, 'src/spec/images/LabelSpec/normaltext-linux.png').then(([canvas, image]) => {
-      expect(canvas).toEqualImage(image, 0.98);
-      done();
-    });
-  });
-
-  it('to enable bold text', (done) => {
-    label.text = 'some bold text';
-    label.fontFamily = 'Arial';
-    label.fontSize = 30;
-    label.color = ex.Color.Black;
-    label.bold = true;
-
-    label.draw(engine.ctx, 100);
-    ensureImagesLoaded(engine.canvas, 'src/spec/images/LabelSpec/boldtext-linux.png').then(([canvas, image]) => {
-      expect(canvas).toEqualImage(image, 0.98);
-      done();
-    });
-  });
-
-  it('to enable right aligned text', (done) => {
-    label.pos = ex.vec(200, 0);
-    label.text = 'some right aligned text';
-    label.fontSize = 30;
-    label.color = ex.Color.Blue;
-    label.textAlign = ex.TextAlign.Right;
-    label.draw(engine.ctx, 100);
-
-    ensureImagesLoaded(engine.canvas, 'src/spec/images/LabelSpec/righttext-linux.png').then(([canvas, image]) => {
-      expect(canvas).toEqualImage(image, 0.98);
-      done();
-    });
-  });
-
-  it('to enable left aligned text', (done) => {
-    label.pos = ex.vec(200, 0);
-    label.text = 'some left aligned text';
-    label.fontSize = 30;
-    label.color = ex.Color.Blue;
-    label.textAlign = ex.TextAlign.Left;
-    label.draw(engine.ctx, 100);
-
-    ensureImagesLoaded(engine.canvas, 'src/spec/images/LabelSpec/lefttext-linux.png').then(([canvas, image]) => {
-      expect(canvas).toEqualImage(image, 0.98);
-      done();
-    });
-  });
-
-  it('to enable center aligned text', (done) => {
-    label.pos = ex.vec(200, 0);
-    label.text = 'some center aligned text';
-    label.fontSize = 30;
-    label.color = ex.Color.Blue;
-    label.textAlign = ex.TextAlign.Center;
-    label.draw(engine.ctx, 100);
-
-    ensureImagesLoaded(engine.canvas, 'src/spec/images/LabelSpec/centertext-linux.png').then(([canvas, image]) => {
-      expect(canvas).toEqualImage(image, 0.98);
-      done();
-    });
-  });
-
-  xit('can measure text width', () => {
-    label.pos = ex.vec(200, 0);
-    label.text = 'some text to measure';
-    label.fontSize = 30;
-    label.color = ex.Color.Blue;
-    label.textAlign = ex.TextAlign.Center;
-    label.draw(engine.ctx, 100);
-    // if (isLinux()) {
-    //   expect(label.getTextWidth(engine.ctx)).toBeCloseTo(327.90625, 0.01);
-    // } else {
-    //   expect(label.getTextWidth(engine.ctx)).toBe(335);
-    // }
+    expect(sut.text).toBe('some text');
+    expect((sut as any)._spriteFont).toBe(spriteFont);
+    // expect(sut.spriteFont).toBe(spriteFont);
   });
 });

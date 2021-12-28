@@ -1,6 +1,6 @@
 import { ColliderComponent } from '../Collision/ColliderComponent';
 import { Engine } from '../Engine';
-import { System, TransformComponent, SystemType, Entity } from '../EntityComponentSystem';
+import { System, TransformComponent, SystemType, Entity, CoordPlane } from '../EntityComponentSystem';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Scene } from '../Scene';
 import { PointerComponent } from './PointerComponent';
@@ -21,6 +21,15 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
 
   private _engine: Engine;
   private _receiver: PointerEventReceiver;
+
+  /**
+   * Optionally override component configuration for all entities
+   */
+  public overrideUseColliderShape = false;
+  /**
+   * Optionally override component configuration for all entities
+   */
+  public overrideUseGraphicsBounds = false;
 
   public lastFrameEntityToPointers = new Map<number, number[]>();
   public currentFrameEntityToPointers = new Map<number, number[]>();
@@ -86,17 +95,19 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
     let pointer: PointerComponent;
 
     // TODO probably a spatial partition optimization here to quickly query bounds for pointer
+    // doesn't seem to cause issues tho for perf
+
     // Pre-process find entities under pointers
     for (const entity of entities) {
       transform = entity.get(TransformComponent);
       pointer = entity.get(PointerComponent) ?? new PointerComponent;
       // Check collider contains pointer
       collider = entity.get(ColliderComponent);
-      if (collider && pointer.useColliderShape) {
+      if (collider && (pointer.useColliderShape || this.overrideUseColliderShape)) {
         const geom = collider.get();
         if (geom) {
-          for (const [pointerId, pos] of this._receiver.currentFramePointerPositions.entries()) {
-            if (geom.contains(pos)) {
+          for (const [pointerId, pos] of this._receiver.currentFramePointerCoords.entries()) {
+            if (geom.contains(transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos)) {
               this.addPointerToEntity(entity, pointerId);
             }
           }
@@ -105,10 +116,10 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
 
       // Check graphics contains pointer
       graphics = entity.get(GraphicsComponent);
-      if (graphics && pointer.useGraphicsBounds) {
+      if (graphics && (pointer.useGraphicsBounds || this.overrideUseGraphicsBounds)) {
         const graphicBounds = graphics.localBounds.transform(transform.getGlobalMatrix());
-        for (const [pointerId, pos] of this._receiver.currentFramePointerPositions.entries()) {
-          if (graphicBounds.contains(pos)) {
+        for (const [pointerId, pos] of this._receiver.currentFramePointerCoords.entries()) {
+          if (graphicBounds.contains(transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos)) {
             this.addPointerToEntity(entity, pointerId);
           }
         }
