@@ -768,6 +768,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
   }
 
   private _calculateTransform() {
+    // TODO refactor this to use only transform?
     const focus = this.getFocus();
     const newCanvasWidth = this._screen.resolution.width / this.zoom;
     const newCanvasHeight = this._screen.resolution.height / this.zoom;
