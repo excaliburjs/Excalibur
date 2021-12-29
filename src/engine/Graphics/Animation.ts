@@ -1,11 +1,11 @@
 import { Graphic, GraphicOptions } from './Graphic';
-import { clamp } from '../Util/Util';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { EventDispatcher } from '../EventDispatcher';
 import { SpriteSheet } from './SpriteSheet';
 import { Logger } from '../Util/Log';
 import { Engine, LegacyDrawing } from '..';
 import { Sprite } from '.';
+import { clamp } from '../Math/util';
 
 export interface HasTick {
   /**

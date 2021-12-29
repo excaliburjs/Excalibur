@@ -1,113 +1,61 @@
 import { Vector } from '../Math/vector';
-import { Random } from '../Math/Random';
 import { Side } from '../Collision/Side';
-import { Clock } from '..';
+import { Clock } from './Clock';
+
+// TODO remove in v0.26.0
+// Re-export hack to deprecate import site gently
+import {
+  TwoPI as lTwoPI,
+  clamp as lclamp,
+  randomInRange as lrandomInRange,
+  randomIntInRange as lrandomIntInRange,
+  canonicalizeAngle as lcanonicalizeAngle,
+  toDegrees as ltoDegrees,
+  toRadians as ltoRadians,
+  range as lrange
+} from '../Math/util';
 
 /**
- * Two PI constant
+ * @deprecated ex.Util.TwoPI import site will be removed in v0.26.0, use ex.TwoPI
  */
-export const TwoPI: number = Math.PI * 2;
-
+export const TwoPI = lTwoPI;
 
 /**
- * Encode a string in base64
- * @deprecated This will be removed in v0.26.0
+ * @deprecated ex.Util.clamp import site will be removed in v0.26.0, use ex.clamp
  */
-export function base64Encode(inputStr: string) {
-  const b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-  let outputStr = '';
-  let i = 0;
-
-  while (i < inputStr.length) {
-    //all three "& 0xff" added below are there to fix a known bug
-    //with bytes returned by xhr.responseText
-    const byte1 = inputStr.charCodeAt(i++) & 0xff;
-    const byte2 = inputStr.charCodeAt(i++) & 0xff;
-    const byte3 = inputStr.charCodeAt(i++) & 0xff;
-
-    const enc1 = byte1 >> 2;
-    const enc2 = ((byte1 & 3) << 4) | (byte2 >> 4);
-
-    let enc3, enc4;
-    if (isNaN(byte2)) {
-      enc3 = enc4 = 64;
-    } else {
-      enc3 = ((byte2 & 15) << 2) | (byte3 >> 6);
-      if (isNaN(byte3)) {
-        enc4 = 64;
-      } else {
-        enc4 = byte3 & 63;
-      }
-    }
-
-    outputStr += b64.charAt(enc1) + b64.charAt(enc2) + b64.charAt(enc3) + b64.charAt(enc4);
-  }
-
-  return outputStr;
-}
+export const clamp = lclamp;
 
 /**
- * Sugar that will use `nullishVal` if it's not null or undefined. Simulates the `??` operator
- * @param nullishVal
- * @param defaultVal
+ * @deprecated ex.Util.randomInRange import site will be removed in v0.26.0, use ex.randomInRange
  */
-export function nullish<T>(nullishVal: T | undefined | null, defaultVal: T): T {
-  return nullishVal !== null && nullishVal !== undefined ? nullishVal : defaultVal;
-}
+export const randomInRange = lrandomInRange;
 
 /**
- * Clamps a value between a min and max inclusive
+ * @deprecated ex.Util.randomIntInRange import site will be removed in v0.26.0, use ex.randomIntInRange
  */
-export function clamp(val: number, min: number, max: number) {
-  return Math.min(Math.max(min, val), max);
-}
+export const randomIntInRange = lrandomIntInRange;
 
 /**
- * Find a random floating point number in range
+ * @deprecated ex.Util.canonicalizeAngle import site will be removed in v0.26.0, use ex.canonicalizeAngle
  */
-export function randomInRange(min: number, max: number, random: Random = new Random()): number {
-  return random ? random.floating(min, max) : min + Math.random() * (max - min);
-}
+export const canonicalizeAngle = lcanonicalizeAngle;
 
 /**
- * Find a random integer in a range
+ * @deprecated ex.Util.toDegrees import site will be removed in v0.26.0, use ex.toDegrees
  */
-export function randomIntInRange(min: number, max: number, random: Random = new Random()): number {
-  return random ? random.integer(min, max) : Math.round(randomInRange(min, max));
-}
+export const toDegrees = ltoDegrees;
 
 /**
- * Convert an angle to be the equivalent in the range [0, 2PI]
+ * @deprecated ex.Util.toRadians import site will be removed in v0.26.0, use ex.toRadians
  */
-export function canonicalizeAngle(angle: number): number {
-  let tmpAngle = angle;
-  if (angle > TwoPI) {
-    while (tmpAngle > TwoPI) {
-      tmpAngle -= TwoPI;
-    }
-  }
-
-  if (angle < 0) {
-    while (tmpAngle < 0) {
-      tmpAngle += TwoPI;
-    }
-  }
-  return tmpAngle;
-}
+export const toRadians = ltoRadians;
 
 /**
- * Convert radians to degrees
+ * @deprecated ex.Util.range import site will be removed in v0.26.0, use ex.range
  */
-export function toDegrees(radians: number): number {
-  return (180 / Math.PI) * radians;
-}
+export const range = lrange;
 
-/**
- * Convert degrees to radians
- */
-export function toRadians(degrees: number): number {
-  return (degrees / 180) * Math.PI;
-}
+// TODO END REMOVE in v0.26.0
 
 /**
  * Find the screen position of an HTML element
@@ -377,14 +325,6 @@ export class Collection<T> {
 export function fail(message: never): never {
   throw new Error(message);
 }
-
-/**
- * Generate a range of numbers
- * For example: range(0, 5) -> [0, 1, 2, 3, 4, 5]
- * @param from inclusive
- * @param to inclusive
- */
-export const range = (from: number, to: number) => Array.from(new Array(to - from + 1), (_x, i) => i + from);
 
 /**
  * Create a promise that resolves after a certain number of milliseconds

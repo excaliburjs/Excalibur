@@ -1,6 +1,6 @@
 import { sign } from './util';
 import { Vector, vec } from './vector';
-import { canonicalizeAngle } from '../Util/Util';
+import { canonicalizeAngle } from './util';
 
 export enum MatrixLocations {
   X = 12,

@@ -1,5 +1,5 @@
 import { Audio } from '../../Interfaces/Audio';
-import * as Util from '../../Util/Util';
+import { clamp } from '../../Math/util';
 import { AudioContextFactory } from './AudioContext';
 
 /**
@@ -27,7 +27,7 @@ export class WebAudioInstance implements Audio {
   }
 
   public set volume(value: number) {
-    value = Util.clamp(value, 0, 1.0);
+    value = clamp(value, 0, 1.0);
 
     this._volume = value;
 

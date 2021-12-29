@@ -7,7 +7,7 @@ import { Engine } from '../Engine';
 import { Loadable } from '../Interfaces/Index';
 import { ImageSource } from '../Graphics/ImageSource';
 import { LegacyDrawing } from '..';
-import { range } from '../Util/Util';
+import { range } from '../Math/util';
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
  * [[Texture]] is an [[Loadable]] which means it can be passed to a [[Loader]]

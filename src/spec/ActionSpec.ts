@@ -1,7 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
-import { canonicalizeAngle } from '../engine/Util/Util';
 
 describe('Action', () => {
   let actor: ex.Actor;
@@ -570,13 +569,13 @@ describe('Action', () => {
 
       scene.update(engine, 1000);
       //rotation is currently incremented by rx delta ,so will be negative while moving counterclockwise
-      expect(actor.rotation).toBe(canonicalizeAngle((-1 * Math.PI) / 2));
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-1 * Math.PI) / 2));
 
       scene.update(engine, 2000);
-      expect(actor.rotation).toBe(canonicalizeAngle((-3 * Math.PI) / 2));
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-3 * Math.PI) / 2));
 
       scene.update(engine, 500);
-      expect(actor.rotation).toBe(canonicalizeAngle(Math.PI / 2));
+      expect(actor.rotation).toBe(ex.canonicalizeAngle(Math.PI / 2));
       expect(actor.angularVelocity).toBe(0);
     });
 
@@ -601,19 +600,19 @@ describe('Action', () => {
 
       actor.actions.rotateTo(Math.PI / 2, Math.PI / 2, ex.RotationType.CounterClockwise);
       scene.update(engine, 2000);
-      expect(actor.rotation).toBe(canonicalizeAngle(-Math.PI));
+      expect(actor.rotation).toBe(ex.canonicalizeAngle(-Math.PI));
 
       scene.update(engine, 1000);
-      expect(actor.rotation).toBe(canonicalizeAngle((-3 * Math.PI) / 2));
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-3 * Math.PI) / 2));
 
       scene.update(engine, 500);
-      expect(actor.rotation).toBe(canonicalizeAngle(Math.PI / 2));
+      expect(actor.rotation).toBe(ex.canonicalizeAngle(Math.PI / 2));
       expect(actor.angularVelocity).toBe(0);
 
       // rotating back to 0, starting at PI / 2
       actor.actions.rotateTo(0, Math.PI / 2, ex.RotationType.CounterClockwise);
       scene.update(engine, 1000);
-      expect(actor.rotation).toBe(canonicalizeAngle(0));
+      expect(actor.rotation).toBe(ex.canonicalizeAngle(0));
 
       scene.update(engine, 1);
       expect(actor.angularVelocity).toBe(0);
@@ -656,10 +655,10 @@ describe('Action', () => {
       actor.actions.rotateBy(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
 
       scene.update(engine, 1000);
-      expect(actor.rotation).toBe(canonicalizeAngle((-1 * Math.PI) / 2));
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-1 * Math.PI) / 2));
 
       scene.update(engine, 2000);
-      expect(actor.rotation).toBe(canonicalizeAngle((-3 * Math.PI) / 2));
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-3 * Math.PI) / 2));
 
       scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 2);
@@ -688,10 +687,10 @@ describe('Action', () => {
       actor.actions.rotateBy(Math.PI / 2, Math.PI / 2, ex.RotationType.LongestPath);
 
       scene.update(engine, 1000);
-      expect(actor.rotation).toBe(canonicalizeAngle((-1 * Math.PI) / 2));
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-1 * Math.PI) / 2));
 
       scene.update(engine, 2000);
-      expect(actor.rotation).toBe(canonicalizeAngle((-3 * Math.PI) / 2));
+      expect(actor.rotation).toBe(ex.canonicalizeAngle((-3 * Math.PI) / 2));
 
       scene.update(engine, 500);
       expect(actor.rotation).toBe(Math.PI / 2);

@@ -14,6 +14,7 @@ import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/Index';
 import { Sprite } from './Graphics/Sprite';
 import { LegacyDrawing } from '.';
+import { clamp, randomInRange } from './Math/util';
 
 /**
  * An enum that represents the types of emitter nozzles
@@ -155,21 +156,21 @@ export class ParticleImpl extends Entity {
     }
 
     if (this.fadeFlag) {
-      this.opacity = Util.clamp(this._aRate * this.life, 0.0001, 1);
+      this.opacity = clamp(this._aRate * this.life, 0.0001, 1);
     }
 
     if (this.startSize > 0 && this.endSize > 0) {
-      this.particleSize = Util.clamp(
+      this.particleSize = clamp(
         this.sizeRate * delta + this.particleSize,
         Math.min(this.startSize, this.endSize),
         Math.max(this.startSize, this.endSize)
       );
     }
 
-    this._currentColor.r = Util.clamp(this._currentColor.r + this._rRate * delta, 0, 255);
-    this._currentColor.g = Util.clamp(this._currentColor.g + this._gRate * delta, 0, 255);
-    this._currentColor.b = Util.clamp(this._currentColor.b + this._bRate * delta, 0, 255);
-    this._currentColor.a = Util.clamp(this.opacity, 0.0001, 1);
+    this._currentColor.r = clamp(this._currentColor.r + this._rRate * delta, 0, 255);
+    this._currentColor.g = clamp(this._currentColor.g + this._gRate * delta, 0, 255);
+    this._currentColor.b = clamp(this._currentColor.b + this._bRate * delta, 0, 255);
+    this._currentColor.a = clamp(this.opacity, 0.0001, 1);
 
     if (this.focus) {
       const accel = this.focus
@@ -205,7 +206,7 @@ export class ParticleImpl extends Entity {
     }
 
     ctx.save();
-    this._currentColor.a = Util.clamp(this.opacity, 0.0001, 1);
+    this._currentColor.a = clamp(this.opacity, 0.0001, 1);
     ctx.fillStyle = this._currentColor.toString();
     ctx.beginPath();
     ctx.arc(0, 0, this.particleSize, 0, Math.PI * 2);
@@ -540,17 +541,17 @@ export class ParticleEmitter extends Actor {
     let ranX = 0;
     let ranY = 0;
 
-    const angle = Util.randomInRange(this.minAngle, this.maxAngle, this.random);
-    const vel = Util.randomInRange(this.minVel, this.maxVel, this.random);
-    const size = this.startSize || Util.randomInRange(this.minSize, this.maxSize, this.random);
+    const angle = randomInRange(this.minAngle, this.maxAngle, this.random);
+    const vel = randomInRange(this.minVel, this.maxVel, this.random);
+    const size = this.startSize || randomInRange(this.minSize, this.maxSize, this.random);
     const dx = vel * Math.cos(angle);
     const dy = vel * Math.sin(angle);
 
     if (this.emitterType === EmitterType.Rectangle) {
-      ranX = Util.randomInRange(0, this.width, this.random);
-      ranY = Util.randomInRange(0, this.height, this.random);
+      ranX = randomInRange(0, this.width, this.random);
+      ranY = randomInRange(0, this.height, this.random);
     } else if (this.emitterType === EmitterType.Circle) {
-      const radius = Util.randomInRange(0, this.radius, this.random);
+      const radius = randomInRange(0, this.radius, this.random);
       ranX = radius * Math.cos(angle);
       ranY = radius * Math.sin(angle);
     }
@@ -576,7 +577,7 @@ export class ParticleEmitter extends Actor {
     }
     p.particleRotationalVelocity = this.particleRotationalVelocity;
     if (this.randomRotation) {
-      p.currentRotation = Util.randomInRange(0, Math.PI * 2, this.random);
+      p.currentRotation = randomInRange(0, Math.PI * 2, this.random);
     }
     if (this.focus) {
       p.focus = this.focus.add(new Vector(this.pos.x, this.pos.y));

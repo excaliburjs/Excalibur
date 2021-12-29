@@ -8,7 +8,7 @@ import { Component } from '../EntityComponentSystem/Component';
 import { CollisionGroup } from './Group/CollisionGroup';
 import { EventDispatcher } from '../EventDispatcher';
 import { createId, Id } from '../Id';
-import { clamp } from '../Util/Util';
+import { clamp } from '../Math/util';
 import { ColliderComponent } from './ColliderComponent';
 
 export interface BodyComponentOptions {
