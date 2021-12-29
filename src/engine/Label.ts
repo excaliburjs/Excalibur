@@ -249,13 +249,6 @@ export class Label extends Actor {
     this.text = text ?? this.text;
     this.font = font ?? this.font;
     this.spriteFont = spriteFont ?? this.spriteFont;
-    const bounds = this._text.localBounds;
-    if (!spriteFont) {
-      // font's draw different than spritefonts at the moment
-      this.collider.useBoxCollider(bounds.width, bounds.height, vec(0, 1));
-    } else {
-      this.collider.useBoxCollider(bounds.width, bounds.height, vec(0, 0));
-    }
     this._text.color = color ?? this.color;
     const gfx = this.get(GraphicsComponent);
     gfx.anchor = Vector.Zero;
