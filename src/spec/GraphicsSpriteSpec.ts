@@ -49,6 +49,58 @@ describe('A Sprite Graphic', () => {
     expect(clone.image).toEqual(sut.image);
   });
 
+  it('correctly calculates size based on scale', () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
+      image,
+      sourceView: {
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16
+      },
+      destSize: {
+        width: 100,
+        height: 100
+      }
+    });
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(100, 100, ex.Vector.Zero));
+    sut.scale = ex.vec(2, 2);
+    expect(sut.width).toBe(200);
+    expect(sut.height).toBe(200);
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(200, 200, ex.Vector.Zero));
+  });
+
+  it('correctly sets size based on scale', () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
+      image,
+      sourceView: {
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16
+      },
+      destSize: {
+        width: 100,
+        height: 100
+      }
+    });
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(100, 100, ex.Vector.Zero));
+    sut.scale = ex.vec(2, 2);
+    sut.width = 120;
+    sut.height = 110;
+    expect(sut.width).toBe(120);
+    expect(sut.height).toBe(110);
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(120, 110, ex.Vector.Zero));
+    sut.scale = ex.vec(1, 1);
+    expect(sut.width).toBe(60);
+    expect(sut.height).toBe(55);
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(60, 55, ex.Vector.Zero));
+    expect(sut.destSize.width).toBe(60);
+    expect(sut.destSize.height).toBe(55);
+  });
+
   it('can specify a source/dest viewof an image with default width and height', async () => {
     const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const sut = new ex.Sprite({

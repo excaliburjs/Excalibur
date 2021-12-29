@@ -136,6 +136,23 @@ export class Animation extends Graphic implements HasTick {
     });
   }
 
+  public override get width(): number {
+    const maybeFrame = this.currentFrame;
+    if (maybeFrame) {
+      return Math.abs(maybeFrame.graphic.width * this.scale.x);
+    }
+    return 0;
+  }
+
+  public override get height(): number {
+    const maybeFrame = this.currentFrame;
+    if (maybeFrame) {
+      return Math.abs(maybeFrame.graphic.height * this.scale.y);
+    }
+    return 0;
+  }
+
+
   /**
    * Create an Animation from a [[SpriteSheet]], a list of indices into the sprite sheet, a duration per frame
    * and optional [[AnimationStrategy]]
@@ -297,8 +314,6 @@ export class Animation extends Graphic implements HasTick {
     const maybeFrame = this.frames[this._currentFrame];
     if (maybeFrame && !this._done) {
       this._timeLeftInFrame = maybeFrame?.duration || this.frameDuration;
-      this.width = maybeFrame.graphic?.width;
-      this.height = maybeFrame.graphic?.height;
       this.events.emit('frame', maybeFrame as any);
     }
   }
@@ -376,14 +391,6 @@ export class Animation extends Graphic implements HasTick {
     this._timeLeftInFrame -= elapsedMilliseconds * this.timeScale;
     if (this._timeLeftInFrame <= 0) {
       this.goToFrame(this._nextFrame());
-    }
-    this._updateDimensions();
-  }
-
-  private _updateDimensions() {
-    if (this.currentFrame) {
-      this.width = this.currentFrame.graphic?.width;
-      this.height = this.currentFrame.graphic?.height;
     }
   }
 

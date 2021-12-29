@@ -116,6 +116,15 @@ describe('A Text Graphic', () => {
     expect((clone.font as ex.Font).family).toBe('some-font-family');
   });
 
+  it('correctly calculates size based on scale', () => {
+    const sut = new ex.Text({text: 'some text'});
+    const currentBounds = sut.localBounds;
+    sut.scale = ex.vec(2, 2);
+    expect(sut.width).toBe(currentBounds.width * 2);
+    expect(sut.height).toBe(currentBounds.height * 2);
+    expect(sut.localBounds).toEqual(currentBounds.scale(ex.vec(2, 2)));
+  });
+
   it('can write text', async () => {
     const sut = new ex.Text({
       text: 'green text',

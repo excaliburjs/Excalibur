@@ -71,7 +71,7 @@ export class Text extends Graphic {
     if (this._textWidth === 0) {
       this._calculateDimension();
     }
-    return this._textWidth;
+    return this._textWidth * this.scale.x;
   }
 
   private _textHeight: number = 0;
@@ -79,7 +79,7 @@ export class Text extends Graphic {
     if (this._textHeight === 0) {
       this._calculateDimension();
     }
-    return this._textHeight;
+    return this._textHeight * this.scale.y;
   }
 
   private _calculateDimension() {
@@ -89,7 +89,7 @@ export class Text extends Graphic {
   }
 
   public get localBounds(): BoundingBox {
-    return this.font.measureText(this._text);
+    return this.font.measureText(this._text).scale(this.scale);
   }
 
   protected override _rotate(_ex: ExcaliburGraphicsContext) {
@@ -109,7 +109,6 @@ export class Text extends Graphic {
     }
     this.font.flipHorizontal = this.flipHorizontal;
     this.font.flipVertical = this.flipVertical;
-    this.font.scale = this.scale;
     this.font.rotation = this.rotation;
     this.font.origin = this.origin;
     this.font.opacity = this.opacity;

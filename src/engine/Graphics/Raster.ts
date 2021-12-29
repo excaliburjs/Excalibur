@@ -122,9 +122,10 @@ export abstract class Raster extends Graphic {
    * Any `padding`s set will be factored into the width
    */
   public get width() {
-    return this._getTotalWidth();
+    return Math.abs(this._getTotalWidth() * this.scale.x);
   }
   public set width(value: number) {
+    value /= Math.abs(this.scale.x);
     this._bitmap.width = value;
     this._originalWidth = value;
     this.flagDirty();
@@ -138,10 +139,11 @@ export abstract class Raster extends Graphic {
    * Any `padding` set will be factored into the height
    */
   public get height() {
-    return this._getTotalHeight();
+    return Math.abs(this._getTotalHeight() * this.scale.y);
   }
 
   public set height(value: number) {
+    value /= Math.abs(this.scale.y);
     this._bitmap.height = value;
     this._originalHeight = value;
     this.flagDirty();

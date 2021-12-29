@@ -72,6 +72,32 @@ describe('A Graphics Animation', () => {
     expect(anim.frames.length).toBe(4);
   });
 
+  it('correctly calculates size based on scale', () => {
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const anim = ex.Animation.fromSpriteSheet(ss, [0, 1, 2, 3], 100, ex.AnimationStrategy.Freeze);
+
+    expect(anim.width).toBe(10);
+    expect(anim.height).toBe(10);
+    expect(anim.localBounds).toEqual(ex.BoundingBox.fromDimension(10, 10, ex.Vector.Zero));
+    anim.scale = ex.vec(2, 2);
+    expect(anim.width).toBe(20);
+    expect(anim.height).toBe(20);
+    expect(anim.localBounds).toEqual(ex.BoundingBox.fromDimension(20, 20, ex.Vector.Zero));
+    anim.goToFrame(1);
+    expect(anim.width).toBe(20);
+    expect(anim.height).toBe(20);
+    expect(anim.localBounds).toEqual(ex.BoundingBox.fromDimension(20, 20, ex.Vector.Zero));
+  });
+
   it('can be reversed', () => {
     const sourceImage = new ex.ImageSource('some/image.png');
     const ss = ex.SpriteSheet.fromImageSource({

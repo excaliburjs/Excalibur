@@ -51,6 +51,30 @@ describe('A Raster', () => {
     expect(sut.height).toBe(50);
   });
 
+  it('correctly calculates size based on scale', () => {
+    const sut = new TestRaster();
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(50, 50, ex.Vector.Zero));
+    sut.scale = ex.vec(2, 2);
+    expect(sut.width).toBe(100);
+    expect(sut.height).toBe(100);
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(100, 100, ex.Vector.Zero));
+  });
+
+  it('correctly sets size based on scale', () => {
+    const sut = new TestRaster();
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(50, 50, ex.Vector.Zero));
+    sut.scale = ex.vec(2, 2);
+    sut.width = 120;
+    sut.height = 110;
+    expect(sut.width).toBe(120);
+    expect(sut.height).toBe(110);
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(120, 110, ex.Vector.Zero));
+    sut.scale = ex.vec(1, 1);
+    expect(sut.width).toBe(60);
+    expect(sut.height).toBe(55);
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(60, 55, ex.Vector.Zero));
+  });
+
   it('flags dirty when color is changed', () => {
     const sut = new TestRaster();
     sut.draw(ctx, 0, 0);

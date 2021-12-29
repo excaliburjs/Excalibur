@@ -47,19 +47,21 @@ export class Sprite extends Graphic {
   }
 
   public override get width(): number {
-    return this.destSize.width * this.scale.x;
+    return Math.abs(this.destSize.width * this.scale.x);
   }
 
   public override get height(): number {
-    return this.destSize.height * this.scale.y;
+    return Math.abs(this.destSize.height * this.scale.y);
   }
 
   public override set width(newWidth: number) {
+    newWidth /= Math.abs(this.scale.x);
     this.destSize.width = newWidth;
     super.width = Math.ceil(this.destSize.width);
   }
 
   public override set height(newHeight: number) {
+    newHeight /= Math.abs(this.scale.y);
     this.destSize.height = newHeight;
     super.height = Math.ceil(this.destSize.height);
   }
@@ -75,8 +77,8 @@ export class Sprite extends Graphic {
     this.destSize.width = this.destSize?.width || this.sourceView?.width || nativeWidth;
     this.destSize.height = this.destSize?.height || this.sourceView?.height || nativeHeight;
 
-    this.width = Math.ceil(this.destSize.width);
-    this.height = Math.ceil(this.destSize.height);
+    this.width = Math.ceil(this.destSize.width) * this.scale.x;
+    this.height = Math.ceil(this.destSize.height) * this.scale.y;
   }
 
   protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {

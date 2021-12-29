@@ -255,4 +255,128 @@ describe('A Graphics ECS Component', () => {
     expect(typeof layers).toBe('object');
     expect(layers.length).toBe(2);
   });
+
+  it('correctly calculates graphics bounds (rasters)', () => {
+    const sut = new ex.GraphicsComponent();
+    const rec = new ex.Rectangle({
+      width: 40,
+      height: 40
+    });
+    rec.scale = ex.vec(3, 3);
+    sut.add(rec);
+
+    const rec2 = new ex.Rectangle({
+      width: 200,
+      height: 10
+    });
+    rec2.scale = ex.vec(2, 2);
+    sut.add(rec2);
+
+    expect(sut.localBounds).toEqual(new ex.BoundingBox({
+      left: -200,
+      right: 200,
+      top: -60,
+      bottom: 60
+    }));
+  });
+
+  it('correctly calculates graphics bounds (rasters + offset)', () => {
+    const sut = new ex.GraphicsComponent();
+    const rec = new ex.Rectangle({
+      width: 40,
+      height: 40
+    });
+    rec.scale = ex.vec(3, 3);
+    sut.add(rec);
+
+    const rec2 = new ex.Rectangle({
+      width: 200,
+      height: 10
+    });
+    rec2.scale = ex.vec(2, 2);
+    sut.show(rec2, { offset: ex.vec(100, 0)});
+
+    expect(sut.localBounds).toEqual(new ex.BoundingBox({
+      left: -100,
+      right: 300,
+      top: -60,
+      bottom: 60
+    }));
+  });
+
+  it('correctly calculates graphics bounds (rasters + anchor)', () => {
+    const sut = new ex.GraphicsComponent();
+    const rec = new ex.Rectangle({
+      width: 40,
+      height: 40
+    });
+    rec.scale = ex.vec(3, 3);
+    sut.add(rec);
+
+    const rec2 = new ex.Rectangle({
+      width: 200,
+      height: 10
+    });
+    rec2.scale = ex.vec(2, 2);
+    sut.show(rec2, { anchor: ex.vec(1, 1)});
+
+    expect(sut.localBounds).toEqual(new ex.BoundingBox({
+      left: -400,
+      right: 60,
+      top: -60,
+      bottom: 60
+    }));
+  });
+
+  it('correctly calculates graphics bounds (sprite)', () => {
+    const sut = new ex.GraphicsComponent();
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sprite = new ex.Sprite({
+      image,
+      sourceView: {
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16
+      },
+      destSize: {
+        width: 100,
+        height: 100
+      }
+    });
+    sprite.scale = ex.vec(4, 4);
+    sut.add(sprite);
+
+    expect(sut.localBounds).toEqual(new ex.BoundingBox({
+      left: -200,
+      right: 200,
+      top: -200,
+      bottom: 200
+    }));
+  });
+
+  it('correctly calculates graphics bounds (animation)', () => {
+    const sut = new ex.GraphicsComponent();
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const anim = ex.Animation.fromSpriteSheet(ss, [0, 1, 2, 3], 100, ex.AnimationStrategy.Freeze);
+
+    anim.scale = ex.vec(4, 4);
+    sut.add(anim);
+
+    expect(sut.localBounds).toEqual(new ex.BoundingBox({
+      left: -20,
+      right: 20,
+      top: -20,
+      bottom: 20
+    }));
+  });
 });

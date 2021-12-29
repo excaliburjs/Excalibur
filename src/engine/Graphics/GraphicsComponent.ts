@@ -401,8 +401,8 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
           offset = options.offset;
         }
         const bounds = graphic.localBounds;
-        const offsetX = -bounds.width * graphic.scale.x * anchor.x + offset.x;
-        const offsetY = -bounds.height * graphic.scale.y * anchor.y + offset.y;
+        const offsetX = -bounds.width *  anchor.x + offset.x;
+        const offsetY = -bounds.height *  anchor.y + offset.y;
         bb = graphic?.localBounds.translate(vec(offsetX + layer.offset.x, offsetY + layer.offset.y)).combine(bb);
       }
     }
