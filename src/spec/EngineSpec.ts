@@ -73,6 +73,17 @@ describe('The engine', () => {
     });
   });
 
+  it('should update the frame stats every tick', () => {
+    engine = TestUtils.engine();
+    const testClock = engine.clock as ex.TestClock;
+    testClock.start();
+    expect(engine.stats.currFrame.id).toBe(0);
+    testClock.step(1);
+    expect(engine.stats.currFrame.id).toBe(1);
+    testClock.step(1);
+    expect(engine.stats.currFrame.id).toBe(2);
+  });
+
   it('should have a default resolution to SVGA (800x600) if none specified', () => {
     const engine = new ex.Engine();
     expect(engine.screen.displayMode).toBe(ex.DisplayMode.FitScreen);

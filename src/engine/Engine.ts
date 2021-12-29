@@ -1283,6 +1283,7 @@ O|===|* >________________>\n\
     this.stats.currFrame.duration.draw = afterDraw - afterUpdate;
 
     this.emit('postframe', new PostFrameEvent(this, this.stats.currFrame));
+    this.stats.prevFrame.reset(this.stats.currFrame);
   }
 
   /**

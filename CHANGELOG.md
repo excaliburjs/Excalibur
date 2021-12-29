@@ -51,6 +51,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed unreleased issue where clock implementation was not updating frame id
 - Fixed alpha pre-multiply math in multiple shaders
 - Fixed label initialization of fonts, passing a font in the constructor work
 - Fixed bug in sprite bounds calculations not taking scale into account
