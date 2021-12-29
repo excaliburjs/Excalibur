@@ -16,14 +16,14 @@ describe('Utility functions', () => {
   });
 
   it('can clamp a number to a maximum and minimum', () => {
-    expect(ex.Util.clamp(0, 10, 20)).toBe(10);
-    expect(ex.Util.clamp(15, 10, 20)).toBe(15);
-    expect(ex.Util.clamp(30, 10, 20)).toBe(20);
-    expect(ex.Util.clamp(-Infinity, 0, 1)).toBe(0);
-    expect(ex.Util.clamp(Infinity, 0, 1)).toBe(1);
-    expect(ex.Util.clamp(12, -Infinity, Infinity)).toBe(12);
-    expect(ex.Util.clamp(12, -Infinity, 100)).toBe(12);
-    expect(ex.Util.clamp(12, -100, Infinity)).toBe(12);
+    expect(ex.clamp(0, 10, 20)).toBe(10);
+    expect(ex.clamp(15, 10, 20)).toBe(15);
+    expect(ex.clamp(30, 10, 20)).toBe(20);
+    expect(ex.clamp(-Infinity, 0, 1)).toBe(0);
+    expect(ex.clamp(Infinity, 0, 1)).toBe(1);
+    expect(ex.clamp(12, -Infinity, Infinity)).toBe(12);
+    expect(ex.clamp(12, -Infinity, 100)).toBe(12);
+    expect(ex.clamp(12, -100, Infinity)).toBe(12);
   });
 
   describe('removeItemFromArray function', () => {
@@ -40,20 +40,6 @@ describe('Utility functions', () => {
     it('should return false when item to delete is not present', () => {
       const arrayToRemove = ['Godfrey', 'Crizzo', 'Fullstack'];
       expect(ex.Util.removeItemFromArray('Lannister', arrayToRemove)).toBe(false);
-    });
-  });
-
-  describe('nullish', () => {
-    it('should return the default if null or undefined', () => {
-      const defaultNull = ex.Util.nullish(null, 1);
-      const defaultUndefined = ex.Util.nullish(undefined, 2);
-      expect(defaultNull).toBe(1);
-      expect(defaultUndefined).toBe(2);
-    });
-
-    it('should return a value if not null or undefined', () => {
-      const value = ex.Util.nullish('value', 'otherValue');
-      expect(value).toBe('value');
     });
   });
 });

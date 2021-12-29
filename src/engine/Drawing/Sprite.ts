@@ -5,9 +5,9 @@ import { Drawable, DrawOptions } from '../Interfaces/Drawable';
 import { Texture } from './Texture';
 import { Vector } from '../Math/vector';
 import { Logger } from '../Util/Log';
-import { clamp } from '../Util/Util';
 import { Configurable } from '../Configurable';
 import { obsolete } from '../Util/Decorators';
+import { clamp } from '../Math/util';
 
 /**
  * @hidden

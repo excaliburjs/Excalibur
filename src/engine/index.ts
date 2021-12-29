@@ -64,7 +64,6 @@ export { traits as Traits };
 // ex.Util namespaces
 import * as util from './Util/Index';
 export { util as Util };
-export { clamp, range, toDegrees, toRadians, randomInRange, randomIntInRange, canonicalizeAngle } from './Util/Index';
 
 export * from './Util/Browser';
 export * from './Util/Decorators';

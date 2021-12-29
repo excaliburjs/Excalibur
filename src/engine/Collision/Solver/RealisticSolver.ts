@@ -1,5 +1,5 @@
 import { CollisionPostSolveEvent, CollisionPreSolveEvent, PostCollisionEvent, PreCollisionEvent } from '../../Events';
-import { clamp } from '../../Util/Util';
+import { clamp } from '../../Math/util';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { CollisionType } from '../CollisionType';
 import { ContactConstraintPoint } from './ContactConstraintPoint';

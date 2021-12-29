@@ -7,7 +7,8 @@ import { CoordPlane, Entity, TransformComponent } from '../EntityComponentSystem
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
 import { vec, Vector } from '../Math/vector';
-import { BodyComponent, CollisionSystem, CompositeCollider, GraphicsComponent, Particle, Util } from '..';
+import { toDegrees } from '../Math/util';
+import { BodyComponent, CollisionSystem, CompositeCollider, GraphicsComponent, Particle } from '..';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 
 export class DebugSystem extends System<TransformComponent> {
@@ -117,7 +118,7 @@ export class DebugSystem extends System<TransformComponent> {
             txSettings.rotationColor,
             2
           );
-          this._graphicsContext.debug.drawText(`rot deg(${Util.toDegrees(tx.rotation).toFixed(2)})`, cursor);
+          this._graphicsContext.debug.drawText(`rot deg(${toDegrees(tx.rotation).toFixed(2)})`, cursor);
           cursor = cursor.add(lineHeight);
         }
 

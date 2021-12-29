@@ -5,9 +5,9 @@ import { Color } from '../Color';
 import { Drawable, DrawOptions } from '../Interfaces/Drawable';
 import { Vector } from '../Math/vector';
 import { Engine } from '../Engine';
-import * as Util from '../Util/Util';
 import { Configurable } from '../Configurable';
 import { obsolete } from '../Util/Decorators';
+import { clamp } from '../Math/util';
 
 /**
  * @deprecated Use [[HasTick]]
@@ -333,7 +333,7 @@ export class AnimationImpl implements Drawable, HasTick {
     }
 
     if (this.freezeFrame !== -1 && this.currentFrame >= this.sprites.length) {
-      currSprite = this.sprites[Util.clamp(this.freezeFrame, 0, this.sprites.length - 1)];
+      currSprite = this.sprites[clamp(this.freezeFrame, 0, this.sprites.length - 1)];
       currSprite.draw(animOptions);
     }
 

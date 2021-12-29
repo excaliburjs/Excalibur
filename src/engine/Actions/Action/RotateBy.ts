@@ -1,9 +1,9 @@
 import { Action } from '../Action';
 import { RotationType } from '../RotationType';
-import * as Util from '../../Util/Util';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { Entity } from '../../EntityComponentSystem/Entity';
+import { TwoPI } from '../../Math/util';
 
 export class RotateBy implements Action {
   private _tx: TransformComponent;
@@ -40,7 +40,7 @@ export class RotateBy implements Action {
       this._end = this._start + this._offset;
 
       const distance1 = Math.abs(this._end - this._start);
-      const distance2 = Util.TwoPI - distance1;
+      const distance2 = TwoPI - distance1;
       if (distance1 > distance2) {
         this._shortDistance = distance2;
         this._longDistance = distance1;
@@ -49,7 +49,7 @@ export class RotateBy implements Action {
         this._longDistance = distance2;
       }
 
-      this._shortestPathIsPositive = (this._start - this._end + Util.TwoPI) % Util.TwoPI >= Math.PI;
+      this._shortestPathIsPositive = (this._start - this._end + TwoPI) % TwoPI >= Math.PI;
 
       switch (this._rotationType) {
         case RotationType.ShortestPath:

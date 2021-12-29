@@ -381,7 +381,7 @@ describe('A game actor', () => {
   });
 
   it('is rotated along with its parent', () => {
-    const rotation = ex.Util.toRadians(90);
+    const rotation = ex.toRadians(90);
 
     actor.pos = ex.vec(10, 10);
     actor.rotation = rotation;
@@ -396,7 +396,7 @@ describe('A game actor', () => {
   });
 
   it('is rotated along with its grandparent', () => {
-    const rotation = ex.Util.toRadians(90);
+    const rotation = ex.toRadians(90);
 
     actor.pos = ex.vec(10, 10);
     actor.rotation = rotation;
@@ -448,7 +448,7 @@ describe('A game actor', () => {
   });
 
   it('is rotated and scaled along with its parent', () => {
-    const rotation = ex.Util.toRadians(90);
+    const rotation = ex.toRadians(90);
 
     actor.pos = ex.vec(10, 10);
     actor.scale = ex.vec(2, 2);
@@ -464,7 +464,7 @@ describe('A game actor', () => {
   });
 
   it('is rotated and scaled along with its grandparent', () => {
-    const rotation = ex.Util.toRadians(90);
+    const rotation = ex.toRadians(90);
 
     actor.pos = ex.vec(10, 10);
     actor.scale = ex.vec(2, 2);
