@@ -1,1 +1,4 @@
 16.13.1
+# currently need legacy peers until we can replace istanbul-instrumenter-loader :(
+# which is currently no longer supported
+legacy-peer-deps=true
