@@ -15,7 +15,7 @@ import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { Logger } from '../../Util/Log';
 import { LineRenderer } from './line-renderer';
-import { ImageRenderer } from './image-renderer';
+// import { ImageRenderer } from './image-renderer';
 import { PointRenderer } from './point-renderer';
 import { Canvas } from '../Canvas';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
@@ -24,6 +24,10 @@ import { ScreenDimension } from '../../Screen';
 import { RenderTarget } from './render-target';
 import { ScreenRenderer } from './screen-renderer';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
+import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
+import { RendererV2 } from './renderer-v2';
+import { ImageRendererV2 } from './image-renderer/image-renderer-v2';
+import { TextureLoader } from './texture-loader';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -75,11 +79,13 @@ export interface WebGLGraphicsContextInfo {
 }
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
+  private _renderers: Map<string, RendererV2> = new Map<string, RendererV2>();
   private _renderTarget: RenderTarget;
 
   private _postProcessTargets: RenderTarget[] = [];
 
   private _screenRenderer: ScreenRenderer;
+
   private _postprocessors: PostProcessor[] = [];
   /**
    * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
@@ -117,7 +123,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
    * @internal
    */
-  public __imageRenderer: ImageRenderer;
+  // public __imageRenderer: ImageRenderer;
 
   public snapToPixel: boolean = true;
 
@@ -139,6 +145,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public get height() {
     return this.__gl.canvas.height;
+  }
+
+  public get ortho(): Matrix {
+    return this._ortho;
   }
 
   /**
@@ -166,6 +176,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       depth: true,
       powerPreference: 'high-performance'
     });
+    ExcaliburWebGLContextAccessor.register(this.__gl);
+    TextureLoader.registerContext(this.__gl);
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = smoothing ?? this.smoothing;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
@@ -190,9 +202,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
     gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
+    // Setup builtin renderers
+    this.register(new ImageRendererV2());
+
     this.__pointRenderer = new PointRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
     this.__lineRenderer = new LineRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
-    this.__imageRenderer = new ImageRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
+    // this.__imageRenderer = new ImageRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
     this._screenRenderer = new ScreenRenderer(gl);
 
     this._renderTarget = new RenderTarget({
@@ -223,6 +238,23 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.__ctx = this._canvas.ctx;
   }
 
+  public register<T extends RendererV2>(renderer: T) {
+    this._renderers.set(renderer.type, renderer);
+    renderer.initialize(this.__gl, this);
+  }
+
+
+  public draw<TRenderer extends RendererV2>(name: TRenderer['type'], ...args: Parameters<TRenderer['draw']>) {
+    // this._renderTarget.use();
+    const renderer = this._renderers.get(name);
+    if (renderer) {
+      renderer.draw(...args);
+    } else {
+      throw Error(`No renderer with name ${name} has been registered`);
+    }
+    // this._renderTarget.disable();
+  }
+
   public resetTransform(): void {
     this._transform.current = Matrix.identity();
   }
@@ -232,7 +264,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._ortho = this._ortho = Matrix.ortho(0, resolution.width, resolution.height, 0, 400, -400);
     this.__pointRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
     this.__lineRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
-    this.__imageRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
+    // this.__imageRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
 
     this._renderTarget.setResolution(gl.canvas.width, gl.canvas.height);
     this._postProcessTargets[0].setResolution(gl.canvas.width, gl.canvas.height);
@@ -284,19 +316,20 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       }
       return;
     }
-    this.__imageRenderer.addImage(image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+    this.draw<ImageRendererV2>('ex.image', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+    // this.__imageRenderer.addImage(image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
   }
 
-  public drawLine(start: Vector, end: Vector, color: Color, thickness = 1) {
-    this.__imageRenderer.addLine(color, start, end, thickness);
+  public drawLine(_start: Vector, _end: Vector, _color: Color, _thickness = 1) {
+    // this.__imageRenderer.addLine(color, start, end, thickness);
   }
 
-  public drawRectangle(pos: Vector, width: number, height: number, color: Color) {
-    this.__imageRenderer.addRectangle(color, pos, width, height);
+  public drawRectangle(_pos: Vector, _width: number, _height: number, _color: Color) {
+    // this.__imageRenderer.addRectangle(color, pos, width, height);
   }
 
-  public drawCircle(pos: Vector, radius: number, color: Color) {
-    this.__imageRenderer.addCircle(pos, radius, color);
+  public drawCircle(_pos: Vector, _radius: number, _color: Color) {
+    // this.__imageRenderer.addCircle(pos, radius, color);
   }
 
   debug = new ExcaliburGraphicsContextWebGLDebug(this);
@@ -358,7 +391,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.
     gl.clear(gl.COLOR_BUFFER_BIT);
-    this._renderTarget.disable();
     GraphicsDiagnostics.clear();
   }
 
@@ -370,7 +402,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     // render target captures all draws and redirects to the render target
     this._renderTarget.use();
-    this.__imageRenderer.render();
+    for (const renderer of this._renderers.values()) {
+      renderer.flush();
+    }
+    // this.__imageRenderer.render();
     this.__lineRenderer.render();
     this.__pointRenderer.render();
     this._renderTarget.disable();
