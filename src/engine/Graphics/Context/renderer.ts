@@ -1,6 +1,5 @@
 import { BatchCommand } from './batch';
 import { Shader } from './shader';
-// import { Pool, Poolable } from './pool';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { Pool, Poolable } from '../../Util/Pool';
 

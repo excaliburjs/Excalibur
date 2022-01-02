@@ -1,0 +1,215 @@
+import * as ex from '@excalibur';
+import { ExcaliburMatchers } from 'excalibur-jasmine';
+
+describe('A ShaderV2', () => {
+  beforeAll(() => {
+    jasmine.addMatchers(ExcaliburMatchers);
+  });
+
+  beforeEach(() => {
+    const canvas = document.createElement('canvas');
+    // Side effect of making ex.ExcaliburWebGLContextAccessor.gl available
+    const _ctx = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvas
+    });
+  })
+
+  it('exists', () => {
+    expect(ex.ShaderV2).toBeDefined();
+  });
+
+  it('can be constructed & compiled with shader source', () => {
+    const gl = ex.ExcaliburWebGLContextAccessor.gl;
+    const sut = new ex.ShaderV2({
+      vertexSource: `
+      attribute vec4 a_position;
+      attribute vec3 a_otherposition;
+      uniform bool u_bool;
+      void main() {
+        if (u_bool) {
+          gl_Position = a_position + vec4(a_otherposition, 1.0);
+        } else {
+          gl_Position = vec4(1.0, 0, 0, 1.0);
+        }
+      }`,
+      fragmentSource: `
+      void main() {
+        gl_FragColor = vec4(1.0, 0, 0, 1.0);
+      }`
+    });
+    expect(sut.compiled).toBe(false);
+    sut.compile();
+    expect(sut.compiled).toBe(true);
+    expect(sut.attributes['a_position']).toEqual({
+      name: 'a_position',
+      glType: gl.FLOAT,
+      size: 4,
+      normalized: false,
+      location: sut.attributes['a_position'].location
+    });
+    expect(sut.attributes['a_otherposition']).toEqual({
+      name: 'a_otherposition',
+      glType: gl.FLOAT,
+      size: 3,
+      normalized: false,
+      location: sut.attributes['a_otherposition'].location
+    });
+    expect(sut.uniforms['u_bool']).toEqual({
+      name: 'u_bool',
+      glType: gl.BOOL,
+      location: sut.uniforms['u_bool'].location
+    });
+  });
+
+  it('can fail compiling vertex', () => {
+    const gl = ex.ExcaliburWebGLContextAccessor.gl;
+    const sut = new ex.ShaderV2({
+      vertexSource: `
+      uniform int u_int;
+      // nonsense shader for testing
+      void main() {
+        gl_Position = vec4(1.0, 0, 0, 1.0 + u_int);
+      }`,
+      fragmentSource: `
+      void main() {
+        gl_FragColor = vec4(1.0, 0, 0, 1.0);
+      }`
+    });
+    expect(() => {
+      sut.compile();
+    }).toThrowMatching((e:Error) => {
+      return e.message.includes('vertex')
+    });
+  });
+
+  it('can fail compiling fragment', () => {
+    const gl = ex.ExcaliburWebGLContextAccessor.gl;
+    const sut = new ex.ShaderV2({
+      vertexSource: `
+      uniform int u_int;
+      // nonsense shader for testing
+      void main() {
+        gl_Position = vec4(1.0, 0, 0, u_int);
+      }`,
+      fragmentSource: `
+      void main() {
+        gl_FragColor = vec4(1.0, 0, 0);
+      }`
+    });
+    expect(() => {
+      sut.compile();
+    }).toThrowMatching((e:Error) => {
+      return e.message.includes('fragment')
+    });
+  });
+
+  it('must be compiled and shader.use() to set uniforms', () => {
+    const gl = ex.ExcaliburWebGLContextAccessor.gl;
+    const sut = new ex.ShaderV2({
+      vertexSource: `
+      uniform int u_int;
+      // nonsense shader for testing
+      void main() {
+        gl_Position = vec4(1.0, 0, 0, float(u_int));
+      }`,
+      fragmentSource: `
+      void main() {
+        gl_FragColor = vec4(1.0, 0, 0, 1.0);
+      }`
+    });
+
+    expect(() => {
+      sut.setUniform('uniform1i', 'u_int', 10)
+    }).toThrowError('Must compile shader before setting a uniform uniform1i:u_int');
+
+    sut.compile();
+
+    expect(() => {
+      sut.setUniform('uniform1i', 'u_int', 10)
+    }).toThrowError('Currently accessed shader instance is not the current active shader in WebGL, must call `shader.use()` before setting uniforms');
+
+    sut.use();
+
+    expect(() => {
+      sut.setUniform('uniform1i', 'u_int', 10)
+    }).not.toThrow();
+  });
+
+  it('can set uniforms', () => {
+    const gl = ex.ExcaliburWebGLContextAccessor.gl;
+    const sut = new ex.ShaderV2({
+      vertexSource: `
+      attribute vec4 a_position;
+      attribute vec3 a_otherposition;
+      uniform int u_int;
+      uniform int u_intarray[4];
+      uniform float u_float;
+      uniform float u_floatarray[5];
+      uniform vec2 u_vec;
+      uniform bool u_bool;
+      uniform mat4 u_mat;
+      uniform int u_unused;
+      // nonsense shader for testing
+      void main() {
+        if (u_bool) {
+          gl_Position = a_position + vec4(a_otherposition, u_float + float(u_int));
+        } else {
+          gl_Position = u_mat * vec4(1.0, u_vec.x, u_vec.y, u_floatarray[1]);
+        }
+        gl_Position = vec4(float(u_intarray[0]), float(u_intarray[1]), float(u_intarray[2]), float(u_intarray[3]));
+      }`,
+      fragmentSource: `
+      void main() {
+        gl_FragColor = vec4(1.0, 0, 0, 1.0);
+      }`
+    });
+
+    sut.compile();
+    sut.use();
+
+    sut.setUniformInt('u_int', 0);
+    sut.setUniformIntArray('u_intarray', [0, 1, 2, 3]);
+    sut.setUniformFloat('u_float', 5.5);
+    sut.setUniformFloatArray('u_floatarray', [5.5, 4.2]);
+    sut.setUniformFloatVector('u_vec', ex.vec(1, 2));
+    sut.setUniformBoolean('u_bool', false);
+    const matrix = ex.Matrix.identity();
+    sut.setUniformMatrix('u_mat', matrix);
+    sut.setUniform('uniformMatrix4fv', 'u_mat', false, matrix.data);
+
+    expect(() => {
+      sut.setUniformFloat('u_doesntexist', 42);
+    }).toThrowError('Uniform uniform1f:u_doesntexist doesn\'t exist or is not used in the shader source code, unused uniforms are optimized away by most browsers');
+    
+    expect(() => {
+      sut.setUniformInt('u_unused', 42);
+    }).toThrowError('Uniform uniform1i:u_unused doesn\'t exist or is not used in the shader source code, unused uniforms are optimized away by most browsers');
+  });
+
+  it('can have textures set', () => {
+    const gl = ex.ExcaliburWebGLContextAccessor.gl;
+    const sut = new ex.ShaderV2({
+      vertexSource: `
+      uniform int u_int;
+      // nonsense shader for testing
+      void main() {
+        gl_Position = vec4(1.0, 0, 0, float(u_int));
+      }`,
+      fragmentSource: `
+      void main() {
+        gl_FragColor = vec4(1.0, 0, 0, 1.0);
+      }`
+    });
+
+    sut.compile();
+    const tex = gl.createTexture();
+
+    spyOn(gl, "activeTexture").and.callThrough();
+    spyOn(gl, "bindTexture").and.callThrough();
+
+    sut.setTexture(5, tex);
+
+    expect(gl.activeTexture).toHaveBeenCalledWith(gl.TEXTURE0 + 5);
+    expect(gl.bindTexture).toHaveBeenCalledWith(gl.TEXTURE_2D, tex);
+  });
+});
