@@ -25,8 +25,9 @@ void main() {
   vec4 color = v_color;
   vec4 strokeColor = v_strokeColor;
 
-  // circle border is at length 1.0 
+  // circle border is at radius 1.0 
   // dist is > 0 when inside the circle 
+  float d = length(uv);
   float dist = 1.0 - length(uv);
 
   // Fade based on fwidth
@@ -34,10 +35,10 @@ void main() {
 
   // if dist is greater than 0 step to 1;
   // when we cross this 0 threshold add a smooth fade
-  float fill = smoothstep(0.0, fade, dist);
+  float fill = smoothstep(-fade/2.0, fade/2.0, dist);
 
   // if dist is greater than the stroke thickness step to 1
-  float stroke = smoothstep(v_strokeThickness + fade, v_strokeThickness, dist);
+  float stroke = 1.0 - smoothstep(v_strokeThickness, v_strokeThickness + fade, dist);
 
   strokeColor.a *= fill * stroke;
   strokeColor.rgb *= strokeColor.a;
@@ -45,7 +46,7 @@ void main() {
   color.a *= fill * (1.0 - stroke);
   color.rgb *= color.a;
 
-  vec4 finalColor = color + strokeColor;//mix(vec4(0.0), (color + strokeColor), fillAlpha);
+  vec4 finalColor = mix(vec4(0.0), (color + strokeColor), fill);
   finalColor.rgb = finalColor.rgb * v_opacity;
   finalColor.a = finalColor.a * v_opacity;
   gl_FragColor = finalColor;
