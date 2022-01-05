@@ -154,15 +154,17 @@ export interface ExcaliburGraphicsContext {
    * @param height
    * @param color
    */
-  drawRectangle(pos: Vector, width: number, height: number, color: Color): void;
+  drawRectangle(pos: Vector, width: number, height: number, color: Color, borderRadius?: number, stroke?: Color, strokeThickness?: number): void;
 
   /**
-   * Draw a solid circle to the Excalibur Graphics context
+   * Draw a circle to the Excalibur Graphics context
    * @param pos
    * @param radius
    * @param color
+   * @param stroke Optionally specify the stroke color
+   * @param thickness
    */
-  drawCircle(pos: Vector, radius: number, color: Color): void;
+  drawCircle(pos: Vector, radius: number, color: Color, stroke?: Color, thickness?: number): void;
 
   /**
    * Save the current state of the canvas to the stack (transforms and opacity)

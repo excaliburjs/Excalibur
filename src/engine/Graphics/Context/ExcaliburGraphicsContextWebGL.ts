@@ -28,6 +28,8 @@ import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
 import { RendererV2 } from './renderer-v2';
 import { ImageRendererV2 } from './image-renderer/image-renderer-v2';
 import { TextureLoader } from './texture-loader';
+import { RectangleRenderer } from './rectangle-renderer/rectangle-renderer';
+import { CircleRenderer } from './circle-renderer/circle-renderer';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -204,6 +206,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     // Setup builtin renderers
     this.register(new ImageRendererV2());
+    this.register(new RectangleRenderer());
+    this.register(new CircleRenderer());
 
     this.__pointRenderer = new PointRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
     this.__lineRenderer = new LineRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
@@ -317,19 +321,19 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       return;
     }
     this.draw<ImageRendererV2>('ex.image', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
-    // this.__imageRenderer.addImage(image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
   }
 
-  public drawLine(_start: Vector, _end: Vector, _color: Color, _thickness = 1) {
-    // this.__imageRenderer.addLine(color, start, end, thickness);
+  public drawLine(start: Vector, end: Vector, color: Color, thickness = 1) {
+    const rectangleRenderer = this._renderers.get('ex.rectangle') as RectangleRenderer;
+    rectangleRenderer.drawLine(start, end, color, thickness);
   }
 
-  public drawRectangle(_pos: Vector, _width: number, _height: number, _color: Color) {
-    // this.__imageRenderer.addRectangle(color, pos, width, height);
+  public drawRectangle(pos: Vector, width: number, height: number, color: Color, borderRadius?: number, stroke?: Color, strokeThickness?: number) {
+    this.draw<RectangleRenderer>('ex.rectangle', pos, width, height, color, borderRadius, stroke, strokeThickness);
   }
 
-  public drawCircle(_pos: Vector, _radius: number, _color: Color) {
-    // this.__imageRenderer.addCircle(pos, radius, color);
+  public drawCircle(pos: Vector, radius: number, color: Color, stroke?: Color, thickness?: number) {
+    this.draw<CircleRenderer>('ex.circle', pos, radius, color, stroke, thickness);
   }
 
   debug = new ExcaliburGraphicsContextWebGLDebug(this);

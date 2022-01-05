@@ -246,7 +246,7 @@ export class CircleCollider extends Collider {
   public debug(ex: ExcaliburGraphicsContext, color: Color) {
     const tx = this._transform as TransformComponent;
     const pos = tx?.globalPos ? tx?.globalPos.add(this.offset) : this.offset;
-    ex.drawCircle(pos, this.radius, color);
+    ex.drawCircle(pos, this.radius, Color.Transparent, color, 2);
   }
 
   /**

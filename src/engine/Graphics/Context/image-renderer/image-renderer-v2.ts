@@ -12,7 +12,7 @@ import vert from './image-renderer-v2.vert.glsl';
 
 export class ImageRendererV2 implements RendererV2 {
   public readonly type = 'ex.image';
-  public readonly priority: number = 0;
+  public priority: number = 0;
 
   private _MAX_IMAGES: number = 10922; // max(uint16) / 6 verts
   private _MAX_TEXTURES: number = 0;
@@ -41,8 +41,9 @@ export class ImageRendererV2 implements RendererV2 {
       vertexSource: vert
     });
     this._shader.compile();
-    this._shader.use();
+
     // setup uniforms
+    this._shader.use();
     this._shader.setUniformMatrix('u_matrix', context.ortho);
     // Initialize texture slots to [0, 1, 2, 3, 4, .... maxGPUTextures]
     this._shader.setUniformIntArray(
@@ -157,11 +158,26 @@ export class ImageRendererV2 implements RendererV2 {
     // transform based on current context
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
+    const snapToPixel = this._context.snapToPixel;
 
     const topleft = transform.multv([dest[0], dest[1]]);
     const topRight = transform.multv([dest[0] + width, dest[1]]);
     const bottomLeft = transform.multv([dest[0], dest[1] + height]);
     const bottomRight = transform.multv([dest[0] + width, dest[1] + height]);
+
+    if (snapToPixel) {
+      topleft[0] = ~~topleft[0];
+      topleft[1] = ~~topleft[1];
+
+      topRight[0] = ~~topRight[0];
+      topRight[1] = ~~topRight[1];
+
+      bottomLeft[0] = ~~bottomLeft[0];
+      bottomLeft[1] = ~~bottomLeft[1];
+
+      bottomRight[0] = ~~bottomRight[0];
+      bottomRight[1] = ~~bottomRight[1];
+    }
 
     const textureId = this._getTextureIdForImage(image);
     const potWidth = ensurePowerOfTwo(image.width || width);
@@ -213,7 +229,7 @@ export class ImageRendererV2 implements RendererV2 {
     // Bind the shader
     this._shader.use();
 
-    // Bind the layout and upload data
+    // Bind the memory layout and upload data
     this._layout.use(true);
 
     // Update ortho matrix uniform
