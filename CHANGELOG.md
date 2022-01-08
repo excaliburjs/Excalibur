@@ -23,6 +23,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added ability to build custom renderer plugins that are accessible to the `ex.ExcaliburGraphicsContext.draw<TCustomRenderer>(...)`
+- Added ability to draw circles and rectangles with outlines! `ex.ExcaliburGraphicsContext.drawCircle(...)/drawRectangle(...)` and 
 - Added `ex.CoordPlane` can be set in the `new ex.Actor({coordPlane: CoordPlane.Screen})` constructor
 - Added convenience feature, setting the color, sets the color on default graphic if applicable
 - Added a `DebugGraphicsComponent` for doing direct debug draw in the `DebugSystem`
@@ -51,6 +53,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue [#2157] when compiling in TS strict mode complaining about `ex.Poolable`
 - Fixed issue where scaled graphics were not calculating the correct bounds
 - Fixed unreleased issue where clock implementation was not updating frame id
 - Fixed alpha pre-multiply math in multiple shaders
@@ -82,7 +85,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Refactor camera/screen interaction to utilize transforms instead of bespoke coordinate conversion
 ### Changed
 
-- Chaned the debug system to separate displaying the debug position point (`game.debug.transform.showPosition = true`) and debug position label (`game.debug.transform.showPositionLabel = true`)
+- Updated the webgl primitives to make building `ex.Shader`s, `ex.VertexBuffer`s, and `ex.VertexLayout`s much easier 
+- Broke up the internal monolithic shader into separate internal renderer plugins
+- Changed the debug system to separate displaying the debug position point (`game.debug.transform.showPosition = true`) and debug position label (`game.debug.transform.showPositionLabel = true`)
 - `ex.ColorBlindCorrector` is renamed to `ex.ColorBlindnessPostProcessor`, and `ex.ColorBlindness` is renamed to `ex.ColorBlindnessMode`
    - Color blindness can still be corrected or simulated:
       * `game.debug.colorBlindMode.correct(ex.ColorBlindnessMode.Deuteranope)`
