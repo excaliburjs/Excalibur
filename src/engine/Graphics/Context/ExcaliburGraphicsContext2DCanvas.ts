@@ -202,12 +202,21 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.restore();
   }
 
-  public drawCircle(pos: Vector, radius: number, color: Color) {
+  public drawCircle(pos: Vector, radius: number, color: Color, stroke?: Color, thickness?: number) {
     this.__ctx.save();
     this.__ctx.beginPath();
+    if (stroke) {
+      this.__ctx.strokeStyle = stroke.toString();
+    }
+    if (thickness) {
+      this.__ctx.lineWidth = thickness;
+    }
     this.__ctx.fillStyle = color.toString();
     this.__ctx.arc(this.snapToPixel ? ~~pos.x : pos.x, this.snapToPixel ? ~~pos.y : pos.y, radius, 0, Math.PI * 2);
     this.__ctx.fill();
+    if (stroke) {
+      this.__ctx.stroke();
+    }
     this.__ctx.closePath();
     this.__ctx.restore();
   }
