@@ -1,4 +1,4 @@
-import { ExcaliburWebGLContextAccessor } from "./webgl-adapter";
+import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
 
 export interface VertexBufferOptions {
   /**
@@ -7,7 +7,7 @@ export interface VertexBufferOptions {
   size: number;
   /**
    * If the vertices never change switching 'static' can be more efficient on the gpu
-   * 
+   *
    * Default is 'dynamic'
    */
   type?: 'static' | 'dynamic';
@@ -15,7 +15,7 @@ export interface VertexBufferOptions {
 
 /**
  * Helper around vertex buffer to simplify creating and uploading geometry
- * 
+ *
  * Under the hood uses Float32Array
  */
 export class VertexBuffer {
@@ -32,7 +32,7 @@ export class VertexBuffer {
 
   /**
    * If the vertices never change switching 'static' can be more efficient on the gpu
-   * 
+   *
    * Default is 'dynamic'
    */
   public type: 'static' | 'dynamic' = 'dynamic';
@@ -48,16 +48,16 @@ export class VertexBuffer {
    * Bind this vertex buffer
    */
   bind() {
-      const gl = this._gl;
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+    const gl = this._gl;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
   }
 
   /**
    * Upload vertex buffer geometry to the GPU
    */
   upload() {
-      const gl = this._gl;
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-      gl.bufferData(gl.ARRAY_BUFFER, this.bufferData, this.type === 'static' ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW);
+    const gl = this._gl;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this.bufferData, this.type === 'static' ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW);
   }
 }

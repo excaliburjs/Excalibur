@@ -45,7 +45,7 @@ describe('A VertexBuffer', () => {
       size: 42
     });
     const gl = ex.ExcaliburWebGLContextAccessor.gl;
-    spyOn(gl, "bindBuffer").and.callThrough();
+    spyOn(gl, 'bindBuffer').and.callThrough();
 
     sut.bind();
     expect(gl.bindBuffer).toHaveBeenCalledWith(gl.ARRAY_BUFFER, sut.buffer);
@@ -56,8 +56,8 @@ describe('A VertexBuffer', () => {
       size: 42
     });
     const gl = ex.ExcaliburWebGLContextAccessor.gl;
-    spyOn(gl, "bindBuffer").and.callThrough();
-    spyOn(gl, "bufferData").and.callThrough();
+    spyOn(gl, 'bindBuffer').and.callThrough();
+    spyOn(gl, 'bufferData').and.callThrough();
 
     sut.upload();
     expect(gl.bindBuffer).toHaveBeenCalledWith(gl.ARRAY_BUFFER, sut.buffer);

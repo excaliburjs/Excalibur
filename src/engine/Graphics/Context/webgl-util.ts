@@ -28,12 +28,11 @@ export function ensurePowerOfTwo(x: number): number {
 
 /**
  * Return the size of the GlType in bytes
- * @param gl 
- * @param type 
- * @returns 
+ * @param gl
+ * @param type
  */
 export function getGlTypeSizeBytes(gl: WebGLRenderingContext, type: number): number {
-  switch(type) {
+  switch (type) {
     case gl.FLOAT:
       return 4;
     case gl.SHORT:
@@ -44,7 +43,7 @@ export function getGlTypeSizeBytes(gl: WebGLRenderingContext, type: number): num
       return 1;
     case gl.UNSIGNED_BYTE:
       return 1;
-    default: 
+    default:
       return 1;
   }
 }
@@ -52,13 +51,13 @@ export function getGlTypeSizeBytes(gl: WebGLRenderingContext, type: number): num
 
 /**
  * Based on the type return the number of attribute components
- * 
+ *
  * https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer
- * @param type 
- * @returns 
+ * @param gl
+ * @param type
  */
 export function getAttributeComponentSize(gl: WebGLRenderingContext, type: number): number {
-  switch(type) {
+  switch (type) {
     case gl.LOW_FLOAT:
     case gl.HIGH_FLOAT:
     case gl.FLOAT:
@@ -84,13 +83,12 @@ export function getAttributeComponentSize(gl: WebGLRenderingContext, type: numbe
 /**
  * Based on the attribute return the corresponding supported attrib pointer type
  * https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer
- * 
- * @param gl 
- * @param type 
- * @returns 
+ *
+ * @param gl
+ * @param type
  */
 export function getAttributePointerType(gl: WebGLRenderingContext, type: number) {
-  switch(type) {
+  switch (type) {
     case gl.LOW_FLOAT:
     case gl.HIGH_FLOAT:
     case gl.FLOAT:

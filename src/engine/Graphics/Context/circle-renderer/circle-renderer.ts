@@ -1,11 +1,11 @@
-import { Color } from "../../../Color";
-import { vec, Vector } from "../../../Math/vector";
-import { ExcaliburGraphicsContextWebGL } from "../ExcaliburGraphicsContextWebGL";
-import { QuadIndexBuffer } from "../quad-index-buffer";
-import { RendererV2 } from "../renderer-v2";
-import { ShaderV2 } from "../shader-v2";
-import { VertexBuffer } from "../vertex-buffer";
-import { VertexLayout } from "../vertex-layout";
+import { Color } from '../../../Color';
+import { vec, Vector } from '../../../Math/vector';
+import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import { QuadIndexBuffer } from '../quad-index-buffer';
+import { RendererV2 } from '../renderer-v2';
+import { ShaderV2 } from '../shader-v2';
+import { VertexBuffer } from '../vertex-buffer';
+import { VertexLayout } from '../vertex-layout';
 
 import frag from './circle-renderer.frag.glsl';
 import vert from './circle-renderer.vert.glsl';
@@ -14,7 +14,7 @@ export class CircleRenderer implements RendererV2 {
   public readonly type = 'ex.circle';
   public priority: number = 0;
 
-  private _MAX_CIRCLES: number = 10922; // max(uint16) / 6 verts
+  private _maxCircles: number = 10922; // max(uint16) / 6 verts
 
   private _shader: ShaderV2;
   private _context: ExcaliburGraphicsContextWebGL;
@@ -41,7 +41,7 @@ export class CircleRenderer implements RendererV2 {
     this._shader.setUniformMatrix('u_matrix', context.ortho);
 
     this._buffer = new VertexBuffer({
-      size: 14 * this._MAX_CIRCLES,
+      size: 14 * this._maxCircles,
       type: 'dynamic'
     });
 
@@ -54,15 +54,15 @@ export class CircleRenderer implements RendererV2 {
         ['a_opacity', 1],
         ['a_color', 4],
         ['a_strokeColor', 4],
-        ['a_strokeThickness', 1],
+        ['a_strokeThickness', 1]
       ]
     });
 
-    this._quads = new QuadIndexBuffer(this._MAX_CIRCLES, true);
+    this._quads = new QuadIndexBuffer(this._maxCircles, true);
   }
 
   private _isFull() {
-    if (this._circleCount >= this._MAX_CIRCLES) {
+    if (this._circleCount >= this._maxCircles) {
       return true;
     }
     return false;

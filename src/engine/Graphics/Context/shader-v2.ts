@@ -1,9 +1,9 @@
-import { Vector } from "../..";
-import { Matrix } from "../../Math/matrix";
-import { ExcaliburWebGLContextAccessor } from "./webgl-adapter";
-import { getAttributeComponentSize, getAttributePointerType } from "./webgl-util";
+import { Vector } from '../..';
+import { Matrix } from '../../Math/matrix';
+import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
+import { getAttributeComponentSize, getAttributePointerType } from './webgl-util';
 
-export type UniformTypeNames = 
+export type UniformTypeNames =
   'uniform1f' |
   'uniform1i' |
   'uniform2f' |
@@ -24,9 +24,9 @@ export type UniformTypeNames =
   'uniformMatrix3fv' |
   'uniformMatrix4fv';
 
-type RemoveFirstFromTuple<T extends any[]> = 
+type RemoveFirstFromTuple<T extends any[]> =
   T['length'] extends 0 ? undefined :
-  (((...b: T) => void) extends (a: any, ...b: infer I) => void ? I : [])
+    (((...b: T) => void) extends (a: any, ...b: infer I) => void ? I : [])
 
 type UniformParameters<TUniformType extends UniformTypeNames> = RemoveFirstFromTuple<Parameters<WebGLRenderingContext[TUniformType]>>
 
@@ -45,7 +45,7 @@ export interface VertexAttributeDefinition {
   /**
    * Number of components for a given attribute
    * Must be 1, 2, 3, or 4
-   * 
+   *
    * For example a vec4 attribute would be `4` floats, so 4
    */
   size: number;
@@ -77,7 +77,7 @@ export interface ShaderOptions {
 export class ShaderV2 {
   private static _ACTIVE_SHADER_INSTANCE: ShaderV2 = null;
   private _gl: WebGLRenderingContext = ExcaliburWebGLContextAccessor.gl;
-  public program: WebGLProgram
+  public program: WebGLProgram;
   public uniforms: { [variableName: string]: UniformDefinition } = {};
   public attributes: { [variableName: string]: VertexAttributeDefinition } = {};
   private _compiled = false;
@@ -90,8 +90,7 @@ export class ShaderV2 {
 
   /**
    * Create a shader program in excalibur
-   * @param vertexSource Vertex shader source as a string
-   * @param fragmentSource Fragment shader source as a string
+   * @param options specify shader vertex and fragment source
    */
   constructor(options?: ShaderOptions) {
     const { vertexSource, fragmentSource } = options;
@@ -114,7 +113,6 @@ export class ShaderV2 {
 
   /**
    * Compile the current shader against a webgl context
-   * @param gl WebGL context
    */
   compile(): WebGLProgram {
     const gl = this._gl;
@@ -123,11 +121,11 @@ export class ShaderV2 {
     this.program = this._createProgram(gl, vertexShader, fragmentShader);
 
     const attributes = this.getAttributes();
-    for (let attribute of attributes) {
+    for (const attribute of attributes) {
       this.attributes[attribute.name] = attribute;
     }
     const uniforms = this.getUniforms();
-    for (let uniform of uniforms) {
+    for (const uniform of uniforms) {
       this.uniforms[uniform.name] = uniform;
     }
 
@@ -170,9 +168,9 @@ export class ShaderV2 {
   }
 
   /**
-   * Set a texture in a gpu texture slot 
-   * @param slotNumber 
-   * @param texture 
+   * Set a texture in a gpu texture slot
+   * @param slotNumber
+   * @param texture
    */
   setTexture(slotNumber: number, texture: WebGLTexture) {
     const gl = this._gl;
@@ -182,11 +180,11 @@ export class ShaderV2 {
 
   /**
    * Set an integer uniform for the current shader
-   * 
+   *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   * 
-   * @param name 
-   * @param value 
+   *
+   * @param name
+   * @param value
    */
   setUniformInt(name: string, value: number) {
     this.setUniform('uniform1i', name, ~~value);
@@ -194,11 +192,11 @@ export class ShaderV2 {
 
   /**
    * Set an integer array uniform for the current shader
-   * 
+   *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   * 
-   * @param name 
-   * @param value 
+   *
+   * @param name
+   * @param value
    */
   setUniformIntArray(name: string, value: number[]) {
     this.setUniform('uniform1iv', name, value);
@@ -206,11 +204,11 @@ export class ShaderV2 {
 
   /**
    * Set a boolean uniform for the current shader
-   * 
+   *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   * 
-   * @param name 
-   * @param value 
+   *
+   * @param name
+   * @param value
    */
   setUniformBoolean(name: string, value: boolean) {
     this.setUniform('uniform1i', name, value ? 1 : 0);
@@ -218,11 +216,11 @@ export class ShaderV2 {
 
   /**
    * Set a float uniform for the current shader
-   * 
+   *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   * 
-   * @param name 
-   * @param value 
+   *
+   * @param name
+   * @param value
    */
   setUniformFloat(name: string, value: number) {
     this.setUniform('uniform1f', name, value);
@@ -230,11 +228,11 @@ export class ShaderV2 {
 
   /**
    * Set a float array uniform for the current shader
-   * 
+   *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   * 
-   * @param name 
-   * @param value 
+   *
+   * @param name
+   * @param value
    */
   setUniformFloatArray(name: string, value: number[]) {
     this.setUniform('uniform1fv', name, value);
@@ -242,11 +240,11 @@ export class ShaderV2 {
 
   /**
    * Set a [[Vector]] uniform for the current shader
-   * 
+   *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   * 
-   * @param name 
-   * @param value 
+   *
+   * @param name
+   * @param value
    */
   setUniformFloatVector(name: string, value: Vector) {
     this.setUniform('uniform2f', name, value.x, value.y);
@@ -254,11 +252,11 @@ export class ShaderV2 {
 
   /**
    * Set an [[Matrix]] uniform for the current shader
-   * 
+   *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   * 
-   * @param name 
-   * @param value 
+   *
+   * @param name
+   * @param value
    */
   setUniformMatrix(name: string, value: Matrix) {
     this.setUniform('uniformMatrix4fv', name, false, value.data);
@@ -266,7 +264,7 @@ export class ShaderV2 {
 
   /**
    * Set any available uniform type in webgl
-   * 
+   *
    * For example setUniform('uniformMatrix2fv', 'u_my2x2_mat`, ...);
    */
   setUniform<TUniformType extends UniformTypeNames>(uniformType: TUniformType, name: string, ...value: UniformParameters<TUniformType>) {
@@ -274,7 +272,8 @@ export class ShaderV2 {
       throw Error(`Must compile shader before setting a uniform ${uniformType}:${name}`);
     }
     if (!this.isCurrentlyBound()) {
-      throw Error('Currently accessed shader instance is not the current active shader in WebGL, must call `shader.use()` before setting uniforms')
+      throw Error('Currently accessed shader instance is not the current active shader in WebGL,' +
+      ' must call `shader.use()` before setting uniforms');
     }
     const gl = this._gl;
     const location = gl.getUniformLocation(this.program, name);
@@ -282,7 +281,8 @@ export class ShaderV2 {
       const args = [location, ...value];
       this._gl[uniformType].apply(this._gl, args);
     } else {
-      throw Error(`Uniform ${uniformType}:${name} doesn\'t exist or is not used in the shader source code, unused uniforms are optimized away by most browsers`);
+      throw Error(`Uniform ${uniformType}:${name} doesn\'t exist or is not used in the shader source code,`+
+      ' unused uniforms are optimized away by most browsers');
     }
   }
 

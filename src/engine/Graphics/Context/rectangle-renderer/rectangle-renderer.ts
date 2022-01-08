@@ -1,11 +1,11 @@
-import { Color } from "../../../Color";
-import { vec, Vector } from "../../../Math/vector";
-import { ExcaliburGraphicsContextWebGL } from "../ExcaliburGraphicsContextWebGL";
-import { QuadIndexBuffer } from "../quad-index-buffer";
-import { RendererV2 } from "../renderer-v2";
-import { ShaderV2 } from "../shader-v2";
-import { VertexBuffer } from "../vertex-buffer";
-import { VertexLayout } from "../vertex-layout";
+import { Color } from '../../../Color';
+import { vec, Vector } from '../../../Math/vector';
+import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import { QuadIndexBuffer } from '../quad-index-buffer';
+import { RendererV2 } from '../renderer-v2';
+import { ShaderV2 } from '../shader-v2';
+import { VertexBuffer } from '../vertex-buffer';
+import { VertexLayout } from '../vertex-layout';
 
 import frag from './rectangle-renderer.frag.glsl';
 import vert from './rectangle-renderer.vert.glsl';
@@ -14,7 +14,7 @@ export class RectangleRenderer implements RendererV2 {
   public readonly type = 'ex.rectangle';
   public priority: number = 0;
 
-  private _MAX_RECTANGLES: number = 10922; // max(uint16) / 6 verts
+  private _maxRectangles: number = 10922; // max(uint16) / 6 verts
 
   private _shader: ShaderV2;
   private _gl: WebGLRenderingContext;
@@ -42,7 +42,7 @@ export class RectangleRenderer implements RendererV2 {
     this._shader.setUniformMatrix('u_matrix', context.ortho);
 
     this._buffer = new VertexBuffer({
-      size: 16 * this._MAX_RECTANGLES,
+      size: 16 * this._maxRectangles,
       type: 'dynamic'
     });
 
@@ -59,11 +59,11 @@ export class RectangleRenderer implements RendererV2 {
         ['a_strokeThickness', 1]
       ]
     });
-    this._quads = new QuadIndexBuffer(this._MAX_RECTANGLES, true);
+    this._quads = new QuadIndexBuffer(this._maxRectangles, true);
   }
 
   private _isFull() {
-    if (this._rectangleCount >= this._MAX_RECTANGLES) {
+    if (this._rectangleCount >= this._maxRectangles) {
       return true;
     }
     return false;

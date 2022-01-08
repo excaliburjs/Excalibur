@@ -41,7 +41,7 @@ describe('A VertexLayout', () => {
         shader,
         vertexBuffer,
         attributes: []
-      })
+      });
     }).not.toThrow();
   });
 
@@ -172,8 +172,8 @@ describe('A VertexLayout', () => {
     shader.use();
     sut.use();
 
-    const pos = shader.attributes['a_position'];
-    const uv = shader.attributes['a_uv'];
+    const pos = shader.attributes.a_position;
+    const uv = shader.attributes.a_uv;
     expect(vertexAttribPointerSpy.calls.argsFor(0)).toEqual([
       pos.location,
       2,
@@ -233,7 +233,7 @@ describe('A VertexLayout', () => {
       shader,
       vertexBuffer: vertexBufferPos,
       attributes: [
-        ['a_position', 2],
+        ['a_position', 2]
       ]
     });
 
@@ -241,13 +241,13 @@ describe('A VertexLayout', () => {
       shader,
       vertexBuffer: vertexBufferUV,
       attributes: [
-        ['a_uv', 2],
+        ['a_uv', 2]
       ]
     });
 
     shader.use();
     sut1.use(true);
     sut2.use(true);
-  })
+  });
 
 });

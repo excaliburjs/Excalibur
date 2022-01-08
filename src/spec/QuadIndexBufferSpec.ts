@@ -33,9 +33,9 @@ describe('A QuadIndexBuffer', () => {
 
   it('will warn if geometry is maxed out uint16', () => {
     const logger = ex.Logger.getInstance();
-    spyOn(logger, "warn").and.callThrough();
+    spyOn(logger, 'warn').and.callThrough();
     const sut = new ex.QuadIndexBuffer(16384, true);
-    expect(logger.warn).toHaveBeenCalledWith('Total quads exceeds hardware index buffer limit (uint16), max(16383) requested quads(16384)')
+    expect(logger.warn).toHaveBeenCalledWith('Total quads exceeds hardware index buffer limit (uint16), max(16383) requested quads(16384)');
   });
 
 });

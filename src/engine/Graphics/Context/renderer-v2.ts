@@ -1,4 +1,4 @@
-import { ExcaliburGraphicsContextWebGL } from "..";
+import { ExcaliburGraphicsContextWebGL } from '..';
 
 
 /**
@@ -11,13 +11,13 @@ export interface RendererV2 {
   readonly type: string;
 
   /**
-   * Render priority tie breaker when 
+   * Render priority tie breaker when
    */
   priority: number;
 
   /**
    * Initialize your renderer
-   * 
+   *
    * @param gl
    * @param context
    */
@@ -25,7 +25,7 @@ export interface RendererV2 {
 
   /**
    * Issue a draw command to draw something to the screen
-   * @param args 
+   * @param args
    */
   draw(...args: any[]): void;
 

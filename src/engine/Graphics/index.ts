@@ -38,8 +38,8 @@ export * from './Filtering';
 
 
 // Rendering
-export * from './Context/shader-v2'
-export * from './Context/vertex-buffer'
-export * from './Context/vertex-layout'
-export * from './Context/quad-index-buffer'
+export * from './Context/shader-v2';
+export * from './Context/vertex-buffer';
+export * from './Context/vertex-layout';
+export * from './Context/quad-index-buffer';
 export * from './Context/webgl-adapter';

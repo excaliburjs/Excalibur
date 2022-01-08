@@ -1,12 +1,12 @@
-import { HTMLImageSource } from "../ExcaliburGraphicsContext";
-import { ExcaliburGraphicsContextWebGL } from "../ExcaliburGraphicsContextWebGL";
-import { QuadIndexBuffer } from "../quad-index-buffer";
-import { RendererV2 } from "../renderer-v2";
-import { ShaderV2 } from "../shader-v2";
-import { TextureLoader } from "../texture-loader";
-import { VertexBuffer } from "../vertex-buffer";
-import { VertexLayout } from "../vertex-layout";
-import { ensurePowerOfTwo } from "../webgl-util";
+import { HTMLImageSource } from '../ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import { QuadIndexBuffer } from '../quad-index-buffer';
+import { RendererV2 } from '../renderer-v2';
+import { ShaderV2 } from '../shader-v2';
+import { TextureLoader } from '../texture-loader';
+import { VertexBuffer } from '../vertex-buffer';
+import { VertexLayout } from '../vertex-layout';
+import { ensurePowerOfTwo } from '../webgl-util';
 import frag from './image-renderer-v2.frag.glsl';
 import vert from './image-renderer-v2.vert.glsl';
 
@@ -14,8 +14,8 @@ export class ImageRendererV2 implements RendererV2 {
   public readonly type = 'ex.image';
   public priority: number = 0;
 
-  private _MAX_IMAGES: number = 10922; // max(uint16) / 6 verts
-  private _MAX_TEXTURES: number = 0;
+  private _maxImages: number = 10922; // max(uint16) / 6 verts
+  private _maxTextures: number = 0;
 
   private _context: ExcaliburGraphicsContextWebGL;
   private _gl: WebGLRenderingContext;
@@ -33,8 +33,8 @@ export class ImageRendererV2 implements RendererV2 {
     this._gl = gl;
     this._context = context;
     // Transform shader source
-    this._MAX_TEXTURES = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-    const transformedFrag = this._transformFragmentSource(frag, this._MAX_TEXTURES);
+    this._maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+    const transformedFrag = this._transformFragmentSource(frag, this._maxTextures);
     // Compile shader
     this._shader = new ShaderV2({
       fragmentSource: transformedFrag,
@@ -48,12 +48,12 @@ export class ImageRendererV2 implements RendererV2 {
     // Initialize texture slots to [0, 1, 2, 3, 4, .... maxGPUTextures]
     this._shader.setUniformIntArray(
       'u_textures',
-      [...Array(this._MAX_TEXTURES)].map((_, i) => i)
+      [...Array(this._maxTextures)].map((_, i) => i)
     );
 
     // Setup memory layout
     this._buffer = new VertexBuffer({
-      size: 6 * 4 * this._MAX_IMAGES, // 6 components * 4 verts 
+      size: 6 * 4 * this._maxImages, // 6 components * 4 verts
       type: 'dynamic'
     });
     this._layout = new VertexLayout({
@@ -68,7 +68,7 @@ export class ImageRendererV2 implements RendererV2 {
     });
 
     // Setup index buffer
-    this._quads = new QuadIndexBuffer(this._MAX_IMAGES, true);
+    this._quads = new QuadIndexBuffer(this._maxImages, true);
   }
 
   private _transformFragmentSource(source: string, maxTextures: number): string {
@@ -96,7 +96,7 @@ export class ImageRendererV2 implements RendererV2 {
 
   private _bindTextures(gl: WebGLRenderingContext) {
     // Bind textures in the correct order
-    for (let i = 0; i < this._MAX_TEXTURES; i++) {
+    for (let i = 0; i < this._maxTextures; i++) {
       gl.activeTexture(gl.TEXTURE0 + i);
       gl.bindTexture(gl.TEXTURE_2D, this._textures[i] || this._textures[0]);
     }
@@ -110,10 +110,10 @@ export class ImageRendererV2 implements RendererV2 {
   }
 
   private _isFull() {
-    if (this._imageCount >= this._MAX_IMAGES) {
+    if (this._imageCount >= this._maxImages) {
       return true;
     }
-    if (this._textures.length >= this._MAX_TEXTURES) {
+    if (this._textures.length >= this._maxTextures) {
       return true;
     }
     return false;
@@ -121,14 +121,14 @@ export class ImageRendererV2 implements RendererV2 {
 
 
   draw(image: HTMLImageSource,
-       sx: number,
-       sy: number,
-       swidth?: number,
-       sheight?: number,
-       dx?: number,
-       dy?: number,
-       dwidth?: number,
-       dheight?: number): void {
+    sx: number,
+    sy: number,
+    swidth?: number,
+    sheight?: number,
+    dx?: number,
+    dy?: number,
+    dwidth?: number,
+    dheight?: number): void {
 
     // Force a render if the batch is full
     if (this._isFull()) {
@@ -152,8 +152,8 @@ export class ImageRendererV2 implements RendererV2 {
 
     sx = view[0];
     sy = view[1];
-    let sw = view[2];
-    let sh = view[3];
+    const sw = view[2];
+    const sh = view[3];
 
     // transform based on current context
     const transform = this._context.getTransform();
@@ -183,10 +183,10 @@ export class ImageRendererV2 implements RendererV2 {
     const potWidth = ensurePowerOfTwo(image.width || width);
     const potHeight = ensurePowerOfTwo(image.height || height);
 
-    let uvx0 = (sx) / potWidth;
-    let uvy0 = (sy) / potHeight;
-    let uvx1 = (sx + sw - 0.01) / potWidth;
-    let uvy1 = (sy + sh - 0.01) / potHeight;
+    const uvx0 = (sx) / potWidth;
+    const uvy0 = (sy) / potHeight;
+    const uvx1 = (sx + sw - 0.01) / potWidth;
+    const uvy1 = (sy + sh - 0.01) / potHeight;
 
     // update data
     const vertexBuffer = this._layout.vertexBuffer.bufferData;
@@ -234,10 +234,10 @@ export class ImageRendererV2 implements RendererV2 {
 
     // Update ortho matrix uniform
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
-    
+
     // Bind textures to
     this._bindTextures(gl);
-    
+
     // Bind index buffer
     this._quads.bind();
 

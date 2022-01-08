@@ -12,7 +12,7 @@ describe('A ShaderV2', () => {
     const _ctx = new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvas
     });
-  })
+  });
 
   it('exists', () => {
     expect(ex.ShaderV2).toBeDefined();
@@ -40,24 +40,24 @@ describe('A ShaderV2', () => {
     expect(sut.compiled).toBe(false);
     sut.compile();
     expect(sut.compiled).toBe(true);
-    expect(sut.attributes['a_position']).toEqual({
+    expect(sut.attributes.a_position).toEqual({
       name: 'a_position',
       glType: gl.FLOAT,
       size: 4,
       normalized: false,
-      location: sut.attributes['a_position'].location
+      location: sut.attributes.a_position.location
     });
-    expect(sut.attributes['a_otherposition']).toEqual({
+    expect(sut.attributes.a_otherposition).toEqual({
       name: 'a_otherposition',
       glType: gl.FLOAT,
       size: 3,
       normalized: false,
-      location: sut.attributes['a_otherposition'].location
+      location: sut.attributes.a_otherposition.location
     });
-    expect(sut.uniforms['u_bool']).toEqual({
+    expect(sut.uniforms.u_bool).toEqual({
       name: 'u_bool',
       glType: gl.BOOL,
-      location: sut.uniforms['u_bool'].location
+      location: sut.uniforms.u_bool.location
     });
   });
 
@@ -78,7 +78,7 @@ describe('A ShaderV2', () => {
     expect(() => {
       sut.compile();
     }).toThrowMatching((e:Error) => {
-      return e.message.includes('vertex')
+      return e.message.includes('vertex');
     });
   });
 
@@ -99,7 +99,7 @@ describe('A ShaderV2', () => {
     expect(() => {
       sut.compile();
     }).toThrowMatching((e:Error) => {
-      return e.message.includes('fragment')
+      return e.message.includes('fragment');
     });
   });
 
@@ -119,19 +119,20 @@ describe('A ShaderV2', () => {
     });
 
     expect(() => {
-      sut.setUniform('uniform1i', 'u_int', 10)
+      sut.setUniform('uniform1i', 'u_int', 10);
     }).toThrowError('Must compile shader before setting a uniform uniform1i:u_int');
 
     sut.compile();
 
     expect(() => {
-      sut.setUniform('uniform1i', 'u_int', 10)
-    }).toThrowError('Currently accessed shader instance is not the current active shader in WebGL, must call `shader.use()` before setting uniforms');
+      sut.setUniform('uniform1i', 'u_int', 10);
+    }).toThrowError('Currently accessed shader instance is not the current active shader in WebGL,'
+    +' must call `shader.use()` before setting uniforms');
 
     sut.use();
 
     expect(() => {
-      sut.setUniform('uniform1i', 'u_int', 10)
+      sut.setUniform('uniform1i', 'u_int', 10);
     }).not.toThrow();
   });
 
@@ -179,11 +180,13 @@ describe('A ShaderV2', () => {
 
     expect(() => {
       sut.setUniformFloat('u_doesntexist', 42);
-    }).toThrowError('Uniform uniform1f:u_doesntexist doesn\'t exist or is not used in the shader source code, unused uniforms are optimized away by most browsers');
-    
+    }).toThrowError('Uniform uniform1f:u_doesntexist doesn\'t exist or is not used in the shader source code,'
+    +' unused uniforms are optimized away by most browsers');
+
     expect(() => {
       sut.setUniformInt('u_unused', 42);
-    }).toThrowError('Uniform uniform1i:u_unused doesn\'t exist or is not used in the shader source code, unused uniforms are optimized away by most browsers');
+    }).toThrowError('Uniform uniform1i:u_unused doesn\'t exist or is not used in the shader source code,'
+    +' unused uniforms are optimized away by most browsers');
   });
 
   it('can have textures set', () => {
@@ -204,8 +207,8 @@ describe('A ShaderV2', () => {
     sut.compile();
     const tex = gl.createTexture();
 
-    spyOn(gl, "activeTexture").and.callThrough();
-    spyOn(gl, "bindTexture").and.callThrough();
+    spyOn(gl, 'activeTexture').and.callThrough();
+    spyOn(gl, 'bindTexture').and.callThrough();
 
     sut.setTexture(5, tex);
 
