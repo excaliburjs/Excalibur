@@ -67,7 +67,7 @@ export class QuadIndexBuffer {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.bufferData, gl.STATIC_DRAW);
   }
 
-  public size() {
+  public get size() {
     return this.bufferData.length;
   }
 

@@ -31,6 +31,22 @@ describe('A QuadIndexBuffer', () => {
     expect(sut.bufferData).toEqual(new Uint16Array([0, 1, 2, 2, 1, 3, 4, 5, 6, 6, 5, 7]));
   });
 
+  it('can upload data to the GPU', () => {
+    const sut = new ex.QuadIndexBuffer(2, true);
+    const gl = ex.ExcaliburWebGLContextAccessor.gl;
+    spyOn(gl, 'bindBuffer').and.callThrough();
+    spyOn(gl, 'bufferData').and.callThrough();
+
+    sut.upload();
+    expect(gl.bindBuffer).toHaveBeenCalledWith(gl.ELEMENT_ARRAY_BUFFER, sut.buffer);
+    expect(gl.bufferData).toHaveBeenCalledWith(gl.ELEMENT_ARRAY_BUFFER, sut.bufferData, gl.STATIC_DRAW);
+  });
+
+  it('can return the size of the buffer', () => {
+    const sut = new ex.QuadIndexBuffer(2, true);
+    expect(sut.size).toBe(12);
+  });
+
   it('will warn if geometry is maxed out uint16', () => {
     const logger = ex.Logger.getInstance();
     spyOn(logger, 'warn').and.callThrough();
