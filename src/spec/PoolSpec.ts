@@ -1,7 +1,6 @@
 import * as ex from '@excalibur';
 
-class MockPoolable implements ex.Poolable {
-  _pool = null;
+class MockPoolable {
   constructor(public recycled: boolean = false) {}
   dispose() {
     this.recycled = true;
@@ -102,14 +101,14 @@ describe('An object Pool', () => {
       const instances = [];
       for (let i = 0; i < 10; i++) {
         const i = pool.get();
-        expect(i._pool).toBe(pool);
+        expect(pool.objects.indexOf(i)).not.toBe(-1);
         instances.push(i);
       }
       return instances;
     });
 
     for (let i = 0; i < 10; i++) {
-      expect(is[i]._pool).toBe(undefined);
+      expect(pool.objects.indexOf(is[i])).toBe(-1);
     }
   });
 });

@@ -1,16 +1,5 @@
 import { Logger } from '..';
-
-// TODO remove poolable!
-export interface Poolable {
-  /**
-   * Any type that is a member of a an object pool will have a reference to teh pool
-   * @internal
-   */
-  _pool?: Pool<this>;
-  dispose(): this;
-}
-
-export class Pool<Type extends Poolable> {
+export class Pool<Type> {
   public totalAllocations = 0;
   public index = 0;
   public objects: Type[] = [];
@@ -52,10 +41,8 @@ export class Pool<Type extends Poolable> {
    */
   get(...args: any[]): Type {
     if (this.index === this.maxObjects) {
-      // TODO implement hard or soft cap
       this._logger.warn('Max pooled objects reached, possible memory leak? Doubling');
       this.maxObjects = this.maxObjects * 2;
-      // throw new Error('Max pooled objects reached, possible memory leak?');
     }
 
     if (this.objects[this.index]) {
@@ -65,7 +52,6 @@ export class Pool<Type extends Poolable> {
       // New allocation
       this.totalAllocations++;
       const object = (this.objects[this.index++] = this.builder(...args));
-      object._pool = this;
       return object;
     }
   }
@@ -86,10 +72,7 @@ export class Pool<Type extends Poolable> {
       const poolIndex = this.objects.indexOf(object);
       // Build a new object to take the pool place
       this.objects[poolIndex] = (this as any).builder(); // TODO problematic 0-arg only support
-      this.objects[poolIndex]._pool = this;
       this.totalAllocations++;
-      // Unhook object from the pool
-      object._pool = undefined;
     }
     return objects;
   }
