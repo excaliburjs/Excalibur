@@ -4,6 +4,9 @@
  */
 export class ExcaliburWebGLContextAccessor {
   private static _GL: WebGLRenderingContext;
+  public static clear() {
+    ExcaliburWebGLContextAccessor._GL = null;
+  }
   public static register(gl: WebGLRenderingContext) {
     ExcaliburWebGLContextAccessor._GL = gl;
   }

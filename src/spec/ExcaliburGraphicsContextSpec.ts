@@ -255,6 +255,16 @@ describe('The ExcaliburGraphicsContext', () => {
       });
       expect(context).toBeDefined();
     });
+    it('will throw if an invalid renderer is specified', () => {
+      const canvas = document.createElement('canvas');
+      const context = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvas,
+        backgroundColor: ex.Color.Red
+      });
+      expect(() => {
+        context.draw('ex.doesnotexist', 1, 2, 3);
+      }).toThrowError('No renderer with name ex.doesnotexist has been registered');
+    });
 
     it('has the same dimensions as the canvas', () => {
       const canvas = document.createElement('canvas');
