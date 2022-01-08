@@ -14,20 +14,21 @@ import { Vector, vec } from '../../Math/vector';
 import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { Logger } from '../../Util/Log';
-import { LineRenderer } from './line-renderer';
-// import { ImageRenderer } from './image-renderer';
-import { PointRenderer } from './point-renderer';
 import { Canvas } from '../Canvas';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
 import { ScreenDimension } from '../../Screen';
 import { RenderTarget } from './render-target';
-import { ScreenRenderer } from './screen-renderer';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
 import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
-import { RendererV2 } from './renderer-v2';
-import { ImageRendererV2 } from './image-renderer/image-renderer-v2';
 import { TextureLoader } from './texture-loader';
+import { RendererV2 } from './renderer-v2';
+
+// renderers
+import { LineRenderer } from './line-renderer/line-renderer';
+import { PointRenderer } from './point-renderer/point-renderer';
+import { ScreenPassPainter } from './screen-pass-painter/screen-pass-painter';
+import { ImageRendererV2 } from './image-renderer/image-renderer-v2';
 import { RectangleRenderer } from './rectangle-renderer/rectangle-renderer';
 import { CircleRenderer } from './circle-renderer/circle-renderer';
 
@@ -56,7 +57,7 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
    * @param lineOptions
    */
   drawLine(start: Vector, end: Vector, lineOptions: LineGraphicsOptions = { color: Color.Black }): void {
-    this._webglCtx.__lineRenderer.addLine(start, end, lineOptions.color);
+    this._webglCtx.draw<LineRenderer>('ex.line', start, end, lineOptions.color);
   }
 
   /**
@@ -65,7 +66,7 @@ class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
    * @param pointOptions
    */
   drawPoint(point: Vector, pointOptions: PointGraphicsOptions = { color: Color.Black, size: 5 }): void {
-    this._webglCtx.__pointRenderer.addPoint(point, pointOptions.color, pointOptions.size);
+    this._webglCtx.draw<PointRenderer>('ex.point', point, pointOptions.color, pointOptions.size);
   }
 
   drawText(text: string, pos: Vector) {
@@ -82,11 +83,14 @@ export interface WebGLGraphicsContextInfo {
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _renderers: Map<string, RendererV2> = new Map<string, RendererV2>();
+
+  // Main render target
   private _renderTarget: RenderTarget;
 
+  // Postprocessing is a tuple with 2 render targets, these are flip-flopped during the postprocessing process
   private _postProcessTargets: RenderTarget[] = [];
 
-  private _screenRenderer: ScreenRenderer;
+  private _screenRenderer: ScreenPassPainter;
 
   private _postprocessors: PostProcessor[] = [];
   /**
@@ -108,12 +112,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _transform = new TransformStack();
   private _state = new StateStack();
   private _ortho!: Matrix;
-
-  /**
-   * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
-   * @internal
-   */
-  public __pointRenderer: PointRenderer;
 
   /**
    * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
@@ -208,11 +206,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.register(new ImageRendererV2());
     this.register(new RectangleRenderer());
     this.register(new CircleRenderer());
+    this.register(new PointRenderer());
+    this.register(new LineRenderer());
 
-    this.__pointRenderer = new PointRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
-    this.__lineRenderer = new LineRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
-    // this.__imageRenderer = new ImageRenderer(gl, { ortho: this._ortho, transform: this._transform, state: this._state, context: this });
-    this._screenRenderer = new ScreenRenderer(gl);
+    this._screenRenderer = new ScreenPassPainter(gl);
 
     this._renderTarget = new RenderTarget({
       gl,
@@ -248,15 +245,15 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
 
-  public draw<TRenderer extends RendererV2>(name: TRenderer['type'], ...args: Parameters<TRenderer['draw']>) {
-    // this._renderTarget.use();
-    const renderer = this._renderers.get(name);
+  public draw<TRenderer extends RendererV2>(rendererName: TRenderer['type'], ...args: Parameters<TRenderer['draw']>) {
+    // TODO does not handle priority yet...
+    //  in order to do this draw commands need to be captured and fed in priority order
+    const renderer = this._renderers.get(rendererName);
     if (renderer) {
       renderer.draw(...args);
     } else {
-      throw Error(`No renderer with name ${name} has been registered`);
+      throw Error(`No renderer with name ${rendererName} has been registered`);
     }
-    // this._renderTarget.disable();
   }
 
   public resetTransform(): void {
@@ -266,9 +263,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   public updateViewport(resolution: ScreenDimension): void {
     const gl = this.__gl;
     this._ortho = this._ortho = Matrix.ortho(0, resolution.width, resolution.height, 0, 400, -400);
-    this.__pointRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
-    this.__lineRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
-    // this.__imageRenderer.shader.addUniformMatrix('u_matrix', this._ortho.data);
 
     this._renderTarget.setResolution(gl.canvas.width, gl.canvas.height);
     this._postProcessTargets[0].setResolution(gl.canvas.width, gl.canvas.height);
@@ -390,7 +384,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   clear() {
     const gl = this.__gl;
-    this._renderTarget.use();
+    this._renderTarget.use(); // TODO is there a better way to reset the render target for the next frame?
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.
@@ -406,12 +400,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     // render target captures all draws and redirects to the render target
     this._renderTarget.use();
+    // TODO sort by priority and flush in order
     for (const renderer of this._renderers.values()) {
       renderer.flush();
     }
-    // this.__imageRenderer.render();
-    this.__lineRenderer.render();
-    this.__pointRenderer.render();
     this._renderTarget.disable();
 
     // post process step
@@ -421,12 +413,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // flip flop render targets
     for (let i = 0; i < this._postprocessors.length; i++) {
       this._postProcessTargets[i % 2].use();
-      this._screenRenderer.renderWithShader(this._postprocessors[i].getShader());
+      this._screenRenderer.renderWithPostProcessor(this._postprocessors[i]);
       this._postProcessTargets[i % 2].toRenderSource().use();
     }
 
     // passing null switches renderering back to the canvas
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    this._screenRenderer.render();
+    this._screenRenderer.renderToScreen();
   }
 }

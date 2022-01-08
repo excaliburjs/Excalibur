@@ -1,5 +1,6 @@
 import { Logger } from '..';
 
+// TODO remove poolable!
 export interface Poolable {
   /**
    * Any type that is a member of a an object pool will have a reference to teh pool

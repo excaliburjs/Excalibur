@@ -1,12 +1,12 @@
-import { ExcaliburGraphicsContextWebGL } from '..';
+import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
 
 
 /**
- * Interface that defines an Excalibur Renderer
+ * Interface that defines an Excalibur Renderer that can be called with .draw() in the [[ExcaliburGraphicsContext]]
  */
 export interface RendererV2 {
   /**
-   * Unique type name for this renderer
+   * Unique type name for this renderer plugin
    */
   readonly type: string;
 

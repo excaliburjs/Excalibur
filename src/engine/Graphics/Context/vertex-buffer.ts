@@ -3,14 +3,21 @@ import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
 export interface VertexBufferOptions {
   /**
    * Size in number of floats, so [4.2, 4.0, 2.1] is size = 3
+   *
+   * Ignored if data is passed directly
    */
-  size: number;
+  size?: number;
   /**
    * If the vertices never change switching 'static' can be more efficient on the gpu
    *
    * Default is 'dynamic'
    */
   type?: 'static' | 'dynamic';
+
+  /**
+   * Optionally pass pre-seeded data, size parameter is ignored
+   */
+  data?: Float32Array
 }
 
 /**
@@ -38,9 +45,17 @@ export class VertexBuffer {
   public type: 'static' | 'dynamic' = 'dynamic';
 
   constructor(options: VertexBufferOptions) {
-    const { size, type } = options;
+    const { size, type, data } = options;
     this.buffer = this._gl.createBuffer();
-    this.bufferData = new Float32Array(size);
+    if (!data && !size) {
+      throw Error('Must either provide data or a size to the VertexBuffer');
+    }
+
+    if (!data) {
+      this.bufferData = new Float32Array(size);
+    } else {
+      this.bufferData = data;
+    }
     this.type = type ?? this.type;
   }
 
