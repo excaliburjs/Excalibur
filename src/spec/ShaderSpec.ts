@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 
-describe('A ShaderV2', () => {
+describe('A Shader', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
@@ -15,12 +15,12 @@ describe('A ShaderV2', () => {
   });
 
   it('exists', () => {
-    expect(ex.ShaderV2).toBeDefined();
+    expect(ex.Shader).toBeDefined();
   });
 
   it('can be constructed & compiled with shader source', () => {
     const gl = ex.ExcaliburWebGLContextAccessor.gl;
-    const sut = new ex.ShaderV2({
+    const sut = new ex.Shader({
       vertexSource: `
       attribute vec4 a_position;
       attribute vec3 a_otherposition;
@@ -63,7 +63,7 @@ describe('A ShaderV2', () => {
 
   it('can fail compiling vertex', () => {
     const gl = ex.ExcaliburWebGLContextAccessor.gl;
-    const sut = new ex.ShaderV2({
+    const sut = new ex.Shader({
       vertexSource: `
       uniform int u_int;
       // nonsense shader for testing
@@ -84,7 +84,7 @@ describe('A ShaderV2', () => {
 
   it('can fail compiling fragment', () => {
     const gl = ex.ExcaliburWebGLContextAccessor.gl;
-    const sut = new ex.ShaderV2({
+    const sut = new ex.Shader({
       vertexSource: `
       uniform int u_int;
       // nonsense shader for testing
@@ -105,7 +105,7 @@ describe('A ShaderV2', () => {
 
   it('must be compiled and shader.use() to set uniforms', () => {
     const gl = ex.ExcaliburWebGLContextAccessor.gl;
-    const sut = new ex.ShaderV2({
+    const sut = new ex.Shader({
       vertexSource: `
       uniform int u_int;
       // nonsense shader for testing
@@ -138,7 +138,7 @@ describe('A ShaderV2', () => {
 
   it('can set uniforms', () => {
     const gl = ex.ExcaliburWebGLContextAccessor.gl;
-    const sut = new ex.ShaderV2({
+    const sut = new ex.Shader({
       vertexSource: `
       attribute vec4 a_position;
       attribute vec3 a_otherposition;
@@ -191,7 +191,7 @@ describe('A ShaderV2', () => {
 
   it('can have textures set', () => {
     const gl = ex.ExcaliburWebGLContextAccessor.gl;
-    const sut = new ex.ShaderV2({
+    const sut = new ex.Shader({
       vertexSource: `
       uniform int u_int;
       // nonsense shader for testing

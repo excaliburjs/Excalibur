@@ -1,7 +1,7 @@
 import colorBlindCorrectSource from './color-blind-fragment.glsl';
 import { PostProcessor } from './PostProcessor';
 import { ColorBlindnessMode } from './ColorBlindnessMode';
-import { ShaderV2 } from '../Context/shader-v2';
+import { Shader } from '../Context/shader';
 import { VertexLayout } from '../Context/vertex-layout';
 import { ScreenShader } from './ScreenShader';
 
@@ -18,7 +18,7 @@ export class ColorBlindnessPostProcessor implements PostProcessor {
     this.colorBlindnessMode = this._colorBlindnessMode;
   }
 
-  getShader(): ShaderV2 {
+  getShader(): Shader {
     return this._shader.getShader();
   }
 

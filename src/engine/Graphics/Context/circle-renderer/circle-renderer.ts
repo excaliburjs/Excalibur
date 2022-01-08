@@ -2,21 +2,21 @@ import { Color } from '../../../Color';
 import { vec, Vector } from '../../../Math/vector';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
-import { RendererV2 } from '../renderer-v2';
-import { ShaderV2 } from '../shader-v2';
+import { RendererPlugin } from '../renderer';
+import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 
 import frag from './circle-renderer.frag.glsl';
 import vert from './circle-renderer.vert.glsl';
 
-export class CircleRenderer implements RendererV2 {
+export class CircleRenderer implements RendererPlugin {
   public readonly type = 'ex.circle';
   public priority: number = 0;
 
   private _maxCircles: number = 10922; // max(uint16) / 6 verts
 
-  private _shader: ShaderV2;
+  private _shader: Shader;
   private _context: ExcaliburGraphicsContextWebGL;
   private _gl: WebGLRenderingContext;
   private _buffer: VertexBuffer;
@@ -30,7 +30,7 @@ export class CircleRenderer implements RendererV2 {
     this._gl = gl;
     this._context = context;
     gl.getExtension('OES_standard_derivatives');
-    this._shader = new ShaderV2({
+    this._shader = new Shader({
       fragmentSource: frag,
       vertexSource: vert
     });

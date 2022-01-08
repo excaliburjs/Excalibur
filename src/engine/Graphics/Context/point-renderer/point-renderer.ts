@@ -3,15 +3,15 @@ import pointFragmentSource from './point-fragment.glsl';
 import { Vector } from '../../../Math/vector';
 import { Color } from '../../../Color';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
-import { RendererV2 } from '../renderer-v2';
-import { ShaderV2 } from '../shader-v2';
+import { RendererPlugin } from '../renderer';
+import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 
-export class PointRenderer implements RendererV2 {
+export class PointRenderer implements RendererPlugin {
   public readonly type = 'ex.point';
   public priority: number = 0;
-  private _shader: ShaderV2;
+  private _shader: Shader;
   private _maxPoints: number = 10922;
   private _buffer: VertexBuffer;
   private _layout: VertexLayout;
@@ -22,7 +22,7 @@ export class PointRenderer implements RendererV2 {
   initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
-    this._shader = new ShaderV2({
+    this._shader = new Shader({
       vertexSource: pointVertexSource,
       fragmentSource: pointFragmentSource
     });

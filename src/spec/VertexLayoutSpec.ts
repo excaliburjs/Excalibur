@@ -19,7 +19,7 @@ describe('A VertexLayout', () => {
   });
 
   it('can be constructed', () => {
-    const shader = new ex.ShaderV2({
+    const shader = new ex.Shader({
       vertexSource: `
       // nonsense shader for testing
       void main() {
@@ -46,7 +46,7 @@ describe('A VertexLayout', () => {
   });
 
   it('requires a compiled shader', () => {
-    const shader = new ex.ShaderV2({
+    const shader = new ex.Shader({
       vertexSource: `
       attribute vec2 a_position;
       // nonsense shader for testing
@@ -74,7 +74,7 @@ describe('A VertexLayout', () => {
   });
 
   it('will throw on invalid attribute name', () => {
-    const shader = new ex.ShaderV2({
+    const shader = new ex.Shader({
       vertexSource: `
       attribute vec2 a_position;
       // nonsense shader for testing
@@ -103,7 +103,7 @@ describe('A VertexLayout', () => {
   });
 
   it('will throw on invalid attribute size', () => {
-    const shader = new ex.ShaderV2({
+    const shader = new ex.Shader({
       vertexSource: `
       attribute vec2 a_position;
       // nonsense shader for testing
@@ -132,7 +132,7 @@ describe('A VertexLayout', () => {
   });
 
   it('will calculate vertex size and webgl vbo corretly', () => {
-    const shader = new ex.ShaderV2({
+    const shader = new ex.Shader({
       vertexSource: `
       attribute vec2 a_position;
       attribute vec2 a_uv;
@@ -202,7 +202,7 @@ describe('A VertexLayout', () => {
   });
 
   it('can have multiple layouts per shader', () => {
-    const shader = new ex.ShaderV2({
+    const shader = new ex.Shader({
       vertexSource: `
       attribute vec2 a_position;
       attribute vec2 a_uv;

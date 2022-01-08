@@ -1,7 +1,7 @@
 
 import screenVertex from './screen-vertex.glsl';
 import screenFragment from './screen-fragment.glsl';
-import { ShaderV2 } from '../shader-v2';
+import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 import { PostProcessor } from '../../PostProcessor/PostProcessor';
@@ -11,12 +11,12 @@ import { PostProcessor } from '../../PostProcessor/PostProcessor';
  */
 export class ScreenPassPainter {
   private _gl: WebGLRenderingContext;
-  private _shader: ShaderV2;
+  private _shader: Shader;
   private _buffer: VertexBuffer;
   private _layout: VertexLayout;
   constructor(gl: WebGLRenderingContext) {
     this._gl = gl;
-    this._shader = new ShaderV2({
+    this._shader = new Shader({
       vertexSource: screenVertex,
       fragmentSource: screenFragment
     });

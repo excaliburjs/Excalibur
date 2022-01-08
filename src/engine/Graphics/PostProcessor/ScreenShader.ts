@@ -1,4 +1,4 @@
-import { ShaderV2 } from '../Context/shader-v2';
+import { Shader } from '../Context/shader';
 import { VertexBuffer } from '../Context/vertex-buffer';
 import { VertexLayout } from '../Context/vertex-layout';
 
@@ -9,11 +9,11 @@ import { VertexLayout } from '../Context/vertex-layout';
  * - vec2 a_texcoord between 0-1 which cooresponds to screen position
  */
 export class ScreenShader {
-  private _shader: ShaderV2;
+  private _shader: Shader;
   private _buffer: VertexBuffer;
   private _layout: VertexLayout;
   constructor(fragmentSource: string) {
-    this._shader = new ShaderV2({
+    this._shader = new Shader({
       vertexSource: `
       attribute vec2 a_position;
       attribute vec2 a_texcoord;

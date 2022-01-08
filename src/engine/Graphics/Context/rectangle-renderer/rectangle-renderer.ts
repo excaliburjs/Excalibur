@@ -2,21 +2,21 @@ import { Color } from '../../../Color';
 import { vec, Vector } from '../../../Math/vector';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
-import { RendererV2 } from '../renderer-v2';
-import { ShaderV2 } from '../shader-v2';
+import { RendererPlugin } from '../renderer';
+import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 
 import frag from './rectangle-renderer.frag.glsl';
 import vert from './rectangle-renderer.vert.glsl';
 
-export class RectangleRenderer implements RendererV2 {
+export class RectangleRenderer implements RendererPlugin {
   public readonly type = 'ex.rectangle';
   public priority: number = 0;
 
   private _maxRectangles: number = 10922; // max(uint16) / 6 verts
 
-  private _shader: ShaderV2;
+  private _shader: Shader;
   private _gl: WebGLRenderingContext;
   private _context: ExcaliburGraphicsContextWebGL;
   private _buffer: VertexBuffer;
@@ -31,7 +31,7 @@ export class RectangleRenderer implements RendererV2 {
     this._context = context;
     gl.getExtension('OES_standard_derivatives');
     // https://stackoverflow.com/questions/59197671/glsl-rounded-rectangle-with-variable-border
-    this._shader = new ShaderV2({
+    this._shader = new Shader({
       fragmentSource: frag,
       vertexSource: vert
     });

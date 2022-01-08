@@ -1,16 +1,16 @@
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
-import { RendererV2 } from '../renderer-v2';
-import { ShaderV2 } from '../shader-v2';
+import { RendererPlugin } from '../renderer';
+import { Shader } from '../shader';
 import { TextureLoader } from '../texture-loader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 import { ensurePowerOfTwo } from '../webgl-util';
-import frag from './image-renderer-v2.frag.glsl';
-import vert from './image-renderer-v2.vert.glsl';
+import frag from './image-renderer.frag.glsl';
+import vert from './image-renderer.vert.glsl';
 
-export class ImageRendererV2 implements RendererV2 {
+export class ImageRenderer implements RendererPlugin {
   public readonly type = 'ex.image';
   public priority: number = 0;
 
@@ -19,7 +19,7 @@ export class ImageRendererV2 implements RendererV2 {
 
   private _context: ExcaliburGraphicsContextWebGL;
   private _gl: WebGLRenderingContext;
-  private _shader: ShaderV2;
+  private _shader: Shader;
   private _buffer: VertexBuffer;
   private _layout: VertexLayout;
   private _quads: QuadIndexBuffer;
@@ -36,7 +36,7 @@ export class ImageRendererV2 implements RendererV2 {
     this._maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
     const transformedFrag = this._transformFragmentSource(frag, this._maxTextures);
     // Compile shader
-    this._shader = new ShaderV2({
+    this._shader = new Shader({
       fragmentSource: transformedFrag,
       vertexSource: vert
     });

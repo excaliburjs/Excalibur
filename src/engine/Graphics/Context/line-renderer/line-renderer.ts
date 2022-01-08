@@ -3,15 +3,15 @@ import { Color } from '../../../Color';
 import lineVertexSource from './line-vertex.glsl';
 import lineFragmentSource from './line-fragment.glsl';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
-import { RendererV2 } from '../renderer-v2';
-import { ShaderV2, VertexBuffer, VertexLayout } from '../..';
+import { RendererPlugin } from '../renderer';
+import { Shader, VertexBuffer, VertexLayout } from '../..';
 
-export class LineRenderer implements RendererV2 {
+export class LineRenderer implements RendererPlugin {
   public readonly type = 'ex.line';
   public priority: number = 0;
   private _context: ExcaliburGraphicsContextWebGL;
   private _gl: WebGLRenderingContext;
-  private _shader: ShaderV2;
+  private _shader: Shader;
   private _maxLines: number = 10922;
   private _vertexBuffer: VertexBuffer;
   private _layout: VertexLayout;
@@ -20,7 +20,7 @@ export class LineRenderer implements RendererV2 {
   initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
-    this._shader = new ShaderV2({
+    this._shader = new Shader({
       vertexSource: lineVertexSource,
       fragmentSource: lineFragmentSource
     });

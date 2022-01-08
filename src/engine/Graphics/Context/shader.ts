@@ -74,8 +74,8 @@ export interface ShaderOptions {
   fragmentSource: string;
 }
 
-export class ShaderV2 {
-  private static _ACTIVE_SHADER_INSTANCE: ShaderV2 = null;
+export class Shader {
+  private static _ACTIVE_SHADER_INSTANCE: Shader = null;
   private _gl: WebGLRenderingContext = ExcaliburWebGLContextAccessor.gl;
   public program: WebGLProgram;
   public uniforms: { [variableName: string]: UniformDefinition } = {};
@@ -104,11 +104,11 @@ export class ShaderV2 {
   use() {
     const gl = this._gl;
     gl.useProgram(this.program);
-    ShaderV2._ACTIVE_SHADER_INSTANCE = this;
+    Shader._ACTIVE_SHADER_INSTANCE = this;
   }
 
   isCurrentlyBound() {
-    return ShaderV2._ACTIVE_SHADER_INSTANCE === this;
+    return Shader._ACTIVE_SHADER_INSTANCE === this;
   }
 
   /**

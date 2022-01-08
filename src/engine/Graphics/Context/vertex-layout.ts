@@ -1,5 +1,5 @@
 import { Logger } from '../..';
-import { ShaderV2, VertexAttributeDefinition } from './shader-v2';
+import { Shader, VertexAttributeDefinition } from './shader';
 import { VertexBuffer } from './vertex-buffer';
 import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
 import { getGlTypeSizeBytes } from './webgl-util';
@@ -9,7 +9,7 @@ export interface VertexLayoutOptions {
   /**
    * Shader that this layout will be for
    */
-  shader: ShaderV2;
+  shader: Shader;
   /**
    * Vertex buffer to use for vertex data
    */
@@ -33,7 +33,7 @@ export interface VertexLayoutOptions {
 export class VertexLayout {
   private _gl: WebGLRenderingContext = ExcaliburWebGLContextAccessor.gl;
   private _logger = Logger.getInstance();
-  private _shader: ShaderV2;
+  private _shader: Shader;
   private _layout: VertexAttributeDefinition[] = [];
   private _attributes: [name: string, numberOfComponents: number][] = [];
   private _vertexBuffer: VertexBuffer;

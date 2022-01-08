@@ -23,8 +23,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Added ability to build custom renderer plugins that are accessible to the `ex.ExcaliburGraphicsContext.draw<TCustomRenderer>(...)`
-- Added ability to draw circles and rectangles with outlines! `ex.ExcaliburGraphicsContext.drawCircle(...)/drawRectangle(...)` and 
+- Added ability to build custom renderer plugins that are accessible to the `ex.ExcaliburGraphicsContext.draw<TCustomRenderer>(...)` after registering them `ex.ExcaliburGraphicsContext.register(new LineRenderer())`
+- Added ability to draw circles and rectangles with outlines! `ex.ExcaliburGraphicsContext.drawCircle(...)` and `ex.ExcaliburGraphicsContext.drawRectangle(...)`
 - Added `ex.CoordPlane` can be set in the `new ex.Actor({coordPlane: CoordPlane.Screen})` constructor
 - Added convenience feature, setting the color, sets the color on default graphic if applicable
 - Added a `DebugGraphicsComponent` for doing direct debug draw in the `DebugSystem`

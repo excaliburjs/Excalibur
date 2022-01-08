@@ -22,13 +22,13 @@ import { RenderTarget } from './render-target';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
 import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
 import { TextureLoader } from './texture-loader';
-import { RendererV2 } from './renderer-v2';
+import { RendererPlugin } from './renderer';
 
 // renderers
 import { LineRenderer } from './line-renderer/line-renderer';
 import { PointRenderer } from './point-renderer/point-renderer';
 import { ScreenPassPainter } from './screen-pass-painter/screen-pass-painter';
-import { ImageRendererV2 } from './image-renderer/image-renderer-v2';
+import { ImageRenderer } from './image-renderer/image-renderer';
 import { RectangleRenderer } from './rectangle-renderer/rectangle-renderer';
 import { CircleRenderer } from './circle-renderer/circle-renderer';
 
@@ -82,7 +82,7 @@ export interface WebGLGraphicsContextInfo {
 }
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
-  private _renderers: Map<string, RendererV2> = new Map<string, RendererV2>();
+  private _renderers: Map<string, RendererPlugin> = new Map<string, RendererPlugin>();
 
   // Main render target
   private _renderTarget: RenderTarget;
@@ -203,7 +203,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
     // Setup builtin renderers
-    this.register(new ImageRendererV2());
+    this.register(new ImageRenderer());
     this.register(new RectangleRenderer());
     this.register(new CircleRenderer());
     this.register(new PointRenderer());
@@ -239,13 +239,13 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.__ctx = this._canvas.ctx;
   }
 
-  public register<T extends RendererV2>(renderer: T) {
+  public register<T extends RendererPlugin>(renderer: T) {
     this._renderers.set(renderer.type, renderer);
     renderer.initialize(this.__gl, this);
   }
 
 
-  public draw<TRenderer extends RendererV2>(rendererName: TRenderer['type'], ...args: Parameters<TRenderer['draw']>) {
+  public draw<TRenderer extends RendererPlugin>(rendererName: TRenderer['type'], ...args: Parameters<TRenderer['draw']>) {
     // TODO does not handle priority yet...
     //  in order to do this draw commands need to be captured and fed in priority order
     const renderer = this._renderers.get(rendererName);
@@ -314,7 +314,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       }
       return;
     }
-    this.draw<ImageRendererV2>('ex.image', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+    this.draw<ImageRenderer>('ex.image', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
   }
 
   public drawLine(start: Vector, end: Vector, color: Color, thickness = 1) {
