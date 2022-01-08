@@ -328,8 +328,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     rectangleRenderer.drawLine(start, end, color, thickness);
   }
 
-  public drawRectangle(pos: Vector, width: number, height: number, color: Color, borderRadius?: number, stroke?: Color, strokeThickness?: number) {
-    this.draw<RectangleRenderer>('ex.rectangle', pos, width, height, color, borderRadius, stroke, strokeThickness);
+  public drawRectangle(pos: Vector, width: number, height: number, color: Color, stroke?: Color, strokeThickness?: number) {
+    this.draw<RectangleRenderer>('ex.rectangle', pos, width, height, color, stroke, strokeThickness);
   }
 
   public drawCircle(pos: Vector, radius: number, color: Color, stroke?: Color, thickness?: number) {

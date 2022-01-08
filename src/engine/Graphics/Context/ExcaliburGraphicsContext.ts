@@ -154,7 +154,7 @@ export interface ExcaliburGraphicsContext {
    * @param height
    * @param color
    */
-  drawRectangle(pos: Vector, width: number, height: number, color: Color, borderRadius?: number, stroke?: Color, strokeThickness?: number): void;
+  drawRectangle(pos: Vector, width: number, height: number, color: Color, stroke?: Color, strokeThickness?: number): void;
 
   /**
    * Draw a circle to the Excalibur Graphics context

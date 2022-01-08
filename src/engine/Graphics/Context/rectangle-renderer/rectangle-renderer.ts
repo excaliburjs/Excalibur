@@ -17,7 +17,7 @@ export class RectangleRenderer implements RendererV2 {
   private _MAX_RECTANGLES: number = 10922; // max(uint16) / 6 verts
 
   private _shader: ShaderV2;
-  private _gl: any;
+  private _gl: WebGLRenderingContext;
   private _context: ExcaliburGraphicsContextWebGL;
   private _buffer: VertexBuffer;
   private _layout: VertexLayout;
@@ -29,6 +29,8 @@ export class RectangleRenderer implements RendererV2 {
   initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
+    gl.getExtension('OES_standard_derivatives');
+    // https://stackoverflow.com/questions/59197671/glsl-rounded-rectangle-with-variable-border
     this._shader = new ShaderV2({
       fragmentSource: frag,
       vertexSource: vert
@@ -40,7 +42,7 @@ export class RectangleRenderer implements RendererV2 {
     this._shader.setUniformMatrix('u_matrix', context.ortho);
 
     this._buffer = new VertexBuffer({
-      size: 15 * this._MAX_RECTANGLES,
+      size: 16 * this._MAX_RECTANGLES,
       type: 'dynamic'
     });
 
@@ -50,7 +52,7 @@ export class RectangleRenderer implements RendererV2 {
       attributes: [
         ['a_position', 2],
         ['a_uv', 2],
-        ['a_radius', 1],
+        ['a_size', 2],
         ['a_opacity', 1],
         ['a_color', 4],
         ['a_strokeColor', 4],
@@ -78,8 +80,9 @@ export class RectangleRenderer implements RendererV2 {
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
 
-    const dir = end.sub(start).normalize();
-    const normal = dir.perpendicular();
+    const dir = end.sub(start);
+    const length = dir.size;
+    const normal = dir.normalize().perpendicular();
     const halfThick = thickness / 2;
 
     /**
@@ -94,22 +97,12 @@ export class RectangleRenderer implements RendererV2 {
     const endTop = transform.multv(normal.scale(halfThick).add(end));
     const endBottom = transform.multv(normal.scale(-halfThick).add(end));
 
-
-    // let index = 0;
-    // this._geom[index++] = [startTop.x, startTop.y];
-    // this._geom[index++] = [endTop.x, endTop.y];
-    // this._geom[index++] = [startBottom.x, startBottom.y];
-    // this._geom[index++] = [startBottom.x, startBottom.y];
-    // this._geom[index++] = [endTop.x, endTop.y];
-    // this._geom[index++] = [endBottom.x, endBottom.y];
-
     // TODO uv could be static vertex buffer
     const uvx0 = 0;
     const uvy0 = 0;
     const uvx1 = 1;
     const uvy1 = 1;
 
-    const borderRadius = 0;
     const stroke = Color.Transparent;
     const strokeThickness = 0;
     const width = 1;
@@ -122,7 +115,8 @@ export class RectangleRenderer implements RendererV2 {
     vertexBuffer[this._vertexIndex++] = startTop.y;
     vertexBuffer[this._vertexIndex++] = uvx0;
     vertexBuffer[this._vertexIndex++] = uvy0;
-    vertexBuffer[this._vertexIndex++] = borderRadius;
+    vertexBuffer[this._vertexIndex++] = length;
+    vertexBuffer[this._vertexIndex++] = thickness;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = color.r / 255;
     vertexBuffer[this._vertexIndex++] = color.g / 255;
@@ -139,7 +133,8 @@ export class RectangleRenderer implements RendererV2 {
     vertexBuffer[this._vertexIndex++] = startBottom.y;
     vertexBuffer[this._vertexIndex++] = uvx0;
     vertexBuffer[this._vertexIndex++] = uvy1;
-    vertexBuffer[this._vertexIndex++] = borderRadius;
+    vertexBuffer[this._vertexIndex++] = length;
+    vertexBuffer[this._vertexIndex++] = thickness;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = color.r / 255;
     vertexBuffer[this._vertexIndex++] = color.g / 255;
@@ -156,7 +151,8 @@ export class RectangleRenderer implements RendererV2 {
     vertexBuffer[this._vertexIndex++] = endTop.y;
     vertexBuffer[this._vertexIndex++] = uvx1;
     vertexBuffer[this._vertexIndex++] = uvy0;
-    vertexBuffer[this._vertexIndex++] = borderRadius;
+    vertexBuffer[this._vertexIndex++] = length;
+    vertexBuffer[this._vertexIndex++] = thickness;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = color.r / 255;
     vertexBuffer[this._vertexIndex++] = color.g / 255;
@@ -173,7 +169,8 @@ export class RectangleRenderer implements RendererV2 {
     vertexBuffer[this._vertexIndex++] = endBottom.y;
     vertexBuffer[this._vertexIndex++] = uvx1;
     vertexBuffer[this._vertexIndex++] = uvy1;
-    vertexBuffer[this._vertexIndex++] = borderRadius;
+    vertexBuffer[this._vertexIndex++] = length;
+    vertexBuffer[this._vertexIndex++] = thickness;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = color.r / 255;
     vertexBuffer[this._vertexIndex++] = color.g / 255;
@@ -186,7 +183,7 @@ export class RectangleRenderer implements RendererV2 {
     vertexBuffer[this._vertexIndex++] = strokeThickness / width;
   }
 
-  draw(pos: Vector, width: number, height: number, color: Color, borderRadius: number = 0, stroke: Color = Color.Transparent, strokeThickness: number = 0): void {
+  draw(pos: Vector, width: number, height: number, color: Color, stroke: Color = Color.Transparent, strokeThickness: number = 0): void {
     if (this._isFull()) {
       this.flush();
     }
@@ -215,7 +212,8 @@ export class RectangleRenderer implements RendererV2 {
     vertexBuffer[this._vertexIndex++] = topLeft.y;
     vertexBuffer[this._vertexIndex++] = uvx0;
     vertexBuffer[this._vertexIndex++] = uvy0;
-    vertexBuffer[this._vertexIndex++] = borderRadius;
+    vertexBuffer[this._vertexIndex++] = width;
+    vertexBuffer[this._vertexIndex++] = height;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = color.r / 255;
     vertexBuffer[this._vertexIndex++] = color.g / 255;
@@ -225,14 +223,15 @@ export class RectangleRenderer implements RendererV2 {
     vertexBuffer[this._vertexIndex++] = stroke.g / 255;
     vertexBuffer[this._vertexIndex++] = stroke.b / 255;
     vertexBuffer[this._vertexIndex++] = stroke.a;
-    vertexBuffer[this._vertexIndex++] = strokeThickness / width;
+    vertexBuffer[this._vertexIndex++] = strokeThickness;
 
     // (0, 1) - 1
     vertexBuffer[this._vertexIndex++] = bottomLeft.x;
     vertexBuffer[this._vertexIndex++] = bottomLeft.y;
     vertexBuffer[this._vertexIndex++] = uvx0;
     vertexBuffer[this._vertexIndex++] = uvy1;
-    vertexBuffer[this._vertexIndex++] = borderRadius;
+    vertexBuffer[this._vertexIndex++] = width;
+    vertexBuffer[this._vertexIndex++] = height;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = color.r / 255;
     vertexBuffer[this._vertexIndex++] = color.g / 255;
@@ -242,14 +241,15 @@ export class RectangleRenderer implements RendererV2 {
     vertexBuffer[this._vertexIndex++] = stroke.g / 255;
     vertexBuffer[this._vertexIndex++] = stroke.b / 255;
     vertexBuffer[this._vertexIndex++] = stroke.a;
-    vertexBuffer[this._vertexIndex++] = strokeThickness / width;
+    vertexBuffer[this._vertexIndex++] = strokeThickness;
 
     // (1, 0) - 2
     vertexBuffer[this._vertexIndex++] = topRight.x;
     vertexBuffer[this._vertexIndex++] = topRight.y;
     vertexBuffer[this._vertexIndex++] = uvx1;
     vertexBuffer[this._vertexIndex++] = uvy0;
-    vertexBuffer[this._vertexIndex++] = borderRadius;
+    vertexBuffer[this._vertexIndex++] = width;
+    vertexBuffer[this._vertexIndex++] = height;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = color.r / 255;
     vertexBuffer[this._vertexIndex++] = color.g / 255;
@@ -259,14 +259,15 @@ export class RectangleRenderer implements RendererV2 {
     vertexBuffer[this._vertexIndex++] = stroke.g / 255;
     vertexBuffer[this._vertexIndex++] = stroke.b / 255;
     vertexBuffer[this._vertexIndex++] = stroke.a;
-    vertexBuffer[this._vertexIndex++] = strokeThickness / width;
+    vertexBuffer[this._vertexIndex++] = strokeThickness;
 
     // (1, 1) - 3
     vertexBuffer[this._vertexIndex++] = bottomRight.x;
     vertexBuffer[this._vertexIndex++] = bottomRight.y;
     vertexBuffer[this._vertexIndex++] = uvx1;
     vertexBuffer[this._vertexIndex++] = uvy1;
-    vertexBuffer[this._vertexIndex++] = borderRadius;
+    vertexBuffer[this._vertexIndex++] = width;
+    vertexBuffer[this._vertexIndex++] = height;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = color.r / 255;
     vertexBuffer[this._vertexIndex++] = color.g / 255;
@@ -276,7 +277,7 @@ export class RectangleRenderer implements RendererV2 {
     vertexBuffer[this._vertexIndex++] = stroke.g / 255;
     vertexBuffer[this._vertexIndex++] = stroke.b / 255;
     vertexBuffer[this._vertexIndex++] = stroke.a;
-    vertexBuffer[this._vertexIndex++] = strokeThickness / width;
+    vertexBuffer[this._vertexIndex++] = strokeThickness;
 
   }
 

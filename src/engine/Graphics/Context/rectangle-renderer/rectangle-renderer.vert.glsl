@@ -4,8 +4,8 @@ attribute vec2 a_position;
 attribute vec2 a_uv;
 varying vec2 v_uv;
 
-attribute float a_radius;
-varying float v_radius;
+attribute vec2 a_size;
+varying vec2 v_size;
 
 // Opacity 
 attribute float a_opacity;
@@ -29,8 +29,8 @@ void main() {
 
    // Pass through UV coords
    v_uv = a_uv;
-   // Pass through radius
-   v_radius = a_radius;
+   // Pass through size
+   v_size = a_size;
    // Pass through the Opacity to the fragment shader
    v_opacity = a_opacity;
    // Pass through the color to the fragment shader

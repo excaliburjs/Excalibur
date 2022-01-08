@@ -403,7 +403,7 @@ export class TileMapImpl extends Entity {
     const colliders = this._composite.getColliders();
     for (const collider of colliders) {
       const grayish = Color.Gray;
-      grayish.a = .1;
+      grayish.a = 0.5;
       const bounds = collider.localBounds;
       const pos = collider.worldPos.sub(this.pos);
       gfx.drawRectangle(pos, bounds.width, bounds.height, grayish);
