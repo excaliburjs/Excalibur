@@ -250,7 +250,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _currentRenderer: RendererPlugin;
 
   private _isCurrentRenderer(renderer: RendererPlugin): boolean {
-    if (!this._currentRenderer || this._currentRenderer == renderer) {
+    if (!this._currentRenderer || this._currentRenderer === renderer) {
       return true;
     }
     return false;
@@ -408,7 +408,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   clear() {
     const gl = this.__gl;
-    this._renderTarget.use(); // TODO is there a better way to reset the render target for the next frame?
+    this._renderTarget.use();
     gl.clearColor(this.backgroundColor.r / 255, this.backgroundColor.g / 255, this.backgroundColor.b / 255, this.backgroundColor.a);
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.

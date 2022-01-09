@@ -481,7 +481,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.clear();
 
       const circleRenderer = sut.get('ex.circle');
-      spyOn(circleRenderer, "flush").and.callThrough();
+      spyOn(circleRenderer, 'flush').and.callThrough();
       for (let i = 0; i < 10922; i++) {
         sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
       }
@@ -509,7 +509,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.clear();
 
       const rectangleRenderer = sut.get('ex.rectangle');
-      spyOn(rectangleRenderer, "flush").and.callThrough();
+      spyOn(rectangleRenderer, 'flush').and.callThrough();
       for (let i = 0; i < 10922; i++) {
         sut.drawRectangle(ex.vec(50, 50), 50, 50, ex.Color.Blue);
       }
@@ -540,7 +540,7 @@ describe('The ExcaliburGraphicsContext', () => {
       await tex.load();
 
       const imageRenderer = sut.get('ex.image');
-      spyOn(imageRenderer, "flush").and.callThrough();
+      spyOn(imageRenderer, 'flush').and.callThrough();
       for (let i = 0; i < 10922; i++) {
         sut.drawImage(tex.image, 0, 0);
       }

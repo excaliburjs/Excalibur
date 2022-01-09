@@ -43,7 +43,7 @@ export class RectangleRenderer implements RendererPlugin {
     this._shader.setUniformMatrix('u_matrix', context.ortho);
 
     this._buffer = new VertexBuffer({
-      size: 16 * this._maxRectangles,
+      size: 16 * 4 * this._maxRectangles,
       type: 'dynamic'
     });
 

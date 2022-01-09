@@ -42,7 +42,7 @@ export class CircleRenderer implements RendererPlugin {
     this._shader.setUniformMatrix('u_matrix', context.ortho);
 
     this._buffer = new VertexBuffer({
-      size: 14 * this._maxCircles,
+      size: 14 * 4 * this._maxCircles,
       type: 'dynamic'
     });
 

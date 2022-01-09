@@ -1110,6 +1110,7 @@ O|===|* >________________>\n\
    */
   private _draw(delta: number) {
     const ctx = this.ctx;
+    this.graphicsContext.clear();
     this._predraw(ctx, delta);
 
     // Drawing nothing else while loading
@@ -1145,6 +1146,9 @@ O|===|* >________________>\n\
     }
 
     this._postdraw(ctx, delta);
+
+    // Flush any pending drawings
+    this.graphicsContext.flush();
   }
 
   /**

@@ -138,7 +138,7 @@ describe('A particle', () => {
     engine.currentScene.update(engine, 100);
     engine.currentScene.update(engine, 100);
     engine.currentScene.draw(engine.ctx, 100);
-
+    engine.graphicsContext.flush();
     await expectAsync(flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/ParticleSpec/Particles.png');
   });
 });

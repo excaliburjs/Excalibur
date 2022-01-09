@@ -31,7 +31,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   }
 
   public update(entities: Entity[], delta: number): void {
-    this._clearScreen();
     this._token++;
     let transform: TransformComponent;
     let graphics: GraphicsComponent;
@@ -89,12 +88,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       // Reset the transform back to the original
       this._popCameraTransform(transform);
     }
-
-    this._graphicsContext.flush();
-  }
-
-  private _clearScreen(): void {
-    this._graphicsContext.clear();
   }
 
   private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent) {

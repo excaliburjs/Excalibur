@@ -120,6 +120,7 @@ describe('A Graphics ECS System', () => {
     spyOn(offscreenRect, 'draw').and.callThrough();
 
     entities.push(offscreen);
+    engine.graphicsContext.clear();
 
     sut.update(entities, 1);
 
@@ -127,6 +128,8 @@ describe('A Graphics ECS System', () => {
     expect(circle.draw).toHaveBeenCalled();
     expect(rect2.draw).toHaveBeenCalled();
     expect(offscreenRect.draw).not.toHaveBeenCalled();
+
+    engine.graphicsContext.flush();
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-system.png');
   });
 });

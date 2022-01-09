@@ -27,20 +27,30 @@ add$.addEventListener('click', () => {
 });
 
 game.start(loader).then(() => {
+  const width = tex.width;
+  const height = tex.height;
   game.onPostUpdate = (_engine, deltaMs) => {
     for (let i = 0; i < items.length; i++) {
       items[i].pos.addEqual(items[i].vel.scale(deltaMs/1000));
-      if ((items[i].pos.x + tex.width) > 600 || items[i].pos.x < 0) {
+      if ((items[i].pos.x + width / 2) > 600 || items[i].pos.x < 0) {
         items[i].vel.x *= -1;
       }
 
-      if ((items[i].pos.y + tex.height) > 400 || items[i].pos.y < 0) {
+      if ((items[i].pos.y + height / 2) > 400 || items[i].pos.y < 0) {
         items[i].vel.y *= -1;
       }
     }
+  };
 
+  game.onPostDraw = (_engine, deltaMs) => {
+    const blue = ex.Color.Blue;
+    const black = ex.Color.Black;
     for (let i = 0; i < items.length; i++) {
-      game.graphicsContext.drawImage(tex.image, items[i].pos.x, items[i].pos.y);
+      // game.graphicsContext.drawImage(tex.image,
+      //   0, 0, width, height,
+      //   items[i].pos.x, items[i].pos.y, width / 2, height / 2);
+
+      game.graphicsContext.drawCircle(items[i].pos, width / 4, blue, black, 2);
     }
   };
 
