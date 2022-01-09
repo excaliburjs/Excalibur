@@ -47,11 +47,12 @@ game.start(loader).then(() => {
     const blue = ex.Color.Blue;
     const black = ex.Color.Black;
     for (let i = 0; i < items.length; i++) {
-      // game.graphicsContext.drawImage(tex.image,
-      //   0, 0, width, height,
-      //   items[i].pos.x, items[i].pos.y, width / 2, height / 2);
+      game.graphicsContext.drawImage(tex.image,
+        0, 0, width, height,
+        items[i].pos.x, items[i].pos.y, width / 2, height / 2);
 
-      game.graphicsContext.drawCircle(items[i].pos, width / 4, blue, black, 2);
+      // game.graphicsContext.drawCircle(items[i].pos, width / 4, blue, black, 2);
+      // game.graphicsContext.drawRectangle(items[i].pos, width, height, blue, black, 2);
     }
   };
 
