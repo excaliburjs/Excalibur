@@ -1,139 +1,42 @@
-import { BatchCommand } from './batch';
-import { Shader } from './shader';
-// import { Pool, Poolable } from './pool';
-import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
-import { Pool, Poolable } from '../../Util/Pool';
+import { ExcaliburGraphicsContextWebGL } from './ExcaliburGraphicsContextWebGL';
 
-export interface Renderer {
-  render(): void;
-}
 
-export interface Ctor<T> {
-  new (): T;
-}
-
-export interface BatchRendererOptions<T extends Poolable> {
-  gl: WebGLRenderingContext;
+/**
+ * Interface that defines an Excalibur Renderer that can be called with .draw() in the [[ExcaliburGraphicsContext]]
+ */
+export interface RendererPlugin {
   /**
-   * Draw command constructor
+   * Unique type name for this renderer plugin
    */
-  command: Ctor<T>;
+  readonly type: string;
+
   /**
-   * Number of vertices that are generated per draw command
+   * Render priority tie breaker when drawings are at the same z index
+   * @warning Not yet used by excalibur
    */
-  verticesPerCommand?: number;
-  /**
-   * Maximum commands to batch before drawing
-   */
-  maxCommandsPerBatch?: number;
-  /**
-   * Override the built in command batching mechanism
-   */
-  batchFactory?: () => BatchCommand<T>;
-}
-
-export abstract class BatchRenderer<T extends Poolable> implements Renderer {
-  priority = 0;
-  private _gl: WebGLRenderingContext;
-  private _vertices: Float32Array;
-  private _verticesPerCommand: number;
-  private _buffer: WebGLBuffer | null = null;
-  private _maxCommandsPerBatch: number = 2000;
-
-  public shader: Shader;
-
-  public commands: Pool<T>;
-  private _batchPool: Pool<BatchCommand<T>>;
-  private _batches: BatchCommand<T>[] = [];
-  constructor(options: BatchRendererOptions<T>) {
-    this._gl = options.gl;
-    const command = options.command;
-    this._verticesPerCommand = options?.verticesPerCommand ?? 1;
-    this._maxCommandsPerBatch = options?.maxCommandsPerBatch ?? this._maxCommandsPerBatch;
-    const batchFactory = options?.batchFactory ?? (() => new BatchCommand<T>(this._maxCommandsPerBatch));
-
-    this.commands = new Pool<T>(
-      () => new command(),
-      (c) => c.dispose(),
-      this._maxCommandsPerBatch
-    );
-    this._batchPool = new Pool<BatchCommand<T>>(batchFactory, (b) => b.dispose(), 100);
-  }
+  priority: number;
 
   /**
-   * Initialize render, builds shader and initialized webgl buffers
-   */
-  public init() {
-    const gl = this._gl;
-    this.shader = this.buildShader(gl);
-    // Initialize VBO
-    // https://groups.google.com/forum/#!topic/webgl-dev-list/vMNXSNRAg8M
-    this._vertices = new Float32Array(this.shader.vertexAttributeSize * this._verticesPerCommand * this._maxCommandsPerBatch);
-    this._buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._vertices, gl.DYNAMIC_DRAW);
-  }
-
-  public get vertexSize(): number {
-    return this.shader.vertexAttributeSize;
-  }
-
-  public addCommand(cmd: T) {
-    if (this._batches.length === 0) {
-      this._batches.push(this._batchPool.get());
-    }
-
-    const lastBatch = this._batches[this._batches.length - 1];
-    if (lastBatch.canAdd()) {
-      lastBatch.add(cmd);
-    } else {
-      const newBatch = this._batchPool.get();
-      newBatch.add(cmd);
-      this._batches.push(newBatch);
-    }
-  }
-
-  /**
-   * Construct or return the Shader to be used in this batch renderer
+   * Initialize your renderer
+   *
    * @param gl
+   * @param context
    */
-  abstract buildShader(gl: WebGLRenderingContext): Shader;
+  initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void;
 
   /**
-   * Implement populating the vertex buffer, return the number of vertices added to the buffer
-   * @param vertices
-   * @param batch
+   * Issue a draw command to draw something to the screen
+   * @param args
    */
-  abstract buildBatchVertices(vertexBuffer: Float32Array, batch: BatchCommand<T>): number;
+  draw(...args: any[]): void;
 
   /**
-   * Implement gl draw call to render batch. The vertextBuffer from buildBatchVertices is already bound and the data has been updated.
+   * @returns if there are any pending draws in the renderer
    */
-  abstract renderBatch(gl: WebGLRenderingContext, batch: BatchCommand<T>, vertexCount: number): void;
+  hasPendingDraws(): boolean;
 
   /**
-   * Build batch geometry, submit to the gpu, and issue draw command to underlying webgl
+   * Flush any pending graphics draws to the screen
    */
-  public render(): void {
-    const gl = this._gl;
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._buffer);
-    this.shader.use();
-    let drawCallCount = 0;
-    let drawnImagesCount = 0;
-    for (const batch of this._batches) {
-      // Build all geometry and ship to GPU
-      // interleave VBOs https://goharsha.com/lwjgl-tutorial-series/interleaving-buffer-objects/
-      const vertexCount = this.buildBatchVertices(this._vertices, batch);
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._vertices);
-
-      this.renderBatch(gl, batch, vertexCount);
-      drawnImagesCount += batch.commands.length;
-      drawCallCount++;
-    }
-    this.commands.done();
-    this._batchPool.done();
-    this._batches.length = 0;
-    GraphicsDiagnostics.DrawCallCount += drawCallCount;
-    GraphicsDiagnostics.DrawnImagesCount += drawnImagesCount;
-  }
+  flush(): void;
 }

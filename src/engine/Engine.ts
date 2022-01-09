@@ -44,6 +44,7 @@ import { PointerEventReceiver } from './Input/PointerEventReceiver';
 import { FpsSampler } from './Util/Fps';
 import { Clock, StandardClock } from './Util/Clock';
 import { ImageFiltering } from './Graphics/Filtering';
+import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -1109,6 +1110,8 @@ O|===|* >________________>\n\
    */
   private _draw(delta: number) {
     const ctx = this.ctx;
+    this.graphicsContext.beginDrawLifecycle();
+    this.graphicsContext.clear();
     this._predraw(ctx, delta);
 
     // Drawing nothing else while loading
@@ -1144,6 +1147,10 @@ O|===|* >________________>\n\
     }
 
     this._postdraw(ctx, delta);
+
+    // Flush any pending drawings
+    this.graphicsContext.flush();
+    this.graphicsContext.endDrawLifecycle();
   }
 
   /**
@@ -1272,6 +1279,7 @@ O|===|* >________________>\n\
     this.stats.currFrame.id = frameId;
     this.stats.currFrame.delta = delta;
     this.stats.currFrame.fps = this.clock.fpsSampler.fps;
+    GraphicsDiagnostics.clear();
 
     const beforeUpdate = this.clock.now();
     this._update(delta);
@@ -1281,6 +1289,8 @@ O|===|* >________________>\n\
 
     this.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
     this.stats.currFrame.duration.draw = afterDraw - afterUpdate;
+    this.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;
+    this.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
 
     this.emit('postframe', new PostFrameEvent(this, this.stats.currFrame));
     this.stats.prevFrame.reset(this.stats.currFrame);

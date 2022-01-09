@@ -7,7 +7,6 @@ import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';
 import { System, SystemType, TagComponent } from '../EntityComponentSystem';
 import { Engine } from '../Engine';
-import { GraphicsDiagnostics } from './GraphicsDiagnostics';
 import { EnterViewPortEvent, ExitViewPortEvent } from '../Events';
 import { GraphicsGroup } from '.';
 import { Particle } from '../Particles';
@@ -32,7 +31,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   }
 
   public update(entities: Entity[], delta: number): void {
-    this._clearScreen();
     this._token++;
     let transform: TransformComponent;
     let graphics: GraphicsComponent;
@@ -90,14 +88,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       // Reset the transform back to the original
       this._popCameraTransform(transform);
     }
-
-    this._graphicsContext.flush();
-    this._engine.stats.currFrame.graphics.drawnImages = GraphicsDiagnostics.DrawnImagesCount;
-    this._engine.stats.currFrame.graphics.drawCalls = GraphicsDiagnostics.DrawCallCount;
-  }
-
-  private _clearScreen(): void {
-    this._graphicsContext.clear();
   }
 
   private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent) {

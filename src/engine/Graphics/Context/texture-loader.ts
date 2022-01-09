@@ -17,7 +17,7 @@ export class TextureLoader {
 
   private static _TEXTURE_MAP = new Map<HTMLImageSource, WebGLTexture>();
 
-  public static registerContext(context: WebGLRenderingContext): void {
+  public static register(context: WebGLRenderingContext): void {
     TextureLoader._GL = context;
   }
 

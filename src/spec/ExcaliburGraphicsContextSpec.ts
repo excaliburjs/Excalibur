@@ -255,6 +255,16 @@ describe('The ExcaliburGraphicsContext', () => {
       });
       expect(context).toBeDefined();
     });
+    it('will throw if an invalid renderer is specified', () => {
+      const canvas = document.createElement('canvas');
+      const context = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvas,
+        backgroundColor: ex.Color.Red
+      });
+      expect(() => {
+        context.draw('ex.doesnotexist', 1, 2, 3);
+      }).toThrowError('No renderer with name ex.doesnotexist has been registered');
+    });
 
     it('has the same dimensions as the canvas', () => {
       const canvas = document.createElement('canvas');
@@ -317,6 +327,88 @@ describe('The ExcaliburGraphicsContext', () => {
 
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/webgl-drawpoint.png'
+      );
+    });
+
+    it('will log a warning if you attempt to draw outside the lifecycle', () => {
+      const logger = ex.Logger.getInstance();
+      spyOn(logger, 'warn').and.callThrough();
+
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.drawCircle(ex.vec(0, 0), 10, ex.Color.Blue);
+      expect(logger.warn).toHaveBeenCalledWith(
+        `Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n`+
+        `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`);
+    });
+
+    it('will not log a warning inside the lifecycle', () => {
+      const logger = ex.Logger.getInstance();
+      spyOn(logger, 'warn').and.callThrough();
+
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+      sut.beginDrawLifecycle();
+      sut.drawCircle(ex.vec(0, 0), 10, ex.Color.Blue);
+      expect(logger.warn).not.toHaveBeenCalled();
+      sut.endDrawLifecycle();
+    });
+
+    it('will preserve the painter order when switching renderer', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      const tex = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/sword.png');
+      await tex.load();
+
+      const circleRenderer = sut.get('ex.circle');
+      spyOn(circleRenderer, 'flush').and.callThrough();
+      const imageRenderer = sut.get('ex.image');
+      spyOn(imageRenderer, 'flush').and.callThrough();
+      const rectangleRenderer = sut.get('ex.rectangle');
+      spyOn(rectangleRenderer, 'flush').and.callThrough();
+
+      sut.drawCircle(ex.Vector.Zero, 100, ex.Color.Red, ex.Color.Black, 2);
+      expect(circleRenderer.flush).withContext('circle is batched not flushed yet').not.toHaveBeenCalled();
+
+      sut.drawImage(tex.image, 0, 0, tex.width, tex.height, 20, 20);
+      expect(circleRenderer.flush).withContext('circle renderer switched, flush required').toHaveBeenCalled();
+      expect(imageRenderer.flush).withContext('image batched not yet flushed').not.toHaveBeenCalled();
+
+      sut.drawRectangle(ex.Vector.Zero, 50, 50, ex.Color.Blue, ex.Color.Green, 2);
+      expect(imageRenderer.flush).toHaveBeenCalled();
+      expect(rectangleRenderer.flush).withContext('rectangle batched').not.toHaveBeenCalled();
+
+      sut.flush();
+      expect(rectangleRenderer.flush).toHaveBeenCalled();
+
+      expect(rectangleRenderer.flush).toHaveBeenCalledTimes(1);
+      expect(circleRenderer.flush).toHaveBeenCalledTimes(1);
+      expect(imageRenderer.flush).toHaveBeenCalledTimes(1);
+
+      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/painter-order-circle-image-rect.png'
       );
     });
 
@@ -413,6 +505,93 @@ describe('The ExcaliburGraphicsContext', () => {
 
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/webgl-circle-with-opacity.png');
+    });
+
+    it('can draw circles in batches', () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.clear();
+
+      const circleRenderer = sut.get('ex.circle');
+      spyOn(circleRenderer, 'flush').and.callThrough();
+      for (let i = 0; i < 10922; i++) {
+        sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
+      }
+      expect(circleRenderer.flush).toHaveBeenCalledTimes(0);
+
+      sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
+      expect(circleRenderer.flush).toHaveBeenCalledTimes(1);
+
+      for (let i = 0; i < 10922; i++) {
+        sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
+      }
+      expect(circleRenderer.flush).toHaveBeenCalledTimes(2);
+    });
+
+    it('can draw rectangles in batches', () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.clear();
+
+      const rectangleRenderer = sut.get('ex.rectangle');
+      spyOn(rectangleRenderer, 'flush').and.callThrough();
+      for (let i = 0; i < 10922; i++) {
+        sut.drawRectangle(ex.vec(50, 50), 50, 50, ex.Color.Blue);
+      }
+      expect(rectangleRenderer.flush).toHaveBeenCalledTimes(0);
+
+      sut.drawRectangle(ex.vec(50, 50), 50, 50, ex.Color.Blue);
+      expect(rectangleRenderer.flush).toHaveBeenCalledTimes(1);
+
+      for (let i = 0; i < 10922; i++) {
+        sut.drawRectangle(ex.vec(50, 50), 50, 50, ex.Color.Blue);
+      }
+      expect(rectangleRenderer.flush).toHaveBeenCalledTimes(2);
+    });
+
+    it('can draw images in batches', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.clear();
+
+      const tex = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/sword.png');
+      await tex.load();
+
+      const imageRenderer = sut.get('ex.image');
+      spyOn(imageRenderer, 'flush').and.callThrough();
+      for (let i = 0; i < 10922; i++) {
+        sut.drawImage(tex.image, 0, 0);
+      }
+      expect(imageRenderer.flush).toHaveBeenCalledTimes(0);
+
+      sut.drawImage(tex.image, 0, 0);
+      expect(imageRenderer.flush).toHaveBeenCalledTimes(1);
+
+      for (let i = 0; i < 10922; i++) {
+        sut.drawImage(tex.image, 0, 0);
+      }
+      expect(imageRenderer.flush).toHaveBeenCalledTimes(2);
     });
 
     it('can draw a line', async () => {
