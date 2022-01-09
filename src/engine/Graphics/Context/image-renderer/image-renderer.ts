@@ -1,3 +1,4 @@
+import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
@@ -224,7 +225,16 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = textureId;
   }
 
+  hasPendingDraws(): boolean {
+    return this._imageCount !== 0;
+  }
+
   flush(): void {
+    // nothing to draw early exit
+    if (this._imageCount === 0) {
+      return;
+    }
+
     const gl = this._gl;
     // Bind the shader
     this._shader.use();
@@ -243,6 +253,9 @@ export class ImageRenderer implements RendererPlugin {
 
     // Draw all the quads
     gl.drawElements(gl.TRIANGLES, this._imageCount * 6, this._quads.bufferGlType, 0);
+
+    GraphicsDiagnostics.DrawnImagesCount += this._imageCount;
+    GraphicsDiagnostics.DrawCallCount++;
 
     // Reset
     this._imageCount = 0;

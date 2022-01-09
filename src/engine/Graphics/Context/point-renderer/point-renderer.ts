@@ -7,6 +7,7 @@ import { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
+import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 
 export class PointRenderer implements RendererPlugin {
   public readonly type = 'ex.point';
@@ -75,7 +76,16 @@ export class PointRenderer implements RendererPlugin {
     return false;
   }
 
+  hasPendingDraws(): boolean {
+    return this._pointCount !== 0;
+  }
+
   flush(): void {
+    // nothing to draw early exit
+    if (this._pointCount === 0) {
+      return;
+    }
+
     const gl = this._gl;
     this._shader.use();
     this._layout.use(true);
@@ -83,6 +93,9 @@ export class PointRenderer implements RendererPlugin {
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
 
     gl.drawArrays(gl.POINTS, 0, this._pointCount);
+
+    GraphicsDiagnostics.DrawnImagesCount += this._pointCount;
+    GraphicsDiagnostics.DrawCallCount++;
 
     this._pointCount = 0;
     this._vertexIndex = 0;

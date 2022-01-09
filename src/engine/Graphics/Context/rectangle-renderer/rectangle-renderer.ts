@@ -1,5 +1,6 @@
 import { Color } from '../../../Color';
 import { vec, Vector } from '../../../Math/vector';
+import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
 import { RendererPlugin } from '../renderer';
@@ -281,7 +282,16 @@ export class RectangleRenderer implements RendererPlugin {
 
   }
 
+  hasPendingDraws(): boolean {
+    return this._rectangleCount !== 0;
+  }
+
   flush(): void {
+    // nothing to draw early exit
+    if (this._rectangleCount === 0) {
+      return;
+    }
+
     const gl = this._gl;
     // Bind the shader
     this._shader.use();
@@ -297,6 +307,9 @@ export class RectangleRenderer implements RendererPlugin {
 
     // Draw all the quads
     gl.drawElements(gl.TRIANGLES, this._rectangleCount * 6, this._quads.bufferGlType, 0);
+
+    GraphicsDiagnostics.DrawnImagesCount += this._rectangleCount;
+    GraphicsDiagnostics.DrawCallCount++;
 
     // Reset
     this._rectangleCount = 0;

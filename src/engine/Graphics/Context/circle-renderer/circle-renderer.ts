@@ -1,5 +1,6 @@
 import { Color } from '../../../Color';
 import { vec, Vector } from '../../../Math/vector';
+import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
 import { RendererPlugin } from '../renderer';
@@ -156,7 +157,17 @@ export class CircleRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = stroke.a;
     vertexBuffer[this._vertexIndex++] = strokeThickness / radius;
   }
+
+  hasPendingDraws(): boolean {
+    return this._circleCount !== 0;
+  }
+
   flush(): void {
+    // nothing to draw early exit
+    if (this._circleCount === 0) {
+      return;
+    }
+
     const gl = this._gl;
     // Bind the shader
     this._shader.use();
@@ -172,6 +183,9 @@ export class CircleRenderer implements RendererPlugin {
 
     // Draw all the quads
     gl.drawElements(gl.TRIANGLES, this._circleCount * 6, this._quads.bufferGlType, 0);
+
+    GraphicsDiagnostics.DrawnImagesCount += this._circleCount;
+    GraphicsDiagnostics.DrawCallCount++;
 
     // Reset
     this._circleCount = 0;

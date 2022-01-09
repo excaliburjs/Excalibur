@@ -11,7 +11,8 @@ export interface RendererPlugin {
   readonly type: string;
 
   /**
-   * Render priority tie breaker when
+   * Render priority tie breaker when drawings are at the same z index
+   * @warning Not yet used by excalibur
    */
   priority: number;
 
@@ -28,6 +29,11 @@ export interface RendererPlugin {
    * @param args
    */
   draw(...args: any[]): void;
+
+  /**
+   * @returns if there are any pending draws in the renderer
+   */
+  hasPendingDraws(): boolean;
 
   /**
    * Flush any pending graphics draws to the screen

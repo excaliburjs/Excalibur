@@ -15,7 +15,6 @@ import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { Logger } from '../../Util/Log';
 import { Canvas } from '../Canvas';
-import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
 import { ScreenDimension } from '../../Screen';
 import { RenderTarget } from './render-target';
@@ -177,7 +176,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       powerPreference: 'high-performance'
     });
     ExcaliburWebGLContextAccessor.register(this.__gl);
-    TextureLoader.registerContext(this.__gl);
+    TextureLoader.register(this.__gl);
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = smoothing ?? this.smoothing;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
@@ -244,13 +243,38 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     renderer.initialize(this.__gl, this);
   }
 
+  public get(rendererName: string): RendererPlugin {
+    return this._renderers.get(rendererName);
+  }
+
+  private _currentRenderer: RendererPlugin;
+
+  private _isCurrentRenderer(renderer: RendererPlugin): boolean {
+    if (!this._currentRenderer || this._currentRenderer == renderer) {
+      return true;
+    }
+    return false;
+  }
 
   public draw<TRenderer extends RendererPlugin>(rendererName: TRenderer['type'], ...args: Parameters<TRenderer['draw']>) {
     // TODO does not handle priority yet...
     //  in order to do this draw commands need to be captured and fed in priority order
     const renderer = this._renderers.get(rendererName);
     if (renderer) {
+      // Set the current renderer if not defined
+      if (!this._currentRenderer) {
+        this._currentRenderer = renderer;
+      }
+
+      if (!this._isCurrentRenderer(renderer)) {
+        // switching graphics means we must flush the previous
+        this._currentRenderer.flush();
+      }
+
+      // If we are still using the same renderer we can add to the current batch
       renderer.draw(...args);
+
+      this._currentRenderer = renderer;
     } else {
       throw Error(`No renderer with name ${rendererName} has been registered`);
     }
@@ -389,7 +413,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // Clear the context with the newly set color. This is
     // the function call that actually does the drawing.
     gl.clear(gl.COLOR_BUFFER_BIT);
-    GraphicsDiagnostics.clear();
   }
 
   /**
@@ -400,9 +423,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     // render target captures all draws and redirects to the render target
     this._renderTarget.use();
+    // This is the final flush at the moment to draw any leftover pending draw
     // TODO sort by priority and flush in order
     for (const renderer of this._renderers.values()) {
-      renderer.flush();
+      if (renderer.hasPendingDraws()) {
+        renderer.flush();
+      }
     }
     this._renderTarget.disable();
 

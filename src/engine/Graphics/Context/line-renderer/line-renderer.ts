@@ -5,6 +5,7 @@ import lineFragmentSource from './line-fragment.glsl';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
 import { RendererPlugin } from '../renderer';
 import { Shader, VertexBuffer, VertexLayout } from '../..';
+import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 
 export class LineRenderer implements RendererPlugin {
   public readonly type = 'ex.line';
@@ -82,7 +83,16 @@ export class LineRenderer implements RendererPlugin {
     return false;
   }
 
+  hasPendingDraws(): boolean {
+    return this._lineCount !== 0;
+  }
+
   flush(): void {
+    // nothing to draw early exit
+    if (this._lineCount === 0) {
+      return;
+    }
+
     const gl = this._gl;
     this._shader.use();
     this._layout.use(true);
@@ -90,6 +100,11 @@ export class LineRenderer implements RendererPlugin {
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
 
     gl.drawArrays(gl.LINES, 0, this._lineCount * 2); // 2 verts per line
+
+    GraphicsDiagnostics.DrawnImagesCount += this._lineCount;
+    GraphicsDiagnostics.DrawCallCount++;
+
+    // reset
     this._vertexIndex = 0;
     this._lineCount = 0;
   }
