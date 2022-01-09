@@ -40,6 +40,7 @@ game.start(loader).then(() => {
         items[i].vel.y *= -1;
       }
     }
+    game.graphicsContext.drawCircle(ex.vec(200, 200), width / 4, ex.Color.Blue, ex.Color.Black, 2);
   };
 
   game.onPostDraw = (_engine, deltaMs) => {

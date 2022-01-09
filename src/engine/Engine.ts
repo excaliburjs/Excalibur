@@ -1110,6 +1110,7 @@ O|===|* >________________>\n\
    */
   private _draw(delta: number) {
     const ctx = this.ctx;
+    this.graphicsContext.beginDrawLifecycle();
     this.graphicsContext.clear();
     this._predraw(ctx, delta);
 
@@ -1149,6 +1150,7 @@ O|===|* >________________>\n\
 
     // Flush any pending drawings
     this.graphicsContext.flush();
+    this.graphicsContext.endDrawLifecycle();
   }
 
   /**

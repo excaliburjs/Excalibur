@@ -330,6 +330,45 @@ describe('The ExcaliburGraphicsContext', () => {
       );
     });
 
+    it('will log a warning if you attempt to draw outside the lifecycle', () => {
+      const logger = ex.Logger.getInstance();
+      spyOn(logger, 'warn').and.callThrough();
+
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.drawCircle(ex.vec(0, 0), 10, ex.Color.Blue);
+      expect(logger.warn).toHaveBeenCalledWith(
+        `Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n`+
+        `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`);
+    });
+
+    it('will not log a warning inside the lifecycle', () => {
+      const logger = ex.Logger.getInstance();
+      spyOn(logger, 'warn').and.callThrough();
+
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+      sut.beginDrawLifecycle();
+      sut.drawCircle(ex.vec(0, 0), 10, ex.Color.Blue);
+      expect(logger.warn).not.toHaveBeenCalled();
+      sut.endDrawLifecycle();
+    });
+
     it('will preserve the painter order when switching renderer', async () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;

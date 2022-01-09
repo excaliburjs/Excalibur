@@ -223,4 +223,8 @@ export interface ExcaliburGraphicsContext {
    * Flushes the batched draw calls to the screen
    */
   flush(): void;
+
+  beginDrawLifecycle(): void;
+
+  endDrawLifecycle(): void
 }

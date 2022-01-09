@@ -81,7 +81,9 @@ export interface WebGLGraphicsContextInfo {
 }
 
 export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
+  private _logger = Logger.getInstance();
   private _renderers: Map<string, RendererPlugin> = new Map<string, RendererPlugin>();
+  private _isDrawLifecycle = false;
 
   // Main render target
   private _renderTarget: RenderTarget;
@@ -256,7 +258,21 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     return false;
   }
 
+  public beginDrawLifecycle() {
+    this._isDrawLifecycle = true;
+  }
+
+  public endDrawLifecycle() {
+    this._isDrawLifecycle = false;
+  }
+
+  private _alreadyWarnedDrawLifecycle = false;
   public draw<TRenderer extends RendererPlugin>(rendererName: TRenderer['type'], ...args: Parameters<TRenderer['draw']>) {
+    if (!this._isDrawLifecycle && !this._alreadyWarnedDrawLifecycle) {
+      this._logger.warn(`Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n` +
+      `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`)
+      this._alreadyWarnedDrawLifecycle = true;
+    }
     // TODO does not handle priority yet...
     //  in order to do this draw commands need to be captured and fed in priority order
     const renderer = this._renderers.get(rendererName);

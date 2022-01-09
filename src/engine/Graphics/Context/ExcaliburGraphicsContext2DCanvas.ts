@@ -282,6 +282,14 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     throw Error('Not implemented');
   }
 
+  public beginDrawLifecycle() {
+    // pass
+  }
+
+  public endDrawLifecycle() {
+    // pass
+  }
+
   clear(): void {
     // Clear frame
     this.__ctx.clearRect(0, 0, this.width, this.height);
