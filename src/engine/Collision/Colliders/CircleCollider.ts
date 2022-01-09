@@ -44,7 +44,7 @@ export class CircleCollider extends Collider {
     return (this.offset ?? Vector.Zero).scale(scale).rotate(rotation).add(pos);
   }
 
-  private _naturalRadius: number
+  private _naturalRadius: number;
   /**
    * Get the radius of the circle
    */
@@ -61,7 +61,7 @@ export class CircleCollider extends Collider {
   public set radius(val: number) {
     const tx = this._transform as TransformComponent;
     const scale = tx?.globalScale ?? Vector.One;
-     // This is a trade off, the alternative is retooling circles to support ellipse collisions
+    // This is a trade off, the alternative is retooling circles to support ellipse collisions
     this._naturalRadius = val / Math.min(scale.x, scale.y);
   }
 

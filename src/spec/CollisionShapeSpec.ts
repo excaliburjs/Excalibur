@@ -86,12 +86,12 @@ describe('Collision Shape', () => {
 
     it('calculates correct bounds when transformed', () => {
       const sut = circle.clone();
-  
+
       sut.offset = ex.vec(100, 0);
       actor.transform.scale = ex.vec(2, 2);
       actor.transform.rotation = Math.PI / 2;
       sut.update(actor.transform);
-  
+
       const expected = new ex.BoundingBox({
         left: -20,
         top: 180,
@@ -111,7 +111,7 @@ describe('Collision Shape', () => {
         right: 110
       }));
     });
-    
+
     it('calculates correct center when transformed', () => {
       const sut = circle.clone();
 
@@ -364,7 +364,7 @@ describe('Collision Shape', () => {
 
       ctx.clear();
       actor.transform.scale = ex.vec(2, 2);
-      circle.update(actor.transform)
+      circle.update(actor.transform);
 
       circle.debug(ctx, ex.Color.Red);
 
