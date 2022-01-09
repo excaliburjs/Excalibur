@@ -66,6 +66,62 @@ describe('Collision Shape', () => {
       expect(center.y).toBe(300);
     });
 
+    it('has a radius based on scale', () => {
+
+      const sut = circle.clone();
+      expect(sut.radius).toBe(10);
+
+      actor.transform.scale = ex.vec(2, 2);
+      sut.update(actor.transform);
+      expect(sut.radius).toBe(20);
+
+      sut.radius = 40;
+      expect(sut.radius).toBe(40);
+
+      sut.radius = 20;
+      actor.transform.scale = ex.vec(1, 3);
+      sut.update(actor.transform);
+      expect(sut.radius).withContext('Uneven scale take the smallest').toBe(10);
+    });
+
+    it('calculates correct bounds when transformed', () => {
+      const sut = circle.clone();
+  
+      sut.offset = ex.vec(100, 0);
+      actor.transform.scale = ex.vec(2, 2);
+      actor.transform.rotation = Math.PI / 2;
+      sut.update(actor.transform);
+  
+      const expected = new ex.BoundingBox({
+        left: -20,
+        top: 180,
+        right: 20,
+        bottom: 220
+      });
+
+      expect(sut.bounds.left).toBeCloseTo(expected.left);
+      expect(sut.bounds.right).toBeCloseTo(expected.right);
+      expect(sut.bounds.top).toBeCloseTo(expected.top);
+      expect(sut.bounds.bottom).toBeCloseTo(expected.bottom);
+
+      expect(sut.localBounds).toEqual(new ex.BoundingBox({
+        left: 90,
+        top: -10,
+        bottom: 10,
+        right: 110
+      }));
+    });
+    
+    it('calculates correct center when transformed', () => {
+      const sut = circle.clone();
+
+      sut.offset = ex.vec(100, 0);
+      actor.transform.rotation = Math.PI / 2;
+      sut.update(actor.transform);
+
+      expect(sut.center).toBeVector(ex.vec(0, 100));
+    });
+
     it('has bounds', () => {
       actor.pos = ex.vec(400, 400);
 
@@ -307,6 +363,8 @@ describe('Collision Shape', () => {
       });
 
       ctx.clear();
+      actor.transform.scale = ex.vec(2, 2);
+      circle.update(actor.transform)
 
       circle.debug(ctx, ex.Color.Red);
 

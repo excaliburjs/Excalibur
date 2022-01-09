@@ -53,6 +53,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where `ex.CircleCollider`s did not respect rotation/scale when offset
 - Fixed issue [#2157] when compiling in TS strict mode complaining about `ex.Poolable`
 - Fixed issue where scaled graphics were not calculating the correct bounds
 - Fixed unreleased issue where clock implementation was not updating frame id
