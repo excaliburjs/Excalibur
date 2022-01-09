@@ -267,10 +267,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   private _alreadyWarnedDrawLifecycle = false;
+
   public draw<TRenderer extends RendererPlugin>(rendererName: TRenderer['type'], ...args: Parameters<TRenderer['draw']>) {
     if (!this._isDrawLifecycle && !this._alreadyWarnedDrawLifecycle) {
-      this._logger.warn(`Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n` +
-      `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`)
+      this._logger.warn(
+        `Attempting to draw outside the the drawing lifecycle (preDraw/postDraw) is not supported and is a source of bugs/errors.\n` +
+        `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`);
       this._alreadyWarnedDrawLifecycle = true;
     }
     // TODO does not handle priority yet...
