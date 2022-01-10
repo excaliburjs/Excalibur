@@ -36,13 +36,34 @@ export class CircleCollider extends Collider {
   public offset: Vector = Vector.Zero;
 
   public get worldPos(): Vector {
-    return this.offset.add(this._transform?.pos ?? Vector.Zero);
+    const tx = this._transform as TransformComponent;
+    const scale = tx?.globalScale ?? Vector.One;
+    const rotation = tx?.globalRotation ?? 0;
+    const pos = (tx?.globalPos ?? Vector.Zero);
+
+    return (this.offset ?? Vector.Zero).scale(scale).rotate(rotation).add(pos);
+  }
+
+  private _naturalRadius: number;
+  /**
+   * Get the radius of the circle
+   */
+  public get radius(): number {
+    const tx = this._transform as TransformComponent;
+    const scale = tx?.globalScale ?? Vector.One;
+    // This is a trade off, the alternative is retooling circles to support ellipse collisions
+    return this._naturalRadius * Math.min(scale.x, scale.y);
   }
 
   /**
-   * This is the radius of the circle
+   * Set the radius of the circle
    */
-  public radius: number;
+  public set radius(val: number) {
+    const tx = this._transform as TransformComponent;
+    const scale = tx?.globalScale ?? Vector.One;
+    // This is a trade off, the alternative is retooling circles to support ellipse collisions
+    this._naturalRadius = val / Math.min(scale.x, scale.y);
+  }
 
   private _transform: Transform;
 
@@ -66,7 +87,12 @@ export class CircleCollider extends Collider {
    * Get the center of the collider in world coordinates
    */
   public get center(): Vector {
-    return this.offset.add(this._transform?.pos ?? Vector.Zero);
+    const tx = this._transform as TransformComponent;
+    const scale = tx?.globalScale ?? Vector.One;
+    const rotation = tx?.globalRotation ?? 0;
+    const pos = (tx?.globalPos ?? Vector.Zero);
+
+    return (this.offset ?? Vector.Zero).scale(scale).rotate(rotation).add(pos);
   }
 
   /**
@@ -174,13 +200,15 @@ export class CircleCollider extends Collider {
    */
   public get bounds(): BoundingBox {
     const tx = this._transform as TransformComponent;
-    const bodyPos = tx?.globalPos ?? Vector.Zero;
+    const scale = tx?.globalScale ?? Vector.One;
+    const rotation = tx?.globalRotation ?? 0;
+    const pos = (tx?.globalPos ?? Vector.Zero);
     return new BoundingBox(
-      this.offset.x + bodyPos.x - this.radius,
-      this.offset.y + bodyPos.y - this.radius,
-      this.offset.x + bodyPos.x + this.radius,
-      this.offset.y + bodyPos.y + this.radius
-    );
+      this.offset.x - this._naturalRadius,
+      this.offset.y - this._naturalRadius,
+      this.offset.x + this._naturalRadius,
+      this.offset.y + this._naturalRadius
+    ).rotate(rotation).scale(scale).translate(pos);
   }
 
   /**
@@ -188,10 +216,10 @@ export class CircleCollider extends Collider {
    */
   public get localBounds(): BoundingBox {
     return new BoundingBox(
-      this.offset.x - this.radius,
-      this.offset.y - this.radius,
-      this.offset.x + this.radius,
-      this.offset.y + this.radius
+      this.offset.x - this._naturalRadius,
+      this.offset.y - this._naturalRadius,
+      this.offset.x + this._naturalRadius,
+      this.offset.y + this._naturalRadius
     );
   }
 
@@ -245,8 +273,15 @@ export class CircleCollider extends Collider {
 
   public debug(ex: ExcaliburGraphicsContext, color: Color) {
     const tx = this._transform as TransformComponent;
-    const pos = tx?.globalPos ? tx?.globalPos.add(this.offset) : this.offset;
-    ex.drawCircle(pos, this.radius, Color.Transparent, color, 2);
+    const scale = tx?.globalScale ?? Vector.One;
+    const rotation = tx?.globalRotation ?? 0;
+    const pos = (tx?.globalPos ?? Vector.Zero);
+    ex.save();
+    ex.translate(pos.x, pos.y);
+    ex.rotate(rotation);
+    ex.scale(scale.x, scale.y);
+    ex.drawCircle((this.offset ?? Vector.Zero), this._naturalRadius, Color.Transparent, color, 2);
+    ex.restore();
   }
 
   /**
