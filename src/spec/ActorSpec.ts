@@ -314,7 +314,7 @@ describe('A game actor', () => {
 
     expect(grandChild.center).toBeVector(ex.vec(175, 175));
     expect(grandChild.localCenter).toBeVector(ex.vec(25, 25));
-  })
+  });
 
   it('has a left, right, top, and bottom', () => {
     const actor = new ex.Actor({
