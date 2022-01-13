@@ -287,6 +287,35 @@ describe('A game actor', () => {
     expect(center.y).toBe(150);
   });
 
+  it('can have a center when parented', () => {
+    const parent = new ex.Actor({
+      x: 100,
+      y: 100
+    });
+
+    const child = new ex.Actor({
+      x: 50,
+      y: 50
+    });
+
+    const grandChild = new ex.Actor({
+      x: 25,
+      y: 25
+    });
+
+    parent.addChild(child);
+    child.addChild(grandChild);
+
+    expect(parent.center).toBeVector(ex.vec(100, 100));
+    expect(parent.localCenter).toBeVector(ex.vec(100, 100));
+
+    expect(child.center).toBeVector(ex.vec(150, 150));
+    expect(child.localCenter).toBeVector(ex.vec(50, 50));
+
+    expect(grandChild.center).toBeVector(ex.vec(175, 175));
+    expect(grandChild.localCenter).toBeVector(ex.vec(25, 25));
+  })
+
   it('has a left, right, top, and bottom', () => {
     const actor = new ex.Actor({
       x: 0,

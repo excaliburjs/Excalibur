@@ -1007,10 +1007,22 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
-   * Get the center point of an actor
+   * Get the center point of an actor (global position)
    */
   public get center(): Vector {
-    return new Vector(this.pos.x + this.width / 2 - this.anchor.x * this.width, this.pos.y + this.height / 2 - this.anchor.y * this.height);
+    const globalPos = this.getGlobalPos();
+    return new Vector(
+      globalPos.x + this.width / 2 - this.anchor.x * this.width,
+      globalPos.y + this.height / 2 - this.anchor.y * this.height);
+  }
+
+  /**
+   * Get the local center point of an actor
+   */
+  public get localCenter(): Vector {
+    return new Vector(
+      this.pos.x + this.width / 2 - this.anchor.x * this.width,
+      this.pos.y + this.height / 2 - this.anchor.y * this.height);
   }
 
   public get width() {
