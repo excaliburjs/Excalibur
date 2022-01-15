@@ -25,12 +25,17 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     return this.image.naturalHeight;
   }
 
+  private _src: string;
   /**
    * Returns true if the Texture is completely loaded and is ready
    * to be drawn.
    */
   public isLoaded(): boolean {
-    return !!this.data.src;
+    if (!this._src) {
+      // this boosts speed of access
+      this._src = this.data.src;
+    }
+    return !!this._src;
   }
 
   /**

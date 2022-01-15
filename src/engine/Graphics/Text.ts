@@ -107,11 +107,14 @@ export class Text extends Graphic {
     if (this.font instanceof Font) {
       color = this.color ?? this.font.color;
     }
-    this.font.flipHorizontal = this.flipHorizontal;
-    this.font.flipVertical = this.flipVertical;
-    this.font.rotation = this.rotation;
-    this.font.origin = this.origin;
-    this.font.opacity = this.opacity;
+
+    if (this.isStale() || this.font.isStale()) {
+      this.font.flipHorizontal = this.flipHorizontal;
+      this.font.flipVertical = this.flipVertical;
+      this.font.rotation = this.rotation;
+      this.font.origin = this.origin;
+      this.font.opacity = this.opacity;
+    }
 
     const { width, height } = this.font.measureText(this._text);
     this._textWidth = width;
