@@ -171,16 +171,13 @@ export class Font extends Graphic implements FontRenderer {
     });
   }
 
-  private _setDimension(text: string, bitmap: CanvasRenderingContext2D): BoundingBox {
-    const textBounds = this.measureText(text);
+  private _setDimension(textBounds: BoundingBox, bitmap: CanvasRenderingContext2D) {
 
     // Changing the width and height clears the context properties
     // We double the bitmap width to account for all possible alignment
     // We scale by "quality" so we render text without jaggies
     bitmap.canvas.width = (textBounds.width + this.padding * 2) * 2 * this.quality;
     bitmap.canvas.height = (textBounds.height + this.padding * 2) * 2 * this.quality;
-
-    return textBounds;
   }
 
   protected _postDraw(ex: ExcaliburGraphicsContext): void {
@@ -281,27 +278,29 @@ export class Font extends Graphic implements FontRenderer {
     }
     this.checkAndClearCache();
     const bitmap = this._getTextBitmap(text, colorOverride);
-    const bounds = this._setDimension(text, bitmap);
-    this._textBounds = bounds;
+    const isNewBitmap = !this._bitmapUsage.get(bitmap);
+    this._textBounds = this.measureText(text);
 
-    bitmap.canvas.width = (bounds.width + this.padding * 2) * 2 * this.quality;
-    bitmap.canvas.height = (bounds.height + this.padding * 2) * 2 * this.quality;
+    if (isNewBitmap) {
+      this._setDimension(this._textBounds, bitmap);
+    }
 
     this._preDraw(ex, x, y);
 
     const lines = text.split('\n');
-    const lineHeight = bounds.height / lines.length;
+    const lineHeight = this._textBounds.height / lines.length;
 
-    // draws the text to the bitmap
-    this._drawText(bitmap, text, colorOverride, lineHeight);
-    // Cache the bitmap for certain amount of time
-    this._bitmapUsage.set(bitmap, performance.now());
 
     const rasterWidth = bitmap.canvas.width;
     const rasterHeight = bitmap.canvas.height;
 
-    // draws the bitmap to excalibur graphics context
-    TextureLoader.load(bitmap.canvas, this.filtering, true);
+    if (isNewBitmap) {
+      // draws the text to the bitmap
+      this._drawText(bitmap, text, colorOverride, lineHeight);
+      // draws the bitmap to excalibur graphics context
+      TextureLoader.load(bitmap.canvas, this.filtering, true);
+    }
+
     ex.drawImage(
       bitmap.canvas,
       0,
@@ -315,6 +314,9 @@ export class Font extends Graphic implements FontRenderer {
     );
 
     this._postDraw(ex);
+
+    // Cache the bitmap for certain amount of time
+    this._bitmapUsage.set(bitmap, performance.now());
   }
 
   /**
