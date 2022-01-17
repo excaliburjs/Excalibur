@@ -63,7 +63,6 @@ export abstract class Graphic {
   public showDebug: boolean = false;
 
 
-  // TODO transform dirty on any of these
   private _flipHorizontal = false;
   /**
    * Gets or sets the flipHorizontal, which will flip the graphic horizontally (across the y axis)
