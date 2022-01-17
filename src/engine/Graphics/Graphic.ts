@@ -74,7 +74,7 @@ export abstract class Graphic {
 
   public set flipHorizontal(value: boolean) {
     this._flipHorizontal = value;
-    this._transformStale = true; 
+    this._transformStale = true;
   }
 
   private _flipVertical = false;
@@ -113,7 +113,7 @@ export abstract class Graphic {
    * Gets or sets the scale of the graphic, this affects the width and
    */
   public get scale() {
-    return this._scale
+    return this._scale;
   }
 
   public set scale(value: Vector) {
@@ -134,7 +134,7 @@ export abstract class Graphic {
   public set origin(value: Vector | null) {
     this._origin = watch(value, () => {
       this._transformStale = true;
-    })
+    });
     this._transformStale = true;
   }
 
