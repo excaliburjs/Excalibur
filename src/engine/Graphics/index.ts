@@ -30,6 +30,7 @@ export * from './Context/debug-text';
 
 // Post Processor
 export * from './PostProcessor/PostProcessor';
+export * from './PostProcessor/ScreenShader';
 export * from './PostProcessor/ColorBlindnessMode';
 export * from './PostProcessor/ColorBlindnessPostProcessor';
 
