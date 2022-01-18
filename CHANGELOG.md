@@ -87,6 +87,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Refactor camera/screen interaction to utilize transforms instead of bespoke coordinate conversion
 ### Changed
 
+- Updated Graphics to improve general performance
 - Updated the webgl primitives to make building `ex.Shader`s, `ex.VertexBuffer`s, and `ex.VertexLayout`s much easier 
 - Broke up the internal monolithic shader into separate internal renderer plugins
 - Changed the debug system to separate displaying the debug position point (`game.debug.transform.showPosition = true`) and debug position label (`game.debug.transform.showPositionLabel = true`)

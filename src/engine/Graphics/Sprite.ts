@@ -27,6 +27,7 @@ export class Sprite extends Graphic {
   public image: ImageSource;
   public sourceView: SourceView;
   public destSize: DestinationSize;
+  private _dirty = true;
 
   public static from(image: ImageSource): Sprite {
     return new Sprite({
@@ -82,7 +83,8 @@ export class Sprite extends Graphic {
   }
 
   protected _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
-    if (this.image.isLoaded()) {
+    if (this.image.isLoaded() && this._dirty) {
+      this._dirty = false;
       this._updateSpriteDimensions();
     }
     super._preDraw(ex, x, y);
@@ -90,7 +92,6 @@ export class Sprite extends Graphic {
 
   public _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     if (this.image.isLoaded()) {
-      this._updateSpriteDimensions();
       ex.drawImage(
         this.image.image,
         this.sourceView.x,
