@@ -410,7 +410,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public addPostProcessor(postprocessor: PostProcessor) {
     this._postprocessors.push(postprocessor);
-    postprocessor.intialize(this.__gl);
+    postprocessor.initialize(this.__gl);
   }
 
   public removePostProcessor(postprocessor: PostProcessor) {

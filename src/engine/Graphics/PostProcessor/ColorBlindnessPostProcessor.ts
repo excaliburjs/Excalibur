@@ -12,7 +12,7 @@ export class ColorBlindnessPostProcessor implements PostProcessor {
     this._simulate = simulate;
   }
 
-  intialize(_gl: WebGLRenderingContext): void {
+  initialize(_gl: WebGLRenderingContext): void {
     this._shader = new ScreenShader(colorBlindCorrectSource);
     this.simulate = this._simulate;
     this.colorBlindnessMode = this._colorBlindnessMode;
