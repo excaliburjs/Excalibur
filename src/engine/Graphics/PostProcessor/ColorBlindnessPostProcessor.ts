@@ -27,16 +27,18 @@ export class ColorBlindnessPostProcessor implements PostProcessor {
   }
 
   set colorBlindnessMode(colorBlindMode: ColorBlindnessMode) {
-    const shader = this._shader.getShader();
-    shader.use();
-    if (this._colorBlindnessMode === ColorBlindnessMode.Protanope) {
-      shader.setUniformInt('u_type', 0);
-    } else if (this._colorBlindnessMode === ColorBlindnessMode.Deuteranope) {
-      shader.setUniformInt('u_type', 1);
-    } else if (this._colorBlindnessMode === ColorBlindnessMode.Tritanope) {
-      shader.setUniformInt('u_type', 2);
-    }
     this._colorBlindnessMode = colorBlindMode;
+    if (this._shader) {
+      const shader = this._shader.getShader();
+      shader.use();
+      if (this._colorBlindnessMode === ColorBlindnessMode.Protanope) {
+        shader.setUniformInt('u_type', 0);
+      } else if (this._colorBlindnessMode === ColorBlindnessMode.Deuteranope) {
+        shader.setUniformInt('u_type', 1);
+      } else if (this._colorBlindnessMode === ColorBlindnessMode.Tritanope) {
+        shader.setUniformInt('u_type', 2);
+      }
+    }
   }
 
   get colorBlindnessMode(): ColorBlindnessMode {
@@ -44,10 +46,13 @@ export class ColorBlindnessPostProcessor implements PostProcessor {
   }
 
   set simulate(value: boolean) {
-    const shader = this._shader.getShader();
-    shader.use();
     this._simulate = value;
-    shader.setUniformBoolean('u_simulate', value);
+    if (this._shader) {
+
+      const shader = this._shader.getShader();
+      shader.use();
+      shader.setUniformBoolean('u_simulate', value);
+    }
   }
 
   get simulate(): boolean {
