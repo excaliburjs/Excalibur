@@ -5,6 +5,37 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+-
+
+### Fixed
+
+-
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+
+## [0.25.2] - 2022-01-21
+
 ### Breaking Changes
 
 - `ex.Util.extend()` is removed, modern js spread operator `{...someobject, ...someotherobject}` handles this better.
@@ -101,11 +132,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Event types (up, down, move, etc) now all exist in 2 types `ex.Input.PointerEvent` and `ex.Input.WheelEvent`
   * The `stopPropagation()` method used to cancel further dispatches has been renamed to `cancel()` to match other events API.
   * Events no longer have a reference to the `pointer` but now have all of the same information that was availabe on the pointer `worldPos`, `screenPos`, `pagePos`
--
 
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 
 ## [0.25.1] - 2021-11-05
 
