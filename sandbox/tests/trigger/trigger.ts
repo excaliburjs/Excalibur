@@ -5,8 +5,8 @@ var game = new ex.Engine({
   height: 400
 });
 
-engine.debug.collider.showGeometry = true;
-engine.debug.collider.showBounds = true;
+game.debug.collider.showGeometry = true;
+game.debug.collider.showBounds = true;
 
 game.showDebug(true);
 

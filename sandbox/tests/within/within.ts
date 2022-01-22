@@ -108,24 +108,21 @@ blocks.forEach((b) => {
       b.color = ex.Color.Green;
     }
   };
-  b.onPostDraw = (ctx, delta) => {
+  b.graphics.onPostDraw = (ctx, delta) => {
     const closestPolygon = b.collider.get().getClosestLineBetween(floor.collider.get());
     const closestCircle = b.collider.get().getClosestLineBetween(circle.collider.get());
     const closestEdge = b.collider.get().getClosestLineBetween(edge.collider.get());
     ctx.restore();
     ctx.save();
-    ctx.fillStyle = ex.Color.Red.toString();
 
-    ctx.fillText('Closest polygon line length:' + closestPolygon.getLength(), b.pos.x + 20, b.pos.y + 50);
-    ex.Util.DrawUtil.line(ctx, ex.Color.Red, closestPolygon.begin.x, closestPolygon.begin.y, closestPolygon.end.x, closestPolygon.end.y, 3);
+    ctx.debug.drawText('Closest polygon line length:' + closestPolygon.getLength(), b.pos.add(ex.vec(20, 50)));
+    ctx.drawLine(closestPolygon.begin, closestPolygon.end, ex.Color.Red, 3);
 
-    ctx.fillStyle = ex.Color.Green.toString();
-    ctx.fillText('Closest circle line length:' + closestCircle.getLength(), b.pos.x + 20, b.pos.y + 65);
-    ex.Util.DrawUtil.line(ctx, ex.Color.Green, closestCircle.begin.x, closestCircle.begin.y, closestCircle.end.x, closestCircle.end.y, 3);
+    ctx.debug.drawText('Closest circle line length:' + closestCircle.getLength(), b.pos.add(ex.vec(20, 65)));
+    ctx.drawLine(closestCircle.begin, closestCircle.end, ex.Color.Green, 3);
 
-    ctx.fillStyle = ex.Color.Blue.toString();
-    ctx.fillText('Closest edge line length:' + closestEdge.getLength(), b.pos.x + 20, b.pos.y + 80);
-    ex.Util.DrawUtil.line(ctx, ex.Color.Blue, closestEdge.begin.x, closestEdge.begin.y, closestEdge.end.x, closestEdge.end.y, 3);
+    ctx.debug.drawText('Closest edge line length:' + closestEdge.getLength(), b.pos.add(ex.vec(20, 80)));
+    ctx.drawLine(closestEdge.begin, closestEdge.end, ex.Color.Blue, 3);
   };
 });
 if (block.within(floor, 200)) {

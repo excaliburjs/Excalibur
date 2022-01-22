@@ -29,25 +29,25 @@ for (var i = 0; i < numActors; i++) {
 
   actor.body.collisionType = ex.CollisionType.Active;
   actor.body.group = blockGroup;
-  actor.on('postupdate', function(e: ex.PostUpdateEvent) {
-    if (this.pos.x < 0) {
-      this.vel.x = Math.abs(this.vel.x);
+  actor.on('postupdate', (e: ex.PostUpdateEvent) => {
+    if (actor.pos.x < 0) {
+      actor.vel.x = Math.abs(actor.vel.x);
     }
 
-    if (this.pos.y < 0) {
-      this.vel.y = Math.abs(this.vel.y);
+    if (actor.pos.y < 0) {
+      actor.vel.y = Math.abs(actor.vel.y);
     }
 
-    if (this.pos.x > width) {
-      this.vel.x = -1 * Math.abs(this.vel.x);
+    if (actor.pos.x > width) {
+      actor.vel.x = -1 * Math.abs(actor.vel.x);
     }
 
-    if (this.pos.y > height) {
-      this.vel.y = -1 * Math.abs(this.vel.y);
+    if (actor.pos.y > height) {
+      actor.vel.y = -1 * Math.abs(actor.vel.y);
     }
   });
 
-  actor.on('postcollision', function(e: ex.PostCollisionEvent) {
+  actor.on('postcollision', (e: ex.PostCollisionEvent) => {
     if (e.actor.currentDrawing instanceof ex.Sprite && e.other === player) {
       // TODO not supported in the current world order
       // e.actor.currentDrawing.colorize(ex.Color.Cyan);
