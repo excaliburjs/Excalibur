@@ -20,6 +20,8 @@ scripts/
 appveyor.yml
 Excalibur.nuspec
 karma.conf.js
+karma.conf.browsers.js
+wallaby.js
 prettier.config.js
 renovate.json
 version.js
