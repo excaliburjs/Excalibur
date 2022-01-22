@@ -1,5 +1,5 @@
 /**
- * Determines the scope of handling mouse/touch events. See [[Pointers]] for more information.
+ * Determines the scope of handling mouse/touch events.
  */
 
 export enum PointerScope {

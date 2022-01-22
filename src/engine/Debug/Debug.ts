@@ -218,7 +218,7 @@ export class Debug implements DebugFlags {
   };
 
   /**
-   * Correct or simulate color blindness using [[ColorBlindness]] post processor.
+   * Correct or simulate color blindness using [[ColorBlindnessPostProcessor]].
    * @warning Will reduce FPS.
    */
   public colorBlindMode: ColorBlindFlags;
