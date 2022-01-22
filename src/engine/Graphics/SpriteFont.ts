@@ -10,7 +10,7 @@ import { BoundingBox, Color } from '..';
 
 export interface SpriteFontOptions {
   /**
-   * Alphabet string in spritsheet order (default is row column order)
+   * Alphabet string in spritesheet order (default is row column order)
    * example: 'abcdefghijklmnopqrstuvwxyz'
    */
   alphabet: string;
@@ -69,7 +69,7 @@ export class SpriteFont extends Graphic implements FontRenderer {
   private _alreadyWarnedSpriteSheet = false;
   private _getCharacterSprites(text: string): Sprite[] {
     const results: Sprite[] = [];
-    // handle case insenstive
+    // handle case insensitive
     const textToRender = this.caseInsensitive ? text.toLocaleLowerCase() : text;
     const alphabet = this.caseInsensitive ? this.alphabet.toLocaleLowerCase() : this.alphabet;
 

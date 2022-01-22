@@ -53,7 +53,7 @@ export interface RasterOptions {
  * A Raster is a Graphic that needs to be first painted to a HTMLCanvasElement before it can be drawn to the
  * [[ExcaliburGraphicsContext]]. This is useful for generating custom images using the 2D canvas api.
  *
- * Implementors must implemenet the [[Raster.execute]] method to rasterize their drawing.
+ * Implementors must implement the [[Raster.execute]] method to rasterize their drawing.
  */
 export abstract class Raster extends Graphic {
   public filtering: ImageFiltering = null;
@@ -108,7 +108,7 @@ export abstract class Raster extends Graphic {
 
   /**
    * Flags the graphic as dirty, meaning it must be re-rasterized before draw.
-   * This should be called any time the graphics state changes such that it affects the outputed drawing
+   * This should be called any time the graphics state changes such that it affects the outputted drawing
    */
   public flagDirty() {
     this._dirty = true;
@@ -237,21 +237,21 @@ export abstract class Raster extends Graphic {
   }
 
   /**
-   * Rasterize the graphic to a bitmap making it usuable as in excalibur. Rasterize is called automatically if
+   * Rasterize the graphic to a bitmap making it usable as in excalibur. Rasterize is called automatically if
    * the graphic is [[Raster.dirty]] on the next [[Graphic.draw]] call
    */
   public rasterize(): void {
     this._dirty = false;
     this._ctx.clearRect(0, 0, this._getTotalWidth(), this._getTotalHeight());
     this._ctx.save();
-    this._applyRasterProperites(this._ctx);
+    this._applyRasterProperties(this._ctx);
     this.execute(this._ctx);
     this._ctx.restore();
     // The webgl texture needs to be updated if it exists after a raster cycle
     TextureLoader.load(this._bitmap, this.filtering, true);
   }
 
-  protected _applyRasterProperites(ctx: CanvasRenderingContext2D) {
+  protected _applyRasterProperties(ctx: CanvasRenderingContext2D) {
     this._bitmap.width = this._getTotalWidth();
     this._bitmap.height = this._getTotalHeight();
     ctx.translate(this.padding, this.padding);
@@ -271,7 +271,7 @@ export abstract class Raster extends Graphic {
   }
 
   /**
-   * Executes drawing implemenation of the graphic, this is where the specific drawing code for the graphic
+   * Executes drawing implementation of the graphic, this is where the specific drawing code for the graphic
    * should be implemented. Once `rasterize()` the graphic can be drawn to the [[ExcaliburGraphicsContext]] via `draw(...)`
    * @param ctx Canvas to draw the graphic to
    */

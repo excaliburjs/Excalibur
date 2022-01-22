@@ -9,7 +9,7 @@ export interface FpsSamplerOptions {
   initialFps: number;
 
   /**
-   * Specify the function used to return the current time (in millseconds)
+   * Specify the function used to return the current time (in milliseconds)
    */
   nowFn: () => number;
 }
@@ -55,14 +55,14 @@ export class FpsSampler {
   }
 
   /**
-   * Return the currenty sampled fps over the last sample period, by default every 100ms
+   * Return the currently sampled fps over the last sample period, by default every 100ms
    */
   get fps() {
     return this._fps;
   }
 
   /**
-   * Return the instantanteous fps, this can be less useful because it will fluctuate given the current frames time
+   * Return the instantaneous fps, this can be less useful because it will fluctuate given the current frames time
    */
   get instant() {
     return 1000 / this._currentFrameTime;

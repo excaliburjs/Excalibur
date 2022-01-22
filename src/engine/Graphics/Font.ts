@@ -12,13 +12,13 @@ import { ImageFiltering } from './Filtering';
 /**
  * Represents a system or web font in Excalibur
  *
- * If no options specfied, the system sans-serif 10 pixel is used
+ * If no options specified, the system sans-serif 10 pixel is used
  *
  * If loading a custom web font be sure to have the font loaded before you use it https://erikonarheim.com/posts/dont-test-fonts/
  */
 export class Font extends Graphic implements FontRenderer {
   /**
-   * Set the font filtering mode, by default set to [[ImageFiltering.Blended]] regardles of the engine default smoothing
+   * Set the font filtering mode, by default set to [[ImageFiltering.Blended]] regardless of the engine default smoothing
    *
    * If you have a pixel style font that may be a reason to switch this to [[ImageFiltering.Pixel]]
    */
@@ -35,7 +35,7 @@ export class Font extends Graphic implements FontRenderer {
     this.lineWidth = options?.lineWidth ?? this.lineWidth;
     this.filtering = options?.filtering ?? this.filtering;
 
-    // Font specific properts
+    // Font specific properties
     this.family = options?.family ?? this.family;
     this.style = options?.style ?? this.style;
     this.bold = options?.bold ?? this.bold;
@@ -75,7 +75,7 @@ export class Font extends Graphic implements FontRenderer {
   }
 
   /**
-   * Font quality determines the size of the underlying rastered text, higher quality means less jagged edges.
+   * Font quality determines the size of the underlying raster text, higher quality means less jagged edges.
    * If quality is set to 1, then just enough raster bitmap is generated to render the text.
    *
    * You can think of quality as how zoomed in to the text you can get before seeing jagged edges.
@@ -140,7 +140,7 @@ export class Font extends Graphic implements FontRenderer {
 
 
   /**
-   * Returns a BoundingBox that is the total size of the text including mutliple lines
+   * Returns a BoundingBox that is the total size of the text including multiple lines
    *
    * Does not include any padding or adjustment
    * @param text
@@ -187,7 +187,7 @@ export class Font extends Graphic implements FontRenderer {
   /**
    * We need to identify bitmaps with more than just the text content
    *
-   * Any properites that can change the rendering of the text
+   * Any properties that can change the rendering of the text
    */
   private _getRasterPropertiesHash(color?: Color): string {
     const hash = '__hashcode__' +
@@ -206,7 +206,7 @@ export class Font extends Graphic implements FontRenderer {
     return hash;
   }
 
-  protected _applyRasterProperites(ctx: CanvasRenderingContext2D, color: Color) {
+  protected _applyRasterProperties(ctx: CanvasRenderingContext2D, color: Color) {
     ctx.translate(this.padding, this.padding);
     ctx.imageSmoothingEnabled = this.smoothing;
     ctx.lineWidth = this.lineWidth;
@@ -233,7 +233,7 @@ export class Font extends Graphic implements FontRenderer {
 
   private _drawText(ctx: CanvasRenderingContext2D, text: string, colorOverride: Color, lineHeight: number): void {
     const lines = text.split('\n');
-    this._applyRasterProperites(ctx, colorOverride);
+    this._applyRasterProperties(ctx, colorOverride);
     this._applyFont(ctx);
 
     for (let i = 0; i < lines.length; i++) {
@@ -321,7 +321,7 @@ export class Font extends Graphic implements FontRenderer {
 
   /**
    * Get the internal cache size of the font
-   * This is useful when debugging memory useage, these numbers indicate the number of cached in memory text bitmaps
+   * This is useful when debugging memory usage, these numbers indicate the number of cached in memory text bitmaps
    */
   public get cacheSize() {
     return this._bitmapUsage.size;

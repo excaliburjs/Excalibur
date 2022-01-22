@@ -47,7 +47,7 @@ export class ContactConstraintPoint {
   }
 
   /**
-   * Returns the relative velocity betwen bodyA and bodyB
+   * Returns the relative velocity between bodyA and bodyB
    */
   public getRelativeVelocity() {
     const bodyA = this.contact.colliderA.owner?.get(BodyComponent);

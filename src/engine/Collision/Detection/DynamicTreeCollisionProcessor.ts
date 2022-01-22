@@ -15,7 +15,7 @@ import { CompositeCollider } from '../Colliders/CompositeCollider';
 import { ExcaliburGraphicsContext } from '../..';
 
 /**
- * Responsible for performing the collision broadphase (locating potential colllisions) and
+ * Responsible for performing the collision broadphase (locating potential collisions) and
  * the narrowphase (actual collision contacts)
  */
 export class DynamicTreeCollisionProcessor implements CollisionProcessor {
@@ -84,7 +84,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   }
 
   /**
-   * Detects potential collision pairs in a broadphase approach with the dynamic aabb tree strategy
+   * Detects potential collision pairs in a broadphase approach with the dynamic AABB tree strategy
    */
   public broadphase(targets: Collider[], delta: number, stats?: FrameStats): Pair[] {
     const seconds = delta / 1000;

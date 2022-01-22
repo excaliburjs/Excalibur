@@ -86,7 +86,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
     const solver: CollisionSolver = this.getSolver();
 
-    // Solve, this resolves the position/velocity so entities arent overlapping
+    // Solve, this resolves the position/velocity so entities aren't overlapping
     contacts = solver.solve(contacts);
 
     // Record contacts

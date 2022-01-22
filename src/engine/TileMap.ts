@@ -228,7 +228,7 @@ export class TileMapImpl extends Entity {
     this._composite.clearColliders();
     const colliders: BoundingBox[] = [];
     let current: BoundingBox;
-    // Bad square tessalation algo
+    // Bad square tesselation algo
     for (let i = 0; i < this.cols; i++) {
       // Scan column for colliders
       for (let j = 0; j < this.rows; j++) {
@@ -482,7 +482,7 @@ export class CellImpl extends Entity {
    */
   public readonly graphics: Graphics.Graphic[] = [];
   /**
-   * Abitrary data storage per cell, useful for any game specific data
+   * Arbitrary data storage per cell, useful for any game specific data
    */
   public data = new Map<string, any>();
 
@@ -562,7 +562,7 @@ export class CellImpl extends Entity {
   }
 
   /**
-   * Clear all graphis from this cell
+   * Clear all graphics from this cell
    */
   public clearGraphics() {
     this.graphics.length = 0;

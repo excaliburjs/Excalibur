@@ -261,7 +261,7 @@ export class TestClock extends Clock {
 
     if (this._running) {
       // to be comparable to RAF this needs to be a full blown Task
-      // For example, images cannot decode syncronously in a single step
+      // For example, images cannot decode synchronously in a single step
       this.update(time);
       this._currentTime += time;
     } else {

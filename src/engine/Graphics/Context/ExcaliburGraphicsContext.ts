@@ -67,7 +67,7 @@ export interface ExcaliburGraphicsContext {
   height: number;
 
   /**
-   * Snaps all drawings to the nearest pixel trucated down, by default false
+   * Snaps all drawings to the nearest pixel truncated down, by default false
    */
   snapToPixel: boolean;
 

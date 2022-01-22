@@ -123,7 +123,7 @@ export function contains(array: Array<any>, obj: any): boolean {
 }
 
 /**
- * Get the opposit side
+ * Get the opposite side
  * TODO: Move to Side type
  * @deprecated Will be removed in v0.26.0
  */

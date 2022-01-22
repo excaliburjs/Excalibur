@@ -612,7 +612,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       if (!this._posChanged) {
         this.pos = center;
       }
-      // First frame boostrap
+      // First frame bootstrap
 
       // Ensure camera tx is correct
       this.updateTransform();

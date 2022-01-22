@@ -20,7 +20,7 @@ export interface Observer<T> {
 export type MaybeObserver<T> = Partial<Observer<T>>;
 
 /**
- * Simple Observable implemenation
+ * Simple Observable implementation
  * @template T is the typescript Type that defines the data being observed
  */
 export class Observable<T> {

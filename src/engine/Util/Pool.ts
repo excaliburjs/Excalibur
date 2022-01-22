@@ -14,7 +14,7 @@ export class Pool<Type> {
   /**
    * Use many instances out of the in the context and return all to the pool.
    *
-   * By returning values out of the contex they will be un-hooked from the pool and are free to be passed to consumers
+   * By returning values out of the context they will be un-hooked from the pool and are free to be passed to consumers
    * @param context
    */
   using(context: (pool: Pool<Type>) => Type[] | void) {

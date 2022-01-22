@@ -72,7 +72,7 @@ export class RenderTarget {
    */
   public disable() {
     const gl = this._gl;
-    // passing null switches renderering back to the canvas
+    // passing null switches rendering back to the canvas
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.bindTexture(gl.TEXTURE_2D, null);
   }

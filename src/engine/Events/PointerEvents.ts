@@ -6,7 +6,7 @@ import { ExEvent } from './ExEvent';
 export abstract class PointerEvent extends ExEvent<'down' | 'up' | 'move' | 'cancel'> {
   constructor(
     public pointerId: number,
-    public coordinatess: GlobalCoordinates,
+    public coordinates: GlobalCoordinates,
     public nativeEvent: Event) {
     super();
   }

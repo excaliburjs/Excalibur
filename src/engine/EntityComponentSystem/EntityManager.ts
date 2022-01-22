@@ -3,7 +3,7 @@ import { Observer } from '../Util/Observable';
 import { World } from './World';
 import { Util } from '..';
 
-// Add/Remove entitys and components
+// Add/Remove entities and components
 
 export class EntityManager<ContextType = any> implements Observer<RemovedComponent | AddedComponent> {
   public entities: Entity[] = [];

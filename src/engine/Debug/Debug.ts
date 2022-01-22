@@ -182,7 +182,7 @@ export class Debug implements DebugFlags {
 
   /**
    * Switch the current excalibur clock with the [[StandardClock]] and
-   * return it in the same runnign state.
+   * return it in the same running state.
    *
    * This is useful when you need to switch back to normal mode after
    * debugging.

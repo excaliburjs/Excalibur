@@ -112,7 +112,7 @@ export class VertexLayout {
       this._vertexBuffer.upload();
     }
     let offset = 0;
-    // TODO switch to vaos if the extension is
+    // TODO switch to VAOs if the extension is
     for (const vert of this._layout) {
       gl.vertexAttribPointer(vert.location, vert.size, vert.glType, vert.normalized, this.totalVertexSizeBytes, offset);
       gl.enableVertexAttribArray(vert.location);

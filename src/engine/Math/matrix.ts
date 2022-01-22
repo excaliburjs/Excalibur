@@ -88,7 +88,7 @@ export class Matrix {
   }
 
   /**
-   * Converts the curtent matrix into a DOMMatrix
+   * Converts the current matrix into a DOMMatrix
    *
    * This is useful when working with the browser Canvas context
    * @returns {DOMMatrix} DOMMatrix

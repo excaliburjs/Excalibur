@@ -301,7 +301,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
   /**
    * Adds a copy of all the components from another template entity as a "prefab"
    * @param templateEntity Entity to use as a template
-   * @param force Force component replacement if it aleady exists on the target entity
+   * @param force Force component replacement if it already exists on the target entity
    */
   public addTemplate(templateEntity: Entity, force: boolean = false): Entity {
     for (const c of templateEntity.getComponents()) {
@@ -325,7 +325,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
         // Remove existing component type if exists when forced
         this.removeComponent(component);
       } else {
-        // early exit component exiss
+        // early exit component exits
         return this;
       }
     }
@@ -438,7 +438,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
   /**
    * Initializes this entity, meant to be called by the Scene before first update not by users of Excalibur.
    *
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * @internal
    */
@@ -451,7 +451,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for [[onPreUpdate]] lifecycle event
    * @internal
@@ -462,7 +462,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
   }
 
   /**
-   * It is not recommended that internal excalibur methods be overriden, do so at your own risk.
+   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _preupdate handler for [[onPostUpdate]] lifecycle event
    * @internal

@@ -373,7 +373,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   }
 
   /**
-   * Apply only angular impuse to the body
+   * Apply only angular impulse to the body
    * @param point
    * @param impulse
    */

@@ -48,7 +48,7 @@ implements Observer<AddedEntity | RemovedEntity> {
   /**
    * System can execute in priority order, by default all systems are priority 0. Lower values indicated higher priority.
    * For a system to execute before all other a lower priority value (-1 for example) must be set.
-   * For a system to exectue after all other a higher priority value (10 for example) must be set.
+   * For a system to execute after all other a higher priority value (10 for example) must be set.
    */
   public priority: number = 0;
 

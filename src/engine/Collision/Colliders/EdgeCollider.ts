@@ -24,7 +24,7 @@ export interface EdgeColliderOptions {
    */
   end: Vector;
   /**
-   * Optionall specify an offset
+   * Optionally specify an offset
    */
   offset?: Vector;
 }

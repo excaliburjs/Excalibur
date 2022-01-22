@@ -461,7 +461,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._postProcessTargets[i % 2].toRenderSource().use();
     }
 
-    // passing null switches renderering back to the canvas
+    // passing null switches rendering back to the canvas
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     this._screenRenderer.renderToScreen();
   }

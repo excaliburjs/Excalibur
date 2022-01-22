@@ -265,7 +265,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
       this._positionPlayButton();
       const playButtonClicked = new Promise<void>((resolve) => {
         const startButtonHandler = (e: Event) => {
-          // We want to stop propogation to keep bubbling to the engine pointer handlers
+          // We want to stop propagation to keep bubbling to the engine pointer handlers
           e.stopPropagation();
           // Hide Button after click
           this.hidePlayButton();
@@ -350,7 +350,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
   }
 
   /**
-   * Returns the progess of the loader as a number between [0, 1] inclusive.
+   * Returns the progress of the loader as a number between [0, 1] inclusive.
    */
   public get progress(): number {
     return this._resourceCount > 0 ? clamp(this._numLoaded, 0, this._resourceCount) / this._resourceCount : 1;

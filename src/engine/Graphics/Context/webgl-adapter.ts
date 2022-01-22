@@ -13,7 +13,7 @@ export class ExcaliburWebGLContextAccessor {
   // current webgl context
   public static get gl(): WebGLRenderingContext {
     if (!ExcaliburWebGLContextAccessor._GL) {
-      throw Error('Attmepted gl access before init');
+      throw Error('Attempted gl access before init');
     }
     return ExcaliburWebGLContextAccessor._GL;
   }

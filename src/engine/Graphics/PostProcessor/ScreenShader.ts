@@ -6,7 +6,7 @@ import { VertexLayout } from '../Context/vertex-layout';
  * Helper that defines a whole screen renderer, just provide a fragment source!
  *
  * Currently supports 1 varying
- * - vec2 a_texcoord between 0-1 which cooresponds to screen position
+ * - vec2 a_texcoord between 0-1 which corresponds to screen position
  */
 export class ScreenShader {
   private _shader: Shader;

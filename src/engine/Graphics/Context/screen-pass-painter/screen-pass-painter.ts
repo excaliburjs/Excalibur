@@ -7,7 +7,7 @@ import { VertexLayout } from '../vertex-layout';
 import { PostProcessor } from '../../PostProcessor/PostProcessor';
 
 /**
- * This is repsonsible for painting the entire screen during the render passes
+ * This is responsible for painting the entire screen during the render passes
  */
 export class ScreenPassPainter {
   private _gl: WebGLRenderingContext;

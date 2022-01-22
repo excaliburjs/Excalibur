@@ -28,7 +28,7 @@ export interface Motion {
   torque: number;
 
   /**
-   * Inerita can be thought of as the resistance to motion
+   * Inertia can be thought of as the resistance to motion
    */
   inertia: number;
 }
@@ -62,7 +62,7 @@ export class MotionComponent extends Component<'ex.motion'> {
   public torque: number = 0;
 
   /**
-   * Inerita can be thought of as the resistance to motion
+   * Inertia can be thought of as the resistance to motion
    */
   public inertia: number = 1;
 }

@@ -52,7 +52,7 @@ export interface SpriteSheetGridOptions {
     spriteHeight: number;
   };
   /**
-   * Optionally specifiy any spacing information between sprites
+   * Optionally specify any spacing information between sprites
    */
   spacing?: SpriteSheetSpacingDimensions;
 }

@@ -207,7 +207,7 @@ export abstract class Graphic {
   }
 
   /**
-   * Meant to be overriden by the graphic implementation to draw the underlying image (HTMLCanvasElement or HTMLImageElement)
+   * Meant to be overridden by the graphic implementation to draw the underlying image (HTMLCanvasElement or HTMLImageElement)
    * to the graphics context without transform. Transformations like position, rotation, and scale are handled by [[Graphic._preDraw]]
    * and [[Graphic._postDraw]]
    * @param ex The excalibur graphics context
@@ -261,7 +261,7 @@ export abstract class Graphic {
   }
 
   /**
-   * Apply any addtional work after [[Graphic._drawImage]] and restore the context state.
+   * Apply any additional work after [[Graphic._drawImage]] and restore the context state.
    * @param ex
    */
   protected _postDraw(ex: ExcaliburGraphicsContext): void {

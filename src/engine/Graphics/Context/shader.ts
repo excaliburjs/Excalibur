@@ -39,7 +39,7 @@ export interface UniformDefinition {
 
 export interface VertexAttributeDefinition {
   /**
-   * string name of the attribute in the shader program, commonally `a_nameofmyvariable`
+   * string name of the attribute in the shader program, commonly `a_nameofmyvariable`
    */
   name: string;
   /**
@@ -60,7 +60,7 @@ export interface VertexAttributeDefinition {
    */
   glType: number;
   /**
-   * Is the atributte normalized between (0-1)
+   * Is the attribute normalized between (0-1)
    */
   normalized: boolean;
   /**
@@ -151,9 +151,9 @@ export class Shader {
 
   getAttributes(): VertexAttributeDefinition[] {
     const gl = this._gl;
-    const attributCount = gl.getProgramParameter(this.program, gl.ACTIVE_ATTRIBUTES);
+    const attributeCount = gl.getProgramParameter(this.program, gl.ACTIVE_ATTRIBUTES);
     const attributes: VertexAttributeDefinition[] = [];
-    for (let i = 0; i < attributCount; i++) {
+    for (let i = 0; i < attributeCount; i++) {
       const attribute = gl.getActiveAttrib(this.program, i);
       const attributeLocation = gl.getAttribLocation(this.program, attribute.name);
       attributes.push({

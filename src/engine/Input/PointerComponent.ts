@@ -12,7 +12,7 @@ import { Component } from '../EntityComponentSystem/Component';
 export class PointerComponent extends Component<'ex.pointer'> {
   public readonly type = 'ex.pointer';
   /**
-   * Use any existsing Collider component geometry for pointer events. This is useful if you want
+   * Use any existing Collider component geometry for pointer events. This is useful if you want
    * user pointer events only to trigger on the same collision geometry used in the collider component
    * for collision resolution. Default is `true`.
    */

@@ -136,7 +136,7 @@ export class Label extends Actor {
    */
   @obsolete({
     message: 'Label.fontStyle will be removed in v0.26.0',
-    alternateMethod: 'Use Lable.font.style'
+    alternateMethod: 'Use Label.font.style'
   })
   public get fontStyle(): FontStyle {
     return this.font.style;
@@ -231,7 +231,7 @@ export class Label extends Actor {
 
   /**
    * Whether or not the [[SpriteFont]] will be case-sensitive when matching characters.
-   * @deprecated Use Graphics.SpriteFont.caseInsensitve
+   * @deprecated Use Graphics.SpriteFont.caseInsensitive
    */
   public caseInsensitive: boolean = true;
 

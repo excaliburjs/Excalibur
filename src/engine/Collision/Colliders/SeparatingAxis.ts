@@ -19,12 +19,12 @@ export interface SeparationInfo {
   separation: number;
 
   /**
-   * Axis of separation from the collider's perpective
+   * Axis of separation from the collider's perspective
    */
   axis: Vector;
 
   /**
-   * Side of separation (reference) from the collider's perpsective
+   * Side of separation (reference) from the collider's perspective
    */
 
   side?: Line;

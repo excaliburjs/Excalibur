@@ -55,7 +55,7 @@ export interface Frame {
    */
   graphic?: Graphic;
   /**
-   * Optionally specify the number of ms the frame should be visible, overrids the animation duration (default 100 ms)
+   * Optionally specify the number of ms the frame should be visible, overrides the animation duration (default 100 ms)
    */
   duration?: number;
 }

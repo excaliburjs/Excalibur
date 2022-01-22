@@ -95,7 +95,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       const graphicsOffscreen = !this._camera.viewport.intersect(graphics.localBounds.transform(transform.getGlobalMatrix()));
       return graphicsOffscreen;
     } else {
-      // TODO sceen coordinates
+      // TODO screen coordinates
       return false;
     }
   }

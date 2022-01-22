@@ -26,7 +26,7 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
 
   /**
    * Returns the internal action queue
-   * @returns action queu
+   * @returns action queue
    */
   public getQueue(): ActionQueue {
     return this._ctx?.getQueue();

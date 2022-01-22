@@ -39,7 +39,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
   }
 
   /**
-   * Access to the underlying html image elmeent
+   * Access to the underlying html image element
    */
   public data: HTMLImageElement = new Image();
   public get image(): HTMLImageElement {

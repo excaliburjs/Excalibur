@@ -21,9 +21,9 @@ export type ComponentType<ComponentToParse> = ComponentToParse extends Component
 export type ComponentStringType<T> = T extends Component<infer R> ? R : string;
 
 /**
- * Components are containers for state in Excalibur, the are meant to convey capabilities that an Entity posesses
+ * Components are containers for state in Excalibur, the are meant to convey capabilities that an Entity possesses
  *
- * Implementations of Component must have a zero-arg constructor to support dependecies
+ * Implementations of Component must have a zero-arg constructor to support dependencies
  *
  * ```typescript
  * class MyComponent extends ex.Component<'my'> {
@@ -79,7 +79,7 @@ export abstract class Component<TypeName extends string = string> {
   onAdd?(owner: Entity): void;
 
   /**
-   * Opitonal callback called when acomponent is added to an entity
+   * Optional callback called when a component is added to an entity
    */
   onRemove?(previousOwner: Entity): void;
 }

@@ -35,7 +35,7 @@ export abstract class CollisionSolver {
   abstract solveVelocity(contacts: CollisionContact[]): void;
 
   /**
-   * Solve position adjust the position of collders so that they are not overlapping
+   * Solve position adjust the position of colliders so that they are not overlapping
    * @param contacts
    * @inheritdoc
    */

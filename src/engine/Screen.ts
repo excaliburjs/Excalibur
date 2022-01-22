@@ -420,7 +420,7 @@ export class Screen {
   }
 
   /**
-   * Returns true if excalibur is fullscreened using the browser fullscreen api
+   * Returns true if excalibur is fullscreen using the browser fullscreen api
    */
   public get isFullScreen() {
     return this._isFullScreen;
@@ -699,7 +699,7 @@ export class Screen {
   }
 
   /**
-   * Sets the resoultion and viewport based on the selected display mode.
+   * Sets the resolution and viewport based on the selected display mode.
    */
   private _setResolutionAndViewportByDisplayMode(parent: HTMLElement | Window) {
     if (this.displayMode === DisplayMode.FillContainer) {

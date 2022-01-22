@@ -23,7 +23,7 @@ export type NativeWheelEvent = globalThis.WheelEvent;
  * Is this event a native touch event?
  */
 function isTouchEvent(value: any): value is NativeTouchEvent {
-  // Gaurd for Safari <= 13.1
+  // Guard for Safari <= 13.1
   return globalThis.TouchEvent && value instanceof globalThis.TouchEvent;
 }
 
@@ -31,7 +31,7 @@ function isTouchEvent(value: any): value is NativeTouchEvent {
  * Is this event a native pointer event
  */
 function isPointerEvent(value: any): value is NativePointerEvent {
-  // Gaurd for Safari <= 13.1
+  // Guard for Safari <= 13.1
   return globalThis.PointerEvent && value instanceof globalThis.PointerEvent;
 }
 
@@ -357,7 +357,7 @@ export class PointerEventReceiver extends Class {
           this.currentFrameMove.push(new PointerEvent('move', pointerId, button, pointerType, coord, ev));
           break;
         case 'touchcancel':
-        case 'pointercance':
+        case 'pointercancel':
           this.currentFrameCancel.push(new PointerEvent('cancel', pointerId, button, pointerType, coord, ev));
           break;
       }
