@@ -4,21 +4,60 @@ import { Entity } from "./EntityComponentSystem/Entity";
 import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from "./Graphics";
 
 export interface IsometricMapOptions {
+  /**
+   * Optionally name the isometric tile map
+   */
   name?: string;
+  /**
+   * Optionally specify the position of the isometric tile map
+   */
   pos?: Vector;
+  /**
+   * Optionally render from the top of the graphic, by default tiles are rendered from the bottom
+   */
   renderFromTopOfGraphic?: boolean;
+  /**
+   * Optionally present a graphics offset, this can be useful depending on your tile graphics
+   */
   graphicsOffset?: Vector;
+  /**
+   * Width of an individual tile in pixels
+   */
   tileWidth: number;
+  /**
+   * Height of an individual tile in pixels
+   */
   tileHeight: number;
+  /**
+   * Number of tiles wide
+   */
   width: number;
+  /**
+   * Number of tiles high
+   */
   height: number;
 }
 
 export class Tile {
+  /**
+   * Indicates whether this tile is solid
+   */
   public solid: boolean;
+  /**
+   * Tile graphics
+   */
   public graphics: Graphic[] = [];
+  /**
+   * Integer tile x coordinate
+   */
   public readonly x: number;
+  /**
+   * Integer tile y coordinate
+   */
   public readonly y: number;
+  /**
+   * Reference to the [[IsometricMap]] this tile is part of
+   */
   public readonly map: IsometricMap;
 
   private _transform: TransformComponent;
@@ -39,11 +78,31 @@ export class Tile {
   }
 }
 
+/**
+ * The IsometricMap is a special tile map that provides isometric rendering support to Excalibur
+ *
+ * Please refer to the docs for calculating what your tile width and height should be given your art assets.
+ */
 export class IsometricMap extends Entity {
+  /**
+   * Width of individual tile in pixels
+   */
   public readonly tileWidth: number;
+  /**
+   * Height of individual tile in pixels
+   */
   public readonly tileHeight: number;
+  /**
+   * Number of tiles wide
+   */
   public readonly width: number;
+  /**
+   * Number of tiles high
+   */
   public readonly height: number;
+  /**
+   * List containing all of the tiles in IsometricMap
+   */
   public readonly tiles: Tile[];
 
   public renderFromTopOfGraphic: boolean = false;
@@ -84,11 +143,15 @@ export class IsometricMap extends Entity {
     }
   }
 
+  /**
+   * Custom draw routine for tilemaps provided by the [[GraphicsComponent]]
+   * @param ctx 
+   * @param _elapsed 
+   */
   public draw(ctx: ExcaliburGraphicsContext, _elapsed: number) {
     ctx.save();
     const halfTileWidth = this.tileWidth / 2;
     const halfTileHeight = this.tileHeight / 2;
-    // optionally shift up to draw from the bottom of the tile
     // shift left origin to corner of map, not the left corner of the first sprite
     ctx.translate(-halfTileWidth, 0);
     
@@ -98,9 +161,14 @@ export class IsometricMap extends Entity {
 
         // See https://clintbellanger.net/articles/isometric_math/ for formula
         // The x position shifts left with every y step
-        const xPos = (tile.x - tile.y) * halfTileWidth;
+        let xPos = (tile.x - tile.y) * halfTileWidth;
         // The y position needs to go down with every x step
-        const yPos = (tile.x + tile.y) * halfTileHeight;
+        let yPos = (tile.x + tile.y) * halfTileHeight;
+
+        // apply any graphics offset
+        xPos += this.graphicsOffset.x;
+        yPos += this.graphicsOffset.y;
+
         graphic.draw(ctx, xPos, yPos - (this.renderFromTopOfGraphic ? 0 : (graphic.height - this.tileHeight)));
       }
     }
@@ -108,6 +176,10 @@ export class IsometricMap extends Entity {
   }
 
 
+  /**
+   * Convert world space coordinates to the tile x, y coordinate
+   * @param worldCoordinate 
+   */
   public worldToTile(worldCoordinate: Vector): Vector {
     worldCoordinate = worldCoordinate.sub(this.transform.globalPos);
 
@@ -119,6 +191,10 @@ export class IsometricMap extends Entity {
         (worldCoordinate.y / halfTileHeight - (worldCoordinate.x / halfTileWidth)) / 2);
   }
 
+  /**
+   * Given a tile coordinate, return the top left corner in world space
+   * @param tileCoordinate 
+   */
   public tileToWorld(tileCoordinate: Vector): Vector {
     const halfTileWidth = this.tileWidth / 2;
     const halfTileHeight = this.tileHeight / 2;
@@ -129,6 +205,10 @@ export class IsometricMap extends Entity {
     return vec(xPos, yPos);
   }
 
+  /**
+   * Debug draw for IsometricMap, called internally by excalibur when debug mode is toggled on
+   * @param gfx 
+   */
   public debug(gfx: ExcaliburGraphicsContext) {
 
     for (let y = 0; y < this.height + 1; y++) {
