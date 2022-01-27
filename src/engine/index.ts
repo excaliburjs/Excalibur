@@ -28,6 +28,7 @@ export { Particle, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterTy
 export * from './Collision/Physics';
 export * from './Scene';
 export { TileMap, Cell, TileMapArgs, CellArgs } from './TileMap';
+export * from './IsometricMap';
 export * from './Timer';
 export * from './Trigger';
 export * from './ScreenElement';
