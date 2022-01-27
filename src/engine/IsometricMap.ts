@@ -1,42 +1,7 @@
-import { Color, vec, Vector } from ".";
+import { BoundingBox, Color, vec, Vector } from ".";
 import { TransformComponent } from "./EntityComponentSystem/Components/TransformComponent";
 import { Entity } from "./EntityComponentSystem/Entity";
 import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from "./Graphics";
-
-export interface IsometricMapOptions {
-  /**
-   * Optionally name the isometric tile map
-   */
-  name?: string;
-  /**
-   * Optionally specify the position of the isometric tile map
-   */
-  pos?: Vector;
-  /**
-   * Optionally render from the top of the graphic, by default tiles are rendered from the bottom
-   */
-  renderFromTopOfGraphic?: boolean;
-  /**
-   * Optionally present a graphics offset, this can be useful depending on your tile graphics
-   */
-  graphicsOffset?: Vector;
-  /**
-   * Width of an individual tile in pixels
-   */
-  tileWidth: number;
-  /**
-   * Height of an individual tile in pixels
-   */
-  tileHeight: number;
-  /**
-   * Number of tiles wide
-   */
-  width: number;
-  /**
-   * Number of tiles high
-   */
-  height: number;
-}
 
 export class Tile {
   /**
@@ -78,6 +43,45 @@ export class Tile {
   }
 }
 
+export interface IsometricMapOptions {
+  /**
+   * Optionally name the isometric tile map
+   */
+  name?: string;
+  /**
+   * Optionally specify the position of the isometric tile map
+   */
+  pos?: Vector;
+  /**
+   * Optionally render from the top of the graphic, by default tiles are rendered from the bottom
+   */
+  renderFromTopOfGraphic?: boolean;
+  /**
+   * Optionally present a graphics offset, this can be useful depending on your tile graphics
+   */
+  graphicsOffset?: Vector;
+  /**
+   * Optionally specify additional padding to the graphics bounds to prevent offscreen culling, may be needed if your art assets reach outside the grid.
+   */
+  graphicsBoundsPadding?: Vector;
+  /**
+   * Width of an individual tile in pixels
+   */
+  tileWidth: number;
+  /**
+   * Height of an individual tile in pixels
+   */
+  tileHeight: number;
+  /**
+   * Number of tiles wide
+   */
+  width: number;
+  /**
+   * Number of tiles high
+   */
+  height: number;
+}
+
 /**
  * The IsometricMap is a special tile map that provides isometric rendering support to Excalibur
  *
@@ -107,6 +111,7 @@ export class IsometricMap extends Entity {
 
   public renderFromTopOfGraphic: boolean = false;
   public graphicsOffset: Vector = vec(0, 0);
+  public graphicsBoundsPadding: Vector = vec(0, 0);
   public transform: TransformComponent;
 
   constructor(options: IsometricMapOptions) {
@@ -117,7 +122,7 @@ export class IsometricMap extends Entity {
       }),
       new DebugGraphicsComponent((ctx) => this.debug(ctx))
     ], options.name);
-    const { pos, tileWidth, tileHeight, width, height, renderFromTopOfGraphic, graphicsOffset } = options;
+    const { pos, tileWidth, tileHeight, width, height, renderFromTopOfGraphic, graphicsOffset, graphicsBoundsPadding } = options;
 
     this.transform = this.get(TransformComponent);
     if (pos) {
@@ -126,6 +131,7 @@ export class IsometricMap extends Entity {
 
     this.renderFromTopOfGraphic = renderFromTopOfGraphic ?? this.renderFromTopOfGraphic;
     this.graphicsOffset = graphicsOffset ?? this.graphicsOffset;
+    this.graphicsBoundsPadding = graphicsBoundsPadding ?? this.graphicsBoundsPadding;
 
     this.tileWidth = tileWidth;
     this.tileHeight = tileHeight;
@@ -141,6 +147,17 @@ export class IsometricMap extends Entity {
         // todo row/columns helpers
       }
     }
+
+    // set graphics bounds for offscreen calculation
+    const totalWidth = this.tileWidth * this.width;
+    const totalHeight = this.tileHeight * this.height;
+    // TODO this will need to change potentially if the graphics assets exceed the grid
+    this.get(GraphicsComponent).localBounds = new BoundingBox({
+      left: -totalWidth / 2 - this.graphicsBoundsPadding.x,
+      top: 0 - this.graphicsBoundsPadding.y,
+      right: totalWidth / 2 + this.graphicsBoundsPadding.x,
+      bottom: totalHeight + this.graphicsBoundsPadding.y
+    });
   }
 
   /**
@@ -154,7 +171,7 @@ export class IsometricMap extends Entity {
     const halfTileHeight = this.tileHeight / 2;
     // shift left origin to corner of map, not the left corner of the first sprite
     ctx.translate(-halfTileWidth, 0);
-    
+
     for (const tile of this.tiles) {
       for (const graphic of tile.graphics) {
         // TODO tick any graphics needing ticking
@@ -207,7 +224,7 @@ export class IsometricMap extends Entity {
 
   /**
    * Debug draw for IsometricMap, called internally by excalibur when debug mode is toggled on
-   * @param gfx 
+   * @param gfx
    */
   public debug(gfx: ExcaliburGraphicsContext) {
 
