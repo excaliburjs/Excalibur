@@ -523,7 +523,7 @@ describe('The engine', () => {
     expect(ex.Logger.getInstance().error).toHaveBeenCalledWith('Scene', 'madeUp', 'does not exist!');
   });
 
-  it('can screen shot the game (in WebGL)', async () => {
+  it('can screen shot the game (in WebGL)', (done) => {
 
     const engine = TestUtils.engine({}, []);
     const clock = engine.clock as ex.TestClock;
@@ -535,12 +535,17 @@ describe('The engine', () => {
       height: 100,
       color: ex.Color.Red
     }));
+    TestUtils.runToReady(engine);
 
     clock.step(1);
 
-    const image = engine.screenshot();
+    engine.screenshot().then((image) => {
+      return expectAsync(image).toEqualImage(flushWebGLCanvasTo2D(engine.canvas)).then(() => {
+        done();
+      });
+    });
 
-    await expectAsync(image).toEqualImage(flushWebGLCanvasTo2D(engine.canvas));
+    clock.step(1);
   });
 
   it('can screen shot the game HiDPI (in WebGL)', async () => {
@@ -557,20 +562,23 @@ describe('The engine', () => {
       height: 100,
       color: ex.Color.Red
     }));
+    TestUtils.runToReady(engine);
 
     clock.step(1);
+    const screenShotPromise = engine.screenshot();
+    clock.step(1);
+    const hidpiImagePromise = engine.screenshot(true);
+    clock.step(1);
 
-    const image = engine.screenshot();
-    await image.decode();
+    const image = await screenShotPromise;
+    const hidpiImage = await hidpiImagePromise;
 
-    expect(image.height).toBe(500);
     expect(image.width).toBe(500);
+    expect(image.height).toBe(500);
 
-    const hidpiImage = engine.screenshot(true);
-    await hidpiImage.decode();
-    await expectAsync(hidpiImage).toEqualImage(flushWebGLCanvasTo2D(engine.canvas));
     expect(hidpiImage.width).toBe(1000);
     expect(hidpiImage.height).toBe(1000);
+    await expectAsync(hidpiImage).toEqualImage(flushWebGLCanvasTo2D(engine.canvas));
   });
 
   describe('lifecycle overrides', () => {
