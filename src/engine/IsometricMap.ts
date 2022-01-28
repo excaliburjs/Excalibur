@@ -1,4 +1,4 @@
-import { BoundingBox, Color, vec, Vector } from ".";
+import { BoundingBox, Collider, Color, vec, Vector } from ".";
 import { TransformComponent } from "./EntityComponentSystem/Components/TransformComponent";
 import { Entity } from "./EntityComponentSystem/Entity";
 import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from "./Graphics";
@@ -12,6 +12,11 @@ export class Tile {
    * Tile graphics
    */
   public graphics: Graphic[] = [];
+
+  /**
+   * Tile colliders
+   */
+  public colliders: Collider[] = [];
   /**
    * Integer tile x coordinate
    */
@@ -144,14 +149,13 @@ export class IsometricMap extends Entity {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         this.tiles[x + y * width] = new Tile(x, y, this);
-        // todo row/columns helpers
+        // TODO row/columns helpers
       }
     }
 
     // set graphics bounds for offscreen calculation
     const totalWidth = this.tileWidth * this.width;
     const totalHeight = this.tileHeight * this.height;
-    // TODO this will need to change potentially if the graphics assets exceed the grid
     this.get(GraphicsComponent).localBounds = new BoundingBox({
       left: -totalWidth / 2 - this.graphicsBoundsPadding.x,
       top: 0 - this.graphicsBoundsPadding.y,

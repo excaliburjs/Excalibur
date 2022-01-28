@@ -21,6 +21,7 @@ import { ColliderComponent } from './Collision/ColliderComponent';
 import { CompositeCollider } from './Collision/Colliders/CompositeCollider';
 import { Color } from './Color';
 import { DebugGraphicsComponent } from './Graphics/DebugGraphicsComponent';
+import { Collider } from './Collision/Colliders/Collider';
 
 /**
  * @hidden
@@ -227,6 +228,7 @@ export class TileMapImpl extends Entity {
   private _updateColliders(): void {
     this._composite.clearColliders();
     const colliders: BoundingBox[] = [];
+    this._composite = this._collider.useCompositeCollider([]);
     let current: BoundingBox;
     // Bad square tesselation algo
     for (let i = 0; i < this.cols; i++) {
@@ -239,10 +241,18 @@ export class TileMapImpl extends Entity {
         const tile = this.data[i + j * this.cols];
         // Current tile in column is solid build up current collider
         if (tile.solid) {
-          if (!current) {
-            current = tile.bounds;
+          // Use custom collider otherwise bounding box
+          if (tile.tileColliders.length > 0) {
+            for (const collider of tile.tileColliders) {
+              this._composite.addCollider(collider);
+            }
+            current = null;
           } else {
-            current = current.combine(tile.bounds);
+            if (!current) {
+              current = tile.bounds;
+            } else {
+              current = current.combine(tile.bounds);
+            }
           }
         } else {
           // Not solid skip and cut off the current collider
@@ -264,7 +274,7 @@ export class TileMapImpl extends Entity {
         }
       }
     }
-    this._composite = this._collider.useCompositeCollider([]);
+
     for (const c of colliders) {
       const collider = Shape.Box(c.width, c.height, Vector.Zero, vec(c.left - this.pos.x, c.top - this.pos.y));
       collider.owner = this;
@@ -481,6 +491,8 @@ export class CellImpl extends Entity {
    * Current list of graphics for this cell
    */
   public readonly graphics: Graphics.Graphic[] = [];
+
+  public tileColliders: Collider[] = [];
   /**
    * Arbitrary data storage per cell, useful for any game specific data
    */
