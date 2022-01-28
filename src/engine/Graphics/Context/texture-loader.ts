@@ -117,7 +117,7 @@ export class TextureLoader {
 
   /**
    * Takes an image and returns if it meets size criteria for hardware
-   * @param image 
+   * @param image
    * @returns if the image will be supported at runtime
    */
   public static checkImageSizeSupportedAndLog(image: HTMLImageSource) {
@@ -128,7 +128,7 @@ export class TextureLoader {
         `(${TextureLoader._MAX_TEXTURE_SIZE}x${TextureLoader._MAX_TEXTURE_SIZE}) please resize to an image `
         +`for excalibur to render properly.\n\nImages will likely render as black rectangles.\n\n`+
         `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
-        return false;
+      return false;
     } else if (image.width > 4096 || image.height > 4096) {
       // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits
       TextureLoader._LOGGER.warn(
@@ -137,6 +137,6 @@ export class TextureLoader {
         `Images will likely render as black rectangles on some mobile platforms.\n\n` +
         `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
     }
-    return true
+    return true;
   }
 }
