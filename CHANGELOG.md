@@ -19,7 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
--
+- Fixed [#2206] error and warning logs for large images to help developers identify error situations in the webgl implementation
 
 ### Updates
 

@@ -29,6 +29,57 @@ describe('A ImageSource', () => {
     expect(whenLoaded).toHaveBeenCalledTimes(1);
   });
 
+  it('will log a warning if images are too large for mobile', async () => {
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvasElement,
+      enableTransparency: false,
+      backgroundColor: ex.Color.White
+    });
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'warn');
+    spyOn(logger, 'error');
+
+    const sut = new ex.ImageSource('src/spec/images/GraphicsImageSourceSpec/big-image.png');
+
+    await sut.load();
+
+    expect(logger.warn).toHaveBeenCalledWith( `The image [src/spec/images/GraphicsImageSourceSpec/big-image.png] provided to excalibur` +
+    ` is too large may not work on all mobile devices, it is recommended you resize images to a maximum (4096x4096).\n\n` +
+    `Images will likely render as black rectangles on some mobile platforms.\n\n` +
+    `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
+    expect(logger.error).not.toHaveBeenCalled();
+  });
+
+  it('will log an error if images are too large for the current platform', async () => {
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvasElement,
+      enableTransparency: false,
+      backgroundColor: ex.Color.White
+    });
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'warn');
+    spyOn(logger, 'error');
+
+    (ex.TextureLoader as any)._MAX_TEXTURE_SIZE = 4096;
+
+    const sut = new ex.ImageSource('src/spec/images/GraphicsImageSourceSpec/big-image.png');
+
+    await sut.load();
+
+    expect(logger.warn).not.toHaveBeenCalled();
+    expect(logger.error).toHaveBeenCalledWith(
+      `The image [src/spec/images/GraphicsImageSourceSpec/big-image.png] provided to Excalibur is too large for the device's maximum ` +
+      `texture size of (4096x4096) please resize to an image for excalibur to render properly.\n\n` +
+      `Images will likely render as black rectangles.\n\n` +
+      `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
+  });
+
   it('can load images with an image filtering Blended', async () => {
     spyOn(ex.TextureLoader, 'load').and.callThrough();
     const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Blended);
