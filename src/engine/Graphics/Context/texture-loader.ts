@@ -1,3 +1,4 @@
+import { Logger } from '../../Util/Log';
 import { ImageFiltering } from '../Filtering';
 import { HTMLImageSource } from './ExcaliburGraphicsContext';
 import { ensurePowerOfTwo, isPowerOfTwo } from './webgl-util';
@@ -6,6 +7,7 @@ import { ensurePowerOfTwo, isPowerOfTwo } from './webgl-util';
  * Manages loading image sources into webgl textures, a unique id is associated with all sources
  */
 export class TextureLoader {
+  private static _logger = Logger.getInstance();
   /**
    * Sets the default filtering for the Excalibur texture loader, default [[ImageFiltering.Blended]]
    */
@@ -17,8 +19,11 @@ export class TextureLoader {
 
   private static _TEXTURE_MAP = new Map<HTMLImageSource, WebGLTexture>();
 
+  private static _MAX_TEXTURE_SIZE: number  = 0;
+
   public static register(context: WebGLRenderingContext): void {
     TextureLoader._GL = context;
+    TextureLoader._MAX_TEXTURE_SIZE = context.getParameter(context.MAX_TEXTURE_SIZE);
   }
 
   /**
@@ -69,6 +74,22 @@ export class TextureLoader {
     // No texture exists create a new one
     tex = gl.createTexture();
     const source = TextureLoader.toPowerOfTwoImage(image);
+
+    const originalSrc = image.dataset.originalSrc ?? 'canvas';
+    if (source.width > TextureLoader._MAX_TEXTURE_SIZE || source.height > TextureLoader._MAX_TEXTURE_SIZE) {
+      TextureLoader._logger.error(`The image [${originalSrc}] provided to Excalibur is too large for the device's maximum texture size of (${TextureLoader._MAX_TEXTURE_SIZE}x${TextureLoader._MAX_TEXTURE_SIZE}) please resize to an image for excalibur to render properly.
+
+      Images will likely render as black rectangles.
+
+      Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
+    } else if (image.width > 4096 || image.height > 4096) {
+      // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits
+      TextureLoader._logger.warn(`The image [${originalSrc}] provided to excalibur is too large may not work on all mobile devices, it is recommended you resize images to a maximum (4096x4096).
+
+      Images will likely render as black rectangles on some mobile platforms.
+
+      Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
+    }
 
     gl.bindTexture(gl.TEXTURE_2D, tex);
 
