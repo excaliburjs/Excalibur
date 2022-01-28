@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
--
+- Small breaking change to `engine.screenshot()` you must now use `await engine.screenshot()`. This avoids copy buffer performance impact of `preserveDrawingBuffer: true` by capturing a screen shot request on the next frame when the buffer has not yet been cleared.
 
 ### Deprecated
 
@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed issue [#2203] where `engine.screenshot()` did not work in the WebGL implementation
+- Fixed issue [#1528] where screenshots didn't match the displayed game's size in HiDPI displays, images are now consistent with the game. If you want the full scaled image pass `engine.screenshot(true)` to preserve HiDPI Resolution.
 
 ### Updates
 
