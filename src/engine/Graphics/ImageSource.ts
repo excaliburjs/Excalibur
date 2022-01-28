@@ -89,6 +89,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
       // Decode the image
       const image = new Image();
       image.src = url;
+      image.setAttribute('data-original-src', this.path);
       await image.decode();
 
       // Set results
