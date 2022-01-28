@@ -1151,6 +1151,8 @@ O|===|* >________________>\n\
     // Flush any pending drawings
     this.graphicsContext.flush();
     this.graphicsContext.endDrawLifecycle();
+
+    this._checkForScreenShots();
   }
 
   /**
@@ -1397,15 +1399,41 @@ O|===|* >________________>\n\
     return this.clock.isRunning();
   }
 
+
+  private _screenShotRequests: { preserveHiDPIResolution: boolean, resolve: (image: HTMLImageElement) => void }[] = [];
   /**
    * Takes a screen shot of the current viewport and returns it as an
    * HTML Image Element.
+   * @param preserveHiDPIResolution in the case of HiDPI return the full scaled backing image, by default false
    */
-  public screenshot(): HTMLImageElement {
-    const result = new Image();
-    const raw = this.canvas.toDataURL('image/png');
-    result.src = raw;
-    return result;
+  public screenshot(preserveHiDPIResolution = false): Promise<HTMLImageElement> {
+    const screenShotPromise = new Promise<HTMLImageElement>((resolve) => {
+      this._screenShotRequests.push({preserveHiDPIResolution, resolve});
+    });
+    return screenShotPromise;
+  }
+
+  private _checkForScreenShots() {
+    // We must grab the draw buffer before we yield to the browser
+    // the draw buffer is cleared after compositing
+    // the reason for the asynchrony is setting `preserveDrawingBuffer: true`
+    // forces the browser to copy buffers which can have a mass perf impact on mobile
+    for (const request of this._screenShotRequests) {
+      const finalWidth = request.preserveHiDPIResolution ? this.canvas.width : this.screen.resolution.width;
+      const finalHeight = request.preserveHiDPIResolution ? this.canvas.height : this.screen.resolution.height;
+      const screenshot = document.createElement('canvas');
+      screenshot.width = finalWidth;
+      screenshot.height = finalHeight;
+      const ctx = screenshot.getContext('2d');
+      ctx.drawImage(this.canvas, 0, 0, finalWidth, finalHeight);
+
+      const result = new Image();
+      const raw = screenshot.toDataURL('image/png');
+      result.src = raw;
+      request.resolve(result);
+    }
+    // Reset state
+    this._screenShotRequests.length = 0;
   }
 
   /**
