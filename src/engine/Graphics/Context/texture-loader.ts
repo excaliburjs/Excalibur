@@ -7,7 +7,7 @@ import { ensurePowerOfTwo, isPowerOfTwo } from './webgl-util';
  * Manages loading image sources into webgl textures, a unique id is associated with all sources
  */
 export class TextureLoader {
-  private static _logger = Logger.getInstance();
+  private static _LOGGER = Logger.getInstance();
   /**
    * Sets the default filtering for the Excalibur texture loader, default [[ImageFiltering.Blended]]
    */
@@ -77,18 +77,18 @@ export class TextureLoader {
 
     const originalSrc = image.dataset.originalSrc ?? 'canvas';
     if (source.width > TextureLoader._MAX_TEXTURE_SIZE || source.height > TextureLoader._MAX_TEXTURE_SIZE) {
-      TextureLoader._logger.error(`The image [${originalSrc}] provided to Excalibur is too large for the device's maximum texture size of (${TextureLoader._MAX_TEXTURE_SIZE}x${TextureLoader._MAX_TEXTURE_SIZE}) please resize to an image for excalibur to render properly.
-
-      Images will likely render as black rectangles.
-
-      Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
+      TextureLoader._LOGGER.error(
+        `The image [${originalSrc}] provided to Excalibur is too large for the device's maximum texture size of `+
+        `(${TextureLoader._MAX_TEXTURE_SIZE}x${TextureLoader._MAX_TEXTURE_SIZE}) please resize to an image `
+        +`for excalibur to render properly.\n\nImages will likely render as black rectangles.\n\n`+
+        `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
     } else if (image.width > 4096 || image.height > 4096) {
       // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits
-      TextureLoader._logger.warn(`The image [${originalSrc}] provided to excalibur is too large may not work on all mobile devices, it is recommended you resize images to a maximum (4096x4096).
-
-      Images will likely render as black rectangles on some mobile platforms.
-
-      Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
+      TextureLoader._LOGGER.warn(
+        `The image [${originalSrc}] provided to excalibur is too large may not work on all mobile devices, `+
+        `it is recommended you resize images to a maximum (4096x4096).\n\n` +
+        `Images will likely render as black rectangles on some mobile platforms.\n\n` +
+        `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
     }
 
     gl.bindTexture(gl.TEXTURE_2D, tex);
