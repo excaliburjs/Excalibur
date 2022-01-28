@@ -3,6 +3,18 @@ import { TestUtils } from './util/TestUtils';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { Engine } from '@excalibur';
 
+/**
+ *
+ */
+function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = source.width;
+  canvas.height = source.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(source, 0, 0);
+  return canvas;
+}
+
 describe('The engine', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
@@ -509,6 +521,56 @@ describe('The engine', () => {
     spyOn(ex.Logger.getInstance(), 'error');
     engine.goToScene('madeUp');
     expect(ex.Logger.getInstance().error).toHaveBeenCalledWith('Scene', 'madeUp', 'does not exist!');
+  });
+
+  it('can screen shot the game (in WebGL)', async () => {
+
+    const engine = TestUtils.engine({}, []);
+    const clock = engine.clock as ex.TestClock;
+
+    engine.add(new ex.Actor({
+      x: 50,
+      y: 50,
+      width: 100,
+      height: 100,
+      color: ex.Color.Red
+    }));
+
+    clock.step(1);
+
+    const image = engine.screenshot();
+
+    await expectAsync(image).toEqualImage(flushWebGLCanvasTo2D(engine.canvas));
+  });
+
+  it('can screen shot the game HiDPI (in WebGL)', async () => {
+
+    const engine = TestUtils.engine({}, []);
+    const clock = engine.clock as ex.TestClock;
+    (engine.screen as any)._pixelRatioOverride = 2;
+    engine.screen.applyResolutionAndViewport();
+
+    engine.add(new ex.Actor({
+      x: 50,
+      y: 50,
+      width: 100,
+      height: 100,
+      color: ex.Color.Red
+    }));
+
+    clock.step(1);
+
+    const image = engine.screenshot();
+    await image.decode();
+
+    expect(image.height).toBe(500);
+    expect(image.width).toBe(500);
+
+    const hidpiImage = engine.screenshot(true);
+    await hidpiImage.decode();
+    await expectAsync(hidpiImage).toEqualImage(flushWebGLCanvasTo2D(engine.canvas));
+    expect(hidpiImage.width).toBe(1000);
+    expect(hidpiImage.height).toBe(1000);
   });
 
   describe('lifecycle overrides', () => {

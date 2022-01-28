@@ -174,6 +174,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       antialias: smoothing ?? this.smoothing,
       premultipliedAlpha: false,
       alpha: enableTransparency ?? true,
+      preserveDrawingBuffer: true, // needed for screen shots to work
       depth: true,
       powerPreference: 'high-performance'
     });

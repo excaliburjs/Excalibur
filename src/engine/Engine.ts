@@ -1400,10 +1400,19 @@ O|===|* >________________>\n\
   /**
    * Takes a screen shot of the current viewport and returns it as an
    * HTML Image Element.
+   * @param preserveHiDPIResolution in the case of HiDPI return the full scaled backing image, by default false
    */
-  public screenshot(): HTMLImageElement {
+  public screenshot(preserveHiDPIResolution = false): HTMLImageElement {
+    const finalWidth = preserveHiDPIResolution ? this.canvas.width : this.screen.resolution.width;
+    const finalHeight = preserveHiDPIResolution ? this.canvas.height : this.screen.resolution.height;
+    const screenshot = document.createElement('canvas');
+    screenshot.width = finalWidth;
+    screenshot.height = finalHeight;
+    const ctx = screenshot.getContext('2d');
+    ctx.drawImage(this.canvas, 0, 0, finalWidth, finalHeight);
+
     const result = new Image();
-    const raw = this.canvas.toDataURL('image/png');
+    const raw = screenshot.toDataURL('image/png');
     result.src = raw;
     return result;
   }

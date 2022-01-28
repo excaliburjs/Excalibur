@@ -19,7 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
--
+- Fixed issue [#2203] where `engine.screenshot()` did not work in the WebGL implementation
 
 ### Updates
 
