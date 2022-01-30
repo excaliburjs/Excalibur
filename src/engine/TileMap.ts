@@ -242,8 +242,10 @@ export class TileMapImpl extends Entity {
         // Current tile in column is solid build up current collider
         if (tile.solid) {
           // Use custom collider otherwise bounding box
-          if (tile.tileColliders.length > 0) {
-            for (const collider of tile.tileColliders) {
+          if (tile.colliders.length > 0) {
+            for (const collider of tile.colliders) {
+              collider.offset = vec(tile.x, tile.y).add(collider.offset);
+              collider.owner = this;
               this._composite.addCollider(collider);
             }
             current = null;
@@ -492,7 +494,7 @@ export class CellImpl extends Entity {
    */
   public readonly graphics: Graphics.Graphic[] = [];
 
-  public tileColliders: Collider[] = [];
+  public colliders: Collider[] = [];
   /**
    * Arbitrary data storage per cell, useful for any game specific data
    */
