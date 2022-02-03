@@ -1,17 +1,24 @@
-import { BoundingBox, Collider, Color, vec, Vector } from ".";
+import { BodyComponent, BoundingBox, Collider, ColliderComponent, CollisionType, Color, CompositeCollider, vec, Vector } from ".";
 import { TransformComponent } from "./EntityComponentSystem/Components/TransformComponent";
 import { Entity } from "./EntityComponentSystem/Entity";
 import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from "./Graphics";
+import { IsometricEntityComponent } from "./IsometricEntityComponent";
 
-export class Tile {
+export class Tile extends Entity {
   /**
    * Indicates whether this tile is solid
    */
-  public solid: boolean;
+  public solid: boolean = false;
+
+  private _graphics: Graphic[] = []
   /**
    * Tile graphics
    */
-  public graphics: Graphic[] = [];
+  public addGraphic(graphic: Graphic) {
+    const gfx = this.get(GraphicsComponent);
+    gfx.visible = true;
+    this._graphics.push(graphic);
+  }
 
   /**
    * Tile colliders
@@ -31,6 +38,7 @@ export class Tile {
   public readonly map: IsometricMap;
 
   private _transform: TransformComponent;
+  private _isometricEntityComponent: IsometricEntityComponent;
 
   /**
    * Returns the top left corner of the Tile in world space
@@ -41,10 +49,54 @@ export class Tile {
   }
 
   constructor(x: number, y: number, map: IsometricMap) {
+    super([
+      new TransformComponent(),
+      new GraphicsComponent({
+        onPostDraw: (gfx, elapsed) => this.draw(gfx, elapsed)
+      }),
+      new IsometricEntityComponent()
+    ]);
     this.x = x;
     this.y = y;
     this.map = map;
-    this._transform = this.map.get(TransformComponent);
+    this._transform = this.get(TransformComponent);
+    this._isometricEntityComponent = this.get(IsometricEntityComponent);
+
+    const halfTileWidth = this.map.tileWidth / 2;
+    const halfTileHeight = this.map.tileHeight / 2;
+    // See https://clintbellanger.net/articles/isometric_math/ for formula
+    // The x position shifts left with every y step
+    let xPos = (this.x - this.y) * halfTileWidth;
+    // The y position needs to go down with every x step
+    let yPos = (this.x + this.y) * halfTileHeight;
+    this._transform.pos = vec(xPos, yPos);
+    this._isometricEntityComponent.elevation = 0;
+    this._isometricEntityComponent.map = map;
+
+    const gfx = this.get(GraphicsComponent);
+    gfx.visible = false; // start not visible
+    const totalWidth = this.map.tileWidth;
+    const totalHeight = this.map.tileHeight;
+    gfx.localBounds = new BoundingBox({
+      left: -totalWidth / 2,
+      top: 0,
+      right: totalWidth / 2,
+      bottom: totalHeight
+    });
+  }
+
+  draw(gfx: ExcaliburGraphicsContext, _elapsed: number) {
+    const halfTileWidth = this.map.tileWidth / 2;
+    gfx.save();
+    // shift left origin to corner of map, not the left corner of the first sprite
+    gfx.translate(-halfTileWidth, 0);
+    // apply any graphics offset
+    // xPos += this.map.graphicsOffset.x;
+    // yPos += this.map.graphicsOffset.y;
+    for (const graphic of this._graphics) {
+      graphic.draw(gfx, this.map.graphicsOffset.x, this.map.graphicsOffset.y - (this.map.renderFromTopOfGraphic ? 0 : (graphic.height - this.map.tileHeight)));
+    }
+    gfx.restore();
   }
 }
 
@@ -118,13 +170,20 @@ export class IsometricMap extends Entity {
   public graphicsOffset: Vector = vec(0, 0);
   public graphicsBoundsPadding: Vector = vec(0, 0);
   public transform: TransformComponent;
+  public collider: ColliderComponent;
+
+  private _composite: CompositeCollider;
 
   constructor(options: IsometricMapOptions) {
     super([
       new TransformComponent(),
-      new GraphicsComponent({
-        onPostDraw: (ctx, elapsed) => this.draw(ctx, elapsed)
+      new BodyComponent({
+        type: CollisionType.Fixed
       }),
+      new ColliderComponent(),
+      // new GraphicsComponent({
+      //   onPostDraw: (ctx, elapsed) => this.draw(ctx, elapsed)
+      // }),
       new DebugGraphicsComponent((ctx) => this.debug(ctx))
     ], options.name);
     const { pos, tileWidth, tileHeight, width, height, renderFromTopOfGraphic, graphicsOffset, graphicsBoundsPadding } = options;
@@ -133,6 +192,12 @@ export class IsometricMap extends Entity {
     if (pos) {
       this.transform.pos = pos;
     }
+
+    this.collider = this.get(ColliderComponent);
+    if (this.collider) {
+      this.collider.set(this._composite = new CompositeCollider([]));
+    }
+
 
     this.renderFromTopOfGraphic = renderFromTopOfGraphic ?? this.renderFromTopOfGraphic;
     this.graphicsOffset = graphicsOffset ?? this.graphicsOffset;
@@ -148,20 +213,36 @@ export class IsometricMap extends Entity {
     // build up tile representation
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        this.tiles[x + y * width] = new Tile(x, y, this);
+        const tile = new Tile(x, y, this);
+        this.tiles[x + y * width] = tile;
+        this.addChild(tile);
         // TODO row/columns helpers
       }
     }
 
     // set graphics bounds for offscreen calculation
-    const totalWidth = this.tileWidth * this.width;
-    const totalHeight = this.tileHeight * this.height;
-    this.get(GraphicsComponent).localBounds = new BoundingBox({
-      left: -totalWidth / 2 - this.graphicsBoundsPadding.x,
-      top: 0 - this.graphicsBoundsPadding.y,
-      right: totalWidth / 2 + this.graphicsBoundsPadding.x,
-      bottom: totalHeight + this.graphicsBoundsPadding.y
-    });
+    // const totalWidth = this.tileWidth * this.width;
+    // const totalHeight = this.tileHeight * this.height;
+    // this.get(GraphicsComponent).localBounds = new BoundingBox({
+    //   left: -totalWidth / 2 - this.graphicsBoundsPadding.x,
+    //   top: 0 - this.graphicsBoundsPadding.y,
+    //   right: totalWidth / 2 + this.graphicsBoundsPadding.x,
+    //   bottom: totalHeight + this.graphicsBoundsPadding.y
+    // });
+  }
+
+  // TODO Update automagically
+  public updateColliders() {
+    for (const tile of this.tiles) {
+      for (const collider of tile.colliders) {
+        collider.offset = this.tileToWorld(vec(tile.x, tile.y))
+          .add(collider.offset)
+          .sub(vec(this.tileWidth / 2, this.tileHeight)); // TODO we need to unshift based on drawing
+        collider.owner = this;
+        this._composite.addCollider(collider);
+      }
+    }
+    this.collider.update();
   }
 
   /**
@@ -169,32 +250,32 @@ export class IsometricMap extends Entity {
    * @param ctx 
    * @param _elapsed 
    */
-  public draw(ctx: ExcaliburGraphicsContext, _elapsed: number) {
-    ctx.save();
-    const halfTileWidth = this.tileWidth / 2;
-    const halfTileHeight = this.tileHeight / 2;
-    // shift left origin to corner of map, not the left corner of the first sprite
-    ctx.translate(-halfTileWidth, 0);
+  // public draw(ctx: ExcaliburGraphicsContext, _elapsed: number) {
+  //   ctx.save();
+  //   const halfTileWidth = this.tileWidth / 2;
+  //   const halfTileHeight = this.tileHeight / 2;
+  //   // shift left origin to corner of map, not the left corner of the first sprite
+  //   ctx.translate(-halfTileWidth, 0);
 
-    for (const tile of this.tiles) {
-      for (const graphic of tile.graphics) {
-        // TODO tick any graphics needing ticking
+  //   for (const tile of this.tiles) {
+  //     for (const graphic of tile.graphics) {
+  //       // TODO tick any graphics needing ticking
 
-        // See https://clintbellanger.net/articles/isometric_math/ for formula
-        // The x position shifts left with every y step
-        let xPos = (tile.x - tile.y) * halfTileWidth;
-        // The y position needs to go down with every x step
-        let yPos = (tile.x + tile.y) * halfTileHeight;
+  //       // See https://clintbellanger.net/articles/isometric_math/ for formula
+  //       // The x position shifts left with every y step
+  //       let xPos = (tile.x - tile.y) * halfTileWidth;
+  //       // The y position needs to go down with every x step
+  //       let yPos = (tile.x + tile.y) * halfTileHeight;
 
-        // apply any graphics offset
-        xPos += this.graphicsOffset.x;
-        yPos += this.graphicsOffset.y;
+  //       // apply any graphics offset
+  //       xPos += this.graphicsOffset.x;
+  //       yPos += this.graphicsOffset.y;
 
-        graphic.draw(ctx, xPos, yPos - (this.renderFromTopOfGraphic ? 0 : (graphic.height - this.tileHeight)));
-      }
-    }
-    ctx.restore();
-  }
+  //       graphic.draw(ctx, xPos, yPos - (this.renderFromTopOfGraphic ? 0 : (graphic.height - this.tileHeight)));
+  //     }
+  //   }
+  //   ctx.restore();
+  // }
 
 
   /**

@@ -2,6 +2,7 @@ import { Matrix, MatrixLocations } from '../../Math/matrix';
 import { VectorView } from '../../Math/vector-view';
 import { Vector, vec } from '../../Math/vector';
 import { Component } from '../Component';
+import { Observable } from '../..';
 
 export interface Transform {
   /**
@@ -191,11 +192,22 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
     }
   }
 
+  public zIndexChanged$ = new Observable<TransformComponent>();
+  private _z = 0;
   /**
    * The z-index ordering of the entity, a higher values are drawn on top of lower values.
    * For example z=99 would be drawn on top of z=0.
    */
-  public z: number = 0;
+  public get z(): number {
+    return this._z;
+  }
+  public set z(val: number) {
+    const oldz = this._z;
+    this._z = val;
+    if (oldz !== val) {
+      this.zIndexChanged$.notifyAll(this);
+    }
+  }
 
   /**
    * The rotation of the entity in radians. For example `Math.PI` radians is the same as 180 degrees.

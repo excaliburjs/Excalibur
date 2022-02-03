@@ -5,9 +5,8 @@ import { vec } from '../Math/vector';
 import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';
-import { System, SystemType, TagComponent } from '../EntityComponentSystem';
+import { AddedEntity, isAddedSystemEntity, RemovedEntity, System, SystemType } from '../EntityComponentSystem';
 import { Engine } from '../Engine';
-import { EnterViewPortEvent, ExitViewPortEvent } from '../Events';
 import { GraphicsGroup } from '.';
 import { Particle } from '../Particles';
 
@@ -20,40 +19,83 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   private _camera: Camera;
   private _engine: Engine;
 
+  private _sortedTransforms: TransformComponent[] = [];
+
   public initialize(scene: Scene): void {
     this._graphicsContext = scene.engine.graphicsContext;
     this._camera = scene.camera;
     this._engine = scene.engine;
   }
 
-  public sort(a: Entity, b: Entity) {
-    return a.get(TransformComponent).z - b.get(TransformComponent).z;
+  // public sort(a: Entity, b: Entity) {
+  //   return a.get(TransformComponent).z - b.get(TransformComponent).z;
+  // }
+
+  private _zHasChanged = false;
+  private _zIndexUpdate = () => {
+    this._zHasChanged = true;
   }
 
-  public update(entities: Entity[], delta: number): void {
+  public preupdate(): void {
+    if (this._zHasChanged) {
+      this._sortedTransforms.sort((a, b) => {
+        return a.z - b.z
+      });
+      this._zHasChanged = false;
+    }
+  }
+
+  public notify(entityAddedOrRemoved: AddedEntity | RemovedEntity): void {
+    if (isAddedSystemEntity(entityAddedOrRemoved)) {
+      const tx = entityAddedOrRemoved.data.get(TransformComponent);
+      this._sortedTransforms.push(tx);
+      tx.zIndexChanged$.subscribe(this._zIndexUpdate);
+      this._zHasChanged = true;
+    } else {
+      const tx = entityAddedOrRemoved.data.get(TransformComponent);
+      tx.zIndexChanged$.unsubscribe(this._zIndexUpdate);
+      const index = this._sortedTransforms.indexOf(tx);
+      if (index > -1) {
+        this._sortedTransforms.splice(index, 1);
+      }
+    }
+  }
+
+
+  public update(_entities: Entity[], delta: number): void {
     this._token++;
-    let transform: TransformComponent;
+    // let transform: TransformComponent;
     let graphics: GraphicsComponent;
+    for (const transform of this._sortedTransforms) {
+      const entity = transform.owner as Entity;
 
-    for (const entity of entities) {
-      transform = entity.get(TransformComponent);
-      graphics = entity.get(GraphicsComponent);
-
-      // Figure out if entities are offscreen
-      const entityOffscreen = this._isOffscreen(transform, graphics);
-      if (entityOffscreen && !entity.hasTag('offscreen')) {
-        entity.eventDispatcher.emit('exitviewport', new ExitViewPortEvent(entity));
-        entity.addComponent(new TagComponent('offscreen'));
-      }
-
-      if (!entityOffscreen && entity.hasTag('offscreen')) {
-        entity.eventDispatcher.emit('enterviewport', new EnterViewPortEvent(entity));
-        entity.removeComponent('offscreen');
-      }
-      // Skip entities that have graphics offscreen
-      if (entityOffscreen) {
+      // If the 
+      if (entity.hasTag('ex.offscreen')) {
         continue;
       }
+
+      graphics = entity.get(GraphicsComponent);
+      // Exit if graphics set to not visible
+      if (!graphics.visible) {
+        continue;
+      }
+      // transform = entity.get(TransformComponent);
+
+      // // Figure out if entities are offscreen
+      // const entityOffscreen = this._isOffscreen(transform, graphics);
+      // if (entityOffscreen && !entity.hasTag('offscreen')) {
+      //   entity.eventDispatcher.emit('exitviewport', new ExitViewPortEvent(entity));
+      //   entity.addComponent(new TagComponent('offscreen'));
+      // }
+
+      // if (!entityOffscreen && entity.hasTag('offscreen')) {
+      //   entity.eventDispatcher.emit('enterviewport', new EnterViewPortEvent(entity));
+      //   entity.removeComponent('offscreen');
+      // }
+      // // Skip entities that have graphics offscreen
+      // if (entityOffscreen) {
+      //   continue;
+      // }
 
       // This optionally sets our camera based on the entity coord plan (world vs. screen)
       this._pushCameraTransform(transform);
@@ -90,15 +132,15 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     }
   }
 
-  private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent) {
-    if (transform.coordPlane === CoordPlane.World) {
-      const graphicsOffscreen = !this._camera.viewport.intersect(graphics.localBounds.transform(transform.getGlobalMatrix()));
-      return graphicsOffscreen;
-    } else {
-      // TODO screen coordinates
-      return false;
-    }
-  }
+  // private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent) {
+  //   if (transform.coordPlane === CoordPlane.World) {
+  //     const graphicsOffscreen = !this._camera.viewport.intersect(graphics.localBounds.transform(transform.getGlobalMatrix()));
+  //     return graphicsOffscreen;
+  //   } else {
+  //     // TODO screen coordinates
+  //     return false;
+  //   }
+  // }
 
   private _drawGraphicsComponent(graphicsComponent: GraphicsComponent) {
     if (graphicsComponent.visible) {

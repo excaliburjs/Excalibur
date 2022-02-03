@@ -7,7 +7,9 @@ var game = new ex.Engine({
 });
 
 game.toggleDebug();
-game.debug.entity.showName = true;
+game.debug.entity.showName = false;
+game.debug.entity.showId = false;
+game.debug.transform.showZIndex = true;
 
 var isoBlockImage = new ex.ImageSource('./cube.png', true, ex.ImageFiltering.Blended);
 var isoSprite = isoBlockImage.toSprite();
@@ -26,8 +28,8 @@ var isoMap = new ex.IsometricMap({
   width: 3,
   height: 3
 });
+isoMap.tiles.forEach(t => t.addGraphic(isoSprite));
 game.currentScene.add(isoMap);
-isoMap.tiles.forEach(t => t.graphics.push(isoSprite));
 
 var isoMap2 = new ex.IsometricMap({
   name: 'Isometric Tile Map',
@@ -37,8 +39,8 @@ var isoMap2 = new ex.IsometricMap({
   width: 3,
   height: 3
 });
+isoMap2.tiles.forEach(t => t.addGraphic(isoTileSprite));
 game.currentScene.add(isoMap2);
-isoMap2.tiles.forEach(t => t.graphics.push(isoTileSprite));
 
 var tileCoord = ex.vec(0, 0);
 game.input.pointers.on('move', evt => {

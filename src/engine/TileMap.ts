@@ -20,7 +20,7 @@ import { MotionComponent } from './EntityComponentSystem/Components/MotionCompon
 import { ColliderComponent } from './Collision/ColliderComponent';
 import { CompositeCollider } from './Collision/Colliders/CompositeCollider';
 import { Color } from './Color';
-import { DebugGraphicsComponent } from './Graphics/DebugGraphicsComponent';
+// import { DebugGraphicsComponent } from './Graphics/DebugGraphicsComponent';
 import { Collider } from './Collision/Colliders/Collider';
 
 /**
@@ -161,7 +161,7 @@ export class TileMapImpl extends Entity {
         onPostDraw: (ctx, delta) => this.draw(ctx, delta)
       })
     );
-    this.addComponent(new DebugGraphicsComponent((ctx) => this.debug(ctx)));
+    // this.addComponent(new DebugGraphicsComponent((ctx) => this.debug(ctx)));
     this.addComponent(new ColliderComponent());
     this._transform = this.get(TransformComponent);
     this._motion = this.get(MotionComponent);

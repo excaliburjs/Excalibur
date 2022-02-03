@@ -27,8 +27,12 @@ export * from './Loader';
 export { Particle, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterType } from './Particles';
 export * from './Collision/Physics';
 export * from './Scene';
+
+// TODO move to folder
 export { TileMap, Cell, TileMapArgs, CellArgs } from './TileMap';
 export * from './IsometricMap';
+export * from './IsometricEntityComponent';
+
 export * from './Timer';
 export * from './Trigger';
 export * from './ScreenElement';
