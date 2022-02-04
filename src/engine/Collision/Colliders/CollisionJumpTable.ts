@@ -258,7 +258,7 @@ export const CollisionJumpTable = {
       let normal = separation.axis;
       let tangent = normal.perpendicular();
       // Point Contact A -> B
-      if (polyB.worldPos.sub(polyA.worldPos).dot(normal) < 0) {
+      if (polyB.center.sub(polyA.center).dot(normal) < 0) {
         normal = normal.negate();
         tangent = normal.perpendicular();
       }

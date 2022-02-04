@@ -1011,7 +1011,7 @@ describe('Collision Shape', () => {
       const contact = rect.collide(edge)[0];
       expect(contact.normal)
         .withContext('Rect/Edge normal point away from edge')
-        .toBeVector(ex.Vector.Up);
+        .toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(20, 10));
       expect(contact.points[1]).toBeVector(ex.vec(-20, 10));
 
@@ -1025,7 +1025,7 @@ describe('Collision Shape', () => {
       const contact = rect.collide(edge)[0];
       expect(contact.normal)
         .withContext('Rect/Edge normal point away from edge')
-        .toBeVector(ex.Vector.Up);
+        .toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(20, 10));
       expect(contact.points[1]).toBeVector(ex.vec(10, 10));
 
@@ -1039,7 +1039,7 @@ describe('Collision Shape', () => {
       const contact = rect.collide(edge)[0];
       expect(contact.normal)
         .withContext('Rect/Edge normal point away from edge')
-        .toBeVector(ex.Vector.Up);
+        .toBeVector(ex.Vector.Down);
       expect(contact.points[0]).toBeVector(ex.vec(-20, 10));
       expect(contact.points[1]).toBeVector(ex.vec(0, 10));
 

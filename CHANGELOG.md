@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where collision normals are inaccurate on polygon colliders that offset from their origin
 - Fixed issue where only Pixel 6 devices crash when using their MAX_TEXTURE_IMAGE_UNITS, artificially cap Excalibur to 125 textures max
 - Fixed issue [#2224] where pointer events sometimes didn't work in mobile platforms due to `touch-action` not being set to `none`
 - Fixed issue [#2203] where `engine.screenshot()` did not work in the WebGL implementation
