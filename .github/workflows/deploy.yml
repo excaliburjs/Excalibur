@@ -25,7 +25,7 @@ jobs:
     - run: npm ci
     - run: npm run build
     - run: npm run build:esm
-    - run: echo "alpha_version=$(node -e "console.log(require('./version').getCiVersion(null, false));")" >> $GITHUB_ENV
+    - run: echo "alpha_version=$(node -e "console.log(require('./version').getAlphaVersion());")" >> $GITHUB_ENV
     - run: echo $alpha_version
     - run: npm --no-git-tag-version version $alpha_version
     - run: npm publish --tag next
