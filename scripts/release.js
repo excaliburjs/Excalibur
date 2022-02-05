@@ -1,14 +1,14 @@
 const { execSync } = require('child_process');
 const readline = require('readline');
 const semver = require('semver');
-const { getLatestVersion } = require('./version');
+const { getReleaseVersion } = require('./version');
 
 function generatePatchVersion() {
-  let version = getLatestVersion();
+  let version = getReleaseVersion();
   version = semver.inc(version, 'patch');
   return version;
 }
-const currentVersion = getLatestVersion();
+const currentVersion = getReleaseVersion();
 const version = generatePatchVersion();
 
 const rl = readline.createInterface({

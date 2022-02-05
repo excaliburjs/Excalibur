@@ -1,18 +1,5 @@
 const { execSync } = require('child_process');
-const semver = require('semver');
 const package = require('./package.json');
-
-function getCiOptions() {
-  return {
-    ghToken: process.env.GH_TOKEN || undefined,
-    appveyorBuild: process.env.APPVEYOR_BUILD_NUMBER || '',
-    buildNumber: process.env.GITHUB_RUN_NUMBER || '',
-    commit: process.env.TRAVIS_COMMIT || '',
-    isPr: (process.env.GITHUB_HEAD_REF || 'false').replace('/', '-'),
-    travisTag: process.env.TRAVIS_TAG || '',
-    fork: process.env.TRAVIS_REPO_SLUG
-  };
-}
 
 function getCurrentCommit() {
   const commit = execSync('git rev-parse HEAD').toString().trim();
@@ -23,118 +10,21 @@ function getNextVersion() {
   return package.exNextVersion;
 }
 
-function isTaggedRelease(options) {
-  return !!options.travisTag;
-}
-
-function isLocal(options) {
-  return !options.appveyorBuild && !options.buildNumber;
-}
-
-function isPr(options) {
-  return !options.ghToken && options.isPr !== 'false';
-}
-
-function isFork(options) {
-  return !options.ghToken && options.fork !== 'excaliburjs/Excalibur';
-}
-
-function generateLocalVersion() {
-  let version = 'local';
-  try {
-    execSync('git fetch');
-    const commit = getCurrentCommit();
-    version = getNextVersion();
-    version = version + '-' + commit.substring(0, 7);
-  } catch (err) {
-    console.error(err);
-  }
-  return version;
-}
-
-function generateTaggedVersion(options) {
-  const version = options.travisTag.match(/^v?([0-9\.]+)$/)[1];
-  return version;
-}
-
-function generateCommunityVersion(options) {
-  if (isPr(options)) {
-    return 'pr-' + options.isPr;
-  }
-  if (isFork(options)) {
-    return 'fork-' + options.fork;
-  }
-  throw Error('Invalid community version');
-}
-
-function generateAlphaVersion(options) {
+function getAlphaVersion() {
   let commit = getCurrentCommit();
   let version = getNextVersion();
-
-  // Nuget doesn't yet support the + suffix in versions
-  const appveyVersion = version + '.' + options.appveyorBuild + '-alpha';
-  const travisVersion = version + '-alpha.' + options.buildNumber + '+' + commit.substring(0, 7);
-
-  if (options.appveyorBuild) {
-    return appveyVersion;
+  if (process.env.GITHUB_RUN_NUMBER) {
+    return version + '-alpha.' + process.env.GITHUB_RUN_NUMBER + '+' + commit.substring(0, 7);
   } else {
-    return travisVersion;
+    return version + '-alpha.0' + '+' + commit.substring(0, 7);
   }
 }
 
-function getCiVersion(ciOptions, log = true) {
-  if (!ciOptions) {
-    ciOptions = getCiOptions();
-  }
-  let version = 'unknown';
-  if (isLocal(ciOptions)) {
-    version = generateLocalVersion(ciOptions);
-    log ? console.log('[local]: ' + version) : null;
-  } else if (isPr(ciOptions) || isFork(ciOptions)) {
-    version = generateCommunityVersion(ciOptions);
-    log ? console.log('[community]: ' + version) : null;
-  } else if (isTaggedRelease(ciOptions)) {
-    version = generateTaggedVersion(ciOptions);
-    log ? console.log('[release]: ' + version) : null;
-  } else {
-    // Else alpha version
-    version = generateAlphaVersion(ciOptions);
-    log ? console.log('[alpha]: ' + version) : null;
-  }
-  return version;
+function getReleaseVersion() { 
+  return package.version;
 }
 
-exports.getCiOptions = getCiOptions;
-exports.getCurrentCommit = getCurrentCommit;
-exports.getNextVersion = getNextVersion;
-exports.isTaggedRelease = isTaggedRelease;
-exports.isLocal = isLocal;
-exports.isFork = isFork;
-exports.isPr = isPr;
-exports.generateLocalVersion = generateLocalVersion;
-exports.generateTaggedVersion = generateTaggedVersion;
-exports.generateAlphaVersion = generateAlphaVersion;
-exports.generateCommunityVersion = generateCommunityVersion;
-exports.getCiVersion = getCiVersion;
-
-// good enough assertions
-function assertContains(actual, value, message) {
-  if (!actual.includes(value)) {
-    throw Error(`Assertion failed for ${message}`);
-  }
+module.exports = {
+  getAlphaVersion: getAlphaVersion,
+  getReleaseVersion: getReleaseVersion
 }
-
-const local = getCiVersion({}, false);
-assertContains(local, '-', 'local version');
-
-const pr = getCiVersion({ isPr: 'somepr', buildNumber: 'somebuild' }, false);
-assertContains(pr, 'pr-', 'pr version');
-
-const fork = getCiVersion({ fork: 'somefork', isPr: 'false', buildNumber: 'somebuild' }, false);
-assertContains(fork, 'fork-', 'fork version');
-
-const tagged = getCiVersion({ travisTag: 'v0.0.1', ghToken: 'sometoken', buildNumber: 'somebuild' }, false);
-assertContains(tagged, '0.0.1', 'tagged version');
-
-const alpha = getCiVersion({ buildNumber: 'somebuild', ghToken: 'sometoken' }, false);
-assertContains(alpha, '-alpha.', 'alpha version');
