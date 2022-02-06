@@ -1,5 +1,6 @@
-import { System, TransformComponent } from ".";
-import { SystemType, Entity } from "./EntityComponentSystem";
+import { System, SystemType } from "./EntityComponentSystem/System";
+import { Entity } from "./EntityComponentSystem/Entity";
+import { TransformComponent } from "./EntityComponentSystem/Components/TransformComponent";
 import { IsometricEntityComponent } from "./IsometricEntityComponent";
 
 
