@@ -192,7 +192,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
    * By default, the box is center is at (0, 0) which means it is centered around the actors anchor.
    */
   usePolygonCollider(points: Vector[], center: Vector = Vector.Zero): PolygonCollider {
-    const poly = Shape.Polygon(points, false, center);
+    const poly = Shape.Polygon(points, center);
     return (this.set(poly));
   }
 
