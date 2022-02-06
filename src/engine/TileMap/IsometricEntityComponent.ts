@@ -1,4 +1,4 @@
-import { Component } from "./EntityComponentSystem/Component";
+import { Component } from "../EntityComponentSystem/Component";
 import { IsometricMap } from './IsometricMap';
 
 export class IsometricEntityComponent extends Component<'ex.isometricentity'> {

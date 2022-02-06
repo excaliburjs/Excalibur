@@ -1,27 +1,54 @@
-import { BoundingBox } from './Collision/BoundingBox';
-import { Engine } from './Engine';
-import { Vector, vec } from './Math/vector';
-import { Logger } from './Util/Log';
-import { SpriteSheet } from './Drawing/SpriteSheet';
-import * as Events from './Events';
-import { Configurable } from './Configurable';
-import { Entity } from './EntityComponentSystem/Entity';
-import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
-import { BodyComponent } from './Collision/BodyComponent';
-import { CollisionType } from './Collision/CollisionType';
-import { Shape } from './Collision/Colliders/Shape';
-import { ExcaliburGraphicsContext, GraphicsComponent, hasGraphicsTick } from './Graphics';
-import * as Graphics from './Graphics';
-import { CanvasDrawComponent, Sprite } from './Drawing/Index';
-import { Sprite as LegacySprite } from './Drawing/Index';
-import { removeItemFromArray } from './Util/Util';
-import { obsolete } from './Util/Decorators';
-import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
-import { ColliderComponent } from './Collision/ColliderComponent';
-import { CompositeCollider } from './Collision/Colliders/CompositeCollider';
-import { Color } from './Color';
+import { BoundingBox } from '../Collision/BoundingBox';
+import { Engine } from '../Engine';
+import { Vector, vec } from '../Math/vector';
+import { Logger } from '../Util/Log';
+import { SpriteSheet } from '../Drawing/SpriteSheet';
+import * as Events from '../Events';
+import { Configurable } from '../Configurable';
+import { Entity } from '../EntityComponentSystem/Entity';
+import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
+import { BodyComponent } from '../Collision/BodyComponent';
+import { CollisionType } from '../Collision/CollisionType';
+import { Shape } from '../Collision/Colliders/Shape';
+import { ExcaliburGraphicsContext, GraphicsComponent, hasGraphicsTick } from '../Graphics';
+import * as Graphics from '../Graphics';
+import { CanvasDrawComponent, Sprite } from '../Drawing/Index';
+import { Sprite as LegacySprite } from '../Drawing/Index';
+import { removeItemFromArray } from '../Util/Util';
+import { obsolete } from '../Util/Decorators';
+import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
+import { ColliderComponent } from '../Collision/ColliderComponent';
+import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
+import { Color } from '../Color';
 // import { DebugGraphicsComponent } from './Graphics/DebugGraphicsComponent';
-import { Collider } from './Collision/Colliders/Collider';
+import { Collider } from '../Collision/Colliders/Collider';
+
+export interface TileMapOptions {
+  /**
+   * Optionally name the isometric tile map
+   */
+  name?: string;
+  /**
+   * Optionally specify the position of the isometric tile map
+   */
+  pos?: Vector;
+  /**
+   * Width of an individual tile in pixels
+   */
+  tileWidth: number;
+  /**
+   * Height of an individual tile in pixels
+   */
+  tileHeight: number;
+  /**
+   * Number of tiles wide
+   */
+  width: number;
+  /**
+   * Number of tiles high
+   */
+  height: number;
+}
 
 /**
  * @hidden
@@ -407,7 +434,7 @@ export class TileMapImpl extends Entity {
       gfx.drawLine(pos.add(yOffset), pos.add(vec(width, yOffset.y)), Color.Red, 2);
     }
 
-    for (let c = 0; c < this.cols +1; c++) {
+    for (let c = 0; c < this.cols + 1; c++) {
       const xOffset = vec(c * this.cellWidth, 0);
       gfx.drawLine(pos.add(xOffset), pos.add(vec(xOffset.x, height)), Color.Red, 2);
     }

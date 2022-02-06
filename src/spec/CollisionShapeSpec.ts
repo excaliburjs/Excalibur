@@ -481,6 +481,35 @@ describe('Collision Shape', () => {
       expect(poly).not.toBe(null);
     });
 
+    it('can be checked for convexity', () => {
+      const convex = new ex.PolygonCollider({
+        points: [ex.vec(0, 0), ex.vec(10, 10), ex.vec(10, 0)]
+      });
+      expect(convex.isConvex()).withContext('Triangles are always convex').toBe(true);
+
+      const concave = new ex.PolygonCollider({
+        points: [ex.vec(0, 0), ex.vec(5, 5), ex.vec(0, 10), ex.vec(10, 10), ex.vec(10, 0)]
+      });
+
+      expect(concave.isConvex()).withContext('Should be concave').toBe(false);
+    });
+
+    it('can triangulate', () => {
+      const concave = new ex.PolygonCollider({
+        points: [ex.vec(0, 0), ex.vec(5, 5), ex.vec(0, 10), ex.vec(10, 10), ex.vec(10, 0)]
+      });
+
+      const composite = concave.triangulate();
+
+      const colliders = composite.getColliders() as ex.PolygonCollider[];
+      expect(colliders.length).toBe(3);
+      expect(colliders[0].points).toEqual([ex.vec(0, 0), ex.vec(10, 0), ex.vec(10, 10)]);
+      expect(colliders[1].points).toEqual([ex.vec(0, 0), ex.vec(10, 10), ex.vec(0, 10)]);
+      expect(colliders[2].points).toEqual([ex.vec(0, 0), ex.vec(5, 5), ex.vec(0, 10)]);
+
+      expect(concave.isConvex()).withContext('Should be concave').toBe(false);
+    });
+
     it('can have be constructed with position', () => {
       const poly = new ex.PolygonCollider({
         offset: new ex.Vector(10, 0),

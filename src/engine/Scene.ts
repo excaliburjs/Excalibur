@@ -35,7 +35,7 @@ import { Flags, Legacy } from './Flags';
 import { DebugSystem } from './Debug/DebugSystem';
 import { PointerSystem } from './Input/PointerSystem';
 import { ActionsSystem } from './Actions/ActionsSystem';
-import { IsometricEntitySystem } from './IsometricEntitySystem';
+import { IsometricEntitySystem } from './TileMap/IsometricEntitySystem';
 import { OffscreenSystem } from './Graphics/OffscreenSystem';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in

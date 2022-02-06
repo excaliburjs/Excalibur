@@ -1,7 +1,7 @@
-import { BodyComponent, BoundingBox, Collider, ColliderComponent, CollisionType, Color, CompositeCollider, vec, Vector } from ".";
-import { TransformComponent } from "./EntityComponentSystem/Components/TransformComponent";
-import { Entity } from "./EntityComponentSystem/Entity";
-import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from "./Graphics";
+import { BodyComponent, BoundingBox, Collider, ColliderComponent, CollisionType, Color, CompositeCollider, vec, Vector } from "..";
+import { TransformComponent } from "../EntityComponentSystem/Components/TransformComponent";
+import { Entity } from "../EntityComponentSystem/Entity";
+import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from "../Graphics";
 import { IsometricEntityComponent } from "./IsometricEntityComponent";
 
 export class Tile extends Entity {
