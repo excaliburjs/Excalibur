@@ -7,6 +7,35 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
+-
+
+### Deprecated
+
+-
+
+### Added
+
+-
+
+### Fixed
+
+-
+### Updates
+
+-
+
+### Changed
+
+-
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.25.3] - 2022-02-05
+
+## Breaking Changes
+
 - Small breaking change to `engine.screenshot()` you must now use `await engine.screenshot()`. This avoids copy buffer performance impact of `preserveDrawingBuffer: true` by capturing a screen shot request on the next frame when the buffer has not yet been cleared.
 
 ### Deprecated
@@ -33,11 +62,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 -
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-
 
 ## [0.25.2] - 2022-01-21
 
