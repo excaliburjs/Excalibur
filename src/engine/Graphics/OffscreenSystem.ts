@@ -1,6 +1,10 @@
-import { GraphicsComponent } from ".";
-import { Camera, EnterViewPortEvent, ExitViewPortEvent, Scene, System, TransformComponent } from "..";
-import { SystemType, Entity, CoordPlane } from "../EntityComponentSystem";
+import { GraphicsComponent } from "./GraphicsComponent";
+import { EnterViewPortEvent, ExitViewPortEvent, } from "../Events";
+import { Scene } from "../Scene";
+import { Entity } from "../EntityComponentSystem/Entity";
+import { TransformComponent, CoordPlane } from "../EntityComponentSystem/Components/TransformComponent";
+import { Camera } from "../Camera";
+import { System, SystemType } from "../EntityComponentSystem/System"
 
 export class OffscreenSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ["ex.transform", "ex.graphics"] as const;
@@ -21,7 +25,7 @@ export class OffscreenSystem extends System<TransformComponent | GraphicsCompone
       transform = entity.get(TransformComponent);
 
       // Figure out if entities are offscreen
-      const entityOffscreen = !this._isOnScreen(transform) || this._isOffscreen(transform, graphics);
+      const entityOffscreen = this._isOffscreen(transform, graphics);
       if (entityOffscreen && !entity.hasTag('ex.offscreen')) {
         entity.eventDispatcher.emit('exitviewport', new ExitViewPortEvent(entity));
         entity.addTag('ex.offscreen');
@@ -32,10 +36,6 @@ export class OffscreenSystem extends System<TransformComponent | GraphicsCompone
         entity.removeTag('ex.offscreen');
       }
     }
-  }
-
-  private _isOnScreen(transform: TransformComponent) {
-    return this._camera.viewport.contains(transform.getGlobalTransform().pos);
   }
 
   private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent) {
