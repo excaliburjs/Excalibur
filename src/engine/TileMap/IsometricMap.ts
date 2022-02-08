@@ -10,14 +10,46 @@ export class Tile extends Entity {
    */
   public solid: boolean = false;
 
+  private _graphicsBounds = new BoundingBox();
   private _graphics: Graphic[] = []
+  private _gfx: GraphicsComponent;
   /**
    * Tile graphics
    */
   public addGraphic(graphic: Graphic) {
-    const gfx = this.get(GraphicsComponent);
-    gfx.visible = true;
     this._graphics.push(graphic);
+    this._gfx.visible = true;
+    const offset = vec(
+      this.map.graphicsOffset.x - this.map.tileWidth / 2,
+      this.map.graphicsOffset.y - (this.map.renderFromTopOfGraphic ? 0 : (graphic.height - this.map.tileHeight)));
+    this._graphicsBounds = this._graphicsBounds.combine(graphic.localBounds.translate(offset));
+    this._gfx.localBounds = this._graphicsBounds;
+  }
+
+  private _recalculateBounds(): BoundingBox {
+    let bounds = new BoundingBox();
+    for (let graphic of this._graphics) {
+      const offset = vec(
+        this.map.graphicsOffset.x - this.map.tileWidth / 2,
+        this.map.graphicsOffset.y - (this.map.renderFromTopOfGraphic ? 0 : (graphic.height - this.map.tileHeight)));
+      bounds = bounds.combine(graphic.localBounds.translate(offset));
+    }
+    return bounds;
+  }
+
+  public removeGraphic(graphic: Graphic) {
+    const index = this._graphics.indexOf(graphic);
+    if (index > -1) {
+      this._graphics.splice(index, 1);
+    }
+    this._graphicsBounds = this._recalculateBounds();
+    this._gfx.localBounds = this._graphicsBounds;
+  }
+
+  public clearGraphics() {
+    this._graphics.length = 0;
+    this._gfx.visible = false;
+    this._gfx.localBounds = new BoundingBox();
   }
 
   /**
@@ -73,13 +105,15 @@ export class Tile extends Entity {
     this._isometricEntityComponent.elevation = 0;
     this._isometricEntityComponent.map = map;
 
-    const gfx = this.get(GraphicsComponent);
-    gfx.visible = false; // start not visible
+    this._gfx = this.get(GraphicsComponent);
+    this._gfx.visible = false; // start not visible
     const totalWidth = this.map.tileWidth;
     const totalHeight = this.map.tileHeight;
-    gfx.localBounds = new BoundingBox({
+
+    // initial guess at gfx bounds
+    this._gfx.localBounds = new BoundingBox({
       left: -totalWidth / 2,
-      top: 0,
+      top: -totalHeight,
       right: totalWidth / 2,
       bottom: totalHeight
     });
@@ -90,9 +124,6 @@ export class Tile extends Entity {
     gfx.save();
     // shift left origin to corner of map, not the left corner of the first sprite
     gfx.translate(-halfTileWidth, 0);
-    // apply any graphics offset
-    // xPos += this.map.graphicsOffset.x;
-    // yPos += this.map.graphicsOffset.y;
     for (const graphic of this._graphics) {
       graphic.draw(gfx, this.map.graphicsOffset.x, this.map.graphicsOffset.y - (this.map.renderFromTopOfGraphic ? 0 : (graphic.height - this.map.tileHeight)));
     }
@@ -181,9 +212,6 @@ export class IsometricMap extends Entity {
         type: CollisionType.Fixed
       }),
       new ColliderComponent(),
-      // new GraphicsComponent({
-      //   onPostDraw: (ctx, elapsed) => this.draw(ctx, elapsed)
-      // }),
       new DebugGraphicsComponent((ctx) => this.debug(ctx))
     ], options.name);
     const { pos, tileWidth, tileHeight, width, height, renderFromTopOfGraphic, graphicsOffset, graphicsBoundsPadding } = options;
@@ -219,16 +247,6 @@ export class IsometricMap extends Entity {
         // TODO row/columns helpers
       }
     }
-
-    // set graphics bounds for offscreen calculation
-    // const totalWidth = this.tileWidth * this.width;
-    // const totalHeight = this.tileHeight * this.height;
-    // this.get(GraphicsComponent).localBounds = new BoundingBox({
-    //   left: -totalWidth / 2 - this.graphicsBoundsPadding.x,
-    //   top: 0 - this.graphicsBoundsPadding.y,
-    //   right: totalWidth / 2 + this.graphicsBoundsPadding.x,
-    //   bottom: totalHeight + this.graphicsBoundsPadding.y
-    // });
   }
 
   // TODO Update automagically
@@ -244,39 +262,6 @@ export class IsometricMap extends Entity {
     }
     this.collider.update();
   }
-
-  /**
-   * Custom draw routine for tilemaps provided by the [[GraphicsComponent]]
-   * @param ctx 
-   * @param _elapsed 
-   */
-  // public draw(ctx: ExcaliburGraphicsContext, _elapsed: number) {
-  //   ctx.save();
-  //   const halfTileWidth = this.tileWidth / 2;
-  //   const halfTileHeight = this.tileHeight / 2;
-  //   // shift left origin to corner of map, not the left corner of the first sprite
-  //   ctx.translate(-halfTileWidth, 0);
-
-  //   for (const tile of this.tiles) {
-  //     for (const graphic of tile.graphics) {
-  //       // TODO tick any graphics needing ticking
-
-  //       // See https://clintbellanger.net/articles/isometric_math/ for formula
-  //       // The x position shifts left with every y step
-  //       let xPos = (tile.x - tile.y) * halfTileWidth;
-  //       // The y position needs to go down with every x step
-  //       let yPos = (tile.x + tile.y) * halfTileHeight;
-
-  //       // apply any graphics offset
-  //       xPos += this.graphicsOffset.x;
-  //       yPos += this.graphicsOffset.y;
-
-  //       graphic.draw(ctx, xPos, yPos - (this.renderFromTopOfGraphic ? 0 : (graphic.height - this.tileHeight)));
-  //     }
-  //   }
-  //   ctx.restore();
-  // }
-
 
   /**
    * Convert world space coordinates to the tile x, y coordinate
