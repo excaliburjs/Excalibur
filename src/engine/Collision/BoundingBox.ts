@@ -1,4 +1,4 @@
-import { Vector } from '../Math/vector';
+import { vec, Vector } from '../Math/vector';
 import { Ray } from '../Math/ray';
 import { Color } from '../Color';
 import { Side } from './Side';
@@ -146,8 +146,24 @@ export class BoundingBox {
   }
 
   public transform(matrix: Matrix) {
-    const points = this.getPoints().map((p) => matrix.multiply(p));
-    return BoundingBox.fromPoints(points);
+    const matFirstColumn = vec(matrix.data[0], matrix.data[1]);
+    const xa = matFirstColumn.scale(this.left);
+    const xb = matFirstColumn.scale(this.right);
+ 
+    const matSecondColumn = vec(matrix.data[4], matrix.data[5]);
+    const ya = matSecondColumn.scale(this.top);
+    const yb = matSecondColumn.scale(this.bottom);
+
+    const matrixPos = matrix.getPosition();
+    const topLeft = Vector.min(xa, xb).add(Vector.min(ya, yb)).add(matrixPos);
+    const bottomRight = Vector.max(xa, xb).add(Vector.max(ya, yb)).add(matrixPos);
+
+    return new BoundingBox({
+      left: topLeft.x,
+      top: topLeft.y,
+      right: bottomRight.x,
+      bottom: bottomRight.y
+    });
   }
 
   /**
@@ -255,6 +271,12 @@ export class BoundingBox {
 
   public get dimensions(): Vector {
     return new Vector(this.width, this.height);
+  }
+
+  public overlaps(other: BoundingBox): boolean {
+    const totalBoundingBox = this.combine(other);
+    return totalBoundingBox.width < other.width + this.width &&
+           totalBoundingBox.height < other.height + this.height
   }
 
   /**

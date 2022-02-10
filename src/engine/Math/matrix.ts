@@ -281,7 +281,7 @@ export class Matrix {
       result._scaleSignX = sign(s.x) * sign(result._scaleSignX);
       result._scaleSignY = sign(s.y) * sign(result._scaleSignY);
 
-      return dest;
+      return result;
     }
   }
 
