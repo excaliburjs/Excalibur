@@ -107,7 +107,7 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
     if (!this.parent) {
       return this.matrix;
     } else {
-      return this.parent.getGlobalMatrix().multm(this.matrix);
+      return this.parent.getGlobalMatrix().multiply(this.matrix);
     }
   }
 

@@ -93,10 +93,10 @@ export class RectangleRenderer implements RendererPlugin {
      *    |                                            |
      *    + -------------------------------------------+
      */
-    const startTop = transform.multv(normal.scale(halfThick).add(start));
-    const startBottom = transform.multv(normal.scale(-halfThick).add(start));
-    const endTop = transform.multv(normal.scale(halfThick).add(end));
-    const endBottom = transform.multv(normal.scale(-halfThick).add(end));
+    const startTop = transform.multiply(normal.scale(halfThick).add(start));
+    const startBottom = transform.multiply(normal.scale(-halfThick).add(start));
+    const endTop = transform.multiply(normal.scale(halfThick).add(end));
+    const endBottom = transform.multiply(normal.scale(-halfThick).add(end));
 
     // TODO uv could be static vertex buffer
     const uvx0 = 0;
@@ -194,10 +194,10 @@ export class RectangleRenderer implements RendererPlugin {
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
 
-    const topLeft = transform.multv(pos.add(vec(0, 0)));
-    const topRight = transform.multv(pos.add(vec(width, 0)));
-    const bottomRight = transform.multv(pos.add(vec(width, height)));
-    const bottomLeft = transform.multv(pos.add(vec(0, height)));
+    const topLeft = transform.multiply(pos.add(vec(0, 0)));
+    const topRight = transform.multiply(pos.add(vec(width, 0)));
+    const bottomRight = transform.multiply(pos.add(vec(width, height)));
+    const bottomLeft = transform.multiply(pos.add(vec(0, height)));
 
     // TODO uv could be static vertex buffer
     const uvx0 = 0;

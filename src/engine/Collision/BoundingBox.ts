@@ -146,7 +146,7 @@ export class BoundingBox {
   }
 
   public transform(matrix: Matrix) {
-    const points = this.getPoints().map((p) => matrix.multv(p));
+    const points = this.getPoints().map((p) => matrix.multiply(p));
     return BoundingBox.fromPoints(points);
   }
 
