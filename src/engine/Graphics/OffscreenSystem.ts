@@ -40,7 +40,8 @@ export class OffscreenSystem extends System<TransformComponent | GraphicsCompone
 
   private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent) {
     if (transform.coordPlane === CoordPlane.World) {
-      const graphicsOffscreen = !this._camera.viewport.intersect(graphics.localBounds.transform(transform.getGlobalMatrix()));
+      const transformedBounds = graphics.localBounds.transform(transform.getGlobalMatrix());
+      const graphicsOffscreen = !this._camera.viewport.overlaps(transformedBounds);
       return graphicsOffscreen;
     } else {
       // TODO screen coordinates
