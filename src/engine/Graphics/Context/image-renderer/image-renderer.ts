@@ -1,3 +1,4 @@
+import { vec } from '../../../Math/vector';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
@@ -162,23 +163,28 @@ export class ImageRenderer implements RendererPlugin {
     const opacity = this._context.opacity;
     const snapToPixel = this._context.snapToPixel;
 
-    const topleft = transform.multv([dest[0], dest[1]]);
-    const topRight = transform.multv([dest[0] + width, dest[1]]);
-    const bottomLeft = transform.multv([dest[0], dest[1] + height]);
-    const bottomRight = transform.multv([dest[0] + width, dest[1] + height]);
+    let topLeft = vec(dest[0], dest[1]);
+    let topRight = vec(dest[0] + width, dest[1]);
+    let bottomLeft = vec(dest[0], dest[1] + height);
+    let bottomRight = vec(dest[0] + width, dest[1] + height);
+
+    topLeft = transform.multiply(topLeft);
+    topRight = transform.multiply(topRight);
+    bottomLeft = transform.multiply(bottomLeft);
+    bottomRight = transform.multiply(bottomRight);
 
     if (snapToPixel) {
-      topleft[0] = ~~topleft[0];
-      topleft[1] = ~~topleft[1];
+      topLeft.x = ~~topLeft.x;
+      topLeft.y = ~~topLeft.y;
 
-      topRight[0] = ~~topRight[0];
-      topRight[1] = ~~topRight[1];
+      topRight.x = ~~topRight.x;
+      topRight.y = ~~topRight.y;
 
-      bottomLeft[0] = ~~bottomLeft[0];
-      bottomLeft[1] = ~~bottomLeft[1];
+      bottomLeft.x = ~~bottomLeft.x;
+      bottomLeft.y = ~~bottomLeft.y;
 
-      bottomRight[0] = ~~bottomRight[0];
-      bottomRight[1] = ~~bottomRight[1];
+      bottomRight.x = ~~bottomRight.x;
+      bottomRight.y = ~~bottomRight.y;
     }
 
     const textureId = this._getTextureIdForImage(image);
@@ -194,32 +200,32 @@ export class ImageRenderer implements RendererPlugin {
     const vertexBuffer = this._layout.vertexBuffer.bufferData;
 
     // (0, 0) - 0
-    vertexBuffer[this._vertexIndex++] = topleft[0];
-    vertexBuffer[this._vertexIndex++] = topleft[1];
+    vertexBuffer[this._vertexIndex++] = topLeft.x;
+    vertexBuffer[this._vertexIndex++] = topLeft.y;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = uvx0;
     vertexBuffer[this._vertexIndex++] = uvy0;
     vertexBuffer[this._vertexIndex++] = textureId;
 
     // (0, 1) - 1
-    vertexBuffer[this._vertexIndex++] = bottomLeft[0];
-    vertexBuffer[this._vertexIndex++] = bottomLeft[1];
+    vertexBuffer[this._vertexIndex++] = bottomLeft.x;
+    vertexBuffer[this._vertexIndex++] = bottomLeft.y;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = uvx0;
     vertexBuffer[this._vertexIndex++] = uvy1;
     vertexBuffer[this._vertexIndex++] = textureId;
 
     // (1, 0) - 2
-    vertexBuffer[this._vertexIndex++] = topRight[0];
-    vertexBuffer[this._vertexIndex++] = topRight[1];
+    vertexBuffer[this._vertexIndex++] = topRight.x;
+    vertexBuffer[this._vertexIndex++] = topRight.y;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = uvx1;
     vertexBuffer[this._vertexIndex++] = uvy0;
     vertexBuffer[this._vertexIndex++] = textureId;
 
     // (1, 1) - 3
-    vertexBuffer[this._vertexIndex++] = bottomRight[0];
-    vertexBuffer[this._vertexIndex++] = bottomRight[1];
+    vertexBuffer[this._vertexIndex++] = bottomRight.x;
+    vertexBuffer[this._vertexIndex++] = bottomRight.y;
     vertexBuffer[this._vertexIndex++] = opacity;
     vertexBuffer[this._vertexIndex++] = uvx1;
     vertexBuffer[this._vertexIndex++] = uvy1;

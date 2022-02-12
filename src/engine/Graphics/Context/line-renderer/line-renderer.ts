@@ -54,8 +54,8 @@ export class LineRenderer implements RendererPlugin {
     this._lineCount++;
 
     const transform = this._context.getTransform();
-    const finalStart = transform.multv(start);
-    const finalEnd = transform.multv(end);
+    const finalStart = transform.multiply(start);
+    const finalEnd = transform.multiply(end);
 
 
     const vertexBuffer = this._vertexBuffer.bufferData;

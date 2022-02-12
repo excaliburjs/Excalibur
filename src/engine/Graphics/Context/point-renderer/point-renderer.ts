@@ -57,7 +57,7 @@ export class PointRenderer implements RendererPlugin {
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
 
-    const finalPoint = transform.multv(point);
+    const finalPoint = transform.multiply(point);
 
     const vertexBuffer = this._buffer.bufferData;
     vertexBuffer[this._vertexIndex++] = finalPoint.x;

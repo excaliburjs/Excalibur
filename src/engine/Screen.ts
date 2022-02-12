@@ -527,7 +527,7 @@ export class Screen {
   public screenToWorldCoordinates(point: Vector): Vector {
     // the only difference between screen & world is the camera transform
     if (this._camera) {
-      return this._camera.inverse.multv(point);
+      return this._camera.inverse.multiply(point);
     }
     return point.sub(vec(this.resolution.width / 2, this.resolution.height / 2));
   }
@@ -540,7 +540,7 @@ export class Screen {
    */
   public worldToScreenCoordinates(point: Vector): Vector {
     if (this._camera) {
-      return this._camera.transform.multv(point);
+      return this._camera.transform.multiply(point);
     }
     return point.add(vec(this.resolution.width / 2, this.resolution.height / 2));
   }
