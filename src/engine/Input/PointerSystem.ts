@@ -1,6 +1,15 @@
 import { ColliderComponent } from '../Collision/ColliderComponent';
 import { Engine } from '../Engine';
-import { System, TransformComponent, SystemType, Entity, CoordPlane } from '../EntityComponentSystem';
+import {
+  System,
+  TransformComponent,
+  SystemType,
+  Entity,
+  CoordPlane,
+  AddedEntity,
+  RemovedEntity,
+  isAddedSystemEntity
+} from '../EntityComponentSystem';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Scene } from '../Scene';
 import { PointerComponent } from './PointerComponent';
@@ -39,9 +48,40 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
     this._receiver = this._engine.input.pointers;
   }
 
-  public sort(a: Entity, b: Entity) {
-    // Sort from high to low, because things on 'top' receive the pointer events first
-    return b.get(TransformComponent).z - a.get(TransformComponent).z;
+  private _sortedTransforms: TransformComponent[] = [];
+  private _sortedEntities: Entity[] = [];
+
+  private _zHasChanged = false;
+  private _zIndexUpdate = () => {
+    this._zHasChanged = true;
+  };
+
+  public preupdate(): void {
+    if (this._zHasChanged) {
+      this._sortedTransforms.sort((a, b) => {
+        return b.z - a.z;
+      });
+      this._sortedEntities = this._sortedTransforms.map(t => t.owner);
+      this._zHasChanged = false;
+    }
+  }
+
+  public notify(entityAddedOrRemoved: AddedEntity | RemovedEntity): void {
+    if (isAddedSystemEntity(entityAddedOrRemoved)) {
+      const tx = entityAddedOrRemoved.data.get(TransformComponent);
+      this._sortedTransforms.push(tx);
+      this._sortedEntities.push(tx.owner);
+      tx.zIndexChanged$.subscribe(this._zIndexUpdate);
+      this._zHasChanged = true;
+    } else {
+      const tx = entityAddedOrRemoved.data.get(TransformComponent);
+      tx.zIndexChanged$.unsubscribe(this._zIndexUpdate);
+      const index = this._sortedTransforms.indexOf(tx);
+      if (index > -1) {
+        this._sortedTransforms.splice(index, 1);
+        this._sortedEntities.splice(index, 1);
+      }
+    }
   }
 
   public entityCurrentlyUnderPointer(entity: Entity, pointerId: number) {
@@ -73,12 +113,12 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
     this.currentFrameEntityToPointers.set(entity.id, pointers.concat(pointerId));
   }
 
-  public update(entities: Entity[]): void {
+  public update(_entities: Entity[]): void {
     // Locate all the pointer/entity mappings
-    this._processPointerToEntity(entities);
+    this._processPointerToEntity(this._sortedEntities);
 
     // Dispatch pointer events on entities
-    this._dispatchEvents(entities);
+    this._dispatchEvents(this._sortedEntities);
 
     // Clear last frame's events
     this._receiver.update();
