@@ -89,6 +89,14 @@ export class Vector implements Clonable<Vector> {
     return Math.sqrt(Math.pow(vec1.x - vec2.x, 2) + Math.pow(vec1.y - vec2.y, 2));
   }
 
+  public static min(vec1: Vector, vec2: Vector) {
+    return new Vector(Math.min(vec1.x, vec2.x), Math.min(vec1.y, vec2.y));
+  }
+
+  public static max(vec1: Vector, vec2: Vector) {
+    return new Vector(Math.max(vec1.x, vec2.x), Math.max(vec1.y, vec2.y));
+  }
+
   /**
    * @param x  X component of the Vector
    * @param y  Y component of the Vector
