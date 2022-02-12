@@ -29,14 +29,12 @@ export class Shape {
    *
    * PolygonColliders are useful for creating convex polygon shapes
    * @param points Points specified in counter clockwise
-   * @param clockwiseWinding Optionally changed the winding of points, by default false meaning counter-clockwise winding.
    * @param offset Optional offset relative to the collider in local coordinates
    */
-  static Polygon(points: Vector[], clockwiseWinding: boolean = false, offset: Vector = Vector.Zero): PolygonCollider {
+  static Polygon(points: Vector[], offset: Vector = Vector.Zero): PolygonCollider {
     return new PolygonCollider({
       points: points,
-      offset: offset,
-      clockwiseWinding: clockwiseWinding
+      offset: offset
     });
   }
 
