@@ -165,7 +165,7 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
       getY: () => source.data[MatrixLocations.Y],
       setX: (x) => {
         if (this.parent) {
-          const [newX] = this.parent?.getGlobalMatrix().getAffineInverse().multv([x, source.data[MatrixLocations.Y]]);
+          const { x: newX } = this.parent?.getGlobalMatrix().getAffineInverse().multiply(vec(x, source.data[MatrixLocations.Y]));
           this.matrix.data[MatrixLocations.X] = newX;
         } else {
           this.matrix.data[MatrixLocations.X] = x;
@@ -173,7 +173,7 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
       },
       setY: (y) => {
         if (this.parent) {
-          const [, newY] = this.parent?.getGlobalMatrix().getAffineInverse().multv([source.data[MatrixLocations.X], y]);
+          const { y: newY } = this.parent?.getGlobalMatrix().getAffineInverse().multiply(vec(source.data[MatrixLocations.X], y));
           this.matrix.data[MatrixLocations.Y] = newY;
         } else {
           this.matrix.data[MatrixLocations.Y] = y;
@@ -187,7 +187,7 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
     if (!parentTransform) {
       this.pos = val;
     } else {
-      this.pos = parentTransform.getGlobalMatrix().getAffineInverse().multv(val);
+      this.pos = parentTransform.getGlobalMatrix().getAffineInverse().multiply(val);
     }
   }
 
@@ -278,7 +278,7 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
    * @param point
    */
   public apply(point: Vector): Vector {
-    return this.matrix.multv(point);
+    return this.matrix.multiply(point);
   }
 
   /**
@@ -286,6 +286,6 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
    * @param point
    */
   public applyInverse(point: Vector): Vector {
-    return this.matrix.getAffineInverse().multv(point);
+    return this.matrix.getAffineInverse().multiply(point);
   }
 }
