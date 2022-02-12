@@ -59,10 +59,9 @@ describe('A Matrix', () => {
 
   it('can transform a point', () => {
     const mat = ex.Matrix.rotation(Math.PI / 4);
-    const point: [number, number] = [0, 1];
-    const newPoint = mat.multv(point);
-    expect(newPoint[0]).toBeCloseTo(-Math.cos(Math.PI / 4));
-    expect(newPoint[1]).toBeCloseTo(Math.sin(Math.PI / 4));
+    const newPoint = mat.multiply(ex.vec(0, 1));
+    expect(newPoint.x).toBeCloseTo(-Math.cos(Math.PI / 4));
+    expect(newPoint.y).toBeCloseTo(Math.sin(Math.PI / 4));
   });
 
   it('can set a rotation and preserve scale', () => {
@@ -137,8 +136,8 @@ describe('A Matrix', () => {
       .scale(2, 4);
 
     const inv = mat.getAffineInverse();
-    expect(mat.multm(inv).isIdentity()).toBeTrue();
-    expect(inv.multm(mat).isIdentity()).toBeTrue();
+    expect(mat.multiply(inv).isIdentity()).toBeTrue();
+    expect(inv.multiply(mat).isIdentity()).toBeTrue();
   });
 
   it('can find the affine inverse and store it into a target', () => {
@@ -149,8 +148,8 @@ describe('A Matrix', () => {
 
     spyOn(ex.Matrix, 'identity');
     const inv = mat.getAffineInverse(target);
-    expect(mat.multm(inv).isIdentity()).toBeTrue();
-    expect(inv.multm(mat).isIdentity()).toBeTrue();
+    expect(mat.multiply(inv).isIdentity()).toBeTrue();
+    expect(inv.multiply(mat).isIdentity()).toBeTrue();
     expect(target).toBe(inv);
     expect(ex.Matrix.identity).withContext('using a target doesnt create a new mat')
       .not.toHaveBeenCalledWith();

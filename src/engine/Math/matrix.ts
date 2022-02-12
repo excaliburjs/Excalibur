@@ -192,6 +192,100 @@ export class Matrix {
   }
 
   /**
+   * Multiply the current matrix by a vector producing a new vector
+   * @param vector
+   * @param dest
+   */
+  multiply(vector: Vector, dest?: Vector): Vector;
+  /**
+   * Multiply the current matrix by another matrix producing a new matrix
+   * @param matrix
+   * @param dest
+   */
+  multiply(matrix: Matrix, dest?: Matrix): Matrix;
+  multiply(vectorOrMatrix: Vector | Matrix, dest?: Vector | Matrix): Vector | Matrix {
+    if (vectorOrMatrix instanceof Vector) {
+      const result = (dest as Vector) || new Vector(0, 0);
+      const vector = vectorOrMatrix;
+      // these shenanigans are to allow dest and vector to be the same instance
+      const resultX = vector.x * this.data[0] + vector.y * this.data[4] + this.data[12];
+      const resultY = vector.x * this.data[1] + vector.y * this.data[5] + this.data[13];
+
+      result.x = resultX;
+      result.y = resultY;
+      return result;
+    } else {
+      const result = (dest as Matrix) || new Matrix();
+      const other = vectorOrMatrix;
+      const a11 = this.data[0];
+      const a21 = this.data[1];
+      const a31 = this.data[2];
+      const a41 = this.data[3];
+
+      const a12 = this.data[4];
+      const a22 = this.data[5];
+      const a32 = this.data[6];
+      const a42 = this.data[7];
+
+      const a13 = this.data[8];
+      const a23 = this.data[9];
+      const a33 = this.data[10];
+      const a43 = this.data[11];
+
+      const a14 = this.data[12];
+      const a24 = this.data[13];
+      const a34 = this.data[14];
+      const a44 = this.data[15];
+
+      const b11 = other.data[0];
+      const b21 = other.data[1];
+      const b31 = other.data[2];
+      const b41 = other.data[3];
+
+      const b12 = other.data[4];
+      const b22 = other.data[5];
+      const b32 = other.data[6];
+      const b42 = other.data[7];
+
+      const b13 = other.data[8];
+      const b23 = other.data[9];
+      const b33 = other.data[10];
+      const b43 = other.data[11];
+
+      const b14 = other.data[12];
+      const b24 = other.data[13];
+      const b34 = other.data[14];
+      const b44 = other.data[15];
+
+      result.data[0] = a11 * b11 + a12 * b21 + a13 * b31 + a14 * b41;
+      result.data[1] = a21 * b11 + a22 * b21 + a23 * b31 + a24 * b41;
+      result.data[2] = a31 * b11 + a32 * b21 + a33 * b31 + a34 * b41;
+      result.data[3] = a41 * b11 + a42 * b21 + a43 * b31 + a44 * b41;
+
+      result.data[4] = a11 * b12 + a12 * b22 + a13 * b32 + a14 * b42;
+      result.data[5] = a21 * b12 + a22 * b22 + a23 * b32 + a24 * b42;
+      result.data[6] = a31 * b12 + a32 * b22 + a33 * b32 + a34 * b42;
+      result.data[7] = a41 * b12 + a42 * b22 + a43 * b32 + a44 * b42;
+
+      result.data[8] = a11 * b13 + a12 * b23 + a13 * b33 + a14 * b43;
+      result.data[9] = a21 * b13 + a22 * b23 + a23 * b33 + a24 * b43;
+      result.data[10] = a31 * b13 + a32 * b23 + a33 * b33 + a34 * b43;
+      result.data[11] = a41 * b13 + a42 * b23 + a43 * b33 + a44 * b43;
+
+      result.data[12] = a11 * b14 + a12 * b24 + a13 * b34 + a14 * b44;
+      result.data[13] = a21 * b14 + a22 * b24 + a23 * b34 + a24 * b44;
+      result.data[14] = a31 * b14 + a32 * b24 + a33 * b34 + a34 * b44;
+      result.data[15] = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
+
+      const s = this.getScale();
+      result._scaleSignX = sign(s.x) * sign(result._scaleSignX);
+      result._scaleSignY = sign(s.y) * sign(result._scaleSignY);
+
+      return result;
+    }
+  }
+
+  /**
    * Multiplies the current matrix by a vector and returns the resulting vector
    * @param other
    */

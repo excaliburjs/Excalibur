@@ -79,10 +79,10 @@ export class CircleRenderer implements RendererPlugin {
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
 
-    const topLeft = transform.multv(pos.add(vec(-radius, -radius)));
-    const topRight = transform.multv(pos.add(vec(radius, -radius)));
-    const bottomRight = transform.multv(pos.add(vec(radius, radius)));
-    const bottomLeft = transform.multv(pos.add(vec(-radius, radius)));
+    const topLeft = transform.multiply(pos.add(vec(-radius, -radius)));
+    const topRight = transform.multiply(pos.add(vec(radius, -radius)));
+    const bottomRight = transform.multiply(pos.add(vec(radius, radius)));
+    const bottomLeft = transform.multiply(pos.add(vec(-radius, radius)));
 
     // TODO UV could be static vertex buffer
     const uvx0 = 0;
