@@ -615,6 +615,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       // First frame bootstrap
 
       // Ensure camera tx is correct
+      // Run update twice to ensure properties are init'd
       this.updateTransform();
 
       // Run strategies for first frame
@@ -622,6 +623,10 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
       // Setup the first frame viewport
       this.updateViewport();
+
+      // It's important to update the camera after strategies
+      // This prevents jitter
+      this.updateTransform();
 
       this.onInitialize(_engine);
       super.emit('initialize', new InitializeEvent(_engine, this));
@@ -741,11 +746,13 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       this._yShake = ((Math.random() * this._shakeMagnitudeY) | 0) + 1;
     }
 
-    this.updateTransform();
-
     this.runStrategies(_engine, delta);
 
     this.updateViewport();
+
+    // It's important to update the camera after strategies
+    // This prevents jitter
+    this.updateTransform();
 
     this._postupdate(_engine, delta);
   }
