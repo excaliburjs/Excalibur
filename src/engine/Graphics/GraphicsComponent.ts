@@ -99,6 +99,7 @@ export class GraphicsLayer {
         gfx = this._graphics.getGraphic(nameOrGraphic);
       }
       this.graphics = this.graphics.filter((g) => g.graphic !== gfx);
+      this._graphics.recalculateBounds();
     }
   }
 
@@ -125,6 +126,7 @@ export class GraphicsLayer {
     }
     if (gfx) {
       this.graphics.push({ graphic: gfx, options });
+      this._graphics.recalculateBounds();
       return gfx as T;
     } else {
       return null;
@@ -356,7 +358,9 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
    * Show a graphic by name on the **default** layer, returns the new [[Graphic]]
    */
   public show<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
-    return this.layers.default.show<T>(nameOrGraphic, options);
+    const result = this.layers.default.show<T>(nameOrGraphic, options);
+    this.recalculateBounds();
+    return result;
   }
 
   /**
@@ -365,7 +369,9 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
    * @param options
    */
   public use<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
-    return this.layers.default.use<T>(nameOrGraphic, options);
+    const result = this.layers.default.use<T>(nameOrGraphic, options);
+    this.recalculateBounds()
+    return result;
   }
 
   /**
@@ -380,15 +386,12 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
     this.layers.default.hide(nameOrGraphic);
   }
 
-  private _bounds: BoundingBox = null;
+  private _localBounds: BoundingBox = null;
   public set localBounds(bounds: BoundingBox) {
-    this._bounds = bounds;
+    this._localBounds = bounds;
   }
 
-  public get localBounds(): BoundingBox {
-    if (this._bounds) {
-      return this._bounds;
-    }
+  public recalculateBounds() {
     let bb = new BoundingBox();
     for (const layer of this.layers.get()) {
       for (const { graphic, options } of layer.graphics) {
@@ -406,7 +409,14 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
         bb = graphic?.localBounds.translate(vec(offsetX + layer.offset.x, offsetY + layer.offset.y)).combine(bb);
       }
     }
-    return bb;
+    this._localBounds = bb;
+  }
+
+  public get localBounds(): BoundingBox {
+    if (!this._localBounds) {
+      this.recalculateBounds();
+    }
+    return this._localBounds;
   }
 
   /**
