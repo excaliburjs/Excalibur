@@ -408,7 +408,8 @@ describe('The ExcaliburGraphicsContext', () => {
       expect(imageRenderer.flush).toHaveBeenCalledTimes(1);
 
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
-        'src/spec/images/ExcaliburGraphicsContextSpec/painter-order-circle-image-rect.png'
+        'src/spec/images/ExcaliburGraphicsContextSpec/painter-order-circle-image-rect.png',
+        .95
       );
     });
 
