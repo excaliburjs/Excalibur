@@ -27,10 +27,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     this._engine = scene.engine;
   }
 
-  // public sort(a: Entity, b: Entity) {
-  //   return a.get(TransformComponent).z - b.get(TransformComponent).z;
-  // }
-
   private _zHasChanged = false;
   private _zIndexUpdate = () => {
     this._zHasChanged = true;
@@ -61,15 +57,20 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     }
   }
 
-
   public update(_entities: Entity[], delta: number): void {
     this._token++;
-    // let transform: TransformComponent;
     let graphics: GraphicsComponent;
+
+    // This is a performance enhancement, most things are in world space
+    // so if we can only do this once saves a ton of transform updates
+    this._graphicsContext.save();
+    if (this._camera) {
+      this._camera.draw(this._graphicsContext);
+    }
     for (const transform of this._sortedTransforms) {
       const entity = transform.owner as Entity;
 
-      // If the 
+      // If the entity is offscreen skip
       if (entity.hasTag('ex.offscreen')) {
         continue;
       }
@@ -79,26 +80,11 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       if (!graphics.visible) {
         continue;
       }
-      // transform = entity.get(TransformComponent);
-
-      // // Figure out if entities are offscreen
-      // const entityOffscreen = this._isOffscreen(transform, graphics);
-      // if (entityOffscreen && !entity.hasTag('offscreen')) {
-      //   entity.eventDispatcher.emit('exitviewport', new ExitViewPortEvent(entity));
-      //   entity.addComponent(new TagComponent('offscreen'));
-      // }
-
-      // if (!entityOffscreen && entity.hasTag('offscreen')) {
-      //   entity.eventDispatcher.emit('enterviewport', new EnterViewPortEvent(entity));
-      //   entity.removeComponent('offscreen');
-      // }
-      // // Skip entities that have graphics offscreen
-      // if (entityOffscreen) {
-      //   continue;
-      // }
 
       // This optionally sets our camera based on the entity coord plan (world vs. screen)
-      this._pushCameraTransform(transform);
+      if (transform.coordPlane === CoordPlane.Screen) {
+        this._graphicsContext.restore();
+      }
 
       this._graphicsContext.save();
 
@@ -127,20 +113,16 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
       this._graphicsContext.restore();
 
-      // Reset the transform back to the original
-      this._popCameraTransform(transform);
+      // Reset the transform back to the original world space
+      if (transform.coordPlane === CoordPlane.Screen) {
+        this._graphicsContext.save();
+        if (this._camera) {
+          this._camera.draw(this._graphicsContext);
+        }
+      }
     }
+    this._graphicsContext.restore();
   }
-
-  // private _isOffscreen(transform: TransformComponent, graphics: GraphicsComponent) {
-  //   if (transform.coordPlane === CoordPlane.World) {
-  //     const graphicsOffscreen = !this._camera.viewport.intersect(graphics.localBounds.transform(transform.getGlobalMatrix()));
-  //     return graphicsOffscreen;
-  //   } else {
-  //     // TODO screen coordinates
-  //     return false;
-  //   }
-  // }
 
   private _drawGraphicsComponent(graphicsComponent: GraphicsComponent) {
     if (graphicsComponent.visible) {
@@ -190,31 +172,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         this._graphicsContext.scale(transform.scale.x, transform.scale.y);
         this._graphicsContext.rotate(transform.rotation);
       }
-    }
-  }
-
-  /**
-   * Applies the current camera transform if in world coordinates
-   * @param transform
-   */
-  private _pushCameraTransform(transform: TransformComponent) {
-    // Establish camera offset per entity
-    if (transform.coordPlane === CoordPlane.World) {
-      this._graphicsContext.save();
-      if (this._camera) {
-        this._camera.draw(this._graphicsContext);
-      }
-    }
-  }
-
-  /**
-   * Resets the current camera transform if in world coordinates
-   * @param transform
-   */
-  private _popCameraTransform(transform: TransformComponent) {
-    if (transform.coordPlane === CoordPlane.World) {
-      // Apply camera world offset
-      this._graphicsContext.restore();
     }
   }
 }
