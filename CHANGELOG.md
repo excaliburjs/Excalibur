@@ -15,7 +15,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
- Added arbitrary non-convex polygon support (only non-self intersecting) with `ex.PolygonCollider(...).triangulate()` which builds a new `ex.CompositeCollider` composed of triangles.
+- Added arbitrary non-convex polygon support (only non-self intersecting) with `ex.PolygonCollider(...).triangulate()` which builds a new `ex.CompositeCollider` composed of triangles.
+- Added faster `ex.BoundingBox.transform(...)` implementation.
+- Added faster `ex.BoundingBox.overlap(...)` implementation.
+- Added `ex.Vector.min(...)` and `ex.Vector.max(...)` to find the min/max of each vector component between 2 vectors.
 
 ### Fixed
 
