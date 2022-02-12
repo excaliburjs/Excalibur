@@ -141,7 +141,7 @@ export class BoundingBox {
   }
 
   /**
-   * Scale a bounding box by a scale factor, optionally provide a point 
+   * Scale a bounding box by a scale factor, optionally provide a point
    * @param scale
    * @param point
    */
@@ -158,7 +158,7 @@ export class BoundingBox {
     const matFirstColumn = vec(matrix.data[0], matrix.data[1]);
     const xa = matFirstColumn.scale(this.left);
     const xb = matFirstColumn.scale(this.right);
- 
+
     const matSecondColumn = vec(matrix.data[4], matrix.data[5]);
     const ya = matSecondColumn.scale(this.top);
     const yb = matSecondColumn.scale(this.bottom);
