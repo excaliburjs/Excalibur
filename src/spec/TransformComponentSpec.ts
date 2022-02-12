@@ -145,4 +145,15 @@ describe('A TransformComponent', () => {
     expect(childTx.getGlobalTransform().rotation).toBe(Math.PI);
     expect(childTx.getGlobalTransform().scale).toBeVector(ex.vec(2, 3));
   });
+
+  it('can observe a z index change', () => {
+    const tx = new ex.TransformComponent();
+    const zSpy = jasmine.createSpy('zSpy');
+    tx.zIndexChanged$.subscribe(zSpy);
+
+    tx.z = 19;
+
+    expect(zSpy).toHaveBeenCalledWith(19);
+    expect(tx.z).toBe(19);
+  });
 });
