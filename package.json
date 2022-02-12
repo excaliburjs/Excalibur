@@ -96,7 +96,7 @@
     "karma-jasmine": "4.0.1",
     "karma-summary-reporter": "3.0.0",
     "karma-webpack": "5.0.0",
-    "puppeteer": "10.4.0",
+    "puppeteer": "13.1.2",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "replace-in-file": "6.3.2",
