@@ -26,7 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
--
+- Renamed `ex.Matrix.multv()` and `ex.Matrix.multm()` to `ex.Matrix.multiply()` which matches our naming conventions
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
