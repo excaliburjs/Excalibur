@@ -389,8 +389,12 @@ describe('The ExcaliburGraphicsContext', () => {
       const rectangleRenderer = sut.get('ex.rectangle');
       spyOn(rectangleRenderer, 'flush').and.callThrough();
 
+      sut.drawLine(ex.vec(0, 0), ex.vec(100, 100), ex.Color.Red, 2);
+      expect(rectangleRenderer.flush).withContext('rectangle line render not flusehd yet').not.toHaveBeenCalled();
+
       sut.drawCircle(ex.Vector.Zero, 100, ex.Color.Red, ex.Color.Black, 2);
       expect(circleRenderer.flush).withContext('circle is batched not flushed yet').not.toHaveBeenCalled();
+      expect(rectangleRenderer.flush).withContext('rectangle line render').toHaveBeenCalled();
 
       sut.drawImage(tex.image, 0, 0, tex.width, tex.height, 20, 20);
       expect(circleRenderer.flush).withContext('circle renderer switched, flush required').toHaveBeenCalled();
@@ -398,18 +402,17 @@ describe('The ExcaliburGraphicsContext', () => {
 
       sut.drawRectangle(ex.Vector.Zero, 50, 50, ex.Color.Blue, ex.Color.Green, 2);
       expect(imageRenderer.flush).toHaveBeenCalled();
-      expect(rectangleRenderer.flush).withContext('rectangle batched').not.toHaveBeenCalled();
 
       sut.flush();
-      expect(rectangleRenderer.flush).toHaveBeenCalled();
 
-      expect(rectangleRenderer.flush).toHaveBeenCalledTimes(1);
+      // Rectangle renderer handles lines and rectangles why it's twice
+      expect(rectangleRenderer.flush).toHaveBeenCalledTimes(2);
       expect(circleRenderer.flush).toHaveBeenCalledTimes(1);
       expect(imageRenderer.flush).toHaveBeenCalledTimes(1);
 
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
         'src/spec/images/ExcaliburGraphicsContextSpec/painter-order-circle-image-rect.png',
-        .95
+        .97
       );
     });
 

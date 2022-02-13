@@ -357,8 +357,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   public drawLine(start: Vector, end: Vector, color: Color, thickness = 1) {
-    const rectangleRenderer = this._renderers.get('ex.rectangle') as RectangleRenderer;
-    rectangleRenderer.drawLine(start, end, color, thickness);
+    this.draw<RectangleRenderer>('ex.rectangle', start, end, color, thickness);
   }
 
   public drawRectangle(pos: Vector, width: number, height: number, color: Color, stroke?: Color, strokeThickness?: number) {

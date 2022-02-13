@@ -70,6 +70,14 @@ export class RectangleRenderer implements RendererPlugin {
     return false;
   }
 
+  draw(...args: any[]): void {
+    if (args[0] instanceof Vector && args[1] instanceof Vector) {
+      this.drawLine.apply(this, args);
+    } else {
+      this.drawRectangle.apply(this, args);
+    }
+  }
+
   drawLine(start: Vector, end: Vector, color: Color, thickness: number = 1) {
 
     if (this._isFull()) {
@@ -184,7 +192,13 @@ export class RectangleRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = strokeThickness / width;
   }
 
-  draw(pos: Vector, width: number, height: number, color: Color, stroke: Color = Color.Transparent, strokeThickness: number = 0): void {
+  drawRectangle(
+    pos: Vector,
+    width: number,
+    height: number,
+    color: Color,
+    stroke: Color = Color.Transparent,
+    strokeThickness: number = 0): void {
     if (this._isFull()) {
       this.flush();
     }
