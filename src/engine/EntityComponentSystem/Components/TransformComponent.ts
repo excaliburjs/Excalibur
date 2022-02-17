@@ -103,46 +103,12 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
     this._dirty = false;
   }
 
-  public transformChanged$: Observable<void> = new Observable();
-  public onAdd(): void {
-      this.parent?.transformChanged$.subscribe(this._transformChangedHandler);
-  }
-  public onRemove(): void {
-      this.parent?.transformChanged$.unsubscribe(this._transformChangedHandler);
-  }
-  private _transformChangedHandler = () => {
-    this._globalMatrixDirty = true;
-  }
-  private _globalMatrixDirty = true;
-  private _parentMatrix: Matrix;
-  private _globalMatrix: Matrix;
-  private _globalInverse: Matrix;
-  private _recalculateGlobal() {
-    this._parentMatrix = this.parent.getGlobalMatrix();
-    this._globalMatrix = this._parentMatrix.multiply(this.matrix);
-    this._globalInverse = this._globalMatrix.getAffineInverse();
-  }
   public getGlobalMatrix(): Matrix {
     if (!this.parent) {
-      return this._globalMatrix = this.matrix;
+      return this.matrix;
     } else {
-      if (this._globalMatrixDirty) {
-        this._globalMatrixDirty = false;
-        this._recalculateGlobal();
-      }
-      return this._globalMatrix;
+      return this.parent.getGlobalMatrix().multiply(this.matrix);
     }
-  }
-
-  public getGlobalInverse(): Matrix {
-    if (!this.parent) {
-      return this._globalInverse = this.matrix.getAffineInverse();
-    }
-    if (this._globalMatrixDirty) {
-      this._globalMatrixDirty = false;
-      this._recalculateGlobal();
-    }
-    return this._globalInverse;
   }
 
   public getGlobalTransform(): Transform {
@@ -179,7 +145,6 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
   public set pos(val: Vector) {
     this.matrix.setPosition(val.x, val.y);
     this._dirty = true;
-    this.transformChanged$.notifyAll();
   }
 
   // Dirty flag check up the chain
@@ -201,21 +166,19 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
       getY: () => source.data[MatrixLocations.Y],
       setX: (x) => {
         if (this.parent) {
-          const [newX] = this.parent?.getGlobalInverse().multv([x, source.data[MatrixLocations.Y]]);
+          const [newX] = this.parent?.getGlobalMatrix().getAffineInverse().multv([x, source.data[MatrixLocations.Y]]);
           this.matrix.data[MatrixLocations.X] = newX;
         } else {
           this.matrix.data[MatrixLocations.X] = x;
         }
-        this.transformChanged$.notifyAll();
       },
       setY: (y) => {
         if (this.parent) {
-          const [, newY] = this.parent?.getGlobalInverse().multv([source.data[MatrixLocations.X], y]);
+          const [, newY] = this.parent?.getGlobalMatrix().getAffineInverse().multv([source.data[MatrixLocations.X], y]);
           this.matrix.data[MatrixLocations.Y] = newY;
         } else {
           this.matrix.data[MatrixLocations.Y] = y;
         }
-        this.transformChanged$.notifyAll();
       }
     });
   }
@@ -225,9 +188,8 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
     if (!parentTransform) {
       this.pos = val;
     } else {
-      this.pos = parentTransform.getGlobalInverse().multiply(val);
+      this.pos = parentTransform.getGlobalMatrix().getAffineInverse().multv(val);
     }
-    this.transformChanged$.notifyAll();
   }
 
   public zIndexChanged$ = new Observable<TransformComponent>();
@@ -260,7 +222,6 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
   public set rotation(val: number) {
     this.matrix.setRotation(val);
     this._dirty = true;
-    this.transformChanged$.notifyAll();
   }
 
   public get globalRotation(): number {
@@ -274,7 +235,6 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
     } else {
       this.rotation = val - parentTransform.globalRotation;
     }
-    this.transformChanged$.notifyAll();
   }
 
   /**
@@ -290,7 +250,6 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
   public set scale(val: Vector) {
     this.matrix.setScale(val);
     this._dirty = true;
-    this.transformChanged$.notifyAll();
   }
 
   public get globalScale(): Vector {
@@ -305,7 +264,6 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
         } else {
           this.matrix.setScaleX(x);
         }
-        this.transformChanged$.notifyAll();
       },
       setY: (y) => {
         if (this.parent) {
@@ -314,7 +272,6 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
         } else {
           this.matrix.setScaleY(y);
         }
-        this.transformChanged$.notifyAll();
       }
     });
   }
@@ -326,7 +283,6 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
     } else {
       this.scale = vec(val.x / parentTransform.globalScale.x, val.y / parentTransform.globalScale.y);
     }
-    this.transformChanged$.notifyAll();
   }
 
   /**
@@ -334,7 +290,7 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
    * @param point
    */
   public apply(point: Vector): Vector {
-    return this.matrix.multiply(point);
+    return this.matrix.multv(point);
   }
 
   /**
@@ -342,6 +298,6 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
    * @param point
    */
   public applyInverse(point: Vector): Vector {
-    return this.matrix.getAffineInverse().multiply(point);
+    return this.matrix.getAffineInverse().multv(point);
   }
 }
