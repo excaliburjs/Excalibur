@@ -20,6 +20,9 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   private _engine: Engine;
 
   private _sortedTransforms: TransformComponent[] = [];
+  public get sortedTransforms() {
+    return this._sortedTransforms;
+  }
 
   public initialize(scene: Scene): void {
     this._graphicsContext = scene.engine.graphicsContext;
