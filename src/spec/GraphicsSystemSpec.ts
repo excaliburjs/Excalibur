@@ -31,7 +31,7 @@ describe('A Graphics ECS System', () => {
     engine.currentScene._initialize(engine);
     sut.initialize(engine.currentScene);
     const es = [...entities];
-    es.forEach(e => sut.notify(new ex.AddedEntity(e)))
+    es.forEach(e => sut.notify(new ex.AddedEntity(e)));
     sut.preupdate();
     expect(sut.sortedTransforms.map(t => t.owner)).toEqual(entities.reverse());
   });

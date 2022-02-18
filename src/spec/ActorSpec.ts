@@ -520,7 +520,7 @@ describe('A game actor', () => {
 
     actor.addChild(childActor);
     actionSystem.notify(new ex.AddedEntity(actor));
-    
+
     actor.actions.moveTo(10, 15, 1000);
     actionSystem.update([actor], 1000);
     motionSystem.update([actor], 1000);
