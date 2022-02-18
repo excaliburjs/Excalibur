@@ -4,7 +4,7 @@ import { Entity } from '../EntityComponentSystem/Entity';
 import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from '../Graphics';
 import { IsometricEntityComponent } from './IsometricEntityComponent';
 
-export class Tile extends Entity {
+export class IsometricTile extends Entity {
   /**
    * Indicates whether this tile is solid
    */
@@ -80,6 +80,12 @@ export class Tile extends Entity {
     return mapPos.add(this.map.tileToWorld(vec(this.x, this.y)));
   }
 
+  /**
+   * Construct a new IsometricTile
+   * @param x tile coordinate in x (not world position)
+   * @param y tile coordinate in y (not world position)
+   * @param map reference to owning IsometricMap
+   */
   constructor(x: number, y: number, map: IsometricMap) {
     super([
       new TransformComponent(),
@@ -199,7 +205,7 @@ export class IsometricMap extends Entity {
   /**
    * List containing all of the tiles in IsometricMap
    */
-  public readonly tiles: Tile[];
+  public readonly tiles: IsometricTile[];
 
   public renderFromTopOfGraphic: boolean = false;
   public graphicsOffset: Vector = vec(0, 0);
@@ -245,7 +251,7 @@ export class IsometricMap extends Entity {
     // build up tile representation
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        const tile = new Tile(x, y, this);
+        const tile = new IsometricTile(x, y, this);
         this.tiles[x + y * width] = tile;
         this.addChild(tile);
         // TODO row/columns helpers

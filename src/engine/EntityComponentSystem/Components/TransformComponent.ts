@@ -3,6 +3,7 @@ import { VectorView } from '../../Math/vector-view';
 import { Vector, vec } from '../../Math/vector';
 import { Component } from '../Component';
 import { Observable } from '../../Util/Observable';
+import { watch } from '../../Util/Watch';
 
 export interface Transform {
   /**
@@ -94,7 +95,9 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
   private _dirty = false;
 
   public readonly matrix = Matrix.identity().translate(0, 0).rotate(0).scale(1, 1);
-  private _position = createPosView(this.matrix);
+  private _position = watch(createPosView(this.matrix), (v) => {
+    this.posChanged$.notifyAll(v);
+  });
   private _rotation = 0;
   private _scale = createScaleView(this.matrix);
 
@@ -131,6 +134,10 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
   public coordPlane = CoordPlane.World;
 
   /**
+   * Observable that notifies when the position changes
+   */
+  public posChanged$ = new Observable<Vector>();
+  /**
    * The current position of the entity in world space or in screen space depending on the the [[CoordPlane|coordinate plane]].
    *
    * If a parent entity exists coordinates are local to the parent.
@@ -145,6 +152,7 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
   public set pos(val: Vector) {
     this.matrix.setPosition(val.x, val.y);
     this._dirty = true;
+    this.posChanged$.notifyAll(this._position);
   }
 
   // Dirty flag check up the chain
@@ -171,6 +179,7 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
         } else {
           this.matrix.data[MatrixLocations.X] = x;
         }
+        this.posChanged$.notifyAll(this._position);
       },
       setY: (y) => {
         if (this.parent) {
@@ -179,6 +188,7 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
         } else {
           this.matrix.data[MatrixLocations.Y] = y;
         }
+        this.posChanged$.notifyAll(this._position);
       }
     });
   }

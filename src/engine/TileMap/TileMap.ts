@@ -4,7 +4,6 @@ import { Vector, vec } from '../Math/vector';
 import { Logger } from '../Util/Log';
 import { SpriteSheet } from '../Drawing/SpriteSheet';
 import * as Events from '../Events';
-import { Configurable } from '../Configurable';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { BodyComponent } from '../Collision/BodyComponent';
@@ -51,27 +50,28 @@ export interface TileMapOptions {
 }
 
 /**
- * @hidden
+ * The TileMap provides a mechanism for doing flat 2D tiles rendered in a grid.
+ *
+ * TileMaps are useful for top down or side scrolling grid oriented games.
  */
-export class TileMapImpl extends Entity {
+export class TileMap extends Entity {
   private _token = 0;
   private _onScreenXStart: number = 0;
-  private _onScreenXEnd: number = 9999;
+  private _onScreenXEnd: number = Number.MAX_VALUE;
   private _onScreenYStart: number = 0;
-  private _onScreenYEnd: number = 9999;
+  private _onScreenYEnd: number = Number.MAX_VALUE;
   private _spriteSheets: { [key: string]: Graphics.SpriteSheet } = {};
 
   private _legacySpriteMap = new Map<Graphics.Sprite, Sprite>();
   public logger: Logger = Logger.getInstance();
-  public readonly data: Cell[] = [];
-  private _rows: Cell[][] = [];
-  private _cols: Cell[][] = [];
-  public visible = true;
-  public isOffscreen = false;
-  public readonly cellWidth: number;
-  public readonly cellHeight: number;
-  public readonly rows: number;
-  public readonly cols: number;
+  public readonly tiles: Tile[] = [];
+  private _rows: Tile[][] = [];
+  private _cols: Tile[][] = [];
+
+  public readonly tileWidth: number;
+  public readonly tileHeight: number;
+  public readonly height: number;
+  public readonly width: number;
 
   private _dirty = true;
   public flagDirty() {
@@ -125,6 +125,7 @@ export class TileMapImpl extends Entity {
   public get scale(): Vector {
     return this._transform?.scale ?? Vector.One;
   }
+
   public set scale(val: Vector) {
     if (this._transform?.scale) {
       this._transform.scale = val;
@@ -156,25 +157,12 @@ export class TileMapImpl extends Entity {
     super.on(eventName, handler);
   }
 
+
   /**
-   * @param xOrConfig     The x coordinate to anchor the TileMap's upper left corner (should not be changed once set) or TileMap option bag
-   * @param y             The y coordinate to anchor the TileMap's upper left corner (should not be changed once set)
-   * @param cellWidth     The individual width of each cell (in pixels) (should not be changed once set)
-   * @param cellHeight    The individual height of each cell (in pixels) (should not be changed once set)
-   * @param rows          The number of rows in the TileMap (should not be changed once set)
-   * @param cols          The number of cols in the TileMap (should not be changed once set)
+   * @param options
    */
-  constructor(xOrConfig: number | TileMapArgs, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number) {
-    super();
-    if (xOrConfig && typeof xOrConfig === 'object') {
-      const config = xOrConfig;
-      xOrConfig = config.x;
-      y = config.y;
-      cellWidth = config.cellWidth;
-      cellHeight = config.cellHeight;
-      rows = config.rows;
-      cols = config.cols;
-    }
+  constructor(options: TileMapOptions) {
+    super(null, options.name);
     this.addComponent(new TransformComponent());
     this.addComponent(new MotionComponent());
     this.addComponent(
@@ -195,21 +183,25 @@ export class TileMapImpl extends Entity {
     this._collider = this.get(ColliderComponent);
     this._composite = this._collider.useCompositeCollider([]);
 
-    this.x = <number>xOrConfig;
-    this.y = y;
-    this.cellWidth = cellWidth;
-    this.cellHeight = cellHeight;
-    this.rows = rows;
-    this.cols = cols;
-    this.data = new Array<Cell>(rows * cols);
-    this._rows = new Array(rows);
-    this._cols = new Array(cols);
-    let currentCol: Cell[] = [];
-    for (let i = 0; i < cols; i++) {
-      for (let j = 0; j < rows; j++) {
-        const cd = new Cell(i * cellWidth + <number>xOrConfig, j * cellHeight + y, cellWidth, cellHeight, i + j * cols);
+    this._transform.pos = options.pos ?? Vector.Zero;
+    this._transform.posChanged$.subscribe(() => this.flagDirty());
+    this.tileWidth = options.tileWidth;
+    this.tileHeight = options.tileHeight;
+    this.height = options.height;
+    this.width = options.width;
+    this.tiles = new Array<Tile>(this.height * this.width);
+    this._rows = new Array(this.height);
+    this._cols = new Array(this.width);
+    let currentCol: Tile[] = [];
+    for (let i = 0; i < this.width; i++) {
+      for (let j = 0; j < this.height; j++) {
+        const cd = new Tile({
+          x: i,
+          y: j,
+          map: this
+        });
         cd.map = this;
-        this.data[i + j * cols] = cd;
+        this.tiles[i + j * this.width] = cd;
         currentCol.push(cd);
         if (!this._rows[j]) {
           this._rows[j] = [];
@@ -223,8 +215,8 @@ export class TileMapImpl extends Entity {
     this.get(GraphicsComponent).localBounds = new BoundingBox({
       left: 0,
       top: 0,
-      right: this.cols * this.cellWidth,
-      bottom: this.rows * this.cellHeight
+      right: this.width * this.tileWidth,
+      bottom: this.height * this.tileHeight
     });
   }
 
@@ -258,20 +250,20 @@ export class TileMapImpl extends Entity {
     this._composite = this._collider.useCompositeCollider([]);
     let current: BoundingBox;
     // Bad square tesselation algo
-    for (let i = 0; i < this.cols; i++) {
+    for (let i = 0; i < this.width; i++) {
       // Scan column for colliders
-      for (let j = 0; j < this.rows; j++) {
+      for (let j = 0; j < this.height; j++) {
         // Columns start with a new collider
         if (j === 0) {
           current = null;
         }
-        const tile = this.data[i + j * this.cols];
+        const tile = this.tiles[i + j * this.width];
         // Current tile in column is solid build up current collider
         if (tile.solid) {
           // Use custom collider otherwise bounding box
           if (tile.colliders.length > 0) {
             for (const collider of tile.colliders) {
-              collider.offset = vec(tile.x, tile.y).add(collider.offset);
+              collider.offset = tile.pos.add(collider.offset);
               collider.owner = this;
               this._composite.addCollider(collider);
             }
@@ -313,39 +305,39 @@ export class TileMapImpl extends Entity {
   }
 
   /**
-   * Returns the [[Cell]] by index (row major order)
+   * Returns the [[Tile]] by index (row major order)
    */
-  public getCellByIndex(index: number): Cell {
-    return this.data[index];
+  public getTileByIndex(index: number): Tile {
+    return this.tiles[index];
   }
   /**
-   * Returns the [[Cell]] by its x and y coordinates
+   * Returns the [[Tile]] by its x and y coordinates
    */
-  public getCell(x: number, y: number): Cell {
-    if (x < 0 || y < 0 || x >= this.cols || y >= this.rows) {
+  public getTile(x: number, y: number): Tile {
+    if (x < 0 || y < 0 || x >= this.width || y >= this.height) {
       return null;
     }
-    return this.data[x + y * this.cols];
+    return this.tiles[x + y * this.width];
   }
   /**
-   * Returns the [[Cell]] by testing a point in global coordinates,
-   * returns `null` if no cell was found.
+   * Returns the [[Tile]] by testing a point in world coordinates,
+   * returns `null` if no Tile was found.
    */
-  public getCellByPoint(x: number, y: number): Cell {
-    x = Math.floor((x - this.pos.x) / this.cellWidth);
-    y = Math.floor((y - this.pos.y) / this.cellHeight);
-    const cell = this.getCell(x, y);
-    if (x >= 0 && y >= 0 && x < this.cols && y < this.rows && cell) {
-      return cell;
+  public getTileByPoint(x: number, y: number): Tile {
+    x = Math.floor((x - this.pos.x) / this.tileWidth);
+    y = Math.floor((y - this.pos.y) / this.tileHeight);
+    const tile = this.getTile(x, y);
+    if (x >= 0 && y >= 0 && x < this.width && y < this.height && tile) {
+      return tile;
     }
     return null;
   }
 
-  public getRows(): readonly Cell[][] {
+  public getRows(): readonly Tile[][] {
     return this._rows;
   }
 
-  public getColumns(): readonly Cell[][] {
+  public getColumns(): readonly Tile[][] {
     return this._cols;
   }
 
@@ -370,10 +362,10 @@ export class TileMapImpl extends Entity {
     const worldCoordsUpperLeft = vec(worldBounds.left, worldBounds.top);
     const worldCoordsLowerRight = vec(worldBounds.right, worldBounds.bottom);
 
-    this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - this.x) / this.cellWidth) - 2, 0);
-    this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.cellHeight) - 2, 0);
-    this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.cellWidth) + 2, 0);
-    this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.cellHeight) + 2, 0);
+    this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - this.x) / this.tileWidth) - 2, 0);
+    this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.tileHeight) - 2, 0);
+    this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.tileWidth) + 2, 0);
+    this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.tileHeight) + 2, 0);
     this._transform.pos = vec(this.x, this.y);
 
     this.onPostUpdate(engine, delta);
@@ -389,16 +381,16 @@ export class TileMapImpl extends Entity {
     this.emit('predraw', new Events.PreDrawEvent(ctx as any, delta, this)); // TODO fix event
 
     let x = this._onScreenXStart;
-    const xEnd = Math.min(this._onScreenXEnd, this.cols);
+    const xEnd = Math.min(this._onScreenXEnd, this.width);
     let y = this._onScreenYStart;
-    const yEnd = Math.min(this._onScreenYEnd, this.rows);
+    const yEnd = Math.min(this._onScreenYEnd, this.height);
 
     let graphics: Graphics.Graphic[], graphicsIndex: number, graphicsLen: number;
 
     for (x; x < xEnd; x++) {
       for (y; y < yEnd; y++) {
         // get non-negative tile sprites
-        graphics = this.getCell(x, y).graphics;
+        graphics = this.getTile(x, y).graphics;
 
         for (graphicsIndex = 0, graphicsLen = graphics.length; graphicsIndex < graphicsLen; graphicsIndex++) {
           // draw sprite, warning if sprite doesn't exist
@@ -408,13 +400,13 @@ export class TileMapImpl extends Entity {
               if (hasGraphicsTick(graphic)) {
                 graphic?.tick(delta, this._token);
               }
-              graphic.draw(ctx, x * this.cellWidth, y * this.cellHeight);
+              graphic.draw(ctx, x * this.tileWidth, y * this.tileHeight);
             } else if (graphic instanceof Graphics.Sprite) {
               // TODO legacy drawing mode
               if (!this._legacySpriteMap.has(graphic)) {
                 this._legacySpriteMap.set(graphic, Graphics.Sprite.toLegacySprite(graphic));
               }
-              this._legacySpriteMap.get(graphic).draw(ctx, x * this.cellWidth, y * this.cellHeight);
+              this._legacySpriteMap.get(graphic).draw(ctx, x * this.tileWidth, y * this.tileHeight);
             }
           }
         }
@@ -426,16 +418,16 @@ export class TileMapImpl extends Entity {
   }
 
   public debug(gfx: ExcaliburGraphicsContext) {
-    const width = this.cellWidth * this.cols;
-    const height = this.cellHeight * this.rows;
+    const width = this.tileWidth * this.width;
+    const height = this.tileHeight * this.height;
     const pos = Vector.Zero;
-    for (let r = 0; r < this.rows + 1; r++) {
-      const yOffset = vec(0, r * this.cellHeight);
+    for (let r = 0; r < this.height + 1; r++) {
+      const yOffset = vec(0, r * this.tileHeight);
       gfx.drawLine(pos.add(yOffset), pos.add(vec(width, yOffset.y)), Color.Red, 2);
     }
 
-    for (let c = 0; c < this.cols + 1; c++) {
-      const xOffset = vec(c * this.cellWidth, 0);
+    for (let c = 0; c < this.width + 1; c++) {
+      const xOffset = vec(c * this.tileWidth, 0);
       gfx.drawLine(pos.add(xOffset), pos.add(vec(xOffset.x, height)), Color.Red, 2);
     }
 
@@ -450,132 +442,139 @@ export class TileMapImpl extends Entity {
   }
 }
 
-export interface TileMapArgs extends Partial<TileMapImpl> {
-  x: number;
-  y: number;
-  cellWidth: number;
-  cellHeight: number;
-  rows: number;
-  cols: number;
-}
-
-/**
- * The [[TileMap]] class provides a lightweight way to do large complex scenes with collision
- * without the overhead of actors.
- */
-export class TileMap extends Configurable(TileMapImpl) {
-  constructor(config: TileMapArgs);
-  constructor(x: number, y: number, cellWidth: number, cellHeight: number, rows: number, cols: number);
-  constructor(xOrConfig: number | TileMapArgs, y?: number, cellWidth?: number, cellHeight?: number, rows?: number, cols?: number) {
-    super(xOrConfig, y, cellWidth, cellHeight, rows, cols);
-  }
-}
-
-/**
- * @hidden
- */
-export class CellImpl extends Entity {
-  private _bounds: BoundingBox;
+export interface TileOptions {
   /**
-   * World space x coordinate of the left of the cell
+   * Integer tile x coordinate
+   */
+  x: number;
+  /**
+   * Integer tile y coordinate
+   */
+  y: number;
+  map: TileMap;
+  solid?: boolean;
+  graphics?: Graphics.Graphic[];
+}
+
+/**
+ * TileMap Tile
+ *
+ * A light-weight object that occupies a space in a collision map. Generally
+ * created by a [[TileMap]].
+ *
+ * Tiles can draw multiple sprites. Note that the order of drawing is the order
+ * of the sprites in the array so the last one will be drawn on top. You can
+ * use transparency to create layers this way.
+ */
+export class Tile extends Entity {
+  private _bounds: BoundingBox;
+  private _pos: Vector;
+  private _posDirty = false;
+  private _transform: TransformComponent;
+
+  /**
+   * Return the world position of the top left corner of the tile
+   */
+  public get pos() {
+    if (this._posDirty) {
+      this._recalculate();
+      this._posDirty = false;
+    }
+    return this._pos;
+  }
+
+  /**
+   * Integer x coordinate of the tile
    */
   public readonly x: number;
-  /**
-   * World space y coordinate of the top of the cell
-   */
-  public readonly y: number;
-  /**
-   * Width of the cell in pixels
-   */
-  public readonly width: number;
-  /**
-   * Height of the cell in pixels
-   */
-  public readonly height: number;
-  /**
-   * Current index in the tilemap
-   */
-  public readonly index: number;
 
   /**
-   * Reference to the TileMap this Cell is associated with
+   * Integer y coordinate of the tile
+   */
+  public readonly y: number;
+
+  /**
+   * Width of the tile in pixels
+   */
+  public readonly width: number;
+
+  /**
+   * Height of the tile in pixels
+   */
+  public readonly height: number;
+
+  /**
+   * Reference to the TileMap this tile is associated with
    */
   public map: TileMap;
 
   private _solid = false;
   /**
-   * Wether this cell should be treated as solid by the tilemap
+   * Wether this tile should be treated as solid by the tilemap
    */
   public get solid(): boolean {
     return this._solid;
   }
   /**
-   * Wether this cell should be treated as solid by the tilemap
+   * Wether this tile should be treated as solid by the tilemap
    */
   public set solid(val: boolean) {
     this.map?.flagDirty();
     this._solid = val;
   }
   /**
-   * Current list of graphics for this cell
+   * Current list of graphics for this tile
    */
   public readonly graphics: Graphics.Graphic[] = [];
 
-  public colliders: Collider[] = [];
   /**
-   * Arbitrary data storage per cell, useful for any game specific data
+   * Current list of colliders for this tile
+   */
+  public colliders: Collider[] = [];
+
+  /**
+   * Arbitrary data storage per tile, useful for any game specific data
    */
   public data = new Map<string, any>();
 
-  /**
-   * @param xOrConfig Gets or sets x coordinate of the cell in world coordinates or cell option bag
-   * @param y       Gets or sets y coordinate of the cell in world coordinates
-   * @param width   Gets or sets the width of the cell
-   * @param height  Gets or sets the height of the cell
-   * @param index   The index of the cell in row major order
-   * @param solid   Gets or sets whether this cell is solid
-   * @param graphics The list of tile graphics to use to draw in this cell (in order)
-   */
-  constructor(
-    xOrConfig: number | CellArgs,
-    y: number,
-    width: number,
-    height: number,
-    index: number,
-    solid: boolean = false,
-    graphics: Graphics.Graphic[] = []
-  ) {
+  constructor(options: TileOptions) {
     super();
-    if (xOrConfig && typeof xOrConfig === 'object') {
-      const config = xOrConfig;
-      xOrConfig = config.x;
-      y = config.y;
-      width = config.width;
-      height = config.height;
-      index = config.index;
-      solid = config.solid;
-      graphics = config.sprites;
-    }
-    this.x = <number>xOrConfig;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-    this.index = index;
-    this.solid = solid;
-    this.graphics = graphics;
-    this._bounds = new BoundingBox(this.x, this.y, this.x + this.width, this.y + this.height);
+    this.x = options.x;
+    this.y = options.y;
+    this.map = options.map;
+    this.width = options.map.tileWidth;
+    this.height = options.map.tileHeight;
+    this.solid = options.solid ?? this.solid;
+    this.graphics = options.graphics ?? [];
+    this._recalculate();
+    this._transform = options.map.get(TransformComponent);
+    this._transform.posChanged$.subscribe(() => {
+      this._posDirty = true;
+    });
+  }
+
+  private _recalculate() {
+    this._pos = this.map.pos.add(
+      vec(
+        this.x * this.map.tileWidth,
+        this.y * this.map.tileHeight));
+    this._bounds = new BoundingBox(this._pos.x, this._pos.y, this._pos.x + this.width, this._pos.y + this.height);
   }
 
   public get bounds() {
+    if (this._posDirty) {
+      this._recalculate();
+      this._posDirty = false;
+    }
     return this._bounds;
   }
 
   public get center(): Vector {
-    return new Vector(this.x + this.width / 2, this.y + this.height / 2);
+    return new Vector(this._pos.x + this.width / 2, this._pos.y + this.height / 2);
   }
 
   /**
-   * Add another [[Sprite]] to this cell
+   * Add another [[Sprite]] to this tile
    * @deprecated Use addSprite, will be removed in v0.26.0
    */
   @obsolete({ message: 'Will be removed in v0.26.0', alternateMethod: 'addSprite' })
@@ -584,7 +583,7 @@ export class CellImpl extends Entity {
   }
 
   /**
-   * Add another [[Graphic]] to this TileMap cell
+   * Add another [[Graphic]] to this TileMap tile
    * @param graphic
    */
   public addGraphic(graphic: Graphics.Graphic | LegacySprite) {
@@ -596,52 +595,16 @@ export class CellImpl extends Entity {
   }
 
   /**
-   * Remove an instance of a [[Graphic]] from this cell
+   * Remove an instance of a [[Graphic]] from this tile
    */
   public removeGraphic(graphic: Graphics.Graphic | LegacySprite) {
     removeItemFromArray(graphic, this.graphics);
   }
 
   /**
-   * Clear all graphics from this cell
+   * Clear all graphics from this tile
    */
   public clearGraphics() {
     this.graphics.length = 0;
-  }
-}
-
-export interface CellArgs extends Partial<CellImpl> {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  index: number;
-  solid?: boolean;
-  sprites?: Graphics.Sprite[];
-}
-
-/**
- * TileMap Cell
- *
- * A light-weight object that occupies a space in a collision map. Generally
- * created by a [[TileMap]].
- *
- * Cells can draw multiple sprites. Note that the order of drawing is the order
- * of the sprites in the array so the last one will be drawn on top. You can
- * use transparency to create layers this way.
- */
-export class Cell extends Configurable(CellImpl) {
-  constructor(config: CellArgs);
-  constructor(x: number, y: number, width: number, height: number, index: number, solid?: boolean, sprites?: Graphics.Sprite[]);
-  constructor(
-    xOrConfig: number | CellArgs,
-    y?: number,
-    width?: number,
-    height?: number,
-    index?: number,
-    solid?: boolean,
-    sprites?: Graphics.Sprite[]
-  ) {
-    super(xOrConfig, y, width, height, index, solid, sprites);
   }
 }
