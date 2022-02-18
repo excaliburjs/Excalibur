@@ -103,6 +103,16 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
       expect(bb.contains(new ex.Vector(10, 20))).toBe(true);
     });
 
+    it('can overlap with other bounding boxes', () => {
+      const b1 = new ex.BoundingBox({left: 100, right: 110, top: 100, bottom: 110});
+      const b2 = new ex.BoundingBox(2, 0, 20, 10);
+      const b3 = new ex.BoundingBox(12, 0, 28, 10);
+      expect(b2.overlaps(b3)).toBe(true);
+      expect(b3.overlaps(b2)).toBe(true);
+      expect(b1.overlaps(b2)).toBe(false);
+      expect(b1.overlaps(b3)).toBe(false);
+    });
+
     it('can collide with other bounding boxes', () => {
       const b2 = new ex.BoundingBox(2, 0, 20, 10);
       const b3 = new ex.BoundingBox(12, 0, 28, 10);

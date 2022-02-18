@@ -71,7 +71,7 @@ export class PolygonCollider extends Collider {
     // https://stackoverflow.com/a/1165943
     let sum = 0;
     for (let i = 0; i < points.length; i++) {
-       sum += (points[(i + 1) % points.length].x - points[i].x) * (points[(i + 1) % points.length].y + points[i].y);
+      sum += (points[(i + 1) % points.length].x - points[i].x) * (points[(i + 1) % points.length].y + points[i].y);
     }
     return sum < 0;
   }
@@ -79,7 +79,6 @@ export class PolygonCollider extends Collider {
   /**
    * Returns if the polygon collider is convex, Excalibur does not handle non-convex collision shapes.
    * Call [[Polygon.triangulate]] to generate a [[CompositeCollider]] from this non-convex shape
-   * @returns 
    */
   public isConvex(): boolean {
     // From SO: https://stackoverflow.com/a/45372025
@@ -92,9 +91,9 @@ export class PolygonCollider extends Collider {
     let oldDirection = 0;
     let orientation = 0;
     let angleSum = 0;
-    for (let [i, point] of this.points.entries()) {
+    for (const [i, point] of this.points.entries()) {
       oldPoint = newPoint;
-      oldDirection = direction
+      oldDirection = direction;
       newPoint =  point;
       direction = Math.atan2(newPoint.y - oldPoint.y, newPoint.x - oldPoint.x);
       if (oldPoint.equals(newPoint)) {
@@ -127,7 +126,7 @@ export class PolygonCollider extends Collider {
   public tessellate(): CompositeCollider {
     const polygons: Vector[][] = [];
     for (let i = 1; i < this.points.length - 2; i++) {
-      polygons.push([this.points[0], this.points[i + 1], this.points[i + 2]])
+      polygons.push([this.points[0], this.points[i + 1], this.points[i + 2]]);
     }
     polygons.push([this.points[0], this.points[1], this.points[2]]);
 
@@ -144,8 +143,9 @@ export class PolygonCollider extends Collider {
       throw Error('Invalid polygon');
     }
 
-    // TODO detect winding (clockwise only)
-
+    /**
+     * Helper to get a vertex in the list
+     */
     function getItem<T>(index: number, list: T[]) {
       if (index >= list.length) {
         return list[index % list.length];
@@ -156,6 +156,9 @@ export class PolygonCollider extends Collider {
       }
     }
 
+    /**
+     * Quick test for point in triangle
+     */
     function isPointInTriangle(point: Vector, a: Vector, b: Vector, c: Vector) {
       const ab = b.sub(a);
       const bc = c.sub(b);
@@ -181,7 +184,7 @@ export class PolygonCollider extends Collider {
 
     // 1. Loop through vertices clockwise
     //    if the vertex is convex (interior angle is < 180) (cross product positive)
-    //    if the polygon formed by it's edges doesn't contain the points 
+    //    if the polygon formed by it's edges doesn't contain the points
     //         it's an ear add it to our list of triangles, and restart
 
     while (indices.length > 3) {
@@ -207,12 +210,12 @@ export class PolygonCollider extends Collider {
         for (let j = 0; j < indices.length; j++) {
           const vertIndex = indices[j];
           // We can skip these
-          if (vertIndex == a || vertIndex == b || vertIndex == c) {
+          if (vertIndex === a || vertIndex === b || vertIndex === c) {
             continue;
           }
 
           const point = vertices[vertIndex];
-          if(isPointInTriangle(point, vb, va, vc)) {
+          if (isPointInTriangle(point, vb, va, vc)) {
             isEar = false;
             break;
           }

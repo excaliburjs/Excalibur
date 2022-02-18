@@ -10,7 +10,8 @@ module.exports = (config) => {
     browserStack: {
       project: 'Excalibur',
       username: process.env.BS_USERNAME,
-      accessKey: process.env.BS_PASSWORD
+      accessKey: process.env.BS_PASSWORD,
+      timeout: 600
     },
     singleRun: true,
     frameworks: ['jasmine'],
@@ -103,7 +104,10 @@ module.exports = (config) => {
       // Show a list of test clients, 'always', 'never' or 'ifneeded'
       browserList: 'always'
     },
+    browserDisconnectTimeout : 10000,
+    browserDisconnectTolerance : 1,
     browserNoActivityTimeout: 60000, // appveyor is slow :(
+    captureTimeout : 4*60*1000,
       // define browsers
     customLaunchers: {
       bs_latest_chrome_win10: {

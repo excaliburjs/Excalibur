@@ -140,16 +140,25 @@ export class BoundingBox {
     return BoundingBox.fromPoints(points);
   }
 
+  /**
+   * Scale a bounding box by a scale factor, optionally provide a point
+   * @param scale
+   * @param point
+   */
   public scale(scale: Vector, point: Vector = Vector.Zero): BoundingBox {
     const shifted = this.translate(point);
     return new BoundingBox(shifted.left * scale.x, shifted.top * scale.y, shifted.right * scale.x, shifted.bottom * scale.y);
   }
 
+  /**
+   * Transform the axis aligned bounding box by a [[Matrix]], producing a new axis aligned bounding box
+   * @param matrix
+   */
   public transform(matrix: Matrix) {
     const matFirstColumn = vec(matrix.data[0], matrix.data[1]);
     const xa = matFirstColumn.scale(this.left);
     const xb = matFirstColumn.scale(this.right);
- 
+
     const matSecondColumn = vec(matrix.data[4], matrix.data[5]);
     const ya = matSecondColumn.scale(this.top);
     const yb = matSecondColumn.scale(this.bottom);
@@ -277,6 +286,16 @@ export class BoundingBox {
     const totalBoundingBox = this.combine(other);
     return totalBoundingBox.width < other.width + this.width &&
            totalBoundingBox.height < other.height + this.height
+  }
+
+  /**
+   * Returns true if the bounding boxes overlap.
+   * @param other
+   */
+  public overlaps(other: BoundingBox): boolean {
+    const totalBoundingBox = this.combine(other);
+    return totalBoundingBox.width < other.width + this.width &&
+           totalBoundingBox.height < other.height + this.height;
   }
 
   /**

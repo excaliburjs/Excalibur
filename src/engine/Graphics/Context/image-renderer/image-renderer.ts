@@ -35,7 +35,8 @@ export class ImageRenderer implements RendererPlugin {
     this._gl = gl;
     this._context = context;
     // Transform shader source
-    this._maxTextures = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+    // FIXME: PIXEL 6 complains `ERROR: Expression too complex.` if we use it's reported max texture units, 125 seems to work for now...
+    this._maxTextures = Math.min(gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS), 125);
     const transformedFrag = this._transformFragmentSource(frag, this._maxTextures);
     // Compile shader
     this._shader = new Shader({

@@ -2,7 +2,7 @@ import { Matrix, MatrixLocations } from '../../Math/matrix';
 import { VectorView } from '../../Math/vector-view';
 import { Vector, vec } from '../../Math/vector';
 import { Component } from '../Component';
-import { Observable } from '../..';
+import { Observable } from '../../Util/Observable';
 
 export interface Transform {
   /**
@@ -166,7 +166,7 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
       getY: () => source.data[MatrixLocations.Y],
       setX: (x) => {
         if (this.parent) {
-          const [newX] = this.parent?.getGlobalMatrix().getAffineInverse().multv([x, source.data[MatrixLocations.Y]]);
+          const { x: newX } = this.parent?.getGlobalMatrix().getAffineInverse().multiply(vec(x, source.data[MatrixLocations.Y]));
           this.matrix.data[MatrixLocations.X] = newX;
         } else {
           this.matrix.data[MatrixLocations.X] = x;
@@ -174,7 +174,7 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
       },
       setY: (y) => {
         if (this.parent) {
-          const [, newY] = this.parent?.getGlobalMatrix().getAffineInverse().multv([source.data[MatrixLocations.X], y]);
+          const { y: newY } = this.parent?.getGlobalMatrix().getAffineInverse().multiply(vec(source.data[MatrixLocations.X], y));
           this.matrix.data[MatrixLocations.Y] = newY;
         } else {
           this.matrix.data[MatrixLocations.Y] = y;
@@ -188,12 +188,16 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
     if (!parentTransform) {
       this.pos = val;
     } else {
-      this.pos = parentTransform.getGlobalMatrix().getAffineInverse().multv(val);
+      this.pos = parentTransform.getGlobalMatrix().getAffineInverse().multiply(val);
     }
   }
 
-  public zIndexChanged$ = new Observable<TransformComponent>();
+  /**
+   * Observable that emits when the z index changes on this component
+   */
+  public zIndexChanged$ = new Observable<number>();
   private _z = 0;
+
   /**
    * The z-index ordering of the entity, a higher values are drawn on top of lower values.
    * For example z=99 would be drawn on top of z=0.
@@ -201,11 +205,12 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
   public get z(): number {
     return this._z;
   }
+
   public set z(val: number) {
     const oldz = this._z;
     this._z = val;
     if (oldz !== val) {
-      this.zIndexChanged$.notifyAll(this);
+      this.zIndexChanged$.notifyAll(val);
     }
   }
 
@@ -290,7 +295,7 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
    * @param point
    */
   public apply(point: Vector): Vector {
-    return this.matrix.multv(point);
+    return this.matrix.multiply(point);
   }
 
   /**
@@ -298,6 +303,6 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
    * @param point
    */
   public applyInverse(point: Vector): Vector {
-    return this.matrix.getAffineInverse().multv(point);
+    return this.matrix.getAffineInverse().multiply(point);
   }
 }

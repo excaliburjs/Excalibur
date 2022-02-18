@@ -481,6 +481,13 @@ describe('Collision Shape', () => {
       expect(poly).not.toBe(null);
     });
 
+    it('will adjust winding to clockwise', () => {
+      const points = [ex.vec(0, 0), ex.vec(10, 10), ex.vec(10, 0)];
+      const winding = new ex.PolygonCollider({ points: [...points] });
+
+      expect(winding.points).toEqual([ex.vec(0, 0), ex.vec(10, 10), ex.vec(10, 0)].reverse());
+    });
+
     it('can be checked for convexity', () => {
       const convex = new ex.PolygonCollider({
         points: [ex.vec(0, 0), ex.vec(10, 10), ex.vec(10, 0)]
@@ -508,6 +515,17 @@ describe('Collision Shape', () => {
       expect(colliders[2].points).toEqual([ex.vec(0, 0), ex.vec(5, 5), ex.vec(0, 10)]);
 
       expect(concave.isConvex()).withContext('Should be concave').toBe(false);
+    });
+
+    it('can tesselate', () => {
+      const box = ex.Shape.Box(10, 10);
+
+      const composite = box.tessellate();
+
+      const colliders = composite.getColliders() as ex.PolygonCollider[];
+      expect(colliders.length).toBe(2);
+      expect(colliders[0].points).toEqual([ex.vec(-5, -5), ex.vec(5, 5), ex.vec(-5, 5)]);
+      expect(colliders[1].points).toEqual([ex.vec(-5, -5), ex.vec(5, -5), ex.vec(5, 5)]);
     });
 
     it('can have be constructed with position', () => {

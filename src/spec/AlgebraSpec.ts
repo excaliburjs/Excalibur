@@ -250,6 +250,24 @@ describe('Vectors', () => {
 
     expect(v.toString(2)).toBe('(1.23, 2.35)');
   });
+
+  it('can find the min between vectors', () => {
+    const v1 = new ex.Vector(0, 1);
+    const v2 = new ex.Vector(2, 0);
+
+    const sut = ex.Vector.min(v1, v2);
+
+    expect(sut).toBeVector(ex.vec(0, 0));
+  });
+
+  it('can find the max between vectors', () => {
+    const v1 = new ex.Vector(0, 1);
+    const v2 = new ex.Vector(2, 0);
+
+    const sut = ex.Vector.max(v1, v2);
+
+    expect(sut).toBeVector(ex.vec(2, 1));
+  });
 });
 
 describe('Rays', () => {

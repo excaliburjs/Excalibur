@@ -57,6 +57,6 @@ describe('DebugText', () => {
 
     ctx.flush();
 
-    await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/DebugTextSpec/draw-webgl.png');
+    await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/DebugTextSpec/draw-webgl.png', .94);
   });
 });

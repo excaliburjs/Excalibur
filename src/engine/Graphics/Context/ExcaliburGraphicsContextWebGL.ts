@@ -158,11 +158,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    */
   public checkIfResolutionSupported(dim: ScreenDimension): boolean {
     // Slight hack based on this thread https://groups.google.com/g/webgl-dev-list/c/AHONvz3oQTo
-    const gl = this.__gl;
-    // If any dimension is greater than max texture size (divide by 4 bytes per pixel)
-    const maxDim = gl.getParameter(gl.MAX_TEXTURE_SIZE) / 4;
     let supported = true;
-    if (dim.width > maxDim || dim.height > maxDim) {
+    if (dim.width > 4096 || dim.height > 4096) {
       supported = false;
     }
     return supported;
@@ -360,8 +357,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   public drawLine(start: Vector, end: Vector, color: Color, thickness = 1) {
-    const rectangleRenderer = this._renderers.get('ex.rectangle') as RectangleRenderer;
-    rectangleRenderer.drawLine(start, end, color, thickness);
+    this.draw<RectangleRenderer>('ex.rectangle', start, end, color, thickness);
   }
 
   public drawRectangle(pos: Vector, width: number, height: number, color: Color, stroke?: Color, strokeThickness?: number) {

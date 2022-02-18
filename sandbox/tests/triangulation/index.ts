@@ -31,6 +31,13 @@ actor.collider.set(starCollider.triangulate());
 actor.angularVelocity = 3;
 game.add(actor);
 
+
+var actor2 = new ex.Actor({x: 400, y: 200, collisionType: ex.CollisionType.Active});
+actor2.collider.set(ex.Shape.Box(100, 100).tessellate());
+actor2.graphics.use(new ex.Rectangle({ width: 100, height: 100, color: ex.Color.Black}));
+game.add(actor2);
+
+
 var ground = new ex.Actor({anchor: ex.Vector.Zero, x: 0, y: 500, width: 800, height: 10, color: ex.Color.Black, collisionType: ex.CollisionType.Fixed});
 game.add(ground);
 

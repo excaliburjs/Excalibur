@@ -15,11 +15,50 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added arbitrary non-convex polygon support (only non-self intersecting) with `ex.PolygonCollider(...).triangulate()` which builds a new `ex.CompositeCollider` composed of triangles.
+- Added faster `ex.BoundingBox.transform(...)` implementation.
+- Added faster `ex.BoundingBox.overlap(...)` implementation.
+- Added `ex.Vector.min(...)` and `ex.Vector.max(...)` to find the min/max of each vector component between 2 vectors.
+- Added `ex.TransformComponent.zIndexChange$` observable to watch when z index changes.
+
+### Fixed
+
+- Fixed issue where Rectangle line renderer did not respect z order
+
+### Updates
+
+-
+
+### Changed
+
+- Renamed `ex.Matrix.multv()` and `ex.Matrix.multm()` to `ex.Matrix.multiply()` which matches our naming conventions
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.25.3] - 2022-02-05
+
+## Breaking Changes
+
+- Small breaking change to `engine.screenshot()` you must now use `await engine.screenshot()`. This avoids copy buffer performance impact of `preserveDrawingBuffer: true` by capturing a screen shot request on the next frame when the buffer has not yet been cleared.
+
+### Deprecated
+
+-
+
+### Added
+
 -
 
 ### Fixed
 
--
+- Fixed issue where collision normals are inaccurate on polygon colliders that offset from their origin
+- Fixed issue where only Pixel 6 devices crash when using their MAX_TEXTURE_IMAGE_UNITS, artificially cap Excalibur to 125 textures max
+- Fixed issue [#2224] where pointer events sometimes didn't work in mobile platforms due to `touch-action` not being set to `none`
+- Fixed issue [#2203] where `engine.screenshot()` did not work in the WebGL implementation
+- Fixed issue [#1528] where screenshots didn't match the displayed game's size in HiDPI displays, images are now consistent with the game. If you want the full scaled image pass `engine.screenshot(true)` to preserve HiDPI Resolution.
+- Fixed issue [#2206] error and warning logs for large images to help developers identify error situations in the webgl implementation
 
 ### Updates
 
@@ -28,11 +67,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 -
-
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
-
 
 ## [0.25.2] - 2022-01-21
 

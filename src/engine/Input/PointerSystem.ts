@@ -1,6 +1,15 @@
 import { ColliderComponent } from '../Collision/ColliderComponent';
 import { Engine } from '../Engine';
-import { System, TransformComponent, SystemType, Entity, CoordPlane, AddedEntity, RemovedEntity, isAddedSystemEntity } from '../EntityComponentSystem';
+import {
+  System,
+  TransformComponent,
+  SystemType,
+  Entity,
+  CoordPlane,
+  AddedEntity,
+  RemovedEntity,
+  isAddedSystemEntity
+} from '../EntityComponentSystem';
 import { GraphicsComponent } from '../Graphics/GraphicsComponent';
 import { Scene } from '../Scene';
 import { PointerComponent } from './PointerComponent';
@@ -45,12 +54,12 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
   private _zHasChanged = false;
   private _zIndexUpdate = () => {
     this._zHasChanged = true;
-  }
+  };
 
   public preupdate(): void {
     if (this._zHasChanged) {
       this._sortedTransforms.sort((a, b) => {
-        return b.z - a.z
+        return b.z - a.z;
       });
       this._sortedEntities = this._sortedTransforms.map(t => t.owner);
       this._zHasChanged = false;
@@ -61,6 +70,7 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
     if (isAddedSystemEntity(entityAddedOrRemoved)) {
       const tx = entityAddedOrRemoved.data.get(TransformComponent);
       this._sortedTransforms.push(tx);
+      this._sortedEntities.push(tx.owner);
       tx.zIndexChanged$.subscribe(this._zIndexUpdate);
       this._zHasChanged = true;
     } else {
@@ -69,6 +79,7 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
       const index = this._sortedTransforms.indexOf(tx);
       if (index > -1) {
         this._sortedTransforms.splice(index, 1);
+        this._sortedEntities.splice(index, 1);
       }
     }
   }
