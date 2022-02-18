@@ -282,12 +282,6 @@ export class BoundingBox {
     return new Vector(this.width, this.height);
   }
 
-  public overlaps(other: BoundingBox): boolean {
-    const totalBoundingBox = this.combine(other);
-    return totalBoundingBox.width < other.width + this.width &&
-           totalBoundingBox.height < other.height + this.height;
-  }
-
   /**
    * Returns true if the bounding boxes overlap.
    * @param other
