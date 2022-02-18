@@ -370,7 +370,7 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
    */
   public use<T extends Graphic = Graphic>(nameOrGraphic: string | T, options?: GraphicsShowOptions): T {
     const result = this.layers.default.use<T>(nameOrGraphic, options);
-    this.recalculateBounds()
+    this.recalculateBounds();
     return result;
   }
 

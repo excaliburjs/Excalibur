@@ -1,8 +1,8 @@
-import { BodyComponent, BoundingBox, Collider, ColliderComponent, CollisionType, Color, CompositeCollider, vec, Vector } from "..";
-import { TransformComponent } from "../EntityComponentSystem/Components/TransformComponent";
-import { Entity } from "../EntityComponentSystem/Entity";
-import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from "../Graphics";
-import { IsometricEntityComponent } from "./IsometricEntityComponent";
+import { BodyComponent, BoundingBox, Collider, ColliderComponent, CollisionType, Color, CompositeCollider, vec, Vector } from '..';
+import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
+import { Entity } from '../EntityComponentSystem/Entity';
+import { DebugGraphicsComponent, ExcaliburGraphicsContext, Graphic, GraphicsComponent } from '../Graphics';
+import { IsometricEntityComponent } from './IsometricEntityComponent';
 
 export class Tile extends Entity {
   /**
@@ -11,7 +11,7 @@ export class Tile extends Entity {
   public solid: boolean = false;
 
   private _graphicsBounds = new BoundingBox();
-  private _graphics: Graphic[] = []
+  private _graphics: Graphic[] = [];
   private _gfx: GraphicsComponent;
   /**
    * Tile graphics
@@ -28,7 +28,7 @@ export class Tile extends Entity {
 
   private _recalculateBounds(): BoundingBox {
     let bounds = new BoundingBox();
-    for (let graphic of this._graphics) {
+    for (const graphic of this._graphics) {
       const offset = vec(
         this.map.graphicsOffset.x - this.map.tileWidth / 2,
         this.map.graphicsOffset.y - (this.map.renderFromTopOfGraphic ? 0 : (graphic.height - this.map.tileHeight)));
@@ -98,9 +98,9 @@ export class Tile extends Entity {
     const halfTileHeight = this.map.tileHeight / 2;
     // See https://clintbellanger.net/articles/isometric_math/ for formula
     // The x position shifts left with every y step
-    let xPos = (this.x - this.y) * halfTileWidth;
+    const xPos = (this.x - this.y) * halfTileWidth;
     // The y position needs to go down with every x step
-    let yPos = (this.x + this.y) * halfTileHeight;
+    const yPos = (this.x + this.y) * halfTileHeight;
     this._transform.pos = vec(xPos, yPos);
     this._isometricEntityComponent.elevation = 0;
     this._isometricEntityComponent.map = map;
@@ -125,7 +125,10 @@ export class Tile extends Entity {
     // shift left origin to corner of map, not the left corner of the first sprite
     gfx.translate(-halfTileWidth, 0);
     for (const graphic of this._graphics) {
-      graphic.draw(gfx, this.map.graphicsOffset.x, this.map.graphicsOffset.y - (this.map.renderFromTopOfGraphic ? 0 : (graphic.height - this.map.tileHeight)));
+      graphic.draw(
+        gfx,
+        this.map.graphicsOffset.x,
+        this.map.graphicsOffset.y - (this.map.renderFromTopOfGraphic ? 0 : (graphic.height - this.map.tileHeight)));
     }
     gfx.restore();
   }
@@ -149,7 +152,8 @@ export interface IsometricMapOptions {
    */
   graphicsOffset?: Vector;
   /**
-   * Optionally specify additional padding to the graphics bounds to prevent offscreen culling, may be needed if your art assets reach outside the grid.
+   * Optionally specify additional padding to the graphics bounds to prevent offscreen culling,
+   * may be needed if your art assets reach outside the grid.
    */
   graphicsBoundsPadding?: Vector;
   /**
@@ -265,7 +269,7 @@ export class IsometricMap extends Entity {
 
   /**
    * Convert world space coordinates to the tile x, y coordinate
-   * @param worldCoordinate 
+   * @param worldCoordinate
    */
   public worldToTile(worldCoordinate: Vector): Vector {
     worldCoordinate = worldCoordinate.sub(this.transform.globalPos);
@@ -274,13 +278,13 @@ export class IsometricMap extends Entity {
     const halfTileHeight = this.tileHeight / 2;
     // See https://clintbellanger.net/articles/isometric_math/ for formula
     return vec(
-        (worldCoordinate.x / halfTileWidth + (worldCoordinate.y / halfTileHeight)) / 2,
-        (worldCoordinate.y / halfTileHeight - (worldCoordinate.x / halfTileWidth)) / 2);
+      (worldCoordinate.x / halfTileWidth + (worldCoordinate.y / halfTileHeight)) / 2,
+      (worldCoordinate.y / halfTileHeight - (worldCoordinate.x / halfTileWidth)) / 2);
   }
 
   /**
    * Given a tile coordinate, return the top left corner in world space
-   * @param tileCoordinate 
+   * @param tileCoordinate
    */
   public tileToWorld(tileCoordinate: Vector): Vector {
     const halfTileWidth = this.tileWidth / 2;
@@ -300,7 +304,7 @@ export class IsometricMap extends Entity {
 
     for (let y = 0; y < this.height + 1; y++) {
       const left = this.tileToWorld(vec(0, y));
-      const right = this.tileToWorld(vec(this.width, y))
+      const right = this.tileToWorld(vec(this.width, y));
       gfx.drawLine(left, right, Color.Red, 2);
     }
 
@@ -310,7 +314,7 @@ export class IsometricMap extends Entity {
       gfx.drawLine(top, bottom, Color.Red, 2);
     }
 
-    for (let tile of this.tiles) {
+    for (const tile of this.tiles) {
       gfx.drawCircle(this.tileToWorld(vec(tile.x, tile.y)), 3, Color.Yellow);
     }
   }

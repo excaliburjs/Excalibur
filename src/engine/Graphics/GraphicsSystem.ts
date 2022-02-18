@@ -30,12 +30,12 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   private _zHasChanged = false;
   private _zIndexUpdate = () => {
     this._zHasChanged = true;
-  }
+  };
 
   public preupdate(): void {
     if (this._zHasChanged) {
       this._sortedTransforms.sort((a, b) => {
-        return a.z - b.z
+        return a.z - b.z;
       });
       this._zHasChanged = false;
     }

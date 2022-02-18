@@ -1,17 +1,17 @@
-import { GraphicsComponent } from "./GraphicsComponent";
-import { EnterViewPortEvent, ExitViewPortEvent, } from "../Events";
-import { Scene } from "../Scene";
-import { Entity } from "../EntityComponentSystem/Entity";
-import { TransformComponent, CoordPlane } from "../EntityComponentSystem/Components/TransformComponent";
-import { Camera } from "../Camera";
-import { System, SystemType } from "../EntityComponentSystem/System"
+import { GraphicsComponent } from './GraphicsComponent';
+import { EnterViewPortEvent, ExitViewPortEvent } from '../Events';
+import { Scene } from '../Scene';
+import { Entity } from '../EntityComponentSystem/Entity';
+import { TransformComponent, CoordPlane } from '../EntityComponentSystem/Components/TransformComponent';
+import { Camera } from '../Camera';
+import { System, SystemType } from '../EntityComponentSystem/System';
 
 export class OffscreenSystem extends System<TransformComponent | GraphicsComponent> {
-  public readonly types = ["ex.transform", "ex.graphics"] as const;
+  public readonly types = ['ex.transform', 'ex.graphics'] as const;
   public systemType = SystemType.Draw;
   priority: number = -1;
   private _camera: Camera;
-  
+
   public initialize(scene: Scene): void {
     this._camera = scene.camera;
   }

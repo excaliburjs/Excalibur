@@ -285,7 +285,7 @@ export class BoundingBox {
   public overlaps(other: BoundingBox): boolean {
     const totalBoundingBox = this.combine(other);
     return totalBoundingBox.width < other.width + this.width &&
-           totalBoundingBox.height < other.height + this.height
+           totalBoundingBox.height < other.height + this.height;
   }
 
   /**

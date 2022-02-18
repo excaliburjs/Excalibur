@@ -1,8 +1,8 @@
-import { Component } from "../EntityComponentSystem/Component";
+import { Component } from '../EntityComponentSystem/Component';
 import { IsometricMap } from './IsometricMap';
 
 export class IsometricEntityComponent extends Component<'ex.isometricentity'> {
-  public readonly type = "ex.isometricentity";
+  public readonly type = 'ex.isometricentity';
   /**
    * Vertical "height" in the isometric world
    */
