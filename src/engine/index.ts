@@ -28,7 +28,7 @@ export { Particle, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterTy
 export * from './Collision/Physics';
 export * from './Scene';
 
-export * from './TileMap';
+export * from './TileMap/index';
 
 export * from './Timer';
 export * from './Trigger';
