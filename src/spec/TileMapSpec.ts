@@ -222,6 +222,15 @@ describe('A TileMap', () => {
     expect(tile.x).toBe(19);
     expect(tile.y).toBe(19);
     expect(tile.pos).toBeVector(ex.vec(19 * 64 - 100, 19 * 48 - 100));
+
+    const nullTile = sut.getTile(20, 20);
+    expect(nullTile).toBeNull();
+
+    expect(sut.getTileByPoint(ex.vec(19 * 64 - 100, 19 * 48 - 100)).x).toBe(19);
+    expect(sut.getTileByPoint(ex.vec(19 * 64 - 100, 19 * 48 - 100)).y).toBe(19);
+    expect(sut.getTileByPoint(ex.vec(19 * 64, 19 * 48))).toBeNull();
+
+    expect(sut.getTileByIndex(20 * 20 - 1)).toBe(tile);
   });
 
   describe('with an actor', () => {

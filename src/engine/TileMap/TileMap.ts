@@ -341,14 +341,6 @@ export class TileMap extends Entity {
     return this._cols;
   }
 
-  public onPreUpdate(_engine: Engine, _delta: number) {
-    // Override me
-  }
-
-  public onPostUpdate(_engine: Engine, _delta: number) {
-    // Override me
-  }
-
   public update(engine: Engine, delta: number) {
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
@@ -385,12 +377,12 @@ export class TileMap extends Entity {
     let y = this._onScreenYStart;
     const yEnd = Math.min(this._onScreenYEnd, this.height);
 
-    let graphics: Graphics.Graphic[], graphicsIndex: number, graphicsLen: number;
+    let graphics: readonly Graphics.Graphic[], graphicsIndex: number, graphicsLen: number;
 
     for (x; x < xEnd; x++) {
       for (y; y < yEnd; y++) {
         // get non-negative tile sprites
-        graphics = this.getTile(x, y).graphics;
+        graphics = this.getTile(x, y).getGraphics();
 
         for (graphicsIndex = 0, graphicsLen = graphics.length; graphicsIndex < graphicsLen; graphicsIndex++) {
           // draw sprite, warning if sprite doesn't exist
@@ -522,10 +514,41 @@ export class Tile extends Entity {
     this.map?.flagDirty();
     this._solid = val;
   }
+
+  private _graphics: Graphics.Graphic[] = [];
+
   /**
    * Current list of graphics for this tile
    */
-  public readonly graphics: Graphics.Graphic[] = [];
+  public getGraphics(): readonly Graphics.Graphic[] {
+    return this._graphics;
+  }
+
+  /**
+   * Add another [[Graphic]] to this TileMap tile
+   * @param graphic
+   */
+  public addGraphic(graphic: Graphics.Graphic | LegacySprite) {
+    if (graphic instanceof LegacySprite) {
+      this._graphics.push(Graphics.Sprite.fromLegacySprite(graphic));
+    } else {
+      this._graphics.push(graphic);
+    }
+  }
+
+  /**
+   * Remove an instance of a [[Graphic]] from this tile
+   */
+  public removeGraphic(graphic: Graphics.Graphic | LegacySprite) {
+    removeItemFromArray(graphic, this._graphics);
+  }
+
+  /**
+   * Clear all graphics from this tile
+   */
+  public clearGraphics() {
+    this._graphics.length = 0;
+  }
 
   /**
    * Current list of colliders for this tile
@@ -545,7 +568,7 @@ export class Tile extends Entity {
     this.width = options.map.tileWidth;
     this.height = options.map.tileHeight;
     this.solid = options.solid ?? this.solid;
-    this.graphics = options.graphics ?? [];
+    this._graphics = options.graphics ?? [];
     this._recalculate();
     this._transform = options.map.get(TransformComponent);
     this._transform.posChanged$.subscribe(() => {
@@ -580,31 +603,5 @@ export class Tile extends Entity {
   @obsolete({ message: 'Will be removed in v0.26.0', alternateMethod: 'addSprite' })
   public pushSprite(sprite: Graphics.Sprite | LegacySprite) {
     this.addGraphic(sprite);
-  }
-
-  /**
-   * Add another [[Graphic]] to this TileMap tile
-   * @param graphic
-   */
-  public addGraphic(graphic: Graphics.Graphic | LegacySprite) {
-    if (graphic instanceof LegacySprite) {
-      this.graphics.push(Graphics.Sprite.fromLegacySprite(graphic));
-    } else {
-      this.graphics.push(graphic);
-    }
-  }
-
-  /**
-   * Remove an instance of a [[Graphic]] from this tile
-   */
-  public removeGraphic(graphic: Graphics.Graphic | LegacySprite) {
-    removeItemFromArray(graphic, this.graphics);
-  }
-
-  /**
-   * Clear all graphics from this tile
-   */
-  public clearGraphics() {
-    this.graphics.length = 0;
   }
 }
