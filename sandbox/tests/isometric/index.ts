@@ -22,7 +22,6 @@ var isoMap = new ex.IsometricMap({
   name: 'Isometric Tile Map',
   pos: ex.vec(300, 100),
   renderFromTopOfGraphic: true,
-  graphicsBoundsPadding: ex.vec(0, 64),
   tileWidth: 111,
   tileHeight: 64,
   width: 3,
