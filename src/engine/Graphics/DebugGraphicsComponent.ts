@@ -10,7 +10,7 @@ import { Component } from '../EntityComponentSystem/Component';
  */
 export class DebugGraphicsComponent extends Component<'ex.debuggraphics'> {
   readonly type = 'ex.debuggraphics';
-  constructor(public draw: (ctx: ExcaliburGraphicsContext) => void) {
+  constructor(public draw: (ctx: ExcaliburGraphicsContext) => void, public useTransform = true) {
     super();
   }
 }

@@ -311,7 +311,7 @@ export class TileMap extends Entity {
     return this.tiles[index];
   }
   /**
-   * Returns the [[Tile]] by its x and y coordinates
+   * Returns the [[Tile]] by its x and y integer coordinates
    */
   public getTile(x: number, y: number): Tile {
     if (x < 0 || y < 0 || x >= this.width || y >= this.height) {
@@ -323,9 +323,9 @@ export class TileMap extends Entity {
    * Returns the [[Tile]] by testing a point in world coordinates,
    * returns `null` if no Tile was found.
    */
-  public getTileByPoint(x: number, y: number): Tile {
-    x = Math.floor((x - this.pos.x) / this.tileWidth);
-    y = Math.floor((y - this.pos.y) / this.tileHeight);
+  public getTileByPoint(point: Vector): Tile {
+    const x = Math.floor((point.x - this.pos.x) / this.tileWidth);
+    const y = Math.floor((point.y - this.pos.y) / this.tileHeight);
     const tile = this.getTile(x, y);
     if (x >= 0 && y >= 0 && x < this.width && y < this.height && tile) {
       return tile;

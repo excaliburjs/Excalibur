@@ -45,6 +45,13 @@ export class BoundingBox {
   }
 
   /**
+   * Returns a new instance of [[BoundingBox]] that is a copy of the current instance
+   */
+  public clone(): BoundingBox {
+    return new BoundingBox(this.left, this.top, this.right, this.bottom);
+  }
+
+  /**
    * Given bounding box A & B, returns the side relative to A when intersection is performed.
    * @param intersection Intersection vector between 2 bounding boxes
    */

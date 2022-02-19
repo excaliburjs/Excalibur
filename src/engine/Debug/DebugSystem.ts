@@ -141,7 +141,14 @@ export class DebugSystem extends System<TransformComponent> {
 
       debugDraw = entity.get(DebugGraphicsComponent);
       if (debugDraw) {
+        if (!debugDraw.useTransform) {
+          this._graphicsContext.restore();
+        }
         debugDraw.draw(this._graphicsContext);
+        if (!debugDraw.useTransform) {
+          this._graphicsContext.save();
+          this._applyTransform(entity);
+        }
       }
 
       body = entity.get(BodyComponent);

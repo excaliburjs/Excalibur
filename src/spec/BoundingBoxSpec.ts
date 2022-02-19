@@ -32,6 +32,19 @@ describe('A Bounding Box', function () {
     expect(zero.hasZeroDimensions()).withContext('zero width/height bb should have zero dimensions').toBe(true);
   });
 
+  it('can be cloned', () => {
+    const bb = new ex.BoundingBox({
+      left: 12,
+      right: 34,
+      top: 0,
+      bottom: 100
+    });
+
+    const sut = bb.clone();
+    expect(sut).toEqual(bb);
+    expect(sut).not.toBe(bb);
+  });
+
   /**
    *
    */
