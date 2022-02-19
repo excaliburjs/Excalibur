@@ -208,6 +208,22 @@ describe('A TileMap', () => {
     await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapCulling.png');
   });
 
+  it('can return a tile by xy coord', () => {
+    const sut = new ex.TileMap({
+      pos: ex.vec(-100, -100),
+      tileWidth: 64,
+      tileHeight: 48,
+      height: 20,
+      width: 20
+    });
+
+    expect(sut.pos).toBeVector(ex.vec(-100, -100));
+    const tile = sut.getTile(19, 19);
+    expect(tile.x).toBe(19);
+    expect(tile.y).toBe(19);
+    expect(tile.pos).toBeVector(ex.vec(19 * 64 - 100, 19 * 48 - 100));
+  });
+
   describe('with an actor', () => {
     let tm: ex.TileMap;
     beforeEach(() => {
