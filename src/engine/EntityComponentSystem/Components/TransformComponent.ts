@@ -150,9 +150,12 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
   }
 
   public set pos(val: Vector) {
+    const oldPos = this.matrix.getPosition();
     this.matrix.setPosition(val.x, val.y);
     this._dirty = true;
-    this.posChanged$.notifyAll(this._position);
+    if (!oldPos.equals(val)) {
+      this.posChanged$.notifyAll(this._position);
+    }
   }
 
   // Dirty flag check up the chain
@@ -173,32 +176,42 @@ export class TransformComponent extends Component<'ex.transform'> implements Tra
       getX: () => source.data[MatrixLocations.X],
       getY: () => source.data[MatrixLocations.Y],
       setX: (x) => {
+        const oldX = this.matrix.data[MatrixLocations.X];
         if (this.parent) {
           const { x: newX } = this.parent?.getGlobalMatrix().getAffineInverse().multiply(vec(x, source.data[MatrixLocations.Y]));
           this.matrix.data[MatrixLocations.X] = newX;
         } else {
           this.matrix.data[MatrixLocations.X] = x;
         }
-        this.posChanged$.notifyAll(this._position);
+        if (oldX !== this.matrix.data[MatrixLocations.X]) {
+          this.posChanged$.notifyAll(this._position);
+        }
       },
       setY: (y) => {
+        const oldY = this.matrix.data[MatrixLocations.Y];
         if (this.parent) {
           const { y: newY } = this.parent?.getGlobalMatrix().getAffineInverse().multiply(vec(source.data[MatrixLocations.X], y));
           this.matrix.data[MatrixLocations.Y] = newY;
         } else {
           this.matrix.data[MatrixLocations.Y] = y;
         }
-        this.posChanged$.notifyAll(this._position);
+        if (oldY !== this.matrix.data[MatrixLocations.Y]) {
+          this.posChanged$.notifyAll(this._position);
+        }
       }
     });
   }
 
   public set globalPos(val: Vector) {
+    const oldPos = this.pos;
     const parentTransform = this.parent;
     if (!parentTransform) {
       this.pos = val;
     } else {
       this.pos = parentTransform.getGlobalMatrix().getAffineInverse().multiply(val);
+    }
+    if (!oldPos.equals(val)) {
+      this.posChanged$.notifyAll(this.pos);
     }
   }
 

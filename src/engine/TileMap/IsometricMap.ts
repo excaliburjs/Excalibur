@@ -322,15 +322,25 @@ export class IsometricMap extends Entity {
     this._collidersDirty = true;
   }
 
+  private _originalOffsets = new WeakMap<Collider, Vector>();
+  private _getOrSetColliderOriginalOffset(collider: Collider): Vector {
+    if (!this._originalOffsets.has(collider)) {
+      const originalOffset = collider.offset;
+      this._originalOffsets.set(collider, originalOffset);
+      return originalOffset;
+    } else {
+      return this._originalOffsets.get(collider);
+    }
+  }
   public updateColliders() {
     this._composite.clearColliders();
     for (const tile of this.tiles) {
       if (tile.solid) {
         for (const collider of tile.getColliders()) {
-          // TODO this might be wrong now
+          const originalOffset = this._getOrSetColliderOriginalOffset(collider);
           collider.offset = this.tileToWorld(vec(tile.x, tile.y))
-            .add(collider.offset)
-            .sub(vec(this.tileWidth / 2, this.tileHeight)); // TODO we need to unshift based on drawing
+            .add(originalOffset)
+            .sub(vec(this.tileWidth / 2, this.tileHeight)); // We need to unshift height based on drawing
           collider.owner = this;
           this._composite.addCollider(collider);
         }

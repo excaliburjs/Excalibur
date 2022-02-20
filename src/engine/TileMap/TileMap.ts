@@ -241,6 +241,16 @@ export class TileMap extends Entity {
     }
   }
 
+  private _originalOffsets = new WeakMap<Collider, Vector>();
+  private _getOrSetColliderOriginalOffset(collider: Collider): Vector {
+    if (!this._originalOffsets.has(collider)) {
+      const originalOffset = collider.offset;
+      this._originalOffsets.set(collider, originalOffset);
+      return originalOffset;
+    } else {
+      return this._originalOffsets.get(collider);
+    }
+  }
   /**
    * Tiles colliders based on the solid tiles in the tilemap.
    */
@@ -263,7 +273,8 @@ export class TileMap extends Entity {
           // Use custom collider otherwise bounding box
           if (tile.getColliders().length > 0) {
             for (const collider of tile.getColliders()) {
-              collider.offset = tile.pos.add(collider.offset);
+              const originalOffset = this._getOrSetColliderOriginalOffset(collider);
+              collider.offset = vec(tile.x * this.tileWidth, tile.y * this.tileHeight).add(originalOffset);
               collider.owner = this;
               this._composite.addCollider(collider);
             }
