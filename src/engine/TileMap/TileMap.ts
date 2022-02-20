@@ -73,9 +73,9 @@ export class TileMap extends Entity {
   public readonly height: number;
   public readonly width: number;
 
-  private _dirty = true;
-  public flagDirty() {
-    this._dirty = true;
+  private _collidersDirty = true;
+  public flagCollidersDirty() {
+    this._collidersDirty = true;
   }
   private _transform: TransformComponent;
   private _motion: MotionComponent;
@@ -184,7 +184,7 @@ export class TileMap extends Entity {
     this._composite = this._collider.useCompositeCollider([]);
 
     this._transform.pos = options.pos ?? Vector.Zero;
-    this._transform.posChanged$.subscribe(() => this.flagDirty());
+    this._transform.posChanged$.subscribe(() => this.flagCollidersDirty());
     this.tileWidth = options.tileWidth;
     this.tileHeight = options.tileHeight;
     this.height = options.height;
@@ -261,8 +261,8 @@ export class TileMap extends Entity {
         // Current tile in column is solid build up current collider
         if (tile.solid) {
           // Use custom collider otherwise bounding box
-          if (tile.colliders.length > 0) {
-            for (const collider of tile.colliders) {
+          if (tile.getColliders().length > 0) {
+            for (const collider of tile.getColliders()) {
               collider.offset = tile.pos.add(collider.offset);
               collider.owner = this;
               this._composite.addCollider(collider);
@@ -344,8 +344,8 @@ export class TileMap extends Entity {
   public update(engine: Engine, delta: number) {
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
-    if (this._dirty) {
-      this._dirty = false;
+    if (this._collidersDirty) {
+      this._collidersDirty = false;
       this._updateColliders();
     }
 
@@ -511,7 +511,7 @@ export class Tile extends Entity {
    * Wether this tile should be treated as solid by the tilemap
    */
   public set solid(val: boolean) {
-    this.map?.flagDirty();
+    this.map?.flagCollidersDirty();
     this._solid = val;
   }
 
@@ -553,7 +553,47 @@ export class Tile extends Entity {
   /**
    * Current list of colliders for this tile
    */
-  public colliders: Collider[] = [];
+  private _colliders: Collider[] = [];
+
+  /**
+   * Returns the list of colliders
+   */
+  public getColliders(): readonly Collider[] {
+    return this._colliders;
+  }
+
+  /**
+   * Adds a custom collider to the [[Tile]] to use instead of it's bounds
+   *
+   * If no collider is set but [[Tile.solid]] is set, the tile bounds are used as a collider.
+   *
+   * **Note!** the [[Tile.solid]] must be set to true for it to act as a "fixed" collider
+   * @param collider
+   */
+  public addCollider(collider: Collider) {
+    this._colliders.push(collider);
+    this.map.flagCollidersDirty();
+  }
+
+  /**
+   * Removes a collider from the [[Tile]]
+   * @param collider
+   */
+  public removeCollider(collider: Collider) {
+    const index = this._colliders.indexOf(collider);
+    if (index > -1) {
+      this._colliders.splice(index, 1);
+    }
+    this.map.flagCollidersDirty();
+  }
+
+  /**
+   * Clears all colliders from the [[Tile]]
+   */
+  public clearColliders() {
+    this._colliders.length = 0;
+    this.map.flagCollidersDirty();
+  }
 
   /**
    * Arbitrary data storage per tile, useful for any game specific data

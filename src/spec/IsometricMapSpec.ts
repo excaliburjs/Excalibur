@@ -187,6 +187,19 @@ describe('A IsometricMap', () => {
     expect(sut.tileToWorld(ex.vec(0, 14))).toBeVector(ex.vec(26, 122));
   });
 
+  it('can find the center of an isometric tile', () => {
+    const sut = new ex.IsometricMap({
+      pos: ex.vec(250, 10),
+      tileWidth: 32,
+      tileHeight: 16,
+      width: 15,
+      height: 15
+    });
+
+    const tile = sut.getTile(0, 0);
+    expect(tile.center).toBeVector(ex.vec(250, 10 + 8));
+  });
+
   it('can update colliders', () => {
     const sut = new ex.IsometricMap({
       pos: ex.vec(250, 10),
@@ -200,7 +213,7 @@ describe('A IsometricMap', () => {
 
     const collider = sut.collider.get() as ex.CompositeCollider;
     expect(collider.getColliders()).toEqual([]);
-
+    sut.tiles[0].solid = true;
     sut.tiles[0].addCollider(ex.Shape.Box(10, 10));
 
     sut.update();

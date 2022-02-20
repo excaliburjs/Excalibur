@@ -233,6 +233,101 @@ describe('A TileMap', () => {
     expect(sut.getTileByIndex(20 * 20 - 1)).toBe(tile);
   });
 
+  it('can add and remove graphics on a tile', async () => {
+    const image = new ex.ImageSource('src/spec/images/TileMapSpec/Blocks.png');
+    await image.load();
+    const sprite = image.toSprite();
+    const sut = new ex.TileMap({
+      pos: ex.vec(0, 0),
+      tileWidth: 64,
+      tileHeight: 48,
+      height: 20,
+      width: 20
+    });
+    const tile = sut.getTile(0, 0);
+
+    tile.addGraphic(sprite);
+    tile.addGraphic(sprite.clone());
+
+    expect(tile.getGraphics().length).toBe(2);
+
+    tile.removeGraphic(sprite);
+
+    expect(tile.getGraphics().length).toBe(1);
+
+    tile.clearGraphics();
+
+    expect(tile.getGraphics().length).toBe(0);
+  });
+
+  it('can add and remove colliders on a tile', () => {
+    const engine = TestUtils.engine();
+    const sut = new ex.TileMap({
+      pos: ex.vec(0, 0),
+      tileWidth: 64,
+      tileHeight: 48,
+      height: 20,
+      width: 20
+    });
+
+
+    const tile = sut.getTile(0, 0);
+    tile.solid = true;
+
+    const box = ex.Shape.Box(10, 10);
+
+    tile.addCollider(box);
+    tile.addCollider(box.clone());
+    sut.update(engine, 0);
+    const tileMapCollider = sut.get(ColliderComponent).get() as ex.CompositeCollider;
+
+    expect(tile.getColliders().length).toBe(2);
+    expect(tileMapCollider.getColliders().length).toBe(2);
+
+    tile.removeCollider(box);
+
+    expect(tile.getColliders().length).toBe(1);
+
+    tile.clearColliders();
+    tile.solid = false;
+    sut.update(engine, 0);
+
+    expect(tile.getColliders().length).toBe(0);
+    const tileMapCollider2 = sut.get(ColliderComponent).get() as ex.CompositeCollider;
+    expect(tileMapCollider2.getColliders().length).toBe(0);
+  });
+
+  it('can get the bounds of a tile', () => {
+    const sut = new ex.TileMap({
+      pos: ex.vec(100, 100),
+      tileWidth: 64,
+      tileHeight: 48,
+      height: 20,
+      width: 20
+    });
+
+    const tile = sut.getTile(0, 0);
+    expect(tile.bounds).toEqual(new ex.BoundingBox({
+      left: 100,
+      top: 100,
+      right: 164,
+      bottom: 148
+    }));
+  });
+
+  it('can get the center of a tile', () => {
+    const sut = new ex.TileMap({
+      pos: ex.vec(100, 100),
+      tileWidth: 64,
+      tileHeight: 48,
+      height: 20,
+      width: 20
+    });
+
+    const tile = sut.getTile(0, 0);
+    expect(tile.center).toBeVector(ex.vec(132, 124));
+  });
+
   describe('with an actor', () => {
     let tm: ex.TileMap;
     beforeEach(() => {

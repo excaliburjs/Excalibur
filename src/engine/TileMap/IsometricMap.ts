@@ -58,11 +58,21 @@ export class IsometricTile extends Entity {
     return this._colliders;
   }
 
+  /**
+   * Adds a collider to the IsometricTile
+   *
+   * **Note!** the [[Tile.solid]] must be set to true for it to act as a "fixed" collider
+   * @param collider
+   */
   public addCollider(collider: Collider) {
     this._colliders.push(collider);
     this.map.flagCollidersDirty();
   }
 
+  /**
+   * Removes a collider from the IsometricTile
+   * @param collider
+   */
   public removeCollider(collider: Collider) {
     const index = this._colliders.indexOf(collider);
     if (index > -1) {
@@ -71,6 +81,9 @@ export class IsometricTile extends Entity {
     this.map.flagCollidersDirty();
   }
 
+  /**
+   * Clears all colliders from the IsometricTile
+   */
   public clearColliders(): void {
     this._colliders.length = 0;
     this.map.flagCollidersDirty();
@@ -93,10 +106,17 @@ export class IsometricTile extends Entity {
   private _isometricEntityComponent: IsometricEntityComponent;
 
   /**
-   * Returns the top left corner of the Tile in world space
+   * Returns the top left corner of the [[IsometricTile]] in world space
    */
   public get pos(): Vector {
     return this.map.tileToWorld(vec(this.x, this.y));
+  }
+
+  /**
+   * Returns the center of the [[IsometricTile]]
+   */
+  public get center(): Vector {
+    return this.pos.add(vec(0, this.map.tileHeight / 2));
   }
 
   /**
@@ -306,13 +326,15 @@ export class IsometricMap extends Entity {
   public updateColliders() {
     this._composite.clearColliders();
     for (const tile of this.tiles) {
-      for (const collider of tile.getColliders()) {
-        // TODO this might be wrong now
-        collider.offset = this.tileToWorld(vec(tile.x, tile.y))
-          .add(collider.offset)
-          .sub(vec(this.tileWidth / 2, this.tileHeight)); // TODO we need to unshift based on drawing
-        collider.owner = this;
-        this._composite.addCollider(collider);
+      if (tile.solid) {
+        for (const collider of tile.getColliders()) {
+          // TODO this might be wrong now
+          collider.offset = this.tileToWorld(vec(tile.x, tile.y))
+            .add(collider.offset)
+            .sub(vec(this.tileWidth / 2, this.tileHeight)); // TODO we need to unshift based on drawing
+          collider.owner = this;
+          this._composite.addCollider(collider);
+        }
       }
     }
     this.collider.update();
