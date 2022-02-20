@@ -8,11 +8,14 @@ export class IsometricEntityComponent extends Component<'ex.isometricentity'> {
    */
   public elevation: number = 0;
 
+  public map: IsometricMap;
+
   /**
    * Specify the isometric map to use to position this entity's z-index
-   * @param map 
+   * @param map
    */
-  constructor(public map: IsometricMap) {
+  constructor(map: IsometricMap) {
     super();
+    this.map = map;
   }
 }
