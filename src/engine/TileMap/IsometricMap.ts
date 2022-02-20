@@ -133,7 +133,7 @@ export class IsometricTile extends Entity {
         offset: graphicsOffset ?? Vector.Zero,
         onPostDraw: (gfx, elapsed) => this.draw(gfx, elapsed)
       }),
-      new IsometricEntityComponent()
+      new IsometricEntityComponent(map)
     ]);
     this.x = x;
     this.y = y;
@@ -150,7 +150,6 @@ export class IsometricTile extends Entity {
     const yPos = (this.x + this.y) * halfTileHeight;
     this._transform.pos = vec(xPos, yPos);
     this._isometricEntityComponent.elevation = 0;
-    this._isometricEntityComponent.map = map;
 
     this._gfx = this.get(GraphicsComponent);
     this._gfx.visible = false; // start not visible

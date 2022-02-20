@@ -7,13 +7,51 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
--
+- `ex.TileMap` has several breaking changes around naming, but brings it consistent with Tiled terminology and the new `ex.IsometricMap`. Additionally the new names are easier to follow.
+  - Constructor has been changed to the following
+    ```typescript
+     new ex.TileMap({
+      pos: ex.vec(100, 100),
+      tileWidth: 64,
+      tileHeight: 48,
+      height: 20,
+      width: 20
+    });
+    ```
+  - `ex.Cell` has been renamed to `ex.Tile`
+    - `ex.Tile` now uses `addGraphic(...)`, `removeGraphic(...)`, `clearGraphics()` and `getGraphics()` instead of having an accessible `ex.Tile.graphics` array.
+  - `ex.TileMap.data` has been renamed to `ex.TileMap.tiles`
+  - `ex.TileMap.getCell(..)` has been renamed to `ex.TileMap.getTile(...)`
+  - `ex.TileMap.getCellByIndex(...)` has been renamed to `ex.TileMap.getTileByIndex(...)`
+  - `ex.TileMap.getCellByPoint(...)` has been renamed to `ex.TileMap.getTileByPoint(...)`
+
 
 ### Deprecated
 
 -
 
 ### Added
+
+
+- `ex.TileMap` now supports per Tile custom colliders!
+  ```typescript
+  const tileMap = new ex.TileMap(...);
+  const tile = tileMap.getTile(0, 0);
+  tile.solid = true;
+  tile.addCollider(...); // add your custom collider!
+  ```
+- New `ex.IsometricMap` for drawing isometric grids! (They also support custom colliders via the same mechanism as `ex.TileMap`)
+  ```typescript
+  new ex.IsometricMap({
+      pos: ex.vec(250, 10),
+      tileWidth: 32,
+      tileHeight: 16,
+      width: 15,
+      height: 15
+    });
+  ```
+  - `ex.IsometricTile` now come with a `ex.IsometricEntityComponent` which can be applied to any entity that needs to be correctly sorted to preserve the isometric illusion
+  - `ex.IsometricEntitySystem` generates a new z-index based on the `elevation` and y position of an entity with `ex.IsometricEntityComponent`
 
 - Added arbitrary non-convex polygon support (only non-self intersecting) with `ex.PolygonCollider(...).triangulate()` which builds a new `ex.CompositeCollider` composed of triangles.
 - Added faster `ex.BoundingBox.transform(...)` implementation.
@@ -27,10 +65,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Updates
 
--
+- Performance improvement to GraphicsSystem
 
 ### Changed
 
+- Split offscreen detection into a separate system
 - Renamed `ex.Matrix.multv()` and `ex.Matrix.multm()` to `ex.Matrix.multiply()` which matches our naming conventions
 
 <!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
