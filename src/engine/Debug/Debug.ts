@@ -260,6 +260,8 @@ export class Debug implements DebugFlags {
     showPositionLabel: false,
     positionColor: Color.Yellow,
 
+    showZIndex: false,
+
     showScale: false,
     scaleColor: Color.Green,
 

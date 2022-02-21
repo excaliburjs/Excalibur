@@ -837,6 +837,8 @@ O|===|* >________________>\n\
    */
   public add(actor: Actor): void;
 
+  public add(entity: Entity): void;
+
   /**
    * Adds a [[ScreenElement]] to the [[currentScene]] of the game,
    * ScreenElements do not participate in collisions, instead the

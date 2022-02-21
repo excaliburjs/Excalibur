@@ -51,4 +51,16 @@ export namespace TestUtils {
       await engine.isReady();
     }
   }
+
+  /**
+   *
+   */
+  export function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
+    const canvas = document.createElement('canvas');
+    canvas.width = source.width;
+    canvas.height = source.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(source, 0, 0);
+    return canvas;
+  }
 }

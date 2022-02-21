@@ -143,9 +143,8 @@ export class PolygonCollider extends Collider {
       throw Error('Invalid polygon');
     }
 
-    // Helper to get a vertex in the list
     /**
-     *
+     * Helper to get a vertex in the list
      */
     function getItem<T>(index: number, list: T[]) {
       if (index >= list.length) {
@@ -157,9 +156,8 @@ export class PolygonCollider extends Collider {
       }
     }
 
-    // Quick test for point in triangle
     /**
-     *
+     * Quick test for point in triangle
      */
     function isPointInTriangle(point: Vector, a: Vector, b: Vector, c: Vector) {
       const ab = b.sub(a);

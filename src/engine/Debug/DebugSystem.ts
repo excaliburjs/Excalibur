@@ -100,6 +100,10 @@ export class DebugSystem extends System<TransformComponent> {
           this._graphicsContext.debug.drawText(`pos${tx.pos.toString(2)}`, cursor);
           cursor = cursor.add(lineHeight);
         }
+        if (txSettings.showAll || txSettings.showZIndex) {
+          this._graphicsContext.debug.drawText(`z(${tx.z.toFixed(1)})`, cursor);
+          cursor = cursor.add(lineHeight);
+        }
 
         if (entitySettings.showAll || entitySettings.showId) {
           this._graphicsContext.debug.drawText(`id(${id}) ${tx.parent ? 'child of id(' + tx.parent?.owner?.id + ')' : ''}`, cursor);
@@ -137,7 +141,14 @@ export class DebugSystem extends System<TransformComponent> {
 
       debugDraw = entity.get(DebugGraphicsComponent);
       if (debugDraw) {
+        if (!debugDraw.useTransform) {
+          this._graphicsContext.restore();
+        }
         debugDraw.draw(this._graphicsContext);
+        if (!debugDraw.useTransform) {
+          this._graphicsContext.save();
+          this._applyTransform(entity);
+        }
       }
 
       body = entity.get(BodyComponent);

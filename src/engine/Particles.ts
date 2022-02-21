@@ -13,7 +13,7 @@ import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Entity } from './EntityComponentSystem/Entity';
 import { CanvasDrawComponent } from './Drawing/Index';
 import { Sprite } from './Graphics/Sprite';
-import { LegacyDrawing } from '.';
+import { BoundingBox, LegacyDrawing } from '.';
 import { clamp, randomInRange } from './Math/util';
 
 /**
@@ -132,6 +132,7 @@ export class ParticleImpl extends Entity {
       this.graphics.opacity = this.opacity;
       this.graphics.use(Sprite.fromLegacySprite(this.particleSprite));
     } else {
+      this.graphics.localBounds = BoundingBox.fromDimension(this.particleSize, this.particleSize, Vector.Half);
       this.graphics.onPostDraw = (ctx) => {
         ctx.save();
         this.graphics.opacity = this.opacity;

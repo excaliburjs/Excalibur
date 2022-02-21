@@ -50,7 +50,7 @@ describe('A scene', () => {
   });
 
   it('cannot have the same TileMap added to it more than once', () => {
-    const tileMap = new ex.TileMap(1, 1, 1, 1, 1, 1);
+    const tileMap = new ex.TileMap({ pos: ex.vec(1, 1), tileWidth: 1, tileHeight: 1, width: 1, height: 1});
     scene.add(tileMap);
     expect(scene.tileMaps.length).toBe(1);
     scene.add(tileMap);
@@ -624,7 +624,7 @@ describe('A scene', () => {
 
   it('will update TileMaps that were added in a Timer callback', () => {
     let updated = false;
-    const tilemap = new ex.TileMap(0, 0, 1, 1, 1, 1);
+    const tilemap = new ex.TileMap({ pos: ex.vec(0, 0), tileWidth: 1, tileHeight: 1, width: 1, height: 1});
     tilemap.on('postupdate', () => {
       updated = true;
     });

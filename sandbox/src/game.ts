@@ -343,7 +343,7 @@ var tileBlockWidth = 64,
 
 // create a collision map
 // var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
-var tileMap = new ex.TileMap({ x: 100, y: 300, cellWidth: tileBlockWidth, cellHeight: tileBlockHeight, rows: 4, cols: 500 });
+var tileMap = new ex.TileMap({ pos: ex.vec(100, 300), tileWidth: tileBlockWidth, tileHeight: tileBlockHeight, height: 4, width: 500 });
 var blocks = ex.Sprite.from(imageBlocks);
 // var flipped = spriteTiles.sprites[0].clone();
 // flipped.flipVertical = true;
@@ -353,7 +353,7 @@ var blocks = ex.Sprite.from(imageBlocks);
 //     { graphic: flipped, duration: 200 }
 //   ]
 // })
-tileMap.data.forEach(function(cell: ex.Cell) {
+tileMap.tiles.forEach(function(cell: ex.Tile) {
   cell.solid = true;
   cell.addGraphic(spriteTiles.sprites[0]);
 });
@@ -784,7 +784,7 @@ var trigger = new ex.Trigger({
 game.add(trigger);
 
 game.input.pointers.primary.on('down', (evt: ex.Input.PointerEvent) => {
-  var c = tileMap.getCellByPoint(evt.worldPos.x, evt.worldPos.y);
+  var c = tileMap.getTileByPoint(evt.worldPos);
   if (c) {
     if (c.solid) {
       c.solid = false;

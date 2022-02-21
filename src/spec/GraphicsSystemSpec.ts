@@ -31,54 +31,17 @@ describe('A Graphics ECS System', () => {
     engine.currentScene._initialize(engine);
     sut.initialize(engine.currentScene);
     const es = [...entities];
-    es.sort(sut.sort);
-    expect(es).toEqual(entities.reverse());
-  });
-
-  it('decorates offscreen entities with "offscreen" tag', () => {
-    const sut = new ex.GraphicsSystem();
-    engine.currentScene.camera.update(engine, 1);
-    engine.currentScene._initialize(engine);
-    sut.initialize(engine.currentScene);
-
-    const rect = new ex.Rectangle({
-      width: 25,
-      height: 25,
-      color: ex.Color.Yellow
-    });
-
-    const offscreen = new ex.Entity([new TransformComponent(), new GraphicsComponent()]);
-
-    offscreen.get(GraphicsComponent).show(rect);
-    offscreen.get(TransformComponent).pos = ex.vec(112.5, 112.5);
-
-    const offscreenSpy = jasmine.createSpy('offscreenSpy');
-    const onscreenSpy = jasmine.createSpy('onscreenSpy');
-
-    offscreen.eventDispatcher.on('enterviewport', onscreenSpy);
-    offscreen.eventDispatcher.on('exitviewport', offscreenSpy);
-
-    // Should be offscreen
-    sut.update([offscreen], 1);
-    expect(offscreenSpy).toHaveBeenCalled();
-    expect(onscreenSpy).not.toHaveBeenCalled();
-    expect(offscreen.hasTag('offscreen')).toBeTrue();
-    offscreenSpy.calls.reset();
-    onscreenSpy.calls.reset();
-
-    // Should be onscreen
-    offscreen.get(TransformComponent).pos = ex.vec(80, 80);
-    sut.update([offscreen], 1);
-    offscreen.processComponentRemoval();
-    expect(offscreenSpy).not.toHaveBeenCalled();
-    expect(onscreenSpy).toHaveBeenCalled();
-    expect(offscreen.hasTag('offscreen')).toBeFalse();
+    es.forEach(e => sut.notify(new ex.AddedEntity(e)));
+    sut.preupdate();
+    expect(sut.sortedTransforms.map(t => t.owner)).toEqual(entities.reverse());
   });
 
   it('draws entities with transform and graphics components', async () => {
     const sut = new ex.GraphicsSystem();
+    const offscreenSystem = new ex.OffscreenSystem();
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene._initialize(engine);
+    offscreenSystem.initialize(engine.currentScene);
     sut.initialize(engine.currentScene);
 
     const rect = new ex.Rectangle({
@@ -121,7 +84,11 @@ describe('A Graphics ECS System', () => {
 
     entities.push(offscreen);
     engine.graphicsContext.clear();
+    entities.forEach(e => sut.notify(new ex.AddedEntity(e)));
 
+    offscreenSystem.update(entities);
+
+    sut.preupdate();
     sut.update(entities, 1);
 
     expect(rect.draw).toHaveBeenCalled();

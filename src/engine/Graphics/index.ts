@@ -10,6 +10,8 @@ export * from './Animation';
 export * from './GraphicsComponent';
 export * from './DebugGraphicsComponent';
 export * from './GraphicsSystem';
+export * from './OffscreenSystem';
+
 
 // Raster graphics
 export * from './Raster';

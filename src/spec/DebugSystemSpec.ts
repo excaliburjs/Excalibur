@@ -199,14 +199,13 @@ describe('DebugSystem', () => {
     engine.graphicsContext.clear();
 
     const tilemap = new ex.TileMap({
-      x: 0,
-      y: 0,
-      cellWidth: 50,
-      cellHeight: 50,
-      rows: 10,
-      cols: 10
+      pos: ex.vec(0, 0),
+      tileWidth: 50,
+      tileHeight: 50,
+      height: 10,
+      width: 10
     });
-    tilemap.data[0].solid = true;
+    tilemap.tiles[0].solid = true;
     tilemap.update(engine, 1);
     debugSystem.update([tilemap], 100);
 
