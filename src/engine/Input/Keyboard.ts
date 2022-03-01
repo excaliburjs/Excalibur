@@ -149,7 +149,8 @@ export enum Keys {
   // OTHER
   Space = 'Space',
   Esc = 'Escape',
-  Escape = 'Escape'
+  Escape = 'Escape',
+  Enter = 'Enter'
 }
 
 /**
