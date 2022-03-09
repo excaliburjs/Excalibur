@@ -1074,12 +1074,12 @@ O|===|* >________________>\n\
       return !a.animation.isDone();
     });
 
+    // Publish update event
+    this._postupdate(delta);
+
     // Update input listeners
     this.input.keyboard.update();
     this.input.gamepads.update();
-
-    // Publish update event
-    this._postupdate(delta);
   }
 
   /**

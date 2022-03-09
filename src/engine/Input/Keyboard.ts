@@ -46,6 +46,10 @@ export enum Keys {
   ShiftRight = 'ShiftRight',
   AltLeft = 'AltLeft',
   AltRight = 'AltRight',
+  ControlLeft = 'ControlLeft',
+  ControlRight = 'ControlRight',
+  MetaLeft = 'MetaLeft',
+  MetaRight = 'MetaRight',
 
   // NUMBERS
   Key0 = 'Digit0',
@@ -68,6 +72,20 @@ export enum Keys {
   Digit7 = 'Digit7',
   Digit8 = 'Digit8',
   Digit9 = 'Digit9',
+
+  // FUNCTION KEYS
+  F1 = 'F1',
+  F2 = 'F2',
+  F3 = 'F3',
+  F4 = 'F4',
+  F5 = 'F5',
+  F6 = 'F6',
+  F7 = 'F7',
+  F8 = 'F8',
+  F9 = 'F9',
+  F10 = 'F10',
+  F11 = 'F11',
+  F12 = 'F12',
 
   // LETTERS
   A = 'KeyA',
@@ -148,8 +166,13 @@ export enum Keys {
 
   // OTHER
   Space = 'Space',
+  Backspace = 'Backspace',
+  Delete = 'Delete',
   Esc = 'Escape',
-  Escape = 'Escape'
+  Escape = 'Escape',
+  Enter = 'Enter',
+  NumpadEnter = 'NumpadEnter',
+  ContextMenu = 'ContextMenu'
 }
 
 /**

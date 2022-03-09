@@ -61,6 +61,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue #2263 where keyboard input `wasPressed` was not working in the `onPostUpdate` lifecycle
+- Fixed issue #2263 where there were some keys missing from the `ex.Input.Keys` enum, including `Enter`
 - Fixed issue where Rectangle line renderer did not respect z order
 
 ### Updates

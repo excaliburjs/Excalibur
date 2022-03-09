@@ -16,6 +16,10 @@ game.on('postupdate', (ue: ex.PostUpdateEvent) => {
     .join(', ');
 
   label.text = keys;
+
+  if (game.input.keyboard.wasPressed(ex.Input.Keys.Enter)) {
+    console.log("Enter Pressed");
+  }
 });
 
 game.start();
