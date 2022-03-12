@@ -245,30 +245,34 @@ export class Keyboard extends Class {
     });
 
     // key up is on window because canvas cannot have focus
-    global.addEventListener('keyup', (ev: KeyboardEvent) => {
-      const code = ev.code as Keys;
-      const key = this._keys.indexOf(code);
-      this._keys.splice(key, 1);
-      this._keysUp.push(code);
-      const keyEvent = new KeyEvent(code, ev.key, ev);
-
-      // alias the old api, we may want to deprecate this in the future
-      this.eventDispatcher.emit('up', keyEvent);
-      this.eventDispatcher.emit('release', keyEvent);
-    });
+    global.addEventListener('keyup', this._handleKeyUp);
 
     // key down is on window because canvas cannot have focus
-    global.addEventListener('keydown', (ev: KeyboardEvent) => {
-      const code = ev.code as Keys;
-      if (this._keys.indexOf(code) === -1) {
-        this._keys.push(code);
-        this._keysDown.push(code);
-        const keyEvent = new KeyEvent(code, ev.key, ev);
-        this.eventDispatcher.emit('down', keyEvent);
-        this.eventDispatcher.emit('press', keyEvent);
-      }
-    });
+    global.addEventListener('keydown', this._handleKeyDown);
   }
+
+  private _handleKeyDown = (ev: KeyboardEvent) => {
+    const code = ev.code as Keys;
+    if (this._keys.indexOf(code) === -1) {
+      this._keys.push(code);
+      this._keysDown.push(code);
+      const keyEvent = new KeyEvent(code, ev.key, ev);
+      this.eventDispatcher.emit('down', keyEvent);
+      this.eventDispatcher.emit('press', keyEvent);
+    }
+  };
+
+  private _handleKeyUp = (ev: KeyboardEvent) => {
+    const code = ev.code as Keys;
+    const key = this._keys.indexOf(code);
+    this._keys.splice(key, 1);
+    this._keysUp.push(code);
+    const keyEvent = new KeyEvent(code, ev.key, ev);
+
+    // alias the old api, we may want to deprecate this in the future
+    this.eventDispatcher.emit('up', keyEvent);
+    this.eventDispatcher.emit('release', keyEvent);
+  };
 
   public update() {
     // Reset keysDown and keysUp after update is complete
@@ -310,5 +314,26 @@ export class Keyboard extends Class {
    */
   public wasReleased(key: Keys): boolean {
     return this._keysUp.indexOf(key) > -1;
+  }
+
+  /**
+   * Trigger a manual key event
+   * @param type
+   * @param key
+   * @param character
+   */
+  public triggerEvent(type: 'down' | 'up', key: Keys, character?: string) {
+    if (type === 'down') {
+      this._handleKeyDown(new KeyboardEvent('keydown', {
+        code: key,
+        key: character ?? null
+      }));
+    }
+    if (type === 'up') {
+      this._handleKeyUp(new KeyboardEvent('keyup', {
+        code: key,
+        key: character ?? null
+      }));
+    }
   }
 }
