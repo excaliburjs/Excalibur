@@ -195,6 +195,61 @@ describe('The engine', () => {
     expect(fired).toHaveBeenCalledTimes(2);
   });
 
+  it('will update keyboard & gamepad events after postupdate', () => {
+    const postupdate = jasmine.createSpy('postupdate');
+    spyOn(engine.input.keyboard, 'update').and.callThrough();
+    spyOn(engine.input.gamepads, 'update').and.callThrough();
+    engine.on('postupdate', postupdate);
+
+    const clock = engine.clock as ex.TestClock;
+
+    clock.step(1);
+
+    expect(postupdate).toHaveBeenCalledBefore(engine.input.keyboard.update);
+    expect(postupdate).toHaveBeenCalledBefore(engine.input.gamepads.update);
+  });
+
+  it('will fire wasPressed in onPostUpdate handler', (done) => {
+    engine.input.keyboard.triggerEvent('down', ex.Input.Keys.Enter);
+    engine.on('postupdate', () => {
+      if (engine.input.keyboard.wasPressed(ex.Input.Keys.Enter)) {
+        done();
+      }
+    });
+
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+  });
+
+  it('will fire wasReleased in onPostUpdate handler', (done) => {
+    engine.input.keyboard.triggerEvent('up', ex.Input.Keys.Enter);
+    engine.on('postupdate', () => {
+      if (engine.input.keyboard.wasReleased(ex.Input.Keys.Enter)) {
+        done();
+      }
+    });
+
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+  });
+
+  it('will fire isHeld in onPostUpdate handler', () => {
+    engine.input.keyboard.triggerEvent('down', ex.Input.Keys.Enter);
+    const held = jasmine.createSpy('held');
+    engine.on('postupdate', () => {
+      if (engine.input.keyboard.isHeld(ex.Input.Keys.Enter)) {
+        held();
+      }
+    });
+
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+    clock.step(1);
+    clock.step(1);
+
+    expect(held).toHaveBeenCalledTimes(3);
+  });
+
   it('should emit a predraw event', () => {
     const fired = jasmine.createSpy('fired');
     engine.on('predraw', fired);
