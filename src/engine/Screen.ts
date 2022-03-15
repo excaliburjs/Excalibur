@@ -21,13 +21,25 @@ export enum DisplayMode {
    * Fit an aspect ratio of the screen within the container at all times will fill the screen. This displayed area outside the aspect ratio
    * is not guaranteed to be on the screen, only the [[Screen.contentArea]] is guaranteed to be on screen.
    */
-  FitContainerAndFill = 'ContentFitContainer',
+  FitContainerAndFill = 'FitContainerAndFill',
 
   /**
    * Fit an aspect ratio within the screen at all times will fill the screen. This displayed area outside the aspect ratio is not
    * guaranteed to be on the screen, only the [[Screen.contentArea]] is guaranteed to be on screen.
    */
-  FitScreenAndFill = 'ContentFitScreen',
+  FitScreenAndFill = 'FitScreenAndFill',
+
+  /*
+   * Fit the viewport to the parent element maintaining aspect ratio, but zooms in to avoid the black bars (letterbox) that 
+   * would otherwise be present in [[FitContainer]]
+   */
+  FitContainerAndZoom = 'ZoomToFitContainer',
+
+  /**
+   * Fit the viewport to the device screen maintaining aspect ratio, but zooms in to avoid the black bars (letterbox) that 
+   * would otherwise be present in [[FitScreen]]
+   */
+  FitScreenAndZoom = 'ZoomToFitScreen',
 
   /**
    * Fit to screen using as much space as possible while maintaining aspect ratio and resolution.
@@ -295,6 +307,7 @@ export class Screen {
       case DisplayMode.FillContainer:
       case DisplayMode.FitContainer:
       case DisplayMode.FitContainerAndFill:
+      case DisplayMode.FitContainerAndZoom:
         return this.canvas.parentElement || document.body;
       default:
         return window;
@@ -629,6 +642,50 @@ export class Screen {
     return vec(this.halfDrawWidth, this.halfDrawHeight);
   }
 
+  public get safeArea(): BoundingBox {
+    if (this.displayMode === DisplayMode.FitScreenAndZoom) {
+      const bounds = BoundingBox.fromDimension(this.viewport.width, this.viewport.height, Vector.Zero);
+      // return safe area
+      if (this.viewport.width > window.innerWidth) {
+        const screenClip = (this.viewport.width - window.innerWidth) / this.viewport.width;
+        const clip = screenClip * this.resolution.width;
+        bounds.left = clip / 2;
+        bounds.right = window.innerWidth - clip / 2;
+      }
+
+      if (this.viewport.height > window.innerHeight) {
+        const screenClip = (this.viewport.height - window.innerHeight) / this.viewport.height;
+        const clip = screenClip * this.resolution.height;
+        bounds.top = clip / 2;
+        bounds.bottom = window.innerHeight - clip / 2;
+      }
+
+      return bounds;
+    }
+
+    if (this.displayMode === DisplayMode.FitContainerAndZoom) {
+      const bounds = BoundingBox.fromDimension(this.viewport.width, this.viewport.height, Vector.Zero);
+      const parent = this.canvas.parentElement;
+      // return safe area
+      if (this.viewport.width > parent.clientWidth) {
+        const screenClip = (this.viewport.width - parent.clientWidth) / this.viewport.width;
+        const clip = screenClip * this.resolution.width;
+        bounds.left = clip / 2;
+        bounds.right = parent.clientWidth - clip / 2;
+      }
+
+      if (this.viewport.height > parent.clientHeight) {
+        const screenClip = (this.viewport.height - parent.clientHeight) / this.viewport.height;
+        const clip = screenClip * this.resolution.height;
+        bounds.top = clip / 2;
+        bounds.bottom = parent.clientHeight - clip / 2;
+      }
+      return bounds;
+    }
+
+    return BoundingBox.fromDimension(this.viewport.width, this.viewport.height, Vector.Zero);
+  }
+
   private _computeFit() {
     document.body.style.margin = '0px';
     document.body.style.overflow = 'hidden';
@@ -694,6 +751,101 @@ export class Screen {
         height: vh *  this._contentResolution.height / vh
       };
     }
+  }
+
+  private _computeFitScreenAndZoom() {
+    document.body.style.margin = '0px';
+    document.body.style.overflow = 'hidden';
+    this.canvas.style.position = 'absolute';
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    const aspect = this.aspectRatio;
+    let adjustedWidth = 0;
+    let adjustedHeight = 0;
+    if (window.innerWidth / aspect < window.innerHeight) {
+      adjustedWidth = window.innerWidth;
+      adjustedHeight = window.innerWidth / aspect;
+    } else {
+      adjustedWidth = window.innerHeight * aspect;
+      adjustedHeight = window.innerHeight;
+    }
+
+    const scaleX = vw / adjustedWidth
+    const scaleY = vh / adjustedHeight;
+
+    const maxScaleFactor = Math.max(scaleX, scaleY);
+
+    const zoomedWidth = adjustedWidth * maxScaleFactor;
+    const zoomedHeight = adjustedHeight * maxScaleFactor;
+
+    // Center zoomed dimension if bigger than the screen
+    if (zoomedWidth > vw) {
+      this.canvas.style.left = -(zoomedWidth - vw) / 2 + 'px';
+    } else {
+      this.canvas.style.left = '';
+    }
+
+    if (zoomedHeight > vh) {
+      this.canvas.style.top = -(zoomedHeight - vh) / 2 + 'px';
+    } else {
+      this.canvas.style.top = '';
+    }
+
+    this.viewport = {
+      width: zoomedWidth,
+      height: zoomedHeight
+    };
+  }
+
+  private _computeFitContainerAndZoom() {
+    document.body.style.margin = '0px';
+    document.body.style.overflow = 'hidden';
+    this.canvas.style.position = 'absolute';
+    const parent = this.canvas.parentElement;
+    parent.style.position = 'relative';
+    parent.style.overflow = 'hidden';
+
+    const vw = parent.clientWidth;
+    const vh = parent.clientHeight;
+
+    const aspect = this.aspectRatio;
+    let adjustedWidth = 0;
+    let adjustedHeight = 0;
+    if (parent.clientWidth / aspect < parent.clientHeight) {
+      adjustedWidth = parent.clientWidth;
+      adjustedHeight = parent.clientWidth / aspect;
+    } else {
+      adjustedWidth = parent.clientHeight * aspect;
+      adjustedHeight = parent.clientHeight;
+    }
+
+    const scaleX = vw / adjustedWidth
+    const scaleY = vh / adjustedHeight;
+
+    const maxScaleFactor = Math.max(scaleX, scaleY);
+
+    const zoomedWidth = adjustedWidth * maxScaleFactor;
+    const zoomedHeight = adjustedHeight * maxScaleFactor;
+
+    // Center zoomed dimension if bigger than the screen
+    if (zoomedWidth > vw) {
+      this.canvas.style.left = -(zoomedWidth - vw) / 2 + 'px';
+    } else {
+      this.canvas.style.left = '';
+    }
+
+    if (zoomedHeight > vh) {
+      this.canvas.style.top = -(zoomedHeight - vh) / 2 + 'px';
+    } else {
+      this.canvas.style.top = '';
+    }
+
+    this.viewport = {
+      width: zoomedWidth,
+      height: zoomedHeight
+    };
   }
 
   private _computeFitContainer() {
@@ -768,6 +920,14 @@ export class Screen {
 
     if (this.displayMode === DisplayMode.FitContainerAndFill){
       this._computeFitContainerAndFill();
+    }
+
+    if (this.displayMode === DisplayMode.FitScreenAndZoom) {
+      this._computeFitScreenAndZoom();
+    }
+
+    if (this.displayMode === DisplayMode.FitContainerAndZoom){
+      this._computeFitContainerAndZoom();
     }
   }
 }
