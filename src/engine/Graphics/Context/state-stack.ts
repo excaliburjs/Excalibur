@@ -6,13 +6,15 @@ export class StateStack {
 
   private _getDefaultState() {
     return {
-      opacity: 1
+      opacity: 1,
+      z: 0
     };
   }
 
   private _cloneState() {
     return {
-      opacity: this._currentState.opacity
+      opacity: this._currentState.opacity,
+      z: this._currentState.z
     };
   }
 
@@ -27,5 +29,9 @@ export class StateStack {
 
   public get current(): ExcaliburGraphicsContextState {
     return this._currentState;
+  }
+
+  public set current(val: ExcaliburGraphicsContextState) {
+    this._currentState = val;
   }
 }

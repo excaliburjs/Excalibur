@@ -16,6 +16,7 @@ export interface ExcaliburGraphicsContextOptions {
 
 export interface ExcaliburGraphicsContextState {
   opacity: number;
+  z: number;
 }
 export interface LineGraphicsOptions {
   color: Color;

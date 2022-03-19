@@ -30,6 +30,8 @@ import { ScreenPassPainter } from './screen-pass-painter/screen-pass-painter';
 import { ImageRenderer } from './image-renderer/image-renderer';
 import { RectangleRenderer } from './rectangle-renderer/rectangle-renderer';
 import { CircleRenderer } from './circle-renderer/circle-renderer';
+import { Pool } from '../../Util/Pool';
+import { DrawCall } from './draw-call';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -84,6 +86,18 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _logger = Logger.getInstance();
   private _renderers: Map<string, RendererPlugin> = new Map<string, RendererPlugin>();
   private _isDrawLifecycle = false;
+  public _useDrawSorting = true;
+
+  private _drawCallPool = new Pool<DrawCall>(
+    () => new DrawCall(),
+    (instance) => {
+      instance.priority = 0;
+      instance.z = 0;
+      instance.renderer = undefined;
+      instance.args = undefined;
+      return instance;
+    });
+  private _drawCalls: DrawCall[] = [];
 
   // Main render target
   private _renderTarget: RenderTarget;
@@ -114,23 +128,19 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _state = new StateStack();
   private _ortho!: Matrix;
 
-  /**
-   * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
-   * @internal
-   */
-  public __lineRenderer: LineRenderer;
-
-  /**
-   * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
-   * @internal
-   */
-  // public __imageRenderer: ImageRenderer;
-
   public snapToPixel: boolean = true;
 
   public smoothing: boolean = false;
 
   public backgroundColor: Color = Color.ExcaliburBlue;
+
+  public get z(): number {
+    return this._state.current.z;
+  }
+
+  public set z(value: number) {
+    this._state.current.z = value;
+  }
 
   public get opacity(): number {
     return this._state.current.opacity;
@@ -272,24 +282,34 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`);
       this._alreadyWarnedDrawLifecycle = true;
     }
-    // TODO does not handle priority yet...
-    //  in order to do this draw commands need to be captured and fed in priority order
+
     const renderer = this._renderers.get(rendererName);
     if (renderer) {
-      // Set the current renderer if not defined
-      if (!this._currentRenderer) {
+      if (this._useDrawSorting) {
+        const drawCall = this._drawCallPool.get();
+        drawCall.z = this._state.current.z;
+        drawCall.priority = renderer.priority;
+        drawCall.renderer = rendererName;
+        drawCall.transform = this.getTransform();
+        drawCall.state = {...this._state.current};
+        drawCall.args = args;
+        this._drawCalls.push(drawCall);
+      } else {
+        // Set the current renderer if not defined
+        if (!this._currentRenderer) {
+          this._currentRenderer = renderer;
+        }
+
+        if (!this._isCurrentRenderer(renderer)) {
+          // switching graphics means we must flush the previous
+          this._currentRenderer.flush();
+        }
+
+        // If we are still using the same renderer we can add to the current batch
+        renderer.draw(...args);
+
         this._currentRenderer = renderer;
       }
-
-      if (!this._isCurrentRenderer(renderer)) {
-        // switching graphics means we must flush the previous
-        this._currentRenderer.flush();
-      }
-
-      // If we are still using the same renderer we can add to the current batch
-      renderer.draw(...args);
-
-      this._currentRenderer = renderer;
     } else {
       throw Error(`No renderer with name ${rendererName} has been registered`);
     }
@@ -437,13 +457,64 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     // render target captures all draws and redirects to the render target
     this._renderTarget.use();
-    // This is the final flush at the moment to draw any leftover pending draw
-    // TODO sort by priority and flush in order
-    for (const renderer of this._renderers.values()) {
-      if (renderer.hasPendingDraws()) {
-        renderer.flush();
+
+    if (this._useDrawSorting) {
+      // sort draw calls
+      this._drawCalls.sort((a, b) => {
+        const zIndex = a.z - b.z;
+        const name = a.renderer.localeCompare(b.renderer);
+        const priority = a.priority - b.priority;
+        if (zIndex === 0) {
+          if (priority === 0) {
+            return name;
+          }
+          return priority;
+        }
+        return zIndex;
+      });
+
+      let oldTransform = this._transform.current;
+      let oldState = this._state.current;
+
+      if (this._drawCalls.length) {
+        let currentRendererName = this._drawCalls[0].renderer;
+        let currentRenderer = this._renderers.get(currentRendererName);
+        for (let i = 0; i < this._drawCalls.length; i++) {
+          // hydrate the state for renderers
+          this._transform.current = this._drawCalls[i].transform;
+          this._state.current = this._drawCalls[i].state;
+
+          if (this._drawCalls[i].renderer !== currentRendererName) {
+            // switching graphics renderer means we must flush the previous
+            currentRenderer.flush();
+            currentRendererName = this._drawCalls[i].renderer;
+            currentRenderer = this._renderers.get(currentRendererName);
+          }
+
+          // If we are still using the same renderer we can add to the current batch
+          currentRenderer.draw(...this._drawCalls[i].args);
+        }
+        if (currentRenderer.hasPendingDraws()) {
+          currentRenderer.flush()
+        }
+      }
+
+      // reset state
+      this._transform.current = oldTransform;
+      this._state.current = oldState;
+
+      // reclaim draw calls
+      this._drawCallPool.done();
+      this._drawCalls.length = 0;
+    } else {
+      // This is the final flush at the moment to draw any leftover pending draw
+      for (const renderer of this._renderers.values()) {
+        if (renderer.hasPendingDraws()) {
+          renderer.flush();
+        }
       }
     }
+
     this._renderTarget.disable();
 
     // post process step
