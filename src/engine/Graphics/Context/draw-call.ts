@@ -1,5 +1,5 @@
-import { Matrix } from "../../excalibur";
-import { ExcaliburGraphicsContextState } from "./ExcaliburGraphicsContext";
+import { Matrix } from '../../excalibur';
+import { ExcaliburGraphicsContextState } from './ExcaliburGraphicsContext';
 
 export class DrawCall {
   public z: number = 0;

@@ -473,8 +473,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         return zIndex;
       });
 
-      let oldTransform = this._transform.current;
-      let oldState = this._state.current;
+      const oldTransform = this._transform.current;
+      const oldState = this._state.current;
 
       if (this._drawCalls.length) {
         let currentRendererName = this._drawCalls[0].renderer;
@@ -495,7 +495,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
           currentRenderer.draw(...this._drawCalls[i].args);
         }
         if (currentRenderer.hasPendingDraws()) {
-          currentRenderer.flush()
+          currentRenderer.flush();
         }
       }
 
