@@ -32,6 +32,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Add the ability to clone into a target `Matrix` this is useful to save allocations and in turn garbage collection pauses.
 - `ex.Engine` now support setting the pixel ratio in the constructor `new ex.Engine({pixelRatio: 2})`, this is useful for smooth `ex.Text` rendering when `antialiasing: false` and rendering pixel art type graphics
 - `ex.TileMap` now supports per Tile custom colliders!
   ```typescript
