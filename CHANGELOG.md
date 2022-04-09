@@ -32,7 +32,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-
+- `ex.Engine` now support setting the pixel ratio in the constructor `new ex.Engine({pixelRatio: 2})`, this is useful for smooth `ex.Text` rendering when `antialiasing: false` and rendering pixel art type graphics
 - `ex.TileMap` now supports per Tile custom colliders!
   ```typescript
   const tileMap = new ex.TileMap(...);
