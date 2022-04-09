@@ -68,6 +68,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Updates
 
 - Performance improvement to GraphicsSystem
+- Performance improvement to the transform capture of the previous frame transform and motion
 
 ### Changed
 
