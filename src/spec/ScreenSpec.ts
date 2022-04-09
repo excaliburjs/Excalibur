@@ -610,8 +610,8 @@ describe('A Screen', () => {
     sut.applyResolutionAndViewport();
     expect(context.checkIfResolutionSupported).toHaveBeenCalled();
     expect(logger.warn).toHaveBeenCalledOnceWith(
-      `The currently configured resolution (${sut.resolution.width}x${sut.resolution.height})` +
-          ' is too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
+      `The currently configured resolution (${sut.resolution.width}x${sut.resolution.height}) and pixel ratio (${sut.pixelRatio})` +
+          ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
           ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
           ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).'
     );

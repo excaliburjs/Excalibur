@@ -384,8 +384,8 @@ export class Screen {
       if (!supported && !this._alreadyWarned) {
         this._alreadyWarned = true; // warn once
         this._logger.warn(
-          `The currently configured resolution (${this.resolution.width}x${this.resolution.height})` +
-          ' is too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
+          `The currently configured resolution (${this.resolution.width}x${this.resolution.height}) and pixel ratio (${this.pixelRatio})` +
+          ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
           ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
           ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).');
       }
