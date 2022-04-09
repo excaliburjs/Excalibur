@@ -153,6 +153,14 @@ describe('The engine', () => {
     expect(engine.graphicsContext.snapToPixel).toBeTrue();
   });
 
+  it('can set pixelRatio', () => {
+    engine = TestUtils.engine({width: 100, height: 100, pixelRatio: 5, suppressHiDPIScaling: false});
+    expect(engine.pixelRatio).toBe(5);
+    expect(engine.screen.pixelRatio).toBe(5);
+    expect(engine.screen.scaledWidth).toBe(500);
+    expect(engine.screen.scaledHeight).toBe(500);
+  });
+
   it('should emit a preframe event', () => {
     const fired = jasmine.createSpy('fired');
     engine.on('preframe', fired);
