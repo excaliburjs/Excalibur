@@ -6,7 +6,7 @@ on:
   push:
     branches: [ main ]
 jobs:
-  build:
+  browser_support:
     runs-on: [ubuntu-latest]
     timeout-minutes: 15
 
