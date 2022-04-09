@@ -277,14 +277,21 @@ export class Font extends Graphic implements FontRenderer {
       this.clearCache();
     }
     this.checkAndClearCache();
+    // Get bitmap for rastering text, this is cached by raster properties
     const bitmap = this._getTextBitmap(text, colorOverride);
     const isNewBitmap = !this._bitmapUsage.get(bitmap);
+
+    // Bounds of the text
     this._textBounds = this.measureText(text);
 
+    // TODO if the text is bigger than 4k we need to split it somehow
+
     if (isNewBitmap) {
+      // Setting dimension is expensive because it invalidates the bitmap
       this._setDimension(this._textBounds, bitmap);
     }
 
+    // Apply affine transformations
     this._preDraw(ex, x, y);
 
     const lines = text.split('\n');
@@ -301,6 +308,7 @@ export class Font extends Graphic implements FontRenderer {
       TextureLoader.load(bitmap.canvas, this.filtering, true);
     }
 
+    // Send draw cal to the ex graphics context
     ex.drawImage(
       bitmap.canvas,
       0,

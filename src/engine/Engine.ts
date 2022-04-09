@@ -102,6 +102,17 @@ export interface EngineOptions {
   antialiasing?: boolean;
 
   /**
+   * Optionally upscale the number of pixels in the canvas. Normally only useful if you need a smoother look to your assets, especially
+   * [[Text]].
+   *
+   * **WARNING** It is recommended you try using `antialiasing: true` before adjusting pixel ratio. Pixel ratio will consume more memory
+   * and on mobile may break if the internal size of the canvas exceeds 4k pixels in width or height.
+   *
+   * Default is based the display's pixel ratio, for example a HiDPI screen might have the value 2;
+   */
+  pixelRatio?: number;
+
+  /**
    * Optionally configure the native canvas transparent backdrop
    */
   enableCanvasTransparency?: boolean;
@@ -657,9 +668,10 @@ O|===|* >________________>\n\
       resolution: options.resolution,
       displayMode,
       position: options.position,
-      pixelRatio: options.suppressHiDPIScaling ? 1 : null
+      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
     });
 
+    // Set default filtering based on antialiasing
     TextureLoader.filtering = options.antialiasing ? ImageFiltering.Blended : ImageFiltering.Pixel;
 
     if (options.backgroundColor) {
