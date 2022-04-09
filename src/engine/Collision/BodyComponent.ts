@@ -10,6 +10,7 @@ import { EventDispatcher } from '../EventDispatcher';
 import { createId, Id } from '../Id';
 import { clamp } from '../Math/util';
 import { ColliderComponent } from './ColliderComponent';
+import { Matrix } from '../Math/matrix';
 
 export interface BodyComponentOptions {
   type?: CollisionType;
@@ -33,6 +34,8 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   public static _ID = 0;
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
   public events = new EventDispatcher();
+
+  private _oldTransform = Matrix.identity();
 
   constructor(options?: BodyComponentOptions) {
     super();
@@ -191,7 +194,9 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   /**
    * The position of the actor last frame (x, y) in pixels
    */
-  public oldPos: Vector = new Vector(0, 0);
+  public get oldPos(): Vector {
+    return this._oldTransform.getPosition();
+  }
 
   /**
    * The current velocity vector (vx, vy) of the actor in pixels/second
@@ -240,7 +245,9 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   /**
    * Gets/sets the rotation of the body from the last frame.
    */
-  public oldRotation: number = 0; // radians
+  public get oldRotation(): number {
+    return this._oldTransform.getRotation();
+  }
 
   /**
    * The rotation of the body in radians
@@ -267,9 +274,10 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
 
   /**
    * The scale of the actor last frame
-   * @deprecated ex.Body.scale will be removed in v0.25.0
    */
-  public oldScale: Vector = Vector.One;
+  public get oldScale(): Vector {
+    return this._oldTransform.getScale();
+  }
 
   /**
    * The x scalar velocity of the actor in scale/second
@@ -393,11 +401,9 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
    */
   public captureOldTransform() {
     // Capture old values before integration step updates them
+    this.transform.getGlobalMatrix().clone(this._oldTransform);
     this.oldVel.setTo(this.vel.x, this.vel.y);
-    this.oldPos.setTo(this.pos.x, this.pos.y);
     this.oldAcc.setTo(this.acc.x, this.acc.y);
-    this.oldScale.setTo(this.scale.x, this.scale.y);
-    this.oldRotation = this.rotation;
   }
 
   /**
