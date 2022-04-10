@@ -1,4 +1,4 @@
-import { Matrix } from '../../Math';
+import { Matrix } from '../../Math/matrix';
 import { ExcaliburGraphicsContextState } from './ExcaliburGraphicsContext';
 
 export class DrawCall {
