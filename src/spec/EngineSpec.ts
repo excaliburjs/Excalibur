@@ -161,6 +161,14 @@ describe('The engine', () => {
     expect(engine.screen.scaledHeight).toBe(500);
   });
 
+  it('can use draw sorting', () => {
+    engine = TestUtils.engine({width: 100, height: 100, useDrawSorting: false}, []);
+    expect(engine.graphicsContext.useDrawSorting).toBe(false);
+
+    engine = TestUtils.engine({width: 100, height: 100, useDrawSorting: true}, []);
+    expect(engine.graphicsContext.useDrawSorting).toBe(true);
+  });
+
   it('should emit a preframe event', () => {
     const fired = jasmine.createSpy('fired');
     engine.on('preframe', fired);
