@@ -195,6 +195,14 @@ export interface EngineOptions {
    * one that bounces between 30fps and 60fps
    */
   maxFps?: number;
+
+  /**
+   * Default `true`, optionally configure excalibur to use optimal draw call sorting, to opt out set this to `false`.
+   *
+   * Excalibur will automatically sort draw calls by z and priority into renderer batches for maximal draw performance,
+   * this can disrupt a specific desired painter order.
+   */
+  useDrawSorting?: boolean;
 }
 
 /**
@@ -511,6 +519,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     width: 0,
     height: 0,
     enableCanvasTransparency: true,
+    useDrawSorting: true,
     canvasElementId: '',
     canvasElement: undefined,
     snapToPixel: false,
@@ -653,7 +662,8 @@ O|===|* >________________>\n\
         enableTransparency: this.enableCanvasTransparency,
         smoothing: options.antialiasing,
         backgroundColor: options.backgroundColor,
-        snapToPixel: options.snapToPixel
+        snapToPixel: options.snapToPixel,
+        useDrawSorting: options.useDrawSorting
       });
       this.graphicsContext = exWebglCtx;
       this.ctx = exWebglCtx.__ctx;

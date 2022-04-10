@@ -171,6 +171,8 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     for (const ancestor of ancestors) {
       const transform = ancestor?.get(TransformComponent);
       if (transform) {
+        // TODO should this z be public?
+        (this._graphicsContext as any).z = transform.z;
         this._graphicsContext.translate(transform.pos.x, transform.pos.y);
         this._graphicsContext.scale(transform.scale.x, transform.scale.y);
         this._graphicsContext.rotate(transform.rotation);

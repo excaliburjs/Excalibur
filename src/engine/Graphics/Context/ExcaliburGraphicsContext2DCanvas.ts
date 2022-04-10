@@ -84,6 +84,16 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     return this.__ctx.canvas.height;
   }
 
+  /**
+   * Unused in Canvas implementation
+   */
+  public readonly useDrawSorting: boolean = false;
+
+  /**
+   * Unused in Canvas implementation
+   */
+  public z: number = 0;
+
   public backgroundColor: Color = Color.ExcaliburBlue;
 
   private _state = new StateStack();
