@@ -398,12 +398,24 @@ export class IsometricMap extends Entity {
     return tile;
   }
 
+  private _getMaxZIndex(): number {
+    let maxZ = Number.NEGATIVE_INFINITY;
+    for (const tile of this.tiles) {
+      const currentZ = tile.get(TransformComponent).z;
+      if (currentZ > maxZ) {
+        maxZ =  currentZ;
+      }
+    }
+    return maxZ;
+  }
+
   /**
    * Debug draw for IsometricMap, called internally by excalibur when debug mode is toggled on
    * @param gfx
    */
   public debug(gfx: ExcaliburGraphicsContext) {
-
+    gfx.save();
+    gfx.z = this._getMaxZIndex() + 0.5;
     for (let y = 0; y < this.height + 1; y++) {
       const left = this.tileToWorld(vec(0, y));
       const right = this.tileToWorld(vec(this.width, y));
@@ -419,5 +431,6 @@ export class IsometricMap extends Entity {
     for (const tile of this.tiles) {
       gfx.drawCircle(this.tileToWorld(vec(tile.x, tile.y)), 3, Color.Yellow);
     }
+    gfx.restore();
   }
 }

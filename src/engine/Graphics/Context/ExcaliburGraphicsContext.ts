@@ -12,6 +12,7 @@ export interface ExcaliburGraphicsContextOptions {
   enableTransparency?: boolean;
   snapToPixel?: boolean;
   backgroundColor?: Color;
+  useDrawSorting?: boolean;
 }
 
 export interface ExcaliburGraphicsContextState {
@@ -66,6 +67,24 @@ export interface DebugDraw {
 export interface ExcaliburGraphicsContext {
   width: number;
   height: number;
+
+  /**
+   * Excalibur will automatically sort draw calls by z and priority for maximal draw performance,
+   * this can disrupt a specific desired painter order.
+   *
+   * To force a specific draw call order, use [[ExcaliburGraphicsContext.z]]
+   *
+   * By default `useDrawSorting` is `true`, to opt out set this to `false`
+   */
+  useDrawSorting: boolean;
+
+  /**
+   * Set the current z context for the graphics context. Draw calls issued to the context will use this z
+   * to inform their sort order.
+   *
+   * Note it is important to all [[ExcaliburGraphicsContext.save]] and [[ExcaliburGraphicsContext.restore]] when modifying state.
+   */
+  z: number;
 
   /**
    * Snaps all drawings to the nearest pixel truncated down, by default false

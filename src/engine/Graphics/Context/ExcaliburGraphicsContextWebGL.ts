@@ -86,7 +86,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _logger = Logger.getInstance();
   private _renderers: Map<string, RendererPlugin> = new Map<string, RendererPlugin>();
   private _isDrawLifecycle = false;
-  public _useDrawSorting = true;
+  public useDrawSorting = true;
 
   private _drawCallPool = new Pool<DrawCall>(
     () => new DrawCall(),
@@ -176,7 +176,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   constructor(options: ExcaliburGraphicsContextOptions) {
-    const { canvasElement, enableTransparency, smoothing, snapToPixel, backgroundColor } = options;
+    const { canvasElement, enableTransparency, smoothing, snapToPixel, backgroundColor, useDrawSorting } = options;
     this.__gl = canvasElement.getContext('webgl', {
       antialias: smoothing ?? this.smoothing,
       premultipliedAlpha: false,
@@ -189,6 +189,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = smoothing ?? this.smoothing;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
+    this.useDrawSorting = useDrawSorting ?? this.useDrawSorting;
+    this._drawCallPool.disableWarnings = true;
     this._init();
   }
 
@@ -285,13 +287,14 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     const renderer = this._renderers.get(rendererName);
     if (renderer) {
-      if (this._useDrawSorting) {
+      if (this.useDrawSorting) {
         const drawCall = this._drawCallPool.get();
         drawCall.z = this._state.current.z;
         drawCall.priority = renderer.priority;
         drawCall.renderer = rendererName;
-        drawCall.transform = this.getTransform();
-        drawCall.state = {...this._state.current};
+        this.getTransform().clone(drawCall.transform);
+        drawCall.state.z = this._state.current.z;
+        drawCall.state.opacity = this._state.current.opacity;
         drawCall.args = args;
         this._drawCalls.push(drawCall);
       } else {
@@ -458,15 +461,22 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     // render target captures all draws and redirects to the render target
     this._renderTarget.use();
 
-    if (this._useDrawSorting) {
+    if (this.useDrawSorting) {
       // sort draw calls
+      // Find the original order of the first instance of the draw call
+      const originalSort = new Map<string, number>();
+      for (const [name] of this._renderers) {
+        const firstIndex = this._drawCalls.findIndex(dc => dc.renderer === name);
+        originalSort.set(name, firstIndex);
+      }
+
       this._drawCalls.sort((a, b) => {
         const zIndex = a.z - b.z;
-        const name = a.renderer.localeCompare(b.renderer);
+        const originalSortOrder = originalSort.get(a.renderer) - originalSort.get(b.renderer);
         const priority = a.priority - b.priority;
-        if (zIndex === 0) {
-          if (priority === 0) {
-            return name;
+        if (zIndex === 0) { // sort by z first
+          if (priority === 0) { // sort by priority
+            return originalSortOrder; // use the original order to inform draw call packing to maximally preserve painter order
           }
           return priority;
         }

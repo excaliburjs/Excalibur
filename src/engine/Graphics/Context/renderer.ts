@@ -12,7 +12,8 @@ export interface RendererPlugin {
 
   /**
    * Render priority tie breaker when drawings are at the same z index
-   * @warning Not yet used by excalibur
+   *
+   * Lower number means higher priority and is drawn first. Higher number means lower priority and is drawn last.
    */
   priority: number;
 
