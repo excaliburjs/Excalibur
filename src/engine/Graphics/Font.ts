@@ -273,16 +273,16 @@ export class Font extends Graphic implements FontRenderer {
   }
 
   private _splitTextBitmap(bitmap: CanvasRenderingContext2D) {
-    let textImages: {x: number, y: number, canvas: HTMLCanvasElement}[] = [];
+    const textImages: {x: number, y: number, canvas: HTMLCanvasElement}[] = [];
     let currentX = 0;
     let currentY = 0;
     // 4k is the max for mobile devices
-    let width = Math.min(4096, bitmap.canvas.width);
-    let height = Math.min(4096, bitmap.canvas.height);
+    const width = Math.min(4096, bitmap.canvas.width);
+    const height = Math.min(4096, bitmap.canvas.height);
 
     // Splits the original bitmap into 4k max chunks
     while (currentX < bitmap.canvas.width) {
-      while(currentY < bitmap.canvas.height) {
+      while (currentY < bitmap.canvas.height) {
         // create new bitmap
         const canvas = document.createElement('canvas');
         canvas.width = width;
@@ -329,20 +329,20 @@ export class Font extends Graphic implements FontRenderer {
       // draws the text to the bitmap
       this._drawText(bitmap, text, colorOverride, lineHeight);
 
-      // clean up any existing fragments 
-      for (let frag of this._textFragments) {
+      // clean up any existing fragments
+      for (const frag of this._textFragments) {
         TextureLoader.delete(frag.canvas);
       }
 
       this._textFragments = this._splitTextBitmap(bitmap);
 
-      for (let frag of this._textFragments) {
+      for (const frag of this._textFragments) {
         TextureLoader.load(frag.canvas, this.filtering, true);
       }
     }
-    
+
     // draws the bitmap fragments to excalibur graphics context
-    for (let frag of this._textFragments) {
+    for (const frag of this._textFragments) {
       ex.drawImage(
         frag.canvas,
         0,
