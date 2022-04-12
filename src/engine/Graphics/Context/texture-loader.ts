@@ -94,6 +94,20 @@ export class TextureLoader {
     return tex;
   }
 
+  public static delete(image: HTMLImageSource): void {
+    // Ignore loading if webgl is not registered
+    const gl = TextureLoader._GL;
+    if (!gl) {
+      return null;
+    }
+
+    let tex: WebGLTexture = null;
+    if (TextureLoader.has(image)) {
+      tex = TextureLoader.get(image);
+      gl.deleteTexture(tex);
+    }
+  }
+
   /**
    * Converts source images into power of two images, WebGL only supports POT images
    * https://www.khronos.org/webgl/wiki/WebGL_and_OpenGL_Differences#Non-Power_of_Two_Texture_Support

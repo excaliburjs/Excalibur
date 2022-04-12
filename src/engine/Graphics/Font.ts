@@ -329,6 +329,11 @@ export class Font extends Graphic implements FontRenderer {
       // draws the text to the bitmap
       this._drawText(bitmap, text, colorOverride, lineHeight);
 
+      // clean up any existing fragments 
+      for (let frag of this._textFragments) {
+        TextureLoader.delete(frag.canvas);
+      }
+
       this._textFragments = this._splitTextBitmap(bitmap);
 
       for (let frag of this._textFragments) {
@@ -380,6 +385,7 @@ export class Font extends Graphic implements FontRenderer {
       // if bitmap hasn't been used in 1 second clear it
       if (time + 1000 < performance.now()) {
         this._bitmapUsage.delete(bitmap);
+        TextureLoader.delete(bitmap.canvas);
       }
     }
   }
