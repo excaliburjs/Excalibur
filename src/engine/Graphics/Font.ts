@@ -272,6 +272,38 @@ export class Font extends Graphic implements FontRenderer {
     return ctx;
   }
 
+  // private _needsSplit(bounds: BoundingBox) {
+  //   return bounds.width > 4096 || bounds.height > 4096;
+  // }
+
+  private _splitTextBitmap(bitmap: CanvasRenderingContext2D) {
+    // If needs to split
+    let textImages: {x: number, y: number, canvas: HTMLCanvasElement}[] = [];
+    let currentX = 0;
+    let currentY = 0;
+    let width = Math.min(4096, bitmap.canvas.width);
+    let height = Math.min(4096, bitmap.canvas.height);
+    while (currentX < bitmap.canvas.width) {
+      while(currentY < bitmap.canvas.height) {
+        // create new bitmap
+        const canvas = document.createElement('canvas'); // todo leaks a canvas
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        // draw current slice to new bitmap in < 4k chunks
+        ctx.drawImage(bitmap.canvas, currentX, currentY, width, height, 0, 0, width, height);
+
+        textImages.push({x: currentX, y: currentY, canvas});
+        // document.body.appendChild(canvas);
+        currentY += height;
+      }
+      currentX += width;
+      currentY = 0;
+    }
+    return textImages;
+  }
+
+  private _textFragments: {x: number, y: number, canvas: HTMLCanvasElement}[] = [];
   public render(ex: ExcaliburGraphicsContext, text: string, colorOverride: Color, x: number, y: number) {
     if (this.showDebug) {
       this.clearCache();
@@ -284,8 +316,6 @@ export class Font extends Graphic implements FontRenderer {
     // Bounds of the text
     this._textBounds = this.measureText(text);
 
-    // TODO if the text is bigger than 4k we need to split it somehow
-
     if (isNewBitmap) {
       // Setting dimension is expensive because it invalidates the bitmap
       this._setDimension(this._textBounds, bitmap);
@@ -297,29 +327,31 @@ export class Font extends Graphic implements FontRenderer {
     const lines = text.split('\n');
     const lineHeight = this._textBounds.height / lines.length;
 
-
-    const rasterWidth = bitmap.canvas.width;
-    const rasterHeight = bitmap.canvas.height;
-
     if (isNewBitmap) {
       // draws the text to the bitmap
       this._drawText(bitmap, text, colorOverride, lineHeight);
-      // draws the bitmap to excalibur graphics context
-      TextureLoader.load(bitmap.canvas, this.filtering, true);
-    }
 
-    // Send draw cal to the ex graphics context
-    ex.drawImage(
-      bitmap.canvas,
-      0,
-      0,
-      rasterWidth,
-      rasterHeight,
-      x - rasterWidth / this.quality / 2,
-      y - rasterHeight / this.quality / 2,
-      rasterWidth / this.quality,
-      rasterHeight / this.quality
-    );
+      this._textFragments = this._splitTextBitmap(bitmap);
+
+      for (let frag of this._textFragments) {
+        TextureLoader.load(frag.canvas, this.filtering, true);
+      }
+    }
+    
+    // draws the bitmap fragments to excalibur graphics context
+    for (let frag of this._textFragments) {
+      ex.drawImage(
+        frag.canvas,
+        0,
+        0,
+        frag.canvas.width,
+        frag.canvas.height,
+        frag.x / this.quality + x - bitmap.canvas.width / this.quality / 2,
+        frag.y / this.quality + y - bitmap.canvas.height / this.quality / 2,
+        frag.canvas.width / this.quality,
+        frag.canvas.height / this.quality
+      );
+    }
 
     this._postDraw(ex);
 
