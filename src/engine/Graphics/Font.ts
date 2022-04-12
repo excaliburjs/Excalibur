@@ -272,29 +272,27 @@ export class Font extends Graphic implements FontRenderer {
     return ctx;
   }
 
-  // private _needsSplit(bounds: BoundingBox) {
-  //   return bounds.width > 4096 || bounds.height > 4096;
-  // }
-
   private _splitTextBitmap(bitmap: CanvasRenderingContext2D) {
-    // If needs to split
     let textImages: {x: number, y: number, canvas: HTMLCanvasElement}[] = [];
     let currentX = 0;
     let currentY = 0;
+    // 4k is the max for mobile devices
     let width = Math.min(4096, bitmap.canvas.width);
     let height = Math.min(4096, bitmap.canvas.height);
+
+    // Splits the original bitmap into 4k max chunks
     while (currentX < bitmap.canvas.width) {
       while(currentY < bitmap.canvas.height) {
         // create new bitmap
-        const canvas = document.createElement('canvas'); // todo leaks a canvas
+        const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
+
         // draw current slice to new bitmap in < 4k chunks
         ctx.drawImage(bitmap.canvas, currentX, currentY, width, height, 0, 0, width, height);
 
         textImages.push({x: currentX, y: currentY, canvas});
-        // document.body.appendChild(canvas);
         currentY += height;
       }
       currentX += width;
