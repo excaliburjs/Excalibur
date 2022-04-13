@@ -651,7 +651,7 @@ describe('A Text Graphic', () => {
     expect(text.height).not.toBe(0);
   });
 
-  fit('can draw large pieces of text', async () => {
+  it('can draw large pieces of text', async () => {
     const sut = new ex.Text({
       text: 'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
             'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
