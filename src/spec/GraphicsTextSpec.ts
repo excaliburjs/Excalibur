@@ -2,6 +2,9 @@ import * as ex from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { delay } from '../engine/Util/Util';
 
+/**
+ *
+ */
 function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
   canvas.width = source.width;
@@ -682,8 +685,6 @@ describe('A Text Graphic', () => {
             'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
             'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
             'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' + 
-            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
             'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
             'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
             'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
@@ -712,7 +713,9 @@ describe('A Text Graphic', () => {
             'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
             'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
             'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
-            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' + 
+            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
+            'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
+            'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
             'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
             'so it can be drawn on mobile devices correctly otherwise it will draw black rectangles on the screen\n' +
             'A long piece of text that is multiple lines needs to be broken into multiple pieces ' +
@@ -766,7 +769,7 @@ describe('A Text Graphic', () => {
     await runOnLinux(async () => {
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/GraphicsTextSpec/long-text-linux.png');
     });
-  })
+  });
 
   describe('with a SpriteFont', () => {
     it('can be cloned', () => {
