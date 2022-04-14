@@ -1,5 +1,5 @@
 import { ImageSource } from './ImageSource';
-import { Sprite } from './Sprite';
+import { SourceView, Sprite } from './Sprite';
 import { Logger } from '../Util/Log';
 
 /**
@@ -55,6 +55,17 @@ export interface SpriteSheetGridOptions {
   spacing?: SpriteSheetSpacingDimensions;
 }
 
+export interface SpriteSheetSparseOptions {
+  /**
+   * Source image to use for each sprite
+   */
+  image: ImageSource;
+  /**
+   * List of source view rectangles to create a sprite sheet from
+   */
+  sourceViews: SourceView[];
+}
+
 export interface SpriteSheetOptions {
   /**
    * Source sprites for the sprite sheet
@@ -108,6 +119,20 @@ export class SpriteSheet {
     }
     const spriteIndex = x + y * this.columns;
     return this.sprites[spriteIndex];
+  }
+
+  /**
+   * Create a sprite sheet from a sparse set of [[SourceView]] rectangles
+   * @param options
+   */
+  public static fromSparseImageSource(options: SpriteSheetSparseOptions): SpriteSheet {
+    const sprites: Sprite[] = options.sourceViews.map(sourceView => {
+      return new Sprite({
+        image: options.image,
+        sourceView
+      })
+    })
+    return new SpriteSheet({sprites});
   }
 
   /**
