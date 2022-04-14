@@ -24,8 +24,8 @@ var isoMap = new ex.IsometricMap({
   renderFromTopOfGraphic: true,
   tileWidth: 111,
   tileHeight: 64,
-  width: 3,
-  height: 3
+  columns: 3,
+  rows: 3
 });
 isoMap.tiles.forEach(t => t.addGraphic(isoSprite));
 game.currentScene.add(isoMap);
@@ -35,8 +35,8 @@ var isoMap2 = new ex.IsometricMap({
   pos: ex.vec(700, 100),
   tileWidth: 256,
   tileHeight: 128,
-  width: 3,
-  height: 3
+  columns: 3,
+  rows: 3
 });
 isoMap2.tiles.forEach(t => t.addGraphic(isoTileSprite));
 game.currentScene.add(isoMap2);

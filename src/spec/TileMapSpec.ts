@@ -46,16 +46,16 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 64,
       tileHeight: 48,
-      height: 4,
-      width: 20
+      rows: 4,
+      columns: 20
     });
 
     expect(tm.pos.x).toBe(0);
     expect(tm.pos.y).toBe(0);
     expect(tm.tileWidth).toBe(64);
     expect(tm.tileHeight).toBe(48);
-    expect(tm.height).toBe(4);
-    expect(tm.width).toBe(20);
+    expect(tm.rows).toBe(4);
+    expect(tm.columns).toBe(20);
   });
 
   it('can set the z-index convenience prop', () => {
@@ -63,8 +63,8 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 32,
       tileHeight: 32,
-      height: 3,
-      width: 5
+      rows: 3,
+      columns: 5
     });
 
     tm.z = 99;
@@ -78,8 +78,8 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 32,
       tileHeight: 32,
-      height: 3,
-      width: 5
+      rows: 3,
+      columns: 5
     });
 
     expect(tm.getRows().length).toBe(3);
@@ -108,8 +108,8 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 32,
       tileHeight: 32,
-      height: 3,
-      width: 5
+      rows: 3,
+      columns: 5
     });
 
     const cell = tm.getTile(4, 2);
@@ -129,8 +129,8 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 32,
       tileHeight: 32,
-      height: 3,
-      width: 5
+      rows: 3,
+      columns: 5
     });
     tm._initialize(engine);
 
@@ -170,8 +170,8 @@ describe('A TileMap', () => {
       pos: ex.vec(30, 30),
       tileWidth: 64,
       tileHeight: 48,
-      height: 3,
-      width: 7
+      rows: 3,
+      columns: 7
     });
     const spriteTiles = new ex.LegacyDrawing.SpriteSheet(texture, 1, 1, 64, 48);
     tm.tiles.forEach(function (cell: ex.Tile) {
@@ -191,8 +191,8 @@ describe('A TileMap', () => {
       pos: ex.vec(-100, -100),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
     const spriteTiles = new ex.LegacyDrawing.SpriteSheet(texture, 1, 1, 64, 48);
     tm.tiles.forEach(function (cell: ex.Tile) {
@@ -213,8 +213,8 @@ describe('A TileMap', () => {
       pos: ex.vec(-100, -100),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
 
     expect(sut.pos).toBeVector(ex.vec(-100, -100));
@@ -241,8 +241,8 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
     const tile = sut.getTile(0, 0);
 
@@ -266,8 +266,8 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
 
 
@@ -302,8 +302,8 @@ describe('A TileMap', () => {
       pos: ex.vec(100, 100),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
 
     const tile = sut.getTile(0, 0);
@@ -320,8 +320,8 @@ describe('A TileMap', () => {
       pos: ex.vec(100, 100),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
 
     const tile = sut.getTile(0, 0);
@@ -335,8 +335,8 @@ describe('A TileMap', () => {
         pos: ex.vec(0, 0),
         tileWidth: 64,
         tileHeight: 48,
-        height: 10,
-        width: 10
+        rows: 10,
+        columns: 10
       });
       tm.tiles.forEach(function (cell: ex.Tile) {
         cell.solid = true;

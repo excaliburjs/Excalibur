@@ -16,8 +16,8 @@ describe('A IsometricMap', () => {
       pos: ex.vec(10, 10),
       tileWidth: 10,
       tileHeight: 10,
-      width: 20,
-      height: 10
+      columns: 20,
+      rows: 10
     });
 
     expect(sut).toBeDefined();
@@ -36,8 +36,8 @@ describe('A IsometricMap', () => {
       pos: ex.vec(250, 10),
       tileWidth: 32,
       tileHeight: 16,
-      width: 15,
-      height: 15
+      columns: 15,
+      rows: 15
     });
 
     sut.tiles.forEach(tile => tile.addGraphic(sprite));
@@ -64,8 +64,8 @@ describe('A IsometricMap', () => {
       renderFromTopOfGraphic: true,
       tileWidth: 32,
       tileHeight: 16,
-      width: 15,
-      height: 15
+      columns: 15,
+      rows: 15
     });
 
     sut.tiles.forEach(tile => tile.addGraphic(sprite));
@@ -91,8 +91,8 @@ describe('A IsometricMap', () => {
       pos: ex.vec(250, 10),
       tileWidth: 32,
       tileHeight: 16,
-      width: 15,
-      height: 15
+      columns: 15,
+      rows: 15
     });
 
     sut.tiles.forEach(tile => tile.addGraphic(sprite));
@@ -121,8 +121,8 @@ describe('A IsometricMap', () => {
       pos: ex.vec(250, 10),
       tileWidth: 32,
       tileHeight: 16,
-      width: 15,
-      height: 15
+      columns: 15,
+      rows: 15
     });
 
     sut.tiles.forEach(tile => tile.addGraphic(sprite));
@@ -142,8 +142,8 @@ describe('A IsometricMap', () => {
       pos: ex.vec(250, 10),
       tileWidth: 32,
       tileHeight: 16,
-      width: 15,
-      height: 15
+      columns: 15,
+      rows: 15
     });
 
     const topLeft = sut.worldToTile(ex.vec(250, 10));
@@ -170,8 +170,8 @@ describe('A IsometricMap', () => {
       pos: ex.vec(250, 10),
       tileWidth: 32,
       tileHeight: 16,
-      width: 15,
-      height: 15
+      columns: 15,
+      rows: 15
     });
 
     expect(sut.tileToWorld(ex.vec(0, 0))).toBeVector(ex.vec(250, 10));
@@ -192,8 +192,8 @@ describe('A IsometricMap', () => {
       pos: ex.vec(250, 10),
       tileWidth: 32,
       tileHeight: 16,
-      width: 15,
-      height: 15
+      columns: 15,
+      rows: 15
     });
 
     const tile = sut.getTile(0, 0);
@@ -205,8 +205,8 @@ describe('A IsometricMap', () => {
       pos: ex.vec(250, 10),
       tileWidth: 32,
       tileHeight: 16,
-      width: 15,
-      height: 15
+      columns: 15,
+      rows: 15
     });
 
     sut.update();
@@ -251,8 +251,8 @@ describe('A IsometricMap', () => {
       pos: ex.vec(250, 10),
       tileWidth: 32,
       tileHeight: 16,
-      width: 15,
-      height: 15
+      columns: 15,
+      rows: 15
     });
 
     sut.tiles[0].addGraphic(sprite);
@@ -274,8 +274,8 @@ describe('A IsometricMap', () => {
       pos: ex.vec(250, 10),
       tileWidth: 32,
       tileHeight: 16,
-      width: 15,
-      height: 15
+      columns: 15,
+      rows: 15
     });
 
     expect(sut.getTile(0, 0).pos).toBeVector(ex.vec(250, 10));

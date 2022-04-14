@@ -202,8 +202,8 @@ describe('DebugSystem', () => {
       pos: ex.vec(0, 0),
       tileWidth: 50,
       tileHeight: 50,
-      height: 10,
-      width: 10
+      rows: 10,
+      columns: 10
     });
     tilemap.tiles[0].solid = true;
     tilemap.update(engine, 1);

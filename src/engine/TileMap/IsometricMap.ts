@@ -207,13 +207,13 @@ export interface IsometricMapOptions {
    */
   tileHeight: number;
   /**
-   * Number of tiles wide
+   * The number of tile columns, or the number of tiles wide
    */
-  width: number;
+  columns: number;
   /**
-   * Number of tiles high
+   * The number of tile  rows, or the number of tiles high
    */
-  height: number;
+  rows: number;
 }
 
 /**
@@ -237,11 +237,11 @@ export class IsometricMap extends Entity {
   /**
    * Number of tiles wide
    */
-  public readonly width: number;
+  public readonly columns: number;
   /**
    * Number of tiles high
    */
-  public readonly height: number;
+  public readonly rows: number;
   /**
    * List containing all of the tiles in IsometricMap
    */
@@ -276,7 +276,7 @@ export class IsometricMap extends Entity {
       new ColliderComponent(),
       new DebugGraphicsComponent((ctx) => this.debug(ctx), false)
     ], options.name);
-    const { pos, tileWidth, tileHeight, width, height, renderFromTopOfGraphic, graphicsOffset } = options;
+    const { pos, tileWidth, tileHeight, columns: width, rows: height, renderFromTopOfGraphic, graphicsOffset } = options;
 
     this.transform = this.get(TransformComponent);
     if (pos) {
@@ -294,8 +294,8 @@ export class IsometricMap extends Entity {
 
     this.tileWidth = tileWidth;
     this.tileHeight = tileHeight;
-    this.width = width;
-    this.height = height;
+    this.columns = width;
+    this.rows = height;
 
     this.tiles = new Array(width * height);
 
@@ -382,10 +382,10 @@ export class IsometricMap extends Entity {
    * Returns the [[IsometricTile]] by its x and y coordinates
    */
   public getTile(x: number, y: number): IsometricTile | null {
-    if (x < 0 || y < 0 || x >= this.width || y >= this.height) {
+    if (x < 0 || y < 0 || x >= this.columns || y >= this.rows) {
       return null;
     }
-    return this.tiles[x + y * this.width];
+    return this.tiles[x + y * this.columns];
   }
 
   /**
@@ -416,15 +416,15 @@ export class IsometricMap extends Entity {
   public debug(gfx: ExcaliburGraphicsContext) {
     gfx.save();
     gfx.z = this._getMaxZIndex() + 0.5;
-    for (let y = 0; y < this.height + 1; y++) {
+    for (let y = 0; y < this.rows + 1; y++) {
       const left = this.tileToWorld(vec(0, y));
-      const right = this.tileToWorld(vec(this.width, y));
+      const right = this.tileToWorld(vec(this.columns, y));
       gfx.drawLine(left, right, Color.Red, 2);
     }
 
-    for (let x = 0; x < this.width + 1; x++) {
+    for (let x = 0; x < this.columns + 1; x++) {
       const top = this.tileToWorld(vec(x, 0));
-      const bottom = this.tileToWorld(vec(x, this.height));
+      const bottom = this.tileToWorld(vec(x, this.rows));
       gfx.drawLine(top, bottom, Color.Red, 2);
     }
 

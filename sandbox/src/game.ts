@@ -343,7 +343,7 @@ var tileBlockWidth = 64,
 
 // create a collision map
 // var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
-var tileMap = new ex.TileMap({ pos: ex.vec(100, 300), tileWidth: tileBlockWidth, tileHeight: tileBlockHeight, height: 4, width: 500 });
+var tileMap = new ex.TileMap({ pos: ex.vec(100, 300), tileWidth: tileBlockWidth, tileHeight: tileBlockHeight, rows: 4, columns: 500 });
 var blocks = ex.Sprite.from(imageBlocks);
 // var flipped = spriteTiles.sprites[0].clone();
 // flipped.flipVertical = true;

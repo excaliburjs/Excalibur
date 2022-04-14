@@ -14,8 +14,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
       pos: ex.vec(100, 100),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
     ```
   - `ex.Cell` has been renamed to `ex.Tile`
@@ -48,8 +48,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
       pos: ex.vec(250, 10),
       tileWidth: 32,
       tileHeight: 16,
-      width: 15,
-      height: 15
+      columns: 15,
+      rows: 15
     });
   ```
   - `ex.IsometricTile` now come with a `ex.IsometricEntityComponent` which can be applied to any entity that needs to be correctly sorted to preserve the isometric illusion
