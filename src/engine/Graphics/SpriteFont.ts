@@ -1,5 +1,4 @@
 import { Vector } from '../Math/vector';
-import { SpriteFont as LegacySpriteFont } from '../Drawing/Index';
 import { Logger } from '../Util/Log';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { FontRenderer } from './FontCommon';
@@ -42,18 +41,6 @@ export class SpriteFont extends Graphic implements FontRenderer {
   public spacing: number = 0;
 
   private _logger = Logger.getInstance();
-
-  static fromLegacySpriteFont(spriteFont: LegacySpriteFont): SpriteFont {
-    const sprites = spriteFont.sprites.map(Sprite.fromLegacySprite);
-    return new SpriteFont({
-      alphabet: spriteFont.alphabet,
-      spacing: 0,
-      caseInsensitive: spriteFont.caseInsensitive,
-      spriteSheet: new SpriteSheet({
-        sprites
-      })
-    });
-  }
 
   constructor(options: SpriteFontOptions & GraphicOptions) {
     super(options);

@@ -1,5 +1,5 @@
 import { EX_VERSION } from './';
-import { Flags, Legacy } from './Flags';
+import { Flags } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
@@ -10,7 +10,6 @@ import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
 import { TileMap } from './TileMap';
-import { Animation } from './Drawing/Animation';
 import { Loader } from './Loader';
 import { Detector } from './Util/Detector';
 import {
@@ -39,7 +38,7 @@ import * as Input from './Input/Index';
 import * as Events from './Events';
 import { BrowserEvents } from './Util/Browser';
 import { obsolete } from './Util/Decorators';
-import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
+import { ExcaliburGraphicsContext, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
 import { PointerEventReceiver } from './Input/PointerEventReceiver';
 import { FpsSampler } from './Util/Fps';
 import { Clock, StandardClock } from './Util/Clock';
@@ -227,12 +226,6 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * Direct access to the engine's canvas element
    */
   public canvas: HTMLCanvasElement;
-
-  /**
-   * Direct access to the engine's 2D rendering context
-   * @deprecated Will be removed in v0.26.0, use Engine.graphicsContext
-   */
-  public ctx: CanvasRenderingContext2D;
 
   /**
    * Direct access to the ExcaliburGraphicsContext used for drawing things to the screen
@@ -646,28 +639,14 @@ O|===|* >________________>\n\
       displayMode = DisplayMode.FitScreen;
     }
 
-    if (Flags.isEnabled(Legacy.Canvas)) {
-      const ex2dCtx = new ExcaliburGraphicsContext2DCanvas({
-        canvasElement: this.canvas,
-        enableTransparency: this.enableCanvasTransparency,
-        smoothing: options.antialiasing,
-        backgroundColor: options.backgroundColor,
-        snapToPixel: options.snapToPixel
-      });
-      this.graphicsContext = ex2dCtx;
-      this.ctx = ex2dCtx.__ctx;
-    } else {
-      const exWebglCtx = new ExcaliburGraphicsContextWebGL({
-        canvasElement: this.canvas,
-        enableTransparency: this.enableCanvasTransparency,
-        smoothing: options.antialiasing,
-        backgroundColor: options.backgroundColor,
-        snapToPixel: options.snapToPixel,
-        useDrawSorting: options.useDrawSorting
-      });
-      this.graphicsContext = exWebglCtx;
-      this.ctx = exWebglCtx.__ctx;
-    }
+    this.graphicsContext = new ExcaliburGraphicsContextWebGL({
+      canvasElement: this.canvas,
+      enableTransparency: this.enableCanvasTransparency,
+      smoothing: options.antialiasing,
+      backgroundColor: options.backgroundColor,
+      snapToPixel: options.snapToPixel,
+      useDrawSorting: options.useDrawSorting
+    });
 
     this.screen = new Screen({
       canvas: this.canvas,
@@ -1090,12 +1069,6 @@ O|===|* >________________>\n\
     // process engine level events
     this.currentScene.update(this, delta);
 
-    // update animations
-    // TODO remove
-    this._animations = this._animations.filter(function (a) {
-      return !a.animation.isDone();
-    });
-
     // Publish update event
     this._postupdate(delta);
 
@@ -1133,7 +1106,7 @@ O|===|* >________________>\n\
    * @param delta  Number of milliseconds elapsed since the last draw.
    */
   private _draw(delta: number) {
-    const ctx = this.ctx;
+    const ctx = this.graphicsContext;
     this.graphicsContext.beginDrawLifecycle();
     this.graphicsContext.clear();
     this._predraw(ctx, delta);
@@ -1148,27 +1121,7 @@ O|===|* >________________>\n\
     // TODO move to graphics systems?
     this.graphicsContext.backgroundColor = this.backgroundColor;
 
-    this.currentScene.draw(this.ctx, delta);
-
-    // todo needs to be a better way of doing this
-    let a = 0;
-    const len = this._animations.length;
-    for (a; a < len; a++) {
-      this._animations[a].animation.draw(ctx, this._animations[a].x, this._animations[a].y);
-    }
-
-    // Draw debug information
-    // TODO don't access ctx directly
-    if (this.isDebug) {
-      this.ctx.font = 'Consolas';
-      this.ctx.fillStyle = this.debugColor.toString();
-      const keys = this.input.keyboard.getKeys();
-      for (let j = 0; j < keys.length; j++) {
-        this.ctx.fillText(keys[j].toString() + ' : ' + (Input.Keys[keys[j]] ? Input.Keys[keys[j]] : 'Not Mapped'), 100, 10 * j + 10);
-      }
-
-      this.ctx.fillText('FPS:' + this.stats.currFrame.fps.toFixed(2).toString(), 10, 10);
-    }
+    this.currentScene.draw(this.graphicsContext, delta);
 
     this._postdraw(ctx, delta);
 
@@ -1182,24 +1135,24 @@ O|===|* >________________>\n\
   /**
    * @internal
    */
-  public _predraw(_ctx: CanvasRenderingContext2D, delta: number) {
+  public _predraw(_ctx: ExcaliburGraphicsContext, delta: number) {
     this.emit('predraw', new PreDrawEvent(_ctx, delta, this));
     this.onPreDraw(_ctx, delta);
   }
 
-  public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number) {
+  public onPreDraw(_ctx: ExcaliburGraphicsContext, _delta: number) {
     // Override me
   }
 
   /**
    * @internal
    */
-  public _postdraw(_ctx: CanvasRenderingContext2D, delta: number) {
+  public _postdraw(_ctx: ExcaliburGraphicsContext, delta: number) {
     this.emit('postdraw', new PostDrawEvent(_ctx, delta, this));
     this.onPostDraw(_ctx, delta);
   }
 
-  public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number) {
+  public onPostDraw(_ctx: ExcaliburGraphicsContext, _delta: number) {
     // Override me
   }
 

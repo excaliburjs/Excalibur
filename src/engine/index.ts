@@ -37,9 +37,6 @@ export * from './ScreenElement';
 export * from './Actions/Index';
 export * from './Collision/Index';
 
-// ex.LegacyDrawing namespace
-import * as legacyDrawing from './Drawing/Index';
-export { legacyDrawing as LegacyDrawing };
 export * from './Interfaces/Index';
 export * from './Resources/Index';
 
@@ -59,10 +56,6 @@ export { input as Input };
 export { PointerComponent } from './Input/Index';
 export { PointerSystem } from './Input/PointerSystem';
 
-// ex.Traits namespace
-import * as traits from './Traits/Index';
-export { traits as Traits };
-
 // ex.Util namespaces
 import * as util from './Util/Index';
 export { util as Util };
@@ -70,7 +63,6 @@ export { util as Util };
 export * from './Util/Browser';
 export * from './Util/Decorators';
 export * from './Util/Detector';
-export * from './Util/CullingBox';
 export * from './Util/EasingFunctions';
 export * from './Util/Observable';
 export * from './Util/Log';

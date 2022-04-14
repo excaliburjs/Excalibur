@@ -1,20 +1,5 @@
 
 /**
- * Features in preview
- */
-export enum Experiments {
-  WebGL = 'use-webgl'
-}
-
-/**
- * Legacy features that will go away
- */
-export enum Legacy {
-  Canvas = 'use-canvas-context',
-  LegacyDrawing = 'use-legacy-drawing'
-}
-
-/**
  * Flags is a feature flag implementation for Excalibur. They can only be operated **before [[Engine]] construction**
  * after which they are frozen and are read-only.
  *
@@ -41,25 +26,6 @@ export class Flags {
     Flags._FROZEN = false;
     Flags._FLAGS = {};
   }
-
-  /**
-   * Turn on webgl support
-   */
-  public static useWebGL() {
-    Flags.enable(Experiments.WebGL);
-  }
-
-  public static useCanvasGraphicsContext() {
-    Flags.enable(Legacy.Canvas);
-  }
-
-  /**
-   * @deprecated Recommended not to use legacy drawing, going away in v0.26.0
-   */
-  public static useLegacyDrawing() {
-    Flags.enable(Legacy.LegacyDrawing);
-  }
-
   /**
    * Enable a specific feature flag by name. **Note: can only be set before [[Engine]] constructor time**
    * @param flagName

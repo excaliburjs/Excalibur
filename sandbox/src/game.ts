@@ -40,7 +40,6 @@ logger.defaultLevel = ex.LogLevel.Debug;
 var fullscreenButton = document.getElementById('fullscreen') as HTMLButtonElement;
 
 // Create an the game container
-ex.Flags.enable(ex.Experiments.WebGL);
 var game = new ex.Engine({
   width: 800 / 2,
   height: 600 / 2,
@@ -77,7 +76,6 @@ var imageRun = new ex.ImageSource('../images/PlayerRun.png', false, ex.ImageFilt
 var imageJump = new ex.ImageSource('../images/PlayerJump.png');
 var imageRun2 = new ex.ImageSource('../images/PlayerRun.png');
 var imageBlocks = new ex.ImageSource('../images/BlockA0.png', false, ex.ImageFiltering.Blended);
-var imageBlocksLegacy = new ex.LegacyDrawing.Texture('../images/BlockA0.png');
 var spriteFontImage = new ex.ImageSource('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
 var cards = new ex.ImageSource('../images/kenny-cards.png');
@@ -90,7 +88,6 @@ loader.addResource(heartTex);
 loader.addResource(imageRun);
 loader.addResource(imageJump);
 loader.addResource(imageBlocks);
-loader.addResource(imageBlocksLegacy);
 loader.addResource(spriteFontImage);
 loader.addResource(cards);
 loader.addResource(jump);
@@ -306,7 +303,6 @@ game.input.pointers.primary.on('wheel', (ev) => {
 })
 // Turn on debug diagnostics
 game.showDebug(false);
-var blockSpriteLegacy = new ex.LegacyDrawing.Sprite(imageBlocksLegacy, 0, 0, 65, 49);
 var blockSprite = new ex.Sprite({
   image: imageBlocks,
   destSize: {

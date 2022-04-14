@@ -2,19 +2,14 @@ import { BoundingBox } from '../Collision/BoundingBox';
 import { Engine } from '../Engine';
 import { Vector, vec } from '../Math/vector';
 import { Logger } from '../Util/Log';
-import { SpriteSheet } from '../Drawing/SpriteSheet';
 import * as Events from '../Events';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionType } from '../Collision/CollisionType';
 import { Shape } from '../Collision/Colliders/Shape';
-import { ExcaliburGraphicsContext, GraphicsComponent, hasGraphicsTick } from '../Graphics';
-import * as Graphics from '../Graphics';
-import { CanvasDrawComponent, Sprite } from '../Drawing/Index';
-import { Sprite as LegacySprite } from '../Drawing/Index';
+import { ExcaliburGraphicsContext, Graphic, GraphicsComponent, hasGraphicsTick } from '../Graphics';
 import { removeItemFromArray } from '../Util/Util';
-import { obsolete } from '../Util/Decorators';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { ColliderComponent } from '../Collision/ColliderComponent';
 import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
@@ -60,9 +55,7 @@ export class TileMap extends Entity {
   private _onScreenXEnd: number = Number.MAX_VALUE;
   private _onScreenYStart: number = 0;
   private _onScreenYEnd: number = Number.MAX_VALUE;
-  private _spriteSheets: { [key: string]: Graphics.SpriteSheet } = {};
 
-  private _legacySpriteMap = new Map<Graphics.Sprite, Sprite>();
   public logger: Logger = Logger.getInstance();
   public readonly tiles: Tile[] = [];
   private _rows: Tile[][] = [];
@@ -170,7 +163,6 @@ export class TileMap extends Entity {
         type: CollisionType.Fixed
       })
     );
-    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
     this.addComponent(
       new GraphicsComponent({
         onPostDraw: (ctx, delta) => this.draw(ctx, delta)
@@ -224,22 +216,6 @@ export class TileMap extends Entity {
     super._initialize(engine);
   }
 
-  /**
-   *
-   * @param key
-   * @param spriteSheet
-   * @deprecated No longer used, will be removed in v0.26.0
-   */
-  public registerSpriteSheet(key: string, spriteSheet: SpriteSheet): void;
-  public registerSpriteSheet(key: string, spriteSheet: Graphics.SpriteSheet): void;
-  @obsolete({ message: 'No longer used, will be removed in v0.26.0' })
-  public registerSpriteSheet(key: string, spriteSheet: SpriteSheet | Graphics.SpriteSheet): void {
-    if (spriteSheet instanceof Graphics.SpriteSheet) {
-      this._spriteSheets[key] = spriteSheet;
-    } else {
-      this._spriteSheets[key] = Graphics.SpriteSheet.fromLegacySpriteSheet(spriteSheet);
-    }
-  }
 
   private _originalOffsets = new WeakMap<Collider, Vector>();
   private _getOrSetColliderOriginalOffset(collider: Collider): Vector {
@@ -380,7 +356,7 @@ export class TileMap extends Entity {
    * @param ctx CanvasRenderingContext2D or ExcaliburGraphicsContext
    * @param delta  The number of milliseconds since the last draw
    */
-  public draw(ctx: CanvasRenderingContext2D | ExcaliburGraphicsContext, delta: number): void {
+  public draw(ctx: ExcaliburGraphicsContext, delta: number): void {
     this.emit('predraw', new Events.PreDrawEvent(ctx as any, delta, this)); // TODO fix event
 
     let x = this._onScreenXStart;
@@ -388,7 +364,7 @@ export class TileMap extends Entity {
     let y = this._onScreenYStart;
     const yEnd = Math.min(this._onScreenYEnd, this.rows);
 
-    let graphics: readonly Graphics.Graphic[], graphicsIndex: number, graphicsLen: number;
+    let graphics: readonly Graphic[], graphicsIndex: number, graphicsLen: number;
 
     for (x; x < xEnd; x++) {
       for (y; y < yEnd; y++) {
@@ -399,18 +375,10 @@ export class TileMap extends Entity {
           // draw sprite, warning if sprite doesn't exist
           const graphic = graphics[graphicsIndex];
           if (graphic) {
-            if (!(ctx instanceof CanvasRenderingContext2D)) {
-              if (hasGraphicsTick(graphic)) {
-                graphic?.tick(delta, this._token);
-              }
-              graphic.draw(ctx, x * this.tileWidth, y * this.tileHeight);
-            } else if (graphic instanceof Graphics.Sprite) {
-              // TODO legacy drawing mode
-              if (!this._legacySpriteMap.has(graphic)) {
-                this._legacySpriteMap.set(graphic, Graphics.Sprite.toLegacySprite(graphic));
-              }
-              this._legacySpriteMap.get(graphic).draw(ctx, x * this.tileWidth, y * this.tileHeight);
+            if (hasGraphicsTick(graphic)) {
+              graphic?.tick(delta, this._token);
             }
+            graphic.draw(ctx, x * this.tileWidth, y * this.tileHeight);
           }
         }
       }
@@ -456,7 +424,7 @@ export interface TileOptions {
   y: number;
   map: TileMap;
   solid?: boolean;
-  graphics?: Graphics.Graphic[];
+  graphics?: Graphic[];
 }
 
 /**
@@ -526,12 +494,12 @@ export class Tile extends Entity {
     this._solid = val;
   }
 
-  private _graphics: Graphics.Graphic[] = [];
+  private _graphics: Graphic[] = [];
 
   /**
    * Current list of graphics for this tile
    */
-  public getGraphics(): readonly Graphics.Graphic[] {
+  public getGraphics(): readonly Graphic[] {
     return this._graphics;
   }
 
@@ -539,18 +507,14 @@ export class Tile extends Entity {
    * Add another [[Graphic]] to this TileMap tile
    * @param graphic
    */
-  public addGraphic(graphic: Graphics.Graphic | LegacySprite) {
-    if (graphic instanceof LegacySprite) {
-      this._graphics.push(Graphics.Sprite.fromLegacySprite(graphic));
-    } else {
-      this._graphics.push(graphic);
-    }
+  public addGraphic(graphic: Graphic) {
+    this._graphics.push(graphic);
   }
 
   /**
    * Remove an instance of a [[Graphic]] from this tile
    */
-  public removeGraphic(graphic: Graphics.Graphic | LegacySprite) {
+  public removeGraphic(graphic: Graphic) {
     removeItemFromArray(graphic, this._graphics);
   }
 
@@ -645,14 +609,5 @@ export class Tile extends Entity {
 
   public get center(): Vector {
     return new Vector(this._pos.x + this.width / 2, this._pos.y + this.height / 2);
-  }
-
-  /**
-   * Add another [[Sprite]] to this tile
-   * @deprecated Use addSprite, will be removed in v0.26.0
-   */
-  @obsolete({ message: 'Will be removed in v0.26.0', alternateMethod: 'addSprite' })
-  public pushSprite(sprite: Graphics.Sprite | LegacySprite) {
-    this.addGraphic(sprite);
   }
 }

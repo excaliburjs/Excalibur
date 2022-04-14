@@ -1,4 +1,3 @@
-import { Texture } from './Drawing/Texture';
 import {
   InitializeEvent,
   KillEvent,
@@ -22,28 +21,21 @@ import {
 } from './Events';
 import { Engine } from './Engine';
 import { Color } from './Color';
-import { Sprite } from './Drawing/Sprite';
-import { Animation } from './Drawing/Animation';
-import { Trait } from './Interfaces/Trait';
-import { Drawable } from './Interfaces/Drawable';
 import { CanInitialize, CanUpdate, CanDraw, CanBeKilled } from './Interfaces/LifecycleEvents';
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { Vector, vec } from './Math/vector';
 import { BodyComponent } from './Collision/BodyComponent';
 import { Eventable } from './Interfaces/Evented';
-import * as Traits from './Traits/Index';
 import * as Events from './Events';
 import { PointerEvents } from './Interfaces/PointerEventHandlers';
 import { CollisionType } from './Collision/CollisionType';
 
 import { Entity } from './EntityComponentSystem/Entity';
-import { CanvasDrawComponent } from './Drawing/CanvasDrawComponent';
 import { CoordPlane, TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Rectangle } from './Graphics/Rectangle';
-import { Flags, Legacy } from './Flags';
 import { obsolete } from './Util/Decorators';
 import { ColliderComponent } from './Collision/ColliderComponent';
 import { Shape } from './Collision/Colliders/Shape';
@@ -56,6 +48,7 @@ import { PointerComponent } from './Input/PointerComponent';
 import { ActionsComponent } from './Actions/ActionsComponent';
 import { Raster } from './Graphics/Raster';
 import { Text } from './Graphics/Text';
+import { ExcaliburGraphicsContext } from './Graphics';
 
 /**
  * Type guard for checking if something is an Actor
@@ -416,19 +409,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public scene: Scene = null;
 
   /**
-   * @deprecated will be removed in v0.26.0
-   */
-  public frames: { [key: string]: Drawable } = {};
-
-  /**
-   * Access to the current drawing for the actor, this can be
-   * an [[Animation]], [[Sprite]], or [[Polygon]].
-   * Set drawings with [[setDrawing]].
-   * @deprecated will be removed in v0.26.0
-   */
-  public currentDrawing: Drawable = null;
-
-  /**
    * Draggable helper
    */
   private _draggable: boolean = false;
@@ -475,12 +455,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       this._draggable = isDraggable;
     }
   }
-
-  /**
-   * Modify the current actor update pipeline.
-   * @deprecated will be removed in v0.26.0
-   */
-  public traits: Trait[] = [];
 
   /**
    * Sets the color of the actor's current graphic
@@ -547,7 +521,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     this.addComponent(new GraphicsComponent({
       anchor: this.anchor
     }));
-    this.addComponent(new CanvasDrawComponent((ctx, delta) => this.draw(ctx, delta)));
     this.addComponent(new MotionComponent());
     this.vel = vel ?? Vector.Zero;
     this.acc = acc ?? Vector.Zero;
@@ -594,13 +567,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
         );
       }
     }
-
-    // Build default pipeline
-    if (Flags.isEnabled(Legacy.LegacyDrawing)) {
-      // TODO remove offscreen trait after legacy drawing removed
-      this.traits.push(new Traits.OffscreenCulling());
-    }
-
   }
 
   /**
@@ -896,76 +862,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   /**
-   * Sets the current drawing of the actor to the drawing corresponding to
-   * the key.
-   * @param key The key of the drawing
-   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.use|Actor.graphics.use]]
-   */
-  public setDrawing(key: string): void;
-  /**
-   * Sets the current drawing of the actor to the drawing corresponding to
-   * an `enum` key (e.g. `Animations.Left`)
-   * @param key The `enum` key of the drawing
-   * @deprecated Use [[GraphicsComponent.show|Actor.graphics.show]] or [[GraphicsComponent.use|Actor.graphics.use]]
-   */
-  public setDrawing(key: number): void;
-  @obsolete({
-    message: 'Actor.setDrawing will be removed in v0.26.0',
-    alternateMethod: 'Use Actor.graphics.show() or Actor.graphics.use()'
-  })
-  public setDrawing(key: any): void {
-    key = key.toString();
-    if (this.currentDrawing !== this.frames[<string>key]) {
-      if (this.frames[key] != null) {
-        this.frames[key].reset();
-        this.currentDrawing = this.frames[key];
-      } else {
-        Logger.getInstance().error(`the specified drawing key ${key} does not exist`);
-      }
-    }
-    if (this.currentDrawing && this.currentDrawing instanceof Animation) {
-      this.currentDrawing.tick(0);
-    }
-  }
-
-  /**
-   * Adds a whole texture as the "default" drawing. Set a drawing using [[setDrawing]].
-   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]], will be removed in v0.26.0
-   */
-  public addDrawing(texture: Texture): void;
-  /**
-   * Adds a whole sprite as the "default" drawing. Set a drawing using [[setDrawing]].
-   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]], will be removed in v0.26.0
-   */
-  public addDrawing(sprite: Sprite): void;
-  /**
-   * Adds a drawing to the list of available drawings for an actor. Set a drawing using [[setDrawing]].
-   * @param key     The key to associate with a drawing for this actor
-   * @param drawing This can be an [[Animation]], [[Sprite]], or [[Polygon]].
-   * @deprecated Use [[GraphicsComponent.add|Actor.graphics.add]], will be removed in v0.26.0
-   */
-  public addDrawing(key: any, drawing: Drawable): void;
-  @obsolete({
-    message: 'Actor.addDrawing will be removed in v0.26.0',
-    alternateMethod: 'Use Actor.graphics.add()'
-  })
-  public addDrawing(): void {
-    if (arguments.length === 2) {
-      this.frames[<string>arguments[0]] = arguments[1];
-      if (!this.currentDrawing) {
-        this.currentDrawing = arguments[1];
-      }
-    } else {
-      if (arguments[0] instanceof Sprite) {
-        this.addDrawing('default', arguments[0]);
-      }
-      if (arguments[0] instanceof Texture) {
-        this.addDrawing('default', arguments[0].asSprite());
-      }
-    }
-  }
-
-  /**
    * Gets the z-index of an actor. The z-index determines the relative order an actor is drawn in.
    * Actors with a higher z-index are drawn on top of actors with a lower z-index
    */
@@ -1117,18 +1013,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public update(engine: Engine, delta: number) {
     this._initialize(engine);
     this._preupdate(engine, delta);
-
-    // Tick animations
-    const drawing = this.currentDrawing;
-    if (drawing && drawing instanceof Animation) {
-      drawing.tick(delta, engine.stats.currFrame.id);
-    }
-
-    // Update actor pipeline (movement, collision detection, event propagation, offscreen culling)
-    for (const trait of this.traits) {
-      trait.update(this, engine, delta);
-    }
-
     this._postupdate(engine, delta);
   }
 
@@ -1175,44 +1059,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   // endregion
 
   // #region Drawing
-  /**
-   * Called by the Engine, draws the actor to the screen
-   * @param ctx   The rendering context
-   * @param delta The time since the last draw in milliseconds
-   *
-   * **Warning** only works with Flags.useLegacyDrawing() enabled
-   * @deprecated Use Actor.graphics, will be removed in v0.26.0
-   */
-  public draw(ctx: CanvasRenderingContext2D, delta: number) {
-    // translate canvas by anchor offset
-    ctx.save();
-
-    if (this.currentDrawing) {
-      ctx.translate(-(this.width * this.anchor.x), -(this.height * this.anchor.y));
-
-      this._predraw(ctx, delta);
-      const drawing = this.currentDrawing;
-      // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-      const offsetX = (this.width - drawing.width * drawing.scale.x) * this.anchor.x;
-      const offsetY = (this.height - drawing.height * drawing.scale.y) * this.anchor.y;
-
-      this.currentDrawing.draw({ ctx, x: offsetX, y: offsetY, opacity: this.graphics.opacity });
-    } else {
-      this._predraw(ctx, delta);
-      if (this.color && this.collider) {
-        // update collider geometry based on transform
-        const collider = this.get(ColliderComponent);
-        collider.update();
-        if (collider && !collider.bounds.hasZeroDimensions()) {
-          // Colliders are already shifted by anchor, unshift
-          ctx.globalAlpha = this.graphics.opacity;
-          collider.get()?.draw(ctx, this.color, vec(0, 0));
-        }
-      }
-    }
-    ctx.restore();
-    this._postdraw(ctx, delta);
-  }
 
   /**
    * Safe to override onPreDraw lifecycle event handler. Synonymous with `.on('predraw', (evt) =>{...})`
@@ -1222,7 +1068,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * **Warning** only works with Flags.useLegacyDrawing() enabled
    * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
    */
-  public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+  public onPreDraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
     // Override me
   }
 
@@ -1234,7 +1080,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * **Warning** only works with Flags.useLegacyDrawing() enabled
    * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
    */
-  public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+  public onPostDraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
     // Override me
   }
 
@@ -1247,7 +1093,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * @deprecated Use Actor.graphics.onPreDraw, will be removed in v0.26.0
    * @internal
    */
-  public _predraw(ctx: CanvasRenderingContext2D, delta: number): void {
+  public _predraw(ctx: ExcaliburGraphicsContext, delta: number): void {
     this.emit('predraw', new PreDrawEvent(ctx, delta, this));
     this.onPreDraw(ctx, delta);
   }
@@ -1261,7 +1107,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
    * @internal
    */
-  public _postdraw(ctx: CanvasRenderingContext2D, delta: number): void {
+  public _postdraw(ctx: ExcaliburGraphicsContext, delta: number): void {
     this.emit('postdraw', new PreDrawEvent(ctx, delta, this));
     this.onPostDraw(ctx, delta);
   }

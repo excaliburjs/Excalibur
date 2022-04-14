@@ -12,6 +12,7 @@ import { Collider } from './Collision/Colliders/Collider';
 import { Entity } from './EntityComponentSystem/Entity';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from './Interfaces/LifecycleEvents';
 import { BodyComponent } from './Collision/BodyComponent';
+import { ExcaliburGraphicsContext } from './Graphics';
 
 export enum EventTypes {
   Kill = 'kill',
@@ -245,7 +246,7 @@ export class GameStopEvent extends GameEvent<Engine> {
  *
  */
 export class PreDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
-  constructor(public ctx: CanvasRenderingContext2D, public delta: number, public target: Entity | Scene | Engine | TileMap) {
+  constructor(public ctx: ExcaliburGraphicsContext, public delta: number, public target: Entity | Scene | Engine | TileMap) {
     super();
   }
 }
@@ -256,7 +257,7 @@ export class PreDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
  *
  */
 export class PostDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> {
-  constructor(public ctx: CanvasRenderingContext2D, public delta: number, public target: Entity | Scene | Engine | TileMap) {
+  constructor(public ctx: ExcaliburGraphicsContext, public delta: number, public target: Entity | Scene | Engine | TileMap) {
     super();
   }
 }
@@ -265,7 +266,7 @@ export class PostDrawEvent extends GameEvent<Entity | Scene | Engine | TileMap> 
  * The 'predebugdraw' event is emitted on actors, scenes, and engine before debug drawing starts.
  */
 export class PreDebugDrawEvent extends GameEvent<Entity | Actor | Scene | Engine> {
-  constructor(public ctx: CanvasRenderingContext2D, public target: Entity | Actor | Scene | Engine) {
+  constructor(public ctx: ExcaliburGraphicsContext, public target: Entity | Actor | Scene | Engine) {
     super();
   }
 }
@@ -274,7 +275,7 @@ export class PreDebugDrawEvent extends GameEvent<Entity | Actor | Scene | Engine
  * The 'postdebugdraw' event is emitted on actors, scenes, and engine after debug drawing starts.
  */
 export class PostDebugDrawEvent extends GameEvent<Entity | Actor | Scene | Engine> {
-  constructor(public ctx: CanvasRenderingContext2D, public target: Entity | Actor | Scene | Engine) {
+  constructor(public ctx: ExcaliburGraphicsContext, public target: Entity | Actor | Scene | Engine) {
     super();
   }
 }
