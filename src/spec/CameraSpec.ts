@@ -370,28 +370,6 @@ describe('A camera', () => {
     engine.currentScene.camera.update(engine, 1);
   });
 
-  xit('can zoom in over time', (done) => {
-    engine.start().then(() => {
-      engine.currentScene.camera.zoomOverTime(5, 1000).then(() => {
-        ensureImagesLoaded(engine.canvas, 'src/spec/images/CameraSpec/zoomin.png').then(([canvas, image]) => {
-          expect(canvas).toEqualImage(image, 0.995);
-          done();
-        });
-      });
-    });
-  });
-
-  xit('can zoom out over time', (done) => {
-    engine.start().then(() => {
-      engine.currentScene.camera.zoomOverTime(0.2, 1000).then(() => {
-        ensureImagesLoaded(engine.canvas, 'src/spec/images/CameraSpec/zoomout.png').then(([canvas, image]) => {
-          expect(canvas).toEqualImage(image, 0.995);
-          done();
-        });
-      });
-    });
-  });
-
   describe('lifecycle overrides', () => {
     let camera: ex.Camera;
 
