@@ -578,24 +578,6 @@ export class PolygonCollider extends Collider {
     return new Projection(min, max);
   }
 
-  public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
-    const effectiveOffset = pos.add(this.offset);
-    ctx.beginPath();
-    ctx.fillStyle = color.toString();
-
-    const firstPoint = this.points[0].add(effectiveOffset);
-    ctx.moveTo(firstPoint.x, firstPoint.y);
-
-    // Points are relative
-    this.points
-      .map((p) => p.add(effectiveOffset))
-      .forEach(function (point) {
-        ctx.lineTo(point.x, point.y);
-      });
-    ctx.lineTo(firstPoint.x, firstPoint.y);
-    ctx.closePath();
-    ctx.fill();
-  }
   public debug(ex: ExcaliburGraphicsContext, color: Color) {
     const firstPoint = this.getTransformedPoints()[0];
     const points = [firstPoint, ...this.getTransformedPoints(), firstPoint];
@@ -604,20 +586,5 @@ export class PolygonCollider extends Collider {
       ex.drawCircle(points[i], 2, color);
       ex.drawCircle(points[i + 1], 2, color);
     }
-  }
-
-  /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red) {
-    ctx.beginPath();
-    ctx.strokeStyle = color.toString();
-    // Iterate through the supplied points and construct a 'polygon'
-    const firstPoint = this.getTransformedPoints()[0];
-    ctx.moveTo(firstPoint.x, firstPoint.y);
-    this.getTransformedPoints().forEach(function (point) {
-      ctx.lineTo(point.x, point.y);
-    });
-    ctx.lineTo(firstPoint.x, firstPoint.y);
-    ctx.closePath();
-    ctx.stroke();
   }
 }

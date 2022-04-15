@@ -51,6 +51,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       tx.zIndexChanged$.subscribe(this._zIndexUpdate);
       this._zHasChanged = true;
     } else {
+      entityAddedOrRemoved.data.name;//?
       const tx = entityAddedOrRemoved.data.get(TransformComponent);
       tx.zIndexChanged$.unsubscribe(this._zIndexUpdate);
       const index = this._sortedTransforms.indexOf(tx);

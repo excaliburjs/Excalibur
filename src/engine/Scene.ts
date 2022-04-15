@@ -485,6 +485,15 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     }
   }
 
+  public clear(deferred: boolean = true): void {
+    for (let entity of this.entities) {
+      this.world.remove(entity, deferred);
+    }
+    for (let timer of this.timers) {
+      this.removeTimer(timer);
+    }
+  }
+
   /**
    * Adds (any) actor to act as a piece of UI, meaning it is always positioned
    * in screen coordinates. UI actors do not participate in collisions.

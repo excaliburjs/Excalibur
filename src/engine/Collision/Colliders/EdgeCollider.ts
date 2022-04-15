@@ -274,17 +274,6 @@ export class EdgeCollider extends Collider {
     return new Projection(Math.min.apply(Math, scalars), Math.max.apply(Math, scalars));
   }
 
-  public draw(ctx: CanvasRenderingContext2D, color: Color = Color.Green, pos: Vector = Vector.Zero) {
-    const begin = this.begin.add(pos);
-    const end = this.end.add(pos);
-    ctx.strokeStyle = color.toString();
-    ctx.beginPath();
-    ctx.moveTo(begin.x, begin.y);
-    ctx.lineTo(end.x, end.y);
-    ctx.closePath();
-    ctx.stroke();
-  }
-
   public debug(ex: ExcaliburGraphicsContext, color: Color) {
     const begin = this._getTransformedBegin();
     const end = this._getTransformedEnd();
@@ -293,15 +282,4 @@ export class EdgeCollider extends Collider {
     ex.drawCircle(end, 2, color);
   }
 
-  /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Red) {
-    const begin = this._getTransformedBegin();
-    const end = this._getTransformedEnd();
-    ctx.strokeStyle = color.toString();
-    ctx.beginPath();
-    ctx.moveTo(begin.x, begin.y);
-    ctx.lineTo(end.x, end.y);
-    ctx.closePath();
-    ctx.stroke();
-  }
 }

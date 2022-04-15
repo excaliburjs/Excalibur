@@ -3,10 +3,6 @@ import {
   KillEvent,
   PreUpdateEvent,
   PostUpdateEvent,
-  PreDrawEvent,
-  PostDrawEvent,
-  PreDebugDrawEvent,
-  PostDebugDrawEvent,
   PostCollisionEvent,
   PreCollisionEvent,
   CollisionStartEvent,
@@ -48,7 +44,6 @@ import { PointerComponent } from './Input/PointerComponent';
 import { ActionsComponent } from './Actions/ActionsComponent';
 import { Raster } from './Graphics/Raster';
 import { Text } from './Graphics/Text';
-import { ExcaliburGraphicsContext } from './Graphics';
 
 /**
  * Type guard for checking if something is an Actor
@@ -151,7 +146,7 @@ export interface ActorArgs {
  * or interact with the current scene, must be an actor. An `Actor` **must**
  * be part of a [[Scene]] for it to be drawn to the screen.
  */
-export class Actor extends Entity implements Eventable, PointerEvents, CanInitialize, CanUpdate, CanDraw, CanBeKilled {
+export class Actor extends Entity implements Eventable, PointerEvents, CanInitialize, CanUpdate, CanBeKilled {
   // #region Properties
 
   /**
@@ -366,36 +361,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Indicates whether the actor is physically in the viewport
    */
   public get isOffScreen(): boolean {
-    return this.hasTag('offscreen');
-  }
-  /**
-   * The visibility of an actor
-   * @deprecated Use [[GraphicsComponent.visible|Actor.graphics.visible]], will be removed in v0.26.0
-   */
-  @obsolete({ message: 'Actor.visible will be removed in v0.26.0', alternateMethod: 'Use Actor.graphics.visible' })
-  public get visible(): boolean {
-    return this.graphics.visible;
-  }
-
-  public set visible(isVisible: boolean) {
-    this.graphics.visible = isVisible;
-  }
-
-  /**
-   * The opacity of an actor.
-   *
-   * @deprecated Actor.opacity will be removed in v0.26.0, use [[GraphicsComponent.opacity|Actor.graphics.opacity]].
-   */
-  @obsolete({
-    message: 'Actor.opacity will be removed in v0.26.0',
-    alternateMethod: 'Use Actor.graphics.opacity'
-  })
-  public get opacity(): number {
-    return this.graphics.opacity;
-  }
-
-  public set opacity(opacity: number) {
-    this.graphics.opacity = opacity;
+    return this.hasTag('ex.offscreen');
   }
 
   /**
@@ -638,10 +604,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public on(eventName: Events.initialize, handler: (event: InitializeEvent<Actor>) => void): void;
   public on(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Actor>) => void): void;
   public on(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Actor>) => void): void;
-  public on(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
-  public on(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
-  public on(eventName: Events.predebugdraw, handler: (event: PreDebugDrawEvent) => void): void;
-  public on(eventName: Events.postdebugdraw, handler: (event: PostDebugDrawEvent) => void): void;
   public on(eventName: Events.pointerup, handler: (event: PointerEvent) => void): void;
   public on(eventName: Events.pointerdown, handler: (event: PointerEvent) => void): void;
   public on(eventName: Events.pointerenter, handler: (event: PointerEvent) => void): void;
@@ -704,10 +666,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public once(eventName: Events.initialize, handler: (event: InitializeEvent<Actor>) => void): void;
   public once(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Actor>) => void): void;
   public once(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Actor>) => void): void;
-  public once(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
-  public once(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
-  public once(eventName: Events.predebugdraw, handler: (event: PreDebugDrawEvent) => void): void;
-  public once(eventName: Events.postdebugdraw, handler: (event: PostDebugDrawEvent) => void): void;
   public once(eventName: Events.pointerup, handler: (event: PointerEvent) => void): void;
   public once(eventName: Events.pointerdown, handler: (event: PointerEvent) => void): void;
   public once(eventName: Events.pointerenter, handler: (event: PointerEvent) => void): void;
@@ -781,8 +739,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent<Actor>) => void): void;
   public off(eventName: Events.postupdate, handler?: (event: Events.PostUpdateEvent<Actor>) => void): void;
   public off(eventName: Events.preupdate, handler?: (event: Events.PreUpdateEvent<Actor>) => void): void;
-  public off(eventName: Events.postdraw, handler?: (event: Events.PostDrawEvent) => void): void;
-  public off(eventName: Events.predraw, handler?: (event: Events.PreDrawEvent) => void): void;
   public off(eventName: Events.enterviewport, handler?: (event: EnterViewPortEvent) => void): void;
   public off(eventName: Events.exitviewport, handler?: (event: ExitViewPortEvent) => void): void;
   public off(eventName: string, handler?: (event: GameEvent<Actor>) => void): void;
@@ -1057,73 +1013,4 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   }
 
   // endregion
-
-  // #region Drawing
-
-  /**
-   * Safe to override onPreDraw lifecycle event handler. Synonymous with `.on('predraw', (evt) =>{...})`
-   *
-   * `onPreDraw` is called directly before an actor is drawn, but after local transforms are made.
-   *
-   * **Warning** only works with Flags.useLegacyDrawing() enabled
-   * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
-   */
-  public onPreDraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
-    // Override me
-  }
-
-  /**
-   * Safe to override onPostDraw lifecycle event handler. Synonymous with `.on('postdraw', (evt) =>{...})`
-   *
-   * `onPostDraw` is called directly after an actor is drawn, and before local transforms are removed.
-   *
-   * **Warning** only works with Flags.useLegacyDrawing() enabled
-   * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
-   */
-  public onPostDraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
-    // Override me
-  }
-
-  /**
-   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
-   *
-   * Internal _predraw handler for [[onPreDraw]] lifecycle event
-   *
-   * **Warning** only works with Flags.useLegacyDrawing() enabled
-   * @deprecated Use Actor.graphics.onPreDraw, will be removed in v0.26.0
-   * @internal
-   */
-  public _predraw(ctx: ExcaliburGraphicsContext, delta: number): void {
-    this.emit('predraw', new PreDrawEvent(ctx, delta, this));
-    this.onPreDraw(ctx, delta);
-  }
-
-  /**
-   * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
-   *
-   * Internal _postdraw handler for [[onPostDraw]] lifecycle event
-   *
-   * **Warning** only works with Flags.useLegacyDrawing() enabled
-   * @deprecated Use Actor.graphics.onPostDraw, will be removed in v0.26.0
-   * @internal
-   */
-  public _postdraw(ctx: ExcaliburGraphicsContext, delta: number): void {
-    this.emit('postdraw', new PreDrawEvent(ctx, delta, this));
-    this.onPostDraw(ctx, delta);
-  }
-
-  /**
-   * Called by the Engine, draws the actors debugging to the screen
-   * @param ctx The rendering context
-   *
-   *
-   * **Warning** only works with Flags.useLegacyDrawing() enabled
-   * @deprecated will be removed in v0.26.0
-   * @internal
-   */
-  /* istanbul ignore next */
-  public debugDraw(_ctx: CanvasRenderingContext2D) {
-    // pass
-  }
-  // #endregion
 }
