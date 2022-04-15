@@ -17,7 +17,7 @@ import {
 } from './Events';
 import { Engine } from './Engine';
 import { Color } from './Color';
-import { CanInitialize, CanUpdate, CanDraw, CanBeKilled } from './Interfaces/LifecycleEvents';
+import { CanInitialize, CanUpdate, CanBeKilled } from './Interfaces/LifecycleEvents';
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
 import { Vector, vec } from './Math/vector';

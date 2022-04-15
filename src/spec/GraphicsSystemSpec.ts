@@ -97,6 +97,6 @@ describe('A Graphics ECS System', () => {
     expect(offscreenRect.draw).not.toHaveBeenCalled();
 
     engine.graphicsContext.flush();
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-system.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-system.png');
   });
 });
