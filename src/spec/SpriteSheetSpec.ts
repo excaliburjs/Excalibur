@@ -117,23 +117,4 @@ describe('A SpriteSheet for Graphics', () => {
     expect(ss.getSprite(1, -1)).toBeNull();
     expect(logger.warn).toHaveBeenCalledWith('No sprite exists in the SpriteSheet at (1, -1), y: -1 should be between 0 and 3');
   });
-
-  it('can be created from a legacy sprite sheet', async () => {
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/GraphicsTextSpec/spritefont.png');
-    await texture.load();
-
-    const legacy = new ex.LegacyDrawing.SpriteSheet({
-      image: texture,
-      rows: 3,
-      columns: 16,
-      spWidth: 16,
-      spHeight: 16
-    });
-
-    const ss = ex.SpriteSheet.fromLegacySpriteSheet(legacy);
-
-    expect(ss.sprites.length).toBe(3 * 16);
-    expect(ss.sprites[0].width).toBe(16);
-    expect(ss.sprites[0].height).toBe(16);
-  });
 });
