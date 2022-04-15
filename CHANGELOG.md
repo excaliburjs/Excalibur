@@ -7,6 +7,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
+- The old drawing API had been removed from excalibur, this should not affect you unless you were using the `ex.Flags.useLegacyDrawing()` or `ex.Flags.useCanvasGraphicsContext()`.
+  - Notably all implementations of `Drawable` are removed, use the new `Graphics` API
+  - Methods on actor `ex.Actor.setDrawing(...)`, `ex.Actor.addDrawing(...)` are removed, use the `ex.Actor.graphics.add(...)`, `ex.Actor.graphics.show(...)` and `ex.Actor.graphics.use(...)`
+  - The `ex.Actor.onPreDraw(...)` and `ex.Actor.onPostDraw(...)` are removed, use `ex.Actor.graphics.onPreDraw(...)` and `ex.Actor.graphics.onPostDraw(...)`
+  - The events `predraw` and `postdraw` are removed
+  - `ex.Scene.onPreDraw()` and `ex.Scene.onPostDraw()` are now called with the `ExcaliburGraphicsContext` instead of an `CanvasRenderingContext2D`
 - `ex.TileMap` has several breaking changes around naming, but brings it consistent with Tiled terminology and the new `ex.IsometricMap`. Additionally the new names are easier to follow.
   - Constructor has been changed to the following
     ```typescript
