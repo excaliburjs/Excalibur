@@ -1,4 +1,3 @@
-import { Color } from './Color';
 import { Engine } from './Engine';
 import { EventDispatcher } from './EventDispatcher';
 import { Vector } from './Math/vector';
@@ -122,31 +121,5 @@ export class Trigger extends Actor {
       this.action.call(this);
       this.repeat--;
     }
-  }
-
-  /**
-   * @deprecated signature will change in v0.26.0
-   * @param ctx
-   */
-  /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D) {
-    super.debugDraw(ctx);
-    // Meant to draw debug information about actors
-    ctx.save();
-    ctx.translate(this.pos.x, this.pos.y);
-
-    const bb = this.collider.bounds;
-    const wp = this.getGlobalPos();
-    bb.left = bb.left - wp.x;
-    bb.right = bb.right - wp.x;
-    bb.top = bb.top - wp.y;
-    bb.bottom = bb.bottom - wp.y;
-
-    ctx.fillStyle = Color.Violet.toString();
-    ctx.strokeStyle = Color.Violet.toString();
-    ctx.fillText('Trigger', 10, 10);
-    bb.debugDraw(ctx);
-
-    ctx.restore();
   }
 }
