@@ -261,10 +261,6 @@ var group = new ex.GraphicsGroup({
 
 heart.graphics.add(group);
 heart.pos = ex.vec(10, 10);
-heart.onPostDraw = (ctx) => {
-  ctx.fillStyle = ex.Color.Violet.toRGBA();
-  ctx.fillRect(0, 0, 100, 100);
-}
 game.add(heart);
 
 var label = new ex.Label({text: 'Test Label', x: 200, y: 200});
