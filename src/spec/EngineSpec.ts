@@ -79,9 +79,10 @@ describe('The engine', () => {
       setTimeout(() => { // needed for the delay to work
         testClock.run(1, 100);
         engine.graphicsContext.flush();
-        expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/EngineSpec/engine-load-complete.png').then(() => {
-          done();
-        });
+        expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+          .toEqualImage('src/spec/images/EngineSpec/engine-load-complete.png').then(() => {
+            done();
+          });
       });
     });
   });
@@ -139,9 +140,10 @@ describe('The engine', () => {
       // With suppress play there is another 500 ms delay in engine load()
       testClock.step(1);
       engine.graphicsContext.flush();
-      expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png').then(() => {
-        done();
-      });
+      expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+        .toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png').then(() => {
+          done();
+        });
     });
   });
 

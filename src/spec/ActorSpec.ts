@@ -658,7 +658,7 @@ describe('A game actor', () => {
     engine = TestUtils.engine({
       width: 62,
       height: 64,
-      suppressHiDPIScaling: true,
+      suppressHiDPIScaling: true
     });
     scene = new ex.Scene();
     engine.addScene('test', scene);

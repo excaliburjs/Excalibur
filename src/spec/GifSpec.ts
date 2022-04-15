@@ -55,7 +55,7 @@ describe('A Gif', () => {
   });
 
   it('should be read as a SpriteSheet', async () => {
-    await gif.load()
+    await gif.load();
     expect(gif).toBeDefined();
     const spriteSheet: ex.SpriteSheet = gif.toSpriteSheet();
     const sprite = spriteSheet.getSprite(0, 0);

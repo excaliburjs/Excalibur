@@ -486,10 +486,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   public clear(deferred: boolean = true): void {
-    for (let entity of this.entities) {
+    for (const entity of this.entities) {
       this.world.remove(entity, deferred);
     }
-    for (let timer of this.timers) {
+    for (const timer of this.timers) {
       this.removeTimer(timer);
     }
   }

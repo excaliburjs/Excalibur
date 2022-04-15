@@ -97,10 +97,11 @@ describe('A loader', () => {
       loader.showPlayButton();
 
       loader.draw(loader.canvas.ctx);
-      ensureImagesLoaded(loader.canvas.ctx.canvas, 'src/spec/images/LoaderSpec/playbuttonshown-noprogressbar.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      ensureImagesLoaded(loader.canvas.ctx.canvas, 'src/spec/images/LoaderSpec/playbuttonshown-noprogressbar.png')
+        .then(([canvas, image]) => {
+          expect(canvas).toEqualImage(image);
+          done();
+        });
     };
   });
 

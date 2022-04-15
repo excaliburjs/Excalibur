@@ -188,7 +188,8 @@ describe('DebugSystem', () => {
     debugSystem.update([entity], 100);
 
     engine.graphicsContext.flush();
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/DebugSystemSpec/debug-draw-component.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+      .toEqualImage('src/spec/images/DebugSystemSpec/debug-draw-component.png');
   });
 
   it('can debug draw a tilemap', async () => {

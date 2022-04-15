@@ -21,7 +21,7 @@ describe('A ScreenElement', () => {
       height: 50,
       color: ex.Color.Blue
     });
-    
+
     engine = TestUtils.engine();
 
     scene = new ex.Scene();
@@ -85,10 +85,11 @@ describe('A ScreenElement', () => {
       game.currentScene.draw(game.graphicsContext, 100);
       game.graphicsContext.flush();
 
-      ensureImagesLoaded(TestUtils.flushWebGLCanvasTo2D(game.canvas), 'src/spec/images/ScreenElementSpec/emptyctor.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      ensureImagesLoaded(TestUtils.flushWebGLCanvasTo2D(game.canvas), 'src/spec/images/ScreenElementSpec/emptyctor.png')
+        .then(([canvas, image]) => {
+          expect(canvas).toEqualImage(image);
+          done();
+        });
     });
   });
 });
