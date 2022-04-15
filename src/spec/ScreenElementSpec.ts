@@ -7,30 +7,30 @@ describe('A ScreenElement', () => {
   let screenElement: ex.ScreenElement;
   let engine: ex.Engine;
   let scene: ex.Scene;
+  let clock: ex.TestClock;
 
-  beforeEach(() => {
+  beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
+  });
 
+  beforeEach(() => {
     screenElement = new ex.ScreenElement({
       pos: new ex.Vector(50, 50),
       width: 100,
       height: 50,
       color: ex.Color.Blue
     });
-    screenElement.body.collisionType = ex.CollisionType.Active;
+    
     engine = TestUtils.engine();
-    engine.backgroundColor = ex.Color.Transparent;
 
     scene = new ex.Scene();
     engine.addScene('test', scene);
     engine.goToScene('test');
     engine.start();
 
-    const clock = engine.clock as ex.TestClock;
-    clock.step(1);
+    clock = engine.clock as ex.TestClock;
 
-    spyOn(scene, 'draw').and.callThrough();
   });
 
   afterEach(() => {
@@ -58,24 +58,6 @@ describe('A ScreenElement', () => {
     expect(screenElement.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
-  it('is drawn on the screen when visible', async () => {
-    screenElement.graphics.visible = true;
-    scene.add(screenElement);
-    scene.update(engine, 100);
-    scene.draw(engine.graphicsContext, 100);
-    engine.graphicsContext.flush();
-
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/ScreenElementSpec/actordraws.png');
-  });
-
-  it('is not drawn on the screen when not visible', async () => {
-    screenElement.graphics.visible = false;
-    scene.add(screenElement);
-    scene.draw(engine.graphicsContext, 100);
-    engine.graphicsContext.flush();
-
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/ScreenElementSpec/actordoesnotdraw.png');
-  });
 
   it('contains in screen space or world space', () => {
     screenElement = new ex.ScreenElement({
