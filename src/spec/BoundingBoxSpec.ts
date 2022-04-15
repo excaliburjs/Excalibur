@@ -126,6 +126,33 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
       expect(b1.overlaps(b3)).toBe(false);
     });
 
+    it('can overlap bounding boxes with zero dimensions', () => {
+      const bb1 = new ex.BoundingBox({
+        left: 0,
+        top: 0,
+        bottom: 100,
+        right: 100
+      });
+      const bb2 = new ex.BoundingBox();
+
+      expect(bb1.overlaps(bb2)).toBe(true);
+      expect(bb2.overlaps(bb1)).toBe(true);
+
+      const bbMid = new ex.BoundingBox({
+        left: 50,
+        top: 50,
+        right: 50,
+        bottom: 50
+      });
+      expect(bb1.overlaps(bbMid)).toBe(true);
+      expect(bbMid.overlaps(bb1)).toBe(true);
+
+      const bb3 = new ex.BoundingBox({left: -1, top: 0, bottom: 0, right: -1});
+      expect(bb3.overlaps(bb1)).toBe(false);
+      expect(bb1.overlaps(bb3)).toBe(false);
+
+    });
+
     it('can collide with other bounding boxes', () => {
       const b2 = new ex.BoundingBox(2, 0, 20, 10);
       const b3 = new ex.BoundingBox(12, 0, 28, 10);

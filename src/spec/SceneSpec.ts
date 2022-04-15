@@ -48,6 +48,30 @@ describe('A scene', () => {
     expect(scene.actors.length).toBe(1);
   });
 
+  it('can clear all entities and timers', () => {
+    const actor1 = new ex.Actor();
+    const actor2 = new ex.Actor();
+    const actor3 = new ex.Actor();
+    const timer = new ex.Timer({
+      interval: 300
+    });
+    scene.add(actor1);
+    scene.add(actor2);
+    scene.add(actor3);
+    scene.add(timer);
+
+    expect(scene.entities.length).toBe(3);
+    expect(scene.timers.length).toBe(1);
+    scene.clear();
+
+    expect(scene.entities.length).withContext('deferred entity removal means entities cleared at end of update').toBe(3);
+    expect(scene.timers.length).withContext('timers dont have deferred removal').toBe(0);
+
+    scene.update(engine, 100);
+    expect(scene.entities.length).toBe(0);
+    expect(scene.timers.length).toBe(0);
+  });
+
   it('cannot have the same TileMap added to it more than once', () => {
     const tileMap = new ex.TileMap({ pos: ex.vec(1, 1), tileWidth: 1, tileHeight: 1, columns: 1, rows: 1});
     scene.add(tileMap);

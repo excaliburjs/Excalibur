@@ -58,7 +58,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * The actors in the current scene
    */
-  public get actors(): Actor[] {
+  public get actors(): readonly Actor[] {
     return this.world.entityManager.entities.filter((e) => {
       return e instanceof Actor;
     }) as Actor[];
@@ -67,14 +67,14 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * The entities in the current scene
    */
-  public get entities(): Entity[] {
+  public get entities(): readonly Entity[] {
     return this.world.entityManager.entities;
   }
 
   /**
    * The triggers in the current scene
    */
-  public get triggers(): Trigger[] {
+  public get triggers(): readonly Trigger[] {
     return this.world.entityManager.entities.filter((e) => {
       return e instanceof Trigger;
     }) as Trigger[];
@@ -83,7 +83,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * The [[TileMap]]s in the scene, if any
    */
-  public get tileMaps(): TileMap[] {
+  public get tileMaps(): readonly TileMap[] {
     return this.world.entityManager.entities.filter((e) => {
       return e instanceof TileMap;
     }) as TileMap[];
@@ -485,6 +485,12 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     }
   }
 
+  /**
+   * Removes all entities and timers from the scene, optionally indicate whether deferred should or shouldn't be used.
+   *
+   * By default entities use deferred removal
+   * @param deferred
+   */
   public clear(deferred: boolean = true): void {
     for (const entity of this.entities) {
       this.world.remove(entity, deferred);
