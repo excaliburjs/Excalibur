@@ -94,18 +94,6 @@ export class Label extends Actor {
   }
 
   /**
-   * Gets or sets the letter spacing on a Label. Only supported with Sprite Fonts.
-   * @deprecated Use [[SpriteFont.spacing]]
-   */
-  public letterSpacing: number = 0; //px
-
-  /**
-   * Whether or not the [[SpriteFont]] will be case-sensitive when matching characters.
-   * @deprecated Use Graphics.SpriteFont.caseInsensitive
-   */
-  public caseInsensitive: boolean = true;
-
-  /**
    * Build a new label
    * @param options
    */

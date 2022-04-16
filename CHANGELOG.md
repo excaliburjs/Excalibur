@@ -7,6 +7,34 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
+- Notable deprecated types removed
+  - `ex.SortedList` old sorted list is removed
+  - `ex.Collection` old collection type is removed
+  - `ex.Util` import site, exported code promoted `ex.*`
+  - `ex.DisplayMode.Position` is removed, use CSS to position the canvas
+  - `ex.Trait` interface, traits are not longer supported
+  - `ex.Promises` old promise implementation is removed in favor of browser promises
+- Notable method & property removals
+  - `ex.Actor`
+      * `.getZIndex()` and `.setZIndex()` removed use `.z`
+  - `ex.Scene`
+      * `.screenElements` removed in favor of `.entities`
+      * `.addScreenElement(...)` removed use `.add(...)`
+      * `.addTileMap(...)` removed use `.add(...)`
+      * `.removeTileMap(...)` removed use `.remove(...)`
+  - `ex.Timer`
+      * `.unpause()` removed use `.resume()`
+  - `ex.Camera`
+      * `.rx` removed use `.angularVelocity`
+  - `ex.BodyComponent`
+      * `.sx` removed use `.scaleFactor`
+      * `.rx` removed use `.angularVelocity`
+  - `ex.ActionsComponent`
+      * `.asPromise()` removed use `.toPromise()`
+  - `ex.ActionContext`
+      * `.asPromise()` removed use `.toPromise()`
+  - `ex.Color`
+      * Misspellings corrected
 - The old drawing API had been removed from excalibur, this should not affect you unless you were using the `ex.Flags.useLegacyDrawing()` or `ex.Flags.useCanvasGraphicsContext()`.
   - Notably all implementations of `Drawable` are removed, use the new `Graphics` API
   - Methods on actor `ex.Actor.setDrawing(...)`, `ex.Actor.addDrawing(...)` are removed, use the `ex.Actor.graphics.add(...)`, `ex.Actor.graphics.show(...)` and `ex.Actor.graphics.use(...)`

@@ -10,7 +10,7 @@ function addTestPoint(x, y, ax, ay, s = 1, rd = 0, parent = null) {
     p.scale.setTo(s, s);
   }
   if (rd !== 0) {
-    p.rotation = ex.Util.toRadians(rd);
+    p.rotation = ex.toRadians(rd);
   }
 
   if (parent != null) {

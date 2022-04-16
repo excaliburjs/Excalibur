@@ -22,7 +22,7 @@ var spawnTimer = new ex.Timer({
       width: 10,
       height: 10,
       color: ex.Color.Red,
-      vel: new ex.Vector(100, 0).rotate(ex.Util.randomInRange(0, Math.PI * 2)),
+      vel: new ex.Vector(100, 0).rotate(ex.randomInRange(0, Math.PI * 2)),
       collisionType: ex.CollisionType.Active
     });
     a.on('exitviewport', () => a.kill());

@@ -1,4 +1,3 @@
-export * from './Trait';
 export * from './Clonable';
 export * from './Audio';
 export * from './AudioImplementation';

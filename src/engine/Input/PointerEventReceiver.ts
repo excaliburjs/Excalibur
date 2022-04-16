@@ -10,7 +10,7 @@ import { WheelDeltaMode } from './WheelDeltaMode';
 import { PointerSystem } from './PointerSystem';
 import { NativePointerButton } from './NativePointerButton';
 import { PointerButton } from './PointerButton';
-import { Util } from '..';
+import { fail } from '../Util/Util';
 import { PointerType } from './PointerType';
 
 
@@ -450,7 +450,7 @@ export class PointerEventReceiver extends Class {
       case NativePointerButton.Unknown:
         return PointerButton.Unknown;
       default:
-        return Util.fail(s);
+        return fail(s);
     }
   }
 

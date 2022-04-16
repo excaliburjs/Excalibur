@@ -5,6 +5,13 @@ import { CoordPlane, TransformComponent } from './EntityComponentSystem/Componen
 import { CollisionType } from './Collision/CollisionType';
 
 /**
+ * Type guard to detect a screen element
+ */
+export function isScreenElement(actor: Actor) {
+  return actor instanceof ScreenElement;
+}
+
+/**
  * Helper [[Actor]] primitive for drawing UI's, optimized for UI drawing. Does
  * not participate in collisions. Drawn on top of all other actors.
  */

@@ -15,14 +15,18 @@ export namespace TestUtils {
       suppressMinimumBrowserFeatureDetection: true,
       suppressHiDPIScaling: true,
       suppressPlayButton: true,
-      displayMode: ex.DisplayMode.Position,
-      position: 'top',
+      displayMode: ex.DisplayMode.Fixed,
       ...options
     };
     ex.Flags._reset();
     ex.Flags.enable('suppress-obsolete-message');
     flags.forEach(f => ex.Flags.enable(f));
     const game = new ex.Engine(options);
+
+    // keeps the pointer based tests consistent
+    game.canvas.style.display = 'block';
+    game.canvas.style.position = 'absolute';
+    game.canvas.style.top = '0px';
 
     // Make all the clocks test clocks in the test utils
     game.clock.stop();

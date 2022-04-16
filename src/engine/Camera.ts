@@ -278,21 +278,17 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    */
   public rotation: number = 0;
 
-  /**
-   * Current angular velocity
-   * @deprecated will be removed in v0.26.0, use angularVelocity
-   */
-  public rx: number = 0;
+  private _angularVelocity: number = 0;
 
   /**
    * Get or set the camera's angular velocity
    */
   public get angularVelocity(): number {
-    return this.rx;
+    return this._angularVelocity;
   }
 
   public set angularVelocity(value: number) {
-    this.rx = value;
+    this._angularVelocity = value;
   }
 
   /**

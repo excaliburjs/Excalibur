@@ -17,7 +17,7 @@ var raptorSheet = ex.SpriteSheet.fromImageSource({
     spriteHeight: 64
   }
 });
-var raptorAnim = ex.Animation.fromSpriteSheet(raptorSheet, ex.Util.range(1, 8), 100, ex.AnimationStrategy.Loop);
+var raptorAnim = ex.Animation.fromSpriteSheet(raptorSheet, ex.range(1, 8), 100, ex.AnimationStrategy.Loop);
 raptorAnim.scale.setTo(2, 2);
 
 game.showDebug(true);
