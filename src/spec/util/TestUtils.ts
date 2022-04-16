@@ -23,6 +23,11 @@ export namespace TestUtils {
     flags.forEach(f => ex.Flags.enable(f));
     const game = new ex.Engine(options);
 
+    // keeps the pointer based tests consistent
+    game.canvas.style.display = 'block';
+    game.canvas.style.position = 'absolute';
+    game.canvas.style.top = '0px';
+
     // Make all the clocks test clocks in the test utils
     game.clock.stop();
     game.clock = game.clock.toTestClock();
