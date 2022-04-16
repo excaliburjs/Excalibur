@@ -1,4 +1,4 @@
-import { ScreenElement } from './ScreenElement';
+import { isScreenElement, ScreenElement } from './ScreenElement';
 import {
   InitializeEvent,
   ActivateEvent,
@@ -21,10 +21,8 @@ import { Class } from './Class';
 import { CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw } from './Interfaces/LifecycleEvents';
 import * as Util from './Util/Util';
 import * as Events from './Events';
-import * as ActorUtils from './Util/Actors';
 import { Trigger } from './Trigger';
 import { SystemType } from './EntityComponentSystem/System';
-import { obsolete } from './Util/Decorators';
 import { World } from './EntityComponentSystem/World';
 import { MotionSystem } from './Collision/MotionSystem';
 import { CollisionSystem } from './Collision/CollisionSystem';
@@ -93,18 +91,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Access to the Excalibur engine
    */
   public engine: Engine;
-
-  /**
-   * The [[ScreenElement]]s in a scene, if any; these are drawn last
-   * @deprecated Use [[Scene.actors]]
-   */
-  @obsolete({
-    message: 'Will be removed in excalibur v0.26.0',
-    alternateMethod: 'ScreenElements now are normal actors with a Transform Coordinate Plane of Screen'
-  })
-  public get screenElements(): ScreenElement[] {
-    return this.actors.filter((a) => a instanceof ScreenElement) as ScreenElement[];
-  }
 
   private _isInitialized: boolean = false;
   private _timers: Timer[] = [];
@@ -501,44 +487,6 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
 
   /**
-   * Adds (any) actor to act as a piece of UI, meaning it is always positioned
-   * in screen coordinates. UI actors do not participate in collisions.
-   * @todo Should this be `ScreenElement` only?
-   * @deprecated Use [[Scene.add]]
-   */
-  @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add' })
-  public addScreenElement(actor: Actor) {
-    this.add(actor);
-  }
-
-  /**
-   * Removes an actor as a piece of UI
-   * @deprecated Use [[Scene.remove]]
-   */
-  @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove' })
-  public removeScreenElement(actor: Actor) {
-    this.remove(actor);
-  }
-
-  /**
-   * Adds a [[TileMap]] to the scene, once this is done the TileMap will be drawn and updated.
-   * @deprecated Use [[Scene.add]]
-   */
-  @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.add' })
-  public addTileMap(tileMap: TileMap) {
-    this.world.add(tileMap);
-  }
-
-  /**
-   * Removes a [[TileMap]] from the scene, it will no longer be drawn or updated.
-   * @deprecated Use [[Scene.remove]]
-   */
-  @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Scene.remove' })
-  public removeTileMap(tileMap: TileMap) {
-    this.world.remove(tileMap);
-  }
-
-  /**
    * Adds a [[Timer]] to the scene
    * @param timer  The timer to add
    */
@@ -593,7 +541,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     for (const actor of this.actors) {
       engine.stats.currFrame.actors.alive++;
       for (const child of actor.children) {
-        if (ActorUtils.isScreenElement(child as Actor)) {
+        if (isScreenElement(child as Actor)) {
           // TODO not true
           engine.stats.currFrame.actors.ui++;
         } else {

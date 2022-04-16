@@ -5,7 +5,7 @@ polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
 import { Loadable } from './Interfaces/Loadable';
 import { Vector } from './Math/vector';
-import { Screen, DisplayMode, AbsolutePosition, ScreenDimension, Resolution } from './Screen';
+import { Screen, DisplayMode, ScreenDimension, Resolution } from './Screen';
 import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
@@ -37,10 +37,8 @@ import { Class } from './Class';
 import * as Input from './Input/Index';
 import * as Events from './Events';
 import { BrowserEvents } from './Util/Browser';
-import { obsolete } from './Util/Decorators';
 import { ExcaliburGraphicsContext, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
 import { PointerEventReceiver } from './Input/PointerEventReceiver';
-import { FpsSampler } from './Util/Fps';
 import { Clock, StandardClock } from './Util/Clock';
 import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
@@ -166,16 +164,6 @@ export interface EngineOptions {
    * for certain browser features to work like web audio.
    */
   suppressPlayButton?: boolean;
-
-  /**
-   * Specify how the game window is to be positioned when the [[DisplayMode.Position]] is chosen. This option MUST be specified
-   * if the DisplayMode is set as [[DisplayMode.Position]]. The position can be either a string or an [[AbsolutePosition]].
-   * String must be in the format of css style background-position. The vertical position must precede the horizontal position in strings.
-   *
-   * Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
-   * Valid [[AbsolutePosition]] examples: `{top: 5, right: 10%}`, `{bottom: 49em, left: 10px}`, `{left: 10, bottom: 40}`
-   */
-  position?: string | AbsolutePosition;
 
   /**
    * Scroll prevention method.
@@ -320,8 +308,6 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    */
   public input: Input.EngineInput;
 
-  private _hasStarted: boolean = false;
-
   /**
    * Access Excalibur debugging functionality.
    *
@@ -355,12 +341,6 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   public readonly scenes: { [key: string]: Scene } = {};
 
   /**
-   * @hidden
-   * @deprecated will be removed in v0.26.0
-   */
-  private _animations: AnimationNode[] = [];
-
-  /**
    * Indicates whether the engine is set to fullscreen or not
    */
   public get isFullscreen(): boolean {
@@ -383,12 +363,6 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   }
 
   /**
-   * Indicates the current position of the engine. Valid only when DisplayMode is DisplayMode.Position
-   * @deprecated will be removed in v0.26.0
-   */
-  public position: string | AbsolutePosition;
-
-  /**
    * Indicates whether audio should be paused when the game is no longer visible.
    */
   public pauseAudioWhenHidden: boolean = true;
@@ -400,12 +374,6 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   public get isDebug(): boolean {
     return this._isDebug;
   }
-
-  /**
-   * No longer used
-   * @deprecated will be removed in v0.26.0
-   */
-  public debugColor: Color = new Color(255, 255, 255);
 
   /**
    * Sets the background color for the engine.
@@ -441,9 +409,6 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   public pageScrollPreventionMode: ScrollPreventionMode;
 
   private _logger: Logger;
-
-  // this is a reference to the current requestAnimationFrame return value
-  private _requestId: number;
 
   // this determines whether excalibur is compatible with your browser
   private _compatible: boolean;
@@ -656,7 +621,6 @@ O|===|* >________________>\n\
       viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
       resolution: options.resolution,
       displayMode,
-      position: options.position,
       pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
     });
 
@@ -715,38 +679,6 @@ O|===|* >________________>\n\
     }
 
     this._timescale = value;
-  }
-
-  /**
-   * Plays a sprite animation on the screen at the specified `x` and `y`
-   * (in game coordinates, not screen pixels). These animations play
-   * independent of actors, and will be cleaned up internally as soon
-   * as they are complete. Note animations that loop will never be
-   * cleaned up.
-   *
-   * @param animation  Animation to play
-   * @param x          x game coordinate to play the animation
-   * @param y          y game coordinate to play the animation
-   * @deprecated
-   */
-  @obsolete({ message: 'Will be removed in excalibur v0.26.0', alternateMethod: 'Use Actor.graphics' })
-  public playAnimation(animation: Animation, x: number, y: number) {
-    this._animations.push(new AnimationNode(animation, x, y));
-  }
-
-  /**
-   * Adds a [[TileMap]] to the [[currentScene]], once this is done the TileMap
-   * will be drawn and updated.
-   */
-  public addTileMap(tileMap: TileMap) {
-    this.currentScene.addTileMap(tileMap);
-  }
-
-  /**
-   * Removes a [[TileMap]] from the [[currentScene]], it will no longer be drawn or updated.
-   */
-  public removeTileMap(tileMap: TileMap) {
-    this.currentScene.removeTileMap(tileMap);
   }
 
   /**
@@ -1276,80 +1208,6 @@ O|===|* >________________>\n\
   }
 
   /**
-   *
-   * @param game
-   * @param raf
-   * @param nowFn
-   * @deprecated Use [[Clock]] to run the mainloop, will be removed in v0.26.0
-   */
-  public static createMainLoop(game: Engine, raf: (func: Function) => number, nowFn: () => number) {
-    let lastTime = nowFn();
-    const fpsSampler = new FpsSampler({
-      nowFn,
-      initialFps: game.maxFps === Infinity ? 60 : game.maxFps
-    });
-    return function mainloop() {
-      if (!game._hasStarted) {
-        return;
-      }
-      try {
-        game._requestId = raf(mainloop);
-        fpsSampler.start();
-        game.emit('preframe', new PreFrameEvent(game, game.stats.prevFrame));
-
-        // Get the time to calculate time-elapsed
-        const now = nowFn();
-        let elapsed = now - lastTime || 1; // first frame
-
-        // Constrain fps
-        const fpsInterval = game.maxFps === Number.POSITIVE_INFINITY ? 0 : 1000 / game.maxFps;
-        if (elapsed <= fpsInterval) {
-          return; // too fast 😎 skip this frame
-        }
-
-        // Resolves issue #138 if the game has been paused, or blurred for
-        // more than a 200 milliseconds, reset elapsed time to 1. This improves reliability
-        // and provides more expected behavior when the engine comes back
-        // into focus
-        if (elapsed > 200) {
-          elapsed = 1;
-        }
-        const delta = elapsed * game.timescale;
-
-        // reset frame stats (reuse existing instances)
-        const frameId = game.stats.prevFrame.id + 1;
-        game.stats.currFrame.reset();
-        game.stats.currFrame.id = frameId;
-        game.stats.currFrame.delta = delta;
-        game.stats.currFrame.fps = fpsSampler.fps;
-
-        const beforeUpdate = nowFn();
-        game._update(delta);
-        const afterUpdate = nowFn();
-        game._draw(delta);
-        const afterDraw = nowFn();
-
-        game.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
-        game.stats.currFrame.duration.draw = afterDraw - afterUpdate;
-
-        // if fps interval is not a multiple
-        if (fpsInterval > 0) {
-          lastTime = now - (elapsed % fpsInterval);
-        } else {
-          lastTime = now;
-        }
-        game.emit('postframe', new PostFrameEvent(game, game.stats.currFrame));
-        fpsSampler.end();
-        game.stats.prevFrame.reset(game.stats.currFrame);
-      } catch (e) {
-        window.cancelAnimationFrame(game._requestId);
-        game.stop();
-        game.onFatalException(e);
-      }
-    };
-  }
-
-  /**
    * Stops Excalibur's main loop, useful for pausing the game.
    */
   public stop() {
@@ -1359,14 +1217,6 @@ O|===|* >________________>\n\
       this.clock.stop();
       this._logger.debug('Game stopped');
     }
-  }
-
-  /**
-   * Returns the Engine's Running status, Useful for checking whether engine is running or paused.
-   * @deprecated will be removed in v0.26.0, use isRunning()
-   */
-  public isPaused(): boolean {
-    return !this.clock.isRunning();
   }
 
   /**
@@ -1426,13 +1276,4 @@ O|===|* >________________>\n\
       await Promise.resolve();
     }
   }
-}
-
-/**
- * @internal
- * @deprecated
- */
-@obsolete({ message: 'Will be removed in excalibur v0.26.0' })
-class AnimationNode {
-  constructor(public animation: Animation, public x: number, public y: number) {}
 }

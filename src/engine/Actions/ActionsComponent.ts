@@ -299,15 +299,6 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
   /**
    * Returns a promise that resolves when the current action queue up to now
    * is finished.
-   * @deprecated Use `toPromise()` will be removed in v0.26.0
-   */
-  public asPromise(): Promise<void> {
-    return this.toPromise();
-  }
-
-  /**
-   * Returns a promise that resolves when the current action queue up to now
-   * is finished.
    */
   public toPromise(): Promise<void> {
     return this._ctx.toPromise();

@@ -1,12 +1,11 @@
 import * as ex from '@excalibur';
-import { Scene } from '@excalibur';
-import { Mocks } from './util/Mocks';
 import { TestUtils } from './util/TestUtils';
 
 describe('A scene', () => {
   let actor: ex.Actor;
   let engine: ex.Engine;
   let scene: ex.Scene;
+  let clock: ex.TestClock;
 
   beforeEach(() => {
     actor = new ex.Actor();
@@ -19,7 +18,7 @@ describe('A scene', () => {
     engine.goToScene('root');
     engine.start();
 
-    const clock = engine.clock as ex.TestClock;
+    clock = engine.clock as ex.TestClock;
     clock.step(100);
   });
 
@@ -302,7 +301,6 @@ describe('A scene', () => {
   });
 
   it('initializes after start or play in first update', () => {
-    const mock = new Mocks.Mocker();
     const scene = new ex.Scene();
     spyOn(scene, 'onInitialize');
 
@@ -310,16 +308,14 @@ describe('A scene', () => {
     engine.addScene('root', scene);
     expect(scene.onInitialize).toHaveBeenCalledTimes(0);
 
-    const loop = mock.loop(engine);
     engine.goToScene('root');
     engine.start();
-    loop.advance(100);
+    clock.step(100);
 
     expect(scene.onInitialize).toHaveBeenCalledTimes(1);
   });
 
   it('calls onActivate and onDeactivate with the correct args', () => {
-    const mock = new Mocks.Mocker();
     const sceneA = new ex.Scene();
     sceneA.onDeactivate = jasmine.createSpy('onDeactivate()');
     const sceneB = new ex.Scene();
@@ -329,15 +325,14 @@ describe('A scene', () => {
     engine.addScene('root', sceneA);
     engine.addScene('sceneB', sceneB);
 
-    const loop = mock.loop(engine);
     engine.goToScene('root');
     engine.start();
-    loop.advance(100);
-    loop.advance(100);
+    clock.step(100);
+    clock.step(100);
 
     engine.goToScene('sceneB');
-    loop.advance(100);
-    loop.advance(100);
+    clock.step(100);
+    clock.step(100);
 
     expect(sceneA.onDeactivate).toHaveBeenCalledWith(sceneA, sceneB);
     expect(sceneB.onActivate).toHaveBeenCalledWith(sceneA, sceneB);

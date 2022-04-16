@@ -67,15 +67,6 @@ describe('Vectors', () => {
     expect(v2.distance()).toBe(20);
   });
 
-  // @obsolete v0.25.0
-  it('can have a magnitude', () => {
-    const v = new ex.Vector(20, 0);
-    const v2 = new ex.Vector(0, -20);
-
-    expect(v.magnitude()).toBe(20);
-    expect(v2.magnitude()).toBe(20);
-  });
-
   it('can have a size', () => {
     const v = new ex.Vector(20, 0);
     const v2 = new ex.Vector(0, -20);

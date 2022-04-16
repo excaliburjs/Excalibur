@@ -15,8 +15,7 @@ export namespace TestUtils {
       suppressMinimumBrowserFeatureDetection: true,
       suppressHiDPIScaling: true,
       suppressPlayButton: true,
-      displayMode: ex.DisplayMode.Position,
-      position: 'top',
+      displayMode: ex.DisplayMode.Fixed,
       ...options
     };
     ex.Flags._reset();

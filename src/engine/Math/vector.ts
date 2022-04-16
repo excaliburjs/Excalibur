@@ -1,5 +1,4 @@
 import { Clonable } from '../Interfaces/Clonable';
-import { obsolete } from '../Util/Decorators';
 
 /**
  * A 2D vector on a plane.
@@ -173,15 +172,6 @@ export class Vector implements Clonable<Vector> {
       v = Vector.Zero;
     }
     return Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2);
-  }
-
-  /**
-   * The magnitude (size) of the Vector
-   * @deprecated magnitude will be removed in favour of '.size' in version 0.25.0
-   */
-  @obsolete({ message: 'will be removed in favour of `.size` in version 0.25.0' })
-  public magnitude(): number {
-    return this.distance();
   }
 
   /**

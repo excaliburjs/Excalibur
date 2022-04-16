@@ -293,20 +293,20 @@ describe('The engine', () => {
   });
 
   it('should tell engine is running', () => {
-    const status = engine.isPaused();
-    expect(status).toBe(false);
+    const status = engine.isRunning();
+    expect(status).toBe(true);
   });
 
   it('should tell engine is paused', () => {
     engine.stop();
-    const status = engine.isPaused();
-    expect(status).toBe(true);
+    const status = engine.isRunning();
+    expect(status).toBe(false);
   });
 
   it('should again tell engine is running', () => {
     engine.start();
-    const status = engine.isPaused();
-    expect(status).toBe(false);
+    const status = engine.isRunning();
+    expect(status).toBe(true);
   });
 
   it('should tell debug drawing is disabled', () => {
@@ -358,35 +358,6 @@ describe('The engine', () => {
   it('should return if fullscreen', () => {
     engine.start();
     expect(engine.isFullscreen).toBe(false);
-  });
-
-  it('should accept a displayMode of Position', () => {
-    engine = TestUtils.engine({
-      displayMode: ex.DisplayMode.Position,
-      position: 'top'
-    });
-    expect(engine.displayMode).toEqual(ex.DisplayMode.Position);
-  });
-
-  it('should accept strings to position the window', () => {
-    engine = TestUtils.engine({
-      displayMode: ex.DisplayMode.Position,
-      position: 'top'
-    });
-    expect(engine.canvas.style.top).toEqual('0px');
-  });
-
-  it('should accept AbsolutePosition Interfaces to position the window', () => {
-    const game = new ex.Engine({
-      height: 600,
-      width: 800,
-      suppressConsoleBootMessage: true,
-      suppressMinimumBrowserFeatureDetection: true,
-      displayMode: ex.DisplayMode.Position,
-      position: { top: 1, left: '5em' }
-    });
-
-    expect(game.canvas.style.top).toEqual('1px');
   });
 
   it('should accept backgroundColor', () => {
@@ -497,63 +468,6 @@ describe('The engine', () => {
       suppressConsoleBootMessage: true
     });
     expect(game.enableCanvasTransparency).toBe(true);
-  });
-
-  it('can limit fps', () => {
-    const game = new ex.Engine({height: 600, width: 800, maxFps: 15});
-    (game as any)._hasStarted = true; // TODO gross
-
-    const mockRAF = (_mainloop: () => any) => {
-      return 0;
-    };
-
-    let _currentTime = 0;
-    const mockNow = () => {
-      return _currentTime;
-    };
-    // 16ms tick
-    const actualFpsInterval = 1000/60;
-    const tick = () => _currentTime += actualFpsInterval;
-
-    const sut = Engine.createMainLoop(game, mockRAF, mockNow);
-
-    for (let i = 0; i < 6; i++) {
-      sut();
-      tick();
-    }
-
-    expect(game.maxFps).toBe(15);
-    expect(game.stats.currFrame.fps).toBeCloseTo(15);
-  });
-
-  it('will allow fps as fast as the tick', () => {
-    const game = new ex.Engine({height: 600, width: 800});
-    (game as any)._hasStarted = true; // TODO gross
-
-    const mockRAF = (_mainloop: () => any) => {
-      return 0;
-    };
-
-    let _currentTime = 0;
-    const mockNow = () => {
-      return _currentTime;
-    };
-
-    const actualFpsInterval = 1000/120;
-    const tick = () => _currentTime += actualFpsInterval;
-
-    const sut = Engine.createMainLoop(game, mockRAF, mockNow);
-    game.on('postframe', tick);
-
-    expect(game.maxFps).toBe(Infinity);
-
-    sut();
-
-    // fps sampler samples every 100ms
-    for (let i = 0; i < (100/actualFpsInterval) + 2; i++) {
-      sut();
-    }
-    expect(game.stats.currFrame.fps).toBeCloseTo(120);
   });
 
   it('will warn if scenes are being overwritten', () => {

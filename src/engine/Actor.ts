@@ -32,7 +32,6 @@ import { CoordPlane, TransformComponent } from './EntityComponentSystem/Componen
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Rectangle } from './Graphics/Rectangle';
-import { obsolete } from './Util/Decorators';
 import { ColliderComponent } from './Collision/ColliderComponent';
 import { Shape } from './Collision/Colliders/Shape';
 import { watch } from './Util/Watch';
@@ -825,16 +824,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     return this.get(TransformComponent).z;
   }
 
-  /**
-   * @deprecated Use [[Actor.z]], will be removed in v0.26.0
-   */
-  @obsolete({
-    message: 'Actor.getZIndex will be removed in v0.26.0',
-    alternateMethod: 'Use Actor.transform.z or Actor.z'
-  })
-  public getZIndex(): number {
-    return this.get(TransformComponent).z;
-  }
 
   /**
    * Sets the z-index of an actor and updates it in the drawing list for the scene.
@@ -844,18 +833,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    */
   public set z(newZ: number) {
     this.get(TransformComponent).z = newZ;
-  }
-
-  /**
-   * @param newIndex new z-index to assign
-   * @deprecated Use [[Actor.z]], will be removed in v0.26.0
-   */
-  @obsolete({
-    message: 'Actor.setZIndex will be removed in v0.26.0',
-    alternateMethod: 'Use Actor.transform.z or Actor.z'
-  })
-  public setZIndex(newIndex: number) {
-    this.get(TransformComponent).z = newIndex;
   }
 
   /**
