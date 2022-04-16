@@ -34,12 +34,4 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
       EulerIntegrator.integrate(transform, motion, totalAcc, elapsedMs);
     }
   }
-
-  /**
-   * @deprecated signature will change in v0.26.0
-   * @param _ctx
-   */
-  debugDraw(_ctx: CanvasRenderingContext2D) {
-    // pass
-  }
 }

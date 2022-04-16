@@ -268,27 +268,4 @@ export class CircleCollider extends Collider {
     ex.drawCircle((this.offset ?? Vector.Zero), this._naturalRadius, Color.Transparent, color, 2);
     ex.restore();
   }
-
-  /**
-   * @deprecated signature will change in v0.26.0
-   * @param ctx
-   * @param color
-   */
-  /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Green) {
-    const transform = this._transform;
-    const pos = transform ? transform.pos.add(this.offset) : this.offset;
-    const rotation = transform ? transform.rotation : 0;
-
-    ctx.beginPath();
-    ctx.strokeStyle = color.toString();
-    ctx.arc(pos.x, pos.y, this.radius, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
-    ctx.lineTo(Math.cos(rotation) * this.radius + pos.x, Math.sin(rotation) * this.radius + pos.y);
-    ctx.closePath();
-    ctx.stroke();
-  }
 }

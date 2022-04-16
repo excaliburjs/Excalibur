@@ -353,7 +353,7 @@ export class TileMap extends Entity {
 
   /**
    * Draws the tile map to the screen. Called by the [[Scene]].
-   * @param ctx CanvasRenderingContext2D or ExcaliburGraphicsContext
+   * @param ctx ExcaliburGraphicsContext
    * @param delta  The number of milliseconds since the last draw
    */
   public draw(ctx: ExcaliburGraphicsContext, delta: number): void {
