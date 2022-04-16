@@ -1,4 +1,4 @@
-import { Actor, Color, Loader, Util } from '../engine';
+import { Actor, Color, Loader, range } from '../engine';
 import { ImageSource, SpriteSheet, Animation, AnimationStrategy, Rectangle } from '../engine/Graphics';
 import { enumToControlSelectLabels, enumToControlSelectOptions, withEngine } from './utils';
 
@@ -26,7 +26,7 @@ export const multipleFrames: Story = withEngine(async (game, { strategy, reverse
       spriteHeight: 100
     }
   });
-  const animation = Animation.fromSpriteSheet(spritesheet, Util.range(0, 2), 1500, strategy);
+  const animation = Animation.fromSpriteSheet(spritesheet, range(0, 2), 1500, strategy);
   if (reverse) {
     animation.reverse();
   }

@@ -171,7 +171,7 @@ var cardSpriteSheet = ex.SpriteSheet.fromImageSource({
 
 cardSpriteSheet.sprites.forEach(s => s.scale = ex.vec(2, 2));
 
-var cardAnimation = ex.Animation.fromSpriteSheet(cardSpriteSheet, ex.Util.range(0, 14 * 4), 200);
+var cardAnimation = ex.Animation.fromSpriteSheet(cardSpriteSheet, ex.range(0, 14 * 4), 200);
 
 var spriteFontSheet = ex.SpriteSheet.fromImageSource({
   image: spriteFontImage,
@@ -295,7 +295,7 @@ game.add(otherPointer);
 game.input.pointers.primary.on('wheel', (ev) => {
   pointer.pos.setTo(ev.x, ev.y);
   game.currentScene.camera.zoom += (ev.deltaY / 1000);
-  game.currentScene.camera.zoom = ex.Util.clamp(game.currentScene.camera.zoom, .05, 100);
+  game.currentScene.camera.zoom = ex.clamp(game.currentScene.camera.zoom, .05, 100);
 })
 // Turn on debug diagnostics
 game.showDebug(false);
@@ -496,7 +496,7 @@ var playerText = new ex.Text({
 backroundLayer.show(playerText, { offset: ex.vec(0, -70) });
 
 // Retrieve animations for player from sprite sheet
-var left = ex.Animation.fromSpriteSheet(spriteSheetRun, ex.Util.range(1, 10), 50);
+var left = ex.Animation.fromSpriteSheet(spriteSheetRun, ex.range(1, 10), 50);
 // var left = new ex.Animation(game, left_sprites, 50);
 var right = left.clone(); // spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
 right.flipHorizontal = true;
@@ -504,11 +504,11 @@ var idle = ex.Animation.fromSpriteSheet(spriteSheetRun, [0], 200); // spriteShee
 //idle.anchor.setTo(.5, .5);
 var jumpLeft = ex.Animation.fromSpriteSheet(
   spriteSheetJump,
-  ex.Util.range(0, 10).reverse(),
+  ex.range(0, 10).reverse(),
   100,
   ex.AnimationStrategy.Freeze
 ); // spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
-var jumpRight = ex.Animation.fromSpriteSheet(spriteSheetJump, ex.Util.range(11, 21), 100, ex.AnimationStrategy.Freeze); // spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
+var jumpRight = ex.Animation.fromSpriteSheet(spriteSheetJump, ex.range(11, 21), 100, ex.AnimationStrategy.Freeze); // spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
 // left.loop = true;
 // right.loop = true;
 // idle.loop = true;

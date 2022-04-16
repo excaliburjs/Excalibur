@@ -71,7 +71,7 @@ document.getElementById('fontsize').addEventListener('change', function(evt) {
 });
 
 document.getElementById('letterspacing').addEventListener('keyup', function(evt) {
-  label.letterSpacing = parseFloat((<any>evt.currentTarget).value);
+  label.spriteFont.spacing = parseFloat((<any>evt.currentTarget).value);
 });
 
 document.getElementById('textshadow').addEventListener('change', function(evt) {

@@ -51,7 +51,7 @@ for (var i = 0; i < numActors; i++) {
 
   });
 
-  actor.vel = ex.vec(ex.Util.randomInRange(minVel, maxVel), ex.Util.randomInRange(minVel, maxVel));
+  actor.vel = ex.vec(ex.randomInRange(minVel, maxVel), ex.randomInRange(minVel, maxVel));
   engine.add(actor);
 }
 
