@@ -6,8 +6,6 @@ export namespace TestUtils {
    * @param options
    */
   export function engine(options: ex.EngineOptions = {}, flags: string[] = [
-    'use-legacy-drawing',
-    'use-canvas-context',
     'suppress-obsolete-message']): ex.Engine {
     options = {
       width: 500,

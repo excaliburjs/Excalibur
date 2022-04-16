@@ -196,12 +196,13 @@ describe('A Trigger', () => {
 
     engine.add(trigger);
 
-    spyOn(trigger, 'draw');
+    trigger.graphics.onPostDraw = jasmine.createSpy('draw');
+
     // Act
     clock.run(2, 1000);
 
     // Assert
-    expect(trigger.draw).not.toHaveBeenCalled();
+    expect(trigger.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
   it('can draw if directed', () => {
@@ -215,12 +216,13 @@ describe('A Trigger', () => {
 
     engine.add(trigger);
 
-    spyOn(trigger, 'draw');
+    trigger.graphics.onPostDraw = jasmine.createSpy('draw');
+
     // Act
     clock.run(2, 1000);
 
     // Assert
-    expect(trigger.draw).toHaveBeenCalled();
+    expect(trigger.graphics.onPostDraw).toHaveBeenCalled();
   });
 
   it('will only trigger if the filter is false', () => {

@@ -18,7 +18,6 @@ describe('A scaled and rotated actor', () => {
     engine.setAntialiasing(false);
 
     spyOn(engine.rootScene, 'draw').and.callThrough();
-    spyOn(actor, 'draw').and.callThrough();
   });
 
   afterEach(() => {
@@ -27,7 +26,7 @@ describe('A scaled and rotated actor', () => {
 
   it('is drawn correctly scaled at 90 degrees', (done) => {
     const clock = engine.clock as ex.TestClock;
-    const bg = new ex.LegacyDrawing.Texture('./src/spec/images/ScaleSpec/logo.png', true);
+    const bg = new ex.ImageSource('./src/spec/images/ScaleSpec/logo.png');
     const loader = new ex.Loader([bg]);
     TestUtils.runToReady(engine, loader).then(() => {
       const actor = new ex.Actor({
@@ -37,20 +36,18 @@ describe('A scaled and rotated actor', () => {
         height: 10,
         color: ex.Color.Black
       });
-      actor.addDrawing(bg);
+      actor.graphics.use(bg.toSprite());
       actor.scale.setTo(1, 0.2);
       engine.add(actor);
 
       actor.rotation = Math.PI / 2;
 
-      actor.on('postdraw', (ev: ex.PostDrawEvent) => {
-        engine.stop();
-        ensureImagesLoaded(engine.canvas, 'src/spec/images/ScaleSpec/scale.png').then(([canvas, image]) => {
-          expect(canvas).toEqualImage(image);
-          done();
-        });
-      });
       clock.step(1);
+
+      ensureImagesLoaded(TestUtils.flushWebGLCanvasTo2D(engine.canvas), 'src/spec/images/ScaleSpec/scale.png').then(([canvas, image]) => {
+        expect(canvas).toEqualImage(image);
+        done();
+      });
     });
   });
 });

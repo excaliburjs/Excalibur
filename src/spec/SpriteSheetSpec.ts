@@ -1,290 +1,120 @@
-import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
-describe('A spritesheet', () => {
-  let engine: ex.Engine;
+describe('A SpriteSheet for Graphics', () => {
+  let canvasElement: HTMLCanvasElement;
+  let ctx: ex.ExcaliburGraphicsContext;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
-    engine = TestUtils.engine({
-      width: 96,
-      height: 96
-    });
-  });
-  afterEach(() => {
-    engine.stop();
-    engine = null;
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
+
+    canvasElement = document.createElement('canvas');
+    canvasElement.width = 120;
+    canvasElement.height = 120;
+    ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement, smoothing: false });
   });
 
-  it('should have props set by the constructor', (done) => {
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
-    texture.load().then(() => {
-      const ss = new ex.LegacyDrawing.SpriteSheet({
-        image: texture,
-        columns: 21,
-        rows: 1,
-        spWidth: 96,
-        spHeight: 96
-      });
-
-      expect(ss.image.isLoaded());
-      expect(ss.columns).toBe(21);
-      expect(ss.rows).toBe(1);
-      expect(ss.spWidth).toBe(96);
-      expect(ss.spHeight).toBe(96);
-
-      expect(ss.sprites.length).toBe(21);
-
-      ss.getSprite(0).draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSheetSpec/PlayerRun0.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
+  it('exists', () => {
+    expect(ex.SpriteSheet).toBeDefined();
   });
 
-  it('should getAnimationByIndices', () => {
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
-    texture.load().then(() => {
-      const ss = new ex.LegacyDrawing.SpriteSheet({
-        image: texture,
-        columns: 21,
-        rows: 1,
-        spWidth: 96,
-        spHeight: 96
-      });
+  it('can be created with a constructor', async () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
-      const frames = [0, 1, 2, 3, 4, 5, 5, 5, 5];
-      const anim = ss.getAnimationByIndices(engine, frames, 50);
-
-      expect(anim).not.toBeNull();
-      expect(anim.sprites.length).toBe(frames.length);
-      expect(anim.speed).toBe(50);
+    await image.load();
+    const ss = new ex.SpriteSheet({
+      sprites: [ex.Sprite.from(image)]
     });
+
+    expect(ss.sprites.length).toBe(1);
+    expect(ss.sprites[0].width).toBe(258);
+    expect(ss.sprites[0].height).toBe(53);
   });
 
-  it('should getAnimationBetween', () => {
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
-    texture.load().then(() => {
-      const ss = new ex.LegacyDrawing.SpriteSheet({
-        image: texture,
-        columns: 21,
-        rows: 1,
-        spWidth: 96,
-        spHeight: 96
-      });
+  it('can be created from a grid', async () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 
-      const anim = ss.getAnimationBetween(engine, 0, 5, 50);
-
-      expect(anim).not.toBeNull();
-      expect(anim.sprites.length).toBe(5);
-      expect(anim.speed).toBe(50);
-    });
-  });
-
-  it('should getAnimationForAll', () => {
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
-    texture.load().then(() => {
-      const ss = new ex.LegacyDrawing.SpriteSheet({
-        image: texture,
-        columns: 21,
-        rows: 1,
-        spWidth: 96,
-        spHeight: 96
-      });
-
-      const anim = ss.getAnimationForAll(engine, 50);
-
-      expect(anim).not.toBeNull();
-      expect(anim.sprites.length).toBe(21);
-      expect(anim.speed).toBe(50);
-    });
-  });
-
-  it('should getSprite at an index', (done) => {
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
-    texture.load().then(() => {
-      const ss = new ex.LegacyDrawing.SpriteSheet({
-        image: texture,
-        columns: 21,
-        rows: 1,
-        spWidth: 96,
-        spHeight: 96
-      });
-
-      expect(ss.image.isLoaded());
-      expect(ss.columns).toBe(21);
-      expect(ss.rows).toBe(1);
-      expect(ss.spWidth).toBe(96);
-      expect(ss.spHeight).toBe(96);
-
-      expect(ss.sprites.length).toBe(21);
-
-      ss.getSprite(20).draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSheetSpec/PlayerRun20.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('should getAnimationByBespokeCoords', (done) => {
-    engine = TestUtils.engine({
-      width: 162 + 89,
-      height: 94
-    });
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/genericItems_spritesheet_colored.png', true);
-    texture.load().then(() => {
-      const ss = new ex.LegacyDrawing.SpriteSheet({
-        image: texture,
-        columns: 0,
-        rows: 0,
-        spWidth: 96,
-        spHeight: 96
-      });
-
-      const anim = ss.getAnimationByCoords(
-        engine,
-        [
-          {
-            x: 0,
-            y: 322,
-            width: 162,
-            height: 94
-          },
-          {
-            x: 130,
-            y: 1791,
-            width: 89,
-            height: 45
-          }
-        ],
-        20
-      );
-
-      anim.sprites[0].draw(engine.ctx, 0, 0);
-      anim.sprites[1].draw(engine.ctx, 162, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSheetSpec/drillandcup.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('should getSprite at an index with equal spacing', (done) => {
-    engine = TestUtils.engine({
-      width: 32,
-      height: 32
-    });
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/SpriteSheetSpacing.png', true);
-    texture.load().then(() => {
-      const ss = new ex.LegacyDrawing.SpriteSheet({
-        image: texture,
-        columns: 3,
-        rows: 2,
-        spWidth: 32,
-        spHeight: 32,
-        spacing: 1
-      });
-
-      expect(ss.image.isLoaded());
-      expect(ss.columns).toBe(3);
-      expect(ss.rows).toBe(2);
-      expect(ss.spWidth).toBe(32);
-      expect(ss.spHeight).toBe(32);
-
-      expect(ss.sprites.length).toBe(6);
-
-      ss.getSprite(4).draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSheetSpec/SpriteSheetSpacingSingle.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('should getSprite at an index with custom spacing dimensions', (done) => {
-    engine = TestUtils.engine({
-      width: 32,
-      height: 32
-    });
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/SpriteSheetSpacingCustom.png', true);
-    texture.load().then(() => {
-      const ss = new ex.LegacyDrawing.SpriteSheet({
-        image: texture,
-        columns: 3,
-        rows: 2,
-        spWidth: 32,
-        spHeight: 32,
-        spacing: {
-          top: 0,
-          left: 0,
-          margin: 1
-        }
-      });
-
-      expect(ss.image.isLoaded());
-      expect(ss.columns).toBe(3);
-      expect(ss.rows).toBe(2);
-      expect(ss.spWidth).toBe(32);
-      expect(ss.spHeight).toBe(32);
-
-      expect(ss.sprites.length).toBe(6);
-
-      ss.getSprite(4).draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSheetSpec/SpriteSheetSpacingSingle.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('should throw Error SpriteSheet specified is wider than image width', (done) => {
-    let error: any;
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
-    texture.load().then(() => {
-      try {
-        const ss = new ex.LegacyDrawing.SpriteSheet({
-          image: texture,
-          columns: 22,
-          rows: 1,
-          spWidth: 96,
-          spHeight: 96
-        });
-        expect(ss.image.isLoaded());
-      } catch (e) {
-        error = e;
+    await image.load();
+    const ss = ex.SpriteSheet.fromImageSource({
+      image,
+      grid: {
+        rows: 3,
+        columns: 16,
+        spriteWidth: 16,
+        spriteHeight: 16
       }
-      const expectedError = new RangeError('SpriteSheet specified is wider, 22 cols x 96 pixels > 2016 pixels than image width');
-      expect(error).toEqual(expectedError);
-      done();
     });
+
+    expect(ss.sprites.length).toBe(3 * 16);
+    expect(ss.sprites[0].width).toBe(16);
+    expect(ss.sprites[0].height).toBe(16);
   });
 
-  it('should throw Error SpriteSheet specified is higher than image height', (done) => {
-    let error: any;
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSheetSpec/PlayerRun.png', true);
-    texture.load().then(() => {
-      try {
-        const ss = new ex.LegacyDrawing.SpriteSheet({
-          image: texture,
-          columns: 21,
-          rows: 2,
-          spWidth: 96,
-          spHeight: 96
-        });
-        expect(ss.image.isLoaded());
-      } catch (e) {
-        error = e;
+  it('can be created from a grid with interesting spacing', async () => {
+    const image = new ex.ImageSource('src/spec/images/SpriteSheetSpec/kenny-cards.png');
+
+    await image.load();
+
+    const ss = ex.SpriteSheet.fromImageSource({
+      image,
+      grid: {
+        rows: 4,
+        columns: 14,
+        spriteWidth: 42,
+        spriteHeight: 60
+      },
+      spacing: {
+        originOffset: { x: 11, y: 2 },
+        margin: { x: 23, y: 5 }
       }
-      const expectedError = new RangeError('SpriteSheet specified is taller, 2 rows x 96 pixels > 96 pixels than image height');
-      expect(error).toEqual(expectedError);
-      done();
     });
+
+    ctx.clear();
+
+    ss.sprites[12].draw(ctx, 0, 0);
+    ss.sprites[24].draw(ctx, 60, 0);
+    ss.sprites[36].draw(ctx, 0, 60);
+    ss.sprites[48].draw(ctx, 60, 60);
+
+    expect(ss.sprites.length).toBe(4 * 14);
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/SpriteSheetSpec/NewSpriteSpacing.png');
+  });
+
+  it('can retrieve a sprite by x,y', async () => {
+    const image = new ex.ImageSource('src/spec/images/SpriteSheetSpec/kenny-cards.png');
+
+    await image.load();
+
+    const ss = ex.SpriteSheet.fromImageSource({
+      image,
+      grid: {
+        rows: 4,
+        columns: 14,
+        spriteWidth: 42,
+        spriteHeight: 60
+      },
+      spacing: {
+        originOffset: { x: 11, y: 2 },
+        margin: { x: 23, y: 5 }
+      }
+    });
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'warn');
+
+    expect(ss.getSprite(0, 0)).withContext('top left sprite').toEqual(ss.sprites[0]);
+    expect(ss.getSprite(13, 3)).withContext('bottom right sprite').not.toBeNull();
+
+    expect(ss.getSprite(13, 4)).toBeNull();
+    expect(logger.warn).toHaveBeenCalledWith('No sprite exists in the SpriteSheet at (13, 4), y: 4 should be between 0 and 3');
+
+    expect(ss.getSprite(14, 3)).toBeNull();
+    expect(logger.warn).toHaveBeenCalledWith('No sprite exists in the SpriteSheet at (14, 3), x: 14 should be between 0 and 13');
+
+    expect(ss.getSprite(-1, 3)).toBeNull();
+    expect(logger.warn).toHaveBeenCalledWith('No sprite exists in the SpriteSheet at (-1, 3), x: -1 should be between 0 and 13');
+
+    expect(ss.getSprite(1, -1)).toBeNull();
+    expect(logger.warn).toHaveBeenCalledWith('No sprite exists in the SpriteSheet at (1, -1), y: -1 should be between 0 and 3');
   });
 });

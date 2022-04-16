@@ -4,7 +4,7 @@ import { TestUtils } from './util/TestUtils';
 import { BodyComponent } from '@excalibur';
 import { ColliderComponent } from '../engine/Collision/ColliderComponent';
 
-const drawWithTransform = (ctx: CanvasRenderingContext2D | ex.ExcaliburGraphicsContext, tm: ex.TileMap, delta: number = 1) => {
+const drawWithTransform = (ctx: ex.ExcaliburGraphicsContext, tm: ex.TileMap, delta: number = 1) => {
   ctx.save();
   ctx.translate(tm.pos.x, tm.pos.y);
   ctx.rotate(tm.rotation);
@@ -16,7 +16,7 @@ const drawWithTransform = (ctx: CanvasRenderingContext2D | ex.ExcaliburGraphicsC
 describe('A TileMap', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
-  let texture: ex.LegacyDrawing.Texture;
+  let texture: ex.ImageSource;
   beforeEach(async () => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -28,7 +28,7 @@ describe('A TileMap', () => {
     engine.addScene('root', scene);
     engine.start();
     const clock = engine.clock as ex.TestClock;
-    texture = new ex.LegacyDrawing.Texture('src/spec/images/TileMapSpec/Blocks.png', true);
+    texture = new ex.ImageSource('src/spec/images/TileMapSpec/Blocks.png');
     await texture.load();
     clock.step(1);
   });
@@ -154,14 +154,16 @@ describe('A TileMap', () => {
     cell.addGraphic(animation);
 
     drawWithTransform(engine.graphicsContext, tm, 99);
+    engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicSquare.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicSquare.png');
 
     tm.update(engine, 99);
 
     drawWithTransform(engine.graphicsContext, tm, 99);
+    engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicCircle.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicCircle.png');
   });
 
   it('should draw the correct proportions', async () => {
@@ -173,7 +175,15 @@ describe('A TileMap', () => {
       rows: 3,
       columns: 7
     });
-    const spriteTiles = new ex.LegacyDrawing.SpriteSheet(texture, 1, 1, 64, 48);
+    const spriteTiles = ex.SpriteSheet.fromImageSource({
+      image:texture,
+      grid: {
+        rows: 1,
+        columns: 1,
+        spriteWidth: 64,
+        spriteHeight: 48
+      }
+    });
     tm.tiles.forEach(function (cell: ex.Tile) {
       cell.solid = true;
       cell.addGraphic(spriteTiles.sprites[0]);
@@ -181,8 +191,9 @@ describe('A TileMap', () => {
     tm._initialize(engine);
 
     drawWithTransform(engine.graphicsContext, tm, 100);
+    engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMap.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMap.png');
   });
 
   it('should handle offscreen culling correctly with negative coords', async () => {
@@ -194,7 +205,15 @@ describe('A TileMap', () => {
       rows: 20,
       columns: 20
     });
-    const spriteTiles = new ex.LegacyDrawing.SpriteSheet(texture, 1, 1, 64, 48);
+    const spriteTiles = ex.SpriteSheet.fromImageSource({
+      image:texture,
+      grid: {
+        rows: 1,
+        columns: 1,
+        spriteWidth: 64,
+        spriteHeight: 48
+      }
+    });
     tm.tiles.forEach(function (cell: ex.Tile) {
       cell.solid = true;
       cell.addGraphic(spriteTiles.sprites[0]);
@@ -204,8 +223,9 @@ describe('A TileMap', () => {
     tm.update(engine, 100);
 
     drawWithTransform(engine.graphicsContext, tm, 100);
+    engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapCulling.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMapCulling.png');
   });
 
   it('can return a tile by xy coord', () => {

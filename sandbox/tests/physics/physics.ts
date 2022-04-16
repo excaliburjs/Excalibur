@@ -60,8 +60,9 @@ function spawnCircle(x: number, y: number) {
   circle.vel.setTo(0, 300);
   // circle.collider.useCircleCollider(width / 2);
   circle.body.collisionType = ex.CollisionType.Active;
-  circle.draw = (ctx: CanvasRenderingContext2D) => {
-    ex.Util.DrawUtil.circle(ctx, 0, 0, width / 2, color, color);
+  circle.graphics.onPostDraw = (ctx: ex.ExcaliburGraphicsContext) => {
+    ctx.drawCircle(ex.vec(0, 0), width / 2, color);
+    // ex.Util.DrawUtil.circle(ctx, 0, 0, width / 2, color, color);
   };
   circle.body.events.on('contactstart', (e) => {
     // console.count('contactstart');

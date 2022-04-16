@@ -30,13 +30,12 @@ import { MotionSystem } from './Collision/MotionSystem';
 import { CollisionSystem } from './Collision/CollisionSystem';
 import { Entity } from './EntityComponentSystem/Entity';
 import { GraphicsSystem } from './Graphics/GraphicsSystem';
-import { CanvasDrawingSystem } from './Drawing/CanvasDrawingSystem';
-import { Flags, Legacy } from './Flags';
 import { DebugSystem } from './Debug/DebugSystem';
 import { PointerSystem } from './Input/PointerSystem';
 import { ActionsSystem } from './Actions/ActionsSystem';
 import { IsometricEntitySystem } from './TileMap/IsometricEntitySystem';
 import { OffscreenSystem } from './Graphics/OffscreenSystem';
+import { ExcaliburGraphicsContext } from './Graphics';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -59,7 +58,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * The actors in the current scene
    */
-  public get actors(): Actor[] {
+  public get actors(): readonly Actor[] {
     return this.world.entityManager.entities.filter((e) => {
       return e instanceof Actor;
     }) as Actor[];
@@ -68,14 +67,14 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * The entities in the current scene
    */
-  public get entities(): Entity[] {
+  public get entities(): readonly Entity[] {
     return this.world.entityManager.entities;
   }
 
   /**
    * The triggers in the current scene
    */
-  public get triggers(): Trigger[] {
+  public get triggers(): readonly Trigger[] {
     return this.world.entityManager.entities.filter((e) => {
       return e instanceof Trigger;
     }) as Trigger[];
@@ -84,7 +83,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * The [[TileMap]]s in the scene, if any
    */
-  public get tileMaps(): TileMap[] {
+  public get tileMaps(): readonly TileMap[] {
     return this.world.entityManager.entities.filter((e) => {
       return e instanceof TileMap;
     }) as TileMap[];
@@ -122,12 +121,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     this.world.add(new CollisionSystem());
     this.world.add(new PointerSystem());
     this.world.add(new IsometricEntitySystem());
-    if (Flags.isEnabled(Legacy.LegacyDrawing)) {
-      this.world.add(new CanvasDrawingSystem());
-    } else {
-      this.world.add(new OffscreenSystem());
-      this.world.add(new GraphicsSystem());
-    }
+    this.world.add(new OffscreenSystem());
+    this.world.add(new GraphicsSystem());
     this.world.add(new DebugSystem());
   }
 
@@ -220,9 +215,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    *
    * `onPreDraw` is called directly before a scene is drawn.
    *
-   * @deprecated Signature will change in v0.26.0
    */
-  public onPreDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+  public onPreDraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
     // will be overridden
   }
 
@@ -231,9 +225,8 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    *
    * `onPostDraw` is called directly after a scene is drawn.
    *
-   * @deprecated Signature will change in v0.26.0
    */
-  public onPostDraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+  public onPostDraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
     // will be overridden
   }
 
@@ -328,10 +321,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    *
    * Internal _predraw handler for [[onPreDraw]] lifecycle event
    *
-   * @deprecated Signature will change in v0.26.0
    * @internal
    */
-  public _predraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+  public _predraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
     this.emit('predraw', new PreDrawEvent(_ctx, _delta, this));
     this.onPreDraw(_ctx, _delta);
   }
@@ -341,10 +333,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    *
    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
    *
-   * @deprecated Signature will change in v0.26.0
    * @internal
    */
-  public _postdraw(_ctx: CanvasRenderingContext2D, _delta: number): void {
+  public _postdraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
     this.emit('postdraw', new PostDrawEvent(_ctx, _delta, this));
     this.onPostDraw(_ctx, _delta);
   }
@@ -385,11 +376,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * Draws all the actors in the Scene. Called by the [[Engine]].
    *
-   * @deprecated Signature will change in v0.26.0
    * @param ctx    The current rendering context
    * @param delta  The number of milliseconds since the last draw
    */
-  public draw(ctx: CanvasRenderingContext2D, delta: number) {
+  public draw(ctx: ExcaliburGraphicsContext, delta: number) {
     this._predraw(ctx, delta);
 
     this.world.update(SystemType.Draw, delta);
@@ -403,10 +393,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   /**
    * Draws all the actors' debug information in the Scene. Called by the [[Engine]].
    * @param ctx  The current rendering context
-   * @deprecated Signature will change in v0.26.0
    */
   /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D) {
+  public debugDraw(ctx: ExcaliburGraphicsContext) {
     this.emit('predebugdraw', new PreDebugDrawEvent(ctx, this));
     // pass
     this.emit('postdebugdraw', new PostDebugDrawEvent(ctx, this));
@@ -493,6 +482,21 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
     }
     if (entity instanceof Timer) {
       this.removeTimer(entity);
+    }
+  }
+
+  /**
+   * Removes all entities and timers from the scene, optionally indicate whether deferred should or shouldn't be used.
+   *
+   * By default entities use deferred removal
+   * @param deferred
+   */
+  public clear(deferred: boolean = true): void {
+    for (const entity of this.entities) {
+      this.world.remove(entity, deferred);
+    }
+    for (const timer of this.timers) {
+      this.removeTimer(timer);
     }
   }
 

@@ -65,7 +65,7 @@ describe('The engine', () => {
     reset();
     engine = TestUtils.engine({
       suppressPlayButton: false
-    }, ['use-canvas-context']);
+    });
     (<any>engine)._suppressPlayButton = false;
     const imageSource = new ex.ImageSource('src/spec/images/SpriteSpec/icon.png');
 
@@ -78,9 +78,11 @@ describe('The engine', () => {
       expect(document.getElementById('excalibur-play')).withContext('Play button should exist in the document').toBeDefined();
       setTimeout(() => { // needed for the delay to work
         testClock.run(1, 100);
-        expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/engine-load-complete.png').then(() => {
-          done();
-        });
+        engine.graphicsContext.flush();
+        expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+          .toEqualImage('src/spec/images/EngineSpec/engine-load-complete.png').then(() => {
+            done();
+          });
       });
     });
   });
@@ -137,9 +139,11 @@ describe('The engine', () => {
     TestUtils.runToReady(engine, loader).then(() => {
       // With suppress play there is another 500 ms delay in engine load()
       testClock.step(1);
-      expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png').then(() => {
-        done();
-      });
+      engine.graphicsContext.flush();
+      expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+        .toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png').then(() => {
+          done();
+        });
     });
   });
 

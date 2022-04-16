@@ -17,7 +17,7 @@ engine.backgroundColor = ex.Color.Black;
 
 var labelCurrentRotation = new ex.Label({text: rotationType.toString(), x: 500, y: 100});
 labelCurrentRotation.color = ex.Color.White;
-labelCurrentRotation.textAlign = ex.TextAlign.Center;
+labelCurrentRotation.font.textAlign = ex.TextAlign.Center;
 labelCurrentRotation.scale = new ex.Vector(2, 2);
 engine.add(labelCurrentRotation);
 
@@ -39,7 +39,7 @@ engine.add(shortestPath);
 
 var labelShortestPath = new ex.Label({text: 'Shortest Path', x: shortestPath.pos.x, y: 100});
 labelShortestPath.color = ex.Color.White;
-labelShortestPath.textAlign = ex.TextAlign.Center;
+labelShortestPath.font.textAlign = ex.TextAlign.Center;
 engine.add(labelShortestPath);
 
 var longestPath = new ex.Actor({x: 150, y: 50, width: 50, height: 50, color: ex.Color.White});
@@ -50,7 +50,7 @@ engine.add(longestPath);
 
 var labelLongestPath = new ex.Label({text: 'Longest Path', x: longestPath.pos.x, y: 100});
 labelLongestPath.color = ex.Color.White;
-labelLongestPath.textAlign = ex.TextAlign.Center;
+labelLongestPath.font.textAlign = ex.TextAlign.Center;
 engine.add(labelLongestPath);
 
 var clockwise = new ex.Actor({x: 250, y: 50, width: 50, height: 50, color: ex.Color.White});
@@ -61,7 +61,7 @@ engine.add(clockwise);
 
 var labelClockwise = new ex.Label({text: 'Clockwise', x: clockwise.pos.x, y: 100});
 labelClockwise.color = ex.Color.White;
-labelClockwise.textAlign = ex.TextAlign.Center;
+labelClockwise.font.textAlign = ex.TextAlign.Center;
 engine.add(labelClockwise);
 
 var counterclockwise = new ex.Actor({x: 350, y: 50, width: 50, height: 50, color: ex.Color.White});
@@ -72,7 +72,7 @@ engine.add(counterclockwise);
 
 var labelCounterClockwise = new ex.Label({text: 'CounterClockwise', x: counterclockwise.pos.x, y: 100});
 labelCounterClockwise.color = ex.Color.White;
-labelCounterClockwise.textAlign = ex.TextAlign.Center;
+labelCounterClockwise.font.textAlign = ex.TextAlign.Center;
 engine.add(labelCounterClockwise);
 
 engine.input.pointers.primary.on('down', (e: ex.Input.PointerEvent) => {

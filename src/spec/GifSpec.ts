@@ -1,4 +1,4 @@
-import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
+import { ExcaliburMatchers, ensureImagesLoaded, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
@@ -7,6 +7,7 @@ describe('A Gif', () => {
   let gif: ex.Gif;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
     engine = TestUtils.engine({
       width: 100,
       height: 100
@@ -27,66 +28,55 @@ describe('A Gif', () => {
     });
   });
 
-  it('should load each frame', (done) => {
-    gif.load().then(() => {
-      expect(gif).toBeDefined();
+  it('should load each frame', async () => {
+    await gif.load();
+    expect(gif).toBeDefined();
 
-      const spriteFrame: ex.LegacyDrawing.Sprite = gif.toLegacySprite();
-      expect(spriteFrame).toBeDefined();
-      expect(spriteFrame.drawHeight).toBe(100);
-      expect(spriteFrame.drawWidth).toBe(100);
+    const spriteFrame: ex.Sprite = gif.toSprite();
+    expect(spriteFrame).toBeDefined();
+    expect(spriteFrame.height).toBe(100);
+    expect(spriteFrame.width).toBe(100);
 
-      let sprite: ex.LegacyDrawing.Sprite = gif.toLegacySprite();
-      expect(gif.isLoaded()).toBe(true);
-      sprite.draw(engine.ctx, 0, 0);
+    let sprite: ex.Sprite = gif.toSprite();
+    expect(gif.isLoaded()).toBe(true);
+    sprite.draw(engine.graphicsContext, 0, 0);
+    engine.graphicsContext.flush();
 
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame1.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/GifSpec/frame1.png');
+    engine.graphicsContext.backgroundColor = ex.Color.Transparent;
+    engine.graphicsContext.clear();
 
-        engine.ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
+    sprite = gif.toSprite(1);
+    expect(gif.isLoaded()).toBe(true);
+    sprite.draw(engine.graphicsContext, 0, 0);
+    engine.graphicsContext.flush();
 
-        sprite = gif.toLegacySprite(1);
-        expect(gif.isLoaded()).toBe(true);
-        sprite.draw(engine.ctx, 0, 0);
-        ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame2.png').then(([canvas, image]) => {
-          expect(canvas).toEqualImage(image);
-          done();
-        });
-      });
-    });
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/GifSpec/frame2.png');
   });
 
-  it('should be read as a SpriteSheet', (done) => {
-    gif.load().then(() => {
-      // jasmine.addMatchers(ExcaliburMatchers);
-      expect(gif).toBeDefined();
-      const spriteSheet: ex.LegacyDrawing.SpriteSheet = gif.toLegacySpriteSheet();
-      const sprite = spriteSheet.getSprite(0);
-      sprite.draw(engine.ctx, 0, 0);
+  it('should be read as a SpriteSheet', async () => {
+    await gif.load();
+    expect(gif).toBeDefined();
+    const spriteSheet: ex.SpriteSheet = gif.toSpriteSheet();
+    const sprite = spriteSheet.getSprite(0, 0);
+    sprite.draw(engine.graphicsContext, 0, 0);
+    engine.graphicsContext.flush();
 
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame1.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        engine.ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
-        done();
-      });
-    });
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/GifSpec/frame1.png');
   });
 
-  it('should be read as an Animation', (done) => {
-    gif.load().then(() => {
-      expect(gif).toBeDefined();
-      const animation: ex.LegacyDrawing.Animation = gif.toLegacyAnimation(engine, 500);
+  it('should be read as an Animation', async () => {
+    await gif.load();
+    expect(gif).toBeDefined();
+    const animation: ex.Animation = gif.toAnimation(500);
 
-      expect(animation.sprites.length).toBe(2);
-      const frame1 = animation.sprites[0];
-      const frame2 = animation.sprites[1];
+    expect(animation.frames.length).toBe(2);
+    const frame1 = animation.frames[0];
+    const frame2 = animation.frames[1];
 
-      frame2.draw(engine.ctx, 0, 0);
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/GifSpec/frame2.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        engine.ctx.clearRect(0, 0, engine.canvas.width, engine.canvas.height);
-        done();
-      });
-    });
+    frame2.graphic.draw(engine.graphicsContext, 0, 0);
+    engine.graphicsContext.flush();
+
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/GifSpec/frame2.png');
   });
 });

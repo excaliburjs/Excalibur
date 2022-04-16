@@ -14,7 +14,6 @@ import { Vector, vec } from '../../Math/vector';
 import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { Logger } from '../../Util/Log';
-import { Canvas } from '../Canvas';
 import { DebugText } from './debug-text';
 import { ScreenDimension } from '../../Screen';
 import { RenderTarget } from './render-target';
@@ -113,16 +112,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * @internal
    */
   public __gl: WebGLRenderingContext;
-
-  /**
-   * Holds the 2d context shim
-   */
-  private _canvas: Canvas; // Configure z for shim?
-  /**
-   * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
-   * @internal
-   */
-  public __ctx: CanvasRenderingContext2D;
 
   private _transform = new TransformStack();
   private _state = new StateStack();
@@ -240,13 +229,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         height: gl.canvas.height
       })
     ];
-
-    // 2D ctx shim
-    this._canvas = new Canvas({
-      width: gl.canvas.width,
-      height: gl.canvas.height
-    });
-    this.__ctx = this._canvas.ctx;
   }
 
   public register<T extends RendererPlugin>(renderer: T) {
@@ -329,10 +311,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._renderTarget.setResolution(gl.canvas.width, gl.canvas.height);
     this._postProcessTargets[0].setResolution(gl.canvas.width, gl.canvas.height);
     this._postProcessTargets[1].setResolution(gl.canvas.width, gl.canvas.height);
-
-    // 2D ctx shim
-    this._canvas.width = gl.canvas.width;
-    this._canvas.height = gl.canvas.height;
   }
 
   drawImage(image: HTMLImageSource, x: number, y: number): void;

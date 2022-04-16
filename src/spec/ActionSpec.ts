@@ -22,7 +22,6 @@ describe('Action', () => {
     clock.step(100);
 
     spyOn(scene, 'draw').and.callThrough();
-    spyOn(actor, 'draw');
     engine.stop();
   });
 
@@ -33,42 +32,42 @@ describe('Action', () => {
 
   describe('blink', () => {
     it('can blink on and off', () => {
-      expect(actor.visible).toBe(true);
+      expect(actor.graphics.visible).toBe(true);
       actor.actions.blink(200, 200);
 
       scene.update(engine, 200);
-      expect(actor.visible).toBe(false);
+      expect(actor.graphics.visible).toBe(false);
 
       scene.update(engine, 250);
-      expect(actor.visible).toBe(true);
+      expect(actor.graphics.visible).toBe(true);
     });
 
     it('can blink at a frequency forever', () => {
-      expect(actor.visible).toBe(true);
+      expect(actor.graphics.visible).toBe(true);
       actor.actions.repeatForever((ctx) => ctx.blink(200, 200));
       scene.update(engine, 200);
 
       for (let i = 0; i < 2; i++) {
-        expect(actor.visible).toBe(false);
+        expect(actor.graphics.visible).toBe(false);
         scene.update(engine, 200);
 
-        expect(actor.visible).toBe(true);
+        expect(actor.graphics.visible).toBe(true);
         scene.update(engine, 200);
       }
     });
 
     it('can be stopped', () => {
-      expect(actor.visible).toBe(true);
+      expect(actor.graphics.visible).toBe(true);
       actor.actions.blink(1, 3000);
 
       scene.update(engine, 500);
-      expect(actor.visible).toBe(false);
+      expect(actor.graphics.visible).toBe(false);
 
       actor.actions.clearActions();
 
       scene.update(engine, 500);
       scene.update(engine, 500);
-      expect(actor.visible).toBe(true);
+      expect(actor.graphics.visible).toBe(true);
     });
   });
 
@@ -896,36 +895,36 @@ describe('Action', () => {
 
   describe('fade', () => {
     it('can go from 1 from 0', () => {
-      actor.opacity = 0;
+      actor.graphics.opacity = 0;
 
       actor.actions.fade(1, 200);
       for (let i = 0; i < 10; i++) {
         scene.update(engine, 20);
       }
 
-      expect(actor.opacity).toBe(1);
+      expect(actor.graphics.opacity).toBe(1);
     });
 
     it('can go back and forth from 0 to 1 (#512)', () => {
-      actor.opacity = 0;
+      actor.graphics.opacity = 0;
 
       actor.actions.fade(1, 200).fade(0, 200);
       for (let i = 0; i < 20; i++) {
         scene.update(engine, 20);
       }
 
-      expect(actor.opacity).toBe(0);
+      expect(actor.graphics.opacity).toBe(0);
     });
 
     it('can go back and forth from 0 to 1 more than once (#512)', () => {
-      actor.opacity = 0;
+      actor.graphics.opacity = 0;
 
       actor.actions.repeat((ctx) => ctx.fade(1, 200).fade(0, 200), 1);
       for (let i = 0; i < 40; i++) {
         scene.update(engine, 20);
       }
 
-      expect(actor.opacity).toBe(0);
+      expect(actor.graphics.opacity).toBe(0);
     });
   });
 });
