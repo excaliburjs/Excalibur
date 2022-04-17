@@ -125,7 +125,7 @@ export class SpriteSheet {
    * Create a sprite sheet from a sparse set of [[SourceView]] rectangles
    * @param options
    */
-  public static fromSparseImageSource(options: SpriteSheetSparseOptions): SpriteSheet {
+  public static fromImageSourceWithSourceViews(options: SpriteSheetSparseOptions): SpriteSheet {
     const sprites: Sprite[] = options.sourceViews.map(sourceView => {
       return new Sprite({
         image: options.image,
