@@ -111,6 +111,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
   }
 
   public runContactStartEnd() {
+    // Composite collider collisions may have a duplicate id because we want to treat those as a singular start/end
     for (const [id, c] of this._currentFrameContacts) {
       // find all new contacts
       if (!this._lastFrameContacts.has(id)) {
@@ -123,7 +124,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       }
     }
 
-    // find all contacts taht have ceased
+    // find all contacts that have ceased
     for (const [id, c] of this._lastFrameContacts) {
       if (!this._currentFrameContacts.has(id)) {
         const colliderA = c.colliderA;
