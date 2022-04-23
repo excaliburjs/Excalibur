@@ -107,6 +107,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where CompositeColliders treat separate constituents as separate collisionstart/collisionend which is unexpected
 - Fixed issue where resources that failed to load would silently fail making debugging challenging
 - Fixed issue where large pieces of Text were rendered as black rectangles on mobile, excalibur now internally breaks these into smaller chunks in order to render them.
 - Fixed issue #2263 where keyboard input `wasPressed` was not working in the `onPostUpdate` lifecycle

@@ -467,6 +467,13 @@ follower.actions
 // follow player
 
 player.rotation = 0;
+player.on('collisionstart', () => {
+  console.log('collision start');
+});
+
+player.on('collisionend', () => {
+  console.log('collision end');
+});
 
 // Health bar example
 var healthbar = new ex.Actor({

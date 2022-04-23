@@ -18,6 +18,12 @@ import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphi
 export abstract class Collider implements Clonable<Collider> {
   private static _ID = 0;
   public readonly id: Id<'collider'> = createId('collider', Collider._ID++);
+  /**
+   * Excalibur uses this to signal to the [[CollisionSystem]] this is part of a composite collider
+   * @internal
+   * @hidden
+   */
+  public __compositeColliderId: Id<'collider'> | null = null;
   public events: EventDispatcher<Collider> = new EventDispatcher<Collider>();
 
   /**
