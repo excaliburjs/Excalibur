@@ -66,6 +66,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added feature to build `SpriteSheet`s from a list of different sized source views using `ex.SpriteSheet.fromImageSourceWithSourceViews(...)`
+  ```typescript
+    const ss = ex.SpriteSheet.fromImageSourceWithSourceViews({
+      image,
+      sourceViews: [
+        {x: 0, y: 0, width: 20, height: 30},
+        {x: 20, y: 0, width: 40, height: 50},
+      ]
+    });
+  ```
 - Added draw call sorting `new ex.Engine({useDrawSorting: true})` to efficiently draw render plugins in batches to avoid expensive renderer switching as much as possible. By default this is turned on, but can be opted out of.
 - Added the ability to clone into a target `Matrix` this is useful to save allocations and in turn garbage collection pauses.
 - `ex.Engine` now support setting the pixel ratio in the constructor `new ex.Engine({pixelRatio: 2})`, this is useful for smooth `ex.Text` rendering when `antialiasing: false` and rendering pixel art type graphics
