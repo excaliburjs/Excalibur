@@ -173,6 +173,19 @@ cardSpriteSheet.sprites.forEach(s => s.scale = ex.vec(2, 2));
 
 var cardAnimation = ex.Animation.fromSpriteSheet(cardSpriteSheet, ex.range(0, 14 * 4), 200);
 
+var multiCardSheet = ex.SpriteSheet.fromImageSourceWithSourceViews({
+  image: cards,
+  sourceViews: [
+    { x: 11, y: 2, width: 42*2 + 23, height: 60*2 + 5 }
+  ]
+});
+
+var multiCardActor = new ex.Actor({
+  pos: ex.vec(400, 100),
+});
+multiCardActor.graphics.use(multiCardSheet.sprites[0]);
+game.add(multiCardActor);
+
 var spriteFontSheet = ex.SpriteSheet.fromImageSource({
   image: spriteFontImage,
   grid: {

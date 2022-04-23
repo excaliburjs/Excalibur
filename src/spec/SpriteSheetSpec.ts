@@ -39,7 +39,7 @@ describe('A SpriteSheet for Graphics', () => {
       image,
       sourceViews: [
         {x: 0, y: 0, width: 20, height: 30},
-        {x: 20, y: 0, width: 40, height: 50},
+        {x: 20, y: 0, width: 40, height: 50}
       ]
     });
 
