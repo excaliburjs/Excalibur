@@ -87,6 +87,27 @@ describe('The engine', () => {
     });
   });
 
+  it('should log if loading fails', async () => {
+    class FailedLoader implements ex.Loadable<void> {
+      data = undefined;
+      load(): Promise<void> {
+        throw new Error('I failed');
+      }
+      isLoaded(): boolean {
+        return false;
+      }
+    }
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'error');
+
+    engine = TestUtils.engine();
+
+
+    await engine.load(new FailedLoader());
+
+    expect(logger.error).toHaveBeenCalledWith('Error loading resources, things may not behave properly', new Error('I failed'));
+  });
+
   it('should update the frame stats every tick', () => {
     engine = TestUtils.engine();
     const testClock = engine.clock as ex.TestClock;
