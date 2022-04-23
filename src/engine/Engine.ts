@@ -1272,7 +1272,8 @@ O|===|* >________________>\n\
   public async load(loader: Loadable<any>): Promise<void> {
     try {
       await loader.load();
-    } catch {
+    } catch (e) {
+      this._logger.error('Error loading resources, things may not behave properly', e);
       await Promise.resolve();
     }
   }
