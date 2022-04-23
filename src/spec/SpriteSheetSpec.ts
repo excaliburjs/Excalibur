@@ -31,6 +31,25 @@ describe('A SpriteSheet for Graphics', () => {
     expect(ss.sprites[0].height).toBe(53);
   });
 
+  it('can be created from a list of source views', async () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    await image.load();
+
+    const ss = ex.SpriteSheet.fromImageSourceWithSourceViews({
+      image,
+      sourceViews: [
+        {x: 0, y: 0, width: 20, height: 30},
+        {x: 20, y: 0, width: 40, height: 50},
+      ]
+    });
+
+    expect(ss.sprites.length).toBe(2);
+    expect(ss.sprites[0].width).toBe(20);
+    expect(ss.sprites[0].height).toBe(30);
+    expect(ss.sprites[1].width).toBe(40);
+    expect(ss.sprites[1].height).toBe(50);
+  });
+
   it('can be created from a grid', async () => {
     const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
 

@@ -130,8 +130,8 @@ export class SpriteSheet {
       return new Sprite({
         image: options.image,
         sourceView
-      })
-    })
+      });
+    });
     return new SpriteSheet({sprites});
   }
 
