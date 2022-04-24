@@ -34,6 +34,7 @@ import { ActionsSystem } from './Actions/ActionsSystem';
 import { IsometricEntitySystem } from './TileMap/IsometricEntitySystem';
 import { OffscreenSystem } from './Graphics/OffscreenSystem';
 import { ExcaliburGraphicsContext } from './Graphics';
+import { ParallaxSystem } from './Graphics/ParallaxSystem';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -102,11 +103,15 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   constructor() {
     super();
     // Initialize systems
+
+    // Update
     this.world.add(new ActionsSystem());
     this.world.add(new MotionSystem());
     this.world.add(new CollisionSystem());
     this.world.add(new PointerSystem());
     this.world.add(new IsometricEntitySystem());
+    // Draw
+    this.world.add(new ParallaxSystem());
     this.world.add(new OffscreenSystem());
     this.world.add(new GraphicsSystem());
     this.world.add(new DebugSystem());
