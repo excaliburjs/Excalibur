@@ -201,7 +201,7 @@ for (var i = 0; i < 100; i++) {
   var parallax = new ex.ParallaxComponent(ex.vec(rand.floating(.5, .9), .5));
   clouds.addComponent(parallax);
 
-  
+  clouds.vel.x = -10;
   game.add(clouds);
 }
 

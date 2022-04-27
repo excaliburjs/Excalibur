@@ -14,18 +14,14 @@ export class ParallaxSystem extends System<TransformComponent | ParallaxComponen
     this.camera = scene.camera;
   }
 
-  update(entities: Entity[], _delta: number): void {
-    let transform: TransformComponent;
-    let parallax: ParallaxComponent;
-    for (const entity of entities) {
-      transform = entity.get(TransformComponent);
-      parallax = entity.get(ParallaxComponent);
+  update(_entities: Entity[], _delta: number): void {
+    // let transform: TransformComponent;
+    // let parallax: ParallaxComponent;
+    // for (const entity of entities) {
+    //   transform = entity.get(TransformComponent);
+    //   parallax = entity.get(ParallaxComponent);
 
-      if (!parallax.startingPosition) {
-        parallax.startingPosition = transform.pos.clone();
-      }
-
-      transform.pos = parallax.startingPosition.add(this.camera.pos.scale(parallax.parallaxFactor));
-    }
+    //   // transform.pos = parallax.startingPosition.add(this.camera.pos.scale(parallax.parallaxFactor));
+    // }
   }
 }

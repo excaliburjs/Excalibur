@@ -9,6 +9,7 @@ import { AddedEntity, isAddedSystemEntity, RemovedEntity, System, SystemType } f
 import { Engine } from '../Engine';
 import { GraphicsGroup } from '.';
 import { Particle } from '../Particles';
+import { ParallaxComponent } from './ParallaxComponent';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -93,6 +94,13 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
       // Tick any graphics state (but only once) for animations and graphics groups
       graphics.update(delta, this._token);
+
+      // Apply parallax
+      let parallax = entity.get(ParallaxComponent);
+      if (parallax) {
+        const parallaxOffset = this._camera.pos.scale(parallax.parallaxFactor);
+        this._graphicsContext.translate(parallaxOffset.x, parallaxOffset.y);
+      }
 
       // Position the entity
       this._applyTransform(entity);
