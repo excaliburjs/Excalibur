@@ -96,7 +96,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       graphics.update(delta, this._token);
 
       // Apply parallax
-      let parallax = entity.get(ParallaxComponent);
+      const parallax = entity.get(ParallaxComponent);
       if (parallax) {
         const parallaxOffset = this._camera.pos.scale(parallax.parallaxFactor);
         this._graphicsContext.translate(parallaxOffset.x, parallaxOffset.y);
