@@ -7,6 +7,7 @@ import { CollisionContact } from '../Detection/CollisionContact';
 import { Projection } from '../../Math/projection';
 import { Line } from '../../Math/line';
 import { Vector } from '../../Math/vector';
+import { Matrix } from '../../Math/matrix';
 import { Ray } from '../../Math/ray';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { Transform, TransformComponent } from '../../EntityComponentSystem';
@@ -36,11 +37,23 @@ export class PolygonCollider extends Collider {
    */
   public offset: Vector;
 
+  private _points: Vector[];
   /**
    * Points in the polygon in order around the perimeter in local coordinates. These are relative from the body transform position.
-   * Excalibur stores these in clockwise order
+   * Excalibur stores these in counter-clockwise order
    */
-  public points: Vector[];
+  public set points(points: Vector[]) {
+    this._localBoundsDirty = true;
+    this._points = points;
+  }
+
+  /**
+   * Points in the polygon in order around the perimeter in local coordinates. These are relative from the body transform position.
+   * Excalibur stores these in counter-clockwise order
+   */
+  public get points(): Vector[] {
+    return this._points;
+  }
 
   private _transform: Transform;
 
@@ -53,8 +66,8 @@ export class PolygonCollider extends Collider {
     super();
     this.offset = options.offset ?? Vector.Zero;
     this.points = options.points ?? [];
-    const clockwise = this._isClockwiseWinding(this.points);
-    if (!clockwise) {
+    const counterClockwise = this._isCounterClockwiseWinding(this.points);
+    if (!counterClockwise) {
       this.points.reverse();
     }
     if (!this.isConvex()) {
@@ -67,7 +80,7 @@ export class PolygonCollider extends Collider {
     this._calculateTransformation();
   }
 
-  private _isClockwiseWinding(points: Vector[]): boolean {
+  private _isCounterClockwiseWinding(points: Vector[]): boolean {
     // https://stackoverflow.com/a/1165943
     let sum = 0;
     for (let i = 0; i < points.length; i++) {
@@ -262,21 +275,18 @@ export class PolygonCollider extends Collider {
     return this.bounds.center;
   }
 
+  private _globalMatrix: Matrix = Matrix.identity();
+
   /**
    * Calculates the underlying transformation from the body relative space to world space
    */
   private _calculateTransformation() {
-    const transform = this._transform as TransformComponent;
 
-    const pos = transform ? transform.globalPos.add(this.offset) : this.offset;
-    const angle = transform ? transform.globalRotation : 0;
-    const scale = transform ? transform.globalScale : Vector.One;
-
-    const len = this.points.length;
-    this._transformedPoints.length = 0; // clear out old transform
-    for (let i = 0; i < len; i++) {
-      this._transformedPoints[i] = this.points[i].scale(scale).rotate(angle).add(pos);
-    }
+      const len = this.points.length;
+      this._transformedPoints.length = 0; // clear out old transform
+      for (let i = 0; i < len; i++) {
+        this._transformedPoints[i] = this._globalMatrix.multiply(this.points[i].clone());
+      }
   }
 
   /**
@@ -380,7 +390,11 @@ export class PolygonCollider extends Collider {
     this._sides.length = 0;
     this._localSides.length = 0;
     this._axes.length = 0;
-    this._transformedPoints.length = 0;
+    const tx = this._transform as TransformComponent;
+    const globalMat = tx?.getGlobalMatrix() ?? this._globalMatrix;
+    globalMat.clone(this._globalMatrix);
+    this._globalMatrix.translate(this.offset.x, this.offset.y);
+    // this._transformedPoints.length = 0;
     this.getTransformedPoints();
     this.getSides();
     this.getLocalSides();
@@ -502,18 +516,21 @@ export class PolygonCollider extends Collider {
    * Get the axis aligned bounding box for the polygon collider in world coordinates
    */
   public get bounds(): BoundingBox {
-    const tx = this._transform as TransformComponent;
-    const scale = tx?.globalScale ?? Vector.One;
-    const rotation = tx?.globalRotation ?? 0;
-    const pos = (tx?.globalPos ?? Vector.Zero).add(this.offset);
-    return this.localBounds.scale(scale).rotate(rotation).translate(pos);
+    return this.localBounds.transform(this._globalMatrix);
   }
 
+  private _localBoundsDirty = true;
+  private _localBounds: BoundingBox;
   /**
    * Get the axis aligned bounding box for the polygon collider in local coordinates
    */
   public get localBounds(): BoundingBox {
-    return BoundingBox.fromPoints(this.points);
+    if (this._localBoundsDirty) {
+      this._localBounds = BoundingBox.fromPoints(this.points);
+      this._localBoundsDirty = false;
+    }
+
+    return this._localBounds;
   }
 
   /**
