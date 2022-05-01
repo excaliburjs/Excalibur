@@ -139,12 +139,8 @@ export class Font extends Graphic implements FontRenderer {
   }
 
 
-  // private _measurementDirty = true;
-  // private _cachedMeasurement: BoundingBox;
-  // private _cachedText: string;
-  // private _cachedRasterProps: string;
-
   private _catchedTextMeasurement = new Map<string, {text: string, measurement: BoundingBox, rasterProps: string}>();
+  private _bitmapToTextMeasurement = new Map<CanvasRenderingContext2D, {text: string, measurement: BoundingBox, rasterProps: string}>();
   /**
    * Returns a BoundingBox that is the total size of the text including multiple lines
    *
@@ -196,6 +192,7 @@ export class Font extends Graphic implements FontRenderer {
         measurement
       };
       this._catchedTextMeasurement.set(text, cached);
+      this._bitmapToTextMeasurement.set(ctx, cached);
       return cached.measurement;
     } else {
       return cached.measurement;
@@ -416,9 +413,10 @@ export class Font extends Graphic implements FontRenderer {
       // if bitmap hasn't been used in 1 second clear it
       if (time + 1000 < performance.now()) {
         this._bitmapUsage.delete(bitmap);
-        // TODO clean up cached measurements
-        // const text = this._textToBitmap.get(bitmap);
-        // this._catchedTextMeasurement.delete(text);
+        // Cleanup measurements
+        const measurement = this._bitmapToTextMeasurement.get(bitmap);
+        this._catchedTextMeasurement.delete(measurement.text);
+        this._bitmapToTextMeasurement.delete(bitmap);
         TextureLoader.delete(bitmap.canvas);
       }
     }
