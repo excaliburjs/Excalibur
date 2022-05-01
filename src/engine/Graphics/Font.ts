@@ -139,6 +139,12 @@ export class Font extends Graphic implements FontRenderer {
   }
 
 
+  // private _measurementDirty = true;
+  // private _cachedMeasurement: BoundingBox;
+  // private _cachedText: string;
+  // private _cachedRasterProps: string;
+
+  private _catchedTextMeasurement = new Map<string, {text: string, measurement: BoundingBox, rasterProps: string}>();
   /**
    * Returns a BoundingBox that is the total size of the text including multiple lines
    *
@@ -147,28 +153,55 @@ export class Font extends Graphic implements FontRenderer {
    * @returns BoundingBox
    */
   public measureText(text: string): BoundingBox {
-    const lines = text.split('\n');
-    const maxWidthLine = lines.reduce((a, b) => {
-      return a.length > b.length ? a : b;
-    });
-    const ctx = this._getTextBitmap(text);
+    let measurementDirty = false;
+    let cached = this._catchedTextMeasurement.get(text);
+    if (!cached) {
+      measurementDirty = true;
+      console.log('text unknown');
+    }
 
-    this._applyFont(ctx); // font must be applied to the context to measure it
-    const metrics = ctx.measureText(maxWidthLine);
-    let textHeight = Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
+    let rasterProps = this._getRasterPropertiesHash();
+    if (!cached || rasterProps !== cached.rasterProps) {
+      measurementDirty = true;
+      console.log('raster props different');
+    }
 
-    // TODO lineheight makes the text bounds wonky
-    const lineAdjustedHeight = textHeight * lines.length;
-    textHeight = lineAdjustedHeight;
-    const bottomBounds = lineAdjustedHeight - Math.abs(metrics.actualBoundingBoxAscent);
-    const x = 0;
-    const y = 0;
-    return new BoundingBox({
-      left: x - Math.abs(metrics.actualBoundingBoxLeft) - this.padding,
-      top: y - Math.abs(metrics.actualBoundingBoxAscent) - this.padding,
-      bottom: y + bottomBounds + this.padding,
-      right: x + Math.abs(metrics.actualBoundingBoxRight) + this.padding
-    });
+    if (measurementDirty) {
+      const lines = text.split('\n');
+      const maxWidthLine = lines.reduce((a, b) => {
+        return a.length > b.length ? a : b;
+      });
+      const ctx = this._getTextBitmap(text);
+
+      this._applyFont(ctx); // font must be applied to the context to measure it
+      const metrics = ctx.measureText(maxWidthLine);
+      let textHeight = Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
+
+      // TODO lineheight makes the text bounds wonky
+      const lineAdjustedHeight = textHeight * lines.length;
+      textHeight = lineAdjustedHeight;
+      const bottomBounds = lineAdjustedHeight - Math.abs(metrics.actualBoundingBoxAscent);
+      const x = 0;
+      const y = 0;
+      // this._cachedText = text;
+      // this._cachedRasterProps = rasterProps;
+      // this._measurementDirty = false;
+      const measurement = new BoundingBox({
+        left: x - Math.abs(metrics.actualBoundingBoxLeft) - this.padding,
+        top: y - Math.abs(metrics.actualBoundingBoxAscent) - this.padding,
+        bottom: y + bottomBounds + this.padding,
+        right: x + Math.abs(metrics.actualBoundingBoxRight) + this.padding
+      });
+      cached = {
+        text,
+        rasterProps,
+        measurement
+      }
+      this._catchedTextMeasurement.set(text, cached);
+      return cached.measurement;
+    } else {
+      return cached.measurement;
+    }
   }
 
   private _setDimension(textBounds: BoundingBox, bitmap: CanvasRenderingContext2D) {
@@ -385,6 +418,9 @@ export class Font extends Graphic implements FontRenderer {
       // if bitmap hasn't been used in 1 second clear it
       if (time + 1000 < performance.now()) {
         this._bitmapUsage.delete(bitmap);
+        // TODO clean up cached measurements
+        // const text = this._textToBitmap.get(bitmap);
+        // this._catchedTextMeasurement.delete(text);
         TextureLoader.delete(bitmap.canvas);
       }
     }
