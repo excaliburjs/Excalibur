@@ -82,6 +82,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
   public canvas: Canvas = new Canvas({
     filtering: ImageFiltering.Blended,
     smoothing: true,
+    cache: true,
     draw: this.draw.bind(this)
   });
   private _resourceList: Loadable<any>[] = [];
@@ -328,6 +329,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
         r.load().finally(() => {
           // capture progress
           this._numLoaded++;
+          this.canvas.flagDirty();
         })
       )
     );
@@ -335,6 +337,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
 
     // short delay in showing the button for aesthetics
     await delay(200, this._engine?.clock);
+    this.canvas.flagDirty();
 
     await this.showPlayButton();
     // Unlock browser AudioContext in after user gesture
