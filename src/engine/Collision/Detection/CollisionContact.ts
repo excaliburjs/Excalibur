@@ -78,8 +78,8 @@ export class CollisionContact {
     this.info = info;
     this.id = Pair.calculatePairHash(colliderA.id, colliderB.id);
     if (colliderA.__compositeColliderId || colliderB.__compositeColliderId) {
-      // Potential problem id's are no longer unique
-      this.id = Pair.calculatePairHash(colliderA.__compositeColliderId ?? colliderA.id, colliderB.__compositeColliderId ?? colliderB.id);
+      // Add on the parent composite pair for start/end contact
+      this.id += '|' + Pair.calculatePairHash(colliderA.__compositeColliderId ?? colliderA.id, colliderB.__compositeColliderId ?? colliderB.id);
     }
   }
 

@@ -89,8 +89,17 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     // Solve, this resolves the position/velocity so entities aren't overlapping
     contacts = solver.solve(contacts);
 
-    // Record contacts
-    contacts.forEach((c) => this._currentFrameContacts.set(c.id, c));
+    // Record contacts for start/end
+    for (let contact of contacts) {
+      // Process composite ids, things with the same composite id are treated as the same collider for start/end
+      var index = contact.id.indexOf('|');
+      if (index > 0) {
+        const compositeId = contact.id.substring(index + 1);
+        this._currentFrameContacts.set(compositeId, contact);
+      } else {
+        this._currentFrameContacts.set(contact.id, contact)
+      }
+    }
 
     // Emit contact start/end events
     this.runContactStartEnd();
