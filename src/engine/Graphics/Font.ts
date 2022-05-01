@@ -157,13 +157,11 @@ export class Font extends Graphic implements FontRenderer {
     let cached = this._catchedTextMeasurement.get(text);
     if (!cached) {
       measurementDirty = true;
-      console.log('text unknown');
     }
 
-    let rasterProps = this._getRasterPropertiesHash();
+    const rasterProps = this._getRasterPropertiesHash();
     if (!cached || rasterProps !== cached.rasterProps) {
       measurementDirty = true;
-      console.log('raster props different');
     }
 
     if (measurementDirty) {
@@ -196,7 +194,7 @@ export class Font extends Graphic implements FontRenderer {
         text,
         rasterProps,
         measurement
-      }
+      };
       this._catchedTextMeasurement.set(text, cached);
       return cached.measurement;
     } else {

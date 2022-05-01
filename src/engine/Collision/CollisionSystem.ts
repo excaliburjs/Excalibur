@@ -90,14 +90,14 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     contacts = solver.solve(contacts);
 
     // Record contacts for start/end
-    for (let contact of contacts) {
+    for (const contact of contacts) {
       // Process composite ids, things with the same composite id are treated as the same collider for start/end
-      var index = contact.id.indexOf('|');
+      const index = contact.id.indexOf('|');
       if (index > 0) {
         const compositeId = contact.id.substring(index + 1);
         this._currentFrameContacts.set(compositeId, contact);
       } else {
-        this._currentFrameContacts.set(contact.id, contact)
+        this._currentFrameContacts.set(contact.id, contact);
       }
     }
 

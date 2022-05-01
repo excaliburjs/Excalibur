@@ -79,7 +79,9 @@ export class CollisionContact {
     this.id = Pair.calculatePairHash(colliderA.id, colliderB.id);
     if (colliderA.__compositeColliderId || colliderB.__compositeColliderId) {
       // Add on the parent composite pair for start/end contact
-      this.id += '|' + Pair.calculatePairHash(colliderA.__compositeColliderId ?? colliderA.id, colliderB.__compositeColliderId ?? colliderB.id);
+      this.id += '|' + Pair.calculatePairHash(
+        colliderA.__compositeColliderId ?? colliderA.id,
+        colliderB.__compositeColliderId ?? colliderB.id);
     }
   }
 

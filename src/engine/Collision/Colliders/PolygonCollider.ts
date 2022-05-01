@@ -282,11 +282,11 @@ export class PolygonCollider extends Collider {
    */
   private _calculateTransformation() {
 
-      const len = this.points.length;
-      this._transformedPoints.length = 0; // clear out old transform
-      for (let i = 0; i < len; i++) {
-        this._transformedPoints[i] = this._globalMatrix.multiply(this.points[i].clone());
-      }
+    const len = this.points.length;
+    this._transformedPoints.length = 0; // clear out old transform
+    for (let i = 0; i < len; i++) {
+      this._transformedPoints[i] = this._globalMatrix.multiply(this.points[i].clone());
+    }
   }
 
   /**
