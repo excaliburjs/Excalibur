@@ -348,24 +348,32 @@ describe('A game actor', () => {
     // move other actor into collision range from the right side
     other.pos.x = 9;
     other.pos.y = 0;
+    actor.collider.update();
+    other.collider.update();
     expect(actor.collider.bounds.intersectWithSide(other.collider.bounds)).toBe(ex.Side.Right);
     expect(other.collider.bounds.intersectWithSide(actor.collider.bounds)).toBe(ex.Side.Left);
 
     // move other actor into collision range from the left side
     other.pos.x = -9;
     other.pos.y = 0;
+    actor.collider.update();
+    other.collider.update();
     expect(actor.collider.bounds.intersectWithSide(other.collider.bounds)).toBe(ex.Side.Left);
     expect(other.collider.bounds.intersectWithSide(actor.collider.bounds)).toBe(ex.Side.Right);
 
     // move other actor into collision range from the top
     other.pos.x = 0;
     other.pos.y = -9;
+    actor.collider.update();
+    other.collider.update();
     expect(actor.collider.bounds.intersectWithSide(other.collider.bounds)).toBe(ex.Side.Top);
     expect(other.collider.bounds.intersectWithSide(actor.collider.bounds)).toBe(ex.Side.Bottom);
 
     // move other actor into collision range from the bottom
     other.pos.x = 0;
     other.pos.y = 9;
+    actor.collider.update();
+    other.collider.update();
     expect(actor.collider.bounds.intersectWithSide(other.collider.bounds)).toBe(ex.Side.Bottom);
     expect(other.collider.bounds.intersectWithSide(actor.collider.bounds)).toBe(ex.Side.Top);
   });

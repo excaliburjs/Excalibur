@@ -65,6 +65,7 @@ export class PolygonCollider extends Collider {
   constructor(options: PolygonColliderOptions) {
     super();
     this.offset = options.offset ?? Vector.Zero;
+    this._globalMatrix.translate(this.offset.x, this.offset.y);
     this.points = options.points ?? [];
     const counterClockwise = this._isCounterClockwiseWinding(this.points);
     if (!counterClockwise) {
@@ -385,16 +386,22 @@ export class PolygonCollider extends Collider {
     return this._axes;
   }
 
+  /**
+   * Updates the transform for the collision geometry
+   *
+   * Collision geometry (points/bounds) will not change until this is called.
+   * @param transform
+   */
   public update(transform: Transform): void {
     this._transform = transform;
     this._sides.length = 0;
     this._localSides.length = 0;
     this._axes.length = 0;
     const tx = this._transform as TransformComponent;
+    // This change means an update must be performed in order for geometry to update
     const globalMat = tx?.getGlobalMatrix() ?? this._globalMatrix;
     globalMat.clone(this._globalMatrix);
     this._globalMatrix.translate(this.offset.x, this.offset.y);
-    // this._transformedPoints.length = 0;
     this.getTransformedPoints();
     this.getSides();
     this.getLocalSides();
