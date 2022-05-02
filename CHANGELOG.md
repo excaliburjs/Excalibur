@@ -66,6 +66,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new `ex.ParallaxComponent` for creating parallax effects on the graphics, entities with this component are drawn differently and a collider will not be where you expect. It is not recommended you use colliders with parallax entities.
 - Added feature to build `SpriteSheet`s from a list of different sized source views using `ex.SpriteSheet.fromImageSourceWithSourceViews(...)`
   ```typescript
     const ss = ex.SpriteSheet.fromImageSourceWithSourceViews({
