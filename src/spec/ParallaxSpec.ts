@@ -7,7 +7,7 @@ fdescribe('A Parallax Component', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-  })
+  });
   it('exists', () => {
     expect(ex.ParallaxComponent).toBeDefined();
   });
