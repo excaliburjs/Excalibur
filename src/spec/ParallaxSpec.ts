@@ -3,7 +3,7 @@ import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
 
-fdescribe('A Parallax Component', () => {
+describe('A Parallax Component', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -21,7 +21,7 @@ fdescribe('A Parallax Component', () => {
     expect(comp.parallaxFactor).toBeVector(ex.vec(0.5, 0.5));
   });
 
-  fit('will apply a parallax effect to the graphics', async () => {
+  it('will apply a parallax effect to the graphics', async () => {
     const game = TestUtils.engine();
     await TestUtils.runToReady(game);
 
