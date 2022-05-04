@@ -26,7 +26,7 @@ export interface VertexBufferOptions {
  * Under the hood uses Float32Array
  */
 export class VertexBuffer {
-  private _gl: WebGLRenderingContext = ExcaliburWebGLContextAccessor.gl;
+  private _gl: WebGL2RenderingContext = ExcaliburWebGLContextAccessor.gl;
 
   /**
    * Access to the webgl buffer handle
@@ -57,6 +57,10 @@ export class VertexBuffer {
       this.bufferData = data;
     }
     this.type = type ?? this.type;
+    // Allocate buffer
+    const gl = this._gl;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this.bufferData, this.type === 'static' ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW);
   }
 
   /**
@@ -65,14 +69,20 @@ export class VertexBuffer {
   bind() {
     const gl = this._gl;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+
   }
 
   /**
    * Upload vertex buffer geometry to the GPU
    */
-  upload() {
+  upload(count?: number) {
     const gl = this._gl;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.bufferData, this.type === 'static' ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW);
+    if (count) {
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.bufferData, 0, count);
+    } else {
+      // TODO always use bufferSubData? need to perf test it
+      gl.bufferData(gl.ARRAY_BUFFER, this.bufferData, this.type === 'static' ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW);
+    }
   }
 }

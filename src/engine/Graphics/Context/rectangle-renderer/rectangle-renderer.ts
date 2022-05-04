@@ -30,7 +30,6 @@ export class RectangleRenderer implements RendererPlugin {
   initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
-    gl.getExtension('OES_standard_derivatives');
     // https://stackoverflow.com/questions/59197671/glsl-rounded-rectangle-with-variable-border
     this._shader = new Shader({
       fragmentSource: frag,

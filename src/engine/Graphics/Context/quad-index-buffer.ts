@@ -34,8 +34,7 @@ export class QuadIndexBuffer {
 
     const totalVertices = numberOfQuads * 6;
 
-    const ext = gl.getExtension('OES_element_index_uint');
-    if (ext && !useUint16) {
+    if (!useUint16) {
       this.bufferData = new Uint32Array(totalVertices);
     } else {
       // fall back to using gl.UNSIGNED_SHORT or tell the user they are out of luck

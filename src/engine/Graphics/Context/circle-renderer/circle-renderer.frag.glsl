@@ -1,22 +1,22 @@
-#ifdef GL_OES_standard_derivatives
-#extension GL_OES_standard_derivatives : enable
-#endif
+#version 300 es
 precision highp float;
 
 // UV coord
-varying vec2 v_uv;
+in vec2 v_uv;
 
 // Color coord to blend with image
-varying lowp vec4 v_color;
+in lowp vec4 v_color;
 
 // Stroke color if used
-varying lowp vec4 v_strokeColor;
+in lowp vec4 v_strokeColor;
 
 // Stroke thickness if used
-varying lowp float v_strokeThickness;
+in lowp float v_strokeThickness;
 
 // Opacity
-varying float v_opacity;
+in float v_opacity;
+
+out vec4 fragColor;
 
 void main() {
   // make (0, 0) the center the uv 
@@ -49,5 +49,5 @@ void main() {
   vec4 finalColor = mix(vec4(0.0), (color + strokeColor), fill);
   finalColor.rgb = finalColor.rgb * v_opacity;
   finalColor.a = finalColor.a * v_opacity;
-  gl_FragColor = finalColor;
+  fragColor = finalColor;
 }

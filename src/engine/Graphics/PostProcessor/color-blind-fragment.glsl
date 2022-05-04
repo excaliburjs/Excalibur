@@ -1,8 +1,9 @@
+#version 300 es
 precision mediump float;
 // our texture
 uniform sampler2D u_image;
 // the texCoords passed in from the vertex shader.
-varying vec2 v_texcoord;
+in vec2 v_texcoord;
 
 // color blind type
 uniform int u_type;
@@ -10,8 +11,10 @@ uniform int u_type;
 // simulation?
 uniform bool u_simulate;
 
+out vec4 fragColor;
+
 void main() {
-  vec4 o =  texture2D(u_image, v_texcoord);
+  vec4 o =  texture(u_image, v_texcoord);
   // RGB to LMS matrix conversion
   float L = (17.8824 * o.r) + (43.5161 * o.g) + (4.11935 * o.b);
   float M = (3.45565 * o.r) + (27.1554 * o.g) + (3.86714 * o.b);
@@ -55,8 +58,8 @@ void main() {
 
   // sim 
   if (u_simulate) {
-    gl_FragColor = error.rgba;
+    fragColor = error.rgba;
   } else {
-    gl_FragColor = correction.rgba;
+    fragColor = correction.rgba;
   }
 }
