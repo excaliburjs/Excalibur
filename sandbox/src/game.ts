@@ -79,6 +79,7 @@ var imageBlocks = new ex.ImageSource('../images/BlockA0.png', false, ex.ImageFil
 var spriteFontImage = new ex.ImageSource('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
 var cards = new ex.ImageSource('../images/kenny-cards.png');
+var cloud = new ex.ImageSource('../images/background_cloudA.png', false, ex.ImageFiltering.Blended);
 
 jump.volume = 0.3;
 
@@ -90,6 +91,7 @@ loader.addResource(imageJump);
 loader.addResource(imageBlocks);
 loader.addResource(spriteFontImage);
 loader.addResource(cards);
+loader.addResource(cloud);
 loader.addResource(jump);
 
 // Set background color
@@ -183,8 +185,25 @@ var multiCardSheet = ex.SpriteSheet.fromImageSourceWithSourceViews({
 var multiCardActor = new ex.Actor({
   pos: ex.vec(400, 100),
 });
+
 multiCardActor.graphics.use(multiCardSheet.sprites[0]);
 game.add(multiCardActor);
+
+var rand = new ex.Random(1337);
+var cloudSprite = cloud.toSprite();
+for (var i = 0; i < 100; i++) {
+  var clouds = new ex.Actor({
+    name: 'cloud',
+    pos: ex.vec(400 + i * rand.floating(100, 300), -rand.floating(0, 300)),
+    z: -10
+  });
+  clouds.graphics.use(cloudSprite);
+  var parallax = new ex.ParallaxComponent(ex.vec(rand.floating(.5, .9), .5));
+  clouds.addComponent(parallax);
+
+  clouds.vel.x = -10;
+  game.add(clouds);
+}
 
 var spriteFontSheet = ex.SpriteSheet.fromImageSource({
   image: spriteFontImage,

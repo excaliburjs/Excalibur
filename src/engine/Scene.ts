@@ -102,11 +102,14 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   constructor() {
     super();
     // Initialize systems
+
+    // Update
     this.world.add(new ActionsSystem());
     this.world.add(new MotionSystem());
     this.world.add(new CollisionSystem());
     this.world.add(new PointerSystem());
     this.world.add(new IsometricEntitySystem());
+    // Draw
     this.world.add(new OffscreenSystem());
     this.world.add(new GraphicsSystem());
     this.world.add(new DebugSystem());
