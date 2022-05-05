@@ -8,7 +8,7 @@ import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
  * it is almost always worth it in terms of performance to use an index buffer.
  */
 export class QuadIndexBuffer {
-  private _gl: WebGLRenderingContext = ExcaliburWebGLContextAccessor.gl;
+  private _gl: WebGL2RenderingContext = ExcaliburWebGLContextAccessor.gl;
   private _logger: Logger = Logger.getInstance();
   /**
    * Access to the webgl buffer handle
