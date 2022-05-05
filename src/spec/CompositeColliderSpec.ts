@@ -144,7 +144,11 @@ describe('A CompositeCollider', () => {
     circle.update(xf);
 
     const contactBoxCircle = compCollider.collide(circle);
-    expect(contactBoxCircle[0].id).toBe(ex.Pair.calculatePairHash(compCollider.id, circle.id));
+    // Composite collisions have a special id that appends the "parent" id to the id to accurately track start/end
+    expect(contactBoxCircle[0].id).toBe(
+      ex.Pair.calculatePairHash(compCollider.getColliders()[1].id, circle.id) +
+      '|' +
+      ex.Pair.calculatePairHash(compCollider.id, circle.id));
   });
 
   it('can collide with other composite colliders', () => {

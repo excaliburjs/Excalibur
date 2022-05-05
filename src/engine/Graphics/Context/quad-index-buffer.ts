@@ -8,7 +8,7 @@ import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
  * it is almost always worth it in terms of performance to use an index buffer.
  */
 export class QuadIndexBuffer {
-  private _gl: WebGLRenderingContext = ExcaliburWebGLContextAccessor.gl;
+  private _gl: WebGL2RenderingContext = ExcaliburWebGLContextAccessor.gl;
   private _logger: Logger = Logger.getInstance();
   /**
    * Access to the webgl buffer handle
@@ -34,8 +34,7 @@ export class QuadIndexBuffer {
 
     const totalVertices = numberOfQuads * 6;
 
-    const ext = gl.getExtension('OES_element_index_uint');
-    if (ext && !useUint16) {
+    if (!useUint16) {
       this.bufferData = new Uint32Array(totalVertices);
     } else {
       // fall back to using gl.UNSIGNED_SHORT or tell the user they are out of luck

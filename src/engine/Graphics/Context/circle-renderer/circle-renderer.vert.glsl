@@ -1,21 +1,22 @@
-attribute vec2 a_position;
+#version 300 es
+in vec2 a_position;
 
 // UV coordinate
-attribute vec2 a_uv;
-varying vec2 v_uv;
+in vec2 a_uv;
+out vec2 v_uv;
 
 // Opacity 
-attribute float a_opacity;
-varying float v_opacity;
+in float a_opacity;
+out float v_opacity;
 
-attribute vec4 a_color;
-varying vec4 v_color;
+in vec4 a_color;
+out vec4 v_color;
 
-attribute vec4 a_strokeColor;
-varying vec4 v_strokeColor;
+in vec4 a_strokeColor;
+out vec4 v_strokeColor;
 
-attribute float a_strokeThickness;
-varying float v_strokeThickness;
+in float a_strokeThickness;
+out float v_strokeThickness;
 
 uniform mat4 u_matrix;
 

@@ -1,16 +1,19 @@
+#version 300 es
 precision mediump float;
 
 // UV coord
-varying vec2 v_texcoord;
+in vec2 v_texcoord;
 
 // Texture index
-varying lowp float v_textureIndex;
+in lowp float v_textureIndex;
 
 // Textures in the current draw
 uniform sampler2D u_textures[%%count%%];
 
 // Opacity
-varying float v_opacity;
+in float v_opacity;
+
+out vec4 fragColor;
 
 void main() {
    // In order to support the most efficient sprite batching, we have multiple
@@ -24,5 +27,5 @@ void main() {
 
    color.rgb = color.rgb * v_opacity;
    color.a = color.a * v_opacity;
-   gl_FragColor = color;
+   fragColor = color;
 }

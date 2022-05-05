@@ -102,14 +102,14 @@ export class VertexLayout {
    *
    * @param uploadBuffer Optionally indicate you wish to upload the buffer to the GPU associated with this layout
    */
-  use(uploadBuffer = false) {
+  use(uploadBuffer = false, count?: number) {
     const gl = this._gl;
     if (!this._shader.isCurrentlyBound()) {
       throw Error('Shader associated with this vertex layout is not active! Call shader.use() before layout.use()');
     }
     this._vertexBuffer.bind();
     if (uploadBuffer) {
-      this._vertexBuffer.upload();
+      this._vertexBuffer.upload(count);
     }
     let offset = 0;
     // TODO switch to VAOs if the extension is

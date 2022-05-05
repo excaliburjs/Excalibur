@@ -424,7 +424,7 @@ export class DynamicTree<T extends ColliderProxy<Entity>> {
   public query(collider: T, callback: (other: T) => boolean): void {
     const bounds = collider.bounds;
     const helper = (currentNode: TreeNode<T>): boolean => {
-      if (currentNode && currentNode.bounds.intersect(bounds)) {
+      if (currentNode && currentNode.bounds.overlaps(bounds)) {
         if (currentNode.isLeaf() && currentNode.data !== collider) {
           if (callback.call(collider, currentNode.data)) {
             return true;

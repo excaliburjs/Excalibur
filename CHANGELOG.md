@@ -113,6 +113,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed unreleased bug where CompositeCollider components would not collide appropriately because contacts did not have unique ids
 - Fixed issue where CompositeColliders treat separate constituents as separate collisionstart/collisionend which is unexpected
 - Fixed issue where resources that failed to load would silently fail making debugging challenging
 - Fixed issue where large pieces of Text were rendered as black rectangles on mobile, excalibur now internally breaks these into smaller chunks in order to render them.
@@ -122,6 +123,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Updates
 
+- Performance improvement to the `ex.Loader` screen keeping frame rates higher by only updating the backing `ex.Canvas` when there are changes
+- Improved collision broadphase by swapping to a more efficient `ex.BoundingBox.overlaps` check
+- Improved collision narrowphase by improving `ex.PolygonCollider` calculations for localBounds, bounds, and transformed point geometry
+- Improved Text/Font performance by internally caching expensive native `measureText()` calls
 - Performance improvement to GraphicsSystem
 - Performance improvement to the transform capture of the previous frame transform and motion
 

@@ -111,7 +111,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
    * @internal
    */
-  public __gl: WebGLRenderingContext;
+  public __gl: WebGL2RenderingContext;
 
   private _transform = new TransformStack();
   private _state = new StateStack();
@@ -166,7 +166,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   constructor(options: ExcaliburGraphicsContextOptions) {
     const { canvasElement, enableTransparency, smoothing, snapToPixel, backgroundColor, useDrawSorting } = options;
-    this.__gl = canvasElement.getContext('webgl', {
+    this.__gl = canvasElement.getContext('webgl2', {
       antialias: smoothing ?? this.smoothing,
       premultipliedAlpha: false,
       alpha: enableTransparency ?? true,
