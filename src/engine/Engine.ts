@@ -37,7 +37,7 @@ import { Class } from './Class';
 import * as Input from './Input/Index';
 import * as Events from './Events';
 import { BrowserEvents } from './Util/Browser';
-import { ExcaliburGraphicsContext, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
+import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
 import { PointerEventReceiver } from './Input/PointerEventReceiver';
 import { Clock, StandardClock } from './Util/Clock';
 import { ImageFiltering } from './Graphics/Filtering';
@@ -604,14 +604,41 @@ O|===|* >________________>\n\
       displayMode = DisplayMode.FitScreen;
     }
 
-    this.graphicsContext = new ExcaliburGraphicsContextWebGL({
-      canvasElement: this.canvas,
-      enableTransparency: this.enableCanvasTransparency,
-      smoothing: options.antialiasing,
-      backgroundColor: options.backgroundColor,
-      snapToPixel: options.snapToPixel,
-      useDrawSorting: options.useDrawSorting
-    });
+    let useCanvasGraphicsContext = Flags.isCanvasGraphicsContextEnabled();
+    try {
+      this.graphicsContext = new ExcaliburGraphicsContextWebGL({
+        canvasElement: this.canvas,
+        enableTransparency: this.enableCanvasTransparency,
+        smoothing: options.antialiasing,
+        backgroundColor: options.backgroundColor,
+        snapToPixel: options.snapToPixel,
+        useDrawSorting: options.useDrawSorting
+      });
+      if (!this.graphicsContext) {
+        throw new Error('Unable to initialize webgl graphics context');
+      }
+    } catch {
+      this._logger.warn(
+        'Excalibur could not load webgl for some reason and loaded a Canvas 2D fallback, this might mean your browser doesn\'t '+
+        'have webgl enabled or hardware accleration is unavailable. Some features of Excalibur will not work in this mode. To remedy: \n' +
+        'If in Chrome, visit Settings > Advanced > System > Use Hardware Acceleration\n' +
+        'If in Firefox, visit about:config. ' +
+        'Ensure webgl.disabled = false, webgl.force-enabled = true, and layers.acceleration.force-enabled = true\n\n' +
+        'Read more about this issue at https://excaliburjs.com/docs/webgl'
+      );
+      useCanvasGraphicsContext = true;
+    }
+
+    if (useCanvasGraphicsContext) {
+      this.graphicsContext = new ExcaliburGraphicsContext2DCanvas({
+        canvasElement: this.canvas,
+        enableTransparency: this.enableCanvasTransparency,
+        smoothing: options.antialiasing,
+        backgroundColor: options.backgroundColor,
+        snapToPixel: options.snapToPixel,
+        useDrawSorting: options.useDrawSorting
+      });
+    }
 
     this.screen = new Screen({
       canvas: this.canvas,

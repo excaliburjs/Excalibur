@@ -171,7 +171,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       premultipliedAlpha: false,
       alpha: enableTransparency ?? true,
       depth: true,
-      powerPreference: 'high-performance'
+      powerPreference: 'high-performance',
+      failIfMajorPerformanceCaveat: true
     });
     ExcaliburWebGLContextAccessor.register(this.__gl);
     TextureLoader.register(this.__gl);

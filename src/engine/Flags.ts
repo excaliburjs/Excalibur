@@ -9,6 +9,15 @@ export class Flags {
   private static _FROZEN = false;
   private static _FLAGS: Record<string, boolean> = {};
 
+
+  public static useCanvasGraphicsContext() {
+    Flags.enable('use-canvas-context');
+  }
+
+  public static isCanvasGraphicsContextEnabled() {
+    return Flags.isEnabled('use-canvas-context');
+  }
+
   /**
    * Freeze all flag modifications making them readonly
    */
