@@ -490,6 +490,9 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     backgroundColor: Color.fromHex('#2185d0') // Excalibur blue
   };
 
+  private _originalOptions: EngineOptions = {};
+  public readonly _originalDisplayMode: DisplayMode;
+
   /**
    * Creates a new game using the given [[EngineOptions]]. By default, if no options are provided,
    * the game will be rendered full screen (taking up all available browser window space).
@@ -518,6 +521,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     super();
 
     options = { ...Engine._DEFAULT_ENGINE_OPTIONS, ...options };
+    this._originalOptions = options;
 
     Flags.freeze();
 
@@ -604,6 +608,8 @@ O|===|* >________________>\n\
       displayMode = DisplayMode.FitScreen;
     }
 
+    this._originalDisplayMode = displayMode;
+
     let useCanvasGraphicsContext = Flags.isCanvasGraphicsContextEnabled();
     try {
       this.graphicsContext = new ExcaliburGraphicsContextWebGL({
@@ -614,13 +620,16 @@ O|===|* >________________>\n\
         snapToPixel: options.snapToPixel,
         useDrawSorting: options.useDrawSorting
       });
-      if (!this.graphicsContext) {
-        throw new Error('Unable to initialize webgl graphics context');
+    } catch (e) {
+      let message = '';
+      if (e instanceof Error) {
+        message = e.message;
+      } else {
+        message = e.toString();
       }
-    } catch {
       this._logger.warn(
-        'Excalibur could not load webgl for some reason and loaded a Canvas 2D fallback, this might mean your browser doesn\'t '+
-        'have webgl enabled or hardware accleration is unavailable. Some features of Excalibur will not work in this mode. To remedy: \n' +
+        `Excalibur could not load webgl for some reason (${message}) and loaded a Canvas 2D fallback, this might mean your browser doesn't `+
+        'have webgl enabled or hardware acceleration is unavailable. Some features of Excalibur will not work in this mode. To remedy: \n' +
         'If in Chrome, visit Settings > Advanced > System > Use Hardware Acceleration\n' +
         'If in Firefox, visit about:config. ' +
         'Ensure webgl.disabled = false, webgl.force-enabled = true, and layers.acceleration.force-enabled = true\n\n' +
@@ -678,6 +687,53 @@ O|===|* >________________>\n\
 
     this.addScene('root', this.rootScene);
     (window as any).___EXCALIBUR_DEVTOOL = this;
+  }
+
+  public switchTo2DCanvasFallback() {
+    // Swap out the canvas
+    const newCanvas = this.canvas.cloneNode(false) as HTMLCanvasElement;
+    this.canvas.parentNode.replaceChild(newCanvas, this.canvas);
+    this.canvas = newCanvas;
+
+    // Log warning
+    this._logger.warn(
+      `Switching to browser 2D Canvas fallback due to performance. Some features of Excalibur will not work in this mode.\n` +
+      'this might mean your browser doesn\'t have webgl enabled or hardware acceleration is unavailable.' +
+      'To remedy: \n' +
+      'If in Chrome, visit Settings > Advanced > System > Use Hardware Acceleration\n' +
+      'If in Firefox, visit about:config. ' +
+      'Ensure webgl.disabled = false, webgl.force-enabled = true, and layers.acceleration.force-enabled = true\n\n' +
+      'Read more about this issue at https://excaliburjs.com/docs/webgl'
+    );
+
+    const options = this._originalOptions;
+    const displayMode = this._originalDisplayMode;
+
+    this.graphicsContext = new ExcaliburGraphicsContext2DCanvas({
+      canvasElement: this.canvas,
+      enableTransparency: this.enableCanvasTransparency,
+      smoothing: options.antialiasing,
+      backgroundColor: options.backgroundColor,
+      snapToPixel: options.snapToPixel,
+      useDrawSorting: options.useDrawSorting
+    });
+
+    if (this.screen) {
+      this.screen.dispose();
+    }
+
+    this.screen = new Screen({
+      canvas: this.canvas,
+      context: this.graphicsContext,
+      antialiasing: options.antialiasing ?? true,
+      browser: this.browser,
+      viewport: options.viewport ?? (options.width && options.height ? { width: options.width, height: options.height } : Resolution.SVGA),
+      resolution: options.resolution,
+      displayMode,
+      pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
+    });
+
+    this.screen.setCurrentCamera(this.currentScene.camera);
   }
 
   /**
@@ -1065,10 +1121,9 @@ O|===|* >________________>\n\
    * @param delta  Number of milliseconds elapsed since the last draw.
    */
   private _draw(delta: number) {
-    const ctx = this.graphicsContext;
     this.graphicsContext.beginDrawLifecycle();
     this.graphicsContext.clear();
-    this._predraw(ctx, delta);
+    this._predraw(this.graphicsContext, delta);
 
     // Drawing nothing else while loading
     if (!this._isReady) {
@@ -1082,7 +1137,7 @@ O|===|* >________________>\n\
 
     this.currentScene.draw(this.graphicsContext, delta);
 
-    this._postdraw(ctx, delta);
+    this._postdraw(this.graphicsContext, delta);
 
     // Flush any pending drawings
     this.graphicsContext.flush();

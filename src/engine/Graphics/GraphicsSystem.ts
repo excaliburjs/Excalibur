@@ -26,7 +26,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   }
 
   public initialize(scene: Scene): void {
-    this._graphicsContext = scene.engine.graphicsContext;
     this._camera = scene.camera;
     this._engine = scene.engine;
   }
@@ -37,6 +36,8 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   };
 
   public preupdate(): void {
+    // Graphics context could be switched to fallback
+    this._graphicsContext = this._engine.graphicsContext;
     if (this._zHasChanged) {
       this._sortedTransforms.sort((a, b) => {
         return a.z - b.z;

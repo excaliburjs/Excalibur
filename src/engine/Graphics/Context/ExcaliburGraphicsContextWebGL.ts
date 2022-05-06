@@ -174,6 +174,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       powerPreference: 'high-performance',
       failIfMajorPerformanceCaveat: true
     });
+    if (!this.__gl) {
+      throw Error("Failed to retrieve webgl context from browser")
+    }
     ExcaliburWebGLContextAccessor.register(this.__gl);
     TextureLoader.register(this.__gl);
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
