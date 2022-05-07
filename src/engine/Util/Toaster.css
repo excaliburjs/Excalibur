@@ -2,7 +2,7 @@
 #ex-toast-container {
   position: absolute;
   height: 0;
-  width: 50%;
+  min-width: 50%;
   left: 50%;
   top: 0;
 }
