@@ -1,9 +1,12 @@
 import toasterCss from './Toaster.css';
+
+/**
+ * The Toaster is only meant to be called from inside Excalibur to display messages to players
+ */
 export class Toaster {
   private _styleBlock: HTMLStyleElement;
   private _container: HTMLDivElement;
   private _toasterCss: string = toasterCss.toString();
-  constructor() {}
 
   private _isInitialized = false;
   private _initialize() {
@@ -20,20 +23,26 @@ export class Toaster {
   }
 
   private _createFragment(message: string) {
-    let toastMessage = document.createElement('span');
+    const toastMessage = document.createElement('span');
     toastMessage.innerText = message;
     return toastMessage;
   }
 
+  /**
+   * Display a toast message to a player
+   * @param message Text of the message, messages may have a single "[LINK]" to influence placement
+   * @param linkTarget Optionally specify a link location
+   * @param linkName Optionally specify a name for that link location
+   */
   public toast(message: string, linkTarget?: string, linkName?: string) {
     this._initialize();
-    var toast = document.createElement('div');
+    const toast = document.createElement('div');
     toast.className = 'ex-toast-message';
 
-    let messageFragments: HTMLElement[] = message.split("[LINK]").map(message => this._createFragment(message));
+    const messageFragments: HTMLElement[] = message.split('[LINK]').map(message => this._createFragment(message));
 
     if (linkTarget) {
-      var link = document.createElement('a');
+      const link = document.createElement('a');
       link.href = linkTarget;
       if (linkName) {
         link.innerText = linkName;
@@ -42,33 +51,33 @@ export class Toaster {
       }
       messageFragments.splice(1, 0, link);
     }
-    
+
     // Assembly message
-    let finalMessage = document.createElement('div');
+    const finalMessage = document.createElement('div');
     messageFragments.forEach(message => {
       finalMessage.appendChild(message);
     });
     toast.appendChild(finalMessage);
 
     // Dismiss button
-    var dismissBtn = document.createElement('button');
-    dismissBtn.innerText = 'x'
+    const dismissBtn = document.createElement('button');
+    dismissBtn.innerText = 'x';
     dismissBtn.addEventListener('click', () => {
       this._container.removeChild(toast);
     });
     toast.appendChild(dismissBtn);
 
     // Escape to dismiss
-    let keydownHandler = (evt: KeyboardEvent) => {
-      if (evt.key === "Escape") {
-        this._container.removeChild(toast)
+    const keydownHandler = (evt: KeyboardEvent) => {
+      if (evt.key === 'Escape') {
+        this._container.removeChild(toast);
       }
       document.removeEventListener('keydown', keydownHandler);
-    }
+    };
     document.addEventListener('keydown', keydownHandler);
 
     // Insert into container
-    var first = this._container.firstChild;
+    const first = this._container.firstChild;
     this._container.insertBefore(toast, first);
   }
 }

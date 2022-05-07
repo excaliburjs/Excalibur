@@ -191,6 +191,16 @@ export interface EngineOptions {
    * this can disrupt a specific desired painter order.
    */
   useDrawSorting?: boolean;
+
+  /**
+   * Default `{ numberOfFrames: 100, fps: 20 }`, optionally configure excalibur to fallback to the 2D Canvas renderer
+   * if bad performance is detected.
+   *
+   * In this example if excalibur is running at 20fps or less for 100 frames it will trigger the fallback to the 2D Canvas renderer.
+   *
+   * If set to `false` Excalibur will never fallback to Canvas 2D
+   */
+  performanceThresholdForCanvas2DFallback?: { numberOfFrames: number, fps: number } | false;
 }
 
 /**
@@ -481,6 +491,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     height: 0,
     enableCanvasTransparency: true,
     useDrawSorting: true,
+    performanceThresholdForCanvas2DFallback: { fps: 20, numberOfFrames: 100 },
     canvasElementId: '',
     canvasElement: undefined,
     snapToPixel: false,
@@ -631,14 +642,17 @@ O|===|* >________________>\n\
         message = e.toString();
       }
       this._logger.warn(
-        `Excalibur could not load webgl for some reason (${message}) and loaded a Canvas 2D fallback, this might mean your browser doesn't `+
-        'have webgl enabled or hardware acceleration is unavailable. Some features of Excalibur will not work in this mode. To remedy: \n' +
-        'If in Chrome, visit Settings > Advanced > System > Use Hardware Acceleration\n' +
-        'If in Firefox, visit about:config. ' +
-        'Ensure webgl.disabled = false, webgl.force-enabled = true, and layers.acceleration.force-enabled = true\n\n' +
+        `Excalibur could not load webgl for some reason (${message}) and loaded a Canvas 2D fallback. ` +
+        `Some features of Excalibur will not work in this mode. \n\n` +
         'Read more about this issue at https://excaliburjs.com/docs/webgl'
       );
-      
+      this._toaster.toast(
+        'Excalibur could not load webgl for some reason and loaded a Canvas 2D fallback. ' +
+        'Some features of Excalibur will not work in this mode. ' +
+        'Visit [LINK] for more information and potential solutions.',
+        'https://excaliburjs.com/docs/webgl'
+      );
+
       useCanvasGraphicsContext = true;
     }
 
@@ -693,31 +707,63 @@ O|===|* >________________>\n\
     (window as any).___EXCALIBUR_DEVTOOL = this;
   }
 
-  public switchTo2DCanvasFallback() {
+  private _performanceThresholdTriggered = false;
+  private _fpsSamples: number[] = [];
+  private _monitorPerformanceThresholdAndTriggerFallback() {
+    if (this._originalOptions.performanceThresholdForCanvas2DFallback) {
+      const { numberOfFrames, fps } = this._originalOptions.performanceThresholdForCanvas2DFallback;
+      // Average fps for last 100 frames after start
+      if (this.ready) {
+        if (this._fpsSamples.length === numberOfFrames) {
+          this._fpsSamples.splice(0, 1);
+        }
+        this._fpsSamples.push(this.clock.fpsSampler.fps);
+        let total = 0;
+        for (let i = 0; i < this._fpsSamples.length; i++) {
+          total += this._fpsSamples[i];
+        }
+        const average = total / this._fpsSamples.length;
+        if (this._fpsSamples.length === numberOfFrames) {
+          if (average <= fps && !this._performanceThresholdTriggered) {
+            this._performanceThresholdTriggered = true;
+            // Log warning
+            this._logger.warn(
+              `Switching to browser 2D Canvas fallback due to performance. Some features of Excalibur will not work in this mode.\n` +
+              'this might mean your browser doesn\'t have webgl enabled or hardware acceleration is unavailable.' +
+              'To remedy: \n' +
+              'If in Chrome, visit Settings > Advanced > System > Use Hardware Acceleration\n' +
+              'If in Firefox, visit about:config. ' +
+              'Ensure webgl.disabled = false, webgl.force-enabled = true, and layers.acceleration.force-enabled = true\n\n' +
+              'Read more about this issue at https://excaliburjs.com/docs/webgl'
+            );
+
+            this._toaster.toast(
+              'Excalibur is encountering performance issues. '+
+              'It\'s possible that your browser doesn\'t have hardware acceleration enabled. ' +
+              'Visit [LINK] for more information and potential solutions.',
+              'https://excaliburjs.com/docs/webgl'
+            );
+            this.useCanvas2DFallback();
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Switches the engine's graphics context to the 2D Canvas.
+   * @warning Some features of Excalibur will not work in this mode.
+   */
+  public useCanvas2DFallback() {
     // Swap out the canvas
     const newCanvas = this.canvas.cloneNode(false) as HTMLCanvasElement;
     this.canvas.parentNode.replaceChild(newCanvas, this.canvas);
     this.canvas = newCanvas;
 
-    // Log warning
-    this._logger.warn(
-      `Switching to browser 2D Canvas fallback due to performance. Some features of Excalibur will not work in this mode.\n` +
-      'this might mean your browser doesn\'t have webgl enabled or hardware acceleration is unavailable.' +
-      'To remedy: \n' +
-      'If in Chrome, visit Settings > Advanced > System > Use Hardware Acceleration\n' +
-      'If in Firefox, visit about:config. ' +
-      'Ensure webgl.disabled = false, webgl.force-enabled = true, and layers.acceleration.force-enabled = true\n\n' +
-      'Read more about this issue at https://excaliburjs.com/docs/webgl'
-    );
-
-    this._toaster.toast(
-      'Excalibur is encountering performance issues. It\'s possible that your browser doesn\'t have hardware acceleration enabled. Visit [LINK] for more information and potential solutions.',
-      'https://excaliburjs.com/docs/webgl'
-    );
-
     const options = this._originalOptions;
     const displayMode = this._originalDisplayMode;
 
+    // New graphics context
     this.graphicsContext = new ExcaliburGraphicsContext2DCanvas({
       canvasElement: this.canvas,
       enableTransparency: this.enableCanvasTransparency,
@@ -727,6 +773,7 @@ O|===|* >________________>\n\
       useDrawSorting: options.useDrawSorting
     });
 
+    // Reset screen
     if (this.screen) {
       this.screen.dispose();
     }
@@ -741,8 +788,13 @@ O|===|* >________________>\n\
       displayMode,
       pixelRatio: options.suppressHiDPIScaling ? 1 : (options.pixelRatio ?? null)
     });
-
     this.screen.setCurrentCamera(this.currentScene.camera);
+
+    // Reset pointers
+    this.input.pointers.detach();
+    const pointerTarget = options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas;
+    this.input.pointers = this.input.pointers.recreate(pointerTarget, this);
+    this.input.pointers.init();
   }
 
   /**
@@ -1296,6 +1348,8 @@ O|===|* >________________>\n\
 
     this.emit('postframe', new PostFrameEvent(this, this.stats.currFrame));
     this.stats.prevFrame.reset(this.stats.currFrame);
+
+    this._monitorPerformanceThresholdAndTriggerFallback();
   }
 
   /**

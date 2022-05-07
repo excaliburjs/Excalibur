@@ -175,7 +175,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       failIfMajorPerformanceCaveat: true
     });
     if (!this.__gl) {
-      throw Error("Failed to retrieve webgl context from browser")
+      throw Error('Failed to retrieve webgl context from browser');
     }
     ExcaliburWebGLContextAccessor.register(this.__gl);
     TextureLoader.register(this.__gl);

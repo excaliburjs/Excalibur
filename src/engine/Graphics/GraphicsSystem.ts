@@ -36,7 +36,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   };
 
   public preupdate(): void {
-    // Graphics context could be switched to fallback
+    // Graphics context could be switched to fallback in a new frame
     this._graphicsContext = this._engine.graphicsContext;
     if (this._zHasChanged) {
       this._sortedTransforms.sort((a, b) => {
