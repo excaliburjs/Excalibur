@@ -42,6 +42,7 @@ import { PointerEventReceiver } from './Input/PointerEventReceiver';
 import { Clock, StandardClock } from './Util/Clock';
 import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
+import { Toaster } from './Util/Toaster';
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -410,6 +411,8 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   private _logger: Logger;
 
+  private _toaster: Toaster = new Toaster();
+
   // this determines whether excalibur is compatible with your browser
   private _compatible: boolean;
 
@@ -635,6 +638,7 @@ O|===|* >________________>\n\
         'Ensure webgl.disabled = false, webgl.force-enabled = true, and layers.acceleration.force-enabled = true\n\n' +
         'Read more about this issue at https://excaliburjs.com/docs/webgl'
       );
+      
       useCanvasGraphicsContext = true;
     }
 
@@ -704,6 +708,11 @@ O|===|* >________________>\n\
       'If in Firefox, visit about:config. ' +
       'Ensure webgl.disabled = false, webgl.force-enabled = true, and layers.acceleration.force-enabled = true\n\n' +
       'Read more about this issue at https://excaliburjs.com/docs/webgl'
+    );
+
+    this._toaster.toast(
+      'Excalibur is encountering performance issues. It\'s possible that your browser doesn\'t have hardware acceleration enabled. Visit [LINK] for more information and potential solutions.',
+      'https://excaliburjs.com/docs/webgl'
     );
 
     const options = this._originalOptions;
