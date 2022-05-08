@@ -65,7 +65,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
-
+- Added new performance fallback configuration to `ex.Engine` for developers to help players experiencing poor performance in non-standard browser configurations
+  * This will fallback to the Canvas2D rendering graphics context which usually performs better on non hardware accelerated browsers, currently postprocessing effects are unavailable in this fallback.
+  * By default if a game is running at 20fps or lower for 100 frames or more after the game has started it will be triggered, the developer can optionally show a player message that is off by default.
+  ```typescript
+    var game = new ex.Engine({
+      ...
+      configurePerformanceCanvas2DFallback: {
+        allow: true, // opt-out of the fallback
+        showPlayerMessage: true, // opt-in to a player pop-up message
+        threshold: { fps: 20, numberOfFrames: 100 } // configure the threshold to trigger the fallback
+      }
+    });
+  ```
 - Added new `ex.ParallaxComponent` for creating parallax effects on the graphics, entities with this component are drawn differently and a collider will not be where you expect. It is not recommended you use colliders with parallax entities.
   ```typescript
   const actor = new ex.Actor();
