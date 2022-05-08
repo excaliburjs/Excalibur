@@ -193,14 +193,28 @@ export interface EngineOptions {
   useDrawSorting?: boolean;
 
   /**
-   * Default `{ numberOfFrames: 100, fps: 20 }`, optionally configure excalibur to fallback to the 2D Canvas renderer
-   * if bad performance is detected.
-   *
-   * In this example if excalibur is running at 20fps or less for 100 frames it will trigger the fallback to the 2D Canvas renderer.
-   *
-   * If set to `false` Excalibur will never fallback to Canvas 2D
+   * Optionally configure how excalibur handles poor performance on a player's browser
    */
-  performanceThresholdForCanvas2DFallback?: { numberOfFrames: number, fps: number } | false;
+  configurePerformanceCanvas2DFallback?: {
+    /**
+     * By default `true`, this will switch the internal graphics context to Canvas2D which can improve performance on non hardware
+     * accelerated browsers.
+     */
+    allow: boolean;
+    /**
+     * By default `false`, if set to `true` a dialogue will be presented to the player about their browser and how to potentially
+     * address any issues.
+     */
+    showPlayerMessage: boolean;
+    /**
+     * Default `{ numberOfFrames: 100, fps: 20 }`, optionally configure excalibur to fallback to the 2D Canvas renderer
+     * if bad performance is detected.
+     *
+     * In this example of the default if excalibur is running at 20fps or less for 100 frames it will trigger the fallback to the 2D
+     * Canvas renderer.
+     */
+    threshold: { numberOfFrames: number, fps: number };
+  }
 }
 
 /**
@@ -435,6 +449,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   private _deferredGoTo: string = null;
 
+  public on(eventName: 'fallbackgraphicscontext', handler: (event: ExcaliburGraphicsContext2DCanvas) => void): void;
   public on(eventName: Events.initialize, handler: (event: Events.InitializeEvent<Engine>) => void): void;
   public on(eventName: Events.visible, handler: (event: VisibleEvent) => void): void;
   public on(eventName: Events.hidden, handler: (event: HiddenEvent) => void): void;
@@ -451,6 +466,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     super.on(eventName, handler);
   }
 
+  public once(eventName: 'fallbackgraphicscontext', handler: (event: ExcaliburGraphicsContext2DCanvas) => void): void;
   public once(eventName: Events.initialize, handler: (event: Events.InitializeEvent<Engine>) => void): void;
   public once(eventName: Events.visible, handler: (event: VisibleEvent) => void): void;
   public once(eventName: Events.hidden, handler: (event: HiddenEvent) => void): void;
@@ -467,6 +483,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     super.once(eventName, handler);
   }
 
+  public off(eventName: 'fallbackgraphicscontext', handler?: (event: ExcaliburGraphicsContext2DCanvas) => void): void;
   public off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent<Engine>) => void): void;
   public off(eventName: Events.visible, handler?: (event: VisibleEvent) => void): void;
   public off(eventName: Events.hidden, handler?: (event: HiddenEvent) => void): void;
@@ -491,7 +508,11 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     height: 0,
     enableCanvasTransparency: true,
     useDrawSorting: true,
-    performanceThresholdForCanvas2DFallback: { fps: 20, numberOfFrames: 100 },
+    configurePerformanceCanvas2DFallback: {
+      allow: true,
+      showPlayerMessage: false,
+      threshold: { fps: 20, numberOfFrames: 100 }
+    },
     canvasElementId: '',
     canvasElement: undefined,
     snapToPixel: false,
@@ -624,36 +645,28 @@ O|===|* >________________>\n\
 
     this._originalDisplayMode = displayMode;
 
-    let useCanvasGraphicsContext = Flags.isCanvasGraphicsContextEnabled();
-    try {
-      this.graphicsContext = new ExcaliburGraphicsContextWebGL({
-        canvasElement: this.canvas,
-        enableTransparency: this.enableCanvasTransparency,
-        smoothing: options.antialiasing,
-        backgroundColor: options.backgroundColor,
-        snapToPixel: options.snapToPixel,
-        useDrawSorting: options.useDrawSorting
-      });
-    } catch (e) {
-      let message = '';
-      if (e instanceof Error) {
-        message = e.message;
-      } else {
-        message = e.toString();
+    // Canvas 2D fallback can be flagged on
+    let useCanvasGraphicsContext = Flags.isEnabled('use-canvas-context');
+    if (!useCanvasGraphicsContext) {
+      // Attempt webgl first
+      try {
+        this.graphicsContext = new ExcaliburGraphicsContextWebGL({
+          canvasElement: this.canvas,
+          enableTransparency: this.enableCanvasTransparency,
+          smoothing: options.antialiasing,
+          backgroundColor: options.backgroundColor,
+          snapToPixel: options.snapToPixel,
+          useDrawSorting: options.useDrawSorting
+        });
+      } catch (e) {
+        this._logger.warn(
+          `Excalibur could not load webgl for some reason (${(e as Error).message}) and loaded a Canvas 2D fallback. ` +
+          `Some features of Excalibur will not work in this mode. \n\n` +
+          'Read more about this issue at https://excaliburjs.com/docs/webgl'
+        );
+        // fallback to canvas in case of failure
+        useCanvasGraphicsContext = true;
       }
-      this._logger.warn(
-        `Excalibur could not load webgl for some reason (${message}) and loaded a Canvas 2D fallback. ` +
-        `Some features of Excalibur will not work in this mode. \n\n` +
-        'Read more about this issue at https://excaliburjs.com/docs/webgl'
-      );
-      this._toaster.toast(
-        'Excalibur could not load webgl for some reason and loaded a Canvas 2D fallback. ' +
-        'Some features of Excalibur will not work in this mode. ' +
-        'Visit [LINK] for more information and potential solutions.',
-        'https://excaliburjs.com/docs/webgl'
-      );
-
-      useCanvasGraphicsContext = true;
     }
 
     if (useCanvasGraphicsContext) {
@@ -710,41 +723,45 @@ O|===|* >________________>\n\
   private _performanceThresholdTriggered = false;
   private _fpsSamples: number[] = [];
   private _monitorPerformanceThresholdAndTriggerFallback() {
-    if (this._originalOptions.performanceThresholdForCanvas2DFallback) {
-      const { numberOfFrames, fps } = this._originalOptions.performanceThresholdForCanvas2DFallback;
-      // Average fps for last 100 frames after start
-      if (this.ready) {
-        if (this._fpsSamples.length === numberOfFrames) {
-          this._fpsSamples.splice(0, 1);
-        }
-        this._fpsSamples.push(this.clock.fpsSampler.fps);
-        let total = 0;
-        for (let i = 0; i < this._fpsSamples.length; i++) {
-          total += this._fpsSamples[i];
-        }
-        const average = total / this._fpsSamples.length;
-        if (this._fpsSamples.length === numberOfFrames) {
-          if (average <= fps && !this._performanceThresholdTriggered) {
-            this._performanceThresholdTriggered = true;
-            // Log warning
-            this._logger.warn(
-              `Switching to browser 2D Canvas fallback due to performance. Some features of Excalibur will not work in this mode.\n` +
-              'this might mean your browser doesn\'t have webgl enabled or hardware acceleration is unavailable.' +
-              'To remedy: \n' +
-              'If in Chrome, visit Settings > Advanced > System > Use Hardware Acceleration\n' +
-              'If in Firefox, visit about:config. ' +
-              'Ensure webgl.disabled = false, webgl.force-enabled = true, and layers.acceleration.force-enabled = true\n\n' +
-              'Read more about this issue at https://excaliburjs.com/docs/webgl'
-            );
+    const { allow, threshold, showPlayerMessage } = this._originalOptions.configurePerformanceCanvas2DFallback;
+    if (!Flags.isEnabled('use-canvas-context') && allow && this.ready && !this._performanceThresholdTriggered) {
+      // Calculate Average fps for last X number of frames after start
+      if (this._fpsSamples.length === threshold.numberOfFrames) {
+        this._fpsSamples.splice(0, 1);
+      }
+      this._fpsSamples.push(this.clock.fpsSampler.fps);
+      let total = 0;
+      for (let i = 0; i < this._fpsSamples.length; i++) {
+        total += this._fpsSamples[i];
+      }
+      const average = total / this._fpsSamples.length;
 
+      if (this._fpsSamples.length === threshold.numberOfFrames) {
+        if (average <= threshold.fps) {
+          this._performanceThresholdTriggered = true;
+          this._logger.warn(
+            `Switching to browser 2D Canvas fallback due to performance. Some features of Excalibur will not work in this mode.\n` +
+            'this might mean your browser doesn\'t have webgl enabled or hardware acceleration is unavailable.\n\n' +
+            'If in Chrome:\n' +
+            '  * Visit Settings > Advanced > System, and ensure "Use Hardware Acceleration" is checked.\n'+
+            '  * Visit chrome://flags/#ignore-gpu-blocklist and ensure "Override software rendering list" is "enabled"\n' +
+            'If in Firefox, visit about:config\n' +
+            '  * Ensure webgl.disabled = false\n' +
+            '  * Ensure webgl.force-enabled = true\n' +
+            '  * Ensure layers.acceleration.force-enabled = true\n\n' +
+            'Read more about this issue at https://excaliburjs.com/docs/performance'
+          );
+
+          if (showPlayerMessage) {
             this._toaster.toast(
               'Excalibur is encountering performance issues. '+
               'It\'s possible that your browser doesn\'t have hardware acceleration enabled. ' +
               'Visit [LINK] for more information and potential solutions.',
-              'https://excaliburjs.com/docs/webgl'
+              'https://excaliburjs.com/docs/performance'
             );
-            this.useCanvas2DFallback();
           }
+          this.useCanvas2DFallback();
+          this.emit('fallbackgraphicscontext', this.graphicsContext);
         }
       }
     }
