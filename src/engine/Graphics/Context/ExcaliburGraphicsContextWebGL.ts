@@ -14,7 +14,6 @@ import { Vector, vec } from '../../Math/vector';
 import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { Logger } from '../../Util/Log';
-import { Canvas } from '../Canvas';
 import { DebugText } from './debug-text';
 import { ScreenDimension } from '../../Screen';
 import { RenderTarget } from './render-target';
@@ -30,6 +29,8 @@ import { ScreenPassPainter } from './screen-pass-painter/screen-pass-painter';
 import { ImageRenderer } from './image-renderer/image-renderer';
 import { RectangleRenderer } from './rectangle-renderer/rectangle-renderer';
 import { CircleRenderer } from './circle-renderer/circle-renderer';
+import { Pool } from '../../Util/Pool';
+import { DrawCall } from './draw-call';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -84,6 +85,18 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _logger = Logger.getInstance();
   private _renderers: Map<string, RendererPlugin> = new Map<string, RendererPlugin>();
   private _isDrawLifecycle = false;
+  public useDrawSorting = true;
+
+  private _drawCallPool = new Pool<DrawCall>(
+    () => new DrawCall(),
+    (instance) => {
+      instance.priority = 0;
+      instance.z = 0;
+      instance.renderer = undefined;
+      instance.args = undefined;
+      return instance;
+    });
+  private _drawCalls: DrawCall[] = [];
 
   // Main render target
   private _renderTarget: RenderTarget;
@@ -98,39 +111,25 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
    * @internal
    */
-  public __gl: WebGLRenderingContext;
-
-  /**
-   * Holds the 2d context shim
-   */
-  private _canvas: Canvas; // Configure z for shim?
-  /**
-   * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
-   * @internal
-   */
-  public __ctx: CanvasRenderingContext2D;
+  public __gl: WebGL2RenderingContext;
 
   private _transform = new TransformStack();
   private _state = new StateStack();
   private _ortho!: Matrix;
-
-  /**
-   * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
-   * @internal
-   */
-  public __lineRenderer: LineRenderer;
-
-  /**
-   * Meant for internal use only. Access the internal context at your own risk and no guarantees this will exist in the future.
-   * @internal
-   */
-  // public __imageRenderer: ImageRenderer;
 
   public snapToPixel: boolean = true;
 
   public smoothing: boolean = false;
 
   public backgroundColor: Color = Color.ExcaliburBlue;
+
+  public get z(): number {
+    return this._state.current.z;
+  }
+
+  public set z(value: number) {
+    this._state.current.z = value;
+  }
 
   public get opacity(): number {
     return this._state.current.opacity;
@@ -166,19 +165,25 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   constructor(options: ExcaliburGraphicsContextOptions) {
-    const { canvasElement, enableTransparency, smoothing, snapToPixel, backgroundColor } = options;
-    this.__gl = canvasElement.getContext('webgl', {
+    const { canvasElement, enableTransparency, smoothing, snapToPixel, backgroundColor, useDrawSorting } = options;
+    this.__gl = canvasElement.getContext('webgl2', {
       antialias: smoothing ?? this.smoothing,
       premultipliedAlpha: false,
       alpha: enableTransparency ?? true,
       depth: true,
-      powerPreference: 'high-performance'
+      powerPreference: 'high-performance',
+      failIfMajorPerformanceCaveat: true
     });
+    if (!this.__gl) {
+      throw Error('Failed to retrieve webgl context from browser');
+    }
     ExcaliburWebGLContextAccessor.register(this.__gl);
     TextureLoader.register(this.__gl);
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = smoothing ?? this.smoothing;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
+    this.useDrawSorting = useDrawSorting ?? this.useDrawSorting;
+    this._drawCallPool.disableWarnings = true;
     this._init();
   }
 
@@ -228,13 +233,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         height: gl.canvas.height
       })
     ];
-
-    // 2D ctx shim
-    this._canvas = new Canvas({
-      width: gl.canvas.width,
-      height: gl.canvas.height
-    });
-    this.__ctx = this._canvas.ctx;
   }
 
   public register<T extends RendererPlugin>(renderer: T) {
@@ -272,24 +270,35 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         `If you want to do custom drawing, use Actor.graphics, or any onPreDraw or onPostDraw handler.`);
       this._alreadyWarnedDrawLifecycle = true;
     }
-    // TODO does not handle priority yet...
-    //  in order to do this draw commands need to be captured and fed in priority order
+
     const renderer = this._renderers.get(rendererName);
     if (renderer) {
-      // Set the current renderer if not defined
-      if (!this._currentRenderer) {
+      if (this.useDrawSorting) {
+        const drawCall = this._drawCallPool.get();
+        drawCall.z = this._state.current.z;
+        drawCall.priority = renderer.priority;
+        drawCall.renderer = rendererName;
+        this.getTransform().clone(drawCall.transform);
+        drawCall.state.z = this._state.current.z;
+        drawCall.state.opacity = this._state.current.opacity;
+        drawCall.args = args;
+        this._drawCalls.push(drawCall);
+      } else {
+        // Set the current renderer if not defined
+        if (!this._currentRenderer) {
+          this._currentRenderer = renderer;
+        }
+
+        if (!this._isCurrentRenderer(renderer)) {
+          // switching graphics means we must flush the previous
+          this._currentRenderer.flush();
+        }
+
+        // If we are still using the same renderer we can add to the current batch
+        renderer.draw(...args);
+
         this._currentRenderer = renderer;
       }
-
-      if (!this._isCurrentRenderer(renderer)) {
-        // switching graphics means we must flush the previous
-        this._currentRenderer.flush();
-      }
-
-      // If we are still using the same renderer we can add to the current batch
-      renderer.draw(...args);
-
-      this._currentRenderer = renderer;
     } else {
       throw Error(`No renderer with name ${rendererName} has been registered`);
     }
@@ -306,10 +315,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._renderTarget.setResolution(gl.canvas.width, gl.canvas.height);
     this._postProcessTargets[0].setResolution(gl.canvas.width, gl.canvas.height);
     this._postProcessTargets[1].setResolution(gl.canvas.width, gl.canvas.height);
-
-    // 2D ctx shim
-    this._canvas.width = gl.canvas.width;
-    this._canvas.height = gl.canvas.height;
   }
 
   drawImage(image: HTMLImageSource, x: number, y: number): void;
@@ -437,13 +442,71 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     // render target captures all draws and redirects to the render target
     this._renderTarget.use();
-    // This is the final flush at the moment to draw any leftover pending draw
-    // TODO sort by priority and flush in order
-    for (const renderer of this._renderers.values()) {
-      if (renderer.hasPendingDraws()) {
-        renderer.flush();
+
+    if (this.useDrawSorting) {
+      // sort draw calls
+      // Find the original order of the first instance of the draw call
+      const originalSort = new Map<string, number>();
+      for (const [name] of this._renderers) {
+        const firstIndex = this._drawCalls.findIndex(dc => dc.renderer === name);
+        originalSort.set(name, firstIndex);
+      }
+
+      this._drawCalls.sort((a, b) => {
+        const zIndex = a.z - b.z;
+        const originalSortOrder = originalSort.get(a.renderer) - originalSort.get(b.renderer);
+        const priority = a.priority - b.priority;
+        if (zIndex === 0) { // sort by z first
+          if (priority === 0) { // sort by priority
+            return originalSortOrder; // use the original order to inform draw call packing to maximally preserve painter order
+          }
+          return priority;
+        }
+        return zIndex;
+      });
+
+      const oldTransform = this._transform.current;
+      const oldState = this._state.current;
+
+      if (this._drawCalls.length) {
+        let currentRendererName = this._drawCalls[0].renderer;
+        let currentRenderer = this._renderers.get(currentRendererName);
+        for (let i = 0; i < this._drawCalls.length; i++) {
+          // hydrate the state for renderers
+          this._transform.current = this._drawCalls[i].transform;
+          this._state.current = this._drawCalls[i].state;
+
+          if (this._drawCalls[i].renderer !== currentRendererName) {
+            // switching graphics renderer means we must flush the previous
+            currentRenderer.flush();
+            currentRendererName = this._drawCalls[i].renderer;
+            currentRenderer = this._renderers.get(currentRendererName);
+          }
+
+          // If we are still using the same renderer we can add to the current batch
+          currentRenderer.draw(...this._drawCalls[i].args);
+        }
+        if (currentRenderer.hasPendingDraws()) {
+          currentRenderer.flush();
+        }
+      }
+
+      // reset state
+      this._transform.current = oldTransform;
+      this._state.current = oldState;
+
+      // reclaim draw calls
+      this._drawCallPool.done();
+      this._drawCalls.length = 0;
+    } else {
+      // This is the final flush at the moment to draw any leftover pending draw
+      for (const renderer of this._renderers.values()) {
+        if (renderer.hasPendingDraws()) {
+          renderer.flush();
+        }
       }
     }
+
     this._renderTarget.disable();
 
     // post process step

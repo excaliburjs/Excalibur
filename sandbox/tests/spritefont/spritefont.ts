@@ -35,8 +35,8 @@ game.start(loader).then(() => {
     spriteFont: spriteFont
   });
   label.color = ex.Color.Azure.clone();
-  label.letterSpacing = -20;
-  label.fontSize = 10;
+  label.spriteFont.spacing = -20;
+  label.font.size = 10;
   game.add(label);
 });
 
@@ -59,27 +59,28 @@ document.getElementById('text').addEventListener('keyup', function() {
 });
 
 document.getElementById('textalign').addEventListener('change', function(evt) {
-  label.textAlign = (<any>ex.TextAlign)[(<any>evt.currentTarget).value];
+  label.font.textAlign = (<any>ex.TextAlign)[(<any>evt.currentTarget).value];
 });
 
 document.getElementById('basealign').addEventListener('change', function(evt) {
-  label.baseAlign = (<any>ex.BaseAlign)[(<any>evt.currentTarget).value];
+  label.font.baseAlign = (<any>ex.BaseAlign)[(<any>evt.currentTarget).value];
 });
 
 document.getElementById('fontsize').addEventListener('change', function(evt) {
-  label.fontSize = (<any>evt.currentTarget).value;
+  label.font.size = (<any>evt.currentTarget).value;
 });
 
 document.getElementById('letterspacing').addEventListener('keyup', function(evt) {
-  label.letterSpacing = parseFloat((<any>evt.currentTarget).value);
+  label.spriteFont.spacing = parseFloat((<any>evt.currentTarget).value);
 });
 
 document.getElementById('textshadow').addEventListener('change', function(evt) {
+  var text = (<any>document.getElementById('textshadowcolor')).value;
   var val = <boolean>(<any>evt.currentTarget).checked;
-  label.useTextShadow(val);
+  label.font.shadow = val ? { offset: ex.vec(5, 5), color: ex.Color.fromHex(text)} : undefined
 });
 
 document.getElementById('setshadowcolor').addEventListener('click', function() {
   var text = (<any>document.getElementById('textshadowcolor')).value;
-  label.setTextShadow(5, 5, ex.Color.fromHex(text));
+  label.font.shadow ={ offset: ex.vec(5, 5), color: ex.Color.fromHex(text)};
 });

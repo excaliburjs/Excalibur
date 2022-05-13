@@ -45,7 +45,6 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
 
   public initialize(scene: Scene): void {
     this._engine = scene.engine;
-    this._receiver = this._engine.input.pointers;
   }
 
   private _sortedTransforms: TransformComponent[] = [];
@@ -57,6 +56,8 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
   };
 
   public preupdate(): void {
+    // event receiver might change per frame
+    this._receiver = this._engine.input.pointers;
     if (this._zHasChanged) {
       this._sortedTransforms.sort((a, b) => {
         return b.z - a.z;

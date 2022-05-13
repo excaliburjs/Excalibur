@@ -1,5 +1,4 @@
 import { Resource } from '../Resources/Resource';
-import { Texture } from '../Drawing/Texture';
 import { Sprite } from './Sprite';
 import { Loadable } from '../Interfaces/Index';
 import { Logger } from '../Util/Log';
@@ -108,22 +107,6 @@ export class ImageSource implements Loadable<HTMLImageElement> {
    */
   public toSprite(): Sprite {
     return Sprite.from(this);
-  }
-
-  /**
-   * Create a ImageSource from legacy texture
-   * @param tex
-   */
-  public static fromLegacyTexture(tex: Texture): ImageSource {
-    const image = new ImageSource(tex.path);
-    if (tex.isLoaded()) {
-      image.data = tex.data;
-    } else {
-      tex.loaded.then(() => {
-        image.data = tex.data;
-      });
-    }
-    return image;
   }
 
   /**

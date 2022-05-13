@@ -39,7 +39,7 @@ describe('A QuadIndexBuffer', () => {
 
     sut.upload();
     expect(gl.bindBuffer).toHaveBeenCalledWith(gl.ELEMENT_ARRAY_BUFFER, sut.buffer);
-    expect(gl.bufferData).toHaveBeenCalledWith(gl.ELEMENT_ARRAY_BUFFER, sut.bufferData, gl.STATIC_DRAW);
+    expect(gl.bufferData as any).toHaveBeenCalledWith(gl.ELEMENT_ARRAY_BUFFER, sut.bufferData, gl.STATIC_DRAW);
   });
 
   it('can return the size of the buffer', () => {

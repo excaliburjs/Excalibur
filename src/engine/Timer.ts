@@ -1,5 +1,4 @@
 import { Scene } from './Scene';
-import { obsolete } from './Util/Decorators';
 import { Logger } from './Util/Log';
 
 export interface TimerOptions {
@@ -178,15 +177,6 @@ export class Timer {
   public pause(): Timer {
     this._running = false;
     return this;
-  }
-
-  /**
-   * Unpauses the timer. Time will now increment towards the next call
-   * @deprecated Will be removed in v0.26.0
-   */
-  @obsolete({ message: 'Will be removed in v0.26.0', alternateMethod: 'Use Timer.resume()' })
-  public unpause() {
-    this._running = true;
   }
 
   /**

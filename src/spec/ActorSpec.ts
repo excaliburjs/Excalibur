@@ -1,15 +1,6 @@
 import * as ex from '@excalibur';
-import { ensureImagesLoaded, ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
-
-const drawWithTransform = (ctx: CanvasRenderingContext2D, actor: ex.Actor, delta: number = 1) => {
-  ctx.save();
-  ctx.translate(actor.pos.x, actor.pos.y);
-  ctx.rotate(actor.rotation);
-  ctx.scale(actor.scale.x, actor.scale.y);
-  actor.draw(ctx, delta);
-  ctx.restore();
-};
 
 describe('A game actor', () => {
   let actor: ex.Actor;
@@ -27,7 +18,7 @@ describe('A game actor', () => {
 
   beforeEach(() => {
     engine = TestUtils.engine({ width: 100, height: 100 });
-    actor = new ex.Actor();
+    actor = new ex.Actor({name: 'Default'});
     actor.body.collisionType = ex.CollisionType.Active;
     motionSystem = new ex.MotionSystem();
     collisionSystem = new ex.CollisionSystem();
@@ -40,8 +31,6 @@ describe('A game actor', () => {
     spyOn(scene, 'draw').and.callThrough();
     spyOn(scene, 'debugDraw').and.callThrough();
 
-    spyOn(actor, 'draw');
-    spyOn(actor, 'debugDraw');
 
     engine.start();
     const clock = engine.clock as ex.TestClock;
@@ -108,7 +97,6 @@ describe('A game actor', () => {
     expect(actor.angularVelocity).toBe(0.1);
     expect(actor.z).toBe(10);
     expect(actor.color.toString()).toBe(ex.Color.Red.toString());
-    expect(actor.visible).toBe(false);
     expect(actor2.pos.x).toBe(4);
     expect(actor2.pos.y).toBe(5);
   });
@@ -360,24 +348,32 @@ describe('A game actor', () => {
     // move other actor into collision range from the right side
     other.pos.x = 9;
     other.pos.y = 0;
+    actor.collider.update();
+    other.collider.update();
     expect(actor.collider.bounds.intersectWithSide(other.collider.bounds)).toBe(ex.Side.Right);
     expect(other.collider.bounds.intersectWithSide(actor.collider.bounds)).toBe(ex.Side.Left);
 
     // move other actor into collision range from the left side
     other.pos.x = -9;
     other.pos.y = 0;
+    actor.collider.update();
+    other.collider.update();
     expect(actor.collider.bounds.intersectWithSide(other.collider.bounds)).toBe(ex.Side.Left);
     expect(other.collider.bounds.intersectWithSide(actor.collider.bounds)).toBe(ex.Side.Right);
 
     // move other actor into collision range from the top
     other.pos.x = 0;
     other.pos.y = -9;
+    actor.collider.update();
+    other.collider.update();
     expect(actor.collider.bounds.intersectWithSide(other.collider.bounds)).toBe(ex.Side.Top);
     expect(other.collider.bounds.intersectWithSide(actor.collider.bounds)).toBe(ex.Side.Bottom);
 
     // move other actor into collision range from the bottom
     other.pos.x = 0;
     other.pos.y = 9;
+    actor.collider.update();
+    other.collider.update();
     expect(actor.collider.bounds.intersectWithSide(other.collider.bounds)).toBe(ex.Side.Bottom);
     expect(other.collider.bounds.intersectWithSide(actor.collider.bounds)).toBe(ex.Side.Top);
   });
@@ -590,14 +586,13 @@ describe('A game actor', () => {
     spyOn(scene, 'draw').and.callThrough();
     spyOn(scene, 'debugDraw').and.callThrough();
 
-    spyOn(actor, 'draw');
-    spyOn(actor, 'debugDraw');
+    actor.graphics.onPostDraw = jasmine.createSpy('draw');
 
     scene.add(actor);
     actor.kill();
     scene.update(engine, 100);
-    scene.draw(engine.ctx, 100);
-    expect(actor.draw).not.toHaveBeenCalled();
+    scene.draw(engine.graphicsContext, 100);
+    expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
   it('does not change opacity on color', () => {
@@ -606,31 +601,30 @@ describe('A game actor', () => {
     expect(actor.color.r).toBe(0);
     expect(actor.color.g).toBe(0);
     expect(actor.color.b).toBe(0);
-    expect(actor.opacity).toBe(1.0);
+    expect(actor.graphics.opacity).toBe(1.0);
 
-    actor.opacity = 0.5;
+    actor.graphics.opacity = 0.5;
     actor.update(engine, 100);
     expect(actor.color.a).toBe(1.0);
     expect(actor.color.r).toBe(0);
     expect(actor.color.g).toBe(0);
     expect(actor.color.b).toBe(0);
-    expect(actor.opacity).toBe(0.5);
+    expect(actor.graphics.opacity).toBe(0.5);
   });
 
   it('is drawn on opacity 0', () => {
-    const invisibleActor = new ex.Actor();
-    spyOn(invisibleActor, 'draw');
+    scene.clear(false);
+    const invisibleActor = new ex.Actor({name: 'Invisible', pos: ex.vec(50, 50), width: 100, height: 100});
+    invisibleActor.graphics.onPostDraw = jasmine.createSpy('draw');
+    invisibleActor.graphics.opacity = 0;
     scene.add(invisibleActor);
-    invisibleActor.opacity = 0;
-    invisibleActor.update(engine, 100);
-
     scene.update(engine, 100);
-    scene.draw(engine.ctx, 100);
+    scene.draw(engine.graphicsContext, 100);
 
-    expect(invisibleActor.draw).toHaveBeenCalled();
+    expect(invisibleActor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
-  it('can be drawn with a z-index', (done) => {
+  it('can be drawn with a z-index', async () => {
     engine = TestUtils.engine({
       width: 100,
       height: 100,
@@ -655,149 +649,134 @@ describe('A game actor', () => {
     scene.add(blue);
     scene.add(green);
 
-    scene.draw(engine.ctx, 100);
+    scene.draw(engine.graphicsContext, 100);
+    engine.graphicsContext.flush();
 
-    ensureImagesLoaded(engine.canvas, 'src/spec/images/ActorSpec/zindex-blue-top.png').then(([canvas, image]) => {
-      expect(canvas).toEqualImage(image);
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/ActorSpec/zindex-blue-top.png');
 
-      green.z = 2;
-      blue.z = 1;
-      scene.draw(engine.ctx, 100);
+    green.z = 2;
+    blue.z = 1;
+    scene.draw(engine.graphicsContext, 100);
+    engine.graphicsContext.flush();
 
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/ActorSpec/zindex-green-top.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/ActorSpec/zindex-green-top.png');
   });
 
-  it('can have a graphic drawn at an opacity', (done) => {
+  it('can have a graphic drawn at an opacity', async () => {
     engine = TestUtils.engine({
       width: 62,
       height: 64,
       suppressHiDPIScaling: true
     });
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true);
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        rotation: 0,
-        anchor: new ex.Vector(0.0, 0.0),
-        scale: new ex.Vector(1, 1),
-        flipVertical: false,
-        flipHorizontal: false
-      });
+    scene = new ex.Scene();
+    engine.addScene('test', scene);
+    engine.goToScene('test');
+    engine.start();
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
 
-      const actor = new ex.Actor({
-        pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),
-        width: 10,
-        height: 10
-      });
-
-      actor.addDrawing(sprite);
-
-      actor.opacity = 0.1;
-
-      drawWithTransform(engine.ctx, actor, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/opacity.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+    const image = new ex.ImageSource('src/spec/images/SpriteSpec/icon.png');
+    await image.load();
+    const sprite = new ex.Sprite({
+      image,
+      width: 62,
+      height: 64,
+      rotation: 0,
+      scale: new ex.Vector(1, 1),
+      flipVertical: false,
+      flipHorizontal: false,
+      opacity: 0.1
     });
+
+    const actor = new ex.Actor({
+      pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),
+      width: 10,
+      height: 10
+    });
+
+    actor.graphics.use(sprite);
+
+    scene.add(actor);
+    scene.draw(engine.graphicsContext, 100);
+    engine.graphicsContext.flush();
+
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/SpriteSpec/opacity.png');
   });
 
-  it('will tick animations when drawing switched', (done) => {
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true);
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        rotation: 0,
-        anchor: new ex.Vector(0.0, 0.0),
-        scale: new ex.Vector(1, 1),
-        flipVertical: false,
-        flipHorizontal: false
-      });
-      const animation = new ex.LegacyDrawing.Animation({
-        engine: engine,
-        sprites: [sprite, sprite],
-        speed: 200,
-        loop: false,
-        anchor: new ex.Vector(1, 1),
-        rotation: Math.PI,
-        scale: new ex.Vector(2, 2),
-        flipVertical: true,
-        flipHorizontal: true,
-        width: 100,
-        height: 200
-      });
+  // it('will tick animations when drawing switched', async () => {
+  //   const texture = new ex.ImageSource('src/spec/images/SpriteSpec/icon.png');
+  //   await texture.load();
+  //   const sprite = new ex.Sprite({
+  //     image: texture,
+  //     width: 62,
+  //     height: 64,
+  //     rotation: 0,
+  //     scale: new ex.Vector(1, 1),
+  //     flipVertical: false,
+  //     flipHorizontal: false
+  //   });
+  //   const animation = new ex.Animation({
+  //     frames: [{graphic: sprite }, {graphic: sprite }],
+  //     frameDuration: 200,
+  //     strategy: ex.AnimationStrategy.Loop,
+  //     rotation: Math.PI,
+  //     scale: new ex.Vector(2, 2),
+  //     flipVertical: true,
+  //     flipHorizontal: true,
+  //     width: 100,
+  //     height: 200
+  //   });
 
-      spyOn(animation, 'tick').and.callThrough();
+  //   spyOn(animation, 'tick').and.callThrough();
 
-      const actor = new ex.Actor({
-        pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),
-        width: 10,
-        height: 10
-      });
+  //   const actor = new ex.Actor({
+  //     pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),
+  //     width: 10,
+  //     height: 10
+  //   });
 
-      actor.addDrawing('default', animation);
-      actor.setDrawing('default');
-      expect(animation.tick).toHaveBeenCalledWith(0);
-      done();
+  //   actor.graphics.add('default', animation);
+  //   actor.graphics.show('default');
+  //   expect(animation.tick).toHaveBeenCalledWith(0);
+  // });
+
+  it('will tick animations on update', async () => {
+    scene.clear();
+    const texture = new ex.ImageSource('src/spec/images/SpriteSpec/icon.png');
+    await texture.load();
+    const sprite = new ex.Sprite({
+      image: texture,
+      width: 62,
+      height: 64,
+      rotation: 0,
+      scale: new ex.Vector(1, 1),
+      flipVertical: false,
+      flipHorizontal: false
     });
-  });
-
-  it('will tick animations on update', (done) => {
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true);
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        rotation: 0,
-        anchor: new ex.Vector(0.0, 0.0),
-        scale: new ex.Vector(1, 1),
-        flipVertical: false,
-        flipHorizontal: false
-      });
-      const animation = new ex.LegacyDrawing.Animation({
-        engine: engine,
-        sprites: [sprite, sprite],
-        speed: 200,
-        loop: false,
-        anchor: new ex.Vector(1, 1),
-        rotation: Math.PI,
-        scale: new ex.Vector(2, 2),
-        flipVertical: true,
-        flipHorizontal: true,
-        width: 100,
-        height: 200
-      });
-
-      spyOn(animation, 'tick').and.callThrough();
-
-      const actor = new ex.Actor({
-        pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),
-        width: 10,
-        height: 10
-      });
-
-      actor.addDrawing('anim', animation);
-      actor.setDrawing('anim');
-      actor.update(engine, 100);
-      expect(animation.tick).toHaveBeenCalledWith(100, engine.stats.currFrame.id);
-      done();
+    const animation = new ex.Animation({
+      frames: [{graphic: sprite }, {graphic: sprite }],
+      frameDuration: 200,
+      strategy: ex.AnimationStrategy.Loop,
+      rotation: Math.PI,
+      scale: new ex.Vector(2, 2),
+      flipVertical: true,
+      flipHorizontal: true,
+      width: 100,
+      height: 200
     });
+
+    spyOn(animation, 'tick').and.callThrough();
+
+    const actor = new ex.Actor({
+      name: 'Animation',
+      pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight)
+    });
+    actor.graphics.use(animation);
+
+    scene.add(actor);
+    scene.draw(engine.graphicsContext, 100);
+
+    expect(animation.tick).toHaveBeenCalledWith(100, 2);
   });
 
   it('can detect containment off of child actors', () => {
@@ -923,16 +902,16 @@ describe('A game actor', () => {
   });
 
   it('draws visible child actors', () => {
-    const parentActor = new ex.Actor();
-    const childActor = new ex.Actor();
+    const parentActor = new ex.Actor({name: 'Parent'});
+    const childActor = new ex.Actor({name: 'Child'});
     scene.add(parentActor);
     parentActor.addChild(childActor);
 
-    spyOn(childActor, 'draw');
+    childActor.graphics.onPostDraw = jasmine.createSpy('draw');
 
-    childActor.visible = true;
-    scene.draw(engine.ctx, 100);
-    expect(childActor.draw).toHaveBeenCalled();
+    childActor.graphics.visible = true;
+    scene.draw(engine.graphicsContext, 100);
+    expect(childActor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
   it('does not draw invisible child actors', () => {
@@ -941,11 +920,11 @@ describe('A game actor', () => {
     scene.add(parentActor);
     parentActor.addChild(childActor);
 
-    spyOn(childActor, 'draw');
+    childActor.graphics.onPostDraw = jasmine.createSpy('draw');
 
-    childActor.visible = false;
-    scene.draw(engine.ctx, 100);
-    expect(childActor.draw).not.toHaveBeenCalled();
+    childActor.graphics.visible = false;
+    scene.draw(engine.graphicsContext, 100);
+    expect(childActor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
   it('fires a killed event when killed', () => {
@@ -1034,27 +1013,6 @@ describe('A game actor', () => {
     actor._initialize(engine);
 
     expect(initializeCount).toBe(3, 'All child actors should be initialized');
-  });
-
-  it('fires predraw event before draw then postdraw', (done) => {
-    const actor = new ex.Actor({
-      pos: new ex.Vector(50, 50),
-      width: 10,
-      height: 10
-    });
-    let predrawFired = false;
-    actor.on('predraw', () => {
-      predrawFired = true;
-    });
-
-    actor.on('postdraw', () => {
-      expect(predrawFired).toBe(true);
-      done();
-    });
-
-    scene.add(actor);
-    scene.update(engine, 100);
-    scene.draw(engine.ctx, 100);
   });
 
   describe('should detect assigned events and', () => {
@@ -1239,58 +1197,6 @@ describe('A game actor', () => {
     });
   });
 
-  it('should not corrupt shared sprite contexts', (done) => {
-    engine = TestUtils.engine({
-      width: 62,
-      height: 64,
-      suppressHiDPIScaling: true
-    });
-
-    const texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true);
-    texture.load().then(() => {
-      const actor = new ex.Actor({
-        pos: new ex.Vector(engine.halfCanvasWidth, engine.halfCanvasHeight),
-        width: 10,
-        height: 10,
-        rotation: Math.PI / 4
-      });
-
-      engine.add(actor);
-      const s = texture.asSprite();
-      s.scale = ex.vec(1, 1);
-      actor.addDrawing(s);
-
-      const a1 = new ex.Actor({ scale: new ex.Vector(3, 3) });
-      a1.scale = ex.vec(3, 3);
-      a1.addDrawing(texture);
-
-      const a2 = new ex.Actor({ scale: new ex.Vector(3, 3) });
-      a1.scale = ex.vec(3, 3);
-      a2.addDrawing(texture);
-
-      a1.draw(engine.ctx, 100);
-      a2.draw(engine.ctx, 100);
-      actor.draw(engine.ctx, 100);
-      engine.ctx.fillRect(0, 0, 200, 200);
-
-      a1.draw(engine.ctx, 100);
-      a2.draw(engine.ctx, 100);
-      actor.draw(engine.ctx, 100);
-      engine.ctx.fillRect(0, 0, 200, 200);
-
-      a1.draw(engine.ctx, 100);
-      a2.draw(engine.ctx, 100);
-
-      engine.ctx.clearRect(0, 0, 200, 200);
-      drawWithTransform(engine.ctx, actor, 100);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/iconrotate.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image, 0.995);
-        done();
-      });
-    });
-  });
-
   it('when killed should not be killed again by the scene removing it', () => {
     spyOn(actor, 'kill').and.callThrough();
 
@@ -1318,13 +1224,15 @@ describe('A game actor', () => {
 
     scene.add(actor);
     scene.update(engine, 100);
+    scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).toBe(false, 'Actor should be onscreen');
+    expect(actor.isOffScreen).withContext('Actor should be onscreen').toBe(false);
 
-    actor.pos = ex.vec(106, actor.pos.y);
+    actor.pos.x = 106;
     scene.update(engine, 100);
+    scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).toBe(true, 'Actor should be offscreen');
+    expect(actor.isOffScreen).withContext('Actor should be offscreen').toBe(true);
   });
 
   describe('lifecycle overrides', () => {
@@ -1388,35 +1296,6 @@ describe('A game actor', () => {
       expect(actor.onPreUpdate).toHaveBeenCalledTimes(2);
     });
 
-    it('can have onPreDraw overridden safely', () => {
-      actor.onPreDraw = (ctx, delta) => {
-        expect(<any>ctx).not.toBe(null);
-        expect(delta).toBe(100);
-      };
-
-      spyOn(actor, 'onPreDraw').and.callThrough();
-      spyOn(actor, '_predraw').and.callThrough();
-
-      actor.draw(engine.ctx, 100);
-      actor.draw(engine.ctx, 100);
-      expect(actor._predraw).toHaveBeenCalledTimes(2);
-      expect(actor.onPreDraw).toHaveBeenCalledTimes(2);
-    });
-
-    it('can have onPostDraw overridden safely', () => {
-      actor.onPostDraw = (ctx, delta) => {
-        expect(<any>ctx).not.toBe(null);
-        expect(delta).toBe(100);
-      };
-
-      spyOn(actor, 'onPostDraw').and.callThrough();
-      spyOn(actor, '_postdraw').and.callThrough();
-
-      actor.draw(engine.ctx, 100);
-      actor.draw(engine.ctx, 100);
-      expect(actor._postdraw).toHaveBeenCalledTimes(2);
-      expect(actor.onPostDraw).toHaveBeenCalledTimes(2);
-    });
 
     it('can have onPreKill overridden safely', () => {
       engine.add(actor);

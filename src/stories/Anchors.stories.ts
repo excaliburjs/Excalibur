@@ -1,4 +1,4 @@
-import { Loader, Color, Actor, Util, Vector, vec } from '../engine';
+import { Loader, Color, Actor, Vector, vec, toRadians } from '../engine';
 import { ImageSource, Canvas } from '../engine/Graphics';
 import { withEngine } from './utils';
 
@@ -61,7 +61,7 @@ export const centered = withEngine(async (game) => {
   heartSprite.scale.setTo(3, 3);
   ca4.graphics.add(heartSprite);
   ca4.angularVelocity = 0.5;
-  ca3.rotation = Util.toRadians(45);
+  ca3.rotation = toRadians(45);
 
   game.add(ca4);
   game.add(ca2);
@@ -113,7 +113,7 @@ export const topLeft = withEngine(async (game) => {
   const heartSprite2 = heartTx.toSprite();
   heartSprite2.scale.setTo(3, 3);
   tla4.graphics.add(heartSprite2);
-  tla3.rotation = Util.toRadians(45);
+  tla3.rotation = toRadians(45);
 
   game.add(tla4);
   game.add(tla2);
@@ -142,7 +142,7 @@ export const topRight = withEngine(async (game) => {
   const heartSprite2 = heartTx.toSprite();
   heartSprite2.scale.setTo(3, 3);
   tra4.graphics.add(heartSprite2);
-  tra3.rotation = Util.toRadians(45);
+  tra3.rotation = toRadians(45);
 
   game.add(tra4);
   game.add(tra2);
@@ -171,7 +171,7 @@ export const bottomLeft = withEngine(async (game) => {
   const heartSprite2 = heartTx.toSprite();
   heartSprite2.scale.setTo(3, 3);
   bla4.graphics.add(heartSprite2);
-  bla3.rotation = Util.toRadians(45);
+  bla3.rotation = toRadians(45);
 
   game.add(bla4);
   game.add(bla2);
@@ -200,7 +200,7 @@ export const bottomRight = withEngine(async (game) => {
   const heartSprite2 = heartTx.toSprite();
   heartSprite2.scale.setTo(3, 3);
   bra4.graphics.add(heartSprite2);
-  bra3.rotation = Util.toRadians(45);
+  bra3.rotation = toRadians(45);
 
   game.add(bra4);
   game.add(bra2);

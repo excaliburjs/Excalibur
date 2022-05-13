@@ -155,6 +155,20 @@ describe('A Matrix', () => {
       .not.toHaveBeenCalledWith();
   });
 
+  it('can clone into a target matrix', () => {
+    const source = ex.Matrix.identity().scale(5, 5);
+    const destination = ex.Matrix.identity();
+
+    source.clone(destination);
+
+    expect(destination.data).toEqual(new Float32Array([
+      5, 0, 0, 0,
+      0, 5, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    ]));
+  });
+
   it('can reset to identity', () => {
     const mat = ex.Matrix.identity()
       .translate(100, -200)

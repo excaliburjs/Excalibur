@@ -1,10 +1,10 @@
-attribute vec2 a_position;
-attribute vec4 a_color;
+#version 300 es
+in vec2 a_position;
+in vec4 a_color;
 
-varying lowp vec4 v_color;
+out lowp vec4 v_color;
 
 uniform mat4 u_matrix;
-
 
 void main() {
    // Set the vertex position using the ortho transform matrix

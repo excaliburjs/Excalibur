@@ -3,8 +3,6 @@ import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { EventDispatcher } from '../EventDispatcher';
 import { SpriteSheet } from './SpriteSheet';
 import { Logger } from '../Util/Log';
-import { Engine, LegacyDrawing } from '..';
-import { Sprite } from '.';
 import { clamp } from '../Math/util';
 
 export interface HasTick {
@@ -190,24 +188,6 @@ export class Animation extends Graphic implements HasTick {
           duration: durationPerFrameMs
         })),
       strategy: strategy
-    });
-  }
-
-  /**
-   * Converts an animation to a legacy animation
-   * @deprecated
-   * @param engine
-   * @param animation
-   * @returns LegacyDrawing.Animation
-   */
-  public static toLegacyAnimation(engine: Engine, animation: Animation): LegacyDrawing.Animation {
-    const legacySprites = animation.frames.map(f => Sprite.toLegacySprite(f.graphic as Sprite));
-    return new LegacyDrawing.Animation({
-      sprites: legacySprites,
-      loop: animation.strategy === AnimationStrategy.Loop,
-      freezeFrame: animation.strategy === AnimationStrategy.Freeze ? legacySprites.length - 1 : undefined,
-      speed: animation.frameDuration,
-      engine: engine
     });
   }
 

@@ -1,4 +1,3 @@
-import { obsolete } from './Util/Decorators';
 
 /**
  * Provides standard colors (e.g. [[Color.Black]])
@@ -178,16 +177,6 @@ export class Color {
   }
 
   /**
-   * Multiplies a color by another, results in a darker color
-   * @param color
-   * @deprecated Alias for incorrect spelling used in older versions, use multiply instead, will be removed in v0.25.0
-   */
-  @obsolete({ message: 'Alias for incorrect spelling used in older versions, use multiply instead, will be removed in v0.25.0' })
-  public mulitiply(color: Color): Color {
-    return this.multiply(color);
-  }
-
-  /**
    * Screens a color by another, results in a lighter color
    *
    * @param color  The other color
@@ -350,18 +339,6 @@ export class Color {
    */
   public static get Vermilion(): Color {
     return Color.fromHex('#FF5B31');
-  }
-
-  /**
-   * Vermilion (#FF5B31)
-   * @deprecated Alias for incorrect spelling used in older versions, use multiply instead, will be removed in v0.25.0
-   */
-  @obsolete({
-    message: 'Alias for incorrect spelling used in older versions',
-    alternateMethod: 'Vermilion'
-  })
-  public static get Vermillion(): Color {
-    return Color.Vermilion;
   }
 
   /**

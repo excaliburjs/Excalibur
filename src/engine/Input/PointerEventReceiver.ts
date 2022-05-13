@@ -10,7 +10,7 @@ import { WheelDeltaMode } from './WheelDeltaMode';
 import { PointerSystem } from './PointerSystem';
 import { NativePointerButton } from './NativePointerButton';
 import { PointerButton } from './PointerButton';
-import { Util } from '..';
+import { fail } from '../Util/Util';
 import { PointerType } from './PointerType';
 
 
@@ -56,6 +56,19 @@ export class PointerEventReceiver extends Class {
 
   constructor(public readonly target: GlobalEventHandlers & EventTarget, public engine: Engine) {
     super();
+  }
+
+  /**
+   * Creates a new PointerEventReceiver with a new target and engine while preserving existing pointer event
+   * handlers.
+   * @param target
+   * @param engine
+   */
+  public recreate(target: GlobalEventHandlers & EventTarget, engine: Engine) {
+    const eventReceiver = new PointerEventReceiver(target, engine);
+    eventReceiver.primary = this.primary;
+    eventReceiver._pointers = this._pointers;
+    return eventReceiver;
   }
 
   private _pointers: PointerAbstraction[] = [this.primary];
@@ -434,6 +447,7 @@ export class PointerEventReceiver extends Class {
     // Force update pointer system
     const pointerSystem = this.engine.currentScene.world.systemManager.get(PointerSystem);
     const transformEntities = this.engine.currentScene.world.queryManager.createQuery(pointerSystem.types);
+    pointerSystem.preupdate();
     pointerSystem.update(transformEntities.getEntities());
   }
 
@@ -450,7 +464,7 @@ export class PointerEventReceiver extends Class {
       case NativePointerButton.Unknown:
         return PointerButton.Unknown;
       default:
-        return Util.fail(s);
+        return fail(s);
     }
   }
 

@@ -278,21 +278,17 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    */
   public rotation: number = 0;
 
-  /**
-   * Current angular velocity
-   * @deprecated will be removed in v0.26.0, use angularVelocity
-   */
-  public rx: number = 0;
+  private _angularVelocity: number = 0;
 
   /**
    * Get or set the camera's angular velocity
    */
   public get angularVelocity(): number {
-    return this.rx;
+    return this._angularVelocity;
   }
 
   public set angularVelocity(value: number) {
-    this.rx = value;
+    this._angularVelocity = value;
   }
 
   /**
@@ -761,23 +757,8 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * Applies the relevant transformations to the game canvas to "move" or apply effects to the Camera
    * @param ctx Canvas context to apply transformations
    */
-  public draw(ctx: CanvasRenderingContext2D): void;
-  public draw(ctx: ExcaliburGraphicsContext): void;
-  public draw(ctx: CanvasRenderingContext2D | ExcaliburGraphicsContext): void {
-    // Apply transform
-    if (ctx instanceof CanvasRenderingContext2D) {
-      // TODO This will be removed in v0.26.0
-      const focus = this.getFocus();
-
-      // center the camera
-      const newCanvasWidth = this._screen.resolution.width / this.zoom;
-      const newCanvasHeight = this._screen.resolution.height / this.zoom;
-      const cameraPos = vec(-focus.x + newCanvasWidth / 2 + this._xShake, -focus.y + newCanvasHeight / 2 + this._yShake);
-      ctx.scale(this.zoom, this.zoom);
-      ctx.translate(cameraPos.x, cameraPos.y);
-    } else {
-      ctx.multiply(this.transform);
-    }
+  public draw(ctx: ExcaliburGraphicsContext): void {
+    ctx.multiply(this.transform);
   }
 
   public updateTransform() {
@@ -791,11 +772,6 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     this.transform.scale(this.zoom, this.zoom);
     this.transform.translate(cameraPos.x, cameraPos.y);
     this.transform.getAffineInverse(this.inverse);
-  }
-
-  /* istanbul ignore next */
-  public debugDraw(_ctx: CanvasRenderingContext2D) {
-    // pass
   }
 
   private _isDoneShaking(): boolean {

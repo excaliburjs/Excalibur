@@ -7,6 +7,40 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
+- Notable deprecated types removed
+  - `ex.SortedList` old sorted list is removed
+  - `ex.Collection` old collection type is removed
+  - `ex.Util` import site, exported code promoted `ex.*`
+  - `ex.DisplayMode.Position` is removed, use CSS to position the canvas
+  - `ex.Trait` interface, traits are not longer supported
+  - `ex.Promises` old promise implementation is removed in favor of browser promises
+- Notable method & property removals
+  - `ex.Actor`
+      * `.getZIndex()` and `.setZIndex()` removed use `.z`
+  - `ex.Scene`
+      * `.screenElements` removed in favor of `.entities`
+      * `.addScreenElement(...)` removed use `.add(...)`
+      * `.addTileMap(...)` removed use `.add(...)`
+      * `.removeTileMap(...)` removed use `.remove(...)`
+  - `ex.Timer`
+      * `.unpause()` removed use `.resume()`
+  - `ex.Camera`
+      * `.rx` removed use `.angularVelocity`
+  - `ex.BodyComponent`
+      * `.sx` removed use `.scaleFactor`
+      * `.rx` removed use `.angularVelocity`
+  - `ex.ActionsComponent`
+      * `.asPromise()` removed use `.toPromise()`
+  - `ex.ActionContext`
+      * `.asPromise()` removed use `.toPromise()`
+  - `ex.Color`
+      * Misspellings corrected
+- The old drawing API had been removed from excalibur, this should not affect you unless you were using the `ex.Flags.useLegacyDrawing()` or `ex.Flags.useCanvasGraphicsContext()`.
+  - Notably all implementations of `Drawable` are removed, use the new `Graphics` API
+  - Methods on actor `ex.Actor.setDrawing(...)`, `ex.Actor.addDrawing(...)` are removed, use the `ex.Actor.graphics.add(...)`, `ex.Actor.graphics.show(...)` and `ex.Actor.graphics.use(...)`
+  - The `ex.Actor.onPreDraw(...)` and `ex.Actor.onPostDraw(...)` are removed, use `ex.Actor.graphics.onPreDraw(...)` and `ex.Actor.graphics.onPostDraw(...)`
+  - The events `predraw` and `postdraw` are removed
+  - `ex.Scene.onPreDraw()` and `ex.Scene.onPostDraw()` are now called with the `ExcaliburGraphicsContext` instead of an `CanvasRenderingContext2D`
 - `ex.TileMap` has several breaking changes around naming, but brings it consistent with Tiled terminology and the new `ex.IsometricMap`. Additionally the new names are easier to follow.
   - Constructor has been changed to the following
     ```typescript
@@ -14,8 +48,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
       pos: ex.vec(100, 100),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
     ```
   - `ex.Cell` has been renamed to `ex.Tile`
@@ -31,8 +65,38 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
-
-
+- Added new performance fallback configuration to `ex.Engine` for developers to help players experiencing poor performance in non-standard browser configurations
+  * This will fallback to the Canvas2D rendering graphics context which usually performs better on non hardware accelerated browsers, currently postprocessing effects are unavailable in this fallback.
+  * By default if a game is running at 20fps or lower for 100 frames or more after the game has started it will be triggered, the developer can optionally show a player message that is off by default.
+  ```typescript
+    var game = new ex.Engine({
+      ...
+      configurePerformanceCanvas2DFallback: {
+        allow: true, // opt-out of the fallback
+        showPlayerMessage: true, // opt-in to a player pop-up message
+        threshold: { fps: 20, numberOfFrames: 100 } // configure the threshold to trigger the fallback
+      }
+    });
+  ```
+- Added new `ex.ParallaxComponent` for creating parallax effects on the graphics, entities with this component are drawn differently and a collider will not be where you expect. It is not recommended you use colliders with parallax entities.
+  ```typescript
+  const actor = new ex.Actor();
+  // The actor will be drawn shifted based on the camera position scaled by the parallax factor
+  actor.addComponent(new ParallaxComponent(ex.vec(0.5, 0.5)));
+  ```
+- Added feature to build `SpriteSheet`s from a list of different sized source views using `ex.SpriteSheet.fromImageSourceWithSourceViews(...)`
+  ```typescript
+    const ss = ex.SpriteSheet.fromImageSourceWithSourceViews({
+      image,
+      sourceViews: [
+        {x: 0, y: 0, width: 20, height: 30},
+        {x: 20, y: 0, width: 40, height: 50},
+      ]
+    });
+  ```
+- Added draw call sorting `new ex.Engine({useDrawSorting: true})` to efficiently draw render plugins in batches to avoid expensive renderer switching as much as possible. By default this is turned on, but can be opted out of.
+- Added the ability to clone into a target `Matrix` this is useful to save allocations and in turn garbage collection pauses.
+- `ex.Engine` now support setting the pixel ratio in the constructor `new ex.Engine({pixelRatio: 2})`, this is useful for smooth `ex.Text` rendering when `antialiasing: false` and rendering pixel art type graphics
 - `ex.TileMap` now supports per Tile custom colliders!
   ```typescript
   const tileMap = new ex.TileMap(...);
@@ -46,8 +110,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
       pos: ex.vec(250, 10),
       tileWidth: 32,
       tileHeight: 16,
-      width: 15,
-      height: 15
+      columns: 15,
+      rows: 15
     });
   ```
   - `ex.IsometricTile` now come with a `ex.IsometricEntityComponent` which can be applied to any entity that needs to be correctly sorted to preserve the isometric illusion
@@ -63,11 +127,22 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed unreleased bug where CompositeCollider components would not collide appropriately because contacts did not have unique ids
+- Fixed issue where CompositeColliders treat separate constituents as separate collisionstart/collisionend which is unexpected
+- Fixed issue where resources that failed to load would silently fail making debugging challenging
+- Fixed issue where large pieces of Text were rendered as black rectangles on mobile, excalibur now internally breaks these into smaller chunks in order to render them.
+- Fixed issue #2263 where keyboard input `wasPressed` was not working in the `onPostUpdate` lifecycle
+- Fixed issue #2263 where there were some keys missing from the `ex.Input.Keys` enum, including `Enter`
 - Fixed issue where Rectangle line renderer did not respect z order
 
 ### Updates
 
+- Performance improvement to the `ex.Loader` screen keeping frame rates higher by only updating the backing `ex.Canvas` when there are changes
+- Improved collision broadphase by swapping to a more efficient `ex.BoundingBox.overlaps` check
+- Improved collision narrowphase by improving `ex.PolygonCollider` calculations for localBounds, bounds, and transformed point geometry
+- Improved Text/Font performance by internally caching expensive native `measureText()` calls
 - Performance improvement to GraphicsSystem
+- Performance improvement to the transform capture of the previous frame transform and motion
 
 ### Changed
 

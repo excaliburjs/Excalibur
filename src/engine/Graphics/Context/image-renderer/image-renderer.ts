@@ -83,7 +83,7 @@ export class ImageRenderer implements RendererPlugin {
       } else {
         texturePickerBuilder += `   else if (v_textureIndex <= ${i}.5) {\n`;
       }
-      texturePickerBuilder += `      color = texture2D(u_textures[${i}], v_texcoord);\n`;
+      texturePickerBuilder += `      color = texture(u_textures[${i}], v_texcoord);\n`;
       texturePickerBuilder += `   }\n`;
     }
     newSource = newSource.replace('%%texture_picker%%', texturePickerBuilder);
@@ -247,7 +247,7 @@ export class ImageRenderer implements RendererPlugin {
     this._shader.use();
 
     // Bind the memory layout and upload data
-    this._layout.use(true);
+    this._layout.use(true, 4 * 6 * this._imageCount);
 
     // Update ortho matrix uniform
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);

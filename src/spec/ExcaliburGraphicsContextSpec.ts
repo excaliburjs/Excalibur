@@ -369,7 +369,7 @@ describe('The ExcaliburGraphicsContext', () => {
       sut.endDrawLifecycle();
     });
 
-    it('will preserve the painter order when switching renderer', async () => {
+    it('will preserve the painter order when switching renderer (no draw sorting)', async () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
@@ -389,6 +389,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const rectangleRenderer = sut.get('ex.rectangle');
       spyOn(rectangleRenderer, 'flush').and.callThrough();
 
+      sut.useDrawSorting = false;
+
       sut.drawLine(ex.vec(0, 0), ex.vec(100, 100), ex.Color.Red, 2);
       expect(rectangleRenderer.flush).withContext('rectangle line render not flusehd yet').not.toHaveBeenCalled();
 
@@ -402,6 +404,53 @@ describe('The ExcaliburGraphicsContext', () => {
 
       sut.drawRectangle(ex.Vector.Zero, 50, 50, ex.Color.Blue, ex.Color.Green, 2);
       expect(imageRenderer.flush).toHaveBeenCalled();
+
+      sut.flush();
+
+      // Rectangle renderer handles lines and rectangles why it's twice
+      expect(rectangleRenderer.flush).toHaveBeenCalledTimes(2);
+      expect(circleRenderer.flush).toHaveBeenCalledTimes(1);
+      expect(imageRenderer.flush).toHaveBeenCalledTimes(1);
+
+      await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/painter-order-circle-image-rect.png',
+        .97
+      );
+    });
+
+    it('will preserve the painter order when switching renderer (draw sorting)', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      const tex = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/sword.png');
+      await tex.load();
+
+      const circleRenderer = sut.get('ex.circle');
+      spyOn(circleRenderer, 'flush').and.callThrough();
+      const imageRenderer = sut.get('ex.image');
+      spyOn(imageRenderer, 'flush').and.callThrough();
+      const rectangleRenderer = sut.get('ex.rectangle');
+      spyOn(rectangleRenderer, 'flush').and.callThrough();
+
+      sut.useDrawSorting = true;
+
+      sut.drawLine(ex.vec(0, 0), ex.vec(100, 100), ex.Color.Red, 2);
+
+      sut.drawCircle(ex.Vector.Zero, 100, ex.Color.Red, ex.Color.Black, 2);
+
+      sut.drawImage(tex.image, 0, 0, tex.width, tex.height, 20, 20);
+
+      // With draw sorting on, the rectangle at z=0 is part of the draw line, so setting the z = 1 forces the desired effect
+      sut.save();
+      sut.z = 1;
+      sut.drawRectangle(ex.Vector.Zero, 50, 50, ex.Color.Blue, ex.Color.Green, 2);
+      sut.restore();
 
       sut.flush();
 
@@ -511,7 +560,7 @@ describe('The ExcaliburGraphicsContext', () => {
         'src/spec/images/ExcaliburGraphicsContextSpec/webgl-circle-with-opacity.png');
     });
 
-    it('can draw circles in batches', () => {
+    it('can draw circles in batches (no draw sorting)', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
@@ -520,7 +569,7 @@ describe('The ExcaliburGraphicsContext', () => {
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
-
+      sut.useDrawSorting = false;
       sut.clear();
 
       const circleRenderer = sut.get('ex.circle');
@@ -539,7 +588,7 @@ describe('The ExcaliburGraphicsContext', () => {
       expect(circleRenderer.flush).toHaveBeenCalledTimes(2);
     });
 
-    it('can draw rectangles in batches', () => {
+    it('can draw circles in batches (draw sorting)', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
@@ -548,6 +597,35 @@ describe('The ExcaliburGraphicsContext', () => {
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
+      sut.useDrawSorting = true;
+      sut.clear();
+
+      const circleRenderer = sut.get('ex.circle');
+      spyOn(circleRenderer, 'flush').and.callThrough();
+      for (let i = 0; i < 10922; i++) {
+        sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
+      }
+
+      sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
+
+      for (let i = 0; i < 10922; i++) {
+        sut.drawCircle(ex.vec(50, 50), 50, ex.Color.Blue);
+      }
+      sut.flush();
+      expect(circleRenderer.flush).toHaveBeenCalledTimes(3);
+    });
+
+    it('can draw rectangles in batches (no draw sorting)', () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+
+      sut.useDrawSorting = false;
 
       sut.clear();
 
@@ -567,7 +645,7 @@ describe('The ExcaliburGraphicsContext', () => {
       expect(rectangleRenderer.flush).toHaveBeenCalledTimes(2);
     });
 
-    it('can draw images in batches', async () => {
+    it('can draw rectangles in batches (draw sorting)', () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
       canvasElement.height = 100;
@@ -576,6 +654,37 @@ describe('The ExcaliburGraphicsContext', () => {
         enableTransparency: false,
         backgroundColor: ex.Color.White
       });
+
+      sut.useDrawSorting = true;
+
+      sut.clear();
+
+      const rectangleRenderer = sut.get('ex.rectangle');
+      spyOn(rectangleRenderer, 'flush').and.callThrough();
+      for (let i = 0; i < 10922; i++) {
+        sut.drawRectangle(ex.vec(50, 50), 50, 50, ex.Color.Blue);
+      }
+
+      sut.drawRectangle(ex.vec(50, 50), 50, 50, ex.Color.Blue);
+
+      for (let i = 0; i < 10922; i++) {
+        sut.drawRectangle(ex.vec(50, 50), 50, 50, ex.Color.Blue);
+      }
+
+      sut.flush();
+      expect(rectangleRenderer.flush).toHaveBeenCalledTimes(3);
+    });
+
+    it('can draw images in batches (no draw sorting)', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+      sut.useDrawSorting = false;
 
       sut.clear();
 
@@ -596,6 +705,37 @@ describe('The ExcaliburGraphicsContext', () => {
         sut.drawImage(tex.image, 0, 0);
       }
       expect(imageRenderer.flush).toHaveBeenCalledTimes(2);
+    });
+
+    it('can draw images in batches (draw sorting)', async () => {
+      const canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      const sut = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvasElement,
+        enableTransparency: false,
+        backgroundColor: ex.Color.White
+      });
+      sut.useDrawSorting = true;
+
+      sut.clear();
+
+      const tex = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/sword.png');
+      await tex.load();
+
+      const imageRenderer = sut.get('ex.image');
+      spyOn(imageRenderer, 'flush').and.callThrough();
+      for (let i = 0; i < 10922; i++) {
+        sut.drawImage(tex.image, 0, 0);
+      }
+
+      sut.drawImage(tex.image, 0, 0);
+
+      for (let i = 0; i < 10922; i++) {
+        sut.drawImage(tex.image, 0, 0);
+      }
+      sut.flush();
+      expect(imageRenderer.flush).toHaveBeenCalledTimes(3);
     });
 
     it('can draw a line', async () => {

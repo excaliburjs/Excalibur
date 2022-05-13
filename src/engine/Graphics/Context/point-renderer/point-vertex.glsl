@@ -1,7 +1,8 @@
-attribute vec2 a_position;
-attribute vec4 a_color;
-attribute float a_size;
-varying lowp vec4 v_color;
+#version 300 es
+in vec2 a_position;
+in vec4 a_color;
+in float a_size;
+out lowp vec4 v_color;
 uniform mat4 u_matrix;
 
 void main() {

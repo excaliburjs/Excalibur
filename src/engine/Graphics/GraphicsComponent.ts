@@ -413,7 +413,7 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
   }
 
   public get localBounds(): BoundingBox {
-    if (!this._localBounds) {
+    if (!this._localBounds || this._localBounds.hasZeroDimensions()) {
       this.recalculateBounds();
     }
     return this._localBounds;

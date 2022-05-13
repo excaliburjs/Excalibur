@@ -89,8 +89,17 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     // Solve, this resolves the position/velocity so entities aren't overlapping
     contacts = solver.solve(contacts);
 
-    // Record contacts
-    contacts.forEach((c) => this._currentFrameContacts.set(c.id, c));
+    // Record contacts for start/end
+    for (const contact of contacts) {
+      // Process composite ids, things with the same composite id are treated as the same collider for start/end
+      const index = contact.id.indexOf('|');
+      if (index > 0) {
+        const compositeId = contact.id.substring(index + 1);
+        this._currentFrameContacts.set(compositeId, contact);
+      } else {
+        this._currentFrameContacts.set(contact.id, contact);
+      }
+    }
 
     // Emit contact start/end events
     this.runContactStartEnd();
@@ -111,6 +120,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
   }
 
   public runContactStartEnd() {
+    // Composite collider collisions may have a duplicate id because we want to treat those as a singular start/end
     for (const [id, c] of this._currentFrameContacts) {
       // find all new contacts
       if (!this._lastFrameContacts.has(id)) {
@@ -123,7 +133,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       }
     }
 
-    // find all contacts taht have ceased
+    // find all contacts that have ceased
     for (const [id, c] of this._lastFrameContacts) {
       if (!this._currentFrameContacts.has(id)) {
         const colliderA = c.colliderA;

@@ -1,24 +1,25 @@
-#ifdef GL_OES_standard_derivatives
-#extension GL_OES_standard_derivatives : enable
-#endif
+#version 300 es
+
 precision mediump float;
 
 // UV coord
-varying vec2 v_uv;
+in vec2 v_uv;
 
-varying vec2 v_size; // in pixels
+in vec2 v_size; // in pixels
 
 // Color coord to blend with image
-varying lowp vec4 v_color;
+in lowp vec4 v_color;
 
 // Stroke color if used
-varying lowp vec4 v_strokeColor;
+in lowp vec4 v_strokeColor;
 
 // Stroke thickness if used
-varying lowp float v_strokeThickness; // in pixels
+in lowp float v_strokeThickness; // in pixels
 
 // Opacity
-varying float v_opacity;
+in float v_opacity;
+
+out vec4 fragColor;
 
 void main() {
     // modified from https://stackoverflow.com/questions/59197671/glsl-rounded-rectangle-with-variable-border
@@ -31,12 +32,12 @@ void main() {
 
     if (fragCoord.x < maxX && fragCoord.x > minX &&
         fragCoord.y < maxY && fragCoord.y > minY) {
-      gl_FragColor = v_color;
+      fragColor = v_color;
     } else {
-      gl_FragColor = v_strokeColor;
+      fragColor = v_strokeColor;
     }
-    gl_FragColor.a *= v_opacity;
-    gl_FragColor.rgb *= gl_FragColor.a;
+    fragColor.a *= v_opacity;
+    fragColor.rgb *= fragColor.a;
 
     // vec2 v2CenteredPos     = abs(fragCoord - v_size.xy / 2.0);
     // vec2 v2HalfShapeSizePx = v_size.xy/2.0 - v_strokeThickness/2.0;

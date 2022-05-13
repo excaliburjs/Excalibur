@@ -2,9 +2,6 @@ import { Graphic, GraphicOptions } from './Graphic';
 import { ImageSource } from './ImageSource';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 
-import { Sprite as LegacySprite } from '../Drawing/Sprite';
-import { Texture } from '../Drawing/Texture';
-
 export type SourceView = { x: number; y: number; width: number; height: number };
 export type DestinationSize = { width: number; height: number };
 
@@ -104,38 +101,6 @@ export class Sprite extends Graphic {
         this.destSize.height
       );
     }
-  }
-
-  /**
-   * Create a ImageSource from legacy texture
-   * @param sprite
-   */
-  public static fromLegacySprite(sprite: LegacySprite): Sprite {
-    const tex = sprite.texture;
-    const image = ImageSource.fromLegacyTexture(tex);
-    return new Sprite({
-      image,
-      sourceView: {
-        x: sprite.x,
-        y: sprite.y,
-        width: sprite.width,
-        height: sprite.height
-      }
-    });
-  }
-
-  /**
-   * Converts a sprite to a Legacy sprite
-   * @deprecated
-   * @param sprite
-   * @returns LegacyDrawing.Sprite
-   */
-  public static toLegacySprite(sprite: Sprite): LegacySprite {
-    const image = sprite.image;
-    const tex = new Texture(image.path);
-    tex.data = image.image;
-
-    return new LegacySprite(tex, sprite.sourceView.x, sprite.sourceView.y, sprite.sourceView.width, sprite.sourceView.height);
   }
 
   public clone(): Sprite {

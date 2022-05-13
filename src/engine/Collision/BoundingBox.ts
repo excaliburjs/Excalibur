@@ -263,7 +263,7 @@ export class BoundingBox {
     if (val instanceof Vector) {
       return this.left <= val.x && this.top <= val.y && this.bottom >= val.y && this.right >= val.x;
     } else if (val instanceof BoundingBox) {
-      if (this.left < val.left && this.top < val.top && val.bottom < this.bottom && val.right < this.right) {
+      if (this.left <= val.left && this.top <= val.top && val.bottom <= this.bottom && val.right <= this.right) {
         return true;
       }
       return false;
@@ -294,6 +294,12 @@ export class BoundingBox {
    * @param other
    */
   public overlaps(other: BoundingBox): boolean {
+    if (other.hasZeroDimensions()){
+      return this.contains(other);
+    }
+    if (this.hasZeroDimensions()) {
+      return other.contains(this);
+    }
     const totalBoundingBox = this.combine(other);
     return totalBoundingBox.width < other.width + this.width &&
            totalBoundingBox.height < other.height + this.height;
@@ -436,18 +442,6 @@ export class BoundingBox {
   public intersectWithSide(bb: BoundingBox): Side {
     const intersect = this.intersect(bb);
     return BoundingBox.getSideFromIntersection(intersect);
-  }
-
-  /**
-   *
-   * @deprecated signature will change in v0.26.0
-   * @param ctx
-   * @param color
-   */
-  /* istanbul ignore next */
-  public debugDraw(ctx: CanvasRenderingContext2D, color: Color = Color.Yellow) {
-    ctx.strokeStyle = color.toString();
-    ctx.strokeRect(this.left, this.top, this.width, this.height);
   }
 
   /**

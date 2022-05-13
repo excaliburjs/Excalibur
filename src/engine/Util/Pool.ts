@@ -3,6 +3,7 @@ export class Pool<Type> {
   public totalAllocations = 0;
   public index = 0;
   public objects: Type[] = [];
+  public disableWarnings = false;
   private _logger = Logger.getInstance();
 
   constructor(
@@ -41,7 +42,9 @@ export class Pool<Type> {
    */
   get(...args: any[]): Type {
     if (this.index === this.maxObjects) {
-      this._logger.warn('Max pooled objects reached, possible memory leak? Doubling');
+      if (!this.disableWarnings) {
+        this._logger.warn('Max pooled objects reached, possible memory leak? Doubling');
+      }
       this.maxObjects = this.maxObjects * 2;
     }
 

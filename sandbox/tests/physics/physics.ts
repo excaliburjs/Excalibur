@@ -22,8 +22,8 @@ ex.Physics.gravity = ex.vec(0, 100);
 
 var globalRotation = 0;
 function spawnBlock(x: number, y: number) {
-  var width = ex.Util.randomInRange(20, 100);
-  var color = new ex.Color(ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255), 255);
+  var width = ex.randomInRange(20, 100);
+  var color = new ex.Color(ex.randomIntInRange(0, 255), ex.randomIntInRange(0, 255), 255);
   var block = new ex.Actor({
     pos: ex.vec(x, y),
     color,
@@ -52,16 +52,17 @@ function spawnBlock(x: number, y: number) {
 }
 
 function spawnCircle(x: number, y: number) {
-  var width = ex.Util.randomInRange(20, 100);
-  var color = new ex.Color(255, ex.Util.randomIntInRange(0, 255), ex.Util.randomIntInRange(0, 255));
+  var width = ex.randomInRange(20, 100);
+  var color = new ex.Color(255, ex.randomIntInRange(0, 255), ex.randomIntInRange(0, 255));
   var circle = new ex.Actor({x: x, y: y, radius: width / 2, color: color});
   // circle.rx = ex.Util.randomInRange(-0.5, 0.5);
   circle.angularVelocity = 1;
   circle.vel.setTo(0, 300);
   // circle.collider.useCircleCollider(width / 2);
   circle.body.collisionType = ex.CollisionType.Active;
-  circle.draw = (ctx: CanvasRenderingContext2D) => {
-    ex.Util.DrawUtil.circle(ctx, 0, 0, width / 2, color, color);
+  circle.graphics.onPostDraw = (ctx: ex.ExcaliburGraphicsContext) => {
+    ctx.drawCircle(ex.vec(0, 0), width / 2, color);
+    // ex.Util.DrawUtil.circle(ctx, 0, 0, width / 2, color, color);
   };
   circle.body.events.on('contactstart', (e) => {
     // console.count('contactstart');

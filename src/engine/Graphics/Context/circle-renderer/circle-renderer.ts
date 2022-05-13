@@ -30,7 +30,6 @@ export class CircleRenderer implements RendererPlugin {
   initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
-    gl.getExtension('OES_standard_derivatives');
     this._shader = new Shader({
       fragmentSource: frag,
       vertexSource: vert

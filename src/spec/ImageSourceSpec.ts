@@ -126,22 +126,6 @@ describe('A ImageSource', () => {
     expect(spriteFontImage.image.src).toBe('');
   });
 
-  it('can load from a legacy texture', async () => {
-    const tex = new ex.LegacyDrawing.Texture('src/spec/images/GraphicsTextSpec/spritefont.png');
-    await tex.load();
-    const img = ex.ImageSource.fromLegacyTexture(tex);
-    expect(img.width).not.toBe(0);
-    expect(img.height).not.toBe(0);
-  });
-
-  it('can load from an unloaded legacy texture', async () => {
-    const tex = new ex.LegacyDrawing.Texture('src/spec/images/GraphicsTextSpec/spritefont.png');
-    const img = ex.ImageSource.fromLegacyTexture(tex);
-    await tex.load();
-    expect(img.width).not.toBe(0);
-    expect(img.height).not.toBe(0);
-  });
-
   it('will resolve the image if alreadly loaded', async () => {
     const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
     const image = await spriteFontImage.load();

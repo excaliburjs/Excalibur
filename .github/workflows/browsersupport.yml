@@ -3,12 +3,10 @@ env:
   BS_USERNAME: ${{ secrets.BS_USERNAME }}
   BS_PASSWORD: ${{ secrets.BS_PASSWORD }}
 on:
-  pull_request:
-    branches: [ main ]
   push:
     branches: [ main ]
 jobs:
-  build:
+  browser_support:
     runs-on: [ubuntu-latest]
     timeout-minutes: 15
 

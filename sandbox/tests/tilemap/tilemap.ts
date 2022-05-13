@@ -25,13 +25,13 @@ var tm = new ex.TileMap({
   pos: ex.vec(-100, -100),
   tileWidth: 16,
   tileHeight: 16,
-  width: 40,
-  height: 40
+  columns: 40,
+  rows: 40
 });
 
 var tilesprite = ss.sprites[0];
 
-for (var i = 0; i < tm.width * tm.height; i++) {
+for (var i = 0; i < tm.columns * tm.rows; i++) {
   tm.getTileByIndex(i).addGraphic(tilesprite);
 }
 

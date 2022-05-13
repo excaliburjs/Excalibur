@@ -40,19 +40,27 @@ logger.defaultLevel = ex.LogLevel.Debug;
 var fullscreenButton = document.getElementById('fullscreen') as HTMLButtonElement;
 
 // Create an the game container
-ex.Flags.enable(ex.Experiments.WebGL);
 var game = new ex.Engine({
   width: 800 / 2,
   height: 600 / 2,
   viewport: { width: 800, height: 600 },
   canvasElementId: 'game',
-  suppressHiDPIScaling: false,
+  pixelRatio: 4,
   suppressPlayButton: true,
   pointerScope: ex.Input.PointerScope.Canvas,
   displayMode: ex.DisplayMode.FitScreen,
   antialiasing: false,
   snapToPixel: true,
-  maxFps: 60
+  maxFps: 60,
+  configurePerformanceCanvas2DFallback: {
+    allow: true,
+    showPlayerMessage: true,
+    threshold: { fps: 20, numberOfFrames: 100 }
+  }
+});
+
+game.on('fallbackgraphicscontext', (ctx) => {
+  console.log('fallback triggered', ctx);
 });
 //@ts-ignore For some reason ts doesn't like the /// slash import
 const devtool = new ex.DevTools.DevTool(game);
@@ -77,10 +85,10 @@ var imageRun = new ex.ImageSource('../images/PlayerRun.png', false, ex.ImageFilt
 var imageJump = new ex.ImageSource('../images/PlayerJump.png');
 var imageRun2 = new ex.ImageSource('../images/PlayerRun.png');
 var imageBlocks = new ex.ImageSource('../images/BlockA0.png', false, ex.ImageFiltering.Blended);
-var imageBlocksLegacy = new ex.LegacyDrawing.Texture('../images/BlockA0.png');
 var spriteFontImage = new ex.ImageSource('../images/SpriteFont.png');
 var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
 var cards = new ex.ImageSource('../images/kenny-cards.png');
+var cloud = new ex.ImageSource('../images/background_cloudA.png', false, ex.ImageFiltering.Blended);
 
 jump.volume = 0.3;
 
@@ -90,9 +98,9 @@ loader.addResource(heartTex);
 loader.addResource(imageRun);
 loader.addResource(imageJump);
 loader.addResource(imageBlocks);
-loader.addResource(imageBlocksLegacy);
 loader.addResource(spriteFontImage);
 loader.addResource(cards);
+loader.addResource(cloud);
 loader.addResource(jump);
 
 // Set background color
@@ -174,7 +182,37 @@ var cardSpriteSheet = ex.SpriteSheet.fromImageSource({
 
 cardSpriteSheet.sprites.forEach(s => s.scale = ex.vec(2, 2));
 
-var cardAnimation = ex.Animation.fromSpriteSheet(cardSpriteSheet, ex.Util.range(0, 14 * 4), 200);
+var cardAnimation = ex.Animation.fromSpriteSheet(cardSpriteSheet, ex.range(0, 14 * 4), 200);
+
+var multiCardSheet = ex.SpriteSheet.fromImageSourceWithSourceViews({
+  image: cards,
+  sourceViews: [
+    { x: 11, y: 2, width: 42*2 + 23, height: 60*2 + 5 }
+  ]
+});
+
+var multiCardActor = new ex.Actor({
+  pos: ex.vec(400, 100),
+});
+
+multiCardActor.graphics.use(multiCardSheet.sprites[0]);
+game.add(multiCardActor);
+
+var rand = new ex.Random(1337);
+var cloudSprite = cloud.toSprite();
+for (var i = 0; i < 100; i++) {
+  var clouds = new ex.Actor({
+    name: 'cloud',
+    pos: ex.vec(400 + i * rand.floating(100, 300), -rand.floating(0, 300)),
+    z: -10
+  });
+  clouds.graphics.use(cloudSprite);
+  var parallax = new ex.ParallaxComponent(ex.vec(rand.floating(.5, .9), .5));
+  clouds.addComponent(parallax);
+
+  clouds.vel.x = -10;
+  game.add(clouds);
+}
 
 var spriteFontSheet = ex.SpriteSheet.fromImageSource({
   image: spriteFontImage,
@@ -264,10 +302,6 @@ var group = new ex.GraphicsGroup({
 
 heart.graphics.add(group);
 heart.pos = ex.vec(10, 10);
-heart.onPostDraw = (ctx) => {
-  ctx.fillStyle = ex.Color.Violet.toRGBA();
-  ctx.fillRect(0, 0, 100, 100);
-}
 game.add(heart);
 
 var label = new ex.Label({text: 'Test Label', x: 200, y: 200});
@@ -302,11 +336,10 @@ game.add(otherPointer);
 game.input.pointers.primary.on('wheel', (ev) => {
   pointer.pos.setTo(ev.x, ev.y);
   game.currentScene.camera.zoom += (ev.deltaY / 1000);
-  game.currentScene.camera.zoom = ex.Util.clamp(game.currentScene.camera.zoom, .05, 100);
+  game.currentScene.camera.zoom = ex.clamp(game.currentScene.camera.zoom, .05, 100);
 })
 // Turn on debug diagnostics
 game.showDebug(false);
-var blockSpriteLegacy = new ex.LegacyDrawing.Sprite(imageBlocksLegacy, 0, 0, 65, 49);
 var blockSprite = new ex.Sprite({
   image: imageBlocks,
   destSize: {
@@ -343,7 +376,7 @@ var tileBlockWidth = 64,
 
 // create a collision map
 // var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
-var tileMap = new ex.TileMap({ pos: ex.vec(100, 300), tileWidth: tileBlockWidth, tileHeight: tileBlockHeight, height: 4, width: 500 });
+var tileMap = new ex.TileMap({ pos: ex.vec(100, 300), tileWidth: tileBlockWidth, tileHeight: tileBlockHeight, rows: 4, columns: 500 });
 var blocks = ex.Sprite.from(imageBlocks);
 // var flipped = spriteTiles.sprites[0].clone();
 // flipped.flipVertical = true;
@@ -462,6 +495,13 @@ follower.actions
 // follow player
 
 player.rotation = 0;
+player.on('collisionstart', () => {
+  console.log('collision start');
+});
+
+player.on('collisionend', () => {
+  console.log('collision end');
+});
 
 // Health bar example
 var healthbar = new ex.Actor({
@@ -504,7 +544,7 @@ var playerText = new ex.Text({
 backroundLayer.show(playerText, { offset: ex.vec(0, -70) });
 
 // Retrieve animations for player from sprite sheet
-var left = ex.Animation.fromSpriteSheet(spriteSheetRun, ex.Util.range(1, 10), 50);
+var left = ex.Animation.fromSpriteSheet(spriteSheetRun, ex.range(1, 10), 50);
 // var left = new ex.Animation(game, left_sprites, 50);
 var right = left.clone(); // spriteSheetRun.getAnimationBetween(game, 1, 11, 50);
 right.flipHorizontal = true;
@@ -512,11 +552,11 @@ var idle = ex.Animation.fromSpriteSheet(spriteSheetRun, [0], 200); // spriteShee
 //idle.anchor.setTo(.5, .5);
 var jumpLeft = ex.Animation.fromSpriteSheet(
   spriteSheetJump,
-  ex.Util.range(0, 10).reverse(),
+  ex.range(0, 10).reverse(),
   100,
   ex.AnimationStrategy.Freeze
 ); // spriteSheetJump.getAnimationBetween(game, 0, 11, 100);
-var jumpRight = ex.Animation.fromSpriteSheet(spriteSheetJump, ex.Util.range(11, 21), 100, ex.AnimationStrategy.Freeze); // spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
+var jumpRight = ex.Animation.fromSpriteSheet(spriteSheetJump, ex.range(11, 21), 100, ex.AnimationStrategy.Freeze); // spriteSheetJump.getAnimationBetween(game, 11, 22, 100);
 // left.loop = true;
 // right.loop = true;
 // idle.loop = true;

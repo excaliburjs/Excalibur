@@ -1,419 +1,283 @@
-import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
-import { TestUtils } from './util/TestUtils';
+import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 
-describe('A sprite', () => {
-  let engine: ex.Engine;
-  let texture: ex.LegacyDrawing.Texture;
+describe('A Sprite Graphic', () => {
+  let canvasElement: HTMLCanvasElement;
+  let ctx: ex.ExcaliburGraphicsContext;
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
-    engine = TestUtils.engine({
-      width: 62,
-      height: 64
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
+
+    canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement, smoothing: false });
+  });
+
+  it('exists', () => {
+    expect(ex.Sprite).toBeDefined();
+  });
+
+  it('can be constructed', () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
+      image
     });
-
-    texture = new ex.LegacyDrawing.Texture('src/spec/images/SpriteSpec/icon.png', true);
-  });
-  afterEach(() => {
-    engine.stop();
-    engine = null;
+    expect(sut).toBeDefined();
   });
 
-  it('should have props set by the constructor', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
+  it('can be cloned', () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
+      image,
+      sourceView: {
         x: 0,
         y: 0,
-        width: 62,
-        height: 64,
-        rotation: 0,
-        anchor: new ex.Vector(0.0, 0.0),
-        scale: new ex.Vector(1, 1),
-        flipVertical: false,
-        flipHorizontal: false
-      });
-
-      expect(texture.isLoaded()).toBe(true);
-      expect(sprite.x).toBe(0);
-      expect(sprite.y).toBe(0);
-      expect(sprite.width).toBe(62);
-      expect(sprite.height).toBe(64);
-      expect(sprite.rotation).toBe(0);
-      expect(sprite.anchor.x).toBe(0.0);
-      expect(sprite.anchor.y).toBe(0.0);
-      expect(sprite.scale.x).toBe(1);
-      expect(sprite.scale.y).toBe(1);
-      expect(sprite.flipHorizontal).toBe(false);
-      expect(sprite.flipVertical).toBe(false);
-
-      sprite.draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/icon.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('should throw if no image texture is provided', () => {
-    let s: ex.LegacyDrawing.Sprite = null;
-    try {
-      s = new ex.LegacyDrawing.Sprite({
-        x: 1,
-        y: 1,
-        width: 1,
-        height: 1
-      });
-    } catch (e) {
-      expect(e.message).toBe('An image texture is required to construct a sprite');
-    }
-  });
-
-  it('should scale about the anchor', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        scale: new ex.Vector(2, 2),
-        anchor: new ex.Vector(0.5, 0.5),
-        drawAroundAnchor: true
-      });
-
-      sprite.draw(engine.ctx, 62 / 2, 64 / 2);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/iconscale.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('should rotate about the anchor', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        rotation: Math.PI / 4,
-        anchor: new ex.Vector(0.5, 0.5),
-        drawAroundAnchor: true
-      });
-
-      sprite.draw(engine.ctx, 62 / 2, 64 / 2);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/iconrotate.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('should rotate around center and draw drawAroundAnchor top-left', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        rotation: Math.PI / 4,
-        anchor: new ex.Vector(0.5, 0.5),
-        drawAroundAnchor: false
-      });
-
-      sprite.draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/iconrotate.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('should flipHorizontally', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        anchor: new ex.Vector(0.5, 0.5)
-      });
-
-      sprite.flipHorizontal = true;
-
-      sprite.draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/icon-horiz-flip.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('should flipVertically', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        anchor: new ex.Vector(0.5, 0.5)
-      });
-
-      sprite.flipVertical = true;
-
-      sprite.draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/icon-vert-flip.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('can be drawn with opacity', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        rotation: 0,
-        anchor: new ex.Vector(0.0, 0.0),
-        scale: new ex.Vector(1, 1),
-        flipVertical: false,
-        flipHorizontal: false
-      });
-
-      sprite.opacity(0.1);
-
-      sprite.draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/opacity.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('can be drawn with opacity as an option', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        rotation: 0,
-        anchor: new ex.Vector(0.0, 0.0),
-        scale: new ex.Vector(1, 1),
-        flipVertical: false,
-        flipHorizontal: false
-      });
-
-      sprite.draw({ ctx: engine.ctx, x: 0, y: 0, opacity: 0.1 });
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/opacity.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('can be inverted', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        rotation: 0,
-        anchor: new ex.Vector(0.0, 0.0),
-        scale: new ex.Vector(1, 1),
-        flipVertical: false,
-        flipHorizontal: false
-      });
-
-      sprite.invert();
-
-      sprite.draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/icon-inverted.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('can be colorized', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        rotation: 0,
-        anchor: new ex.Vector(0.0, 0.0),
-        scale: new ex.Vector(1, 1),
-        flipVertical: false,
-        flipHorizontal: false
-      });
-
-      sprite.colorize(ex.Color.Blue.clone());
-
-      sprite.draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/icon-colorized.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('can be lightened', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        rotation: 0,
-        anchor: new ex.Vector(0.0, 0.0),
-        scale: new ex.Vector(1, 1),
-        flipVertical: false,
-        flipHorizontal: false
-      });
-
-      sprite.lighten();
-
-      sprite.draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/icon-lightened.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('can be darkened', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        rotation: 0,
-        anchor: new ex.Vector(0.0, 0.0),
-        scale: new ex.Vector(1, 1),
-        flipVertical: false,
-        flipHorizontal: false
-      });
-
-      sprite.darken();
-
-      sprite.draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/icon-darkened.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('can be saturated', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        rotation: 0,
-        anchor: new ex.Vector(0.0, 0.0),
-        scale: new ex.Vector(1, 1),
-        flipVertical: false,
-        flipHorizontal: false
-      });
-
-      sprite.saturate();
-
-      sprite.draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/icon-saturated.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('can be desaturated', (done) => {
-    texture.load().then(() => {
-      const sprite = new ex.LegacyDrawing.Sprite({
-        image: texture,
-        x: 0,
-        y: 0,
-        width: 62,
-        height: 64,
-        rotation: 0,
-        anchor: new ex.Vector(0.0, 0.0),
-        scale: new ex.Vector(1, 1),
-        flipVertical: false,
-        flipHorizontal: false
-      });
-
-      sprite.desaturate();
-
-      sprite.draw(engine.ctx, 0, 0);
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/SpriteSpec/icon-desaturated.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-  });
-
-  it('should always have non-zero dimensions', (done) => {
-    texture.load().then(() => {
-      let sprite: ex.LegacyDrawing.Sprite;
-      try {
-        sprite = new ex.LegacyDrawing.Sprite({
-          image: texture,
-          x: 0,
-          y: 0,
-          width: 0,
-          height: 1
-        });
-      } catch (e) {
-        expect(e.message).toBe(`The width of a sprite cannot be 0 or negative, sprite width: ${sprite.width}, original width: 62`);
+        width: 16,
+        height: 16
+      },
+      destSize: {
+        width: 100,
+        height: 100
       }
-
-      try {
-        sprite = new ex.LegacyDrawing.Sprite({
-          image: texture,
-          x: 0,
-          y: 0,
-          width: 1,
-          height: 0
-        });
-      } catch (e) {
-        expect(e.message).toBe(`The height of a sprite cannot be 0 or negative, sprite height: ${sprite.height}, original height: 64`);
-      }
-
-      done();
     });
+
+    const clone = sut.clone();
+
+    expect(clone.sourceView).toEqual(sut.sourceView);
+    expect(clone.destSize).toEqual(sut.destSize);
+    expect(clone.image).toEqual(sut.image);
+  });
+
+  it('correctly calculates size based on scale', () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
+      image,
+      sourceView: {
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16
+      },
+      destSize: {
+        width: 100,
+        height: 100
+      }
+    });
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(100, 100, ex.Vector.Zero));
+    sut.scale = ex.vec(2, 2);
+    expect(sut.width).toBe(200);
+    expect(sut.height).toBe(200);
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(200, 200, ex.Vector.Zero));
+  });
+
+  it('correctly sets size based on scale', () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
+      image,
+      sourceView: {
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16
+      },
+      destSize: {
+        width: 100,
+        height: 100
+      }
+    });
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(100, 100, ex.Vector.Zero));
+    sut.scale = ex.vec(2, 2);
+    sut.width = 120;
+    sut.height = 110;
+    expect(sut.width).toBe(120);
+    expect(sut.height).toBe(110);
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(120, 110, ex.Vector.Zero));
+    sut.scale = ex.vec(1, 1);
+    expect(sut.width).toBe(60);
+    expect(sut.height).toBe(55);
+    expect(sut.localBounds).toEqual(ex.BoundingBox.fromDimension(60, 55, ex.Vector.Zero));
+    expect(sut.destSize.width).toBe(60);
+    expect(sut.destSize.height).toBe(55);
+  });
+
+  it('can specify a source/dest viewof an image with default width and height', async () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
+      image,
+      width: 16,
+      height: 16
+    });
+
+    expect(sut.width).withContext('Graphic width should be 16').toBe(16);
+    expect(sut.height).withContext('Graphic height should be 16').toBe(16);
+    expect(sut.sourceView.x).toBe(0);
+    expect(sut.sourceView.y).toBe(0);
+    expect(sut.sourceView.width).withContext('Graphic sourceView width should be 16').toBe(16);
+    expect(sut.sourceView.height).withContext('Graphic sourceView height should be 16').toBe(16);
+    expect(sut.destSize.width).withContext('Graphic destSize width should be 16').toBe(16);
+    expect(sut.destSize.height).withContext('Graphic destSize height should be 16').toBe(16);
+    expect(sut.localBounds.width).withContext('Graphic local bounds width should be 16').toBe(16);
+    expect(sut.localBounds.height).withContext('Graphic local bounds height should be 16').toBe(16);
+
+    await image.load();
+    await image.ready;
+
+    ctx.clear();
+    sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/source-view.png');
+  });
+
+  it('can specify the width and height of a sprite after construction', async () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
+      image,
+      sourceView: {
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16
+      }
+    });
+
+    sut.width = 64;
+    sut.height = 64;
+
+    await image.load();
+    await image.ready;
+
+    ctx.clear();
+    sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/change-size.png');
+  });
+
+  it('can specify the width and height and scale', async () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
+      image,
+      sourceView: {
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16
+      }
+    });
+
+    sut.width = 64;
+    sut.height = 64;
+
+    sut.scale = ex.vec(2, 2);
+
+    await image.load();
+    await image.ready;
+
+    ctx.clear();
+    sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+    expect(sut.width).toBe(128);
+    expect(sut.height).toBe(128);
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/change-size-and-scale.png');
+  });
+
+  it('can specify a source view of an image by default is same dimension as the source', async () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
+      image,
+      sourceView: {
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16
+      }
+    });
+
+    expect(sut.width).toBe(16, 'Graphic width should be 16');
+    expect(sut.height).toBe(16, 'Graphic height should be 16');
+    expect(sut.sourceView.x).toBe(0);
+    expect(sut.sourceView.y).toBe(0);
+    expect(sut.sourceView.width).toBe(16, 'Graphic sourceView width should be 16');
+    expect(sut.sourceView.height).toBe(16, 'Graphic sourceView height should be 16');
+    expect(sut.destSize.width).toBe(16, 'Graphic destSize width should be 16');
+    expect(sut.destSize.height).toBe(16, 'Graphic destSize height should be 16');
+    expect(sut.localBounds.width).toBe(16, 'Graphic local bounds width should be 16');
+    expect(sut.localBounds.height).toBe(16, 'Graphic local bounds height should be 16');
+
+    await image.load();
+    await image.ready;
+
+    ctx.clear();
+    sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/source-view.png');
+  });
+
+  it('can specify a source view of an image and a dest view dimension is destination', async () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
+      image,
+      sourceView: {
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16
+      },
+      destSize: {
+        width: 50,
+        height: 50
+      }
+    });
+
+    expect(sut.width).toBe(50, 'Graphic width should be 50');
+    expect(sut.height).toBe(50, 'Graphic height should be 50');
+    expect(sut.sourceView.x).toBe(0);
+    expect(sut.sourceView.y).toBe(0);
+    expect(sut.sourceView.width).toBe(16, 'Graphic sourceView width should be 50');
+    expect(sut.sourceView.height).toBe(16, 'Graphic sourceView height should be 50');
+    expect(sut.destSize.width).toBe(50, 'Graphic destSize width should be 50');
+    expect(sut.destSize.height).toBe(50, 'Graphic destSize height should be 50');
+    expect(sut.localBounds.width).toBe(50, 'Graphic local bounds width should be 50');
+    expect(sut.localBounds.height).toBe(50, 'Graphic local bounds height should be 50');
+
+    await image.load();
+    await image.ready;
+
+    ctx.clear();
+    sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/dest-size.png');
+  });
+
+  it('can specify only a dest view dimension, infers native size for source view', async () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const sut = new ex.Sprite({
+      image,
+      destSize: {
+        width: 100,
+        height: 100
+      }
+    });
+
+    expect(sut.width).toBe(100, 'Graphic width should be 100');
+    expect(sut.height).toBe(100, 'Graphic height should be 100');
+    expect(sut.sourceView.x).toBe(0);
+    expect(sut.sourceView.y).toBe(0);
+    expect(sut.sourceView.width).toBe(0, 'Graphic sourceView width should be 0 before image load');
+    expect(sut.sourceView.height).toBe(0, 'Graphic sourceView height should be 0 before image load');
+    expect(sut.destSize.width).toBe(100, 'Graphic destSize width should be 100');
+    expect(sut.destSize.height).toBe(100, 'Graphic destSize height should be 100');
+    expect(sut.localBounds.width).toBe(100, 'Graphic local bounds width should be 100');
+    expect(sut.localBounds.height).toBe(100, 'Graphic local bounds height should be 100');
+
+    await image.load();
+    await image.ready;
+
+    expect(sut.sourceView.width).not.toBe(0);
+    expect(sut.sourceView.height).not.toBe(0);
+
+    ctx.clear();
+    sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/dest-view.png');
   });
 });

@@ -11,6 +11,7 @@ export * from './GraphicsComponent';
 export * from './DebugGraphicsComponent';
 export * from './GraphicsSystem';
 export * from './OffscreenSystem';
+export * from './ParallaxComponent';
 
 
 // Raster graphics

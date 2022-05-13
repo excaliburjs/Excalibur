@@ -1,19 +1,19 @@
-attribute vec2 a_position;
+#version 300 es
+in vec2 a_position;
 
 // Opacity 
-attribute float a_opacity;
-varying float v_opacity;
+in float a_opacity;
+out float v_opacity;
 
 // UV coordinate
-attribute vec2 a_texcoord;
-varying vec2 v_texcoord;
+in vec2 a_texcoord;
+out vec2 v_texcoord;
 
 // Texture number
-attribute lowp float a_textureIndex;
-varying lowp float v_textureIndex;
+in lowp float a_textureIndex;
+out lowp float v_textureIndex;
 
 uniform mat4 u_matrix;
-
 
 void main() {
    // Set the vertex position using the ortho transform matrix

@@ -3,10 +3,8 @@ import { Sprite } from '../Graphics/Sprite';
 import { Color } from '../Color';
 import { SpriteSheet } from '../Graphics/SpriteSheet';
 import { Animation } from '../Graphics/Animation';
-import { Engine } from '../Engine';
 import { Loadable } from '../Interfaces/Index';
 import { ImageSource } from '../Graphics/ImageSource';
-import { LegacyDrawing } from '..';
 import { range } from '../Math/util';
 /**
  * The [[Texture]] object allows games built in Excalibur to load image resources.
@@ -61,32 +59,6 @@ export class Gif implements Loadable<ImageSource[]> {
 
   public isLoaded() {
     return !!this.data;
-  }
-
-  /**
-   * Return a frame of the gif as a legacy sprite by index
-   * @deprecated
-   */
-  public toLegacySprite(id: number = 0): LegacyDrawing.Sprite {
-    return Sprite.toLegacySprite(this.toSprite(id));
-  }
-
-  /**
-   * Return the gif as a legacy spritesheet
-   * @deprecated
-   */
-  public toLegacySpriteSheet(): LegacyDrawing.SpriteSheet {
-    return SpriteSheet.toLegacySpriteSheet(this.toSpriteSheet());
-  }
-
-  /**
-   * Return the gif as a legacy animation
-   * @deprecated
-   * @param engine
-   * @param speed
-   */
-  public toLegacyAnimation(engine: Engine, speed: number): LegacyDrawing.Animation {
-    return Animation.toLegacyAnimation(engine, this.toAnimation(speed));
   }
 
   /**

@@ -1,8 +1,6 @@
 import { ImageSource } from './ImageSource';
-import { Sprite } from './Sprite';
-import { SpriteSheet as LegacySpriteSheet } from '../Drawing/SpriteSheet';
-import { Logger } from '..';
-
+import { SourceView, Sprite } from './Sprite';
+import { Logger } from '../Util/Log';
 
 /**
  * Specify sprite sheet spacing options, useful if your sprites are not tightly packed
@@ -55,6 +53,17 @@ export interface SpriteSheetGridOptions {
    * Optionally specify any spacing information between sprites
    */
   spacing?: SpriteSheetSpacingDimensions;
+}
+
+export interface SpriteSheetSparseOptions {
+  /**
+   * Source image to use for each sprite
+   */
+  image: ImageSource;
+  /**
+   * List of source view rectangles to create a sprite sheet from
+   */
+  sourceViews: SourceView[];
 }
 
 export interface SpriteSheetOptions {
@@ -113,22 +122,17 @@ export class SpriteSheet {
   }
 
   /**
-   * To a graphics sprite sheet from a legacy sprite sheet
+   * Create a sprite sheet from a sparse set of [[SourceView]] rectangles
+   * @param options
    */
-  public static fromLegacySpriteSheet(legacySpriteSheet: LegacySpriteSheet): SpriteSheet {
-    const sprites = legacySpriteSheet.sprites.map(oldSprite => Sprite.fromLegacySprite(oldSprite));
-    return new SpriteSheet({
-      sprites
+  public static fromImageSourceWithSourceViews(options: SpriteSheetSparseOptions): SpriteSheet {
+    const sprites: Sprite[] = options.sourceViews.map(sourceView => {
+      return new Sprite({
+        image: options.image,
+        sourceView
+      });
     });
-  }
-
-  /**
-   * @deprecated
-   * @param spriteSheet
-   */
-  public static toLegacySpriteSheet(spriteSheet: SpriteSheet): LegacySpriteSheet {
-    const sprites = spriteSheet.sprites.map(sprite => Sprite.toLegacySprite(sprite));
-    return new LegacySpriteSheet(sprites);
+    return new SpriteSheet({sprites});
   }
 
   /**

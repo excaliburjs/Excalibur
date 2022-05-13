@@ -6,6 +6,7 @@ import { BoundingBox } from './Collision/Index';
 import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 import { getPosition } from './Util/Util';
 import { ExcaliburGraphicsContextWebGL } from './Graphics/Context/ExcaliburGraphicsContextWebGL';
+import { ExcaliburGraphicsContext2DCanvas } from './Graphics/Context/ExcaliburGraphicsContext2DCanvas';
 
 /**
  * Enum representing the different display modes available to Excalibur.
@@ -67,13 +68,7 @@ export enum DisplayMode {
   /**
    * Use the parent DOM container's css width/height for the game resolution dynamically
    */
-  FillContainer = 'FillContainer',
-
-  /**
-   * Allow the game to be positioned with the [[EngineOptions.position]] option
-   * @deprecated Use CSS to position the game canvas, will be removed in v0.26.0
-   */
-  Position = 'Position',
+  FillContainer = 'FillContainer'
 }
 
 /**
@@ -122,20 +117,6 @@ export class Resolution {
   }
 }
 
-/**
- * Interface describing the absolute CSS position of the game window. For use when [[DisplayMode.Position]]
- * is specified and when the user wants to define exact pixel spacing of the window.
- * When a number is given, the value is interpreted as pixels
- */
-export interface AbsolutePosition {
-  top?: number | string;
-  left?: number | string;
-  right?: number | string;
-  bottom?: number | string;
-}
-
-export type CanvasPosition = string | AbsolutePosition;
-
 export interface ScreenDimension {
   width: number;
   height: number;
@@ -178,15 +159,6 @@ export interface ScreenOptions {
    * Set the display mode of the screen, by default DisplayMode.Fixed.
    */
   displayMode?: DisplayMode;
-  /**
-   * Specify how the game window is to be positioned when the [[DisplayMode.Position]] is chosen. This option MUST be specified
-   * if the DisplayMode is set as [[DisplayMode.Position]]. The position can be either a string or an [[AbsolutePosition]].
-   * String must be in the format of css style background-position. The vertical position must precede the horizontal position in strings.
-   *
-   * Valid String examples: "top left", "top", "bottom", "middle", "middle center", "bottom right"
-   * Valid [[AbsolutePosition]] examples: `{top: 5, right: 10%}`, `{bottom: 49em, left: 10px}`, `{left: 10, bottom: 40}`
-   */
-  position?: CanvasPosition;
 }
 
 /**
@@ -204,7 +176,6 @@ export class Screen {
   private _viewport: ScreenDimension;
   private _viewportStack: ScreenDimension[] = [];
   private _pixelRatioOverride: number | null = null;
-  private _position: CanvasPosition;
   private _displayMode: DisplayMode;
   private _isFullScreen = false;
   private _mediaQueryList: MediaQueryList;
@@ -221,7 +192,6 @@ export class Screen {
     this.graphicsContext = options.context;
     this._antialiasing = options.antialiasing ?? this._antialiasing;
     this._browser = options.browser;
-    this._position = options.position;
     this._pixelRatioOverride = options.pixelRatio;
 
     this._applyDisplayMode();
@@ -395,8 +365,8 @@ export class Screen {
       if (!supported && !this._alreadyWarned) {
         this._alreadyWarned = true; // warn once
         this._logger.warn(
-          `The currently configured resolution (${this.resolution.width}x${this.resolution.height})` +
-          ' is too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
+          `The currently configured resolution (${this.resolution.width}x${this.resolution.height}) and pixel ratio (${this.pixelRatio})` +
+          ' are too large for the platform WebGL implementation, this may work but cause WebGL rendering to behave oddly.' +
           ' Try reducing the resolution or disabling Hi DPI scaling to avoid this' +
           ' (read more here https://excaliburjs.com/docs/screens#understanding-viewport--resolution).');
       }
@@ -419,6 +389,9 @@ export class Screen {
     this.graphicsContext.updateViewport(this.resolution);
     this.graphicsContext.resetTransform();
     this.graphicsContext.smoothing = this._antialiasing;
+    if (this.graphicsContext instanceof ExcaliburGraphicsContext2DCanvas) {
+      this.graphicsContext.scale(this.pixelRatio, this.pixelRatio);
+    }
   }
 
   public get antialiasing() {
@@ -738,22 +711,18 @@ export class Screen {
   }
 
   private _applyDisplayMode() {
-    if (this.displayMode === DisplayMode.Position) {
-      this._initializeDisplayModePosition(this._position);
-    } else {
-      this._setResolutionAndViewportByDisplayMode(this.parent);
+    this._setResolutionAndViewportByDisplayMode(this.parent);
 
-      // watch resizing
-      if (this.parent instanceof Window) {
-        this._browser.window.on('resize', this._resizeHandler);
-      } else {
-        this._resizeObserver = new ResizeObserver(() => {
-          this._resizeHandler();
-        });
-        this._resizeObserver.observe(this.parent);
-      }
-      this.parent.addEventListener('resize', this._resizeHandler);
+    // watch resizing
+    if (this.parent instanceof Window) {
+      this._browser.window.on('resize', this._resizeHandler);
+    } else {
+      this._resizeObserver = new ResizeObserver(() => {
+        this._resizeHandler();
+      });
+      this._resizeObserver.observe(this.parent);
     }
+    this.parent.addEventListener('resize', this._resizeHandler);
   }
 
   /**
@@ -794,76 +763,6 @@ export class Screen {
 
     if (this.displayMode === DisplayMode.ContentFitContainer){
       this._computeFitContentContainer();
-    }
-  }
-
-  private _initializeDisplayModePosition(position: CanvasPosition) {
-    if (!position) {
-      throw new Error(
-        'DisplayMode of Position was selected but no position option was given',
-      );
-    } else {
-      this.canvas.style.display = 'block';
-      this.canvas.style.position = 'absolute';
-
-      if (typeof position === 'string') {
-        const specifiedPosition = position.split(' ');
-
-        switch (specifiedPosition[0]) {
-          case 'top':
-            this.canvas.style.top = '0px';
-            break;
-          case 'bottom':
-            this.canvas.style.bottom = '0px';
-            break;
-          case 'middle':
-            this.canvas.style.top = '50%';
-            const offsetY = -this.halfDrawHeight;
-            this.canvas.style.marginTop = offsetY.toString();
-            break;
-          default:
-            throw new Error('Invalid Position Given');
-        }
-
-        if (specifiedPosition[1]) {
-          switch (specifiedPosition[1]) {
-            case 'left':
-              this.canvas.style.left = '0px';
-              break;
-            case 'right':
-              this.canvas.style.right = '0px';
-              break;
-            case 'center':
-              this.canvas.style.left = '50%';
-              const offsetX = -this.halfDrawWidth;
-              this.canvas.style.marginLeft = offsetX.toString();
-              break;
-            default:
-              throw new Error('Invalid Position Given');
-          }
-        }
-      } else {
-        if (position.top) {
-          typeof position.top === 'number'
-            ? (this.canvas.style.top = position.top.toString() + 'px')
-            : (this.canvas.style.top = position.top);
-        }
-        if (position.right) {
-          typeof position.right === 'number'
-            ? (this.canvas.style.right = position.right.toString() + 'px')
-            : (this.canvas.style.right = position.right);
-        }
-        if (position.bottom) {
-          typeof position.bottom === 'number'
-            ? (this.canvas.style.bottom = position.bottom.toString() + 'px')
-            : (this.canvas.style.bottom = position.bottom);
-        }
-        if (position.left) {
-          typeof position.left === 'number'
-            ? (this.canvas.style.left = position.left.toString() + 'px')
-            : (this.canvas.style.left = position.left);
-        }
-      }
     }
   }
 }

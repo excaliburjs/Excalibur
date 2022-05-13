@@ -65,7 +65,7 @@ describe('The engine', () => {
     reset();
     engine = TestUtils.engine({
       suppressPlayButton: false
-    }, ['use-canvas-context']);
+    });
     (<any>engine)._suppressPlayButton = false;
     const imageSource = new ex.ImageSource('src/spec/images/SpriteSpec/icon.png');
 
@@ -78,11 +78,80 @@ describe('The engine', () => {
       expect(document.getElementById('excalibur-play')).withContext('Play button should exist in the document').toBeDefined();
       setTimeout(() => { // needed for the delay to work
         testClock.run(1, 100);
-        expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/engine-load-complete.png').then(() => {
-          done();
-        });
+        engine.graphicsContext.flush();
+        expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+          .toEqualImage('src/spec/images/EngineSpec/engine-load-complete.png').then(() => {
+            done();
+          });
       });
     });
+  });
+
+  it('should log if loading fails', async () => {
+    class FailedLoader implements ex.Loadable<void> {
+      data = undefined;
+      load(): Promise<void> {
+        throw new Error('I failed');
+      }
+      isLoaded(): boolean {
+        return false;
+      }
+    }
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'error');
+
+    engine = TestUtils.engine();
+
+
+    await engine.load(new FailedLoader());
+
+    expect(logger.error).toHaveBeenCalledWith('Error loading resources, things may not behave properly', new Error('I failed'));
+  });
+
+  it('can switch to the canvas fallback on command', () => {
+    engine = TestUtils.engine({
+      suppressPlayButton: false
+    });
+
+    const originalScreen = engine.screen;
+    const originalPointers = engine.input.pointers;
+    spyOn(engine.screen, 'dispose').and.callThrough();
+    spyOn(engine.input.pointers, 'detach').and.callThrough();
+    spyOn(engine.input.pointers, 'recreate').and.callThrough();
+
+    engine.useCanvas2DFallback();
+
+    expect(engine.graphicsContext).toBeInstanceOf(ex.ExcaliburGraphicsContext2DCanvas);
+    expect(originalScreen.dispose).toHaveBeenCalled();
+    expect(originalPointers.detach).toHaveBeenCalled();
+    expect(originalPointers.recreate).toHaveBeenCalled();
+  });
+
+  it('can switch to the canvas fallback on poor performance', async () => {
+    engine = TestUtils.engine({
+      suppressPlayButton: false
+    });
+    await TestUtils.runToReady(engine);
+    spyOn(engine, 'useCanvas2DFallback');
+
+    const clock = engine.clock as ex.TestClock;
+    clock.fpsSampler = new ex.FpsSampler({
+      initialFps: 10,
+      nowFn: () => 1
+    });
+
+    clock.run(100, 1);
+
+    expect(engine.useCanvas2DFallback).toHaveBeenCalled();
+  });
+
+  it('can flag on to the canvas fallback', async () => {
+    engine = TestUtils.engine({
+      suppressPlayButton: false
+    }, ['use-canvas-context']);
+    await TestUtils.runToReady(engine);
+
+    expect(engine.graphicsContext).toBeInstanceOf(ex.ExcaliburGraphicsContext2DCanvas);
   });
 
   it('should update the frame stats every tick', () => {
@@ -137,9 +206,11 @@ describe('The engine', () => {
     TestUtils.runToReady(engine, loader).then(() => {
       // With suppress play there is another 500 ms delay in engine load()
       testClock.step(1);
-      expectAsync(engine.canvas).toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png').then(() => {
-        done();
-      });
+      engine.graphicsContext.flush();
+      expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+        .toEqualImage('src/spec/images/EngineSpec/engine-suppress-play.png').then(() => {
+          done();
+        });
     });
   });
 
@@ -151,6 +222,22 @@ describe('The engine', () => {
 
     expect(engine.snapToPixel).toBeTrue();
     expect(engine.graphicsContext.snapToPixel).toBeTrue();
+  });
+
+  it('can set pixelRatio', () => {
+    engine = TestUtils.engine({width: 100, height: 100, pixelRatio: 5, suppressHiDPIScaling: false});
+    expect(engine.pixelRatio).toBe(5);
+    expect(engine.screen.pixelRatio).toBe(5);
+    expect(engine.screen.scaledWidth).toBe(500);
+    expect(engine.screen.scaledHeight).toBe(500);
+  });
+
+  it('can use draw sorting', () => {
+    engine = TestUtils.engine({width: 100, height: 100, useDrawSorting: false}, []);
+    expect(engine.graphicsContext.useDrawSorting).toBe(false);
+
+    engine = TestUtils.engine({width: 100, height: 100, useDrawSorting: true}, []);
+    expect(engine.graphicsContext.useDrawSorting).toBe(true);
   });
 
   it('should emit a preframe event', () => {
@@ -195,6 +282,61 @@ describe('The engine', () => {
     expect(fired).toHaveBeenCalledTimes(2);
   });
 
+  it('will update keyboard & gamepad events after postupdate', () => {
+    const postupdate = jasmine.createSpy('postupdate');
+    spyOn(engine.input.keyboard, 'update').and.callThrough();
+    spyOn(engine.input.gamepads, 'update').and.callThrough();
+    engine.on('postupdate', postupdate);
+
+    const clock = engine.clock as ex.TestClock;
+
+    clock.step(1);
+
+    expect(postupdate).toHaveBeenCalledBefore(engine.input.keyboard.update);
+    expect(postupdate).toHaveBeenCalledBefore(engine.input.gamepads.update);
+  });
+
+  it('will fire wasPressed in onPostUpdate handler', (done) => {
+    engine.input.keyboard.triggerEvent('down', ex.Input.Keys.Enter);
+    engine.on('postupdate', () => {
+      if (engine.input.keyboard.wasPressed(ex.Input.Keys.Enter)) {
+        done();
+      }
+    });
+
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+  });
+
+  it('will fire wasReleased in onPostUpdate handler', (done) => {
+    engine.input.keyboard.triggerEvent('up', ex.Input.Keys.Enter);
+    engine.on('postupdate', () => {
+      if (engine.input.keyboard.wasReleased(ex.Input.Keys.Enter)) {
+        done();
+      }
+    });
+
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+  });
+
+  it('will fire isHeld in onPostUpdate handler', () => {
+    engine.input.keyboard.triggerEvent('down', ex.Input.Keys.Enter);
+    const held = jasmine.createSpy('held');
+    engine.on('postupdate', () => {
+      if (engine.input.keyboard.isHeld(ex.Input.Keys.Enter)) {
+        held();
+      }
+    });
+
+    const clock = engine.clock as ex.TestClock;
+    clock.step(1);
+    clock.step(1);
+    clock.step(1);
+
+    expect(held).toHaveBeenCalledTimes(3);
+  });
+
   it('should emit a predraw event', () => {
     const fired = jasmine.createSpy('fired');
     engine.on('predraw', fired);
@@ -218,20 +360,20 @@ describe('The engine', () => {
   });
 
   it('should tell engine is running', () => {
-    const status = engine.isPaused();
-    expect(status).toBe(false);
+    const status = engine.isRunning();
+    expect(status).toBe(true);
   });
 
   it('should tell engine is paused', () => {
     engine.stop();
-    const status = engine.isPaused();
-    expect(status).toBe(true);
+    const status = engine.isRunning();
+    expect(status).toBe(false);
   });
 
   it('should again tell engine is running', () => {
     engine.start();
-    const status = engine.isPaused();
-    expect(status).toBe(false);
+    const status = engine.isRunning();
+    expect(status).toBe(true);
   });
 
   it('should tell debug drawing is disabled', () => {
@@ -283,35 +425,6 @@ describe('The engine', () => {
   it('should return if fullscreen', () => {
     engine.start();
     expect(engine.isFullscreen).toBe(false);
-  });
-
-  it('should accept a displayMode of Position', () => {
-    engine = TestUtils.engine({
-      displayMode: ex.DisplayMode.Position,
-      position: 'top'
-    });
-    expect(engine.displayMode).toEqual(ex.DisplayMode.Position);
-  });
-
-  it('should accept strings to position the window', () => {
-    engine = TestUtils.engine({
-      displayMode: ex.DisplayMode.Position,
-      position: 'top'
-    });
-    expect(engine.canvas.style.top).toEqual('0px');
-  });
-
-  it('should accept AbsolutePosition Interfaces to position the window', () => {
-    const game = new ex.Engine({
-      height: 600,
-      width: 800,
-      suppressConsoleBootMessage: true,
-      suppressMinimumBrowserFeatureDetection: true,
-      displayMode: ex.DisplayMode.Position,
-      position: { top: 1, left: '5em' }
-    });
-
-    expect(game.canvas.style.top).toEqual('1px');
   });
 
   it('should accept backgroundColor', () => {
@@ -422,63 +535,6 @@ describe('The engine', () => {
       suppressConsoleBootMessage: true
     });
     expect(game.enableCanvasTransparency).toBe(true);
-  });
-
-  it('can limit fps', () => {
-    const game = new ex.Engine({height: 600, width: 800, maxFps: 15});
-    (game as any)._hasStarted = true; // TODO gross
-
-    const mockRAF = (_mainloop: () => any) => {
-      return 0;
-    };
-
-    let _currentTime = 0;
-    const mockNow = () => {
-      return _currentTime;
-    };
-    // 16ms tick
-    const actualFpsInterval = 1000/60;
-    const tick = () => _currentTime += actualFpsInterval;
-
-    const sut = Engine.createMainLoop(game, mockRAF, mockNow);
-
-    for (let i = 0; i < 6; i++) {
-      sut();
-      tick();
-    }
-
-    expect(game.maxFps).toBe(15);
-    expect(game.stats.currFrame.fps).toBeCloseTo(15);
-  });
-
-  it('will allow fps as fast as the tick', () => {
-    const game = new ex.Engine({height: 600, width: 800});
-    (game as any)._hasStarted = true; // TODO gross
-
-    const mockRAF = (_mainloop: () => any) => {
-      return 0;
-    };
-
-    let _currentTime = 0;
-    const mockNow = () => {
-      return _currentTime;
-    };
-
-    const actualFpsInterval = 1000/120;
-    const tick = () => _currentTime += actualFpsInterval;
-
-    const sut = Engine.createMainLoop(game, mockRAF, mockNow);
-    game.on('postframe', tick);
-
-    expect(game.maxFps).toBe(Infinity);
-
-    sut();
-
-    // fps sampler samples every 100ms
-    for (let i = 0; i < (100/actualFpsInterval) + 2; i++) {
-      sut();
-    }
-    expect(game.stats.currFrame.fps).toBeCloseTo(120);
   });
 
   it('will warn if scenes are being overwritten', () => {

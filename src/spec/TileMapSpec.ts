@@ -4,7 +4,7 @@ import { TestUtils } from './util/TestUtils';
 import { BodyComponent } from '@excalibur';
 import { ColliderComponent } from '../engine/Collision/ColliderComponent';
 
-const drawWithTransform = (ctx: CanvasRenderingContext2D | ex.ExcaliburGraphicsContext, tm: ex.TileMap, delta: number = 1) => {
+const drawWithTransform = (ctx: ex.ExcaliburGraphicsContext, tm: ex.TileMap, delta: number = 1) => {
   ctx.save();
   ctx.translate(tm.pos.x, tm.pos.y);
   ctx.rotate(tm.rotation);
@@ -16,7 +16,7 @@ const drawWithTransform = (ctx: CanvasRenderingContext2D | ex.ExcaliburGraphicsC
 describe('A TileMap', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
-  let texture: ex.LegacyDrawing.Texture;
+  let texture: ex.ImageSource;
   beforeEach(async () => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -28,7 +28,7 @@ describe('A TileMap', () => {
     engine.addScene('root', scene);
     engine.start();
     const clock = engine.clock as ex.TestClock;
-    texture = new ex.LegacyDrawing.Texture('src/spec/images/TileMapSpec/Blocks.png', true);
+    texture = new ex.ImageSource('src/spec/images/TileMapSpec/Blocks.png');
     await texture.load();
     clock.step(1);
   });
@@ -46,16 +46,16 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 64,
       tileHeight: 48,
-      height: 4,
-      width: 20
+      rows: 4,
+      columns: 20
     });
 
     expect(tm.pos.x).toBe(0);
     expect(tm.pos.y).toBe(0);
     expect(tm.tileWidth).toBe(64);
     expect(tm.tileHeight).toBe(48);
-    expect(tm.height).toBe(4);
-    expect(tm.width).toBe(20);
+    expect(tm.rows).toBe(4);
+    expect(tm.columns).toBe(20);
   });
 
   it('can set the z-index convenience prop', () => {
@@ -63,8 +63,8 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 32,
       tileHeight: 32,
-      height: 3,
-      width: 5
+      rows: 3,
+      columns: 5
     });
 
     tm.z = 99;
@@ -78,8 +78,8 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 32,
       tileHeight: 32,
-      height: 3,
-      width: 5
+      rows: 3,
+      columns: 5
     });
 
     expect(tm.getRows().length).toBe(3);
@@ -108,8 +108,8 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 32,
       tileHeight: 32,
-      height: 3,
-      width: 5
+      rows: 3,
+      columns: 5
     });
 
     const cell = tm.getTile(4, 2);
@@ -129,8 +129,8 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 32,
       tileHeight: 32,
-      height: 3,
-      width: 5
+      rows: 3,
+      columns: 5
     });
     tm._initialize(engine);
 
@@ -154,14 +154,16 @@ describe('A TileMap', () => {
     cell.addGraphic(animation);
 
     drawWithTransform(engine.graphicsContext, tm, 99);
+    engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicSquare.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicSquare.png');
 
     tm.update(engine, 99);
 
     drawWithTransform(engine.graphicsContext, tm, 99);
+    engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicCircle.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMapGraphicCircle.png');
   });
 
   it('should draw the correct proportions', async () => {
@@ -170,10 +172,18 @@ describe('A TileMap', () => {
       pos: ex.vec(30, 30),
       tileWidth: 64,
       tileHeight: 48,
-      height: 3,
-      width: 7
+      rows: 3,
+      columns: 7
     });
-    const spriteTiles = new ex.LegacyDrawing.SpriteSheet(texture, 1, 1, 64, 48);
+    const spriteTiles = ex.SpriteSheet.fromImageSource({
+      image:texture,
+      grid: {
+        rows: 1,
+        columns: 1,
+        spriteWidth: 64,
+        spriteHeight: 48
+      }
+    });
     tm.tiles.forEach(function (cell: ex.Tile) {
       cell.solid = true;
       cell.addGraphic(spriteTiles.sprites[0]);
@@ -181,8 +191,9 @@ describe('A TileMap', () => {
     tm._initialize(engine);
 
     drawWithTransform(engine.graphicsContext, tm, 100);
+    engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMap.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMap.png');
   });
 
   it('should handle offscreen culling correctly with negative coords', async () => {
@@ -191,10 +202,18 @@ describe('A TileMap', () => {
       pos: ex.vec(-100, -100),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
-    const spriteTiles = new ex.LegacyDrawing.SpriteSheet(texture, 1, 1, 64, 48);
+    const spriteTiles = ex.SpriteSheet.fromImageSource({
+      image:texture,
+      grid: {
+        rows: 1,
+        columns: 1,
+        spriteWidth: 64,
+        spriteHeight: 48
+      }
+    });
     tm.tiles.forEach(function (cell: ex.Tile) {
       cell.solid = true;
       cell.addGraphic(spriteTiles.sprites[0]);
@@ -204,8 +223,9 @@ describe('A TileMap', () => {
     tm.update(engine, 100);
 
     drawWithTransform(engine.graphicsContext, tm, 100);
+    engine.graphicsContext.flush();
 
-    await expectAsync(engine.canvas).toEqualImage('src/spec/images/TileMapSpec/TileMapCulling.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMapCulling.png');
   });
 
   it('can return a tile by xy coord', () => {
@@ -213,8 +233,8 @@ describe('A TileMap', () => {
       pos: ex.vec(-100, -100),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
 
     expect(sut.pos).toBeVector(ex.vec(-100, -100));
@@ -241,8 +261,8 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
     const tile = sut.getTile(0, 0);
 
@@ -266,8 +286,8 @@ describe('A TileMap', () => {
       pos: ex.vec(0, 0),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
 
 
@@ -302,8 +322,8 @@ describe('A TileMap', () => {
       pos: ex.vec(100, 100),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
 
     const tile = sut.getTile(0, 0);
@@ -320,8 +340,8 @@ describe('A TileMap', () => {
       pos: ex.vec(100, 100),
       tileWidth: 64,
       tileHeight: 48,
-      height: 20,
-      width: 20
+      rows: 20,
+      columns: 20
     });
 
     const tile = sut.getTile(0, 0);
@@ -335,8 +355,8 @@ describe('A TileMap', () => {
         pos: ex.vec(0, 0),
         tileWidth: 64,
         tileHeight: 48,
-        height: 10,
-        width: 10
+        rows: 10,
+        columns: 10
       });
       tm.tiles.forEach(function (cell: ex.Tile) {
         cell.solid = true;

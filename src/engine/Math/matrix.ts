@@ -63,8 +63,8 @@ export class Matrix {
   /**
    * Creates a new Matrix with the same data as the current 4x4
    */
-  public clone(): Matrix {
-    const mat = new Matrix();
+  public clone(dest?: Matrix): Matrix {
+    const mat = dest || new Matrix();
     mat.data[0] = this.data[0];
     mat.data[1] = this.data[1];
     mat.data[2] = this.data[2];

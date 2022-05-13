@@ -139,6 +139,8 @@ export class Font extends Graphic implements FontRenderer {
   }
 
 
+  private _cachedTextMeasurement = new Map<string, {text: string, measurement: BoundingBox, rasterProps: string}>();
+  private _bitmapToTextMeasurement = new Map<CanvasRenderingContext2D, {text: string, measurement: BoundingBox, rasterProps: string}>();
   /**
    * Returns a BoundingBox that is the total size of the text including multiple lines
    *
@@ -147,28 +149,54 @@ export class Font extends Graphic implements FontRenderer {
    * @returns BoundingBox
    */
   public measureText(text: string): BoundingBox {
-    const lines = text.split('\n');
-    const maxWidthLine = lines.reduce((a, b) => {
-      return a.length > b.length ? a : b;
-    });
-    const ctx = this._getTextBitmap(text);
+    let measurementDirty = false;
+    let cached = this._cachedTextMeasurement.get(text);
+    if (!cached) {
+      measurementDirty = true;
+    }
 
-    this._applyFont(ctx); // font must be applied to the context to measure it
-    const metrics = ctx.measureText(maxWidthLine);
-    let textHeight = Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
+    const rasterProps = this._getRasterPropertiesHash();
+    if (!cached || rasterProps !== cached.rasterProps) {
+      measurementDirty = true;
+    }
 
-    // TODO lineheight makes the text bounds wonky
-    const lineAdjustedHeight = textHeight * lines.length;
-    textHeight = lineAdjustedHeight;
-    const bottomBounds = lineAdjustedHeight - Math.abs(metrics.actualBoundingBoxAscent);
-    const x = 0;
-    const y = 0;
-    return new BoundingBox({
-      left: x - Math.abs(metrics.actualBoundingBoxLeft) - this.padding,
-      top: y - Math.abs(metrics.actualBoundingBoxAscent) - this.padding,
-      bottom: y + bottomBounds + this.padding,
-      right: x + Math.abs(metrics.actualBoundingBoxRight) + this.padding
-    });
+    if (measurementDirty) {
+      const lines = text.split('\n');
+      const maxWidthLine = lines.reduce((a, b) => {
+        return a.length > b.length ? a : b;
+      });
+      const ctx = this._getTextBitmap(text);
+
+      this._applyFont(ctx); // font must be applied to the context to measure it
+      const metrics = ctx.measureText(maxWidthLine);
+      let textHeight = Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
+
+      // TODO lineheight makes the text bounds wonky
+      const lineAdjustedHeight = textHeight * lines.length;
+      textHeight = lineAdjustedHeight;
+      const bottomBounds = lineAdjustedHeight - Math.abs(metrics.actualBoundingBoxAscent);
+      const x = 0;
+      const y = 0;
+      // this._cachedText = text;
+      // this._cachedRasterProps = rasterProps;
+      // this._measurementDirty = false;
+      const measurement = new BoundingBox({
+        left: x - Math.abs(metrics.actualBoundingBoxLeft) - this.padding,
+        top: y - Math.abs(metrics.actualBoundingBoxAscent) - this.padding,
+        bottom: y + bottomBounds + this.padding,
+        right: x + Math.abs(metrics.actualBoundingBoxRight) + this.padding
+      });
+      cached = {
+        text,
+        rasterProps,
+        measurement
+      };
+      this._cachedTextMeasurement.set(text, cached);
+      this._bitmapToTextMeasurement.set(ctx, cached);
+      return cached.measurement;
+    } else {
+      return cached.measurement;
+    }
   }
 
   private _setDimension(textBounds: BoundingBox, bitmap: CanvasRenderingContext2D) {
@@ -272,46 +300,89 @@ export class Font extends Graphic implements FontRenderer {
     return ctx;
   }
 
+  private _splitTextBitmap(bitmap: CanvasRenderingContext2D) {
+    const textImages: {x: number, y: number, canvas: HTMLCanvasElement}[] = [];
+    let currentX = 0;
+    let currentY = 0;
+    // 4k is the max for mobile devices
+    const width = Math.min(4096, bitmap.canvas.width);
+    const height = Math.min(4096, bitmap.canvas.height);
+
+    // Splits the original bitmap into 4k max chunks
+    while (currentX < bitmap.canvas.width) {
+      while (currentY < bitmap.canvas.height) {
+        // create new bitmap
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+
+        // draw current slice to new bitmap in < 4k chunks
+        ctx.drawImage(bitmap.canvas, currentX, currentY, width, height, 0, 0, width, height);
+
+        textImages.push({x: currentX, y: currentY, canvas});
+        currentY += height;
+      }
+      currentX += width;
+      currentY = 0;
+    }
+    return textImages;
+  }
+
+  private _textFragments: {x: number, y: number, canvas: HTMLCanvasElement}[] = [];
   public render(ex: ExcaliburGraphicsContext, text: string, colorOverride: Color, x: number, y: number) {
     if (this.showDebug) {
       this.clearCache();
     }
     this.checkAndClearCache();
+    // Get bitmap for rastering text, this is cached by raster properties
     const bitmap = this._getTextBitmap(text, colorOverride);
     const isNewBitmap = !this._bitmapUsage.get(bitmap);
+
+    // Bounds of the text
     this._textBounds = this.measureText(text);
 
     if (isNewBitmap) {
+      // Setting dimension is expensive because it invalidates the bitmap
       this._setDimension(this._textBounds, bitmap);
     }
 
+    // Apply affine transformations
     this._preDraw(ex, x, y);
 
     const lines = text.split('\n');
     const lineHeight = this._textBounds.height / lines.length;
 
-
-    const rasterWidth = bitmap.canvas.width;
-    const rasterHeight = bitmap.canvas.height;
-
     if (isNewBitmap) {
       // draws the text to the bitmap
       this._drawText(bitmap, text, colorOverride, lineHeight);
-      // draws the bitmap to excalibur graphics context
-      TextureLoader.load(bitmap.canvas, this.filtering, true);
+
+      // clean up any existing fragments
+      for (const frag of this._textFragments) {
+        TextureLoader.delete(frag.canvas);
+      }
+
+      this._textFragments = this._splitTextBitmap(bitmap);
+
+      for (const frag of this._textFragments) {
+        TextureLoader.load(frag.canvas, this.filtering, true);
+      }
     }
 
-    ex.drawImage(
-      bitmap.canvas,
-      0,
-      0,
-      rasterWidth,
-      rasterHeight,
-      x - rasterWidth / this.quality / 2,
-      y - rasterHeight / this.quality / 2,
-      rasterWidth / this.quality,
-      rasterHeight / this.quality
-    );
+    // draws the bitmap fragments to excalibur graphics context
+    for (const frag of this._textFragments) {
+      ex.drawImage(
+        frag.canvas,
+        0,
+        0,
+        frag.canvas.width,
+        frag.canvas.height,
+        frag.x / this.quality + x - bitmap.canvas.width / this.quality / 2,
+        frag.y / this.quality + y - bitmap.canvas.height / this.quality / 2,
+        frag.canvas.width / this.quality,
+        frag.canvas.height / this.quality
+      );
+    }
 
     this._postDraw(ex);
 
@@ -342,6 +413,13 @@ export class Font extends Graphic implements FontRenderer {
       // if bitmap hasn't been used in 1 second clear it
       if (time + 1000 < performance.now()) {
         this._bitmapUsage.delete(bitmap);
+        // Cleanup measurements
+        const measurement = this._bitmapToTextMeasurement.get(bitmap);
+        if (measurement) {
+          this._cachedTextMeasurement.delete(measurement.text);
+          this._bitmapToTextMeasurement.delete(bitmap);
+        }
+        TextureLoader.delete(bitmap.canvas);
       }
     }
   }

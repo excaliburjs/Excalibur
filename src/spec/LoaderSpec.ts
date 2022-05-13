@@ -46,8 +46,8 @@ describe('A loader', () => {
     const loader = new ex.Loader([, , , ,]);
     (loader as any)._image.onload = () => {
       loader.wireEngine(engine);
-      loader.draw(engine.ctx);
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/LoaderSpec/zero.png').then(([canvas, image]) => {
+      loader.draw(loader.canvas.ctx);
+      ensureImagesLoaded(loader.canvas.ctx.canvas, 'src/spec/images/LoaderSpec/zero.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
       });
@@ -61,8 +61,8 @@ describe('A loader', () => {
       loader.markResourceComplete();
 
       loader.wireEngine(engine);
-      loader.draw(engine.ctx);
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/LoaderSpec/fifty.png').then(([canvas, image]) => {
+      loader.draw(loader.canvas.ctx);
+      ensureImagesLoaded(loader.canvas.ctx.canvas, 'src/spec/images/LoaderSpec/fifty.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
       });
@@ -78,8 +78,8 @@ describe('A loader', () => {
       loader.markResourceComplete();
 
       loader.wireEngine(engine);
-      loader.draw(engine.ctx);
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/LoaderSpec/100.png').then(([canvas, image]) => {
+      loader.draw(loader.canvas.ctx);
+      ensureImagesLoaded(loader.canvas.ctx.canvas, 'src/spec/images/LoaderSpec/100.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
       });
@@ -96,11 +96,12 @@ describe('A loader', () => {
       loader.wireEngine(engine);
       loader.showPlayButton();
 
-      loader.draw(engine.ctx);
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/LoaderSpec/playbuttonshown-noprogressbar.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      loader.draw(loader.canvas.ctx);
+      ensureImagesLoaded(loader.canvas.ctx.canvas, 'src/spec/images/LoaderSpec/playbuttonshown-noprogressbar.png')
+        .then(([canvas, image]) => {
+          expect(canvas).toEqualImage(image);
+          done();
+        });
     };
   });
 
@@ -109,7 +110,7 @@ describe('A loader', () => {
     loader.wireEngine(engine);
     loader.playButtonPosition = ex.vec(42, 77);
     loader.showPlayButton();
-    loader.draw(engine.ctx);
+    loader.draw(loader.canvas.ctx);
     // there is some dom pollution want to be sure we get the RIGHT root element
     const playbutton = (loader as any)._playButtonRootElement as HTMLDivElement;
     expect(playbutton.style.left).toBe('42px');
@@ -122,8 +123,8 @@ describe('A loader', () => {
       loader.wireEngine(engine);
       loader.logoPosition = ex.vec(0, 0);
       loader.showPlayButton();
-      loader.draw(engine.ctx);
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/LoaderSpec/logo-position.png').then(([canvas, image]) => {
+      loader.draw(loader.canvas.ctx);
+      ensureImagesLoaded(loader.canvas.ctx.canvas, 'src/spec/images/LoaderSpec/logo-position.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
       });
@@ -140,8 +141,8 @@ describe('A loader', () => {
       loader.markResourceComplete();
       loader.markResourceComplete();
       loader.wireEngine(engine);
-      loader.draw(engine.ctx);
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/LoaderSpec/loader-position-color.png').then(([canvas, image]) => {
+      loader.draw(loader.canvas.ctx);
+      ensureImagesLoaded(loader.canvas.ctx.canvas, 'src/spec/images/LoaderSpec/loader-position-color.png').then(([canvas, image]) => {
         expect(canvas).toEqualImage(image);
         done();
       });

@@ -337,20 +337,6 @@ describe('Collision Shape', () => {
       expect(contact.points[0].y).toBe(0);
     });
 
-    it('can be drawn', (done) => {
-      const circle = new ex.CircleCollider({
-        offset: new ex.Vector(100, 100),
-        radius: 30
-      });
-
-      circle.draw(engine.ctx, ex.Color.Blue, new ex.Vector(50, 0));
-
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/circle.old.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
-    });
-
     it('can be debug drawn', async () => {
       const canvasElement = document.createElement('canvas');
       canvasElement.width = 100;
@@ -373,16 +359,17 @@ describe('Collision Shape', () => {
       await expectAsync(canvasElement).toEqualImage('src/spec/images/CollisionShapeSpec/circle-debug.png');
     });
 
-    it('can be drawn with actor', async () => {
+    it('can be drawn with actor when in contructor', async () => {
       const circleActor = new ex.Actor({
         pos: new ex.Vector(100, 100),
-        color: ex.Color.Blue
+        color: ex.Color.Blue,
+        radius: 100
       });
-      circleActor.collider.useCircleCollider(100);
       scene.add(circleActor);
-      scene.draw(engine.ctx, 100);
+      scene.draw(engine.graphicsContext, 100);
+      engine.graphicsContext.flush();
 
-      await expectAsync(engine.canvas).toEqualImage('src/spec/images/CollisionShapeSpec/circle.png');
+      await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/CollisionShapeSpec/circle.png');
     });
 
     it('can calculate the distance to another circle', () => {
@@ -753,35 +740,34 @@ describe('Collision Shape', () => {
       expect(tooFar).toBe(null, 'The polygon should be too far away for a hit');
     });
 
-    it('can be drawn', (done) => {
+    it('can be debug drawn', async () => {
       const polygon = new ex.PolygonCollider({
         offset: new ex.Vector(100, 100),
         points: [new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)]
       });
 
       // Effective position is (150, 100)
-      polygon.draw(engine.ctx, ex.Color.Blue, new ex.Vector(50, 0));
+      engine.graphicsContext.save();
+      engine.graphicsContext.translate(50, 0);
+      polygon.debug(engine.graphicsContext, ex.Color.Blue);
+      engine.graphicsContext.restore();
+      engine.graphicsContext.flush();
 
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/triangle.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/CollisionShapeSpec/triangle.png');
     });
 
-    it('can be drawn with actor', (done) => {
+    it('can be drawn with actor', async () => {
       const polygonActor = new ex.Actor({
         pos: new ex.Vector(150, 100),
-        color: ex.Color.Blue
+        color: ex.Color.Blue,
+        collider: ex.Shape.Polygon([new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)])
       });
-      polygonActor.collider.usePolygonCollider([new ex.Vector(0, -100), new ex.Vector(-100, 50), new ex.Vector(100, 50)]);
 
       scene.add(polygonActor);
-      scene.draw(engine.ctx, 100);
+      scene.draw(engine.graphicsContext, 100);
+      engine.graphicsContext.flush();
 
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/triangle.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/CollisionShapeSpec/triangle.png');
     });
 
     it('can calculate the distance to another circle', () => {
@@ -926,34 +912,33 @@ describe('Collision Shape', () => {
       expect(moi).toBeCloseTo(10 * length * length, 0.001);
     });
 
-    it('can be drawn', (done) => {
+    it('can be drawn', async () => {
       const edge = new ex.EdgeCollider({
         begin: new ex.Vector(100, 100),
         end: new ex.Vector(400, 400)
       });
 
-      edge.draw(engine.ctx, ex.Color.Blue, new ex.Vector(50, 0));
+      engine.graphicsContext.save();
+      engine.graphicsContext.translate(50, 0);
+      edge.debug(engine.graphicsContext, ex.Color.Blue);
+      engine.graphicsContext.restore();
+      engine.graphicsContext.flush();
 
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/edge.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/CollisionShapeSpec/edge.png');
     });
 
-    it('can be drawn with actor', (done) => {
+    it('can be drawn with actor', async () => {
       const edgeActor = new ex.Actor({
         pos: new ex.Vector(150, 100),
-        color: ex.Color.Blue
+        color: ex.Color.Blue,
+        collider: ex.Shape.Edge(ex.Vector.Zero, new ex.Vector(300, 300))
       });
-      edgeActor.collider.useEdgeCollider(ex.Vector.Zero, new ex.Vector(300, 300));
 
       scene.add(edgeActor);
-      scene.draw(engine.ctx, 100);
+      scene.draw(engine.graphicsContext, 100);
+      engine.graphicsContext.flush();
 
-      ensureImagesLoaded(engine.canvas, 'src/spec/images/CollisionShapeSpec/edge.png').then(([canvas, image]) => {
-        expect(canvas).toEqualImage(image);
-        done();
-      });
+      await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/CollisionShapeSpec/edge.png');
     });
 
     it('can calculate the distance to another circle', () => {

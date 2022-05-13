@@ -9,6 +9,7 @@ import { AddedEntity, isAddedSystemEntity, RemovedEntity, System, SystemType } f
 import { Engine } from '../Engine';
 import { GraphicsGroup } from '.';
 import { Particle } from '../Particles';
+import { ParallaxComponent } from './ParallaxComponent';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -25,7 +26,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   }
 
   public initialize(scene: Scene): void {
-    this._graphicsContext = scene.engine.graphicsContext;
     this._camera = scene.camera;
     this._engine = scene.engine;
   }
@@ -36,6 +36,8 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   };
 
   public preupdate(): void {
+    // Graphics context could be switched to fallback in a new frame
+    this._graphicsContext = this._engine.graphicsContext;
     if (this._zHasChanged) {
       this._sortedTransforms.sort((a, b) => {
         return a.z - b.z;
@@ -93,6 +95,13 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
       // Tick any graphics state (but only once) for animations and graphics groups
       graphics.update(delta, this._token);
+
+      // Apply parallax
+      const parallax = entity.get(ParallaxComponent);
+      if (parallax) {
+        const parallaxOffset = this._camera.pos.scale(parallax.parallaxFactor);
+        this._graphicsContext.translate(parallaxOffset.x, parallaxOffset.y);
+      }
 
       // Position the entity
       this._applyTransform(entity);
@@ -171,6 +180,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     for (const ancestor of ancestors) {
       const transform = ancestor?.get(TransformComponent);
       if (transform) {
+        this._graphicsContext.z = transform.z;
         this._graphicsContext.translate(transform.pos.x, transform.pos.y);
         this._graphicsContext.scale(transform.scale.x, transform.scale.y);
         this._graphicsContext.rotate(transform.rotation);
