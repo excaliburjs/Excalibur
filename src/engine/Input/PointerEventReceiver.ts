@@ -447,6 +447,7 @@ export class PointerEventReceiver extends Class {
     // Force update pointer system
     const pointerSystem = this.engine.currentScene.world.systemManager.get(PointerSystem);
     const transformEntities = this.engine.currentScene.world.queryManager.createQuery(pointerSystem.types);
+    pointerSystem.preupdate();
     pointerSystem.update(transformEntities.getEntities());
   }
 
