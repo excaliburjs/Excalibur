@@ -85,5 +85,5 @@ describe('A Toaster', () => {
 
     sut.dispose();
   });
-  
+
 });
