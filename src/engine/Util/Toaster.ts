@@ -78,7 +78,11 @@ export class Toaster {
     // Escape to dismiss
     const keydownHandler = (evt: KeyboardEvent) => {
       if (evt.key === 'Escape') {
-        this._container.removeChild(toast);
+        try {
+          this._container.removeChild(toast);
+        } catch {
+          // pass
+        }
       }
       document.removeEventListener('keydown', keydownHandler);
     };
