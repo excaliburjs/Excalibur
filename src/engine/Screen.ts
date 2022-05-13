@@ -18,14 +18,16 @@ export enum DisplayMode {
   Fixed = 'Fixed',
 
   /**
-   * Fit an aspect ratio within the screen at all times will fill the screen.
+   * Fit an aspect ratio of the screen within the container at all times will fill the screen. This displayed area outside the aspect ratio
+   * is not guaranteed to be on the screen, only the [[Screen.contentArea]] is guaranteed to be on screen.
    */
-  ContentFitContainer = 'ContentFitContainer',
+  FitContainerAndFill = 'ContentFitContainer',
 
   /**
-   * Fit an aspect ratio within the screen at all times will fill the screen.
+   * Fit an aspect ratio within the screen at all times will fill the screen. This displayed area outside the aspect ratio is not
+   * guaranteed to be on the screen, only the [[Screen.contentArea]] is guaranteed to be on screen.
    */
-  ContentFitScreen = 'ContentFitScreen',
+  FitScreenAndFill = 'ContentFitScreen',
 
   /**
    * Fit to screen using as much space as possible while maintaining aspect ratio and resolution.
@@ -644,7 +646,7 @@ export class Screen {
     };
   }
 
-  private _computeFitContentScreen() {
+  private _computeFitScreenAndFill() {
     document.body.style.margin = '0px';
     document.body.style.overflow = 'hidden';
     const vw = window.innerWidth;
@@ -667,7 +669,7 @@ export class Screen {
     }
   }
 
-  private _computeFitContentContainer() {
+  private _computeFitContainerAndFill() {
     document.body.style.margin = '0px';
     document.body.style.overflow = 'hidden';
     const parent = this.canvas.parentElement;
@@ -757,12 +759,12 @@ export class Screen {
       this._computeFitContainer();
     }
 
-    if (this.displayMode === DisplayMode.ContentFitScreen) {
-      this._computeFitContentScreen();
+    if (this.displayMode === DisplayMode.FitScreenAndFill) {
+      this._computeFitScreenAndFill();
     }
 
-    if (this.displayMode === DisplayMode.ContentFitContainer){
-      this._computeFitContentContainer();
+    if (this.displayMode === DisplayMode.FitContainerAndFill){
+      this._computeFitContainerAndFill();
     }
   }
 }
