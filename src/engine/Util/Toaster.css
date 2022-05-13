@@ -1,0 +1,29 @@
+
+#ex-toast-container {
+  position: absolute;
+  height: 0;
+  min-width: 50%;
+  left: 50%;
+  top: 0;
+}
+
+.ex-toast-message {
+  left: -50%;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+
+
+  padding: 10px;
+  margin-top: 5px;
+  font-size: 18px;
+  font-family: sans-serif;
+  border-radius: 6px;
+  border: 3px solid #b7b779;
+  background-color: rgb(253, 253, 192);
+}
+
+
+.ex-toast-message button {
+  align-self: flex-start;
+}

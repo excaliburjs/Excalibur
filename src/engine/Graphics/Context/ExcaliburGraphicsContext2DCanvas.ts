@@ -281,15 +281,15 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   }
 
   public addPostProcessor(_postprocessor: PostProcessor) {
-    throw Error('Not implemented');
+    // pass
   }
 
   public removePostProcessor(_postprocessor: PostProcessor) {
-    throw Error('Not implemented');
+    // pass
   }
 
   public clearPostProcessors() {
-    throw Error('Not implemented');
+    // pass
   }
 
   public beginDrawLifecycle() {

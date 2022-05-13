@@ -9,6 +9,16 @@ export class Flags {
   private static _FROZEN = false;
   private static _FLAGS: Record<string, boolean> = {};
 
+
+  /**
+   * Force excalibur to load the Canvas 2D graphics context fallback
+   *
+   * @warning not all features of excalibur are supported in the Canvas 2D fallback
+   */
+  public static useCanvasGraphicsContext() {
+    Flags.enable('use-canvas-context');
+  }
+
   /**
    * Freeze all flag modifications making them readonly
    */

@@ -6,6 +6,7 @@ import { BoundingBox } from './Collision/Index';
 import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 import { getPosition } from './Util/Util';
 import { ExcaliburGraphicsContextWebGL } from './Graphics/Context/ExcaliburGraphicsContextWebGL';
+import { ExcaliburGraphicsContext2DCanvas } from './Graphics/Context/ExcaliburGraphicsContext2DCanvas';
 
 /**
  * Enum representing the different display modes available to Excalibur.
@@ -377,6 +378,9 @@ export class Screen {
     this.graphicsContext.updateViewport(this.resolution);
     this.graphicsContext.resetTransform();
     this.graphicsContext.smoothing = this._antialiasing;
+    if (this.graphicsContext instanceof ExcaliburGraphicsContext2DCanvas) {
+      this.graphicsContext.scale(this.pixelRatio, this.pixelRatio);
+    }
   }
 
   public get antialiasing() {

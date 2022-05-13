@@ -58,6 +58,19 @@ export class PointerEventReceiver extends Class {
     super();
   }
 
+  /**
+   * Creates a new PointerEventReceiver with a new target and engine while preserving existing pointer event
+   * handlers.
+   * @param target
+   * @param engine
+   */
+  public recreate(target: GlobalEventHandlers & EventTarget, engine: Engine) {
+    const eventReceiver = new PointerEventReceiver(target, engine);
+    eventReceiver.primary = this.primary;
+    eventReceiver._pointers = this._pointers;
+    return eventReceiver;
+  }
+
   private _pointers: PointerAbstraction[] = [this.primary];
   /**
    * Locates a specific pointer by id, creates it if it doesn't exist

@@ -51,7 +51,16 @@ var game = new ex.Engine({
   displayMode: ex.DisplayMode.FitScreen,
   antialiasing: false,
   snapToPixel: true,
-  maxFps: 60
+  maxFps: 60,
+  configurePerformanceCanvas2DFallback: {
+    allow: true,
+    showPlayerMessage: true,
+    threshold: { fps: 20, numberOfFrames: 100 }
+  }
+});
+
+game.on('fallbackgraphicscontext', (ctx) => {
+  console.log('fallback triggered', ctx);
 });
 //@ts-ignore For some reason ts doesn't like the /// slash import
 const devtool = new ex.DevTools.DevTool(game);
