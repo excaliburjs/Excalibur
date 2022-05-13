@@ -1,4 +1,4 @@
-import { Vector, vec } from './Math/vector';
+import { vec, Vector } from './Math/vector';
 import { Logger } from './Util/Log';
 import { Camera } from './Camera';
 import { BrowserEvents } from './Util/Browser';
@@ -16,6 +16,18 @@ export enum DisplayMode {
    * Default, use a specified resolution for the game. Like 800x600 pixels for example.
    */
   Fixed = 'Fixed',
+
+  /**
+   * Fit an aspect ratio of the screen within the container at all times will fill the screen. This displayed area outside the aspect ratio
+   * is not guaranteed to be on the screen, only the [[Screen.contentArea]] is guaranteed to be on screen.
+   */
+  FitContainerAndFill = 'ContentFitContainer',
+
+  /**
+   * Fit an aspect ratio within the screen at all times will fill the screen. This displayed area outside the aspect ratio is not
+   * guaranteed to be on the screen, only the [[Screen.contentArea]] is guaranteed to be on screen.
+   */
+  FitScreenAndFill = 'ContentFitScreen',
 
   /**
    * Fit to screen using as much space as possible while maintaining aspect ratio and resolution.
@@ -41,7 +53,6 @@ export enum DisplayMode {
    *   width: 100%;
    * }
    * ```
-   *
    */
   FitScreen = 'FitScreen',
 
@@ -159,6 +170,7 @@ export class Screen {
   public graphicsContext: ExcaliburGraphicsContext;
   private _canvas: HTMLCanvasElement;
   private _antialiasing: boolean = true;
+  private _contentResolution: ScreenDimension;
   private _browser: BrowserEvents;
   private _camera: Camera;
   private _resolution: ScreenDimension;
@@ -176,6 +188,7 @@ export class Screen {
   constructor(options: ScreenOptions) {
     this.viewport = options.viewport;
     this.resolution = options.resolution ?? { ...this.viewport };
+    this._contentResolution = this.resolution;
     this._displayMode = options.displayMode ?? DisplayMode.Fixed;
     this._canvas = options.canvas;
     this.graphicsContext = options.context;
@@ -278,11 +291,14 @@ export class Screen {
   }
 
   public get parent(): HTMLElement | Window {
-    return <HTMLElement | Window>(
-      (this.displayMode === DisplayMode.FillContainer || this.displayMode === DisplayMode.FitContainer
-        ? this.canvas.parentElement || document.body
-        : window)
-    );
+    switch (this.displayMode) {
+      case DisplayMode.FillContainer:
+      case DisplayMode.FitContainer:
+      case DisplayMode.FitContainerAndFill:
+        return this.canvas.parentElement || document.body;
+      default:
+        return window;
+    }
   }
 
   public get resolution(): ScreenDimension {
@@ -633,6 +649,53 @@ export class Screen {
     };
   }
 
+  private _computeFitScreenAndFill() {
+    document.body.style.margin = '0px';
+    document.body.style.overflow = 'hidden';
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    this.viewport = {
+      width: vw,
+      height: vh
+    };
+
+    if (vw / vh <= this._contentResolution.width / this._contentResolution.height) {
+      this.resolution = {
+        width:  vw * this._contentResolution.width / vw,
+        height: vw * this._contentResolution.width / vw * vh / vw
+      };
+    } else {
+      this.resolution = {
+        width: vh *  this._contentResolution.height / vh * vw / vh,
+        height: vh *  this._contentResolution.height / vh
+      };
+    }
+  }
+
+  private _computeFitContainerAndFill() {
+    document.body.style.margin = '0px';
+    document.body.style.overflow = 'hidden';
+    const parent = this.canvas.parentElement;
+    const vw = parent.clientWidth;
+    const vh = parent.clientHeight;
+    this.viewport = {
+      width: vw,
+      height: vh
+    };
+
+    if (vw / vh <= this._contentResolution.width / this._contentResolution.height) {
+      this.resolution = {
+        width:  vw * this._contentResolution.width / vw,
+        height: vw * this._contentResolution.width / vw * vh / vw
+      };
+    } else {
+      this.resolution = {
+        width: vh *  this._contentResolution.height / vh * vw / vh,
+        height: vh *  this._contentResolution.height / vh
+      };
+    }
+  }
+
   private _computeFitContainer() {
     const aspect = this.aspectRatio;
     let adjustedWidth = 0;
@@ -673,8 +736,8 @@ export class Screen {
   private _setResolutionAndViewportByDisplayMode(parent: HTMLElement | Window) {
     if (this.displayMode === DisplayMode.FillContainer) {
       this.resolution = {
-        width: (<HTMLElement>parent).clientWidth,
-        height: (<HTMLElement>parent).clientHeight
+        width: (<HTMLElement> parent).clientWidth,
+        height: (<HTMLElement> parent).clientHeight
       };
 
       this.viewport = this.resolution;
@@ -684,8 +747,8 @@ export class Screen {
       document.body.style.margin = '0px';
       document.body.style.overflow = 'hidden';
       this.resolution = {
-        width: (<Window>parent).innerWidth,
-        height: (<Window>parent).innerHeight
+        width: (<Window> parent).innerWidth,
+        height: (<Window> parent).innerHeight
       };
 
       this.viewport = this.resolution;
@@ -697,6 +760,14 @@ export class Screen {
 
     if (this.displayMode === DisplayMode.FitContainer) {
       this._computeFitContainer();
+    }
+
+    if (this.displayMode === DisplayMode.FitScreenAndFill) {
+      this._computeFitScreenAndFill();
+    }
+
+    if (this.displayMode === DisplayMode.FitContainerAndFill){
+      this._computeFitContainerAndFill();
     }
   }
 }
