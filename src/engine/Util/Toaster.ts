@@ -22,6 +22,14 @@ export class Toaster {
     }
   }
 
+  public dispose() {
+    this._container.parentElement.removeChild(this._container);
+
+    this._styleBlock.parentElement.removeChild(this._styleBlock);
+
+    this._isInitialized = false;
+  }
+
   private _createFragment(message: string) {
     const toastMessage = document.createElement('span');
     toastMessage.innerText = message;
