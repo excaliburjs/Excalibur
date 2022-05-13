@@ -1,5 +1,4 @@
 ﻿import { Vector } from '../Math/vector';
-import { obsolete } from '../Util/Decorators';
 
 /**
  * A definition of an EasingFunction. See [[EasingFunctions]].
@@ -58,14 +57,6 @@ export class EasingFunctions {
         return easing(time, start, end, duration);
       }
     };
-  }
-
-  @obsolete({
-    message: 'Alias for incorrect spelling used in older versions, will be removed in v0.25.0',
-    alternateMethod: 'CreateReversibleEasingFunction'
-  })
-  public static CreateReversableEasingFunction(easing: EasingFunction) {
-    return EasingFunctions.CreateReversibleEasingFunction(easing);
   }
 
   public static CreateVectorEasingFunction(easing: EasingFunction) {
