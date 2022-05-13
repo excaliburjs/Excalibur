@@ -61,6 +61,6 @@ describe('A VertexBuffer', () => {
 
     sut.upload();
     expect(gl.bindBuffer).toHaveBeenCalledWith(gl.ARRAY_BUFFER, sut.buffer);
-    expect(gl.bufferData).toHaveBeenCalledWith(gl.ARRAY_BUFFER, sut.bufferData, gl.DYNAMIC_DRAW);
+    expect(gl.bufferData as any).toHaveBeenCalledWith(gl.ARRAY_BUFFER, sut.bufferData, gl.DYNAMIC_DRAW);
   });
 });
