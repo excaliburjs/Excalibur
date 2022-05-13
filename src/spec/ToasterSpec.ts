@@ -73,7 +73,7 @@ describe('A Toaster', () => {
 
     expect(toastContainer.textContent).toContain('Dismiss');
 
-    const toastButton = document.getElementsByTagName('button')[0];
+    const toastButton = toastContainer.getElementsByTagName('button')[0];
 
     expect(toastButton.textContent).toContain('x');
 
