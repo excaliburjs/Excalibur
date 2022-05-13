@@ -68,7 +68,7 @@
     "@storybook/builder-webpack5": "6.4.17",
     "@storybook/html": "6.4.17",
     "@storybook/manager-webpack5": "6.4.17",
-    "@types/jasmine": "4.0.2",
+    "@types/jasmine": "4.0.3",
     "@types/node": "16.11.26",
     "@types/react-color": "3.0.6",
     "@types/webpack-env": "1.16.3",
