@@ -145,6 +145,15 @@ describe('The engine', () => {
     expect(engine.useCanvas2DFallback).toHaveBeenCalled();
   });
 
+  it('can flag on to the canvas fallback', async () => {
+    engine = TestUtils.engine({
+      suppressPlayButton: false
+    }, ['use-canvas-context']);
+    await TestUtils.runToReady(engine);
+
+    expect(engine.graphicsContext).toBeInstanceOf(ex.ExcaliburGraphicsContext2DCanvas);
+  });
+
   it('should update the frame stats every tick', () => {
     engine = TestUtils.engine();
     const testClock = engine.clock as ex.TestClock;
