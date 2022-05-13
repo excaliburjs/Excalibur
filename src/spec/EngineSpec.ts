@@ -108,6 +108,43 @@ describe('The engine', () => {
     expect(logger.error).toHaveBeenCalledWith('Error loading resources, things may not behave properly', new Error('I failed'));
   });
 
+  it('can switch to the canvas fallback on command', () => {
+    engine = TestUtils.engine({
+      suppressPlayButton: false
+    });
+
+    const originalScreen = engine.screen;
+    const originalPointers = engine.input.pointers;
+    spyOn(engine.screen, 'dispose').and.callThrough();
+    spyOn(engine.input.pointers, 'detach').and.callThrough();
+    spyOn(engine.input.pointers, 'recreate').and.callThrough();
+
+    engine.useCanvas2DFallback();
+
+    expect(engine.graphicsContext).toBeInstanceOf(ex.ExcaliburGraphicsContext2DCanvas);
+    expect(originalScreen.dispose).toHaveBeenCalled();
+    expect(originalPointers.detach).toHaveBeenCalled();
+    expect(originalPointers.recreate).toHaveBeenCalled();
+  });
+
+  it('can switch to the canvas fallback on poor performance', async () => {
+    engine = TestUtils.engine({
+      suppressPlayButton: false
+    });
+    await TestUtils.runToReady(engine);
+    spyOn(engine, 'useCanvas2DFallback');
+
+    const clock = engine.clock as ex.TestClock;
+    clock.fpsSampler = new ex.FpsSampler({
+      initialFps: 10,
+      nowFn: () => 1
+    });
+
+    clock.run(100, 1);
+
+    expect(engine.useCanvas2DFallback).toHaveBeenCalled();
+  });
+
   it('should update the frame stats every tick', () => {
     engine = TestUtils.engine();
     const testClock = engine.clock as ex.TestClock;
