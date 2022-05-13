@@ -291,11 +291,14 @@ export class Screen {
   }
 
   public get parent(): HTMLElement | Window {
-    return <HTMLElement | Window>(
-      (this.displayMode === DisplayMode.FillContainer || this.displayMode === DisplayMode.FitContainer
-        ? this.canvas.parentElement || document.body
-        : window)
-    );
+    switch (this.displayMode) {
+      case DisplayMode.FillContainer:
+      case DisplayMode.FitContainer:
+      case DisplayMode.FitContainerAndFill:
+        return this.canvas.parentElement || document.body;
+      default:
+        return window;
+    }
   }
 
   public get resolution(): ScreenDimension {
