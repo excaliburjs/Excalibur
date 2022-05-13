@@ -334,11 +334,13 @@ export class IsometricMap extends Entity {
   }
   public updateColliders() {
     this._composite.clearColliders();
+    const pos = this.get(TransformComponent).pos;
     for (const tile of this.tiles) {
       if (tile.solid) {
         for (const collider of tile.getColliders()) {
           const originalOffset = this._getOrSetColliderOriginalOffset(collider);
           collider.offset = this.tileToWorld(vec(tile.x, tile.y))
+            .sub(pos)
             .add(originalOffset)
             .sub(vec(this.tileWidth / 2, this.tileHeight)); // We need to unshift height based on drawing
           collider.owner = this;
