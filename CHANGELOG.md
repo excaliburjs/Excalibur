@@ -124,6 +124,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added `ex.TransformComponent.zIndexChange$` observable to watch when z index changes.
 - Added new display mode `ex.DisplayMode.FitContainerAndFill`.
 - Added new display mode `ex.DisplayMode.FitScreenAndFill`.
+- Added new display mode `ex.DisplayMode.FitContainerAndZoom`.
+- Added new display mode `ex.DisplayMode.FitScreenAndZoom`.
 
 ### Fixed
 
