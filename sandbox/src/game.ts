@@ -48,7 +48,7 @@ var game = new ex.Engine({
   pixelRatio: 1,
   suppressPlayButton: true,
   pointerScope: ex.Input.PointerScope.Canvas,
-  displayMode: ex.DisplayMode.FitScreenAndZoom,
+  displayMode: ex.DisplayMode.FitScreenAndFill,
   antialiasing: false,
   snapToPixel: true,
   maxFps: 60,
