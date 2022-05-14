@@ -115,7 +115,7 @@ module.exports = (config) => {
     customLaunchers: {
       ChromeHeadless_with_audio: {
           base: 'ChromeHeadless',
-          flags: ['--autoplay-policy=no-user-gesture-required', '--mute-audio']
+          flags: ['--autoplay-policy=no-user-gesture-required', '--mute-audio', '--disable-gpu', '--no-sandbox']
       },
       ChromeHeadless_with_debug: {
         base: 'ChromeHeadless',
