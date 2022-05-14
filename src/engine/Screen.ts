@@ -18,28 +18,36 @@ export enum DisplayMode {
   Fixed = 'Fixed',
 
   /**
-   * Fit an aspect ratio of the screen within the container at all times will fill the screen. This displayed area outside the aspect ratio
-   * is not guaranteed to be on the screen, only the [[Screen.contentArea]] is guaranteed to be on screen.
+   * Fit the aspect ratio given by the game resolution within the container at all times will fill any gaps with canvas.
+   * The displayed area outside the aspect ratio is not guaranteed to be on the screen, only the [[Screen.contentArea]]
+   * is guaranteed to be on screen.
    */
   FitContainerAndFill = 'FitContainerAndFill',
 
   /**
-   * Fit an aspect ratio within the screen at all times will fill the screen. This displayed area outside the aspect ratio is not
-   * guaranteed to be on the screen, only the [[Screen.contentArea]] is guaranteed to be on screen.
+   * Fit the aspect ratio given by the game resolution the screen at all times will fill the screen.
+   * This displayed area outside the aspect ratio is not guaranteed to be on the screen, only the [[Screen.contentArea]]
+   * is guaranteed to be on screen.
    */
   FitScreenAndFill = 'FitScreenAndFill',
 
-  /*
-   * Fit the viewport to the parent element maintaining aspect ratio, but zooms in to avoid the black bars (letterbox) that 
-   * would otherwise be present in [[FitContainer]]
+  /**
+   * Fit the viewport to the parent element maintaining aspect ratio given by the game resolution, but zooms in to avoid the black bars
+   * (letterbox) that would otherwise be present in [[FitContainer]]. 
+   *
+   * **warning** This will clip some drawable area from the user because of the zoom,
+   * use [[Screen.contentArea]] to know the safe to draw area.
    */
-  FitContainerAndZoom = 'ZoomToFitContainer',
+  FitContainerAndZoom = 'FitContainerAndZoom',
 
   /**
-   * Fit the viewport to the device screen maintaining aspect ratio, but zooms in to avoid the black bars (letterbox) that 
-   * would otherwise be present in [[FitScreen]]
+   * Fit the viewport to the device screen maintaining aspect ratio given by the game resolution, but zooms in to avoid the black bars
+   * (letterbox) that would otherwise be present in [[FitScreen]].
+   *
+   * **warning** This will clip some drawable area from the user because of the zoom,
+   * use [[Screen.contentArea]] to know the safe to draw area.
    */
-  FitScreenAndZoom = 'ZoomToFitScreen',
+  FitScreenAndZoom = 'FitScreenAndZoom',
 
   /**
    * Fit to screen using as much space as possible while maintaining aspect ratio and resolution.
