@@ -33,7 +33,7 @@ export enum DisplayMode {
 
   /**
    * Fit the viewport to the parent element maintaining aspect ratio given by the game resolution, but zooms in to avoid the black bars
-   * (letterbox) that would otherwise be present in [[FitContainer]]. 
+   * (letterbox) that would otherwise be present in [[FitContainer]].
    *
    * **warning** This will clip some drawable area from the user because of the zoom,
    * use [[Screen.contentArea]] to know the safe to draw area.
@@ -769,7 +769,7 @@ export class Screen {
       adjustedHeight = vh;
     }
 
-    const scaleX = vw / adjustedWidth
+    const scaleX = vw / adjustedWidth;
     const scaleY = vh / adjustedHeight;
 
     const maxScaleFactor = Math.max(scaleX, scaleY);
@@ -796,7 +796,7 @@ export class Screen {
     };
 
     const bounds = BoundingBox.fromDimension(this.viewport.width, this.viewport.height, Vector.Zero);
-      // return safe area
+    // return safe area
     if (this.viewport.width > vw) {
       const clip = (this.viewport.width - vw)/this.viewport.width * this.resolution.width;
       bounds.top = 0;
