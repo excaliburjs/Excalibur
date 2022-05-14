@@ -18,16 +18,36 @@ export enum DisplayMode {
   Fixed = 'Fixed',
 
   /**
-   * Fit an aspect ratio of the screen within the container at all times will fill the screen. This displayed area outside the aspect ratio
-   * is not guaranteed to be on the screen, only the [[Screen.contentArea]] is guaranteed to be on screen.
+   * Fit the aspect ratio given by the game resolution within the container at all times will fill any gaps with canvas.
+   * The displayed area outside the aspect ratio is not guaranteed to be on the screen, only the [[Screen.contentArea]]
+   * is guaranteed to be on screen.
    */
-  FitContainerAndFill = 'ContentFitContainer',
+  FitContainerAndFill = 'FitContainerAndFill',
 
   /**
-   * Fit an aspect ratio within the screen at all times will fill the screen. This displayed area outside the aspect ratio is not
-   * guaranteed to be on the screen, only the [[Screen.contentArea]] is guaranteed to be on screen.
+   * Fit the aspect ratio given by the game resolution the screen at all times will fill the screen.
+   * This displayed area outside the aspect ratio is not guaranteed to be on the screen, only the [[Screen.contentArea]]
+   * is guaranteed to be on screen.
    */
-  FitScreenAndFill = 'ContentFitScreen',
+  FitScreenAndFill = 'FitScreenAndFill',
+
+  /**
+   * Fit the viewport to the parent element maintaining aspect ratio given by the game resolution, but zooms in to avoid the black bars
+   * (letterbox) that would otherwise be present in [[FitContainer]].
+   *
+   * **warning** This will clip some drawable area from the user because of the zoom,
+   * use [[Screen.contentArea]] to know the safe to draw area.
+   */
+  FitContainerAndZoom = 'FitContainerAndZoom',
+
+  /**
+   * Fit the viewport to the device screen maintaining aspect ratio given by the game resolution, but zooms in to avoid the black bars
+   * (letterbox) that would otherwise be present in [[FitScreen]].
+   *
+   * **warning** This will clip some drawable area from the user because of the zoom,
+   * use [[Screen.contentArea]] to know the safe to draw area.
+   */
+  FitScreenAndZoom = 'FitScreenAndZoom',
 
   /**
    * Fit to screen using as much space as possible while maintaining aspect ratio and resolution.
@@ -295,6 +315,7 @@ export class Screen {
       case DisplayMode.FillContainer:
       case DisplayMode.FitContainer:
       case DisplayMode.FitContainerAndFill:
+      case DisplayMode.FitContainerAndZoom:
         return this.canvas.parentElement || document.body;
       default:
         return window;
@@ -629,6 +650,13 @@ export class Screen {
     return vec(this.halfDrawWidth, this.halfDrawHeight);
   }
 
+  /**
+   * Returns the content area in screen space where it is safe to place content
+   */
+  public get contentArea(): BoundingBox {
+    return this._contentArea;
+  }
+
   private _computeFit() {
     document.body.style.margin = '0px';
     document.body.style.overflow = 'hidden';
@@ -647,30 +675,19 @@ export class Screen {
       width: adjustedWidth,
       height: adjustedHeight
     };
+    this._contentArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
   }
 
+  private _contentArea: BoundingBox = new BoundingBox();
   private _computeFitScreenAndFill() {
     document.body.style.margin = '0px';
     document.body.style.overflow = 'hidden';
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    this.viewport = {
-      width: vw,
-      height: vh
-    };
-
-    if (vw / vh <= this._contentResolution.width / this._contentResolution.height) {
-      this.resolution = {
-        width:  vw * this._contentResolution.width / vw,
-        height: vw * this._contentResolution.width / vw * vh / vw
-      };
-    } else {
-      this.resolution = {
-        width: vh *  this._contentResolution.height / vh * vw / vh,
-        height: vh *  this._contentResolution.height / vh
-      };
-    }
+    this._computeFitAndFill(vw, vh);
   }
+
+
 
   private _computeFitContainerAndFill() {
     document.body.style.margin = '0px';
@@ -678,22 +695,124 @@ export class Screen {
     const parent = this.canvas.parentElement;
     const vw = parent.clientWidth;
     const vh = parent.clientHeight;
+    this._computeFitAndFill(vw, vh);
+  }
+
+  private _computeFitAndFill(vw: number, vh: number) {
     this.viewport = {
       width: vw,
       height: vh
     };
-
+    // if the current screen aspectRatio is less than the original aspectRatio
     if (vw / vh <= this._contentResolution.width / this._contentResolution.height) {
+      // compute new resolution to match the original aspect ratio
       this.resolution = {
         width:  vw * this._contentResolution.width / vw,
         height: vw * this._contentResolution.width / vw * vh / vw
       };
+      const clip = (this.resolution.height - this._contentResolution.height) / 2;
+      this._contentArea = new BoundingBox({
+        top: clip,
+        left: 0,
+        right: this._contentResolution.width,
+        bottom: this.resolution.height - clip
+      });
     } else {
       this.resolution = {
         width: vh *  this._contentResolution.height / vh * vw / vh,
         height: vh *  this._contentResolution.height / vh
       };
+      const clip = (this.resolution.width - this._contentResolution.width) / 2;
+      this._contentArea = new BoundingBox({
+        top: 0,
+        left: clip,
+        right: this.resolution.width - clip,
+        bottom: this._contentResolution.height
+      });
     }
+  }
+
+  private _computeFitScreenAndZoom() {
+    document.body.style.margin = '0px';
+    document.body.style.overflow = 'hidden';
+    this.canvas.style.position = 'absolute';
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    this._computeFitAndZoom(vw, vh);
+  }
+
+  private _computeFitContainerAndZoom() {
+    document.body.style.margin = '0px';
+    document.body.style.overflow = 'hidden';
+    this.canvas.style.position = 'absolute';
+    const parent = this.canvas.parentElement;
+    parent.style.position = 'relative';
+    parent.style.overflow = 'hidden';
+
+    const vw = parent.clientWidth;
+    const vh = parent.clientHeight;
+
+    this._computeFitAndZoom(vw, vh);
+  }
+
+  private _computeFitAndZoom(vw: number, vh: number) {
+    const aspect = this.aspectRatio;
+    let adjustedWidth = 0;
+    let adjustedHeight = 0;
+    if (vw / aspect < vh) {
+      adjustedWidth = vw;
+      adjustedHeight = vw / aspect;
+    } else {
+      adjustedWidth = vh * aspect;
+      adjustedHeight = vh;
+    }
+
+    const scaleX = vw / adjustedWidth;
+    const scaleY = vh / adjustedHeight;
+
+    const maxScaleFactor = Math.max(scaleX, scaleY);
+
+    const zoomedWidth = adjustedWidth * maxScaleFactor;
+    const zoomedHeight = adjustedHeight * maxScaleFactor;
+
+    // Center zoomed dimension if bigger than the screen
+    if (zoomedWidth > vw) {
+      this.canvas.style.left = -(zoomedWidth - vw) / 2 + 'px';
+    } else {
+      this.canvas.style.left = '';
+    }
+
+    if (zoomedHeight > vh) {
+      this.canvas.style.top = -(zoomedHeight - vh) / 2 + 'px';
+    } else {
+      this.canvas.style.top = '';
+    }
+
+    this.viewport = {
+      width: zoomedWidth,
+      height: zoomedHeight
+    };
+
+    const bounds = BoundingBox.fromDimension(this.viewport.width, this.viewport.height, Vector.Zero);
+    // return safe area
+    if (this.viewport.width > vw) {
+      const clip = (this.viewport.width - vw)/this.viewport.width * this.resolution.width;
+      bounds.top = 0;
+      bounds.left = clip / 2;
+      bounds.right = this.resolution.width - clip / 2;
+      bounds.bottom = this.resolution.height;
+    }
+
+    if (this.viewport.height > vh) {
+      const clip = (this.viewport.height - vh)/this.viewport.height * this.resolution.height;
+      bounds.top = clip / 2;
+      bounds.left = 0;
+      bounds.bottom = this.resolution.height - clip / 2;
+      bounds.right = this.resolution.width;
+    }
+    this._contentArea = bounds;
   }
 
   private _computeFitContainer() {
@@ -713,6 +832,7 @@ export class Screen {
       width: adjustedWidth,
       height: adjustedHeight
     };
+    this._contentArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
   }
 
   private _applyDisplayMode() {
@@ -768,6 +888,14 @@ export class Screen {
 
     if (this.displayMode === DisplayMode.FitContainerAndFill){
       this._computeFitContainerAndFill();
+    }
+
+    if (this.displayMode === DisplayMode.FitScreenAndZoom) {
+      this._computeFitScreenAndZoom();
+    }
+
+    if (this.displayMode === DisplayMode.FitContainerAndZoom){
+      this._computeFitContainerAndZoom();
     }
   }
 }

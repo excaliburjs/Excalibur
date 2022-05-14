@@ -45,10 +45,10 @@ var game = new ex.Engine({
   height: 600 / 2,
   viewport: { width: 800, height: 600 },
   canvasElementId: 'game',
-  pixelRatio: 4,
+  pixelRatio: 1,
   suppressPlayButton: true,
   pointerScope: ex.Input.PointerScope.Canvas,
-  displayMode: ex.DisplayMode.FitScreen,
+  displayMode: ex.DisplayMode.FitScreenAndFill,
   antialiasing: false,
   snapToPixel: true,
   maxFps: 60,
@@ -58,6 +58,27 @@ var game = new ex.Engine({
     threshold: { fps: 20, numberOfFrames: 100 }
   }
 });
+game.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
+  ctx.save();
+  ctx.z = 99;
+  const red = ex.Color.fromHex('#F84541');
+  const green = ex.Color.fromHex('#3CCC2E');
+  const blue = ex.Color.fromHex('#3DDCFC');
+  const yellow = ex.Color.fromHex('#FDCF45');
+
+  const bb = game.screen.contentArea.clone();
+  bb.top++
+  bb.left++
+  bb.bottom--
+  bb.right--;
+  bb.draw(ctx, ex.Color.Yellow);
+
+  ctx.drawCircle(ex.vec(bb.left + 6, bb.top + 6), 10, green);
+  ctx.drawCircle(ex.vec(bb.right - 6, bb.top + 6), 10, blue);
+  ctx.drawCircle(ex.vec(bb.left + 6, bb.bottom - 6), 10, yellow);
+  ctx.drawCircle(ex.vec(bb.right - 6, bb.bottom - 6), 10, red);
+  ctx.restore();
+}
 
 game.on('fallbackgraphicscontext', (ctx) => {
   console.log('fallback triggered', ctx);
