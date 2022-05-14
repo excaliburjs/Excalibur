@@ -180,10 +180,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     for (const ancestor of ancestors) {
       const transform = ancestor?.get(TransformComponent);
       if (transform) {
-        if (transform.coordPlane === CoordPlane.Screen) {
-          const safeArea = this._engine.screen.safeArea;
-          this._graphicsContext.translate(safeArea.left, safeArea.top);
-        }
         this._graphicsContext.z = transform.z;
         this._graphicsContext.translate(transform.pos.x, transform.pos.y);
         this._graphicsContext.scale(transform.scale.x, transform.scale.y);
