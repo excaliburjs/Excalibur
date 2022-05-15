@@ -66,6 +66,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
+
+- Added new parameter to `ex.Raster({quality: 4})` to specify the internal scaling for the bitmap, this is useful for improving the rendering quality of small rasters due to sampling error.
 - Added new `ex.Line` graphics object for drawing lines!
   ```typescript
   const lineActor = new ex.Actor({
