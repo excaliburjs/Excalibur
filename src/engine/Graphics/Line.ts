@@ -31,7 +31,7 @@ export class Line extends Graphic {
     ctx.drawLine(this.start, this.end, this.color, this.thickness);
   }
 
-  clone(): Graphic {
+  clone(): Line {
     return new Line({
       start: this.start,
       end: this.end,
