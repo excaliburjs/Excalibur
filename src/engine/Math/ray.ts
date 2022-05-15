@@ -1,4 +1,4 @@
-import { Line } from './line';
+import { LineSegment } from './line-segment';
 import { Vector } from './vector';
 
 /**
@@ -23,7 +23,7 @@ export class Ray {
    * This number indicates the mathematical intersection time.
    * @param line  The line to test
    */
-  public intersect(line: Line): number {
+  public intersect(line: LineSegment): number {
     const numerator = line.begin.sub(this.pos);
 
     // Test is line and ray are parallel and non intersecting
@@ -48,7 +48,7 @@ export class Ray {
     return -1;
   }
 
-  public intersectPoint(line: Line): Vector {
+  public intersectPoint(line: LineSegment): Vector {
     const time = this.intersect(line);
     if (time < 0) {
       return null;

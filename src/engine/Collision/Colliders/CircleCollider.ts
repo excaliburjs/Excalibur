@@ -5,7 +5,7 @@ import { PolygonCollider } from './PolygonCollider';
 import { EdgeCollider } from './EdgeCollider';
 
 import { Projection } from '../../Math/projection';
-import { Line } from '../../Math/line';
+import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
 import { Ray } from '../../Math/ray';
 import { Color } from '../../Color';
@@ -152,7 +152,7 @@ export class CircleCollider extends Collider {
     }
   }
 
-  public getClosestLineBetween(shape: Collider): Line {
+  public getClosestLineBetween(shape: Collider): LineSegment {
     if (shape instanceof CircleCollider) {
       return ClosestLineJumpTable.CircleCircleClosestLine(this, shape);
     } else if (shape instanceof PolygonCollider) {

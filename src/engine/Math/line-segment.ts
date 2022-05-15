@@ -4,7 +4,7 @@ import { Vector } from './vector';
  * A 2D line segment
  */
 
-export class Line {
+export class LineSegment {
   /**
    * @param begin  The starting point of the line segment
    * @param end  The ending point of the line segment
@@ -79,8 +79,8 @@ export class Line {
   /**
    * Flips the direction of the line segment
    */
-  public flip(): Line {
-    return new Line(this.end, this.begin);
+  public flip(): LineSegment {
+    return new LineSegment(this.end, this.begin);
   }
 
   /**
@@ -97,7 +97,7 @@ export class Line {
    * @param sideVector Vector that traces the line
    * @param length Length to clip along side
    */
-  public clip(sideVector: Vector, length: number): Line {
+  public clip(sideVector: Vector, length: number): LineSegment {
     let dir = sideVector;
     dir = dir.normalize();
 
@@ -120,7 +120,7 @@ export class Line {
       return null;
     }
 
-    return new Line(results[0], results[1]);
+    return new LineSegment(results[0], results[1]);
   }
 
   /**
