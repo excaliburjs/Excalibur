@@ -1,4 +1,4 @@
-import { Line } from '../../Math/line';
+import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
 import { Ray } from '../../Math/ray';
 import { PolygonCollider } from './PolygonCollider';
@@ -53,7 +53,7 @@ export function ClosestLine(p0: Vector, u: Vector, q0: Vector, v: Vector) {
   // if denom is 0 they are parallel, use any point from either as the start in this case p0
   if (denom === 0 || denom <= 0.01) {
     const tClosestParallel = d / b;
-    return new Line(p0, q0.add(v.scale(tClosestParallel)));
+    return new LineSegment(p0, q0.add(v.scale(tClosestParallel)));
   }
 
   // Solve for sClosest for infinite line
@@ -97,7 +97,7 @@ export function ClosestLine(p0: Vector, u: Vector, q0: Vector, v: Vector) {
   sClosest = Math.abs(sClosest) < 0.001 ? 0 : sClosest / sDenom;
   tClosest = Math.abs(tClosest) < 0.001 ? 0 : tClosest / tDenom;
 
-  return new Line(p0.add(u.scale(sClosest)), q0.add(v.scale(tClosest)));
+  return new LineSegment(p0.add(u.scale(sClosest)), q0.add(v.scale(tClosest)));
 }
 
 export const ClosestLineJumpTable = {
@@ -183,7 +183,7 @@ export const ClosestLineJumpTable = {
 
     const circlex = ((p0.x + u.x * t - otherWorldPos.x) * circle.radius) / (circle.radius + d);
     const circley = ((p0.y + u.y * t - otherWorldPos.y) * circle.radius) / (circle.radius + d);
-    return new Line(u.scale(t).add(p0), new Vector(otherWorldPos.x + circlex, otherWorldPos.y + circley));
+    return new LineSegment(u.scale(t).add(p0), new Vector(otherWorldPos.x + circlex, otherWorldPos.y + circley));
   },
 
   CircleCircleClosestLine(circleA: CircleCollider, circleB: CircleCollider) {
@@ -200,7 +200,7 @@ export const ClosestLineJumpTable = {
     const thisPoint = circleA.rayCast(rayTowardsOther);
     const otherPoint = circleB.rayCast(rayTowardsThis);
 
-    return new Line(thisPoint, otherPoint);
+    return new LineSegment(thisPoint, otherPoint);
   },
 
   CircleEdgeClosestLine(circle: CircleCollider, edge: EdgeCollider) {
@@ -229,7 +229,7 @@ export const ClosestLineJumpTable = {
 
     const circlex = ((p0.x + u.x * t - circleWorlPos.x) * circle.radius) / (circle.radius + d);
     const circley = ((p0.y + u.y * t - circleWorlPos.y) * circle.radius) / (circle.radius + d);
-    return new Line(u.scale(t).add(p0), new Vector(circleWorlPos.x + circlex, circleWorlPos.y + circley));
+    return new LineSegment(u.scale(t).add(p0), new Vector(circleWorlPos.x + circlex, circleWorlPos.y + circley));
   },
 
   EdgeEdgeClosestLine(edgeA: EdgeCollider, edgeB: EdgeCollider) {

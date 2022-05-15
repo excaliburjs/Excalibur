@@ -5,7 +5,7 @@ import { CircleCollider } from './CircleCollider';
 import { PolygonCollider } from './PolygonCollider';
 
 import { Projection } from '../../Math/projection';
-import { Line } from '../../Math/line';
+import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
 import { Ray } from '../../Math/ray';
 import { Color } from '../../Color';
@@ -147,7 +147,7 @@ export class EdgeCollider extends Collider {
    * Returns the closes line between this and another collider, from this -> collider
    * @param shape
    */
-  public getClosestLineBetween(shape: Collider): Line {
+  public getClosestLineBetween(shape: Collider): LineSegment {
     if (shape instanceof CircleCollider) {
       return ClosestLineJumpTable.CircleEdgeClosestLine(shape, this);
     } else if (shape instanceof PolygonCollider) {
@@ -217,15 +217,15 @@ export class EdgeCollider extends Collider {
   /**
    * Returns this edge represented as a line in world coordinates
    */
-  public asLine(): Line {
-    return new Line(this._getTransformedBegin(), this._getTransformedEnd());
+  public asLine(): LineSegment {
+    return new LineSegment(this._getTransformedBegin(), this._getTransformedEnd());
   }
 
   /**
    * Return this edge as a line in local line coordinates (relative to the position)
    */
-  public asLocalLine(): Line {
-    return new Line(this.begin, this.end);
+  public asLocalLine(): LineSegment {
+    return new LineSegment(this.begin, this.end);
   }
 
   /**

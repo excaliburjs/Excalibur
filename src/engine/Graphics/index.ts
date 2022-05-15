@@ -5,6 +5,7 @@ export * from './SpriteSheet';
 export * from './GraphicsGroup';
 export * from './ImageSource';
 export * from './Animation';
+export * from './Line';
 
 // Graphics ECS
 export * from './GraphicsComponent';
@@ -12,7 +13,6 @@ export * from './DebugGraphicsComponent';
 export * from './GraphicsSystem';
 export * from './OffscreenSystem';
 export * from './ParallaxComponent';
-
 
 // Raster graphics
 export * from './Raster';
