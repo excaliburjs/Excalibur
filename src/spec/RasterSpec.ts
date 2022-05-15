@@ -98,12 +98,14 @@ describe('A Raster', () => {
   });
 
   it('can clone RasterOptions', () => {
-    const originalRasterOptions = {
+    const originalRasterOptions: ex.RasterOptions = {
       color: new Color(1, 2, 3, 0.5),
       strokeColor: new Color(5, 6, 7, 0.8),
       smoothing: false,
       lineWidth: 2,
       lineDash: [2, 2],
+      lineCap: 'butt',
+      quality: 1,
       padding: 2
     };
     const sut = new TestRaster(originalRasterOptions);
@@ -127,6 +129,15 @@ describe('A Raster', () => {
     expect(sut.dirty).toBe(false);
     sut.smoothing = false;
     expect(sut.dirty).toBe(true);
+  });
+
+  it('can have the quality increased', async () => {
+    const sut = new TestRaster({
+      quality: 4
+    });
+    sut.quality = 4;
+    sut.draw(ctx, 25, 25);
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsRasterSpec/raster-quality.png');
   });
 
   it('can have padding and maintain correct size and not grow after each draw', () => {

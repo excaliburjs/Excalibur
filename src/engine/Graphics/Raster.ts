@@ -11,6 +11,14 @@ import { ImageFiltering } from './Filtering';
 
 export interface RasterOptions {
   /**
+   * Optionally specify a quality number, which is how much to scale the internal Raster. Default is 1.
+   *
+   * For example if the quality is set to 2, it doubles the internal raster bitmap in memory.
+   *
+   * Adjusting this value can be useful if you are working with small rasters.
+   */
+  quality?: number;
+  /**
    * Optionally specify "smoothing" if you want antialiasing to apply to the raster's bitmap context, by default `false`
    */
   smoothing?: boolean;
@@ -36,6 +44,11 @@ export interface RasterOptions {
   lineDash?: number[];
 
   /**
+   * Optionally specify the line end style, default is "butt".
+   */
+  lineCap?: 'butt' | 'round' | 'square';
+
+  /**
    * Optionally specify the padding to apply to the bitmap
    */
   padding?: number;
@@ -57,6 +70,9 @@ export interface RasterOptions {
  */
 export abstract class Raster extends Graphic {
   public filtering: ImageFiltering = null;
+  public lineCap: 'butt' | 'round' | 'square' = 'butt';
+  public quality: number = 1;
+
   public _bitmap: HTMLCanvasElement;
   protected _ctx: CanvasRenderingContext2D;
   private _dirty: boolean = true;
@@ -64,11 +80,13 @@ export abstract class Raster extends Graphic {
   constructor(options?: GraphicOptions & RasterOptions) {
     super(options);
     if (options) {
+      this.quality = options.quality ?? this.quality;
       this.color = options.color ?? Color.Black;
       this.strokeColor = options?.strokeColor;
       this.smoothing = options.smoothing ?? this.smoothing;
       this.lineWidth = options.lineWidth ?? this.lineWidth;
       this.lineDash = options.lineDash ?? this.lineDash;
+      this.lineCap = options.lineCap ?? this.lineCap;
       this.padding = options.padding ?? this.padding;
       this.filtering = options.filtering ?? this.filtering;
     }
@@ -95,6 +113,8 @@ export abstract class Raster extends Graphic {
       smoothing: this.smoothing,
       lineWidth: this.lineWidth,
       lineDash: this.lineDash,
+      lineCap: this.lineCap,
+      quality: this.quality,
       padding: this.padding
     };
   }
@@ -119,7 +139,7 @@ export abstract class Raster extends Graphic {
    * Gets or sets the current width of the Raster graphic. Setting the width will cause the raster
    * to be flagged dirty causing a re-raster on the next draw.
    *
-   * Any `padding`s set will be factored into the width
+   * Any `padding`s or `quality` set will be factored into the width
    */
   public get width() {
     return Math.abs(this._getTotalWidth() * this.scale.x);
@@ -136,7 +156,7 @@ export abstract class Raster extends Graphic {
    * Gets or sets the current height of the Raster graphic. Setting the height will cause the raster
    * to be flagged dirty causing a re-raster on the next draw.
    *
-   * Any `padding` set will be factored into the height
+   * Any `padding` or `quality` set will be factored into the height
    */
   public get height() {
     return Math.abs(this._getTotalHeight() * this.scale.y);
@@ -150,11 +170,11 @@ export abstract class Raster extends Graphic {
   }
 
   private _getTotalWidth() {
-    return (this._originalWidth ?? this._bitmap.width) + this.padding * 2;
+    return ((this._originalWidth ?? this._bitmap.width) + this.padding * 2) * 1;
   }
 
   private _getTotalHeight() {
-    return (this._originalHeight ?? this._bitmap.height) + this.padding * 2;
+    return ((this._originalHeight ?? this._bitmap.height) + this.padding * 2) * 1;
   }
 
   /**
@@ -252,12 +272,14 @@ export abstract class Raster extends Graphic {
   }
 
   protected _applyRasterProperties(ctx: CanvasRenderingContext2D) {
-    this._bitmap.width = this._getTotalWidth();
-    this._bitmap.height = this._getTotalHeight();
+    this._bitmap.width = this._getTotalWidth() * this.quality;
+    this._bitmap.height = this._getTotalHeight() * this.quality;
+    ctx.scale(this.quality, this.quality);
     ctx.translate(this.padding, this.padding);
     ctx.imageSmoothingEnabled = this.smoothing;
     ctx.lineWidth = this.lineWidth;
     ctx.setLineDash(this.lineDash ?? ctx.getLineDash());
+    ctx.lineCap = this.lineCap;
     ctx.strokeStyle = this.strokeColor?.toString();
     ctx.fillStyle = this.color?.toString();
   }
@@ -266,7 +288,7 @@ export abstract class Raster extends Graphic {
     if (this._dirty) {
       this.rasterize();
     }
-
+    ex.scale(1 / this.quality, 1 / this.quality);
     ex.drawImage(this._bitmap, x, y);
   }
 
