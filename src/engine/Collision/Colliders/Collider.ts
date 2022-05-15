@@ -2,7 +2,7 @@ import { Color } from '../../Color';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { BoundingBox } from '../BoundingBox';
 import { Projection } from '../../Math/projection';
-import { Line } from '../../Math/line';
+import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
 import { Ray } from '../../Math/ray';
 import { Clonable } from '../../Interfaces/Clonable';
@@ -89,7 +89,7 @@ export abstract class Collider implements Clonable<Collider> {
    * Returns the closest line between the surfaces this collider and another
    * @param collider
    */
-  abstract getClosestLineBetween(collider: Collider): Line;
+  abstract getClosestLineBetween(collider: Collider): LineSegment;
 
   /**
    * Return wether the collider contains a point inclusive to it's border

@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
+- `ex.Line` has be replaced with a new Graphics type, the old geometric behavior is now under the type `ex.LineSegment`
 - Notable deprecated types removed
   - `ex.SortedList` old sorted list is removed
   - `ex.Collection` old collection type is removed
@@ -65,7 +66,22 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
+
 - Added new parameter to `ex.Raster({quality: 4})` to specify the internal scaling for the bitmap, this is useful for improving the rendering quality of small rasters due to sampling error.
+- Added new `ex.Line` graphics object for drawing lines!
+  ```typescript
+  const lineActor = new ex.Actor({
+    pos: ex.vec(100, 0)
+  });
+  lineActor.graphics.anchor = ex.Vector.Zero;
+  lineActor.graphics.use(new ex.Line({
+    start: ex.vec(0, 0),
+    end: ex.vec(200, 200),
+    color: ex.Color.Green,
+    thickness: 10
+  }));
+  game.add(lineActor);
+  ```
 - Added new performance fallback configuration to `ex.Engine` for developers to help players experiencing poor performance in non-standard browser configurations
   * This will fallback to the Canvas2D rendering graphics context which usually performs better on non hardware accelerated browsers, currently postprocessing effects are unavailable in this fallback.
   * By default if a game is running at 20fps or lower for 100 frames or more after the game has started it will be triggered, the developer can optionally show a player message that is off by default.
