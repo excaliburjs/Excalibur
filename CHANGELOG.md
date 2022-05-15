@@ -65,6 +65,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
+- Added new parameter to `ex.Raster({quality: 4})` to specify the internal scaling for the bitmap, this is useful for improving the rendering quality of small rasters due to sampling error.
 - Added new performance fallback configuration to `ex.Engine` for developers to help players experiencing poor performance in non-standard browser configurations
   * This will fallback to the Canvas2D rendering graphics context which usually performs better on non hardware accelerated browsers, currently postprocessing effects are unavailable in this fallback.
   * By default if a game is running at 20fps or lower for 100 frames or more after the game has started it will be triggered, the developer can optionally show a player message that is off by default.
