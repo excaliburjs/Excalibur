@@ -477,4 +477,31 @@ describe('A Timer', () => {
     // assert
     expect(count).toBe(1);
   });
+
+  it('can be initialized with random time range', ()=> {
+    const timer = new ex.Timer({
+      interval: 100, 
+      fcn: () => {/**Do nothing*/} ,
+      randomRange: [0, 200]
+    })
+    scene.add(timer);
+    timer.start();
+    scene.update(engine, 100); 
+    expect(timer.complete).toBeFalse; 
+  })
+
+  it('is no longer random after reset', ()=>{
+    const timer = new ex.Timer({
+      interval: 500,
+      randomRange: [0, 100]
+    })
+    scene.add(timer);
+    timer.start();
+    timer.reset(700);
+    timer.start();
+    scene.update(engine, 500)
+    expect(timer.complete).toBeFalse;
+  })
+
 });
+

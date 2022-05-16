@@ -1,11 +1,12 @@
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
-
+import { Random } from './Math/Random';
 export interface TimerOptions {
   repeats?: boolean;
   numberOfRepeats?: number;
   fcn?: () => void;
   interval: number;
+  randomRange?: [number, number];
 }
 
 /**
@@ -29,6 +30,7 @@ export class Timer {
   public repeats: boolean = false;
   public maxNumberOfRepeats: number = -1;
 
+  public randomRange: Array<number> = [0,0];
   private _complete = false;
   public get complete() {
     return this._complete;
@@ -40,15 +42,18 @@ export class Timer {
    * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.
    * @param numberOfRepeats Specifies a maximum number of times that this timer will execute.
    * @param fcn        The callback to be fired after the interval is complete.
+   * @param randomRange Indicates a range to select a random number to be added onto the interval
    */
   constructor(options: TimerOptions);
-  constructor(fcn: TimerOptions | (() => void), interval?: number, repeats?: boolean, numberOfRepeats?: number) {
+  constructor(fcn: TimerOptions | (() => void), interval?: number,
+    repeats?: boolean, numberOfRepeats?: number, randomRange?: [number, number]) {
     if (typeof fcn !== 'function') {
       const options = fcn;
       fcn = options.fcn;
       interval = options.interval;
       repeats = options.repeats;
       numberOfRepeats = options.numberOfRepeats;
+      randomRange = options.randomRange;
     }
 
     if (!!numberOfRepeats && numberOfRepeats >= 0) {
@@ -59,7 +64,17 @@ export class Timer {
     }
 
     this.id = Timer._MAX_ID++;
-    this.interval = interval || this.interval;
+    if (!!randomRange){
+      if(randomRange[0] > randomRange[1]){
+        throw new Error('min value must be lower than max value for range');
+      } else {
+        this.interval = interval + new Random().integer(randomRange[0], randomRange[1]);
+      }
+    } else {
+      this.interval = interval;
+    }
+
+
     this.repeats = repeats || this.repeats;
 
     this._callbacks = [];
