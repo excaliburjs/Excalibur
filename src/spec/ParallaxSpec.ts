@@ -22,42 +22,68 @@ describe('A Parallax Component', () => {
   });
 
   it('will apply a parallax effect to the graphics', async () => {
-    const game = TestUtils.engine();
+    const game = TestUtils.engine({width: 500, height: 500}, ['use-canvas-context']);
     await TestUtils.runToReady(game);
-
     game.currentScene.camera.pos = ex.vec(0, 0);
 
     const clock = game.clock as ex.TestClock;
 
-    const actor = new ex.Actor({x: 0, y: 0, width: 20, height: 20, color: ex.Color.Red});
+    const actor = new ex.Actor({x: 0, y: 0, width: 120, height: 120, color: ex.Color.Green});
     actor.addComponent(new ex.ParallaxComponent(ex.vec(0.5, 0.5)));
     game.add(actor);
 
-    clock.step();
-    expect(game.currentScene.camera.pos).toBeVector(ex.vec(0, 0));
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(game.canvas)).toEqualImage('src/spec/images/ParallaxSpec/parallax1.png');
+    game.currentScene.camera.pos = ex.vec(100, 100);
+    expect(game.currentScene.camera.pos).toBeVector(ex.vec(100, 100));
 
-
-    game.currentScene.camera.pos = ex.vec(500, 500);
-    clock.step();
-    expect(game.currentScene.camera.pos).toBeVector(ex.vec(500, 500));
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(game.canvas)).toEqualImage('src/spec/images/ParallaxSpec/parallax2.png');
-    expect(actor.hasTag('ex.offscreen')).toBeFalse();
-
-    game.currentScene.camera.pos = ex.vec(519, 519);
-    clock.step();
-    expect(game.currentScene.camera.pos).toBeVector(ex.vec(519, 519));
-    await expectAsync(TestUtils.flushWebGLCanvasTo2D(game.canvas)).toEqualImage('src/spec/images/ParallaxSpec/parallax3.png');
+    clock.step(16);
+    await expectAsync(game.canvas).toEqualImage('src/spec/images/ParallaxSpec/parallax1.png');
     expect(actor.hasTag('ex.offscreen')).toBeFalse();
 
     game.currentScene.camera.pos = ex.vec(520, 520);
     clock.step();
     expect(game.currentScene.camera.pos).toBeVector(ex.vec(520, 520));
-    expect(actor.hasTag('ex.offscreen')).toBeTrue();
+    await expectAsync(game.canvas).toEqualImage('src/spec/images/ParallaxSpec/parallax2.png');
+    expect(actor.hasTag('ex.offscreen')).toBeFalse();
 
-    game.currentScene.camera.pos = ex.vec(1000, 1000);
+    game.currentScene.camera.pos = ex.vec(620, 620);
     clock.step();
-    expect(game.currentScene.camera.pos).toBeVector(ex.vec(1000, 1000));
+    expect(game.currentScene.camera.pos).toBeVector(ex.vec(620, 620));
     expect(actor.hasTag('ex.offscreen')).toBeTrue();
+  });
+
+  it('works with TileMaps correctly', async () => {
+    const game = TestUtils.engine({width: 500, height: 500});
+    await TestUtils.runToReady(game);
+    const clock = game.clock as ex.TestClock;
+
+    const graphic = new ex.Rectangle({
+      color: ex.Color.Green,
+      strokeColor: ex.Color.Black,
+      width: 64,
+      height: 64
+    });
+    const tilemap = new ex.TileMap({
+      tileWidth: 64,
+      tileHeight: 64,
+      rows: 4,
+      columns: 4
+    });
+    tilemap.tiles.forEach(t => {
+      t.addGraphic(graphic);
+    });
+    tilemap.addComponent(new ex.ParallaxComponent(ex.vec(0.5, 0.5)));
+
+    game.add(tilemap);
+
+    clock.step(16);
+
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(game.canvas)).toEqualImage('src/spec/images/ParallaxSpec/tilemap.png');
+
+    game.currentScene.camera.pos = ex.vec(250, -480);
+
+    clock.step(16); // seems like there is an out of phase issue
+    clock.step(16);
+
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(game.canvas)).toEqualImage('src/spec/images/ParallaxSpec/tilemap2.png');
   });
 });

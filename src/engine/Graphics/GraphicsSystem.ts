@@ -1,7 +1,7 @@
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Scene } from '../Scene';
 import { GraphicsComponent } from './GraphicsComponent';
-import { vec } from '../Math/vector';
+import { vec, Vector } from '../Math/vector';
 import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';
@@ -99,7 +99,11 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       // Apply parallax
       const parallax = entity.get(ParallaxComponent);
       if (parallax) {
-        const parallaxOffset = this._camera.pos.scale(parallax.parallaxFactor);
+        // We use the Tiled formula
+        // https://doc.mapeditor.org/en/latest/manual/layers/#parallax-scrolling-factor
+        // cameraPos * (1 - parallaxFactor)
+        const oneMinusFactor = Vector.One.sub(parallax.parallaxFactor);
+        const parallaxOffset = this._camera.pos.scale(oneMinusFactor);
         this._graphicsContext.translate(parallaxOffset.x, parallaxOffset.y);
       }
 
