@@ -30,7 +30,7 @@ export class Timer {
   public repeats: boolean = false;
   public maxNumberOfRepeats: number = -1;
 
-  public randomRange: Array<number> = [0,0];
+  public randomRange: [number, number] = [0,0];
   private _complete = false;
   public get complete() {
     return this._complete;
