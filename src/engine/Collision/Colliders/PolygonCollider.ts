@@ -5,7 +5,7 @@ import { CollisionJumpTable } from './CollisionJumpTable';
 import { CircleCollider } from './CircleCollider';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { Projection } from '../../Math/projection';
-import { Line } from '../../Math/line';
+import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
 import { Matrix } from '../../Math/matrix';
 import { Ray } from '../../Math/ray';
@@ -59,8 +59,8 @@ export class PolygonCollider extends Collider {
 
   private _transformedPoints: Vector[] = [];
   private _axes: Vector[] = [];
-  private _sides: Line[] = [];
-  private _localSides: Line[] = [];
+  private _sides: LineSegment[] = [];
+  private _localSides: LineSegment[] = [];
 
   constructor(options: PolygonColliderOptions) {
     super();
@@ -301,7 +301,7 @@ export class PolygonCollider extends Collider {
   /**
    * Gets the sides of the polygon in world space
    */
-  public getSides(): Line[] {
+  public getSides(): LineSegment[] {
     if (this._sides.length) {
       return this._sides;
     }
@@ -310,7 +310,7 @@ export class PolygonCollider extends Collider {
     const len = points.length;
     for (let i = 0; i < len; i++) {
       // This winding is important
-      lines.push(new Line(points[i], points[(i + 1) % len]));
+      lines.push(new LineSegment(points[i], points[(i + 1) % len]));
     }
     this._sides = lines;
     return this._sides;
@@ -319,7 +319,7 @@ export class PolygonCollider extends Collider {
   /**
    * Returns the local coordinate space sides
    */
-  public getLocalSides(): Line[] {
+  public getLocalSides(): LineSegment[] {
     if (this._localSides.length) {
       return this._localSides;
     }
@@ -328,7 +328,7 @@ export class PolygonCollider extends Collider {
     const len = points.length;
     for (let i = 0; i < len; i++) {
       // This winding is important
-      lines.push(new Line(points[i], points[(i + 1) % len]));
+      lines.push(new LineSegment(points[i], points[(i + 1) % len]));
     }
     this._localSides = lines;
     return this._localSides;
@@ -338,7 +338,7 @@ export class PolygonCollider extends Collider {
    * Given a direction vector find the world space side that is most in that direction
    * @param direction
    */
-  public findSide(direction: Vector): Line {
+  public findSide(direction: Vector): LineSegment {
     const sides = this.getSides();
     let bestSide = sides[0];
     let maxDistance = -Number.MAX_VALUE;
@@ -358,7 +358,7 @@ export class PolygonCollider extends Collider {
    * Given a direction vector find the local space side that is most in that direction
    * @param direction
    */
-  public findLocalSide(direction: Vector): Line {
+  public findLocalSide(direction: Vector): LineSegment {
     const sides = this.getLocalSides();
     let bestSide = sides[0];
     let maxDistance = -Number.MAX_VALUE;
@@ -427,7 +427,7 @@ export class PolygonCollider extends Collider {
     return true;
   }
 
-  public getClosestLineBetween(collider: Collider): Line {
+  public getClosestLineBetween(collider: Collider): LineSegment {
     if (collider instanceof CircleCollider) {
       return ClosestLineJumpTable.PolygonCircleClosestLine(this, collider);
     } else if (collider instanceof PolygonCollider) {
@@ -495,7 +495,7 @@ export class PolygonCollider extends Collider {
    * Finds the closes face to the point using perpendicular distance
    * @param point point to test against polygon
    */
-  public getClosestFace(point: Vector): { distance: Vector; face: Line } {
+  public getClosestFace(point: Vector): { distance: Vector; face: LineSegment } {
     const sides = this.getSides();
     let min = Number.POSITIVE_INFINITY;
     let faceIndex = -1;

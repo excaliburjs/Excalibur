@@ -3,7 +3,7 @@ import { Pair } from '../Detection/Pair';
 import { Color } from '../../Color';
 import { Transform } from '../../EntityComponentSystem';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
-import { Line } from '../../Math/line';
+import { LineSegment } from '../../Math/line-segment';
 import { Projection } from '../../Math/projection';
 import { Ray } from '../../Math/ray';
 import { Vector } from '../../Math/vector';
@@ -137,9 +137,9 @@ export class CompositeCollider extends Collider {
     return contacts;
   }
 
-  getClosestLineBetween(other: Collider): Line {
+  getClosestLineBetween(other: Collider): LineSegment {
     const colliders = this.getColliders();
-    const lines: Line[] = [];
+    const lines: LineSegment[] = [];
     if (other instanceof CompositeCollider) {
       const otherColliders = other.getColliders();
       for (const colliderA of colliders) {

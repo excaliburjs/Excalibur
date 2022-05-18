@@ -1,4 +1,4 @@
-import { Line } from '../../Math/line';
+import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
 import { Collider } from './Collider';
 import { CircleCollider } from './CircleCollider';
@@ -27,12 +27,12 @@ export interface SeparationInfo {
    * Side of separation (reference) from the collider's perspective
    */
 
-  side?: Line;
+  side?: LineSegment;
 
   /**
    * Local side of separation (reference) from the collider's perspective
    */
-  localSide?: Line;
+  localSide?: LineSegment;
 
   /**
    * Index of the separation side (reference) from the collider's perspective
@@ -53,7 +53,7 @@ export interface SeparationInfo {
 export class SeparatingAxis {
   static findPolygonPolygonSeparation(polyA: PolygonCollider, polyB: PolygonCollider): SeparationInfo {
     let bestSeparation = -Number.MAX_VALUE;
-    let bestSide: Line | null = null;
+    let bestSide: LineSegment | null = null;
     let bestAxis: Vector | null = null;
     let bestSideIndex: number = -1;
     let bestOtherPoint: Vector | null = null;

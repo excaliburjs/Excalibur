@@ -8,7 +8,7 @@ import { TransformComponent } from '../EntityComponentSystem/Components/Transfor
 import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionType } from '../Collision/CollisionType';
 import { Shape } from '../Collision/Colliders/Shape';
-import { ExcaliburGraphicsContext, Graphic, GraphicsComponent, hasGraphicsTick } from '../Graphics';
+import { ExcaliburGraphicsContext, Graphic, GraphicsComponent, hasGraphicsTick, ParallaxComponent } from '../Graphics';
 import { removeItemFromArray } from '../Util/Util';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { ColliderComponent } from '../Collision/ColliderComponent';
@@ -72,6 +72,7 @@ export class TileMap extends Entity {
   }
   private _transform: TransformComponent;
   private _motion: MotionComponent;
+  private _graphics: GraphicsComponent;
   private _collider: ColliderComponent;
   private _composite: CompositeCollider;
 
@@ -170,6 +171,7 @@ export class TileMap extends Entity {
     );
     this.addComponent(new DebugGraphicsComponent((ctx) => this.debug(ctx)));
     this.addComponent(new ColliderComponent());
+    this._graphics = this.get(GraphicsComponent);
     this._transform = this.get(TransformComponent);
     this._motion = this.get(MotionComponent);
     this._collider = this.get(ColliderComponent);
@@ -204,7 +206,7 @@ export class TileMap extends Entity {
       currentCol = [];
     }
 
-    this.get(GraphicsComponent).localBounds = new BoundingBox({
+    this._graphics.localBounds = new BoundingBox({
       left: 0,
       top: 0,
       right: this.columns * this.tileWidth,
@@ -341,10 +343,20 @@ export class TileMap extends Entity {
     const worldCoordsUpperLeft = vec(worldBounds.left, worldBounds.top);
     const worldCoordsLowerRight = vec(worldBounds.right, worldBounds.bottom);
 
-    this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - this.x) / this.tileWidth) - 2, 0);
-    this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - this.y) / this.tileHeight) - 2, 0);
-    this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - this.x) / this.tileWidth) + 2, 0);
-    this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - this.y) / this.tileHeight) + 2, 0);
+    let pos = this.pos;
+    const maybeParallax = this.get(ParallaxComponent);
+    let parallaxOffset = Vector.One;
+    if (maybeParallax) {
+      const oneMinusFactor = Vector.One.sub(maybeParallax.parallaxFactor);
+      parallaxOffset = engine.currentScene.camera.pos.scale(oneMinusFactor);
+      pos = pos.add(parallaxOffset);
+    }
+
+    this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - pos.x) / this.tileWidth) - 2, 0);
+    this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - pos.y) / this.tileHeight) - 2, 0);
+    this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - pos.x) / this.tileWidth) + 2, 0);
+    this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - pos.y) / this.tileHeight) + 2, 0);
+    // why are we resetting pos?
     this._transform.pos = vec(this.x, this.y);
 
     this.onPostUpdate(engine, delta);

@@ -6,7 +6,7 @@ import { TransformComponent, CoordPlane } from '../EntityComponentSystem/Compone
 import { Camera } from '../Camera';
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { ParallaxComponent } from './ParallaxComponent';
-import { Vector } from '../excalibur';
+import { Vector } from '../Math/vector';
 
 export class OffscreenSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -30,7 +30,11 @@ export class OffscreenSystem extends System<TransformComponent | GraphicsCompone
 
       let parallaxOffset: Vector;
       if (maybeParallax) {
-        parallaxOffset = this._camera.pos.scale(maybeParallax.parallaxFactor);
+        // We use the Tiled formula
+        // https://doc.mapeditor.org/en/latest/manual/layers/#parallax-scrolling-factor
+        // cameraPos * (1 - parallaxFactor)
+        const oneMinusFactor = Vector.One.sub(maybeParallax.parallaxFactor);
+        parallaxOffset = this._camera.pos.scale(oneMinusFactor);
       }
 
       // Figure out if entities are offscreen
