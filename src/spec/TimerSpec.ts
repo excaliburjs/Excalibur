@@ -487,7 +487,7 @@ describe('A Timer', () => {
     scene.add(timer);
     timer.start();
     scene.update(engine, 100); 
-    expect(timer.complete).toBeFalse; 
+    expect(timer.complete).toBeFalse(); 
   })
 
   it('is no longer random after reset', ()=>{
