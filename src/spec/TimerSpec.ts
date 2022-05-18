@@ -500,7 +500,7 @@ describe('A Timer', () => {
     timer.reset(700);
     timer.start();
     scene.update(engine, 500)
-    expect(timer.complete).toBeFalse;
+    expect(timer.complete).toBeFalse();
   })
 
 });
