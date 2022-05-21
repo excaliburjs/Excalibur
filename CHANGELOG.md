@@ -7,6 +7,33 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
+-
+
+### Deprecated
+
+-
+
+### Added
+
+-
+
+### Fixed
+
+-
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+
+## [0.26.0] - 2022-05-20
+
+## Breaking Changes
+
 - `ex.Line` has be replaced with a new Graphics type, the old geometric behavior is now under the type `ex.LineSegment`
 - Notable deprecated types removed
   - `ex.SortedList` old sorted list is removed
