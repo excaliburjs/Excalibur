@@ -21,6 +21,8 @@ export class Blink implements Action {
   public update(delta: number): void {
     if (!this._started) {
       this._started = true;
+      this._elapsedTime = 0;
+      this._totalTime = 0;
     }
     if (!this._graphics) {
       return;
@@ -56,6 +58,7 @@ export class Blink implements Action {
 
   public reset() {
     this._started = false;
+    this._stopped = false;
     this._elapsedTime = 0;
     this._totalTime = 0;
   }

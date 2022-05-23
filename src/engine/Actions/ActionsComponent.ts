@@ -8,6 +8,7 @@ import { Vector } from '../Math/vector';
 import { EasingFunction } from '../Util/EasingFunctions';
 import { ActionQueue } from './ActionQueue';
 import { RotationType } from './RotationType';
+import { Action } from './Action';
 
 export interface ActionContextMethods extends Pick<ActionContext, keyof ActionContext> { };
 
@@ -30,6 +31,10 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    */
   public getQueue(): ActionQueue {
     return this._ctx?.getQueue();
+  }
+
+  public runAction(action: Action): void {
+    this._ctx?.runAction(action);
   }
 
   /**
@@ -68,6 +73,12 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
   public easeTo(x: number, y: number, duration: number, easingFcn?: EasingFunction): ActionContext;
   public easeTo(...args: any[]): ActionContext {
     return this._ctx.easeTo.apply(this._ctx, args);
+  }
+
+  public easeBy(offset: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
+  public easeBy(offsetX: number, offsetY: number, duration: number, easingFcn?: EasingFunction): ActionContext;
+  public easeBy(...args: any[]): ActionContext {
+    return this._ctx.easeBy.apply(this._ctx, args);
   }
 
   /**

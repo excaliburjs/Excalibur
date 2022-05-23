@@ -4,11 +4,14 @@ export * from './Actionable';
 export * from './RotationType';
 
 export * from './Action';
+export * from './Action/ActionSequence';
+export * from './Action/ParallelActions';
 export * from './Action/Repeat';
 export * from './Action/RepeatForever';
 export * from './Action/Blink';
 export * from './Action/Die';
 export * from './Action/EaseTo';
+export * from './Action/EaseBy';
 export * from './Action/Fade';
 export * from './Action/Follow';
 export * from './Action/Meet';

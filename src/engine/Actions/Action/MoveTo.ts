@@ -51,5 +51,6 @@ export class MoveTo implements Action {
 
   public reset(): void {
     this._started = false;
+    this._stopped = false;
   }
 }

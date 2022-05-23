@@ -12,6 +12,7 @@ import { ScaleTo } from './Action/ScaleTo';
 import { ScaleBy } from './Action/ScaleBy';
 import { CallMethod } from './Action/CallMethod';
 import { EaseTo } from './Action/EaseTo';
+import { EaseBy } from './Action/EaseBy';
 import { Blink } from './Action/Blink';
 import { Fade } from './Action/Fade';
 import { Delay } from './Action/Delay';
@@ -20,6 +21,7 @@ import { Follow } from './Action/Follow';
 import { Meet } from './Action/Meet';
 import { Vector } from '../Math/vector';
 import { Entity } from '../EntityComponentSystem/Entity';
+import { Action } from './Action';
 
 /**
  * The fluent Action API allows you to perform "actions" on
@@ -51,13 +53,18 @@ export class ActionContext {
     this._queue.clearActions();
   }
 
+  public runAction(action: Action) {
+    action.reset();
+    this._queue.add(action);
+  }
+
   /**
    * This method will move an actor to the specified `x` and `y` position over the
    * specified duration using a given [[EasingFunctions]] and return back the actor. This
    * method is part of the actor 'Action' fluent API allowing action chaining.
    * @param pos       The x,y vector location to move the actor to
    * @param duration  The time it should take the actor to move to the new location in milliseconds
-   * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position, Default is [[EasingFunctions.Linear]]
+   * @param easingFcn Use [[EasingFunction]] or a custom function to use to calculate position, Default is [[EasingFunctions.Linear]]
    */
   public easeTo(pos: Vector, duration: number, easingFcn?: EasingFunction): ActionContext
   /**
@@ -67,7 +74,7 @@ export class ActionContext {
    * @param x         The x location to move the actor to
    * @param y         The y location to move the actor to
    * @param duration  The time it should take the actor to move to the new location in milliseconds
-   * @param easingFcn Use [[EasingFunctions]] or a custom function to use to calculate position, Default is [[EasingFunctions.Linear]]
+   * @param easingFcn Use [[EasingFunction]] or a custom function to use to calculate position, Default is [[EasingFunctions.Linear]]
    */
   public easeTo(x: number, y: number, duration: number, easingFcn?: EasingFunction): ActionContext
   public easeTo(...args: any[]): ActionContext {
@@ -88,6 +95,43 @@ export class ActionContext {
     }
 
     this._queue.add(new EaseTo(this._entity, x, y, duration, easingFcn));
+    return this;
+  }
+
+  /**
+   * This method will move an actor by a specified vector offset relative to the current position given
+   * a duration and a [[EasingFunction]]. This method is part of the actor 'Action' fluent API allowing action chaining.
+   * @param offset Vector offset relative to the current position
+   * @param duration The duration in milliseconds
+   * @param easingFcn Use [[EasingFunction]] or a custom function to use to calculate position, Default is [[EasingFunctions.Linear]]
+   */
+  public easeBy(offset: Vector, duration: number, easingFcn?: EasingFunction): ActionContext;
+  /**
+   * This method will move an actor by a specified x and y offset relative to the current position given
+   * a duration and a [[EasingFunction]]. This method is part of the actor 'Action' fluent API allowing action chaining.
+   * @param offset Vector offset relative to the current position
+   * @param duration The duration in milliseconds
+   * @param easingFcn Use [[EasingFunction]] or a custom function to use to calculate position, Default is [[EasingFunctions.Linear]]
+   */
+  public easeBy(offsetX: number, offsetY: number, duration: number, easingFcn?: EasingFunction): ActionContext;
+  public easeBy(...args: any[]): ActionContext {
+    let offsetX = 0;
+    let offsetY = 0;
+    let duration = 0;
+    let easingFcn = EasingFunctions.Linear;
+    if (args[0] instanceof Vector) {
+      offsetX = args[0].x;
+      offsetY = args[0].y;
+      duration = args[1];
+      easingFcn = args[2] ?? easingFcn;
+    } else {
+      offsetX = args[0];
+      offsetY = args[1];
+      duration = args[2];
+      easingFcn = args[3] ?? easingFcn;
+    }
+
+    this._queue.add(new EaseBy(this._entity, offsetX, offsetY, duration, easingFcn));
     return this;
   }
 

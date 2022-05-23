@@ -61,7 +61,8 @@ export class ScaleTo implements Action {
   public isComplete(): boolean {
     return (
       this._stopped ||
-      (Math.abs(this._tx.scale.y - this._startX) >= this._distanceX && Math.abs(this._tx.scale.y - this._startY) >= this._distanceY)
+      (Math.abs(this._tx.scale.y - this._startX) >= (this._distanceX - 0.01) &&
+        Math.abs(this._tx.scale.y - this._startY) >= (this._distanceY - 0.01))
     );
   }
 
@@ -73,5 +74,6 @@ export class ScaleTo implements Action {
 
   public reset(): void {
     this._started = false;
+    this._stopped = false;
   }
 }
