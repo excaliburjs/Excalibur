@@ -440,7 +440,13 @@ export class Screen {
    * Requests to go fullscreen using the browser fullscreen api, requires user interaction to be successful.
    * For example, wire this to a user click handler.
    */
-  public goFullScreen(): Promise<void> {
+  public goFullScreen(elementId?: string): Promise<void> {
+    if (elementId) {
+      let maybeElement = document.getElementById(elementId);
+      if (maybeElement) {
+        return maybeElement.requestFullscreen();
+      }
+    }
     return this._canvas.requestFullscreen();
   }
 

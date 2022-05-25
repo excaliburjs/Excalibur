@@ -94,7 +94,7 @@ fullscreenButton.addEventListener('click', () => {
   if (game.screen.isFullScreen) {
     game.screen.exitFullScreen();
   } else {
-    game.screen.goFullScreen();
+    game.screen.goFullScreen('container');
   }
 });
 game.showDebug(true);
