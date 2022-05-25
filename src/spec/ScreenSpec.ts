@@ -418,6 +418,45 @@ describe('A Screen', () => {
     expect(screen).toBeVector(ex.vec(800, 600));
   });
 
+  it('will go fullscreen with the canvas element by default', () => {
+    const mockCanvas = jasmine.createSpyObj('canvas', ['addEventListener', 'removeEventListener', 'requestFullscreen']);
+    mockCanvas.style = {};
+    const sut = new ex.Screen({
+      canvas: mockCanvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.Fixed,
+      viewport: { width: 800, height: 600 }
+    });
+
+    sut.goFullScreen();
+
+    expect(mockCanvas.requestFullscreen).toHaveBeenCalled();
+  });
+
+  it('will go fullscreen given an element id', () => {
+    const container = document.createElement('div');
+    container.id = 'some-id';
+    container.appendChild(canvas);
+    document.body.appendChild(container);
+
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.Fixed,
+      viewport: { width: 800, height: 600 }
+    });
+
+    const fakeElement = jasmine.createSpyObj('element', ['requestFullscreen']);
+    spyOn(document, 'getElementById').and.returnValue(fakeElement);
+
+    sut.goFullScreen('some-id');
+
+    expect(document.getElementById).toHaveBeenCalledWith('some-id');
+    expect(fakeElement.requestFullscreen).toHaveBeenCalled();
+  });
+
   it('can round trip convert coordinates', () => {
     Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1300 });
     Object.defineProperty(window, 'innerHeight', { writable: true, configurable: true, value: 800 });
