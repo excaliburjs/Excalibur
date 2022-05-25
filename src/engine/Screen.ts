@@ -441,11 +441,11 @@ export class Screen {
    * For example, wire this to a user click handler.
    *
    * Optionally specify a target element id to go fullscreen, by default the game canvas is used
-   * @param elementId 
+   * @param elementId
    */
   public goFullScreen(elementId?: string): Promise<void> {
     if (elementId) {
-      let maybeElement = document.getElementById(elementId);
+      const maybeElement = document.getElementById(elementId);
       if (maybeElement) {
         return maybeElement.requestFullscreen();
       }
