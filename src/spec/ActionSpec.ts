@@ -1151,7 +1151,7 @@ describe('Action', () => {
 
   describe('meet', () => {
     it('can be reset', () => {
-      const target = new ex.Actor({x: 100, y: 0})
+      const target = new ex.Actor({x: 100, y: 0});
       const meet = new ex.Meet(actor, target, 100);
       actor.actions.runAction(meet);
 
