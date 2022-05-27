@@ -25,7 +25,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   actor.actions.runAction(parallel);
   // actor will now move to (100, 100) and rotate to Math.PI/2 at the same time!!
   ```
-
+- Add target element id to `ex.Screen.goFullScreen('some-element-id')` to influence the fullscreen element in the fullscreen browser API.
 
 ### Fixed
 
