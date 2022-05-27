@@ -110,5 +110,8 @@ export class RotateBy implements Action {
   public reset(): void {
     this._started = false;
     this._stopped = false;
+    this._start = undefined;
+    this._currentNonCannonAngle = undefined;
+    this._distance = undefined;
   }
 }

@@ -322,6 +322,17 @@ describe('Action', () => {
   });
 
   describe('moveBy', () => {
+    it('can be reset', () => {
+      const moveBy = new ex.MoveBy(actor, 100, 0, 100);
+      actor.actions.runAction(moveBy);
+      scene.update(engine, 1000);
+      expect(moveBy.isComplete(actor)).toBeTrue();
+
+      moveBy.reset();
+      actor.pos = ex.vec(0, 0);
+      expect(moveBy.isComplete(actor)).toBeFalse();
+    });
+
     it('can be moved to a location by a certain time (x,y) overload', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
@@ -869,6 +880,17 @@ describe('Action', () => {
   });
 
   describe('rotateBy', () => {
+
+    it('can be reset', () => {
+      const rotateBy = new ex.RotateBy(actor, Math.PI / 2, Math.PI / 2);
+      actor.actions.runAction(rotateBy);
+      scene.update(engine, 1000);
+      expect(rotateBy.isComplete()).toBeTrue();
+
+      rotateBy.reset();
+      actor.rotation = 0;
+      expect(rotateBy.isComplete()).toBeFalse();
+    });
     it('can be rotated to an angle by a certain time via ShortestPath (default)', () => {
       expect(actor.rotation).toBe(0);
 
@@ -947,6 +969,16 @@ describe('Action', () => {
   });
 
   describe('scaleTo', () => {
+    it('can be reset', () => {
+      const scaleTo = new ex.ScaleTo(actor, 2, 2, 1, 1);
+      actor.actions.runAction(scaleTo);
+      scene.update(engine, 1000);
+      expect(scaleTo.isComplete()).toBeTrue();
+
+      scaleTo.reset();
+      actor.scale = ex.vec(1, 1);
+      expect(scaleTo.isComplete()).toBeFalse();
+    });
     it('can be scaled at a speed (x,y) overload', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
@@ -1022,6 +1054,17 @@ describe('Action', () => {
   });
 
   describe('scaleBy', () => {
+    it('can be reset', () => {
+      const scaleBy = new ex.ScaleBy(actor, 1, 1, 1);
+      actor.actions.runAction(scaleBy);
+      scene.update(engine, 1000);
+      expect(scaleBy.isComplete()).toBeTrue();
+
+      scaleBy.reset();
+      actor.scale = ex.vec(1, 1);
+      expect(scaleBy.isComplete()).toBeFalse();
+    });
+
     it('can be scaled by a certain time (x,y) overload', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
@@ -1107,6 +1150,20 @@ describe('Action', () => {
   });
 
   describe('meet', () => {
+    it('can be reset', () => {
+      const target = new ex.Actor({x: 100, y: 0})
+      const meet = new ex.Meet(actor, target, 100);
+      actor.actions.runAction(meet);
+
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      expect(meet.isComplete()).toBeTrue();
+
+      meet.reset();
+      actor.pos = ex.vec(0, 0);
+      expect(meet.isComplete()).toBeFalse();
+    });
+
     it('can meet another actor', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
