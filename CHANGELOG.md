@@ -15,6 +15,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added missing `ex.EaseBy` action type, uses `ex.EasingFunctions` to move relative from the current entity position.
+- Added 2 new `Action` types to enable running parallel actions. `ex.ActionSequence` which allows developers to specify a sequence of actions to run in order, and `ex.ParallelActions` to run multiple actions at the same time.
+  ```typescript
+  const actor = new ex.Actor();
+  const parallel = new ex.ParallelActions([
+    new ex.ActionSequence(actor, ctx => ctx.moveTo(ex.vec(100, 0), 100)),
+    new ex.ActionSequence(actor, ctx => ctx.rotateTo(Math.PI/2, Math.PI/2))
+  ]);
+  actor.actions.runAction(parallel);
+  // actor will now move to (100, 100) and rotate to Math.PI/2 at the same time!!
+  ```
 - Add target element id to `ex.Screen.goFullScreen('some-element-id')` to influence the fullscreen element in the fullscreen browser API.
 
 ### Fixed

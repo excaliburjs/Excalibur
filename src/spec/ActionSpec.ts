@@ -30,6 +30,144 @@ describe('Action', () => {
     engine = null;
   });
 
+  describe('parallel actions', () => {
+    it('can run actions in parallel', () => {
+      const parallel = new ex.ParallelActions([
+        new ex.MoveTo(actor, 100, 0, 100),
+        new ex.RotateTo(actor, Math.PI/2, Math.PI/2)
+      ]);
+
+      actor.actions.runAction(parallel);
+
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.rotation).toBe(Math.PI/2);
+    });
+
+    it('can run sequences in parallel', () => {
+      const parallel = new ex.ParallelActions([
+        new ex.ActionSequence(actor, ctx => ctx.moveTo(ex.vec(100, 0), 100)),
+        new ex.ActionSequence(actor, ctx => ctx.rotateTo(Math.PI/2, Math.PI/2))
+      ]);
+
+      actor.actions.runAction(parallel);
+
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.rotation).toBe(Math.PI/2);
+    });
+
+    it('can repeat sequences in parallel', () => {
+      const parallel = new ex.ParallelActions([
+        new ex.ActionSequence(actor, ctx => ctx.moveTo(ex.vec(100, 0), 100).moveTo(ex.vec(0, 0), 100)),
+        new ex.ActionSequence(actor, ctx => ctx.rotateTo(Math.PI/2, Math.PI/2).rotateTo(0, Math.PI/2))
+      ]);
+
+      actor.actions.repeatForever(ctx => {
+        ctx.runAction(parallel);
+      });
+
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.rotation).toBe(Math.PI/2);
+
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(0, 0));
+      expect(actor.rotation).toBe(0);
+
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.rotation).toBe(Math.PI/2);
+    });
+  });
+
+  describe('action sequence', () => {
+    it('can specify a series of actions', () => {
+      const sequence = new ex.ActionSequence(actor, (ctx) => {
+        ctx.moveTo(ex.vec(100, 0), 100);
+        ctx.moveTo(ex.vec(-200, 0), 100);
+        ctx.moveTo(ex.vec(0, 0), 100);
+      });
+
+      actor.actions.runAction(sequence);
+
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(-200, 0));
+
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(0, 0));
+
+      scene.update(engine, 0);
+      expect(sequence.isComplete()).toBeTrue();
+
+      // Can re-run a sequence
+      actor.actions.runAction(sequence);
+      expect(sequence.isComplete()).toBeFalse();
+    });
+
+    it('can be stopped', () => {
+      const sequence = new ex.ActionSequence(actor, (ctx) => {
+        ctx.moveTo(ex.vec(100, 0), 100);
+        ctx.moveTo(ex.vec(-200, 0), 100);
+        ctx.moveTo(ex.vec(0, 0), 100);
+      });
+
+      actor.actions.runAction(sequence);
+
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+
+      sequence.stop();
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+    });
+
+    it('can be cloned', () => {
+      const sequence = new ex.ActionSequence(actor, (ctx) => {
+        ctx.moveTo(ex.vec(100, 0), 100);
+        ctx.moveTo(ex.vec(-200, 0), 100);
+        ctx.moveTo(ex.vec(0, 0), 100);
+      });
+
+      const actor2 = new ex.Actor();
+      scene.add(actor2);
+
+      const clonedSequence = sequence.clone(actor2);
+
+      actor2.actions.runAction(clonedSequence);
+
+      scene.update(engine, 1000);
+      expect(actor2.pos).toBeVector(ex.vec(100, 0));
+
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      expect(actor2.pos).toBeVector(ex.vec(-200, 0));
+
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      expect(actor2.pos).toBeVector(ex.vec(0, 0));
+
+      scene.update(engine, 0);
+      expect(clonedSequence.isComplete()).toBeTrue();
+    });
+  });
+
   describe('blink', () => {
     it('can blink on and off', () => {
       expect(actor.graphics.visible).toBe(true);
@@ -40,6 +178,17 @@ describe('Action', () => {
 
       scene.update(engine, 250);
       expect(actor.graphics.visible).toBe(true);
+    });
+
+    it('can be reset', () => {
+
+      const blink = new ex.Blink(actor, 200, 200);
+      blink.update(200);
+      blink.update(200);
+      expect(blink.isComplete()).toBeTrue();
+
+      blink.reset();
+      expect(blink.isComplete()).toBeFalse();
     });
 
     it('can blink at a frequency forever', () => {
@@ -135,6 +284,16 @@ describe('Action', () => {
       expect(actor.pos.x).toBe(20);
     });
 
+    it('can be reset', () => {
+      const delay = new ex.Delay(1000);
+
+      delay.update(1000);
+      expect(delay.isComplete()).toBeTrue();
+
+      delay.reset();
+      expect(delay.isComplete()).toBeFalse();
+    });
+
     it('can be stopped', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
@@ -163,6 +322,17 @@ describe('Action', () => {
   });
 
   describe('moveBy', () => {
+    it('can be reset', () => {
+      const moveBy = new ex.MoveBy(actor, 100, 0, 100);
+      actor.actions.runAction(moveBy);
+      scene.update(engine, 1000);
+      expect(moveBy.isComplete(actor)).toBeTrue();
+
+      moveBy.reset();
+      actor.pos = ex.vec(0, 0);
+      expect(moveBy.isComplete(actor)).toBeFalse();
+    });
+
     it('can be moved to a location by a certain time (x,y) overload', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
@@ -278,7 +448,84 @@ describe('Action', () => {
     });
   });
 
+  describe('easeBy', () => {
+
+    it('can be reset', () => {
+      const easeTo = new ex.EaseBy(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
+      easeTo.update(1000);
+      expect(easeTo.isComplete(actor)).toBeTrue();
+
+      easeTo.reset();
+      actor.pos = ex.vec(0, 0);
+      expect(easeTo.isComplete(actor)).toBeFalse();
+    });
+    it('can be eased to a location given an easing function (x,y) overload', () => {
+      actor.pos = ex.vec(100, 100);
+      expect(actor.pos).toBeVector(ex.vec(100, 100));
+
+      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(150, 100));
+      expect(actor.vel).toBeVector(ex.vec(100, 0));
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(200, 100));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(200, 100));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+    });
+
+    it('can be eased to a location given an easing function vector overload', () => {
+      actor.pos = ex.vec(100, 100);
+      expect(actor.pos).toBeVector(ex.vec(100, 100));
+
+      actor.actions.easeBy(ex.vec(100, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(150, 100));
+      expect(actor.vel).toBeVector(ex.vec(100, 0));
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(200, 100));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(200, 100));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+    });
+
+    it('can be stopped', () => {
+      actor.pos = ex.vec(100, 100);
+      expect(actor.pos).toBeVector(ex.vec(100, 100));
+
+      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(150, 100));
+      expect(actor.vel).toBeVector(ex.vec(100, 0));
+
+      actor.actions.clearActions();
+
+      // actor should not move and should have zero velocity after stopping
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(150, 100));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+    });
+  });
+
   describe('easeTo', () => {
+    it('can be reset', () => {
+      const easeTo = new ex.EaseTo(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
+      easeTo.update(1000);
+      expect(easeTo.isComplete(actor)).toBeTrue();
+
+      easeTo.reset();
+      actor.pos = ex.vec(0, 0);
+      expect(easeTo.isComplete(actor)).toBeFalse();
+    });
     it('can be eased to a location given an easing function (x,y) overload', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
 
@@ -633,6 +880,17 @@ describe('Action', () => {
   });
 
   describe('rotateBy', () => {
+
+    it('can be reset', () => {
+      const rotateBy = new ex.RotateBy(actor, Math.PI / 2, Math.PI / 2);
+      actor.actions.runAction(rotateBy);
+      scene.update(engine, 1000);
+      expect(rotateBy.isComplete()).toBeTrue();
+
+      rotateBy.reset();
+      actor.rotation = 0;
+      expect(rotateBy.isComplete()).toBeFalse();
+    });
     it('can be rotated to an angle by a certain time via ShortestPath (default)', () => {
       expect(actor.rotation).toBe(0);
 
@@ -711,6 +969,16 @@ describe('Action', () => {
   });
 
   describe('scaleTo', () => {
+    it('can be reset', () => {
+      const scaleTo = new ex.ScaleTo(actor, 2, 2, 1, 1);
+      actor.actions.runAction(scaleTo);
+      scene.update(engine, 1000);
+      expect(scaleTo.isComplete()).toBeTrue();
+
+      scaleTo.reset();
+      actor.scale = ex.vec(1, 1);
+      expect(scaleTo.isComplete()).toBeFalse();
+    });
     it('can be scaled at a speed (x,y) overload', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
@@ -786,6 +1054,17 @@ describe('Action', () => {
   });
 
   describe('scaleBy', () => {
+    it('can be reset', () => {
+      const scaleBy = new ex.ScaleBy(actor, 1, 1, 1);
+      actor.actions.runAction(scaleBy);
+      scene.update(engine, 1000);
+      expect(scaleBy.isComplete()).toBeTrue();
+
+      scaleBy.reset();
+      actor.scale = ex.vec(1, 1);
+      expect(scaleBy.isComplete()).toBeFalse();
+    });
+
     it('can be scaled by a certain time (x,y) overload', () => {
       expect(actor.scale.x).toBe(1);
       expect(actor.scale.y).toBe(1);
@@ -871,6 +1150,20 @@ describe('Action', () => {
   });
 
   describe('meet', () => {
+    it('can be reset', () => {
+      const target = new ex.Actor({x: 100, y: 0});
+      const meet = new ex.Meet(actor, target, 100);
+      actor.actions.runAction(meet);
+
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      expect(meet.isComplete()).toBeTrue();
+
+      meet.reset();
+      actor.pos = ex.vec(0, 0);
+      expect(meet.isComplete()).toBeFalse();
+    });
+
     it('can meet another actor', () => {
       expect(actor.pos.x).toBe(0);
       expect(actor.pos.y).toBe(0);
@@ -894,6 +1187,17 @@ describe('Action', () => {
   });
 
   describe('fade', () => {
+
+    it('can be reset', () => {
+      const fade = new ex.Fade(actor, 0, 1000);
+      fade.update(1000);
+      expect(fade.isComplete()).toBeTrue();
+
+      fade.reset();
+      actor.graphics.opacity = 1;
+      expect(fade.isComplete()).toBeFalse();
+    });
+
     it('can go from 1 from 0', () => {
       actor.graphics.opacity = 0;
 

@@ -94,8 +94,8 @@ export class RotateTo implements Action {
   }
 
   public isComplete(): boolean {
-    const distanceTravelled = Math.abs(this._currentNonCannonAngle - this._start);
-    return this._stopped || distanceTravelled >= Math.abs(this._distance);
+    const distanceTraveled = Math.abs(this._currentNonCannonAngle - this._start);
+    return this._stopped || distanceTraveled >= Math.abs(this._distance);
   }
 
   public stop(): void {
@@ -105,5 +105,6 @@ export class RotateTo implements Action {
 
   public reset(): void {
     this._started = false;
+    this._stopped = false;
   }
 }

@@ -28,5 +28,6 @@ export class Delay implements Action {
   reset(): void {
     this._elapsedTime = 0;
     this._started = false;
+    this._stopped = false;
   }
 }

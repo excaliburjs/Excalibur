@@ -1,35 +1,37 @@
-import { Entity} from '../../EntityComponentSystem/Entity';
-import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
-import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { Actor } from '../../Actor';
+import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
+import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
+import { Entity } from '../../EntityComponentSystem/Entity';
 import { vec, Vector } from '../../Math/vector';
 import { Action } from '../Action';
 
-export class EaseTo implements Action {
+export class EaseBy implements Action {
   private _tx: TransformComponent;
   private _motion: MotionComponent;
   private _currentLerpTime: number = 0;
   private _lerpDuration: number = 1 * 1000; // 1 second
   private _lerpStart: Vector = new Vector(0, 0);
   private _lerpEnd: Vector = new Vector(0, 0);
+  private _offset: Vector;
   private _initialized: boolean = false;
   private _stopped: boolean = false;
   private _distance: number = 0;
   constructor(
     entity: Entity,
-    x: number,
-    y: number,
+    offsetX: number,
+    offsetY: number,
     duration: number,
     public easingFcn: (currentTime: number, startValue: number, endValue: number, duration: number) => number
   ) {
     this._tx = entity.get(TransformComponent);
     this._motion = entity.get(MotionComponent);
     this._lerpDuration = duration;
-    this._lerpEnd = new Vector(x, y);
+    this._offset = new Vector(offsetX, offsetY);
   }
   private _initialize() {
     this._lerpStart = new Vector(this._tx.pos.x, this._tx.pos.y);
     this._currentLerpTime = 0;
+    this._lerpEnd = this._lerpStart.add(this._offset);
     this._distance = this._lerpStart.distance(this._lerpEnd);
   }
 

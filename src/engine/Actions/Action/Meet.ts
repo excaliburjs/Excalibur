@@ -71,5 +71,7 @@ export class Meet implements Action {
 
   public reset(): void {
     this._started = false;
+    this._stopped = false;
+    this._distanceBetween = undefined;
   }
 }
