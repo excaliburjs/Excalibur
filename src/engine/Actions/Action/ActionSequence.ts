@@ -11,9 +11,9 @@ export class ActionSequence implements Action {
   private _actionQueue: ActionQueue;
   private _stopped: boolean = false;
   private _sequenceContext: ActionContext;
-  private _sequenceBuilder: (sequenceContext: ActionContext) => any;
-  constructor(entity: Entity, repeatBuilder: (repeatContext: ActionContext) => any) {
-    this._sequenceBuilder = repeatBuilder;
+  private _sequenceBuilder: (actionContext: ActionContext) => any;
+  constructor(entity: Entity, actionBuilder: (actionContext: ActionContext) => any) {
+    this._sequenceBuilder = actionBuilder;
     this._sequenceContext = new ActionContext(entity);
     this._actionQueue = this._sequenceContext.getQueue();
     this._sequenceBuilder(this._sequenceContext);
@@ -34,5 +34,9 @@ export class ActionSequence implements Action {
   public reset(): void {
     this._stopped = false;
     this._actionQueue.reset();
+  }
+
+  public clone(entity: Entity) {
+    return new ActionSequence(entity, this._sequenceBuilder);
   }
 }

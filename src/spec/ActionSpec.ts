@@ -30,6 +30,144 @@ describe('Action', () => {
     engine = null;
   });
 
+  describe('parallel actions', () => {
+    it('can run actions in parallel', () => {
+      const parallel = new ex.ParallelActions([
+        new ex.MoveTo(actor, 100, 0, 100),
+        new ex.RotateTo(actor, Math.PI/2, Math.PI/2)
+      ]);
+
+      actor.actions.runAction(parallel);
+
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.rotation).toBe(Math.PI/2);
+    });
+
+    it('can run sequences in parallel', () => {
+      const parallel = new ex.ParallelActions([
+        new ex.ActionSequence(actor, ctx => ctx.moveTo(ex.vec(100, 0), 100)),
+        new ex.ActionSequence(actor, ctx => ctx.rotateTo(Math.PI/2, Math.PI/2))
+      ]);
+
+      actor.actions.runAction(parallel);
+
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.rotation).toBe(Math.PI/2);
+    });
+
+    it('can repeat sequences in parallel', () => {
+      const parallel = new ex.ParallelActions([
+        new ex.ActionSequence(actor, ctx => ctx.moveTo(ex.vec(100, 0), 100).moveTo(ex.vec(0, 0), 100)),
+        new ex.ActionSequence(actor, ctx => ctx.rotateTo(Math.PI/2, Math.PI/2).rotateTo(0, Math.PI/2))
+      ]);
+
+      actor.actions.repeatForever(ctx => {
+        ctx.runAction(parallel);
+      });
+
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.rotation).toBe(Math.PI/2);
+
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(0, 0));
+      expect(actor.rotation).toBe(0);
+
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+      expect(actor.rotation).toBe(Math.PI/2);
+    });
+  });
+
+  describe('action sequence', () => {
+    it('can specify a series of actions', () => {
+      const sequence = new ex.ActionSequence(actor, (ctx) => {
+        ctx.moveTo(ex.vec(100, 0), 100);
+        ctx.moveTo(ex.vec(-200, 0), 100);
+        ctx.moveTo(ex.vec(0, 0), 100);
+      });
+
+      actor.actions.runAction(sequence);
+
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(-200, 0));
+
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(0, 0));
+
+      scene.update(engine, 0);
+      expect(sequence.isComplete()).toBeTrue();
+
+      // Can re-run a sequence
+      actor.actions.runAction(sequence);
+      expect(sequence.isComplete()).toBeFalse();
+    });
+
+    it('can be stopped', () => {
+      const sequence = new ex.ActionSequence(actor, (ctx) => {
+        ctx.moveTo(ex.vec(100, 0), 100);
+        ctx.moveTo(ex.vec(-200, 0), 100);
+        ctx.moveTo(ex.vec(0, 0), 100);
+      });
+
+      actor.actions.runAction(sequence);
+
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+
+      sequence.stop();
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      expect(actor.pos).toBeVector(ex.vec(100, 0));
+    });
+
+    it('can be cloned', () => {
+      const sequence = new ex.ActionSequence(actor, (ctx) => {
+        ctx.moveTo(ex.vec(100, 0), 100);
+        ctx.moveTo(ex.vec(-200, 0), 100);
+        ctx.moveTo(ex.vec(0, 0), 100);
+      });
+
+      const actor2 = new ex.Actor();
+      scene.add(actor2);
+
+      const clonedSequence = sequence.clone(actor2);
+
+      actor2.actions.runAction(clonedSequence);
+
+      scene.update(engine, 1000);
+      expect(actor2.pos).toBeVector(ex.vec(100, 0));
+
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      expect(actor2.pos).toBeVector(ex.vec(-200, 0));
+
+      scene.update(engine, 0);
+      scene.update(engine, 1000);
+      scene.update(engine, 1000);
+      expect(actor2.pos).toBeVector(ex.vec(0, 0));
+
+      scene.update(engine, 0);
+      expect(clonedSequence.isComplete()).toBeTrue();
+    });
+  });
+
   describe('blink', () => {
     it('can blink on and off', () => {
       expect(actor.graphics.visible).toBe(true);
