@@ -180,6 +180,17 @@ describe('Action', () => {
       expect(actor.graphics.visible).toBe(true);
     });
 
+    it('can be reset', () => {
+
+      const blink = new ex.Blink(actor, 200, 200);
+      blink.update(200);
+      blink.update(200);
+      expect(blink.isComplete()).toBeTrue();
+
+      blink.reset();
+      expect(blink.isComplete()).toBeFalse();
+    });
+
     it('can blink at a frequency forever', () => {
       expect(actor.graphics.visible).toBe(true);
       actor.actions.repeatForever((ctx) => ctx.blink(200, 200));
@@ -271,6 +282,16 @@ describe('Action', () => {
 
       scene.update(engine, 1000);
       expect(actor.pos.x).toBe(20);
+    });
+
+    it('can be reset', () => {
+      const delay = new ex.Delay(1000);
+
+      delay.update(1000);
+      expect(delay.isComplete()).toBeTrue();
+
+      delay.reset();
+      expect(delay.isComplete()).toBeFalse();
     });
 
     it('can be stopped', () => {
@@ -416,7 +437,17 @@ describe('Action', () => {
     });
   });
 
-  describe('easyBy', () => {
+  describe('easeBy', () => {
+
+    it('can be reset', () => {
+      const easeTo = new ex.EaseBy(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
+      easeTo.update(1000);
+      expect(easeTo.isComplete(actor)).toBeTrue();
+
+      easeTo.reset();
+      actor.pos = ex.vec(0, 0);
+      expect(easeTo.isComplete(actor)).toBeFalse();
+    });
     it('can be eased to a location given an easing function (x,y) overload', () => {
       actor.pos = ex.vec(100, 100);
       expect(actor.pos).toBeVector(ex.vec(100, 100));
@@ -475,6 +506,15 @@ describe('Action', () => {
   });
 
   describe('easeTo', () => {
+    it('can be reset', () => {
+      const easeTo = new ex.EaseTo(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
+      easeTo.update(1000);
+      expect(easeTo.isComplete(actor)).toBeTrue();
+
+      easeTo.reset();
+      actor.pos = ex.vec(0, 0);
+      expect(easeTo.isComplete(actor)).toBeFalse();
+    });
     it('can be eased to a location given an easing function (x,y) overload', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
 
@@ -1090,6 +1130,17 @@ describe('Action', () => {
   });
 
   describe('fade', () => {
+
+    it('can be reset', () => {
+      const fade = new ex.Fade(actor, 0, 1000);
+      fade.update(1000);
+      expect(fade.isComplete()).toBeTrue();
+
+      fade.reset();
+      actor.graphics.opacity = 1;
+      expect(fade.isComplete()).toBeFalse();
+    });
+
     it('can go from 1 from 0', () => {
       actor.graphics.opacity = 0;
 
