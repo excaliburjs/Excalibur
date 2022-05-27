@@ -116,5 +116,10 @@
   },
   "dependencies": {
     "core-js": "3.22.5"
+  },
+  "overrides": {
+    "istanbul-instrumenter-loader" : {
+      "webpack": ">=5.68.0"
+    }
   }
 }
