@@ -416,6 +416,64 @@ describe('Action', () => {
     });
   });
 
+  describe('easyBy', () => {
+    it('can be eased to a location given an easing function (x,y) overload', () => {
+      actor.pos = ex.vec(100, 100);
+      expect(actor.pos).toBeVector(ex.vec(100, 100));
+
+      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(150, 100));
+      expect(actor.vel).toBeVector(ex.vec(100, 0));
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(200, 100));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(200, 100));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+    });
+
+    it('can be eased to a location given an easing function vector overload', () => {
+      actor.pos = ex.vec(100, 100);
+      expect(actor.pos).toBeVector(ex.vec(100, 100));
+
+      actor.actions.easeBy(ex.vec(100, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(150, 100));
+      expect(actor.vel).toBeVector(ex.vec(100, 0));
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(200, 100));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(200, 100));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+    });
+
+    it('can be stopped', () => {
+      actor.pos = ex.vec(100, 100);
+      expect(actor.pos).toBeVector(ex.vec(100, 100));
+
+      actor.actions.easeBy(100, 0, 1000, ex.EasingFunctions.EaseInOutCubic);
+
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(150, 100));
+      expect(actor.vel).toBeVector(ex.vec(100, 0));
+
+      actor.actions.clearActions();
+
+      // actor should not move and should have zero velocity after stopping
+      scene.update(engine, 500);
+      expect(actor.pos).toBeVector(ex.vec(150, 100));
+      expect(actor.vel).toBeVector(ex.vec(0, 0));
+    });
+  });
+
   describe('easeTo', () => {
     it('can be eased to a location given an easing function (x,y) overload', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));
