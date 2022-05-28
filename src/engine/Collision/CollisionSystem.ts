@@ -37,34 +37,60 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
       const collider = colliderComponent.get();
       if (collider) {
         this._processor.track(collider);
+        // if (this.useWebWorker) {
+        //   if (collider instanceof PolygonCollider) {
+        //     this.worker.postMessage({command: 'track', payload: {
+        //       id: collider.id.value,
+        //       type: 'polygon',
+        //       offset: collider.offset,
+        //       points: collider.points.map(p => ({x: p.x, y: p.y}))
+        //     }});
+        //   }
+        //   if (collider instanceof CircleCollider) {
+        //     this.worker.postMessage({command: 'track', payload: {id: collider.id.value, offset: collider.offset, points: collider.radius}});
+        //   }
+        // }
+        // TODO composite collider
       }
     } else {
       const colliderComponent = message.data.get(ColliderComponent);
       const collider = colliderComponent.get();
       if (colliderComponent && collider) {
         this._processor.untrack(collider);
+        // if (this.useWebWorker) {
+        //   this.worker.postMessage({command: 'untrack', payload: collider});
+        // }
       }
     }
   }
 
   initialize(scene: Scene) {
     this._engine = scene.engine;
+    // if (this.useWebWorker) {
+    //   this.worker.onmessage = (_data) => {
+    //     // console.log('Message received', e.data)
+    //   }
+    // }
   }
 
-  update(_entities: Entity[], elapsedMs: number): void {
+  update(entities: Entity[], elapsedMs: number): void {
     if (!Physics.enabled) {
       return;
     }
+    // this.worker.postMessage({command: 'step'});
 
-    // Collect up all the colliders
+    // Collect up all the colliders and update them
     let colliders: Collider[] = [];
-    for (const entity of _entities) {
+    for (const entity of entities) {
       const colliderComp = entity.get(ColliderComponent);
+      // const transform = entity.get(TransformComponent);
+      // this.worker.postMessage({command: 'transform', payload: { type: 'transform', data: transform.getGlobalMatrix().data }});
       const collider = colliderComp?.get();
       if (colliderComp && colliderComp.owner?.active && collider) {
         colliderComp.update();
         if (collider instanceof CompositeCollider) {
-          colliders = colliders.concat(collider.getColliders());
+          const compositeColliders = collider.getColliders();
+          colliders = colliders.concat(compositeColliders);
         } else {
           colliders.push(collider);
         }
@@ -82,7 +108,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     this._currentFrameContacts.clear();
 
     // Given possible pairs find actual contacts
-    let contacts = this._processor.narrowphase(pairs, this._engine.debug.stats.currFrame);
+    let contacts = this._processor.narrowphase(pairs, this._engine?.debug?.stats?.currFrame);
 
     const solver: CollisionSolver = this.getSolver();
 

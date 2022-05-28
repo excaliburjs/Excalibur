@@ -97,6 +97,12 @@ export class Matrix {
     return new DOMMatrix([...this.data]);
   }
 
+  public static fromFloat32Array(data: Float32Array) {
+    const matrix =  new Matrix();
+    matrix.data = data;
+    return matrix;
+  }
+
   /**
    * Creates a new identity matrix (a matrix that when applied does nothing)
    */

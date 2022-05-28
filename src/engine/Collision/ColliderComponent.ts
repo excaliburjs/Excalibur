@@ -88,6 +88,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
    * Update the collider's transformed geometry
    */
   public update() {
+    // TODO move this to collision system worker 
     const tx = this.owner?.get(TransformComponent);
     if (this._collider) {
       this._collider.owner = this.owner;
