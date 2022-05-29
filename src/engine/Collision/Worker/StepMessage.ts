@@ -5,3 +5,9 @@ export interface StepMessage {
   bodies: BodyMessage[];
   elapsed: number;
 }
+
+export interface StepFlattened {
+  type: 'step-flattened',
+  bodies: Float64Array;
+  elapsed: number;
+}

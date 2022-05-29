@@ -6,10 +6,11 @@ import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
 import { Ray } from '../../Math/ray';
 import { Clonable } from '../../Interfaces/Clonable';
-import { Entity, Transform } from '../../EntityComponentSystem';
+import { Entity } from '../../EntityComponentSystem';
 import { createId, Id } from '../../Id';
 import { EventDispatcher } from '../../EventDispatcher';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+import { Transform } from '../../Math/transform';
 
 /**
  * A collision collider specifies the geometry that can detect when other collision colliders intersect

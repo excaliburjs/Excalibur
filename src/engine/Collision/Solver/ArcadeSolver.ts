@@ -74,13 +74,13 @@ export class ArcadeSolver extends CollisionSolver {
         if (bodyA.collisionType === CollisionType.Active) {
           bodyA.pos.x -= mtv.x;
           bodyA.pos.y -= mtv.y;
-          colliderA.update(bodyA.transform);
+          colliderA.update(bodyA.transform.get());
         }
 
         if (bodyB.collisionType === CollisionType.Active) {
           bodyB.pos.x += mtv.x;
           bodyB.pos.y += mtv.y;
-          colliderB.update(bodyB.transform);
+          colliderB.update(bodyB.transform.get());
         }
       }
     }

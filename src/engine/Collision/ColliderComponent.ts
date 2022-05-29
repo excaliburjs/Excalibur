@@ -93,7 +93,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
     if (this._collider) {
       this._collider.owner = this.owner;
       if (tx) {
-        this._collider.update(tx);
+        this._collider.update(tx.get());
       }
     }
   }

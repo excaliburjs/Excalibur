@@ -3,6 +3,7 @@ declare module '*.png' {
   export default value;
 }
 
+
 declare module '*.mp3';
 declare module '*.svg';
 
@@ -12,6 +13,11 @@ declare module '*.css' {
 }
 
 declare module '*.glsl' {
+  const value: string;
+  export default value;
+}
+
+declare module '*.js' {
   const value: string;
   export default value;
 }

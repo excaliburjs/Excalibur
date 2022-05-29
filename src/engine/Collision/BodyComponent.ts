@@ -31,7 +31,7 @@ export enum DegreeOfFreedom {
 export class BodyComponent extends Component<'ex.body'> implements Clonable<BodyComponent> {
   public readonly type = 'ex.body';
   public dependencies = [TransformComponent, MotionComponent];
-  public static _ID = 0;
+  public static _ID = 1;
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
   public events = new EventDispatcher();
 
@@ -44,6 +44,10 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
       this.group = options.group ?? this.group;
       this.useGravity = options.useGravity ?? this.useGravity;
     }
+  }
+
+  public get matrix() {
+    return this.transform.get().matrix;
   }
 
   /**
@@ -371,7 +375,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
    */
   public captureOldTransform() {
     // Capture old values before integration step updates them
-    this.transform.getGlobalMatrix().clone(this._oldTransform);
+    this.transform.get().matrix.clone(this._oldTransform);
     this.oldVel.setTo(this.vel.x, this.vel.y);
     this.oldAcc.setTo(this.acc.x, this.acc.y);
   }
