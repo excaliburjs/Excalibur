@@ -11,7 +11,7 @@ export class AffineMatrix {
    * | data[1] | data[3] | data[5]  |
    * |   0     |    0    |    1     |
    */
-  public data = new Float32Array(6);
+  public data = new Float64Array(6);
 
   /**
    * Converts the current matrix into a DOMMatrix
@@ -324,7 +324,7 @@ export class AffineMatrix {
     return vec(this.getScaleX(), this.getScaleY());
   }
 
-  private _scale = new Float32Array([1, 1]);
+  private _scale = new Float64Array([1, 1]);
   private _scaleSignX = 1;
   public setScaleX(val: number) {
     if (val === this._scale[0]) {

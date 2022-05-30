@@ -127,11 +127,24 @@ export class Transform {
   }
 
   private _calculateMatrix(): AffineMatrix {
-    const matrix = AffineMatrix.identity()
-      .translate(this.pos.x, this.pos.y)
-      .rotate(this.rotation)
-      .scale(this.scale.x, this.scale.y);
+    const matrix = this._matrix;//new AffineMatrix();
+    // todo not positive this is correct
+    const sine = Math.sin(this.rotation);
+    const cosine = Math.cos(this.rotation);
+    matrix.data[0] = this.scale.x * cosine;
+    matrix.data[1] = sine;
+
+    matrix.data[2] = -sine;
+    matrix.data[3] = this.scale.y * cosine;
+
+    matrix.data[4] = this.pos.x;
+    matrix.data[5] = this.pos.y;
     return matrix;
+    // const matrix = AffineMatrix.identity()
+    //   .translate(this.pos.x, this.pos.y)
+    //   .rotate(this.rotation)
+    //   .scale(this.scale.x, this.scale.y);
+    // return matrix;
   }
 
 

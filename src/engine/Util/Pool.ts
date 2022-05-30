@@ -12,6 +12,12 @@ export class Pool<Type> {
     public maxObjects: number = 100
   ) {}
 
+  preallocate() {
+    for (let i = 0; i < this.maxObjects; i++) {
+      this.objects[i] = this.builder();
+    }
+  }
+
   /**
    * Use many instances out of the in the context and return all to the pool.
    *
