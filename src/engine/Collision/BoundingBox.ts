@@ -3,7 +3,7 @@ import { Ray } from '../Math/ray';
 import { Color } from '../Color';
 import { Side } from './Side';
 import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
-import { Matrix } from '../Math/matrix';
+import { AffineMatrix } from '../Math/affine-matrix';
 
 export interface BoundingBoxOptions {
   left: number;
@@ -161,12 +161,12 @@ export class BoundingBox {
    * Transform the axis aligned bounding box by a [[Matrix]], producing a new axis aligned bounding box
    * @param matrix
    */
-  public transform(matrix: Matrix) {
+  public transform(matrix: AffineMatrix) {
     const matFirstColumn = vec(matrix.data[0], matrix.data[1]);
     const xa = matFirstColumn.scale(this.left);
     const xb = matFirstColumn.scale(this.right);
 
-    const matSecondColumn = vec(matrix.data[4], matrix.data[5]);
+    const matSecondColumn = vec(matrix.data[2], matrix.data[3]);
     const ya = matSecondColumn.scale(this.top);
     const yb = matSecondColumn.scale(this.bottom);
 

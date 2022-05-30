@@ -31,6 +31,7 @@ import { RectangleRenderer } from './rectangle-renderer/rectangle-renderer';
 import { CircleRenderer } from './circle-renderer/circle-renderer';
 import { Pool } from '../../Util/Pool';
 import { DrawCall } from './draw-call';
+import { AffineMatrix } from '../../Math/affine-matrix';
 
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -305,7 +306,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   public resetTransform(): void {
-    this._transform.current = Matrix.identity();
+    this._transform.current = AffineMatrix.identity();
   }
 
   public updateViewport(resolution: ScreenDimension): void {
@@ -397,15 +398,15 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._transform.scale(x, y);
   }
 
-  public transform(matrix: Matrix) {
+  public transform(matrix: AffineMatrix) {
     this._transform.current = matrix;
   }
 
-  public getTransform(): Matrix {
+  public getTransform(): AffineMatrix {
     return this._transform.current;
   }
 
-  public multiply(m: Matrix) {
+  public multiply(m: AffineMatrix) {
     this._transform.current = this._transform.current.multiply(m);
   }
 

@@ -11,9 +11,9 @@ import { Color } from '../../Color';
 import { StateStack } from './state-stack';
 import { GraphicsDiagnostics } from '../GraphicsDiagnostics';
 import { DebugText } from './debug-text';
-import { Matrix } from '../../Math/matrix';
 import { ScreenDimension } from '../../Screen';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
+import { AffineMatrix } from '../../Math/affine-matrix';
 
 class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
   private _debugText = new DebugText();
@@ -272,11 +272,11 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.scale(x, y);
   }
 
-  public getTransform(): Matrix {
+  public getTransform(): AffineMatrix {
     throw new Error('Not implemented');
   }
 
-  public multiply(_m: Matrix): void {
+  public multiply(_m: AffineMatrix): void {
     this.__ctx.setTransform(this.__ctx.getTransform().multiply(_m.toDOMMatrix()));
   }
 

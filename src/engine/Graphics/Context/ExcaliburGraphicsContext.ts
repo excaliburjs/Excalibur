@@ -1,8 +1,8 @@
 import { Vector } from '../../Math/vector';
-import { Matrix } from '../../Math/matrix';
 import { Color } from '../../Color';
 import { ScreenDimension } from '../../Screen';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
+import { AffineMatrix } from '../../Math/affine-matrix';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
 
@@ -114,13 +114,13 @@ export interface ExcaliburGraphicsContext {
   /**
    * Gets the current transform
    */
-  getTransform(): Matrix;
+  getTransform(): AffineMatrix;
 
   /**
    * Multiplies the current transform by a matrix
    * @param m
    */
-  multiply(m: Matrix): void;
+  multiply(m: AffineMatrix): void;
 
   /**
    * Update the context with the current viewport dimensions (used in resizing)

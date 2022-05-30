@@ -1,8 +1,8 @@
-import { Matrix } from '../../Math/matrix';
+import { AffineMatrix } from '../../Math/affine-matrix';
 
 export class TransformStack {
-  private _transforms: Matrix[] = [];
-  private _currentTransform: Matrix = Matrix.identity();
+  private _transforms: AffineMatrix[] = [];
+  private _currentTransform: AffineMatrix = AffineMatrix.identity();
 
   public save(): void {
     this._transforms.push(this._currentTransform);
@@ -13,23 +13,23 @@ export class TransformStack {
     this._currentTransform = this._transforms.pop();
   }
 
-  public translate(x: number, y: number): Matrix {
+  public translate(x: number, y: number): AffineMatrix {
     return this._currentTransform.translate(x, y);
   }
 
-  public rotate(angle: number): Matrix {
+  public rotate(angle: number): AffineMatrix {
     return this._currentTransform.rotate(angle);
   }
 
-  public scale(x: number, y: number): Matrix {
+  public scale(x: number, y: number): AffineMatrix {
     return this._currentTransform.scale(x, y);
   }
 
-  public set current(matrix: Matrix) {
+  public set current(matrix: AffineMatrix) {
     this._currentTransform = matrix;
   }
 
-  public get current(): Matrix {
+  public get current(): AffineMatrix {
     return this._currentTransform;
   }
 }

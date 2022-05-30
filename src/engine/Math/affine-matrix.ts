@@ -1,3 +1,4 @@
+import { Matrix } from "./matrix";
 import { canonicalizeAngle, sign } from "./util";
 import { vec, Vector } from "./vector";
 
@@ -114,13 +115,19 @@ export class AffineMatrix {
   translate(x: number, y: number) {
     const a11 = this.data[0];
     const a21 = this.data[1];
-
+    // const a31 = 0;
+    
     const a12 = this.data[2];
     const a22 = this.data[3];
+    // const a32 = 0;
 
+    const a13 = this.data[4];
+    const a23 = this.data[5];
+    // const a33 = 1;
+    
     // Doesn't change z
-    this.data[4] = a11 * x + a12 * y;
-    this.data[5] = a21 * x + a22 * y;
+    this.data[4] = a11 * x + a12 * y + a13;
+    this.data[5] = a21 * x + a22 * y + a23;
 
     return this;
   }
@@ -254,6 +261,30 @@ export class AffineMatrix {
 
       return result;
     }
+  }
+
+  to4x4() {
+    const mat = new Matrix();
+    mat.data[0] = this.data[0];
+    mat.data[1] = this.data[1];
+    mat.data[2] = 0;
+    mat.data[3] = 0;
+
+    mat.data[4] = this.data[2];
+    mat.data[5] = this.data[3];
+    mat.data[6] = 0;
+    mat.data[7] = 0;
+
+    mat.data[8] = 0;
+    mat.data[9] = 0;
+    mat.data[10] = 1;
+    mat.data[11] = 0;
+
+    mat.data[12] = this.data[4];
+    mat.data[13] = this.data[5];
+    mat.data[14] = 0;
+    mat.data[15] = 1;
+    return mat;
   }
 
   public setRotation(angle: number) {

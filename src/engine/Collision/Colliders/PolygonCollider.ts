@@ -7,7 +7,7 @@ import { CollisionContact } from '../Detection/CollisionContact';
 import { Projection } from '../../Math/projection';
 import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
-import { Matrix } from '../../Math/matrix';
+import { AffineMatrix } from '../../Math/affine-matrix';
 import { Ray } from '../../Math/ray';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { Collider } from './Collider';
@@ -276,7 +276,7 @@ export class PolygonCollider extends Collider {
     return this.bounds.center;
   }
 
-  private _globalMatrix: Matrix = Matrix.identity();
+  private _globalMatrix: AffineMatrix = AffineMatrix.identity();
 
   /**
    * Calculates the underlying transformation from the body relative space to world space

@@ -1,8 +1,8 @@
 import { Vector, vec } from '../Math/vector';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/BoundingBox';
-import { Matrix } from '..';
 import { watch } from '../Util/Watch';
+import { AffineMatrix } from '../math/affine-matrix';
 
 export interface GraphicOptions {
   /**
@@ -51,7 +51,7 @@ export abstract class Graphic {
   private static _ID: number = 0;
   readonly id = Graphic._ID++;
 
-  public transform: Matrix = Matrix.identity();
+  public transform: AffineMatrix = AffineMatrix.identity();
   private _transformStale = true;
   public isStale() {
     return this._transformStale;
@@ -237,7 +237,7 @@ export abstract class Graphic {
     ex.opacity = ex.opacity * this.opacity;
   }
 
-  protected _rotate(ex: ExcaliburGraphicsContext | Matrix) {
+  protected _rotate(ex: ExcaliburGraphicsContext | AffineMatrix) {
     const scaleDirX = this.scale.x > 0 ? 1 : -1;
     const scaleDirY = this.scale.y > 0 ? 1 : -1;
     const origin = this.origin ?? vec(this.width / 2, this.height / 2);
@@ -248,7 +248,7 @@ export abstract class Graphic {
     ex.translate(-origin.x, -origin.y);
   }
 
-  protected _flip(ex: ExcaliburGraphicsContext | Matrix) {
+  protected _flip(ex: ExcaliburGraphicsContext | AffineMatrix) {
     if (this.flipHorizontal) {
       ex.translate(this.width / this.scale.x, 0);
       ex.scale(-1, 1);
