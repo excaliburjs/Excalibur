@@ -481,27 +481,91 @@ describe('A Timer', () => {
   it('can be initialized with random time range', ()=> {
     const timer = new ex.Timer({
       interval: 100, 
-      fcn: () => {/**Do nothing*/} ,
       randomRange: [0, 200]
     })
     scene.add(timer);
     timer.start();
     scene.update(engine, 100); 
     expect(timer.complete).toBeFalse(); 
+    expect(timer.interval).toBeGreaterThanOrEqual(100)
+    expect(timer.interval).toBeLessThanOrEqual(300)
   })
 
-  it('is no longer random after reset', ()=>{
+  it('has a random interval even with repetition', ()=> {
     const timer = new ex.Timer({
-      interval: 500,
-      randomRange: [0, 100]
+      interval: 100, 
+      randomRange: [0, 200],
+      repeats: true,
     })
     scene.add(timer);
     timer.start();
-    timer.reset(700);
-    timer.start();
-    scene.update(engine, 500)
-    expect(timer.complete).toBeFalse();
+    timer.update(301);
+    expect(timer.interval).toBeGreaterThanOrEqual(100)
+    expect(timer.interval).toBeLessThanOrEqual(300)
+
   })
 
+  it('an Random instance can be passed, if specified', ()=> {
+    const randomMock = jasmine.createSpyObj('Random', ['integer']);
+    randomMock.integer.and.returnValue(11);
+    const timer = new ex.Timer({ interval: 500, repeats: false, randomRange: [0, 100], random: randomMock});
+    scene.add(timer);
+    timer.start();
+    expect(timer.interval).toBe(511);
+    timer.update(511);
+  })
+
+  it('has a randomly set interval with repetition and Random instance passed', ()=> {
+    const randomMock = jasmine.createSpyObj('Random', ['integer']);
+    randomMock.integer.and.returnValues(11, 5, 2, 99);
+    const timer = new ex.Timer({ interval: 500, repeats: true, randomRange: [0, 100], random: randomMock});
+    scene.add(timer);
+    timer.start();
+    expect(timer.interval).toBe(511);
+    timer.update(511);
+    expect(timer.interval).toBe(505);
+    timer.update(505);
+    expect(timer.interval).toBe(502);
+    timer.update(502);
+    expect(timer.interval).toBe(599);
+  })
+
+  it('is random after reset with Random instance passed and no repeats are added', ()=> {
+    const randomMock = jasmine.createSpyObj('Random', ['integer']);
+    randomMock.integer.and.returnValues(11, 5);
+    const timer = new ex.Timer({ interval: 500, repeats: false, randomRange: [0, 100], random: randomMock});
+    scene.add(timer);
+    timer.start();
+    expect(timer.interval).toBe(511);
+    timer.update(511);
+    timer.reset();
+    timer.start();
+    expect(timer.interval).toBe(505);
+    timer.update(505);
+  })
+
+  it('produces random intervals even with new interval passed during reset', ()=> {
+    const randomMock = jasmine.createSpyObj('Random', ['integer']);
+    randomMock.integer.and.returnValues(11, 5);
+    const timer = new ex.Timer({ interval: 500, repeats: true, randomRange: [0, 100], random: randomMock});
+    scene.add(timer);
+    timer.start();
+    expect(timer.interval).toBe(511);
+    timer.update(511);
+    timer.reset(900);
+    timer.start();
+    expect(timer.interval).toBe(900);
+    timer.update(901);
+    expect(timer.interval).toBe(505);
+    timer.update(505);
+
+  })
+
+
+  
+
 });
+
+
+
 
