@@ -10,7 +10,7 @@ import { EventDispatcher } from '../EventDispatcher';
 import { createId, Id } from '../Id';
 import { clamp } from '../Math/util';
 import { ColliderComponent } from './ColliderComponent';
-import { Matrix } from '../Math/matrix';
+import { AffineMatrix } from '../Math/affine-matrix';
 
 export interface BodyComponentOptions {
   type?: CollisionType;
@@ -35,7 +35,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
   public events = new EventDispatcher();
 
-  private _oldTransform = Matrix.identity();
+  private _oldTransform = AffineMatrix.identity();
 
   constructor(options?: BodyComponentOptions) {
     super();

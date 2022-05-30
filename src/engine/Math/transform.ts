@@ -1,9 +1,9 @@
 import { watch } from "../Util/Watch";
-import { Matrix } from "./matrix";
+import { AffineMatrix } from "./affine-matrix";
 import { vec, Vector } from "./vector";
 
 export class Transform {
-  constructor(matrix?: Matrix) {
+  constructor(matrix?: AffineMatrix) {
     if (matrix) {
       this.pos = matrix.getPosition();
       this.rotation = matrix.getRotation();
@@ -103,8 +103,8 @@ export class Transform {
 
   private _isDirty = false;
   private _isInverseDirty = false;
-  private _matrix = Matrix.identity();
-  private _inverse = Matrix.identity();
+  private _matrix = AffineMatrix.identity();
+  private _inverse = AffineMatrix.identity();
 
   public get matrix() {
     if (this._isDirty) {
@@ -120,23 +120,18 @@ export class Transform {
 
   public get inverse() {
     if (this._isInverseDirty) {
-      this._inverse = this.matrix.getAffineInverse();
+      this._inverse = this.matrix.inverse();
       this._isInverseDirty = false;
     }
     return this._inverse;
   }
 
-  private _calculateMatrix(): Matrix {
-    const matrix = Matrix.identity()
+  private _calculateMatrix(): AffineMatrix {
+    const matrix = AffineMatrix.identity()
       .translate(this.pos.x, this.pos.y)
       .rotate(this.rotation)
       .scale(this.scale.x, this.scale.y);
     return matrix;
-    // return Matrix.translation(this.pos.x, this.pos.y).multiply(
-    //   Matrix.rotation(this.rotation)
-    // ).multiply(
-    //   Matrix.scale(this.scale.x, this.scale.y)
-    // );
   }
 
 

@@ -1,6 +1,7 @@
 export * from './vector';
 export * from './vector-view';
 export * from './matrix';
+export * from './affine-matrix';
 export * from './Random';
 export * from './global-coordinates';
 export * from './line-segment';
