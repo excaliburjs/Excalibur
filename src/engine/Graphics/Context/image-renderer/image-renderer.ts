@@ -67,7 +67,7 @@ export class ImageRenderer implements RendererPlugin {
         ['a_opacity', 1],
         ['a_texcoord', 2],
         ['a_textureIndex', 1],
-        ['a_tint', 4],
+        ['a_tint', 4]
       ]
     });
 
