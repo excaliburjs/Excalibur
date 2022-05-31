@@ -12,7 +12,6 @@ import { messageToVector } from "./VectorMessage";
 const entitiesMap = new Map<number, Entity>();
 const colliderMap = new Map<number, ColliderComponent>();
 const bodyMap = new Map<number, BodyComponent>();
-let bodiesFlattened: Float64Array;
 const posXOffset = 1;
 const posYOffset = 2;
 const rotationOffset = 3;
@@ -29,7 +28,7 @@ const scaleFactorYOffset = 12;
 onmessage = (e: MessageEvent<WorkerMessages>) => {
   switch(e.data.type) {
     case 'start': {
-      // start(e.data.fps);
+      start(e.data.fps);
       break;
     }
     case 'step': {
@@ -43,7 +42,7 @@ onmessage = (e: MessageEvent<WorkerMessages>) => {
       break;
     }
     case 'step-flattened': {
-      bodiesFlattened = e.data.bodies;
+      let bodiesFlattened = e.data.bodies;
       const elapsedMs = e.data.elapsed;
       // integrate position
       for (let i = 0; i < bodiesFlattened.length; i += 13) {
@@ -80,7 +79,7 @@ onmessage = (e: MessageEvent<WorkerMessages>) => {
         bodiesFlattened[i+scaleXOffset] += scaleFactorx * seconds;
         bodiesFlattened[i+scaleYOffset] += scaleFactory * seconds;
       }
-      postMessage(bodiesFlattened);
+      postMessage(bodiesFlattened, [bodiesFlattened.buffer] as any);
       break;
     }
     case 'body': {
@@ -128,8 +127,8 @@ const runPhysicsStep = (elapsedMs: number) => {
   postMessage(bodies);
 }
 
-// const start = (fps: number) => {
-//   setInterval(() => {
-//     runPhysicsStep(1000/fps);
-//   }, 1000/fps)
-// }
+const start = (fps: number) => {
+  setInterval(() => {
+    runPhysicsStep(1000/fps);
+  }, 1000/fps)
+}

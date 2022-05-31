@@ -35,7 +35,7 @@ export class QueryManager {
   }
 
   /**
-   * Adds the entity to any matching query in the query manage
+   * Adds the entity to any matching query in the query manager
    * @param entity
    */
   public addEntity(entity: Entity) {

@@ -8,7 +8,7 @@ export interface BodyMessage {
   // pos: VectorMessage;
   vel: VectorMessage;
   acc: VectorMessage;
-  data: Float32Array;
+  data: Float64Array;
 
   // rotation: number;
   angularVelocity: number;

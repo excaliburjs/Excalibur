@@ -2818,6 +2818,340 @@ class Matrix {
     }
 }
 
+;// CONCATENATED MODULE: ./Math/affine-matrix.ts
+
+
+
+class AffineMatrix {
+    constructor() {
+        /**
+         * |         |         |          |
+         * | ------- | ------- | -------- |
+         * | data[0] | data[2] | data[4]  |
+         * | data[1] | data[3] | data[5]  |
+         * |   0     |    0    |    1     |
+         */
+        this.data = new Float64Array(6);
+        this._scale = new Float64Array([1, 1]);
+        this._scaleSignX = 1;
+        this._scaleSignY = 1;
+    }
+    /**
+     * Converts the current matrix into a DOMMatrix
+     *
+     * This is useful when working with the browser Canvas context
+     * @returns {DOMMatrix} DOMMatrix
+     */
+    toDOMMatrix() {
+        return new DOMMatrix([...this.data]);
+    }
+    static identity() {
+        const mat = new AffineMatrix();
+        mat.data[0] = 1;
+        mat.data[1] = 0;
+        mat.data[2] = 0;
+        mat.data[3] = 1;
+        mat.data[4] = 0;
+        mat.data[5] = 0;
+        return mat;
+    }
+    /**
+     * Creates a brand new translation matrix at the specified 3d point
+     * @param x
+     * @param y
+     */
+    static translation(x, y) {
+        const mat = AffineMatrix.identity();
+        mat.data[4] = x;
+        mat.data[5] = y;
+        return mat;
+    }
+    /**
+     * Creates a brand new scaling matrix with the specified scaling factor
+     * @param sx
+     * @param sy
+     */
+    static scale(sx, sy) {
+        const mat = AffineMatrix.identity();
+        mat.data[0] = sx;
+        mat.data[3] = sy;
+        mat._scale[0] = sx;
+        mat._scale[1] = sy;
+        return mat;
+    }
+    /**
+     * Creates a brand new rotation matrix with the specified angle
+     * @param angleRadians
+     */
+    static rotation(angleRadians) {
+        const mat = AffineMatrix.identity();
+        mat.data[0] = Math.cos(angleRadians);
+        mat.data[1] = Math.sin(angleRadians);
+        mat.data[2] = -Math.sin(angleRadians);
+        mat.data[3] = Math.cos(angleRadians);
+        return mat;
+    }
+    setPosition(x, y) {
+        this.data[4] = x;
+        this.data[5] = y;
+    }
+    getPosition() {
+        return vec(this.data[4], this.data[5]);
+    }
+    /**
+     * Applies rotation to the current matrix mutating it
+     * @param angle in Radians
+     */
+    rotate(angle) {
+        const a11 = this.data[0];
+        const a21 = this.data[1];
+        const a12 = this.data[2];
+        const a22 = this.data[3];
+        const sine = Math.sin(angle);
+        const cosine = Math.cos(angle);
+        this.data[0] = cosine * a11 + sine * a12;
+        this.data[1] = cosine * a21 + sine * a22;
+        this.data[2] = cosine * a12 - sine * a11;
+        this.data[3] = cosine * a22 - sine * a21;
+        return this;
+    }
+    /**
+     * Applies translation to the current matrix mutating it
+     * @param x
+     * @param y
+     */
+    translate(x, y) {
+        const a11 = this.data[0];
+        const a21 = this.data[1];
+        // const a31 = 0;
+        const a12 = this.data[2];
+        const a22 = this.data[3];
+        // const a32 = 0;
+        const a13 = this.data[4];
+        const a23 = this.data[5];
+        // const a33 = 1;
+        // Doesn't change z
+        this.data[4] = a11 * x + a12 * y + a13;
+        this.data[5] = a21 * x + a22 * y + a23;
+        return this;
+    }
+    /**
+     * Applies scaling to the current matrix mutating it
+     * @param x
+     * @param y
+     */
+    scale(x, y) {
+        const a11 = this.data[0];
+        const a21 = this.data[1];
+        const a12 = this.data[2];
+        const a22 = this.data[3];
+        this.data[0] = a11 * x;
+        this.data[1] = a21 * x;
+        this.data[2] = a12 * y;
+        this.data[3] = a22 * y;
+        this._scale[0] = x;
+        this._scale[1] = y;
+        return this;
+    }
+    determinant() {
+        return this.data[0] * this.data[3] - this.data[1] * this.data[2];
+    }
+    /**
+     * Return the affine inverse, optionally store it in a target matrix.
+     *
+     * It's recommended you call .reset() the target unless you know what you're doing
+     * @param target
+     */
+    inverse(target) {
+        // See http://negativeprobability.blogspot.com/2011/11/affine-transformations-and-their.html
+        // See https://www.mathsisfun.com/algebra/matrix-inverse.html
+        // Since we are actually only doing 2D transformations we can use this hack
+        // We don't actually use the 3rd or 4th dimension
+        const det = this.determinant();
+        const inverseDet = 1 / det; // TODO zero check
+        const a = this.data[0];
+        const b = this.data[2];
+        const c = this.data[1];
+        const d = this.data[3];
+        const m = target || AffineMatrix.identity();
+        // inverts rotation and scale
+        m.data[0] = d * inverseDet;
+        m.data[1] = -c * inverseDet;
+        m.data[2] = -b * inverseDet;
+        m.data[3] = a * inverseDet;
+        const tx = this.data[4];
+        const ty = this.data[5];
+        // invert translation
+        // transform translation into the matrix basis created by rot/scale
+        m.data[4] = -(tx * m.data[0] + ty * m.data[2]);
+        m.data[5] = -(tx * m.data[1] + ty * m.data[3]);
+        return m;
+    }
+    multiply(vectorOrMatrix, dest) {
+        if (vectorOrMatrix instanceof vector_Vector) {
+            const result = dest || new vector_Vector(0, 0);
+            const vector = vectorOrMatrix;
+            // these shenanigans are to allow dest and vector to be the same instance
+            const resultX = vector.x * this.data[0] + vector.y * this.data[2] + this.data[4];
+            const resultY = vector.x * this.data[1] + vector.y * this.data[3] + this.data[5];
+            result.x = resultX;
+            result.y = resultY;
+            return result;
+        }
+        else {
+            const result = dest || new AffineMatrix();
+            const other = vectorOrMatrix;
+            const a11 = this.data[0];
+            const a21 = this.data[1];
+            //  const a31 = 0;
+            const a12 = this.data[2];
+            const a22 = this.data[3];
+            //  const a32 = 0;
+            const a13 = this.data[4];
+            const a23 = this.data[5];
+            //  const a33 = 1;
+            const b11 = other.data[0];
+            const b21 = other.data[1];
+            //  const b31 = 0;
+            const b12 = other.data[2];
+            const b22 = other.data[3];
+            //  const b32 = 0;
+            const b13 = other.data[4];
+            const b23 = other.data[5];
+            //  const b33 = 1;
+            result.data[0] = a11 * b11 + a12 * b21; // + a13 * b31; // zero
+            result.data[1] = a21 * b11 + a22 * b21; // + a23 * b31; // zero
+            result.data[2] = a11 * b12 + a12 * b22; // + a13 * b32; // zero
+            result.data[3] = a21 * b12 + a22 * b22; // + a23 * b32; // zero
+            result.data[4] = a11 * b13 + a12 * b23 + a13; // * b33; // one
+            result.data[5] = a21 * b13 + a22 * b23 + a23; // * b33; // one
+            const s = this.getScale();
+            result._scaleSignX = sign(s.x) * sign(result._scaleSignX);
+            result._scaleSignY = sign(s.y) * sign(result._scaleSignY);
+            return result;
+        }
+    }
+    to4x4() {
+        const mat = new Matrix();
+        mat.data[0] = this.data[0];
+        mat.data[1] = this.data[1];
+        mat.data[2] = 0;
+        mat.data[3] = 0;
+        mat.data[4] = this.data[2];
+        mat.data[5] = this.data[3];
+        mat.data[6] = 0;
+        mat.data[7] = 0;
+        mat.data[8] = 0;
+        mat.data[9] = 0;
+        mat.data[10] = 1;
+        mat.data[11] = 0;
+        mat.data[12] = this.data[4];
+        mat.data[13] = this.data[5];
+        mat.data[14] = 0;
+        mat.data[15] = 1;
+        return mat;
+    }
+    setRotation(angle) {
+        const currentScale = this.getScale();
+        const sine = Math.sin(angle);
+        const cosine = Math.cos(angle);
+        this.data[0] = cosine * currentScale.x;
+        this.data[1] = sine * currentScale.y;
+        this.data[2] = -sine * currentScale.x;
+        this.data[3] = cosine * currentScale.y;
+    }
+    getRotation() {
+        const angle = Math.atan2(this.data[1] / this.getScaleY(), this.data[0] / this.getScaleX());
+        return canonicalizeAngle(angle);
+    }
+    getScaleX() {
+        return this._scale[0];
+        // absolute scale of the matrix (we lose sign so need to add it back)
+        // const xscale = vec(this.data[0], this.data[2]).size;
+        // return this._scaleSignX * xscale;
+    }
+    getScaleY() {
+        return this._scale[1];
+        // absolute scale of the matrix (we lose sign so need to add it back)
+        // const yscale = vec(this.data[1], this.data[3]).size;
+        // return this._scaleSignY * yscale;
+    }
+    /**
+     * Get the scale of the matrix
+     */
+    getScale() {
+        return vec(this.getScaleX(), this.getScaleY());
+    }
+    setScaleX(val) {
+        if (val === this._scale[0]) {
+            return;
+        }
+        this._scaleSignX = sign(val);
+        // negative scale acts like a 180 rotation, so flip
+        const xscale = vec(this.data[0] * this._scaleSignX, this.data[2] * this._scaleSignX).normalize();
+        this.data[0] = xscale.x * val;
+        this.data[2] = xscale.y * val;
+        this._scale[0] = val;
+    }
+    setScaleY(val) {
+        if (val === this._scale[1]) {
+            return;
+        }
+        this._scaleSignY = sign(val);
+        // negative scale acts like a 180 rotation, so flip
+        const yscale = vec(this.data[1] * this._scaleSignY, this.data[3] * this._scaleSignY).normalize();
+        this.data[1] = yscale.x * val;
+        this.data[3] = yscale.y * val;
+        this._scale[1] = val;
+    }
+    setScale(scale) {
+        this.setScaleX(scale.x);
+        this.setScaleY(scale.y);
+    }
+    isIdentity() {
+        return (this.data[0] === 1 &&
+            this.data[1] === 0 &&
+            this.data[2] === 0 &&
+            this.data[3] === 1 &&
+            this.data[4] === 0 &&
+            this.data[5] === 0);
+    }
+    /**
+   * Resets the current matrix to the identity matrix, mutating it
+   * @returns {AffineMatrix} Current matrix as identity
+   */
+    reset() {
+        const mat = this;
+        mat.data[0] = 1;
+        mat.data[1] = 0;
+        mat.data[2] = 0;
+        mat.data[3] = 1;
+        mat.data[4] = 0;
+        mat.data[5] = 0;
+        return mat;
+    }
+    /**
+     * Creates a new Matrix with the same data as the current 4x4
+     */
+    clone(dest) {
+        const mat = dest || new AffineMatrix();
+        mat.data[0] = this.data[0];
+        mat.data[1] = this.data[1];
+        mat.data[2] = this.data[2];
+        mat.data[3] = this.data[3];
+        mat.data[4] = this.data[4];
+        mat.data[5] = this.data[5];
+        return mat;
+    }
+    toString() {
+        return `
+[${this.data[0]} ${this.data[2]} ${this.data[4]}]
+[${this.data[1]} ${this.data[3]} ${this.data[5]}]
+[0 0 1]
+`;
+    }
+}
+
 ;// CONCATENATED MODULE: ./Math/transform.ts
 
 
@@ -2831,8 +3165,8 @@ class Transform {
         this._scale = vec(1, 1);
         this._isDirty = false;
         this._isInverseDirty = false;
-        this._matrix = Matrix.identity();
-        this._inverse = Matrix.identity();
+        this._matrix = AffineMatrix.identity();
+        this._inverse = AffineMatrix.identity();
         if (matrix) {
             this.pos = matrix.getPosition();
             this.rotation = matrix.getRotation();
@@ -2930,22 +3264,28 @@ class Transform {
     }
     get inverse() {
         if (this._isInverseDirty) {
-            this._inverse = this.matrix.getAffineInverse();
+            this._inverse = this.matrix.inverse();
             this._isInverseDirty = false;
         }
         return this._inverse;
     }
     _calculateMatrix() {
-        const matrix = Matrix.identity()
-            .translate(this.pos.x, this.pos.y)
-            .rotate(this.rotation)
-            .scale(this.scale.x, this.scale.y);
+        const matrix = this._matrix; //new AffineMatrix();
+        // todo not positive this is correct
+        const sine = Math.sin(this.rotation);
+        const cosine = Math.cos(this.rotation);
+        matrix.data[0] = this.scale.x * cosine;
+        matrix.data[1] = sine;
+        matrix.data[2] = -sine;
+        matrix.data[3] = this.scale.y * cosine;
+        matrix.data[4] = this.pos.x;
+        matrix.data[5] = this.pos.y;
         return matrix;
-        // return Matrix.translation(this.pos.x, this.pos.y).multiply(
-        //   Matrix.rotation(this.rotation)
-        // ).multiply(
-        //   Matrix.scale(this.scale.x, this.scale.y)
-        // );
+        // const matrix = AffineMatrix.identity()
+        //   .translate(this.pos.x, this.pos.y)
+        //   .rotate(this.rotation)
+        //   .scale(this.scale.x, this.scale.y);
+        // return matrix;
     }
     flagDirty() {
         this._isDirty = true;
@@ -3848,7 +4188,7 @@ class BoundingBox {
         const matFirstColumn = vec(matrix.data[0], matrix.data[1]);
         const xa = matFirstColumn.scale(this.left);
         const xb = matFirstColumn.scale(this.right);
-        const matSecondColumn = vec(matrix.data[4], matrix.data[5]);
+        const matSecondColumn = vec(matrix.data[2], matrix.data[3]);
         const ya = matSecondColumn.scale(this.top);
         const yb = matSecondColumn.scale(this.bottom);
         const matrixPos = matrix.getPosition();
@@ -6505,7 +6845,7 @@ class PolygonCollider extends Collider {
         this._axes = [];
         this._sides = [];
         this._localSides = [];
-        this._globalMatrix = Matrix.identity();
+        this._globalMatrix = AffineMatrix.identity();
         this._localBoundsDirty = true;
         this.offset = (_a = options.offset) !== null && _a !== void 0 ? _a : vector_Vector.Zero;
         this._globalMatrix.translate(this.offset.x, this.offset.y);
@@ -7356,7 +7696,7 @@ class BodyComponent extends Component {
         this.dependencies = [TransformComponent, MotionComponent];
         this.id = createId('body', BodyComponent._ID++);
         this.events = new EventDispatcher();
-        this._oldTransform = Matrix.identity();
+        this._oldTransform = AffineMatrix.identity();
         /**
          * Collision type for the rigidbody physics simulation, by default [[CollisionType.PreventCollision]]
          */
@@ -8466,7 +8806,6 @@ const syncMessageToCollider = (message, colliderComponent) => {
 const entitiesMap = new Map();
 const colliderMap = new Map();
 const bodyMap = new Map();
-let bodiesFlattened;
 const posXOffset = 1;
 const posYOffset = 2;
 const rotationOffset = 3;
@@ -8496,7 +8835,7 @@ onmessage = (e) => {
             break;
         }
         case 'step-flattened': {
-            bodiesFlattened = e.data.bodies;
+            let bodiesFlattened = e.data.bodies;
             const elapsedMs = e.data.elapsed;
             // integrate position
             for (let i = 0; i < bodiesFlattened.length; i += 13) {
@@ -8527,7 +8866,7 @@ onmessage = (e) => {
                 bodiesFlattened[i + scaleXOffset] += scaleFactorx * seconds;
                 bodiesFlattened[i + scaleYOffset] += scaleFactory * seconds;
             }
-            postMessage(bodiesFlattened);
+            postMessage(bodiesFlattened, [bodiesFlattened.buffer]);
             break;
         }
         case 'body': {

@@ -1,6 +1,7 @@
 #Ignore compiled javascript #
 ######################
 .baseDir.ts
+/src/engine/**/worker.js
 /src/engine/*.js
 /src/engine/*.map
 /sandbox/**/*.js

@@ -1,6 +1,7 @@
 import { System, SystemType } from './System';
 import { Scene, Util } from '..';
 import { World } from './World';
+import { EventDispatcher } from '../EventDispatcher';
 
 export interface SystemCtor<T extends System> {
   new (): T;
@@ -11,6 +12,7 @@ export interface SystemCtor<T extends System> {
  * Systems are scene specific
  */
 export class SystemManager<ContextType> {
+  public events = new EventDispatcher();
   /**
    * List of systems, to add a new system call [[SystemManager.addSystem]]
    */
@@ -90,6 +92,8 @@ export class SystemManager<ContextType> {
     }
 
     for (const s of systems) {
+      const systemName = s.constructor.name;
+      const start = performance.now();
       // Get entities that match the system types, pre-sort
       const entities = this._world.queryManager.getQuery(s.types).getEntities(s.sort);
       // Initialize entities if needed
@@ -99,6 +103,8 @@ export class SystemManager<ContextType> {
         }
       }
       s.update(entities, delta);
+      const end = performance.now();
+      this.events.emit('systemupdate', {name: systemName, start, end} as any);
     }
 
     for (const s of systems) {

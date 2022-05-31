@@ -2,6 +2,7 @@ import { AddedEntity, Entity, isAddedSystemEntity, RemovedEntity, System, System
 import { Scene } from "../../Scene";
 import { BodyComponent } from "../BodyComponent";
 import { serializeToBodyMessage } from "./BodyMessage";
+import { SharedBuffer } from "./SharedBuffer";
 // import { StartMessage } from "./StartMessage";
 // import { StepMessage } from "./StepMessage";
 
@@ -21,14 +22,16 @@ const scaleFactorYOffset = 12;
 /**
  * Adapter system to martial collision information to the collision web worker
  */
-export class CollisionWorkerSystem extends System<BodyComponent> {
+export class ReceiveFromWorkerSystem extends System<BodyComponent> {
   readonly types = ["ex.body"] as const;
   systemType: SystemType = SystemType.Update;
 
   public worker: Worker;
-  constructor(worker: Worker) {
+  public buffer: SharedBuffer;
+  constructor(worker: Worker, buffer: SharedBuffer) {
     super();
     this.worker = worker;
+    this.buffer = buffer;
   }
 
   private _bodyMap = new Map<number, BodyComponent>();
@@ -36,17 +39,8 @@ export class CollisionWorkerSystem extends System<BodyComponent> {
 
   
   initialize(_scene: Scene): void {
-    // this.worker.onmessage = (messageEvent: MessageEvent<BodyMessage[]>) => {
-    //   // todo sync entities
-    //   this._bodies = messageEvent.data;
-    //   for (let bodyMessage of this._bodies) {
-    //     const body = this._bodyMap.get(bodyMessage.id);
-    //     if (body) {
-    //       syncMessageToBody(bodyMessage, body);
-    //     }
-    //   }
-    // }
     this.worker.onmessage = (messageEvent: MessageEvent<Float64Array>) => {
+      this.buffer.receive(messageEvent.data.buffer);
       const flattenedBodies = messageEvent.data;
       for (let i = 0; i < flattenedBodies.length; i += 13) {
         const id = flattenedBodies[i];
