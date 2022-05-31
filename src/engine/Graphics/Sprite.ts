@@ -1,6 +1,7 @@
 import { Graphic, GraphicOptions } from './Graphic';
 import { ImageSource } from './ImageSource';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { Color } from '../Color';
 
 export type SourceView = { x: number; y: number; width: number; height: number };
 export type DestinationSize = { width: number; height: number };
@@ -24,6 +25,7 @@ export class Sprite extends Graphic {
   public image: ImageSource;
   public sourceView: SourceView;
   public destSize: DestinationSize;
+  public tint: Color = Color.White;
   private _dirty = true;
 
   public static from(image: ImageSource): Sprite {
@@ -85,6 +87,7 @@ export class Sprite extends Graphic {
       this._updateSpriteDimensions();
     }
     super._preDraw(ex, x, y);
+    ex.tint = this.tint;
   }
 
   public _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {

@@ -56,7 +56,7 @@ export class ImageRenderer implements RendererPlugin {
 
     // Setup memory layout
     this._buffer = new VertexBuffer({
-      size: 6 * 4 * this._maxImages, // 6 components * 4 verts
+      size: 10 * 4 * this._maxImages, // 10 components * 4 verts
       type: 'dynamic'
     });
     this._layout = new VertexLayout({
@@ -66,7 +66,8 @@ export class ImageRenderer implements RendererPlugin {
         ['a_position', 2],
         ['a_opacity', 1],
         ['a_texcoord', 2],
-        ['a_textureIndex', 1]
+        ['a_textureIndex', 1],
+        ['a_tint', 4],
       ]
     });
 
@@ -187,6 +188,8 @@ export class ImageRenderer implements RendererPlugin {
       bottomRight.y = ~~bottomRight.y;
     }
 
+    const tint = this._context.tint;
+
     const textureId = this._getTextureIdForImage(image);
     const potWidth = ensurePowerOfTwo(image.width || width);
     const potHeight = ensurePowerOfTwo(image.height || height);
@@ -206,6 +209,10 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = uvx0;
     vertexBuffer[this._vertexIndex++] = uvy0;
     vertexBuffer[this._vertexIndex++] = textureId;
+    vertexBuffer[this._vertexIndex++] = tint.r / 255;
+    vertexBuffer[this._vertexIndex++] = tint.g / 255;
+    vertexBuffer[this._vertexIndex++] = tint.b / 255;
+    vertexBuffer[this._vertexIndex++] = tint.a;
 
     // (0, 1) - 1
     vertexBuffer[this._vertexIndex++] = bottomLeft.x;
@@ -214,6 +221,10 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = uvx0;
     vertexBuffer[this._vertexIndex++] = uvy1;
     vertexBuffer[this._vertexIndex++] = textureId;
+    vertexBuffer[this._vertexIndex++] = tint.r / 255;
+    vertexBuffer[this._vertexIndex++] = tint.g / 255;
+    vertexBuffer[this._vertexIndex++] = tint.b / 255;
+    vertexBuffer[this._vertexIndex++] = tint.a;
 
     // (1, 0) - 2
     vertexBuffer[this._vertexIndex++] = topRight.x;
@@ -222,6 +233,10 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = uvx1;
     vertexBuffer[this._vertexIndex++] = uvy0;
     vertexBuffer[this._vertexIndex++] = textureId;
+    vertexBuffer[this._vertexIndex++] = tint.r / 255;
+    vertexBuffer[this._vertexIndex++] = tint.g / 255;
+    vertexBuffer[this._vertexIndex++] = tint.b / 255;
+    vertexBuffer[this._vertexIndex++] = tint.a;
 
     // (1, 1) - 3
     vertexBuffer[this._vertexIndex++] = bottomRight.x;
@@ -230,6 +245,10 @@ export class ImageRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = uvx1;
     vertexBuffer[this._vertexIndex++] = uvy1;
     vertexBuffer[this._vertexIndex++] = textureId;
+    vertexBuffer[this._vertexIndex++] = tint.r / 255;
+    vertexBuffer[this._vertexIndex++] = tint.g / 255;
+    vertexBuffer[this._vertexIndex++] = tint.b / 255;
+    vertexBuffer[this._vertexIndex++] = tint.a;
   }
 
   hasPendingDraws(): boolean {
@@ -247,7 +266,7 @@ export class ImageRenderer implements RendererPlugin {
     this._shader.use();
 
     // Bind the memory layout and upload data
-    this._layout.use(true, 4 * 6 * this._imageCount);
+    this._layout.use(true, 4 * 10 * this._imageCount);
 
     // Update ortho matrix uniform
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);

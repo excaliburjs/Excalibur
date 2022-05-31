@@ -368,6 +368,7 @@ var blockSprite = new ex.Sprite({
     height: 49
   }
 });
+blockSprite.tint = ex.Color.Blue;
 otherPointer.get(ex.TransformComponent).z = 100;
 otherPointer.graphics.use(blockSprite);
 // Create spritesheet

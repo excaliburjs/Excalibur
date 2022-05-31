@@ -15,6 +15,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Allow tinting of `ex.Sprite`'s by setting a new `tint` property, renderers must support the tint property in order to function.
+  ```typescript
+  const imageSource = new ex.ImageSource('./path/to/image.png');
+  await imageSource.load();
+  const sprite = imageSource.toSprite();
+  sprite.tint = ex.Color.Red;
+  ```
 - Added missing `ex.EaseBy` action type, uses `ex.EasingFunctions` to move relative from the current entity position.
 - Added 2 new `Action` types to enable running parallel actions. `ex.ActionSequence` which allows developers to specify a sequence of actions to run in order, and `ex.ParallelActions` to run multiple actions at the same time.
   ```typescript
