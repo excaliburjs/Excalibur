@@ -15,7 +15,40 @@ var actor = new ex.Actor({
   height: 50
 });
 actor.graphics.use(image.toSprite());
-game.add(actor);
+// game.add(actor);
+
+
+class MyActor extends ex.Actor {
+  constructor() {
+    super({
+      x: 50,
+      y: 50,
+      width: 100,
+      height: 100,
+      color: ex.Color.Green
+    });
+  }
+
+  async takeDamage(): Promise<void> {
+    const knockBackSequence = new ex.ActionSequence(this, ctx => {
+      ctx.moveBy(ex.vec(100, 0), 500)
+      ctx.moveBy(ex.vec(-100, 0), 500)
+    });
+    
+    const fadeSequence = new ex.ActionSequence(this, ctx => {
+      ctx.delay(100);
+      ctx.fade(0, 1000);
+    });
+    const parallel = new ex.ParallelActions([knockBackSequence, fadeSequence]);
+    // oops runAction() doesn't return the ActionContext will fix soon
+    this.actions.runAction(parallel);
+    await this.actions.toPromise();
+  }
+}
+
+var myActor = new MyActor();
+game.add(myActor);
+myActor.takeDamage();
 
 
 var sequence1 = new ex.ActionSequence(actor, ctx => {

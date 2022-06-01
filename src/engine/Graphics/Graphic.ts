@@ -1,7 +1,7 @@
 import { Vector, vec } from '../Math/vector';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { BoundingBox } from '../Collision/BoundingBox';
-import { Matrix } from '..';
+import { Color, Matrix } from '..';
 import { watch } from '../Util/Watch';
 
 export interface GraphicOptions {
@@ -14,7 +14,7 @@ export interface GraphicOptions {
    */
   height?: number;
   /**
-   * SHould the graphic be flipped horizontally
+   * Should the graphic be flipped horizontally
    */
   flipHorizontal?: boolean;
   /**
@@ -34,6 +34,10 @@ export interface GraphicOptions {
    */
   opacity?: number;
   /**
+   * The tint of the graphic, this color will be multiplied by the original pixel colors
+   */
+  tint?: Color;
+  /**
    * The origin of the drawing in pixels to use when applying transforms, by default it will be the center of the image
    */
   origin?: Vector;
@@ -50,6 +54,8 @@ export interface GraphicOptions {
 export abstract class Graphic {
   private static _ID: number = 0;
   readonly id = Graphic._ID++;
+
+  public tint: Color = null;
 
   public transform: Matrix = Matrix.identity();
   private _transformStale = true;
@@ -235,6 +241,9 @@ export abstract class Graphic {
     ex.multiply(this.transform);
     // it is important to multiply alphas so graphics respect the current context
     ex.opacity = ex.opacity * this.opacity;
+    if (this.tint) {
+      ex.tint = this.tint;
+    }
   }
 
   protected _rotate(ex: ExcaliburGraphicsContext | Matrix) {
