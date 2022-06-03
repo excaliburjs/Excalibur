@@ -152,6 +152,7 @@ export class Timer {
   public reset(newInterval?: number, newNumberOfRepeats?: number) {
     if (!!newInterval && newInterval >= 0) {
         this.interval = newInterval;
+        this._baseInterval = newInterval;
     }
 
     if (!!this.maxNumberOfRepeats && this.maxNumberOfRepeats >= 0) {
