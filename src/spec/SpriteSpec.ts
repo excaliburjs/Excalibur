@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { TestUtils } from './util/TestUtils';
 
 describe('A Sprite Graphic', () => {
   let canvasElement: HTMLCanvasElement;
@@ -11,7 +12,7 @@ describe('A Sprite Graphic', () => {
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement, smoothing: false });
+    ctx = new ex.ExcaliburGraphicsContextWebGL({ canvasElement, smoothing: false });
   });
 
   it('exists', () => {
@@ -125,12 +126,28 @@ describe('A Sprite Graphic', () => {
 
     ctx.clear();
     sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+    ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/source-view.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/GraphicsSpriteSpec/source-view.png');
+  });
+
+  it('can draw an sprite image with a tint', async () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsSpriteSpec/icon.png');
+    const sut = image.toSprite();
+    sut.tint = ex.Color.Green;
+
+    await image.load();
+    await image.ready;
+
+    ctx.clear();
+    sut.draw(ctx, 0, 0);
+    ctx.flush();
+
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/GraphicsSpriteSpec/icon-tint.png');
   });
 
   it('can specify the width and height of a sprite after construction', async () => {
-    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
     const sut = new ex.Sprite({
       image,
       sourceView: {
@@ -149,12 +166,13 @@ describe('A Sprite Graphic', () => {
 
     ctx.clear();
     sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+    ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/change-size.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/GraphicsSpriteSpec/change-size.png');
   });
 
   it('can specify the width and height and scale', async () => {
-    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
     const sut = new ex.Sprite({
       image,
       sourceView: {
@@ -175,9 +193,11 @@ describe('A Sprite Graphic', () => {
 
     ctx.clear();
     sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+    ctx.flush();
     expect(sut.width).toBe(128);
     expect(sut.height).toBe(128);
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/change-size-and-scale.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvasElement))
+      .toEqualImage('src/spec/images/GraphicsSpriteSpec/change-size-and-scale.png');
   });
 
   it('can specify a source view of an image by default is same dimension as the source', async () => {
@@ -208,12 +228,13 @@ describe('A Sprite Graphic', () => {
 
     ctx.clear();
     sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+    ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/source-view.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/GraphicsSpriteSpec/source-view.png');
   });
 
   it('can specify a source view of an image and a dest view dimension is destination', async () => {
-    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
     const sut = new ex.Sprite({
       image,
       sourceView: {
@@ -244,8 +265,9 @@ describe('A Sprite Graphic', () => {
 
     ctx.clear();
     sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+    ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/dest-size.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/GraphicsSpriteSpec/dest-size.png');
   });
 
   it('can specify only a dest view dimension, infers native size for source view', async () => {
@@ -277,7 +299,8 @@ describe('A Sprite Graphic', () => {
 
     ctx.clear();
     sut.draw(ctx, 50 - sut.width / 2, 50 - sut.width / 2);
+    ctx.flush();
 
-    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsSpriteSpec/dest-view.png');
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/GraphicsSpriteSpec/dest-view.png');
   });
 });
