@@ -93,14 +93,6 @@ export class Timer {
     if (fcn) {
       this.on(fcn);
     }
-    if(!!randomRange){
-      if(!!random){
-        this.on(()=> this.interval = interval + this.random.integer(this.randomRange[0], this.randomRange[1]))
-      } else {
-        this.on(()=> this.interval = interval + new Random().integer(this.randomRange[0], this.randomRange[1]))
-      }
-
-    }
   }
 
   /**
