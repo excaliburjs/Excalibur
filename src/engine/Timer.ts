@@ -74,25 +74,21 @@ export class Timer {
     }
 
     this.id = Timer._MAX_ID++;
+    this._callbacks = [];
+    this._baseInterval = this.interval = interval;
     if (!!randomRange){
       if(randomRange[0] > randomRange[1]){
         throw new Error('min value must be lower than max value for range');
-      } else if(!!random){
-        //We use the instance of ex.Random to generate the range
-        this.random = random;
-        
-        this.interval = interval + this.random.integer(randomRange[0], randomRange[1])
-      } else {
-        this.interval = interval + new Random().integer(randomRange[0], randomRange[1])
       }
-      this.randomRange = randomRange;  
-    } else {
-      this.interval = interval;
-    }
+      //We use the instance of ex.Random to generate the range
+      this.random = random ?? new Random();
+      this.randomRange = randomRange;
 
-    this.repeats = repeats || this.repeats;
-    
-    this._callbacks = [];
+      this.interval = this._generateRandomInterval();
+      this.on(() => {
+        this.interval = this._generateRandomInterval();
+      });
+    }
    
     if (fcn) {
       this.on(fcn);
