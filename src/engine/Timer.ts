@@ -35,6 +35,10 @@ export class Timer {
   public maxNumberOfRepeats: number = -1;
   public randomRange: [number, number] = [0,0];
   public random: ex.Random;
+  private _baseInterval = 10;
+  private _generateRandomInterval = () => {
+    return this._baseInterval + this.random.integer(this.randomRange[0], this.randomRange[1])
+  }
   private _complete = false;
   public get complete() {
     return this._complete;
