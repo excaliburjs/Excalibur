@@ -252,7 +252,7 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
    * Return the current playback time of the playing track in seconds from the start.
    *
    * Optionally specify the track to query if multiple are playing at once.
-   * @param trackId 
+   * @param trackId
    */
   public getPlaybackPosition(trackId = 0) {
     if (this._tracks.length) {
