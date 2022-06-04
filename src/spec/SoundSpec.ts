@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { delay } from '../engine/Util/Util';
 import { WebAudio } from '../engine/Util/WebAudio';
 import { TestUtils } from './util/TestUtils';
 
@@ -194,6 +195,25 @@ describe('Sound resource', () => {
         done();
       });
     });
+  });
+
+  it('should return the current playback position of the audio track', async () => {
+    sut = new ex.Sound('src/spec/images/SoundSpec/preview.ogg');
+    await sut.load();
+    sut.play();
+    await delay(1000);
+    // appveyor is a little fast for some reason
+    expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(.99);
+  });
+
+  it('should variable playback rate of the audio track', async () => {
+    sut = new ex.Sound('src/spec/images/SoundSpec/preview.ogg');
+    await sut.load();
+    sut.playbackRate = 2.0;
+    sut.play();
+    await delay(1000);
+    // appveyor is a little fast for some reason
+    expect(sut.getPlaybackPosition()).withContext('Twice the speed will be at 2 seconds').toBeGreaterThanOrEqual(1.99);
   });
 
   // FIXME: issue for flakey test https://github.com/excaliburjs/Excalibur/issues/1547

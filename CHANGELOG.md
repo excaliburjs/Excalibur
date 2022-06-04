@@ -14,7 +14,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
-
+- Added `ex.Sound.getPlaybackPosition()` which returns the current playback position in seconds of the currently playing sound.
+- Added `ex.Sound.playbackRate` which allows developers to get/set the current rate of playback. 1.0 is the default playback rate, 2.0 is twice the speed, and 0.5 is half speed.
 - Added missing `ex.EaseBy` action type, uses `ex.EasingFunctions` to move relative from the current entity position.
 - Added 2 new `Action` types to enable running parallel actions. `ex.ActionSequence` which allows developers to specify a sequence of actions to run in order, and `ex.ParallelActions` to run multiple actions at the same time.
   ```typescript
