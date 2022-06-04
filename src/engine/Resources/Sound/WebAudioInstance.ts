@@ -9,6 +9,8 @@ import { AudioContextFactory } from './AudioContext';
 export class WebAudioInstance implements Audio {
   private _volume = 1;
   private _duration: number | undefined = undefined;
+  private _startedAt = 0;
+  private _pausedAt = 0;
 
   private _playingPromise: Promise<boolean>;
   private _playingResolve: (value: boolean) => void;
@@ -84,13 +86,16 @@ export class WebAudioInstance implements Audio {
     if (this._isPaused) {
       this._resumePlayBack();
       playStarted();
+      this._startedAt = this._audioContext.currentTime - this._pausedAt;
+      this._pausedAt = 0;
     }
 
     if (!this._isPlaying) {
       this._startPlayBack();
       playStarted();
+      this._startedAt = this._audioContext.currentTime;
+      this._pausedAt = 0;
     }
-
     return this._playingPromise;
   }
 
@@ -106,8 +111,8 @@ export class WebAudioInstance implements Audio {
     // Playback rate will be a scale factor of how fast/slow the audio is being played
     // default is 1.0
     // we need to invert it to get the time scale
-
     this._setPauseOffset();
+    this._pausedAt = (this._audioContext.currentTime - this._startedAt) * this._instance.playbackRate.value;
   }
 
   public stop() {
@@ -190,6 +195,24 @@ export class WebAudioInstance implements Audio {
 
   private _setPauseOffset() {
     this._currentOffset = ((new Date().getTime() - this._startTime) * this._playbackRate) / 1000; // in seconds
+  }
+
+  public set playbackRate(playbackRate: number) {
+    this._instance.playbackRate.value = playbackRate;
+  }
+
+  public get playbackRate() {
+    return this._instance.playbackRate.value;
+  }
+
+  public getCurrentTime() {
+    if (this._pausedAt) {
+      return this._pausedAt;
+    }
+    if (this._startedAt) {
+      return (this._audioContext.currentTime - this._startedAt) * (this._instance?.playbackRate.value ?? 1);
+    }
+    return 0;
   }
 
   private _createNewBufferSource() {
