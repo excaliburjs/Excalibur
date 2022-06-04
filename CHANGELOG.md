@@ -14,6 +14,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
+
+- Allow tinting of `ex.Sprite`'s by setting a new `tint` property, renderers must support the tint property in order to function.
+  ```typescript
+  const imageSource = new ex.ImageSource('./path/to/image.png');
+  await imageSource.load();
+  const sprite = imageSource.toSprite();
+  sprite.tint = ex.Color.Red;
+  ```
 - Added `ex.Sound.getPlaybackPosition()` which returns the current playback position in seconds of the currently playing sound.
 - Added `ex.Sound.playbackRate` which allows developers to get/set the current rate of playback. 1.0 is the default playback rate, 2.0 is twice the speed, and 0.5 is half speed.
 - Added missing `ex.EaseBy` action type, uses `ex.EasingFunctions` to move relative from the current entity position.

@@ -13,6 +13,9 @@ out vec2 v_texcoord;
 in lowp float a_textureIndex;
 out lowp float v_textureIndex;
 
+in vec4 a_tint;
+out vec4 v_tint;
+
 uniform mat4 u_matrix;
 
 void main() {
@@ -25,4 +28,6 @@ void main() {
    v_texcoord = a_texcoord;
    // Pass through the texture number to the fragment shader
    v_textureIndex = a_textureIndex;
+   // Pass through the tint
+   v_tint = a_tint;
 }
