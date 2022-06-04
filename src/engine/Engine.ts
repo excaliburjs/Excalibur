@@ -1340,6 +1340,10 @@ O|===|* >________________>\n\
     return this._isReadyPromise;
   }
 
+  private _useFixedUpdateTimeStep = false;
+  private _fixedUpdateFps = 60;
+  private _fixedTimestep = 1000 / this._fixedUpdateFps;
+  private _lag = 0;
   private _mainloop(elapsed: number) {
     this.emit('preframe', new PreFrameEvent(this, this.stats.prevFrame));
     const delta = elapsed * this.timescale;
@@ -1353,8 +1357,19 @@ O|===|* >________________>\n\
     GraphicsDiagnostics.clear();
 
     const beforeUpdate = this.clock.now();
-    this._update(delta);
+    if (this._useFixedUpdateTimeStep) {
+      this._lag += elapsed;
+      while (this._lag >= this._fixedTimestep) {
+        // updates++;
+        this._update(this._fixedTimestep);
+        this._lag -= this._fixedTimestep;
+      }
+    } else {
+      this._update(delta);
+    }
     const afterUpdate = this.clock.now();
+    // TODO interpolate offset
+    // const lagOffset = this._lag / this._fixedTimestep;
     this._draw(delta);
     const afterDraw = this.clock.now();
 
