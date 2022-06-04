@@ -205,7 +205,7 @@ export class WebAudioInstance implements Audio {
     return this._instance.playbackRate.value;
   }
 
-  public getCurrentTime() {
+  public getPlaybackPosition() {
     if (this._pausedAt) {
       return this._pausedAt;
     }

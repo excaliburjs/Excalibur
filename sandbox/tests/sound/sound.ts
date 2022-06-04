@@ -47,7 +47,7 @@ game.currentScene.add(pause);
 
 
 game.currentScene.onPostUpdate = () => {
-  label.text = 'Current Time: ' + sound.getCurrentTime();
+  label.text = 'Current Time: ' + sound.getPlaybackPosition();
 }
 
 game.start(loader);

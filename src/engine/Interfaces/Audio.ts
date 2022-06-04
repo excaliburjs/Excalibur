@@ -29,9 +29,9 @@ export interface Audio {
   play(): Promise<any>;
 
   /**
-   * Return the current time the playing track
+   * Return the current playback time of the playing track in seconds from the start
    */
-  getCurrentTime(): number;
+  getPlaybackPosition(): number;
 
   /**
    * Pause the sound
