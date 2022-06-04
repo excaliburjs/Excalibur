@@ -78,6 +78,7 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
   private _tracks: Audio[] = [];
   private _engine: Engine;
   private _wasPlayingOnHidden: boolean = false;
+  private _playbackRate = 1.0;
   private _audioContext = AudioContextFactory.create();
 
   /**
@@ -236,6 +237,30 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
     this.logger.debug('Stopped all instances of sound', this.path);
   }
 
+  public get playbackRate(): number {
+    return this._playbackRate;
+  }
+
+  public set playbackRate(playbackRate: number) {
+    this._playbackRate = playbackRate;
+    this._tracks.forEach(t => {
+      t.playbackRate = this._playbackRate;
+    });
+  }
+
+  /**
+   * Return the current playback time of the playing track in seconds from the start.
+   *
+   * Optionally specify the track to query if multiple are playing at once.
+   * @param trackId
+   */
+  public getPlaybackPosition(trackId = 0) {
+    if (this._tracks.length) {
+      return this._tracks[trackId].getPlaybackPosition();
+    }
+    return 0;
+  }
+
 
 
   /**
@@ -289,6 +314,7 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
     newTrack.loop = this.loop;
     newTrack.volume = this.volume;
     newTrack.duration = this.duration;
+    newTrack.playbackRate = this._playbackRate;
 
     this._tracks.push(newTrack);
 

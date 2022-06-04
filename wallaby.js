@@ -8,6 +8,7 @@ module.exports = function (wallaby) {
       { pattern: 'src/engine/**/*.ts', load: false },
       { pattern: 'src/engine/**/*.glsl', load: false },
       { pattern: 'src/spec/images/**/*.mp3' },
+      { pattern: 'src/spec/images/**/*.ogg' },
       { pattern: 'src/spec/images/**/*.png' },
       { pattern: 'src/spec/images/**/*.gif' },
       { pattern: 'src/spec/images/**/*.txt' },
