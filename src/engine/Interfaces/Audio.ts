@@ -35,7 +35,7 @@ export interface Audio {
 
   /**
    * Seek to a position (in seconds) in the audio
-   * @param position 
+   * @param position
    */
   seek(position: number): void;
 

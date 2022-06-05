@@ -25,7 +25,7 @@ export class WebAudioInstance implements Audio {
     states: {
       PLAYING: {
         onEnter: ({data}: {from: string, data: SoundState}) => {
-          
+
           // Buffer nodes are single use
           this._createNewBufferSource();
           this._handleEnd();
@@ -35,12 +35,12 @@ export class WebAudioInstance implements Audio {
         },
         onState: () => this._playStarted(),
         onExit: ({to}) => {
-          // If you've exited early only resolve if explicitly STOPPED 
+          // If you've exited early only resolve if explicitly STOPPED
           if (to === 'STOPPED') {
             this._playingResolve(true);
           }
           // Whenever you're not playing... you stop!
-          this._instance.onended = null; // disconnect the wired on-end handler 
+          this._instance.onended = null; // disconnect the wired on-end handler
           this._instance.disconnect();
           this._instance.stop(0);
           this._instance = null;
@@ -98,6 +98,7 @@ export class WebAudioInstance implements Audio {
   private _duration: number | undefined = undefined;
 
   private _loop = false;
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private _playStarted: () => any = () => {};
   public set loop(value: boolean) {
     this._loop = value;
@@ -156,6 +157,7 @@ export class WebAudioInstance implements Audio {
     return this._stateMachine.in('PAUSED') || this._stateMachine.in('SEEK');
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public play(playStarted: () => any = () => {}) {
     this._playStarted = playStarted;
     this._stateMachine.go('PLAYING');
@@ -167,12 +169,12 @@ export class WebAudioInstance implements Audio {
   }
 
   public stop() {
-    this._stateMachine.go("STOPPED");
+    this._stateMachine.go('STOPPED');
   }
 
   public seek(position: number) {
     this._stateMachine.go('PAUSED');
-    this._stateMachine.go("SEEK", position);
+    this._stateMachine.go('SEEK', position);
   }
 
   public getTotalPlaybackDuration() {

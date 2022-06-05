@@ -335,7 +335,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
       )
     );
     // Wire all sound to the engine
-    for (let resource of this._resourceList) {
+    for (const resource of this._resourceList) {
       if (resource instanceof Sound) {
         resource.wireEngine(this._engine);
       }

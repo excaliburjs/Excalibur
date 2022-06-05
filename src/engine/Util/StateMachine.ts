@@ -31,24 +31,28 @@ export class StateMachine<TPossibleStates extends string, TData> {
   }
   public states = new Map<string, State>();
   public data: TData;
-  private constructor() {};
 
-  static create<TMachine extends StateMachineDescription, TData>(machineDescription: TMachine, data?: TData): StateMachine<PossibleStates<TMachine>, TData> {
+  static create<TMachine extends StateMachineDescription, TData>(
+    machineDescription: TMachine, data?: TData): StateMachine<PossibleStates<TMachine>, TData> {
     const machine = new StateMachine<PossibleStates<TMachine>, TData>();
     machine.data = data;
-    for (let stateName in machineDescription.states) {
+    for (const stateName in machineDescription.states) {
       machine.states.set(stateName as PossibleStates<TMachine>, {
         name: stateName,
         ...machineDescription.states[stateName]
-      })
+      });
     }
 
     // validate transitions are states
-    for (let state of machine.states.values()) {
-      for (let transitionState of state.transitions) {
-        if (transitionState === '*') continue;
+    for (const state of machine.states.values()) {
+      for (const transitionState of state.transitions) {
+        if (transitionState === '*') {
+          continue;
+        }
         if (!machine.states.has(transitionState)) {
-          throw Error(`Invalid state machine, state [${state.name}] has a transition to another state that doesn't exist [${transitionState}]`);
+          throw Error(
+            `Invalid state machine, state [${state.name}] has a transition to another state that doesn't exist [${transitionState}]`
+          );
         }
       }
     }
@@ -100,7 +104,7 @@ export class StateMachine<TPossibleStates extends string, TData> {
   }
 
   restore(saveKey: string) {
-    const state: StateMachineState = JSON.parse(localStorage.getItem(saveKey))
+    const state: StateMachineState = JSON.parse(localStorage.getItem(saveKey));
     this.currentState = this.states.get(state.currentState);
     this.data = state.data;
   }

@@ -11,21 +11,12 @@ describe('A StateMachine', () => {
       start: 'STOPPED',
       states: {
         PLAYING: {
-          onEnter: () => {
-            console.log("playing");
-          },
           transitions: ['STOPPED', 'PAUSED']
         },
         STOPPED: {
-          onEnter: () => {
-            console.log("stopped");
-          },
           transitions: ['PLAYING']
         },
         PAUSED: {
-          onEnter: () => {
-            console.log("paused")
-          },
           transitions: ['PLAYING', 'STOPPED']
         }
       }
@@ -44,21 +35,12 @@ describe('A StateMachine', () => {
         start: 'STOPPED',
         states: {
           PLAYING: {
-            onEnter: () => {
-              console.log("playing");
-            },
             transitions: ['STOPPED', 'DOESNTEXIST']
           },
           STOPPED: {
-            onEnter: () => {
-              console.log("stopped");
-            },
             transitions: ['PLAYING']
           },
           PAUSED: {
-            onEnter: () => {
-              console.log("paused")
-            },
             transitions: ['PLAYING', 'STOPPED']
           }
         }
@@ -71,24 +53,15 @@ describe('A StateMachine', () => {
       start: 'STOPPED',
       states: {
         PLAYING: {
-          onEnter: () => {
-            console.log("playing");
-          },
           transitions: ['STOPPED', 'PAUSED']
         },
         STOPPED: {
-          onEnter: () => {
-            console.log("stopped");
-          },
           transitions: ['PLAYING', 'SEEK']
         },
         SEEK: {
           transitions: ['*']
         },
         PAUSED: {
-          onEnter: () => {
-            console.log("paused")
-          },
           transitions: ['PLAYING', 'STOPPED']
         }
       }
@@ -97,7 +70,7 @@ describe('A StateMachine', () => {
     expect(machine.go('PLAYING')).toBe(true);
     expect(machine.go('PAUSED')).toBe(true);
     expect(machine.go('STOPPED')).toBe(true);
-    
+
     // No implicit self transition
     expect(machine.go('STOPPED')).toBe(false);
     expect(machine.go('SEEK')).toBe(true);
@@ -174,7 +147,7 @@ describe('A StateMachine', () => {
 
     machine.go('PONG');
     machine.update(100);
-    expect(updateSpy).toHaveBeenCalledWith({ data: 42 }, 100)
+    expect(updateSpy).toHaveBeenCalledWith({ data: 42 }, 100);
   });
 
   it('can save a state machine to local storage and restore it with the correct state and data', () => {
