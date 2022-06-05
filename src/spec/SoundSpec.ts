@@ -28,6 +28,7 @@ describe('Sound resource', () => {
   });
 
   it('should have duration', async () => {
+    sut = new ex.Sound('src/spec/images/SoundSpec/preview.ogg');
     sut.duration = 5.0;
     await sut.load();
     expect(sut.duration).toBeDefined();
