@@ -14,7 +14,37 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
-
+- Added a new lightweight `ex.StateMachine` type for building finite state machines
+  ```typescript
+  const machine = ex.StateMachine.create({
+    start: 'STOPPED',
+    states: {
+      PLAYING: {
+        onEnter: () => {
+          console.log("playing");
+        },
+        transitions: ['STOPPED', 'PAUSED']
+      },
+      STOPPED: {
+        onEnter: () => {
+          console.log("stopped");
+        },
+        transitions: ['PLAYING', 'SEEK']
+      },
+      SEEK: {
+        transitions: ['*']
+      },
+      PAUSED: {
+        onEnter: () => {
+          console.log("paused")
+        },
+        transitions: ['PLAYING', 'STOPPED']
+      }
+    }
+  });
+  ```
+- Added `ex.Sound.seek(positionInSeconds)` which will allow you to see to a place in the sound, this will implicitly pause the sound
+- Added `ex.Sound.getTotalPlaybackDuration()` which will return the total time in the sound in seconds.
 - Allow tinting of `ex.Sprite`'s by setting a new `tint` property, renderers must support the tint property in order to function.
   ```typescript
   const imageSource = new ex.ImageSource('./path/to/image.png');

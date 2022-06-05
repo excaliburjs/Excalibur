@@ -24,9 +24,25 @@ export interface Audio {
   isPlaying(): boolean;
 
   /**
+   * Returns if the audio is paused
+   */
+  isPaused(): boolean;
+
+  /**
    * Will play the sound or resume if paused
    */
   play(): Promise<any>;
+
+  /**
+   * Seek to a position (in seconds) in the audio
+   * @param position 
+   */
+  seek(position: number): void;
+
+  /**
+   * Return the duration of the sound
+   */
+  getTotalPlaybackDuration(): number;
 
   /**
    * Return the current playback time of the playing track in seconds from the start

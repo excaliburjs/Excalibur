@@ -184,7 +184,6 @@ describe('Sound resource', () => {
 
   it('should stop all currently playing tracks', (done) => {
     sut.load().then(() => {
-      sut.play();
 
       sut.once('playbackstart', () => {
         expect(sut.isPlaying()).toBe(true, 'track should be playing');
@@ -194,6 +193,8 @@ describe('Sound resource', () => {
 
         done();
       });
+
+      sut.play();
     });
   });
 
@@ -365,18 +366,20 @@ describe('Sound resource', () => {
       sut.load().then(() => {
         engine.pauseAudioWhenHidden = true;
         sut.wireEngine(engine);
-        sut.play();
+
 
         sut.once('playbackstart', () => {
-          expect(sut.isPlaying()).toBe(true, 'should be playing');
+          expect(sut.isPlaying()).withContext('should be playing').toBe(true);
 
           setTimeout(() => {
             engine.emit('hidden', new ex.HiddenEvent(engine));
           }, 100);
         });
 
+        sut.play();
+
         engine.once('hidden', () => {
-          expect(sut.isPlaying()).toBe(false, 'should pause when hidden');
+          expect(sut.isPlaying()).withContext('should pause when hidden').toBe(false);
           done();
         });
       });

@@ -74,7 +74,7 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
   private _volume = 1;
   private _duration: number | undefined = undefined;
   private _isStopped = false;
-  private _isPaused = false;
+  // private _isPaused = false;
   private _tracks: Audio[] = [];
   private _engine: Engine;
   private _wasPlayingOnHidden: boolean = false;
@@ -178,6 +178,10 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
     return this._tracks.some((t) => t.isPlaying());
   }
 
+  public isPaused(): boolean {
+    return this._tracks.some(t => t.isPaused());
+  }
+
   /**
    * Play the sound, returns a promise that resolves when the sound is done playing
    * An optional volume argument can be passed in to play the sound. Max volume is 1.0
@@ -196,7 +200,7 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
 
     this.volume = volume || this.volume;
 
-    if (this._isPaused) {
+    if (this.isPaused()) {
       return this._resumePlayback();
     } else {
       return this._startPlayback();
@@ -215,8 +219,6 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
       track.pause();
     }
 
-    this._isPaused = true;
-
     this.emit('pause', new NativeSoundEvent(this));
 
     this.logger.debug('Paused all instances of sound', this.path);
@@ -232,7 +234,6 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
 
     this.emit('stop', new NativeSoundEvent(this));
 
-    this._isPaused = false;
     this._tracks.length = 0;
     this.logger.debug('Stopped all instances of sound', this.path);
   }
@@ -246,6 +247,18 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
     this._tracks.forEach(t => {
       t.playbackRate = this._playbackRate;
     });
+  }
+
+  public seek(position: number, trackId = 0) {
+    if (this._tracks.length === 0) {
+      this._getTrackInstance(this.data);
+    }
+
+    this._tracks[trackId].seek(position);
+  }
+
+  public getTotalPlaybackDuration() {
+    return this.data.duration;
   }
 
   /**
@@ -272,14 +285,16 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
   }
 
   private async _resumePlayback(): Promise<boolean> {
-    if (this._isPaused) {
+    if (this.isPaused) {
       const resumed: Promise<boolean>[] = [];
       // ensure we resume *current* tracks (if paused)
       for (const track of this._tracks) {
-        resumed.push(track.play());
+        resumed.push(track.play().then(() => {
+          this.emit('playbackend', new NativeSoundEvent(this, track as WebAudioInstance));
+          this._tracks.splice(this.getTrackId(track), 1);
+          return true;
+        }));
       }
-
-      this._isPaused = false;
 
       this.emit('resume', new NativeSoundEvent(this));
 

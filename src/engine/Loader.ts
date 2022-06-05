@@ -12,6 +12,7 @@ import { Vector } from './Math/vector';
 import { delay } from './Util/Util';
 import { ImageFiltering } from './Graphics/Filtering';
 import { clamp } from './Math/util';
+import { Sound } from './Resources/Sound/Sound';
 
 /**
  * Pre-loading assets
@@ -333,6 +334,13 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
         })
       )
     );
+    // Wire all sound to the engine
+    for (let resource of this._resourceList) {
+      if (resource instanceof Sound) {
+        resource.wireEngine(this._engine);
+      }
+    }
+
     this._isLoadedResolve();
 
     // short delay in showing the button for aesthetics
