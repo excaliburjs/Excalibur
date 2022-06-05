@@ -95,8 +95,6 @@ export class WebAudioInstance implements Audio {
   }
 
   private _volume = 1;
-  private _duration: number | undefined = undefined;
-
   private _loop = false;
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private _playStarted: () => any = () => {};
@@ -132,17 +130,6 @@ export class WebAudioInstance implements Audio {
   }
   public get volume(): number {
     return this._volume;
-  }
-
-  public set duration(value: number | undefined) {
-    this._duration = value;
-  }
-
-  /**
-   * Duration of the sound, in seconds.
-   */
-  public get duration() {
-    return this._duration;
   }
 
   constructor(private _src: AudioBuffer) {

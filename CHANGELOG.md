@@ -69,7 +69,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
--
+- Fixed issue where `ex.Sound` wasn't being paused when the browser window lost focus
 
 ### Updates
 

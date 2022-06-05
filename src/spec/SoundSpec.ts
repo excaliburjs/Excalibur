@@ -312,6 +312,29 @@ describe('Sound resource', () => {
     });
   });
 
+  it('can seek to a position in the sound', async () => {
+    sut = new ex.Sound('src/spec/images/SoundSpec/preview.ogg');
+    await sut.load();
+    expect(sut.getPlaybackPosition()).toBe(0);
+    sut.seek(6.5);
+    expect(sut.getPlaybackPosition()).toBe(6.5);
+  });
+
+  it('can get the total duration of the sound', async () => {
+    sut = new ex.Sound('src/spec/images/SoundSpec/preview.ogg');
+    await sut.load();
+    expect(sut.getTotalPlaybackDuration()).toBeCloseTo(13.01, 1);
+  });
+
+
+  it('can set/get the playback rate', async () => {
+    sut = new ex.Sound('src/spec/images/SoundSpec/preview.ogg');
+    expect(sut.playbackRate).toBe(1.0);
+    sut.playbackRate = 2.5;
+    await sut.load();
+    expect(sut.playbackRate).toBe(2.5);
+  });
+
   describe('wire engine', () => {
     let engine: ex.Engine;
 
