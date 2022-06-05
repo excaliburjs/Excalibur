@@ -64,6 +64,7 @@ var pause = new ex.Actor({
   color: ex.Color.Yellow
 });
 pause.on('pointerdown', () => {
+  sound.duration = 2;
   sound.seek(5);
   sound.play();
 });

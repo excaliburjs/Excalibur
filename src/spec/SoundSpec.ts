@@ -28,9 +28,10 @@ describe('Sound resource', () => {
   });
 
   it('should have duration', async () => {
+    sut.duration = 5.0;
     await sut.load();
     expect(sut.duration).toBeDefined();
-    expect(sut.duration).toBeGreaterThan(0);
+    expect(sut.duration).toBe(5);
   });
 
   it('should fire playbackstart event', async () => {
@@ -333,6 +334,15 @@ describe('Sound resource', () => {
     sut.playbackRate = 2.5;
     await sut.load();
     expect(sut.playbackRate).toBe(2.5);
+  });
+
+  it('can set the playback rate and seek to the right position', async () => {
+    sut = new ex.Sound('src/spec/images/SoundSpec/preview.ogg');
+    expect(sut.playbackRate).toBe(1.0);
+    sut.playbackRate = 2.5;
+    await sut.load();
+    sut.seek(6.5);
+    expect(sut.getPlaybackPosition()).toBe(6.5);
   });
 
   describe('wire engine', () => {

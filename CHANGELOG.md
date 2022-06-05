@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
+- Allowed setting playback `ex.Sound.duration` which will limit the amount of time that a clip plays from the current playback position.
 - Added a new lightweight `ex.StateMachine` type for building finite state machines
   ```typescript
   const machine = ex.StateMachine.create({

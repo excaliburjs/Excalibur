@@ -29,7 +29,7 @@ export class WebAudioInstance implements Audio {
           // Buffer nodes are single use
           this._createNewBufferSource();
           this._handleEnd();
-          this._instance.start(0, data.pausedAt * this._playbackRate);
+          this._instance.start(0, data.pausedAt * this._playbackRate, this.duration);
           data.startedAt = (this._audioContext.currentTime - data.pausedAt);
           data.pausedAt = 0;
         },
@@ -49,7 +49,7 @@ export class WebAudioInstance implements Audio {
       },
       SEEK: {
         onEnter: ({ eventData: position, data }: {eventData?: number, data: SoundState}) => {
-          data.pausedAt = position ?? 0;
+          data.pausedAt = (position ?? 0) / this._playbackRate;
           data.startedAt = 0;
         },
         transitions: ['*']
@@ -130,6 +130,25 @@ export class WebAudioInstance implements Audio {
   }
   public get volume(): number {
     return this._volume;
+  }
+
+  private _duration: number | undefined;
+  /**
+   * Returns the set duration to play, otherwise returns the total duration if unset
+   */
+  public get duration() {
+    return this._duration ?? this.getTotalPlaybackDuration();
+  }
+
+  /**
+   * Set the duration that this audio should play.
+   *
+   * Note: if you seek to a specific point the duration will start from that point, for example
+   *
+   * If you have a 10 second clip, seek to 5 seconds, then set the duration to 2, it will play the clip from 5-7 seconds.
+   */
+  public set duration(duration: number) {
+    this._duration = duration;
   }
 
   constructor(private _src: AudioBuffer) {

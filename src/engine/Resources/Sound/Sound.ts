@@ -51,8 +51,12 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
     return this._volume;
   }
 
+  private _duration: number | undefined;
   public get duration(): number | undefined {
     return this._duration;
+  }
+  public set duration(duration: number | undefined){
+    this._duration = duration;
   }
 
   /**
@@ -72,7 +76,6 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
 
   private _loop = false;
   private _volume = 1;
-  private _duration: number | undefined = undefined;
   private _isStopped = false;
   // private _isPaused = false;
   private _tracks: Audio[] = [];
