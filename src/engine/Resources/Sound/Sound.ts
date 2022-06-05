@@ -52,9 +52,19 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
   }
 
   private _duration: number | undefined;
+  /**
+   * Get the duration that this audio should play. If unset the total natural playback duration will be used.
+   */
   public get duration(): number | undefined {
     return this._duration;
   }
+  /**
+   * Set the duration that this audio should play. If unset the total natural playback duration will be used.
+   *
+   * Note: if you seek to a specific point the duration will start from that point, for example
+   *
+   * If you have a 10 second clip, seek to 5 seconds, then set the duration to 2, it will play the clip from 5-7 seconds.
+   */
   public set duration(duration: number | undefined){
     this._duration = duration;
   }
