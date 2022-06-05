@@ -71,6 +71,7 @@ export * from './Util/Fps';
 export * from './Util/Clock';
 export * from './Util/WebAudio';
 export * from './Util/Toaster';
+export * from './Util/StateMachine';
 
 // ex.Deprecated
 // import * as deprecated from './Deprecated';
