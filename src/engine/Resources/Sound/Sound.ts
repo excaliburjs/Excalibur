@@ -130,7 +130,7 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
     }
     const arraybuffer = await this._resource.load();
     const audiobuffer = await this.decodeAudio(arraybuffer.slice(0));
-    this._duration = typeof audiobuffer === 'object' ? audiobuffer.duration : undefined;
+    this._duration = this._duration ?? audiobuffer?.duration ?? undefined;
     this.emit('processed', new NativeSoundProcessedEvent(this, audiobuffer));
     return this.data = audiobuffer;
   }
