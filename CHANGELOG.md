@@ -221,7 +221,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added new display mode `ex.DisplayMode.FitScreenAndFill`.
 - Added new display mode `ex.DisplayMode.FitContainerAndZoom`.
 - Added new display mode `ex.DisplayMode.FitScreenAndZoom`.
-
+- Added the ability to select variable duration into Timer constructor. 
 ### Fixed
 
 - Fixed unreleased bug where CompositeCollider components would not collide appropriately because contacts did not have unique ids
