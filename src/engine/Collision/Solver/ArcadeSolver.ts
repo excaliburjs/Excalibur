@@ -30,16 +30,16 @@ export class ArcadeSolver implements CollisionSolver {
       const bDir = this.directionMap.get(b.id);
       // TODO hard coded to vertical bias
       if (aDir === 'vertical' && bDir === 'horizontal') {
-        return -1
+        return -1;
       }
       if (aDir === 'horizontal' && bDir === 'vertical') {
         return 1;
       }
       return 0;
       // return Math.abs(b.info.separation) - Math.abs(a.info.separation);
-    })
+    });
 
-    for (let contact of contacts) {
+    for (const contact of contacts) {
       // Solve position first in arcade
       this.solvePosition(contact);
 
@@ -63,9 +63,9 @@ export class ArcadeSolver implements CollisionSolver {
       const mtv = contact.mtv.negate();
 
       if (side === Side.Top || side === Side.Bottom) {
-        this.directionMap.set(contact.id, "vertical");
+        this.directionMap.set(contact.id, 'vertical');
       } else {
-        this.directionMap.set(contact.id, "horizontal");
+        this.directionMap.set(contact.id, 'horizontal');
       }
 
       // Publish collision events on both participants
@@ -90,10 +90,6 @@ export class ArcadeSolver implements CollisionSolver {
         if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
           continue;
         }
-      }
-
-      if (this.directionMap.get(contact.id) === 'horizontal') {
-        console.log(contacts);
       }
 
       const side = Side.fromDirection(contact.mtv);
