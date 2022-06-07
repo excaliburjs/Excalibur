@@ -104,7 +104,6 @@ export class ArcadeSolver implements CollisionSolver {
   }
 
   public solvePosition(contact: CollisionContact) {
-
     // if bounds no longer intersect skip to the next
     // this removes jitter from overlapping/stacked solid tiles or a wall of solid tiles
     if (!contact.colliderA.bounds.overlaps(contact.colliderB.bounds)) {
@@ -165,15 +164,23 @@ export class ArcadeSolver implements CollisionSolver {
       const normal = contact.normal;
       const opposite = normal.negate();
 
-      // Cancel out velocity opposite direction of collision normal
       if (bodyA.collisionType === CollisionType.Active) {
-        const velAdj = normal.scale(normal.dot(bodyA.vel.negate()));
-        bodyA.vel = bodyA.vel.add(velAdj);
+        // only adjust velocity if the contact normal is opposite to the current velocity
+        // this avoids catching edges on a platform when sliding off
+        if (bodyA.vel.normalize().dot(opposite) < 0) {
+          // Cancel out velocity opposite direction of collision normal
+          const velAdj = normal.scale(normal.dot(bodyA.vel.negate()));
+          bodyA.vel = bodyA.vel.add(velAdj);
+        }
       }
 
       if (bodyB.collisionType === CollisionType.Active) {
-        const velAdj = opposite.scale(opposite.dot(bodyB.vel.negate()));
-        bodyB.vel = bodyB.vel.add(velAdj);
+        // only adjust velocity if the contact normal is opposite to the current velocity
+        // this avoids catching edges on a platform
+        if (bodyB.vel.normalize().dot(normal) < 0) {
+          const velAdj = opposite.scale(opposite.dot(bodyB.vel.negate()));
+          bodyB.vel = bodyB.vel.add(velAdj);
+        }
       }
     }
   }
