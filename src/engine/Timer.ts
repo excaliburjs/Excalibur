@@ -1,6 +1,6 @@
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
-import * as ex from './index'; 
+import * as ex from './index';
 import { Random } from './Math/Random';
 
 
@@ -37,8 +37,9 @@ export class Timer {
   public random: ex.Random;
   private _baseInterval = 10;
   private _generateRandomInterval = () => {
-    return this._baseInterval + this.random.integer(this.randomRange[0], this.randomRange[1])
-  }
+    return this._baseInterval + this.random.integer(this.randomRange[0], this.randomRange[1]);
+  };
+
   private _complete = false;
   public get complete() {
     return this._complete;
@@ -77,7 +78,7 @@ export class Timer {
     this._callbacks = [];
     this._baseInterval = this.interval = interval;
     if (!!randomRange){
-      if(randomRange[0] > randomRange[1]){
+      if (randomRange[0] > randomRange[1]) {
         throw new Error('min value must be lower than max value for range');
       }
       //We use the instance of ex.Random to generate the range
@@ -88,8 +89,8 @@ export class Timer {
       this.on(() => {
         this.interval = this._generateRandomInterval();
       });
-    }
-   
+    };
+    this.repeats = repeats || this.repeats;
     if (fcn) {
       this.on(fcn);
     }
@@ -151,8 +152,7 @@ export class Timer {
    */
   public reset(newInterval?: number, newNumberOfRepeats?: number) {
     if (!!newInterval && newInterval >= 0) {
-        this.interval = newInterval;
-        this._baseInterval = newInterval;
+      this._baseInterval = this.interval= newInterval;
     }
 
     if (!!this.maxNumberOfRepeats && this.maxNumberOfRepeats >= 0) {
