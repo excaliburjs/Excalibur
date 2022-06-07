@@ -9,7 +9,7 @@ import { CollisionSolver } from './Solver';
 import { BodyComponent } from '../BodyComponent';
 import { CollisionJumpTable } from '../Colliders/CollisionJumpTable';
 
-export class RealisticSolver extends CollisionSolver {
+export class RealisticSolver implements CollisionSolver {
   lastFrameContacts: Map<string, CollisionContact> = new Map();
 
   // map contact id to contact points
@@ -17,6 +17,25 @@ export class RealisticSolver extends CollisionSolver {
 
   getContactConstraints(id: string) {
     return this.idToContactConstraint.get(id) ?? [];
+  }
+
+  public solve(contacts: CollisionContact[]): CollisionContact[] {
+    // Events and init
+    this.preSolve(contacts);
+
+    // Remove any canceled contacts
+    contacts = contacts.filter(c => !c.isCanceled());
+
+    // Solve velocity first
+    this.solveVelocity(contacts);
+
+    // Solve position last because non-overlap is the most important
+    this.solvePosition(contacts);
+
+    // Events and any contact house-keeping the solver needs
+    this.postSolve(contacts);
+
+    return contacts;
   }
 
   preSolve(contacts: CollisionContact[]) {

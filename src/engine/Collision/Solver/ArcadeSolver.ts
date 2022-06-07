@@ -12,11 +12,62 @@ import { BodyComponent } from '../BodyComponent';
  * This is usually the type of collisions used for 2D games that don't need a more realistic collision simulation.
  *
  */
-export class ArcadeSolver extends CollisionSolver {
+export class ArcadeSolver implements CollisionSolver {
+  directionMap = new Map<string, string>();
+  distanceMap = new Map<string, number>();
+
+  public solve(contacts: CollisionContact[]): CollisionContact[] {
+    // Events and init
+    this.preSolve(contacts);
+
+    // Remove any canceled contacts
+    contacts = contacts.filter(c => !c.isCanceled());
+
+    // 1st sort contact by vertical/horizontal bias
+    // To avoid artifacts it's important to solve in a specific order
+    contacts.sort((a, b) => {
+      const aDir = this.directionMap.get(a.id);
+      const bDir = this.directionMap.get(b.id);
+      // TODO hard coded to vertical bias
+      if (aDir === 'vertical' && bDir === 'horizontal') {
+        return -1
+      }
+      if (aDir === 'horizontal' && bDir === 'vertical') {
+        return 1;
+      }
+      return 0;
+      // return Math.abs(b.info.separation) - Math.abs(a.info.separation);
+    })
+
+    for (let contact of contacts) {
+      // Solve position first in arcade
+      this.solvePosition(contact);
+
+      // Solve velocity first
+      this.solveVelocity(contact);
+    }
+
+    // Remove any canceled contacts
+    contacts = contacts.filter(c => !c.isCanceled());
+
+    // Events and any contact house-keeping the solver needs
+    this.postSolve(contacts);
+
+    return contacts;
+  }
+
   public preSolve(contacts: CollisionContact[]) {
+
     for (const contact of contacts) {
       const side = Side.fromDirection(contact.mtv);
       const mtv = contact.mtv.negate();
+
+      if (side === Side.Top || side === Side.Bottom) {
+        this.directionMap.set(contact.id, "vertical");
+      } else {
+        this.directionMap.set(contact.id, "horizontal");
+      }
+
       // Publish collision events on both participants
       contact.colliderA.events.emit('precollision', new PreCollisionEvent(contact.colliderA, contact.colliderB, side, mtv));
       contact.colliderB.events.emit(
@@ -28,6 +79,9 @@ export class ArcadeSolver extends CollisionSolver {
 
   public postSolve(contacts: CollisionContact[]) {
     for (const contact of contacts) {
+      if (contact.isCanceled()) {
+        continue;
+      }
       const colliderA = contact.colliderA;
       const colliderB = contact.colliderB;
       const bodyA = colliderA.owner?.get(BodyComponent);
@@ -37,6 +91,11 @@ export class ArcadeSolver extends CollisionSolver {
           continue;
         }
       }
+
+      if (this.directionMap.get(contact.id) === 'horizontal') {
+        console.log(contacts);
+      }
+
       const side = Side.fromDirection(contact.mtv);
       const mtv = contact.mtv.negate();
       // Publish collision events on both participants
@@ -48,70 +107,77 @@ export class ArcadeSolver extends CollisionSolver {
     }
   }
 
-  public solvePosition(contacts: CollisionContact[]) {
-    for (const contact of contacts) {
-      // if bounds no longer interesect skip to the next
-      // this removes jitter from overlapping/stacked solid tiles or a wall of solid tiles
-      if (!contact.colliderA.bounds.overlaps(contact.colliderB.bounds)) {
-        continue;
+  public solvePosition(contact: CollisionContact) {
+
+    // if bounds no longer intersect skip to the next
+    // this removes jitter from overlapping/stacked solid tiles or a wall of solid tiles
+    if (!contact.colliderA.bounds.overlaps(contact.colliderB.bounds)) {
+      // Cancel the contact to prevent and solving
+      contact.cancel();
+      return;
+    }
+    let mtv = contact.mtv;
+    const colliderA = contact.colliderA;
+    const colliderB = contact.colliderB;
+    const bodyA = colliderA.owner?.get(BodyComponent);
+    const bodyB = colliderB.owner?.get(BodyComponent);
+    if (bodyA && bodyB) {
+      if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
+        return;
       }
-      let mtv = contact.mtv;
-      const colliderA = contact.colliderA;
-      const colliderB = contact.colliderB;
-      const bodyA = colliderA.owner?.get(BodyComponent);
-      const bodyB = colliderB.owner?.get(BodyComponent);
-      if (bodyA && bodyB) {
-        if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
-          continue;
-        }
 
-        if (bodyA.collisionType === CollisionType.Active && bodyB.collisionType === CollisionType.Active) {
-          // split overlaps if both are Active
-          mtv = mtv.scale(0.5);
-        }
+      if (bodyA.collisionType === CollisionType.Active && bodyB.collisionType === CollisionType.Active) {
+        // split overlaps if both are Active
+        mtv = mtv.scale(0.5);
+      }
 
-        // Resolve overlaps
-        if (bodyA.collisionType === CollisionType.Active) {
-          bodyA.pos.x -= mtv.x;
-          bodyA.pos.y -= mtv.y;
-          colliderA.update(bodyA.transform);
-        }
+      // Resolve overlaps
+      if (bodyA.collisionType === CollisionType.Active) {
+        bodyA.pos.x -= mtv.x;
+        bodyA.pos.y -= mtv.y;
+        colliderA.update(bodyA.transform);
+      }
 
-        if (bodyB.collisionType === CollisionType.Active) {
-          bodyB.pos.x += mtv.x;
-          bodyB.pos.y += mtv.y;
-          colliderB.update(bodyB.transform);
-        }
+      if (bodyB.collisionType === CollisionType.Active) {
+        bodyB.pos.x += mtv.x;
+        bodyB.pos.y += mtv.y;
+        colliderB.update(bodyB.transform);
       }
     }
   }
 
-  public solveVelocity(contacts: CollisionContact[]) {
-    for (const contact of contacts) {
-      const colliderA = contact.colliderA;
-      const colliderB = contact.colliderB;
-      const bodyA = colliderA.owner?.get(BodyComponent);
-      const bodyB = colliderB.owner?.get(BodyComponent);
+  public solveVelocity(contact: CollisionContact) {
+    if (contact.isCanceled()) {
+      return;
+    }
+    if (contact.mtv.x === 0 && contact.mtv.y === 0) {
+      // TODO is this needed?
+      contact.cancel();
+      return;
+    }
+    const colliderA = contact.colliderA;
+    const colliderB = contact.colliderB;
+    const bodyA = colliderA.owner?.get(BodyComponent);
+    const bodyB = colliderB.owner?.get(BodyComponent);
 
-      if (bodyA && bodyB) {
+    if (bodyA && bodyB) {
 
-        if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
-          continue;
-        }
+      if (bodyA.collisionType === CollisionType.Passive || bodyB.collisionType === CollisionType.Passive) {
+        return;
+      }
 
-        const normal = contact.normal;
-        const opposite = normal.negate();
+      const normal = contact.normal;
+      const opposite = normal.negate();
 
-        // Cancel out velocity opposite direction of collision normal
-        if (bodyA.collisionType === CollisionType.Active) {
-          const velAdj = normal.scale(normal.dot(bodyA.vel.negate()));
-          bodyA.vel = bodyA.vel.add(velAdj);
-        }
+      // Cancel out velocity opposite direction of collision normal
+      if (bodyA.collisionType === CollisionType.Active) {
+        const velAdj = normal.scale(normal.dot(bodyA.vel.negate()));
+        bodyA.vel = bodyA.vel.add(velAdj);
+      }
 
-        if (bodyB.collisionType === CollisionType.Active) {
-          const velAdj = opposite.scale(opposite.dot(bodyB.vel.negate()));
-          bodyB.vel = bodyB.vel.add(velAdj);
-        }
+      if (bodyB.collisionType === CollisionType.Active) {
+        const velAdj = opposite.scale(opposite.dot(bodyB.vel.negate()));
+        bodyB.vel = bodyB.vel.add(velAdj);
       }
     }
   }
