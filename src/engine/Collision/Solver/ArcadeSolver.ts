@@ -47,9 +47,6 @@ export class ArcadeSolver implements CollisionSolver {
       this.solveVelocity(contact);
     }
 
-    // Remove any canceled contacts
-    contacts = contacts.filter(c => !c.isCanceled());
-
     // Events and any contact house-keeping the solver needs
     this.postSolve(contacts);
 
