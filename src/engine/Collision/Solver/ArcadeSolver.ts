@@ -23,20 +23,12 @@ export class ArcadeSolver implements CollisionSolver {
     // Remove any canceled contacts
     contacts = contacts.filter(c => !c.isCanceled());
 
-    // 1st sort contact by vertical/horizontal bias
-    // To avoid artifacts it's important to solve in a specific order
+    // Sort contacts by distance to avoid artifacts 
+    // It's important to solve in a specific order
     contacts.sort((a, b) => {
-      const aDir = this.directionMap.get(a.id);
-      const bDir = this.directionMap.get(b.id);
-      // TODO hard coded to vertical bias
-      if (aDir === 'vertical' && bDir === 'horizontal') {
-        return -1;
-      }
-      if (aDir === 'horizontal' && bDir === 'vertical') {
-        return 1;
-      }
-      return 0;
-      // return Math.abs(b.info.separation) - Math.abs(a.info.separation);
+      const aDist = this.distanceMap.get(a.id);
+      const bDist = this.distanceMap.get(b.id);
+      return aDist - bDist;
     });
 
     for (const contact of contacts) {
@@ -59,11 +51,8 @@ export class ArcadeSolver implements CollisionSolver {
       const side = Side.fromDirection(contact.mtv);
       const mtv = contact.mtv.negate();
 
-      if (side === Side.Top || side === Side.Bottom) {
-        this.directionMap.set(contact.id, 'vertical');
-      } else {
-        this.directionMap.set(contact.id, 'horizontal');
-      }
+      const distance = contact.colliderA.worldPos.distance(contact.colliderB.worldPos);
+      this.distanceMap.set(contact.id, distance);
 
       // Publish collision events on both participants
       contact.colliderA.events.emit('precollision', new PreCollisionEvent(contact.colliderA, contact.colliderB, side, mtv));
@@ -142,11 +131,7 @@ export class ArcadeSolver implements CollisionSolver {
     if (contact.isCanceled()) {
       return;
     }
-    if (contact.mtv.x === 0 && contact.mtv.y === 0) {
-      // TODO is this needed?
-      contact.cancel();
-      return;
-    }
+
     const colliderA = contact.colliderA;
     const colliderB = contact.colliderB;
     const bodyA = colliderA.owner?.get(BodyComponent);
