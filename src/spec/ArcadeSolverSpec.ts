@@ -25,7 +25,7 @@ describe('An ArcadeSolver', () => {
 
     const sut = new ex.ArcadeSolver();
 
-    for (let contact of contacts) {
+    for (const contact of contacts) {
       sut.solvePosition(contact);
     }
 
