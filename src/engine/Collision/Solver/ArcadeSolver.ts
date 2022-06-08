@@ -23,7 +23,7 @@ export class ArcadeSolver implements CollisionSolver {
     // Remove any canceled contacts
     contacts = contacts.filter(c => !c.isCanceled());
 
-    // Sort contacts by distance to avoid artifacts 
+    // Sort contacts by distance to avoid artifacts with seams
     // It's important to solve in a specific order
     contacts.sort((a, b) => {
       const aDist = this.distanceMap.get(a.id);
