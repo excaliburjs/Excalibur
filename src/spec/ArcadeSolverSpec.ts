@@ -25,7 +25,9 @@ describe('An ArcadeSolver', () => {
 
     const sut = new ex.ArcadeSolver();
 
-    sut.solvePosition(contacts);
+    for (let contact of contacts) {
+      sut.solvePosition(contact);
+    }
 
     // Each contact has the same mtv
     expect(contacts[0].mtv).toBeVector(ex.vec(0, -1));
