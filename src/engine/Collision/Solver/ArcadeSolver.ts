@@ -51,7 +51,7 @@ export class ArcadeSolver implements CollisionSolver {
       const side = Side.fromDirection(contact.mtv);
       const mtv = contact.mtv.negate();
 
-      const distance = contact.colliderA.worldPos.distance(contact.colliderB.worldPos);
+      const distance = contact.colliderA.worldPos.squareDistance(contact.colliderB.worldPos);
       this.distanceMap.set(contact.id, distance);
 
       // Publish collision events on both participants
