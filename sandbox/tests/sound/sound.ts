@@ -1,8 +1,10 @@
-
+ex.Physics.enabled = false;
 var game = new ex.Engine({
   width: 600,
   height: 400
 });
+
+
 
 var sound = new ex.Sound('./preview.ogg');
 sound.playbackRate = 2.0;
@@ -37,7 +39,8 @@ var play = new ex.Actor({
   y: 200,
   width: 40,
   height: 40,
-  color: ex.Color.Green
+  color: ex.Color.Green,
+  collisionType: ex.CollisionType.PreventCollision
 });
 play.on('pointerdown', () => {
   sound.play();

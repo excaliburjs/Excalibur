@@ -70,6 +70,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue with `ex.ArcadeSolver` based collisions where colliders were catching on seams when sliding along a floor of multiple colliders. This was by sorting contacts by distance between bodies.
+  ![sorted-collisions](https://user-images.githubusercontent.com/612071/172401390-9e9c3490-3566-47bf-b258-6a7da86a3464.gif)
+
+- Fixed issue with `ex.ArcadeSolver` where corner contacts would zero out velocity even if the bodies were already moving away from the contact "divergent contacts".
+  ![cancel-velocity-fix](https://user-images.githubusercontent.com/612071/172500318-539f3a36-31ae-4efc-b6ab-c4524b297adb.gif)
+
 - Fixed issue where `ex.Sound` wasn't being paused when the browser window lost focus
 
 ### Updates
