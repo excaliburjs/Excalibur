@@ -36,6 +36,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   public events = new EventDispatcher();
 
   private _oldTransform = Matrix.identity();
+  public oldTransformValid: boolean = false;
 
   constructor(options?: BodyComponentOptions) {
     super();
@@ -371,6 +372,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
    */
   public captureOldTransform() {
     // Capture old values before integration step updates them
+    this.oldTransformValid = true;
     this.transform.getGlobalMatrix().clone(this._oldTransform);
     this.oldVel.setTo(this.vel.x, this.vel.y);
     this.oldAcc.setTo(this.acc.x, this.acc.y);

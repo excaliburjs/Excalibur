@@ -2,6 +2,7 @@
 var game = new ex.Engine({
   width: 400,
   height: 400,
+  fixedUpdateFps: 10,
   displayMode: ex.DisplayMode.FitScreenAndFill
 });
 

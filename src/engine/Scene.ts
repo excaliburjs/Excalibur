@@ -368,10 +368,10 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * @param ctx    The current rendering context
    * @param delta  The number of milliseconds since the last draw
    */
-  public draw(ctx: ExcaliburGraphicsContext, delta: number) {
+  public draw(ctx: ExcaliburGraphicsContext, delta: number, _lag?: number) {
     this._predraw(ctx, delta);
 
-    this.world.update(SystemType.Draw, delta);
+    this.world.update(SystemType.Draw, _lag ?? delta);
 
     if (this.engine?.isDebug) {
       this.debugDraw(ctx);

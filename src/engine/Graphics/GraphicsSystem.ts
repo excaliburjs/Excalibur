@@ -10,6 +10,7 @@ import { Engine } from '../Engine';
 import { GraphicsGroup } from '.';
 import { Particle } from '../Particles';
 import { ParallaxComponent } from './ParallaxComponent';
+import { BodyComponent } from '../Collision/BodyComponent';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -107,8 +108,8 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         this._graphicsContext.translate(parallaxOffset.x, parallaxOffset.y);
       }
 
-      // Position the entity
-      this._applyTransform(entity);
+      // Position the entity + estimate lag
+      this._applyTransform(entity, delta);
 
       // Optionally run the onPreDraw graphics lifecycle draw
       if (graphics.onPreDraw) {
@@ -179,13 +180,22 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
    * This applies the current entity transform to the graphics context
    * @param entity
    */
-  private _applyTransform(entity: Entity): void {
+  private _applyTransform(entity: Entity, _delta: number): void {
     const ancestors = entity.getAncestors();
     for (const ancestor of ancestors) {
       const transform = ancestor?.get(TransformComponent);
+      const optionalBody = ancestor?.get(BodyComponent);
+      let interpolatedPos = transform.pos;
+      if (this._engine.fixedUpdateFps && optionalBody && optionalBody.oldTransformValid) {
+        // Interpolate graphics if needed
+        const blend = this._engine.lag / Math.max(this._engine.elapsed, 1000 / this._engine.fixedUpdateFps);
+        interpolatedPos = optionalBody.pos.scale(blend).add(
+          optionalBody.oldPos.scale(1.0 - blend)
+        );
+      }
       if (transform) {
         this._graphicsContext.z = transform.z;
-        this._graphicsContext.translate(transform.pos.x, transform.pos.y);
+        this._graphicsContext.translate(interpolatedPos.x, interpolatedPos.y);
         this._graphicsContext.scale(transform.scale.x, transform.scale.y);
         this._graphicsContext.rotate(transform.rotation);
       }

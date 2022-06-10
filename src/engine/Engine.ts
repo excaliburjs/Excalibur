@@ -185,6 +185,19 @@ export interface EngineOptions {
   maxFps?: number;
 
   /**
+   * Optionally configure a fixed update fps, this can be desireable if you need the physics simulation to be very stable. When set
+   * the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the 
+   * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
+   * there could be X updates and 1 draw each clock step.
+   * 
+   * **NOTE:** This does come at a potential perf cost because each catch-up update will need to be run if the fixed rate is greater than
+   * the current instantaneous framerate, or perf gain if the fixed rate is less than the current framerate.
+   * 
+   * By default is unset and updates will use the current instantaneous framerate with 1 update and 1 draw each clock step.
+   */
+  fixedUpdateFps?: number
+
+  /**
    * Default `true`, optionally configure excalibur to use optimal draw call sorting, to opt out set this to `false`.
    *
    * Excalibur will automatically sort draw calls by z and priority into renderer batches for maximal draw performance,
@@ -257,6 +270,19 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * one that bounces between 30fps and 60fps
    */
   public maxFps: number = Number.POSITIVE_INFINITY;
+
+  /**
+   * Optionally configure a fixed update fps, this can be desireable if you need the physics simulation to be very stable. When set
+   * the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the
+   * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
+   * there could be X updates and 1 draw each clock step.
+   *
+   * **NOTE:** This does come at a potential perf cost because each catch-up update will need to be run if the fixed rate is greater than
+   * the current instantaneous framerate, or perf gain if the fixed rate is less than the current framerate.
+   *
+   * By default is unset and updates will use the current instantaneous framerate with 1 update and 1 draw each clock step.
+   */
+  public fixedUpdateFps?: number;
 
   /**
    * Direct access to the excalibur clock
@@ -699,6 +725,7 @@ O|===|* >________________>\n\
     }
 
     this.maxFps = options.maxFps ?? this.maxFps;
+    this.fixedUpdateFps = options.fixedUpdateFps ?? this.fixedUpdateFps;
 
     this.clock = new StandardClock({
       maxFps: this.maxFps,
@@ -1198,7 +1225,7 @@ O|===|* >________________>\n\
    * Draws the entire game
    * @param delta  Number of milliseconds elapsed since the last draw.
    */
-  private _draw(delta: number) {
+  private _draw(delta: number, _lag: number) {
     this.graphicsContext.beginDrawLifecycle();
     this.graphicsContext.clear();
     this._predraw(this.graphicsContext, delta);
@@ -1213,7 +1240,7 @@ O|===|* >________________>\n\
     // TODO move to graphics systems?
     this.graphicsContext.backgroundColor = this.backgroundColor;
 
-    this.currentScene.draw(this.graphicsContext, delta);
+    this.currentScene.draw(this.graphicsContext, delta, _lag);
 
     this._postdraw(this.graphicsContext, delta);
 
@@ -1340,13 +1367,13 @@ O|===|* >________________>\n\
     return this._isReadyPromise;
   }
 
-  private _useFixedUpdateTimeStep = false;
-  private _fixedUpdateFps = 60;
-  private _fixedTimestep = 1000 / this._fixedUpdateFps;
-  private _lag = 0;
+  public elapsed = 0;
+  public lag = 0;
+  private _lagMs = 0;
   private _mainloop(elapsed: number) {
     this.emit('preframe', new PreFrameEvent(this, this.stats.prevFrame));
     const delta = elapsed * this.timescale;
+    this.elapsed = delta;
 
     // reset frame stats (reuse existing instances)
     const frameId = this.stats.prevFrame.id + 1;
@@ -1357,20 +1384,20 @@ O|===|* >________________>\n\
     GraphicsDiagnostics.clear();
 
     const beforeUpdate = this.clock.now();
-    if (this._useFixedUpdateTimeStep) {
-      this._lag += elapsed;
-      while (this._lag >= this._fixedTimestep) {
-        // updates++;
-        this._update(this._fixedTimestep);
-        this._lag -= this._fixedTimestep;
+    const fixedTimestepMs = 1000 / this.fixedUpdateFps;
+    if (this.fixedUpdateFps) {
+      this._lagMs += delta;
+      while (this._lagMs >= fixedTimestepMs) {
+        this._update(fixedTimestepMs);
+        this._lagMs -= fixedTimestepMs;
       }
     } else {
       this._update(delta);
     }
     const afterUpdate = this.clock.now();
     // TODO interpolate offset
-    // const lagOffset = this._lag / this._fixedTimestep;
-    this._draw(delta);
+    this.lag = this._lagMs;
+    this._draw(delta, this._lagMs);
     const afterDraw = this.clock.now();
 
     this.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
