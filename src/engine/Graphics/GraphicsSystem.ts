@@ -196,7 +196,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         );
         interpolatedScale = optionalBody.scale.scale(blend).add(
           optionalBody.oldScale.scale(1.0 - blend)
-        )
+        );
         // Rotational lerp https://stackoverflow.com/a/30129248
         const cosine = (1.0 - blend) * Math.cos(optionalBody.oldRotation) + blend * Math.cos(optionalBody.rotation);
         const sine = (1.0 - blend) * Math.sin(optionalBody.oldRotation) + blend * Math.sin(optionalBody.rotation);

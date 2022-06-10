@@ -186,13 +186,13 @@ export interface EngineOptions {
 
   /**
    * Optionally configure a fixed update fps, this can be desireable if you need the physics simulation to be very stable. When set
-   * the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the 
+   * the update step and physics will use the same elapsed time for each tick even if the graphical framerate drops. In order for the
    * simulation to be correct, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example
    * there could be X updates and 1 draw each clock step.
-   * 
+   *
    * **NOTE:** This does come at a potential perf cost because each catch-up update will need to be run if the fixed rate is greater than
    * the current instantaneous framerate, or perf gain if the fixed rate is less than the current framerate.
-   * 
+   *
    * By default is unset and updates will use the current instantaneous framerate with 1 update and 1 draw each clock step.
    */
   fixedUpdateFps?: number
