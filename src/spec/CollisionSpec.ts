@@ -270,17 +270,17 @@ describe('A Collision', () => {
 
   it('should cancel out velocity when objects collide', () => {
     ex.Physics.collisionResolutionStrategy = ex.CollisionResolutionStrategy.Arcade;
-
-    const activeBlock = new ex.Actor({x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
+    engine.currentScene.clear();
+    const activeBlock = new ex.Actor({name: 'active-block', x: 200, y: 200, width: 50, height: 50, color: ex.Color.Red.clone()});
     activeBlock.body.collisionType = ex.CollisionType.Active;
     activeBlock.vel.x = 100;
     engine.add(activeBlock);
 
-    const fixedBlock = new ex.Actor({x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone()});
+    const fixedBlock = new ex.Actor({name: 'fixed-block', x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone()});
     fixedBlock.body.collisionType = ex.CollisionType.Fixed;
     engine.add(fixedBlock);
 
-    clock.run(15, 100);
+    clock.run(25, 100);
 
     expect(activeBlock.vel.x).toBe(0);
   });

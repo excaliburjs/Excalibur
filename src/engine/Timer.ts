@@ -1,11 +1,16 @@
 import { Scene } from './Scene';
 import { Logger } from './Util/Log';
+import * as ex from './index';
+import { Random } from './Math/Random';
+
 
 export interface TimerOptions {
   repeats?: boolean;
   numberOfRepeats?: number;
   fcn?: () => void;
   interval: number;
+  randomRange?: [number, number];
+  random?: ex.Random;
 }
 
 /**
@@ -28,11 +33,18 @@ export class Timer {
   public interval: number = 10;
   public repeats: boolean = false;
   public maxNumberOfRepeats: number = -1;
+  public randomRange: [number, number] = [0,0];
+  public random: ex.Random;
+  private _baseInterval = 10;
+  private _generateRandomInterval = () => {
+    return this._baseInterval + this.random.integer(this.randomRange[0], this.randomRange[1]);
+  };
 
   private _complete = false;
   public get complete() {
     return this._complete;
   }
+
   public scene: Scene = null;
 
   /**
@@ -40,15 +52,19 @@ export class Timer {
    * @param repeats    Indicates whether this call back should be fired only once, or repeat after every interval as completed.
    * @param numberOfRepeats Specifies a maximum number of times that this timer will execute.
    * @param fcn        The callback to be fired after the interval is complete.
+   * @param randomRange Indicates a range to select a random number to be added onto the interval
    */
   constructor(options: TimerOptions);
-  constructor(fcn: TimerOptions | (() => void), interval?: number, repeats?: boolean, numberOfRepeats?: number) {
+  constructor(fcn: TimerOptions | (() => void), interval?: number,
+    repeats?: boolean, numberOfRepeats?: number, randomRange?: [number, number], random?: ex.Random) {
     if (typeof fcn !== 'function') {
       const options = fcn;
       fcn = options.fcn;
       interval = options.interval;
       repeats = options.repeats;
       numberOfRepeats = options.numberOfRepeats;
+      randomRange = options.randomRange;
+      random= options.random;
     }
 
     if (!!numberOfRepeats && numberOfRepeats >= 0) {
@@ -59,11 +75,22 @@ export class Timer {
     }
 
     this.id = Timer._MAX_ID++;
-    this.interval = interval || this.interval;
-    this.repeats = repeats || this.repeats;
-
     this._callbacks = [];
+    this._baseInterval = this.interval = interval;
+    if (!!randomRange){
+      if (randomRange[0] > randomRange[1]) {
+        throw new Error('min value must be lower than max value for range');
+      }
+      //We use the instance of ex.Random to generate the range
+      this.random = random ?? new Random();
+      this.randomRange = randomRange;
 
+      this.interval = this._generateRandomInterval();
+      this.on(() => {
+        this.interval = this._generateRandomInterval();
+      });
+    };
+    this.repeats = repeats || this.repeats;
     if (fcn) {
       this.on(fcn);
     }
@@ -85,7 +112,6 @@ export class Timer {
     const index = this._callbacks.indexOf(fcn);
     this._callbacks.splice(index, 1);
   }
-
   /**
    * Updates the timer after a certain number of milliseconds have elapsed. This is used internally by the engine.
    * @param delta  Number of elapsed milliseconds since the last update.
@@ -105,7 +131,6 @@ export class Timer {
         this._callbacks.forEach((c) => {
           c.call(this);
         });
-
         this._numberOfTicks++;
         if (this.repeats) {
           this._elapsedTime = 0;
@@ -127,7 +152,7 @@ export class Timer {
    */
   public reset(newInterval?: number, newNumberOfRepeats?: number) {
     if (!!newInterval && newInterval >= 0) {
-      this.interval = newInterval;
+      this._baseInterval = this.interval= newInterval;
     }
 
     if (!!this.maxNumberOfRepeats && this.maxNumberOfRepeats >= 0) {
@@ -225,3 +250,4 @@ export class Timer {
     }
   }
 }
+

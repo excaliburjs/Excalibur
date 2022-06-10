@@ -28,9 +28,11 @@ describe('Sound resource', () => {
   });
 
   it('should have duration', async () => {
+    sut = new ex.Sound('src/spec/images/SoundSpec/preview.ogg');
+    sut.duration = 5.0;
     await sut.load();
     expect(sut.duration).toBeDefined();
-    expect(sut.duration).toBeGreaterThan(0);
+    expect(sut.duration).toBe(5);
   });
 
   it('should fire playbackstart event', async () => {
@@ -184,7 +186,6 @@ describe('Sound resource', () => {
 
   it('should stop all currently playing tracks', (done) => {
     sut.load().then(() => {
-      sut.play();
 
       sut.once('playbackstart', () => {
         expect(sut.isPlaying()).toBe(true, 'track should be playing');
@@ -194,6 +195,8 @@ describe('Sound resource', () => {
 
         done();
       });
+
+      sut.play();
     });
   });
 
@@ -311,6 +314,38 @@ describe('Sound resource', () => {
     });
   });
 
+  it('can seek to a position in the sound', async () => {
+    sut = new ex.Sound('src/spec/images/SoundSpec/preview.ogg');
+    await sut.load();
+    expect(sut.getPlaybackPosition()).toBe(0);
+    sut.seek(6.5);
+    expect(sut.getPlaybackPosition()).toBe(6.5);
+  });
+
+  it('can get the total duration of the sound', async () => {
+    sut = new ex.Sound('src/spec/images/SoundSpec/preview.ogg');
+    await sut.load();
+    expect(sut.getTotalPlaybackDuration()).toBeCloseTo(13.01, 1);
+  });
+
+
+  it('can set/get the playback rate', async () => {
+    sut = new ex.Sound('src/spec/images/SoundSpec/preview.ogg');
+    expect(sut.playbackRate).toBe(1.0);
+    sut.playbackRate = 2.5;
+    await sut.load();
+    expect(sut.playbackRate).toBe(2.5);
+  });
+
+  it('can set the playback rate and seek to the right position', async () => {
+    sut = new ex.Sound('src/spec/images/SoundSpec/preview.ogg');
+    expect(sut.playbackRate).toBe(1.0);
+    sut.playbackRate = 2.5;
+    await sut.load();
+    sut.seek(6.5);
+    expect(sut.getPlaybackPosition()).toBe(6.5);
+  });
+
   describe('wire engine', () => {
     let engine: ex.Engine;
 
@@ -365,18 +400,20 @@ describe('Sound resource', () => {
       sut.load().then(() => {
         engine.pauseAudioWhenHidden = true;
         sut.wireEngine(engine);
-        sut.play();
+
 
         sut.once('playbackstart', () => {
-          expect(sut.isPlaying()).toBe(true, 'should be playing');
+          expect(sut.isPlaying()).withContext('should be playing').toBe(true);
 
           setTimeout(() => {
             engine.emit('hidden', new ex.HiddenEvent(engine));
           }, 100);
         });
 
+        sut.play();
+
         engine.once('hidden', () => {
-          expect(sut.isPlaying()).toBe(false, 'should pause when hidden');
+          expect(sut.isPlaying()).withContext('should pause when hidden').toBe(false);
           done();
         });
       });
