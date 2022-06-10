@@ -21,6 +21,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   const game = new ex.Engine({
     fixedUpdateFps: 20 // 20 fps fixed update, or a fixed update delta of 50 milliseconds
   });
+  // turn off interpolation on a per actor basis
+  const actor = new ex.Actor({...});
+  actor.body.enableFixedUpdateInterpolate = false;
+  game.add(game);
   ```
 
 - Allowed setting playback `ex.Sound.duration` which will limit the amount of time that a clip plays from the current playback position.
