@@ -41,7 +41,7 @@ class Player2 extends ex.Actor {
   // After main update, once per frame execute this code
   onPreUpdate(engine) {
     // Reset x velocity
-    // this.vel.x = 0;
+    this.vel.x = 0;
 
     // Player input
     if (engine.input.keyboard.isHeld(ex.Input.Keys.Left)) {
@@ -84,7 +84,7 @@ game.add(
     collisionType: ex.CollisionType.Fixed
   })
 );
-
-game.add(new Player2());
+var player2 = new Player2();
+game.add(player2);
 
 game.start();
