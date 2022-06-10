@@ -188,20 +188,26 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       let interpolatedPos = transform.pos;
       let interpolatedScale = transform.scale;
       let interpolatedRotation = transform.rotation;
-      if (this._engine.fixedUpdateFps && optionalBody && optionalBody.oldTransformValid) {
-        // Interpolate graphics if needed
-        const blend = this._engine.lag / Math.max(this._engine.elapsed, 1000 / this._engine.fixedUpdateFps);
-        interpolatedPos = optionalBody.pos.scale(blend).add(
-          optionalBody.oldPos.scale(1.0 - blend)
-        );
-        interpolatedScale = optionalBody.scale.scale(blend).add(
-          optionalBody.oldScale.scale(1.0 - blend)
-        );
-        // Rotational lerp https://stackoverflow.com/a/30129248
-        const cosine = (1.0 - blend) * Math.cos(optionalBody.oldRotation) + blend * Math.cos(optionalBody.rotation);
-        const sine = (1.0 - blend) * Math.sin(optionalBody.oldRotation) + blend * Math.sin(optionalBody.rotation);
-        interpolatedRotation = Math.atan2(sine, cosine);
+      if (optionalBody) {
+        if (this._engine.fixedUpdateFps &&
+            optionalBody.__oldTransformCaptured &&
+            optionalBody.enableFixedUpdateInterpolate) {
+
+          // Interpolate graphics if needed
+          const blend = this._engine.lag / Math.max(this._engine.elapsed, 1000 / this._engine.fixedUpdateFps);
+          interpolatedPos = optionalBody.pos.scale(blend).add(
+            optionalBody.oldPos.scale(1.0 - blend)
+          );
+          interpolatedScale = optionalBody.scale.scale(blend).add(
+            optionalBody.oldScale.scale(1.0 - blend)
+          );
+          // Rotational lerp https://stackoverflow.com/a/30129248
+          const cosine = (1.0 - blend) * Math.cos(optionalBody.oldRotation) + blend * Math.cos(optionalBody.rotation);
+          const sine = (1.0 - blend) * Math.sin(optionalBody.oldRotation) + blend * Math.sin(optionalBody.rotation);
+          interpolatedRotation = Math.atan2(sine, cosine);
+        }
       }
+
       if (transform) {
         this._graphicsContext.z = transform.z;
         this._graphicsContext.translate(interpolatedPos.x, interpolatedPos.y);
