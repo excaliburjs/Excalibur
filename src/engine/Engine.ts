@@ -1237,10 +1237,9 @@ O|===|* >________________>\n\
       return;
     }
 
-    // TODO move to graphics systems?
     this.graphicsContext.backgroundColor = this.backgroundColor;
 
-    this.currentScene.draw(this.graphicsContext, delta, _lag);
+    this.currentScene.draw(this.graphicsContext, delta);
 
     this._postdraw(this.graphicsContext, delta);
 
