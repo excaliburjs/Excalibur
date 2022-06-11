@@ -160,7 +160,7 @@ fdescribe('A Matrix', () => {
 
     source.clone(destination);
 
-    expect(destination.data).toEqual(new Float32Array([
+    expect(destination.data).toEqual(new Float64Array([
       5, 0,
       0, 5,
       0, 0

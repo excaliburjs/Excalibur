@@ -34,9 +34,6 @@ import { ActionsSystem } from './Actions/ActionsSystem';
 import { IsometricEntitySystem } from './TileMap/IsometricEntitySystem';
 import { OffscreenSystem } from './Graphics/OffscreenSystem';
 import { ExcaliburGraphicsContext } from './Graphics';
-import { CollisionWorkerSystem } from './Collision/Worker/CollisionWorkerSystem';
-import { UpdateBodyWorkerSystem } from './Collision/Worker/UpdateWorkerSystem';
-import { WorkerFactory } from './Collision/Worker/WorkerFactory';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -102,22 +99,14 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
   }
   private _cancelQueue: Timer[] = [];
 
-  private useWorker = false;
-
   constructor() {
     super();
     // Initialize systems
 
-    const worker = WorkerFactory.startWorker(); //new Worker(new URL('./Collision/Worker/CollisionWorker.ts', import.meta.url), {type: 'module'});
     // Update
     this.world.add(new ActionsSystem());
-    if (this.useWorker) {
-      this.world.add(new UpdateBodyWorkerSystem(worker));
-      this.world.add(new CollisionWorkerSystem(worker));
-    } else {
-      this.world.add(new MotionSystem());
-      this.world.add(new CollisionSystem());
-    }
+    this.world.add(new MotionSystem());
+    this.world.add(new CollisionSystem());
     this.world.add(new PointerSystem());
     this.world.add(new IsometricEntitySystem());
     // Draw

@@ -128,7 +128,7 @@ export class Transform {
 
   private _calculateMatrix(): AffineMatrix {
     const matrix = this._matrix;//new AffineMatrix();
-    // todo not positive this is correct
+    // TODO not positive this is correct
     const sine = Math.sin(this.rotation);
     const cosine = Math.cos(this.rotation);
     matrix.data[0] = this.scale.x * cosine;
