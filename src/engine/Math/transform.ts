@@ -1,5 +1,6 @@
 import { watch } from "../Util/Watch";
 import { AffineMatrix } from "./affine-matrix";
+import { canonicalizeAngle } from "./util";
 import { vec, Vector } from "./vector";
 import { VectorView } from "./vector-view";
 
@@ -86,7 +87,7 @@ export class Transform {
 
   private _rotation: number = 0;
   set rotation(rotation: number) {
-    this._rotation = rotation;
+    this._rotation = canonicalizeAngle(rotation);
     this.flagDirty();
   }
   get rotation() {
