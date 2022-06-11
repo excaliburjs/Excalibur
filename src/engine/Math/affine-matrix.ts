@@ -304,17 +304,17 @@ export class AffineMatrix {
   }
 
   public getScaleX(): number {
-    return this._scale[0];
+    // return this._scale[0];
     // absolute scale of the matrix (we lose sign so need to add it back)
-    // const xscale = vec(this.data[0], this.data[2]).size;
-    // return this._scaleSignX * xscale;
+    const xscale = vec(this.data[0], this.data[2]).size;
+    return this._scaleSignX * xscale;
   }
 
   public getScaleY(): number {
-    return this._scale[1];
+    // return this._scale[1];
     // absolute scale of the matrix (we lose sign so need to add it back)
-    // const yscale = vec(this.data[1], this.data[3]).size;
-    // return this._scaleSignY * yscale;
+    const yscale = vec(this.data[1], this.data[3]).size;
+    return this._scaleSignY * yscale;
   }
 
   /**

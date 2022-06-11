@@ -66,6 +66,9 @@ describe('A TransformComponent', () => {
     const parentTx = parent.get(ex.TransformComponent);
     const childTx = child.get(ex.TransformComponent);
 
+    // Internal transform parentage is correct
+    expect(childTx.get().parent).toBe(parentTx.get());
+
     // Changing a parent position influences the child global position
     parentTx.pos = ex.vec(100, 200);
     expect(childTx.pos).toBeVector(ex.vec(0, 0));
@@ -76,9 +79,18 @@ describe('A TransformComponent', () => {
     expect(parentTx.pos).toBeVector(ex.vec(100, 200));
     expect(childTx.pos).toBeVector(ex.vec(-100, -200));
 
-    // can change pos by prop
+    // Can change pos by prop
     childTx.globalPos.x = 200;
     childTx.globalPos.y = 300;
+    expect(childTx.globalPos.x).toBe(200);
+    expect(childTx.globalPos.y).toBe(300);
+    expect(parentTx.pos).toBeVector(ex.vec(100, 200));
+    expect(childTx.pos).toBeVector(ex.vec(100, 100));
+
+    // Can change global pos by vec
+    childTx.globalPos = ex.vec(200, 300);
+    expect(childTx.globalPos.x).toBe(200);
+    expect(childTx.globalPos.y).toBe(300);
     expect(parentTx.pos).toBeVector(ex.vec(100, 200));
     expect(childTx.pos).toBeVector(ex.vec(100, 100));
   });
@@ -106,9 +118,14 @@ describe('A TransformComponent', () => {
     childTx.globalScale.y = 4;
     expect(parentTx.scale).toBeVector(ex.vec(2, 3));
     expect(childTx.scale).toBeVector(ex.vec(3 / 2, 4 / 3));
+
+    // Can change scale by vec
+    childTx.globalScale = ex.vec(3, 4)
+    expect(parentTx.scale).toBeVector(ex.vec(2, 3));
+    expect(childTx.scale).toBeVector(ex.vec(3 / 2, 4 / 3));
   });
 
-  it('can have parent/child relations with rotation', () => {
+  it('can have parent/child relationships with rotation', () => {
     const parent = new ex.Entity([new ex.TransformComponent()]);
     const child = new ex.Entity([new ex.TransformComponent()]);
     parent.addChild(child);
