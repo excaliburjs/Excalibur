@@ -301,8 +301,8 @@ export class BoundingBox {
       return other.contains(this);
     }
     const totalBoundingBox = this.combine(other);
-    return totalBoundingBox.width < other.width + this.width &&
-           totalBoundingBox.height < other.height + this.height;
+    return totalBoundingBox.width + .0001 < other.width + this.width &&
+           totalBoundingBox.height + .0001 < other.height + this.height;
   }
 
   /**
