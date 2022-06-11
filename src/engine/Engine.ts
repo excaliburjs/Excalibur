@@ -1367,13 +1367,21 @@ O|===|* >________________>\n\
     return this._isReadyPromise;
   }
 
-  public elapsed = 0;
-  public lag = 0;
+  /**
+   * Returns the current frames elapsed milliseconds
+   */
+  public currentFrameElapsedMs = 0;
+
+  /**
+   * Returns the current frame lag when in fixed update mode
+   */
+  public currentFrameLagMs = 0;
+
   private _lagMs = 0;
   private _mainloop(elapsed: number) {
     this.emit('preframe', new PreFrameEvent(this, this.stats.prevFrame));
     const delta = elapsed * this.timescale;
-    this.elapsed = delta;
+    this.currentFrameElapsedMs = delta;
 
     // reset frame stats (reuse existing instances)
     const frameId = this.stats.prevFrame.id + 1;
@@ -1396,7 +1404,7 @@ O|===|* >________________>\n\
     }
     const afterUpdate = this.clock.now();
     // TODO interpolate offset
-    this.lag = this._lagMs;
+    this.currentFrameLagMs = this._lagMs;
     this._draw(delta, this._lagMs);
     const afterDraw = this.clock.now();
 

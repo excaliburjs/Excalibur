@@ -109,7 +109,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       }
 
       // Position the entity + estimate lag
-      this._applyTransform(entity, delta);
+      this._applyTransform(entity);
 
       // Optionally run the onPreDraw graphics lifecycle draw
       if (graphics.onPreDraw) {
@@ -180,7 +180,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
    * This applies the current entity transform to the graphics context
    * @param entity
    */
-  private _applyTransform(entity: Entity, _delta: number): void {
+  private _applyTransform(entity: Entity): void {
     const ancestors = entity.getAncestors();
     for (const ancestor of ancestors) {
       const transform = ancestor?.get(TransformComponent);
@@ -194,7 +194,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
             optionalBody.enableFixedUpdateInterpolate) {
 
           // Interpolate graphics if needed
-          const blend = this._engine.lag / Math.max(this._engine.elapsed, 1000 / this._engine.fixedUpdateFps);
+          const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
           interpolatedPos = optionalBody.pos.scale(blend).add(
             optionalBody.oldPos.scale(1.0 - blend)
           );

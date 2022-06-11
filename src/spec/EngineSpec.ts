@@ -145,6 +145,44 @@ describe('The engine', () => {
     expect(engine.useCanvas2DFallback).toHaveBeenCalled();
   });
 
+  it('can use a fixed update fps and can catch up', async () => {
+    engine = TestUtils.engine({
+      fixedUpdateFps: 30
+    });
+
+    const clock = engine.clock as ex.TestClock;
+
+    await TestUtils.runToReady(engine);
+
+    spyOn(engine as any, '_update');
+    spyOn(engine as any, '_draw');
+
+    clock.step(101);
+
+    expect((engine as any)._update).toHaveBeenCalledTimes(3);
+    expect((engine as any)._draw).toHaveBeenCalledTimes(1);
+  });
+
+  it('can use a fixed update fps and will skip updates', async () => {
+    engine = TestUtils.engine({
+      fixedUpdateFps: 30
+    });
+
+    const clock = engine.clock as ex.TestClock;
+
+    await TestUtils.runToReady(engine);
+
+    spyOn(engine as any, '_update');
+    spyOn(engine as any, '_draw');
+
+    clock.step(16);
+    clock.step(16);
+    clock.step(16);
+
+    expect((engine as any)._update).toHaveBeenCalledTimes(1);
+    expect((engine as any)._draw).toHaveBeenCalledTimes(3);
+  });
+
   it('can flag on to the canvas fallback', async () => {
     engine = TestUtils.engine({
       suppressPlayButton: false
