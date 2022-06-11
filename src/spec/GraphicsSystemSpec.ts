@@ -99,4 +99,67 @@ describe('A Graphics ECS System', () => {
     engine.graphicsContext.flush();
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-system.png');
   });
+
+  it('will interpolate body graphics when fixed update is enabled', async () => {
+    const game = TestUtils.engine({
+      fixedUpdateFps: 30
+    });
+
+    await TestUtils.runToReady(game);
+
+    const actor = new ex.Actor({
+      x: 100,
+      y: 100,
+      rotation: 2,
+      scale: ex.vec(2, 2)
+    });
+
+    actor.body.__oldTransformCaptured = true;
+
+    spyOn(game.graphicsContext, 'translate');
+    spyOn(game.graphicsContext, 'rotate');
+    spyOn(game.graphicsContext, 'scale');
+
+    const graphicsSystem = new ex.GraphicsSystem();
+    graphicsSystem.initialize(game.currentScene);
+    graphicsSystem.preupdate();
+    graphicsSystem.notify(new ex.AddedEntity(actor));
+
+    game.currentFrameLagMs = 8; // current lag in a 30 fps frame
+    graphicsSystem.update([actor], 30);
+
+    expect(game.graphicsContext.translate).toHaveBeenCalledWith(24, 24);
+  });
+
+  it('will not interpolate body graphics if disabled', async () => {
+    const game = TestUtils.engine({
+      fixedUpdateFps: 30
+    });
+
+    await TestUtils.runToReady(game);
+
+    const actor = new ex.Actor({
+      x: 100,
+      y: 100,
+      rotation: 2,
+      scale: ex.vec(2, 2)
+    });
+
+    actor.body.__oldTransformCaptured = true;
+
+    spyOn(game.graphicsContext, 'translate');
+    spyOn(game.graphicsContext, 'rotate');
+    spyOn(game.graphicsContext, 'scale');
+
+    const graphicsSystem = new ex.GraphicsSystem();
+    graphicsSystem.initialize(game.currentScene);
+    graphicsSystem.preupdate();
+    graphicsSystem.notify(new ex.AddedEntity(actor));
+
+    actor.body.enableFixedUpdateInterpolate = false;
+    game.currentFrameLagMs = 8; // current lag in a 30 fps frame
+    graphicsSystem.update([actor], 30);
+
+    expect(game.graphicsContext.translate).toHaveBeenCalledWith(100, 100);
+  });
 });

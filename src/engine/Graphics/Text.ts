@@ -115,6 +115,7 @@ export class Text extends Graphic {
       this.font.origin = this.origin;
       this.font.opacity = this.opacity;
     }
+    this.font.tint = this.tint;
 
     const { width, height } = this.font.measureText(this._text);
     this._textWidth = width;

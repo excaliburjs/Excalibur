@@ -1,25 +1,113 @@
+import { StateMachine } from '../../Util/StateMachine';
 import { Audio } from '../../Interfaces/Audio';
 import { clamp } from '../../Math/util';
 import { AudioContextFactory } from './AudioContext';
+
+interface SoundState {
+  startedAt: number;
+  pausedAt: number;
+}
 
 /**
  * Internal class representing a Web Audio AudioBufferSourceNode instance
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
  */
 export class WebAudioInstance implements Audio {
-  private _volume = 1;
-  private _duration: number | undefined = undefined;
-
-  private _playingPromise: Promise<boolean>;
+  private _instance: AudioBufferSourceNode;
+  private _audioContext: AudioContext = AudioContextFactory.create();
+  private _volumeNode = this._audioContext.createGain();
   private _playingResolve: (value: boolean) => void;
+  private _playingPromise = new Promise<boolean>((resolve) => {
+    this._playingResolve = resolve;
+  });
+  private _stateMachine = StateMachine.create({
+    start: 'STOPPED',
+    states: {
+      PLAYING: {
+        onEnter: ({data}: {from: string, data: SoundState}) => {
 
+          // Buffer nodes are single use
+          this._createNewBufferSource();
+          this._handleEnd();
+          this._instance.start(0, data.pausedAt * this._playbackRate, this.duration);
+          data.startedAt = (this._audioContext.currentTime - data.pausedAt);
+          data.pausedAt = 0;
+        },
+        onState: () => this._playStarted(),
+        onExit: ({to}) => {
+          // If you've exited early only resolve if explicitly STOPPED
+          if (to === 'STOPPED') {
+            this._playingResolve(true);
+          }
+          // Whenever you're not playing... you stop!
+          this._instance.onended = null; // disconnect the wired on-end handler
+          this._instance.disconnect();
+          this._instance.stop(0);
+          this._instance = null;
+        },
+        transitions: ['STOPPED', 'PAUSED', 'SEEK']
+      },
+      SEEK: {
+        onEnter: ({ eventData: position, data }: {eventData?: number, data: SoundState}) => {
+          data.pausedAt = (position ?? 0) / this._playbackRate;
+          data.startedAt = 0;
+        },
+        transitions: ['*']
+      },
+      STOPPED: {
+        onEnter: ({data}: {from: string, data: SoundState}) => {
+          data.pausedAt = 0;
+          data.startedAt = 0;
+          this._playingResolve(true);
+        },
+        transitions: ['PLAYING', 'PAUSED', 'SEEK']
+      },
+      PAUSED: {
+        onEnter: ({data}: {data: SoundState}) => {
+          // Playback rate will be a scale factor of how fast/slow the audio is being played
+          // default is 1.0
+          // we need to invert it to get the time scale
+          data.pausedAt = (this._audioContext.currentTime - data.startedAt);
+        },
+        transitions: ['PLAYING', 'STOPPED', 'SEEK']
+      }
+    }
+  }, {
+    startedAt: 0,
+    pausedAt: 0
+  } as SoundState);
+
+  private _createNewBufferSource() {
+    this._instance = this._audioContext.createBufferSource();
+    this._instance.buffer = this._src;
+    this._instance.loop = this.loop;
+    this._instance.playbackRate.value = this._playbackRate;
+    this._instance.connect(this._volumeNode);
+    this._volumeNode.connect(this._audioContext.destination);
+  }
+
+  private _handleEnd() {
+    if (!this.loop) {
+      this._instance.onended = () => {
+        this._playingResolve(true);
+      };
+    }
+  }
+
+  private _volume = 1;
   private _loop = false;
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  private _playStarted: () => any = () => {};
   public set loop(value: boolean) {
     this._loop = value;
 
     if (this._instance) {
       this._instance.loop = value;
-      this._wireUpOnEnded();
+      if (!this.loop) {
+        this._instance.onended = () => {
+          this._playingResolve(true);
+        };
+      }
     }
   }
   public get loop(): boolean {
@@ -31,7 +119,7 @@ export class WebAudioInstance implements Audio {
 
     this._volume = value;
 
-    if (this._isPlaying && this._volumeNode.gain.setTargetAtTime) {
+    if (this._stateMachine.in('PLAYING') && this._volumeNode.gain.setTargetAtTime) {
       // https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setTargetAtTime
       // After each .1 seconds timestep, the target value will ~63.2% closer to the target value.
       // This exponential ramp provides a more pleasant transition in gain
@@ -44,160 +132,78 @@ export class WebAudioInstance implements Audio {
     return this._volume;
   }
 
-  public set duration(value: number | undefined) {
-    this._duration = value;
-  }
-
+  private _duration: number | undefined;
   /**
-   * Duration of the sound, in seconds.
+   * Returns the set duration to play, otherwise returns the total duration if unset
    */
   public get duration() {
-    return this._duration;
+    return this._duration ?? this.getTotalPlaybackDuration();
   }
-
-  private get _playbackRate(): number {
-    return this._instance ? 1 / (this._instance.playbackRate.value || 1.0) : null;
-  }
-
-  private _isPlaying = false;
-  private _isPaused = false;
-  private _instance: AudioBufferSourceNode;
-  private _audioContext: AudioContext = AudioContextFactory.create();
-  private _volumeNode = this._audioContext.createGain();
-  private _startTime: number;
 
   /**
-   * Current playback offset (in seconds)
+   * Set the duration that this audio should play.
+   *
+   * Note: if you seek to a specific point the duration will start from that point, for example
+   *
+   * If you have a 10 second clip, seek to 5 seconds, then set the duration to 2, it will play the clip from 5-7 seconds.
    */
-  private _currentOffset = 0;
+  public set duration(duration: number) {
+    this._duration = duration;
+  }
 
   constructor(private _src: AudioBuffer) {
     this._createNewBufferSource();
   }
 
   public isPlaying() {
-    return this._isPlaying;
+    return this._stateMachine.in('PLAYING');
+  }
+
+  public isPaused() {
+    return this._stateMachine.in('PAUSED') || this._stateMachine.in('SEEK');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   public play(playStarted: () => any = () => {}) {
-    if (this._isPaused) {
-      this._resumePlayBack();
-      playStarted();
-    }
-
-    if (!this._isPlaying) {
-      this._startPlayBack();
-      playStarted();
-    }
-
+    this._playStarted = playStarted;
+    this._stateMachine.go('PLAYING');
     return this._playingPromise;
   }
 
   public pause() {
-    if (!this._isPlaying) {
-      return;
-    }
-
-    this._isPaused = true;
-    this._isPlaying = false;
-
-    this._instance.stop(0);
-    // Playback rate will be a scale factor of how fast/slow the audio is being played
-    // default is 1.0
-    // we need to invert it to get the time scale
-
-    this._setPauseOffset();
+    this._stateMachine.go('PAUSED');
   }
 
   public stop() {
-    if (!this._isPlaying) {
-      return;
+    this._stateMachine.go('STOPPED');
+  }
+
+  public seek(position: number) {
+    this._stateMachine.go('PAUSED');
+    this._stateMachine.go('SEEK', position);
+  }
+
+  public getTotalPlaybackDuration() {
+    return this._src.duration;
+  }
+
+  public getPlaybackPosition() {
+    const {pausedAt, startedAt} =  this._stateMachine.data;
+    if (pausedAt) {
+      return pausedAt * this._playbackRate;
     }
-
-    this._isPlaying = false;
-    this._isPaused = false;
-
-    this._currentOffset = 0;
-    this._instance.stop(0);
-
-    // handler will not be wired up if we were looping
-    if (!this._instance.onended) {
-      this._handleOnEnded();
+    if (startedAt) {
+      return (this._audioContext.currentTime - startedAt) * this._playbackRate;
     }
+    return 0;
   }
 
-  private _startPlayBack() {
-    this._isPlaying = true;
-    this._isPaused = false;
-    this._playingPromise = new Promise<boolean>((resolve) => {
-      this._playingResolve = resolve;
-    });
-
-    if (!this._instance) {
-      this._createNewBufferSource();
-    }
-
-    this._rememberStartTime();
-
-    this._volumeNode.connect(this._audioContext.destination);
-    this._instance.start(0, 0);
-    this._currentOffset = 0;
-
-    this._wireUpOnEnded();
+  private _playbackRate = 1.0;
+  public set playbackRate(playbackRate: number) {
+    this._instance.playbackRate.value = this._playbackRate = playbackRate;
   }
 
-  private _resumePlayBack() {
-    if (!this._isPaused) {
-      return;
-    }
-
-    this._isPaused = false;
-    this._isPlaying = true;
-
-    // a buffer source can only be started once
-    // so we need to dispose of the previous instance before
-    // "resuming" the next one
-    this._instance.onended = null; // dispose of any previous event handler
-    this._createNewBufferSource();
-
-    const duration = this._playbackRate * this._src.duration;
-    const restartTime = this._currentOffset % duration;
-
-    this._rememberStartTime(restartTime * -1000);
-    this._instance.start(0, restartTime);
-    this._wireUpOnEnded();
-  }
-
-  private _wireUpOnEnded() {
-    if (!this.loop) {
-      this._instance.onended = () => this._handleOnEnded();
-    }
-  }
-
-  private _handleOnEnded() {
-    // pausing calls stop(0) which triggers onended event
-    // so we don't "resolve" yet (when we resume we'll try again)
-    if (!this._isPaused) {
-      this._isPlaying = false;
-      this._playingResolve(true);
-    }
-  }
-
-  private _rememberStartTime(amend?: number) {
-    this._startTime = new Date().getTime() + (amend | 0);
-  }
-
-  private _setPauseOffset() {
-    this._currentOffset = ((new Date().getTime() - this._startTime) * this._playbackRate) / 1000; // in seconds
-  }
-
-  private _createNewBufferSource() {
-    this._instance = this._audioContext.createBufferSource();
-    this._instance.buffer = this._src;
-    this._instance.loop = this.loop;
-    this._instance.playbackRate.setValueAtTime(1.0, 0);
-
-    this._instance.connect(this._volumeNode);
+  public get playbackRate() {
+    return this._instance.playbackRate.value;
   }
 }

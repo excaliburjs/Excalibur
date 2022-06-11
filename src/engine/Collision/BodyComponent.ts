@@ -37,6 +37,17 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
 
   private _oldTransform = AffineMatrix.identity();
 
+  /**
+   * Indicates whether the old transform has been captured at least once for interpolation
+   * @internal
+   */
+  public __oldTransformCaptured: boolean = false;
+
+  /**
+   * Enable or disabled the fixed update interpolation, by default interpolation is on.
+   */
+  public enableFixedUpdateInterpolate = true;
+
   constructor(options?: BodyComponentOptions) {
     super();
     if (options) {
@@ -375,6 +386,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
    */
   public captureOldTransform() {
     // Capture old values before integration step updates them
+    this.__oldTransformCaptured = true;
     this.transform.get().matrix.clone(this._oldTransform);
     this.oldVel.setTo(this.vel.x, this.vel.y);
     this.oldAcc.setTo(this.acc.x, this.acc.y);

@@ -13,6 +13,8 @@ uniform sampler2D u_textures[%%count%%];
 // Opacity
 in float v_opacity;
 
+in vec4 v_tint;
+
 out vec4 fragColor;
 
 void main() {
@@ -27,5 +29,5 @@ void main() {
 
    color.rgb = color.rgb * v_opacity;
    color.a = color.a * v_opacity;
-   fragColor = color;
+   fragColor = color * v_tint;
 }

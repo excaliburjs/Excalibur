@@ -14,7 +14,60 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
+- Added new fixed update step to Excalibur! This allows developers to configure a fixed FPS for the update loop. One advantage of setting a fix update is that you will have a more consistent and predictable physics simulation. Excalibur graphics will be interpolated automatically to avoid any jitter in the fixed update.
+  * If the fixed update FPS is greater than the display FPS, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example there could be X updates and 1 draw each clock step.
+  * If the fixed update FPS is less than the display FPS, excalibur will skip updates until it meets the desired FPS, for example there could be no update for 1 draw each clock step.
+  ```typescript
+  const game = new ex.Engine({
+    fixedUpdateFps: 20 // 20 fps fixed update, or a fixed update delta of 50 milliseconds
+  });
+  // turn off interpolation on a per actor basis
+  const actor = new ex.Actor({...});
+  actor.body.enableFixedUpdateInterpolate = false;
+  game.add(game);
+  ```
 
+- Allowed setting playback `ex.Sound.duration` which will limit the amount of time that a clip plays from the current playback position.
+- Added a new lightweight `ex.StateMachine` type for building finite state machines
+  ```typescript
+  const machine = ex.StateMachine.create({
+    start: 'STOPPED',
+    states: {
+      PLAYING: {
+        onEnter: () => {
+          console.log("playing");
+        },
+        transitions: ['STOPPED', 'PAUSED']
+      },
+      STOPPED: {
+        onEnter: () => {
+          console.log("stopped");
+        },
+        transitions: ['PLAYING', 'SEEK']
+      },
+      SEEK: {
+        transitions: ['*']
+      },
+      PAUSED: {
+        onEnter: () => {
+          console.log("paused")
+        },
+        transitions: ['PLAYING', 'STOPPED']
+      }
+    }
+  });
+  ```
+- Added `ex.Sound.seek(positionInSeconds)` which will allow you to see to a place in the sound, this will implicitly pause the sound
+- Added `ex.Sound.getTotalPlaybackDuration()` which will return the total time in the sound in seconds.
+- Allow tinting of `ex.Sprite`'s by setting a new `tint` property, renderers must support the tint property in order to function.
+  ```typescript
+  const imageSource = new ex.ImageSource('./path/to/image.png');
+  await imageSource.load();
+  const sprite = imageSource.toSprite();
+  sprite.tint = ex.Color.Red;
+  ```
+- Added `ex.Sound.getPlaybackPosition()` which returns the current playback position in seconds of the currently playing sound.
+- Added `ex.Sound.playbackRate` which allows developers to get/set the current rate of playback. 1.0 is the default playback rate, 2.0 is twice the speed, and 0.5 is half speed.
 - Added missing `ex.EaseBy` action type, uses `ex.EasingFunctions` to move relative from the current entity position.
 - Added 2 new `Action` types to enable running parallel actions. `ex.ActionSequence` which allows developers to specify a sequence of actions to run in order, and `ex.ParallelActions` to run multiple actions at the same time.
   ```typescript
@@ -30,7 +83,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
--
+- Fixed issue with `ex.ArcadeSolver` based collisions where colliders were catching on seams when sliding along a floor of multiple colliders. This was by sorting contacts by distance between bodies.
+  ![sorted-collisions](https://user-images.githubusercontent.com/612071/172401390-9e9c3490-3566-47bf-b258-6a7da86a3464.gif)
+
+- Fixed issue with `ex.ArcadeSolver` where corner contacts would zero out velocity even if the bodies were already moving away from the contact "divergent contacts".
+  ![cancel-velocity-fix](https://user-images.githubusercontent.com/612071/172500318-539f3a36-31ae-4efc-b6ab-c4524b297adb.gif)
+
+- Fixed issue where `ex.Sound` wasn't being paused when the browser window lost focus
 
 ### Updates
 
@@ -181,7 +240,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added new display mode `ex.DisplayMode.FitScreenAndFill`.
 - Added new display mode `ex.DisplayMode.FitContainerAndZoom`.
 - Added new display mode `ex.DisplayMode.FitScreenAndZoom`.
-
+- Added the ability to select variable duration into Timer constructor. 
 ### Fixed
 
 - Fixed unreleased bug where CompositeCollider components would not collide appropriately because contacts did not have unique ids

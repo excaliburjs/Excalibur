@@ -11,6 +11,7 @@ import { GraphicsGroup } from '.';
 import { Particle } from '../Particles';
 import { ParallaxComponent } from './ParallaxComponent';
 import { CoordPlane } from '../Math/coord-plane';
+import { BodyComponent } from '../Collision/BodyComponent';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -108,7 +109,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
         this._graphicsContext.translate(parallaxOffset.x, parallaxOffset.y);
       }
 
-      // Position the entity
+      // Position the entity + estimate lag
       this._applyTransform(entity);
 
       // Optionally run the onPreDraw graphics lifecycle draw
@@ -184,11 +185,35 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     const ancestors = entity.getAncestors();
     for (const ancestor of ancestors) {
       const transform = ancestor?.get(TransformComponent);
+      const optionalBody = ancestor?.get(BodyComponent);
+      let interpolatedPos = transform.pos;
+      let interpolatedScale = transform.scale;
+      let interpolatedRotation = transform.rotation;
+      if (optionalBody) {
+        if (this._engine.fixedUpdateFps &&
+            optionalBody.__oldTransformCaptured &&
+            optionalBody.enableFixedUpdateInterpolate) {
+
+          // Interpolate graphics if needed
+          const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
+          interpolatedPos = optionalBody.pos.scale(blend).add(
+            optionalBody.oldPos.scale(1.0 - blend)
+          );
+          interpolatedScale = optionalBody.scale.scale(blend).add(
+            optionalBody.oldScale.scale(1.0 - blend)
+          );
+          // Rotational lerp https://stackoverflow.com/a/30129248
+          const cosine = (1.0 - blend) * Math.cos(optionalBody.oldRotation) + blend * Math.cos(optionalBody.rotation);
+          const sine = (1.0 - blend) * Math.sin(optionalBody.oldRotation) + blend * Math.sin(optionalBody.rotation);
+          interpolatedRotation = Math.atan2(sine, cosine);
+        }
+      }
+
       if (transform) {
         this._graphicsContext.z = transform.z;
-        this._graphicsContext.translate(transform.pos.x, transform.pos.y);
-        this._graphicsContext.scale(transform.scale.x, transform.scale.y);
-        this._graphicsContext.rotate(transform.rotation);
+        this._graphicsContext.translate(interpolatedPos.x, interpolatedPos.y);
+        this._graphicsContext.scale(interpolatedScale.x, interpolatedScale.y);
+        this._graphicsContext.rotate(interpolatedRotation);
       }
     }
   }

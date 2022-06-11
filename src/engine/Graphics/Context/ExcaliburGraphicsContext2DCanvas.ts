@@ -106,6 +106,14 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this._state.current.opacity = value;
   }
 
+  public get tint(): Color {
+    return this._state.current.tint;
+  }
+
+  public set tint(color: Color) {
+    this._state.current.tint = color;
+  }
+
   public snapToPixel: boolean = true;
 
   public get smoothing(): boolean {

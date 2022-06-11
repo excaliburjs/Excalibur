@@ -1,4 +1,5 @@
 import { AffineMatrix } from '../../Math/affine-matrix';
+import { Color } from '../../Color';
 import { ExcaliburGraphicsContextState } from './ExcaliburGraphicsContext';
 
 export class DrawCall {
@@ -8,7 +9,8 @@ export class DrawCall {
   public transform: AffineMatrix = AffineMatrix.identity();
   public state: ExcaliburGraphicsContextState = {
     z: 0,
-    opacity: 1
+    opacity: 1,
+    tint: Color.White
   };
   public args: any[];
 }

@@ -140,6 +140,14 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._state.current.opacity = value;
   }
 
+  public get tint(): Color {
+    return this._state.current.tint;
+  }
+
+  public set tint(color: Color) {
+    this._state.current.tint = color;
+  }
+
   public get width() {
     return this.__gl.canvas.width;
   }
@@ -283,6 +291,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         this.getTransform().clone(drawCall.transform);
         drawCall.state.z = this._state.current.z;
         drawCall.state.opacity = this._state.current.opacity;
+        drawCall.state.tint = this._state.current.tint;
         drawCall.args = args;
         this._drawCalls.push(drawCall);
       } else {
