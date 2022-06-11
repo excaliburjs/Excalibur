@@ -345,8 +345,11 @@ export class Vector implements Clonable<Vector> {
   /**
    * Creates new vector that has the same values as the previous.
    */
-  public clone(): Vector {
-    return new Vector(this.x, this.y);
+  public clone(dest?: Vector): Vector {
+    const v = dest ?? new Vector(0, 0);
+    v.x = this.x;
+    v.y = this.y;
+    return v;
   }
 
   /**

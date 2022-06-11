@@ -29,10 +29,12 @@ export class Transform {
   }
   private children: Transform[] = [];
 
-  private _pos: Vector = vec(0, 0);
+  private _pos: Vector = watch(vec(0, 0), () => this.flagDirty());
   set pos(v: Vector) {
-    this._pos = v;// TODO watch(v, () => this.flagDirty());
-    this.flagDirty();
+    this._pos = watch(v, () => this.flagDirty());
+    if (!v.equals(this._pos)) {
+      this.flagDirty();
+    }
   }
   get pos() {
     return this._pos;
@@ -162,5 +164,14 @@ export class Transform {
 
   public applyInverse(point: Vector): Vector {
     return this.inverse.multiply(point);
+  }
+
+  public clone(dest?: Transform) {
+    const target = dest ?? new Transform();
+    this._pos.clone(target.pos);
+    target._rotation = this._rotation;
+    this._scale.clone(target._scale);
+    this._matrix.clone(target._matrix);
+    this._inverse.clone(target._inverse);
   }
 }

@@ -415,17 +415,15 @@ export class Matrix {
   }
 
   public getScaleX(): number {
-    return this._scaleX;
     // absolute scale of the matrix (we lose sign so need to add it back)
-    // const xscale = vec(this.data[0], this.data[4]).size;
-    // return this._scaleSignX * xscale;
+    const xscale = vec(this.data[0], this.data[4]).size;
+    return this._scaleSignX * xscale;
   }
 
   public getScaleY(): number {
-    return this._scaleY;
     // absolute scale of the matrix (we lose sign so need to add it back)
-    // const yscale = vec(this.data[1], this.data[5]).size;
-    // return this._scaleSignY * yscale;
+    const yscale = vec(this.data[1], this.data[5]).size;
+    return this._scaleSignY * yscale;
   }
 
   /**

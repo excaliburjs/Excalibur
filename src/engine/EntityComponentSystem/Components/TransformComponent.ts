@@ -66,22 +66,26 @@ export class TransformComponent extends Component<'ex.transform'> {
   /**
  * Observable that notifies when the position changes
  */
-  public posChanged$ = new Observable<Vector>(); // TODO this is expensive
+  public posChanged$ = new Observable<Vector>(); // TODO this is expensive, maybe once per frame?
 
   get pos() {
     return this._transform.pos;
   }
   set pos(v: Vector) {
+    if (!v.equals(this._transform.pos)) {
+      this.posChanged$.notifyAll(v);
+    }
     this._transform.pos = v;
-    // this.posChanged$.notifyAll(v);
   }
 
   get globalPos() {
     return this._transform.globalPos;
   }
   set globalPos(v: Vector) {
+    if (!v.equals(this._transform.globalPos)) {
+      this.posChanged$.notifyAll(v);
+    }
     this._transform.globalPos = v;
-    // this.posChanged$.notifyAll(v);
   }
 
   get rotation() {

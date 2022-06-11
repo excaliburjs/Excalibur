@@ -141,9 +141,9 @@ describe('A TransformComponent', () => {
     parentTx.scale = ex.vec(2, 3);
 
     expect(childTx.pos).toBeVector(ex.vec(0, 0));
-    expect(childTx.getGlobalTransform().pos).toBeVector(ex.vec(100, 200));
-    expect(childTx.getGlobalTransform().rotation).toBe(Math.PI);
-    expect(childTx.getGlobalTransform().scale).toBeVector(ex.vec(2, 3));
+    expect(childTx.get().globalPos).toBeVector(ex.vec(100, 200));
+    expect(childTx.get().globalRotation).toBe(Math.PI);
+    expect(childTx.get().globalScale).toBeVector(ex.vec(2, 3));
   });
 
   it('can observe a z index change', () => {

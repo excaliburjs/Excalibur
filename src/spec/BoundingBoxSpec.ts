@@ -186,7 +186,7 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
 
     it('can be transformed be a matrix', () => {
       const bb = ex.BoundingBox.fromDimension(10, 10);
-      const matrix = ex.Matrix.identity()
+      const matrix = ex.AffineMatrix.identity()
         .scale(2, 2)
         .rotate(Math.PI / 4);
       const newBB = bb.transform(matrix);

@@ -1225,7 +1225,7 @@ O|===|* >________________>\n\
    * Draws the entire game
    * @param delta  Number of milliseconds elapsed since the last draw.
    */
-  private _draw(delta: number, _lag: number) {
+  private _draw(delta: number) {
     this.graphicsContext.beginDrawLifecycle();
     this.graphicsContext.clear();
     this._predraw(this.graphicsContext, delta);
@@ -1402,9 +1402,8 @@ O|===|* >________________>\n\
       this._update(delta);
     }
     const afterUpdate = this.clock.now();
-    // TODO interpolate offset
     this.currentFrameLagMs = this._lagMs;
-    this._draw(delta, this._lagMs);
+    this._draw(delta);
     const afterDraw = this.clock.now();
 
     this.stats.currFrame.duration.update = afterUpdate - beforeUpdate;
