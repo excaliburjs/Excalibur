@@ -14,6 +14,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
+- Added new fixed update step to Excalibur! This allows developers to configure a fixed FPS for the update loop. One advantage of setting a fix update is that you will have a more consistent and predictable physics simulation. Excalibur graphics will be interpolated automatically to avoid any jitter in the fixed update.
+  * If the fixed update FPS is greater than the display FPS, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example there could be X updates and 1 draw each clock step.
+  * If the fixed update FPS is less than the display FPS, excalibur will skip updates until it meets the desired FPS, for example there could be no update for 1 draw each clock step.
+  ```typescript
+  const game = new ex.Engine({
+    fixedUpdateFps: 20 // 20 fps fixed update, or a fixed update delta of 50 milliseconds
+  });
+  // turn off interpolation on a per actor basis
+  const actor = new ex.Actor({...});
+  actor.body.enableFixedUpdateInterpolate = false;
+  game.add(game);
+  ```
+
 - Allowed setting playback `ex.Sound.duration` which will limit the amount of time that a clip plays from the current playback position.
 - Added a new lightweight `ex.StateMachine` type for building finite state machines
   ```typescript
