@@ -6,7 +6,7 @@ export class EulerIntegrator {
   static integrate(transform: TransformComponent, motion: MotionComponent, totalAcc: Vector, elapsedMs: number): void {
     const seconds = elapsedMs / 1000;
     motion.vel.addEqual(totalAcc.scale(seconds));
-    transform.pos = transform.pos.add(motion.vel.scale(seconds)).add(totalAcc.scale(0.5 * seconds * seconds));
+    transform.pos.addEqual(motion.vel.scale(seconds)).addEqual(totalAcc.scale(0.5 * seconds * seconds));
 
     motion.angularVelocity += motion.torque * (1.0 / motion.inertia) * seconds;
     transform.rotation += motion.angularVelocity * seconds;
