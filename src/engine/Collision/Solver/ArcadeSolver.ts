@@ -35,7 +35,7 @@ export class ArcadeSolver implements CollisionSolver {
       // Solve position first in arcade
       this.solvePosition(contact);
 
-      // Solve velocity first
+      // Solve velocity second in arcade
       this.solveVelocity(contact);
     }
 
