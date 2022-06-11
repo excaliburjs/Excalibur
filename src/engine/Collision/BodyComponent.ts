@@ -31,7 +31,7 @@ export enum DegreeOfFreedom {
 export class BodyComponent extends Component<'ex.body'> implements Clonable<BodyComponent> {
   public readonly type = 'ex.body';
   public dependencies = [TransformComponent, MotionComponent];
-  public static _ID = 1;
+  public static _ID = 0;
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
   public events = new EventDispatcher();
 
