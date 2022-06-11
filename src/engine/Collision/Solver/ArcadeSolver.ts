@@ -97,6 +97,13 @@ export class ArcadeSolver implements CollisionSolver {
       contact.cancel();
       return;
     }
+
+    if (Math.abs(contact.mtv.x) < 0.0001 && Math.abs(contact.mtv.y) < 0.0001) {
+      // Cancel near 0 mtv collisions
+      contact.cancel();
+      return;
+    }
+
     let mtv = contact.mtv;
     const colliderA = contact.colliderA;
     const colliderB = contact.colliderB;
