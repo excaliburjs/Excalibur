@@ -459,7 +459,7 @@ export class Matrix {
     const yscale = vec(this.data[1] * this._scaleSignY, this.data[5] * this._scaleSignY).normalize();
     this.data[1] = yscale.x * val;
     this.data[5] = yscale.y * val;
-    this._scaleY;
+    this._scaleY = val;
   }
 
   public setScale(scale: Vector) {

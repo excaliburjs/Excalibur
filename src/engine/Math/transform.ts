@@ -1,8 +1,9 @@
-import { watch } from "../Util/Watch";
-import { AffineMatrix } from "./affine-matrix";
-import { canonicalizeAngle } from "./util";
-import { vec, Vector } from "./vector";
-import { VectorView } from "./vector-view";
+import { Observable } from '../Util/Observable';
+import { watch } from '../Util/Watch';
+import { AffineMatrix } from './affine-matrix';
+import { canonicalizeAngle } from './util';
+import { vec, Vector } from './vector';
+import { VectorView } from './vector-view';
 
 export class Transform {
   constructor(matrix?: AffineMatrix) {
@@ -18,25 +19,35 @@ export class Transform {
   }
   set parent(transform: Transform) {
     if (this._parent) {
-      const index = this._parent.children.indexOf(this);
+      const index = this._parent._children.indexOf(this);
       if (index > -1) {
-        this._parent.children.splice(index, 1);
+        this._parent._children.splice(index, 1);
       }
     }
     this._parent = transform;
     if (this._parent) {
-      this._parent.children.push(this);
+      this._parent._children.push(this);
     }
     this.flagDirty();
   }
-  private children: Transform[] = [];
+  get children(): readonly Transform[] {
+    return this._children;
+  }
+  private _children: Transform[] = [];
 
-  private _pos: Vector = watch(vec(0, 0), () => this.flagDirty());
+  public posChanged$ = new Observable<Vector>();
+
+  private _pos: Vector = watch(vec(0, 0), (v) => {
+    this.flagDirty(); this.posChanged$.notifyAll(v);
+  });
   set pos(v: Vector) {
     if (!v.equals(this._pos)) {
       this.flagDirty();
+      this.posChanged$.notifyAll(v);
+      this._pos = watch(v, (v) => {
+        this.flagDirty(); this.posChanged$.notifyAll(v);
+      });
     }
-    this._pos = watch(v, () => this.flagDirty());
   }
   get pos() {
     return this._pos;
@@ -47,8 +58,13 @@ export class Transform {
     if (this.parent) {
       localPos = this.parent.inverse.multiply(v);
     }
-    this._pos = watch(localPos, () => this.flagDirty());
-    this.flagDirty();
+    if (!localPos.equals(this._pos)) {
+      this.flagDirty();
+      this.posChanged$.notifyAll(v);
+      this._pos = watch(localPos, (v) => {
+        this.flagDirty(); this.posChanged$.notifyAll(v);
+      });
+    }
   }
   get globalPos() {
     // if (this.parent) {
@@ -59,27 +75,27 @@ export class Transform {
       getX: () => this.matrix.data[4],
       getY: () => this.matrix.data[5],
       setX: (x) => {
-        const oldX = this.pos.x;
         if (this.parent) {
           const { x: newX } = this.parent.inverse.multiply(vec(x, this.pos.y));
-          this.pos.x = newX
+          this.pos.x = newX;
         } else {
           this.pos.x = x;
         }
-        if (oldX !== this.pos.x) {
+        if (x !== this.matrix.data[4]) {
           this.flagDirty();
+          this.posChanged$.notifyAll(this.pos);
         }
       },
       setY: (y) => {
-        const oldY = this.pos.y;
         if (this.parent) {
           const { y: newY } = this.parent.inverse.multiply(vec(this.pos.x, y));
           this.pos.y = newY;
         } else {
           this.pos.y = y;
         }
-        if (oldY !== this.pos.y) {
+        if (y !== this.matrix.data[5]) {
           this.flagDirty();
+          this.posChanged$.notifyAll(this.pos);
         }
       }
     });
@@ -123,7 +139,7 @@ export class Transform {
     if (this.parent) {
       inverseScale = this.parent.globalScale;
     }
-    this.scale = v.scale(vec(1 / inverseScale.x, 1 / inverseScale.y))
+    this.scale = v.scale(vec(1 / inverseScale.x, 1 / inverseScale.y));
   }
 
   get globalScale() {
@@ -204,8 +220,8 @@ export class Transform {
   public flagDirty() {
     this._isDirty = true;
     this._isInverseDirty = true;
-    for (let i = 0; i < this.children.length; i ++) {
-      this.children[i].flagDirty();
+    for (let i = 0; i < this._children.length; i ++) {
+      this._children[i].flagDirty();
     }
   }
 

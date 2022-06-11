@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { BoundingBox, GameEvent, LineSegment, Projection, Ray, TransformComponent, vec, Vector } from '@excalibur';
+import { BoundingBox, GameEvent, LineSegment, Projection, Ray, vec, Vector } from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 describe('A CompositeCollider', () => {
   beforeAll(() => {
@@ -12,7 +12,7 @@ describe('A CompositeCollider', () => {
 
   it('can be created from multiple colliders', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10)]);
-    const xf = new TransformComponent();
+    const xf = new ex.Transform();
     xf.pos = vec(100, 100);
     compCollider.update(xf);
 
@@ -74,7 +74,7 @@ describe('A CompositeCollider', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
 
     const circle = ex.Shape.Circle(50);
-    const xf = new TransformComponent();
+    const xf = new ex.Transform();
 
     xf.pos = vec(300, 0);
     circle.update(xf);
@@ -102,7 +102,7 @@ describe('A CompositeCollider', () => {
 
     const compCollider2 = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
 
-    const xf = new TransformComponent();
+    const xf = new ex.Transform();
     xf.pos = vec(500, 0);
     compCollider2.update(xf);
 
@@ -120,7 +120,7 @@ describe('A CompositeCollider', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
 
     const circle = ex.Shape.Circle(50);
-    const xf = new TransformComponent();
+    const xf = new ex.Transform();
     xf.pos = vec(149, 0);
     circle.update(xf);
 
@@ -139,7 +139,7 @@ describe('A CompositeCollider', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
 
     const circle = ex.Shape.Circle(50);
-    const xf = new TransformComponent();
+    const xf = new ex.Transform();
     xf.pos = vec(149, 0);
     circle.update(xf);
 
@@ -156,7 +156,7 @@ describe('A CompositeCollider', () => {
 
     const compCollider2 = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
 
-    const xf = new TransformComponent();
+    const xf = new ex.Transform();
     xf.pos = vec(200, 0);
     compCollider2.update(xf);
 
@@ -171,7 +171,7 @@ describe('A CompositeCollider', () => {
     const compCollider1 = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
 
     const circle = ex.Shape.Circle(50);
-    const xf = new TransformComponent();
+    const xf = new ex.Transform();
     xf.pos = vec(300, 0);
     circle.update(xf);
 
@@ -237,7 +237,7 @@ describe('A CompositeCollider', () => {
     const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
-    const tx = new TransformComponent();
+    const tx = new ex.Transform();
     tx.pos = ex.vec(150, 150);
     compCollider.update(tx);
 

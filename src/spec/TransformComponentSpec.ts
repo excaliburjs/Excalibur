@@ -120,7 +120,7 @@ describe('A TransformComponent', () => {
     expect(childTx.scale).toBeVector(ex.vec(3 / 2, 4 / 3));
 
     // Can change scale by vec
-    childTx.globalScale = ex.vec(3, 4)
+    childTx.globalScale = ex.vec(3, 4);
     expect(parentTx.scale).toBeVector(ex.vec(2, 3));
     expect(childTx.scale).toBeVector(ex.vec(3 / 2, 4 / 3));
   });

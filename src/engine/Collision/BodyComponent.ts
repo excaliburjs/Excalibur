@@ -210,7 +210,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
    * The position of the actor last frame (x, y) in pixels
    */
   public get oldPos(): Vector {
-    return this._oldTransform.pos
+    return this._oldTransform.pos;
   }
 
   /**

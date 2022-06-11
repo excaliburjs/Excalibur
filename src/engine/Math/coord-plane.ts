@@ -1,7 +1,7 @@
 /**
  * Enum representing the coordinate plane for the position 2D vector in the [[TransformComponent]]
  */
- export enum CoordPlane {
+export enum CoordPlane {
   /**
    * The world coordinate plane (default) represents world space, any entities drawn with world
    * space move when the camera moves.

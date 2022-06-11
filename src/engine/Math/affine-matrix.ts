@@ -1,6 +1,6 @@
-import { Matrix } from "./matrix";
-import { canonicalizeAngle, sign } from "./util";
-import { vec, Vector } from "./vector";
+import { Matrix } from './matrix';
+import { canonicalizeAngle, sign } from './util';
+import { vec, Vector } from './vector';
 
 
 export class AffineMatrix {
@@ -116,7 +116,7 @@ export class AffineMatrix {
     const a11 = this.data[0];
     const a21 = this.data[1];
     // const a31 = 0;
-    
+
     const a12 = this.data[2];
     const a22 = this.data[3];
     // const a32 = 0;
@@ -124,7 +124,7 @@ export class AffineMatrix {
     const a13 = this.data[4];
     const a23 = this.data[5];
     // const a33 = 1;
-    
+
     // Doesn't change z
     this.data[4] = a11 * x + a12 * y + a13;
     this.data[5] = a21 * x + a22 * y + a23;
@@ -368,9 +368,9 @@ export class AffineMatrix {
   }
 
   /**
- * Resets the current matrix to the identity matrix, mutating it
- * @returns {AffineMatrix} Current matrix as identity
- */
+   * Resets the current matrix to the identity matrix, mutating it
+   * @returns {AffineMatrix} Current matrix as identity
+   */
   public reset(): AffineMatrix {
     const mat = this;
     mat.data[0] = 1;
