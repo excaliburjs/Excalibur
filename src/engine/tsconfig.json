@@ -5,7 +5,7 @@
     "sourceMap": true,
     "experimentalDecorators": true,
     "target": "es2018",
-    "module": "es2020",
+    "module": "es2015",
     "declaration": true,
     "removeComments": false,
     "incremental": true,

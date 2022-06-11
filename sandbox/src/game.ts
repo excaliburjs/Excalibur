@@ -84,7 +84,7 @@ game.on('fallbackgraphicscontext', (ctx) => {
   console.log('fallback triggered', ctx);
 });
 //@ts-ignore For some reason ts doesn't like the /// slash import
-// const devtool = new ex.DevTools.DevTool(game);
+const devtool = new ex.DevTools.DevTool(game);
 
 
 // var colorblind = new ex.ColorBlindnessPostProcessor(ex.ColorBlindnessMode.Deuteranope);
@@ -504,7 +504,6 @@ var player = new ex.Actor({
   collider: ex.Shape.Capsule(32, 96),
   collisionType: ex.CollisionType.Active
 });
-// player.angularVelocity = Math.PI;
 player.body.canSleep = false;
 player.graphics.copyGraphics = false;
 follower.actions
