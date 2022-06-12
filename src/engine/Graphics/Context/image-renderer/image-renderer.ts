@@ -175,17 +175,17 @@ export class ImageRenderer implements RendererPlugin {
     bottomRight = transform.multiply(bottomRight);
 
     if (snapToPixel) {
-      topLeft.x = ~~topLeft.x;
-      topLeft.y = ~~topLeft.y;
+      topLeft.x = ~~(topLeft.x + .0001);
+      topLeft.y = ~~(topLeft.y + .0001);
 
-      topRight.x = ~~topRight.x;
-      topRight.y = ~~topRight.y;
+      topRight.x = ~~(topRight.x + .0001);
+      topRight.y = ~~(topRight.y + .0001);
 
-      bottomLeft.x = ~~bottomLeft.x;
-      bottomLeft.y = ~~bottomLeft.y;
+      bottomLeft.x = ~~(bottomLeft.x + .0001);
+      bottomLeft.y = ~~(bottomLeft.y + .0001);
 
-      bottomRight.x = ~~bottomRight.x;
-      bottomRight.y = ~~bottomRight.y;
+      bottomRight.x = ~~(bottomRight.x + .0001);
+      bottomRight.y = ~~(bottomRight.y + .0001);
     }
 
     const tint = this._context.tint;
