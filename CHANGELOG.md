@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
--
+- `ex.TransformComponent.posChanged$` has been removed, it incurs a steep performance cost
 
 ### Deprecated
 

@@ -173,26 +173,4 @@ describe('A TransformComponent', () => {
     expect(zSpy).toHaveBeenCalledWith(19);
     expect(tx.z).toBe(19);
   });
-
-  it('can observe position change', () => {
-    const tx = new ex.TransformComponent();
-    const posChanged = jasmine.createSpy('posChanged');
-    tx.posChanged$.subscribe(posChanged);
-
-    tx.pos = ex.vec(10, 10);
-    tx.pos = ex.vec(10, 10); // second vec is the same
-    expect(posChanged).toHaveBeenCalledTimes(1);
-
-    tx.globalPos = ex.vec(1, 1);
-    tx.globalPos = ex.vec(1, 1); // second vec is the same
-    expect(posChanged).toHaveBeenCalledTimes(2);
-
-    tx.pos.x = 20;
-    tx.pos.x = 20;
-    expect(posChanged).toHaveBeenCalledTimes(3);
-
-    tx.globalPos.x = 40;
-    tx.globalPos.x = 40;
-    expect(posChanged).toHaveBeenCalledTimes(4);
-  });
 });

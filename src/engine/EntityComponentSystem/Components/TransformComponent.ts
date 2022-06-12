@@ -63,13 +63,6 @@ export class TransformComponent extends Component<'ex.transform'> {
    */
   public coordPlane = CoordPlane.World;
 
-  /**
-   * Observable that notifies when the position changes
-   */
-  public get posChanged$(): Observable<Vector> {
-    return this._transform.posChanged$;
-  }
-
   get pos() {
     return this._transform.pos;
   }

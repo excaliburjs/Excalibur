@@ -1,4 +1,3 @@
-import { Observable } from '../Util/Observable';
 import { AffineMatrix } from './affine-matrix';
 import { canonicalizeAngle } from './util';
 import { vec, Vector } from './vector';
@@ -34,8 +33,6 @@ export class Transform {
     return this._children;
   }
   private _children: Transform[] = [];
-
-  public posChanged$ = new Observable<Vector>();
 
   private _pos: Vector = vec(0, 0);
   set pos(v: Vector) {
