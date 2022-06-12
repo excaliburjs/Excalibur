@@ -154,9 +154,9 @@ describe('An Event Dispatcher', () => {
   it('should not fail if event handlers change during iteration', () => {
     expect(() => {
       const dispatcher = new ex.EventDispatcher();
-      dispatcher.once('foo', () => console.log('foo1'));
-      dispatcher.on('foo', () => console.log('foo2'));
-      dispatcher.on('foo', () => console.log('foo3'));
+      dispatcher.once('foo', () => 'foo1');
+      dispatcher.on('foo', () => 'foo2');
+      dispatcher.on('foo', () => 'foo3');
       dispatcher.emit('foo', null);
     }).not.toThrow();
   });
