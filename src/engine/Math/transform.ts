@@ -37,33 +37,26 @@ export class Transform {
 
   public posChanged$ = new Observable<Vector>();
 
-  private _pos: Vector = watch(vec(0, 0), (v) => {
-    this.flagDirty(); this.posChanged$.notifyAll(v);
-  });
+  private _pos: Vector = vec(0, 0);
   set pos(v: Vector) {
     if (!v.equals(this._pos)) {
+      this._pos.x = v.x;
+      this._pos.y = v.y;
       this.flagDirty();
-      this.posChanged$.notifyAll(v);
-      this._pos = watch(v, (v) => {
-        this.flagDirty(); this.posChanged$.notifyAll(v);
-      });
     }
   }
   get pos() {
-    return this._pos;
+    return watch(this._pos, () => this.flagDirty());
   }
 
   set globalPos(v: Vector) {
-    let localPos = v;
+    let localPos = v.clone();
     if (this.parent) {
       localPos = this.parent.inverse.multiply(v);
     }
     if (!localPos.equals(this._pos)) {
+      this._pos = localPos;
       this.flagDirty();
-      this.posChanged$.notifyAll(v);
-      this._pos = watch(localPos, (v) => {
-        this.flagDirty(); this.posChanged$.notifyAll(v);
-      });
     }
   }
   get globalPos() {
@@ -83,7 +76,6 @@ export class Transform {
         }
         if (x !== this.matrix.data[4]) {
           this.flagDirty();
-          this.posChanged$.notifyAll(this.pos);
         }
       },
       setY: (y) => {
@@ -95,7 +87,6 @@ export class Transform {
         }
         if (y !== this.matrix.data[5]) {
           this.flagDirty();
-          this.posChanged$.notifyAll(this.pos);
         }
       }
     });
@@ -125,10 +116,13 @@ export class Transform {
     return this.rotation;
   }
 
-  private _scale: Vector = watch(vec(1, 1), () => this.flagDirty());
+  private _scale: Vector = vec(1, 1);
   set scale(v: Vector) {
-    this._scale = watch(v, () => this.flagDirty());
-    this.flagDirty();
+    if (!v.equals(this._scale)) {
+      this._scale.x = v.x;
+      this._scale.y = v.y;
+      this.flagDirty();
+    }
   }
   get scale() {
     return this._scale;
@@ -196,19 +190,6 @@ export class Transform {
   }
 
   private _calculateMatrix(): AffineMatrix {
-    // const matrix = new AffineMatrix();
-    // TODO not positive this is correct
-    // const sine = Math.sin(this.rotation);
-    // const cosine = Math.cos(this.rotation);
-    // matrix.data[0] = this.scale.x * cosine;
-    // matrix.data[1] = sine;
-
-    // matrix.data[2] = -sine;
-    // matrix.data[3] = this.scale.y * cosine;
-
-    // matrix.data[4] = this.pos.x;
-    // matrix.data[5] = this.pos.y;
-    // return matrix;
     const matrix = AffineMatrix.identity()
       .translate(this.pos.x, this.pos.y)
       .rotate(this.rotation)
@@ -233,12 +214,20 @@ export class Transform {
     return this.inverse.multiply(point);
   }
 
+  public setTransform(pos: Vector, rotation: number, scale: Vector) {
+    this._pos.x = pos.x;
+    this._pos.y = pos.y;
+    this._rotation = canonicalizeAngle(rotation);
+    this._scale.x = scale.x;
+    this._scale.y = scale.y;
+    this.flagDirty();
+  }
+
   public clone(dest?: Transform) {
     const target = dest ?? new Transform();
-    this._pos.clone(target.pos);
+    this._pos.clone(target._pos);
     target._rotation = this._rotation;
     this._scale.clone(target._scale);
-    this._matrix.clone(target._matrix);
-    this._inverse.clone(target._inverse);
+    target.flagDirty();
   }
 }

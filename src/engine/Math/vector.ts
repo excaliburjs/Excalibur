@@ -162,16 +162,20 @@ export class Vector implements Clonable<Vector> {
    */
   public distance(v?: Vector): number {
     if (!v) {
-      v = Vector.Zero;
+      return Math.sqrt(this.x * this.x + this.y * this.y);
     }
-    return Math.sqrt(Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2));
+    const deltaX = this.x - v.x;
+    const deltaY = this.y - v.y;
+    return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
   }
 
   public squareDistance(v?: Vector): number {
     if (!v) {
       v = Vector.Zero;
     }
-    return Math.pow(this.x - v.x, 2) + Math.pow(this.y - v.y, 2);
+    const deltaX = this.x - v.x;
+    const deltaY = this.y - v.y;
+    return deltaX * deltaX + deltaY * deltaY;
   }
 
   /**
@@ -228,7 +232,12 @@ export class Vector implements Clonable<Vector> {
    * Adds one vector to another
    * @param v The vector to add
    */
-  public add(v: Vector): Vector {
+  public add(v: Vector, dest?: Vector): Vector {
+    if (dest) {
+      dest.x = this.x + v.x;
+      dest.y = this.y + v.y;
+      return dest;
+    }
     return new Vector(this.x + v.x, this.y + v.y);
   }
 

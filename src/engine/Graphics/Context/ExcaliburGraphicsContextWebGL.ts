@@ -417,7 +417,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   public multiply(m: AffineMatrix) {
-    this._transform.current = this._transform.current.multiply(m);
+    this._transform.current.multiply(m, this._transform.current);
   }
 
   public addPostProcessor(postprocessor: PostProcessor) {
