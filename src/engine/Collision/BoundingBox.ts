@@ -167,7 +167,7 @@ export class BoundingBox {
     // const xa = matFirstColumn.scale(this.left);
     const xa1 = matrix.data[0] * this.left;
     const xa2 = matrix.data[1] * this.left;
-    
+
     // const xb = matFirstColumn.scale(this.right);
     const xb1 = matrix.data[0] * this.right;
     const xb2 = matrix.data[1] * this.right;
@@ -193,7 +193,7 @@ export class BoundingBox {
       left,//: topLeft.x,
       top,//: topLeft.y,
       right,//: bottomRight.x,
-      bottom,//: bottomRight.y
+      bottom//: bottomRight.y
     });
   }
 

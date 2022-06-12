@@ -3,20 +3,20 @@ import { TransformComponent } from '../EntityComponentSystem';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 
 export class EulerIntegrator {
-  private static _pos = new Vector(0, 0);
-  private static _scale = new Vector(1, 1);
+  private static _POS = new Vector(0, 0);
+  private static _SCALE = new Vector(1, 1);
 
   static integrate(transform: TransformComponent, motion: MotionComponent, totalAcc: Vector, elapsedMs: number): void {
     const seconds = elapsedMs / 1000;
     motion.vel.addEqual(totalAcc.scale(seconds));
-    transform.pos.add(motion.vel.scale(seconds), EulerIntegrator._pos).addEqual(totalAcc.scale(0.5 * seconds * seconds));
+    transform.pos.add(motion.vel.scale(seconds), EulerIntegrator._POS).addEqual(totalAcc.scale(0.5 * seconds * seconds));
 
     motion.angularVelocity += motion.torque * (1.0 / motion.inertia) * seconds;
     transform.rotation += motion.angularVelocity * seconds;
 
-    transform.scale.add(motion.scaleFactor.scale(seconds), EulerIntegrator._scale);
+    transform.scale.add(motion.scaleFactor.scale(seconds), EulerIntegrator._SCALE);
     const tx = transform.get();
-    tx.setTransform(EulerIntegrator._pos, transform.rotation, EulerIntegrator._scale);
+    tx.setTransform(EulerIntegrator._POS, transform.rotation, EulerIntegrator._SCALE);
     tx.flagDirty();
   }
 }

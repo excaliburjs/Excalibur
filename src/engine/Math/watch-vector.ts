@@ -1,11 +1,11 @@
-import { Vector } from "./vector";
+import { Vector } from './vector';
 
 /**
  * Wraps a vector and watches for changes in the x/y, modifies the original vector.
  */
 export class WatchVector extends Vector {
-  constructor(private original: Vector, private change: (x: number, y: number) => any) {
-    super(original.x, original.y)
+  constructor(public original: Vector, public change: (x: number, y: number) => any) {
+    super(original.x, original.y);
   }
   public get x() {
     return this._x = this.original.x;
