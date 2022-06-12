@@ -1,9 +1,9 @@
 import { Observable } from '../Util/Observable';
-import { watch } from '../Util/Watch';
 import { AffineMatrix } from './affine-matrix';
 import { canonicalizeAngle } from './util';
 import { vec, Vector } from './vector';
 import { VectorView } from './vector-view';
+import { WatchVector } from './watch-vector';
 
 export class Transform {
   constructor(matrix?: AffineMatrix) {
@@ -46,7 +46,7 @@ export class Transform {
     }
   }
   get pos() {
-    return watch(this._pos, () => this.flagDirty());
+    return new WatchVector(this._pos, () => this.flagDirty());
   }
 
   set globalPos(v: Vector) {
@@ -125,7 +125,7 @@ export class Transform {
     }
   }
   get scale() {
-    return this._scale;
+    return new WatchVector(this._scale, () => this.flagDirty());
   }
 
   set globalScale(v: Vector) {
