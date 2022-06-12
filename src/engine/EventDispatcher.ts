@@ -1,4 +1,4 @@
-import { GameEvent, SubscribeEvent, UnsubscribeEvent } from './Events';
+import { GameEvent } from './Events';
 import { Eventable } from './Interfaces/Evented';
 
 export class EventDispatcher<T = any> implements Eventable {
@@ -13,12 +13,21 @@ export class EventDispatcher<T = any> implements Eventable {
     this._wiredEventDispatchers = [];
   }
 
+  private _deferedHandlerRemovals: {name: string, handler?: (...args: any[]) => any }[] = [];
+  private _processDeferredHandlerRemovals() {
+    for (let eventHandler of this._deferedHandlerRemovals) {
+      this._removeHandler(eventHandler.name, eventHandler.handler);
+    }
+    this._deferedHandlerRemovals.length = 0;
+  }
+
   /**
    * Emits an event for target
    * @param eventName  The name of the event to publish
    * @param event      Optionally pass an event data object to the handler
    */
   public emit(eventName: string, event: GameEvent<T>) {
+    this._processDeferredHandlerRemovals();
     if (!eventName) {
       // key not mapped
       return;
@@ -32,7 +41,6 @@ export class EventDispatcher<T = any> implements Eventable {
     if (this._handlers[eventName]) {
       i = 0;
       len = this._handlers[eventName].length;
-
       for (i; i < len; i++) {
         this._handlers[eventName][i](event);
       }
@@ -52,16 +60,13 @@ export class EventDispatcher<T = any> implements Eventable {
    * @param handler    The handler callback to fire on this event
    */
   public on(eventName: string, handler: (event: GameEvent<T>) => void) {
+    this._processDeferredHandlerRemovals();
     eventName = eventName.toLowerCase();
+    
     if (!this._handlers[eventName]) {
       this._handlers[eventName] = [];
     }
     this._handlers[eventName].push(handler);
-
-    // meta event handlers
-    if (eventName !== 'unsubscribe' && eventName !== 'subscribe') {
-      this.emit('subscribe', new SubscribeEvent(eventName, handler));
-    }
   }
 
   /**
@@ -73,21 +78,23 @@ export class EventDispatcher<T = any> implements Eventable {
    * @param handler    Optionally the specific handler to unsubscribe
    */
   public off(eventName: string, handler?: (event: GameEvent<T>) => void) {
+    this._deferedHandlerRemovals.push({name: eventName, handler});
+  }
+
+  private _removeHandler(eventName: string, handler?: (event: GameEvent<T>) => void) {
     eventName = eventName.toLowerCase();
     const eventHandlers = this._handlers[eventName];
-
+    
     if (eventHandlers) {
       // if no explicit handler is give with the event name clear all handlers
       if (!handler) {
         this._handlers[eventName].length = 0;
       } else {
         const index = eventHandlers.indexOf(handler);
-        this._handlers[eventName].splice(index, 1);
+        if (index > -1) {
+          this._handlers[eventName].splice(index, 1);
+        }
       }
-    }
-    // meta event handlers
-    if (eventName !== 'unsubscribe' && eventName !== 'subscribe') {
-      this.emit('unsubscribe', new UnsubscribeEvent(eventName, handler));
     }
   }
 
@@ -98,9 +105,10 @@ export class EventDispatcher<T = any> implements Eventable {
    * @param handler   The handler of the event that will be auto unsubscribed
    */
   public once(eventName: string, handler: (event: GameEvent<T>) => void) {
+    this._processDeferredHandlerRemovals();
     const metaHandler = (event: GameEvent<T>) => {
       const ev = event || new GameEvent();
-      this.off(eventName, handler);
+      this.off(eventName, metaHandler);
       handler(ev);
     };
 
