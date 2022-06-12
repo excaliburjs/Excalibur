@@ -15,7 +15,7 @@ export class EventDispatcher<T = any> implements Eventable {
 
   private _deferedHandlerRemovals: {name: string, handler?: (...args: any[]) => any }[] = [];
   private _processDeferredHandlerRemovals() {
-    for (let eventHandler of this._deferedHandlerRemovals) {
+    for (const eventHandler of this._deferedHandlerRemovals) {
       this._removeHandler(eventHandler.name, eventHandler.handler);
     }
     this._deferedHandlerRemovals.length = 0;
@@ -62,7 +62,7 @@ export class EventDispatcher<T = any> implements Eventable {
   public on(eventName: string, handler: (event: GameEvent<T>) => void) {
     this._processDeferredHandlerRemovals();
     eventName = eventName.toLowerCase();
-    
+
     if (!this._handlers[eventName]) {
       this._handlers[eventName] = [];
     }
@@ -84,7 +84,7 @@ export class EventDispatcher<T = any> implements Eventable {
   private _removeHandler(eventName: string, handler?: (event: GameEvent<T>) => void) {
     eventName = eventName.toLowerCase();
     const eventHandlers = this._handlers[eventName];
-    
+
     if (eventHandlers) {
       // if no explicit handler is give with the event name clear all handlers
       if (!handler) {
