@@ -130,23 +130,33 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     }
   }
 
+  private _cachedInertia: number;
   /**
    * Get the moment of inertia from the [[ColliderComponent]]
    */
   public get inertia() {
+    if (this._cachedInertia) {
+      return this._cachedInertia;
+    }
+
     // Inertia is a property of the geometry, so this is a little goofy but seems to be okay?
     const collider = this.owner.get(ColliderComponent);
-    if (collider?.get()) {
-      return collider.get().getInertia(this.mass);
+    const maybeCollider = collider.get();
+    if (maybeCollider) {
+      return this._cachedInertia = maybeCollider.getInertia(this.mass);
     }
     return 0;
   }
 
+  private _cachedInverseInertia: number;
   /**
    * Get the inverse moment of inertial from the [[ColliderComponent]]. If [[CollisionType.Fixed]] this is 0, meaning "infinite" mass
    */
   public get inverseInertia() {
-    return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia;
+    if (this._cachedInverseInertia) {
+      return this._cachedInverseInertia;
+    }
+    return this._cachedInverseInertia = this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia;
   }
 
   /**
@@ -185,8 +195,13 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     return this.owner?.get(TransformComponent);
   }
 
+  // TODO invalidate
+  private _motionComponent: MotionComponent;
   public get motion(): MotionComponent {
-    return this.owner?.get(MotionComponent);
+    if (this._motionComponent) {
+      return this._motionComponent;
+    }
+    return this._motionComponent = this.owner?.get(MotionComponent);
   }
 
   /**

@@ -44,6 +44,8 @@ export class PolygonCollider extends Collider {
    */
   public set points(points: Vector[]) {
     this._localBoundsDirty = true;
+    this._localSidesDirty = true;
+    this._sidesDirty = true;
     this._points = points;
   }
 
@@ -58,7 +60,6 @@ export class PolygonCollider extends Collider {
   private _transform: Transform;
 
   private _transformedPoints: Vector[] = [];
-  private _axes: Vector[] = [];
   private _sides: LineSegment[] = [];
   private _localSides: LineSegment[] = [];
 
@@ -278,15 +279,16 @@ export class PolygonCollider extends Collider {
 
   private _globalMatrix: Matrix = Matrix.identity();
 
+  private _transformedPointsDirty = true;
   /**
    * Calculates the underlying transformation from the body relative space to world space
    */
   private _calculateTransformation() {
-
-    const len = this.points.length;
+    const points = this.points;
+    const len = points.length;
     this._transformedPoints.length = 0; // clear out old transform
     for (let i = 0; i < len; i++) {
-      this._transformedPoints[i] = this._globalMatrix.multiply(this.points[i].clone());
+      this._transformedPoints[i] = this._globalMatrix.multiply(points[i].clone());
     }
   }
 
@@ -294,43 +296,49 @@ export class PolygonCollider extends Collider {
    * Gets the points that make up the polygon in world space, from actor relative space (if specified)
    */
   public getTransformedPoints(): Vector[] {
-    this._calculateTransformation();
+    if (this._transformedPointsDirty) {
+      this._calculateTransformation();
+      this._transformedPointsDirty = false;
+    }
     return this._transformedPoints;
   }
 
+  private _sidesDirty = true;
   /**
    * Gets the sides of the polygon in world space
    */
   public getSides(): LineSegment[] {
-    if (this._sides.length) {
-      return this._sides;
+    if (this._sidesDirty) {
+      const lines = [];
+      const points = this.getTransformedPoints();
+      const len = points.length;
+      for (let i = 0; i < len; i++) {
+        // This winding is important
+        lines.push(new LineSegment(points[i], points[(i + 1) % len]));
+      }
+      this._sides = lines;
+      this._sidesDirty = true;
     }
-    const lines = [];
-    const points = this.getTransformedPoints();
-    const len = points.length;
-    for (let i = 0; i < len; i++) {
-      // This winding is important
-      lines.push(new LineSegment(points[i], points[(i + 1) % len]));
-    }
-    this._sides = lines;
     return this._sides;
   }
 
+  private _localSidesDirty = true;
   /**
    * Returns the local coordinate space sides
    */
   public getLocalSides(): LineSegment[] {
-    if (this._localSides.length) {
-      return this._localSides;
+    if (this._localSidesDirty) {
+      const lines = [];
+      const points = this.points;
+      const len = points.length;
+      for (let i = 0; i < len; i++) {
+        // This winding is important
+        lines.push(new LineSegment(points[i], points[(i + 1) % len]));
+      }
+      this._localSides = lines;
+      this._localSidesDirty = false;
     }
-    const lines = [];
-    const points = this.points;
-    const len = points.length;
-    for (let i = 0; i < len; i++) {
-      // This winding is important
-      lines.push(new LineSegment(points[i], points[(i + 1) % len]));
-    }
-    this._localSides = lines;
+
     return this._localSides;
   }
 
@@ -378,12 +386,12 @@ export class PolygonCollider extends Collider {
    * Get the axis associated with the convex polygon
    */
   public get axes(): Vector[] {
-    if (this._axes.length) {
-      return this._axes;
+    const axes: Vector[] = []
+    const sides = this.getSides();
+    for (let i = 0; i < sides.length; i++) {
+      axes.push(sides[i].normal());
     }
-    const axes = this.getSides().map((s) => s.normal());
-    this._axes = axes;
-    return this._axes;
+    return axes;
   }
 
   /**
@@ -393,18 +401,15 @@ export class PolygonCollider extends Collider {
    * @param transform
    */
   public update(transform: Transform): void {
+    // TODO only changes if the transform is different
+    this._transformedPointsDirty = true;
+    this._sidesDirty = true;
     this._transform = transform;
-    this._sides.length = 0;
-    this._localSides.length = 0;
-    this._axes.length = 0;
     const tx = this._transform as TransformComponent;
     // This change means an update must be performed in order for geometry to update
     const globalMat = tx?.getGlobalMatrix() ?? this._globalMatrix;
     globalMat.clone(this._globalMatrix);
     this._globalMatrix.translate(this.offset.x, this.offset.y);
-    this.getTransformedPoints();
-    this.getSides();
-    this.getLocalSides();
   }
 
   /**
@@ -540,22 +545,29 @@ export class PolygonCollider extends Collider {
     return this._localBounds;
   }
 
+  private _cachedMass: number;
+  private _cachedInertia: number;
   /**
    * Get the moment of inertia for an arbitrary polygon
    * https://en.wikipedia.org/wiki/List_of_moments_of_inertia
    */
   public getInertia(mass: number): number {
+    if (this._cachedMass === mass && this._cachedInertia) {
+      return this._cachedInertia;
+    }
     let numerator = 0;
     let denominator = 0;
-    for (let i = 0; i < this.points.length; i++) {
-      const iplusone = (i + 1) % this.points.length;
-      const crossTerm = this.points[iplusone].cross(this.points[i]);
+    const points = this.points;
+    for (let i = 0; i < points.length; i++) {
+      const iplusone = (i + 1) % points.length;
+      const crossTerm = points[iplusone].cross(points[i]);
       numerator +=
         crossTerm *
-        (this.points[i].dot(this.points[i]) + this.points[i].dot(this.points[iplusone]) + this.points[iplusone].dot(this.points[iplusone]));
+        (points[i].dot(points[i]) + points[i].dot(points[iplusone]) + points[iplusone].dot(points[iplusone]));
       denominator += crossTerm;
     }
-    return (mass / 6) * (numerator / denominator);
+    this._cachedMass = mass;
+    return this._cachedInertia = (mass / 6) * (numerator / denominator);
   }
 
   /**
