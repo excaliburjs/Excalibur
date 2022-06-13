@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Breaking Changes
 
 - `ex.TransformComponent.posChanged$` has been removed, it incurs a steep performance cost
+- `ex.EventDispatcher` meta events 'subscribe' and 'unsubscribe' were unused and undocumented and have been removed
 
 ### Deprecated
 
@@ -83,6 +84,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue with `ex.EventDispatcher` where removing a handler that didn't already exist would remove another handler by mistake
+- Fixed issue with `ex.EventDispatcher` where concurrent modifications of the handler list where handlers would or would not fire correctly and throw
 - Fixed issue with `ex.ArcadeSolver` based collisions where colliders were catching on seams when sliding along a floor of multiple colliders. This was by sorting contacts by distance between bodies.
   ![sorted-collisions](https://user-images.githubusercontent.com/612071/172401390-9e9c3490-3566-47bf-b258-6a7da86a3464.gif)
 
