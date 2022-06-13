@@ -155,6 +155,20 @@ describe('A Matrix', () => {
       .not.toHaveBeenCalledWith();
   });
 
+  it('can be created from a float32array', () => {
+    const mat = ex.Matrix.identity().translate(1,2).rotate(Math.PI).scale(3, 4);
+    const newData = new Float32Array(mat.data);
+    const mat2 = ex.Matrix.fromFloat32Array(newData);
+    expect(mat.toString()).toEqual(mat2.toString());
+  });
+
+  it('can set position', () => {
+    const mat = new ex.Matrix();
+    expect(mat.getPosition()).toBeVector(ex.vec(0, 0));
+    mat.setPosition(10, 43);
+    expect(mat.getPosition()).toBeVector(ex.vec(10, 43));
+  });
+
   it('can clone into a target matrix', () => {
     const source = ex.Matrix.identity().scale(5, 5);
     const destination = ex.Matrix.identity();

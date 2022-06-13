@@ -167,6 +167,25 @@ describe('A AffineMatrix', () => {
     ]));
   });
 
+  it('can set position', () => {
+    const mat = new ex.AffineMatrix();
+    expect(mat.getPosition()).toBeVector(ex.vec(0, 0));
+    mat.setPosition(10, 43);
+    expect(mat.getPosition()).toBeVector(ex.vec(10, 43));
+  });
+
+  it('can convert to a 4x4 matrix', () => {
+    const mat = ex.AffineMatrix.identity().translate(1,2).rotate(Math.PI).scale(3, 4);
+    expect(mat.getPosition()).toBeVector(ex.vec(1, 2));
+    expect(mat.getRotation()).toBe(Math.PI);
+    expect(mat.getScale()).toBeVector(ex.vec(3, 4));
+
+    const mat4x4 = mat.to4x4();
+    expect(mat4x4.getPosition()).toBeVector(ex.vec(1, 2));
+    expect(mat4x4.getRotation()).toBe(Math.PI);
+    expect(mat4x4.getScale()).toBeVector(ex.vec(3, 4));
+  });
+
   it('can reset to identity', () => {
     const mat = ex.AffineMatrix.identity()
       .translate(100, -200)

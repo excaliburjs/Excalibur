@@ -5,13 +5,6 @@ import { VectorView } from './vector-view';
 import { WatchVector } from './watch-vector';
 
 export class Transform {
-  constructor(matrix?: AffineMatrix) {
-    if (matrix) {
-      this.pos = matrix.getPosition();
-      this.rotation = matrix.getRotation();
-      this.scale = matrix.getScale();
-    }
-  }
   private _parent: Transform | null = null;
   get parent() {
     return this._parent;
@@ -43,7 +36,11 @@ export class Transform {
     }
   }
   get pos() {
-    return new WatchVector(this._pos, () => this.flagDirty());
+    return new WatchVector(this._pos, (x, y) => {
+      if (x !== this._pos.x || y !== this._pos.y) {
+        this.flagDirty();
+      }
+    });
   }
 
   set globalPos(v: Vector) {
@@ -87,8 +84,11 @@ export class Transform {
 
   private _rotation: number = 0;
   set rotation(rotation: number) {
-    this._rotation = canonicalizeAngle(rotation);
-    this.flagDirty();
+    const canonRotation = canonicalizeAngle(rotation);
+    if (canonRotation !== this._rotation) {
+      this.flagDirty();
+    }
+    this._rotation = canonRotation;
   }
   get rotation() {
     return this._rotation;
@@ -99,7 +99,11 @@ export class Transform {
     if (this.parent) {
       inverseRotation = this.parent.globalRotation;
     }
-    this._rotation = rotation + inverseRotation;
+    const canonRotation = canonicalizeAngle(rotation + inverseRotation);
+    if (canonRotation !== this._rotation) {
+      this.flagDirty();
+    }
+    this._rotation = canonRotation;
   }
 
   get globalRotation() {
@@ -118,7 +122,11 @@ export class Transform {
     }
   }
   get scale() {
-    return new WatchVector(this._scale, () => this.flagDirty());
+    return new WatchVector(this._scale, (x, y) => {
+      if (x !== this._scale.x || y !== this._scale.y) {
+        this.flagDirty();
+      }
+    });
   }
 
   set globalScale(v: Vector) {
