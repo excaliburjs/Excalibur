@@ -2,7 +2,7 @@ import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Scene } from '../Scene';
 import { GraphicsComponent } from './GraphicsComponent';
 import { vec, Vector } from '../Math/vector';
-import { CoordPlane, TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
+import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { Camera } from '../Camera';
 import { AddedEntity, isAddedSystemEntity, RemovedEntity, System, SystemType } from '../EntityComponentSystem';
@@ -10,6 +10,7 @@ import { Engine } from '../Engine';
 import { GraphicsGroup } from '.';
 import { Particle } from '../Particles';
 import { ParallaxComponent } from './ParallaxComponent';
+import { CoordPlane } from '../Math/coord-plane';
 import { BodyComponent } from '../Collision/BodyComponent';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {

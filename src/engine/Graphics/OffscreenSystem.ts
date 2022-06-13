@@ -2,11 +2,12 @@ import { GraphicsComponent } from './GraphicsComponent';
 import { EnterViewPortEvent, ExitViewPortEvent } from '../Events';
 import { Scene } from '../Scene';
 import { Entity } from '../EntityComponentSystem/Entity';
-import { TransformComponent, CoordPlane } from '../EntityComponentSystem/Components/TransformComponent';
+import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Camera } from '../Camera';
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { ParallaxComponent } from './ParallaxComponent';
 import { Vector } from '../Math/vector';
+import { CoordPlane } from '../Math/coord-plane';
 
 export class OffscreenSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -57,7 +58,7 @@ export class OffscreenSystem extends System<TransformComponent | GraphicsCompone
       if (parallaxOffset) {
         bounds = bounds.translate(parallaxOffset);
       }
-      const transformedBounds = bounds.transform(transform.getGlobalMatrix());
+      const transformedBounds = bounds.transform(transform.get().matrix);
       const graphicsOffscreen = !this._camera.viewport.overlaps(transformedBounds);
       return graphicsOffscreen;
     } else {

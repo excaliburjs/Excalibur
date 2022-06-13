@@ -69,6 +69,11 @@ export class TileMap extends Entity {
   private _collidersDirty = true;
   public flagCollidersDirty() {
     this._collidersDirty = true;
+    for (let i = 0; i < this.tiles.length; i++) {
+      if (this.tiles[i]) {
+        this.tiles[i].flagDirty();
+      }
+    }
   }
   private _transform: TransformComponent;
   private _motion: MotionComponent;
@@ -126,6 +131,7 @@ export class TileMap extends Entity {
     }
   }
 
+  private _oldPos: Vector;
   public get pos(): Vector {
     return this._transform.pos;
   }
@@ -178,7 +184,7 @@ export class TileMap extends Entity {
     this._composite = this._collider.useCompositeCollider([]);
 
     this._transform.pos = options.pos ?? Vector.Zero;
-    this._transform.posChanged$.subscribe(() => this.flagCollidersDirty());
+    this._oldPos = this._transform.pos;
     this.tileWidth = options.tileWidth;
     this.tileHeight = options.tileHeight;
     this.rows = options.rows;
@@ -333,6 +339,9 @@ export class TileMap extends Entity {
   public update(engine: Engine, delta: number) {
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
+    if (!this._oldPos.equals(this.pos)) {
+      this.flagCollidersDirty();
+    }
     if (this._collidersDirty) {
       this._collidersDirty = false;
       this._updateColliders();
@@ -453,7 +462,7 @@ export class Tile extends Entity {
   private _bounds: BoundingBox;
   private _pos: Vector;
   private _posDirty = false;
-  private _transform: TransformComponent;
+  // private _transform: TransformComponent;
 
   /**
    * Return the world position of the top left corner of the tile
@@ -597,10 +606,10 @@ export class Tile extends Entity {
     this.solid = options.solid ?? this.solid;
     this._graphics = options.graphics ?? [];
     this._recalculate();
-    this._transform = options.map.get(TransformComponent);
-    this._transform.posChanged$.subscribe(() => {
-      this._posDirty = true;
-    });
+  }
+
+  public flagDirty() {
+    return this._posDirty = true;
   }
 
   private _recalculate() {
@@ -609,17 +618,20 @@ export class Tile extends Entity {
         this.x * this.map.tileWidth,
         this.y * this.map.tileHeight));
     this._bounds = new BoundingBox(this._pos.x, this._pos.y, this._pos.x + this.width, this._pos.y + this.height);
+    this._posDirty = false;
   }
 
   public get bounds() {
     if (this._posDirty) {
       this._recalculate();
-      this._posDirty = false;
     }
     return this._bounds;
   }
 
   public get center(): Vector {
+    if (this._posDirty) {
+      this._recalculate();
+    }
     return new Vector(this._pos.x + this.width / 2, this._pos.y + this.height / 2);
   }
 }

@@ -153,6 +153,25 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
 
     });
 
+    it('can overlap with a margin for floating point rounding to consider no longer overlap', () => {
+      const bb1 = new ex.BoundingBox({
+        left: 0,
+        right: 100,
+        top: 0,
+        bottom: 100
+      });
+
+      // bb2 is very technically overlapping, but very slightly and we want to consider it not really overlapping
+      const bb2 = new ex.BoundingBox({
+        left: 100  - 0.00001,
+        right: 200 - 0.00001,
+        top: 0,
+        bottom: 100
+      });
+      expect(bb1.overlaps(bb2, 0.0001)).toBe(false);
+      expect(bb1.overlaps(bb2)).toBe(true);
+    });
+
     it('can collide with other bounding boxes', () => {
       const b2 = new ex.BoundingBox(2, 0, 20, 10);
       const b3 = new ex.BoundingBox(12, 0, 28, 10);
@@ -186,7 +205,7 @@ function runBoundingBoxTests(creationType: string, createBoundingBox: Function) 
 
     it('can be transformed be a matrix', () => {
       const bb = ex.BoundingBox.fromDimension(10, 10);
-      const matrix = ex.Matrix.identity()
+      const matrix = ex.AffineMatrix.identity()
         .scale(2, 2)
         .rotate(Math.PI / 4);
       const newBB = bb.transform(matrix);

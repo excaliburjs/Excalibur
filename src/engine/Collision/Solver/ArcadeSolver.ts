@@ -35,7 +35,7 @@ export class ArcadeSolver implements CollisionSolver {
       // Solve position first in arcade
       this.solvePosition(contact);
 
-      // Solve velocity first
+      // Solve velocity second in arcade
       this.solveVelocity(contact);
     }
 
@@ -90,13 +90,21 @@ export class ArcadeSolver implements CollisionSolver {
   }
 
   public solvePosition(contact: CollisionContact) {
+    const epsilon = .0001;
     // if bounds no longer intersect skip to the next
     // this removes jitter from overlapping/stacked solid tiles or a wall of solid tiles
-    if (!contact.colliderA.bounds.overlaps(contact.colliderB.bounds)) {
+    if (!contact.colliderA.bounds.overlaps(contact.colliderB.bounds, epsilon)) {
       // Cancel the contact to prevent and solving
       contact.cancel();
       return;
     }
+
+    if (Math.abs(contact.mtv.x) < epsilon && Math.abs(contact.mtv.y) < epsilon) {
+      // Cancel near 0 mtv collisions
+      contact.cancel();
+      return;
+    }
+
     let mtv = contact.mtv;
     const colliderA = contact.colliderA;
     const colliderB = contact.colliderB;
@@ -116,16 +124,17 @@ export class ArcadeSolver implements CollisionSolver {
       if (bodyA.collisionType === CollisionType.Active) {
         bodyA.pos.x -= mtv.x;
         bodyA.pos.y -= mtv.y;
-        colliderA.update(bodyA.transform);
+        colliderA.update(bodyA.transform.get());
       }
 
       if (bodyB.collisionType === CollisionType.Active) {
         bodyB.pos.x += mtv.x;
         bodyB.pos.y += mtv.y;
-        colliderB.update(bodyB.transform);
+        colliderB.update(bodyB.transform.get());
       }
     }
   }
+
 
   public solveVelocity(contact: CollisionContact) {
     if (contact.isCanceled()) {

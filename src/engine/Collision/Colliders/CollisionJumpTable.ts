@@ -200,7 +200,7 @@ export const CollisionJumpTable = {
     linePoly.owner = edge.owner;
     const tx = edge.owner?.get(TransformComponent);
     if (tx) {
-      linePoly.update(edge.owner.get(TransformComponent));
+      linePoly.update(edge.owner.get(TransformComponent).get());
     }
     // Gross hack but poly-poly works well
     const contact = this.CollidePolygonPolygon(polygon, linePoly);
