@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { EulerIntegrator } from '../engine/Collision/Integrator';
 
 describe('A TransformComponent', () => {
   beforeAll(() => {
@@ -172,5 +173,15 @@ describe('A TransformComponent', () => {
 
     expect(zSpy).toHaveBeenCalledWith(19);
     expect(tx.z).toBe(19);
+  });
+
+  it('will only flag the transform dirty once during integration', () => {
+    const transform = new ex.TransformComponent();
+    spyOn(transform.get(), 'flagDirty').and.callThrough();
+    const motion = new ex.MotionComponent();
+
+    EulerIntegrator.integrate(transform, motion, ex.Vector.Zero, 16);
+
+    expect(transform.get().flagDirty).toHaveBeenCalledTimes(1);
   });
 });
