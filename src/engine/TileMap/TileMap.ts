@@ -635,7 +635,7 @@ export class Tile extends Entity {
 
   public get center(): Vector {
     if (this._posDirty) {
-      this._recalculate()
+      this._recalculate();
     }
     return new Vector(this._pos.x + this.width / 2, this._pos.y + this.height / 2);
   }
