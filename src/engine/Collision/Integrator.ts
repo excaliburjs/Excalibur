@@ -17,6 +17,5 @@ export class EulerIntegrator {
     transform.scale.add(motion.scaleFactor.scale(seconds), EulerIntegrator._SCALE);
     const tx = transform.get();
     tx.setTransform(EulerIntegrator._POS, transform.rotation, EulerIntegrator._SCALE);
-    tx.flagDirty();
   }
 }

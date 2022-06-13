@@ -57,10 +57,6 @@ export class Transform {
     }
   }
   get globalPos() {
-    // if (this.parent) {
-    //   return this.matrix.getPosition();
-    // }
-    // return this.pos;
     return new VectorView({
       getX: () => this.matrix.data[4],
       getY: () => this.matrix.data[5],
@@ -134,11 +130,6 @@ export class Transform {
   }
 
   get globalScale() {
-    // if (this.parent) {
-    //   return this.matrix.getScale();
-    // }
-    // return this.scale;
-
     return new VectorView({
       getX: () => this.parent ? this.matrix.getScaleX() : this.scale.x,
       getY: () => this.parent ? this.matrix.getScaleY() : this.scale.y,

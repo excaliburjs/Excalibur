@@ -231,6 +231,7 @@ export class Vector implements Clonable<Vector> {
   /**
    * Adds one vector to another
    * @param v The vector to add
+   * @param dest Optionally copy the result into a provided vector
    */
   public add(v: Vector, dest?: Vector): Vector {
     if (dest) {

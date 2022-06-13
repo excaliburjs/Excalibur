@@ -185,7 +185,6 @@ export class TileMap extends Entity {
 
     this._transform.pos = options.pos ?? Vector.Zero;
     this._oldPos = this._transform.pos;
-    // this._transform.posChanged$.subscribe(() => this.flagCollidersDirty());
     this.tileWidth = options.tileWidth;
     this.tileHeight = options.tileHeight;
     this.rows = options.rows;
@@ -607,10 +606,6 @@ export class Tile extends Entity {
     this.solid = options.solid ?? this.solid;
     this._graphics = options.graphics ?? [];
     this._recalculate();
-    // this._transform = options.map.get(TransformComponent);
-    // this._transform.posChanged$.subscribe(() => {
-    //   this._posDirty = true;
-    // });
   }
 
   public flagDirty() {

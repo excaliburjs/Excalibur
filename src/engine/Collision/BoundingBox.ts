@@ -307,8 +307,11 @@ export class BoundingBox {
   /**
    * Returns true if the bounding boxes overlap.
    * @param other
+   * @param epsilon Optionally specify a small epsilon (default 0) as amount of overlap to ignore as overlap.
+   * This epsilon is useful in stable collision simulations.
    */
-  public overlaps(other: BoundingBox): boolean {
+  public overlaps(other: BoundingBox, epsilon?: number): boolean {
+    const e = epsilon || 0;
     if (other.hasZeroDimensions()){
       return this.contains(other);
     }
@@ -316,8 +319,8 @@ export class BoundingBox {
       return other.contains(this);
     }
     const totalBoundingBox = this.combine(other);
-    return totalBoundingBox.width + .0001 < other.width + this.width &&
-           totalBoundingBox.height + .0001 < other.height + this.height;
+    return totalBoundingBox.width + e < other.width + this.width &&
+           totalBoundingBox.height + e < other.height + this.height;
   }
 
   /**

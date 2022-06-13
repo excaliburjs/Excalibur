@@ -15,6 +15,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
+- Added new `ex.WatchVector` type that can observe changes to x/y more efficiently than `ex.watch()`
+- Added performance improvements 
+   * `ex.Vector.distance` improvement
+   * `ex.BoundingBox.transform` improvement
+- Added ability to clone `ex.Vector.clone(destVector)` into a destination vector
+- Added new `ex.Transform` type that is a light weight container for transformation data. This logic has been extracted from the `ex.TransformComponent`, this makes it easy to pass `ex.Transform`s around. Additionally the extracted `ex.Transform` logic has been refactored for performance.
+- Added new `ex.AffineMatrix` that is meant for 2D affine transformations, it uses less memory and performs less calculations than the `ex.Matrix` which uses a 4x4 Float32 matrix.
 - Added new fixed update step to Excalibur! This allows developers to configure a fixed FPS for the update loop. One advantage of setting a fix update is that you will have a more consistent and predictable physics simulation. Excalibur graphics will be interpolated automatically to avoid any jitter in the fixed update.
   * If the fixed update FPS is greater than the display FPS, excalibur will run multiple updates in a row (at the configured update elapsed) to catch up, for example there could be X updates and 1 draw each clock step.
   * If the fixed update FPS is less than the display FPS, excalibur will skip updates until it meets the desired FPS, for example there could be no update for 1 draw each clock step.
@@ -83,9 +90,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Add target element id to `ex.Screen.goFullScreen('some-element-id')` to influence the fullscreen element in the fullscreen browser API.
 
 ### Fixed
-
+- Fixed issue where `ex.BoundingBox` overlap return false due to floating point rounding error causing multiple collisions to be evaluated sometimes
 - Fixed issue with `ex.EventDispatcher` where removing a handler that didn't already exist would remove another handler by mistake
 - Fixed issue with `ex.EventDispatcher` where concurrent modifications of the handler list where handlers would or would not fire correctly and throw
+- Tweak to the `ex.ArcadeSolver` to produce more stable results by adjusting by an infinitesimal epsilon
+  - Contacts with overlap smaller than the epsilon are ignored
+  - Colliders with bounds that overlap smaller than the epsilon are ignored
 - Fixed issue with `ex.ArcadeSolver` based collisions where colliders were catching on seams when sliding along a floor of multiple colliders. This was by sorting contacts by distance between bodies.
   ![sorted-collisions](https://user-images.githubusercontent.com/612071/172401390-9e9c3490-3566-47bf-b258-6a7da86a3464.gif)
 
@@ -100,7 +110,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
--
+- Most places where `ex.Matrix` was used have been switched to `ex.AffineMatrix`
+- Most places where `ex.TransformComponent` was used have been switched to `ex.Transform`
 
 
 ## [0.26.0] - 2022-05-20

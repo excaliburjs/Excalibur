@@ -90,15 +90,16 @@ export class ArcadeSolver implements CollisionSolver {
   }
 
   public solvePosition(contact: CollisionContact) {
+    const epsilon = .0001;
     // if bounds no longer intersect skip to the next
     // this removes jitter from overlapping/stacked solid tiles or a wall of solid tiles
-    if (!contact.colliderA.bounds.overlaps(contact.colliderB.bounds)) {
+    if (!contact.colliderA.bounds.overlaps(contact.colliderB.bounds, epsilon)) {
       // Cancel the contact to prevent and solving
       contact.cancel();
       return;
     }
 
-    if (Math.abs(contact.mtv.x) < 0.0001 && Math.abs(contact.mtv.y) < 0.0001) {
+    if (Math.abs(contact.mtv.x) < epsilon && Math.abs(contact.mtv.y) < epsilon) {
       // Cancel near 0 mtv collisions
       contact.cancel();
       return;
