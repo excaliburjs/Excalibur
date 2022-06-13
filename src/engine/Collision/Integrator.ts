@@ -12,10 +12,10 @@ export class EulerIntegrator {
     transform.pos.add(motion.vel.scale(seconds), EulerIntegrator._POS).addEqual(totalAcc.scale(0.5 * seconds * seconds));
 
     motion.angularVelocity += motion.torque * (1.0 / motion.inertia) * seconds;
-    transform.rotation += motion.angularVelocity * seconds;
+    const rotation = transform.rotation + motion.angularVelocity * seconds;
 
     transform.scale.add(motion.scaleFactor.scale(seconds), EulerIntegrator._SCALE);
     const tx = transform.get();
-    tx.setTransform(EulerIntegrator._POS, transform.rotation, EulerIntegrator._SCALE);
+    tx.setTransform(EulerIntegrator._POS, rotation, EulerIntegrator._SCALE);
   }
 }
