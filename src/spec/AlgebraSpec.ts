@@ -259,6 +259,18 @@ describe('Vectors', () => {
 
     expect(sut).toBeVector(ex.vec(2, 1));
   });
+
+  fit('can clamp the vectors magnitude', () => {
+    const sut = new ex.Vector(10, 5);
+    const before = sut.normalize();
+
+    sut.clampMagnitude(5);
+
+    const after = sut.normalize();
+    expect(before.x).toBeCloseTo(after.x, 4);
+    expect(before.y).toBeCloseTo(after.y, 4);
+    expect(sut.size).toBe(5);
+  });
 });
 
 describe('Rays', () => {
