@@ -162,8 +162,6 @@ export class ArcadeSolver implements CollisionSolver {
           // Cancel out velocity opposite direction of collision normal
           const velAdj = normal.scale(normal.dot(bodyA.vel.negate()));
           bodyA.vel = bodyA.vel.add(velAdj);
-        } else {
-          contact.cancel();
         }
       }
 
@@ -173,8 +171,6 @@ export class ArcadeSolver implements CollisionSolver {
         if (bodyB.vel.normalize().dot(normal) < 0) {
           const velAdj = opposite.scale(opposite.dot(bodyB.vel.negate()));
           bodyB.vel = bodyB.vel.add(velAdj);
-        } else {
-          contact.cancel();
         }
       }
     }
