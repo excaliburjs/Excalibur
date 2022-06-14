@@ -1,4 +1,5 @@
 import { Clonable } from '../Interfaces/Clonable';
+import { clamp } from './util';
 
 /**
  * A 2D vector on a plane.
@@ -176,6 +177,18 @@ export class Vector implements Clonable<Vector> {
     const deltaX = this.x - v.x;
     const deltaY = this.y - v.y;
     return deltaX * deltaX + deltaY * deltaY;
+  }
+
+  /**
+   * Clamps the current vector's magnitude mutating it
+   * @param magnitude 
+   * @returns
+   */
+  public clampMagnitude(magnitude: number): Vector {
+    const size = this.size;
+    const newSize = clamp(size, 0, magnitude);
+    this.size = newSize;
+    return this;
   }
 
   /**
