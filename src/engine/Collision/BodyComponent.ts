@@ -74,7 +74,16 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   /**
    * The amount of mass the body has
    */
-  public mass: number = Physics.defaultMass;
+  private _mass: number = Physics.defaultMass;
+  public get mass(): number {
+    return this._mass;
+  }
+
+  public set mass(newMass: number) {
+    this._mass = newMass;
+    this._cachedInertia = undefined;
+    this._cachedInverseInertia = undefined;
+  }
 
   /**
    * The inverse mass (1/mass) of the body. If [[CollisionType.Fixed]] this is 0, meaning "infinite" mass
@@ -199,13 +208,8 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     return this.owner?.get(TransformComponent);
   }
 
-  // TODO invalidate
-  private _motionComponent: MotionComponent;
   public get motion(): MotionComponent {
-    if (this._motionComponent) {
-      return this._motionComponent;
-    }
-    return this._motionComponent = this.owner?.get(MotionComponent);
+    return  this.owner?.get(MotionComponent);
   }
 
   /**

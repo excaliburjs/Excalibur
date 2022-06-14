@@ -401,10 +401,9 @@ export class PolygonCollider extends Collider {
    * @param transform
    */
   public update(transform: Transform): void {
-    // TODO only changes if the transform is different
+    this._transform = transform;
     this._transformedPointsDirty = true;
     this._sidesDirty = true;
-    this._transform = transform;
     // This change means an update must be performed in order for geometry to update
     const globalMat = transform.matrix ?? this._globalMatrix;
     globalMat.clone(this._globalMatrix);
