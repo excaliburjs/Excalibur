@@ -317,7 +317,7 @@ export class PolygonCollider extends Collider {
         lines.push(new LineSegment(points[i], points[(i + 1) % len]));
       }
       this._sides = lines;
-      this._sidesDirty = true;
+      this._sidesDirty = false;
     }
     return this._sides;
   }
