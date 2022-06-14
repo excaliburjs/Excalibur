@@ -125,7 +125,7 @@ describe('An ArcadeSolver', () => {
     expect(contact2.isCanceled()).toBeTrue();
   });
 
-  it('should cancel collisions where the bodies are moving away from the contact', () => {
+  it('should NOT cancel collisions where the bodies are moving away from the contact', () => {
 
     const arcadeSolver = new ex.ArcadeSolver();
 
@@ -152,8 +152,8 @@ describe('An ArcadeSolver', () => {
     const contact = new ex.CollisionContact(
       player.collider.get(), block.collider.get(), ex.Vector.Down, ex.Vector.Down, ex.Vector.Up.perpendicular(), [], [], null);
     arcadeSolver.solveVelocity(contact);
-    expect(contact.isCanceled()).toBeTrue();
-    expect(player.vel).toBeVector(ex.vec(0, -10));
+    expect(contact.isCanceled()).toBeFalse();
+    expect(player.vel).toBeVector(ex.vec(0, -10)); // Velocity is not adjusted
 
     // Player moving towards contact
     player.vel = player.vel.negate();
@@ -162,7 +162,7 @@ describe('An ArcadeSolver', () => {
 
     arcadeSolver.solveVelocity(contact2);
     expect(contact2.isCanceled()).toBeFalse();
-    expect(player.vel).toBeVector(ex.Vector.Zero);
+    expect(player.vel).toBeVector(ex.Vector.Zero); // Velocity is adjusted
   });
 
   it('should cancel near zero mtv collisions', () => {
