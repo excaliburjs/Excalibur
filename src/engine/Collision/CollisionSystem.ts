@@ -51,20 +51,21 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     this._engine = scene.engine;
   }
 
-  update(_entities: Entity[], elapsedMs: number): void {
+  update(entities: Entity[], elapsedMs: number): void {
     if (!Physics.enabled) {
       return;
     }
 
-    // Collect up all the colliders
+    // Collect up all the colliders and update them
     let colliders: Collider[] = [];
-    for (const entity of _entities) {
+    for (const entity of entities) {
       const colliderComp = entity.get(ColliderComponent);
       const collider = colliderComp?.get();
       if (colliderComp && colliderComp.owner?.active && collider) {
         colliderComp.update();
         if (collider instanceof CompositeCollider) {
-          colliders = colliders.concat(collider.getColliders());
+          const compositeColliders = collider.getColliders();
+          colliders = colliders.concat(compositeColliders);
         } else {
           colliders.push(collider);
         }
@@ -82,7 +83,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
     this._currentFrameContacts.clear();
 
     // Given possible pairs find actual contacts
-    let contacts = this._processor.narrowphase(pairs, this._engine.debug.stats.currFrame);
+    let contacts = this._processor.narrowphase(pairs, this._engine?.debug?.stats?.currFrame);
 
     const solver: CollisionSolver = this.getSolver();
 

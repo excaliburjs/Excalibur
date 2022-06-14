@@ -30,7 +30,7 @@ class Player2 extends ex.Actor {
 
   onPostCollision(evt) {
     if (evt.side === "Left" || evt.side === "Right") {
-      console.log(evt.side);
+      console.error(evt.side);
     }
 
     if (evt.side === ex.Side.Bottom) {

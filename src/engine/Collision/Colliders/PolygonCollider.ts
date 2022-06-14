@@ -7,14 +7,14 @@ import { CollisionContact } from '../Detection/CollisionContact';
 import { Projection } from '../../Math/projection';
 import { LineSegment } from '../../Math/line-segment';
 import { Vector } from '../../Math/vector';
-import { Matrix } from '../../Math/matrix';
+import { AffineMatrix } from '../../Math/affine-matrix';
 import { Ray } from '../../Math/ray';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
-import { Transform, TransformComponent } from '../../EntityComponentSystem';
 import { Collider } from './Collider';
 import { ExcaliburGraphicsContext, Logger, range } from '../..';
 import { CompositeCollider } from './CompositeCollider';
 import { Shape } from './Shape';
+import { Transform } from '../../Math/transform';
 
 export interface PolygonColliderOptions {
   /**
@@ -277,7 +277,7 @@ export class PolygonCollider extends Collider {
     return this.bounds.center;
   }
 
-  private _globalMatrix: Matrix = Matrix.identity();
+  private _globalMatrix: AffineMatrix = AffineMatrix.identity();
 
   private _transformedPointsDirty = true;
   /**
@@ -405,9 +405,8 @@ export class PolygonCollider extends Collider {
     this._transformedPointsDirty = true;
     this._sidesDirty = true;
     this._transform = transform;
-    const tx = this._transform as TransformComponent;
     // This change means an update must be performed in order for geometry to update
-    const globalMat = tx?.getGlobalMatrix() ?? this._globalMatrix;
+    const globalMat = transform.matrix ?? this._globalMatrix;
     globalMat.clone(this._globalMatrix);
     this._globalMatrix.translate(this.offset.x, this.offset.y);
   }

@@ -84,7 +84,7 @@ game.on('fallbackgraphicscontext', (ctx) => {
   console.log('fallback triggered', ctx);
 });
 //@ts-ignore For some reason ts doesn't like the /// slash import
-const devtool = new ex.DevTools.DevTool(game);
+// const devtool = new ex.DevTools.DevTool(game);
 
 
 // var colorblind = new ex.ColorBlindnessPostProcessor(ex.ColorBlindnessMode.Deuteranope);

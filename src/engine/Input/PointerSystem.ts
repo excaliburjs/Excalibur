@@ -5,7 +5,6 @@ import {
   TransformComponent,
   SystemType,
   Entity,
-  CoordPlane,
   AddedEntity,
   RemovedEntity,
   isAddedSystemEntity
@@ -15,6 +14,7 @@ import { Scene } from '../Scene';
 import { PointerComponent } from './PointerComponent';
 import { PointerEventReceiver } from './PointerEventReceiver';
 import { PointerEvent } from './PointerEvent';
+import { CoordPlane } from '../Math/coord-plane';
 
 /**
  * The PointerSystem is responsible for dispatching pointer events to entities
@@ -159,7 +159,7 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
       // Check graphics contains pointer
       graphics = entity.get(GraphicsComponent);
       if (graphics && (pointer.useGraphicsBounds || this.overrideUseGraphicsBounds)) {
-        const graphicBounds = graphics.localBounds.transform(transform.getGlobalMatrix());
+        const graphicBounds = graphics.localBounds.transform(transform.get().matrix);
         for (const [pointerId, pos] of this._receiver.currentFramePointerCoords.entries()) {
           if (graphicBounds.contains(transform.coordPlane === CoordPlane.World ? pos.worldPos : pos.screenPos)) {
             this.addPointerToEntity(entity, pointerId);

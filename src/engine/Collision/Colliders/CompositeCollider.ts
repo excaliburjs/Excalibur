@@ -1,7 +1,6 @@
 import { Util } from '../..';
 import { Pair } from '../Detection/Pair';
 import { Color } from '../../Color';
-import { Transform } from '../../EntityComponentSystem';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { LineSegment } from '../../Math/line-segment';
 import { Projection } from '../../Math/projection';
@@ -12,6 +11,7 @@ import { CollisionContact } from '../Detection/CollisionContact';
 import { DynamicTree } from '../Detection/DynamicTree';
 import { DynamicTreeCollisionProcessor } from '../Detection/DynamicTreeCollisionProcessor';
 import { Collider } from './Collider';
+import { Transform } from '../../Math/transform';
 
 export class CompositeCollider extends Collider {
   private _transform: Transform;

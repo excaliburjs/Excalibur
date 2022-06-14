@@ -11,7 +11,7 @@ import { BoundingBox } from './Collision/BoundingBox';
 import { Logger } from './Util/Log';
 import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 import { watchAny } from './Util/Watch';
-import { Matrix } from './Math/matrix';
+import { AffineMatrix } from './Math/affine-matrix';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -239,8 +239,8 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
  *
  */
 export class Camera extends Class implements CanUpdate, CanInitialize {
-  public transform: Matrix = Matrix.identity();
-  public inverse: Matrix = Matrix.identity();
+  public transform: AffineMatrix = AffineMatrix.identity();
+  public inverse: AffineMatrix = AffineMatrix.identity();
 
 
   protected _follow: Actor;
@@ -771,7 +771,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     this.transform.reset();
     this.transform.scale(this.zoom, this.zoom);
     this.transform.translate(cameraPos.x, cameraPos.y);
-    this.transform.getAffineInverse(this.inverse);
+    this.transform.inverse(this.inverse);
   }
 
   private _isDoneShaking(): boolean {

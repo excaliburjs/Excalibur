@@ -180,7 +180,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
               .add(shift)
               .add(minTranslate)
               .add(ray.dir.scale(10 * Physics.surfaceEpsilon)); // needed to push the shape slightly into contact
-            collider.update(body.transform);
+            collider.update(body.transform.get());
 
             if (stats) {
               stats.physics.fastBodyCollisions++;
