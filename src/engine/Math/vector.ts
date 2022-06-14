@@ -181,8 +181,7 @@ export class Vector implements Clonable<Vector> {
 
   /**
    * Clamps the current vector's magnitude mutating it
-   * @param magnitude 
-   * @returns
+   * @param magnitude
    */
   public clampMagnitude(magnitude: number): Vector {
     const size = this.size;

@@ -386,7 +386,7 @@ export class PolygonCollider extends Collider {
    * Get the axis associated with the convex polygon
    */
   public get axes(): Vector[] {
-    const axes: Vector[] = []
+    const axes: Vector[] = [];
     const sides = this.getSides();
     for (let i = 0; i < sides.length; i++) {
       axes.push(sides[i].normal());

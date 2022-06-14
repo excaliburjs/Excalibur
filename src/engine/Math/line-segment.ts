@@ -40,7 +40,7 @@ export class LineSegment {
   private _dir: Vector;
   public dir(): Vector {
     if (this._dir) {
-      return this._dir
+      return this._dir;
     }
     return this._dir = this.end.sub(this.begin);
   }
@@ -55,7 +55,7 @@ export class LineSegment {
    */
   public getSlope(): Vector {
     if (this._slope) {
-      return this._slope
+      return this._slope;
     }
     const begin = this.begin;
     const end = this.end;
