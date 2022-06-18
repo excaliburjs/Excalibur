@@ -50,7 +50,7 @@ var game = new ex.Engine({
   pointerScope: ex.Input.PointerScope.Canvas,
   displayMode: ex.DisplayMode.FitScreenAndFill,
   antialiasing: false,
-  snapToPixel: true,
+  snapToPixel: false,
   maxFps: 60,
   configurePerformanceCanvas2DFallback: {
     allow: true,

@@ -91,7 +91,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- Fixed issue with `ex.Engine.pixelSnap` where positions very close to pixel boundary created jarring 1 pixel oscillations.
+- Fixed issue with `ex.Engine.snapToPixel` where positions very close to pixel boundary created jarring 1 pixel oscillations.
 - Fixed issue where `ex.BoundingBox` overlap return false due to floating point rounding error causing multiple collisions to be evaluated sometimes
 - Fixed issue with `ex.EventDispatcher` where removing a handler that didn't already exist would remove another handler by mistake
 - Fixed issue with `ex.EventDispatcher` where concurrent modifications of the handler list where handlers would or would not fire correctly and throw
@@ -112,6 +112,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- `ex.Engine.snapToPixel` now defaults to `false`
 - Most places where `ex.Matrix` was used have been switched to `ex.AffineMatrix`
 - Most places where `ex.TransformComponent` was used have been switched to `ex.Transform`
 

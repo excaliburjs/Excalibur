@@ -120,7 +120,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _state = new StateStack();
   private _ortho!: Matrix;
 
-  public snapToPixel: boolean = true;
+  public snapToPixel: boolean = false;
 
   public smoothing: boolean = false;
 

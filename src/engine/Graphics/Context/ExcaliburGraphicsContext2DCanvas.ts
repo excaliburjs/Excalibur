@@ -122,7 +122,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this._state.current.tint = color;
   }
 
-  public snapToPixel: boolean = true;
+  public snapToPixel: boolean = false;
 
   public get smoothing(): boolean {
     return this.__ctx.imageSmoothingEnabled;

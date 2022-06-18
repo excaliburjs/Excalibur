@@ -12,7 +12,7 @@ describe('A Sprite Graphic', () => {
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    ctx = new ex.ExcaliburGraphicsContextWebGL({ canvasElement, smoothing: false });
+    ctx = new ex.ExcaliburGraphicsContextWebGL({ canvasElement, smoothing: false, snapToPixel: false });
   });
 
   it('exists', () => {

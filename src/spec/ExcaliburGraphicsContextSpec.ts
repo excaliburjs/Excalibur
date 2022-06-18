@@ -376,7 +376,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
-        backgroundColor: ex.Color.White
+        backgroundColor: ex.Color.White,
+        snapToPixel: false
       });
 
       const tex = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/sword.png');
@@ -425,7 +426,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
-        backgroundColor: ex.Color.White
+        backgroundColor: ex.Color.White,
+        snapToPixel: false
       });
 
       const tex = new ex.ImageSource('src/spec/images/ExcaliburGraphicsContextSpec/sword.png');
@@ -745,7 +747,8 @@ describe('The ExcaliburGraphicsContext', () => {
       const sut = new ex.ExcaliburGraphicsContextWebGL({
         canvasElement: canvasElement,
         enableTransparency: false,
-        backgroundColor: ex.Color.White
+        backgroundColor: ex.Color.White,
+        snapToPixel: false,
       });
 
       sut.clear();

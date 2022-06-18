@@ -15,6 +15,7 @@ export namespace TestUtils {
       suppressMinimumBrowserFeatureDetection: true,
       suppressHiDPIScaling: true,
       suppressPlayButton: true,
+      snapToPixel: false,
       displayMode: ex.DisplayMode.Fixed,
       ...options
     };
