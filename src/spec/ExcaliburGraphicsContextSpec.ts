@@ -748,7 +748,7 @@ describe('The ExcaliburGraphicsContext', () => {
         canvasElement: canvasElement,
         enableTransparency: false,
         backgroundColor: ex.Color.White,
-        snapToPixel: false,
+        snapToPixel: false
       });
 
       sut.clear();
