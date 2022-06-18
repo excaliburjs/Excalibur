@@ -2,7 +2,7 @@ import pointVertexSource from './point-vertex.glsl';
 import pointFragmentSource from './point-fragment.glsl';
 import { Vector } from '../../../Math/vector';
 import { Color } from '../../../Color';
-import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import { ExcaliburGraphicsContextWebGL, pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
 import { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
 import { VertexBuffer } from '../vertex-buffer';
@@ -56,8 +56,14 @@ export class PointRenderer implements RendererPlugin {
 
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
+    const snapToPixel = this._context.snapToPixel;
 
     const finalPoint = transform.multiply(point);
+
+    if (snapToPixel) {
+      finalPoint.x = ~~(finalPoint.x + pixelSnapEpsilon);
+      finalPoint.y = ~~(finalPoint.y + pixelSnapEpsilon);
+    }
 
     const vertexBuffer = this._buffer.bufferData;
     vertexBuffer[this._vertexIndex++] = finalPoint.x;

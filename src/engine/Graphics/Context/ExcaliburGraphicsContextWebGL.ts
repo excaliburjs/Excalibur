@@ -32,6 +32,8 @@ import { CircleRenderer } from './circle-renderer/circle-renderer';
 import { Pool } from '../../Util/Pool';
 import { DrawCall } from './draw-call';
 
+export const pixelSnapEpsilon = 0.0001;
+
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
   constructor(private _webglCtx: ExcaliburGraphicsContextWebGL) {}
@@ -395,7 +397,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   public translate(x: number, y: number): void {
-    this._transform.translate(this.snapToPixel ? ~~(x + .0001) : x, this.snapToPixel ? ~~(y + .0001) : y);
+    this._transform.translate(this.snapToPixel ? ~~(x + pixelSnapEpsilon) : x, this.snapToPixel ? ~~(y + pixelSnapEpsilon) : y);
   }
 
   public rotate(angle: number): void {
