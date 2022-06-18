@@ -208,7 +208,6 @@ export const CollisionJumpTable = {
       // Fudge the contact back to edge
       contact[0].colliderB = edge;
       (contact[0].id as any) = Pair.calculatePairHash(polygon.id, edge.id);
-      // contact[0].info.collider
     }
     return contact;
   },

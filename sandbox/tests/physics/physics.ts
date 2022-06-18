@@ -73,11 +73,17 @@ function spawnCircle(x: number, y: number) {
   game.add(circle);
 }
 
-// var edge = new ex.Actor(200, 300, 5, 5, ex.Color.Blue.clone());
-// edge.body.collisionType = ex.CollisionType.Fixed;
-// edge.collider.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(200, 0));
+var edge = new ex.Actor({
+  x: 200,
+  y:300,
+  width: 5,
+  height: 5, 
+  color: ex.Color.Blue.clone()
+});
+edge.body.collisionType = ex.CollisionType.Fixed;
+edge.collider.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(200, 0));
 // // edge.rx = .4;
-// game.add(edge);
+game.add(edge);
 
 
 // var solid = new ex.Actor(300, 380, 100, 100, ex.Color.Azure.clone());
@@ -122,4 +128,4 @@ game.input.pointers.primary.on('down', (evt: ex.Input.PointerEvent) => {
 
 game.start();
 //@ts-ignore
-const dev = new ex.DevTools.DevTool(game);
+// const dev = new ex.DevTools.DevTool(game);
