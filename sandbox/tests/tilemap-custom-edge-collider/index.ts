@@ -1,14 +1,3 @@
-// Creates a spritesheet
-// var tilesheet = ex.SpriteSheet.fromImageSource({
-//   image: new ex.ImageSource("path/to/source"),
-//   grid: {
-//     rows: 17,
-//     columns: 20,
-//     spriteHeight: 32,
-//     spriteWidth: 32
-//   },
-// });
-
 var game = new ex.Engine({
   width: 800,
   height: 600
@@ -30,9 +19,6 @@ tilemap.tiles.forEach(tile => {
     // tile.addGraphic(tilesheet.getSprite(4, 1));
     // This works right but copies bounds of the tile
     tile.solid = true;
-    tile.clearColliders();
-    // This part doesn't work
-    // tile.addCollider(ex.Shape.Circle(16));
     tile.addCollider(new ex.EdgeCollider({
       begin: new ex.Vector(0, 0),
       end: new ex.Vector(0, 32)
@@ -50,7 +36,7 @@ var edge = new ex.Actor({
   collisionType: ex.CollisionType.Fixed
 });
 
-edge.collider.useEdgeCollider(ex.vec(0, 0), ex.vec(0, 100));
+edge.collider.useEdgeCollider(ex.vec(0, 0), ex.vec(0, 100),);
 game.add(edge);
 
 var player = new ex.Actor({

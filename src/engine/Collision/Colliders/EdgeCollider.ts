@@ -67,22 +67,18 @@ export class EdgeCollider extends Collider {
    * Get the center of the collision area in world coordinates
    */
   public get center(): Vector {
-    const pos = this.begin.average(this.end).add(this._getBodyPos());
+    const begin = this._getTransformedBegin();
+    const end = this._getTransformedEnd();
+    const pos = begin.average(end);
     return pos;
   }
 
-  private _getBodyPos(): Vector {
-    const tx = this._transform;
-    const bodyPos = tx?.globalPos ?? Vector.Zero;
-    return bodyPos;
-  }
-
   private _getTransformedBegin(): Vector {
-    return this._globalMatrix.multiply(this.begin);//.rotate(angle).add(this._getBodyPos());
+    return this._globalMatrix.multiply(this.begin);
   }
 
   private _getTransformedEnd(): Vector {
-    return this._globalMatrix.multiply(this.end);//.rotate(angle).add(this._getBodyPos());
+    return this._globalMatrix.multiply(this.end);
   }
 
   /**
