@@ -1,5 +1,7 @@
 import * as ex from '@excalibur';
+import { TransformComponent } from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
+import { EulerIntegrator } from '../engine/Collision/Integrator';
 
 describe('A TransformComponent', () => {
   beforeAll(() => {
@@ -66,6 +68,9 @@ describe('A TransformComponent', () => {
     const parentTx = parent.get(ex.TransformComponent);
     const childTx = child.get(ex.TransformComponent);
 
+    // Internal transform parentage is correct
+    expect(childTx.get().parent).toBe(parentTx.get());
+
     // Changing a parent position influences the child global position
     parentTx.pos = ex.vec(100, 200);
     expect(childTx.pos).toBeVector(ex.vec(0, 0));
@@ -76,9 +81,18 @@ describe('A TransformComponent', () => {
     expect(parentTx.pos).toBeVector(ex.vec(100, 200));
     expect(childTx.pos).toBeVector(ex.vec(-100, -200));
 
-    // can change pos by prop
+    // Can change pos by prop
     childTx.globalPos.x = 200;
     childTx.globalPos.y = 300;
+    expect(childTx.globalPos.x).toBe(200);
+    expect(childTx.globalPos.y).toBe(300);
+    expect(parentTx.pos).toBeVector(ex.vec(100, 200));
+    expect(childTx.pos).toBeVector(ex.vec(100, 100));
+
+    // Can change global pos by vec
+    childTx.globalPos = ex.vec(200, 300);
+    expect(childTx.globalPos.x).toBe(200);
+    expect(childTx.globalPos.y).toBe(300);
     expect(parentTx.pos).toBeVector(ex.vec(100, 200));
     expect(childTx.pos).toBeVector(ex.vec(100, 100));
   });
@@ -106,9 +120,14 @@ describe('A TransformComponent', () => {
     childTx.globalScale.y = 4;
     expect(parentTx.scale).toBeVector(ex.vec(2, 3));
     expect(childTx.scale).toBeVector(ex.vec(3 / 2, 4 / 3));
+
+    // Can change scale by vec
+    childTx.globalScale = ex.vec(3, 4);
+    expect(parentTx.scale).toBeVector(ex.vec(2, 3));
+    expect(childTx.scale).toBeVector(ex.vec(3 / 2, 4 / 3));
   });
 
-  it('can have parent/child relations with rotation', () => {
+  it('can have parent/child relationships with rotation', () => {
     const parent = new ex.Entity([new ex.TransformComponent()]);
     const child = new ex.Entity([new ex.TransformComponent()]);
     parent.addChild(child);
@@ -141,9 +160,9 @@ describe('A TransformComponent', () => {
     parentTx.scale = ex.vec(2, 3);
 
     expect(childTx.pos).toBeVector(ex.vec(0, 0));
-    expect(childTx.getGlobalTransform().pos).toBeVector(ex.vec(100, 200));
-    expect(childTx.getGlobalTransform().rotation).toBe(Math.PI);
-    expect(childTx.getGlobalTransform().scale).toBeVector(ex.vec(2, 3));
+    expect(childTx.get().globalPos).toBeVector(ex.vec(100, 200));
+    expect(childTx.get().globalRotation).toBe(Math.PI);
+    expect(childTx.get().globalScale).toBeVector(ex.vec(2, 3));
   });
 
   it('can observe a z index change', () => {
@@ -157,25 +176,94 @@ describe('A TransformComponent', () => {
     expect(tx.z).toBe(19);
   });
 
-  it('can observe position change', () => {
-    const tx = new ex.TransformComponent();
-    const posChanged = jasmine.createSpy('posChanged');
-    tx.posChanged$.subscribe(posChanged);
+  it('will only flag the transform dirty once during integration', () => {
+    const transform = new ex.TransformComponent();
+    spyOn(transform.get(), 'flagDirty').and.callThrough();
+    const motion = new ex.MotionComponent();
 
-    tx.pos = ex.vec(10, 10);
-    tx.pos = ex.vec(10, 10); // second vec is the same
-    expect(posChanged).toHaveBeenCalledTimes(1);
+    EulerIntegrator.integrate(transform, motion, ex.Vector.Zero, 16);
 
-    tx.globalPos = ex.vec(1, 1);
-    tx.globalPos = ex.vec(1, 1); // second vec is the same
-    expect(posChanged).toHaveBeenCalledTimes(2);
+    expect(transform.get().flagDirty).toHaveBeenCalledTimes(1);
+  });
 
-    tx.pos.x = 20;
-    tx.pos.x = 20;
-    expect(posChanged).toHaveBeenCalledTimes(3);
+  it('will only flag dirty if the pos coord is different', () => {
+    const transform = new ex.TransformComponent();
+    spyOn(transform.get(), 'flagDirty').and.callThrough();
 
-    tx.globalPos.x = 40;
-    tx.globalPos.x = 40;
-    expect(posChanged).toHaveBeenCalledTimes(4);
+    expect(transform.globalPos).toBeVector(ex.vec(0, 0));
+    transform.pos.x = 0;
+    transform.pos.y = 0;
+    transform.globalPos.x = 0;
+    transform.globalPos.y = 0;
+    expect(transform.get().flagDirty).not.toHaveBeenCalled();
+
+    transform.globalPos.x = 1;
+    expect(transform.get().flagDirty).toHaveBeenCalled();
+  });
+
+  it('will only flag dirty if the rotation coord is different', () => {
+    const transform = new ex.TransformComponent();
+    spyOn(transform.get(), 'flagDirty').and.callThrough();
+
+    expect(transform.globalRotation).toBe(0);
+    transform.rotation = 0;
+    transform.globalRotation = 0;
+    expect(transform.get().flagDirty).not.toHaveBeenCalled();
+
+    transform.globalRotation = 1;
+    expect(transform.get().flagDirty).toHaveBeenCalled();
+  });
+
+  it('will only flag dirty if the scale coord is different', () => {
+    const transform = new ex.TransformComponent();
+    spyOn(transform.get(), 'flagDirty').and.callThrough();
+
+    expect(transform.globalScale).toBeVector(ex.vec(1, 1));
+    transform.scale.x = 1;
+    transform.scale.y = 1;
+    transform.globalScale.x = 1;
+    transform.globalScale.y = 1;
+    expect(transform.get().flagDirty).not.toHaveBeenCalled();
+
+    transform.globalScale.x = 2;
+    expect(transform.get().flagDirty).toHaveBeenCalled();
+  });
+
+  it('can be parented/unparented as a Transform', () => {
+    const child1 = new ex.Transform();
+    const child2 = new ex.Transform();
+    const parent = new ex.Transform();
+    const grandParent = new ex.Transform();
+
+    child1.parent = parent;
+    child2.parent = parent;
+    parent.parent = grandParent;
+
+    expect(child1.children).toEqual([]);
+    expect(parent.children).toEqual([child1, child2]);
+    expect(grandParent.children).toEqual([parent]);
+
+    child2.parent = null;
+    expect(parent.children).toEqual([child1]);
+  });
+
+  it('can be parented/unparented as a TransformComponent', () => {
+    const child1 = new ex.Entity([new TransformComponent]);
+    const child2 = new ex.Entity([new TransformComponent]);
+    const parent = new ex.Entity([new TransformComponent]);
+    const grandParent = new ex.Entity([new TransformComponent]);
+
+    parent.addChild(child1);
+    parent.addChild(child2);
+    grandParent.addChild(parent);
+
+    expect(child1.children).toEqual([]);
+    expect(parent.children).toEqual([child1, child2]);
+    expect(grandParent.children).toEqual([parent]);
+
+    parent.removeChild(child2);
+    expect(parent.children).toEqual([child1]);
+    expect(parent.get(TransformComponent).get().children).toEqual([child1.get(TransformComponent).get()]);
+    expect(child2.get(TransformComponent).get().parent).toBe(null);
   });
 });

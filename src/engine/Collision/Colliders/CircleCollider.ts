@@ -12,8 +12,8 @@ import { Color } from '../../Color';
 import { Collider } from './Collider';
 
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
-import { Transform, TransformComponent } from '../../EntityComponentSystem';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+import { Transform } from '../../Math/transform';
 
 export interface CircleColliderOptions {
   /**
@@ -36,7 +36,7 @@ export class CircleCollider extends Collider {
   public offset: Vector = Vector.Zero;
 
   public get worldPos(): Vector {
-    const tx = this._transform as TransformComponent;
+    const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     const rotation = tx?.globalRotation ?? 0;
     const pos = (tx?.globalPos ?? Vector.Zero);
@@ -49,7 +49,7 @@ export class CircleCollider extends Collider {
    * Get the radius of the circle
    */
   public get radius(): number {
-    const tx = this._transform as TransformComponent;
+    const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     // This is a trade off, the alternative is retooling circles to support ellipse collisions
     return this._naturalRadius * Math.min(scale.x, scale.y);
@@ -59,7 +59,7 @@ export class CircleCollider extends Collider {
    * Set the radius of the circle
    */
   public set radius(val: number) {
-    const tx = this._transform as TransformComponent;
+    const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     // This is a trade off, the alternative is retooling circles to support ellipse collisions
     this._naturalRadius = val / Math.min(scale.x, scale.y);
@@ -87,7 +87,7 @@ export class CircleCollider extends Collider {
    * Get the center of the collider in world coordinates
    */
   public get center(): Vector {
-    const tx = this._transform as TransformComponent;
+    const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     const rotation = tx?.globalRotation ?? 0;
     const pos = (tx?.globalPos ?? Vector.Zero);
@@ -199,7 +199,7 @@ export class CircleCollider extends Collider {
    * Get the axis aligned bounding box for the circle collider in world coordinates
    */
   public get bounds(): BoundingBox {
-    const tx = this._transform as TransformComponent;
+    const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     const rotation = tx?.globalRotation ?? 0;
     const pos = (tx?.globalPos ?? Vector.Zero);
@@ -257,7 +257,7 @@ export class CircleCollider extends Collider {
   }
 
   public debug(ex: ExcaliburGraphicsContext, color: Color) {
-    const tx = this._transform as TransformComponent;
+    const tx = this._transform;
     const scale = tx?.globalScale ?? Vector.One;
     const rotation = tx?.globalRotation ?? 0;
     const pos = (tx?.globalPos ?? Vector.Zero);

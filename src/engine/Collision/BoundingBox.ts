@@ -1,9 +1,9 @@
-import { vec, Vector } from '../Math/vector';
+import { Vector } from '../Math/vector';
 import { Ray } from '../Math/ray';
 import { Color } from '../Color';
 import { Side } from './Side';
 import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
-import { Matrix } from '../Math/matrix';
+import { AffineMatrix } from '../Math/affine-matrix';
 
 export interface BoundingBoxOptions {
   left: number;
@@ -161,24 +161,39 @@ export class BoundingBox {
    * Transform the axis aligned bounding box by a [[Matrix]], producing a new axis aligned bounding box
    * @param matrix
    */
-  public transform(matrix: Matrix) {
-    const matFirstColumn = vec(matrix.data[0], matrix.data[1]);
-    const xa = matFirstColumn.scale(this.left);
-    const xb = matFirstColumn.scale(this.right);
+  public transform(matrix: AffineMatrix) {
+    // inlined these calculations to not use vectors would speed it up slightly
+    // const matFirstColumn = vec(matrix.data[0], matrix.data[1]);
+    // const xa = matFirstColumn.scale(this.left);
+    const xa1 = matrix.data[0] * this.left;
+    const xa2 = matrix.data[1] * this.left;
 
-    const matSecondColumn = vec(matrix.data[4], matrix.data[5]);
-    const ya = matSecondColumn.scale(this.top);
-    const yb = matSecondColumn.scale(this.bottom);
+    // const xb = matFirstColumn.scale(this.right);
+    const xb1 = matrix.data[0] * this.right;
+    const xb2 = matrix.data[1] * this.right;
+
+    // const matSecondColumn = vec(matrix.data[2], matrix.data[3]);
+    // const ya = matSecondColumn.scale(this.top);
+    const ya1 = matrix.data[2] * this.top;
+    const ya2 = matrix.data[3] * this.top;
+
+    // const yb = matSecondColumn.scale(this.bottom);
+    const yb1 = matrix.data[2] * this.bottom;
+    const yb2 = matrix.data[3] * this.bottom;
 
     const matrixPos = matrix.getPosition();
-    const topLeft = Vector.min(xa, xb).add(Vector.min(ya, yb)).add(matrixPos);
-    const bottomRight = Vector.max(xa, xb).add(Vector.max(ya, yb)).add(matrixPos);
+    // const topLeft = Vector.min(xa, xb).add(Vector.min(ya, yb)).add(matrixPos);
+    // const bottomRight = Vector.max(xa, xb).add(Vector.max(ya, yb)).add(matrixPos);
+    const left = Math.min(xa1, xb1) + Math.min(ya1, yb1) + matrixPos.x;
+    const top = Math.min(xa2, xb2) + Math.min(ya2, yb2) + matrixPos.y;
+    const right = Math.max(xa1, xb1) + Math.max(ya1, yb1) + matrixPos.x;
+    const bottom = Math.max(xa2, xb2) + Math.max(ya2, yb2) + matrixPos.y;
 
     return new BoundingBox({
-      left: topLeft.x,
-      top: topLeft.y,
-      right: bottomRight.x,
-      bottom: bottomRight.y
+      left,//: topLeft.x,
+      top,//: topLeft.y,
+      right,//: bottomRight.x,
+      bottom//: bottomRight.y
     });
   }
 
@@ -292,8 +307,11 @@ export class BoundingBox {
   /**
    * Returns true if the bounding boxes overlap.
    * @param other
+   * @param epsilon Optionally specify a small epsilon (default 0) as amount of overlap to ignore as overlap.
+   * This epsilon is useful in stable collision simulations.
    */
-  public overlaps(other: BoundingBox): boolean {
+  public overlaps(other: BoundingBox, epsilon?: number): boolean {
+    const e = epsilon || 0;
     if (other.hasZeroDimensions()){
       return this.contains(other);
     }
@@ -301,8 +319,8 @@ export class BoundingBox {
       return other.contains(this);
     }
     const totalBoundingBox = this.combine(other);
-    return totalBoundingBox.width < other.width + this.width &&
-           totalBoundingBox.height < other.height + this.height;
+    return totalBoundingBox.width + e < other.width + this.width &&
+           totalBoundingBox.height + e < other.height + this.height;
   }
 
   /**

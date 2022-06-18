@@ -17,7 +17,7 @@ export class Matrix {
    *  4x4 matrix in column major order
    *
    * |         |         |          |          |
-   * | ------- | ------- | -------- |          |
+   * | ------- | ------- | -------- | -------- |
    * | data[0] | data[4] | data[8]  | data[12] |
    * | data[1] | data[5] | data[9]  | data[13] |
    * | data[2] | data[6] | data[10] | data[14] |
@@ -95,6 +95,12 @@ export class Matrix {
    */
   public toDOMMatrix(): DOMMatrix {
     return new DOMMatrix([...this.data]);
+  }
+
+  public static fromFloat32Array(data: Float32Array) {
+    const matrix =  new Matrix();
+    matrix.data = data;
+    return matrix;
   }
 
   /**
@@ -427,22 +433,33 @@ export class Matrix {
     return vec(this.getScaleX(), this.getScaleY());
   }
 
+  private _scaleX = 1;
   private _scaleSignX = 1;
   public setScaleX(val: number) {
+    if (this._scaleX === val) {
+      return;
+    }
+
     this._scaleSignX = sign(val);
     // negative scale acts like a 180 rotation, so flip
     const xscale = vec(this.data[0] * this._scaleSignX, this.data[4] * this._scaleSignX).normalize();
     this.data[0] = xscale.x * val;
     this.data[4] = xscale.y * val;
+    this._scaleX = val;
   }
 
+  private _scaleY = 1;
   private _scaleSignY = 1;
   public setScaleY(val: number) {
+    if (this._scaleY === val) {
+      return;
+    }
     this._scaleSignY = sign(val);
     // negative scale acts like a 180 rotation, so flip
     const yscale = vec(this.data[1] * this._scaleSignY, this.data[5] * this._scaleSignY).normalize();
     this.data[1] = yscale.x * val;
     this.data[5] = yscale.y * val;
+    this._scaleY = val;
   }
 
   public setScale(scale: Vector) {

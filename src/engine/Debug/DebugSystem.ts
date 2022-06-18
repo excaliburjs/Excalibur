@@ -3,13 +3,14 @@ import { Scene } from '../Scene';
 import { Camera } from '../Camera';
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { ColliderComponent } from '../Collision/ColliderComponent';
-import { CoordPlane, Entity, TransformComponent } from '../EntityComponentSystem';
+import { Entity, TransformComponent } from '../EntityComponentSystem';
 import { System, SystemType } from '../EntityComponentSystem/System';
 import { ExcaliburGraphicsContext } from '../Graphics/Context/ExcaliburGraphicsContext';
 import { vec, Vector } from '../Math/vector';
 import { toDegrees } from '../Math/util';
 import { BodyComponent, CollisionSystem, CompositeCollider, GraphicsComponent, Particle } from '..';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
+import { CoordPlane } from '../Math/coord-plane';
 
 export class DebugSystem extends System<TransformComponent> {
   public readonly types = ['ex.transform'] as const;
@@ -106,7 +107,7 @@ export class DebugSystem extends System<TransformComponent> {
         }
 
         if (entitySettings.showAll || entitySettings.showId) {
-          this._graphicsContext.debug.drawText(`id(${id}) ${tx.parent ? 'child of id(' + tx.parent?.owner?.id + ')' : ''}`, cursor);
+          this._graphicsContext.debug.drawText(`id(${id}) ${entity.parent ? 'child of id(' + entity.parent?.id + ')' : ''}`, cursor);
           cursor = cursor.add(lineHeight);
         }
 

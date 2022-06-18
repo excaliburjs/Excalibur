@@ -28,7 +28,7 @@ import { PointerEvents } from './Interfaces/PointerEventHandlers';
 import { CollisionType } from './Collision/CollisionType';
 
 import { Entity } from './EntityComponentSystem/Entity';
-import { CoordPlane, TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
+import { TransformComponent } from './EntityComponentSystem/Components/TransformComponent';
 import { MotionComponent } from './EntityComponentSystem/Components/MotionComponent';
 import { GraphicsComponent } from './Graphics/GraphicsComponent';
 import { Rectangle } from './Graphics/Rectangle';
@@ -43,6 +43,7 @@ import { PointerComponent } from './Input/PointerComponent';
 import { ActionsComponent } from './Actions/ActionsComponent';
 import { Raster } from './Graphics/Raster';
 import { Text } from './Graphics/Text';
+import { CoordPlane } from './Math/coord-plane';
 
 /**
  * Type guard for checking if something is an Actor

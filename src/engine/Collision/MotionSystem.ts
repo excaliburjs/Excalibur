@@ -12,14 +12,14 @@ export class MotionSystem extends System<TransformComponent | MotionComponent> {
   public systemType = SystemType.Update;
   public priority = -1;
 
-  update(_entities: Entity[], elapsedMs: number): void {
+  update(entities: Entity[], elapsedMs: number): void {
     let transform: TransformComponent;
     let motion: MotionComponent;
-    for (const entity of _entities) {
-      transform = entity.get(TransformComponent);
-      motion = entity.get(MotionComponent);
+    for (let i = 0; i < entities.length; i++) {
+      transform = entities[i].get(TransformComponent);
+      motion = entities[i].get(MotionComponent);
 
-      const optionalBody = entity.get(BodyComponent);
+      const optionalBody = entities[i].get(BodyComponent);
       if (optionalBody?.sleeping) {
         continue;
       }

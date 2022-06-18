@@ -57,7 +57,7 @@ describe('An Event Dispatcher', () => {
     pubsub.emit('event', null);
     expect(eventHistory).toEqual(subscriptions);
 
-    pubsub.off('event');
+    pubsub.off('event'); // clear all handlers
     subscriptions.push(subscriptions.shift());
 
     eventHistory = [];
@@ -115,5 +115,49 @@ describe('An Event Dispatcher', () => {
     pubsub.emit('onlyonce', null);
 
     expect(callCount).toBe(1, 'There should only be one call to the handler with once.');
+  });
+
+  it('will handle remove invalid handler', () => {
+    const eventSpy1 = jasmine.createSpy('handler');
+    const eventSpy2 = jasmine.createSpy('handler');
+    const eventSpy3 = jasmine.createSpy('handler');
+    const dispatcher = new ex.EventDispatcher();
+    dispatcher.on('foo', () => eventSpy1());
+    dispatcher.on('foo', () => eventSpy2());
+    dispatcher.on('foo', () => eventSpy3());
+    dispatcher.off('foo', () => 'invalid');
+    dispatcher.emit('foo', null);
+
+    expect(eventSpy1).toHaveBeenCalled();
+    expect(eventSpy2).toHaveBeenCalled();
+    expect(eventSpy3).toHaveBeenCalled();
+    expect(eventSpy1).toHaveBeenCalledBefore(eventSpy2);
+    expect(eventSpy2).toHaveBeenCalledBefore(eventSpy3);
+  });
+
+  it('once will remove the handler correctly', () => {
+    const eventSpy1 = jasmine.createSpy('handler');
+    const eventSpy2 = jasmine.createSpy('handler');
+    const eventSpy3 = jasmine.createSpy('handler');
+    const dispatcher = new ex.EventDispatcher();
+    dispatcher.once('foo', () => eventSpy1());
+    dispatcher.on('foo', () => eventSpy2());
+    dispatcher.on('foo', () => eventSpy3());
+    dispatcher.emit('foo', null);
+    dispatcher.emit('foo', null);
+
+    expect(eventSpy1).toHaveBeenCalledTimes(1);
+    expect(eventSpy2).toHaveBeenCalledTimes(2);
+    expect(eventSpy3).toHaveBeenCalledTimes(2);
+  });
+
+  it('should not fail if event handlers change during iteration', () => {
+    expect(() => {
+      const dispatcher = new ex.EventDispatcher();
+      dispatcher.once('foo', () => 'foo1');
+      dispatcher.on('foo', () => 'foo2');
+      dispatcher.on('foo', () => 'foo3');
+      dispatcher.emit('foo', null);
+    }).not.toThrow();
   });
 });

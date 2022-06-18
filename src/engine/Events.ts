@@ -51,9 +51,6 @@ export enum EventTypes {
   Button = 'button',
   Axis = 'axis',
 
-  Subscribe = 'subscribe',
-  Unsubscribe = 'unsubscribe',
-
   Visible = 'visible',
   Hidden = 'hidden',
   Start = 'start',
@@ -360,26 +357,6 @@ export class GamepadAxisEvent extends GameEvent<Input.Gamepad> {
    * @param value A numeric value between -1 and 1
    */
   constructor(public axis: Input.Axes, public value: number, public target: Input.Gamepad) {
-    super();
-  }
-}
-
-/**
- * Subscribe event thrown when handlers for events other than subscribe are added. Meta event that is received by
- * [[EventDispatcher|event dispatchers]].
- */
-export class SubscribeEvent<T> extends GameEvent<T> {
-  constructor(public topic: string, public handler: (event: GameEvent<T>) => void) {
-    super();
-  }
-}
-
-/**
- * Unsubscribe event thrown when handlers for events other than unsubscribe are removed. Meta event that is received by
- * [[EventDispatcher|event dispatchers]].
- */
-export class UnsubscribeEvent<T> extends GameEvent<T> {
-  constructor(public topic: string, public handler: (event: GameEvent<T>) => void) {
     super();
   }
 }

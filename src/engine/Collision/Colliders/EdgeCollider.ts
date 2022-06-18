@@ -11,8 +11,8 @@ import { Ray } from '../../Math/ray';
 import { Color } from '../../Color';
 import { Collider } from './Collider';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
-import { Transform, TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+import { Transform } from '../../Math/transform';
 
 export interface EdgeColliderOptions {
   /**
@@ -57,7 +57,7 @@ export class EdgeCollider extends Collider {
   }
 
   public get worldPos(): Vector {
-    const tx = this._transform as TransformComponent;
+    const tx = this._transform;
     return tx?.globalPos.add(this.offset) ?? this.offset;
   }
 
@@ -70,19 +70,19 @@ export class EdgeCollider extends Collider {
   }
 
   private _getBodyPos(): Vector {
-    const tx = this._transform as TransformComponent;
+    const tx = this._transform;
     const bodyPos = tx?.globalPos ?? Vector.Zero;
     return bodyPos;
   }
 
   private _getTransformedBegin(): Vector {
-    const tx = this._transform as TransformComponent;
+    const tx = this._transform;
     const angle = tx ? tx.globalRotation : 0;
     return this.begin.rotate(angle).add(this._getBodyPos());
   }
 
   private _getTransformedEnd(): Vector {
-    const tx = this._transform as TransformComponent;
+    const tx = this._transform;
     const angle = tx ? tx.globalRotation : 0;
     return this.end.rotate(angle).add(this._getBodyPos());
   }

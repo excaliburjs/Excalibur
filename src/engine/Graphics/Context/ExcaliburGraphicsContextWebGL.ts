@@ -31,6 +31,7 @@ import { RectangleRenderer } from './rectangle-renderer/rectangle-renderer';
 import { CircleRenderer } from './circle-renderer/circle-renderer';
 import { Pool } from '../../Util/Pool';
 import { DrawCall } from './draw-call';
+import { AffineMatrix } from '../../Math/affine-matrix';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -97,7 +98,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       instance.renderer = undefined;
       instance.args = undefined;
       return instance;
-    });
+    }, 4000);
   private _drawCalls: DrawCall[] = [];
 
   // Main render target
@@ -194,6 +195,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this.backgroundColor = backgroundColor ?? this.backgroundColor;
     this.useDrawSorting = useDrawSorting ?? this.useDrawSorting;
     this._drawCallPool.disableWarnings = true;
+    this._drawCallPool.preallocate();
     this._init();
   }
 
@@ -316,7 +318,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   public resetTransform(): void {
-    this._transform.current = Matrix.identity();
+    this._transform.current = AffineMatrix.identity();
   }
 
   public updateViewport(resolution: ScreenDimension): void {
@@ -408,16 +410,16 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._transform.scale(x, y);
   }
 
-  public transform(matrix: Matrix) {
+  public transform(matrix: AffineMatrix) {
     this._transform.current = matrix;
   }
 
-  public getTransform(): Matrix {
+  public getTransform(): AffineMatrix {
     return this._transform.current;
   }
 
-  public multiply(m: Matrix) {
-    this._transform.current = this._transform.current.multiply(m);
+  public multiply(m: AffineMatrix) {
+    this._transform.current.multiply(m, this._transform.current);
   }
 
   public addPostProcessor(postprocessor: PostProcessor) {

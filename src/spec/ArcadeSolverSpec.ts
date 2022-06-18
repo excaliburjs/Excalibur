@@ -125,7 +125,7 @@ describe('An ArcadeSolver', () => {
     expect(contact2.isCanceled()).toBeTrue();
   });
 
-  it('should cancel collisions where the bodies are moving away from the contact', () => {
+  it('should NOT cancel collisions where the bodies are moving away from the contact', () => {
 
     const arcadeSolver = new ex.ArcadeSolver();
 
@@ -152,8 +152,8 @@ describe('An ArcadeSolver', () => {
     const contact = new ex.CollisionContact(
       player.collider.get(), block.collider.get(), ex.Vector.Down, ex.Vector.Down, ex.Vector.Up.perpendicular(), [], [], null);
     arcadeSolver.solveVelocity(contact);
-    expect(contact.isCanceled()).toBeTrue();
-    expect(player.vel).toBeVector(ex.vec(0, -10));
+    expect(contact.isCanceled()).toBeFalse();
+    expect(player.vel).toBeVector(ex.vec(0, -10)); // Velocity is not adjusted
 
     // Player moving towards contact
     player.vel = player.vel.negate();
@@ -162,6 +162,72 @@ describe('An ArcadeSolver', () => {
 
     arcadeSolver.solveVelocity(contact2);
     expect(contact2.isCanceled()).toBeFalse();
-    expect(player.vel).toBeVector(ex.Vector.Zero);
+    expect(player.vel).toBeVector(ex.Vector.Zero); // Velocity is adjusted
+  });
+
+  it('should cancel near zero mtv collisions', () => {
+    const arcadeSolver = new ex.ArcadeSolver();
+
+    const player = new ex.Actor({
+      x: 0,
+      y: 0,
+      width: 40,
+      height: 40,
+      collisionType: ex.CollisionType.Active,
+      color: ex.Color.Red
+    });
+
+    const block = new ex.Actor({
+      x: 39.9999,
+      y: 39.9999,
+      width: 40,
+      height: 40,
+      collisionType: ex.CollisionType.Fixed,
+      color: ex.Color.Green
+    });
+
+    const contact = new ex.CollisionContact(
+      player.collider.get(),
+      block.collider.get(),
+      ex.Vector.Down.scale(.00009),
+      ex.Vector.Down,
+      ex.Vector.Up.perpendicular(),
+      [],
+      [],
+      null
+    );
+
+    arcadeSolver.solvePosition(contact);
+
+    expect(contact.isCanceled()).toBe(true);
+  });
+
+  it('should cancel near zero overlap collisions', () => {
+    const arcadeSolver = new ex.ArcadeSolver();
+
+    const player = new ex.Actor({
+      x: 0,
+      y: 0,
+      width: 40,
+      height: 40,
+      collisionType: ex.CollisionType.Active,
+      color: ex.Color.Red
+    });
+
+    const block = new ex.Actor({
+      x: 40,
+      y: 0,
+      width: 40 + .00005,
+      height: 40,
+      collisionType: ex.CollisionType.Fixed,
+      color: ex.Color.Green
+    });
+
+    const contact = new ex.CollisionContact(
+      player.collider.get(), block.collider.get(), ex.Vector.Down, ex.Vector.Down, ex.Vector.Up.perpendicular(), [], [], null);
+
+    arcadeSolver.solvePosition(contact);
+    // Considers infinitesimally overlapping to no longer be overlapping and thus cancels the contact
+    expect(contact.isCanceled()).toBe(true);
   });
 });

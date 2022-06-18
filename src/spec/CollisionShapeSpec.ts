@@ -72,7 +72,7 @@ describe('Collision Shape', () => {
       expect(sut.radius).toBe(10);
 
       actor.transform.scale = ex.vec(2, 2);
-      sut.update(actor.transform);
+      sut.update(actor.transform.get());
       expect(sut.radius).toBe(20);
 
       sut.radius = 40;
@@ -80,7 +80,7 @@ describe('Collision Shape', () => {
 
       sut.radius = 20;
       actor.transform.scale = ex.vec(1, 3);
-      sut.update(actor.transform);
+      sut.update(actor.transform.get());
       expect(sut.radius).withContext('Uneven scale take the smallest').toBe(10);
     });
 
@@ -90,7 +90,7 @@ describe('Collision Shape', () => {
       sut.offset = ex.vec(100, 0);
       actor.transform.scale = ex.vec(2, 2);
       actor.transform.rotation = Math.PI / 2;
-      sut.update(actor.transform);
+      sut.update(actor.transform.get());
 
       const expected = new ex.BoundingBox({
         left: -20,
@@ -117,7 +117,7 @@ describe('Collision Shape', () => {
 
       sut.offset = ex.vec(100, 0);
       actor.transform.rotation = Math.PI / 2;
-      sut.update(actor.transform);
+      sut.update(actor.transform.get());
 
       expect(sut.center).toBeVector(ex.vec(0, 100));
     });
@@ -223,7 +223,7 @@ describe('Collision Shape', () => {
       const actor2 = new ex.Actor({ x: 21, y: 0, width: 10, height: 10 });
       const circle2 = actor2.collider.useCircleCollider(10);
       actor2.collider.update();
-      circle2.update(actor2.transform);
+      circle2.update(actor2.transform.get());
 
       const contact = circle.collide(circle2);
 
@@ -235,7 +235,7 @@ describe('Collision Shape', () => {
       const actor2 = new ex.Actor({ x: 14.99, y: 0, width: 10, height: 10 }); // meh close enough
       const poly = actor2.collider.usePolygonCollider(actor2.collider.localBounds.getPoints());
       actor2.collider.update();
-      poly.update(actor2.transform);
+      poly.update(actor2.transform.get());
       const directionOfBodyB = poly.center.sub(circle.center);
       const contact = circle.collide(poly)[0];
 
@@ -256,7 +256,7 @@ describe('Collision Shape', () => {
       const actor2 = new ex.Actor({ x: 16, y: 0, width: 10, height: 10 });
       const poly = actor2.collider.usePolygonCollider(actor2.collider.localBounds.getPoints());
       actor2.collider.update();
-      poly.update(actor2.transform);
+      poly.update(actor2.transform.get());
       const contact = circle.collide(poly);
 
       // there should not be a collision contact formed
@@ -350,7 +350,7 @@ describe('Collision Shape', () => {
 
       ctx.clear();
       actor.transform.scale = ex.vec(2, 2);
-      circle.update(actor.transform);
+      circle.update(actor.transform.get());
 
       circle.debug(ctx, ex.Color.Red);
 
