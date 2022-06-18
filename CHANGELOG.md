@@ -90,6 +90,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Add target element id to `ex.Screen.goFullScreen('some-element-id')` to influence the fullscreen element in the fullscreen browser API.
 
 ### Fixed
+- Fixed issue where `ex.EdgeCollider` were not working properly in `ex.CompositeCollider` for `ex.TileMap`'s
 - Fixed issue where `ex.BoundingBox` overlap return false due to floating point rounding error causing multiple collisions to be evaluated sometimes
 - Fixed issue with `ex.EventDispatcher` where removing a handler that didn't already exist would remove another handler by mistake
 - Fixed issue with `ex.EventDispatcher` where concurrent modifications of the handler list where handlers would or would not fire correctly and throw
