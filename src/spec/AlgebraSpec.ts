@@ -260,7 +260,7 @@ describe('Vectors', () => {
     expect(sut).toBeVector(ex.vec(2, 1));
   });
 
-  fit('can clamp the vectors magnitude', () => {
+  it('can clamp the vectors magnitude', () => {
     const sut = new ex.Vector(10, 5);
     const before = sut.normalize();
 

@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-fdescribe('A body component', () => {
+describe('A body component', () => {
   it('exists', () => {
     expect(ex.BodyComponent).toBeDefined();
   });
