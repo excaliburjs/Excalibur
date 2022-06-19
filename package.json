@@ -118,6 +118,9 @@
     "core-js": "3.22.5"
   },
   "overrides": {
+    "typedoc": {
+      "typescript": ">=4.7.4"
+    },
     "istanbul-instrumenter-loader" : {
       "webpack": ">=5.68.0"
     }
