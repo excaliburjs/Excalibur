@@ -4,11 +4,16 @@ import { Loadable } from '../Interfaces/Index';
 import { Logger } from '../Util/Log';
 import { TextureLoader } from '.';
 import { ImageFiltering } from './Filtering';
+import { Semaphore } from '../Util/Semaphore';
 
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _logger = Logger.getInstance();
   private _resource: Resource<Blob>;
   private _filtering: ImageFiltering;
+  // Work around chromium bugs:
+  // https://bugs.chromium.org/p/chromium/issues/detail?id=1055828#c7
+  // https://bugs.chromium.org/p/chromium/issues/detail?id=606319
+  private _decodeSemaphore = new Semaphore(256);
 
   /**
    * The original size of the source image in pixels
@@ -89,7 +94,9 @@ export class ImageSource implements Loadable<HTMLImageElement> {
       const image = new Image();
       image.src = url;
       image.setAttribute('data-original-src', this.path);
+      await this._decodeSemaphore.enter();
       await image.decode();
+      this._decodeSemaphore.exit();
 
       // Set results
       this.data = image;
