@@ -1,67 +1,41 @@
-class Future<T> {
-  private resolver: (value: T) => void; // readonly
-  private rejecter: (error: Error) => void; // readonly
-  private _isCompleted: boolean = false;
-
-  constructor() {
-      this.promise = new Promise((resolve, reject) => {
-          this.resolver = resolve;
-          this.rejecter = reject;
-      });
-  }
-
-  public readonly promise: Promise<T>;
-  
-  public get isCompleted(): boolean {
-      return this._isCompleted;
-  }
-
-  public resolve(value: T): void {
-      if (this._isCompleted) {
-          return;
-      }
-      this._isCompleted = true;
-      this.resolver(value);
-  }
-
-  public reject(error: Error): void {
-      if (this._isCompleted) {
-          return;
-      }
-      this._isCompleted = true;
-      this.rejecter(error);
-  }
-}
+import { Future } from './Future';
 
 class AsyncWaitQueue<T> {
-  private queue: Future<T>[] = [];
+  // Code from StephenCleary https://gist.github.com/StephenCleary/ba50b2da419c03b9cba1d20cb4654d5e
+  private _queue: Future<T>[] = [];
 
   public get length(): number {
-      return this.queue.length;
+    return this._queue.length;
   }
 
   public enqueue(): Promise<T> {
-      let future = new Future<T>();
-      this.queue.push(future);
-      return future.promise;
+    const future = new Future<T>();
+    this._queue.push(future);
+    return future.promise;
   }
 
   public dequeue(value: T): void {
-      let future = this.queue.shift();
-      future.resolve(value);
+    const future = this._queue.shift();
+    future.resolve(value);
   }
 
   public dequeueAll(value: T): void {
-      this.queue.forEach(x => x.resolve(value));
-      this.queue = [];
+    this._queue.forEach(x => x.resolve(value));
+    this._queue = [];
   }
 }
 
+/**
+ * Semaphore allows you to limit the amount of async calls happening between `enter()` and `exit()`
+ *
+ * This can be useful when limiting the number of http calls, browser api calls, etc either for performance or to work
+ * around browser limitations like max Image.decode() calls in chromium being 256.
+ */
 export class Semaphore {
   private _count = 0;
   private _waitQueue = new AsyncWaitQueue();
-  constructor(private _maxCalls: number) {}
-  
+  constructor(private _maxCalls: number) { }
+
   public async enter() {
     if (this._count < this._maxCalls) {
       this._count++;
@@ -72,12 +46,12 @@ export class Semaphore {
 
   public exit(count: number = 1) {
     if (count === 0) {
-        return;
+      return;
     }
     while (count !== 0 && this._waitQueue.length !== 0) {
-        this._waitQueue.dequeue(null);
-        --count;
-        this._count--;
+      this._waitQueue.dequeue(null);
+      --count;
+      this._count--;
     }
   }
 }
