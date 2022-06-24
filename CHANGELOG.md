@@ -15,6 +15,24 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
+- Added new `ex.Future` type which is a convenient way of wrapping a native browser promise and resolving/rejecting later
+  ```typescript
+  const future = new ex.Future();
+  const promise = future.promise; // returns promise
+  promise.then(() => {
+    console.log('Resolved!');
+  });
+  future.resolve(); // resolved promise
+  ```
+- Added new `ex.Semaphore` type to limit the number of concurrent cans in a section of code, this is used internally to work around a chrome browser limitation, but can be useful for throttling network calls or even async game events.
+  ```typescript
+  const semaphore = new ex.Semaphore(10); // Only allow 10 concurrent between enter() and exit()
+  ...
+
+  await semaphore.enter();
+  await methodToBeLimited();
+  semaphore.exit();
+  ```
 - Added new `ex.WatchVector` type that can observe changes to x/y more efficiently than `ex.watch()`
 - Added performance improvements 
    * `ex.Vector.distance` improvement

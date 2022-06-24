@@ -18,11 +18,6 @@ class AsyncWaitQueue<T> {
     const future = this._queue.shift();
     future.resolve(value);
   }
-
-  public dequeueAll(value: T): void {
-    this._queue.forEach(x => x.resolve(value));
-    this._queue = [];
-  }
 }
 
 /**
@@ -37,6 +32,10 @@ export class Semaphore {
 
   public get count() {
     return this._count;
+  }
+
+  public get waiting() {
+    return this._waitQueue.length;
   }
 
   public async enter() {

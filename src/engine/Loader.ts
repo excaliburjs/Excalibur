@@ -13,7 +13,6 @@ import { delay } from './Util/Util';
 import { ImageFiltering } from './Graphics/Filtering';
 import { clamp } from './Math/util';
 import { Sound } from './Resources/Sound/Sound';
-// import { ImageSource } from './Graphics';
 import { Semaphore } from './Util/Semaphore';
 import { Future } from './Util/Future';
 
