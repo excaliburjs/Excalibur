@@ -4,16 +4,12 @@ import { Loadable } from '../Interfaces/Index';
 import { Logger } from '../Util/Log';
 import { TextureLoader } from '.';
 import { ImageFiltering } from './Filtering';
-import { Semaphore } from '../Util/Semaphore';
+import { Future } from '../Util/Future';
 
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _logger = Logger.getInstance();
   private _resource: Resource<Blob>;
   private _filtering: ImageFiltering;
-  // Work around chromium bugs:
-  // https://bugs.chromium.org/p/chromium/issues/detail?id=1055828#c7
-  // https://bugs.chromium.org/p/chromium/issues/detail?id=606319
-  private _decodeSemaphore = new Semaphore(256);
 
   /**
    * The original size of the source image in pixels
@@ -50,11 +46,11 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     return this.data;
   }
 
+  private _readyFuture = new Future<HTMLImageElement>();
   /**
    * Promise the resolves when the image is loaded and ready for use, does not initiate loading
    */
-  public ready: Promise<HTMLImageElement>;
-  private _loadedResolve: (value?: HTMLImageElement | PromiseLike<HTMLImageElement>) => void;
+  public ready: Promise<HTMLImageElement> = this._readyFuture.promise;
 
   /**
    * The path to the image, can also be a data url like 'data:image/'
@@ -68,9 +64,6 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     if (path.endsWith('.svg') || path.endsWith('.gif')) {
       this._logger.warn(`Image type is not fully supported, you may have mixed results ${path}. Fully supported: jpg, bmp, and png`);
     }
-    this.ready = new Promise<HTMLImageElement>((resolve) => {
-      this._loadedResolve = resolve;
-    });
   }
 
   /**
@@ -94,9 +87,8 @@ export class ImageSource implements Loadable<HTMLImageElement> {
       const image = new Image();
       image.src = url;
       image.setAttribute('data-original-src', this.path);
-      await this._decodeSemaphore.enter();
+
       await image.decode();
-      this._decodeSemaphore.exit();
 
       // Set results
       this.data = image;
@@ -105,7 +97,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     }
     TextureLoader.load(this.data, this._filtering);
     // todo emit complete
-    this._loadedResolve(this.data);
+    this._readyFuture.resolve(this.data);
     return this.data;
   }
 

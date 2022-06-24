@@ -32,13 +32,16 @@ class AsyncWaitQueue<T> {
  * around browser limitations like max Image.decode() calls in chromium being 256.
  */
 export class Semaphore {
-  private _count = 0;
   private _waitQueue = new AsyncWaitQueue();
-  constructor(private _maxCalls: number) { }
+  constructor(private _count: number) { }
+
+  public get count() {
+    return this._count;
+  }
 
   public async enter() {
-    if (this._count < this._maxCalls) {
-      this._count++;
+    if (this._count !== 0) {
+      this._count--;
       return Promise.resolve();
     }
     return this._waitQueue.enqueue();
@@ -50,8 +53,8 @@ export class Semaphore {
     }
     while (count !== 0 && this._waitQueue.length !== 0) {
       this._waitQueue.dequeue(null);
-      --count;
-      this._count--;
+      count--;
     }
+    this._count += count;
   }
 }

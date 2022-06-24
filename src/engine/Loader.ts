@@ -13,6 +13,9 @@ import { delay } from './Util/Util';
 import { ImageFiltering } from './Graphics/Filtering';
 import { clamp } from './Math/util';
 import { Sound } from './Resources/Sound/Sound';
+// import { ImageSource } from './Graphics';
+import { Semaphore } from './Util/Semaphore';
+import { Future } from './Util/Future';
 
 /**
  * Pre-loading assets
@@ -310,12 +313,9 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
 
   data: Loadable<any>[];
 
-  private _isLoadedResolve: () => any;
-  private _isLoadedPromise = new Promise<void>(resolve => {
-    this._isLoadedResolve = resolve;
-  });
+  private _loadingFuture = new Future<void>;
   public areResourcesLoaded() {
-    return this._isLoadedPromise;
+    return this._loadingFuture.promise;
   }
 
   /**
@@ -325,14 +325,31 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
   public async load(): Promise<Loadable<any>[]> {
     await this._image?.decode(); // decode logo if it exists
 
+    // Work around chromium bugs:
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=1055828#c7
+    // Only 256 calls allowed to image.decode() in chromium
+    // 254 + 2 engine decode calls (logo decode + debug text decode)
+    const sem = new Semaphore(254);
+
     await Promise.all(
-      this._resourceList.map((r) =>
-        r.load().finally(() => {
+      this._resourceList.map(async (r) => {
+        await sem.enter();
+        await r.load().finally(() => {
           // capture progress
           this._numLoaded++;
           this.canvas.flagDirty();
-        })
-      )
+        });
+        // We must exit the semaphore on the next clock tick (rAF)
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=1055828#c7
+        // Otherwise chrome will throw still Image.decode() failures
+        if (this._engine) {
+          this._engine?.clock.schedule(() => {
+            sem.exit();
+          });
+        } else {
+          sem.exit();
+        }
+      })
     );
     // Wire all sound to the engine
     for (const resource of this._resourceList) {
@@ -341,7 +358,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
       }
     }
 
-    this._isLoadedResolve();
+    this._loadingFuture.resolve();
 
     // short delay in showing the button for aesthetics
     await delay(200, this._engine?.clock);
