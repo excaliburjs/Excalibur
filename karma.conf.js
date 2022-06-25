@@ -110,7 +110,7 @@ module.exports = (config) => {
       dir: path.join(__dirname, 'coverage')
     },
     browsers: ['ChromeHeadless_with_audio'],
-    browserDisconnectTolerance : 1,
+    browserDisconnectTolerance : 3,
     browserDisconnectTimeout: 10000,
     browserNoActivityTimeout: 60000, // appveyor is slow :(
     customLaunchers: {
