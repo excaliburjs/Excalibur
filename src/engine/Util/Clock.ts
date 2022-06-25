@@ -93,7 +93,8 @@ export abstract class Clock {
    * @param timeoutMs Optionally specify a timeout in milliseconds from now, default is 0ms which means the next possible tick
    */
   public schedule(cb: () => any, timeoutMs: number = 0) {
-    const scheduledTime = this.now() + timeoutMs;
+    // Scheduled based on internal elapsed time
+    const scheduledTime = this._totalElapsed + timeoutMs;
     this._scheduledCbs.push([cb, scheduledTime]);
   }
 

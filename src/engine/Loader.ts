@@ -13,6 +13,7 @@ import { delay } from './Util/Util';
 import { ImageFiltering } from './Graphics/Filtering';
 import { clamp } from './Math/util';
 import { Sound } from './Resources/Sound/Sound';
+import { Future } from './Util/Future';
 
 /**
  * Pre-loading assets
@@ -310,12 +311,9 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
 
   data: Loadable<any>[];
 
-  private _isLoadedResolve: () => any;
-  private _isLoadedPromise = new Promise<void>(resolve => {
-    this._isLoadedResolve = resolve;
-  });
+  private _loadingFuture = new Future<void>;
   public areResourcesLoaded() {
-    return this._isLoadedPromise;
+    return this._loadingFuture.promise;
   }
 
   /**
@@ -324,15 +322,16 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
    */
   public async load(): Promise<Loadable<any>[]> {
     await this._image?.decode(); // decode logo if it exists
+    this.canvas.flagDirty();
 
     await Promise.all(
-      this._resourceList.map((r) =>
-        r.load().finally(() => {
+      this._resourceList.map(async (r) => {
+        await r.load().finally(() => {
           // capture progress
           this._numLoaded++;
           this.canvas.flagDirty();
-        })
-      )
+        });
+      })
     );
     // Wire all sound to the engine
     for (const resource of this._resourceList) {
@@ -341,7 +340,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
       }
     }
 
-    this._isLoadedResolve();
+    this._loadingFuture.resolve();
 
     // short delay in showing the button for aesthetics
     await delay(200, this._engine?.clock);

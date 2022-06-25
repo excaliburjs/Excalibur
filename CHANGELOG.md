@@ -15,6 +15,24 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Added
+- Added new `ex.Future` type which is a convenient way of wrapping a native browser promise and resolving/rejecting later
+  ```typescript
+  const future = new ex.Future();
+  const promise = future.promise; // returns promise
+  promise.then(() => {
+    console.log('Resolved!');
+  });
+  future.resolve(); // resolved promise
+  ```
+- Added new `ex.Semaphore` type to limit the number of concurrent cans in a section of code, this is used internally to work around a chrome browser limitation, but can be useful for throttling network calls or even async game events.
+  ```typescript
+  const semaphore = new ex.Semaphore(10); // Only allow 10 concurrent between enter() and exit()
+  ...
+
+  await semaphore.enter();
+  await methodToBeLimited();
+  semaphore.exit();
+  ```
 - Added new `ex.WatchVector` type that can observe changes to x/y more efficiently than `ex.watch()`
 - Added performance improvements 
    * `ex.Vector.distance` improvement
@@ -90,6 +108,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Add target element id to `ex.Screen.goFullScreen('some-element-id')` to influence the fullscreen element in the fullscreen browser API.
 
 ### Fixed
+- Fixed bug in `Clock.schedule` where callbacks would not fire at the correct time, this was because it was scheduling using browser time and not the clock's internal time.
+- Fixed issue in Chromium browsers where Excalibur crashes if more than 256 `Image.decode()` calls are happening in the same frame.
 - Fixed issue where `ex.EdgeCollider` were not working properly in `ex.CompositeCollider` for `ex.TileMap`'s
 - Fixed issue where `ex.BoundingBox` overlap return false due to floating point rounding error causing multiple collisions to be evaluated sometimes
 - Fixed issue with `ex.EventDispatcher` where removing a handler that didn't already exist would remove another handler by mistake

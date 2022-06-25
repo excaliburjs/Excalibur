@@ -1,5 +1,6 @@
 import { Vector } from '../Math/vector';
 import { Clock } from './Clock';
+import { Future } from './Future';
 
 /**
  * Find the screen position of an HTML element
@@ -82,10 +83,10 @@ export function fail(message: never): never {
  * @param clock
  */
 export function delay(milliseconds: number, clock?: Clock): Promise<void> {
+  const future = new Future<void>();
   const schedule = clock?.schedule.bind(clock) ?? setTimeout;
-  return new Promise<void>(resolve => {
-    schedule(() => {
-      resolve();
-    }, milliseconds);
-  });
+  schedule(() => {
+    future.resolve();
+  }, milliseconds);
+  return future.promise;
 }

@@ -266,4 +266,72 @@ describe('A loader', () => {
 
     expect(oldPos).not.toEqual(newPos);
   });
+
+  it('does not throw when more than 256 images are being loaded', (done) => {
+    /**
+     *
+     */
+    function drawRandomCircleOnContext(ctx) {
+      const x = Math.floor(Math.random() * 100);
+      const y = Math.floor(Math.random() * 100);
+      const radius = Math.floor(Math.random() * 20);
+
+      const r = Math.floor(Math.random() * 255);
+      const g = Math.floor(Math.random() * 255);
+      const b = Math.floor(Math.random() * 255);
+
+      ctx.beginPath();
+      ctx.arc(x, y, radius, Math.PI * 2, 0, false);
+      ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',1)';
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    /**
+     *
+     */
+    function generateRandomImage() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 100;
+      canvas.height = 100;
+
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, 100, 100);
+
+      for (let i = 0; i < 20; i++) {
+        drawRandomCircleOnContext(ctx);
+      }
+      return canvas.toDataURL('image/png');
+    }
+
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'error').and.callThrough();
+    const game = TestUtils.engine({
+      width: 100,
+      height: 100
+    });
+    const testClock = game.clock as ex.TestClock;
+
+    const loader = new ex.Loader();
+
+    const srcs = [];
+    for (let i = 0; i < 800; i++) {
+      srcs.push(generateRandomImage());
+    }
+    const images = srcs.map(src => new ex.ImageSource(src));
+    images.forEach((image) => {
+      image.ready.then(() => {
+        testClock.step(1);
+      });
+    });
+    loader.addResources(images);
+
+    const ready = TestUtils.runToReady(game, loader).then(() => {
+      expect(logger.error).not.toHaveBeenCalled();
+      done();
+    })
+      .catch(() => {
+        fail();
+      });
+  });
 });
