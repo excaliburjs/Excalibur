@@ -108,6 +108,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Add target element id to `ex.Screen.goFullScreen('some-element-id')` to influence the fullscreen element in the fullscreen browser API.
 
 ### Fixed
+- Fixed bug in `Clock.schedule` where callbacks would not fire at the correct time, this was because it was scheduling using browser time and not the clock's internal time.
 - Fixed issue in Chromium browsers where Excalibur crashes if more than 256 `Image.decode()` calls are happening in the same frame.
 - Fixed issue where `ex.EdgeCollider` were not working properly in `ex.CompositeCollider` for `ex.TileMap`'s
 - Fixed issue where `ex.BoundingBox` overlap return false due to floating point rounding error causing multiple collisions to be evaluated sometimes
