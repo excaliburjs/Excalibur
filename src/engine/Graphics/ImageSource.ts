@@ -85,10 +85,15 @@ export class ImageSource implements Loadable<HTMLImageElement> {
 
       // Decode the image
       const image = new Image();
+      // Use Image.onload over Image.decode()
+      // https://bugs.chromium.org/p/chromium/issues/detail?id=1055828#c7
+      // Otherwise chrome will throw still Image.decode() failures for large textures
+      const loadedFuture = new Future<void>();
+      image.onload = () => loadedFuture.resolve();
       image.src = url;
       image.setAttribute('data-original-src', this.path);
 
-      await image.decode();
+      await loadedFuture.promise;
 
       // Set results
       this.data = image;
