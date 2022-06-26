@@ -46,7 +46,7 @@ export interface TileMapOptions {
   /**
    * Optionally render from the top of the graphic, by default tiles are rendered from the bottom
    */
-   renderFromTopOfGraphic?: boolean;
+  renderFromTopOfGraphic?: boolean;
 }
 
 /**
