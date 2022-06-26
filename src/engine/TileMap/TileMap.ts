@@ -42,6 +42,11 @@ export interface TileMapOptions {
    * The number of tile  rows, or the number of tiles high
    */
   rows: number;
+
+  /**
+   * Optionally render from the top of the graphic, by default tiles are rendered from the bottom
+   */
+   renderFromTopOfGraphic?: boolean;
 }
 
 /**
@@ -65,6 +70,8 @@ export class TileMap extends Entity {
   public readonly tileHeight: number;
   public readonly rows: number;
   public readonly columns: number;
+
+  public renderFromTopOfGraphic = false;
 
   private _collidersDirty = true;
   public flagCollidersDirty() {
@@ -185,6 +192,7 @@ export class TileMap extends Entity {
 
     this._transform.pos = options.pos ?? Vector.Zero;
     this._oldPos = this._transform.pos;
+    this.renderFromTopOfGraphic = options.renderFromTopOfGraphic ?? this.renderFromTopOfGraphic;
     this.tileWidth = options.tileWidth;
     this.tileHeight = options.tileHeight;
     this.rows = options.rows;
@@ -399,7 +407,8 @@ export class TileMap extends Entity {
             if (hasGraphicsTick(graphic)) {
               graphic?.tick(delta, this._token);
             }
-            graphic.draw(ctx, x * this.tileWidth, y * this.tileHeight);
+            const offsetY = this.renderFromTopOfGraphic ? 0 : (graphic.height - this.tileHeight);
+            graphic.draw(ctx, x * this.tileWidth, y * this.tileHeight - offsetY);
           }
         }
       }
