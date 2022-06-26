@@ -69,11 +69,7 @@ export class TileMap extends Entity {
   private _collidersDirty = true;
   public flagCollidersDirty() {
     this._collidersDirty = true;
-    for (let i = 0; i < this.tiles.length; i++) {
-      if (this.tiles[i]) {
-        this.tiles[i].flagDirty();
-      }
-    }
+
   }
   private _transform: TransformComponent;
   private _motion: MotionComponent;
@@ -341,6 +337,11 @@ export class TileMap extends Entity {
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
     if (!this._oldPos.equals(this.pos)) {
       this.flagCollidersDirty();
+      for (let i = 0; i < this.tiles.length; i++) {
+        if (this.tiles[i]) {
+          this.tiles[i].flagDirty();
+        }
+      }
     }
     if (this._collidersDirty) {
       this._collidersDirty = false;
