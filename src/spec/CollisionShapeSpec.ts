@@ -297,7 +297,7 @@ describe('Collision Shape', () => {
 
       const actor2 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
       const edge = actor2.collider.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(10, 0));
-      
+
       const directionOfBodyB = edge.center.sub(circle.center);
       const contact = circle.collide(edge)[0];
 
