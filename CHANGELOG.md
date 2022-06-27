@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
+- The `ex.Physics.useRealisticPhysics()` physics solver has been updated to fix a bug in bounciness to be more physically accurate, this does change how physics behaves. Setting `ex.Body.bounciness = 0` will simulate the old behavior. 
 - `ex.TransformComponent.posChanged$` has been removed, it incurs a steep performance cost
 - `ex.EventDispatcher` meta events 'subscribe' and 'unsubscribe' were unused and undocumented and have been removed
 
@@ -108,6 +109,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Add target element id to `ex.Screen.goFullScreen('some-element-id')` to influence the fullscreen element in the fullscreen browser API.
 
 ### Fixed
+- Fixed bug in `ex.Physics.useRealisticPhysics()` solver where `ex.Body.bounciness` was not being respected in the simulation
+- Fixed bug in `ex.Physics.useRealisticPhysics()` solver where `ex.Body.limitDegreeOfFreedom` was not working all the time.
 - Fixed bug in `Clock.schedule` where callbacks would not fire at the correct time, this was because it was scheduling using browser time and not the clock's internal time.
 - Fixed issue in Chromium browsers where Excalibur crashes if more than 256 `Image.decode()` calls are happening in the same frame.
 - Fixed issue where `ex.EdgeCollider` were not working properly in `ex.CompositeCollider` for `ex.TileMap`'s

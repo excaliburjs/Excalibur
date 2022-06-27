@@ -6,7 +6,7 @@ import { ContactConstraintPoint } from './ContactConstraintPoint';
 import { Side } from '../Side';
 import { Physics } from '../Physics';
 import { CollisionSolver } from './Solver';
-import { BodyComponent } from '../BodyComponent';
+import { BodyComponent, DegreeOfFreedom } from '../BodyComponent';
 import { CollisionJumpTable } from '../Colliders/CollisionJumpTable';
 
 export class RealisticSolver implements CollisionSolver {
@@ -111,9 +111,16 @@ export class RealisticSolver implements CollisionSolver {
           // Update contact point calculations
           contactPoints[pointIndex].aToContact = aToContact;
           contactPoints[pointIndex].bToContact = bToContact;
-          contactPoints[pointIndex].normalMass = normalMass;
-          contactPoints[pointIndex].tangentMass = tangentMass;
+          contactPoints[pointIndex].normalMass = 1.0 / normalMass;
+          contactPoints[pointIndex].tangentMass = 1.0 / tangentMass;
 
+          // Calculate relative velocity before solving to accurately do restitution
+          const restitution = bodyA.bounciness > bodyB.bounciness ? bodyA.bounciness : bodyB.bounciness;
+          const relativeVelocity = contact.normal.dot(contactPoints[pointIndex].getRelativeVelocity());
+          contactPoints[pointIndex].originalVelocityAndRestitution = 0;
+          if (relativeVelocity < -0.1) { // TODO what's a good threshold here?
+            contactPoints[pointIndex].originalVelocityAndRestitution = -restitution * relativeVelocity;
+          }
           pointIndex++;
         }
       }
@@ -235,18 +242,39 @@ export class RealisticSolver implements CollisionSolver {
             // Clamp to avoid over-correction
             // Remember that we are shooting for 0 overlap in the end
             const steeringForce = clamp(steeringConstant * (separation + slop), maxCorrection, 0);
-            const impulse = normal.scale(-steeringForce / point.normalMass);
+            const impulse = normal.scale(-steeringForce * point.normalMass);
 
             // This is a pseudo impulse, meaning we aren't doing a real impulse calculation
             // We adjust position and rotation instead of doing the velocity
             if (bodyA.collisionType === CollisionType.Active) {
-              bodyA.pos = bodyA.pos.add(impulse.negate().scale(bodyA.inverseMass));
-              bodyA.rotation -= point.aToContact.cross(impulse) * bodyA.inverseInertia;
+              // TODO make applyPseudoImpulse function?
+              const impulseForce = impulse.negate().scale(bodyA.inverseMass);
+              if (bodyA.limitDegreeOfFreedom.includes(DegreeOfFreedom.X)) {
+                impulseForce.x = 0;
+              }
+              if (bodyA.limitDegreeOfFreedom.includes(DegreeOfFreedom.Y)) {
+                impulseForce.y = 0;
+              }
+
+              bodyA.pos = bodyA.pos.add(impulseForce);
+              if (!bodyA.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
+                bodyA.rotation -= point.aToContact.cross(impulse) * bodyA.inverseInertia;
+              }
             }
 
             if (bodyB.collisionType === CollisionType.Active) {
-              bodyB.pos = bodyB.pos.add(impulse.scale(bodyB.inverseMass));
-              bodyB.rotation += point.bToContact.cross(impulse) * bodyB.inverseInertia;
+              const impulseForce = impulse.scale(bodyB.inverseMass);
+              if (bodyB.limitDegreeOfFreedom.includes(DegreeOfFreedom.X)) {
+                impulseForce.x = 0;
+              }
+              if (bodyB.limitDegreeOfFreedom.includes(DegreeOfFreedom.Y)) {
+                impulseForce.y = 0;
+              }
+
+              bodyB.pos = bodyB.pos.add(impulseForce);
+              if (!bodyB.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
+                bodyB.rotation += point.bToContact.cross(impulse) * bodyB.inverseInertia;
+              }
             }
           }
         }
@@ -266,17 +294,17 @@ export class RealisticSolver implements CollisionSolver {
             continue;
           }
 
-          const restitution = bodyA.bounciness * bodyB.bounciness;
           const friction = Math.min(bodyA.friction, bodyB.friction);
 
           const constraints = this.idToContactConstraint.get(contact.id) ?? [];
 
+          // Friction constraint
           for (const point of constraints) {
             const relativeVelocity = point.getRelativeVelocity();
 
             // Negate velocity in tangent direction to simulate friction
             const tangentVelocity = -relativeVelocity.dot(contact.tangent);
-            let impulseDelta = tangentVelocity / point.tangentMass;
+            let impulseDelta = tangentVelocity * point.tangentMass;
 
             // Clamping based in Erin Catto's GDC 2006 talk
             // Correct clamping https://github.com/erincatto/box2d-lite/blob/master/docs/GDC2006_Catto_Erin_PhysicsTutorial.pdf
@@ -292,14 +320,17 @@ export class RealisticSolver implements CollisionSolver {
             bodyB.applyImpulse(point.point, impulse);
           }
 
+          // Bounce constraint
           for (const point of constraints) {
             // Need to recalc relative velocity because the previous step could have changed vel
             const relativeVelocity = point.getRelativeVelocity();
 
             // Compute impulse in normal direction
             const normalVelocity = relativeVelocity.dot(contact.normal);
-            // See https://en.wikipedia.org/wiki/Collision_response
-            let impulseDelta = (-(1 + restitution) * normalVelocity) / point.normalMass;
+
+            // Per Erin it is a mistake to apply the restitution inside the iteration
+            // From Erin Catto's Box2D we keep original contact velocity and adjust by small impulses
+            let impulseDelta = -point.normalMass * (normalVelocity - point.originalVelocityAndRestitution);
 
             // Clamping based in Erin Catto's GDC 2014 talk
             // Accumulated impulse stored in the contact is always positive (dV > 0)

@@ -14,6 +14,7 @@ import { Collider } from './Collider';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { Transform } from '../../Math/transform';
+import { AffineMatrix } from '../../Math/affine-matrix';
 
 export interface CircleColliderOptions {
   /**
@@ -35,13 +36,10 @@ export class CircleCollider extends Collider {
    */
   public offset: Vector = Vector.Zero;
 
-  public get worldPos(): Vector {
-    const tx = this._transform;
-    const scale = tx?.globalScale ?? Vector.One;
-    const rotation = tx?.globalRotation ?? 0;
-    const pos = (tx?.globalPos ?? Vector.Zero);
+  private _globalMatrix: AffineMatrix = AffineMatrix.identity();
 
-    return (this.offset ?? Vector.Zero).scale(scale).rotate(rotation).add(pos);
+  public get worldPos(): Vector {
+    return this._globalMatrix.getPosition();
   }
 
   private _naturalRadius: number;
@@ -71,6 +69,7 @@ export class CircleCollider extends Collider {
     super();
     this.offset = options.offset || Vector.Zero;
     this.radius = options.radius || 0;
+    this._globalMatrix.translate(this.offset.x, this.offset.y);
   }
 
   /**
@@ -87,12 +86,7 @@ export class CircleCollider extends Collider {
    * Get the center of the collider in world coordinates
    */
   public get center(): Vector {
-    const tx = this._transform;
-    const scale = tx?.globalScale ?? Vector.One;
-    const rotation = tx?.globalRotation ?? 0;
-    const pos = (tx?.globalPos ?? Vector.Zero);
-
-    return (this.offset ?? Vector.Zero).scale(scale).rotate(rotation).add(pos);
+    return this._globalMatrix.getPosition();
   }
 
   /**
@@ -241,6 +235,9 @@ export class CircleCollider extends Collider {
   /* istanbul ignore next */
   public update(transform: Transform): void {
     this._transform = transform;
+    const globalMat = transform.matrix ?? this._globalMatrix;
+    globalMat.clone(this._globalMatrix);
+    this._globalMatrix.translate(this.offset.x, this.offset.y);
   }
 
   /**
