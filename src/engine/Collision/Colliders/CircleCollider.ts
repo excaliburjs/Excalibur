@@ -69,6 +69,7 @@ export class CircleCollider extends Collider {
     super();
     this.offset = options.offset || Vector.Zero;
     this.radius = options.radius || 0;
+    this._globalMatrix.translate(this.offset.x, this.offset.y);
   }
 
   /**

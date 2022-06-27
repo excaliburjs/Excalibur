@@ -61,6 +61,7 @@ describe('Collision Shape', () => {
 
     it('has a center', () => {
       actor.pos = ex.vec(170, 300);
+      actor.collider.update();
       const center = circle.center;
       expect(center.x).toBe(170);
       expect(center.y).toBe(300);
@@ -292,10 +293,11 @@ describe('Collision Shape', () => {
     it('should collide with other edges when touching the edge end', () => {
       // position the circle actor in the end of the edge
       actor.pos = ex.vec(10, -9);
+      actor.collider.update();
 
       const actor2 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
       const edge = actor2.collider.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(10, 0));
-
+      
       const directionOfBodyB = edge.center.sub(circle.center);
       const contact = circle.collide(edge)[0];
 

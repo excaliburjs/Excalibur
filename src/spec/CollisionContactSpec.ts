@@ -105,6 +105,8 @@ describe('A CollisionContact', () => {
     actorA.vel.x = 10;
     actorB.vel.x = -10;
     actorB.pos.x = 19;
+    actorA.body.bounciness = 0;
+    actorB.body.bounciness = 0;
     actorA.collider.update();
     actorB.collider.update();
     const cc = new ex.CollisionContact(
@@ -131,12 +133,12 @@ describe('A CollisionContact', () => {
 
     expect(actorA.pos.x).toBeCloseTo(-0.5, 1);
     expect(actorA.pos.y).toBe(0);
-    expect(actorA.vel.x).toBeLessThan(0);
+    expect(actorA.vel.x).toBe(0);
     expect(actorA.vel.y).toBe(0);
 
     expect(actorB.pos.x).toBeCloseTo(19.5, 1);
     expect(actorB.pos.y).toBe(0);
-    expect(actorB.vel.x).toBeGreaterThan(0);
+    expect(actorB.vel.x).toBe(0);
     expect(actorB.vel.y).toBe(0);
   });
 
