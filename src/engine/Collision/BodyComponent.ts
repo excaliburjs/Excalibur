@@ -171,6 +171,8 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
 
   /**
    * Degrees of freedom to limit
+   *
+   * Note: this only limits responses in the realistic solver, if velocity/angularVelocity is set the actor will still respond
    */
   public limitDegreeOfFreedom: DegreeOfFreedom[] = [];
 
