@@ -196,6 +196,59 @@ describe('A TileMap', () => {
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/TileMap.png');
   });
 
+  it('should draw from the bottom', async () => {
+    const tm = new ex.TileMap({
+      pos: ex.vec(30, 30),
+      tileWidth: 64,
+      tileHeight: 48,
+      rows: 3,
+      columns: 7
+    });
+    const tileGraphic = new ex.Rectangle({
+      color: ex.Color.Red,
+      strokeColor: ex.Color.Black,
+      width: 64,
+      height: 64
+    });
+    tm.tiles.forEach(function (cell: ex.Tile) {
+      cell.solid = true;
+      cell.addGraphic(tileGraphic);
+    });
+    tm._initialize(engine);
+
+    drawWithTransform(engine.graphicsContext, tm, 100);
+    engine.graphicsContext.flush();
+
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/tilemap-from-bottom.png');
+  });
+
+  it('should draw from the top', async () => {
+    const tm = new ex.TileMap({
+      pos: ex.vec(30, 30),
+      tileWidth: 64,
+      tileHeight: 48,
+      rows: 3,
+      columns: 7,
+      renderFromTopOfGraphic: true
+    });
+    const tileGraphic = new ex.Rectangle({
+      color: ex.Color.Red,
+      strokeColor: ex.Color.Black,
+      width: 64,
+      height: 64
+    });
+    tm.tiles.forEach(function (cell: ex.Tile) {
+      cell.solid = true;
+      cell.addGraphic(tileGraphic);
+    });
+    tm._initialize(engine);
+
+    drawWithTransform(engine.graphicsContext, tm, 100);
+    engine.graphicsContext.flush();
+
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/TileMapSpec/tilemap-from-top.png');
+  });
+
   it('should handle offscreen culling correctly with negative coords', async () => {
     await texture.load();
     const tm = new ex.TileMap({

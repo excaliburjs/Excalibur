@@ -10,12 +10,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - The `ex.Physics.useRealisticPhysics()` physics solver has been updated to fix a bug in bounciness to be more physically accurate, this does change how physics behaves. Setting `ex.Body.bounciness = 0` will simulate the old behavior. 
 - `ex.TransformComponent.posChanged$` has been removed, it incurs a steep performance cost
 - `ex.EventDispatcher` meta events 'subscribe' and 'unsubscribe' were unused and undocumented and have been removed
+- `ex.TileMap` tlies are now drawn from the lower left by default to match with `ex.IsometricMap` and Tiled, but can be configured with `renderFromTopOfGraphic` to restore the previous behavior.
 
 ### Deprecated
 
 -
 
 ### Added
+- Added new configurable `ex.TileMap` option for rendering from the bottom or the top of the graphic, this matches with `ex.IsometricMap` and how Tiled renders `renderFromTopOfGraphic`, by default `false` and renders from the bottom.
+  ```typescript
+  const tileMap = new ex.TileMap({
+    renderFromTopOfGraphic: false
+  })
+  ```
 - Added new `ex.Future` type which is a convenient way of wrapping a native browser promise and resolving/rejecting later
   ```typescript
   const future = new ex.Future();
@@ -136,7 +143,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Most places where `ex.Matrix` was used have been switched to `ex.AffineMatrix`
 - Most places where `ex.TransformComponent` was used have been switched to `ex.Transform`
-
 
 ## [0.26.0] - 2022-05-20
 
