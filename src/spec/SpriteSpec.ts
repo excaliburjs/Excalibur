@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { Logger } from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
@@ -302,5 +303,22 @@ describe('A Sprite Graphic', () => {
     ctx.flush();
 
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/GraphicsSpriteSpec/dest-view.png');
+  });
+
+  it('will log one warning if the imagesource is not loaded', () => {
+    const logger = Logger.getInstance();
+    spyOn(logger, 'warn');
+    const image = new ex.ImageSource('path/to/non/existing/image');
+
+    const sut = image.toSprite();
+
+    sut.draw(ctx, 0, 0);
+    sut.draw(ctx, 0, 0);
+    sut.draw(ctx, 0, 0);
+
+    expect(logger.warn).toHaveBeenCalledOnceWith(
+      `ImageSource path/to/non/existing/image is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
+      'Read https://excaliburjs.com/docs/imagesource for more information.'
+    );
   });
 });

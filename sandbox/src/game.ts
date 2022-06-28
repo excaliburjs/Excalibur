@@ -111,6 +111,11 @@ var jump = new ex.Sound('../sounds/jump.wav', '../sounds/jump.mp3');
 var cards = new ex.ImageSource('../images/kenny-cards.png');
 var cloud = new ex.ImageSource('../images/background_cloudA.png', false, ex.ImageFiltering.Blended);
 
+// Log one warning
+var cards2 = new ex.ImageSource('../images/kenny-cards.png').toSprite();
+cards2.draw(game.graphicsContext, 0, 0);
+cards2.draw(game.graphicsContext, 0, 0);
+
 jump.volume = 0.3;
 
 var loader = new ex.Loader();
