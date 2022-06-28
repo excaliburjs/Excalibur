@@ -1,6 +1,7 @@
 import { Graphic, GraphicOptions } from './Graphic';
 import { ImageSource } from './ImageSource';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { Logger } from '../Util/Log';
 
 export type SourceView = { x: number; y: number; width: number; height: number };
 export type DestinationSize = { width: number; height: number };
@@ -21,6 +22,7 @@ export interface SpriteOptions {
 }
 
 export class Sprite extends Graphic {
+  private _logger = Logger.getInstance();
   public image: ImageSource;
   public sourceView: SourceView;
   public destSize: DestinationSize;
@@ -87,6 +89,7 @@ export class Sprite extends Graphic {
     super._preDraw(ex, x, y);
   }
 
+  private _logNotLoadedWarning = false;
   public _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     if (this.image.isLoaded()) {
       ex.drawImage(
@@ -100,6 +103,15 @@ export class Sprite extends Graphic {
         this.destSize.width,
         this.destSize.height
       );
+    } else {
+      if (!this._logNotLoadedWarning) {
+        this._logger.warn(
+          `ImageSource ${this.image.path}` +
+          ` is not yet loaded and won't be drawn. Please call .load() or include in a Loader.\n\n` +
+          `Read https://excaliburjs.com/docs/imagesource for more information.`
+        );
+      }
+      this._logNotLoadedWarning = true;
     }
   }
 
