@@ -154,9 +154,17 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
 
     // Inertia is a property of the geometry, so this is a little goofy but seems to be okay?
     const collider = this.owner.get(ColliderComponent);
-    const maybeCollider = collider.get();
-    if (maybeCollider) {
-      return this._cachedInertia = maybeCollider.getInertia(this.mass);
+    if (collider) {
+      collider.$colliderAdded.subscribe(() => {
+        this._cachedInertia = null;
+      });
+      collider.$colliderRemoved.subscribe(() => {
+        this._cachedInertia = null;
+      });
+      const maybeCollider = collider.get();
+      if (maybeCollider) {
+        return this._cachedInertia = maybeCollider.getInertia(this.mass);
+      }
     }
     return 0;
   }
