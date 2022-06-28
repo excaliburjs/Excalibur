@@ -503,7 +503,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     if (collider) {
       this.addComponent(new ColliderComponent(collider));
     } else if (radius) {
-      this.addComponent(new ColliderComponent(Shape.Circle(radius, this.anchor)));
+      this.addComponent(new ColliderComponent(Shape.Circle(radius)));
     } else {
       if (width > 0 && height > 0) {
         this.addComponent(new ColliderComponent(Shape.Box(width, height, this.anchor)));

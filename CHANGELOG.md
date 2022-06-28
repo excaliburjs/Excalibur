@@ -8,14 +8,40 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## Breaking Changes
 
 - `ex.Engine.snapToPixel` now defaults to `false`, it was unexpected to have pixel snapping on by default it has now been switched.
+- The `ex.Physics.useRealisticPhysics()` physics solver has been updated to fix a bug in bounciness to be more physically accurate, this does change how physics behaves. Setting `ex.Body.bounciness = 0` will simulate the old behavior. 
 - `ex.TransformComponent.posChanged$` has been removed, it incurs a steep performance cost
 - `ex.EventDispatcher` meta events 'subscribe' and 'unsubscribe' were unused and undocumented and have been removed
+- `ex.TileMap` tlies are now drawn from the lower left by default to match with `ex.IsometricMap` and Tiled, but can be configured with `renderFromTopOfGraphic` to restore the previous behavior.
 
 ### Deprecated
 
 -
 
 ### Added
+- Added new configurable `ex.TileMap` option for rendering from the bottom or the top of the graphic, this matches with `ex.IsometricMap` and how Tiled renders `renderFromTopOfGraphic`, by default `false` and renders from the bottom.
+  ```typescript
+  const tileMap = new ex.TileMap({
+    renderFromTopOfGraphic: false
+  })
+  ```
+- Added new `ex.Future` type which is a convenient way of wrapping a native browser promise and resolving/rejecting later
+  ```typescript
+  const future = new ex.Future();
+  const promise = future.promise; // returns promise
+  promise.then(() => {
+    console.log('Resolved!');
+  });
+  future.resolve(); // resolved promise
+  ```
+- Added new `ex.Semaphore` type to limit the number of concurrent cans in a section of code, this is used internally to work around a chrome browser limitation, but can be useful for throttling network calls or even async game events.
+  ```typescript
+  const semaphore = new ex.Semaphore(10); // Only allow 10 concurrent between enter() and exit()
+  ...
+
+  await semaphore.enter();
+  await methodToBeLimited();
+  semaphore.exit();
+  ```
 - Added new `ex.WatchVector` type that can observe changes to x/y more efficiently than `ex.watch()`
 - Added performance improvements 
    * `ex.Vector.distance` improvement
@@ -93,6 +119,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed issue with `ex.Engine.snapToPixel` where positions very close to pixel boundary created jarring 1 pixel oscillations.
+- Fixed bug in `ex.Physics.useRealisticPhysics()` solver where `ex.Body.bounciness` was not being respected in the simulation
+- Fixed bug in `ex.Physics.useRealisticPhysics()` solver where `ex.Body.limitDegreeOfFreedom` was not working all the time.
+- Fixed bug in `Clock.schedule` where callbacks would not fire at the correct time, this was because it was scheduling using browser time and not the clock's internal time.
+- Fixed issue in Chromium browsers where Excalibur crashes if more than 256 `Image.decode()` calls are happening in the same frame.
+- Fixed issue where `ex.EdgeCollider` were not working properly in `ex.CompositeCollider` for `ex.TileMap`'s
 - Fixed issue where `ex.BoundingBox` overlap return false due to floating point rounding error causing multiple collisions to be evaluated sometimes
 - Fixed issue with `ex.EventDispatcher` where removing a handler that didn't already exist would remove another handler by mistake
 - Fixed issue with `ex.EventDispatcher` where concurrent modifications of the handler list where handlers would or would not fire correctly and throw
@@ -109,14 +140,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Updates
 
--
+- Updated the collision system to improve performance
+  * Cache computed values where possible
+  * Avoid calculating transformations until absolutely necessary
+  * Avoid calling methods in tight loops
 
 ### Changed
 
 - `ex.Engine.snapToPixel` now defaults to `false`
 - Most places where `ex.Matrix` was used have been switched to `ex.AffineMatrix`
 - Most places where `ex.TransformComponent` was used have been switched to `ex.Transform`
-
 
 ## [0.26.0] - 2022-05-20
 

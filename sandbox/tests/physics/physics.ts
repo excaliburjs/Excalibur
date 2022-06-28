@@ -2,7 +2,8 @@
 
 var game = new ex.Engine({
   width: 600,
-  height: 400
+  height: 400,
+  fixedUpdateFps: 60
 });
 game.backgroundColor = ex.Color.Black;
 
@@ -32,6 +33,8 @@ function spawnBlock(x: number, y: number) {
     height: width + 100
   });
   block.rotation = globalRotation;
+  block.body.bounciness = 0;
+  // block.body.limitDegreeOfFreedom.push(ex.DegreeOfFreedom.Rotation);
   // block.body.addBoxCollider(width + 200, width / 2);
   // block.collider.useBoxCollider(width / 2, width + 100);
   block.body.events.on('contactstart', (e) => {
@@ -56,10 +59,11 @@ function spawnCircle(x: number, y: number) {
   var color = new ex.Color(255, ex.randomIntInRange(0, 255), ex.randomIntInRange(0, 255));
   var circle = new ex.Actor({x: x, y: y, radius: width / 2, color: color});
   // circle.rx = ex.Util.randomInRange(-0.5, 0.5);
-  circle.angularVelocity = 1;
-  circle.vel.setTo(0, 300);
+  // circle.angularVelocity = 1;
+  // circle.vel.setTo(0, 300);
   // circle.collider.useCircleCollider(width / 2);
   circle.body.collisionType = ex.CollisionType.Active;
+  circle.body.bounciness = 1.0;
   circle.graphics.onPostDraw = (ctx: ex.ExcaliburGraphicsContext) => {
     ctx.drawCircle(ex.vec(0, 0), width / 2, color);
     // ex.Util.DrawUtil.circle(ctx, 0, 0, width / 2, color, color);
@@ -73,11 +77,17 @@ function spawnCircle(x: number, y: number) {
   game.add(circle);
 }
 
-// var edge = new ex.Actor(200, 300, 5, 5, ex.Color.Blue.clone());
-// edge.body.collisionType = ex.CollisionType.Fixed;
-// edge.collider.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(200, 0));
+var edge = new ex.Actor({
+  x: 200,
+  y:300,
+  width: 5,
+  height: 5, 
+  color: ex.Color.Blue.clone()
+});
+edge.body.collisionType = ex.CollisionType.Fixed;
+edge.collider.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(200, 0));
 // // edge.rx = .4;
-// game.add(edge);
+game.add(edge);
 
 
 // var solid = new ex.Actor(300, 380, 100, 100, ex.Color.Azure.clone());
@@ -89,6 +99,7 @@ function spawnCircle(x: number, y: number) {
 
 var ground = new ex.Actor({x: 300, y: 380, width: 600, height: 10, color: ex.Color.Azure.clone()});
 ground.body.collisionType = ex.CollisionType.Fixed;
+ground.body.bounciness = 0.0;
 ground.collider.useBoxCollider(600, 10); // optional
 game.add(ground);
 
@@ -117,9 +128,10 @@ game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) => {
 });
 
 game.input.pointers.primary.on('down', (evt: ex.Input.PointerEvent) => {
-  spawnBlock(evt.worldPos.x, evt.worldPos.y);
+  // spawnBlock(evt.worldPos.x, evt.worldPos.y);
+  spawnCircle(evt.worldPos.x, evt.worldPos.y);
 });
 
 game.start();
 //@ts-ignore
-const dev = new ex.DevTools.DevTool(game);
+// const dev = new ex.DevTools.DevTool(game);

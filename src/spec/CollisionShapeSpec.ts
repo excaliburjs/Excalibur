@@ -61,6 +61,7 @@ describe('Collision Shape', () => {
 
     it('has a center', () => {
       actor.pos = ex.vec(170, 300);
+      actor.collider.update();
       const center = circle.center;
       expect(center.x).toBe(170);
       expect(center.y).toBe(300);
@@ -292,6 +293,7 @@ describe('Collision Shape', () => {
     it('should collide with other edges when touching the edge end', () => {
       // position the circle actor in the end of the edge
       actor.pos = ex.vec(10, -9);
+      actor.collider.update();
 
       const actor2 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
       const edge = actor2.collider.useEdgeCollider(new ex.Vector(0, 0), new ex.Vector(10, 0));
@@ -896,12 +898,59 @@ describe('Collision Shape', () => {
 
     it('has bounds', () => {
       actor.pos = ex.vec(400, 400);
+      actor.collider.update();
       const boundingBox = edge.bounds;
       const transformedBegin = new ex.Vector(395, 400);
       const transformedEnd = new ex.Vector(405, 400);
-
       expect(boundingBox.contains(transformedBegin)).toBe(true);
       expect(boundingBox.contains(transformedEnd)).toBe(true);
+    });
+
+    it('will calculate center', () => {
+      const transform = new ex.Transform();
+      const edge = new ex.EdgeCollider({
+        begin: ex.vec(0, 0),
+        end: ex.vec(0, 10),
+        offset: ex.vec(10, 10)
+      });
+
+      edge.update(transform);
+
+      expect(edge.center).toBeVector(ex.vec(10, 15));
+    });
+
+    it('will calculate world space by the transform', () => {
+      const transform = new ex.Transform();
+      const edge = new ex.EdgeCollider({
+        begin: ex.vec(0, 0),
+        end: ex.vec(0, 10),
+        offset: ex.vec(10, 10)
+      });
+
+      edge.update(transform);
+
+      expect(edge.bounds.left).toBe(0);
+      expect(edge.bounds.right).toBe(20);
+      expect(edge.bounds.top).toBe(0);
+      expect(edge.bounds.bottom).toBe(30);
+    });
+
+
+    it('can be rotated', () => {
+      const transform = new ex.Transform();
+      transform.rotation = Math.PI/2;
+      const edge = new ex.EdgeCollider({
+        begin: ex.vec(0, 0),
+        end: ex.vec(0, 10),
+        offset: ex.vec(10, 10)
+      });
+
+      edge.update(transform);
+
+      expect(edge.bounds.left).toBe(-30);
+      expect(edge.bounds.right).toBe(0);
+      expect(edge.bounds.top).toBe(0);
+      expect(edge.bounds.bottom).toBe(20);
     });
 
     it('has a moi', () => {

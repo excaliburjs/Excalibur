@@ -136,6 +136,7 @@ describe('A game actor', () => {
     expect((actor.graphics.current[0].graphic as ex.Circle).radius).toBe(10);
     expect((actor.graphics.current[0].graphic as ex.Circle).color).toEqual(ex.Color.Red);
     expect(actor.collider.get()).toBeInstanceOf(ex.CircleCollider);
+    expect(actor.collider.get().offset).toBeVector(ex.vec(0, 0));
   });
 
   it('can be created with a width/height with default rectangle collider and graphic', () => {

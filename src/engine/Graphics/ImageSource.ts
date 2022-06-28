@@ -4,6 +4,7 @@ import { Loadable } from '../Interfaces/Index';
 import { Logger } from '../Util/Log';
 import { TextureLoader } from '.';
 import { ImageFiltering } from './Filtering';
+import { Future } from '../Util/Future';
 
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _logger = Logger.getInstance();
@@ -45,11 +46,11 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     return this.data;
   }
 
+  private _readyFuture = new Future<HTMLImageElement>();
   /**
    * Promise the resolves when the image is loaded and ready for use, does not initiate loading
    */
-  public ready: Promise<HTMLImageElement>;
-  private _loadedResolve: (value?: HTMLImageElement | PromiseLike<HTMLImageElement>) => void;
+  public ready: Promise<HTMLImageElement> = this._readyFuture.promise;
 
   /**
    * The path to the image, can also be a data url like 'data:image/'
@@ -63,9 +64,6 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     if (path.endsWith('.svg') || path.endsWith('.gif')) {
       this._logger.warn(`Image type is not fully supported, you may have mixed results ${path}. Fully supported: jpg, bmp, and png`);
     }
-    this.ready = new Promise<HTMLImageElement>((resolve) => {
-      this._loadedResolve = resolve;
-    });
   }
 
   /**
@@ -87,9 +85,15 @@ export class ImageSource implements Loadable<HTMLImageElement> {
 
       // Decode the image
       const image = new Image();
+      // Use Image.onload over Image.decode()
+      // https://bugs.chromium.org/p/chromium/issues/detail?id=1055828#c7
+      // Otherwise chrome will throw still Image.decode() failures for large textures
+      const loadedFuture = new Future<void>();
+      image.onload = () => loadedFuture.resolve();
       image.src = url;
       image.setAttribute('data-original-src', this.path);
-      await image.decode();
+
+      await loadedFuture.promise;
 
       // Set results
       this.data = image;
@@ -98,7 +102,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     }
     TextureLoader.load(this.data, this._filtering);
     // todo emit complete
-    this._loadedResolve(this.data);
+    this._readyFuture.resolve(this.data);
     return this.data;
   }
 

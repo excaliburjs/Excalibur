@@ -42,6 +42,11 @@ export interface TileMapOptions {
    * The number of tile  rows, or the number of tiles high
    */
   rows: number;
+
+  /**
+   * Optionally render from the top of the graphic, by default tiles are rendered from the bottom
+   */
+  renderFromTopOfGraphic?: boolean;
 }
 
 /**
@@ -66,14 +71,12 @@ export class TileMap extends Entity {
   public readonly rows: number;
   public readonly columns: number;
 
+  public renderFromTopOfGraphic = false;
+
   private _collidersDirty = true;
   public flagCollidersDirty() {
     this._collidersDirty = true;
-    for (let i = 0; i < this.tiles.length; i++) {
-      if (this.tiles[i]) {
-        this.tiles[i].flagDirty();
-      }
-    }
+
   }
   private _transform: TransformComponent;
   private _motion: MotionComponent;
@@ -185,6 +188,7 @@ export class TileMap extends Entity {
 
     this._transform.pos = options.pos ?? Vector.Zero;
     this._oldPos = this._transform.pos;
+    this.renderFromTopOfGraphic = options.renderFromTopOfGraphic ?? this.renderFromTopOfGraphic;
     this.tileWidth = options.tileWidth;
     this.tileHeight = options.tileHeight;
     this.rows = options.rows;
@@ -341,6 +345,11 @@ export class TileMap extends Entity {
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
     if (!this._oldPos.equals(this.pos)) {
       this.flagCollidersDirty();
+      for (let i = 0; i < this.tiles.length; i++) {
+        if (this.tiles[i]) {
+          this.tiles[i].flagDirty();
+        }
+      }
     }
     if (this._collidersDirty) {
       this._collidersDirty = false;
@@ -399,7 +408,8 @@ export class TileMap extends Entity {
             if (hasGraphicsTick(graphic)) {
               graphic?.tick(delta, this._token);
             }
-            graphic.draw(ctx, x * this.tileWidth, y * this.tileHeight);
+            const offsetY = this.renderFromTopOfGraphic ? 0 : (graphic.height - this.tileHeight);
+            graphic.draw(ctx, x * this.tileWidth, y * this.tileHeight - offsetY);
           }
         }
       }

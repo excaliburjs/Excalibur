@@ -91,4 +91,9 @@ export class ContactConstraintPoint {
    * Direction from center of mass of bodyB to contact point
    */
   public bToContact: Vector = new Vector(0, 0);
+
+  /**
+   * Original contact velocity combined with bounciness
+   */
+  public originalVelocityAndRestitution: number = 0;
 }

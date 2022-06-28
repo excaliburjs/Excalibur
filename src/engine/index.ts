@@ -72,6 +72,8 @@ export * from './Util/Clock';
 export * from './Util/WebAudio';
 export * from './Util/Toaster';
 export * from './Util/StateMachine';
+export * from './Util/Future';
+export * from './Util/Semaphore';
 
 // ex.Deprecated
 // import * as deprecated from './Deprecated';

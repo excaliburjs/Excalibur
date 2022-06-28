@@ -13,6 +13,7 @@ import { Collider } from './Collider';
 import { ClosestLineJumpTable } from './ClosestLineJumpTable';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { Transform } from '../../Math/transform';
+import { AffineMatrix } from '../../Math/affine-matrix';
 
 export interface EdgeColliderOptions {
   /**
@@ -38,6 +39,7 @@ export class EdgeCollider extends Collider {
   end: Vector;
 
   private _transform: Transform;
+  private _globalMatrix: AffineMatrix = AffineMatrix.identity();
 
   constructor(options: EdgeColliderOptions) {
     super();
@@ -65,26 +67,18 @@ export class EdgeCollider extends Collider {
    * Get the center of the collision area in world coordinates
    */
   public get center(): Vector {
-    const pos = this.begin.average(this.end).add(this._getBodyPos());
+    const begin = this._getTransformedBegin();
+    const end = this._getTransformedEnd();
+    const pos = begin.average(end);
     return pos;
   }
 
-  private _getBodyPos(): Vector {
-    const tx = this._transform;
-    const bodyPos = tx?.globalPos ?? Vector.Zero;
-    return bodyPos;
-  }
-
   private _getTransformedBegin(): Vector {
-    const tx = this._transform;
-    const angle = tx ? tx.globalRotation : 0;
-    return this.begin.rotate(angle).add(this._getBodyPos());
+    return this._globalMatrix.multiply(this.begin);
   }
 
   private _getTransformedEnd(): Vector {
-    const tx = this._transform;
-    const angle = tx ? tx.globalRotation : 0;
-    return this.end.rotate(angle).add(this._getBodyPos());
+    return this._globalMatrix.multiply(this.end);
   }
 
   /**
@@ -257,6 +251,9 @@ export class EdgeCollider extends Collider {
    */
   public update(transform: Transform): void {
     this._transform = transform;
+    const globalMat = transform.matrix ?? this._globalMatrix;
+    globalMat.clone(this._globalMatrix);
+    this._globalMatrix.translate(this.offset.x, this.offset.y);
   }
 
   /**
