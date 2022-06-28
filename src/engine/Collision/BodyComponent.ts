@@ -74,7 +74,16 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   /**
    * The amount of mass the body has
    */
-  public mass: number = Physics.defaultMass;
+  private _mass: number = Physics.defaultMass;
+  public get mass(): number {
+    return this._mass;
+  }
+
+  public set mass(newMass: number) {
+    this._mass = newMass;
+    this._cachedInertia = undefined;
+    this._cachedInverseInertia = undefined;
+  }
 
   /**
    * The inverse mass (1/mass) of the body. If [[CollisionType.Fixed]] this is 0, meaning "infinite" mass
@@ -134,23 +143,41 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     }
   }
 
+  private _cachedInertia: number;
   /**
    * Get the moment of inertia from the [[ColliderComponent]]
    */
   public get inertia() {
+    if (this._cachedInertia) {
+      return this._cachedInertia;
+    }
+
     // Inertia is a property of the geometry, so this is a little goofy but seems to be okay?
     const collider = this.owner.get(ColliderComponent);
-    if (collider?.get()) {
-      return collider.get().getInertia(this.mass);
+    if (collider) {
+      collider.$colliderAdded.subscribe(() => {
+        this._cachedInertia = null;
+      });
+      collider.$colliderRemoved.subscribe(() => {
+        this._cachedInertia = null;
+      });
+      const maybeCollider = collider.get();
+      if (maybeCollider) {
+        return this._cachedInertia = maybeCollider.getInertia(this.mass);
+      }
     }
     return 0;
   }
 
+  private _cachedInverseInertia: number;
   /**
    * Get the inverse moment of inertial from the [[ColliderComponent]]. If [[CollisionType.Fixed]] this is 0, meaning "infinite" mass
    */
   public get inverseInertia() {
-    return this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia;
+    if (this._cachedInverseInertia) {
+      return this._cachedInverseInertia;
+    }
+    return this._cachedInverseInertia = this.collisionType === CollisionType.Fixed ? 0 : 1 / this.inertia;
   }
 
   /**
@@ -192,7 +219,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   }
 
   public get motion(): MotionComponent {
-    return this.owner?.get(MotionComponent);
+    return  this.owner?.get(MotionComponent);
   }
 
   /**

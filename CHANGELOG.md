@@ -137,7 +137,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Updates
 
--
+- Updated the collision system to improve performance
+  * Cache computed values where possible
+  * Avoid calculating transformations until absolutely necessary
+  * Avoid calling methods in tight loops
 
 ### Changed
 

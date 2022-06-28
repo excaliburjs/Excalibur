@@ -79,22 +79,26 @@ describe('A CompositeCollider', () => {
     xf.pos = vec(300, 0);
     circle.update(xf);
     const lineRight = compCollider.getClosestLineBetween(circle);
-    expect(lineRight).toEqual(new LineSegment(vec(250, 0), vec(100, 0)));
+    expect(lineRight.begin).toEqual(vec(250, 0));
+    expect(lineRight.end).toEqual(vec(100, 0));
 
     xf.pos = vec(0, -300);
     circle.update(xf);
     const lineTop = compCollider.getClosestLineBetween(circle);
-    expect(lineTop).toEqual(new LineSegment(vec(0, -250), vec(0, -50)));
+    expect(lineTop.begin).toEqual(vec(0, -250));
+    expect(lineTop.end).toEqual(vec(0, -50));
 
     xf.pos = vec(0, 300);
     circle.update(xf);
     const lineBottom = compCollider.getClosestLineBetween(circle);
-    expect(lineBottom).toEqual(new LineSegment(vec(0, 250), vec(0, 50)));
+    expect(lineBottom.begin).toEqual(vec(0, 250));
+    expect(lineBottom.end).toEqual(vec(0, 50));
 
     xf.pos = vec(-300, 0);
     circle.update(xf);
     const lineLeft = compCollider.getClosestLineBetween(circle);
-    expect(lineLeft).toEqual(new LineSegment(vec(-250, 0), vec(-100, 0)));
+    expect(lineLeft.begin).toEqual(vec(-250, 0));
+    expect(lineLeft.end).toEqual(vec(-100, 0));
   });
 
   it('can get the closest line between other composite colliders', () => {
@@ -107,13 +111,15 @@ describe('A CompositeCollider', () => {
     compCollider2.update(xf);
 
     const line = compCollider1.getClosestLineBetween(compCollider2);
-    expect(line).toEqual(new LineSegment(vec(100, -5), vec(400, -5)));
+    expect(line.begin).toEqual(vec(100, -5));
+    expect(line.end).toEqual(vec(400, -5));
 
     xf.pos = vec(0, 500);
     compCollider2.update(xf);
 
     const line2 = compCollider1.getClosestLineBetween(compCollider2);
-    expect(line2).toEqual(new LineSegment(vec(0, 50), vec(0, 450)));
+    expect(line2.begin).toEqual(vec(0, 50));
+    expect(line2.end).toEqual(vec(0, 450));
   });
 
   it('can collide with normal colliders', () => {

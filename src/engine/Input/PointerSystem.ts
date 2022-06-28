@@ -145,6 +145,7 @@ export class PointerSystem extends System<TransformComponent | PointerComponent>
       // Check collider contains pointer
       collider = entity.get(ColliderComponent);
       if (collider && (pointer.useColliderShape || this.overrideUseColliderShape)) {
+        collider.update();
         const geom = collider.get();
         if (geom) {
           for (const [pointerId, pos] of this._receiver.currentFramePointerCoords.entries()) {

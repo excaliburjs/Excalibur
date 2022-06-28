@@ -5,11 +5,12 @@ import { Vector } from './vector';
  */
 
 export class LineSegment {
+
   /**
    * @param begin  The starting point of the line segment
    * @param end  The ending point of the line segment
    */
-  constructor(public begin: Vector, public end: Vector) {}
+  constructor(public readonly begin: Vector, public readonly end: Vector) {}
 
   /**
    * Gets the raw slope (m) of the line. Will return (+/-)Infinity for vertical lines.
@@ -25,29 +26,41 @@ export class LineSegment {
     return this.begin.y - this.slope * this.begin.x;
   }
 
+  private _normal: Vector;
   /**
    * Gets the normal of the line
    */
   public normal(): Vector {
-    return this.end.sub(this.begin).normal();
+    if (this._normal) {
+      return this._normal;
+    }
+    return this._normal = this.end.sub(this.begin).normal();
   }
 
+  private _dir: Vector;
   public dir(): Vector {
-    return this.end.sub(this.begin);
+    if (this._dir) {
+      return this._dir;
+    }
+    return this._dir = this.end.sub(this.begin);
   }
 
   public getPoints(): Vector[] {
     return [this.begin, this.end];
   }
 
+  private _slope: Vector;
   /**
    * Returns the slope of the line in the form of a vector of length 1
    */
   public getSlope(): Vector {
+    if (this._slope) {
+      return this._slope;
+    }
     const begin = this.begin;
     const end = this.end;
     const distance = begin.distance(end);
-    return end.sub(begin).scale(1 / distance);
+    return this._slope = end.sub(begin).scale(1 / distance);
   }
 
   /**
@@ -59,14 +72,18 @@ export class LineSegment {
     return end.sub(begin);
   }
 
+  private _length: number;
   /**
    * Returns the length of the line segment in pixels
    */
   public getLength(): number {
+    if (this._length) {
+      return this._length;
+    }
     const begin = this.begin;
     const end = this.end;
     const distance = begin.distance(end);
-    return distance;
+    return this._length = distance;
   }
 
   /**
