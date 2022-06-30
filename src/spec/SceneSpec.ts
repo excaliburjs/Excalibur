@@ -330,12 +330,21 @@ describe('A scene', () => {
     clock.step(100);
     clock.step(100);
 
-    engine.goToScene('sceneB');
+    engine.goToScene('sceneB', { foo: 'bar' });
     clock.step(100);
     clock.step(100);
 
-    expect(sceneA.onDeactivate).toHaveBeenCalledWith(sceneA, sceneB);
-    expect(sceneB.onActivate).toHaveBeenCalledWith(sceneA, sceneB);
+    expect(sceneA.onDeactivate).toHaveBeenCalledWith({
+      engine,
+      previousScene: sceneA,
+      nextScene: sceneB
+    });
+    expect(sceneB.onActivate).toHaveBeenCalledWith({
+      engine,
+      previousScene: sceneA,
+      nextScene: sceneB,
+      data: { foo: 'bar'}
+    });
   });
 
   it('fires initialize before activate', (done) => {

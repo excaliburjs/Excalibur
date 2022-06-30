@@ -88,11 +88,18 @@ export interface CanInitialize {
   off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent<any>) => void): void;
 }
 
-export interface CanActivate {
+export interface SceneActivationContext<TData = undefined> {
+  data?: TData;
+  previousScene: Scene;
+  nextScene: Scene;
+  engine: Engine;
+}
+
+export interface CanActivate<TData = undefined> {
   /**
    * Overridable implementation
    */
-  onActivate(oldScene: Scene, newScene: Scene): void;
+  onActivate(context: SceneActivationContext<TData>): void;
 
   /**
    * Event signatures
@@ -106,7 +113,7 @@ export interface CanDeactivate {
   /**
    * Overridable implementation
    */
-  onDeactivate(oldScene: Scene, newScene: Scene): void;
+  onDeactivate(context: SceneActivationContext<never>): void;
 
   /**
    * Event signature
