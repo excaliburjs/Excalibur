@@ -1029,8 +1029,9 @@ O|===|* >________________>\n\
    * Changes the currently updating and drawing scene to a different,
    * named scene. Calls the [[Scene]] lifecycle events.
    * @param key  The key of the scene to transition to.
+   * @param data Optional data to send to the scene's onActivate method
    */
-  public goToScene(key: string): void {
+  public goToScene<Data = undefined>(key: string, data?: Data): void {
     // if not yet initialized defer goToScene
     if (!this.isInitialized) {
       this._deferredGoTo = key;
@@ -1038,26 +1039,28 @@ O|===|* >________________>\n\
     }
 
     if (this.scenes[key]) {
-      const oldScene = this.currentScene;
-      const newScene = this.scenes[key];
+      const previousScene = this.currentScene;
+      const nextScene = this.scenes[key];
 
       this._logger.debug('Going to scene:', key);
 
       // only deactivate when initialized
       if (this.currentScene.isInitialized) {
-        this.currentScene._deactivate.apply(this.currentScene, [oldScene, newScene]);
-        this.currentScene.eventDispatcher.emit('deactivate', new DeactivateEvent(newScene, this.currentScene));
+        const context = { engine: this, previousScene, nextScene };
+        this.currentScene._deactivate.apply(this.currentScene, [context, nextScene]);
+        this.currentScene.eventDispatcher.emit('deactivate', new DeactivateEvent(context, this.currentScene));
       }
 
       // set current scene to new one
-      this.currentScene = newScene;
-      this.screen.setCurrentCamera(newScene.camera);
+      this.currentScene = nextScene;
+      this.screen.setCurrentCamera(nextScene.camera);
 
       // initialize the current scene if has not been already
       this.currentScene._initialize(this);
 
-      this.currentScene._activate.apply(this.currentScene, [oldScene, newScene]);
-      this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(oldScene, this.currentScene));
+      const context = { engine: this, previousScene, nextScene, data };
+      this.currentScene._activate.apply(this.currentScene, [context, nextScene]);
+      this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(context, this.currentScene));
     } else {
       this._logger.error('Scene', key, 'does not exist!');
     }

@@ -10,7 +10,7 @@ import * as Input from './Input/Index';
 import { CollisionContact } from './Collision/Detection/CollisionContact';
 import { Collider } from './Collision/Colliders/Collider';
 import { Entity } from './EntityComponentSystem/Entity';
-import { OnInitialize, OnPreUpdate, OnPostUpdate } from './Interfaces/LifecycleEvents';
+import { OnInitialize, OnPreUpdate, OnPostUpdate, SceneActivationContext } from './Interfaces/LifecycleEvents';
 import { BodyComponent } from './Collision/BodyComponent';
 import { ExcaliburGraphicsContext } from './Graphics';
 
@@ -495,11 +495,11 @@ export class InitializeEvent<T extends OnInitialize = Entity> extends GameEvent<
 /**
  * Event thrown on a [[Scene]] on activation
  */
-export class ActivateEvent extends GameEvent<Scene> {
+export class ActivateEvent<TData = undefined> extends GameEvent<Scene> {
   /**
-   * @param oldScene  The reference to the old scene
+   * @param context  The context for the scene activation
    */
-  constructor(public oldScene: Scene, public target: Scene) {
+  constructor(public context: SceneActivationContext<TData>, public target: Scene) {
     super();
   }
 }
@@ -509,9 +509,9 @@ export class ActivateEvent extends GameEvent<Scene> {
  */
 export class DeactivateEvent extends GameEvent<Scene> {
   /**
-   * @param newScene  The reference to the new scene
+   * @param context  The context for the scene deactivation
    */
-  constructor(public newScene: Scene, public target: Scene) {
+  constructor(public context: SceneActivationContext<never>, public target: Scene) {
     super();
   }
 }
