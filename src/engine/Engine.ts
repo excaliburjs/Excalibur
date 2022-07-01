@@ -1164,7 +1164,9 @@ O|===|* >________________>\n\
       super.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
       if (this._deferredGoTo) {
-        this.goToScene(this._deferredGoTo);
+        const deferredScene = this._deferredGoTo;
+        this._deferredGoTo = null;
+        this.goToScene(deferredScene);
       } else {
         this.goToScene('root');
       }
