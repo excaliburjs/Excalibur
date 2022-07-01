@@ -5,16 +5,40 @@ const webpack = require('webpack');
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 const isAppveyor = process.env.APPVEYOR_BUILD_NUMBER ? true : false;
+const karmaJasmineSeedReporter = function(baseReporterDecorator) {
+  baseReporterDecorator(this);
+
+  this.onBrowserComplete = function(browser, result) {
+    if (result.order && result.order.random && result.order.seed) {
+      this.write('\n%s: Randomized with seed %s\n', browser.name, result.order.seed);
+    }
+  };
+
+  this.onRunComplete = function() {
+  }
+};
+
+const seedReporter =  {
+  'reporter:jasmine-seed': ['type', karmaJasmineSeedReporter] // 1. 'jasmine-seed' is a name that can be referenced in karma.conf.js
+};
 
 module.exports = (config) => {
   config.set({
-    logLevel: 'debug',
     singleRun: true,
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'webpack'],
+    plugins: [
+      require('karma-jasmine'),
+      require('karma-webpack'),
+      require('karma-chrome-launcher'),
+      require('karma-coverage-istanbul-reporter'),
+      seedReporter
+    ],
     client: {
       // Excalibur logs / console logs suppressed when captureConsole = false;
       captureConsole: false,
       jasmine: {
+        random: true,
+        // seed: '10148',
         timeoutInterval: 30000
       }
     },
@@ -96,7 +120,7 @@ module.exports = (config) => {
     // i. e.
         stats: 'normal'
     },
-    reporters: ['progress', 'coverage-istanbul'],
+    reporters: ['progress', 'coverage-istanbul', 'jasmine-seed'],
     coverageReporter: {
       reporters: [
           { type: 'html', dir: 'coverage/' }, 
