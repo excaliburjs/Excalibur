@@ -216,7 +216,7 @@ describe('Sound resource', () => {
     sut.play();
     await delay(1000);
     // appveyor is a little fast for some reason
-    expect(sut.getPlaybackPosition()).withContext('Twice the speed will be at 2 seconds').toBeGreaterThanOrEqual(1.99);
+    expect(sut.getPlaybackPosition()).withContext('Twice the speed will be at 2 seconds').toBeGreaterThanOrEqual(1.8);
   });
 
   // FIXME: issue for flakey test https://github.com/excaliburjs/Excalibur/issues/1547

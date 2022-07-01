@@ -136,22 +136,6 @@ describe('Clocks', () => {
       expect(clock.isRunning()).toBe(false);
     });
 
-    it('can limit fps', (done) => {
-      const tickSpy = jasmine.createSpy('tick');
-      const clock = new ex.StandardClock({
-        tick: tickSpy,
-        maxFps: 15
-      });
-
-      clock.start();
-      setTimeout(() => {
-        expect(clock.fpsSampler.fps).toBeCloseTo(15, -1);
-        expect(tickSpy).toHaveBeenCalledWith(1000 / 15);
-        clock.stop();
-        done();
-      }, 300);
-    });
-
     it('can handle exceptions and stop', () => {
       const errorSpy = jasmine.createSpy('error');
       const clock = new ex.StandardClock({
