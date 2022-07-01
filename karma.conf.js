@@ -2,7 +2,7 @@
 const process = require('process');
 const path = require('path');
 const webpack = require('webpack');
-process.env.CHROME_BIN = require('puppeteer').executablePath();
+process.env.CHROMIUM_BIN = require('puppeteer').executablePath();
 
 const isAppveyor = process.env.APPVEYOR_BUILD_NUMBER ? true : false;
 const karmaJasmineSeedReporter = function(baseReporterDecorator) {
@@ -134,21 +134,21 @@ module.exports = (config) => {
       // base output directory. If you include %browser% in the path it will be replaced with the karma browser name
       dir: path.join(__dirname, 'coverage')
     },
-    browsers: ['ChromeHeadless_with_audio'],
+    browsers: ['ChromiumHeadless_with_audio'],
     browserDisconnectTolerance : 1,
     browserDisconnectTimeout: 10000,
     browserNoActivityTimeout: 60000, // appveyor is slow :(
     customLaunchers: {
-      ChromeHeadless_with_audio: {
-          base: 'ChromeHeadless',
+      ChromiumHeadless_with_audio: {
+          base: 'ChromiumHeadless',
           flags: ['--autoplay-policy=no-user-gesture-required', '--mute-audio', '--disable-gpu', '--no-sandbox']
       },
-      ChromeHeadless_with_debug: {
-        base: 'ChromeHeadless',
+      ChromiumHeadless_with_debug: {
+        base: 'ChromiumHeadless',
         flags: ['--remote-debugging-port=9334', '--no-sandbox', '--disable-web-security']
       },
-      Chrome_with_debug: {
-        base: 'Chrome',
+      Chromium_with_debug: {
+        base: 'Chromium',
         flags: ['--remote-debugging-port=9334', '--no-sandbox']
       }
     }

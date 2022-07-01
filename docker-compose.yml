@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    working_dir: /opt/app
+    container_name: "dev"
+    volumes:
+      - "./:/opt/app"
+      - /opt/app/node_modules

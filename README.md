@@ -41,6 +41,14 @@ Compiled examples can be found [in the Excalibur Samples collection](http://exca
 
 Please read our [Contributing Guidelines](.github/CONTRIBUTING.md) and our [Code of Conduct](.github/CODE_OF_CONDUCT.md). Whether you've spotted a bug, have a question, or think of a new feature, we thank you for your help!
 
+## Mac
+
+Prerequisites
+* Docker for Mac https://docs.docker.com/desktop/mac/install/
+* In the root, run `docker-compose build` (setup build environment and installs dependencies, only needed once)
+* To run tests in watch mode `docker-compose run --rm dev npm run test:watch`
+* To run a build `docker-compose run --rm dev npm run all`
+
 # Writing Documentation
 
 We love when people help improve our documentation. You can contribute to the docs in [this repository](https://github.com/excaliburjs/excaliburjs.github.io).
