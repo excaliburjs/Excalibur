@@ -55,11 +55,11 @@ describe('A Collision', () => {
     collisionTree.track(actor1.collider.get());
     collisionTree.track(actor2.collider.get());
 
-    let pairs = collisionTree.broadphase([actor1.collider.get(), actor2.collider.get()], 200);
+    let pairs = collisionTree.broadphase([actor1.collider.get(), actor2.collider.get()], 16);
 
     expect(pairs.length).toBe(1);
 
-    pairs = collisionTree.broadphase([actor2.collider.get(), actor1.collider.get()], 200);
+    pairs = collisionTree.broadphase([actor2.collider.get(), actor1.collider.get()], 16);
 
     expect(pairs.length).toBe(1);
   });
