@@ -2,7 +2,7 @@
 const process = require('process');
 const path = require('path');
 const webpack = require('webpack');
-// process.env.CHROME_BIN = require('puppeteer').executablePath();
+process.env.CHROMIUM_BIN = require('puppeteer').executablePath();
 
 const isAppveyor = process.env.APPVEYOR_BUILD_NUMBER ? true : false;
 

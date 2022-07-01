@@ -2,21 +2,18 @@ from ubuntu:20.04
 # Referenced https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-Readme.md
 # ubuntu-latest https://github.com/actions/virtual-environments
 
-RUN apt update
-RUN apt install -y wget curl gnupg snapd
-# Install node
-RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash -
-RUN apt-get -y install nodejs
-
 # Chrome wants a timezone
 ENV TZ=America/Chicago 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Install Google Chrome
-RUN snap install chromium
-# RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \ 
-#     && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
-# RUN apt-get update && apt-get -y install google-chrome-stable
+RUN apt update
+# Install Chromium Shared Deps (puppeteer in npm comes with chromium binary)
+RUN apt install -y wget curl gnupg libnss3-dev libgdk-pixbuf2.0-dev libgtk-3-dev libxss-dev libasound2
+
+# Install node
+RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash -
+RUN apt-get -y install nodejs
+
 
 WORKDIR /opt/app
 ADD package.json package-lock.json /opt/app/
