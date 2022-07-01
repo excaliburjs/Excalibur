@@ -1031,7 +1031,7 @@ O|===|* >________________>\n\
    * @param key  The key of the scene to transition to.
    * @param data Optional data to send to the scene's onActivate method
    */
-  public goToScene<Data = undefined>(key: string, data?: Data): void {
+  public goToScene<TData = undefined>(key: string, data?: TData): void {
     // if not yet initialized defer goToScene
     if (!this.isInitialized) {
       this._deferredGoTo = key;
