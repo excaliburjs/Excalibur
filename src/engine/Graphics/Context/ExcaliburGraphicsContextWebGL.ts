@@ -180,7 +180,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       premultipliedAlpha: false,
       alpha: enableTransparency ?? true,
       depth: true,
-      powerPreference: 'high-performance',
+      powerPreference: 'high-performance'
       // TODO Chromium fixed the bug where this didn't work now it breaks CI
       // failIfMajorPerformanceCaveat: true
     });
