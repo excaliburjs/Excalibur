@@ -1,15 +1,18 @@
 import * as ex from '@excalibur';
-import { Logger } from '@excalibur';
+import { Logger, TextureLoader } from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
 describe('A Sprite Graphic', () => {
   let canvasElement: HTMLCanvasElement;
   let ctx: ex.ExcaliburGraphicsContext;
-  beforeEach(() => {
+  beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
-
+  });
+  
+  beforeEach(() => {
+    TextureLoader.filtering = ex.ImageFiltering.Pixel;
     canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
