@@ -17,7 +17,7 @@ class Scene1 extends ex.Scene {
     );
   }
 
-  onActivate(_oldScene: ex.Scene, _newScene: ex.Scene): void {
+  onActivate(): void {
     console.log('Scene 1 Activate')
   }
 }
@@ -34,7 +34,7 @@ class Scene2 extends ex.Scene {
     });
     _engine.add(actor);
   }
-  onActivate(_oldScene: ex.Scene, _newScene: ex.Scene): void {
+  onActivate(): void {
     console.log('Scene 2 Activate')
   }
 }
