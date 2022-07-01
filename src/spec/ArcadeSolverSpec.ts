@@ -82,7 +82,7 @@ describe('An ArcadeSolver', () => {
       expect(evt.side).toBe(ex.Side.Bottom);
     });
 
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < 10; i++) {
       clock.step(16);
     }
 

@@ -617,6 +617,33 @@ describe('The engine', () => {
     expect(ex.Logger.getInstance().error).toHaveBeenCalledWith('Scene', 'madeUp', 'does not exist!');
   });
 
+  it('will add actors to the correct scene when initialized after a deferred goTo', () => {
+    const engine = TestUtils.engine();
+    const scene1 = new ex.Scene();
+    const scene2 = new ex.Scene();
+    engine.add('scene1', scene1);
+    engine.add('scene2', scene2);
+
+    scene1.onInitialize = () => {
+      engine.goToScene('scene2');
+    };
+    scene2.onInitialize = () => {
+      engine.add(new ex.Actor());
+    };
+
+    spyOn(scene1, 'onInitialize').and.callThrough();
+    spyOn(scene2, 'onInitialize').and.callThrough();
+
+
+    engine.goToScene('scene1');
+
+    TestUtils.runToReady(engine);
+
+    expect(engine.currentScene).toBe(scene2);
+    expect(scene1.actors.length).toBe(0);
+    expect(scene2.actors.length).toBe(1);
+  });
+
   it('can screen shot the game (in WebGL)', (done) => {
 
     const engine = TestUtils.engine({}, []);
