@@ -8,6 +8,7 @@ const isAppveyor = process.env.APPVEYOR_BUILD_NUMBER ? true : false;
 
 module.exports = (config) => {
   config.set({
+    logLevel: 'debug',
     singleRun: true,
     frameworks: ['jasmine'],
     client: {
