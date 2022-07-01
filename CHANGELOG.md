@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `ex.TransformComponent.posChanged$` has been removed, it incurs a steep performance cost
 - `ex.EventDispatcher` meta events 'subscribe' and 'unsubscribe' were unused and undocumented and have been removed
 - `ex.TileMap` tlies are now drawn from the lower left by default to match with `ex.IsometricMap` and Tiled, but can be configured with `renderFromTopOfGraphic` to restore the previous behavior.
+- Scene `onActivate` and `onDeactivate` methods have been changed to receive a single parameter, an object containing the `previousScene`, `nextScene`, and optional `data` passed in from `goToScene()`
 
 ### Deprecated
 
@@ -115,10 +116,24 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   // actor will now move to (100, 100) and rotate to Math.PI/2 at the same time!!
   ```
 - Add target element id to `ex.Screen.goFullScreen('some-element-id')` to influence the fullscreen element in the fullscreen browser API.
+- Added optional `data` parameter to `goToScene`, which gets passed to the target scene's `onActivate` method.
+  ```typescript
+  class SceneA extends ex.Scene {
+    /* ... */
+
+    onActivate(context: ex.SceneActivationContext<{ foo: string }>) {
+      console.log(context.data.foo); // bar
+    }
+  }
+
+  engine.goToScene('sceneA', { foo: 'bar' })
+  ```
 
 ### Fixed
 
 - Fixed issue with `ex.Engine.snapToPixel` where positions very close to pixel boundary created jarring 1 pixel oscillations.
+- Fixed bug where a deferred `goToScene` would preserve the incorrect scene so `engine.add(someActor)` would place actors in the wrong scene after transitioning to another.
+- Fixed usability issue and log warning if the `ex.ImageSource` is not loaded and a draw was attempted.
 - Fixed bug in `ex.Physics.useRealisticPhysics()` solver where `ex.Body.bounciness` was not being respected in the simulation
 - Fixed bug in `ex.Physics.useRealisticPhysics()` solver where `ex.Body.limitDegreeOfFreedom` was not working all the time.
 - Fixed bug in `Clock.schedule` where callbacks would not fire at the correct time, this was because it was scheduling using browser time and not the clock's internal time.

@@ -18,7 +18,7 @@ import { TileMap } from './TileMap';
 import { Camera } from './Camera';
 import { Actor } from './Actor';
 import { Class } from './Class';
-import { CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw } from './Interfaces/LifecycleEvents';
+import { CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw, SceneActivationContext } from './Interfaces/LifecycleEvents';
 import * as Util from './Util/Util';
 import * as Events from './Events';
 import { Trigger } from './Trigger';
@@ -41,7 +41,9 @@ import { ExcaliburGraphicsContext } from './Graphics';
  *
  * Typical usages of a scene include: levels, menus, loading screens, etc.
  */
-export class Scene extends Class implements CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw {
+export class Scene<TActivationData = unknown>
+  extends Class
+  implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate, CanDraw {
   private _logger: Logger = Logger.getInstance();
   /**
    * Gets or sets the current camera for the scene
@@ -169,7 +171,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * This is called when the scene is made active and started. It is meant to be overridden,
    * this is where you should setup any DOM UI or event handlers needed for the scene.
    */
-  public onActivate(_oldScene: Scene, _newScene: Scene): void {
+  public onActivate(_context: SceneActivationContext<TActivationData>): void {
     // will be overridden
   }
 
@@ -177,7 +179,7 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * This is called when the scene is made transitioned away from and stopped. It is meant to be overridden,
    * this is where you should cleanup any DOM UI or event handlers needed for the scene.
    */
-  public onDeactivate(_oldScene: Scene, _newScene: Scene): void {
+  public onDeactivate(_context: SceneActivationContext): void {
     // will be overridden
   }
 
@@ -267,9 +269,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Activates the scene with the base behavior, then calls the overridable `onActivate` implementation.
    * @internal
    */
-  public _activate(oldScene: Scene, newScene: Scene): void {
+  public _activate(context: SceneActivationContext<TActivationData>): void {
     this._logger.debug('Scene.onActivate', this);
-    this.onActivate(oldScene, newScene);
+    this.onActivate(context);
   }
 
   /**
@@ -278,9 +280,9 @@ export class Scene extends Class implements CanInitialize, CanActivate, CanDeact
    * Deactivates the scene with the base behavior, then calls the overridable `onDeactivate` implementation.
    * @internal
    */
-  public _deactivate(oldScene: Scene, newScene: Scene): void {
+  public _deactivate(context: SceneActivationContext<never>): void {
     this._logger.debug('Scene.onDeactivate', this);
-    this.onDeactivate(oldScene, newScene);
+    this.onDeactivate(context);
   }
 
   /**

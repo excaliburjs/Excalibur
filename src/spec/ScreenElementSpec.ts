@@ -73,23 +73,17 @@ describe('A ScreenElement', () => {
     expect(screenElement.contains(50, 50, true)).toBe(true);
   });
 
-  it('is drawn on the top left with empty constructor', (done) => {
+  it('is drawn on the top left with empty constructor', async () => {
     const game = TestUtils.engine({ width: 720, height: 480 });
     const clock = game.clock as ex.TestClock;
     const bg = new ex.ImageSource('src/spec/images/ScreenElementSpec/emptyctor.png');
     const loader = new ex.Loader([bg]);
-    TestUtils.runToReady(game, loader).then(() => {
-      const screenElement = new ex.ScreenElement();
-      screenElement.graphics.use(bg.toSprite());
-      game.add(screenElement);
-      game.currentScene.draw(game.graphicsContext, 100);
-      game.graphicsContext.flush();
-
-      ensureImagesLoaded(TestUtils.flushWebGLCanvasTo2D(game.canvas), 'src/spec/images/ScreenElementSpec/emptyctor.png')
-        .then(([canvas, image]) => {
-          expect(canvas).toEqualImage(image);
-          done();
-        });
-    });
+    await TestUtils.runToReady(game, loader);
+    const screenElement = new ex.ScreenElement();
+    screenElement.graphics.use(bg.toSprite());
+    game.add(screenElement);
+    game.currentScene.draw(game.graphicsContext, 100);
+    game.graphicsContext.flush();
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(game.canvas)).toEqualImage('src/spec/images/ScreenElementSpec/emptyctor.png');
   });
 });

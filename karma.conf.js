@@ -2,18 +2,43 @@
 const process = require('process');
 const path = require('path');
 const webpack = require('webpack');
-process.env.CHROME_BIN = require('puppeteer').executablePath();
+process.env.CHROMIUM_BIN = require('puppeteer').executablePath();
 
 const isAppveyor = process.env.APPVEYOR_BUILD_NUMBER ? true : false;
+const karmaJasmineSeedReporter = function(baseReporterDecorator) {
+  baseReporterDecorator(this);
+
+  this.onBrowserComplete = function(browser, result) {
+    if (result.order && result.order.random && result.order.seed) {
+      this.write('\n%s: Randomized with seed %s\n', browser.name, result.order.seed);
+    }
+  };
+
+  this.onRunComplete = function() {
+  }
+};
+
+const seedReporter =  {
+  'reporter:jasmine-seed': ['type', karmaJasmineSeedReporter] // 1. 'jasmine-seed' is a name that can be referenced in karma.conf.js
+};
 
 module.exports = (config) => {
   config.set({
     singleRun: true,
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'webpack'],
+    plugins: [
+      require('karma-jasmine'),
+      require('karma-webpack'),
+      require('karma-chrome-launcher'),
+      require('karma-coverage-istanbul-reporter'),
+      seedReporter
+    ],
     client: {
       // Excalibur logs / console logs suppressed when captureConsole = false;
       captureConsole: false,
       jasmine: {
+        random: true,
+        // seed: '10148',
         timeoutInterval: 30000
       }
     },
@@ -95,7 +120,7 @@ module.exports = (config) => {
     // i. e.
         stats: 'normal'
     },
-    reporters: ['progress', 'coverage-istanbul'],
+    reporters: ['progress', 'coverage-istanbul', 'jasmine-seed'],
     coverageReporter: {
       reporters: [
           { type: 'html', dir: 'coverage/' }, 
@@ -109,21 +134,21 @@ module.exports = (config) => {
       // base output directory. If you include %browser% in the path it will be replaced with the karma browser name
       dir: path.join(__dirname, 'coverage')
     },
-    browsers: ['ChromeHeadless_with_audio'],
+    browsers: ['ChromiumHeadless_with_audio'],
     browserDisconnectTolerance : 1,
     browserDisconnectTimeout: 10000,
     browserNoActivityTimeout: 60000, // appveyor is slow :(
     customLaunchers: {
-      ChromeHeadless_with_audio: {
-          base: 'ChromeHeadless',
+      ChromiumHeadless_with_audio: {
+          base: 'ChromiumHeadless',
           flags: ['--autoplay-policy=no-user-gesture-required', '--mute-audio', '--disable-gpu', '--no-sandbox']
       },
-      ChromeHeadless_with_debug: {
-        base: 'ChromeHeadless',
+      ChromiumHeadless_with_debug: {
+        base: 'ChromiumHeadless',
         flags: ['--remote-debugging-port=9334', '--no-sandbox', '--disable-web-security']
       },
-      Chrome_with_debug: {
-        base: 'Chrome',
+      Chromium_with_debug: {
+        base: 'Chromium',
         flags: ['--remote-debugging-port=9334', '--no-sandbox']
       }
     }

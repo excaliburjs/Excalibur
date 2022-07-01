@@ -4,7 +4,7 @@
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
   "eslint.enable": true,
-  "eslint.options": { "configFile": "./.eslintrc.json" },
+  "eslint.options": { "overrideConfigFile": "./.eslintrc.json" },
   "eslint.alwaysShowStatus": true,
   "eslint.validate": ["typescript"],
   "files.exclude": {

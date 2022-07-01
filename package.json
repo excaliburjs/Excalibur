@@ -59,7 +59,7 @@
     "release": "cross-env release=true npm run all"
   },
   "devDependencies": {
-    "@babel/core": "7.18.5",
+    "@babel/core": "7.18.6",
     "@fortawesome/fontawesome-free": "5.15.4",
     "@octokit/rest": "18.12.0",
     "@storybook/addon-actions": "6.5.9",
@@ -96,7 +96,7 @@
     "karma-jasmine": "4.0.2",
     "karma-summary-reporter": "3.1.1",
     "karma-webpack": "5.0.0",
-    "puppeteer": "13.3.2",
+    "puppeteer": "15.2.0",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "replace-in-file": "6.3.5",
