@@ -41,9 +41,9 @@ import { ExcaliburGraphicsContext } from './Graphics';
  *
  * Typical usages of a scene include: levels, menus, loading screens, etc.
  */
-export class Scene
+export class Scene<TActivationData = unknown>
   extends Class
-  implements CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw {
+  implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate, CanDraw {
   private _logger: Logger = Logger.getInstance();
   /**
    * Gets or sets the current camera for the scene
@@ -171,7 +171,7 @@ export class Scene
    * This is called when the scene is made active and started. It is meant to be overridden,
    * this is where you should setup any DOM UI or event handlers needed for the scene.
    */
-  public onActivate<TData = undefined>(_context: SceneActivationContext<TData>): void {
+  public onActivate(_context: SceneActivationContext<TActivationData>): void {
     // will be overridden
   }
 
@@ -269,7 +269,7 @@ export class Scene
    * Activates the scene with the base behavior, then calls the overridable `onActivate` implementation.
    * @internal
    */
-  public _activate<TData = undefined>(context: SceneActivationContext<TData>): void {
+  public _activate(context: SceneActivationContext<TActivationData>): void {
     this._logger.debug('Scene.onActivate', this);
     this.onActivate(context);
   }
