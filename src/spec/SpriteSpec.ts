@@ -10,7 +10,7 @@ describe('A Sprite Graphic', () => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
-  
+
   beforeEach(() => {
     TextureLoader.filtering = ex.ImageFiltering.Pixel;
     canvasElement = document.createElement('canvas');
