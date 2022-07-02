@@ -324,7 +324,9 @@ describe('The ExcaliburGraphicsContext', () => {
       rect.draw(context, 1 - 0.0001, 1 - 0.0001);
       context.flush();
 
-      await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas)).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-next.png');
+      await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas)).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-next.png'
+      );
     });
 
     it('can draw a graphic', async () => {
