@@ -142,7 +142,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
           // start with the oldPos because the integration for actors has already happened
           // objects resting on a surface may be slightly penetrating in the current position
-          const updateVec = body.pos.sub(body.oldPos);
+          const updateVec = body.globalPos.sub(body.oldPos);
           const centerPoint = collider.center;
           const furthestPoint = collider.getFurthestPoint(body.vel);
           const origin: Vector = furthestPoint.sub(updateVec);
@@ -176,7 +176,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
             // move the fast moving object to the other body
             // need to push into the surface by ex.Physics.surfaceEpsilon
             const shift = centerPoint.sub(furthestPoint);
-            body.pos = origin
+            body.globalPos = origin
               .add(shift)
               .add(minTranslate)
               .add(ray.dir.scale(10 * Physics.surfaceEpsilon)); // needed to push the shape slightly into contact

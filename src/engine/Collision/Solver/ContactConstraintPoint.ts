@@ -21,8 +21,8 @@ export class ContactConstraintPoint {
       const normal = this.contact.normal;
       const tangent = this.contact.tangent;
 
-      this.aToContact = this.point.sub(bodyA.pos);
-      this.bToContact = this.point.sub(bodyB.pos);
+      this.aToContact = this.point.sub(bodyA.globalPos);
+      this.bToContact = this.point.sub(bodyB.globalPos);
 
       const aToContactNormal = this.aToContact.cross(normal);
       const bToContactNormal = this.bToContact.cross(normal);

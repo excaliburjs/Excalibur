@@ -78,8 +78,8 @@ export class RealisticSolver implements CollisionSolver {
           const normal = contact.normal;
           const tangent = contact.tangent;
 
-          const aToContact = point.sub(bodyA.pos);
-          const bToContact = point.sub(bodyB.pos);
+          const aToContact = point.sub(bodyA.globalPos);
+          const bToContact = point.sub(bodyB.globalPos);
 
           const aToContactNormal = aToContact.cross(normal);
           const bToContactNormal = bToContact.cross(normal);
@@ -256,7 +256,7 @@ export class RealisticSolver implements CollisionSolver {
                 impulseForce.y = 0;
               }
 
-              bodyA.pos = bodyA.pos.add(impulseForce);
+              bodyA.globalPos = bodyA.globalPos.add(impulseForce);
               if (!bodyA.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
                 bodyA.rotation -= point.aToContact.cross(impulse) * bodyA.inverseInertia;
               }
@@ -271,7 +271,7 @@ export class RealisticSolver implements CollisionSolver {
                 impulseForce.y = 0;
               }
 
-              bodyB.pos = bodyB.pos.add(impulseForce);
+              bodyB.globalPos = bodyB.globalPos.add(impulseForce);
               if (!bodyB.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
                 bodyB.rotation += point.bToContact.cross(impulse) * bodyB.inverseInertia;
               }
