@@ -218,7 +218,7 @@ export interface EngineOptions {
      * By default `false`, if set to `true` a dialogue will be presented to the player about their browser and how to potentially
      * address any issues.
      */
-    showPlayerMessage: boolean;
+    showPlayerMessage?: boolean;
     /**
      * Default `{ numberOfFrames: 100, fps: 20 }`, optionally configure excalibur to fallback to the 2D Canvas renderer
      * if bad performance is detected.
@@ -226,7 +226,7 @@ export interface EngineOptions {
      * In this example of the default if excalibur is running at 20fps or less for 100 frames it will trigger the fallback to the 2D
      * Canvas renderer.
      */
-    threshold: { numberOfFrames: number, fps: number };
+    threshold?: { numberOfFrames: number, fps: number };
   }
 }
 
@@ -750,7 +750,14 @@ O|===|* >________________>\n\
   private _performanceThresholdTriggered = false;
   private _fpsSamples: number[] = [];
   private _monitorPerformanceThresholdAndTriggerFallback() {
-    const { allow, threshold, showPlayerMessage } = this._originalOptions.configurePerformanceCanvas2DFallback;
+    const { allow } = this._originalOptions.configurePerformanceCanvas2DFallback;
+    let { threshold, showPlayerMessage } = this._originalOptions.configurePerformanceCanvas2DFallback;
+    if (threshold === undefined) {
+      threshold = Engine._DEFAULT_ENGINE_OPTIONS.configurePerformanceCanvas2DFallback.threshold;
+    }
+    if (showPlayerMessage === undefined) {
+      showPlayerMessage = Engine._DEFAULT_ENGINE_OPTIONS.configurePerformanceCanvas2DFallback.showPlayerMessage;
+    }
     if (!Flags.isEnabled('use-canvas-context') && allow && this.ready && !this._performanceThresholdTriggered) {
       // Calculate Average fps for last X number of frames after start
       if (this._fpsSamples.length === threshold.numberOfFrames) {
