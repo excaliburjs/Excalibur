@@ -3,6 +3,7 @@ const process = require('process');
 const path = require('path');
 const webpack = require('webpack');
 process.env.CHROMIUM_BIN = require('puppeteer').executablePath();
+process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 const isAppveyor = process.env.APPVEYOR_BUILD_NUMBER ? true : false;
 const karmaJasmineSeedReporter = function(baseReporterDecorator) {
@@ -136,9 +137,13 @@ module.exports = (config) => {
     },
     browsers: ['ChromiumHeadless_with_audio'],
     browserDisconnectTolerance : 1,
-    browserDisconnectTimeout: 10000,
+    browserDisconnectTimeout: 60000, // appveyor is slow :(
     browserNoActivityTimeout: 60000, // appveyor is slow :(
     customLaunchers: {
+      ChromeHeadless_with_audio: {
+          base: 'ChromeHeadless',
+          flags: ['--autoplay-policy=no-user-gesture-required', '--mute-audio', '--disable-gpu', '--no-sandbox']
+      },
       ChromiumHeadless_with_audio: {
           base: 'ChromiumHeadless',
           flags: ['--autoplay-policy=no-user-gesture-required', '--mute-audio', '--disable-gpu', '--no-sandbox']

@@ -757,7 +757,7 @@ describe('A Text Graphic', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 1000;
     canvasElement.height = 1000;
-    const ctx = new ex.ExcaliburGraphicsContextWebGL({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContextWebGL({ canvasElement, snapToPixel: false });
     ctx.clear();
     sut.draw(ctx, 10, 50);
     ctx.flush();

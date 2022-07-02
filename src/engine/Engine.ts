@@ -126,7 +126,7 @@ export interface EngineOptions {
   canvasElement?: HTMLCanvasElement;
 
   /**
-   * Optionally snap drawings to nearest pixel
+   * Optionally snap graphics to nearest pixel, default is false
    */
   snapToPixel?: boolean;
 

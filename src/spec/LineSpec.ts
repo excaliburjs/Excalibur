@@ -61,7 +61,7 @@ describe('A Line', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    const ctx = new ex.ExcaliburGraphicsContextWebGL({ canvasElement });
+    const ctx = new ex.ExcaliburGraphicsContextWebGL({ canvasElement, snapToPixel: false });
 
     ctx.clear();
     sut.draw(ctx, 0, 0);

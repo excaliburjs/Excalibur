@@ -1,7 +1,7 @@
 import { vec } from '../../../Math/vector';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
-import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import { ExcaliburGraphicsContextWebGL, pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
 import { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
@@ -175,17 +175,17 @@ export class ImageRenderer implements RendererPlugin {
     bottomRight = transform.multiply(bottomRight);
 
     if (snapToPixel) {
-      topLeft.x = ~~topLeft.x;
-      topLeft.y = ~~topLeft.y;
+      topLeft.x = ~~(topLeft.x + pixelSnapEpsilon);
+      topLeft.y = ~~(topLeft.y + pixelSnapEpsilon);
 
-      topRight.x = ~~topRight.x;
-      topRight.y = ~~topRight.y;
+      topRight.x = ~~(topRight.x + pixelSnapEpsilon);
+      topRight.y = ~~(topRight.y + pixelSnapEpsilon);
 
-      bottomLeft.x = ~~bottomLeft.x;
-      bottomLeft.y = ~~bottomLeft.y;
+      bottomLeft.x = ~~(bottomLeft.x + pixelSnapEpsilon);
+      bottomLeft.y = ~~(bottomLeft.y + pixelSnapEpsilon);
 
-      bottomRight.x = ~~bottomRight.x;
-      bottomRight.y = ~~bottomRight.y;
+      bottomRight.x = ~~(bottomRight.x + pixelSnapEpsilon);
+      bottomRight.y = ~~(bottomRight.y + pixelSnapEpsilon);
     }
 
     const tint = this._context.tint;

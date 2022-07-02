@@ -15,6 +15,8 @@ import { ScreenDimension } from '../../Screen';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
 import { AffineMatrix } from '../../Math/affine-matrix';
 
+const pixelSnapEpsilon = 0.0001;
+
 class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
   private _debugText = new DebugText();
   constructor(private _ex: ExcaliburGraphicsContext2DCanvas) {}
@@ -29,10 +31,10 @@ class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
     this._ex.__ctx.save();
     this._ex.__ctx.strokeStyle = 'red';
     this._ex.__ctx.strokeRect(
-      this._ex.snapToPixel ? ~~x : x,
-      this._ex.snapToPixel ? ~~y : y,
-      this._ex.snapToPixel ? ~~width : width,
-      this._ex.snapToPixel ? ~~height : height
+      this._ex.snapToPixel ? ~~(x + pixelSnapEpsilon) : x,
+      this._ex.snapToPixel ? ~~(y + pixelSnapEpsilon) : y,
+      this._ex.snapToPixel ? ~~(width + pixelSnapEpsilon) : width,
+      this._ex.snapToPixel ? ~~(height + pixelSnapEpsilon) : height
     );
     this._ex.__ctx.restore();
   }
@@ -41,8 +43,14 @@ class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
     this._ex.__ctx.save();
     this._ex.__ctx.beginPath();
     this._ex.__ctx.strokeStyle = lineOptions.color.toString();
-    this._ex.__ctx.moveTo(this._ex.snapToPixel ? ~~start.x : start.x, this._ex.snapToPixel ? ~~start.y : start.y);
-    this._ex.__ctx.lineTo(this._ex.snapToPixel ? ~~end.x : end.x, this._ex.snapToPixel ? ~~end.y : end.y);
+    this._ex.__ctx.moveTo(
+      this._ex.snapToPixel ? ~~(start.x + pixelSnapEpsilon) : start.x,
+      this._ex.snapToPixel ? ~~(start.y + pixelSnapEpsilon) : start.y
+    );
+    this._ex.__ctx.lineTo(
+      this._ex.snapToPixel ? ~~(end.x + pixelSnapEpsilon) : end.x,
+      this._ex.snapToPixel ? ~~(end.y + pixelSnapEpsilon) : end.y
+    );
     this._ex.__ctx.lineWidth = 2;
     this._ex.__ctx.stroke();
     this._ex.__ctx.closePath();
@@ -54,8 +62,8 @@ class ExcaliburGraphicsContext2DCanvasDebug implements DebugDraw {
     this._ex.__ctx.beginPath();
     this._ex.__ctx.fillStyle = pointOptions.color.toString();
     this._ex.__ctx.arc(
-      this._ex.snapToPixel ? ~~point.x : point.x,
-      this._ex.snapToPixel ? ~~point.y : point.y,
+      this._ex.snapToPixel ? ~~(point.x + pixelSnapEpsilon) : point.x,
+      this._ex.snapToPixel ? ~~(point.y + pixelSnapEpsilon) : point.y,
       pointOptions.size,
       0,
       Math.PI * 2
@@ -114,7 +122,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this._state.current.tint = color;
   }
 
-  public snapToPixel: boolean = true;
+  public snapToPixel: boolean = false;
 
   public get smoothing(): boolean {
     return this.__ctx.imageSmoothingEnabled;
@@ -200,8 +208,14 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.save();
     this.__ctx.beginPath();
     this.__ctx.strokeStyle = color.toString();
-    this.__ctx.moveTo(this.snapToPixel ? ~~start.x : start.x, this.snapToPixel ? ~~start.y : start.y);
-    this.__ctx.lineTo(this.snapToPixel ? ~~end.x : end.x, this.snapToPixel ? ~~end.y : end.y);
+    this.__ctx.moveTo(
+      this.snapToPixel ? ~~ (start.x + pixelSnapEpsilon) : start.x,
+      this.snapToPixel ? ~~(start.y + pixelSnapEpsilon) : start.y
+    );
+    this.__ctx.lineTo(
+      this.snapToPixel ? ~~ (end.x + pixelSnapEpsilon) : end.x,
+      this.snapToPixel ? ~~(end.y + pixelSnapEpsilon) : end.y
+    );
     this.__ctx.lineWidth = thickness;
     this.__ctx.stroke();
     this.__ctx.closePath();
@@ -212,10 +226,10 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     this.__ctx.save();
     this.__ctx.fillStyle = color.toString();
     this.__ctx.fillRect(
-      this.snapToPixel ? ~~pos.x : pos.x,
-      this.snapToPixel ? ~~pos.y : pos.y,
-      this.snapToPixel ? ~~width : width,
-      this.snapToPixel ? ~~height : height
+      this.snapToPixel ? ~~(pos.x + pixelSnapEpsilon) : pos.x,
+      this.snapToPixel ? ~~(pos.y + pixelSnapEpsilon) : pos.y,
+      this.snapToPixel ? ~~(width + pixelSnapEpsilon) : width,
+      this.snapToPixel ? ~~(height + pixelSnapEpsilon) : height
     );
     this.__ctx.restore();
   }
@@ -230,7 +244,10 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
       this.__ctx.lineWidth = thickness;
     }
     this.__ctx.fillStyle = color.toString();
-    this.__ctx.arc(this.snapToPixel ? ~~pos.x : pos.x, this.snapToPixel ? ~~pos.y : pos.y, radius, 0, Math.PI * 2);
+    this.__ctx.arc(
+      this.snapToPixel ? ~~(pos.x + pixelSnapEpsilon) : pos.x,
+      this.snapToPixel ? ~~(pos.y + pixelSnapEpsilon) : pos.y, radius, 0, Math.PI * 2
+    );
     this.__ctx.fill();
     if (stroke) {
       this.__ctx.stroke();
@@ -261,7 +278,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
    * @param y
    */
   translate(x: number, y: number): void {
-    this.__ctx.translate(this.snapToPixel ? ~~x : x, this.snapToPixel ? ~~y : y);
+    this.__ctx.translate(this.snapToPixel ? ~~(x + pixelSnapEpsilon) : x, this.snapToPixel ? ~~(y + pixelSnapEpsilon) : y);
   }
 
   /**

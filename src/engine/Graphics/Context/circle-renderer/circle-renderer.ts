@@ -1,7 +1,7 @@
 import { Color } from '../../../Color';
 import { vec, Vector } from '../../../Math/vector';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
-import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import { ExcaliburGraphicsContextWebGL, pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
 import { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
@@ -77,11 +77,26 @@ export class CircleRenderer implements RendererPlugin {
     // transform based on current context
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
+    const snapToPixel = this._context.snapToPixel;
 
     const topLeft = transform.multiply(pos.add(vec(-radius, -radius)));
     const topRight = transform.multiply(pos.add(vec(radius, -radius)));
     const bottomRight = transform.multiply(pos.add(vec(radius, radius)));
     const bottomLeft = transform.multiply(pos.add(vec(-radius, radius)));
+
+    if (snapToPixel) {
+      topLeft.x = ~~(topLeft.x + pixelSnapEpsilon);
+      topLeft.y = ~~(topLeft.y + pixelSnapEpsilon);
+
+      topRight.x = ~~(topRight.x + pixelSnapEpsilon);
+      topRight.y = ~~(topRight.y + pixelSnapEpsilon);
+
+      bottomLeft.x = ~~(bottomLeft.x + pixelSnapEpsilon);
+      bottomLeft.y = ~~(bottomLeft.y + pixelSnapEpsilon);
+
+      bottomRight.x = ~~(bottomRight.x + pixelSnapEpsilon);
+      bottomRight.y = ~~(bottomRight.y + pixelSnapEpsilon);
+    }
 
     // TODO UV could be static vertex buffer
     const uvx0 = 0;

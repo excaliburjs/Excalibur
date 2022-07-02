@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Breaking Changes
 
+- `ex.Engine.snapToPixel` now defaults to `false`, it was unexpected to have pixel snapping on by default it has now been switched.
 - The `ex.Physics.useRealisticPhysics()` physics solver has been updated to fix a bug in bounciness to be more physically accurate, this does change how physics behaves. Setting `ex.Body.bounciness = 0` will simulate the old behavior. 
 - `ex.TransformComponent.posChanged$` has been removed, it incurs a steep performance cost
 - `ex.EventDispatcher` meta events 'subscribe' and 'unsubscribe' were unused and undocumented and have been removed
@@ -129,6 +130,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   ```
 
 ### Fixed
+
+- Fixed issue with `ex.Engine.snapToPixel` where positions very close to pixel boundary created jarring 1 pixel oscillations.
 - Fixed bug where a deferred `goToScene` would preserve the incorrect scene so `engine.add(someActor)` would place actors in the wrong scene after transitioning to another.
 - Fixed usability issue and log warning if the `ex.ImageSource` is not loaded and a draw was attempted.
 - Fixed bug in `ex.Physics.useRealisticPhysics()` solver where `ex.Body.bounciness` was not being respected in the simulation
@@ -159,6 +162,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- `ex.Engine.snapToPixel` now defaults to `false`
 - Most places where `ex.Matrix` was used have been switched to `ex.AffineMatrix`
 - Most places where `ex.TransformComponent` was used have been switched to `ex.Transform`
 

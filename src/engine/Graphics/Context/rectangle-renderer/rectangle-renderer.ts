@@ -1,7 +1,7 @@
 import { Color } from '../../../Color';
 import { vec, Vector } from '../../../Math/vector';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
-import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import { ExcaliburGraphicsContextWebGL, pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
 import { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
@@ -87,6 +87,7 @@ export class RectangleRenderer implements RendererPlugin {
     // transform based on current context
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
+    const snapToPixel = this._context.snapToPixel;
 
     const dir = end.sub(start);
     const length = dir.size;
@@ -104,6 +105,20 @@ export class RectangleRenderer implements RendererPlugin {
     const startBottom = transform.multiply(normal.scale(-halfThick).add(start));
     const endTop = transform.multiply(normal.scale(halfThick).add(end));
     const endBottom = transform.multiply(normal.scale(-halfThick).add(end));
+
+    if (snapToPixel) {
+      startTop.x = ~~(startTop.x + pixelSnapEpsilon);
+      startTop.y = ~~(startTop.y + pixelSnapEpsilon);
+
+      endTop.x = ~~(endTop.x + pixelSnapEpsilon);
+      endTop.y = ~~(endTop.y + pixelSnapEpsilon);
+
+      startBottom.x = ~~(startBottom.x + pixelSnapEpsilon);
+      startBottom.y = ~~(startBottom.y + pixelSnapEpsilon);
+
+      endBottom.x = ~~(endBottom.x + pixelSnapEpsilon);
+      endBottom.y = ~~(endBottom.y + pixelSnapEpsilon);
+    }
 
     // TODO uv could be static vertex buffer
     const uvx0 = 0;
@@ -206,11 +221,26 @@ export class RectangleRenderer implements RendererPlugin {
     // transform based on current context
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
+    const snapToPixel = this._context.snapToPixel;
 
     const topLeft = transform.multiply(pos.add(vec(0, 0)));
     const topRight = transform.multiply(pos.add(vec(width, 0)));
     const bottomRight = transform.multiply(pos.add(vec(width, height)));
     const bottomLeft = transform.multiply(pos.add(vec(0, height)));
+
+    if (snapToPixel) {
+      topLeft.x = ~~(topLeft.x + pixelSnapEpsilon);
+      topLeft.y = ~~(topLeft.y + pixelSnapEpsilon);
+
+      topRight.x = ~~(topRight.x + pixelSnapEpsilon);
+      topRight.y = ~~(topRight.y + pixelSnapEpsilon);
+
+      bottomLeft.x = ~~(bottomLeft.x + pixelSnapEpsilon);
+      bottomLeft.y = ~~(bottomLeft.y + pixelSnapEpsilon);
+
+      bottomRight.x = ~~(bottomRight.x + pixelSnapEpsilon);
+      bottomRight.y = ~~(bottomRight.y + pixelSnapEpsilon);
+    }
 
     // TODO uv could be static vertex buffer
     const uvx0 = 0;

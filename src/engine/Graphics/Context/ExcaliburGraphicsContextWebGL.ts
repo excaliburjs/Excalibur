@@ -33,6 +33,8 @@ import { Pool } from '../../Util/Pool';
 import { DrawCall } from './draw-call';
 import { AffineMatrix } from '../../Math/affine-matrix';
 
+export const pixelSnapEpsilon = 0.0001;
+
 class ExcaliburGraphicsContextWebGLDebug implements DebugDraw {
   private _debugText = new DebugText();
   constructor(private _webglCtx: ExcaliburGraphicsContextWebGL) {}
@@ -118,7 +120,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _state = new StateStack();
   private _ortho!: Matrix;
 
-  public snapToPixel: boolean = true;
+  public snapToPixel: boolean = false;
 
   public smoothing: boolean = false;
 
@@ -398,7 +400,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   public translate(x: number, y: number): void {
-    this._transform.translate(this.snapToPixel ? ~~x : x, this.snapToPixel ? ~~y : y);
+    this._transform.translate(this.snapToPixel ? ~~(x + pixelSnapEpsilon) : x, this.snapToPixel ? ~~(y + pixelSnapEpsilon) : y);
   }
 
   public rotate(angle: number): void {
