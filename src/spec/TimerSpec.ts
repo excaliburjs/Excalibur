@@ -485,8 +485,8 @@ describe('A Timer', () => {
     });
     scene.add(timer);
     timer.start();
-    scene.update(engine, 100);
     expect(timer.complete).toBeFalse();
+    scene.update(engine, 100);
     expect(timer.interval).toBeGreaterThanOrEqual(100);
     expect(timer.interval).toBeLessThanOrEqual(300);
   });
