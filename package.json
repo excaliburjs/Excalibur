@@ -117,7 +117,7 @@
     "webpack-cli": "4.9.2"
   },
   "dependencies": {
-    "core-js": "3.23.1"
+    "core-js": "3.23.3"
   },
   "overrides": {
     "typedoc": {
