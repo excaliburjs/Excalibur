@@ -39,8 +39,7 @@ module.exports = (config) => {
       captureConsole: false,
       jasmine: {
         random: true,
-        // seed: '10148',
-        timeoutInterval: 30000
+        timeoutInterval: 70000 // needs to be bigger than no-activity
       }
     },
     proxies: {
