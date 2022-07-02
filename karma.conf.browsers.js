@@ -106,7 +106,7 @@ module.exports = (config) => {
     },
     browserDisconnectTimeout : 10000,
     browserDisconnectTolerance : 1,
-    browserNoActivityTimeout: 60000, // appveyor is slow :(
+    browserNoActivityTimeout: 120_000, // appveyor is slow :(
     captureTimeout : 4*60*1000,
       // define browsers
     customLaunchers: {
