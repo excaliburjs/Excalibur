@@ -304,7 +304,7 @@ describe('The ExcaliburGraphicsContext', () => {
       await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas)).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap.png');
     });
 
-    it('will snap rectangles to the next pixel if close to the border', async () => {
+    it('will snap rectangle graphics to the next pixel if close to the border', async () => {
       const canvas = document.createElement('canvas');
       canvas.width = 10;
       canvas.height = 10;
@@ -322,6 +322,26 @@ describe('The ExcaliburGraphicsContext', () => {
 
       context.clear();
       rect.draw(context, 1 - 0.0001, 1 - 0.0001);
+      context.flush();
+
+      await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas)).toEqualImage(
+        'src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-next.png'
+      );
+    });
+
+    it('will snap rectangles to the next pixel if close to the border', async () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 10;
+      canvas.height = 10;
+      const context = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvas,
+        backgroundColor: ex.Color.Black,
+        smoothing: false,
+        snapToPixel: true
+      });
+
+      context.clear();
+      context.drawRectangle(ex.vec(1 - 0.0001, 1 - 0.0001), 2, 2, ex.Color.Red);
       context.flush();
 
       await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas)).toEqualImage(
