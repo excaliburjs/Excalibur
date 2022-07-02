@@ -27,9 +27,10 @@
   ],
   "scripts": {
     "all": "npm run lint && npm run core && npm run build:esm && npm run test && npm run legacy-visual",
+    "all:ci": "npm run lint && npm run core && npm run build:esm && npm run test:ci && npm run legacy-visual",
     "clean": "rimraf .tsbuildinfo ./build/dist ./build ./src/spec/*.js ./src/spec/*.map",
-    "linux:ci": "npm run clean &&npm run lint && npm run core && npm run build:esm && npm run test:ci && npm run legacy-visual && npm run coveralls && npm run apidocs",
-    "appveyor": "npm run all && npm run nuget 0.0.1",
+    "linux:ci": "npm run clean && npm run all:ci && npm run coveralls && npm run apidocs",
+    "appveyor": "npm run all:ci && npm run nuget 0.0.1",
     "browserstack": "karma start karma.conf.browsers.js",
     "nuget": ".\\src\\tools\\NuGet.exe pack Excalibur.nuspec -OutputDirectory .\\build\\dist -version",
     "start": "npm run core:watch",
