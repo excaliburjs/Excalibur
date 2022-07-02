@@ -1,5 +1,7 @@
 import * as ex from '@excalibur';
+import { TextureLoader } from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { TestUtils } from './util/TestUtils';
 
 /**
  *
@@ -241,6 +243,7 @@ describe('The ExcaliburGraphicsContext', () => {
     beforeEach(() => {
       jasmine.addMatchers(ExcaliburMatchers);
       jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
+      TextureLoader.filtering = ex.ImageFiltering.Pixel;
     });
 
     it('exists', () => {
@@ -276,6 +279,52 @@ describe('The ExcaliburGraphicsContext', () => {
       });
       expect(context.width).toBe(canvas.width);
       expect(context.height).toBe(canvas.height);
+    });
+
+    it('will snap to the nearest pixel', async () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 10;
+      canvas.height = 10;
+      const context = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvas,
+        backgroundColor: ex.Color.Black,
+        smoothing: false,
+        snapToPixel: true
+      });
+      const rect = new ex.Rectangle({
+        width: 2,
+        height: 2,
+        color: ex.Color.Red
+      });
+
+      context.clear();
+      rect.draw(context, .5, .5);//1 - 0.001, 1 - 0.001);
+      context.flush();
+
+      await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas)).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap.png');
+    });
+
+    it('will snap to the next pixel if close to the border', async () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 10;
+      canvas.height = 10;
+      const context = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvas,
+        backgroundColor: ex.Color.Black,
+        smoothing: false,
+        snapToPixel: true
+      });
+      const rect = new ex.Rectangle({
+        width: 2,
+        height: 2,
+        color: ex.Color.Red
+      });
+
+      context.clear();
+      rect.draw(context, 1 - 0.0001, 1 - 0.0001);
+      context.flush();
+
+      await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas)).toEqualImage('src/spec/images/ExcaliburGraphicsContextSpec/pixel-snap-next.png');
     });
 
     it('can draw a graphic', async () => {
