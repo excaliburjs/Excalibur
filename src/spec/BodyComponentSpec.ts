@@ -5,7 +5,7 @@ import { ExcaliburMatchers } from 'excalibur-jasmine';
 describe('A body component', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
-  })
+  });
   it('exists', () => {
     expect(ex.BodyComponent).toBeDefined();
   });
