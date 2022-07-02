@@ -210,8 +210,11 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     return !!this.owner?.active;
   }
 
+  /**
+   * @deprecated Use globalP0s
+   */
   public get center() {
-    return this.pos;
+    return this.globalPos;
   }
 
   public get transform(): TransformComponent {
@@ -222,16 +225,24 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     return  this.owner?.get(MotionComponent);
   }
 
+  public get pos(): Vector {
+    return this.transform.pos;
+  }
+
+  public set pos(val: Vector) {
+    this.transform.pos = val;
+  }
+
   /**
    * The (x, y) position of the actor this will be in the middle of the actor if the
    * [[Actor.anchor]] is set to (0.5, 0.5) which is default.
    * If you want the (x, y) position to be the top left of the actor specify an anchor of (0, 0).
    */
-  public get pos(): Vector {
+  public get globalPos(): Vector {
     return this.transform.globalPos;
   }
 
-  public set pos(val: Vector) {
+  public set globalPos(val: Vector) {
     this.transform.globalPos = val;
   }
 
@@ -368,7 +379,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     this.vel.addEqual(finalImpulse);
 
     if (!this.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
-      const distanceFromCenter = point.sub(this.pos);
+      const distanceFromCenter = point.sub(this.globalPos);
       this.angularVelocity += this.inverseInertia * distanceFromCenter.cross(impulse);
     }
   }
@@ -405,7 +416,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     }
 
     if (!this.limitDegreeOfFreedom.includes(DegreeOfFreedom.Rotation)) {
-      const distanceFromCenter = point.sub(this.pos);
+      const distanceFromCenter = point.sub(this.globalPos);
       this.angularVelocity += this.inverseInertia * distanceFromCenter.cross(impulse);
     }
   }
