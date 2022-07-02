@@ -196,15 +196,15 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
           // Interpolate graphics if needed
           const blend = this._engine.currentFrameLagMs / (1000 / this._engine.fixedUpdateFps);
-          interpolatedPos = optionalBody.pos.scale(blend).add(
+          interpolatedPos = transform.pos.scale(blend).add(
             optionalBody.oldPos.scale(1.0 - blend)
           );
-          interpolatedScale = optionalBody.scale.scale(blend).add(
+          interpolatedScale = transform.scale.scale(blend).add(
             optionalBody.oldScale.scale(1.0 - blend)
           );
           // Rotational lerp https://stackoverflow.com/a/30129248
-          const cosine = (1.0 - blend) * Math.cos(optionalBody.oldRotation) + blend * Math.cos(optionalBody.rotation);
-          const sine = (1.0 - blend) * Math.sin(optionalBody.oldRotation) + blend * Math.sin(optionalBody.rotation);
+          const cosine = (1.0 - blend) * Math.cos(optionalBody.oldRotation) + blend * Math.cos(transform.rotation);
+          const sine = (1.0 - blend) * Math.sin(optionalBody.oldRotation) + blend * Math.sin(transform.rotation);
           interpolatedRotation = Math.atan2(sine, cosine);
         }
       }
