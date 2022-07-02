@@ -162,6 +162,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- `ex.Engine.configurePerformanceCanvas2DFallback` no longer requires `threshold` or `showPlayerMessage`
 - `ex.Engine.snapToPixel` now defaults to `false`
 - Most places where `ex.Matrix` was used have been switched to `ex.AffineMatrix`
 - Most places where `ex.TransformComponent` was used have been switched to `ex.Transform`
