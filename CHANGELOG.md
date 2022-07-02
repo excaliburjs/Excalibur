@@ -310,6 +310,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added the ability to select variable duration into Timer constructor. 
 ### Fixed
 
+- Fixed unreleased issue where fixed update interpolation was incorrect with child actors
 - Fixed unreleased bug where CompositeCollider components would not collide appropriately because contacts did not have unique ids
 - Fixed issue where CompositeColliders treat separate constituents as separate collisionstart/collisionend which is unexpected
 - Fixed issue where resources that failed to load would silently fail making debugging challenging
