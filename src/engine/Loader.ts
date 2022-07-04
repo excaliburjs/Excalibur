@@ -311,7 +311,7 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
 
   data: Loadable<any>[];
 
-  private _loadingFuture = new Future<void>;
+  private _loadingFuture = new Future<void>();
   public areResourcesLoaded() {
     return this._loadingFuture.promise;
   }
