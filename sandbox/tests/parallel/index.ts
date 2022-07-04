@@ -40,9 +40,7 @@ class MyActor extends ex.Actor {
       ctx.fade(0, 1000);
     });
     const parallel = new ex.ParallelActions([knockBackSequence, fadeSequence]);
-    // oops runAction() doesn't return the ActionContext will fix soon
-    this.actions.runAction(parallel);
-    await this.actions.toPromise();
+    await this.actions.runAction(parallel).toPromise();
   }
 }
 

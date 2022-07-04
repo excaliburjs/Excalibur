@@ -33,8 +33,8 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
     return this._ctx?.getQueue();
   }
 
-  public runAction(action: Action): void {
-    this._ctx?.runAction(action);
+  public runAction(action: Action): ActionContext {
+    return this._ctx?.runAction(action);
   }
 
   /**

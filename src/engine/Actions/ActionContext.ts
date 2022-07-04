@@ -56,6 +56,7 @@ export class ActionContext {
   public runAction(action: Action) {
     action.reset();
     this._queue.add(action);
+    return this;
   }
 
   /**
