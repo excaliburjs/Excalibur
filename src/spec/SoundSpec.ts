@@ -206,7 +206,7 @@ describe('Sound resource', () => {
     sut.play();
     await delay(1000);
     // appveyor is a little fast for some reason
-    expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(.99);
+    expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(.98);
   });
 
   it('should variable playback rate of the audio track', async () => {
