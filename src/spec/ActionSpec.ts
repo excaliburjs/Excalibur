@@ -453,11 +453,11 @@ describe('Action', () => {
     it('can be reset', () => {
       const easeTo = new ex.EaseBy(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
       easeTo.update(1000);
-      expect(easeTo.isComplete(actor)).toBeTrue();
+      expect(easeTo.isComplete()).toBeTrue();
 
       easeTo.reset();
       actor.pos = ex.vec(0, 0);
-      expect(easeTo.isComplete(actor)).toBeFalse();
+      expect(easeTo.isComplete()).toBeFalse();
     });
     it('can be eased to a location given an easing function (x,y) overload', () => {
       actor.pos = ex.vec(100, 100);
@@ -520,11 +520,11 @@ describe('Action', () => {
     it('can be reset', () => {
       const easeTo = new ex.EaseTo(actor, 100, 0, 100, ex.EasingFunctions.EaseInOutCubic);
       easeTo.update(1000);
-      expect(easeTo.isComplete(actor)).toBeTrue();
+      expect(easeTo.isComplete()).toBeTrue();
 
       easeTo.reset();
       actor.pos = ex.vec(0, 0);
-      expect(easeTo.isComplete(actor)).toBeFalse();
+      expect(easeTo.isComplete()).toBeFalse();
     });
     it('can be eased to a location given an easing function (x,y) overload', () => {
       expect(actor.pos).toBeVector(ex.vec(0, 0));

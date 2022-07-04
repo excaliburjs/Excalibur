@@ -1,4 +1,3 @@
-import { Actor } from '../../Actor';
 import { MotionComponent } from '../../EntityComponentSystem/Components/MotionComponent';
 import { TransformComponent } from '../../EntityComponentSystem/Components/TransformComponent';
 import { Entity } from '../../EntityComponentSystem/Entity';
@@ -15,7 +14,6 @@ export class EaseBy implements Action {
   private _offset: Vector;
   private _initialized: boolean = false;
   private _stopped: boolean = false;
-  private _distance: number = 0;
   constructor(
     entity: Entity,
     offsetX: number,
@@ -32,7 +30,6 @@ export class EaseBy implements Action {
     this._lerpStart = new Vector(this._tx.pos.x, this._tx.pos.y);
     this._currentLerpTime = 0;
     this._lerpEnd = this._lerpStart.add(this._offset);
-    this._distance = this._lerpStart.distance(this._lerpEnd);
   }
 
   public update(delta: number): void {
@@ -68,13 +65,14 @@ export class EaseBy implements Action {
       this._motion.vel = Vector.Zero;
     }
   }
-  public isComplete(actor: Actor): boolean {
-    return this._stopped || new Vector(actor.pos.x, actor.pos.y).distance(this._lerpStart) >= this._distance;
+  public isComplete(): boolean {
+    return this._stopped || this._currentLerpTime >= this._lerpDuration;
   }
 
   public reset(): void {
     this._initialized = false;
     this._stopped = false;
+    this._currentLerpTime = 0;
   }
   public stop(): void {
     this._motion.vel = vec(0, 0);
