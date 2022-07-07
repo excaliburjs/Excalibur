@@ -131,6 +131,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue with `ex.Canvas` and `ex.Raster` graphics that forced their dimensions to the next highest power of two.
 - Fixed issue with `ex.Engine.snapToPixel` where positions very close to pixel boundary created jarring 1 pixel oscillations.
 - Fixed bug where a deferred `goToScene` would preserve the incorrect scene so `engine.add(someActor)` would place actors in the wrong scene after transitioning to another.
 - Fixed usability issue and log warning if the `ex.ImageSource` is not loaded and a draw was attempted.
