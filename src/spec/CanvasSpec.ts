@@ -1,8 +1,9 @@
 import * as ex from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { TestUtils } from './util/TestUtils';
 
 describe('A Canvas Graphic', () => {
-  beforeEach(() => {
+  beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
@@ -105,5 +106,36 @@ describe('A Canvas Graphic', () => {
     sut.draw(ctx, 0, 0);
 
     expect(sut.execute).toHaveBeenCalledTimes(4);
+  });
+
+  it('can be centered with the specified dimensions in an actor', async () => {
+    const engine = TestUtils.engine({width: 100, height: 100});
+    const clock = engine.clock as ex.TestClock;
+    await TestUtils.runToReady(engine);
+    const sut = new ex.Canvas({
+      width: 50,
+      height: 50,
+      cache: true,
+      draw: (ctx) => {
+        ctx.fillStyle = 'red';
+        ctx.fillRect(0, 0, 50, 50);
+      }
+    });
+
+    const actor = new ex.Actor({
+      x: 50,
+      y: 50
+    });
+
+    actor.graphics.use(sut);
+
+    engine.add(actor);
+
+    clock.step(1);
+
+    expect(sut.width).toBe(50);
+    expect(sut.height).toBe(50);
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/GraphicsCanvasSpec/centered.png');
+
   });
 });
