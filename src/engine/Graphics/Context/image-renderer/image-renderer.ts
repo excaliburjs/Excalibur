@@ -8,7 +8,6 @@ import { Shader } from '../shader';
 import { TextureLoader } from '../texture-loader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
-import { ensurePowerOfTwo } from '../webgl-util';
 import frag from './image-renderer.frag.glsl';
 import vert from './image-renderer.vert.glsl';
 
@@ -191,13 +190,13 @@ export class ImageRenderer implements RendererPlugin {
     const tint = this._context.tint;
 
     const textureId = this._getTextureIdForImage(image);
-    const potWidth = ensurePowerOfTwo(image.width || width);
-    const potHeight = ensurePowerOfTwo(image.height || height);
+    const imageWidth = image.width || width;
+    const imageHeight = image.height || height;
 
-    const uvx0 = (sx) / potWidth;
-    const uvy0 = (sy) / potHeight;
-    const uvx1 = (sx + sw - 0.01) / potWidth;
-    const uvy1 = (sy + sh - 0.01) / potHeight;
+    const uvx0 = (sx) / imageWidth;
+    const uvy0 = (sy) / imageHeight;
+    const uvx1 = (sx + sw - 0.01) / imageWidth;
+    const uvy1 = (sy + sh - 0.01) / imageHeight;
 
     // update data
     const vertexBuffer = this._layout.vertexBuffer.bufferData;

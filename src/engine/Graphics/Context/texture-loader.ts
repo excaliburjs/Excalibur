@@ -1,7 +1,6 @@
 import { Logger } from '../../Util/Log';
 import { ImageFiltering } from '../Filtering';
 import { HTMLImageSource } from './ExcaliburGraphicsContext';
-import { ensurePowerOfTwo, isPowerOfTwo } from './webgl-util';
 
 /**
  * Manages loading image sources into webgl textures, a unique id is associated with all sources
@@ -12,8 +11,6 @@ export class TextureLoader {
    * Sets the default filtering for the Excalibur texture loader, default [[ImageFiltering.Blended]]
    */
   public static filtering: ImageFiltering = ImageFiltering.Blended;
-  private static _POT_CANVAS = document.createElement('canvas');
-  private static _POT_CTX = TextureLoader._POT_CANVAS.getContext('2d');
 
   private static _GL: WebGLRenderingContext;
 
@@ -65,15 +62,13 @@ export class TextureLoader {
     if (tex) {
       if (forceUpdate) {
         gl.bindTexture(gl.TEXTURE_2D, tex);
-        const source = TextureLoader.toPowerOfTwoImage(image);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
       }
       return tex;
     }
 
     // No texture exists create a new one
     tex = gl.createTexture();
-    const source = TextureLoader.toPowerOfTwoImage(image);
 
     TextureLoader.checkImageSizeSupportedAndLog(image);
 
@@ -88,7 +83,7 @@ export class TextureLoader {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filterMode === ImageFiltering.Pixel ? gl.NEAREST : gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filterMode === ImageFiltering.Pixel ? gl.NEAREST : gl.LINEAR);
 
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
     TextureLoader._TEXTURE_MAP.set(image, tex);
     return tex;
@@ -106,27 +101,6 @@ export class TextureLoader {
       tex = TextureLoader.get(image);
       gl.deleteTexture(tex);
     }
-  }
-
-  /**
-   * Converts source images into power of two images, WebGL only supports POT images
-   * https://www.khronos.org/webgl/wiki/WebGL_and_OpenGL_Differences#Non-Power_of_Two_Texture_Support
-   * @param image
-   */
-  public static toPowerOfTwoImage(image: HTMLImageSource): HTMLImageSource {
-    const potCanvas = TextureLoader._POT_CANVAS;
-    const potCtx = TextureLoader._POT_CTX;
-    if (!isPowerOfTwo(image.width) || !isPowerOfTwo(image.height)) {
-      // Scale up the texture to the next highest power of two dimensions.
-
-      potCanvas.width = ensurePowerOfTwo(image.width);
-      potCanvas.height = ensurePowerOfTwo(image.height);
-      potCtx.imageSmoothingEnabled = false;
-      potCtx.clearRect(0, 0, potCanvas.width, potCanvas.height);
-      potCtx.drawImage(image, 0, 0, image.width, image.height);
-      image = potCanvas;
-    }
-    return image;
   }
 
   /**
