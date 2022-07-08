@@ -3,9 +3,42 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+
 ## [Unreleased]
 
-## Breaking Changes
+### Breaking Changes
+
+-
+
+### Deprecated
+
+-
+
+### Added
+
+-
+
+### Fixed
+
+-
+
+### Updates
+
+-
+
+### Changed
+
+-
+
+
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [0.27.0] - 2022-07-08
+
+### Breaking Changes
 
 - `ex.Engine.snapToPixel` now defaults to `false`, it was unexpected to have pixel snapping on by default it has now been switched.
 - The `ex.Physics.useRealisticPhysics()` physics solver has been updated to fix a bug in bounciness to be more physically accurate, this does change how physics behaves. Setting `ex.Body.bounciness = 0` will simulate the old behavior. 
@@ -128,6 +161,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
   engine.goToScene('sceneA', { foo: 'bar' })
   ```
+  - Added the ability to select variable duration into Timer constructor.
+  ```typescript
+  const random = new ex.Random(1337);
+  const timer = new ex.Timer({
+    random,
+    interval: 500,
+    randomRange: [0, 500]
+  })
+  ```
 
 ### Fixed
 
@@ -170,7 +212,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.26.0] - 2022-05-20
 
-## Breaking Changes
+### Breaking Changes
 
 - `ex.Line` has be replaced with a new Graphics type, the old geometric behavior is now under the type `ex.LineSegment`
 - Notable deprecated types removed
@@ -308,7 +350,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added new display mode `ex.DisplayMode.FitScreenAndFill`.
 - Added new display mode `ex.DisplayMode.FitContainerAndZoom`.
 - Added new display mode `ex.DisplayMode.FitScreenAndZoom`.
-- Added the ability to select variable duration into Timer constructor. 
 ### Fixed
 
 - Fixed unreleased issue where fixed update interpolation was incorrect with child actors
