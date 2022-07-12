@@ -12,7 +12,21 @@ import { Collider } from '../Colliders/Collider';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { BodyComponent } from '../BodyComponent';
 import { CompositeCollider } from '../Colliders/CompositeCollider';
-import { ExcaliburGraphicsContext } from '../..';
+import { CollisionGroup } from '../Group/CollisionGroup';
+import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+
+export interface RayCastHit {
+  distance: number;
+  collider: Collider;
+  body: BodyComponent;
+  point: Vector;
+}
+
+export interface RayCastOptions {
+  maxDistance?: number;
+  collisionGroup?: CollisionGroup;
+  searchAllColliders?: boolean;
+}
 
 /**
  * Responsible for performing the collision broadphase (locating potential collisions) and
@@ -27,6 +41,37 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
   public getColliders(): readonly Collider[] {
     return this._colliders;
+  }
+
+  public rayCast(ray: Ray, options?: RayCastOptions): RayCastHit[] {
+    let results: RayCastHit[] = [];
+    const maxDistance = options?.maxDistance ?? Infinity;
+    const collisionGroup = options?.collisionGroup ?? CollisionGroup.All;
+    this._dynamicCollisionTree.rayCastQuery(ray, maxDistance, (collider) => {
+      const owner = collider.owner;
+      console.log(owner.name);
+      const maybeBody = owner.get(BodyComponent);
+      // Early exit if not the right group
+      if (maybeBody && maybeBody.group.mask !== collisionGroup.mask) {
+        return false;
+      }
+
+      const hit = collider.rayCast(ray, maxDistance);
+      if (hit) {
+        results.push({
+          distance: hit.sub(ray.pos).distance(),
+          point: hit,
+          collider: collider,
+          body: maybeBody
+        })
+        if (!options?.searchAllColliders) {
+          // returning true exits the search
+          return true;
+        }
+      }
+      return false;
+    });
+    return results;
   }
 
   /**
