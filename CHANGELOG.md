@@ -20,7 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
--
+- Fixed `engine.on('visible')` event not firing
 
 ### Updates
 
