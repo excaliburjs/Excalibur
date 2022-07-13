@@ -397,6 +397,26 @@ describe('The engine', () => {
     expect(fired).toHaveBeenCalledTimes(2);
   });
 
+  it('should emit a visible event', () => {
+    const fired = jasmine.createSpy('fired');
+    engine.on('visible', fired);
+
+    spyOnProperty(window.document, 'visibilityState').and.returnValue('visible');
+    window.document.dispatchEvent(new CustomEvent('visibilitychange'));
+
+    expect(fired).toHaveBeenCalled();
+  });
+
+  it('should emit a hidden event', () => {
+    const fired = jasmine.createSpy('fired');
+    engine.on('hidden', fired);
+    
+    spyOnProperty(window.document, 'visibilityState').and.returnValue('hidden');
+    window.document.dispatchEvent(new CustomEvent('visibilitychange'));
+
+    expect(fired).toHaveBeenCalled();
+  });
+
   it('should tell engine is running', () => {
     const status = engine.isRunning();
     expect(status).toBe(true);
