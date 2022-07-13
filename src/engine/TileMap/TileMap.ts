@@ -301,6 +301,8 @@ export class TileMap extends Entity {
       this._composite.addCollider(collider);
     }
     this._collider.update();
+    // Notify that colliders have been updated
+    this._collider.$colliderAdded.notifyAll(this._composite);
   }
 
   /**
