@@ -209,12 +209,12 @@ export class Font extends Graphic implements FontRenderer {
    * Remove any expired cached text bitmaps
    */
   public checkAndClearCache() {
-    let deferred: FontTextInstance[] = []
+    const deferred: FontTextInstance[] = [];
     for (const [textInstance, time] of this._textUsage.entries()) {
       // if bitmap hasn't been used in 1 second clear it
-      // TODO use Clock 
+      // TODO use Clock
       if (time + 1000 < performance.now()) {
-        deferred.push(textInstance)
+        deferred.push(textInstance);
         textInstance.dispose();
       }
     }

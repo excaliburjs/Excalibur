@@ -1,9 +1,9 @@
-import { BoundingBox } from "../Collision/BoundingBox";
-import { Color } from "../Color";
-import { line } from "../Util/DrawUtil";
-import { ExcaliburGraphicsContext } from "./Context/ExcaliburGraphicsContext";
-import { TextureLoader } from "./Context/texture-loader";
-import { Font } from "./Font";
+import { BoundingBox } from '../Collision/BoundingBox';
+import { Color } from '../Color';
+import { line } from '../Util/DrawUtil';
+import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
+import { TextureLoader } from './Context/texture-loader';
+import { Font } from './Font';
 
 export class FontTextInstance {
   public canvas: HTMLCanvasElement;
@@ -22,7 +22,7 @@ export class FontTextInstance {
 
   private _measureText(): BoundingBox {
     if (this.disposed) {
-      throw Error("Accessing disposed text instance! " + this.text);
+      throw Error('Accessing disposed text instance! ' + this.text);
     }
 
     const lines = this.text.split('\n');
@@ -46,7 +46,7 @@ export class FontTextInstance {
       bottom: y + bottomBounds + this.font.padding,
       right: x + Math.abs(metrics.actualBoundingBoxRight) + this.font.padding
     });
-    
+
     return measurement;
   }
 
@@ -73,7 +73,7 @@ export class FontTextInstance {
       font.lineDash.toString() +
       font.strokeColor?.toString() +
       color ? color.toString() : font.color.toString());
-    return hash
+    return hash;
   }
 
   getHashCode() {
@@ -163,10 +163,10 @@ export class FontTextInstance {
   private _dirty = true;
   public render(ex: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.disposed) {
-      throw Error("Accessing disposed text instance! " + this.text);
+      throw Error('Accessing disposed text instance! ' + this.text);
     }
     const hashCode = this.getHashCode();
-    if(this._lastHashCode !== hashCode) {
+    if (this._lastHashCode !== hashCode) {
       this._dirty = true;
     }
 

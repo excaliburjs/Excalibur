@@ -20,7 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
--
+- Fixed issue where `ex.Font` would become corrupted when re-used by multiple `ex.Text` instances
 
 ### Updates
 
