@@ -1117,7 +1117,7 @@ O|===|* >________________>\n\
         this.eventDispatcher.emit('visible', new VisibleEvent(this));
         this._logger.debug('Window visible');
       }
-    })
+    });
 
     if (!this.canvasElementId && !options.canvasElement) {
       document.body.appendChild(this.canvas);

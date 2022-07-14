@@ -410,7 +410,7 @@ describe('The engine', () => {
   it('should emit a hidden event', () => {
     const fired = jasmine.createSpy('fired');
     engine.on('hidden', fired);
-    
+
     spyOnProperty(window.document, 'visibilityState').and.returnValue('hidden');
     window.document.dispatchEvent(new CustomEvent('visibilitychange'));
 
