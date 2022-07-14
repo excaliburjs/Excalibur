@@ -206,13 +206,17 @@ export class Font extends Graphic implements FontRenderer {
     let deferred: FontTextInstance[] = []
     for (const [textInstance, time] of this._textUsage.entries()) {
       // if bitmap hasn't been used in 1 second clear it
+      // TODO use Clock 
       if (time + 1000 < performance.now()) {
-        this._textCache.delete(textInstance.getHashCode());
         deferred.push(textInstance)
         textInstance.dispose();
-        console.log('cleanup', textInstance.text, textInstance.getHashCode());
       }
     }
     deferred.forEach(t => this._textUsage.delete(t));
+
+    this._textCache.clear();
+    for (const [textInstance] of this._textUsage.entries()) {
+      this._textCache.set(textInstance.getHashCode(), textInstance);
+    }
   }
 }
