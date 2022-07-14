@@ -431,4 +431,9 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
     this.oldVel.setTo(this.vel.x, this.vel.y);
     this.oldAcc.setTo(this.acc.x, this.acc.y);
   }
+
+  public clone(): BodyComponent {
+    const component = super.clone() as BodyComponent;
+    return component;
+  }
 }
