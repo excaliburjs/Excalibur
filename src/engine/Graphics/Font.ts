@@ -180,6 +180,7 @@ export class Font extends Graphic implements FontRenderer {
     }
 
     // Apply affine transformations
+    this._textBounds = textInstance.dimensions;
     this._preDraw(ex, x, y);
 
     textInstance.render(ex, x, y);
