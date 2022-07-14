@@ -179,7 +179,13 @@ export class Font extends Graphic implements FontRenderer {
       this._textCache.set(hash, textInstance);
     }
 
+    // Apply affine transformations
+    this._preDraw(ex, x, y);
+
     textInstance.render(ex, x, y);
+
+    this._postDraw(ex);
+
     // Cache the bitmap for certain amount of time
     this._textUsage.set(textInstance, performance.now());
   }

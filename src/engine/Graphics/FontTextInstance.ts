@@ -165,13 +165,12 @@ export class FontTextInstance {
     if (this.disposed) {
       throw Error("Accessing disposed text instance! " + this.text);
     }
-    // Apply affine transformations
-    (this.font as any)._preDraw(ex, x, y);
     const hashCode = this.getHashCode();
     if(this._lastHashCode !== hashCode) {
       this._dirty = true;
     }
 
+    // Calculate image chunks
     if (this._dirty) {
       this.dimensions = this._measureText();
       this._setDimension(this.dimensions, this.ctx);
@@ -210,8 +209,6 @@ export class FontTextInstance {
         frag.canvas.height / this.font.quality
       );
     }
-
-    (this.font as any)._postDraw(ex);
   }
 
   dispose() {
