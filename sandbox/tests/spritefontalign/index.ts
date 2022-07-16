@@ -4,9 +4,10 @@ var game = new ex.Engine({
   antialiasing: false,
   width: 800,
   height: 600,
-  resolution: { width: 200, height: 200 }
+  resolution: { width: 200, height: 200 },
+  configurePerformanceCanvas2DFallback: { allow: false }
 });
-
+ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 game.toggleDebug();
 game.debug.entity.showId = false;
 game.debug.transform.showPosition = true;
@@ -120,7 +121,7 @@ let currentColor1 = ex.Color.fromHSL(currentHue1, 0.6, 0.6);
 textNormalCA.onPostUpdate = () => {
   currentHue1 = (currentHue1 + .001) % 1;
   currentColor1 = ex.Color.fromHSL(currentHue1, 0.6, 0.6);
-  textNormalC.color = currentColor1;
+  textNormalC.tint = currentColor1;
 }
 
 game.start(loader).then(() => {

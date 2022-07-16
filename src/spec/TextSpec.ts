@@ -632,6 +632,42 @@ describe('A Text Graphic', () => {
     expect(sut.cacheSize).toBe(2);
   });
 
+  it('can reuse a font', async () => {
+    const sut = new ex.Font({
+      family: 'Open Sans',
+      size: 18,
+      quality: 1
+    });
+
+    const text1 = new ex.Text({
+      text: 'text111',
+      font: sut
+    });
+
+    const text2 = new ex.Text({
+      text: 'text222',
+      font: sut
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    ctx.clear();
+    text1.draw(ctx, 10, 20);
+    text2.draw(ctx, 10, 40);
+    ctx.flush();
+
+    await runOnWindows(async () => {
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/reuse-font.png');
+    });
+
+    await runOnLinux(async () => {
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/reuse-font-linux.png');
+    });
+  });
+
   it('can get text dimension before drawing', () => {
     const sut = new ex.Font({
       family: 'Open Sans',

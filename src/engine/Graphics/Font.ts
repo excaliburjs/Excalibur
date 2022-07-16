@@ -7,6 +7,7 @@ import { Graphic, GraphicOptions } from './Graphic';
 import { RasterOptions } from './Raster';
 import { ImageFiltering } from './Filtering';
 import { FontTextInstance } from './FontTextInstance';
+import { Logger } from '../Util/Log';
 
 /**
  * Represents a system or web font in Excalibur
@@ -16,6 +17,7 @@ import { FontTextInstance } from './FontTextInstance';
  * If loading a custom web font be sure to have the font loaded before you use it https://erikonarheim.com/posts/dont-test-fonts/
  */
 export class Font extends Graphic implements FontRenderer {
+  private _logger = Logger.getInstance();
   /**
    * Set the font filtering mode, by default set to [[ImageFiltering.Blended]] regardless of the engine default smoothing
    *
@@ -138,6 +140,8 @@ export class Font extends Graphic implements FontRenderer {
   }
 
   private _textCache = new Map<string, FontTextInstance>();
+  private _measurementCache = new Map<string, BoundingBox>();
+  private _textMeasurement = new FontTextInstance(this, '', Color.Black);
 
   /**
    * Returns a BoundingBox that is the total size of the text including multiple lines
@@ -147,17 +151,14 @@ export class Font extends Graphic implements FontRenderer {
    * @returns BoundingBox
    */
   public measureText(text: string): BoundingBox {
-    const hash = FontTextInstance.getHashCode(this, text, this.color);
-    const maybeTextInstance = this._textCache.get(hash);
-    if (maybeTextInstance) {
-      this._textUsage.set(maybeTextInstance, performance.now());
-      return maybeTextInstance.dimensions;
+    const hash = FontTextInstance.getHashCode(this, text);
+    if (this._measurementCache.has(hash)) {
+      return this._measurementCache.get(hash);
     }
-
-    const newTextInstance = new FontTextInstance(this, text, this.color);
-    this._textCache.set(hash, newTextInstance);
-    this._textUsage.set(newTextInstance, performance.now());
-    return newTextInstance.dimensions;
+    this._logger.debug('font text measurement cache miss');
+    const measurement = this._textMeasurement.measureText(text);
+    this._measurementCache.set(hash, measurement);
+    return measurement;
   }
 
   protected _postDraw(ex: ExcaliburGraphicsContext): void {
@@ -177,6 +178,7 @@ export class Font extends Graphic implements FontRenderer {
     if (!textInstance) {
       textInstance =  new FontTextInstance(this, text, colorOverride);
       this._textCache.set(hash, textInstance);
+      this._logger.debug('Font text instance cache miss');
     }
 
     // Apply affine transformations
@@ -211,19 +213,35 @@ export class Font extends Graphic implements FontRenderer {
    */
   public checkAndClearCache() {
     const deferred: FontTextInstance[] = [];
+    const currentHashCodes = new Set<string>();
     for (const [textInstance, time] of this._textUsage.entries()) {
-      // if bitmap hasn't been used in 1 second clear it
-      // TODO use Clock
-      if (time + 1000 < performance.now()) {
+      // if bitmap hasn't been used in 100 ms clear it
+      if (time + 100 < performance.now()) {
         deferred.push(textInstance);
         textInstance.dispose();
+      } else {
+        const hash = textInstance.getHashCode(false);
+        currentHashCodes.add(hash);
       }
     }
-    deferred.forEach(t => this._textUsage.delete(t));
+    // Deferred removal of text instances
+    deferred.forEach(t => {
+      this._textUsage.delete(t);
+    });
 
+    // Regenerate text instance cache
     this._textCache.clear();
     for (const [textInstance] of this._textUsage.entries()) {
       this._textCache.set(textInstance.getHashCode(), textInstance);
     }
+
+    // Regenerated measurement cache
+    const newTextMeasurementCache = new Map<string, BoundingBox>();
+    for (const current of currentHashCodes) {
+      if (this._measurementCache.has(current)) {
+        newTextMeasurementCache.set(current, this._measurementCache.get(current));
+      }
+    }
+    this._measurementCache = newTextMeasurementCache;
   }
 }

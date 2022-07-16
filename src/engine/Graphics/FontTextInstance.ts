@@ -15,17 +15,17 @@ export class FontTextInstance {
   constructor(public readonly font: Font, public readonly text: string, public readonly color: Color) {
     this.canvas = document.createElement('canvas');
     this.ctx = this.canvas.getContext('2d');
-    this.dimensions = this._measureText();
+    this.dimensions = this.measureText(text);
     this._setDimension(this.dimensions, this.ctx);
     this._lastHashCode = this.getHashCode();
   }
 
-  private _measureText(): BoundingBox {
+  measureText(text: string): BoundingBox {
     if (this.disposed) {
       throw Error('Accessing disposed text instance! ' + this.text);
     }
 
-    const lines = this.text.split('\n');
+    const lines = text.split('\n');
     const maxWidthLine = lines.reduce((a, b) => {
       return a.length > b.length ? a : b;
     });
@@ -72,12 +72,12 @@ export class FontTextInstance {
       font.lineWidth.toString() +
       font.lineDash.toString() +
       font.strokeColor?.toString() +
-      color ? color.toString() : font.color.toString());
+      (color ? color.toString() : font.color.toString()));
     return hash;
   }
 
-  getHashCode() {
-    return FontTextInstance.getHashCode(this.font, this.text, this.color);
+  getHashCode(includeColor: boolean = true) {
+    return FontTextInstance.getHashCode(this.font, this.text, includeColor ? this.color : undefined);
   }
 
   protected _applyRasterProperties(ctx: CanvasRenderingContext2D) {
@@ -172,7 +172,7 @@ export class FontTextInstance {
 
     // Calculate image chunks
     if (this._dirty) {
-      this.dimensions = this._measureText();
+      this.dimensions = this.measureText(this.text);
       this._setDimension(this.dimensions, this.ctx);
       const lines = this.text.split('\n');
       const lineHeight = this.dimensions.height / lines.length;
