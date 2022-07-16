@@ -4,9 +4,10 @@ var game = new ex.Engine({
   antialiasing: false,
   width: 800,
   height: 600,
-  resolution: { width: 200, height: 200 }
+  resolution: { width: 200, height: 200 },
+  configurePerformanceCanvas2DFallback: { allow: false }
 });
-
+ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 game.toggleDebug();
 game.debug.entity.showId = false;
 game.debug.transform.showPosition = true;
@@ -85,6 +86,11 @@ var textNormalB = new ex.Text({
   font: normalFont,
   text: 'font\nwith\nmultiple\nlines',
 });
+var textNormalC = new ex.Text({
+  font: normalFont,
+  text: 'normal',
+  color: ex.Color.Magenta
+});
 
 var textNormalAA = new ex.Actor({
   anchor: ex.Vector.Zero,
@@ -101,6 +107,22 @@ var textNormalBA = new ex.Actor({
 });
 textNormalBA.graphics.use(textNormalB);
 game.add(textNormalBA);
+
+var textNormalCA = new ex.Actor({
+  anchor: ex.Vector.Zero,
+  x: 100,
+  y: 180,
+});
+textNormalCA.graphics.use(textNormalC);
+game.add(textNormalCA);
+
+let currentHue1 = 0;
+let currentColor1 = ex.Color.fromHSL(currentHue1, 0.6, 0.6);
+textNormalCA.onPostUpdate = () => {
+  currentHue1 = (currentHue1 + .001) % 1;
+  currentColor1 = ex.Color.fromHSL(currentHue1, 0.6, 0.6);
+  textNormalC.tint = currentColor1;
+}
 
 game.start(loader).then(() => {
   
