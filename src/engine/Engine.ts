@@ -1461,6 +1461,7 @@ O|===|* >________________>\n\
       screenshot.width = finalWidth;
       screenshot.height = finalHeight;
       const ctx = screenshot.getContext('2d');
+      ctx.imageSmoothingEnabled = this.screen.antialiasing;
       ctx.drawImage(this.canvas, 0, 0, finalWidth, finalHeight);
 
       const result = new Image();
