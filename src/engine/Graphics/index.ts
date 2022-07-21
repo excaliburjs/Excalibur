@@ -22,6 +22,7 @@ export * from './Polygon';
 export * from './Text';
 export * from './FontCommon';
 export * from './Font';
+export * from './FontCache';
 export * from './SpriteFont';
 export * from './Canvas';
 
