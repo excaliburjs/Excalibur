@@ -1,8 +1,8 @@
-import { BoundingBox } from "../Collision/BoundingBox";
-import { Color } from "../Color";
-import { Logger } from "../Util/Log";
-import { Font } from "./Font";
-import { FontTextInstance } from "./FontTextInstance";
+import { BoundingBox } from '../Collision/BoundingBox';
+import { Color } from '../Color';
+import { Logger } from '../Util/Log';
+import { Font } from './Font';
+import { FontTextInstance } from './FontTextInstance';
 
 export class FontCache {
   private static _LOGGER = Logger.getInstance();
@@ -42,7 +42,7 @@ export class FontCache {
     for (const [textInstance, time] of FontCache._TEXT_USAGE.entries()) {
       // if bitmap hasn't been used in 100 ms clear it
       if (time + 100 < performance.now()) {
-        FontCache._LOGGER.debug(`Text cache entry timed out ${textInstance.text}`)
+        FontCache._LOGGER.debug(`Text cache entry timed out ${textInstance.text}`);
         deferred.push(textInstance);
         textInstance.dispose();
       } else {

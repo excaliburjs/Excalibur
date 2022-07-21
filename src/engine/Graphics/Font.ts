@@ -160,7 +160,7 @@ export class Font extends Graphic implements FontRenderer {
   }
 
   public render(ex: ExcaliburGraphicsContext, text: string, colorOverride: Color, x: number, y: number) {
-    let textInstance = FontCache.getTextInstance(text, this, colorOverride);
+    const textInstance = FontCache.getTextInstance(text, this, colorOverride);
 
     // Apply affine transformations
     this._textBounds = textInstance.dimensions;
