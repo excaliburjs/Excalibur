@@ -340,4 +340,41 @@ describe('An entity', () => {
 
     expect(world.entityManager.entities.length).toBe(2);
   });
+
+  it('will inherit scene from a parent entity', () => {
+    const e = new ex.Entity([], 'e');
+    const child = new ex.Entity([], 'child');
+    const grandchild = new ex.Entity([], 'grandchild');
+
+    const scene = new ex.Scene();
+    e.addChild(child.addChild(grandchild));
+    scene.add(e);
+    expect(e.scene).toBe(scene);
+    expect(child.scene).toBe(scene);
+    expect(grandchild.scene).toBe(scene);
+
+    e.removeChild(child);
+    expect(e.scene).toBe(scene);
+    expect(child.scene).toBe(null);
+    expect(child.parent).toBe(null);
+    expect(grandchild.scene).toBe(null);
+    expect(grandchild.parent).toBe(child);
+
+    e.addChild(child);
+    expect(e.scene).toBe(scene);
+    expect(child.scene).toBe(scene);
+    expect(grandchild.scene).toBe(scene);
+
+    // deferred removal
+    scene.remove(e);
+    expect(e.scene).not.toBe(null);
+    expect(child.scene).not.toBe(null);
+    expect(grandchild.scene).not.toBe(null);
+
+    scene.world.entityManager.processEntityRemovals();
+    expect(e.scene).toBe(null);
+    expect(child.scene).toBe(null);
+    expect(grandchild.scene).toBe(null);
+
+  });
 });
