@@ -813,11 +813,11 @@ describe('A Text Graphic', () => {
 
   it('can create lots of text without crash', () => {
     expect(() => {
-      let text: ex.Text[] = [];
+      const text: ex.Text[] = [];
       for (let i = 0; i < 1000; i++) {
         text.push(new ex.Text({
           text: 'text that is long' + i
-        }))
+        }));
       }
     }).not.toThrow();
   });
