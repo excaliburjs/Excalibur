@@ -63,7 +63,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
       entity.componentRemoved$.register(this);
 
       // if entity has children
-      entity.children.forEach((c) => { 
+      entity.children.forEach((c) => {
         c.scene = entity.scene;
         this.addEntity(c);
       });

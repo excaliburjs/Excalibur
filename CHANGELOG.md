@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where child entities did not inherit the scene from their parent
 - Fixed issue where `ex.Font` would become corrupted when re-used by multiple `ex.Text` instances
 - Fixed `engine.on('visible')` event not firing
 - Fixed `EventDispatcher.emit` converting falsy values to `ex.GameEvent`. It will only convert `undefined` or `null` values now.
