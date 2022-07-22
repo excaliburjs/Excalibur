@@ -80,8 +80,13 @@ export class FontCache {
   /**
    * Force clear all cached text bitmaps
    */
-  public clearCache() {
+  public static clearCache() {
+    for (const [textInstance] of FontCache._TEXT_USAGE.entries()) {
+      textInstance.dispose();
+    }
     FontCache._TEXT_USAGE.clear();
+    FontCache._TEXT_CACHE.clear();
+    FontCache._MEASURE_CACHE.clear();
   }
 
 }

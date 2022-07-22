@@ -479,6 +479,7 @@ describe('A Text Graphic', () => {
   });
 
   it('can force clear text bitmap cache', () => {
+    ex.FontCache.clearCache();
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
@@ -511,13 +512,14 @@ describe('A Text Graphic', () => {
     text.draw(ctx, 10, 50);
     text2.draw(ctx, 10, 50);
 
-    expect(sut.cacheSize).toBe(2);
-    sut.clearCache();
-    expect(sut.cacheSize).toBe(0);
+    expect(ex.FontCache.cacheSize).toBe(2);
+    ex.FontCache.clearCache();
+    expect(ex.FontCache.cacheSize).toBe(0);
 
   });
 
   it('will collect text bitmap garbage', async () => {
+    ex.FontCache.clearCache();
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
@@ -549,15 +551,16 @@ describe('A Text Graphic', () => {
     ctx.clear();
     text.draw(ctx, 10, 50);
     text2.draw(ctx, 10, 50);
-    expect(sut.cacheSize).toBe(2);
+    expect(ex.FontCache.cacheSize).toBe(2);
 
     await delay(1001); // text is cached for 1 second
 
-    sut.checkAndClearCache();
-    expect(sut.cacheSize).toBe(0);
+    ex.FontCache.checkAndClearCache();
+    expect(ex.FontCache.cacheSize).toBe(0);
   });
 
   it('will collect text bitmap garbage', async () => {
+    ex.FontCache.clearCache();
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
@@ -589,15 +592,16 @@ describe('A Text Graphic', () => {
     ctx.clear();
     text.draw(ctx, 10, 50);
     text2.draw(ctx, 10, 50);
-    expect(sut.cacheSize).toBe(2);
+    expect(ex.FontCache.cacheSize).toBe(2);
 
     await delay(1001); // text is cached for 1 second
 
-    sut.checkAndClearCache();
-    expect(sut.cacheSize).toBe(0);
+    ex.FontCache.checkAndClearCache();
+    expect(ex.FontCache.cacheSize).toBe(0);
   });
 
   it('should cache based on text and raster props', () => {
+    ex.FontCache.clearCache();
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
@@ -629,7 +633,7 @@ describe('A Text Graphic', () => {
     ctx.clear();
     text.draw(ctx, 10, 50);
     text2.draw(ctx, 10, 50);
-    expect(sut.cacheSize).toBe(2);
+    expect(ex.FontCache.cacheSize).toBe(2);
   });
 
   it('can reuse a font', async () => {
@@ -805,6 +809,17 @@ describe('A Text Graphic', () => {
     await runOnLinux(async () => {
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/GraphicsTextSpec/long-text-linux.png');
     });
+  });
+
+  it('can create lots of text without crash', () => {
+    expect(() => {
+      let text: ex.Text[] = [];
+      for (let i = 0; i < 1000; i++) {
+        text.push(new ex.Text({
+          text: 'text that is long' + i
+        }))
+      }
+    }).not.toThrow();
   });
 
   describe('with a SpriteFont', () => {
