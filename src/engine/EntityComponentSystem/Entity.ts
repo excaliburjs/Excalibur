@@ -6,7 +6,7 @@ import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/Lifecycle
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
 import { EventDispatcher } from '../EventDispatcher';
-import { Util } from '..';
+import { Scene, Util } from '..';
 
 /**
  * Interface holding an entity component pair
@@ -74,6 +74,11 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
    * The unique identifier for the entity
    */
   public id: number = Entity._ID++;
+
+  /**
+   * The scene that the entity is in, if any
+   */
+  public scene: Scene = null;
 
   private _name: string = 'anonymous';
   protected _setName(name: string) {

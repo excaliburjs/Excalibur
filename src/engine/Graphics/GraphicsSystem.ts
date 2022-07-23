@@ -12,6 +12,7 @@ import { Particle } from '../Particles';
 import { ParallaxComponent } from './ParallaxComponent';
 import { CoordPlane } from '../Math/coord-plane';
 import { BodyComponent } from '../Collision/BodyComponent';
+import { FontCache } from './FontCache';
 
 export class GraphicsSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
@@ -67,6 +68,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
   public update(_entities: Entity[], delta: number): void {
     this._token++;
     let graphics: GraphicsComponent;
+    FontCache.checkAndClearCache();
 
     // This is a performance enhancement, most things are in world space
     // so if we can only do this once saves a ton of transform updates

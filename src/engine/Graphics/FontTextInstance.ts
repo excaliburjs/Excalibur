@@ -160,6 +160,9 @@ export class FontTextInstance {
     return textImages;
   }
 
+  public flagDirty() {
+    this._dirty = true;
+  }
   private _dirty = true;
   public render(ex: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.disposed) {

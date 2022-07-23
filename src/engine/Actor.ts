@@ -370,11 +370,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public logger: Logger = Logger.getInstance();
 
   /**
-   * The scene that the actor is in
-   */
-  public scene: Scene = null;
-
-  /**
    * Draggable helper
    */
   private _draggable: boolean = false;
