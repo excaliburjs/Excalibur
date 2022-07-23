@@ -1,7 +1,6 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
-import { Engine } from '@excalibur';
 
 /**
  *
@@ -720,6 +719,36 @@ describe('The engine', () => {
     expect(hidpiImage.width).toBe(1000);
     expect(hidpiImage.height).toBe(1000);
     await expectAsync(hidpiImage).toEqualImage(flushWebGLCanvasTo2D(engine.canvas));
+  });
+
+  it('can screen shot and match the anti-aliasing with a half pixel when pixelRatio != 1.0', async () => {
+    const engine = TestUtils.engine({
+      width: 200,
+      height: 200,
+      pixelRatio: 1.2,
+      suppressHiDPIScaling: false,
+      antialiasing: false,
+      snapToPixel: false
+    }, []);
+    const clock = engine.clock as ex.TestClock;
+    const img = new ex.ImageSource('src/spec/images/EngineSpec/sprite.png');
+    await img.load();
+    const actor = new ex.Actor({
+      x: 40.5,
+      y: 40.0,
+      scale: ex.vec(2, 2)
+    });
+    actor.graphics.use(img.toSprite());
+    engine.add(actor);
+    TestUtils.runToReady(engine);
+
+    clock.step(1);
+    const screenShotPromise = engine.screenshot();
+    clock.step(1);
+
+    const image = await screenShotPromise;
+
+    await expectAsync(image).toEqualImage('src/spec/images/EngineSpec/screenshot.png', 1.0);
   });
 
   describe('lifecycle overrides', () => {
