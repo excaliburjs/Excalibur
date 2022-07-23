@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed incorrect event type returned when `ex.Actor.on('postupdate', (event) => {...})`.
 - Fixed issue where using numerous `ex.Text` instances would cause Excalibur to crash webgl by implementing a global font cache.
 - Fixed issue where child entities did not inherit the scene from their parent
 - Fixed issue where `ex.Font` would become corrupted when re-used by multiple `ex.Text` instances
