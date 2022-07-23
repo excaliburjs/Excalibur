@@ -794,7 +794,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       super.kill();
       this._postkill(this.scene);
     } else {
-      this.logger.warn('Cannot kill actor, it was never added to the Scene');
+      this.logger.warn(`Cannot kill actor named "${this.name}", it was never added to the Scene`);
     }
   }
 
