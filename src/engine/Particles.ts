@@ -102,8 +102,15 @@ export class ParticleImpl extends Entity {
     this.endColor = endColor || this.endColor.clone();
     this.beginColor = beginColor || this.beginColor.clone();
     this._currentColor = this.beginColor.clone();
-    this.position = (position || this.position).add(this.emitter.transform.globalPos);
-    this.velocity = velocity || this.velocity;
+
+    if (this.emitter.particleTransform === ParticleTransform.Global) {
+      const globalPos = this.emitter.transform.globalPos;
+      this.position = (position || this.position).add(globalPos);
+      this.velocity = (velocity || this.velocity).rotate(this.emitter.transform.globalRotation);
+    } else {
+      this.velocity = velocity || this.velocity;
+      this.position = (position || this.position);
+    }
     this.acceleration = acceleration || this.acceleration;
     this._rRate = (this.endColor.r - this.beginColor.r) / this.life;
     this._gRate = (this.endColor.g - this.beginColor.g) / this.life;
@@ -236,6 +243,19 @@ export class Particle extends Configurable(ParticleImpl) {
   }
 }
 
+export enum ParticleTransform {
+  /**
+   * [[ParticleTransform.Global]] is the default and emits particles as if
+   * they were world space objects, useful for most effects.
+   */
+  Global = 'global',
+  /**
+   * [[ParticleTransform.Local]] particles are children of the emitter and move relative to the emitter
+   * as they would in a parent/child actor relationship.
+   */
+  Local = 'local'
+}
+
 export interface ParticleEmitterArgs {
   x?: number;
   y?: number;
@@ -250,6 +270,14 @@ export interface ParticleEmitterArgs {
   maxAngle?: number;
   emitRate?: number;
   particleLife?: number;
+  /**
+   * Optionally set the emitted particle transform style, [[ParticleTransform.Global]] is the default and emits particles as if
+   * they were world space objects, useful for most effects.
+   *
+   * If set to [[ParticleTransform.Local]] particles are children of the emitter and move relative to the emitter
+   * as they would in a parent/child actor relationship.
+   */
+  particleTransform?: ParticleTransform;
   opacity?: number;
   fadeFlag?: boolean;
   focus?: Vector;
@@ -415,6 +443,15 @@ export class ParticleEmitter extends Actor {
   public randomRotation: boolean = false;
 
   /**
+   * Gets or sets the emitted particle transform style, [[ParticleTransform.Global]] is the default and emits particles as if
+   * they were world space objects, useful for most effects.
+   *
+   * If set to [[ParticleTransform.Local]] particles are children of the emitter and move relative to the emitter
+   * as they would in a parent/child actor relationship.
+   */
+  public particleTransform: ParticleTransform = ParticleTransform.Global;
+
+  /**
    * @param config particle emitter options bag
    */
   constructor(config: ParticleEmitterArgs) {
@@ -446,6 +483,7 @@ export class ParticleEmitter extends Actor {
       emitterType,
       radius,
       particleRotationalVelocity,
+      particleTransform,
       randomRotation,
       random
     } = { ...config };
@@ -474,6 +512,7 @@ export class ParticleEmitter extends Actor {
     this.radius = radius ?? this.radius;
     this.particleRotationalVelocity = particleRotationalVelocity ?? this.particleRotationalVelocity;
     this.randomRotation = randomRotation ?? this.randomRotation;
+    this.particleTransform = particleTransform ?? this.particleTransform;
 
     this.body.collisionType = CollisionType.PreventCollision;
 
@@ -493,7 +532,11 @@ export class ParticleEmitter extends Actor {
       const p = this._createParticle();
       this.particles.push(p);
       if (this?.scene?.world) {
-        this.scene.world.add(p);
+        if (this.particleTransform === ParticleTransform.Global) {
+          this.scene.world.add(p);
+        } else {
+          this.addChild(p);
+        }
       }
     }
   }

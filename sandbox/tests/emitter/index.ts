@@ -11,10 +11,16 @@ var actor = new ex.Actor({
   radius: 5,
 });
 
+actor.actions.repeatForever(ctx => {
+  ctx.moveBy(ex.vec(100, 100), 100);
+  ctx.moveBy(ex.vec(-100, -100), 100);
+});
+
 var emitter = new ex.ParticleEmitter({
   width: 10,
   height: 10,
   emitterType: ex.EmitterType.Rectangle,
+  particleTransform: ex.ParticleTransform.Global,
   radius: 5,
   minVel: 100,
   maxVel: 200,

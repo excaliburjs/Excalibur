@@ -16,12 +16,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
--
+- Added the emitted particle transform style as part of `ex.ParticleEmitter({particleTransform: ex.ParticleTransform.Global})`, [[ParticleTransform.Global]] is the default and emits particles as if they were world space objects, useful for most effects. If set to [[ParticleTransform.Local]] particles are children of the emitter and move relative to the emitter as they would in a parent/child actor relationship.
 
 ### Fixed
 
 - Fixed issue where context opacity was not respected when set in a `preDraw`
 - Fixed issue where `ex.Sound.loop` was not working, and switching tab visibility would cause odd behavior with looping `ex.Sound`
+- Fixed issue where adding a `ex.ParticleEmitter` as a child did not position particles according to the parent
 - Fixed issue where screenshots from `ex.Engine.screenshot()` did not match the smoothing set on the engine.
 - Fixed incorrect event type returned when `ex.Actor.on('postupdate', (event) => {...})`.
 - Fixed issue where using numerous `ex.Text` instances would cause Excalibur to crash webgl by implementing a global font cache.
