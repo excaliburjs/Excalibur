@@ -102,7 +102,7 @@ export class ParticleImpl extends Entity {
     this.endColor = endColor || this.endColor.clone();
     this.beginColor = beginColor || this.beginColor.clone();
     this._currentColor = this.beginColor.clone();
-    this.position = (position || this.position).add(this.emitter.pos);
+    this.position = (position || this.position).add(this.emitter.transform.globalPos);
     this.velocity = velocity || this.velocity;
     this.acceleration = acceleration || this.acceleration;
     this._rRate = (this.endColor.r - this.beginColor.r) / this.life;
