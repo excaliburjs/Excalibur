@@ -883,6 +883,8 @@ export class Screen {
       this.viewport = this.resolution;
     }
 
+    this._contentArea = BoundingBox.fromDimension(this.resolution.width, this.resolution.height, Vector.Zero);
+
     if (this.displayMode === DisplayMode.FitScreen) {
       this._computeFit();
     }

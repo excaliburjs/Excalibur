@@ -592,7 +592,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       this._engine = _engine;
       this._screen = _engine.screen;
 
-      const currentRes = this._screen.resolution;
+      const currentRes = this._screen.contentArea;
       let center = vec(currentRes.width / 2, currentRes.height / 2);
       if (!this._engine.loadingComplete) {
         // If there was a loading screen, we peek the configured resolution
