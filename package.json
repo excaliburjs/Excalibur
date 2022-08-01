@@ -104,7 +104,7 @@
     "replace-in-file": "6.3.5",
     "rimraf": "3.0.2",
     "semver": "7.3.7",
-    "serve": "13.0.2",
+    "serve": "13.0.4",
     "source-map-support": "0.5.21",
     "sync-request": "6.1.0",
     "terser-webpack-plugin": "5.3.3",
