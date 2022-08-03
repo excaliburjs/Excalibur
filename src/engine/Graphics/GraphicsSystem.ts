@@ -121,7 +121,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
       // TODO remove this hack on the particle redo
       const particleOpacity = (entity instanceof Particle) ? entity.opacity : 1;
-      this._graphicsContext.opacity = graphics.opacity * particleOpacity;
+      this._graphicsContext.opacity *= graphics.opacity * particleOpacity;
 
       // Draw the graphics component
       this._drawGraphicsComponent(graphics);
