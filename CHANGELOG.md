@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where context opacity was not respected when set in a `preDraw`
 - Fixed issue where `ex.Sound.loop` was not working, and switching tab visibility would cause odd behavior with looping `ex.Sound`
 - Fixed issue where screenshots from `ex.Engine.screenshot()` did not match the smoothing set on the engine.
 - Fixed incorrect event type returned when `ex.Actor.on('postupdate', (event) => {...})`.
