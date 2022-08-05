@@ -143,6 +143,34 @@ describe('Sound resource', () => {
     });
   });
 
+  it('should not provide a duration if looping', async () => {
+    await sut.load();
+
+    const webaudio = new ex.WebAudioInstance(sut.data);
+    spyOn(webaudio as any, '_createNewBufferSource');
+    const instance = jasmine.createSpyObj('AudioBufferSourceNode', ['start']);
+    (webaudio as any)._instance = instance;
+    webaudio.loop = true;
+    webaudio.play();
+
+    expect((webaudio as any)._createNewBufferSource).toHaveBeenCalled();
+    expect(instance.start).toHaveBeenCalledWith(0, 0);
+  });
+
+  it('should provide a duration if not looping', async () => {
+    await sut.load();
+
+    const webaudio = new ex.WebAudioInstance(sut.data);
+    spyOn(webaudio as any, '_createNewBufferSource');
+    const instance = jasmine.createSpyObj('AudioBufferSourceNode', ['start']);
+    (webaudio as any)._instance = instance;
+    webaudio.loop = false;
+    webaudio.play();
+
+    expect((webaudio as any)._createNewBufferSource).toHaveBeenCalled();
+    expect(instance.start).toHaveBeenCalledWith(0, 0, sut.duration);
+  });
+
   it('should set tracks volume value same as own', (done) => {
     sut.load().then(() => {
       sut.volume = 0.5;
