@@ -199,4 +199,38 @@ describe('A Graphics ECS System', () => {
 
     expect(game.graphicsContext.translate).toHaveBeenCalledWith(100, 100);
   });
+
+  it('will multiply the opacity set on the context', async () => {
+    const sut = new ex.GraphicsSystem();
+    const offscreenSystem = new ex.OffscreenSystem();
+    engine.currentScene.camera.update(engine, 1);
+    engine.currentScene._initialize(engine);
+    offscreenSystem.initialize(engine.currentScene);
+    sut.initialize(engine.currentScene);
+
+
+
+    engine.graphicsContext.opacity = .5;
+
+    const actor = new ex.Actor({
+      x: 10,
+      y: 10,
+      height: 10,
+      width: 10,
+      color: ex.Color.Red
+    });
+    actor.graphics.opacity = .5;
+
+    sut.notify(new ex.AddedEntity(actor));
+
+    offscreenSystem.update([actor]);
+
+    engine.graphicsContext.clear();
+    sut.preupdate();
+    sut.update([actor], 1);
+
+    engine.graphicsContext.flush();
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+      .toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-context-opacity.png');
+  });
 });
