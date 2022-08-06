@@ -96,6 +96,9 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       }
 
       this._graphicsContext.save();
+      if (transform.coordPlane === CoordPlane.Screen) {
+        this._graphicsContext.translate(this._engine.screen.contentArea.left, this._engine.screen.contentArea.top);
+      }
 
       // Tick any graphics state (but only once) for animations and graphics groups
       graphics.update(delta, this._token);
