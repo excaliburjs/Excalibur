@@ -141,4 +141,124 @@ describe('A particle', () => {
     engine.graphicsContext.flush();
     await expectAsync(flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/ParticleSpec/Particles.png');
   });
+
+  it('can be parented', async () => {
+    const emitter = new ex.ParticleEmitter({
+      pos: new ex.Vector(0, 0),
+      width: 20,
+      height: 30,
+      isEmitting: true,
+      minVel: 100,
+      maxVel: 200,
+      acceleration: ex.Vector.Zero.clone(),
+      minAngle: 0,
+      maxAngle: Math.PI / 2,
+      emitRate: 5,
+      particleLife: 4000,
+      opacity: 0.5,
+      fadeFlag: false,
+      focus: null,
+      focusAccel: null,
+      startSize: 30,
+      endSize: 40,
+      beginColor: ex.Color.Red.clone(),
+      endColor: ex.Color.Blue.clone(),
+      particleSprite: null,
+      emitterType: ex.EmitterType.Circle,
+      radius: 20,
+      particleRotationalVelocity: 3,
+      randomRotation: false,
+      random: new ex.Random(1337)
+    });
+
+    const parent = new ex.Actor({
+      pos: ex.vec(100, 50),
+      width: 10,
+      height: 10
+    });
+    parent.addChild(emitter);
+
+    engine.backgroundColor = ex.Color.Transparent;
+    engine.add(emitter);
+
+    emitter.emitParticles(20);
+    engine.currentScene.update(engine, 100);
+    engine.currentScene.update(engine, 100);
+    engine.currentScene.update(engine, 100);
+    engine.currentScene.draw(engine.graphicsContext, 100);
+    engine.graphicsContext.flush();
+    await expectAsync(flushWebGLCanvasTo2D(engine.canvas)).toEqualImage('src/spec/images/ParticleSpec/parented.png');
+
+  });
+
+  it('can set the particle transform to local making particles children of the emitter', () => {
+    const emitter = new ex.ParticleEmitter({
+      particleTransform: ex.ParticleTransform.Local,
+      pos: new ex.Vector(0, 0),
+      width: 20,
+      height: 30,
+      isEmitting: true,
+      minVel: 100,
+      maxVel: 200,
+      acceleration: ex.Vector.Zero.clone(),
+      minAngle: 0,
+      maxAngle: Math.PI / 2,
+      emitRate: 5,
+      particleLife: 4000,
+      opacity: 0.5,
+      fadeFlag: false,
+      focus: null,
+      focusAccel: null,
+      startSize: 30,
+      endSize: 40,
+      beginColor: ex.Color.Red.clone(),
+      endColor: ex.Color.Blue.clone(),
+      particleSprite: null,
+      emitterType: ex.EmitterType.Circle,
+      radius: 20,
+      particleRotationalVelocity: 3,
+      randomRotation: false,
+      random: new ex.Random(1337)
+    });
+    engine.add(emitter);
+    emitter.emitParticles(20);
+    expect(emitter.children.length).toBe(20);
+    expect(engine.currentScene.actors.length).toBe(1);
+  });
+
+  it('can set the particle transform to global adding particles directly to the scene', () => {
+    const emitter = new ex.ParticleEmitter({
+      particleTransform: ex.ParticleTransform.Global,
+      pos: new ex.Vector(0, 0),
+      width: 20,
+      height: 30,
+      isEmitting: true,
+      minVel: 100,
+      maxVel: 200,
+      acceleration: ex.Vector.Zero.clone(),
+      minAngle: 0,
+      maxAngle: Math.PI / 2,
+      emitRate: 5,
+      particleLife: 4000,
+      opacity: 0.5,
+      fadeFlag: false,
+      focus: null,
+      focusAccel: null,
+      startSize: 30,
+      endSize: 40,
+      beginColor: ex.Color.Red.clone(),
+      endColor: ex.Color.Blue.clone(),
+      particleSprite: null,
+      emitterType: ex.EmitterType.Circle,
+      radius: 20,
+      particleRotationalVelocity: 3,
+      randomRotation: false,
+      random: new ex.Random(1337)
+    });
+    engine.add(emitter);
+    emitter.emitParticles(20);
+    expect(emitter.children.length).toBe(0);
+    expect(engine.currentScene.actors.length).toBe(1);
+    expect(engine.currentScene.world.entityManager.entities.length).toBe(21);
+  });
 });
