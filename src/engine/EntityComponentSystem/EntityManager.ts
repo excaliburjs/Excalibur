@@ -91,7 +91,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
     }
     const entity = this._entityIndex[id];
     if (entity && entity.active) {
-      entity.kill();
+      entity.active = false;
     }
 
     if (entity && deferred) {

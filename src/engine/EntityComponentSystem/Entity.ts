@@ -104,8 +104,10 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
    * If parented it will be removed from the parent when killed.
    */
   public kill() {
-    this.active = false;
-    this.unparent();
+    if (this.active) {
+      this.active = false;
+      this.unparent();
+    }
   }
 
   public isKilled() {
@@ -260,7 +262,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
   public removeAllChildren(): Entity {
     // Avoid modifying the array issue by walking backwards
     for (let i = this.children.length - 1; i >= 0; i--) {
-      this.removeChild(this._children[i]);
+      this.removeChild(this.children[i]);
     }
     return this;
   }
