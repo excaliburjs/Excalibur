@@ -20,6 +20,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where calling `.kill()` on a child entity would not remove it from the parent `Entity`
+- Fixed issue where calling `.removeAllChildren()` would not remove all the children from the parent `Entity`
 - Fixed issue where world origin was inconsistent when the using `ex.DisplayMode.FitScreenAndFill` when the screen was resized.
 - Fixed issue where context opacity was not respected when set in a `preDraw`
 - Fixed issue where `ex.Sound.loop` was not working, and switching tab visibility would cause odd behavior with looping `ex.Sound`
