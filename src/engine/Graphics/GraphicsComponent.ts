@@ -176,6 +176,12 @@ export class GraphicsLayer {
   public get currentKeys(): string {
     return this.name ?? 'anonymous';
   }
+
+  public clone(graphicsComponent: GraphicsComponent): GraphicsLayer {
+    const layer = new GraphicsLayer({...this._options}, graphicsComponent);
+    layer.graphics = [...this.graphics.map(g => ({graphic: g.graphic, options: {...g.options}}))];
+    return layer;
+  }
 }
 
 export class GraphicsLayers {
@@ -232,6 +238,18 @@ export class GraphicsLayers {
 
   private _getLayer(name: string): GraphicsLayer | undefined {
     return this._layerMap[name];
+  }
+
+  public clone(graphicsComponent: GraphicsComponent): GraphicsLayers {
+    const layers = new GraphicsLayers(graphicsComponent);
+    layers._layerMap = {};
+    layers._layers = [];
+    layers.default = this.default.clone(graphicsComponent);
+    layers._maybeAddLayer(layers.default);
+    // Remove the default layer out of the clone
+    const clonedLayers = this._layers.filter(l => l.name !== 'default').map(l => l.clone(graphicsComponent));
+    clonedLayers.forEach(layer => layers._maybeAddLayer(layer));
+    return layers;
   }
 }
 
@@ -432,5 +450,22 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
         }
       }
     }
+  }
+
+  public clone(): GraphicsComponent {
+    const graphics = new GraphicsComponent();
+    graphics._graphics = { ...this._graphics };
+    graphics.offset = this.offset;
+    graphics.opacity = this.opacity;
+    graphics.anchor = this.anchor;
+    graphics.copyGraphics = this.copyGraphics;
+    graphics.onPreDraw = this.onPreDraw;
+    graphics.onPostDraw = this.onPostDraw;
+    graphics.visible = this.visible;
+
+    // TODO actually clone layers
+    graphics.layers = this.layers.clone(graphics);
+
+    return graphics
   }
 }
