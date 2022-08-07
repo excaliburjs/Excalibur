@@ -537,12 +537,14 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   public clone(): Actor {
     const clone = new Actor();
+    clone.clearComponents();
+    clone.processComponentRemoval();
+
+    // Clone the current actors components
     const components = this.getComponents();
     for (let c of components) {
       clone.addComponent(c.clone(), true);
     }
-    // TODO hack to avoid deferred removal of old cloned components
-    (clone as any)._componentsToRemove.length = 0;
     return clone;
   }
 
