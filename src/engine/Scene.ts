@@ -469,6 +469,9 @@ export class Scene<TActivationData = unknown>
   public remove(entity: any): void {
     if (entity instanceof Entity) {
       this.emit('entityremoved', { target: entity } as any);
+      if (entity.active) {
+        entity.kill();
+      }
       this.world.remove(entity);
     }
     if (entity instanceof Timer) {
