@@ -88,12 +88,21 @@ function start() {
       for (var btn in buttons) {
         if (!buttons.hasOwnProperty(btn)) continue;
         btnIndex = parseInt(btn, 10);
+
+        const actor = buttons[btn];
+        if (pad1.wasButtonPressed(btnIndex, 0.1) || pad1.wasButtonReleased(btnIndex)) {
+          actor.actions.clearActions()
+          actor.actions
+            .scaleTo(ex.Vector.One.scale(1.25), ex.Vector.One.scale(5))
+            .scaleTo(ex.Vector.One.scale(1), ex.Vector.One.scale(5))
+        }
+        
         if (pad1.isButtonPressed(btnIndex, 0.1)) {
-          buttons[btn].color = new ex.Color(255, 0, 0, 0.8);
-          buttons[btn].value = pad1.getButton(btnIndex);
+          actor.color = new ex.Color(255, 0, 0, 0.8);
+          actor.value = pad1.getButton(btnIndex);
         } else {
-          buttons[btn].color = new ex.Color(0, 0, 0, 0.7);
-          buttons[btn].value = 0;
+          actor.color = new ex.Color(0, 0, 0, 0.7);
+          actor.value = 0;
         }
       }
     }
