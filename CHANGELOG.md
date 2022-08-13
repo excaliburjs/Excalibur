@@ -12,7 +12,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
--
+- [[ex.Input.Gamepad]] `isButtonPressed` has been renamed to `isButtonHeld`
+
 
 ### Added
 
