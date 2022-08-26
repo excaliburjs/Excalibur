@@ -136,4 +136,24 @@ describe('A SpriteSheet for Graphics', () => {
     expect(ss.getSprite(1, -1)).toBeNull();
     expect(logger.warn).toHaveBeenCalledWith('No sprite exists in the SpriteSheet at (1, -1), y: -1 should be between 0 and 3');
   });
+
+  it('can be cloned', async () => {
+    const image = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+
+    await image.load();
+    const ss = new ex.SpriteSheet({
+      sprites: [ex.Sprite.from(image)],
+      rows: 5,
+      columns: 5
+    });
+
+    const clone = ss.clone();
+
+    expect(ss).not.toBe(clone);
+    expect(ss.getSprite(0, 0)).not.toBe(clone.getSprite(0,0));
+    expect(ss.sprites.length).toBe(clone.sprites.length);
+    expect(ss.rows).toBe(clone.rows);
+    expect(ss.columns).toBe(clone.columns);
+
+  });
 });
