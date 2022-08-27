@@ -10,7 +10,7 @@ export class FontTextInstance {
   public ctx: CanvasRenderingContext2D;
   private _textFragments: {x: number, y: number, canvas: HTMLCanvasElement}[] = [];
   public dimensions: BoundingBox;
-  public disposed: boolean = false;;
+  public disposed: boolean = false;
   private _lastHashCode: string;
   constructor(public readonly font: Font, public readonly text: string, public readonly color: Color) {
     this.canvas = document.createElement('canvas');
@@ -68,11 +68,11 @@ export class FontTextInstance {
       font.direction +
       JSON.stringify(font.shadow) +
       (font.padding.toString() +
-      font.smoothing.toString() +
-      font.lineWidth.toString() +
-      font.lineDash.toString() +
-      font.strokeColor?.toString() +
-      (color ? color.toString() : font.color.toString()));
+        font.smoothing.toString() +
+        font.lineWidth.toString() +
+        font.lineDash.toString() +
+        font.strokeColor?.toString() +
+        (color ? color.toString() : font.color.toString()));
     return hash;
   }
 
@@ -90,6 +90,7 @@ export class FontTextInstance {
   }
 
   private _applyFont(ctx: CanvasRenderingContext2D) {
+    ctx.resetTransform();
     ctx.translate(this.font.padding + ctx.canvas.width / 2, this.font.padding + ctx.canvas.height / 2);
     ctx.scale(this.font.quality, this.font.quality);
     ctx.textAlign = this.font.textAlign;
@@ -105,8 +106,7 @@ export class FontTextInstance {
     }
   }
 
-  private _drawText(ctx: CanvasRenderingContext2D, text: string, lineHeight: number): void {
-    const lines = text.split('\n');
+  private _drawText(ctx: CanvasRenderingContext2D, lines: string[], lineHeight: number): void {
     this._applyRasterProperties(ctx);
     this._applyFont(ctx);
 
@@ -124,7 +124,7 @@ export class FontTextInstance {
     if (this.font.showDebug) {
       // Horizontal line
       /* istanbul ignore next */
-      line(ctx, Color.Red, -ctx.canvas.width / 2, 0, ctx.canvas.width / 2, 0, 2);
+      line(ctx, Color.Green, -ctx.canvas.width / 2, 0, ctx.canvas.width / 2, 0, 2);
       // Vertical line
       /* istanbul ignore next */
       line(ctx, Color.Red, 0, -ctx.canvas.height / 2, 0, ctx.canvas.height / 2, 2);
@@ -164,7 +164,7 @@ export class FontTextInstance {
     this._dirty = true;
   }
   private _dirty = true;
-  public render(ex: ExcaliburGraphicsContext, x: number, y: number) {
+  public render(ex: ExcaliburGraphicsContext, x: number, y: number, renderWidth?: number) {
     if (this.disposed) {
       throw Error('Accessing disposed text instance! ' + this.text);
     }
@@ -180,8 +180,24 @@ export class FontTextInstance {
       const lines = this.text.split('\n');
       const lineHeight = this.dimensions.height / lines.length;
 
+      // If the current line goes past the renderWidth, append a new line without modifying the underlying text.
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+        let newLine = '';
+        if (this.measureText(line).width > renderWidth) {
+          while (this.measureText(line).width > renderWidth) {
+            newLine = line[line.length - 1] + newLine;
+            line = line.slice(0, -1); // Remove last character from line
+          }
+
+          // Update the array with our new values
+          lines[i] = line;
+          lines[i + 1] = newLine;
+        }
+      }
+
       // draws the text to the main bitmap
-      this._drawText(this.ctx, this.text, lineHeight);
+      this._drawText(this.ctx, lines, lineHeight);
 
       // clear any out old fragments
       for (const frag of this._textFragments) {

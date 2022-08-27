@@ -159,14 +159,14 @@ export class Font extends Graphic implements FontRenderer {
     ex.restore();
   }
 
-  public render(ex: ExcaliburGraphicsContext, text: string, colorOverride: Color, x: number, y: number) {
+  public render(ex: ExcaliburGraphicsContext, text: string, colorOverride: Color, x: number, y: number, renderWidth?: number) {
     const textInstance = FontCache.getTextInstance(text, this, colorOverride);
 
     // Apply affine transformations
     this._textBounds = textInstance.dimensions;
     this._preDraw(ex, x, y);
 
-    textInstance.render(ex, x, y);
+    textInstance.render(ex, x, y, renderWidth);
 
     this._postDraw(ex);
   }

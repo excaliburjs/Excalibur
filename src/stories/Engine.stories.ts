@@ -1,5 +1,5 @@
 import { Actor, Color, Loader } from '../engine';
-import { Font, ImageSource, Text } from '../engine/Graphics';
+import { BaseAlign, Font, ImageSource, Text } from '../engine/Graphics';
 import { withEngine } from './utils';
 
 import heartTexture from './assets/heart.png';
@@ -7,6 +7,32 @@ import heartTexture from './assets/heart.png';
 export default {
   title: 'Engine'
 };
+
+export const wordWrap: Story = withEngine(async (game) => {
+  game.start();
+  const dummyActor = new Actor({
+    width: 100,
+    height: 100,
+    x: 550,
+    y: 150,
+    color: Color.Blue
+  });
+
+  const text = new Text({
+    text: 'WRAP THIS PLEASE',
+    color: Color.White,
+    font: new Font({ size: 18, baseAlign: BaseAlign.Alphabetic }),
+    maxWidth: 100
+  });
+
+  text.font.showDebug = true;
+
+  dummyActor.graphics.add(text);
+  game.add(dummyActor);
+  //heart.graphics.add(heartTx.toSprite());
+  //heart.graphics.add(text);
+  //game.add(heart);
+});
 
 export const playButton: Story = withEngine(
   async (game) => {

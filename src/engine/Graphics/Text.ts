@@ -20,6 +20,11 @@ export interface TextOptions {
    * Optionally specify a font, if none specified a default font is used (System sans-serif 10 pixel)
    */
   font?: Font | SpriteFont;
+
+  /**
+   * Optionally specify a maximum width for our text, and wrap to the next line if needed.
+   */
+  maxWidth?: number;
 }
 
 /**
@@ -29,12 +34,14 @@ export interface TextOptions {
  */
 export class Text extends Graphic {
   public color?: Color;
+  public maxWidth?: number;
   constructor(options: TextOptions & GraphicOptions) {
     super(options);
     // This order is important font, color, then text
     this.font = options.font ?? new Font();
     this.color = options.color ?? this.color;
     this.text = options.text;
+    this.maxWidth = options.maxWidth;
   }
 
   public clone(): Text {
@@ -121,9 +128,15 @@ export class Text extends Graphic {
     this._textWidth = width;
     this._textHeight = height;
 
-    this.font.render(ex, this._text, color, x, y);
+    this.font.render(ex, this._text, color, x, y, this.maxWidth);
+
     if (this.font.showDebug) {
       ex.debug.drawRect(x - width, y - height, width * 2, height * 2);
+      if (this.maxWidth != null) {
+        ex.debug.drawRect(x, y, this.maxWidth, this.height, {
+          color: Color.Yellow
+        });
+      }
     }
   }
 }
