@@ -46,8 +46,13 @@ export class ArcadeSolver implements CollisionSolver {
   }
 
   public preSolve(contacts: CollisionContact[]) {
-
+    const epsilon = .0001;
     for (const contact of contacts) {
+      if (Math.abs(contact.mtv.x) < epsilon && Math.abs(contact.mtv.y) < epsilon) {
+        // Cancel near 0 mtv collisions
+        contact.cancel();
+        continue;
+      }
       const side = Side.fromDirection(contact.mtv);
       const mtv = contact.mtv.negate();
 
