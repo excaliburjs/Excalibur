@@ -1,4 +1,4 @@
-import { ExcaliburMatchers } from "excalibur-jasmine";
+import { ExcaliburMatchers } from 'excalibur-jasmine';
 import * as ex from '@excalibur';
 
 describe('An ArcadeSolver', () => {
