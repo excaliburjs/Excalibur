@@ -57,7 +57,7 @@ export class Scene<TActivationData = unknown>
   public world = new World(this);
 
   /**
-   * The physics world 
+   * The physics world
    */
   public physics: PhysicsWorld;
 

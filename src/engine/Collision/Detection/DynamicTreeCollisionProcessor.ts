@@ -44,7 +44,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
   }
 
   public rayCast(ray: Ray, options?: RayCastOptions): RayCastHit[] {
-    let results: RayCastHit[] = [];
+    const results: RayCastHit[] = [];
     const maxDistance = options?.maxDistance ?? Infinity;
     const collisionGroup = options?.collisionGroup ?? CollisionGroup.All;
     this._dynamicCollisionTree.rayCastQuery(ray, maxDistance, (collider) => {
@@ -62,7 +62,7 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
           point: hit,
           collider: collider,
           body: maybeBody
-        })
+        });
         if (!options?.searchAllColliders) {
           // returning true exits the search
           return true;

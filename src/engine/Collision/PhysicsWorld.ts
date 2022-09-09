@@ -1,5 +1,5 @@
-import { Ray } from "../Math/ray";
-import { DynamicTreeCollisionProcessor, RayCastHit, RayCastOptions } from "./Index";
+import { Ray } from '../Math/ray';
+import { DynamicTreeCollisionProcessor, RayCastHit, RayCastOptions } from './Index';
 
 
 export class PhysicsWorld {
