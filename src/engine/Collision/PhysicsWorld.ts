@@ -3,12 +3,12 @@ import { DynamicTreeCollisionProcessor, RayCastHit, RayCastOptions } from './Ind
 
 
 export class PhysicsWorld {
-  public _collisionProcessor: DynamicTreeCollisionProcessor;
+  public collisionProcessor: DynamicTreeCollisionProcessor;
   constructor() {
-    this._collisionProcessor = new DynamicTreeCollisionProcessor();
+    this.collisionProcessor = new DynamicTreeCollisionProcessor();
   }
 
   public rayCast(ray: Ray, options?: RayCastOptions): RayCastHit[] {
-    return this._collisionProcessor.rayCast(ray, options);
+    return this.collisionProcessor.rayCast(ray, options);
   }
 }

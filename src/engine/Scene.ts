@@ -57,9 +57,12 @@ export class Scene<TActivationData = unknown>
   public world = new World(this);
 
   /**
-   * The physics world
+   * The Excalibur physics world for the scene. Used to interact
+   * with colliders included in the scene.
+   * 
+   * Can be used to perform scene raycasts, track colliders, broadphase, and narrowphase.
    */
-  public physics: PhysicsWorld;
+  public physics = new PhysicsWorld();
 
   /**
    * The actors in the current scene
@@ -114,9 +117,7 @@ export class Scene<TActivationData = unknown>
     // Update
     this.world.add(new ActionsSystem());
     this.world.add(new MotionSystem());
-    const collisionSystem = new CollisionSystem();
-    this.physics = collisionSystem.physicsWorld;
-    this.world.add(collisionSystem);
+    this.world.add(new CollisionSystem());
     this.world.add(new PointerSystem());
     this.world.add(new IsometricEntitySystem());
     // Draw
