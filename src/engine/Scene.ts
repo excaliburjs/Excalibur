@@ -60,7 +60,7 @@ export class Scene<TActivationData = unknown>
    * The Excalibur physics world for the scene. Used to interact
    * with colliders included in the scene.
    * 
-   * Can be used to perform scene raycasts, track colliders, broadphase, and narrowphase.
+   * Can be used to perform scene ray casts, track colliders, broadphase, and narrowphase.
    */
   public physics = new PhysicsWorld();
 
@@ -117,7 +117,7 @@ export class Scene<TActivationData = unknown>
     // Update
     this.world.add(new ActionsSystem());
     this.world.add(new MotionSystem());
-    this.world.add(new CollisionSystem());
+    this.world.add(new CollisionSystem(this.physics));
     this.world.add(new PointerSystem());
     this.world.add(new IsometricEntitySystem());
     // Draw

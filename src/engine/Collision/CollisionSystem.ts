@@ -13,6 +13,7 @@ import { ColliderComponent } from './ColliderComponent';
 import { CompositeCollider } from './Colliders/CompositeCollider';
 import { Engine, ExcaliburGraphicsContext, Scene } from '..';
 import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
+import { PhysicsWorld } from './PhysicsWorld';
 export class CollisionSystem extends System<TransformComponent | MotionComponent | ColliderComponent> {
   public readonly types = ['ex.transform', 'ex.motion', 'ex.collider'] as const;
   public systemType = SystemType.Update;
@@ -27,6 +28,13 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
   private _trackCollider: (c: Collider) => void;
   private _untrackCollider: (c: Collider) => void;
+
+  constructor(physics: PhysicsWorld) {
+    super();
+    this._processor = physics.collisionProcessor;
+    this._trackCollider = (c: Collider) => this._processor.track(c);
+    this._untrackCollider = (c: Collider) => this._processor.untrack(c);
+  }
 
   notify(message: AddedEntity | RemovedEntity) {
     if (isAddedSystemEntity(message)) {
@@ -48,9 +56,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
   initialize(scene: Scene) {
     this._engine = scene.engine;
-    this._processor = scene.physics.collisionProcessor;
-    this._trackCollider = (c: Collider) => this._processor.track(c);
-    this._untrackCollider = (c: Collider) => this._processor.untrack(c);
+    
   }
 
   update(entities: Entity[], elapsedMs: number): void {

@@ -3,7 +3,7 @@ import { Scene, Util } from '..';
 import { World } from './World';
 
 export interface SystemCtor<T extends System> {
-  new (): T;
+  new (...args: any[]): T;
 }
 
 /**
@@ -41,6 +41,8 @@ export class SystemManager<ContextType> {
     this.systems.push(system);
     this.systems.sort((a, b) => a.priority - b.priority);
     query.register(system);
+    // If systems are added and the manager has already been init'd 
+    // then immediately init the system
     if (this.initialized && system.initialize) {
       system.initialize(this._world.context);
     }
