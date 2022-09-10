@@ -56,7 +56,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
   initialize(scene: Scene) {
     this._engine = scene.engine;
-    
+
   }
 
   update(entities: Entity[], elapsedMs: number): void {

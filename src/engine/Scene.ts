@@ -59,7 +59,7 @@ export class Scene<TActivationData = unknown>
   /**
    * The Excalibur physics world for the scene. Used to interact
    * with colliders included in the scene.
-   * 
+   *
    * Can be used to perform scene ray casts, track colliders, broadphase, and narrowphase.
    */
   public physics = new PhysicsWorld();
