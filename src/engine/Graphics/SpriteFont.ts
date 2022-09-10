@@ -88,8 +88,8 @@ export class SpriteFont extends Graphic implements FontRenderer {
     return results;
   }
 
-  public measureText(text: string): BoundingBox {
-    const lines = text.split('\n');
+  public measureText(text: string, maxWidth?: number): BoundingBox {
+    const lines = this._getLinesFromText(text, maxWidth);
     const maxWidthLine = lines.reduce((a, b) => {
       return a.length > b.length ? a : b;
     });
@@ -103,11 +103,11 @@ export class SpriteFont extends Graphic implements FontRenderer {
     return BoundingBox.fromDimension(width, height * lines.length, Vector.Zero);
   }
 
-  protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
+  protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number, maxWidth?: number): void {
     let xCursor = 0;
     let yCursor = 0;
     let height = 0;
-    const lines = this._text.split('\n');
+    const lines = this._getLinesFromText(this._text, maxWidth);
     for (const line of lines) {
       for (const sprite of this._getCharacterSprites(line)) {
         // draw it in the right spot and increase the cursor by sprite width
@@ -120,20 +120,25 @@ export class SpriteFont extends Graphic implements FontRenderer {
     }
   }
 
-  render(ex: ExcaliburGraphicsContext, text: string, _color: Color, x: number, y: number) {
+  render(ex: ExcaliburGraphicsContext, text: string, _color: Color, x: number, y: number, maxWidth?: number) {
     // SpriteFont doesn't support _color, yet...
     this._text = text;
-    const bounds = this.measureText(text);
+    const bounds = this.measureText(text, maxWidth);
     this.width = bounds.width;
     this.height = bounds.height;
     if (this.shadow) {
       ex.save();
       ex.translate(this.shadow.offset.x, this.shadow.offset.y);
-      this.draw(ex, x, y);
+      this._preDraw(ex, x, y);
+      this._drawImage(ex, x, y, maxWidth);
+      this._postDraw(ex);
       ex.restore();
     }
 
-    this.draw(ex, x, y);
+    //this.draw(ex, x, y, maxWidth);
+    this._preDraw(ex, x, y);
+    this._drawImage(ex, x, y, maxWidth);
+    this._postDraw(ex);
   }
 
   clone(): SpriteFont {
@@ -142,5 +147,49 @@ export class SpriteFont extends Graphic implements FontRenderer {
       spriteSheet: this.spriteSheet,
       spacing: this.spacing
     });
+  }
+
+  /**
+   * Return array of lines split based on the \n character, and the maxWidth? constraint
+   * @param text
+   * @param maxWidth
+   */
+  private _chachedText: string;
+  private _chachedLines: string[];
+  private _cachedRenderWidth: number;
+  private _getLinesFromText(text: string, maxWidth?: number) {
+    Logger.getInstance().info(this.spacing);
+    if (this._chachedText === text && this._cachedRenderWidth === maxWidth) {
+      return this._chachedLines;
+    }
+
+    const lines = text.split('\n');
+
+    if (maxWidth == null) {
+      return lines;
+    }
+
+    // If the current line goes past the maxWidth, append a new line without modifying the underlying text.
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i];
+      let newLine = '';
+      // Note: we subtract the spacing to counter the initial padding on the left side.
+      if (this.measureText(line).width > maxWidth) {
+        while (this.measureText(line).width > maxWidth) {
+          newLine = line[line.length - 1] + newLine;
+          line = line.slice(0, -1); // Remove last character from line
+        }
+
+        // Update the array with our new values
+        lines[i] = line;
+        lines[i + 1] = newLine;
+      }
+    }
+
+    this._chachedText = text;
+    this._chachedLines = lines;
+    this._cachedRenderWidth = maxWidth;
+
+    return lines;
   }
 }

@@ -171,7 +171,7 @@ export class FontTextInstance {
     this._dirty = true;
   }
   private _dirty = true;
-  public render(ex: ExcaliburGraphicsContext, x: number, y: number, renderWidth?: number) {
+  public render(ex: ExcaliburGraphicsContext, x: number, y: number, maxWidth?: number) {
     if (this.disposed) {
       throw Error('Accessing disposed text instance! ' + this.text);
     }
@@ -182,9 +182,9 @@ export class FontTextInstance {
 
     // Calculate image chunks
     if (this._dirty) {
-      this.dimensions = this.measureText(this.text, renderWidth);
+      this.dimensions = this.measureText(this.text, maxWidth);
       this._setDimension(this.dimensions, this.ctx);
-      const lines = this._getLinesFromText(this.text, renderWidth);
+      const lines = this._getLinesFromText(this.text, maxWidth);
       const lineHeight = this.dimensions.height / lines.length;
 
       // draws the text to the main bitmap
@@ -233,30 +233,30 @@ export class FontTextInstance {
   }
 
   /**
-   * Return array of lines split based on the \n character, and the renderWidth? constraint
+   * Return array of lines split based on the \n character, and the maxWidth? constraint
    * @param text
-   * @param renderWidth
+   * @param maxWidth
    */
   private _chachedText: string;
   private _chachedLines: string[];
   private _cachedRenderWidth: number;
-  private _getLinesFromText(text: string, renderWidth?: number) {
-    if (this._chachedText === text && this._cachedRenderWidth === renderWidth) {
+  private _getLinesFromText(text: string, maxWidth?: number) {
+    if (this._chachedText === text && this._cachedRenderWidth === maxWidth) {
       return this._chachedLines;
     }
 
     const lines = text.split('\n');
 
-    if (renderWidth == null) {
+    if (maxWidth == null) {
       return lines;
     }
 
-    // If the current line goes past the renderWidth, append a new line without modifying the underlying text.
+    // If the current line goes past the maxWidth, append a new line without modifying the underlying text.
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i];
       let newLine = '';
-      if (this.measureText(line).width > renderWidth) {
-        while (this.measureText(line).width > renderWidth) {
+      if (this.measureText(line).width > maxWidth) {
+        while (this.measureText(line).width > maxWidth) {
           newLine = line[line.length - 1] + newLine;
           line = line.slice(0, -1); // Remove last character from line
         }
@@ -269,7 +269,7 @@ export class FontTextInstance {
 
     this._chachedText = text;
     this._chachedLines = lines;
-    this._cachedRenderWidth = renderWidth;
+    this._cachedRenderWidth = maxWidth;
 
     return lines;
   }
