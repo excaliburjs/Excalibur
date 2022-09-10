@@ -10,13 +10,13 @@ export class FontCache {
   private static _TEXT_CACHE = new Map<string, FontTextInstance>();
   private static _MEASURE_CACHE = new Map<string, BoundingBox>();
 
-  static measureText(text: string, font: Font) {
+  static measureText(text: string, font: Font, maxWidth?: number) {
     const hash = FontTextInstance.getHashCode(font, text);
     if (FontCache._MEASURE_CACHE.has(hash)) {
       return FontCache._MEASURE_CACHE.get(hash);
     }
     FontCache._LOGGER.debug('Font text measurement cache miss');
-    const measurement = font.measureTextWithoutCache(text);
+    const measurement = font.measureTextWithoutCache(text, maxWidth);
     FontCache._MEASURE_CACHE.set(hash, measurement);
     return measurement;
   }
@@ -25,7 +25,7 @@ export class FontCache {
     const hash = FontTextInstance.getHashCode(font, text, color);
     let textInstance = FontCache._TEXT_CACHE.get(hash);
     if (!textInstance) {
-      textInstance =  new FontTextInstance(font, text, color);
+      textInstance = new FontTextInstance(font, text, color);
       FontCache._TEXT_CACHE.set(hash, textInstance);
       FontCache._LOGGER.debug('Font text instance cache miss');
     }
@@ -51,7 +51,7 @@ export class FontCache {
       }
     }
     // Deferred removal of text instances
-    deferred.forEach(t => {
+    deferred.forEach((t) => {
       FontCache._TEXT_USAGE.delete(t);
     });
 
@@ -72,7 +72,6 @@ export class FontCache {
     this._MEASURE_CACHE = newTextMeasurementCache;
   }
 
-
   public static get cacheSize() {
     return FontCache._TEXT_USAGE.size;
   }
@@ -88,5 +87,4 @@ export class FontCache {
     FontCache._TEXT_CACHE.clear();
     FontCache._MEASURE_CACHE.clear();
   }
-
 }

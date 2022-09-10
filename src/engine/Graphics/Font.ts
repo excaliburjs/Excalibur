@@ -8,7 +8,6 @@ import { RasterOptions } from './Raster';
 import { ImageFiltering } from './Filtering';
 import { FontTextInstance } from './FontTextInstance';
 import { FontCache } from './FontCache';
-
 /**
  * Represents a system or web font in Excalibur
  *
@@ -112,11 +111,9 @@ export class Font extends Graphic implements FontRenderer {
     return this._textBounds;
   }
 
-
   protected _drawImage(_ex: ExcaliburGraphicsContext, _x: number, _y: number) {
     // TODO weird vestigial drawimage
   }
-
 
   protected _rotate(ex: ExcaliburGraphicsContext) {
     // TODO this needs to change depending on the bounding box...
@@ -140,8 +137,8 @@ export class Font extends Graphic implements FontRenderer {
 
   private _textMeasurement = new FontTextInstance(this, '', Color.Black);
 
-  public measureTextWithoutCache(text: string) {
-    return this._textMeasurement.measureText(text);
+  public measureTextWithoutCache(text: string, maxWidth?: number) {
+    return this._textMeasurement.measureText(text, maxWidth);
   }
 
   /**
@@ -151,8 +148,8 @@ export class Font extends Graphic implements FontRenderer {
    * @param text
    * @returns BoundingBox
    */
-  public measureText(text: string): BoundingBox {
-    return FontCache.measureText(text, this);
+  public measureText(text: string, maxWidth?: number): BoundingBox {
+    return FontCache.measureText(text, this, maxWidth);
   }
 
   protected _postDraw(ex: ExcaliburGraphicsContext): void {

@@ -14,24 +14,20 @@ export const wordWrap: Story = withEngine(async (game) => {
     width: 100,
     height: 100,
     x: 550,
-    y: 150,
+    y: 350,
     color: Color.Blue
   });
 
   const text = new Text({
-    text: 'WRAP THIS PLEASE',
+    text: 'WORD_WRAP_TEST',
     color: Color.White,
-    font: new Font({ size: 18, baseAlign: BaseAlign.Alphabetic }),
+    font: new Font({ size: 24, baseAlign: BaseAlign.Top }),
     maxWidth: 100
   });
 
   text.font.showDebug = true;
-
   dummyActor.graphics.add(text);
   game.add(dummyActor);
-  //heart.graphics.add(heartTx.toSprite());
-  //heart.graphics.add(text);
-  //game.add(heart);
 });
 
 export const playButton: Story = withEngine(
