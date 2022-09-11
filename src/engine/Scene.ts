@@ -34,6 +34,7 @@ import { ActionsSystem } from './Actions/ActionsSystem';
 import { IsometricEntitySystem } from './TileMap/IsometricEntitySystem';
 import { OffscreenSystem } from './Graphics/OffscreenSystem';
 import { ExcaliburGraphicsContext } from './Graphics';
+import { PhysicsWorld } from './Collision/PhysicsWorld';
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -54,6 +55,14 @@ export class Scene<TActivationData = unknown>
    * The ECS world for the scene
    */
   public world = new World(this);
+
+  /**
+   * The Excalibur physics world for the scene. Used to interact
+   * with colliders included in the scene.
+   *
+   * Can be used to perform scene ray casts, track colliders, broadphase, and narrowphase.
+   */
+  public physics = new PhysicsWorld();
 
   /**
    * The actors in the current scene
@@ -108,7 +117,7 @@ export class Scene<TActivationData = unknown>
     // Update
     this.world.add(new ActionsSystem());
     this.world.add(new MotionSystem());
-    this.world.add(new CollisionSystem());
+    this.world.add(new CollisionSystem(this.physics));
     this.world.add(new PointerSystem());
     this.world.add(new IsometricEntitySystem());
     // Draw

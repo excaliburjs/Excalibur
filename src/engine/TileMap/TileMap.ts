@@ -243,6 +243,7 @@ export class TileMap extends Entity {
    * Tiles colliders based on the solid tiles in the tilemap.
    */
   private _updateColliders(): void {
+    this._collider.$colliderRemoved.notifyAll(this._composite);
     this._composite.clearColliders();
     const colliders: BoundingBox[] = [];
     this._composite = this._collider.useCompositeCollider([]);
@@ -301,6 +302,8 @@ export class TileMap extends Entity {
       this._composite.addCollider(collider);
     }
     this._collider.update();
+    // Notify that colliders have been updated
+    this._collider.$colliderAdded.notifyAll(this._composite);
   }
 
   /**

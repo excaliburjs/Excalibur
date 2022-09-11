@@ -401,9 +401,11 @@ var tileBlockWidth = 64,
   tileBlockHeight = 48,
   spriteTiles = new ex.SpriteSheet({sprites: [ex.Sprite.from(imageBlocks)] });
 
+var blockGroup = ex.CollisionGroupManager.create('ground');
 // create a collision map
 // var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
-var tileMap = new ex.TileMap({ pos: ex.vec(100, 300), tileWidth: tileBlockWidth, tileHeight: tileBlockHeight, rows: 4, columns: 500 });
+var tileMap = new ex.TileMap({name: 'tilemap', pos: ex.vec(100, 300), tileWidth: tileBlockWidth, tileHeight: tileBlockHeight, rows: 4, columns: 500 });
+tileMap.get(ex.BodyComponent).group = blockGroup;
 var blocks = ex.Sprite.from(imageBlocks);
 // var flipped = spriteTiles.sprites[0].clone();
 // flipped.flipVertical = true;
@@ -453,7 +455,6 @@ enum Animations {
 }
 
 var currentX = 0;
-var blockGroup = ex.CollisionGroupManager.create('ground');
 var color = new ex.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
 // Create the level
 for (var i = 0; i < 36; i++) {
@@ -477,24 +478,28 @@ for (var i = 0; i < 36; i++) {
 var platform = new ex.Actor({x: 400, y: 300, width: 200, height: 50, color: new ex.Color(0, 200, 0)});
 platform.graphics.add(new ex.Rectangle({ color: new ex.Color(0, 200, 0), width: 200, height: 50 }));
 platform.body.collisionType = ex.CollisionType.Fixed;
+platform.body.group = blockGroup;
 platform.actions.repeatForever(ctx => ctx.moveTo(200, 300, 100).moveTo(600, 300, 100).moveTo(400, 300, 100));
 game.add(platform);
 
 var platform2 = new ex.Actor({x: 800, y: 300, width: 200, height: 20, color: new ex.Color(0, 0, 140)});
 platform2.graphics.add(new ex.Rectangle({ color: new ex.Color(0, 0, 140), width: 200, height: 20 }));
 platform2.body.collisionType = ex.CollisionType.Fixed;
+platform2.body.group = blockGroup;
 platform2.actions.repeatForever(ctx => ctx.moveTo(2000, 300, 100).moveTo(2000, 100, 100).moveTo(800, 100, 100).moveTo(800, 300, 100));
 game.add(platform2);
 
 var platform3 = new ex.Actor({x: -200, y: 400, width: 200, height: 20, color: new ex.Color(50, 0, 100)});
 platform3.graphics.add(new ex.Rectangle({ color: new ex.Color(50, 0, 100), width: 200, height: 20 }));
 platform3.body.collisionType = ex.CollisionType.Fixed;
+platform3.body.group = blockGroup;
 platform3.actions.repeatForever(ctx => ctx.moveTo(-200, 800, 300).moveTo(-200, 400, 50).delay(3000).moveTo(-200, 300, 800).moveTo(-200, 400, 800));
 game.add(platform3);
 
 var platform4 = new ex.Actor({x: 75, y: 300, width: 100, height: 50, color: ex.Color.Azure});
 platform4.graphics.add(new ex.Rectangle({ color: ex.Color.Azure, width: 100, height: 50 }));
 platform4.body.collisionType = ex.CollisionType.Fixed;
+platform4.body.group = blockGroup;
 game.add(platform4);
 
 // Test follow api
@@ -510,6 +515,17 @@ var player = new ex.Actor({
   collider: ex.Shape.Capsule(32, 96),
   collisionType: ex.CollisionType.Active
 });
+player.onPostUpdate = (engine) => {
+  var hits = engine.currentScene.physics.rayCast(new ex.Ray(player.pos, ex.Vector.Down), {
+    maxDistance: 100,
+    collisionGroup: blockGroup,
+    searchAllColliders: false
+  });
+  console.log(hits);
+}
+player.graphics.onPostDraw = (ctx) => {
+  ctx.drawLine(ex.Vector.Zero, ex.Vector.Down.scale(100), ex.Color.Red, 2);
+}
 player.body.canSleep = false;
 player.graphics.copyGraphics = false;
 follower.actions
@@ -543,10 +559,10 @@ player.addChild(healthbar);
 //   ctx.fillStyle = 'red';
 //   ctx.fillRect(0, 0, 100, 100);
 // };
-player.graphics.onPostDraw = (ctx: ex.ExcaliburGraphicsContext) => {
-  // ctx.debug.drawLine(ex.vec(0, 0), ex.vec(200, 0));
-  // ctx.debug.drawPoint(ex.vec(0, 0), { size: 20, color: ex.Color.Black });
-};
+// player.graphics.onPostDraw = (ctx: ex.ExcaliburGraphicsContext) => {
+//   // ctx.debug.drawLine(ex.vec(0, 0), ex.vec(200, 0));
+//   // ctx.debug.drawPoint(ex.vec(0, 0), { size: 20, color: ex.Color.Black });
+// };
 
 var healthbar2 = new ex.Rectangle({
   width: 140,

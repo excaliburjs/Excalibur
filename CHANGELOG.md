@@ -17,6 +17,28 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added ability to perform arbitrary ray casts into `ex.Scene`, the `ex.PhysicsWorld` can be passed a variety of options to influence the types of ray cast hits that
+are returned
+  ```typescript
+    const engine = new ex.Engine({...});
+    const enemyGroup = ex.CollisionGroupManager.create('enemy');
+    const ray = new ex.Ray(ex.vec(0, 0), ex.Vector.Right);
+    const hits = engine.currentScene.physics.rayCast(ray, {
+      /**
+       * Optionally specify to search for all colliders that intersect the ray cast, not just the first which is the default
+       */
+      searchAllColliders: true,
+      /**
+       * Optionally specify the maximum distance in pixels to ray cast, default is Infinity
+       */
+      maxDistance: 100,
+      /**
+       * Optionally specify a collision group to consider in the ray cast, default is All
+       */
+      collisionGroup: enemyGroup
+    });
+
+  ```
 - Added the emitted particle transform style as part of `ex.ParticleEmitter({particleTransform: ex.ParticleTransform.Global})`, [[ParticleTransform.Global]] is the default and emits particles as if they were world space objects, useful for most effects. If set to [[ParticleTransform.Local]] particles are children of the emitter and move relative to the emitter as they would in a parent/child actor relationship.
 - Added `wasButtonReleased` and `wasButtonPressed` methods to [[ex.Input.Gamepad]]
 - Added `clone()` method to `ex.SpriteSheet` 
