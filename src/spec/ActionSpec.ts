@@ -1051,6 +1051,19 @@ describe('Action', () => {
       expect(actor.scale.x).toBe(1.5);
       expect(actor.scale.y).toBe(1.5);
     });
+
+    it('completes when scaling on the x-axis', () => {
+      expect(actor.scale.x).toBe(1);
+
+      const scaleTo = new ex.ScaleTo(actor, 2, 1, 1, 1);
+      actor.actions.runAction(scaleTo);
+      expect(scaleTo.isComplete()).toBeFalse();
+
+      scene.update(engine, 1000);
+      expect(actor.scale.x).toBe(2);
+      expect(actor.scale.y).toBe(1);
+      expect(scaleTo.isComplete()).toBeTrue();
+    });
   });
 
   describe('scaleBy', () => {

@@ -564,6 +564,13 @@ describe('A game actor', () => {
   });
 
   it('can be removed from the scene', () => {
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'warn');
+    // attempt removing before adding
+    new ex.Actor({name: 'not-in-scene'}).kill();
+    expect(logger.warn).toHaveBeenCalledWith('Cannot kill actor named "not-in-scene", it was never added to the Scene');
+
+    // remove actor in a scene
     scene.add(actor);
     expect(scene.actors.length).toBe(1);
     actor.kill();

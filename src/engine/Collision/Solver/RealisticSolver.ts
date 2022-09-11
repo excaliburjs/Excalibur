@@ -39,7 +39,13 @@ export class RealisticSolver implements CollisionSolver {
   }
 
   preSolve(contacts: CollisionContact[]) {
+    const epsilon = .0001;
     for (const contact of contacts) {
+      if (Math.abs(contact.mtv.x) < epsilon && Math.abs(contact.mtv.y) < epsilon) {
+        // Cancel near 0 mtv collisions
+        contact.cancel();
+        continue;
+      }
       // Publish collision events on both participants
       const side = Side.fromDirection(contact.mtv);
       contact.colliderA.events.emit('precollision', new PreCollisionEvent(contact.colliderA, contact.colliderB, side, contact.mtv));

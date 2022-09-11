@@ -1109,24 +1109,11 @@ O|===|* >________________>\n\
     // Issue #385 make use of the visibility api
     // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
 
-    let hidden: keyof HTMLDocument, visibilityChange: string;
-    if (typeof document.hidden !== 'undefined') {
-      // Opera 12.10 and Firefox 18 and later support
-      hidden = 'hidden';
-      visibilityChange = 'visibilitychange';
-    } else if ('msHidden' in document) {
-      hidden = <keyof HTMLDocument>'msHidden';
-      visibilityChange = 'msvisibilitychange';
-    } else if ('webkitHidden' in document) {
-      hidden = <keyof HTMLDocument>'webkitHidden';
-      visibilityChange = 'webkitvisibilitychange';
-    }
-
-    this.browser.document.on(visibilityChange, () => {
-      if (document[hidden]) {
+    this.browser.document.on('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
         this.eventDispatcher.emit('hidden', new HiddenEvent(this));
         this._logger.debug('Window hidden');
-      } else {
+      } else if (document.visibilityState === 'visible') {
         this.eventDispatcher.emit('visible', new VisibleEvent(this));
         this._logger.debug('Window visible');
       }
@@ -1474,6 +1461,7 @@ O|===|* >________________>\n\
       screenshot.width = finalWidth;
       screenshot.height = finalHeight;
       const ctx = screenshot.getContext('2d');
+      ctx.imageSmoothingEnabled = this.screen.antialiasing;
       ctx.drawImage(this.canvas, 0, 0, finalWidth, finalHeight);
 
       const result = new Image();

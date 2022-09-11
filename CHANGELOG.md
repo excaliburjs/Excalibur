@@ -12,15 +12,31 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
--
+- [[ex.Input.Gamepad]] `isButtonPressed` has been renamed to `isButtonHeld`
+
 
 ### Added
 
--
+- Added the emitted particle transform style as part of `ex.ParticleEmitter({particleTransform: ex.ParticleTransform.Global})`, [[ParticleTransform.Global]] is the default and emits particles as if they were world space objects, useful for most effects. If set to [[ParticleTransform.Local]] particles are children of the emitter and move relative to the emitter as they would in a parent/child actor relationship.
+- Added `wasButtonReleased` and `wasButtonPressed` methods to [[ex.Input.Gamepad]]
+- Added `clone()` method to `ex.SpriteSheet` 
 
 ### Fixed
 
--
+- Fixed issue where zero mtv collisions cause erroneous precollision events to be fired in the `ArcadeSolver` and `RealisticSolver`
+- Fixed issue where calling `.kill()` on a child entity would not remove it from the parent `Entity`
+- Fixed issue where calling `.removeAllChildren()` would not remove all the children from the parent `Entity`
+- Fixed issue where world origin was inconsistent when the using `ex.DisplayMode.FitScreenAndFill` when the screen was resized.
+- Fixed issue where context opacity was not respected when set in a `preDraw`
+- Fixed issue where `ex.Sound.loop` was not working, and switching tab visibility would cause odd behavior with looping `ex.Sound`
+- Fixed issue where adding a `ex.ParticleEmitter` as a child did not position particles according to the parent
+- Fixed issue where screenshots from `ex.Engine.screenshot()` did not match the smoothing set on the engine.
+- Fixed incorrect event type returned when `ex.Actor.on('postupdate', (event) => {...})`.
+- Fixed issue where using numerous `ex.Text` instances would cause Excalibur to crash webgl by implementing a global font cache.
+- Fixed issue where child entities did not inherit the scene from their parent
+- Fixed issue where `ex.Font` would become corrupted when re-used by multiple `ex.Text` instances
+- Fixed `engine.on('visible')` event not firing
+- Fixed `EventDispatcher.emit` converting falsy values to `ex.GameEvent`. It will only convert `undefined` or `null` values now.
 
 ### Updates
 
