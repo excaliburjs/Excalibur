@@ -68,12 +68,12 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
     const results: RayCastHit[] = [];
     const maxDistance = options?.maxDistance ?? Infinity;
     const collisionGroup = options?.collisionGroup ?? CollisionGroup.All;
-    const searchAllColliders = options.searchAllColliders ?? false;
+    const searchAllColliders = options?.searchAllColliders ?? false;
     this._dynamicCollisionTree.rayCastQuery(ray, maxDistance, (collider) => {
       const owner = collider.owner;
       const maybeBody = owner.get(BodyComponent);
       // Early exit if not the right group
-      if (maybeBody && maybeBody.group.mask !== collisionGroup.mask) {
+      if (collisionGroup.mask !== CollisionGroup.All.mask && maybeBody?.group?.mask !== collisionGroup.mask) {
         return false;
       }
 
