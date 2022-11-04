@@ -22,9 +22,7 @@ child_process.execSync(
     ' --out docs/api' +
     ' --hideGenerator' +
     ' --excludePrivate' +
-    ' --listInvalidSymbolLinks' +
     ' --gaID UA-46390208-1' +
-    ' --gaSite excaliburjs.com' +
     ' --tsconfig src/engine/tsconfig.json' +
     ' src/engine/index.ts',
   {
