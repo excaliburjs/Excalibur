@@ -130,14 +130,13 @@ export class SpriteFont extends Graphic implements FontRenderer {
       ex.save();
       ex.translate(this.shadow.offset.x, this.shadow.offset.y);
       this._preDraw(ex, x, y);
-      this._drawImage(ex, x, y, maxWidth);
+      this._drawImage(ex, 0, 0, maxWidth);
       this._postDraw(ex);
       ex.restore();
     }
 
-    //this.draw(ex, x, y, maxWidth);
     this._preDraw(ex, x, y);
-    this._drawImage(ex, x, y, maxWidth);
+    this._drawImage(ex, 0, 0, maxWidth);
     this._postDraw(ex);
   }
 
