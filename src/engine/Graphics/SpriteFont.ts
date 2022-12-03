@@ -153,13 +153,13 @@ export class SpriteFont extends Graphic implements FontRenderer {
    * @param text
    * @param maxWidth
    */
-  private _chachedText: string;
-  private _chachedLines: string[];
+  private _cachedText: string;
+  private _cachedLines: string[];
   private _cachedRenderWidth: number;
   private _getLinesFromText(text: string, maxWidth?: number) {
     Logger.getInstance().info(this.spacing);
-    if (this._chachedText === text && this._cachedRenderWidth === maxWidth) {
-      return this._chachedLines;
+    if (this._cachedText === text && this._cachedRenderWidth === maxWidth) {
+      return this._cachedLines;
     }
 
     const lines = text.split('\n');
@@ -185,8 +185,8 @@ export class SpriteFont extends Graphic implements FontRenderer {
       }
     }
 
-    this._chachedText = text;
-    this._chachedLines = lines;
+    this._cachedText = text;
+    this._cachedLines = lines;
     this._cachedRenderWidth = maxWidth;
 
     return lines;

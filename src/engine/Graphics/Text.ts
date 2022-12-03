@@ -22,7 +22,7 @@ export interface TextOptions {
   font?: Font | SpriteFont;
 
   /**
-   * Optionally specify a maximum width for our text, and wrap to the next line if needed.
+   * Optionally specify a maximum width in pixels for our text, and wrap to the next line if needed.
    */
   maxWidth?: number;
 }
