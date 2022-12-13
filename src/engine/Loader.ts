@@ -413,9 +413,13 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
     const oldAntialias = this._engine.getAntialiasing();
     this._engine.setAntialiasing(true);
     if (!this.logoPosition) {
-      this._image.onload = () => ctx.drawImage(this._image, 0, 0, this.logoWidth, this.logoHeight, logoX, logoY - imageHeight - 20, width, imageHeight);
+      this._image.onload = () => {
+        ctx.drawImage(this._image, 0, 0, this.logoWidth, this.logoHeight, logoX, logoY - imageHeight - 20, width, imageHeight);
+      }
     } else {
-      this._image.onload = () => ctx.drawImage(this._image, 0, 0, this.logoWidth, this.logoHeight, logoX, logoY, width, imageHeight);
+      this._image.onload = () => {
+        ctx.drawImage(this._image, 0, 0, this.logoWidth, this.logoHeight, logoX, logoY, width, imageHeight);
+      }
     }
 
     // loading box
