@@ -415,11 +415,11 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
     if (!this.logoPosition) {
       this._image.onload = () => {
         ctx.drawImage(this._image, 0, 0, this.logoWidth, this.logoHeight, logoX, logoY - imageHeight - 20, width, imageHeight);
-      }
+      };
     } else {
       this._image.onload = () => {
         ctx.drawImage(this._image, 0, 0, this.logoWidth, this.logoHeight, logoX, logoY, width, imageHeight);
-      }
+      };
     }
 
     // loading box
