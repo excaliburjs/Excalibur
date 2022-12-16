@@ -19,6 +19,9 @@ const umdOutput = {
 const esmOutput = {
   path: path.resolve(__dirname, 'build/esm'),
   filename: '[name].js',
+  chunkLoading: 'import',  // TRY
+  chunkFormat: 'module',  // TRY
+  module: true,  // TRY
   library: {
     type: 'module'
   }
@@ -29,7 +32,7 @@ module.exports = (env, argv) => {
   console.log('[version]:', version);
   return {
     mode: 'production',
-    devtool: 'eval-source-map',
+    devtool: env.output === 'esm' ? false : 'eval-source-map',  // TRY
     entry: {
       excalibur: './index.ts',
       'excalibur.min': './index.ts'
@@ -47,8 +50,8 @@ module.exports = (env, argv) => {
     experiments:
       env.output === 'esm'
         ? {
-          outputModule: true
-        }
+            outputModule: true
+          }
         : {},
     resolve: {
       // Add `.ts` and `.tsx` as a resolvable extension.
@@ -100,5 +103,5 @@ Licensed ${pkg.license}
 @preserve`
       )
     ]
-  }
+  };
 };
