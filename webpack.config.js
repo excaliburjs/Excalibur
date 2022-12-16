@@ -29,7 +29,7 @@ module.exports = (env, argv) => {
   console.log('[version]:', version);
   return {
     mode: 'production',
-    devtool: 'source-map',
+    devtool: 'eval-source-map',
     entry: {
       excalibur: './index.ts',
       'excalibur.min': './index.ts'
