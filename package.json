@@ -71,7 +71,7 @@
     "@storybook/html": "6.5.15",
     "@storybook/manager-webpack5": "6.5.15",
     "@types/jasmine": "4.3.0",
-    "@types/node": "16.18.4",
+    "@types/node": "16.18.11",
     "@types/react-color": "3.0.6",
     "@types/webpack-env": "1.18.0",
     "@typescript-eslint/eslint-plugin": "5.38.1",
