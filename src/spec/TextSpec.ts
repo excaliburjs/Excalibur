@@ -479,6 +479,7 @@ describe('A Text Graphic', () => {
   });
 
   it('can force clear text bitmap cache', () => {
+    ex.FontCache.clearCache();
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
@@ -511,13 +512,14 @@ describe('A Text Graphic', () => {
     text.draw(ctx, 10, 50);
     text2.draw(ctx, 10, 50);
 
-    expect(sut.cacheSize).toBe(2);
-    sut.clearCache();
-    expect(sut.cacheSize).toBe(0);
+    expect(ex.FontCache.cacheSize).toBe(2);
+    ex.FontCache.clearCache();
+    expect(ex.FontCache.cacheSize).toBe(0);
 
   });
 
   it('will collect text bitmap garbage', async () => {
+    ex.FontCache.clearCache();
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
@@ -549,15 +551,16 @@ describe('A Text Graphic', () => {
     ctx.clear();
     text.draw(ctx, 10, 50);
     text2.draw(ctx, 10, 50);
-    expect(sut.cacheSize).toBe(2);
+    expect(ex.FontCache.cacheSize).toBe(2);
 
     await delay(1001); // text is cached for 1 second
 
-    sut.checkAndClearCache();
-    expect(sut.cacheSize).toBe(0);
+    ex.FontCache.checkAndClearCache();
+    expect(ex.FontCache.cacheSize).toBe(0);
   });
 
   it('will collect text bitmap garbage', async () => {
+    ex.FontCache.clearCache();
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
@@ -589,15 +592,16 @@ describe('A Text Graphic', () => {
     ctx.clear();
     text.draw(ctx, 10, 50);
     text2.draw(ctx, 10, 50);
-    expect(sut.cacheSize).toBe(2);
+    expect(ex.FontCache.cacheSize).toBe(2);
 
     await delay(1001); // text is cached for 1 second
 
-    sut.checkAndClearCache();
-    expect(sut.cacheSize).toBe(0);
+    ex.FontCache.checkAndClearCache();
+    expect(ex.FontCache.cacheSize).toBe(0);
   });
 
   it('should cache based on text and raster props', () => {
+    ex.FontCache.clearCache();
     const sut = new ex.Font({
       family: 'Open Sans',
       size: 18,
@@ -629,7 +633,43 @@ describe('A Text Graphic', () => {
     ctx.clear();
     text.draw(ctx, 10, 50);
     text2.draw(ctx, 10, 50);
-    expect(sut.cacheSize).toBe(2);
+    expect(ex.FontCache.cacheSize).toBe(2);
+  });
+
+  it('can reuse a font', async () => {
+    const sut = new ex.Font({
+      family: 'Open Sans',
+      size: 18,
+      quality: 1
+    });
+
+    const text1 = new ex.Text({
+      text: 'text111',
+      font: sut
+    });
+
+    const text2 = new ex.Text({
+      text: 'text222',
+      font: sut
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    ctx.clear();
+    text1.draw(ctx, 10, 20);
+    text2.draw(ctx, 10, 40);
+    ctx.flush();
+
+    await runOnWindows(async () => {
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/reuse-font.png');
+    });
+
+    await runOnLinux(async () => {
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/reuse-font-linux.png');
+    });
   });
 
   it('can get text dimension before drawing', () => {
@@ -769,6 +809,17 @@ describe('A Text Graphic', () => {
     await runOnLinux(async () => {
       await expectAsync(flushWebGLCanvasTo2D(canvasElement)).toEqualImage('src/spec/images/GraphicsTextSpec/long-text-linux.png');
     });
+  });
+
+  it('can create lots of text without crash', () => {
+    expect(() => {
+      const text: ex.Text[] = [];
+      for (let i = 0; i < 1000; i++) {
+        text.push(new ex.Text({
+          text: 'text that is long' + i
+        }));
+      }
+    }).not.toThrow();
   });
 
   describe('with a SpriteFont', () => {
@@ -1072,5 +1123,73 @@ describe('A Text Graphic', () => {
     const bounds = sut.measureText('some extra long text that we want to measure');
     expect(bounds.width).toBeCloseTo(440, -1);
     expect(bounds.height).toBeCloseTo(16, 0);
+  });
+
+  it('can word wrap text for a spritefont', async () => {
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    await spriteFontImage.load();
+    const spriteFontSheet = ex.SpriteSheet.fromImageSource({
+      image: spriteFontImage,
+      grid: {
+        rows: 3,
+        columns: 16,
+        spriteWidth: 16,
+        spriteHeight: 16
+      }
+    });
+
+    const spriteFont = new ex.SpriteFont({
+      alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+      caseInsensitive: true,
+      spriteSheet: spriteFontSheet,
+      spacing: -4
+    });
+
+    const sut = new ex.Text({
+      text: 'some super long text that should wrap after 100 pixels',
+      color: ex.Color.Green,
+      font: spriteFont,
+      maxWidth: 100
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    ctx.clear();
+    sut.draw(ctx, 0, 0);
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/sprite-font-text-wrap.png');
+  });
+
+  it('can word wrap text for a normal font', async () => {
+    const sut = new ex.Font({
+      family: 'Open Sans',
+      size: 18,
+      quality: 1
+    });
+
+    const text1 = new ex.Text({
+      text: 'some super long text that should wrap after 100 pixels',
+      font: sut,
+      maxWidth: 100
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    ctx.clear();
+    text1.draw(ctx, 0, 18);
+    ctx.flush();
+
+    await runOnWindows(async () => {
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/font-text-wrap.png');
+    });
+
+    await runOnLinux(async () => {
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/font-text-wrap-linux.png');
+    });
   });
 });

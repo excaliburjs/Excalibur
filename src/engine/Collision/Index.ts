@@ -31,5 +31,6 @@ export * from './Solver/Solver';
 export * from './CollisionSystem';
 export * from './MotionSystem';
 
+export * from './PhysicsWorld';
 export * from './Physics';
 export * from './Side';

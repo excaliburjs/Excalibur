@@ -33,7 +33,7 @@ export class EventDispatcher<T = any> implements Eventable {
       return;
     }
     eventName = eventName.toLowerCase();
-    if (!event) {
+    if (typeof event === 'undefined' || event === null) {
       event = new GameEvent();
     }
     let i: number, len: number;

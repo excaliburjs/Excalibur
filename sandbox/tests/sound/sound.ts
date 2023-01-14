@@ -6,8 +6,7 @@ var game = new ex.Engine({
 
 
 
-var sound = new ex.Sound('./preview.ogg');
-sound.playbackRate = 2.0;
+var sound = new ex.Sound('./loop.mp3');
 var loader = new ex.Loader([
   sound
 ]);
@@ -73,6 +72,17 @@ pause.on('pointerdown', () => {
 });
 game.currentScene.add(pause);
 
+var loopCheckbox = document.querySelector('#loop') as HTMLInputElement;
+loopCheckbox.onchange = (e) => {
+  sound.loop = !!(e.target as any).value;
+}
+
+var playbackRate = document.querySelector('#playback-rate') as HTMLInputElement;
+var playbackValue = document.querySelector('#playback-rate-value') as HTMLInputElement;
+playbackRate.oninput = () => {
+  sound.playbackRate = +playbackRate.value;
+  playbackValue.textContent = playbackRate.value;
+};
 
 game.currentScene.onPostUpdate = () => {
   currentTimeLabel.text = 'Current Time: ' + sound.getPlaybackPosition().toFixed(2);

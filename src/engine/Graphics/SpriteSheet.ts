@@ -196,4 +196,12 @@ export class SpriteSheet {
       columns: cols
     });
   }
+
+  public clone(): SpriteSheet {
+    return new SpriteSheet({
+      sprites: this.sprites.map(sprite => sprite.clone()),
+      rows: this.rows,
+      columns: this.columns
+    });
+  }
 }

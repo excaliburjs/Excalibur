@@ -6,7 +6,7 @@ import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/Lifecycle
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
 import { EventDispatcher } from '../EventDispatcher';
-import { Util } from '..';
+import { Scene, Util } from '..';
 
 /**
  * Interface holding an entity component pair
@@ -75,6 +75,11 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
    */
   public id: number = Entity._ID++;
 
+  /**
+   * The scene that the entity is in, if any
+   */
+  public scene: Scene = null;
+
   private _name: string = 'anonymous';
   protected _setName(name: string) {
     if (name) {
@@ -96,9 +101,13 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
 
   /**
    * Kill the entity, means it will no longer be updated. Kills are deferred to the end of the update.
+   * If parented it will be removed from the parent when killed.
    */
   public kill() {
-    this.active = false;
+    if (this.active) {
+      this.active = false;
+      this.unparent();
+    }
   }
 
   public isKilled() {
@@ -251,9 +260,10 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
    * Removes all children from this entity
    */
   public removeAllChildren(): Entity {
-    this.children.forEach((c) => {
-      this.removeChild(c);
-    });
+    // Avoid modifying the array issue by walking backwards
+    for (let i = this.children.length - 1; i >= 0; i--) {
+      this.removeChild(this.children[i]);
+    }
     return this;
   }
 

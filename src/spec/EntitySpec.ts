@@ -340,4 +340,125 @@ describe('An entity', () => {
 
     expect(world.entityManager.entities.length).toBe(2);
   });
+
+  it('will inherit scene from a parent entity', () => {
+    const e = new ex.Entity([], 'e');
+    const child = new ex.Entity([], 'child');
+    const grandchild = new ex.Entity([], 'grandchild');
+
+    const scene = new ex.Scene();
+    e.addChild(child.addChild(grandchild));
+    scene.add(e);
+    expect(e.scene).toBe(scene);
+    expect(child.scene).toBe(scene);
+    expect(grandchild.scene).toBe(scene);
+
+    e.removeChild(child);
+    expect(e.scene).toBe(scene);
+    expect(child.scene).toBe(null);
+    expect(child.parent).toBe(null);
+    expect(grandchild.scene).toBe(null);
+    expect(grandchild.parent).toBe(child);
+
+    e.addChild(child);
+    expect(e.scene).toBe(scene);
+    expect(child.scene).toBe(scene);
+    expect(grandchild.scene).toBe(scene);
+
+    // deferred removal
+    scene.remove(e);
+    expect(e.scene).not.toBe(null);
+    expect(child.scene).not.toBe(null);
+    expect(grandchild.scene).not.toBe(null);
+
+    scene.world.entityManager.processEntityRemovals();
+    expect(e.scene).toBe(null);
+    expect(child.scene).toBe(null);
+    expect(grandchild.scene).toBe(null);
+
+  });
+
+  it('can removeAllChildren correctly', () => {
+    const e = new ex.Entity();
+    const child1 = new ex.Entity();
+    const child2 = new ex.Entity();
+    const child3 = new ex.Entity();
+    const child4 = new ex.Entity();
+    const child5 = new ex.Entity();
+    const child6 = new ex.Entity();
+    e.addChild(child1);
+    e.addChild(child2);
+    e.addChild(child3);
+    e.addChild(child4);
+    e.addChild(child5);
+    e.addChild(child6);
+
+    expect(e.children.length).toBe(6);
+
+    e.removeAllChildren();
+
+    expect(e.children.length).toBe(0);
+  });
+
+  it('will remove children from the parent when a child is killed', () => {
+    const e = new ex.Entity();
+    const child1 = new ex.Entity();
+    const child2 = new ex.Entity();
+    const child3 = new ex.Entity();
+    const child4 = new ex.Entity();
+    const child5 = new ex.Entity();
+    const child6 = new ex.Entity();
+    const grandChild = new ex.Entity();
+    e.addChild(child1);
+    e.addChild(child2);
+    e.addChild(child3);
+    e.addChild(child4);
+    e.addChild(child5);
+    e.addChild(child6);
+    child6.addChild(grandChild);
+
+    expect(e.children.length).toBe(6);
+
+    child1.kill();
+    child2.kill();
+    child3.kill();
+    child4.kill();
+    child5.kill();
+    child6.kill();
+
+    expect(e.children.length).toBe(0);
+    expect(child6.children.length).toBe(1);
+    expect(grandChild.parent).toBe(child6);
+  });
+
+  it('will remove children from the parent when a child is removed', () => {
+    const e = new ex.Entity();
+    const child1 = new ex.Entity();
+    const child2 = new ex.Entity();
+    const child3 = new ex.Entity();
+    const child4 = new ex.Entity();
+    const child5 = new ex.Entity();
+    const child6 = new ex.Entity();
+    const grandChild = new ex.Entity();
+    e.addChild(child1);
+    e.addChild(child2);
+    e.addChild(child3);
+    e.addChild(child4);
+    e.addChild(child5);
+    e.addChild(child6);
+    child6.addChild(grandChild);
+
+    expect(e.children.length).toBe(6);
+
+    e.removeChild(child1);
+    e.removeChild(child2);
+    e.removeChild(child3);
+    e.removeChild(child4);
+    e.removeChild(child5);
+    e.removeChild(child6);
+
+    expect(e.children.length).toBe(0);
+    expect(child6.children.length).toBe(1);
+    expect(grandChild.parent).toBe(child6);
+  });
 });

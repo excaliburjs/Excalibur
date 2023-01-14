@@ -160,4 +160,45 @@ describe('An Event Dispatcher', () => {
       dispatcher.emit('foo', null);
     }).not.toThrow();
   });
+
+  it('converts undefined value to GameEvent', () => {
+    const newPubSub = new ex.EventDispatcher();
+    pubsub.wire(newPubSub);
+
+    let value;
+    pubsub.on('someevent', (v) => {
+      value = v;
+    });
+
+    newPubSub.emit('someevent', undefined);
+    expect(value).toBeInstanceOf(ex.GameEvent);
+  });
+
+  it('converts null value to GameEvent', () => {
+    const newPubSub = new ex.EventDispatcher();
+    pubsub.wire(newPubSub);
+
+    let value;
+    pubsub.on('someevent', (v) => {
+      value = v;
+    });
+
+    newPubSub.emit('someevent', null);
+    expect(value).toBeInstanceOf(ex.GameEvent);
+  });
+
+  // issue #2418
+  it('preserves falsy event value', () => {
+    const newPubSub = new ex.EventDispatcher();
+    pubsub.wire(newPubSub);
+
+    let value;
+    pubsub.on('someevent', (v) => {
+      value = v;
+    });
+
+    // emit is typed to take a GameEvent, but inherting classes take `any`
+    newPubSub.emit('someevent', 0 as any);
+    expect(value).toBe(0);
+  });
 });

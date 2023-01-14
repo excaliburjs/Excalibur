@@ -7,13 +7,13 @@ import { CollisionResolutionStrategy, Physics } from './Physics';
 import { ArcadeSolver } from './Solver/ArcadeSolver';
 import { Collider } from './Colliders/Collider';
 import { CollisionContact } from './Detection/CollisionContact';
-import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
 import { RealisticSolver } from './Solver/RealisticSolver';
 import { CollisionSolver } from './Solver/Solver';
 import { ColliderComponent } from './ColliderComponent';
 import { CompositeCollider } from './Colliders/CompositeCollider';
 import { Engine, ExcaliburGraphicsContext, Scene } from '..';
-
+import { DynamicTreeCollisionProcessor } from './Detection/DynamicTreeCollisionProcessor';
+import { PhysicsWorld } from './PhysicsWorld';
 export class CollisionSystem extends System<TransformComponent | MotionComponent | ColliderComponent> {
   public readonly types = ['ex.transform', 'ex.motion', 'ex.collider'] as const;
   public systemType = SystemType.Update;
@@ -22,12 +22,19 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
   private _engine: Engine;
   private _realisticSolver = new RealisticSolver();
   private _arcadeSolver = new ArcadeSolver();
-  private _processor = new DynamicTreeCollisionProcessor();
   private _lastFrameContacts = new Map<string, CollisionContact>();
   private _currentFrameContacts = new Map<string, CollisionContact>();
+  private _processor: DynamicTreeCollisionProcessor;
 
-  private _trackCollider = (c: Collider) => this._processor.track(c);
-  private _untrackCollider = (c: Collider) => this._processor.untrack(c);
+  private _trackCollider: (c: Collider) => void;
+  private _untrackCollider: (c: Collider) => void;
+
+  constructor(physics: PhysicsWorld) {
+    super();
+    this._processor = physics.collisionProcessor;
+    this._trackCollider = (c: Collider) => this._processor.track(c);
+    this._untrackCollider = (c: Collider) => this._processor.untrack(c);
+  }
 
   notify(message: AddedEntity | RemovedEntity) {
     if (isAddedSystemEntity(message)) {
@@ -49,6 +56,7 @@ export class CollisionSystem extends System<TransformComponent | MotionComponent
 
   initialize(scene: Scene) {
     this._engine = scene.engine;
+
   }
 
   update(entities: Entity[], elapsedMs: number): void {

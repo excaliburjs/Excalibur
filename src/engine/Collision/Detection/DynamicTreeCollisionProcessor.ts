@@ -12,7 +12,42 @@ import { Collider } from '../Colliders/Collider';
 import { CollisionContact } from '../Detection/CollisionContact';
 import { BodyComponent } from '../BodyComponent';
 import { CompositeCollider } from '../Colliders/CompositeCollider';
-import { ExcaliburGraphicsContext } from '../..';
+import { CollisionGroup } from '../Group/CollisionGroup';
+import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
+
+export interface RayCastHit {
+  /**
+   * The distance along the ray cast in pixels that a hit was detected
+   */
+  distance: number;
+  /**
+   * Reference to the collider that was hit
+   */
+  collider: Collider;
+  /**
+   * Reference to the body that was hit
+   */
+  body: BodyComponent;
+  /**
+   * World space point of the hit
+   */
+  point: Vector;
+}
+
+export interface RayCastOptions {
+  /**
+   * Optionally specify the maximum distance in pixels to ray cast, default is Infinity
+   */
+  maxDistance?: number;
+  /**
+   * Optionally specify a collision group to consider in the ray cast, default is All
+   */
+  collisionGroup?: CollisionGroup;
+  /**
+   * Optionally specify to search for all colliders that intersect the ray cast, not just the first which is the default
+   */
+  searchAllColliders?: boolean;
+}
 
 /**
  * Responsible for performing the collision broadphase (locating potential collisions) and
@@ -27,6 +62,37 @@ export class DynamicTreeCollisionProcessor implements CollisionProcessor {
 
   public getColliders(): readonly Collider[] {
     return this._colliders;
+  }
+
+  public rayCast(ray: Ray, options?: RayCastOptions): RayCastHit[] {
+    const results: RayCastHit[] = [];
+    const maxDistance = options?.maxDistance ?? Infinity;
+    const collisionGroup = options?.collisionGroup ?? CollisionGroup.All;
+    const searchAllColliders = options?.searchAllColliders ?? false;
+    this._dynamicCollisionTree.rayCastQuery(ray, maxDistance, (collider) => {
+      const owner = collider.owner;
+      const maybeBody = owner.get(BodyComponent);
+      // Early exit if not the right group
+      if (collisionGroup.mask !== CollisionGroup.All.mask && maybeBody?.group?.mask !== collisionGroup.mask) {
+        return false;
+      }
+
+      const hit = collider.rayCast(ray, maxDistance);
+      if (hit) {
+        results.push({
+          distance: hit.sub(ray.pos).distance(),
+          point: hit,
+          collider: collider,
+          body: maybeBody
+        });
+        if (!searchAllColliders) {
+          // returning true exits the search
+          return true;
+        }
+      }
+      return false;
+    });
+    return results;
   }
 
   /**

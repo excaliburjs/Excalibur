@@ -1,5 +1,6 @@
 import * as ex from '@excalibur';
 import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
+import { PhysicsWorld } from '../engine/Collision/PhysicsWorld';
 import { TestUtils } from './util/TestUtils';
 
 describe('A game actor', () => {
@@ -21,7 +22,7 @@ describe('A game actor', () => {
     actor = new ex.Actor({name: 'Default'});
     actor.body.collisionType = ex.CollisionType.Active;
     motionSystem = new ex.MotionSystem();
-    collisionSystem = new ex.CollisionSystem();
+    collisionSystem = new ex.CollisionSystem(new PhysicsWorld());
     actionSystem = new ex.ActionsSystem();
     scene = new ex.Scene();
     scene.add(actor);
@@ -563,6 +564,13 @@ describe('A game actor', () => {
   });
 
   it('can be removed from the scene', () => {
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'warn');
+    // attempt removing before adding
+    new ex.Actor({name: 'not-in-scene'}).kill();
+    expect(logger.warn).toHaveBeenCalledWith('Cannot kill actor named "not-in-scene", it was never added to the Scene');
+
+    // remove actor in a scene
     scene.add(actor);
     expect(scene.actors.length).toBe(1);
     actor.kill();
@@ -577,7 +585,7 @@ describe('A game actor', () => {
     actor = new ex.Actor();
     actor.body.collisionType = ex.CollisionType.Active;
     motionSystem = new ex.MotionSystem();
-    collisionSystem = new ex.CollisionSystem();
+    collisionSystem = new ex.CollisionSystem(new PhysicsWorld());
     scene = new ex.Scene();
     scene.add(actor);
     engine.addScene('test', scene);

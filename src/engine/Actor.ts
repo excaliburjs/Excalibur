@@ -370,11 +370,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   public logger: Logger = Logger.getInstance();
 
   /**
-   * The scene that the actor is in
-   */
-  public scene: Scene = null;
-
-  /**
    * Draggable helper
    */
   private _draggable: boolean = false;
@@ -812,7 +807,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       super.kill();
       this._postkill(this.scene);
     } else {
-      this.logger.warn('Cannot kill actor, it was never added to the Scene');
+      this.logger.warn(`Cannot kill actor named "${this.name}", it was never added to the Scene`);
     }
   }
 
@@ -999,7 +994,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * @internal
    */
   public _postupdate(engine: Engine, delta: number): void {
-    this.emit('postupdate', new PreUpdateEvent(engine, delta, this));
+    this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
     this.onPostUpdate(engine, delta);
   }
 
