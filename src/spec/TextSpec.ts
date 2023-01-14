@@ -1124,4 +1124,72 @@ describe('A Text Graphic', () => {
     expect(bounds.width).toBeCloseTo(440, -1);
     expect(bounds.height).toBeCloseTo(16, 0);
   });
+
+  it('can word wrap text for a spritefont', async () => {
+    const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png');
+    await spriteFontImage.load();
+    const spriteFontSheet = ex.SpriteSheet.fromImageSource({
+      image: spriteFontImage,
+      grid: {
+        rows: 3,
+        columns: 16,
+        spriteWidth: 16,
+        spriteHeight: 16
+      }
+    });
+
+    const spriteFont = new ex.SpriteFont({
+      alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+      caseInsensitive: true,
+      spriteSheet: spriteFontSheet,
+      spacing: -4
+    });
+
+    const sut = new ex.Text({
+      text: 'some super long text that should wrap after 100 pixels',
+      color: ex.Color.Green,
+      font: spriteFont,
+      maxWidth: 100
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+    ctx.clear();
+    sut.draw(ctx, 0, 0);
+
+    await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/sprite-font-text-wrap.png');
+  });
+
+  it('can word wrap text for a normal font', async () => {
+    const sut = new ex.Font({
+      family: 'Open Sans',
+      size: 18,
+      quality: 1
+    });
+
+    const text1 = new ex.Text({
+      text: 'some super long text that should wrap after 100 pixels',
+      font: sut,
+      maxWidth: 100
+    });
+
+    const canvasElement = document.createElement('canvas');
+    canvasElement.width = 100;
+    canvasElement.height = 100;
+    const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
+
+    ctx.clear();
+    text1.draw(ctx, 0, 18);
+    ctx.flush();
+
+    await runOnWindows(async () => {
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/font-text-wrap.png');
+    });
+
+    await runOnLinux(async () => {
+      await expectAsync(canvasElement).toEqualImage('src/spec/images/GraphicsTextSpec/font-text-wrap-linux.png');
+    });
+  });
 });

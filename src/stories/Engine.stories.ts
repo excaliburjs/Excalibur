@@ -1,12 +1,77 @@
-import { Actor, Color, Loader } from '../engine';
-import { Font, ImageSource, Text } from '../engine/Graphics';
+import { Actor, Color, Loader, Logger } from '../engine';
+import { BaseAlign, Font, ImageSource, Text } from '../engine/Graphics';
 import { withEngine } from './utils';
-
+import { SpriteSheet, SpriteFont } from '../engine/Graphics';
 import heartTexture from './assets/heart.png';
+import spriteFontTexture from './assets/spritefont.png';
 
 export default {
   title: 'Engine'
 };
+
+export const wordWrap: Story = withEngine(async (game) => {
+  const spriteFontImage = new ImageSource(spriteFontTexture);
+  const loader = new Loader([spriteFontImage]);
+  await game.start(loader);
+
+  const spriteFontSheet = SpriteSheet.fromImageSource({
+    image: spriteFontImage,
+    grid: {
+      rows: 3,
+      columns: 16,
+      spriteWidth: 16,
+      spriteHeight: 16
+    }
+  });
+
+  const spriteFont = new SpriteFont({
+    alphabet: '0123456789abcdefghijklmnopqrstuvwxyz,!\'&."?- ',
+    caseInsensitive: true,
+    spacing: -5,
+    spriteSheet: spriteFontSheet
+  });
+
+  const textWrapActor = new Actor({
+    width: 100,
+    height: 100,
+    x: 550,
+    y: 350,
+    color: Color.Blue
+  });
+
+  const spriteTextWrapActor = new Actor({
+    width: 100,
+    height: 100,
+    x: 250,
+    y: 350,
+    color: Color.Green
+  });
+
+  const text = new Text({
+    text: 'WORD_WRAP_TEST........',
+    color: Color.White,
+    font: new Font({ size: 24, baseAlign: BaseAlign.Top }),
+    maxWidth: 100
+  });
+  const spriteText = new Text({
+    text: 'spritewordwraptest................',
+    font: spriteFont,
+    maxWidth: 100 - 5 // sub 5 to account for padding I don't completely understand
+  });
+
+  text.font.showDebug = true;
+  spriteText.font.showDebug = true;
+
+  textWrapActor.graphics.add(text);
+  spriteTextWrapActor.graphics.add(spriteText);
+
+  Logger.getInstance().info(spriteText.localBounds.left + ',' + spriteTextWrapActor.pos.x);
+
+  game.add(textWrapActor);
+  game.add(spriteTextWrapActor);
+
+  game.start();
+});
 
 export const playButton: Story = withEngine(
   async (game) => {

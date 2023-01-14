@@ -20,6 +20,11 @@ export interface TextOptions {
    * Optionally specify a font, if none specified a default font is used (System sans-serif 10 pixel)
    */
   font?: Font | SpriteFont;
+
+  /**
+   * Optionally specify a maximum width in pixels for our text, and wrap to the next line if needed.
+   */
+  maxWidth?: number;
 }
 
 /**
@@ -29,19 +34,22 @@ export interface TextOptions {
  */
 export class Text extends Graphic {
   public color?: Color;
+  public maxWidth?: number;
   constructor(options: TextOptions & GraphicOptions) {
     super(options);
     // This order is important font, color, then text
     this.font = options.font ?? new Font();
     this.color = options.color ?? this.color;
     this.text = options.text;
+    this.maxWidth = options.maxWidth;
   }
 
   public clone(): Text {
     return new Text({
       text: this.text.slice(),
       color: this.color?.clone() ?? Color.Black,
-      font: this.font.clone()
+      font: this.font.clone(),
+      maxWidth: this.maxWidth
     });
   }
 
@@ -52,9 +60,7 @@ export class Text extends Graphic {
 
   public set text(value: string) {
     this._text = value;
-    const bounds = this.font.measureText(this._text);
-    this._textWidth = bounds.width;
-    this._textHeight = bounds.height;
+    this._calculateDimension();
   }
 
   private _font: Font | SpriteFont;
@@ -83,13 +89,13 @@ export class Text extends Graphic {
   }
 
   private _calculateDimension() {
-    const { width, height } = this.font.measureText(this._text);
+    const { width, height } = this.font.measureText(this._text, this.maxWidth);
     this._textWidth = width;
     this._textHeight = height;
   }
 
   public get localBounds(): BoundingBox {
-    return this.font.measureText(this._text).scale(this.scale);
+    return this.font.measureText(this._text, this.maxWidth).scale(this.scale);
   }
 
   protected override _rotate(_ex: ExcaliburGraphicsContext) {
@@ -117,13 +123,19 @@ export class Text extends Graphic {
     }
     this.font.tint = this.tint;
 
-    const { width, height } = this.font.measureText(this._text);
+    const { width, height } = this.font.measureText(this._text, this.maxWidth);
     this._textWidth = width;
     this._textHeight = height;
 
-    this.font.render(ex, this._text, color, x, y);
+    this.font.render(ex, this._text, color, x, y, this.maxWidth);
+
     if (this.font.showDebug) {
       ex.debug.drawRect(x - width, y - height, width * 2, height * 2);
+      if (this.maxWidth != null) {
+        ex.debug.drawRect(x, y, this.maxWidth, this.height, {
+          color: Color.Yellow
+        });
+      }
     }
   }
 }
