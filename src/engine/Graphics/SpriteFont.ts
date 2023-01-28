@@ -157,7 +157,6 @@ export class SpriteFont extends Graphic implements FontRenderer {
   private _cachedLines: string[];
   private _cachedRenderWidth: number;
   private _getLinesFromText(text: string, maxWidth?: number) {
-    Logger.getInstance().info(this.spacing);
     if (this._cachedText === text && this._cachedRenderWidth === maxWidth) {
       return this._cachedLines;
     }

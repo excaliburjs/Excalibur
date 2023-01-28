@@ -115,7 +115,7 @@ export class TransformComponent extends Component<'ex.transform'> {
 
   clone(): TransformComponent {
     const component = new TransformComponent();
-    component._transform = this._transform.clone()
+    component._transform = this._transform.clone();
     component._z = this._z;
     return component;
   }

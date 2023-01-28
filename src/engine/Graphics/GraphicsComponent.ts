@@ -466,6 +466,6 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
     // TODO actually clone layers
     graphics.layers = this.layers.clone(graphics);
 
-    return graphics
+    return graphics;
   }
 }

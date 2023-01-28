@@ -382,7 +382,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
 
   public clearComponents() {
     const components = this.getComponents();
-    for (let c of components) {
+    for (const c of components) {
       this.removeComponent(c);
     }
   }
