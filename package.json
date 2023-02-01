@@ -63,7 +63,7 @@
   "devDependencies": {
     "@babel/core": "7.20.12",
     "@fortawesome/fontawesome-free": "6.2.1",
-    "@octokit/rest": "19.0.5",
+    "@octokit/rest": "19.0.7",
     "@storybook/addon-actions": "6.5.15",
     "@storybook/addon-essentials": "6.5.15",
     "@storybook/addon-links": "6.5.15",
