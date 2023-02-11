@@ -40,8 +40,8 @@ describe('A Graphics ECS Component', () => {
     graphics.opacity = .2;
     graphics.visible = false;
     graphics.copyGraphics = true;
-    graphics.onPreDraw = () => {};
-    graphics.onPostDraw = () => {};
+    graphics.onPreDraw = () => { /* do nothing */ };
+    graphics.onPostDraw = () => { /* do nothing */};
     graphics.use(rect);
     graphics.layers.create({name: 'background', order: -1}).use(rect2);
 
@@ -59,7 +59,7 @@ describe('A Graphics ECS Component', () => {
     expect(sut.onPostDraw).toBe(sut.onPostDraw);
     expect(sut.layers.get().length).toEqual(graphics.layers.get().length);
     expect(sut.layers.get('background').graphics).toEqual(graphics.layers.get('background').graphics);
-    
+
     // Should be new refs
     expect(sut).not.toBe(graphics);
     expect(sut.offset).not.toBe(graphics.offset);

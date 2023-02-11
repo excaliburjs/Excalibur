@@ -34,7 +34,7 @@ describe('A ColliderComponent', () => {
 
     // Should have a new owner
     expect(sut.owner).toBe(clone);
-  })
+  });
 
   it('can handle composite components', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10)]);
