@@ -112,4 +112,11 @@ export class TransformComponent extends Component<'ex.transform'> {
   apply(v: Vector) {
     return this._transform.apply(v);
   }
+
+  clone(): TransformComponent {
+    const component = new TransformComponent();
+    component._transform = this._transform.clone();
+    component._z = this._z;
+    return component;
+  }
 }

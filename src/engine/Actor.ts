@@ -530,6 +530,22 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
     }
   }
 
+  public clone(): Actor {
+    const clone = new Actor({
+      color: this.color.clone(),
+      anchor: this.anchor.clone()
+    });
+    clone.clearComponents();
+    clone.processComponentRemoval();
+
+    // Clone the current actors components
+    const components = this.getComponents();
+    for (const c of components) {
+      clone.addComponent(c.clone(), true);
+    }
+    return clone;
+  }
+
   /**
    * `onInitialize` is called before the first update of the actor. This method is meant to be
    * overridden. This is where initialization of child actors should take place.

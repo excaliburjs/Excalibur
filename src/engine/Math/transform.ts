@@ -225,5 +225,6 @@ export class Transform {
     target._rotation = this._rotation;
     this._scale.clone(target._scale);
     target.flagDirty();
+    return target;
   }
 }

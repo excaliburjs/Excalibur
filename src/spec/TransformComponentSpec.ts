@@ -266,4 +266,31 @@ describe('A TransformComponent', () => {
     expect(parent.get(TransformComponent).get().children).toEqual([child1.get(TransformComponent).get()]);
     expect(child2.get(TransformComponent).get().parent).toBe(null);
   });
+
+  it('can be cloned', () => {
+    const transform = new TransformComponent();
+    const owner = new ex.Entity([transform]);
+    transform.pos = ex.vec(1,2);
+    transform.rotation = 3;
+    transform.scale = ex.vec(3, 4);
+    transform.z = 5;
+
+    const clone = owner.clone();
+
+    const sut = clone.get(TransformComponent);
+
+    // Should be same value
+    expect(sut.pos).toBeVector(transform.pos);
+    expect(sut.rotation).toBe(transform.rotation);
+    expect(sut.scale).toBeVector(transform.scale);
+    expect(sut.z).toBe(transform.z);
+
+    // Should be new refs
+    expect(sut).not.toBe(transform);
+    expect(sut.pos).not.toBe(transform.pos);
+    expect(sut.scale).not.toBe(transform.scale);
+
+    // Should have a new owner
+    expect(sut.owner).toBe(clone);
+  });
 });

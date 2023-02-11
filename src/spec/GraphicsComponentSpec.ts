@@ -22,6 +22,55 @@ describe('A Graphics ECS Component', () => {
     expect(sut.graphics).toEqual({});
   });
 
+  it('can be cloned', () => {
+    const graphics = new ex.GraphicsComponent();
+    const owner = new ex.Entity([graphics]);
+    const rect = new ex.Rectangle({
+      width: 40,
+      height: 40,
+      color: ex.Color.Red
+    });
+    const rect2 = new ex.Rectangle({
+      width: 40,
+      height: 40,
+      color: ex.Color.Blue
+    });
+    graphics.anchor = ex.vec(0, 0);
+    graphics.offset = ex.vec(1, 1);
+    graphics.opacity = .2;
+    graphics.visible = false;
+    graphics.copyGraphics = true;
+    graphics.onPreDraw = () => { /* do nothing */ };
+    graphics.onPostDraw = () => { /* do nothing */};
+    graphics.use(rect);
+    graphics.layers.create({name: 'background', order: -1}).use(rect2);
+
+    const clone = owner.clone();
+
+    const sut = clone.get(ex.GraphicsComponent);
+
+    // Should be same value
+    expect(sut.anchor).toBeVector(graphics.anchor);
+    expect(sut.offset).toBeVector(graphics.offset);
+    expect(sut.opacity).toEqual(graphics.opacity);
+    expect(sut.visible).toEqual(graphics.visible);
+    expect(sut.copyGraphics).toEqual(graphics.copyGraphics);
+    expect(sut.onPreDraw).toBe(sut.onPreDraw);
+    expect(sut.onPostDraw).toBe(sut.onPostDraw);
+    expect(sut.layers.get().length).toEqual(graphics.layers.get().length);
+    expect(sut.layers.get('background').graphics).toEqual(graphics.layers.get('background').graphics);
+
+    // Should be new refs
+    expect(sut).not.toBe(graphics);
+    expect(sut.offset).not.toBe(graphics.offset);
+    expect(sut.anchor).not.toBe(graphics.anchor);
+    expect(sut.layers.get()).not.toBe(graphics.layers.get());
+    expect(sut.layers.get('background').graphics).not.toBe(graphics.layers.get('background').graphics);
+
+    // Should have a new owner
+    expect(sut.owner).toBe(clone);
+  });
+
   it('can be constructed with optional params', () => {
     const rect = new ex.Rectangle({
       width: 40,
