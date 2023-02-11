@@ -455,15 +455,13 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
   public clone(): GraphicsComponent {
     const graphics = new GraphicsComponent();
     graphics._graphics = { ...this._graphics };
-    graphics.offset = this.offset;
+    graphics.offset = this.offset.clone();
     graphics.opacity = this.opacity;
-    graphics.anchor = this.anchor;
+    graphics.anchor = this.anchor.clone();
     graphics.copyGraphics = this.copyGraphics;
     graphics.onPreDraw = this.onPreDraw;
     graphics.onPostDraw = this.onPostDraw;
     graphics.visible = this.visible;
-
-    // TODO actually clone layers
     graphics.layers = this.layers.clone(graphics);
 
     return graphics;

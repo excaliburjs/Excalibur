@@ -17,6 +17,25 @@ describe('A ColliderComponent', () => {
     expect(contacts.length).toBe(1);
   });
 
+  it('can be cloned', () => {
+    const collider = new ex.ColliderComponent(ex.Shape.Circle(50));
+    const owner = new ex.Entity([collider]);
+
+    const clone = owner.clone();
+
+    const sut = clone.get(ex.ColliderComponent);
+
+    // Should be same value
+    expect(sut.get().bounds).toEqual(collider.get().bounds);
+    expect(sut.bounds).toEqual(collider.bounds);
+
+    // Should be new refs
+    expect(sut).not.toBe(collider);
+
+    // Should have a new owner
+    expect(sut.owner).toBe(clone);
+  })
+
   it('can handle composite components', () => {
     const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10)]);
 
