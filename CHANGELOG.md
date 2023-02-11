@@ -46,6 +46,7 @@ are returned
 
 ### Fixed
 
+- Fixed issue where `Actor.clone()` and `Entity.clone()` crashed.
 - Fixed issue where zero mtv collisions cause erroneous precollision events to be fired in the `ArcadeSolver` and `RealisticSolver`
 - Fixed issue where calling `.kill()` on a child entity would not remove it from the parent `Entity`
 - Fixed issue where calling `.removeAllChildren()` would not remove all the children from the parent `Entity`
