@@ -179,7 +179,7 @@ export class GraphicsLayer {
 
   public clone(graphicsComponent: GraphicsComponent): GraphicsLayer {
     const layer = new GraphicsLayer({...this._options}, graphicsComponent);
-    layer.graphics = [...this.graphics.map(g => ({graphic: g.graphic, options: {...g.options}}))];
+    layer.graphics = [...this.graphics.map(g => ({graphic: g.graphic.clone(), options: {...g.options}}))];
     return layer;
   }
 }
