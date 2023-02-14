@@ -70,6 +70,12 @@ export class ColliderComponent extends Component<'ex.collider'> {
     }
   }
 
+  public clone(): ColliderComponent {
+    const clone = new ColliderComponent(this._collider.clone());
+
+    return clone;
+  }
+
   /**
    * Return world space bounds
    */
