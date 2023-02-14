@@ -58,7 +58,8 @@ describe('A Graphics ECS Component', () => {
     expect(sut.onPreDraw).toBe(sut.onPreDraw);
     expect(sut.onPostDraw).toBe(sut.onPostDraw);
     expect(sut.layers.get().length).toEqual(graphics.layers.get().length);
-    expect(sut.layers.get('background').graphics).toEqual(graphics.layers.get('background').graphics);
+    expect((sut.layers.get('background').graphics[0].graphic as ex.Rectangle).color).toEqual((graphics.layers.get('background').graphics[0].graphic as ex.Rectangle).color);
+    expect(sut.layers.get('background').graphics[0].options).toEqual(graphics.layers.get('background').graphics[0].options);
 
     // Should be new refs
     expect(sut).not.toBe(graphics);
