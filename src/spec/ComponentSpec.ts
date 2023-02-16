@@ -48,7 +48,7 @@ describe('A Component', () => {
 
   it('can be cloned', () => {
     const imp = new ComponentImplementation();
-    const clone = imp.clone();
+    const clone = imp.clone() as ComponentImplementation;
 
     expect(imp.otherprop).toEqual(clone.otherprop);
     expect(imp.clonable).not.toBe(clone.clonable);
