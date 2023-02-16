@@ -46,6 +46,9 @@ are returned
 
 ### Fixed
 
+- Fixed issue where `ex.ColliderComponent` was not deeply cloning the stored `ex.Collider` causing them to be shared across clones.
+- Fixed issue where `ex.GraphicsComponent` was not deeploy cloning the
+stored `ex.Graphics` causing them to be shared across clones.
 - Fixed issue where `Actor.clone()` and `Entity.clone()` crashed.
 - Fixed issue where zero mtv collisions cause erroneous precollision events to be fired in the `ArcadeSolver` and `RealisticSolver`
 - Fixed issue where calling `.kill()` on a child entity would not remove it from the parent `Entity`
