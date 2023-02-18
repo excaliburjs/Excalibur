@@ -375,7 +375,21 @@ describe('An entity', () => {
     expect(e.scene).toBe(null);
     expect(child.scene).toBe(null);
     expect(grandchild.scene).toBe(null);
+  });
 
+  it('will inherit the scene from the parent entity after being added', () => {
+    const parent = new ex.Entity([], 'parent');
+    const child = new ex.Entity([], 'child');
+
+    const scene = new ex.Scene();
+
+    scene.add(parent);
+
+    expect(parent.scene).toBe(scene);
+
+    parent.addChild(child);
+
+    expect(child.scene).toBe(scene);
   });
 
   it('can removeAllChildren correctly', () => {
