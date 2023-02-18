@@ -50,6 +50,7 @@ describe('A body component', () => {
   });
 
   it('can be cloned', () => {
+    ex.CollisionGroupManager.reset();
     const body = new ex.BodyComponent();
     const owner = new ex.Entity([body]);
     body.collisionType = ex.CollisionType.Fixed;
