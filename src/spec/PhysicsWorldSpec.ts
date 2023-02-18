@@ -2,7 +2,7 @@ import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
 describe('A physics world', () => {
-  afterEach(() => {
+  beforeEach(() => {
     ex.CollisionGroupManager.reset();
   });
   it('exists', () => {
