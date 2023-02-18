@@ -153,6 +153,21 @@ describe('A game actor', () => {
     expect(actor.graphics.anchor).toEqual(ex.vec(0, 0));
   });
 
+  it('will inherit the scene from the parent entity after being added', () => {
+    const parent = new ex.Actor();
+    const child = new ex.Actor();
+
+    const engine = TestUtils.engine();
+
+    engine.add(parent);
+
+    expect(parent.scene).toBe(engine.currentScene);
+
+    parent.addChild(child);
+
+    expect(child.scene).toBe(engine.currentScene);
+  });
+
   it('should create actor with valid default options', () => {
     const actor = new ex.Actor();
     expect(actor.anchor.toString()).toEqual('(0.5, 0.5)');
