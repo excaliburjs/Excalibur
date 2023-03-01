@@ -95,7 +95,7 @@
     "karma-chrome-launcher": "3.1.1",
     "karma-coverage": "2.2.0",
     "karma-coverage-istanbul-reporter": "3.0.3",
-    "karma-jasmine": "4.0.2",
+    "karma-jasmine": "5.1.0",
     "karma-summary-reporter": "3.1.1",
     "karma-webpack": "5.0.0",
     "puppeteer": "15.5.0",
