@@ -2,6 +2,7 @@ import { ExcaliburMatchers, ensureImagesLoaded, ExcaliburAsyncMatchers } from 'e
 import * as ex from '@excalibur';
 import { Mocks } from './util/Mocks';
 import { TestUtils } from './util/TestUtils';
+import { ScreenElement } from '@excalibur';
 
 describe('A ScreenElement', () => {
   let screenElement: ex.ScreenElement;
@@ -36,6 +37,15 @@ describe('A ScreenElement', () => {
   afterEach(() => {
     engine.stop();
     engine = null;
+  });
+
+  it('can be constructed with zero args without a warning', () => {
+    const logger = ex.Logger.getInstance();
+    spyOn(logger, 'warn');
+
+    const sut = new ScreenElement();
+
+    expect(logger.warn).not.toHaveBeenCalled();
   });
 
   it('is drawn when visible', () => {
