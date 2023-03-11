@@ -25,6 +25,10 @@ describe('Sound resource', () => {
     expect(canPlayFile('coin.mp3')).toBe(true);
   });
 
+  it('can detect playability of files', () => {
+    expect(canPlayFile('coin.mp3?12234')).toBe(true);
+  });
+
   it('can detect playability of files with multiple dots', () => {
     expect(canPlayFile('coin.f74d9d70.mp3')).toBe(true);
   });
