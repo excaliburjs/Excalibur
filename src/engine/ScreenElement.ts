@@ -27,7 +27,9 @@ export class ScreenElement extends Actor {
     this.get(TransformComponent).coordPlane = CoordPlane.Screen;
     this.anchor = vec(0, 0);
     this.body.collisionType = CollisionType.PreventCollision;
-    this.collider.useBoxCollider(this.width, this.height, this.anchor);
+    if (config?.width > 0 && config?.height > 0) {
+      this.collider.useBoxCollider(this.width, this.height, this.anchor);
+    }
   }
 
   public _initialize(engine: Engine) {

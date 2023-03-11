@@ -46,6 +46,7 @@ are returned
 
 ### Fixed
 
+- Fixed issue where `ex.ScreenElement` would log a warning when created without a height or width
 - Fixed issue where `ex.Sound` would get confused parsing and playing sound files with a querystring in their path
 - Fixed issue where `ex.ColliderComponent` was not deeply cloning the stored `ex.Collider` causing them to be shared across clones.
 - Fixed issue where `ex.GraphicsComponent` was not deeploy cloning the
