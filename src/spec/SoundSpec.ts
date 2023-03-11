@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { canPlayFile } from '../engine/Util/Sound';
 import { delay } from '../engine/Util/Util';
 import { WebAudio } from '../engine/Util/WebAudio';
 import { TestUtils } from './util/TestUtils';
@@ -18,6 +19,30 @@ describe('Sound resource', () => {
 
   it('should be able to be constructed', () => {
     expect(sut).toBeDefined();
+  });
+
+  it('can detect playability of files', () => {
+    expect(canPlayFile('coin.mp3')).toBe(true);
+  });
+
+  it('can detect playability of files', () => {
+    expect(canPlayFile('coin.mp3?12234')).toBe(true);
+  });
+
+  it('can detect playability of files with multiple dots', () => {
+    expect(canPlayFile('coin.f74d9d70.mp3')).toBe(true);
+  });
+
+  it('can detect playability of files with querystrings', () => {
+    expect(canPlayFile('coin.f74d9d70.mp3?1678266496281')).toBe(true);
+  });
+
+  it('can detect playability of files with hash', () => {
+    expect(canPlayFile('coin.f74d9d70.mp3#1678266496281')).toBe(true);
+  });
+
+  it('can detect playability of files with querystring and hash', () => {
+    expect(canPlayFile('coin.f74d9d70.mp3?_=1234#1678266496281')).toBe(true);
   });
 
   it('should fire processed event', async () => {
