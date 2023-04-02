@@ -68,7 +68,7 @@
     "@storybook/addon-essentials": "6.5.16",
     "@storybook/addon-links": "6.5.16",
     "@storybook/builder-webpack5": "6.5.16",
-    "@storybook/html": "6.5.16",
+    "@storybook/html": "7.0.0",
     "@storybook/manager-webpack5": "6.5.16",
     "@types/jasmine": "4.3.1",
     "@types/node": "16.18.23",
