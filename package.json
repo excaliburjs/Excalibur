@@ -84,7 +84,7 @@
     "css-loader": "6.7.3",
     "eslint": "8.37.0",
     "eslint-config-prettier": "8.8.0",
-    "eslint-plugin-jsdoc": "39.9.1",
+    "eslint-plugin-jsdoc": "40.3.0",
     "excalibur-jasmine": "0.2.0",
     "istanbul": "0.4.5",
     "istanbul-instrumenter-loader": "3.0.1",
