@@ -88,7 +88,7 @@
     "excalibur-jasmine": "0.2.0",
     "istanbul": "0.4.5",
     "istanbul-instrumenter-loader": "3.0.1",
-    "jasmine": "4.5.0",
+    "jasmine": "4.6.0",
     "jasmine-core": "4.5.0",
     "karma": "6.4.2",
     "karma-browserstack-launcher": "1.6.0",
