@@ -18,7 +18,6 @@ import { DebugText } from './debug-text';
 import { ScreenDimension } from '../../Screen';
 import { RenderTarget } from './render-target';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
-import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
 import { TextureLoader } from './texture-loader';
 import { RendererPlugin } from './renderer';
 

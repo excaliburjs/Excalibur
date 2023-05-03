@@ -20,10 +20,11 @@ export class PointRenderer implements RendererPlugin {
   private _context: ExcaliburGraphicsContextWebGL;
   private _pointCount: number = 0;
   private _vertexIndex: number = 0;
-  initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void {
+  initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
     this._shader = new Shader({
+      gl,
       vertexSource: pointVertexSource,
       fragmentSource: pointFragmentSource
     });
@@ -31,11 +32,13 @@ export class PointRenderer implements RendererPlugin {
     this._shader.use();
     this._shader.setUniformMatrix('u_matrix', this._context.ortho);
     this._buffer = new VertexBuffer({
+      gl,
       size: 7 * this._maxPoints,
       type: 'dynamic'
     });
 
     this._layout = new VertexLayout({
+      gl,
       shader: this._shader,
       vertexBuffer: this._buffer,
       attributes: [

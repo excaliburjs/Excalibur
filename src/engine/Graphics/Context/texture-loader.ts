@@ -7,36 +7,37 @@ import { HTMLImageSource } from './ExcaliburGraphicsContext';
  */
 export class TextureLoader {
   private static _LOGGER = Logger.getInstance();
+
+  constructor(gl: WebGL2RenderingContext) {
+    this._gl = gl;
+    this._MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+  }
+
   /**
    * Sets the default filtering for the Excalibur texture loader, default [[ImageFiltering.Blended]]
    */
-  public static filtering: ImageFiltering = ImageFiltering.Blended;
+  public filtering: ImageFiltering = ImageFiltering.Blended;
 
-  private static _GL: WebGLRenderingContext;
+  private _gl: WebGL2RenderingContext;
 
-  private static _TEXTURE_MAP = new Map<HTMLImageSource, WebGLTexture>();
+  private _texture_map = new Map<HTMLImageSource, WebGLTexture>();
 
-  private static _MAX_TEXTURE_SIZE: number  = 0;
-
-  public static register(context: WebGLRenderingContext): void {
-    TextureLoader._GL = context;
-    TextureLoader._MAX_TEXTURE_SIZE = context.getParameter(context.MAX_TEXTURE_SIZE);
-  }
+  private _MAX_TEXTURE_SIZE: number = 0;
 
   /**
    * Get the WebGL Texture from a source image
    * @param image
    */
-  public static get(image: HTMLImageSource): WebGLTexture {
-    return TextureLoader._TEXTURE_MAP.get(image);
+  public get(image: HTMLImageSource): WebGLTexture {
+    return this._texture_map.get(image);
   }
 
   /**
    * Returns whether a source image has been loaded as a texture
    * @param image
    */
-  public static has(image: HTMLImageSource): boolean {
-    return TextureLoader._TEXTURE_MAP.has(image);
+  public has(image: HTMLImageSource): boolean {
+    return this._texture_map.has(image);
   }
 
   /**
@@ -45,17 +46,17 @@ export class TextureLoader {
    * @param filtering {ImageFiltering} The ImageFiltering mode to apply to the loaded texture
    * @param forceUpdate Optionally force a texture to be reloaded, useful if the source graphic has changed
    */
-  public static load(image: HTMLImageSource, filtering?: ImageFiltering, forceUpdate = false): WebGLTexture {
+  public load(image: HTMLImageSource, filtering?: ImageFiltering, forceUpdate = false): WebGLTexture {
     // Ignore loading if webgl is not registered
-    const gl = TextureLoader._GL;
+    const gl = this._gl;
     if (!gl) {
       return null;
     }
 
     let tex: WebGLTexture = null;
     // If reuse the texture if it's from the same source
-    if (TextureLoader.has(image)) {
-      tex = TextureLoader.get(image);
+    if (this.has(image)) {
+      tex = this.get(image);
     }
 
     // Update existing webgl texture and return early
@@ -70,7 +71,7 @@ export class TextureLoader {
     // No texture exists create a new one
     tex = gl.createTexture();
 
-    TextureLoader.checkImageSizeSupportedAndLog(image);
+    this.checkImageSizeSupportedAndLog(image);
 
     gl.bindTexture(gl.TEXTURE_2D, tex);
 
@@ -79,26 +80,26 @@ export class TextureLoader {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
     // NEAREST for pixel art, LINEAR for hi-res
-    const filterMode = filtering ?? TextureLoader.filtering;
+    const filterMode = filtering ?? this.filtering;
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filterMode === ImageFiltering.Pixel ? gl.NEAREST : gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filterMode === ImageFiltering.Pixel ? gl.NEAREST : gl.LINEAR);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
-    TextureLoader._TEXTURE_MAP.set(image, tex);
+    this._texture_map.set(image, tex);
     return tex;
   }
 
-  public static delete(image: HTMLImageSource): void {
+  public delete(image: HTMLImageSource): void {
     // Ignore loading if webgl is not registered
-    const gl = TextureLoader._GL;
+    const gl = this._gl;
     if (!gl) {
       return null;
     }
 
     let tex: WebGLTexture = null;
-    if (TextureLoader.has(image)) {
-      tex = TextureLoader.get(image);
+    if (this.has(image)) {
+      tex = this.get(image);
       gl.deleteTexture(tex);
     }
   }
@@ -108,12 +109,12 @@ export class TextureLoader {
    * @param image
    * @returns if the image will be supported at runtime
    */
-  public static checkImageSizeSupportedAndLog(image: HTMLImageSource) {
+  public checkImageSizeSupportedAndLog(image: HTMLImageSource) {
     const originalSrc = image.dataset.originalSrc ?? 'internal canvas bitmap';
-    if (image.width > TextureLoader._MAX_TEXTURE_SIZE || image.height > TextureLoader._MAX_TEXTURE_SIZE) {
+    if (image.width > this._MAX_TEXTURE_SIZE || image.height > this._MAX_TEXTURE_SIZE) {
       TextureLoader._LOGGER.error(
         `The image [${originalSrc}] provided to Excalibur is too large for the device's maximum texture size of `+
-        `(${TextureLoader._MAX_TEXTURE_SIZE}x${TextureLoader._MAX_TEXTURE_SIZE}) please resize to an image `
+        `(${this._MAX_TEXTURE_SIZE}x${this._MAX_TEXTURE_SIZE}) please resize to an image `
         +`for excalibur to render properly.\n\nImages will likely render as black rectangles.\n\n`+
         `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
       return false;

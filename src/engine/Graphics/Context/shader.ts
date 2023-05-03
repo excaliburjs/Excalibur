@@ -1,6 +1,5 @@
 import { Vector } from '../..';
 import { Matrix } from '../../Math/matrix';
-import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
 import { getAttributeComponentSize, getAttributePointerType } from './webgl-util';
 
 export type UniformTypeNames =
@@ -70,13 +69,23 @@ export interface VertexAttributeDefinition {
 }
 
 export interface ShaderOptions {
+  /**
+   * WebGL2RenderingContext this layout will be attached to, these cannot be reused across contexts.
+   */
+  gl: WebGL2RenderingContext;
+  /**
+   * Vertex shader source code in glsl #version 300 es
+   */
   vertexSource: string;
+  /**
+   * Fragment shader source code in glsl #version 300 es
+   */
   fragmentSource: string;
 }
 
 export class Shader {
   private static _ACTIVE_SHADER_INSTANCE: Shader = null;
-  private _gl: WebGLRenderingContext = ExcaliburWebGLContextAccessor.gl;
+  private _gl: WebGL2RenderingContext;
   public program: WebGLProgram;
   public uniforms: { [variableName: string]: UniformDefinition } = {};
   public attributes: { [variableName: string]: VertexAttributeDefinition } = {};
@@ -93,7 +102,8 @@ export class Shader {
    * @param options specify shader vertex and fragment source
    */
   constructor(options?: ShaderOptions) {
-    const { vertexSource, fragmentSource } = options;
+    const { gl, vertexSource, fragmentSource } = options;
+    this._gl = gl;
     this.vertexSource = vertexSource;
     this.fragmentSource = fragmentSource;
   }

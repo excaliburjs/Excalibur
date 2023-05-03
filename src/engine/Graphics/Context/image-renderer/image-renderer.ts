@@ -30,7 +30,7 @@ export class ImageRenderer implements RendererPlugin {
   private _textures: WebGLTexture[] = [];
   private _vertexIndex: number = 0;
 
-  initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void {
+  initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
     // Transform shader source
@@ -39,6 +39,7 @@ export class ImageRenderer implements RendererPlugin {
     const transformedFrag = this._transformFragmentSource(frag, this._maxTextures);
     // Compile shader
     this._shader = new Shader({
+      gl,
       fragmentSource: transformedFrag,
       vertexSource: vert
     });
@@ -55,10 +56,12 @@ export class ImageRenderer implements RendererPlugin {
 
     // Setup memory layout
     this._buffer = new VertexBuffer({
+      gl,
       size: 10 * 4 * this._maxImages, // 10 components * 4 verts
       type: 'dynamic'
     });
     this._layout = new VertexLayout({
+      gl,
       shader: this._shader,
       vertexBuffer: this._buffer,
       attributes: [
@@ -71,7 +74,7 @@ export class ImageRenderer implements RendererPlugin {
     });
 
     // Setup index buffer
-    this._quads = new QuadIndexBuffer(this._maxImages, true);
+    this._quads = new QuadIndexBuffer(gl, this._maxImages, true);
   }
 
   private _transformFragmentSource(source: string, maxTextures: number): string {

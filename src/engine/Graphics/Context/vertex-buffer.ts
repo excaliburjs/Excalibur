@@ -1,6 +1,8 @@
-import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
-
 export interface VertexBufferOptions {
+  /**
+   * WebGL2RenderingContext this layout will be attached to, these cannot be reused across contexts.
+   */
+  gl: WebGL2RenderingContext,
   /**
    * Size in number of floats, so [4.2, 4.0, 2.1] is size = 3
    *
@@ -26,7 +28,7 @@ export interface VertexBufferOptions {
  * Under the hood uses Float32Array
  */
 export class VertexBuffer {
-  private _gl: WebGL2RenderingContext = ExcaliburWebGLContextAccessor.gl;
+  private _gl: WebGL2RenderingContext;
 
   /**
    * Access to the webgl buffer handle
@@ -45,7 +47,7 @@ export class VertexBuffer {
   public type: 'static' | 'dynamic' = 'dynamic';
 
   constructor(options: VertexBufferOptions) {
-    const { size, type, data } = options;
+    const { gl, size, type, data } = options;
     this.buffer = this._gl.createBuffer();
     if (!data && !size) {
       throw Error('Must either provide data or a size to the VertexBuffer');
@@ -58,7 +60,7 @@ export class VertexBuffer {
     }
     this.type = type ?? this.type;
     // Allocate buffer
-    const gl = this._gl;
+    this._gl = gl;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     gl.bufferData(gl.ARRAY_BUFFER, this.bufferData, this.type === 'static' ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW);
   }
