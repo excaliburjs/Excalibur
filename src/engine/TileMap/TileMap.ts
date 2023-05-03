@@ -56,10 +56,10 @@ export interface TileMapOptions {
  */
 export class TileMap extends Entity {
   private _token = 0;
-  private _onScreenXStart: number = 0;
-  private _onScreenXEnd: number = Number.MAX_VALUE;
-  private _onScreenYStart: number = 0;
-  private _onScreenYEnd: number = Number.MAX_VALUE;
+  // private _onScreenXStart: number = 0;
+  // private _onScreenXEnd: number = Number.MAX_VALUE;
+  // private _onScreenYStart: number = 0;
+  // private _onScreenYEnd: number = Number.MAX_VALUE;
 
   public logger: Logger = Logger.getInstance();
   public readonly tiles: Tile[] = [];
@@ -343,6 +343,7 @@ export class TileMap extends Entity {
     return this._cols;
   }
 
+  private _engine: Engine;
   public update(engine: Engine, delta: number) {
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
@@ -360,9 +361,10 @@ export class TileMap extends Entity {
     }
 
     this._token++;
-    const worldBounds = engine.getWorldBounds();
-    const worldCoordsUpperLeft = vec(worldBounds.left, worldBounds.top);
-    const worldCoordsLowerRight = vec(worldBounds.right, worldBounds.bottom);
+    // const worldBounds = engine.getWorldBounds();
+    this._engine = engine;
+    // const worldCoordsUpperLeft = vec(worldBounds.left, worldBounds.top);
+    // const worldCoordsLowerRight = vec(worldBounds.right, worldBounds.bottom);
 
     let pos = this.pos;
     const maybeParallax = this.get(ParallaxComponent);
@@ -373,10 +375,10 @@ export class TileMap extends Entity {
       pos = pos.add(parallaxOffset);
     }
 
-    this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - pos.x) / this.tileWidth) - 2, 0);
-    this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - pos.y) / this.tileHeight) - 2, 0);
-    this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - pos.x) / this.tileWidth) + 2, 0);
-    this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - pos.y) / this.tileHeight) + 2, 0);
+    // this._onScreenXStart = Math.max(Math.floor((worldCoordsUpperLeft.x - pos.x) / this.tileWidth) - 2, 0);
+    // this._onScreenYStart = Math.max(Math.floor((worldCoordsUpperLeft.y - pos.y) / this.tileHeight) - 2, 0);
+    // this._onScreenXEnd = Math.max(Math.floor((worldCoordsLowerRight.x - pos.x) / this.tileWidth) + 2, 0);
+    // this._onScreenYEnd = Math.max(Math.floor((worldCoordsLowerRight.y - pos.y) / this.tileHeight) + 2, 0);
     // why are we resetting pos?
     this._transform.pos = vec(this.x, this.y);
 
@@ -392,15 +394,19 @@ export class TileMap extends Entity {
   public draw(ctx: ExcaliburGraphicsContext, delta: number): void {
     this.emit('predraw', new Events.PreDrawEvent(ctx as any, delta, this)); // TODO fix event
 
-    let x = this._onScreenXStart;
-    const xEnd = Math.min(this._onScreenXEnd, this.columns);
-    let y = this._onScreenYStart;
-    const yEnd = Math.min(this._onScreenYEnd, this.rows);
+    let x = 0; //this._onScreenXStart;
+    const xEnd = this.columns;//Math.min(this._onScreenXEnd, this.columns);
+    let y = 0;// this._onScreenYStart;
+    const yEnd = this.rows;// Math.min(this._onScreenYEnd, this.rows);
 
     let graphics: readonly Graphic[], graphicsIndex: number, graphicsLen: number;
 
+    let tile: Tile;
+    let worldBounds = this._engine.screen.getWorldBounds();
     for (x; x < xEnd; x++) {
       for (y; y < yEnd; y++) {
+        tile = this.getTile(x, y);
+        if (!worldBounds.overlaps(tile.bounds)) continue;
         // get non-negative tile sprites
         graphics = this.getTile(x, y).getGraphics();
 
@@ -416,7 +422,7 @@ export class TileMap extends Entity {
           }
         }
       }
-      y = this._onScreenYStart;
+      y = 0;// this._onScreenYStart;
     }
 
     this.emit('postdraw', new Events.PostDrawEvent(ctx as any, delta, this));
