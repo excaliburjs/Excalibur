@@ -10,7 +10,7 @@ export class TextureLoader {
 
   constructor(gl: WebGL2RenderingContext) {
     this._gl = gl;
-    this._MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    TextureLoader._MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
   }
 
   /**
@@ -20,16 +20,16 @@ export class TextureLoader {
 
   private _gl: WebGL2RenderingContext;
 
-  private _texture_map = new Map<HTMLImageSource, WebGLTexture>();
+  private _textureMap = new Map<HTMLImageSource, WebGLTexture>();
 
-  private _MAX_TEXTURE_SIZE: number = 0;
+  private static _MAX_TEXTURE_SIZE: number = 0;
 
   /**
    * Get the WebGL Texture from a source image
    * @param image
    */
   public get(image: HTMLImageSource): WebGLTexture {
-    return this._texture_map.get(image);
+    return this._textureMap.get(image);
   }
 
   /**
@@ -37,7 +37,7 @@ export class TextureLoader {
    * @param image
    */
   public has(image: HTMLImageSource): boolean {
-    return this._texture_map.has(image);
+    return this._textureMap.has(image);
   }
 
   /**
@@ -86,7 +86,7 @@ export class TextureLoader {
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
-    this._texture_map.set(image, tex);
+    this._textureMap.set(image, tex);
     return tex;
   }
 
@@ -111,10 +111,10 @@ export class TextureLoader {
    */
   public checkImageSizeSupportedAndLog(image: HTMLImageSource) {
     const originalSrc = image.dataset.originalSrc ?? 'internal canvas bitmap';
-    if (image.width > this._MAX_TEXTURE_SIZE || image.height > this._MAX_TEXTURE_SIZE) {
+    if (image.width > TextureLoader._MAX_TEXTURE_SIZE || image.height > TextureLoader._MAX_TEXTURE_SIZE) {
       TextureLoader._LOGGER.error(
         `The image [${originalSrc}] provided to Excalibur is too large for the device's maximum texture size of `+
-        `(${this._MAX_TEXTURE_SIZE}x${this._MAX_TEXTURE_SIZE}) please resize to an image `
+        `(${TextureLoader._MAX_TEXTURE_SIZE}x${TextureLoader._MAX_TEXTURE_SIZE}) please resize to an image `
         +`for excalibur to render properly.\n\nImages will likely render as black rectangles.\n\n`+
         `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`);
       return false;

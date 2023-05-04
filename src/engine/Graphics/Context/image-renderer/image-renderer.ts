@@ -96,7 +96,7 @@ export class ImageRenderer implements RendererPlugin {
   private _addImageAsTexture(image: HTMLImageSource) {
     const maybeFiltering = image.getAttribute('filtering');
     let filtering: ImageFiltering = null;
-    if (maybeFiltering === ImageFiltering.Blended || 
+    if (maybeFiltering === ImageFiltering.Blended ||
         maybeFiltering === ImageFiltering.Pixel) {
       filtering = maybeFiltering;
     }
