@@ -48,6 +48,7 @@ export class VertexBuffer {
 
   constructor(options: VertexBufferOptions) {
     const { gl, size, type, data } = options;
+    this._gl = gl;
     this.buffer = this._gl.createBuffer();
     if (!data && !size) {
       throw Error('Must either provide data or a size to the VertexBuffer');
@@ -60,7 +61,6 @@ export class VertexBuffer {
     }
     this.type = type ?? this.type;
     // Allocate buffer
-    this._gl = gl;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     gl.bufferData(gl.ARRAY_BUFFER, this.bufferData, this.type === 'static' ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW);
   }

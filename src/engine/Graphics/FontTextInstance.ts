@@ -1,8 +1,8 @@
 import { BoundingBox } from '../Collision/BoundingBox';
 import { Color } from '../Color';
 import { line } from '../Util/DrawUtil';
+import { ExcaliburGraphicsContextWebGL } from './Context/ExcaliburGraphicsContextWebGL';
 import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
-import { TextureLoader } from './Context/texture-loader';
 import { Font } from './Font';
 
 export class FontTextInstance {
@@ -171,10 +171,12 @@ export class FontTextInstance {
     this._dirty = true;
   }
   private _dirty = true;
+  private _ex: ExcaliburGraphicsContext;
   public render(ex: ExcaliburGraphicsContext, x: number, y: number, maxWidth?: number) {
     if (this.disposed) {
       throw Error('Accessing disposed text instance! ' + this.text);
     }
+    this._ex = ex;
     const hashCode = this.getHashCode();
     if (this._lastHashCode !== hashCode) {
       this._dirty = true;
@@ -191,15 +193,19 @@ export class FontTextInstance {
       this._drawText(this.ctx, lines, lineHeight);
 
       // clear any out old fragments
-      for (const frag of this._textFragments) {
-        TextureLoader.delete(frag.canvas);
+      if (ex instanceof ExcaliburGraphicsContextWebGL) {
+        for (const frag of this._textFragments) {
+          ex.textureLoader.delete(frag.canvas);
+        }
       }
 
       // splits to < 4k fragments for large text
       this._textFragments = this._splitTextBitmap(this.ctx);
 
-      for (const frag of this._textFragments) {
-        TextureLoader.load(frag.canvas, this.font.filtering, true);
+      if (ex instanceof ExcaliburGraphicsContextWebGL) {
+        for (const frag of this._textFragments) {
+          ex.textureLoader.load(frag.canvas, this.font.filtering, true);
+        }
       }
       this._lastHashCode = hashCode;
       this._dirty = false;
@@ -226,8 +232,10 @@ export class FontTextInstance {
     this.dimensions = undefined;
     this.canvas = undefined;
     this.ctx = undefined;
-    for (const frag of this._textFragments) {
-      TextureLoader.delete(frag.canvas);
+    if (this._ex instanceof ExcaliburGraphicsContextWebGL) {
+      for (const frag of this._textFragments) {
+        this._ex.textureLoader.delete(frag.canvas);
+      }
     }
     this._textFragments.length = 0;
   }

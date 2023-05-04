@@ -4,8 +4,8 @@ import { Color } from '../Color';
 import { Vector } from '../Math/vector';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { watch } from '../Util/Watch';
-import { TextureLoader } from './Context/texture-loader';
 import { ImageFiltering } from './Filtering';
+import { ExcaliburGraphicsContextWebGL } from './Context/ExcaliburGraphicsContextWebGL';
 
 
 export interface RasterOptions {
@@ -265,8 +265,6 @@ export abstract class Raster extends Graphic {
     this._applyRasterProperties(this._ctx);
     this.execute(this._ctx);
     this._ctx.restore();
-    // The webgl texture needs to be updated if it exists after a raster cycle
-    TextureLoader.load(this._bitmap, this.filtering, true);
   }
 
   protected _applyRasterProperties(ctx: CanvasRenderingContext2D) {
@@ -285,6 +283,10 @@ export abstract class Raster extends Graphic {
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
     if (this._dirty) {
       this.rasterize();
+      if (ex instanceof ExcaliburGraphicsContextWebGL) {
+        // The webgl texture needs to be updated if it exists after a raster cycle
+        ex.textureLoader.load(this._bitmap, this.filtering, true);
+      }
     }
     ex.scale(1 / this.quality, 1 / this.quality);
     ex.drawImage(this._bitmap, x, y);

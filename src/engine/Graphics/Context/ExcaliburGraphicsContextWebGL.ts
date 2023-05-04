@@ -125,6 +125,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public backgroundColor: Color = Color.ExcaliburBlue;
 
+  public textureLoader: TextureLoader;
+
   public get z(): number {
     return this._state.current.z;
   }
@@ -188,8 +190,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     if (!this.__gl) {
       throw Error('Failed to retrieve webgl context from browser');
     }
-    ExcaliburWebGLContextAccessor.register(this.__gl);
-    TextureLoader.register(this.__gl);
+    this.textureLoader = new TextureLoader(this.__gl);
     this.snapToPixel = snapToPixel ?? this.snapToPixel;
     this.smoothing = smoothing ?? this.smoothing;
     this.backgroundColor = backgroundColor ?? this.backgroundColor;

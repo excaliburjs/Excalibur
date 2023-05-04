@@ -16,7 +16,7 @@ export class TextureLoader {
   /**
    * Sets the default filtering for the Excalibur texture loader, default [[ImageFiltering.Blended]]
    */
-  public filtering: ImageFiltering = ImageFiltering.Blended;
+  public static filtering: ImageFiltering = ImageFiltering.Blended;
 
   private _gl: WebGL2RenderingContext;
 
@@ -80,7 +80,7 @@ export class TextureLoader {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
     // NEAREST for pixel art, LINEAR for hi-res
-    const filterMode = filtering ?? this.filtering;
+    const filterMode = filtering ?? TextureLoader.filtering;
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filterMode === ImageFiltering.Pixel ? gl.NEAREST : gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filterMode === ImageFiltering.Pixel ? gl.NEAREST : gl.LINEAR);
 

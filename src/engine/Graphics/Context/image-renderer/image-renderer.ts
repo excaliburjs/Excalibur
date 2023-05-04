@@ -1,11 +1,11 @@
 import { vec } from '../../../Math/vector';
+import { ImageFiltering } from '../../Filtering';
 import { GraphicsDiagnostics } from '../../GraphicsDiagnostics';
 import { HTMLImageSource } from '../ExcaliburGraphicsContext';
 import { ExcaliburGraphicsContextWebGL, pixelSnapEpsilon } from '../ExcaliburGraphicsContextWebGL';
 import { QuadIndexBuffer } from '../quad-index-buffer';
 import { RendererPlugin } from '../renderer';
 import { Shader } from '../shader';
-import { TextureLoader } from '../texture-loader';
 import { VertexBuffer } from '../vertex-buffer';
 import { VertexLayout } from '../vertex-layout';
 import frag from './image-renderer.frag.glsl';
@@ -94,7 +94,13 @@ export class ImageRenderer implements RendererPlugin {
   }
 
   private _addImageAsTexture(image: HTMLImageSource) {
-    const texture = TextureLoader.load(image);
+    const maybeFiltering = image.getAttribute('filtering');
+    let filtering: ImageFiltering = null;
+    if (maybeFiltering === ImageFiltering.Blended || 
+        maybeFiltering === ImageFiltering.Pixel) {
+      filtering = maybeFiltering;
+    }
+    const texture = this._context.textureLoader.load(image, filtering);
     if (this._textures.indexOf(texture) === -1) {
       this._textures.push(texture);
     }
@@ -110,7 +116,8 @@ export class ImageRenderer implements RendererPlugin {
 
   private _getTextureIdForImage(image: HTMLImageSource) {
     if (image) {
-      return this._textures.indexOf(TextureLoader.get(image));
+      const maybeTexture = this._context.textureLoader.get(image);
+      return this._textures.indexOf(maybeTexture);
     }
     return -1;
   }
