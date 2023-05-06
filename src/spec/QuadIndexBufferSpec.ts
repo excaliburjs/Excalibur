@@ -9,7 +9,6 @@ describe('A QuadIndexBuffer', () => {
 
   beforeEach(() => {
     const canvas = document.createElement('canvas');
-    // Side effect of making ex.ExcaliburWebGLContextAccessor.gl available
     const _ctx = new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvas
     });
