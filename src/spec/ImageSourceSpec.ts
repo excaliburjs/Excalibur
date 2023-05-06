@@ -99,7 +99,7 @@ describe('A ImageSource', () => {
 
     expect(image.src).not.toBeNull();
     expect(whenLoaded).toHaveBeenCalledTimes(1);
-    expect(webgl.textureLoader.load).toHaveBeenCalledWith(image, ex.ImageFiltering.Blended);
+    expect(webgl.textureLoader.load).toHaveBeenCalledWith(image, ex.ImageFiltering.Blended, false);
   });
 
   it('can load images with an image filtering Pixel', async () => {
@@ -120,7 +120,7 @@ describe('A ImageSource', () => {
 
     expect(image.src).not.toBeNull();
     expect(whenLoaded).toHaveBeenCalledTimes(1);
-    expect(webgl.textureLoader.load).toHaveBeenCalledWith(image, ex.ImageFiltering.Pixel);
+    expect(webgl.textureLoader.load).toHaveBeenCalledWith(image, ex.ImageFiltering.Pixel, false);
   });
 
   it('can convert to a Sprite', async () => {
