@@ -149,6 +149,7 @@ export class ImageRenderer implements RendererPlugin {
     }
 
     this._imageCount++;
+    // This creates and uploads the texture if not already done
     this._addImageAsTexture(image);
 
     let width = image?.width || swidth || 0;

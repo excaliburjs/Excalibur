@@ -96,7 +96,11 @@ export class ImageSource implements Loadable<HTMLImageElement> {
       await loadedFuture.promise;
 
       // Set results
+      // We defer loading the texture into webgl until the first draw that way we avoid a singleton
+      // and for the multi-engine case the texture needs to be created in EACH webgl context to work
+      // See image-renderer.ts draw()
       this.data = image;
+
       // emit warning if potentially too big
       TextureLoader.checkImageSizeSupportedAndLog(this.data);
     } catch (error) {

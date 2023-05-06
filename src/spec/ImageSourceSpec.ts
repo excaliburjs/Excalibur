@@ -1,4 +1,5 @@
 import * as ex from '@excalibur';
+import { ImageRenderer } from '../engine/Graphics/Context/image-renderer/image-renderer';
 
 describe('A ImageSource', () => {
   it('exists', () => {
@@ -81,27 +82,45 @@ describe('A ImageSource', () => {
   });
 
   it('can load images with an image filtering Blended', async () => {
-    spyOn(ex.TextureLoader, 'load').and.callThrough();
+    const canvas = document.createElement('canvas');
+    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvas
+    });
+    const imageRenderer = new ImageRenderer();
+    imageRenderer.initialize(webgl.__gl, webgl);
+    spyOn(webgl.textureLoader, 'load').and.callThrough();
+
     const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Blended);
     const whenLoaded = jasmine.createSpy('whenLoaded');
     const image = await spriteFontImage.load();
     await spriteFontImage.ready.then(whenLoaded);
 
+    imageRenderer.draw(image, 0, 0);
+
     expect(image.src).not.toBeNull();
     expect(whenLoaded).toHaveBeenCalledTimes(1);
-    expect(ex.TextureLoader.load).toHaveBeenCalledWith(image, ex.ImageFiltering.Blended);
+    expect(webgl.textureLoader.load).toHaveBeenCalledWith(image, ex.ImageFiltering.Blended);
   });
 
   it('can load images with an image filtering Pixel', async () => {
-    spyOn(ex.TextureLoader, 'load').and.callThrough();
+    const canvas = document.createElement('canvas');
+    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+      canvasElement: canvas
+    });
+    const imageRenderer = new ImageRenderer();
+    imageRenderer.initialize(webgl.__gl, webgl);
+    spyOn(webgl.textureLoader, 'load').and.callThrough();
+
     const spriteFontImage = new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png', false, ex.ImageFiltering.Pixel);
     const whenLoaded = jasmine.createSpy('whenLoaded');
     const image = await spriteFontImage.load();
     await spriteFontImage.ready.then(whenLoaded);
 
+    imageRenderer.draw(image, 0, 0);
+
     expect(image.src).not.toBeNull();
     expect(whenLoaded).toHaveBeenCalledTimes(1);
-    expect(ex.TextureLoader.load).toHaveBeenCalledWith(image, ex.ImageFiltering.Pixel);
+    expect(webgl.textureLoader.load).toHaveBeenCalledWith(image, ex.ImageFiltering.Pixel);
   });
 
   it('can convert to a Sprite', async () => {
