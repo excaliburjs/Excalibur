@@ -270,6 +270,9 @@ export abstract class Raster extends Graphic {
   protected _applyRasterProperties(ctx: CanvasRenderingContext2D) {
     this._bitmap.width = this._getTotalWidth() * this.quality;
     this._bitmap.height = this._getTotalHeight() * this.quality;
+    // Do a bad thing to pass the filtering as an attribute
+    this._bitmap.setAttribute('filtering', this.filtering);
+    this._bitmap.setAttribute('forceUpload', 'true');
     ctx.scale(this.quality, this.quality);
     ctx.translate(this.padding, this.padding);
     ctx.imageSmoothingEnabled = this.smoothing;
@@ -283,10 +286,6 @@ export abstract class Raster extends Graphic {
   protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
     if (this._dirty) {
       this.rasterize();
-      if (ex instanceof ExcaliburGraphicsContextWebGL) {
-        // The webgl texture needs to be updated if it exists after a raster cycle
-        ex.textureLoader.load(this._bitmap, this.filtering, true);
-      }
     }
     ex.scale(1 / this.quality, 1 / this.quality);
     ex.drawImage(this._bitmap, x, y);

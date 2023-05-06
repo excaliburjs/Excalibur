@@ -100,7 +100,11 @@ export class ImageRenderer implements RendererPlugin {
         maybeFiltering === ImageFiltering.Pixel) {
       filtering = maybeFiltering;
     }
-    const texture = this._context.textureLoader.load(image, filtering);
+
+    const force = image.getAttribute('forceUpload') === 'true' ? true : false;
+    const texture = this._context.textureLoader.load(image, filtering, force);
+    // remove force attribute after upload
+    image.removeAttribute('forceUpload');
     if (this._textures.indexOf(texture) === -1) {
       this._textures.push(texture);
     }
