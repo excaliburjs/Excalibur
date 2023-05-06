@@ -61,7 +61,7 @@
     "release": "cross-env release=true npm run all"
   },
   "devDependencies": {
-    "@babel/core": "7.21.4",
+    "@babel/core": "7.21.5",
     "@fortawesome/fontawesome-free": "6.4.0",
     "@octokit/rest": "19.0.7",
     "@storybook/addon-actions": "6.5.16",
@@ -71,7 +71,7 @@
     "@storybook/html": "6.5.16",
     "@storybook/manager-webpack5": "6.5.16",
     "@types/jasmine": "4.3.1",
-    "@types/node": "16.18.23",
+    "@types/node": "16.18.25",
     "@types/react-color": "3.0.6",
     "@types/webpack-env": "1.18.0",
     "@typescript-eslint/eslint-plugin": "5.54.0",
@@ -82,20 +82,20 @@
     "coveralls": "3.1.1",
     "cross-env": "7.0.3",
     "css-loader": "6.7.3",
-    "eslint": "8.37.0",
+    "eslint": "8.39.0",
     "eslint-config-prettier": "8.8.0",
     "eslint-plugin-jsdoc": "39.9.1",
     "excalibur-jasmine": "0.2.0",
     "istanbul": "0.4.5",
     "istanbul-instrumenter-loader": "3.0.1",
-    "jasmine": "4.5.0",
-    "jasmine-core": "4.5.0",
-    "karma": "6.4.1",
+    "jasmine": "4.6.0",
+    "jasmine-core": "4.6.0",
+    "karma": "6.4.2",
     "karma-browserstack-launcher": "1.6.0",
-    "karma-chrome-launcher": "3.1.1",
+    "karma-chrome-launcher": "3.2.0",
     "karma-coverage": "2.2.0",
     "karma-coverage-istanbul-reporter": "3.0.3",
-    "karma-jasmine": "4.0.2",
+    "karma-jasmine": "5.1.0",
     "karma-summary-reporter": "3.1.1",
     "karma-webpack": "5.0.0",
     "puppeteer": "15.5.0",
@@ -103,7 +103,7 @@
     "react-dom": "17.0.2",
     "replace-in-file": "6.3.5",
     "rimraf": "3.0.2",
-    "semver": "7.3.8",
+    "semver": "7.5.0",
     "serve": "14.2.0",
     "source-map-support": "0.5.21",
     "sync-request": "6.1.0",
@@ -113,11 +113,11 @@
     "typescript": "4.9.5",
     "url-loader": "4.1.1",
     "wallaby-webpack": "3.9.16",
-    "webpack": "5.76.0",
+    "webpack": "5.81.0",
     "webpack-cli": "4.10.0"
   },
   "dependencies": {
-    "core-js": "3.29.1"
+    "core-js": "3.30.1"
   },
   "overrides": {
     "typedoc": {

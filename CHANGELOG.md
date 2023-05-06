@@ -46,6 +46,7 @@ are returned
 
 ### Fixed
 
+- Fixed issue where you could not use multiple instances of Excalibur on the same page, you can now have as many Excalibur's as you want (up to the webgl context limit).
 - Fixed issue where `ex.ScreenElement` would log a warning when created without a height or width
 - Fixed issue where `ex.Sound` would get confused parsing and playing sound files with a querystring in their path
 - Fixed issue where `ex.ColliderComponent` was not deeply cloning the stored `ex.Collider` causing them to be shared across clones.
