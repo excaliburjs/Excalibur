@@ -4,9 +4,7 @@ import { Color } from '../Color';
 import { Vector } from '../Math/vector';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { watch } from '../Util/Watch';
-import { TextureLoader } from './Context/texture-loader';
 import { ImageFiltering } from './Filtering';
-
 
 export interface RasterOptions {
   /**
@@ -265,13 +263,14 @@ export abstract class Raster extends Graphic {
     this._applyRasterProperties(this._ctx);
     this.execute(this._ctx);
     this._ctx.restore();
-    // The webgl texture needs to be updated if it exists after a raster cycle
-    TextureLoader.load(this._bitmap, this.filtering, true);
   }
 
   protected _applyRasterProperties(ctx: CanvasRenderingContext2D) {
     this._bitmap.width = this._getTotalWidth() * this.quality;
     this._bitmap.height = this._getTotalHeight() * this.quality;
+    // Do a bad thing to pass the filtering as an attribute
+    this._bitmap.setAttribute('filtering', this.filtering);
+    this._bitmap.setAttribute('forceUpload', 'true');
     ctx.scale(this.quality, this.quality);
     ctx.translate(this.padding, this.padding);
     ctx.imageSmoothingEnabled = this.smoothing;

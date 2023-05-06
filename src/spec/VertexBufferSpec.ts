@@ -2,16 +2,18 @@ import * as ex from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A VertexBuffer', () => {
+  let gl: WebGL2RenderingContext;
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
 
   beforeEach(() => {
     const canvas = document.createElement('canvas');
-    // Side effect of making ex.ExcaliburWebGLContextAccessor.gl available
     const _ctx = new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvas
     });
+
+    gl = _ctx.__gl;
   });
 
 
@@ -21,6 +23,7 @@ describe('A VertexBuffer', () => {
 
   it('can be constructed, dynamic by default', () => {
     const sut = new ex.VertexBuffer({
+      gl,
       size: 42
     });
 
@@ -31,6 +34,7 @@ describe('A VertexBuffer', () => {
 
   it('can be constructed, static by request', () => {
     const sut = new ex.VertexBuffer({
+      gl,
       size: 42,
       type: 'static'
     });
@@ -42,9 +46,9 @@ describe('A VertexBuffer', () => {
 
   it('can bind a buffer', () => {
     const sut = new ex.VertexBuffer({
+      gl,
       size: 42
     });
-    const gl = ex.ExcaliburWebGLContextAccessor.gl;
     spyOn(gl, 'bindBuffer').and.callThrough();
 
     sut.bind();
@@ -53,9 +57,9 @@ describe('A VertexBuffer', () => {
 
   it('can upload a buffer to gpu', () => {
     const sut = new ex.VertexBuffer({
+      gl,
       size: 42
     });
-    const gl = ex.ExcaliburWebGLContextAccessor.gl;
     spyOn(gl, 'bindBuffer').and.callThrough();
     spyOn(gl, 'bufferData').and.callThrough();
 

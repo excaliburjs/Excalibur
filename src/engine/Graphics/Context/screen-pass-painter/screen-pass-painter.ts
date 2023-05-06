@@ -14,15 +14,17 @@ export class ScreenPassPainter {
   private _shader: Shader;
   private _buffer: VertexBuffer;
   private _layout: VertexLayout;
-  constructor(gl: WebGLRenderingContext) {
+  constructor(gl: WebGL2RenderingContext) {
     this._gl = gl;
     this._shader = new Shader({
+      gl,
       vertexSource: screenVertex,
       fragmentSource: screenFragment
     });
     this._shader.compile();
     // Setup memory layout
     this._buffer = new VertexBuffer({
+      gl,
       type: 'static',
       // clip space quad + uv since we don't need a camera
       data: new Float32Array([
@@ -36,6 +38,7 @@ export class ScreenPassPainter {
       ])
     });
     this._layout = new VertexLayout({
+      gl,
       shader: this._shader,
       vertexBuffer: this._buffer,
       attributes: [

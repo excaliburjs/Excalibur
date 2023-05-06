@@ -7,36 +7,37 @@ import { HTMLImageSource } from './ExcaliburGraphicsContext';
  */
 export class TextureLoader {
   private static _LOGGER = Logger.getInstance();
+
+  constructor(gl: WebGL2RenderingContext) {
+    this._gl = gl;
+    TextureLoader._MAX_TEXTURE_SIZE = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+  }
+
   /**
    * Sets the default filtering for the Excalibur texture loader, default [[ImageFiltering.Blended]]
    */
   public static filtering: ImageFiltering = ImageFiltering.Blended;
 
-  private static _GL: WebGLRenderingContext;
+  private _gl: WebGL2RenderingContext;
 
-  private static _TEXTURE_MAP = new Map<HTMLImageSource, WebGLTexture>();
+  private _textureMap = new Map<HTMLImageSource, WebGLTexture>();
 
-  private static _MAX_TEXTURE_SIZE: number  = 0;
-
-  public static register(context: WebGLRenderingContext): void {
-    TextureLoader._GL = context;
-    TextureLoader._MAX_TEXTURE_SIZE = context.getParameter(context.MAX_TEXTURE_SIZE);
-  }
+  private static _MAX_TEXTURE_SIZE: number = 4096;
 
   /**
    * Get the WebGL Texture from a source image
    * @param image
    */
-  public static get(image: HTMLImageSource): WebGLTexture {
-    return TextureLoader._TEXTURE_MAP.get(image);
+  public get(image: HTMLImageSource): WebGLTexture {
+    return this._textureMap.get(image);
   }
 
   /**
    * Returns whether a source image has been loaded as a texture
    * @param image
    */
-  public static has(image: HTMLImageSource): boolean {
-    return TextureLoader._TEXTURE_MAP.has(image);
+  public has(image: HTMLImageSource): boolean {
+    return this._textureMap.has(image);
   }
 
   /**
@@ -45,17 +46,17 @@ export class TextureLoader {
    * @param filtering {ImageFiltering} The ImageFiltering mode to apply to the loaded texture
    * @param forceUpdate Optionally force a texture to be reloaded, useful if the source graphic has changed
    */
-  public static load(image: HTMLImageSource, filtering?: ImageFiltering, forceUpdate = false): WebGLTexture {
+  public load(image: HTMLImageSource, filtering?: ImageFiltering, forceUpdate = false): WebGLTexture {
     // Ignore loading if webgl is not registered
-    const gl = TextureLoader._GL;
+    const gl = this._gl;
     if (!gl) {
       return null;
     }
 
     let tex: WebGLTexture = null;
     // If reuse the texture if it's from the same source
-    if (TextureLoader.has(image)) {
-      tex = TextureLoader.get(image);
+    if (this.has(image)) {
+      tex = this.get(image);
     }
 
     // Update existing webgl texture and return early
@@ -85,20 +86,20 @@ export class TextureLoader {
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
-    TextureLoader._TEXTURE_MAP.set(image, tex);
+    this._textureMap.set(image, tex);
     return tex;
   }
 
-  public static delete(image: HTMLImageSource): void {
+  public delete(image: HTMLImageSource): void {
     // Ignore loading if webgl is not registered
-    const gl = TextureLoader._GL;
+    const gl = this._gl;
     if (!gl) {
       return null;
     }
 
     let tex: WebGLTexture = null;
-    if (TextureLoader.has(image)) {
-      tex = TextureLoader.get(image);
+    if (this.has(image)) {
+      tex = this.get(image);
       gl.deleteTexture(tex);
     }
   }

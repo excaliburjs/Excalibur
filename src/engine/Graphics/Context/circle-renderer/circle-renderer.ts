@@ -27,10 +27,11 @@ export class CircleRenderer implements RendererPlugin {
   private _circleCount: number = 0;
   private _vertexIndex: number = 0;
 
-  initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void {
+  initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
     this._shader = new Shader({
+      gl,
       fragmentSource: frag,
       vertexSource: vert
     });
@@ -41,11 +42,13 @@ export class CircleRenderer implements RendererPlugin {
     this._shader.setUniformMatrix('u_matrix', context.ortho);
 
     this._buffer = new VertexBuffer({
+      gl,
       size: 14 * 4 * this._maxCircles,
       type: 'dynamic'
     });
 
     this._layout = new VertexLayout({
+      gl,
       shader: this._shader,
       vertexBuffer: this._buffer,
       attributes: [
@@ -58,7 +61,7 @@ export class CircleRenderer implements RendererPlugin {
       ]
     });
 
-    this._quads = new QuadIndexBuffer(this._maxCircles, true);
+    this._quads = new QuadIndexBuffer(gl, this._maxCircles, true);
   }
 
   private _isFull() {

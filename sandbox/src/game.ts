@@ -521,7 +521,7 @@ player.onPostUpdate = (engine) => {
     collisionGroup: blockGroup,
     searchAllColliders: false
   });
-  console.log(hits);
+  // console.log(hits);
 }
 player.graphics.onPostDraw = (ctx) => {
   ctx.drawLine(ex.Vector.Zero, ex.Vector.Down.scale(100), ex.Color.Red, 2);

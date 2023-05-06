@@ -8,7 +8,7 @@ describe('WebGL Util', () => {
       canvasElement: canvas,
       backgroundColor: ex.Color.Red
     });
-    const gl = ex.ExcaliburWebGLContextAccessor.gl;
+    const gl = context.__gl;
 
     expect(ex.webgl.getGlTypeSizeBytes(gl, gl.FLOAT)).toBe(4);
     expect(ex.webgl.getGlTypeSizeBytes(gl, gl.SHORT)).toBe(2);
@@ -23,7 +23,7 @@ describe('WebGL Util', () => {
       canvasElement: canvas,
       backgroundColor: ex.Color.Red
     });
-    const gl = ex.ExcaliburWebGLContextAccessor.gl;
+    const gl = context.__gl;
 
     expect(ex.webgl.getAttributeComponentSize(gl, gl.FLOAT_VEC4)).toBe(4);
     expect(ex.webgl.getAttributeComponentSize(gl, gl.FLOAT_VEC3)).toBe(3);
@@ -43,7 +43,7 @@ describe('WebGL Util', () => {
       canvasElement: canvas,
       backgroundColor: ex.Color.Red
     });
-    const gl = ex.ExcaliburWebGLContextAccessor.gl;
+    const gl = context.__gl;
 
     expect(ex.webgl.getAttributePointerType(gl, gl.FLOAT_VEC4)).toBe(gl.FLOAT);
     expect(ex.webgl.getAttributePointerType(gl, gl.FLOAT_VEC3)).toBe(gl.FLOAT);

@@ -47,7 +47,6 @@ export * from './Context/shader';
 export * from './Context/vertex-buffer';
 export * from './Context/vertex-layout';
 export * from './Context/quad-index-buffer';
-export * from './Context/webgl-adapter';
 
 // Util
 

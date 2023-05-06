@@ -1,11 +1,14 @@
 import { Logger } from '../..';
 import { Shader, VertexAttributeDefinition } from './shader';
 import { VertexBuffer } from './vertex-buffer';
-import { ExcaliburWebGLContextAccessor } from './webgl-adapter';
 import { getGlTypeSizeBytes } from './webgl-util';
 
 
 export interface VertexLayoutOptions {
+  /**
+   * WebGL2RenderingContext this layout will be attached to, these cannot be reused across contexts.
+   */
+  gl: WebGL2RenderingContext,
   /**
    * Shader that this layout will be for
    */
@@ -31,7 +34,7 @@ export interface VertexLayoutOptions {
  * Working with `gl.vertexAttribPointer` can be tricky, and this attempts to double check you
  */
 export class VertexLayout {
-  private _gl: WebGLRenderingContext = ExcaliburWebGLContextAccessor.gl;
+  private _gl: WebGL2RenderingContext;
   private _logger = Logger.getInstance();
   private _shader: Shader;
   private _layout: VertexAttributeDefinition[] = [];
@@ -46,7 +49,8 @@ export class VertexLayout {
   }
 
   constructor(options: VertexLayoutOptions) {
-    const {shader, vertexBuffer, attributes} = options;
+    const {gl, shader, vertexBuffer, attributes} = options;
+    this._gl = gl;
     this._vertexBuffer = vertexBuffer;
     this._attributes = attributes;
     this._shader = shader;
