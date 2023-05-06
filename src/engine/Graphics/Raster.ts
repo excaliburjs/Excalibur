@@ -5,8 +5,6 @@ import { Vector } from '../Math/vector';
 import { BoundingBox } from '../Collision/BoundingBox';
 import { watch } from '../Util/Watch';
 import { ImageFiltering } from './Filtering';
-import { ExcaliburGraphicsContextWebGL } from './Context/ExcaliburGraphicsContextWebGL';
-
 
 export interface RasterOptions {
   /**
