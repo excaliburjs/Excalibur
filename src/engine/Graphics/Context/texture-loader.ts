@@ -22,7 +22,7 @@ export class TextureLoader {
 
   private _textureMap = new Map<HTMLImageSource, WebGLTexture>();
 
-  private static _MAX_TEXTURE_SIZE: number = 0;
+  private static _MAX_TEXTURE_SIZE: number = 4096;
 
   /**
    * Get the WebGL Texture from a source image
@@ -71,7 +71,7 @@ export class TextureLoader {
     // No texture exists create a new one
     tex = gl.createTexture();
 
-    this.checkImageSizeSupportedAndLog(image);
+    TextureLoader.checkImageSizeSupportedAndLog(image);
 
     gl.bindTexture(gl.TEXTURE_2D, tex);
 
@@ -109,7 +109,7 @@ export class TextureLoader {
    * @param image
    * @returns if the image will be supported at runtime
    */
-  public checkImageSizeSupportedAndLog(image: HTMLImageSource) {
+  public static checkImageSizeSupportedAndLog(image: HTMLImageSource) {
     const originalSrc = image.dataset.originalSrc ?? 'internal canvas bitmap';
     if (image.width > TextureLoader._MAX_TEXTURE_SIZE || image.height > TextureLoader._MAX_TEXTURE_SIZE) {
       TextureLoader._LOGGER.error(

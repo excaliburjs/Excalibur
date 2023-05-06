@@ -4,6 +4,7 @@ import { Loadable } from '../Interfaces/Index';
 import { Logger } from '../Util/Log';
 import { ImageFiltering } from './Filtering';
 import { Future } from '../Util/Future';
+import { TextureLoader } from '../Graphics/Context/texture-loader';
 
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _logger = Logger.getInstance();
@@ -96,11 +97,14 @@ export class ImageSource implements Loadable<HTMLImageElement> {
 
       // Set results
       this.data = image;
+      // emit warning if potentially too big
+      TextureLoader.checkImageSizeSupportedAndLog(this.data);
     } catch (error) {
       throw `Error loading ImageSource from path '${this.path}' with error [${error.message}]`;
     }
     // Do a bad thing to pass the filtering as an attribute
     this.data.setAttribute('filtering', this.filtering);
+
     // todo emit complete
     this._readyFuture.resolve(this.data);
     return this.data;
