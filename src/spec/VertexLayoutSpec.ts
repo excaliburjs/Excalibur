@@ -2,6 +2,7 @@ import * as ex from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 
 describe('A VertexLayout', () => {
+  let gl: WebGL2RenderingContext;
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });
@@ -12,6 +13,8 @@ describe('A VertexLayout', () => {
     const _ctx = new ex.ExcaliburGraphicsContextWebGL({
       canvasElement: canvas
     });
+
+    gl = _ctx.__gl;
   });
 
   it('exists', () => {
@@ -20,6 +23,7 @@ describe('A VertexLayout', () => {
 
   it('can be constructed', () => {
     const shader = new ex.Shader({
+      gl,
       vertexSource: `
       // nonsense shader for testing
       void main() {
@@ -32,12 +36,14 @@ describe('A VertexLayout', () => {
     });
     shader.compile();
     const vertexBuffer = new ex.VertexBuffer({
+      gl,
       size: 2 * 100,
       type: 'dynamic'
     });
 
     expect(() => {
       const sut = new ex.VertexLayout({
+        gl,
         shader,
         vertexBuffer,
         attributes: []
@@ -47,6 +53,7 @@ describe('A VertexLayout', () => {
 
   it('requires a compiled shader', () => {
     const shader = new ex.Shader({
+      gl,
       vertexSource: `
       attribute vec2 a_position;
       // nonsense shader for testing
@@ -59,11 +66,13 @@ describe('A VertexLayout', () => {
       }`
     });
     const vertexBuffer = new ex.VertexBuffer({
+      gl,
       size: 2 * 100,
       type: 'dynamic'
     });
     expect(() => {
       const sut = new ex.VertexLayout({
+        gl,
         shader,
         vertexBuffer,
         attributes: [
@@ -75,6 +84,7 @@ describe('A VertexLayout', () => {
 
   it('will throw on invalid attribute name', () => {
     const shader = new ex.Shader({
+      gl,
       vertexSource: `
       attribute vec2 a_position;
       // nonsense shader for testing
@@ -88,11 +98,13 @@ describe('A VertexLayout', () => {
     });
     shader.compile();
     const vertexBuffer = new ex.VertexBuffer({
+      gl,
       size: 2 * 100,
       type: 'dynamic'
     });
     expect(() => {
       const sut = new ex.VertexLayout({
+        gl,
         shader,
         vertexBuffer,
         attributes: [
@@ -104,6 +116,7 @@ describe('A VertexLayout', () => {
 
   it('will throw on invalid attribute size', () => {
     const shader = new ex.Shader({
+      gl,
       vertexSource: `
       attribute vec2 a_position;
       // nonsense shader for testing
@@ -117,11 +130,13 @@ describe('A VertexLayout', () => {
     });
     shader.compile();
     const vertexBuffer = new ex.VertexBuffer({
+      gl,
       size: 2 * 100,
       type: 'dynamic'
     });
     expect(() => {
       const sut = new ex.VertexLayout({
+        gl,
         shader,
         vertexBuffer,
         attributes: [
@@ -133,6 +148,7 @@ describe('A VertexLayout', () => {
 
   it('will calculate vertex size and webgl vbo corretly', () => {
     const shader = new ex.Shader({
+      gl,
       vertexSource: `
       attribute vec2 a_position;
       attribute vec2 a_uv;
@@ -150,11 +166,13 @@ describe('A VertexLayout', () => {
     });
     shader.compile();
     const vertexBuffer = new ex.VertexBuffer({
+      gl,
       size: 4 * 100,
       type: 'dynamic'
     });
 
     const sut = new ex.VertexLayout({
+      gl,
       shader,
       vertexBuffer,
       attributes: [
@@ -163,7 +181,6 @@ describe('A VertexLayout', () => {
       ]
     });
     expect(sut.totalVertexSizeBytes).withContext('pos is 2x4 + uv is 2x4').toBe(16);
-    const gl = ex.ExcaliburWebGLContextAccessor.gl;
     spyOn(gl, 'vertexAttribPointer').and.callThrough();
     const vertexAttribPointerSpy = gl.vertexAttribPointer as jasmine.Spy;
     spyOn(gl, 'enableVertexAttribArray').and.callThrough();
@@ -203,6 +220,7 @@ describe('A VertexLayout', () => {
 
   it('can have multiple layouts per shader', () => {
     const shader = new ex.Shader({
+      gl,
       vertexSource: `
       attribute vec2 a_position;
       attribute vec2 a_uv;
@@ -220,16 +238,19 @@ describe('A VertexLayout', () => {
     });
     shader.compile();
     const vertexBufferPos = new ex.VertexBuffer({
+      gl,
       size: 2 * 100,
       type: 'dynamic'
     });
 
     const vertexBufferUV = new ex.VertexBuffer({
+      gl,
       size: 2 * 100,
       type: 'static'
     });
 
     const sut1 = new ex.VertexLayout({
+      gl,
       shader,
       vertexBuffer: vertexBufferPos,
       attributes: [
@@ -238,6 +259,7 @@ describe('A VertexLayout', () => {
     });
 
     const sut2 = new ex.VertexLayout({
+      gl,
       shader,
       vertexBuffer: vertexBufferUV,
       attributes: [
