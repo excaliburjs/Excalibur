@@ -41,6 +41,7 @@ describe('A Graphics ECS System', () => {
     const offscreenSystem = new ex.OffscreenSystem();
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene._initialize(engine);
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
     offscreenSystem.initialize(engine.currentScene);
     sut.initialize(engine.currentScene);
 
@@ -205,6 +206,7 @@ describe('A Graphics ECS System', () => {
     const offscreenSystem = new ex.OffscreenSystem();
     engine.currentScene.camera.update(engine, 1);
     engine.currentScene._initialize(engine);
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
     offscreenSystem.initialize(engine.currentScene);
     sut.initialize(engine.currentScene);
 

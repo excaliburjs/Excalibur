@@ -28,6 +28,7 @@ describe('The OffscreenSystem', () => {
   it('decorates offscreen entities with "offscreen" tag', () => {
     const sut = new ex.OffscreenSystem();
     engine.currentScene.camera.update(engine, 1);
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
     engine.currentScene._initialize(engine);
     sut.initialize(engine.currentScene);
 

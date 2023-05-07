@@ -1,6 +1,7 @@
 import { GraphicsComponent } from './GraphicsComponent';
 import { EnterViewPortEvent, ExitViewPortEvent } from '../Events';
 import { Scene } from '../Scene';
+import { Screen } from '../Screen';
 import { Entity } from '../EntityComponentSystem/Entity';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { Camera } from '../Camera';
@@ -8,18 +9,23 @@ import { System, SystemType } from '../EntityComponentSystem/System';
 import { ParallaxComponent } from './ParallaxComponent';
 import { Vector } from '../Math/vector';
 import { CoordPlane } from '../Math/coord-plane';
+import { BoundingBox } from '../Collision/BoundingBox';
 
 export class OffscreenSystem extends System<TransformComponent | GraphicsComponent> {
   public readonly types = ['ex.transform', 'ex.graphics'] as const;
   public systemType = SystemType.Draw;
   priority: number = -1;
   private _camera: Camera;
+  private _screen: Screen;
+  private _worldBounds: BoundingBox;
 
   public initialize(scene: Scene): void {
     this._camera = scene.camera;
+    this._screen = scene.engine.screen;
   }
 
   update(entities: Entity[]): void {
+    this._worldBounds = this._screen.getWorldBounds();
     let transform: TransformComponent;
     let graphics: GraphicsComponent;
     let maybeParallax: ParallaxComponent;
@@ -59,7 +65,7 @@ export class OffscreenSystem extends System<TransformComponent | GraphicsCompone
         bounds = bounds.translate(parallaxOffset);
       }
       const transformedBounds = bounds.transform(transform.get().matrix);
-      const graphicsOffscreen = !this._camera.viewport.overlaps(transformedBounds);
+      const graphicsOffscreen = !this._worldBounds.overlaps(transformedBounds);
       return graphicsOffscreen;
     } else {
       // TODO screen coordinates
