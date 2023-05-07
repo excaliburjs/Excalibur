@@ -399,7 +399,9 @@ export class TileMap extends Entity {
     for (x; x < xEnd; x++) {
       for (y; y < yEnd; y++) {
         tile = this.getTile(x, y);
-        if (!worldBounds.overlaps(tile.bounds)) continue;
+        if (!worldBounds.overlaps(tile.bounds)) {
+          continue;
+        }
         // get non-negative tile sprites
         graphics = this.getTile(x, y).getGraphics();
 
