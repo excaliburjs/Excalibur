@@ -155,6 +155,15 @@ describe('A camera', () => {
     expect(Camera.y).toBe(555);
   });
 
+  it('can be rotated', () => {
+    Camera._initialize(engine);
+    Camera.rotation = Math.PI / 2;
+
+    Camera.updateTransform();
+
+    expect(Camera.transform.getRotation()).toBe(Math.PI / 2);
+  });
+
   it('can have its velocity set 2 ways', () => {
     Camera.dx = 100;
     Camera.dy = 1000;
