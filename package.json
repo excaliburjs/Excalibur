@@ -113,7 +113,7 @@
     "typescript": "4.9.5",
     "url-loader": "4.1.1",
     "wallaby-webpack": "3.9.16",
-    "webpack": "5.81.0",
+    "webpack": "5.84.1",
     "webpack-cli": "4.10.0"
   },
   "dependencies": {
@@ -123,7 +123,7 @@
     "typedoc": {
       "typescript": ">=4.7.4"
     },
-    "istanbul-instrumenter-loader" : {
+    "istanbul-instrumenter-loader": {
       "webpack": ">=5.68.0"
     }
   }
