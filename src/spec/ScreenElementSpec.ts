@@ -48,6 +48,44 @@ describe('A ScreenElement', () => {
     expect(logger.warn).not.toHaveBeenCalled();
   });
 
+  it('can be constructed with a non-default anchor', () => {
+
+    const sut = new ScreenElement({
+      width: 100,
+      height: 100,
+      anchor: ex.vec(.5, .5)
+    });
+
+    expect(sut.anchor).toBeVector(ex.vec(.5, .5));
+    expect(sut.collider.get()).toBeInstanceOf(ex.PolygonCollider);
+    expect(sut.collider.get().bounds.width).toBe(100);
+    expect(sut.collider.get().bounds.height).toBe(100);
+    expect(sut.collider.get().bounds.left).toBe(-50);
+    expect(sut.collider.get().bounds.right).toBe(50);
+    expect(sut.collider.get().bounds.top).toBe(-50);
+    expect(sut.collider.get().bounds.bottom).toBe(50);
+  });
+
+  it('can be constructed with a non-default collider', () => {
+
+    const sut = new ScreenElement({
+      width: 100,
+      height: 100,
+      collisionType: ex.CollisionType.Active,
+      collider: ex.Shape.Circle(50)
+    });
+
+    expect(sut.anchor).toBeVector(ex.vec(0, 0));
+    expect(sut.body.collisionType).toBe(ex.CollisionType.Active);
+    expect(sut.collider.get()).toBeInstanceOf(ex.CircleCollider);
+    expect(sut.collider.get().bounds.width).toBe(100);
+    expect(sut.collider.get().bounds.height).toBe(100);
+    expect(sut.collider.get().bounds.left).toBe(-50);
+    expect(sut.collider.get().bounds.right).toBe(50);
+    expect(sut.collider.get().bounds.top).toBe(-50);
+    expect(sut.collider.get().bounds.bottom).toBe(50);
+  });
+
   it('is drawn when visible', () => {
     screenElement.graphics.visible = true;
     screenElement.graphics.onPostDraw = jasmine.createSpy('draw');
