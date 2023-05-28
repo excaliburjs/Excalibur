@@ -769,7 +769,14 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
 
     // Calculate camera transform
     this.transform.reset();
+
     this.transform.scale(this.zoom, this.zoom);
+
+    // rotate about the focus
+    this.transform.translate(newCanvasWidth / 2, newCanvasHeight / 2);
+    this.transform.rotate(this.rotation);
+    this.transform.translate(-newCanvasWidth / 2, -newCanvasHeight / 2);
+
     this.transform.translate(cameraPos.x, cameraPos.y);
     this.transform.inverse(this.inverse);
   }

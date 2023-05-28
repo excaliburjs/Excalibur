@@ -763,6 +763,32 @@ describe('A Screen', () => {
     expect(bounds.top).toBe(150);
   });
 
+  it('can return world bounds with camera rotation', () => {
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      viewport: { width: 800, height: 600 },
+      pixelRatio: 2
+    });
+    const camera = new Camera();
+    camera.x = 400;
+    camera.y = 300;
+    camera.rotation = Math.PI / 2;
+    camera.zoom = 2;
+
+    sut.setCurrentCamera(camera);
+    sut.applyResolutionAndViewport();
+    camera._initialize({screen: sut, clock: { elapsed: () => 16}} as ex.Engine);
+
+    const bounds = sut.getWorldBounds();
+
+    expect(bounds.left).toBe(250);
+    expect(bounds.right).toBe(550);
+    expect(bounds.bottom).toBe(500);
+    expect(bounds.top).toBe(100);
+  });
+
   it('can calculate screen center without a camera and no relevant pixel ratio', () => {
     const sut = new ex.Screen({
       canvas,

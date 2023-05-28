@@ -641,6 +641,7 @@ describe('A game actor', () => {
     engine.addScene('test', scene);
     engine.goToScene('test');
     scene._initialize(engine);
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(scene, 'debugDraw').and.callThrough();
