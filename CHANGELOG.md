@@ -47,6 +47,7 @@ are returned
 ### Fixed
 
 - Fixed issue where `ex.Camera.rotation = ...` did not work to rotate the camera, also addressed offscreen culling issues that were revealed by this fix.
+- Fixed issue where the `ex.ScreenElement` anchor was not being accounted for properly when passed as a constructor parameter.
 - Fixed issue where you could not use multiple instances of Excalibur on the same page, you can now have as many Excalibur's as you want (up to the webgl context limit).
 - Fixed issue where `ex.ScreenElement` would log a warning when created without a height or width
 - Fixed issue where `ex.Sound` would get confused parsing and playing sound files with a querystring in their path
