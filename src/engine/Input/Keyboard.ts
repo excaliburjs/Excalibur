@@ -189,6 +189,11 @@ export class KeyEvent extends Events.GameEvent<any> {
   }
 }
 
+export interface KeyboardOptions {
+  global?: GlobalEventHandlers,
+  grabWindowFocus: boolean
+}
+
 /**
  * Provides keyboard support for Excalibur.
  */
@@ -212,7 +217,8 @@ export class Keyboard extends Class {
   /**
    * Initialize Keyboard event listeners
    */
-  init(global?: GlobalEventHandlers): void {
+  init(keyboardOptions: KeyboardOptions): void {
+    let { global, grabWindowFocus} = keyboardOptions;
     if (!global) {
       try {
         // Try and listen to events on top window frame if within an iframe.
@@ -233,10 +239,14 @@ export class Keyboard extends Class {
         // fallback to current frame
         global = window;
 
-        Logger.getInstance().warn(
-          'Failed to bind to keyboard events to top frame. ' +
-            'If you are trying to embed Excalibur in a cross-origin iframe, keyboard events will not fire.'
-        );
+        // Workaround for iframes like for itch.io or codesandbox
+        // https://www.reddit.com/r/gamemaker/comments/kfs5cs/keyboard_inputs_no_longer_working_in_html5_game/
+        // https://forum.gamemaker.io/index.php?threads/solved-keyboard-issue-on-itch-io.87336/
+        if (grabWindowFocus) {
+          window.focus();
+        }
+
+        Logger.getInstance().warn('Excalibur might be in an iframe, in order to receive keyboard events it must be in focus');
       }
     }
 
