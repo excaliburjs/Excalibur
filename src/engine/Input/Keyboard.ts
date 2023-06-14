@@ -218,7 +218,8 @@ export class Keyboard extends Class {
    * Initialize Keyboard event listeners
    */
   init(keyboardOptions: KeyboardOptions): void {
-    let { global, grabWindowFocus} = keyboardOptions;
+    let { global } = keyboardOptions;
+    const { grabWindowFocus } = keyboardOptions;
     if (!global) {
       try {
         // Try and listen to events on top window frame if within an iframe.

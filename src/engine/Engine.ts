@@ -167,10 +167,10 @@ export interface EngineOptions {
   suppressPlayButton?: boolean;
 
   /**
-   * Sets the focus of the window, this is needed when hosting excalibur in a cross-origin iframe in order for certain events (like keyboard)
-   * to work.
+   * Sets the focus of the window, this is needed when hosting excalibur in a cross-origin iframe in order for certain events
+   * (like keyboard) to work.
    * For example: itch.io or codesandbox.io
-   * 
+   *
    * By default set to true,
    */
   grabWindowFocus?: boolean;
