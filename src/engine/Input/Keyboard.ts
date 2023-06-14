@@ -258,14 +258,14 @@ export class Keyboard extends Class {
   }
 
   private _releaseAllKeys = (ev: KeyboardEvent) => {
-    for (let code of this._keys) {
+    for (const code of this._keys) {
       const keyEvent = new KeyEvent(code, ev.key, ev);
       this.eventDispatcher.emit('up', keyEvent);
       this.eventDispatcher.emit('release', keyEvent);
     }
     this._keysUp = Array.from((new Set(this._keys.concat(this._keysUp))));
     this._keys.length = 0;
-  }
+  };
 
   private _handleKeyDown = (ev: KeyboardEvent) => {
     // handle macos meta key issue
