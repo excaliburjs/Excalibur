@@ -1115,7 +1115,9 @@ O|===|* >________________>\n\
     this.input.keyboard.init({
       grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true
     });
-    this.input.pointers.init();
+    this.input.pointers.init({
+      grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true
+    });
     this.input.gamepads.init();
 
     // Issue #385 make use of the visibility api

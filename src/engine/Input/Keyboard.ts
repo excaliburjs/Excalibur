@@ -1,6 +1,7 @@
 import { Logger } from '../Util/Log';
 import { Class } from '../Class';
 import * as Events from '../Events';
+import { isCrossOriginIframe } from '../Util/IFrame';
 
 /**
  * Enum representing physical input key codes
@@ -189,9 +190,9 @@ export class KeyEvent extends Events.GameEvent<any> {
   }
 }
 
-export interface KeyboardOptions {
+export interface KeyboardInitOptions {
   global?: GlobalEventHandlers,
-  grabWindowFocus: boolean
+  grabWindowFocus?: boolean
 }
 
 /**
@@ -217,29 +218,12 @@ export class Keyboard extends Class {
   /**
    * Initialize Keyboard event listeners
    */
-  init(keyboardOptions: KeyboardOptions): void {
+  init(keyboardOptions?: KeyboardInitOptions): void {
     let { global } = keyboardOptions;
     const { grabWindowFocus } = keyboardOptions;
     if (!global) {
-      try {
-        // Try and listen to events on top window frame if within an iframe.
-        //
-        // See https://github.com/excaliburjs/Excalibur/issues/1294
-        //
-        // Attempt to add an event listener, which triggers a DOMException on
-        // cross-origin iframes
-        const noop = () => {
-          return;
-        };
-        window.top.addEventListener('blur', noop);
-        window.top.removeEventListener('blur', noop);
-
-        // this will be the same as window if not embedded within an iframe
-        global = window.top;
-      } catch {
-        // fallback to current frame
+      if (isCrossOriginIframe()) {
         global = window;
-
         // Workaround for iframes like for itch.io or codesandbox
         // https://www.reddit.com/r/gamemaker/comments/kfs5cs/keyboard_inputs_no_longer_working_in_html5_game/
         // https://forum.gamemaker.io/index.php?threads/solved-keyboard-issue-on-itch-io.87336/
@@ -247,7 +231,9 @@ export class Keyboard extends Class {
           window.focus();
         }
 
-        Logger.getInstance().warn('Excalibur might be in an iframe, in order to receive keyboard events it must be in focus');
+        Logger.getInstance().warn('Excalibur might be in a cross-origin iframe, in order to receive keyboard events it must be in focus');
+      } else {
+        global = window.top;
       }
     }
 
