@@ -278,7 +278,7 @@ export class PointerEventReceiver extends Class {
     if (grabWindowFocus && isCrossOriginIframe()) {
       const grabFocus = () => {
         window.focus();
-      }
+      };
       // Preferred pointer events
       if (window.PointerEvent) {
         this.target.addEventListener('pointerdown', grabFocus);

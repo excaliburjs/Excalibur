@@ -1,5 +1,8 @@
 
 
+/**
+ * Checks if excalibur is in a x-origin iframe
+ */
 export function isCrossOriginIframe() {
   try {
     // Try and listen to events on top window frame if within an iframe.
@@ -14,7 +17,7 @@ export function isCrossOriginIframe() {
     window.top.addEventListener('blur', noop);
     window.top.removeEventListener('blur', noop);
   } catch {
-    return true
+    return true;
   }
   return false;
 }
