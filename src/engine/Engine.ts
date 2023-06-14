@@ -167,6 +167,15 @@ export interface EngineOptions {
   suppressPlayButton?: boolean;
 
   /**
+   * Sets the focus of the window, this is needed when hosting excalibur in a cross-origin iframe in order for certain events
+   * (like keyboard) to work.
+   * For example: itch.io or codesandbox.io
+   *
+   * By default set to true,
+   */
+  grabWindowFocus?: boolean;
+
+  /**
    * Scroll prevention method.
    */
   scrollPreventionMode?: ScrollPreventionMode;
@@ -547,6 +556,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     suppressMinimumBrowserFeatureDetection: null,
     suppressHiDPIScaling: null,
     suppressPlayButton: null,
+    grabWindowFocus: true,
     scrollPreventionMode: ScrollPreventionMode.Canvas,
     backgroundColor: Color.fromHex('#2185d0') // Excalibur blue
   };
@@ -1102,8 +1112,12 @@ O|===|* >________________>\n\
       pointers: new PointerEventReceiver(pointerTarget, this),
       gamepads: new Input.Gamepads()
     };
-    this.input.keyboard.init();
-    this.input.pointers.init();
+    this.input.keyboard.init({
+      grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true
+    });
+    this.input.pointers.init({
+      grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true
+    });
     this.input.gamepads.init();
 
     // Issue #385 make use of the visibility api

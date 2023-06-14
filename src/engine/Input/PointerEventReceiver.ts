@@ -12,6 +12,7 @@ import { NativePointerButton } from './NativePointerButton';
 import { PointerButton } from './PointerButton';
 import { fail } from '../Util/Util';
 import { PointerType } from './PointerType';
+import { isCrossOriginIframe } from '../Util/IFrame';
 
 
 export type NativePointerEvent = globalThis.PointerEvent;
@@ -33,6 +34,10 @@ function isTouchEvent(value: any): value is NativeTouchEvent {
 function isPointerEvent(value: any): value is NativePointerEvent {
   // Guard for Safari <= 13.1
   return globalThis.PointerEvent && value instanceof globalThis.PointerEvent;
+}
+
+export interface PointerInitOptions {
+  grabWindowFocus?: boolean;
 }
 
 /**
@@ -222,7 +227,7 @@ export class PointerEventReceiver extends Class {
    * Initializes the pointer event receiver so that it can start listening to native
    * browser events.
    */
-  public init() {
+  public init(options?: PointerInitOptions) {
     // Disabling the touch action avoids browser/platform gestures from firing on the canvas
     // It is important on mobile to have touch action 'none'
     // https://stackoverflow.com/questions/48124372/pointermove-event-not-working-with-touch-why-not
@@ -266,6 +271,24 @@ export class PointerEventReceiver extends Class {
     } else {
       // Remaining browser and older Firefox
       this.target.addEventListener('MozMousePixelScroll', this._boundWheel, wheelOptions);
+    }
+
+    const grabWindowFocus = options?.grabWindowFocus ?? true;
+    // Handle cross origin iframe
+    if (grabWindowFocus && isCrossOriginIframe()) {
+      const grabFocus = () => {
+        window.focus();
+      };
+      // Preferred pointer events
+      if (window.PointerEvent) {
+        this.target.addEventListener('pointerdown', grabFocus);
+      } else {
+        // Touch Events
+        this.target.addEventListener('touchstart', grabFocus);
+
+        // Mouse Events
+        this.target.addEventListener('mousedown', grabFocus);
+      }
     }
   }
 
