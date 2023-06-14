@@ -199,8 +199,17 @@ export interface KeyboardInitOptions {
  * Provides keyboard support for Excalibur.
  */
 export class Keyboard extends Class {
+  /**
+   * Keys that are currently held down
+   */
   private _keys: Keys[] = [];
+  /**
+   * Keys up in the current frame
+   */
   private _keysUp: Keys[] = [];
+  /**
+   * Keys down in the current frame
+   */
   private _keysDown: Keys[] = [];
 
   constructor() {
@@ -248,7 +257,23 @@ export class Keyboard extends Class {
     global.addEventListener('keydown', this._handleKeyDown);
   }
 
+  private _releaseAllKeys = (ev: KeyboardEvent) => {
+    for (let code of this._keys) {
+      const keyEvent = new KeyEvent(code, ev.key, ev);
+      this.eventDispatcher.emit('up', keyEvent);
+      this.eventDispatcher.emit('release', keyEvent);
+    }
+    this._keysUp = Array.from((new Set(this._keys.concat(this._keysUp))));
+    this._keys.length = 0;
+  }
+
   private _handleKeyDown = (ev: KeyboardEvent) => {
+    // handle macos meta key issue
+    // https://github.com/excaliburjs/Excalibur/issues/2608
+    if (!ev.metaKey && (this._keys.includes(Keys.MetaLeft) || this._keys.includes(Keys.MetaRight))) {
+      this._releaseAllKeys(ev);
+    }
+
     const code = ev.code as Keys;
     if (this._keys.indexOf(code) === -1) {
       this._keys.push(code);
@@ -269,6 +294,12 @@ export class Keyboard extends Class {
     // alias the old api, we may want to deprecate this in the future
     this.eventDispatcher.emit('up', keyEvent);
     this.eventDispatcher.emit('release', keyEvent);
+
+    // handle macos meta key issue
+    // https://github.com/excaliburjs/Excalibur/issues/2608
+    if (ev.key === 'Meta') {
+      this._releaseAllKeys(ev);
+    }
   };
 
   public update() {
