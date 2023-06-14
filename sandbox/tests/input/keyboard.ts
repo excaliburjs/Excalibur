@@ -7,6 +7,14 @@ label.font.textAlign = ex.TextAlign.Center;
 
 game.add(label);
 
+game.input.keyboard.on('press', e => {
+  console.log('Key Pressed:', e.key);
+});
+
+game.input.keyboard.on('release', e => {
+  console.log('Key Released:', e.key);
+});
+
 game.on('postupdate', (ue: ex.PostUpdateEvent) => {
   var keys = game.input.keyboard
     .getKeys()
