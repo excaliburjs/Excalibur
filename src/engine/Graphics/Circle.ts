@@ -23,7 +23,8 @@ export class Circle extends Raster {
   }
   constructor(options: RasterOptions & CircleOptions) {
     super(options);
-    this.padding = options.padding ?? 2; // default 2 padding for circles looks nice
+    const lineWidth = options.lineWidth ?? 1 // default lineWidth in canvas is 1px
+    this.padding = options.padding ?? 2 + (lineWidth / 2); // default 2 padding for circles looks nice
     this.radius = options.radius;
     this.filtering = options.filtering ?? ImageFiltering.Blended;
     this.rasterize();

@@ -46,6 +46,7 @@ are returned
 
 ### Fixed
 
+- Fixed issue where setting lineWidth on `ex.Circle` was not accounted for in the bitmap
 - Fixed issue in macos where the meta key would prevent keyup's from firing correctly
 - Fixed issue when excalibur was hosted in a x-origin iframe, the engine will grab window focus by default if in an iframe. This can be suppressed with `new ex.Engine({grabWindowFocus: false})`
 - Fixed issue where `ex.Camera.rotation = ...` did not work to rotate the camera, also addressed offscreen culling issues that were revealed by this fix.

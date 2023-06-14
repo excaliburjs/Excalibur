@@ -21,7 +21,7 @@ class Game extends ex.Engine {
       radius: 30,
       strokeColor: ex.Color.DarkGray,
       lineWidth: 10,
-      padding: 20,
+      // padding: 20,
       smoothing: true,
 
     });
