@@ -273,7 +273,7 @@ export class PointerEventReceiver extends Class {
       this.target.addEventListener('MozMousePixelScroll', this._boundWheel, wheelOptions);
     }
 
-    const grabWindowFocus = options.grabWindowFocus ?? true;
+    const grabWindowFocus = options?.grabWindowFocus ?? true;
     // Handle cross origin iframe
     if (grabWindowFocus && isCrossOriginIframe()) {
       const grabFocus = () => {
