@@ -84,6 +84,19 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
     this._resource.path = val;
   }
 
+
+  /**
+   * Should excalibur add a cache busting querystring? By default false.
+   * Must be set before loading
+   */
+  public get bustCache() {
+    return this._resource.bustCache;
+  }
+
+  public set bustCache(val: boolean) {
+    this._resource.bustCache = val;
+  }
+
   private _loop = false;
   private _volume = 1;
   private _isStopped = false;

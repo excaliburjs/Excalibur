@@ -38,9 +38,21 @@ export class Gif implements Loadable<ImageSource[]> {
    * @param color      Optionally set the color to treat as transparent the gif, by default [[Color.Magenta]]
    * @param bustCache  Optionally load texture with cache busting
    */
-  constructor(public path: string, public color: Color = Color.Magenta, public bustCache = true) {
+  constructor(public path: string, public color: Color = Color.Magenta, bustCache = false) {
     this._resource = new Resource(path, 'arraybuffer', bustCache);
     this._transparentColor = color;
+  }
+
+  /**
+   * Should excalibur add a cache busting querystring? By default false.
+   * Must be set before loading
+   */
+  public get bustCache() {
+    return this._resource.bustCache;
+  }
+
+  public set bustCache(val: boolean) {
+    this._resource.bustCache = val;
   }
 
   /**
