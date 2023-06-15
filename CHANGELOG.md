@@ -79,7 +79,7 @@ stored `ex.Graphics` causing them to be shared across clones.
 
 ### Changed
 
--
+- Excalibur resources by default no longer add cache busting query string to resources. All built in resources now expose a `bustCache` property to allow setting this before loading, for example `ex.Sound.bustCache`.
 
 
 

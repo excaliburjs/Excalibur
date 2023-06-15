@@ -19,7 +19,7 @@ export class Resource<T> implements Loadable<T> {
   constructor(
     public path: string,
     public responseType: '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text',
-    public bustCache: boolean = true
+    public bustCache: boolean = false
   ) {}
 
   /**

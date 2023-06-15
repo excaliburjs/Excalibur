@@ -67,6 +67,18 @@ export class ImageSource implements Loadable<HTMLImageElement> {
   }
 
   /**
+   * Should excalibur add a cache busting querystring? By default false.
+   * Must be set before loading
+   */
+  public get bustCache() {
+    return this._resource.bustCache;
+  }
+
+  public set bustCache(val: boolean) {
+    this._resource.bustCache = val;
+  }
+
+  /**
    * Begins loading the image and returns a promise that resolves when the image is loaded
    */
   async load(): Promise<HTMLImageElement> {
