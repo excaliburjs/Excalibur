@@ -19,6 +19,7 @@ export * from './Class';
 export * from './Configurable';
 export * from './Debug/index';
 export * from './EventDispatcher';
+export * from './EventEmitter';
 export * from './Events/MediaEvents';
 export * from './Events';
 export * from './Label';

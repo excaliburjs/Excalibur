@@ -72,6 +72,33 @@ describe('A Graphics Animation', () => {
     expect(anim.frames.length).toBe(4);
   });
 
+  it('can be defined from spritesheet coordinates', () => {
+    const sourceImage = new ex.ImageSource('some/image.png');
+    const ss = ex.SpriteSheet.fromImageSource({
+      image: sourceImage,
+      grid: {
+        spriteWidth: 10,
+        spriteHeight: 10,
+        rows: 10,
+        columns: 10
+      }
+    });
+    const anim = ex.Animation.fromSpriteSheetCoordinates({
+      spriteSheet: ss,
+      frameCoordinates: [
+        {x: 0, y: 0, duration: 100},
+        {x: 1, y: 0, duration: 100},
+        {x: 2, y: 0, duration: 100},
+        {x: 3, y: 0, duration: 100}
+      ],
+      strategy: ex.AnimationStrategy.Freeze
+    });
+
+    expect(anim.strategy).toBe(ex.AnimationStrategy.Freeze);
+    expect(anim.frames[0].duration).toBe(100);
+    expect(anim.frames.length).toBe(4);
+  });
+
   it('correctly calculates size based on scale', () => {
     const sourceImage = new ex.ImageSource('some/image.png');
     const ss = ex.SpriteSheet.fromImageSource({
