@@ -441,7 +441,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   private _totalPostProcessorTime = 0;
   public updatePostProcessors(delta: number) {
-    for (let postprocessor of this._postprocessors) {
+    for (const postprocessor of this._postprocessors) {
       const shader = postprocessor.getShader();
       shader.use();
       const uniforms = shader.getUniforms();

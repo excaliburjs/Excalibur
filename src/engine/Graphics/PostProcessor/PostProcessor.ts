@@ -6,9 +6,9 @@ import { Shader } from '../Context/shader';
 /**
  * PostProcessors can be used to apply a shader to the entire screen. It is recommended
  * you use the [[ScreenShader]] to build your post processor shader.
- * 
+ *
  * The screen texture comes through as this uniform
- * 
+ *
  * `uniform sampler2D u_image`
  *
  * Post processor shaders get some default uniforms passed to them
