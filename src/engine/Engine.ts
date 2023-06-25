@@ -1202,6 +1202,9 @@ O|===|* >________________>\n\
     // process engine level events
     this.currentScene.update(this, delta);
 
+    // Update graphics postprocessors
+    this.graphicsContext.updatePostProcessors(delta);
+
     // Publish update event
     this._postupdate(delta);
 

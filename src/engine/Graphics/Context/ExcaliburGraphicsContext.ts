@@ -241,6 +241,15 @@ export interface ExcaliburGraphicsContext {
   clearPostProcessors(): void;
 
   /**
+   * Updates all post processors in the graphics context
+   *
+   * Called internally by Excalibur
+   * @param delta
+   * @internal
+   */
+  updatePostProcessors(delta: number): void;
+
+  /**
    * Clears the screen with the current background color
    */
   clear(): void;

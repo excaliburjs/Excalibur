@@ -317,6 +317,10 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     // pass
   }
 
+  public updatePostProcessors(_delta: number) {
+    // pass
+  }
+
   public beginDrawLifecycle() {
     // pass
   }

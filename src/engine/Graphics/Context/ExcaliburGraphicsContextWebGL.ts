@@ -439,6 +439,30 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._postprocessors.length = 0;
   }
 
+  private _totalPostProcessorTime = 0;
+  public updatePostProcessors(delta: number) {
+    for (let postprocessor of this._postprocessors) {
+      const shader = postprocessor.getShader();
+      shader.use();
+      const uniforms = shader.getUniforms();
+      this._totalPostProcessorTime += delta;
+
+      if (uniforms.find(u => u.name ==='u_time_ms')) {
+        shader.setUniformFloat('u_time_ms', this._totalPostProcessorTime);
+      }
+      if (uniforms.find(u => u.name ==='u_elapsed_ms')) {
+        shader.setUniformFloat('u_elapsed_ms', delta);
+      }
+      if (uniforms.find(u => u.name ==='u_resolution')) {
+        shader.setUniformFloatVector('u_resolution', vec(this.width, this.height));
+      }
+
+      if (postprocessor.onUpdate) {
+        postprocessor.onUpdate(delta);
+      }
+    }
+  }
+
   clear() {
     const gl = this.__gl;
     this._renderTarget.use();
