@@ -72,7 +72,7 @@ describe('A Graphics Animation', () => {
     expect(anim.frames.length).toBe(4);
   });
 
-  fit('can be defined from spritesheet coordinates', () => {
+  it('can be defined from spritesheet coordinates', () => {
     const sourceImage = new ex.ImageSource('some/image.png');
     const ss = ex.SpriteSheet.fromImageSource({
       image: sourceImage,
