@@ -13,9 +13,56 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Deprecated
 
 - [[ex.Input.Gamepad]] `isButtonPressed` has been renamed to `isButtonHeld`
+- `ex.EventDispatcher` is marked deprecated, will eventually be removed in v0.29.0
 
 
 ### Added
+
+- Added new helper called `ex.Animation.fromSpriteSheetCoordinates` to help build animations more tersely from SpriteSheets
+  ```typescript
+   const spriteSheet = SpriteSheet.fromImageSource({...});
+      const anim = Animation.fromSpriteSheetCoordinates({
+    spriteSheet,
+    frameCoordinates: [
+      {x: 0, y: 5, duration: 100},
+      {x: 1, y: 5, duration: 200},
+      {x: 2, y: 5, duration: 100},
+      {x: 3, y: 5, duration: 500}
+    ],
+    strategy: AnimationStrategy.PingPong
+   });
+  ```
+
+- Added new `FrameEvent` to `ex.Animation` which includes the frame index of the current frame!
+  ```typescript
+    const anim = new Animation();
+
+    // TS autocompletes the handler
+    anim.on('frame', (frame: FrameEvent) => {
+      // Do stuff on frame
+    });
+  ```
+
+- Added new typed `ex.EventEmitter` which will eventually replace the old `ex.EventDispatcher`, this gives users a way of strongly typing the possible events that can be emitted using a type map. This is loosely typed you can still emit any event you want, you only get type completion suggestions for the type map.
+  ```typescript
+  export type AnimationEvents = {
+    frame: FrameEvent;
+    loop: Animation;
+    ended: Animation;
+  };
+
+  export class Animation {
+    public events = new EventEmitter<AnimationEvents>();
+    ...
+  }
+
+  const anim = new Animation();
+
+  // TS autocompletes the handler
+  anim.on('frame', (frame: FrameEvent) => {
+    // Do stuff on frame
+  });
+  ```
 
 - Added ability to perform arbitrary ray casts into `ex.Scene`, the `ex.PhysicsWorld` can be passed a variety of options to influence the types of ray cast hits that
 are returned
