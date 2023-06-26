@@ -18,6 +18,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added updates to `ex.PostProcessor` 
+  * New optional `ex.PostProcessor.onUpdate` hook for updating custom uniforms
+  * Added default uniforms that are automatically added
+    * `uniform float u_time_ms` - total playback time in milliseconds
+    * `uniform float u_elapsed_ms` - the elapsed time from the last frame in milliseconds
+    * `uniform vec2 u_resolution` - the resolution of the canvas (in pixels)
+
 - Added new helper called `ex.Animation.fromSpriteSheetCoordinates` to help build animations more tersely from SpriteSheets
   ```typescript
    const spriteSheet = SpriteSheet.fromImageSource({...});
