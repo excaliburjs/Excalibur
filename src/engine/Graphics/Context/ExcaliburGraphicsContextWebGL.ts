@@ -31,6 +31,8 @@ import { CircleRenderer } from './circle-renderer/circle-renderer';
 import { Pool } from '../../Util/Pool';
 import { DrawCall } from './draw-call';
 import { AffineMatrix } from '../../Math/affine-matrix';
+import { Material } from './material';
+import { MaterialRenderer } from './material-renderer/material-renderer';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -220,6 +222,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     // Setup builtin renderers
     this.register(new ImageRenderer());
+    this.register(new MaterialRenderer());
     this.register(new RectangleRenderer());
     this.register(new CircleRenderer());
     this.register(new PointRenderer());
@@ -295,6 +298,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         drawCall.state.z = this._state.current.z;
         drawCall.state.opacity = this._state.current.opacity;
         drawCall.state.tint = this._state.current.tint;
+        drawCall.state.material = this._state.current.material;
         drawCall.args = args;
         this._drawCalls.push(drawCall);
       } else {
@@ -372,7 +376,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       }
       return;
     }
-    this.draw<ImageRenderer>('ex.image', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+
+    if (this._state.current.material) {
+      this.draw<MaterialRenderer>('ex.material', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+    } else {
+      this.draw<ImageRenderer>('ex.image', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
+    }
   }
 
   public drawLine(start: Vector, end: Vector, color: Color, thickness = 1) {
@@ -461,6 +470,14 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
         postprocessor.onUpdate(delta);
       }
     }
+  }
+
+  public useMaterial(material: Material): void {
+    this._state.current.material = material
+  }
+
+  public getMaterial(): Material {
+    return this._state.current.material;
   }
 
   clear() {

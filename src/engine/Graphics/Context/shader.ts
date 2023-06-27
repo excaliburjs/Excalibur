@@ -1,4 +1,4 @@
-import { Vector } from '../..';
+import { Color, Vector } from '../..';
 import { Matrix } from '../../Math/matrix';
 import { getAttributeComponentSize, getAttributePointerType } from './webgl-util';
 
@@ -70,7 +70,7 @@ export interface VertexAttributeDefinition {
 
 export interface ShaderOptions {
   /**
-   * WebGL2RenderingContext this layout will be attached to, these cannot be reused across contexts.
+   * WebGL2RenderingContext this layout will be attached to, these cannot be reused across webgl contexts.
    */
   gl: WebGL2RenderingContext;
   /**
@@ -258,6 +258,18 @@ export class Shader {
    */
   setUniformFloatVector(name: string, value: Vector) {
     this.setUniform('uniform2f', name, value.x, value.y);
+  }
+
+  /**
+   * Set a [[Color]] uniform for the current shader
+   *
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   *
+   * @param name
+   * @param value
+   */
+  setUniformFloatColor(name: string, value: Color) {
+    this.setUniform('uniform4f', name, value.r / 255, value.g / 255, value.b / 255, value.a);
   }
 
   /**

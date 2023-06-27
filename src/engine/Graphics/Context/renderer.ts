@@ -23,7 +23,7 @@ export interface RendererPlugin {
    * @param gl
    * @param context
    */
-  initialize(gl: WebGLRenderingContext, context: ExcaliburGraphicsContextWebGL): void;
+  initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void;
 
   /**
    * Issue a draw command to draw something to the screen

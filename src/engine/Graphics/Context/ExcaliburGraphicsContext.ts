@@ -3,6 +3,7 @@ import { Color } from '../../Color';
 import { ScreenDimension } from '../../Screen';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
 import { AffineMatrix } from '../../Math/affine-matrix';
+import { Material } from './material';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
 
@@ -19,6 +20,7 @@ export interface ExcaliburGraphicsContextState {
   opacity: number;
   z: number;
   tint: Color;
+  material: Material;
 }
 export interface LineGraphicsOptions {
   color: Color;
@@ -248,6 +250,14 @@ export interface ExcaliburGraphicsContext {
    * @internal
    */
   updatePostProcessors(delta: number): void;
+
+  /**
+   * Sets a material to be used in the current context's drawings
+   * 
+   * This allows customs shaders to be used but draw calls are no longer batched by default.
+   * @param material 
+   */
+  useMaterial(material: Material): void;
 
   /**
    * Clears the screen with the current background color
