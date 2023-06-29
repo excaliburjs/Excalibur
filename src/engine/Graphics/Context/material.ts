@@ -1,5 +1,4 @@
 import { Color } from "../../Color";
-import { ImageSource } from "../ImageSource";
 import { Shader } from "./shader";
 
 export interface MaterialOptions {
@@ -15,16 +14,6 @@ export interface MaterialOptions {
    * Add custom color
    */
   color: Color,
-
-  /**
-   * 
-   */
-  opacity: number,
-  // graphic: Graphic,
-  /**
-   * Add additional images to be available to the shader
-   */
-  images?: ImageSource[]
 }
 
 export class Material {
@@ -55,7 +44,5 @@ export class Material {
     this._shader.use();
     // todo apply standard uniforms
     this._shader.setUniformFloatColor('u_color', this._color);
-    // u_color;
-    // u_opacity;
   }
 }
