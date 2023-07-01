@@ -22,7 +22,7 @@ uniform mat4 u_matrix;
 uniform mat4 u_transform;
 
 void main() {
-  // Set the vertex position using the ortho transform matrix
+  // Set the vertex position using the ortho & transform matrix
   gl_Position = u_matrix * u_transform * vec4(a_position, 0.0, 1.0);
 
   // Pass through the UV coord to the fragment shader
@@ -102,8 +102,7 @@ var shader = new ex.Shader({
 var material = new ex.Material({
   name: 'test',
   shader,
-  color: ex.Color.Red,
-  opacity: 0.5
+  color: ex.Color.Red
 });
 
 var actor = new ex.Actor({x: 100, y: 100, width: 50, height: 50});
