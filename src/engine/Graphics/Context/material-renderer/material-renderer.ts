@@ -16,12 +16,33 @@ export class MaterialRenderer implements RendererPlugin {
   private _gl: WebGL2RenderingContext;
   private _textures: WebGLTexture[] = [];
   private _quads: any;
+  private _buffer: VertexBuffer;
+  private _layout: VertexLayout;
   initialize(gl: WebGL2RenderingContext, context: ExcaliburGraphicsContextWebGL): void {
     this._gl = gl;
     this._context = context;
+
+    // Setup memory layout
+    this._buffer = new VertexBuffer({
+      gl,
+      size: 4 * 4, // 4 components * 4 verts
+      type: 'dynamic'
+    });
+
+    // Setup a vertex layout/buffer to the material
+    this._layout = new VertexLayout({
+      gl,
+      vertexBuffer: this._buffer,
+      attributes: [
+        ['a_position', 2],
+        ['a_uv', 2],
+      ]
+    });
+
     // Setup index buffer
     this._quads = new QuadIndexBuffer(gl, 1, true);
   }
+
   draw(image: HTMLImageSource,
     sx: number,
     sy: number,
@@ -41,28 +62,10 @@ export class MaterialRenderer implements RendererPlugin {
     // material shader
     const shader = material.getShader();
 
-    // Setup memory layout
-    const _buffer = new VertexBuffer({
-      gl,
-      size: 4 * 4, // 4 components * 4 verts
-      type: 'dynamic'
-    });
-
-    // TODO attach a vertex layout/buffer to the material?
-    // Some materials are going to need custom layouts
-    const _layout = new VertexLayout({
-      gl,
-      shader: shader,
-      vertexBuffer: _buffer,
-      attributes: [
-        ['a_position', 2],
-        ['a_uv', 2],
-      ]
-    });
     // construct geometry, or hold on to it in the material?
     // geometry primitive for drawing rectangles?
     // update data
-    const vertexBuffer = _layout.vertexBuffer.bufferData;
+    const vertexBuffer = this._layout.vertexBuffer.bufferData;
     let vertexIndex = 0;
 
     let width = image?.width || swidth || 0;
@@ -127,9 +130,10 @@ export class MaterialRenderer implements RendererPlugin {
 
     // TODO weird place for this
     shader.setUniformFloat('u_opacity', opacity);
-
+    
+    this._layout.shader = shader;
     // apply layout and geometry
-    _layout.use(true);
+    this._layout.use(true);
 
     // apply orthographic projection
     shader.setUniformMatrix('u_matrix', this._context.ortho);
@@ -140,9 +144,7 @@ export class MaterialRenderer implements RendererPlugin {
     // bind graphic image texture 'uniform sampler2D u_graphic;'
     gl.activeTexture(gl.TEXTURE0 + 0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    material.getShader().setUniformInt('u_graphic', 0);
-
-    // bind additional textures
+    shader.setUniformInt('u_graphic', 0);
 
     // bind quad index buffer
     this._quads.bind();
@@ -150,14 +152,6 @@ export class MaterialRenderer implements RendererPlugin {
     // Draw a single quad
     gl.drawElements(gl.TRIANGLES, 6, this._quads.bufferGlType, 0);
   }
-
-  // private _bindTextures(gl: WebGLRenderingContext) {
-  //   // Bind textures in the correct order
-  //   for (let i = 0; i < this._maxTextures; i++) {
-  //     gl.activeTexture(gl.TEXTURE0 + i);
-  //     gl.bindTexture(gl.TEXTURE_2D, this._textures[i] || this._textures[0]);
-  //   }
-  // }
 
   private _addImageAsTexture(image: HTMLImageSource) {
     const maybeFiltering = image.getAttribute('filtering');
@@ -177,14 +171,6 @@ export class MaterialRenderer implements RendererPlugin {
 
     return texture;
   }
-
-  // private _getTextureIdForImage(image: HTMLImageSource) {
-  //   if (image) {
-  //     const maybeTexture = this._context.textureLoader.get(image);
-  //     return this._textures.indexOf(maybeTexture);
-  //   }
-  //   return -1;
-  // }
 
   hasPendingDraws(): boolean {
     return false;
