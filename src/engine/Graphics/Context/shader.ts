@@ -1,4 +1,4 @@
-import { Color, Vector } from '../..';
+import { Color, Logger, Vector } from '../..';
 import { Matrix } from '../../Math/matrix';
 import { getAttributeComponentSize, getAttributePointerType } from './webgl-util';
 
@@ -85,6 +85,7 @@ export interface ShaderOptions {
 
 export class Shader {
   private static _ACTIVE_SHADER_INSTANCE: Shader = null;
+  private _logger = Logger.getInstance();
   private _gl: WebGL2RenderingContext;
   public program: WebGLProgram;
   public uniforms: { [variableName: string]: UniformDefinition } = {};
@@ -200,6 +201,10 @@ export class Shader {
     this.setUniform('uniform1i', name, ~~value);
   }
 
+  trySetUniformInt(name: string, value: number): boolean {
+    return this.trySetUniform('uniform1i', name, ~~value);
+  }
+
   /**
    * Set an integer array uniform for the current shader
    *
@@ -210,6 +215,10 @@ export class Shader {
    */
   setUniformIntArray(name: string, value: number[]) {
     this.setUniform('uniform1iv', name, value);
+  }
+
+  trySetUniformIntArray(name: string, value: number[]): boolean {
+    return this.trySetUniform('uniform1iv', name, value);
   }
 
   /**
@@ -224,6 +233,10 @@ export class Shader {
     this.setUniform('uniform1i', name, value ? 1 : 0);
   }
 
+  trySetUniformBoolean(name: string, value: boolean): boolean {
+    return this.trySetUniform('uniform1i', name, value ? 1 : 0);
+  }
+
   /**
    * Set a float uniform for the current shader
    *
@@ -234,6 +247,10 @@ export class Shader {
    */
   setUniformFloat(name: string, value: number) {
     this.setUniform('uniform1f', name, value);
+  }
+
+  trySetUniformFloat(name: string, value: number): boolean {
+    return this.trySetUniform('uniform1f', name, value);
   }
 
   /**
@@ -248,6 +265,10 @@ export class Shader {
     this.setUniform('uniform1fv', name, value);
   }
 
+  trySetUniformFloatArray(name: string, value: number[]): boolean {
+    return this.trySetUniform('uniform1fv', name, value);
+  }
+
   /**
    * Set a [[Vector]] uniform for the current shader
    *
@@ -258,6 +279,10 @@ export class Shader {
    */
   setUniformFloatVector(name: string, value: Vector) {
     this.setUniform('uniform2f', name, value.x, value.y);
+  }
+  
+  trySetUniformFloatVector(name: string, value: Vector): boolean {
+    return this.trySetUniform('uniform2f', name, value.x, value.y);
   }
 
   /**
@@ -272,6 +297,10 @@ export class Shader {
     this.setUniform('uniform4f', name, value.r / 255, value.g / 255, value.b / 255, value.a);
   }
 
+  trySetUniformFloatColor(name: string, value: Color): boolean {
+    return this.trySetUniform('uniform4f', name, value.r / 255, value.g / 255, value.b / 255, value.a);
+  }
+
   /**
    * Set an [[Matrix]] uniform for the current shader
    *
@@ -282,6 +311,10 @@ export class Shader {
    */
   setUniformMatrix(name: string, value: Matrix) {
     this.setUniform('uniformMatrix4fv', name, false, value.data);
+  }
+
+  trySetUniformMatrix(name: string, value: Matrix): boolean {
+    return this.trySetUniform('uniformMatrix4fv', name, false, value.data);
   }
 
   /**
@@ -306,6 +339,35 @@ export class Shader {
       throw Error(`Uniform ${uniformType}:${name} doesn\'t exist or is not used in the shader source code,`+
       ' unused uniforms are optimized away by most browsers');
     }
+  }
+
+  /**
+   * Set any available uniform type in webgl. Will try to set the uniform, will return false if the uniform didn't exist, true if it was set.
+   *
+   * WILL NOT THROW on error
+   *
+   * For example setUniform('uniformMatrix2fv', 'u_my2x2_mat`, ...);
+   * 
+   */
+  trySetUniform<TUniformType extends UniformTypeNames>(uniformType: TUniformType, name: string, ...value: UniformParameters<TUniformType>): boolean {
+    if (!this._compiled) {
+      this._logger.warn(`Must compile shader before setting a uniform ${uniformType}:${name}`)
+      return false;
+    }
+    if (!this.isCurrentlyBound()) {
+      this._logger.warn('Currently accessed shader instance is not the current active shader in WebGL,' +
+      ' must call `shader.use()` before setting uniforms');
+      return false;
+    }
+    const gl = this._gl;
+    const location = gl.getUniformLocation(this.program, name);
+    if (location) {
+      const args = [location, ...value];
+      this._gl[uniformType].apply(this._gl, args);
+    } else {
+      return false;
+    }
+    return true;
   }
 
   private _createProgram(gl: WebGLRenderingContext, vertexShader: WebGLShader, fragmentShader: WebGLShader): WebGLProgram {

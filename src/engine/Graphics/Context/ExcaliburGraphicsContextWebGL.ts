@@ -31,8 +31,9 @@ import { CircleRenderer } from './circle-renderer/circle-renderer';
 import { Pool } from '../../Util/Pool';
 import { DrawCall } from './draw-call';
 import { AffineMatrix } from '../../Math/affine-matrix';
-import { Material } from './material';
+import { Material, MaterialOptions } from './material';
 import { MaterialRenderer } from './material-renderer/material-renderer';
+import { Shader, ShaderOptions } from './shader';
 
 export const pixelSnapEpsilon = 0.0001;
 
@@ -472,12 +473,44 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     }
   }
 
+  /**
+   * Sets the current state to use a custom material when drawing images with `ctx.drawImage()`
+   * @param material
+   */
   public useMaterial(material: Material): void {
     this._state.current.material = material
   }
 
-  public getMaterial(): Material {
+
+  /**
+   * Gets the current state's custom material if any
+   * @returns
+   */
+  public getMaterial(): Material | null {
     return this._state.current.material;
+  }
+
+  /**
+   * Creates and initializes the material which compiles the internal shader
+   * @param options
+   * @returns
+   */
+  public createMaterial(options: MaterialOptions): Material {
+    const material = new Material(options);
+    material.initialize(this.__gl, this);
+    return material;
+  }
+
+  public createShader(options: Omit<ShaderOptions, 'gl'>): Shader {
+    const gl = this.__gl;
+    const { vertexSource, fragmentSource } = options;
+    const shader = new Shader({
+      gl,
+      vertexSource,
+      fragmentSource
+    });
+    shader.compile();
+    return shader;
   }
 
   clear() {

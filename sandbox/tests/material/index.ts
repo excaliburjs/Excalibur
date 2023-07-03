@@ -12,23 +12,6 @@ var tex = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48
 
 var loader = new ex.Loader([tex]);
 
-var vertexSource = `#version 300 es
-in vec2 a_position;
-
-in vec2 a_uv;
-out vec2 v_uv;
-
-uniform mat4 u_matrix;
-uniform mat4 u_transform;
-
-void main() {
-  // Set the vertex position using the ortho & transform matrix
-  gl_Position = u_matrix * u_transform * vec4(a_position, 0.0, 1.0);
-
-  // Pass through the UV coord to the fragment shader
-  v_uv = a_uv;
-}
-`
 var fragmentSource = `#version 300 es
 precision mediump float;
 
@@ -84,7 +67,7 @@ vec4 texture2DAA(sampler2D tex, vec2 uv) {
 void main() {
    vec4 color = u_color;
 
-   color = textureBlocky(u_graphic, v_uv, u_resolution); // texture2DAA(u_graphic, v_uv); //texture(u_graphic, v_uv);
+   color = texture(u_graphic, v_uv);
    color.rgb = color.rgb * u_opacity;
    color.a = color.a * u_opacity;
   
@@ -92,18 +75,11 @@ void main() {
 }
 `
 
-
-var shader = new ex.Shader({
-  gl: (game.graphicsContext as ex.ExcaliburGraphicsContextWebGL).__gl,
-  vertexSource,
-  fragmentSource
-});
-
-var material = new ex.Material({
+var material = game.graphicsContext.createMaterial({
   name: 'test',
-  shader,
+  fragmentSource,
   color: ex.Color.Red
-});
+})
 
 var actor = new ex.Actor({x: 100, y: 100, width: 50, height: 50});
 actor.onInitialize = () => {
@@ -128,7 +104,7 @@ actor2.onInitialize = () => {
   actor2.graphics.add(sprite);
   const shader = material.getShader();
   shader.use()
-  shader.setUniformFloatVector('u_resolution', ex.vec(game.canvas.width, game.canvas.height));
+  shader.trySetUniformFloatVector('u_resolution', ex.vec(game.canvas.width, game.canvas.height));
   actor2.graphics.material = material;
 };
 actor2.angularVelocity = .2;

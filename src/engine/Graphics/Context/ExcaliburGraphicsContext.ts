@@ -3,7 +3,7 @@ import { Color } from '../../Color';
 import { ScreenDimension } from '../../Screen';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
 import { AffineMatrix } from '../../Math/affine-matrix';
-import { Material } from './material';
+import { Material, MaterialOptions } from './material';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
 
@@ -258,6 +258,19 @@ export interface ExcaliburGraphicsContext {
    * @param material 
    */
   useMaterial(material: Material): void;
+
+  /**
+   * Gets the current state's custom material if any
+   * @returns
+   */
+  getMaterial(): Material | null;
+
+  /**
+   * Creates and initializes the material which compiles the internal shader
+   * @param options
+   * @returns
+   */
+  createMaterial(options: MaterialOptions): Material;
 
   /**
    * Clears the screen with the current background color

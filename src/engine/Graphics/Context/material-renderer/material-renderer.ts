@@ -56,6 +56,9 @@ export class MaterialRenderer implements RendererPlugin {
 
     // Extract context info
     const material = this._context.getMaterial();
+
+    // TODO initialize elsewhere?
+    material.initialize(gl, this._context);
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
 
@@ -128,23 +131,23 @@ export class MaterialRenderer implements RendererPlugin {
     // apply material
     material.use();
 
-    // TODO weird place for this
-    shader.setUniformFloat('u_opacity', opacity);
-    
     this._layout.shader = shader;
     // apply layout and geometry
     this._layout.use(true);
 
+    // apply opacity
+    shader.trySetUniformFloat('u_opacity', opacity);
+
     // apply orthographic projection
-    shader.setUniformMatrix('u_matrix', this._context.ortho);
+    shader.trySetUniformMatrix('u_matrix', this._context.ortho);
 
     // apply geometry transform
-    shader.setUniformMatrix('u_transform', transform.to4x4());
+    shader.trySetUniformMatrix('u_transform', transform.to4x4());
 
     // bind graphic image texture 'uniform sampler2D u_graphic;'
     gl.activeTexture(gl.TEXTURE0 + 0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    shader.setUniformInt('u_graphic', 0);
+    shader.trySetUniformInt('u_graphic', 0);
 
     // bind quad index buffer
     this._quads.bind();
