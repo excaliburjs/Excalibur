@@ -138,6 +138,12 @@ export class MaterialRenderer implements RendererPlugin {
     // apply opacity
     shader.trySetUniformFloat('u_opacity', opacity);
 
+    // apply resolution
+    shader.trySetUniformFloatVector('u_resolution', vec(this._context.width, this._context.height));
+
+    // apply size
+    shader.trySetUniformFloatVector('u_size', vec(sw, sh));
+
     // apply orthographic projection
     shader.trySetUniformMatrix('u_matrix', this._context.ortho);
 

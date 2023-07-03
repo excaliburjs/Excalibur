@@ -22,6 +22,10 @@ uniform sampler2D u_graphic;
 
 uniform vec2 u_resolution;
 
+uniform float iTime;
+
+uniform vec2 u_size;
+
 uniform vec4 u_color;
 
 uniform float u_opacity;
@@ -67,7 +71,20 @@ vec4 texture2DAA(sampler2D tex, vec2 uv) {
 void main() {
    vec4 color = u_color;
 
-   color = texture(u_graphic, v_uv);
+  float effectRadius = .5;
+  float effectAngle = mod(iTime/2., 2.)  * 3.14159;
+
+  vec2 center = vec2(.5, .5);
+  vec2 size = u_size.xy;
+
+  vec2 uv = v_uv - center;
+
+  float len = length(uv * vec2(size.x / size.y, 1.));
+  float angle = atan(uv.y, uv.x) + effectAngle * smoothstep(effectRadius, 0., len);
+  float radius = length(uv);
+  vec2 newUv = vec2(radius * cos(angle), radius * sin(angle)) + center;
+
+   color = texture(u_graphic, newUv);
    color.rgb = color.rgb * u_opacity;
    color.a = color.a * u_opacity;
   
@@ -79,7 +96,8 @@ var material = game.graphicsContext.createMaterial({
   name: 'test',
   fragmentSource,
   color: ex.Color.Red
-})
+});
+
 
 var actor = new ex.Actor({x: 100, y: 100, width: 50, height: 50});
 actor.onInitialize = () => {
@@ -93,6 +111,12 @@ actor.onInitialize = () => {
   actor.graphics.add(sprite);
 };
 var actor2 = new ex.Actor({x: 300, y: 300, width: 50, height: 50});
+var time = 0;
+actor2.onPostUpdate = (_, delta) => {
+  time += (delta / 1000);
+  material.getShader().use();
+  material.getShader().trySetUniformFloat('iTime', time);
+}
 actor2.onInitialize = () => {
   var sprite = new ex.Sprite({
     image: tex,
@@ -102,9 +126,6 @@ actor2.onInitialize = () => {
     }
   });
   actor2.graphics.add(sprite);
-  const shader = material.getShader();
-  shader.use()
-  shader.trySetUniformFloatVector('u_resolution', ex.vec(game.canvas.width, game.canvas.height));
   actor2.graphics.material = material;
 };
 actor2.angularVelocity = .2;
