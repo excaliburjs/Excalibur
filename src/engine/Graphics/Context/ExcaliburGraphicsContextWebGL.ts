@@ -478,13 +478,13 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
    * @param material
    */
   public useMaterial(material: Material): void {
-    this._state.current.material = material
+    this._state.current.material = material;
   }
 
 
   /**
    * Gets the current state's custom material if any
-   * @returns
+   * @returns Material
    */
   public getMaterial(): Material | null {
     return this._state.current.material;
@@ -493,7 +493,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   /**
    * Creates and initializes the material which compiles the internal shader
    * @param options
-   * @returns
+   * @returns Material
    */
   public createMaterial(options: MaterialOptions): Material {
     const material = new Material(options);

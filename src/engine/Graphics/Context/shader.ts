@@ -201,6 +201,14 @@ export class Shader {
     this.setUniform('uniform1i', name, ~~value);
   }
 
+  /**
+   * Set an integer uniform for the current shader, WILL NOT THROW on error.
+   *
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   *
+   * @param name
+   * @param value
+   */
   trySetUniformInt(name: string, value: number): boolean {
     return this.trySetUniform('uniform1i', name, ~~value);
   }
@@ -217,6 +225,14 @@ export class Shader {
     this.setUniform('uniform1iv', name, value);
   }
 
+  /**
+   * Set an integer array uniform for the current shader, WILL NOT THROW on error.
+   *
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   *
+   * @param name
+   * @param value
+   */
   trySetUniformIntArray(name: string, value: number[]): boolean {
     return this.trySetUniform('uniform1iv', name, value);
   }
@@ -233,6 +249,14 @@ export class Shader {
     this.setUniform('uniform1i', name, value ? 1 : 0);
   }
 
+  /**
+   * Set a boolean uniform for the current shader, WILL NOT THROW on error.
+   *
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   *
+   * @param name
+   * @param value
+   */
   trySetUniformBoolean(name: string, value: boolean): boolean {
     return this.trySetUniform('uniform1i', name, value ? 1 : 0);
   }
@@ -249,6 +273,14 @@ export class Shader {
     this.setUniform('uniform1f', name, value);
   }
 
+  /**
+   * Set a float uniform for the current shader, WILL NOT THROW on error.
+   *
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   *
+   * @param name
+   * @param value
+   */
   trySetUniformFloat(name: string, value: number): boolean {
     return this.trySetUniform('uniform1f', name, value);
   }
@@ -264,7 +296,14 @@ export class Shader {
   setUniformFloatArray(name: string, value: number[]) {
     this.setUniform('uniform1fv', name, value);
   }
-
+  /**
+   * Set a float array uniform for the current shader, WILL NOT THROW on error.
+   *
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   *
+   * @param name
+   * @param value
+   */
   trySetUniformFloatArray(name: string, value: number[]): boolean {
     return this.trySetUniform('uniform1fv', name, value);
   }
@@ -280,7 +319,15 @@ export class Shader {
   setUniformFloatVector(name: string, value: Vector) {
     this.setUniform('uniform2f', name, value.x, value.y);
   }
-  
+
+  /**
+   * Set a [[Vector]] uniform for the current shader, WILL NOT THROW on error.
+   *
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   *
+   * @param name
+   * @param value
+   */
   trySetUniformFloatVector(name: string, value: Vector): boolean {
     return this.trySetUniform('uniform2f', name, value.x, value.y);
   }
@@ -297,6 +344,14 @@ export class Shader {
     this.setUniform('uniform4f', name, value.r / 255, value.g / 255, value.b / 255, value.a);
   }
 
+  /**
+   * Set a [[Color]] uniform for the current shader, WILL NOT THROW on error.
+   *
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   *
+   * @param name
+   * @param value
+   */
   trySetUniformFloatColor(name: string, value: Color): boolean {
     return this.trySetUniform('uniform4f', name, value.r / 255, value.g / 255, value.b / 255, value.a);
   }
@@ -313,6 +368,14 @@ export class Shader {
     this.setUniform('uniformMatrix4fv', name, false, value.data);
   }
 
+  /**
+   * Set an [[Matrix]] uniform for the current shader, WILL NOT THROW on error.
+   *
+   * **Important** Must call ex.Shader.use() before setting a uniform!
+   *
+   * @param name
+   * @param value
+   */
   trySetUniformMatrix(name: string, value: Matrix): boolean {
     return this.trySetUniform('uniformMatrix4fv', name, false, value.data);
   }
@@ -342,16 +405,20 @@ export class Shader {
   }
 
   /**
-   * Set any available uniform type in webgl. Will try to set the uniform, will return false if the uniform didn't exist, true if it was set.
+   * Set any available uniform type in webgl. Will try to set the uniform, will return false if the uniform didn't exist,
+   * true if it was set.
    *
    * WILL NOT THROW on error
    *
    * For example setUniform('uniformMatrix2fv', 'u_my2x2_mat`, ...);
-   * 
+   *
    */
-  trySetUniform<TUniformType extends UniformTypeNames>(uniformType: TUniformType, name: string, ...value: UniformParameters<TUniformType>): boolean {
+  trySetUniform<TUniformType extends UniformTypeNames>(
+    uniformType: TUniformType,
+    name: string,
+    ...value: UniformParameters<TUniformType>): boolean {
     if (!this._compiled) {
-      this._logger.warn(`Must compile shader before setting a uniform ${uniformType}:${name}`)
+      this._logger.warn(`Must compile shader before setting a uniform ${uniformType}:${name}`);
       return false;
     }
     if (!this.isCurrentlyBound()) {

@@ -125,7 +125,7 @@ export class VertexLayout {
    */
   use(uploadBuffer = false, count?: number) {
     if (!this._shader) {
-      throw Error('No shader is associated with this vertex layout, a shader must be set')
+      throw Error('No shader is associated with this vertex layout, a shader must be set');
     }
 
     const gl = this._gl;

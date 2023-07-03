@@ -1,11 +1,11 @@
-import { vec } from "../../../Math/vector";
-import { ImageFiltering } from "../../Filtering";
-import { HTMLImageSource } from "../ExcaliburGraphicsContext";
-import { ExcaliburGraphicsContextWebGL } from "../ExcaliburGraphicsContextWebGL";
-import { QuadIndexBuffer } from "../quad-index-buffer";
-import { RendererPlugin } from "../renderer";
-import { VertexBuffer } from "../vertex-buffer";
-import { VertexLayout } from "../vertex-layout";
+import { vec } from '../../../Math/vector';
+import { ImageFiltering } from '../../Filtering';
+import { HTMLImageSource } from '../ExcaliburGraphicsContext';
+import { ExcaliburGraphicsContextWebGL } from '../ExcaliburGraphicsContextWebGL';
+import { QuadIndexBuffer } from '../quad-index-buffer';
+import { RendererPlugin } from '../renderer';
+import { VertexBuffer } from '../vertex-buffer';
+import { VertexLayout } from '../vertex-layout';
 
 
 export class MaterialRenderer implements RendererPlugin {
@@ -35,7 +35,7 @@ export class MaterialRenderer implements RendererPlugin {
       vertexBuffer: this._buffer,
       attributes: [
         ['a_position', 2],
-        ['a_uv', 2],
+        ['a_uv', 2]
       ]
     });
 
@@ -56,9 +56,8 @@ export class MaterialRenderer implements RendererPlugin {
 
     // Extract context info
     const material = this._context.getMaterial();
-
-    // TODO initialize elsewhere?
     material.initialize(gl, this._context);
+
     const transform = this._context.getTransform();
     const opacity = this._context.opacity;
 
@@ -185,7 +184,7 @@ export class MaterialRenderer implements RendererPlugin {
     return false;
   }
   flush(): void {
-
+    // flush does not do anything, material renderer renders immediately per draw
   }
 
 }

@@ -253,9 +253,9 @@ export interface ExcaliburGraphicsContext {
 
   /**
    * Sets a material to be used in the current context's drawings
-   * 
+   *
    * This allows customs shaders to be used but draw calls are no longer batched by default.
-   * @param material 
+   * @param material
    */
   useMaterial(material: Material): void;
 
