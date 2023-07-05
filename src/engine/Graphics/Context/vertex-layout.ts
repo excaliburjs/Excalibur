@@ -10,9 +10,9 @@ export interface VertexLayoutOptions {
    */
   gl: WebGL2RenderingContext,
   /**
-   * Shader that this layout will be for
+   * Shader that this layout will be for, if null you must set a shader before using it.
    */
-  shader: Shader;
+  shader?: Shader;
   /**
    * Vertex buffer to use for vertex data
    */
@@ -54,7 +54,9 @@ export class VertexLayout {
     this._vertexBuffer = vertexBuffer;
     this._attributes = attributes;
     this._shader = shader;
-    this.initialize();
+    if (shader) {
+      this.initialize();
+    }
   }
 
   private _vertexTotalSizeBytes = 0;
@@ -65,10 +67,25 @@ export class VertexLayout {
     return this._vertexTotalSizeBytes;
   }
 
+  public set shader(shader: Shader) {
+    if (shader && this._shader !== shader) {
+      this._shader = shader;
+      this.initialize();
+    }
+  }
+
+  public get shader() {
+    return this._shader;
+  }
+
   /**
    * Layouts need shader locations and must be bound to a shader
    */
   initialize() {
+    if (!this._shader) {
+      return;
+    }
+
     if (!this._shader.compiled) {
       throw Error('Shader not compiled, shader must be compiled before defining a vertex layout');
     }
@@ -107,6 +124,10 @@ export class VertexLayout {
    * @param uploadBuffer Optionally indicate you wish to upload the buffer to the GPU associated with this layout
    */
   use(uploadBuffer = false, count?: number) {
+    if (!this._shader) {
+      throw Error('No shader is associated with this vertex layout, a shader must be set');
+    }
+
     const gl = this._gl;
     if (!this._shader.isCurrentlyBound()) {
       throw Error('Shader associated with this vertex layout is not active! Call shader.use() before layout.use()');

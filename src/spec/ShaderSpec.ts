@@ -190,6 +190,71 @@ describe('A Shader', () => {
     +' unused uniforms are optimized away by most browsers');
   });
 
+  it('can try set uniforms', () => {
+    const sut = new ex.Shader({
+      gl,
+      vertexSource: `
+      attribute vec4 a_position;
+      attribute vec3 a_otherposition;
+      uniform int u_int;
+      uniform int u_intarray[4];
+      uniform float u_float;
+      uniform float u_floatarray[5];
+      uniform vec2 u_vec;
+      uniform bool u_bool;
+      uniform mat4 u_mat;
+      uniform int u_unused;
+      // nonsense shader for testing
+      void main() {
+        if (u_bool) {
+          gl_Position = a_position + vec4(a_otherposition, u_float + float(u_int));
+        } else {
+          gl_Position = u_mat * vec4(1.0, u_vec.x, u_vec.y, u_floatarray[1]);
+        }
+        gl_Position = vec4(float(u_intarray[0]), float(u_intarray[1]), float(u_intarray[2]), float(u_intarray[3]));
+      }`,
+      fragmentSource: `
+      void main() {
+        gl_FragColor = vec4(1.0, 0, 0, 1.0);
+      }`
+    });
+    const logger = ex.Logger.getInstance();
+    const loggerSpy = spyOn(logger, 'warn');
+
+    sut.trySetUniformInt('u_int', 0);
+    expect(loggerSpy.calls.argsFor(0)).toEqual([
+      'Must compile shader before setting a uniform uniform1i:u_int'
+    ]);
+
+    sut.compile();
+
+    sut.trySetUniformInt('u_int', 0);
+    expect(loggerSpy.calls.argsFor(1)).toEqual([
+      'Currently accessed shader instance is not the current active shader in WebGL, must call `shader.use()` before setting uniforms'
+    ]);
+    sut.use();
+
+    sut.trySetUniformInt('u_int', 0);
+    sut.trySetUniformIntArray('u_intarray', [0, 1, 2, 3]);
+    sut.trySetUniformFloat('u_float', 5.5);
+    sut.trySetUniformFloatArray('u_floatarray', [5.5, 4.2]);
+    sut.trySetUniformFloatVector('u_vec', ex.vec(1, 2));
+    sut.trySetUniformBoolean('u_bool', false);
+    const matrix = ex.Matrix.identity();
+    sut.setUniformMatrix('u_mat', matrix);
+    sut.setUniform('uniformMatrix4fv', 'u_mat', false, matrix.data);
+
+    expect(() => {
+      sut.trySetUniformFloat('u_doesntexist', 42);
+    }).not.toThrowError('Uniform uniform1f:u_doesntexist doesn\'t exist or is not used in the shader source code,'
+    +' unused uniforms are optimized away by most browsers');
+
+    expect(() => {
+      sut.trySetUniformInt('u_unused', 42);
+    }).not.toThrowError('Uniform uniform1i:u_unused doesn\'t exist or is not used in the shader source code,'
+    +' unused uniforms are optimized away by most browsers');
+  });
+
   it('can have textures set', () => {
     const sut = new ex.Shader({
       gl,

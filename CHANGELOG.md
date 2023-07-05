@@ -18,6 +18,40 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new `ex.Material` to add custom shaders per `ex.Actor`!
+  * This feature cant be applied using the `ex.Actor.graphics.material = material` property or by setting the material property on the `ex.ExcaliburGraphicsContext.material = material` with `.save()/.restore()`
+  * This feature opt out of batch rendering and issues a separate draw call 
+  * A custom vertex shader can be provided, otherwise a default will be provided
+  * A number of default uniforms are available to shaders
+    * Pre-built varyings:
+      * `in vec2 v_uv` - UV coordinate
+    * Pre-built uniforms:
+      * `uniform sampler2D u_graphic` - The current graphic displayed by the GraphicsComponent
+      * `uniform vec2 u_resolution` - The current resolution of the screen
+      * `uniform vec2 u_size;` - The current size of the graphic
+      * `uniform vec4 u_color` - The current color of the material
+      * `uniform float u_opacity` - The current opacity of the graphics context
+  ```typescript
+  const material = new ex.Material({
+    name: 'test',
+    color: ex.Color.Red,
+    fragmentSource: `#version 300 es
+    precision mediump float;
+    // UV coord
+    in vec2 v_uv;
+    uniform sampler2D u_graphic;
+    uniform vec4 u_color;
+    uniform float u_opacity;
+    out vec4 fragColor;
+    void main() {
+      vec4 color = u_color;
+      color = texture(u_graphic, v_uv);
+      color.rgb = color.rgb * u_opacity;
+      color.a = color.a * u_opacity;
+      fragColor = color * u_color;
+    }`
+  });
+  ```
 - Added updates to `ex.PostProcessor` 
   * New optional `ex.PostProcessor.onUpdate` hook for updating custom uniforms
   * Added default uniforms that are automatically added

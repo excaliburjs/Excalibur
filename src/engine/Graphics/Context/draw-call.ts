@@ -10,7 +10,8 @@ export class DrawCall {
   public state: ExcaliburGraphicsContextState = {
     z: 0,
     opacity: 1,
-    tint: Color.White
+    tint: Color.White,
+    material: null
   };
   public args: any[];
 }

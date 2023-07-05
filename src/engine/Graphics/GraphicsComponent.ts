@@ -5,6 +5,7 @@ import { ExcaliburGraphicsContext } from './Context/ExcaliburGraphicsContext';
 import { Logger } from '../Util/Log';
 import { BoundingBox } from '../Collision/Index';
 import { Component } from '../EntityComponentSystem/Component';
+import { Material } from './Context/material';
 
 /**
  * Type guard for checking if a Graphic HasTick (used for graphics that change over time like animations)
@@ -262,6 +263,8 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
   private _graphics: { [graphicName: string]: Graphic } = {};
 
   public layers: GraphicsLayers;
+
+  public material: Material;
 
   public getGraphic(name: string): Graphic | undefined {
     return this._graphics[name];

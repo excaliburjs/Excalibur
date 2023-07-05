@@ -14,6 +14,7 @@ import { DebugText } from './debug-text';
 import { ScreenDimension } from '../../Screen';
 import { PostProcessor } from '../PostProcessor/PostProcessor';
 import { AffineMatrix } from '../../Math/affine-matrix';
+import { Material, MaterialOptions } from './material';
 
 const pixelSnapEpsilon = 0.0001;
 
@@ -327,6 +328,19 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
 
   public endDrawLifecycle() {
     // pass
+  }
+
+  public set material(material: Material) {
+    this._state.current.material = material;
+  }
+
+  public get material(): Material | null {
+    return this._state.current.material;
+  }
+
+  public createMaterial(_options: MaterialOptions): Material {
+    // pass
+    return null;
   }
 
   clear(): void {

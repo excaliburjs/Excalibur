@@ -117,6 +117,11 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
       // Position the entity + estimate lag
       this._applyTransform(entity);
 
+      // If there is a material enable it on the context
+      if (graphics.material) {
+        this._graphicsContext.material = graphics.material;
+      }
+
       // Optionally run the onPreDraw graphics lifecycle draw
       if (graphics.onPreDraw) {
         graphics.onPreDraw(this._graphicsContext, delta);
