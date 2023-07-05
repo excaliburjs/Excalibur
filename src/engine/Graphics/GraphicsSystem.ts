@@ -119,7 +119,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
       // If there is a material enable it on the context
       if (graphics.material) {
-        this._graphicsContext.useMaterial(graphics.material);
+        this._graphicsContext.material = graphics.material;
       }
 
       // Optionally run the onPreDraw graphics lifecycle draw

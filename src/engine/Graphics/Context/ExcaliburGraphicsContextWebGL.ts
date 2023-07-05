@@ -473,20 +473,11 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     }
   }
 
-  /**
-   * Sets the current state to use a custom material when drawing images with `ctx.drawImage()`
-   * @param material
-   */
-  public useMaterial(material: Material): void {
+  public set material(material: Material) {
     this._state.current.material = material;
   }
 
-
-  /**
-   * Gets the current state's custom material if any
-   * @returns Material
-   */
-  public getMaterial(): Material | null {
+  public get material(): Material | null {
     return this._state.current.material;
   }
 

@@ -55,7 +55,7 @@ export class MaterialRenderer implements RendererPlugin {
     const gl = this._gl;
 
     // Extract context info
-    const material = this._context.getMaterial();
+    const material = this._context.material;
     material.initialize(gl, this._context);
 
     const transform = this._context.getTransform();

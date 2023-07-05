@@ -66,12 +66,12 @@ describe('A Material', () => {
 
     context.clear();
     context.save();
-    context.useMaterial(material);
+    context.material = material;
     context.drawImage(tex.image, 0, 0);
     context.flush();
     context.restore();
 
-    expect(context.getMaterial()).toBe(null);
+    expect(context.material).toBe(null);
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(canvas))
       .toEqualImage('src/spec/images/MaterialRendererSpec/material.png');
   });
@@ -125,7 +125,7 @@ describe('A Material', () => {
     engine.currentScene.draw(context, 100);
     context.flush();
 
-    expect(context.getMaterial()).toBe(null);
+    expect(context.material).toBe(null);
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
       .toEqualImage('src/spec/images/MaterialRendererSpec/material-component.png');
   });

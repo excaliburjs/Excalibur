@@ -330,13 +330,12 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     // pass
   }
 
-  public useMaterial(_material: Material): void {
-    // pass
+  public set material(material: Material) {
+    this._state.current.material = material;
   }
 
-  public getMaterial(): Material | null {
-    // pass
-    return null;
+  public get material(): Material | null {
+    return this._state.current.material;
   }
 
   public createMaterial(_options: MaterialOptions): Material {

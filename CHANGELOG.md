@@ -19,7 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added new `ex.Material` to add custom shaders per `ex.Actor`!
-  * This feature cant be applied using the `ex.Actor.graphics.material = material` property or by setting the material property on the `ex.ExcaliburGraphicsContext.setMaterial(material)`
+  * This feature cant be applied using the `ex.Actor.graphics.material = material` property or by setting the material property on the `ex.ExcaliburGraphicsContext.material = material` with `.save()/.restore()`
   * This feature opt out of batch rendering and issues a separate draw call 
   * A custom vertex shader can be provided, otherwise a default will be provided
   * A number of default uniforms are available to shaders

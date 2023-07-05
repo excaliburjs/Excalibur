@@ -252,18 +252,12 @@ export interface ExcaliburGraphicsContext {
   updatePostProcessors(delta: number): void;
 
   /**
-   * Sets a material to be used in the current context's drawings
+   * Gets or sets the material to be used in the current context's drawings
    *
    * This allows customs shaders to be used but draw calls are no longer batched by default.
    * @param material
    */
-  useMaterial(material: Material): void;
-
-  /**
-   * Gets the current state's custom material if any
-   * @returns
-   */
-  getMaterial(): Material | null;
+  material: Material;
 
   /**
    * Creates and initializes the material which compiles the internal shader
