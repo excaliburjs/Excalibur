@@ -20,6 +20,17 @@ describe('An entity', () => {
     expect(e.has('C')).toBe(true);
   });
 
+  it('can override existing components', () => {
+    const e = new ex.Entity([
+      new FakeComponent('A')
+    ]);
+
+    spyOn(e, 'removeComponent');
+    const newComponent = new FakeComponent('A');
+    e.addComponent(newComponent, true);
+    expect(e.removeComponent).toHaveBeenCalledWith(newComponent, true);
+  });
+
   it('has a unique id', () => {
     const entity1 = new ex.Entity();
     const entity2 = new ex.Entity();
