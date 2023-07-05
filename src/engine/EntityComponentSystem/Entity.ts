@@ -333,7 +333,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
     if (this.has(component.type)) {
       if (force) {
         // Remove existing component type if exists when forced
-        this.removeComponent(component);
+        this.removeComponent(component, true);
       } else {
         // early exit component exits
         return this;

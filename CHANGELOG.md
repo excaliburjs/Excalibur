@@ -100,6 +100,7 @@ are returned
 
 ### Fixed
 
+- Fixed issue where overriding existing components did not work properly because of deferred component removal
 - Fixed issue where `ex.ScreenElement` pointer events were not working by default.
 - Fixed issue where setting lineWidth on `ex.Circle` was not accounted for in the bitmap
 - Fixed issue in macos where the meta key would prevent keyup's from firing correctly
