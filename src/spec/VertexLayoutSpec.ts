@@ -1,3 +1,4 @@
+
 import * as ex from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 
@@ -48,6 +49,70 @@ describe('A VertexLayout', () => {
         attributes: []
       });
     }).not.toThrow();
+  });
+
+  it('requires a shader to use', () => {
+    const shader = new ex.Shader({
+      gl,
+      vertexSource: `
+      attribute vec2 a_position;
+      // nonsense shader for testing
+      void main() {
+        gl_Position = vec4(a_position, 0, 1.0);
+      }`,
+      fragmentSource: `
+      void main() {
+        gl_FragColor = vec4(1.0, 0, 0, 1.0);
+      }`
+    });
+    const vertexBuffer = new ex.VertexBuffer({
+      gl,
+      size: 2 * 100,
+      type: 'dynamic'
+    });
+    expect(() => {
+      const sut = new ex.VertexLayout({
+        gl,
+        vertexBuffer,
+        attributes: [
+          ['a_position', 2]
+        ]
+      });
+      sut.use();
+    }).toThrowError('No shader is associated with this vertex layout, a shader must be set');
+  });
+
+  it('requires a shader to be bound to use', () => {
+    const shader = new ex.Shader({
+      gl,
+      vertexSource: `
+      attribute vec2 a_position;
+      // nonsense shader for testing
+      void main() {
+        gl_Position = vec4(a_position, 0, 1.0);
+      }`,
+      fragmentSource: `
+      void main() {
+        gl_FragColor = vec4(1.0, 0, 0, 1.0);
+      }`
+    });
+    shader.compile();
+    const vertexBuffer = new ex.VertexBuffer({
+      gl,
+      size: 2 * 100,
+      type: 'dynamic'
+    });
+    expect(() => {
+      const sut = new ex.VertexLayout({
+        gl,
+        shader,
+        vertexBuffer,
+        attributes: [
+          ['a_position', 2]
+        ]
+      });
+      sut.use();
+    }).toThrowError('Shader associated with this vertex layout is not active! Call shader.use() before layout.use()');
   });
 
   it('requires a compiled shader', () => {
