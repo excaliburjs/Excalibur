@@ -6,7 +6,8 @@ export interface MaterialOptions {
   /**
    * Name the material for debugging
    */
-  name: string;
+  name?: string;
+
   /**
    * Optionally specify a vertex shader
    *
@@ -50,10 +51,11 @@ export interface MaterialOptions {
    *
    */
   fragmentSource: string,
+
   /**
-   * Add custom color
+   * Add custom color, by default ex.Color.Transparent
    */
-  color: Color,
+  color?: Color,
 }
 
 const defaultVertexSource = `#version 300 es
@@ -77,7 +79,7 @@ void main() {
 export class Material {
   private _name: string;
   private _shader: Shader;
-  private _color: Color;
+  private _color: Color = Color.Transparent;
   private _initialized = false;
   private _fragmentSource: string;
   private _vertexSource: string;
@@ -86,7 +88,7 @@ export class Material {
     this._name = name;
     this._vertexSource = vertexSource ?? defaultVertexSource;
     this._fragmentSource = fragmentSource;
-    this._color = color;
+    this._color = color ?? this._color;
   }
 
   initialize(_gl: WebGL2RenderingContext, _context: ExcaliburGraphicsContextWebGL) {
@@ -103,7 +105,7 @@ export class Material {
   }
 
   get name() {
-    return this._name;
+    return this._name ?? 'anonymous material';
   }
 
   getShader(): Shader | null {
@@ -117,7 +119,7 @@ export class Material {
       // Apply standard uniforms
       this._shader.trySetUniformFloatColor('u_color', this._color);
     } else {
-      throw Error('Material not yet initialized, use the ExcaliburGraphicsContext.createMaterial() to work around this');
+      throw Error(`Material ${this.name} not yet initialized, use the ExcaliburGraphicsContext.createMaterial() to work around this.`);
     }
   }
 }
