@@ -4,7 +4,7 @@ import { ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 
 describe('A Material', () => {
   beforeAll(() => {
-    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers)
+    jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
 
   it('exists', () => {
