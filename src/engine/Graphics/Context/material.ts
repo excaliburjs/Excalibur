@@ -46,6 +46,7 @@ export interface MaterialOptions {
    *
    * * `uniform sampler2D u_graphic` - The current graphic displayed by the GraphicsComponent
    * * `uniform vec2 u_resolution` - The current resolution of the screen
+   * * `uniform vec2 u_size;` - The current size of the graphic
    * * `uniform vec4 u_color` - The current color of the material
    * * `uniform float u_opacity` - The current opacity of the graphics context
    *
