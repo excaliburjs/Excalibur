@@ -431,6 +431,10 @@ export class Scene<TActivationData = unknown>
    */
   public add(actor: Actor): void;
 
+  /**
+   * Adds an [[Entity]] to the scene, once this is done the [[Actor]] will be drawn and updated.
+   * @param entity The entity to add to the current scene
+   */
   public add(entity: Entity): void;
 
   /**
@@ -448,6 +452,83 @@ export class Scene<TActivationData = unknown>
       }
       return;
     }
+  }
+
+
+
+  /**
+   * Removes a [[Timer]] from it's current scene
+   * and adds it to this scene.
+   *
+   * Useful if you want to have an object be present in only 1 scene at a time.
+   * @param timer The Timer to transfer to the current scene
+   */
+  public transfer(timer: Timer): void;
+
+  /**
+   * Removes a [[TileMap]] from it's current scene
+   * and adds it to this scene.
+   *
+   * Useful if you want to have an object be present in only 1 scene at a time.
+   * @param tileMap The TileMap to transfer to the current scene
+   */
+  public transfer(tileMap: TileMap): void;
+
+  /**
+   * Removes a [[Trigger]] from it's current scene
+   * and adds it to this scene.
+   *
+   * Useful if you want to have an object be present in only 1 scene at a time.
+   * @param trigger The Trigger to transfer to the current scene
+   */
+  public transfer(trigger: Trigger): void;
+
+  /**
+   * Removes an [[Actor]] from it's current scene
+   * and adds it to this scene.
+   *
+   * Useful if you want to have an object be present in only 1 scene at a time.
+   * @param actor The Actor to transfer to the current scene
+   */
+  public transfer(actor: Actor): void;
+
+  /**
+   * Removes an [[Entity]] from it's current scene
+   * and adds it to this scene.
+   *
+   * Useful if you want to have an object be present in only 1 scene at a time.
+   * @param entity The Entity to transfer to the current scene
+   */
+  public transfer(entity: Entity): void;
+
+  /**
+   * Removes a [[ScreenElement]] from it's current scene
+   * and adds it to this scene.
+   *
+   * Useful if you want to have an object be present in only 1 scene at a time.
+   * @param screenElement The ScreenElement to transfer to the current scene
+   */
+  public transfer(screenElement: ScreenElement): void;
+
+  /**
+   * Removes an [[Entity]] (Actor, TileMap, Trigger, etc) or [[Timer]] from it's current scene
+   * and adds it to this scene.
+   *
+   * Useful if you want to have an object be present in only 1 scene at a time.
+   * @param entity
+   */
+  public transfer(entity: any): void {
+    let scene: Scene;
+    if (entity instanceof Entity && entity.scene && entity.scene !== this) {
+      scene = entity.scene;
+      entity.scene.world.remove(entity, false);
+    }
+    if (entity instanceof Timer && entity.scene) {
+      scene = entity.scene;
+      entity.scene.removeTimer(entity);
+    }
+    scene?.emit('entityremoved', { target: entity } as any);
+    this.add(entity);
   }
 
   /**

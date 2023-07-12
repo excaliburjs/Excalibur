@@ -18,6 +18,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new `ex.Scene.transfer(actor)` method for transferring actors between scenes, useful if you want to only have an actor in 1 scene at a time.
 - Added new `ex.Material` to add custom shaders per `ex.Actor`!
   * This feature cant be applied using the `ex.Actor.graphics.material = material` property or by setting the material property on the `ex.ExcaliburGraphicsContext.material = material` with `.save()/.restore()`
   * This feature opt out of batch rendering and issues a separate draw call 
