@@ -518,13 +518,16 @@ export class Scene<TActivationData = unknown>
    * @param entity
    */
   public transfer(entity: any): void {
+    let scene: Scene;
     if (entity instanceof Entity && entity.scene && entity.scene !== this) {
-      this.emit('entityremoved', { target: entity } as any);
+      scene = entity.scene;
       entity.scene.world.remove(entity, false);
     }
-    if (entity instanceof Timer) {
-      this.removeTimer(entity);
+    if (entity instanceof Timer && entity.scene) {
+      scene = entity.scene;
+      entity.scene.removeTimer(entity);
     }
+    scene?.emit('entityremoved', { target: entity } as any);
     this.add(entity);
   }
 
