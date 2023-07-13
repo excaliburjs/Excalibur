@@ -154,11 +154,24 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
   private _drawGraphicsComponent(graphicsComponent: GraphicsComponent) {
     if (graphicsComponent.visible) {
-      // this should be moved to the graphics system
+      let flipHorizontal = graphicsComponent.flipHorizontal;
+      let flipVertical = graphicsComponent.flipVertical;
+      // let bounds = graphicsComponent.localBounds;
+      if (flipHorizontal) {
+        // this._graphicsContext.translate(bounds.width, 0);
+        this._graphicsContext.scale(-1, 1);
+      }
+
+      if (flipVertical) {
+        // this._graphicsContext.translate(0, bounds.height);
+        this._graphicsContext.scale(1, -1);
+      }
+
       for (const layer of graphicsComponent.layers.get()) {
         for (const { graphic, options } of layer.graphics) {
           let anchor = graphicsComponent.anchor;
           let offset = graphicsComponent.offset;
+
           if (options?.anchor) {
             anchor = options.anchor;
           }

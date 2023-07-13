@@ -308,6 +308,16 @@ export class GraphicsComponent extends Component<'ex.graphics'> {
   public anchor: Vector = Vector.Half;
 
   /**
+   * Flip all graphics horizontally along the y-axis
+   */
+  public flipHorizontal: boolean = false;
+
+  /**
+   * Flip all graphics vertically along the x-axis
+   */
+  public flipVertical: boolean = false;
+
+  /**
    * If set to true graphics added to the component will be copied. This can affect performance
    */
   public copyGraphics: boolean = false;
