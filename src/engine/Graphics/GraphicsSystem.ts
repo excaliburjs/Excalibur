@@ -156,14 +156,11 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     if (graphicsComponent.visible) {
       let flipHorizontal = graphicsComponent.flipHorizontal;
       let flipVertical = graphicsComponent.flipVertical;
-      // let bounds = graphicsComponent.localBounds;
       if (flipHorizontal) {
-        // this._graphicsContext.translate(bounds.width, 0);
         this._graphicsContext.scale(-1, 1);
       }
 
       if (flipVertical) {
-        // this._graphicsContext.translate(0, bounds.height);
         this._graphicsContext.scale(1, -1);
       }
 
