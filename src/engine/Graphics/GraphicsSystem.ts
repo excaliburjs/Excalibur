@@ -154,8 +154,8 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
   private _drawGraphicsComponent(graphicsComponent: GraphicsComponent) {
     if (graphicsComponent.visible) {
-      let flipHorizontal = graphicsComponent.flipHorizontal;
-      let flipVertical = graphicsComponent.flipVertical;
+      const flipHorizontal = graphicsComponent.flipHorizontal;
+      const flipVertical = graphicsComponent.flipVertical;
       if (flipHorizontal) {
         this._graphicsContext.scale(-1, 1);
       }
