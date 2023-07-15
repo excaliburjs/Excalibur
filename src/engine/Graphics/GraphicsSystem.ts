@@ -156,6 +156,8 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     if (graphicsComponent.visible) {
       const flipHorizontal = graphicsComponent.flipHorizontal;
       const flipVertical = graphicsComponent.flipVertical;
+      const flipXMultiplier = flipHorizontal ? -1 : 1;
+      const flipYMultiplier = flipVertical ? -1 : 1;
       if (flipHorizontal) {
         this._graphicsContext.scale(-1, 1);
       }
@@ -169,6 +171,7 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
           let anchor = graphicsComponent.anchor;
           let offset = graphicsComponent.offset;
 
+          // handle layer specific overrides
           if (options?.anchor) {
             anchor = options.anchor;
           }
@@ -176,10 +179,13 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
             offset = options.offset;
           }
           // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-          const offsetX = -graphic.width * anchor.x + offset.x;
-          const offsetY = -graphic.height * anchor.y + offset.y;
+          let offsetX = -graphic.width * anchor.x + offset.x * flipXMultiplier;
+          let offsetY = -graphic.height * anchor.y + offset.y * flipYMultiplier;
 
-          graphic?.draw(this._graphicsContext, offsetX + layer.offset.x, offsetY + layer.offset.y);
+          graphic?.draw(
+            this._graphicsContext,
+            offsetX + layer.offset.x,
+            offsetY + layer.offset.y);
 
           if (this._engine?.isDebug && this._engine.debug.graphics.showBounds) {
             const offset = vec(offsetX + layer.offset.x, offsetY + layer.offset.y);
