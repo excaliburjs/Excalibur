@@ -235,4 +235,143 @@ describe('A Graphics ECS System', () => {
     await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
       .toEqualImage('src/spec/images/GraphicsSystemSpec/graphics-context-opacity.png');
   });
+
+  it('can flip graphics horizontally', async () => {
+    const sut = new ex.GraphicsSystem();
+    const offscreenSystem = new ex.OffscreenSystem();
+    engine.currentScene.camera.update(engine, 1);
+    engine.currentScene._initialize(engine);
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
+    offscreenSystem.initialize(engine.currentScene);
+    sut.initialize(engine.currentScene);
+
+    const sword = new ex.ImageSource('src/spec/images/GraphicsSystemSpec/sword.png');
+    await sword.load();
+
+    const actor = new ex.Actor({
+      x: 50,
+      y: 50,
+      height: 100,
+      width: 100
+    });
+    actor.graphics.use(sword.toSprite());
+    actor.graphics.flipHorizontal = true;
+
+    sut.notify(new ex.AddedEntity(actor));
+
+    offscreenSystem.update([actor]);
+
+    engine.graphicsContext.clear();
+    sut.preupdate();
+    sut.update([actor], 1);
+
+    engine.graphicsContext.flush();
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+      .toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-horizontal.png');
+  });
+
+  it('can flip graphics vertically', async () => {
+    const sut = new ex.GraphicsSystem();
+    const offscreenSystem = new ex.OffscreenSystem();
+    engine.currentScene.camera.update(engine, 1);
+    engine.currentScene._initialize(engine);
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
+    offscreenSystem.initialize(engine.currentScene);
+    sut.initialize(engine.currentScene);
+
+    const sword = new ex.ImageSource('src/spec/images/GraphicsSystemSpec/sword.png');
+    await sword.load();
+
+    const actor = new ex.Actor({
+      x: 50,
+      y: 50,
+      height: 100,
+      width: 100
+    });
+    actor.graphics.use(sword.toSprite());
+    actor.graphics.flipVertical = true;
+
+    sut.notify(new ex.AddedEntity(actor));
+
+    offscreenSystem.update([actor]);
+
+    engine.graphicsContext.clear();
+    sut.preupdate();
+    sut.update([actor], 1);
+
+    engine.graphicsContext.flush();
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+      .toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-vertical.png');
+  });
+
+  it('can flip graphics both horizontally and vertically', async () => {
+    const sut = new ex.GraphicsSystem();
+    const offscreenSystem = new ex.OffscreenSystem();
+    engine.currentScene.camera.update(engine, 1);
+    engine.currentScene._initialize(engine);
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
+    offscreenSystem.initialize(engine.currentScene);
+    sut.initialize(engine.currentScene);
+
+    const sword = new ex.ImageSource('src/spec/images/GraphicsSystemSpec/sword.png');
+    await sword.load();
+
+    const actor = new ex.Actor({
+      x: 50,
+      y: 50,
+      height: 100,
+      width: 100
+    });
+    actor.graphics.use(sword.toSprite());
+    actor.graphics.flipVertical = true;
+    actor.graphics.flipHorizontal = true;
+
+    sut.notify(new ex.AddedEntity(actor));
+
+    offscreenSystem.update([actor]);
+
+    engine.graphicsContext.clear();
+    sut.preupdate();
+    sut.update([actor], 1);
+
+    engine.graphicsContext.flush();
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+      .toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-both.png');
+  });
+
+  it('can flip graphics both horizontally and vertically with an offset', async () => {
+    const sut = new ex.GraphicsSystem();
+    const offscreenSystem = new ex.OffscreenSystem();
+    engine.currentScene.camera.update(engine, 1);
+    engine.currentScene._initialize(engine);
+    engine.screen.setCurrentCamera(engine.currentScene.camera);
+    offscreenSystem.initialize(engine.currentScene);
+    sut.initialize(engine.currentScene);
+
+    const sword = new ex.ImageSource('src/spec/images/GraphicsSystemSpec/sword.png');
+    await sword.load();
+
+    const actor = new ex.Actor({
+      x: 50,
+      y: 50,
+      height: 100,
+      width: 100
+    });
+    actor.graphics.use(sword.toSprite());
+    actor.graphics.flipVertical = true;
+    actor.graphics.flipHorizontal = true;
+    actor.graphics.offset = ex.vec(25, 25);
+
+    sut.notify(new ex.AddedEntity(actor));
+
+    offscreenSystem.update([actor]);
+
+    engine.graphicsContext.clear();
+    sut.preupdate();
+    sut.update([actor], 1);
+
+    engine.graphicsContext.flush();
+    await expectAsync(TestUtils.flushWebGLCanvasTo2D(engine.canvas))
+      .toEqualImage('src/spec/images/GraphicsSystemSpec/sword-flip-both-offset.png');
+  });
 });

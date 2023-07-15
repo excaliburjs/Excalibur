@@ -18,6 +18,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new convenience properties for flipping all the graphics on an Actor
+  * `ex.Actor.graphics.flipHorizontal` - Flips all the graphics horizontally
+  * `ex.Actor.graphics.flipVertical` - Flips all the graphics vertically
 - Added new `ex.Scene.transfer(actor)` method for transferring actors between scenes, useful if you want to only have an actor in 1 scene at a time.
 - Added new `ex.Material` to add custom shaders per `ex.Actor`!
   * This feature cant be applied using the `ex.Actor.graphics.material = material` property or by setting the material property on the `ex.ExcaliburGraphicsContext.material = material` with `.save()/.restore()`
@@ -135,6 +138,7 @@ are returned
 
 ### Fixed
 
+- Fixed issue where `ex.Text.flipHorizontal` or `ex.Text.flipVertical` would not work
 - Fixed issue where overriding existing components did not work properly because of deferred component removal
 - Fixed issue where `ex.ScreenElement` pointer events were not working by default.
 - Fixed issue where setting lineWidth on `ex.Circle` was not accounted for in the bitmap

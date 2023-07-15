@@ -108,12 +108,7 @@ export class Text extends Graphic {
     // This override erases the default behavior
   }
 
-  protected override _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
-    let color = Color.Black;
-    if (this.font instanceof Font) {
-      color = this.color ?? this.font.color;
-    }
-
+  protected override _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
     if (this.isStale() || this.font.isStale()) {
       this.font.flipHorizontal = this.flipHorizontal;
       this.font.flipVertical = this.flipVertical;
@@ -122,6 +117,14 @@ export class Text extends Graphic {
       this.font.opacity = this.opacity;
     }
     this.font.tint = this.tint;
+    super._preDraw(ex, x, y);
+  }
+
+  protected override _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number) {
+    let color = Color.Black;
+    if (this.font instanceof Font) {
+      color = this.color ?? this.font.color;
+    }
 
     const { width, height } = this.font.measureText(this._text, this.maxWidth);
     this._textWidth = width;
