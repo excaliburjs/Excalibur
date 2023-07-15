@@ -156,15 +156,6 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
     if (graphicsComponent.visible) {
       const flipHorizontal = graphicsComponent.flipHorizontal;
       const flipVertical = graphicsComponent.flipVertical;
-      const flipXMultiplier = flipHorizontal ? -1 : 1;
-      const flipYMultiplier = flipVertical ? -1 : 1;
-      if (flipHorizontal) {
-        this._graphicsContext.scale(-1, 1);
-      }
-
-      if (flipVertical) {
-        this._graphicsContext.scale(1, -1);
-      }
 
       for (const layer of graphicsComponent.layers.get()) {
         for (const { graphic, options } of layer.graphics) {
@@ -179,13 +170,23 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
             offset = options.offset;
           }
           // See https://github.com/excaliburjs/Excalibur/pull/619 for discussion on this formula
-          let offsetX = -graphic.width * anchor.x + offset.x * flipXMultiplier;
-          let offsetY = -graphic.height * anchor.y + offset.y * flipYMultiplier;
+          const offsetX = -graphic.width * anchor.x + offset.x;
+          const offsetY = -graphic.height * anchor.y + offset.y;
+
+          const oldFlipHorizontal = graphic.flipHorizontal;
+          const oldFlipVertical = graphic.flipVertical;
+
+          // flip any currently flipped graphics
+          graphic.flipHorizontal = flipHorizontal ? !oldFlipHorizontal : oldFlipHorizontal;
+          graphic.flipVertical = flipVertical ? !oldFlipVertical : oldFlipVertical;
 
           graphic?.draw(
             this._graphicsContext,
             offsetX + layer.offset.x,
             offsetY + layer.offset.y);
+
+          graphic.flipHorizontal = oldFlipHorizontal;
+          graphic.flipVertical = oldFlipVertical;
 
           if (this._engine?.isDebug && this._engine.debug.graphics.showBounds) {
             const offset = vec(offsetX + layer.offset.x, offsetY + layer.offset.y);
