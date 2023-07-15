@@ -175,18 +175,22 @@ export class GraphicsSystem extends System<TransformComponent | GraphicsComponen
 
           const oldFlipHorizontal = graphic.flipHorizontal;
           const oldFlipVertical = graphic.flipVertical;
+          if (flipHorizontal || flipVertical) {
 
-          // flip any currently flipped graphics
-          graphic.flipHorizontal = flipHorizontal ? !oldFlipHorizontal : oldFlipHorizontal;
-          graphic.flipVertical = flipVertical ? !oldFlipVertical : oldFlipVertical;
+            // flip any currently flipped graphics
+            graphic.flipHorizontal = flipHorizontal ? !oldFlipHorizontal : oldFlipHorizontal;
+            graphic.flipVertical = flipVertical ? !oldFlipVertical : oldFlipVertical;
+          }
 
           graphic?.draw(
             this._graphicsContext,
             offsetX + layer.offset.x,
             offsetY + layer.offset.y);
 
-          graphic.flipHorizontal = oldFlipHorizontal;
-          graphic.flipVertical = oldFlipVertical;
+          if (flipHorizontal || flipVertical) {
+            graphic.flipHorizontal = oldFlipHorizontal;
+            graphic.flipVertical = oldFlipVertical;
+          }
 
           if (this._engine?.isDebug && this._engine.debug.graphics.showBounds) {
             const offset = vec(offsetX + layer.offset.x, offsetY + layer.offset.y);
