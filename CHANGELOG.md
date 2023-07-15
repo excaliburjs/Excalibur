@@ -138,6 +138,7 @@ are returned
 
 ### Fixed
 
+- Fixed issue where `ex.Text.flipHorizontal` or `ex.Text.flipVertical` would not work
 - Fixed issue where overriding existing components did not work properly because of deferred component removal
 - Fixed issue where `ex.ScreenElement` pointer events were not working by default.
 - Fixed issue where setting lineWidth on `ex.Circle` was not accounted for in the bitmap
