@@ -52,10 +52,70 @@ import * as events from './Events';
 export { events as Events };
 
 // ex.Input namespace
+// TODO deprecated import site remove in v0.29.0
 import * as input from './Input/Index';
 export { input as Input };
-export { PointerComponent } from './Input/Index';
+
+export {
+  WheelEvent
+} from './Input/WheelEvent';
+
+export {
+  PointerEvent
+} from './Input/PointerEvent';
+
+export {
+  WheelDeltaMode
+} from './Input/WheelDeltaMode';
+
+export {
+  PointerButton
+} from './Input/PointerButton';
+
+export {
+  NativePointerButton
+} from './Input/NativePointerButton';
+
+export {
+  CapturePointerConfig
+} from './Input/CapturePointerConfig';
+
+export {
+  EngineInput
+} from './Input/EngineInput';
+
+export {
+  NativePointerEvent,
+  NativeMouseEvent,
+  NativeTouchEvent,
+  NativeWheelEvent,
+  PointerInitOptions,
+  PointerEventReceiver
+} from './Input/PointerEventReceiver';
+
+export { PointerComponent } from './Input/PointerComponent';
 export { PointerSystem } from './Input/PointerSystem';
+export { PointerType } from './Input/PointerType';
+export { PointerScope } from './Input/PointerScope';
+
+export {
+  Gamepads,
+  Gamepad,
+  Buttons,
+  Axes,
+  NavigatorGamepads,
+  NavigatorGamepad,
+  NavigatorGamepadButton,
+  NavigatorGamepadEvent,
+  GamepadConfiguration
+} from './Input/Gamepad';
+
+export {
+  Keys,
+  KeyEvent,
+  KeyboardInitOptions,
+  Keyboard
+} from './Input/Keyboard';
 
 // ex.Util namespaces
 import * as util from './Util/Index';
