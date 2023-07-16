@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecated
 
+- The `ex.Input.*` import site is deprecated, will be removed in v0.29.0. All the imports are still available on `ex.` now
 - [[ex.Input.Gamepad]] `isButtonPressed` has been renamed to `isButtonHeld`
 - `ex.EventDispatcher` is marked deprecated, will eventually be removed in v0.29.0
 
