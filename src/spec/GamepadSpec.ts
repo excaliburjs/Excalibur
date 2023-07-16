@@ -120,7 +120,7 @@ describe('A gamepad', () => {
     expect(currentButton).toBeNull();
     expect(currentValue).toBeNull();
 
-    for (const button in ex.Input.Buttons) {
+    for (const button in ex.Buttons) {
       if (typeof button === 'number') {
         engine.input.gamepads.update();
         nav.setGamepadButton(0, button, 1.0);

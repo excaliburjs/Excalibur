@@ -11,7 +11,7 @@ class Scene1 extends ex.Scene {
 
     _engine.input.pointers.primary.on(
       "down",
-      (event: ex.Input.PointerEvent): void => {
+      (event: ex.PointerEvent): void => {
         _engine.goToScene("scene2");
       }
     );

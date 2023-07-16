@@ -50,16 +50,16 @@ var player = new ex.Actor({
 player.onPostUpdate = () => {
   player.vel.setTo(0, 0);
   const speed = 64;
-  if (game.input.keyboard.isHeld(ex.Input.Keys.Right)) {
+  if (game.input.keyboard.isHeld(ex.Keys.Right)) {
      player.vel.x = speed;
   }
-  if (game.input.keyboard.isHeld(ex.Input.Keys.Left)) {
+  if (game.input.keyboard.isHeld(ex.Keys.Left)) {
      player.vel.x = -speed;
   }
-  if (game.input.keyboard.isHeld(ex.Input.Keys.Up)) {
+  if (game.input.keyboard.isHeld(ex.Keys.Up)) {
      player.vel.y = -speed;
   }
-  if (game.input.keyboard.isHeld(ex.Input.Keys.Down)) {
+  if (game.input.keyboard.isHeld(ex.Keys.Down)) {
      player.vel.y = speed;
   }
 }

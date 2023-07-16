@@ -5,10 +5,10 @@ var game = new ex.Engine({
   height: 400
 });
 
-game.input.keyboard.on('up', (ev: ex.Input.KeyEvent) => {
-  if (ev.key === ex.Input.Keys.W) {
+game.input.keyboard.on('up', (ev: ex.KeyEvent) => {
+  if (ev.key === ex.Keys.W) {
     increaseTimescale();
-  } else if (ev.key === ex.Input.Keys.S) {
+  } else if (ev.key === ex.Keys.S) {
     decreaseTimescale();
   }
 });

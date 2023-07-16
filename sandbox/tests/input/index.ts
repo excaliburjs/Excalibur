@@ -10,22 +10,22 @@ game.input.gamepads.enabled = true;
 // Move box with Gamepad axes and D-pad
 box.on('postupdate', (ue: ex.PostUpdateEvent) => {
   var pad1 = game.input.gamepads.at(0);
-  var axesLeftX = pad1.getAxes(ex.Input.Axes.LeftStickX);
-  var axesLeftY = pad1.getAxes(ex.Input.Axes.LeftStickY);
+  var axesLeftX = pad1.getAxes(ex.Axes.LeftStickX);
+  var axesLeftY = pad1.getAxes(ex.Axes.LeftStickY);
 
   // Right/Left
-  if (game.input.keyboard.isHeld(ex.Input.Keys.Right) || pad1.isButtonPressed(ex.Input.Buttons.DpadRight)) {
+  if (game.input.keyboard.isHeld(ex.Keys.Right) || pad1.isButtonPressed(ex.Buttons.DpadRight)) {
     box.vel.x = 20;
-  } else if (game.input.keyboard.isHeld(ex.Input.Keys.Left) || pad1.isButtonPressed(ex.Input.Buttons.DpadLeft)) {
+  } else if (game.input.keyboard.isHeld(ex.Keys.Left) || pad1.isButtonPressed(ex.Buttons.DpadLeft)) {
     box.vel.x = -20;
   } else if (!axesLeftX && !axesLeftY) {
     box.vel.x = 0;
   }
 
   // Up/Down
-  if (game.input.keyboard.isHeld(ex.Input.Keys.Up) || pad1.isButtonPressed(ex.Input.Buttons.DpadUp)) {
+  if (game.input.keyboard.isHeld(ex.Keys.Up) || pad1.isButtonPressed(ex.Buttons.DpadUp)) {
     box.vel.y = -20;
-  } else if (game.input.keyboard.isHeld(ex.Input.Keys.Down) || pad1.isButtonPressed(ex.Input.Buttons.DpadDown)) {
+  } else if (game.input.keyboard.isHeld(ex.Keys.Down) || pad1.isButtonPressed(ex.Buttons.DpadDown)) {
     box.vel.y = 20;
   } else if (!axesLeftY && !axesLeftX) {
     box.vel.y = 0;

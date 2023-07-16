@@ -19,13 +19,13 @@ game.on('postupdate', (ue: ex.PostUpdateEvent) => {
   var keys = game.input.keyboard
     .getKeys()
     .map((k) => {
-      return (ex.Input.Keys[k] || 'Unknown') + '(' + k.toString() + ')';
+      return (ex.Keys[k] || 'Unknown') + '(' + k.toString() + ')';
     })
     .join(', ');
 
   label.text = keys;
 
-  if (game.input.keyboard.wasPressed(ex.Input.Keys.Enter)) {
+  if (game.input.keyboard.wasPressed(ex.Keys.Enter)) {
     console.log("Enter Pressed");
   }
 });

@@ -19,7 +19,7 @@ class GameScene extends ex.Scene {
       tile.data.set("id", 0);
     });
 
-    engine.input.pointers.primary.on("down", (event: ex.Input.PointerEvent): void => {
+    engine.input.pointers.primary.on("down", (event: ex.PointerEvent): void => {
       this.tilemap.tiles.forEach((tile) => {
         const id = tile.data.get("id")!;
         tile.data.set("id", id + 1);

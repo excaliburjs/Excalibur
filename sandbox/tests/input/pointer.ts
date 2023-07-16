@@ -4,7 +4,7 @@ var game = new ex.Engine({
   width: 800,
   height: 600,
   canvasElementId: 'game',
-  pointerScope: ex.Input.PointerScope.Document
+  pointerScope: ex.PointerScope.Document
 });
 var box = new ex.Actor({x: 200, y: 200, width: 100, height: 100, color:  ex.Color.Red});
 var box2 = new ex.Actor({x: 0, y: 0, width: 50, height: 50, color:  ex.Color.White});
@@ -13,14 +13,14 @@ var boxPointerDragging = false;
 
 var uiElement = new ex.ScreenElement({x: 200, y: 0, width: 200, height: 200});
 uiElement.color = ex.Color.Azure;
-uiElement.on('pointerdown', (p: ex.Input.PointerEvent) => {
+uiElement.on('pointerdown', (p: ex.PointerEvent) => {
   console.log(p);
   uiElement.color = ex.Color.Red;
 });
 
 box.addChild(box2);
 // Change color of box when clicked
-box.on('pointerdown', (pe: ex.Input.PointerEvent) => {
+box.on('pointerdown', (pe: ex.PointerEvent) => {
   console.log('box clicked');
   if (box.color.toString() === ex.Color.Red.toString()) {
     box.color = ex.Color.Blue;
@@ -29,7 +29,7 @@ box.on('pointerdown', (pe: ex.Input.PointerEvent) => {
   }
 });
 
-box2.on('pointerdown', (pe: ex.Input.PointerEvent) => {
+box2.on('pointerdown', (pe: ex.PointerEvent) => {
   console.log('box2 clicked');
   pe.cancel();
   if (box2.color.toString() === ex.Color.White.toString()) {
@@ -40,57 +40,57 @@ box2.on('pointerdown', (pe: ex.Input.PointerEvent) => {
 });
 
 // Set drag flag
-box.on('pointerdragstart', (pe: ex.Input.PointerEvent) => {
+box.on('pointerdragstart', (pe: ex.PointerEvent) => {
   boxPointerDragging = true;
 });
 
 // Set drag flag
-box.on('pointerdragend', (pe: ex.Input.PointerEvent) => {
+box.on('pointerdragend', (pe: ex.PointerEvent) => {
   boxPointerDragging = false;
 });
 
 // Drag box around
-box.on('pointerdragmove', (pe: ex.Input.PointerEvent) => {
+box.on('pointerdragmove', (pe: ex.PointerEvent) => {
   if (boxPointerDragging) {
     box.pos = pe.worldPos;
   }
 });
 
 // Drag box around
-box.on('pointerdragleave', (pe: ex.Input.PointerEvent) => {
+box.on('pointerdragleave', (pe: ex.PointerEvent) => {
   if (boxPointerDragging) {
     box.pos = pe.worldPos;
   }
 });
 
-box.on('pointerwheel', (pe: ex.Input.WheelEvent) => {
+box.on('pointerwheel', (pe: ex.WheelEvent) => {
   box.rotation = box.rotation + (pe.deltaY > 0 ? 0.1 : -0.1);
 });
 
 // Follow cursor
-game.input.pointers.primary.on('move', (pe: ex.Input.PointerEvent) => {
+game.input.pointers.primary.on('move', (pe: ex.PointerEvent) => {
   cursor.pos = pe.worldPos;
 });
 
 // Button type
-game.input.pointers.primary.on('down', (pe: ex.Input.PointerEvent) => {
-  document.getElementById('pointer-btn').innerHTML = ex.Input.PointerButton[pe.button];
+game.input.pointers.primary.on('down', (pe: ex.PointerEvent) => {
+  document.getElementById('pointer-btn').innerHTML = ex.PointerButton[pe.button];
 });
-game.input.pointers.primary.on('up', (pe: ex.Input.PointerEvent) => {
+game.input.pointers.primary.on('up', (pe: ex.PointerEvent) => {
   document.getElementById('pointer-btn').innerHTML = 'None';
 });
 
 // Wheel
-game.input.pointers.primary.on('wheel', (pe: ex.Input.WheelEvent) => {
+game.input.pointers.primary.on('wheel', (pe: ex.WheelEvent) => {
   var type: string;
   switch (pe.deltaMode) {
-    case ex.Input.WheelDeltaMode.Pixel:
+    case ex.WheelDeltaMode.Pixel:
       type = 'pixel';
       break;
-    case ex.Input.WheelDeltaMode.Line:
+    case ex.WheelDeltaMode.Line:
       type = 'line';
       break;
-    case ex.Input.WheelDeltaMode.Page:
+    case ex.WheelDeltaMode.Page:
       type = 'page';
       break;
   }
@@ -106,8 +106,8 @@ var paintBrush = {
 };
 
 function handleTouch(color: ex.Color) {
-  return (pe: ex.Input.PointerEvent) => {
-    if (pe.pointerType !== ex.Input.PointerType.Touch) return;
+  return (pe: ex.PointerEvent) => {
+    if (pe.pointerType !== ex.PointerType.Touch) return;
 
     paintBrush.paint(pe.worldPos.x, pe.worldPos.y, color);
   };

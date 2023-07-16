@@ -4,7 +4,7 @@ var engine = new ex.Engine({
   canvasElementId: 'game',
   width: 800,
   height: 300,
-  pointerScope: ex.Input.PointerScope.Canvas
+  pointerScope: ex.PointerScope.Canvas
 });
 engine.showDebug(true);
 engine.debug.body.showAll = true;
@@ -30,13 +30,13 @@ var player = new ex.Actor({
 });
 
 player.update = (e, ms) => {
-  if (engine.input.keyboard.isHeld(ex.Input.Keys.Space)) {
+  if (engine.input.keyboard.isHeld(ex.Keys.Space)) {
     player.vel.x = 0;
   }
-  if (engine.input.keyboard.isHeld(ex.Input.Keys.Left)) {
+  if (engine.input.keyboard.isHeld(ex.Keys.Left)) {
     player.vel.x -= 10;
   }
-  if (engine.input.keyboard.isHeld(ex.Input.Keys.Right)) {
+  if (engine.input.keyboard.isHeld(ex.Keys.Right)) {
     player.vel.x += 10;
   }
   ex.Actor.prototype.update.call(player, e, ms);

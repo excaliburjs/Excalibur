@@ -334,9 +334,9 @@ describe('The engine', () => {
   });
 
   it('will fire wasPressed in onPostUpdate handler', (done) => {
-    engine.input.keyboard.triggerEvent('down', ex.Input.Keys.Enter);
+    engine.input.keyboard.triggerEvent('down', ex.Keys.Enter);
     engine.on('postupdate', () => {
-      if (engine.input.keyboard.wasPressed(ex.Input.Keys.Enter)) {
+      if (engine.input.keyboard.wasPressed(ex.Keys.Enter)) {
         done();
       }
     });
@@ -346,9 +346,9 @@ describe('The engine', () => {
   });
 
   it('will fire wasReleased in onPostUpdate handler', (done) => {
-    engine.input.keyboard.triggerEvent('up', ex.Input.Keys.Enter);
+    engine.input.keyboard.triggerEvent('up', ex.Keys.Enter);
     engine.on('postupdate', () => {
-      if (engine.input.keyboard.wasReleased(ex.Input.Keys.Enter)) {
+      if (engine.input.keyboard.wasReleased(ex.Keys.Enter)) {
         done();
       }
     });
@@ -358,10 +358,10 @@ describe('The engine', () => {
   });
 
   it('will fire isHeld in onPostUpdate handler', () => {
-    engine.input.keyboard.triggerEvent('down', ex.Input.Keys.Enter);
+    engine.input.keyboard.triggerEvent('down', ex.Keys.Enter);
     const held = jasmine.createSpy('held');
     engine.on('postupdate', () => {
-      if (engine.input.keyboard.isHeld(ex.Input.Keys.Enter)) {
+      if (engine.input.keyboard.isHeld(ex.Keys.Enter)) {
         held();
       }
     });

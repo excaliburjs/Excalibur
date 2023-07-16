@@ -22,10 +22,10 @@ tilemap.tiles.forEach(t => {
 tilemap.addComponent(new ex.ParallaxComponent(ex.vec(0.5, 0.5)));
 
 game.input.keyboard.on("press", event => {
-  if (event.key === ex.Input.Keys.ArrowUp) {
+  if (event.key === ex.Keys.ArrowUp) {
     game.currentScene.camera.pos.y -= 10;
   }
-  if (event.key === ex.Input.Keys.ArrowDown) {
+  if (event.key === ex.Keys.ArrowDown) {
     game.currentScene.camera.pos.y += 10;
   }
 });

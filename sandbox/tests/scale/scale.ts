@@ -26,7 +26,7 @@ game.add(aim);
 
 // uncomment loader after adding resources
 game.start(loader).then(() => {
-  game.input.pointers.primary.on('move', (ev: ex.Input.PointerEvent) => {
+  game.input.pointers.primary.on('move', (ev: ex.PointerEvent) => {
     target.pos.setTo(ev.worldPos.x, ev.worldPos.y);
 
     var aimVec = target.pos.sub(aim.pos);

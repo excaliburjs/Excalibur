@@ -37,19 +37,19 @@ game.add(actor);
 var speed = 100;
 
 game.input.keyboard.on('press', (evt) => {
-  if (evt.key === ex.Input.Keys.Up) {
+  if (evt.key === ex.Keys.Up) {
     actor.vel.y = -speed;
   }
 
-  if (evt.key === ex.Input.Keys.Down) {
+  if (evt.key === ex.Keys.Down) {
     actor.vel.y = +speed;
   }
 
-  if (evt.key === ex.Input.Keys.Left) {
+  if (evt.key === ex.Keys.Left) {
     actor.vel.x = -speed;
   }
 
-  if (evt.key === ex.Input.Keys.Right) {
+  if (evt.key === ex.Keys.Right) {
     actor.vel.x = +speed;
   }
 });

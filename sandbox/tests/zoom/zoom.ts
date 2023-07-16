@@ -36,35 +36,35 @@ document.addEventListener('mousedown', (ev: MouseEvent) => {
   console.log(game.screenToWorldCoordinates(new ex.Vector(ev.offsetX, ev.offsetY)));
 });
 
-target.on('pointerdown', (ev: ex.Input.PointerEvent) => {
+target.on('pointerdown', (ev: ex.PointerEvent) => {
   target.color = ex.Color.Green.clone();
 });
 
-target.on('pointerup', (ev: ex.Input.PointerEvent) => {
+target.on('pointerup', (ev: ex.PointerEvent) => {
   target.color = ex.Color.Red.clone();
 });
 
 game.add(target);
 
-game.input.keyboard.on('down', (ev: ex.Input.KeyEvent) => {
-  if (ev.key === ex.Input.Keys.NumAdd /* + */) {
+game.input.keyboard.on('down', (ev: ex.KeyEvent) => {
+  if (ev.key === ex.Keys.NumAdd /* + */) {
     game.currentScene.camera.zoomOverTime((currentZoom += 0.03));
   }
-  if (ev.key === ex.Input.Keys.NumSubtract /* - */) {
+  if (ev.key === ex.Keys.NumSubtract /* - */) {
     game.currentScene.camera.zoomOverTime((currentZoom -= 0.03));
   }
 
   var currentFocus = game.currentScene.camera.getFocus();
-  if (ev.key === ex.Input.Keys.Left) {
+  if (ev.key === ex.Keys.Left) {
     game.currentScene.camera.x = currentFocus.x - 10;
   }
-  if (ev.key === ex.Input.Keys.Right) {
+  if (ev.key === ex.Keys.Right) {
     game.currentScene.camera.x = currentFocus.x + 10;
   }
-  if (ev.key === ex.Input.Keys.Up) {
+  if (ev.key === ex.Keys.Up) {
     game.currentScene.camera.y = currentFocus.y - 10;
   }
-  if (ev.key === ex.Input.Keys.Down) {
+  if (ev.key === ex.Keys.Down) {
     game.currentScene.camera.y = currentFocus.y + 10;
   }
 });

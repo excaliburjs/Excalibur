@@ -77,20 +77,20 @@ ceiling.body.collisionType = ex.CollisionType.Fixed;
 ceiling.collider.useBoxCollider(600, 10); // optional
 game.add(ceiling);
 
-game.input.keyboard.on('down', (evt: ex.Input.KeyEvent) => {
-  if (evt.key === ex.Input.Keys.Up) {
+game.input.keyboard.on('down', (evt: ex.KeyEvent) => {
+  if (evt.key === ex.Keys.Up) {
     spawnRocket('up');
   }
 
-  if (evt.key === ex.Input.Keys.Down) {
+  if (evt.key === ex.Keys.Down) {
     spawnRocket('down');
   }
 
-  if (evt.key === ex.Input.Keys.Left) {
+  if (evt.key === ex.Keys.Left) {
     spawnRocket('left');
   }
 
-  if (evt.key === ex.Input.Keys.Right) {
+  if (evt.key === ex.Keys.Right) {
     spawnRocket('right');
   }
 });

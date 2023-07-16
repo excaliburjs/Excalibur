@@ -4,7 +4,7 @@ var game = new ex.Engine({
   width: 600,
   height: 400,
   canvasElementId: 'game',
-  pointerScope: ex.Input.PointerScope.Canvas
+  pointerScope: ex.PointerScope.Canvas
 });
 
 var spriteFontTex = new ex.ImageSource('spritefont.png');
