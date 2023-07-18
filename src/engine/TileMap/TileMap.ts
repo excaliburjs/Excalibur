@@ -129,6 +129,7 @@ export class TileMap extends Entity {
     }
   }
 
+  private _oldScale: Vector;
   public get scale(): Vector {
     return this._transform?.scale ?? Vector.One;
   }
@@ -192,7 +193,8 @@ export class TileMap extends Entity {
     this._composite = this._collider.useCompositeCollider([]);
 
     this._transform.pos = options.pos ?? Vector.Zero;
-    this._oldPos = this._transform.pos;
+    this._oldPos = this._transform.pos.clone();
+    this._oldScale = this._transform.scale.clone();
     this.renderFromTopOfGraphic = options.renderFromTopOfGraphic ?? this.renderFromTopOfGraphic;
     this.tileWidth = options.tileWidth;
     this.tileHeight = options.tileHeight;
@@ -224,8 +226,8 @@ export class TileMap extends Entity {
     this._graphics.localBounds = new BoundingBox({
       left: 0,
       top: 0,
-      right: this.columns * this.tileWidth,
-      bottom: this.rows * this.tileHeight
+      right: this.columns * this.tileWidth * this.scale.x,
+      bottom: this.rows * this.tileHeight * this.scale.y
     });
   }
 
@@ -269,7 +271,7 @@ export class TileMap extends Entity {
           if (tile.getColliders().length > 0) {
             for (const collider of tile.getColliders()) {
               const originalOffset = this._getOrSetColliderOriginalOffset(collider);
-              collider.offset = vec(tile.x * this.tileWidth, tile.y * this.tileHeight).add(originalOffset);
+              collider.offset = vec(tile.x * this.tileWidth * this.scale.x, tile.y * this.tileHeight * this.scale.y).add(originalOffset);
               collider.owner = this;
               this._composite.addCollider(collider);
             }
@@ -332,8 +334,8 @@ export class TileMap extends Entity {
    * returns `null` if no Tile was found.
    */
   public getTileByPoint(point: Vector): Tile {
-    const x = Math.floor((point.x - this.pos.x) / this.tileWidth);
-    const y = Math.floor((point.y - this.pos.y) / this.tileHeight);
+    const x = Math.floor((point.x - this.pos.x) / (this.tileWidth * this.scale.x));
+    const y = Math.floor((point.y - this.pos.y) / (this.tileHeight * this.scale.y));
     const tile = this.getTile(x, y);
     if (x >= 0 && y >= 0 && x < this.columns && y < this.rows && tile) {
       return tile;
@@ -352,7 +354,8 @@ export class TileMap extends Entity {
   public update(engine: Engine, delta: number) {
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
-    if (!this._oldPos.equals(this.pos)) {
+    if (!this._oldPos.equals(this.pos) ||
+        !this._oldScale.equals(this.scale)) {
       this.flagCollidersDirty();
       this.flagTilesDirty();
     }
@@ -363,7 +366,8 @@ export class TileMap extends Entity {
 
     this._token++;
 
-
+    this.pos.clone(this._oldPos);
+    this.scale.clone(this._oldScale);
     this._transform.pos = this.pos;
     this.onPostUpdate(engine, delta);
     this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
@@ -399,6 +403,8 @@ export class TileMap extends Entity {
     for (x; x < xEnd; x++) {
       for (y; y < yEnd; y++) {
         tile = this.getTile(x, y);
+        // fixme: This has a large perf impact, we iterate over every tile in the tilemap
+        // this probably requires a spatial data structure to do more efficiently
         if (!worldBounds.overlaps(tile.bounds)) {
           continue;
         }
@@ -499,15 +505,21 @@ export class Tile extends Entity {
    */
   public readonly y: number;
 
+  private _width: number;
   /**
    * Width of the tile in pixels
    */
-  public readonly width: number;
+  public get width(): number {
+    return this._width;
+  }
 
+  private _height: number;
   /**
    * Height of the tile in pixels
    */
-  public readonly height: number;
+  public get height(): number {
+    return this._height;
+  }
 
   /**
    * Reference to the TileMap this tile is associated with
@@ -615,8 +627,8 @@ export class Tile extends Entity {
     this.x = options.x;
     this.y = options.y;
     this.map = options.map;
-    this.width = options.map.tileWidth;
-    this.height = options.map.tileHeight;
+    this._width = options.map.tileWidth * this.map.scale.x;
+    this._height = options.map.tileHeight * this.map.scale.y;
     this.solid = options.solid ?? this.solid;
     this._graphics = options.graphics ?? [];
     this._recalculate();
@@ -627,11 +639,13 @@ export class Tile extends Entity {
   }
 
   private _recalculate() {
+    this._width = this.map.tileWidth * this.map.scale.x;
+    this._height = this.map.tileHeight * this.map.scale.y;
     this._pos = this.map.pos.add(
       vec(
-        this.x * this.map.tileWidth,
-        this.y * this.map.tileHeight));
-    this._bounds = new BoundingBox(this._pos.x, this._pos.y, this._pos.x + this.width, this._pos.y + this.height);
+        this.x * this._width,
+        this.y * this._height));
+    this._bounds = new BoundingBox(this._pos.x, this._pos.y, this._pos.x + this._width, this._pos.y + this._height);
     this._posDirty = false;
   }
 
@@ -652,6 +666,6 @@ export class Tile extends Entity {
     if (this._posDirty) {
       this._recalculate();
     }
-    return new Vector(this._pos.x + this.width / 2, this._pos.y + this.height / 2);
+    return new Vector(this._pos.x + this._width / 2, this._pos.y + this._height / 2);
   }
 }

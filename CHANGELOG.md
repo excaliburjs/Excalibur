@@ -138,6 +138,7 @@ are returned
 
 ### Fixed
 
+- Fixed issue where scaling a `ex.TileMap` didn't properly offscreen cull due to the bounds not scaling properly.
 - Fixed issue where `ex.Text.flipHorizontal` or `ex.Text.flipVertical` would not work
 - Fixed issue where overriding existing components did not work properly because of deferred component removal
 - Fixed issue where `ex.ScreenElement` pointer events were not working by default.
