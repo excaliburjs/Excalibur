@@ -640,7 +640,7 @@ export class Tile extends Entity {
 
   private _recalculate() {
     this._width = this.map.tileWidth * this.map.scale.x;
-    this._height = this.map.tileWidth * this.map.scale.x;
+    this._height = this.map.tileHeight * this.map.scale.y;
     this._pos = this.map.pos.add(
       vec(
         this.x * this._width,
