@@ -37,7 +37,7 @@ describe('A game actor', () => {
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
     collisionSystem.initialize(scene);
-    scene.world.systemManager.get(ex.Input.PointerSystem).initialize(scene);
+    scene.world.systemManager.get(ex.PointerSystem).initialize(scene);
 
     ex.Physics.useArcadePhysics();
     ex.Physics.acc.setTo(0, 0);

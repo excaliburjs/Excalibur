@@ -1,4 +1,8 @@
 import { EX_VERSION } from './';
+import { Gamepads } from './Input/Gamepad';
+import { Keyboard } from './Input/Keyboard';
+import { PointerScope } from './Input/PointerScope';
+import { EngineInput } from './Input/EngineInput';
 import { Flags } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
@@ -34,7 +38,6 @@ import { Scene } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
 import { Debug, DebugStats } from './Debug/Debug';
 import { Class } from './Class';
-import * as Input from './Input/Index';
 import * as Events from './Events';
 import { BrowserEvents } from './Util/Browser';
 import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
@@ -140,7 +143,7 @@ export interface EngineOptions {
    * Configures the pointer scope. Pointers scoped to the 'Canvas' can only fire events within the canvas viewport; whereas, 'Document'
    * (default) scoped will fire anywhere on the page.
    */
-  pointerScope?: Input.PointerScope;
+  pointerScope?: PointerScope;
 
   /**
    * Suppress boot up console message, which contains the "powered by Excalibur message"
@@ -366,7 +369,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
   /**
    * Access engine input like pointer, keyboard, or gamepad
    */
-  public input: Input.EngineInput;
+  public input: EngineInput;
 
   /**
    * Access Excalibur debugging functionality.
@@ -551,7 +554,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
     canvasElementId: '',
     canvasElement: undefined,
     snapToPixel: false,
-    pointerScope: Input.PointerScope.Canvas,
+    pointerScope: PointerScope.Canvas,
     suppressConsoleBootMessage: null,
     suppressMinimumBrowserFeatureDetection: null,
     suppressHiDPIScaling: null,
@@ -578,7 +581,7 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    *   enableCanvasTransparency: true, // the transparencySection of the canvas
    *   canvasElementId: '', // the DOM canvas element ID, if you are providing your own
    *   displayMode: ex.DisplayMode.FullScreen, // the display mode
-   *   pointerScope: ex.Input.PointerScope.Document, // the scope of capturing pointer (mouse/touch) events
+   *   pointerScope: ex.PointerScope.Document, // the scope of capturing pointer (mouse/touch) events
    *   backgroundColor: ex.Color.fromHex('#2185d0') // background color of the engine
    * });
    *
@@ -853,7 +856,7 @@ O|===|* >________________>\n\
 
     // Reset pointers
     this.input.pointers.detach();
-    const pointerTarget = options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas;
+    const pointerTarget = options && options.pointerScope === PointerScope.Document ? document : this.canvas;
     this.input.pointers = this.input.pointers.recreate(pointerTarget, this);
     this.input.pointers.init();
   }
@@ -1106,11 +1109,11 @@ O|===|* >________________>\n\
     this.pageScrollPreventionMode = options.scrollPreventionMode;
 
     // initialize inputs
-    const pointerTarget = options && options.pointerScope === Input.PointerScope.Document ? document : this.canvas;
+    const pointerTarget = options && options.pointerScope === PointerScope.Document ? document : this.canvas;
     this.input = {
-      keyboard: new Input.Keyboard(),
+      keyboard: new Keyboard(),
       pointers: new PointerEventReceiver(pointerTarget, this),
-      gamepads: new Input.Gamepads()
+      gamepads: new Gamepads()
     };
     this.input.keyboard.init({
       grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true

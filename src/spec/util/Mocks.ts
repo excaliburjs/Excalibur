@@ -142,7 +142,7 @@ export namespace Mocks {
             }
           },
           // eslint-disable-next-line
-          pointers: new ex.Input.PointerEventReceiver(window, null),
+          pointers: new ex.PointerEventReceiver(window, null),
           gamepads: {
             update: function () {
               /* do nothing */

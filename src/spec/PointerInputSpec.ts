@@ -12,7 +12,7 @@ describe('A pointer', () => {
    * @param x
    * @param y
    */
-  function executeMouseEvent(type: string, target: HTMLElement, button: ex.Input.NativePointerButton = null, x: number = 0, y: number = 0) {
+  function executeMouseEvent(type: string, target: HTMLElement, button: ex.NativePointerButton = null, x: number = 0, y: number = 0) {
     const evt = new PointerEvent(type, {
       clientX: x,
       clientY: y,
@@ -24,7 +24,7 @@ describe('A pointer', () => {
 
   beforeEach(() => {
     engine = TestUtils.engine({
-      pointerScope: ex.Input.PointerScope.Document
+      pointerScope: ex.PointerScope.Document
     });
     engine.start();
 
@@ -44,21 +44,21 @@ describe('A pointer', () => {
     let eventLeftFired = false;
     let eventRightFired = false;
     let eventMiddleFired = false;
-    engine.input.pointers.primary.on('down', (ev: ex.Input.PointerEvent) => {
-      if (ev.button === ex.Input.PointerButton.Left) {
+    engine.input.pointers.primary.on('down', (ev: ex.PointerEvent) => {
+      if (ev.button === ex.PointerButton.Left) {
         eventLeftFired = true;
       }
-      if (ev.button === ex.Input.PointerButton.Right) {
+      if (ev.button === ex.PointerButton.Right) {
         eventRightFired = true;
       }
-      if (ev.button === ex.Input.PointerButton.Middle) {
+      if (ev.button === ex.PointerButton.Middle) {
         eventMiddleFired = true;
       }
     });
 
-    executeMouseEvent('pointerdown', <any>document, ex.Input.NativePointerButton.Left);
-    executeMouseEvent('pointerdown', <any>document, ex.Input.NativePointerButton.Right);
-    executeMouseEvent('pointerdown', <any>document, ex.Input.NativePointerButton.Middle);
+    executeMouseEvent('pointerdown', <any>document, ex.NativePointerButton.Left);
+    executeMouseEvent('pointerdown', <any>document, ex.NativePointerButton.Right);
+    executeMouseEvent('pointerdown', <any>document, ex.NativePointerButton.Middle);
     // process pointer events
     engine.currentScene.update(engine, 0);
 
@@ -72,21 +72,21 @@ describe('A pointer', () => {
     let eventRightFired = false;
     let eventMiddleFired = false;
 
-    engine.input.pointers.primary.on('up', function (ev: ex.Input.PointerEvent) {
-      if (ev.button === ex.Input.PointerButton.Left) {
+    engine.input.pointers.primary.on('up', function (ev: ex.PointerEvent) {
+      if (ev.button === ex.PointerButton.Left) {
         eventLeftFired = true;
       }
-      if (ev.button === ex.Input.PointerButton.Right) {
+      if (ev.button === ex.PointerButton.Right) {
         eventRightFired = true;
       }
-      if (ev.button === ex.Input.PointerButton.Middle) {
+      if (ev.button === ex.PointerButton.Middle) {
         eventMiddleFired = true;
       }
     });
 
-    executeMouseEvent('pointerup', <any>document, ex.Input.NativePointerButton.Left);
-    executeMouseEvent('pointerup', <any>document, ex.Input.NativePointerButton.Right);
-    executeMouseEvent('pointerup', <any>document, ex.Input.NativePointerButton.Middle);
+    executeMouseEvent('pointerup', <any>document, ex.NativePointerButton.Left);
+    executeMouseEvent('pointerup', <any>document, ex.NativePointerButton.Right);
+    executeMouseEvent('pointerup', <any>document, ex.NativePointerButton.Middle);
     // process pointer events
     engine.currentScene.update(engine, 0);
 
@@ -98,7 +98,7 @@ describe('A pointer', () => {
   it('should fire pointermove events', () => {
     let eventMoveFired = false;
 
-    engine.input.pointers.primary.on('move', function (ev: ex.Input.PointerEvent) {
+    engine.input.pointers.primary.on('move', function (ev: ex.PointerEvent) {
       eventMoveFired = true;
     });
 

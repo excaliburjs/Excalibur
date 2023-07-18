@@ -11,7 +11,7 @@ var engine = new ex.Engine({
   width: width,
   height: height,
   canvasElementId: 'game',
-  pointerScope: ex.Input.PointerScope.Canvas
+  pointerScope: ex.PointerScope.Canvas
 });
 engine.backgroundColor = ex.Color.Black;
 
@@ -32,7 +32,7 @@ engine.currentScene.add(player);
 
 // rotation type buttons
 var shortestPath = new ex.Actor({x: 50, y: 50, width: 50, height: 50, color: ex.Color.White});
-shortestPath.on('pointerdown', (e?: ex.Input.PointerEvent) => {
+shortestPath.on('pointerdown', (e?: ex.PointerEvent) => {
   rotationType = ex.RotationType.ShortestPath;
 });
 engine.add(shortestPath);
@@ -43,7 +43,7 @@ labelShortestPath.font.textAlign = ex.TextAlign.Center;
 engine.add(labelShortestPath);
 
 var longestPath = new ex.Actor({x: 150, y: 50, width: 50, height: 50, color: ex.Color.White});
-longestPath.on('pointerdown', (e?: ex.Input.PointerEvent) => {
+longestPath.on('pointerdown', (e?: ex.PointerEvent) => {
   rotationType = ex.RotationType.LongestPath;
 });
 engine.add(longestPath);
@@ -54,7 +54,7 @@ labelLongestPath.font.textAlign = ex.TextAlign.Center;
 engine.add(labelLongestPath);
 
 var clockwise = new ex.Actor({x: 250, y: 50, width: 50, height: 50, color: ex.Color.White});
-clockwise.on('pointerdown', (e?: ex.Input.PointerEvent) => {
+clockwise.on('pointerdown', (e?: ex.PointerEvent) => {
   rotationType = ex.RotationType.Clockwise;
 });
 engine.add(clockwise);
@@ -65,7 +65,7 @@ labelClockwise.font.textAlign = ex.TextAlign.Center;
 engine.add(labelClockwise);
 
 var counterclockwise = new ex.Actor({x: 350, y: 50, width: 50, height: 50, color: ex.Color.White});
-counterclockwise.on('pointerdown', (e?: ex.Input.PointerEvent) => {
+counterclockwise.on('pointerdown', (e?: ex.PointerEvent) => {
   rotationType = ex.RotationType.CounterClockwise;
 });
 engine.add(counterclockwise);
@@ -75,7 +75,7 @@ labelCounterClockwise.color = ex.Color.White;
 labelCounterClockwise.font.textAlign = ex.TextAlign.Center;
 engine.add(labelCounterClockwise);
 
-engine.input.pointers.primary.on('down', (e: ex.Input.PointerEvent) => {
+engine.input.pointers.primary.on('down', (e: ex.PointerEvent) => {
   if (
     !shortestPath.contains(e.worldPos.x, e.worldPos.y) &&
     !longestPath.contains(e.worldPos.x, e.worldPos.y) &&
@@ -94,8 +94,8 @@ function distance(x1, y1, x2, y2) {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 }
 
-engine.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
-  if (keyDown.key === ex.Input.Keys.D) {
+engine.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
+  if (keyDown.key === ex.Keys.D) {
     engine.toggleDebug();
   }
 });

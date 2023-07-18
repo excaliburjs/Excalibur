@@ -205,7 +205,7 @@ describe('A loader', () => {
   /**
    *
    */
-  function executeMouseEvent(type: string, target: HTMLElement, button: ex.Input.NativePointerButton = null, x: number = 0, y: number = 0) {
+  function executeMouseEvent(type: string, target: HTMLElement, button: ex.NativePointerButton = null, x: number = 0, y: number = 0) {
     const evt = new PointerEvent(type, {
       clientX: x,
       clientY: y,
@@ -232,7 +232,7 @@ describe('A loader', () => {
     const btnClickHandler = jasmine.createSpy('btnClickHandler');
     btn.addEventListener('pointerup', btnClickHandler);
     const rect = btn.getBoundingClientRect();
-    executeMouseEvent('pointerup', btn as any, ex.Input.NativePointerButton.Left, rect.x + rect.width / 2, rect.y + rect.height / 2);
+    executeMouseEvent('pointerup', btn as any, ex.NativePointerButton.Left, rect.x + rect.width / 2, rect.y + rect.height / 2);
 
     expect(pointerHandler).not.toHaveBeenCalled();
     expect(btnClickHandler).toHaveBeenCalled();

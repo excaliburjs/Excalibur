@@ -86,6 +86,15 @@ describe('A ScreenElement', () => {
     expect(sut.collider.get().bounds.bottom).toBe(50);
   });
 
+  it('captures pointer by default', () => {
+    const sut = new ScreenElement({
+      width: 100,
+      height: 100
+    });
+
+    expect(sut.pointer.useGraphicsBounds).toBe(true);
+  });
+
   it('is drawn when visible', () => {
     screenElement.graphics.visible = true;
     screenElement.graphics.onPostDraw = jasmine.createSpy('draw');

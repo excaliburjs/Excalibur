@@ -6,13 +6,13 @@ import { FrameStats } from './Debug';
 import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Side } from './Collision/Side';
-import * as Input from './Input/Index';
 import { CollisionContact } from './Collision/Detection/CollisionContact';
 import { Collider } from './Collision/Colliders/Collider';
 import { Entity } from './EntityComponentSystem/Entity';
 import { OnInitialize, OnPreUpdate, OnPostUpdate, SceneActivationContext } from './Interfaces/LifecycleEvents';
 import { BodyComponent } from './Collision/BodyComponent';
 import { ExcaliburGraphicsContext } from './Graphics';
+import { Axes, Buttons, Gamepad } from './Input/Gamepad';
 
 export enum EventTypes {
   Kill = 'kill',
@@ -318,8 +318,8 @@ export class PostFrameEvent extends GameEvent<Engine> {
 /**
  * Event received when a gamepad is connected to Excalibur. [[Gamepads]] receives this event.
  */
-export class GamepadConnectEvent extends GameEvent<Input.Gamepad> {
-  constructor(public index: number, public gamepad: Input.Gamepad) {
+export class GamepadConnectEvent extends GameEvent<Gamepad> {
+  constructor(public index: number, public gamepad: Gamepad) {
     super();
     this.target = gamepad;
   }
@@ -328,8 +328,8 @@ export class GamepadConnectEvent extends GameEvent<Input.Gamepad> {
 /**
  * Event received when a gamepad is disconnected from Excalibur. [[Gamepads]] receives this event.
  */
-export class GamepadDisconnectEvent extends GameEvent<Input.Gamepad> {
-  constructor(public index: number, public gamepad: Input.Gamepad) {
+export class GamepadDisconnectEvent extends GameEvent<Gamepad> {
+  constructor(public index: number, public gamepad: Gamepad) {
     super();
     this.target = gamepad;
   }
@@ -338,12 +338,12 @@ export class GamepadDisconnectEvent extends GameEvent<Input.Gamepad> {
 /**
  * Gamepad button event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
  */
-export class GamepadButtonEvent extends GameEvent<Input.Gamepad> {
+export class GamepadButtonEvent extends GameEvent<Gamepad> {
   /**
    * @param button  The Gamepad button
    * @param value   A numeric value between 0 and 1
    */
-  constructor(public button: Input.Buttons, public value: number, public target: Input.Gamepad) {
+  constructor(public button: Buttons, public value: number, public target: Gamepad) {
     super();
   }
 }
@@ -351,12 +351,12 @@ export class GamepadButtonEvent extends GameEvent<Input.Gamepad> {
 /**
  * Gamepad axis event. See [[Gamepads]] for information on responding to controller input. [[Gamepad]] instances receive this event;
  */
-export class GamepadAxisEvent extends GameEvent<Input.Gamepad> {
+export class GamepadAxisEvent extends GameEvent<Gamepad> {
   /**
    * @param axis  The Gamepad axis
    * @param value A numeric value between -1 and 1
    */
-  constructor(public axis: Input.Axes, public value: number, public target: Input.Gamepad) {
+  constructor(public axis: Axes, public value: number, public target: Gamepad) {
     super();
   }
 }

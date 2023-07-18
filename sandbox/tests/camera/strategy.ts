@@ -3,7 +3,7 @@
 var game = new ex.Engine({
   width: 600,
   height: 400,
-  pointerScope: ex.Input.PointerScope.Canvas
+  pointerScope: ex.PointerScope.Canvas
 });
 var actor = new ex.Actor({x: 100, y: 100, width: 50, height: 50, color: ex.Color.Red});
 

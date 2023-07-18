@@ -15,28 +15,28 @@ player.graphics.add('default', playerSprite);
 //player.currentDrawing.scale = new ex.Point(0.5, 0.5);
 engine.currentScene.add(player);
 
-engine.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
-  if (keyDown.key === ex.Input.Keys.D) {
+engine.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
+  if (keyDown.key === ex.Keys.D) {
     engine.toggleDebug();
-  } else if (keyDown.key === ex.Input.Keys.Up) {
+  } else if (keyDown.key === ex.Keys.Up) {
     player.vel.y = -speed;
-  } else if (keyDown.key === ex.Input.Keys.Down) {
+  } else if (keyDown.key === ex.Keys.Down) {
     player.vel.y = speed;
-  } else if (keyDown.key === ex.Input.Keys.Left) {
+  } else if (keyDown.key === ex.Keys.Left) {
     player.vel.x = -speed;
-  } else if (keyDown.key === ex.Input.Keys.Right) {
+  } else if (keyDown.key === ex.Keys.Right) {
     player.vel.x = speed;
   }
 });
 
-engine.input.keyboard.on('up', (keyUp?: ex.Input.KeyEvent) => {
-  if (keyUp.key === ex.Input.Keys.Up) {
+engine.input.keyboard.on('up', (keyUp?: ex.KeyEvent) => {
+  if (keyUp.key === ex.Keys.Up) {
     player.vel.y = 0;
-  } else if (keyUp.key === ex.Input.Keys.Down) {
+  } else if (keyUp.key === ex.Keys.Down) {
     player.vel.y = 0;
-  } else if (keyUp.key === ex.Input.Keys.Left) {
+  } else if (keyUp.key === ex.Keys.Left) {
     player.vel.x = 0;
-  } else if (keyUp.key === ex.Input.Keys.Right) {
+  } else if (keyUp.key === ex.Keys.Right) {
     player.vel.x = 0;
   }
 });

@@ -87,7 +87,7 @@ export const playButton: Story = withEngine(
       width: 50,
       height: 50
     });
-    heart.on('pointerdown', async (_evnt: ex.Input.PointerEvent) => {
+    heart.on('pointerdown', async (_evnt: ex.PointerEvent) => {
       if (game.isRunning()) {
         game.stop();
         await loader.showPlayButton();

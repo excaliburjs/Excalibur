@@ -47,7 +47,7 @@ var game = new ex.Engine({
   canvasElementId: 'game',
   pixelRatio: 1,
   suppressPlayButton: true,
-  pointerScope: ex.Input.PointerScope.Canvas,
+  pointerScope: ex.PointerScope.Canvas,
   displayMode: ex.DisplayMode.FitScreenAndFill,
   antialiasing: false,
   snapToPixel: false,
@@ -623,7 +623,7 @@ var airSpeed = 130;
 var jumpSpeed = 500;
 var direction = 1;
 player.on('postupdate', () => {
-  if (game.input.keyboard.isHeld(ex.Input.Keys.Left)) {
+  if (game.input.keyboard.isHeld(ex.Keys.Left)) {
     direction = -1;
     if (!inAir) {
       player.graphics.use(Animations.Left);
@@ -633,7 +633,7 @@ player.on('postupdate', () => {
       return;
     }
     player.vel.x = -groundSpeed;
-  } else if (game.input.keyboard.isHeld(ex.Input.Keys.Right)) {
+  } else if (game.input.keyboard.isHeld(ex.Keys.Right)) {
     direction = 1;
     if (!inAir) {
       player.graphics.use(Animations.Right);
@@ -645,7 +645,7 @@ player.on('postupdate', () => {
     player.vel.x = groundSpeed;
   }
 
-  if (game.input.keyboard.isHeld(ex.Input.Keys.Up)) {
+  if (game.input.keyboard.isHeld(ex.Keys.Up)) {
     if (!inAir) {
       player.vel.y = -jumpSpeed;
       inAir = true;
@@ -659,15 +659,15 @@ player.on('postupdate', () => {
   }
 });
 
-game.input.keyboard.on('up', (e?: ex.Input.KeyEvent) => {
+game.input.keyboard.on('up', (e?: ex.KeyEvent) => {
   if (inAir) return;
 
-  if (e.key === ex.Input.Keys.Left || e.key === ex.Input.Keys.Right) {
+  if (e.key === ex.Keys.Left || e.key === ex.Keys.Right) {
     player.graphics.use(Animations.Idle);
   }
 });
 
-player.on('pointerdown', (e?: ex.Input.PointerEvent) => {
+player.on('pointerdown', (e?: ex.PointerEvent) => {
   // alert('Player clicked!');
 });
 player.on('pointerdown', () => {
@@ -702,8 +702,8 @@ newScene.on('foo', (ev: ex.GameEvent<any>) => {});
 
 game.addScene('label', newScene);
 
-game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
-  if (keyDown.key === ex.Input.Keys.F) {
+game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
+  if (keyDown.key === ex.Keys.F) {
     var a = new ex.Actor({x: player.pos.x + 10, y: player.pos.y - 50, width: 10, height: 10, color: new ex.Color(222, 222, 222)});
     a.vel.x = 200 * direction;
     a.vel.y = 0;
@@ -724,9 +724,9 @@ game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
       inAir = true;
     });
     game.add(a);
-  } else if (keyDown.key === ex.Input.Keys.U) {
+  } else if (keyDown.key === ex.Keys.U) {
     game.goToScene('label');
-  } else if (keyDown.key === ex.Input.Keys.I) {
+  } else if (keyDown.key === ex.Keys.I) {
     game.goToScene('root');
   }
 });
@@ -743,10 +743,10 @@ player.on('postcollision', (data: ex.PostCollisionEvent) => {
     if (
       data.other &&
       !(
-        game.input.keyboard.isHeld(ex.Input.Keys.Left) ||
-        game.input.keyboard.isHeld(ex.Input.Keys.Right) ||
-        game.input.keyboard.isHeld(ex.Input.Keys.Up) ||
-        game.input.keyboard.isHeld(ex.Input.Keys.Down)
+        game.input.keyboard.isHeld(ex.Keys.Left) ||
+        game.input.keyboard.isHeld(ex.Keys.Right) ||
+        game.input.keyboard.isHeld(ex.Keys.Up) ||
+        game.input.keyboard.isHeld(ex.Keys.Down)
       )
     ) {
       player.vel.x = data.other.vel.x;
@@ -785,14 +785,14 @@ player.on('initialize', (evt?: ex.InitializeEvent) => {
   console.log('Player initialized', evt.engine);
 });
 
-game.input.keyboard.on('down', (keyDown?: ex.Input.KeyEvent) => {
-  if (keyDown.key === ex.Input.Keys.B) {
+game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
+  if (keyDown.key === ex.Keys.B) {
     var block = new ex.Actor({x: currentX, y: 350, width: 44, height: 50, color: color});
     currentX += 46;
     block.graphics.add(blockAnimation);
     game.add(block);
   }
-  if (keyDown.key === ex.Input.Keys.D) {
+  if (keyDown.key === ex.Keys.D) {
     game.toggleDebug();
   }
 });
@@ -866,7 +866,7 @@ var trigger = new ex.Trigger({
 
 game.add(trigger);
 
-game.input.pointers.primary.on('down', (evt: ex.Input.PointerEvent) => {
+game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
   var c = tileMap.getTileByPoint(evt.worldPos);
   if (c) {
     if (c.solid) {
@@ -879,11 +879,11 @@ game.input.pointers.primary.on('down', (evt: ex.Input.PointerEvent) => {
   }
 });
 
-game.input.keyboard.on('up', (evt?: ex.Input.KeyEvent) => {
-  if (evt.key == ex.Input.Keys.F) {
+game.input.keyboard.on('up', (evt?: ex.KeyEvent) => {
+  if (evt.key == ex.Keys.F) {
     jump.play();
   }
-  if (evt.key == ex.Input.Keys.S) {
+  if (evt.key == ex.Keys.S) {
     jump.stop();
   }
 });

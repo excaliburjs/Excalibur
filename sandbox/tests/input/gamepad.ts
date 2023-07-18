@@ -34,22 +34,22 @@ function start() {
 
   // Buttons
   var buttonDefs = [
-    [ex.Input.Buttons.Face1, 544, 221],
-    [ex.Input.Buttons.Face2, 573, 193],
-    [ex.Input.Buttons.Face3, 516, 193],
-    [ex.Input.Buttons.Face4, 544, 166],
-    [ex.Input.Buttons.LeftBumper, 250, 100],
-    [ex.Input.Buttons.RightBumper, 547, 100],
-    [ex.Input.Buttons.LeftTrigger, 270, 88],
-    [ex.Input.Buttons.RightTrigger, 524, 88],
-    [ex.Input.Buttons.Select, 365, 193],
-    [ex.Input.Buttons.Start, 436, 193],
-    [ex.Input.Buttons.LeftStick, 330, 272],
-    [ex.Input.Buttons.RightStick, 470, 272],
-    [ex.Input.Buttons.DpadUp, 255, 166],
-    [ex.Input.Buttons.DpadDown, 255, 222],
-    [ex.Input.Buttons.DpadLeft, 227, 193],
-    [ex.Input.Buttons.DpadRight, 284, 193]
+    [ex.Buttons.Face1, 544, 221],
+    [ex.Buttons.Face2, 573, 193],
+    [ex.Buttons.Face3, 516, 193],
+    [ex.Buttons.Face4, 544, 166],
+    [ex.Buttons.LeftBumper, 250, 100],
+    [ex.Buttons.RightBumper, 547, 100],
+    [ex.Buttons.LeftTrigger, 270, 88],
+    [ex.Buttons.RightTrigger, 524, 88],
+    [ex.Buttons.Select, 365, 193],
+    [ex.Buttons.Start, 436, 193],
+    [ex.Buttons.LeftStick, 330, 272],
+    [ex.Buttons.RightStick, 470, 272],
+    [ex.Buttons.DpadUp, 255, 166],
+    [ex.Buttons.DpadDown, 255, 222],
+    [ex.Buttons.DpadLeft, 227, 193],
+    [ex.Buttons.DpadRight, 284, 193]
   ];
   var buttons: { [key: number]: CircleActor } = {};
 
@@ -75,10 +75,10 @@ function start() {
 
     if (pad1) {
       // sticks
-      var leftAxisX = pad1.getAxes(ex.Input.Axes.LeftStickX);
-      var leftAxisY = pad1.getAxes(ex.Input.Axes.LeftStickY);
-      var rightAxisX = pad1.getAxes(ex.Input.Axes.RightStickX);
-      var rightAxisY = pad1.getAxes(ex.Input.Axes.RightStickY);
+      var leftAxisX = pad1.getAxes(ex.Axes.LeftStickX);
+      var leftAxisY = pad1.getAxes(ex.Axes.LeftStickY);
+      var rightAxisX = pad1.getAxes(ex.Axes.RightStickX);
+      var rightAxisY = pad1.getAxes(ex.Axes.RightStickY);
 
       leftStick.pos = ex.vec(330 + leftAxisX * 20, 272 + leftAxisY * 20);
       rightStick.pos = ex.vec(470 + rightAxisX * 20, 272 + rightAxisY * 20);

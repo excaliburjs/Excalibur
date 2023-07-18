@@ -142,27 +142,27 @@ if (block4.within(floor, 200)) {
 }
 
 game.input.keyboard.on('press', (evt) => {
-  if (evt.key === ex.Input.Keys.R) {
+  if (evt.key === ex.Keys.R) {
     block4.rotation += 0.2;
   }
-  if (evt.key === ex.Input.Keys.E) {
+  if (evt.key === ex.Keys.E) {
     block4.rotation -= 0.2;
   }
 
   var keyDist = 5;
-  if (evt.key === ex.Input.Keys.Up) {
+  if (evt.key === ex.Keys.Up) {
     block4.pos.addEqual(new ex.Vector(0, -keyDist));
   }
 
-  if (evt.key === ex.Input.Keys.Down) {
+  if (evt.key === ex.Keys.Down) {
     block4.pos.addEqual(new ex.Vector(0, keyDist));
   }
 
-  if (evt.key === ex.Input.Keys.Right) {
+  if (evt.key === ex.Keys.Right) {
     block4.pos.addEqual(new ex.Vector(keyDist, 0));
   }
 
-  if (evt.key === ex.Input.Keys.Left) {
+  if (evt.key === ex.Keys.Left) {
     block4.pos.addEqual(new ex.Vector(-keyDist, 0));
   }
 });

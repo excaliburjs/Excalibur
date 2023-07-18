@@ -17,7 +17,7 @@ var game = new ex.Engine({
   width: 800,
   height: 600,
   displayMode: ex.DisplayMode.FitContainer,
-  pointerScope: ex.Input.PointerScope.Canvas
+  pointerScope: ex.PointerScope.Canvas
 });
 
 game.start();
