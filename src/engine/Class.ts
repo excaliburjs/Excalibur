@@ -1,18 +1,21 @@
-import { EventDispatcher } from './EventDispatcher';
+import { EventEmitter } from './EventEmitter';
 import { Eventable } from './Interfaces/Evented';
 
 /**
  * Excalibur base class that provides basic functionality such as [[EventDispatcher]]
  * and extending abilities for vanilla Javascript projects
+ * @deprecated Will be removed in v0.29.0
  */
 export class Class implements Eventable {
+  // TODO do we need this Class anymore in v0.29.0?
   /**
    * Direct access to the game object event dispatcher.
+   * @deprecated Will be removed in v0.29.0 Use .events
    */
-  public eventDispatcher: EventDispatcher;
+  public eventDispatcher: EventEmitter;
 
   constructor() {
-    this.eventDispatcher = new EventDispatcher();
+    this.eventDispatcher = new EventEmitter();
   }
 
   /**
@@ -20,6 +23,7 @@ export class Class implements Eventable {
    * events off of the engine; see the events section below for a complete list.
    * @param eventName  Name of the event to listen for
    * @param handler    Event handler for the thrown event
+   * @deprecated
    */
   public on(eventName: string, handler: (event: any) => void) {
     this.eventDispatcher.on(eventName, handler);
@@ -32,6 +36,7 @@ export class Class implements Eventable {
    *
    * @param eventName  Name of the event to listen for
    * @param handler    Event handler for the thrown event
+   * @deprecated
    */
   public off(eventName: string, handler?: (event: any) => void) {
     this.eventDispatcher.off(eventName, handler);
@@ -41,6 +46,7 @@ export class Class implements Eventable {
    * Emits a new event
    * @param eventName   Name of the event to emit
    * @param eventObject Data associated with this event
+   * @deprecated
    */
   public emit(eventName: string, eventObject: any) {
     this.eventDispatcher.emit(eventName, eventObject);
@@ -51,6 +57,7 @@ export class Class implements Eventable {
    *
    * @param eventName The name of the event to subscribe to once
    * @param handler   The handler of the event that will be auto unsubscribed
+   * @deprecated
    */
   public once(eventName: string, handler: (event: any) => void) {
     this.eventDispatcher.once(eventName, handler);

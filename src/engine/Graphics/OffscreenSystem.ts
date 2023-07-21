@@ -47,12 +47,12 @@ export class OffscreenSystem extends System<TransformComponent | GraphicsCompone
       // Figure out if entities are offscreen
       const entityOffscreen = this._isOffscreen(transform, graphics, parallaxOffset);
       if (entityOffscreen && !entity.hasTag('ex.offscreen')) {
-        entity.eventDispatcher.emit('exitviewport', new ExitViewPortEvent(entity));
+        entity.events.emit('exitviewport', new ExitViewPortEvent(entity));
         entity.addTag('ex.offscreen');
       }
 
       if (!entityOffscreen && entity.hasTag('ex.offscreen')) {
-        entity.eventDispatcher.emit('enterviewport', new EnterViewPortEvent(entity));
+        entity.events.emit('enterviewport', new EnterViewPortEvent(entity));
         entity.removeTag('ex.offscreen');
       }
     }
