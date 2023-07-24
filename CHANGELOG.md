@@ -19,6 +19,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added new `ex.InputMapper` for mapping multiple input sources into actions! This can be useful for providing accessibility into your games and allowing users to map inputs to different game commands.
+  ```typescript
+   const moveRight = (amount: number) => { actor.vel.x = 100 * amount }
+   const moveLeft = (amount: number) => { actor.vel.x = -100 * amount }
+   const moveUp = (amount: number) => { actor.vel.y = -100 * amount }
+   const moveDown = (amount: number) => { actor.vel.y = 100 * amount }
+      engine.inputMapper.on(({keyboard}) => keyboard.isKeyPressed(ex.Keys.ArrowRight) ? 1 : 0, moveRight);
+   engine.inputMapper.on(({gamepads}) => gamepads.get(0).isButtonPressed(ex.Buttons.DpadRight) ? 1 : 0, moveRight);
+   engine.inputMapper.on(({gamepads}) => gamepads.get(0).getLeftStick()[0] > 0 ? gamepads.get(0).getLeftStick()[0] : 0, moveRight);
+  ```
 - Added new convenience properties for flipping all the graphics on an Actor
   * `ex.Actor.graphics.flipHorizontal` - Flips all the graphics horizontally
   * `ex.Actor.graphics.flipVertical` - Flips all the graphics vertically
