@@ -1,12 +1,10 @@
 import { Component, ComponentCtor, TagComponent } from './Component';
 
 import { Observable, Message } from '../Util/Observable';
-import { Class } from '../Class';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
-import { EventDispatcher } from '../EventDispatcher';
-import { Scene, Util } from '..';
+import { EventEmitter, EventKey, Handler, Scene, Subscription, Util } from '..';
 
 /**
  * Interface holding an entity component pair
@@ -47,6 +45,21 @@ export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedCom
 }
 
 /**
+ * Built in events supported by all entities
+ */
+export type EntityEvents = {
+  'initialize': InitializeEvent;
+  'preupdate': PreUpdateEvent;
+  'postupdate': PostUpdateEvent;
+};
+
+export const EntityEvents = {
+  Initialize: 'initialize',
+  PreUpdate: 'preupdate',
+  PostUpdate: 'postupdate'
+} as const;
+
+/**
  * An Entity is the base type of anything that can have behavior in Excalibur, they are part of the built in entity component system
  *
  * Entities can be strongly typed with the components they contain
@@ -57,11 +70,15 @@ export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedCom
  * entity.components.b; // Type ComponentB
  * ```
  */
-export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUpdate {
+export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
   private static _ID = 0;
 
+  /**
+   * Listen to or emit events for an entity
+   */
+  public events = new EventEmitter<EntityEvents>();
+
   constructor(components?: Component[], name?: string) {
-    super();
     this._setName(name);
     if (components) {
       for (const component of components) {
@@ -88,10 +105,6 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
   }
   public get name(): string {
     return this._name;
-  }
-
-  public get events(): EventDispatcher {
-    return this.eventDispatcher;
   }
 
   /**
@@ -462,7 +475,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
   public _initialize(engine: Engine) {
     if (!this.isInitialized) {
       this.onInitialize(engine);
-      super.emit('initialize', new InitializeEvent(engine, this));
+      this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
     }
   }
@@ -474,7 +487,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
    * @internal
    */
   public _preupdate(engine: Engine, delta: number): void {
-    this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+    this.events.emit('preupdate', new PreUpdateEvent(engine, delta, this));
     this.onPreUpdate(engine, delta);
   }
 
@@ -485,7 +498,7 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
    * @internal
    */
   public _postupdate(engine: Engine, delta: number): void {
-    this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
+    this.events.emit('postupdate', new PostUpdateEvent(engine, delta, this));
     this.onPostUpdate(engine, delta);
   }
 
@@ -532,5 +545,30 @@ export class Entity extends Class implements OnInitialize, OnPreUpdate, OnPostUp
       child.update(engine, delta);
     }
     this._postupdate(engine, delta);
+  }
+
+  public emit<TEventName extends EventKey<EntityEvents>>(eventName: TEventName, event: EntityEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<EntityEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
+  }
+
+  public on<TEventName extends EventKey<EntityEvents>>(eventName: TEventName, handler: Handler<EntityEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<EntityEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
+  }
+
+  public once<TEventName extends EventKey<EntityEvents>>(eventName: TEventName, handler: Handler<EntityEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<EntityEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<EntityEvents>>(eventName: TEventName, handler: Handler<EntityEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<EntityEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this.events.off(eventName, handler);
   }
 }

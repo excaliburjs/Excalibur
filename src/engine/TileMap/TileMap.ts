@@ -2,8 +2,7 @@ import { BoundingBox } from '../Collision/BoundingBox';
 import { Engine } from '../Engine';
 import { Vector, vec } from '../Math/vector';
 import { Logger } from '../Util/Log';
-import * as Events from '../Events';
-import { Entity } from '../EntityComponentSystem/Entity';
+import { Entity, EntityEvents } from '../EntityComponentSystem/Entity';
 import { TransformComponent } from '../EntityComponentSystem/Components/TransformComponent';
 import { BodyComponent } from '../Collision/BodyComponent';
 import { CollisionType } from '../Collision/CollisionType';
@@ -16,6 +15,8 @@ import { CompositeCollider } from '../Collision/Colliders/CompositeCollider';
 import { Color } from '../Color';
 import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { Collider } from '../Collision/Colliders/Collider';
+import { PostDrawEvent, PostUpdateEvent, PreDrawEvent, PreUpdateEvent } from '../Events';
+import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 
 export interface TileMapOptions {
   /**
@@ -49,12 +50,27 @@ export interface TileMapOptions {
   renderFromTopOfGraphic?: boolean;
 }
 
+export type TileMapEvents = EntityEvents & {
+  preupdate: PreUpdateEvent<TileMap>;
+  postupdate: PostUpdateEvent<TileMap>;
+  predraw: PreDrawEvent;
+  postdraw: PostDrawEvent
+}
+
+export const TileMapEvents = {
+  PreUpdate: 'preupdate',
+  PostUpdate: 'postupdate',
+  PreDraw: 'predraw',
+  PostDraw: 'postdraw'
+};
+
 /**
  * The TileMap provides a mechanism for doing flat 2D tiles rendered in a grid.
  *
  * TileMaps are useful for top down or side scrolling grid oriented games.
  */
 export class TileMap extends Entity {
+  public events = new EventEmitter<TileMapEvents>();
   private _token = 0;
   private _engine: Engine;
 
@@ -157,13 +173,29 @@ export class TileMap extends Entity {
     this._motion.vel = val;
   }
 
-  public on(eventName: Events.preupdate, handler: (event: Events.PreUpdateEvent<TileMap>) => void): void;
-  public on(eventName: Events.postupdate, handler: (event: Events.PostUpdateEvent<TileMap>) => void): void;
-  public on(eventName: Events.predraw, handler: (event: Events.PreDrawEvent) => void): void;
-  public on(eventName: Events.postdraw, handler: (event: Events.PostDrawEvent) => void): void;
-  public on(eventName: string, handler: (event: Events.GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event: any) => void): void {
-    super.on(eventName, handler);
+  public emit<TEventName extends EventKey<TileMapEvents>>(eventName: TEventName, event: TileMapEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
+  }
+
+  public on<TEventName extends EventKey<TileMapEvents>>(eventName: TEventName, handler: Handler<TileMapEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
+  }
+
+  public once<TEventName extends EventKey<TileMapEvents>>(eventName: TEventName, handler: Handler<TileMapEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<TileMapEvents>>(eventName: TEventName, handler: Handler<TileMapEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<TileMapEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this.events.off(eventName, handler);
   }
 
 
@@ -353,7 +385,7 @@ export class TileMap extends Entity {
 
   public update(engine: Engine, delta: number) {
     this.onPreUpdate(engine, delta);
-    this.emit('preupdate', new Events.PreUpdateEvent(engine, delta, this));
+    this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
     if (!this._oldPos.equals(this.pos) ||
         !this._oldScale.equals(this.scale)) {
       this.flagCollidersDirty();
@@ -370,7 +402,7 @@ export class TileMap extends Entity {
     this.scale.clone(this._oldScale);
     this._transform.pos = this.pos;
     this.onPostUpdate(engine, delta);
-    this.emit('postupdate', new Events.PostUpdateEvent(engine, delta, this));
+    this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
   }
 
   /**
@@ -379,7 +411,7 @@ export class TileMap extends Entity {
    * @param delta  The number of milliseconds since the last draw
    */
   public draw(ctx: ExcaliburGraphicsContext, delta: number): void {
-    this.emit('predraw', new Events.PreDrawEvent(ctx as any, delta, this)); // TODO fix event
+    this.emit('predraw', new PreDrawEvent(ctx as any, delta, this)); // TODO fix event
     let worldBounds = this._engine.screen.getWorldBounds();
     // TODO can we trim this down by using world bounds?
     let x = 0;
@@ -426,7 +458,7 @@ export class TileMap extends Entity {
       y = 0;
     }
 
-    this.emit('postdraw', new Events.PostDrawEvent(ctx as any, delta, this));
+    this.emit('postdraw', new PostDrawEvent(ctx as any, delta, this));
   }
 
   public debug(gfx: ExcaliburGraphicsContext) {

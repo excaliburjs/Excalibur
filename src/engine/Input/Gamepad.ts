@@ -1,12 +1,26 @@
-import { Class } from './../Class';
-import { GameEvent, GamepadConnectEvent, GamepadDisconnectEvent, GamepadButtonEvent, GamepadAxisEvent } from '../Events';
-import * as Events from '../Events';
+import { GamepadConnectEvent, GamepadDisconnectEvent, GamepadButtonEvent, GamepadAxisEvent } from '../Events';
+import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
+
+export type GamepadEvents = {
+  connect: GamepadConnectEvent,
+  disconnect: GamepadDisconnectEvent,
+  button: GamepadButtonEvent,
+  axis: GamepadAxisEvent
+}
+
+export const GamepadEvents = {
+  GamepadConnect: 'connect',
+  GamepadDisconnect: 'disconnect',
+  GamepadButton: 'button',
+  GamepadAxis: 'axis'
+};
 
 /**
  * Excalibur leverages the HTML5 Gamepad API [where it is supported](http://caniuse.com/#feat=gamepad)
  * to provide controller support for your games.
  */
-export class Gamepads extends Class {
+export class Gamepads {
+  public events = new EventEmitter<GamepadEvents>();
   /**
    * Whether or not to poll for Gamepad input (default: `false`)
    */
@@ -28,10 +42,6 @@ export class Gamepads extends Class {
   private _initSuccess: boolean = false;
   private _navigator: NavigatorGamepads = <any>navigator;
   private _minimumConfiguration: GamepadConfiguration = null;
-
-  constructor() {
-    super();
-  }
 
   public init() {
     if (!this.supported) {
@@ -90,19 +100,31 @@ export class Gamepads extends Class {
     return axesLength >= this._minimumConfiguration.axis && buttonLength >= this._minimumConfiguration.buttons && pad.connected;
   }
 
-  public on(eventName: Events.connect, handler: (event: GamepadConnectEvent) => void): void;
-  public on(eventName: Events.disconnect, handler: (event: GamepadDisconnectEvent) => void): void;
-  public on(eventName: Events.button, handler: (event: GamepadButtonEvent) => void): void;
-  public on(eventName: Events.axis, handler: (event: GamepadAxisEvent) => void): void;
-  public on(eventName: string, handler: (event: GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event: any) => void): void {
-    this._enableAndUpdate(); // implicitly enable
-    super.on(eventName, handler);
+  public emit<TEventName extends EventKey<GamepadEvents>>(eventName: TEventName, event: GamepadEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<GamepadEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
   }
 
-  public off(eventName: string, handler?: (event: GameEvent<any>) => void) {
+  public on<TEventName extends EventKey<GamepadEvents>>(eventName: TEventName, handler: Handler<GamepadEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<GamepadEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
     this._enableAndUpdate(); // implicitly enable
-    super.off(eventName, handler);
+    return this.events.on(eventName, handler);
+  }
+
+  public once<TEventName extends EventKey<GamepadEvents>>(eventName: TEventName, handler: Handler<GamepadEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<GamepadEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<GamepadEvents>>(eventName: TEventName, handler: Handler<GamepadEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<GamepadEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this._enableAndUpdate(); // implicitly enable
+    this.events.off(eventName, handler);
   }
 
   /**
@@ -121,14 +143,14 @@ export class Gamepads extends Class {
         const gamepad = this.at(i);
         // If was connected, but now isn't emit the disconnect event
         if (gamepad.connected) {
-          this.eventDispatcher.emit('disconnect', new GamepadDisconnectEvent(i, gamepad));
+          this.events.emit('disconnect', new GamepadDisconnectEvent(i, gamepad));
         }
         // Reset connection status
         gamepad.connected = false;
         continue;
       } else {
         if (!this.at(i).connected && this._isGamepadValid(gamepads[i])) {
-          this.eventDispatcher.emit('connect', new GamepadConnectEvent(i, this.at(i)));
+          this.events.emit('connect', new GamepadConnectEvent(i, this.at(i)));
         }
         // Set connection status
         this.at(i).connected = true;
@@ -157,7 +179,7 @@ export class Gamepads extends Class {
             if (value !== this._oldPads[i].getButton(bi)) {
               if (gamepads[i].buttons[bi].pressed) {
                 this.at(i).updateButton(bi, value);
-                this.at(i).eventDispatcher.emit('button', new GamepadButtonEvent(bi, value, this.at(i)));
+                this.at(i).events.emit('button', new GamepadButtonEvent(bi, value, this.at(i)));
               } else {
                 this.at(i).updateButton(bi, 0);
               }
@@ -173,7 +195,7 @@ export class Gamepads extends Class {
           value = gamepads[i].axes[ai];
           if (value !== this._oldPads[i].getAxes(ai)) {
             this.at(i).updateAxes(ai, value);
-            this.at(i).eventDispatcher.emit('axis', new GamepadAxisEvent(ai, value, this.at(i)));
+            this.at(i).events.emit('axis', new GamepadAxisEvent(ai, value, this.at(i)));
           }
         }
       }
@@ -256,7 +278,8 @@ export class Gamepads extends Class {
  * Gamepad holds state information for a connected controller. See [[Gamepads]]
  * for more information on handling controller input.
  */
-export class Gamepad extends Class {
+export class Gamepad {
+  public events = new EventEmitter<GamepadEvents>();
   public connected = false;
   public navigatorGamepad: NavigatorGamepad;
   private _axes: number[] = new Array(4);
@@ -265,8 +288,6 @@ export class Gamepad extends Class {
   private _buttonsDown: number[] = new Array(16);
 
   constructor() {
-    super();
-
     for (let i = 0; i < this._buttons.length; i++) {
       this._buttons[i] = 0;
     }
@@ -357,6 +378,31 @@ export class Gamepad extends Class {
 
   public updateAxes(axesIndex: number, value: number) {
     this._axes[axesIndex] = value;
+  }
+
+  public emit<TEventName extends EventKey<GamepadEvents>>(eventName: TEventName, event: GamepadEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<GamepadEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
+  }
+
+  public on<TEventName extends EventKey<GamepadEvents>>(eventName: TEventName, handler: Handler<GamepadEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<GamepadEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
+  }
+
+  public once<TEventName extends EventKey<GamepadEvents>>(eventName: TEventName, handler: Handler<GamepadEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<GamepadEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<GamepadEvents>>(eventName: TEventName, handler: Handler<GamepadEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<GamepadEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this.events.off(eventName, handler);
   }
 }
 

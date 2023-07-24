@@ -1,10 +1,10 @@
-import { Class } from '../Class';
 import { Vector } from '../Math/vector';
-import { WheelEvent } from './WheelEvent';
 import { PointerEvent } from './PointerEvent';
+import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
+import { PointerEvents } from './PointerEventReceiver';
 
-export class PointerAbstraction extends Class {
-
+export class PointerAbstraction {
+  public events = new EventEmitter<PointerEvents>();
   /**
    * The last position on the document this pointer was at. Can be `null` if pointer was never active.
    */
@@ -21,33 +21,33 @@ export class PointerAbstraction extends Class {
   public lastWorldPos: Vector = Vector.Zero;
 
   constructor() {
-    super();
     this.on('move', this._onPointerMove);
     this.on('down', this._onPointerDown);
   }
 
-  on(event: 'move', handler: (event: PointerEvent) => void): void;
-  on(event: 'down', handler: (event: PointerEvent) => void): void;
-  on(event: 'up', handler: (event: PointerEvent) => void): void;
-  on(event: 'wheel', handler: (event: WheelEvent) => void): void;
-  on(event: string, handler: (event: any) => void): void {
-    super.on(event, handler);
+  public emit<TEventName extends EventKey<PointerEvents>>(eventName: TEventName, event: PointerEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<PointerEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
   }
 
-  once(event: 'move', handler: (event: PointerEvent) => void): void;
-  once(event: 'down', handler: (event: PointerEvent) => void): void;
-  once(event: 'up', handler: (event: PointerEvent) => void): void;
-  once(event: 'wheel', handler: (event: WheelEvent) => void): void;
-  once(event: string, handler: (event: any) => void): void {
-    super.once(event, handler);
+  public on<TEventName extends EventKey<PointerEvents>>(eventName: TEventName, handler: Handler<PointerEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<PointerEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
   }
 
-  off(event: 'move', handler?: (event: PointerEvent) => void): void;
-  off(event: 'down', handler?: (event: PointerEvent) => void): void;
-  off(event: 'up', handler?: (event: PointerEvent) => void): void;
-  off(event: 'wheel', handler?: (event: WheelEvent) => void): void;
-  off(event: string, handler?: (event: any) => void): void {
-    super.off(event, handler);
+  public once<TEventName extends EventKey<PointerEvents>>(eventName: TEventName, handler: Handler<PointerEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<PointerEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<PointerEvents>>(eventName: TEventName, handler: Handler<PointerEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<PointerEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this.events.off(eventName, handler);
   }
 
   private _onPointerMove = (ev: PointerEvent): void => {

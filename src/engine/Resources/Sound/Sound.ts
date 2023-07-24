@@ -8,14 +8,35 @@ import { NativeSoundEvent, NativeSoundProcessedEvent } from '../../Events/MediaE
 import { canPlayFile } from '../../Util/Sound';
 import { Loadable } from '../../Interfaces/Index';
 import { Logger } from '../../Util/Log';
-import { Class } from '../../Class';
+import { EventEmitter, EventKey, Handler, Subscription } from '../../EventEmitter';
+
+export type SoundEvents = {
+  volumechange: NativeSoundEvent,
+  processed: NativeSoundProcessedEvent,
+  pause: NativeSoundEvent,
+  stop: NativeSoundEvent,
+  playbackend: NativeSoundEvent,
+  resume: NativeSoundEvent,
+  playbackstart: NativeSoundEvent
+}
+
+export const SoundEvents = {
+  VolumeChange: 'volumechange',
+  Processed: 'processed',
+  Pause: 'pause',
+  Stop: 'stop',
+  PlaybackEnd: 'playbackend',
+  Resume: 'resume',
+  PlaybackStart: 'playbackstart'
+};
 
 /**
  * The [[Sound]] object allows games built in Excalibur to load audio
  * components, from soundtracks to sound effects. [[Sound]] is an [[Loadable]]
  * which means it can be passed to a [[Loader]] to pre-load before a game or level.
  */
-export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
+export class Sound implements Audio, Loadable<AudioBuffer> {
+  public events = new EventEmitter<SoundEvents>();
   public logger: Logger = Logger.getInstance();
   public data: AudioBuffer;
   private _resource: Resource<ArrayBuffer>;
@@ -43,7 +64,7 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
       track.volume = this._volume;
     }
 
-    this.emit('volumechange', new NativeSoundEvent(this));
+    this.events.emit('volumechange', new NativeSoundEvent(this));
 
     this.logger.debug('Set loop for all instances of sound', this.path, 'to', this._volume);
   }
@@ -111,7 +132,6 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
    * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
    */
   constructor(...paths: string[]) {
-    super();
     this._resource = new Resource('', ExResponse.type.arraybuffer);
     /**
      * Chrome : MP3, WAV, Ogg
@@ -144,7 +164,7 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
     const arraybuffer = await this._resource.load();
     const audiobuffer = await this.decodeAudio(arraybuffer.slice(0));
     this._duration = this._duration ?? audiobuffer?.duration ?? undefined;
-    this.emit('processed', new NativeSoundProcessedEvent(this, audiobuffer));
+    this.events.emit('processed', new NativeSoundProcessedEvent(this, audiobuffer));
     return this.data = audiobuffer;
   }
 
@@ -245,7 +265,7 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
       track.pause();
     }
 
-    this.emit('pause', new NativeSoundEvent(this));
+    this.events.emit('pause', new NativeSoundEvent(this));
 
     this.logger.debug('Paused all instances of sound', this.path);
   }
@@ -258,7 +278,7 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
       track.stop();
     }
 
-    this.emit('stop', new NativeSoundEvent(this));
+    this.events.emit('stop', new NativeSoundEvent(this));
 
     this._tracks.length = 0;
     this.logger.debug('Stopped all instances of sound', this.path);
@@ -316,13 +336,13 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
       // ensure we resume *current* tracks (if paused)
       for (const track of this._tracks) {
         resumed.push(track.play().then(() => {
-          this.emit('playbackend', new NativeSoundEvent(this, track as WebAudioInstance));
+          this.events.emit('playbackend', new NativeSoundEvent(this, track as WebAudioInstance));
           this._tracks.splice(this.getTrackId(track), 1);
           return true;
         }));
       }
 
-      this.emit('resume', new NativeSoundEvent(this));
+      this.events.emit('resume', new NativeSoundEvent(this));
 
       this.logger.debug('Resuming paused instances for sound', this.path, this._tracks);
       // resolve when resumed tracks are done
@@ -338,12 +358,12 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
     const track = await this._getTrackInstance(this.data);
 
     const complete = await track.play(() => {
-      this.emit('playbackstart', new NativeSoundEvent(this, track));
+      this.events.emit('playbackstart', new NativeSoundEvent(this, track));
       this.logger.debug('Playing new instance for sound', this.path);
     });
 
     // when done, remove track
-    this.emit('playbackend', new NativeSoundEvent(this, track));
+    this.events.emit('playbackend', new NativeSoundEvent(this, track));
     this._tracks.splice(this.getTrackId(track), 1);
 
     return complete;
@@ -360,5 +380,30 @@ export class Sound extends Class implements Audio, Loadable<AudioBuffer> {
     this._tracks.push(newTrack);
 
     return newTrack;
+  }
+
+  public emit<TEventName extends EventKey<SoundEvents>>(eventName: TEventName, event: SoundEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<SoundEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
+  }
+
+  public on<TEventName extends EventKey<SoundEvents>>(eventName: TEventName, handler: Handler<SoundEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<SoundEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
+  }
+
+  public once<TEventName extends EventKey<SoundEvents>>(eventName: TEventName, handler: Handler<SoundEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<SoundEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<SoundEvents>>(eventName: TEventName, handler: Handler<SoundEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<SoundEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this.events.off(eventName, handler);
   }
 }

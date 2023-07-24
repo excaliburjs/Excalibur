@@ -1,4 +1,3 @@
-import { Class } from '../Class';
 import { Engine, ScrollPreventionMode } from '../Engine';
 import { GlobalCoordinates } from '../Math/global-coordinates';
 import { vec, Vector } from '../Math/vector';
@@ -13,12 +12,27 @@ import { PointerButton } from './PointerButton';
 import { fail } from '../Util/Util';
 import { PointerType } from './PointerType';
 import { isCrossOriginIframe } from '../Util/IFrame';
+import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 
 
 export type NativePointerEvent = globalThis.PointerEvent;
 export type NativeMouseEvent = globalThis.MouseEvent;
 export type NativeTouchEvent = globalThis.TouchEvent;
 export type NativeWheelEvent = globalThis.WheelEvent;
+
+export type PointerEvents = {
+  move: PointerEvent,
+  down: PointerEvent,
+  up: PointerEvent,
+  wheel: WheelEvent
+}
+
+export const PointerEvents = {
+  Move: 'move',
+  Down: 'down',
+  Up: 'up',
+  Wheel: 'wheel'
+};
 
 /**
  * Is this event a native touch event?
@@ -43,7 +57,8 @@ export interface PointerInitOptions {
 /**
  * The PointerEventProcessor is responsible for collecting all the events from the canvas and transforming them into GlobalCoordinates
  */
-export class PointerEventReceiver extends Class {
+export class PointerEventReceiver {
+  public events = new EventEmitter<PointerEvents>();
   public primary: PointerAbstraction = new PointerAbstraction();
 
   private _activeNativePointerIdsToNormalized = new Map<number, number>();
@@ -59,9 +74,7 @@ export class PointerEventReceiver extends Class {
   public currentFrameCancel: PointerEvent[] = [];
   public currentFrameWheel: WheelEvent[] = [];
 
-  constructor(public readonly target: GlobalEventHandlers & EventTarget, public engine: Engine) {
-    super();
-  }
+  constructor(public readonly target: GlobalEventHandlers & EventTarget, public engine: Engine) {}
 
   /**
    * Creates a new PointerEventReceiver with a new target and engine while preserving existing pointer event
@@ -135,28 +148,29 @@ export class PointerEventReceiver extends Class {
     return !this.isDown(pointerId) && this.wasDown(pointerId);
   }
 
-  on(event: 'move', handler: (event: PointerEvent) => void): void;
-  on(event: 'down', handler: (event: PointerEvent) => void): void;
-  on(event: 'up', handler: (event: PointerEvent) => void): void;
-  on(event: 'wheel', handler: (event: WheelEvent) => void): void;
-  on(event: string, handler: (event: any) => void): void {
-    super.on(event, handler);
+  public emit<TEventName extends EventKey<PointerEvents>>(eventName: TEventName, event: PointerEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<PointerEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
   }
 
-  once(event: 'move', handler: (event: PointerEvent) => void): void;
-  once(event: 'down', handler: (event: PointerEvent) => void): void;
-  once(event: 'up', handler: (event: PointerEvent) => void): void;
-  once(event: 'wheel', handler: (event: WheelEvent) => void): void;
-  once(event: string, handler: (event: any) => void): void {
-    super.once(event, handler);
+  public on<TEventName extends EventKey<PointerEvents>>(eventName: TEventName, handler: Handler<PointerEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<PointerEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
   }
 
-  off(event: 'move', handler?: (event: PointerEvent) => void): void;
-  off(event: 'down', handler?: (event: PointerEvent) => void): void;
-  off(event: 'up', handler?: (event: PointerEvent) => void): void;
-  off(event: 'wheel', handler?: (event: WheelEvent) => void): void;
-  off(event: string, handler?: (event: any) => void): void {
-    super.off(event, handler);
+  public once<TEventName extends EventKey<PointerEvents>>(eventName: TEventName, handler: Handler<PointerEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<PointerEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<PointerEvents>>(eventName: TEventName, handler: Handler<PointerEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<PointerEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this.events.off(eventName, handler);
   }
 
   /**

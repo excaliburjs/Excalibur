@@ -2,7 +2,6 @@ import { Vector } from '../Math/vector';
 import { TransformComponent } from '../EntityComponentSystem';
 import { Component } from '../EntityComponentSystem/Component';
 import { Entity } from '../EntityComponentSystem/Entity';
-import { EventDispatcher } from '../EventDispatcher';
 import { CollisionEndEvent, CollisionStartEvent, PostCollisionEvent, PreCollisionEvent } from '../Events';
 import { Observable } from '../Util/Observable';
 import { BoundingBox } from './BoundingBox';
@@ -13,11 +12,12 @@ import { CompositeCollider } from './Colliders/CompositeCollider';
 import { PolygonCollider } from './Colliders/PolygonCollider';
 import { EdgeCollider } from './Colliders/EdgeCollider';
 import { Shape } from './Colliders/Shape';
+import { EventEmitter } from '../EventEmitter';
 
 export class ColliderComponent extends Component<'ex.collider'> {
   public readonly type = 'ex.collider';
 
-  public events = new EventDispatcher();
+  public events = new EventEmitter();
   /**
    * Observable that notifies when a collider is added to the body
    */
@@ -51,7 +51,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
     if (collider) {
       this._collider = collider;
       this._collider.owner = this.owner;
-      this.events.wire(collider.events);
+      collider.events.pipe(this.events);
       this.$colliderAdded.notifyAll(collider);
       this.update();
     }
@@ -63,7 +63,7 @@ export class ColliderComponent extends Component<'ex.collider'> {
    */
   public clear() {
     if (this._collider) {
-      this.events.unwire(this._collider.events);
+      this._collider.events.unpipe(this.events);
       this.$colliderRemoved.notifyAll(this._collider);
       this._collider.owner = null;
       this._collider = null;

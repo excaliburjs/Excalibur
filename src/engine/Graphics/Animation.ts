@@ -94,6 +94,12 @@ export type AnimationEvents = {
   ended: Animation;
 };
 
+export const AnimationEvents = {
+  Frame: 'frame',
+  Loop: 'loop',
+  Ended: 'ended'
+};
+
 export interface FromSpriteSheetOptions {
   /**
    * [[SpriteSheet]] to source the animation frames from
