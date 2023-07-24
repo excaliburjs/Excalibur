@@ -86,8 +86,8 @@ export class EventEmitter<TEventMap extends EventMap = any> {
     this._pipes.push(emitter);
     return {
       close: () => {
-        let i = -1;
-        if ((i = this._pipes.indexOf(emitter)) > -1) {
+        const i = this._pipes.indexOf(emitter);
+        if (i > -1) {
           this._pipes.splice(i, 1);
         }
       }
@@ -95,8 +95,8 @@ export class EventEmitter<TEventMap extends EventMap = any> {
   }
 
   unpipe(emitter: EventEmitter<any>): void {
-    let i = -1;
-    if ((i = this._pipes.indexOf(emitter)) > -1) {
+    const i = this._pipes.indexOf(emitter);
+    if (i > -1) {
       this._pipes.splice(i, 1);
     }
   }
