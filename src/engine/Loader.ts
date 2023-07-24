@@ -2,7 +2,6 @@ import { Color } from './Color';
 import { WebAudio } from './Util/WebAudio';
 import { Engine } from './Engine';
 import { Loadable } from './Interfaces/Loadable';
-import { Class } from './Class';
 import * as DrawUtil from './Util/DrawUtil';
 
 import logoImg from './Loader.logo.png';
@@ -14,6 +13,15 @@ import { ImageFiltering } from './Graphics/Filtering';
 import { clamp } from './Math/util';
 import { Sound } from './Resources/Sound/Sound';
 import { Future } from './Util/Future';
+import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
+
+export type LoaderEvents = {
+  // Add event types here
+}
+
+export const LoaderEvents = {
+  // Add event types here
+};
 
 /**
  * Pre-loading assets
@@ -80,7 +88,8 @@ import { Future } from './Util/Future';
  * engine.start(loader).then(() => {});
  * ```
  */
-export class Loader extends Class implements Loadable<Loadable<any>[]> {
+export class Loader implements Loadable<Loadable<any>[]> {
+  public events = new EventEmitter();
   public canvas: Canvas = new Canvas({
     filtering: ImageFiltering.Blended,
     smoothing: true,
@@ -198,8 +207,6 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
    * @param loadables  Optionally provide the list of resources you want to load at constructor time
    */
   constructor(loadables?: Loadable<any>[]) {
-    super();
-
     if (loadables) {
       this.addResources(loadables);
     }
@@ -448,5 +455,30 @@ export class Loader extends Class implements Loadable<Loadable<any>[]> {
       this.loadingBarColor
     );
     this._engine.setAntialiasing(oldAntialias);
+  }
+
+  public emit<TEventName extends EventKey<LoaderEvents>>(eventName: TEventName, event: LoaderEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<LoaderEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
+  }
+
+  public on<TEventName extends EventKey<LoaderEvents>>(eventName: TEventName, handler: Handler<LoaderEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<LoaderEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
+  }
+
+  public once<TEventName extends EventKey<LoaderEvents>>(eventName: TEventName, handler: Handler<LoaderEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<LoaderEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<LoaderEvents>>(eventName: TEventName, handler: Handler<LoaderEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<LoaderEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this.events.off(eventName, handler);
   }
 }

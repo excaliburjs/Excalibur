@@ -18,6 +18,12 @@ export class EventEmitter<TEventMap extends EventMap = any> {
   private _listenersOnce: Record<string, Handler<any>[]> = {};
   private _pipes: EventEmitter<any>[] = [];
 
+  clear() {
+    this._listeners = {};
+    this._listenersOnce = {};
+    this._pipes.length = 0;
+  }
+
   on<TEventName extends EventKey<TEventMap>>(eventName: TEventName, handler: Handler<TEventMap[TEventName]>): Subscription;
   on(eventName: string, handler: Handler<unknown>): Subscription;
   on<TEventName extends EventKey<TEventMap> | string>(eventName: TEventName, handler: Handler<TEventMap[TEventName]>): Subscription {

@@ -1073,7 +1073,7 @@ O|===|* >________________>\n\
       if (this.currentScene.isInitialized) {
         const context = { engine: this, previousScene, nextScene };
         this.currentScene._deactivate.apply(this.currentScene, [context, nextScene]);
-        this.currentScene.eventDispatcher.emit('deactivate', new DeactivateEvent(context, this.currentScene));
+        this.currentScene.events.emit('deactivate', new DeactivateEvent(context, this.currentScene));
       }
 
       // set current scene to new one
@@ -1085,7 +1085,7 @@ O|===|* >________________>\n\
 
       const context = { engine: this, previousScene, nextScene, data };
       this.currentScene._activate.apply(this.currentScene, [context, nextScene]);
-      this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(context, this.currentScene));
+      this.currentScene.events.emit('activate', new ActivateEvent(context, this.currentScene));
     } else {
       this._logger.error('Scene', key, 'does not exist!');
     }

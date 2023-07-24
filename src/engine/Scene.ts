@@ -8,8 +8,7 @@ import {
   PreDrawEvent,
   PostDrawEvent,
   PreDebugDrawEvent,
-  PostDebugDrawEvent,
-  GameEvent
+  PostDebugDrawEvent
 } from './Events';
 import { Logger } from './Util/Log';
 import { Timer } from './Timer';
@@ -17,10 +16,8 @@ import { Engine } from './Engine';
 import { TileMap } from './TileMap';
 import { Camera } from './Camera';
 import { Actor } from './Actor';
-import { Class } from './Class';
 import { CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw, SceneActivationContext } from './Interfaces/LifecycleEvents';
 import * as Util from './Util/Util';
-import * as Events from './Events';
 import { Trigger } from './Trigger';
 import { SystemType } from './EntityComponentSystem/System';
 import { World } from './EntityComponentSystem/World';
@@ -35,6 +32,32 @@ import { IsometricEntitySystem } from './TileMap/IsometricEntitySystem';
 import { OffscreenSystem } from './Graphics/OffscreenSystem';
 import { ExcaliburGraphicsContext } from './Graphics';
 import { PhysicsWorld } from './Collision/PhysicsWorld';
+import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
+
+export type SceneEvents = {
+  initialize: InitializeEvent<Scene>,
+  activate: ActivateEvent,
+  deactivate: DeactivateEvent,
+  preupdate: PreUpdateEvent,
+  postupdate: PostUpdateEvent,
+  predraw: PreDrawEvent,
+  postdraw: PostDrawEvent,
+  predebugdraw: PreDebugDrawEvent,
+  postdebugdraw: PostDebugDrawEvent
+}
+
+export const SceneEvents = {
+  Initialize: 'initialize',
+  Activate: 'activate',
+  Deactivate: 'deactivate',
+  PreUpdate: 'preupdate',
+  PostUpdate: 'postupdate',
+  PreDraw: 'predraw',
+  PostDraw: 'postdraw',
+  PreDebugDraw: 'predebugdraw',
+  PostDebugDraw: 'postdebugdraw'
+};
+
 /**
  * [[Actor|Actors]] are composed together into groupings called Scenes in
  * Excalibur. The metaphor models the same idea behind real world
@@ -43,9 +66,10 @@ import { PhysicsWorld } from './Collision/PhysicsWorld';
  * Typical usages of a scene include: levels, menus, loading screens, etc.
  */
 export class Scene<TActivationData = unknown>
-  extends Class
-  implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate, CanDraw {
+implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate, CanDraw {
   private _logger: Logger = Logger.getInstance();
+  public events = new EventEmitter<SceneEvents>();
+
   /**
    * Gets or sets the current camera for the scene
    */
@@ -111,7 +135,6 @@ export class Scene<TActivationData = unknown>
   private _cancelQueue: Timer[] = [];
 
   constructor() {
-    super();
     // Initialize systems
 
     // Update
@@ -126,46 +149,29 @@ export class Scene<TActivationData = unknown>
     this.world.add(new DebugSystem());
   }
 
-  public on(eventName: Events.initialize, handler: (event: InitializeEvent<Scene>) => void): void;
-  public on(eventName: Events.activate, handler: (event: ActivateEvent) => void): void;
-  public on(eventName: Events.deactivate, handler: (event: DeactivateEvent) => void): void;
-  public on(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Scene>) => void): void;
-  public on(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Scene>) => void): void;
-  public on(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
-  public on(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
-  public on(eventName: Events.predebugdraw, handler: (event: PreDebugDrawEvent) => void): void;
-  public on(eventName: Events.postdebugdraw, handler: (event: PostDebugDrawEvent) => void): void;
-  public on(eventName: string, handler: (event: GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event: any) => void): void {
-    super.on(eventName, handler);
+  public emit<TEventName extends EventKey<SceneEvents>>(eventName: TEventName, event: SceneEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<SceneEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
   }
 
-  public once(eventName: Events.initialize, handler: (event: InitializeEvent<Scene>) => void): void;
-  public once(eventName: Events.activate, handler: (event: ActivateEvent) => void): void;
-  public once(eventName: Events.deactivate, handler: (event: DeactivateEvent) => void): void;
-  public once(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Scene>) => void): void;
-  public once(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Scene>) => void): void;
-  public once(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
-  public once(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
-  public once(eventName: Events.predebugdraw, handler: (event: PreDebugDrawEvent) => void): void;
-  public once(eventName: Events.postdebugdraw, handler: (event: PostDebugDrawEvent) => void): void;
-  public once(eventName: string, handler: (event: GameEvent<any>) => void): void;
-  public once(eventName: string, handler: (event: any) => void): void {
-    super.once(eventName, handler);
+  public on<TEventName extends EventKey<SceneEvents>>(eventName: TEventName, handler: Handler<SceneEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<SceneEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
   }
 
-  public off(eventName: Events.initialize, handler?: (event: InitializeEvent<Scene>) => void): void;
-  public off(eventName: Events.activate, handler?: (event: ActivateEvent) => void): void;
-  public off(eventName: Events.deactivate, handler?: (event: DeactivateEvent) => void): void;
-  public off(eventName: Events.preupdate, handler?: (event: PreUpdateEvent<Scene>) => void): void;
-  public off(eventName: Events.postupdate, handler?: (event: PostUpdateEvent<Scene>) => void): void;
-  public off(eventName: Events.predraw, handler?: (event: PreDrawEvent) => void): void;
-  public off(eventName: Events.postdraw, handler?: (event: PostDrawEvent) => void): void;
-  public off(eventName: Events.predebugdraw, handler?: (event: PreDebugDrawEvent) => void): void;
-  public off(eventName: Events.postdebugdraw, handler?: (event: PostDebugDrawEvent) => void): void;
-  public off(eventName: string, handler?: (event: GameEvent<any>) => void): void;
-  public off(eventName: string, handler?: (event: any) => void): void {
-    super.off(eventName, handler);
+  public once<TEventName extends EventKey<SceneEvents>>(eventName: TEventName, handler: Handler<SceneEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<SceneEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<SceneEvents>>(eventName: TEventName, handler: Handler<SceneEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<SceneEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this.events.off(eventName, handler);
   }
 
   /**
@@ -267,7 +273,7 @@ export class Scene<TActivationData = unknown>
       this._initializeChildren();
 
       this._logger.debug('Scene.onInitialize', this, engine);
-      this.eventDispatcher.emit('initialize', new InitializeEvent(engine, this));
+      this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
     }
   }
