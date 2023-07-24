@@ -52,7 +52,6 @@ export class ColliderComponent extends Component<'ex.collider'> {
       this._collider = collider;
       this._collider.owner = this.owner;
       collider.events.pipe(this.events);
-      // this.events.wire(collider.events);
       this.$colliderAdded.notifyAll(collider);
       this.update();
     }
@@ -65,7 +64,6 @@ export class ColliderComponent extends Component<'ex.collider'> {
   public clear() {
     if (this._collider) {
       this._collider.events.unpipe(this.events);
-      // this.events.unwire(this._collider.events);
       this.$colliderRemoved.notifyAll(this._collider);
       this._collider.owner = null;
       this._collider = null;
