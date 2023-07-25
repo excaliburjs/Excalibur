@@ -16,10 +16,10 @@ fdescribe('An InputMapper', () => {
     });
 
     sut.on(({keyboard}) => {
-      return keyboard.isHeld(ex.Keys.Enter)
+      return keyboard.isHeld(ex.Keys.Enter);
     }, command);
     sut.on(({keyboard}) => {
-      return keyboard.isHeld(ex.Keys.ArrowRight)
+      return keyboard.isHeld(ex.Keys.ArrowRight);
     }, command);
 
     sut.execute();
@@ -38,10 +38,10 @@ fdescribe('An InputMapper', () => {
     });
 
     sut.on(({keyboard}) => {
-      return keyboard.isHeld(ex.Keys.Enter)
+      return keyboard.isHeld(ex.Keys.Enter);
     }, command);
     sut.on(({keyboard}) => {
-      return keyboard.isHeld(ex.Keys.ArrowRight)
+      return keyboard.isHeld(ex.Keys.ArrowRight);
     }, command);
 
     sut.execute();
