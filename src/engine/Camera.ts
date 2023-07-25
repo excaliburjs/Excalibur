@@ -5,13 +5,13 @@ import { Vector, vec } from './Math/vector';
 import { Actor } from './Actor';
 import { removeItemFromArray } from './Util/Util';
 import { CanUpdate, CanInitialize } from './Interfaces/LifecycleEvents';
-import { PreUpdateEvent, PostUpdateEvent, GameEvent, InitializeEvent } from './Events';
-import { Class } from './Class';
+import { PreUpdateEvent, PostUpdateEvent, InitializeEvent } from './Events';
 import { BoundingBox } from './Collision/BoundingBox';
 import { Logger } from './Util/Log';
 import { ExcaliburGraphicsContext } from './Graphics/Context/ExcaliburGraphicsContext';
 import { watchAny } from './Util/Watch';
 import { AffineMatrix } from './Math/affine-matrix';
+import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 
 /**
  * Interface that describes a custom camera strategy for tracking targets
@@ -230,6 +230,19 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
   };
 }
 
+export type CameraEvents = {
+  preupdate: PreUpdateEvent<Camera>,
+  postupdate: PostUpdateEvent<Camera>,
+  initialize: InitializeEvent<Camera>,
+
+}
+
+export const CameraEvents = {
+  Initialize: 'initialize',
+  PreUpdate: 'preupdate',
+  PostUpdate: 'postupdate'
+};
+
 /**
  * Cameras
  *
@@ -238,7 +251,8 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
  * what is "off screen" and can be used to scale the game.
  *
  */
-export class Camera extends Class implements CanUpdate, CanInitialize {
+export class Camera implements CanUpdate, CanInitialize {
+  public events = new EventEmitter<CameraEvents>();
   public transform: AffineMatrix = AffineMatrix.identity();
   public inverse: AffineMatrix = AffineMatrix.identity();
 
@@ -547,7 +561,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * @internal
    */
   public _preupdate(engine: Engine, delta: number): void {
-    this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
+    this.events.emit('preupdate', new PreUpdateEvent(engine, delta, this));
     this.onPreUpdate(engine, delta);
   }
 
@@ -567,7 +581,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
    * @internal
    */
   public _postupdate(engine: Engine, delta: number): void {
-    this.emit('postupdate', new PostUpdateEvent(engine, delta, this));
+    this.events.emit('postupdate', new PostUpdateEvent(engine, delta, this));
     this.onPostUpdate(engine, delta);
   }
 
@@ -625,7 +639,7 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
       this.updateTransform();
 
       this.onInitialize(_engine);
-      super.emit('initialize', new InitializeEvent(_engine, this));
+      this.events.emit('initialize', new InitializeEvent(_engine, this));
       this._isInitialized = true;
     }
   }
@@ -639,27 +653,29 @@ export class Camera extends Class implements CanUpdate, CanInitialize {
     // Overridable
   }
 
-  public on(eventName: 'initialize', handler: (event: InitializeEvent) => void): void;
-  public on(eventName: 'preupdate', handler: (event: PreUpdateEvent) => void): void;
-  public on(eventName: 'postupdate', handler: (event: PostUpdateEvent) => void): void;
-  public on(eventName: any, handler: any) {
-    super.on(eventName, handler);
+  public emit<TEventName extends EventKey<CameraEvents>>(eventName: TEventName, event: CameraEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<CameraEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
   }
 
-  public off(eventName: 'initialize', handler?: (event: InitializeEvent) => void): void;
-  public off(eventName: 'preupdate', handler?: (event: PreUpdateEvent) => void): void;
-  public off(eventName: 'postupdate', handler?: (event: PostUpdateEvent) => void): void;
-  public off(eventName: string, handler: (event: GameEvent<Camera>) => void): void;
-  public off(eventName: string, handler: (event: any) => void): void {
-    super.off(eventName, handler);
+  public on<TEventName extends EventKey<CameraEvents>>(eventName: TEventName, handler: Handler<CameraEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<CameraEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
   }
 
-  public once(eventName: 'initialize', handler: (event: InitializeEvent) => void): void;
-  public once(eventName: 'preupdate', handler: (event: PreUpdateEvent) => void): void;
-  public once(eventName: 'postupdate', handler: (event: PostUpdateEvent) => void): void;
-  public once(eventName: string, handler: (event: GameEvent<Camera>) => void): void;
-  public once(eventName: string, handler: (event: any) => void): void {
-    super.once(eventName, handler);
+  public once<TEventName extends EventKey<CameraEvents>>(eventName: TEventName, handler: Handler<CameraEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<CameraEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<CameraEvents>>(eventName: TEventName, handler: Handler<CameraEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<CameraEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this.events.off(eventName, handler);
   }
 
   public runStrategies(engine: Engine, delta: number) {

@@ -1,6 +1,22 @@
 import { Loadable } from '../Interfaces/Loadable';
 import { Logger } from '../Util/Log';
-import { EventDispatcher } from '../EventDispatcher';
+import { EventEmitter } from '../EventEmitter';
+
+export type ResourceEvents = {
+  complete: any,
+  load: ProgressEvent<XMLHttpRequestEventTarget>,
+  loadstart: ProgressEvent<XMLHttpRequestEventTarget>,
+  progress: ProgressEvent<XMLHttpRequestEventTarget>,
+  error: ProgressEvent<XMLHttpRequestEventTarget>
+}
+
+export const ResourceEvents = {
+  Complete: 'complete',
+  Load: 'load',
+  LoadStart: 'loadstart',
+  Progress: 'progress',
+  Error: 'error'
+};
 
 /**
  * The [[Resource]] type allows games built in Excalibur to load generic resources.
@@ -9,7 +25,7 @@ import { EventDispatcher } from '../EventDispatcher';
 export class Resource<T> implements Loadable<T> {
   public data: T = null;
   public logger: Logger = Logger.getInstance();
-  public events: EventDispatcher = new EventDispatcher();
+  public events = new EventEmitter();
 
   /**
    * @param path          Path to the remote resource

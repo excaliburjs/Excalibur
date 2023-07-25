@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
--
+- Removed `ex.Class` base class type, this was a common base class for many excalibur types that provided old on/off event functionality. This functionality has been preserved on the types that had it before using `ex.EventEmitter`
 
 ### Deprecated
 
@@ -29,6 +29,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
    engine.inputMapper.on(({gamepads}) => gamepads.get(0).isButtonPressed(ex.Buttons.DpadRight) ? 1 : 0, moveRight);
    engine.inputMapper.on(({gamepads}) => gamepads.get(0).getLeftStick()[0] > 0 ? gamepads.get(0).getLeftStick()[0] : 0, moveRight);
   ```
+- Added strongly typed events with `ex.EventEmitter<TEventMap>`
 - Added new convenience properties for flipping all the graphics on an Actor
   * `ex.Actor.graphics.flipHorizontal` - Flips all the graphics horizontally
   * `ex.Actor.graphics.flipVertical` - Flips all the graphics vertically
@@ -186,6 +187,7 @@ stored `ex.Graphics` causing them to be shared across clones.
 
 ### Changed
 
+- Excalibur will now use `ex.EventEmitter` to broadcast events, Excalibur types that have events support will also have an `.events` member.
 - Excalibur resources by default no longer add cache busting query string to resources. All built in resources now expose a `bustCache` property to allow setting this before loading, for example `ex.Sound.bustCache`.
 
 

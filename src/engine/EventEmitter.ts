@@ -12,42 +12,48 @@ export interface Subscription {
 /**
  * Excalibur's typed event emitter, this allows events to be sent with any string to Type mapping
  */
-export class EventEmitter<T extends EventMap> {
+export class EventEmitter<TEventMap extends EventMap = any> {
   private _paused = false;
   private _listeners: Record<string, Handler<any>[]> = {};
   private _listenersOnce: Record<string, Handler<any>[]> = {};
   private _pipes: EventEmitter<any>[] = [];
 
-  on<K extends EventKey<T>>(eventName: K, fn: Handler<T[K]>): Subscription;
-  on(eventName: string, fn: Handler<unknown>): Subscription;
-  on<K extends EventKey<T> | string>(eventName: K, fn: Handler<T[K]>): Subscription {
+  clear() {
+    this._listeners = {};
+    this._listenersOnce = {};
+    this._pipes.length = 0;
+  }
+
+  on<TEventName extends EventKey<TEventMap>>(eventName: TEventName, handler: Handler<TEventMap[TEventName]>): Subscription;
+  on(eventName: string, handler: Handler<unknown>): Subscription;
+  on<TEventName extends EventKey<TEventMap> | string>(eventName: TEventName, handler: Handler<TEventMap[TEventName]>): Subscription {
     this._listeners[eventName] = this._listeners[eventName] ?? [];
-    this._listeners[eventName].push(fn);
+    this._listeners[eventName].push(handler);
     return {
-      close: () => this.off(eventName, fn)
+      close: () => this.off(eventName, handler)
     };
   }
 
-  once<K extends EventKey<T>>(eventName: K, fn: Handler<T[K]>): Subscription;
-  once(eventName: string, fn: Handler<unknown>): Subscription;
-  once<K extends EventKey<T> | string>(eventName: K, fn: Handler<T[K]>): Subscription {
+  once<TEventName extends EventKey<TEventMap>>(eventName: TEventName, handler: Handler<TEventMap[TEventName]>): Subscription;
+  once(eventName: string, handler: Handler<unknown>): Subscription;
+  once<TEventName extends EventKey<TEventMap> | string>(eventName: TEventName, handler: Handler<TEventMap[TEventName]>): Subscription {
     this._listenersOnce[eventName] = this._listenersOnce[eventName] ?? [];
-    this._listenersOnce[eventName].push(fn);
+    this._listenersOnce[eventName].push(handler);
     return {
-      close: () => this.off(eventName, fn)
+      close: () => this.off(eventName, handler)
     };
   }
 
-  off<K extends EventKey<T>>(eventName: K, fn: Handler<T[K]>): void;
-  off(eventName: string, fn: Handler<unknown>): void;
+  off<TEventName extends EventKey<TEventMap>>(eventName: TEventName, handler: Handler<TEventMap[TEventName]>): void;
+  off(eventName: string, handler: Handler<unknown>): void;
   off(eventName: string): void;
-  off<K extends EventKey<T> | string>(eventName: K, fn?: Handler<T[K]>): void {
-    if (fn) {
-      const listenerIndex = this._listeners[eventName]?.indexOf(fn);
+  off<TEventName extends EventKey<TEventMap> | string>(eventName: TEventName, handler?: Handler<TEventMap[TEventName]>): void {
+    if (handler) {
+      const listenerIndex = this._listeners[eventName]?.indexOf(handler);
       if (listenerIndex > -1) {
         this._listeners[eventName]?.splice(listenerIndex, 1);
       }
-      const onceIndex = this._listenersOnce[eventName]?.indexOf(fn);
+      const onceIndex = this._listenersOnce[eventName]?.indexOf(handler);
       if (onceIndex > -1) {
         this._listenersOnce[eventName]?.splice(onceIndex, 1);
       }
@@ -56,9 +62,9 @@ export class EventEmitter<T extends EventMap> {
     }
   }
 
-  emit<K extends EventKey<T>>(eventName: K, event: T[K]): void;
+  emit<TEventName extends EventKey<TEventMap>>(eventName: TEventName, event: TEventMap[TEventName]): void;
   emit(eventName: string, event?: any): void;
-  emit<K extends EventKey<T> | string>(eventName: K, event?: T[K]): void {
+  emit<TEventName extends EventKey<TEventMap> | string>(eventName: TEventName, event?: TEventMap[TEventName]): void {
     if (this._paused) {
       return;
     }
@@ -80,8 +86,8 @@ export class EventEmitter<T extends EventMap> {
     this._pipes.push(emitter);
     return {
       close: () => {
-        let i = -1;
-        if ((i = this._pipes.indexOf(emitter)) > -1) {
+        const i = this._pipes.indexOf(emitter);
+        if (i > -1) {
           this._pipes.splice(i, 1);
         }
       }
@@ -89,8 +95,8 @@ export class EventEmitter<T extends EventMap> {
   }
 
   unpipe(emitter: EventEmitter<any>): void {
-    let i = -1;
-    if ((i = this._pipes.indexOf(emitter)) > -1) {
+    const i = this._pipes.indexOf(emitter);
+    if (i > -1) {
       this._pipes.splice(i, 1);
     }
   }

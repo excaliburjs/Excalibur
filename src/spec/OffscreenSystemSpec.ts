@@ -46,8 +46,8 @@ describe('The OffscreenSystem', () => {
     const offscreenSpy = jasmine.createSpy('offscreenSpy');
     const onscreenSpy = jasmine.createSpy('onscreenSpy');
 
-    offscreen.eventDispatcher.on('enterviewport', onscreenSpy);
-    offscreen.eventDispatcher.on('exitviewport', offscreenSpy);
+    offscreen.events.on('enterviewport', onscreenSpy);
+    offscreen.events.on('exitviewport', offscreenSpy);
 
     // Should be offscreen
     sut.update([offscreen]);

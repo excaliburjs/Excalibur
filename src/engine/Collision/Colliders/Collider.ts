@@ -8,9 +8,9 @@ import { Ray } from '../../Math/ray';
 import { Clonable } from '../../Interfaces/Clonable';
 import { Entity } from '../../EntityComponentSystem';
 import { createId, Id } from '../../Id';
-import { EventDispatcher } from '../../EventDispatcher';
 import { ExcaliburGraphicsContext } from '../../Graphics/Context/ExcaliburGraphicsContext';
 import { Transform } from '../../Math/transform';
+import { EventEmitter } from '../../EventEmitter';
 
 /**
  * A collision collider specifies the geometry that can detect when other collision colliders intersect
@@ -25,7 +25,7 @@ export abstract class Collider implements Clonable<Collider> {
    * @hidden
    */
   public __compositeColliderId: Id<'collider'> | null = null;
-  public events: EventDispatcher<Collider> = new EventDispatcher<Collider>();
+  public events = new EventEmitter();
 
   /**
    * Returns a boolean indicating whether this body collided with

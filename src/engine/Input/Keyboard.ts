@@ -1,7 +1,7 @@
 import { Logger } from '../Util/Log';
-import { Class } from '../Class';
 import * as Events from '../Events';
 import { isCrossOriginIframe } from '../Util/IFrame';
+import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 
 /**
  * Enum representing physical input key codes
@@ -195,10 +195,23 @@ export interface KeyboardInitOptions {
   grabWindowFocus?: boolean
 }
 
+export type KeyEvents = {
+  press: KeyEvent,
+  hold: KeyEvent,
+  release: KeyEvent
+};
+
+export const KeyEvents = {
+  Press: 'press',
+  Hold: 'hold',
+  Release: 'release'
+};
+
 /**
  * Provides keyboard support for Excalibur.
  */
-export class Keyboard extends Class {
+export class Keyboard {
+  public events = new EventEmitter<KeyEvents>();
   /**
    * Keys that are currently held down
    */
@@ -212,16 +225,29 @@ export class Keyboard extends Class {
    */
   private _keysDown: Keys[] = [];
 
-  constructor() {
-    super();
+  public emit<TEventName extends EventKey<KeyEvents>>(eventName: TEventName, event: KeyEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<KeyEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
   }
 
-  public on(eventName: Events.press, handler: (event: KeyEvent) => void): void;
-  public on(eventName: Events.release, handler: (event: KeyEvent) => void): void;
-  public on(eventName: Events.hold, handler: (event: KeyEvent) => void): void;
-  public on(eventName: string, handler: (event: Events.GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event: any) => void): void {
-    super.on(eventName, handler);
+  public on<TEventName extends EventKey<KeyEvents>>(eventName: TEventName, handler: Handler<KeyEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<KeyEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
+  }
+
+  public once<TEventName extends EventKey<KeyEvents>>(eventName: TEventName, handler: Handler<KeyEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<KeyEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<KeyEvents>>(eventName: TEventName, handler: Handler<KeyEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<KeyEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this.events.off(eventName, handler);
   }
 
   /**
@@ -260,8 +286,8 @@ export class Keyboard extends Class {
   private _releaseAllKeys = (ev: KeyboardEvent) => {
     for (const code of this._keys) {
       const keyEvent = new KeyEvent(code, ev.key, ev);
-      this.eventDispatcher.emit('up', keyEvent);
-      this.eventDispatcher.emit('release', keyEvent);
+      this.events.emit('up', keyEvent);
+      this.events.emit('release', keyEvent);
     }
     this._keysUp = Array.from((new Set(this._keys.concat(this._keysUp))));
     this._keys.length = 0;
@@ -279,8 +305,8 @@ export class Keyboard extends Class {
       this._keys.push(code);
       this._keysDown.push(code);
       const keyEvent = new KeyEvent(code, ev.key, ev);
-      this.eventDispatcher.emit('down', keyEvent);
-      this.eventDispatcher.emit('press', keyEvent);
+      this.events.emit('down', keyEvent);
+      this.events.emit('press', keyEvent);
     }
   };
 
@@ -292,8 +318,8 @@ export class Keyboard extends Class {
     const keyEvent = new KeyEvent(code, ev.key, ev);
 
     // alias the old api, we may want to deprecate this in the future
-    this.eventDispatcher.emit('up', keyEvent);
-    this.eventDispatcher.emit('release', keyEvent);
+    this.events.emit('up', keyEvent);
+    this.events.emit('release', keyEvent);
 
     // handle macos meta key issue
     // https://github.com/excaliburjs/Excalibur/issues/2608
@@ -309,7 +335,7 @@ export class Keyboard extends Class {
 
     // Emit synthetic "hold" event
     for (let i = 0; i < this._keys.length; i++) {
-      this.eventDispatcher.emit('hold', new KeyEvent(this._keys[i]));
+      this.events.emit('hold', new KeyEvent(this._keys[i]));
     }
   }
 

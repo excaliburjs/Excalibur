@@ -481,7 +481,7 @@ export class CollisionEndEvent<T extends BodyComponent | Collider | Entity = Act
 }
 
 /**
- * Event thrown on an [[Actor]] and a [[Scene]] only once before the first update call
+ * Event thrown on an [[Actor]], [[Scene]], and [[Engine]] only once before the first update call
  */
 export class InitializeEvent<T extends OnInitialize = Entity> extends GameEvent<T> {
   /**

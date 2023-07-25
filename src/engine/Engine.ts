@@ -1,4 +1,5 @@
 import { EX_VERSION } from './';
+import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Gamepads } from './Input/Gamepad';
 import { Keyboard } from './Input/Keyboard';
 import { PointerScope } from './Input/PointerScope';
@@ -25,7 +26,6 @@ import {
   PostUpdateEvent,
   PreFrameEvent,
   PostFrameEvent,
-  GameEvent,
   DeactivateEvent,
   ActivateEvent,
   PreDrawEvent,
@@ -37,8 +37,6 @@ import { Color } from './Color';
 import { Scene } from './Scene';
 import { Entity } from './EntityComponentSystem/Entity';
 import { Debug, DebugStats } from './Debug/Debug';
-import { Class } from './Class';
-import * as Events from './Events';
 import { BrowserEvents } from './Util/Browser';
 import { ExcaliburGraphicsContext, ExcaliburGraphicsContext2DCanvas, ExcaliburGraphicsContextWebGL, TextureLoader } from './Graphics';
 import { PointerEventReceiver } from './Input/PointerEventReceiver';
@@ -47,6 +45,36 @@ import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 import { Toaster } from './Util/Toaster';
 import { InputMapper } from './Input/InputMapper';
+
+export type EngineEvents = {
+  fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
+  initialize: InitializeEvent<Engine>,
+  visible: VisibleEvent,
+  hidden: HiddenEvent,
+  start: GameStartEvent,
+  stop: GameStopEvent,
+  preupdate: PreUpdateEvent<Engine>,
+  postupdate: PostUpdateEvent<Engine>,
+  preframe: PreFrameEvent,
+  postframe: PostFrameEvent,
+  predraw: PreDrawEvent,
+  postdraw: PostDrawEvent,
+}
+
+export const EngineEvents = {
+  FallbackGraphicsContext: 'fallbackgraphicscontext',
+  Initialize: 'initialize',
+  Visible: 'visible',
+  Hidden: 'hidden',
+  Start: 'start',
+  Stop: 'stop',
+  PreUpdate: 'preupdate',
+  PostUpdate: 'postupdate',
+  PreFrame: 'preframe',
+  PostFrame: 'postframe',
+  PreDraw: 'predraw',
+  PostDraw: 'postdraw'
+} as const;
 
 /**
  * Enum representing the different mousewheel event bubble prevention
@@ -250,7 +278,12 @@ export interface EngineOptions {
  * starting/stopping the game, maintaining state, transmitting events,
  * loading resources, and managing the scene.
  */
-export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
+export class Engine implements CanInitialize, CanUpdate, CanDraw {
+  /**
+   * Listen to and emit events on the Engine
+   */
+  public events = new EventEmitter<EngineEvents>();
+
   /**
    * Excalibur browser events abstraction used for wiring to native browser events safely
    */
@@ -493,55 +526,29 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
 
   private _deferredGoTo: string = null;
 
-  public on(eventName: 'fallbackgraphicscontext', handler: (event: ExcaliburGraphicsContext2DCanvas) => void): void;
-  public on(eventName: Events.initialize, handler: (event: Events.InitializeEvent<Engine>) => void): void;
-  public on(eventName: Events.visible, handler: (event: VisibleEvent) => void): void;
-  public on(eventName: Events.hidden, handler: (event: HiddenEvent) => void): void;
-  public on(eventName: Events.start, handler: (event: GameStartEvent) => void): void;
-  public on(eventName: Events.stop, handler: (event: GameStopEvent) => void): void;
-  public on(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Engine>) => void): void;
-  public on(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Engine>) => void): void;
-  public on(eventName: Events.preframe, handler: (event: PreFrameEvent) => void): void;
-  public on(eventName: Events.postframe, handler: (event: PostFrameEvent) => void): void;
-  public on(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
-  public on(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
-  public on(eventName: string, handler: (event: GameEvent<any>) => void): void;
-  public on(eventName: string, handler: (event: any) => void): void {
-    super.on(eventName, handler);
+  public emit<TEventName extends EventKey<EngineEvents>>(eventName: TEventName, event: EngineEvents[TEventName]): void;
+  public emit(eventName: string, event?: any): void;
+  public emit<TEventName extends EventKey<EngineEvents> | string>(eventName: TEventName, event?: any): void {
+    this.events.emit(eventName, event);
   }
 
-  public once(eventName: 'fallbackgraphicscontext', handler: (event: ExcaliburGraphicsContext2DCanvas) => void): void;
-  public once(eventName: Events.initialize, handler: (event: Events.InitializeEvent<Engine>) => void): void;
-  public once(eventName: Events.visible, handler: (event: VisibleEvent) => void): void;
-  public once(eventName: Events.hidden, handler: (event: HiddenEvent) => void): void;
-  public once(eventName: Events.start, handler: (event: GameStartEvent) => void): void;
-  public once(eventName: Events.stop, handler: (event: GameStopEvent) => void): void;
-  public once(eventName: Events.preupdate, handler: (event: PreUpdateEvent<Engine>) => void): void;
-  public once(eventName: Events.postupdate, handler: (event: PostUpdateEvent<Engine>) => void): void;
-  public once(eventName: Events.preframe, handler: (event: PreFrameEvent) => void): void;
-  public once(eventName: Events.postframe, handler: (event: PostFrameEvent) => void): void;
-  public once(eventName: Events.predraw, handler: (event: PreDrawEvent) => void): void;
-  public once(eventName: Events.postdraw, handler: (event: PostDrawEvent) => void): void;
-  public once(eventName: string, handler: (event: GameEvent<any>) => void): void;
-  public once(eventName: string, handler: (event: any) => void): void {
-    super.once(eventName, handler);
+  public on<TEventName extends EventKey<EngineEvents>>(eventName: TEventName, handler: Handler<EngineEvents[TEventName]>): Subscription;
+  public on(eventName: string, handler: Handler<unknown>): Subscription;
+  public on<TEventName extends EventKey<EngineEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.on(eventName, handler);
   }
 
-  public off(eventName: 'fallbackgraphicscontext', handler?: (event: ExcaliburGraphicsContext2DCanvas) => void): void;
-  public off(eventName: Events.initialize, handler?: (event: Events.InitializeEvent<Engine>) => void): void;
-  public off(eventName: Events.visible, handler?: (event: VisibleEvent) => void): void;
-  public off(eventName: Events.hidden, handler?: (event: HiddenEvent) => void): void;
-  public off(eventName: Events.start, handler?: (event: GameStartEvent) => void): void;
-  public off(eventName: Events.stop, handler?: (event: GameStopEvent) => void): void;
-  public off(eventName: Events.preupdate, handler?: (event: PreUpdateEvent<Engine>) => void): void;
-  public off(eventName: Events.postupdate, handler?: (event: PostUpdateEvent<Engine>) => void): void;
-  public off(eventName: Events.preframe, handler?: (event: PreFrameEvent) => void): void;
-  public off(eventName: Events.postframe, handler?: (event: PostFrameEvent) => void): void;
-  public off(eventName: Events.predraw, handler?: (event: PreDrawEvent) => void): void;
-  public off(eventName: Events.postdraw, handler?: (event: PostDrawEvent) => void): void;
-  public off(eventName: string, handler?: (event: GameEvent<any>) => void): void;
-  public off(eventName: string, handler?: (event: any) => void): void {
-    super.off(eventName, handler);
+  public once<TEventName extends EventKey<EngineEvents>>(eventName: TEventName, handler: Handler<EngineEvents[TEventName]>): Subscription;
+  public once(eventName: string, handler: Handler<unknown>): Subscription;
+  public once<TEventName extends EventKey<EngineEvents> | string>(eventName: TEventName, handler: Handler<any>): Subscription {
+    return this.events.once(eventName, handler);
+  }
+
+  public off<TEventName extends EventKey<EngineEvents>>(eventName: TEventName, handler: Handler<EngineEvents[TEventName]>): void;
+  public off(eventName: string, handler: Handler<unknown>): void;
+  public off(eventName: string): void;
+  public off<TEventName extends EventKey<EngineEvents> | string>(eventName: TEventName, handler?: Handler<any>): void {
+    this.events.off(eventName, handler);
   }
 
   /**
@@ -598,8 +605,6 @@ export class Engine extends Class implements CanInitialize, CanUpdate, CanDraw {
    * ```
    */
   constructor(options?: EngineOptions) {
-    super();
-
     options = { ...Engine._DEFAULT_ENGINE_OPTIONS, ...options };
     this._originalOptions = options;
 
@@ -1074,7 +1079,7 @@ O|===|* >________________>\n\
       if (this.currentScene.isInitialized) {
         const context = { engine: this, previousScene, nextScene };
         this.currentScene._deactivate.apply(this.currentScene, [context, nextScene]);
-        this.currentScene.eventDispatcher.emit('deactivate', new DeactivateEvent(context, this.currentScene));
+        this.currentScene.events.emit('deactivate', new DeactivateEvent(context, this.currentScene));
       }
 
       // set current scene to new one
@@ -1086,7 +1091,7 @@ O|===|* >________________>\n\
 
       const context = { engine: this, previousScene, nextScene, data };
       this.currentScene._activate.apply(this.currentScene, [context, nextScene]);
-      this.currentScene.eventDispatcher.emit('activate', new ActivateEvent(context, this.currentScene));
+      this.currentScene.events.emit('activate', new ActivateEvent(context, this.currentScene));
     } else {
       this._logger.error('Scene', key, 'does not exist!');
     }
@@ -1135,10 +1140,10 @@ O|===|* >________________>\n\
 
     this.browser.document.on('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
-        this.eventDispatcher.emit('hidden', new HiddenEvent(this));
+        this.events.emit('hidden', new HiddenEvent(this));
         this._logger.debug('Window hidden');
       } else if (document.visibilityState === 'visible') {
-        this.eventDispatcher.emit('visible', new VisibleEvent(this));
+        this.events.emit('visible', new VisibleEvent(this));
         this._logger.debug('Window visible');
       }
     });
@@ -1179,7 +1184,7 @@ O|===|* >________________>\n\
   private _overrideInitialize(engine: Engine) {
     if (!this.isInitialized) {
       this.onInitialize(engine);
-      super.emit('initialize', new InitializeEvent(engine, this));
+      this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
       if (this._deferredGoTo) {
         const deferredScene = this._deferredGoTo;

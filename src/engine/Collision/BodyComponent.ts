@@ -6,11 +6,11 @@ import { TransformComponent } from '../EntityComponentSystem/Components/Transfor
 import { MotionComponent } from '../EntityComponentSystem/Components/MotionComponent';
 import { Component } from '../EntityComponentSystem/Component';
 import { CollisionGroup } from './Group/CollisionGroup';
-import { EventDispatcher } from '../EventDispatcher';
 import { createId, Id } from '../Id';
 import { clamp } from '../Math/util';
 import { ColliderComponent } from './ColliderComponent';
 import { Transform } from '../Math/transform';
+import { EventEmitter } from '../EventEmitter';
 
 export interface BodyComponentOptions {
   type?: CollisionType;
@@ -33,7 +33,7 @@ export class BodyComponent extends Component<'ex.body'> implements Clonable<Body
   public dependencies = [TransformComponent, MotionComponent];
   public static _ID = 0;
   public readonly id: Id<'body'> = createId('body', BodyComponent._ID++);
-  public events = new EventDispatcher();
+  public events = new EventEmitter();
 
   private _oldTransform = new Transform();
 
