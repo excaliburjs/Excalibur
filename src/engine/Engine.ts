@@ -1207,6 +1207,7 @@ O|===|* >________________>\n\
       // Update input listeners
       this.input.keyboard.update();
       this.input.gamepads.update();
+      this.inputMapper.execute();
       return;
     }
 
@@ -1226,6 +1227,7 @@ O|===|* >________________>\n\
     // Update input listeners
     this.input.keyboard.update();
     this.input.gamepads.update();
+    this.inputMapper.execute();
   }
 
   /**

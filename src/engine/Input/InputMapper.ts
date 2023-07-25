@@ -41,9 +41,9 @@ export class InputMapper {
    * const moveUp = (amount: number) => { actor.vel.y = -100 * amount }
    * const moveDown = (amount: number) => { actor.vel.y = 100 * amount }
    *
-   * engine.inputMapper.on(({keyboard}) => keyboard.isKeyPressed(ex.Keys.ArrowRight) ? 1 : 0, moveRight);
-   * engine.inputMapper.on(({gamepads}) => gamepads.get(0).isButtonPressed(ex.Buttons.DpadRight) ? 1 : 0, moveRight);
-   * engine.inputMapper.on(({gamepads}) => gamepads.get(0).getLeftStick()[0] > 0 ? gamepads.get(0).getLeftStick()[0] : 0, moveRight);
+   * engine.inputMapper.on(({keyboard}) => keyboard.isHeld(ex.Keys.ArrowRight) ? 1 : 0, moveRight);
+   * engine.inputMapper.on(({gamepads}) => gamepads.at(0).isButtonPressed(ex.Buttons.DpadRight) ? 1 : 0, moveRight);
+   * engine.inputMapper.on(({gamepads}) => gamepads.at(0).getAxes(ex.Axes.LeftStickX) > 0 ? gamepads.at(0).getAxes(ex.Axes.LeftStickX) : 0, moveRight);
    * ```
    * @param inputHandler
    * @param commandHandler
