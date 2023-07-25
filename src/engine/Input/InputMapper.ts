@@ -1,6 +1,6 @@
-import { Gamepads } from "./Gamepad";
-import { Keyboard } from "./Keyboard";
-import { PointerEventReceiver } from "./PointerEventReceiver";
+import { Gamepads } from './Gamepad';
+import { Keyboard } from './Keyboard';
+import { PointerEventReceiver } from './PointerEventReceiver';
 
 export interface InputsOptions {
   keyboard: Keyboard;
@@ -14,23 +14,23 @@ export interface InputsOptions {
  */
 export class InputMapper {
 
-  private _handlers = new Map<any, any>()
+  private _handlers = new Map<any, any>();
   constructor(public inputs: InputsOptions) {}
 
   /**
    * Executes the input map, called internally by Excalibur
    */
   execute() {
-      for(const [input, command] of this._handlers.entries()) {
-          const results = input(this.inputs);
-          if (results) {
-              command(results);
-          }
+    for (const [input, command] of this._handlers.entries()) {
+      const results = input(this.inputs);
+      if (results) {
+        command(results);
       }
+    }
   }
 
   /**
-   * This allows you to map multiple inputs to specific commands! This is useful 
+   * This allows you to map multiple inputs to specific commands! This is useful
    *
    * The inputHandler should return a truthy value if you wish the commandHandler to fire.
    *
@@ -48,7 +48,9 @@ export class InputMapper {
    * @param inputHandler
    * @param commandHandler
    */
-  on<TInputHandlerData>(inputHandler: (inputs: InputsOptions) => TInputHandlerData | false, commandHandler: (data: TInputHandlerData) => any) {
-      this._handlers.set(inputHandler, commandHandler);
+  on<TInputHandlerData>(
+    inputHandler: (inputs: InputsOptions) => TInputHandlerData | false,
+    commandHandler: (data: TInputHandlerData) => any) {
+    this._handlers.set(inputHandler, commandHandler);
   }
 }
