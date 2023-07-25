@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-fdescribe('An InputMapper', () => {
+describe('An InputMapper', () => {
   it('exists', () => {
     expect(ex.InputMapper).toBeDefined();
   });
