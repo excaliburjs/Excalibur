@@ -44,6 +44,7 @@ import { Clock, StandardClock } from './Util/Clock';
 import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 import { Toaster } from './Util/Toaster';
+import { InputMapper } from './Input/InputMapper';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
@@ -403,6 +404,11 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
    * Access engine input like pointer, keyboard, or gamepad
    */
   public input: EngineInput;
+
+  /**
+   * Map multiple input sources to specific game actions actions
+   */
+  public inputMapper: InputMapper;
 
   /**
    * Access Excalibur debugging functionality.
@@ -1127,6 +1133,7 @@ O|===|* >________________>\n\
       grabWindowFocus: this._originalOptions?.grabWindowFocus ?? true
     });
     this.input.gamepads.init();
+    this.inputMapper = new InputMapper(this.input);
 
     // Issue #385 make use of the visibility api
     // https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
@@ -1200,6 +1207,7 @@ O|===|* >________________>\n\
       // Update input listeners
       this.input.keyboard.update();
       this.input.gamepads.update();
+      this.inputMapper.execute();
       return;
     }
 
@@ -1219,6 +1227,7 @@ O|===|* >________________>\n\
     // Update input listeners
     this.input.keyboard.update();
     this.input.gamepads.update();
+    this.inputMapper.execute();
   }
 
   /**

@@ -115,6 +115,7 @@ export {
   KeyboardInitOptions,
   Keyboard
 } from './Input/Keyboard';
+export * from './Input/InputMapper';
 
 // ex.Util namespaces
 import * as util from './Util/Index';
