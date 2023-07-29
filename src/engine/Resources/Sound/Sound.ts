@@ -10,6 +10,7 @@ import { Loadable } from '../../Interfaces/Index';
 import { Logger } from '../../Util/Log';
 import { EventEmitter, EventKey, Handler, Subscription } from '../../EventEmitter';
 import { Vector } from '../../Math/vector';
+import { watch } from '../../Util/Watch';
 
 export type SoundEvents = {
   volumechange: NativeSoundEvent,
@@ -63,6 +64,14 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     for (const track of this._tracks) {
       track.position = this._position;
     }
+  }
+
+  public get position(): Vector {
+    return watch(this._position, (pos) => {
+      for (const track of this._tracks) {
+        track.position = pos;
+      }
+    });
   }
 
   public set volume(value: number) {

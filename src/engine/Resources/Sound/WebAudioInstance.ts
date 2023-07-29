@@ -3,6 +3,7 @@ import { Audio } from '../../Interfaces/Audio';
 import { clamp } from '../../Math/util';
 import { AudioContextFactory } from './AudioContext';
 import { Vector, vec } from '../../Math/vector';
+import { watch } from '../../Util/Watch';
 
 interface SoundState {
   startedAt: number;
@@ -186,12 +187,19 @@ export class WebAudioInstance implements Audio {
     this._pannerNode.positionY.value = pos.y;
   }
 
+  public get position(): Vector {
+    return watch(this._position, (pos) => {
+      this._pannerNode.positionX.value = pos.x;
+      this._pannerNode.positionY.value = pos.y;
+    });
+  }
+
   constructor(private _src: AudioBuffer) {
     // setup the spatial audio listener
     const listener = this._audioContext.listener;
     listener.positionX.value = 0;
     listener.positionY.value = 0;
-    listener.positionZ.value = 300;
+    listener.positionZ.value = 300 - 5;
     this._createNewBufferSource();
   }
 
