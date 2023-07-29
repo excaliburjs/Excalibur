@@ -1,3 +1,4 @@
+import { Vector } from "../Math/vector";
 
 /**
  * Represents an audio control implementation
@@ -7,6 +8,12 @@ export interface Audio {
    * Whether the audio should loop (repeat forever)
    */
   loop: boolean;
+
+  /**
+   * Set the audio position relative to the center of the screen
+   */
+  position: Vector;
+
   /**
    * The volume (between 0 and 1)
    */

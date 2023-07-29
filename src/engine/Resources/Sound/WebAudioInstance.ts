@@ -2,6 +2,7 @@ import { StateMachine } from '../../Util/StateMachine';
 import { Audio } from '../../Interfaces/Audio';
 import { clamp } from '../../Math/util';
 import { AudioContextFactory } from './AudioContext';
+import { Vector, vec } from '../../Math/vector';
 
 interface SoundState {
   startedAt: number;
@@ -14,8 +15,10 @@ interface SoundState {
  */
 export class WebAudioInstance implements Audio {
   private _instance: AudioBufferSourceNode;
+  private _position = vec(0, 0);
   private _audioContext: AudioContext = AudioContextFactory.create();
   private _volumeNode = this._audioContext.createGain();
+  private _pannerNode: PannerNode;
   private _playingResolve: (value: boolean) => void;
   private _playingPromise = new Promise<boolean>((resolve) => {
     this._playingResolve = resolve;
@@ -87,8 +90,26 @@ export class WebAudioInstance implements Audio {
     this._instance.buffer = this._src;
     this._instance.loop = this.loop;
     this._instance.playbackRate.value = this._playbackRate;
-    this._instance.connect(this._volumeNode);
-    this._volumeNode.connect(this._audioContext.destination);
+    this._pannerNode = new PannerNode(this._audioContext, {
+      panningModel: "HRTF",
+      distanceModel: "linear",
+      positionX: this._position.x,
+      positionY: this._position.y,
+      positionZ: 300,
+      orientationX: 0.0,
+      orientationY: 0.0,
+      orientationZ: -1.0,
+      refDistance: 1,
+      maxDistance: 20_000,
+      rolloffFactor: 10,
+      coneInnerAngle: 40,
+      coneOuterAngle: 50,
+      coneOuterGain: 0.4,
+    });
+    this._instance
+      .connect(this._volumeNode)
+      .connect(this._pannerNode)
+      .connect(this._audioContext.destination);
   }
 
   private _handleEnd() {
@@ -156,7 +177,21 @@ export class WebAudioInstance implements Audio {
     this._duration = duration;
   }
 
+  /**
+   * Set the audio's position relative to the center of the screen
+   */
+  public set position(pos: Vector) {
+    this._position = pos;
+    this._pannerNode.positionX.value = pos.x;
+    this._pannerNode.positionY.value = pos.y;
+  }
+
   constructor(private _src: AudioBuffer) {
+    // setup the spatial audio listener
+    const listener = this._audioContext.listener;
+    listener.positionX.value = 0;
+    listener.positionY.value = 0;
+    listener.positionZ.value = 300;
     this._createNewBufferSource();
   }
 

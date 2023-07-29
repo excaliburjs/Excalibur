@@ -9,6 +9,7 @@ import { canPlayFile } from '../../Util/Sound';
 import { Loadable } from '../../Interfaces/Index';
 import { Logger } from '../../Util/Log';
 import { EventEmitter, EventKey, Handler, Subscription } from '../../EventEmitter';
+import { Vector } from '../../Math/vector';
 
 export type SoundEvents = {
   volumechange: NativeSoundEvent,
@@ -55,6 +56,13 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   }
   public get loop(): boolean {
     return this._loop;
+  }
+
+  public set position(value: Vector) {
+    this._position = value;
+    for (const track of this._tracks) {
+      track.position = this._position;
+    }
   }
 
   public set volume(value: number) {
@@ -120,6 +128,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
 
   private _loop = false;
   private _volume = 1;
+  private _position: Vector = Vector.Zero;
   private _isStopped = false;
   // private _isPaused = false;
   private _tracks: Audio[] = [];
@@ -245,6 +254,8 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     }
 
     this.volume = volume || this.volume;
+
+    this.position = this.position;
 
     if (this.isPaused()) {
       return this._resumePlayback();
