@@ -1,4 +1,4 @@
-import { Vector } from "../Math/vector";
+import { Vector } from '../Math/vector';
 
 /**
  * Represents an audio control implementation

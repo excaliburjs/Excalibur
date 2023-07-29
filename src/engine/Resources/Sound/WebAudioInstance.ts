@@ -91,8 +91,8 @@ export class WebAudioInstance implements Audio {
     this._instance.loop = this.loop;
     this._instance.playbackRate.value = this._playbackRate;
     this._pannerNode = new PannerNode(this._audioContext, {
-      panningModel: "HRTF",
-      distanceModel: "linear",
+      panningModel: 'HRTF',
+      distanceModel: 'linear',
       positionX: this._position.x,
       positionY: this._position.y,
       positionZ: 300,
@@ -104,7 +104,7 @@ export class WebAudioInstance implements Audio {
       rolloffFactor: 10,
       coneInnerAngle: 40,
       coneOuterAngle: 50,
-      coneOuterGain: 0.4,
+      coneOuterGain: 0.4
     });
     this._instance
       .connect(this._volumeNode)
