@@ -130,6 +130,7 @@ export class EntityManager<ContextType = any> implements Observer<RemovedCompone
       }
       this.removeEntity(entity, false);
     }
+    this._entitiesToRemove.length = 0;
   }
 
   public processComponentRemovals(): void {

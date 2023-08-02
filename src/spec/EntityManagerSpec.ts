@@ -92,7 +92,10 @@ describe('An EntityManager', () => {
 
     expect(entityManager.entities.length).toBe(2);
     entityManager.clear();
+    expect((entityManager as any)._entitiesToRemove.length).toBe(2);
+    expect(entityManager.entities.length).toBe(2);
     entityManager.processEntityRemovals();
     expect(entityManager.entities.length).toBe(0);
+    expect((entityManager as any)._entitiesToRemove.length).toBe(0);
   });
 });
