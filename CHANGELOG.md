@@ -150,6 +150,7 @@ are returned
 
 ### Fixed
 
+- Fixed memory leak in the internal `ex.EntityManager`, it did not properly clear internal state when removing entities
 - Fixed issue where scaling a `ex.TileMap` didn't properly offscreen cull due to the bounds not scaling properly.
 - Fixed issue where `ex.Text.flipHorizontal` or `ex.Text.flipVertical` would not work
 - Fixed issue where overriding existing components did not work properly because of deferred component removal
