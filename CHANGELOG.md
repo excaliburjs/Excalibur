@@ -150,6 +150,7 @@ are returned
 
 ### Fixed
 
+- Fixed issue with `ex.TileMap` collider consolidation where custom colliders would prevent normal solid tile colliders from being included.
 - Fixed memory leak in the internal `ex.EntityManager`, it did not properly clear internal state when removing entities
 - Fixed issue where scaling a `ex.TileMap` didn't properly offscreen cull due to the bounds not scaling properly.
 - Fixed issue where `ex.Text.flipHorizontal` or `ex.Text.flipVertical` would not work
