@@ -301,17 +301,24 @@ export class TileMap extends Entity {
         if (tile.solid) {
           // Use custom collider otherwise bounding box
           if (tile.getColliders().length > 0) {
+            // tile with custom collider interrupting the current run
             for (const collider of tile.getColliders()) {
               const originalOffset = this._getOrSetColliderOriginalOffset(collider);
               collider.offset = vec(tile.x * this.tileWidth * this.scale.x, tile.y * this.tileHeight * this.scale.y).add(originalOffset);
               collider.owner = this;
               this._composite.addCollider(collider);
             }
+            //we push any current collider before nulling the current run
+            if (current) {
+              colliders.push(current);
+            }
             current = null;
           } else {
             if (!current) {
+              // no current run, start one
               current = tile.bounds;
             } else {
+              // combine with current run
               current = current.combine(tile.bounds);
             }
           }
