@@ -12,6 +12,7 @@ sandbox/
 src/
 typedoc-default-themes/
 scripts/
+node_cache/*
 
 .tsbuildinfo
 .prettierignore
