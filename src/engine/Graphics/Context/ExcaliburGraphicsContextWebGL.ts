@@ -234,7 +234,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._renderTarget = new RenderTarget({
       gl,
       width: gl.canvas.width,
-      height: gl.canvas.height
+      height: gl.canvas.height,
+      antialias: true,
+      samples: 16
     });
 
 
@@ -588,19 +590,34 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
     this._renderTarget.disable();
 
-    // post process step
-    const source = this._renderTarget.toRenderSource();
-    source.use();
+    // // post process step
+    // const source = this._renderTarget.toRenderSource();
+    // source.use();
 
     // flip flop render targets
-    for (let i = 0; i < this._postprocessors.length; i++) {
-      this._postProcessTargets[i % 2].use();
-      this._screenRenderer.renderWithPostProcessor(this._postprocessors[i]);
-      this._postProcessTargets[i % 2].toRenderSource().use();
+    // for (let i = 0; i < this._postprocessors.length; i++) {
+    //   this._postProcessTargets[i % 2].use();
+    //   this._screenRenderer.renderWithPostProcessor(this._postprocessors[i]);
+    //   this._postProcessTargets[i % 2].toRenderSource().use();
+    // }
+
+    
+    // TODO does post processors cause issues here
+    if (this._renderTarget.antialias) {
+      gl.bindFramebuffer(gl.READ_FRAMEBUFFER, this._renderTarget.renderFrameBuffer);
+      gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this._renderTarget.frameBuffer);
+      gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 1.0, 1.0]);
+      gl.blitFramebuffer(
+        0, 0, this._renderTarget.width, this._renderTarget.height,
+        0, 0, this._renderTarget.width, this._renderTarget.height,
+        gl.COLOR_BUFFER_BIT, gl.LINEAR);
     }
 
     // passing null switches rendering back to the canvas
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this._renderTarget.frameTexture);
     this._screenRenderer.renderToScreen();
   }
 }
