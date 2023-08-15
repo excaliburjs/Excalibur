@@ -9,7 +9,7 @@ var blockGroup = ex.CollisionGroupManager.create('blockGroup');
 
 var player = new ex.Actor({
   name: 'player',
-  pos: ex.vec(100, 100),
+  pos: ex.vec(70, 320),
   width: 40,
   height: 40,
   color: ex.Color.Red,

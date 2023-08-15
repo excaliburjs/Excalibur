@@ -140,6 +140,9 @@ export class MaterialRenderer implements RendererPlugin {
     // apply resolution
     shader.trySetUniformFloatVector('u_resolution', vec(this._context.width, this._context.height));
 
+    // apply graphic resolution
+    shader.trySetUniformFloatVector('u_graphic_resolution', vec(imageWidth, imageHeight));
+
     // apply size
     shader.trySetUniformFloatVector('u_size', vec(sw, sh));
 
