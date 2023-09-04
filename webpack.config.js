@@ -13,7 +13,8 @@ const umdOutput = {
   library: {
     name: 'ex',
     type: 'umd'
-  }
+  },
+  globalObject: 'this'
 };
 
 const esmOutput = {
@@ -21,7 +22,8 @@ const esmOutput = {
   filename: '[name].js',
   library: {
     type: 'module'
-  }
+  },
+  globalObject: 'this'
 };
 
 module.exports = (env, argv) => {
