@@ -6,10 +6,31 @@ import { ImageFiltering } from './Filtering';
 import { Future } from '../Util/Future';
 import { TextureLoader } from '../Graphics/Context/texture-loader';
 
+export interface ImageSourceOptions {
+  /**
+   * Optionally set the image filtering mode, this is useful for either pixelated or blended images.
+   *
+   * Default is hinted by [[EngineOptions.antialiasing]] if antialiasing is true, then blended by default,
+   * otherwise if false, then pixelated by default.
+   */
+  filtering?: ImageFiltering;
+  /**
+   * Optionally sets the image to be repeatable when used as a sprite. Useful for creating repeating images
+   * like backgrounds
+   */
+  repeat?: boolean;
+  /**
+   * Optionally bust the browser cache, default is false.
+   */
+  bustCache?: boolean;
+}
+
 export class ImageSource implements Loadable<HTMLImageElement> {
   private _logger = Logger.getInstance();
   private _resource: Resource<Blob>;
-  public filtering: ImageFiltering;
+  public readonly filtering: ImageFiltering;
+  public readonly path: string;
+  public readonly repeat: boolean = false;
 
   /**
    * The original size of the source image in pixels
@@ -58,9 +79,28 @@ export class ImageSource implements Loadable<HTMLImageElement> {
    * @param bustCache {boolean} Should excalibur add a cache busting querystring?
    * @param filtering {ImageFiltering} Optionally override the image filtering set by [[EngineOptions.antialiasing]]
    */
-  constructor(public readonly path: string, bustCache: boolean = false, filtering?: ImageFiltering) {
-    this._resource = new Resource(path, 'blob', bustCache);
+  constructor(path: string, bustCache?: boolean, filtering?: ImageFiltering);
+  /**
+   * 
+   * @param options 
+   */
+  constructor(path: string, options: ImageSourceOptions);
+  constructor(...argsOrOptions: any[]) {
+    let path: string;
+    let bustCache = false;
+    let filtering: ImageFiltering | undefined;
+    let repeat = false;
+    path = argsOrOptions[0];
+    if (typeof argsOrOptions[0] === 'string' && typeof argsOrOptions[1] === 'object') {
+      ({ bustCache, filtering, repeat } = argsOrOptions[1]);
+    } else {
+      bustCache = argsOrOptions[1] ?? bustCache;
+      filtering = argsOrOptions[2];
+    }
+    this.path = path;
+    this.repeat = repeat;
     this.filtering = filtering;
+    this._resource = new Resource({path, responseType: 'blob', bustCache});
     if (path.endsWith('.svg') || path.endsWith('.gif')) {
       this._logger.warn(`Image type is not fully supported, you may have mixed results ${path}. Fully supported: jpg, bmp, and png`);
     }
@@ -120,6 +160,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
     }
     // Do a bad thing to pass the filtering as an attribute
     this.data.setAttribute('filtering', this.filtering);
+    this.data.setAttribute('repeat', this.repeat.toString());
 
     // todo emit complete
     this._readyFuture.resolve(this.data);

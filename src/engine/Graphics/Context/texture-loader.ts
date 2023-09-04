@@ -47,6 +47,8 @@ export class TextureLoader {
    * @param forceUpdate Optionally force a texture to be reloaded, useful if the source graphic has changed
    */
   public load(image: HTMLImageSource, filtering?: ImageFiltering, forceUpdate = false): WebGLTexture {
+    const repeat = image.getAttribute('repeat') === 'true' ? true : false;
+
     // Ignore loading if webgl is not registered
     const gl = this._gl;
     if (!gl) {
@@ -76,8 +78,8 @@ export class TextureLoader {
     gl.bindTexture(gl.TEXTURE_2D, tex);
 
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, repeat ? gl.REPEAT : gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, repeat ? gl.REPEAT : gl.CLAMP_TO_EDGE);
 
     // NEAREST for pixel art, LINEAR for hi-res
     const filterMode = filtering ?? TextureLoader.filtering;

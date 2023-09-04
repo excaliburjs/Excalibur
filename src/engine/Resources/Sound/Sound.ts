@@ -1,4 +1,3 @@
-import { ExResponse } from '../../Interfaces/AudioImplementation';
 import { Audio } from '../../Interfaces/Audio';
 import { Engine } from '../../Engine';
 import { Resource } from '../Resource';
@@ -101,11 +100,6 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     return this._resource.path;
   }
 
-  public set path(val: string) {
-    this._resource.path = val;
-  }
-
-
   /**
    * Should excalibur add a cache busting querystring? By default false.
    * Must be set before loading
@@ -132,24 +126,23 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
    * @param paths A list of audio sources (clip.wav, clip.mp3, clip.ogg) for this audio clip. This is done for browser compatibility.
    */
   constructor(...paths: string[]) {
-    this._resource = new Resource('', ExResponse.type.arraybuffer);
     /**
      * Chrome : MP3, WAV, Ogg
      * Firefox : WAV, Ogg,
      * IE : MP3, WAV coming soon
      * Safari MP3, WAV, Ogg
-     */
-    for (const path of paths) {
-      if (canPlayFile(path)) {
-        this.path = path;
+    */
+   for (const path of paths) {
+     if (canPlayFile(path)) {
+       this._resource = new Resource({path: path, responseType: 'arraybuffer'});
         break;
       }
     }
 
-    if (!this.path) {
+    if (!this._resource) {
       this.logger.warn('This browser does not support any of the audio files specified:', paths.join(', '));
       this.logger.warn('Attempting to use', paths[0]);
-      this.path = paths[0]; // select the first specified
+      this._resource = new Resource({path: paths[0], responseType: 'arraybuffer'}); // select the first specified
     }
   }
 

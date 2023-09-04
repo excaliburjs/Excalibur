@@ -18,6 +18,23 @@ export const ResourceEvents = {
   Error: 'error'
 };
 
+export type ResponseTypes = '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text';
+
+export interface ResourceOptions {
+  /**
+   * Path to the remote resource
+   */
+  path: string,
+  /**
+   * The type to expect as a response: "" | "arraybuffer" | "blob" | "document" | "json" | "text";
+   */
+  responseType: ResponseTypes,
+  /**
+   * Optionally bust browser cache, by default set to false
+   */
+  bustCache?: boolean
+}
+
 /**
  * The [[Resource]] type allows games built in Excalibur to load generic resources.
  * For any type of remote resource it is recommended to use [[Resource]] for preloading.
@@ -27,16 +44,18 @@ export class Resource<T> implements Loadable<T> {
   public logger: Logger = Logger.getInstance();
   public events = new EventEmitter();
 
-  /**
-   * @param path          Path to the remote resource
-   * @param responseType  The type to expect as a response: "" | "arraybuffer" | "blob" | "document" | "json" | "text";
-   * @param bustCache     Whether or not to cache-bust requests
-   */
-  constructor(
-    public path: string,
-    public responseType: '' | 'arraybuffer' | 'blob' | 'document' | 'json' | 'text',
-    public bustCache: boolean = false
-  ) {}
+  public readonly path: string;
+  public readonly responseType: ResponseTypes;
+  public bustCache: boolean = false;
+
+  // TODO fallback ctor
+
+  constructor(options: ResourceOptions) {
+    const { path, responseType, bustCache } = options;
+    this.path = path;
+    this.responseType = responseType;
+    this.bustCache = bustCache ?? this.bustCache;
+  }
 
   /**
    * Returns true if the Resource is completely loaded and is ready
