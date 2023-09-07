@@ -428,7 +428,6 @@ export class TileMap extends Entity {
     const yEnd = this.rows;
 
     let graphics: readonly Graphic[], graphicsIndex: number, graphicsLen: number;
-    // TODO: Check if we can skip drawing tiles that are off screen in screen coordinate plane
     const drawAllTiles = this._transform.coordPlane === CoordPlane.Screen;
 
     const maybeParallax = this.get(ParallaxComponent);
