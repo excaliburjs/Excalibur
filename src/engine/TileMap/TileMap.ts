@@ -17,6 +17,7 @@ import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { Collider } from '../Collision/Colliders/Collider';
 import { PostDrawEvent, PostUpdateEvent, PreDrawEvent, PreUpdateEvent } from '../Events';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
+import { CoordPlane } from '../Math/coord-plane';
 
 export interface TileMapOptions {
   /**
@@ -427,6 +428,7 @@ export class TileMap extends Entity {
     const yEnd = this.rows;
 
     let graphics: readonly Graphic[], graphicsIndex: number, graphicsLen: number;
+    const drawAllTiles = this._transform.coordPlane === CoordPlane.Screen;
 
     const maybeParallax = this.get(ParallaxComponent);
     if (maybeParallax) {
@@ -444,7 +446,7 @@ export class TileMap extends Entity {
         tile = this.getTile(x, y);
         // fixme: This has a large perf impact, we iterate over every tile in the tilemap
         // this probably requires a spatial data structure to do more efficiently
-        if (!worldBounds.overlaps(tile.bounds)) {
+        if (!drawAllTiles && !worldBounds.overlaps(tile.bounds)) {
           continue;
         }
         // get non-negative tile sprites
