@@ -17,7 +17,7 @@ import { DebugGraphicsComponent } from '../Graphics/DebugGraphicsComponent';
 import { Collider } from '../Collision/Colliders/Collider';
 import { PostDrawEvent, PostUpdateEvent, PreDrawEvent, PreUpdateEvent } from '../Events';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
-import { CoordPlane } from '../Math/coord-plane'
+import { CoordPlane } from '../Math/coord-plane';
 
 export interface TileMapOptions {
   /**
