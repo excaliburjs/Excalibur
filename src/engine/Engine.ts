@@ -1205,9 +1205,9 @@ O|===|* >________________>\n\
       // suspend updates until loading is finished
       this._loader.update(this, delta);
       // Update input listeners
+      this.inputMapper.execute();
       this.input.keyboard.update();
       this.input.gamepads.update();
-      this.inputMapper.execute();
       return;
     }
 
@@ -1225,9 +1225,9 @@ O|===|* >________________>\n\
     this._postupdate(delta);
 
     // Update input listeners
+    this.inputMapper.execute();
     this.input.keyboard.update();
     this.input.gamepads.update();
-    this.inputMapper.execute();
   }
 
   /**
