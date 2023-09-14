@@ -99,6 +99,12 @@ export enum ScrollPreventionMode {
  */
 export interface EngineOptions {
   /**
+   * Optionally configure excalibur to run without graphics, this is useful for building server side excalibur code.
+   * 
+   * Default is false.
+   */
+  headless?: boolean;
+  /**
    * Optionally configure the width of the viewport in css pixels
    */
   width?: number;
