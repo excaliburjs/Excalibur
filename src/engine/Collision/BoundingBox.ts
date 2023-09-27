@@ -99,12 +99,11 @@ export class BoundingBox {
 
   /**
    * Creates a bounding box from a width and height
-   *
    * @param width
    * @param height
    * @param anchor Default Vector.Half
    * @param pos Default Vector.Zero
-   * @returns 
+   * @returns
    */
   public static fromDimension(width: number, height: number, anchor: Vector = Vector.Half, pos: Vector = Vector.Zero) {
     return new BoundingBox(
@@ -336,7 +335,6 @@ export class BoundingBox {
    * Test wether this bounding box intersects with another returning
    * the intersection vector that can be used to resolve the collision. If there
    * is no intersection null is returned.
-   *
    * @param other  Other [[BoundingBox]] to test intersection with
    * @returns A Vector in the direction of the current BoundingBox, this <- other
    */
