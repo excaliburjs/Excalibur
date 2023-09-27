@@ -600,7 +600,7 @@ export class Screen {
     const bounds = BoundingBox.fromDimension(
       this.resolution.width,
       this.resolution.height,
-      Vector.Zero, Vector.Zero)
+      Vector.Zero, Vector.Zero);
     return bounds;
   }
 

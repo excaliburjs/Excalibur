@@ -430,7 +430,7 @@ export class TileMap extends Entity {
   public draw(ctx: ExcaliburGraphicsContext, delta: number): void {
     this.emit('predraw', new PreDrawEvent(ctx as any, delta, this)); // TODO fix event
     let worldBounds = this._engine.screen.getWorldBounds();
-    let screenBounds = this._engine.screen.getScreenBounds();
+    const screenBounds = this._engine.screen.getScreenBounds();
 
     let graphics: readonly Graphic[], graphicsIndex: number, graphicsLen: number;
     const isScreenCoords = this._transform.coordPlane === CoordPlane.Screen;
