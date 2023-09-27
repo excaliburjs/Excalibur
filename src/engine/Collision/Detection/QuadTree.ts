@@ -1,4 +1,4 @@
-import { BoundingBox } from "../BoundingBox";
+import { BoundingBox } from '../BoundingBox';
 
 export interface QuadTreeItem {
   bounds: BoundingBox;
@@ -31,8 +31,8 @@ export class QuadTree<TItem extends QuadTreeItem> {
   public bottomLeft: QuadTree<TItem> | null = null;
   public bottomRight: QuadTree<TItem> | null = null;
 
-  constructor(public bounds: BoundingBox, private options?: QuadTreeOptions) {
-    this.options = {...this._defaultOptions, ...options}
+  constructor(public bounds: BoundingBox, public options?: QuadTreeOptions) {
+    this.options = {...this._defaultOptions, ...options};
     this.halfWidth = bounds.width / 2;
     this.halfHeight = bounds.height / 2;
   }
@@ -93,7 +93,7 @@ export class QuadTree<TItem extends QuadTreeItem> {
 
   /**
    * Insert an item to be tracked in the QuadTree
-   * @param item 
+   * @param item
    */
   insert(item: TItem): void {
     // add to subnodes if it matches
@@ -112,7 +112,7 @@ export class QuadTree<TItem extends QuadTreeItem> {
         this._split();
       }
       // divide this level's items into it's subnodes
-      for (let item of this.items) {
+      for (const item of this.items) {
         this._insertIntoSubNodes(item);
       }
       // clear this level
@@ -122,7 +122,7 @@ export class QuadTree<TItem extends QuadTreeItem> {
 
   /**
    * Remove a tracked item in the QuadTree
-   * @param item 
+   * @param item
    */
   remove(item: TItem): void {
     if (!this.bounds.overlaps(item.bounds)) {
@@ -156,7 +156,7 @@ export class QuadTree<TItem extends QuadTreeItem> {
 
   /**
    * Query the structure for all objects that intersect the bounding box
-   * @param boundingBox 
+   * @param boundingBox
    * @returns items
    */
   query(boundingBox: BoundingBox): TItem[] {
