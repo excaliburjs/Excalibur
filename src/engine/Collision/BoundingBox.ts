@@ -97,6 +97,15 @@ export class BoundingBox {
     return new BoundingBox(minX, minY, maxX, maxY);
   }
 
+  /**
+   * Creates a bounding box from a width and height
+   *
+   * @param width
+   * @param height
+   * @param anchor Default Vector.Half
+   * @param pos Default Vector.Zero
+   * @returns 
+   */
   public static fromDimension(width: number, height: number, anchor: Vector = Vector.Half, pos: Vector = Vector.Zero) {
     return new BoundingBox(
       -width * anchor.x + pos.x,

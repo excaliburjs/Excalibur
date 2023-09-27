@@ -18,6 +18,7 @@ import { Collider } from '../Collision/Colliders/Collider';
 import { PostDrawEvent, PostUpdateEvent, PreDrawEvent, PreUpdateEvent } from '../Events';
 import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
 import { CoordPlane } from '../Math/coord-plane';
+import { QuadTree } from '../Collision/Detection/QuadTree';
 
 export interface TileMapOptions {
   /**
@@ -76,6 +77,7 @@ export class TileMap extends Entity {
   private _engine: Engine;
 
   public logger: Logger = Logger.getInstance();
+  private _quadTree: QuadTree<Tile>;
   public readonly tiles: Tile[] = [];
   private _rows: Tile[][] = [];
   private _cols: Tile[][] = [];
@@ -233,24 +235,31 @@ export class TileMap extends Entity {
     this.tileHeight = options.tileHeight;
     this.rows = options.rows;
     this.columns = options.columns;
+
+    // TODO we need to invalidate the quad tree if the tilemap ever moves
+    this._quadTree = new QuadTree<Tile>(
+      BoundingBox.fromDimension(
+        this.columns * this.tileWidth,
+        this.rows * this.tileHeight, Vector.Zero, this.pos));
     this.tiles = new Array<Tile>(this.rows * this.columns);
     this._rows = new Array(this.rows);
     this._cols = new Array(this.columns);
     let currentCol: Tile[] = [];
     for (let i = 0; i < this.columns; i++) {
       for (let j = 0; j < this.rows; j++) {
-        const cd = new Tile({
+        const tile = new Tile({
           x: i,
           y: j,
           map: this
         });
-        cd.map = this;
-        this.tiles[i + j * this.columns] = cd;
-        currentCol.push(cd);
+        tile.map = this;
+        this._quadTree.insert(tile);
+        this.tiles[i + j * this.columns] = tile;
+        currentCol.push(tile);
         if (!this._rows[j]) {
           this._rows[j] = [];
         }
-        this._rows[j].push(cd);
+        this._rows[j].push(tile);
       }
       this._cols[i] = currentCol;
       currentCol = [];
@@ -395,7 +404,7 @@ export class TileMap extends Entity {
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
     if (!this._oldPos.equals(this.pos) ||
-        !this._oldScale.equals(this.scale)) {
+      !this._oldScale.equals(this.scale)) {
       this.flagCollidersDirty();
       this.flagTilesDirty();
     }
@@ -421,14 +430,10 @@ export class TileMap extends Entity {
   public draw(ctx: ExcaliburGraphicsContext, delta: number): void {
     this.emit('predraw', new PreDrawEvent(ctx as any, delta, this)); // TODO fix event
     let worldBounds = this._engine.screen.getWorldBounds();
-    // TODO can we trim this down by using world bounds?
-    let x = 0;
-    const xEnd = this.columns;
-    let y = 0;
-    const yEnd = this.rows;
+    let screenBounds = this._engine.screen.getScreenBounds();
 
     let graphics: readonly Graphic[], graphicsIndex: number, graphicsLen: number;
-    const drawAllTiles = this._transform.coordPlane === CoordPlane.Screen;
+    const isScreenCoords = this._transform.coordPlane === CoordPlane.Screen;
 
     const maybeParallax = this.get(ParallaxComponent);
     if (maybeParallax) {
@@ -440,31 +445,23 @@ export class TileMap extends Entity {
       worldBounds = worldBounds.translate(pos);
     }
 
-    let tile: Tile;
-    for (x; x < xEnd; x++) {
-      for (y; y < yEnd; y++) {
-        tile = this.getTile(x, y);
-        // fixme: This has a large perf impact, we iterate over every tile in the tilemap
-        // this probably requires a spatial data structure to do more efficiently
-        if (!drawAllTiles && !worldBounds.overlaps(tile.bounds)) {
-          continue;
-        }
-        // get non-negative tile sprites
-        graphics = this.getTile(x, y).getGraphics();
+    const tiles = this._quadTree.query(isScreenCoords ? screenBounds : worldBounds);
+    for (let i = 0; i < tiles.length; i++) {
+      const tile = tiles[i];
+      // get non-negative tile sprites
+      graphics = tile.getGraphics();
 
-        for (graphicsIndex = 0, graphicsLen = graphics.length; graphicsIndex < graphicsLen; graphicsIndex++) {
-          // draw sprite, warning if sprite doesn't exist
-          const graphic = graphics[graphicsIndex];
-          if (graphic) {
-            if (hasGraphicsTick(graphic)) {
-              graphic?.tick(delta, this._token);
-            }
-            const offsetY = this.renderFromTopOfGraphic ? 0 : (graphic.height - this.tileHeight);
-            graphic.draw(ctx, x * this.tileWidth, y * this.tileHeight - offsetY);
+      for (graphicsIndex = 0, graphicsLen = graphics.length; graphicsIndex < graphicsLen; graphicsIndex++) {
+        // draw sprite, warning if sprite doesn't exist
+        const graphic = graphics[graphicsIndex];
+        if (graphic) {
+          if (hasGraphicsTick(graphic)) {
+            graphic?.tick(delta, this._token);
           }
+          const offsetY = this.renderFromTopOfGraphic ? 0 : (graphic.height - this.tileHeight);
+          graphic.draw(ctx, tile.x * this.tileWidth, tile.y * this.tileHeight - offsetY);
         }
       }
-      y = 0;
     }
 
     this.emit('postdraw', new PostDrawEvent(ctx as any, delta, this));
