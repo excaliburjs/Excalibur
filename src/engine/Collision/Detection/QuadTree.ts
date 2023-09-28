@@ -1,3 +1,5 @@
+import { Color } from '../../Color';
+import { ExcaliburGraphicsContext } from '../../Graphics';
 import { BoundingBox } from '../BoundingBox';
 
 export interface QuadTreeItem {
@@ -193,5 +195,15 @@ export class QuadTree<TItem extends QuadTreeItem> {
     this.topRight = null;
     this.bottomLeft = null;
     this.bottomRight = null;
+  }
+
+  debug(ctx: ExcaliburGraphicsContext) {
+    this.bounds.draw(ctx, Color.Yellow);
+    if (this._isDivided) {
+      this.topLeft.bounds.draw(ctx, Color.Yellow);
+      this.topRight.bounds.draw(ctx, Color.Yellow);
+      this.bottomLeft.bounds.draw(ctx, Color.Yellow);
+      this.bottomRight.bounds.draw(ctx, Color.Yellow);
+    }
   }
 }

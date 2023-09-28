@@ -138,12 +138,13 @@ export class TileMap extends Entity {
     }
   }
 
+  private _oldRotation: number;
   public get rotation(): number {
     return this._transform?.rotation ?? 0;
   }
 
   public set rotation(val: number) {
-    if (this._transform?.rotation) {
+    if (this._transform) {
       this._transform.rotation = val;
     }
   }
@@ -219,7 +220,7 @@ export class TileMap extends Entity {
         onPostDraw: (ctx, delta) => this.draw(ctx, delta)
       })
     );
-    this.addComponent(new DebugGraphicsComponent((ctx) => this.debug(ctx)));
+    this.addComponent(new DebugGraphicsComponent((ctx) => this.debug(ctx), false));
     this.addComponent(new ColliderComponent());
     this._graphics = this.get(GraphicsComponent);
     this._transform = this.get(TransformComponent);
@@ -289,6 +290,20 @@ export class TileMap extends Entity {
       return this._originalOffsets.get(collider);
     }
   }
+
+  private _updateQuadTree() {
+    this._quadTree = new QuadTree<Tile>(
+      BoundingBox.fromDimension(this.columns * this.tileWidth, this.rows * this.tileHeight, Vector.Zero, Vector.Zero)
+        .scale(this.scale)
+        .translate(this.pos)
+        .rotate(this.rotation, this.pos)
+    );
+
+    for (let i = 0; i < this.tiles.length; i++) {
+      this._quadTree.insert(this.tiles[i]);
+    }
+  }
+
   /**
    * Tiles colliders based on the solid tiles in the tilemap.
    */
@@ -298,6 +313,7 @@ export class TileMap extends Entity {
     const colliders: BoundingBox[] = [];
     this._composite = this._collider.useCompositeCollider([]);
     let current: BoundingBox;
+    
     // Bad square tesselation algo
     for (let i = 0; i < this.columns; i++) {
       // Scan column for colliders
@@ -323,13 +339,14 @@ export class TileMap extends Entity {
               colliders.push(current);
             }
             current = null;
-          } else {
+          // Use the bounding box
+          } else { 
             if (!current) {
               // no current run, start one
-              current = tile.bounds;
+              current = tile.defaultGeometry;
             } else {
               // combine with current run
-              current = current.combine(tile.bounds);
+              current = current.combine(tile.defaultGeometry);
             }
           }
         } else {
@@ -404,6 +421,7 @@ export class TileMap extends Entity {
     this.onPreUpdate(engine, delta);
     this.emit('preupdate', new PreUpdateEvent(engine, delta, this));
     if (!this._oldPos.equals(this.pos) ||
+       this._oldRotation !== this.rotation ||
       !this._oldScale.equals(this.scale)) {
       this.flagCollidersDirty();
       this.flagTilesDirty();
@@ -411,11 +429,13 @@ export class TileMap extends Entity {
     if (this._collidersDirty) {
       this._collidersDirty = false;
       this._updateColliders();
+      this._updateQuadTree();
     }
 
     this._token++;
 
     this.pos.clone(this._oldPos);
+    this._oldRotation = this.rotation;
     this.scale.clone(this._oldScale);
     this._transform.pos = this.pos;
     this.onPostUpdate(engine, delta);
@@ -468,20 +488,23 @@ export class TileMap extends Entity {
   }
 
   public debug(gfx: ExcaliburGraphicsContext) {
-    const width = this.tileWidth * this.columns;
-    const height = this.tileHeight * this.rows;
-    const pos = Vector.Zero;
+    const width = this.tileWidth * this.columns * this.scale.x;
+    const height = this.tileHeight * this.rows * this.scale.y;
+    const pos = this.pos;
     for (let r = 0; r < this.rows + 1; r++) {
-      const yOffset = vec(0, r * this.tileHeight);
+      const yOffset = vec(0, r * this.tileHeight * this.scale.y);
       gfx.drawLine(pos.add(yOffset), pos.add(vec(width, yOffset.y)), Color.Red, 2);
     }
 
     for (let c = 0; c < this.columns + 1; c++) {
-      const xOffset = vec(c * this.tileWidth, 0);
+      const xOffset = vec(c * this.tileWidth * this.scale.x, 0);
       gfx.drawLine(pos.add(xOffset), pos.add(vec(xOffset.x, height)), Color.Red, 2);
     }
 
     const colliders = this._composite.getColliders();
+    gfx.save();
+    gfx.translate(this.pos.x, this.pos.y);
+    gfx.scale(this.scale.x, this.scale.y);
     for (const collider of colliders) {
       const grayish = Color.Gray;
       grayish.a = 0.5;
@@ -489,6 +512,14 @@ export class TileMap extends Entity {
       const pos = collider.worldPos.sub(this.pos);
       gfx.drawRectangle(pos, bounds.width, bounds.height, grayish);
     }
+    gfx.restore();
+    gfx.save();
+    gfx.z = 999;
+    this._quadTree.debug(gfx);
+    for (let i = 0; i < this.tiles.length; i++) {
+      this.tiles[i].bounds.draw(gfx);
+    }
+    gfx.restore();
   }
 }
 
@@ -518,6 +549,7 @@ export interface TileOptions {
  */
 export class Tile extends Entity {
   private _bounds: BoundingBox;
+  private _geometry: BoundingBox;
   private _pos: Vector;
   private _posDirty = false;
   // private _transform: TransformComponent;
@@ -677,13 +709,21 @@ export class Tile extends Entity {
   }
 
   private _recalculate() {
+    const geometryPos = this.map.pos.add(vec(this.x * this.map.tileWidth, this.y * this.map.tileHeight));
+    this._geometry = new BoundingBox(geometryPos.x, geometryPos.y, geometryPos.x + this.map.tileWidth, geometryPos.y + this.map.tileHeight);
+
     this._width = this.map.tileWidth * this.map.scale.x;
     this._height = this.map.tileHeight * this.map.scale.y;
+
     this._pos = this.map.pos.add(
       vec(
         this.x * this._width,
         this.y * this._height));
     this._bounds = new BoundingBox(this._pos.x, this._pos.y, this._pos.x + this._width, this._pos.y + this._height);
+
+    if (this.map.rotation) {
+      this._bounds = this._bounds.rotate(this.map.rotation, this.map.pos);
+    }
     this._posDirty = false;
   }
 
@@ -695,6 +735,10 @@ export class Tile extends Entity {
       this._recalculate();
     }
     return this._bounds;
+  }
+
+  public get defaultGeometry() {
+    return this._geometry;
   }
 
   /**
