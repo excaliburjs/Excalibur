@@ -313,7 +313,7 @@ export class TileMap extends Entity {
     const colliders: BoundingBox[] = [];
     this._composite = this._collider.useCompositeCollider([]);
     let current: BoundingBox;
-    
+
     // Bad square tesselation algo
     for (let i = 0; i < this.columns; i++) {
       // Scan column for colliders
@@ -340,7 +340,7 @@ export class TileMap extends Entity {
             }
             current = null;
           // Use the bounding box
-          } else { 
+          } else {
             if (!current) {
               // no current run, start one
               current = tile.defaultGeometry;
