@@ -197,7 +197,6 @@ export class Animation extends Graphic implements HasTick {
    *
    * const anim = Animation.fromSpriteSheet(spriteSheet, range(0, 5), 200, AnimationStrategy.Loop);
    * ```
-   *
    * @param spriteSheet
    * @param frameIndices
    * @param durationPerFrameMs
@@ -245,7 +244,6 @@ export class Animation extends Graphic implements HasTick {
    *  strategy: AnimationStrategy.PingPong
    * });
    * ```
-   *
    * @param options
    * @returns Animation
    */

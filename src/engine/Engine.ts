@@ -919,7 +919,6 @@ O|===|* >________________>\n\
   /**
    * Adds a [[Scene]] to the engine, think of scenes in Excalibur as you
    * would levels or menus.
-   *
    * @param key  The name of the scene, must be unique
    * @param scene The scene to add to the engine
    */
@@ -984,7 +983,6 @@ O|===|* >________________>\n\
    *
    * Actors can only be drawn if they are a member of a scene, and only
    * the [[currentScene]] may be drawn or updated.
-   *
    * @param actor  The actor to add to the [[currentScene]]
    */
   public add(actor: Actor): void;
@@ -1033,7 +1031,6 @@ O|===|* >________________>\n\
    * Removes an actor from the [[currentScene]] of the game. This is synonymous
    * to calling `engine.currentScene.removeChild(actor)`.
    * Actors that are removed from a scene will no longer be drawn or updated.
-   *
    * @param actor  The actor to remove from the [[currentScene]].
    */
   public remove(actor: Actor): void;

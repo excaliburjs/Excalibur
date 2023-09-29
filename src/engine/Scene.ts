@@ -326,7 +326,6 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _predraw handler for [[onPreDraw]] lifecycle event
-   *
    * @internal
    */
   public _predraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
@@ -338,7 +337,6 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
    * Internal _postdraw handler for [[onPostDraw]] lifecycle event
-   *
    * @internal
    */
   public _postdraw(_ctx: ExcaliburGraphicsContext, _delta: number): void {
@@ -381,7 +379,6 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
 
   /**
    * Draws all the actors in the Scene. Called by the [[Engine]].
-   *
    * @param ctx    The current rendering context
    * @param delta  The number of milliseconds since the last draw
    */

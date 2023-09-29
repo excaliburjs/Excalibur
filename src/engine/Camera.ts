@@ -61,7 +61,6 @@ export class StrategyContainer {
    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
    * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillating spring that will over
    * correct and bounce around the target
-   *
    * @param actor Target actor to elastically follow
    * @param cameraElasticity [0 - 1.0] The higher the elasticity the more force that will drive the camera towards the target
    * @param cameraFriction [0 - 1.0] The higher the friction the more that the camera will resist motion towards the target
@@ -131,7 +130,6 @@ export class ElasticToActorStrategy implements CameraStrategy<Actor> {
    * If cameraElasticity < cameraFriction < 1.0, the behavior will be a dampened spring that will slowly end at the target without bouncing
    * If cameraFriction < cameraElasticity < 1.0, the behavior will be an oscillating spring that will over
    * correct and bounce around the target
-   *
    * @param target Target actor to elastically follow
    * @param cameraElasticity [0 - 1.0] The higher the elasticity the more force that will drive the camera towards the target
    * @param cameraFriction [0 - 1.0] The higher the friction the more that the camera will resist motion towards the target
@@ -194,7 +192,6 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
    * Thus, it is a good idea to combine it with other camera strategies and set this strategy as the last one.
    *
    * Make sure that the camera bounds are at least as large as the viewport size.
-   *
    * @param target The bounding box to limit the camera to
    */
 
@@ -444,7 +441,6 @@ export class Camera implements CanUpdate, CanInitialize {
 
   /**
    * This moves the camera focal point to the specified position using specified easing function. Cannot move when following an Actor.
-   *
    * @param pos The target position to move to
    * @param duration The duration in milliseconds the move should last
    * @param [easingFn] An optional easing function ([[ex.EasingFunctions.EaseInOutCubic]] by default)
