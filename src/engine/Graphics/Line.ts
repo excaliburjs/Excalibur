@@ -44,7 +44,7 @@ export class Line extends Graphic {
       this.end.add(lineNormal.scale(halfThickness)),
       this.end.add(lineNormal.scale(-halfThickness)),
       this.start.add(lineNormal.scale(-halfThickness))
-    ]
+    ];
 
     return BoundingBox.fromPoints(points);
   }
