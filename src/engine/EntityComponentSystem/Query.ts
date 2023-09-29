@@ -36,7 +36,6 @@ export class Query<T extends Component = Component> extends Observable<AddedEnti
 
   /**
    * Returns a list of entities that match the query
-   *
    * @param sort Optional sorting function to sort entities returned from the query
    */
   public getEntities(sort?: (a: Entity, b: Entity) => number): Entity[] {

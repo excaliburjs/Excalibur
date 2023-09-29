@@ -193,7 +193,6 @@ export class Shader {
    * Set an integer uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -205,7 +204,6 @@ export class Shader {
    * Set an integer uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -217,7 +215,6 @@ export class Shader {
    * Set an integer array uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -229,7 +226,6 @@ export class Shader {
    * Set an integer array uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -241,7 +237,6 @@ export class Shader {
    * Set a boolean uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -253,7 +248,6 @@ export class Shader {
    * Set a boolean uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -265,7 +259,6 @@ export class Shader {
    * Set a float uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -277,7 +270,6 @@ export class Shader {
    * Set a float uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -289,7 +281,6 @@ export class Shader {
    * Set a float array uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -300,7 +291,6 @@ export class Shader {
    * Set a float array uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -312,7 +302,6 @@ export class Shader {
    * Set a [[Vector]] uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -324,7 +313,6 @@ export class Shader {
    * Set a [[Vector]] uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -336,7 +324,6 @@ export class Shader {
    * Set a [[Color]] uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -348,7 +335,6 @@ export class Shader {
    * Set a [[Color]] uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -360,7 +346,6 @@ export class Shader {
    * Set an [[Matrix]] uniform for the current shader
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */
@@ -372,7 +357,6 @@ export class Shader {
    * Set an [[Matrix]] uniform for the current shader, WILL NOT THROW on error.
    *
    * **Important** Must call ex.Shader.use() before setting a uniform!
-   *
    * @param name
    * @param value
    */

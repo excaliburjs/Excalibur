@@ -469,7 +469,6 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
    * Initializes this entity, meant to be called by the Scene before first update not by users of Excalibur.
    *
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
-   *
    * @internal
    */
   public _initialize(engine: Engine) {
@@ -532,8 +531,7 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
 
   /**
    *
-   * Entity update lifecycle, called internally
-   *
+   *Entity update lifecycle, called internally
    * @internal
    * @param engine
    * @param delta

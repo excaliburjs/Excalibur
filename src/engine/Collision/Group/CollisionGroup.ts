@@ -105,7 +105,6 @@ export class CollisionGroup {
 
   /**
    * Combine collision groups with each other. The new group includes all of the previous groups.
-   *
    * @param collisionGroups
    */
   public static combine(collisionGroups: CollisionGroup[]) {

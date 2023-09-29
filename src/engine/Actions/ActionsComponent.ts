@@ -255,11 +255,10 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * ```typescript
    * // Move up in a zig-zag by repeated moveBy's
    * actor.actions.repeat(repeatCtx => {
-   *  repeatCtx.moveBy(10, 0, 10);
-   *  repeatCtx.moveBy(0, 10, 10);
+   * repeatCtx.moveBy(10, 0, 10);
+   * repeatCtx.moveBy(0, 10, 10);
    * }, 5);
    * ```
-   *
    * @param repeatBuilder The builder to specify the repeatable list of actions
    * @param times  The number of times to repeat all the previous actions in the action queue. If nothing is specified the actions
    * will repeat forever
@@ -277,11 +276,10 @@ export class ActionsComponent extends Component<'ex.actions'> implements ActionC
    * ```typescript
    * // Move up in a zig-zag by repeated moveBy's
    * actor.actions.repeat(repeatCtx => {
-   *  repeatCtx.moveBy(10, 0, 10);
-   *  repeatCtx.moveBy(0, 10, 10);
+   * repeatCtx.moveBy(10, 0, 10);
+   * repeatCtx.moveBy(0, 10, 10);
    * }, 5);
    * ```
-   *
    * @param repeatBuilder The builder to specify the repeatable list of actions
    */
   public repeatForever(repeatBuilder: (repeatContext: ActionContext) => any): ActionContext {

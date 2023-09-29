@@ -617,7 +617,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * Initializes this actor and all it's child actors, meant to be called by the Scene before first update not by users of Excalibur.
    *
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
-   *
    * @internal
    */
   public _initialize(engine: Engine) {
@@ -772,7 +771,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   /**
    * Gets this actor's rotation taking into account any parent relationships
-   *
    * @returns Rotation angle in radians
    */
   public getGlobalRotation(): number {
@@ -781,7 +779,6 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   /**
    * Gets an actor's world position taking into account parent relationships, scaling, rotation, and translation
-   *
    * @returns Position in world coordinates
    */
   public getGlobalPos(): Vector {

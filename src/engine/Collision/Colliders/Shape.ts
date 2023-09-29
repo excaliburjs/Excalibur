@@ -71,7 +71,6 @@ export class Shape {
    *
    * Capsule colliders are useful for platformers with incline or jagged floors to have a smooth
    * player experience.
-   *
    * @param width
    * @param height
    * @param offset Optional offset

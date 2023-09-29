@@ -120,7 +120,6 @@ export class VertexLayout {
 
   /**
    * Bind this layout with it's associated vertex buffer
-   *
    * @param uploadBuffer Optionally indicate you wish to upload the buffer to the GPU associated with this layout
    */
   use(uploadBuffer = false, count?: number) {
