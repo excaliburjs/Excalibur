@@ -41,13 +41,34 @@ describe('A Line', () => {
   it('has correct local bounds', () => {
     const sut = new ex.Line({
       start: ex.vec(0, 0),
-      end: ex.vec(50, 70),
+      end: ex.vec(50, 50),
       color: ex.Color.Green,
       thickness: 5
     });
 
-    expect(sut.width).toBe(50);
-    expect(sut.height).toBe(70);
+    expect(sut.localBounds.left).toBeCloseTo(-1.767, 2);
+    expect(sut.localBounds.top).toBeCloseTo(-1.767, 2);
+    expect(sut.localBounds.bottom).toBeCloseTo(51.767, 2);
+    expect(sut.localBounds.right).toBeCloseTo(51.767, 2);
+
+    expect(sut.width).toBeCloseTo(53.535, 2);
+    expect(sut.height).toBeCloseTo(53.535, 2);
+  });
+
+  it('has correct bounds when horizontal', () => {
+    const sut = new ex.Line({
+      start: ex.vec(0, 0),
+      end: ex.vec(1000, 0),
+      thickness: 4
+    });
+
+    expect(sut.localBounds.left).toBe(0);
+    expect(sut.localBounds.top).toBe(-2);
+    expect(sut.localBounds.bottom).toBe(2);
+    expect(sut.localBounds.right).toBe(1000);
+
+    expect(sut.width).toBe(1000);
+    expect(sut.height).toBe(4);
   });
 
   it('can draw a line', async () => {
