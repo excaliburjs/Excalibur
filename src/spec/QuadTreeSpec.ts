@@ -38,8 +38,8 @@ describe('A QuadTree', () => {
         bottom: 100,
         right: 100
       }), {
-      capacity: 1
-    });
+        capacity: 1
+      });
 
 
     const bb1 = ex.BoundingBox.fromDimension(10, 10, ex.Vector.Zero, ex.vec(0, 0));
@@ -106,8 +106,8 @@ describe('A QuadTree', () => {
         bottom: 100,
         right: 100
       }), {
-      capacity: 1
-    });
+        capacity: 1
+      });
 
 
     const bb1 = ex.BoundingBox.fromDimension(10, 10, ex.Vector.Zero, ex.vec(0, 0));
@@ -142,9 +142,9 @@ describe('A QuadTree', () => {
         bottom: 100,
         right: 100
       }), {
-      capacity: 1,
-      maxDepth: 10
-    });
+        capacity: 1,
+        maxDepth: 10
+      });
 
     let id = 0;
     for (let i = 0; i < 15; i++) {
