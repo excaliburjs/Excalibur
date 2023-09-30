@@ -1,7 +1,7 @@
 import * as ex from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 
-fdescribe('A QuadTree', () => {
+describe('A QuadTree', () => {
 
   it('exists', () => {
     expect(ex.QuadTree).toBeDefined();
