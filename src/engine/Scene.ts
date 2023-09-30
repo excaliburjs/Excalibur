@@ -178,7 +178,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
    * overridden. This is where initialization of child actors should take place.
    */
-  public onInitialize(_engine: Engine): void {
+  public async onInitialize(_engine: Engine) {
     // will be overridden
   }
 
@@ -239,9 +239,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   /**
    * Initializes actors in the scene
    */
-  private _initializeChildren(): void {
+  private async _initializeChildren() {
     for (const child of this.entities) {
-      child._initialize(this.engine);
+      await child._initialize(this.engine);
     }
   }
 
@@ -259,7 +259,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Excalibur
    * @internal
    */
-  public _initialize(engine: Engine) {
+  public async _initialize(engine: Engine) {
     if (!this.isInitialized) {
       this.engine = engine;
       // Initialize camera first
@@ -269,8 +269,8 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
-      this.onInitialize.call(this, engine);
-      this._initializeChildren();
+      await this.onInitialize.call(this, engine);
+      await this._initializeChildren();
 
       this._logger.debug('Scene.onInitialize', this, engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));

@@ -111,8 +111,8 @@ export class Label extends Actor {
     gfx.use(this._text);
   }
 
-  public _initialize(engine: Engine) {
-    super._initialize(engine);
+  public async _initialize(engine: Engine) {
+    await super._initialize(engine);
   }
 
   /**

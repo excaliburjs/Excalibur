@@ -274,8 +274,8 @@ export class TileMap extends Entity {
     });
   }
 
-  public _initialize(engine: Engine) {
-    super._initialize(engine);
+  public async _initialize(engine: Engine) {
+    await super._initialize(engine);
     this._engine = engine;
   }
 

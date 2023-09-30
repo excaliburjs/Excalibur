@@ -609,7 +609,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * Synonymous with the event handler `.on('initialize', (evt) => {...})`
    */
-  public onInitialize(_engine: Engine): void {
+  public async onInitialize(_engine: Engine) {
     // Override me
   }
 
@@ -619,10 +619,10 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    * @internal
    */
-  public _initialize(engine: Engine) {
-    super._initialize(engine);
+  public async _initialize(engine: Engine) {
+    await super._initialize(engine);
     for (const child of this.children) {
-      child._initialize(engine);
+      await child._initialize(engine);
     }
   }
 

@@ -1,4 +1,5 @@
 import { EX_VERSION } from './';
+import { Future } from './Util/Future'
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Gamepads } from './Input/Gamepad';
 import { Keyboard } from './Input/Keyboard';
@@ -1059,7 +1060,7 @@ O|===|* >________________>\n\
    * @param key  The key of the scene to transition to.
    * @param data Optional data to send to the scene's onActivate method
    */
-  public goToScene<TData = undefined>(key: string, data?: TData): void {
+  public async goToScene<TData = undefined>(key: string, data?: TData): Promise<void> {
     // if not yet initialized defer goToScene
     if (!this.isInitialized) {
       this._deferredGoTo = key;
@@ -1083,8 +1084,9 @@ O|===|* >________________>\n\
       this.currentScene = nextScene;
       this.screen.setCurrentCamera(nextScene.camera);
 
+      // TODO some kind of optional loader?
       // initialize the current scene if has not been already
-      this.currentScene._initialize(this);
+      await this.currentScene._initialize(this);
 
       const context = { engine: this, previousScene, nextScene, data };
       this.currentScene._activate.apply(this.currentScene, [context, nextScene]);
@@ -1150,7 +1152,7 @@ O|===|* >________________>\n\
     }
   }
 
-  public onInitialize(_engine: Engine) {
+  public async onInitialize(_engine: Engine) {
     // Override me
   }
 
@@ -1178,17 +1180,17 @@ O|===|* >________________>\n\
     return this._isInitialized;
   }
 
-  private _overrideInitialize(engine: Engine) {
+  private async _overrideInitialize(engine: Engine) {
     if (!this.isInitialized) {
-      this.onInitialize(engine);
+      await this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
       if (this._deferredGoTo) {
         const deferredScene = this._deferredGoTo;
         this._deferredGoTo = null;
-        this.goToScene(deferredScene);
+        await this.goToScene(deferredScene);
       } else {
-        this.goToScene('root');
+        await this.goToScene('root');
       }
     }
   }
@@ -1330,15 +1332,12 @@ O|===|* >________________>\n\
   }
 
   private _isReady = false;
+  private _isReadyFuture = new Future<void>()
   public get ready() {
-    return this._isReady;
+    return this._isReadyFuture.isCompleted;
   }
-  private _isReadyResolve: () => any;
-  private _isReadyPromise = new Promise<void>(resolve => {
-    this._isReadyResolve = resolve;
-  });
   public isReady(): Promise<void> {
-    return this._isReadyPromise;
+    return this._isReadyFuture.promise;
   }
 
 
@@ -1387,13 +1386,13 @@ O|===|* >________________>\n\
     this._loadingComplete = true;
 
     // Initialize before ready
-    this._overrideInitialize(this);
+    await this._overrideInitialize(this);
 
     this._isReady = true;
 
-    this._isReadyResolve();
+    this._isReadyFuture.resolve();
     this.emit('start', new GameStartEvent(this));
-    return this._isReadyPromise;
+    return this._isReadyFuture.promise;
   }
 
   /**
