@@ -46,6 +46,7 @@ import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 import { Toaster } from './Util/Toaster';
 import { InputMapper } from './Input/InputMapper';
+import { isAsync } from './Util/Util';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
@@ -1152,7 +1153,7 @@ O|===|* >________________>\n\
     }
   }
 
-  public async onInitialize(_engine: Engine) {
+  public onInitialize(_engine: Engine) {
     // Override me
   }
 
@@ -1182,7 +1183,11 @@ O|===|* >________________>\n\
 
   private async _overrideInitialize(engine: Engine) {
     if (!this.isInitialized) {
-      await this.onInitialize(engine);
+      if (isAsync) {
+        await this.onInitialize(engine);
+      } else {
+        this.onInitialize(engine);
+      }
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
       if (this._deferredGoTo) {

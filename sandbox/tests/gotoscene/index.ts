@@ -1,5 +1,7 @@
 class Scene1 extends ex.Scene {
   async onInitialize(_engine: ex.Engine) {
+
+    await ex.Util.delay(1000);
     const actor = new ex.Actor({
       x: _engine.halfDrawWidth,
       y: _engine.halfDrawHeight,
@@ -24,7 +26,7 @@ class Scene1 extends ex.Scene {
 
 
 class Scene2 extends ex.Scene {
-  async onInitialize(_engine: ex.Engine) {
+  onInitialize(_engine: ex.Engine) {
     // _engine.start();
     const actor = new ex.Actor({
       pos: ex.Vector.Zero,

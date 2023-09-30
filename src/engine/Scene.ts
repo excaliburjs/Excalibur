@@ -33,6 +33,7 @@ import { OffscreenSystem } from './Graphics/OffscreenSystem';
 import { ExcaliburGraphicsContext } from './Graphics';
 import { PhysicsWorld } from './Collision/PhysicsWorld';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
+import { isAsync } from './Util/Util';
 
 export type SceneEvents = {
   initialize: InitializeEvent<Scene>,
@@ -178,7 +179,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * This is called before the first update of the [[Scene]]. Initializes scene members like the camera. This method is meant to be
    * overridden. This is where initialization of child actors should take place.
    */
-  public async onInitialize(_engine: Engine) {
+  public onInitialize(_engine: Engine) {
     // will be overridden
   }
 
@@ -252,6 +253,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     return this._isInitialized;
   }
 
+
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    *
@@ -269,7 +271,13 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
-      await this.onInitialize.call(this, engine);
+      if (isAsync(this.onInitialize)) {
+        console.log('Async scene init')
+        await this.onInitialize.call(this, engine);
+      } else {
+        console.log('Sync scene init')
+        this.onInitialize.call(this, engine);
+      }
       await this._initializeChildren();
 
       this._logger.debug('Scene.onInitialize', this, engine);

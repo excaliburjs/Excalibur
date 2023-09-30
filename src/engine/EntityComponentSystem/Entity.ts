@@ -5,6 +5,7 @@ import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/Lifecycle
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
 import { EventEmitter, EventKey, Handler, Scene, Subscription, Util } from '..';
+import { isAsync } from '../Util/Util';
 
 /**
  * Interface holding an entity component pair
@@ -479,7 +480,11 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
    */
   public async _initialize(engine: Engine) {
     if (!this.isInitialized) {
-      await this.onInitialize(engine);
+      if (isAsync(this.onInitialize)) {
+        await this.onInitialize(engine);
+      } else {
+        this.onInitialize(engine);
+      }
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
     }

@@ -609,7 +609,7 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    *
    * Synonymous with the event handler `.on('initialize', (evt) => {...})`
    */
-  public async onInitialize(_engine: Engine) {
+  public onInitialize(_engine: Engine) {
     // Override me
   }
 
