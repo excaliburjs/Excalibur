@@ -578,7 +578,7 @@ export class Screen {
    * Returns a BoundingBox of the top left corner of the screen
    * and the bottom right corner of the screen.
    *
-   * World bounds are in world coordinates, useful for culling objects offscreen
+   * World bounds are in world coordinates, useful for culling objects offscreen that are in world space
    */
   public getWorldBounds(): BoundingBox {
     const bounds = BoundingBox.fromDimension(
@@ -588,6 +588,19 @@ export class Screen {
       .scale(vec(1/this._camera.zoom, 1/this._camera.zoom))
       .rotate(this._camera.rotation)
       .translate(this._camera.pos);
+    return bounds;
+  }
+
+  /**
+   * Returns a BoundingBox of the top left corner of the screen and the bottom right corner of the screen.
+   *
+   * Screen bounds are in screen coordinates, useful for culling objects offscreen that are in screen space
+   */
+  public getScreenBounds(): BoundingBox {
+    const bounds = BoundingBox.fromDimension(
+      this.resolution.width,
+      this.resolution.height,
+      Vector.Zero, Vector.Zero);
     return bounds;
   }
 

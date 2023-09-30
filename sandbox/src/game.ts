@@ -404,8 +404,16 @@ var tileBlockWidth = 64,
 var blockGroup = ex.CollisionGroupManager.create('ground');
 // create a collision map
 // var tileMap = new ex.TileMap(100, 300, tileBlockWidth, tileBlockHeight, 4, 500);
-var tileMap = new ex.TileMap({name: 'tilemap', pos: ex.vec(100, 300), tileWidth: tileBlockWidth, tileHeight: tileBlockHeight, rows: 4, columns: 500 });
+var tileMap = new ex.TileMap({
+  name: 'tilemap', 
+  pos: ex.vec(-300, 300),
+  tileWidth: tileBlockWidth,
+  tileHeight: tileBlockHeight,
+  rows: 4,
+  columns: 500 
+});
 tileMap.get(ex.BodyComponent).group = blockGroup;
+// tileMap.get(ex.TransformComponent).coordPlane = ex.CoordPlane.Screen;
 var blocks = ex.Sprite.from(imageBlocks);
 // var flipped = spriteTiles.sprites[0].clone();
 // flipped.flipVertical = true;
