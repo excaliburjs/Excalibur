@@ -102,7 +102,7 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
     if (name) {
       this._name = name;
     } else {
-      this._name = `Entity#${this.id}`
+      this._name = `Entity#${this.id}`;
     }
   }
   public get name(): string {
@@ -110,7 +110,7 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
   }
 
   public set name(name: string) {
-    this._setName(name)
+    this._setName(name);
   }
 
   /**
