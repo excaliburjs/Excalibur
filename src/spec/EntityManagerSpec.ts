@@ -80,7 +80,7 @@ describe('An EntityManager', () => {
     entityManager.addEntity(entity);
     entityManager.addEntity(entity2);
     expect(entityManager.getByName('some-e')).toEqual([entity]);
-    expect(entityManager.getByName('anonymous')).toEqual([entity2]);
+    expect(entityManager.getByName(entity2.name)).toEqual([entity2]);
   });
 
   it('can clear entities', () => {
