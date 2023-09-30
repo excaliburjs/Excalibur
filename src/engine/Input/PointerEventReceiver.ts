@@ -212,6 +212,7 @@ export class PointerEventReceiver {
     for (const event of this.currentFrameWheel) {
       this.emit('wheel', event);
       this.primary.emit('pointerwheel', event);
+      this.primary.emit('wheel', event);
     }
   }
 
