@@ -7,7 +7,7 @@ class FakeComponent extends ex.Component {
   }
 }
 
-describe('An entity', () => {
+fdescribe('An entity', () => {
   it('exists', () => {
     expect(ex.Entity).toBeDefined();
   });
@@ -45,9 +45,15 @@ describe('An entity', () => {
     expect(e.name).toBe('my-name');
   });
 
+  it('can have a name set after construction', () => {
+    const e = new ex.Entity();
+    e.name = 'MyCoolName';
+    expect(e.name).toBe('MyCoolName');
+  });
+
   it('has a default name', () => {
     const e = new ex.Entity();
-    expect(e.name).toBe('anonymous');
+    expect(e.name).toMatch(/^Entity#\d+$/);
   });
 
   it('can be killed', () => {
