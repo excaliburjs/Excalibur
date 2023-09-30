@@ -7,9 +7,9 @@ export interface QuadTreeItem {
 }
 
 export interface QuadTreeOptions {
-  maxDepth: number;
+  maxDepth?: number;
   capacity: number;
-  level: number;
+  level?: number;
 }
 
 /**
@@ -18,7 +18,7 @@ export interface QuadTreeOptions {
  */
 export class QuadTree<TItem extends QuadTreeItem> {
   private _defaultOptions: QuadTreeOptions = {
-    maxDepth: 5,
+    maxDepth: 10,
     capacity: 10,
     level: 0
   };
@@ -44,35 +44,38 @@ export class QuadTree<TItem extends QuadTreeItem> {
    */
   private _split() {
     this._isDivided = true;
+    const newLevelOptions = {
+      maxDepth: this.options.maxDepth,
+      capacity: this.options.capacity,
+      level: this.options.level + 1
+    };
     this.topLeft = new QuadTree<TItem>(
       new BoundingBox({
         left: this.bounds.left,
         top: this.bounds.top,
         right: this.bounds.left + this.halfWidth,
         bottom: this.bounds.top + this.halfHeight
-      }));
+      }), newLevelOptions);
     this.topRight = new QuadTree<TItem>(
       new BoundingBox({
         left: this.bounds.left + this.halfWidth,
         top: this.bounds.top,
         right: this.bounds.right,
         bottom: this.bounds.top + this.halfHeight
-      })
-    );
+      }), newLevelOptions);
     this.bottomLeft = new QuadTree<TItem>(new BoundingBox({
       left: this.bounds.left,
       top: this.bounds.top + this.halfHeight,
       right: this.bounds.left + this.halfWidth,
       bottom: this.bounds.bottom
-    }));
+    }), newLevelOptions);
     this.bottomRight = new QuadTree<TItem>(
       new BoundingBox({
         left: this.bounds.left + this.halfWidth,
         top: this.bounds.top + this.halfHeight,
         right: this.bounds.right,
         bottom: this.bounds.bottom
-      })
-    );
+      }), newLevelOptions);
   }
 
   private _insertIntoSubNodes(item: TItem) {
@@ -133,7 +136,7 @@ export class QuadTree<TItem extends QuadTreeItem> {
 
     if (!this._isDivided) {
       const index = this.items.indexOf(item);
-      if (index > 0) {
+      if (index > -1) {
         this.items.splice(index, 1);
       }
       return;
@@ -195,6 +198,36 @@ export class QuadTree<TItem extends QuadTreeItem> {
     this.topRight = null;
     this.bottomLeft = null;
     this.bottomRight = null;
+  }
+
+  getAllItems(): TItem[] {
+    let results = this.items;
+
+    if (this._isDivided) {
+      results = results.concat(this.topLeft.getAllItems());
+      results = results.concat(this.topRight.getAllItems());
+      results = results.concat(this.bottomLeft.getAllItems());
+      results = results.concat(this.bottomRight.getAllItems());
+    }
+
+    results = results.filter((item, index) => {
+      return results.indexOf(item) >= index;
+    });
+
+    return results;
+  }
+
+  getTreeDepth(): number {
+    if (!this._isDivided) {
+      return 0;
+    }
+
+    return 1 + Math.max(
+      this.topLeft.getTreeDepth(),
+      this.topRight.getTreeDepth(),
+      this.bottomLeft.getTreeDepth(),
+      this.bottomRight.getTreeDepth()
+    );
   }
 
   debug(ctx: ExcaliburGraphicsContext) {
