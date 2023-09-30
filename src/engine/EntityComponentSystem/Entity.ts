@@ -101,10 +101,16 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
   protected _setName(name: string) {
     if (name) {
       this._name = name;
+    } else {
+      this._name = `Entity#${this.id}`;
     }
   }
   public get name(): string {
     return this._name;
+  }
+
+  public set name(name: string) {
+    this._setName(name);
   }
 
   /**
