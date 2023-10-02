@@ -1077,7 +1077,7 @@ O|===|* >________________>\n\
       // only deactivate when initialized
       if (this.currentScene.isInitialized) {
         const context = { engine: this, previousScene, nextScene };
-        this.currentScene._deactivate.apply(this.currentScene, [context, nextScene]);
+        await this.currentScene._deactivate(context);
         this.currentScene.events.emit('deactivate', new DeactivateEvent(context, this.currentScene));
       }
 
@@ -1090,7 +1090,7 @@ O|===|* >________________>\n\
       await this.currentScene._initialize(this);
 
       const context = { engine: this, previousScene, nextScene, data };
-      this.currentScene._activate.apply(this.currentScene, [context, nextScene]);
+      await this.currentScene._activate(context);
       this.currentScene.events.emit('activate', new ActivateEvent(context, this.currentScene));
     } else {
       this._logger.error('Scene', key, 'does not exist!');

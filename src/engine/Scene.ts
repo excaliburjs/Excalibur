@@ -33,7 +33,6 @@ import { OffscreenSystem } from './Graphics/OffscreenSystem';
 import { ExcaliburGraphicsContext } from './Graphics';
 import { PhysicsWorld } from './Collision/PhysicsWorld';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
-import { isAsync } from './Util/Util';
 
 export type SceneEvents = {
   initialize: InitializeEvent<Scene>,
@@ -271,13 +270,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
 
       // This order is important! we want to be sure any custom init that add actors
       // fire before the actor init
-      if (isAsync(this.onInitialize)) {
-        console.log('Async scene init')
-        await this.onInitialize.call(this, engine);
-      } else {
-        console.log('Sync scene init')
-        this.onInitialize.call(this, engine);
-      }
+      await this.onInitialize.call(this, engine);
       await this._initializeChildren();
 
       this._logger.debug('Scene.onInitialize', this, engine);
@@ -292,9 +285,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Activates the scene with the base behavior, then calls the overridable `onActivate` implementation.
    * @internal
    */
-  public _activate(context: SceneActivationContext<TActivationData>): void {
+  public async _activate(context: SceneActivationContext<TActivationData>) {
     this._logger.debug('Scene.onActivate', this);
-    this.onActivate(context);
+    await this.onActivate(context);
   }
 
   /**
@@ -303,9 +296,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Deactivates the scene with the base behavior, then calls the overridable `onDeactivate` implementation.
    * @internal
    */
-  public _deactivate(context: SceneActivationContext<never>): void {
+  public async _deactivate(context: SceneActivationContext<never>) {
     this._logger.debug('Scene.onDeactivate', this);
-    this.onDeactivate(context);
+    await this.onDeactivate(context);
   }
 
   /**
