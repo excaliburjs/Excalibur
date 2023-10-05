@@ -425,6 +425,7 @@ var blocks = ex.Sprite.from(imageBlocks);
 // })
 tileMap.tiles.forEach(function(cell: ex.Tile) {
   cell.solid = true;
+  cell.addCollider(ex.Shape.Box(32, 32, ex.Vector.Zero))
   cell.addGraphic(spriteTiles.sprites[0]);
 });
 game.add(tileMap);
