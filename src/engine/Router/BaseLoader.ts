@@ -9,17 +9,21 @@ export class BaseLoader extends Scene {
   private _engine: Engine; // TODO wire up
   // private _currentProgress: number = 0;
 
-  // onStart() {
+  onStart() {
 
-  // }
+  }
 
   // onProgress(value: number) {
 
   // }
 
-  // onEnd() {
+  onEnd() {
 
-  // }
+  }
+
+  onUpdate() {
+
+  }
 
   addResource(res: Resource<any>) {
     this._resources.push(res);

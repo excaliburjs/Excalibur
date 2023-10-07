@@ -1,4 +1,5 @@
 import { Engine } from "../Engine";
+import { Loader } from "../Loader";
 import { Scene } from "../Scene";
 import { BaseLoader } from "./BaseLoader";
 import { Transition } from "./Transition";
@@ -12,11 +13,11 @@ export interface Route {
 }
 
 // TODO do we want to support lazy loading routes?
-export type RouteMap = Record<string, 
+export type RouteMap = Record<string,
   Scene |
   Route>;
 
-export type LoaderMap = Record<string, typeof BaseLoader>;
+export type LoaderMap = Record<string, BaseLoader>;
 
 export interface GoToOptions {
   sceneActivationData?: any,
@@ -30,6 +31,7 @@ export interface RouterOptions {
    * Starting route
    */
   start: string; // TODO keyof RouteMap
+  loader?: Loader,
   routes: RouteMap;
   loaders?: LoaderMap;
 }
@@ -40,10 +42,12 @@ export class Router {
   currentTransition: Transition;
   routes: RouteMap;
   startScene: string;
+  loaders: LoaderMap;
 
   constructor(private engine: Engine, options: RouterOptions) {
     this.routes = options.routes;
     this.startScene = options.start;
+    this.loaders = options.loaders;
     for (let sceneKey in this.routes) {
       const sceneOrRoute = this.routes[sceneKey];
       if (sceneOrRoute instanceof Scene) {
@@ -56,6 +60,17 @@ export class Router {
     this.engine.goToScene(this.startScene);
     this.currentSceneName = this.startScene;
   }
+
+  // private getLoader(sceneName: string) {
+  //   const sceneOrRoute = this.routes[sceneName];
+  //   if (sceneOrRoute instanceof Scene) {
+  //     return null;
+  //   }
+  //   if (sceneOrRoute.loader) {
+  //     return this.loaders[sceneOrRoute.loader];
+  //   }
+  //   return null;
+  // }
 
   private getInTransition(sceneName: string) {
     const sceneOrRoute = this.routes[sceneName];
@@ -92,13 +107,20 @@ export class Router {
       await this.currentTransition.done;
     }
 
+    // TODO need to know if the scene has been loaded before attempting
+    // TODO loaders are special types of scenes?
+    // TODO engine renders the loaders?
+    // const loader = this.currentScene.onLoad();
+    // TODO Default loader?
+    // const maybeLoader = this.getLoader(destinationScene);
+    const sceneToLoad = this.engine.scenes[destinationScene];
+    const loader = new Loader();
+    sceneToLoad.onLoad(loader);
+    await this.engine.load(loader);
+
     await this.engine.goToScene(destinationScene, sceneActivationData);
     this.currentScene = this.engine.currentScene;
     this.currentSceneName = destinationScene;
-
-    // TODO need to know if the scene has been loaded before attempting
-    // TODO loaders are special types of scenes?
-    // const loader = this.currentScene.onLoad();
 
     this.currentTransition?.kill();
     this.currentTransition?.reset();

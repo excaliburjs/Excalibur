@@ -175,7 +175,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     this.events.off(eventName, handler);
   }
 
-  public onLoad(_loader: Loader): Loader | void {
+  public onLoad(_loader: Loader) {
     // will be overridden
   }
 

@@ -7,14 +7,27 @@ var game = new ex.Engine({
 });
 
 var scene1 = new ex.Scene();
-scene1.add(new ex.Actor({
+var actor = new ex.Actor({
   width: 100,
   height: 100,
   pos: ex.vec(100, 100),
   color: ex.Color.Red
+})
+actor.addChild(new ex.Actor({
+  width: 100,
+  height: 100,
+  pos: ex.vec(100, 100),
+  color: ex.Color.Black
 }));
+scene1.add(actor);
 
 var scene2 = new ex.Scene();
+scene2.onLoad = (loader) => {
+  const image = new ex.ImageSource('./spritefont.png');
+  const sword = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
+  loader.addResource(image);
+  loader.addResource(sword);
+}
 scene2.add(new ex.Actor({
   width: 100,
   height: 100,
@@ -24,16 +37,17 @@ scene2.add(new ex.Actor({
 
 var router = new ex.Router(game, {
   start: 'scene1',
+  // loader: new ex.Loader(),
   routes: {
     scene1: {
       scene: scene1,
-      out: new ex.FadeOut({duration: 1000, direction: 'in', color: ex.Color.Blue}),
+      out: new ex.FadeOut({duration: 1000, direction: 'in', color: ex.Color.Black}),
       in: new ex.FadeOut({duration: 1000, direction: 'out'})
     },
     scene2: {
       scene: scene2,
       out: new ex.FadeOut({duration: 1000, direction: 'in'}),
-      in: new ex.FadeOut({duration: 1000, direction: 'out', color: ex.Color.Red })
+      in: new ex.FadeOut({duration: 1000, direction: 'out', color: ex.Color.Black })
     }
   }
 });

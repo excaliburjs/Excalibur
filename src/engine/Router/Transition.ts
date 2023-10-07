@@ -116,6 +116,13 @@ export class Transition extends Entity {
 
   }
 
+  /**
+   * Called when the transition is reset
+   */
+  onReset() {
+
+  }
+
   reset() {
     this.started = false;
     this._completeFuture = new Future<void>();
@@ -126,6 +133,7 @@ export class Transition extends Entity {
     } else {
       this._currentProgress = 1;
     }
+    this.onReset();
   }
 
   execute() {

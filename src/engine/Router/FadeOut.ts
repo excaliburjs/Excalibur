@@ -32,6 +32,10 @@ export class FadeOut extends Transition {
     this.graphics.opacity = this.progress;
   }
 
+  override onReset() {
+    this.graphics.opacity = this.progress;
+  }
+
   override onStart(progress: number): void {
     this.graphics.opacity = progress;
   }

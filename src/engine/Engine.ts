@@ -9,7 +9,7 @@ import { Flags } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
-import { Loadable } from './Interfaces/Loadable';
+// import { Loadable } from './Interfaces/Loadable';
 import { Vector } from './Math/vector';
 import { Screen, DisplayMode, ScreenDimension, Resolution } from './Screen';
 import { ScreenElement } from './ScreenElement';
@@ -46,7 +46,6 @@ import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 import { Toaster } from './Util/Toaster';
 import { InputMapper } from './Input/InputMapper';
-import { isAsync } from './Util/Util';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
@@ -458,7 +457,7 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
     return this.screen.displayMode;
   }
 
-  private _suppressPlayButton: boolean = false;
+  // private _suppressPlayButton: boolean = false;
   /**
    * Returns the calculated pixel ration for use in rendering
    */
@@ -659,7 +658,7 @@ O|===|* >________________>\n\
 
     // Suppress play button
     if (options.suppressPlayButton) {
-      this._suppressPlayButton = true;
+      // this._suppressPlayButton = true;
     }
 
     this._logger = Logger.getInstance();
@@ -761,8 +760,6 @@ O|===|* >________________>\n\
 
     this.enableCanvasTransparency = options.enableCanvasTransparency;
 
-    this._loader = new Loader();
-    this._loader.wireEngine(this);
     this.debug = new Debug(this);
 
     this._initialize(options);
@@ -1183,11 +1180,7 @@ O|===|* >________________>\n\
 
   private async _overrideInitialize(engine: Engine) {
     if (!this.isInitialized) {
-      if (isAsync) {
-        await this.onInitialize(engine);
-      } else {
-        this.onInitialize(engine);
-      }
+      await this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
       if (this._deferredGoTo) {
@@ -1205,16 +1198,15 @@ O|===|* >________________>\n\
    * @param delta  Number of milliseconds elapsed since the last update.
    */
   private _update(delta: number) {
-    if (!this.ready) {
+    if (this._isLoading) {
       // suspend updates until loading is finished
-      this._loader.update(this, delta);
+      this._loader?.onUpdate(this, delta);
       // Update input listeners
       this.inputMapper.execute();
       this.input.keyboard.update();
       this.input.gamepads.update();
       return;
     }
-
 
     // Publish preupdate events
     this._preupdate(delta);
@@ -1268,9 +1260,10 @@ O|===|* >________________>\n\
     this._predraw(this.graphicsContext, delta);
 
     // Drawing nothing else while loading
-    if (!this._isReady) {
-      this._loader.canvas.draw(this.graphicsContext, 0, 0);
+    if (this._isLoading) {
+      this._loader?.canvas.draw(this.graphicsContext, 0, 0);
       this.graphicsContext.flush();
+      this.graphicsContext.endDrawLifecycle();
       return;
     }
 
@@ -1327,16 +1320,14 @@ O|===|* >________________>\n\
     return this._isDebug;
   }
 
-  private _loadingComplete: boolean = false;
-
   /**
    * Returns true when loading is totally complete and the player has clicked start
    */
   public get loadingComplete() {
-    return this._loadingComplete;
+    return !this._isLoading;
   }
 
-  private _isReady = false;
+  private _isLoading = false;
   private _isReadyFuture = new Future<void>()
   public get ready() {
     return this._isReadyFuture.isCompleted;
@@ -1358,19 +1349,7 @@ O|===|* >________________>\n\
     if (!this._compatible) {
       throw new Error('Excalibur is incompatible with your browser');
     }
-
-    // Wire loader if we have it
-    if (loader) {
-      // Push the current user entered resolution/viewport
-      this.screen.pushResolutionAndViewport();
-
-      // Configure resolution for loader, it expects resolution === viewport
-      this.screen.resolution = this.screen.viewport;
-      this.screen.applyResolutionAndViewport();
-      this._loader = loader;
-      this._loader.suppressPlayButton = this._suppressPlayButton || this._loader.suppressPlayButton;
-      this._loader.wireEngine(this);
-    }
+    this._isLoading = true;
 
     // Start the excalibur clock which drives the mainloop
     // has started is a slight misnomer, it's really mainloop started
@@ -1379,21 +1358,10 @@ O|===|* >________________>\n\
     this.clock.start();
     this._logger.debug('Game clock started');
 
-    if (loader) {
-      await this.load(this._loader);
-      this._loadingComplete = true;
-
-      // reset back to previous user resolution/viewport
-      this.screen.popResolutionAndViewport();
-      this.screen.applyResolutionAndViewport();
-    }
-
-    this._loadingComplete = true;
+    await this.load(loader ?? new Loader());
 
     // Initialize before ready
     await this._overrideInitialize(this);
-
-    this._isReady = true;
 
     this._isReadyFuture.resolve();
     this.emit('start', new GameStartEvent(this));
@@ -1514,12 +1482,36 @@ O|===|* >________________>\n\
    * will appear.
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
-  public async load(loader: Loadable<any>): Promise<void> {
+  public async load(loader: Loader): Promise<void> {
     try {
+      // early exit if loaded
+      if (loader.isLoaded()) {
+        return;
+      }
+      this._isLoading = true;
+
+      // TODO move screen manipulation to the loader preload/postload events
+      // Push the current user entered resolution/viewport
+      this.screen.pushResolutionAndViewport();
+      // Configure resolution for loader, it expects resolution === viewport
+      this.screen.resolution = this.screen.viewport;
+      this.screen.applyResolutionAndViewport();
+
+      this._loader = loader;
+      // TODO fix this
+      //this._loader.suppressPlayButton = this._suppressPlayButton || this._loader.suppressPlayButton;
+      this._loader.onInitialize(this);
+
       await loader.load();
     } catch (e) {
       this._logger.error('Error loading resources, things may not behave properly', e);
       await Promise.resolve();
+    } finally {
+      // await delay(100);
+      // reset back to previous user resolution/viewport
+      this.screen.popResolutionAndViewport();
+      this.screen.applyResolutionAndViewport();
+      this._isLoading = false;
     }
   }
 }
