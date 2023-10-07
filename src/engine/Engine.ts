@@ -1,5 +1,5 @@
 import { BootLoader, EX_VERSION } from './';
-import { Future } from './Util/Future'
+import { Future } from './Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Gamepads } from './Input/Gamepad';
 import { Keyboard } from './Input/Keyboard';
@@ -1371,7 +1371,7 @@ O|===|* >________________>\n\
   }
 
   private _isLoading = false;
-  private _isReadyFuture = new Future<void>()
+  private _isReadyFuture = new Future<void>();
   public get ready() {
     return this._isReadyFuture.isCompleted;
   }
@@ -1383,8 +1383,8 @@ O|===|* >________________>\n\
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
-   * @param loaderOrRouterOptions  Optional [[Loader]] to use to load resources. The default loader is [[Loader]], override to provide your own
-   * custom loader.
+   * @param loaderOrRouterOptions  Optional [[Loader]] to use to load resources. The default loader is [[Loader]],
+   * override to provide your own custom loader.
    *
    * Note: start() only resolves AFTER the user has clicked the play button
    */

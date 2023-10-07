@@ -90,7 +90,3 @@ export function delay(milliseconds: number, clock?: Clock): Promise<void> {
   }, milliseconds);
   return future.promise;
 }
-
-export function isAsync(func: Function): boolean {
-  return func.constructor.name === 'AsyncFunction';
-}

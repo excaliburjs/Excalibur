@@ -15,9 +15,9 @@ export class FadeOut extends Transition {
       ...options,
       duration: options.duration ?? 2000,
       direction: options.direction ?? 'in'
-    })
-    this.color = options.color ?? Color.Black,
+    });
     this.name = `FadeOut#${this.id}`;
+    this.color = options.color ?? Color.Black;
   }
 
   public onInitialize(engine: Engine): void {

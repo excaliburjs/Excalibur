@@ -1,10 +1,10 @@
-import { Engine, Future } from "..";
-import { Entity, TransformComponent } from "../EntityComponentSystem";
-import { GraphicsComponent, } from "../Graphics";
-import { CoordPlane } from '../Math/coord-plane'
-import { Vector } from "../Math/vector";
+import { Engine, Future } from '..';
+import { Entity, TransformComponent } from '../EntityComponentSystem';
+import { GraphicsComponent } from '../Graphics';
+import { CoordPlane } from '../Math/coord-plane';
+import { Vector } from '../Math/vector';
 import { clamp } from '../Math/util';
-import { EasingFunction, EasingFunctions } from "../Util/EasingFunctions";
+import { EasingFunction, EasingFunctions } from '../Util/EasingFunctions';
 
 export interface TransitionOptions {
   /**
@@ -78,49 +78,51 @@ export class Transition extends Entity {
   }
 
   public override onPreUpdate(_engine: Engine, delta: number): void {
-    if (this.complete) return;
+    if (this.complete) {
+      return;
+    }
 
     this._currentDistance += clamp(delta / this.duration, 0, 1);
     if (this._currentDistance >= 1) {
       this._currentDistance = 1;
     }
 
-    if (this.direction == 'in') {
+    if (this.direction === 'in') {
       this._currentProgress = clamp(this.easing(this._currentDistance, 0, 1, 1), 0, 1);
     } else {
       this._currentProgress = clamp(this.easing(this._currentDistance, 1, 0, 1), 0, 1);
     }
   }
-  
+
   /**
    * Called once at the beginning of the transition
-   * @param _progress 
+   * @param _progress
    */
   onStart(_progress: number) {
-
+    // override me
   }
 
   /**
    * Called every frame of the transition
-   * @param _progress 
+   * @param _progress
    */
   onUpdate(_progress: number) {
-
+    // override me
   }
 
   /**
    * Called at the end of the transition
-   * @param _progress 
+   * @param _progress
    */
   onEnd(_progress: number) {
-
+    // override me
   }
 
   /**
    * Called when the transition is reset
    */
   onReset() {
-
+    // override me
   }
 
   reset() {
@@ -137,7 +139,9 @@ export class Transition extends Entity {
   }
 
   execute() {
-    if (!this.isInitialized) return;
+    if (!this.isInitialized) {
+      return;
+    }
 
     if (!this.started) {
       this.started = true;

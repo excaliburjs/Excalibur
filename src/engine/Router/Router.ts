@@ -1,9 +1,9 @@
-import { Engine } from "../Engine";
-import { Loader } from "./Loader";
-import { Scene } from "../Scene";
-import { BaseLoader } from "./BaseLoader";
-import { Transition } from "./Transition";
-import { BootLoader } from "./BootLoader";
+import { Engine } from '../Engine';
+import { Loader } from './Loader';
+import { Scene } from '../Scene';
+import { BaseLoader } from './BaseLoader';
+import { Transition } from './Transition';
+import { BootLoader } from './BootLoader';
 
 
 export interface Route {
@@ -27,8 +27,8 @@ export interface Route {
 
 // TODO do we want to support lazy loading routes?
 export type RouteMap = Record<string,
-  Scene |
-  Route>;
+Scene |
+Route>;
 
 export type LoaderMap = Record<string, BaseLoader>;
 
@@ -62,40 +62,40 @@ export class Router {
   sceneToLoader = new Map<string, Loader>();
   sceneToTransition = new Map<string, {in: Transition, out: Transition }>();
 
-  constructor(private engine: Engine) {}
+  constructor(private _engine: Engine) {}
 
   configure(options: RouterOptions) {
     this.routes = options.routes;
     this.mainLoader = options.loader ?? new BootLoader();
     this.startScene = options.start;
-    for (let sceneKey in this.routes) {
+    for (const sceneKey in this.routes) {
       const sceneOrRoute = this.routes[sceneKey];
       if (sceneOrRoute instanceof Scene) {
-        this.engine.addScene(sceneKey, sceneOrRoute);
+        this._engine.addScene(sceneKey, sceneOrRoute);
       } else {
         const { scene, loader, in: inTransition, out: outTransition } = sceneOrRoute;
-        this.engine.addScene(sceneKey, scene);
+        this._engine.addScene(sceneKey, scene);
         this.sceneToTransition.set(sceneKey, {in: inTransition, out: outTransition});
         this.sceneToLoader.set(sceneKey, loader);
       }
     }
-    this.engine.goToScene(this.startScene);
+    this._engine.goToScene(this.startScene);
     this.currentSceneName = this.startScene;
   }
 
-  private getLoader(sceneName: string) {
+  private _getLoader(sceneName: string) {
     return this.sceneToLoader.get(sceneName);
   }
 
-  private getInTransition(sceneName: string) {
+  private _getInTransition(sceneName: string) {
     const sceneOrRoute = this.routes[sceneName];
     if (sceneOrRoute instanceof Scene) {
       return null;
     }
-    return sceneOrRoute.in
+    return sceneOrRoute.in;
   }
 
-  private getOutTransition(sceneName: string) {
+  private _getOutTransition(sceneName: string) {
     const sceneOrRoute = this.routes[sceneName];
     if (sceneOrRoute instanceof Scene) {
       return null;
@@ -104,34 +104,36 @@ export class Router {
   }
 
   async goto(destinationScene: string, options?: GoToOptions) {
-    if (destinationScene === this.currentSceneName) return;
+    if (destinationScene === this.currentSceneName) {
+      return;
+    }
 
     options = {
-      ...this.getOutTransition(this.currentSceneName),
-      ...this.getInTransition(destinationScene),
+      ...this._getOutTransition(this.currentSceneName),
+      ...this._getInTransition(destinationScene),
       ...options };
 
     const { sourceOut, destinationIn, sceneActivationData } = options;
 
-    const outTransition = sourceOut ?? this.getOutTransition(this.currentSceneName);
-    const inTransition = destinationIn ?? this.getInTransition(destinationScene);
+    const outTransition = sourceOut ?? this._getOutTransition(this.currentSceneName);
+    const inTransition = destinationIn ?? this._getInTransition(destinationScene);
 
     // Run the out transition on the current scene if present
     if (outTransition) {
       this.currentTransition = outTransition;
-      this.engine.currentScene.add(this.currentTransition);
+      this._engine.currentScene.add(this.currentTransition);
       await this.currentTransition.done;
     }
 
     // Run the loader if present
-    const loader = this.getLoader(destinationScene) ?? this.mainLoader;
-    const sceneToLoad = this.engine.scenes[destinationScene];
+    const loader = this._getLoader(destinationScene) ?? this.mainLoader;
+    const sceneToLoad = this._engine.scenes[destinationScene];
     sceneToLoad.onLoad(loader);
-    await this.engine.load(loader);
+    await this._engine.load(loader);
 
     // Transition to the new scene
-    this.engine.goToSceneSync(destinationScene, sceneActivationData);
-    this.currentScene = this.engine.currentScene;
+    this._engine.goToSceneSync(destinationScene, sceneActivationData);
+    this.currentScene = this._engine.currentScene;
     this.currentSceneName = destinationScene;
 
     this.currentTransition?.kill();
@@ -140,7 +142,7 @@ export class Router {
     // Run the in transition on the new scene if present
     if (inTransition) {
       this.currentTransition = inTransition;
-      this.engine.currentScene.add(this.currentTransition);
+      this._engine.currentScene.add(this.currentTransition);
       await this.currentTransition.done;
     }
     this.currentTransition?.kill();

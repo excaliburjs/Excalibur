@@ -1,7 +1,7 @@
-import { Engine, Loadable } from "..";
-import { Resource } from "../Resources/Resource";
-import { Sound } from "../Resources/Sound/Sound";
-import { Scene } from "../Scene";
+import { Engine, Loadable } from '..';
+import { Resource } from '../Resources/Resource';
+import { Sound } from '../Resources/Sound/Sound';
+import { Scene } from '../Scene';
 
 
 export class BaseLoader extends Scene {
@@ -10,7 +10,7 @@ export class BaseLoader extends Scene {
   // private _currentProgress: number = 0;
 
   onStart() {
-
+    // override me
   }
 
   // onProgress(value: number) {
@@ -18,11 +18,11 @@ export class BaseLoader extends Scene {
   // }
 
   onEnd() {
-
+    // override me
   }
 
   onUpdate() {
-
+    // override me
   }
 
   addResource(res: Resource<any>) {

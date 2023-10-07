@@ -55,11 +55,11 @@ export class Loader implements Loadable<Loadable<any>[]> {
   }
 
   public async onBeforeLoad() {
-
+    // override me
   }
 
   public async onAfterLoad() {
-
+    // override me
   }
 
   /**
@@ -99,9 +99,9 @@ export class Loader implements Loadable<Loadable<any>[]> {
   }
 
   /**
-   * 
-   * @param _engine 
-   * @param _elapsedMilliseconds 
+   *
+   * @param _engine
+   * @param _elapsedMilliseconds
    */
   onUpdate(_engine: Engine, _elapsedMilliseconds: number): void {
     // override me
