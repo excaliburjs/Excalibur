@@ -34,6 +34,15 @@ scene2.onLoad = (loader) => {
   loader.addResource(image4);
   loader.addResource(sword);
 }
+scene1.onActivate = () => {
+  setTimeout(() => {
+    game.router.goto('scene2');
+    // router.goto('scene2', {
+    //   outTransition: new ex.FadeOut({duration: 1000, direction: 'in'}),
+    //   inTransition: new ex.FadeOut({duration: 1000, direction: 'out'})
+    // });
+  }, 5000);
+}
 scene2.add(new ex.Actor({
   width: 100,
   height: 100,
@@ -52,14 +61,6 @@ boot.addResource(image2);
 boot.addResource(image3);
 boot.addResource(image4);
 boot.addResource(sword);
-
-setTimeout(() => {
-  game.router.goto('scene2');
-  // router.goto('scene2', {
-  //   outTransition: new ex.FadeOut({duration: 1000, direction: 'in'}),
-  //   inTransition: new ex.FadeOut({duration: 1000, direction: 'out'})
-  // });
-}, 5000);
 
 game.input.pointers.primary.on('down', () => {
   game.router.goto('scene1');
