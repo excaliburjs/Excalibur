@@ -23,7 +23,7 @@ export * from './Events/MediaEvents';
 export * from './Events';
 export * from './Label';
 export { FontStyle, FontUnit, TextAlign, BaseAlign } from './Graphics/FontCommon';
-export * from './Loader';
+export * from './Router/Loader';
 export { Particle, ParticleTransform, ParticleEmitter, ParticleArgs, ParticleEmitterArgs, EmitterType } from './Particles';
 export * from './Collision/Physics';
 export * from './Scene';

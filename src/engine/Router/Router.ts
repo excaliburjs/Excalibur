@@ -1,15 +1,27 @@
 import { Engine } from "../Engine";
-import { Loader } from "../Loader";
+import { Loader } from "./Loader";
 import { Scene } from "../Scene";
 import { BaseLoader } from "./BaseLoader";
 import { Transition } from "./Transition";
 
 
 export interface Route {
+  /**
+   * Scene associated with this route
+   */
   scene: Scene;
+  /**
+   * Optionally specify a transition when going "in" to this scene
+   */
   in?: Transition;
+  /**
+   * Optionally specify a transition when going "out" of this scene
+   */
   out?: Transition;
-  loader?: string;
+  /**
+   * Optionally specify a loader for the scene
+   */
+  loader?: Loader;
 }
 
 // TODO do we want to support lazy loading routes?
@@ -23,7 +35,7 @@ export interface GoToOptions {
   sceneActivationData?: any,
   destinationIn?: Transition,
   sourceOut?: Transition,
-  loader?: string
+  loader?: Loader
 }
 
 export interface RouterOptions {
@@ -31,46 +43,45 @@ export interface RouterOptions {
    * Starting route
    */
   start: string; // TODO keyof RouteMap
+  /**
+   * Main loader
+   */
   loader?: Loader,
   routes: RouteMap;
-  loaders?: LoaderMap;
 }
 
 export class Router {
   currentSceneName: string;
   currentScene: Scene;
   currentTransition: Transition;
+
   routes: RouteMap;
   startScene: string;
-  loaders: LoaderMap;
+
+  sceneToLoader = new Map<string, Loader>();
+  sceneToTransition = new Map<string, {in: Transition, out: Transition }>();
 
   constructor(private engine: Engine, options: RouterOptions) {
     this.routes = options.routes;
     this.startScene = options.start;
-    this.loaders = options.loaders;
     for (let sceneKey in this.routes) {
       const sceneOrRoute = this.routes[sceneKey];
       if (sceneOrRoute instanceof Scene) {
         this.engine.addScene(sceneKey, sceneOrRoute);
       } else {
-        const { scene } = sceneOrRoute;
+        const { scene, loader, in: inTransition, out: outTransition } = sceneOrRoute;
         this.engine.addScene(sceneKey, scene);
+        this.sceneToTransition.set(sceneKey, {in: inTransition, out: outTransition});
+        this.sceneToLoader.set(sceneKey, loader);
       }
     }
     this.engine.goToScene(this.startScene);
     this.currentSceneName = this.startScene;
   }
 
-  // private getLoader(sceneName: string) {
-  //   const sceneOrRoute = this.routes[sceneName];
-  //   if (sceneOrRoute instanceof Scene) {
-  //     return null;
-  //   }
-  //   if (sceneOrRoute.loader) {
-  //     return this.loaders[sceneOrRoute.loader];
-  //   }
-  //   return null;
-  // }
+  private getLoader(sceneName: string) {
+    return this.sceneToLoader.get(sceneName);
+  }
 
   private getInTransition(sceneName: string) {
     const sceneOrRoute = this.routes[sceneName];
@@ -101,30 +112,28 @@ export class Router {
     const outTransition = sourceOut ?? this.getOutTransition(this.currentSceneName);
     const inTransition = destinationIn ?? this.getInTransition(destinationScene);
 
+    // Run the out transition on the current scene if present
     if (outTransition) {
       this.currentTransition = outTransition;
       this.engine.currentScene.add(this.currentTransition);
       await this.currentTransition.done;
     }
 
-    // TODO need to know if the scene has been loaded before attempting
-    // TODO loaders are special types of scenes?
-    // TODO engine renders the loaders?
-    // const loader = this.currentScene.onLoad();
-    // TODO Default loader?
-    // const maybeLoader = this.getLoader(destinationScene);
+    // Run the loader if present
+    const loader = this.getLoader(destinationScene) ?? new Loader();
     const sceneToLoad = this.engine.scenes[destinationScene];
-    const loader = new Loader();
     sceneToLoad.onLoad(loader);
     await this.engine.load(loader);
 
-    await this.engine.goToScene(destinationScene, sceneActivationData);
+    // Transition to the new scene
+    this.engine.goToSceneSync(destinationScene, sceneActivationData);
     this.currentScene = this.engine.currentScene;
     this.currentSceneName = destinationScene;
 
     this.currentTransition?.kill();
     this.currentTransition?.reset();
 
+    // Run the in transition on the new scene if present
     if (inTransition) {
       this.currentTransition = inTransition;
       this.engine.currentScene.add(this.currentTransition);

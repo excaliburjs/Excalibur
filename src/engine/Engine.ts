@@ -16,7 +16,7 @@ import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
 import { TileMap } from './TileMap';
-import { Loader } from './Loader';
+import { Loader } from './Router/Loader';
 import { Detector } from './Util/Detector';
 import {
   VisibleEvent,
@@ -1094,6 +1094,42 @@ O|===|* >________________>\n\
     }
   }
 
+  public goToSceneSync<TData = undefined>(key: string, data?: TData) {
+    // if not yet initialized defer goToScene
+    if (!this.isInitialized) {
+      this._deferredGoTo = key;
+      return;
+    }
+
+    if (this.scenes[key]) {
+      const previousScene = this.currentScene;
+      const nextScene = this.scenes[key];
+
+      this._logger.debug('Going to scene:', key);
+
+      // only deactivate when initialized
+      if (this.currentScene.isInitialized) {
+        const context = { engine: this, previousScene, nextScene };
+        this.currentScene._deactivate(context);
+        this.currentScene.events.emit('deactivate', new DeactivateEvent(context, this.currentScene));
+      }
+
+      // set current scene to new one
+      this.currentScene = nextScene;
+      this.screen.setCurrentCamera(nextScene.camera);
+
+      // TODO some kind of optional loader?
+      // initialize the current scene if has not been already
+      this.currentScene._initialize(this);
+
+      const context = { engine: this, previousScene, nextScene, data };
+      this.currentScene._activate(context);
+      this.currentScene.events.emit('activate', new ActivateEvent(context, this.currentScene));
+    } else {
+      this._logger.error('Scene', key, 'does not exist!');
+    }
+  }
+
   /**
    * Transforms the current x, y from screen coordinates to world coordinates
    * @param point  Screen coordinate to convert
@@ -1488,16 +1524,16 @@ O|===|* >________________>\n\
       if (loader.isLoaded()) {
         return;
       }
+      this._loader = loader;
       this._isLoading = true;
 
       // TODO move screen manipulation to the loader preload/postload events
       // Push the current user entered resolution/viewport
-      this.screen.pushResolutionAndViewport();
-      // Configure resolution for loader, it expects resolution === viewport
-      this.screen.resolution = this.screen.viewport;
-      this.screen.applyResolutionAndViewport();
+      // this.screen.pushResolutionAndViewport();
+      // // Configure resolution for loader, it expects resolution === viewport
+      // this.screen.resolution = this.screen.viewport;
+      // this.screen.applyResolutionAndViewport(); // FIXME applying resolution causes a screen flash
 
-      this._loader = loader;
       // TODO fix this
       //this._loader.suppressPlayButton = this._suppressPlayButton || this._loader.suppressPlayButton;
       this._loader.onInitialize(this);
@@ -1509,8 +1545,8 @@ O|===|* >________________>\n\
     } finally {
       // await delay(100);
       // reset back to previous user resolution/viewport
-      this.screen.popResolutionAndViewport();
-      this.screen.applyResolutionAndViewport();
+      // this.screen.popResolutionAndViewport();
+      // this.screen.applyResolutionAndViewport(); // FIXME applying resolution causes a screen flash
       this._isLoading = false;
     }
   }

@@ -1,21 +1,18 @@
-import { WebAudio } from './Util/WebAudio';
-import { Engine } from './Engine';
-import { Loadable } from './Interfaces/Loadable';
-import { Canvas } from './Graphics/Canvas';
-import { ImageFiltering } from './Graphics/Filtering';
-import { clamp } from './Math/util';
-import { Sound } from './Resources/Sound/Sound';
-import { Future } from './Util/Future';
-import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
-import { Color } from './Color';
-import { delay } from './Util/Util';
-
+import { WebAudio } from '../Util/WebAudio';
+import { Engine } from '../Engine';
+import { Loadable } from '../Interfaces/Loadable';
+import { Canvas } from '../Graphics/Canvas';
+import { ImageFiltering } from '../Graphics/Filtering';
+import { clamp } from '../Math/util';
+import { Sound } from '../Resources/Sound/Sound';
+import { Future } from '../Util/Future';
+import { EventEmitter, EventKey, Handler, Subscription } from '../EventEmitter';
+import { Color } from '../Color';
 
 export interface LoaderOptions {
   loadables: Loadable<any>[];
   suppressPlayButton: boolean;
 }
-
 
 export type LoaderEvents = {
   // Add event types here
@@ -31,7 +28,7 @@ export class Loader implements Loadable<Loadable<any>[]> {
   public canvas: Canvas = new Canvas({
     filtering: ImageFiltering.Blended,
     smoothing: true,
-    cache: true,
+    cache: false,
     draw: this.onDraw.bind(this)
   });
   private _resourceList: Loadable<any>[] = [];
@@ -52,6 +49,14 @@ export class Loader implements Loadable<Loadable<any>[]> {
     this._engine = engine;
     this.canvas.width = this._engine.canvas.width;
     this.canvas.height = this._engine.canvas.height;
+  }
+
+  public onBeforeLoad() {
+
+  }
+
+  public onAfterLoad() {
+    
   }
 
   /**
@@ -76,13 +81,25 @@ export class Loader implements Loadable<Loadable<any>[]> {
   }
 
   /**
+   * Returns the progress of the loader as a number between [0, 1] inclusive.
+   */
+  public get progress(): number {
+    const total = this._resourceList.length;
+    return total > 0 ? clamp(this._numLoaded, 0, total) / total : 1;
+  }
+
+  /**
    * Returns true if the loader has completely loaded all resources
    */
   public isLoaded() {
     return this._numLoaded === this._resourceList.length;
   }
 
-
+  /**
+   * 
+   * @param _engine 
+   * @param _elapsedMilliseconds 
+   */
   onUpdate(_engine: Engine, _elapsedMilliseconds: number): void {
     // override me
   }
@@ -132,7 +149,6 @@ export class Loader implements Loadable<Loadable<any>[]> {
     }
 
     this._loadingFuture.resolve();
-    await delay(2000, this._engine?.clock);
     this.canvas.flagDirty();
     // Unlock browser AudioContext in after user gesture
     // See: https://github.com/excaliburjs/Excalibur/issues/262
@@ -140,14 +156,6 @@ export class Loader implements Loadable<Loadable<any>[]> {
     await WebAudio.unlock();
 
     return (this.data = this._resourceList);
-  }
-
-  /**
-   * Returns the progress of the loader as a number between [0, 1] inclusive.
-   */
-  public get progress(): number {
-    const total = this._resourceList.length;
-    return total > 0 ? clamp(this._numLoaded, 0, total) / total : 1;
   }
 
   public emit<TEventName extends EventKey<LoaderEvents>>(eventName: TEventName, event: LoaderEvents[TEventName]): void;

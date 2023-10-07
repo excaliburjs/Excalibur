@@ -23,9 +23,15 @@ scene1.add(actor);
 
 var scene2 = new ex.Scene();
 scene2.onLoad = (loader) => {
-  const image = new ex.ImageSource('./spritefont.png');
+  const image1 = new ex.ImageSource('./spritefont.png?=1');
+  const image2 = new ex.ImageSource('./spritefont.png?=2');
+  const image3 = new ex.ImageSource('./spritefont.png?=3');
+  const image4 = new ex.ImageSource('./spritefont.png?=4');
   const sword = new ex.ImageSource('https://cdn.rawgit.com/excaliburjs/Excalibur/7dd48128/assets/sword.png');
-  loader.addResource(image);
+  loader.addResource(image1);
+  loader.addResource(image2);
+  loader.addResource(image3);
+  loader.addResource(image4);
   loader.addResource(sword);
 }
 scene2.add(new ex.Actor({
