@@ -31,9 +31,12 @@ export class Loader implements Loadable<Loadable<any>[]> {
     cache: false,
     draw: this.onDraw.bind(this)
   });
-  private _resourceList: Loadable<any>[] = [];
+  private _resources: Loadable<any>[] = [];
+  public get resources(): readonly Loadable<any>[] {
+    return this._resources;
+  }
   private _numLoaded: number = 0;
-  private _engine: Engine;
+  public engine: Engine;
 
 
   /**
@@ -46,17 +49,17 @@ export class Loader implements Loadable<Loadable<any>[]> {
   }
 
   public onInitialize(engine: Engine) {
-    this._engine = engine;
-    this.canvas.width = this._engine.canvas.width;
-    this.canvas.height = this._engine.canvas.height;
+    this.engine = engine;
+    this.canvas.width = this.engine.canvas.width;
+    this.canvas.height = this.engine.canvas.height;
   }
 
-  public onBeforeLoad() {
+  public async onBeforeLoad() {
 
   }
 
-  public onAfterLoad() {
-    
+  public async onAfterLoad() {
+
   }
 
   /**
@@ -64,7 +67,7 @@ export class Loader implements Loadable<Loadable<any>[]> {
    * @param loadable  Resource to add
    */
   public addResource(loadable: Loadable<any>) {
-    this._resourceList.push(loadable);
+    this._resources.push(loadable);
   }
 
   /**
@@ -84,7 +87,7 @@ export class Loader implements Loadable<Loadable<any>[]> {
    * Returns the progress of the loader as a number between [0, 1] inclusive.
    */
   public get progress(): number {
-    const total = this._resourceList.length;
+    const total = this._resources.length;
     return total > 0 ? clamp(this._numLoaded, 0, total) / total : 1;
   }
 
@@ -92,7 +95,7 @@ export class Loader implements Loadable<Loadable<any>[]> {
    * Returns true if the loader has completely loaded all resources
    */
   public isLoaded() {
-    return this._numLoaded === this._resourceList.length;
+    return this._numLoaded === this._resources.length;
   }
 
   /**
@@ -105,17 +108,15 @@ export class Loader implements Loadable<Loadable<any>[]> {
   }
 
   /**
-   * Loader draw function. Draws the default Excalibur loading screen.
-   * Override `logo`, `logoWidth`, `logoHeight` and `backgroundColor` properties
-   * to customize the drawing, or just override entire method.
+   * Optionally override the onDraw
    */
-  public onDraw(ctx: CanvasRenderingContext2D) {
+  onDraw(ctx: CanvasRenderingContext2D) {
     ctx.fillStyle = Color.Black.toRGBA();
-    ctx.fillRect(0, 0, this._engine.screen.drawWidth, this._engine.screen.drawHeight);
+    ctx.fillRect(0, 0, this.engine.screen.drawWidth, this.engine.screen.drawHeight);
 
     ctx.fillStyle = 'lime';
     ctx.font = '30px Consolas';
-    ctx.fillText((this.progress * 100).toFixed(2) + '%', this._engine.screen.center.x, this._engine.screen.center.y);
+    ctx.fillText((this.progress * 100).toFixed(2) + '%', this.engine.screen.center.x, this.engine.screen.center.y);
   }
 
 
@@ -129,10 +130,11 @@ export class Loader implements Loadable<Loadable<any>[]> {
    * that resolves when loading of all is complete AND the user has clicked the "Play button"
    */
   public async load(): Promise<Loadable<any>[]> {
+    await this.onBeforeLoad();
     this.canvas.flagDirty();
 
     await Promise.all(
-      this._resourceList.map(async (r) => {
+      this._resources.map(async (r) => {
         await r.load().finally(() => {
           // capture progress
           this._numLoaded++;
@@ -142,9 +144,9 @@ export class Loader implements Loadable<Loadable<any>[]> {
     );
 
     // Wire all sound to the engine
-    for (const resource of this._resourceList) {
+    for (const resource of this._resources) {
       if (resource instanceof Sound) {
-        resource.wireEngine(this._engine);
+        resource.wireEngine(this.engine);
       }
     }
 
@@ -155,7 +157,8 @@ export class Loader implements Loadable<Loadable<any>[]> {
     // See: https://github.com/excaliburjs/Excalibur/issues/1031
     await WebAudio.unlock();
 
-    return (this.data = this._resourceList);
+    await this.onAfterLoad();
+    return (this.data = this._resources);
   }
 
   public emit<TEventName extends EventKey<LoaderEvents>>(eventName: TEventName, event: LoaderEvents[TEventName]): void;

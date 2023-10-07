@@ -3,6 +3,7 @@ import { Loader } from "./Loader";
 import { Scene } from "../Scene";
 import { BaseLoader } from "./BaseLoader";
 import { Transition } from "./Transition";
+import { BootLoader } from "./BootLoader";
 
 
 export interface Route {
@@ -57,12 +58,15 @@ export class Router {
 
   routes: RouteMap;
   startScene: string;
-
+  mainLoader: Loader;
   sceneToLoader = new Map<string, Loader>();
   sceneToTransition = new Map<string, {in: Transition, out: Transition }>();
 
-  constructor(private engine: Engine, options: RouterOptions) {
+  constructor(private engine: Engine) {}
+
+  configure(options: RouterOptions) {
     this.routes = options.routes;
+    this.mainLoader = options.loader ?? new BootLoader();
     this.startScene = options.start;
     for (let sceneKey in this.routes) {
       const sceneOrRoute = this.routes[sceneKey];
@@ -120,7 +124,7 @@ export class Router {
     }
 
     // Run the loader if present
-    const loader = this.getLoader(destinationScene) ?? new Loader();
+    const loader = this.getLoader(destinationScene) ?? this.mainLoader;
     const sceneToLoad = this.engine.scenes[destinationScene];
     sceneToLoad.onLoad(loader);
     await this.engine.load(loader);

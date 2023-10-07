@@ -1,4 +1,4 @@
-import { EX_VERSION } from './';
+import { BootLoader, EX_VERSION } from './';
 import { Future } from './Util/Future'
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Gamepads } from './Input/Gamepad';
@@ -46,6 +46,7 @@ import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 import { Toaster } from './Util/Toaster';
 import { InputMapper } from './Input/InputMapper';
+import { Router, RouterOptions } from './Router/Router';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
@@ -294,6 +295,11 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
    * Screen abstraction
    */
   public screen: Screen;
+
+  /**
+   * Scene Router
+   */
+  public router = new Router(this);
 
   /**
    * Direct access to the engine's canvas element
@@ -1234,6 +1240,7 @@ O|===|* >________________>\n\
    * @param delta  Number of milliseconds elapsed since the last update.
    */
   private _update(delta: number) {
+    this.router.update(delta);
     if (this._isLoading) {
       // suspend updates until loading is finished
       this._loader?.onUpdate(this, delta);
@@ -1376,16 +1383,23 @@ O|===|* >________________>\n\
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
-   * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]], override to provide your own
+   * @param loaderOrRouterOptions  Optional [[Loader]] to use to load resources. The default loader is [[Loader]], override to provide your own
    * custom loader.
    *
    * Note: start() only resolves AFTER the user has clicked the play button
    */
-  public async start(loader?: Loader): Promise<void> {
+  public async start(loaderOrRouterOptions?: Loader | RouterOptions): Promise<void> {
     if (!this._compatible) {
       throw new Error('Excalibur is incompatible with your browser');
     }
     this._isLoading = true;
+    let loader: Loader;
+    if (!(loaderOrRouterOptions instanceof Loader)) {
+      this.router.configure(loaderOrRouterOptions);
+      loader = this.router.mainLoader;
+    } else {
+      loader = loaderOrRouterOptions;
+    }
 
     // Start the excalibur clock which drives the mainloop
     // has started is a slight misnomer, it's really mainloop started
@@ -1394,7 +1408,7 @@ O|===|* >________________>\n\
     this.clock.start();
     this._logger.debug('Game clock started');
 
-    await this.load(loader ?? new Loader());
+    await this.load(loader ?? new BootLoader());
 
     // Initialize before ready
     await this._overrideInitialize(this);
@@ -1527,13 +1541,6 @@ O|===|* >________________>\n\
       this._loader = loader;
       this._isLoading = true;
 
-      // TODO move screen manipulation to the loader preload/postload events
-      // Push the current user entered resolution/viewport
-      // this.screen.pushResolutionAndViewport();
-      // // Configure resolution for loader, it expects resolution === viewport
-      // this.screen.resolution = this.screen.viewport;
-      // this.screen.applyResolutionAndViewport(); // FIXME applying resolution causes a screen flash
-
       // TODO fix this
       //this._loader.suppressPlayButton = this._suppressPlayButton || this._loader.suppressPlayButton;
       this._loader.onInitialize(this);
@@ -1543,10 +1550,6 @@ O|===|* >________________>\n\
       this._logger.error('Error loading resources, things may not behave properly', e);
       await Promise.resolve();
     } finally {
-      // await delay(100);
-      // reset back to previous user resolution/viewport
-      // this.screen.popResolutionAndViewport();
-      // this.screen.applyResolutionAndViewport(); // FIXME applying resolution causes a screen flash
       this._isLoading = false;
     }
   }
