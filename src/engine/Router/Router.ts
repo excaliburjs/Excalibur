@@ -49,7 +49,7 @@ export interface RouterOptions {
 }
 
 /**
- * The Router is responsible for managing changing scenes in Excalibur
+ * The Router is responsible for managing scenes and changing scenes in Excalibur
  *
  * It deals with transitions, scene loaders, switching scenes
  */
