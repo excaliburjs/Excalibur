@@ -77,8 +77,9 @@ export class Router {
    */
   public readonly scenes: { [sceneName: string]: Scene } = {};
 
-  sceneToLoader = new Map<string, Loader>();
-  sceneToTransition = new Map<string, {in: Transition, out: Transition }>();
+  private _sceneToLoader = new Map<string, Loader>();
+  private _sceneToTransition = new Map<string, {in: Transition, out: Transition }>();
+  private _loadedScenes = new Set<Scene>();
 
   constructor(private _engine: Engine) {
     this.rootScene = this.currentScene = new Scene();
@@ -115,21 +116,13 @@ export class Router {
     for (const sceneKey in this.routes) {
       const sceneOrRoute = this.routes[sceneKey];
       this.add(sceneKey, sceneOrRoute);
-      // if (sceneOrRoute instanceof Scene) {
-      //   this._engine.addScene(sceneKey, sceneOrRoute);
-      // } else {
-      //   const { scene, loader, in: inTransition, out: outTransition } = sceneOrRoute;
-      //   this._engine.addScene(sceneKey, scene);
-      //   this.sceneToTransition.set(sceneKey, {in: inTransition, out: outTransition});
-      //   this.sceneToLoader.set(sceneKey, loader);
-      // }
     }
     this.swapScene(this.startScene);
     this.currentSceneName = this.startScene;
   }
 
   private _getLoader(sceneName: string) {
-    return this.sceneToLoader.get(sceneName);
+    return this._sceneToLoader.get(sceneName);
   }
 
   private _getInTransition(sceneName: string) {
@@ -170,8 +163,8 @@ export class Router {
       parsedScene = sceneOrRoute.scene;
       parsedRoute = sceneOrRoute;
       const { loader, in: inTransition, out: outTransition } = parsedRoute;
-      this.sceneToTransition.set(name, {in: inTransition, out: outTransition});
-      this.sceneToLoader.set(name, loader);
+      this._sceneToTransition.set(name, {in: inTransition, out: outTransition});
+      this._sceneToLoader.set(name, loader);
     }
 
     if (this.scenes[name]) {
@@ -188,8 +181,8 @@ export class Router {
       for (const key in this.scenes) {
         if (this.scenes.hasOwnProperty(key)) {
           if (this.scenes[key] === nameOrScene) {
-            this.sceneToTransition.delete(key);
-            this.sceneToLoader.delete(key);
+            this._sceneToTransition.delete(key);
+            this._sceneToLoader.delete(key);
             delete this.scenes[key];
           }
         }
@@ -197,8 +190,8 @@ export class Router {
     }
     if (typeof nameOrScene === 'string') {
       // remove scene
-      this.sceneToTransition.delete(nameOrScene);
-      this.sceneToLoader.delete(nameOrScene);
+      this._sceneToTransition.delete(nameOrScene);
+      this._sceneToLoader.delete(nameOrScene);
       delete this.scenes[nameOrScene];
     }
   }
@@ -226,10 +219,13 @@ export class Router {
     }
 
     // Run the loader if present
-    const loader = this._getLoader(destinationScene) ?? this.mainLoader;
+    const loader = this._getLoader(destinationScene) ?? new BootLoader();
     const sceneToLoad = this._engine.scenes[destinationScene];
-    sceneToLoad.onLoad(loader);
-    await this._engine.load(loader);
+    if (!this._loadedScenes.has(sceneToLoad)) {
+      sceneToLoad.onLoad(loader);
+      await this._engine.load(loader);
+      this._loadedScenes.add(sceneToLoad);
+    }
 
     // Transition to the new scene
     await this.swapScene(destinationScene, sceneActivationData);
