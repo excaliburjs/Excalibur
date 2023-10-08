@@ -254,12 +254,6 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     }
   }
 
-  private _initializeChildrenSync() {
-    for (const child of this.entities) {
-      child._initializeSync(this.engine);
-    }
-  }
-
   /**
    * Gets whether or not the [[Scene]] has been initialized
    */
@@ -293,26 +287,6 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
       this._isInitialized = true;
     }
   }
-
-  public _initializeSync(engine: Engine) {
-    if (!this.isInitialized) {
-      this.engine = engine;
-      // Initialize camera first
-      this.camera._initialize(engine);
-
-      this.world.systemManager.initialize();
-
-      // This order is important! we want to be sure any custom init that add actors
-      // fire before the actor init
-      this.onInitialize.call(this, engine);
-      this._initializeChildrenSync();
-
-      this._logger.debug('Scene.onInitialize', this, engine);
-      this.events.emit('initialize', new InitializeEvent(engine, this));
-      this._isInitialized = true;
-    }
-  }
-
 
   /**
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.

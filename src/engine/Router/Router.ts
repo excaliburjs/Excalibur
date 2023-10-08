@@ -1,9 +1,10 @@
 import { Engine } from '../Engine';
 import { Loader } from './Loader';
 import { Scene } from '../Scene';
-import { BaseLoader } from './BaseLoader';
 import { Transition } from './Transition';
 import { BootLoader } from './BootLoader';
+import { Logger } from '../Util/Log';
+import { ActivateEvent, DeactivateEvent } from '../Events';
 
 
 export interface Route {
@@ -26,11 +27,7 @@ export interface Route {
 }
 
 // TODO do we want to support lazy loading routes?
-export type RouteMap = Record<string,
-Scene |
-Route>;
-
-export type LoaderMap = Record<string, BaseLoader>;
+export type RouteMap = Record<string, Scene | Route>;
 
 export interface GoToOptions {
   sceneActivationData?: any,
@@ -51,35 +48,83 @@ export interface RouterOptions {
   routes: RouteMap;
 }
 
+/**
+ * The Router is responsible for managing changing scenes in Excalibur
+ *
+ * It deals with transitions, scene loaders, switching scenes
+ */
 export class Router {
+  private _logger = Logger.getInstance();
+  private _deferredGoto: string;
+  private _initialized = false;
+
   currentSceneName: string;
   currentScene: Scene;
   currentTransition: Transition;
 
   routes: RouteMap;
+
   startScene: string;
   mainLoader: Loader;
+
+  /**
+   * The default [[Scene]] of the game, use [[Engine.goto]] to transition to different scenes.
+   */
+  public readonly rootScene: Scene;
+
+  /**
+   * Contains all the scenes currently registered with Excalibur
+   */
+  public readonly scenes: { [sceneName: string]: Scene } = {};
+
   sceneToLoader = new Map<string, Loader>();
   sceneToTransition = new Map<string, {in: Transition, out: Transition }>();
 
-  constructor(private _engine: Engine) {}
+  constructor(private _engine: Engine) {
+    this.rootScene = this.currentScene = new Scene();
+    this.add('root', this.rootScene);
+  }
 
+  async onInitialize() {
+    if (!this._initialized) {
+      this._initialized = true;
+      if (this._deferredGoto) {
+        const deferredScene = this._deferredGoto;
+        this._deferredGoto = null;
+        await this.swapScene(deferredScene);
+      } else {
+        await this.swapScene('root');
+      }
+    }
+  }
+
+  get isInitialized() {
+    return this._initialized;
+  }
+
+  /**
+   * Configures the routes that the router knows about
+   * 
+   * Typically this is called at the beginning of the game to configure the scene route and never again.
+   * @param options 
+   */
   configure(options: RouterOptions) {
     this.routes = options.routes;
     this.mainLoader = options.loader ?? new BootLoader();
     this.startScene = options.start;
     for (const sceneKey in this.routes) {
       const sceneOrRoute = this.routes[sceneKey];
-      if (sceneOrRoute instanceof Scene) {
-        this._engine.addScene(sceneKey, sceneOrRoute);
-      } else {
-        const { scene, loader, in: inTransition, out: outTransition } = sceneOrRoute;
-        this._engine.addScene(sceneKey, scene);
-        this.sceneToTransition.set(sceneKey, {in: inTransition, out: outTransition});
-        this.sceneToLoader.set(sceneKey, loader);
-      }
+      this.add(sceneKey, sceneOrRoute);
+      // if (sceneOrRoute instanceof Scene) {
+      //   this._engine.addScene(sceneKey, sceneOrRoute);
+      // } else {
+      //   const { scene, loader, in: inTransition, out: outTransition } = sceneOrRoute;
+      //   this._engine.addScene(sceneKey, scene);
+      //   this.sceneToTransition.set(sceneKey, {in: inTransition, out: outTransition});
+      //   this.sceneToLoader.set(sceneKey, loader);
+      // }
     }
-    this._engine.goToScene(this.startScene);
+    this.swapScene(this.startScene);
     this.currentSceneName = this.startScene;
   }
 
@@ -101,6 +146,61 @@ export class Router {
       return null;
     }
     return sceneOrRoute.out;
+  }
+
+  getDeferredScene() {
+    if (this._deferredGoto && this.scenes[this._deferredGoto]) {
+      return this.scenes[this._deferredGoto];
+    }
+    return null;
+  }
+
+  /**
+   * Adds additional Scenes to the game!
+   * @param name 
+   * @param sceneOrRoute 
+   */
+  add(name: string, sceneOrRoute: Scene | Route) {
+    let parsedScene: Scene;
+    let parsedRoute: Route;
+    if (sceneOrRoute instanceof Scene) {
+      parsedScene = sceneOrRoute;
+      parsedRoute = { scene: sceneOrRoute };
+    } else {
+      parsedScene = sceneOrRoute.scene;
+      parsedRoute = sceneOrRoute;
+      const { loader, in: inTransition, out: outTransition } = parsedRoute;
+      this.sceneToTransition.set(name, {in: inTransition, out: outTransition});
+      this.sceneToLoader.set(name, loader);
+    }
+
+    if (this.scenes[name]) {
+      this._logger.warn('Scene', name, 'already exists overwriting');
+    }
+    this.scenes[name] = parsedScene;
+  }
+
+  remove(scene: Scene): void;
+  remove(name: string): void;
+  remove(nameOrScene: string | Scene) {
+    if (nameOrScene instanceof Scene) {
+      // remove scene
+      for (const key in this.scenes) {
+        if (this.scenes.hasOwnProperty(key)) {
+          if (this.scenes[key] === nameOrScene) {
+            this.sceneToTransition.delete(key);
+            this.sceneToLoader.delete(key);
+            delete this.scenes[key];
+          }
+        }
+      }
+    }
+    if (typeof nameOrScene === 'string') {
+      // remove scene
+      this.sceneToTransition.delete(nameOrScene);
+      this.sceneToLoader.delete(nameOrScene);
+      delete this.scenes[nameOrScene];
+    }
   }
 
   async goto(destinationScene: string, options?: GoToOptions) {
@@ -132,7 +232,7 @@ export class Router {
     await this._engine.load(loader);
 
     // Transition to the new scene
-    this._engine.goToSceneSync(destinationScene, sceneActivationData);
+    await this.swapScene(destinationScene, sceneActivationData);
     this.currentScene = this._engine.currentScene;
     this.currentSceneName = destinationScene;
 
@@ -149,6 +249,43 @@ export class Router {
     this.currentTransition?.reset();
 
     this.currentTransition = null;
+  }
+
+  async swapScene<TData = undefined>(destinationScene: string, data?: TData): Promise<void> {
+    const engine = this._engine;
+    // if not yet initialized defer goToScene
+    if (!this.isInitialized) {
+      this._deferredGoto = destinationScene;
+      return;
+    }
+
+    if (this.scenes[destinationScene]) {
+      const previousScene = this.currentScene;
+      const nextScene = this.scenes[destinationScene];
+
+      this._logger.debug('Going to scene:', destinationScene);
+
+      // only deactivate when initialized
+      if (this.currentScene.isInitialized) {
+        const context = { engine, previousScene, nextScene };
+        await this.currentScene._deactivate(context);
+        this.currentScene.events.emit('deactivate', new DeactivateEvent(context, this.currentScene));
+      }
+
+      // set current scene to new one
+      this.currentScene = nextScene;
+      this.currentSceneName = destinationScene;
+      engine.screen.setCurrentCamera(nextScene.camera);
+
+      // initialize the current scene if has not been already
+      await this.currentScene._initialize(engine);
+
+      const context = { engine, previousScene, nextScene, data };
+      await this.currentScene._activate(context);
+      this.currentScene.events.emit('activate', new ActivateEvent(context, this.currentScene));
+    } else {
+      this._logger.error('Scene', destinationScene, 'does not exist!');
+    }
   }
 
   update(_elapsedMilliseconds: number) {

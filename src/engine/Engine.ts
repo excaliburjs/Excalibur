@@ -1,4 +1,4 @@
-import { BootLoader, EX_VERSION } from './';
+import { BootLoader, EX_VERSION, obsolete } from './';
 import { Future } from './Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Gamepads } from './Input/Gamepad';
@@ -27,8 +27,6 @@ import {
   PostUpdateEvent,
   PreFrameEvent,
   PostFrameEvent,
-  DeactivateEvent,
-  ActivateEvent,
   PreDrawEvent,
   PostDrawEvent,
   InitializeEvent
@@ -46,7 +44,7 @@ import { ImageFiltering } from './Graphics/Filtering';
 import { GraphicsDiagnostics } from './Graphics/GraphicsDiagnostics';
 import { Toaster } from './Util/Toaster';
 import { InputMapper } from './Input/InputMapper';
-import { Router, RouterOptions } from './Router/Router';
+import { GoToOptions, Router, RouterOptions } from './Router/Router';
 
 export type EngineEvents = {
   fallbackgraphicscontext: ExcaliburGraphicsContext2DCanvas,
@@ -437,17 +435,23 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
   /**
    * The current [[Scene]] being drawn and updated on screen
    */
-  public currentScene: Scene;
+  public get currentScene(): Scene {
+    return this.router.currentScene;
+  }
 
   /**
-   * The default [[Scene]] of the game, use [[Engine.goToScene]] to transition to different scenes.
+   * The default [[Scene]] of the game, use [[Engine.goto]] to transition to different scenes.
    */
-  public readonly rootScene: Scene;
+  public get rootScene(): Scene {
+    return this.router.rootScene;
+  }
 
   /**
    * Contains all the scenes currently registered with Excalibur
    */
-  public readonly scenes: { [key: string]: Scene } = {};
+  public get scenes(): { [key: string]: Scene } {
+    return this.router.scenes;
+  };
 
   /**
    * Indicates whether the engine is set to fullscreen or not
@@ -530,8 +534,6 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
   private _loader: Loader;
 
   private _isInitialized: boolean = false;
-
-  private _deferredGoTo: string = null;
 
   public emit<TEventName extends EventKey<EngineEvents>>(eventName: TEventName, event: EngineEvents[TEventName]): void;
   public emit(eventName: string, event?: any): void;
@@ -770,9 +772,6 @@ O|===|* >________________>\n\
 
     this._initialize(options);
 
-    this.rootScene = this.currentScene = new Scene();
-
-    this.addScene('root', this.rootScene);
     (window as any).___EXCALIBUR_DEVTOOL = this;
   }
 
@@ -928,10 +927,7 @@ O|===|* >________________>\n\
    * @param scene The scene to add to the engine
    */
   public addScene(key: string, scene: Scene) {
-    if (this.scenes[key]) {
-      this._logger.warn('Scene', key, 'already exists overwriting');
-    }
-    this.scenes[key] = scene;
+    this.router.add(key, scene);
   }
 
   /**
@@ -948,21 +944,7 @@ O|===|* >________________>\n\
    * @internal
    */
   public removeScene(entity: any): void {
-    if (entity instanceof Scene) {
-      // remove scene
-      for (const key in this.scenes) {
-        if (this.scenes.hasOwnProperty(key)) {
-          if (this.scenes[key] === entity) {
-            delete this.scenes[key];
-          }
-        }
-      }
-    }
-
-    if (typeof entity === 'string') {
-      // remove scene
-      delete this.scenes[entity];
-    }
+    this.router.remove(entity);
   }
 
   /**
@@ -1003,11 +985,12 @@ O|===|* >________________>\n\
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
     if (arguments.length === 2) {
-      this.addScene(<string>arguments[0], <Scene>arguments[1]);
+      this.router.add(<string>arguments[0], <Scene>arguments[1]);
       return;
     }
-    if (this._deferredGoTo && this.scenes[this._deferredGoTo]) {
-      this.scenes[this._deferredGoTo].add(entity);
+    const maybeDeferred = this.router.getDeferredScene();
+    if (maybeDeferred) {
+      maybeDeferred.add(entity);
     } else {
       this.currentScene.add(entity);
     }
@@ -1059,81 +1042,48 @@ O|===|* >________________>\n\
   }
 
   /**
+   * Changes the current scene with optionally supplied:
+   * * Activation data
+   * * Transitions
+   * * Loaders
+   *
+   * Scenes routes are defined in the Engine.start()
+   * ```typescript
+   * game.start({
+      start: 'startScene',
+      loader: boot,
+      routes: {
+        startScene: {
+          scene: scene1,
+          out: new ex.FadeOut({duration: 1000, direction: 'in', color: ex.Color.Black}),
+          in: new ex.FadeOut({duration: 1000, direction: 'out'})
+        },
+        scene2: {
+          scene: scene2,
+          loader: new ex.Loader(),
+          out: new ex.FadeOut({duration: 1000, direction: 'in'}),
+          in: new ex.FadeOut({duration: 1000, direction: 'out', color: ex.Color.Black })
+        }
+      }
+    });
+   * ```
+   * @param destinationScene 
+   * @param options 
+   */
+  public async goto(destinationScene: string, options?: GoToOptions) {
+    await this.router.goto(destinationScene, options);
+  }
+
+  /**
    * Changes the currently updating and drawing scene to a different,
    * named scene. Calls the [[Scene]] lifecycle events.
    * @param key  The key of the scene to transition to.
    * @param data Optional data to send to the scene's onActivate method
+   * @deprecated Use [[Engine.goto]] will be removed in v1!
    */
+  @obsolete({message: 'Engine.goToScene is deprecated, will be removed in v1', alternateMethod: 'Engine.goto'})
   public async goToScene<TData = undefined>(key: string, data?: TData): Promise<void> {
-    // if not yet initialized defer goToScene
-    if (!this.isInitialized) {
-      this._deferredGoTo = key;
-      return;
-    }
-
-    if (this.scenes[key]) {
-      const previousScene = this.currentScene;
-      const nextScene = this.scenes[key];
-
-      this._logger.debug('Going to scene:', key);
-
-      // only deactivate when initialized
-      if (this.currentScene.isInitialized) {
-        const context = { engine: this, previousScene, nextScene };
-        await this.currentScene._deactivate(context);
-        this.currentScene.events.emit('deactivate', new DeactivateEvent(context, this.currentScene));
-      }
-
-      // set current scene to new one
-      this.currentScene = nextScene;
-      this.screen.setCurrentCamera(nextScene.camera);
-
-      // TODO some kind of optional loader?
-      // initialize the current scene if has not been already
-      await this.currentScene._initialize(this);
-
-      const context = { engine: this, previousScene, nextScene, data };
-      await this.currentScene._activate(context);
-      this.currentScene.events.emit('activate', new ActivateEvent(context, this.currentScene));
-    } else {
-      this._logger.error('Scene', key, 'does not exist!');
-    }
-  }
-
-  public goToSceneSync<TData = undefined>(key: string, data?: TData) {
-    // if not yet initialized defer goToScene
-    if (!this.isInitialized) {
-      this._deferredGoTo = key;
-      return;
-    }
-
-    if (this.scenes[key]) {
-      const previousScene = this.currentScene;
-      const nextScene = this.scenes[key];
-
-      this._logger.debug('Going to scene:', key);
-
-      // only deactivate when initialized
-      if (this.currentScene.isInitialized) {
-        const context = { engine: this, previousScene, nextScene };
-        this.currentScene._deactivate(context);
-        this.currentScene.events.emit('deactivate', new DeactivateEvent(context, this.currentScene));
-      }
-
-      // set current scene to new one
-      this.currentScene = nextScene;
-      this.screen.setCurrentCamera(nextScene.camera);
-
-      // TODO some kind of optional loader?
-      // initialize the current scene if has not been already
-      this.currentScene._initialize(this);
-
-      const context = { engine: this, previousScene, nextScene, data };
-      this.currentScene._activate(context);
-      this.currentScene.events.emit('activate', new ActivateEvent(context, this.currentScene));
-    } else {
-      this._logger.error('Scene', key, 'does not exist!');
-    }
+    await this.router.swapScene(key, data);
   }
 
   /**
@@ -1225,13 +1175,7 @@ O|===|* >________________>\n\
       await this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
-      if (this._deferredGoTo) {
-        const deferredScene = this._deferredGoTo;
-        this._deferredGoTo = null;
-        await this.goToScene(deferredScene);
-      } else {
-        await this.goToScene('root');
-      }
+      await this.router.onInitialize();
     }
   }
 
@@ -1402,7 +1346,6 @@ O|===|* >________________>\n\
     }
 
     // Start the excalibur clock which drives the mainloop
-    // has started is a slight misnomer, it's really mainloop started
     this._logger.debug('Starting game clock...');
     this.browser.resume();
     this.clock.start();
