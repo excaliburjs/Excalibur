@@ -1,8 +1,8 @@
 import { Engine } from '../Engine';
-import { Loader } from './Loader';
+import { BaseLoader } from './Loader';
 import { Scene } from '../Scene';
 import { Transition } from './Transition';
-import { BootLoader } from './BootLoader';
+import { Loader } from './BootLoader';
 import { Logger } from '../Util/Log';
 import { ActivateEvent, DeactivateEvent } from '../Events';
 
@@ -23,7 +23,7 @@ export interface Route {
   /**
    * Optionally specify a loader for the scene
    */
-  loader?: Loader;
+  loader?: BaseLoader;
 }
 
 // TODO do we want to support lazy loading routes?
@@ -33,7 +33,7 @@ export interface GoToOptions {
   sceneActivationData?: any,
   destinationIn?: Transition,
   sourceOut?: Transition,
-  loader?: Loader
+  loader?: BaseLoader
 }
 
 export interface RouterOptions {
@@ -44,7 +44,7 @@ export interface RouterOptions {
   /**
    * Main loader
    */
-  loader?: Loader,
+  loader?: BaseLoader,
   routes: RouteMap;
 }
 
@@ -65,7 +65,7 @@ export class Router {
   routes: RouteMap;
 
   startScene: string;
-  mainLoader: Loader;
+  mainLoader: BaseLoader;
 
   /**
    * The default [[Scene]] of the game, use [[Engine.goto]] to transition to different scenes.
@@ -77,7 +77,7 @@ export class Router {
    */
   public readonly scenes: { [sceneName: string]: Scene } = {};
 
-  private _sceneToLoader = new Map<string, Loader>();
+  private _sceneToLoader = new Map<string, BaseLoader>();
   private _sceneToTransition = new Map<string, {in: Transition, out: Transition }>();
   private _loadedScenes = new Set<Scene>();
 
@@ -111,7 +111,7 @@ export class Router {
    */
   configure(options: RouterOptions) {
     this.routes = options.routes;
-    this.mainLoader = options.loader ?? new BootLoader();
+    this.mainLoader = options.loader ?? new Loader();
     this.startScene = options.start;
     for (const sceneKey in this.routes) {
       const sceneOrRoute = this.routes[sceneKey];
@@ -219,7 +219,7 @@ export class Router {
     }
 
     // Run the loader if present
-    const loader = this._getLoader(destinationScene) ?? new BootLoader();
+    const loader = this._getLoader(destinationScene) ?? new Loader();
     const sceneToLoad = this._engine.scenes[destinationScene];
     if (!this._loadedScenes.has(sceneToLoad)) {
       sceneToLoad.onLoad(loader);

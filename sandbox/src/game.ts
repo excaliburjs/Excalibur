@@ -118,7 +118,7 @@ cards2.draw(game.graphicsContext, 0, 0);
 
 jump.volume = 0.3;
 
-var boot = new ex.BootLoader();
+var boot = new ex.Loader();
 boot.addResource(heartImageSource);
 boot.addResource(heartTex);
 boot.addResource(imageRun);

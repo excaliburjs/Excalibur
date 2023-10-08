@@ -134,7 +134,7 @@ describe('A ScreenElement', () => {
     const game = TestUtils.engine({ width: 720, height: 480 });
     const clock = game.clock as ex.TestClock;
     const bg = new ex.ImageSource('src/spec/images/ScreenElementSpec/emptyctor.png');
-    const loader = new ex.Loader([bg]);
+    const loader = new ex.BaseLoader([bg]);
     await TestUtils.runToReady(game, loader);
     const screenElement = new ex.ScreenElement();
     screenElement.graphics.use(bg.toSprite());

@@ -1,4 +1,4 @@
-import { BootLoader, EX_VERSION, obsolete } from './';
+import { Loader, EX_VERSION, obsolete } from './';
 import { Future } from './Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Gamepads } from './Input/Gamepad';
@@ -16,7 +16,7 @@ import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
 import { TileMap } from './TileMap';
-import { Loader } from './Router/Loader';
+import { BaseLoader } from './Router/Loader';
 import { Detector } from './Util/Detector';
 import {
   VisibleEvent,
@@ -531,7 +531,7 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
   private _timescale: number = 1.0;
 
   // loading
-  private _loader: Loader;
+  private _loader: BaseLoader;
 
   private _isInitialized: boolean = false;
 
@@ -1332,13 +1332,13 @@ O|===|* >________________>\n\
    *
    * Note: start() only resolves AFTER the user has clicked the play button
    */
-  public async start(loaderOrRouterOptions?: Loader | RouterOptions): Promise<void> {
+  public async start(loaderOrRouterOptions?: BaseLoader | RouterOptions): Promise<void> {
     if (!this._compatible) {
       throw new Error('Excalibur is incompatible with your browser');
     }
     this._isLoading = true;
-    let loader: Loader;
-    if (!(loaderOrRouterOptions instanceof Loader)) {
+    let loader: BaseLoader;
+    if (!(loaderOrRouterOptions instanceof BaseLoader)) {
       this.router.configure(loaderOrRouterOptions);
       loader = this.router.mainLoader;
     } else {
@@ -1351,7 +1351,7 @@ O|===|* >________________>\n\
     this.clock.start();
     this._logger.debug('Game clock started');
 
-    await this.load(loader ?? new BootLoader());
+    await this.load(loader ?? new Loader());
 
     // Initialize before ready
     await this._overrideInitialize(this);
@@ -1475,7 +1475,7 @@ O|===|* >________________>\n\
    * will appear.
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
-  public async load(loader: Loader): Promise<void> {
+  public async load(loader: BaseLoader): Promise<void> {
     try {
       // early exit if loaded
       if (loader.isLoaded()) {

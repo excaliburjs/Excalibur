@@ -22,7 +22,7 @@ export const LoaderEvents = {
   // Add event types here
 };
 
-export class Loader implements Loadable<Loadable<any>[]> {
+export class BaseLoader implements Loadable<Loadable<any>[]> {
   public data: Loadable<any>[];
   public events = new EventEmitter();
   public canvas: Canvas = new Canvas({

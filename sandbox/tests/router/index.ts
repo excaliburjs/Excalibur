@@ -50,7 +50,7 @@ scene2.add(new ex.Actor({
   color: ex.Color.Blue
 }));
 
-var boot = new ex.BootLoader()
+var boot = new ex.Loader()
 const image1 = new ex.ImageSource('./spritefont.png?=1');
 const image2 = new ex.ImageSource('./spritefont.png?=2');
 const image3 = new ex.ImageSource('./spritefont.png?=3');
@@ -77,7 +77,7 @@ game.start({
     },
     scene2: {
       scene: scene2,
-      loader: new ex.Loader(),
+      loader: new ex.BaseLoader(),
       out: new ex.FadeOut({duration: 1000, direction: 'in'}),
       in: new ex.FadeOut({duration: 1000, direction: 'out', color: ex.Color.Black })
     }

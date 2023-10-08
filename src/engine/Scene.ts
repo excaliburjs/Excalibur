@@ -33,7 +33,7 @@ import { OffscreenSystem } from './Graphics/OffscreenSystem';
 import { ExcaliburGraphicsContext } from './Graphics';
 import { PhysicsWorld } from './Collision/PhysicsWorld';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
-import { Loader } from './Router/Loader';
+import { BaseLoader } from './Router/Loader';
 
 export type SceneEvents = {
   initialize: InitializeEvent<Scene>,
@@ -175,7 +175,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
     this.events.off(eventName, handler);
   }
 
-  public onLoad(_loader: Loader) {
+  public onLoad(_loader: BaseLoader) {
     // will be overridden
   }
 

@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { Loader } from '@excalibur';
+import { BaseLoader } from '@excalibur';
 import { ExcaliburMatchers, ensureImagesLoaded } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
@@ -11,26 +11,26 @@ describe('A loader', () => {
   });
 
   it('exists', () => {
-    expect(ex.Loader).toBeDefined();
+    expect(ex.BaseLoader).toBeDefined();
   });
 
   it('can be constructed', () => {
-    const loader = new ex.Loader();
+    const loader = new ex.BaseLoader();
     expect(loader).toBeTruthy();
   });
 
   it('can report progress, empty loaders are done', () => {
-    const loader = new ex.Loader();
+    const loader = new ex.BaseLoader();
     expect(loader.progress).toBe(1);
   });
 
   it('can report progress, loader start at 0', () => {
-    const loader = new ex.Loader([, , ,]);
+    const loader = new ex.BaseLoader([, , ,]);
     expect(loader.progress).toBe(0);
   });
 
   it('can report progress', () => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.BaseLoader([, , , ,]);
     expect(loader.progress).toBe(0);
     loader.markResourceComplete();
     expect(loader.progress).toBe(0.25);
@@ -43,7 +43,7 @@ describe('A loader', () => {
   });
 
   it('can be drawn at 0', (done) => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.BaseLoader([, , , ,]);
     (loader as any)._image.onload = () => {
       loader.onInitialize(engine);
       loader.onDraw(loader.canvas.ctx);
@@ -55,7 +55,7 @@ describe('A loader', () => {
   });
 
   it('can be drawn at 50', (done) => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.BaseLoader([, , , ,]);
     (loader as any)._image.onload = () => {
       loader.markResourceComplete();
       loader.markResourceComplete();
@@ -70,7 +70,7 @@ describe('A loader', () => {
   });
 
   it('can be drawn at 100', (done) => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.BaseLoader([, , , ,]);
     (loader as any)._image.onload = () => {
       loader.markResourceComplete();
       loader.markResourceComplete();
@@ -87,7 +87,7 @@ describe('A loader', () => {
   });
 
   it('does not show progress when the play button is shown', (done) => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.BaseLoader([, , , ,]);
     (loader as any)._image.onload = () => {
       loader.markResourceComplete();
       loader.markResourceComplete();
@@ -106,7 +106,7 @@ describe('A loader', () => {
   });
 
   it('can have the play button position customized', () => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.BaseLoader([, , , ,]);
     loader.onInitialize(engine);
     loader.playButtonPosition = ex.vec(42, 77);
     loader.showPlayButton();
@@ -118,7 +118,7 @@ describe('A loader', () => {
   });
 
   it('can have the logo position customized', (done) => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.BaseLoader([, , , ,]);
     (loader as any)._image.onload = () => {
       loader.onInitialize(engine);
       loader.logoPosition = ex.vec(0, 0);
@@ -132,7 +132,7 @@ describe('A loader', () => {
   });
 
   it('can have the loader customized', (done) => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.BaseLoader([, , , ,]);
     loader.loadingBarPosition = ex.vec(0, 0);
     loader.loadingBarColor = ex.Color.Red;
     (loader as any)._image.onload = () => {
@@ -150,7 +150,7 @@ describe('A loader', () => {
   });
 
   it('play button shows up after done loading', () => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.BaseLoader([, , , ,]);
     loader.loadingBarPosition = ex.vec(0, 0);
     loader.loadingBarColor = ex.Color.Red;
     loader.markResourceComplete();
@@ -163,7 +163,7 @@ describe('A loader', () => {
   });
 
   it('play button is cleaned up on dispose', () => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.BaseLoader([, , , ,]);
     loader.loadingBarPosition = ex.vec(0, 0);
     loader.loadingBarColor = ex.Color.Red;
     loader.markResourceComplete();
@@ -176,7 +176,7 @@ describe('A loader', () => {
   });
 
   it('can have the enter key pressed to start', (done) => {
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.BaseLoader([, , , ,]);
     loader.onInitialize(engine);
     loader.loadingBarPosition = ex.vec(0, 0);
     loader.loadingBarColor = ex.Color.Red;
@@ -192,7 +192,7 @@ describe('A loader', () => {
   });
 
   it('can reload without building root elements', () => {
-    const loader = new ex.Loader([, , ,]);
+    const loader = new ex.BaseLoader([, , ,]);
     loader.showPlayButton();
     loader.showPlayButton();
     loader.showPlayButton();
@@ -222,7 +222,7 @@ describe('A loader', () => {
     const clock = engine.clock = engine.clock.toTestClock();
     const pointerHandler = jasmine.createSpy('pointerHandler');
     engine.input.pointers.primary.on('up', pointerHandler);
-    const loader = new Loader([new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png')]);
+    const loader = new BaseLoader([new ex.ImageSource('src/spec/images/GraphicsTextSpec/spritefont.png')]);
     engine.start(loader);
 
     await loader.areResourcesLoaded();
@@ -240,7 +240,7 @@ describe('A loader', () => {
 
   it('updates the play button postion on resize', () => {
     const engine = new ex.Engine({width: 1000, height: 1000});
-    const loader = new ex.Loader([, , , ,]);
+    const loader = new ex.BaseLoader([, , , ,]);
     loader.onInitialize(engine);
     loader.markResourceComplete();
     loader.markResourceComplete();
@@ -312,7 +312,7 @@ describe('A loader', () => {
     });
     const testClock = game.clock as ex.TestClock;
 
-    const loader = new ex.Loader();
+    const loader = new ex.BaseLoader();
 
     const srcs = [];
     for (let i = 0; i < 800; i++) {
