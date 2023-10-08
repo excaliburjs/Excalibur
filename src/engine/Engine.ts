@@ -1067,8 +1067,8 @@ O|===|* >________________>\n\
       }
     });
    * ```
-   * @param destinationScene 
-   * @param options 
+   * @param destinationScene
+   * @param options
    */
   public async goto(destinationScene: string, options?: GoToOptions) {
     await this.router.goto(destinationScene, options);

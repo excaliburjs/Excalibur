@@ -105,9 +105,9 @@ export class Router {
 
   /**
    * Configures the routes that the router knows about
-   * 
+   *
    * Typically this is called at the beginning of the game to configure the scene route and never again.
-   * @param options 
+   * @param options
    */
   configure(options: RouterOptions) {
     this.routes = options.routes;
@@ -150,8 +150,8 @@ export class Router {
 
   /**
    * Adds additional Scenes to the game!
-   * @param name 
-   * @param sceneOrRoute 
+   * @param name
+   * @param sceneOrRoute
    */
   add(name: string, sceneOrRoute: Scene | Route) {
     let parsedScene: Scene;
