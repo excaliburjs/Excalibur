@@ -1,6 +1,6 @@
 
 export * from './Transition';
-export * from './FadeOut';
+export * from './FadeInOut';
 export * from './Router';
-
-export * from './BootLoader';
+export * from './Loader';
+export * from './BaseLoader';

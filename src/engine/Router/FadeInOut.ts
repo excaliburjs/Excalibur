@@ -3,20 +3,19 @@ import { Transition, TransitionOptions } from './Transition';
 
 export interface FadeOptions {
   duration?: number;
-  direction?: 'in' | 'out';
   color?: Color;
 }
 
-export class FadeOut extends Transition {
+export class FadeInOut extends Transition {
   screenCover: Rectangle;
   color: Color;
   constructor(options: FadeOptions & TransitionOptions) {
     super({
       ...options,
       duration: options.duration ?? 2000,
-      direction: options.direction ?? 'in'
+      direction: options.direction ?? 'up'
     });
-    this.name = `FadeOut#${this.id}`;
+    this.name = `FadeInOut#${this.id}`;
     this.color = options.color ?? Color.Black;
   }
 

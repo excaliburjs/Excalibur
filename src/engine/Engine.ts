@@ -1,4 +1,4 @@
-import { Loader, EX_VERSION, obsolete } from './';
+import { EX_VERSION, obsolete } from './';
 import { Future } from './Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Gamepads } from './Input/Gamepad';
@@ -9,14 +9,14 @@ import { Flags } from './Flags';
 import { polyfill } from './Polyfill';
 polyfill();
 import { CanUpdate, CanDraw, CanInitialize } from './Interfaces/LifecycleEvents';
-// import { Loadable } from './Interfaces/Loadable';
 import { Vector } from './Math/vector';
 import { Screen, DisplayMode, ScreenDimension, Resolution } from './Screen';
 import { ScreenElement } from './ScreenElement';
 import { Actor } from './Actor';
 import { Timer } from './Timer';
 import { TileMap } from './TileMap';
-import { BaseLoader } from './Router/Loader';
+import { BaseLoader } from './Router/BaseLoader';
+import { Loader } from './Router/Loader';
 import { Detector } from './Util/Detector';
 import {
   VisibleEvent,
@@ -467,7 +467,7 @@ export class Engine implements CanInitialize, CanUpdate, CanDraw {
     return this.screen.displayMode;
   }
 
-  // private _suppressPlayButton: boolean = false;
+  private _suppressPlayButton: boolean = false;
   /**
    * Returns the calculated pixel ration for use in rendering
    */
@@ -666,7 +666,7 @@ O|===|* >________________>\n\
 
     // Suppress play button
     if (options.suppressPlayButton) {
-      // this._suppressPlayButton = true;
+      this._suppressPlayButton = true;
     }
 
     this._logger = Logger.getInstance();
@@ -1484,8 +1484,9 @@ O|===|* >________________>\n\
       this._loader = loader;
       this._isLoading = true;
 
-      // TODO fix this
-      //this._loader.suppressPlayButton = this._suppressPlayButton || this._loader.suppressPlayButton;
+      if (loader instanceof Loader) {
+        loader.suppressPlayButton = this._suppressPlayButton;
+      }
       this._loader.onInitialize(this);
 
       await loader.load();
@@ -1494,6 +1495,7 @@ O|===|* >________________>\n\
       await Promise.resolve();
     } finally {
       this._isLoading = false;
+      this._loader = null;
     }
   }
 }

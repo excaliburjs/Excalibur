@@ -33,7 +33,7 @@ import { OffscreenSystem } from './Graphics/OffscreenSystem';
 import { ExcaliburGraphicsContext } from './Graphics';
 import { PhysicsWorld } from './Collision/PhysicsWorld';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
-import { BaseLoader } from './Router/Loader';
+import { BaseLoader } from './Router/BaseLoader';
 
 export type SceneEvents = {
   initialize: InitializeEvent<Scene>,

@@ -67,19 +67,20 @@ game.input.pointers.primary.on('down', () => {
 });
 
 game.start({
-  start: 'scene1',
+  start: 'scene1', // TODO Refactor this
+  startTransition: new ex.FadeInOut({duration: 500, direction: 'down', color: ex.Color.ExcaliburBlue}),
   loader: boot,
   routes: {
     scene1: {
       scene: scene1,
-      out: new ex.FadeOut({duration: 1000, direction: 'in', color: ex.Color.Black}),
-      in: new ex.FadeOut({duration: 1000, direction: 'out'})
+      out: new ex.FadeInOut({duration: 1000, direction: 'up', color: ex.Color.Black}),
+      in: new ex.FadeInOut({duration: 1000, direction: 'down'})
     },
     scene2: {
       scene: scene2,
       loader: new ex.BaseLoader(),
-      out: new ex.FadeOut({duration: 1000, direction: 'in'}),
-      in: new ex.FadeOut({duration: 1000, direction: 'out', color: ex.Color.Black })
+      out: new ex.FadeInOut({duration: 1000, direction: 'up'}),
+      in: new ex.FadeInOut({duration: 1000, direction: 'down', color: ex.Color.Black })
     }
   }
 });

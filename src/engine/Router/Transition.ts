@@ -16,12 +16,12 @@ export interface TransitionOptions {
    */
   easingFunction?: EasingFunction;
   /**
-   * Specify a transition direction, by default 'in
+   * Specify a transition direction, by default 'up'
    *
-   * * For 'out' direction transitions start at 1 and complete is at 0
-   * * For 'in' direction transitions start at 0 and complete is at 1
+   * * For 'down' direction transitions start at 1 and complete is at 0
+   * * For 'up' direction transitions start at 0 and complete is at 1
    */
-  direction?: 'in' | 'out';
+  direction?: 'up' | 'down';
 }
 
 export class Transition extends Entity {
@@ -29,7 +29,7 @@ export class Transition extends Entity {
   graphics = new GraphicsComponent();
   readonly duration: number;
   readonly easing: EasingFunction;
-  readonly direction: 'in' | 'out';
+  readonly direction: 'up' | 'down';
   private _completeFuture = new Future<void>();
 
   // State needs to be reset between uses
@@ -50,7 +50,7 @@ export class Transition extends Entity {
   }
 
   get complete(): boolean {
-    if (this.direction === 'in') {
+    if (this.direction === 'up') {
       return this.progress >= 1;
     } else {
       return this.progress <= 0;
@@ -62,7 +62,7 @@ export class Transition extends Entity {
     this.name = `Transition#${this.id}`;
     this.duration = options.duration;
     this.easing = options.easingFunction ?? EasingFunctions.Linear;
-    this.direction = options.direction ?? 'in';
+    this.direction = options.direction ?? 'up';
     this.transform.coordPlane = CoordPlane.Screen;
     this.transform.pos = Vector.Zero;
     this.transform.z = Infinity; // Transitions sit on top of everything
@@ -70,7 +70,7 @@ export class Transition extends Entity {
     this.addComponent(this.transform);
     this.addComponent(this.graphics);
 
-    if (this.direction === 'in') {
+    if (this.direction === 'up') {
       this._currentProgress = 0;
     } else {
       this._currentProgress = 1;
@@ -87,7 +87,7 @@ export class Transition extends Entity {
       this._currentDistance = 1;
     }
 
-    if (this.direction === 'in') {
+    if (this.direction === 'up') {
       this._currentProgress = clamp(this.easing(this._currentDistance, 0, 1, 1), 0, 1);
     } else {
       this._currentProgress = clamp(this.easing(this._currentDistance, 1, 0, 1), 0, 1);
@@ -130,7 +130,7 @@ export class Transition extends Entity {
     this._completeFuture = new Future<void>();
     this.done = this._completeFuture.promise;
     this._currentDistance = 0;
-    if (this.direction === 'in') {
+    if (this.direction === 'up') {
       this._currentProgress = 0;
     } else {
       this._currentProgress = 1;

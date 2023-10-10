@@ -1,8 +1,8 @@
 import { Engine } from '../Engine';
-import { BaseLoader } from './Loader';
+import { BaseLoader } from './BaseLoader';
 import { Scene } from '../Scene';
 import { Transition } from './Transition';
-import { Loader } from './BootLoader';
+import { Loader } from './Loader';
 import { Logger } from '../Util/Log';
 import { ActivateEvent, DeactivateEvent } from '../Events';
 
@@ -41,6 +41,7 @@ export interface RouterOptions {
    * Starting route
    */
   start: string; // TODO keyof RouteMap
+  startTransition?: Transition;
   /**
    * Main loader
    */
@@ -117,7 +118,21 @@ export class Router {
       const sceneOrRoute = this.routes[sceneKey];
       this.add(sceneKey, sceneOrRoute);
     }
-    this.swapScene(this.startScene);
+
+    if (options.startTransition) {
+      // this.goto(this.startScene, { destinationIn: options.startTransition });
+      this.swapScene(this.startScene);
+      // Why is this not initializing
+      // Why is this hack needed?!?!?! 
+      this.mainLoader.on('afterload', () => {
+        setTimeout(() => {
+          this.playTransition(options.startTransition);
+        });
+      });
+    } else {
+      this.swapScene(this.startScene);
+    }
+
     this.currentSceneName = this.startScene;
   }
 
@@ -130,7 +145,7 @@ export class Router {
     if (sceneOrRoute instanceof Scene) {
       return null;
     }
-    return sceneOrRoute.in;
+    return sceneOrRoute?.in;
   }
 
   private _getOutTransition(sceneName: string) {
@@ -138,7 +153,7 @@ export class Router {
     if (sceneOrRoute instanceof Scene) {
       return null;
     }
-    return sceneOrRoute.out;
+    return sceneOrRoute?.out;
   }
 
   getDeferredScene() {
@@ -196,6 +211,11 @@ export class Router {
     }
   }
 
+  /**
+   * Go to a specific scene, and optionally override loaders and transitions
+   * @param destinationScene 
+   * @param options 
+   */
   async goto(destinationScene: string, options?: GoToOptions) {
     if (destinationScene === this.currentSceneName) {
       return;
@@ -212,11 +232,7 @@ export class Router {
     const inTransition = destinationIn ?? this._getInTransition(destinationScene);
 
     // Run the out transition on the current scene if present
-    if (outTransition) {
-      this.currentTransition = outTransition;
-      this._engine.currentScene.add(this.currentTransition);
-      await this.currentTransition.done;
-    }
+    await this.playTransition(outTransition);
 
     // Run the loader if present
     const loader = this._getLoader(destinationScene) ?? new Loader();
@@ -232,12 +248,13 @@ export class Router {
     this.currentScene = this._engine.currentScene;
     this.currentSceneName = destinationScene;
 
-    this.currentTransition?.kill();
-    this.currentTransition?.reset();
-
     // Run the in transition on the new scene if present
-    if (inTransition) {
-      this.currentTransition = inTransition;
+    await this.playTransition(inTransition);
+  }
+
+  async playTransition(transition: Transition) {
+    if (transition) {
+      this.currentTransition = transition;
       this._engine.currentScene.add(this.currentTransition);
       await this.currentTransition.done;
     }
