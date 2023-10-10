@@ -1323,6 +1323,13 @@ O|===|* >________________>\n\
     return this._isReadyFuture.promise;
   }
 
+  private _isRouterOptions(maybeRouterOptions: any): maybeRouterOptions is RouterOptions {
+    if (maybeRouterOptions && maybeRouterOptions.start && maybeRouterOptions.routes) {
+      return true;
+    }
+    return false;
+  }
+
 
   /**
    * Starts the internal game loop for Excalibur after loading
@@ -1338,7 +1345,7 @@ O|===|* >________________>\n\
     }
     this._isLoading = true;
     let loader: BaseLoader;
-    if (!(loaderOrRouterOptions instanceof BaseLoader)) {
+    if (this._isRouterOptions(loaderOrRouterOptions)) {
       this.router.configure(loaderOrRouterOptions);
       loader = this.router.mainLoader;
     } else {
