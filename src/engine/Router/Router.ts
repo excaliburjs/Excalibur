@@ -5,7 +5,26 @@ import { Transition } from './Transition';
 import { Loader } from './Loader';
 import { Logger } from '../Util/Log';
 import { ActivateEvent, DeactivateEvent } from '../Events';
+import { EventEmitter } from '../EventEmitter';
 
+export interface RouterNavigationEvent {
+  sourceName: string;
+  sourceScene: Scene;
+  destinationName: string;
+  destinationScene: Scene;
+}
+
+export type RouterEvents = {
+  navigationstart: RouterNavigationEvent,
+  navigation: RouterNavigationEvent,
+  navigationend: RouterNavigationEvent,
+}
+
+export const RouterEvents = {
+  NavigationStart: 'navigationstart',
+  Navigation: 'navigation',
+  NavigationEnd: 'navigationend',
+};
 
 export interface Route {
   /**
@@ -31,10 +50,25 @@ export type RouteMap = Record<string, Scene | Route>;
 
 export type StartOptions = string | { name: string, in: Transition };
 
+/**
+ * Provide scene activation data and override any existing configured route transitions or loaders
+ */
 export interface GoToOptions {
+  /**
+   * Optionally supply scene activation data passed to Scene.onActivate
+   */
   sceneActivationData?: any,
+  /**
+   * Optionally supply destination scene "in" transition
+   */
   destinationIn?: Transition,
+  /**
+   * Optionally supply source scene "out" transition
+   */
   sourceOut?: Transition,
+  /**
+   * Optionally supply a different loader for the destination scene
+   */
   loader?: BaseLoader
 }
 
@@ -42,11 +76,14 @@ export interface RouterOptions {
   /**
    * Starting route
    */
-  start: StartOptions; // TODO keyof RouteMap
+  start: StartOptions;
   /**
-   * Main loader
+   * Optionally provide a main loader to run before the game starts
    */
   loader?: BaseLoader,
+  /**
+   * Provide routes to scenes for your game
+   */
   routes: RouteMap;
 }
 
@@ -56,14 +93,27 @@ export interface RouterOptions {
  * It deals with transitions, scene loaders, switching scenes
  */
 export class Router {
+  public events = new EventEmitter<RouterEvents>();
   private _logger = Logger.getInstance();
   private _deferredGoto: string;
   private _initialized = false;
 
+  /**
+   * Current scene's name
+   */
   currentSceneName: string;
+  /**
+   * Current scene playing in excalibur
+   */
   currentScene: Scene;
-  currentTransition: Transition;
+  /**
+   * Current transition if any
+   */
+  currentTransition: Transition | null;
 
+  /**
+   * Currently configured routes for the game
+   */
   routes: RouteMap;
 
   startScene: string;
@@ -81,13 +131,30 @@ export class Router {
 
   private _sceneToLoader = new Map<string, BaseLoader>();
   private _sceneToTransition = new Map<string, {in: Transition, out: Transition }>();
+  /**
+   * Used to keep track of scenes that have already been loaded so we don't load multiple times
+   */
   private _loadedScenes = new Set<Scene>();
+
+  private _isTransitioning = false;
+
+  /**
+   * Gets whether the router currently transitioning between scenes
+   * 
+   * Useful if you need to block behavior during transition
+   */
+  public get isTransitioning() {
+    return this._isTransitioning;
+  }
 
   constructor(private _engine: Engine) {
     this.rootScene = this.currentScene = new Scene();
     this.add('root', this.rootScene);
   }
 
+  /**
+   * Initialize the router's internal state
+   */
   async onInitialize() {
     if (!this._initialized) {
       this._initialized = true;
@@ -229,6 +296,14 @@ export class Router {
       return;
     }
 
+    if (this._isTransitioning) {
+      this._logger.warn('Cannot transition while a transition is in progress');
+      return;
+    }
+
+    const sourceScene = this.currentSceneName;
+    this._isTransitioning = true;
+
     options = {
       ...this._getOutTransition(this.currentSceneName),
       ...this._getInTransition(destinationScene),
@@ -239,27 +314,59 @@ export class Router {
     const outTransition = sourceOut ?? this._getOutTransition(this.currentSceneName);
     const inTransition = destinationIn ?? this._getInTransition(destinationScene);
 
+    const hideLoader = outTransition?.hideLoader || inTransition?.hideLoader;
+    if (hideLoader) {
+      // Start hidden loader early and take advantage of the transition
+      // Don't await and block on a hidden loader
+      this.maybeLoadScene(destinationScene, hideLoader);
+    }
+
+    this._emitEvent('navigationstart', sourceScene, destinationScene);
+
     // Run the out transition on the current scene if present
     await this.playTransition(outTransition);
 
     // Run the loader if present
-    const loader = this._getLoader(destinationScene) ?? new Loader();
-    const sceneToLoad = this._engine.scenes[destinationScene];
-    if (!this._loadedScenes.has(sceneToLoad)) {
-      sceneToLoad.onLoad(loader);
-      await this._engine.load(loader);
-      this._loadedScenes.add(sceneToLoad);
-    }
+    await this.maybeLoadScene(destinationScene, hideLoader);
 
-    // Transition to the new scene
+    // Give incoming transition a chance to grab info from previous
+    await inTransition?.onPreviousSceneDeactivate(this.currentScene);
+
+    // Swap to the new scene
     await this.swapScene(destinationScene, sceneActivationData);
-    this.currentScene = this._engine.currentScene;
-    this.currentSceneName = destinationScene;
+    this._emitEvent('navigation', sourceScene, destinationScene);
 
     // Run the in transition on the new scene if present
     await this.playTransition(inTransition);
+    this._emitEvent('navigationend', sourceScene, destinationScene);
+
+    this._isTransitioning = false;
   }
 
+  /**
+   * Triggers scene loading if has not already been loaded
+   * @param scene 
+   * @param hideLoader 
+   */
+  async maybeLoadScene(scene: string, hideLoader = false) {
+    const loader = this._getLoader(scene) ?? new Loader();
+    const sceneToLoad = this._engine.scenes[scene];
+    if (!this._loadedScenes.has(sceneToLoad)) {
+      sceneToLoad.onPreLoad(loader);
+      if (hideLoader) {
+        // Don't await a hidden loader
+        this._engine.load(loader, hideLoader);
+      } else {
+        await this._engine.load(loader);
+      }
+      this._loadedScenes.add(sceneToLoad);
+    }
+  }
+
+  /**
+   * Plays a transition in the current scene
+   * @param transition 
+   */
   async playTransition(transition: Transition) {
     if (transition) {
       this.currentTransition = transition;
@@ -268,10 +375,15 @@ export class Router {
     }
     this.currentTransition?.kill();
     this.currentTransition?.reset();
-
     this.currentTransition = null;
   }
 
+  /**
+   * Swaps the current and destination scene after performing required lifecycle events
+   * @param destinationScene 
+   * @param data 
+   * @returns 
+   */
   async swapScene<TData = undefined>(destinationScene: string, data?: TData): Promise<void> {
     const engine = this._engine;
     // if not yet initialized defer goToScene
@@ -293,6 +405,10 @@ export class Router {
         this.currentScene.events.emit('deactivate', new DeactivateEvent(context, this.currentScene));
       }
 
+      // wait for the scene to be loaded if needed
+      const destLoader = this._sceneToLoader.get(destinationScene);
+      await destLoader?.areResourcesLoaded();
+
       // set current scene to new one
       this.currentScene = nextScene;
       this.currentSceneName = destinationScene;
@@ -309,6 +425,19 @@ export class Router {
     }
   }
 
+  private _emitEvent(eventName: keyof RouterEvents, sourceScene: string, destinationScene: string) {
+    this.events.emit(eventName, {
+      sourceScene: this.scenes[sourceScene],
+      sourceName: sourceScene,
+      destinationScene: this.scenes[destinationScene],
+      destinationName: destinationScene
+    } as RouterNavigationEvent);
+  }
+
+  /**
+   * Updates internal transitions
+   * @param _elapsedMilliseconds 
+   */
   update(_elapsedMilliseconds: number) {
     if (this.currentTransition) {
       this.currentTransition.execute();

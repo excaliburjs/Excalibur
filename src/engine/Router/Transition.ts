@@ -1,4 +1,4 @@
-import { Engine, Future } from '..';
+import { Engine, Future, Scene } from '..';
 import { Entity, TransformComponent } from '../EntityComponentSystem';
 import { GraphicsComponent } from '../Graphics';
 import { CoordPlane } from '../Math/coord-plane';
@@ -11,12 +11,29 @@ export interface TransitionOptions {
    * Duration in milliseconds
    */
   duration: number;
+
   /**
-   * Specify a easing function, by default linear
+   * Optionally hides the loader during the transition
+   *
+   * If either the out or in transition have this set to true, then the loader will be hidden.
+   *
+   * Default false
+   */
+  hideLoader?: boolean;
+
+  /**
+   * Optionally blocks input during a transition
+   *
+   * Default false
+   */
+  blockInput?: boolean;
+
+  /**
+   * Optionally specify a easing function, by default linear
    */
   easingFunction?: EasingFunction;
   /**
-   * Specify a transition direction, by default 'up'
+   * Optionally specify a transition direction, by default 'up'
    *
    * * For 'down' direction transitions start at 1 and complete is at 0
    * * For 'up' direction transitions start at 0 and complete is at 1
@@ -27,6 +44,8 @@ export interface TransitionOptions {
 export class Transition extends Entity {
   transform = new TransformComponent();
   graphics = new GraphicsComponent();
+  readonly hideLoader: boolean;
+  readonly blockInput: boolean;
   readonly duration: number;
   readonly easing: EasingFunction;
   readonly direction: 'up' | 'down';
@@ -63,6 +82,8 @@ export class Transition extends Entity {
     this.duration = options.duration;
     this.easing = options.easingFunction ?? EasingFunctions.Linear;
     this.direction = options.direction ?? 'up';
+    this.hideLoader = options.hideLoader ?? false;
+    this.blockInput = options.blockInput ?? false;
     this.transform.coordPlane = CoordPlane.Screen;
     this.transform.pos = Vector.Zero;
     this.transform.z = Infinity; // Transitions sit on top of everything
@@ -92,6 +113,10 @@ export class Transition extends Entity {
     } else {
       this._currentProgress = clamp(this.easing(this._currentDistance, 1, 0, 1), 0, 1);
     }
+  }
+
+  async onPreviousSceneDeactivate(_scene: Scene) {
+    // override me
   }
 
   /**

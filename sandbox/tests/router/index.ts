@@ -22,7 +22,7 @@ actor.addChild(new ex.Actor({
 scene1.add(actor);
 
 var scene2 = new ex.Scene();
-scene2.onLoad = (loader) => {
+scene2.onPreLoad = (loader) => {
   const image1 = new ex.ImageSource('./spritefont.png?=1');
   const image2 = new ex.ImageSource('./spritefont.png?=2');
   const image3 = new ex.ImageSource('./spritefont.png?=3');
@@ -79,14 +79,15 @@ game.start({
   routes: {
     scene1: {
       scene: scene1,
-      out: new ex.FadeInOut({duration: 1000, direction: 'up', color: ex.Color.Black}),
+      //out: new ex.FadeInOut({duration: 1000, direction: 'up', color: ex.Color.Black}),
       in: new ex.FadeInOut({duration: 1000, direction: 'down'})
     },
     scene2: {
       scene: scene2,
       loader: new ex.BaseLoader(),
       out: new ex.FadeInOut({duration: 1000, direction: 'up'}),
-      in: new ex.FadeInOut({duration: 1000, direction: 'down', color: ex.Color.Black })
+      in: new ex.CrossFade({duration: 500, direction: 'down', hideLoader: true})
+      //in: new ex.FadeInOut({duration: 1000, direction: 'down', color: ex.Color.Black })
     }
   }
 });

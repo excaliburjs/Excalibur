@@ -1248,9 +1248,11 @@ O|===|* >________________>\n\
 
     // Drawing nothing else while loading
     if (this._isLoading) {
-      this._loader?.canvas.draw(this.graphicsContext, 0, 0);
-      this.graphicsContext.flush();
-      this.graphicsContext.endDrawLifecycle();
+      if (!this._hideLoader) {
+        this._loader?.canvas.draw(this.graphicsContext, 0, 0);
+        this.graphicsContext.flush();
+        this.graphicsContext.endDrawLifecycle();
+      }
       return;
     }
 
@@ -1315,6 +1317,7 @@ O|===|* >________________>\n\
   }
 
   private _isLoading = false;
+  private _hideLoader = false;
   private _isReadyFuture = new Future<void>();
   public get ready() {
     return this._isReadyFuture.isCompleted;
@@ -1334,11 +1337,19 @@ O|===|* >________________>\n\
   /**
    * Starts the internal game loop for Excalibur after loading
    * any provided assets.
-   * @param loaderOrRouterOptions  Optional [[Loader]] to use to load resources. The default loader is [[Loader]],
+   * @param loader  Optional [[Loader]] to use to load resources. The default loader is [[Loader]],
    * override to provide your own custom loader.
    *
    * Note: start() only resolves AFTER the user has clicked the play button
    */
+  public async start(loader?: BaseLoader): Promise<void>;
+  /**
+   * Starts the internal game loop for Excalibur after configuring any routes, loaders, or transitions
+   * @param router Optional [[RouterOptions]] to configure the routes for scenes in Excalibur
+   * 
+   * Note: start() only resolves AFTER the user has clicked the play button
+   */
+  public async start(router?: RouterOptions): Promise<void>;
   public async start(loaderOrRouterOptions?: BaseLoader | RouterOptions): Promise<void> {
     if (!this._compatible) {
       throw new Error('Excalibur is incompatible with your browser');
@@ -1482,7 +1493,7 @@ O|===|* >________________>\n\
    * will appear.
    * @param loader  Some [[Loadable]] such as a [[Loader]] collection, [[Sound]], or [[Texture]].
    */
-  public async load(loader: BaseLoader): Promise<void> {
+  public async load(loader: BaseLoader, hideLoader = false): Promise<void> {
     try {
       // early exit if loaded
       if (loader.isLoaded()) {
@@ -1490,6 +1501,7 @@ O|===|* >________________>\n\
       }
       this._loader = loader;
       this._isLoading = true;
+      this._hideLoader = hideLoader;
 
       if (loader instanceof Loader) {
         loader.suppressPlayButton = this._suppressPlayButton;
@@ -1502,6 +1514,7 @@ O|===|* >________________>\n\
       await Promise.resolve();
     } finally {
       this._isLoading = false;
+      this._hideLoader = false;
       this._loader = null;
     }
   }

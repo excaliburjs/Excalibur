@@ -67,6 +67,23 @@ export class ImageSource implements Loadable<HTMLImageElement> {
   }
 
   /**
+   * Create an ImageSource from and HTML <image> tag element
+   * @param image
+   */
+  static fromHtmlImageElement(image: HTMLImageElement) {
+    const imageSource = new ImageSource('');
+    imageSource._src = 'image-element';
+    imageSource.data = image;
+    imageSource.data.setAttribute('data-original-src', 'image-element');
+    // TODO imagefiltering
+    imageSource.data.setAttribute('filtering', ImageFiltering.Blended);
+
+    TextureLoader.checkImageSizeSupportedAndLog(image);
+    imageSource._readyFuture.resolve(image);
+    return imageSource;
+  }
+
+  /**
    * Should excalibur add a cache busting querystring? By default false.
    * Must be set before loading
    */
