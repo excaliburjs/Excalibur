@@ -35,6 +35,10 @@ import { PhysicsWorld } from './Collision/PhysicsWorld';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { BaseLoader } from './Router/BaseLoader';
 
+export class PreLoadEvent {
+  loader: BaseLoader
+}
+
 export type SceneEvents = {
   initialize: InitializeEvent<Scene>,
   activate: ActivateEvent,
@@ -45,6 +49,7 @@ export type SceneEvents = {
   postdraw: PostDrawEvent,
   predebugdraw: PreDebugDrawEvent,
   postdebugdraw: PostDebugDrawEvent
+  preload: PreLoadEvent
 }
 
 export const SceneEvents = {
@@ -56,7 +61,8 @@ export const SceneEvents = {
   PreDraw: 'predraw',
   PostDraw: 'postdraw',
   PreDebugDraw: 'predebugdraw',
-  PostDebugDraw: 'postdebugdraw'
+  PostDebugDraw: 'postdebugdraw',
+  PreLoad: 'preload'
 };
 
 /**

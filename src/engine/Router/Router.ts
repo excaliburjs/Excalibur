@@ -353,6 +353,7 @@ export class Router {
     const sceneToLoad = this._engine.scenes[scene];
     if (!this._loadedScenes.has(sceneToLoad)) {
       sceneToLoad.onPreLoad(loader);
+      sceneToLoad.events.emit('preload', { loader });
       if (hideLoader) {
         // Don't await a hidden loader
         this._engine.load(loader, hideLoader);
