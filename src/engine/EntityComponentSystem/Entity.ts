@@ -4,7 +4,7 @@ import { Observable, Message } from '../Util/Observable';
 import { OnInitialize, OnPreUpdate, OnPostUpdate } from '../Interfaces/LifecycleEvents';
 import { Engine } from '../Engine';
 import { InitializeEvent, PreUpdateEvent, PostUpdateEvent } from '../Events';
-import { EventEmitter, EventKey, Handler, Scene, Subscription, Util } from '..';
+import { EventEmitter, EventKey, Handler, KillEvent, Scene, Subscription, Util } from '..';
 
 /**
  * Interface holding an entity component pair
@@ -51,12 +51,14 @@ export type EntityEvents = {
   'initialize': InitializeEvent;
   'preupdate': PreUpdateEvent;
   'postupdate': PostUpdateEvent;
+  'kill': KillEvent
 };
 
 export const EntityEvents = {
   Initialize: 'initialize',
   PreUpdate: 'preupdate',
-  PostUpdate: 'postupdate'
+  PostUpdate: 'postupdate',
+  Kill: 'kill'
 } as const;
 
 /**
@@ -127,6 +129,7 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
       this.active = false;
       this.unparent();
     }
+    this.emit('kill', new KillEvent(this));
   }
 
   public isKilled() {

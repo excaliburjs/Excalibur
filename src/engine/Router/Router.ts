@@ -29,6 +29,8 @@ export interface Route {
 // TODO do we want to support lazy loading routes?
 export type RouteMap = Record<string, Scene | Route>;
 
+export type StartOptions = string | { name: string, in: Transition };
+
 export interface GoToOptions {
   sceneActivationData?: any,
   destinationIn?: Transition,
@@ -40,8 +42,7 @@ export interface RouterOptions {
   /**
    * Starting route
    */
-  start: string; // TODO keyof RouteMap
-  startTransition?: Transition;
+  start: StartOptions; // TODO keyof RouteMap
   /**
    * Main loader
    */
@@ -113,22 +114,29 @@ export class Router {
   configure(options: RouterOptions) {
     this.routes = options.routes;
     this.mainLoader = options.loader ?? new Loader();
-    this.startScene = options.start;
+
+    let startScene: string;
+    let maybeStartTransition: Transition;
+
+    if (typeof options.start === 'string') {
+      startScene = options.start;
+    } else {
+      let { name, in: inTransition } = options.start;
+      startScene = name;
+      maybeStartTransition = inTransition;
+    }
+
+    this.startScene = startScene;
+
+
     for (const sceneKey in this.routes) {
       const sceneOrRoute = this.routes[sceneKey];
       this.add(sceneKey, sceneOrRoute);
     }
 
-    if (options.startTransition) {
-      // this.goto(this.startScene, { destinationIn: options.startTransition });
+    if (maybeStartTransition) {
       this.swapScene(this.startScene);
-      // Why is this not initializing
-      // Why is this hack needed?!?!?! 
-      this.mainLoader.on('afterload', () => {
-        setTimeout(() => {
-          this.playTransition(options.startTransition);
-        });
-      });
+      this.playTransition(maybeStartTransition);
     } else {
       this.swapScene(this.startScene);
     }
@@ -255,7 +263,7 @@ export class Router {
   async playTransition(transition: Transition) {
     if (transition) {
       this.currentTransition = transition;
-      this._engine.currentScene.add(this.currentTransition);
+      this._engine.add(this.currentTransition);
       await this.currentTransition.done;
     }
     this.currentTransition?.kill();

@@ -195,8 +195,8 @@ export class GameEvent<T, U = T> {
 /**
  * The 'kill' event is emitted on actors when it is killed. The target is the actor that was killed.
  */
-export class KillEvent extends GameEvent<Actor> {
-  constructor(public target: Actor) {
+export class KillEvent extends GameEvent<Entity> {
+  constructor(public target: Entity) {
     super();
   }
 }

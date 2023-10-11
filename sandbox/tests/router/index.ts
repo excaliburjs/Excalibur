@@ -65,10 +65,16 @@ boot.addResource(sword);
 game.input.pointers.primary.on('down', () => {
   game.router.goto('scene1');
 });
-
+var startTransition = new ex.FadeInOut({duration: 500, direction: 'down', color: ex.Color.ExcaliburBlue});
+// startTransition.events.on('kill', () => {
+//   console.log(game.currentScene.entities);
+//   console.log('killed!');
+// })
 game.start({
-  start: 'scene1', // TODO Refactor this
-  startTransition: new ex.FadeInOut({duration: 500, direction: 'down', color: ex.Color.ExcaliburBlue}),
+  start: {
+    name: 'scene1',
+    in: startTransition
+  },
   loader: boot,
   routes: {
     scene1: {
