@@ -12,8 +12,7 @@ export class FadeInOut extends Transition {
   constructor(options: FadeOptions & TransitionOptions) {
     super({
       ...options,
-      duration: options.duration ?? 2000,
-      direction: options.direction ?? 'up'
+      duration: options.duration ?? 2000
     });
     this.name = `FadeInOut#${this.id}`;
     this.color = options.color ?? Color.Black;

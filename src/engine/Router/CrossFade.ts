@@ -6,11 +6,15 @@ export interface CrossFadeOptions {
   duration: number;
 }
 
+/**
+ * CrossFades between the previous scene and the destination scene
+ *
+ * Note: CrossFade only works as an "in" transition
+ */
 export class CrossFade extends Transition {
   engine: Engine;
   image: HTMLImageElement;
   screenCover: Sprite;
-  // TODO how do I keep track of the previous scene screen shot
   constructor(options: TransitionOptions & CrossFadeOptions) {
     super(options);
     this.name = `CrossFade#${this.id}`;
