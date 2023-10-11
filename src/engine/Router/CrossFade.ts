@@ -1,5 +1,5 @@
-import { Engine, ImageSource, Scene, Sprite } from "..";
-import { Transition, TransitionOptions } from "./Transition";
+import { Engine, ImageSource, Scene, Sprite } from '..';
+import { Transition, TransitionOptions } from './Transition';
 import { vec } from '../Math/vector';
 
 export interface CrossFadeOptions {

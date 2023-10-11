@@ -1346,7 +1346,7 @@ O|===|* >________________>\n\
   /**
    * Starts the internal game loop for Excalibur after configuring any routes, loaders, or transitions
    * @param router Optional [[RouterOptions]] to configure the routes for scenes in Excalibur
-   * 
+   *
    * Note: start() only resolves AFTER the user has clicked the play button
    */
   public async start(router?: RouterOptions): Promise<void>;

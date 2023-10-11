@@ -23,7 +23,7 @@ export type RouterEvents = {
 export const RouterEvents = {
   NavigationStart: 'navigationstart',
   Navigation: 'navigation',
-  NavigationEnd: 'navigationend',
+  NavigationEnd: 'navigationend'
 };
 
 export interface Route {
@@ -140,7 +140,7 @@ export class Router {
 
   /**
    * Gets whether the router currently transitioning between scenes
-   * 
+   *
    * Useful if you need to block behavior during transition
    */
   public get isTransitioning() {
@@ -188,7 +188,7 @@ export class Router {
     if (typeof options.start === 'string') {
       startScene = options.start;
     } else {
-      let { name, in: inTransition } = options.start;
+      const { name, in: inTransition } = options.start;
       startScene = name;
       maybeStartTransition = inTransition;
     }
@@ -288,8 +288,8 @@ export class Router {
 
   /**
    * Go to a specific scene, and optionally override loaders and transitions
-   * @param destinationScene 
-   * @param options 
+   * @param destinationScene
+   * @param options
    */
   async goto(destinationScene: string, options?: GoToOptions) {
     if (destinationScene === this.currentSceneName) {
@@ -345,8 +345,8 @@ export class Router {
 
   /**
    * Triggers scene loading if has not already been loaded
-   * @param scene 
-   * @param hideLoader 
+   * @param scene
+   * @param hideLoader
    */
   async maybeLoadScene(scene: string, hideLoader = false) {
     const loader = this._getLoader(scene) ?? new Loader();
@@ -366,7 +366,7 @@ export class Router {
 
   /**
    * Plays a transition in the current scene
-   * @param transition 
+   * @param transition
    */
   async playTransition(transition: Transition) {
     if (transition) {
@@ -381,9 +381,8 @@ export class Router {
 
   /**
    * Swaps the current and destination scene after performing required lifecycle events
-   * @param destinationScene 
-   * @param data 
-   * @returns 
+   * @param destinationScene
+   * @param data
    */
   async swapScene<TData = undefined>(destinationScene: string, data?: TData): Promise<void> {
     const engine = this._engine;
@@ -437,7 +436,7 @@ export class Router {
 
   /**
    * Updates internal transitions
-   * @param _elapsedMilliseconds 
+   * @param _elapsedMilliseconds
    */
   update(_elapsedMilliseconds: number) {
     if (this.currentTransition) {

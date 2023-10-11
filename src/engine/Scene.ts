@@ -36,7 +36,7 @@ import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { BaseLoader } from './Router/BaseLoader';
 
 export class PreLoadEvent {
-  loader: BaseLoader
+  loader: BaseLoader;
 }
 
 export type SceneEvents = {
@@ -185,7 +185,7 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
    * Event hook to provide Scenes a way of loading scene specific resources.
    *
    * This is called before the Scene.onInitialize during scene transition.
-   * @param _loader 
+   * @param _loader
    */
   public onPreLoad(_loader: BaseLoader) {
     // will be overridden
