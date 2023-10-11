@@ -65,7 +65,7 @@ boot.addResource(sword);
 game.input.pointers.primary.on('down', () => {
   game.router.goto('scene1');
 });
-var startTransition = new ex.FadeInOut({duration: 500, direction: 'down', color: ex.Color.ExcaliburBlue});
+var startTransition = new ex.FadeInOut({duration: 500, direction: 'in', color: ex.Color.ExcaliburBlue});
 // startTransition.events.on('kill', () => {
 //   console.log(game.currentScene.entities);
 //   console.log('killed!');
@@ -79,15 +79,13 @@ game.start({
   routes: {
     scene1: {
       scene: scene1,
-      //out: new ex.FadeInOut({duration: 1000, direction: 'up', color: ex.Color.Black}),
-      in: new ex.FadeInOut({duration: 1000, direction: 'down'})
+      in: new ex.FadeInOut({duration: 1000, direction: 'in'})
     },
     scene2: {
       scene: scene2,
       loader: new ex.BaseLoader(),
-      out: new ex.FadeInOut({duration: 1000, direction: 'up'}),
-      in: new ex.CrossFade({duration: 500, direction: 'down', hideLoader: true})
-      //in: new ex.FadeInOut({duration: 1000, direction: 'down', color: ex.Color.Black })
+      out: new ex.FadeInOut({duration: 1000, direction: 'out'}),
+      in: new ex.CrossFade({duration: 500, direction: 'in', hideLoader: true})
     }
   }
 });
