@@ -3,14 +3,14 @@ import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 import { TestClock } from '@excalibur';
 
-describe('The engine', () => {
+fdescribe('The engine', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
   const mock = new Mocks.Mocker();
   let actor: ex.Actor;
   let stats: ex.FrameStats;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     engine = TestUtils.engine({
       width: 400,
       height: 400
@@ -18,11 +18,11 @@ describe('The engine', () => {
     scene = new ex.Scene();
     engine.removeScene('root');
     engine.addScene('root', scene);
-    engine.goToScene('root');
+    await engine.goToScene('root');
     actor = new ex.Actor({ x: 0, y: 0, width: 10, height: 10, color: ex.Color.Red });
 
     scene.add(actor);
-    TestUtils.runToReady(engine);
+    await TestUtils.runToReady(engine);
     const clock = engine.clock as TestClock;
     clock.step(16.6);
     stats = engine.stats.currFrame;

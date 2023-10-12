@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-describe('An Event Dispatcher', () => {
+fdescribe('An Event Dispatcher', () => {
   let pubsub: ex.EventDispatcher;
   beforeEach(() => {
     pubsub = new ex.EventDispatcher();

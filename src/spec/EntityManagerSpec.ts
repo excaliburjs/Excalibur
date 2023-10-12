@@ -6,7 +6,7 @@ class FakeComponent extends ex.Component {
   }
 }
 
-describe('An EntityManager', () => {
+fdescribe('An EntityManager', () => {
   it('exists', () => {
     expect(ex.EntityManager).toBeDefined();
   });

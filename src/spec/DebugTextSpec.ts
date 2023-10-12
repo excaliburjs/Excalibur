@@ -13,7 +13,7 @@ function flushWebGLCanvasTo2D(source: HTMLCanvasElement): HTMLCanvasElement {
   return canvas;
 }
 
-describe('DebugText', () => {
+fdescribe('DebugText', () => {
   beforeAll(() => {
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });

@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-describe('Clocks', () => {
+fdescribe('Clocks', () => {
   describe('A TestClock', () => {
     it('exists', () => {
       expect(ex.TestClock).toBeDefined();

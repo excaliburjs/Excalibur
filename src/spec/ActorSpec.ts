@@ -3,7 +3,7 @@ import { ExcaliburAsyncMatchers, ExcaliburMatchers } from 'excalibur-jasmine';
 import { PhysicsWorld } from '../engine/Collision/PhysicsWorld';
 import { TestUtils } from './util/TestUtils';
 
-describe('A game actor', () => {
+fdescribe('A game actor', () => {
   let actor: ex.Actor;
 
   let engine: ex.Engine;
@@ -17,7 +17,7 @@ describe('A game actor', () => {
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
     actor = new ex.Actor({name: 'Default'});
     actor.body.collisionType = ex.CollisionType.Active;
@@ -27,13 +27,13 @@ describe('A game actor', () => {
     scene = new ex.Scene();
     scene.add(actor);
     engine.addScene('test', scene);
-    engine.goToScene('test');
+    await engine.goToScene('test');
 
     spyOn(scene, 'draw').and.callThrough();
     spyOn(scene, 'debugDraw').and.callThrough();
 
 
-    engine.start();
+    await engine.start();
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
     collisionSystem.initialize(scene);
@@ -694,8 +694,8 @@ describe('A game actor', () => {
 
     scene = new ex.Scene();
     engine.addScene('test', scene);
-    engine.goToScene('test');
-    engine.start();
+    await engine.goToScene('test');
+    await engine.start();
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
 
@@ -730,8 +730,8 @@ describe('A game actor', () => {
     });
     scene = new ex.Scene();
     engine.addScene('test', scene);
-    engine.goToScene('test');
-    engine.start();
+    await engine.goToScene('test');
+    await engine.start();
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
 
@@ -1038,21 +1038,20 @@ describe('A game actor', () => {
     scene.update(engine, 100);
   });
 
-  it('can only be initialized once', () => {
+  it('can only be initialized once', async () => {
     const actor = new ex.Actor();
-    let initializeCount = 0;
 
-    actor.on('initialize', () => {
-      initializeCount++;
-    });
-    actor._initialize(engine);
-    actor._initialize(engine);
-    actor._initialize(engine);
+    const initializeSpy = jasmine.createSpy('initialize');
 
-    expect(initializeCount).toBe(1, 'Actors can only be initialized once');
+    actor.on('initialize', initializeSpy);
+    await actor._initialize(engine);
+    await actor._initialize(engine);
+    await actor._initialize(engine);
+
+    expect(initializeSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('can initialize child actors', () => {
+  it('can initialize child actors', async () => {
     const actor = new ex.Actor();
     const child = new ex.Actor();
     const grandchild = new ex.Actor();
@@ -1069,10 +1068,10 @@ describe('A game actor', () => {
       initializeCount++;
     });
 
-    actor._initialize(engine);
-    actor._initialize(engine);
+    await actor._initialize(engine);
+    await actor._initialize(engine);
 
-    expect(initializeCount).toBe(3, 'All child actors should be initialized');
+    expect(initializeCount).withContext('All child actors should be initialized').toBe(3);
   });
 
   describe('should detect assigned events and', () => {

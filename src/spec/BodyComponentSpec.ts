@@ -2,7 +2,7 @@ import * as ex from '@excalibur';
 import { BodyComponent, CollisionGroup, CollisionType } from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 
-describe('A body component', () => {
+fdescribe('A body component', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });

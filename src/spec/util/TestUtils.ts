@@ -43,7 +43,7 @@ export namespace TestUtils {
    */
   export async function runToReady(engine: ex.Engine, loader?: ex.BaseLoader) {
     const clock = engine.clock as ex.TestClock;
-    const start = engine.start(loader);
+    const start = await engine.start(loader);
     // If loader
     if (loader) {
       await loader.areResourcesLoaded();

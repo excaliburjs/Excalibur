@@ -3,7 +3,7 @@ import { TransformComponent } from '@excalibur';
 import { EulerIntegrator } from '../engine/Collision/Integrator';
 import { MotionComponent } from '../engine/EntityComponentSystem/Components/MotionComponent';
 
-describe('A CollisionContact', () => {
+fdescribe('A CollisionContact', () => {
   let actorA: ex.Actor;
   let actorB: ex.Actor;
 

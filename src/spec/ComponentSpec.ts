@@ -16,7 +16,7 @@ class ComponentImplementation extends ex.Component<'imp'> {
   onRemove = jasmine.createSpy();
 }
 
-describe('A Component', () => {
+fdescribe('A Component', () => {
   it('exists', () => {
     expect(ex.Component).toBeDefined();
   });

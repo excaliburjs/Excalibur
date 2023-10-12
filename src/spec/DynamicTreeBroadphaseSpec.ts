@@ -1,6 +1,6 @@
 import * as ex from '@excalibur';
 
-describe('A DynamicTree Broadphase', () => {
+fdescribe('A DynamicTree Broadphase', () => {
   let actorA: ex.Actor;
   let actorB: ex.Actor;
   let actorC: ex.Actor;

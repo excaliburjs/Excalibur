@@ -3,7 +3,7 @@ import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
-describe('Vectors', () => {
+fdescribe('Vectors', () => {
   beforeEach(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });

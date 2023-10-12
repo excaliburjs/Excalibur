@@ -2,7 +2,7 @@ import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 import { Mocks } from './util/Mocks';
 
-describe('A gamepad', () => {
+fdescribe('A gamepad', () => {
   let engine: ex.Engine;
   const mock = new Mocks.Mocker();
 

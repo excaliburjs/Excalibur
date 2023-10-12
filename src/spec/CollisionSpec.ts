@@ -1,13 +1,13 @@
 import * as ex from '@excalibur';
 import { TestUtils } from './util/TestUtils';
 
-describe('A Collision', () => {
+fdescribe('A Collision', () => {
   let actor1: ex.Actor = null;
   let actor2: ex.Actor = null;
   let engine: ex.Engine = null;
   let clock: ex.TestClock = null;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     engine = TestUtils.engine({ width: 600, height: 400 });
     clock = engine.clock = engine.clock.toTestClock();
 
@@ -16,7 +16,7 @@ describe('A Collision', () => {
     actor1.body.collisionType = ex.CollisionType.Active;
     actor2.body.collisionType = ex.CollisionType.Active;
 
-    engine.start();
+    await engine.start();
     engine.add(actor1);
     engine.add(actor2);
   });

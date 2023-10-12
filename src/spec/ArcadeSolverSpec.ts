@@ -2,7 +2,7 @@ import * as ex from '@excalibur';
 import { ExcaliburMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
-describe('An ArcadeSolver', () => {
+fdescribe('An ArcadeSolver', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
   });

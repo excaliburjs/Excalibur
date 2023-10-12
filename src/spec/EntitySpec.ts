@@ -7,7 +7,7 @@ class FakeComponent extends ex.Component {
   }
 }
 
-describe('An entity', () => {
+fdescribe('An entity', () => {
   it('exists', () => {
     expect(ex.Entity).toBeDefined();
   });

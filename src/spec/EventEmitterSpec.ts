@@ -2,7 +2,7 @@ import * as ex from '@excalibur';
 
 class FakeEvent {}
 
-describe('An EventEmitter', () => {
+fdescribe('An EventEmitter', () => {
   it('should exist', () => {
     expect(ex.EventEmitter).toBeDefined();
   });

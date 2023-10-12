@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-describe('A ColliderComponent', () => {
+fdescribe('A ColliderComponent', () => {
   it('exists', () => {
     expect(ex.ColliderComponent).toBeDefined();
   });

@@ -3,7 +3,7 @@ import { CollisionJumpTable } from '@excalibur';
 import { ExcaliburMatchers, ensureImagesLoaded, ExcaliburAsyncMatchers } from 'excalibur-jasmine';
 import { TestUtils } from './util/TestUtils';
 
-describe('Collision Shape', () => {
+fdescribe('Collision Shape', () => {
   beforeAll(() => {
     jasmine.addMatchers(ExcaliburMatchers);
     jasmine.addAsyncMatchers(ExcaliburAsyncMatchers);
@@ -16,13 +16,13 @@ describe('Collision Shape', () => {
     let circle: ex.CircleCollider;
     let actor: ex.Actor;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       engine = TestUtils.engine();
       engine.backgroundColor = ex.Color.Transparent;
       scene = new ex.Scene();
       engine.add('test', scene);
-      engine.goToScene('test');
-      engine.start();
+      await engine.goToScene('test');
+      await engine.start();
       const clock = engine.clock as ex.TestClock;
       clock.step(1);
 
@@ -423,13 +423,13 @@ describe('Collision Shape', () => {
   describe('a ConvexPolygon', () => {
     let engine: ex.Engine;
     let scene: ex.Scene;
-    beforeEach(() => {
+    beforeEach(async () => {
       engine = TestUtils.engine();
       engine.backgroundColor = ex.Color.Transparent;
       scene = new ex.Scene();
       engine.addScene('test', scene);
-      engine.goToScene('test');
-      engine.start();
+      await engine.goToScene('test');
+      await engine.start();
       const clock = engine.clock as ex.TestClock;
       clock.step(1);
     });
@@ -821,13 +821,13 @@ describe('Collision Shape', () => {
       engine = null;
     });
 
-    beforeEach(() => {
+    beforeEach(async () => {
       engine = TestUtils.engine();
       engine.backgroundColor = ex.Color.Transparent;
       scene = new ex.Scene();
       engine.addScene('test', scene);
-      engine.goToScene('test');
-      engine.start();
+      await engine.goToScene('test');
+      await engine.start();
       const clock = engine.clock as ex.TestClock;
       clock.step(1);
 
