@@ -83,6 +83,10 @@ export class BaseLoader implements Loadable<Loadable<any>[]> {
     }
   }
 
+  public markResourceComplete(): void {
+    this._numLoaded++;
+  }
+
   /**
    * Returns the progress of the loader as a number between [0, 1] inclusive.
    */
