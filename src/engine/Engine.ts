@@ -1,4 +1,5 @@
-import { EX_VERSION, obsolete } from './';
+import { EX_VERSION } from './';
+import { obsolete } from './Util/Decorators';
 import { Future } from './Util/Future';
 import { EventEmitter, EventKey, Handler, Subscription } from './EventEmitter';
 import { Gamepads } from './Input/Gamepad';
