@@ -256,9 +256,9 @@ implements CanInitialize, CanActivate<TActivationData>, CanDeactivate, CanUpdate
   /**
    * Initializes actors in the scene
    */
-  private async _initializeChildren() {
+  private _initializeChildren() {
     for (const child of this.entities) {
-      await child._initialize(this.engine);
+      child._initialize(this.engine);
     }
   }
 

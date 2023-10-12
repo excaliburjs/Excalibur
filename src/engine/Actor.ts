@@ -619,10 +619,10 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    * @internal
    */
-  public async _initialize(engine: Engine) {
-    await super._initialize(engine);
+  public _initialize(engine: Engine) {
+    super._initialize(engine);
     for (const child of this.children) {
-      await child._initialize(engine);
+      child._initialize(engine);
     }
   }
 

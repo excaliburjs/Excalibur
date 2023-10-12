@@ -480,9 +480,9 @@ export class Entity implements OnInitialize, OnPreUpdate, OnPostUpdate {
    * It is not recommended that internal excalibur methods be overridden, do so at your own risk.
    * @internal
    */
-  public async _initialize(engine: Engine) {
+  public _initialize(engine: Engine) {
     if (!this.isInitialized) {
-      await this.onInitialize(engine);
+      this.onInitialize(engine);
       this.events.emit('initialize', new InitializeEvent(engine, this));
       this._isInitialized = true;
     }
